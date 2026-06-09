@@ -66,3 +66,10 @@
         ((equal? msg 'full?)       (>= current max))
         ((equal? msg 'render-data) (list 'clock label current max))
         (else #f)))))
+
+(define (filter pred lst)
+  (if (null? lst)
+      '()
+      (if (pred (car lst))
+          (cons (car lst) (filter pred (cdr lst)))
+          (filter pred (cdr lst)))))

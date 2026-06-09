@@ -52,58 +52,78 @@ namespace SSNoir.Core
         {
             Debug.Assert(_interpreter != null, "Interpreter must not be null when refreshing scene");
             
-            var rawWorld = _interpreter!.Eval("(get-world)");
-            CurrentWorldNodes = NodeConverter.ConvertList(rawWorld, _interpreter.RawInterpreter);
+            var rawData = _interpreter!.Eval("(get-render-data)");
+            var clocks = new List<GameClock>();
+            var nodes = new List<GameNode>();
 
-            object val;
-            bool hasGetClocks = _interpreter.RawInterpreter.Environment.TryGetValue(Schemy.Symbol.FromString("get-clocks"), out val);
-            if (hasGetClocks)
+            if (rawData is List<object> list)
             {
-                var rawClocks = _interpreter.Eval("(get-clocks)");
-                CurrentClocks = ConvertClocks(rawClocks);
+                foreach (var item in list)
+                {
+                    if (item is List<object> expr && expr.Count > 0 && expr[0] is Schemy.Symbol tag)
+                    {
+                        if (tag.AsString == "clock")
+                        {
+                            var parsedClock = ParseClock(expr);
+                            if (parsedClock != null)
+                            {
+                                clocks.Add(parsedClock);
+                            }
+                        }
+                        else if (tag.AsString == "node")
+                        {
+                            var parsedNode = NodeConverter.ConvertSingle(expr, _interpreter.RawInterpreter);
+                            nodes.Add(parsedNode);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException($"Unknown tag '{tag.AsString}' in render-data item: {expr}");
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Invalid render-data item: {item}");
+                    }
+                }
             }
             else
             {
-                CurrentClocks = new List<GameClock>();
+                throw new InvalidOperationException($"get-render-data must return a list of items, got {rawData?.GetType().FullName ?? "null"}");
             }
+
+            CurrentWorldNodes = nodes;
+            CurrentClocks = clocks;
             
             OnWorldRefreshed?.Invoke();
         }
 
-        private List<GameClock> ConvertClocks(object rawClocks)
+        private GameClock? ParseClock(List<object> clockExpr)
         {
-            var clocks = new List<GameClock>();
-            if (rawClocks is List<object> list)
+            if (clockExpr.Count >= 4)
             {
-                foreach (var item in list)
+                if (clockExpr[0] is Schemy.Symbol sym && sym.AsString == "clock")
                 {
-                    if (item is List<object> clockExpr && clockExpr.Count >= 4)
+                    var label = clockExpr[1] as string ?? "Unknown";
+                    
+                    int current = 0;
+                    if (clockExpr[2] is double d1) current = (int)d1;
+                    else if (clockExpr[2] is long l1) current = (int)l1;
+                    else if (clockExpr[2] is int i1) current = i1;
+
+                    int max = 1;
+                    if (clockExpr[3] is double d2) max = (int)d2;
+                    else if (clockExpr[3] is long l2) max = (int)l2;
+                    else if (clockExpr[3] is int i2) max = i2;
+
+                    return new GameClock
                     {
-                        if (clockExpr[0] is Schemy.Symbol sym && sym.AsString == "clock")
-                        {
-                            var label = clockExpr[1] as string ?? "Unknown";
-                            
-                            int current = 0;
-                            if (clockExpr[2] is double d1) current = (int)d1;
-                            else if (clockExpr[2] is long l1) current = (int)l1;
-                            else if (clockExpr[2] is int i1) current = i1;
-
-                            int max = 1;
-                            if (clockExpr[3] is double d2) max = (int)d2;
-                            else if (clockExpr[3] is long l2) max = (int)l2;
-                            else if (clockExpr[3] is int i2) max = i2;
-
-                            clocks.Add(new GameClock
-                            {
-                                Label = label,
-                                Current = current,
-                                Max = max
-                            });
-                        }
-                    }
+                        Label = label,
+                        Current = current,
+                        Max = max
+                    };
                 }
             }
-            return clocks;
+            return null;
         }
 
         public void ExecuteEffect(GameNode node)

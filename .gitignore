@@ -1,0 +1,20 @@
+# .NET / C# Build Artifacts
+bin/
+obj/
+
+# User discussions and plans
+# talk.txt
+# plan.md
+
+# IDEs and Editors
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS temporary files
+.DS_Store
+Thumbs.db

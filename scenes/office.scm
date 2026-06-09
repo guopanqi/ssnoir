@@ -3,10 +3,6 @@
 ;; ── Local State ────────────────────────────────
 (define work-clock (make-clock "工作进度" 3))
 
-;; ── Clocks ─────────────────────────────────────
-(define (get-clocks)
-  (list (work-clock 'render-data)))
-
 ;; ── Rules ──────────────────────────────────────
 (define-rule "工资发放"
   (lambda () (work-clock 'full?))
@@ -25,9 +21,10 @@
     :effect (lambda ()
               (set-global! 'location "home"))))
 
-;; ── World Entrypoint ──────────────────────────
-(define (get-world)
+;; ── Render Data Entrypoint ────────────────────
+(define (get-render-data)
   (list
+    (work-clock 'render-data)
     (node "办公室"
       :children
       (list

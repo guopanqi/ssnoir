@@ -34,6 +34,34 @@ namespace SSNoir.Scripting
                 gameState.Set(sym.AsString, val);
                  return new None();
             }, "set-global!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("string-append"), new NativeProcedure(args =>
+            {
+                return string.Concat(args);
+            }, "string-append"));
+
+            interpreter.DefineGlobal(Symbol.FromString("number->string"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1)
+                    throw new ArgumentException("number->string requires 1 argument");
+                return args[0]?.ToString() ?? "";
+            }, "number->string"));
+
+            var rand = new Random();
+            interpreter.DefineGlobal(Symbol.FromString("random-choice"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1)
+                    throw new ArgumentException("random-choice requires 1 argument: a list of options");
+
+                if (args[0] is List<object> list)
+                {
+                    if (list.Count == 0)
+                        return null;
+                    return list[rand.Next(list.Count)];
+                }
+
+                throw new ArgumentException("random-choice argument must be a list");
+            }, "random-choice"));
         }
     }
 }
