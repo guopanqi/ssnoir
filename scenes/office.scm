@@ -1,26 +1,24 @@
 ;; scenes/office.scm - Office Scene
 
 ;; ── Local State ────────────────────────────────
-(define working-count 0)
-(define tired? #f)
+(define work-clock (make-clock "工作进度" 3))
+
+;; ── Clocks ─────────────────────────────────────
+(define (get-clocks)
+  (list (work-clock 'render-data)))
 
 ;; ── Rules ──────────────────────────────────────
-(define-rule "工作三次变累"
-  (lambda () (>= working-count 3))
-  (lambda () (set! tired? #t)))
+(define-rule "工资发放"
+  (lambda () (work-clock 'full?))
+  (lambda ()
+    (set-global! 'money (+ (get-global 'money) 50))
+    (work-clock 'reset!)))
 
 ;; ── Node Definitions ──────────────────────────
 (define (node-work)
   (node "写代码"
-    :effect (lambda () 
-              (set! working-count (+ working-count 1))
-              (set-global! 'money (+ (get-global 'money) 10)))))
-
-(define (node-rest)
-  (node "休息"
-    :effect (lambda () 
-              (set! working-count 0)
-              (set! tired? #f))))
+    :effect (lambda ()
+              (work-clock 'tick!))))
 
 (define (node-go-home)
   (node "回家"
@@ -32,8 +30,6 @@
   (list
     (node "办公室"
       :children
-      (append
-        (if tired?
-            (list (node-rest))
-            (list (node-work)))
-        (list (node-go-home))))))
+      (list
+        (node-work)
+        (node-go-home)))))

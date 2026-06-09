@@ -21,3 +21,7 @@
 /Users/usr/Documents/play/ssnoir/obj/Debug/net9.0/ssnoir.pdb
 /Users/usr/Documents/play/ssnoir/obj/Debug/net9.0/ssnoir.genruntimeconfig.cache
 /Users/usr/Documents/play/ssnoir/obj/Debug/net9.0/ref/ssnoir.dll
+/Users/usr/Documents/play/ssnoir/bin/Debug/net9.0/assets/fonts/ArialUnicode.ttf
+/Users/usr/Documents/play/ssnoir/bin/Debug/net9.0/scenes/home.scm
+/Users/usr/Documents/play/ssnoir/bin/Debug/net9.0/scenes/office.scm
+/Users/usr/Documents/play/ssnoir/bin/Debug/net9.0/scripts/stdlib.scm

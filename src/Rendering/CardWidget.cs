@@ -18,17 +18,17 @@ namespace SSNoir.Rendering
 
             // Draw Title text (centered)
             int titleFontSize = 20;
-            int titleWidth = Raylib.MeasureText(name, titleFontSize);
+            int titleWidth = FontManager.MeasureTextWidth(name, titleFontSize);
             float titleX = bounds.X + (bounds.Width - titleWidth) / 2f;
             float titleY = bounds.Y + (bounds.Height / 2f) - 15;
-            Raylib.DrawText(name, (int)titleX, (int)titleY, titleFontSize, titleColor);
+            FontManager.DrawText(name, titleX, titleY, titleFontSize, titleColor);
 
             // Draw Type text (bottom-center)
-            int typeFontSize = 12;
-            int typeWidth = Raylib.MeasureText(typeLabel, typeFontSize);
+            int typeFontSize = 15;
+            int typeWidth = FontManager.MeasureTextWidth(typeLabel, typeFontSize);
             float typeX = bounds.X + (bounds.Width - typeWidth) / 2f;
             float typeY = bounds.Y + bounds.Height - 22;
-            Raylib.DrawText(typeLabel, (int)typeX, (int)typeY, typeFontSize, typeColor);
+            FontManager.DrawText(typeLabel, typeX, typeY, typeFontSize, typeColor);
 
             // Return if clicked
             return isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left);

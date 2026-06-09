@@ -8,7 +8,7 @@ namespace SSNoir.Core
     {
         private readonly Dictionary<string, object> _states = new Dictionary<string, object>();
 
-        public event Action OnStateChanged;
+        public event Action? OnStateChanged;
 
         public GameState()
         {
@@ -18,7 +18,7 @@ namespace SSNoir.Core
             Set("location", "home");
         }
 
-        public T Get<T>(string key, T defaultValue = default)
+        public T Get<T>(string key, T defaultValue = default!)
         {
             if (!_states.TryGetValue(key, out var val))
             {

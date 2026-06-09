@@ -32,61 +32,8 @@ namespace SSNoir.Scripting
 
                 var val = args[1];
                 gameState.Set(sym.AsString, val);
-                return new None();
+                 return new None();
             }, "set-global!"));
-
-            interpreter.DefineGlobal(Symbol.FromString("node"), new NativeProcedure(args =>
-            {
-                if (args.Count < 1)
-                    throw new ArgumentException("node requires at least 1 argument: name string");
-
-                var name = args[0] as string;
-                if (name == null)
-                    throw new ArgumentException($"node name must be a string, got {args[0]?.GetType().FullName}");
-
-                var children = new List<GameNode>();
-                Action effect = null;
-
-                for (var i = 1; i < args.Count; i += 2)
-                {
-                    if (i + 1 >= args.Count)
-                        throw new ArgumentException($"node '{name}' has a keyword without a value");
-
-                    var key = args[i] as Symbol;
-                    if (key == null)
-                        throw new ArgumentException($"node '{name}' argument {i} must be a keyword symbol");
-
-                    var value = args[i + 1];
-                    switch (key.AsString)
-                    {
-                        case ":children":
-                            children = NodeConverter.ConvertList(value, interpreter);
-                            break;
-                        case ":effect":
-                            if (value is bool b && b == false)
-                            {
-                                break;
-                            }
-
-                            if (value is Procedure proc)
-                            {
-                                effect = () => proc.Call(new List<object>());
-                                break;
-                            }
-
-                            throw new ArgumentException($"node '{name}' :effect must be a procedure or #f");
-                        default:
-                            throw new ArgumentException($"node '{name}' has unknown keyword '{key.AsString}'");
-                    }
-                }
-
-                return new GameNode
-                {
-                    Name = name,
-                    Children = children,
-                    Effect = effect
-                };
-            }, "node"));
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Schemy;
 using SSNoir.Core;
 
@@ -26,50 +25,58 @@ namespace SSNoir.Scripting
 
         public static GameNode ConvertSingle(object item, Interpreter interpreter)
         {
-            if (item is GameNode gameNode)
+            if (!(item is List<object> nodeExpr))
             {
-                return gameNode;
+                throw new InvalidOperationException($"Invalid node expression (must be a list): {item?.GetType().FullName ?? "null"}");
             }
 
-            if (item is List<object> nodeExpr)
+            if (nodeExpr.Count != 4)
             {
-                // Check if it's a node list structure: ('node name children effect)
-                if (nodeExpr.Count >= 4 && nodeExpr[0] is Symbol sym && sym.AsString == "node")
+                throw new InvalidOperationException($"Invalid node expression length (expected 4, got {nodeExpr.Count})");
+            }
+
+            if (!(nodeExpr[0] is Symbol sym && sym.AsString == "node"))
+            {
+                throw new InvalidOperationException($"Invalid node expression header (expected symbol 'node, got '{nodeExpr[0]}')");
+            }
+
+            if (!(nodeExpr[1] is string name))
+            {
+                throw new InvalidOperationException($"Invalid node name (expected string, got {nodeExpr[1]?.GetType().FullName ?? "null"})");
+            }
+
+            var childrenExpr = nodeExpr[2];
+            if (!(childrenExpr is List<object>))
+            {
+                throw new InvalidOperationException($"Invalid node children (expected list, got {childrenExpr?.GetType().FullName ?? "null"})");
+            }
+
+            var effectExpr = nodeExpr[3];
+            Action? effect = null;
+            if (effectExpr is Procedure proc)
+            {
+                effect = () =>
                 {
-                    var name = nodeExpr[1] as string;
-                    var childrenExpr = nodeExpr[2];
-                    var effectExpr = nodeExpr[3];
-
-                    Debug.Assert(name != null, "GameNode name must be a string");
-
-                    var children = ConvertList(childrenExpr, interpreter);
-
-                    Action effect = null;
-                    if (effectExpr != null && !(effectExpr is bool b && b == false))
-                    {
-                        if (effectExpr is Procedure proc)
-                        {
-                            effect = () =>
-                            {
-                                proc.Call(new List<object>());
-                            };
-                        }
-                        else
-                        {
-                            Debug.Fail($"Effect for node '{name}' is not a Procedure (actual: {effectExpr.GetType().FullName})");
-                        }
-                    }
-
-                    return new GameNode
-                    {
-                        Name = name,
-                        Children = children,
-                        Effect = effect
-                    };
-                }
+                    proc.Call(new List<object>());
+                };
+            }
+            else if (effectExpr is bool b && b == false)
+            {
+                // false effect is valid, no action
+            }
+            else
+            {
+                throw new InvalidOperationException($"Invalid node effect (expected Procedure or false, got {effectExpr?.GetType().FullName ?? "null"})");
             }
 
-            throw new InvalidOperationException($"Invalid node expression: {item}");
+            var children = ConvertList(childrenExpr, interpreter);
+
+            return new GameNode
+            {
+                Name = name,
+                Children = children,
+                Effect = effect
+            };
         }
     }
 }

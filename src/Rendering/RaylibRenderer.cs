@@ -14,6 +14,9 @@ namespace SSNoir.Rendering
         private readonly List<GameNode> _navigationStack = new List<GameNode>();
         private List<GameNode> _visibleNodes = new List<GameNode>();
 
+        private bool _isDropdownOpen = false;
+        private readonly List<string> _availableScenes = new List<string>();
+
         private const int WindowWidth = 800;
         private const int WindowHeight = 600;
 
@@ -21,6 +24,8 @@ namespace SSNoir.Rendering
         {
             _sceneManager = sceneManager;
             _gameState = gameState;
+
+            LoadAvailableScenes();
 
             _sceneManager.OnSceneLoaded += () =>
             {
@@ -69,8 +74,12 @@ namespace SSNoir.Rendering
 
         public void Run()
         {
+            Raylib.SetConfigFlags(ConfigFlags.HighDpiWindow | ConfigFlags.Msaa4xHint);
             Raylib.InitWindow(WindowWidth, WindowHeight, "SSNoir Prototype");
             Raylib.SetTargetFPS(60);
+
+            // Load font with Chinese characters support
+            FontManager.LoadFont("assets/fonts/ArialUnicode.ttf", 48);
 
             _sceneManager.LoadScene(_gameState.Get<string>("location"));
 
@@ -79,12 +88,15 @@ namespace SSNoir.Rendering
                 UpdateAndDraw();
             }
 
+            FontManager.UnloadFont();
             Raylib.CloseWindow();
         }
 
         private void UpdateAndDraw()
         {
             var mousePos = Raylib.GetMousePosition();
+
+            UpdateDropdown(mousePos);
 
             Raylib.BeginDrawing();
             Raylib.ClearBackground(new Color(20, 20, 25, 255));
@@ -97,6 +109,9 @@ namespace SSNoir.Rendering
 
             // ── Draw Bottom Status Panel ──
             DrawStatusPanel();
+
+            // ── Draw Dropdown ──
+            DrawDropdown(mousePos);
 
             Raylib.EndDrawing();
         }
@@ -117,7 +132,7 @@ namespace SSNoir.Rendering
                 
                 Raylib.DrawRectangleRounded(returnRect, 0.2f, 4, btnColor);
                 Raylib.DrawRectangleRoundedLinesEx(returnRect, 0.2f, 4, 1.5f, new Color(80, 80, 100, 255));
-                Raylib.DrawText("< 返回", (int)(startX + 18), (int)(startY + 8), 16, textColor);
+                FontManager.DrawText("< 返回", startX + 18, startY + 8, 16, textColor);
 
                 if (isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left))
                 {
@@ -138,7 +153,7 @@ namespace SSNoir.Rendering
             {
                 breadcrumbText += string.Join(" > ", _navigationStack.ConvertAll(n => n.Name));
             }
-            Raylib.DrawText(breadcrumbText, (int)startX, (int)(startY + 8), 16, new Color(180, 180, 200, 255));
+            FontManager.DrawText(breadcrumbText, startX, startY + 8, 16, new Color(180, 180, 200, 255));
 
             // Draw horizontal divider line
             Raylib.DrawLineEx(new Vector2(40, 80), new Vector2(WindowWidth - 40, 80), 1.5f, new Color(50, 50, 60, 255));
@@ -202,16 +217,159 @@ namespace SSNoir.Rendering
             int spacing = 220;
 
             // Draw Money
-            Raylib.DrawText("钱金: ", startX, (int)(panelY + 25), 18, textColor);
-            Raylib.DrawText($"${money}", startX + 50, (int)(panelY + 25), 18, valueColor);
+            FontManager.DrawText("钱金: ", startX, panelY + 25, 18, textColor);
+            FontManager.DrawText($"${money}", startX + 50, panelY + 25, 18, valueColor);
 
             // Draw Health
-            Raylib.DrawText("健康: ", startX + spacing, (int)(panelY + 25), 18, textColor);
-            Raylib.DrawText($"{health}%", startX + spacing + 50, (int)(panelY + 25), 18, new Color(250, 100, 100, 255));
+            FontManager.DrawText("健康: ", startX + spacing, panelY + 25, 18, textColor);
+            FontManager.DrawText($"{health}%", startX + spacing + 50, panelY + 25, 18, new Color(250, 100, 100, 255));
 
             // Draw Location
-            Raylib.DrawText("场景: ", startX + spacing * 2, (int)(panelY + 25), 18, textColor);
-            Raylib.DrawText(location.ToUpper(), startX + spacing * 2 + 50, (int)(panelY + 25), 18, new Color(100, 220, 100, 255));
+            FontManager.DrawText("场景: ", startX + spacing * 2, panelY + 25, 18, textColor);
+            FontManager.DrawText(location.ToUpper(), startX + spacing * 2 + 50, panelY + 25, 18, new Color(100, 220, 100, 255));
+
+            // Draw Clocks
+            DrawClocks(615, panelY);
+        }
+
+        private void DrawClocks(float startX, float panelY)
+        {
+            var clocks = _sceneManager.CurrentClocks;
+            if (clocks == null || clocks.Count == 0) return;
+
+            float x = startX;
+            float y = panelY + 25;
+
+            Color textColor = new Color(200, 200, 220, 255);
+            Color activeColor = new Color(130, 130, 250, 255);
+            Color inactiveColor = new Color(45, 45, 55, 255);
+            Color outlineColor = new Color(70, 70, 90, 255);
+
+            foreach (var clock in clocks)
+            {
+                // Draw Label
+                FontManager.DrawText(clock.Label, x, y, 16, textColor);
+                
+                int labelWidth = FontManager.MeasureTextWidth(clock.Label, 16);
+                float segmentsX = x + labelWidth + 8;
+
+                // Draw segments
+                for (int i = 0; i < clock.Max; i++)
+                {
+                    var segRect = new Rectangle(segmentsX + i * 14, y + 2, 10, 10);
+                    if (i < clock.Current)
+                    {
+                        Raylib.DrawRectangleRounded(segRect, 0.3f, 4, activeColor);
+                    }
+                    else
+                    {
+                        Raylib.DrawRectangleRounded(segRect, 0.3f, 4, inactiveColor);
+                        Raylib.DrawRectangleRoundedLinesEx(segRect, 0.3f, 4, 1f, outlineColor);
+                    }
+                }
+
+                x += labelWidth + 8 + clock.Max * 14 + 16;
+            }
+        }
+
+        private void LoadAvailableScenes()
+        {
+            _availableScenes.Clear();
+            var scenesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scenes");
+            if (!Directory.Exists(scenesDir))
+            {
+                scenesDir = Path.GetFullPath("scenes");
+            }
+
+            if (Directory.Exists(scenesDir))
+            {
+                var files = Directory.GetFiles(scenesDir, "*.scm");
+                foreach (var file in files)
+                {
+                    _availableScenes.Add(Path.GetFileNameWithoutExtension(file));
+                }
+            }
+
+            if (_availableScenes.Count == 0)
+            {
+                _availableScenes.Add("home");
+                _availableScenes.Add("office");
+            }
+        }
+
+        private void UpdateDropdown(Vector2 mousePos)
+        {
+            var boxRect = new Rectangle(WindowWidth - 190, 30, 150, 32);
+            bool hoverBox = Raylib.CheckCollisionPointRec(mousePos, boxRect);
+            bool leftClick = Raylib.IsMouseButtonPressed(MouseButton.Left);
+
+            if (leftClick)
+            {
+                if (hoverBox)
+                {
+                    _isDropdownOpen = !_isDropdownOpen;
+                }
+                else if (_isDropdownOpen)
+                {
+                    for (int i = 0; i < _availableScenes.Count; i++)
+                    {
+                        var optRect = new Rectangle(boxRect.X, boxRect.Y + boxRect.Height + i * 32, boxRect.Width, 32);
+                        if (Raylib.CheckCollisionPointRec(mousePos, optRect))
+                        {
+                            var selectedScene = _availableScenes[i];
+                            _gameState.Set("location", selectedScene);
+                            break;
+                        }
+                    }
+                    _isDropdownOpen = false;
+                }
+            }
+        }
+
+        private void DrawDropdown(Vector2 mousePos)
+        {
+            var boxRect = new Rectangle(WindowWidth - 190, 30, 150, 32);
+            bool hoverBox = Raylib.CheckCollisionPointRec(mousePos, boxRect);
+
+            Color boxBgColor = hoverBox ? new Color(50, 50, 70, 255) : new Color(30, 30, 40, 255);
+            Color boxOutlineColor = _isDropdownOpen ? new Color(130, 130, 220, 255) : new Color(70, 70, 90, 255);
+            
+            Raylib.DrawRectangleRounded(boxRect, 0.2f, 4, boxBgColor);
+            Raylib.DrawRectangleRoundedLinesEx(boxRect, 0.2f, 4, 1.5f, boxOutlineColor);
+
+            string currentScene = _sceneManager.CurrentSceneName;
+            FontManager.DrawText(currentScene, boxRect.X + 12, boxRect.Y + 6, 15, Color.White);
+            FontManager.DrawText("v", boxRect.X + boxRect.Width - 22, boxRect.Y + 6, 14, new Color(150, 150, 170, 255));
+
+            if (_isDropdownOpen)
+            {
+                for (int i = 0; i < _availableScenes.Count; i++)
+                {
+                    var optRect = new Rectangle(boxRect.X, boxRect.Y + boxRect.Height + i * 32, boxRect.Width, 32);
+                    bool hoverOpt = Raylib.CheckCollisionPointRec(mousePos, optRect);
+
+                    Color optBgColor = hoverOpt ? new Color(70, 70, 95, 255) : new Color(25, 25, 35, 255);
+                    Color optTextColor = hoverOpt ? Color.White : new Color(180, 180, 200, 255);
+
+                    Raylib.DrawRectangleRec(optRect, optBgColor);
+                    if (_availableScenes[i] == currentScene)
+                    {
+                        Raylib.DrawRectangle((int)optRect.X, (int)optRect.Y, 4, (int)optRect.Height, new Color(100, 100, 250, 255));
+                    }
+                    
+                    FontManager.DrawText(_availableScenes[i], optRect.X + 12, optRect.Y + 6, 15, optTextColor);
+
+                    if (i < _availableScenes.Count - 1)
+                    {
+                        Raylib.DrawLineEx(new Vector2(optRect.X, optRect.Y + optRect.Height), 
+                                         new Vector2(optRect.X + optRect.Width, optRect.Y + optRect.Height), 
+                                         1f, new Color(45, 45, 55, 255));
+                    }
+                }
+
+                var listRect = new Rectangle(boxRect.X, boxRect.Y + boxRect.Height, boxRect.Width, _availableScenes.Count * 32);
+                Raylib.DrawRectangleLinesEx(listRect, 1.5f, boxOutlineColor);
+            }
         }
     }
 }
