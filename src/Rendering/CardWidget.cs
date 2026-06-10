@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Raylib_cs;
 using SSNoir.Core;
 
@@ -7,8 +8,32 @@ namespace SSNoir.Rendering
 {
     public static class CardWidget
     {
-        public static bool DrawCard(Rectangle bounds, string name, string typeLabel, bool isHovered, List<GameClock> clocks, bool isFlipped = false, string backText = "")
+        public struct CardInteraction
         {
+            public bool CardClicked;
+            public int ClickedSlotIndex; // -1 if none
+            public bool ExecuteClicked;
+        }
+
+        public static CardInteraction DrawCard(
+            Rectangle bounds,
+            string name,
+            string typeLabel,
+            bool isHovered,
+            List<GameClock> clocks,
+            bool isFlipped = false,
+            string backText = "",
+            List<ActionCost>? requires = null,
+            List<SlottedResource?>? slotted = null,
+            System.Numerics.Vector2 mousePos = default)
+        {
+            var interaction = new CardInteraction
+            {
+                CardClicked = false,
+                ClickedSlotIndex = -1,
+                ExecuteClicked = false
+            };
+
             Color bgColor = isHovered ? new Color(50, 50, 70, 255) : new Color(30, 30, 40, 255);
             Color outlineColor = isHovered ? new Color(130, 130, 220, 255) : new Color(60, 60, 80, 255);
             Color titleColor = isHovered ? Color.White : new Color(200, 200, 200, 255);
@@ -35,7 +60,8 @@ namespace SSNoir.Rendering
                 float tipY = bounds.Y + bounds.Height - 16;
                 FontManager.DrawText(tip, tipX, tipY, tipFontSize, new Color(150, 120, 130, 255));
 
-                return isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left);
+                interaction.CardClicked = isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left);
+                return interaction;
             }
 
             // Draw Card Background
@@ -53,22 +79,109 @@ namespace SSNoir.Rendering
                 }
             }
 
-            // Draw Title text (centered)
+            bool hasRequires = requires != null && requires.Count > 0 && slotted != null && slotted.Count == requires.Count;
+
+            // Draw Title text (centered, adjusted upwards if card has slots)
             int titleFontSize = 20;
             int titleWidth = FontManager.MeasureTextWidth(name, titleFontSize);
             float titleX = bounds.X + (bounds.Width - titleWidth) / 2f;
-            float titleY = bounds.Y + (bounds.Height / 2f) - 15;
+            float titleY = hasRequires 
+                ? bounds.Y + 12
+                : bounds.Y + (bounds.Height / 2f) - 15;
             FontManager.DrawText(name, titleX, titleY, titleFontSize, titleColor);
 
-            // Draw Type text (bottom-center)
-            int typeFontSize = 15;
+            // Draw Type text (bottom-center or moved up if has slots)
+            int typeFontSize = 14;
             int typeWidth = FontManager.MeasureTextWidth(typeLabel, typeFontSize);
             float typeX = bounds.X + (bounds.Width - typeWidth) / 2f;
-            float typeY = bounds.Y + bounds.Height - 22;
+            float typeY = hasRequires 
+                ? bounds.Y + 32
+                : bounds.Y + bounds.Height - 22;
             FontManager.DrawText(typeLabel, typeX, typeY, typeFontSize, typeColor);
 
-            // Return if clicked
-            return isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left);
+            // Draw Slots & Execute Button if there are requirements
+            if (hasRequires)
+            {
+                int M = requires!.Count;
+                float slotW = 24;
+                float slotH = 24;
+                float spacing = 6;
+                float totalWidth = M * slotW + (M - 1) * spacing;
+                float slotStartX = bounds.X + (bounds.Width - totalWidth) / 2f;
+                float slotY = bounds.Y + 52;
+
+                for (int j = 0; j < M; j++)
+                {
+                    var slotRect = new Rectangle(slotStartX + j * (slotW + spacing), slotY, slotW, slotH);
+                    bool slotHover = Raylib.CheckCollisionPointRec(mousePos, slotRect);
+                    var res = slotted![j];
+
+                    if (res == null)
+                    {
+                        // Draw empty dotted-like slot border
+                        Raylib.DrawRectangleRoundedLinesEx(slotRect, 0.2f, 4, 1.5f, slotHover ? new Color(130, 130, 220, 255) : new Color(80, 80, 100, 255));
+                        
+                        // Draw placeholder letter
+                        string placeholder = requires[j].Type == "die" ? "D" : requires[j].ItemName.Substring(0, 1);
+                        int pW = FontManager.MeasureTextWidth(placeholder, 12);
+                        FontManager.DrawText(placeholder, slotRect.X + (slotW - pW) / 2f, slotRect.Y + 6, 12, new Color(80, 80, 100, 255));
+                    }
+                    else
+                    {
+                        // Draw filled slot
+                        Raylib.DrawRectangleRounded(slotRect, 0.2f, 4, new Color(50, 50, 75, 255));
+                        Raylib.DrawRectangleRoundedLinesEx(slotRect, 0.2f, 4, 1.5f, new Color(130, 130, 250, 255));
+
+                        string valStr = res.Type == "die" ? res.Value.ToString() : res.ItemName.Substring(0, 1);
+                        int valW = FontManager.MeasureTextWidth(valStr, 12);
+                        FontManager.DrawText(valStr, slotRect.X + (slotW - valW) / 2f, slotRect.Y + 6, 12, Color.White);
+                    }
+
+                    if (slotHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                    {
+                        interaction.ClickedSlotIndex = j;
+                    }
+                }
+
+                // Draw Execute Button
+                float exeW = 80;
+                float exeH = 18;
+                float exeX = bounds.X + (bounds.Width - exeW) / 2f;
+                float exeY = bounds.Y + 82;
+                var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
+
+                bool allFilled = slotted != null && slotted.All(s => s != null);
+                if (allFilled)
+                {
+                    bool exeHover = Raylib.CheckCollisionPointRec(mousePos, exeRect);
+                    Raylib.DrawRectangleRounded(exeRect, 0.2f, 4, exeHover ? new Color(100, 200, 100, 255) : new Color(50, 150, 50, 255));
+                    
+                    string exeText = "执行";
+                    int eW = FontManager.MeasureTextWidth(exeText, 12);
+                    FontManager.DrawText(exeText, exeX + (exeW - eW) / 2f, exeY + 3, 12, Color.White);
+
+                    if (exeHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                    {
+                        interaction.ExecuteClicked = true;
+                    }
+                }
+                else
+                {
+                    Raylib.DrawRectangleRounded(exeRect, 0.2f, 4, new Color(50, 50, 55, 255));
+                    Raylib.DrawRectangleRoundedLinesEx(exeRect, 0.2f, 4, 1f, new Color(70, 70, 75, 255));
+
+                    string exeText = "待命";
+                    int eW = FontManager.MeasureTextWidth(exeText, 12);
+                    FontManager.DrawText(exeText, exeX + (exeW - eW) / 2f, exeY + 3, 12, new Color(100, 100, 110, 255));
+                }
+            }
+            else
+            {
+                // Simple action or container card click behavior
+                interaction.CardClicked = isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left);
+            }
+
+            return interaction;
         }
 
         private static void DrawWrappedText(string text, float x, float y, float width, int fontSize, Color color)

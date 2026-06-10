@@ -18,10 +18,19 @@ namespace SSNoir.Rendering
         private readonly List<string> _availableScenes = new List<string>();
 
         private readonly HashSet<string> _flippedNodes = new HashSet<string>();
-        private GameNode? _activeActionChoiceNode = null;
+        private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
+        private SelectedResource? _selectedResource = null;
         private RollResult? _activeRollResult = null;
         private string _uiNotification = "";
         private float _uiNotificationTimer = 0f;
+
+        private class SelectedResource
+        {
+            public string Type { get; set; } = string.Empty; // "die" or "item"
+            public string ItemName { get; set; } = string.Empty;
+            public int Value { get; set; }
+            public int SourceIndex { get; set; } = -1;
+        }
 
         private const int WindowWidth = 800;
         private const int WindowHeight = 600;
@@ -37,9 +46,15 @@ namespace SSNoir.Rendering
             {
                 _navigationStack.Clear();
                 _visibleNodes = _sceneManager.CurrentWorldNodes;
+                _nodeSlots.Clear();
+                _selectedResource = null;
             };
 
-            _sceneManager.OnWorldRefreshed += ResolveNavigationStack;
+            _sceneManager.OnWorldRefreshed += () =>
+            {
+                ResolveNavigationStack();
+                SanitizeSlots();
+            };
         }
 
         private void ResolveNavigationStack()
@@ -78,6 +93,46 @@ namespace SSNoir.Rendering
             _visibleNodes = currentLevel;
         }
 
+        private void GoBack()
+        {
+            if (_navigationStack.Count > 0)
+            {
+                _nodeSlots.Clear();
+                _navigationStack.RemoveAt(_navigationStack.Count - 1);
+                ResolveNavigationStack();
+            }
+        }
+
+        private void SanitizeSlots()
+        {
+            var keysToRemove = new List<string>();
+            foreach (var key in _nodeSlots.Keys)
+            {
+                if (FindNodeByName(_sceneManager.CurrentWorldNodes, key) == null)
+                {
+                    keysToRemove.Add(key);
+                }
+            }
+            foreach (var key in keysToRemove)
+            {
+                _nodeSlots.Remove(key);
+            }
+        }
+
+        private GameNode? FindNodeByName(List<GameNode> nodes, string name)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.Name == name) return node;
+                if (node.Children != null)
+                {
+                    var found = FindNodeByName(node.Children, name);
+                    if (found != null) return found;
+                }
+            }
+            return null;
+        }
+
         public void Run()
         {
             Raylib.SetConfigFlags(ConfigFlags.HighDpiWindow | ConfigFlags.Msaa4xHint);
@@ -110,22 +165,22 @@ namespace SSNoir.Rendering
             }
 
             // Block input to underlying layers if a modal overlay is active
-            bool inputBlocked = _activeActionChoiceNode != null || _activeRollResult != null;
+            bool inputBlocked = _activeRollResult != null;
             var activeMousePos = inputBlocked ? new Vector2(-100f, -100f) : mousePos;
 
             // Handle ESC key to return to the parent node
             if (!inputBlocked && Raylib.IsKeyPressed(KeyboardKey.Escape))
             {
-                if (_navigationStack.Count > 0)
-                {
-                    _navigationStack.RemoveAt(_navigationStack.Count - 1);
-                    ResolveNavigationStack();
-                }
+                GoBack();
             }
 
             if (!inputBlocked)
             {
                 UpdateDropdown(mousePos);
+                if (Raylib.IsMouseButtonPressed(MouseButton.Right))
+                {
+                    _selectedResource = null;
+                }
             }
 
             Raylib.BeginDrawing();
@@ -141,7 +196,7 @@ namespace SSNoir.Rendering
             DrawCards(activeMousePos, cardsStartY);
 
             // ── Draw Bottom Status Panel ──
-            DrawStatusPanel();
+            DrawStatusPanel(activeMousePos);
 
             // ── Draw Dropdown ──
             DrawDropdown(activeMousePos);
@@ -172,8 +227,7 @@ namespace SSNoir.Rendering
 
                 if (isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left))
                 {
-                    _navigationStack.RemoveAt(_navigationStack.Count - 1);
-                    ResolveNavigationStack();
+                    GoBack();
                 }
 
                 startX += 110f;
@@ -199,7 +253,7 @@ namespace SSNoir.Rendering
         {
             float startX = 40f;
             float cardWidth = 160f;
-            float cardHeight = 100f;
+            float cardHeight = 110f;
             float spacing = 20f;
             int cardsPerRow = 4;
 
@@ -226,12 +280,30 @@ namespace SSNoir.Rendering
                 bool isFlipped = _flippedNodes.Contains(node.Name);
                 string backText = (node.Resolve?.Type == ResolveType.Observe) ? node.Resolve.ObserveText : "";
 
-                bool clicked = CardWidget.DrawCard(bounds, node.Name, typeLabel, isHovered, node.Clocks, isFlipped, backText);
+                List<ActionCost>? requires = null;
+                List<SlottedResource?>? slotted = null;
 
-                if (clicked)
+                if (node.Requires != null && node.Requires.Count > 0)
+                {
+                    requires = node.Requires;
+                    if (!_nodeSlots.TryGetValue(node.Name, out slotted))
+                    {
+                        slotted = new List<SlottedResource?>();
+                        for (int j = 0; j < node.Requires.Count; j++)
+                        {
+                            slotted.Add(null);
+                        }
+                        _nodeSlots[node.Name] = slotted;
+                    }
+                }
+
+                var interaction = CardWidget.DrawCard(bounds, node.Name, typeLabel, isHovered, node.Clocks, isFlipped, backText, requires, slotted, mousePos);
+
+                if (interaction.CardClicked)
                 {
                     if (node.HasChildren)
                     {
+                        _nodeSlots.Clear();
                         _navigationStack.Add(node);
                         ResolveNavigationStack();
                     }
@@ -248,93 +320,322 @@ namespace SSNoir.Rendering
                                 _flippedNodes.Add(node.Name);
                             }
                         }
-                        else
+                        else if (requires == null)
                         {
-                            string missingReason;
-                            if (!CheckRequirements(node, out missingReason))
+                            ExecuteActionWithoutDie(node);
+                        }
+                    }
+                }
+
+                if (interaction.ClickedSlotIndex != -1 && slotted != null && requires != null)
+                {
+                    int j = interaction.ClickedSlotIndex;
+                    var res = slotted[j];
+                    if (res != null)
+                    {
+                        slotted[j] = null;
+                    }
+                    else if (_selectedResource != null)
+                    {
+                        var req = requires[j];
+                        if (req.Type == "die" && _selectedResource.Type == "die")
+                        {
+                            ClearOtherNodeSlots(node.Name);
+                            slotted[j] = new SlottedResource
                             {
-                                TriggerNotification(missingReason);
+                                Type = "die",
+                                Value = _selectedResource.Value,
+                                SourceIndex = _selectedResource.SourceIndex
+                            };
+                            _selectedResource = null;
+                        }
+                        else if (req.Type == "item" && _selectedResource.Type == "item" && req.ItemName == _selectedResource.ItemName)
+                        {
+                            ClearOtherNodeSlots(node.Name);
+                            int totalOwned = (req.ItemName == "金钱") ? _gameState.Get<int>("money") : _gameState.Get<int>("item:" + req.ItemName, 0);
+                            int totalSlotted = 0;
+                            foreach (var slots in _nodeSlots.Values)
+                            {
+                                foreach (var s in slots)
+                                {
+                                    if (s != null && s.Type == "item" && s.ItemName == req.ItemName)
+                                    {
+                                        totalSlotted += s.Value;
+                                    }
+                                }
+                            }
+                            int available = totalOwned - totalSlotted;
+                            if (available >= req.Qty)
+                            {
+                                slotted[j] = new SlottedResource
+                                {
+                                    Type = "item",
+                                    ItemName = req.ItemName,
+                                    Value = req.Qty
+                                };
+                                _selectedResource = null;
                             }
                             else
                             {
-                                bool requiresDie = false;
-                                foreach (var cost in node.Requires)
-                                {
-                                    if (cost.Type == "die")
-                                    {
-                                        requiresDie = true;
-                                        break;
-                                    }
-                                }
-
-                                if (requiresDie)
-                                {
-                                    _activeActionChoiceNode = node;
-                                }
-                                else
-                                {
-                                    ExecuteActionWithoutDie(node);
-                                }
+                                TriggerNotification($"缺少数量，需要 {req.Qty} 个 {req.ItemName}");
                             }
                         }
+                    }
+                }
+
+                if (interaction.ExecuteClicked && slotted != null)
+                {
+                    ExecuteSlottedAction(node, slotted);
+                }
+            }
+        }
+
+        private void ExecuteSlottedAction(GameNode node, List<SlottedResource?> slotted)
+        {
+            // 1. Permanently consume resources from GameState
+            var diceToConsume = new List<int>();
+            foreach (var s in slotted)
+            {
+                if (s != null && s.Type == "die")
+                {
+                    diceToConsume.Add(s.SourceIndex);
+                }
+            }
+            diceToConsume.Sort((a, b) => b.CompareTo(a));
+            var diceList = _gameState.Get<List<object>>("action-dice");
+            if (diceList != null)
+            {
+                foreach (var idx in diceToConsume)
+                {
+                    if (idx >= 0 && idx < diceList.Count)
+                    {
+                        diceList.RemoveAt(idx);
+                    }
+                }
+                _gameState.Set("action-dice", diceList);
+            }
+
+            foreach (var s in slotted)
+            {
+                if (s != null && s.Type == "item")
+                {
+                    if (s.ItemName == "金钱")
+                    {
+                        int owned = _gameState.Get<int>("money");
+                        _gameState.Set("money", Math.Max(0, owned - s.Value));
+                    }
+                    else
+                    {
+                        int owned = _gameState.Get<int>("item:" + s.ItemName, 0);
+                        _gameState.Set("item:" + s.ItemName, Math.Max(0, owned - s.Value));
+                    }
+                }
+            }
+
+            // 2. Clear slots
+            _nodeSlots.Remove(node.Name);
+
+            // 3. Resolve
+            if (node.Resolve != null)
+            {
+                if (node.Resolve.Type == ResolveType.Instant)
+                {
+                    node.Resolve.Effect?.Invoke();
+                    _sceneManager.OnActionExecuted();
+                }
+                else if (node.Resolve.Type == ResolveType.Roll)
+                {
+                    var dieSlot = slotted.Find(s => s != null && s.Type == "die");
+                    int chosenDieVal = dieSlot != null ? dieSlot.Value : 1;
+
+                    int skillLevel = _gameState.Get<int>("skill:" + node.Resolve.SkillName, 1);
+                    var rand = new Random();
+                    var randomDice = new List<int>();
+                    int finalValue = chosenDieVal;
+
+                    for (int i = 0; i < skillLevel - 1; i++)
+                    {
+                        int r = rand.Next(1, 7);
+                        randomDice.Add(r);
+                        if (r > finalValue)
+                        {
+                            finalValue = r;
+                        }
+                    }
+
+                    string outcome = "";
+                    if (finalValue <= 2)
+                    {
+                        outcome = "失败";
+                        node.Resolve.OnFail?.Invoke();
+                    }
+                    else if (finalValue <= 4)
+                    {
+                        outcome = "中性";
+                        node.Resolve.OnNeutral?.Invoke();
+                    }
+                    else
+                    {
+                        outcome = "成功";
+                        node.Resolve.OnSuccess?.Invoke();
+                    }
+
+                    _activeRollResult = new RollResult
+                    {
+                        ActionName = node.Name,
+                        ChosenDie = chosenDieVal,
+                        RandomDice = randomDice,
+                        FinalValue = finalValue,
+                        Outcome = outcome
+                    };
+                }
+            }
+        }
+
+        private void ClearOtherNodeSlots(string activeNodeName)
+        {
+            foreach (var pair in _nodeSlots)
+            {
+                if (pair.Key != activeNodeName)
+                {
+                    var slots = pair.Value;
+                    for (int i = 0; i < slots.Count; i++)
+                    {
+                        slots[i] = null;
                     }
                 }
             }
         }
 
-        private void DrawStatusPanel()
+        private bool IsDieSlotted(int dieIndex)
         {
-            float panelY = WindowHeight - 70;
-            
-            // Draw Panel background
-            Raylib.DrawRectangle(0, (int)panelY, WindowWidth, 70, new Color(15, 15, 20, 255));
-            Raylib.DrawLineEx(new Vector2(0, panelY), new Vector2(WindowWidth, panelY), 1.5f, new Color(40, 40, 50, 255));
+            if (_selectedResource != null && _selectedResource.Type == "die" && _selectedResource.SourceIndex == dieIndex)
+                return true;
+            foreach (var slots in _nodeSlots.Values)
+            {
+                foreach (var slot in slots)
+                {
+                    if (slot != null && slot.Type == "die" && slot.SourceIndex == dieIndex)
+                        return true;
+                }
+            }
+            return false;
+        }
 
-            int money = _gameState.Get<int>("money");
-            int health = _gameState.Get<int>("health");
-            string location = _gameState.Get<string>("location");
+        private int GetRemainingItemQty(string itemName)
+        {
+            int total = 0;
+            if (itemName == "金钱")
+            {
+                total = _gameState.Get<int>("money");
+            }
+            else
+            {
+                total = _gameState.Get<int>("item:" + itemName, 0);
+            }
 
-            Color textColor = new Color(200, 200, 220, 255);
-            Color valueColor = new Color(150, 150, 250, 255);
+            foreach (var slots in _nodeSlots.Values)
+            {
+                foreach (var slot in slots)
+                {
+                    if (slot != null && slot.Type == "item" && slot.ItemName == itemName)
+                    {
+                        total -= slot.Value;
+                    }
+                }
+            }
 
-            // Column 1 (x=30): Money & Health on two rows
-            FontManager.DrawText("钱金: ", 30, panelY + 15, 15, textColor);
-            FontManager.DrawText($"${money}", 80, panelY + 15, 15, valueColor);
+            if (_selectedResource != null && _selectedResource.Type == "item" && _selectedResource.ItemName == itemName)
+            {
+                if (itemName != "金钱")
+                {
+                    total -= 1;
+                }
+            }
 
-            FontManager.DrawText("健康: ", 30, panelY + 40, 15, textColor);
-            FontManager.DrawText($"{health}%", 80, panelY + 40, 15, new Color(250, 100, 100, 255));
+            return Math.Max(0, total);
+        }
 
-            // Column 2 (x=160): Location
-            FontManager.DrawText("场景: ", 160, panelY + 25, 15, textColor);
-            FontManager.DrawText(location.ToUpper(), 210, panelY + 25, 15, new Color(100, 220, 100, 255));
+        private void DrawStatusPanel(Vector2 mousePos)
+        {
+            float handY = WindowHeight - 100;
+            float statusY = WindowHeight - 25;
 
-            // Column 3 (x=330): Action Dice
-            FontManager.DrawText("行动力: ", 330, panelY + 25, 15, textColor);
+            // 1. Draw Hand Panel (y=500, height 75)
+            Raylib.DrawRectangle(0, (int)handY, WindowWidth, 75, new Color(18, 18, 24, 255));
+            Raylib.DrawLineEx(new Vector2(0, handY), new Vector2(WindowWidth, handY), 1.5f, new Color(40, 40, 50, 255));
+
+            Color labelColor = new Color(150, 150, 170, 255);
+
+            // Draw Action Dice in Hand
+            FontManager.DrawText("手牌骰子: ", 30, handY + 28, 14, labelColor);
             var dice = _gameState.Get<List<object>>("action-dice");
             if (dice != null)
             {
                 for (int i = 0; i < dice.Count; i++)
                 {
-                    float dieX = 390 + i * 32;
-                    float dieY = panelY + 21;
+                    float dieX = 110 + i * 42;
+                    float dieY = handY + 18;
+                    var dieRect = new Rectangle(dieX, dieY, 32, 32);
 
-                    Raylib.DrawRectangleRounded(new Rectangle(dieX, dieY, 26, 26), 0.2f, 4, new Color(45, 45, 60, 255));
-                    Raylib.DrawRectangleRoundedLinesEx(new Rectangle(dieX, dieY, 26, 26), 0.2f, 4, 1f, new Color(100, 100, 130, 255));
+                    bool isSlotted = IsDieSlotted(i);
+                    bool hover = !isSlotted && Raylib.CheckCollisionPointRec(mousePos, dieRect);
 
-                    string numStr = dice[i]?.ToString() ?? "0";
-                    int numW = FontManager.MeasureTextWidth(numStr, 14);
-                    FontManager.DrawText(numStr, dieX + (26 - numW) / 2f, dieY + 5, 14, Color.White);
+                    if (isSlotted)
+                    {
+                        Raylib.DrawRectangleRounded(dieRect, 0.2f, 4, new Color(30, 30, 35, 120));
+                        Raylib.DrawRectangleRoundedLinesEx(dieRect, 0.2f, 4, 1f, new Color(40, 40, 45, 120));
+
+                        string numStr = dice[i]?.ToString() ?? "0";
+                        int numW = FontManager.MeasureTextWidth(numStr, 14);
+                        FontManager.DrawText(numStr, dieX + (32 - numW) / 2f, dieY + 8, 14, new Color(80, 80, 90, 120));
+                    }
+                    else
+                    {
+                        Color bg = hover ? new Color(70, 70, 100, 255) : new Color(45, 45, 60, 255);
+                        Color border = hover ? new Color(150, 150, 250, 255) : new Color(90, 90, 110, 255);
+
+                        Raylib.DrawRectangleRounded(dieRect, 0.2f, 4, bg);
+                        Raylib.DrawRectangleRoundedLinesEx(dieRect, 0.2f, 4, 1.5f, border);
+
+                        string numStr = dice[i]?.ToString() ?? "0";
+                        int numW = FontManager.MeasureTextWidth(numStr, 14);
+                        FontManager.DrawText(numStr, dieX + (32 - numW) / 2f, dieY + 8, 14, Color.White);
+
+                        if (hover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                        {
+                            int val = 0;
+                            if (dice[i] is double d) val = (int)d;
+                            else if (dice[i] is long l) val = (int)l;
+                            else if (dice[i] is int valInt) val = valInt;
+
+                            _selectedResource = new SelectedResource
+                            {
+                                Type = "die",
+                                Value = val,
+                                SourceIndex = i
+                            };
+                        }
+                    }
                 }
             }
 
-            // Column 4 (x=530): Inventory
-            FontManager.DrawText("物品栏: ", 530, panelY + 15, 15, textColor);
+            // Draw Items in Hand (plus money)
+            float itemsStartX = 360f;
+            FontManager.DrawText("手牌物品: ", itemsStartX, handY + 28, 14, labelColor);
 
-            var items = new List<string>();
+            var items = new List<(string Name, int Qty)>();
+            int money = _gameState.Get<int>("money");
+            if (money > 0)
+            {
+                items.Add(("金钱", money));
+            }
+
             foreach (var kvp in _gameState.GetAllStates())
             {
                 if (kvp.Key.StartsWith("item:"))
                 {
+                    string itemName = kvp.Key.Substring(5);
                     int qty = 0;
                     if (kvp.Value is double d) qty = (int)d;
                     else if (kvp.Value is long l) qty = (int)l;
@@ -342,150 +643,78 @@ namespace SSNoir.Rendering
 
                     if (qty > 0)
                     {
-                        items.Add($"{kvp.Key.Substring(5)} x{qty}");
+                        items.Add((itemName, qty));
                     }
                 }
             }
-            string inventoryStr = items.Count > 0 ? string.Join(", ", items) : "空";
-            FontManager.DrawText(inventoryStr, 530, panelY + 40, 13, new Color(160, 160, 180, 255));
-        }
 
-        private bool CheckRequirements(GameNode node, out string missingReason)
-        {
-            missingReason = "";
-            if (node.Requires == null || node.Requires.Count == 0)
-                return true;
-
-            foreach (var cost in node.Requires)
+            for (int i = 0; i < items.Count; i++)
             {
-                if (cost.Type == "item")
-                {
-                    int owned = 0;
-                    if (cost.ItemName == "金钱")
-                    {
-                        owned = _gameState.Get<int>("money");
-                    }
-                    else
-                    {
-                        owned = _gameState.Get<int>("item:" + cost.ItemName, 0);
-                    }
+                var item = items[i];
+                float itemX = itemsStartX + 75 + i * 75;
+                float itemY = handY + 18;
+                var itemRect = new Rectangle(itemX, itemY, 68, 32);
 
-                    if (owned < cost.Qty)
-                    {
-                        missingReason = $"缺少物品: {cost.ItemName} (需要 {cost.Qty}, 拥有 {owned})";
-                        return false;
-                    }
-                }
-                else if (cost.Type == "die")
-                {
-                    var dice = _gameState.Get<List<object>>("action-dice");
-                    if (dice == null || dice.Count < 1)
-                    {
-                        missingReason = "行动力骰子不足";
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
+                int remaining = GetRemainingItemQty(item.Name);
+                bool hover = (remaining > 0) && Raylib.CheckCollisionPointRec(mousePos, itemRect);
 
-        private void ConsumeRequirements(GameNode node)
-        {
-            if (node.Requires == null) return;
-            foreach (var cost in node.Requires)
-            {
-                if (cost.Type == "item")
+                if (remaining <= 0)
                 {
-                    if (cost.ItemName == "金钱")
+                    Raylib.DrawRectangleRounded(itemRect, 0.2f, 4, new Color(30, 30, 35, 120));
+                    Raylib.DrawRectangleRoundedLinesEx(itemRect, 0.2f, 4, 1f, new Color(40, 40, 45, 120));
+
+                    string label = item.Name == "金钱" ? "$0" : $"{item.Name} x0";
+                    int lblW = FontManager.MeasureTextWidth(label, 12);
+                    FontManager.DrawText(label, itemX + (68 - lblW) / 2f, itemY + 8, 12, new Color(80, 80, 90, 120));
+                }
+                else
+                {
+                    Color bg = hover ? new Color(70, 70, 100, 255) : new Color(45, 45, 60, 255);
+                    Color border = hover ? new Color(150, 150, 250, 255) : new Color(90, 90, 110, 255);
+
+                    Raylib.DrawRectangleRounded(itemRect, 0.2f, 4, bg);
+                    Raylib.DrawRectangleRoundedLinesEx(itemRect, 0.2f, 4, 1.5f, border);
+
+                    string label = item.Name == "金钱" ? $"${remaining}" : $"{item.Name} x{remaining}";
+                    int lblW = FontManager.MeasureTextWidth(label, 12);
+                    FontManager.DrawText(label, itemX + (68 - lblW) / 2f, itemY + 8, 12, Color.White);
+
+                    if (hover && Raylib.IsMouseButtonPressed(MouseButton.Left))
                     {
-                        int owned = _gameState.Get<int>("money");
-                        _gameState.Set("money", Math.Max(0, owned - cost.Qty));
-                    }
-                    else
-                    {
-                        int owned = _gameState.Get<int>("item:" + cost.ItemName, 0);
-                        _gameState.Set("item:" + cost.ItemName, Math.Max(0, owned - cost.Qty));
+                        _selectedResource = new SelectedResource
+                        {
+                            Type = "item",
+                            ItemName = item.Name
+                        };
                     }
                 }
             }
-        }
 
-        private void ConsumeDie(int dieIndex)
-        {
-            var dice = _gameState.Get<List<object>>("action-dice");
-            if (dice != null && dieIndex >= 0 && dieIndex < dice.Count)
-            {
-                dice.RemoveAt(dieIndex);
-                _gameState.Set("action-dice", dice);
-            }
+            // 2. Draw Status Bar (y=575, height 25)
+            Raylib.DrawRectangle(0, (int)statusY, WindowWidth, 25, new Color(10, 10, 15, 255));
+            Raylib.DrawLineEx(new Vector2(0, statusY), new Vector2(WindowWidth, statusY), 1.5f, new Color(30, 30, 40, 255));
+
+            int health = _gameState.Get<int>("health");
+            string location = _gameState.Get<string>("location");
+
+            FontManager.DrawText("健康: ", 30, statusY + 5, 13, new Color(200, 200, 220, 255));
+            FontManager.DrawText($"{health}%", 70, statusY + 5, 13, new Color(250, 100, 100, 255));
+
+            FontManager.DrawText("场景: ", 160, statusY + 5, 13, new Color(200, 200, 220, 255));
+            FontManager.DrawText(location.ToUpper(), 200, statusY + 5, 13, new Color(100, 220, 100, 255));
+
+            // Help tip
+            string tip = "提示: 点击手牌选择，点击卡槽放入，右键取消选择。";
+            FontManager.DrawText(tip, 320, statusY + 5, 12, new Color(140, 140, 160, 255));
         }
 
         private void ExecuteActionWithoutDie(GameNode node)
         {
-            ConsumeRequirements(node);
-
             if (node.Resolve?.Type == ResolveType.Instant)
             {
                 node.Resolve.Effect?.Invoke();
             }
-
             _sceneManager.OnActionExecuted();
-        }
-
-        private void ExecuteActionWithDie(GameNode node, int chosenDieVal, int dieIndex)
-        {
-            ConsumeDie(dieIndex);
-            ConsumeRequirements(node);
-
-            if (node.Resolve?.Type == ResolveType.Roll)
-            {
-                int skillLevel = _gameState.Get<int>("skill:" + node.Resolve.SkillName, 1);
-                
-                var rand = new Random();
-                var randomDice = new List<int>();
-                int finalValue = chosenDieVal;
-
-                for (int i = 0; i < skillLevel - 1; i++)
-                {
-                    int r = rand.Next(1, 7);
-                    randomDice.Add(r);
-                    if (r > finalValue)
-                    {
-                        finalValue = r;
-                    }
-                }
-
-                string outcome = "";
-                if (finalValue <= 2)
-                {
-                    outcome = "失败";
-                    node.Resolve.OnFail?.Invoke();
-                }
-                else if (finalValue <= 4)
-                {
-                    outcome = "中性";
-                    node.Resolve.OnNeutral?.Invoke();
-                }
-                else
-                {
-                    outcome = "成功";
-                    node.Resolve.OnSuccess?.Invoke();
-                }
-
-                _activeRollResult = new RollResult
-                {
-                    ActionName = node.Name,
-                    ChosenDie = chosenDieVal,
-                    RandomDice = randomDice,
-                    FinalValue = finalValue,
-                    Outcome = outcome
-                };
-            }
-            else if (node.Resolve?.Type == ResolveType.Instant)
-            {
-                node.Resolve.Effect?.Invoke();
-                _sceneManager.OnActionExecuted();
-            }
         }
 
         private void TriggerNotification(string message)
@@ -509,95 +738,22 @@ namespace SSNoir.Rendering
                 FontManager.DrawText(_uiNotification, toastX + 20, toastY + 7, 14, Color.White);
             }
 
-            // 2. Die Selection Modal
-            if (_activeActionChoiceNode != null)
+            // 2. Trailing Selected Resource
+            if (_selectedResource != null)
             {
-                Raylib.DrawRectangle(0, 0, WindowWidth, WindowHeight, new Color(0, 0, 0, 180));
+                var mPos = Raylib.GetMousePosition();
+                float overlayW = _selectedResource.Type == "die" ? 32f : 68f;
+                float overlayH = 32f;
+                var rect = new Rectangle(mPos.X + 12, mPos.Y + 12, overlayW, overlayH);
 
-                float modalW = 340;
-                float modalH = 200;
-                float modalX = (WindowWidth - modalW) / 2f;
-                float modalY = (WindowHeight - modalH) / 2f;
-                var modalRect = new Rectangle(modalX, modalY, modalW, modalH);
+                Raylib.DrawRectangleRounded(rect, 0.2f, 4, new Color(50, 50, 90, 200));
+                Raylib.DrawRectangleRoundedLinesEx(rect, 0.2f, 4, 1.5f, new Color(150, 150, 250, 255));
 
-                Raylib.DrawRectangleRounded(modalRect, 0.1f, 8, new Color(30, 30, 40, 255));
-                Raylib.DrawRectangleRoundedLinesEx(modalRect, 0.1f, 8, 2f, new Color(80, 80, 100, 255));
-
-                string title = "选择放入的行动力骰子";
-                int titleW = FontManager.MeasureTextWidth(title, 18);
-                FontManager.DrawText(title, modalX + (modalW - titleW) / 2f, modalY + 20, 18, Color.White);
-
-                string sub = $"判定项目: {_activeActionChoiceNode.Resolve?.SkillName ?? "无"}";
-                int subW = FontManager.MeasureTextWidth(sub, 12);
-                FontManager.DrawText(sub, modalX + (modalW - subW) / 2f, modalY + 50, 12, new Color(150, 150, 170, 255));
-
-                var dice = _gameState.Get<List<object>>("action-dice");
-                if (dice != null && dice.Count > 0)
-                {
-                    float buttonY = modalY + 80;
-                    float buttonW = 40;
-                    float buttonH = 40;
-                    float spacing = 15;
-                    float startX = modalX + (modalW - (dice.Count * buttonW + (dice.Count - 1) * spacing)) / 2f;
-
-                    for (int i = 0; i < dice.Count; i++)
-                    {
-                        float btnX = startX + i * (buttonW + spacing);
-                        var btnRect = new Rectangle(btnX, buttonY, buttonW, buttonH);
-                        bool hover = Raylib.CheckCollisionPointRec(mousePos, btnRect);
-
-                        Color btnBg = hover ? new Color(70, 70, 100, 255) : new Color(45, 45, 60, 255);
-                        Color btnBorder = hover ? new Color(150, 150, 250, 255) : new Color(80, 80, 110, 255);
-
-                        Raylib.DrawRectangleRounded(btnRect, 0.2f, 4, btnBg);
-                        Raylib.DrawRectangleRoundedLinesEx(btnRect, 0.2f, 4, 1.5f, btnBorder);
-
-                        int val = 0;
-                        if (dice[i] is double d) val = (int)d;
-                        else if (dice[i] is long l) val = (int)l;
-                        else if (dice[i] is int valInt) val = valInt;
-
-                        string valStr = val.ToString();
-                        int valW = FontManager.MeasureTextWidth(valStr, 18);
-                        FontManager.DrawText(valStr, btnX + (buttonW - valW) / 2f, buttonY + 11, 18, Color.White);
-
-                        if (hover && Raylib.IsMouseButtonPressed(MouseButton.Left))
-                        {
-                            var selectedNode = _activeActionChoiceNode;
-                            _activeActionChoiceNode = null;
-                            ExecuteActionWithDie(selectedNode, val, i);
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    string emptyStr = "无可用行动力";
-                    int emptyW = FontManager.MeasureTextWidth(emptyStr, 14);
-                    FontManager.DrawText(emptyStr, modalX + (modalW - emptyW) / 2f, modalY + 90, 14, new Color(220, 100, 100, 255));
-                }
-
-                float cancelW = 80;
-                float cancelH = 28;
-                float cancelX = modalX + (modalW - cancelW) / 2f;
-                float cancelY = modalY + modalH - 45;
-                var cancelRect = new Rectangle(cancelX, cancelY, cancelW, cancelH);
-                bool cancelHover = Raylib.CheckCollisionPointRec(mousePos, cancelRect);
-
-                Color cBg = cancelHover ? new Color(70, 50, 55, 255) : new Color(50, 40, 42, 255);
-                Color cBorder = cancelHover ? new Color(200, 100, 100, 255) : new Color(110, 80, 85, 255);
-
-                Raylib.DrawRectangleRounded(cancelRect, 0.2f, 4, cBg);
-                Raylib.DrawRectangleRoundedLinesEx(cancelRect, 0.2f, 4, 1.5f, cBorder);
-
-                string cancelText = "取消";
-                int cTextW = FontManager.MeasureTextWidth(cancelText, 14);
-                FontManager.DrawText(cancelText, cancelX + (cancelW - cTextW) / 2f, cancelY + 6, 14, new Color(220, 180, 185, 255));
-
-                if (cancelHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
-                {
-                    _activeActionChoiceNode = null;
-                }
+                string text = _selectedResource.Type == "die" 
+                    ? _selectedResource.Value.ToString() 
+                    : _selectedResource.ItemName;
+                int textW = FontManager.MeasureTextWidth(text, 12);
+                FontManager.DrawText(text, rect.X + (overlayW - textW) / 2f, rect.Y + 8, 12, Color.White);
             }
 
             // 3. Roll Result Modal
