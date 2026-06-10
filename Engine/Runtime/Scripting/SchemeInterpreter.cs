@@ -35,8 +35,9 @@ namespace SSNoir.Scripting
             // Register our bridge functions
             NativeFunctions.Register(_interpreter, gameState);
 
-            // Load standard library
+            // Load standard library and engine definitions
             LoadFile("scripts/stdlib.scm");
+            LoadFile("scripts/engine.scm");
         }
 
         public void LoadFile(string relativePath)

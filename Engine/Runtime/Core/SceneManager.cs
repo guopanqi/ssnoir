@@ -200,8 +200,7 @@ namespace SSNoir.Core
                 report.RandomDice = randomDice;
                 report.FinalRollValue = finalValue;
 
-                // Apply dynamic difficulty modifiers
-                var modifiers = node.Resolve.GetDifficultyModifiers?.Invoke() ?? new List<DifficultyModifierInfo>();
+                var modifiers = node.Resolve.DifficultyModifiers;
                 int modifierSum = 0;
                 foreach (var mod in modifiers)
                 {

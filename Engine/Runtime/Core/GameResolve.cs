@@ -20,8 +20,7 @@ namespace SSNoir.Core
 
         // Roll
         public string SkillName { get; set; } = string.Empty;
-        // Dynamic difficulty modifiers: invoked at execution time to get current modifiers
-        public Func<List<DifficultyModifierInfo>>? GetDifficultyModifiers { get; set; }
+        public List<DifficultyModifierInfo> DifficultyModifiers { get; set; } = new List<DifficultyModifierInfo>();
         public Action? OnFail { get; set; }
         public Action? OnNeutral { get; set; }
         public Action? OnSuccess { get; set; }

@@ -170,17 +170,16 @@ namespace SSNoir.Scripting
                 if (list[1] is Symbol sSym) skillName = sSym.AsString;
                 else if (list[1] is string sStr) skillName = sStr;
 
-                Func<List<DifficultyModifierInfo>>? getModifiers = null;
+                var modifiers = new List<DifficultyModifierInfo>();
                 int failIndex = 2;
 
-                // Check if 3rd element is a difficulty modifier callback (Procedure)
+                // Check if 3rd element is a difficulty modifier callback (Procedure).
+                // Modifier functions are read-only render/roll metadata, so they are
+                // resolved when the world node is materialized.
                 if (list.Count >= 6 && list[2] is Procedure modProc)
                 {
-                    getModifiers = () =>
-                    {
-                        var result = modProc.Call(new List<object>());
-                        return ParseDifficultyModifiers(result);
-                    };
+                    var result = modProc.Call(new List<object>());
+                    modifiers = ParseDifficultyModifiers(result);
                     failIndex = 3;
                 }
 
@@ -192,7 +191,7 @@ namespace SSNoir.Scripting
                 {
                     Type = ResolveType.Roll,
                     SkillName = skillName,
-                    GetDifficultyModifiers = getModifiers,
+                    DifficultyModifiers = modifiers,
                     OnFail = failProc != null ? () => failProc.Call(new List<object>()) : null,
                     OnNeutral = neutralProc != null ? () => neutralProc.Call(new List<object>()) : null,
                     OnSuccess = successProc != null ? () => successProc.Call(new List<object>()) : null

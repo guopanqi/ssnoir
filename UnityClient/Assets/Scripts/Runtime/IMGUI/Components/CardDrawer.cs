@@ -198,6 +198,42 @@ namespace SSNoir.IMGUI
                 }
             }
 
+            // Draw Modifier Tags on the left side of the card
+            var modifiers = node.Resolve?.DifficultyModifiers.Count > 0 ? node.Resolve.DifficultyModifiers : null;
+            if (modifiers != null && modifiers.Count > 0)
+            {
+                for (int k = 0; k < modifiers.Count; k++)
+                {
+                    var mod = modifiers[k];
+                    string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
+                    
+                    var tagStyle = new GUIStyle(GUI.skin.label);
+                    tagStyle.fontSize = 10;
+                    tagStyle.alignment = TextAnchor.MiddleCenter;
+                    tagStyle.normal.textColor = Color.white;
+
+                    Vector2 textSize = tagStyle.CalcSize(new GUIContent(modText));
+                    float tagW = textSize.x + 12;
+                    float tagH = 18;
+                    float tagX = rect.x - tagW + 6;
+                    float tagY = rect.y + 8 + k * 22;
+                    var tagRect = new Rect(tagX, tagY, tagW, tagH);
+
+                    Color tagBg = mod.Value < 0 ? new Color(0.47f, 0.12f, 0.12f, 1f) 
+                                 : (mod.Value > 0 ? new Color(0.12f, 0.39f, 0.12f, 1f) : new Color(0.2f, 0.2f, 0.2f, 1f));
+                    Color tagBorder = mod.Value < 0 ? new Color(0.7f, 0.23f, 0.23f, 1f) 
+                                     : (mod.Value > 0 ? new Color(0.23f, 0.63f, 0.23f, 1f) : new Color(0.35f, 0.35f, 0.35f, 1f));
+
+                    GUI.color = tagBg;
+                    GUI.DrawTexture(tagRect, Texture2D.whiteTexture);
+                    GUI.color = tagBorder;
+                    DrawOutline(tagRect, 1);
+                    GUI.color = Color.white;
+
+                    GUI.Label(tagRect, modText, tagStyle);
+                }
+            }
+
             return interaction;
         }
 

@@ -15,5 +15,6 @@ UI优先使用“约束驱动布局”, 减少像素硬编码布局, 纵向使�
 - 全量内容校验与最小状态模拟（仅在需要验证复杂边界逻辑行为或修复疑难问题时）
 
 # tips
-- Schemy不能用 dotted rest args，但可以用纯 varargs 实现同样的消息协议。
+- Schemy 解释器的完整特性、内置符号支持矩阵与 `stdlib.scm` 补全说明请参考 [schemy.md](file:///Users/usr/documents/play/ssnoir/schemy.md)。
+- Schemy 不能使用 dotted rest args（如 `first . rest`），但可以使用纯列表形式的 varargs 参数定义来实现相同的消息协议机制（详见 [schemy.md 中的说明](file:///Users/usr/documents/play/ssnoir/schemy.md#1-变参语法限制-varargs-syntax-constraints)）。
 

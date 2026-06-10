@@ -25,7 +25,8 @@ namespace SSNoir.Rendering
             string backText = "",
             List<ActionCost>? requires = null,
             List<SlottedResource?>? slotted = null,
-            System.Numerics.Vector2 mousePos = default)
+            System.Numerics.Vector2 mousePos = default,
+            List<DifficultyModifierInfo>? modifiers = null)
         {
             var interaction = new CardInteraction
             {
@@ -189,6 +190,34 @@ namespace SSNoir.Rendering
             {
                 // Simple action or container card click behavior
                 interaction.CardClicked = isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left);
+            }
+
+            // Draw Difficulty Modifier Tags on the top-left of the card
+            if (modifiers != null && modifiers.Count > 0)
+            {
+                float tagStartX = bounds.X + 6;
+                float tagStartY = bounds.Y + 6;
+                for (int k = 0; k < modifiers.Count; k++)
+                {
+                    var mod = modifiers[k];
+                    string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
+                    int fontSize = 10;
+                    int textWidth = FontManager.MeasureTextWidth(modText, fontSize);
+                    float tagW = textWidth + 10;
+                    float tagH = 16;
+                    float tagX = tagStartX;
+                    float tagY = tagStartY + k * 20;
+                    var tagRect = new Rectangle(tagX, tagY, tagW, tagH);
+
+                    Color tagBg = mod.Value < 0 ? new Color(120, 30, 30, 255)
+                                 : (mod.Value > 0 ? new Color(30, 100, 30, 255) : new Color(60, 60, 60, 255));
+                    Color tagBorder = mod.Value < 0 ? new Color(180, 60, 60, 255)
+                                    : (mod.Value > 0 ? new Color(60, 160, 60, 255) : new Color(100, 100, 100, 255));
+
+                    Raylib.DrawRectangleRounded(tagRect, 0.4f, 4, tagBg);
+                    Raylib.DrawRectangleRoundedLinesEx(tagRect, 0.4f, 4, 1f, tagBorder);
+                    FontManager.DrawText(modText, tagX + 5, tagY + 3, fontSize, Color.White);
+                }
             }
 
             return interaction;

@@ -297,7 +297,8 @@ namespace SSNoir.Rendering
                     }
                 }
 
-                var interaction = CardWidget.DrawCard(bounds, node.Name, typeLabel, isHovered, node.Clocks, isFlipped, backText, requires, slotted, mousePos);
+                List<DifficultyModifierInfo>? modifiers = node.Resolve?.DifficultyModifiers.Count > 0 ? node.Resolve.DifficultyModifiers : null;
+                var interaction = CardWidget.DrawCard(bounds, node.Name, typeLabel, isHovered, node.Clocks, isFlipped, backText, requires, slotted, mousePos, modifiers);
 
                 if (interaction.CardClicked)
                 {

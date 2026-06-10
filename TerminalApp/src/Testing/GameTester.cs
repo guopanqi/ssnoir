@@ -113,9 +113,8 @@ namespace SSNoir.Testing
 
             ExecuteNode(sceneManager, "写代码");
             ExecuteNode(sceneManager, "写代码");
-            ExecuteNode(sceneManager, "写代码");
 
-            // After 3 works, the rule "工资发放" should trigger, awarding 50 money and resetting the clock to 0
+            // After 2 works, the rule "工资发放" should trigger, awarding 50 money and resetting the clock to 0
             var money = gameState.Get<int>("money");
             if (money != 100)
             {
@@ -165,7 +164,7 @@ namespace SSNoir.Testing
             {
                 throw new InvalidOperationException("Expected '压制' action to be present under '持刀者'.");
             }
-            sceneManager.ExecuteAction(slasherSuppress, new List<SlottedResource?>());
+            ExecuteActionWithDefaults(sceneManager, slasherSuppress);
             sceneManager.EndTurn();
 
             // Since we ended the turn, all live enemies' clocks should have ticked.
@@ -189,7 +188,7 @@ namespace SSNoir.Testing
             {
                 throw new InvalidOperationException("Expected '击倒' action to be present under '持枪手'.");
             }
-            sceneManager.ExecuteAction(gunnerKill, new List<SlottedResource?>());
+            ExecuteActionWithDefaults(sceneManager, gunnerKill);
             sceneManager.EndTurn();
 
             // 4 clocks should still remain: "逃脱", "增援", and Slasher's HP and atk clocks (reinforcement has not triggered yet as spawn-clock max is 3)
@@ -223,7 +222,7 @@ namespace SSNoir.Testing
                 var killAction = FindNode(enemyNode.Children, "击倒");
                 if (killAction != null)
                 {
-                    sceneManager.ExecuteAction(killAction, new List<SlottedResource?>());
+                    ExecuteActionWithDefaults(sceneManager, killAction);
                 }
                 else
                 {
@@ -231,7 +230,7 @@ namespace SSNoir.Testing
                     var suppressAction = FindNode(enemyNode.Children, "压制");
                     if (suppressAction != null)
                     {
-                        sceneManager.ExecuteAction(suppressAction, new List<SlottedResource?>());
+                        ExecuteActionWithDefaults(sceneManager, suppressAction);
                     }
                     else
                     {
@@ -269,6 +268,26 @@ namespace SSNoir.Testing
             Console.WriteLine("Minimal flow simulation passed.");
         }
 
+        private static void ExecuteActionWithDefaults(SceneManager sceneManager, GameNode node)
+        {
+            var slots = new List<SlottedResource?>();
+            if (node.Requires != null)
+            {
+                foreach (var req in node.Requires)
+                {
+                    if (req.Type == "die")
+                    {
+                        slots.Add(new SlottedResource { Type = "die", Value = 6 });
+                    }
+                    else if (req.Type == "item")
+                    {
+                        slots.Add(new SlottedResource { Type = "item", ItemName = req.ItemName, Value = req.Qty });
+                    }
+                }
+            }
+            sceneManager.ExecuteAction(node, slots);
+        }
+
         private static void ExecuteNode(SceneManager sceneManager, string name)
         {
             var node = FindNode(sceneManager.CurrentWorldNodes, name);
@@ -277,7 +296,7 @@ namespace SSNoir.Testing
                 throw new InvalidOperationException($"Node not found: {name}");
             }
 
-            sceneManager.ExecuteAction(node, new List<SlottedResource?>());
+            ExecuteActionWithDefaults(sceneManager, node);
         }
 
         private static GameNode? FindNode(List<GameNode> nodes, string name)
@@ -648,6 +667,149 @@ namespace SSNoir.Testing
             else
             {
                 Console.WriteLine($"Test 8 Success. Result: {r8.Result}");
+            }
+
+            // Test 9: Check whether raw Schemy and project stdlib expose `and` and `or`
+            Console.WriteLine("\nTest 9: Test `and` and `or` availability");
+            
+            // Raw Schemy test for 'and'
+            var r9RawAnd = interpreter.Evaluate(new StringReader("(and #t #t)"));
+            if (r9RawAnd.Error != null)
+            {
+                Console.WriteLine($"Test 9 Raw Schemy 'and' Failed (expected): {r9RawAnd.Error.GetType().FullName}: {r9RawAnd.Error.Message}");
+            }
+            else
+            {
+                Console.WriteLine($"Test 9 Raw Schemy 'and' Success. Result: {r9RawAnd.Result}");
+            }
+
+            // Raw Schemy test for 'or'
+            var r9RawOr = interpreter.Evaluate(new StringReader("(or #f #t)"));
+            if (r9RawOr.Error != null)
+            {
+                Console.WriteLine($"Test 9 Raw Schemy 'or' Failed (expected): {r9RawOr.Error.GetType().FullName}: {r9RawOr.Error.Message}");
+            }
+            else
+            {
+                Console.WriteLine($"Test 9 Raw Schemy 'or' Success. Result: {r9RawOr.Result}");
+            }
+
+            var projectInterpreter = new SchemeInterpreter(new GameState(), new LocalScriptLoader());
+            
+            // Define a helper to run project test case and assert/print result
+            Action<string, object> runProjectTest = (expression, expected) =>
+            {
+                try
+                {
+                    var result = projectInterpreter.Eval(expression);
+                    bool match = Equals(result, expected);
+                    Console.WriteLine($"  {expression} => {result} (Expected: {expected}) - {(match ? "PASS" : "FAIL")}");
+                    if (!match)
+                    {
+                        throw new InvalidOperationException($"Test failed for: {expression}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"  {expression} => ERROR: {ex.GetType().FullName}: {ex.Message} - FAIL");
+                    throw;
+                }
+            };
+
+            Console.WriteLine("Testing 'and' and 'or' under project stdlib:");
+            runProjectTest("(and)", true);
+            runProjectTest("(and #t)", true);
+            runProjectTest("(and #f)", false);
+            runProjectTest("(and #t #t)", true);
+            runProjectTest("(and #t #f)", false);
+            runProjectTest("(and #t #t #f)", false);
+            runProjectTest("(and #t #t #t)", true);
+
+            runProjectTest("(or)", false);
+            runProjectTest("(or #f)", false);
+            runProjectTest("(or #t)", true);
+            runProjectTest("(or #f #f)", false);
+            runProjectTest("(or #f #t)", true);
+            runProjectTest("(or #f #f #t)", true);
+            runProjectTest("(or #f #f #f)", false);
+
+            runProjectTest("(and (or #f #t) #t)", true);
+            runProjectTest("(and (or #f #f) #t)", false);
+            runProjectTest("(or (and #t #f) #t)", true);
+            runProjectTest("(or (and #t #f) (and #f #t))", false);
+            Console.WriteLine("Test 9 Project stdlib 'and'/'or' Completed Successfully.");
+
+            // Test 10: Check availability of common Scheme symbols and keywords
+            Console.WriteLine("\nTest 10: Unified Scheme Feature / Symbol Matrix");
+
+            var symbolsToTest = new string[]
+            {
+                "+", "-", "*", "/", "=", "<", ">", "<=", ">=", "abs", "modulo", "remainder", "quotient", "even?", "odd?", "zero?",
+                "eq?", "eqv?", "equal?",
+                "null?", "pair?", "list?", "number?", "string?", "symbol?", "procedure?", "boolean?",
+                "cons", "car", "cdr", "cadr", "caddr", "cadddr", "list", "length", "append", "reverse", "member", "assoc",
+                "map", "filter", "apply",
+                "string-append", "number->string", "display", "newline", "error", "not", "and", "or"
+            };
+
+            var expressionsToTest = new string[]
+            {
+                "(let ((x 1)) x)",
+                "(let* ((x 1) (y (+ x 1))) y)",
+                "(begin 1 2)",
+                "(if #t 1 2)",
+                "(cond (#f 1) (#t 2) (else 3))",
+                "(case 2 ((1) 'one) ((2) 'two) (else 'other))",
+                "((lambda () 42))",
+                "(begin (define test-val 99) test-val)"
+            };
+
+            Console.WriteLine(string.Format("{0,-18} | {1,-15} | {2,-30}", "Symbol/Expr", "Raw Schemy", "Project Interpreter (with stdlib)"));
+            Console.WriteLine(new string('-', 75));
+
+            foreach (var sym in symbolsToTest)
+            {
+                // Test raw
+                var rawResult = interpreter.Evaluate(new StringReader(sym));
+                string rawStatus = rawResult.Error != null ? "NO" : "YES";
+
+                // Test project
+                string projStatus;
+                try
+                {
+                    var result = projectInterpreter.Eval(sym);
+                    projStatus = "YES";
+                }
+                catch
+                {
+                    projStatus = "NO";
+                }
+
+                Console.WriteLine(string.Format("{0,-18} | {1,-15} | {2,-30}", sym, rawStatus, projStatus));
+            }
+
+            Console.WriteLine("\nSyntax & Special Forms Expression Check:");
+            Console.WriteLine(new string('-', 75));
+
+            foreach (var expr in expressionsToTest)
+            {
+                // Test raw
+                var rawResult = interpreter.Evaluate(new StringReader(expr));
+                string rawStatus = rawResult.Error != null ? "FAIL" : "PASS";
+
+                // Test project
+                string projStatus;
+                try
+                {
+                    projectInterpreter.Eval(expr);
+                    projStatus = "PASS";
+                }
+                catch
+                {
+                    projStatus = "FAIL";
+                }
+
+                Console.WriteLine(string.Format("{0,-45} | {1,-10} | {2,-10}", expr, rawStatus, projStatus));
             }
         }
     }
