@@ -13,6 +13,9 @@
 (define (caddr xs)
   (car (cdr (cdr xs))))
 
+(define (cadddr xs)
+  (car (cdr (cdr (cdr xs)))))
+
 ;; Helper to extract keyword arguments from a list
 (define (get-kwarg kwargs key default)
   (if (null? kwargs)
@@ -40,8 +43,22 @@
 (define (instant effect)
   (list 'instant effect))
 
-(define (roll skill fail-fn neutral-fn success-fn)
-  (list 'roll skill fail-fn neutral-fn success-fn))
+;; Modifier constructor
+(define (modifier value reason)
+  (list 'modifier value reason))
+
+;; Roll with optional difficulty modifier callback
+;; (roll 'skill fail neutral success)         -> 4 args, no modifiers
+;; (roll 'skill mod-fn fail neutral success)  -> 5 args, dynamic modifiers
+(define roll
+  (lambda args
+    (let ((skill (car args))
+          (rest (cdr args)))
+      (if (= (length rest) 4)
+          (list 'roll skill (car rest) (cadr rest) (caddr rest) (cadddr rest))
+          (if (= (length rest) 3)
+              (list 'roll skill (lambda () '()) (car rest) (cadr rest) (caddr rest))
+              (error "roll: expected 4 args (skill fail neutral success) or 5 args (skill mod-fn fail neutral success)"))))))
 
 (define (observe text)
   (list 'observe text))

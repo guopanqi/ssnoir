@@ -170,14 +170,29 @@ namespace SSNoir.Scripting
                 if (list[1] is Symbol sSym) skillName = sSym.AsString;
                 else if (list[1] is string sStr) skillName = sStr;
 
-                var failProc = list[2] as Procedure;
-                var neutralProc = list[3] as Procedure;
-                var successProc = list[4] as Procedure;
+                Func<List<DifficultyModifierInfo>>? getModifiers = null;
+                int failIndex = 2;
+
+                // Check if 3rd element is a difficulty modifier callback (Procedure)
+                if (list.Count >= 6 && list[2] is Procedure modProc)
+                {
+                    getModifiers = () =>
+                    {
+                        var result = modProc.Call(new List<object>());
+                        return ParseDifficultyModifiers(result);
+                    };
+                    failIndex = 3;
+                }
+
+                var failProc = list[failIndex] as Procedure;
+                var neutralProc = list[failIndex + 1] as Procedure;
+                var successProc = list[failIndex + 2] as Procedure;
 
                 return new GameResolve
                 {
                     Type = ResolveType.Roll,
                     SkillName = skillName,
+                    GetDifficultyModifiers = getModifiers,
                     OnFail = failProc != null ? () => failProc.Call(new List<object>()) : null,
                     OnNeutral = neutralProc != null ? () => neutralProc.Call(new List<object>()) : null,
                     OnSuccess = successProc != null ? () => successProc.Call(new List<object>()) : null
@@ -194,6 +209,36 @@ namespace SSNoir.Scripting
             }
 
             throw new InvalidOperationException($"Unknown resolve type or invalid argument count: {typeStr}");
+        }
+
+        private static List<DifficultyModifierInfo> ParseDifficultyModifiers(object modifiersExpr)
+        {
+            var modifiers = new List<DifficultyModifierInfo>();
+            if (modifiersExpr is List<object> list)
+            {
+                foreach (var item in list)
+                {
+                    if (item is List<object> modExpr && modExpr.Count >= 3)
+                    {
+                        if (modExpr[0] is Symbol sym && sym.AsString == "modifier")
+                        {
+                            int value = 0;
+                            if (modExpr[1] is double d) value = (int)d;
+                            else if (modExpr[1] is long l) value = (int)l;
+                            else if (modExpr[1] is int i) value = i;
+
+                            var reason = modExpr[2] as string ?? string.Empty;
+
+                            modifiers.Add(new DifficultyModifierInfo
+                            {
+                                Value = value,
+                                Reason = reason
+                            });
+                        }
+                    }
+                }
+            }
+            return modifiers;
         }
 
         private static List<GameClock> ParseClocks(object clocksExpr)
