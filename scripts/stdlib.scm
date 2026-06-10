@@ -4,6 +4,8 @@
 (define :clocks ':clocks)
 (define :children ':children)
 (define :effect ':effect)
+(define :requires ':requires)
+(define :resolve ':resolve)
 
 (define (cadr xs)
   (car (cdr xs)))
@@ -22,16 +24,70 @@
               (get-kwarg (cdr (cdr kwargs)) key default)))))
 
 ;; node constructor
-;; Returns a list: ('node name clocks children effect)
+;; Returns a list: ('node name :clocks clocks :children children :requires requires :resolve resolve)
 (define node
   (lambda args
     (let ((name (car args))
           (kwargs (cdr args)))
       (list 'node
             name
-            (get-kwarg kwargs ':clocks '())
-            (get-kwarg kwargs ':children '())
-            (get-kwarg kwargs ':effect #f)))))
+            :clocks (get-kwarg kwargs ':clocks '())
+            :children (get-kwarg kwargs ':children '())
+            :requires (get-kwarg kwargs ':requires #f)
+            :resolve (get-kwarg kwargs ':resolve #f)))))
+
+;; Action constructors
+(define (instant effect)
+  (list 'instant effect))
+
+(define (roll skill fail-fn neutral-fn success-fn)
+  (list 'roll skill fail-fn neutral-fn success-fn))
+
+(define (observe text)
+  (list 'observe text))
+
+;; Cost/Requirement constructors
+(define (req-die)
+  (list 'die))
+
+(define (req-item name qty)
+  (list 'item name qty))
+
+;; Container & Action helpers
+(define (container name children)
+  (node name :children children))
+
+(define (container-with-clocks name children clocks)
+  (node name :children children :clocks clocks))
+
+(define (action name requires resolve)
+  (node name :requires requires :resolve resolve))
+
+(define (action-with-clocks name requires resolve clocks)
+  (node name :requires requires :resolve resolve :clocks clocks))
+
+;; Shorthands for simple actions
+(define (instant-action name effect)
+  (action name #f (instant effect)))
+
+(define (observe-action name text)
+  (action name #f (observe text)))
+
+(define (roll-action name requires skill fail-fn neutral-fn success-fn)
+  (action name requires (roll skill fail-fn neutral-fn success-fn)))
+
+;; Inventory helpers
+(define (get-item name)
+  (if (equal? name "金钱")
+      (get-global 'money)
+      (let ((val (get-global (string-append "item:" name))))
+        (if val val 0))))
+
+(define (consume-item! name n)
+  (if (equal? name "金钱")
+      (set-global! 'money (- (get-global 'money) n))
+      (set-global! (string-append "item:" name)
+                   (- (get-item name) n))))
 
 ;; Rule system
 (define rules '())

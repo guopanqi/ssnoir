@@ -14,23 +14,23 @@
 (define (make-trash-nodes n)
   (if (<= n 0)
       '()
-      (cons (node "清理垃圾"
-                  :effect (lambda ()
-                            (set! trash-count (- trash-count 1))))
+      (cons (instant-action "清理垃圾"
+                            (lambda ()
+                              (set! trash-count (- trash-count 1))))
             (make-trash-nodes (- n 1)))))
 
 (define (node-kick-bin)
-  (node "踢垃圾桶"
-    :effect (lambda () (set! trash-count (+ trash-count 1)))))
+  (instant-action "踢垃圾桶"
+    (lambda () (set! trash-count (+ trash-count 1)))))
 
 (define (node-knock)
-  (node "敲门"
-    :effect (lambda () (set! knock-count (+ knock-count 1)))))
+  (instant-action "敲门"
+    (lambda () (set! knock-count (+ knock-count 1)))))
 
 (define (node-enter)
-  (node "进门2"
-    :effect (lambda ()
-              (set-global! 'location "office"))))
+  (instant-action "进门2"
+    (lambda ()
+      (set-global! 'location "office"))))
 
 ;; ── Render Data Entrypoint ────────────────────
 (define (get-render-data)
@@ -38,8 +38,7 @@
     (cons (node-kick-bin)
           (make-trash-nodes trash-count))
     (list
-      (node "家"
-        :children
+      (container "家"
         (append
           (list (node-knock))
           (if unlock?

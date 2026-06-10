@@ -101,18 +101,26 @@ namespace SSNoir.Core
             }
         }
 
+        public void OnActionExecuted()
+        {
+            _interpreter?.Eval("(on-action)");
+            Refresh();
+        }
+
         public void ExecuteEffect(GameNode node)
         {
-            Debug.Assert(node.HasEffect, "Cannot execute effect on a node that has no effect");
+            Debug.Assert(node.Resolve != null, "Cannot execute effect on a node that has no resolve");
 
-            // Execute the action (calls the scheme procedure)
-            node.Effect!.Invoke();
+            if (node.Resolve.Type == ResolveType.Instant)
+            {
+                node.Resolve.Effect?.Invoke();
+            }
+            else if (node.Resolve.Type == ResolveType.Roll)
+            {
+                node.Resolve.OnSuccess?.Invoke();
+            }
 
-            // Run reactive rules
-            _interpreter!.Eval("(on-action)");
-
-            // Refresh the node tree
-            Refresh();
+            OnActionExecuted();
         }
     }
 }

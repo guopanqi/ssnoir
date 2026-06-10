@@ -16,6 +16,11 @@ namespace SSNoir.Core
             Set("money", 50);
             Set("health", 100);
             Set("location", "home");
+
+            var rand = new Random();
+            Set("action-dice", new List<object> { rand.Next(1, 7), rand.Next(1, 7), rand.Next(1, 7) });
+            Set("item:酒", 1);
+            Set("item:枪", 1);
         }
 
         public T Get<T>(string key, T defaultValue = default!)

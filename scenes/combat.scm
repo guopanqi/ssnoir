@@ -18,12 +18,23 @@
           ((equal? msg 'atk-full?) (atk-clock 'full?))
           ((equal? msg 'reset-atk!)(atk-clock 'reset!))
           ((equal? msg 'render-data)
-           (list 'node type
-                 (list (list 'clock "HP" hp hp-max 'segments)
-                       (atk-clock 'render-data))
-                 (list (node "压制" :effect (lambda () (suppress!)))
-                       (node "击倒" :effect (lambda () (eliminate!))))
-                 #f))
+           (container-with-clocks
+             type
+             (list
+               (action "压制"
+                       (list (req-die))
+                       (roll 'violence
+                             (lambda () #f)                    ; 失败: 无效果
+                             (lambda () (atk-clock 'reset!))   ; 中性: 仅重置敌人攻击
+                             (lambda () (suppress!))))         ; 成功: 伤害加重置
+               (action "击倒"
+                       (list (req-die))
+                       (roll 'violence
+                             (lambda () #f)                    ; 失败: 无效果
+                             (lambda () (set! hp (- hp 1)))    ; 中性: 造成1点小伤害
+                             (lambda () (eliminate!)))))       ; 成功: 造成2点大伤害
+             (list (list 'clock "HP" hp hp-max 'segments)
+                   (atk-clock 'render-data))))
           (else #f))))))
 
 ;; ── Local State ────────────────────────────────
@@ -89,13 +100,13 @@
 ;; ── Render Data Entrypoint ────────────────────
 (define (get-render-data)
   (list
-    (node "仓库"
-      :clocks (list (exit-clock 'render-data)
-                    (spawn-clock 'render-data))
-      :children
+    (container-with-clocks "仓库"
       (append
         (map (lambda (e) (e 'render-data)) (live-enemies))
         (list
-          (node "冲向出口"
-            :effect (lambda ()
-                      (exit-clock 'tick!))))))))
+          (action "冲向出口"
+                  (list (req-die))
+                  (instant (lambda ()
+                             (exit-clock 'tick!))))))
+      (list (exit-clock 'render-data)
+            (spawn-clock 'render-data)))))

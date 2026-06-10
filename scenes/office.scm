@@ -12,21 +12,21 @@
 
 ;; ── Node Definitions ──────────────────────────
 (define (node-work)
-  (node "写代码"
-    :effect (lambda ()
-              (work-clock 'tick!))))
+  (action "写代码"
+          (list (req-die))
+          (instant (lambda ()
+                     (work-clock 'tick!)))))
 
 (define (node-go-home)
-  (node "回家"
-    :effect (lambda ()
-              (set-global! 'location "home"))))
+  (instant-action "回家"
+    (lambda ()
+      (set-global! 'location "home"))))
 
 ;; ── Render Data Entrypoint ────────────────────
 (define (get-render-data)
   (list
-    (node "办公室"
-      :clocks (list (work-clock 'render-data))
-      :children
+    (container-with-clocks "办公室"
       (list
         (node-work)
-        (node-go-home)))))
+        (node-go-home))
+      (list (work-clock 'render-data)))))

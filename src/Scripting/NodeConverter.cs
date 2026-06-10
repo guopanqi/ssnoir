@@ -30,9 +30,9 @@ namespace SSNoir.Scripting
                 throw new InvalidOperationException($"Invalid node expression (must be a list): {item?.GetType().FullName ?? "null"}");
             }
 
-            if (nodeExpr.Count != 5)
+            if (nodeExpr.Count < 2)
             {
-                throw new InvalidOperationException($"Invalid node expression length (expected 5, got {nodeExpr.Count})");
+                throw new InvalidOperationException($"Invalid node expression length (expected at least 2, got {nodeExpr.Count})");
             }
 
             if (!(nodeExpr[0] is Symbol sym && sym.AsString == "node"))
@@ -45,43 +45,154 @@ namespace SSNoir.Scripting
                 throw new InvalidOperationException($"Invalid node name (expected string, got {nodeExpr[1]?.GetType().FullName ?? "null"})");
             }
 
-            var clocksExpr = nodeExpr[2];
-            var clocks = ParseClocks(clocksExpr);
+            List<GameClock> clocks = new List<GameClock>();
+            List<GameNode> children = new List<GameNode>();
+            List<ActionCost> requires = new List<ActionCost>();
+            GameResolve? resolve = null;
 
-            var childrenExpr = nodeExpr[3];
-            if (!(childrenExpr is List<object>))
+            for (int i = 2; i < nodeExpr.Count; i += 2)
             {
-                throw new InvalidOperationException($"Invalid node children (expected list, got {childrenExpr?.GetType().FullName ?? "null"})");
-            }
-
-            var effectExpr = nodeExpr[4];
-            Action? effect = null;
-            if (effectExpr is Procedure proc)
-            {
-                effect = () =>
+                if (i + 1 >= nodeExpr.Count)
                 {
-                    proc.Call(new List<object>());
-                };
-            }
-            else if (effectExpr is bool b && b == false)
-            {
-                // false effect is valid, no action
-            }
-            else
-            {
-                throw new InvalidOperationException($"Invalid node effect (expected Procedure or false, got {effectExpr?.GetType().FullName ?? "null"})");
-            }
+                    throw new InvalidOperationException($"Missing value for keyword {nodeExpr[i]}");
+                }
 
-            var children = ConvertList(childrenExpr, interpreter);
+                if (!(nodeExpr[i] is Symbol kw))
+                {
+                    throw new InvalidOperationException($"Expected keyword symbol at index {i}, got {nodeExpr[i]}");
+                }
+
+                string kwStr = kw.AsString.ToLowerInvariant();
+                object val = nodeExpr[i + 1];
+
+                if (kwStr == ":clocks")
+                {
+                    clocks = ParseClocks(val);
+                }
+                else if (kwStr == ":children")
+                {
+                    children = ConvertList(val, interpreter);
+                }
+                else if (kwStr == ":requires")
+                {
+                    requires = ParseRequires(val);
+                }
+                else if (kwStr == ":resolve")
+                {
+                    resolve = ParseResolve(val, interpreter);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Unknown node keyword {kwStr}");
+                }
+            }
 
             var node = new GameNode
             {
                 Name = name,
                 Children = children,
-                Effect = effect
+                Requires = requires,
+                Resolve = resolve
             };
             node.Clocks.AddRange(clocks);
             return node;
+        }
+
+        private static List<ActionCost> ParseRequires(object requiresExpr)
+        {
+            var requires = new List<ActionCost>();
+            if (requiresExpr is bool b && b == false)
+            {
+                return requires; // #f means no requirements
+            }
+
+            if (requiresExpr is List<object> list)
+            {
+                foreach (var item in list)
+                {
+                    if (item is List<object> costExpr && costExpr.Count > 0)
+                    {
+                        if (costExpr[0] is Symbol costSym)
+                        {
+                            var typeStr = costSym.AsString.ToLowerInvariant();
+                            if (typeStr == "die")
+                            {
+                                requires.Add(new ActionCost { Type = "die" });
+                            }
+                            else if (typeStr == "item" && costExpr.Count >= 3)
+                            {
+                                var itemName = costExpr[1] as string ?? "Unknown";
+                                int qty = 0;
+                                if (costExpr[2] is double d) qty = (int)d;
+                                else if (costExpr[2] is long l) qty = (int)l;
+                                else if (costExpr[2] is int i) qty = i;
+
+                                requires.Add(new ActionCost { Type = "item", ItemName = itemName, Qty = qty });
+                            }
+                        }
+                    }
+                }
+            }
+            return requires;
+        }
+
+        private static GameResolve? ParseResolve(object resolveExpr, Interpreter interpreter)
+        {
+            if (resolveExpr is bool b && b == false)
+            {
+                return null;
+            }
+
+            if (!(resolveExpr is List<object> list) || list.Count == 0)
+            {
+                throw new InvalidOperationException("Invalid resolve expression: must be a non-empty list");
+            }
+
+            if (!(list[0] is Symbol typeSym))
+            {
+                throw new InvalidOperationException($"Invalid resolve type: expected symbol, got {list[0]}");
+            }
+
+            var typeStr = typeSym.AsString.ToLowerInvariant();
+            if (typeStr == "instant" && list.Count >= 2)
+            {
+                var effectProc = list[1] as Procedure;
+                return new GameResolve
+                {
+                    Type = ResolveType.Instant,
+                    Effect = effectProc != null ? () => effectProc.Call(new List<object>()) : null
+                };
+            }
+            else if (typeStr == "roll" && list.Count >= 5)
+            {
+                string skillName = string.Empty;
+                if (list[1] is Symbol sSym) skillName = sSym.AsString;
+                else if (list[1] is string sStr) skillName = sStr;
+
+                var failProc = list[2] as Procedure;
+                var neutralProc = list[3] as Procedure;
+                var successProc = list[4] as Procedure;
+
+                return new GameResolve
+                {
+                    Type = ResolveType.Roll,
+                    SkillName = skillName,
+                    OnFail = failProc != null ? () => failProc.Call(new List<object>()) : null,
+                    OnNeutral = neutralProc != null ? () => neutralProc.Call(new List<object>()) : null,
+                    OnSuccess = successProc != null ? () => successProc.Call(new List<object>()) : null
+                };
+            }
+            else if (typeStr == "observe" && list.Count >= 2)
+            {
+                var text = list[1] as string ?? string.Empty;
+                return new GameResolve
+                {
+                    Type = ResolveType.Observe,
+                    ObserveText = text
+                };
+            }
+
+            throw new InvalidOperationException($"Unknown resolve type or invalid argument count: {typeStr}");
         }
 
         private static List<GameClock> ParseClocks(object clocksExpr)

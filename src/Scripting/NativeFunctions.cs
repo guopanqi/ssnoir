@@ -12,26 +12,26 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("get-global"), new NativeProcedure(args =>
             {
                 if (args.Count < 1)
-                    throw new ArgumentException("get-global requires 1 argument: key symbol");
+                    throw new ArgumentException("get-global requires 1 argument: key symbol or string");
 
-                var sym = args[0] as Symbol;
-                if (sym == null)
-                    throw new ArgumentException($"get-global argument must be a symbol, got {args[0]?.GetType().FullName}");
+                string key = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                if (string.IsNullOrEmpty(key))
+                    throw new ArgumentException("get-global key cannot be null or empty");
 
-                return gameState.Get<object>(sym.AsString);
+                return gameState.Get<object>(key);
             }, "get-global"));
 
             interpreter.DefineGlobal(Symbol.FromString("set-global!"), new NativeProcedure(args =>
             {
                 if (args.Count < 2)
-                    throw new ArgumentException("set-global! requires 2 arguments: key symbol and value");
+                    throw new ArgumentException("set-global! requires 2 arguments: key symbol or string and value");
 
-                var sym = args[0] as Symbol;
-                if (sym == null)
-                    throw new ArgumentException($"set-global! first argument must be a symbol, got {args[0]?.GetType().FullName}");
+                string key = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                if (string.IsNullOrEmpty(key))
+                    throw new ArgumentException("set-global! key cannot be null or empty");
 
                 var val = args[1];
-                gameState.Set(sym.AsString, val);
+                gameState.Set(key, val);
                  return new None();
             }, "set-global!"));
 

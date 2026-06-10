@@ -7,12 +7,36 @@ namespace SSNoir.Rendering
 {
     public static class CardWidget
     {
-        public static bool DrawCard(Rectangle bounds, string name, string typeLabel, bool isHovered, List<GameClock> clocks)
+        public static bool DrawCard(Rectangle bounds, string name, string typeLabel, bool isHovered, List<GameClock> clocks, bool isFlipped = false, string backText = "")
         {
             Color bgColor = isHovered ? new Color(50, 50, 70, 255) : new Color(30, 30, 40, 255);
             Color outlineColor = isHovered ? new Color(130, 130, 220, 255) : new Color(60, 60, 80, 255);
             Color titleColor = isHovered ? Color.White : new Color(200, 200, 200, 255);
             Color typeColor = isHovered ? new Color(150, 150, 230, 255) : new Color(110, 110, 130, 255);
+
+            if (isFlipped)
+            {
+                Color backBg = isHovered ? new Color(65, 45, 55, 255) : new Color(45, 30, 38, 255);
+                Color backOutline = isHovered ? new Color(220, 130, 150, 255) : new Color(120, 70, 80, 255);
+                Color textColor = new Color(220, 200, 205, 255);
+
+                Raylib.DrawRectangleRounded(bounds, 0.1f, 8, backBg);
+                Raylib.DrawRectangleRoundedLinesEx(bounds, 0.1f, 8, 2f, backOutline);
+
+                // Draw wrapped observation text
+                int fontSize = 12;
+                DrawWrappedText(backText, bounds.X + 8, bounds.Y + 8, bounds.Width - 16, fontSize, textColor);
+
+                // Draw tip at the bottom-center
+                int tipFontSize = 10;
+                string tip = "点击返回正面";
+                int tipWidth = FontManager.MeasureTextWidth(tip, tipFontSize);
+                float tipX = bounds.X + (bounds.Width - tipWidth) / 2f;
+                float tipY = bounds.Y + bounds.Height - 16;
+                FontManager.DrawText(tip, tipX, tipY, tipFontSize, new Color(150, 120, 130, 255));
+
+                return isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left);
+            }
 
             // Draw Card Background
             Raylib.DrawRectangleRounded(bounds, 0.1f, 8, bgColor);
@@ -45,6 +69,51 @@ namespace SSNoir.Rendering
 
             // Return if clicked
             return isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left);
+        }
+
+        private static void DrawWrappedText(string text, float x, float y, float width, int fontSize, Color color)
+        {
+            float currentY = y;
+            string currentLine = "";
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (c == '\n')
+                {
+                    FontManager.DrawText(currentLine, x, currentY, fontSize, color);
+                    currentLine = "";
+                    currentY += fontSize + 4;
+                    continue;
+                }
+
+                string testLine = currentLine + c;
+                int testW = FontManager.MeasureTextWidth(testLine, fontSize);
+                if (testW > width)
+                {
+                    if (currentLine.Length > 0)
+                    {
+                        FontManager.DrawText(currentLine, x, currentY, fontSize, color);
+                        currentLine = c.ToString();
+                        currentY += fontSize + 4;
+                    }
+                    else
+                    {
+                        FontManager.DrawText(testLine, x, currentY, fontSize, color);
+                        currentLine = "";
+                        currentY += fontSize + 4;
+                    }
+                }
+                else
+                {
+                    currentLine = testLine;
+                }
+            }
+
+            if (currentLine.Length > 0)
+            {
+                FontManager.DrawText(currentLine, x, currentY, fontSize, color);
+            }
         }
 
         private static void DrawClockBadge(ref float rightX, float topY, GameClock clock)

@@ -17,6 +17,12 @@ namespace SSNoir.Rendering
         private bool _isDropdownOpen = false;
         private readonly List<string> _availableScenes = new List<string>();
 
+        private readonly HashSet<string> _flippedNodes = new HashSet<string>();
+        private GameNode? _activeActionChoiceNode = null;
+        private RollResult? _activeRollResult = null;
+        private string _uiNotification = "";
+        private float _uiNotificationTimer = 0f;
+
         private const int WindowWidth = 800;
         private const int WindowHeight = 600;
 
@@ -97,8 +103,18 @@ namespace SSNoir.Rendering
         {
             var mousePos = Raylib.GetMousePosition();
 
+            // Update Notification Timer
+            if (_uiNotificationTimer > 0)
+            {
+                _uiNotificationTimer -= Raylib.GetFrameTime();
+            }
+
+            // Block input to underlying layers if a modal overlay is active
+            bool inputBlocked = _activeActionChoiceNode != null || _activeRollResult != null;
+            var activeMousePos = inputBlocked ? new Vector2(-100f, -100f) : mousePos;
+
             // Handle ESC key to return to the parent node
-            if (Raylib.IsKeyPressed(KeyboardKey.Escape))
+            if (!inputBlocked && Raylib.IsKeyPressed(KeyboardKey.Escape))
             {
                 if (_navigationStack.Count > 0)
                 {
@@ -107,25 +123,31 @@ namespace SSNoir.Rendering
                 }
             }
 
-            UpdateDropdown(mousePos);
+            if (!inputBlocked)
+            {
+                UpdateDropdown(mousePos);
+            }
 
             Raylib.BeginDrawing();
             Raylib.ClearBackground(new Color(20, 20, 25, 255));
 
             // ── Draw Navigation / Breadcrumbs ──
-            DrawNavigation(mousePos);
+            DrawNavigation(activeMousePos);
 
             // ── Draw Node Clocks (if any) ──
             float cardsStartY = DrawNodeClocks(90f);
 
             // ── Draw Node Cards ──
-            DrawCards(mousePos, cardsStartY);
+            DrawCards(activeMousePos, cardsStartY);
 
             // ── Draw Bottom Status Panel ──
             DrawStatusPanel();
 
             // ── Draw Dropdown ──
-            DrawDropdown(mousePos);
+            DrawDropdown(activeMousePos);
+
+            // ── Draw Overlays (Modals / Toasts) ──
+            DrawOverlays(mousePos);
 
             Raylib.EndDrawing();
         }
@@ -193,8 +215,18 @@ namespace SSNoir.Rendering
                 var bounds = new Rectangle(x, y, cardWidth, cardHeight);
                 bool isHovered = Raylib.CheckCollisionPointRec(mousePos, bounds);
 
-                string typeLabel = node.HasChildren ? "场所" : "行动";
-                bool clicked = CardWidget.DrawCard(bounds, node.Name, typeLabel, isHovered, node.Clocks);
+                string typeLabel = "容器";
+                if (node.Resolve != null)
+                {
+                    if (node.Resolve.Type == ResolveType.Instant) typeLabel = "行动";
+                    else if (node.Resolve.Type == ResolveType.Roll) typeLabel = "判定";
+                    else if (node.Resolve.Type == ResolveType.Observe) typeLabel = "观察";
+                }
+
+                bool isFlipped = _flippedNodes.Contains(node.Name);
+                string backText = (node.Resolve?.Type == ResolveType.Observe) ? node.Resolve.ObserveText : "";
+
+                bool clicked = CardWidget.DrawCard(bounds, node.Name, typeLabel, isHovered, node.Clocks, isFlipped, backText);
 
                 if (clicked)
                 {
@@ -203,9 +235,48 @@ namespace SSNoir.Rendering
                         _navigationStack.Add(node);
                         ResolveNavigationStack();
                     }
-                    else if (node.HasEffect)
+                    else if (node.Resolve != null)
                     {
-                        _sceneManager.ExecuteEffect(node);
+                        if (node.Resolve.Type == ResolveType.Observe)
+                        {
+                            if (isFlipped)
+                            {
+                                _flippedNodes.Remove(node.Name);
+                            }
+                            else
+                            {
+                                _flippedNodes.Add(node.Name);
+                            }
+                        }
+                        else
+                        {
+                            string missingReason;
+                            if (!CheckRequirements(node, out missingReason))
+                            {
+                                TriggerNotification(missingReason);
+                            }
+                            else
+                            {
+                                bool requiresDie = false;
+                                foreach (var cost in node.Requires)
+                                {
+                                    if (cost.Type == "die")
+                                    {
+                                        requiresDie = true;
+                                        break;
+                                    }
+                                }
+
+                                if (requiresDie)
+                                {
+                                    _activeActionChoiceNode = node;
+                                }
+                                else
+                                {
+                                    ExecuteActionWithoutDie(node);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -226,20 +297,374 @@ namespace SSNoir.Rendering
             Color textColor = new Color(200, 200, 220, 255);
             Color valueColor = new Color(150, 150, 250, 255);
 
-            int startX = 50;
-            int spacing = 220;
+            // Column 1 (x=30): Money & Health on two rows
+            FontManager.DrawText("钱金: ", 30, panelY + 15, 15, textColor);
+            FontManager.DrawText($"${money}", 80, panelY + 15, 15, valueColor);
 
-            // Draw Money
-            FontManager.DrawText("钱金: ", startX, panelY + 25, 18, textColor);
-            FontManager.DrawText($"${money}", startX + 50, panelY + 25, 18, valueColor);
+            FontManager.DrawText("健康: ", 30, panelY + 40, 15, textColor);
+            FontManager.DrawText($"{health}%", 80, panelY + 40, 15, new Color(250, 100, 100, 255));
 
-            // Draw Health
-            FontManager.DrawText("健康: ", startX + spacing, panelY + 25, 18, textColor);
-            FontManager.DrawText($"{health}%", startX + spacing + 50, panelY + 25, 18, new Color(250, 100, 100, 255));
+            // Column 2 (x=160): Location
+            FontManager.DrawText("场景: ", 160, panelY + 25, 15, textColor);
+            FontManager.DrawText(location.ToUpper(), 210, panelY + 25, 15, new Color(100, 220, 100, 255));
 
-            // Draw Location
-            FontManager.DrawText("场景: ", startX + spacing * 2, panelY + 25, 18, textColor);
-            FontManager.DrawText(location.ToUpper(), startX + spacing * 2 + 50, panelY + 25, 18, new Color(100, 220, 100, 255));
+            // Column 3 (x=330): Action Dice
+            FontManager.DrawText("行动力: ", 330, panelY + 25, 15, textColor);
+            var dice = _gameState.Get<List<object>>("action-dice");
+            if (dice != null)
+            {
+                for (int i = 0; i < dice.Count; i++)
+                {
+                    float dieX = 390 + i * 32;
+                    float dieY = panelY + 21;
+
+                    Raylib.DrawRectangleRounded(new Rectangle(dieX, dieY, 26, 26), 0.2f, 4, new Color(45, 45, 60, 255));
+                    Raylib.DrawRectangleRoundedLinesEx(new Rectangle(dieX, dieY, 26, 26), 0.2f, 4, 1f, new Color(100, 100, 130, 255));
+
+                    string numStr = dice[i]?.ToString() ?? "0";
+                    int numW = FontManager.MeasureTextWidth(numStr, 14);
+                    FontManager.DrawText(numStr, dieX + (26 - numW) / 2f, dieY + 5, 14, Color.White);
+                }
+            }
+
+            // Column 4 (x=530): Inventory
+            FontManager.DrawText("物品栏: ", 530, panelY + 15, 15, textColor);
+
+            var items = new List<string>();
+            foreach (var kvp in _gameState.GetAllStates())
+            {
+                if (kvp.Key.StartsWith("item:"))
+                {
+                    int qty = 0;
+                    if (kvp.Value is double d) qty = (int)d;
+                    else if (kvp.Value is long l) qty = (int)l;
+                    else if (kvp.Value is int valInt) qty = valInt;
+
+                    if (qty > 0)
+                    {
+                        items.Add($"{kvp.Key.Substring(5)} x{qty}");
+                    }
+                }
+            }
+            string inventoryStr = items.Count > 0 ? string.Join(", ", items) : "空";
+            FontManager.DrawText(inventoryStr, 530, panelY + 40, 13, new Color(160, 160, 180, 255));
+        }
+
+        private bool CheckRequirements(GameNode node, out string missingReason)
+        {
+            missingReason = "";
+            if (node.Requires == null || node.Requires.Count == 0)
+                return true;
+
+            foreach (var cost in node.Requires)
+            {
+                if (cost.Type == "item")
+                {
+                    int owned = 0;
+                    if (cost.ItemName == "金钱")
+                    {
+                        owned = _gameState.Get<int>("money");
+                    }
+                    else
+                    {
+                        owned = _gameState.Get<int>("item:" + cost.ItemName, 0);
+                    }
+
+                    if (owned < cost.Qty)
+                    {
+                        missingReason = $"缺少物品: {cost.ItemName} (需要 {cost.Qty}, 拥有 {owned})";
+                        return false;
+                    }
+                }
+                else if (cost.Type == "die")
+                {
+                    var dice = _gameState.Get<List<object>>("action-dice");
+                    if (dice == null || dice.Count < 1)
+                    {
+                        missingReason = "行动力骰子不足";
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private void ConsumeRequirements(GameNode node)
+        {
+            if (node.Requires == null) return;
+            foreach (var cost in node.Requires)
+            {
+                if (cost.Type == "item")
+                {
+                    if (cost.ItemName == "金钱")
+                    {
+                        int owned = _gameState.Get<int>("money");
+                        _gameState.Set("money", Math.Max(0, owned - cost.Qty));
+                    }
+                    else
+                    {
+                        int owned = _gameState.Get<int>("item:" + cost.ItemName, 0);
+                        _gameState.Set("item:" + cost.ItemName, Math.Max(0, owned - cost.Qty));
+                    }
+                }
+            }
+        }
+
+        private void ConsumeDie(int dieIndex)
+        {
+            var dice = _gameState.Get<List<object>>("action-dice");
+            if (dice != null && dieIndex >= 0 && dieIndex < dice.Count)
+            {
+                dice.RemoveAt(dieIndex);
+                _gameState.Set("action-dice", dice);
+            }
+        }
+
+        private void ExecuteActionWithoutDie(GameNode node)
+        {
+            ConsumeRequirements(node);
+
+            if (node.Resolve?.Type == ResolveType.Instant)
+            {
+                node.Resolve.Effect?.Invoke();
+            }
+
+            _sceneManager.OnActionExecuted();
+        }
+
+        private void ExecuteActionWithDie(GameNode node, int chosenDieVal, int dieIndex)
+        {
+            ConsumeDie(dieIndex);
+            ConsumeRequirements(node);
+
+            if (node.Resolve?.Type == ResolveType.Roll)
+            {
+                int skillLevel = _gameState.Get<int>("skill:" + node.Resolve.SkillName, 1);
+                
+                var rand = new Random();
+                var randomDice = new List<int>();
+                int finalValue = chosenDieVal;
+
+                for (int i = 0; i < skillLevel - 1; i++)
+                {
+                    int r = rand.Next(1, 7);
+                    randomDice.Add(r);
+                    if (r > finalValue)
+                    {
+                        finalValue = r;
+                    }
+                }
+
+                string outcome = "";
+                if (finalValue <= 2)
+                {
+                    outcome = "失败";
+                    node.Resolve.OnFail?.Invoke();
+                }
+                else if (finalValue <= 4)
+                {
+                    outcome = "中性";
+                    node.Resolve.OnNeutral?.Invoke();
+                }
+                else
+                {
+                    outcome = "成功";
+                    node.Resolve.OnSuccess?.Invoke();
+                }
+
+                _activeRollResult = new RollResult
+                {
+                    ActionName = node.Name,
+                    ChosenDie = chosenDieVal,
+                    RandomDice = randomDice,
+                    FinalValue = finalValue,
+                    Outcome = outcome
+                };
+            }
+            else if (node.Resolve?.Type == ResolveType.Instant)
+            {
+                node.Resolve.Effect?.Invoke();
+                _sceneManager.OnActionExecuted();
+            }
+        }
+
+        private void TriggerNotification(string message)
+        {
+            _uiNotification = message;
+            _uiNotificationTimer = 2.5f;
+        }
+
+        private void DrawOverlays(Vector2 mousePos)
+        {
+            // 1. Toast Notification
+            if (_uiNotificationTimer > 0 && !string.IsNullOrEmpty(_uiNotification))
+            {
+                int toastW = FontManager.MeasureTextWidth(_uiNotification, 14) + 40;
+                float toastX = (WindowWidth - toastW) / 2f;
+                float toastY = 15f;
+                var toastRect = new Rectangle(toastX, toastY, toastW, 30);
+                
+                Raylib.DrawRectangleRounded(toastRect, 0.4f, 4, new Color(120, 20, 30, 230));
+                Raylib.DrawRectangleRoundedLinesEx(toastRect, 0.4f, 4, 1.5f, new Color(180, 40, 50, 255));
+                FontManager.DrawText(_uiNotification, toastX + 20, toastY + 7, 14, Color.White);
+            }
+
+            // 2. Die Selection Modal
+            if (_activeActionChoiceNode != null)
+            {
+                Raylib.DrawRectangle(0, 0, WindowWidth, WindowHeight, new Color(0, 0, 0, 180));
+
+                float modalW = 340;
+                float modalH = 200;
+                float modalX = (WindowWidth - modalW) / 2f;
+                float modalY = (WindowHeight - modalH) / 2f;
+                var modalRect = new Rectangle(modalX, modalY, modalW, modalH);
+
+                Raylib.DrawRectangleRounded(modalRect, 0.1f, 8, new Color(30, 30, 40, 255));
+                Raylib.DrawRectangleRoundedLinesEx(modalRect, 0.1f, 8, 2f, new Color(80, 80, 100, 255));
+
+                string title = "选择放入的行动力骰子";
+                int titleW = FontManager.MeasureTextWidth(title, 18);
+                FontManager.DrawText(title, modalX + (modalW - titleW) / 2f, modalY + 20, 18, Color.White);
+
+                string sub = $"判定项目: {_activeActionChoiceNode.Resolve?.SkillName ?? "无"}";
+                int subW = FontManager.MeasureTextWidth(sub, 12);
+                FontManager.DrawText(sub, modalX + (modalW - subW) / 2f, modalY + 50, 12, new Color(150, 150, 170, 255));
+
+                var dice = _gameState.Get<List<object>>("action-dice");
+                if (dice != null && dice.Count > 0)
+                {
+                    float buttonY = modalY + 80;
+                    float buttonW = 40;
+                    float buttonH = 40;
+                    float spacing = 15;
+                    float startX = modalX + (modalW - (dice.Count * buttonW + (dice.Count - 1) * spacing)) / 2f;
+
+                    for (int i = 0; i < dice.Count; i++)
+                    {
+                        float btnX = startX + i * (buttonW + spacing);
+                        var btnRect = new Rectangle(btnX, buttonY, buttonW, buttonH);
+                        bool hover = Raylib.CheckCollisionPointRec(mousePos, btnRect);
+
+                        Color btnBg = hover ? new Color(70, 70, 100, 255) : new Color(45, 45, 60, 255);
+                        Color btnBorder = hover ? new Color(150, 150, 250, 255) : new Color(80, 80, 110, 255);
+
+                        Raylib.DrawRectangleRounded(btnRect, 0.2f, 4, btnBg);
+                        Raylib.DrawRectangleRoundedLinesEx(btnRect, 0.2f, 4, 1.5f, btnBorder);
+
+                        int val = 0;
+                        if (dice[i] is double d) val = (int)d;
+                        else if (dice[i] is long l) val = (int)l;
+                        else if (dice[i] is int valInt) val = valInt;
+
+                        string valStr = val.ToString();
+                        int valW = FontManager.MeasureTextWidth(valStr, 18);
+                        FontManager.DrawText(valStr, btnX + (buttonW - valW) / 2f, buttonY + 11, 18, Color.White);
+
+                        if (hover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                        {
+                            var selectedNode = _activeActionChoiceNode;
+                            _activeActionChoiceNode = null;
+                            ExecuteActionWithDie(selectedNode, val, i);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    string emptyStr = "无可用行动力";
+                    int emptyW = FontManager.MeasureTextWidth(emptyStr, 14);
+                    FontManager.DrawText(emptyStr, modalX + (modalW - emptyW) / 2f, modalY + 90, 14, new Color(220, 100, 100, 255));
+                }
+
+                float cancelW = 80;
+                float cancelH = 28;
+                float cancelX = modalX + (modalW - cancelW) / 2f;
+                float cancelY = modalY + modalH - 45;
+                var cancelRect = new Rectangle(cancelX, cancelY, cancelW, cancelH);
+                bool cancelHover = Raylib.CheckCollisionPointRec(mousePos, cancelRect);
+
+                Color cBg = cancelHover ? new Color(70, 50, 55, 255) : new Color(50, 40, 42, 255);
+                Color cBorder = cancelHover ? new Color(200, 100, 100, 255) : new Color(110, 80, 85, 255);
+
+                Raylib.DrawRectangleRounded(cancelRect, 0.2f, 4, cBg);
+                Raylib.DrawRectangleRoundedLinesEx(cancelRect, 0.2f, 4, 1.5f, cBorder);
+
+                string cancelText = "取消";
+                int cTextW = FontManager.MeasureTextWidth(cancelText, 14);
+                FontManager.DrawText(cancelText, cancelX + (cancelW - cTextW) / 2f, cancelY + 6, 14, new Color(220, 180, 185, 255));
+
+                if (cancelHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                {
+                    _activeActionChoiceNode = null;
+                }
+            }
+
+            // 3. Roll Result Modal
+            if (_activeRollResult != null)
+            {
+                Raylib.DrawRectangle(0, 0, WindowWidth, WindowHeight, new Color(0, 0, 0, 180));
+
+                float modalW = 380;
+                float modalH = 240;
+                float modalX = (WindowWidth - modalW) / 2f;
+                float modalY = (WindowHeight - modalH) / 2f;
+                var modalRect = new Rectangle(modalX, modalY, modalW, modalH);
+
+                Raylib.DrawRectangleRounded(modalRect, 0.1f, 8, new Color(30, 30, 42, 255));
+                Raylib.DrawRectangleRoundedLinesEx(modalRect, 0.1f, 8, 2f, new Color(100, 100, 130, 255));
+
+                string title = $"判定结果: {_activeRollResult.ActionName}";
+                int titleW = FontManager.MeasureTextWidth(title, 18);
+                FontManager.DrawText(title, modalX + (modalW - titleW) / 2f, modalY + 20, 18, Color.White);
+
+                float lineY = modalY + 60;
+                
+                string line1 = $"投入行动力骰子值: {_activeRollResult.ChosenDie}";
+                FontManager.DrawText(line1, modalX + 40, lineY, 14, new Color(200, 200, 220, 255));
+                lineY += 20;
+
+                string line2 = _activeRollResult.RandomDice.Count > 0 
+                    ? $"额外掷骰结果: {string.Join(", ", _activeRollResult.RandomDice)}"
+                    : "无额外随机掷骰";
+                FontManager.DrawText(line2, modalX + 40, lineY, 14, new Color(200, 200, 220, 255));
+                lineY += 20;
+
+                string line3 = $"最终判定最大值: {_activeRollResult.FinalValue}";
+                FontManager.DrawText(line3, modalX + 40, lineY, 14, new Color(220, 220, 250, 255));
+                lineY += 25;
+
+                Color outcomeColor = _activeRollResult.Outcome == "失败" ? new Color(250, 80, 80, 255)
+                                    : _activeRollResult.Outcome == "中性" ? new Color(250, 220, 100, 255)
+                                    : new Color(80, 250, 80, 255);
+
+                string outcomeStr = $"判定结论: {_activeRollResult.Outcome}";
+                int outW = FontManager.MeasureTextWidth(outcomeStr, 16);
+                FontManager.DrawText(outcomeStr, modalX + (modalW - outW) / 2f, lineY, 16, outcomeColor);
+
+                float btnW = 90;
+                float btnH = 32;
+                float btnX = modalX + (modalW - btnW) / 2f;
+                float btnY = modalY + modalH - 50;
+                var btnRect = new Rectangle(btnX, btnY, btnW, btnH);
+                bool btnHover = Raylib.CheckCollisionPointRec(mousePos, btnRect);
+
+                Color bBg = btnHover ? new Color(80, 80, 110, 255) : new Color(50, 50, 70, 255);
+                Color bBorder = btnHover ? new Color(180, 180, 250, 255) : new Color(90, 90, 120, 255);
+
+                Raylib.DrawRectangleRounded(btnRect, 0.2f, 4, bBg);
+                Raylib.DrawRectangleRoundedLinesEx(btnRect, 0.2f, 4, 1.5f, bBorder);
+
+                string btnText = "确定";
+                int btnTextW = FontManager.MeasureTextWidth(btnText, 14);
+                FontManager.DrawText(btnText, btnX + (btnW - btnTextW) / 2f, btnY + 8, 14, Color.White);
+
+                if (btnHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                {
+                    _activeRollResult = null;
+                    _sceneManager.OnActionExecuted();
+                }
+            }
         }
 
         private void DrawDetailedClock(ref float x, float y, GameClock clock)
@@ -449,5 +874,14 @@ namespace SSNoir.Rendering
                 Raylib.DrawRectangleLinesEx(listRect, 1.5f, boxOutlineColor);
             }
         }
+    }
+
+    public class RollResult
+    {
+        public string ActionName { get; set; } = string.Empty;
+        public int ChosenDie { get; set; }
+        public List<int> RandomDice { get; set; } = new List<int>();
+        public int FinalValue { get; set; }
+        public string Outcome { get; set; } = string.Empty;
     }
 }
