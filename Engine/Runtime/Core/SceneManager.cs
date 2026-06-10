@@ -121,20 +121,110 @@ namespace SSNoir.Core
             Refresh();
         }
 
-        public void ExecuteEffect(GameNode node)
+        public ActionReport ExecuteAction(GameNode node, List<SlottedResource?> slots)
         {
-            Debug.Assert(node.Resolve != null, "Cannot execute effect on a node that has no resolve");
+            Debug.Assert(node.Resolve != null, "Cannot execute action on a node that has no resolve");
+            var report = new ActionReport();
 
+            // 1. Consume resources (dice and items/money)
+            var diceToConsume = new List<int>();
+            foreach (var s in slots)
+            {
+                if (s != null && s.Type == "die")
+                {
+                    diceToConsume.Add(s.SourceIndex);
+                }
+            }
+            diceToConsume.Sort((a, b) => b.CompareTo(a));
+
+            var diceList = _gameState.Get<List<object>>("action-dice");
+            if (diceList != null)
+            {
+                var newDice = new List<object>(diceList);
+                foreach (var idx in diceToConsume)
+                {
+                    if (idx >= 0 && idx < newDice.Count)
+                    {
+                        newDice.RemoveAt(idx);
+                    }
+                }
+                _gameState.Set("action-dice", newDice);
+            }
+
+            foreach (var s in slots)
+            {
+                if (s != null && s.Type == "item")
+                {
+                    if (s.ItemName == "金钱")
+                    {
+                        int owned = _gameState.Get<int>("money");
+                        _gameState.Set("money", Math.Max(0, owned - s.Value));
+                    }
+                    else
+                    {
+                        int owned = _gameState.Get<int>("item:" + s.ItemName, 0);
+                        _gameState.Set("item:" + s.ItemName, Math.Max(0, owned - s.Value));
+                    }
+                }
+            }
+
+            // 2. Resolve Action
             if (node.Resolve.Type == ResolveType.Instant)
             {
+                report.Type = ActionType.Instant;
                 node.Resolve.Effect?.Invoke();
+                OnActionExecuted();
             }
             else if (node.Resolve.Type == ResolveType.Roll)
             {
-                node.Resolve.OnSuccess?.Invoke();
+                report.Type = ActionType.Roll;
+                var dieSlot = slots.Find(s => s != null && s.Type == "die");
+                int chosenDieVal = dieSlot != null ? dieSlot.Value : 1;
+                report.ChosenDieValue = chosenDieVal;
+
+                int skillLevel = _gameState.Get<int>("skill:" + node.Resolve.SkillName, 1);
+                var rand = new Random();
+                var randomDice = new List<int>();
+                int finalValue = chosenDieVal;
+
+                for (int i = 0; i < skillLevel - 1; i++)
+                {
+                    int r = rand.Next(1, 7);
+                    randomDice.Add(r);
+                    if (r > finalValue)
+                    {
+                        finalValue = r;
+                    }
+                }
+
+                report.RandomDice = randomDice;
+                report.FinalRollValue = finalValue;
+
+                if (finalValue <= 2)
+                {
+                    report.Outcome = RollOutcome.Fail;
+                    node.Resolve.OnFail?.Invoke();
+                }
+                else if (finalValue <= 4)
+                {
+                    report.Outcome = RollOutcome.Neutral;
+                    node.Resolve.OnNeutral?.Invoke();
+                }
+                else
+                {
+                    report.Outcome = RollOutcome.Success;
+                    node.Resolve.OnSuccess?.Invoke();
+                }
+
+                OnActionExecuted();
+            }
+            else if (node.Resolve.Type == ResolveType.Observe)
+            {
+                report.Type = ActionType.Instant;
+                OnActionExecuted();
             }
 
-            OnActionExecuted();
+            return report;
         }
     }
 }

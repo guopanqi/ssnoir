@@ -27,6 +27,12 @@ namespace SSNoir
             RebuildUI();
         }
 
+        public void SetData(GameNode node)
+        {
+            Node = node;
+            RebuildUI();
+        }
+
         public void RebuildUI()
         {
             // Clear existing UI elements

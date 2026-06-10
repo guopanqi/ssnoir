@@ -1,9 +1,9 @@
 #nullable enable
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using SSNoir.Core;
 
 namespace SSNoir
@@ -34,16 +34,14 @@ namespace SSNoir
         [Header("Font")]
         [SerializeField] private TMP_FontAsset? fontAsset;
 
+        [Header("Camera Drag Settings")]
+        [SerializeField] private float panSpeed = 0.02f;
+
         private GameState _gameState = null!;
         private SceneManager _sceneManager = null!;
         private UnityScriptLoader _scriptLoader = null!;
         private SceneDirectory? _sceneDirectory;
-
-        // UI Root Canvas and elements
-        private Canvas? _canvas;
-        private GameObject? _nodesContainer;
-        private GameObject? _bottomPanel;
-        private GameObject? _overlayContainer;
+        private UIManager _uiManager = null!;
 
         // Core Gameplay / Interaction State
         private string _focusedNodeName = string.Empty;
@@ -54,20 +52,23 @@ namespace SSNoir
         private string _notification = string.Empty;
         private float _notificationTimer = 0f;
 
-        private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
-        private readonly List<NodeUIWidget> _spawnedWidgets = new List<NodeUIWidget>();
-        private readonly HashSet<string> _flippedNodes = new HashSet<string>();
-        private GameObject? _cursorFollower;
-
-        [Header("Camera Drag Settings")]
-        [SerializeField] private float panSpeed = 0.02f;
         private bool _isDraggingCam = false;
         private Vector3 _dragStartMousePos;
         private Vector3 _dragStartCamPos;
 
+        private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
+        private readonly HashSet<string> _flippedNodes = new HashSet<string>();
+
+        // Public properties accessed by UIManager
         public GameState GameState => _gameState;
         public SceneManager SceneManager => _sceneManager;
+        public SceneDirectory? SceneDirectory => _sceneDirectory;
         public string FocusedNodeName => _focusedNodeName;
+        public List<GameNode> NavigationStack => _navigationStack;
+        public List<GameNode> VisibleNodes => _visibleNodes;
+        public SelectedResource? SelectedResource => _selectedResource;
+        public RollResult? ActiveRollResult => _activeRollResult;
+        public string Notification => _notification;
 
         private void Start()
         {
@@ -77,16 +78,14 @@ namespace SSNoir
                 UIHelper.DefaultFont = fontAsset;
             }
 
-            // 1. Initialize Game State
+            // 1. Initialize Game State & Script Loader
             _gameState = new GameState();
-
-            // 2. Initialize Unity specific script loader
             _scriptLoader = new UnityScriptLoader();
 
-            // 3. Initialize Scene Manager
+            // 2. Initialize Scene Manager
             _sceneManager = new SceneManager(_gameState, _scriptLoader);
 
-            // 4. Find scene cameras if not manually assigned
+            // 3. Find scene cameras
             if (globalCamera == null)
             {
                 globalCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Global") || c.name.Contains("global"));
@@ -96,19 +95,19 @@ namespace SSNoir
                 focusCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Focus") || c.name.Contains("focus"));
             }
 
-            // 5. Find scene directory
+            // 4. Find scene directory
             _sceneDirectory = FindObjectOfType<SceneDirectory>();
             if (_sceneDirectory == null)
             {
-                Debug.LogWarning("[SSNoir] SceneDirectory not found in scene. Creating a dummy SceneDirectory.");
                 var sdGo = new GameObject("SceneDirectory", typeof(SceneDirectory));
                 _sceneDirectory = sdGo.GetComponent<SceneDirectory>();
             }
 
-            // 6. Initialize UI Canvas
-            InitCanvas();
+            // 5. Spawn UIManager component
+            _uiManager = gameObject.AddComponent<UIManager>();
+            _uiManager.Initialize(this);
 
-            // 7. Listen to scene loads and world refreshes
+            // 6. Listen to scene loads and world refreshes
             _sceneManager.OnSceneLoaded += () => {
                 Debug.Log($"[SSNoir] Scene Loaded: {_sceneManager.CurrentSceneName}");
                 _navigationStack.Clear();
@@ -121,14 +120,12 @@ namespace SSNoir
                 Debug.Log($"[SSNoir] World Refreshed! Current nodes count: {_sceneManager.CurrentWorldNodes.Count}");
                 ResolveNavigationStack();
                 CleanupNodeSlots();
-                RebuildAllUI();
+                _uiManager.RefreshWorld(_visibleNodes);
             };
 
-            // 8. Load starting location from gameState
+            // 7. Load starting location from gameState
             string startingLocation = _gameState.Get<string>("location", "home");
             _sceneManager.LoadScene(startingLocation);
-
-            Debug.Log("[SSNoir] Core Engine initialized successfully in UnityClient.");
         }
 
         private void Update()
@@ -139,38 +136,7 @@ namespace SSNoir
                 if (_notificationTimer <= 0f)
                 {
                     _notification = string.Empty;
-                    BuildOverlay();
-                }
-            }
-
-            // Update Cursor Follower position and content
-            if (_cursorFollower != null)
-            {
-                if (_selectedResource != null)
-                {
-                    if (!_cursorFollower.activeSelf)
-                    {
-                        _cursorFollower.SetActive(true);
-                    }
-
-                    var txt = _cursorFollower.GetComponentInChildren<TextMeshProUGUI>();
-                    if (txt != null)
-                    {
-                        txt.text = _selectedResource.Type == "die" 
-                            ? "D" + _selectedResource.Value 
-                            : _selectedResource.ItemName;
-                    }
-
-                    var rt = _cursorFollower.GetComponent<RectTransform>();
-                    rt.sizeDelta = new Vector2(_selectedResource.Type == "die" ? 50f : 100f, 26f);
-                    rt.position = Input.mousePosition + new Vector3(15f, -15f, 0f);
-                }
-                else
-                {
-                    if (_cursorFollower.activeSelf)
-                    {
-                        _cursorFollower.SetActive(false);
-                    }
+                    _uiManager.BuildOverlay();
                 }
             }
 
@@ -215,349 +181,6 @@ namespace SSNoir
             }
         }
 
-        private void InitCanvas()
-        {
-            var canvasGo = new GameObject("SSNoirCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            _canvas = canvasGo.GetComponent<Canvas>();
-            _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-
-            var scaler = canvasGo.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1280, 720);
-
-            // Nodes Container (stretch)
-            _nodesContainer = new GameObject("NodesContainer", typeof(RectTransform));
-            _nodesContainer.transform.SetParent(_canvas.transform, false);
-            var nodesRt = _nodesContainer.GetComponent<RectTransform>();
-            nodesRt.anchorMin = Vector2.zero;
-            nodesRt.anchorMax = Vector2.one;
-            nodesRt.sizeDelta = Vector2.zero;
-
-            // Bottom Panel Container (bottom stretch)
-            _bottomPanel = new GameObject("BottomPanel", typeof(RectTransform));
-            _bottomPanel.transform.SetParent(_canvas.transform, false);
-            var bottomRt = _bottomPanel.GetComponent<RectTransform>();
-            bottomRt.anchorMin = new Vector2(0f, 0f);
-            bottomRt.anchorMax = new Vector2(1f, 0f);
-            bottomRt.pivot = new Vector2(0.5f, 0f);
-            bottomRt.anchoredPosition = new Vector2(0f, 0f);
-            bottomRt.sizeDelta = new Vector2(0f, 160f); // Height 160px
-
-            // Overlay Container (stretch)
-            _overlayContainer = new GameObject("OverlayContainer", typeof(RectTransform));
-            _overlayContainer.transform.SetParent(_canvas.transform, false);
-            var overlayRt = _overlayContainer.GetComponent<RectTransform>();
-            overlayRt.anchorMin = Vector2.zero;
-            overlayRt.anchorMax = Vector2.one;
-            overlayRt.sizeDelta = Vector2.zero;
-
-            // EventSystem
-            if (FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
-            {
-                new GameObject("EventSystem", typeof(UnityEngine.EventSystems.EventSystem), typeof(UnityEngine.EventSystems.StandaloneInputModule));
-            }
-
-            // Cursor Follower
-            _cursorFollower = UIHelper.CreatePanel(_canvas.transform, "CursorFollower", new Color(0.9f, 0.75f, 0.2f, 0.9f), new Vector2(90, 26));
-            var followerRt = _cursorFollower.GetComponent<RectTransform>();
-            followerRt.pivot = new Vector2(0f, 1f);
-            var followerTxt = UIHelper.CreateText(_cursorFollower.transform, "", 11, Color.black);
-            
-            var followerImg = _cursorFollower.GetComponent<Image>();
-            if (followerImg != null) followerImg.raycastTarget = false;
-            if (followerTxt != null) followerTxt.raycastTarget = false;
-            _cursorFollower.SetActive(false);
-        }
-
-        public void RebuildAllUI()
-        {
-            RebuildWidgets();
-            BuildBottomPanel();
-            BuildOverlay();
-        }
-
-        private void RebuildWidgets()
-        {
-            if (_nodesContainer == null) return;
-
-            // Clear old widgets
-            foreach (var widget in _spawnedWidgets)
-            {
-                if (widget != null) Destroy(widget.gameObject);
-            }
-            _spawnedWidgets.Clear();
-
-            // Refresh scene directory anchors
-            if (_sceneDirectory != null)
-            {
-                _sceneDirectory.CollectAnchors();
-            }
-
-            // Spawn only visible nodes, or if one is focused, only that one
-            foreach (var node in _visibleNodes)
-            {
-                if (!string.IsNullOrEmpty(_focusedNodeName) && node.Name != _focusedNodeName)
-                {
-                    continue; // Hide unrelated nodes during focus state
-                }
-
-                var anchor = _sceneDirectory?.GetAnchor(node.Name);
-                if (anchor == null)
-                {
-                    Debug.LogError($"[SSNoir] Missing NodeAnchor in scene for SCM node: '{node.Name}'! Visual mapping skipped.");
-                    continue;
-                }
-
-                var widgetGo = new GameObject("NodeWidget_" + node.Name, typeof(RectTransform), typeof(NodeUIWidget));
-                widgetGo.transform.SetParent(_nodesContainer.transform, false);
-
-                var widget = widgetGo.GetComponent<NodeUIWidget>();
-                widget.Setup(node, anchor, this);
-                _spawnedWidgets.Add(widget);
-            }
-        }
-
-        private void BuildBottomPanel()
-        {
-            if (_bottomPanel == null) return;
-
-            foreach (Transform child in _bottomPanel.transform)
-            {
-                Destroy(child.gameObject);
-            }
-
-            var bgPanel = UIHelper.CreatePanel(_bottomPanel.transform, "BottomBg", new Color(0.06f, 0.06f, 0.08f, 0.95f));
-            var bgRt = bgPanel.GetComponent<RectTransform>();
-            bgRt.anchorMin = Vector2.zero;
-            bgRt.anchorMax = Vector2.one;
-            bgRt.sizeDelta = Vector2.zero;
-
-            var layoutGo = new GameObject("BottomLayout", typeof(RectTransform), typeof(HorizontalLayoutGroup));
-            layoutGo.transform.SetParent(bgPanel.transform, false);
-            var layoutRt = layoutGo.GetComponent<RectTransform>();
-            layoutRt.anchorMin = Vector2.zero;
-            layoutRt.anchorMax = Vector2.one;
-            layoutRt.sizeDelta = Vector2.zero;
-
-            var hlg = layoutGo.GetComponent<HorizontalLayoutGroup>();
-            hlg.padding = new RectOffset(20, 20, 10, 10);
-            hlg.spacing = 30f;
-            hlg.childAlignment = TextAnchor.MiddleCenter;
-            hlg.childControlWidth = true;
-            hlg.childControlHeight = true;
-            hlg.childForceExpandWidth = true;
-            hlg.childForceExpandHeight = true;
-
-            // --- Left Section: Status & Scene Switchers ---
-            var leftGo = UIHelper.CreateVerticalLayout(layoutGo.transform, "LeftSection", 6f);
-            var leftVlg = leftGo.GetComponent<VerticalLayoutGroup>();
-            leftVlg.childAlignment = TextAnchor.MiddleLeft;
-
-            int health = _gameState.Get<int>("health");
-            int money = _gameState.Get<int>("money");
-            var statusText = UIHelper.CreateText(leftGo.transform, $"生命: {health} | 资金: {money}", 14, Color.white, TextAlignmentOptions.Left);
-            statusText.fontStyle = FontStyles.Bold;
-
-            UIHelper.CreateText(leftGo.transform, "场景切换:", 11, new Color(0.7f, 0.7f, 0.7f), TextAlignmentOptions.Left);
-            
-            var sceneButtonsRow = UIHelper.CreateHorizontalLayout(leftGo.transform, "SceneButtons", 6f);
-            var sceneButtonsHlg = sceneButtonsRow.GetComponent<HorizontalLayoutGroup>();
-            sceneButtonsHlg.childAlignment = TextAnchor.MiddleLeft;
-
-            string[] scenes = { "home", "office", "combat" };
-            foreach (var sc in scenes)
-            {
-                bool isCurrent = _sceneManager.CurrentSceneName == sc;
-                Color btnColor = isCurrent ? new Color(0.2f, 0.55f, 0.35f) : new Color(0.25f, 0.25f, 0.3f);
-                string label = sc == "home" ? "家" : sc == "office" ? "办公室" : "战斗";
-                UIHelper.CreateButton(sceneButtonsRow.transform, label, btnColor, () =>
-                {
-                    _selectedResource = null;
-                    _navigationStack.Clear();
-                    _gameState.Set("location", sc);
-                }, new Vector2(70, 26));
-            }
-
-            // --- Middle Section: Hand Resources ---
-            var middleGo = UIHelper.CreateVerticalLayout(layoutGo.transform, "MiddleSection", 6f);
-            var middleVlg = middleGo.GetComponent<VerticalLayoutGroup>();
-            middleVlg.childAlignment = TextAnchor.MiddleCenter;
-
-            string selectedLabel = _selectedResource != null 
-                ? $"已选中: {(_selectedResource.Type == "die" ? "骰子 " + _selectedResource.Value : _selectedResource.ItemName)}" 
-                : "选择骰子/道具以投入槽位";
-            var selectedText = UIHelper.CreateText(middleGo.transform, selectedLabel, 11, new Color(0.9f, 0.9f, 0.9f));
-            selectedText.fontStyle = FontStyles.Italic;
-
-            var cardsRow = UIHelper.CreateHorizontalLayout(middleGo.transform, "CardsRow", 10f);
-            
-            // Dice
-            var diceList = _gameState.Get<List<object>>("action-dice");
-            if (diceList != null)
-            {
-                for (int i = 0; i < diceList.Count; i++)
-                {
-                    int val = 0;
-                    if (diceList[i] is double d) val = (int)d;
-                    else if (diceList[i] is long l) val = (int)l;
-                    else if (diceList[i] is int valInt) val = valInt;
-
-                    int dieIndex = i;
-                    bool isSelected = _selectedResource != null && _selectedResource.Type == "die" && _selectedResource.SourceIndex == dieIndex;
-                    
-                    Color dieColor = isSelected ? new Color(1f, 0.75f, 0.2f) : new Color(0.18f, 0.35f, 0.55f);
-                    UIHelper.CreateButton(cardsRow.transform, $"骰子 {val}", dieColor, () =>
-                    {
-                        if (isSelected)
-                        {
-                            _selectedResource = null;
-                        }
-                        else
-                        {
-                            _selectedResource = new SelectedResource { Type = "die", Value = val, SourceIndex = dieIndex };
-                        }
-                        RebuildAllUI();
-                    }, new Vector2(60, 45));
-                }
-            }
-
-            // Items
-            foreach (var kvp in _gameState.GetAllStates())
-            {
-                if (kvp.Key.StartsWith("item:"))
-                {
-                    string itemName = kvp.Key.Substring(5);
-                    int qty = 0;
-                    if (kvp.Value is double d) qty = (int)d;
-                    else if (kvp.Value is long l) qty = (int)l;
-                    else if (kvp.Value is int valInt) qty = valInt;
-
-                    if (qty > 0)
-                    {
-                        bool isSelected = _selectedResource != null && _selectedResource.Type == "item" && _selectedResource.ItemName == itemName;
-                        Color itemColor = isSelected ? new Color(1f, 0.75f, 0.2f) : new Color(0.15f, 0.45f, 0.3f);
-                        
-                        UIHelper.CreateButton(cardsRow.transform, $"{itemName} x{qty}", itemColor, () =>
-                        {
-                            if (isSelected)
-                            {
-                                _selectedResource = null;
-                            }
-                            else
-                            {
-                                _selectedResource = new SelectedResource { Type = "item", ItemName = itemName, Value = 1 };
-                            }
-                            RebuildAllUI();
-                        }, new Vector2(85, 45));
-                    }
-                }
-            }
-
-            // --- Right Section: Actions ---
-            var rightGo = UIHelper.CreateVerticalLayout(layoutGo.transform, "RightSection", 8f);
-            var rightVlg = rightGo.GetComponent<VerticalLayoutGroup>();
-            rightVlg.childAlignment = TextAnchor.MiddleRight;
-
-            if (_navigationStack.Count > 0)
-            {
-                string path = string.Join(" > ", _navigationStack.Select(n => n.Name));
-                UIHelper.CreateText(rightGo.transform, $"层级: {path}", 11, new Color(0.8f, 0.8f, 0.8f), TextAlignmentOptions.Right);
-                
-                UIHelper.CreateButton(rightGo.transform, "返回上一级", new Color(0.2f, 0.2f, 0.25f), () =>
-                {
-                    GoBackNavigation();
-                }, new Vector2(110, 26));
-            }
-
-            UIHelper.CreateButton(rightGo.transform, "结束回合", new Color(0.6f, 0.15f, 0.15f), () =>
-            {
-                _selectedResource = null;
-                _sceneManager.EndTurn();
-            }, new Vector2(110, 32));
-
-            Canvas.ForceUpdateCanvases();
-        }
-
-        private void BuildOverlay()
-        {
-            if (_overlayContainer == null) return;
-
-            foreach (Transform child in _overlayContainer.transform)
-            {
-                Destroy(child.gameObject);
-            }
-
-            // 1. Toast Notification
-            if (!string.IsNullOrEmpty(_notification))
-            {
-                var toastPanel = UIHelper.CreatePanel(_overlayContainer.transform, "ToastPanel", new Color(0.7f, 0.15f, 0.15f, 0.95f), new Vector2(400, 40));
-                var toastRt = toastPanel.GetComponent<RectTransform>();
-                toastRt.anchorMin = new Vector2(0.5f, 0.9f);
-                toastRt.anchorMax = new Vector2(0.5f, 0.9f);
-                toastRt.pivot = new Vector2(0.5f, 0.5f);
-                toastRt.anchoredPosition = Vector2.zero;
-
-                UIHelper.CreateText(toastPanel.transform, _notification, 13, Color.white);
-            }
-
-            // 2. Roll Result Modal
-            if (_activeRollResult != null)
-            {
-                var blocker = UIHelper.CreatePanel(_overlayContainer.transform, "ModalBlocker", new Color(0f, 0f, 0f, 0.6f));
-                var blockerRt = blocker.GetComponent<RectTransform>();
-                blockerRt.anchorMin = Vector2.zero;
-                blockerRt.anchorMax = Vector2.one;
-                blockerRt.sizeDelta = Vector2.zero;
-
-                var modalPanel = UIHelper.CreatePanel(blocker.transform, "ModalPanel", new Color(0.12f, 0.12f, 0.15f, 0.98f), new Vector2(380, 260));
-                var modalRt = modalPanel.GetComponent<RectTransform>();
-                modalRt.anchorMin = new Vector2(0.5f, 0.5f);
-                modalRt.anchorMax = new Vector2(0.5f, 0.5f);
-                modalRt.pivot = new Vector2(0.5f, 0.5f);
-                modalRt.anchoredPosition = Vector2.zero;
-
-                var vlgGo = new GameObject("ModalLayout", typeof(RectTransform), typeof(VerticalLayoutGroup));
-                vlgGo.transform.SetParent(modalPanel.transform, false);
-                var vlgRt = vlgGo.GetComponent<RectTransform>();
-                vlgRt.anchorMin = Vector2.zero;
-                vlgRt.anchorMax = Vector2.one;
-                vlgRt.sizeDelta = Vector2.zero;
-
-                var vlg = vlgGo.GetComponent<VerticalLayoutGroup>();
-                vlg.padding = new RectOffset(20, 20, 20, 20);
-                vlg.spacing = 10f;
-                vlg.childAlignment = TextAnchor.MiddleCenter;
-                vlg.childControlWidth = true;
-                vlg.childControlHeight = true;
-                vlg.childForceExpandWidth = true;
-                vlg.childForceExpandHeight = false;
-
-                var title = UIHelper.CreateText(vlgGo.transform, $"[判定结果] {_activeRollResult.ActionName}", 15, Color.white);
-                title.fontStyle = FontStyles.Bold;
-
-                UIHelper.CreateText(vlgGo.transform, $"投入骰子值: {_activeRollResult.ChosenDie}", 12, new Color(0.8f, 0.8f, 0.8f));
-                
-                string randDiceText = _activeRollResult.RandomDice.Count > 0 
-                    ? "附加掷骰: " + string.Join(", ", _activeRollResult.RandomDice) 
-                    : "无附加掷骰 (技能等级为1)";
-                UIHelper.CreateText(vlgGo.transform, randDiceText, 12, new Color(0.8f, 0.8f, 0.8f));
-
-                UIHelper.CreateText(vlgGo.transform, $"最终最大点数: {_activeRollResult.FinalValue}", 14, Color.white);
-
-                Color outcomeColor = _activeRollResult.Outcome == "成功" ? new Color(0.2f, 0.8f, 0.4f) 
-                                   : _activeRollResult.Outcome == "中性" ? new Color(0.9f, 0.8f, 0.2f) 
-                                   : new Color(0.9f, 0.2f, 0.2f);
-                var outcomeText = UIHelper.CreateText(vlgGo.transform, $"判定结果: {_activeRollResult.Outcome}", 15, outcomeColor);
-                outcomeText.fontStyle = FontStyles.Bold;
-
-                UIHelper.CreateButton(vlgGo.transform, "确定", new Color(0.2f, 0.4f, 0.6f), () =>
-                {
-                    _activeRollResult = null;
-                    RebuildAllUI();
-                }, new Vector2(100, 30));
-            }
-        }
-
         public bool IsNodeFlipped(string nodeName) => _flippedNodes.Contains(nodeName);
 
         public void ToggleNodeFlipped(string nodeName)
@@ -570,7 +193,7 @@ namespace SSNoir
             {
                 _flippedNodes.Add(nodeName);
             }
-            RebuildAllUI();
+            _uiManager.RefreshWorld(_sceneManager.CurrentWorldNodes);
         }
 
         public void OnNodeCardClicked(GameNode node)
@@ -644,7 +267,7 @@ namespace SSNoir
                 }
             }
 
-            RebuildAllUI();
+            _uiManager.RefreshWorld(_visibleNodes);
         }
 
         public List<SlottedResource?>? GetSlotsForNode(string nodeName)
@@ -673,7 +296,6 @@ namespace SSNoir
             var existing = slots[slotIndex];
             if (existing != null)
             {
-                // Clear slot (return to hand)
                 slots[slotIndex] = null;
             }
             else if (_selectedResource != null)
@@ -720,7 +342,7 @@ namespace SSNoir
                 }
             }
             
-            RebuildAllUI();
+            _uiManager.RefreshWorld(_visibleNodes);
         }
 
         private void ClearOtherNodeSlots(string activeNodeName)
@@ -769,121 +391,41 @@ namespace SSNoir
             return sum;
         }
 
+        // --- Execute Actions via Async Coroutine ---
         public void ExecuteNodeAction(GameNode node)
         {
+            StartCoroutine(ExecuteRoutine(node));
+        }
+
+        private IEnumerator ExecuteRoutine(GameNode node)
+        {
             var slots = GetSlotsForNode(node.Name);
-            if (slots == null) return;
+            if (slots == null) yield break;
 
-            // 1. Consume resources
-            var diceToConsume = new List<int>();
-            foreach (var s in slots)
-            {
-                if (s != null && s.Type == "die")
-                {
-                    diceToConsume.Add(s.SourceIndex);
-                }
-            }
-            diceToConsume.Sort((a, b) => b.CompareTo(a));
+            // 1. Lock Input
+            _uiManager.SetInputLocked(true);
 
-            var diceList = _gameState.Get<List<object>>("action-dice");
-            if (diceList != null)
-            {
-                var newDice = new List<object>(diceList);
-                foreach (var idx in diceToConsume)
-                {
-                    if (idx >= 0 && idx < newDice.Count)
-                    {
-                        newDice.RemoveAt(idx);
-                    }
-                }
-                _gameState.Set("action-dice", newDice);
-            }
-
-            foreach (var s in slots)
-            {
-                if (s != null && s.Type == "item")
-                {
-                    if (s.ItemName == "金钱")
-                    {
-                        int owned = _gameState.Get<int>("money");
-                        _gameState.Set("money", System.Math.Max(0, owned - s.Value));
-                    }
-                    else
-                    {
-                        int owned = _gameState.Get<int>("item:" + s.ItemName, 0);
-                        _gameState.Set("item:" + s.ItemName, System.Math.Max(0, owned - s.Value));
-                    }
-                }
-            }
-
-            // 2. Clear slots
+            // 2. Execute Action on engine
+            ActionReport report = _sceneManager.ExecuteAction(node, slots);
+            
+            // Clean local temporary slots state
             _nodeSlots.Remove(node.Name);
+            _selectedResource = null;
 
-            // 3. Resolve Effect
-            if (node.Resolve != null)
+            // 3. Performance Animation
+            if (report.Type == ActionType.Roll)
             {
-                if (node.Resolve.Type == ResolveType.Instant)
-                {
-                    node.Resolve.Effect?.Invoke();
-                    _sceneManager.OnActionExecuted();
-                }
-                else if (node.Resolve.Type == ResolveType.Roll)
-                {
-                    var dieSlot = slots.Find(s => s != null && s.Type == "die");
-                    int chosenDieVal = dieSlot != null ? dieSlot.Value : 1;
-
-                    int skillLevel = _gameState.Get<int>("skill:" + node.Resolve.SkillName, 1);
-                    var rand = new System.Random();
-                    var randomDice = new List<int>();
-                    int finalValue = chosenDieVal;
-
-                    for (int i = 0; i < skillLevel - 1; i++)
-                    {
-                        int r = rand.Next(1, 7);
-                        randomDice.Add(r);
-                        if (r > finalValue)
-                        {
-                            finalValue = r;
-                        }
-                    }
-
-                    string outcome = "";
-                    if (finalValue <= 2)
-                    {
-                        outcome = "失败";
-                        node.Resolve.OnFail?.Invoke();
-                    }
-                    else if (finalValue <= 4)
-                    {
-                        outcome = "中性";
-                        node.Resolve.OnNeutral?.Invoke();
-                    }
-                    else
-                    {
-                        outcome = "成功";
-                        node.Resolve.OnSuccess?.Invoke();
-                    }
-
-                    _activeRollResult = new RollResult
-                    {
-                        ActionName = node.Name,
-                        ChosenDie = chosenDieVal,
-                        RandomDice = randomDice,
-                        FinalValue = finalValue,
-                        Outcome = outcome
-                    };
-                    
-                    _sceneManager.OnActionExecuted();
-                }
-                else if (node.Resolve.Type == ResolveType.Observe)
-                {
-                    ToggleNodeFlipped(node.Name);
-                    _sceneManager.OnActionExecuted();
-                }
+                yield return StartCoroutine(DiceAnimator.PlayRoll(report.FinalRollValue, report.Outcome, _uiManager.Canvas!));
             }
 
+            // 4. Sync UI (incremental update)
+            _uiManager.RefreshWorld(_visibleNodes);
+
+            // 5. Unlock Input
+            _uiManager.SetInputLocked(false);
+
+            // 6. Reset focus stack
             SetFocusedNode(null);
-            RebuildAllUI();
         }
 
         public void GoBackNavigation()
@@ -898,7 +440,6 @@ namespace SSNoir
                 _navigationStack.RemoveAt(_navigationStack.Count - 1);
                 ResolveNavigationStack();
                 SetFocusedNode(null);
-                RebuildAllUI();
             }
         }
 
@@ -985,8 +526,64 @@ namespace SSNoir
         public void ShowNotification(string message)
         {
             _notification = message;
-            _notificationTimer = 3.0f; // Show toast for 3 seconds
-            BuildOverlay();
+            _notificationTimer = 3.0f;
+            _uiManager.BuildOverlay();
+        }
+
+        // --- UI Callbacks from UIManager ---
+        public void OnSceneButtonClicked(string sc)
+        {
+            _selectedResource = null;
+            _navigationStack.Clear();
+            _gameState.Set("location", sc);
+        }
+
+        public void OnDieClicked(int dieIndex, int val)
+        {
+            if (_selectedResource != null && _selectedResource.Type == "die" && _selectedResource.SourceIndex == dieIndex)
+            {
+                _selectedResource = null;
+            }
+            else
+            {
+                _selectedResource = new SelectedResource
+                {
+                    Type = "die",
+                    Value = val,
+                    SourceIndex = dieIndex
+                };
+            }
+            _uiManager.BuildBottomPanel();
+        }
+
+        public void OnItemClicked(string itemName, int qty)
+        {
+            if (_selectedResource != null && _selectedResource.Type == "item" && _selectedResource.ItemName == itemName)
+            {
+                _selectedResource = null;
+            }
+            else
+            {
+                _selectedResource = new SelectedResource
+                {
+                    Type = "item",
+                    ItemName = itemName,
+                    Value = qty
+                };
+            }
+            _uiManager.BuildBottomPanel();
+        }
+
+        public void OnEndTurnClicked()
+        {
+            _selectedResource = null;
+            _sceneManager.EndTurn();
+        }
+
+        public void OnRollAckClicked()
+        {
+            _activeRollResult = null;
+            _uiManager.BuildOverlay();
         }
     }
 }
