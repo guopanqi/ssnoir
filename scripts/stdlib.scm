@@ -1,6 +1,7 @@
 ;; stdlib.scm - DSL foundation
 
 ;; Schemy does not treat colon-prefixed names as self-evaluating keywords.
+(define :clocks ':clocks)
 (define :children ':children)
 (define :effect ':effect)
 
@@ -21,13 +22,14 @@
               (get-kwarg (cdr (cdr kwargs)) key default)))))
 
 ;; node constructor
-;; Returns a list: ('node name children effect)
+;; Returns a list: ('node name clocks children effect)
 (define node
   (lambda args
     (let ((name (car args))
           (kwargs (cdr args)))
       (list 'node
             name
+            (get-kwarg kwargs ':clocks '())
             (get-kwarg kwargs ':children '())
             (get-kwarg kwargs ':effect #f)))))
 
@@ -57,14 +59,15 @@
 (define (min a b)
   (if (< a b) a b))
 
-(define (make-clock label max)
+(define (make-clock label max style)
   (let ((current 0))
     (lambda (msg)
       (cond
         ((equal? msg 'tick!)       (set! current (min (+ current 1) max)))
         ((equal? msg 'reset!)      (set! current 0))
         ((equal? msg 'full?)       (>= current max))
-        ((equal? msg 'render-data) (list 'clock label current max))
+        ((equal? msg 'current)     current)
+        ((equal? msg 'render-data) (list 'clock label current max style))
         (else #f)))))
 
 (define (filter pred lst)

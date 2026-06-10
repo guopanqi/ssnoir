@@ -129,17 +129,19 @@ namespace SSNoir.Testing
                 throw new InvalidOperationException($"Expected initial health to be 100, got {initialHealth}");
             }
 
-            // Initial clocks (Exit clock + Spawn clock + 2 enemy clocks = 4 clocks)
-            if (sceneManager.CurrentClocks.Count != 4)
+            // Initial clocks (Exit clock + Spawn clock + 2 * 2 enemy clocks = 6 clocks)
+            if (sceneManager.CurrentClocks.Count != 6)
             {
-                throw new InvalidOperationException($"Expected 4 clocks, got {sceneManager.CurrentClocks.Count}");
+                throw new InvalidOperationException($"Expected 6 clocks, got {sceneManager.CurrentClocks.Count}");
             }
 
-            // Clocks should be: "逃生通道", "敌人增援", "持刀者", "持枪手"
-            if (sceneManager.CurrentClocks[0].Label != "逃生通道" ||
-                sceneManager.CurrentClocks[1].Label != "敌人增援" ||
-                sceneManager.CurrentClocks[2].Label != "持刀者" ||
-                sceneManager.CurrentClocks[3].Label != "持枪手")
+            // Clocks should be: "逃脱", "增援", and "HP"/"A" for enemies
+            if (sceneManager.CurrentClocks[0].Label != "逃脱" ||
+                sceneManager.CurrentClocks[1].Label != "增援" ||
+                sceneManager.CurrentClocks[2].Label != "HP" ||
+                sceneManager.CurrentClocks[3].Label != "A" ||
+                sceneManager.CurrentClocks[4].Label != "HP" ||
+                sceneManager.CurrentClocks[5].Label != "A")
             {
                 throw new InvalidOperationException("Clocks label mismatch in combat scene");
             }
@@ -158,12 +160,12 @@ namespace SSNoir.Testing
             sceneManager.ExecuteEffect(slasherSuppress);
 
             // Since we performed an action, all live enemies' clocks should have ticked.
-            // Slasher's clock ticked to 1. Gunner's clock ticked to 1. Spawn clock ticked to 1.
+            // Spawn clock (idx 1), Slasher's atk (idx 3), Gunner's atk (idx 5) ticked to 1.
             if (sceneManager.CurrentClocks[1].Current != 1 || 
-                sceneManager.CurrentClocks[2].Current != 1 || 
-                sceneManager.CurrentClocks[3].Current != 1)
+                sceneManager.CurrentClocks[3].Current != 1 || 
+                sceneManager.CurrentClocks[5].Current != 1)
             {
-                throw new InvalidOperationException($"Expected clocks to tick to 1, got {sceneManager.CurrentClocks[1].Current}, {sceneManager.CurrentClocks[2].Current}, {sceneManager.CurrentClocks[3].Current}");
+                throw new InvalidOperationException($"Expected clocks to tick to 1, got {sceneManager.CurrentClocks[1].Current}, {sceneManager.CurrentClocks[3].Current}, {sceneManager.CurrentClocks[5].Current}");
             }
 
             // Let's hit "持枪手" with "击倒" (eliminate! decreases HP by 2, so it dies)
@@ -180,17 +182,17 @@ namespace SSNoir.Testing
             }
             sceneManager.ExecuteEffect(gunnerKill);
 
-            // 4 clocks should still remain: "逃生通道", "敌人增援", "持刀者", and the newly spawned enemy clock
+            // 4 clocks should still remain: "逃脱", "增援", and Slasher's HP and atk clocks (reinforcement has not triggered yet as spawn-clock max is 3)
             if (sceneManager.CurrentClocks.Count != 4)
             {
-                throw new InvalidOperationException($"Expected 4 clocks after killing Gunner and spawning reinforcement, got {sceneManager.CurrentClocks.Count}");
+                throw new InvalidOperationException($"Expected 4 clocks after killing Gunner, got {sceneManager.CurrentClocks.Count}");
             }
 
             // Keep attacking any remaining enemy until all are eliminated
             while (true)
             {
                 GameNode? enemyNode = null;
-                var battleNode = FindNode(sceneManager.CurrentWorldNodes, "战场");
+                var battleNode = FindNode(sceneManager.CurrentWorldNodes, "仓库");
                 if (battleNode != null)
                 {
                     foreach (var child in battleNode.Children)
@@ -230,8 +232,8 @@ namespace SSNoir.Testing
 
             // Verify all enemies are dead (only Exit clock and Spawn clock remain = 2 clocks)
             if (sceneManager.CurrentClocks.Count != 2 || 
-                sceneManager.CurrentClocks[0].Label != "逃生通道" ||
-                sceneManager.CurrentClocks[1].Label != "敌人增援")
+                sceneManager.CurrentClocks[0].Label != "逃脱" ||
+                sceneManager.CurrentClocks[1].Label != "增援")
             {
                 foreach (var c in sceneManager.CurrentClocks)
                 {
@@ -240,12 +242,11 @@ namespace SSNoir.Testing
                 throw new InvalidOperationException($"Expected only Exit and Spawn clocks to remain, got {sceneManager.CurrentClocks.Count}");
             }
 
-            // Tick escape clock 5 times to escape
-            ExecuteNode(sceneManager, "冲向出口");
-            ExecuteNode(sceneManager, "冲向出口");
-            ExecuteNode(sceneManager, "冲向出口");
-            ExecuteNode(sceneManager, "冲向出口");
-            ExecuteNode(sceneManager, "冲向出口");
+            // Tick escape clock 12 times to escape (new max is 12)
+            for (int i = 0; i < 12; i++)
+            {
+                ExecuteNode(sceneManager, "冲向出口");
+            }
 
             // We should be back at home scene
             if (sceneManager.CurrentSceneName != "home")

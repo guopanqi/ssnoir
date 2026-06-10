@@ -76,6 +76,7 @@ namespace SSNoir.Rendering
         {
             Raylib.SetConfigFlags(ConfigFlags.HighDpiWindow | ConfigFlags.Msaa4xHint);
             Raylib.InitWindow(WindowWidth, WindowHeight, "SSNoir Prototype");
+            Raylib.SetExitKey(KeyboardKey.Null); // Disable ESC key exiting the game
             Raylib.SetTargetFPS(60);
 
             // Load font with Chinese characters support
@@ -96,6 +97,16 @@ namespace SSNoir.Rendering
         {
             var mousePos = Raylib.GetMousePosition();
 
+            // Handle ESC key to return to the parent node
+            if (Raylib.IsKeyPressed(KeyboardKey.Escape))
+            {
+                if (_navigationStack.Count > 0)
+                {
+                    _navigationStack.RemoveAt(_navigationStack.Count - 1);
+                    ResolveNavigationStack();
+                }
+            }
+
             UpdateDropdown(mousePos);
 
             Raylib.BeginDrawing();
@@ -104,8 +115,11 @@ namespace SSNoir.Rendering
             // ── Draw Navigation / Breadcrumbs ──
             DrawNavigation(mousePos);
 
+            // ── Draw Node Clocks (if any) ──
+            float cardsStartY = DrawNodeClocks(90f);
+
             // ── Draw Node Cards ──
-            DrawCards(mousePos);
+            DrawCards(mousePos, cardsStartY);
 
             // ── Draw Bottom Status Panel ──
             DrawStatusPanel();
@@ -159,10 +173,9 @@ namespace SSNoir.Rendering
             Raylib.DrawLineEx(new Vector2(40, 80), new Vector2(WindowWidth - 40, 80), 1.5f, new Color(50, 50, 60, 255));
         }
 
-        private void DrawCards(Vector2 mousePos)
+        private void DrawCards(Vector2 mousePos, float startY)
         {
             float startX = 40f;
-            float startY = 110f;
             float cardWidth = 160f;
             float cardHeight = 100f;
             float spacing = 20f;
@@ -181,7 +194,7 @@ namespace SSNoir.Rendering
                 bool isHovered = Raylib.CheckCollisionPointRec(mousePos, bounds);
 
                 string typeLabel = node.HasChildren ? "场所" : "行动";
-                bool clicked = CardWidget.DrawCard(bounds, node.Name, typeLabel, isHovered);
+                bool clicked = CardWidget.DrawCard(bounds, node.Name, typeLabel, isHovered, node.Clocks);
 
                 if (clicked)
                 {
@@ -227,36 +240,63 @@ namespace SSNoir.Rendering
             // Draw Location
             FontManager.DrawText("场景: ", startX + spacing * 2, panelY + 25, 18, textColor);
             FontManager.DrawText(location.ToUpper(), startX + spacing * 2 + 50, panelY + 25, 18, new Color(100, 220, 100, 255));
-
-            // Draw Clocks
-            DrawClocks(615, panelY);
         }
 
-        private void DrawClocks(float startX, float panelY)
+        private void DrawDetailedClock(ref float x, float y, GameClock clock)
         {
-            var clocks = _sceneManager.CurrentClocks;
-            if (clocks == null || clocks.Count == 0) return;
-
-            float x = startX;
-            float y = panelY + 25;
-
             Color textColor = new Color(200, 200, 220, 255);
             Color activeColor = new Color(130, 130, 250, 255);
             Color inactiveColor = new Color(45, 45, 55, 255);
             Color outlineColor = new Color(70, 70, 90, 255);
 
-            foreach (var clock in clocks)
-            {
-                // Draw Label
-                FontManager.DrawText(clock.Label, x, y, 16, textColor);
-                
-                int labelWidth = FontManager.MeasureTextWidth(clock.Label, 16);
-                float segmentsX = x + labelWidth + 8;
+            FontManager.DrawText(clock.Label, x, y, 16, textColor);
+            int labelWidth = FontManager.MeasureTextWidth(clock.Label, 16);
+            float contentX = x + labelWidth + 8;
 
-                // Draw segments
+            if (clock.Style == ClockStyle.Pie)
+            {
+                float radius = 10f;
+                var center = new Vector2(contentX + radius, y + 8);
+                
+                Raylib.DrawCircleLines((int)center.X, (int)center.Y, radius, outlineColor);
+                if (clock.Max > 0 && clock.Current > 0)
+                {
+                    float percent = (float)clock.Current / clock.Max;
+                    float startAngle = -90f;
+                    float endAngle = -90f + 360f * percent;
+                    Raylib.DrawCircleSector(center, radius, startAngle, endAngle, 36, activeColor);
+                }
+
+                string frac = $"{clock.Current}/{clock.Max}";
+                FontManager.DrawText(frac, contentX + radius * 2 + 6, y, 14, textColor);
+                int fracW = FontManager.MeasureTextWidth(frac, 14);
+
+                x += labelWidth + 8 + radius * 2 + 6 + fracW + 20;
+            }
+            else if (clock.Style == ClockStyle.Countdown)
+            {
+                float boxW = 22;
+                float boxH = 18;
+                var boxRect = new Rectangle(contentX, y, boxW, boxH);
+                
+                Raylib.DrawRectangleRounded(boxRect, 0.2f, 4, inactiveColor);
+                Raylib.DrawRectangleRoundedLinesEx(boxRect, 0.2f, 4, 1f, outlineColor);
+
+                string numStr = clock.Current.ToString();
+                int numW = FontManager.MeasureTextWidth(numStr, 14);
+                FontManager.DrawText(numStr, contentX + (boxW - numW) / 2f, y + 2, 14, activeColor);
+
+                string maxStr = $"/{clock.Max}";
+                FontManager.DrawText(maxStr, contentX + boxW + 4, y + 2, 14, new Color(120, 120, 140, 255));
+                int maxW = FontManager.MeasureTextWidth(maxStr, 14);
+
+                x += labelWidth + 8 + boxW + 4 + maxW + 20;
+            }
+            else
+            {
                 for (int i = 0; i < clock.Max; i++)
                 {
-                    var segRect = new Rectangle(segmentsX + i * 14, y + 2, 10, 10);
+                    var segRect = new Rectangle(contentX + i * 14, y + 2, 10, 10);
                     if (i < clock.Current)
                     {
                         Raylib.DrawRectangleRounded(segRect, 0.3f, 4, activeColor);
@@ -268,8 +308,46 @@ namespace SSNoir.Rendering
                     }
                 }
 
-                x += labelWidth + 8 + clock.Max * 14 + 16;
+                x += labelWidth + 8 + clock.Max * 14 + 20;
             }
+        }
+
+        private float DrawNodeClocks(float y)
+        {
+            var clocksToShow = new List<GameClock>();
+            if (_navigationStack.Count == 0)
+            {
+                foreach (var node in _sceneManager.CurrentWorldNodes)
+                {
+                    clocksToShow.AddRange(node.Clocks);
+                }
+            }
+            else
+            {
+                var currentNode = _navigationStack[_navigationStack.Count - 1];
+                if (currentNode.Clocks != null)
+                {
+                    clocksToShow.AddRange(currentNode.Clocks);
+                }
+            }
+
+            if (clocksToShow.Count == 0)
+            {
+                return 110f;
+            }
+
+            float x = 40f;
+            FontManager.DrawText("当前节点状态: ", x, y, 14, new Color(150, 150, 170, 255));
+            x += 105;
+
+            foreach (var clock in clocksToShow)
+            {
+                DrawDetailedClock(ref x, y, clock);
+            }
+
+            Raylib.DrawLineEx(new Vector2(40, y + 25), new Vector2(WindowWidth - 40, y + 25), 1.0f, new Color(50, 50, 60, 255));
+
+            return y + 40f;
         }
 
         private void LoadAvailableScenes()

@@ -53,7 +53,6 @@ namespace SSNoir.Core
             Debug.Assert(_interpreter != null, "Interpreter must not be null when refreshing scene");
             
             var rawData = _interpreter!.Eval("(get-render-data)");
-            var clocks = new List<GameClock>();
             var nodes = new List<GameNode>();
 
             if (rawData is List<object> list)
@@ -62,15 +61,7 @@ namespace SSNoir.Core
                 {
                     if (item is List<object> expr && expr.Count > 0 && expr[0] is Schemy.Symbol tag)
                     {
-                        if (tag.AsString == "clock")
-                        {
-                            var parsedClock = ParseClock(expr);
-                            if (parsedClock != null)
-                            {
-                                clocks.Add(parsedClock);
-                            }
-                        }
-                        else if (tag.AsString == "node")
+                        if (tag.AsString == "node")
                         {
                             var parsedNode = NodeConverter.ConvertSingle(expr, _interpreter.RawInterpreter);
                             nodes.Add(parsedNode);
@@ -92,38 +83,22 @@ namespace SSNoir.Core
             }
 
             CurrentWorldNodes = nodes;
-            CurrentClocks = clocks;
+
+            // Recursively collect all clocks from the node tree to support tests/other consumers
+            var flatClocks = new List<GameClock>();
+            CollectClocksRecursive(nodes, flatClocks);
+            CurrentClocks = flatClocks;
             
             OnWorldRefreshed?.Invoke();
         }
 
-        private GameClock? ParseClock(List<object> clockExpr)
+        private void CollectClocksRecursive(List<GameNode> nodes, List<GameClock> result)
         {
-            if (clockExpr.Count >= 4)
+            foreach (var node in nodes)
             {
-                if (clockExpr[0] is Schemy.Symbol sym && sym.AsString == "clock")
-                {
-                    var label = clockExpr[1] as string ?? "Unknown";
-                    
-                    int current = 0;
-                    if (clockExpr[2] is double d1) current = (int)d1;
-                    else if (clockExpr[2] is long l1) current = (int)l1;
-                    else if (clockExpr[2] is int i1) current = i1;
-
-                    int max = 1;
-                    if (clockExpr[3] is double d2) max = (int)d2;
-                    else if (clockExpr[3] is long l2) max = (int)l2;
-                    else if (clockExpr[3] is int i2) max = i2;
-
-                    return new GameClock
-                    {
-                        Label = label,
-                        Current = current,
-                        Max = max
-                    };
-                }
+                result.AddRange(node.Clocks);
+                CollectClocksRecursive(node.Children, result);
             }
-            return null;
         }
 
         public void ExecuteEffect(GameNode node)

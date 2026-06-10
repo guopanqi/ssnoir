@@ -3,7 +3,7 @@
 ;; ── Enemy Constructor ─────────────────────────
 (define (make-enemy type hp-max atk-max dmg)
   (let ((hp hp-max)
-        (atk-clock (make-clock type atk-max)))
+        (atk-clock (make-clock "A" atk-max 'countdown)))
     (let ((suppress! (lambda ()
                        (set! hp (- hp 1))
                        (atk-clock 'reset!)))
@@ -18,21 +18,17 @@
           ((equal? msg 'atk-full?) (atk-clock 'full?))
           ((equal? msg 'reset-atk!)(atk-clock 'reset!))
           ((equal? msg 'render-data)
-           (let ((clock-data (atk-clock 'render-data)))
-             (let ((current (caddr clock-data)))
-               (let ((rem-turns (- atk-max current)))
-                 (list
-                   clock-data
-                   (list 'node (string-append type " (HP: " (number->string hp) "/" (number->string hp-max) " | 距攻击: " (number->string rem-turns) "轮)")
-                         (list
-                           (list 'node "压制" '() (lambda () (suppress!)))
-                           (list 'node "击倒" '() (lambda () (eliminate!))))
-                         #f))))))
+           (list 'node type
+                 (list (list 'clock "HP" hp hp-max 'segments)
+                       (atk-clock 'render-data))
+                 (list (node "压制" :effect (lambda () (suppress!)))
+                       (node "击倒" :effect (lambda () (eliminate!))))
+                 #f))
           (else #f))))))
 
 ;; ── Local State ────────────────────────────────
-(define exit-clock (make-clock "逃生通道" 5))
-(define spawn-clock (make-clock "敌人增援" 2))
+(define exit-clock (make-clock "逃脱" 12 'pie))
+(define spawn-clock (make-clock "增援" 3 'segments))
 
 (define enemies
   (list (make-enemy "持刀者" 3 3 10)
@@ -92,21 +88,14 @@
 
 ;; ── Render Data Entrypoint ────────────────────
 (define (get-render-data)
-  (append
-    ;; Clocks: Exit clock + Spawn clock + enemy attack clocks
-    (cons (exit-clock 'render-data)
-          (cons (spawn-clock 'render-data)
-                (map (lambda (e) (car (e 'render-data))) (live-enemies))))
-    
-    ;; Nodes: Enemy nodes + Escape action node
-    (list
-      (node "战场"
-        :children
-        (append
-          ;; Enemy node lists
-          (map (lambda (e) (cadr (e 'render-data))) (live-enemies))
-          ;; Escape option
-          (list
-            (node "冲向出口"
-              :effect (lambda ()
-                        (exit-clock 'tick!)))))))))
+  (list
+    (node "仓库"
+      :clocks (list (exit-clock 'render-data)
+                    (spawn-clock 'render-data))
+      :children
+      (append
+        (map (lambda (e) (e 'render-data)) (live-enemies))
+        (list
+          (node "冲向出口"
+            :effect (lambda ()
+                      (exit-clock 'tick!))))))))

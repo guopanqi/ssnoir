@@ -1,7 +1,7 @@
 ;; scenes/office.scm - Office Scene
 
 ;; ── Local State ────────────────────────────────
-(define work-clock (make-clock "工作进度" 3))
+(define work-clock (make-clock "工作进度" 3 'segments))
 
 ;; ── Rules ──────────────────────────────────────
 (define-rule "工资发放"
@@ -24,8 +24,8 @@
 ;; ── Render Data Entrypoint ────────────────────
 (define (get-render-data)
   (list
-    (work-clock 'render-data)
     (node "办公室"
+      :clocks (list (work-clock 'render-data))
       :children
       (list
         (node-work)

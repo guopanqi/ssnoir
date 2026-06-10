@@ -79,6 +79,22 @@ namespace SSNoir.Rendering
             return (int)size.X;
         }
 
+        private static string FindProjectRoot()
+        {
+            var current = AppDomain.CurrentDomain.BaseDirectory;
+            while (!string.IsNullOrEmpty(current))
+            {
+                if (Directory.GetFiles(current, "*.csproj").Length > 0)
+                {
+                    return current;
+                }
+                var parent = Path.GetDirectoryName(current);
+                if (parent == current) break;
+                current = parent;
+            }
+            return Directory.GetCurrentDirectory();
+        }
+
         private static HashSet<char> CollectUniqueCharacters()
         {
             var chars = new HashSet<char>();
@@ -89,18 +105,19 @@ namespace SSNoir.Rendering
                 chars.Add((char)i);
             }
 
-            // Include common Chinese punctuation
-            string commonPunc = "，。！？；：（）「」『』〈〉《》【】“”‘’、";
+            // Include common Chinese punctuation and special symbols
+            string commonPunc = "，。！？；：（）「」『』〈〉《》【】“”‘’、⚔";
             foreach (char c in commonPunc)
             {
                 chars.Add(c);
             }
 
-            // Scan directories
+            // Scan directories starting from project root
+            var projectRoot = FindProjectRoot();
             string[] dirsToScan = { "scenes", "scripts", "src" };
             foreach (var dir in dirsToScan)
             {
-                var fullDir = Path.GetFullPath(dir);
+                var fullDir = Path.Combine(projectRoot, dir);
                 if (Directory.Exists(fullDir))
                 {
                     var files = Directory.GetFiles(fullDir, "*.*", SearchOption.AllDirectories);
@@ -111,7 +128,7 @@ namespace SSNoir.Rendering
                         {
                             try
                             {
-                                string content = File.ReadAllText(file);
+                                string content = File.ReadAllText(file, System.Text.Encoding.UTF8);
                                 foreach (char c in content)
                                 {
                                     if (!char.IsControl(c) || c == '\n' || c == '\r' || c == '\t')
