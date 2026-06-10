@@ -13,17 +13,6 @@ namespace SSNoir
         {
             try
             {
-                if (args.Length > 0 && args[0] == "--inspect")
-                {
-                    var names = typeof(Schemy.Interpreter).Assembly.GetManifestResourceNames();
-                    Console.WriteLine("Manifest Resources in schemy.dll:");
-                    foreach (var name in names)
-                    {
-                        Console.WriteLine($"  {name}");
-                    }
-                    return;
-                }
-
                 if (args.Length > 0 && args[0] == "--validate")
                 {
                     GameTester.ValidateContent();
