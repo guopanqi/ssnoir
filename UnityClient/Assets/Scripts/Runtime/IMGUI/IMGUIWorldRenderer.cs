@@ -209,11 +209,36 @@ namespace SSNoir.IMGUI
 
         private void DrawNodeCard(GameNode node, Vector3 screenPos, Vector2 mousePos)
         {
+            float anchorX = screenPos.x;
+            float anchorY = Screen.height - screenPos.y;
+
             float cardWidth = isFocused(node.Name) ? 420f : 280f;
             float cardHeight = isFocused(node.Name) ? 320f : 130f;
-            float cardX = screenPos.x - cardWidth / 2f;
-            float cardY = Screen.height - screenPos.y - cardHeight / 2f;
+
+            // Offset the card above the 3D anchor point
+            float cardX = anchorX - cardWidth / 2f;
+            float cardY = anchorY - cardHeight - 40f;
+
+            // Clamp card to screen boundaries to keep it visible
+            float minX = 20f;
+            float maxX = Screen.width - cardWidth - 20f;
+            float minY = 90f; // Leave space for top nav bar
+            float maxY = Screen.height - 180f - cardHeight; // Leave space for bottom panel (140 + 30 + padding)
+
+            cardX = Mathf.Clamp(cardX, minX, maxX);
+            cardY = Mathf.Clamp(cardY, minY, maxY);
+
             var cardRect = new Rect(cardX, cardY, cardWidth, cardHeight);
+
+            // Draw vertical leader line from 3D anchor screen point up to the card bottom edge
+            Vector2 startLine = new Vector2(anchorX, anchorY);
+            Vector2 endLine = new Vector2(Mathf.Clamp(anchorX, cardRect.xMin + 10f, cardRect.xMax - 10f), cardRect.yMax);
+
+            Color lineColor = isFocused(node.Name) ? IMGUIStyles.PrimaryColor : new Color(0.671f, 0.780f, 1.0f, 0.35f);
+            float lineThickness = isFocused(node.Name) ? 2f : 1f;
+
+            // Draw the leader line behind the card
+            IMGUIStyles.DrawLine(startLine, endLine, lineColor, lineThickness);
 
             bool isHovered = cardRect.Contains(mousePos);
             bool isFlipped = _gameManager.IsNodeFlipped(node.Name);

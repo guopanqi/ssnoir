@@ -7,8 +7,8 @@ namespace SSNoir
         [Tooltip("The SCM node name this anchor corresponds to.")]
         public string NodeName;
 
-        [Tooltip("Optional camera transform to look at when this node is selected/focused.")]
-        public Transform FocusCameraTransform;
+        [Tooltip("Optional virtual camera to use when this node is selected/focused.")]
+        public Cinemachine.CinemachineVirtualCamera FocusVirtualCamera;
 
         private void OnDrawGizmos()
         {
@@ -16,16 +16,17 @@ namespace SSNoir
             Gizmos.DrawWireSphere(transform.position, 0.3f);
             Gizmos.DrawRay(transform.position, Vector3.up * 1.5f);
 
-            if (FocusCameraTransform != null)
+            if (FocusVirtualCamera != null)
             {
+                var camTransform = FocusVirtualCamera.transform;
                 Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(transform.position, FocusCameraTransform.position);
-                Gizmos.DrawWireSphere(FocusCameraTransform.position, 0.15f);
+                Gizmos.DrawLine(transform.position, camTransform.position);
+                Gizmos.DrawWireSphere(camTransform.position, 0.15f);
 
-                var forward = FocusCameraTransform.forward;
-                Gizmos.DrawRay(FocusCameraTransform.position, forward * 0.8f);
-                Gizmos.DrawRay(FocusCameraTransform.position + forward * 0.6f, Quaternion.Euler(0, 30, 0) * -forward * 0.2f);
-                Gizmos.DrawRay(FocusCameraTransform.position + forward * 0.6f, Quaternion.Euler(0, -30, 0) * -forward * 0.2f);
+                var forward = camTransform.forward;
+                Gizmos.DrawRay(camTransform.position, forward * 0.8f);
+                Gizmos.DrawRay(camTransform.position + forward * 0.6f, Quaternion.Euler(0, 30, 0) * -forward * 0.2f);
+                Gizmos.DrawRay(camTransform.position + forward * 0.6f, Quaternion.Euler(0, -30, 0) * -forward * 0.2f);
             }
         }
 

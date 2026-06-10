@@ -29,10 +29,10 @@ namespace SSNoir.IMGUI
 
             // Determine node type and colors
             string typeLabel = "地点";
-            Color normalColor = new Color(0.12f, 0.16f, 0.22f, 0.85f);
-            Color hoverColor = new Color(0.18f, 0.24f, 0.32f, 0.95f);
-            Color outlineNormal = new Color(0.3f, 0.35f, 0.45f, 1f);
-            Color outlineHover = new Color(0.5f, 0.55f, 0.7f, 1f);
+            Color normalColor = IMGUIStyles.CardBg;
+            Color hoverColor = IMGUIStyles.CardHoverBg;
+            Color outlineNormal = IMGUIStyles.CardOutline;
+            Color outlineHover = IMGUIStyles.CardHoverOutline;
 
             if (node.HasChildren)
             {
@@ -43,38 +43,38 @@ namespace SSNoir.IMGUI
                 if (node.Resolve.Type == ResolveType.Instant)
                 {
                     typeLabel = "行动";
-                    normalColor = new Color(0.24f, 0.14f, 0.08f, 0.85f);
-                    hoverColor = new Color(0.36f, 0.22f, 0.12f, 0.95f);
-                    outlineNormal = new Color(0.5f, 0.35f, 0.2f, 1f);
-                    outlineHover = new Color(0.7f, 0.5f, 0.3f, 1f);
+                    outlineNormal = IMGUIStyles.OutlineVariantColor;
+                    outlineHover = IMGUIStyles.SecondaryColor;
                 }
                 else if (node.Resolve.Type == ResolveType.Roll)
                 {
                     typeLabel = "判定";
-                    normalColor = new Color(0.18f, 0.12f, 0.24f, 0.85f);
-                    hoverColor = new Color(0.28f, 0.18f, 0.36f, 0.95f);
-                    outlineNormal = new Color(0.45f, 0.3f, 0.55f, 1f);
-                    outlineHover = new Color(0.65f, 0.45f, 0.75f, 1f);
+                    outlineNormal = IMGUIStyles.OutlineColor;
+                    outlineHover = IMGUIStyles.TertiaryColor; // Burnt Amber alert/POIs
                 }
                 else if (node.Resolve.Type == ResolveType.Observe)
                 {
                     typeLabel = "观察";
-                    normalColor = new Color(0.08f, 0.18f, 0.14f, 0.85f);
-                    hoverColor = new Color(0.12f, 0.26f, 0.20f, 0.95f);
-                    outlineNormal = new Color(0.2f, 0.45f, 0.35f, 1f);
-                    outlineHover = new Color(0.35f, 0.65f, 0.5f, 1f);
+                    outlineNormal = IMGUIStyles.OutlineColor;
+                    outlineHover = IMGUIStyles.SecondaryColor;
                 }
             }
 
             Color bgColor = isHovered ? hoverColor : (isFocused ? hoverColor : normalColor);
-            Color outlineColor = isHovered ? outlineHover : outlineNormal;
+            Color outlineColor = isHovered ? outlineHover : (isFocused ? IMGUIStyles.PrimaryColor : outlineNormal);
+            float outlineThickness = (isHovered || isFocused) ? 2f : 1f;
 
             // Draw card background
             GUI.color = bgColor;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = outlineColor;
-            DrawOutline(rect, 1);
             GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(rect, outlineThickness, outlineColor);
+
+            // Draw subtle horizontal scanline animation over active focused panels
+            if (isFocused)
+            {
+                IMGUIStyles.DrawScanLine(rect, new Color(0.671f, 0.780f, 1.0f, 0.15f), 100f, 1.5f);
+            }
 
             // Draw clock badges (top-right)
             if (clocks != null && clocks.Count > 0)
@@ -117,9 +117,8 @@ namespace SSNoir.IMGUI
                     {
                         GUI.color = IMGUIStyles.SlotEmpty;
                         GUI.DrawTexture(slotRect, Texture2D.whiteTexture);
-                        GUI.color = slotHover ? IMGUIStyles.SlotEmptyBorder : new Color(0.3f, 0.3f, 0.4f, 1f);
-                        DrawOutline(slotRect, 1);
                         GUI.color = Color.white;
+                        IMGUIStyles.DrawOutline(slotRect, 1f, slotHover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SlotEmptyBorder);
 
                         string placeholder = node.Requires[j].Type == "die" ? "D" : node.Requires[j].ItemName.Substring(0, 1);
                         if (node.Requires[j].Type == "item" && node.Requires[j].Qty > 1)
@@ -127,16 +126,15 @@ namespace SSNoir.IMGUI
                         int fontSize = placeholder.Length > 2 ? 10 : (placeholder.Length > 1 ? 12 : 16);
                         var pStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                         pStyle.fontSize = fontSize;
-                        pStyle.normal.textColor = new Color(0.5f, 0.5f, 0.6f, 1f);
+                        pStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
                         GUI.Label(slotRect, placeholder, pStyle);
                     }
                     else
                     {
                         GUI.color = IMGUIStyles.SlotFilled;
                         GUI.DrawTexture(slotRect, Texture2D.whiteTexture);
-                        GUI.color = new Color(0.4f, 0.7f, 0.5f, 1f);
-                        DrawOutline(slotRect, 1);
                         GUI.color = Color.white;
+                        IMGUIStyles.DrawOutline(slotRect, 1f, IMGUIStyles.SlotFilledBorder);
 
                         string valStr = res.Type == "die" ? res.Value.ToString() : res.ItemName.Substring(0, 1);
                         if (res.Type == "item" && res.Value > 1)
@@ -144,6 +142,7 @@ namespace SSNoir.IMGUI
                         int fontSize = valStr.Length > 2 ? 10 : (valStr.Length > 1 ? 12 : 16);
                         var vStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                         vStyle.fontSize = fontSize;
+                        vStyle.normal.textColor = Color.white;
                         GUI.Label(slotRect, valStr, vStyle);
                     }
 
@@ -164,28 +163,14 @@ namespace SSNoir.IMGUI
                 bool allFilled = slotted != null && slotted.All(s => s != null);
                 if (allFilled)
                 {
-                    bool exeHover = exeRect.Contains(mousePos);
-                    GUI.color = exeHover ? new Color(0.4f, 0.8f, 0.4f, 1f) : new Color(0.25f, 0.6f, 0.25f, 1f);
-                    GUI.DrawTexture(exeRect, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                    GUI.Label(exeRect, "执行", IMGUIStyles.ExecuteLabel);
-
-                    if (exeRect.Contains(mousePos) && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                    if (IMGUIStyles.DrawTechnicalButton(exeRect, "执行", mousePos, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
                     {
                         interaction.ExecuteClicked = true;
-                        Event.current.Use();
                     }
                 }
                 else
                 {
-                    GUI.color = new Color(0.2f, 0.2f, 0.22f, 1f);
-                    GUI.DrawTexture(exeRect, Texture2D.whiteTexture);
-                    GUI.color = new Color(0.3f, 0.3f, 0.35f, 1f);
-                    DrawOutline(exeRect, 1);
-                    GUI.color = Color.white;
-                    var waitStyle = new GUIStyle(IMGUIStyles.ExecuteLabel);
-                    waitStyle.normal.textColor = new Color(0.4f, 0.4f, 0.45f, 1f);
-                    GUI.Label(exeRect, "待命", waitStyle);
+                    IMGUIStyles.DrawTechnicalButton(exeRect, "待命", mousePos, IMGUIStyles.OutlineVariantColor, Color.clear, IMGUIStyles.ExecuteLabel, false);
                 }
             }
             else
@@ -219,16 +204,15 @@ namespace SSNoir.IMGUI
                     float tagY = rect.y + 8 + k * 22;
                     var tagRect = new Rect(tagX, tagY, tagW, tagH);
 
-                    Color tagBg = mod.Value < 0 ? new Color(0.47f, 0.12f, 0.12f, 1f) 
-                                 : (mod.Value > 0 ? new Color(0.12f, 0.39f, 0.12f, 1f) : new Color(0.2f, 0.2f, 0.2f, 1f));
-                    Color tagBorder = mod.Value < 0 ? new Color(0.7f, 0.23f, 0.23f, 1f) 
-                                     : (mod.Value > 0 ? new Color(0.23f, 0.63f, 0.23f, 1f) : new Color(0.35f, 0.35f, 0.35f, 1f));
+                    Color tagBg = mod.Value < 0 ? new Color(0.412f, 0.0f, 0.020f, 0.85f) 
+                                 : (mod.Value > 0 ? new Color(0.0f, 0.184f, 0.40f, 0.85f) : IMGUIStyles.SlotEmpty);
+                    Color tagBorder = mod.Value < 0 ? IMGUIStyles.ErrorColor 
+                                     : (mod.Value > 0 ? IMGUIStyles.PrimaryColor : IMGUIStyles.OutlineColor);
 
                     GUI.color = tagBg;
                     GUI.DrawTexture(tagRect, Texture2D.whiteTexture);
-                    GUI.color = tagBorder;
-                    DrawOutline(tagRect, 1);
                     GUI.color = Color.white;
+                    IMGUIStyles.DrawOutline(tagRect, 1f, tagBorder);
 
                     GUI.Label(tagRect, modText, tagStyle);
                 }
@@ -240,14 +224,14 @@ namespace SSNoir.IMGUI
         private static void DrawFlippedCard(Rect rect, GameNode node, string backText, bool isHovered, Vector2 mousePos,
             ref CardInteraction interaction, SSNoirGameManager gameManager)
         {
-            Color bg = isHovered ? new Color(0.08f, 0.22f, 0.16f, 0.95f) : IMGUIStyles.FlippedBg;
-            Color outline = isHovered ? new Color(0.3f, 0.7f, 0.5f, 1f) : IMGUIStyles.FlippedOutline;
+            Color bg = isHovered ? IMGUIStyles.CardHoverBg : IMGUIStyles.FlippedBg;
+            Color outline = isHovered ? IMGUIStyles.PrimaryColor : IMGUIStyles.FlippedOutline;
+            float thickness = isHovered ? 2f : 1f;
 
             GUI.color = bg;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = outline;
-            DrawOutline(rect, 1);
             GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(rect, thickness, outline);
 
             // Title
             GUI.Label(new Rect(rect.x + 8, rect.y + 8, rect.width - 16, 20), node.Name, IMGUIStyles.FlippedTitle);
@@ -274,23 +258,21 @@ namespace SSNoir.IMGUI
         {
             Color activeColor = IMGUIStyles.ClockActive;
             Color inactiveColor = IMGUIStyles.ClockInactive;
-            Color textColor = new Color(0.85f, 0.85f, 0.95f, 1f);
 
             if (clock.Style == ClockStyle.Countdown)
             {
                 string text = $"{clock.Label} {clock.Current}/{clock.Max}";
                 int fontSize = 10;
-                float textWidth = 80; // approximate
+                float textWidth = 80;
                 float badgeW = textWidth + 8;
                 float badgeH = 14;
                 float badgeX = rightX - badgeW;
                 float badgeY = topY;
 
-                GUI.color = new Color(0.12f, 0.12f, 0.15f, 0.85f);
+                GUI.color = IMGUIStyles.SlotEmpty;
                 GUI.DrawTexture(new Rect(badgeX, badgeY, badgeW, badgeH), Texture2D.whiteTexture);
-                GUI.color = new Color(0.4f, 0.4f, 0.55f, 1f);
-                DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1);
                 GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, IMGUIStyles.OutlineColor);
 
                 var style = new GUIStyle(IMGUIStyles.ClockLabel);
                 style.fontSize = fontSize;
@@ -312,11 +294,10 @@ namespace SSNoir.IMGUI
                 float badgeX = rightX - badgeW;
                 float badgeY = topY;
 
-                GUI.color = new Color(0.12f, 0.12f, 0.15f, 0.85f);
+                GUI.color = IMGUIStyles.SlotEmpty;
                 GUI.DrawTexture(new Rect(badgeX, badgeY, badgeW, badgeH), Texture2D.whiteTexture);
-                GUI.color = new Color(0.4f, 0.4f, 0.55f, 1f);
-                DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1);
                 GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, IMGUIStyles.OutlineColor);
 
                 var style = new GUIStyle(IMGUIStyles.ClockLabel);
                 style.fontSize = fontSize;
@@ -335,8 +316,8 @@ namespace SSNoir.IMGUI
                     {
                         GUI.color = inactiveColor;
                         GUI.DrawTexture(dotRect, Texture2D.whiteTexture);
-                        GUI.color = new Color(0.4f, 0.4f, 0.5f, 1f);
-                        DrawOutline(dotRect, 1);
+                        GUI.color = Color.white;
+                        IMGUIStyles.DrawOutline(dotRect, 1f, IMGUIStyles.OutlineColor);
                     }
                     GUI.color = Color.white;
                 }
@@ -354,11 +335,10 @@ namespace SSNoir.IMGUI
                 float badgeX = rightX - badgeW;
                 float badgeY = topY;
 
-                GUI.color = new Color(0.12f, 0.12f, 0.15f, 0.85f);
+                GUI.color = IMGUIStyles.SlotEmpty;
                 GUI.DrawTexture(new Rect(badgeX, badgeY, badgeW, badgeH), Texture2D.whiteTexture);
-                GUI.color = new Color(0.4f, 0.4f, 0.55f, 1f);
-                DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1);
                 GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, IMGUIStyles.OutlineColor);
 
                 var style = new GUIStyle(IMGUIStyles.ClockLabel);
                 style.fontSize = fontSize;
@@ -369,18 +349,11 @@ namespace SSNoir.IMGUI
                 float pieY = badgeY + (badgeH - pieRadius * 2) / 2f;
                 var pieRect = new Rect(pieX, pieY, pieRadius * 2, pieRadius * 2);
                 float fillPct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
-                PieDrawer.DrawPieBadge(pieRect, fillPct, activeColor, new Color(0.4f, 0.4f, 0.55f, 1f));
+                PieDrawer.DrawPieBadge(pieRect, fillPct, activeColor, IMGUIStyles.OutlineColor);
 
                 rightX -= (badgeW + 4);
             }
         }
-
-        private static void DrawOutline(Rect rect, int thickness)
-        {
-            GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y + rect.height - thickness, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x + rect.width - thickness, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-        }
     }
 }
+

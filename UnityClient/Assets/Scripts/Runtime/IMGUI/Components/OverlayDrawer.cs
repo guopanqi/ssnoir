@@ -17,9 +17,8 @@ namespace SSNoir.IMGUI
 
             GUI.color = IMGUIStyles.ToastBg;
             GUI.DrawTexture(toastRect, Texture2D.whiteTexture);
-            GUI.color = new Color(0.9f, 0.25f, 0.25f, 1f);
-            DrawOutline(toastRect, 1);
             GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(toastRect, 1f, IMGUIStyles.TertiaryColor);
 
             GUI.Label(toastRect, message, IMGUIStyles.ToastLabel);
         }
@@ -27,16 +26,22 @@ namespace SSNoir.IMGUI
         public static void DrawCursorFollower(SSNoirGameManager gameManager)
         {
             var selected = gameManager.SelectedResource;
-            if (selected == null) return;
+            var mousePos = Event.current.mousePosition;
+            if (selected == null)
+            {
+                Cursor.visible = true;
+                return;
+            }
 
+            Cursor.visible = true;
             float overlayW = selected.Type == "die" ? 50f : 100f;
             float overlayH = 28f;
-            var mousePos = Event.current.mousePosition;
             var rect = new Rect(mousePos.x + 15, mousePos.y + 15, overlayW, overlayH);
 
-            GUI.color = new Color(0.9f, 0.75f, 0.2f, 0.9f);
+            GUI.color = IMGUIStyles.CardHoverBg;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.PrimaryColor);
 
             string text = selected.Type == "die" ? $"D{selected.Value}" : selected.ItemName;
             var style = new GUIStyle(IMGUIStyles.CursorFollower);
@@ -63,9 +68,8 @@ namespace SSNoir.IMGUI
 
             GUI.color = IMGUIStyles.ModalBg;
             GUI.DrawTexture(modalRect, Texture2D.whiteTexture);
-            GUI.color = new Color(0.5f, 0.5f, 0.65f, 1f);
-            DrawOutline(modalRect, 2);
             GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(modalRect, 1f, IMGUIStyles.PrimaryColor);
 
             float contentX = modalX + 20;
             float contentY = modalY + 20;
@@ -105,31 +109,11 @@ namespace SSNoir.IMGUI
             float btnY = modalY + modalH - 48;
             var btnRect = new Rect(btnX, btnY, btnW, btnH);
 
-            bool btnHover = btnRect.Contains(mousePos);
-            Color btnBg = btnHover ? new Color(0.3f, 0.5f, 0.7f, 1f) : new Color(0.2f, 0.4f, 0.6f, 1f);
-            Color btnBorder = btnHover ? new Color(0.5f, 0.7f, 0.9f, 1f) : new Color(0.4f, 0.6f, 0.8f, 1f);
-
-            GUI.color = btnBg;
-            GUI.DrawTexture(btnRect, Texture2D.whiteTexture);
-            GUI.color = btnBorder;
-            DrawOutline(btnRect, 1);
-            GUI.color = Color.white;
-
-            GUI.Label(btnRect, "确定", IMGUIStyles.ExecuteLabel);
-
-            if (btnHover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+            if (IMGUIStyles.DrawTechnicalButton(btnRect, "确定", mousePos, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
             {
                 gameManager.OnRollAckClicked();
-                Event.current.Use();
             }
-        }
-
-        private static void DrawOutline(Rect rect, int thickness)
-        {
-            GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y + rect.height - thickness, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x + rect.width - thickness, rect.y, thickness, rect.height), Texture2D.whiteTexture);
         }
     }
 }
+

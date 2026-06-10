@@ -47,14 +47,13 @@ namespace SSNoir.IMGUI
             }
 
             // Draw box
-            Color boxBg = hoverBox ? new Color(0.2f, 0.2f, 0.3f, 1f) : IMGUIStyles.DropdownBg;
-            Color boxBorder = _isOpen ? new Color(0.5f, 0.5f, 0.7f, 1f) : new Color(0.3f, 0.3f, 0.45f, 1f);
+            Color boxBg = hoverBox ? IMGUIStyles.DropdownHover : IMGUIStyles.DropdownBg;
+            Color boxBorder = _isOpen ? IMGUIStyles.PrimaryColor : IMGUIStyles.OutlineColor;
 
             GUI.color = boxBg;
             GUI.DrawTexture(boxRect, Texture2D.whiteTexture);
-            GUI.color = boxBorder;
-            DrawOutline(boxRect, 1);
             GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(boxRect, 1f, boxBorder);
 
             string currentScene = gameManager.SceneManager.CurrentSceneName;
             GUI.Label(new Rect(boxX + 12, boxY + 6, boxW - 30, 20), currentScene, IMGUIStyles.DropdownCurrent);
@@ -68,8 +67,8 @@ namespace SSNoir.IMGUI
                     var optRect = new Rect(boxX, boxY + boxH + i * 32, boxW, 32);
                     bool hoverOpt = optRect.Contains(mousePos);
 
-                    Color optBg = hoverOpt ? IMGUIStyles.DropdownHover : new Color(0.08f, 0.08f, 0.12f, 1f);
-                    Color optText = hoverOpt ? Color.white : new Color(0.7f, 0.7f, 0.8f, 1f);
+                    Color optBg = hoverOpt ? IMGUIStyles.DropdownHover : IMGUIStyles.SlotEmpty;
+                    Color optText = hoverOpt ? Color.white : IMGUIStyles.OnSurfaceVariant;
 
                     GUI.color = optBg;
                     GUI.DrawTexture(optRect, Texture2D.whiteTexture);
@@ -77,7 +76,7 @@ namespace SSNoir.IMGUI
 
                     if (_availableScenes[i] == currentScene)
                     {
-                        GUI.color = new Color(0.4f, 0.4f, 0.8f, 1f);
+                        GUI.color = IMGUIStyles.PrimaryColor;
                         GUI.DrawTexture(new Rect(optRect.x, optRect.y, 4, optRect.height), Texture2D.whiteTexture);
                         GUI.color = Color.white;
                     }
@@ -88,9 +87,7 @@ namespace SSNoir.IMGUI
 
                     if (i < _availableScenes.Count - 1)
                     {
-                        GUI.color = new Color(0.15f, 0.15f, 0.2f, 1f);
-                        GUI.DrawTexture(new Rect(optRect.x, optRect.y + optRect.height, optRect.width, 1), Texture2D.whiteTexture);
-                        GUI.color = Color.white;
+                        IMGUIStyles.DrawLine(new Vector2(optRect.x, optRect.y + optRect.height), new Vector2(optRect.x + optRect.width, optRect.y + optRect.height), IMGUIStyles.OutlineVariantColor, 1f);
                     }
 
                     if (hoverOpt && Event.current.type == EventType.MouseDown && Event.current.button == 0)
@@ -104,9 +101,7 @@ namespace SSNoir.IMGUI
                 // List outline
                 float listH = _availableScenes.Count * 32;
                 var listRect = new Rect(boxX, boxY + boxH, boxW, listH);
-                GUI.color = boxBorder;
-                DrawOutline(listRect, 1);
-                GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(listRect, 1f, boxBorder);
             }
         }
 
@@ -123,13 +118,6 @@ namespace SSNoir.IMGUI
                 }
             }
         }
-
-        private static void DrawOutline(Rect rect, int thickness)
-        {
-            GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y + rect.height - thickness, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x + rect.width - thickness, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-        }
     }
 }
+

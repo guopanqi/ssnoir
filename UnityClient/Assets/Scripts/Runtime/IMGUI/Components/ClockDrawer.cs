@@ -25,17 +25,14 @@ namespace SSNoir.IMGUI
             }
 
             // Divider
-            GUI.color = new Color(0.2f, 0.2f, 0.25f, 1f);
-            GUI.DrawTexture(new Rect(40, y + height + 4, Screen.width - 80, 1), Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.DrawLine(new Vector2(40, y + height + 4), new Vector2(Screen.width - 40, y + height + 4), IMGUIStyles.OutlineVariantColor, 1f);
         }
 
         private static float DrawClock(ref float x, float y, float height, GameClock clock)
         {
             Color activeColor = IMGUIStyles.ClockActive;
             Color inactiveColor = IMGUIStyles.ClockInactive;
-            Color textColor = new Color(0.85f, 0.85f, 0.95f, 1f);
-            Color outlineColor = new Color(0.4f, 0.4f, 0.55f, 1f);
+            Color outlineColor = IMGUIStyles.OutlineColor;
 
             float labelWidth = 60;
             float clockWidth = labelWidth + 8;
@@ -70,9 +67,8 @@ namespace SSNoir.IMGUI
                 float boxH = height - 4;
                 GUI.color = inactiveColor;
                 GUI.DrawTexture(new Rect(boxX, y + 2, boxW, boxH), Texture2D.whiteTexture);
-                GUI.color = outlineColor;
-                DrawOutline(new Rect(boxX, y + 2, boxW, boxH), 1);
                 GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(new Rect(boxX, y + 2, boxW, boxH), 1f, outlineColor);
 
                 var numStyle = new GUIStyle(IMGUIStyles.ClockValue);
                 numStyle.fontSize = 12;
@@ -81,7 +77,7 @@ namespace SSNoir.IMGUI
 
                 var maxStyle = new GUIStyle(IMGUIStyles.ClockValue);
                 maxStyle.fontSize = 11;
-                maxStyle.normal.textColor = new Color(0.5f, 0.5f, 0.6f, 1f);
+                maxStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
                 GUI.Label(new Rect(boxX + boxW + 2, y, 40, height), $"/{clock.Max}", maxStyle);
             }
             else // Segments
@@ -107,8 +103,8 @@ namespace SSNoir.IMGUI
                     {
                         GUI.color = inactiveColor;
                         GUI.DrawTexture(segRect, Texture2D.whiteTexture);
-                        GUI.color = outlineColor;
-                        DrawOutline(segRect, 1);
+                        GUI.color = Color.white;
+                        IMGUIStyles.DrawOutline(segRect, 1f, outlineColor);
                     }
                     GUI.color = Color.white;
                 }
@@ -116,31 +112,6 @@ namespace SSNoir.IMGUI
 
             return clockWidth;
         }
-
-        private static void DrawRing(Rect rect, int thickness)
-        {
-            float cx = rect.x + rect.width / 2f;
-            float cy = rect.y + rect.height / 2f;
-            float rx = rect.width / 2f;
-            float ry = rect.height / 2f;
-
-            // Draw a hollow ellipse using 4 small rectangles for the outline
-            // Top
-            GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, thickness), Texture2D.whiteTexture);
-            // Bottom
-            GUI.DrawTexture(new Rect(rect.x, rect.y + rect.height - thickness, rect.width, thickness), Texture2D.whiteTexture);
-            // Left
-            GUI.DrawTexture(new Rect(rect.x, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-            // Right
-            GUI.DrawTexture(new Rect(rect.x + rect.width - thickness, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-        }
-
-        private static void DrawOutline(Rect rect, int thickness)
-        {
-            GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y + rect.height - thickness, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x + rect.width - thickness, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-        }
     }
 }
+

@@ -19,9 +19,8 @@ namespace SSNoir.IMGUI
             // 1. Hand Panel Background
             GUI.color = IMGUIStyles.PanelBg;
             GUI.DrawTexture(new Rect(0, handY, Screen.width, PanelHeight), Texture2D.whiteTexture);
-            GUI.color = new Color(0.2f, 0.2f, 0.25f, 1f);
-            GUI.DrawTexture(new Rect(0, handY, Screen.width, 2), Texture2D.whiteTexture);
             GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(new Rect(-1, handY, Screen.width + 2, PanelHeight + 2), 1f, IMGUIStyles.OutlineVariantColor);
 
             // 2. Dice
             DrawDice(handY, gameManager, mousePos);
@@ -60,30 +59,30 @@ namespace SSNoir.IMGUI
 
                 if (isSlotted)
                 {
-                    GUI.color = new Color(0.08f, 0.08f, 0.1f, 0.5f);
+                    GUI.color = IMGUIStyles.SlotEmpty;
                     GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
-                    GUI.color = new Color(0.12f, 0.12f, 0.15f, 0.5f);
-                    DrawOutline(dieRect, 2);
                     GUI.color = Color.white;
+                    IMGUIStyles.DrawOutline(dieRect, 1f, IMGUIStyles.OutlineVariantColor);
 
                     var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel);
-                    dimStyle.normal.textColor = new Color(0.25f, 0.25f, 0.3f, 0.5f);
+                    dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
                     dimStyle.fontSize = 24;
                     GUI.Label(dieRect, val.ToString(), dimStyle);
                 }
                 else
                 {
                     Color bg = isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.DieHover : IMGUIStyles.DieNormal);
-                    Color border = hover ? new Color(0.85f, 0.7f, 0.3f, 1f) : new Color(0.3f, 0.3f, 0.4f, 1f);
+                    Color border = isSelected ? IMGUIStyles.PrimaryColor : (hover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor);
+                    float thickness = (isSelected || hover) ? 2f : 1f;
 
                     GUI.color = bg;
                     GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
-                    GUI.color = border;
-                    DrawOutline(dieRect, 2);
                     GUI.color = Color.white;
+                    IMGUIStyles.DrawOutline(dieRect, thickness, border);
 
                     var dieStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                     dieStyle.fontSize = 28;
+                    dieStyle.normal.textColor = Color.white;
                     GUI.Label(dieRect, val.ToString(), dieStyle);
 
                     if (hover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
@@ -140,32 +139,32 @@ namespace SSNoir.IMGUI
 
                 if (remaining <= 0)
                 {
-                    GUI.color = new Color(0.08f, 0.08f, 0.1f, 0.5f);
+                    GUI.color = IMGUIStyles.SlotEmpty;
                     GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
-                    GUI.color = new Color(0.12f, 0.12f, 0.15f, 0.5f);
-                    DrawOutline(itemRect, 2);
                     GUI.color = Color.white;
+                    IMGUIStyles.DrawOutline(itemRect, 1f, IMGUIStyles.OutlineVariantColor);
 
                     string label = item.Name == "金钱" ? "$0" : $"{item.Name} x0";
                     var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel);
-                    dimStyle.normal.textColor = new Color(0.25f, 0.25f, 0.3f, 0.5f);
+                    dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
                     dimStyle.fontSize = 16;
                     GUI.Label(itemRect, label, dimStyle);
                 }
                 else
                 {
                     Color bg = isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.ItemHover : IMGUIStyles.ItemNormal);
-                    Color border = hover ? new Color(0.85f, 0.7f, 0.3f, 1f) : new Color(0.3f, 0.4f, 0.35f, 1f);
+                    Color border = isSelected ? IMGUIStyles.PrimaryColor : (hover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor);
+                    float thickness = (isSelected || hover) ? 2f : 1f;
 
                     GUI.color = bg;
                     GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
-                    GUI.color = border;
-                    DrawOutline(itemRect, 2);
                     GUI.color = Color.white;
+                    IMGUIStyles.DrawOutline(itemRect, thickness, border);
 
                     string label = item.Name == "金钱" ? $"${remaining}" : $"{item.Name} x{remaining}";
                     var itemStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                     itemStyle.fontSize = 16;
+                    itemStyle.normal.textColor = Color.white;
                     GUI.Label(itemRect, label, itemStyle);
 
                     if (hover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
@@ -182,25 +181,13 @@ namespace SSNoir.IMGUI
             float restX = Screen.width - 150;
             float restY = handY + 30;
             var restRect = new Rect(restX, restY, 110, 80);
-            bool restHover = restRect.Contains(mousePos);
-
-            Color bg = restHover ? new Color(0.65f, 0.2f, 0.2f, 1f) : new Color(0.5f, 0.15f, 0.15f, 1f);
-            Color border = restHover ? new Color(0.9f, 0.4f, 0.4f, 1f) : new Color(0.65f, 0.25f, 0.25f, 1f);
-
-            GUI.color = bg;
-            GUI.DrawTexture(restRect, Texture2D.whiteTexture);
-            GUI.color = border;
-            DrawOutline(restRect, 2);
-            GUI.color = Color.white;
 
             var style = new GUIStyle(IMGUIStyles.ExecuteLabel);
             style.fontSize = 18;
-            GUI.Label(restRect, "休息", style);
 
-            if (restHover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+            if (IMGUIStyles.DrawTechnicalButton(restRect, "休息", mousePos, IMGUIStyles.TertiaryColor, new Color(1.0f, 0.714f, 0.576f, 0.10f), style))
             {
                 gameManager.OnEndTurnClicked();
-                Event.current.Use();
             }
         }
 
@@ -208,9 +195,8 @@ namespace SSNoir.IMGUI
         {
             GUI.color = IMGUIStyles.BottomBarBg;
             GUI.DrawTexture(new Rect(0, statusY, Screen.width, StatusBarHeight), Texture2D.whiteTexture);
-            GUI.color = new Color(0.15f, 0.15f, 0.2f, 1f);
-            GUI.DrawTexture(new Rect(0, statusY, Screen.width, 2), Texture2D.whiteTexture);
             GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(new Rect(-1, statusY, Screen.width + 2, StatusBarHeight + 2), 1f, IMGUIStyles.OutlineVariantColor);
 
             int health = gameManager.GameState.Get<int>("health");
             string location = gameManager.GameState.Get<string>("location");
@@ -227,13 +213,6 @@ namespace SSNoir.IMGUI
 
             GUI.Label(new Rect(380, statusY + 5, 500, 22), "提示: 点击手牌选择，点击卡槽放入，右键取消选择。", IMGUIStyles.HelpTip);
         }
-
-        private static void DrawOutline(Rect rect, int thickness)
-        {
-            GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y + rect.height - thickness, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x + rect.width - thickness, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-        }
     }
 }
+

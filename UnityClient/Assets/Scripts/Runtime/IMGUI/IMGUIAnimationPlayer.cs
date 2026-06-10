@@ -131,9 +131,7 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
 
             // Outline
-            GUI.color = new Color(0.5f, 0.5f, 0.65f, 1f);
-            DrawOutline(modalRect, 2);
-            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(modalRect, 1f, IMGUIStyles.PrimaryColor);
 
             // Content
             float contentX = modalX + 20;
@@ -145,10 +143,11 @@ namespace SSNoir.IMGUI
             contentY += 28;
 
             // Rolling die
-            GUI.color = new Color(1f, 0.85f, 0.1f, 1f);
+            GUI.color = IMGUIStyles.ClockActive; // Burnt Amber color
             var dieStyle = new GUIStyle(IMGUIStyles.CardTitle);
             dieStyle.fontSize = 48;
             dieStyle.alignment = TextAnchor.MiddleCenter;
+            dieStyle.normal.textColor = IMGUIStyles.ClockActive;
             var dieRect = new Rect(contentX, contentY, contentW, 60);
             GUI.matrix = Matrix4x4.TRS(dieRect.center, Quaternion.identity, Vector3.one * DisplayScale)
                        * Matrix4x4.TRS(-dieRect.center, Quaternion.identity, Vector3.one);
@@ -190,21 +189,14 @@ namespace SSNoir.IMGUI
                 float btnH = 32;
                 float btnX = modalX + (modalW - btnW) / 2f;
                 float btnY = modalY + modalH - 45;
+                var btnRect = new Rect(btnX, btnY, btnW, btnH);
+                var mousePos = Event.current.mousePosition;
 
-                var btnStyle = IMGUIStyles.ButtonStyle(new Color(0.2f, 0.4f, 0.6f), new Color(0.3f, 0.5f, 0.7f), Color.clear);
-                if (GUI.Button(new Rect(btnX, btnY, btnW, btnH), "确定", btnStyle))
+                if (IMGUIStyles.DrawTechnicalButton(btnRect, "确定", mousePos, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
                 {
                     Acknowledge();
                 }
             }
-        }
-
-        private void DrawOutline(Rect rect, int thickness)
-        {
-            GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y + rect.height - thickness, rect.width, thickness), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x, rect.y, thickness, rect.height), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(rect.x + rect.width - thickness, rect.y, thickness, rect.height), Texture2D.whiteTexture);
         }
     }
 }

@@ -15,12 +15,11 @@ namespace SSNoir.Editor
 
             SetupMainCamera(groupName);
             var globalCam = CreateGlobalCamera(groupName);
-            var focusCam = CreateFocusCamera(groupName);
 
             CreateHomeAnchors(groupName);
             CreateOfficeAnchors(groupName);
 
-            CreateSceneManager(globalCam, focusCam, groupName);
+            CreateSceneManager(globalCam, groupName);
 
             Debug.Log("[SSNoir] Scene setup complete! Open the SceneDirectory and SSNoirGameManager to verify references.");
         }
@@ -67,21 +66,6 @@ namespace SSNoir.Editor
             return vcam;
         }
 
-        private static CinemachineVirtualCamera CreateFocusCamera(string undoGroup)
-        {
-            var existing = GameObject.Find("VCam_Focus");
-            if (existing != null) return existing.GetComponent<CinemachineVirtualCamera>();
-
-            var go = new GameObject("VCam_Focus", typeof(CinemachineVirtualCamera));
-            go.transform.position = new Vector3(0, 2, -3);
-            go.transform.rotation = Quaternion.identity;
-
-            var vcam = go.GetComponent<CinemachineVirtualCamera>();
-            vcam.Priority = 5;
-
-            Undo.RegisterCreatedObjectUndo(go, undoGroup);
-            return vcam;
-        }
 
         private static void CreateHomeAnchors(string undoGroup)
         {
@@ -89,7 +73,7 @@ namespace SSNoir.Editor
             CreateNodeAnchor("清理垃圾", new Vector3(-2.5f, 0, 1.5f), null, undoGroup);
             CreateNodeAnchor("敲门", new Vector3(0, 0, 3), null, undoGroup);
 
-            var enterFocus = CreateFocusTransform("进门2", new Vector3(0.5f, 1.5f, 5));
+            var enterFocus = CreateFocusVirtualCamera("进门2", new Vector3(0.5f, 1.5f, 5), undoGroup);
             CreateNodeAnchor("进门2", new Vector3(0, 0, 4), enterFocus, undoGroup);
 
             CreateNodeAnchor("买一盆花", new Vector3(2, 0, 3), null, undoGroup);
@@ -103,33 +87,38 @@ namespace SSNoir.Editor
         {
             CreateNodeAnchor("写代码", new Vector3(10, 0, 0), null, undoGroup);
 
-            var homeFocus = CreateFocusTransform("回家", new Vector3(12, 1.5f, -2));
+            var homeFocus = CreateFocusVirtualCamera("回家", new Vector3(12, 1.5f, -2), undoGroup);
             CreateNodeAnchor("回家", new Vector3(12, 0, -1), homeFocus, undoGroup);
 
             CreateNodeAnchor("办公室", new Vector3(10, 0, 2), null, undoGroup);
         }
 
-        private static Transform CreateFocusTransform(string anchorName, Vector3 position)
+        private static CinemachineVirtualCamera CreateFocusVirtualCamera(string anchorName, Vector3 position, string undoGroup)
         {
-            var go = new GameObject($"Focus_{anchorName}");
+            var go = new GameObject($"VCam_Focus_{anchorName}", typeof(CinemachineVirtualCamera));
             go.transform.position = position;
             go.transform.rotation = Quaternion.Euler(15, 180, 0);
-            return go.transform;
+            
+            var vcam = go.GetComponent<CinemachineVirtualCamera>();
+            vcam.Priority = 5;
+
+            Undo.RegisterCreatedObjectUndo(go, undoGroup);
+            return vcam;
         }
 
-        private static void CreateNodeAnchor(string nodeName, Vector3 position, Transform focusTransform, string undoGroup)
+        private static void CreateNodeAnchor(string nodeName, Vector3 position, CinemachineVirtualCamera focusCamera, string undoGroup)
         {
             var go = new GameObject($"Anchor_{nodeName}", typeof(NodeAnchor));
             go.transform.position = position;
 
             var anchor = go.GetComponent<NodeAnchor>();
             anchor.NodeName = nodeName;
-            anchor.FocusCameraTransform = focusTransform;
+            anchor.FocusVirtualCamera = focusCamera;
 
             Undo.RegisterCreatedObjectUndo(go, undoGroup);
         }
 
-        private static void CreateSceneManager(CinemachineVirtualCamera globalCam, CinemachineVirtualCamera focusCam, string undoGroup)
+        private static void CreateSceneManager(CinemachineVirtualCamera globalCam, string undoGroup)
         {
             // SceneDirectory
             var sdGo = new GameObject("SceneDirectory", typeof(SceneDirectory));
@@ -141,7 +130,6 @@ namespace SSNoir.Editor
 
             var serialized = new SerializedObject(gm);
             serialized.FindProperty("globalCamera").objectReferenceValue = globalCam;
-            serialized.FindProperty("focusCamera").objectReferenceValue = focusCam;
             serialized.ApplyModifiedProperties();
 
             Undo.RegisterCreatedObjectUndo(gmGo, undoGroup);

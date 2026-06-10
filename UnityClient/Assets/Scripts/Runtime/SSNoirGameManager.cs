@@ -29,7 +29,6 @@ namespace SSNoir
     {
         [Header("Cinemachine Cameras")]
         [SerializeField] private Cinemachine.CinemachineVirtualCamera? globalCamera;
-        [SerializeField] private Cinemachine.CinemachineVirtualCamera? focusCamera;
 
         [Header("Font")]
         [SerializeField] private Font? chineseFont;
@@ -82,10 +81,6 @@ namespace SSNoir
             {
                 globalCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Global") || c.name.Contains("global"));
             }
-            if (focusCamera == null)
-            {
-                focusCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Focus") || c.name.Contains("focus"));
-            }
 
             // 4. Find scene directory
             _sceneDirectory = FindObjectOfType<SceneDirectory>();
@@ -105,7 +100,7 @@ namespace SSNoir
                 _navigationStack.Clear();
                 _selectedResource = null;
                 _focusedNodeName = string.Empty;
-                if (focusCamera != null) focusCamera.Priority = 5;
+                UpdateCameraFocus();
             };
 
             _sceneManager.OnWorldRefreshed += () => {
@@ -174,8 +169,14 @@ namespace SSNoir
 
         private Cinemachine.CinemachineVirtualCamera? GetActiveCamera()
         {
-            if (focusCamera != null && focusCamera.Priority > 10)
-                return focusCamera;
+            if (_sceneDirectory != null)
+            {
+                foreach (var a in _sceneDirectory.AllAnchors)
+                {
+                    if (a.FocusVirtualCamera != null && a.FocusVirtualCamera.Priority > 10)
+                        return a.FocusVirtualCamera;
+                }
+            }
             return globalCamera;
         }
 
@@ -220,39 +221,40 @@ namespace SSNoir
             if (!string.IsNullOrEmpty(_focusedNodeName))
                 ClearOtherNodeSlots(_focusedNodeName);
 
+            UpdateCameraFocus();
+        }
+
+        private void UpdateCameraFocus()
+        {
+
+            // Reset all scene anchor focus cameras
+            if (_sceneDirectory != null)
+            {
+                foreach (var a in _sceneDirectory.AllAnchors)
+                {
+                    if (a.FocusVirtualCamera != null)
+                    {
+                        a.FocusVirtualCamera.Priority = 5;
+                    }
+                }
+            }
+
+            // Find target anchor to focus
+            NodeAnchor? targetAnchor = null;
             if (!string.IsNullOrEmpty(_focusedNodeName))
             {
-                // 聚焦某个节点：若该节点有 FocusCameraTransform 则移动，否则不动
-                var anchor = _sceneDirectory?.GetAnchor(_focusedNodeName);
-                if (anchor != null && anchor.FocusCameraTransform != null && focusCamera != null)
-                {
-                    focusCamera.transform.position = anchor.FocusCameraTransform.position;
-                    focusCamera.transform.rotation = anchor.FocusCameraTransform.rotation;
-                    focusCamera.Priority = 20;
-                }
-                // 若该节点没有 FocusCameraTransform → 相机保持不变
+                targetAnchor = _sceneDirectory?.GetAnchor(_focusedNodeName);
             }
-            else
+            else if (_navigationStack.Count > 0)
             {
-                // 取消聚焦
-                if (_navigationStack.Count > 0 && focusCamera != null)
-                {
-                    // 在导航栈中：检查当前父节点是否有 FocusCameraTransform
-                    var parentNode = _navigationStack[_navigationStack.Count - 1];
-                    var anchor = _sceneDirectory?.GetAnchor(parentNode.Name);
-                    if (anchor != null && anchor.FocusCameraTransform != null)
-                    {
-                        focusCamera.transform.position = anchor.FocusCameraTransform.position;
-                        focusCamera.transform.rotation = anchor.FocusCameraTransform.rotation;
-                        focusCamera.Priority = 20;
-                    }
-                    // 若父节点没有 FocusCameraTransform → 相机保持不动
-                }
-                else if (focusCamera != null)
-                {
-                    // 导航栈为空：回到全局视角
-                    focusCamera.Priority = 5;
-                }
+                var parentNode = _navigationStack[_navigationStack.Count - 1];
+                targetAnchor = _sceneDirectory?.GetAnchor(parentNode.Name);
+            }
+
+            // Set priority on target camera
+            if (targetAnchor != null && targetAnchor.FocusVirtualCamera != null)
+            {
+                targetAnchor.FocusVirtualCamera.Priority = 20;
             }
         }
 
@@ -464,24 +466,8 @@ namespace SSNoir
                 _navigationStack.RemoveAt(_navigationStack.Count - 1);
                 ResolveNavigationStack();
 
-                // 如果还有父节点，检查其是否有 FocusCameraTransform
-                if (_navigationStack.Count > 0 && focusCamera != null)
-                {
-                    var parentNode = _navigationStack[_navigationStack.Count - 1];
-                    var anchor = _sceneDirectory?.GetAnchor(parentNode.Name);
-                    if (anchor != null && anchor.FocusCameraTransform != null)
-                    {
-                        focusCamera.transform.position = anchor.FocusCameraTransform.position;
-                        focusCamera.transform.rotation = anchor.FocusCameraTransform.rotation;
-                        focusCamera.Priority = 20;
-                    }
-                    // 若父节点没有 FocusCameraTransform → 相机不动
-                }
-                else if (focusCamera != null)
-                {
-                    // 导航栈为空：回到全局视角
-                    focusCamera.Priority = 5;
-                }
+                // Update camera focus priority for navigation parent or global view
+                UpdateCameraFocus();
             }
         }
 
