@@ -11,11 +11,17 @@ namespace SSNoir
     {
         public static IEnumerator PlayRoll(int finalValue, RollOutcome outcome, Canvas canvas)
         {
+            Debug.Log($"[SSNoir] Dice roll animation started. finalValue={finalValue}, outcome={outcome}");
+
             // 1. Blocker background
             var blocker = UIHelper.CreatePanel(canvas.transform, "DiceRollBlocker", new Color(0, 0, 0, 0.7f), default, true);
+            blocker.transform.SetAsLastSibling();
+
             var blockerRt = blocker.GetComponent<RectTransform>();
             blockerRt.anchorMin = Vector2.zero;
             blockerRt.anchorMax = Vector2.one;
+            blockerRt.offsetMin = Vector2.zero;
+            blockerRt.offsetMax = Vector2.zero;
             blockerRt.sizeDelta = Vector2.zero;
 
             // 2. Central Panel
@@ -44,8 +50,11 @@ namespace SSNoir
             var dieText = UIHelper.CreateText(vlgGo.transform, "D1", 48, Color.white, TextAlignmentOptions.Center);
             dieText.fontStyle = FontStyles.Bold;
 
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+
             // 3. Roll rolling effect
-            float duration = 1.0f;
+            float duration = 1.2f;
             float elapsed = 0f;
             int lastVal = 1;
             var rand = new System.Random();
@@ -67,7 +76,7 @@ namespace SSNoir
                 // Micro scale jitter
                 dieText.transform.localScale = Vector3.one * Random.Range(0.9f, 1.15f);
 
-                yield return new WaitForSeconds(interval);
+                yield return new WaitForSecondsRealtime(interval);
                 elapsed += interval;
             }
 
@@ -79,7 +88,7 @@ namespace SSNoir
             float pulseElapsed = 0f;
             while (pulseElapsed < 0.25f)
             {
-                pulseElapsed += Time.deltaTime;
+                pulseElapsed += Time.unscaledDeltaTime;
                 float scale = 1f + Mathf.Sin((pulseElapsed / 0.25f) * Mathf.PI) * 0.35f;
                 dieText.transform.localScale = Vector3.one * scale;
                 yield return null;
@@ -96,10 +105,11 @@ namespace SSNoir
             outcomeText.fontStyle = FontStyles.Bold;
 
             // Delay for readability
-            yield return new WaitForSeconds(0.8f);
+            yield return new WaitForSecondsRealtime(1.0f);
 
             // Cleanup
             Object.Destroy(blocker);
+            Debug.Log("[SSNoir] Dice roll animation finished.");
         }
     }
 }

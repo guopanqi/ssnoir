@@ -165,7 +165,7 @@ namespace SSNoir.Testing
             {
                 throw new InvalidOperationException("Expected '压制' action to be present under '持刀者'.");
             }
-            sceneManager.ExecuteEffect(slasherSuppress);
+            sceneManager.ExecuteAction(slasherSuppress, new List<SlottedResource?>());
             sceneManager.EndTurn();
 
             // Since we ended the turn, all live enemies' clocks should have ticked.
@@ -189,7 +189,7 @@ namespace SSNoir.Testing
             {
                 throw new InvalidOperationException("Expected '击倒' action to be present under '持枪手'.");
             }
-            sceneManager.ExecuteEffect(gunnerKill);
+            sceneManager.ExecuteAction(gunnerKill, new List<SlottedResource?>());
             sceneManager.EndTurn();
 
             // 4 clocks should still remain: "逃脱", "增援", and Slasher's HP and atk clocks (reinforcement has not triggered yet as spawn-clock max is 3)
@@ -223,7 +223,7 @@ namespace SSNoir.Testing
                 var killAction = FindNode(enemyNode.Children, "击倒");
                 if (killAction != null)
                 {
-                    sceneManager.ExecuteEffect(killAction);
+                    sceneManager.ExecuteAction(killAction, new List<SlottedResource?>());
                 }
                 else
                 {
@@ -231,7 +231,7 @@ namespace SSNoir.Testing
                     var suppressAction = FindNode(enemyNode.Children, "压制");
                     if (suppressAction != null)
                     {
-                        sceneManager.ExecuteEffect(suppressAction);
+                        sceneManager.ExecuteAction(suppressAction, new List<SlottedResource?>());
                     }
                     else
                     {
@@ -277,7 +277,7 @@ namespace SSNoir.Testing
                 throw new InvalidOperationException($"Node not found: {name}");
             }
 
-            sceneManager.ExecuteEffect(node);
+            sceneManager.ExecuteAction(node, new List<SlottedResource?>());
         }
 
         private static GameNode? FindNode(List<GameNode> nodes, string name)

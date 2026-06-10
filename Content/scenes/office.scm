@@ -14,8 +14,11 @@
 (define (node-work)
   (action "写代码"
           (list (req-die))
-          (instant (lambda ()
-                     (work-clock 'tick!)))))
+          (roll 'coding
+                (lambda () #f)
+                (lambda () (work-clock 'tick!))
+                (lambda () (begin (work-clock 'tick!)
+                                  (work-clock 'tick!))))))
 
 (define (node-go-home)
   (instant-action "回家"

@@ -53,6 +53,8 @@ namespace SSNoir
         private float _notificationTimer = 0f;
 
         private bool _isDraggingCam = false;
+        private bool _isActionRoutineRunning = false;
+        private bool _hasDeferredWorldRefresh = false;
         private Vector3 _dragStartMousePos;
         private Vector3 _dragStartCamPos;
 
@@ -120,6 +122,13 @@ namespace SSNoir
                 Debug.Log($"[SSNoir] World Refreshed! Current nodes count: {_sceneManager.CurrentWorldNodes.Count}");
                 ResolveNavigationStack();
                 CleanupNodeSlots();
+
+                if (_isActionRoutineRunning)
+                {
+                    _hasDeferredWorldRefresh = true;
+                    return;
+                }
+
                 _uiManager.RefreshWorld(_visibleNodes);
             };
 
@@ -394,6 +403,7 @@ namespace SSNoir
         // --- Execute Actions via Async Coroutine ---
         public void ExecuteNodeAction(GameNode node)
         {
+            if (_isActionRoutineRunning) return;
             StartCoroutine(ExecuteRoutine(node));
         }
 
@@ -402,30 +412,50 @@ namespace SSNoir
             var slots = GetSlotsForNode(node.Name);
             if (slots == null) yield break;
 
-            // 1. Lock Input
+            bool shouldClearFocus = false;
+
+            _isActionRoutineRunning = true;
+            _hasDeferredWorldRefresh = false;
             _uiManager.SetInputLocked(true);
 
-            // 2. Execute Action on engine
-            ActionReport report = _sceneManager.ExecuteAction(node, slots);
-            
-            // Clean local temporary slots state
-            _nodeSlots.Remove(node.Name);
-            _selectedResource = null;
-
-            // 3. Performance Animation
-            if (report.Type == ActionType.Roll)
+            try
             {
-                yield return StartCoroutine(DiceAnimator.PlayRoll(report.FinalRollValue, report.Outcome, _uiManager.Canvas!));
+                // 1. Execute Action on engine. World refresh events are deferred while this routine runs.
+                ActionReport report = _sceneManager.ExecuteAction(node, slots);
+                Debug.Log($"[SSNoir] Action executed: {node.Name}, reportType={report.Type}, finalRoll={report.FinalRollValue}, outcome={report.Outcome}");
+
+                // Clean local temporary slots state, but do not redraw until the performance finishes.
+                _nodeSlots.Remove(node.Name);
+                _selectedResource = null;
+
+                // 2. Performance Animation
+                if (report.Type == ActionType.Roll)
+                {
+                    Debug.Log($"[SSNoir] Playing roll animation for action: {node.Name}");
+                    yield return StartCoroutine(DiceAnimator.PlayRoll(report.FinalRollValue, report.Outcome, _uiManager.Canvas!));
+                }
+
+                // 3. Sync UI. Engine refreshes during execution are intentionally deferred so state
+                // changes become visible only after the action performance finishes.
+                if (!_hasDeferredWorldRefresh)
+                {
+                    ResolveNavigationStack();
+                    CleanupNodeSlots();
+                }
+                _uiManager.RefreshWorld(_visibleNodes);
+                shouldClearFocus = true;
+            }
+            finally
+            {
+                _isActionRoutineRunning = false;
+                _hasDeferredWorldRefresh = false;
+                _uiManager.SetInputLocked(false);
             }
 
-            // 4. Sync UI (incremental update)
-            _uiManager.RefreshWorld(_visibleNodes);
-
-            // 5. Unlock Input
-            _uiManager.SetInputLocked(false);
-
-            // 6. Reset focus stack
-            SetFocusedNode(null);
+            if (shouldClearFocus)
+            {
+                SetFocusedNode(null);
+            }
         }
 
         public void GoBackNavigation()

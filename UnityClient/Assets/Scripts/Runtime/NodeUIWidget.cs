@@ -351,7 +351,7 @@ namespace SSNoir
 
         private void Update()
         {
-            if (Anchor == null) return;
+            if (Anchor == null || _gameManager.NavigationStack.Count > 0) return;
 
             var cam = Camera.main;
             if (cam == null) return;

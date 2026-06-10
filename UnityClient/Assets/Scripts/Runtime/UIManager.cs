@@ -14,7 +14,8 @@ namespace SSNoir
 
         // UI Root Canvas and elements
         private Canvas? _canvas;
-        private GameObject? _nodesContainer;
+        private GameObject? _worldNodesContainer;
+        private GameObject? _childNodesContainer;
         private GameObject? _bottomPanel;
         private GameObject? _overlayContainer;
         private GameObject? _cursorFollower;
@@ -23,7 +24,7 @@ namespace SSNoir
         // Active widgets diff dictionary (string name -> widget)
         private readonly Dictionary<string, NodeUIWidget> _activeWidgets = new Dictionary<string, NodeUIWidget>();
 
-        public GameObject? NodesContainer => _nodesContainer;
+        public GameObject? WorldNodesContainer => _worldNodesContainer;
         public Canvas? Canvas => _canvas;
 
         public void Initialize(SSNoirGameManager gameManager)
@@ -43,13 +44,29 @@ namespace SSNoir
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1280, 720);
 
-            // Nodes Container (stretch)
-            _nodesContainer = new GameObject("NodesContainer", typeof(RectTransform));
-            _nodesContainer.transform.SetParent(_canvas.transform, false);
-            var nodesRt = _nodesContainer.GetComponent<RectTransform>();
-            nodesRt.anchorMin = Vector2.zero;
-            nodesRt.anchorMax = Vector2.one;
-            nodesRt.sizeDelta = Vector2.zero;
+            // World Nodes Container (stretch)
+            _worldNodesContainer = new GameObject("WorldNodesContainer", typeof(RectTransform));
+            _worldNodesContainer.transform.SetParent(_canvas.transform, false);
+            var worldRt = _worldNodesContainer.GetComponent<RectTransform>();
+            worldRt.anchorMin = Vector2.zero;
+            worldRt.anchorMax = Vector2.one;
+            worldRt.sizeDelta = Vector2.zero;
+
+            // Child Nodes Container (horizontal layout)
+            _childNodesContainer = new GameObject("ChildNodesContainer", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+            _childNodesContainer.transform.SetParent(_canvas.transform, false);
+            var childRt = _childNodesContainer.GetComponent<RectTransform>();
+            childRt.anchorMin = new Vector2(0f, 0.2f);
+            childRt.anchorMax = new Vector2(1f, 0.9f);
+            childRt.sizeDelta = Vector2.zero;
+            var chlg = _childNodesContainer.GetComponent<HorizontalLayoutGroup>();
+            chlg.padding = new RectOffset(40, 40, 40, 40);
+            chlg.spacing = 20f;
+            chlg.childAlignment = TextAnchor.MiddleCenter;
+            chlg.childControlWidth = false;
+            chlg.childControlHeight = false;
+            chlg.childForceExpandWidth = false;
+            chlg.childForceExpandHeight = false;
 
             // Bottom Panel Container (bottom stretch)
             _bottomPanel = new GameObject("BottomPanel", typeof(RectTransform));
@@ -140,7 +157,7 @@ namespace SSNoir
 
         public void RefreshWorld(List<GameNode> newNodes)
         {
-            if (_nodesContainer == null) return;
+            if (_worldNodesContainer == null || _childNodesContainer == null) return;
 
             // 增量 Diff 逻辑
             var newNodesMap = new Dictionary<string, GameNode>();
@@ -178,20 +195,26 @@ namespace SSNoir
             foreach (var node in newNodesMap.Values)
             {
                 var anchor = _gameManager.SceneDirectory?.GetAnchor(node.Name);
-                if (anchor == null)
+                bool inChildLevel = _gameManager.NavigationStack.Count > 0;
+                
+                if (anchor == null && !inChildLevel)
                 {
-                    Debug.LogError($"[SSNoir] Missing NodeAnchor in scene for SCM node: '{node.Name}'! Visual mapping skipped.");
-                    continue;
+                    Debug.LogWarning($"[SSNoir] Node '{node.Name}' has no anchor and is at root level. It will be placed in the child container as a fallback.");
                 }
 
                 if (_activeWidgets.TryGetValue(node.Name, out var existingWidget))
                 {
                     existingWidget.SetData(node);
+                    existingWidget.transform.SetParent(
+                        (inChildLevel || anchor == null) ? _childNodesContainer.transform : _worldNodesContainer.transform, 
+                        false);
                 }
                 else
                 {
                     var widgetGo = new GameObject("NodeWidget_" + node.Name, typeof(RectTransform), typeof(NodeUIWidget));
-                    widgetGo.transform.SetParent(_nodesContainer.transform, false);
+                    widgetGo.transform.SetParent(
+                        (inChildLevel || anchor == null) ? _childNodesContainer.transform : _worldNodesContainer.transform, 
+                        false);
 
                     var newWidget = widgetGo.GetComponent<NodeUIWidget>();
                     newWidget.Setup(node, anchor, _gameManager);
@@ -236,20 +259,32 @@ namespace SSNoir
             hlg.childForceExpandHeight = true;
 
             // --- Left Section: Status & Scene Switchers ---
-            var leftGo = UIHelper.CreateVerticalLayout(layoutGo.transform, "LeftSection", 6f);
+            var leftGo = new GameObject("LeftSection", typeof(RectTransform), typeof(VerticalLayoutGroup));
+            leftGo.transform.SetParent(layoutGo.transform, false);
+            
             var leftVlg = leftGo.GetComponent<VerticalLayoutGroup>();
+            leftVlg.spacing = 8f;
             leftVlg.childAlignment = TextAnchor.MiddleLeft;
+            leftVlg.childControlWidth = true;
+            leftVlg.childControlHeight = false;
+            leftVlg.childForceExpandWidth = true;
+            leftVlg.childForceExpandHeight = false;
 
             int health = _gameManager.GameState.Get<int>("health");
-            int money = _gameManager.GameState.Get<int>("money");
-            var statusText = UIHelper.CreateText(leftGo.transform, $"生命: {health} | 资金: {money}", 14, Color.white, TextAlignmentOptions.Left);
+            var statusText = UIHelper.CreateText(leftGo.transform, $"生命: {health}", 14, Color.white, TextAlignmentOptions.Left);
             statusText.fontStyle = FontStyles.Bold;
 
-            UIHelper.CreateText(leftGo.transform, "当前位置场景切换:", 11, new Color(0.7f, 0.7f, 0.7f), TextAlignmentOptions.Left);
+            UIHelper.CreateText(leftGo.transform, "场景切换:", 11, new Color(0.7f, 0.7f, 0.7f), TextAlignmentOptions.Left);
             
-            var sceneButtonsRow = UIHelper.CreateHorizontalLayout(leftGo.transform, "SceneButtons", 6f);
+            var sceneButtonsRow = new GameObject("SceneButtons", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+            sceneButtonsRow.transform.SetParent(leftGo.transform, false);
             var sceneButtonsHlg = sceneButtonsRow.GetComponent<HorizontalLayoutGroup>();
+            sceneButtonsHlg.spacing = 6f;
             sceneButtonsHlg.childAlignment = TextAnchor.MiddleLeft;
+            sceneButtonsHlg.childControlWidth = false;
+            sceneButtonsHlg.childControlHeight = false;
+            sceneButtonsHlg.childForceExpandWidth = false;
+            sceneButtonsHlg.childForceExpandHeight = false;
 
             string[] scenes = { "home", "office", "combat" };
             foreach (var sc in scenes)
@@ -264,17 +299,32 @@ namespace SSNoir
             }
 
             // --- Middle Section: Hand Resources ---
-            var middleGo = UIHelper.CreateVerticalLayout(layoutGo.transform, "MiddleSection", 6f);
+            var middleGo = new GameObject("MiddleSection", typeof(RectTransform), typeof(VerticalLayoutGroup));
+            middleGo.transform.SetParent(layoutGo.transform, false);
+            
             var middleVlg = middleGo.GetComponent<VerticalLayoutGroup>();
+            middleVlg.spacing = 8f;
             middleVlg.childAlignment = TextAnchor.MiddleCenter;
+            middleVlg.childControlWidth = true;
+            middleVlg.childControlHeight = false;
+            middleVlg.childForceExpandWidth = true;
+            middleVlg.childForceExpandHeight = false;
 
             string selectedLabel = _gameManager.SelectedResource != null 
-                ? $"已选中: {(_gameManager.SelectedResource.Type == "die" ? "骰子 " + _gameManager.SelectedResource.Value : _gameManager.SelectedResource.ItemName)}" 
+                ? $"已选中: {(_gameManager.SelectedResource.Type == "die" ? "D" + _gameManager.SelectedResource.Value : _gameManager.SelectedResource.ItemName)}" 
                 : "选择骰子/道具以投入槽位";
             var selectedText = UIHelper.CreateText(middleGo.transform, selectedLabel, 11, new Color(0.9f, 0.9f, 0.9f));
             selectedText.fontStyle = FontStyles.Italic;
 
-            var cardsRow = UIHelper.CreateHorizontalLayout(middleGo.transform, "CardsRow", 10f);
+            var cardsRow = new GameObject("CardsRow", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+            cardsRow.transform.SetParent(middleGo.transform, false);
+            var cardsHlg = cardsRow.GetComponent<HorizontalLayoutGroup>();
+            cardsHlg.spacing = 10f;
+            cardsHlg.childAlignment = TextAnchor.MiddleCenter;
+            cardsHlg.childControlWidth = false;
+            cardsHlg.childControlHeight = false;
+            cardsHlg.childForceExpandWidth = false;
+            cardsHlg.childForceExpandHeight = false;
             
             // Dice
             var diceList = _gameManager.GameState.Get<List<object>>("action-dice");
@@ -291,7 +341,7 @@ namespace SSNoir
                     bool isSelected = _gameManager.SelectedResource != null && _gameManager.SelectedResource.Type == "die" && _gameManager.SelectedResource.SourceIndex == dieIndex;
                     
                     Color dieColor = isSelected ? new Color(1f, 0.75f, 0.2f) : new Color(0.18f, 0.35f, 0.55f);
-                    UIHelper.CreateButton(cardsRow.transform, $"骰子 {val}", dieColor, () =>
+                    UIHelper.CreateButton(cardsHlg.transform, $"D{val}", dieColor, () =>
                     {
                         _gameManager.OnDieClicked(dieIndex, val);
                     }, new Vector2(60, 45));
@@ -299,6 +349,17 @@ namespace SSNoir
             }
 
             // Items
+            int currentMoney = _gameManager.GameState.Get<int>("money");
+            if (currentMoney > 0)
+            {
+                bool isSelected = _gameManager.SelectedResource != null && _gameManager.SelectedResource.Type == "item" && _gameManager.SelectedResource.ItemName == "金钱";
+                Color itemColor = isSelected ? new Color(1f, 0.75f, 0.2f) : new Color(0.15f, 0.45f, 0.3f);
+                UIHelper.CreateButton(cardsHlg.transform, $"金钱 x{currentMoney}", itemColor, () =>
+                {
+                    _gameManager.OnItemClicked("金钱", currentMoney);
+                }, new Vector2(85, 45));
+            }
+
             foreach (var kvp in _gameManager.GameState.GetAllStates())
             {
                 if (kvp.Key.StartsWith("item:"))
@@ -313,7 +374,7 @@ namespace SSNoir
                     {
                         bool isSelected = _gameManager.SelectedResource != null && _gameManager.SelectedResource.Type == "item" && _gameManager.SelectedResource.ItemName == name;
                         Color itemColor = isSelected ? new Color(1f, 0.75f, 0.2f) : new Color(0.15f, 0.45f, 0.3f);
-                        UIHelper.CreateButton(cardsRow.transform, $"{name} x{qty}", itemColor, () =>
+                        UIHelper.CreateButton(cardsHlg.transform, $"{name} x{qty}", itemColor, () =>
                         {
                             _gameManager.OnItemClicked(name, qty);
                         }, new Vector2(85, 45));
@@ -322,9 +383,16 @@ namespace SSNoir
             }
 
             // --- Right Section: Operations ---
-            var rightGo = UIHelper.CreateVerticalLayout(layoutGo.transform, "RightSection", 8f);
+            var rightGo = new GameObject("RightSection", typeof(RectTransform), typeof(VerticalLayoutGroup));
+            rightGo.transform.SetParent(layoutGo.transform, false);
+            
             var rightVlg = rightGo.GetComponent<VerticalLayoutGroup>();
+            rightVlg.spacing = 8f;
             rightVlg.childAlignment = TextAnchor.MiddleRight;
+            rightVlg.childControlWidth = false;
+            rightVlg.childControlHeight = false;
+            rightVlg.childForceExpandWidth = false;
+            rightVlg.childForceExpandHeight = false;
 
             string path = string.Join(" > ", _gameManager.NavigationStack.Select(n => n.Name));
             if (!string.IsNullOrEmpty(path))
@@ -349,6 +417,8 @@ namespace SSNoir
             {
                 var spacer = new GameObject("Spacer", typeof(RectTransform), typeof(LayoutElement));
                 spacer.transform.SetParent(rightGo.transform, false);
+                var spacerRt = spacer.GetComponent<RectTransform>();
+                spacerRt.sizeDelta = new Vector2(130f, 26f);
                 var spacerLe = spacer.GetComponent<LayoutElement>();
                 spacerLe.preferredWidth = 130f;
                 spacerLe.preferredHeight = 26f;
