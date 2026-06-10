@@ -1,3 +1,4 @@
+#nullable enable
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -6,7 +7,9 @@ namespace SSNoir
 {
     public static class UIHelper
     {
-        public static GameObject CreatePanel(Transform parent, string name, Color color, Vector2 size = default)
+        public static TMP_FontAsset? DefaultFont;
+
+        public static GameObject CreatePanel(Transform parent, string name, Color color, Vector2 size = default, bool raycastTarget = false)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
             go.transform.SetParent(parent, false);
@@ -19,16 +22,18 @@ namespace SSNoir
             
             var img = go.GetComponent<Image>();
             img.color = color;
+            img.raycastTarget = raycastTarget;
             return go;
         }
 
-        public static GameObject CreateVerticalLayout(Transform parent, string name, float spacing, RectOffset padding = null)
+        public static GameObject CreateVerticalLayout(Transform parent, string name, float spacing, RectOffset? padding = null)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
             go.transform.SetParent(parent, false);
 
             var img = go.GetComponent<Image>();
             img.color = new Color(0, 0, 0, 0); // Transparent by default
+            img.raycastTarget = false;
 
             var vlg = go.GetComponent<VerticalLayoutGroup>();
             vlg.spacing = spacing;
@@ -46,13 +51,14 @@ namespace SSNoir
             return go;
         }
 
-        public static GameObject CreateHorizontalLayout(Transform parent, string name, float spacing, RectOffset padding = null)
+        public static GameObject CreateHorizontalLayout(Transform parent, string name, float spacing, RectOffset? padding = null)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(HorizontalLayoutGroup), typeof(ContentSizeFitter));
             go.transform.SetParent(parent, false);
 
             var img = go.GetComponent<Image>();
             img.color = new Color(0, 0, 0, 0);
+            img.raycastTarget = false;
 
             var hlg = go.GetComponent<HorizontalLayoutGroup>();
             hlg.spacing = spacing;
@@ -80,9 +86,11 @@ namespace SSNoir
             text.fontSize = fontSize;
             text.color = color;
             text.alignment = alignment;
-
-            var chineseFont = FontManager.GetChineseFont();
-            if (chineseFont != null) text.font = chineseFont;
+            text.raycastTarget = false;
+            if (DefaultFont != null)
+            {
+                text.font = DefaultFont;
+            }
 
             var rt = go.GetComponent<RectTransform>();
             rt.anchorMin = Vector2.zero;
@@ -110,14 +118,18 @@ namespace SSNoir
 
             var img = go.GetComponent<Image>();
             img.color = normalColor;
+
+            var le = go.AddComponent<LayoutElement>();
+            le.preferredWidth = rt.sizeDelta.x;
+            le.preferredHeight = rt.sizeDelta.y;
             
             var btn = go.GetComponent<Button>();
             btn.targetGraphic = img;
             
             var cb = btn.colors;
             cb.normalColor = Color.white;
-            cb.highlightedColor = new Color(1.1f, 1.1f, 1.1f, 1f);
-            cb.pressedColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+            cb.highlightedColor = new Color(1.3f, 1.3f, 1.3f, 1f);
+            cb.pressedColor = new Color(0.7f, 0.7f, 0.7f, 1f);
             btn.colors = cb;
 
             btn.onClick.AddListener(() => onClick?.Invoke());

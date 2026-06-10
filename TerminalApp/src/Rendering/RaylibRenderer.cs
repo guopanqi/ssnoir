@@ -141,7 +141,7 @@ namespace SSNoir.Rendering
             Raylib.SetTargetFPS(60);
 
             // Load font with Chinese characters support
-            FontManager.LoadFont("assets/fonts/ArialUnicode.ttf", 48);
+            FontManager.LoadFont("assets/fonts/MiSans-Normal.ttf", 48);
 
             _sceneManager.LoadScene(_gameState.Get<string>("location"));
 

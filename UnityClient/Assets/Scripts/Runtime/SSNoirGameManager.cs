@@ -31,6 +31,14 @@ namespace SSNoir
         [SerializeField] private Cinemachine.CinemachineVirtualCamera? globalCamera;
         [SerializeField] private Cinemachine.CinemachineVirtualCamera? focusCamera;
 
+        [Header("UI Resources")]
+        [SerializeField] private TMPro.TMP_FontAsset? customFont;
+        [Header("Camera Panning")]
+        [SerializeField] private float panSpeed = 0.015f;
+        private Vector3 _dragStartMousePos;
+        private Vector3 _dragStartCamPos;
+        private bool _isDraggingCam;
+
         private GameState _gameState = null!;
         private SceneManager _sceneManager = null!;
         private UnityScriptLoader _scriptLoader = null!;
@@ -53,6 +61,8 @@ namespace SSNoir
 
         private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
         private readonly List<NodeUIWidget> _spawnedWidgets = new List<NodeUIWidget>();
+        private GameObject? _cursorFollower;
+        private readonly HashSet<string> _flippedNodes = new HashSet<string>();
 
         public GameState GameState => _gameState;
         public SceneManager SceneManager => _sceneManager;
@@ -62,6 +72,22 @@ namespace SSNoir
         {
             // 1. Initialize Game State
             _gameState = new GameState();
+
+            // 1.5. Find custom font
+#if UNITY_EDITOR
+            if (customFont == null)
+            {
+                customFont = UnityEditor.AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>("Assets/Fonts/MiSans-Normal SDF.asset");
+            }
+#endif
+            if (customFont != null)
+            {
+                UIHelper.DefaultFont = customFont;
+            }
+            else
+            {
+                Debug.LogWarning("[SSNoir] Custom Chinese font asset not loaded. Chinese characters might not display properly.");
+            }
 
             // 2. Initialize Unity specific script loader
             _scriptLoader = new UnityScriptLoader();
@@ -77,6 +103,13 @@ namespace SSNoir
             if (focusCamera == null)
             {
                 focusCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Focus") || c.name.Contains("focus"));
+            }
+
+            var allVCams = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>();
+            Debug.Log($"[SSNoir] Found {allVCams.Length} Virtual Cameras in the scene.");
+            foreach (var vcam in allVCams)
+            {
+                Debug.Log($"[SSNoir] VCam Name: {vcam.name}, Priority: {vcam.Priority}");
             }
 
             // 5. Find scene directory
@@ -96,8 +129,7 @@ namespace SSNoir
                 Debug.Log($"[SSNoir] Scene Loaded: {_sceneManager.CurrentSceneName}");
                 _navigationStack.Clear();
                 _selectedResource = null;
-                _focusedNodeName = string.Empty;
-                if (focusCamera != null) focusCamera.Priority = 5;
+                SetFocusedNode(null);
             };
 
             _sceneManager.OnWorldRefreshed += () => {
@@ -124,6 +156,77 @@ namespace SSNoir
                     _notification = string.Empty;
                     BuildOverlay();
                 }
+            }
+
+            // Update Cursor Follower position and content
+            if (_cursorFollower != null)
+            {
+                if (_selectedResource != null)
+                {
+                    if (!_cursorFollower.activeSelf)
+                    {
+                        _cursorFollower.SetActive(true);
+                    }
+
+                    var txt = _cursorFollower.GetComponentInChildren<TextMeshProUGUI>();
+                    if (txt != null)
+                    {
+                        txt.text = _selectedResource.Type == "die" 
+                            ? "D" + _selectedResource.Value 
+                            : _selectedResource.ItemName;
+                    }
+
+                    var rt = _cursorFollower.GetComponent<RectTransform>();
+                    rt.sizeDelta = new Vector2(_selectedResource.Type == "die" ? 50f : 100f, 26f);
+                    rt.position = Input.mousePosition + new Vector3(15f, -15f, 0f);
+                }
+                else
+                {
+                    if (_cursorFollower.activeSelf)
+                    {
+                        _cursorFollower.SetActive(false);
+                    }
+                }
+            }
+
+            // Map Drag Panning Logic
+            if (string.IsNullOrEmpty(_focusedNodeName) && globalCamera != null)
+            {
+                bool isMouseOverUI = UnityEngine.EventSystems.EventSystem.current != null && 
+                                     UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
+
+                if (Input.GetMouseButtonDown(0) && !isMouseOverUI)
+                {
+                    _isDraggingCam = true;
+                    _dragStartMousePos = Input.mousePosition;
+                    _dragStartCamPos = globalCamera.transform.position;
+                }
+                else if (Input.GetMouseButtonDown(1))
+                {
+                    _isDraggingCam = true;
+                    _dragStartMousePos = Input.mousePosition;
+                    _dragStartCamPos = globalCamera.transform.position;
+                }
+
+                if (_isDraggingCam)
+                {
+                    if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
+                    {
+                        Vector3 mouseDelta = Input.mousePosition - _dragStartMousePos;
+                        Vector3 right = globalCamera.transform.right;
+                        Vector3 up = globalCamera.transform.up;
+                        Vector3 panTranslation = -mouseDelta.x * right * panSpeed - mouseDelta.y * up * panSpeed;
+                        globalCamera.transform.position = _dragStartCamPos + panTranslation;
+                    }
+                    else
+                    {
+                        _isDraggingCam = false;
+                    }
+                }
+            }
+            else
+            {
+                _isDraggingCam = false;
             }
         }
 
@@ -168,6 +271,17 @@ namespace SSNoir
             {
                 new GameObject("EventSystem", typeof(UnityEngine.EventSystems.EventSystem), typeof(UnityEngine.EventSystems.StandaloneInputModule));
             }
+
+            // Cursor Follower
+            _cursorFollower = UIHelper.CreatePanel(_canvas.transform, "CursorFollower", new Color(0.9f, 0.75f, 0.2f, 0.9f), new Vector2(90, 26));
+            var followerRt = _cursorFollower.GetComponent<RectTransform>();
+            followerRt.pivot = new Vector2(0f, 1f);
+            var followerTxt = UIHelper.CreateText(_cursorFollower.transform, "", 11, Color.black);
+            
+            var followerImg = _cursorFollower.GetComponent<Image>();
+            if (followerImg != null) followerImg.raycastTarget = false;
+            if (followerTxt != null) followerTxt.raycastTarget = false;
+            _cursorFollower.SetActive(false);
         }
 
         public void RebuildAllUI()
@@ -227,12 +341,13 @@ namespace SSNoir
                 Destroy(child.gameObject);
             }
 
-            var bgPanel = UIHelper.CreatePanel(_bottomPanel.transform, "BottomBg", new Color(0.06f, 0.06f, 0.08f, 0.95f));
+            var bgPanel = UIHelper.CreatePanel(_bottomPanel.transform, "BottomBg", new Color(0.05f, 0.05f, 0.07f, 0.96f));
             var bgRt = bgPanel.GetComponent<RectTransform>();
             bgRt.anchorMin = Vector2.zero;
             bgRt.anchorMax = Vector2.one;
             bgRt.sizeDelta = Vector2.zero;
 
+            // Horizontal layout for splitting left, middle, right columns
             var layoutGo = new GameObject("BottomLayout", typeof(RectTransform), typeof(HorizontalLayoutGroup));
             layoutGo.transform.SetParent(bgPanel.transform, false);
             var layoutRt = layoutGo.GetComponent<RectTransform>();
@@ -242,24 +357,28 @@ namespace SSNoir
 
             var hlg = layoutGo.GetComponent<HorizontalLayoutGroup>();
             hlg.padding = new RectOffset(20, 20, 10, 10);
-            hlg.spacing = 30f;
+            hlg.spacing = 25f;
             hlg.childAlignment = TextAnchor.MiddleCenter;
             hlg.childControlWidth = true;
             hlg.childControlHeight = true;
-            hlg.childForceExpandWidth = true;
+            hlg.childForceExpandWidth = false; // Constraint-driven size propagation via LayoutElements
             hlg.childForceExpandHeight = true;
 
-            // --- Left Section: Status & Scene Switchers ---
+            // --- Left Section: Status & Scene Switchers (Fixed Width: 260f) ---
             var leftGo = UIHelper.CreateVerticalLayout(layoutGo.transform, "LeftSection", 6f);
             var leftVlg = leftGo.GetComponent<VerticalLayoutGroup>();
             leftVlg.childAlignment = TextAnchor.MiddleLeft;
+            
+            var leftLe = leftGo.AddComponent<LayoutElement>();
+            leftLe.preferredWidth = 260f;
+            leftLe.flexibleWidth = 0f;
 
             int health = _gameState.Get<int>("health");
             int money = _gameState.Get<int>("money");
-            var statusText = UIHelper.CreateText(leftGo.transform, $"❤️ 生命: {health}   🪙 资金: {money}", 14, Color.white, TextAlignmentOptions.Left);
+            var statusText = UIHelper.CreateText(leftGo.transform, $"生命: {health}   资金: {money}", 14, Color.white, TextAlignmentOptions.Left);
             statusText.fontStyle = FontStyles.Bold;
 
-            UIHelper.CreateText(leftGo.transform, "场景切换:", 11, new Color(0.7f, 0.7f, 0.7f), TextAlignmentOptions.Left);
+            UIHelper.CreateText(leftGo.transform, "当前位置场景切换:", 11, new Color(0.7f, 0.7f, 0.7f), TextAlignmentOptions.Left);
             
             var sceneButtonsRow = UIHelper.CreateHorizontalLayout(leftGo.transform, "SceneButtons", 6f);
             var sceneButtonsHlg = sceneButtonsRow.GetComponent<HorizontalLayoutGroup>();
@@ -279,13 +398,16 @@ namespace SSNoir
                 }, new Vector2(70, 26));
             }
 
-            // --- Middle Section: Hand Resources ---
+            // --- Middle Section: Hand Resources (Flexible Width: fills remaining space) ---
             var middleGo = UIHelper.CreateVerticalLayout(layoutGo.transform, "MiddleSection", 6f);
             var middleVlg = middleGo.GetComponent<VerticalLayoutGroup>();
             middleVlg.childAlignment = TextAnchor.MiddleCenter;
 
+            var middleLe = middleGo.AddComponent<LayoutElement>();
+            middleLe.flexibleWidth = 1f;
+
             string selectedLabel = _selectedResource != null 
-                ? $"已选中: {(_selectedResource.Type == "die" ? "🎲 " + _selectedResource.Value : _selectedResource.ItemName)}" 
+                ? $"已选中: {(_selectedResource.Type == "die" ? "D" + _selectedResource.Value : _selectedResource.ItemName)}" 
                 : "选择骰子/道具以投入槽位";
             var selectedText = UIHelper.CreateText(middleGo.transform, selectedLabel, 11, new Color(0.9f, 0.9f, 0.9f));
             selectedText.fontStyle = FontStyles.Italic;
@@ -307,7 +429,7 @@ namespace SSNoir
                     bool isSelected = _selectedResource != null && _selectedResource.Type == "die" && _selectedResource.SourceIndex == dieIndex;
                     
                     Color dieColor = isSelected ? new Color(1f, 0.75f, 0.2f) : new Color(0.18f, 0.35f, 0.55f);
-                    UIHelper.CreateButton(cardsRow.transform, $"🎲 {val}", dieColor, () =>
+                    UIHelper.CreateButton(cardsRow.transform, $"D{val}", dieColor, () =>
                     {
                         if (isSelected)
                         {
@@ -320,6 +442,27 @@ namespace SSNoir
                         RebuildAllUI();
                     }, new Vector2(60, 45));
                 }
+            }
+
+            // Money as an Item card
+            int moneyVal = _gameState.Get<int>("money");
+            if (moneyVal > 0)
+            {
+                bool isSelected = _selectedResource != null && _selectedResource.Type == "item" && _selectedResource.ItemName == "金钱";
+                Color itemColor = isSelected ? new Color(1f, 0.75f, 0.2f) : new Color(0.15f, 0.45f, 0.3f);
+                
+                UIHelper.CreateButton(cardsRow.transform, $"金钱 x{moneyVal}", itemColor, () =>
+                {
+                    if (isSelected)
+                    {
+                        _selectedResource = null;
+                    }
+                    else
+                    {
+                        _selectedResource = new SelectedResource { Type = "item", ItemName = "金钱", Value = 1 };
+                    }
+                    RebuildAllUI();
+                }, new Vector2(85, 45));
             }
 
             // Items
@@ -354,27 +497,53 @@ namespace SSNoir
                 }
             }
 
-            // --- Right Section: Actions ---
+            // --- Right Section: Operations (Fixed Width: 160f, Independent Rows) ---
             var rightGo = UIHelper.CreateVerticalLayout(layoutGo.transform, "RightSection", 8f);
             var rightVlg = rightGo.GetComponent<VerticalLayoutGroup>();
             rightVlg.childAlignment = TextAnchor.MiddleRight;
 
+            var rightLe = rightGo.AddComponent<LayoutElement>();
+            rightLe.preferredWidth = 160f;
+            rightLe.flexibleWidth = 0f;
+
+            // Row 1: Layer navigation state breadcrumb (if nested)
             if (_navigationStack.Count > 0)
             {
                 string path = string.Join(" > ", _navigationStack.Select(n => n.Name));
                 UIHelper.CreateText(rightGo.transform, $"层级: {path}", 11, new Color(0.8f, 0.8f, 0.8f), TextAlignmentOptions.Right);
-                
-                UIHelper.CreateButton(rightGo.transform, "返回上一级", new Color(0.2f, 0.2f, 0.25f), () =>
-                {
-                    GoBackNavigation();
-                }, new Vector2(110, 26));
+            }
+            else
+            {
+                // Dummy spacing text to align elements nicely if not nested
+                UIHelper.CreateText(rightGo.transform, "根层级", 11, new Color(0.4f, 0.4f, 0.4f), TextAlignmentOptions.Right);
             }
 
-            UIHelper.CreateButton(rightGo.transform, "结束回合", new Color(0.6f, 0.15f, 0.15f), () =>
+            // Row 2: "返回" / "返回上一级" button (Separate independent row)
+            bool showReturn = (_navigationStack.Count > 0) || !string.IsNullOrEmpty(_focusedNodeName);
+            if (showReturn)
+            {
+                string returnLabel = !string.IsNullOrEmpty(_focusedNodeName) ? "返回" : "返回上一级";
+                UIHelper.CreateButton(rightGo.transform, returnLabel, new Color(0.2f, 0.2f, 0.25f), () =>
+                {
+                    GoBackNavigation();
+                }, new Vector2(130, 26));
+            }
+            else
+            {
+                // Spacer panel to keep alignment stable when no return button is needed
+                var spacer = new GameObject("Spacer", typeof(RectTransform), typeof(LayoutElement));
+                spacer.transform.SetParent(rightGo.transform, false);
+                var spacerLe = spacer.GetComponent<LayoutElement>();
+                spacerLe.preferredWidth = 130f;
+                spacerLe.preferredHeight = 26f;
+            }
+
+            // Row 3: "结束回合" button (Separate independent row)
+            UIHelper.CreateButton(rightGo.transform, "结束回合", new Color(0.55f, 0.15f, 0.15f), () =>
             {
                 _selectedResource = null;
                 _sceneManager.EndTurn();
-            }, new Vector2(110, 32));
+            }, new Vector2(130, 32));
         }
 
         private void BuildOverlay()
@@ -457,18 +626,73 @@ namespace SSNoir
             }
         }
 
+        public bool IsNodeFlipped(string nodeName) => _flippedNodes.Contains(nodeName);
+
+        public void ToggleNodeFlipped(string nodeName)
+        {
+            if (_flippedNodes.Contains(nodeName))
+            {
+                _flippedNodes.Remove(nodeName);
+            }
+            else
+            {
+                _flippedNodes.Add(nodeName);
+            }
+            RebuildAllUI();
+        }
+
+        public void OnNodeCardClicked(GameNode node)
+        {
+            if (node.HasChildren)
+            {
+                _nodeSlots.Clear();
+                _navigationStack.Add(node);
+                ResolveNavigationStack();
+                _selectedResource = null;
+                SetFocusedNode(null);
+            }
+            else if (node.Resolve != null && node.Resolve.Type == ResolveType.Observe && (node.Requires == null || node.Requires.Count == 0))
+            {
+                ToggleNodeFlipped(node.Name);
+            }
+            else if (node.Requires == null || node.Requires.Count == 0)
+            {
+                // Action with no requirements: execute instantly!
+                ExecuteNodeAction(node);
+            }
+            else
+            {
+                SetFocusedNode(node.Name);
+            }
+        }
+
         public void SetFocusedNode(string? nodeName)
         {
             _focusedNodeName = nodeName ?? string.Empty;
+
+            if (!string.IsNullOrEmpty(_focusedNodeName))
+            {
+                ClearOtherNodeSlots(_focusedNodeName);
+            }
 
             // Camera transition
             if (!string.IsNullOrEmpty(_focusedNodeName))
             {
                 var anchor = _sceneDirectory?.GetAnchor(_focusedNodeName);
-                if (anchor != null && anchor.FocusCameraTransform != null && focusCamera != null)
+                if (anchor != null && focusCamera != null)
                 {
-                    focusCamera.transform.position = anchor.FocusCameraTransform.position;
-                    focusCamera.transform.rotation = anchor.FocusCameraTransform.rotation;
+                    if (anchor.FocusCameraTransform != null)
+                    {
+                        focusCamera.transform.position = anchor.FocusCameraTransform.position;
+                        focusCamera.transform.rotation = anchor.FocusCameraTransform.rotation;
+                    }
+                    else
+                    {
+                        // Fallback: place focus camera 5 units back and 4 units up, looking at the anchor target
+                        Vector3 targetPos = anchor.transform.position;
+                        focusCamera.transform.position = targetPos + new Vector3(0f, 4f, -5f);
+                        focusCamera.transform.rotation = Quaternion.LookRotation(targetPos - focusCamera.transform.position);
+                    }
                     focusCamera.Priority = 20;
                 }
             }
@@ -514,6 +738,8 @@ namespace SSNoir
             }
             else if (_selectedResource != null)
             {
+                ClearOtherNodeSlots(node.Name);
+
                 var req = node.Requires[slotIndex];
                 if (req.Type == "die" && _selectedResource.Type == "die")
                 {
@@ -557,13 +783,29 @@ namespace SSNoir
             RebuildAllUI();
         }
 
+        private void ClearOtherNodeSlots(string activeNodeName)
+        {
+            foreach (var pair in _nodeSlots)
+            {
+                if (pair.Key != activeNodeName)
+                {
+                    var slots = pair.Value;
+                    for (int i = 0; i < slots.Count; i++)
+                    {
+                        slots[i] = null;
+                    }
+                }
+            }
+        }
+
         private void ClearDieFromAllSlots(int dieIndex)
         {
             foreach (var list in _nodeSlots.Values)
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    if (list[i] != null && list[i].Type == "die" && list[i].SourceIndex == dieIndex)
+                    var slot = list[i];
+                    if (slot != null && slot.Type == "die" && slot.SourceIndex == dieIndex)
                     {
                         list[i] = null;
                     }
@@ -695,7 +937,7 @@ namespace SSNoir
                 }
                 else if (node.Resolve.Type == ResolveType.Observe)
                 {
-                    ShowNotification($"[观察] {node.Resolve.ObserveText}");
+                    ToggleNodeFlipped(node.Name);
                     _sceneManager.OnActionExecuted();
                 }
             }
@@ -704,29 +946,13 @@ namespace SSNoir
             RebuildAllUI();
         }
 
-        public void NavigateIntoNode(GameNode node)
-        {
-            if (!node.HasChildren) return;
-
-            _nodeSlots.Clear();
-            _navigationStack.Add(node);
-            _visibleNodes = node.Children;
-
-            // Move focus camera to container position without entering focus mode
-            var anchor = _sceneDirectory?.GetAnchor(node.Name);
-            if (anchor != null && anchor.FocusCameraTransform != null && focusCamera != null)
-            {
-                focusCamera.transform.position = anchor.FocusCameraTransform.position;
-                focusCamera.transform.rotation = anchor.FocusCameraTransform.rotation;
-                focusCamera.Priority = 20;
-            }
-
-            RebuildAllUI();
-        }
-
         public void GoBackNavigation()
         {
-            if (_navigationStack.Count > 0)
+            if (!string.IsNullOrEmpty(_focusedNodeName))
+            {
+                SetFocusedNode(null);
+            }
+            else if (_navigationStack.Count > 0)
             {
                 _nodeSlots.Clear();
                 _navigationStack.RemoveAt(_navigationStack.Count - 1);

@@ -85,6 +85,11 @@ namespace SSNoir.Scripting
             // Schemy 1.0.0 assumes Assembly.GetEntryAssembly() is non-null while
             // loading its optional ".init.ss". Unity returns null there, so we
             // construct the same core state and load only Schemy's embedded init.ss.
+            //
+            // This keeps the engine package usable inside Unity without modifying
+            // the upstream schemy.dll. If more Unity-specific Schemy issues show up,
+            // TODO: fork Schemy and patch the internals directly; that will be more
+            // stable than maintaining reflection-based initialization here.
             var interpreter = (Interpreter)FormatterServices.GetUninitializedObject(typeof(Interpreter));
             var environment = Schemy.Environment.CreateEmpty();
             var macroTable = new Dictionary<Symbol, Procedure>();

@@ -22,8 +22,6 @@ namespace SSNoir.Editor
 
             CreateSceneManager(globalCam, focusCam, groupName);
 
-            SSNoirFontSetup.SetupFonts();
-
             Debug.Log("[SSNoir] Scene setup complete! Open the SceneDirectory and SSNoirGameManager to verify references.");
         }
 

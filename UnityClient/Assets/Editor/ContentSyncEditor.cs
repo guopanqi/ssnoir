@@ -41,8 +41,19 @@ namespace SSNoir.Editor
 
             try
             {
+                // 1. Sync all content to StreamingAssets (runtime access)
                 CopyDirectory(sourcePath, destPath);
                 Debug.Log($"[ContentSync] Successfully synchronized Content from {sourcePath} to {destPath}");
+
+                // 2. Sync fonts to Assets/Fonts so Unity Editor can import them as real Assets
+                //    (Font Asset Creator requires a font to be in Assets/, not StreamingAssets)
+                string fontSourcePath = Path.Combine(sourcePath, "assets", "fonts");
+                string fontDestPath = Path.GetFullPath(Path.Combine(Application.dataPath, "Fonts"));
+                if (Directory.Exists(fontSourcePath))
+                {
+                CopyDirectory(fontSourcePath, fontDestPath, clean: false);
+                Debug.Log($"[ContentSync] Fonts synchronized to Assets/Fonts for Editor import.");
+                }
                 
                 // Refresh asset database so Unity notices the files
                 AssetDatabase.Refresh();
@@ -53,15 +64,21 @@ namespace SSNoir.Editor
             }
         }
 
-        private static void CopyDirectory(string sourceDir, string destDir)
+        private static void CopyDirectory(string sourceDir, string destDir, bool clean = true)
         {
-            // Clean destination first to remove deleted files
-            if (Directory.Exists(destDir))
+            if (clean)
             {
-                Directory.Delete(destDir, true);
+                // Clean destination first to remove deleted files
+                if (Directory.Exists(destDir))
+                {
+                    Directory.Delete(destDir, true);
+                }
+                Directory.CreateDirectory(destDir);
             }
-            
-            Directory.CreateDirectory(destDir);
+            else if (!Directory.Exists(destDir))
+            {
+                Directory.CreateDirectory(destDir);
+            }
 
             foreach (string file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
             {
