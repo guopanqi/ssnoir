@@ -3,14 +3,14 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using SSNoir.Core;
+using SSNoir.IMGUI;
 
 namespace SSNoir
 {
     public class SelectedResource
     {
-        public string Type { get; set; } = string.Empty; // "die" or "item"
+        public string Type { get; set; } = string.Empty;
         public string ItemName { get; set; } = string.Empty;
         public int Value { get; set; }
         public int SourceIndex { get; set; } = -1;
@@ -21,7 +21,7 @@ namespace SSNoir
         public string ActionName { get; set; } = string.Empty;
         public int ChosenDie { get; set; }
         public List<int> RandomDice { get; set; } = new List<int>();
-        public int FinalValue { get; set; }
+        public int FinalValue { get; set; } = 0;
         public string Outcome { get; set; } = string.Empty;
     }
 
@@ -32,7 +32,7 @@ namespace SSNoir
         [SerializeField] private Cinemachine.CinemachineVirtualCamera? focusCamera;
 
         [Header("Font")]
-        [SerializeField] private TMP_FontAsset? fontAsset;
+        [SerializeField] private Font? chineseFont;
 
         [Header("Camera Drag Settings")]
         [SerializeField] private float panSpeed = 0.02f;
@@ -41,7 +41,7 @@ namespace SSNoir
         private SceneManager _sceneManager = null!;
         private UnityScriptLoader _scriptLoader = null!;
         private SceneDirectory? _sceneDirectory;
-        private UIManager _uiManager = null!;
+        private IMGUIWorldRenderer _renderer = null!;
 
         // Core Gameplay / Interaction State
         private string _focusedNodeName = string.Empty;
@@ -49,19 +49,15 @@ namespace SSNoir
         private List<GameNode> _visibleNodes = new List<GameNode>();
         private SelectedResource? _selectedResource;
         private RollResult? _activeRollResult;
-        private string _notification = string.Empty;
-        private float _notificationTimer = 0f;
 
         private bool _isDraggingCam = false;
-        private bool _isActionRoutineRunning = false;
-        private bool _hasDeferredWorldRefresh = false;
         private Vector3 _dragStartMousePos;
         private Vector3 _dragStartCamPos;
 
         private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
         private readonly HashSet<string> _flippedNodes = new HashSet<string>();
 
-        // Public properties accessed by UIManager
+        // Public properties
         public GameState GameState => _gameState;
         public SceneManager SceneManager => _sceneManager;
         public SceneDirectory? SceneDirectory => _sceneDirectory;
@@ -70,16 +66,10 @@ namespace SSNoir
         public List<GameNode> VisibleNodes => _visibleNodes;
         public SelectedResource? SelectedResource => _selectedResource;
         public RollResult? ActiveRollResult => _activeRollResult;
-        public string Notification => _notification;
+        public Font? ChineseFont => chineseFont;
 
         private void Start()
         {
-            // 0. Set global font
-            if (fontAsset != null)
-            {
-                UIHelper.DefaultFont = fontAsset;
-            }
-
             // 1. Initialize Game State & Script Loader
             _gameState = new GameState();
             _scriptLoader = new UnityScriptLoader();
@@ -105,9 +95,9 @@ namespace SSNoir
                 _sceneDirectory = sdGo.GetComponent<SceneDirectory>();
             }
 
-            // 5. Spawn UIManager component
-            _uiManager = gameObject.AddComponent<UIManager>();
-            _uiManager.Initialize(this);
+            // 5. Spawn IMGUI renderer
+            _renderer = gameObject.AddComponent<IMGUIWorldRenderer>();
+            _renderer.Initialize(this);
 
             // 6. Listen to scene loads and world refreshes
             _sceneManager.OnSceneLoaded += () => {
@@ -122,46 +112,19 @@ namespace SSNoir
                 Debug.Log($"[SSNoir] World Refreshed! Current nodes count: {_sceneManager.CurrentWorldNodes.Count}");
                 ResolveNavigationStack();
                 CleanupNodeSlots();
-
-                if (_isActionRoutineRunning)
-                {
-                    _hasDeferredWorldRefresh = true;
-                    return;
-                }
-
-                _uiManager.RefreshWorld(_visibleNodes);
             };
 
-            // 7. Load starting location from gameState
+            // 7. Load starting location
             string startingLocation = _gameState.Get<string>("location", "home");
             _sceneManager.LoadScene(startingLocation);
         }
 
         private void Update()
         {
-            if (_notificationTimer > 0f)
-            {
-                _notificationTimer -= Time.deltaTime;
-                if (_notificationTimer <= 0f)
-                {
-                    _notification = string.Empty;
-                    _uiManager.BuildOverlay();
-                }
-            }
-
             // Map Drag Panning Logic
             if (string.IsNullOrEmpty(_focusedNodeName) && globalCamera != null)
             {
-                bool isMouseOverUI = UnityEngine.EventSystems.EventSystem.current != null && 
-                                     UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
-
-                if (Input.GetMouseButtonDown(0) && !isMouseOverUI)
-                {
-                    _isDraggingCam = true;
-                    _dragStartMousePos = Input.mousePosition;
-                    _dragStartCamPos = globalCamera.transform.position;
-                }
-                else if (Input.GetMouseButtonDown(1))
+                if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
                 {
                     _isDraggingCam = true;
                     _dragStartMousePos = Input.mousePosition;
@@ -195,14 +158,9 @@ namespace SSNoir
         public void ToggleNodeFlipped(string nodeName)
         {
             if (_flippedNodes.Contains(nodeName))
-            {
                 _flippedNodes.Remove(nodeName);
-            }
             else
-            {
                 _flippedNodes.Add(nodeName);
-            }
-            _uiManager.RefreshWorld(_sceneManager.CurrentWorldNodes);
         }
 
         public void OnNodeCardClicked(GameNode node)
@@ -221,7 +179,6 @@ namespace SSNoir
             }
             else if (node.Requires == null || node.Requires.Count == 0)
             {
-                // Action with no requirements: execute instantly!
                 ExecuteNodeAction(node);
             }
             else
@@ -235,9 +192,7 @@ namespace SSNoir
             _focusedNodeName = nodeName ?? string.Empty;
 
             if (!string.IsNullOrEmpty(_focusedNodeName))
-            {
                 ClearOtherNodeSlots(_focusedNodeName);
-            }
 
             // Camera transition
             bool cameraApplied = false;
@@ -275,8 +230,6 @@ namespace SSNoir
                     focusCamera.Priority = 5;
                 }
             }
-
-            _uiManager.RefreshWorld(_visibleNodes);
         }
 
         public List<SlottedResource?>? GetSlotsForNode(string nodeName)
@@ -288,9 +241,7 @@ namespace SSNoir
                 {
                     list = new List<SlottedResource?>();
                     for (int i = 0; i < node.Requires.Count; i++)
-                    {
                         list.Add(null);
-                    }
                     _nodeSlots[nodeName] = list;
                 }
             }
@@ -310,12 +261,10 @@ namespace SSNoir
             else if (_selectedResource != null)
             {
                 ClearOtherNodeSlots(node.Name);
-
                 var req = node.Requires[slotIndex];
                 if (req.Type == "die" && _selectedResource.Type == "die")
                 {
                     ClearDieFromAllSlots(_selectedResource.SourceIndex);
-                    
                     slots[slotIndex] = new SlottedResource
                     {
                         Type = "die",
@@ -350,8 +299,6 @@ namespace SSNoir
                     ShowNotification($"槽位需要: {(req.Type == "die" ? "骰子" : req.ItemName)}");
                 }
             }
-            
-            _uiManager.RefreshWorld(_visibleNodes);
         }
 
         private void ClearOtherNodeSlots(string activeNodeName)
@@ -362,9 +309,7 @@ namespace SSNoir
                 {
                     var slots = pair.Value;
                     for (int i = 0; i < slots.Count; i++)
-                    {
                         slots[i] = null;
-                    }
                 }
             }
         }
@@ -377,14 +322,12 @@ namespace SSNoir
                 {
                     var slot = list[i];
                     if (slot != null && slot.Type == "die" && slot.SourceIndex == dieIndex)
-                    {
                         list[i] = null;
-                    }
                 }
             }
         }
 
-        private int GetTotalSlottedItemQty(string itemName)
+        public int GetTotalSlottedItemQty(string itemName)
         {
             int sum = 0;
             foreach (var list in _nodeSlots.Values)
@@ -392,18 +335,61 @@ namespace SSNoir
                 foreach (var s in list)
                 {
                     if (s != null && s.Type == "item" && s.ItemName == itemName)
-                    {
                         sum += s.Value;
-                    }
                 }
             }
             return sum;
         }
 
+        public bool IsDieSlotted(int dieIndex)
+        {
+            if (_selectedResource != null && _selectedResource.Type == "die" && _selectedResource.SourceIndex == dieIndex)
+                return true;
+            foreach (var slots in _nodeSlots.Values)
+            {
+                foreach (var slot in slots)
+                {
+                    if (slot != null && slot.Type == "die" && slot.SourceIndex == dieIndex)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public int GetRemainingItemQty(string itemName)
+        {
+            int total = 0;
+            if (itemName == "金钱")
+                total = _gameState.Get<int>("money");
+            else
+                total = _gameState.Get<int>("item:" + itemName, 0);
+
+            foreach (var slots in _nodeSlots.Values)
+            {
+                foreach (var slot in slots)
+                {
+                    if (slot != null && slot.Type == "item" && slot.ItemName == itemName)
+                        total -= slot.Value;
+                }
+            }
+
+            if (_selectedResource != null && _selectedResource.Type == "item" && _selectedResource.ItemName == itemName)
+            {
+                if (itemName != "金钱")
+                    total -= 1;
+            }
+
+            return Mathf.Max(0, total);
+        }
+
+        public void ClearSelectedResource()
+        {
+            _selectedResource = null;
+        }
+
         // --- Execute Actions via Async Coroutine ---
         public void ExecuteNodeAction(GameNode node)
         {
-            if (_isActionRoutineRunning) return;
             StartCoroutine(ExecuteRoutine(node));
         }
 
@@ -412,50 +398,32 @@ namespace SSNoir
             var slots = GetSlotsForNode(node.Name);
             if (slots == null) yield break;
 
-            bool shouldClearFocus = false;
+            // 1. Lock Input
+            _renderer.SetInputLocked(true);
 
-            _isActionRoutineRunning = true;
-            _hasDeferredWorldRefresh = false;
-            _uiManager.SetInputLocked(true);
+            // 2. Execute Action on engine
+            ActionReport report = _sceneManager.ExecuteAction(node, slots);
+            _nodeSlots.Remove(node.Name);
+            _selectedResource = null;
 
-            try
+            // 3. Performance Animation
+            if (report.Type == ActionType.Roll)
             {
-                // 1. Execute Action on engine. World refresh events are deferred while this routine runs.
-                ActionReport report = _sceneManager.ExecuteAction(node, slots);
-                Debug.Log($"[SSNoir] Action executed: {node.Name}, reportType={report.Type}, finalRoll={report.FinalRollValue}, outcome={report.Outcome}");
-
-                // Clean local temporary slots state, but do not redraw until the performance finishes.
-                _nodeSlots.Remove(node.Name);
-                _selectedResource = null;
-
-                // 2. Performance Animation
-                if (report.Type == ActionType.Roll)
-                {
-                    Debug.Log($"[SSNoir] Playing roll animation for action: {node.Name}");
-                    yield return StartCoroutine(DiceAnimator.PlayRoll(report.FinalRollValue, report.Outcome, _uiManager.Canvas!));
-                }
-
-                // 3. Sync UI. Engine refreshes during execution are intentionally deferred so state
-                // changes become visible only after the action performance finishes.
-                if (!_hasDeferredWorldRefresh)
-                {
-                    ResolveNavigationStack();
-                    CleanupNodeSlots();
-                }
-                _uiManager.RefreshWorld(_visibleNodes);
-                shouldClearFocus = true;
-            }
-            finally
-            {
-                _isActionRoutineRunning = false;
-                _hasDeferredWorldRefresh = false;
-                _uiManager.SetInputLocked(false);
+                _renderer.StartRollAnimation(report, node.Name);
+                // Wait for animation to complete
+                while (_renderer.IsAnimationPlaying)
+                    yield return null;
             }
 
-            if (shouldClearFocus)
-            {
-                SetFocusedNode(null);
-            }
+            // 4. Sync UI
+            ResolveNavigationStack();
+            CleanupNodeSlots();
+
+            // 5. Unlock Input
+            _renderer.SetInputLocked(false);
+
+            // 6. Reset focus
+            SetFocusedNode(null);
         }
 
         public void GoBackNavigation()
@@ -483,9 +451,7 @@ namespace SSNoir
 
             var path = new List<string>();
             foreach (var node in _navigationStack)
-            {
                 path.Add(node.Name);
-            }
 
             _navigationStack.Clear();
             var currentLevel = _sceneManager.CurrentWorldNodes;
@@ -518,14 +484,10 @@ namespace SSNoir
             foreach (var name in _nodeSlots.Keys)
             {
                 if (!currentNames.Contains(name))
-                {
                     keysToRemove.Add(name);
-                }
             }
             foreach (var key in keysToRemove)
-            {
                 _nodeSlots.Remove(key);
-            }
         }
 
         private void CollectAllNodeNamesRecursive(List<GameNode> nodes, HashSet<string> result)
@@ -555,12 +517,9 @@ namespace SSNoir
 
         public void ShowNotification(string message)
         {
-            _notification = message;
-            _notificationTimer = 3.0f;
-            _uiManager.BuildOverlay();
+            _renderer.ShowNotification(message);
         }
 
-        // --- UI Callbacks from UIManager ---
         public void OnSceneButtonClicked(string sc)
         {
             _selectedResource = null;
@@ -571,9 +530,7 @@ namespace SSNoir
         public void OnDieClicked(int dieIndex, int val)
         {
             if (_selectedResource != null && _selectedResource.Type == "die" && _selectedResource.SourceIndex == dieIndex)
-            {
                 _selectedResource = null;
-            }
             else
             {
                 _selectedResource = new SelectedResource
@@ -583,15 +540,12 @@ namespace SSNoir
                     SourceIndex = dieIndex
                 };
             }
-            _uiManager.BuildBottomPanel();
         }
 
         public void OnItemClicked(string itemName, int qty)
         {
             if (_selectedResource != null && _selectedResource.Type == "item" && _selectedResource.ItemName == itemName)
-            {
                 _selectedResource = null;
-            }
             else
             {
                 _selectedResource = new SelectedResource
@@ -601,7 +555,6 @@ namespace SSNoir
                     Value = qty
                 };
             }
-            _uiManager.BuildBottomPanel();
         }
 
         public void OnEndTurnClicked()
@@ -613,7 +566,7 @@ namespace SSNoir
         public void OnRollAckClicked()
         {
             _activeRollResult = null;
-            _uiManager.BuildOverlay();
+            _sceneManager.OnActionExecuted();
         }
     }
 }
