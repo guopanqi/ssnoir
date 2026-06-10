@@ -690,6 +690,27 @@ namespace SSNoir.Rendering
                 }
             }
 
+            // 3. Draw Rest / End Turn Button
+            float restX = WindowWidth - 110;
+            float restY = handY + 18;
+            var restRect = new Rectangle(restX, restY, 80, 32);
+            bool restHover = Raylib.CheckCollisionPointRec(mousePos, restRect);
+
+            Color restBg = restHover ? new Color(120, 50, 50, 255) : new Color(85, 30, 30, 255);
+            Color restBorder = restHover ? new Color(220, 100, 100, 255) : new Color(140, 60, 60, 255);
+
+            Raylib.DrawRectangleRounded(restRect, 0.2f, 4, restBg);
+            Raylib.DrawRectangleRoundedLinesEx(restRect, 0.2f, 4, 1.5f, restBorder);
+
+            string restText = "休息";
+            int restW = FontManager.MeasureTextWidth(restText, 14);
+            FontManager.DrawText(restText, restX + (80 - restW) / 2f, restY + 9, 14, Color.White);
+
+            if (restHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+            {
+                EndTurn();
+            }
+
             // 2. Draw Status Bar (y=575, height 25)
             Raylib.DrawRectangle(0, (int)statusY, WindowWidth, 25, new Color(10, 10, 15, 255));
             Raylib.DrawLineEx(new Vector2(0, statusY), new Vector2(WindowWidth, statusY), 1.5f, new Color(30, 30, 40, 255));
@@ -715,6 +736,13 @@ namespace SSNoir.Rendering
                 node.Resolve.Effect?.Invoke();
             }
             _sceneManager.OnActionExecuted();
+        }
+
+        private void EndTurn()
+        {
+            _nodeSlots.Clear();
+            _selectedResource = null;
+            _sceneManager.EndTurn();
         }
 
         private void TriggerNotification(string message)

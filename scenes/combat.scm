@@ -55,7 +55,7 @@
         (make-enemy "持枪手" 2 4 15))))
 
 ;; ── Rules ──────────────────────────────────────
-(define-rule "敌人时钟与攻击"
+(define-turn-rule "敌人时钟与攻击"
   (lambda () #t)
   (lambda ()
     ;; 1. Tick attack clocks
@@ -81,7 +81,7 @@
             (process-enemy-atk (cdr list-enemies)))))
     (process-enemy-atk (live-enemies))))
 
-(define-rule "增援机制"
+(define-turn-rule "增援机制"
   (lambda () #t)
   (lambda ()
     (spawn-clock 'tick!)

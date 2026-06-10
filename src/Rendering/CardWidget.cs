@@ -123,8 +123,13 @@ namespace SSNoir.Rendering
                         
                         // Draw placeholder letter
                         string placeholder = requires[j].Type == "die" ? "D" : requires[j].ItemName.Substring(0, 1);
-                        int pW = FontManager.MeasureTextWidth(placeholder, 12);
-                        FontManager.DrawText(placeholder, slotRect.X + (slotW - pW) / 2f, slotRect.Y + 6, 12, new Color(80, 80, 100, 255));
+                        if (requires[j].Type == "item" && requires[j].Qty > 1)
+                        {
+                            placeholder += requires[j].Qty.ToString();
+                        }
+                        int fontSize = placeholder.Length > 2 ? 8 : (placeholder.Length > 1 ? 10 : 12);
+                        int pW = FontManager.MeasureTextWidth(placeholder, fontSize);
+                        FontManager.DrawText(placeholder, slotRect.X + (slotW - pW) / 2f, slotRect.Y + (slotH - fontSize) / 2f, fontSize, new Color(80, 80, 100, 255));
                     }
                     else
                     {
@@ -133,8 +138,13 @@ namespace SSNoir.Rendering
                         Raylib.DrawRectangleRoundedLinesEx(slotRect, 0.2f, 4, 1.5f, new Color(130, 130, 250, 255));
 
                         string valStr = res.Type == "die" ? res.Value.ToString() : res.ItemName.Substring(0, 1);
-                        int valW = FontManager.MeasureTextWidth(valStr, 12);
-                        FontManager.DrawText(valStr, slotRect.X + (slotW - valW) / 2f, slotRect.Y + 6, 12, Color.White);
+                        if (res.Type == "item" && res.Value > 1)
+                        {
+                            valStr += res.Value.ToString();
+                        }
+                        int fontSize = valStr.Length > 2 ? 8 : (valStr.Length > 1 ? 10 : 12);
+                        int valW = FontManager.MeasureTextWidth(valStr, fontSize);
+                        FontManager.DrawText(valStr, slotRect.X + (slotW - valW) / 2f, slotRect.Y + (slotH - fontSize) / 2f, fontSize, Color.White);
                     }
 
                     if (slotHover && Raylib.IsMouseButtonPressed(MouseButton.Left))

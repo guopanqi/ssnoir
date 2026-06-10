@@ -107,6 +107,17 @@ namespace SSNoir.Core
             Refresh();
         }
 
+        public void EndTurn()
+        {
+            _interpreter?.Eval("(on-turn-end)");
+
+            var rand = new Random();
+            var newDice = new List<object> { rand.Next(1, 7), rand.Next(1, 7), rand.Next(1, 7) };
+            _gameState.Set("action-dice", newDice);
+
+            Refresh();
+        }
+
         public void ExecuteEffect(GameNode node)
         {
             Debug.Assert(node.Resolve != null, "Cannot execute effect on a node that has no resolve");

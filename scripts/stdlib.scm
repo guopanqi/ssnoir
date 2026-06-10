@@ -112,6 +112,28 @@
           (run-rules (cdr list-rules)))))
   (run-rules rules))
 
+(define turn-rules '())
+
+;; define-turn-rule registers a turn-end rule
+(define (define-turn-rule name condition action)
+  (set! turn-rules (cons (list name condition action) turn-rules)))
+
+;; on-turn-end triggers all turn-end rules
+(define (on-turn-end)
+  (define (run-rules list-rules)
+    (if (null? list-rules)
+        #t
+        (begin
+          (let ((rule (car list-rules)))
+            (let ((name (car rule))
+                  (cond-fn (cadr rule))
+                  (act-fn (caddr rule)))
+              (if (cond-fn)
+                  (act-fn)
+                  #f)))
+          (run-rules (cdr list-rules)))))
+  (run-rules turn-rules))
+
 (define (min a b)
   (if (< a b) a b))
 

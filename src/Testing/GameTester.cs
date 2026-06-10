@@ -158,8 +158,9 @@ namespace SSNoir.Testing
                 throw new InvalidOperationException("Expected '压制' action to be present under '持刀者'.");
             }
             sceneManager.ExecuteEffect(slasherSuppress);
+            sceneManager.EndTurn();
 
-            // Since we performed an action, all live enemies' clocks should have ticked.
+            // Since we ended the turn, all live enemies' clocks should have ticked.
             // Spawn clock (idx 1), Slasher's atk (idx 3), Gunner's atk (idx 5) ticked to 1.
             if (sceneManager.CurrentClocks[1].Current != 1 || 
                 sceneManager.CurrentClocks[3].Current != 1 || 
@@ -181,6 +182,7 @@ namespace SSNoir.Testing
                 throw new InvalidOperationException("Expected '击倒' action to be present under '持枪手'.");
             }
             sceneManager.ExecuteEffect(gunnerKill);
+            sceneManager.EndTurn();
 
             // 4 clocks should still remain: "逃脱", "增援", and Slasher's HP and atk clocks (reinforcement has not triggered yet as spawn-clock max is 3)
             if (sceneManager.CurrentClocks.Count != 4)
@@ -228,6 +230,8 @@ namespace SSNoir.Testing
                         break;
                     }
                 }
+
+                sceneManager.EndTurn();
             }
 
             // Verify all enemies are dead (only Exit clock and Spawn clock remain = 2 clocks)
