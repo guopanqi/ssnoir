@@ -42,27 +42,17 @@ namespace SSNoir.IMGUI
 
             if (clock.Style == ClockStyle.Pie)
             {
-                float radius = 8f;
+                float radius = 12f;
                 clockWidth = labelWidth + 8 + radius * 2 + 8;
 
                 GUI.Label(new Rect(x, y, labelWidth, height), clock.Label, IMGUIStyles.ClockLabel);
 
                 float centerX = x + labelWidth + 8 + radius;
                 float centerY = y + height / 2f;
+                var pieRect = new Rect(centerX - radius, centerY - radius, radius * 2, radius * 2);
 
-                // Draw ring outline
-                GUI.color = outlineColor;
-                DrawRing(new Rect(centerX - radius, centerY - radius, radius * 2, radius * 2), 1);
-                GUI.color = Color.white;
-
-                // Fill pie sector (simplified as horizontal bar inside)
-                if (clock.Max > 0 && clock.Current > 0)
-                {
-                    float pct = Mathf.Clamp01((float)clock.Current / clock.Max);
-                    GUI.color = activeColor;
-                    GUI.DrawTexture(new Rect(centerX - radius, centerY - 2, radius * 2 * pct, 4), Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                }
+                float fillPct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
+                PieDrawer.DrawPie(pieRect, fillPct, activeColor, outlineColor);
 
                 string frac = $"{clock.Current}/{clock.Max}";
                 var fracStyle = new GUIStyle(IMGUIStyles.ClockValue);

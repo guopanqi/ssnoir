@@ -97,13 +97,12 @@ namespace SSNoir.IMGUI
             float typeY = hasRequires ? rect.y + 34 : rect.y + rect.height / 2f + 4;
             GUI.Label(new Rect(rect.x, typeY, rect.width, 18), $"— {typeLabel} —", IMGUIStyles.CardSubtitle);
 
-            // Slots and execute
             if (hasRequires)
             {
                 int M = node.Requires.Count;
-                float slotW = 24;
-                float slotH = 24;
-                float spacing = 6;
+                float slotW = 36;
+                float slotH = 36;
+                float spacing = 8;
                 float totalWidth = M * slotW + (M - 1) * spacing;
                 float slotStartX = rect.x + (rect.width - totalWidth) / 2f;
                 float slotY = rect.y + 56;
@@ -125,7 +124,7 @@ namespace SSNoir.IMGUI
                         string placeholder = node.Requires[j].Type == "die" ? "D" : node.Requires[j].ItemName.Substring(0, 1);
                         if (node.Requires[j].Type == "item" && node.Requires[j].Qty > 1)
                             placeholder += node.Requires[j].Qty;
-                        int fontSize = placeholder.Length > 2 ? 8 : (placeholder.Length > 1 ? 10 : 12);
+                        int fontSize = placeholder.Length > 2 ? 10 : (placeholder.Length > 1 ? 12 : 16);
                         var pStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                         pStyle.fontSize = fontSize;
                         pStyle.normal.textColor = new Color(0.5f, 0.5f, 0.6f, 1f);
@@ -142,7 +141,7 @@ namespace SSNoir.IMGUI
                         string valStr = res.Type == "die" ? res.Value.ToString() : res.ItemName.Substring(0, 1);
                         if (res.Type == "item" && res.Value > 1)
                             valStr += res.Value;
-                        int fontSize = valStr.Length > 2 ? 8 : (valStr.Length > 1 ? 10 : 12);
+                        int fontSize = valStr.Length > 2 ? 10 : (valStr.Length > 1 ? 12 : 16);
                         var vStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                         vStyle.fontSize = fontSize;
                         GUI.Label(slotRect, valStr, vStyle);
@@ -156,10 +155,10 @@ namespace SSNoir.IMGUI
                 }
 
                 // Execute button
-                float exeW = 80;
-                float exeH = 18;
+                float exeW = 90;
+                float exeH = 20;
                 float exeX = rect.x + (rect.width - exeW) / 2f;
-                float exeY = rect.y + 86;
+                float exeY = slotY + slotH + 8;
                 var exeRect = new Rect(exeX, exeY, exeW, exeH);
 
                 bool allFilled = slotted != null && slotted.All(s => s != null);
@@ -313,7 +312,8 @@ namespace SSNoir.IMGUI
                 string labelText = clock.Label;
                 int fontSize = 10;
                 float labelWidth = 40;
-                float badgeW = labelWidth + 6 + 40 + 6;
+                float pieRadius = 10f;
+                float badgeW = labelWidth + 6 + pieRadius * 2 + 6;
                 float badgeH = 14;
                 float badgeX = rightX - badgeW;
                 float badgeY = topY;
@@ -328,18 +328,12 @@ namespace SSNoir.IMGUI
                 style.fontSize = fontSize;
                 GUI.Label(new Rect(badgeX + 4, badgeY, labelWidth, badgeH), labelText, style);
 
-                // Simple pie: rectangle progress bar
-                float barW = 30;
-                float barH = 6;
-                float barX = badgeX + 4 + labelWidth + 4;
-                float barY = badgeY + 4;
+                // Real pie sector
+                float pieX = badgeX + 4 + labelWidth + 4;
+                float pieY = badgeY + (badgeH - pieRadius * 2) / 2f;
+                var pieRect = new Rect(pieX, pieY, pieRadius * 2, pieRadius * 2);
                 float fillPct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
-
-                GUI.color = inactiveColor;
-                GUI.DrawTexture(new Rect(barX, barY, barW, barH), Texture2D.whiteTexture);
-                GUI.color = activeColor;
-                GUI.DrawTexture(new Rect(barX, barY, barW * fillPct, barH), Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                PieDrawer.DrawPieBadge(pieRect, fillPct, activeColor, new Color(0.4f, 0.4f, 0.55f, 1f));
 
                 rightX -= (badgeW + 4);
             }

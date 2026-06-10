@@ -8,42 +8,43 @@ namespace SSNoir.IMGUI
         public static Font? ChineseFont;
 
         // Colors
-        public static readonly Color CardBg = new Color(0.12f, 0.12f, 0.16f, 0.95f);
-        public static readonly Color CardHoverBg = new Color(0.18f, 0.18f, 0.24f, 0.98f);
-        public static readonly Color CardOutline = new Color(0.35f, 0.35f, 0.45f, 1f);
-        public static readonly Color CardHoverOutline = new Color(0.55f, 0.55f, 0.75f, 1f);
+        // Modern Noir Palette
+        public static readonly Color CardBg = new Color(0.05f, 0.05f, 0.06f, 0.95f);
+        public static readonly Color CardHoverBg = new Color(0.12f, 0.12f, 0.14f, 0.98f);
+        public static readonly Color CardOutline = new Color(0.3f, 0.3f, 0.35f, 0.8f);
+        public static readonly Color CardHoverOutline = new Color(0.85f, 0.7f, 0.3f, 1f);
         public static readonly Color TitleColor = Color.white;
-        public static readonly Color SubtitleColor = new Color(0.7f, 0.7f, 0.8f, 1f);
-        public static readonly Color SlotEmpty = new Color(0.2f, 0.2f, 0.25f, 1f);
-        public static readonly Color SlotEmptyBorder = new Color(0.35f, 0.35f, 0.45f, 1f);
+        public static readonly Color SubtitleColor = new Color(0.6f, 0.6f, 0.65f, 1f);
+        public static readonly Color SlotEmpty = new Color(0.02f, 0.02f, 0.02f, 0.8f);
+        public static readonly Color SlotEmptyBorder = new Color(0.3f, 0.3f, 0.35f, 0.8f);
         public static readonly Color SlotFilled = new Color(0.15f, 0.45f, 0.25f, 1f);
         public static readonly Color SlotFilledBorder = new Color(0.3f, 0.7f, 0.4f, 1f);
-        public static readonly Color ExecuteBtn = new Color(0.6f, 0.25f, 0.1f, 1f);
-        public static readonly Color ExecuteBtnHover = new Color(0.8f, 0.35f, 0.15f, 1f);
-        public static readonly Color DisabledBtn = new Color(0.25f, 0.25f, 0.28f, 1f);
-        public static readonly Color PanelBg = new Color(0.06f, 0.06f, 0.08f, 0.95f);
-        public static readonly Color BottomBarBg = new Color(0.04f, 0.04f, 0.06f, 1f);
+        public static readonly Color ExecuteBtn = new Color(0.65f, 0.15f, 0.15f, 1f);
+        public static readonly Color ExecuteBtnHover = new Color(0.85f, 0.2f, 0.2f, 1f);
+        public static readonly Color DisabledBtn = new Color(0.15f, 0.15f, 0.17f, 1f);
+        public static readonly Color PanelBg = new Color(0.04f, 0.04f, 0.05f, 0.95f);
+        public static readonly Color BottomBarBg = new Color(0.03f, 0.03f, 0.04f, 1f);
         public static readonly Color ToastBg = new Color(0.7f, 0.15f, 0.15f, 0.95f);
-        public static readonly Color ModalBg = new Color(0.08f, 0.08f, 0.12f, 0.98f);
-        public static readonly Color Blocker = new Color(0, 0, 0, 0.6f);
+        public static readonly Color ModalBg = new Color(0.06f, 0.06f, 0.08f, 0.98f);
+        public static readonly Color Blocker = new Color(0, 0, 0, 0.7f);
         public static readonly Color HealthColor = new Color(0.9f, 0.3f, 0.3f, 1f);
         public static readonly Color MoneyColor = new Color(0.3f, 0.9f, 0.4f, 1f);
-        public static readonly Color DieNormal = new Color(0.18f, 0.35f, 0.55f, 1f);
-        public static readonly Color DieHover = new Color(0.35f, 0.55f, 0.8f, 1f);
-        public static readonly Color DieSelected = new Color(1f, 0.75f, 0.2f, 1f);
+        public static readonly Color DieNormal = new Color(0.15f, 0.15f, 0.2f, 1f);
+        public static readonly Color DieHover = new Color(0.35f, 0.35f, 0.5f, 1f);
+        public static readonly Color DieSelected = new Color(0.9f, 0.8f, 0.3f, 1f);
         public static readonly Color ItemNormal = new Color(0.15f, 0.45f, 0.3f, 1f);
         public static readonly Color ItemHover = new Color(0.3f, 0.65f, 0.45f, 1f);
-        public static readonly Color ClockActive = new Color(1f, 0.75f, 0.2f, 1f);
-        public static readonly Color ClockInactive = new Color(0.25f, 0.25f, 0.3f, 1f);
-        public static readonly Color ProgressTrack = new Color(0.12f, 0.12f, 0.16f, 1f);
-        public static readonly Color ProgressFill = new Color(1f, 0.75f, 0.2f, 1f);
+        public static readonly Color ClockActive = new Color(0.9f, 0.8f, 0.3f, 1f);
+        public static readonly Color ClockInactive = new Color(0.15f, 0.15f, 0.18f, 1f);
+        public static readonly Color ProgressTrack = new Color(0.08f, 0.08f, 0.1f, 1f);
+        public static readonly Color ProgressFill = new Color(0.9f, 0.8f, 0.3f, 1f);
         public static readonly Color OutcomeSuccess = new Color(0.2f, 0.8f, 0.4f, 1f);
         public static readonly Color OutcomeNeutral = new Color(0.9f, 0.8f, 0.2f, 1f);
         public static readonly Color OutcomeFail = new Color(0.9f, 0.2f, 0.2f, 1f);
-        public static readonly Color FlippedBg = new Color(0.06f, 0.16f, 0.12f, 0.95f);
+        public static readonly Color FlippedBg = new Color(0.05f, 0.12f, 0.1f, 0.95f);
         public static readonly Color FlippedOutline = new Color(0.2f, 0.5f, 0.35f, 1f);
-        public static readonly Color DropdownBg = new Color(0.12f, 0.12f, 0.18f, 1f);
-        public static readonly Color DropdownHover = new Color(0.2f, 0.2f, 0.3f, 1f);
+        public static readonly Color DropdownBg = new Color(0.08f, 0.08f, 0.12f, 1f);
+        public static readonly Color DropdownHover = new Color(0.15f, 0.15f, 0.22f, 1f);
 
         // Styles
         public static GUIStyle CardTitle = null!;
@@ -67,6 +68,8 @@ namespace SSNoir.IMGUI
         public static GUIStyle SceneLabel = null!;
         public static GUIStyle HelpTip = null!;
 
+        public static Material? PieMaterial;
+
         private static bool _initialized;
 
         public static void Init(Font? font)
@@ -75,26 +78,33 @@ namespace SSNoir.IMGUI
             _initialized = true;
             ChineseFont = font;
 
-            CardTitle = MakeStyle(16, TitleColor, TextAnchor.MiddleCenter, FontStyle.Bold);
-            CardSubtitle = MakeStyle(11, SubtitleColor, TextAnchor.MiddleCenter, FontStyle.Italic);
-            CardTypeTag = MakeStyle(12, SubtitleColor, TextAnchor.MiddleCenter, FontStyle.Normal);
-            SlotLabel = MakeStyle(11, Color.white, TextAnchor.MiddleCenter, FontStyle.Normal);
-            ExecuteLabel = MakeStyle(12, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-            StatusLabel = MakeStyle(14, Color.white, TextAnchor.MiddleLeft, FontStyle.Bold);
-            SectionLabel = MakeStyle(11, new Color(0.7f, 0.7f, 0.7f), TextAnchor.MiddleLeft, FontStyle.Normal);
-            ToastLabel = MakeStyle(13, Color.white, TextAnchor.MiddleCenter, FontStyle.Normal);
-            ModalTitle = MakeStyle(15, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-            ModalBody = MakeStyle(12, new Color(0.85f, 0.85f, 0.85f), TextAnchor.MiddleLeft, FontStyle.Normal);
-            FlippedTitle = MakeStyle(13, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-            FlippedContent = MakeStyle(11, new Color(0.9f, 0.9f, 0.9f), TextAnchor.UpperCenter, FontStyle.Normal);
-            FlippedTip = MakeStyle(10, new Color(1f, 0.8f, 0.2f), TextAnchor.MiddleCenter, FontStyle.Italic);
-            ClockLabel = MakeStyle(10, new Color(0.9f, 0.9f, 0.9f), TextAnchor.MiddleLeft, FontStyle.Bold);
-            ClockValue = MakeStyle(10, new Color(1f, 0.8f, 0.2f), TextAnchor.MiddleRight, FontStyle.Bold);
-            DropdownItem = MakeStyle(13, new Color(0.8f, 0.8f, 0.9f), TextAnchor.MiddleLeft, FontStyle.Normal);
-            DropdownCurrent = MakeStyle(13, Color.white, TextAnchor.MiddleLeft, FontStyle.Normal);
-            CursorFollower = MakeStyle(11, Color.black, TextAnchor.MiddleCenter, FontStyle.Normal);
-            SceneLabel = MakeStyle(13, new Color(0.8f, 0.8f, 0.9f), TextAnchor.MiddleLeft, FontStyle.Normal);
-            HelpTip = MakeStyle(11, new Color(0.5f, 0.5f, 0.6f), TextAnchor.MiddleLeft, FontStyle.Normal);
+            // Initialize Pie drawing material
+            if (PieMaterial == null)
+            {
+                PieMaterial = new Material(Shader.Find("Hidden/Internal-Colored"));
+                PieMaterial.hideFlags = HideFlags.HideAndDontSave;
+            }
+
+            CardTitle = MakeStyle(24, TitleColor, TextAnchor.MiddleCenter, FontStyle.Bold);
+            CardSubtitle = MakeStyle(16, SubtitleColor, TextAnchor.MiddleCenter, FontStyle.Italic);
+            CardTypeTag = MakeStyle(16, SubtitleColor, TextAnchor.MiddleCenter, FontStyle.Normal);
+            SlotLabel = MakeStyle(14, Color.white, TextAnchor.MiddleCenter, FontStyle.Normal);
+            ExecuteLabel = MakeStyle(14, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
+            StatusLabel = MakeStyle(16, Color.white, TextAnchor.MiddleLeft, FontStyle.Bold);
+            SectionLabel = MakeStyle(14, new Color(0.6f, 0.6f, 0.65f), TextAnchor.MiddleLeft, FontStyle.Normal);
+            ToastLabel = MakeStyle(16, Color.white, TextAnchor.MiddleCenter, FontStyle.Normal);
+            ModalTitle = MakeStyle(20, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
+            ModalBody = MakeStyle(16, new Color(0.85f, 0.85f, 0.85f), TextAnchor.MiddleLeft, FontStyle.Normal);
+            FlippedTitle = MakeStyle(18, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
+            FlippedContent = MakeStyle(16, new Color(0.9f, 0.9f, 0.9f), TextAnchor.UpperCenter, FontStyle.Normal);
+            FlippedTip = MakeStyle(14, new Color(1f, 0.8f, 0.2f), TextAnchor.MiddleCenter, FontStyle.Italic);
+            ClockLabel = MakeStyle(14, new Color(0.9f, 0.9f, 0.9f), TextAnchor.MiddleLeft, FontStyle.Bold);
+            ClockValue = MakeStyle(14, new Color(0.9f, 0.8f, 0.3f), TextAnchor.MiddleRight, FontStyle.Bold);
+            DropdownItem = MakeStyle(16, new Color(0.8f, 0.8f, 0.9f), TextAnchor.MiddleLeft, FontStyle.Normal);
+            DropdownCurrent = MakeStyle(16, Color.white, TextAnchor.MiddleLeft, FontStyle.Normal);
+            CursorFollower = MakeStyle(14, Color.black, TextAnchor.MiddleCenter, FontStyle.Normal);
+            SceneLabel = MakeStyle(16, new Color(0.8f, 0.8f, 0.9f), TextAnchor.MiddleLeft, FontStyle.Normal);
+            HelpTip = MakeStyle(14, new Color(0.5f, 0.5f, 0.6f), TextAnchor.MiddleLeft, FontStyle.Normal);
         }
 
         private static GUIStyle MakeStyle(int fontSize, Color textColor, TextAnchor alignment, FontStyle fontStyle)

@@ -121,14 +121,37 @@ namespace SSNoir
 
         private void Update()
         {
-            // Map Drag Panning Logic
-            if (string.IsNullOrEmpty(_focusedNodeName) && globalCamera != null)
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (_renderer != null && _renderer.IsAnimationPlaying)
+                {
+                    if (_renderer.IsAnimationReadyToAcknowledge)
+                    {
+                        _renderer.AcknowledgeAnimation();
+                    }
+                }
+                else if (_renderer == null || !_renderer.IsInputLocked)
+                {
+                    if (_selectedResource != null)
+                    {
+                        ClearSelectedResource();
+                    }
+                    else
+                    {
+                        GoBackNavigation();
+                    }
+                }
+            }
+
+            // Map Drag Panning Logic：拖拽当前活动相机
+            var activeCamera = GetActiveCamera();
+            if (activeCamera != null)
             {
                 if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
                 {
                     _isDraggingCam = true;
                     _dragStartMousePos = Input.mousePosition;
-                    _dragStartCamPos = globalCamera.transform.position;
+                    _dragStartCamPos = activeCamera.transform.position;
                 }
 
                 if (_isDraggingCam)
@@ -136,10 +159,10 @@ namespace SSNoir
                     if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
                     {
                         Vector3 mouseDelta = Input.mousePosition - _dragStartMousePos;
-                        Vector3 right = globalCamera.transform.right;
-                        Vector3 up = globalCamera.transform.up;
+                        Vector3 right = activeCamera.transform.right;
+                        Vector3 up = activeCamera.transform.up;
                         Vector3 panTranslation = -mouseDelta.x * right * panSpeed - mouseDelta.y * up * panSpeed;
-                        globalCamera.transform.position = _dragStartCamPos + panTranslation;
+                        activeCamera.transform.position = _dragStartCamPos + panTranslation;
                     }
                     else
                     {
@@ -147,10 +170,13 @@ namespace SSNoir
                     }
                 }
             }
-            else
-            {
-                _isDraggingCam = false;
-            }
+        }
+
+        private Cinemachine.CinemachineVirtualCamera? GetActiveCamera()
+        {
+            if (focusCamera != null && focusCamera.Priority > 10)
+                return focusCamera;
+            return globalCamera;
         }
 
         public bool IsNodeFlipped(string nodeName) => _flippedNodes.Contains(nodeName);
@@ -194,24 +220,24 @@ namespace SSNoir
             if (!string.IsNullOrEmpty(_focusedNodeName))
                 ClearOtherNodeSlots(_focusedNodeName);
 
-            // Camera transition
-            bool cameraApplied = false;
             if (!string.IsNullOrEmpty(_focusedNodeName))
             {
+                // 聚焦某个节点：若该节点有 FocusCameraTransform 则移动，否则不动
                 var anchor = _sceneDirectory?.GetAnchor(_focusedNodeName);
                 if (anchor != null && anchor.FocusCameraTransform != null && focusCamera != null)
                 {
                     focusCamera.transform.position = anchor.FocusCameraTransform.position;
                     focusCamera.transform.rotation = anchor.FocusCameraTransform.rotation;
                     focusCamera.Priority = 20;
-                    cameraApplied = true;
                 }
+                // 若该节点没有 FocusCameraTransform → 相机保持不变
             }
-
-            if (!cameraApplied)
+            else
             {
+                // 取消聚焦
                 if (_navigationStack.Count > 0 && focusCamera != null)
                 {
+                    // 在导航栈中：检查当前父节点是否有 FocusCameraTransform
                     var parentNode = _navigationStack[_navigationStack.Count - 1];
                     var anchor = _sceneDirectory?.GetAnchor(parentNode.Name);
                     if (anchor != null && anchor.FocusCameraTransform != null)
@@ -220,13 +246,11 @@ namespace SSNoir
                         focusCamera.transform.rotation = anchor.FocusCameraTransform.rotation;
                         focusCamera.Priority = 20;
                     }
-                    else
-                    {
-                        focusCamera.Priority = 5;
-                    }
+                    // 若父节点没有 FocusCameraTransform → 相机保持不动
                 }
                 else if (focusCamera != null)
                 {
+                    // 导航栈为空：回到全局视角
                     focusCamera.Priority = 5;
                 }
             }
@@ -422,22 +446,42 @@ namespace SSNoir
             // 5. Unlock Input
             _renderer.SetInputLocked(false);
 
-            // 6. Reset focus
-            SetFocusedNode(null);
+            // 6. 动画执行后不自动取消聚焦，保持当前镜头位置
+            // 用户需要点击"返回"按钮才会触发 SetFocusedNode(null)
         }
 
         public void GoBackNavigation()
         {
             if (!string.IsNullOrEmpty(_focusedNodeName))
             {
+                // 从聚焦状态返回：取消聚焦
                 SetFocusedNode(null);
             }
             else if (_navigationStack.Count > 0)
             {
+                // 从导航栈返回：弹出栈
                 _nodeSlots.Clear();
                 _navigationStack.RemoveAt(_navigationStack.Count - 1);
                 ResolveNavigationStack();
-                SetFocusedNode(null);
+
+                // 如果还有父节点，检查其是否有 FocusCameraTransform
+                if (_navigationStack.Count > 0 && focusCamera != null)
+                {
+                    var parentNode = _navigationStack[_navigationStack.Count - 1];
+                    var anchor = _sceneDirectory?.GetAnchor(parentNode.Name);
+                    if (anchor != null && anchor.FocusCameraTransform != null)
+                    {
+                        focusCamera.transform.position = anchor.FocusCameraTransform.position;
+                        focusCamera.transform.rotation = anchor.FocusCameraTransform.rotation;
+                        focusCamera.Priority = 20;
+                    }
+                    // 若父节点没有 FocusCameraTransform → 相机不动
+                }
+                else if (focusCamera != null)
+                {
+                    // 导航栈为空：回到全局视角
+                    focusCamera.Priority = 5;
+                }
             }
         }
 
