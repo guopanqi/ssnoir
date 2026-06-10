@@ -14,6 +14,8 @@ namespace SSNoir.IMGUI
         private float _notificationTimer = 0f;
         private string _notification = "";
 
+        private readonly Dictionary<string, Vector2> _cardCenters = new Dictionary<string, Vector2>();
+
         public void Initialize(SSNoirGameManager gameManager)
         {
             _gameManager = gameManager;
@@ -118,7 +120,7 @@ namespace SSNoir.IMGUI
             var focusedName = _gameManager.FocusedNodeName;
 
             // Split nodes into two groups: those with world anchors and those without
-            var projectedCards = new List<(GameNode node, Vector3 screenPos, float distance)>();
+            var initialProjected = new List<(GameNode node, Vector3 screenPos, float distance)>();
             var gridNodes = new List<GameNode>();
 
             foreach (var node in nodes)
@@ -132,7 +134,7 @@ namespace SSNoir.IMGUI
                     var screenPos = cam.WorldToScreenPoint(anchor.transform.position);
                     if (screenPos.z >= 0)
                     {
-                        projectedCards.Add((node, screenPos, screenPos.z));
+                        initialProjected.Add((node, screenPos, screenPos.z));
                     }
                     else
                     {
@@ -145,11 +147,90 @@ namespace SSNoir.IMGUI
                 }
             }
 
-            // Draw projected cards first (sorted by distance, far to near)
-            projectedCards.Sort((a, b) => b.distance.CompareTo(a.distance));
-            foreach (var card in projectedCards)
+            // Clean up old cached centers that are no longer visible to avoid memory leaks
+            var visibleKeys = new HashSet<string>(initialProjected.Select(x => x.node.Name));
+            var keysToRemove = _cardCenters.Keys.Where(k => !visibleKeys.Contains(k)).ToList();
+            foreach (var key in keysToRemove)
             {
-                DrawNodeCard(card.node, card.screenPos, mousePos);
+                _cardCenters.Remove(key);
+            }
+
+            // Create layout records for projected cards
+            var layouts = new List<ProjectedCardLayout>();
+            foreach (var item in initialProjected)
+            {
+                float anchorX = item.screenPos.x;
+                float anchorY = Screen.height - item.screenPos.y;
+
+                float cardWidth = isFocused(item.node.Name) ? 420f : 280f;
+                float cardHeight = isFocused(item.node.Name) ? 320f : 130f;
+
+                // Default target center position (centered horizontally above 3D anchor point)
+                Vector2 targetCenter = new Vector2(anchorX, anchorY - cardHeight / 2f - 40f);
+
+                // Retrieve from cache or initialize
+                if (!_cardCenters.TryGetValue(item.node.Name, out var currentCenter))
+                {
+                    currentCenter = targetCenter;
+                    _cardCenters[item.node.Name] = currentCenter;
+                }
+
+                layouts.Add(new ProjectedCardLayout(item.node, new Vector2(anchorX, anchorY), item.distance, targetCenter, currentCenter, cardWidth, cardHeight));
+            }
+
+            // Calculate mutual repulsion forces for overlapping cards
+            for (int i = 0; i < layouts.Count; i++)
+            {
+                for (int j = i + 1; j < layouts.Count; j++)
+                {
+                    var a = layouts[i];
+                    var b = layouts[j];
+
+                    if (a.Rect.Overlaps(b.Rect))
+                    {
+                        // Calculate overlap on Y axis
+                        float overlapY = Mathf.Min(a.Rect.yMax, b.Rect.yMax) - Mathf.Max(a.Rect.yMin, b.Rect.yMin);
+                        if (overlapY > 0)
+                        {
+                            // A continuous push force proportional to overlap to eliminate jitter/oscillations
+                            float pushForce = overlapY * 0.4f;
+
+                            if (a.CurrentCenter.y < b.CurrentCenter.y)
+                            {
+                                a.RepulsionForce += new Vector2(0f, -pushForce);
+                                b.RepulsionForce += new Vector2(0f, pushForce);
+                            }
+                            else
+                            {
+                                a.RepulsionForce += new Vector2(0f, pushForce);
+                                b.RepulsionForce += new Vector2(0f, -pushForce);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Integrate forces: update positions smoothly
+            float attractionStrength = 0.08f; // Softer attraction strength to allow repulsion to dominate
+            foreach (var layout in layouts)
+            {
+                Vector2 attraction = (layout.TargetCenter - layout.CurrentCenter) * attractionStrength;
+                Vector2 nextCenter = layout.CurrentCenter + attraction + layout.RepulsionForce;
+
+                // Create tentative rect and clamp to safe boundaries
+                Rect nextRect = new Rect(nextCenter.x - layout.Width / 2f, nextCenter.y - layout.Height / 2f, layout.Width, layout.Height);
+                nextRect = ClampRect(nextRect, layout.Width, layout.Height);
+
+                // Update current layout state and persistent cache
+                layout.CurrentCenter = nextRect.center;
+                _cardCenters[layout.Node.Name] = layout.CurrentCenter;
+            }
+
+            // Draw projected cards (sorted by distance, far to near)
+            layouts.Sort((a, b) => b.Distance.CompareTo(a.Distance));
+            foreach (var layout in layouts)
+            {
+                DrawNodeCard(layout.Node, layout.Rect, layout.AnchorPos, mousePos);
             }
 
             // Draw grid cards below
@@ -207,38 +288,26 @@ namespace SSNoir.IMGUI
             }
         }
 
-        private void DrawNodeCard(GameNode node, Vector3 screenPos, Vector2 mousePos)
+        private void DrawNodeCard(GameNode node, Rect cardRect, Vector2 anchorPos, Vector2 mousePos)
         {
-            float anchorX = screenPos.x;
-            float anchorY = Screen.height - screenPos.y;
+            float anchorX = anchorPos.x;
+            float anchorY = anchorPos.y;
 
-            float cardWidth = isFocused(node.Name) ? 420f : 280f;
-            float cardHeight = isFocused(node.Name) ? 320f : 130f;
+            // Determine target Y on card edge (bottom center if card is above anchor, top center if card is below)
+            float targetY = (anchorY > cardRect.yMax) ? cardRect.yMax : (anchorY < cardRect.yMin ? cardRect.yMin : anchorY);
+            float targetX = cardRect.center.x;
 
-            // Offset the card above the 3D anchor point
-            float cardX = anchorX - cardWidth / 2f;
-            float cardY = anchorY - cardHeight - 40f;
-
-            // Clamp card to screen boundaries to keep it visible
-            float minX = 20f;
-            float maxX = Screen.width - cardWidth - 20f;
-            float minY = 90f; // Leave space for top nav bar
-            float maxY = Screen.height - 180f - cardHeight; // Leave space for bottom panel (140 + 30 + padding)
-
-            cardX = Mathf.Clamp(cardX, minX, maxX);
-            cardY = Mathf.Clamp(cardY, minY, maxY);
-
-            var cardRect = new Rect(cardX, cardY, cardWidth, cardHeight);
-
-            // Draw vertical leader line from 3D anchor screen point up to the card bottom edge
-            Vector2 startLine = new Vector2(anchorX, anchorY);
-            Vector2 endLine = new Vector2(Mathf.Clamp(anchorX, cardRect.xMin + 10f, cardRect.xMax - 10f), cardRect.yMax);
+            // Draw elbow polyline: (anchorX, anchorY) -> (targetX, anchorY) -> (targetX, targetY)
+            Vector2 pStart = new Vector2(anchorX, anchorY);
+            Vector2 pElbow = new Vector2(targetX, anchorY);
+            Vector2 pEnd = new Vector2(targetX, targetY);
 
             Color lineColor = isFocused(node.Name) ? IMGUIStyles.PrimaryColor : new Color(0.671f, 0.780f, 1.0f, 0.35f);
             float lineThickness = isFocused(node.Name) ? 2f : 1f;
 
-            // Draw the leader line behind the card
-            IMGUIStyles.DrawLine(startLine, endLine, lineColor, lineThickness);
+            // Draw the leader line segments behind the card
+            IMGUIStyles.DrawLine(pStart, pElbow, lineColor, lineThickness);
+            IMGUIStyles.DrawLine(pElbow, pEnd, lineColor, lineThickness);
 
             bool isHovered = cardRect.Contains(mousePos);
             bool isFlipped = _gameManager.IsNodeFlipped(node.Name);
@@ -292,6 +361,40 @@ namespace SSNoir.IMGUI
                 clocks.AddRange(currentNode.Clocks);
             }
             return clocks;
+        }
+
+        private Rect ClampRect(Rect r, float cardWidth, float cardHeight)
+        {
+            float minX = 20f;
+            float maxX = Screen.width - cardWidth - 20f;
+            float minY = 90f;
+            float maxY = Screen.height - 180f - cardHeight;
+            return new Rect(Mathf.Clamp(r.x, minX, maxX), Mathf.Clamp(r.y, minY, maxY), cardWidth, cardHeight);
+        }
+
+        private class ProjectedCardLayout
+        {
+            public GameNode Node { get; }
+            public Vector2 AnchorPos { get; }
+            public float Distance { get; }
+            public Vector2 TargetCenter { get; }
+            public Vector2 CurrentCenter { get; set; }
+            public Vector2 RepulsionForce { get; set; }
+            public float Width { get; }
+            public float Height { get; }
+            public Rect Rect => new Rect(CurrentCenter.x - Width / 2f, CurrentCenter.y - Height / 2f, Width, Height);
+
+            public ProjectedCardLayout(GameNode node, Vector2 anchorPos, float distance, Vector2 targetCenter, Vector2 currentCenter, float width, float height)
+            {
+                Node = node;
+                AnchorPos = anchorPos;
+                Distance = distance;
+                TargetCenter = targetCenter;
+                CurrentCenter = currentCenter;
+                Width = width;
+                Height = height;
+                RepulsionForce = Vector2.zero;
+            }
         }
     }
 }

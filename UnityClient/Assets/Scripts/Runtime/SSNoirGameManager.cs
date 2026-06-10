@@ -42,16 +42,14 @@ namespace SSNoir
         private SceneDirectory? _sceneDirectory;
         private IMGUIWorldRenderer _renderer = null!;
 
+        private SSNoirCameraManager _cameraManager = null!;
+
         // Core Gameplay / Interaction State
         private string _focusedNodeName = string.Empty;
         private readonly List<GameNode> _navigationStack = new List<GameNode>();
         private List<GameNode> _visibleNodes = new List<GameNode>();
         private SelectedResource? _selectedResource;
         private RollResult? _activeRollResult;
-
-        private bool _isDraggingCam = false;
-        private Vector3 _dragStartMousePos;
-        private Vector3 _dragStartCamPos;
 
         private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
         private readonly HashSet<string> _flippedNodes = new HashSet<string>();
@@ -66,6 +64,7 @@ namespace SSNoir
         public SelectedResource? SelectedResource => _selectedResource;
         public RollResult? ActiveRollResult => _activeRollResult;
         public Font? ChineseFont => chineseFont;
+        public SSNoirCameraManager CameraManager => _cameraManager;
 
         private void Start()
         {
@@ -81,6 +80,7 @@ namespace SSNoir
             {
                 globalCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Global") || c.name.Contains("global"));
             }
+            _cameraManager = new SSNoirCameraManager(this, globalCamera, panSpeed);
 
             // 4. Find scene directory
             _sceneDirectory = FindObjectOfType<SceneDirectory>();
@@ -100,6 +100,11 @@ namespace SSNoir
                 _navigationStack.Clear();
                 _selectedResource = null;
                 _focusedNodeName = string.Empty;
+
+                // Re-find global camera on new scene load
+                globalCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Global") || c.name.Contains("global"));
+                _cameraManager.SetGlobalCamera(globalCamera);
+
                 UpdateCameraFocus();
             };
 
@@ -138,46 +143,8 @@ namespace SSNoir
                 }
             }
 
-            // Map Drag Panning Logic：拖拽当前活动相机
-            var activeCamera = GetActiveCamera();
-            if (activeCamera != null)
-            {
-                if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
-                {
-                    _isDraggingCam = true;
-                    _dragStartMousePos = Input.mousePosition;
-                    _dragStartCamPos = activeCamera.transform.position;
-                }
-
-                if (_isDraggingCam)
-                {
-                    if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
-                    {
-                        Vector3 mouseDelta = Input.mousePosition - _dragStartMousePos;
-                        Vector3 right = activeCamera.transform.right;
-                        Vector3 up = activeCamera.transform.up;
-                        Vector3 panTranslation = -mouseDelta.x * right * panSpeed - mouseDelta.y * up * panSpeed;
-                        activeCamera.transform.position = _dragStartCamPos + panTranslation;
-                    }
-                    else
-                    {
-                        _isDraggingCam = false;
-                    }
-                }
-            }
-        }
-
-        private Cinemachine.CinemachineVirtualCamera? GetActiveCamera()
-        {
-            if (_sceneDirectory != null)
-            {
-                foreach (var a in _sceneDirectory.AllAnchors)
-                {
-                    if (a.FocusVirtualCamera != null && a.FocusVirtualCamera.Priority > 10)
-                        return a.FocusVirtualCamera;
-                }
-            }
-            return globalCamera;
+            // Update camera panning & orbiting
+            _cameraManager.Update();
         }
 
         public bool IsNodeFlipped(string nodeName) => _flippedNodes.Contains(nodeName);
