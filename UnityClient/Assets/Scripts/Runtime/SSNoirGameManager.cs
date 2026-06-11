@@ -169,7 +169,12 @@ namespace SSNoir
             }
             else if (node.Resolve != null && node.Resolve.Type == ResolveType.Observe && (node.Requires == null || node.Requires.Count == 0))
             {
+                bool wasFlipped = IsNodeFlipped(node.Name);
                 ToggleNodeFlipped(node.Name);
+                if (!wasFlipped)
+                {
+                    _sceneManager.ExecuteAction(node, new List<SlottedResource?>());
+                }
             }
             else if (node.Requires == null || node.Requires.Count == 0)
             {

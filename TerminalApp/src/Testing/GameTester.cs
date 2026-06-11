@@ -31,7 +31,34 @@ namespace SSNoir.Testing
                 var gameState = new GameState();
                 var sceneManager = new SceneManager(gameState, new LocalScriptLoader());
 
-                sceneManager.LoadScene(sceneName);
+                try
+                {
+                    sceneManager.LoadScene(sceneName);
+                }
+                catch (Exception ex)
+                {
+                    string targetFile = scenePath;
+                    var match = System.Text.RegularExpressions.Regex.Match(ex.Message, @"Error loading Scheme script '([^']+)'");
+                    if (match.Success)
+                    {
+                        string relPath = match.Groups[1].Value;
+                        string possiblePath = Path.Combine(Path.GetDirectoryName(scenesDir) ?? "", relPath);
+                        if (File.Exists(possiblePath))
+                        {
+                            targetFile = possiblePath;
+                        }
+                        else
+                        {
+                            possiblePath = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(scenesDir) ?? "") ?? "", relPath);
+                            if (File.Exists(possiblePath))
+                            {
+                                targetFile = possiblePath;
+                            }
+                        }
+                    }
+                    CheckParenthesesDiagnostics(targetFile);
+                    throw;
+                }
 
                 if (sceneManager.CurrentWorldNodes.Count == 0)
                 {
@@ -391,6 +418,7 @@ namespace SSNoir.Testing
             {
                 Console.WriteLine($"Test 1 Success. Result type: {r1.Result?.GetType().FullName}");
             }
+
 
             // 2. Can lambda be put into a cons?
             Console.WriteLine("\nTest 2: Can lambda be put into a cons?");
@@ -810,6 +838,86 @@ namespace SSNoir.Testing
                 }
 
                 Console.WriteLine(string.Format("{0,-45} | {1,-10} | {2,-10}", expr, rawStatus, projStatus));
+            }
+        }
+
+        private static void CheckParenthesesDiagnostics(string filePath)
+        {
+            if (!File.Exists(filePath)) return;
+            try
+            {
+                string code = File.ReadAllText(filePath);
+                var stack = new Stack<(int line, int col)>();
+                string[] lines = code.Split(new[] { "\r\n", "\r", "\n" }, System.StringSplitOptions.None);
+                
+                bool inString = false;
+                bool escape = false;
+                
+                for (int lineIdx = 0; lineIdx < lines.Length; lineIdx++)
+                {
+                    string line = lines[lineIdx];
+                    escape = false;
+                    for (int colIdx = 0; colIdx < line.Length; colIdx++)
+                    {
+                        char c = line[colIdx];
+                        if (inString)
+                        {
+                            if (escape)
+                            {
+                                escape = false;
+                            }
+                            else if (c == '\\')
+                            {
+                                escape = true;
+                            }
+                            else if (c == '"')
+                            {
+                                inString = false;
+                            }
+                            continue;
+                        }
+                        
+                        if (c == ';')
+                        {
+                            break;
+                        }
+                        
+                        if (c == '"')
+                        {
+                            inString = true;
+                            escape = false;
+                            continue;
+                        }
+                        
+                        if (c == '(')
+                        {
+                            stack.Push((lineIdx + 1, colIdx + 1));
+                        }
+                        else if (c == ')')
+                        {
+                            if (stack.Count == 0)
+                            {
+                                Console.Error.WriteLine($"\n[DIAGNOSTICS] Parenthesis mismatch in {filePath}:");
+                                Console.Error.WriteLine($"  Extra closing parenthesis ')' found at Line {lineIdx + 1}, Col {colIdx + 1}.");
+                                Console.Error.WriteLine($"  Line content: {line.Trim()}");
+                                return;
+                            }
+                            stack.Pop();
+                        }
+                    }
+                }
+                
+                if (stack.Count > 0)
+                {
+                    var unmatched = stack.Pop();
+                    Console.Error.WriteLine($"\n[DIAGNOSTICS] Parenthesis mismatch in {filePath}:");
+                    Console.Error.WriteLine($"  Unclosed opening parenthesis '(' started at Line {unmatched.line}, Col {unmatched.col}.");
+                    Console.Error.WriteLine($"  Line content: {lines[unmatched.line - 1].Trim()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[DIAGNOSTICS] Failed to perform parenthesis checks: {ex.Message}");
             }
         }
     }

@@ -19,7 +19,7 @@ namespace SSNoir.Scripting
                 if (string.IsNullOrEmpty(key))
                     throw new ArgumentException("get-global key cannot be null or empty");
 
-                return gameState.Get<object>(key);
+                return gameState.Get<object>(key) ?? false;
             }, "get-global"));
 
             interpreter.DefineGlobal(Symbol.FromString("set-global!"), new NativeProcedure(args =>

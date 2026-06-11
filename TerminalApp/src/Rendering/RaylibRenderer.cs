@@ -319,11 +319,12 @@ namespace SSNoir.Rendering
                             else
                             {
                                 _flippedNodes.Add(node.Name);
+                                _sceneManager.ExecuteAction(node, new List<SlottedResource?>());
                             }
                         }
                         else if (requires == null)
                         {
-                            ExecuteActionWithoutDie(node);
+                            _sceneManager.ExecuteAction(node, new List<SlottedResource?>());
                         }
                     }
                 }
@@ -730,14 +731,6 @@ namespace SSNoir.Rendering
             FontManager.DrawText(tip, 320, statusY + 5, 12, new Color(140, 140, 160, 255));
         }
 
-        private void ExecuteActionWithoutDie(GameNode node)
-        {
-            if (node.Resolve?.Type == ResolveType.Instant)
-            {
-                node.Resolve.Effect?.Invoke();
-            }
-            _sceneManager.OnActionExecuted();
-        }
 
         private void EndTurn()
         {
