@@ -14,7 +14,7 @@ namespace SSNoir.IMGUI
         {
             if (!_initialized)
             {
-                LoadScenes();
+                LoadScenes(gameManager);
                 _initialized = true;
             }
 
@@ -105,19 +105,10 @@ namespace SSNoir.IMGUI
             }
         }
 
-        private static void LoadScenes()
+        private static void LoadScenes(SSNoirGameManager gameManager)
         {
             _availableScenes.Clear();
-            var scenesDir = System.IO.Path.Combine(Application.streamingAssetsPath, "Content", "scenes");
-            if (System.IO.Directory.Exists(scenesDir))
-            {
-                var files = System.IO.Directory.GetFiles(scenesDir, "*.scm");
-                foreach (var file in files)
-                {
-                    _availableScenes.Add(System.IO.Path.GetFileNameWithoutExtension(file));
-                }
-            }
+            _availableScenes.AddRange(gameManager.LoadAvailableSceneNames());
         }
     }
 }
-

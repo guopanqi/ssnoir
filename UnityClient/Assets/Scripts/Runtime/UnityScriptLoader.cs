@@ -1,4 +1,5 @@
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using SSNoir.Core;
 
@@ -10,15 +11,49 @@ namespace SSNoir
         {
             string fullPath = Path.Combine(Application.streamingAssetsPath, "Content", path);
 
-            // On Windows, Mac, Linux and in the Unity Editor, StreamingAssets can be read via standard File IO
             if (File.Exists(fullPath))
             {
                 return File.ReadAllText(fullPath);
             }
 
-            // Fallback error logging for platforms that don't support direct file reading (like WebGL or Android APKs)
-            Debug.LogError($"[UnityScriptLoader] Script file not found at: {fullPath}");
-            throw new FileNotFoundException($"Script file not found at: {fullPath}");
+            string resourcePath = Path.Combine("Content", path).Replace('\\', '/');
+            TextAsset resource = Resources.Load<TextAsset>(resourcePath);
+            if (resource != null)
+            {
+                return resource.text;
+            }
+
+            Debug.LogError($"[UnityScriptLoader] Script file not found at: {fullPath} or Resources/{resourcePath}");
+            throw new FileNotFoundException($"Script file not found at: {fullPath} or Resources/{resourcePath}");
+        }
+
+        public List<string> LoadSceneNames()
+        {
+            var sceneNames = new List<string>();
+            string scenesDir = Path.Combine(Application.streamingAssetsPath, "Content", "scenes");
+
+            if (Directory.Exists(scenesDir))
+            {
+                foreach (string file in Directory.GetFiles(scenesDir, "*.scm"))
+                {
+                    sceneNames.Add(Path.GetFileNameWithoutExtension(file));
+                }
+            }
+
+            if (sceneNames.Count == 0)
+            {
+                foreach (TextAsset sceneAsset in Resources.LoadAll<TextAsset>("Content/scenes"))
+                {
+                    string sceneName = Path.GetFileNameWithoutExtension(sceneAsset.name);
+                    if (!sceneNames.Contains(sceneName))
+                    {
+                        sceneNames.Add(sceneName);
+                    }
+                }
+            }
+
+            sceneNames.Sort();
+            return sceneNames;
         }
     }
 }

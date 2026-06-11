@@ -524,6 +524,11 @@ namespace SSNoir
             _gameState.Set("location", sc);
         }
 
+        public List<string> LoadAvailableSceneNames()
+        {
+            return _scriptLoader.LoadSceneNames();
+        }
+
         public void OnDieClicked(int dieIndex, int val)
         {
             if (_selectedResource != null && _selectedResource.Type == "die" && _selectedResource.SourceIndex == dieIndex)

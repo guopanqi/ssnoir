@@ -32,6 +32,7 @@ namespace SSNoir.Editor
             // So Source is UnityClient/../Content -> [Root]/Content
             string sourcePath = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "Content"));
             string destPath = Path.GetFullPath(Path.Combine(Application.dataPath, "StreamingAssets", "Content"));
+            string resourcesContentPath = Path.GetFullPath(Path.Combine(Application.dataPath, "Resources", "Content"));
 
             if (!Directory.Exists(sourcePath))
             {
@@ -45,7 +46,11 @@ namespace SSNoir.Editor
                 CopyDirectory(sourcePath, destPath);
                 Debug.Log($"[ContentSync] Successfully synchronized Content from {sourcePath} to {destPath}");
 
-                // 2. Sync fonts to Assets/Fonts so Unity Editor can import them as real Assets
+                // 2. Sync Scheme content to Resources as TextAssets for WebGL.
+                CopySchemeTextAssets(sourcePath, resourcesContentPath);
+                Debug.Log($"[ContentSync] Scheme content synchronized to Resources/Content for WebGL.");
+
+                // 3. Sync fonts to Assets/Fonts so Unity Editor can import them as real Assets
                 //    (Font Asset Creator requires a font to be in Assets/, not StreamingAssets)
                 string fontSourcePath = Path.Combine(sourcePath, "assets", "fonts");
                 string fontDestPath = Path.GetFullPath(Path.Combine(Application.dataPath, "Fonts"));
@@ -88,6 +93,28 @@ namespace SSNoir.Editor
                 string relativePath = file.Substring(sourceDir.Length + 1);
                 string destFile = Path.Combine(destDir, relativePath);
 
+                string destFileDir = Path.GetDirectoryName(destFile);
+                if (!Directory.Exists(destFileDir))
+                {
+                    Directory.CreateDirectory(destFileDir);
+                }
+
+                File.Copy(file, destFile, true);
+            }
+        }
+
+        private static void CopySchemeTextAssets(string sourceDir, string destDir)
+        {
+            if (Directory.Exists(destDir))
+            {
+                Directory.Delete(destDir, true);
+            }
+            Directory.CreateDirectory(destDir);
+
+            foreach (string file in Directory.GetFiles(sourceDir, "*.scm", SearchOption.AllDirectories))
+            {
+                string relativePath = file.Substring(sourceDir.Length + 1);
+                string destFile = Path.Combine(destDir, relativePath + ".txt");
                 string destFileDir = Path.GetDirectoryName(destFile);
                 if (!Directory.Exists(destFileDir))
                 {

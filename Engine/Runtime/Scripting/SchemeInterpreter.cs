@@ -109,25 +109,66 @@ namespace SSNoir.Scripting
             SetPrivateField(interpreter, "environment", environment);
             SetPrivateField(interpreter, "macroTable", macroTable);
 
-            using (var stream = typeof(Interpreter).Assembly.GetManifestResourceStream("init.ss"))
+            using (var reader = CreateSchemyInitReader())
             {
-                if (stream == null)
+                var result = interpreter.Evaluate(reader);
+                if (result.Error != null)
                 {
-                    throw new InvalidOperationException("Schemy embedded resource 'init.ss' was not found.");
-                }
-
-                using (var reader = new StreamReader(stream))
-                {
-                    var result = interpreter.Evaluate(reader);
-                    if (result.Error != null)
-                    {
-                        throw new Exception($"Error loading Schemy init.ss: {result.Error}", result.Error);
-                    }
+                    throw new Exception($"Error loading Schemy init.ss: {result.Error}", result.Error);
                 }
             }
 
             return interpreter;
         }
+
+        private static TextReader CreateSchemyInitReader()
+        {
+            var assembly = typeof(Interpreter).Assembly;
+            var stream = assembly.GetManifestResourceStream("init.ss");
+            if (stream == null)
+            {
+                foreach (var resourceName in assembly.GetManifestResourceNames())
+                {
+                    if (resourceName.EndsWith("init.ss", StringComparison.Ordinal))
+                    {
+                        stream = assembly.GetManifestResourceStream(resourceName);
+                        break;
+                    }
+                }
+            }
+
+            if (stream != null)
+            {
+                return new StreamReader(stream);
+            }
+
+            return new StringReader(SchemyInitSource);
+        }
+
+        private const string SchemyInitSource = @"
+(define-macro let
+              (lambda args
+                (define specs (car args))
+                (define bodies (cdr args))
+                (if (null? specs)
+                  `((lambda () ,@bodies))
+                  (begin
+                    (define spec1 (car specs))
+                    (define spec_rest (cdr specs))
+                    (define inner `((lambda ,(list (car spec1)) ,@bodies) ,(car (cdr spec1))))
+                    `(let ,spec_rest ,inner)))))
+
+(define-macro cond
+              (lambda args
+                (if (= 0 (length args)) ''()
+                  (begin
+                    (define first (car args))
+                    (define rest (cdr args))
+                    (define test1 (if (equal? (car first) 'else) '#t (car first)))
+                    (define expr1 (car (cdr first)))
+                    `(if ,test1 ,expr1
+                       (cond ,@rest))))))
+";
 
         private static void SetPrivateField(object target, string fieldName, object value)
         {
