@@ -10,12 +10,14 @@
         (cond
           ((equal? msg 'render-data)
            (list
-             (action "潜入保险箱"
-                     #f
-                     (instant (lambda () (start-encounter "infiltration"))))
-             (action "街头交锋"
-                     #f
-                     (instant (lambda () (start-encounter "combat"))))))
+             (container "告示板"
+               (list
+                 (action "潜入保险箱"
+                         #f
+                         (instant (lambda () (start-encounter "infiltration"))))
+                 (action "街头交锋"
+                         #f
+                         (instant (lambda () (start-encounter "combat"))))))))
 
           ((equal? msg 'save)
            (list

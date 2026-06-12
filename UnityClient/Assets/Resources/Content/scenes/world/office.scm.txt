@@ -28,7 +28,7 @@
         (cond
           ((equal? msg 'render-data)
            (list
-             (container-with-clocks "办公室区域"
+             (container-with-clocks "办公室"
                (list
                  (node-work))
                (list (work-clock 'render-data)))))

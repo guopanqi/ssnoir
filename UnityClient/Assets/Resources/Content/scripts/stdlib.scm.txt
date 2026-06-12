@@ -45,3 +45,14 @@
       (if (equal? (car (car alist)) key)
           (cadr (car alist))
           (assoc-get (cdr alist) key default))))
+
+;; 支持多变参的多元 append 包装（将内置的二元 append 扩展为标准的多参 append）
+(define raw-append append)
+(define append
+  (lambda args
+    (if (null? args)
+        '()
+        (if (null? (cdr args))
+            (car args)
+            (raw-append (car args) (apply append (cdr args)))))))
+

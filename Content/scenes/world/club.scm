@@ -14,9 +14,13 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list
-             (node-club-desc)
-             (node-mayor-vip)))
+           (if (>= (get-reputation "elites") 40)
+               (list
+                 (container "精英俱乐部"
+                   (list
+                     (node-club-desc)
+                     (node-mayor-vip))))
+               '()))
 
           ((equal? msg 'save)
            '())

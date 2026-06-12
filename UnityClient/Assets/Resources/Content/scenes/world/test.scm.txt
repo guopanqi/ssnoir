@@ -42,13 +42,15 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (append
-             (cons (node-kick-bin)
-                   (make-trash-nodes trash-count))
-             (list
-               (node-odd-job)
-               (node-squander)
-               (node-rep-debugger))))
+           (list
+             (container "测试"
+               (append
+                 (cons (node-kick-bin)
+                       (make-trash-nodes trash-count))
+                 (list
+                   (node-odd-job)
+                   (node-squander)
+                   (node-rep-debugger))))))
 
           ((equal? msg 'save)
            (list

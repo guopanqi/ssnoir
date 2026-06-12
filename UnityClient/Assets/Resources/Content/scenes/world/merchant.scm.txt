@@ -50,28 +50,29 @@
             (med-price (get-discounted-price 20 "mayor" 30 0.7)))
         (let ((armor-desc (get-discounted-desc "买防弹衣" 40 armor-price))
               (med-desc (get-discounted-desc "买急救包" 20 med-price)))
-          (append
-            (list
-              (observe-action "商人" (get-merchant-dialogue))
-              (action armor-desc (list (req-item "金钱" armor-price))
-                      (instant (lambda () (set-global! (string-append "item:" "防弹衣") (+ (get-item "防弹衣") 1)))))
-              (action med-desc (list (req-item "金钱" med-price))
-                      (instant (lambda () (set-global! (string-append "item:" "急救包") (+ (get-item "急救包") 1)))))
-              (action "出售私酿酒" (list (req-item "酒" 1))
-                      (instant (lambda ()
-                                 (consume-item! "酒" 1)
-                                 (set-global! 'money (+ (get-item "金钱") 15)))))
-              (action "买一瓶酒" (list (req-item "金钱" 10))
-                      (instant (lambda () (set-global! (string-append "item:" "酒") (+ (get-item "酒") 1))))))
-            (append
-              (if (not (home 'has-flower?))
-                  (list (action "买一盆花" (list (req-item "金钱" 15))
-                                (instant (lambda () (home 'buy-flower!)))))
-                  '())
-              (if (not (home 'has-gramophone?))
-                  (list (action "买唱片机" (list (req-item "金钱" 30))
-                                (instant (lambda () (home 'buy-gramophone!)))))
-                  '()))))))
+          (list
+            (container "黑市商人"
+              (append
+                (list
+                  (observe-action "商人" (get-merchant-dialogue))
+                  (action armor-desc (list (req-item "金钱" armor-price))
+                          (instant (lambda () (set-global! (string-append "item:" "防弹衣") (+ (get-item "防弹衣") 1)))))
+                  (action med-desc (list (req-item "金钱" med-price))
+                          (instant (lambda () (set-global! (string-append "item:" "急救包") (+ (get-item "急救包") 1)))))
+                  (action "出售私酿酒" (list (req-item "酒" 1))
+                          (instant (lambda ()
+                                     (consume-item! "酒" 1)
+                                     (set-global! 'money (+ (get-item "金钱") 15)))))
+                  (action "买一瓶酒" (list (req-item "金钱" 10))
+                          (instant (lambda () (set-global! (string-append "item:" "酒") (+ (get-item "酒") 1))))))
+                (if (not (home 'has-flower?))
+                    (list (action "买一盆花" (list (req-item "金钱" 15))
+                                  (instant (lambda () (home 'buy-flower!)))))
+                    '())
+                (if (not (home 'has-gramophone?))
+                    (list (action "买唱片机" (list (req-item "金钱" 30))
+                                  (instant (lambda () (home 'buy-gramophone!)))))
+                    '())))))))
 
     ;; ── Message Passing Interface ─────────────────
     (lambda args
