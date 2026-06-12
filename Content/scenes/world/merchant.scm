@@ -63,15 +63,14 @@
                                  (set-global! 'money (+ (get-item "金钱") 15)))))
               (action "买一瓶酒" (list (req-item "金钱" 10))
                       (instant (lambda () (set-global! (string-append "item:" "酒") (+ (get-item "酒") 1))))))
-            (append
-              (if (not (home 'has-flower?))
-                  (list (action "买一盆花" (list (req-item "金钱" 15))
-                                (instant (lambda () (home 'buy-flower!)))))
-                  '())
-              (if (not (home 'has-gramophone?))
-                  (list (action "买唱片机" (list (req-item "金钱" 30))
-                                (instant (lambda () (home 'buy-gramophone!)))))
-                  '()))))))
+            (if (not (home 'has-flower?))
+                (list (action "买一盆花" (list (req-item "金钱" 15))
+                              (instant (lambda () (home 'buy-flower!)))))
+                '())
+            (if (not (home 'has-gramophone?))
+                (list (action "买唱片机" (list (req-item "金钱" 30))
+                              (instant (lambda () (home 'buy-gramophone!)))))
+                '())))))
 
     ;; ── Message Passing Interface ─────────────────
     (lambda args

@@ -77,11 +77,9 @@
           ((equal? msg 'render-data)
            (append
              (if has-flower? (list (node-flower)) '())
-             (append
-               (if has-gramophone? (list (node-gramophone)) '())
-               (append
-                 (list (node-drink-wine))
-                 (if workers-protesting? (list (node-workers-protest)) '())))))
+             (if has-gramophone? (list (node-gramophone)) '())
+             (list (node-drink-wine))
+             (if workers-protesting? (list (node-workers-protest)) '())))
 
           ((equal? msg 'has-gramophone?) has-gramophone?)
           ((equal? msg 'buy-gramophone!) (set! has-gramophone? #t))

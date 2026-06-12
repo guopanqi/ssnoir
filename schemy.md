@@ -68,7 +68,7 @@
 | `cons`, `car`, `cdr` | **YES** | **YES** | 基础列表操作 |
 | `cadr` | **YES** | **YES** | 快捷操作 (`car` of `cdr`) |
 | `caddr`, `cadddr` | **NO** | **YES** | 由 `stdlib.scm` 实现并补充 |
-| `list`, `length`, `append`, `reverse` | **YES** | **YES** | 列表工具函数 |
+| `list`, `length`, `append`, `reverse` | **YES** | **YES** | 列表工具函数（`append`已由`stdlib`扩展为支持多参变参的标准形式） |
 | `member`, `assoc` | **NO** | **NO** | 列表搜索 |
 | `map`, `apply` | **YES** | **YES** | 高阶函数 |
 | `filter` | **NO** | **YES** | 由 `stdlib.scm` 实现并补充 |
@@ -121,6 +121,19 @@
 (define (cadddr xs)
   (car (cdr (cdr (cdr xs)))))
 ```
+
+### append 运算（多参包装）
+```scheme
+(define raw-append append)
+(define append
+  (lambda args
+    (if (null? args)
+        '()
+        (if (null? (cdr args))
+            (car args)
+            (raw-append (car args) (apply append (cdr args)))))))
+```
+
 
 ---
 
