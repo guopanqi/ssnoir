@@ -152,3 +152,13 @@
         ((equal? msg 'current)     current)
         ((equal? msg 'render-data) (list 'clock label current max style))
         (else #f)))))
+
+;; Reputation API
+(define (get-reputation faction)
+  (let ((val (get-global (string-append "reputation:" faction))))
+    (if val val 0)))
+
+(define (change-reputation! faction delta)
+  (let ((new-val (+ (get-reputation faction) delta)))
+    (let ((clamped (if (< new-val -100) -100 (if (> new-val 100) 100 new-val))))
+      (set-global! (string-append "reputation:" faction) clamped))))

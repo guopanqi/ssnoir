@@ -18,6 +18,10 @@ namespace SSNoir.Core
             Set("health", 100);
             Set("location", "home");
 
+            Set("reputation:mayor", 0);
+            Set("reputation:workers", 0);
+            Set("reputation:elites", 0);
+
             var rand = new Random();
             Set("action-dice", new List<object> { rand.Next(1, 7), rand.Next(1, 7), rand.Next(1, 7) });
             Set("item:酒", 1);

@@ -8,6 +8,8 @@
 (define has-gramophone? #f)
 (define last-dialogue-index -1)
 (define playing-song "")
+(define workers-protesting? #f)
+(define protest-just-triggered #f)
 
 (define merchant-dialogues
   '("黑市商人：“小本生意，谢绝赊账。买定离手，概不退换啊。”"
@@ -24,10 +26,34 @@
           (set! last-dialogue-index idx)
           idx))))
 
+(define protest-clock (make-clock "工人抗议期限" 3 'countdown))
+
 ;; ── Rules ──────────────────────────────────────
 (define-rule "敲门三次开门"
   (lambda () (>= knock-count 3))
   (lambda () (set! unlock? #t)))
+
+(define-turn-rule "触发工人抗议"
+  (lambda () (and (not workers-protesting?) (< (get-reputation "workers") -30)))
+  (lambda ()
+    (set! workers-protesting? #t)
+    (set! protest-just-triggered #t)
+    (protest-clock 'reset!)
+    (set-global! 'notification "警报：工人们发起了抗议！")))
+
+(define-turn-rule "工人抗议倒计时"
+  (lambda () workers-protesting?)
+  (lambda ()
+    (if protest-just-triggered
+        (set! protest-just-triggered #f)
+        (begin
+          (protest-clock 'tick!)
+          (if (protest-clock 'full?)
+              (begin
+                (set-global! 'health (max 0 (- (get-global 'health) 30)))
+                (protest-clock 'reset!)
+                (set-global! 'notification "工人抗议期满！你遭到了示威工人的袭击。(-30生命值)"))
+              #f)))))
 
 ;; ── Node Definitions ──────────────────────────
 (define (make-trash-nodes n)
@@ -114,45 +140,94 @@
     (lambda ()
       (set-global! 'money 0))))
 
+(define (get-discounted-price base-price faction req-rep discount-rate)
+  (if (>= (get-reputation faction) req-rep)
+      (inexact->exact (round (* base-price discount-rate)))
+      base-price))
+
+(define (get-discounted-desc name base-price discount-price)
+  (if (< discount-price base-price)
+      (string-append name " (特惠省 " (number->string (- base-price discount-price)) " 金钱)")
+      name))
+
 (define (node-merchant-container)
-  (container "黑市商人"
-    (append
-      (list
-        (observe-action "商人" (get-merchant-dialogue))
-        (action "买防弹衣" (list (req-item "金钱" 40))
-                (instant (lambda () (set-global! (string-append "item:" "防弹衣") (+ (get-item "防弹衣") 1)))))
-        (action "买急救包" (list (req-item "金钱" 20))
-                (instant (lambda () (set-global! (string-append "item:" "急救包") (+ (get-item "急救包") 1)))))
-        (action "出售私酿酒" (list (req-item "酒" 1))
-                (instant (lambda ()
-                           (consume-item! "酒" 1)
-                           (set-global! 'money (+ (get-item "金钱") 15))))))
-      (if (not has-gramophone?)
-          (list (action "买唱片机" (list (req-item "金钱" 30))
-                        (instant (lambda () (set! has-gramophone? #t)))))
-          '()))))
+  (let ((armor-price (get-discounted-price 40 "mayor" 30 0.7))
+        (med-price (get-discounted-price 20 "mayor" 30 0.7)))
+    (let ((armor-desc (get-discounted-desc "买防弹衣" 40 armor-price))
+          (med-desc (get-discounted-desc "买急救包" 20 med-price)))
+      (container "黑市商人"
+        (append
+          (list
+            (observe-action "商人" (get-merchant-dialogue))
+            (action armor-desc (list (req-item "金钱" armor-price))
+                    (instant (lambda () (set-global! (string-append "item:" "防弹衣") (+ (get-item "防弹衣") 1)))))
+            (action med-desc (list (req-item "金钱" med-price))
+                    (instant (lambda () (set-global! (string-append "item:" "急救包") (+ (get-item "急救包") 1)))))
+            (action "出售私酿酒" (list (req-item "酒" 1))
+                    (instant (lambda ()
+                               (consume-item! "酒" 1)
+                               (set-global! 'money (+ (get-item "金钱") 15))))))
+          (if (not has-gramophone?)
+              (list (action "买唱片机" (list (req-item "金钱" 30))
+                            (instant (lambda () (set! has-gramophone? #t)))))
+              '()))))))
+
+(define (node-workers-protest)
+  (action-with-clocks "谈判妥协"
+                      (list (req-item "金钱" 30))
+                      (instant (lambda ()
+                                 (set! workers-protesting? #f)
+                                 (protest-clock 'reset!)
+                                 (change-reputation! "workers" 15)))
+                      (list (protest-clock 'render-data))))
+
+(define (node-go-club)
+  (instant-action "前往权贵俱乐部"
+    (lambda ()
+      (set-global! 'location "club"))))
+
+(define (node-rep-debugger)
+  (container "声望测试面板"
+    (list
+      (instant-action "安抚工人 (+15声望)" (lambda () (change-reputation! "workers" 15)))
+      (instant-action "激怒工人 (-35声望)" (lambda () (change-reputation! "workers" -35)))
+      (instant-action "贿赂市长 (+15声望)" (lambda () (change-reputation! "mayor" 15)))
+      (instant-action "得罪市长 (-15声望)" (lambda () (change-reputation! "mayor" -15)))
+      (instant-action "讨好权贵 (+15声望)" (lambda () (change-reputation! "elites" 15)))
+      (instant-action "疏远权贵 (-15声望)" (lambda () (change-reputation! "elites" -15))))))
 
 ;; ── Render Data Entrypoint ────────────────────
 (define (get-render-data)
   (append
     (cons (node-kick-bin)
           (make-trash-nodes trash-count))
-    (list
-      (node-odd-job)
-      (node-squander)
-      (node-merchant-container)
-      (container "家"
+    (append
+      (list
+        (node-odd-job)
+        (node-squander)
+        (node-rep-debugger)
+        (node-merchant-container))
+      (append
+        (if workers-protesting?
+            (list (node-workers-protest))
+            '())
         (append
-          (list (node-knock))
-          (append
-            (if unlock? (list (node-enter)) '())
-            (append
-              (list (node-buy-flower))
+          (if (>= (get-reputation "elites") 40)
+              (list (node-go-club))
+              '())
+          (list
+            (container "家"
               (append
-                (if has-flower? (list (node-flower)) '())
+                (list (node-knock))
                 (append
-                  (if has-gramophone?
-                      (list (node-gramophone))
-                      '())
-                  (list (node-buy-wine)
-                        (node-drink-wine)))))))))))
+                  (if unlock? (list (node-enter)) '())
+                  (append
+                    (list (node-buy-flower))
+                    (append
+                      (if has-flower? (list (node-flower)) '())
+                      (append
+                        (if has-gramophone?
+                            (list (node-gramophone))
+                            '())
+                        (list (node-buy-wine)
+                              (node-drink-wine))))))))))))))

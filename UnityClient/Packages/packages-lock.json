@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.adamgryu.inspectorhistory": {
+      "version": "file:/Users/usr/Documents/play/ssnoir/InspectorHistory-Unity-main",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.ssnoir.engine": {
       "version": "file:/Users/usr/Documents/play/ssnoir/Engine",
       "depth": 0,

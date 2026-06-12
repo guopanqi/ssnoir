@@ -201,6 +201,9 @@ namespace SSNoir.Rendering
             // ── Draw Dropdown ──
             DrawDropdown(activeMousePos);
 
+            // ── Draw Faction Reputation Panel ──
+            DrawReputationPanel(activeMousePos);
+
             // ── Draw Overlays (Modals / Toasts) ──
             DrawOverlays(mousePos);
 
@@ -1050,6 +1053,59 @@ namespace SSNoir.Rendering
 
                 var listRect = new Rectangle(boxRect.X, boxRect.Y + boxRect.Height, boxRect.Width, _availableScenes.Count * 32);
                 Raylib.DrawRectangleLinesEx(listRect, 1.5f, boxOutlineColor);
+            }
+        }
+
+        private void DrawReputationPanel(Vector2 mousePos)
+        {
+            int repMayor = _gameState.Get<int>("reputation:mayor");
+            int repWorkers = _gameState.Get<int>("reputation:workers");
+            int repElites = _gameState.Get<int>("reputation:elites");
+
+            // Factions Panel Layout (Capsule style)
+            // Located to the left of the scene dropdown (which starts at x=610)
+            float panelW = 240f;
+            float panelH = 32f;
+            float panelX = 350f; // Leaves safe space for breadcrumbs
+            float panelY = 30f;
+
+            var panelRect = new Rectangle(panelX, panelY, panelW, panelH);
+            Color panelBg = new Color(25, 25, 35, 255);
+            Color panelBorder = new Color(50, 50, 70, 255);
+
+            Raylib.DrawRectangleRounded(panelRect, 0.2f, 4, panelBg);
+            Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.2f, 4, 1.5f, panelBorder);
+
+            float cellW = panelW / 3f;
+            string[] labels = { "市长", "工人", "权贵" };
+            int[] values = { repMayor, repWorkers, repElites };
+
+            for (int i = 0; i < 3; i++)
+            {
+                float cellX = panelX + i * cellW;
+
+                // Draw vertical divider between cells
+                if (i > 0)
+                {
+                    Raylib.DrawLineEx(new Vector2(cellX, panelY + 6), new Vector2(cellX, panelY + panelH - 6), 1f, new Color(45, 45, 60, 255));
+                }
+
+                int val = values[i];
+                string sign = val > 0 ? "+" : "";
+                string txt = $"{labels[i]} {sign}{val}";
+
+                Color txtColor = new Color(200, 200, 220, 255);
+                if (val >= 30)
+                {
+                    txtColor = new Color(100, 220, 100, 255); // High reputation (green)
+                }
+                else if (val <= -30)
+                {
+                    txtColor = new Color(250, 100, 100, 255); // Low reputation (red)
+                }
+
+                int txtW = FontManager.MeasureTextWidth(txt, 13);
+                FontManager.DrawText(txt, cellX + (cellW - txtW) / 2f, panelY + 9, 13, txtColor);
             }
         }
     }

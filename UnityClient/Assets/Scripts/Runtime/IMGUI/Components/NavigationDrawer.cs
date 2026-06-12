@@ -43,8 +43,70 @@ namespace SSNoir.IMGUI
             crumbStyle.fontSize = 16;
             GUI.Label(new Rect(startX, startY + 8, 800, 26), breadcrumbText, crumbStyle);
 
+            // Reputation Panel
+            DrawReputationPanel(gameManager);
+
             // Divider
             IMGUIStyles.DrawLine(new Vector2(40, 88), new Vector2(Screen.width - 40, 88), IMGUIStyles.OutlineVariantColor, 1f);
+        }
+
+        private static void DrawReputationPanel(SSNoirGameManager gameManager)
+        {
+            int repMayor = gameManager.GameState.Get<int>("reputation:mayor");
+            int repWorkers = gameManager.GameState.Get<int>("reputation:workers");
+            int repElites = gameManager.GameState.Get<int>("reputation:elites");
+
+            float panelW = 240f;
+            float panelH = 32f;
+            float panelX = Screen.width - 460f; // Left of the dropdown (which is at Screen.width - 200)
+            float panelY = 30f;
+
+            var panelRect = new Rect(panelX, panelY, panelW, panelH);
+            Color panelBg = new Color(0.098f, 0.110f, 0.133f, 0.8f); // matching DropdownBg
+            Color panelBorder = IMGUIStyles.OutlineVariantColor;
+
+            var oldColor = GUI.color;
+            GUI.color = panelBg;
+            GUI.DrawTexture(panelRect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(panelRect, 1.5f, panelBorder);
+            GUI.color = oldColor;
+
+            float cellW = panelW / 3f;
+            string[] labels = { "市长", "工人", "权贵" };
+            int[] values = { repMayor, repWorkers, repElites };
+
+            for (int i = 0; i < 3; i++)
+            {
+                float cellX = panelX + i * cellW;
+
+                // Draw vertical divider
+                if (i > 0)
+                {
+                    IMGUIStyles.DrawLine(new Vector2(cellX, panelY + 6), new Vector2(cellX, panelY + panelH - 6), new Color(0.259f, 0.278f, 0.325f, 1f), 1f);
+                }
+
+                int val = values[i];
+                string sign = val > 0 ? "+" : "";
+                string txt = $"{labels[i]} {sign}{val}";
+
+                Color txtColor = IMGUIStyles.OnSurfaceVariant;
+                if (val >= 30)
+                {
+                    txtColor = new Color(0.392f, 0.863f, 0.392f, 1f); // Green
+                }
+                else if (val <= -30)
+                {
+                    txtColor = IMGUIStyles.HealthColor; // Red
+                }
+
+                var cellStyle = new GUIStyle(IMGUIStyles.StatusLabel);
+                cellStyle.alignment = TextAnchor.MiddleCenter;
+                cellStyle.normal.textColor = txtColor;
+                cellStyle.fontSize = 13;
+
+                GUI.Label(new Rect(cellX, panelY, cellW, panelH), txt, cellStyle);
+            }
         }
     }
 }
