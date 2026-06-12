@@ -29,8 +29,8 @@ public sealed class AmbientBoat : MonoBehaviour
     private Vector3 initialScale;
     private float speed = 1f;
     private float lifetime = 20f;
-    private float fadeInDuration = 2f;
-    private float fadeOutDuration = 3f;
+    private float fadeInDuration = 3f;
+    private float fadeOutDuration = 4f;
     private float age;
     private bool initialized;
     private Action<AmbientBoat> onFinished;
