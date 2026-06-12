@@ -10,6 +10,8 @@ namespace SSNoir.Rendering
         public string ItemName { get; set; } = string.Empty;
         public int Value { get; set; }
         public int SourceIndex { get; set; } = -1;
+        public string ActorId { get; set; } = string.Empty;
+        public int DieIndex { get; set; } = -1;
     }
 
     public class DropdownItem
@@ -72,30 +74,25 @@ namespace SSNoir.Rendering
 
         public int GetRemainingItemQty(GameState gameState, string itemName)
         {
-            int total = 0;
-            if (itemName == "金钱")
-            {
-                total = gameState.Get<int>("money");
-            }
-            else
-            {
-                total = gameState.Get<int>("item:" + itemName, 0);
-            }
+            int total = gameState.Get<int>("item:" + itemName, 0);
 
             foreach (var slots in NodeSlots.Values)
             {
                 foreach (var slot in slots)
                 {
-                    if (slot != null && slot.Type == "item" && slot.ItemName == itemName)
+                    if (slot != null && slot.Type == "item")
                     {
-                        total -= slot.Value;
+                        if (slot.ItemId.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            total -= slot.Qty > 0 ? slot.Qty : slot.Value;
+                        }
                     }
                 }
             }
 
-            if (SelectedResource != null && SelectedResource.Type == "item" && SelectedResource.ItemName == itemName)
+            if (SelectedResource != null && SelectedResource.Type == "item")
             {
-                if (itemName != "金钱")
+                if (SelectedResource.ItemName.Equals(itemName, StringComparison.OrdinalIgnoreCase))
                 {
                     total -= 1;
                 }

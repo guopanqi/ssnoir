@@ -75,7 +75,7 @@
             (let ((e (car list-enemies)))
               (if (e 'atk-full?)
                   (begin
-                    (set-global! 'health (- (get-global 'health) 10))
+                    (damage-party! 1)
                     (e 'reset-atk!))
                   #f))
             (process-enemy-atk (cdr list-enemies)))))

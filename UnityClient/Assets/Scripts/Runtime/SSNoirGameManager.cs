@@ -14,6 +14,8 @@ namespace SSNoir
         public string ItemName { get; set; } = string.Empty;
         public int Value { get; set; }
         public int SourceIndex { get; set; } = -1;
+        public string ActorId { get; set; } = string.Empty;
+        public int DieIndex { get; set; } = -1;
     }
 
     public class RollResult
@@ -266,14 +268,16 @@ namespace SSNoir
                     {
                         Type = "die",
                         Value = _selectedResource.Value,
-                        SourceIndex = _selectedResource.SourceIndex
+                        SourceIndex = _selectedResource.SourceIndex,
+                        ActorId = _selectedResource.ActorId,
+                        DieIndex = _selectedResource.DieIndex
                     };
                     _selectedResource = null;
                 }
-                else if (req.Type == "item" && _selectedResource.Type == "item" && req.ItemName == _selectedResource.ItemName)
+                else if (req.Type == "item" && _selectedResource.Type == "item" && req.ItemId == _selectedResource.ItemName)
                 {
-                    int totalOwned = (req.ItemName == "金钱") ? _gameState.Get<int>("money") : _gameState.Get<int>("item:" + req.ItemName, 0);
-                    int totalSlotted = GetTotalSlottedItemQty(req.ItemName);
+                    int totalOwned = _gameState.Get<int>("item:" + req.ItemId, 0);
+                    int totalSlotted = GetTotalSlottedItemQty(req.ItemId);
                     int available = totalOwned - totalSlotted;
 
                     if (available >= req.Qty)
@@ -281,19 +285,20 @@ namespace SSNoir
                         slots[slotIndex] = new SlottedResource
                         {
                             Type = "item",
-                            ItemName = req.ItemName,
-                            Value = req.Qty
+                            ItemId = req.ItemId,
+                            Value = req.Qty,
+                            Qty = req.Qty
                         };
                         _selectedResource = null;
                     }
                     else
                     {
-                        ShowNotification($"缺少数量，需要 {req.Qty} 个 {req.ItemName}");
+                        ShowNotification($"缺少数量，需要 {req.Qty} 个 {req.ItemId}");
                     }
                 }
                 else
                 {
-                    ShowNotification($"槽位需要: {(req.Type == "die" ? "骰子" : req.ItemName)}");
+                    ShowNotification($"槽位需要: {(req.Type == "die" ? "骰子" : req.ItemId)}");
                 }
             }
         }
@@ -331,8 +336,8 @@ namespace SSNoir
             {
                 foreach (var s in list)
                 {
-                    if (s != null && s.Type == "item" && s.ItemName == itemName)
-                        sum += s.Value;
+                    if (s != null && s.Type == "item" && s.ItemId == itemName)
+                        sum += s.Qty > 0 ? s.Qty : s.Value;
                 }
             }
             return sum;
@@ -355,18 +360,14 @@ namespace SSNoir
 
         public int GetRemainingItemQty(string itemName)
         {
-            int total = 0;
-            if (itemName == "金钱")
-                total = _gameState.Get<int>("money");
-            else
-                total = _gameState.Get<int>("item:" + itemName, 0);
+            int total = _gameState.Get<int>("item:" + itemName, 0);
 
             foreach (var slots in _nodeSlots.Values)
             {
                 foreach (var slot in slots)
                 {
-                    if (slot != null && slot.Type == "item" && slot.ItemName == itemName)
-                        total -= slot.Value;
+                    if (slot != null && slot.Type == "item" && slot.ItemId == itemName)
+                        total -= slot.Qty > 0 ? slot.Qty : slot.Value;
                 }
             }
 
@@ -539,11 +540,27 @@ namespace SSNoir
                 _selectedResource = null;
             else
             {
+                string actorId = "";
+                int innerDieIndex = -1;
+                var owners = _gameState.Get<List<object>>("action-dice-owners");
+                if (owners != null && dieIndex >= 0 && dieIndex < owners.Count)
+                {
+                    actorId = owners[dieIndex]?.ToString() ?? "";
+                    int count = 0;
+                    for (int j = 0; j < dieIndex; j++)
+                    {
+                        if (owners[j]?.ToString() == actorId) count++;
+                    }
+                    innerDieIndex = count;
+                }
+
                 _selectedResource = new SelectedResource
                 {
                     Type = "die",
                     Value = val,
-                    SourceIndex = dieIndex
+                    SourceIndex = dieIndex,
+                    ActorId = actorId,
+                    DieIndex = innerDieIndex
                 };
             }
         }

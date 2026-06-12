@@ -8,7 +8,7 @@ namespace SSNoir.IMGUI
     public static class HandPanelDrawer
     {
         private static readonly float PanelHeight = 140f;
-        private static readonly float StatusBarHeight = 30f;
+        private static readonly float StatusBarHeight = 25f;
         private static readonly float BottomOffset = 0f;
 
         public static void Draw(SSNoirGameManager gameManager, Vector2 mousePos)
@@ -103,11 +103,6 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(itemsStartX, handY + 58, 100, 24), "手牌物品: ", IMGUIStyles.SectionLabel);
 
             var items = new List<(string Name, int Qty)>();
-            int money = gameManager.GameState.Get<int>("money");
-            if (money > 0)
-            {
-                items.Add(("金钱", money));
-            }
 
             foreach (var kvp in gameManager.GameState.GetAllStates())
             {

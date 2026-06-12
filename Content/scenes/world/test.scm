@@ -20,12 +20,12 @@
     (define (node-odd-job)
       (instant-action "打零工"
         (lambda ()
-          (set-global! 'money (+ (get-item "金钱") 25)))))
+          (add-item! '金钱 25))))
 
     (define (node-squander)
       (instant-action "花光所有钱"
         (lambda ()
-          (set-global! 'money 0))))
+          (remove-item! '金钱 (item-count '金钱)))))
 
     (define (node-rep-debugger)
       (container "声望测试面板"

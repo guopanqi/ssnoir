@@ -29,9 +29,9 @@
               (protest-clock 'tick!)
               (if (protest-clock 'full?)
                   (begin
-                    (set-global! 'health (max 0 (- (get-global 'health) 30)))
+                    (damage-party! 3)
                     (protest-clock 'reset!)
-                    (set-global! 'notification "工人抗议期满！你遭到了示威工人的袭击。(-30生命值)"))
+                    (notify! "工人抗议期满！你遭到了示威工人的袭击。(-3生命值)"))
                   #f)))))
 
     ;; ── Node Definitions ──────────────────────────
@@ -40,9 +40,9 @@
 
     (define (node-drink-wine)
       (action "喝酒"
-              (list (req-item "酒" 1))
+              (list (req-item '酒 1))
               (instant (lambda ()
-                         (set-global! 'health (min 100 (+ (get-global 'health) 10)))))))
+                         (heal-party! 1)))))
 
     (define (format-song-name name)
       (if (equal? playing-song name)
@@ -63,12 +63,19 @@
 
     (define (node-workers-protest)
       (action-with-clocks "谈判妥协"
-                          (list (req-item "金钱" 30))
+                          (list (req-item '金钱 30))
                           (instant (lambda ()
                                      (set! workers-protesting? #f)
                                      (protest-clock 'reset!)
                                      (change-reputation! "workers" 15)))
                           (list (protest-clock 'render-data))))
+
+    (define (node-use-supplies)
+      (action "使用物资包"
+              (list (req-item '物资包 1))
+              (instant (lambda ()
+                         (add-supplies! 5)
+                         (notify! "物资增加。")))) )
 
     ;; ── Message Passing Interface ─────────────────
     (lambda args
@@ -80,7 +87,7 @@
                (append
                  (if has-flower? (list (node-flower)) '())
                  (if has-gramophone? (list (node-gramophone)) '())
-                 (list (node-drink-wine))
+                 (list (node-drink-wine) (node-use-supplies))
                  (if workers-protesting? (list (node-workers-protest)) '())))))
 
           ((equal? msg 'has-gramophone?) has-gramophone?)

@@ -9,7 +9,7 @@
     (define-rule "工资发放"
       (lambda () (work-clock 'full?))
       (lambda ()
-        (set-global! 'money (+ (get-global 'money) 50))
+        (add-item! '金钱 50)
         (work-clock 'reset!)))
 
     ;; ── Node Definitions ──────────────────────────

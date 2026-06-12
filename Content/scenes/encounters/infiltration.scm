@@ -98,7 +98,7 @@
 (define-rule "警戒满失败"
   (lambda () (alert 'full?))
   (lambda ()
-    (set-global! 'health (- (get-global 'health) 1))
+    (damage-party! 1)
     (reset-scene!)))
 
 (define-rule "保险箱开启"
@@ -110,7 +110,7 @@
 (define-rule "道具准备完成"
   (lambda () (tool-prep 'full?))
   (lambda ()
-    (set-global! (string-append "item:" "工具") (+ (get-item "工具") 2))
+    (add-item! '道具 2)
     (tool-prep 'reset!)))
 
 
@@ -127,7 +127,7 @@
 
 (define (node-hall-tool)
   (action "工具辅助保险箱"
-    (list (req-item "工具" 1))
+    (list (req-item '道具 1))
     (instant (lambda () (safe 'tick!)))))
 
 ;; ── Power Room Nodes ───────────────────────────
@@ -150,7 +150,7 @@
 
 (define (node-power-tool)
   (action "工具辅助断电"
-    (list (req-item "工具" 1))
+    (list (req-item '道具 1))
     (instant (lambda ()
                (power 'tick!)
                (if (power 'full?)
@@ -181,7 +181,7 @@
 
 (define (node-camera-tool)
   (action "工具辅助切断监控"
-    (list (req-item "工具" 1))
+    (list (req-item '道具 1))
     (instant (lambda ()
                (camera 'tick!)
                (if (camera 'full?)
@@ -210,13 +210,13 @@
       get-sharpness-modifiers
       (lambda ()
         (set! search-count (+ search-count 1))
-        (alert 'tick!))                          ; 失败: +1警戒
+        (alert 'tick!))
       (lambda ()
         (set! search-count (+ search-count 1))
-        (set-global! 'money (+ (get-global 'money) 5))) ; 中性: +5金钱
+        (add-item! '金钱 5))
       (lambda ()
         (set! search-count (+ search-count 1))
-        (set-global! 'money (+ (get-global 'money) 10)))))) ; 成功: +10金钱
+        (add-item! '金钱 10))))) ; 成功: +10金钱
 
 ;; ── Render Data ────────────────────────────────
 

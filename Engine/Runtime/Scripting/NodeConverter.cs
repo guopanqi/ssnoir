@@ -113,28 +113,32 @@ namespace SSNoir.Scripting
                 {
                     if (item is List<object> costExpr && costExpr.Count > 0)
                     {
-                        if (costExpr[0] is Symbol costSym)
+                        if (costExpr[0] is Symbol firstSym)
                         {
-                            var typeStr = costSym.AsString.ToLowerInvariant();
-                            if (typeStr == "die")
+                            var firstStr = firstSym.AsString.ToLowerInvariant();
+                            if (firstStr == "die" && costExpr.Count >= 1)
                             {
                                 requires.Add(new ActionCost { Type = "die" });
                             }
-                            else if (typeStr == "item" && costExpr.Count >= 3)
+                            else if (firstStr == "item" && costExpr.Count >= 3)
                             {
-                                var itemName = costExpr[1] as string ?? "Unknown";
-                                int qty = 0;
-                                if (costExpr[2] is double d) qty = (int)d;
-                                else if (costExpr[2] is long l) qty = (int)l;
-                                else if (costExpr[2] is int i) qty = i;
-
-                                requires.Add(new ActionCost { Type = "item", ItemName = itemName, Qty = qty });
+                                string itemId = costExpr[1] is Symbol s ? s.AsString : costExpr[1]?.ToString() ?? "Unknown";
+                                int qty = ConvertToInt(costExpr[2]);
+                                requires.Add(new ActionCost { Type = "item", ItemId = itemId, Qty = qty });
                             }
                         }
                     }
                 }
             }
             return requires;
+        }
+
+        private static int ConvertToInt(object value)
+        {
+            if (value is int i) return i;
+            if (value is double d) return (int)d;
+            if (value is long l) return (int)l;
+            return Convert.ToInt32(value);
         }
 
         private static GameResolve? ParseResolve(object resolveExpr, Interpreter interpreter)

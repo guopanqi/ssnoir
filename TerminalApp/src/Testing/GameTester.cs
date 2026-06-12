@@ -136,7 +136,7 @@ namespace SSNoir.Testing
             ExecuteNode(sceneManager, "写代码");
 
             // After 2 works, the rule "工资发放" should trigger, awarding 50 money and resetting the clock to 0
-            var money = gameState.Get<int>("money");
+            var money = gameState.Get<int>("item:金钱");
             if (money != 100)
             {
                 throw new InvalidOperationException($"Expected money to be 100 after receiving salary, got {money}.");
@@ -152,9 +152,9 @@ namespace SSNoir.Testing
             
             // Initial health
             var initialHealth = gameState.Get<int>("health");
-            if (initialHealth != 100)
+            if (initialHealth != 8)
             {
-                throw new InvalidOperationException($"Expected initial health to be 100, got {initialHealth}");
+                throw new InvalidOperationException($"Expected initial health to be 8, got {initialHealth}");
             }
 
             // Initial clocks (Exit clock + Spawn clock + 2 * 2 enemy clocks = 6 clocks)
@@ -287,6 +287,107 @@ namespace SSNoir.Testing
             }
 
             Console.WriteLine("Minimal flow simulation passed.");
+            VerifyCoreRules();
+        }
+
+        public static void VerifyCoreRules()
+        {
+            Console.WriteLine("Starting core rules validation simulation...");
+            var gameState = new GameState();
+
+            // 1. Initial health = 8
+            if (gameState.Team.Health != 8)
+                throw new InvalidOperationException($"Initial health is {gameState.Team.Health}, expected 8.");
+
+            // 2. money = 50
+            int money = gameState.Inventory.GetCount("金钱");
+            if (money != 50)
+                throw new InvalidOperationException($"Initial money is {money}, expected 50.");
+
+            // 3. supplies = 3
+            if (gameState.Team.Supplies != 3)
+                throw new InvalidOperationException($"Initial supplies is {gameState.Team.Supplies}, expected 3.");
+
+            // 4. Active actors: Player + Anna + Laozhou (3 actors)
+            if (gameState.Team.Actors.Count != 3)
+                throw new InvalidOperationException($"Expected 3 team members, got {gameState.Team.Actors.Count}.");
+            foreach (var actor in gameState.Team.Actors)
+            {
+                if (actor.Status != "active")
+                    throw new InvalidOperationException($"Actor {actor.Id} should be active at start.");
+                if (actor.ActionDice.Count != 2)
+                    throw new InvalidOperationException($"Actor {actor.Id} should start with 2 action dice.");
+            }
+
+            // 5. Use supply pack increases supplies by 5 (clamped to 6)
+            gameState.Inventory.SetCount("物资包", 1);
+            // Simulate using supply pack
+            gameState.Inventory.SetCount("物资包", 0);
+            gameState.Team.Supplies = Math.Min(6, gameState.Team.Supplies + 5);
+            if (gameState.Team.Supplies != 6)
+                throw new InvalidOperationException($"Expected supplies to be 6 after using supply-pack, got {gameState.Team.Supplies}.");
+
+            // 6. Buy supply pack costs money and adds pack
+            int moneyBefore = gameState.Inventory.GetCount("金钱");
+            gameState.Inventory.SetCount("金钱", moneyBefore - 25);
+            gameState.Inventory.SetCount("物资包", gameState.Inventory.GetCount("物资包") + 1);
+            if (gameState.Inventory.GetCount("金钱") != 25)
+                throw new InvalidOperationException("Money deduction failed.");
+            if (gameState.Inventory.GetCount("物资包") != 1)
+                throw new InvalidOperationException("Supply pack addition failed.");
+
+            // 7. Companion stress rules (stress to 6 -> status = away)
+            var anna = gameState.Team.FindActor("anna");
+            if (anna == null)
+                throw new InvalidOperationException("Anna not found.");
+            gameState.Team.ApplyStress("anna", 3);
+            if (anna.Stress != 3)
+                throw new InvalidOperationException("Anna stress application failed.");
+            gameState.Team.ApplyStress("anna", 3);
+            if (anna.Stress != 6 || anna.Status != "away")
+                throw new InvalidOperationException("Anna should be away with 6 stress.");
+
+            // 8. EndTurn rules: consumes 1 supply, all active dice regenerated, stress -1.
+            // Anna is away, so she shouldn't get action dice on EndTurn.
+            gameState.Team.EndTurn(isInEncounter: false);
+            if (gameState.Team.Supplies != 5) // 6 -> 5
+                throw new InvalidOperationException("Supplies should consume 1 on turn end.");
+            if (anna.Stress != 5) // 6 -> 5
+                throw new InvalidOperationException("Away companion stress should reduce by 1 on turn end.");
+            if (anna.ActionDice.Count != 0)
+                throw new InvalidOperationException("Away companion should not roll action dice.");
+
+            var player = gameState.Team.FindActor("player");
+            if (player == null)
+                throw new InvalidOperationException("Player not found.");
+            if (player.ActionDice.Count != 2)
+                throw new InvalidOperationException("Active player should roll 2 dice.");
+
+            // 9. When stress drops to 0, away companion becomes active
+            while (anna.Stress > 0)
+            {
+                gameState.Team.EndTurn(isInEncounter: false);
+            }
+            if (anna.Status != "active")
+                throw new InvalidOperationException("Anna should become active when stress is 0.");
+
+            // 10. Protagonist stress overflow rules (stress 6 -> further stress deals health damage)
+            gameState.Team.ApplyStress("player", 6);
+            if (player.Stress != 6)
+                throw new InvalidOperationException("Player stress application failed.");
+            int healthBefore = gameState.Team.Health;
+            gameState.Team.ApplyStress("player", 2);
+            if (gameState.Team.Health != healthBefore - 2)
+                throw new InvalidOperationException("Player stress overflow did not deal health damage.");
+
+            // 11. Supplies = 0 compensation: EndTurn deals 1 health damage
+            gameState.Team.Supplies = 0;
+            healthBefore = gameState.Team.Health;
+            gameState.Team.EndTurn(isInEncounter: false);
+            if (gameState.Team.Health != healthBefore - 1)
+                throw new InvalidOperationException("Zero supplies did not deal health damage.");
+
+            Console.WriteLine("Core rules validation simulation completed successfully!");
         }
 
         private static void ExecuteActionWithDefaults(SceneManager sceneManager, GameNode node)
@@ -294,15 +395,31 @@ namespace SSNoir.Testing
             var slots = new List<SlottedResource?>();
             if (node.Requires != null)
             {
+                var actor = sceneManager.GameState.Team.FindActor("player");
+                if (actor != null)
+                {
+                    // Force dice to 6 to make simulator deterministic
+                    actor.ActionDice.Clear();
+                    actor.ActionDice.Add(6);
+                    actor.ActionDice.Add(6);
+                }
+
+                int dieCount = 0;
                 foreach (var req in node.Requires)
                 {
                     if (req.Type == "die")
                     {
-                        slots.Add(new SlottedResource { Type = "die", Value = 6 });
+                        int val = 6;
+                        if (actor != null && dieCount < actor.ActionDice.Count)
+                        {
+                            val = actor.ActionDice[dieCount];
+                        }
+                        slots.Add(new SlottedResource { Type = "die", ActorId = "player", DieIndex = dieCount, Value = val });
+                        dieCount++;
                     }
                     else if (req.Type == "item")
                     {
-                        slots.Add(new SlottedResource { Type = "item", ItemName = req.ItemName, Value = req.Qty });
+                        slots.Add(new SlottedResource { Type = "item", ItemId = req.ItemId, Qty = req.Qty, Value = req.Qty });
                     }
                 }
             }

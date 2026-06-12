@@ -123,7 +123,8 @@ namespace SSNoir.Rendering
                         Raylib.DrawRectangleRoundedLinesEx(slotRect, 0.2f, 4, 1.5f, slotHover ? new Color(130, 130, 220, 255) : new Color(80, 80, 100, 255));
                         
                         // Draw placeholder letter
-                        string placeholder = requires[j].Type == "die" ? "D" : requires[j].ItemName.Substring(0, 1);
+                        bool isDie = requires[j].Type == "die";
+                        string placeholder = isDie ? "D" : (requires[j].ItemId.Length > 0 ? requires[j].ItemId.Substring(0, 1) : "?");
                         if (requires[j].Type == "item" && requires[j].Qty > 1)
                         {
                             placeholder += requires[j].Qty.ToString();
@@ -138,10 +139,12 @@ namespace SSNoir.Rendering
                         Raylib.DrawRectangleRounded(slotRect, 0.2f, 4, new Color(50, 50, 75, 255));
                         Raylib.DrawRectangleRoundedLinesEx(slotRect, 0.2f, 4, 1.5f, new Color(130, 130, 250, 255));
 
-                        string valStr = res.Type == "die" ? res.Value.ToString() : res.ItemName.Substring(0, 1);
-                        if (res.Type == "item" && res.Value > 1)
+                        bool isResDie = res.Type == "die";
+                        string valStr = isResDie ? res.Value.ToString() : (res.ItemId.Length > 0 ? res.ItemId.Substring(0, 1) : "?");
+                        int slotVal = res.Qty > 0 ? res.Qty : res.Value;
+                        if (res.Type == "item" && slotVal > 1)
                         {
-                            valStr += res.Value.ToString();
+                            valStr += slotVal.ToString();
                         }
                         int fontSize = valStr.Length > 2 ? 8 : (valStr.Length > 1 ? 10 : 12);
                         int valW = FontManager.MeasureTextWidth(valStr, fontSize);

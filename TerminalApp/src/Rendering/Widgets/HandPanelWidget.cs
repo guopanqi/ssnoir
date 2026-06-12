@@ -31,69 +31,117 @@ namespace SSNoir.Rendering
 
             Color labelColor = new Color(150, 150, 170, 255);
 
-            // ── Draw Action Dice in Hand ──
-            FontManager.DrawText("手牌骰子: ", 30, handY + 28, 14, labelColor);
-            var dice = gameState.Get<List<object>>("action-dice");
-            if (dice != null)
+            // ── Draw Action Dice Grouped by Actor ──
+            int flatDieIdx = 0;
+            float actorAreaWidth = 110f;
+            float startX = 20f;
+
+            for (int aIdx = 0; aIdx < gameState.Team.Actors.Count; aIdx++)
             {
-                for (int i = 0; i < dice.Count; i++)
+                var actor = gameState.Team.Actors[aIdx];
+                float actorX = startX + aIdx * (actorAreaWidth + 10);
+                
+                // Draw Actor name and stress at the bottom: e.g. "主角 0/6"
+                string subtitle = $"{actor.Name} {actor.Stress}/6";
+                Color textColor = new Color(180, 180, 200, 255);
+                if (actor.Status == "away")
                 {
-                    float dieX = 110 + i * 42;
-                    float dieY = handY + 18;
-                    var dieRect = new Rectangle(dieX, dieY, 32, 32);
+                    subtitle += " [离开]";
+                    textColor = new Color(100, 100, 100, 255);
+                }
+                else if (actor.Stress >= 5)
+                {
+                    textColor = new Color(250, 100, 100, 255);
+                }
+                
+                int subW = FontManager.MeasureTextWidth(subtitle, 11);
+                FontManager.DrawText(subtitle, actorX + (actorAreaWidth - subW) / 2f, handY + 52, 11, textColor);
 
-                    bool isSlotted = state.IsDieSlotted(i);
-                    bool hover = !isSlotted && Raylib.CheckCollisionPointRec(mousePos, dieRect);
-
-                    if (isSlotted)
+                // Draw their Action Dice at the top
+                if (actor.Status == "away")
+                {
+                    string awayText = "休息中";
+                    int awayW = FontManager.MeasureTextWidth(awayText, 12);
+                    FontManager.DrawText(awayText, actorX + (actorAreaWidth - awayW) / 2f, handY + 22, 12, new Color(100, 100, 100, 255));
+                }
+                else
+                {
+                    int diceCount = actor.ActionDice.Count;
+                    float diceStartX = actorX + (actorAreaWidth - (diceCount * 44 + (diceCount - 1) * 6)) / 2f;
+                    
+                    for (int d = 0; d < diceCount; d++)
                     {
-                        Raylib.DrawRectangleRounded(dieRect, 0.2f, 4, new Color(30, 30, 35, 120));
-                        Raylib.DrawRectangleRoundedLinesEx(dieRect, 0.2f, 4, 1f, new Color(40, 40, 45, 120));
+                        int dieVal = actor.ActionDice[d];
+                        int currentFlatIdx = flatDieIdx++;
 
-                        string numStr = dice[i]?.ToString() ?? "0";
-                        int numW = FontManager.MeasureTextWidth(numStr, 14);
-                        FontManager.DrawText(numStr, dieX + (32 - numW) / 2f, dieY + 8, 14, new Color(80, 80, 90, 120));
-                    }
-                    else
-                    {
-                        Color bg = hover ? new Color(70, 70, 100, 255) : new Color(45, 45, 60, 255);
-                        Color border = hover ? new Color(150, 150, 250, 255) : new Color(90, 90, 110, 255);
+                        float dieX = diceStartX + d * 50;
+                        float dieY = handY + 12;
+                        var dieRect = new Rectangle(dieX, dieY, 44, 32);
 
-                        Raylib.DrawRectangleRounded(dieRect, 0.2f, 4, bg);
-                        Raylib.DrawRectangleRoundedLinesEx(dieRect, 0.2f, 4, 1.5f, border);
+                        bool isSlotted = state.IsDieSlotted(currentFlatIdx);
+                        bool hover = !isSlotted && Raylib.CheckCollisionPointRec(mousePos, dieRect);
 
-                        string numStr = dice[i]?.ToString() ?? "0";
-                        int numW = FontManager.MeasureTextWidth(numStr, 14);
-                        FontManager.DrawText(numStr, dieX + (32 - numW) / 2f, dieY + 8, 14, Color.White);
-
-                        if (hover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                        Color bg, border;
+                        if (actor.Id == "player")
                         {
-                            int val = 0;
-                            if (dice[i] is double d) val = (int)d;
-                            else if (dice[i] is long l) val = (int)l;
-                            else if (dice[i] is int valInt) val = valInt;
+                            bg = hover ? new Color(50, 90, 130, 255) : new Color(30, 60, 90, 255);
+                            border = hover ? Color.White : new Color(80, 150, 220, 255);
+                        }
+                        else if (actor.Id == "anna")
+                        {
+                            bg = hover ? new Color(100, 50, 120, 255) : new Color(70, 30, 80, 255);
+                            border = hover ? Color.White : new Color(180, 80, 200, 255);
+                        }
+                        else if (actor.Id == "laozhou")
+                        {
+                            bg = hover ? new Color(120, 60, 50, 255) : new Color(80, 40, 30, 255);
+                            border = hover ? Color.White : new Color(220, 100, 80, 255);
+                        }
+                        else
+                        {
+                            bg = hover ? new Color(70, 70, 100, 255) : new Color(45, 45, 60, 255);
+                            border = hover ? Color.White : new Color(90, 90, 110, 255);
+                        }
 
-                            interaction.SelectedResourceToSet = new SelectedResource
+                        string text = dieVal.ToString();
+
+                        if (isSlotted)
+                        {
+                            Raylib.DrawRectangleRounded(dieRect, 0.2f, 4, new Color(30, 30, 35, 120));
+                            Raylib.DrawRectangleRoundedLinesEx(dieRect, 0.2f, 4, 1f, new Color(40, 40, 45, 120));
+
+                            int numW = FontManager.MeasureTextWidth(text, 14);
+                            FontManager.DrawText(text, dieX + (44 - numW) / 2f, dieY + 8, 14, new Color(80, 80, 90, 120));
+                        }
+                        else
+                        {
+                            Raylib.DrawRectangleRounded(dieRect, 0.2f, 4, bg);
+                            Raylib.DrawRectangleRoundedLinesEx(dieRect, 0.2f, 4, 1.5f, border);
+
+                            int numW = FontManager.MeasureTextWidth(text, 14);
+                            FontManager.DrawText(text, dieX + (44 - numW) / 2f, dieY + 8, 14, Color.White);
+
+                            if (hover && Raylib.IsMouseButtonPressed(MouseButton.Left))
                             {
-                                Type = "die",
-                                Value = val,
-                                SourceIndex = i
-                            };
+                                interaction.SelectedResourceToSet = new SelectedResource
+                                {
+                                    Type = "die",
+                                    Value = dieVal,
+                                    SourceIndex = currentFlatIdx,
+                                    ActorId = actor.Id,
+                                    DieIndex = d
+                                };
+                            }
                         }
                     }
                 }
             }
 
             // ── Draw Items in Hand (plus money) ──
-            float itemsStartX = 360f;
+            float itemsStartX = 370f;
             FontManager.DrawText("手牌物品: ", itemsStartX, handY + 28, 14, labelColor);
 
             var items = new List<(string Name, int Qty)>();
-            int money = gameState.Get<int>("money");
-            if (money > 0)
-            {
-                items.Add(("金钱", money));
-            }
 
             foreach (var kvp in gameState.GetAllStates())
             {
@@ -115,9 +163,9 @@ namespace SSNoir.Rendering
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];
-                float itemX = itemsStartX + 75 + i * 75;
+                float itemX = itemsStartX + 70 + i * 62;
                 float itemY = handY + 18;
-                var itemRect = new Rectangle(itemX, itemY, 68, 32);
+                var itemRect = new Rectangle(itemX, itemY, 58, 32);
 
                 int remaining = state.GetRemainingItemQty(gameState, item.Name);
                 bool hover = (remaining > 0) && Raylib.CheckCollisionPointRec(mousePos, itemRect);
@@ -128,8 +176,8 @@ namespace SSNoir.Rendering
                     Raylib.DrawRectangleRoundedLinesEx(itemRect, 0.2f, 4, 1f, new Color(40, 40, 45, 120));
 
                     string label = item.Name == "金钱" ? "$0" : $"{item.Name} x0";
-                    int lblW = FontManager.MeasureTextWidth(label, 12);
-                    FontManager.DrawText(label, itemX + (68 - lblW) / 2f, itemY + 8, 12, new Color(80, 80, 90, 120));
+                    int lblW = FontManager.MeasureTextWidth(label, 11);
+                    FontManager.DrawText(label, itemX + (58 - lblW) / 2f, itemY + 9, 11, new Color(80, 80, 90, 120));
                 }
                 else
                 {
@@ -140,8 +188,8 @@ namespace SSNoir.Rendering
                     Raylib.DrawRectangleRoundedLinesEx(itemRect, 0.2f, 4, 1.5f, border);
 
                     string label = item.Name == "金钱" ? $"${remaining}" : $"{item.Name} x{remaining}";
-                    int lblW = FontManager.MeasureTextWidth(label, 12);
-                    FontManager.DrawText(label, itemX + (68 - lblW) / 2f, itemY + 8, 12, Color.White);
+                    int lblW = FontManager.MeasureTextWidth(label, 11);
+                    FontManager.DrawText(label, itemX + (58 - lblW) / 2f, itemY + 9, 11, Color.White);
 
                     if (hover && Raylib.IsMouseButtonPressed(MouseButton.Left))
                     {
@@ -153,6 +201,7 @@ namespace SSNoir.Rendering
                     }
                 }
             }
+
 
             // ── Draw Rest / End Turn Button ──
             float restX = windowWidth - 110;

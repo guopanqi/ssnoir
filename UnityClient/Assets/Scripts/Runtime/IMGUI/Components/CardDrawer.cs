@@ -133,7 +133,7 @@ namespace SSNoir.IMGUI
                         GUI.color = Color.white;
                         IMGUIStyles.DrawOutline(slotRect, 1f, slotHover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SlotEmptyBorder);
 
-                        string placeholder = node.Requires[j].Type == "die" ? "D" : node.Requires[j].ItemName.Substring(0, 1);
+                        string placeholder = node.Requires[j].Type == "die" ? "D" : node.Requires[j].ItemId.Substring(0, 1);
                         if (node.Requires[j].Type == "item" && node.Requires[j].Qty > 1)
                             placeholder += node.Requires[j].Qty;
                         int fontSize = placeholder.Length > 2 ? 10 : (placeholder.Length > 1 ? 12 : 16);
@@ -149,7 +149,7 @@ namespace SSNoir.IMGUI
                         GUI.color = Color.white;
                         IMGUIStyles.DrawOutline(slotRect, 1f, IMGUIStyles.SlotFilledBorder);
 
-                        string valStr = res.Type == "die" ? res.Value.ToString() : res.ItemName.Substring(0, 1);
+                        string valStr = res.Type == "die" ? res.Value.ToString() : res.ItemId.Substring(0, 1);
                         if (res.Type == "item" && res.Value > 1)
                             valStr += res.Value;
                         int fontSize = valStr.Length > 2 ? 10 : (valStr.Length > 1 ? 12 : 16);

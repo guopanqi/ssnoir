@@ -306,39 +306,45 @@ namespace SSNoir.Rendering
                             {
                                 Type = "die",
                                 Value = _state.SelectedResource.Value,
-                                SourceIndex = _state.SelectedResource.SourceIndex
+                                SourceIndex = _state.SelectedResource.SourceIndex,
+                                ActorId = _state.SelectedResource.ActorId,
+                                DieIndex = _state.SelectedResource.DieIndex
                             };
                             _state.SelectedResource = null;
                         }
-                        else if (req.Type == "item" && _state.SelectedResource.Type == "item" && req.ItemName == _state.SelectedResource.ItemName)
+                        else if (req.Type == "item" && _state.SelectedResource.Type == "item")
                         {
-                            _state.ClearOtherNodeSlots(node.Name);
-                            int totalOwned = (req.ItemName == "金钱") ? _gameState.Get<int>("money") : _gameState.Get<int>("item:" + req.ItemName, 0);
-                            int totalSlotted = 0;
-                            foreach (var slots in _state.NodeSlots.Values)
+                            if (req.ItemId.Equals(_state.SelectedResource.ItemName, StringComparison.OrdinalIgnoreCase))
                             {
-                                foreach (var s in slots)
+                                _state.ClearOtherNodeSlots(node.Name);
+                                int totalOwned = _gameState.Get<int>("item:" + req.ItemId, 0);
+                                int totalSlotted = 0;
+                                foreach (var slotsList in _state.NodeSlots.Values)
                                 {
-                                    if (s != null && s.Type == "item" && s.ItemName == req.ItemName)
+                                    foreach (var s in slotsList)
                                     {
-                                        totalSlotted += s.Value;
+                                        if (s != null && s.Type == "item" && s.ItemId.Equals(req.ItemId, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            totalSlotted += s.Qty > 0 ? s.Qty : s.Value;
+                                        }
                                     }
                                 }
-                            }
-                            int available = totalOwned - totalSlotted;
-                            if (available >= req.Qty)
-                            {
-                                slotted[j] = new SlottedResource
+                                int available = totalOwned - totalSlotted;
+                                if (available >= req.Qty)
                                 {
-                                    Type = "item",
-                                    ItemName = req.ItemName,
-                                    Value = req.Qty
-                                };
-                                _state.SelectedResource = null;
-                            }
-                            else
-                            {
-                                _state.TriggerNotification($"缺少数量，需要 {req.Qty} 个 {req.ItemName}");
+                                    slotted[j] = new SlottedResource
+                                    {
+                                        Type = "item",
+                                        ItemId = req.ItemId,
+                                        Value = req.Qty,
+                                        Qty = req.Qty
+                                    };
+                                    _state.SelectedResource = null;
+                                }
+                                else
+                                {
+                                    _state.TriggerNotification($"缺少数量，需要 {req.Qty} 个 {_state.SelectedResource.ItemName}");
+                                }
                             }
                         }
                     }

@@ -85,17 +85,11 @@
   (action name requires (roll skill fail-fn neutral-fn success-fn)))
 
 ;; Inventory helpers
-(define (get-item name)
-  (if (equal? name "金钱")
-      (get-global 'money)
-      (let ((val (get-global (string-append "item:" name))))
-        (if val val 0))))
+(define (get-item item-id)
+  (item-count item-id))
 
-(define (consume-item! name n)
-  (if (equal? name "金钱")
-      (set-global! 'money (- (get-global 'money) n))
-      (set-global! (string-append "item:" name)
-                   (- (get-item name) n))))
+(define (consume-item! item-id n)
+  (remove-item! item-id n))
 
 ;; Rule system
 (define rules '())
@@ -164,3 +158,64 @@
   (let ((new-val (+ (get-reputation faction) delta)))
     (let ((clamped (if (< new-val -100) -100 (if (> new-val 100) 100 new-val))))
       (set-global! (string-append "reputation:" faction) clamped))))
+
+;; --- New Team, Item, and Stress wrappers ---
+(define (item-count item-id)
+  (__item-count item-id))
+
+(define (has-item? item-id n)
+  (>= (__item-count item-id) n))
+
+(define (add-item! item-id n)
+  (__set-item-count! item-id (+ (__item-count item-id) n)))
+
+(define (remove-item! item-id n)
+  (if (< (__item-count item-id) n)
+      (error "not enough item")
+      (__set-item-count! item-id (- (__item-count item-id) n))))
+
+(define (party-supplies)
+  (__party-supplies))
+
+(define (add-supplies! n)
+  (__set-party-supplies! (min 6 (+ (__party-supplies) n))))
+
+(define (remove-supplies! n)
+  (if (< (__party-supplies) n)
+      (error "not enough supplies")
+      (__set-party-supplies! (- (__party-supplies) n))))
+
+(define (party-health)
+  (__party-health))
+
+(define (damage-party! n)
+  (__set-party-health! (- (__party-health) n)))
+
+(define (heal-party! n)
+  (__set-party-health! (min 8 (+ (__party-health) n))))
+
+(define (current-actor)
+  (__current-actor))
+
+(define (actor-stress actor-id)
+  (__actor-stress actor-id))
+
+(define (actor-status actor-id)
+  (__actor-status actor-id))
+
+(define (actor-stat actor-id stat-name)
+  (__actor-stat actor-id stat-name))
+
+(define (set-actor-stress! actor-id n)
+  (__set-actor-stress! actor-id n))
+
+(define (add-actor-stress! actor-id n)
+  (__set-actor-stress! actor-id (+ (__actor-stress actor-id) n)))
+
+(define (stress-current-actor! n)
+  (add-actor-stress! (__current-actor) n))
+
+(define (notify! text)
+  (__notify! text))
+
+
