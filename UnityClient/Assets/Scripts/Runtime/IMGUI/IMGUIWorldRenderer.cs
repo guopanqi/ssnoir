@@ -131,15 +131,20 @@ namespace SSNoir.IMGUI
                 var anchor = _gameManager.SceneDirectory?.GetAnchor(node.Name);
                 if (anchor != null)
                 {
-                    var screenPos = cam.WorldToScreenPoint(anchor.transform.position);
-                    if (screenPos.z >= 0)
+                    // Check if the anchor point is inside the camera's viewport frustum
+                    // We add a small padding (e.g. 0.05) so the card doesn't pop out abruptly when its anchor crosses the screen edge.
+                    var viewPos = cam.WorldToViewportPoint(anchor.transform.position);
+                    float padding = 0.05f;
+                    bool inCameraSight = viewPos.z >= 0 
+                                      && viewPos.x >= -padding && viewPos.x <= (1f + padding)
+                                      && viewPos.y >= -padding && viewPos.y <= (1f + padding);
+
+                    if (inCameraSight)
                     {
+                        var screenPos = cam.WorldToScreenPoint(anchor.transform.position);
                         initialProjected.Add((node, screenPos, screenPos.z));
                     }
-                    else
-                    {
-                        gridNodes.Add(node); // Behind camera, fallback to grid
-                    }
+                    // Nodes with anchors panned out of view are not drawn (neither projected nor in fallback grid)
                 }
                 else
                 {
@@ -162,8 +167,11 @@ namespace SSNoir.IMGUI
                 float anchorX = item.screenPos.x;
                 float anchorY = Screen.height - item.screenPos.y;
 
-                float cardWidth = isFocused(item.node.Name) ? 420f : 280f;
-                float cardHeight = isFocused(item.node.Name) ? 320f : 130f;
+                bool isLocation = item.node.HasChildren;
+                bool focused = isFocused(item.node.Name);
+
+                float cardWidth = focused ? 420f : (isLocation ? 140f : 280f);
+                float cardHeight = focused ? 320f : (isLocation ? 32f : 130f);
 
                 // Default target center position (centered horizontally above 3D anchor point)
                 Vector2 targetCenter = new Vector2(anchorX, anchorY - cardHeight / 2f - 40f);

@@ -27,6 +27,19 @@ namespace SSNoir.IMGUI
                 return interaction;
             }
 
+            // ── Location Capsule Dispatch (when not focused) ──
+            bool isLocation = node.HasChildren;
+            if (isLocation && !isFocused)
+            {
+                DrawLocationLabel(rect, node.Name, isHovered);
+                if (isHovered && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                {
+                    interaction.CardClicked = true;
+                    Event.current.Use();
+                }
+                return interaction;
+            }
+
             // Determine node type and colors
             string typeLabel = "地点";
             Color normalColor = IMGUIStyles.CardBg;
@@ -353,6 +366,25 @@ namespace SSNoir.IMGUI
 
                 rightX -= (badgeW + 4);
             }
+        }
+
+        private static void DrawLocationLabel(Rect rect, string name, bool isHovered)
+        {
+            Color bgColor = isHovered ? IMGUIStyles.CardHoverBg : IMGUIStyles.CardBg;
+            Color border = isHovered ? IMGUIStyles.PrimaryColor : IMGUIStyles.CardOutline;
+
+            GUI.color = bgColor;
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(rect, 1f, border);
+
+            var labelStyle = new GUIStyle(IMGUIStyles.CardTitle)
+            {
+                fontSize = 13,
+                alignment = TextAnchor.MiddleCenter
+            };
+            labelStyle.normal.textColor = isHovered ? Color.white : new Color(0.8f, 0.85f, 0.95f, 1f);
+            GUI.Label(rect, name, labelStyle);
         }
     }
 }

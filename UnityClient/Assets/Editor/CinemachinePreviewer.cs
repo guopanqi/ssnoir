@@ -160,21 +160,44 @@ namespace SSNoir.Editor
                 Event.current.Use();
             }
 
-            // Draw native-like title label (truncated to leave room for buttons).
-            var labelRect = new Rect(titleRect.x + 9f, titleRect.y + 2f, titleRect.width - (btnW * 2f) - btnSpacing - 26f, 17f);
-            var labelStyle = new GUIStyle(GUI.skin.label)
+            // Draw new get and set! buttons in the top-left corner
+            var getContent = new GUIContent("get", "Align Scene view to this Virtual Camera (Align View to Selected)");
+            var getRect = new Rect(titleRect.x + 6f, titleRect.y + 4f, 32f, 15f);
+            if (DrawSmallButton(getRect, getContent, false))
             {
-                fontSize = 11,
-                fontStyle = FontStyle.Normal,
-                alignment = TextAnchor.MiddleLeft
-            };
-            labelStyle.normal.textColor = new Color(0.62f, 0.62f, 0.62f, 1f);
-            GUI.Label(labelRect, targetVcam.name, labelStyle);
+                if (targetVcam != null)
+                {
+                    var prevSelection = Selection.activeGameObject;
+                    Selection.activeGameObject = targetVcam.gameObject;
+                    EditorApplication.ExecuteMenuItem("GameObject/Align View to Selected");
+                    Selection.activeGameObject = prevSelection;
+                }
+                Event.current.Use();
+            }
+
+            var setContent = new GUIContent("set!", "Assign current Scene view to this Virtual Camera (Align With View)");
+            var setRect = new Rect(getRect.xMax + 4f, titleRect.y + 4f, 32f, 15f);
+            if (DrawSmallButton(setRect, setContent, false))
+            {
+                if (targetVcam != null)
+                {
+                    var prevSelection = Selection.activeGameObject;
+                    Selection.activeGameObject = targetVcam.gameObject;
+                    EditorApplication.ExecuteMenuItem("GameObject/Align With View");
+                    Selection.activeGameObject = prevSelection;
+                }
+                Event.current.Use();
+            }
 
             Handles.EndGUI();
         }
 
         private static bool DrawSmallButton(Rect rect, string text, bool active)
+        {
+            return DrawSmallButton(rect, new GUIContent(text), active);
+        }
+
+        private static bool DrawSmallButton(Rect rect, GUIContent content, bool active)
         {
             var style = new GUIStyle(EditorStyles.miniButton)
             {
@@ -187,10 +210,10 @@ namespace SSNoir.Editor
 
             if (!active)
             {
-                return GUI.Button(rect, text, style);
+                return GUI.Button(rect, content, style);
             }
 
-            return GUI.Toggle(rect, true, text, style) == false;
+            return GUI.Toggle(rect, true, content, style) == false;
         }
 
         private static void EnsureResources()
