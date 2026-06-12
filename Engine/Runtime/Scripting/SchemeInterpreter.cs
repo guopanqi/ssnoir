@@ -35,6 +35,24 @@ namespace SSNoir.Scripting
             // Register our bridge functions
             NativeFunctions.Register(_interpreter, gameState);
 
+            // Register load-file bridge
+            _interpreter.DefineGlobal(
+                Symbol.FromString("load-file"),
+                new NativeProcedure(args =>
+                {
+                    if (args.Count < 1)
+                        throw new ArgumentException("load-file requires 1 argument (relative path)");
+                    string path = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                    string fullPath = path;
+                    if (!path.StartsWith("scenes/") && !path.StartsWith("scripts/"))
+                    {
+                        fullPath = "scenes/" + path;
+                    }
+                    LoadFile(fullPath);
+                    return new None();
+                }, "load-file")
+            );
+
             // Load standard library and engine definitions
             LoadFile("scripts/stdlib.scm");
             LoadFile("scripts/engine.scm");

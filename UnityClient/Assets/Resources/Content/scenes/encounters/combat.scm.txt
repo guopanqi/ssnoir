@@ -94,7 +94,7 @@
 (define-rule "成功逃脱"
   (lambda () (exit-clock 'full?))
   (lambda ()
-    (set-global! 'location "home")
+    (end-encounter)
     (exit-clock 'reset!)))
 
 ;; ── Render Data Entrypoint ────────────────────

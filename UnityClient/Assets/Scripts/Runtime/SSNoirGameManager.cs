@@ -114,8 +114,7 @@ namespace SSNoir
                 CleanupNodeSlots();
             };
 
-            // 7. Load starting location
-            string startingLocation = _gameState.Get<string>("location", "home");
+            string startingLocation = _gameState.Get<string>("location", "world");
             _sceneManager.LoadScene(startingLocation);
         }
 

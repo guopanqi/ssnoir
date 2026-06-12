@@ -73,11 +73,11 @@ namespace SSNoir.Editor
                     int underscoreIndex = t.name.IndexOf('_');
                     string extractedName = (underscoreIndex != -1 && underscoreIndex < t.name.Length - 1)
                         ? t.name.Substring(underscoreIndex + 1)
-                        : t.name;
+                        : string.Empty;
                     anchor.NodeName = extractedName;
 
                     // Bind matching FocusVirtualCamera
-                    if (allVcamComponents != null && allVcamComponents.Length > 0)
+                    if (!string.IsNullOrEmpty(extractedName) && allVcamComponents != null && allVcamComponents.Length > 0)
                     {
                         // Match camera and anchor by suffix (e.g. "黑市商人")
                         var matchedVcam = allVcamComponents.FirstOrDefault(v => v.name.Contains(extractedName));

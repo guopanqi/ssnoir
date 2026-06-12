@@ -105,7 +105,7 @@
   (lambda () (safe 'full?))
   (lambda ()
     (set-global! 'infiltration-complete? #t)
-    (set-global! 'location "home")))
+    (end-encounter)))
 
 (define-rule "道具准备完成"
   (lambda () (tool-prep 'full?))

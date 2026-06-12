@@ -144,14 +144,16 @@
 
 (define (make-clock label max style)
   (let ((current 0))
-    (lambda (msg)
-      (cond
-        ((equal? msg 'tick!)       (set! current (min (+ current 1) max)))
-        ((equal? msg 'reset!)      (set! current 0))
-        ((equal? msg 'full?)       (>= current max))
-        ((equal? msg 'current)     current)
-        ((equal? msg 'render-data) (list 'clock label current max style))
-        (else #f)))))
+    (lambda args
+      (let ((msg (car args)))
+        (cond
+          ((equal? msg 'tick!)       (set! current (min (+ current 1) max)))
+          ((equal? msg 'reset!)      (set! current 0))
+          ((equal? msg 'full?)       (>= current max))
+          ((equal? msg 'current)     current)
+          ((equal? msg 'set!)        (set! current (cadr args)))
+          ((equal? msg 'render-data) (list 'clock label current max style))
+          (else #f))))))
 
 ;; Reputation API
 (define (get-reputation faction)

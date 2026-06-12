@@ -16,7 +16,7 @@ namespace SSNoir.Core
             // Initial defaults
             Set("money", 50);
             Set("health", 100);
-            Set("location", "home");
+            Set("location", "world");
 
             Set("reputation:mayor", 0);
             Set("reputation:workers", 0);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using SSNoir.Scripting;
+using Schemy;
 
 namespace SSNoir.Core
 {
@@ -11,15 +12,19 @@ namespace SSNoir.Core
     {
         private readonly GameState _gameState;
         private readonly IScriptLoader _loader;
-        private SchemeInterpreter? _interpreter;
-        private string _currentSceneName = string.Empty;
+
+        private SchemeInterpreter? _worldInterpreter;
+        private SchemeInterpreter? _encounterInterpreter;
+        private string _encounterSceneName = string.Empty;
 
         public event Action? OnSceneLoaded;
         public event Action? OnWorldRefreshed;
 
         public List<GameNode> CurrentWorldNodes { get; private set; } = new List<GameNode>();
         public List<GameClock> CurrentClocks { get; private set; } = new List<GameClock>();
-        public string CurrentSceneName => _currentSceneName;
+
+        public SchemeInterpreter ActiveInterpreter => _encounterInterpreter ?? _worldInterpreter ?? throw new InvalidOperationException("No active interpreter");
+        public string CurrentSceneName => _encounterInterpreter != null ? _encounterSceneName : "world";
 
         public SceneManager(GameState gameState, IScriptLoader loader)
         {
@@ -31,7 +36,7 @@ namespace SSNoir.Core
         private void HandleGlobalStateChanged()
         {
             var loc = _gameState.Get<string>("location");
-            if (loc != _currentSceneName)
+            if (loc != CurrentSceneName)
             {
                 LoadScene(loc);
             }
@@ -39,23 +44,85 @@ namespace SSNoir.Core
 
         public void LoadScene(string sceneName)
         {
-            _currentSceneName = sceneName;
-            
-            // Re-create interpreter to fully discard old local state
-            _interpreter = new SchemeInterpreter(_gameState, _loader);
-            
-            var relativePath = $"scenes/{sceneName}.scm";
-            _interpreter.LoadFile(relativePath);
+            if (sceneName == "world" || sceneName == "world/world" || sceneName == "home" || sceneName == "office" || sceneName == "club")
+            {
+                _encounterInterpreter = null;
+                _encounterSceneName = string.Empty;
+                
+                if (_worldInterpreter == null)
+                {
+                    _worldInterpreter = new SchemeInterpreter(_gameState, _loader);
+                    RegisterEncounterBridges(_worldInterpreter);
+                    _worldInterpreter.LoadFile("scenes/world/world.scm");
+                }
+                
+                if (_gameState.Get<string>("location") != "world")
+                {
+                    _gameState.Set("location", "world");
+                }
+            }
+            else
+            {
+                // Clean the scene name by stripping "encounters/" prefix if present
+                string cleanName = sceneName;
+                if (cleanName.StartsWith("encounters/"))
+                {
+                    cleanName = cleanName.Substring("encounters/".Length);
+                }
+
+                _encounterSceneName = cleanName;
+                _encounterInterpreter = new SchemeInterpreter(_gameState, _loader);
+                RegisterEncounterBridges(_encounterInterpreter);
+                _encounterInterpreter.LoadFile($"scenes/encounters/{cleanName}.scm");
+                
+                if (_gameState.Get<string>("location") != cleanName)
+                {
+                    _gameState.Set("location", cleanName);
+                }
+            }
 
             OnSceneLoaded?.Invoke();
             Refresh();
         }
 
+        public void StartEncounter(string name)
+        {
+            LoadScene(name);
+        }
+
+        public void EndEncounter()
+        {
+            LoadScene("world");
+        }
+
+        private void RegisterEncounterBridges(SchemeInterpreter interpreter)
+        {
+            interpreter.RawInterpreter.DefineGlobal(
+                Symbol.FromString("start-encounter"),
+                new NativeProcedure(args =>
+                {
+                    if (args.Count < 1)
+                        throw new ArgumentException("start-encounter requires 1 argument (encounter name)");
+                    string name = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                    StartEncounter(name);
+                    return new None();
+                }, "start-encounter")
+            );
+
+            interpreter.RawInterpreter.DefineGlobal(
+                Symbol.FromString("end-encounter"),
+                new NativeProcedure(args =>
+                {
+                    EndEncounter();
+                    return new None();
+                }, "end-encounter")
+            );
+        }
+
         public void Refresh()
         {
-            Debug.Assert(_interpreter != null, "Interpreter must not be null when refreshing scene");
-            
-            var rawData = _interpreter!.Eval("(get-render-data)");
+            var active = ActiveInterpreter;
+            var rawData = active.Eval("(get-render-data)");
             var nodes = new List<GameNode>();
 
             if (rawData is List<object> list)
@@ -66,7 +133,7 @@ namespace SSNoir.Core
                     {
                         if (tag.AsString == "node")
                         {
-                            var parsedNode = NodeConverter.ConvertSingle(expr, _interpreter.RawInterpreter);
+                            var parsedNode = NodeConverter.ConvertSingle(expr, active.RawInterpreter);
                             nodes.Add(parsedNode);
                         }
                         else
@@ -106,13 +173,13 @@ namespace SSNoir.Core
 
         public void OnActionExecuted()
         {
-            _interpreter?.Eval("(on-action)");
+            ActiveInterpreter.Eval("(on-action)");
             Refresh();
         }
 
         public void EndTurn()
         {
-            _interpreter?.Eval("(on-turn-end)");
+            ActiveInterpreter.Eval("(on-turn-end)");
 
             var rand = new Random();
             var newDice = new List<object> { rand.Next(1, 7), rand.Next(1, 7), rand.Next(1, 7) };

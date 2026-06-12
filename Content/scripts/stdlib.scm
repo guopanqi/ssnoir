@@ -37,3 +37,11 @@
       (if (pred (car lst))
           (cons (car lst) (filter pred (cdr lst)))
           (filter pred (cdr lst)))))
+
+;; 从 assoc-list 中按 key 查找，找不到返回 default
+(define (assoc-get alist key default)
+  (if (null? alist)
+      default
+      (if (equal? (car (car alist)) key)
+          (cadr (car alist))
+          (assoc-get (cdr alist) key default))))

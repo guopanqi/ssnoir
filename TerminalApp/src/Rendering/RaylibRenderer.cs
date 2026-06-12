@@ -15,7 +15,15 @@ namespace SSNoir.Rendering
         private List<GameNode> _visibleNodes = new List<GameNode>();
 
         private bool _isDropdownOpen = false;
-        private readonly List<string> _availableScenes = new List<string>();
+        
+        private class DropdownItem
+        {
+            public string Name { get; set; } = string.Empty;
+            public bool IsHeader { get; set; }
+            public string SceneName { get; set; } = string.Empty;
+        }
+
+        private readonly List<DropdownItem> _dropdownItems = new List<DropdownItem>();
 
         private readonly HashSet<string> _flippedNodes = new HashSet<string>();
         private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
@@ -958,26 +966,29 @@ namespace SSNoir.Rendering
 
         private void LoadAvailableScenes()
         {
-            _availableScenes.Clear();
+            _dropdownItems.Clear();
+            _dropdownItems.Add(new DropdownItem { Name = "--- WORLD ---", IsHeader = true });
+            _dropdownItems.Add(new DropdownItem { Name = "world", SceneName = "world" });
             
-            // Try AppDomain.CurrentDomain.BaseDirectory + "Content/scenes" (production / compiled layout)
-            var scenesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Content", "scenes");
+            _dropdownItems.Add(new DropdownItem { Name = "--- OTHERS ---", IsHeader = true });
             
-            // Fallback to "../Content/scenes" (development layout under TerminalApp)
+            // Try AppDomain.CurrentDomain.BaseDirectory + "Content/scenes/encounters" (production / compiled layout)
+            var scenesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Content", "scenes", "encounters");
+            
+            // Fallback to "../Content/scenes/encounters" (development layout under TerminalApp)
             if (!Directory.Exists(scenesDir))
             {
-                scenesDir = Path.GetFullPath(Path.Combine("..", "Content", "scenes"));
+                scenesDir = Path.GetFullPath(Path.Combine("..", "Content", "scenes", "encounters"));
             }
 
-            if (!Directory.Exists(scenesDir))
+            if (Directory.Exists(scenesDir))
             {
-                throw new DirectoryNotFoundException($"Scenes directory not found at '{scenesDir}'. Please check your Monorepo Content setup.");
-            }
-
-            var files = Directory.GetFiles(scenesDir, "*.scm");
-            foreach (var file in files)
-            {
-                _availableScenes.Add(Path.GetFileNameWithoutExtension(file));
+                var files = Directory.GetFiles(scenesDir, "*.scm");
+                foreach (var file in files)
+                {
+                    var name = Path.GetFileNameWithoutExtension(file);
+                    _dropdownItems.Add(new DropdownItem { Name = name, SceneName = name });
+                }
             }
         }
 
@@ -995,13 +1006,15 @@ namespace SSNoir.Rendering
                 }
                 else if (_isDropdownOpen)
                 {
-                    for (int i = 0; i < _availableScenes.Count; i++)
+                    for (int i = 0; i < _dropdownItems.Count; i++)
                     {
+                        var item = _dropdownItems[i];
+                        if (item.IsHeader) continue;
+
                         var optRect = new Rectangle(boxRect.X, boxRect.Y + boxRect.Height + i * 32, boxRect.Width, 32);
                         if (Raylib.CheckCollisionPointRec(mousePos, optRect))
                         {
-                            var selectedScene = _availableScenes[i];
-                            _gameState.Set("location", selectedScene);
+                            _gameState.Set("location", item.SceneName);
                             break;
                         }
                     }
@@ -1027,23 +1040,33 @@ namespace SSNoir.Rendering
 
             if (_isDropdownOpen)
             {
-                for (int i = 0; i < _availableScenes.Count; i++)
+                for (int i = 0; i < _dropdownItems.Count; i++)
                 {
                     var optRect = new Rectangle(boxRect.X, boxRect.Y + boxRect.Height + i * 32, boxRect.Width, 32);
-                    bool hoverOpt = Raylib.CheckCollisionPointRec(mousePos, optRect);
+                    var item = _dropdownItems[i];
 
-                    Color optBgColor = hoverOpt ? new Color(70, 70, 95, 255) : new Color(25, 25, 35, 255);
-                    Color optTextColor = hoverOpt ? Color.White : new Color(180, 180, 200, 255);
-
-                    Raylib.DrawRectangleRec(optRect, optBgColor);
-                    if (_availableScenes[i] == currentScene)
+                    if (item.IsHeader)
                     {
-                        Raylib.DrawRectangle((int)optRect.X, (int)optRect.Y, 4, (int)optRect.Height, new Color(100, 100, 250, 255));
+                        Raylib.DrawRectangleRec(optRect, new Color(20, 20, 25, 255));
+                        int lblW = FontManager.MeasureTextWidth(item.Name, 12);
+                        FontManager.DrawText(item.Name, optRect.X + (optRect.Width - lblW) / 2f, optRect.Y + 10, 12, new Color(100, 100, 120, 255));
                     }
-                    
-                    FontManager.DrawText(_availableScenes[i], optRect.X + 12, optRect.Y + 6, 15, optTextColor);
+                    else
+                    {
+                        bool hoverOpt = Raylib.CheckCollisionPointRec(mousePos, optRect);
+                        Color optBgColor = hoverOpt ? new Color(70, 70, 95, 255) : new Color(25, 25, 35, 255);
+                        Color optTextColor = hoverOpt ? Color.White : new Color(180, 180, 200, 255);
 
-                    if (i < _availableScenes.Count - 1)
+                        Raylib.DrawRectangleRec(optRect, optBgColor);
+                        if (item.SceneName == currentScene)
+                        {
+                            Raylib.DrawRectangle((int)optRect.X, (int)optRect.Y, 4, (int)optRect.Height, new Color(100, 100, 250, 255));
+                        }
+                        
+                        FontManager.DrawText(item.Name, optRect.X + 12, optRect.Y + 6, 15, optTextColor);
+                    }
+
+                    if (i < _dropdownItems.Count - 1)
                     {
                         Raylib.DrawLineEx(new Vector2(optRect.X, optRect.Y + optRect.Height), 
                                          new Vector2(optRect.X + optRect.Width, optRect.Y + optRect.Height), 
@@ -1051,7 +1074,7 @@ namespace SSNoir.Rendering
                     }
                 }
 
-                var listRect = new Rectangle(boxRect.X, boxRect.Y + boxRect.Height, boxRect.Width, _availableScenes.Count * 32);
+                var listRect = new Rectangle(boxRect.X, boxRect.Y + boxRect.Height, boxRect.Width, _dropdownItems.Count * 32);
                 Raylib.DrawRectangleLinesEx(listRect, 1.5f, boxOutlineColor);
             }
         }

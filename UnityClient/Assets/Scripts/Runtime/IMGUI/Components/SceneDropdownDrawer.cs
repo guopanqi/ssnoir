@@ -1,13 +1,21 @@
 #nullable enable
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace SSNoir.IMGUI
 {
     public static class SceneDropdownDrawer
     {
+        private struct DropdownItem
+        {
+            public string Name;
+            public bool IsHeader;
+            public string SceneName;
+        }
+
         private static bool _isOpen = false;
-        private static readonly List<string> _availableScenes = new List<string>();
+        private static readonly List<DropdownItem> _dropdownItems = new List<DropdownItem>();
         private static bool _initialized = false;
 
         public static void Draw(SSNoirGameManager gameManager, Vector2 mousePos)
@@ -37,7 +45,7 @@ namespace SSNoir.IMGUI
                 else if (_isOpen)
                 {
                     // Check if clicked outside dropdown
-                    float listH = _availableScenes.Count * 32;
+                    float listH = _dropdownItems.Count * 32;
                     var listRect = new Rect(boxX, boxY + boxH, boxW, listH);
                     if (!listRect.Contains(mousePos))
                     {
@@ -62,44 +70,60 @@ namespace SSNoir.IMGUI
             // Draw dropdown list
             if (_isOpen)
             {
-                for (int i = 0; i < _availableScenes.Count; i++)
+                for (int i = 0; i < _dropdownItems.Count; i++)
                 {
                     var optRect = new Rect(boxX, boxY + boxH + i * 32, boxW, 32);
-                    bool hoverOpt = optRect.Contains(mousePos);
+                    var item = _dropdownItems[i];
 
-                    Color optBg = hoverOpt ? IMGUIStyles.DropdownHover : IMGUIStyles.SlotEmpty;
-                    Color optText = hoverOpt ? Color.white : IMGUIStyles.OnSurfaceVariant;
-
-                    GUI.color = optBg;
-                    GUI.DrawTexture(optRect, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-
-                    if (_availableScenes[i] == currentScene)
+                    if (item.IsHeader)
                     {
-                        GUI.color = IMGUIStyles.PrimaryColor;
-                        GUI.DrawTexture(new Rect(optRect.x, optRect.y, 4, optRect.height), Texture2D.whiteTexture);
+                        GUI.color = IMGUIStyles.SlotEmpty;
+                        GUI.DrawTexture(optRect, Texture2D.whiteTexture);
                         GUI.color = Color.white;
+
+                        var headerStyle = new GUIStyle(IMGUIStyles.HelpTip);
+                        headerStyle.alignment = TextAnchor.MiddleCenter;
+                        headerStyle.normal.textColor = new Color(0.4f, 0.4f, 0.5f, 1f);
+                        headerStyle.fontSize = 11;
+                        GUI.Label(optRect, item.Name, headerStyle);
+                    }
+                    else
+                    {
+                        bool hoverOpt = optRect.Contains(mousePos);
+                        Color optBg = hoverOpt ? IMGUIStyles.DropdownHover : IMGUIStyles.DropdownBg;
+                        Color optText = hoverOpt ? Color.white : IMGUIStyles.OnSurfaceVariant;
+
+                        GUI.color = optBg;
+                        GUI.DrawTexture(optRect, Texture2D.whiteTexture);
+                        GUI.color = Color.white;
+
+                        if (item.SceneName == currentScene)
+                        {
+                            GUI.color = IMGUIStyles.PrimaryColor;
+                            GUI.DrawTexture(new Rect(optRect.x, optRect.y, 4, optRect.height), Texture2D.whiteTexture);
+                            GUI.color = Color.white;
+                        }
+
+                        var itemStyle = new GUIStyle(IMGUIStyles.DropdownItem);
+                        itemStyle.normal.textColor = optText;
+                        GUI.Label(new Rect(optRect.x + 12, optRect.y + 6, optRect.width - 16, 20), item.Name, itemStyle);
+
+                        if (hoverOpt && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                        {
+                            gameManager.OnSceneButtonClicked(item.SceneName);
+                            _isOpen = false;
+                            Event.current.Use();
+                        }
                     }
 
-                    var itemStyle = new GUIStyle(IMGUIStyles.DropdownItem);
-                    itemStyle.normal.textColor = optText;
-                    GUI.Label(new Rect(optRect.x + 12, optRect.y + 6, optRect.width - 16, 20), _availableScenes[i], itemStyle);
-
-                    if (i < _availableScenes.Count - 1)
+                    if (i < _dropdownItems.Count - 1)
                     {
                         IMGUIStyles.DrawLine(new Vector2(optRect.x, optRect.y + optRect.height), new Vector2(optRect.x + optRect.width, optRect.y + optRect.height), IMGUIStyles.OutlineVariantColor, 1f);
-                    }
-
-                    if (hoverOpt && Event.current.type == EventType.MouseDown && Event.current.button == 0)
-                    {
-                        gameManager.OnSceneButtonClicked(_availableScenes[i]);
-                        _isOpen = false;
-                        Event.current.Use();
                     }
                 }
 
                 // List outline
-                float listH = _availableScenes.Count * 32;
+                float listH = _dropdownItems.Count * 32;
                 var listRect = new Rect(boxX, boxY + boxH, boxW, listH);
                 IMGUIStyles.DrawOutline(listRect, 1f, boxBorder);
             }
@@ -107,8 +131,29 @@ namespace SSNoir.IMGUI
 
         private static void LoadScenes(SSNoirGameManager gameManager)
         {
-            _availableScenes.Clear();
-            _availableScenes.AddRange(gameManager.LoadAvailableSceneNames());
+            _dropdownItems.Clear();
+            _dropdownItems.Add(new DropdownItem { Name = "--- WORLD ---", IsHeader = true });
+            _dropdownItems.Add(new DropdownItem { Name = "world", SceneName = "world" });
+            
+            _dropdownItems.Add(new DropdownItem { Name = "--- OTHERS ---", IsHeader = true });
+
+            string searchDir = Path.Combine(Application.streamingAssetsPath, "Content", "scenes", "encounters");
+            if (Directory.Exists(searchDir))
+            {
+                foreach (string file in Directory.GetFiles(searchDir, "*.scm"))
+                {
+                    string name = Path.GetFileNameWithoutExtension(file);
+                    _dropdownItems.Add(new DropdownItem { Name = name, SceneName = name });
+                }
+            }
+            else
+            {
+                foreach (var asset in Resources.LoadAll<TextAsset>("Content/scenes/encounters"))
+                {
+                    string name = Path.GetFileNameWithoutExtension(asset.name);
+                    _dropdownItems.Add(new DropdownItem { Name = name, SceneName = name });
+                }
+            }
         }
     }
 }
