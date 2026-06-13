@@ -222,16 +222,23 @@ namespace SSNoir.Core
             return Convert.ToInt32(value);
         }
 
-        public Dictionary<string, object> GetAllStates()
+        // Returns only the pure global key-value store (chapter, reputation, etc.).
+        // Team, Inventory, and ActionDice are owned by their respective objects and are NOT included here.
+        public Dictionary<string, object> GetPureGlobals()
         {
-            var all = new Dictionary<string, object>(_states);
-            all["health"] = Team.Health;
-            all["supplies"] = Team.Supplies;
-            foreach (var item in Inventory.Items)
-            {
-                all["item:" + item.Key] = item.Value;
-            }
-            return all;
+            return new Dictionary<string, object>(_states);
+        }
+
+        // Replaces the entire pure globals dict. Clears old keys (no stale flags left over).
+        // Forces location=world regardless of what the save dict contains,
+        // so HandleGlobalStateChanged in SceneManager cannot trigger a stray LoadScene.
+        public void ReplacePureGlobals(Dictionary<string, object> globals)
+        {
+            _states.Clear();
+            foreach (var kv in globals)
+                _states[kv.Key] = kv.Value;
+            _states["location"] = "world";
+            OnStateChanged?.Invoke();
         }
     }
 }

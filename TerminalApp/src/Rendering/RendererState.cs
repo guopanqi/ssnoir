@@ -28,7 +28,8 @@ namespace SSNoir.Rendering
         public List<GameNode> NavigationStack { get; } = new List<GameNode>();
         public List<GameNode> VisibleNodes { get; set; } = new List<GameNode>();
 
-        public bool IsDropdownOpen { get; set; } = false;
+        public bool IsDropdownOpen { get; set; } = false; // legacy, kept for DropdownItems loading
+        public bool IsDebugMenuOpen { get; set; } = false;
         public bool IsGrowthPanelOpen { get; set; } = false;
         public bool IsTurnPanelOpen { get; set; } = false;
         public List<DropdownItem> DropdownItems { get; } = new List<DropdownItem>();

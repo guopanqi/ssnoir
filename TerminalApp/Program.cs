@@ -44,6 +44,12 @@ namespace SSNoir
                     return;
                 }
 
+                if (args.Length > 0 && args[0] == "--test-saveload")
+                {
+                    GameTester.TestSaveLoad();
+                    return;
+                }
+
                 var gameState = new GameState();
                 var loader = new LocalScriptLoader();
                 var sceneManager = new SceneManager(gameState, loader);

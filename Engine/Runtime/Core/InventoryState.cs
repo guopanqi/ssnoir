@@ -28,5 +28,18 @@ namespace SSNoir.Core
             Items[itemId] = count;
             OnInventoryChanged?.Invoke();
         }
+
+        // Replaces the entire inventory. Old items not in saveData are removed.
+        public void ApplySaveData(Dictionary<string, int> saveData)
+        {
+            Items.Clear();
+            foreach (var kv in saveData)
+            {
+                if (kv.Value < 0)
+                    throw new ArgumentException($"Item count for '{kv.Key}' cannot be negative in save data: {kv.Value}");
+                Items[kv.Key] = kv.Value;
+            }
+            OnInventoryChanged?.Invoke();
+        }
     }
 }

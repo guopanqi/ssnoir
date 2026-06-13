@@ -55,7 +55,7 @@ namespace SSNoir.Rendering
             FontManager.DrawText("场景: ", 230, statusY + 4, 13, new Color(200, 200, 220, 255));
             FontManager.DrawText(snapshot.Location.ToUpper(), 270, statusY + 4, 13, new Color(100, 220, 100, 255));
 
-            string tip = "提示: 点击骰子/物品选择，点击卡牌对应卡槽放入，右键取消选择。";
+            string tip = "提示: 点击骰子/物品选择，点击卡牌对应卡槽放入，右键取消。";
             FontManager.DrawText(tip, 380, statusY + 4, 12, new Color(140, 140, 160, 255));
         }
     }

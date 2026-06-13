@@ -86,6 +86,86 @@ namespace SSNoir.Testing
             }
         }
 
+        public static void TestSaveLoad()
+        {
+            Console.WriteLine("=== Save/Load Test ===");
+            var savePath = Path.Combine(Path.GetTempPath(), "ssnoir_test_save.json");
+
+            try
+            {
+                // ── Phase 1: build non-default state, save ────────────────
+                Console.WriteLine("[saveload] Phase 1: build state and save...");
+                var gs1 = new GameState();
+                var sm1 = new SceneManager(gs1, new LocalScriptLoader());
+                sm1.LoadScene("world");
+
+                gs1.Set("chapter", 1);
+                gs1.Set("reputation:mayor", 42);
+                gs1.Team.ApplyStress("player", 2);
+                gs1.Inventory.SetCount("金钱", 99);
+                gs1.Inventory.SetCount("酒", 3);
+                sm1.Refresh(); // rebuild tree so savedNodes reflects chapter=1
+                ExecuteNode(sm1, "进入大门");
+
+                sm1.SaveGame(savePath);
+                Console.WriteLine($"[saveload] Saved to {savePath}");
+
+                int savedChapter    = gs1.Get<int>("chapter");
+                int savedRep        = gs1.Get<int>("reputation:mayor");
+                int savedStress     = gs1.Team.FindActor("player")!.Stress;
+                int savedMoney      = gs1.Inventory.GetCount("金钱");
+                int savedWine       = gs1.Inventory.GetCount("酒");
+                int savedHealth     = gs1.Team.Health;
+                int savedNodes      = sm1.CurrentWorldNodes.Count;
+                Console.WriteLine($"[saveload] chapter={savedChapter} rep={savedRep} stress={savedStress} 金钱={savedMoney} 酒={savedWine} health={savedHealth} rootNodes={savedNodes}");
+
+                // ── Phase 2: cold start, load save ───────────────────────
+                Console.WriteLine("[saveload] Phase 2: cold start + LoadGame...");
+                var gs2 = new GameState();
+                var sm2 = new SceneManager(gs2, new LocalScriptLoader());
+                sm2.LoadGame(savePath);   // creates world interpreter internally
+
+                int loadedChapter   = gs2.Get<int>("chapter");
+                int loadedRep       = gs2.Get<int>("reputation:mayor");
+                int loadedStress    = gs2.Team.FindActor("player")!.Stress;
+                int loadedMoney     = gs2.Inventory.GetCount("金钱");
+                int loadedWine      = gs2.Inventory.GetCount("酒");
+                int loadedHealth    = gs2.Team.Health;
+                int loadedNodes     = sm2.CurrentWorldNodes.Count;
+                Console.WriteLine($"[saveload] chapter={loadedChapter} rep={loadedRep} stress={loadedStress} 金钱={loadedMoney} 酒={loadedWine} health={loadedHealth} rootNodes={loadedNodes}");
+
+                AssertEq("chapter",         savedChapter,  loadedChapter);
+                AssertEq("reputation:mayor",savedRep,      loadedRep);
+                AssertEq("player.stress",   savedStress,   loadedStress);
+                AssertEq("金钱",             savedMoney,    loadedMoney);
+                AssertEq("酒",               savedWine,     loadedWine);
+                AssertEq("health",          savedHealth,   loadedHealth);
+                AssertEq("rootNodes",       savedNodes,    loadedNodes);
+
+                // chapter=1 should show 5 locations (home/theater/restaurant/clinic/warehouse)
+                if (loadedNodes != 5)
+                    throw new Exception($"[saveload] Expected 5 root nodes for chapter 1, got {loadedNodes}");
+
+                // ActionDice re-rolled: just verify non-empty
+                var player2 = gs2.Team.FindActor("player")!;
+                if (player2.ActionDice.Count == 0)
+                    throw new Exception("[saveload] ActionDice should be re-rolled after load but is empty.");
+
+                Console.WriteLine("[saveload] All assertions passed.");
+            }
+            finally
+            {
+                if (File.Exists(savePath)) File.Delete(savePath);
+            }
+        }
+
+        private static void AssertEq<T>(string label, T expected, T actual)
+        {
+            if (!expected!.Equals(actual))
+                throw new Exception($"[saveload] FAIL: {label} expected={expected} actual={actual}");
+            Console.WriteLine($"[saveload] OK: {label} = {actual}");
+        }
+
         public static void SimulateMinimalFlow()
         {
             var gameState = new GameState();

@@ -169,6 +169,55 @@ namespace SSNoir.Core
             RollActionDice(isInEncounter);
         }
 
+        public TeamSaveData Serialize()
+        {
+            var data = new TeamSaveData
+            {
+                Health      = Health,
+                Supplies    = Supplies,
+                GrowthLevel = GrowthLevel,
+            };
+            foreach (var actor in Actors)
+            {
+                data.Actors.Add(new ActorSaveData
+                {
+                    Id                = actor.Id,
+                    Name              = actor.Name,
+                    Role              = actor.Role,
+                    Status            = actor.Status,
+                    Stress            = actor.Stress,
+                    SpentGrowthPoints = actor.SpentGrowthPoints,
+                    Stats             = new Dictionary<string, int>(actor.Stats),
+                });
+            }
+            return data;
+        }
+
+        public void ApplySaveData(TeamSaveData data)
+        {
+            Health      = data.Health;
+            Supplies    = data.Supplies;
+            GrowthLevel = data.GrowthLevel;
+            foreach (var actorData in data.Actors)
+            {
+                var actor = FindActor(actorData.Id)
+                    ?? throw new ArgumentException($"Save file references unknown actor '{actorData.Id}'.");
+                if (actorData.Status != "active" && actorData.Status != "away")
+                    throw new ArgumentException($"Actor '{actorData.Id}' has invalid status '{actorData.Status}' in save file.");
+                actor.Status            = actorData.Status;
+                actor.Stress            = actorData.Stress;
+                actor.SpentGrowthPoints = actorData.SpentGrowthPoints;
+                foreach (var kv in actorData.Stats)
+                {
+                    if (!actor.Stats.ContainsKey(kv.Key))
+                        throw new ArgumentException($"Save file contains unknown stat '{kv.Key}' for actor '{actorData.Id}'.");
+                    actor.Stats[kv.Key] = kv.Value;
+                }
+                actor.ActionDice.Clear(); // re-rolled after load
+            }
+            OnTeamChanged?.Invoke();
+        }
+
         public void RollActionDice(bool isInEncounter)
         {
             var rand = new Random();

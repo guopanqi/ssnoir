@@ -17,6 +17,7 @@ namespace SSNoir.Rendering
 
         private const int WindowWidth = 800;
         private const int WindowHeight = 600;
+        private static readonly string SaveFilePath = "save.json";
         private static readonly bool FastPresentationMode =
             string.Equals(Environment.GetEnvironmentVariable("SSNOIR_FAST_PRESENTATION"), "1", StringComparison.Ordinal);
 
@@ -46,6 +47,7 @@ namespace SSNoir.Rendering
             _state.SelectedResource = null;
             _state.IsTurnPanelOpen = false;
             _state.IsGrowthPanelOpen = false;
+            _state.IsDebugMenuOpen = false;
         }
 
         private void AdoptLatestSnapshot()
@@ -205,6 +207,40 @@ namespace SSNoir.Rendering
                 ResetSceneUiState();
             }
             StartPresentation(report, node.Name);
+        }
+
+        private void SaveCurrentGame()
+        {
+            try
+            {
+                _sceneManager.SaveGame(SaveFilePath);
+                _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
+            }
+            catch (Exception ex)
+            {
+                _gameState.NotificationCenter.Push($"存档失败: {ex.Message}", NotificationKind.Error);
+            }
+        }
+
+        private void LoadSavedGame()
+        {
+            if (!System.IO.File.Exists(SaveFilePath))
+            {
+                _gameState.NotificationCenter.Push("没有找到存档文件。", NotificationKind.Warning);
+                return;
+            }
+
+            try
+            {
+                _sceneManager.LoadGame(SaveFilePath);
+                _state.DisplayedSnapshot = _sceneManager.LatestSnapshot;
+                _state.SelectedResource = null;
+                _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
+            }
+            catch (Exception ex)
+            {
+                _gameState.NotificationCenter.Push($"读档失败: {ex.Message}", NotificationKind.Error);
+            }
         }
 
         private void ResolveNavigationStack()
@@ -474,15 +510,11 @@ namespace SSNoir.Rendering
                 }
             }
 
-            // 6. Draw Dropdown
-            var dropdownInteraction = SceneDropdownWidget.Draw(_state, _sceneManager, bgUi, WindowWidth);
-            if (!string.IsNullOrEmpty(dropdownInteraction.SelectedSceneName))
-            {
-                _sceneManager.LoadScene(dropdownInteraction.SelectedSceneName);
-            }
-
-            // 7. Draw Faction Reputation Panel
+            // 6. Draw Faction Reputation Panel
             DrawReputationPanel();
+
+            // 7. Draw Debug Menu (save/load + scene switch)
+            DrawDebugMenu(bgUi, ui);
 
             // Draw Team / Growth Toggle Button
             float btnX = 520f;
@@ -560,6 +592,110 @@ namespace SSNoir.Rendering
             }
 
             Raylib.EndDrawing();
+        }
+
+        private static readonly Color DbgBg     = new Color((byte)20,  (byte)20,  (byte)28,  (byte)255);
+        private static readonly Color DbgBorder = new Color((byte)60,  (byte)60,  (byte)90,  (byte)255);
+        private static readonly Color DbgBtn    = new Color((byte)25,  (byte)25,  (byte)38,  (byte)255);
+        private static readonly Color DbgBtnHov = new Color((byte)40,  (byte)40,  (byte)60,  (byte)255);
+        private static readonly Color DbgAccent = new Color((byte)110, (byte)110, (byte)200, (byte)255);
+        private static readonly Color DbgText   = new Color((byte)200, (byte)200, (byte)220, (byte)255);
+        private static readonly Color DbgMuted  = new Color((byte)90,  (byte)90,  (byte)115, (byte)255);
+
+        private void DrawDebugMenu(UiInteractionContext bgUi, UiInteractionContext ui)
+        {
+            // ── Toggle button ─────────────────────────────────────────────
+            float btnX = WindowWidth - 76f;
+            float btnY = 30f;
+            var toggleRect = new Rectangle(btnX, btnY, 66f, 32f);
+            bool isOpen = _state.IsDebugMenuOpen;
+
+            var togBg  = isOpen ? new Color((byte)45,(byte)45,(byte)80,(byte)255) : DbgBtn;
+            var togBdr = isOpen ? DbgAccent : DbgBorder;
+            bool hoverTog = bgUi.CanHover(toggleRect);
+            Raylib.DrawRectangleRounded(toggleRect, 0.25f, 4, hoverTog ? DbgBtnHov : togBg);
+            Raylib.DrawRectangleRoundedLinesEx(toggleRect, 0.25f, 4, 1.5f, togBdr);
+            int lblW = FontManager.MeasureTextWidth("Debug ▾", 13);
+            FontManager.DrawText("Debug ▾", btnX + (66 - lblW) / 2f, btnY + 9, 13, isOpen ? DbgAccent : DbgText);
+
+            if (!bgUi.IsLocked && Raylib.IsMouseButtonPressed(MouseButton.Left) && hoverTog)
+                _state.IsDebugMenuOpen = !isOpen;
+
+            if (!_state.IsDebugMenuOpen) return;
+
+            // ── Panel ─────────────────────────────────────────────────────
+            float pw = 170f;
+            float px = btnX + 66f - pw;    // right-align with button
+            float py = btnY + 32f + 4f;
+
+            // Rows: save+load(36) + sep(14) + scene items
+            var items = _state.DropdownItems;
+            float itemH = 26f;
+            float panelH = 36f + 14f + items.Count * itemH + 8f;
+            var panelRect = new Rectangle(px, py, pw, panelH);
+
+            Raylib.DrawRectangleRounded(panelRect, 0.15f, 4, DbgBg);
+            Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.15f, 4, 1.5f, DbgBorder);
+
+            // Save / Load buttons
+            float rowY = py + 8f;
+            var saveRect = new Rectangle(px + 6f, rowY, 74f, 28f);
+            var loadRect = new Rectangle(px + 86f, rowY, 74f, 28f);
+
+            var saveBtn = UiButton.Draw(saveRect, "存档", bgUi, true, 13,
+                DbgBtn, DbgBtnHov, null, DbgBorder, Color.White, null, Color.White, null);
+            var loadBtn = UiButton.Draw(loadRect, "读档", bgUi, true, 13,
+                DbgBtn, DbgBtnHov, null, DbgBorder, Color.White, null, Color.White, null);
+
+            if (saveBtn.Clicked) { SaveCurrentGame(); _state.IsDebugMenuOpen = false; return; }
+            if (loadBtn.Clicked) { LoadSavedGame();   _state.IsDebugMenuOpen = false; return; }
+
+            // Separator + "切换场景" label
+            float sepY = rowY + 28f + 6f;
+            Raylib.DrawLineEx(new Vector2(px + 8, sepY), new Vector2(px + pw - 8, sepY), 1f, DbgBorder);
+            FontManager.DrawText("切换场景", px + 8, sepY + 4, 11, DbgMuted);
+
+            // Scene list
+            float listY = sepY + 4f + itemH * 0.5f;
+            bool mouseClick = !bgUi.IsLocked && Raylib.IsMouseButtonPressed(MouseButton.Left);
+            bool clickHandled = false;
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                float iy = listY + i * itemH;
+                var itemRect = new Rectangle(px + 4, iy, pw - 8, itemH - 2);
+                bool hover = Raylib.CheckCollisionPointRec(bgUi.Mouse, itemRect) && !bgUi.IsLocked;
+
+                if (item.IsHeader)
+                {
+                    FontManager.DrawText(item.Name, px + 10, iy + 5, 11, DbgMuted);
+                    continue;
+                }
+
+                bool isCurrent = string.Equals(item.SceneName, _sceneManager.CurrentSceneName, StringComparison.OrdinalIgnoreCase);
+                if (hover)  Raylib.DrawRectangleRounded(itemRect, 0.15f, 4, DbgBtnHov);
+                if (isCurrent) Raylib.DrawRectangle((int)px + 4, (int)iy + 2, 3, (int)itemH - 6, DbgAccent);
+
+                FontManager.DrawText(item.Name, px + 12, iy + 5, 13,
+                    isCurrent ? DbgAccent : (hover ? Color.White : DbgText));
+
+                if (mouseClick && hover && !clickHandled)
+                {
+                    clickHandled = true;
+                    _state.IsDebugMenuOpen = false;
+                    _sceneManager.LoadScene(item.SceneName);
+                    return;
+                }
+            }
+
+            // Close when clicking outside
+            if (mouseClick && !clickHandled
+                && !Raylib.CheckCollisionPointRec(bgUi.Mouse, panelRect)
+                && !Raylib.CheckCollisionPointRec(bgUi.Mouse, toggleRect))
+            {
+                _state.IsDebugMenuOpen = false;
+            }
         }
 
         private void DrawCards(SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float startY)

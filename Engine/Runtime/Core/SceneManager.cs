@@ -176,6 +176,68 @@ namespace SSNoir.Core
             );
         }
 
+        public void SaveGame(string filePath)
+        {
+            if (_encounterInterpreter != null)
+                throw new InvalidOperationException("Cannot save during an encounter. End the encounter first.");
+
+            var globals = _gameState.GetPureGlobals();
+            globals.Remove("location"); // reconstructed on load
+
+            var data = new SaveData
+            {
+                Globals   = globals,
+                Team      = _gameState.Team.Serialize(),
+                Inventory = new Dictionary<string, int>(_gameState.Inventory.Items),
+                WorldData = _worldInterpreter?.Eval("(world-save)"),
+            };
+            SaveManager.Write(filePath, data);
+        }
+
+        public void LoadGame(string filePath)
+        {
+            var data = SaveManager.Read(filePath);
+
+            // 1. Force exit any active encounter
+            _encounterInterpreter = null;
+            _encounterSceneName   = string.Empty;
+            _encounterCallback    = null;
+
+            // 2. Ensure world interpreter exists (creates it if not yet initialized)
+            if (_worldInterpreter == null)
+            {
+                _worldInterpreter = new SchemeInterpreter(_gameState, _loader);
+                RegisterEncounterBridges(_worldInterpreter);
+                _worldInterpreter.LoadFile("scenes/world/world.scm");
+            }
+
+            // 3. Restore Team (health, supplies, actor stress/stats)
+            _gameState.Team.ApplySaveData(data.Team);
+
+            // 4. Restore Inventory (replaces entirely — no stale items left over)
+            _gameState.Inventory.ApplySaveData(data.Inventory);
+
+            // 5. Replace pure globals (chapter, reputation, etc.)
+            //    ReplacePureGlobals clears _states and forces location=world,
+            //    so HandleGlobalStateChanged cannot trigger a stray LoadScene during restore.
+            _gameState.ReplacePureGlobals(data.Globals);
+
+            // 6. Restore Scheme world state (must run after C# state is fully set)
+            if (data.WorldData != null)
+            {
+                _worldInterpreter.RawInterpreter.DefineGlobal(
+                    Symbol.FromString("__world-load-data"), data.WorldData);
+                _worldInterpreter.Eval("(world-load! __world-load-data)");
+            }
+
+            // 7. Roll fresh action dice for world mode
+            _gameState.Team.RollActionDice(isInEncounter: false);
+
+            // 8. Rebuild render tree and notify UI
+            RebuildRenderTree();
+            OnSceneLoaded?.Invoke();
+        }
+
         public void Refresh() => RebuildRenderTree();
 
         public void RebuildRenderTree()
