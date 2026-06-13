@@ -17,6 +17,10 @@ namespace SSNoir.Core
         private SchemeInterpreter? _encounterInterpreter;
         private string _encounterSceneName = string.Empty;
         private bool _turnEndedDuringAction;
+        private bool _isExecutingAction;
+        private bool _hasPendingSceneDiceRoll;
+        private bool _pendingSceneIsEncounter;
+        private Procedure? _encounterCallback;
 
         public event Action? OnSceneLoaded;
         public event Action? OnWorldRefreshed;
@@ -84,10 +88,41 @@ namespace SSNoir.Core
             }
 
             bool nextIsInEncounter = !(sceneName == "world" || sceneName == "world/world" || sceneName == "home" || sceneName == "office" || sceneName == "club");
-            _gameState.Team.RollActionDice(nextIsInEncounter);
+            RollSceneDice(nextIsInEncounter);
 
             RebuildRenderTree();
-            OnSceneLoaded?.Invoke();
+            NotifySceneLoaded();
+        }
+
+        private void RollSceneDice(bool isInEncounter)
+        {
+            if (_isExecutingAction)
+            {
+                _hasPendingSceneDiceRoll = true;
+                _pendingSceneIsEncounter = isInEncounter;
+                return;
+            }
+
+            _gameState.Team.RollActionDice(isInEncounter);
+        }
+
+        private void ApplyPendingSceneDiceRoll()
+        {
+            if (!_hasPendingSceneDiceRoll)
+            {
+                return;
+            }
+
+            _hasPendingSceneDiceRoll = false;
+            _gameState.Team.RollActionDice(_pendingSceneIsEncounter);
+        }
+
+        private void NotifySceneLoaded()
+        {
+            if (!_isExecutingAction)
+            {
+                OnSceneLoaded?.Invoke();
+            }
         }
 
         public void StartEncounter(string name)
@@ -95,8 +130,14 @@ namespace SSNoir.Core
             LoadScene(name);
         }
 
-        public void EndEncounter()
+        public void EndEncounter(object? result = null)
         {
+            var cb = _encounterCallback;
+            _encounterCallback = null;
+
+            if (cb != null)
+                cb.Call(new List<object> { result ?? Symbol.FromString("none") });
+
             LoadScene("world");
         }
 
@@ -109,6 +150,7 @@ namespace SSNoir.Core
                     if (args.Count < 1)
                         throw new ArgumentException("start-encounter requires 1 argument (encounter name)");
                     string name = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                    _encounterCallback = args.Count > 1 ? args[1] as Procedure : null;
                     StartEncounter(name);
                     return new None();
                 }, "start-encounter")
@@ -118,7 +160,8 @@ namespace SSNoir.Core
                 Symbol.FromString("end-encounter"),
                 new NativeProcedure(args =>
                 {
-                    EndEncounter();
+                    var result = args.Count > 0 ? args[0] : null;
+                    EndEncounter(result);
                     return new None();
                 }, "end-encounter")
             );
@@ -168,6 +211,7 @@ namespace SSNoir.Core
                 throw new InvalidOperationException($"get-render-data must return a list of items, got {rawData?.GetType().FullName ?? "null"}");
             }
 
+            AssertUniqueNodeNames(nodes);
             CurrentWorldNodes = nodes;
 
             var flatClocks = new List<GameClock>();
@@ -231,6 +275,23 @@ namespace SSNoir.Core
             {
                 result.AddRange(node.Clocks);
                 CollectClocksRecursive(node.Children, result);
+            }
+        }
+
+        private static void AssertUniqueNodeNames(List<GameNode> nodes)
+        {
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            AssertUniqueNodeNamesRecursive(nodes, seen);
+        }
+
+        private static void AssertUniqueNodeNamesRecursive(List<GameNode> nodes, HashSet<string> seen)
+        {
+            foreach (var node in nodes)
+            {
+                Debug.Assert(!seen.Contains(node.Name),
+                    $"重复节点名称: \"{node.Name}\"。节点名称在整棵渲染树中必须唯一。");
+                seen.Add(node.Name);
+                AssertUniqueNodeNamesRecursive(node.Children, seen);
             }
         }
 
@@ -385,6 +446,8 @@ namespace SSNoir.Core
             };
             _gameState.CurrentContext = context;
             _turnEndedDuringAction = false;
+            bool wasExecutingAction = _isExecutingAction;
+            _isExecutingAction = true;
 
             try
             {
@@ -517,8 +580,10 @@ namespace SSNoir.Core
             finally
             {
                 _gameState.CurrentContext = null;
+                _isExecutingAction = wasExecutingAction;
             }
 
+            ApplyPendingSceneDiceRoll();
             RebuildRenderTree();
             FillPresentationHints(report);
             return report;

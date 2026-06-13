@@ -193,7 +193,19 @@ namespace SSNoir.IMGUI
 
             GUI.Label(new Rect(30, statusY + 5, 60, 22), "健康: ", IMGUIStyles.StatusLabel);
             var healthStyle = new GUIStyle(IMGUIStyles.StatusLabel);
-            healthStyle.normal.textColor = IMGUIStyles.HealthColor;
+            float healthPct = snapshot.MaxHealth > 0 ? (float)snapshot.Health / snapshot.MaxHealth : 0f;
+            if (healthPct >= 0.75f)
+            {
+                healthStyle.normal.textColor = new Color(0.31f, 0.86f, 0.47f, 1f); // Green
+            }
+            else if (healthPct >= 0.4f)
+            {
+                healthStyle.normal.textColor = new Color(0.96f, 0.69f, 0.22f, 1f); // Amber/Orange
+            }
+            else
+            {
+                healthStyle.normal.textColor = new Color(0.96f, 0.31f, 0.31f, 1f); // Red
+            }
             GUI.Label(new Rect(80, statusY + 5, 80, 22), $"{snapshot.Health}/{snapshot.MaxHealth}", healthStyle);
 
             GUI.Label(new Rect(180, statusY + 5, 60, 22), "场景: ", IMGUIStyles.StatusLabel);

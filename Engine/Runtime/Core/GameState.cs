@@ -20,6 +20,7 @@ namespace SSNoir.Core
         {
             // Initial defaults for backwards compatibility and scenes
             Set("location", "world");
+            Set("chapter", 0);
             Set("reputation:mayor", 0);
             Set("reputation:workers", 0);
             Set("reputation:elites", 0);

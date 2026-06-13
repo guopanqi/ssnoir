@@ -14,6 +14,7 @@ namespace SSNoir.Core
         public GameResolve? Resolve { get; set; }
 
         public bool HasChildren => Children != null && Children.Count > 0;
+        public bool IsContainer => Resolve == null;
         public bool HasResolve => Resolve != null;
     }
 }

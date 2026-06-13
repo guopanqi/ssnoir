@@ -25,6 +25,15 @@ namespace SSNoir.Testing
                 throw new DirectoryNotFoundException("Scenes directory not found under standard content paths.");
             }
 
+            // Phase 1: paren balance check on every .scm file before loading anything
+            Console.WriteLine("[validate] Phase 1: paren balance...");
+            foreach (var scmFile in Directory.GetFiles(scenesDir, "*.scm", SearchOption.AllDirectories))
+            {
+                AssertParenBalance(scmFile);
+            }
+            Console.WriteLine("[validate] Phase 1: all files balanced.");
+
+            // Phase 2: load and render-validate each scene
             foreach (var scenePath in Directory.GetFiles(scenesDir, "*.scm", SearchOption.AllDirectories))
             {
                 var relativePath = Path.GetRelativePath(scenesDir, scenePath);
@@ -38,6 +47,7 @@ namespace SSNoir.Testing
                 var gameState = new GameState();
                 var sceneManager = new SceneManager(gameState, new LocalScriptLoader());
 
+                Console.WriteLine($"[validate] {sceneName}");
                 try
                 {
                     sceneManager.LoadScene(sceneName);
@@ -79,6 +89,7 @@ namespace SSNoir.Testing
         public static void SimulateMinimalFlow()
         {
             var gameState = new GameState();
+            gameState.Set("chapter", "test");
             var sceneManager = new SceneManager(gameState, new LocalScriptLoader());
 
             sceneManager.LoadScene("home");
@@ -1014,6 +1025,53 @@ namespace SSNoir.Testing
                 }
 
                 Console.WriteLine(string.Format("{0,-45} | {1,-10} | {2,-10}", expr, rawStatus, projStatus));
+            }
+        }
+
+        private static void AssertParenBalance(string filePath)
+        {
+            string content = File.ReadAllText(filePath);
+            string fileName = Path.GetFileName(filePath);
+            string[] lines = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+            var stack = new Stack<(int line, int col)>();
+            bool inString = false;
+            bool escape = false;
+
+            for (int li = 0; li < lines.Length; li++)
+            {
+                string line = lines[li];
+                escape = false;
+                for (int ci = 0; ci < line.Length; ci++)
+                {
+                    char c = line[ci];
+                    if (inString)
+                    {
+                        if (escape) { escape = false; continue; }
+                        if (c == '\\') { escape = true; continue; }
+                        if (c == '"') inString = false;
+                        continue;
+                    }
+                    if (c == ';') break;
+                    if (c == '"') { inString = true; continue; }
+                    if (c == '(')
+                    {
+                        stack.Push((li + 1, ci + 1));
+                    }
+                    else if (c == ')')
+                    {
+                        if (stack.Count == 0)
+                            throw new InvalidDataException(
+                                $"括号不平衡 [{fileName}] 第 {li + 1} 行第 {ci + 1} 列：多余的 ')'\n  {line.Trim()}");
+                        stack.Pop();
+                    }
+                }
+            }
+
+            if (stack.Count > 0)
+            {
+                var (ul, uc) = stack.Pop();
+                throw new InvalidDataException(
+                    $"括号不平衡 [{fileName}] 第 {ul} 行第 {uc} 列：'(' 未关闭\n  {lines[ul - 1].Trim()}");
             }
         }
 

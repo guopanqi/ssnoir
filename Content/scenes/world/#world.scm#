@@ -29,7 +29,7 @@
 
 (define (current-locations)
   (let ((ch (get-global 'chapter)))
-    (if (or (equal? ch #f) (equal? ch "test") (equal? ch "all"))
+    (if (not ch)
         (list home office merchant test board club theater restaurant clinic abandoned-warehouse)
         (find-chapter-locs ch chapter-locations))))
 

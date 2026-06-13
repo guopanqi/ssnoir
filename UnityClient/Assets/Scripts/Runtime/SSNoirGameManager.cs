@@ -101,13 +101,8 @@ namespace SSNoir
             // 6. Listen to scene loads and world refreshes
             _sceneManager.OnSceneLoaded += () => {
                 Debug.Log($"[SSNoir] Scene Loaded: {_sceneManager.CurrentSceneName}");
-                _navigationStack.Clear();
-                _selectedResource = null;
-                _focusedNodeName = string.Empty;
-
-                globalCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Global") || c.name.Contains("global"));
-                _cameraManager.SetGlobalCamera(globalCamera);
-
+                ResetSceneUiState();
+                RefreshSceneCameraReference();
                 AdoptLatestSnapshot();
                 UpdateCameraFocus();
             };
@@ -400,14 +395,25 @@ namespace SSNoir
             _renderer.SetInputLocked(true);
             try
             {
+                string sceneBefore = _sceneManager.CurrentSceneName;
                 ActionReport report = _sceneManager.ExecuteAction(node, slots);
                 _nodeSlots.Remove(node.Name);
                 _selectedResource = null;
+                bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
+                if (sceneChanged)
+                {
+                    ResetSceneUiState();
+                }
 
                 bool done = false;
                 _renderer.PlayPresentation(report, node.Name, () =>
                 {
+                    if (sceneChanged)
+                    {
+                        RefreshSceneCameraReference();
+                    }
                     AdoptLatestSnapshot();
+                    UpdateCameraFocus();
                     done = true;
                 });
 
@@ -425,6 +431,21 @@ namespace SSNoir
             {
                 _renderer.SetInputLocked(false);
             }
+        }
+
+        private void ResetSceneUiState()
+        {
+            _navigationStack.Clear();
+            _nodeSlots.Clear();
+            _flippedNodes.Clear();
+            _selectedResource = null;
+            _focusedNodeName = string.Empty;
+        }
+
+        private void RefreshSceneCameraReference()
+        {
+            globalCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Global") || c.name.Contains("global"));
+            _cameraManager.SetGlobalCamera(globalCamera);
         }
 
         public void AdoptLatestSnapshot()

@@ -1,8 +1,14 @@
 ;; scenes/combat.scm - Combat Scene
 
+(define enemy-id-seq 0)
+(define (next-enemy-id)
+  (set! enemy-id-seq (+ enemy-id-seq 1))
+  enemy-id-seq)
+
 ;; ── Enemy Constructor ─────────────────────────
 (define (make-enemy type hp-max atk-max dmg)
-  (let ((hp hp-max)
+  (let ((id (next-enemy-id))
+        (hp hp-max)
         (atk-clock (make-clock "A" atk-max 'countdown)))
     (let ((suppress! (lambda ()
                        (set! hp (- hp 1))
@@ -19,15 +25,15 @@
           ((equal? msg 'reset-atk!)(atk-clock 'reset!))
           ((equal? msg 'render-data)
            (container-with-clocks
-             type
+             (string-append type " " (number->string id))
              (list
-               (action "压制"
+               (action (string-append "压制 " type " " (number->string id))
                        (list (req-die))
                        (roll 'violence
                              (lambda () #f)                    ; 失败: 无效果
                              (lambda () (atk-clock 'reset!))   ; 中性: 仅重置敌人攻击
                              (lambda () (suppress!))))         ; 成功: 伤害加重置
-               (action "击倒"
+               (action (string-append "击倒 " type " " (number->string id))
                        (list (req-die))
                        (roll 'violence
                              (lambda () #f)                    ; 失败: 无效果

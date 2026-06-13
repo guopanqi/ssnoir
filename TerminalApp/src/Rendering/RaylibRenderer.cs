@@ -30,15 +30,22 @@ namespace SSNoir.Rendering
 
             _sceneManager.OnSceneLoaded += () =>
             {
-                _state.NavigationStack.Clear();
-                _state.NodeSlots.Clear();
-                _state.SelectedResource = null;
-                _state.IsTurnPanelOpen = false;
+                ResetSceneUiState();
                 _state.IsPresentingAction = false;
                 _state.PendingReport = null;
                 _state.ActiveRollResult = null;
                 AdoptLatestSnapshot();
             };
+        }
+
+        private void ResetSceneUiState()
+        {
+            _state.NavigationStack.Clear();
+            _state.NodeSlots.Clear();
+            _state.FlippedNodes.Clear();
+            _state.SelectedResource = null;
+            _state.IsTurnPanelOpen = false;
+            _state.IsGrowthPanelOpen = false;
         }
 
         private void AdoptLatestSnapshot()
@@ -189,9 +196,14 @@ namespace SSNoir.Rendering
 
         private void ExecuteNodeAction(GameNode node, List<SlottedResource?> slots)
         {
+            string sceneBefore = _sceneManager.CurrentSceneName;
             var report = _sceneManager.ExecuteAction(node, slots);
             _state.NodeSlots.Remove(node.Name);
             _state.SelectedResource = null;
+            if (!string.Equals(sceneBefore, _sceneManager.CurrentSceneName, StringComparison.OrdinalIgnoreCase))
+            {
+                ResetSceneUiState();
+            }
             StartPresentation(report, node.Name);
         }
 
@@ -215,7 +227,7 @@ namespace SSNoir.Rendering
             foreach (var name in path)
             {
                 var match = currentLevel.Find(n => n.Name == name);
-                if (match != null && match.HasChildren)
+                if (match != null && match.IsContainer)
                 {
                     _state.NavigationStack.Add(match);
                     currentLevel = match.Children;
@@ -503,15 +515,15 @@ namespace SSNoir.Rendering
 
                 if (_state.ActiveRollPhase == 0)
                 {
-                    // Rolling phase: 1.0s
-                    float t = Math.Clamp(elapsed / 1.0f, 0f, 1f);
+                    // Rolling phase: 0.3s (was 1.0s)
+                    float t = Math.Clamp(elapsed / 0.3f, 0f, 1f);
                     float interval = 0.05f + (0.22f - 0.05f) * t;
 
                     var rand = new Random();
                     _state.ActiveRollDisplayDieValue = rand.Next(1, 7);
                     _state.ActiveRollDisplayScale = 0.9f + (float)rand.NextDouble() * 0.25f;
 
-                    if (elapsed >= 1.0f)
+                    if (elapsed >= 0.3f)
                     {
                         _state.ActiveRollPhase = 1;
                         _state.ActiveRollTime = 0f; // Reset phase time
@@ -521,11 +533,11 @@ namespace SSNoir.Rendering
                 }
                 else if (_state.ActiveRollPhase == 1)
                 {
-                    // Reveal pulse phase: 0.25s
-                    float t = Math.Clamp(elapsed / 0.25f, 0f, 1f);
+                    // Reveal pulse phase: 0.15s (was 0.25s)
+                    float t = Math.Clamp(elapsed / 0.15f, 0f, 1f);
                     _state.ActiveRollDisplayScale = 1f + (float)Math.Sin(t * Math.PI) * 0.35f;
 
-                    if (elapsed >= 0.25f)
+                    if (elapsed >= 0.15f)
                     {
                         _state.ActiveRollPhase = 2;
                         _state.ActiveRollTime = 0f;
@@ -618,7 +630,7 @@ namespace SSNoir.Rendering
 
                 if (interaction.CardClicked)
                 {
-                    if (node.HasChildren)
+                    if (node.IsContainer)
                     {
                         _state.NodeSlots.Clear();
                         _state.NavigationStack.Add(node);

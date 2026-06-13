@@ -218,6 +218,10 @@
 (define (notify! text)
   (__notify! text))
 
+(define (advance-chapter!)
+  (let ((current (get-global 'chapter)))
+    (set-global! 'chapter (if current (+ current 1) 1))))
+
 (define (upgrade-actor-stat! actor-id stat-id)
   (__upgrade-actor-stat! actor-id stat-id))
 
