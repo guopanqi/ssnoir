@@ -121,6 +121,11 @@ namespace SSNoir.Core
             }
 
             // 3. Roll action dice for active members
+            RollActionDice(isInEncounter);
+        }
+
+        public void RollActionDice(bool isInEncounter)
+        {
             var rand = new Random();
             foreach (var actor in Actors)
             {

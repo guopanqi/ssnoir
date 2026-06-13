@@ -33,6 +33,11 @@ namespace SSNoir.Rendering
         public Dictionary<string, List<SlottedResource?>> NodeSlots { get; } = new Dictionary<string, List<SlottedResource?>>();
         public SelectedResource? SelectedResource { get; set; } = null;
         public ActionReport? ActiveRollResult { get; set; } = null;
+        public string ActiveRollActionName { get; set; } = string.Empty;
+        public float ActiveRollTime { get; set; } = 0f;
+        public int ActiveRollPhase { get; set; } = 0; // 0: rolling, 1: reveal pulse, 2: outcome
+        public int ActiveRollDisplayDieValue { get; set; } = 1;
+        public float ActiveRollDisplayScale { get; set; } = 1f;
         public string UiNotification { get; set; } = string.Empty;
         public float UiNotificationTimer { get; set; } = 0f;
 

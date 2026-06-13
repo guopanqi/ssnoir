@@ -387,6 +387,71 @@ namespace SSNoir.Testing
             if (gameState.Team.Health != healthBefore - 1)
                 throw new InvalidOperationException("Zero supplies did not deal health damage.");
 
+            // 12. Infiltration fail stress test
+            var sceneManager = new SceneManager(gameState, new LocalScriptLoader());
+            sceneManager.LoadScene("encounters/infiltration");
+            
+            var playerActor = gameState.Team.FindActor("player");
+            if (playerActor == null)
+                throw new InvalidOperationException("Player actor not found in test.");
+
+            playerActor.Stress = 0;
+            int oldKnowledge = playerActor.Stats["knowledge"];
+            playerActor.Stats["knowledge"] = 1; // Force knowledge to 1 to disable random extra dice
+            playerActor.ActionDice.Clear();
+            playerActor.ActionDice.Add(1); // Force low die value to guarantee fail
+            
+            var crackNode = FindNode(sceneManager.CurrentWorldNodes, "打开保险箱");
+            if (crackNode == null)
+                throw new InvalidOperationException("打开保险箱 node not found in infiltration scene.");
+
+            var slots = new List<SlottedResource?>();
+            slots.Add(new SlottedResource { Type = "die", ActorId = "player", DieIndex = 0, Value = 1 });
+            sceneManager.ExecuteAction(crackNode, slots);
+
+            playerActor.Stats["knowledge"] = oldKnowledge; // Restore knowledge
+
+            if (playerActor.Stress != 1)
+                throw new InvalidOperationException($"Expected player stress to be 1 after action failure in infiltration, got {playerActor.Stress}.");
+
+            // 13. Infiltration alert full failure test
+            int healthBeforeFail = gameState.Team.Health;
+            playerActor.Stats["knowledge"] = 1; // Force knowledge to 1
+            
+            while (sceneManager.CurrentSceneName == "infiltration")
+            {
+                playerActor.ActionDice.Clear();
+                playerActor.ActionDice.Add(1);
+                var testSlots = new List<SlottedResource?>();
+                testSlots.Add(new SlottedResource { Type = "die", ActorId = "player", DieIndex = 0, Value = 1 });
+                sceneManager.ExecuteAction(crackNode, testSlots);
+            }
+
+            playerActor.Stats["knowledge"] = oldKnowledge; // Restore knowledge
+
+            if (sceneManager.CurrentSceneName != "world")
+                throw new InvalidOperationException($"Expected to return to 'world' scene after alert full failure, got '{sceneManager.CurrentSceneName}'");
+
+            if (gameState.Team.Health != healthBeforeFail - 1)
+                throw new InvalidOperationException($"Expected party health to be reduced by 1 on failure, got {gameState.Team.Health} (was {healthBeforeFail})");
+
+            // 14. Action dice redraw test on scene change
+            var annaActor = gameState.Team.FindActor("anna");
+            var laozhouActor = gameState.Team.FindActor("laozhou");
+            if (annaActor == null || laozhouActor == null)
+                throw new InvalidOperationException("Companions not found.");
+
+            // Since we returned to world, all active members should have 2 action dice
+            if (playerActor.ActionDice.Count != 2 || annaActor.ActionDice.Count != 2 || laozhouActor.ActionDice.Count != 2)
+                throw new InvalidOperationException($"Expected 2 action dice for all members in world, got: player={playerActor.ActionDice.Count}, anna={annaActor.ActionDice.Count}, laozhou={laozhouActor.ActionDice.Count}");
+
+            // Transition to an encounter scene
+            sceneManager.LoadScene("encounters/infiltration");
+
+            // In encounter mode, companions should have 0 action dice, protagonist should have 2
+            if (playerActor.ActionDice.Count != 2 || annaActor.ActionDice.Count != 0 || laozhouActor.ActionDice.Count != 0)
+                throw new InvalidOperationException($"Expected 2 action dice for player and 0 for companions in encounter, got: player={playerActor.ActionDice.Count}, anna={annaActor.ActionDice.Count}, laozhou={laozhouActor.ActionDice.Count}");
+
             Console.WriteLine("Core rules validation simulation completed successfully!");
         }
 

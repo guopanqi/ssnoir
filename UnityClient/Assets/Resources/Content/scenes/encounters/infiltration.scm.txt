@@ -99,7 +99,8 @@
   (lambda () (alert 'full?))
   (lambda ()
     (damage-party! 1)
-    (reset-scene!)))
+    (reset-scene!)
+    (end-encounter)))
 
 (define-rule "保险箱开启"
   (lambda () (safe 'full?))
@@ -121,7 +122,9 @@
     (list (req-die))
     (roll 'knowledge
       get-safe-modifiers
-      (lambda () (alert 'tick!))              ; 失败: +1警戒
+      (lambda ()
+        (alert 'tick!)
+        (stress-current-actor! 1))            ; 失败: +1警戒，增加压力
       (lambda () (safe 'tick!))               ; 中性: +1保险箱
       (lambda () (clock-tick-n! safe 2)))))   ; 成功: +2保险箱
 
@@ -137,7 +140,9 @@
     (list (req-die))
     (roll 'knowledge
       get-power-modifiers
-      (lambda () (alert 'tick!))                ; 失败: +1警戒
+      (lambda ()
+        (alert 'tick!)
+        (stress-current-actor! 1))              ; 失败: +1警戒，增加压力
       (lambda () (power 'tick!))                ; 中性: +1断电
       (lambda ()
         (clock-tick-n! power 2)                  ; 成功: +2断电
@@ -167,7 +172,9 @@
     (list (req-die))
     (roll 'knowledge
       get-camera-modifiers
-      (lambda () (alert 'tick!))                ; 失败: +1警戒
+      (lambda ()
+        (alert 'tick!)
+        (stress-current-actor! 1))              ; 失败: +1警戒，增加压力
       (lambda () (camera 'tick!))               ; 中性: +1监控
       (lambda ()
         (clock-tick-n! camera 2)                 ; 成功: +2监控
@@ -199,7 +206,9 @@
     (list (req-die))
     (roll 'sharpness
       get-sharpness-modifiers
-      (lambda () (alert 'tick!))                ; 失败: +1警戒
+      (lambda ()
+        (alert 'tick!)
+        (stress-current-actor! 1))              ; 失败: +1警戒，增加压力
       (lambda () (tool-prep 'tick!))            ; 中性: +1道具
       (lambda () (clock-tick-n! tool-prep 2))))) ; 成功: +2道具
 
@@ -210,7 +219,8 @@
       get-sharpness-modifiers
       (lambda ()
         (set! search-count (+ search-count 1))
-        (alert 'tick!))
+        (alert 'tick!)
+        (stress-current-actor! 1))              ; 失败: +1警戒，增加压力
       (lambda ()
         (set! search-count (+ search-count 1))
         (add-item! '金钱 5))

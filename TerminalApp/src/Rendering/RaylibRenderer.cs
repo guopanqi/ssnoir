@@ -135,6 +135,40 @@ namespace SSNoir.Rendering
 
         private void UpdateAndDraw()
         {
+            if (_gameState.Team.Health <= 0)
+            {
+                if (Raylib.IsKeyPressed(KeyboardKey.Escape))
+                {
+                    Raylib.CloseWindow();
+                    Environment.Exit(0);
+                }
+
+                Raylib.BeginDrawing();
+                Raylib.ClearBackground(new Color(15, 15, 20, 255));
+
+                int screenWidth = Raylib.GetScreenWidth();
+                int screenHeight = Raylib.GetScreenHeight();
+
+                string title = "GAME OVER";
+                string sub = "主角生命值归零，游戏结束。";
+                string tip = "按 ESC 或关闭窗口退出程序。";
+
+                int titleSize = 48;
+                int titleWidth = FontManager.MeasureTextWidth(title, titleSize);
+                FontManager.DrawText(title, (screenWidth - titleWidth) / 2f, screenHeight / 2f - 60f, titleSize, Color.Red);
+
+                int subSize = 24;
+                int subWidth = FontManager.MeasureTextWidth(sub, subSize);
+                FontManager.DrawText(sub, (screenWidth - subWidth) / 2f, screenHeight / 2f + 10f, subSize, new Color(200, 200, 220, 255));
+
+                int tipSize = 16;
+                int tipWidth = FontManager.MeasureTextWidth(tip, tipSize);
+                FontManager.DrawText(tip, (screenWidth - tipWidth) / 2f, screenHeight / 2f + 60f, tipSize, new Color(120, 120, 140, 255));
+
+                Raylib.EndDrawing();
+                return;
+            }
+
             var mousePos = Raylib.GetMousePosition();
 
             // Update Notification Timer
@@ -146,10 +180,20 @@ namespace SSNoir.Rendering
             bool inputBlocked = _state.ActiveRollResult != null;
             var activeMousePos = inputBlocked ? new System.Numerics.Vector2(-100f, -100f) : mousePos;
 
-            // Handle ESC key to return to the parent node
-            if (!inputBlocked && Raylib.IsKeyPressed(KeyboardKey.Escape))
+            // Handle ESC key or right-click to clear selected card/resource first
+            if (!inputBlocked)
             {
-                GoBack();
+                if (Raylib.IsKeyPressed(KeyboardKey.Escape) || Raylib.IsMouseButtonPressed(MouseButton.Right))
+                {
+                    if (_state.SelectedResource != null)
+                    {
+                        _state.SelectedResource = null;
+                    }
+                    else if (Raylib.IsKeyPressed(KeyboardKey.Escape))
+                    {
+                        GoBack();
+                    }
+                }
             }
 
             Raylib.BeginDrawing();
@@ -198,9 +242,48 @@ namespace SSNoir.Rendering
             // 7. Draw Faction Reputation Panel
             DrawReputationPanel();
 
+            // Update active roll animation timer
+            if (_state.ActiveRollResult != null)
+            {
+                _state.ActiveRollTime += Raylib.GetFrameTime();
+                float elapsed = _state.ActiveRollTime;
+
+                if (_state.ActiveRollPhase == 0)
+                {
+                    // Rolling phase: 1.0s
+                    float t = Math.Clamp(elapsed / 1.0f, 0f, 1f);
+                    float interval = 0.05f + (0.22f - 0.05f) * t;
+
+                    var rand = new Random();
+                    _state.ActiveRollDisplayDieValue = rand.Next(1, 7);
+                    _state.ActiveRollDisplayScale = 0.9f + (float)rand.NextDouble() * 0.25f;
+
+                    if (elapsed >= 1.0f)
+                    {
+                        _state.ActiveRollPhase = 1;
+                        _state.ActiveRollTime = 0f; // Reset phase time
+                        _state.ActiveRollDisplayDieValue = _state.ActiveRollResult.FinalRollValue;
+                        _state.ActiveRollDisplayScale = 1f;
+                    }
+                }
+                else if (_state.ActiveRollPhase == 1)
+                {
+                    // Reveal pulse phase: 0.25s
+                    float t = Math.Clamp(elapsed / 0.25f, 0f, 1f);
+                    _state.ActiveRollDisplayScale = 1f + (float)Math.Sin(t * Math.PI) * 0.35f;
+
+                    if (elapsed >= 0.25f)
+                    {
+                        _state.ActiveRollPhase = 2;
+                        _state.ActiveRollTime = 0f;
+                        _state.ActiveRollDisplayScale = 1f;
+                    }
+                }
+            }
+
             // 8. Draw Overlays (Modals / Toasts)
             var overlayInteraction = OverlayWidget.Draw(_state, mousePos, WindowWidth, WindowHeight);
-            if (overlayInteraction.ConfirmClicked)
+            if (overlayInteraction.ConfirmClicked || (_state.ActiveRollResult != null && Raylib.IsKeyPressed(KeyboardKey.Escape)))
             {
                 _state.ActiveRollResult = null;
             }
@@ -369,6 +452,11 @@ namespace SSNoir.Rendering
             if (report.Type == ActionType.Roll)
             {
                 _state.ActiveRollResult = report;
+                _state.ActiveRollActionName = node.Name;
+                _state.ActiveRollTime = 0f;
+                _state.ActiveRollPhase = 0;
+                _state.ActiveRollDisplayDieValue = 1;
+                _state.ActiveRollDisplayScale = 1f;
             }
         }
 

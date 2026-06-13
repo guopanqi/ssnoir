@@ -81,7 +81,7 @@ namespace SSNoir.Core
             laozhou.Stats["violence"] = 2;
             laozhou.Stats["knowledge"] = 1;
             laozhou.Stats["sharpness"] = 1;
-            laozhou.Stats["coding"] = 1;
+            laozhou.Stats["coding"] = 2;
             laozhou.ActionDice.Add(rand.Next(1, 7));
             laozhou.ActionDice.Add(rand.Next(1, 7));
             Team.Actors.Add(laozhou);
