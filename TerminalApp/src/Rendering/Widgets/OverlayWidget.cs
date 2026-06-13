@@ -225,7 +225,12 @@ namespace SSNoir.Rendering
                     float btnX = modalX + (modalW - btnW) / 2f;
                     float btnY = modalY + modalH - 45;
                     var btnRect = new Rectangle(btnX, btnY, btnW, btnH);
-                    var confirmBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(btnRect, "确定", ui, true, 14,
+                    var modalUi = new SSNoir.TerminalApp.Rendering.UiInteractionContext
+                    {
+                        Mouse = ui.Mouse,
+                        IsLocked = false
+                    };
+                    var confirmBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(btnRect, "确定", modalUi, true, 14,
                         new Color((byte)50, (byte)50, (byte)70, (byte)255), new Color((byte)80, (byte)80, (byte)110, (byte)255), null,
                         new Color((byte)90, (byte)90, (byte)120, (byte)255), new Color((byte)180, (byte)180, (byte)250, (byte)255), null,
                         Color.White, null);

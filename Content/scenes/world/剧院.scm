@@ -31,7 +31,10 @@
                             (observe-action "夜莺" "夜莺：“快去追吧，别让他跑了。”")))))
                   (if (not nightingale-talked)
                       (list (observe-action "黑衣人" "黑衣人匆匆走过。"))
-                      (list (observe-action "黑衣人留下的踪迹" "地上残留着潮湿的泥土，以及一串延伸向阴暗巷弄的脚印。"))))
+                      (list (observe-action "黑衣人留下的踪迹" "地上残留着潮湿 of 泥土，以及一串延伸向阴暗巷弄的脚印。")
+                            (instant-action "追上黑衣人"
+                                            (lambda ()
+                                              (start-encounter "追击黑衣人"))))))
                 '())))))
 
     ;; ── Message Passing Interface ─────────────────
