@@ -18,7 +18,7 @@
         (set! workers-protesting? #t)
         (set! protest-just-triggered #t)
         (protest-clock 'reset!)
-        (set-global! 'notification "警报：工人们发起了抗议！")))
+        (notify! "警报：工人们发起了抗议！")))
 
     (define-turn-rule "工人抗议倒计时"
       (lambda () workers-protesting?)
@@ -50,7 +50,8 @@
           name))
 
     (define (node-gramophone)
-      (container "唱片机"
+      ;; 这会改变名字/ID, 会有一些麻烦, 但现在先不管
+      (container (string-append "唱片机" playing-song)
         (list
           (instant-action (format-song-name "《甜蜜蜜》")
                           (lambda () (set! playing-song "《甜蜜蜜》")))

@@ -12,21 +12,59 @@ namespace SSNoir.Rendering
             public bool ConfirmClicked;
         }
 
-        public static OverlayInteraction Draw(RendererState state, System.Numerics.Vector2 mousePos, float windowWidth, float windowHeight)
+        public static OverlayInteraction Draw(RendererState state, NotificationCenter notificationCenter, System.Numerics.Vector2 mousePos, float windowWidth, float windowHeight)
         {
             var interaction = new OverlayInteraction { ConfirmClicked = false };
 
-            // 1. Toast Notification
-            if (state.UiNotificationTimer > 0 && !string.IsNullOrEmpty(state.UiNotification))
+            // 1. Toast Notifications
+            var visibleNotifs = notificationCenter.GetVisible();
+            for (int i = 0; i < visibleNotifs.Count; i++)
             {
-                int toastW = FontManager.MeasureTextWidth(state.UiNotification, 14) + 40;
-                float toastX = (windowWidth - toastW) / 2f;
-                float toastY = 15f;
-                var toastRect = new Rectangle(toastX, toastY, toastW, 30);
-                
-                Raylib.DrawRectangleRounded(toastRect, 0.4f, 4, new Color(120, 20, 30, 230));
-                Raylib.DrawRectangleRoundedLinesEx(toastRect, 0.4f, 4, 1.5f, new Color(180, 40, 50, 255));
-                FontManager.DrawText(state.UiNotification, toastX + 20, toastY + 7, 14, Color.White);
+                var notif = visibleNotifs[i];
+                float remaining = notif.Duration - notif.ElapsedTime;
+                float alpha = 1f;
+                if (remaining < 0.5f)
+                {
+                    alpha = Math.Clamp(remaining / 0.5f, 0f, 1f);
+                }
+
+                // Layout settings
+                float cardW = 240f;
+                float cardH = 34f;
+                float cardX = windowWidth - cardW - 40f;
+                float cardY = 75f + i * (cardH + 8f);
+                var cardRect = new Rectangle(cardX, cardY, cardW, cardH);
+
+                // Define colors based on Kind
+                Color bg, border, textCol;
+                switch (notif.Kind)
+                {
+                    case NotificationKind.Success:
+                        bg = new Color((byte)15, (byte)40, (byte)20, (byte)(alpha * 230));
+                        border = new Color((byte)50, (byte)200, (byte)80, (byte)(alpha * 255));
+                        textCol = new Color((byte)220, (byte)255, (byte)220, (byte)(alpha * 255));
+                        break;
+                    case NotificationKind.Error:
+                        bg = new Color((byte)45, (byte)15, (byte)15, (byte)(alpha * 230));
+                        border = new Color((byte)220, (byte)60, (byte)60, (byte)(alpha * 255));
+                        textCol = new Color((byte)255, (byte)220, (byte)220, (byte)(alpha * 255));
+                        break;
+                    case NotificationKind.Warning:
+                        bg = new Color((byte)40, (byte)30, (byte)15, (byte)(alpha * 230));
+                        border = new Color((byte)220, (byte)160, (byte)40, (byte)(alpha * 255));
+                        textCol = new Color((byte)255, (byte)240, (byte)200, (byte)(alpha * 255));
+                        break;
+                    case NotificationKind.Info:
+                    default:
+                        bg = new Color((byte)15, (byte)20, (byte)40, (byte)(alpha * 230));
+                        border = new Color((byte)80, (byte)150, (byte)240, (byte)(alpha * 255));
+                        textCol = new Color((byte)220, (byte)240, (byte)255, (byte)(alpha * 255));
+                        break;
+                }
+
+                Raylib.DrawRectangleRounded(cardRect, 0.2f, 4, bg);
+                Raylib.DrawRectangleRoundedLinesEx(cardRect, 0.2f, 4, 1.2f, border);
+                FontManager.DrawText(notif.Text, cardX + 15, cardY + 9, 12, textCol);
             }
 
             // 2. Trailing Selected Resource (following mouse cursor)

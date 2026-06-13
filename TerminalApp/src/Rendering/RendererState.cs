@@ -27,6 +27,7 @@ namespace SSNoir.Rendering
         public List<GameNode> VisibleNodes { get; set; } = new List<GameNode>();
 
         public bool IsDropdownOpen { get; set; } = false;
+        public bool IsGrowthPanelOpen { get; set; } = false;
         public List<DropdownItem> DropdownItems { get; } = new List<DropdownItem>();
 
         public HashSet<string> FlippedNodes { get; } = new HashSet<string>();
@@ -38,14 +39,6 @@ namespace SSNoir.Rendering
         public int ActiveRollPhase { get; set; } = 0; // 0: rolling, 1: reveal pulse, 2: outcome
         public int ActiveRollDisplayDieValue { get; set; } = 1;
         public float ActiveRollDisplayScale { get; set; } = 1f;
-        public string UiNotification { get; set; } = string.Empty;
-        public float UiNotificationTimer { get; set; } = 0f;
-
-        public void TriggerNotification(string message)
-        {
-            UiNotification = message;
-            UiNotificationTimer = 2.5f;
-        }
 
         public void ClearOtherNodeSlots(string activeNodeName)
         {

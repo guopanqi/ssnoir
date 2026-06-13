@@ -18,7 +18,7 @@
         (set! workers-protesting? #t)
         (set! protest-just-triggered #t)
         (protest-clock 'reset!)
-        (set-global! 'notification "警报：工人们发起了抗议！")))
+        (notify! "警报：工人们发起了抗议！")))
 
     (define-turn-rule "工人抗议倒计时"
       (lambda () workers-protesting?)

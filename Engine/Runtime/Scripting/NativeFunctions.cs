@@ -109,11 +109,13 @@ namespace SSNoir.Scripting
                 if (args.Count < 2) throw new ArgumentException("__actor-stat requires 2 arguments: actor-id and stat-name");
                 string actorId = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
                 string statName = args[1] is Symbol symStat ? symStat.AsString : args[1]?.ToString() ?? "";
-                if (statName != "force" && statName != "wit" && statName != "charm" && statName != "agility")
-                    throw new ArgumentException("statName must be force/wit/charm/agility");
+                
+                string normalizedStat = statName.ToLowerInvariant();
+                if (normalizedStat != "violence" && normalizedStat != "knowledge" && normalizedStat != "sharpness" && normalizedStat != "coding")
+                    throw new ArgumentException("statName must be violence/knowledge/sharpness/coding");
                 var actor = gameState.Team.FindActor(actorId);
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
-                return actor.Stats.TryGetValue(statName, out var val) ? val : 1;
+                return actor.Stats.TryGetValue(normalizedStat, out var val) ? val : 1;
             }, "__actor-stat"));
 
             interpreter.DefineGlobal(Symbol.FromString("__current-actor"), new NativeProcedure(args =>
@@ -132,9 +134,18 @@ namespace SSNoir.Scripting
             {
                 if (args.Count < 1) throw new ArgumentException("__notify! requires 1 argument: text");
                 string text = args[0]?.ToString() ?? "";
-                gameState.Set("notification", text);
+                gameState.NotificationCenter.Push(text, NotificationKind.Info);
                 return new None();
             }, "__notify!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__upgrade-actor-stat!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 2) throw new ArgumentException("__upgrade-actor-stat! requires 2 arguments: actor-id and stat-id");
+                string actorId = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                string statId = args[1] is Symbol symStat ? symStat.AsString : args[1]?.ToString() ?? "";
+                gameState.Team.UpgradeActorStat(actorId, statId);
+                return new None();
+            }, "__upgrade-actor-stat!"));
 
             // --- Existing Native Procedures ---
             interpreter.DefineGlobal(Symbol.FromString("get-global"), new NativeProcedure(args =>

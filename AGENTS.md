@@ -23,3 +23,6 @@
 - Schemy 解释器的完整特性、内置符号支持矩阵与 `stdlib.scm` 补全说明请参考 [schemy.md](file:///Users/usr/documents/play/ssnoir/schemy.md)。
 - Schemy 不能使用 dotted rest args（如 `first . rest`），但可以使用纯列表形式的 varargs 参数定义来实现相同的消息协议机制（详见 [schemy.md 中的说明](file:///Users/usr/documents/play/ssnoir/schemy.md#1-变参语法限制-varargs-syntax-constraints)）。
 
+# Content 同步规则
+- Unity 客户端中的 `StreamingAssets/Content`、`Resources/Content` 和 `Fonts` 资源是从项目根目录的 `Content` 目录同步复制过去的（详见 [ContentSyncEditor.cs](file:///Users/usr/documents/play/ssnoir/UnityClient/Assets/Editor/ContentSyncEditor.cs)）。
+- 在修改根目录 `Content` 下的 Scheme 脚本、场景或字体等资源后，Unity 客户端在加载或进入 Play 模式时会自动运行同步导入。如果需要，可在 Unity 中运行顶部菜单 `SSNoir -> Sync Content Now` 进行手动同步。

@@ -12,7 +12,18 @@ namespace SSNoir.Core
         public int Health
         {
             get => _health;
-            set => _health = Math.Clamp(value, 0, MaxHealth);
+            set
+            {
+                _health = Math.Clamp(value, 0, MaxHealth);
+                OnTeamChanged?.Invoke();
+            }
+        }
+
+        public int GrowthLevel { get; set; } = 0;
+
+        public int GetAvailableGrowthPoints(ActorState actor)
+        {
+            return Math.Max(0, GrowthLevel - actor.SpentGrowthPoints);
         }
 
         public int MaxSupplies { get; set; } = 6;
@@ -21,7 +32,11 @@ namespace SSNoir.Core
         public int Supplies
         {
             get => _supplies;
-            set => _supplies = Math.Clamp(value, 0, MaxSupplies);
+            set
+            {
+                _supplies = Math.Clamp(value, 0, MaxSupplies);
+                OnTeamChanged?.Invoke();
+            }
         }
 
         public List<ActorState> Actors { get; } = new List<ActorState>();
@@ -31,6 +46,36 @@ namespace SSNoir.Core
         public ActorState? FindActor(string actorId)
         {
             return Actors.Find(a => a.Id.Equals(actorId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public void UpgradeActorStat(string actorId, string statId)
+        {
+            var actor = FindActor(actorId);
+            if (actor == null)
+            {
+                throw new ArgumentException($"Actor with id '{actorId}' not found in team.");
+            }
+            if (actor.Status != "active")
+            {
+                throw new InvalidOperationException($"Actor '{actorId}' is not active and cannot upgrade stats.");
+            }
+            if (!actor.Stats.ContainsKey(statId))
+            {
+                throw new ArgumentException($"Stat '{statId}' not found on actor '{actorId}'.");
+            }
+            const int MaxStatLevel = 6;
+            if (actor.Stats[statId] >= MaxStatLevel)
+            {
+                throw new InvalidOperationException($"Stat '{statId}' on actor '{actorId}' has reached the maximum level {MaxStatLevel}.");
+            }
+            if (GetAvailableGrowthPoints(actor) <= 0)
+            {
+                throw new InvalidOperationException($"Actor '{actorId}' has no available growth points.");
+            }
+
+            actor.Stats[statId]++;
+            actor.SpentGrowthPoints++;
+            OnTeamChanged?.Invoke();
         }
 
         public void ApplyStress(string actorId, int amount)

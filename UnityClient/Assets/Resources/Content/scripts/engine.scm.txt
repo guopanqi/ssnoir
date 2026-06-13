@@ -218,4 +218,7 @@
 (define (notify! text)
   (__notify! text))
 
+(define (upgrade-actor-stat! actor-id stat-id)
+  (__upgrade-actor-stat! actor-id stat-id))
+
 

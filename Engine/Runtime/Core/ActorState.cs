@@ -19,13 +19,15 @@ namespace SSNoir.Core
         }
 
         public List<int> ActionDice { get; set; } = new List<int>();
+
+        public int SpentGrowthPoints { get; set; } = 0;
         
         public Dictionary<string, int> Stats { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
         {
-            { "force", 1 },
-            { "wit", 1 },
-            { "charm", 1 },
-            { "agility", 1 }
+            { "violence", 1 },
+            { "knowledge", 1 },
+            { "sharpness", 1 },
+            { "coding", 1 }
         };
     }
 }

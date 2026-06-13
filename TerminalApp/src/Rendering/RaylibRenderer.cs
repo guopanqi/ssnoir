@@ -171,14 +171,11 @@ namespace SSNoir.Rendering
 
             var mousePos = Raylib.GetMousePosition();
 
-            // Update Notification Timer
-            if (_state.UiNotificationTimer > 0)
-            {
-                _state.UiNotificationTimer -= Raylib.GetFrameTime();
-            }
+            // Update Notification Center
+            _gameState.NotificationCenter.Update(Raylib.GetFrameTime());
 
             bool inputBlocked = _state.ActiveRollResult != null;
-            var activeMousePos = inputBlocked ? new System.Numerics.Vector2(-100f, -100f) : mousePos;
+            var activeMousePos = (inputBlocked || _state.IsGrowthPanelOpen) ? new System.Numerics.Vector2(-100f, -100f) : mousePos;
 
             // Handle ESC key or right-click to clear selected card/resource first
             if (!inputBlocked)
@@ -188,6 +185,10 @@ namespace SSNoir.Rendering
                     if (_state.SelectedResource != null)
                     {
                         _state.SelectedResource = null;
+                    }
+                    else if (_state.IsGrowthPanelOpen)
+                    {
+                        _state.IsGrowthPanelOpen = false;
                     }
                     else if (Raylib.IsKeyPressed(KeyboardKey.Escape))
                     {
@@ -242,6 +243,37 @@ namespace SSNoir.Rendering
             // 7. Draw Faction Reputation Panel
             DrawReputationPanel();
 
+            // Draw Team / Growth Toggle Button
+            float btnX = 520f;
+            float btnY = 30f;
+            float btnW = 80f;
+            float btnH = 32f;
+            var btnRect = new Rectangle(btnX, btnY, btnW, btnH);
+            bool hoverBtn = Raylib.CheckCollisionPointRec(mousePos, btnRect);
+
+            Color btnBg = _state.IsGrowthPanelOpen
+                ? new Color((byte)50, (byte)50, (byte)90, (byte)255)
+                : (hoverBtn ? new Color((byte)40, (byte)40, (byte)55, (byte)255) : new Color((byte)25, (byte)25, (byte)35, (byte)255));
+            Color btnBorder = _state.IsGrowthPanelOpen ? new Color((byte)130, (byte)130, (byte)220, (byte)255) : new Color((byte)50, (byte)50, (byte)70, (byte)255);
+
+            Raylib.DrawRectangleRounded(btnRect, 0.2f, 4, btnBg);
+            Raylib.DrawRectangleRoundedLinesEx(btnRect, 0.2f, 4, 1.5f, btnBorder);
+
+            string btnText = "成长/队伍";
+            int btnTextW = FontManager.MeasureTextWidth(btnText, 13);
+            FontManager.DrawText(btnText, btnX + (btnW - btnTextW) / 2f, btnY + 9, 13, Color.White);
+
+            if (hoverBtn && Raylib.IsMouseButtonPressed(MouseButton.Left))
+            {
+                _state.IsGrowthPanelOpen = !_state.IsGrowthPanelOpen;
+            }
+
+            // Draw Growth Panel if open
+            if (_state.IsGrowthPanelOpen)
+            {
+                DrawGrowthPanel(mousePos);
+            }
+
             // Update active roll animation timer
             if (_state.ActiveRollResult != null)
             {
@@ -282,7 +314,7 @@ namespace SSNoir.Rendering
             }
 
             // 8. Draw Overlays (Modals / Toasts)
-            var overlayInteraction = OverlayWidget.Draw(_state, mousePos, WindowWidth, WindowHeight);
+            var overlayInteraction = OverlayWidget.Draw(_state, _gameState.NotificationCenter, mousePos, WindowWidth, WindowHeight);
             if (overlayInteraction.ConfirmClicked || (_state.ActiveRollResult != null && Raylib.IsKeyPressed(KeyboardKey.Escape)))
             {
                 _state.ActiveRollResult = null;
@@ -426,7 +458,7 @@ namespace SSNoir.Rendering
                                 }
                                 else
                                 {
-                                    _state.TriggerNotification($"缺少数量，需要 {req.Qty} 个 {_state.SelectedResource.ItemName}");
+                                    _gameState.NotificationCenter.Push($"缺少数量，需要 {req.Qty} 个 {_state.SelectedResource.ItemName}", NotificationKind.Warning);
                                 }
                             }
                         }
@@ -466,14 +498,14 @@ namespace SSNoir.Rendering
             int repWorkers = _gameState.Get<int>("reputation:workers");
             int repElites = _gameState.Get<int>("reputation:elites");
 
-            float panelW = 240f;
+            float panelW = 210f;
             float panelH = 32f;
-            float panelX = 350f;
+            float panelX = 300f;
             float panelY = 30f;
 
             var panelRect = new Rectangle(panelX, panelY, panelW, panelH);
-            Color panelBg = new Color(25, 25, 35, 255);
-            Color panelBorder = new Color(50, 50, 70, 255);
+            Color panelBg = new Color((byte)25, (byte)25, (byte)35, (byte)255);
+            Color panelBorder = new Color((byte)50, (byte)50, (byte)70, (byte)255);
 
             Raylib.DrawRectangleRounded(panelRect, 0.2f, 4, panelBg);
             Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.2f, 4, 1.5f, panelBorder);
@@ -488,25 +520,157 @@ namespace SSNoir.Rendering
 
                 if (i > 0)
                 {
-                    Raylib.DrawLineEx(new System.Numerics.Vector2(cellX, panelY + 6), new System.Numerics.Vector2(cellX, panelY + panelH - 6), 1f, new Color(45, 45, 60, 255));
+                    Raylib.DrawLineEx(new System.Numerics.Vector2(cellX, panelY + 6), new System.Numerics.Vector2(cellX, panelY + panelH - 6), 1f, new Color((byte)45, (byte)45, (byte)60, (byte)255));
                 }
 
                 int val = values[i];
                 string sign = val > 0 ? "+" : "";
                 string txt = $"{labels[i]} {sign}{val}";
 
-                Color txtColor = new Color(200, 200, 220, 255);
+                Color txtColor = new Color((byte)200, (byte)200, (byte)220, (byte)255);
                 if (val >= 30)
                 {
-                    txtColor = new Color(100, 220, 100, 255);
+                    txtColor = new Color((byte)100, (byte)220, (byte)100, (byte)255);
                 }
                 else if (val <= -30)
                 {
-                    txtColor = new Color(250, 100, 100, 255);
+                    txtColor = new Color((byte)250, (byte)100, (byte)100, (byte)255);
                 }
 
                 int txtW = FontManager.MeasureTextWidth(txt, 13);
                 FontManager.DrawText(txt, cellX + (cellW - txtW) / 2f, panelY + 9, 13, txtColor);
+            }
+        }
+
+        private void DrawGrowthPanel(System.Numerics.Vector2 mousePos)
+        {
+            // Dim background (modal overlay overlaying cards/hand)
+            Raylib.DrawRectangle(0, 0, WindowWidth, WindowHeight, new Color((byte)10, (byte)10, (byte)15, (byte)180));
+
+            float panelW = 540f;
+            float panelH = 350f;
+            float panelX = (WindowWidth - panelW) / 2f;
+            float panelY = (WindowHeight - panelH) / 2f - 20f;
+            var panelRect = new Rectangle(panelX, panelY, panelW, panelH);
+
+            // Frame
+            Raylib.DrawRectangleRounded(panelRect, 0.15f, 4, new Color((byte)20, (byte)20, (byte)28, (byte)255));
+            Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.15f, 4, 2f, new Color((byte)70, (byte)70, (byte)95, (byte)255));
+
+            // Title
+            FontManager.DrawText("成长 / 队伍", panelX + 25, panelY + 20, 18, Color.White);
+
+            // Close Button [X]
+            float closeX = panelX + panelW - 40f;
+            float closeY = panelY + 18f;
+            var closeRect = new Rectangle(closeX, closeY, 24, 24);
+            bool hoverClose = Raylib.CheckCollisionPointRec(mousePos, closeRect);
+            Color closeColor = hoverClose ? Color.Red : new Color((byte)180, (byte)180, (byte)200, (byte)255);
+            FontManager.DrawText("X", closeX + 6, closeY + 3, 16, closeColor);
+
+            if (hoverClose && Raylib.IsMouseButtonPressed(MouseButton.Left))
+            {
+                _state.IsGrowthPanelOpen = false;
+            }
+
+            // Divider line
+            Raylib.DrawLineEx(new System.Numerics.Vector2(panelX + 20, panelY + 52),
+                             new System.Numerics.Vector2(panelX + panelW - 20, panelY + 52),
+                             1f, new Color((byte)55, (byte)55, (byte)70, (byte)255));
+
+            // Team Growth Level
+            FontManager.DrawText($"队伍成长等级：{_gameState.Team.GrowthLevel}", panelX + 25, panelY + 65, 14, new Color((byte)150, (byte)220, (byte)255, (byte)255));
+
+            // Actors list
+            var actors = _gameState.Team.Actors;
+            float contentStartY = panelY + 95f;
+            float colWidth = (panelW - 40f) / Math.Max(1, actors.Count);
+
+            var statsToUpgrade = new[] {
+                (Key: "violence", Display: "violence"),
+                (Key: "knowledge", Display: "knowledge"),
+                (Key: "coding", Display: "coding"),
+                (Key: "sharpness", Display: "sharpness")
+            };
+
+            for (int i = 0; i < actors.Count; i++)
+            {
+                var actor = actors[i];
+                float colX = panelX + 20f + i * colWidth;
+
+                // Draw vertical separator between columns (except first)
+                if (i > 0)
+                {
+                    Raylib.DrawLineEx(new System.Numerics.Vector2(colX, contentStartY),
+                                     new System.Numerics.Vector2(colX, panelY + panelH - 25f),
+                                     1f, new Color((byte)45, (byte)45, (byte)60, (byte)255));
+                }
+
+                // Actor Name
+                Color nameColor = actor.Status == "away" ? new Color((byte)130, (byte)130, (byte)130, (byte)255) : Color.White;
+                FontManager.DrawText(actor.Name, colX + 15, contentStartY + 5, 15, nameColor);
+
+                // Status label if away
+                if (actor.Status == "away")
+                {
+                    FontManager.DrawText("[暂离]", colX + 15 + FontManager.MeasureTextWidth(actor.Name, 15) + 6, contentStartY + 7, 11, new Color((byte)230, (byte)80, (byte)80, (byte)255));
+                }
+
+                // Available points
+                int availPoints = _gameState.Team.GetAvailableGrowthPoints(actor);
+                Color pointsColor = availPoints > 0 ? new Color((byte)100, (byte)230, (byte)120, (byte)255) : new Color((byte)170, (byte)170, (byte)180, (byte)255);
+                FontManager.DrawText($"可用成长点：{availPoints}", colX + 15, contentStartY + 28, 12, pointsColor);
+
+                // Stats rows
+                float rowStartY = contentStartY + 55f;
+                float rowHeight = 32f;
+
+                for (int s = 0; s < statsToUpgrade.Length; s++)
+                {
+                    var stat = statsToUpgrade[s];
+                    float rowY = rowStartY + s * rowHeight;
+
+                    // Get stat value
+                    int statVal = actor.Stats.TryGetValue(stat.Key, out var val) ? val : 1;
+
+                    // Stat text
+                    FontManager.DrawText($"{stat.Display} {statVal}", colX + 15, rowY + 3, 14, new Color((byte)210, (byte)210, (byte)225, (byte)255));
+
+                    // Upgrade Button [+]
+                    float btnW = 26f;
+                    float btnH = 20f;
+                    float btnX = colX + colWidth - btnW - 20f;
+                    var btnRect = new Rectangle(btnX, rowY, btnW, btnH);
+
+                    bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < 6;
+                    bool hoverBtn = isEnabled && Raylib.CheckCollisionPointRec(mousePos, btnRect);
+
+                    Color btnBgColor, btnBorderColor, btnTextColor;
+                    if (isEnabled)
+                    {
+                        btnBgColor = hoverBtn ? new Color((byte)50, (byte)140, (byte)70, (byte)255) : new Color((byte)30, (byte)90, (byte)45, (byte)255);
+                        btnBorderColor = hoverBtn ? Color.White : new Color((byte)100, (byte)210, (byte)120, (byte)255);
+                        btnTextColor = Color.White;
+                    }
+                    else
+                    {
+                        btnBgColor = new Color((byte)30, (byte)30, (byte)35, (byte)255);
+                        btnBorderColor = new Color((byte)50, (byte)50, (byte)55, (byte)255);
+                        btnTextColor = new Color((byte)90, (byte)90, (byte)100, (byte)255);
+                    }
+
+                    Raylib.DrawRectangleRounded(btnRect, 0.25f, 4, btnBgColor);
+                    Raylib.DrawRectangleRoundedLinesEx(btnRect, 0.25f, 4, 1.2f, btnBorderColor);
+                    FontManager.DrawText("+", btnX + 8, rowY + 3, 13, btnTextColor);
+
+                    if (isEnabled && hoverBtn && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                    {
+                        // Upgrade the stat through the engine rule entry
+                        _gameState.Team.UpgradeActorStat(actor.Id, stat.Key);
+
+                        _gameState.NotificationCenter.Push($"{actor.Name} 升级了 {stat.Display} 属性！", NotificationKind.Success);
+                    }
+                }
             }
         }
     }

@@ -519,7 +519,7 @@ namespace SSNoir
 
         public void ShowNotification(string message)
         {
-            _renderer.ShowNotification(message);
+            _gameState.NotificationCenter.Push(message, NotificationKind.Info);
         }
 
         public void OnSceneButtonClicked(string sc)

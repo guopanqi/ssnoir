@@ -11,6 +11,7 @@ namespace SSNoir.Core
 
         public TeamState Team { get; } = new TeamState();
         public InventoryState Inventory { get; } = new InventoryState();
+        public NotificationCenter NotificationCenter { get; } = new NotificationCenter();
         public ActionExecutionContext? CurrentContext { get; set; } = null;
 
         public event Action? OnStateChanged;
@@ -96,6 +97,24 @@ namespace SSNoir.Core
             {
                 return (T)(object)Team.Health;
             }
+            if (key.Equals("growth-level", StringComparison.OrdinalIgnoreCase))
+            {
+                return (T)(object)Team.GrowthLevel;
+            }
+            if (key.StartsWith("actor:spent-growth-points:", StringComparison.OrdinalIgnoreCase))
+            {
+                string actorId = key.Substring("actor:spent-growth-points:".Length);
+                var actor = Team.FindActor(actorId)
+                    ?? throw new ArgumentException($"Actor '{actorId}' not found. Cannot get spent growth points.");
+                return (T)(object)actor.SpentGrowthPoints;
+            }
+            if (key.StartsWith("actor:available-growth-points:", StringComparison.OrdinalIgnoreCase))
+            {
+                string actorId = key.Substring("actor:available-growth-points:".Length);
+                var actor = Team.FindActor(actorId)
+                    ?? throw new ArgumentException($"Actor '{actorId}' not found. Cannot get available growth points.");
+                return (T)(object)Team.GetAvailableGrowthPoints(actor);
+            }
             if (key.Equals("supplies", StringComparison.OrdinalIgnoreCase))
             {
                 return (T)(object)Team.Supplies;
@@ -161,6 +180,21 @@ namespace SSNoir.Core
             if (key.Equals("health", StringComparison.OrdinalIgnoreCase))
             {
                 Team.Health = ConvertToInt(value);
+                return;
+            }
+            if (key.Equals("growth-level", StringComparison.OrdinalIgnoreCase))
+            {
+                Team.GrowthLevel = ConvertToInt(value);
+                OnStateChanged?.Invoke();
+                return;
+            }
+            if (key.StartsWith("actor:spent-growth-points:", StringComparison.OrdinalIgnoreCase))
+            {
+                string actorId = key.Substring("actor:spent-growth-points:".Length);
+                var actor = Team.FindActor(actorId)
+                    ?? throw new ArgumentException($"Actor '{actorId}' not found. Cannot set spent growth points.");
+                actor.SpentGrowthPoints = ConvertToInt(value);
+                OnStateChanged?.Invoke();
                 return;
             }
             if (key.Equals("supplies", StringComparison.OrdinalIgnoreCase))

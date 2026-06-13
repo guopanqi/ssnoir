@@ -11,8 +11,7 @@ namespace SSNoir.IMGUI
         private SSNoirGameManager _gameManager = null!;
         private IMGUIAnimationPlayer _animator = null!;
 
-        private float _notificationTimer = 0f;
-        private string _notification = "";
+        private bool _isGrowthPanelOpen = false;
 
         private readonly Dictionary<string, Vector2> _cardCenters = new Dictionary<string, Vector2>();
 
@@ -24,8 +23,7 @@ namespace SSNoir.IMGUI
 
         public void ShowNotification(string message)
         {
-            _notification = message;
-            _notificationTimer = 3.0f;
+            _gameManager.GameState.NotificationCenter.Push(message, NotificationKind.Info);
         }
 
         public void StartRollAnimation(ActionReport report, string actionName)
@@ -46,15 +44,12 @@ namespace SSNoir.IMGUI
 
         private void Update()
         {
-            if (_notificationTimer > 0f)
-            {
-                _notificationTimer -= Time.deltaTime;
-            }
+            _gameManager.GameState.NotificationCenter.Update(Time.deltaTime);
 
             _animator.Update();
 
             // Right-click to cancel selection
-            if (Input.GetMouseButtonDown(1) && !_animator.IsPlaying)
+            if (Input.GetMouseButtonDown(1) && !_animator.IsPlaying && !_isGrowthPanelOpen)
             {
                 if (_gameManager.SelectedResource != null)
                 {
@@ -94,18 +89,40 @@ namespace SSNoir.IMGUI
             }
 
             // ── Node Cards (3D projected) ──
-            DrawCards(mousePos);
+            if (!_isGrowthPanelOpen)
+            {
+                DrawCards(mousePos);
+            }
 
             // ── Bottom Panel ──
             HandPanelDrawer.Draw(_gameManager, mousePos);
 
+            // ── Growth / Team Toggle Button ──
+            DrawGrowthToggleButton(mousePos);
+
             // ── Scene Dropdown ──
-            SceneDropdownDrawer.Draw(_gameManager, mousePos);
+            if (!_isGrowthPanelOpen)
+            {
+                SceneDropdownDrawer.Draw(_gameManager, mousePos);
+            }
 
             // ── Overlays ──
-            OverlayDrawer.DrawToast(_notification, _notificationTimer);
-            OverlayDrawer.DrawCursorFollower(_gameManager);
-            OverlayDrawer.DrawRollResult(_gameManager, mousePos);
+            OverlayDrawer.DrawNotifications(_gameManager.GameState.NotificationCenter);
+            if (!_isGrowthPanelOpen)
+            {
+                OverlayDrawer.DrawCursorFollower(_gameManager);
+                OverlayDrawer.DrawRollResult(_gameManager, mousePos);
+            }
+
+            // ── Growth Panel ──
+            if (_isGrowthPanelOpen)
+            {
+                var growthInteraction = GrowthPanelDrawer.Draw(_gameManager, mousePos);
+                if (growthInteraction.ShouldClose)
+                {
+                    _isGrowthPanelOpen = false;
+                }
+            }
 
             // ── Animation Modal ──
             _animator.DrawModal();
@@ -369,6 +386,24 @@ namespace SSNoir.IMGUI
                 clocks.AddRange(currentNode.Clocks);
             }
             return clocks;
+        }
+
+        private void DrawGrowthToggleButton(Vector2 mousePos)
+        {
+            float btnX = 520f;
+            float btnY = 30f;
+            float btnW = 80f;
+            float btnH = 32f;
+            var btnRect = new Rect(btnX, btnY, btnW, btnH);
+
+            bool btnHover = btnRect.Contains(mousePos);
+            Color outlineColor = _isGrowthPanelOpen ? IMGUIStyles.PrimaryColor : IMGUIStyles.OutlineVariantColor;
+            Color hoverBg = new Color(IMGUIStyles.PrimaryColor.r, IMGUIStyles.PrimaryColor.g, IMGUIStyles.PrimaryColor.b, 0.10f);
+
+            if (IMGUIStyles.DrawTechnicalButton(btnRect, "成长/队伍", mousePos, outlineColor, hoverBg, IMGUIStyles.ExecuteLabel))
+            {
+                _isGrowthPanelOpen = !_isGrowthPanelOpen;
+            }
         }
 
         private Rect ClampRect(Rect r, float cardWidth, float cardHeight)

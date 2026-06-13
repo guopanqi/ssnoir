@@ -37,6 +37,11 @@
           (instant-action "讨好权贵 (+15声望)" (lambda () (change-reputation! "elites" 15)))
           (instant-action "疏远权贵 (-15声望)" (lambda () (change-reputation! "elites" -15))))))
 
+    (define (node-growth-debugger)
+      (container "成长测试面板"
+        (list
+          (instant-action "增加3点成长等级" (lambda () (set-global! 'growth-level (+ (get-global 'growth-level) 3)))))))
+
     ;; ── Message Passing Interface ─────────────────
     (lambda args
       (let ((msg (car args)))
@@ -47,10 +52,11 @@
                (append
                  (cons (node-kick-bin)
                        (make-trash-nodes trash-count))
-                 (list
-                   (node-odd-job)
-                   (node-squander)
-                   (node-rep-debugger))))))
+                  (list
+                    (node-odd-job)
+                    (node-squander)
+                    (node-rep-debugger)
+                    (node-growth-debugger))))))
 
           ((equal? msg 'save)
            (list
