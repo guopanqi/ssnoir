@@ -7,8 +7,8 @@
     "reputation:elites": 0
   },
   "team": {
-    "health": 8,
-    "supplies": 3,
+    "health": 7,
+    "supplies": 1,
     "growthLevel": 0,
     "actors": [
       {
@@ -148,7 +148,7 @@
         ],
         [
           "mission-stage",
-          1
+          2
         ]
       ]
     ],

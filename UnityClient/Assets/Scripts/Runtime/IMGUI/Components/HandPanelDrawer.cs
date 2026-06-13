@@ -7,125 +7,219 @@ namespace SSNoir.IMGUI
 {
     public static class HandPanelDrawer
     {
-        private static readonly float PanelHeight = 140f;
-        private static readonly float StatusBarHeight = 25f;
-        private static readonly float BottomOffset = 0f;
+        private const float PanelHeight     = 150f;
+        private const float StatusBarHeight = 25f;
+        private const float BottomOffset    = 0f;
+
+        private const int   MaxStress   = 6;
+        private const float DieSize     = 54f;
+        private const float DieSpacing  = 62f;
+        private const float BlockPadX   = 10f;
+        private const float BlockGap    = 8f;
+        private const float DotSize     = 7f;
+        private const float DotGap      = 10f;
+
+        // ── Entry point ──────────────────────────────────────────────────
 
         public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
-            float handY = Screen.height - PanelHeight - StatusBarHeight - BottomOffset;
+            float handY   = Screen.height - PanelHeight - StatusBarHeight - BottomOffset;
             float statusY = Screen.height - StatusBarHeight - BottomOffset;
 
             GUI.color = IMGUIStyles.PanelBg;
             GUI.DrawTexture(new Rect(0, handY, Screen.width, PanelHeight), Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(new Rect(-1, handY, Screen.width + 2, PanelHeight + 2), 1f, IMGUIStyles.OutlineVariantColor);
+            IMGUIStyles.DrawOutline(
+                new Rect(-1, handY, Screen.width + 2, PanelHeight + 2),
+                1f, IMGUIStyles.OutlineVariantColor);
 
-            DrawDice(handY, gameManager, ui);
-            DrawItems(handY, gameManager, ui);
+            float itemsStartX = DrawActorBlocks(handY, gameManager, ui);
+            DrawItems(handY, itemsStartX, gameManager, ui);
             DrawEndTurnButton(handY, gameManager, ui);
             DrawStatusBar(statusY, gameManager);
         }
 
-        private static void DrawDice(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
-        {
-            var snapshot = gameManager.DisplayedSnapshot;
-            GUI.Label(new Rect(30, handY + 58, 100, 24), "手牌骰子: ", IMGUIStyles.SectionLabel);
+        // ── Actor blocks ─────────────────────────────────────────────────
 
-            int flatDieIdx = 0;
-            float dieXStart = 130f;
+        private static float DrawActorBlocks(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        {
+            var snapshot      = gameManager.DisplayedSnapshot;
+            float blockX      = 8f;
+            int flatDieOffset = 0;
 
             foreach (var actor in snapshot.Actors)
             {
                 if (actor.Status == "away")
                 {
-                    flatDieIdx += actor.ActionDice.Count;
+                    flatDieOffset += actor.ActionDice.Count;
                     continue;
                 }
 
-                for (int d = 0; d < actor.ActionDice.Count; d++)
+                float blockW = BlockWidth(actor.ActionDice.Count);
+                DrawActorBlock(actor, flatDieOffset, blockX, handY, blockW, gameManager, ui);
+                blockX += blockW + BlockGap;
+                flatDieOffset += actor.ActionDice.Count;
+            }
+
+            return blockX + 4f;
+        }
+
+        private static float BlockWidth(int diceCount)
+        {
+            float diceW = diceCount > 0 ? (diceCount - 1) * DieSpacing + DieSize : 0f;
+            return Mathf.Max(110f, BlockPadX * 2 + diceW);
+        }
+
+        private static void DrawActorBlock(
+            ActorSnapshot actor,
+            int flatDieOffset,
+            float blockX, float handY,
+            float blockW,
+            SSNoirGameManager gameManager,
+            IMGUIInteractionContext ui)
+        {
+            float blockH  = PanelHeight - 12f;
+            var blockRect = new Rect(blockX, handY + 6, blockW, blockH);
+
+            GUI.color = new Color(0.09f, 0.10f, 0.14f, 0.55f);
+            GUI.DrawTexture(blockRect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(blockRect, 1f, IMGUIStyles.OutlineVariantColor);
+
+            float cx = blockX + BlockPadX;
+            float cw = blockW - BlockPadX * 2;
+
+            // ── Name
+            var nameStyle = new GUIStyle(GUI.skin.label)
+            {
+                font      = IMGUIStyles.ChineseFont,
+                fontSize  = 13,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleLeft,
+                normal    = { textColor = IMGUIStyles.OnSurface },
+            };
+            GUI.Label(new Rect(cx, handY + 11, cw, 18), actor.Name, nameStyle);
+
+            // ── Role tag
+            if (!string.IsNullOrEmpty(actor.Role))
+            {
+                var roleStyle = new GUIStyle(nameStyle)
                 {
-                    int i = flatDieIdx++;
-                    float dieX = dieXStart + i * 96;
-                    float dieY = handY + 30;
-                    var dieRect = new Rect(dieX, dieY, 80, 80);
-                    int val = actor.ActionDice[d];
+                    fontSize  = 10,
+                    fontStyle = FontStyle.Normal,
+                    normal    = { textColor = IMGUIStyles.OnSurfaceVariant },
+                };
+                GUI.Label(new Rect(cx, handY + 29, cw, 14), actor.Role, roleStyle);
+            }
 
-                    bool isSlotted = gameManager.IsDieSlotted(i);
-                    bool isSelected = gameManager.SelectedResource != null && gameManager.SelectedResource.Type == "die" && gameManager.SelectedResource.SourceIndex == i;
-                    bool hover = !isSlotted && ui.CanHover(dieRect);
+            // ── Stress dots
+            float dotsY = handY + 47;
+            for (int i = 0; i < MaxStress; i++)
+            {
+                GUI.color = i < actor.Stress
+                    ? new Color(1.0f, 0.50f, 0.38f, 1f)
+                    : IMGUIStyles.OutlineVariantColor;
+                GUI.DrawTexture(new Rect(cx + i * DotGap, dotsY, DotSize, DotSize), Texture2D.whiteTexture);
+                GUI.color = Color.white;
+            }
 
-                    if (isSlotted)
+            if (actor.Stress > 0)
+            {
+                var stressLabelStyle = new GUIStyle(GUI.skin.label)
+                {
+                    font    = IMGUIStyles.ChineseFont,
+                    fontSize = 9,
+                    normal  = { textColor = new Color(1.0f, 0.50f, 0.38f, 0.75f) },
+                };
+                GUI.Label(new Rect(cx + MaxStress * DotGap + 2, dotsY - 1, 40, 14),
+                    $"压力{actor.Stress}", stressLabelStyle);
+            }
+
+            // ── Action dice
+            float diceY = handY + 60;
+            for (int d = 0; d < actor.ActionDice.Count; d++)
+            {
+                int   globalIdx = flatDieOffset + d;
+                float dieX      = cx + d * DieSpacing;
+                var   dieRect   = new Rect(dieX, diceY, DieSize, DieSize);
+                int   val       = actor.ActionDice[d];
+
+                bool isSlotted  = gameManager.IsDieSlotted(globalIdx);
+                bool isSelected = gameManager.SelectedResource != null
+                               && gameManager.SelectedResource.Type == "die"
+                               && gameManager.SelectedResource.SourceIndex == globalIdx;
+                bool hover = !isSlotted && ui.CanHover(dieRect);
+
+                if (isSlotted)
+                {
+                    GUI.color = IMGUIStyles.SlotEmpty;
+                    GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
+                    GUI.color = Color.white;
+                    IMGUIStyles.DrawOutline(dieRect, 1f, IMGUIStyles.OutlineVariantColor);
+                    var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 18 };
+                    dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
+                    GUI.Label(dieRect, val.ToString(), dimStyle);
+                }
+                else
+                {
+                    Color bg     = isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.DieHover : IMGUIStyles.DieNormal);
+                    Color border = (isSelected || hover) ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor;
+
+                    GUI.color = bg;
+                    GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
+                    GUI.color = Color.white;
+                    IMGUIStyles.DrawOutline(dieRect, (isSelected || hover) ? 2f : 1f, border);
+
+                    var dieStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 20 };
+                    dieStyle.normal.textColor = Color.white;
+                    GUI.Label(dieRect, val.ToString(), dieStyle);
+
+                    if (ui.WasClicked(dieRect))
                     {
-                        GUI.color = IMGUIStyles.SlotEmpty;
-                        GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
-                        GUI.color = Color.white;
-                        IMGUIStyles.DrawOutline(dieRect, 1f, IMGUIStyles.OutlineVariantColor);
-
-                        var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel);
-                        dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
-                        dimStyle.fontSize = 24;
-                        GUI.Label(dieRect, val.ToString(), dimStyle);
-                    }
-                    else
-                    {
-                        Color bg = isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.DieHover : IMGUIStyles.DieNormal);
-                        Color border = isSelected ? IMGUIStyles.PrimaryColor : (hover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor);
-                        float thickness = (isSelected || hover) ? 2f : 1f;
-
-                        GUI.color = bg;
-                        GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
-                        GUI.color = Color.white;
-                        IMGUIStyles.DrawOutline(dieRect, thickness, border);
-
-                        var dieStyle = new GUIStyle(IMGUIStyles.SlotLabel);
-                        dieStyle.fontSize = 28;
-                        dieStyle.normal.textColor = Color.white;
-                        GUI.Label(dieRect, val.ToString(), dieStyle);
-
-                        if (!isSlotted && ui.WasClicked(dieRect))
-                        {
-                            gameManager.OnDieClicked(i, val);
-                            Event.current.Use();
-                        }
+                        gameManager.OnDieClicked(globalIdx, val);
+                        Event.current.Use();
                     }
                 }
             }
         }
 
-        private static void DrawItems(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        // ── Items section ─────────────────────────────────────────────────
+
+        private static void DrawItems(float handY, float startX, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             var snapshot = gameManager.DisplayedSnapshot;
-            int diceCount = 0;
-            foreach (var actor in snapshot.Actors)
-            {
-                if (actor.Status != "away")
-                {
-                    diceCount += actor.ActionDice.Count;
-                }
-            }
-
-            float itemsStartX = Mathf.Max(520f, 140f + diceCount * 96f);
-            GUI.Label(new Rect(itemsStartX, handY + 58, 100, 24), "手牌物品: ", IMGUIStyles.SectionLabel);
-
-            var items = new List<(string Name, int Qty)>();
+            var items    = new List<(string Name, int Qty)>();
             foreach (var kvp in snapshot.Inventory)
             {
                 if (kvp.Value > 0)
-                {
                     items.Add((kvp.Key, kvp.Value));
-                }
             }
+
+            if (items.Count == 0) return;
+
+            // Separator line between actors and items
+            IMGUIStyles.DrawLine(
+                new Vector2(startX - 4f, handY + 10),
+                new Vector2(startX - 4f, handY + PanelHeight - 10),
+                IMGUIStyles.OutlineVariantColor, 1f);
+
+            var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel);
+            GUI.Label(new Rect(startX + 4, handY + 11, 50, 18), "物品", sectionStyle);
+
+            const float ItemSize    = 60f;
+            const float ItemSpacing = 68f;
+            float itemY = handY + (PanelHeight - ItemSize) / 2f - 2f;
 
             for (int i = 0; i < items.Count; i++)
             {
-                var item = items[i];
-                float itemX = itemsStartX + 100 + i * 116;
-                float itemY = handY + 30;
-                var itemRect = new Rect(itemX, itemY, 100, 80);
+                var   item     = items[i];
+                float itemX    = startX + 4 + i * ItemSpacing;
+                var   itemRect = new Rect(itemX, itemY, ItemSize, ItemSize);
 
-                int remaining = gameManager.GetRemainingItemQty(item.Name);
-                bool isSelected = gameManager.SelectedResource != null && gameManager.SelectedResource.Type == "item" && gameManager.SelectedResource.ItemName == item.Name;
+                int  remaining  = gameManager.GetRemainingItemQty(item.Name);
+                bool isSelected = gameManager.SelectedResource != null
+                               && gameManager.SelectedResource.Type == "item"
+                               && gameManager.SelectedResource.ItemName == item.Name;
                 bool hover = ui.CanHover(itemRect);
 
                 if (remaining <= 0)
@@ -134,29 +228,23 @@ namespace SSNoir.IMGUI
                     GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
                     IMGUIStyles.DrawOutline(itemRect, 1f, IMGUIStyles.OutlineVariantColor);
-
-                    string label = item.Name == "金钱" ? "$0" : $"{item.Name} x0";
-                    var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel);
+                    var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 13 };
                     dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
-                    dimStyle.fontSize = 16;
-                    GUI.Label(itemRect, label, dimStyle);
+                    GUI.Label(itemRect, FormatItem(item.Name, 0), dimStyle);
                 }
                 else
                 {
-                    Color bg = isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.ItemHover : IMGUIStyles.ItemNormal);
-                    Color border = isSelected ? IMGUIStyles.PrimaryColor : (hover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor);
-                    float thickness = (isSelected || hover) ? 2f : 1f;
+                    Color bg     = isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.ItemHover : IMGUIStyles.ItemNormal);
+                    Color border = (isSelected || hover) ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor;
 
                     GUI.color = bg;
                     GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(itemRect, thickness, border);
+                    IMGUIStyles.DrawOutline(itemRect, (isSelected || hover) ? 2f : 1f, border);
 
-                    string label = item.Name == "金钱" ? $"${remaining}" : $"{item.Name} x{remaining}";
-                    var itemStyle = new GUIStyle(IMGUIStyles.SlotLabel);
-                    itemStyle.fontSize = 16;
+                    var itemStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 13 };
                     itemStyle.normal.textColor = Color.white;
-                    GUI.Label(itemRect, label, itemStyle);
+                    GUI.Label(itemRect, FormatItem(item.Name, remaining), itemStyle);
 
                     if (ui.WasClicked(itemRect))
                     {
@@ -167,20 +255,38 @@ namespace SSNoir.IMGUI
             }
         }
 
+        private static string FormatItem(string name, int qty)
+            => name == "金钱" ? $"${qty}" : $"{name}\nx{qty}";
+
+        // ── End turn button ───────────────────────────────────────────────
+
         private static void DrawEndTurnButton(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
-            float restX = Screen.width - 150;
-            float restY = handY + 30;
-            var restRect = new Rect(restX, restY, 110, 80);
+            float restX = Screen.width - 130f;
+            float restY = handY + (PanelHeight - 70f) / 2f;
+            var restRect = new Rect(restX, restY, 100f, 70f);
 
-            var style = new GUIStyle(IMGUIStyles.ExecuteLabel);
-            style.fontSize = 18;
+            bool isInEncounter = !gameManager.SceneManager.CurrentSceneName.Equals("world", System.StringComparison.OrdinalIgnoreCase);
+            string btnText = isInEncounter ? "休息" : "回家";
 
-            if (IMGUIButton.Draw(restRect, "休息", ui, IMGUIStyles.TertiaryColor, new Color(1.0f, 0.714f, 0.576f, 0.10f), style))
+            var style = new GUIStyle(IMGUIStyles.ExecuteLabel) { fontSize = 16 };
+            if (IMGUIButton.Draw(restRect, btnText, ui,
+                    IMGUIStyles.TertiaryColor,
+                    new Color(1.0f, 0.714f, 0.576f, 0.10f),
+                    style))
             {
-                gameManager.OnEndTurnClicked();
+                if (isInEncounter)
+                {
+                    gameManager.OnEndTurnClicked();
+                }
+                else
+                {
+                    gameManager.NavigateToHome();
+                }
             }
         }
+
+        // ── Status bar ────────────────────────────────────────────────────
 
         private static void DrawStatusBar(float statusY, SSNoirGameManager gameManager)
         {
@@ -189,31 +295,43 @@ namespace SSNoir.IMGUI
             GUI.color = IMGUIStyles.BottomBarBg;
             GUI.DrawTexture(new Rect(0, statusY, Screen.width, StatusBarHeight), Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(new Rect(-1, statusY, Screen.width + 2, StatusBarHeight + 2), 1f, IMGUIStyles.OutlineVariantColor);
+            IMGUIStyles.DrawOutline(
+                new Rect(-1, statusY, Screen.width + 2, StatusBarHeight + 2),
+                1f, IMGUIStyles.OutlineVariantColor);
 
-            GUI.Label(new Rect(30, statusY + 5, 60, 22), "健康: ", IMGUIStyles.StatusLabel);
-            var healthStyle = new GUIStyle(IMGUIStyles.StatusLabel);
+            GUI.Label(new Rect(30, statusY + 5, 50, 22), "健康:", IMGUIStyles.StatusLabel);
+
             float healthPct = snapshot.MaxHealth > 0 ? (float)snapshot.Health / snapshot.MaxHealth : 0f;
-            if (healthPct >= 0.75f)
+            var healthStyle = new GUIStyle(IMGUIStyles.StatusLabel)
             {
-                healthStyle.normal.textColor = new Color(0.31f, 0.86f, 0.47f, 1f); // Green
-            }
-            else if (healthPct >= 0.4f)
-            {
-                healthStyle.normal.textColor = new Color(0.96f, 0.69f, 0.22f, 1f); // Amber/Orange
-            }
-            else
-            {
-                healthStyle.normal.textColor = new Color(0.96f, 0.31f, 0.31f, 1f); // Red
-            }
-            GUI.Label(new Rect(80, statusY + 5, 80, 22), $"{snapshot.Health}/{snapshot.MaxHealth}", healthStyle);
+                normal = { textColor = healthPct >= 0.75f
+                    ? new Color(0.31f, 0.86f, 0.47f, 1f)
+                    : healthPct >= 0.4f
+                        ? new Color(0.96f, 0.69f, 0.22f, 1f)
+                        : new Color(0.96f, 0.31f, 0.31f, 1f) }
+            };
+            GUI.Label(new Rect(75, statusY + 5, 80, 22), $"{snapshot.Health}/{snapshot.MaxHealth}", healthStyle);
 
-            GUI.Label(new Rect(180, statusY + 5, 60, 22), "场景: ", IMGUIStyles.StatusLabel);
-            var locStyle = new GUIStyle(IMGUIStyles.StatusLabel);
-            locStyle.normal.textColor = IMGUIStyles.MoneyColor;
-            GUI.Label(new Rect(230, statusY + 5, 120, 22), snapshot.Location.ToUpper(), locStyle);
+            GUI.Label(new Rect(145, statusY + 5, 50, 22), "物资:", IMGUIStyles.StatusLabel);
 
-            GUI.Label(new Rect(380, statusY + 5, 500, 22), "提示: 点击手牌选择，点击卡槽放入，右键取消选择。", IMGUIStyles.HelpTip);
+            float suppliesPct = snapshot.MaxSupplies > 0 ? (float)snapshot.Supplies / snapshot.MaxSupplies : 0f;
+            var suppliesStyle = new GUIStyle(IMGUIStyles.StatusLabel)
+            {
+                normal = { textColor = suppliesPct >= 0.65f
+                    ? new Color(0.31f, 0.86f, 0.47f, 1f)
+                    : suppliesPct >= 0.3f
+                        ? new Color(0.96f, 0.69f, 0.22f, 1f)
+                        : new Color(0.96f, 0.31f, 0.31f, 1f) }
+            };
+            GUI.Label(new Rect(190, statusY + 5, 80, 22), $"{snapshot.Supplies}/{snapshot.MaxSupplies}", suppliesStyle);
+
+            GUI.Label(new Rect(265, statusY + 5, 50, 22), "场景:", IMGUIStyles.StatusLabel);
+            var locStyle = new GUIStyle(IMGUIStyles.StatusLabel)
+                { normal = { textColor = IMGUIStyles.MoneyColor } };
+            GUI.Label(new Rect(310, statusY + 5, 120, 22), snapshot.Location.ToUpper(), locStyle);
+
+            GUI.Label(new Rect(440, statusY + 5, 500, 22),
+                "提示: 点击手牌选择，点击卡槽放入，右键取消选择。", IMGUIStyles.HelpTip);
         }
     }
 }

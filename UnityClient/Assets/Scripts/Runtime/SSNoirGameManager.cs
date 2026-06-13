@@ -1,5 +1,6 @@
 #nullable enable
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,6 +76,7 @@ namespace SSNoir
             // 1. Initialize Game State & Script Loader
             _gameState = new GameState();
             _scriptLoader = new UnityScriptLoader();
+            SaveManager.DefaultSavePath = System.IO.Path.Combine(Application.persistentDataPath, "save.json");
 
             // 2. Initialize Scene Manager
             _sceneManager = new SceneManager(_gameState, _scriptLoader);
@@ -155,7 +157,7 @@ namespace SSNoir
 
         public void OnNodeCardClicked(GameNode node)
         {
-            if (node.HasChildren)
+            if (node.IsContainer)
             {
                 _nodeSlots.Clear();
                 _navigationStack.Add(node);
@@ -393,6 +395,8 @@ namespace SSNoir
             var slots = GetSlotsForNode(node.Name) ?? new List<SlottedResource?>();
 
             _renderer.SetInputLocked(true);
+
+            bool done = false;
             try
             {
                 string sceneBefore = _sceneManager.CurrentSceneName;
@@ -405,7 +409,6 @@ namespace SSNoir
                     ResetSceneUiState();
                 }
 
-                bool done = false;
                 _renderer.PlayPresentation(report, node.Name, () =>
                 {
                     if (sceneChanged)
@@ -416,21 +419,20 @@ namespace SSNoir
                     UpdateCameraFocus();
                     done = true;
                 });
-
-                while (!done)
-                {
-                    yield return null;
-                }
             }
             catch (System.Exception ex)
             {
                 Debug.LogError($"[ExecuteNodeAction] Exception during execution: {ex}");
                 ShowNotification($"执行异常: {ex.Message}");
+                done = true;
             }
-            finally
+
+            while (!done)
             {
-                _renderer.SetInputLocked(false);
+                yield return null;
             }
+
+            _renderer.SetInputLocked(false);
         }
 
         private void ResetSceneUiState()
@@ -440,6 +442,7 @@ namespace SSNoir
             _flippedNodes.Clear();
             _selectedResource = null;
             _focusedNodeName = string.Empty;
+            _renderer?.ResetUiState();
         }
 
         private void RefreshSceneCameraReference()
@@ -511,7 +514,7 @@ namespace SSNoir
             foreach (var name in path)
             {
                 var match = currentLevel.Find(n => n.Name == name);
-                if (match != null && match.HasChildren)
+                if (match != null && match.IsContainer)
                 {
                     _navigationStack.Add(match);
                     currentLevel = match.Children;
@@ -582,6 +585,43 @@ namespace SSNoir
         public List<string> LoadAvailableSceneNames()
         {
             return _scriptLoader.LoadSceneNames();
+        }
+
+        public void SaveGame()
+        {
+            try
+            {
+                _sceneManager.SaveGame();
+                _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
+                Debug.Log($"[SSNoir] Game saved to {SaveManager.DefaultSavePath}");
+            }
+            catch (System.Exception ex)
+            {
+                _gameState.NotificationCenter.Push($"存档失败: {ex.Message}", NotificationKind.Error);
+                Debug.LogError($"[SSNoir] SaveGame failed: {ex}");
+            }
+        }
+
+        public void LoadGame()
+        {
+            if (!System.IO.File.Exists(SaveManager.DefaultSavePath))
+            {
+                _gameState.NotificationCenter.Push("没有找到存档文件。", NotificationKind.Warning);
+                Debug.LogWarning($"[SSNoir] No save file found at {SaveManager.DefaultSavePath}");
+                return;
+            }
+            try
+            {
+                _sceneManager.LoadGame();
+                // OnSceneLoaded fires inside LoadGame → ResetSceneUiState → ResetUiState
+                _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
+                Debug.Log($"[SSNoir] Game loaded from {SaveManager.DefaultSavePath}");
+            }
+            catch (System.Exception ex)
+            {
+                _gameState.NotificationCenter.Push($"读档失败: {ex.Message}", NotificationKind.Error);
+                Debug.LogError($"[SSNoir] LoadGame failed: {ex}");
+            }
         }
 
         public void OnDieClicked(int dieIndex, int val)
@@ -667,6 +707,42 @@ namespace SSNoir
             {
                 yield return null;
             }
+        }
+
+        public void NavigateToHome()
+        {
+            var homeNode = FindNodeByName(_displayedSnapshot.Nodes.ToList(), "家");
+            if (homeNode == null)
+            {
+                Debug.LogWarning("[SSNoir] Expected '家' node in world.");
+                return;
+            }
+
+            bool alreadyAtHome = _navigationStack.Count > 0
+                && _navigationStack[_navigationStack.Count - 1].Name == "家";
+
+            if (alreadyAtHome)
+            {
+                return;
+            }
+
+            _nodeSlots.Clear();
+            _selectedResource = null;
+            _navigationStack.Clear();
+            _navigationStack.Add(homeNode);
+            ResolveNavigationStack();
+            UpdateCameraFocus();
+        }
+
+        private GameNode? FindNodeByName(List<GameNode> nodes, string name)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.Name == name) return node;
+                var found = FindNodeByName(node.Children, name);
+                if (found != null) return found;
+            }
+            return null;
         }
 
         public void OnRollAckClicked()

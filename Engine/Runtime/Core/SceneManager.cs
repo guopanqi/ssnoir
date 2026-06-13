@@ -176,6 +176,9 @@ namespace SSNoir.Core
             );
         }
 
+        public void SaveGame() => SaveGame(SaveManager.DefaultSavePath);
+        public void LoadGame() => LoadGame(SaveManager.DefaultSavePath);
+
         public void SaveGame(string filePath)
         {
             if (_encounterInterpreter != null)

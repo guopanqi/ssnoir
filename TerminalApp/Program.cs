@@ -50,6 +50,8 @@ namespace SSNoir
                     return;
                 }
 
+                SaveManager.DefaultSavePath = "save.json";
+
                 var gameState = new GameState();
                 var loader = new LocalScriptLoader();
                 var sceneManager = new SceneManager(gameState, loader);

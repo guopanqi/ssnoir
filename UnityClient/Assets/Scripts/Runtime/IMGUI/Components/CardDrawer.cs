@@ -28,7 +28,7 @@ namespace SSNoir.IMGUI
             }
 
             // ── Location Capsule Dispatch (when not focused) ──
-            bool isLocation = node.HasChildren;
+            bool isLocation = node.IsContainer;
             if (isLocation && !isFocused)
             {
                 DrawLocationLabel(rect, node.Name, isHovered);
@@ -47,7 +47,7 @@ namespace SSNoir.IMGUI
             Color outlineNormal = IMGUIStyles.CardOutline;
             Color outlineHover = IMGUIStyles.CardHoverOutline;
 
-            if (node.HasChildren)
+            if (node.IsContainer)
             {
                 typeLabel = "地点";
             }

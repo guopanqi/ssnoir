@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.adamgryu.inspectorhistory": "file:/Users/usr/Documents/play/ssnoir/InspectorHistory-Unity-main",
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.ssnoir.engine": "file:/Users/usr/Documents/play/ssnoir/Engine",
     "com.taptap.minigame": "https://github.com/taptap/minigame-sdk-unity.git",
     "com.unity.cinemachine": "2.10.7",

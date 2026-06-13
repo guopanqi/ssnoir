@@ -1,11 +1,17 @@
 using UnityEngine;
 
-namespace SSNoir.UnityClient.IMGUI
+namespace SSNoir.IMGUI
 {
     public readonly struct IMGUIInteractionContext
     {
-        public Vector2 Mouse { get; init; }
-        public bool IsLocked { get; init; }
+        public Vector2 Mouse { get; }
+        public bool IsLocked { get; }
+
+        public IMGUIInteractionContext(Vector2 mouse, bool isLocked)
+        {
+            Mouse = mouse;
+            IsLocked = isLocked;
+        }
 
         public bool CanHover(Rect rect)
         {

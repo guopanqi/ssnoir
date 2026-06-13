@@ -192,7 +192,7 @@ namespace SSNoir.Rendering
             float turnY = handY + 18;
             var turnRect = new Rectangle(turnX, turnY, 80, 32);
 
-            string turnText = isInEncounter ? "回合" : "回家";
+            string turnText = isInEncounter ? "休息" : "回家";
             var turnBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(turnRect, turnText, ui, true, 14,
                 new Color((byte)85, (byte)30, (byte)30, (byte)255), new Color((byte)120, (byte)50, (byte)50, (byte)255), null,
                 new Color((byte)140, (byte)60, (byte)60, (byte)255), new Color((byte)220, (byte)100, (byte)100, (byte)255), null,

@@ -58,6 +58,14 @@ namespace SSNoir.IMGUI
             _inputLocked = locked;
         }
 
+        // Called on scene load/reset to close all overlay panels.
+        public void ResetUiState()
+        {
+            _isGrowthPanelOpen = false;
+            _inputLocked = false;
+            DebugPanelDrawer.Reset();
+        }
+
         private void Update()
         {
             _gameManager.GameState.NotificationCenter.Update(Time.deltaTime);
@@ -93,11 +101,7 @@ namespace SSNoir.IMGUI
                 GUI.color = Color.white;
             }
 
-            var ui = new IMGUIInteractionContext
-            {
-                Mouse = Event.current.mousePosition,
-                IsLocked = _inputLocked || IsAnimationPlaying
-            };
+            var ui = new IMGUIInteractionContext(Event.current.mousePosition, _inputLocked || IsAnimationPlaying);
 
             // ── Navigation Bar ──
             NavigationDrawer.Draw(_gameManager, ui);
@@ -121,10 +125,10 @@ namespace SSNoir.IMGUI
             // ── Growth / Team Toggle Button ──
             DrawGrowthToggleButton(ui);
 
-            // ── Scene Dropdown ──
+            // ── Debug Panel (Save/Load + Scene Switch) ──
             if (!_isGrowthPanelOpen)
             {
-                SceneDropdownDrawer.Draw(_gameManager, ui);
+                DebugPanelDrawer.Draw(_gameManager, ui);
             }
 
             // ── Overlays ──
@@ -205,7 +209,7 @@ namespace SSNoir.IMGUI
                 float anchorX = item.screenPos.x;
                 float anchorY = Screen.height - item.screenPos.y;
 
-                bool isLocation = item.node.HasChildren;
+                bool isLocation = item.node.IsContainer;
                 bool focused = isFocused(item.node.Name);
 
                 float cardWidth = focused ? 420f : (isLocation ? 140f : 280f);

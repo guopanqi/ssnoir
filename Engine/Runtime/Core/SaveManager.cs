@@ -2,193 +2,179 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SSNoir.Core
 {
     public static class SaveManager
     {
+        // Set once at app startup. TerminalApp: "save.json". Unity: Application.persistentDataPath + "/save.json".
+        public static string DefaultSavePath { get; set; } = "save.json";
+
         public static void Write(string filePath, SaveData data)
         {
             var dir = Path.GetDirectoryName(filePath);
             if (!string.IsNullOrEmpty(dir))
                 Directory.CreateDirectory(dir);
 
-            using var stream = new MemoryStream();
-            var options = new JsonWriterOptions { Indented = true };
-            using (var w = new Utf8JsonWriter(stream, options))
+            var root = new JObject
             {
-                w.WriteStartObject();
-                w.WriteNumber("version", data.Version);
+                ["version"]   = data.Version,
+                ["globals"]   = WriteGlobals(data.Globals),
+                ["team"]      = WriteTeam(data.Team),
+                ["inventory"] = WriteInventory(data.Inventory),
+                ["worldData"] = WriteScheme(data.WorldData, "worldData"),
+            };
 
-                w.WritePropertyName("globals");
-                w.WriteStartObject();
-                foreach (var kv in data.Globals)
-                {
-                    w.WritePropertyName(kv.Key);
-                    WritePrimitive(w, kv.Value, "globals." + kv.Key);
-                }
-                w.WriteEndObject();
-
-                w.WritePropertyName("team");
-                WriteTeam(w, data.Team);
-
-                w.WritePropertyName("inventory");
-                w.WriteStartObject();
-                foreach (var kv in data.Inventory)
-                    w.WriteNumber(kv.Key, kv.Value);
-                w.WriteEndObject();
-
-                w.WritePropertyName("worldData");
-                WriteScheme(w, data.WorldData, "worldData");
-
-                w.WriteEndObject();
-            }
-
-            File.WriteAllBytes(filePath, stream.ToArray());
+            File.WriteAllText(filePath, root.ToString(Formatting.Indented));
         }
 
         public static SaveData Read(string filePath)
         {
-            var bytes = File.ReadAllBytes(filePath);
-            using var doc = JsonDocument.Parse(bytes);
-            var root = doc.RootElement;
+            var root = JObject.Parse(File.ReadAllText(filePath));
 
             var data = new SaveData
             {
-                Version = root.GetProperty("version").GetInt32(),
+                Version = root["version"]!.Value<int>(),
             };
 
-            foreach (var prop in root.GetProperty("globals").EnumerateObject())
+            foreach (var prop in ((JObject)root["globals"]!).Properties())
                 data.Globals[prop.Name] = ReadPrimitive(prop.Value, "globals." + prop.Name);
 
-            data.Team = ReadTeam(root.GetProperty("team"));
+            data.Team = ReadTeam((JObject)root["team"]!);
 
-            foreach (var prop in root.GetProperty("inventory").EnumerateObject())
-                data.Inventory[prop.Name] = prop.Value.GetInt32();
+            foreach (var prop in ((JObject)root["inventory"]!).Properties())
+                data.Inventory[prop.Name] = prop.Value.Value<int>();
 
-            data.WorldData = ReadScheme(root.GetProperty("worldData"), "worldData");
+            data.WorldData = ReadScheme(root["worldData"]!, "worldData");
 
             return data;
         }
 
         // ── Write helpers ────────────────────────────────────────────────
 
-        private static void WritePrimitive(Utf8JsonWriter w, object? value, string path)
+        private static JObject WriteGlobals(Dictionary<string, object> globals)
         {
-            switch (value)
-            {
-                case string s:   w.WriteStringValue(s); break;
-                case int i:      w.WriteNumberValue(i); break;
-                case long l:     w.WriteNumberValue(l); break;
-                case double d:   w.WriteNumberValue(d); break;
-                case bool b:     w.WriteBooleanValue(b); break;
-                default:
-                    throw new InvalidDataException(
-                        $"Cannot serialize global value at '{path}': unsupported type " +
-                        $"{value?.GetType().Name ?? "null"}.");
-            }
+            var obj = new JObject();
+            foreach (var kv in globals)
+                obj[kv.Key] = WritePrimitive(kv.Value, "globals." + kv.Key);
+            return obj;
         }
 
-        private static void WriteScheme(Utf8JsonWriter w, object? value, string path)
+        private static JToken WritePrimitive(object? value, string path)
         {
-            switch (value)
+            return value switch
             {
-                case null:
-                    w.WriteNullValue();
-                    break;
-                case string s:
-                    w.WriteStringValue(s);
-                    break;
-                case int i:
-                    w.WriteNumberValue(i);
-                    break;
-                case long l:
-                    w.WriteNumberValue(l);
-                    break;
-                case double d:
-                    w.WriteNumberValue(d);
-                    break;
-                case bool b:
-                    w.WriteBooleanValue(b);
-                    break;
-                case List<object> list:
-                    w.WriteStartArray();
-                    for (int idx = 0; idx < list.Count; idx++)
-                        WriteScheme(w, list[idx], $"{path}[{idx}]");
-                    w.WriteEndArray();
-                    break;
-                default:
-                    throw new InvalidDataException(
-                        $"world-save returned an unsupported value at '{path}': type " +
-                        $"{value.GetType().Name}. Only string, int, double, bool, and list " +
-                        "are allowed. Check that world-save doesn't return symbols, procedures, or native objects.");
-            }
+                string s => new JValue(s),
+                int i    => new JValue(i),
+                long l   => new JValue(l),
+                double d => new JValue(d),
+                bool b   => new JValue(b),
+                _ => throw new InvalidDataException(
+                    $"Cannot serialize global value at '{path}': unsupported type " +
+                    $"{value?.GetType().Name ?? "null"}.")
+            };
         }
 
-        private static void WriteTeam(Utf8JsonWriter w, TeamSaveData team)
+        private static JToken WriteScheme(object? value, string path)
         {
-            w.WriteStartObject();
-            w.WriteNumber("health", team.Health);
-            w.WriteNumber("supplies", team.Supplies);
-            w.WriteNumber("growthLevel", team.GrowthLevel);
-            w.WritePropertyName("actors");
-            w.WriteStartArray();
+            return value switch
+            {
+                null             => JValue.CreateNull(),
+                string s         => new JValue(s),
+                int i            => new JValue(i),
+                long l           => new JValue(l),
+                double d         => new JValue(d),
+                bool b           => new JValue(b),
+                List<object> lst => WriteSchemeList(lst, path),
+                _ => throw new InvalidDataException(
+                    $"world-save returned an unsupported value at '{path}': type " +
+                    $"{value.GetType().Name}. Only string, int, double, bool, and list " +
+                    "are allowed. Check that world-save doesn't return symbols, procedures, or native objects.")
+            };
+        }
+
+        private static JArray WriteSchemeList(List<object> list, string path)
+        {
+            var arr = new JArray();
+            for (int i = 0; i < list.Count; i++)
+                arr.Add(WriteScheme(list[i], $"{path}[{i}]"));
+            return arr;
+        }
+
+        private static JObject WriteTeam(TeamSaveData team)
+        {
+            var actorsArr = new JArray();
             foreach (var a in team.Actors)
             {
-                w.WriteStartObject();
-                w.WriteString("id", a.Id);
-                w.WriteString("name", a.Name);
-                w.WriteString("role", a.Role);
-                w.WriteString("status", a.Status);
-                w.WriteNumber("stress", a.Stress);
-                w.WriteNumber("spentGrowthPoints", a.SpentGrowthPoints);
-                w.WritePropertyName("stats");
-                w.WriteStartObject();
+                var stats = new JObject();
                 foreach (var kv in a.Stats)
-                    w.WriteNumber(kv.Key, kv.Value);
-                w.WriteEndObject();
-                w.WriteEndObject();
+                    stats[kv.Key] = kv.Value;
+
+                actorsArr.Add(new JObject
+                {
+                    ["id"]                = a.Id,
+                    ["name"]              = a.Name,
+                    ["role"]              = a.Role,
+                    ["status"]            = a.Status,
+                    ["stress"]            = a.Stress,
+                    ["spentGrowthPoints"] = a.SpentGrowthPoints,
+                    ["stats"]             = stats,
+                });
             }
-            w.WriteEndArray();
-            w.WriteEndObject();
+            return new JObject
+            {
+                ["health"]      = team.Health,
+                ["supplies"]    = team.Supplies,
+                ["growthLevel"] = team.GrowthLevel,
+                ["actors"]      = actorsArr,
+            };
+        }
+
+        private static JObject WriteInventory(Dictionary<string, int> inventory)
+        {
+            var obj = new JObject();
+            foreach (var kv in inventory)
+                obj[kv.Key] = kv.Value;
+            return obj;
         }
 
         // ── Read helpers ─────────────────────────────────────────────────
 
-        private static object ReadPrimitive(JsonElement elem, string path)
+        private static object ReadPrimitive(JToken token, string path)
         {
-            return elem.ValueKind switch
+            return token.Type switch
             {
-                JsonValueKind.String  => (object)elem.GetString()!,
-                JsonValueKind.Number  => elem.TryGetInt32(out int i) ? i : (object)elem.GetDouble(),
-                JsonValueKind.True    => (object)true,
-                JsonValueKind.False   => (object)false,
+                JTokenType.String  => (object)token.Value<string>()!,
+                JTokenType.Integer => (object)token.Value<int>(),
+                JTokenType.Float   => (object)token.Value<double>(),
+                JTokenType.Boolean => (object)token.Value<bool>(),
                 _ => throw new InvalidDataException(
-                    $"Unexpected JSON kind {elem.ValueKind} at '{path}'. Expected string, number, or bool.")
+                    $"Unexpected JSON type {token.Type} at '{path}'. Expected string, number, or bool.")
             };
         }
 
-        private static object ReadScheme(JsonElement elem, string path)
+        private static object ReadScheme(JToken token, string path)
         {
-            return elem.ValueKind switch
+            return token.Type switch
             {
-                JsonValueKind.String  => (object)elem.GetString()!,
-                JsonValueKind.Number  => elem.TryGetInt32(out int i) ? i : (object)elem.GetDouble(),
-                JsonValueKind.True    => (object)true,
-                JsonValueKind.False   => (object)false,
-                JsonValueKind.Array   => ReadSchemeArray(elem, path),
+                JTokenType.String  => (object)token.Value<string>()!,
+                JTokenType.Integer => (object)token.Value<int>(),
+                JTokenType.Float   => (object)token.Value<double>(),
+                JTokenType.Boolean => (object)token.Value<bool>(),
+                JTokenType.Array   => ReadSchemeArray((JArray)token, path),
                 _ => throw new InvalidDataException(
-                    $"Unexpected JSON kind {elem.ValueKind} at '{path}' in worldData. " +
+                    $"Unexpected JSON type {token.Type} at '{path}' in worldData. " +
                     "Only string, number, bool, and array are valid Scheme serialized types.")
             };
         }
 
-        private static List<object> ReadSchemeArray(JsonElement elem, string path)
+        private static List<object> ReadSchemeArray(JArray arr, string path)
         {
             var list = new List<object>();
             int idx = 0;
-            foreach (var item in elem.EnumerateArray())
+            foreach (var item in arr)
             {
                 list.Add(ReadScheme(item, $"{path}[{idx}]"));
                 idx++;
@@ -196,27 +182,28 @@ namespace SSNoir.Core
             return list;
         }
 
-        private static TeamSaveData ReadTeam(JsonElement el)
+        private static TeamSaveData ReadTeam(JObject el)
         {
             var team = new TeamSaveData
             {
-                Health     = el.GetProperty("health").GetInt32(),
-                Supplies   = el.GetProperty("supplies").GetInt32(),
-                GrowthLevel = el.GetProperty("growthLevel").GetInt32(),
+                Health      = el["health"]!.Value<int>(),
+                Supplies    = el["supplies"]!.Value<int>(),
+                GrowthLevel = el["growthLevel"]!.Value<int>(),
             };
-            foreach (var actorEl in el.GetProperty("actors").EnumerateArray())
+            foreach (var actorEl in (JArray)el["actors"]!)
             {
+                var ao = (JObject)actorEl;
                 var a = new ActorSaveData
                 {
-                    Id                = actorEl.GetProperty("id").GetString()!,
-                    Name              = actorEl.GetProperty("name").GetString()!,
-                    Role              = actorEl.GetProperty("role").GetString()!,
-                    Status            = actorEl.GetProperty("status").GetString()!,
-                    Stress            = actorEl.GetProperty("stress").GetInt32(),
-                    SpentGrowthPoints = actorEl.GetProperty("spentGrowthPoints").GetInt32(),
+                    Id                = ao["id"]!.Value<string>()!,
+                    Name              = ao["name"]!.Value<string>()!,
+                    Role              = ao["role"]!.Value<string>()!,
+                    Status            = ao["status"]!.Value<string>()!,
+                    Stress            = ao["stress"]!.Value<int>(),
+                    SpentGrowthPoints = ao["spentGrowthPoints"]!.Value<int>(),
                 };
-                foreach (var stat in actorEl.GetProperty("stats").EnumerateObject())
-                    a.Stats[stat.Name] = stat.Value.GetInt32();
+                foreach (var stat in ((JObject)ao["stats"]!).Properties())
+                    a.Stats[stat.Name] = stat.Value.Value<int>();
                 team.Actors.Add(a);
             }
             return team;

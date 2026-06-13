@@ -8,7 +8,7 @@
     (define (make-trash-nodes n)
       (if (<= n 0)
           '()
-          (cons (instant-action "清理垃圾"
+          (cons (instant-action (string-append "清理垃圾" (number->string n))
                                 (lambda ()
                                   (set! trash-count (- trash-count 1))))
                 (make-trash-nodes (- n 1)))))

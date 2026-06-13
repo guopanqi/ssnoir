@@ -58,7 +58,7 @@ namespace SSNoir.IMGUI
                     int frames = Mathf.FloorToInt(elapsed / interval);
                     int newVal = _rand.Next(1, 7);
                     DisplayedDieValue = newVal;
-                    DisplayScale = Random.Range(0.9f, 1.15f);
+                    DisplayScale = UnityEngine.Random.Range(0.9f, 1.15f);
                 }
                 else
                 {

@@ -17,7 +17,6 @@ namespace SSNoir.Rendering
 
         private const int WindowWidth = 800;
         private const int WindowHeight = 600;
-        private static readonly string SaveFilePath = "save.json";
         private static readonly bool FastPresentationMode =
             string.Equals(Environment.GetEnvironmentVariable("SSNOIR_FAST_PRESENTATION"), "1", StringComparison.Ordinal);
 
@@ -213,7 +212,7 @@ namespace SSNoir.Rendering
         {
             try
             {
-                _sceneManager.SaveGame(SaveFilePath);
+                _sceneManager.SaveGame();
                 _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
             }
             catch (Exception ex)
@@ -224,7 +223,7 @@ namespace SSNoir.Rendering
 
         private void LoadSavedGame()
         {
-            if (!System.IO.File.Exists(SaveFilePath))
+            if (!System.IO.File.Exists(SaveManager.DefaultSavePath))
             {
                 _gameState.NotificationCenter.Push("没有找到存档文件。", NotificationKind.Warning);
                 return;
@@ -232,7 +231,7 @@ namespace SSNoir.Rendering
 
             try
             {
-                _sceneManager.LoadGame(SaveFilePath);
+                _sceneManager.LoadGame();
                 _state.DisplayedSnapshot = _sceneManager.LatestSnapshot;
                 _state.SelectedResource = null;
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
@@ -473,7 +472,10 @@ namespace SSNoir.Rendering
             {
                 if (IsInEncounter)
                 {
-                    _state.IsTurnPanelOpen = !_state.IsTurnPanelOpen;
+                    _state.NodeSlots.Clear();
+                    _state.SelectedResource = null;
+                    _sceneManager.EndTurn();
+                    StartPresentation(CreateEndTurnReport(), "休息");
                 }
                 else
                 {
@@ -615,11 +617,17 @@ namespace SSNoir.Rendering
             bool hoverTog = bgUi.CanHover(toggleRect);
             Raylib.DrawRectangleRounded(toggleRect, 0.25f, 4, hoverTog ? DbgBtnHov : togBg);
             Raylib.DrawRectangleRoundedLinesEx(toggleRect, 0.25f, 4, 1.5f, togBdr);
-            int lblW = FontManager.MeasureTextWidth("Debug ▾", 13);
-            FontManager.DrawText("Debug ▾", btnX + (66 - lblW) / 2f, btnY + 9, 13, isOpen ? DbgAccent : DbgText);
+            int lblW = FontManager.MeasureTextWidth("Debug v", 13);
+            FontManager.DrawText("Debug v", btnX + (66 - lblW) / 2f, btnY + 9, 13, isOpen ? DbgAccent : DbgText);
 
             if (!bgUi.IsLocked && Raylib.IsMouseButtonPressed(MouseButton.Left) && hoverTog)
+            {
                 _state.IsDebugMenuOpen = !isOpen;
+                if (_state.IsDebugMenuOpen)
+                {
+                    SceneDropdownWidget.LoadAvailableScenes(_state);
+                }
+            }
 
             if (!_state.IsDebugMenuOpen) return;
 
