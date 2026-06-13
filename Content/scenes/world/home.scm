@@ -51,7 +51,7 @@
 
     (define (node-gramophone)
       ;; 这会改变名字/ID, 会有一些麻烦, 但现在先不管
-      (container (string-append "唱片机" playing-song)
+      (container "唱片机"
         (list
           (instant-action (format-song-name "《甜蜜蜜》")
                           (lambda () (set! playing-song "《甜蜜蜜》")))

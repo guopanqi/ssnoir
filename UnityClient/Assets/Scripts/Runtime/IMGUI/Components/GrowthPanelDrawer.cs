@@ -166,7 +166,6 @@ namespace SSNoir.IMGUI
                     if (isEnabled && btnHover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
                     {
                         gameManager.UpgradeActorStat(actor.Id, statKey);
-                        gameManager.GameState.NotificationCenter.Push($"{actor.Name} upgraded {statKey}!", NotificationKind.Success);
                         Event.current.Use();
                     }
                 }

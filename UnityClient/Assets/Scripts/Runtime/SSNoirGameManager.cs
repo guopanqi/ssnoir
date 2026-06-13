@@ -278,7 +278,7 @@ namespace SSNoir
                 }
                 else if (req.Type == "item" && _selectedResource.Type == "item" && req.ItemId == _selectedResource.ItemName)
                 {
-                    int totalOwned = _gameState.Get<int>("item:" + req.ItemId, 0);
+                    int totalOwned = _displayedSnapshot.Inventory.TryGetValue(req.ItemId, out var ownedQty) ? ownedQty : 0;
                     int totalSlotted = GetTotalSlottedItemQty(req.ItemId);
                     int available = totalOwned - totalSlotted;
 
@@ -398,24 +398,33 @@ namespace SSNoir
             var slots = GetSlotsForNode(node.Name) ?? new List<SlottedResource?>();
 
             _renderer.SetInputLocked(true);
-
-            ActionReport report = _sceneManager.ExecuteAction(node, slots);
-            _nodeSlots.Remove(node.Name);
-            _selectedResource = null;
-
-            bool done = false;
-            _renderer.PlayPresentation(report, node.Name, () =>
+            try
             {
-                AdoptLatestSnapshot();
-                done = true;
-            });
+                ActionReport report = _sceneManager.ExecuteAction(node, slots);
+                _nodeSlots.Remove(node.Name);
+                _selectedResource = null;
 
-            while (!done)
-            {
-                yield return null;
+                bool done = false;
+                _renderer.PlayPresentation(report, node.Name, () =>
+                {
+                    AdoptLatestSnapshot();
+                    done = true;
+                });
+
+                while (!done)
+                {
+                    yield return null;
+                }
             }
-
-            _renderer.SetInputLocked(false);
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[ExecuteNodeAction] Exception during execution: {ex}");
+                ShowNotification($"执行异常: {ex.Message}");
+            }
+            finally
+            {
+                _renderer.SetInputLocked(false);
+            }
         }
 
         public void AdoptLatestSnapshot()
@@ -427,11 +436,20 @@ namespace SSNoir
 
         public void UpgradeActorStat(string actorId, string statKey)
         {
-            _gameState.Team.UpgradeActorStat(actorId, statKey);
-            _sceneManager.RebuildRenderTree();
-            if (!_renderer.IsPresentationActive)
+            try
             {
+                _gameState.Team.UpgradeActorStat(actorId, statKey);
+                _sceneManager.RebuildRenderTree();
                 AdoptLatestSnapshot();
+
+                var actor = _gameState.Team.FindActor(actorId);
+                string actorName = actor?.Name ?? actorId;
+                _gameState.NotificationCenter.Push($"{actorName} upgraded {statKey}!", NotificationKind.Success);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[UpgradeActorStat] Exception: {ex}");
+                ShowNotification($"升级异常: {ex.Message}");
             }
         }
 

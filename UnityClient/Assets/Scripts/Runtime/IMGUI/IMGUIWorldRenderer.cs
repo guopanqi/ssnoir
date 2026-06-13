@@ -94,6 +94,10 @@ namespace SSNoir.IMGUI
             }
 
             var mousePos = Event.current.mousePosition;
+            if (_inputLocked || IsAnimationPlaying)
+            {
+                mousePos = new Vector2(-9999f, -9999f);
+            }
 
             // ── Navigation Bar ──
             NavigationDrawer.Draw(_gameManager, mousePos);

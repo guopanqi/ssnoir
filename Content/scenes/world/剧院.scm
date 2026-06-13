@@ -4,7 +4,6 @@
   (let ()
     ;; ── Local State ────────────────────────────────
     (define gate-revealed #f)
-    (define nightingale-approached #f)
     (define nightingale-talked #f)
 
     (define (node-theater-container)
@@ -22,22 +21,14 @@
                 (append
                   (list
                     (container "大门"
-                      (cond
-                        ((not nightingale-approached)
-                         (list
-                           (instant-action "接近夜莺"
-                                           (lambda ()
-                                             (set! nightingale-approached #t)
-                                             (notify! "夜莺：“你终于来了，我一直在等你。”")))))
-                        ((and nightingale-approached (not nightingale-talked))
-                         (list
-                           (instant-action "和夜莺谈话"
-                                           (lambda ()
-                                             (set! nightingale-talked #t)
-                                             (notify! "夜莺向你指明了方向。")))))
-                        (else
-                         (list
-                           (observe-action "夜莺" "夜莺：“快去追吧，别让他跑了。”"))))))
+                      (if (not nightingale-talked)
+                          (list
+                            (instant-action "和夜莺谈话"
+                                            (lambda ()
+                                              (set! nightingale-talked #t)
+                                              (notify! "夜莺：“你终于来了，我一直在等你。”"))))
+                          (list
+                            (observe-action "夜莺" "夜莺：“快去追吧，别让他跑了。”")))))
                   (if (not nightingale-talked)
                       (list (observe-action "黑衣人" "黑衣人匆匆走过。"))
                       (list (observe-action "黑衣人留下的踪迹" "地上残留着潮湿的泥土，以及一串延伸向阴暗巷弄的脚印。"))))
@@ -53,13 +44,11 @@
           ((equal? msg 'save)
            (list
              (list "gate-revealed" gate-revealed)
-             (list "nightingale-approached" nightingale-approached)
              (list "nightingale-talked" nightingale-talked)))
 
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! gate-revealed (assoc-get data "gate-revealed" #f))
-             (set! nightingale-approached (assoc-get data "nightingale-approached" #f))
              (set! nightingale-talked (assoc-get data "nightingale-talked" #f))))
 
           (#t #f))))))

@@ -11,6 +11,7 @@ namespace SSNoir.Rendering
         private readonly SceneManager _sceneManager;
         private readonly GameState _gameState;
         private readonly RendererState _state;
+        private Action? _presentationDoneCallback;
 
         private const int WindowWidth = 800;
         private const int WindowHeight = 600;
@@ -53,11 +54,16 @@ namespace SSNoir.Rendering
             _state.IsPresentingAction = false;
             _state.PresentationStepIndex = 0;
             _state.PresentationTimer = 0f;
+
+            var callback = _presentationDoneCallback;
+            _presentationDoneCallback = null;
+            callback?.Invoke();
         }
 
-        private void StartPresentation(ActionReport report, string actionName = "")
+        private void StartPresentation(ActionReport report, string actionName = "", Action? onDone = null)
         {
             _state.PendingActionName = actionName;
+            _presentationDoneCallback = onDone;
             if (FastPresentationMode)
             {
                 FinishPresentation();
@@ -318,7 +324,7 @@ namespace SSNoir.Rendering
 
         private void UpdateAndDraw()
         {
-            if (_gameState.Team.Health <= 0)
+            if (_state.DisplayedSnapshot.Health <= 0)
             {
                 if (Raylib.IsKeyPressed(KeyboardKey.Escape))
                 {
@@ -881,14 +887,17 @@ namespace SSNoir.Rendering
 
                     if (isEnabled && hoverBtn && Raylib.IsMouseButtonPressed(MouseButton.Left))
                     {
-                        _gameState.Team.UpgradeActorStat(actor.Id, stat.Key);
-                        _sceneManager.RebuildRenderTree();
-                        if (!_state.IsPresentingAction)
+                        try
                         {
-                            _state.DisplayedSnapshot = _sceneManager.LatestSnapshot;
+                            _gameState.Team.UpgradeActorStat(actor.Id, stat.Key);
+                            _sceneManager.RebuildRenderTree();
+                            AdoptLatestSnapshot();
+                            _gameState.NotificationCenter.Push($"{actor.Name} 升级了 {stat.Display} 属性！", NotificationKind.Success);
                         }
-
-                        _gameState.NotificationCenter.Push($"{actor.Name} 升级了 {stat.Display} 属性！", NotificationKind.Success);
+                        catch (System.Exception ex)
+                        {
+                            _gameState.NotificationCenter.Push($"升级失败: {ex.Message}", NotificationKind.Error);
+                        }
                     }
                 }
             }

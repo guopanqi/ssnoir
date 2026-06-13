@@ -86,8 +86,8 @@ namespace SSNoir.Core
             bool nextIsInEncounter = !(sceneName == "world" || sceneName == "world/world" || sceneName == "home" || sceneName == "office" || sceneName == "club");
             _gameState.Team.RollActionDice(nextIsInEncounter);
 
-            OnSceneLoaded?.Invoke();
             RebuildRenderTree();
+            OnSceneLoaded?.Invoke();
         }
 
         public void StartEncounter(string name)
