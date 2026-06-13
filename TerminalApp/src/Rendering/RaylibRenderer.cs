@@ -28,6 +28,7 @@ namespace SSNoir.Rendering
                 _state.VisibleNodes = _sceneManager.CurrentWorldNodes;
                 _state.NodeSlots.Clear();
                 _state.SelectedResource = null;
+                _state.IsTurnPanelOpen = false;
             };
 
             _sceneManager.OnWorldRefreshed += () =>
@@ -82,6 +83,32 @@ namespace SSNoir.Rendering
                 ResolveNavigationStack();
             }
         }
+
+        private void NavigateToHome()
+        {
+            var homeNode = FindNodeByName(_sceneManager.CurrentWorldNodes, "家");
+            if (homeNode == null)
+            {
+                throw new InvalidOperationException("Expected '家' node in world.");
+            }
+
+            bool alreadyAtHome = _state.NavigationStack.Count > 0
+                && _state.NavigationStack[_state.NavigationStack.Count - 1].Name == "家";
+
+            if (alreadyAtHome)
+            {
+                return;
+            }
+
+            _state.NodeSlots.Clear();
+            _state.SelectedResource = null;
+            _state.NavigationStack.Clear();
+            _state.NavigationStack.Add(homeNode);
+            ResolveNavigationStack();
+        }
+
+        private bool IsInEncounter =>
+            !_sceneManager.CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
 
         private void SanitizeSlots()
         {
@@ -175,7 +202,14 @@ namespace SSNoir.Rendering
             _gameState.NotificationCenter.Update(Raylib.GetFrameTime());
 
             bool inputBlocked = _state.ActiveRollResult != null;
-            var activeMousePos = (inputBlocked || _state.IsGrowthPanelOpen) ? new System.Numerics.Vector2(-100f, -100f) : mousePos;
+            var activeMousePos = (inputBlocked || _state.IsGrowthPanelOpen || _state.IsTurnPanelOpen) ? new System.Numerics.Vector2(-100f, -100f) : mousePos;
+
+            // Handle Ctrl+R to restart
+            if (!inputBlocked && (Raylib.IsKeyDown(KeyboardKey.LeftControl) || Raylib.IsKeyDown(KeyboardKey.RightControl)) && Raylib.IsKeyPressed(KeyboardKey.R))
+            {
+                RestartApplication();
+                return;
+            }
 
             // Handle ESC key or right-click to clear selected card/resource first
             if (!inputBlocked)
@@ -185,6 +219,10 @@ namespace SSNoir.Rendering
                     if (_state.SelectedResource != null)
                     {
                         _state.SelectedResource = null;
+                    }
+                    else if (_state.IsTurnPanelOpen)
+                    {
+                        _state.IsTurnPanelOpen = false;
                     }
                     else if (_state.IsGrowthPanelOpen)
                     {
@@ -214,12 +252,18 @@ namespace SSNoir.Rendering
             DrawCards(activeMousePos, cardsStartY);
 
             // 4. Draw Hand Panel
-            var handInteraction = HandPanelWidget.Draw(_state, _gameState, activeMousePos, WindowWidth, WindowHeight);
-            if (handInteraction.RestClicked)
+            bool turnPanelWasOpen = _state.IsTurnPanelOpen;
+            var handInteraction = HandPanelWidget.Draw(_state, _gameState, activeMousePos, WindowWidth, WindowHeight, IsInEncounter);
+            if (handInteraction.TurnClicked)
             {
-                _state.NodeSlots.Clear();
-                _state.SelectedResource = null;
-                _sceneManager.EndTurn();
+                if (IsInEncounter)
+                {
+                    _state.IsTurnPanelOpen = !_state.IsTurnPanelOpen;
+                }
+                else
+                {
+                    NavigateToHome();
+                }
             }
             else if (handInteraction.ShouldClearSelection)
             {
@@ -232,6 +276,23 @@ namespace SSNoir.Rendering
 
             // 5. Draw Bottom Status Bar
             StatusBarWidget.Draw(_gameState, WindowWidth, WindowHeight);
+
+            if (_state.IsTurnPanelOpen && IsInEncounter)
+            {
+                bool justOpened = !turnPanelWasOpen;
+                var turnPanelInteraction = TurnPanelWidget.Draw(mousePos, WindowWidth, WindowHeight, justOpened);
+                if (turnPanelInteraction.RestClicked)
+                {
+                    _state.IsTurnPanelOpen = false;
+                    _state.NodeSlots.Clear();
+                    _state.SelectedResource = null;
+                    _sceneManager.EndTurn();
+                }
+                else if (turnPanelInteraction.ShouldClose)
+                {
+                    _state.IsTurnPanelOpen = false;
+                }
+            }
 
             // 6. Draw Dropdown
             var dropdownInteraction = SceneDropdownWidget.Draw(_state, _sceneManager, activeMousePos, WindowWidth);
@@ -465,9 +526,16 @@ namespace SSNoir.Rendering
                     }
                 }
 
-                if (interaction.ExecuteClicked && slotted != null)
+                if (interaction.ExecuteClicked)
                 {
-                    ExecuteSlottedAction(node, slotted);
+                    if (slotted != null)
+                    {
+                        ExecuteSlottedAction(node, slotted);
+                    }
+                    else
+                    {
+                        _sceneManager.ExecuteAction(node, new List<SlottedResource?>());
+                    }
                 }
             }
         }
@@ -671,6 +739,30 @@ namespace SSNoir.Rendering
                         _gameState.NotificationCenter.Push($"{actor.Name} 升级了 {stat.Display} 属性！", NotificationKind.Success);
                     }
                 }
+            }
+        }
+
+        private void RestartApplication()
+        {
+            try
+            {
+                Raylib.CloseWindow();
+
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "/bin/zsh",
+                    Arguments = "-c \"./run\"",
+                    WorkingDirectory = Directory.GetCurrentDirectory(),
+                    UseShellExecute = false
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Restart failed: {ex.Message}");
+            }
+            finally
+            {
+                Environment.Exit(0);
             }
         }
     }

@@ -76,7 +76,11 @@
               (list (req-item '物资包 1))
               (instant (lambda ()
                          (add-supplies! 5)
-                         (notify! "物资增加。")))) )
+                         (notify! "物资增加。")))))
+
+    (define (node-sleep)
+      (instant-action "睡觉"
+                      (lambda () (end-turn!))))
 
     ;; ── Message Passing Interface ─────────────────
     (lambda args
@@ -88,7 +92,7 @@
                (append
                  (if has-flower? (list (node-flower)) '())
                  (if has-gramophone? (list (node-gramophone)) '())
-                 (list (node-drink-wine) (node-use-supplies))
+                 (list (node-drink-wine) (node-use-supplies) (node-sleep))
                  (if workers-protesting? (list (node-workers-protest)) '())))))
 
           ((equal? msg 'has-gramophone?) has-gramophone?)

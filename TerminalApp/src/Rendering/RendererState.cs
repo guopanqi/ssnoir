@@ -28,6 +28,7 @@ namespace SSNoir.Rendering
 
         public bool IsDropdownOpen { get; set; } = false;
         public bool IsGrowthPanelOpen { get; set; } = false;
+        public bool IsTurnPanelOpen { get; set; } = false;
         public List<DropdownItem> DropdownItems { get; } = new List<DropdownItem>();
 
         public HashSet<string> FlippedNodes { get; } = new HashSet<string>();

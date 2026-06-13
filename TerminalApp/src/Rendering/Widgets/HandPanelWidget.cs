@@ -9,16 +9,16 @@ namespace SSNoir.Rendering
     {
         public struct HandPanelInteraction
         {
-            public bool RestClicked;
+            public bool TurnClicked;
             public SelectedResource? SelectedResourceToSet;
             public bool ShouldClearSelection;
         }
 
-        public static HandPanelInteraction Draw(RendererState state, GameState gameState, System.Numerics.Vector2 mousePos, float windowWidth, float windowHeight)
+        public static HandPanelInteraction Draw(RendererState state, GameState gameState, System.Numerics.Vector2 mousePos, float windowWidth, float windowHeight, bool isInEncounter)
         {
             var interaction = new HandPanelInteraction
             {
-                RestClicked = false,
+                TurnClicked = false,
                 SelectedResourceToSet = null,
                 ShouldClearSelection = false
             };
@@ -203,25 +203,25 @@ namespace SSNoir.Rendering
             }
 
 
-            // ── Draw Rest / End Turn Button ──
-            float restX = windowWidth - 110;
-            float restY = handY + 18;
-            var restRect = new Rectangle(restX, restY, 80, 32);
-            bool restHover = Raylib.CheckCollisionPointRec(mousePos, restRect);
+            // ── Draw Turn Button ──
+            float turnX = windowWidth - 110;
+            float turnY = handY + 18;
+            var turnRect = new Rectangle(turnX, turnY, 80, 32);
+            bool turnHover = Raylib.CheckCollisionPointRec(mousePos, turnRect);
 
-            Color restBg = restHover ? new Color(120, 50, 50, 255) : new Color(85, 30, 30, 255);
-            Color restBorder = restHover ? new Color(220, 100, 100, 255) : new Color(140, 60, 60, 255);
+            Color turnBg = turnHover ? new Color(120, 50, 50, 255) : new Color(85, 30, 30, 255);
+            Color turnBorder = turnHover ? new Color(220, 100, 100, 255) : new Color(140, 60, 60, 255);
 
-            Raylib.DrawRectangleRounded(restRect, 0.2f, 4, restBg);
-            Raylib.DrawRectangleRoundedLinesEx(restRect, 0.2f, 4, 1.5f, restBorder);
+            Raylib.DrawRectangleRounded(turnRect, 0.2f, 4, turnBg);
+            Raylib.DrawRectangleRoundedLinesEx(turnRect, 0.2f, 4, 1.5f, turnBorder);
 
-            string restText = "休息";
-            int restW = FontManager.MeasureTextWidth(restText, 14);
-            FontManager.DrawText(restText, restX + (80 - restW) / 2f, restY + 9, 14, Color.White);
+            string turnText = isInEncounter ? "回合" : "回家";
+            int turnW = FontManager.MeasureTextWidth(turnText, 14);
+            FontManager.DrawText(turnText, turnX + (80 - turnW) / 2f, turnY + 9, 14, Color.White);
 
-            if (restHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+            if (turnHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
             {
-                interaction.RestClicked = true;
+                interaction.TurnClicked = true;
             }
 
             // Right click anywhere on the hand panel to clear selection

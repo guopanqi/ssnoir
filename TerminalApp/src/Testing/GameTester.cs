@@ -30,7 +30,7 @@ namespace SSNoir.Testing
                 var relativePath = Path.GetRelativePath(scenesDir, scenePath);
                 var sceneName = Path.Combine(Path.GetDirectoryName(relativePath) ?? "", Path.GetFileNameWithoutExtension(relativePath)).Replace('\\', '/');
 
-                if (sceneName == "world/home" || sceneName == "world/office" || sceneName == "world/club" || sceneName == "world/board" || sceneName == "world/merchant" || sceneName == "world/test")
+                if (sceneName.StartsWith("world/") && sceneName != "world/world")
                 {
                     continue;
                 }

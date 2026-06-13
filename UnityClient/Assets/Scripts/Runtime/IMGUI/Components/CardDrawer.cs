@@ -101,13 +101,14 @@ namespace SSNoir.IMGUI
             }
 
             bool hasRequires = node.Requires != null && node.Requires.Count > 0 && slotted != null && slotted.Count == node.Requires.Count;
+            bool showButton = hasRequires || (node.Resolve != null && node.Resolve.Type == ResolveType.Instant);
 
             // Title
-            float titleY = hasRequires ? rect.y + 12 : rect.y + rect.height / 2f - 20;
+            float titleY = showButton ? rect.y + 12 : rect.y + rect.height / 2f - 20;
             GUI.Label(new Rect(rect.x, titleY, rect.width, 22), node.Name, IMGUIStyles.CardTitle);
 
             // Type label
-            float typeY = hasRequires ? rect.y + 34 : rect.y + rect.height / 2f + 4;
+            float typeY = showButton ? rect.y + 34 : rect.y + rect.height / 2f + 4;
             GUI.Label(new Rect(rect.x, typeY, rect.width, 18), $"— {typeLabel} —", IMGUIStyles.CardSubtitle);
 
             if (hasRequires)
@@ -184,6 +185,20 @@ namespace SSNoir.IMGUI
                 else
                 {
                     IMGUIStyles.DrawTechnicalButton(exeRect, "待命", mousePos, IMGUIStyles.OutlineVariantColor, Color.clear, IMGUIStyles.ExecuteLabel, false);
+                }
+            }
+            else if (showButton)
+            {
+                // For instant-action cards (no requirements, but show button)
+                float exeW = 90;
+                float exeH = 20;
+                float exeX = rect.x + (rect.width - exeW) / 2f;
+                float exeY = rect.y + 75;
+                var exeRect = new Rect(exeX, exeY, exeW, exeH);
+
+                if (IMGUIStyles.DrawTechnicalButton(exeRect, "执行", mousePos, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+                {
+                    interaction.ExecuteClicked = true;
                 }
             }
             else

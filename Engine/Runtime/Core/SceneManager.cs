@@ -16,6 +16,7 @@ namespace SSNoir.Core
         private SchemeInterpreter? _worldInterpreter;
         private SchemeInterpreter? _encounterInterpreter;
         private string _encounterSceneName = string.Empty;
+        private bool _turnEndedDuringAction;
 
         public event Action? OnSceneLoaded;
         public event Action? OnWorldRefreshed;
@@ -121,6 +122,15 @@ namespace SSNoir.Core
                     return new None();
                 }, "end-encounter")
             );
+
+            interpreter.RawInterpreter.DefineGlobal(
+                Symbol.FromString("end-turn!"),
+                new NativeProcedure(args =>
+                {
+                    EndTurn();
+                    return new None();
+                }, "end-turn!")
+            );
         }
 
         public void Refresh()
@@ -183,6 +193,7 @@ namespace SSNoir.Core
 
         public void EndTurn()
         {
+            _turnEndedDuringAction = true;
             ActiveInterpreter.Eval("(on-turn-end)");
 
             bool isInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
@@ -323,6 +334,7 @@ namespace SSNoir.Core
                 SlottedResources = slots
             };
             _gameState.CurrentContext = context;
+            _turnEndedDuringAction = false;
 
             try
             {
@@ -376,7 +388,14 @@ namespace SSNoir.Core
                     report.Type = ActionType.Instant;
                     node.Resolve.Effect?.Invoke();
                     consumeResources();
-                    OnActionExecuted();
+                    if (!_turnEndedDuringAction)
+                    {
+                        OnActionExecuted();
+                    }
+                    else
+                    {
+                        _turnEndedDuringAction = false;
+                    }
                 }
                 else if (node.Resolve.Type == ResolveType.Roll)
                 {

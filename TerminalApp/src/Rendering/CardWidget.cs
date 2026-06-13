@@ -81,21 +81,22 @@ namespace SSNoir.Rendering
             }
 
             bool hasRequires = requires != null && requires.Count > 0 && slotted != null && slotted.Count == requires.Count;
+            bool showButton = hasRequires || typeLabel == "行动";
 
-            // Draw Title text (centered, adjusted upwards if card has slots)
+            // Draw Title text (centered, adjusted upwards if card has slots/button)
             int titleFontSize = 20;
             int titleWidth = FontManager.MeasureTextWidth(name, titleFontSize);
             float titleX = bounds.X + (bounds.Width - titleWidth) / 2f;
-            float titleY = hasRequires 
+            float titleY = showButton 
                 ? bounds.Y + 12
                 : bounds.Y + (bounds.Height / 2f) - 15;
             FontManager.DrawText(name, titleX, titleY, titleFontSize, titleColor);
 
-            // Draw Type text (bottom-center or moved up if has slots)
+            // Draw Type text (bottom-center or moved up if has slots/button)
             int typeFontSize = 14;
             int typeWidth = FontManager.MeasureTextWidth(typeLabel, typeFontSize);
             float typeX = bounds.X + (bounds.Width - typeWidth) / 2f;
-            float typeY = hasRequires 
+            float typeY = showButton 
                 ? bounds.Y + 32
                 : bounds.Y + bounds.Height - 22;
             FontManager.DrawText(typeLabel, typeX, typeY, typeFontSize, typeColor);
@@ -189,9 +190,30 @@ namespace SSNoir.Rendering
                     FontManager.DrawText(exeText, exeX + (exeW - eW) / 2f, exeY + 3, 12, new Color(100, 100, 110, 255));
                 }
             }
+            else if (showButton)
+            {
+                // For instant-action cards (no requirements, but show button)
+                float exeW = 80;
+                float exeH = 18;
+                float exeX = bounds.X + (bounds.Width - exeW) / 2f;
+                float exeY = bounds.Y + 70;
+                var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
+
+                bool exeHover = Raylib.CheckCollisionPointRec(mousePos, exeRect);
+                Raylib.DrawRectangleRounded(exeRect, 0.2f, 4, exeHover ? new Color(100, 200, 100, 255) : new Color(50, 150, 50, 255));
+                
+                string exeText = "执行";
+                int eW = FontManager.MeasureTextWidth(exeText, 12);
+                FontManager.DrawText(exeText, exeX + (exeW - eW) / 2f, exeY + 3, 12, Color.White);
+
+                if (exeHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                {
+                    interaction.ExecuteClicked = true;
+                }
+            }
             else
             {
-                // Simple action or container card click behavior
+                // Simple container or observer card click behavior
                 interaction.CardClicked = isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left);
             }
 

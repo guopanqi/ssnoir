@@ -6,11 +6,12 @@
 (load-file "world/board.scm")
 (load-file "world/merchant.scm")
 (load-file "world/test.scm")
+(load-file "world/剧院.scm")
 
 ;; 世界级状态（真正跨地点共享的）
 (define world-day 1)
 
-(define all-locations (list home office merchant test board club))
+(define all-locations (list home office merchant test board club theater))
 
 ;; 世界渲染：直接返回所有地点的节点，UI 负责导航焦点
 (define (get-render-data)
@@ -25,7 +26,8 @@
     (list "club"   (club   'save))
     (list "board"  (board  'save))
     (list "merchant" (merchant 'save))
-    (list "test"   (test   'save))))
+    (list "test"   (test   'save))
+    (list "theater" (theater 'save))))
 
 ;; 读档：用 assoc-get 按 key 取值，缺失时有 default，健壮
 (define (world-load! data)
@@ -35,4 +37,5 @@
   (club   'load! (assoc-get data "club"   '()))
   (board  'load! (assoc-get data "board"  '()))
   (merchant 'load! (assoc-get data "merchant" '()))
-  (test   'load! (assoc-get data "test"   '())))
+  (test   'load! (assoc-get data "test"   '()))
+  (theater 'load! (assoc-get data "theater" '())))

@@ -179,7 +179,14 @@ namespace SSNoir
             }
             else if (node.Requires == null || node.Requires.Count == 0)
             {
-                ExecuteNodeAction(node);
+                if (node.Resolve != null && node.Resolve.Type == ResolveType.Instant)
+                {
+                    SetFocusedNode(node.Name);
+                }
+                else
+                {
+                    ExecuteNodeAction(node);
+                }
             }
             else
             {
@@ -393,8 +400,7 @@ namespace SSNoir
 
         private IEnumerator ExecuteRoutine(GameNode node)
         {
-            var slots = GetSlotsForNode(node.Name);
-            if (slots == null) yield break;
+            var slots = GetSlotsForNode(node.Name) ?? new List<SlottedResource?>();
 
             // 1. Lock Input
             _renderer.SetInputLocked(true);
