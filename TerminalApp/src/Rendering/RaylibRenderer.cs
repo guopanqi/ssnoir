@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Raylib_cs;
 using SSNoir.Core;
 
@@ -13,6 +14,8 @@ namespace SSNoir.Rendering
 
         private const int WindowWidth = 800;
         private const int WindowHeight = 600;
+        private static readonly bool FastPresentationMode =
+            string.Equals(Environment.GetEnvironmentVariable("SSNOIR_FAST_PRESENTATION"), "1", StringComparison.Ordinal);
 
         public RaylibRenderer(SceneManager sceneManager, GameState gameState)
         {
@@ -25,24 +28,177 @@ namespace SSNoir.Rendering
             _sceneManager.OnSceneLoaded += () =>
             {
                 _state.NavigationStack.Clear();
-                _state.VisibleNodes = _sceneManager.CurrentWorldNodes;
                 _state.NodeSlots.Clear();
                 _state.SelectedResource = null;
                 _state.IsTurnPanelOpen = false;
+                _state.IsPresentingAction = false;
+                _state.PendingReport = null;
+                _state.ActiveRollResult = null;
+                AdoptLatestSnapshot();
             };
+        }
 
-            _sceneManager.OnWorldRefreshed += () =>
+        private void AdoptLatestSnapshot()
+        {
+            _state.DisplayedSnapshot = _sceneManager.LatestSnapshot;
+            ResolveNavigationStack();
+            SanitizeSlots();
+        }
+
+        private void FinishPresentation()
+        {
+            AdoptLatestSnapshot();
+            _state.PendingReport = null;
+            _state.PendingActionName = string.Empty;
+            _state.IsPresentingAction = false;
+            _state.PresentationStepIndex = 0;
+            _state.PresentationTimer = 0f;
+        }
+
+        private void StartPresentation(ActionReport report, string actionName = "")
+        {
+            _state.PendingActionName = actionName;
+            if (FastPresentationMode)
             {
-                ResolveNavigationStack();
-                SanitizeSlots();
+                FinishPresentation();
+                return;
+            }
+
+            _state.IsPresentingAction = true;
+            _state.PendingReport = report;
+            _state.PresentationStepIndex = 0;
+            _state.PresentationTimer = 0f;
+        }
+
+        private void UpdatePresentation(float dt)
+        {
+            if (!_state.IsPresentingAction || _state.PendingReport == null)
+            {
+                return;
+            }
+
+            if (_state.ActiveRollResult != null)
+            {
+                return;
+            }
+
+            var hints = _state.PendingReport.PresentationHints;
+            if (hints == null || hints.Count == 0 || _state.PresentationStepIndex >= hints.Count)
+            {
+                FinishPresentation();
+                return;
+            }
+
+            var hint = hints[_state.PresentationStepIndex];
+            if (hint.Kind == PresentationHintKind.RollDice)
+            {
+                _state.ActiveRollResult = _state.PendingReport;
+                _state.ActiveRollActionName = _state.PendingActionName;
+                _state.ActiveRollTime = 0f;
+                _state.ActiveRollPhase = 0;
+                _state.ActiveRollDisplayDieValue = 1;
+                _state.ActiveRollDisplayScale = 1f;
+                return;
+            }
+
+            _state.PresentationTimer += dt;
+            if (_state.PresentationTimer < hint.DurationSeconds)
+            {
+                return;
+            }
+
+            _state.PresentationTimer = 0f;
+            _state.PresentationStepIndex++;
+
+            if (_state.PresentationStepIndex >= hints.Count)
+            {
+                FinishPresentation();
+            }
+        }
+
+        private void AdvancePresentationAfterRollConfirm()
+        {
+            _state.PresentationStepIndex++;
+            _state.PresentationTimer = 0f;
+
+            var hints = _state.PendingReport?.PresentationHints;
+            if (hints == null || _state.PresentationStepIndex >= hints.Count)
+            {
+                FinishPresentation();
+            }
+        }
+
+        private void DrawPresentationOverlay()
+        {
+            if (!_state.IsPresentingAction || _state.PendingReport == null || _state.ActiveRollResult != null)
+            {
+                return;
+            }
+
+            var hints = _state.PendingReport.PresentationHints;
+            if (hints == null || _state.PresentationStepIndex >= hints.Count)
+            {
+                return;
+            }
+
+            var hint = hints[_state.PresentationStepIndex];
+            if (hint.Kind != PresentationHintKind.ExecuteProgress && hint.Kind != PresentationHintKind.PlayAnimation)
+            {
+                return;
+            }
+
+            Raylib.DrawRectangle(0, 0, WindowWidth, WindowHeight, new Color(10, 10, 15, 120));
+
+            float barW = 220f;
+            float barH = 18f;
+            float barX = (WindowWidth - barW) / 2f;
+            float barY = WindowHeight / 2f - 20f;
+            var barRect = new Rectangle(barX, barY, barW, barH);
+
+            Raylib.DrawRectangleRounded(barRect, 0.3f, 4, new Color(35, 35, 45, 255));
+            Raylib.DrawRectangleRoundedLinesEx(barRect, 0.3f, 4, 1f, new Color(80, 80, 100, 255));
+
+            float progress = hint.DurationSeconds <= 0f
+                ? 1f
+                : Math.Clamp(_state.PresentationTimer / hint.DurationSeconds, 0f, 1f);
+            var fillRect = new Rectangle(barX + 2f, barY + 2f, (barW - 4f) * progress, barH - 4f);
+            Raylib.DrawRectangleRounded(fillRect, 0.3f, 4, new Color(100, 160, 220, 255));
+
+            string text = string.IsNullOrEmpty(hint.Text) ? "执行中..." : hint.Text;
+            int textW = FontManager.MeasureTextWidth(text, 14);
+            FontManager.DrawText(text, (WindowWidth - textW) / 2f, barY - 24f, 14, Color.White);
+        }
+
+        private static ActionReport CreateEndTurnReport()
+        {
+            return new ActionReport
+            {
+                Type = ActionType.Instant,
+                PresentationHints = new List<PresentationHint>
+                {
+                    new PresentationHint
+                    {
+                        Kind = PresentationHintKind.ExecuteProgress,
+                        Text = "回合结束",
+                        DurationSeconds = 0.2f,
+                    },
+                },
             };
+        }
+
+        private void ExecuteNodeAction(GameNode node, List<SlottedResource?> slots)
+        {
+            var report = _sceneManager.ExecuteAction(node, slots);
+            _state.NodeSlots.Remove(node.Name);
+            _state.SelectedResource = null;
+            StartPresentation(report, node.Name);
         }
 
         private void ResolveNavigationStack()
         {
             if (_state.NavigationStack.Count == 0)
             {
-                _state.VisibleNodes = _sceneManager.CurrentWorldNodes;
+                _state.VisibleNodes = _state.DisplayedSnapshot.Nodes.ToList();
                 return;
             }
 
@@ -53,7 +209,7 @@ namespace SSNoir.Rendering
             }
 
             _state.NavigationStack.Clear();
-            var currentLevel = _sceneManager.CurrentWorldNodes;
+            var currentLevel = _state.DisplayedSnapshot.Nodes.ToList();
 
             foreach (var name in path)
             {
@@ -66,7 +222,7 @@ namespace SSNoir.Rendering
                 else
                 {
                     _state.NavigationStack.Clear();
-                    _state.VisibleNodes = _sceneManager.CurrentWorldNodes;
+                    _state.VisibleNodes = _state.DisplayedSnapshot.Nodes.ToList();
                     return;
                 }
             }
@@ -86,7 +242,7 @@ namespace SSNoir.Rendering
 
         private void NavigateToHome()
         {
-            var homeNode = FindNodeByName(_sceneManager.CurrentWorldNodes, "家");
+            var homeNode = FindNodeByName(_state.DisplayedSnapshot.Nodes.ToList(), "家");
             if (homeNode == null)
             {
                 throw new InvalidOperationException("Expected '家' node in world.");
@@ -115,7 +271,7 @@ namespace SSNoir.Rendering
             var keysToRemove = new List<string>();
             foreach (var key in _state.NodeSlots.Keys)
             {
-                if (FindNodeByName(_sceneManager.CurrentWorldNodes, key) == null)
+                if (FindNodeByName(_state.DisplayedSnapshot.Nodes.ToList(), key) == null)
                 {
                     keysToRemove.Add(key);
                 }
@@ -200,12 +356,13 @@ namespace SSNoir.Rendering
 
             // Update Notification Center
             _gameState.NotificationCenter.Update(Raylib.GetFrameTime());
+            UpdatePresentation(Raylib.GetFrameTime());
 
-            bool inputBlocked = _state.ActiveRollResult != null;
+            bool inputBlocked = _state.ActiveRollResult != null || _state.IsPresentingAction;
             var activeMousePos = (inputBlocked || _state.IsGrowthPanelOpen || _state.IsTurnPanelOpen) ? new System.Numerics.Vector2(-100f, -100f) : mousePos;
 
-            // Handle Ctrl+R to restart
-            if (!inputBlocked && (Raylib.IsKeyDown(KeyboardKey.LeftControl) || Raylib.IsKeyDown(KeyboardKey.RightControl)) && Raylib.IsKeyPressed(KeyboardKey.R))
+            // Handle Command+R to restart
+            if (!inputBlocked && (Raylib.IsKeyDown(KeyboardKey.LeftSuper) || Raylib.IsKeyDown(KeyboardKey.RightSuper)) && Raylib.IsKeyPressed(KeyboardKey.R))
             {
                 RestartApplication();
                 return;
@@ -246,14 +403,14 @@ namespace SSNoir.Rendering
             }
 
             // 2. Draw Node Clocks (if any)
-            float cardsStartY = ClockWidget.Draw(_state, _sceneManager, 90f, WindowWidth);
+            float cardsStartY = ClockWidget.Draw(_state, 90f, WindowWidth);
 
             // 3. Draw Node Cards
             DrawCards(activeMousePos, cardsStartY);
 
             // 4. Draw Hand Panel
             bool turnPanelWasOpen = _state.IsTurnPanelOpen;
-            var handInteraction = HandPanelWidget.Draw(_state, _gameState, activeMousePos, WindowWidth, WindowHeight, IsInEncounter);
+            var handInteraction = HandPanelWidget.Draw(_state, activeMousePos, WindowWidth, WindowHeight, IsInEncounter);
             if (handInteraction.TurnClicked)
             {
                 if (IsInEncounter)
@@ -275,7 +432,7 @@ namespace SSNoir.Rendering
             }
 
             // 5. Draw Bottom Status Bar
-            StatusBarWidget.Draw(_gameState, WindowWidth, WindowHeight);
+            StatusBarWidget.Draw(_state.DisplayedSnapshot, WindowWidth, WindowHeight);
 
             if (_state.IsTurnPanelOpen && IsInEncounter)
             {
@@ -287,6 +444,7 @@ namespace SSNoir.Rendering
                     _state.NodeSlots.Clear();
                     _state.SelectedResource = null;
                     _sceneManager.EndTurn();
+                    StartPresentation(CreateEndTurnReport(), "休息");
                 }
                 else if (turnPanelInteraction.ShouldClose)
                 {
@@ -374,11 +532,17 @@ namespace SSNoir.Rendering
                 }
             }
 
+            DrawPresentationOverlay();
+
             // 8. Draw Overlays (Modals / Toasts)
             var overlayInteraction = OverlayWidget.Draw(_state, _gameState.NotificationCenter, mousePos, WindowWidth, WindowHeight);
             if (overlayInteraction.ConfirmClicked || (_state.ActiveRollResult != null && Raylib.IsKeyPressed(KeyboardKey.Escape)))
             {
                 _state.ActiveRollResult = null;
+                if (_state.IsPresentingAction)
+                {
+                    AdvancePresentationAfterRollConfirm();
+                }
             }
 
             Raylib.EndDrawing();
@@ -454,12 +618,11 @@ namespace SSNoir.Rendering
                             else
                             {
                                 _state.FlippedNodes.Add(node.Name);
-                                _sceneManager.ExecuteAction(node, new List<SlottedResource?>());
                             }
                         }
                         else if (requires == null)
                         {
-                            _sceneManager.ExecuteAction(node, new List<SlottedResource?>());
+                            ExecuteNodeAction(node, new List<SlottedResource?>());
                         }
                     }
                 }
@@ -493,7 +656,7 @@ namespace SSNoir.Rendering
                             if (req.ItemId.Equals(_state.SelectedResource.ItemName, StringComparison.OrdinalIgnoreCase))
                             {
                                 _state.ClearOtherNodeSlots(node.Name);
-                                int totalOwned = _gameState.Get<int>("item:" + req.ItemId, 0);
+                                int totalOwned = _state.DisplayedSnapshot.Inventory.TryGetValue(req.ItemId, out var ownedQty) ? ownedQty : 0;
                                 int totalSlotted = 0;
                                 foreach (var slotsList in _state.NodeSlots.Values)
                                 {
@@ -534,7 +697,7 @@ namespace SSNoir.Rendering
                     }
                     else
                     {
-                        _sceneManager.ExecuteAction(node, new List<SlottedResource?>());
+                        ExecuteNodeAction(node, new List<SlottedResource?>());
                     }
                 }
             }
@@ -542,29 +705,15 @@ namespace SSNoir.Rendering
 
         private void ExecuteSlottedAction(GameNode node, List<SlottedResource?> slotted)
         {
-            // 核心逻辑移交给 SceneManager，彻底解决重复与不一致问题
-            ActionReport report = _sceneManager.ExecuteAction(node, slotted);
-
-            // 清除卡槽
-            _state.NodeSlots.Remove(node.Name);
-
-            // 触发判定结果弹窗
-            if (report.Type == ActionType.Roll)
-            {
-                _state.ActiveRollResult = report;
-                _state.ActiveRollActionName = node.Name;
-                _state.ActiveRollTime = 0f;
-                _state.ActiveRollPhase = 0;
-                _state.ActiveRollDisplayDieValue = 1;
-                _state.ActiveRollDisplayScale = 1f;
-            }
+            ExecuteNodeAction(node, slotted);
         }
 
         private void DrawReputationPanel()
         {
-            int repMayor = _gameState.Get<int>("reputation:mayor");
-            int repWorkers = _gameState.Get<int>("reputation:workers");
-            int repElites = _gameState.Get<int>("reputation:elites");
+            var snapshot = _state.DisplayedSnapshot;
+            int repMayor = snapshot.Reputation.TryGetValue("mayor", out var mayor) ? mayor : 0;
+            int repWorkers = snapshot.Reputation.TryGetValue("workers", out var workers) ? workers : 0;
+            int repElites = snapshot.Reputation.TryGetValue("elites", out var elites) ? elites : 0;
 
             float panelW = 210f;
             float panelH = 32f;
@@ -647,10 +796,9 @@ namespace SSNoir.Rendering
                              1f, new Color((byte)55, (byte)55, (byte)70, (byte)255));
 
             // Team Growth Level
-            FontManager.DrawText($"队伍成长等级：{_gameState.Team.GrowthLevel}", panelX + 25, panelY + 65, 14, new Color((byte)150, (byte)220, (byte)255, (byte)255));
+            FontManager.DrawText($"队伍成长等级：{_state.DisplayedSnapshot.GrowthLevel}", panelX + 25, panelY + 65, 14, new Color((byte)150, (byte)220, (byte)255, (byte)255));
 
-            // Actors list
-            var actors = _gameState.Team.Actors;
+            var actors = _state.DisplayedSnapshot.Actors;
             float contentStartY = panelY + 95f;
             float colWidth = (panelW - 40f) / Math.Max(1, actors.Count);
 
@@ -685,7 +833,7 @@ namespace SSNoir.Rendering
                 }
 
                 // Available points
-                int availPoints = _gameState.Team.GetAvailableGrowthPoints(actor);
+                int availPoints = _state.GetAvailableGrowthPoints(actor);
                 Color pointsColor = availPoints > 0 ? new Color((byte)100, (byte)230, (byte)120, (byte)255) : new Color((byte)170, (byte)170, (byte)180, (byte)255);
                 FontManager.DrawText($"可用成长点：{availPoints}", colX + 15, contentStartY + 28, 12, pointsColor);
 
@@ -733,8 +881,12 @@ namespace SSNoir.Rendering
 
                     if (isEnabled && hoverBtn && Raylib.IsMouseButtonPressed(MouseButton.Left))
                     {
-                        // Upgrade the stat through the engine rule entry
                         _gameState.Team.UpgradeActorStat(actor.Id, stat.Key);
+                        _sceneManager.RebuildRenderTree();
+                        if (!_state.IsPresentingAction)
+                        {
+                            _state.DisplayedSnapshot = _sceneManager.LatestSnapshot;
+                        }
 
                         _gameState.NotificationCenter.Push($"{actor.Name} 升级了 {stat.Display} 属性！", NotificationKind.Success);
                     }

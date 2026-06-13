@@ -14,8 +14,9 @@ namespace SSNoir.Rendering
             public bool ShouldClearSelection;
         }
 
-        public static HandPanelInteraction Draw(RendererState state, GameState gameState, System.Numerics.Vector2 mousePos, float windowWidth, float windowHeight, bool isInEncounter)
+        public static HandPanelInteraction Draw(RendererState state, System.Numerics.Vector2 mousePos, float windowWidth, float windowHeight, bool isInEncounter)
         {
+            var snapshot = state.DisplayedSnapshot;
             var interaction = new HandPanelInteraction
             {
                 TurnClicked = false,
@@ -36,9 +37,9 @@ namespace SSNoir.Rendering
             float actorAreaWidth = 110f;
             float startX = 20f;
 
-            for (int aIdx = 0; aIdx < gameState.Team.Actors.Count; aIdx++)
+            for (int aIdx = 0; aIdx < snapshot.Actors.Count; aIdx++)
             {
-                var actor = gameState.Team.Actors[aIdx];
+                var actor = snapshot.Actors[aIdx];
                 float actorX = startX + aIdx * (actorAreaWidth + 10);
                 
                 // Draw Actor name and stress at the bottom: e.g. "主角 0/6"
@@ -141,24 +142,7 @@ namespace SSNoir.Rendering
             float itemsStartX = 370f;
             FontManager.DrawText("手牌物品: ", itemsStartX, handY + 28, 14, labelColor);
 
-            var items = new List<(string Name, int Qty)>();
-
-            foreach (var kvp in gameState.GetAllStates())
-            {
-                if (kvp.Key.StartsWith("item:"))
-                {
-                    string itemName = kvp.Key.Substring(5);
-                    int qty = 0;
-                    if (kvp.Value is double d) qty = (int)d;
-                    else if (kvp.Value is long l) qty = (int)l;
-                    else if (kvp.Value is int valInt) qty = valInt;
-
-                    if (qty > 0)
-                    {
-                        items.Add((itemName, qty));
-                    }
-                }
-            }
+            var items = state.GetInventoryItems().ToList();
 
             for (int i = 0; i < items.Count; i++)
             {
@@ -167,7 +151,7 @@ namespace SSNoir.Rendering
                 float itemY = handY + 18;
                 var itemRect = new Rectangle(itemX, itemY, 58, 32);
 
-                int remaining = state.GetRemainingItemQty(gameState, item.Name);
+                int remaining = state.GetRemainingItemQty(item.Name);
                 bool hover = (remaining > 0) && Raylib.CheckCollisionPointRec(mousePos, itemRect);
 
                 if (remaining <= 0)

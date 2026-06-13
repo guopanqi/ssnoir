@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SSNoir.Core;
 
 namespace SSNoir.Rendering
@@ -23,6 +24,7 @@ namespace SSNoir.Rendering
 
     public class RendererState
     {
+        public PresentationSnapshot DisplayedSnapshot { get; set; } = new PresentationSnapshot();
         public List<GameNode> NavigationStack { get; } = new List<GameNode>();
         public List<GameNode> VisibleNodes { get; set; } = new List<GameNode>();
 
@@ -30,6 +32,12 @@ namespace SSNoir.Rendering
         public bool IsGrowthPanelOpen { get; set; } = false;
         public bool IsTurnPanelOpen { get; set; } = false;
         public List<DropdownItem> DropdownItems { get; } = new List<DropdownItem>();
+
+        public bool IsPresentingAction { get; set; }
+        public ActionReport? PendingReport { get; set; }
+        public string PendingActionName { get; set; } = string.Empty;
+        public float PresentationTimer { get; set; }
+        public int PresentationStepIndex { get; set; }
 
         public HashSet<string> FlippedNodes { get; } = new HashSet<string>();
         public Dictionary<string, List<SlottedResource?>> NodeSlots { get; } = new Dictionary<string, List<SlottedResource?>>();
@@ -71,9 +79,13 @@ namespace SSNoir.Rendering
             return false;
         }
 
-        public int GetRemainingItemQty(GameState gameState, string itemName)
+        public int GetRemainingItemQty(string itemName)
         {
-            int total = gameState.Get<int>("item:" + itemName, 0);
+            int total = 0;
+            if (DisplayedSnapshot.Inventory.TryGetValue(itemName, out var qty))
+            {
+                total = qty;
+            }
 
             foreach (var slots in NodeSlots.Values)
             {
@@ -98,6 +110,18 @@ namespace SSNoir.Rendering
             }
 
             return Math.Max(0, total);
+        }
+
+        public IEnumerable<(string Name, int Qty)> GetInventoryItems()
+        {
+            return DisplayedSnapshot.Inventory
+                .Where(kvp => kvp.Value > 0)
+                .Select(kvp => (kvp.Key, kvp.Value));
+        }
+
+        public int GetAvailableGrowthPoints(ActorSnapshot actor)
+        {
+            return Math.Max(0, DisplayedSnapshot.GrowthLevel - actor.SpentGrowthPoints);
         }
     }
 }

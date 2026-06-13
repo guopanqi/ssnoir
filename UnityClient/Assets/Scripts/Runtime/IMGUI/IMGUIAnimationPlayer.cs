@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace SSNoir.IMGUI
         public int ChosenDie { get; private set; }
         public string ActionName { get; private set; } = "";
         public List<int> RandomDice { get; private set; } = new List<int>();
+        public Action? OnAcknowledged;
 
         private float _phaseStartTime;
         private int _phase; // 0: rolling, 1: reveal, 2: outcome, 3: done
@@ -102,6 +104,7 @@ namespace SSNoir.IMGUI
             {
                 IsPlaying = false;
                 _phase = 3;
+                OnAcknowledged?.Invoke();
             }
         }
 

@@ -55,11 +55,13 @@ namespace SSNoir
 
         private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
         private readonly HashSet<string> _flippedNodes = new HashSet<string>();
+        private PresentationSnapshot _displayedSnapshot = new PresentationSnapshot();
 
         // Public properties
         public GameState GameState => _gameState;
         public SceneManager SceneManager => _sceneManager;
         public SceneDirectory? SceneDirectory => _sceneDirectory;
+        public PresentationSnapshot DisplayedSnapshot => _displayedSnapshot;
         public string FocusedNodeName => _focusedNodeName;
         public List<GameNode> NavigationStack => _navigationStack;
         public List<GameNode> VisibleNodes => _visibleNodes;
@@ -103,17 +105,15 @@ namespace SSNoir
                 _selectedResource = null;
                 _focusedNodeName = string.Empty;
 
-                // Re-find global camera on new scene load
                 globalCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Global") || c.name.Contains("global"));
                 _cameraManager.SetGlobalCamera(globalCamera);
 
+                AdoptLatestSnapshot();
                 UpdateCameraFocus();
             };
 
             _sceneManager.OnWorldRefreshed += () => {
-                Debug.Log($"[SSNoir] World Refreshed! Current nodes count: {_sceneManager.CurrentWorldNodes.Count}");
-                ResolveNavigationStack();
-                CleanupNodeSlots();
+                Debug.Log($"[SSNoir] World Refreshed! Latest nodes count: {_sceneManager.CurrentWorldNodes.Count}");
             };
 
             string startingLocation = _gameState.Get<string>("location", "world");
@@ -128,7 +128,7 @@ namespace SSNoir
                 {
                     if (_renderer.IsAnimationReadyToAcknowledge)
                     {
-                        _renderer.AcknowledgeAnimation();
+                        _renderer.AcknowledgePresentationRoll();
                     }
                 }
                 else if (_renderer == null || !_renderer.IsInputLocked)
@@ -170,12 +170,7 @@ namespace SSNoir
             }
             else if (node.Resolve != null && node.Resolve.Type == ResolveType.Observe && (node.Requires == null || node.Requires.Count == 0))
             {
-                bool wasFlipped = IsNodeFlipped(node.Name);
                 ToggleNodeFlipped(node.Name);
-                if (!wasFlipped)
-                {
-                    _sceneManager.ExecuteAction(node, new List<SlottedResource?>());
-                }
             }
             else if (node.Requires == null || node.Requires.Count == 0)
             {
@@ -367,7 +362,7 @@ namespace SSNoir
 
         public int GetRemainingItemQty(string itemName)
         {
-            int total = _gameState.Get<int>("item:" + itemName, 0);
+            int total = _displayedSnapshot.Inventory.TryGetValue(itemName, out var qty) ? qty : 0;
 
             foreach (var slots in _nodeSlots.Values)
             {
@@ -402,32 +397,42 @@ namespace SSNoir
         {
             var slots = GetSlotsForNode(node.Name) ?? new List<SlottedResource?>();
 
-            // 1. Lock Input
             _renderer.SetInputLocked(true);
 
-            // 2. Execute Action on engine
             ActionReport report = _sceneManager.ExecuteAction(node, slots);
             _nodeSlots.Remove(node.Name);
             _selectedResource = null;
 
-            // 3. Performance Animation
-            if (report.Type == ActionType.Roll)
+            bool done = false;
+            _renderer.PlayPresentation(report, node.Name, () =>
             {
-                _renderer.StartRollAnimation(report, node.Name);
-                // Wait for animation to complete
-                while (_renderer.IsAnimationPlaying)
-                    yield return null;
+                AdoptLatestSnapshot();
+                done = true;
+            });
+
+            while (!done)
+            {
+                yield return null;
             }
 
-            // 4. Sync UI
+            _renderer.SetInputLocked(false);
+        }
+
+        public void AdoptLatestSnapshot()
+        {
+            _displayedSnapshot = _sceneManager.LatestSnapshot;
             ResolveNavigationStack();
             CleanupNodeSlots();
+        }
 
-            // 5. Unlock Input
-            _renderer.SetInputLocked(false);
-
-            // 6. 动画执行后不自动取消聚焦，保持当前镜头位置
-            // 用户需要点击"返回"按钮才会触发 SetFocusedNode(null)
+        public void UpgradeActorStat(string actorId, string statKey)
+        {
+            _gameState.Team.UpgradeActorStat(actorId, statKey);
+            _sceneManager.RebuildRenderTree();
+            if (!_renderer.IsPresentationActive)
+            {
+                AdoptLatestSnapshot();
+            }
         }
 
         public void GoBackNavigation()
@@ -453,7 +458,7 @@ namespace SSNoir
         {
             if (_navigationStack.Count == 0)
             {
-                _visibleNodes = _sceneManager.CurrentWorldNodes;
+                _visibleNodes = _displayedSnapshot.Nodes.ToList();
                 return;
             }
 
@@ -462,7 +467,7 @@ namespace SSNoir
                 path.Add(node.Name);
 
             _navigationStack.Clear();
-            var currentLevel = _sceneManager.CurrentWorldNodes;
+            var currentLevel = _displayedSnapshot.Nodes.ToList();
 
             foreach (var name in path)
             {
@@ -475,7 +480,7 @@ namespace SSNoir
                 else
                 {
                     _navigationStack.Clear();
-                    _visibleNodes = _sceneManager.CurrentWorldNodes;
+                    _visibleNodes = _displayedSnapshot.Nodes.ToList();
                     return;
                 }
             }
@@ -486,7 +491,7 @@ namespace SSNoir
         private void CleanupNodeSlots()
         {
             var currentNames = new HashSet<string>();
-            CollectAllNodeNamesRecursive(_sceneManager.CurrentWorldNodes, currentNames);
+            CollectAllNodeNamesRecursive(_displayedSnapshot.Nodes.ToList(), currentNames);
 
             var keysToRemove = new List<string>();
             foreach (var name in _nodeSlots.Keys)
@@ -509,7 +514,7 @@ namespace SSNoir
 
         private GameNode? FindNodeByName(string name)
         {
-            return FindNodeRecursive(_sceneManager.CurrentWorldNodes, name);
+            return FindNodeRecursive(_displayedSnapshot.Nodes.ToList(), name);
         }
 
         private GameNode? FindNodeRecursive(List<GameNode> nodes, string name)
@@ -590,12 +595,44 @@ namespace SSNoir
         {
             _selectedResource = null;
             _sceneManager.EndTurn();
+
+            bool done = false;
+            _renderer.PlayPresentation(CreateEndTurnReport(), "休息", () =>
+            {
+                AdoptLatestSnapshot();
+                done = true;
+            });
+            StartCoroutine(WaitForPresentation(() => done));
+        }
+
+        private static ActionReport CreateEndTurnReport()
+        {
+            return new ActionReport
+            {
+                Type = ActionType.Instant,
+                PresentationHints = new List<PresentationHint>
+                {
+                    new PresentationHint
+                    {
+                        Kind = PresentationHintKind.ExecuteProgress,
+                        Text = "回合结束",
+                        DurationSeconds = 0.2f,
+                    },
+                },
+            };
+        }
+
+        private IEnumerator WaitForPresentation(Func<bool> isDone)
+        {
+            while (!isDone())
+            {
+                yield return null;
+            }
         }
 
         public void OnRollAckClicked()
         {
-            _activeRollResult = null;
-            _sceneManager.OnActionExecuted();
+            _renderer.AcknowledgePresentationRoll();
         }
     }
 }

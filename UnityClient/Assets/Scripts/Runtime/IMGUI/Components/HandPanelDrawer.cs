@@ -16,79 +16,78 @@ namespace SSNoir.IMGUI
             float handY = Screen.height - PanelHeight - StatusBarHeight - BottomOffset;
             float statusY = Screen.height - StatusBarHeight - BottomOffset;
 
-            // 1. Hand Panel Background
             GUI.color = IMGUIStyles.PanelBg;
             GUI.DrawTexture(new Rect(0, handY, Screen.width, PanelHeight), Texture2D.whiteTexture);
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(new Rect(-1, handY, Screen.width + 2, PanelHeight + 2), 1f, IMGUIStyles.OutlineVariantColor);
 
-            // 2. Dice
             DrawDice(handY, gameManager, mousePos);
-
-            // 3. Items
             DrawItems(handY, gameManager, mousePos);
-
-            // 4. End Turn Button
             DrawEndTurnButton(handY, gameManager, mousePos);
-
-            // 5. Status Bar
             DrawStatusBar(statusY, gameManager);
         }
 
         private static void DrawDice(float handY, SSNoirGameManager gameManager, Vector2 mousePos)
         {
-            var dice = gameManager.GameState.Get<List<object>>("action-dice");
-            if (dice == null) return;
-
+            var snapshot = gameManager.DisplayedSnapshot;
             GUI.Label(new Rect(30, handY + 58, 100, 24), "手牌骰子: ", IMGUIStyles.SectionLabel);
 
-            for (int i = 0; i < dice.Count; i++)
+            int flatDieIdx = 0;
+            float dieXStart = 130f;
+
+            foreach (var actor in snapshot.Actors)
             {
-                float dieX = 130 + i * 96;
-                float dieY = handY + 30;
-                var dieRect = new Rect(dieX, dieY, 80, 80);
-
-                int val = 0;
-                if (dice[i] is double d) val = (int)d;
-                else if (dice[i] is long l) val = (int)l;
-                else if (dice[i] is int valInt) val = valInt;
-
-                bool isSlotted = gameManager.IsDieSlotted(i);
-                bool isSelected = gameManager.SelectedResource != null && gameManager.SelectedResource.Type == "die" && gameManager.SelectedResource.SourceIndex == i;
-                bool hover = !isSlotted && dieRect.Contains(mousePos);
-
-                if (isSlotted)
+                if (actor.Status == "away")
                 {
-                    GUI.color = IMGUIStyles.SlotEmpty;
-                    GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(dieRect, 1f, IMGUIStyles.OutlineVariantColor);
-
-                    var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel);
-                    dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
-                    dimStyle.fontSize = 24;
-                    GUI.Label(dieRect, val.ToString(), dimStyle);
+                    flatDieIdx += actor.ActionDice.Count;
+                    continue;
                 }
-                else
+
+                for (int d = 0; d < actor.ActionDice.Count; d++)
                 {
-                    Color bg = isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.DieHover : IMGUIStyles.DieNormal);
-                    Color border = isSelected ? IMGUIStyles.PrimaryColor : (hover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor);
-                    float thickness = (isSelected || hover) ? 2f : 1f;
+                    int i = flatDieIdx++;
+                    float dieX = dieXStart + i * 96;
+                    float dieY = handY + 30;
+                    var dieRect = new Rect(dieX, dieY, 80, 80);
+                    int val = actor.ActionDice[d];
 
-                    GUI.color = bg;
-                    GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(dieRect, thickness, border);
+                    bool isSlotted = gameManager.IsDieSlotted(i);
+                    bool isSelected = gameManager.SelectedResource != null && gameManager.SelectedResource.Type == "die" && gameManager.SelectedResource.SourceIndex == i;
+                    bool hover = !isSlotted && dieRect.Contains(mousePos);
 
-                    var dieStyle = new GUIStyle(IMGUIStyles.SlotLabel);
-                    dieStyle.fontSize = 28;
-                    dieStyle.normal.textColor = Color.white;
-                    GUI.Label(dieRect, val.ToString(), dieStyle);
-
-                    if (hover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                    if (isSlotted)
                     {
-                        gameManager.OnDieClicked(i, val);
-                        Event.current.Use();
+                        GUI.color = IMGUIStyles.SlotEmpty;
+                        GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
+                        GUI.color = Color.white;
+                        IMGUIStyles.DrawOutline(dieRect, 1f, IMGUIStyles.OutlineVariantColor);
+
+                        var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel);
+                        dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
+                        dimStyle.fontSize = 24;
+                        GUI.Label(dieRect, val.ToString(), dimStyle);
+                    }
+                    else
+                    {
+                        Color bg = isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.DieHover : IMGUIStyles.DieNormal);
+                        Color border = isSelected ? IMGUIStyles.PrimaryColor : (hover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor);
+                        float thickness = (isSelected || hover) ? 2f : 1f;
+
+                        GUI.color = bg;
+                        GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
+                        GUI.color = Color.white;
+                        IMGUIStyles.DrawOutline(dieRect, thickness, border);
+
+                        var dieStyle = new GUIStyle(IMGUIStyles.SlotLabel);
+                        dieStyle.fontSize = 28;
+                        dieStyle.normal.textColor = Color.white;
+                        GUI.Label(dieRect, val.ToString(), dieStyle);
+
+                        if (hover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                        {
+                            gameManager.OnDieClicked(i, val);
+                            Event.current.Use();
+                        }
                     }
                 }
             }
@@ -96,28 +95,25 @@ namespace SSNoir.IMGUI
 
         private static void DrawItems(float handY, SSNoirGameManager gameManager, Vector2 mousePos)
         {
-            var dice = gameManager.GameState.Get<List<object>>("action-dice");
-            int diceCount = dice != null ? dice.Count : 0;
-            float itemsStartX = Mathf.Max(520f, 140f + diceCount * 96f);
+            var snapshot = gameManager.DisplayedSnapshot;
+            int diceCount = 0;
+            foreach (var actor in snapshot.Actors)
+            {
+                if (actor.Status != "away")
+                {
+                    diceCount += actor.ActionDice.Count;
+                }
+            }
 
+            float itemsStartX = Mathf.Max(520f, 140f + diceCount * 96f);
             GUI.Label(new Rect(itemsStartX, handY + 58, 100, 24), "手牌物品: ", IMGUIStyles.SectionLabel);
 
             var items = new List<(string Name, int Qty)>();
-
-            foreach (var kvp in gameManager.GameState.GetAllStates())
+            foreach (var kvp in snapshot.Inventory)
             {
-                if (kvp.Key.StartsWith("item:"))
+                if (kvp.Value > 0)
                 {
-                    string name = kvp.Key.Substring(5);
-                    int qty = 0;
-                    if (kvp.Value is double d) qty = (int)d;
-                    else if (kvp.Value is long l) qty = (int)l;
-                    else if (kvp.Value is int valInt) qty = valInt;
-
-                    if (qty > 0)
-                    {
-                        items.Add((name, qty));
-                    }
+                    items.Add((kvp.Key, kvp.Value));
                 }
             }
 
@@ -188,26 +184,24 @@ namespace SSNoir.IMGUI
 
         private static void DrawStatusBar(float statusY, SSNoirGameManager gameManager)
         {
+            var snapshot = gameManager.DisplayedSnapshot;
+
             GUI.color = IMGUIStyles.BottomBarBg;
             GUI.DrawTexture(new Rect(0, statusY, Screen.width, StatusBarHeight), Texture2D.whiteTexture);
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(new Rect(-1, statusY, Screen.width + 2, StatusBarHeight + 2), 1f, IMGUIStyles.OutlineVariantColor);
 
-            int health = gameManager.GameState.Get<int>("health");
-            string location = gameManager.GameState.Get<string>("location");
-
             GUI.Label(new Rect(30, statusY + 5, 60, 22), "健康: ", IMGUIStyles.StatusLabel);
             var healthStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             healthStyle.normal.textColor = IMGUIStyles.HealthColor;
-            GUI.Label(new Rect(80, statusY + 5, 60, 22), $"{health}%", healthStyle);
+            GUI.Label(new Rect(80, statusY + 5, 80, 22), $"{snapshot.Health}/{snapshot.MaxHealth}", healthStyle);
 
             GUI.Label(new Rect(180, statusY + 5, 60, 22), "场景: ", IMGUIStyles.StatusLabel);
             var locStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             locStyle.normal.textColor = IMGUIStyles.MoneyColor;
-            GUI.Label(new Rect(230, statusY + 5, 120, 22), location.ToUpper(), locStyle);
+            GUI.Label(new Rect(230, statusY + 5, 120, 22), snapshot.Location.ToUpper(), locStyle);
 
             GUI.Label(new Rect(380, statusY + 5, 500, 22), "提示: 点击手牌选择，点击卡槽放入，右键取消选择。", IMGUIStyles.HelpTip);
         }
     }
 }
-

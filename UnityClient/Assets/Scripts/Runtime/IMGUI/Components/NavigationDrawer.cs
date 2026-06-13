@@ -52,9 +52,10 @@ namespace SSNoir.IMGUI
 
         private static void DrawReputationPanel(SSNoirGameManager gameManager)
         {
-            int repMayor = gameManager.GameState.Get<int>("reputation:mayor");
-            int repWorkers = gameManager.GameState.Get<int>("reputation:workers");
-            int repElites = gameManager.GameState.Get<int>("reputation:elites");
+            var snapshot = gameManager.DisplayedSnapshot;
+            int repMayor = snapshot.Reputation.TryGetValue("mayor", out var mayor) ? mayor : 0;
+            int repWorkers = snapshot.Reputation.TryGetValue("workers", out var workers) ? workers : 0;
+            int repElites = snapshot.Reputation.TryGetValue("elites", out var elites) ? elites : 0;
 
             float panelW = 240f;
             float panelH = 32f;

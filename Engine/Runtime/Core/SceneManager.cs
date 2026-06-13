@@ -23,6 +23,7 @@ namespace SSNoir.Core
 
         public List<GameNode> CurrentWorldNodes { get; private set; } = new List<GameNode>();
         public List<GameClock> CurrentClocks { get; private set; } = new List<GameClock>();
+        public PresentationSnapshot LatestSnapshot { get; private set; } = new PresentationSnapshot();
 
         public SchemeInterpreter ActiveInterpreter => _encounterInterpreter ?? _worldInterpreter ?? throw new InvalidOperationException("No active interpreter");
         public string CurrentSceneName => _encounterInterpreter != null ? _encounterSceneName : "world";
@@ -65,7 +66,6 @@ namespace SSNoir.Core
             }
             else
             {
-                // Clean the scene name by stripping "encounters/" prefix if present
                 string cleanName = sceneName;
                 if (cleanName.StartsWith("encounters/"))
                 {
@@ -87,7 +87,7 @@ namespace SSNoir.Core
             _gameState.Team.RollActionDice(nextIsInEncounter);
 
             OnSceneLoaded?.Invoke();
-            Refresh();
+            RebuildRenderTree();
         }
 
         public void StartEncounter(string name)
@@ -133,7 +133,9 @@ namespace SSNoir.Core
             );
         }
 
-        public void Refresh()
+        public void Refresh() => RebuildRenderTree();
+
+        public void RebuildRenderTree()
         {
             var active = ActiveInterpreter;
             var rawData = active.Eval("(get-render-data)");
@@ -168,12 +170,59 @@ namespace SSNoir.Core
 
             CurrentWorldNodes = nodes;
 
-            // Recursively collect all clocks from the node tree to support tests/other consumers
             var flatClocks = new List<GameClock>();
             CollectClocksRecursive(nodes, flatClocks);
             CurrentClocks = flatClocks;
+
+            LatestSnapshot = BuildPresentationSnapshot(nodes);
             
             OnWorldRefreshed?.Invoke();
+        }
+
+        private PresentationSnapshot BuildPresentationSnapshot(List<GameNode> nodes)
+        {
+            var inventory = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in _gameState.Inventory.Items)
+            {
+                inventory[item.Key] = item.Value;
+            }
+
+            var reputation = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["mayor"] = _gameState.Get<int>("reputation:mayor"),
+                ["workers"] = _gameState.Get<int>("reputation:workers"),
+                ["elites"] = _gameState.Get<int>("reputation:elites"),
+            };
+
+            var actors = new List<ActorSnapshot>();
+            foreach (var actor in _gameState.Team.Actors)
+            {
+                actors.Add(new ActorSnapshot
+                {
+                    Id = actor.Id,
+                    Name = actor.Name,
+                    Role = actor.Role,
+                    Status = actor.Status,
+                    Stress = actor.Stress,
+                    SpentGrowthPoints = actor.SpentGrowthPoints,
+                    Stats = new Dictionary<string, int>(actor.Stats),
+                    ActionDice = actor.ActionDice.ToArray(),
+                });
+            }
+
+            return new PresentationSnapshot
+            {
+                Nodes = nodes,
+                Health = _gameState.Team.Health,
+                MaxHealth = _gameState.Team.MaxHealth,
+                Supplies = _gameState.Team.Supplies,
+                MaxSupplies = _gameState.Team.MaxSupplies,
+                GrowthLevel = _gameState.Team.GrowthLevel,
+                Location = _gameState.Get<string>("location"),
+                Inventory = inventory,
+                Reputation = reputation,
+                Actors = actors,
+            };
         }
 
         private void CollectClocksRecursive(List<GameNode> nodes, List<GameClock> result)
@@ -185,10 +234,9 @@ namespace SSNoir.Core
             }
         }
 
-        public void OnActionExecuted()
+        private void RunOnActionRules()
         {
             ActiveInterpreter.Eval("(on-action)");
-            Refresh();
         }
 
         public void EndTurn()
@@ -199,15 +247,19 @@ namespace SSNoir.Core
             bool isInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
             _gameState.Team.EndTurn(isInEncounter);
 
-            Refresh();
+            RebuildRenderTree();
         }
 
         public ActionReport ExecuteAction(GameNode node, List<SlottedResource?> slots)
         {
             Debug.Assert(node.Resolve != null, "Cannot execute action on a node that has no resolve");
+            if (node.Resolve.Type == ResolveType.Observe)
+            {
+                throw new InvalidOperationException("Observe actions must not be executed via ExecuteAction.");
+            }
+
             var report = new ActionReport();
 
-            // 0. Validate slotted resources against requirements
             slots = slots ?? new List<SlottedResource?>();
             int reqCount = node.Requires?.Count ?? 0;
             int slotCount = slots.Count;
@@ -298,7 +350,6 @@ namespace SSNoir.Core
                 }
             }
 
-            // 1. Determine active actor
             string activeActorId = "player";
             var actorDieSlot = slots.Find(s => s != null && s.Type == "die");
             if (actorDieSlot != null)
@@ -326,7 +377,6 @@ namespace SSNoir.Core
                 throw new InvalidOperationException("Companions cannot act in encounter mode.");
             }
 
-            // 2. Set ActionExecutionContext
             var context = new ActionExecutionContext
             {
                 ActorId = activeActorId,
@@ -371,7 +421,6 @@ namespace SSNoir.Core
                         }
                     }
 
-                    // Consume items
                     foreach (var s in slots)
                     {
                         if (s != null && s.Type == "item")
@@ -382,20 +431,11 @@ namespace SSNoir.Core
                     }
                 };
 
-                // 4. Resolve Action
                 if (node.Resolve.Type == ResolveType.Instant)
                 {
                     report.Type = ActionType.Instant;
                     node.Resolve.Effect?.Invoke();
                     consumeResources();
-                    if (!_turnEndedDuringAction)
-                    {
-                        OnActionExecuted();
-                    }
-                    else
-                    {
-                        _turnEndedDuringAction = false;
-                    }
                 }
                 else if (node.Resolve.Type == ResolveType.Roll)
                 {
@@ -403,7 +443,6 @@ namespace SSNoir.Core
                     int chosenDieVal = actorDieSlot != null ? actorDieSlot.Value : 1;
                     report.ChosenDieValue = chosenDieVal;
 
-                    // Get skill level
                     string skillName = node.Resolve.SkillName;
                     int skillLevel = 1;
                     if (actor.Stats.TryGetValue(skillName, out var sVal))
@@ -460,13 +499,19 @@ namespace SSNoir.Core
                     }
 
                     consumeResources();
-                    OnActionExecuted();
                 }
-                else if (node.Resolve.Type == ResolveType.Observe)
+                else
                 {
-                    report.Type = ActionType.Instant;
-                    consumeResources();
-                    OnActionExecuted();
+                    throw new InvalidOperationException($"Unsupported resolve type: {node.Resolve.Type}");
+                }
+
+                if (!_turnEndedDuringAction)
+                {
+                    RunOnActionRules();
+                }
+                else
+                {
+                    _turnEndedDuringAction = false;
                 }
             }
             finally
@@ -474,7 +519,43 @@ namespace SSNoir.Core
                 _gameState.CurrentContext = null;
             }
 
+            RebuildRenderTree();
+            FillPresentationHints(report);
             return report;
+        }
+
+        private static void FillPresentationHints(ActionReport report)
+        {
+            var hints = new List<PresentationHint>
+            {
+                new PresentationHint
+                {
+                    Kind = PresentationHintKind.ExecuteProgress,
+                    Text = "执行中...",
+                    DurationSeconds = 0.3f,
+                },
+            };
+
+            if (report.Type == ActionType.Roll)
+            {
+                hints.Add(new PresentationHint
+                {
+                    Kind = PresentationHintKind.RollDice,
+                    DurationSeconds = 0f,
+                });
+            }
+
+            if (!string.IsNullOrEmpty(report.AnimationTag))
+            {
+                hints.Add(new PresentationHint
+                {
+                    Kind = PresentationHintKind.PlayAnimation,
+                    Tag = report.AnimationTag,
+                    DurationSeconds = 0.5f,
+                });
+            }
+
+            report.PresentationHints = hints;
         }
     }
 }

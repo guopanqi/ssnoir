@@ -6,12 +6,12 @@ namespace SSNoir.Rendering
 {
     public static class ClockWidget
     {
-        public static float Draw(RendererState state, SceneManager sceneManager, float y, float windowWidth)
+        public static float Draw(RendererState state, float y, float windowWidth)
         {
             var clocksToShow = new List<GameClock>();
             if (state.NavigationStack.Count == 0)
             {
-                foreach (var node in sceneManager.CurrentWorldNodes)
+                foreach (var node in state.DisplayedSnapshot.Nodes)
                 {
                     clocksToShow.AddRange(node.Clocks);
                 }

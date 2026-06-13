@@ -18,7 +18,7 @@ namespace SSNoir.IMGUI
         public static GrowthPanelInteraction Draw(SSNoirGameManager gameManager, Vector2 mousePos)
         {
             var interaction = new GrowthPanelInteraction { ShouldClose = false };
-            var gameState = gameManager.GameState;
+            var snapshot = gameManager.DisplayedSnapshot;
 
             // Layout coordinates identical to original
             float panelW = 640f;
@@ -84,10 +84,9 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLine(new Vector2(panelX + 24f, panelY + 60f), new Vector2(panelX + panelW - 24f, panelY + 60f), new Color(IMGUIStyles.OutlineVariantColor.r, IMGUIStyles.OutlineVariantColor.g, IMGUIStyles.OutlineVariantColor.b, 0.4f), 1f);
 
             // Team Growth Level
-            GUI.Label(new Rect(panelX + 24f, panelY + 72f, 300f, 22f), $"队伍成长等级：{gameState.Team.GrowthLevel}", IMGUIStyles.SectionLabel);
+            GUI.Label(new Rect(panelX + 24f, panelY + 72f, 300f, 22f), $"队伍成长等级：{snapshot.GrowthLevel}", IMGUIStyles.SectionLabel);
 
-            // Actor columns
-            var actors = gameState.Team.Actors;
+            var actors = snapshot.Actors;
             float contentStartY = panelY + 110f;
             float colWidth = (panelW - 48f) / Mathf.Max(1, actors.Count);
 
@@ -117,7 +116,8 @@ namespace SSNoir.IMGUI
                 }
 
                 // Available points
-                int availPoints = gameState.Team.GetAvailableGrowthPoints(actor);
+                int availPoints = snapshot.GrowthLevel - actor.SpentGrowthPoints;
+                if (availPoints < 0) availPoints = 0;
                 Color pointsColor = availPoints > 0 ? new Color(0.39f, 0.90f, 0.47f, 1f) : IMGUIStyles.OnSurfaceVariant;
                 var pointsStyle = new GUIStyle(IMGUIStyles.SectionLabel);
                 pointsStyle.normal.textColor = pointsColor;
@@ -165,8 +165,8 @@ namespace SSNoir.IMGUI
 
                     if (isEnabled && btnHover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
                     {
-                        gameState.Team.UpgradeActorStat(actor.Id, statKey);
-                        gameState.NotificationCenter.Push($"{actor.Name} upgraded {statKey}!", NotificationKind.Success);
+                        gameManager.UpgradeActorStat(actor.Id, statKey);
+                        gameManager.GameState.NotificationCenter.Push($"{actor.Name} upgraded {statKey}!", NotificationKind.Success);
                         Event.current.Use();
                     }
                 }

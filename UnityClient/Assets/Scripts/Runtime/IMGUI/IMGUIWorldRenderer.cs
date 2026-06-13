@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace SSNoir.IMGUI
     {
         private SSNoirGameManager _gameManager = null!;
         private IMGUIAnimationPlayer _animator = null!;
+        private PresentationPlayer _presentationPlayer = null!;
 
         private bool _isGrowthPanelOpen = false;
 
@@ -19,6 +21,20 @@ namespace SSNoir.IMGUI
         {
             _gameManager = gameManager;
             _animator = gameObject.AddComponent<IMGUIAnimationPlayer>();
+            _presentationPlayer = new PresentationPlayer(_animator);
+            _animator.OnAcknowledged = () => _presentationPlayer.OnRollAcknowledged();
+        }
+
+        public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying;
+
+        public void PlayPresentation(ActionReport report, string actionName, Action onDone)
+        {
+            _presentationPlayer.Play(report, actionName, onDone);
+        }
+
+        public void AcknowledgePresentationRoll()
+        {
+            _presentationPlayer.OnRollAcknowledged();
         }
 
         public void ShowNotification(string message)
@@ -31,7 +47,7 @@ namespace SSNoir.IMGUI
             _animator.StartRoll(report, actionName);
         }
 
-        public bool IsAnimationPlaying => _animator.IsPlaying;
+        public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying;
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
         public void AcknowledgeAnimation() => _animator?.Acknowledge();
         public bool IsInputLocked => _inputLocked;
@@ -45,11 +61,12 @@ namespace SSNoir.IMGUI
         private void Update()
         {
             _gameManager.GameState.NotificationCenter.Update(Time.deltaTime);
+            _presentationPlayer.Update(Time.deltaTime);
 
             _animator.Update();
 
             // Right-click to cancel selection
-            if (Input.GetMouseButtonDown(1) && !_animator.IsPlaying && !_isGrowthPanelOpen)
+            if (Input.GetMouseButtonDown(1) && !IsAnimationPlaying && !_isGrowthPanelOpen && !_inputLocked)
             {
                 if (_gameManager.SelectedResource != null)
                 {
@@ -68,7 +85,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.Init(_gameManager.ChineseFont);
 
             // Global input blocker during locked state (but NOT during animation, so user can click the modal)
-            if (_inputLocked && !_animator.IsPlaying)
+            if (_inputLocked && !IsAnimationPlaying)
             {
                 // Draw invisible blocker using GUI.Box (does NOT consume events)
                 GUI.color = Color.clear;
@@ -111,7 +128,7 @@ namespace SSNoir.IMGUI
             if (!_isGrowthPanelOpen)
             {
                 OverlayDrawer.DrawCursorFollower(_gameManager);
-                OverlayDrawer.DrawRollResult(_gameManager, mousePos);
+                DrawPresentationOverlay();
             }
 
             // ── Growth Panel ──
@@ -375,7 +392,7 @@ namespace SSNoir.IMGUI
             var clocks = new List<GameClock>();
             if (_gameManager.NavigationStack.Count == 0)
             {
-                foreach (var node in _gameManager.SceneManager.CurrentWorldNodes)
+                foreach (var node in _gameManager.DisplayedSnapshot.Nodes)
                 {
                     clocks.AddRange(node.Clocks);
                 }
@@ -404,6 +421,41 @@ namespace SSNoir.IMGUI
             {
                 _isGrowthPanelOpen = !_isGrowthPanelOpen;
             }
+        }
+
+        private void DrawPresentationOverlay()
+        {
+            if (!_presentationPlayer.IsPlaying || _animator.IsPlaying)
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_presentationPlayer.ProgressText))
+            {
+                return;
+            }
+
+            GUI.color = IMGUIStyles.Blocker;
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            float barW = 220f;
+            float barH = 18f;
+            float barX = (Screen.width - barW) / 2f;
+            float barY = Screen.height / 2f - 20f;
+            var barRect = new Rect(barX, barY, barW, barH);
+
+            GUI.color = IMGUIStyles.ModalBg;
+            GUI.DrawTexture(barRect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(barRect, 1f, IMGUIStyles.PrimaryColor);
+
+            var fillRect = new Rect(barX + 2f, barY + 2f, (barW - 4f) * _presentationPlayer.Progress01, barH - 4f);
+            GUI.color = IMGUIStyles.PrimaryColor;
+            GUI.DrawTexture(fillRect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            GUI.Label(new Rect(barX, barY - 24f, barW, 20f), _presentationPlayer.ProgressText, IMGUIStyles.ModalBody);
         }
 
         private Rect ClampRect(Rect r, float cardWidth, float cardHeight)
