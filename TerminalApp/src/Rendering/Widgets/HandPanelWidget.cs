@@ -14,7 +14,7 @@ namespace SSNoir.Rendering
             public bool ShouldClearSelection;
         }
 
-        public static HandPanelInteraction Draw(RendererState state, System.Numerics.Vector2 mousePos, float windowWidth, float windowHeight, bool isInEncounter)
+        public static HandPanelInteraction Draw(RendererState state, SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float windowWidth, float windowHeight, bool isInEncounter)
         {
             var snapshot = state.DisplayedSnapshot;
             var interaction = new HandPanelInteraction
@@ -80,7 +80,7 @@ namespace SSNoir.Rendering
                         var dieRect = new Rectangle(dieX, dieY, 44, 32);
 
                         bool isSlotted = state.IsDieSlotted(currentFlatIdx);
-                        bool hover = !isSlotted && Raylib.CheckCollisionPointRec(mousePos, dieRect);
+                        bool hover = !isSlotted && ui.CanHover(dieRect);
 
                         Color bg, border;
                         if (actor.Id == "player")
@@ -122,7 +122,7 @@ namespace SSNoir.Rendering
                             int numW = FontManager.MeasureTextWidth(text, 14);
                             FontManager.DrawText(text, dieX + (44 - numW) / 2f, dieY + 8, 14, Color.White);
 
-                            if (hover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                            if (!isSlotted && ui.WasClicked(dieRect))
                             {
                                 interaction.SelectedResourceToSet = new SelectedResource
                                 {
@@ -152,7 +152,7 @@ namespace SSNoir.Rendering
                 var itemRect = new Rectangle(itemX, itemY, 58, 32);
 
                 int remaining = state.GetRemainingItemQty(item.Name);
-                bool hover = (remaining > 0) && Raylib.CheckCollisionPointRec(mousePos, itemRect);
+                bool hover = (remaining > 0) && ui.CanHover(itemRect);
 
                 if (remaining <= 0)
                 {
@@ -175,7 +175,7 @@ namespace SSNoir.Rendering
                     int lblW = FontManager.MeasureTextWidth(label, 11);
                     FontManager.DrawText(label, itemX + (58 - lblW) / 2f, itemY + 9, 11, Color.White);
 
-                    if (hover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                    if (remaining > 0 && ui.WasClicked(itemRect))
                     {
                         interaction.SelectedResourceToSet = new SelectedResource
                         {
@@ -191,26 +191,21 @@ namespace SSNoir.Rendering
             float turnX = windowWidth - 110;
             float turnY = handY + 18;
             var turnRect = new Rectangle(turnX, turnY, 80, 32);
-            bool turnHover = Raylib.CheckCollisionPointRec(mousePos, turnRect);
-
-            Color turnBg = turnHover ? new Color(120, 50, 50, 255) : new Color(85, 30, 30, 255);
-            Color turnBorder = turnHover ? new Color(220, 100, 100, 255) : new Color(140, 60, 60, 255);
-
-            Raylib.DrawRectangleRounded(turnRect, 0.2f, 4, turnBg);
-            Raylib.DrawRectangleRoundedLinesEx(turnRect, 0.2f, 4, 1.5f, turnBorder);
 
             string turnText = isInEncounter ? "回合" : "回家";
-            int turnW = FontManager.MeasureTextWidth(turnText, 14);
-            FontManager.DrawText(turnText, turnX + (80 - turnW) / 2f, turnY + 9, 14, Color.White);
+            var turnBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(turnRect, turnText, ui, true, 14,
+                new Color((byte)85, (byte)30, (byte)30, (byte)255), new Color((byte)120, (byte)50, (byte)50, (byte)255), null,
+                new Color((byte)140, (byte)60, (byte)60, (byte)255), new Color((byte)220, (byte)100, (byte)100, (byte)255), null,
+                Color.White, null);
 
-            if (turnHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+            if (turnBtn.Clicked)
             {
                 interaction.TurnClicked = true;
             }
 
             // Right click anywhere on the hand panel to clear selection
             var panelRect = new Rectangle(0, handY, windowWidth, 75);
-            if (Raylib.CheckCollisionPointRec(mousePos, panelRect) && Raylib.IsMouseButtonPressed(MouseButton.Right))
+            if (!ui.IsLocked && Raylib.CheckCollisionPointRec(ui.Mouse, panelRect) && Raylib.IsMouseButtonPressed(MouseButton.Right))
             {
                 interaction.ShouldClearSelection = true;
             }

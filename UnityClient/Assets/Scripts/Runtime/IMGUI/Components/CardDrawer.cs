@@ -17,13 +17,13 @@ namespace SSNoir.IMGUI
 
         public static CardInteraction DrawCard(Rect rect, GameNode node, bool isHovered, bool isFlipped, bool isFocused,
             List<SlottedResource?>? slotted, List<GameClock> clocks, string backText,
-            Vector2 mousePos, SSNoirGameManager gameManager)
+            IMGUIInteractionContext ui, SSNoirGameManager gameManager, bool isExecuting = false, float executeProgress = 0f, string executingText = "执行中")
         {
             var interaction = new CardInteraction { CardClicked = false, ClickedSlotIndex = -1, ExecuteClicked = false };
 
             if (isFlipped)
             {
-                DrawFlippedCard(rect, node, backText, isHovered, mousePos, ref interaction, gameManager);
+                DrawFlippedCard(rect, node, backText, isHovered, ui, ref interaction, gameManager);
                 return interaction;
             }
 
@@ -124,7 +124,7 @@ namespace SSNoir.IMGUI
                 for (int j = 0; j < M; j++)
                 {
                     var slotRect = new Rect(slotStartX + j * (slotW + spacing), slotY, slotW, slotH);
-                    bool slotHover = slotRect.Contains(mousePos);
+                    bool slotHover = ui.CanHover(slotRect);
                     var res = slotted[j];
 
                     if (res == null)
@@ -160,7 +160,7 @@ namespace SSNoir.IMGUI
                         GUI.Label(slotRect, valStr, vStyle);
                     }
 
-                    if (slotHover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                    if (ui.WasClicked(slotRect))
                     {
                         interaction.ClickedSlotIndex = j;
                         Event.current.Use();
@@ -175,16 +175,20 @@ namespace SSNoir.IMGUI
                 var exeRect = new Rect(exeX, exeY, exeW, exeH);
 
                 bool allFilled = slotted != null && slotted.All(s => s != null);
-                if (allFilled)
+                if (isExecuting)
                 {
-                    if (IMGUIStyles.DrawTechnicalButton(exeRect, "执行", mousePos, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+                    DrawExecuteProgress(exeRect, executeProgress, executingText);
+                }
+                else if (allFilled)
+                {
+                    if (IMGUIButton.Draw(exeRect, "执行", ui, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
                     {
                         interaction.ExecuteClicked = true;
                     }
                 }
                 else
                 {
-                    IMGUIStyles.DrawTechnicalButton(exeRect, "待命", mousePos, IMGUIStyles.OutlineVariantColor, Color.clear, IMGUIStyles.ExecuteLabel, false);
+                    IMGUIButton.Draw(exeRect, "待命", ui, IMGUIStyles.OutlineVariantColor, Color.clear, IMGUIStyles.ExecuteLabel, false);
                 }
             }
             else if (showButton)
@@ -196,7 +200,11 @@ namespace SSNoir.IMGUI
                 float exeY = rect.y + 75;
                 var exeRect = new Rect(exeX, exeY, exeW, exeH);
 
-                if (IMGUIStyles.DrawTechnicalButton(exeRect, "执行", mousePos, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+                if (isExecuting)
+                {
+                    DrawExecuteProgress(exeRect, executeProgress, executingText);
+                }
+                else if (IMGUIButton.Draw(exeRect, "执行", ui, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
                 {
                     interaction.ExecuteClicked = true;
                 }
@@ -204,7 +212,7 @@ namespace SSNoir.IMGUI
             else
             {
                 // Simple card click
-                if (isHovered && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                if (ui.WasClicked(rect))
                 {
                     interaction.CardClicked = true;
                     Event.current.Use();
@@ -249,7 +257,7 @@ namespace SSNoir.IMGUI
             return interaction;
         }
 
-        private static void DrawFlippedCard(Rect rect, GameNode node, string backText, bool isHovered, Vector2 mousePos,
+        private static void DrawFlippedCard(Rect rect, GameNode node, string backText, bool isHovered, IMGUIInteractionContext ui,
             ref CardInteraction interaction, SSNoirGameManager gameManager)
         {
             Color bg = isHovered ? IMGUIStyles.CardHoverBg : IMGUIStyles.FlippedBg;
@@ -275,11 +283,31 @@ namespace SSNoir.IMGUI
             // Tip
             GUI.Label(new Rect(rect.x + 8, rect.y + rect.height - 18, rect.width - 16, 14), "点击返回", IMGUIStyles.FlippedTip);
 
-            if (isHovered && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+            if (ui.WasClicked(rect))
             {
                 interaction.CardClicked = true;
                 Event.current.Use();
             }
+        }
+
+        private static void DrawExecuteProgress(Rect rect, float progress, string text)
+        {
+            progress = Mathf.Clamp01(progress);
+            GUI.color = IMGUIStyles.ModalBg;
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+
+            var fillRect = new Rect(rect.x + 2f, rect.y + 2f, (rect.width - 4f) * progress, rect.height - 4f);
+            GUI.color = IMGUIStyles.PrimaryColor;
+            GUI.DrawTexture(fillRect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.PrimaryColor);
+
+            string label = string.IsNullOrEmpty(text) ? "执行中" : text;
+            if (label.Length > 5)
+            {
+                label = "执行中";
+            }
+            GUI.Label(rect, label, IMGUIStyles.ExecuteLabel);
         }
 
         private static void DrawClockBadge(ref float rightX, float topY, GameClock clock)
@@ -403,4 +431,3 @@ namespace SSNoir.IMGUI
         }
     }
 }
-

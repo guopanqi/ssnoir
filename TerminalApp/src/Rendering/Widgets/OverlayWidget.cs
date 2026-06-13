@@ -12,7 +12,7 @@ namespace SSNoir.Rendering
             public bool ConfirmClicked;
         }
 
-        public static OverlayInteraction Draw(RendererState state, NotificationCenter notificationCenter, System.Numerics.Vector2 mousePos, float windowWidth, float windowHeight)
+        public static OverlayInteraction Draw(RendererState state, NotificationCenter notificationCenter, SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float windowWidth, float windowHeight)
         {
             var interaction = new OverlayInteraction { ConfirmClicked = false };
 
@@ -72,7 +72,7 @@ namespace SSNoir.Rendering
             {
                 float overlayW = state.SelectedResource.Type == "die" ? 32f : 68f;
                 float overlayH = 32f;
-                var rect = new Rectangle(mousePos.X + 12, mousePos.Y + 12, overlayW, overlayH);
+                var rect = new Rectangle(ui.Mouse.X + 12, ui.Mouse.Y + 12, overlayW, overlayH);
 
                 Raylib.DrawRectangleRounded(rect, 0.2f, 4, new Color(50, 50, 90, 200));
                 Raylib.DrawRectangleRoundedLinesEx(rect, 0.2f, 4, 1.5f, new Color(150, 150, 250, 255));
@@ -225,19 +225,12 @@ namespace SSNoir.Rendering
                     float btnX = modalX + (modalW - btnW) / 2f;
                     float btnY = modalY + modalH - 45;
                     var btnRect = new Rectangle(btnX, btnY, btnW, btnH);
-                    bool btnHover = Raylib.CheckCollisionPointRec(mousePos, btnRect);
+                    var confirmBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(btnRect, "确定", ui, true, 14,
+                        new Color((byte)50, (byte)50, (byte)70, (byte)255), new Color((byte)80, (byte)80, (byte)110, (byte)255), null,
+                        new Color((byte)90, (byte)90, (byte)120, (byte)255), new Color((byte)180, (byte)180, (byte)250, (byte)255), null,
+                        Color.White, null);
 
-                    Color bBg = btnHover ? new Color(80, 80, 110, 255) : new Color(50, 50, 70, 255);
-                    Color bBorder = btnHover ? new Color(180, 180, 250, 255) : new Color(90, 90, 120, 255);
-
-                    Raylib.DrawRectangleRounded(btnRect, 0.2f, 4, bBg);
-                    Raylib.DrawRectangleRoundedLinesEx(btnRect, 0.2f, 4, 1.5f, bBorder);
-
-                    string btnText = "确定";
-                    int btnTextW = FontManager.MeasureTextWidth(btnText, 14);
-                    FontManager.DrawText(btnText, btnX + (btnW - btnTextW) / 2f, btnY + 8, 14, Color.White);
-
-                    if (btnHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                    if (confirmBtn.Clicked)
                     {
                         interaction.ConfirmClicked = true;
                     }

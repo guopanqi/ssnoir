@@ -18,7 +18,7 @@ namespace SSNoir.IMGUI
         private static readonly List<DropdownItem> _dropdownItems = new List<DropdownItem>();
         private static bool _initialized = false;
 
-        public static void Draw(SSNoirGameManager gameManager, Vector2 mousePos)
+        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             if (!_initialized)
             {
@@ -32,25 +32,22 @@ namespace SSNoir.IMGUI
             float boxY = 30;
             var boxRect = new Rect(boxX, boxY, boxW, boxH);
 
-            bool hoverBox = boxRect.Contains(mousePos);
+            bool hoverBox = ui.CanHover(boxRect);
 
             // Toggle on click
-            if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
+            if (ui.WasClicked(boxRect))
             {
-                if (hoverBox)
+                _isOpen = !_isOpen;
+                Event.current.Use();
+            }
+            else if (_isOpen && Event.current.type == EventType.MouseDown && Event.current.button == 0 && !ui.IsLocked)
+            {
+                // Check if clicked outside dropdown
+                float listH = _dropdownItems.Count * 32;
+                var listRect = new Rect(boxX, boxY + boxH, boxW, listH);
+                if (!listRect.Contains(ui.Mouse))
                 {
-                    _isOpen = !_isOpen;
-                    Event.current.Use();
-                }
-                else if (_isOpen)
-                {
-                    // Check if clicked outside dropdown
-                    float listH = _dropdownItems.Count * 32;
-                    var listRect = new Rect(boxX, boxY + boxH, boxW, listH);
-                    if (!listRect.Contains(mousePos))
-                    {
-                        _isOpen = false;
-                    }
+                    _isOpen = false;
                 }
             }
 
@@ -89,7 +86,7 @@ namespace SSNoir.IMGUI
                     }
                     else
                     {
-                        bool hoverOpt = optRect.Contains(mousePos);
+                        bool hoverOpt = ui.CanHover(optRect);
                         Color optBg = hoverOpt ? IMGUIStyles.DropdownHover : IMGUIStyles.DropdownBg;
                         Color optText = hoverOpt ? Color.white : IMGUIStyles.OnSurfaceVariant;
 
@@ -108,7 +105,7 @@ namespace SSNoir.IMGUI
                         itemStyle.normal.textColor = optText;
                         GUI.Label(new Rect(optRect.x + 12, optRect.y + 6, optRect.width - 16, 20), item.Name, itemStyle);
 
-                        if (hoverOpt && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                        if (ui.WasClicked(optRect))
                         {
                             gameManager.OnSceneButtonClicked(item.SceneName);
                             _isOpen = false;

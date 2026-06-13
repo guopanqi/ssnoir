@@ -10,7 +10,7 @@ namespace SSNoir.Rendering
             public bool ShouldClose;
         }
 
-        public static TurnPanelInteraction Draw(System.Numerics.Vector2 mousePos, float windowWidth, float windowHeight, bool skipOutsideClose = false)
+        public static TurnPanelInteraction Draw(SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float windowWidth, float windowHeight, bool skipOutsideClose = false)
         {
             var interaction = new TurnPanelInteraction
             {
@@ -33,26 +33,21 @@ namespace SSNoir.Rendering
             float restX = panelX + 14;
             float restY = panelY + 32;
             var restRect = new Rectangle(restX, restY, panelW - 28, 28);
-            bool restHover = Raylib.CheckCollisionPointRec(mousePos, restRect);
 
-            Color restBg = restHover ? new Color(120, 50, 50, 255) : new Color(85, 30, 30, 255);
-            Color restBorder = restHover ? new Color(220, 100, 100, 255) : new Color(140, 60, 60, 255);
+            var restBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(restRect, "休息", ui, true, 14,
+                new Color((byte)85, (byte)30, (byte)30, (byte)255), new Color((byte)120, (byte)50, (byte)50, (byte)255), null,
+                new Color((byte)140, (byte)60, (byte)60, (byte)255), new Color((byte)220, (byte)100, (byte)100, (byte)255), null,
+                Color.White, null);
 
-            Raylib.DrawRectangleRounded(restRect, 0.2f, 4, restBg);
-            Raylib.DrawRectangleRoundedLinesEx(restRect, 0.2f, 4, 1.5f, restBorder);
-
-            string restText = "休息";
-            int restW = FontManager.MeasureTextWidth(restText, 14);
-            FontManager.DrawText(restText, restX + ((panelW - 28) - restW) / 2f, restY + 7, 14, Color.White);
-
-            if (restHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+            if (restBtn.Clicked)
             {
                 interaction.RestClicked = true;
             }
 
             if (!skipOutsideClose
                 && Raylib.IsMouseButtonPressed(MouseButton.Left)
-                && !Raylib.CheckCollisionPointRec(mousePos, panelRect))
+                && !ui.IsLocked
+                && !Raylib.CheckCollisionPointRec(ui.Mouse, panelRect))
             {
                 interaction.ShouldClose = true;
             }

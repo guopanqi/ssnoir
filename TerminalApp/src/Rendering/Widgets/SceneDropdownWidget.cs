@@ -40,13 +40,13 @@ namespace SSNoir.Rendering
             }
         }
 
-        public static DropdownInteraction Draw(RendererState state, SceneManager sceneManager, System.Numerics.Vector2 mousePos, float windowWidth)
+        public static DropdownInteraction Draw(RendererState state, SceneManager sceneManager, SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float windowWidth)
         {
             var interaction = new DropdownInteraction { SelectedSceneName = string.Empty };
 
             var boxRect = new Rectangle(windowWidth - 190, 30, 150, 32);
-            bool hoverBox = Raylib.CheckCollisionPointRec(mousePos, boxRect);
-            bool leftClick = Raylib.IsMouseButtonPressed(MouseButton.Left);
+            bool hoverBox = ui.CanHover(boxRect);
+            bool leftClick = !ui.IsLocked && Raylib.IsMouseButtonPressed(MouseButton.Left);
 
             if (leftClick)
             {
@@ -62,7 +62,7 @@ namespace SSNoir.Rendering
                         if (item.IsHeader) continue;
 
                         var optRect = new Rectangle(boxRect.X, boxRect.Y + boxRect.Height + i * 32, boxRect.Width, 32);
-                        if (Raylib.CheckCollisionPointRec(mousePos, optRect))
+                        if (Raylib.CheckCollisionPointRec(ui.Mouse, optRect))
                         {
                             interaction.SelectedSceneName = item.SceneName;
                             break;
@@ -73,7 +73,7 @@ namespace SSNoir.Rendering
             }
 
             // Draw Dropdown Box
-            Color boxBgColor = hoverBox ? new Color(50, 50, 70, 255) : new Color(30, 30, 40, 255);
+            Color boxBgColor = hoverBox ? new Color((byte)50, (byte)50, (byte)70, (byte)255) : new Color((byte)30, (byte)30, (byte)40, (byte)255);
             Color boxOutlineColor = state.IsDropdownOpen ? new Color(130, 130, 220, 255) : new Color(70, 70, 90, 255);
             
             Raylib.DrawRectangleRounded(boxRect, 0.2f, 4, boxBgColor);
@@ -99,7 +99,7 @@ namespace SSNoir.Rendering
                     }
                     else
                     {
-                        bool hoverOpt = Raylib.CheckCollisionPointRec(mousePos, optRect);
+                        bool hoverOpt = ui.CanHover(optRect);
                         Color optBgColor = hoverOpt ? new Color(70, 70, 95, 255) : new Color(25, 25, 35, 255);
                         Color optTextColor = hoverOpt ? Color.White : new Color(180, 180, 200, 255);
 

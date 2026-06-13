@@ -232,9 +232,8 @@ namespace SSNoir.IMGUI
             GUI.color = oldColor;
         }
 
-        public static bool DrawTechnicalButton(Rect rect, string text, Vector2 mousePos, Color outlineColor, Color hoverBgColor, GUIStyle style, bool enabled = true)
+        public static bool DrawTechnicalButton(Rect rect, string text, bool isHovered, bool isClicked, Color outlineColor, Color hoverBgColor, GUIStyle style, bool enabled = true)
         {
-            bool isHovered = enabled && rect.Contains(mousePos);
             
             // Draw background
             if (enabled && isHovered)
@@ -265,7 +264,7 @@ namespace SSNoir.IMGUI
             style.hover.textColor = oldHoverColor;
             style.active.textColor = oldActiveColor;
             
-            return enabled && isHovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
+            return enabled && isClicked;
         }
     }
 }

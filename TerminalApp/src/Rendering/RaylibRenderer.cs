@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Raylib_cs;
 using SSNoir.Core;
+using SSNoir.TerminalApp.Rendering;
 
 namespace SSNoir.Rendering
 {
@@ -136,43 +138,36 @@ namespace SSNoir.Rendering
 
         private void DrawPresentationOverlay()
         {
+            // Execution progress is drawn inside the active card's execute button.
+        }
+
+        private (bool IsExecuting, float Progress, string Text) GetCardExecutionState(string nodeName)
+        {
             if (!_state.IsPresentingAction || _state.PendingReport == null || _state.ActiveRollResult != null)
             {
-                return;
+                return (false, 0f, string.Empty);
+            }
+            if (!string.Equals(_state.PendingActionName, nodeName, StringComparison.OrdinalIgnoreCase))
+            {
+                return (false, 0f, string.Empty);
             }
 
             var hints = _state.PendingReport.PresentationHints;
             if (hints == null || _state.PresentationStepIndex >= hints.Count)
             {
-                return;
+                return (false, 0f, string.Empty);
             }
 
             var hint = hints[_state.PresentationStepIndex];
             if (hint.Kind != PresentationHintKind.ExecuteProgress && hint.Kind != PresentationHintKind.PlayAnimation)
             {
-                return;
+                return (false, 0f, string.Empty);
             }
-
-            Raylib.DrawRectangle(0, 0, WindowWidth, WindowHeight, new Color(10, 10, 15, 120));
-
-            float barW = 220f;
-            float barH = 18f;
-            float barX = (WindowWidth - barW) / 2f;
-            float barY = WindowHeight / 2f - 20f;
-            var barRect = new Rectangle(barX, barY, barW, barH);
-
-            Raylib.DrawRectangleRounded(barRect, 0.3f, 4, new Color(35, 35, 45, 255));
-            Raylib.DrawRectangleRoundedLinesEx(barRect, 0.3f, 4, 1f, new Color(80, 80, 100, 255));
 
             float progress = hint.DurationSeconds <= 0f
                 ? 1f
                 : Math.Clamp(_state.PresentationTimer / hint.DurationSeconds, 0f, 1f);
-            var fillRect = new Rectangle(barX + 2f, barY + 2f, (barW - 4f) * progress, barH - 4f);
-            Raylib.DrawRectangleRounded(fillRect, 0.3f, 4, new Color(100, 160, 220, 255));
-
-            string text = string.IsNullOrEmpty(hint.Text) ? "执行中..." : hint.Text;
-            int textW = FontManager.MeasureTextWidth(text, 14);
-            FontManager.DrawText(text, (WindowWidth - textW) / 2f, barY - 24f, 14, Color.White);
+            return (true, progress, string.IsNullOrEmpty(hint.Text) ? "执行中" : hint.Text);
         }
 
         private static ActionReport CreateEndTurnReport()
@@ -365,7 +360,16 @@ namespace SSNoir.Rendering
             UpdatePresentation(Raylib.GetFrameTime());
 
             bool inputBlocked = _state.ActiveRollResult != null || _state.IsPresentingAction;
-            var activeMousePos = (inputBlocked || _state.IsGrowthPanelOpen || _state.IsTurnPanelOpen) ? new System.Numerics.Vector2(-100f, -100f) : mousePos;
+            var ui = new UiInteractionContext
+            {
+                Mouse = mousePos,
+                IsLocked = inputBlocked
+            };
+            var bgUi = new UiInteractionContext
+            {
+                Mouse = mousePos,
+                IsLocked = inputBlocked || _state.IsGrowthPanelOpen || _state.IsTurnPanelOpen
+            };
 
             // Handle Command+R to restart
             if (!inputBlocked && (Raylib.IsKeyDown(KeyboardKey.LeftSuper) || Raylib.IsKeyDown(KeyboardKey.RightSuper)) && Raylib.IsKeyPressed(KeyboardKey.R))
@@ -402,7 +406,7 @@ namespace SSNoir.Rendering
             Raylib.ClearBackground(new Color(20, 20, 25, 255));
 
             // 1. Draw Navigation / Breadcrumbs
-            var navInteraction = NavigationWidget.Draw(_state, activeMousePos, WindowWidth);
+            var navInteraction = NavigationWidget.Draw(_state, bgUi, WindowWidth);
             if (navInteraction.GoBackClicked)
             {
                 GoBack();
@@ -412,11 +416,11 @@ namespace SSNoir.Rendering
             float cardsStartY = ClockWidget.Draw(_state, 90f, WindowWidth);
 
             // 3. Draw Node Cards
-            DrawCards(activeMousePos, cardsStartY);
+            DrawCards(bgUi, cardsStartY);
 
             // 4. Draw Hand Panel
             bool turnPanelWasOpen = _state.IsTurnPanelOpen;
-            var handInteraction = HandPanelWidget.Draw(_state, activeMousePos, WindowWidth, WindowHeight, IsInEncounter);
+            var handInteraction = HandPanelWidget.Draw(_state, bgUi, WindowWidth, WindowHeight, IsInEncounter);
             if (handInteraction.TurnClicked)
             {
                 if (IsInEncounter)
@@ -443,7 +447,7 @@ namespace SSNoir.Rendering
             if (_state.IsTurnPanelOpen && IsInEncounter)
             {
                 bool justOpened = !turnPanelWasOpen;
-                var turnPanelInteraction = TurnPanelWidget.Draw(mousePos, WindowWidth, WindowHeight, justOpened);
+                var turnPanelInteraction = TurnPanelWidget.Draw(ui, WindowWidth, WindowHeight, justOpened);
                 if (turnPanelInteraction.RestClicked)
                 {
                     _state.IsTurnPanelOpen = false;
@@ -459,7 +463,7 @@ namespace SSNoir.Rendering
             }
 
             // 6. Draw Dropdown
-            var dropdownInteraction = SceneDropdownWidget.Draw(_state, _sceneManager, activeMousePos, WindowWidth);
+            var dropdownInteraction = SceneDropdownWidget.Draw(_state, _sceneManager, bgUi, WindowWidth);
             if (!string.IsNullOrEmpty(dropdownInteraction.SelectedSceneName))
             {
                 _sceneManager.LoadScene(dropdownInteraction.SelectedSceneName);
@@ -474,21 +478,13 @@ namespace SSNoir.Rendering
             float btnW = 80f;
             float btnH = 32f;
             var btnRect = new Rectangle(btnX, btnY, btnW, btnH);
-            bool hoverBtn = Raylib.CheckCollisionPointRec(mousePos, btnRect);
+            var toggleBtn = UiButton.Draw(btnRect, "成长/队伍", bgUi, true, 13, 
+                _state.IsGrowthPanelOpen ? new Color((byte)50, (byte)50, (byte)90, (byte)255) : new Color((byte)25, (byte)25, (byte)35, (byte)255),
+                new Color((byte)40, (byte)40, (byte)55, (byte)255), null,
+                _state.IsGrowthPanelOpen ? new Color((byte)130, (byte)130, (byte)220, (byte)255) : new Color((byte)50, (byte)50, (byte)70, (byte)255),
+                Color.White, null, Color.White, null);
 
-            Color btnBg = _state.IsGrowthPanelOpen
-                ? new Color((byte)50, (byte)50, (byte)90, (byte)255)
-                : (hoverBtn ? new Color((byte)40, (byte)40, (byte)55, (byte)255) : new Color((byte)25, (byte)25, (byte)35, (byte)255));
-            Color btnBorder = _state.IsGrowthPanelOpen ? new Color((byte)130, (byte)130, (byte)220, (byte)255) : new Color((byte)50, (byte)50, (byte)70, (byte)255);
-
-            Raylib.DrawRectangleRounded(btnRect, 0.2f, 4, btnBg);
-            Raylib.DrawRectangleRoundedLinesEx(btnRect, 0.2f, 4, 1.5f, btnBorder);
-
-            string btnText = "成长/队伍";
-            int btnTextW = FontManager.MeasureTextWidth(btnText, 13);
-            FontManager.DrawText(btnText, btnX + (btnW - btnTextW) / 2f, btnY + 9, 13, Color.White);
-
-            if (hoverBtn && Raylib.IsMouseButtonPressed(MouseButton.Left))
+            if (toggleBtn.Clicked)
             {
                 _state.IsGrowthPanelOpen = !_state.IsGrowthPanelOpen;
             }
@@ -496,7 +492,7 @@ namespace SSNoir.Rendering
             // Draw Growth Panel if open
             if (_state.IsGrowthPanelOpen)
             {
-                DrawGrowthPanel(mousePos);
+                DrawGrowthPanel(ui);
             }
 
             // Update active roll animation timer
@@ -541,7 +537,7 @@ namespace SSNoir.Rendering
             DrawPresentationOverlay();
 
             // 8. Draw Overlays (Modals / Toasts)
-            var overlayInteraction = OverlayWidget.Draw(_state, _gameState.NotificationCenter, mousePos, WindowWidth, WindowHeight);
+            var overlayInteraction = OverlayWidget.Draw(_state, _gameState.NotificationCenter, ui, WindowWidth, WindowHeight);
             if (overlayInteraction.ConfirmClicked || (_state.ActiveRollResult != null && Raylib.IsKeyPressed(KeyboardKey.Escape)))
             {
                 _state.ActiveRollResult = null;
@@ -554,7 +550,7 @@ namespace SSNoir.Rendering
             Raylib.EndDrawing();
         }
 
-        private void DrawCards(System.Numerics.Vector2 mousePos, float startY)
+        private void DrawCards(SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float startY)
         {
             float startX = 40f;
             float cardWidth = 160f;
@@ -572,7 +568,7 @@ namespace SSNoir.Rendering
                 float y = startY + row * (cardHeight + spacing);
 
                 var bounds = new Rectangle(x, y, cardWidth, cardHeight);
-                bool isHovered = Raylib.CheckCollisionPointRec(mousePos, bounds);
+                bool isHovered = ui.CanHover(bounds);
 
                 string typeLabel = "容器";
                 if (node.Resolve != null)
@@ -603,7 +599,22 @@ namespace SSNoir.Rendering
                 }
 
                 List<DifficultyModifierInfo>? modifiers = node.Resolve?.DifficultyModifiers.Count > 0 ? node.Resolve.DifficultyModifiers : null;
-                var interaction = CardWidget.DrawCard(bounds, node.Name, typeLabel, isHovered, node.Clocks, isFlipped, backText, requires, slotted, mousePos, modifiers);
+                var execution = GetCardExecutionState(node.Name);
+                var interaction = CardWidget.DrawCard(
+                    bounds,
+                    node.Name,
+                    typeLabel,
+                    isHovered,
+                    node.Clocks,
+                    isFlipped,
+                    backText,
+                    requires,
+                    slotted,
+                    ui,
+                    modifiers,
+                    execution.IsExecuting,
+                    execution.Progress,
+                    execution.Text);
 
                 if (interaction.CardClicked)
                 {
@@ -765,7 +776,7 @@ namespace SSNoir.Rendering
             }
         }
 
-        private void DrawGrowthPanel(System.Numerics.Vector2 mousePos)
+        private void DrawGrowthPanel(SSNoir.TerminalApp.Rendering.UiInteractionContext ui)
         {
             // Dim background (modal overlay overlaying cards/hand)
             Raylib.DrawRectangle(0, 0, WindowWidth, WindowHeight, new Color((byte)10, (byte)10, (byte)15, (byte)180));
@@ -787,11 +798,11 @@ namespace SSNoir.Rendering
             float closeX = panelX + panelW - 40f;
             float closeY = panelY + 18f;
             var closeRect = new Rectangle(closeX, closeY, 24, 24);
-            bool hoverClose = Raylib.CheckCollisionPointRec(mousePos, closeRect);
+            bool hoverClose = ui.CanHover(closeRect);
             Color closeColor = hoverClose ? Color.Red : new Color((byte)180, (byte)180, (byte)200, (byte)255);
             FontManager.DrawText("X", closeX + 6, closeY + 3, 16, closeColor);
 
-            if (hoverClose && Raylib.IsMouseButtonPressed(MouseButton.Left))
+            if (ui.WasClicked(closeRect))
             {
                 _state.IsGrowthPanelOpen = false;
             }
@@ -865,27 +876,18 @@ namespace SSNoir.Rendering
                     var btnRect = new Rectangle(btnX, rowY, btnW, btnH);
 
                     bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < 6;
-                    bool hoverBtn = isEnabled && Raylib.CheckCollisionPointRec(mousePos, btnRect);
+                    
+                    var upgradeBtn = UiButton.Draw(btnRect, "+", ui, isEnabled, 13,
+                        new Color((byte)30, (byte)90, (byte)45, (byte)255),
+                        new Color((byte)50, (byte)140, (byte)70, (byte)255),
+                        new Color((byte)30, (byte)30, (byte)35, (byte)255),
+                        new Color((byte)100, (byte)210, (byte)120, (byte)255),
+                        Color.White,
+                        new Color((byte)50, (byte)50, (byte)55, (byte)255),
+                        Color.White,
+                        new Color((byte)90, (byte)90, (byte)100, (byte)255));
 
-                    Color btnBgColor, btnBorderColor, btnTextColor;
-                    if (isEnabled)
-                    {
-                        btnBgColor = hoverBtn ? new Color((byte)50, (byte)140, (byte)70, (byte)255) : new Color((byte)30, (byte)90, (byte)45, (byte)255);
-                        btnBorderColor = hoverBtn ? Color.White : new Color((byte)100, (byte)210, (byte)120, (byte)255);
-                        btnTextColor = Color.White;
-                    }
-                    else
-                    {
-                        btnBgColor = new Color((byte)30, (byte)30, (byte)35, (byte)255);
-                        btnBorderColor = new Color((byte)50, (byte)50, (byte)55, (byte)255);
-                        btnTextColor = new Color((byte)90, (byte)90, (byte)100, (byte)255);
-                    }
-
-                    Raylib.DrawRectangleRounded(btnRect, 0.25f, 4, btnBgColor);
-                    Raylib.DrawRectangleRoundedLinesEx(btnRect, 0.25f, 4, 1.2f, btnBorderColor);
-                    FontManager.DrawText("+", btnX + 8, rowY + 3, 13, btnTextColor);
-
-                    if (isEnabled && hoverBtn && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                    if (upgradeBtn.Clicked)
                     {
                         try
                         {

@@ -25,8 +25,11 @@ namespace SSNoir.Rendering
             string backText = "",
             List<ActionCost>? requires = null,
             List<SlottedResource?>? slotted = null,
-            System.Numerics.Vector2 mousePos = default,
-            List<DifficultyModifierInfo>? modifiers = null)
+            SSNoir.TerminalApp.Rendering.UiInteractionContext ui = default,
+            List<DifficultyModifierInfo>? modifiers = null,
+            bool isExecuting = false,
+            float executeProgress = 0f,
+            string executingText = "执行中")
         {
             var interaction = new CardInteraction
             {
@@ -115,7 +118,7 @@ namespace SSNoir.Rendering
                 for (int j = 0; j < M; j++)
                 {
                     var slotRect = new Rectangle(slotStartX + j * (slotW + spacing), slotY, slotW, slotH);
-                    bool slotHover = Raylib.CheckCollisionPointRec(mousePos, slotRect);
+                    bool slotHover = ui.CanHover(slotRect);
                     var res = slotted![j];
 
                     if (res == null)
@@ -152,7 +155,7 @@ namespace SSNoir.Rendering
                         FontManager.DrawText(valStr, slotRect.X + (slotW - valW) / 2f, slotRect.Y + (slotH - fontSize) / 2f, fontSize, Color.White);
                     }
 
-                    if (slotHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                    if (ui.WasClicked(slotRect))
                     {
                         interaction.ClickedSlotIndex = j;
                     }
@@ -166,28 +169,21 @@ namespace SSNoir.Rendering
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
 
                 bool allFilled = slotted != null && slotted.All(s => s != null);
-                if (allFilled)
+                if (isExecuting)
                 {
-                    bool exeHover = Raylib.CheckCollisionPointRec(mousePos, exeRect);
-                    Raylib.DrawRectangleRounded(exeRect, 0.2f, 4, exeHover ? new Color(100, 200, 100, 255) : new Color(50, 150, 50, 255));
-                    
-                    string exeText = "执行";
-                    int eW = FontManager.MeasureTextWidth(exeText, 12);
-                    FontManager.DrawText(exeText, exeX + (exeW - eW) / 2f, exeY + 3, 12, Color.White);
-
-                    if (exeHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
-                    {
-                        interaction.ExecuteClicked = true;
-                    }
+                    DrawExecuteProgress(exeRect, executeProgress, executingText);
                 }
                 else
                 {
-                    Raylib.DrawRectangleRounded(exeRect, 0.2f, 4, new Color(50, 50, 55, 255));
-                    Raylib.DrawRectangleRoundedLinesEx(exeRect, 0.2f, 4, 1f, new Color(70, 70, 75, 255));
-
-                    string exeText = "待命";
-                    int eW = FontManager.MeasureTextWidth(exeText, 12);
-                    FontManager.DrawText(exeText, exeX + (exeW - eW) / 2f, exeY + 3, 12, new Color(100, 100, 110, 255));
+                    var exeBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(exeRect, allFilled ? "执行" : "待命", ui, allFilled, 12,
+                        new Color((byte)50, (byte)150, (byte)50, (byte)255), new Color((byte)100, (byte)200, (byte)100, (byte)255), new Color((byte)50, (byte)50, (byte)55, (byte)255),
+                        new Color((byte)50, (byte)150, (byte)50, (byte)255), Color.White, new Color((byte)70, (byte)70, (byte)75, (byte)255),
+                        Color.White, new Color((byte)100, (byte)100, (byte)110, (byte)255));
+                    
+                    if (exeBtn.Clicked)
+                    {
+                        interaction.ExecuteClicked = true;
+                    }
                 }
             }
             else if (showButton)
@@ -199,22 +195,27 @@ namespace SSNoir.Rendering
                 float exeY = bounds.Y + 70;
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
 
-                bool exeHover = Raylib.CheckCollisionPointRec(mousePos, exeRect);
-                Raylib.DrawRectangleRounded(exeRect, 0.2f, 4, exeHover ? new Color(100, 200, 100, 255) : new Color(50, 150, 50, 255));
-                
-                string exeText = "执行";
-                int eW = FontManager.MeasureTextWidth(exeText, 12);
-                FontManager.DrawText(exeText, exeX + (exeW - eW) / 2f, exeY + 3, 12, Color.White);
-
-                if (exeHover && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                if (isExecuting)
                 {
-                    interaction.ExecuteClicked = true;
+                    DrawExecuteProgress(exeRect, executeProgress, executingText);
+                }
+                else
+                {
+                    var exeBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(exeRect, "执行", ui, true, 12,
+                        new Color((byte)50, (byte)150, (byte)50, (byte)255), new Color((byte)100, (byte)200, (byte)100, (byte)255), null,
+                        new Color((byte)50, (byte)150, (byte)50, (byte)255), Color.White, null,
+                        Color.White, null);
+                    
+                    if (exeBtn.Clicked)
+                    {
+                        interaction.ExecuteClicked = true;
+                    }
                 }
             }
             else
             {
                 // Simple container or observer card click behavior
-                interaction.CardClicked = isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left);
+                interaction.CardClicked = ui.WasClicked(bounds);
             }
 
             // Draw Difficulty Modifier Tags on the top-left of the card
@@ -291,6 +292,23 @@ namespace SSNoir.Rendering
             {
                 FontManager.DrawText(currentLine, x, currentY, fontSize, color);
             }
+        }
+
+        private static void DrawExecuteProgress(Rectangle rect, float progress, string text)
+        {
+            progress = Math.Clamp(progress, 0f, 1f);
+            Raylib.DrawRectangleRounded(rect, 0.2f, 4, new Color(36, 38, 48, 255));
+            var fill = new Rectangle(rect.X + 2f, rect.Y + 2f, (rect.Width - 4f) * progress, rect.Height - 4f);
+            Raylib.DrawRectangleRounded(fill, 0.2f, 4, new Color(90, 145, 205, 255));
+            Raylib.DrawRectangleRoundedLinesEx(rect, 0.2f, 4, 1f, new Color(115, 150, 205, 255));
+
+            string label = string.IsNullOrEmpty(text) ? "执行中" : text;
+            if (label.Length > 5)
+            {
+                label = "执行中";
+            }
+            int w = FontManager.MeasureTextWidth(label, 11);
+            FontManager.DrawText(label, rect.X + (rect.Width - w) / 2f, rect.Y + 3f, 11, Color.White);
         }
 
         private static void DrawClockBadge(ref float rightX, float topY, GameClock clock)

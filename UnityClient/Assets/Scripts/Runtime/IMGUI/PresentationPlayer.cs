@@ -17,6 +17,7 @@ namespace SSNoir.IMGUI
         public bool IsPlaying => _isPlaying;
         public string ProgressText { get; private set; } = string.Empty;
         public float Progress01 { get; private set; }
+        public string ActionName => _actionName;
 
         public PresentationPlayer(IMGUIAnimationPlayer animator)
         {

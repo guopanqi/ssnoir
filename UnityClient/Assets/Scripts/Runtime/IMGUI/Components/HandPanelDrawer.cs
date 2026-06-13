@@ -11,7 +11,7 @@ namespace SSNoir.IMGUI
         private static readonly float StatusBarHeight = 25f;
         private static readonly float BottomOffset = 0f;
 
-        public static void Draw(SSNoirGameManager gameManager, Vector2 mousePos)
+        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             float handY = Screen.height - PanelHeight - StatusBarHeight - BottomOffset;
             float statusY = Screen.height - StatusBarHeight - BottomOffset;
@@ -21,13 +21,13 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(new Rect(-1, handY, Screen.width + 2, PanelHeight + 2), 1f, IMGUIStyles.OutlineVariantColor);
 
-            DrawDice(handY, gameManager, mousePos);
-            DrawItems(handY, gameManager, mousePos);
-            DrawEndTurnButton(handY, gameManager, mousePos);
+            DrawDice(handY, gameManager, ui);
+            DrawItems(handY, gameManager, ui);
+            DrawEndTurnButton(handY, gameManager, ui);
             DrawStatusBar(statusY, gameManager);
         }
 
-        private static void DrawDice(float handY, SSNoirGameManager gameManager, Vector2 mousePos)
+        private static void DrawDice(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             var snapshot = gameManager.DisplayedSnapshot;
             GUI.Label(new Rect(30, handY + 58, 100, 24), "手牌骰子: ", IMGUIStyles.SectionLabel);
@@ -53,7 +53,7 @@ namespace SSNoir.IMGUI
 
                     bool isSlotted = gameManager.IsDieSlotted(i);
                     bool isSelected = gameManager.SelectedResource != null && gameManager.SelectedResource.Type == "die" && gameManager.SelectedResource.SourceIndex == i;
-                    bool hover = !isSlotted && dieRect.Contains(mousePos);
+                    bool hover = !isSlotted && ui.CanHover(dieRect);
 
                     if (isSlotted)
                     {
@@ -83,7 +83,7 @@ namespace SSNoir.IMGUI
                         dieStyle.normal.textColor = Color.white;
                         GUI.Label(dieRect, val.ToString(), dieStyle);
 
-                        if (hover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                        if (!isSlotted && ui.WasClicked(dieRect))
                         {
                             gameManager.OnDieClicked(i, val);
                             Event.current.Use();
@@ -93,7 +93,7 @@ namespace SSNoir.IMGUI
             }
         }
 
-        private static void DrawItems(float handY, SSNoirGameManager gameManager, Vector2 mousePos)
+        private static void DrawItems(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             var snapshot = gameManager.DisplayedSnapshot;
             int diceCount = 0;
@@ -126,7 +126,7 @@ namespace SSNoir.IMGUI
 
                 int remaining = gameManager.GetRemainingItemQty(item.Name);
                 bool isSelected = gameManager.SelectedResource != null && gameManager.SelectedResource.Type == "item" && gameManager.SelectedResource.ItemName == item.Name;
-                bool hover = itemRect.Contains(mousePos);
+                bool hover = ui.CanHover(itemRect);
 
                 if (remaining <= 0)
                 {
@@ -158,7 +158,7 @@ namespace SSNoir.IMGUI
                     itemStyle.normal.textColor = Color.white;
                     GUI.Label(itemRect, label, itemStyle);
 
-                    if (hover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                    if (ui.WasClicked(itemRect))
                     {
                         gameManager.OnItemClicked(item.Name, item.Qty);
                         Event.current.Use();
@@ -167,7 +167,7 @@ namespace SSNoir.IMGUI
             }
         }
 
-        private static void DrawEndTurnButton(float handY, SSNoirGameManager gameManager, Vector2 mousePos)
+        private static void DrawEndTurnButton(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             float restX = Screen.width - 150;
             float restY = handY + 30;
@@ -176,7 +176,7 @@ namespace SSNoir.IMGUI
             var style = new GUIStyle(IMGUIStyles.ExecuteLabel);
             style.fontSize = 18;
 
-            if (IMGUIStyles.DrawTechnicalButton(restRect, "休息", mousePos, IMGUIStyles.TertiaryColor, new Color(1.0f, 0.714f, 0.576f, 0.10f), style))
+            if (IMGUIButton.Draw(restRect, "休息", ui, IMGUIStyles.TertiaryColor, new Color(1.0f, 0.714f, 0.576f, 0.10f), style))
             {
                 gameManager.OnEndTurnClicked();
             }

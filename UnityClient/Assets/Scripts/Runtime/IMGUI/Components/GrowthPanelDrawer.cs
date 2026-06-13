@@ -15,7 +15,7 @@ namespace SSNoir.IMGUI
 
         private static readonly string[] StatKeys = { "violence", "knowledge", "coding", "sharpness" };
 
-        public static GrowthPanelInteraction Draw(SSNoirGameManager gameManager, Vector2 mousePos)
+        public static GrowthPanelInteraction Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             var interaction = new GrowthPanelInteraction { ShouldClose = false };
             var snapshot = gameManager.DisplayedSnapshot;
@@ -51,29 +51,20 @@ namespace SSNoir.IMGUI
             float closeX = panelX + panelW - 44f;
             float closeY = panelY + 16f;
             var closeRect = new Rect(closeX, closeY, 28f, 28f);
-            bool closeHover = closeRect.Contains(mousePos);
+            bool closeHover = ui.CanHover(closeRect);
 
-            Color closeBorder = closeHover ? Color.white : IMGUIStyles.PrimaryColor;
-            Color closeBg = closeHover ? new Color(IMGUIStyles.ErrorColor.r, IMGUIStyles.ErrorColor.g, IMGUIStyles.ErrorColor.b, 0.10f) : Color.clear;
-            Color closeTextColor = closeHover ? IMGUIStyles.ErrorColor : IMGUIStyles.OnSurfaceVariant;
-
-            if (closeHover)
-            {
-                GUI.color = closeBg;
-                GUI.DrawTexture(closeRect, Texture2D.whiteTexture);
-                GUI.color = Color.white;
-            }
-            IMGUIStyles.DrawOutline(closeRect, 1f, closeBorder);
-
-            var closeStyle = new GUIStyle(IMGUIStyles.SlotLabel)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fontStyle = FontStyle.Bold
-            };
-            closeStyle.normal.textColor = closeTextColor;
+            Color closeBg = closeHover ? new Color(1, 1, 1, 0.1f) : Color.clear;
+            GUI.color = closeBg;
+            GUI.DrawTexture(closeRect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(closeRect, 1f, closeHover ? Color.white : IMGUIStyles.OutlineVariantColor);
+            
+            var closeStyle = new GUIStyle(IMGUIStyles.StatusLabel);
+            closeStyle.alignment = TextAnchor.MiddleCenter;
+            closeStyle.normal.textColor = closeHover ? Color.white : IMGUIStyles.OutlineVariantColor;
             GUI.Label(closeRect, "X", closeStyle);
 
-            if (closeHover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+            if (ui.WasClicked(closeRect))
             {
                 interaction.ShouldClose = true;
                 Event.current.Use();
@@ -143,7 +134,7 @@ namespace SSNoir.IMGUI
                     var btnRect = new Rect(btnX, rowY + 2f, btnSize, btnSize);
 
                     bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < 6;
-                    bool btnHover = isEnabled && btnRect.Contains(mousePos);
+                    bool btnHover = isEnabled && ui.CanHover(btnRect);
 
                     Color btnBg = isEnabled ? (btnHover ? new Color(IMGUIStyles.PrimaryColor.r, IMGUIStyles.PrimaryColor.g, IMGUIStyles.PrimaryColor.b, 0.10f) : Color.clear) : Color.clear;
                     Color btnBorder = isEnabled ? (btnHover ? Color.white : IMGUIStyles.PrimaryColor) : IMGUIStyles.OutlineVariantColor;
@@ -163,7 +154,7 @@ namespace SSNoir.IMGUI
                     btnStyle.normal.textColor = isEnabled ? Color.white : new Color(0.5f, 0.5f, 0.5f, 0.5f);
                     GUI.Label(btnRect, "+", btnStyle);
 
-                    if (isEnabled && btnHover && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                    if (isEnabled && ui.WasClicked(btnRect))
                     {
                         gameManager.UpgradeActorStat(actor.Id, statKey);
                         Event.current.Use();

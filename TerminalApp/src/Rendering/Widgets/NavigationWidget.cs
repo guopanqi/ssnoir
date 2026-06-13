@@ -10,7 +10,7 @@ namespace SSNoir.Rendering
             public bool GoBackClicked;
         }
 
-        public static NavigationInteraction Draw(RendererState state, System.Numerics.Vector2 mousePos, float windowWidth)
+        public static NavigationInteraction Draw(RendererState state, SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float windowWidth)
         {
             var interaction = new NavigationInteraction { GoBackClicked = false };
             float startX = 40f;
@@ -19,16 +19,13 @@ namespace SSNoir.Rendering
             if (state.NavigationStack.Count > 0)
             {
                 var returnRect = new Rectangle(startX, startY, 90, 32);
-                bool isHovered = Raylib.CheckCollisionPointRec(mousePos, returnRect);
                 
-                Color btnColor = isHovered ? new Color(60, 60, 80, 255) : new Color(40, 40, 50, 255);
-                Color textColor = isHovered ? Color.White : new Color(180, 180, 200, 255);
-                
-                Raylib.DrawRectangleRounded(returnRect, 0.2f, 4, btnColor);
-                Raylib.DrawRectangleRoundedLinesEx(returnRect, 0.2f, 4, 1.5f, new Color(80, 80, 100, 255));
-                FontManager.DrawText("< 返回", startX + 18, startY + 8, 16, textColor);
+                var btn = SSNoir.TerminalApp.Rendering.UiButton.Draw(returnRect, "< 返回", ui, true, 16,
+                    new Color(40, 40, 50, 255), new Color(60, 60, 80, 255), null,
+                    new Color(80, 80, 100, 255), new Color(80, 80, 100, 255), null,
+                    new Color(180, 180, 200, 255));
 
-                if (isHovered && Raylib.IsMouseButtonPressed(MouseButton.Left))
+                if (btn.Clicked)
                 {
                     interaction.GoBackClicked = true;
                 }

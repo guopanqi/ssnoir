@@ -93,14 +93,14 @@ namespace SSNoir.IMGUI
                 GUI.color = Color.white;
             }
 
-            var mousePos = Event.current.mousePosition;
-            if (_inputLocked || IsAnimationPlaying)
+            var ui = new IMGUIInteractionContext
             {
-                mousePos = new Vector2(-9999f, -9999f);
-            }
+                Mouse = Event.current.mousePosition,
+                IsLocked = _inputLocked || IsAnimationPlaying
+            };
 
             // ── Navigation Bar ──
-            NavigationDrawer.Draw(_gameManager, mousePos);
+            NavigationDrawer.Draw(_gameManager, ui);
 
             // ── Node Clocks ──
             var clocks = GetCurrentClocks();
@@ -112,19 +112,19 @@ namespace SSNoir.IMGUI
             // ── Node Cards (3D projected) ──
             if (!_isGrowthPanelOpen)
             {
-                DrawCards(mousePos);
+                DrawCards(ui);
             }
 
             // ── Bottom Panel ──
-            HandPanelDrawer.Draw(_gameManager, mousePos);
+            HandPanelDrawer.Draw(_gameManager, ui);
 
             // ── Growth / Team Toggle Button ──
-            DrawGrowthToggleButton(mousePos);
+            DrawGrowthToggleButton(ui);
 
             // ── Scene Dropdown ──
             if (!_isGrowthPanelOpen)
             {
-                SceneDropdownDrawer.Draw(_gameManager, mousePos);
+                SceneDropdownDrawer.Draw(_gameManager, ui);
             }
 
             // ── Overlays ──
@@ -138,7 +138,7 @@ namespace SSNoir.IMGUI
             // ── Growth Panel ──
             if (_isGrowthPanelOpen)
             {
-                var growthInteraction = GrowthPanelDrawer.Draw(_gameManager, mousePos);
+                var growthInteraction = GrowthPanelDrawer.Draw(_gameManager, ui);
                 if (growthInteraction.ShouldClose)
                 {
                     _isGrowthPanelOpen = false;
@@ -149,7 +149,7 @@ namespace SSNoir.IMGUI
             _animator.DrawModal();
         }
 
-        private void DrawCards(Vector2 mousePos)
+        private void DrawCards(IMGUIInteractionContext ui)
         {
             var cam = Camera.main;
             if (cam == null) return;
@@ -276,17 +276,17 @@ namespace SSNoir.IMGUI
             layouts.Sort((a, b) => b.Distance.CompareTo(a.Distance));
             foreach (var layout in layouts)
             {
-                DrawNodeCard(layout.Node, layout.Rect, layout.AnchorPos, mousePos);
+                DrawNodeCard(layout.Node, layout.Rect, layout.AnchorPos, ui);
             }
 
             // Draw grid cards below
             if (gridNodes.Count > 0)
             {
-                DrawCardsGrid(gridNodes, mousePos);
+                DrawCardsGrid(gridNodes, ui);
             }
         }
 
-        private void DrawCardsGrid(List<GameNode> nodes, Vector2 mousePos)
+        private void DrawCardsGrid(List<GameNode> nodes, IMGUIInteractionContext ui)
         {
             float cardWidth = 280f;
             float cardHeight = 130f;
@@ -304,7 +304,7 @@ namespace SSNoir.IMGUI
                 float y = startY + row * (cardHeight + spacing);
                 var cardRect = new Rect(x, y, cardWidth, cardHeight);
 
-                bool isHovered = cardRect.Contains(mousePos);
+                bool isHovered = ui.CanHover(cardRect);
                 bool isFlipped = _gameManager.IsNodeFlipped(node.Name);
                 bool focused = isFocused(node.Name);
 
@@ -315,9 +315,11 @@ namespace SSNoir.IMGUI
                 }
 
                 string backText = (node.Resolve?.Type == ResolveType.Observe) ? (node.Resolve?.ObserveText ?? "") : "";
+                var execution = GetCardExecutionState(node.Name);
 
                 var interaction = CardDrawer.DrawCard(cardRect, node, isHovered, isFlipped, focused,
-                    slotted, node.Clocks, backText, mousePos, _gameManager);
+                    slotted, node.Clocks, backText, ui, _gameManager,
+                    execution.IsExecuting, execution.Progress, execution.Text);
 
                 if (interaction.CardClicked)
                 {
@@ -334,7 +336,7 @@ namespace SSNoir.IMGUI
             }
         }
 
-        private void DrawNodeCard(GameNode node, Rect cardRect, Vector2 anchorPos, Vector2 mousePos)
+        private void DrawNodeCard(GameNode node, Rect cardRect, Vector2 anchorPos, IMGUIInteractionContext ui)
         {
             float anchorX = anchorPos.x;
             float anchorY = anchorPos.y;
@@ -355,7 +357,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLine(pStart, pElbow, lineColor, lineThickness);
             IMGUIStyles.DrawLine(pElbow, pEnd, lineColor, lineThickness);
 
-            bool isHovered = cardRect.Contains(mousePos);
+            bool isHovered = ui.CanHover(cardRect);
             bool isFlipped = _gameManager.IsNodeFlipped(node.Name);
             bool focused = isFocused(node.Name);
 
@@ -366,9 +368,11 @@ namespace SSNoir.IMGUI
             }
 
             string backText = (node.Resolve?.Type == ResolveType.Observe) ? (node.Resolve?.ObserveText ?? "") : "";
+            var execution = GetCardExecutionState(node.Name);
 
             var interaction = CardDrawer.DrawCard(cardRect, node, isHovered, isFlipped, focused,
-                slotted, node.Clocks, backText, mousePos, _gameManager);
+                slotted, node.Clocks, backText, ui, _gameManager,
+                execution.IsExecuting, execution.Progress, execution.Text);
 
             if (interaction.CardClicked)
             {
@@ -391,6 +395,23 @@ namespace SSNoir.IMGUI
             return _gameManager.FocusedNodeName == nodeName;
         }
 
+        private (bool IsExecuting, float Progress, string Text) GetCardExecutionState(string nodeName)
+        {
+            if (!_presentationPlayer.IsPlaying || _animator.IsPlaying)
+            {
+                return (false, 0f, string.Empty);
+            }
+            if (!string.Equals(_presentationPlayer.ActionName, nodeName, StringComparison.OrdinalIgnoreCase))
+            {
+                return (false, 0f, string.Empty);
+            }
+            if (string.IsNullOrEmpty(_presentationPlayer.ProgressText))
+            {
+                return (false, 0f, string.Empty);
+            }
+            return (true, _presentationPlayer.Progress01, _presentationPlayer.ProgressText);
+        }
+
         private List<GameClock> GetCurrentClocks()
         {
             var clocks = new List<GameClock>();
@@ -409,7 +430,7 @@ namespace SSNoir.IMGUI
             return clocks;
         }
 
-        private void DrawGrowthToggleButton(Vector2 mousePos)
+        private void DrawGrowthToggleButton(IMGUIInteractionContext ui)
         {
             float btnX = 520f;
             float btnY = 30f;
@@ -417,11 +438,11 @@ namespace SSNoir.IMGUI
             float btnH = 32f;
             var btnRect = new Rect(btnX, btnY, btnW, btnH);
 
-            bool btnHover = btnRect.Contains(mousePos);
-            Color outlineColor = _isGrowthPanelOpen ? IMGUIStyles.PrimaryColor : IMGUIStyles.OutlineVariantColor;
-            Color hoverBg = new Color(IMGUIStyles.PrimaryColor.r, IMGUIStyles.PrimaryColor.g, IMGUIStyles.PrimaryColor.b, 0.10f);
+            bool btnHover = ui.CanHover(btnRect);
+            Color hoverBg = _isGrowthPanelOpen ? new Color(130f/255f, 130f/255f, 220f/255f, 0.4f) : new Color(1, 1, 1, 0.1f);
+            Color outlineColor = _isGrowthPanelOpen ? new Color(130f/255f, 130f/255f, 220f/255f, 1f) : IMGUIStyles.OutlineVariantColor;
 
-            if (IMGUIStyles.DrawTechnicalButton(btnRect, "成长/队伍", mousePos, outlineColor, hoverBg, IMGUIStyles.ExecuteLabel))
+            if (IMGUIButton.Draw(btnRect, "成长/队伍", ui, outlineColor, hoverBg, IMGUIStyles.ExecuteLabel))
             {
                 _isGrowthPanelOpen = !_isGrowthPanelOpen;
             }
@@ -429,37 +450,7 @@ namespace SSNoir.IMGUI
 
         private void DrawPresentationOverlay()
         {
-            if (!_presentationPlayer.IsPlaying || _animator.IsPlaying)
-            {
-                return;
-            }
-
-            if (string.IsNullOrEmpty(_presentationPlayer.ProgressText))
-            {
-                return;
-            }
-
-            GUI.color = IMGUIStyles.Blocker;
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            float barW = 220f;
-            float barH = 18f;
-            float barX = (Screen.width - barW) / 2f;
-            float barY = Screen.height / 2f - 20f;
-            var barRect = new Rect(barX, barY, barW, barH);
-
-            GUI.color = IMGUIStyles.ModalBg;
-            GUI.DrawTexture(barRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(barRect, 1f, IMGUIStyles.PrimaryColor);
-
-            var fillRect = new Rect(barX + 2f, barY + 2f, (barW - 4f) * _presentationPlayer.Progress01, barH - 4f);
-            GUI.color = IMGUIStyles.PrimaryColor;
-            GUI.DrawTexture(fillRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            GUI.Label(new Rect(barX, barY - 24f, barW, 20f), _presentationPlayer.ProgressText, IMGUIStyles.ModalBody);
+            // Execution progress is drawn inside the active card's execute button.
         }
 
         private Rect ClampRect(Rect r, float cardWidth, float cardHeight)

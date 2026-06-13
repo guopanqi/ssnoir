@@ -5,7 +5,7 @@ namespace SSNoir.IMGUI
 {
     public static class NavigationDrawer
     {
-        public static void Draw(SSNoirGameManager gameManager, Vector2 mousePos)
+        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             float startX = 40f;
             float startY = 30f;
@@ -19,7 +19,7 @@ namespace SSNoir.IMGUI
                 style.alignment = TextAnchor.MiddleCenter;
                 style.fontSize = 16;
 
-                if (IMGUIStyles.DrawTechnicalButton(returnRect, "< 返回", mousePos, IMGUIStyles.PrimaryColor, new Color(0.671f, 0.780f, 1.0f, 0.10f), style))
+                if (IMGUIButton.Draw(returnRect, "< 返回", ui, IMGUIStyles.PrimaryColor, new Color(0.671f, 0.780f, 1.0f, 0.10f), style))
                 {
                     gameManager.GoBackNavigation();
                 }

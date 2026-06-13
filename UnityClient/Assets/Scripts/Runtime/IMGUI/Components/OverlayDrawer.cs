@@ -148,7 +148,10 @@ namespace SSNoir.IMGUI
             float btnY = modalY + modalH - 48;
             var btnRect = new Rect(btnX, btnY, btnW, btnH);
 
-            if (IMGUIStyles.DrawTechnicalButton(btnRect, "确定", mousePos, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+            bool isHovered = btnRect.Contains(mousePos);
+            bool isClicked = isHovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
+
+            if (IMGUIStyles.DrawTechnicalButton(btnRect, "确定", isHovered, isClicked, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
             {
                 gameManager.OnRollAckClicked();
             }
