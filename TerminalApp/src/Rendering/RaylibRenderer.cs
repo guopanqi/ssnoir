@@ -243,9 +243,17 @@ namespace SSNoir.Rendering
 
         private void ResolveNavigationStack()
         {
+            var root = _state.DisplayedSnapshot.RootNode;
+            if (root == null)
+            {
+                _state.NavigationStack.Clear();
+                _state.VisibleNodes = new List<GameNode>();
+                return;
+            }
+
             if (_state.NavigationStack.Count == 0)
             {
-                _state.VisibleNodes = _state.DisplayedSnapshot.Nodes.ToList();
+                _state.VisibleNodes = root.Children.ToList();
                 return;
             }
 
@@ -256,7 +264,7 @@ namespace SSNoir.Rendering
             }
 
             _state.NavigationStack.Clear();
-            var currentLevel = _state.DisplayedSnapshot.Nodes.ToList();
+            var currentLevel = root.Children.ToList();
 
             foreach (var name in path)
             {
@@ -269,7 +277,7 @@ namespace SSNoir.Rendering
                 else
                 {
                     _state.NavigationStack.Clear();
-                    _state.VisibleNodes = _state.DisplayedSnapshot.Nodes.ToList();
+                    _state.VisibleNodes = root.Children.ToList();
                     return;
                 }
             }
@@ -289,7 +297,7 @@ namespace SSNoir.Rendering
 
         private void NavigateToHome()
         {
-            var homeNode = FindNodeByName(_state.DisplayedSnapshot.Nodes.ToList(), "家");
+            var homeNode = FindNodeByName(_state.DisplayedSnapshot.RootNode, "家");
             if (homeNode == null)
             {
                 throw new InvalidOperationException("Expected '家' node in world.");
@@ -318,7 +326,7 @@ namespace SSNoir.Rendering
             var keysToRemove = new List<string>();
             foreach (var key in _state.NodeSlots.Keys)
             {
-                if (FindNodeByName(_state.DisplayedSnapshot.Nodes.ToList(), key) == null)
+                if (FindNodeByName(_state.DisplayedSnapshot.RootNode, key) == null)
                 {
                     keysToRemove.Add(key);
                 }
@@ -329,16 +337,19 @@ namespace SSNoir.Rendering
             }
         }
 
-        private GameNode? FindNodeByName(List<GameNode> nodes, string name)
+        private GameNode? FindNodeByName(GameNode? node, string name)
         {
-            foreach (var node in nodes)
+            if (node == null)
+                return null;
+
+            if (node.Name == name)
+                return node;
+
+            foreach (var child in node.Children)
             {
-                if (node.Name == name) return node;
-                if (node.Children != null)
-                {
-                    var found = FindNodeByName(node.Children, name);
-                    if (found != null) return found;
-                }
+                var found = FindNodeByName(child, name);
+                if (found != null)
+                    return found;
             }
             return null;
         }

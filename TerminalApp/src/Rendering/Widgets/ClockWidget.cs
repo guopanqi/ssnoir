@@ -11,10 +11,8 @@ namespace SSNoir.Rendering
             var clocksToShow = new List<GameClock>();
             if (state.NavigationStack.Count == 0)
             {
-                foreach (var node in state.DisplayedSnapshot.Nodes)
-                {
-                    clocksToShow.AddRange(node.Clocks);
-                }
+                if (state.DisplayedSnapshot.RootNode != null)
+                    clocksToShow.AddRange(state.DisplayedSnapshot.RootNode.Clocks);
             }
             else
             {

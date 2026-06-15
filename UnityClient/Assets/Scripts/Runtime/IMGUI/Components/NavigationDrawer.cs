@@ -29,9 +29,7 @@ namespace SSNoir.IMGUI
 
             // Breadcrumb
             string breadcrumbText = "当前位置: ";
-            string rootName = gameManager.DisplayedSnapshot.Nodes.Count == 1
-                ? gameManager.DisplayedSnapshot.Nodes[0].Name
-                : "未加载";
+            string rootName = gameManager.DisplayedSnapshot.RootNode?.Name ?? "未加载";
             if (gameManager.NavigationStack.Count == 0)
             {
                 breadcrumbText += rootName;

@@ -436,9 +436,7 @@ namespace SSNoir.IMGUI
             var clocks = new List<GameClock>();
             if (_gameManager.NavigationStack.Count == 0)
             {
-                var root = _gameManager.DisplayedSnapshot.Nodes.Count == 1
-                    ? _gameManager.DisplayedSnapshot.Nodes[0]
-                    : null;
+                var root = _gameManager.DisplayedSnapshot.RootNode;
                 if (root != null)
                     clocks.AddRange(root.Clocks);
             }

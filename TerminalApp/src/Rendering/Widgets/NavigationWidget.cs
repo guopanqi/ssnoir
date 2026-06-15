@@ -34,13 +34,14 @@ namespace SSNoir.Rendering
             }
 
             string breadcrumbText = "当前位置: ";
+            string rootName = state.DisplayedSnapshot.RootNode?.Name ?? "未加载";
             if (state.NavigationStack.Count == 0)
             {
-                breadcrumbText += "根目录";
+                breadcrumbText += rootName;
             }
             else
             {
-                breadcrumbText += string.Join(" > ", state.NavigationStack.ConvertAll(n => n.Name));
+                breadcrumbText += rootName + " > " + string.Join(" > ", state.NavigationStack.ConvertAll(n => n.Name));
             }
             FontManager.DrawText(breadcrumbText, startX, startY + 8, 16, new Color(180, 180, 200, 255));
 

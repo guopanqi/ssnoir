@@ -5,7 +5,7 @@ namespace SSNoir.Core
 {
     public sealed class PresentationSnapshot
     {
-        public IReadOnlyList<GameNode> Nodes { get; init; } = new List<GameNode>();
+        public GameNode? RootNode { get; init; }
         public int Health { get; init; }
         public int MaxHealth { get; init; }
         public int Supplies { get; init; }

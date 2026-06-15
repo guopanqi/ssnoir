@@ -122,7 +122,7 @@ namespace SSNoir
             };
 
             _sceneManager.OnWorldRefreshed += () => {
-                Debug.Log($"[SSNoir] World Refreshed! Latest nodes count: {_sceneManager.CurrentWorldNodes.Count}");
+                Debug.Log($"[SSNoir] World Refreshed! Root node: {_sceneManager.CurrentRootNode?.Name ?? "<null>"}");
             };
 
             string startingLocation = _gameState.Get<string>("location", "world");
@@ -293,22 +293,15 @@ namespace SSNoir
 
         private GameNode? GetRootNode()
         {
-            if (_displayedSnapshot.Nodes.Count == 0)
-                return null;
-
-            Debug.Assert(_displayedSnapshot.Nodes.Count == 1,
-                $"[SSNoir] Render tree must have exactly one root node, got {_displayedSnapshot.Nodes.Count}.");
-            return _displayedSnapshot.Nodes.Count == 1 ? _displayedSnapshot.Nodes[0] : null;
+            return _displayedSnapshot.RootNode;
         }
 
         private List<string> FindPathToNode(string nodeName)
         {
             var result = new List<string>();
-            foreach (var root in _displayedSnapshot.Nodes)
-            {
-                if (FindPathToNodeRecursive(root, nodeName, result))
-                    return result;
-            }
+            var root = GetRootNode();
+            if (root != null && FindPathToNodeRecursive(root, nodeName, result))
+                return result;
             return new List<string>();
         }
 
@@ -629,7 +622,9 @@ namespace SSNoir
         private void CleanupNodeSlots()
         {
             var currentNames = new HashSet<string>();
-            CollectAllNodeNamesRecursive(_displayedSnapshot.Nodes.ToList(), currentNames);
+            var root = GetRootNode();
+            if (root != null)
+                CollectAllNodeNamesRecursive(root, currentNames);
 
             var keysToRemove = new List<string>();
             foreach (var name in _nodeSlots.Keys)
@@ -641,26 +636,27 @@ namespace SSNoir
                 _nodeSlots.Remove(key);
         }
 
-        private void CollectAllNodeNamesRecursive(List<GameNode> nodes, HashSet<string> result)
+        private void CollectAllNodeNamesRecursive(GameNode node, HashSet<string> result)
         {
-            foreach (var node in nodes)
-            {
-                result.Add(node.Name);
-                CollectAllNodeNamesRecursive(node.Children, result);
-            }
+            result.Add(node.Name);
+            foreach (var child in node.Children)
+                CollectAllNodeNamesRecursive(child, result);
         }
 
         private GameNode? FindNodeByName(string name)
         {
-            return FindNodeRecursive(_displayedSnapshot.Nodes.ToList(), name);
+            var root = GetRootNode();
+            return root == null ? null : FindNodeRecursive(root, name);
         }
 
-        private GameNode? FindNodeRecursive(List<GameNode> nodes, string name)
+        private GameNode? FindNodeRecursive(GameNode node, string name)
         {
-            foreach (var node in nodes)
+            if (node.Name == name)
+                return node;
+
+            foreach (var childNode in node.Children)
             {
-                if (node.Name == name) return node;
-                var child = FindNodeRecursive(node.Children, name);
+                var child = FindNodeRecursive(childNode, name);
                 if (child != null) return child;
             }
             return null;
@@ -807,8 +803,8 @@ namespace SSNoir
 
         public void NavigateToHome()
         {
-            var homeNode = FindNodeByName(_displayedSnapshot.Nodes.ToList(), "家");
-            if (homeNode == null)
+            var homePath = FindPathToNode("家");
+            if (homePath.Count < 2)
             {
                 Debug.LogWarning("[SSNoir] Expected '家' node in world.");
                 return;
@@ -825,20 +821,15 @@ namespace SSNoir
             _nodeSlots.Clear();
             _selectedResource = null;
             _navigationStack.Clear();
-            _navigationStack.Add(homeNode);
+            foreach (var nodeName in homePath.GetRange(1, homePath.Count - 1))
+            {
+                var node = FindNodeByName(nodeName);
+                Debug.Assert(node != null, $"[SSNoir] Failed to resolve path node '{nodeName}' while navigating home.");
+                if (node != null)
+                    _navigationStack.Add(node);
+            }
             ResolveNavigationStack();
             UpdateCameraFocus();
-        }
-
-        private GameNode? FindNodeByName(List<GameNode> nodes, string name)
-        {
-            foreach (var node in nodes)
-            {
-                if (node.Name == name) return node;
-                var found = FindNodeByName(node.Children, name);
-                if (found != null) return found;
-            }
-            return null;
         }
 
         public void OnRollAckClicked()

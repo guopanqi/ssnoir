@@ -78,12 +78,12 @@ namespace SSNoir.Testing
                     throw;
                 }
 
-                if (sceneManager.CurrentWorldNodes.Count == 0)
+                if (sceneManager.CurrentRootNode == null)
                 {
                     throw new InvalidDataException($"Scene '{sceneName}' produced an empty world.");
                 }
 
-                Console.WriteLine($"Validated scene '{sceneName}' with {sceneManager.CurrentWorldNodes.Count} root node(s).");
+                Console.WriteLine($"Validated scene '{sceneName}' with root '{sceneManager.CurrentRootNode.Name}'.");
             }
         }
 
@@ -117,8 +117,8 @@ namespace SSNoir.Testing
                 int savedMoney      = gs1.Inventory.GetCount("金钱");
                 int savedWine       = gs1.Inventory.GetCount("酒");
                 int savedHealth     = gs1.Team.Health;
-                int savedNodes      = sm1.CurrentWorldNodes.Count;
-                Console.WriteLine($"[saveload] chapter={savedChapter} rep={savedRep} stress={savedStress} 金钱={savedMoney} 酒={savedWine} health={savedHealth} rootNodes={savedNodes}");
+                int savedLocations  = sm1.CurrentRootNode?.Children.Count ?? 0;
+                Console.WriteLine($"[saveload] chapter={savedChapter} rep={savedRep} stress={savedStress} 金钱={savedMoney} 酒={savedWine} health={savedHealth} locations={savedLocations}");
 
                 // ── Phase 2: cold start, load save ───────────────────────
                 Console.WriteLine("[saveload] Phase 2: cold start + LoadGame...");
@@ -132,8 +132,8 @@ namespace SSNoir.Testing
                 int loadedMoney     = gs2.Inventory.GetCount("金钱");
                 int loadedWine      = gs2.Inventory.GetCount("酒");
                 int loadedHealth    = gs2.Team.Health;
-                int loadedNodes     = sm2.CurrentWorldNodes.Count;
-                Console.WriteLine($"[saveload] chapter={loadedChapter} rep={loadedRep} stress={loadedStress} 金钱={loadedMoney} 酒={loadedWine} health={loadedHealth} rootNodes={loadedNodes}");
+                int loadedLocations = sm2.CurrentRootNode?.Children.Count ?? 0;
+                Console.WriteLine($"[saveload] chapter={loadedChapter} rep={loadedRep} stress={loadedStress} 金钱={loadedMoney} 酒={loadedWine} health={loadedHealth} locations={loadedLocations}");
 
                 AssertEq("chapter",         savedChapter,  loadedChapter);
                 AssertEq("reputation:mayor",savedRep,      loadedRep);
@@ -141,11 +141,11 @@ namespace SSNoir.Testing
                 AssertEq("金钱",             savedMoney,    loadedMoney);
                 AssertEq("酒",               savedWine,     loadedWine);
                 AssertEq("health",          savedHealth,   loadedHealth);
-                AssertEq("rootNodes",       savedNodes,    loadedNodes);
+                AssertEq("locations",       savedLocations, loadedLocations);
 
                 // chapter=1 should show 5 locations (home/theater/restaurant/clinic/warehouse)
-                if (loadedNodes != 5)
-                    throw new Exception($"[saveload] Expected 5 root nodes for chapter 1, got {loadedNodes}");
+                if (loadedLocations != 5)
+                    throw new Exception($"[saveload] Expected 5 root locations for chapter 1, got {loadedLocations}");
 
                 // ActionDice re-rolled: just verify non-empty
                 var player2 = gs2.Team.FindActor("player")!;
@@ -176,7 +176,7 @@ namespace SSNoir.Testing
             sceneManager.LoadScene("home");
 
             // Verify initial state: 0 trash
-            if (FindNode(sceneManager.CurrentWorldNodes, "清理垃圾") != null)
+            if (FindNode(sceneManager.CurrentRootNode, "清理垃圾") != null)
             {
                 throw new InvalidOperationException("Expected no '清理垃圾' nodes initially.");
             }
@@ -186,7 +186,7 @@ namespace SSNoir.Testing
             ExecuteNode(sceneManager, "踢垃圾桶");
 
             // Verify 2 trash cards are present
-            int trashCount = CountNodes(sceneManager.CurrentWorldNodes, "清理垃圾");
+            int trashCount = CountNodes(sceneManager.CurrentRootNode, "清理垃圾");
             if (trashCount != 2)
             {
                 throw new InvalidOperationException($"Expected 2 '清理垃圾' nodes after kicking twice, got {trashCount}");
@@ -196,7 +196,7 @@ namespace SSNoir.Testing
             ExecuteNode(sceneManager, "清理垃圾");
 
             // Verify 1 trash card remains
-            trashCount = CountNodes(sceneManager.CurrentWorldNodes, "清理垃圾");
+            trashCount = CountNodes(sceneManager.CurrentRootNode, "清理垃圾");
             if (trashCount != 1)
             {
                 throw new InvalidOperationException($"Expected 1 '清理垃圾' node remaining, got {trashCount}");
@@ -206,7 +206,7 @@ namespace SSNoir.Testing
             ExecuteNode(sceneManager, "清理垃圾");
 
             // Verify 0 trash cards remain
-            if (FindNode(sceneManager.CurrentWorldNodes, "清理垃圾") != null)
+            if (FindNode(sceneManager.CurrentRootNode, "清理垃圾") != null)
             {
                 throw new InvalidOperationException("Expected all '清理垃圾' nodes to be cleaned.");
             }
@@ -267,7 +267,7 @@ namespace SSNoir.Testing
             }
 
             // Attack the "持刀者" (suppress it)
-            var slasherNode = FindNode(sceneManager.CurrentWorldNodes, "持刀者");
+            var slasherNode = FindNode(sceneManager.CurrentRootNode, "持刀者");
             if (slasherNode == null)
             {
                 throw new InvalidOperationException("Expected '持刀者' enemy node to be present.");
@@ -291,7 +291,7 @@ namespace SSNoir.Testing
 
             // Let's hit "持枪手" with "击倒" (eliminate! decreases HP by 2, so it dies)
             // But since this is Turn 2, the spawn clock ticks to 2/2 -> spawns a new random enemy!
-            var gunnerNode = FindNode(sceneManager.CurrentWorldNodes, "持枪手");
+            var gunnerNode = FindNode(sceneManager.CurrentRootNode, "持枪手");
             if (gunnerNode == null)
             {
                 throw new InvalidOperationException("Expected '持枪手' enemy node to be present.");
@@ -314,7 +314,7 @@ namespace SSNoir.Testing
             while (true)
             {
                 GameNode? enemyNode = null;
-                var battleNode = FindNode(sceneManager.CurrentWorldNodes, "仓库");
+                var battleNode = FindNode(sceneManager.CurrentRootNode, "仓库");
                 if (battleNode != null)
                 {
                     foreach (var child in battleNode.Children)
@@ -493,7 +493,7 @@ namespace SSNoir.Testing
             playerActor.ActionDice.Clear();
             playerActor.ActionDice.Add(1); // Force low die value to guarantee fail
             
-            var crackNode = FindNode(sceneManager.CurrentWorldNodes, "打开保险箱");
+            var crackNode = FindNode(sceneManager.CurrentRootNode, "打开保险箱");
             if (crackNode == null)
                 throw new InvalidOperationException("打开保险箱 node not found in infiltration scene.");
 
@@ -585,7 +585,7 @@ namespace SSNoir.Testing
 
         private static void ExecuteNode(SceneManager sceneManager, string name)
         {
-            var node = FindNode(sceneManager.CurrentWorldNodes, name);
+            var node = FindNode(sceneManager.CurrentRootNode, name);
             if (node == null)
             {
                 throw new InvalidOperationException($"Node not found: {name}");
@@ -594,16 +594,19 @@ namespace SSNoir.Testing
             ExecuteActionWithDefaults(sceneManager, node);
         }
 
-        private static GameNode? FindNode(List<GameNode> nodes, string name)
+        private static GameNode? FindNode(GameNode? node, string name)
         {
-            foreach (var node in nodes)
-            {
-                if (node.Name.StartsWith(name))
-                {
-                    return node;
-                }
+            if (node == null)
+                return null;
 
-                var child = FindNode(node.Children, name);
+            if (node.Name.StartsWith(name))
+            {
+                return node;
+            }
+
+            foreach (var childNode in node.Children)
+            {
+                var child = FindNode(childNode, name);
                 if (child != null)
                 {
                     return child;
@@ -613,17 +616,26 @@ namespace SSNoir.Testing
             return null;
         }
 
-        private static int CountNodes(List<GameNode> nodes, string name)
+        private static GameNode? FindNode(List<GameNode> nodes, string name)
         {
-            int count = 0;
             foreach (var node in nodes)
             {
-                if (node.Name.StartsWith(name))
-                {
-                    count++;
-                }
-                count += CountNodes(node.Children, name);
+                var found = FindNode(node, name);
+                if (found != null)
+                    return found;
             }
+
+            return null;
+        }
+
+        private static int CountNodes(GameNode? node, string name)
+        {
+            if (node == null)
+                return 0;
+
+            int count = node.Name.StartsWith(name) ? 1 : 0;
+            foreach (var child in node.Children)
+                count += CountNodes(child, name);
             return count;
         }
 

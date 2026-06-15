@@ -25,7 +25,7 @@ namespace SSNoir.Core
         public event Action? OnSceneLoaded;
         public event Action? OnWorldRefreshed;
 
-        public List<GameNode> CurrentWorldNodes { get; private set; } = new List<GameNode>();
+        public GameNode? CurrentRootNode { get; private set; }
         public List<GameClock> CurrentClocks { get; private set; } = new List<GameClock>();
         public PresentationSnapshot LatestSnapshot { get; private set; } = new PresentationSnapshot();
 
@@ -247,50 +247,21 @@ namespace SSNoir.Core
         {
             var active = ActiveInterpreter;
             var rawData = active.Eval("(get-render-data)");
-            var nodes = new List<GameNode>();
+            var rootNode = NodeConverter.ConvertSingle(rawData, active.RawInterpreter);
 
-            if (rawData is List<object> list)
-            {
-                foreach (var item in list)
-                {
-                    if (item is List<object> expr && expr.Count > 0 && expr[0] is Schemy.Symbol tag)
-                    {
-                        if (tag.AsString == "node")
-                        {
-                            var parsedNode = NodeConverter.ConvertSingle(expr, active.RawInterpreter);
-                            nodes.Add(parsedNode);
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException($"Unknown tag '{tag.AsString}' in render-data item: {expr}");
-                        }
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Invalid render-data item: {item}");
-                    }
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException($"get-render-data must return a list of items, got {rawData?.GetType().FullName ?? "null"}");
-            }
-
-            Debug.Assert(nodes.Count == 1,
-                $"get-render-data must return exactly one root node, got {nodes.Count}.");
-            AssertUniqueNodeNames(nodes);
-            CurrentWorldNodes = nodes;
+            AssertUniqueNodeNames(rootNode);
+            CurrentRootNode = rootNode;
 
             var flatClocks = new List<GameClock>();
-            CollectClocksRecursive(nodes, flatClocks);
+            CollectClocksRecursive(rootNode, flatClocks);
             CurrentClocks = flatClocks;
 
-            LatestSnapshot = BuildPresentationSnapshot(nodes);
+            LatestSnapshot = BuildPresentationSnapshot(rootNode);
             
             OnWorldRefreshed?.Invoke();
         }
 
-        private PresentationSnapshot BuildPresentationSnapshot(List<GameNode> nodes)
+        private PresentationSnapshot BuildPresentationSnapshot(GameNode rootNode)
         {
             var inventory = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             foreach (var item in _gameState.Inventory.Items)
@@ -323,7 +294,7 @@ namespace SSNoir.Core
 
             return new PresentationSnapshot
             {
-                Nodes = nodes,
+                RootNode = rootNode,
                 Health = _gameState.Team.Health,
                 MaxHealth = _gameState.Team.MaxHealth,
                 Supplies = _gameState.Team.Supplies,
@@ -336,29 +307,27 @@ namespace SSNoir.Core
             };
         }
 
-        private void CollectClocksRecursive(List<GameNode> nodes, List<GameClock> result)
+        private void CollectClocksRecursive(GameNode node, List<GameClock> result)
         {
-            foreach (var node in nodes)
-            {
-                result.AddRange(node.Clocks);
-                CollectClocksRecursive(node.Children, result);
-            }
+            result.AddRange(node.Clocks);
+            foreach (var child in node.Children)
+                CollectClocksRecursive(child, result);
         }
 
-        private static void AssertUniqueNodeNames(List<GameNode> nodes)
+        private static void AssertUniqueNodeNames(GameNode rootNode)
         {
             var seen = new HashSet<string>(StringComparer.Ordinal);
-            AssertUniqueNodeNamesRecursive(nodes, seen);
+            AssertUniqueNodeNamesRecursive(rootNode, seen);
         }
 
-        private static void AssertUniqueNodeNamesRecursive(List<GameNode> nodes, HashSet<string> seen)
+        private static void AssertUniqueNodeNamesRecursive(GameNode node, HashSet<string> seen)
         {
-            foreach (var node in nodes)
+            Debug.Assert(!seen.Contains(node.Name),
+                $"重复节点名称: \"{node.Name}\"。节点名称在整棵渲染树中必须唯一。");
+            seen.Add(node.Name);
+            foreach (var child in node.Children)
             {
-                Debug.Assert(!seen.Contains(node.Name),
-                    $"重复节点名称: \"{node.Name}\"。节点名称在整棵渲染树中必须唯一。");
-                seen.Add(node.Name);
-                AssertUniqueNodeNamesRecursive(node.Children, seen);
+                AssertUniqueNodeNamesRecursive(child, seen);
             }
         }
 
