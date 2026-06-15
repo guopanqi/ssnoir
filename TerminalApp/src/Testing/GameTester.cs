@@ -29,9 +29,10 @@ namespace SSNoir.Testing
             Console.WriteLine("[validate] Phase 1: paren balance...");
             foreach (var scmFile in Directory.GetFiles(scenesDir, "*.scm", SearchOption.AllDirectories))
             {
+                AssertSafeSchemeTextLiterals(scmFile);
                 AssertParenBalance(scmFile);
             }
-            Console.WriteLine("[validate] Phase 1: all files balanced.");
+            Console.WriteLine("[validate] Phase 1: text literals safe and all files balanced.");
 
             // Phase 2: load and render-validate each scene
             foreach (var scenePath in Directory.GetFiles(scenesDir, "*.scm", SearchOption.AllDirectories))
@@ -1153,6 +1154,68 @@ namespace SSNoir.Testing
                 throw new InvalidDataException(
                     $"括号不平衡 [{fileName}] 第 {ul} 行第 {uc} 列：'(' 未关闭\n  {lines[ul - 1].Trim()}");
             }
+        }
+
+        private static void AssertSafeSchemeTextLiterals(string filePath)
+        {
+            string content = File.ReadAllText(filePath);
+            string fileName = Path.GetFileName(filePath);
+            string[] lines = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+
+            for (int li = 0; li < lines.Length; li++)
+            {
+                string line = lines[li];
+                bool inString = false;
+                bool escape = false;
+
+                for (int ci = 0; ci < line.Length; ci++)
+                {
+                    char c = line[ci];
+
+                    if (c == '“' || c == '”' || c == '‘' || c == '’')
+                    {
+                        throw new InvalidDataException(
+                            $"不允许在 Scheme 脚本文本中使用中文引号 [{fileName}] 第 {li + 1} 行第 {ci + 1} 列。\n" +
+                            $"  对话请写成：角色：内容，不要写嵌套引号。\n  {line.Trim()}");
+                    }
+
+                    if (inString)
+                    {
+                        if (escape) { escape = false; continue; }
+                        if (c == '\\') { escape = true; continue; }
+                        if (c == '"') inString = false;
+                        continue;
+                    }
+
+                    if (c == ';') break;
+                    if (c == '"') { inString = true; continue; }
+
+                    if (IsCjk(c) && (ci == 0 || !IsCjk(line[ci - 1])) && !IsQuotedSymbolAt(line, ci))
+                    {
+                        throw new InvalidDataException(
+                            $"疑似字符串被未转义双引号截断 [{fileName}] 第 {li + 1} 行第 {ci + 1} 列。\n" +
+                            $"  裸露中文会被 Schemy 当作 symbol 求值，可能报 Symbol not defined。\n" +
+                            $"  对话请写成：\"角色：内容\"，不要在字符串内部再放双引号。\n  {line.Trim()}");
+                    }
+                }
+            }
+        }
+
+        private static bool IsCjk(char c)
+        {
+            return (c >= '\u4e00' && c <= '\u9fff')
+                || (c >= '\u3400' && c <= '\u4dbf')
+                || (c >= '\uf900' && c <= '\ufaff');
+        }
+
+        private static bool IsQuotedSymbolAt(string line, int index)
+        {
+            int prev = index - 1;
+            while (prev >= 0 && char.IsWhiteSpace(line[prev]))
+            {
+                prev--;
+            }
+            return prev >= 0 && line[prev] == '\'';
         }
 
         private static void CheckParenthesesDiagnostics(string filePath)

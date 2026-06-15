@@ -41,8 +41,7 @@ namespace SSNoir.Rendering
         private void ResetSceneUiState()
         {
             _state.NavigationStack.Clear();
-            _state.NodeSlots.Clear();
-            _state.FlippedNodes.Clear();
+            _state.ClearAllNodeSlots();
             _state.SelectedResource = null;
             _state.IsTurnPanelOpen = false;
             _state.IsGrowthPanelOpen = false;
@@ -282,7 +281,7 @@ namespace SSNoir.Rendering
         {
             if (_state.NavigationStack.Count > 0)
             {
-                _state.NodeSlots.Clear();
+                _state.ClearAllNodeSlots();
                 _state.NavigationStack.RemoveAt(_state.NavigationStack.Count - 1);
                 ResolveNavigationStack();
             }
@@ -304,7 +303,7 @@ namespace SSNoir.Rendering
                 return;
             }
 
-            _state.NodeSlots.Clear();
+            _state.ClearAllNodeSlots();
             _state.SelectedResource = null;
             _state.NavigationStack.Clear();
             _state.NavigationStack.Add(homeNode);
@@ -472,7 +471,7 @@ namespace SSNoir.Rendering
             {
                 if (IsInEncounter)
                 {
-                    _state.NodeSlots.Clear();
+                    _state.ClearAllNodeSlots();
                     _state.SelectedResource = null;
                     _sceneManager.EndTurn();
                     StartPresentation(CreateEndTurnReport(), "休息");
@@ -501,7 +500,7 @@ namespace SSNoir.Rendering
                 if (turnPanelInteraction.RestClicked)
                 {
                     _state.IsTurnPanelOpen = false;
-                    _state.NodeSlots.Clear();
+                    _state.ClearAllNodeSlots();
                     _state.SelectedResource = null;
                     _sceneManager.EndTurn();
                     StartPresentation(CreateEndTurnReport(), "休息");
@@ -776,7 +775,7 @@ namespace SSNoir.Rendering
                 {
                     if (node.IsContainer)
                     {
-                        _state.NodeSlots.Clear();
+                        _state.ClearAllNodeSlots();
                         _state.NavigationStack.Add(node);
                         ResolveNavigationStack();
                     }

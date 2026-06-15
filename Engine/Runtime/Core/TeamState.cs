@@ -231,8 +231,9 @@ namespace SSNoir.Core
                         continue;
                     }
 
-                    actor.ActionDice.Add(rand.Next(1, 7));
-                    actor.ActionDice.Add(rand.Next(1, 7));
+                    int diceCount = actor.Role == "protagonist" ? 3 : 1;
+                    for (int i = 0; i < diceCount; i++)
+                        actor.ActionDice.Add(rand.Next(1, 7));
                 }
             }
             OnTeamChanged?.Invoke();

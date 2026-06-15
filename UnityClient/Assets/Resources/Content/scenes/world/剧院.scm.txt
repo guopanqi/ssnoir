@@ -30,9 +30,9 @@
               (instant-action "和夜莺谈话"
                 (lambda ()
                   (set! nightingale-talked #t)
-                  (notify! "夜莺：‘你终于来了，我一直在等你。’"))))
+                  (notify! "夜莺：你终于来了，我一直在等你。"))))
             (list
-              (observe-action "夜莺" "夜莺：‘快去追吧，别让他跑了。’")))))
+              (observe-action "夜莺" "夜莺：快去追吧，别让他跑了。")))))
 
     (define (node-chase-man)
       (instant-action "追上黑衣人"
@@ -81,7 +81,7 @@
           ;; 阶段3: 追击失败，夜莺赶来
           ((= mission-stage 3)
            (list
-             (observe-action "夜莺赶来" "夜莺从后面追上来，轻声说：‘别自责，你已经尽力了。’你心急失蹄，膝盖还在疼。")
+             (observe-action "夜莺赶来" "夜莺从后面追上来，轻声说：别自责，你已经尽力了。你心急失蹄，膝盖还在疼。")
              (instant-action "接受安慰"
                              (lambda ()
                                (set! mission-stage 4)

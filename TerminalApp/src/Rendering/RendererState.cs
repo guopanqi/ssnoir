@@ -50,6 +50,12 @@ namespace SSNoir.Rendering
         public int ActiveRollDisplayDieValue { get; set; } = 1;
         public float ActiveRollDisplayScale { get; set; } = 1f;
 
+        public void ClearAllNodeSlots()
+        {
+            NodeSlots.Clear();
+            FlippedNodes.Clear();
+        }
+
         public void ClearOtherNodeSlots(string activeNodeName)
         {
             foreach (var pair in NodeSlots)
@@ -63,6 +69,9 @@ namespace SSNoir.Rendering
                     }
                 }
             }
+            var toUnflip = FlippedNodes.Where(n => n != activeNodeName).ToList();
+            foreach (var n in toUnflip)
+                FlippedNodes.Remove(n);
         }
 
         public bool IsDieSlotted(int dieIndex)

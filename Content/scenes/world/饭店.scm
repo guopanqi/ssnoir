@@ -5,48 +5,54 @@
     ;; ── Local State ───────────────────────────────────
     (define patronage-clock (make-clock "常客进度" 6 'segments))
     (define restaurant-stage 1)
-    ;; stage: 1=初次来访  2=常客积累中  3=情报已获
+    ;; stage: 1=常客积累中  2=情报已获
 
     ;; ── Node Helpers ──────────────────────────────────
 
-    (define (node-first-visit)
-      (instant-action "进入饭店"
-        (lambda ()
-          (set! restaurant-stage 2)
-          (notify! "老板娘热情招待你坐下，低声叹气："生意越来越不好做了，以后常来捧场！""))))
-
     (define (node-eat)
-      (instant-action "用餐"
-        (lambda ()
+      (action "用餐"
+        (list (req-item "金钱" 12))
+        (instant (lambda ()
           (patronage-clock 'tick!)
-          (notify! "你点了一盘家常菜，老板娘殷勤地加了一道小菜。"))))
+          (add-supplies! 1)
+          (notify! "你点了一盘家常菜，老板娘殷勤地加了一道小菜。肚子填饱了，物资+1。")))))
 
     (define (node-get-info)
       (instant-action "和老板娘聊聊"
         (lambda ()
-          (set! restaurant-stage 3)
-          (notify! "老板娘凑近低声说："码头那边最近很乱，你要找人，去问老陈——他什么都知道。""))))
+          (set! restaurant-stage 2)
+          (notify! "老板娘凑近低声说：'码头那边最近很乱，你要找人，去问老陈——他什么都知道。'"))))
+
+    (define (node-restaurant-work)
+      (roll-action "帮厨打杂" (list (req-die)) 'sharpness
+        (lambda ()
+          (stress-current-actor! 1)
+          (notify! "手忙脚乱打翻了一盘菜，老板娘皱眉，没什么工钱。"))
+        (lambda ()
+          (add-item! "金钱" 20)
+          (notify! "度过了平稳的一天，老板娘结了工钱。"))
+        (lambda ()
+          (add-item! "金钱" 40)
+          (notify! "客人夸你手脚快，老板娘多给了些打赏。"))))
 
     ;; ── Per-stage Children ────────────────────────────
 
-    (define (stage-2-children)
+    (define (stage-1-children)
       (if (patronage-clock 'full?)
-          (list (node-get-info))
-          (list (node-eat))))
+          (list (node-get-info) (node-restaurant-work))
+          (list (node-eat) (node-restaurant-work))))
 
     (define (node-restaurant-container)
       (cond
         ((= restaurant-stage 1)
-         (container "饭店"
-           (list (node-first-visit))))
-        ((= restaurant-stage 2)
          (container-with-clocks "饭店"
-           (stage-2-children)
+           (stage-1-children)
            (list (patronage-clock 'render-data))))
         (#t
          (container "饭店"
-           (list (observe-action "老板娘"
-                   "老板娘冲你友好地点点头，没有更多要说的了。"))))))
+           (list
+             (observe-action "老板娘" "老板娘冲你友好地点点头，没有更多要说的了。")
+             (node-restaurant-work))))))
 
     ;; ── Message Passing Interface ─────────────────────
     (lambda args
@@ -56,7 +62,7 @@
            (list (node-restaurant-container)))
 
           ((equal? msg 'complete?)
-           (= restaurant-stage 3))
+           (= restaurant-stage 2))
 
           ((equal? msg 'save)
            (list

@@ -12,7 +12,7 @@
       (instant-action "寻找老陈"
         (lambda ()
           (set! dock-stage 2)
-          (notify! "码头上人来人往。你凭着纸条上的描述找到了一个沉默的老人。他点点头："我知道你为什么来。""))))
+          (notify! "码头上人来人往。你凭着纸条上的描述找到了一个沉默的老人。他点点头：我知道你为什么来。"))))
 
     (define (node-dock-container)
       (cond
@@ -24,7 +24,7 @@
         (#t
          (container "码头"
            (list
-             (observe-action "老陈" "老陈："你找到我了。接下来的事情……就看你的了。""))))))
+             (observe-action "老陈" "老陈：你找到我了。接下来的事情……就看你的了。"))))))
 
     ;; ── Message Passing Interface ─────────────────────
     (lambda args

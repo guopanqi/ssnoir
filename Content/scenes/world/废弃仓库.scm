@@ -25,30 +25,38 @@
       (instant-action "跟踪线索"
         (lambda ()
           (set! warehouse-stage 2)
-          (notify! "一个黑影从破损的天花板下走出来，低声说："你在找什么？""))))
+          (notify! "一个黑影从破损的天花板下走出来，低声说：'你在找什么？'"))))
 
     (define (node-pay-contact)
-      (instant-action "支付情报费（150金）"
-        (lambda ()
-          (consume-item! "金钱" 150)
+      (action "支付情报费（150金）"
+        (list (req-item "金钱" 150))
+        (instant (lambda ()
           (set! warehouse-stage 3)
-          (notify! "联络人接过钱，把一张纸条塞进你手里："码头，去找老陈。""))))
+          (notify! "联络人接过钱，把一张纸条塞进你手里：'码头，去找老陈。'")))))
 
-    (define (node-money-short)
-      (observe-action "情报费（150金）"
-        "联络人冷淡地说："情报不便宜，150块，少一分不谈。"你的金钱不足。"))
+    (define (node-warehouse-work)
+      (roll-action "搬运货物" (list (req-die)) 'violence
+        (lambda ()
+          (stress-current-actor! 2)
+          (notify! "货物太重，你拉伤了腰，勉强撑完一天，什么都没挣到。"))
+        (lambda ()
+          (add-item! "金钱" 30)
+          (notify! "完成了几趟，监工数了点工钱给你。"))
+        (lambda ()
+          (add-item! "金钱" 60)
+          (notify! "手脚麻利，监工满意，工钱一分不少。"))))
 
     ;; ── Per-stage Children ────────────────────────────
 
     (define (stage-1-children)
-      (if (investigate-clock 'full?)
-          (list (node-contact-appears))
-          (list (node-search-clues))))
+      (list
+        (if (investigate-clock 'full?)
+            (node-contact-appears)
+            (node-search-clues))
+        (node-warehouse-work)))
 
     (define (stage-2-children)
-      (if (>= (get-item "金钱") 150)
-          (list (node-pay-contact))
-          (list (node-money-short))))
+      (list (node-pay-contact) (node-warehouse-work)))
 
     (define (node-warehouse-container)
       (cond
