@@ -30,9 +30,6 @@ namespace SSNoir
 
     public class SSNoirGameManager : MonoBehaviour
     {
-        [Header("Cinemachine Cameras")]
-        [SerializeField] private Cinemachine.CinemachineVirtualCamera? globalCamera;
-
         [Header("Font")]
         [SerializeField] private Font? chineseFont;
 
@@ -44,6 +41,7 @@ namespace SSNoir
         private UnityScriptLoader _scriptLoader = null!;
         private SceneDirectory? _sceneDirectory;
         private IMGUIWorldRenderer _renderer = null!;
+        private StageTransitionController _stageController = null!;
 
         private SSNoirCameraManager _cameraManager = null!;
 
@@ -70,6 +68,20 @@ namespace SSNoir
         public RollResult? ActiveRollResult => _activeRollResult;
         public Font? ChineseFont => chineseFont;
         public SSNoirCameraManager CameraManager => _cameraManager;
+        public StageTransitionController StageController => _stageController;
+        public bool IsInputLocked => _renderer != null && _renderer.IsInputLocked;
+        public Cinemachine.CinemachineVirtualCamera? CurrentFocusCamera => ResolveCurrentFocusCamera();
+
+        public string? CurrentStageContextId
+        {
+            get
+            {
+                var currentNode = GetCurrentNavigationNode();
+                return currentNode?.Name;
+            }
+        }
+
+        public void SetInputLocked(bool locked) => _renderer?.SetInputLocked(locked);
 
         private void Start()
         {
@@ -81,12 +93,8 @@ namespace SSNoir
             // 2. Initialize Scene Manager
             _sceneManager = new SceneManager(_gameState, _scriptLoader);
 
-            // 3. Find scene cameras
-            if (globalCamera == null)
-            {
-                globalCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Global") || c.name.Contains("global"));
-            }
-            _cameraManager = new SSNoirCameraManager(this, globalCamera, panSpeed);
+            // 3. Initialize camera interaction. Stable camera selection is resolved from the current node focus.
+            _cameraManager = new SSNoirCameraManager(this, panSpeed);
 
             // 4. Find scene directory
             _sceneDirectory = FindObjectOfType<SceneDirectory>();
@@ -96,15 +104,19 @@ namespace SSNoir
                 _sceneDirectory = sdGo.GetComponent<SceneDirectory>();
             }
 
-            // 5. Spawn IMGUI renderer
+            // 5. Get pre-placed StageTransitionController (must exist in scene with Inspector fields assigned),
+            //    then spawn IMGUIWorldRenderer dynamically (no Inspector fields needed).
+            _stageController = GetComponent<StageTransitionController>();
+            if (_stageController == null)
+                throw new InvalidOperationException("[SSNoir] StageTransitionController must be pre-placed on the SSNoirGameManager GameObject.");
             _renderer = gameObject.AddComponent<IMGUIWorldRenderer>();
             _renderer.Initialize(this);
+            _stageController.Initialize(this);
 
             // 6. Listen to scene loads and world refreshes
             _sceneManager.OnSceneLoaded += () => {
                 Debug.Log($"[SSNoir] Scene Loaded: {_sceneManager.CurrentSceneName}");
                 ResetSceneUiState();
-                RefreshSceneCameraReference();
                 AdoptLatestSnapshot();
                 UpdateCameraFocus();
             };
@@ -142,7 +154,8 @@ namespace SSNoir
             }
 
             // Update camera panning & orbiting
-            _cameraManager.Update();
+            if (!IsInputLocked && (_stageController == null || !_stageController.IsTransitioning))
+                _cameraManager.Update();
         }
 
         public bool IsNodeFlipped(string nodeName) => _flippedNodes.Contains(nodeName);
@@ -198,8 +211,9 @@ namespace SSNoir
 
         private void UpdateCameraFocus()
         {
+            if (ShouldDeferFocusToPendingPortal())
+                return;
 
-            // Reset all scene anchor focus cameras
             if (_sceneDirectory != null)
             {
                 foreach (var a in _sceneDirectory.AllAnchors)
@@ -211,23 +225,107 @@ namespace SSNoir
                 }
             }
 
-            // Find target anchor to focus
-            NodeAnchor? targetAnchor = null;
-            if (!string.IsNullOrEmpty(_focusedNodeName))
+            var focusCamera = ResolveCurrentFocusCamera();
+            Debug.Assert(focusCamera != null, $"[SSNoir] No focus camera resolved for current node path '{string.Join(" > ", GetCurrentFocusPathNames())}'. Configure a FocusVirtualCamera on the node or one of its ancestors.");
+            if (focusCamera != null)
+                focusCamera.Priority = 20;
+        }
+
+        private bool ShouldDeferFocusToPendingPortal()
+        {
+            if (_stageController == null)
+                return false;
+
+            var currentContextId = CurrentStageContextId;
+            if (currentContextId == null || currentContextId == _stageController.CurrentContextId)
+                return false;
+
+            if (_stageController.HasActivePortal)
+                return true;
+
+            var anchor = _sceneDirectory?.GetAnchor(currentContextId);
+            return anchor != null && anchor.GetComponent<StagePortalConfig>() != null;
+        }
+
+        private Cinemachine.CinemachineVirtualCamera? ResolveCurrentFocusCamera()
+        {
+            foreach (var nodeName in GetCurrentFocusPathNames().AsEnumerable().Reverse())
             {
-                targetAnchor = _sceneDirectory?.GetAnchor(_focusedNodeName);
-            }
-            else if (_navigationStack.Count > 0)
-            {
-                var parentNode = _navigationStack[_navigationStack.Count - 1];
-                targetAnchor = _sceneDirectory?.GetAnchor(parentNode.Name);
+                var anchor = _sceneDirectory?.GetAnchor(nodeName);
+                if (anchor != null && anchor.FocusVirtualCamera != null)
+                    return anchor.FocusVirtualCamera;
             }
 
-            // Set priority on target camera
-            if (targetAnchor != null && targetAnchor.FocusVirtualCamera != null)
+            return null;
+        }
+
+        private List<string> GetCurrentFocusPathNames()
+        {
+            if (!string.IsNullOrEmpty(_focusedNodeName))
             {
-                targetAnchor.FocusVirtualCamera.Priority = 20;
+                var focusedPath = FindPathToNode(_focusedNodeName);
+                if (focusedPath.Count > 0)
+                    return focusedPath;
             }
+
+            return GetCurrentNavigationPathNames();
+        }
+
+        private List<string> GetCurrentNavigationPathNames()
+        {
+            var path = new List<string>();
+            var root = GetRootNode();
+            if (root == null)
+                return path;
+
+            path.Add(root.Name);
+            foreach (var node in _navigationStack)
+                path.Add(node.Name);
+            return path;
+        }
+
+        private GameNode? GetCurrentNavigationNode()
+        {
+            if (_navigationStack.Count > 0)
+                return _navigationStack[_navigationStack.Count - 1];
+            return GetRootNode();
+        }
+
+        private GameNode? GetRootNode()
+        {
+            if (_displayedSnapshot.Nodes.Count == 0)
+                return null;
+
+            Debug.Assert(_displayedSnapshot.Nodes.Count == 1,
+                $"[SSNoir] Render tree must have exactly one root node, got {_displayedSnapshot.Nodes.Count}.");
+            return _displayedSnapshot.Nodes.Count == 1 ? _displayedSnapshot.Nodes[0] : null;
+        }
+
+        private List<string> FindPathToNode(string nodeName)
+        {
+            var result = new List<string>();
+            foreach (var root in _displayedSnapshot.Nodes)
+            {
+                if (FindPathToNodeRecursive(root, nodeName, result))
+                    return result;
+            }
+            return new List<string>();
+        }
+
+        private bool FindPathToNodeRecursive(GameNode node, string nodeName, List<string> path)
+        {
+            path.Add(node.Name);
+            if (node.Name == nodeName)
+                return true;
+
+            foreach (var child in node.Children)
+            {
+                if (FindPathToNodeRecursive(child, nodeName, path))
+                    return true;
+            }
+
+            path.RemoveAt(path.Count - 1);
+            return false;
         }
 
         public List<SlottedResource?>? GetSlotsForNode(string nodeName)
@@ -411,10 +509,6 @@ namespace SSNoir
 
                 _renderer.PlayPresentation(report, node.Name, () =>
                 {
-                    if (sceneChanged)
-                    {
-                        RefreshSceneCameraReference();
-                    }
                     AdoptLatestSnapshot();
                     UpdateCameraFocus();
                     done = true;
@@ -443,12 +537,6 @@ namespace SSNoir
             _selectedResource = null;
             _focusedNodeName = string.Empty;
             _renderer?.ResetUiState();
-        }
-
-        private void RefreshSceneCameraReference()
-        {
-            globalCamera = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>().FirstOrDefault(c => c.name.Contains("Global") || c.name.Contains("global"));
-            _cameraManager.SetGlobalCamera(globalCamera);
         }
 
         public void AdoptLatestSnapshot()
@@ -498,9 +586,17 @@ namespace SSNoir
 
         private void ResolveNavigationStack()
         {
+            var root = GetRootNode();
+            if (root == null)
+            {
+                _navigationStack.Clear();
+                _visibleNodes = new List<GameNode>();
+                return;
+            }
+
             if (_navigationStack.Count == 0)
             {
-                _visibleNodes = _displayedSnapshot.Nodes.ToList();
+                _visibleNodes = root.Children.ToList();
                 return;
             }
 
@@ -509,7 +605,7 @@ namespace SSNoir
                 path.Add(node.Name);
 
             _navigationStack.Clear();
-            var currentLevel = _displayedSnapshot.Nodes.ToList();
+            var currentLevel = root.Children.ToList();
 
             foreach (var name in path)
             {
@@ -522,7 +618,7 @@ namespace SSNoir
                 else
                 {
                     _navigationStack.Clear();
-                    _visibleNodes = _displayedSnapshot.Nodes.ToList();
+                    _visibleNodes = root.Children.ToList();
                     return;
                 }
             }

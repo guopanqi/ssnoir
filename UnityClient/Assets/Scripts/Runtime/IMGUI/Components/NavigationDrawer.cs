@@ -29,13 +29,16 @@ namespace SSNoir.IMGUI
 
             // Breadcrumb
             string breadcrumbText = "当前位置: ";
+            string rootName = gameManager.DisplayedSnapshot.Nodes.Count == 1
+                ? gameManager.DisplayedSnapshot.Nodes[0].Name
+                : "未加载";
             if (gameManager.NavigationStack.Count == 0)
             {
-                breadcrumbText += "根目录";
+                breadcrumbText += rootName;
             }
             else
             {
-                breadcrumbText += string.Join(" > ", gameManager.NavigationStack.ConvertAll(n => n.Name));
+                breadcrumbText += rootName + " > " + string.Join(" > ", gameManager.NavigationStack.ConvertAll(n => n.Name));
             }
 
             var crumbStyle = new GUIStyle(IMGUIStyles.StatusLabel);
@@ -111,4 +114,3 @@ namespace SSNoir.IMGUI
         }
     }
 }
-

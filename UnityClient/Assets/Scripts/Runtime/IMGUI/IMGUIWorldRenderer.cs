@@ -154,6 +154,16 @@ namespace SSNoir.IMGUI
 
             // ── Animation Modal ──
             _animator.DrawModal();
+
+            // ── Stage Transition Flash ──
+            var stageCtrl = _gameManager.StageController;
+            if (stageCtrl.FadeAlpha > 0f)
+            {
+                var oldColor = GUI.color;
+                GUI.color = new Color(0f, 0f, 0f, stageCtrl.FadeAlpha);
+                GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
+                GUI.color = oldColor;
+            }
         }
 
         private void DrawCards(IMGUIInteractionContext ui)
@@ -426,10 +436,11 @@ namespace SSNoir.IMGUI
             var clocks = new List<GameClock>();
             if (_gameManager.NavigationStack.Count == 0)
             {
-                foreach (var node in _gameManager.DisplayedSnapshot.Nodes)
-                {
-                    clocks.AddRange(node.Clocks);
-                }
+                var root = _gameManager.DisplayedSnapshot.Nodes.Count == 1
+                    ? _gameManager.DisplayedSnapshot.Nodes[0]
+                    : null;
+                if (root != null)
+                    clocks.AddRange(root.Clocks);
             }
             else
             {

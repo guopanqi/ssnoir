@@ -276,6 +276,8 @@ namespace SSNoir.Core
                 throw new InvalidOperationException($"get-render-data must return a list of items, got {rawData?.GetType().FullName ?? "null"}");
             }
 
+            Debug.Assert(nodes.Count == 1,
+                $"get-render-data must return exactly one root node, got {nodes.Count}.");
             AssertUniqueNodeNames(nodes);
             CurrentWorldNodes = nodes;
 

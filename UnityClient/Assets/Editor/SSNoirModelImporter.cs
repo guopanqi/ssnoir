@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+#nullable enable
 using UnityEngine;
 using UnityEditor;
 using Cinemachine;
@@ -9,12 +10,16 @@ namespace SSNoir.Editor
     /// <summary>
     /// Automatically processes imported Blender/FBX models.
     /// Part 1: Converts imported Camera nodes into Cinemachine Virtual Cameras and corrects Blender 100x scale offsets.
-    /// Part 2: Identifies Anchor nodes, configures NodeAnchor components, extracts NodeNames, and links corresponding FocusVirtualCameras.
+    /// Part 2: Configures camera drag mode from optional orbit pivot markers.
+    /// Part 3: Identifies Anchor nodes, configures NodeAnchor components, extracts NodeNames, and links corresponding FocusVirtualCameras.
     /// </summary>
     public class SSNoirModelImporter : AssetPostprocessor
     {
         private void OnPostprocessModel(GameObject root)
         {
+            var allTransforms = root.GetComponentsInChildren<Transform>(true);
+            var orbitPivots = allTransforms.Where(t => IsOrbitPivotName(t.name)).ToArray();
+
             // ==========================================
             // PART 1: Process Cameras & Convert to VCam
             // ==========================================
@@ -41,21 +46,20 @@ namespace SSNoir.Editor
                     vcam.m_Lens.OrthographicSize = cam.orthographicSize;
                     vcam.Priority = 5; // Default priority for node cameras
 
-                    // Configure custom camera config for orbit rotation
+                    // Configure custom camera config for drag/orbit behavior.
                     var config = vcamGo.AddComponent<SSNoirVirtualCameraConfig>();
-                    config.dragMode = CameraDragMode.Orbit;
+                    ConfigureDragMode(config, cam.transform, orbitPivots);
 
                     // Disable the original Camera node to prevent rendering interference
                     cam.gameObject.SetActive(false);
 
-                    Debug.Log($"[SSNoir] ModelImporter: Converted camera '{cam.name}' to Virtual Camera '{vcamGo.name}'.");
+                    Debug.Log($"[SSNoir] ModelImporter: Converted camera '{cam.name}' to Virtual Camera '{vcamGo.name}' ({DescribeDragMode(config)}).");
                 }
             }
 
             // ==========================================
             // PART 2: Process Nodes starting with 'anchor'
             // ==========================================
-            var allTransforms = root.GetComponentsInChildren<Transform>(true);
             var allVcamComponents = root.GetComponentsInChildren<CinemachineVirtualCamera>(true);
 
             foreach (var t in allTransforms)
@@ -87,14 +91,72 @@ namespace SSNoir.Editor
                         }
                         else
                         {
-                            // Fallback to the first generated virtual camera
                             anchor.FocusVirtualCamera = allVcamComponents[0];
+                            Debug.LogWarning($"[SSNoir] ModelImporter: No VCam name matched NodeAnchor '{anchor.NodeName}' on '{t.name}'. Falling back to first VCam '{allVcamComponents[0].name}'. Configure FocusVirtualCamera manually if this anchor is only an interaction point.");
                         }
                     }
 
                     Debug.Log($"[SSNoir] ModelImporter: Configured NodeAnchor on '{t.name}' (NodeName='{anchor.NodeName}') linking VCam: {(anchor.FocusVirtualCamera != null ? anchor.FocusVirtualCamera.name : "None")}.");
                 }
             }
+
+            foreach (var config in root.GetComponentsInChildren<SSNoirVirtualCameraConfig>(true))
+            {
+                if (config.orbitPivot == null)
+                {
+                    if (config.dragMode != CameraDragMode.Pan)
+                        Debug.LogWarning($"[SSNoir] ModelImporter: VCam '{config.name}' had Orbit mode without an orbit pivot. Forcing Pan mode.");
+                    config.dragMode = CameraDragMode.Pan;
+                }
+                else
+                {
+                    config.dragMode = CameraDragMode.Orbit;
+                }
+
+                EditorUtility.SetDirty(config);
+            }
+        }
+
+        private static bool IsOrbitPivotName(string name)
+        {
+            var normalized = name.Replace(" ", string.Empty)
+                .Replace("_", string.Empty)
+                .Replace("-", string.Empty);
+            return string.Equals(normalized, "orbitpivot", System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static Transform? FindClosestOrbitPivot(Transform cameraTransform, Transform[] orbitPivots)
+        {
+            if (orbitPivots == null || orbitPivots.Length == 0)
+                return null;
+
+            Transform? closest = null;
+            float closestDistance = float.MaxValue;
+            foreach (var pivot in orbitPivots)
+            {
+                float distance = Vector3.SqrMagnitude(cameraTransform.position - pivot.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closest = pivot;
+                }
+            }
+
+            return closest;
+        }
+
+        private static void ConfigureDragMode(SSNoirVirtualCameraConfig config, Transform cameraTransform, Transform[] orbitPivots)
+        {
+            var orbitPivot = FindClosestOrbitPivot(cameraTransform, orbitPivots);
+            config.orbitPivot = orbitPivot;
+            config.dragMode = orbitPivot != null ? CameraDragMode.Orbit : CameraDragMode.Pan;
+        }
+
+        private static string DescribeDragMode(SSNoirVirtualCameraConfig config)
+        {
+            return config.dragMode == CameraDragMode.Orbit
+                ? $"Orbit, pivot '{config.orbitPivot!.name}'"
+                : "Pan, no orbit pivot found";
         }
     }
 }

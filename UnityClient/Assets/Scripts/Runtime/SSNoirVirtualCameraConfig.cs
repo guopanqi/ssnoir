@@ -15,7 +15,7 @@ namespace SSNoir
         public CameraDragMode dragMode = CameraDragMode.Pan;
 
         [Header("Orbit Settings")]
-        [Tooltip("Optional custom pivot. If null, will default to the closest NodeAnchor.")]
+        [Tooltip("Required when Drag Mode is Orbit. This is the stable scene-space orbit center, not the node interaction anchor.")]
         public Transform? orbitPivot;
         public float orbitSpeedX = 0.2f;
         public float orbitSpeedY = 0.05f;
@@ -67,10 +67,10 @@ namespace SSNoir
         [ContextMenu("Align to Pivot")]
         public void AlignToPivot()
         {
-            Transform? pivot = FindDefaultPivot();
+            Transform? pivot = orbitPivot;
             if (pivot == null)
             {
-                Debug.LogWarning($"[SSNoir] AlignToPivot failed on '{name}': No pivot configured and no NodeAnchor found in the scene.");
+                Debug.LogWarning($"[SSNoir] AlignToPivot failed on '{name}': Orbit Pivot is not configured.");
                 return;
             }
 
@@ -86,27 +86,6 @@ namespace SSNoir
             Debug.Log($"[SSNoir] Aligned camera '{name}' to look at pivot '{pivot.name}' at position {pivot.position}.");
         }
 
-        private Transform? FindDefaultPivot()
-        {
-            if (orbitPivot != null) return orbitPivot;
-
-            // Find the closest NodeAnchor in the scene
-            var anchors = FindObjectsOfType<NodeAnchor>();
-            if (anchors == null || anchors.Length == 0) return null;
-
-            NodeAnchor? closest = null;
-            float minDist = float.MaxValue;
-            foreach (var a in anchors)
-            {
-                float dist = Vector3.Distance(transform.position, a.transform.position);
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    closest = a;
-                }
-            }
-            return closest != null ? closest.transform : null;
-        }
     }
 }
 

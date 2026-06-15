@@ -15,7 +15,7 @@ namespace SSNoir
         public void CollectAnchors()
         {
             _anchors.Clear();
-            var found = GetComponentsInChildren<NodeAnchor>(true);
+            var found = FindObjectsOfType<NodeAnchor>(true);
             foreach (var anchor in found)
             {
                 if (!string.IsNullOrEmpty(anchor.NodeName))

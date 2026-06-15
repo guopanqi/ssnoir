@@ -7,7 +7,6 @@ namespace SSNoir
     public class SSNoirCameraManager
     {
         private readonly SSNoirGameManager _gameManager;
-        private Cinemachine.CinemachineVirtualCamera? _globalCamera;
         private readonly float _panSpeed;
 
         // Mouse drag states
@@ -15,16 +14,10 @@ namespace SSNoir
         private Vector3 _dragStartMousePos;
         private Vector3 _dragStartCamPos;
 
-        public SSNoirCameraManager(SSNoirGameManager gameManager, Cinemachine.CinemachineVirtualCamera? globalCamera, float panSpeed)
+        public SSNoirCameraManager(SSNoirGameManager gameManager, float panSpeed)
         {
             _gameManager = gameManager;
-            _globalCamera = globalCamera;
             _panSpeed = panSpeed;
-        }
-
-        public void SetGlobalCamera(Cinemachine.CinemachineVirtualCamera? globalCam)
-        {
-            _globalCamera = globalCam;
         }
 
         public void Update()
@@ -91,50 +84,21 @@ namespace SSNoir
 
         public Cinemachine.CinemachineVirtualCamera? GetActiveCamera()
         {
-            var sd = _gameManager.SceneDirectory;
-            if (sd != null)
-            {
-                foreach (var a in sd.AllAnchors)
-                {
-                    if (a.FocusVirtualCamera != null && a.FocusVirtualCamera.Priority > 10)
-                        return a.FocusVirtualCamera;
-                }
-            }
-            return _globalCamera;
+            return _gameManager.CurrentFocusCamera;
         }
 
         private Transform? GetOrbitPivot(Cinemachine.CinemachineVirtualCamera activeCamera)
         {
             var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
-            if (config != null && config.orbitPivot != null)
+            if (config == null || config.dragMode != CameraDragMode.Orbit)
+                return null;
+
+            if (config.orbitPivot != null)
             {
                 return config.orbitPivot;
             }
 
-            // Fallback 1: Find the NodeAnchor in the SceneDirectory that references this virtual camera
-            var sd = _gameManager.SceneDirectory;
-            if (sd != null)
-            {
-                var matchingAnchor = sd.AllAnchors.FirstOrDefault(a => a.FocusVirtualCamera == activeCamera);
-                if (matchingAnchor != null)
-                {
-                    return matchingAnchor.transform;
-                }
-            }
-
-            // Fallback 2: Find the NodeAnchor that corresponds to the focused node name
-            string focusedNode = _gameManager.FocusedNodeName;
-            if (!string.IsNullOrEmpty(focusedNode))
-            {
-                var anchor = _gameManager.SceneDirectory?.GetAnchor(focusedNode);
-                if (anchor != null)
-                {
-                    return anchor.transform;
-                }
-            }
-
-            // If we are in Orbit mode but cannot resolve a pivot, it is a configuration error
-            string errorMsg = $"[SSNoir] Camera configuration error: Virtual Camera '{activeCamera.name}' is set to Orbit mode, but no pivot was configured on its SSNoirVirtualCameraConfig, and no matching NodeAnchor could be resolved.";
+            string errorMsg = $"[SSNoir] Camera configuration error: Virtual Camera '{activeCamera.name}' is set to Orbit mode, but no orbitPivot was configured on its SSNoirVirtualCameraConfig.";
             Debug.LogError(errorMsg);
             UnityEngine.Assertions.Assert.IsTrue(false, errorMsg);
             throw new System.InvalidOperationException(errorMsg);
