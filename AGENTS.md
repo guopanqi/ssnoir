@@ -26,5 +26,5 @@
 - Scheme 脚本里的对白文本不要在字符串内容中再使用中文/英文引号。对话统一写成 `角色：内容`，例如 `"夜莺：你终于来了。"`。不要写 `"夜莺：“你终于来了。”"`，也不要写未转义的嵌套英文双引号；后者会让 Schemy 把后续中文当作 symbol 求值，运行时报 `Symbol not defined`。
 
 # Content 同步规则
-- Unity 客户端中的 `StreamingAssets/Content`、`Resources/Content` 和 `Fonts` 资源是从项目根目录的 `Content` 目录同步复制过去的（详见 [ContentSyncEditor.cs](file:///Users/usr/documents/play/ssnoir/UnityClient/Assets/Editor/ContentSyncEditor.cs)）。
-- 在修改根目录 `Content` 下的 Scheme 脚本、场景或字体等资源后，Unity 客户端在加载或进入 Play 模式时会自动运行同步导入。如果需要，可在 Unity 中运行顶部菜单 `SSNoir -> Sync Content Now` 进行手动同步。
+- Unity 客户端中的 `StreamingAssets/Content`、`Resources/Content` 和 `Fonts` 资源是从项目根目录的 `Content` 目录同步复制过去的（详见 [ContentSyncEditor.cs](file:///Users/usr/documents/play/ssnoir/UnityClient/Assets/Editor/ContentSyncEditor.cs)）, Unity 客户端在加载或进入 Play 模式时会自动运行同步导入, 不需要agent操作这些文件。
+- 如果出现不同步的情况，可提醒用户在 Unity 中运行顶部菜单 `SSNoir -> Sync Content Now` 进行手动同步。

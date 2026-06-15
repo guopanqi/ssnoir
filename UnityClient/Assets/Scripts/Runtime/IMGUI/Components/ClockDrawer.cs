@@ -25,7 +25,7 @@ namespace SSNoir.IMGUI
             }
 
             // Divider
-            IMGUIStyles.DrawLine(new Vector2(40, y + height + 4), new Vector2(Screen.width - 40, y + height + 4), IMGUIStyles.OutlineVariantColor, 1f);
+            IMGUIStyles.DrawLine(new Vector2(40, y + height + 4), new Vector2(UIScale.VW - 40, y + height + 4), IMGUIStyles.OutlineVariantColor, 1f);
         }
 
         private static float DrawClock(ref float x, float y, float height, GameClock clock)

@@ -21,7 +21,7 @@ namespace SSNoir.IMGUI
 
                 float cardW = 240f;
                 float cardH = 34f;
-                float cardX = Screen.width - cardW - 40f;
+                float cardX = UIScale.VW - cardW - 40f;
                 float cardY = 75f + i * (cardH + 8f);
                 var cardRect = new Rect(cardX, cardY, cardW, cardH);
 
@@ -95,14 +95,14 @@ namespace SSNoir.IMGUI
 
             // Blocker
             GUI.color = IMGUIStyles.Blocker;
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
             GUI.color = Color.white;
 
             // Modal
             float modalW = 380;
             float modalH = 240;
-            float modalX = (Screen.width - modalW) / 2f;
-            float modalY = (Screen.height - modalH) / 2f;
+            float modalX = (UIScale.VW - modalW) / 2f;
+            float modalY = (UIScale.VH - modalH) / 2f;
             var modalRect = new Rect(modalX, modalY, modalW, modalH);
 
             GUI.color = IMGUIStyles.ModalBg;

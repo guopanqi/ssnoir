@@ -23,14 +23,14 @@ namespace SSNoir.IMGUI
 
         public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
-            float handY   = Screen.height - PanelHeight - StatusBarHeight - BottomOffset;
-            float statusY = Screen.height - StatusBarHeight - BottomOffset;
+            float handY   = UIScale.VH - PanelHeight - StatusBarHeight - BottomOffset;
+            float statusY = UIScale.VH - StatusBarHeight - BottomOffset;
 
             GUI.color = IMGUIStyles.PanelBg;
-            GUI.DrawTexture(new Rect(0, handY, Screen.width, PanelHeight), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0, handY, UIScale.VW, PanelHeight), Texture2D.whiteTexture);
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(
-                new Rect(-1, handY, Screen.width + 2, PanelHeight + 2),
+                new Rect(-1, handY, UIScale.VW + 2, PanelHeight + 2),
                 1f, IMGUIStyles.OutlineVariantColor);
 
             float itemsStartX = DrawActorBlocks(handY, gameManager, ui);
@@ -262,7 +262,7 @@ namespace SSNoir.IMGUI
 
         private static void DrawEndTurnButton(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
-            float restX = Screen.width - 130f;
+            float restX = UIScale.VW - 130f;
             float restY = handY + (PanelHeight - 70f) / 2f;
             var restRect = new Rect(restX, restY, 100f, 70f);
 
@@ -293,10 +293,10 @@ namespace SSNoir.IMGUI
             var snapshot = gameManager.DisplayedSnapshot;
 
             GUI.color = IMGUIStyles.BottomBarBg;
-            GUI.DrawTexture(new Rect(0, statusY, Screen.width, StatusBarHeight), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0, statusY, UIScale.VW, StatusBarHeight), Texture2D.whiteTexture);
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(
-                new Rect(-1, statusY, Screen.width + 2, StatusBarHeight + 2),
+                new Rect(-1, statusY, UIScale.VW + 2, StatusBarHeight + 2),
                 1f, IMGUIStyles.OutlineVariantColor);
 
             GUI.Label(new Rect(30, statusY + 5, 50, 22), "健康:", IMGUIStyles.StatusLabel);

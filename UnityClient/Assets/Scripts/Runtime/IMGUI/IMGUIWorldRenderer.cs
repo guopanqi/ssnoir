@@ -89,6 +89,9 @@ namespace SSNoir.IMGUI
                 && Event.current.type != EventType.MouseUp && Event.current.type != EventType.Layout)
                 return;
 
+            // Scale the entire GUI to the reference resolution (1920×1080).
+            UIScale.Apply();
+
             // Initialize styles if needed
             IMGUIStyles.Init(_gameManager.ChineseFont);
 
@@ -97,7 +100,7 @@ namespace SSNoir.IMGUI
             {
                 // Draw invisible blocker using GUI.Box (does NOT consume events)
                 GUI.color = Color.clear;
-                GUI.Box(new Rect(0, 0, Screen.width, Screen.height), GUIContent.none);
+                GUI.Box(new Rect(0, 0, UIScale.VW, UIScale.VH), GUIContent.none);
                 GUI.color = Color.white;
             }
 
@@ -184,7 +187,7 @@ namespace SSNoir.IMGUI
                     if (inCameraSight)
                     {
                         var screenPos = cam.WorldToScreenPoint(anchor.transform.position);
-                        initialProjected.Add((node, screenPos, screenPos.z));
+                        initialProjected.Add((node, screenPos, screenPos.z)); // screenPos is actual screen pixels
                     }
                     // Nodes with anchors panned out of view are not drawn (neither projected nor in fallback grid)
                 }
@@ -206,8 +209,10 @@ namespace SSNoir.IMGUI
             var layouts = new List<ProjectedCardLayout>();
             foreach (var item in initialProjected)
             {
-                float anchorX = item.screenPos.x;
-                float anchorY = Screen.height - item.screenPos.y;
+                // Convert from actual screen pixels (Y-up) to virtual GUI coords (Y-down).
+                var virtualAnchor = UIScale.WorldPointToVirtual(item.screenPos);
+                float anchorX = virtualAnchor.x;
+                float anchorY = virtualAnchor.y;
 
                 bool isLocation = item.node.IsContainer;
                 bool focused = isFocused(item.node.Name);
@@ -297,7 +302,7 @@ namespace SSNoir.IMGUI
             float spacing = 20f;
             float startX = 40f;
             float startY = 140f;
-            int cardsPerRow = Mathf.Max(1, (int)((Screen.width - startX * 2) / (cardWidth + spacing)));
+            int cardsPerRow = Mathf.Max(1, (int)((UIScale.VW - startX * 2) / (cardWidth + spacing)));
 
             for (int i = 0; i < nodes.Count; i++)
             {
@@ -460,9 +465,9 @@ namespace SSNoir.IMGUI
         private Rect ClampRect(Rect r, float cardWidth, float cardHeight)
         {
             float minX = 20f;
-            float maxX = Screen.width - cardWidth - 20f;
+            float maxX = UIScale.VW - cardWidth - 20f;
             float minY = 90f;
-            float maxY = Screen.height - 180f - cardHeight;
+            float maxY = UIScale.VH - 180f - cardHeight;
             return new Rect(Mathf.Clamp(r.x, minX, maxX), Mathf.Clamp(r.y, minY, maxY), cardWidth, cardHeight);
         }
 

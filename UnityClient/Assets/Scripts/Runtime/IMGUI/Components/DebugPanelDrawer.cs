@@ -24,7 +24,7 @@ namespace SSNoir.IMGUI
         {
             float btnW = 70f;
             float btnH = 32f;
-            float btnX = Screen.width - btnW - 10f;
+            float btnX = UIScale.VW - btnW - 10f;
             float btnY = 30f;
             var toggleRect = new Rect(btnX, btnY, btnW, btnH);
 

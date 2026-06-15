@@ -28,7 +28,7 @@ namespace SSNoir.IMGUI
 
             float boxW = 150;
             float boxH = 32;
-            float boxX = Screen.width - 200;
+            float boxX = UIScale.VW - 200;
             float boxY = 30;
             var boxRect = new Rect(boxX, boxY, boxW, boxH);
 

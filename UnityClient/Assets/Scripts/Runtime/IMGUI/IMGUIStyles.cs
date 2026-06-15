@@ -84,41 +84,54 @@ namespace SSNoir.IMGUI
 
         public static Material? PieMaterial;
 
-        private static bool _initialized;
+        private static bool  _initialized;
+        private static float _lastScale = -1f;
 
         public static void Init(Font? font)
         {
-            if (_initialized) return;
+            float s = UIScale.Scale;
+            if (_initialized && Mathf.Approximately(s, _lastScale)) return;
             _initialized = true;
+            _lastScale = s;
             ChineseFont = font;
 
-            // Initialize Pie drawing material
+            // PieMaterial is only created once (GL material, scale-independent).
             if (PieMaterial == null)
             {
                 PieMaterial = new Material(Shader.Find("Hidden/Internal-Colored"));
                 PieMaterial.hideFlags = HideFlags.HideAndDontSave;
             }
 
-            CardTitle = MakeStyle(20, TitleColor, TextAnchor.MiddleCenter, FontStyle.Bold);
-            CardSubtitle = MakeStyle(14, SubtitleColor, TextAnchor.MiddleCenter, FontStyle.Normal);
-            CardTypeTag = MakeStyle(14, SubtitleColor, TextAnchor.MiddleCenter, FontStyle.Normal);
-            SlotLabel = MakeStyle(14, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-            ExecuteLabel = MakeStyle(14, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-            StatusLabel = MakeStyle(14, Color.white, TextAnchor.MiddleLeft, FontStyle.Bold);
-            SectionLabel = MakeStyle(14, SubtitleColor, TextAnchor.MiddleLeft, FontStyle.Normal);
-            ToastLabel = MakeStyle(14, OnTertiaryColor, TextAnchor.MiddleCenter, FontStyle.Bold);
-            ModalTitle = MakeStyle(22, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-            ModalBody = MakeStyle(14, OnSurface, TextAnchor.MiddleLeft, FontStyle.Normal);
-            FlippedTitle = MakeStyle(18, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-            FlippedContent = MakeStyle(14, OnSurface, TextAnchor.UpperCenter, FontStyle.Normal);
-            FlippedTip = MakeStyle(12, SecondaryColor, TextAnchor.MiddleCenter, FontStyle.Italic);
-            ClockLabel = MakeStyle(12, OnSurface, TextAnchor.MiddleLeft, FontStyle.Bold);
-            ClockValue = MakeStyle(12, ClockActive, TextAnchor.MiddleRight, FontStyle.Bold);
-            DropdownItem = MakeStyle(14, OnSurfaceVariant, TextAnchor.MiddleLeft, FontStyle.Normal);
-            DropdownCurrent = MakeStyle(14, Color.white, TextAnchor.MiddleLeft, FontStyle.Normal);
-            CursorFollower = MakeStyle(12, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-            SceneLabel = MakeStyle(14, OnSurfaceVariant, TextAnchor.MiddleLeft, FontStyle.Normal);
-            HelpTip = MakeStyle(12, OnSurfaceVariant, TextAnchor.MiddleLeft, FontStyle.Normal);
+            // Font sizes are snapped so (fontSize × scale) lands on an integer
+            // physical pixel, minimising sub-pixel blur at non-1.0 scales.
+            CardTitle      = MakeStyle(SF(20,s), TitleColor,        TextAnchor.MiddleCenter, FontStyle.Bold);
+            CardSubtitle   = MakeStyle(SF(14,s), SubtitleColor,     TextAnchor.MiddleCenter, FontStyle.Normal);
+            CardTypeTag    = MakeStyle(SF(14,s), SubtitleColor,     TextAnchor.MiddleCenter, FontStyle.Normal);
+            SlotLabel      = MakeStyle(SF(14,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
+            ExecuteLabel   = MakeStyle(SF(14,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
+            StatusLabel    = MakeStyle(SF(14,s), Color.white,       TextAnchor.MiddleLeft,   FontStyle.Bold);
+            SectionLabel   = MakeStyle(SF(14,s), SubtitleColor,     TextAnchor.MiddleLeft,   FontStyle.Normal);
+            ToastLabel     = MakeStyle(SF(14,s), OnTertiaryColor,   TextAnchor.MiddleCenter, FontStyle.Bold);
+            ModalTitle     = MakeStyle(SF(22,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
+            ModalBody      = MakeStyle(SF(14,s), OnSurface,         TextAnchor.MiddleLeft,   FontStyle.Normal);
+            FlippedTitle   = MakeStyle(SF(18,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
+            FlippedContent = MakeStyle(SF(14,s), OnSurface,         TextAnchor.UpperCenter,  FontStyle.Normal);
+            FlippedTip     = MakeStyle(SF(12,s), SecondaryColor,    TextAnchor.MiddleCenter, FontStyle.Italic);
+            ClockLabel     = MakeStyle(SF(12,s), OnSurface,         TextAnchor.MiddleLeft,   FontStyle.Bold);
+            ClockValue     = MakeStyle(SF(12,s), ClockActive,       TextAnchor.MiddleRight,  FontStyle.Bold);
+            DropdownItem   = MakeStyle(SF(14,s), OnSurfaceVariant,  TextAnchor.MiddleLeft,   FontStyle.Normal);
+            DropdownCurrent= MakeStyle(SF(14,s), Color.white,       TextAnchor.MiddleLeft,   FontStyle.Normal);
+            CursorFollower = MakeStyle(SF(12,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
+            SceneLabel     = MakeStyle(SF(14,s), OnSurfaceVariant,  TextAnchor.MiddleLeft,   FontStyle.Normal);
+            HelpTip        = MakeStyle(SF(12,s), OnSurfaceVariant,  TextAnchor.MiddleLeft,   FontStyle.Normal);
+        }
+
+        // Snap a virtual fontSize so that (result × scale) is the nearest integer
+        // physical pixel count, reducing sub-pixel blur at fractional scales.
+        private static int SF(int baseSize, float scale)
+        {
+            int physPx = Mathf.RoundToInt(baseSize * scale);
+            return Mathf.Max(8, Mathf.RoundToInt(physPx / scale));
         }
 
         private static GUIStyle MakeStyle(int fontSize, Color textColor, TextAnchor alignment, FontStyle fontStyle)
@@ -151,7 +164,7 @@ namespace SSNoir.IMGUI
             style.border = new RectOffset(borderWidth, borderWidth, borderWidth, borderWidth);
             style.alignment = TextAnchor.MiddleCenter;
             style.font = ChineseFont;
-            style.fontSize = 12;
+            style.fontSize = SF(12, UIScale.Scale);
             style.normal.textColor = Color.white;
             style.hover.textColor = Color.white;
             style.active.textColor = new Color(0.9f, 0.9f, 0.9f);

@@ -23,8 +23,8 @@ namespace SSNoir.IMGUI
             // Layout coordinates identical to original
             float panelW = 640f;
             float panelH = 420f;
-            float panelX = (Screen.width - panelW) / 2f;
-            float panelY = (Screen.height - panelH) / 2f;
+            float panelX = (UIScale.VW - panelW) / 2f;
+            float panelY = (UIScale.VH - panelH) / 2f;
             var panelRect = new Rect(panelX, panelY, panelW, panelH);
 
             // 1. Dark tech blueprint background (85% opacity SurfaceColor)

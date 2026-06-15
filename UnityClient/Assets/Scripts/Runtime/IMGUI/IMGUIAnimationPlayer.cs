@@ -119,14 +119,14 @@ namespace SSNoir.IMGUI
 
             // Blocker
             GUI.color = IMGUIStyles.Blocker;
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
             GUI.color = Color.white;
 
             // Modal panel
             float modalW = 380;
             float modalH = 260;
-            float modalX = (Screen.width - modalW) / 2f;
-            float modalY = (Screen.height - modalH) / 2f;
+            float modalX = (UIScale.VW - modalW) / 2f;
+            float modalY = (UIScale.VH - modalH) / 2f;
             var modalRect = new Rect(modalX, modalY, modalW, modalH);
 
             GUI.color = IMGUIStyles.ModalBg;
@@ -152,10 +152,13 @@ namespace SSNoir.IMGUI
             dieStyle.alignment = TextAnchor.MiddleCenter;
             dieStyle.normal.textColor = IMGUIStyles.ClockActive;
             var dieRect = new Rect(contentX, contentY, contentW, 60);
-            GUI.matrix = Matrix4x4.TRS(dieRect.center, Quaternion.identity, Vector3.one * DisplayScale)
-                       * Matrix4x4.TRS(-dieRect.center, Quaternion.identity, Vector3.one);
+            // Save the UIScale matrix and compose the die bounce on top of it (not replace it).
+            var savedMatrix = GUI.matrix;
+            var dieAnimMatrix = Matrix4x4.TRS(dieRect.center, Quaternion.identity, Vector3.one * DisplayScale)
+                              * Matrix4x4.TRS(-dieRect.center, Quaternion.identity, Vector3.one);
+            GUI.matrix = savedMatrix * dieAnimMatrix;
             GUI.Label(dieRect, $"D{DisplayedDieValue}", dieStyle);
-            GUI.matrix = Matrix4x4.identity;
+            GUI.matrix = savedMatrix; // restore UIScale matrix, not identity
             GUI.color = Color.white;
             contentY += 65;
 

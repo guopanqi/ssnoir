@@ -47,7 +47,7 @@ namespace SSNoir.IMGUI
             DrawReputationPanel(gameManager);
 
             // Divider
-            IMGUIStyles.DrawLine(new Vector2(40, 88), new Vector2(Screen.width - 40, 88), IMGUIStyles.OutlineVariantColor, 1f);
+            IMGUIStyles.DrawLine(new Vector2(40, 88), new Vector2(UIScale.VW - 40, 88), IMGUIStyles.OutlineVariantColor, 1f);
         }
 
         private static void DrawReputationPanel(SSNoirGameManager gameManager)
@@ -59,7 +59,7 @@ namespace SSNoir.IMGUI
 
             float panelW = 240f;
             float panelH = 32f;
-            float panelX = Screen.width - 460f; // Left of the dropdown (which is at Screen.width - 200)
+            float panelX = UIScale.VW - 460f; // Left of the dropdown (which is at VW - 200)
             float panelY = 30f;
 
             var panelRect = new Rect(panelX, panelY, panelW, panelH);
