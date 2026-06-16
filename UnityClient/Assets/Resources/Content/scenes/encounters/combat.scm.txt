@@ -105,14 +105,13 @@
 
 ;; ── Render Data Entrypoint ────────────────────
 (define (get-render-data)
-  (list
-    (container-with-clocks "仓库"
-      (append
-        (map (lambda (e) (e 'render-data)) (live-enemies))
-        (list
-          (action "冲向出口"
-                  (list (req-die))
-                  (instant (lambda ()
-                             (exit-clock 'tick!))))))
-      (list (exit-clock 'render-data)
-            (spawn-clock 'render-data)))))
+  (container-with-clocks "仓库"
+    (append
+      (map (lambda (e) (e 'render-data)) (live-enemies))
+      (list
+        (action "冲向出口"
+                (list (req-die))
+                (instant (lambda ()
+                           (exit-clock 'tick!))))))
+    (list (exit-clock 'render-data)
+          (spawn-clock 'render-data))))

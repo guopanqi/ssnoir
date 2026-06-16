@@ -43,9 +43,8 @@
 
 ;; 世界渲染：世界本身也是场景树根节点。
 (define (get-render-data)
-  (list
-    (container "世界"
-      (apply append (map (lambda (loc) (loc 'render-data)) (current-locations))))))
+  (container "世界"
+    (apply append (map (lambda (loc) (loc 'render-data)) (current-locations)))))
 
 ;; 存档：返回带 key 的 assoc-list，方便将来扩展
 (define (world-save)

@@ -93,12 +93,11 @@
 
 ;; ── Render ─────────────────────────────────────
 (define (get-render-data)
-  (list
-    (container-with-clocks "追击途中"
-      (list
-        (node-sprint)
-        (node-vault)
-        (node-shortcut))
-      (list
-        (chase  'render-data)
-        (escape 'render-data)))))
+  (container-with-clocks "追击途中"
+    (list
+      (node-sprint)
+      (node-vault)
+      (node-shortcut))
+    (list
+      (chase  'render-data)
+      (escape 'render-data))))
