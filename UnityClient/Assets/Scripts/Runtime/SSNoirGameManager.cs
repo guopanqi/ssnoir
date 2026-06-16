@@ -76,8 +76,7 @@ namespace SSNoir
         {
             get
             {
-                var currentNode = GetCurrentNavigationNode();
-                return currentNode?.Name;
+                return ResolveCurrentStageContextId();
             }
         }
 
@@ -282,6 +281,18 @@ namespace SSNoir
             foreach (var node in _navigationStack)
                 path.Add(node.Name);
             return path;
+        }
+
+        private string? ResolveCurrentStageContextId()
+        {
+            foreach (var nodeName in GetCurrentNavigationPathNames().AsEnumerable().Reverse())
+            {
+                var anchor = _sceneDirectory?.GetAnchor(nodeName);
+                if (anchor != null && anchor.GetComponent<StagePortalConfig>() != null)
+                    return nodeName;
+            }
+
+            return null;
         }
 
         private GameNode? GetCurrentNavigationNode()

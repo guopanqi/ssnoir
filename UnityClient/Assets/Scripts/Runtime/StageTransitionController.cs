@@ -18,6 +18,7 @@ namespace SSNoir
         [SerializeField] private AnimationCurve approachCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         [SerializeField] private AnimationCurve pushCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         [SerializeField] private AnimationCurve pullCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+        [SerializeField] private AnimationCurve portalTravelCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         private SSNoirGameManager _gameManager = null!;
         private Cinemachine.CinemachineBrain? _brain;
@@ -103,12 +104,19 @@ namespace SSNoir
             if (targetCamera != null)
                 targetCamera.Priority = 20;
 
-            yield return MoveTransitionCameraTo(introCam.transform.position, introCam.transform.rotation, approachDuration, approachCurve);
-            yield return MoveTransitionCameraTo(
-                introCam.transform.position + introCam.transform.forward * portal.pushDistance,
-                introCam.transform.rotation,
-                pushDuration,
-                pushCurve);
+            yield return MoveTransitionCameraAlongPath(
+                new[]
+                {
+                    introCam.transform.position,
+                    introCam.transform.position + introCam.transform.forward * portal.pushDistance,
+                },
+                new[]
+                {
+                    introCam.transform.rotation,
+                    introCam.transform.rotation,
+                },
+                approachDuration + pushDuration,
+                portalTravelCurve);
 
             yield return FadeTo(1f, flashDuration);
             transitionVCam.transform.SetPositionAndRotation(
@@ -117,12 +125,26 @@ namespace SSNoir
             yield return null;
 
             yield return FadeTo(0f, flashDuration);
-            yield return MoveTransitionCameraTo(outCam.transform.position, outCam.transform.rotation, pullDuration, pullCurve);
-
             if (targetCamera != null)
             {
                 targetCamera.Priority = 20;
-                yield return MoveTransitionCameraTo(targetCamera.transform.position, targetCamera.transform.rotation, approachDuration, approachCurve);
+                yield return MoveTransitionCameraAlongPath(
+                    new[]
+                    {
+                        outCam.transform.position,
+                        targetCamera.transform.position,
+                    },
+                    new[]
+                    {
+                        outCam.transform.rotation,
+                        targetCamera.transform.rotation,
+                    },
+                    pullDuration + approachDuration,
+                    portalTravelCurve);
+            }
+            else
+            {
+                yield return MoveTransitionCameraTo(outCam.transform.position, outCam.transform.rotation, pullDuration, pullCurve);
             }
 
             yield return ReleaseTransitionCameraWithCut();
@@ -147,12 +169,19 @@ namespace SSNoir
             if (targetCamera != null)
                 targetCamera.Priority = 20;
 
-            yield return MoveTransitionCameraTo(outCam.transform.position, outCam.transform.rotation, approachDuration, approachCurve);
-            yield return MoveTransitionCameraTo(
-                outCam.transform.position + outCam.transform.forward * portal.pullDistance,
-                outCam.transform.rotation,
-                pushDuration,
-                pushCurve);
+            yield return MoveTransitionCameraAlongPath(
+                new[]
+                {
+                    outCam.transform.position,
+                    outCam.transform.position + outCam.transform.forward * portal.pullDistance,
+                },
+                new[]
+                {
+                    outCam.transform.rotation,
+                    outCam.transform.rotation,
+                },
+                approachDuration + pushDuration,
+                portalTravelCurve);
 
             yield return FadeTo(1f, flashDuration);
             transitionVCam.transform.SetPositionAndRotation(
@@ -161,12 +190,26 @@ namespace SSNoir
             yield return null;
 
             yield return FadeTo(0f, flashDuration);
-            yield return MoveTransitionCameraTo(introCam.transform.position, introCam.transform.rotation, pullDuration, pullCurve);
-
             if (targetCamera != null)
             {
                 targetCamera.Priority = 20;
-                yield return MoveTransitionCameraTo(targetCamera.transform.position, targetCamera.transform.rotation, approachDuration, approachCurve);
+                yield return MoveTransitionCameraAlongPath(
+                    new[]
+                    {
+                        introCam.transform.position,
+                        targetCamera.transform.position,
+                    },
+                    new[]
+                    {
+                        introCam.transform.rotation,
+                        targetCamera.transform.rotation,
+                    },
+                    pullDuration + approachDuration,
+                    portalTravelCurve);
+            }
+            else
+            {
+                yield return MoveTransitionCameraTo(introCam.transform.position, introCam.transform.rotation, pullDuration, pullCurve);
             }
 
             yield return ReleaseTransitionCameraWithCut();
@@ -209,6 +252,86 @@ namespace SSNoir
             }
 
             transitionVCam.transform.SetPositionAndRotation(targetPosition, targetRotation);
+        }
+
+        private IEnumerator MoveTransitionCameraAlongPath(Vector3[] points, Quaternion[] rotations, float duration, AnimationCurve curve)
+        {
+            Debug.Assert(transitionVCam != null, "[StageTransition] transitionVCam not assigned.");
+            Debug.Assert(points.Length == rotations.Length, "[StageTransition] Path points/rotations length mismatch.");
+            Debug.Assert(points.Length >= 1, "[StageTransition] Path must contain at least one waypoint.");
+            if (transitionVCam == null || points.Length == 0 || points.Length != rotations.Length)
+                yield break;
+
+            if (points.Length == 1)
+            {
+                yield return MoveTransitionCameraTo(points[0], rotations[0], duration, curve);
+                yield break;
+            }
+
+            var pathPoints = new Vector3[points.Length + 1];
+            var pathRotations = new Quaternion[rotations.Length + 1];
+            pathPoints[0] = transitionVCam.transform.position;
+            pathRotations[0] = transitionVCam.transform.rotation;
+            for (int i = 0; i < points.Length; i++)
+            {
+                pathPoints[i + 1] = points[i];
+                pathRotations[i + 1] = rotations[i];
+            }
+
+            float[] segmentLengths = new float[pathPoints.Length - 1];
+            float totalLength = 0f;
+            for (int i = 0; i < segmentLengths.Length; i++)
+            {
+                float segmentLength = Vector3.Distance(pathPoints[i], pathPoints[i + 1]);
+                segmentLengths[i] = segmentLength;
+                totalLength += segmentLength;
+            }
+
+            if (duration <= 0f || totalLength <= 0.0001f)
+            {
+                transitionVCam.transform.SetPositionAndRotation(pathPoints[pathPoints.Length - 1], pathRotations[pathRotations.Length - 1]);
+                yield break;
+            }
+
+            for (float t = 0f; t < duration; t += Time.deltaTime)
+            {
+                float curveT = curve.Evaluate(Mathf.Clamp01(t / duration));
+                float targetDistance = curveT * totalLength;
+                EvaluatePath(pathPoints, pathRotations, segmentLengths, targetDistance, out var position, out var rotation);
+                transitionVCam.transform.SetPositionAndRotation(position, rotation);
+                yield return null;
+            }
+
+            transitionVCam.transform.SetPositionAndRotation(pathPoints[pathPoints.Length - 1], pathRotations[pathRotations.Length - 1]);
+        }
+
+        private static void EvaluatePath(
+            Vector3[] points,
+            Quaternion[] rotations,
+            float[] segmentLengths,
+            float targetDistance,
+            out Vector3 position,
+            out Quaternion rotation)
+        {
+            float traversed = 0f;
+            for (int i = 0; i < segmentLengths.Length; i++)
+            {
+                float segmentLength = segmentLengths[i];
+                if (targetDistance <= traversed + segmentLength || i == segmentLengths.Length - 1)
+                {
+                    float localT = segmentLength <= 0.0001f
+                        ? 1f
+                        : Mathf.Clamp01((targetDistance - traversed) / segmentLength);
+                    position = Vector3.LerpUnclamped(points[i], points[i + 1], localT);
+                    rotation = Quaternion.SlerpUnclamped(rotations[i], rotations[i + 1], localT);
+                    return;
+                }
+
+                traversed += segmentLength;
+            }
+
+            position = points[points.Length - 1];
+            rotation = rotations[rotations.Length - 1];
         }
 
         private IEnumerator CutToVirtualCamera(Cinemachine.CinemachineVirtualCamera camera, int priority)
