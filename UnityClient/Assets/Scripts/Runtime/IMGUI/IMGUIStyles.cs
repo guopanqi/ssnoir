@@ -104,13 +104,13 @@ namespace SSNoir.IMGUI
 
             // Font sizes are snapped so (fontSize × scale) lands on an integer
             // physical pixel, minimising sub-pixel blur at non-1.0 scales.
-            CardTitle      = MakeStyle(SF(20,s), TitleColor,        TextAnchor.MiddleCenter, FontStyle.Bold);
-            CardSubtitle   = MakeStyle(SF(14,s), SubtitleColor,     TextAnchor.MiddleCenter, FontStyle.Normal);
-            CardTypeTag    = MakeStyle(SF(14,s), SubtitleColor,     TextAnchor.MiddleCenter, FontStyle.Normal);
-            SlotLabel      = MakeStyle(SF(14,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
-            ExecuteLabel   = MakeStyle(SF(14,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
+            CardTitle      = MakeStyle(SF(23,s), TitleColor,        TextAnchor.MiddleCenter, FontStyle.Bold);
+            CardSubtitle   = MakeStyle(SF(16,s), SubtitleColor,     TextAnchor.MiddleCenter, FontStyle.Normal);
+            CardTypeTag    = MakeStyle(SF(15,s), SubtitleColor,     TextAnchor.MiddleCenter, FontStyle.Normal);
+            SlotLabel      = MakeStyle(SF(16,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
+            ExecuteLabel   = MakeStyle(SF(16,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
             StatusLabel    = MakeStyle(SF(14,s), Color.white,       TextAnchor.MiddleLeft,   FontStyle.Bold);
-            SectionLabel   = MakeStyle(SF(14,s), SubtitleColor,     TextAnchor.MiddleLeft,   FontStyle.Normal);
+            SectionLabel   = MakeStyle(SF(16,s), SubtitleColor,     TextAnchor.MiddleLeft,   FontStyle.Normal);
             ToastLabel     = MakeStyle(SF(14,s), OnTertiaryColor,   TextAnchor.MiddleCenter, FontStyle.Bold);
             ModalTitle     = MakeStyle(SF(22,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
             ModalBody      = MakeStyle(SF(14,s), OnSurface,         TextAnchor.MiddleLeft,   FontStyle.Normal);
@@ -123,7 +123,7 @@ namespace SSNoir.IMGUI
             DropdownCurrent= MakeStyle(SF(14,s), Color.white,       TextAnchor.MiddleLeft,   FontStyle.Normal);
             CursorFollower = MakeStyle(SF(12,s), Color.white,       TextAnchor.MiddleCenter, FontStyle.Bold);
             SceneLabel     = MakeStyle(SF(14,s), OnSurfaceVariant,  TextAnchor.MiddleLeft,   FontStyle.Normal);
-            HelpTip        = MakeStyle(SF(12,s), OnSurfaceVariant,  TextAnchor.MiddleLeft,   FontStyle.Normal);
+            HelpTip        = MakeStyle(SF(14,s), OnSurfaceVariant,  TextAnchor.MiddleLeft,   FontStyle.Normal);
         }
 
         // Snap a virtual fontSize so that (result × scale) is the nearest integer
@@ -281,4 +281,3 @@ namespace SSNoir.IMGUI
         }
     }
 }
-

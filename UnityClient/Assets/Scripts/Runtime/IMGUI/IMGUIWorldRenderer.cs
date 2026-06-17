@@ -227,8 +227,8 @@ namespace SSNoir.IMGUI
                 bool isLocation = item.node.IsContainer;
                 bool focused = isFocused(item.node.Name);
 
-                float cardWidth = focused ? 420f : (isLocation ? 140f : 280f);
-                float cardHeight = focused ? 320f : (isLocation ? 32f : 130f);
+                float cardWidth = focused ? 460f : (isLocation ? 160f : 340f);
+                float cardHeight = focused ? 340f : (isLocation ? 38f : 170f);
 
                 // Default target center position (centered horizontally above 3D anchor point)
                 Vector2 targetCenter = new Vector2(anchorX, anchorY - cardHeight / 2f - 40f);
@@ -307,8 +307,8 @@ namespace SSNoir.IMGUI
 
         private void DrawCardsGrid(List<GameNode> nodes, IMGUIInteractionContext ui)
         {
-            float cardWidth = 280f;
-            float cardHeight = 130f;
+            float cardWidth = 340f;
+            float cardHeight = 170f;
             float spacing = 20f;
             float startX = 40f;
             float startY = 140f;

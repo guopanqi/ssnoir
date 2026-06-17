@@ -93,27 +93,27 @@ namespace SSNoir.IMGUI
             var nameStyle = new GUIStyle(GUI.skin.label)
             {
                 font      = IMGUIStyles.ChineseFont,
-                fontSize  = 13,
+                fontSize  = 16,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleLeft,
                 normal    = { textColor = IMGUIStyles.OnSurface },
             };
-            GUI.Label(new Rect(cx, handY + 11, cw, 18), actor.Name, nameStyle);
+            GUI.Label(new Rect(cx, handY + 9, cw, 22), actor.Name, nameStyle);
 
             // ── Role tag
             if (!string.IsNullOrEmpty(actor.Role))
             {
                 var roleStyle = new GUIStyle(nameStyle)
                 {
-                    fontSize  = 10,
+                    fontSize  = 13,
                     fontStyle = FontStyle.Normal,
                     normal    = { textColor = IMGUIStyles.OnSurfaceVariant },
                 };
-                GUI.Label(new Rect(cx, handY + 29, cw, 14), actor.Role, roleStyle);
+                GUI.Label(new Rect(cx, handY + 31, cw, 18), actor.Role, roleStyle);
             }
 
             // ── Stress dots
-            float dotsY = handY + 47;
+            float dotsY = handY + 52;
             for (int i = 0; i < MaxStress; i++)
             {
                 GUI.color = i < actor.Stress
@@ -128,15 +128,15 @@ namespace SSNoir.IMGUI
                 var stressLabelStyle = new GUIStyle(GUI.skin.label)
                 {
                     font    = IMGUIStyles.ChineseFont,
-                    fontSize = 9,
+                    fontSize = 12,
                     normal  = { textColor = new Color(1.0f, 0.50f, 0.38f, 0.75f) },
                 };
-                GUI.Label(new Rect(cx + MaxStress * DotGap + 2, dotsY - 1, 40, 14),
+                GUI.Label(new Rect(cx + MaxStress * DotGap + 4, dotsY - 4, 56, 18),
                     $"压力{actor.Stress}", stressLabelStyle);
             }
 
             // ── Action dice
-            float diceY = handY + 60;
+            float diceY = handY + 70;
             for (int d = 0; d < actor.ActionDice.Count; d++)
             {
                 int   globalIdx = flatDieOffset + d;
@@ -156,7 +156,7 @@ namespace SSNoir.IMGUI
                     GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
                     IMGUIStyles.DrawOutline(dieRect, 1f, IMGUIStyles.OutlineVariantColor);
-                    var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 18 };
+                    var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 22 };
                     dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
                     GUI.Label(dieRect, val.ToString(), dimStyle);
                 }
@@ -170,7 +170,7 @@ namespace SSNoir.IMGUI
                     GUI.color = Color.white;
                     IMGUIStyles.DrawOutline(dieRect, (isSelected || hover) ? 2f : 1f, border);
 
-                    var dieStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 20 };
+                    var dieStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 24 };
                     dieStyle.normal.textColor = Color.white;
                     GUI.Label(dieRect, val.ToString(), dieStyle);
 
@@ -204,7 +204,7 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.OutlineVariantColor, 1f);
 
             var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel);
-            GUI.Label(new Rect(startX + 4, handY + 11, 50, 18), "物品", sectionStyle);
+            GUI.Label(new Rect(startX + 4, handY + 9, 64, 22), "物品", sectionStyle);
 
             const float ItemSize    = 60f;
             const float ItemSpacing = 68f;
@@ -228,7 +228,7 @@ namespace SSNoir.IMGUI
                     GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
                     IMGUIStyles.DrawOutline(itemRect, 1f, IMGUIStyles.OutlineVariantColor);
-                    var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 13 };
+                    var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 15 };
                     dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
                     GUI.Label(itemRect, FormatItem(item.Name, 0), dimStyle);
                 }
@@ -242,7 +242,7 @@ namespace SSNoir.IMGUI
                     GUI.color = Color.white;
                     IMGUIStyles.DrawOutline(itemRect, (isSelected || hover) ? 2f : 1f, border);
 
-                    var itemStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 13 };
+                    var itemStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 15 };
                     itemStyle.normal.textColor = Color.white;
                     GUI.Label(itemRect, FormatItem(item.Name, remaining), itemStyle);
 
@@ -269,7 +269,7 @@ namespace SSNoir.IMGUI
             bool isInEncounter = !gameManager.SceneManager.CurrentSceneName.Equals("world", System.StringComparison.OrdinalIgnoreCase);
             string btnText = isInEncounter ? "休息" : "回家";
 
-            var style = new GUIStyle(IMGUIStyles.ExecuteLabel) { fontSize = 16 };
+            var style = new GUIStyle(IMGUIStyles.ExecuteLabel) { fontSize = 18 };
             if (IMGUIButton.Draw(restRect, btnText, ui,
                     IMGUIStyles.TertiaryColor,
                     new Color(1.0f, 0.714f, 0.576f, 0.10f),
@@ -299,10 +299,13 @@ namespace SSNoir.IMGUI
                 new Rect(-1, statusY, UIScale.VW + 2, StatusBarHeight + 2),
                 1f, IMGUIStyles.OutlineVariantColor);
 
-            GUI.Label(new Rect(30, statusY + 5, 50, 22), "健康:", IMGUIStyles.StatusLabel);
+            var statusStyle = new GUIStyle(IMGUIStyles.StatusLabel) { fontSize = 16 };
+            var helpStyle = new GUIStyle(IMGUIStyles.HelpTip) { fontSize = 14 };
+
+            GUI.Label(new Rect(30, statusY + 3, 58, 22), "健康:", statusStyle);
 
             float healthPct = snapshot.MaxHealth > 0 ? (float)snapshot.Health / snapshot.MaxHealth : 0f;
-            var healthStyle = new GUIStyle(IMGUIStyles.StatusLabel)
+            var healthStyle = new GUIStyle(statusStyle)
             {
                 normal = { textColor = healthPct >= 0.75f
                     ? new Color(0.31f, 0.86f, 0.47f, 1f)
@@ -310,12 +313,12 @@ namespace SSNoir.IMGUI
                         ? new Color(0.96f, 0.69f, 0.22f, 1f)
                         : new Color(0.96f, 0.31f, 0.31f, 1f) }
             };
-            GUI.Label(new Rect(75, statusY + 5, 80, 22), $"{snapshot.Health}/{snapshot.MaxHealth}", healthStyle);
+            GUI.Label(new Rect(84, statusY + 3, 80, 22), $"{snapshot.Health}/{snapshot.MaxHealth}", healthStyle);
 
-            GUI.Label(new Rect(145, statusY + 5, 50, 22), "物资:", IMGUIStyles.StatusLabel);
+            GUI.Label(new Rect(158, statusY + 3, 58, 22), "物资:", statusStyle);
 
             float suppliesPct = snapshot.MaxSupplies > 0 ? (float)snapshot.Supplies / snapshot.MaxSupplies : 0f;
-            var suppliesStyle = new GUIStyle(IMGUIStyles.StatusLabel)
+            var suppliesStyle = new GUIStyle(statusStyle)
             {
                 normal = { textColor = suppliesPct >= 0.65f
                     ? new Color(0.31f, 0.86f, 0.47f, 1f)
@@ -323,15 +326,15 @@ namespace SSNoir.IMGUI
                         ? new Color(0.96f, 0.69f, 0.22f, 1f)
                         : new Color(0.96f, 0.31f, 0.31f, 1f) }
             };
-            GUI.Label(new Rect(190, statusY + 5, 80, 22), $"{snapshot.Supplies}/{snapshot.MaxSupplies}", suppliesStyle);
+            GUI.Label(new Rect(212, statusY + 3, 80, 22), $"{snapshot.Supplies}/{snapshot.MaxSupplies}", suppliesStyle);
 
-            GUI.Label(new Rect(265, statusY + 5, 50, 22), "场景:", IMGUIStyles.StatusLabel);
-            var locStyle = new GUIStyle(IMGUIStyles.StatusLabel)
+            GUI.Label(new Rect(292, statusY + 3, 58, 22), "场景:", statusStyle);
+            var locStyle = new GUIStyle(statusStyle)
                 { normal = { textColor = IMGUIStyles.MoneyColor } };
-            GUI.Label(new Rect(310, statusY + 5, 120, 22), snapshot.Location.ToUpper(), locStyle);
+            GUI.Label(new Rect(346, statusY + 3, 130, 22), snapshot.Location.ToUpper(), locStyle);
 
-            GUI.Label(new Rect(440, statusY + 5, 500, 22),
-                "提示: 点击手牌选择，点击卡槽放入，右键取消选择。", IMGUIStyles.HelpTip);
+            GUI.Label(new Rect(486, statusY + 3, 620, 22),
+                "提示: 点击手牌选择，点击卡槽放入，右键取消选择。", helpStyle);
         }
     }
 }

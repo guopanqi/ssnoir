@@ -104,22 +104,22 @@ namespace SSNoir.IMGUI
             bool showButton = hasRequires || (node.Resolve != null && node.Resolve.Type == ResolveType.Instant);
 
             // Title
-            float titleY = showButton ? rect.y + 12 : rect.y + rect.height / 2f - 20;
-            GUI.Label(new Rect(rect.x, titleY, rect.width, 22), node.Name, IMGUIStyles.CardTitle);
+            float titleY = showButton ? rect.y + 16 : rect.y + rect.height / 2f - 24;
+            GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, 28), node.Name, IMGUIStyles.CardTitle);
 
             // Type label
-            float typeY = showButton ? rect.y + 34 : rect.y + rect.height / 2f + 4;
-            GUI.Label(new Rect(rect.x, typeY, rect.width, 18), $"— {typeLabel} —", IMGUIStyles.CardSubtitle);
+            float typeY = showButton ? rect.y + 48 : rect.y + rect.height / 2f + 6;
+            GUI.Label(new Rect(rect.x + 10f, typeY, rect.width - 20f, 22), $"— {typeLabel} —", IMGUIStyles.CardSubtitle);
 
             if (hasRequires)
             {
                 int M = node.Requires.Count;
-                float slotW = 36;
-                float slotH = 36;
-                float spacing = 8;
+                float slotW = 46;
+                float slotH = 46;
+                float spacing = 10;
                 float totalWidth = M * slotW + (M - 1) * spacing;
                 float slotStartX = rect.x + (rect.width - totalWidth) / 2f;
-                float slotY = rect.y + 56;
+                float slotY = rect.y + 78;
 
                 for (int j = 0; j < M; j++)
                 {
@@ -137,7 +137,7 @@ namespace SSNoir.IMGUI
                         string placeholder = node.Requires[j].Type == "die" ? "D" : node.Requires[j].ItemId.Substring(0, 1);
                         if (node.Requires[j].Type == "item" && node.Requires[j].Qty > 1)
                             placeholder += node.Requires[j].Qty;
-                        int fontSize = placeholder.Length > 2 ? 10 : (placeholder.Length > 1 ? 12 : 16);
+                        int fontSize = placeholder.Length > 2 ? 12 : (placeholder.Length > 1 ? 15 : 19);
                         var pStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                         pStyle.fontSize = fontSize;
                         pStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
@@ -153,7 +153,7 @@ namespace SSNoir.IMGUI
                         string valStr = res.Type == "die" ? res.Value.ToString() : res.ItemId.Substring(0, 1);
                         if (res.Type == "item" && res.Value > 1)
                             valStr += res.Value;
-                        int fontSize = valStr.Length > 2 ? 10 : (valStr.Length > 1 ? 12 : 16);
+                        int fontSize = valStr.Length > 2 ? 12 : (valStr.Length > 1 ? 15 : 19);
                         var vStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                         vStyle.fontSize = fontSize;
                         vStyle.normal.textColor = Color.white;
@@ -168,10 +168,10 @@ namespace SSNoir.IMGUI
                 }
 
                 // Execute button
-                float exeW = 90;
-                float exeH = 20;
+                float exeW = 112;
+                float exeH = 28;
                 float exeX = rect.x + (rect.width - exeW) / 2f;
-                float exeY = slotY + slotH + 8;
+                float exeY = slotY + slotH + 12;
                 var exeRect = new Rect(exeX, exeY, exeW, exeH);
 
                 bool allFilled = slotted != null && slotted.All(s => s != null);
@@ -194,10 +194,10 @@ namespace SSNoir.IMGUI
             else if (showButton)
             {
                 // For instant-action cards (no requirements, but show button)
-                float exeW = 90;
-                float exeH = 20;
+                float exeW = 112;
+                float exeH = 30;
                 float exeX = rect.x + (rect.width - exeW) / 2f;
-                float exeY = rect.y + 75;
+                float exeY = rect.y + 100;
                 var exeRect = new Rect(exeX, exeY, exeW, exeH);
 
                 if (isExecuting)

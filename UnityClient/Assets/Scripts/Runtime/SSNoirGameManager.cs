@@ -30,6 +30,8 @@ namespace SSNoir
 
     public class SSNoirGameManager : MonoBehaviour
     {
+        private const string WorldRootNodeName = "世界";
+
         [Header("Font")]
         [SerializeField] private Font? chineseFont;
 
@@ -213,21 +215,34 @@ namespace SSNoir
             if (ShouldDeferFocusToPendingPortal())
                 return;
 
-            if (_sceneDirectory != null)
+            var focusPath = GetCurrentFocusPathNames();
+            var focusCamera = ResolveCurrentFocusCamera(focusPath, out var usedWorldFallback);
+            if (usedWorldFallback)
             {
-                foreach (var a in _sceneDirectory.AllAnchors)
-                {
-                    if (a.FocusVirtualCamera != null)
-                    {
-                        a.FocusVirtualCamera.Priority = 5;
-                    }
-                }
+                Debug.LogWarning($"[SSNoir] No focus camera resolved for world node path '{string.Join(" > ", focusPath)}'. Falling back to '{WorldRootNodeName}' focus camera for testing.");
+            }
+            else if (focusCamera == null)
+            {
+                Debug.LogWarning($"[SSNoir] No focus camera resolved for current node path '{string.Join(" > ", focusPath)}'. Keeping the current camera priority state.");
             }
 
-            var focusCamera = ResolveCurrentFocusCamera();
-            Debug.Assert(focusCamera != null, $"[SSNoir] No focus camera resolved for current node path '{string.Join(" > ", GetCurrentFocusPathNames())}'. Configure a FocusVirtualCamera on the node or one of its ancestors.");
             if (focusCamera != null)
+            {
+                ResetFocusCameraPriorities();
                 focusCamera.Priority = 20;
+            }
+        }
+
+        private void ResetFocusCameraPriorities()
+        {
+            if (_sceneDirectory == null)
+                return;
+
+            foreach (var a in _sceneDirectory.AllAnchors)
+            {
+                if (a.FocusVirtualCamera != null)
+                    a.FocusVirtualCamera.Priority = 5;
+            }
         }
 
         private bool ShouldDeferFocusToPendingPortal()
@@ -248,11 +263,27 @@ namespace SSNoir
 
         private Cinemachine.CinemachineVirtualCamera? ResolveCurrentFocusCamera()
         {
-            foreach (var nodeName in GetCurrentFocusPathNames().AsEnumerable().Reverse())
+            return ResolveCurrentFocusCamera(GetCurrentFocusPathNames(), out _);
+        }
+
+        private Cinemachine.CinemachineVirtualCamera? ResolveCurrentFocusCamera(List<string> focusPath, out bool usedWorldFallback)
+        {
+            usedWorldFallback = false;
+            foreach (var nodeName in focusPath.AsEnumerable().Reverse())
             {
                 var anchor = _sceneDirectory?.GetAnchor(nodeName);
                 if (anchor != null && anchor.FocusVirtualCamera != null)
                     return anchor.FocusVirtualCamera;
+            }
+
+            if (string.Equals(_sceneManager.CurrentSceneName, "world", StringComparison.OrdinalIgnoreCase))
+            {
+                var worldAnchor = _sceneDirectory?.GetAnchor(WorldRootNodeName);
+                if (worldAnchor != null && worldAnchor.FocusVirtualCamera != null)
+                {
+                    usedWorldFallback = true;
+                    return worldAnchor.FocusVirtualCamera;
+                }
             }
 
             return null;
