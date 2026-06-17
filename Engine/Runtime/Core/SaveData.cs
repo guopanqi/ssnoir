@@ -6,6 +6,7 @@ namespace SSNoir.Core
     public class SaveData
     {
         public int Version { get; set; } = 1;
+        public string SaveTime { get; set; } = "";
         public Dictionary<string, object> Globals { get; set; } = new();
         public TeamSaveData Team { get; set; } = new();
         public Dictionary<string, int> Inventory { get; set; } = new();

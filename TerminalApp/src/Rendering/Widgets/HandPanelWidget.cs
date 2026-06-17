@@ -147,9 +147,9 @@ namespace SSNoir.Rendering
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];
-                float itemX = itemsStartX + 70 + i * 62;
+                float itemX = itemsStartX + 70 + i * 78;
                 float itemY = handY + 18;
-                var itemRect = new Rectangle(itemX, itemY, 58, 32);
+                var itemRect = new Rectangle(itemX, itemY, 72, 32);
 
                 int remaining = state.GetRemainingItemQty(item.Name);
                 bool hover = (remaining > 0) && ui.CanHover(itemRect);
@@ -161,7 +161,7 @@ namespace SSNoir.Rendering
 
                     string label = item.Name == "金钱" ? "$0" : $"{item.Name} x0";
                     int lblW = FontManager.MeasureTextWidth(label, 11);
-                    FontManager.DrawText(label, itemX + (58 - lblW) / 2f, itemY + 9, 11, new Color(80, 80, 90, 120));
+                    FontManager.DrawText(label, itemX + (72 - lblW) / 2f, itemY + 9, 11, new Color(80, 80, 90, 120));
                 }
                 else
                 {
@@ -173,14 +173,15 @@ namespace SSNoir.Rendering
 
                     string label = item.Name == "金钱" ? $"${remaining}" : $"{item.Name} x{remaining}";
                     int lblW = FontManager.MeasureTextWidth(label, 11);
-                    FontManager.DrawText(label, itemX + (58 - lblW) / 2f, itemY + 9, 11, Color.White);
+                    FontManager.DrawText(label, itemX + (72 - lblW) / 2f, itemY + 9, 11, Color.White);
 
                     if (remaining > 0 && ui.WasClicked(itemRect))
                     {
                         interaction.SelectedResourceToSet = new SelectedResource
                         {
                             Type = "item",
-                            ItemName = item.Name
+                            ItemName = item.Name,
+                            Qty = 1
                         };
                     }
                 }

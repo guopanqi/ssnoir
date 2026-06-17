@@ -1,0 +1,54 @@
+;; scenes/world/酒吧.scm
+
+(define bar
+  (let ()
+    ;; ── Local State ───────────────────────────────────
+    (define bar-stage 1)
+    ;; stage: 1=险象环生  2=拿到线索（海伦）
+
+    ;; ── Node Helpers ──────────────────────────────────
+
+    (define (node-confrontation)
+      (encounter-action "探听消息"
+        (lambda ()
+          (start-encounter "酒吧交锋"
+            (lambda (result)
+              (if (equal? result 'success)
+                  (begin
+                    (set! bar-stage 2)
+                    (set-global! 'helen-apartment-open #t)
+                    (notify! "老混混低声说：'你找海伦？她在俱乐部，是个表演者。'"))
+                  (begin
+                    (stress-current-actor! 2)
+                    (notify! "你被轰了出去，什么也没问到。"))))))))
+
+    (define (node-bar-container)
+      (cond
+        ((= bar-stage 1)
+         (container "酒吧"
+           (list
+             (observe-action "酒吧内景" "昏黄的灯光，呛鼻的烟味，一张张粗粝的脸。外来人在这里不受欢迎。")
+             (node-confrontation))))
+        (#t
+         (container "酒吧"
+           (list
+             (observe-action "老混混" "他往嘴里灌了口酒，不再说话。"))))))
+
+    ;; ── Message Passing Interface ─────────────────────
+    (lambda args
+      (let ((msg (car args)))
+        (cond
+          ((equal? msg 'render-data)
+           (list (node-bar-container)))
+
+          ((equal? msg 'complete?)
+           (= bar-stage 2))
+
+          ((equal? msg 'save)
+           (list (list "bar-stage" bar-stage)))
+
+          ((equal? msg 'load!)
+           (let ((data (cadr args)))
+             (set! bar-stage (assoc-get data "bar-stage" 1))))
+
+          (#t #f))))))

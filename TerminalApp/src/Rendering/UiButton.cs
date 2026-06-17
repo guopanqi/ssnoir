@@ -27,12 +27,12 @@ namespace SSNoir.TerminalApp.Rendering
             Color? textCol = null,
             Color? disabledTextCol = null)
         {
-            bool isInteractable = enabled && !ui.IsLocked;
-            bool hover = ui.CanHover(rect) && isInteractable;
-            bool clicked = ui.WasClicked(rect) && isInteractable;
+            bool showDisabled = !enabled || ui.IsLocked;
+            bool hover = !showDisabled && ui.CanHover(rect);
+            bool clicked = !showDisabled && ui.WasClicked(rect);
 
             Color bg, border, text;
-            if (!isInteractable)
+            if (showDisabled)
             {
                 bg = disabledBg ?? new Color(30, 30, 35, 255);
                 border = disabledBorder ?? new Color(50, 50, 55, 255);

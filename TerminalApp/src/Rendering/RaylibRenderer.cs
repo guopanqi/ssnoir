@@ -13,6 +13,7 @@ namespace SSNoir.Rendering
         private readonly SceneManager _sceneManager;
         private readonly GameState _gameState;
         private readonly RendererState _state;
+        private readonly UiWindowStack _windowStack = new();
         private Action? _presentationDoneCallback;
 
         private const int WindowWidth = 800;
@@ -43,6 +44,8 @@ namespace SSNoir.Rendering
             _state.NavigationStack.Clear();
             _state.ClearAllNodeSlots();
             _state.SelectedResource = null;
+            _state.CardsScrollOffset = 0f;
+            _state.CardsScrollStack.Clear();
             _state.IsTurnPanelOpen = false;
             _state.IsGrowthPanelOpen = false;
             _state.IsDebugMenuOpen = false;
@@ -207,11 +210,12 @@ namespace SSNoir.Rendering
             StartPresentation(report, node.Name);
         }
 
-        private void SaveCurrentGame()
+        private void SaveCurrentGame(string? filePath = null)
         {
             try
             {
-                _sceneManager.SaveGame();
+                var path = filePath ?? SaveManager.DefaultSavePath;
+                _sceneManager.SaveGame(path);
                 _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
             }
             catch (Exception ex)
@@ -220,9 +224,10 @@ namespace SSNoir.Rendering
             }
         }
 
-        private void LoadSavedGame()
+        private void LoadSavedGame(string? filePath = null)
         {
-            if (!System.IO.File.Exists(SaveManager.DefaultSavePath))
+            var path = filePath ?? SaveManager.DefaultSavePath;
+            if (!System.IO.File.Exists(path))
             {
                 _gameState.NotificationCenter.Push("没有找到存档文件。", NotificationKind.Warning);
                 return;
@@ -230,7 +235,7 @@ namespace SSNoir.Rendering
 
             try
             {
-                _sceneManager.LoadGame();
+                _sceneManager.LoadGame(path);
                 _state.DisplayedSnapshot = _sceneManager.LatestSnapshot;
                 _state.SelectedResource = null;
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
@@ -247,12 +252,15 @@ namespace SSNoir.Rendering
             if (root == null)
             {
                 _state.NavigationStack.Clear();
+                _state.CardsScrollStack.Clear();
+                _state.CardsScrollOffset = 0f;
                 _state.VisibleNodes = new List<GameNode>();
                 return;
             }
 
             if (_state.NavigationStack.Count == 0)
             {
+                _state.CardsScrollStack.Clear();
                 _state.VisibleNodes = root.Children.ToList();
                 return;
             }
@@ -277,6 +285,8 @@ namespace SSNoir.Rendering
                 else
                 {
                     _state.NavigationStack.Clear();
+                    _state.CardsScrollStack.Clear();
+                    _state.CardsScrollOffset = 0f;
                     _state.VisibleNodes = root.Children.ToList();
                     return;
                 }
@@ -291,8 +301,22 @@ namespace SSNoir.Rendering
             {
                 _state.ClearAllNodeSlots();
                 _state.NavigationStack.RemoveAt(_state.NavigationStack.Count - 1);
+                _state.CardsScrollOffset = PopCardsScrollOffset();
                 ResolveNavigationStack();
             }
+        }
+
+        private float PopCardsScrollOffset()
+        {
+            if (_state.CardsScrollStack.Count == 0)
+            {
+                return 0f;
+            }
+
+            int lastIndex = _state.CardsScrollStack.Count - 1;
+            float offset = _state.CardsScrollStack[lastIndex];
+            _state.CardsScrollStack.RemoveAt(lastIndex);
+            return offset;
         }
 
         private void NavigateToHome()
@@ -313,6 +337,8 @@ namespace SSNoir.Rendering
 
             _state.ClearAllNodeSlots();
             _state.SelectedResource = null;
+            _state.CardsScrollOffset = 0f;
+            _state.CardsScrollStack.Clear();
             _state.NavigationStack.Clear();
             _state.NavigationStack.Add(homeNode);
             ResolveNavigationStack();
@@ -417,16 +443,48 @@ namespace SSNoir.Rendering
             UpdatePresentation(Raylib.GetFrameTime());
 
             bool inputBlocked = _state.ActiveRollResult != null || _state.IsPresentingAction;
-            var ui = new UiInteractionContext
+
+            _windowStack.BeginFrame(mousePos, Raylib.IsMouseButtonPressed(MouseButton.Left));
+
+            if (_state.IsDebugMenuOpen)
             {
-                Mouse = mousePos,
-                IsLocked = inputBlocked
-            };
-            var bgUi = new UiInteractionContext
+                var (_, debugPanelRect) = GetDebugMenuRects();
+                _windowStack.Register(new UiWindowBlocker
+                {
+                    Id = UiWindowId.DebugMenu,
+                    Bounds = debugPanelRect,
+                    Layer = UiLayer.Panel,
+                    BlockMode = UiBlockMode.Bounds,
+                    CloseOnClickedOutside = false,
+                });
+            }
+            if (_state.IsGrowthPanelOpen)
             {
-                Mouse = mousePos,
-                IsLocked = inputBlocked || _state.IsGrowthPanelOpen || _state.IsTurnPanelOpen
-            };
+                _windowStack.Register(new UiWindowBlocker
+                {
+                    Id = UiWindowId.GrowthPanel,
+                    Layer = UiLayer.Panel,
+                    BlockMode = UiBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
+            if (_state.IsTurnPanelOpen)
+            {
+                _windowStack.Register(new UiWindowBlocker
+                {
+                    Id = UiWindowId.TurnPanel,
+                    Layer = UiLayer.Panel,
+                    BlockMode = UiBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
+
+            _windowStack.Update();
+
+            var lockedCtx = new UiInteractionContext { Mouse = mousePos, IsLocked = true };
+            var worldUi = inputBlocked ? lockedCtx : _windowStack.MakeContext(UiLayer.World);
+            var panelUi = inputBlocked ? lockedCtx : _windowStack.MakeContext(UiLayer.Panel);
+            var ui = new UiInteractionContext { Mouse = mousePos, IsLocked = inputBlocked };
 
             // Handle Command+R to restart
             if (!inputBlocked && (Raylib.IsKeyDown(KeyboardKey.LeftSuper) || Raylib.IsKeyDown(KeyboardKey.RightSuper)) && Raylib.IsKeyPressed(KeyboardKey.R))
@@ -463,7 +521,7 @@ namespace SSNoir.Rendering
             Raylib.ClearBackground(new Color(20, 20, 25, 255));
 
             // 1. Draw Navigation / Breadcrumbs
-            var navInteraction = NavigationWidget.Draw(_state, bgUi, WindowWidth);
+            var navInteraction = NavigationWidget.Draw(_state, worldUi, WindowWidth);
             if (navInteraction.GoBackClicked)
             {
                 GoBack();
@@ -473,11 +531,11 @@ namespace SSNoir.Rendering
             float cardsStartY = ClockWidget.Draw(_state, 90f, WindowWidth);
 
             // 3. Draw Node Cards
-            DrawCards(bgUi, cardsStartY);
+            DrawCards(worldUi, cardsStartY);
 
             // 4. Draw Hand Panel
             bool turnPanelWasOpen = _state.IsTurnPanelOpen;
-            var handInteraction = HandPanelWidget.Draw(_state, bgUi, WindowWidth, WindowHeight, IsInEncounter);
+            var handInteraction = HandPanelWidget.Draw(_state, worldUi, WindowWidth, WindowHeight, IsInEncounter);
             if (handInteraction.TurnClicked)
             {
                 if (IsInEncounter)
@@ -501,13 +559,18 @@ namespace SSNoir.Rendering
                 _state.SelectedResource = handInteraction.SelectedResourceToSet;
             }
 
+            if (!inputBlocked && Raylib.IsMouseButtonReleased(MouseButton.Left) && _state.SelectedResource != null)
+            {
+                _state.SelectedResource = null;
+            }
+
             // 5. Draw Bottom Status Bar
             StatusBarWidget.Draw(_state.DisplayedSnapshot, WindowWidth, WindowHeight);
 
             if (_state.IsTurnPanelOpen && IsInEncounter)
             {
                 bool justOpened = !turnPanelWasOpen;
-                var turnPanelInteraction = TurnPanelWidget.Draw(ui, WindowWidth, WindowHeight, justOpened);
+                var turnPanelInteraction = TurnPanelWidget.Draw(panelUi, WindowWidth, WindowHeight, justOpened);
                 if (turnPanelInteraction.RestClicked)
                 {
                     _state.IsTurnPanelOpen = false;
@@ -526,7 +589,7 @@ namespace SSNoir.Rendering
             DrawReputationPanel();
 
             // 7. Draw Debug Menu (save/load + scene switch)
-            DrawDebugMenu(bgUi, ui);
+            DrawDebugMenu(panelUi);
 
             // Draw Team / Growth Toggle Button
             float btnX = 520f;
@@ -534,7 +597,7 @@ namespace SSNoir.Rendering
             float btnW = 80f;
             float btnH = 32f;
             var btnRect = new Rectangle(btnX, btnY, btnW, btnH);
-            var toggleBtn = UiButton.Draw(btnRect, "成长/队伍", bgUi, true, 13, 
+            var toggleBtn = UiButton.Draw(btnRect, "成长/队伍", worldUi, true, 13,
                 _state.IsGrowthPanelOpen ? new Color((byte)50, (byte)50, (byte)90, (byte)255) : new Color((byte)25, (byte)25, (byte)35, (byte)255),
                 new Color((byte)40, (byte)40, (byte)55, (byte)255), null,
                 _state.IsGrowthPanelOpen ? new Color((byte)130, (byte)130, (byte)220, (byte)255) : new Color((byte)50, (byte)50, (byte)70, (byte)255),
@@ -548,7 +611,7 @@ namespace SSNoir.Rendering
             // Draw Growth Panel if open
             if (_state.IsGrowthPanelOpen)
             {
-                DrawGrowthPanel(ui);
+                DrawGrowthPanel(panelUi);
             }
 
             // Update active roll animation timer
@@ -614,23 +677,40 @@ namespace SSNoir.Rendering
         private static readonly Color DbgText   = new Color((byte)200, (byte)200, (byte)220, (byte)255);
         private static readonly Color DbgMuted  = new Color((byte)90,  (byte)90,  (byte)115, (byte)255);
 
-        private void DrawDebugMenu(UiInteractionContext bgUi, UiInteractionContext ui)
+        private (Rectangle ToggleRect, Rectangle PanelRect) GetDebugMenuRects()
         {
-            // ── Toggle button ─────────────────────────────────────────────
             float btnX = WindowWidth - 76f;
             float btnY = 30f;
             var toggleRect = new Rectangle(btnX, btnY, 66f, 32f);
+
+            float pw = 260f;
+            float px = btnX + 66f - pw;
+            float py = btnY + 32f + 4f;
+            float itemH = 26f;
+            float slotsHeight = 20f + 3 * 28f + 14f;
+            float panelH = 8f + slotsHeight + _state.DropdownItems.Count * itemH + 8f;
+            var panelRect = new Rectangle(px, py, pw, panelH);
+
+            return (toggleRect, panelRect);
+        }
+
+        private void DrawDebugMenu(UiInteractionContext ui)
+        {
+            // ── Toggle button ─────────────────────────────────────────────
+            var (toggleRect, panelRect) = GetDebugMenuRects();
+            float btnX = toggleRect.X;
+            float btnY = toggleRect.Y;
             bool isOpen = _state.IsDebugMenuOpen;
 
             var togBg  = isOpen ? new Color((byte)45,(byte)45,(byte)80,(byte)255) : DbgBtn;
             var togBdr = isOpen ? DbgAccent : DbgBorder;
-            bool hoverTog = bgUi.CanHover(toggleRect);
+            bool hoverTog = ui.CanHover(toggleRect);
             Raylib.DrawRectangleRounded(toggleRect, 0.25f, 4, hoverTog ? DbgBtnHov : togBg);
             Raylib.DrawRectangleRoundedLinesEx(toggleRect, 0.25f, 4, 1.5f, togBdr);
             int lblW = FontManager.MeasureTextWidth("Debug v", 13);
             FontManager.DrawText("Debug v", btnX + (66 - lblW) / 2f, btnY + 9, 13, isOpen ? DbgAccent : DbgText);
 
-            if (!bgUi.IsLocked && Raylib.IsMouseButtonPressed(MouseButton.Left) && hoverTog)
+            if (!ui.IsLocked && Raylib.IsMouseButtonPressed(MouseButton.Left) && hoverTog)
             {
                 _state.IsDebugMenuOpen = !isOpen;
                 if (_state.IsDebugMenuOpen)
@@ -642,40 +722,62 @@ namespace SSNoir.Rendering
             if (!_state.IsDebugMenuOpen) return;
 
             // ── Panel ─────────────────────────────────────────────────────
-            float pw = 170f;
-            float px = btnX + 66f - pw;    // right-align with button
-            float py = btnY + 32f + 4f;
-
-            // Rows: save+load(36) + sep(14) + scene items
+            float pw = panelRect.Width;
+            float px = panelRect.X;
+            float py = panelRect.Y;
             var items = _state.DropdownItems;
             float itemH = 26f;
-            float panelH = 36f + 14f + items.Count * itemH + 8f;
-            var panelRect = new Rectangle(px, py, pw, panelH);
 
             Raylib.DrawRectangleRounded(panelRect, 0.15f, 4, DbgBg);
             Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.15f, 4, 1.5f, DbgBorder);
 
-            // Save / Load buttons
-            float rowY = py + 8f;
-            var saveRect = new Rectangle(px + 6f, rowY, 74f, 28f);
-            var loadRect = new Rectangle(px + 86f, rowY, 74f, 28f);
+            // Slots Section
+            float curY = py + 8f;
+            FontManager.DrawText("存档管理", px + 8, curY + 2f, 11, DbgMuted);
+            curY += 20f;
 
-            var saveBtn = UiButton.Draw(saveRect, "存档", bgUi, true, 13,
-                DbgBtn, DbgBtnHov, null, DbgBorder, Color.White, null, Color.White, null);
-            var loadBtn = UiButton.Draw(loadRect, "读档", bgUi, true, 13,
-                DbgBtn, DbgBtnHov, null, DbgBorder, Color.White, null, Color.White, null);
+            for (int slot = 1; slot <= 3; slot++)
+            {
+                string slotPath = SaveManager.GetSlotFilePath(slot);
+                string saveTime = SaveManager.GetSaveTime(slotPath);
+                bool hasSave = !string.IsNullOrEmpty(saveTime);
 
-            if (saveBtn.Clicked) { SaveCurrentGame(); _state.IsDebugMenuOpen = false; return; }
-            if (loadBtn.Clicked) { LoadSavedGame();   _state.IsDebugMenuOpen = false; return; }
+                FontManager.DrawText($"槽位 {slot}", px + 8, curY + 7f, 13, DbgText);
+
+                string timeStr = hasSave ? saveTime : "（空）";
+                Color timeColor = hasSave ? DbgText : DbgMuted;
+                FontManager.DrawText(timeStr, px + 52f, curY + 7f, 12, timeColor);
+
+                var rectSave = new Rectangle(px + pw - 8f - 64f, curY + 3f, 30f, 22f);
+                var rectLoad = new Rectangle(px + pw - 8f - 30f, curY + 3f, 30f, 22f);
+
+                var saveBtn = UiButton.Draw(rectSave, "存", ui, true, 12,
+                    DbgBtn, DbgBtnHov, null, DbgBorder, Color.White, null, Color.White, null);
+                var loadBtn = UiButton.Draw(rectLoad, "读", ui, hasSave, 12,
+                    DbgBtn, DbgBtnHov, null, DbgBorder, Color.White, null, Color.White, null);
+
+                if (saveBtn.Clicked)
+                {
+                    SaveCurrentGame(slotPath);
+                }
+                if (loadBtn.Clicked)
+                {
+                    LoadSavedGame(slotPath);
+                    _state.IsDebugMenuOpen = false;
+                    return;
+                }
+
+                curY += 28f;
+            }
 
             // Separator + "切换场景" label
-            float sepY = rowY + 28f + 6f;
+            float sepY = curY + 6f;
             Raylib.DrawLineEx(new Vector2(px + 8, sepY), new Vector2(px + pw - 8, sepY), 1f, DbgBorder);
             FontManager.DrawText("切换场景", px + 8, sepY + 4, 11, DbgMuted);
 
             // Scene list
             float listY = sepY + 4f + itemH * 0.5f;
-            bool mouseClick = !bgUi.IsLocked && Raylib.IsMouseButtonPressed(MouseButton.Left);
+            bool mouseClick = !ui.IsLocked && Raylib.IsMouseButtonPressed(MouseButton.Left);
             bool clickHandled = false;
 
             for (int i = 0; i < items.Count; i++)
@@ -683,7 +785,7 @@ namespace SSNoir.Rendering
                 var item = items[i];
                 float iy = listY + i * itemH;
                 var itemRect = new Rectangle(px + 4, iy, pw - 8, itemH - 2);
-                bool hover = Raylib.CheckCollisionPointRec(bgUi.Mouse, itemRect) && !bgUi.IsLocked;
+                bool hover = Raylib.CheckCollisionPointRec(ui.Mouse, itemRect) && !ui.IsLocked;
 
                 if (item.IsHeader)
                 {
@@ -709,8 +811,8 @@ namespace SSNoir.Rendering
 
             // Close when clicking outside
             if (mouseClick && !clickHandled
-                && !Raylib.CheckCollisionPointRec(bgUi.Mouse, panelRect)
-                && !Raylib.CheckCollisionPointRec(bgUi.Mouse, toggleRect))
+                && !Raylib.CheckCollisionPointRec(ui.Mouse, panelRect)
+                && !Raylib.CheckCollisionPointRec(ui.Mouse, toggleRect))
             {
                 _state.IsDebugMenuOpen = false;
             }
@@ -719,10 +821,33 @@ namespace SSNoir.Rendering
         private void DrawCards(SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float startY)
         {
             float startX = 40f;
-            float cardWidth = 160f;
-            float cardHeight = 110f;
+            float cardWidth = 220f;
+            float cardHeight = 125f;
             float spacing = 20f;
-            int cardsPerRow = 4;
+            int cardsPerRow = Math.Max(1, (int)((WindowWidth - startX * 2 + spacing) / (cardWidth + spacing)));
+            float viewportTop = startY;
+            float viewportBottom = WindowHeight - 108f;
+            float viewportHeight = Math.Max(0f, viewportBottom - viewportTop);
+            var viewport = new Rectangle(0, viewportTop, WindowWidth, viewportHeight);
+            int rowCount = _state.VisibleNodes.Count == 0
+                ? 0
+                : (_state.VisibleNodes.Count + cardsPerRow - 1) / cardsPerRow;
+            float contentHeight = rowCount == 0 ? 0f : rowCount * cardHeight + Math.Max(0, rowCount - 1) * spacing;
+            float maxScroll = Math.Max(0f, contentHeight - viewportHeight);
+
+            bool mouseInViewport = ui.CanHover(viewport);
+            float wheel = Raylib.GetMouseWheelMove();
+            if (mouseInViewport && Math.Abs(wheel) > 0.001f && maxScroll > 0f)
+            {
+                _state.CardsScrollOffset -= wheel * 48f;
+            }
+            _state.CardsScrollOffset = Math.Clamp(_state.CardsScrollOffset, 0f, maxScroll);
+
+            Raylib.BeginScissorMode(
+                (int)viewport.X,
+                (int)viewport.Y,
+                (int)viewport.Width,
+                (int)viewport.Height);
 
             for (int i = 0; i < _state.VisibleNodes.Count; i++)
             {
@@ -731,7 +856,12 @@ namespace SSNoir.Rendering
                 int col = i % cardsPerRow;
 
                 float x = startX + col * (cardWidth + spacing);
-                float y = startY + row * (cardHeight + spacing);
+                float y = startY + row * (cardHeight + spacing) - _state.CardsScrollOffset;
+
+                if (y > viewportBottom || y + cardHeight < viewportTop)
+                {
+                    continue;
+                }
 
                 var bounds = new Rectangle(x, y, cardWidth, cardHeight);
                 bool isHovered = ui.CanHover(bounds);
@@ -763,6 +893,7 @@ namespace SSNoir.Rendering
                         _state.NodeSlots[node.Name] = slotted;
                     }
                 }
+                var canDropHeldResource = BuildDropStates(requires, slotted);
 
                 List<DifficultyModifierInfo>? modifiers = node.Resolve?.DifficultyModifiers.Count > 0 ? node.Resolve.DifficultyModifiers : null;
                 var execution = GetCardExecutionState(node.Name);
@@ -774,9 +905,12 @@ namespace SSNoir.Rendering
                     node.Clocks,
                     isFlipped,
                     backText,
+                    node.Tags,
                     requires,
                     slotted,
                     ui,
+                    _state.SelectedResource,
+                    canDropHeldResource,
                     modifiers,
                     execution.IsExecuting,
                     execution.Progress,
@@ -787,6 +921,8 @@ namespace SSNoir.Rendering
                     if (node.IsContainer)
                     {
                         _state.ClearAllNodeSlots();
+                        _state.CardsScrollStack.Add(_state.CardsScrollOffset);
+                        _state.CardsScrollOffset = 0f;
                         _state.NavigationStack.Add(node);
                         ResolveNavigationStack();
                     }
@@ -814,62 +950,21 @@ namespace SSNoir.Rendering
                 {
                     int j = interaction.ClickedSlotIndex;
                     var res = slotted[j];
-                    if (res != null)
+
+                    if (_state.SelectedResource == null && res != null)
                     {
+                        _state.SelectedResource = CreateSelectedResourceFromSlot(res);
                         slotted[j] = null;
                     }
-                    else if (_state.SelectedResource != null)
+                    else if (_state.SelectedResource != null && res == null)
                     {
-                        var req = requires[j];
-                        if (req.Type == "die" && _state.SelectedResource.Type == "die")
-                        {
-                            _state.ClearOtherNodeSlots(node.Name);
-                            slotted[j] = new SlottedResource
-                            {
-                                Type = "die",
-                                Value = _state.SelectedResource.Value,
-                                SourceIndex = _state.SelectedResource.SourceIndex,
-                                ActorId = _state.SelectedResource.ActorId,
-                                DieIndex = _state.SelectedResource.DieIndex
-                            };
-                            _state.SelectedResource = null;
-                        }
-                        else if (req.Type == "item" && _state.SelectedResource.Type == "item")
-                        {
-                            if (req.ItemId.Equals(_state.SelectedResource.ItemName, StringComparison.OrdinalIgnoreCase))
-                            {
-                                _state.ClearOtherNodeSlots(node.Name);
-                                int totalOwned = _state.DisplayedSnapshot.Inventory.TryGetValue(req.ItemId, out var ownedQty) ? ownedQty : 0;
-                                int totalSlotted = 0;
-                                foreach (var slotsList in _state.NodeSlots.Values)
-                                {
-                                    foreach (var s in slotsList)
-                                    {
-                                        if (s != null && s.Type == "item" && s.ItemId.Equals(req.ItemId, StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            totalSlotted += s.Qty > 0 ? s.Qty : s.Value;
-                                        }
-                                    }
-                                }
-                                int available = totalOwned - totalSlotted;
-                                if (available >= req.Qty)
-                                {
-                                    slotted[j] = new SlottedResource
-                                    {
-                                        Type = "item",
-                                        ItemId = req.ItemId,
-                                        Value = req.Qty,
-                                        Qty = req.Qty
-                                    };
-                                    _state.SelectedResource = null;
-                                }
-                                else
-                                {
-                                    _gameState.NotificationCenter.Push($"缺少数量，需要 {req.Qty} 个 {_state.SelectedResource.ItemName}", NotificationKind.Warning);
-                                }
-                            }
-                        }
+                        TryPlaceSelectedResource(node, requires, slotted, j);
                     }
+                }
+
+                if (interaction.DroppedSlotIndex != -1 && slotted != null && requires != null)
+                {
+                    TryPlaceSelectedResource(node, requires, slotted, interaction.DroppedSlotIndex);
                 }
 
                 if (interaction.ExecuteClicked)
@@ -884,6 +979,118 @@ namespace SSNoir.Rendering
                     }
                 }
             }
+
+            Raylib.EndScissorMode();
+
+            DrawCardsScrollbar(viewport, contentHeight, _state.CardsScrollOffset, maxScroll);
+        }
+
+        private static void DrawCardsScrollbar(Rectangle viewport, float contentHeight, float scrollOffset, float maxScroll)
+        {
+            if (contentHeight <= viewport.Height || viewport.Height <= 0f)
+            {
+                return;
+            }
+
+            float trackW = 5f;
+            float trackX = viewport.X + viewport.Width - trackW - 8f;
+            var track = new Rectangle(trackX, viewport.Y + 4f, trackW, viewport.Height - 8f);
+            float thumbH = Math.Max(28f, track.Height * (viewport.Height / contentHeight));
+            float travel = Math.Max(0f, track.Height - thumbH);
+            float thumbY = track.Y + (maxScroll <= 0f ? 0f : travel * (scrollOffset / maxScroll));
+            var thumb = new Rectangle(track.X, thumbY, track.Width, thumbH);
+
+            Raylib.DrawRectangleRounded(track, 0.6f, 4, new Color(30, 30, 42, 180));
+            Raylib.DrawRectangleRounded(thumb, 0.6f, 4, new Color(105, 115, 155, 210));
+        }
+
+        private List<bool>? BuildDropStates(List<ActionCost>? requires, List<SlottedResource?>? slotted)
+        {
+            if (_state.SelectedResource == null || requires == null || slotted == null)
+            {
+                return null;
+            }
+
+            var result = new List<bool>(requires.Count);
+            for (int i = 0; i < requires.Count; i++)
+            {
+                bool slotIsEmpty = slotted[i] == null;
+                result.Add(slotIsEmpty && ResourceSlotRules.CanPlaceSelectedResource(_state, requires[i], slotted, i));
+            }
+            return result;
+        }
+
+        private SelectedResource CreateSelectedResourceFromSlot(SlottedResource resource)
+        {
+            if (resource.Type == "die")
+            {
+                return new SelectedResource
+                {
+                    Type = "die",
+                    Value = resource.Value,
+                    SourceIndex = resource.SourceIndex,
+                    ActorId = resource.ActorId,
+                    DieIndex = resource.DieIndex
+                };
+            }
+
+            return new SelectedResource
+            {
+                Type = "item",
+                ItemName = resource.ItemId,
+                Qty = resource.Qty > 0 ? resource.Qty : resource.Value
+            };
+        }
+
+        private bool TryPlaceSelectedResource(GameNode node, List<ActionCost> requires, List<SlottedResource?> slotted, int slotIndex)
+        {
+            if (_state.SelectedResource == null)
+                return false;
+
+            var req = requires[slotIndex];
+
+            if (!ResourceSlotRules.CanPlaceSelectedResource(_state, req, slotted, slotIndex))
+            {
+                if (ResourceSlotRules.CanMatchRequirement(req, _state.SelectedResource))
+                {
+                    _gameState.NotificationCenter.Push($"缺少数量，需要 {req.Qty} 个 {_state.SelectedResource.ItemName}", NotificationKind.Warning);
+                }
+                return false;
+            }
+
+            if (req.Type == "die" && _state.SelectedResource.Type == "die")
+            {
+                _state.ClearOtherNodeSlots(node.Name);
+                slotted[slotIndex] = new SlottedResource
+                {
+                    Type = "die",
+                    Value = _state.SelectedResource.Value,
+                    SourceIndex = _state.SelectedResource.SourceIndex,
+                    ActorId = _state.SelectedResource.ActorId,
+                    DieIndex = _state.SelectedResource.DieIndex
+                };
+                _state.SelectedResource = null;
+                return true;
+            }
+
+            if (req.Type == "item" && _state.SelectedResource.Type == "item")
+            {
+                if (req.ItemId.Equals(_state.SelectedResource.ItemName, StringComparison.OrdinalIgnoreCase))
+                {
+                    _state.ClearOtherNodeSlots(node.Name);
+                    slotted[slotIndex] = new SlottedResource
+                    {
+                        Type = "item",
+                        ItemId = req.ItemId,
+                        Value = req.Qty,
+                        Qty = req.Qty
+                    };
+                    _state.SelectedResource = null;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void ExecuteSlottedAction(GameNode node, List<SlottedResource?> slotted)

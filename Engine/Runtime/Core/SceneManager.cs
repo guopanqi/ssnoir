@@ -193,6 +193,7 @@ namespace SSNoir.Core
                 Team      = _gameState.Team.Serialize(),
                 Inventory = new Dictionary<string, int>(_gameState.Inventory.Items),
                 WorldData = _worldInterpreter?.Eval("(world-save)"),
+                SaveTime  = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             };
             SaveManager.Write(filePath, data);
         }

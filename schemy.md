@@ -59,8 +59,9 @@
 | :--- | :---: | :---: | :--- |
 | `+`, `-`, `*`, `/` | **YES** | **YES** | 基础数学运算 |
 | `=`, `<`, `>`, `<=`, `>=` | **YES** | **YES** | 基础数值比较 |
-| `abs`, `modulo`, `remainder`, `quotient` | **NO** | **NO** | 其它数学运算 |
-| `even?`, `odd?`, `zero?` | **NO** | **NO** | 数值类型断言 |
+| `abs` | **NO** | **NO** | 其它数学运算 |
+| `modulo`, `remainder`, `quotient` | **NO** | **YES** | 由 C# 宿主环境注册的整数运算辅助 |
+| `even?`, `odd?`, `zero?` | **NO** | **YES** | 由 C# 宿主环境注册的数值断言 |
 | `eq?`, `equal?` | **YES** | **YES** | 相等性比较 |
 | `eqv?` | **NO** | **NO** | 比较 |
 | `null?`, `list?`, `string?`, `symbol?`, `boolean?` | **YES** | **YES** | 类型断言 |
@@ -74,7 +75,7 @@
 | `filter` | **NO** | **YES** | 由 `stdlib.scm` 实现并补充 |
 | `not` | **YES** | **YES** | 逻辑非 |
 | `and`, `or` | **NO** | **YES** | 由 `stdlib.scm` 实现并补充（注意：通过普通过程模拟，不具备短路求值特性） |
-| `string-append`, `number->string` | **YES** | **YES** | 由 C# 宿主宿环境注册的辅助函数 |
+| `string-append`, `number->string` | **YES** | **YES** | 由 C# 宿主环境注册的辅助函数 |
 | `display`, `newline`, `error` | **NO** | **NO** | 标准 IO 和抛错函数 |
 
 ---
@@ -137,7 +138,24 @@
 
 ---
 
-## 5. engine.scm 中的游戏与 DSL 框架定义
+## 5. C# 宿主环境中补充的辅助过程
+
+以下过程由项目运行时在 `NativeFunctions.cs` 中注册，不属于 Raw Schemy：
+
+| 过程 | 说明 |
+| :--- | :--- |
+| `(quotient a b)` | 整数除法，`b` 为 0 时抛错 |
+| `(remainder a b)` | C# `%` 语义的余数，`b` 为 0 时抛错 |
+| `(modulo a b)` | Scheme 风格模运算，结果符号跟随除数，`b` 为 0 时抛错 |
+| `(zero? n)` | 判断整数是否为 0 |
+| `(even? n)` | 判断整数是否为偶数 |
+| `(odd? n)` | 判断整数是否为奇数 |
+
+这些过程用于内容脚本中的简单数值逻辑，例如轮换 NPC 名称、阶段计数和索引归一化。复杂游戏规则仍应优先放在 `engine.scm` 或具体场景脚本中表达。
+
+---
+
+## 6. engine.scm 中的游戏与 DSL 框架定义
 
 游戏层面的所有 DSL 结构、动作构建与运行时状态管理代码存放在 `engine.scm` 中。主要定义了：
 * **结构化节点 (`node`)**：支持子节点、时钟、前置要求及执行回调的树状节点。
@@ -145,4 +163,3 @@
 * **动作构造器 (`instant`, `roll`, `observe`)**：规范各类可供玩家交互的底层行动的动作数据结构。
 * **规则与轮次生命周期 (`define-rule`, `define-turn-rule`, `on-action`, `on-turn-end`)**：控制事件触发机制的规则系统。
 * **游戏内库存机制 (`get-item`, `consume-item!`)**：在 Scheme 环境下读取与增删全局 `money` 和各类道具的接口。
-

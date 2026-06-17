@@ -8,6 +8,7 @@ namespace SSNoir.Core
     {
         public string Name { get; set; } = string.Empty;
         public List<GameClock> Clocks { get; } = new List<GameClock>();
+        public List<string> Tags { get; set; } = new List<string>();
         public List<GameNode> Children { get; set; } = new List<GameNode>();
         
         public List<ActionCost> Requires { get; set; } = new List<ActionCost>();

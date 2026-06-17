@@ -186,6 +186,54 @@ namespace SSNoir.Scripting
                 return args[0]?.ToString() ?? "";
             }, "number->string"));
 
+            interpreter.DefineGlobal(Symbol.FromString("quotient"), new NativeProcedure(args =>
+            {
+                if (args.Count < 2) throw new ArgumentException("quotient requires 2 arguments");
+                int divisor = ConvertToInt(args[1]);
+                if (divisor == 0) throw new DivideByZeroException("quotient divisor cannot be zero");
+                return ConvertToInt(args[0]) / divisor;
+            }, "quotient"));
+
+            interpreter.DefineGlobal(Symbol.FromString("remainder"), new NativeProcedure(args =>
+            {
+                if (args.Count < 2) throw new ArgumentException("remainder requires 2 arguments");
+                int divisor = ConvertToInt(args[1]);
+                if (divisor == 0) throw new DivideByZeroException("remainder divisor cannot be zero");
+                return ConvertToInt(args[0]) % divisor;
+            }, "remainder"));
+
+            interpreter.DefineGlobal(Symbol.FromString("modulo"), new NativeProcedure(args =>
+            {
+                if (args.Count < 2) throw new ArgumentException("modulo requires 2 arguments");
+                int dividend = ConvertToInt(args[0]);
+                int divisor = ConvertToInt(args[1]);
+                if (divisor == 0) throw new DivideByZeroException("modulo divisor cannot be zero");
+                int result = dividend % divisor;
+                if ((result < 0 && divisor > 0) || (result > 0 && divisor < 0))
+                {
+                    result += divisor;
+                }
+                return result;
+            }, "modulo"));
+
+            interpreter.DefineGlobal(Symbol.FromString("zero?"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("zero? requires 1 argument");
+                return ConvertToInt(args[0]) == 0;
+            }, "zero?"));
+
+            interpreter.DefineGlobal(Symbol.FromString("even?"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("even? requires 1 argument");
+                return ConvertToInt(args[0]) % 2 == 0;
+            }, "even?"));
+
+            interpreter.DefineGlobal(Symbol.FromString("odd?"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("odd? requires 1 argument");
+                return ConvertToInt(args[0]) % 2 != 0;
+            }, "odd?"));
+
             var rand = new Random();
             interpreter.DefineGlobal(Symbol.FromString("random-choice"), new NativeProcedure(args =>
             {

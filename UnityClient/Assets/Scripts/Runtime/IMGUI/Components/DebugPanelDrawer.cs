@@ -59,10 +59,11 @@ namespace SSNoir.IMGUI
 
             // Panel
             float itemH = 26f;
-            float panelW = 170f;
+            float panelW = 260f;
             float panelX = btnX + btnW - panelW;
             float panelY = btnY + btnH + 4f;
-            float panelH = 44f + 14f + _scenes.Count * itemH + 8f;
+            float slotsHeight = 20f + 3 * 28f + 14f;
+            float panelH = 8f + slotsHeight + _scenes.Count * itemH + 8f;
             var panelRect = new Rect(panelX, panelY, panelW, panelH);
 
             GUI.color = new Color(0.078f, 0.086f, 0.11f, 1f);
@@ -70,35 +71,53 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(panelRect, 1.5f, IMGUIStyles.OutlineColor);
 
-            // Save / Load buttons
-            float rowY = panelY + 8f;
-            var saveRect = new Rect(panelX + 6f, rowY, 74f, 28f);
-            var loadRect = new Rect(panelX + 86f, rowY, 74f, 28f);
+            // Slots Section
+            float curY = panelY + 8f;
+            var mutedStyle = new GUIStyle(labelStyle) { fontSize = 11,
+                normal = { textColor = new Color(0.35f, 0.35f, 0.45f, 1f) } };
+            GUI.Label(new Rect(panelX + 8, curY + 2f, panelW, 18f), "存档管理", mutedStyle);
+            curY += 20f;
 
-            if (IMGUIButton.Draw(saveRect, "存档", ui, IMGUIStyles.OutlineColor,
-                    new Color(0.2f, 0.2f, 0.35f, 1f), labelStyle))
+            for (int slot = 1; slot <= 3; slot++)
             {
-                gameManager.SaveGame();
-                _isOpen = false;
-                Event.current.Use();
-                return;
-            }
+                string slotPath = SaveManager.GetSlotFilePath(slot);
+                string saveTime = SaveManager.GetSaveTime(slotPath);
+                bool hasSave = !string.IsNullOrEmpty(saveTime);
 
-            if (IMGUIButton.Draw(loadRect, "读档", ui, IMGUIStyles.OutlineColor,
-                    new Color(0.2f, 0.2f, 0.35f, 1f), labelStyle))
-            {
-                gameManager.LoadGame();
-                _isOpen = false;
-                Event.current.Use();
-                return;
+                GUI.Label(new Rect(panelX + 8f, curY + 4f, 50f, 20f), $"槽位 {slot}", labelStyle);
+
+                string timeStr = hasSave ? saveTime : "（空）";
+                var timeStyle = new GUIStyle(labelStyle) {
+                    normal = { textColor = hasSave ? Color.white : new Color(0.35f, 0.35f, 0.45f, 1f) }
+                };
+                GUI.Label(new Rect(panelX + 52f, curY + 4f, 130f, 20f), timeStr, timeStyle);
+
+                var rectSave = new Rect(panelX + panelW - 8f - 64f, curY + 2f, 30f, 22f);
+                var rectLoad = new Rect(panelX + panelW - 8f - 30f, curY + 2f, 30f, 22f);
+
+                if (IMGUIButton.Draw(rectSave, "存", ui, IMGUIStyles.OutlineColor,
+                        new Color(0.2f, 0.2f, 0.35f, 1f), labelStyle))
+                {
+                    gameManager.SaveGame(slotPath);
+                    Event.current.Use();
+                }
+
+                if (IMGUIButton.Draw(rectLoad, "读", ui, IMGUIStyles.OutlineColor,
+                        new Color(0.2f, 0.2f, 0.35f, 1f), labelStyle, hasSave))
+                {
+                    gameManager.LoadGame(slotPath);
+                    _isOpen = false;
+                    Event.current.Use();
+                    return;
+                }
+
+                curY += 28f;
             }
 
             // Separator + label
-            float sepY = rowY + 28f + 6f;
+            float sepY = curY + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
                 IMGUIStyles.OutlineVariantColor, 1f);
-            var mutedStyle = new GUIStyle(labelStyle) { fontSize = 11,
-                normal = { textColor = new Color(0.35f, 0.35f, 0.45f, 1f) } };
             GUI.Label(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "切换场景", mutedStyle);
 
             // Scene list

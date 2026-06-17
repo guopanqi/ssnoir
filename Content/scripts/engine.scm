@@ -6,6 +6,7 @@
 (define :effect ':effect)
 (define :requires ':requires)
 (define :resolve ':resolve)
+(define :tags ':tags)
 
 ;; Helper to extract keyword arguments from a list
 (define (get-kwarg kwargs key default)
@@ -18,7 +19,7 @@
               (get-kwarg (cdr (cdr kwargs)) key default)))))
 
 ;; node constructor
-;; Returns a list: ('node name :clocks clocks :children children :requires requires :resolve resolve)
+;; Returns a list: ('node name :clocks clocks :children children :requires requires :resolve resolve :tags tags)
 (define node
   (lambda args
     (let ((name (car args))
@@ -28,7 +29,8 @@
             :clocks (get-kwarg kwargs ':clocks '())
             :children (get-kwarg kwargs ':children '())
             :requires (get-kwarg kwargs ':requires #f)
-            :resolve (get-kwarg kwargs ':resolve #f)))))
+            :resolve (get-kwarg kwargs ':resolve #f)
+            :tags (get-kwarg kwargs ':tags '())))))
 
 ;; Action constructors
 (define (instant effect)
@@ -71,12 +73,21 @@
 (define (action name requires resolve)
   (node name :requires requires :resolve resolve))
 
+(define (action-with-tags name tags requires resolve)
+  (node name :tags tags :requires requires :resolve resolve))
+
 (define (action-with-clocks name requires resolve clocks)
   (node name :requires requires :resolve resolve :clocks clocks))
 
 ;; Shorthands for simple actions
 (define (instant-action name effect)
   (action name #f (instant effect)))
+
+(define (instant-action-with-tags name tags effect)
+  (action-with-tags name tags #f (instant effect)))
+
+(define (encounter-action name effect)
+  (instant-action-with-tags name (list "交锋") effect))
 
 (define (observe-action name text)
   (action name #f (observe text)))
@@ -224,5 +235,4 @@
 
 (define (upgrade-actor-stat! actor-id stat-id)
   (__upgrade-actor-stat! actor-id stat-id))
-
 

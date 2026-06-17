@@ -11,7 +11,8 @@ namespace SSNoir.Rendering
         public struct CardInteraction
         {
             public bool CardClicked;
-            public int ClickedSlotIndex; // -1 if none
+            public int ClickedSlotIndex; // mouse pressed on a slot; -1 if none
+            public int DroppedSlotIndex; // mouse released on a compatible slot; -1 if none
             public bool ExecuteClicked;
         }
 
@@ -23,9 +24,12 @@ namespace SSNoir.Rendering
             List<GameClock> clocks,
             bool isFlipped = false,
             string backText = "",
+            List<string>? tags = null,
             List<ActionCost>? requires = null,
             List<SlottedResource?>? slotted = null,
             SSNoir.TerminalApp.Rendering.UiInteractionContext ui = default,
+            SelectedResource? heldResource = null,
+            IReadOnlyList<bool>? canDropHeldResource = null,
             List<DifficultyModifierInfo>? modifiers = null,
             bool isExecuting = false,
             float executeProgress = 0f,
@@ -35,6 +39,7 @@ namespace SSNoir.Rendering
             {
                 CardClicked = false,
                 ClickedSlotIndex = -1,
+                DroppedSlotIndex = -1,
                 ExecuteClicked = false
             };
 
@@ -104,68 +109,71 @@ namespace SSNoir.Rendering
                 : bounds.Y + bounds.Height - 22;
             FontManager.DrawText(typeLabel, typeX, typeY, typeFontSize, typeColor);
 
+            float tagBottomY = DrawNodeTags(bounds, tags, hasRequires ? bounds.Y + 6 : (showButton ? bounds.Y + 52 : bounds.Y + 6));
+
             // Draw Slots & Execute Button if there are requirements
             if (hasRequires)
             {
                 int M = requires!.Count;
-                float slotW = 24;
-                float slotH = 24;
-                float spacing = 6;
-                float totalWidth = M * slotW + (M - 1) * spacing;
+                float slotH = 32;
+                float spacing = 8;
+                float totalWidth = 0f;
+                for (int j = 0; j < M; j++)
+                {
+                    totalWidth += SlotWidth(requires[j]);
+                    if (j < M - 1)
+                        totalWidth += spacing;
+                }
                 float slotStartX = bounds.X + (bounds.Width - totalWidth) / 2f;
                 float slotY = bounds.Y + 52;
+                float slotX = slotStartX;
 
                 for (int j = 0; j < M; j++)
                 {
-                    var slotRect = new Rectangle(slotStartX + j * (slotW + spacing), slotY, slotW, slotH);
+                    float slotW = SlotWidth(requires[j]);
+                    var slotRect = new Rectangle(slotX, slotY, slotW, slotH);
+                    slotX += slotW + spacing;
+
                     bool slotHover = ui.CanHover(slotRect);
                     var res = slotted![j];
+                    bool canMatchHeldResource = heldResource != null && ResourceSlotRules.CanMatchRequirement(requires[j], heldResource);
+                    bool canDropHeldHere = heldResource != null
+                        && canDropHeldResource != null
+                        && j < canDropHeldResource.Count
+                        && canDropHeldResource[j];
+                    var visualState = GetSlotVisualState(res, heldResource, canMatchHeldResource, canDropHeldHere, slotHover);
 
                     if (res == null)
                     {
-                        // Draw empty dotted-like slot border
-                        Raylib.DrawRectangleRoundedLinesEx(slotRect, 0.2f, 4, 1.5f, slotHover ? new Color(130, 130, 220, 255) : new Color(80, 80, 100, 255));
-                        
-                        // Draw placeholder letter
-                        bool isDie = requires[j].Type == "die";
-                        string placeholder = isDie ? "D" : (requires[j].ItemId.Length > 0 ? requires[j].ItemId.Substring(0, 1) : "?");
-                        if (requires[j].Type == "item" && requires[j].Qty > 1)
-                        {
-                            placeholder += requires[j].Qty.ToString();
-                        }
-                        int fontSize = placeholder.Length > 2 ? 8 : (placeholder.Length > 1 ? 10 : 12);
-                        int pW = FontManager.MeasureTextWidth(placeholder, fontSize);
-                        FontManager.DrawText(placeholder, slotRect.X + (slotW - pW) / 2f, slotRect.Y + (slotH - fontSize) / 2f, fontSize, new Color(80, 80, 100, 255));
+                        DrawEmptySlotFrame(slotRect, visualState);
+
+                        string placeholder = FormatRequirementLabel(requires[j]);
+                        Color placeholderColor = SlotTextColor(visualState);
+                        DrawCenteredFittingText(placeholder, slotRect, requires[j].Type == "item" ? 12 : 14, placeholderColor);
                     }
                     else
                     {
-                        // Draw filled slot
-                        Raylib.DrawRectangleRounded(slotRect, 0.2f, 4, new Color(50, 50, 75, 255));
-                        Raylib.DrawRectangleRoundedLinesEx(slotRect, 0.2f, 4, 1.5f, new Color(130, 130, 250, 255));
+                        DrawFilledSlotFrame(slotRect, visualState);
 
-                        bool isResDie = res.Type == "die";
-                        string valStr = isResDie ? res.Value.ToString() : (res.ItemId.Length > 0 ? res.ItemId.Substring(0, 1) : "?");
-                        int slotVal = res.Qty > 0 ? res.Qty : res.Value;
-                        if (res.Type == "item" && slotVal > 1)
-                        {
-                            valStr += slotVal.ToString();
-                        }
-                        int fontSize = valStr.Length > 2 ? 8 : (valStr.Length > 1 ? 10 : 12);
-                        int valW = FontManager.MeasureTextWidth(valStr, fontSize);
-                        FontManager.DrawText(valStr, slotRect.X + (slotW - valW) / 2f, slotRect.Y + (slotH - fontSize) / 2f, fontSize, Color.White);
+                        string valStr = FormatSlottedLabel(res);
+                        DrawCenteredFittingText(valStr, slotRect, res.Type == "item" ? 12 : 14, Color.White);
                     }
 
                     if (ui.WasClicked(slotRect))
                     {
                         interaction.ClickedSlotIndex = j;
                     }
+                    else if (canDropHeldHere && ui.CanHover(slotRect) && Raylib.IsMouseButtonReleased(MouseButton.Left))
+                    {
+                        interaction.DroppedSlotIndex = j;
+                    }
                 }
 
                 // Draw Execute Button
-                float exeW = 80;
-                float exeH = 18;
+                float exeW = 84;
+                float exeH = 20;
                 float exeX = bounds.X + (bounds.Width - exeW) / 2f;
-                float exeY = bounds.Y + 82;
+                float exeY = bounds.Y + 88;
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
 
                 bool allFilled = slotted != null && slotted.All(s => s != null);
@@ -222,7 +230,7 @@ namespace SSNoir.Rendering
             if (modifiers != null && modifiers.Count > 0)
             {
                 float tagStartX = bounds.X + 6;
-                float tagStartY = bounds.Y + 6;
+                float tagStartY = Math.Max(bounds.Y + 6, tagBottomY + 4);
                 for (int k = 0; k < modifiers.Count; k++)
                 {
                     var mod = modifiers[k];
@@ -247,6 +255,63 @@ namespace SSNoir.Rendering
             }
 
             return interaction;
+        }
+
+        private static float DrawNodeTags(Rectangle bounds, List<string>? tags, float startY)
+        {
+            if (tags == null || tags.Count == 0)
+            {
+                return bounds.Y + 2;
+            }
+
+            float x = bounds.X + 6;
+            float y = startY;
+            float maxRight = bounds.X + bounds.Width - 8;
+            float lineH = 18;
+
+            for (int i = 0; i < tags.Count; i++)
+            {
+                string label = tags[i];
+                if (string.IsNullOrWhiteSpace(label))
+                {
+                    continue;
+                }
+
+                int fontSize = 10;
+                int textW = FontManager.MeasureTextWidth(label, fontSize);
+                float tagW = Math.Min(textW + 12, bounds.Width - 16);
+                if (x + tagW > maxRight)
+                {
+                    x = bounds.X + 6;
+                    y += lineH + 3;
+                }
+
+                var rect = new Rectangle(x, y, tagW, lineH);
+                Color bg = label == "交锋"
+                    ? new Color(95, 34, 34, 230)
+                    : new Color(35, 48, 78, 220);
+                Color border = label == "交锋"
+                    ? new Color(210, 86, 76, 255)
+                    : new Color(105, 145, 220, 255);
+                Color text = label == "交锋"
+                    ? new Color(255, 215, 205, 255)
+                    : new Color(220, 235, 255, 255);
+
+                Raylib.DrawRectangleRounded(rect, 0.35f, 4, bg);
+                Raylib.DrawRectangleRoundedLinesEx(rect, 0.35f, 4, 1f, border);
+
+                int drawW = FontManager.MeasureTextWidth(label, fontSize);
+                while (fontSize > 8 && drawW > rect.Width - 8)
+                {
+                    fontSize--;
+                    drawW = FontManager.MeasureTextWidth(label, fontSize);
+                }
+                FontManager.DrawText(label, rect.X + (rect.Width - drawW) / 2f, rect.Y + 4f, fontSize, text);
+
+                x += tagW + 5;
+            }
+
+            return y + lineH;
         }
 
         private static void DrawWrappedText(string text, float x, float y, float width, int fontSize, Color color)
@@ -309,6 +374,179 @@ namespace SSNoir.Rendering
             }
             int w = FontManager.MeasureTextWidth(label, 11);
             FontManager.DrawText(label, rect.X + (rect.Width - w) / 2f, rect.Y + 3f, 11, Color.White);
+        }
+
+        private static float SlotWidth(ActionCost requirement)
+        {
+            return requirement.Type == "item" ? 72f : 34f;
+        }
+
+        private static string FormatRequirementLabel(ActionCost requirement)
+        {
+            if (requirement.Type == "die")
+                return "D";
+
+            if (string.IsNullOrEmpty(requirement.ItemId))
+                return "?";
+
+            return requirement.Qty > 1
+                ? $"{requirement.ItemId}x{requirement.Qty}"
+                : requirement.ItemId;
+        }
+
+        private static string FormatSlottedLabel(SlottedResource resource)
+        {
+            if (resource.Type == "die")
+                return resource.Value.ToString();
+
+            string itemName = string.IsNullOrEmpty(resource.ItemId) ? "?" : resource.ItemId;
+            int qty = resource.Qty > 0 ? resource.Qty : resource.Value;
+            return qty > 1 ? $"{itemName}x{qty}" : itemName;
+        }
+
+        private static void DrawCenteredFittingText(string text, Rectangle rect, int preferredFontSize, Color color)
+        {
+            int fontSize = preferredFontSize;
+            int textWidth = FontManager.MeasureTextWidth(text, fontSize);
+            while (fontSize > 9 && textWidth > rect.Width - 8f)
+            {
+                fontSize--;
+                textWidth = FontManager.MeasureTextWidth(text, fontSize);
+            }
+
+            FontManager.DrawText(
+                text,
+                rect.X + (rect.Width - textWidth) / 2f,
+                rect.Y + (rect.Height - fontSize) / 2f,
+                fontSize,
+                color);
+        }
+
+        private enum SlotVisualState
+        {
+            Normal,
+            Hovered,
+            AvailableDrop,
+            HoveredDrop,
+            InvalidDrop,
+            Filled
+        }
+
+        private static SlotVisualState GetSlotVisualState(
+            SlottedResource? slotted,
+            SelectedResource? heldResource,
+            bool canMatchHeldResource,
+            bool canDropHeldHere,
+            bool slotHover)
+        {
+            if (heldResource == null)
+            {
+                return slotted == null
+                    ? (slotHover ? SlotVisualState.Hovered : SlotVisualState.Normal)
+                    : SlotVisualState.Filled;
+            }
+
+            if (canDropHeldHere)
+            {
+                return slotHover ? SlotVisualState.HoveredDrop : SlotVisualState.AvailableDrop;
+            }
+
+            if (canMatchHeldResource)
+            {
+                return SlotVisualState.InvalidDrop;
+            }
+
+            return slotted == null ? SlotVisualState.Normal : SlotVisualState.Filled;
+        }
+
+        private static void DrawEmptySlotFrame(Rectangle slotRect, SlotVisualState state)
+        {
+            if (state == SlotVisualState.AvailableDrop || state == SlotVisualState.HoveredDrop)
+            {
+                DrawSlotGlow(slotRect, state == SlotVisualState.HoveredDrop);
+            }
+
+            Color fill = state switch
+            {
+                SlotVisualState.HoveredDrop => new Color(34, 62, 58, 185),
+                SlotVisualState.AvailableDrop => new Color(28, 36, 58, 135),
+                SlotVisualState.InvalidDrop => new Color(48, 25, 30, 120),
+                _ => new Color(0, 0, 0, 0)
+            };
+
+            if (fill.A > 0)
+            {
+                Raylib.DrawRectangleRounded(slotRect, 0.2f, 4, fill);
+            }
+
+            Color border = state switch
+            {
+                SlotVisualState.HoveredDrop => new Color(110, 235, 200, 255),
+                SlotVisualState.AvailableDrop => new Color(160, 190, 255, 255),
+                SlotVisualState.InvalidDrop => new Color(135, 70, 85, 255),
+                SlotVisualState.Hovered => new Color(130, 130, 220, 255),
+                _ => new Color(80, 80, 100, 255)
+            };
+
+            float thick = state == SlotVisualState.HoveredDrop ? 2.8f
+                : (state == SlotVisualState.AvailableDrop || state == SlotVisualState.InvalidDrop ? 2f : 1.5f);
+            Raylib.DrawRectangleRoundedLinesEx(slotRect, 0.2f, 4, thick, border);
+        }
+
+        private static void DrawFilledSlotFrame(Rectangle slotRect, SlotVisualState state)
+        {
+            if (state == SlotVisualState.AvailableDrop || state == SlotVisualState.HoveredDrop)
+            {
+                DrawSlotGlow(slotRect, state == SlotVisualState.HoveredDrop);
+            }
+
+            Color fill = state switch
+            {
+                SlotVisualState.HoveredDrop => new Color(38, 70, 65, 255),
+                SlotVisualState.AvailableDrop => new Color(45, 55, 88, 255),
+                SlotVisualState.InvalidDrop => new Color(58, 38, 48, 255),
+                _ => new Color(50, 50, 75, 255)
+            };
+            Color border = state switch
+            {
+                SlotVisualState.HoveredDrop => new Color(120, 245, 210, 255),
+                SlotVisualState.AvailableDrop => new Color(190, 210, 255, 255),
+                SlotVisualState.InvalidDrop => new Color(145, 80, 95, 255),
+                _ => new Color(130, 130, 250, 255)
+            };
+            float thick = state == SlotVisualState.HoveredDrop ? 2.8f
+                : (state == SlotVisualState.AvailableDrop || state == SlotVisualState.InvalidDrop ? 2f : 1.5f);
+
+            Raylib.DrawRectangleRounded(slotRect, 0.2f, 4, fill);
+            Raylib.DrawRectangleRoundedLinesEx(slotRect, 0.2f, 4, thick, border);
+        }
+
+        private static Color SlotTextColor(SlotVisualState state)
+        {
+            return state switch
+            {
+                SlotVisualState.HoveredDrop => new Color(210, 255, 240, 255),
+                SlotVisualState.AvailableDrop => new Color(185, 205, 255, 255),
+                SlotVisualState.InvalidDrop => new Color(190, 115, 130, 255),
+                _ => new Color(80, 80, 100, 255)
+            };
+        }
+
+        private static void DrawSlotGlow(Rectangle slotRect, bool strong)
+        {
+            float pulse = 0.5f + 0.5f * (float)Math.Sin(Raylib.GetTime() * 7.0);
+            byte alpha = (byte)((strong ? 150 : 95) + pulse * (strong ? 90 : 85));
+            var glowRect = new Rectangle(slotRect.X - 4f, slotRect.Y - 4f, slotRect.Width + 8f, slotRect.Height + 8f);
+
+            Color glowFill = strong
+                ? new Color((byte)50, (byte)180, (byte)150, (byte)(36 + pulse * 36))
+                : new Color((byte)90, (byte)120, (byte)255, (byte)(28 + pulse * 24));
+            Color glowBorder = strong
+                ? new Color((byte)105, (byte)245, (byte)205, alpha)
+                : new Color((byte)135, (byte)170, (byte)255, alpha);
+
+            Raylib.DrawRectangleRounded(glowRect, 0.22f, 4, glowFill);
+            Raylib.DrawRectangleRoundedLinesEx(glowRect, 0.22f, 4, strong ? 2.8f : 2.2f, glowBorder);
         }
 
         private static void DrawClockBadge(ref float rightX, float topY, GameClock clock)

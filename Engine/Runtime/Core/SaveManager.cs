@@ -21,6 +21,7 @@ namespace SSNoir.Core
             var root = new JObject
             {
                 ["version"]   = data.Version,
+                ["saveTime"]  = data.SaveTime,
                 ["globals"]   = WriteGlobals(data.Globals),
                 ["team"]      = WriteTeam(data.Team),
                 ["inventory"] = WriteInventory(data.Inventory),
@@ -37,6 +38,7 @@ namespace SSNoir.Core
             var data = new SaveData
             {
                 Version = root["version"]!.Value<int>(),
+                SaveTime = root["saveTime"]?.Value<string>() ?? "",
             };
 
             foreach (var prop in ((JObject)root["globals"]!).Properties())
@@ -207,6 +209,42 @@ namespace SSNoir.Core
                 team.Actors.Add(a);
             }
             return team;
+        }
+
+        public static string GetSlotFilePath(int slotIndex)
+        {
+            var dir = Path.GetDirectoryName(DefaultSavePath);
+            var filename = $"save_slot{slotIndex}.json";
+            if (string.IsNullOrEmpty(dir))
+                return filename;
+            return Path.Combine(dir, filename);
+        }
+
+        public static string GetSaveTime(string filePath)
+        {
+            if (!File.Exists(filePath))
+                return "";
+            try
+            {
+                var content = File.ReadAllText(filePath);
+                var root = JObject.Parse(content);
+                var saveTime = root["saveTime"]?.Value<string>();
+                if (!string.IsNullOrEmpty(saveTime))
+                    return saveTime;
+
+                return File.GetLastWriteTime(filePath).ToString("yyyy-MM-dd HH:mm");
+            }
+            catch
+            {
+                try
+                {
+                    return File.GetLastWriteTime(filePath).ToString("yyyy-MM-dd HH:mm");
+                }
+                catch
+                {
+                    return "";
+                }
+            }
         }
     }
 }

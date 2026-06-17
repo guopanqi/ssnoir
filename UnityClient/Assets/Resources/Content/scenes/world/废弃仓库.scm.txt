@@ -12,7 +12,8 @@
     (define (node-search-clues)
       (roll-action "搜寻线索" (list (req-die)) 'sharpness
         (lambda ()
-          (notify! "仓库里一片寂静，什么异常都没找到。"))
+          (stress-current-actor! 1)
+          (notify! "仓库里一片寂静，什么异常都没找到。压力+1。"))
         (lambda ()
           (investigate-clock 'tick!)
           (notify! "你发现了一些可疑痕迹，还需要继续深挖。"))
@@ -32,6 +33,7 @@
         (list (req-item "金钱" 150))
         (instant (lambda ()
           (set! warehouse-stage 3)
+          (mark-complete! 'warehouse-complete)
           (notify! "联络人接过钱，把一张纸条塞进你手里：'码头，去找老陈。'")))))
 
     (define (node-warehouse-work)
@@ -40,10 +42,11 @@
           (stress-current-actor! 2)
           (notify! "货物太重，你拉伤了腰，勉强撑完一天，什么都没挣到。"))
         (lambda ()
-          (add-item! "金钱" 30)
-          (notify! "完成了几趟，监工数了点工钱给你。"))
+          (stress-current-actor! 1)
+          (add-item! "金钱" 10)
+          (notify! "完成了几趟，监工数了点工钱给你。压力+1。"))
         (lambda ()
-          (add-item! "金钱" 60)
+          (add-item! "金钱" 15)
           (notify! "手脚麻利，监工满意，工钱一分不少。"))))
 
     ;; ── Per-stage Children ────────────────────────────

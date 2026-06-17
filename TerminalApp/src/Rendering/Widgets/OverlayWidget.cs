@@ -70,7 +70,7 @@ namespace SSNoir.Rendering
             // 2. Trailing Selected Resource (following mouse cursor)
             if (state.SelectedResource != null)
             {
-                float overlayW = state.SelectedResource.Type == "die" ? 32f : 68f;
+                float overlayW = state.SelectedResource.Type == "die" ? 36f : 72f;
                 float overlayH = 32f;
                 var rect = new Rectangle(ui.Mouse.X + 12, ui.Mouse.Y + 12, overlayW, overlayH);
 
@@ -79,7 +79,7 @@ namespace SSNoir.Rendering
 
                 string text = state.SelectedResource.Type == "die" 
                     ? state.SelectedResource.Value.ToString() 
-                    : state.SelectedResource.ItemName;
+                    : (state.SelectedResource.Qty > 1 ? $"{state.SelectedResource.ItemName}x{state.SelectedResource.Qty}" : state.SelectedResource.ItemName);
                 int textW = FontManager.MeasureTextWidth(text, 12);
                 FontManager.DrawText(text, rect.X + (overlayW - textW) / 2f, rect.Y + 8, 12, Color.White);
             }

@@ -21,6 +21,7 @@
 - 全量内容校验与最小状态模拟（仅在需要验证复杂边界逻辑行为或修复疑难问题时）
 
 # 关于schemy
+- 当遇到 Schemy 不支持的标准 Scheme 语法、或与标准 Scheme 行为不同的地方时，将其记录到 [TODO.md](file:///Users/usr/Documents/play/ssnoir/TODO.md) 的"Schemy 的改造"模块中。
 - Schemy 解释器的完整特性、内置符号支持矩阵与 `stdlib.scm` 补全说明请参考 [schemy.md](file:///Users/usr/documents/play/ssnoir/schemy.md)。
 - Schemy 不能使用 dotted rest args（如 `first . rest`），但可以使用纯列表形式的 varargs 参数定义来实现相同的消息协议机制（详见 [schemy.md 中的说明](file:///Users/usr/documents/play/ssnoir/schemy.md#1-变参语法限制-varargs-syntax-constraints)）。
 - Scheme 脚本里的对白文本不要在字符串内容中再使用中文/英文引号。对话统一写成 `角色：内容`，例如 `"夜莺：你终于来了。"`。不要写 `"夜莺：“你终于来了。”"`，也不要写未转义的嵌套英文双引号；后者会让 Schemy 把后续中文当作 symbol 求值，运行时报 `Symbol not defined`。

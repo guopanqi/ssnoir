@@ -7,7 +7,8 @@ from mathutils import Vector
 
 ANGLE_THRESHOLD_DEGREES = 50
 LINE_RADIUS = 0.002
-SCALE_XY = 1.02
+MIN_EDGE_LENGTH = 0.02
+OUTLINE_NORMAL_OFFSET = 0.003
 
 LINE_OBJECT_NAME_PREFIX = "OutlineLines"
 LINE_MATERIAL_NAME = "M_White_Emission_Lines"
@@ -78,13 +79,31 @@ def get_or_create_principled_material(name, color, emission_strength=1):
 
     return mat
 
-def scale_xy_around_center(point, center, scale_xy):
-    offset = point - center
-    return Vector((
-        center.x + offset.x * scale_xy,
-        center.y + offset.y * scale_xy,
-        point.z
-    ))
+def world_normal(obj, local_normal):
+    normal_matrix = obj.matrix_world.inverted().transposed().to_3x3()
+    normal = normal_matrix @ local_normal
+
+    if normal.length == 0:
+        return Vector((0, 0, 1))
+
+    return normal.normalized()
+
+def edge_offset_direction(normals, v1, v2, center):
+    direction = Vector((0, 0, 0))
+
+    for normal in normals:
+        direction += normal
+
+    if direction.length > 0:
+        return direction.normalized()
+
+    midpoint = (v1 + v2) * 0.5
+    direction = midpoint - center
+
+    if direction.length > 0:
+        return direction.normalized()
+
+    return Vector((0, 0, 1))
 
 def sanitize_object_name(name):
     name = re.sub(r"[^0-9A-Za-z_]+", "_", name).strip("_")
@@ -167,22 +186,29 @@ for obj in target_meshes:
         faces = edge_faces[key]
 
         keep = False
+        normals = []
+
+        v1 = obj.matrix_world @ mesh.vertices[edge.vertices[0]].co
+        v2 = obj.matrix_world @ mesh.vertices[edge.vertices[1]].co
+
+        if (v2 - v1).length < MIN_EDGE_LENGTH:
+            continue
 
         if len(faces) == 1:
             keep = True
+            normals.append(world_normal(obj, mesh.polygons[faces[0]].normal))
         elif len(faces) == 2:
-            n1 = mesh.polygons[faces[0]].normal
-            n2 = mesh.polygons[faces[1]].normal
+            n1 = world_normal(obj, mesh.polygons[faces[0]].normal)
+            n2 = world_normal(obj, mesh.polygons[faces[1]].normal)
+            normals.extend((n1, n2))
             keep = n1.angle(n2) >= angle_threshold
 
         if not keep:
             continue
 
-        v1 = obj.matrix_world @ mesh.vertices[edge.vertices[0]].co
-        v2 = obj.matrix_world @ mesh.vertices[edge.vertices[1]].co
-
-        v1 = scale_xy_around_center(v1, center, SCALE_XY)
-        v2 = scale_xy_around_center(v2, center, SCALE_XY)
+        offset = edge_offset_direction(normals, v1, v2, center) * OUTLINE_NORMAL_OFFSET
+        v1 += offset
+        v2 += offset
 
         spline = curve.splines.new("POLY")
         spline.points.add(1)

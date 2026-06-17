@@ -9,6 +9,7 @@ namespace SSNoir.Rendering
     {
         public string Type { get; set; } = string.Empty; // "die" or "item"
         public string ItemName { get; set; } = string.Empty;
+        public int Qty { get; set; } = 1;
         public int Value { get; set; }
         public int SourceIndex { get; set; } = -1;
         public string ActorId { get; set; } = string.Empty;
@@ -43,6 +44,8 @@ namespace SSNoir.Rendering
         public HashSet<string> FlippedNodes { get; } = new HashSet<string>();
         public Dictionary<string, List<SlottedResource?>> NodeSlots { get; } = new Dictionary<string, List<SlottedResource?>>();
         public SelectedResource? SelectedResource { get; set; } = null;
+        public float CardsScrollOffset { get; set; } = 0f;
+        public List<float> CardsScrollStack { get; } = new List<float>();
         public ActionReport? ActiveRollResult { get; set; } = null;
         public string ActiveRollActionName { get; set; } = string.Empty;
         public float ActiveRollTime { get; set; } = 0f;
@@ -115,7 +118,7 @@ namespace SSNoir.Rendering
             {
                 if (SelectedResource.ItemName.Equals(itemName, StringComparison.OrdinalIgnoreCase))
                 {
-                    total -= 1;
+                    total -= Math.Max(1, SelectedResource.Qty);
                 }
             }
 

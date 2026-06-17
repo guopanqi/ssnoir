@@ -35,7 +35,7 @@
               (observe-action "夜莺" "夜莺：快去追吧，别让他跑了。")))))
 
     (define (node-chase-man)
-      (instant-action "追上黑衣人"
+      (encounter-action "追上黑衣人"
         (lambda ()
           (start-encounter "追击黑衣人"
             (lambda (result)

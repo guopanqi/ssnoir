@@ -47,6 +47,7 @@ namespace SSNoir.Scripting
             }
 
             List<GameClock> clocks = new List<GameClock>();
+            List<string> tags = new List<string>();
             List<GameNode> children = new List<GameNode>();
             List<ActionCost> requires = new List<ActionCost>();
             GameResolve? resolve = null;
@@ -70,6 +71,10 @@ namespace SSNoir.Scripting
                 {
                     clocks = ParseClocks(val);
                 }
+                else if (kwStr == ":tags")
+                {
+                    tags = ParseTags(val);
+                }
                 else if (kwStr == ":children")
                 {
                     children = ConvertList(val, interpreter);
@@ -91,6 +96,7 @@ namespace SSNoir.Scripting
             var node = new GameNode
             {
                 Name = name,
+                Tags = tags,
                 Children = children,
                 Requires = requires,
                 Resolve = resolve
@@ -131,6 +137,38 @@ namespace SSNoir.Scripting
                 }
             }
             return requires;
+        }
+
+        private static List<string> ParseTags(object tagsExpr)
+        {
+            var tags = new List<string>();
+            if (tagsExpr is bool b && b == false)
+            {
+                return tags;
+            }
+
+            if (!(tagsExpr is List<object> list))
+            {
+                throw new InvalidOperationException($"Invalid node tags: expected list, got {tagsExpr?.GetType().FullName ?? "null"}");
+            }
+
+            foreach (var item in list)
+            {
+                if (item is string str)
+                {
+                    tags.Add(str);
+                }
+                else if (item is Symbol sym)
+                {
+                    tags.Add(sym.AsString);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Invalid node tag value: expected string or symbol, got {item?.GetType().FullName ?? "null"}");
+                }
+            }
+
+            return tags;
         }
 
         private static int ConvertToInt(object value)

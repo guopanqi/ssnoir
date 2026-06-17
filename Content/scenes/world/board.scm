@@ -12,12 +12,10 @@
            (list
              (container "告示板"
                (list
-                 (action "潜入保险箱"
-                         #f
-                         (instant (lambda () (start-encounter "infiltration"))))
-                 (action "街头交锋"
-                         #f
-                         (instant (lambda () (start-encounter "combat"))))))))
+                 (encounter-action "潜入保险箱"
+                   (lambda () (start-encounter "infiltration")))
+                 (encounter-action "街头交锋"
+                   (lambda () (start-encounter "combat")))))))
 
           ((equal? msg 'save)
            (list

@@ -3,7 +3,7 @@
 (define restaurant
   (let ()
     ;; ── Local State ───────────────────────────────────
-    (define patronage-clock (make-clock "常客进度" 6 'segments))
+    (define patronage-clock (make-clock "常客进度" 8 'segments))
     (define restaurant-stage 1)
     ;; stage: 1=常客积累中  2=情报已获
 
@@ -14,13 +14,14 @@
         (list (req-item "金钱" 12))
         (instant (lambda ()
           (patronage-clock 'tick!)
-          (add-supplies! 1)
-          (notify! "你点了一盘家常菜，老板娘殷勤地加了一道小菜。肚子填饱了，物资+1。")))))
+          (add-supplies! 3)
+          (notify! "你点了一盘家常菜，老板娘殷勤地加了一道小菜。肚子填饱了，物资+3。")))))
 
     (define (node-get-info)
       (instant-action "和老板娘聊聊"
         (lambda ()
           (set! restaurant-stage 2)
+          (mark-complete! 'restaurant-complete)
           (notify! "老板娘凑近低声说：'码头那边最近很乱，你要找人，去问老陈——他什么都知道。'"))))
 
     (define (node-restaurant-work)
@@ -29,9 +30,11 @@
           (stress-current-actor! 1)
           (notify! "手忙脚乱打翻了一盘菜，老板娘皱眉，没什么工钱。"))
         (lambda ()
+          (patronage-clock 'tick!)
           (add-item! "金钱" 20)
           (notify! "度过了平稳的一天，老板娘结了工钱。"))
         (lambda ()
+          (patronage-clock 'tick!)
           (add-item! "金钱" 40)
           (notify! "客人夸你手脚快，老板娘多给了些打赏。"))))
 

@@ -721,13 +721,14 @@ namespace SSNoir
             return _scriptLoader.LoadSceneNames();
         }
 
-        public void SaveGame()
+        public void SaveGame(string? filePath = null)
         {
             try
             {
-                _sceneManager.SaveGame();
+                var path = filePath ?? SaveManager.DefaultSavePath;
+                _sceneManager.SaveGame(path);
                 _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
-                Debug.Log($"[SSNoir] Game saved to {SaveManager.DefaultSavePath}");
+                Debug.Log($"[SSNoir] Game saved to {path}");
             }
             catch (System.Exception ex)
             {
@@ -736,20 +737,21 @@ namespace SSNoir
             }
         }
 
-        public void LoadGame()
+        public void LoadGame(string? filePath = null)
         {
-            if (!System.IO.File.Exists(SaveManager.DefaultSavePath))
+            var path = filePath ?? SaveManager.DefaultSavePath;
+            if (!System.IO.File.Exists(path))
             {
                 _gameState.NotificationCenter.Push("没有找到存档文件。", NotificationKind.Warning);
-                Debug.LogWarning($"[SSNoir] No save file found at {SaveManager.DefaultSavePath}");
+                Debug.LogWarning($"[SSNoir] No save file found at {path}");
                 return;
             }
             try
             {
-                _sceneManager.LoadGame();
+                _sceneManager.LoadGame(path);
                 // OnSceneLoaded fires inside LoadGame → ResetSceneUiState → ResetUiState
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
-                Debug.Log($"[SSNoir] Game loaded from {SaveManager.DefaultSavePath}");
+                Debug.Log($"[SSNoir] Game loaded from {path}");
             }
             catch (System.Exception ex)
             {
