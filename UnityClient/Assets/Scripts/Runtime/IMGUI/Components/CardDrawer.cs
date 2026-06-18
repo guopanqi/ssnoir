@@ -12,6 +12,7 @@ namespace SSNoir.IMGUI
         {
             public bool CardClicked;
             public int ClickedSlotIndex;
+            public int DroppedSlotIndex;
             public bool ExecuteClicked;
         }
 
@@ -19,7 +20,7 @@ namespace SSNoir.IMGUI
             List<SlottedResource?>? slotted, List<GameClock> clocks, string backText,
             IMGUIInteractionContext ui, SSNoirGameManager gameManager, bool isExecuting = false, float executeProgress = 0f, string executingText = "执行中")
         {
-            var interaction = new CardInteraction { CardClicked = false, ClickedSlotIndex = -1, ExecuteClicked = false };
+            var interaction = new CardInteraction { CardClicked = false, ClickedSlotIndex = -1, DroppedSlotIndex = -1, ExecuteClicked = false };
 
             if (isFlipped)
             {
@@ -111,9 +112,13 @@ namespace SSNoir.IMGUI
             float typeY = showButton ? rect.y + 48 : rect.y + rect.height / 2f + 6;
             GUI.Label(new Rect(rect.x + 10f, typeY, rect.width - 20f, 22), $"— {typeLabel} —", IMGUIStyles.CardSubtitle);
 
+            DrawNodeTags(rect, node.Tags, hasRequires ? rect.y + 8f : (showButton ? rect.y + 72f : rect.y + 8f));
+
             if (hasRequires)
             {
-                int M = node.Requires.Count;
+                var requires = node.Requires!;
+                var slots = slotted!;
+                int M = requires.Count;
                 float slotW = 46;
                 float slotH = 46;
                 float spacing = 10;
@@ -125,34 +130,39 @@ namespace SSNoir.IMGUI
                 {
                     var slotRect = new Rect(slotStartX + j * (slotW + spacing), slotY, slotW, slotH);
                     bool slotHover = ui.CanHover(slotRect);
-                    var res = slotted[j];
+                    var res = slots[j];
+                    bool canMatchHeld = gameManager.CanMatchRequirement(requires[j]);
+                    bool canDropHeld = gameManager.CanPlaceSelectedResource(node, j);
 
                     if (res == null)
                     {
-                        GUI.color = IMGUIStyles.SlotEmpty;
+                        Color fill = canDropHeld
+                            ? (slotHover ? new Color(0.12f, 0.30f, 0.26f, 0.85f) : new Color(0.11f, 0.15f, 0.28f, 0.75f))
+                            : (canMatchHeld ? new Color(0.30f, 0.12f, 0.15f, 0.65f) : IMGUIStyles.SlotEmpty);
+                        Color border = canDropHeld
+                            ? (slotHover ? new Color(0.43f, 0.95f, 0.80f, 1f) : new Color(0.63f, 0.74f, 1f, 1f))
+                            : (canMatchHeld ? new Color(0.55f, 0.28f, 0.34f, 1f) : (slotHover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SlotEmptyBorder));
+
+                        GUI.color = fill;
                         GUI.DrawTexture(slotRect, Texture2D.whiteTexture);
                         GUI.color = Color.white;
-                        IMGUIStyles.DrawOutline(slotRect, 1f, slotHover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SlotEmptyBorder);
+                        IMGUIStyles.DrawOutline(slotRect, canDropHeld && slotHover ? 2f : 1f, border);
 
-                        string placeholder = node.Requires[j].Type == "die" ? "D" : node.Requires[j].ItemId.Substring(0, 1);
-                        if (node.Requires[j].Type == "item" && node.Requires[j].Qty > 1)
-                            placeholder += node.Requires[j].Qty;
+                        string placeholder = FormatRequirementLabel(requires[j]);
                         int fontSize = placeholder.Length > 2 ? 12 : (placeholder.Length > 1 ? 15 : 19);
                         var pStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                         pStyle.fontSize = fontSize;
-                        pStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
+                        pStyle.normal.textColor = canDropHeld ? Color.white : (canMatchHeld ? IMGUIStyles.ErrorColor : IMGUIStyles.OnSurfaceVariant);
                         GUI.Label(slotRect, placeholder, pStyle);
                     }
                     else
                     {
-                        GUI.color = IMGUIStyles.SlotFilled;
+                        GUI.color = canMatchHeld ? new Color(0.32f, 0.36f, 0.56f, 0.9f) : IMGUIStyles.SlotFilled;
                         GUI.DrawTexture(slotRect, Texture2D.whiteTexture);
                         GUI.color = Color.white;
-                        IMGUIStyles.DrawOutline(slotRect, 1f, IMGUIStyles.SlotFilledBorder);
+                        IMGUIStyles.DrawOutline(slotRect, canMatchHeld ? 2f : 1f, canMatchHeld ? new Color(0.75f, 0.84f, 1f, 1f) : IMGUIStyles.SlotFilledBorder);
 
-                        string valStr = res.Type == "die" ? res.Value.ToString() : res.ItemId.Substring(0, 1);
-                        if (res.Type == "item" && res.Value > 1)
-                            valStr += res.Value;
+                        string valStr = FormatSlottedLabel(res);
                         int fontSize = valStr.Length > 2 ? 12 : (valStr.Length > 1 ? 15 : 19);
                         var vStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                         vStyle.fontSize = fontSize;
@@ -163,6 +173,14 @@ namespace SSNoir.IMGUI
                     if (ui.WasClicked(slotRect))
                     {
                         interaction.ClickedSlotIndex = j;
+                        Event.current.Use();
+                    }
+                    else if (canDropHeld
+                        && slotHover
+                        && Event.current.type == EventType.MouseUp
+                        && Event.current.button == 0)
+                    {
+                        interaction.DroppedSlotIndex = j;
                         Event.current.Use();
                     }
                 }
@@ -255,6 +273,88 @@ namespace SSNoir.IMGUI
             }
 
             return interaction;
+        }
+
+        private static void DrawNodeTags(Rect rect, List<string>? tags, float startY)
+        {
+            if (tags == null || tags.Count == 0)
+            {
+                return;
+            }
+
+            float x = rect.x + 8f;
+            float y = startY;
+            float maxRight = rect.xMax - 8f;
+
+            for (int i = 0; i < tags.Count; i++)
+            {
+                string label = tags[i];
+                if (string.IsNullOrWhiteSpace(label))
+                {
+                    continue;
+                }
+
+                var style = new GUIStyle(GUI.skin.label)
+                {
+                    font = IMGUIStyles.ChineseFont,
+                    fontSize = 11,
+                    alignment = TextAnchor.MiddleCenter,
+                    normal = { textColor = label == "交锋" ? new Color(1f, 0.84f, 0.80f, 1f) : new Color(0.86f, 0.92f, 1f, 1f) }
+                };
+
+                Vector2 size = style.CalcSize(new GUIContent(label));
+                float tagW = Mathf.Min(size.x + 14f, rect.width - 16f);
+                if (x + tagW > maxRight)
+                {
+                    x = rect.x + 8f;
+                    y += 21f;
+                }
+
+                var tagRect = new Rect(x, y, tagW, 18f);
+                Color bg = label == "交锋"
+                    ? new Color(0.37f, 0.13f, 0.13f, 0.90f)
+                    : new Color(0.14f, 0.19f, 0.31f, 0.85f);
+                Color border = label == "交锋"
+                    ? new Color(0.82f, 0.34f, 0.30f, 1f)
+                    : new Color(0.42f, 0.57f, 0.86f, 1f);
+
+                GUI.color = bg;
+                GUI.DrawTexture(tagRect, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(tagRect, 1f, border);
+                GUI.Label(tagRect, label, style);
+
+                x += tagW + 6f;
+            }
+        }
+
+        private static string FormatRequirementLabel(ActionCost requirement)
+        {
+            if (requirement.Type == "die")
+            {
+                return "D";
+            }
+
+            if (string.IsNullOrEmpty(requirement.ItemId))
+            {
+                return "?";
+            }
+
+            return requirement.Qty > 1
+                ? $"{requirement.ItemId}x{requirement.Qty}"
+                : requirement.ItemId;
+        }
+
+        private static string FormatSlottedLabel(SlottedResource resource)
+        {
+            if (resource.Type == "die")
+            {
+                return resource.Value.ToString();
+            }
+
+            string itemName = string.IsNullOrEmpty(resource.ItemId) ? "?" : resource.ItemId;
+            int qty = resource.Qty > 0 ? resource.Qty : resource.Value;
+            return qty > 1 ? $"{itemName}x{qty}" : itemName;
         }
 
         private static void DrawFlippedCard(Rect rect, GameNode node, string backText, bool isHovered, IMGUIInteractionContext ui,

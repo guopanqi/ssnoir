@@ -14,8 +14,12 @@ namespace SSNoir.IMGUI
         private PresentationPlayer _presentationPlayer = null!;
 
         private bool _isGrowthPanelOpen = false;
+        private readonly IMGUIWindowStack _windowStack = new();
 
         private readonly Dictionary<string, Vector2> _cardCenters = new Dictionary<string, Vector2>();
+        private readonly List<float> _gridScrollStack = new();
+        private float _gridScrollOffset = 0f;
+        private int _lastNavigationDepth = 0;
 
         public void Initialize(SSNoirGameManager gameManager)
         {
@@ -63,6 +67,9 @@ namespace SSNoir.IMGUI
         {
             _isGrowthPanelOpen = false;
             _inputLocked = false;
+            _gridScrollOffset = 0f;
+            _gridScrollStack.Clear();
+            _lastNavigationDepth = 0;
             DebugPanelDrawer.Reset();
         }
 
@@ -74,7 +81,11 @@ namespace SSNoir.IMGUI
             _animator.Update();
 
             // Right-click to cancel selection
-            if (Input.GetMouseButtonDown(1) && !IsAnimationPlaying && !_isGrowthPanelOpen && !_inputLocked)
+            if (Input.GetMouseButtonDown(1)
+                && !IsAnimationPlaying
+                && !_isGrowthPanelOpen
+                && !DebugPanelDrawer.IsOpen
+                && !_inputLocked)
             {
                 if (_gameManager.SelectedResource != null)
                 {
@@ -86,7 +97,8 @@ namespace SSNoir.IMGUI
         private void OnGUI()
         {
             if (Event.current.type != EventType.Repaint && Event.current.type != EventType.MouseDown
-                && Event.current.type != EventType.MouseUp && Event.current.type != EventType.Layout)
+                && Event.current.type != EventType.MouseUp && Event.current.type != EventType.ScrollWheel
+                && Event.current.type != EventType.Layout)
                 return;
 
             // Scale the entire GUI to the reference resolution (1920×1080).
@@ -94,20 +106,45 @@ namespace SSNoir.IMGUI
 
             // Initialize styles if needed
             IMGUIStyles.Init(_gameManager.ChineseFont);
+            SyncNavigationScrollState();
 
-            // Global input blocker during locked state (but NOT during animation, so user can click the modal)
-            if (_inputLocked && !IsAnimationPlaying)
+            Vector2 mouse = Event.current.mousePosition;
+            bool mouseDown = Event.current.type == EventType.MouseDown && Event.current.button == 0;
+            _windowStack.BeginFrame(mouse, mouseDown);
+
+            if (DebugPanelDrawer.IsOpen && !_isGrowthPanelOpen)
             {
-                // Draw invisible blocker using GUI.Box (does NOT consume events)
-                GUI.color = Color.clear;
-                GUI.Box(new Rect(0, 0, UIScale.VW, UIScale.VH), GUIContent.none);
-                GUI.color = Color.white;
+                var (_, debugPanelRect) = DebugPanelDrawer.GetRects();
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.DebugPanel,
+                    Bounds = debugPanelRect,
+                    Layer = IMGUIWindowLayer.Panel,
+                    BlockMode = IMGUIBlockMode.Bounds,
+                    CloseOnClickedOutside = false,
+                });
             }
 
-            var ui = new IMGUIInteractionContext(Event.current.mousePosition, _inputLocked || IsAnimationPlaying);
+            if (_isGrowthPanelOpen)
+            {
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.GrowthPanel,
+                    Bounds = GrowthPanelDrawer.GetPanelRect(),
+                    Layer = IMGUIWindowLayer.Panel,
+                    BlockMode = IMGUIBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
+
+            _windowStack.Update();
+
+            bool baseLocked = _inputLocked || IsAnimationPlaying;
+            var worldUi = _windowStack.MakeContext(IMGUIWindowLayer.World, baseLocked);
+            var panelUi = _windowStack.MakeContext(IMGUIWindowLayer.Panel, baseLocked);
 
             // ── Navigation Bar ──
-            NavigationDrawer.Draw(_gameManager, ui);
+            NavigationDrawer.Draw(_gameManager, worldUi);
 
             // ── Node Clocks ──
             var clocks = GetCurrentClocks();
@@ -117,35 +154,29 @@ namespace SSNoir.IMGUI
             }
 
             // ── Node Cards (3D projected) ──
-            if (!_isGrowthPanelOpen)
-            {
-                DrawCards(ui);
-            }
+            DrawCards(worldUi);
 
             // ── Bottom Panel ──
-            HandPanelDrawer.Draw(_gameManager, ui);
+            HandPanelDrawer.Draw(_gameManager, worldUi);
 
             // ── Growth / Team Toggle Button ──
-            DrawGrowthToggleButton(ui);
+            DrawGrowthToggleButton(worldUi);
 
             // ── Debug Panel (Save/Load + Scene Switch) ──
             if (!_isGrowthPanelOpen)
             {
-                DebugPanelDrawer.Draw(_gameManager, ui);
+                DebugPanelDrawer.Draw(_gameManager, panelUi);
             }
 
             // ── Overlays ──
             OverlayDrawer.DrawNotifications(_gameManager.GameState.NotificationCenter);
-            if (!_isGrowthPanelOpen)
-            {
-                OverlayDrawer.DrawCursorFollower(_gameManager);
-                DrawPresentationOverlay();
-            }
+            OverlayDrawer.DrawCursorFollower(_gameManager);
+            DrawPresentationOverlay();
 
             // ── Growth Panel ──
             if (_isGrowthPanelOpen)
             {
-                var growthInteraction = GrowthPanelDrawer.Draw(_gameManager, ui);
+                var growthInteraction = GrowthPanelDrawer.Draw(_gameManager, panelUi);
                 if (growthInteraction.ShouldClose)
                 {
                     _isGrowthPanelOpen = false;
@@ -313,6 +344,22 @@ namespace SSNoir.IMGUI
             float startX = 40f;
             float startY = 140f;
             int cardsPerRow = Mathf.Max(1, (int)((UIScale.VW - startX * 2) / (cardWidth + spacing)));
+            int rowCount = nodes.Count == 0 ? 0 : (nodes.Count + cardsPerRow - 1) / cardsPerRow;
+            float contentHeight = rowCount == 0 ? 0f : rowCount * cardHeight + Mathf.Max(0, rowCount - 1) * spacing;
+            float viewportBottom = UIScale.VH - 175f;
+            var viewport = new Rect(0f, startY, UIScale.VW, Mathf.Max(0f, viewportBottom - startY));
+            float maxScroll = Mathf.Max(0f, contentHeight - viewport.height);
+
+            bool mouseInViewport = ui.CanHover(viewport);
+            if (mouseInViewport && Event.current.type == EventType.ScrollWheel && maxScroll > 0f)
+            {
+                _gridScrollOffset += Event.current.delta.y * 18f;
+                Event.current.Use();
+            }
+            _gridScrollOffset = Mathf.Clamp(_gridScrollOffset, 0f, maxScroll);
+
+            GUI.BeginGroup(viewport);
+            var localUi = new IMGUIInteractionContext(ui.Mouse - new Vector2(viewport.x, viewport.y), ui.IsLocked);
 
             for (int i = 0; i < nodes.Count; i++)
             {
@@ -320,10 +367,14 @@ namespace SSNoir.IMGUI
                 int row = i / cardsPerRow;
                 int col = i % cardsPerRow;
                 float x = startX + col * (cardWidth + spacing);
-                float y = startY + row * (cardHeight + spacing);
+                float y = row * (cardHeight + spacing) - _gridScrollOffset;
+                if (y > viewport.height || y + cardHeight < 0f)
+                {
+                    continue;
+                }
                 var cardRect = new Rect(x, y, cardWidth, cardHeight);
 
-                bool isHovered = ui.CanHover(cardRect);
+                bool isHovered = localUi.CanHover(cardRect);
                 bool isFlipped = _gameManager.IsNodeFlipped(node.Name);
                 bool focused = isFocused(node.Name);
 
@@ -337,22 +388,34 @@ namespace SSNoir.IMGUI
                 var execution = GetCardExecutionState(node.Name);
 
                 var interaction = CardDrawer.DrawCard(cardRect, node, isHovered, isFlipped, focused,
-                    slotted, node.Clocks, backText, ui, _gameManager,
+                    slotted, node.Clocks, backText, localUi, _gameManager,
                     execution.IsExecuting, execution.Progress, execution.Text);
 
                 if (interaction.CardClicked)
                 {
+                    if (node.IsContainer)
+                    {
+                        _gridScrollStack.Add(_gridScrollOffset);
+                        _gridScrollOffset = 0f;
+                    }
                     _gameManager.OnNodeCardClicked(node);
                 }
                 if (interaction.ClickedSlotIndex != -1 && slotted != null && node.Requires != null)
                 {
                     _gameManager.OnSlotClicked(node, interaction.ClickedSlotIndex);
                 }
+                if (interaction.DroppedSlotIndex != -1 && slotted != null && node.Requires != null)
+                {
+                    _gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex);
+                }
                 if (interaction.ExecuteClicked)
                 {
                     _gameManager.ExecuteNodeAction(node);
                 }
             }
+
+            GUI.EndGroup();
+            DrawGridScrollbar(viewport, contentHeight, _gridScrollOffset, maxScroll);
         }
 
         private void DrawNodeCard(GameNode node, Rect cardRect, Vector2 anchorPos, IMGUIInteractionContext ui)
@@ -403,10 +466,74 @@ namespace SSNoir.IMGUI
                 _gameManager.OnSlotClicked(node, interaction.ClickedSlotIndex);
             }
 
+            if (interaction.DroppedSlotIndex != -1 && slotted != null && node.Requires != null)
+            {
+                _gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex);
+            }
+
             if (interaction.ExecuteClicked)
             {
                 _gameManager.ExecuteNodeAction(node);
             }
+        }
+
+        private void SyncNavigationScrollState()
+        {
+            int depth = _gameManager.NavigationStack.Count;
+            if (depth < _lastNavigationDepth)
+            {
+                while (_gridScrollStack.Count > depth)
+                {
+                    _gridScrollStack.RemoveAt(_gridScrollStack.Count - 1);
+                }
+                _gridScrollOffset = PopGridScrollOffset();
+            }
+            else if (depth == 0 && _lastNavigationDepth != 0)
+            {
+                _gridScrollStack.Clear();
+                _gridScrollOffset = 0f;
+            }
+            else if (depth > _lastNavigationDepth + 1)
+            {
+                _gridScrollStack.Clear();
+                _gridScrollOffset = 0f;
+            }
+
+            _lastNavigationDepth = depth;
+        }
+
+        private float PopGridScrollOffset()
+        {
+            if (_gridScrollStack.Count == 0)
+            {
+                return 0f;
+            }
+
+            int last = _gridScrollStack.Count - 1;
+            float offset = _gridScrollStack[last];
+            _gridScrollStack.RemoveAt(last);
+            return offset;
+        }
+
+        private static void DrawGridScrollbar(Rect viewport, float contentHeight, float scrollOffset, float maxScroll)
+        {
+            if (contentHeight <= viewport.height || viewport.height <= 0f)
+            {
+                return;
+            }
+
+            float trackW = 6f;
+            var track = new Rect(viewport.xMax - trackW - 10f, viewport.y + 4f, trackW, viewport.height - 8f);
+            float thumbH = Mathf.Max(34f, track.height * (viewport.height / contentHeight));
+            float travel = Mathf.Max(0f, track.height - thumbH);
+            float thumbY = track.y + (maxScroll <= 0f ? 0f : travel * (scrollOffset / maxScroll));
+            var thumb = new Rect(track.x, thumbY, track.width, thumbH);
+
+            GUI.color = new Color(0.08f, 0.09f, 0.13f, 0.75f);
+            GUI.DrawTexture(track, Texture2D.whiteTexture);
+            GUI.color = new Color(0.42f, 0.48f, 0.68f, 0.85f);
+            GUI.DrawTexture(thumb, Texture2D.whiteTexture);
+            GUI.color = Color.white;
         }
 
         private bool isFocused(string nodeName)

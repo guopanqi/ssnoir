@@ -15,17 +15,25 @@ namespace SSNoir.IMGUI
 
         private static readonly string[] StatKeys = { "violence", "knowledge", "coding", "sharpness" };
 
+        public static Rect GetPanelRect()
+        {
+            float panelW = 640f;
+            float panelH = 420f;
+            float panelX = (UIScale.VW - panelW) / 2f;
+            float panelY = (UIScale.VH - panelH) / 2f;
+            return new Rect(panelX, panelY, panelW, panelH);
+        }
+
         public static GrowthPanelInteraction Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             var interaction = new GrowthPanelInteraction { ShouldClose = false };
             var snapshot = gameManager.DisplayedSnapshot;
 
-            // Layout coordinates identical to original
-            float panelW = 640f;
-            float panelH = 420f;
-            float panelX = (UIScale.VW - panelW) / 2f;
-            float panelY = (UIScale.VH - panelH) / 2f;
-            var panelRect = new Rect(panelX, panelY, panelW, panelH);
+            var panelRect = GetPanelRect();
+            float panelW = panelRect.width;
+            float panelH = panelRect.height;
+            float panelX = panelRect.x;
+            float panelY = panelRect.y;
 
             // 1. Dark tech blueprint background (85% opacity SurfaceColor)
             GUI.color = new Color(IMGUIStyles.SurfaceColor.r, IMGUIStyles.SurfaceColor.g, IMGUIStyles.SurfaceColor.b, 0.85f);

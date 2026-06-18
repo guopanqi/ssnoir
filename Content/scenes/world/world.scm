@@ -11,8 +11,8 @@
 (load-file "world/诊所.scm")
 (load-file "world/废弃仓库.scm")
 (load-file "world/码头.scm")
-(load-file "world/市集.scm")
-(load-file "world/码头居民区.scm")
+(load-file "world/老街市集.scm")
+(load-file "world/老街居民区.scm")
 (load-file "world/酒吧.scm")
 
 ;; 世界级状态（真正跨地点共享的）
@@ -90,6 +90,7 @@
     (list "clinic"      (clinic              'save))
     (list "warehouse"   (abandoned-warehouse 'save))
     (list "dock"        (dock                'save))
+    (list "residential" (residential         'save))
     (list "bar"         (bar                 'save))))
 
 ;; 读档：用 assoc-get 按 key 取值，缺失时有 default，健壮
@@ -106,4 +107,5 @@
   (clinic              'load! (assoc-get data "clinic"      '()))
   (abandoned-warehouse 'load! (assoc-get data "warehouse"   '()))
   (dock                'load! (assoc-get data "dock"        '()))
+  (residential         'load! (assoc-get data "residential" '()))
   (bar                 'load! (assoc-get data "bar"         '())))

@@ -20,13 +20,32 @@ namespace SSNoir.IMGUI
         private static bool _isOpen = false;
         private static readonly List<SceneItem> _scenes = new List<SceneItem>();
 
-        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        public static bool IsOpen => _isOpen;
+
+        public static (Rect ToggleRect, Rect PanelRect) GetRects()
         {
             float btnW = 70f;
             float btnH = 32f;
             float btnX = UIScale.VW - btnW - 10f;
             float btnY = 30f;
             var toggleRect = new Rect(btnX, btnY, btnW, btnH);
+
+            float itemH = 26f;
+            float panelW = 260f;
+            float panelX = btnX + btnW - panelW;
+            float panelY = btnY + btnH + 4f;
+            float slotsHeight = 20f + 3 * 28f + 14f;
+            float panelH = 8f + slotsHeight + _scenes.Count * itemH + 8f;
+            return (toggleRect, new Rect(panelX, panelY, panelW, panelH));
+        }
+
+        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        {
+            var (toggleRect, panelRect) = GetRects();
+            float btnX = toggleRect.x;
+            float btnY = toggleRect.y;
+            float btnW = toggleRect.width;
+            float btnH = toggleRect.height;
 
             // Toggle button
             Color toggleBg = _isOpen ? new Color(0.18f, 0.18f, 0.35f, 1f) : IMGUIStyles.DropdownBg;
@@ -59,12 +78,9 @@ namespace SSNoir.IMGUI
 
             // Panel
             float itemH = 26f;
-            float panelW = 260f;
-            float panelX = btnX + btnW - panelW;
-            float panelY = btnY + btnH + 4f;
-            float slotsHeight = 20f + 3 * 28f + 14f;
-            float panelH = 8f + slotsHeight + _scenes.Count * itemH + 8f;
-            var panelRect = new Rect(panelX, panelY, panelW, panelH);
+            float panelW = panelRect.width;
+            float panelX = panelRect.x;
+            float panelY = panelRect.y;
 
             GUI.color = new Color(0.078f, 0.086f, 0.11f, 1f);
             GUI.DrawTexture(panelRect, Texture2D.whiteTexture);

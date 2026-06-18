@@ -89,7 +89,13 @@ namespace SSNoir
             // 1. Initialize Game State & Script Loader
             _gameState = new GameState();
             _scriptLoader = new UnityScriptLoader();
+#if UNITY_EDITOR
+            // In editor, share save files with the TerminalApp (project root, same as "save.json" cwd default).
+            var projectRoot = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(Application.dataPath));
+            SaveManager.DefaultSavePath = System.IO.Path.Combine(projectRoot, "save.json");
+#else
             SaveManager.DefaultSavePath = System.IO.Path.Combine(Application.persistentDataPath, "save.json");
+#endif
 
             // 2. Initialize Scene Manager
             _sceneManager = new SceneManager(_gameState, _scriptLoader);
@@ -385,54 +391,137 @@ namespace SSNoir
             if (slots == null || slotIndex < 0 || slotIndex >= slots.Count) return;
 
             var existing = slots[slotIndex];
-            if (existing != null)
+            if (_selectedResource == null && existing != null)
             {
+                _selectedResource = CreateSelectedResourceFromSlot(existing);
                 slots[slotIndex] = null;
             }
-            else if (_selectedResource != null)
+            else if (_selectedResource != null && existing == null)
             {
-                ClearOtherNodeSlots(node.Name);
-                var req = node.Requires[slotIndex];
-                if (req.Type == "die" && _selectedResource.Type == "die")
-                {
-                    ClearDieFromAllSlots(_selectedResource.SourceIndex);
-                    slots[slotIndex] = new SlottedResource
-                    {
-                        Type = "die",
-                        Value = _selectedResource.Value,
-                        SourceIndex = _selectedResource.SourceIndex,
-                        ActorId = _selectedResource.ActorId,
-                        DieIndex = _selectedResource.DieIndex
-                    };
-                    _selectedResource = null;
-                }
-                else if (req.Type == "item" && _selectedResource.Type == "item" && req.ItemId == _selectedResource.ItemName)
-                {
-                    int totalOwned = _displayedSnapshot.Inventory.TryGetValue(req.ItemId, out var ownedQty) ? ownedQty : 0;
-                    int totalSlotted = GetTotalSlottedItemQty(req.ItemId);
-                    int available = totalOwned - totalSlotted;
-
-                    if (available >= req.Qty)
-                    {
-                        slots[slotIndex] = new SlottedResource
-                        {
-                            Type = "item",
-                            ItemId = req.ItemId,
-                            Value = req.Qty,
-                            Qty = req.Qty
-                        };
-                        _selectedResource = null;
-                    }
-                    else
-                    {
-                        ShowNotification($"缺少数量，需要 {req.Qty} 个 {req.ItemId}");
-                    }
-                }
-                else
-                {
-                    ShowNotification($"槽位需要: {(req.Type == "die" ? "骰子" : req.ItemId)}");
-                }
+                TryPlaceSelectedResource(node, slotIndex);
             }
+        }
+
+        private SelectedResource CreateSelectedResourceFromSlot(SlottedResource resource)
+        {
+            if (resource.Type == "die")
+            {
+                return new SelectedResource
+                {
+                    Type = "die",
+                    Value = resource.Value,
+                    SourceIndex = resource.SourceIndex,
+                    ActorId = resource.ActorId,
+                    DieIndex = resource.DieIndex
+                };
+            }
+
+            return new SelectedResource
+            {
+                Type = "item",
+                ItemName = resource.ItemId,
+                Value = resource.Qty > 0 ? resource.Qty : resource.Value
+            };
+        }
+
+        public bool CanMatchRequirement(ActionCost req)
+        {
+            if (_selectedResource == null)
+            {
+                return false;
+            }
+
+            if (req.Type == "die")
+            {
+                return _selectedResource.Type == "die";
+            }
+
+            if (req.Type == "item")
+            {
+                return _selectedResource.Type == "item"
+                    && req.ItemId.Equals(_selectedResource.ItemName, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return false;
+        }
+
+        public bool CanPlaceSelectedResource(GameNode node, int slotIndex)
+        {
+            var slots = GetSlotsForNode(node.Name);
+            if (_selectedResource == null
+                || node.Requires == null
+                || slots == null
+                || slotIndex < 0
+                || slotIndex >= node.Requires.Count
+                || slotIndex >= slots.Count
+                || slots[slotIndex] != null)
+            {
+                return false;
+            }
+
+            var req = node.Requires[slotIndex];
+            if (!CanMatchRequirement(req))
+            {
+                return false;
+            }
+
+            if (req.Type == "die")
+            {
+                return true;
+            }
+
+            int totalOwned = _displayedSnapshot.Inventory.TryGetValue(req.ItemId, out var ownedQty) ? ownedQty : 0;
+            int totalSlotted = GetTotalSlottedItemQty(req.ItemId, slots, slotIndex);
+            return totalOwned - totalSlotted >= req.Qty;
+        }
+
+        public bool TryPlaceSelectedResource(GameNode node, int slotIndex)
+        {
+            var slots = GetSlotsForNode(node.Name);
+            if (_selectedResource == null || slots == null || node.Requires == null)
+            {
+                return false;
+            }
+
+            var req = node.Requires[slotIndex];
+            if (!CanPlaceSelectedResource(node, slotIndex))
+            {
+                ShowNotification(CanMatchRequirement(req)
+                    ? $"缺少数量，需要 {req.Qty} 个 {req.ItemId}"
+                    : $"槽位需要: {(req.Type == "die" ? "骰子" : req.ItemId)}");
+                return false;
+            }
+
+            ClearOtherNodeSlots(node.Name);
+            if (req.Type == "die" && _selectedResource.Type == "die")
+            {
+                ClearDieFromAllSlots(_selectedResource.SourceIndex);
+                slots[slotIndex] = new SlottedResource
+                {
+                    Type = "die",
+                    Value = _selectedResource.Value,
+                    SourceIndex = _selectedResource.SourceIndex,
+                    ActorId = _selectedResource.ActorId,
+                    DieIndex = _selectedResource.DieIndex
+                };
+                _selectedResource = null;
+                return true;
+            }
+
+            if (req.Type == "item" && _selectedResource.Type == "item")
+            {
+                slots[slotIndex] = new SlottedResource
+                {
+                    Type = "item",
+                    ItemId = req.ItemId,
+                    Value = req.Qty,
+                    Qty = req.Qty
+                };
+                _selectedResource = null;
+                return true;
+            }
+
+            return false;
         }
 
         private void ClearOtherNodeSlots(string activeNodeName)
@@ -463,11 +552,22 @@ namespace SSNoir
 
         public int GetTotalSlottedItemQty(string itemName)
         {
+            return GetTotalSlottedItemQty(itemName, null, -1);
+        }
+
+        private int GetTotalSlottedItemQty(string itemName, List<SlottedResource?>? targetSlots, int targetSlotIndex)
+        {
             int sum = 0;
             foreach (var list in _nodeSlots.Values)
             {
-                foreach (var s in list)
+                for (int i = 0; i < list.Count; i++)
                 {
+                    if (ReferenceEquals(list, targetSlots) && i == targetSlotIndex)
+                    {
+                        continue;
+                    }
+
+                    var s = list[i];
                     if (s != null && s.Type == "item" && s.ItemId == itemName)
                         sum += s.Qty > 0 ? s.Qty : s.Value;
                 }

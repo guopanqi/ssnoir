@@ -29,7 +29,7 @@
                (not (get-global 'dock-market-open)))
           (begin
             (set-global! 'dock-market-open #t)
-            (notify! "码头市集的方向传来叫卖声——那边有人在做生意。"))
+            (notify! "老街市集的方向传来叫卖声——那边有人在做生意。"))
           #f)
       (if (and (>= (dock-clock 'current) 4)
                (not (get-global 'dock-residential-open)))

@@ -1,11 +1,11 @@
-;; scenes/world/市集.scm
-;; 码头市集 — wraps the existing merchant scene.
+;; scenes/world/老街市集.scm
+;; 老街市集 — wraps the existing merchant scene.
 ;; merchant.scm is still loaded and saved separately; market just surfaces it.
 
 (define market
   (let ()
     (define (node-market-container)
-      (container "码头市集"
+      (container "老街市集"
         (merchant 'render-data)))
 
     (lambda args
