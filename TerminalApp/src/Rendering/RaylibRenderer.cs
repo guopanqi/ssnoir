@@ -46,6 +46,7 @@ namespace SSNoir.Rendering
             _state.SelectedResource = null;
             _state.CardsScrollOffset = 0f;
             _state.CardsScrollStack.Clear();
+            _state.HandItemsScrollOffset = 0f;
             _state.IsTurnPanelOpen = false;
             _state.IsGrowthPanelOpen = false;
             _state.IsDebugMenuOpen = false;
@@ -865,6 +866,12 @@ namespace SSNoir.Rendering
 
                 var bounds = new Rectangle(x, y, cardWidth, cardHeight);
                 bool isHovered = ui.CanHover(bounds);
+
+                if (node.Resolve?.Type == ResolveType.Clock)
+                {
+                    CardWidget.DrawClockCard(bounds, node.Name, node.Subtitle, node.Resolve.Clock);
+                    continue;
+                }
 
                 string typeLabel = "容器";
                 if (node.Resolve != null)

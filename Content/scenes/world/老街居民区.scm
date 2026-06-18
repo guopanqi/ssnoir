@@ -57,7 +57,7 @@
            (node-finish-section)))
         (#t
          (list
-           (observe-action "海伦的公寓" "房间被你恢复成差不多原来的样子。海伦还没醒。")))))
+           (observe-action "翻过的公寓" "房间被你恢复成差不多原来的样子。海伦还没醒。")))))
 
     (define (helen-apartment-nodes)
       (if (get-global 'helen-apartment-open)

@@ -72,8 +72,10 @@
            (stage-2-children)))
         (#t
          (container "废弃仓库"
-           (list (observe-action "联络人留下的纸条"
-                   "纸条上只有两个字：老陈。"))))))
+           (list
+             (observe-action "联络人留下的纸条"
+               "纸条上只有两个字：老陈。")
+             (node-warehouse-work))))))
 
     ;; ── Message Passing Interface ─────────────────────
     (lambda args

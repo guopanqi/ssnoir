@@ -21,6 +21,7 @@ namespace SSNoir.Core
         private bool _hasPendingSceneDiceRoll;
         private bool _pendingSceneIsEncounter;
         private Procedure? _encounterCallback;
+        private bool _encounterEnded;
 
         public event Action? OnSceneLoaded;
         public event Action? OnWorldRefreshed;
@@ -127,11 +128,15 @@ namespace SSNoir.Core
 
         public void StartEncounter(string name)
         {
+            _encounterEnded = false;
             LoadScene(name);
         }
 
         public void EndEncounter(object? result = null)
         {
+            if (_encounterEnded) return;
+            _encounterEnded = true;
+
             var cb = _encounterCallback;
             _encounterCallback = null;
 

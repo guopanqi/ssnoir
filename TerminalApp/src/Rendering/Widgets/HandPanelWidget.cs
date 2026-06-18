@@ -138,60 +138,18 @@ namespace SSNoir.Rendering
                 }
             }
 
+            // ── Draw Turn Button ──
+            float turnX = windowWidth - 110;
+            float turnY = handY + 18;
+            var turnRect = new Rectangle(turnX, turnY, 80, 32);
+
             // ── Draw Items in Hand (plus money) ──
             float itemsStartX = 370f;
             FontManager.DrawText("手牌物品: ", itemsStartX, handY + 28, 14, labelColor);
 
             var items = state.GetInventoryItems().ToList();
-
-            for (int i = 0; i < items.Count; i++)
-            {
-                var item = items[i];
-                float itemX = itemsStartX + 70 + i * 78;
-                float itemY = handY + 18;
-                var itemRect = new Rectangle(itemX, itemY, 72, 32);
-
-                int remaining = state.GetRemainingItemQty(item.Name);
-                bool hover = (remaining > 0) && ui.CanHover(itemRect);
-
-                if (remaining <= 0)
-                {
-                    Raylib.DrawRectangleRounded(itemRect, 0.2f, 4, new Color(30, 30, 35, 120));
-                    Raylib.DrawRectangleRoundedLinesEx(itemRect, 0.2f, 4, 1f, new Color(40, 40, 45, 120));
-
-                    string label = item.Name == "金钱" ? "$0" : $"{item.Name} x0";
-                    int lblW = FontManager.MeasureTextWidth(label, 11);
-                    FontManager.DrawText(label, itemX + (72 - lblW) / 2f, itemY + 9, 11, new Color(80, 80, 90, 120));
-                }
-                else
-                {
-                    Color bg = hover ? new Color(70, 70, 100, 255) : new Color(45, 45, 60, 255);
-                    Color border = hover ? new Color(150, 150, 250, 255) : new Color(90, 90, 110, 255);
-
-                    Raylib.DrawRectangleRounded(itemRect, 0.2f, 4, bg);
-                    Raylib.DrawRectangleRoundedLinesEx(itemRect, 0.2f, 4, 1.5f, border);
-
-                    string label = item.Name == "金钱" ? $"${remaining}" : $"{item.Name} x{remaining}";
-                    int lblW = FontManager.MeasureTextWidth(label, 11);
-                    FontManager.DrawText(label, itemX + (72 - lblW) / 2f, itemY + 9, 11, Color.White);
-
-                    if (remaining > 0 && ui.WasClicked(itemRect))
-                    {
-                        interaction.SelectedResourceToSet = new SelectedResource
-                        {
-                            Type = "item",
-                            ItemName = item.Name,
-                            Qty = 1
-                        };
-                    }
-                }
-            }
-
-
-            // ── Draw Turn Button ──
-            float turnX = windowWidth - 110;
-            float turnY = handY + 18;
-            var turnRect = new Rectangle(turnX, turnY, 80, 32);
+            var itemViewport = new Rectangle(itemsStartX + 70f, handY + 6f, Math.Max(72f, turnX - (itemsStartX + 70f) - 14f), 66f);
+            DrawHandItems(state, ui, items, itemViewport, ref interaction);
 
             string turnText = isInEncounter ? "休息" : "回家";
             var turnBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(turnRect, turnText, ui, true, 14,
@@ -212,6 +170,113 @@ namespace SSNoir.Rendering
             }
 
             return interaction;
+        }
+
+        private static void DrawHandItems(
+            RendererState state,
+            SSNoir.TerminalApp.Rendering.UiInteractionContext ui,
+            List<(string Name, int Qty)> items,
+            Rectangle viewport,
+            ref HandPanelInteraction interaction)
+        {
+            const float itemW = 72f;
+            const float itemH = 28f;
+            const float gap = 6f;
+            const float rowGap = 6f;
+
+            int cols = Math.Max(1, (int)((viewport.Width + gap) / (itemW + gap)));
+            int rows = items.Count == 0 ? 0 : (items.Count + cols - 1) / cols;
+            float contentH = rows == 0 ? 0f : rows * itemH + Math.Max(0, rows - 1) * rowGap;
+            float maxScroll = Math.Max(0f, contentH - viewport.Height);
+
+            if (ui.CanHover(viewport))
+            {
+                float wheel = Raylib.GetMouseWheelMove();
+                if (Math.Abs(wheel) > 0.001f && maxScroll > 0f)
+                {
+                    state.HandItemsScrollOffset -= wheel * 30f;
+                }
+            }
+            state.HandItemsScrollOffset = Math.Clamp(state.HandItemsScrollOffset, 0f, maxScroll);
+
+            Raylib.BeginScissorMode((int)viewport.X, (int)viewport.Y, (int)viewport.Width, (int)viewport.Height);
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                int row = i / cols;
+                int col = i % cols;
+                float itemX = viewport.X + col * (itemW + gap);
+                float itemY = viewport.Y + row * (itemH + rowGap) - state.HandItemsScrollOffset;
+
+                if (itemY > viewport.Y + viewport.Height || itemY + itemH < viewport.Y)
+                {
+                    continue;
+                }
+
+                var itemRect = new Rectangle(itemX, itemY, itemW, itemH);
+                int remaining = state.GetRemainingItemQty(item.Name);
+                bool hover = (remaining > 0) && ui.CanHover(itemRect);
+
+                if (remaining <= 0)
+                {
+                    Raylib.DrawRectangleRounded(itemRect, 0.2f, 4, new Color(30, 30, 35, 120));
+                    Raylib.DrawRectangleRoundedLinesEx(itemRect, 0.2f, 4, 1f, new Color(40, 40, 45, 120));
+
+                    string label = item.Name == "金钱" ? "$0" : $"{item.Name} x0";
+                    int lblW = FontManager.MeasureTextWidth(label, 10);
+                    FontManager.DrawText(label, itemX + (itemW - lblW) / 2f, itemY + 8, 10, new Color(80, 80, 90, 120));
+                }
+                else
+                {
+                    Color bg = hover ? new Color(70, 70, 100, 255) : new Color(45, 45, 60, 255);
+                    Color border = hover ? new Color(150, 150, 250, 255) : new Color(90, 90, 110, 255);
+
+                    Raylib.DrawRectangleRounded(itemRect, 0.2f, 4, bg);
+                    Raylib.DrawRectangleRoundedLinesEx(itemRect, 0.2f, 4, 1.5f, border);
+
+                    string label = item.Name == "金钱" ? $"${remaining}" : $"{item.Name} x{remaining}";
+                    int fontSize = 10;
+                    int lblW = FontManager.MeasureTextWidth(label, fontSize);
+                    while (fontSize > 8 && lblW > itemW - 8f)
+                    {
+                        fontSize--;
+                        lblW = FontManager.MeasureTextWidth(label, fontSize);
+                    }
+                    FontManager.DrawText(label, itemX + (itemW - lblW) / 2f, itemY + (itemH - fontSize) / 2f, fontSize, Color.White);
+
+                    if (remaining > 0 && ui.WasClicked(itemRect))
+                    {
+                        interaction.SelectedResourceToSet = new SelectedResource
+                        {
+                            Type = "item",
+                            ItemName = item.Name,
+                            Qty = 1
+                        };
+                    }
+                }
+            }
+
+            Raylib.EndScissorMode();
+            DrawHandItemsScrollbar(viewport, contentH, state.HandItemsScrollOffset, maxScroll);
+        }
+
+        private static void DrawHandItemsScrollbar(Rectangle viewport, float contentHeight, float scrollOffset, float maxScroll)
+        {
+            if (contentHeight <= viewport.Height || viewport.Height <= 0f)
+            {
+                return;
+            }
+
+            float trackW = 4f;
+            var track = new Rectangle(viewport.X + viewport.Width - trackW, viewport.Y + 3f, trackW, viewport.Height - 6f);
+            float thumbH = Math.Max(16f, track.Height * (viewport.Height / contentHeight));
+            float travel = Math.Max(0f, track.Height - thumbH);
+            float thumbY = track.Y + (maxScroll <= 0f ? 0f : travel * (scrollOffset / maxScroll));
+            var thumb = new Rectangle(track.X, thumbY, track.Width, thumbH);
+
+            Raylib.DrawRectangleRounded(track, 0.7f, 4, new Color(30, 30, 42, 180));
+            Raylib.DrawRectangleRounded(thumb, 0.7f, 4, new Color(105, 115, 155, 210));
         }
     }
 }

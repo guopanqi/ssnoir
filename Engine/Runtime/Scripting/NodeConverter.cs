@@ -51,6 +51,7 @@ namespace SSNoir.Scripting
             List<GameNode> children = new List<GameNode>();
             List<ActionCost> requires = new List<ActionCost>();
             GameResolve? resolve = null;
+            string subtitle = string.Empty;
 
             for (int i = 2; i < nodeExpr.Count; i += 2)
             {
@@ -87,6 +88,10 @@ namespace SSNoir.Scripting
                 {
                     resolve = ParseResolve(val, interpreter);
                 }
+                else if (kwStr == ":subtitle")
+                {
+                    subtitle = val as string ?? string.Empty;
+                }
                 else
                 {
                     throw new InvalidOperationException($"Unknown node keyword {kwStr}");
@@ -96,6 +101,7 @@ namespace SSNoir.Scripting
             var node = new GameNode
             {
                 Name = name,
+                Subtitle = subtitle,
                 Tags = tags,
                 Children = children,
                 Requires = requires,
@@ -248,6 +254,14 @@ namespace SSNoir.Scripting
                     ObserveText = text
                 };
             }
+            else if (typeStr == "clock" && list.Count >= 2)
+            {
+                return new GameResolve
+                {
+                    Type = ResolveType.Clock,
+                    Clock = ParseSingleClock(list[1])
+                };
+            }
 
             throw new InvalidOperationException($"Unknown resolve type or invalid argument count: {typeStr}");
         }
@@ -289,50 +303,31 @@ namespace SSNoir.Scripting
             {
                 foreach (var item in list)
                 {
-                    if (item is List<object> clockExpr && clockExpr.Count >= 5)
-                    {
-                        if (clockExpr[0] is Symbol sym && sym.AsString == "clock")
-                        {
-                            var label = clockExpr[1] as string ?? "Unknown";
-
-                            int current = 0;
-                            if (clockExpr[2] is double d1) current = (int)d1;
-                            else if (clockExpr[2] is long l1) current = (int)l1;
-                            else if (clockExpr[2] is int i1) current = i1;
-
-                            int max = 1;
-                            if (clockExpr[3] is double d2) max = (int)d2;
-                            else if (clockExpr[3] is long l2) max = (int)l2;
-                            else if (clockExpr[3] is int i2) max = i2;
-
-                            ClockStyle style = ClockStyle.Segments;
-                            if (clockExpr[4] is Symbol styleSym)
-                            {
-                                var styleStr = styleSym.AsString.ToLowerInvariant();
-                                if (styleStr == "segments") style = ClockStyle.Segments;
-                                else if (styleStr == "countdown") style = ClockStyle.Countdown;
-                                else if (styleStr == "pie") style = ClockStyle.Pie;
-                            }
-                            else if (clockExpr[4] is string styleStr)
-                            {
-                                var s = styleStr.ToLowerInvariant();
-                                if (s == "segments") style = ClockStyle.Segments;
-                                else if (s == "countdown") style = ClockStyle.Countdown;
-                                else if (s == "pie") style = ClockStyle.Pie;
-                            }
-
-                            clocks.Add(new GameClock
-                            {
-                                Label = label,
-                                Current = current,
-                                Max = max,
-                                Style = style
-                            });
-                        }
-                    }
+                    var clock = ParseSingleClock(item);
+                    if (clock != null)
+                        clocks.Add(clock);
                 }
             }
             return clocks;
+        }
+
+        private static GameClock? ParseSingleClock(object clockExpr)
+        {
+            if (!(clockExpr is List<object> expr) || expr.Count < 5)
+                return null;
+            if (!(expr[0] is Symbol sym && sym.AsString == "clock"))
+                return null;
+
+            var label = expr[1] as string ?? "Unknown";
+            int current = ConvertToInt(expr[2]);
+            int max = ConvertToInt(expr[3]);
+
+            ClockStyle style = ClockStyle.Segments;
+            string styleStr = expr[4] is Symbol s ? s.AsString : expr[4] as string ?? "";
+            if (styleStr.Equals("countdown", StringComparison.OrdinalIgnoreCase)) style = ClockStyle.Countdown;
+            else if (styleStr.Equals("pie", StringComparison.OrdinalIgnoreCase)) style = ClockStyle.Pie;
+
+            return new GameClock { Label = label, Current = current, Max = max, Style = style };
         }
     }
 }

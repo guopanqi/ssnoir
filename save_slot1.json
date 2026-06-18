@@ -1,15 +1,23 @@
 {
   "version": 1,
-  "saveTime": "2026-06-17 11:08:03",
+  "saveTime": "2026-06-18 15:55:56",
   "globals": {
-    "chapter": 0,
+    "chapter": 1,
     "reputation:mayor": 0,
     "reputation:workers": 0,
-    "reputation:elites": 0
+    "reputation:elites": 0,
+    "warehouse-complete": true,
+    "restaurant-complete": true,
+    "dock-available": true,
+    "dock-market-open": true,
+    "dock-residential-open": true,
+    "dock-bar-open": true,
+    "bar-current-heat": 1,
+    "helen-apartment-open": true
   },
   "team": {
-    "health": 7,
-    "supplies": 2,
+    "health": 6,
+    "supplies": 0,
     "growthLevel": 0,
     "actors": [
       {
@@ -17,7 +25,7 @@
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "stress": 1,
+        "stress": 0,
         "spentGrowthPoints": 0,
         "stats": {
           "violence": 1,
@@ -57,10 +65,11 @@
     ]
   },
   "inventory": {
-    "金钱": 50,
+    "金钱": 83,
     "物资包": 0,
     "枪": 1,
-    "酒": 0
+    "酒": 0,
+    "海伦的线索": 1
   },
   "worldData": [
     [
@@ -123,7 +132,7 @@
       [
         [
           "last-dialogue-index",
-          -1
+          2
         ]
       ]
     ],
@@ -149,7 +158,7 @@
         ],
         [
           "mission-stage",
-          2
+          4
         ]
       ]
     ],
@@ -158,11 +167,11 @@
       [
         [
           "restaurant-stage",
-          1
+          2
         ],
         [
           "patronage-current",
-          0
+          8
         ]
       ]
     ],
@@ -175,11 +184,11 @@
       [
         [
           "warehouse-stage",
-          1
+          3
         ],
         [
           "investigate-current",
-          0
+          4
         ]
       ]
     ],
@@ -187,7 +196,37 @@
       "dock",
       [
         [
-          "dock-stage",
+          "dock-progress",
+          6
+        ],
+        [
+          "npc-a-index",
+          3
+        ],
+        [
+          "npc-b-index",
+          3
+        ]
+      ]
+    ],
+    [
+      "residential",
+      [
+        [
+          "helen-stage",
+          4
+        ]
+      ]
+    ],
+    [
+      "bar",
+      [
+        [
+          "bar-stage",
+          2
+        ],
+        [
+          "bar-heat",
           1
         ]
       ]

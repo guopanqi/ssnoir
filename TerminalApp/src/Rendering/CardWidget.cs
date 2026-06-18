@@ -257,6 +257,94 @@ namespace SSNoir.Rendering
             return interaction;
         }
 
+        public static void DrawClockCard(
+            Rectangle bounds,
+            string name,
+            string subtitle,
+            GameClock? clock)
+        {
+            Color bgColor      = new Color(18, 22, 32, 255);
+            Color outlineColor = new Color(65, 85, 130, 255);
+            Color nameColor    = new Color(140, 170, 220, 255);
+            Color subtitleColor = new Color(85, 105, 150, 255);
+            Color clockColor   = new Color(120, 150, 230, 255);
+            Color dimColor     = new Color(55, 65, 90, 255);
+
+            Raylib.DrawRectangleRounded(bounds, 0.1f, 8, bgColor);
+            Raylib.DrawRectangleRoundedLinesEx(bounds, 0.1f, 8, 1.5f, outlineColor);
+
+            // Name
+            int nameFontSize = 18;
+            int nameWidth = FontManager.MeasureTextWidth(name, nameFontSize);
+            FontManager.DrawText(name, bounds.X + (bounds.Width - nameWidth) / 2f, bounds.Y + 10, nameFontSize, nameColor);
+
+            // Clock display — centered vertically between name and subtitle
+            if (clock != null)
+            {
+                float clockY = bounds.Y + 36f;
+                float clockCenterX = bounds.X + bounds.Width / 2f;
+
+                if (clock.Style == ClockStyle.Countdown)
+                {
+                    string frac = $"{clock.Current}/{clock.Max}";
+                    int fs = 28;
+                    int tw = FontManager.MeasureTextWidth(frac, fs);
+                    FontManager.DrawText(frac, clockCenterX - tw / 2f, clockY, fs, clockColor);
+
+                    string label = clock.Label;
+                    int lw = FontManager.MeasureTextWidth(label, 11);
+                    FontManager.DrawText(label, clockCenterX - lw / 2f, clockY + 34, 11, dimColor);
+                }
+                else if (clock.Style == ClockStyle.Segments)
+                {
+                    int dotSize = 10;
+                    int spacing = 4;
+                    float totalW = clock.Max * (dotSize + spacing) - spacing;
+                    float dotStartX = clockCenterX - totalW / 2f;
+
+                    for (int i = 0; i < clock.Max; i++)
+                    {
+                        var dotRect = new Rectangle(dotStartX + i * (dotSize + spacing), clockY + 4, dotSize, dotSize);
+                        if (i < clock.Current)
+                            Raylib.DrawRectangleRounded(dotRect, 0.4f, 4, clockColor);
+                        else
+                        {
+                            Raylib.DrawRectangleRounded(dotRect, 0.4f, 4, new Color(25, 30, 45, 255));
+                            Raylib.DrawRectangleRoundedLinesEx(dotRect, 0.4f, 4, 1f, dimColor);
+                        }
+                    }
+
+                    string label = clock.Label;
+                    int lw = FontManager.MeasureTextWidth(label, 11);
+                    FontManager.DrawText(label, clockCenterX - lw / 2f, clockY + 20, 11, dimColor);
+                }
+                else // Pie
+                {
+                    float radius = 18f;
+                    var center = new System.Numerics.Vector2(clockCenterX, clockY + radius + 2);
+                    Raylib.DrawCircleLines((int)center.X, (int)center.Y, radius, dimColor);
+                    if (clock.Max > 0 && clock.Current > 0)
+                    {
+                        float pct = (float)clock.Current / clock.Max;
+                        Raylib.DrawCircleSector(center, radius, -90f, -90f + 360f * pct, 36, clockColor);
+                    }
+                    string frac = $"{clock.Current}/{clock.Max}";
+                    int fw = FontManager.MeasureTextWidth(frac, 11);
+                    FontManager.DrawText(frac, clockCenterX - fw / 2f, clockY + radius * 2 + 6, 11, dimColor);
+
+                    string label = clock.Label;
+                    int lw = FontManager.MeasureTextWidth(label, 11);
+                    FontManager.DrawText(label, clockCenterX - lw / 2f, clockY + radius * 2 + 20, 11, dimColor);
+                }
+            }
+
+            // Subtitle at bottom
+            if (!string.IsNullOrEmpty(subtitle))
+            {
+                DrawWrappedText(subtitle, bounds.X + 8, bounds.Y + bounds.Height - 24, bounds.Width - 16, 10, subtitleColor);
+            }
+        }
+
         private static float DrawNodeTags(Rectangle bounds, List<string>? tags, float startY)
         {
             if (tags == null || tags.Count == 0)

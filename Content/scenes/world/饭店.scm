@@ -31,11 +31,11 @@
           (notify! "手忙脚乱打翻了一盘菜，老板娘皱眉，没什么工钱。"))
         (lambda ()
           (patronage-clock 'tick!)
-          (add-item! "金钱" 20)
-          (notify! "度过了平稳的一天，老板娘结了工钱。"))
+          (add-item! "金钱" 5)
+          (notify! "度过了平稳的一天，老板娘结了点工钱。"))
         (lambda ()
           (patronage-clock 'tick!)
-          (add-item! "金钱" 40)
+          (add-item! "金钱" 8)
           (notify! "客人夸你手脚快，老板娘多给了些打赏。"))))
 
     ;; ── Per-stage Children ────────────────────────────

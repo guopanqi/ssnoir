@@ -8,12 +8,16 @@ namespace SSNoir.Core
     {
         Instant,
         Roll,
-        Observe
+        Observe,
+        Clock
     }
 
     public class GameResolve
     {
         public ResolveType Type { get; set; }
+
+        // Clock
+        public GameClock? Clock { get; set; }
 
         // Instant / Roll
         public Action? Effect { get; set; }

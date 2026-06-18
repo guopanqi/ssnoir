@@ -13,13 +13,15 @@
 (define listen-uses   0)
 (define tip-available #f)
 
-;; 路线三：酒吧常客
-;; talked-set 按常客池下标持久追踪，跨回合保留翻面状态。
-;; 窗口固定 3 人，每回合平移 1 格：1 人离开（清除其下标）→ 1 人新到（始终未打听）。
-;; 保底天然成立：新到的人永远不在 talked-set 里。
-(define patron-offset 0)
-(define patron-count  3)
-(define talked-set    '())   ; 已打听过的常客池下标列表
+;; 路线三：3 个独立槽位，各自倒计时
+;; 初始错开（第1/2/3回合各有1人换）；到期后随机新计时器（2-4回合）。
+;; 池下标间隔 2 以避免初始重复：0 / 2 / 4
+(define slot-0-idx   0)  (define slot-0-timer 3)
+(define slot-1-idx   2)  (define slot-1-timer 1)
+(define slot-2-idx   4)  (define slot-2-timer 2)
+
+;; 已打听过的池下标；槽位换人时清除该下标。新到的人始终未被打听——保底成立。
+(define talked-set '())
 
 ;; ── Helpers ────────────────────────────────────
 (define (tick-n! clock n)
@@ -43,19 +45,13 @@
         (end-encounter 'fail))
       #f))
 
-(define (in-talked-set? idx)
-  (if (null? talked-set)
-      #f
-      (if (equal? idx (car talked-set))
-          #t
-          (in-talked-set-inner? idx (cdr talked-set)))))
+(define (list-contains? lst val)
+  (if (null? lst) #f
+      (if (equal? val (car lst)) #t
+          (list-contains? (cdr lst) val))))
 
-(define (in-talked-set-inner? idx lst)
-  (if (null? lst)
-      #f
-      (if (equal? idx (car lst))
-          #t
-          (in-talked-set-inner? idx (cdr lst)))))
+(define (in-talked-set? idx)
+  (list-contains? talked-set idx))
 
 (define (remove-from-set lst val)
   (if (null? lst)
@@ -64,7 +60,7 @@
           (cdr lst)
           (cons (car lst) (remove-from-set (cdr lst) val)))))
 
-;; ── 酒吧常客池（6人，窗口大小3，每回合轮换1人）─
+;; ── 酒吧常客池（6人）────────────────────────────
 ;; (name risk skill): risk = medium/high, skill = sharpness/violence
 (define patron-pool
   (list
@@ -80,20 +76,18 @@
 (define (list-nth lst n)
   (if (= n 0) (car lst) (list-nth (cdr lst) (- n 1))))
 
-;; 返回 (pool-idx patron-data) 对
-(define (make-patron-entry offset-i)
-  (let ((pool-idx (modulo (+ patron-offset offset-i) pool-size)))
-    (list pool-idx (list-nth patron-pool pool-idx))))
+;; 找一个当前不在任何槽位的池下标
+(define (collect-available i acc)
+  (if (= i pool-size)
+      acc
+      (if (or (= i slot-0-idx) (= i slot-1-idx) (= i slot-2-idx))
+          (collect-available (+ i 1) acc)
+          (collect-available (+ i 1) (cons i acc)))))
 
-(define (current-patron-entries)
-  (list (make-patron-entry 0)
-        (make-patron-entry 1)
-        (make-patron-entry 2)))
+(define (find-fresh-patron)
+  (random-choice (collect-available 0 '())))
 
 ;; ── Turn Rules ─────────────────────────────────
-(define-turn-rule "气氛升温"
-  (lambda () #t)
-  (lambda () (tension-tick! 1)))
 
 (define-turn-rule "话头消失"
   (lambda () tip-available)
@@ -101,14 +95,32 @@
     (set! tip-available #f)
     (notify! "那个话头没接上，时机过了。")))
 
-;; 窗口平移：先清除离开那人的打听记录，再移动偏移。
-;; 保底：新到的人（原偏移+3 位）的记录已在他上次离开时被清除。
+;; 每个槽位独立倒计时。到期：清除打听记录 → 换新人 → 随机新计时器（2-4回合）。
+;; 顺序处理确保每次 find-fresh-patron 都能见到已更新的槽位，避免重复。
 (define-turn-rule "人员流动"
   (lambda () #t)
   (lambda ()
-    (let ((leaving-idx (modulo patron-offset pool-size)))
-      (set! talked-set    (remove-from-set talked-set leaving-idx))
-      (set! patron-offset (+ patron-offset 1)))))
+    (set! slot-0-timer (- slot-0-timer 1))
+    (if (<= slot-0-timer 0)
+        (begin
+          (set! talked-set   (remove-from-set talked-set slot-0-idx))
+          (set! slot-0-idx   (find-fresh-patron))
+          (set! slot-0-timer (random-choice '(2 3 3 4))))
+        #f)
+    (set! slot-1-timer (- slot-1-timer 1))
+    (if (<= slot-1-timer 0)
+        (begin
+          (set! talked-set   (remove-from-set talked-set slot-1-idx))
+          (set! slot-1-idx   (find-fresh-patron))
+          (set! slot-1-timer (random-choice '(2 3 3 4))))
+        #f)
+    (set! slot-2-timer (- slot-2-timer 1))
+    (if (<= slot-2-timer 0)
+        (begin
+          (set! talked-set   (remove-from-set talked-set slot-2-idx))
+          (set! slot-2-idx   (find-fresh-patron))
+          (set! slot-2-timer (random-choice '(2 3 3 4))))
+        #f)))
 
 ;; ── 路线一：点酒聆听 ─────────────────────────────
 (define (node-order-drink)
@@ -164,9 +176,8 @@
       (notify! "酒保把嘴凑过来，低声说了几句，干脆利落。")))))
 
 ;; ── 路线三：直接搭话 ─────────────────────────────
-(define (make-patron-node entry)
-  (let ((pool-idx (car entry))
-        (patron   (cadr entry)))
+(define (make-patron-node pool-idx)
+  (let ((patron (list-nth patron-pool pool-idx)))
     (let ((name  (car patron))
           (risk  (cadr patron))
           (skill (caddr patron)))
@@ -183,8 +194,8 @@
                     (notify! "对方猛地站起来，周围几个人都看过来了。"))
                   (lambda ()
                     (set! talked-set (cons pool-idx talked-set))
-                    (tension-tick! 1)
                     (info-tick! 1)
+                    (tension-tick! 1)
                     (notify! "他皱眉，但还是扔出了一句话，不太友善。"))
                   (lambda ()
                     (set! talked-set (cons pool-idx talked-set))
@@ -205,7 +216,10 @@
                     (notify! "话匣子开了，颇有收获。")))))))))
 
 (define (patron-nodes)
-  (map make-patron-node (current-patron-entries)))
+  (list
+    (make-patron-node slot-0-idx)
+    (make-patron-node slot-1-idx)
+    (make-patron-node slot-2-idx)))
 
 ;; ── Render ─────────────────────────────────────
 (define (visible-action-nodes)

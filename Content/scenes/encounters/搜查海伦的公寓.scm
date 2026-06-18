@@ -42,12 +42,16 @@
       (notify! "你带着线索悄悄离开了海伦的公寓。")
       (end-encounter 'success))))
 
+(define (helen-subtitle)
+  (cond
+    ((>= (wake-pressure 'current) 5) "危险——再有一点动静她就会醒来。")
+    ((>= (wake-pressure 'current) 3) "她已经开始翻身，动作要快。")
+    (#t                              "她伏在桌边沉睡。小心别弄出响动。")))
+
 (define (node-helen)
-  (container-with-clocks "海伦"
-    (list
-      (observe-action "醉倒的海伦" "海伦伏在桌边。她睡得不安稳，任何响动都可能让她醒来。"))
-    (list
-      (wake-pressure 'render-data))))
+  (clock-node "海伦"
+    (helen-subtitle)
+    (wake-pressure 'render-data)))
 
 (define (node-search-room-a)
   (action "搜查卧室"
@@ -180,14 +184,32 @@
      (list
        (observe-action "翻过的杂物间" "纸箱被重新推回角落。")))))
 
+(define (room-a-clocks)
+  (cond
+    ((not room-a-found)
+     (list (room-a-search 'render-data)))
+    ((not room-a-checked)
+     (list (room-a-lift 'render-data)))
+    (#t '())))
+
+(define (room-b-clocks)
+  (if (not room-b-found)
+      (list (room-b-search 'render-data))
+      '()))
+
+(define (room-c-clocks)
+  (if (not (room-c-search 'full?))
+      (list (room-c-search 'render-data))
+      '()))
+
 (define (get-render-data)
-  (container "海伦的公寓"
+  (container "搜查海伦的公寓"
     (append
       (list
         (node-helen)
-        (container "卧室" (room-a-children))
-        (container "客厅" (room-b-children))
-        (container "杂物间" (room-c-children)))
+        (container-with-clocks "卧室" (room-a-children) (room-a-clocks))
+        (container-with-clocks "客厅" (room-b-children) (room-b-clocks))
+        (container-with-clocks "杂物间" (room-c-children) (room-c-clocks)))
       (if clue-found
           (list (node-leave))
           '()))))

@@ -7,6 +7,7 @@
 (define :requires ':requires)
 (define :resolve ':resolve)
 (define :tags ':tags)
+(define :subtitle ':subtitle)
 
 ;; Helper to extract keyword arguments from a list
 (define (get-kwarg kwargs key default)
@@ -19,13 +20,14 @@
               (get-kwarg (cdr (cdr kwargs)) key default)))))
 
 ;; node constructor
-;; Returns a list: ('node name :clocks clocks :children children :requires requires :resolve resolve :tags tags)
+;; Returns a list: ('node name :subtitle subtitle :clocks clocks :children children :requires requires :resolve resolve :tags tags)
 (define node
   (lambda args
     (let ((name (car args))
           (kwargs (cdr args)))
       (list 'node
             name
+            :subtitle (get-kwarg kwargs ':subtitle "")
             :clocks (get-kwarg kwargs ':clocks '())
             :children (get-kwarg kwargs ':children '())
             :requires (get-kwarg kwargs ':requires #f)
@@ -55,6 +57,14 @@
 
 (define (observe text)
   (list 'observe text))
+
+;; Clock resolve constructor — wraps a make-clock render-data snapshot
+(define (clock clock-data)
+  (list 'clock clock-data))
+
+;; Clock node: a display-only node that shows a spatial clock above its anchor
+(define (clock-node name subtitle clock-data)
+  (node name :subtitle subtitle :resolve (clock clock-data)))
 
 ;; Cost/Requirement constructors
 (define (req-die)

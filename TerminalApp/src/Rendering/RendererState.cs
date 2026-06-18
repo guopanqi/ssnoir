@@ -46,6 +46,7 @@ namespace SSNoir.Rendering
         public SelectedResource? SelectedResource { get; set; } = null;
         public float CardsScrollOffset { get; set; } = 0f;
         public List<float> CardsScrollStack { get; } = new List<float>();
+        public float HandItemsScrollOffset { get; set; } = 0f;
         public ActionReport? ActiveRollResult { get; set; } = null;
         public string ActiveRollActionName { get; set; } = string.Empty;
         public float ActiveRollTime { get; set; } = 0f;
