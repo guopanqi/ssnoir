@@ -15,70 +15,97 @@ namespace Schemy
         private readonly Environment environment;
         private readonly Dictionary<Symbol, Procedure> macroTable;
         private readonly IFileSystemAccessor fsAccessor;
+        private TextWriter output;
 
-        public delegate IDictionary<Symbol, object>  CreateSymbolTableDelegate(Interpreter interpreter);
+        public delegate IDictionary<Symbol, object> CreateSymbolTableDelegate(Interpreter interpreter);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Interpreter"/> class.
         /// </summary>
-        /// <param name="environmentInitializers">Array of environment initializers</param>
-        /// <param name="fsAccessor">The file system accessor</param>
-        public Interpreter(IEnumerable<CreateSymbolTableDelegate> environmentInitializers = null, IFileSystemAccessor fsAccessor = null)
+        /// <param name="environmentInitializers">Additional environment initializers run after builtins.</param>
+        /// <param name="fsAccessor">File system accessor used by <c>load</c>. Defaults to disabled.</param>
+        /// <param name="output">Writer for <c>display</c>/<c>write</c>/<c>newline</c>. Defaults to <see cref="Console.Out"/>.</param>
+        public Interpreter(
+            IEnumerable<CreateSymbolTableDelegate> environmentInitializers = null,
+            IFileSystemAccessor fsAccessor = null,
+            TextWriter output = null)
         {
-            this.fsAccessor = fsAccessor;
-            if (this.fsAccessor == null)
-            {
-                this.fsAccessor = new DisabledFileSystemAccessor();
-            }
-
-            // populate an empty environment for the initializer to potentially work with
+            this.fsAccessor = fsAccessor ?? new DisabledFileSystemAccessor();
+            this.output = output;
             this.environment = Environment.CreateEmpty();
             this.macroTable = new Dictionary<Symbol, Procedure>();
 
             environmentInitializers = environmentInitializers ?? new List<CreateSymbolTableDelegate>();
             environmentInitializers = new CreateSymbolTableDelegate[] { Builtins.CreateBuiltins }.Concat(environmentInitializers);
 
-            foreach (CreateSymbolTableDelegate initializer in environmentInitializers)
-            {
+            foreach (var initializer in environmentInitializers)
                 this.environment = new Environment(initializer(this), this.environment);
-            }
 
-            foreach (var iniReader in GetInitializeFiles())
+            foreach (var reader in GetInitializeReaders())
             {
-                this.Evaluate(iniReader);
+                var result = this.Evaluate(reader);
+                if (result.Error != null)
+                    throw new InvalidOperationException(
+                        "Interpreter initialization failed: " + result.Error.Message, result.Error);
             }
         }
 
-        private IEnumerable<TextReader> GetInitializeFiles()
+        /// <summary>The output writer used by display/write/newline. Defaults to Console.Out.</summary>
+        public TextWriter Output
         {
-            using (Stream stream = typeof(Interpreter).Assembly.GetManifestResourceStream("init.ss"))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                yield return reader;
-            }
+            get { return this.output ?? Console.Out; }
+            set { this.output = value; }
+        }
 
-            string initFile = Path.Combine(Path.GetDirectoryName(typeof(Interpreter).Assembly.Location), ".init.ss");
-            if (File.Exists(initFile))
+        public IFileSystemAccessor FileSystemAccessor => this.fsAccessor;
+        public Environment Environment => this.environment;
+
+        private IEnumerable<TextReader> GetInitializeReaders()
+        {
+            // yield return is illegal inside try/catch, so we collect into a list first.
+            var readers = new List<TextReader>();
+
+            // Load the embedded init.ss. Try both resource name conventions:
+            // old-style csproj uses <LogicalName>init.ss</LogicalName> → "init.ss"
+            // SDK-style default → "Schemy.init.ss"
+            var asm = typeof(Interpreter).Assembly;
+            foreach (var resourceName in new[] { "init.ss", "Schemy.init.ss" })
             {
-                using (var reader = new StreamReader(initFile))
+                using (var stream = asm.GetManifestResourceStream(resourceName))
                 {
-                    yield return reader;
+                    if (stream != null)
+                    {
+                        readers.Add(new StringReader(new StreamReader(stream).ReadToEnd()));
+                        break;
+                    }
                 }
             }
+
+            // Optional host-level .init.ss next to the dll.
+            // Skipped gracefully when Assembly.Location is unavailable (Unity IL2CPP).
+            try
+            {
+                var loc = asm.Location;
+                if (!string.IsNullOrEmpty(loc))
+                {
+                    var dir = Path.GetDirectoryName(loc);
+                    if (dir != null)
+                    {
+                        var hostInit = Path.Combine(dir, ".init.ss");
+                        if (File.Exists(hostInit))
+                            readers.Add(new StringReader(File.ReadAllText(hostInit)));
+                    }
+                }
+            }
+            catch { /* Unity IL2CPP may throw on Assembly.Location */ }
+
+            return readers;
         }
 
-        public IFileSystemAccessor FileSystemAccessor { get { return this.fsAccessor; } }
-
-        public Environment Environment { get { return this.environment; } }
-
-        /// <summary>
-        /// Evaluate script from a input reader
-        /// </summary>
-        /// <param name="input">the input source</param>
-        /// <returns>the value of the last expression</returns>
+        /// <summary>Evaluate all expressions in <paramref name="input"/> and return the last result.</summary>
         public EvaluationResult Evaluate(TextReader input)
         {
-            InPort port = new InPort(input);
+            var port = new InPort(input);
             object res = null;
             while (true)
             {
@@ -86,13 +113,8 @@ namespace Schemy
                 {
                     var expr = Expand(Read(port), environment, macroTable, true);
                     if (Symbol.EOF.Equals(expr))
-                    {
                         return new EvaluationResult(null, res);
-                    }
-                    else
-                    {
-                        res = EvaluateExpression(expr, environment);
-                    }
+                    res = EvaluateExpression(expr, environment);
                 }
                 catch (Exception e)
                 {
@@ -101,24 +123,19 @@ namespace Schemy
             }
         }
 
-        /// <summary>
-        /// Starts the Read-Eval-Print loop
-        /// </summary>
-        /// <param name="input">the input source</param>
-        /// <param name="output">the output target</param>
-        /// <param name="prompt">a string prompt to be printed before each evaluation</param>
-        /// <param name="headers">a head text to be printed at the beginning of the REPL</param>
+        /// <summary>Evaluate a single string expression.</summary>
+        public EvaluationResult Evaluate(string expression)
+        {
+            return Evaluate(new StringReader(expression));
+        }
+
+        /// <summary>Read-Eval-Print loop.</summary>
         public void REPL(TextReader input, TextWriter output, string prompt = null, string[] headers = null)
         {
-            InPort port = new InPort(input);
+            var port = new InPort(input);
 
             if (headers != null)
-            {
-                foreach (var line in headers)
-                {
-                    output.WriteLine(line);
-                }
-            }
+                foreach (var line in headers) output.WriteLine(line);
 
             object res = null;
             while (true)
@@ -127,15 +144,9 @@ namespace Schemy
                 {
                     if (!string.IsNullOrEmpty(prompt) && output != null) output.Write(prompt);
                     var expr = Expand(Read(port), environment, macroTable, true);
-                    if (Symbol.EOF.Equals(expr))
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        res = EvaluateExpression(expr, environment);
-                        if (output != null) output.WriteLine(Utils.PrintExpr(res));
-                    }
+                    if (Symbol.EOF.Equals(expr)) return;
+                    res = EvaluateExpression(expr, environment);
+                    if (output != null) output.WriteLine(Utils.PrintExpr(res));
                 }
                 catch (Exception e)
                 {
@@ -144,65 +155,45 @@ namespace Schemy
             }
         }
 
-        /// <summary>
-        /// Defines a global symbol
-        /// </summary>
-        /// <param name="sym">the symbol</param>
-        /// <param name="val">the associated value</param>
+        /// <summary>Bind a symbol in the global environment.</summary>
         public void DefineGlobal(Symbol sym, object val)
         {
             this.environment[sym] = val;
         }
 
-        /// <summary>
-        /// Reads an S-expression from the input source
-        /// </summary>
         public static object Read(InPort port)
         {
             Func<object, object> readAhead = null;
             readAhead = token =>
             {
-                Symbol quote;
                 if (object.Equals(token, Symbol.EOF))
-                {
                     throw new SyntaxError("unexpected EOF");
-                }
-                else if (token is string)
+
+                if (!(token is string))
+                    throw new SyntaxError("unexpected token: " + token);
+
+                string tok = (string)token;
+                if (tok == "(")
                 {
-                    string tokenStr = (string)token;
-                    if (tokenStr == "(")
+                    var L = new List<object>();
+                    while (true)
                     {
-                        var L = new List<object>();
-                        while (true)
-                        {
-                            token = port.NextToken();
-                            if (token is string && (string)token == ")")
-                            {
-                                return L;
-                            }
-                            else
-                            {
-                                L.Add(readAhead(token));
-                            }
-                        }
+                        token = port.NextToken();
+                        if (token is string && (string)token == ")")
+                            return L;
+                        L.Add(readAhead(token));
                     }
-                    else if (tokenStr == ")")
-                    {
-                        throw new SyntaxError("unexpected )");
-                    }
-                    else if (Symbol.QuotesMap.TryGetValue(tokenStr, out quote))
-                    {
-                        object quoted = Read(port);
-                        return new List<object> { quote, quoted };
-                    }
-                    else
-                    {
-                        return ParseAtom(tokenStr);
-                    }
+                }
+                else if (tok == ")")
+                {
+                    throw new SyntaxError("unexpected )");
                 }
                 else
                 {
-                    throw new SyntaxError("unexpected token: " + token);
+                    Symbol quote;
+                    if (Symbol.QuotesMap.TryGetValue(tok, out quote))
+                        return new List<object> { quote, Read(port) };
+                    return ParseAtom(tok);
                 }
             };
 
@@ -210,26 +201,15 @@ namespace Schemy
             return Symbol.EOF.Equals(token1) ? Symbol.EOF : readAhead(token1);
         }
 
-        /// <summary>
-        /// Validates and expands the input s-expression
-        /// </summary>
-        /// <param name="expression">expression to expand</param>
-        /// <param name="env">env used to evaluate the macro procedures</param>
-        /// <param name="macroTable">the macro definition table</param>
-        /// <param name="isTopLevel">whether the current expansion is at the top level</param>
-        /// <returns>the s-expression after validation and expansion</returns>
         public static object Expand(object expression, Environment env, Dictionary<Symbol, Procedure> macroTable, bool isTopLevel = true)
         {
             Procedure procedure = null;
             Func<object, bool, object> expand = null;
             expand = (x, topLevel) =>
             {
-                if (!(x is List<object>))
-                {
-                    return x;
-                }
+                if (!(x is List<object>)) return x;
 
-                List<object> xs = (List<object>)x;
+                var xs = (List<object>)x;
                 Utils.CheckSyntax(xs, xs.Count > 0);
 
                 if (Symbol.QUOTE.Equals(xs[0]))
@@ -239,13 +219,9 @@ namespace Schemy
                 }
                 else if (Symbol.IF.Equals(xs[0]))
                 {
-                    if (xs.Count == 3)
-                    {
-                        xs.Add(None.Instance);
-                    }
-
+                    if (xs.Count == 3) xs.Add(None.Instance);
                     Utils.CheckSyntax(xs, xs.Count == 4);
-                    return xs.Select(expr => expand(expr, false)).ToList();
+                    return xs.Select(e => expand(e, false)).ToList();
                 }
                 else if (Symbol.SET.Equals(xs[0]))
                 {
@@ -257,17 +233,18 @@ namespace Schemy
                 {
                     Utils.CheckSyntax(xs, xs.Count >= 3);
                     Symbol def = (Symbol)xs[0];
-                    object v = xs[1]; // sym or (sym+)
-                    List<object> body = xs.Skip(2).ToList(); // expr or expr+
-                    if (v is List<object>) // defining function: ([define|define-macro] (f arg ...) body)
+                    object v = xs[1];
+                    var body = xs.Skip(2).ToList();
+                    if (v is List<object>)
                     {
+                        // (define (f a b . rest) body) → (define f (lambda (a b . rest) body))
                         var args = (List<object>)v;
                         Utils.CheckSyntax(xs, args.Count > 0);
                         var f = args[0];
                         var @params = args.Skip(1).ToList();
                         return expand(new List<object> { def, f, Enumerable.Concat(new object[] { Symbol.LAMBDA, @params }, body).ToList() }, false);
                     }
-                    else // defining variable: ([define|define-macro] id expr)
+                    else
                     {
                         Utils.CheckSyntax(xs, xs.Count == 3);
                         Utils.CheckSyntax(xs, v is Symbol);
@@ -280,37 +257,23 @@ namespace Schemy
                             macroTable[(Symbol)v] = (Procedure)proc;
                             return None.Instance;
                         }
-                        else
-                        {
-                            // `define v expr`
-                            return new List<object> { Symbol.DEFINE, v, expr /* after expansion */ };
-                        }
+                        return new List<object> { Symbol.DEFINE, v, expr };
                     }
                 }
                 else if (Symbol.BEGIN.Equals(xs[0]))
                 {
-                    if (xs.Count == 1) return None.Instance; // (begin) => None
-
-                    // use the same topLevel so that `define-macro` is also allowed in a top-level `begin`.
-                    return xs.Select(expr => expand(expr, topLevel)).ToList();
+                    if (xs.Count == 1) return None.Instance;
+                    return xs.Select(e => expand(e, topLevel)).ToList();
                 }
                 else if (Symbol.LAMBDA.Equals(xs[0]))
                 {
                     Utils.CheckSyntax(xs, xs.Count >= 3);
                     var vars = xs[1];
-                    Utils.CheckSyntax(xs, vars is Symbol || (vars is List<object> && ((List<object>)vars).All(v => v is Symbol)), "illigal lambda argument");
+                    ValidateLambdaParams(xs, vars);
 
-                    object body;
-                    if (xs.Count == 3)
-                    {
-                        // (lambda (...) expr)
-                        body = xs[2];
-                    }
-                    else
-                    {
-                        // (lambda (...) expr+
-                        body = Enumerable.Concat(new[] { Symbol.BEGIN }, xs.Skip(2)).ToList();
-                    }
+                    object body = xs.Count == 3
+                        ? xs[2]
+                        : Enumerable.Concat(new[] { Symbol.BEGIN }, xs.Skip(2)).ToList();
 
                     return new List<object> { Symbol.LAMBDA, vars, expand(body, false) };
                 }
@@ -328,122 +291,120 @@ namespace Schemy
                     return xs.Select(p => expand(p, false)).ToList();
                 }
             };
+
             return expand(expression, isTopLevel);
         }
 
-        /// <summary>
-        /// Evaluates an s-expression
-        /// </summary>
-        /// <param name="expr">expression to be evaluated</param>
-        /// <param name="env">the environment in which the expression is evaluated</param>
-        /// <returns>the result of the evaluation</returns>
+        private static void ValidateLambdaParams(object context, object vars)
+        {
+            if (vars is Symbol) return; // (lambda args body) — variadic capture
+
+            Utils.CheckSyntax(context, vars is List<object>, "illegal lambda argument");
+            var varList = (List<object>)vars;
+            int dotIdx = varList.FindIndex(v => Symbol.DOT.Equals(v));
+            if (dotIdx >= 0)
+            {
+                Utils.CheckSyntax(context, dotIdx == varList.Count - 2,
+                    "dot must be followed by exactly one rest symbol");
+                Utils.CheckSyntax(context,
+                    varList.Take(dotIdx).All(v => v is Symbol) && varList[dotIdx + 1] is Symbol,
+                    "lambda parameters must be symbols");
+            }
+            else
+            {
+                Utils.CheckSyntax(context, varList.All(v => v is Symbol), "lambda parameters must be symbols");
+            }
+        }
+
         public static object EvaluateExpression(object expr, Environment env)
         {
             while (true)
             {
                 if (expr is Symbol)
-                {
                     return env[(Symbol)expr];
-                }
-                else if (!(expr is List<object>))
+
+                if (!(expr is List<object>))
+                    return expr; // constant literal
+
+                var exprList = (List<object>)expr;
+
+                if (Symbol.QUOTE.Equals(exprList[0]))
                 {
-                    return expr; // is a constant literal
+                    return exprList[1];
                 }
-                else
+                else if (Symbol.IF.Equals(exprList[0]))
                 {
-                    List<object> exprList = (List<object>)expr;
-                    if (Symbol.QUOTE.Equals(exprList[0]))
+                    expr = Utils.IsTruthy(EvaluateExpression(exprList[1], env))
+                        ? exprList[2]
+                        : exprList[3];
+                }
+                else if (Symbol.DEFINE.Equals(exprList[0]))
+                {
+                    var variable = (Symbol)exprList[1];
+                    env[variable] = EvaluateExpression(exprList[2], env);
+                    return None.Instance;
+                }
+                else if (Symbol.SET.Equals(exprList[0]))
+                {
+                    var sym = (Symbol)exprList[1];
+                    var containing = env.TryFindContainingEnv(sym);
+                    if (containing == null) throw new KeyNotFoundException("Symbol not defined: " + sym);
+                    containing[sym] = EvaluateExpression(exprList[2], env);
+                    return None.Instance;
+                }
+                else if (Symbol.LAMBDA.Equals(exprList[0]))
+                {
+                    var rawParams = exprList[1];
+                    LambdaParams parameters;
+                    if (rawParams is Symbol)
                     {
-                        return exprList[1];
-                    }
-                    else if (Symbol.IF.Equals(exprList[0]))
-                    {
-                        var test = exprList[1];
-                        var conseq = exprList[2];
-                        var alt = exprList[3];
-                        expr = ConvertToBool(EvaluateExpression(test, env)) ? conseq : alt;
-                    }
-                    else if (Symbol.DEFINE.Equals(exprList[0]))
-                    {
-                        var variable = (Symbol)exprList[1];
-                        expr = exprList[2];
-                        env[variable] = EvaluateExpression(expr, env);
-                        return None.Instance; // TODO: what's the return type of define?
-                    }
-                    else if (Symbol.SET.Equals(exprList[0]))
-                    {
-                        var sym = (Symbol)exprList[1];
-                        var containingEnv = env.TryFindContainingEnv(sym);
-                        if (containingEnv == null)
-                        {
-                            throw new KeyNotFoundException("Symbol not defined: " + sym);
-                        }
-
-                        containingEnv[sym] = EvaluateExpression(exprList[2], env);
-                        return None.Instance;
-                    }
-                    else if (Symbol.LAMBDA.Equals(exprList[0]))
-                    {
-                        // Two lambda forms:
-                        // -    (lambda (arg ...) body): each arg is bound to a value
-                        // -    (lambda args body): args is bound to the parameter list
-                        Union<Symbol, List<Symbol>> parameters;
-                        if (exprList[1] is Symbol)
-                        {
-                            parameters = new Union<Symbol, List<Symbol>>((Symbol)exprList[1]);
-                        }
-                        else
-                        {
-                            parameters = new Union<Symbol, List<Symbol>>(((List<object>)exprList[1]).Cast<Symbol>().ToList());
-                        }
-
-                        return new Procedure(parameters, exprList[2], env);
-                    }
-                    else if (Symbol.BEGIN.Equals(exprList[0]))
-                    {
-                        for (int i = 1; i < exprList.Count - 1 /* don't eval last expr yet */; i++)
-                        {
-                            EvaluateExpression(exprList[i], env);
-                        }
-
-                        expr = exprList[exprList.Count - 1]; // tail call optimization
+                        parameters = LambdaParams.RestOnly((Symbol)rawParams);
                     }
                     else
                     {
-                        // a procedure call
-                        var rawProc = EvaluateExpression(exprList[0], env);
-                        if (!(rawProc is ICallable))
+                        var paramList = (List<object>)rawParams;
+                        int dotIdx = paramList.FindIndex(p => Symbol.DOT.Equals(p));
+                        if (dotIdx >= 0)
                         {
-                            throw new InvalidCastException(string.Format("Object is not callable: {0}", rawProc));
-                        }
-
-                        var args = exprList.Skip(1).Select(a => EvaluateExpression(a, env)).ToList();
-                        if (rawProc is Procedure)
-                        {
-                            // Tail call optimization - instead of evaluating the procedure here which grows the
-                            // stack by calling EvaluateExpression, we update the `expr` and `env` to be the
-                            // body and the (params, args), and loop the evaluation from here.
-                            var proc = (Procedure)rawProc;
-                            expr = proc.Body;
-                            env = Environment.FromVariablesAndValues(proc.Parameters, args, proc.Env);
-                        }
-                        else if (rawProc is NativeProcedure)
-                        {
-                            return ((NativeProcedure)rawProc).Call(args);
+                            var required = paramList.Take(dotIdx).Cast<Symbol>().ToList();
+                            parameters = LambdaParams.WithRest(required, (Symbol)paramList[dotIdx + 1]);
                         }
                         else
                         {
-                            throw new InvalidOperationException("unexpected implementation of ICallable: " + rawProc.GetType().Name);
+                            parameters = LambdaParams.Fixed(paramList.Cast<Symbol>().ToList());
                         }
+                    }
+                    return new Procedure(parameters, exprList[2], env);
+                }
+                else if (Symbol.BEGIN.Equals(exprList[0]))
+                {
+                    for (int i = 1; i < exprList.Count - 1; i++)
+                        EvaluateExpression(exprList[i], env);
+                    expr = exprList[exprList.Count - 1]; // tail call
+                }
+                else
+                {
+                    var rawProc = EvaluateExpression(exprList[0], env);
+                    if (!(rawProc is ICallable))
+                        throw new InvalidCastException(string.Format("Object is not callable: {0}", rawProc));
+
+                    var args = exprList.Skip(1).Select(a => EvaluateExpression(a, env)).ToList();
+                    if (rawProc is Procedure)
+                    {
+                        var proc = (Procedure)rawProc;
+                        expr = proc.Body;
+                        env = Environment.FromVariablesAndValues(proc.Parameters, args, proc.Env);
+                    }
+                    else
+                    {
+                        return ((ICallable)rawProc).Call(args);
                     }
                 }
             }
         }
 
-        private static bool IsPair(object x)
-        {
-            return x is List<object> && ((List<object>)x).Count > 0;
-        }
+        private static bool IsPair(object x) =>
+            x is List<object> && ((List<object>)x).Count > 0;
 
         private static object ExpandQuasiquote(object x)
         {
@@ -471,36 +432,15 @@ namespace Schemy
         {
             int intVal;
             double floatVal;
-            if (token == "#t")
-            {
-                return true;
-            }
-            else if (token == "#f")
-            {
-                return false;
-            }
-            else if (token[0] == '"')
-            {
+            if (token == "#t") return true;
+            if (token == "#f") return false;
+            if (token.Length > 0 && token[0] == '"')
                 return token.Substring(1, token.Length - 2);
-            }
-            else if (int.TryParse(token, out intVal))
-            {
-                return intVal;
-            }
-            else if (double.TryParse(token, out floatVal))
-            {
+            if (int.TryParse(token, out intVal)) return intVal;
+            if (double.TryParse(token, System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out floatVal))
                 return floatVal;
-            }
-            else
-            {
-                return Symbol.FromString(token); // a symbol
-            }
-        }
-
-        private static bool ConvertToBool(object val)
-        {
-            if (val is bool) return (bool)val;
-            return true;
+            return Symbol.FromString(token);
         }
 
         public struct EvaluationResult
@@ -514,72 +454,48 @@ namespace Schemy
                 this.result = result;
             }
 
-            public Exception Error { get { return this.error; } }
-
-            public object Result { get { return this.result; } }
+            public Exception Error => this.error;
+            public object Result => this.result;
         }
 
         public class InPort
         {
             private const string tokenizer = @"^\s*(,@|[('`,)]|""(?:[\\].|[^\\""])*""|;.*|[^\s('""`,;)]*)(.*)";
-
-            private TextReader file;
+            private System.IO.TextReader file;
             private string line;
 
-            public InPort(TextReader file)
+            public InPort(System.IO.TextReader file)
             {
                 this.file = file;
                 this.line = string.Empty;
             }
 
-            /// <summary>
-            /// Parses and returns the next token. Returns <see cref="Symbol.EOF"/> if there's no more content to read.
-            /// </summary>
             public object NextToken()
             {
                 while (true)
                 {
                     if (this.line == string.Empty)
-                    {
                         this.line = this.file.ReadLine();
-                    }
 
-                    if (this.line == string.Empty)
+                    if (this.line == string.Empty) continue;
+                    if (this.line == null) return Symbol.EOF;
+
+                    var res = Regex.Match(this.line, tokenizer);
+                    var token = res.Groups[1].Value;
+                    this.line = res.Groups[2].Value;
+
+                    if (string.IsNullOrEmpty(token))
                     {
-                        continue;
+                        var tmp = this.line;
+                        this.line = string.Empty;
+                        if (tmp.Trim() != string.Empty)
+                            Utils.CheckSyntax(tmp, false, "unexpected syntax");
                     }
-                    else if (this.line == null)
-                    {
-                        return Symbol.EOF;
-                    }
-                    else
-                    {
-                        var res = Regex.Match(this.line, tokenizer);
-                        var token = res.Groups[1].Value;
-                        this.line = res.Groups[2].Value;
 
-                        if (string.IsNullOrEmpty(token))
-                        {
-                            // 1st group is empty. All string falls into 2nd group. This usually means 
-                            // an error in the syntax, e.g., incomplete string "foo
-                            var tmp = this.line;
-                            this.line = string.Empty; // to continue reading next line
-
-                            if (tmp.Trim() != string.Empty)
-                            {
-                                // this is a syntax error
-                                Utils.CheckSyntax(tmp, false, "unexpected syntax");
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(token) && !token.StartsWith(";"))
-                        {
-                            return token;
-                        }
-                    }
+                    if (!string.IsNullOrEmpty(token) && !token.StartsWith(";"))
+                        return token;
                 }
             }
         }
     }
 }
-

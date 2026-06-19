@@ -4,17 +4,14 @@
 namespace Schemy
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
-    /// Tracks the state of an interpreter or a procedure. It supports lexical scoping.
+    /// Tracks the state of an interpreter or a procedure. Supports lexical scoping.
     /// </summary>
     public class Environment
     {
         private readonly IDictionary<Symbol, object> store;
-
-        /// <summary>
-        /// The enclosing environment. For top level env, this is null.
-        /// </summary>
         private readonly Environment outer;
 
         public Environment(IDictionary<Symbol, object> env, Environment outer)
@@ -23,57 +20,51 @@ namespace Schemy
             this.outer = outer;
         }
 
-        public static Environment CreateEmpty()
+        public static Environment CreateEmpty() =>
+            new Environment(new Dictionary<Symbol, object>(), null);
+
+        public static Environment FromVariablesAndValues(LambdaParams parameters, List<object> values, Environment outer)
         {
-            return new Environment(new Dictionary<Symbol, object>(), null);
+            var dict = new Dictionary<Symbol, object>();
+
+            if (parameters.IsVariadic)
+            {
+                if (values.Count < parameters.Required.Count)
+                    throw new SyntaxError(string.Format(
+                        "Too few arguments. Expecting at least {0}, got {1}.",
+                        parameters.Required.Count, values.Count));
+
+                for (int i = 0; i < parameters.Required.Count; i++)
+                    dict[parameters.Required[i]] = values[i];
+
+                dict[parameters.Rest] = values.Skip(parameters.Required.Count).ToList();
+            }
+            else
+            {
+                if (values.Count != parameters.Required.Count)
+                    throw new SyntaxError(string.Format(
+                        "Unexpected number of arguments. Expecting {0}, got {1}.",
+                        parameters.Required.Count, values.Count));
+
+                for (int i = 0; i < values.Count; i++)
+                    dict[parameters.Required[i]] = values[i];
+            }
+
+            return new Environment(dict, outer);
         }
 
-        public static Environment FromVariablesAndValues(Union<Symbol, List<Symbol>> parameters, List<object> values, Environment outer)
-        {
-            return parameters.Use(
-                @params => new Environment(new Dictionary<Symbol, object>() { { @params, values } }, outer),
-                @params =>
-                {
-                    if (values.Count != @params.Count)
-                    {
-                        throw new SyntaxError(string.Format("Unexpected number of arguments. Expecting {0}, Got {1}.", @params.Count, values.Count));
-                    }
-
-                    var dict = new Dictionary<Symbol, object>();
-                    for (int i = 0; i < values.Count; i++)
-                    {
-                        dict[@params[i]] = values[i];
-                    }
-
-                    return new Environment(dict, outer);
-                });
-        }
-
-        /// <summary>
-        /// Attempts to get the value of the symbol. If it's not found in current env, recursively try the enclosing env.
-        /// </summary>
-        /// <param name="val">The value of the symbol to find</param>
-        /// <returns>if the symbol's value could be found</returns>
         public bool TryGetValue(Symbol sym, out object val)
         {
-            Environment env = this.TryFindContainingEnv(sym);
+            var env = this.TryFindContainingEnv(sym);
             if (env != null)
             {
                 val = env.store[sym];
                 return true;
             }
-            else
-            {
-                val = null;
-                return false;
-            }
+            val = null;
+            return false;
         }
 
-        /// <summary>
-        /// Attempts to find the env that actually defines the symbol
-        /// </summary>
-        /// <param name="sym">The symbol to find</param>
-        /// <returns>the env that defines the symbol</returns>
         public Environment TryFindContainingEnv(Symbol sym)
         {
             object val;
@@ -87,21 +78,10 @@ namespace Schemy
             get
             {
                 object val;
-                if (this.TryGetValue(sym, out val))
-                {
-                    return val;
-                }
-                else
-                {
-                    throw new KeyNotFoundException(string.Format("Symbol not defined: {0}", sym));
-                }
+                if (this.TryGetValue(sym, out val)) return val;
+                throw new KeyNotFoundException(string.Format("Symbol not defined: {0}", sym));
             }
-
-            set
-            {
-                this.store[sym] = value;
-            }
+            set { this.store[sym] = value; }
         }
     }
 }
-

@@ -65,6 +65,11 @@ namespace Schemy
             }
         }
 
+        /// <summary>
+        /// Scheme truthiness: only #f is false, everything else (including 0, "", '()) is true.
+        /// </summary>
+        public static bool IsTruthy(object val) => !(val is bool) || (bool)val;
+
         public static string PrintExpr(object x)
         {
             if (x is bool)

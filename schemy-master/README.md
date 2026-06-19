@@ -1,3 +1,11 @@
+# Schemy (SSNoir fork)
+
+> **This is a fork of [Microsoft/schemy](https://github.com/Microsoft/schemy)**
+> with language fixes and Unity compatibility improvements.
+> See [CHANGES FROM UPSTREAM](#changes-from-upstream) for a full diff summary.
+
+---
+
 # Schemy
 
 Schemy is a lightweight Scheme-like scripting language interpreter for
@@ -318,4 +326,116 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 [lispy]: http://norvig.com/lispy2.html
 [schemy_nuget]: https://www.nuget.org/packages/schemy
 <!--- vim: set ft=markdown tw=78: -->
+
+---
+
+<a id="changes-from-upstream"></a>
+## Changes from upstream
+
+### Target framework
+
+`netstandard2.0` (was `net4.5.2`). Compatible with Unity and modern .NET.
+
+### Breaking API changes
+
+| What | Before | After |
+|------|--------|-------|
+| `ICallable` | `internal` interface | `public` — hosts can hold/check/invoke procedures |
+| `Procedure.Parameters` type | `Union<Symbol, List<Symbol>>` | `LambdaParams` |
+| `Environment.FromVariablesAndValues` | takes `Union<…>` | takes `LambdaParams` |
+
+### New constructor parameter
+
+```csharp
+new Interpreter(
+    environmentInitializers: …,   // unchanged
+    fsAccessor: …,                // unchanged
+    output: myTextWriter          // NEW — defaults to Console.Out
+)
+```
+
+### New `Interpreter` members
+
+```csharp
+TextWriter interpreter.Output   // get/set
+EvaluationResult interpreter.Evaluate(string expression)  // convenience overload
+```
+
+### Language: dotted rest parameters — FIXED
+
+All three R5RS lambda parameter forms now work:
+
+```scheme
+(lambda args body)           ; all args captured as list
+(lambda (a b) body)          ; fixed arity  (was already working)
+(lambda (a b . rest) body)   ; fixed + variadic  ← was broken
+```
+
+Works in both `lambda` and `define`:
+```scheme
+(define (f x . rest) (cons x rest))
+(f 1 2 3)  ; => (1 2 3)
+```
+
+### Language: new macros in `init.ss`
+
+`letrec`, `let*`, named `let`, `and`, `or`, `when`, `unless`, plus `cXr` helpers
+(`cadr`, `caddr`, `cadddr`, `cddr`, `caar`, `cdar`, `caadr`, `cdadr`, `cadar`,
+`cddar`, `cdddr`).
+
+```scheme
+; named let
+(let loop ((i 0) (acc 0))
+  (if (= i 5) acc (loop (+ i 1) (+ acc i 1))))
+
+; letrec — mutual recursion
+(letrec ((even? (lambda (n) (if (= n 0) #t (odd?  (- n 1)))))
+         (odd?  (lambda (n) (if (= n 0) #f (even? (- n 1))))))
+  (even? 10))
+```
+
+### Language: truthiness — FIXED
+
+Only `#f` is false. `0`, `""`, `'()` are all truthy (R5RS-compliant).
+
+```scheme
+(not #f)  ; => #t
+(not 0)   ; => #f  ← was a type error before
+```
+
+### Builtins: fixed
+
+| Function | Fix |
+|----------|-----|
+| `not` | now accepts any value (was `bool`-only) |
+| `append` | variadic — `(append l1 l2 l3 …)` |
+| `apply` | full R5RS form — `(apply f a1 a2 … list)` |
+| `map` | multiple lists — `(map f l1 l2)` |
+
+### Builtins: new
+
+`number?`, `procedure?`, `pair?`, `eqv?`,
+`modulo`, `remainder`, `quotient`, `abs`, `min`, `max`,
+`error`, `display`, `write`, `newline`
+
+(`num?` kept as a backward-compatible alias for `number?`.)
+
+### Initialisation: Unity-safe — FIXED
+
+`Assembly.Location` calls are now wrapped in `try/catch`. Under Unity IL2CPP
+`Assembly.Location` can throw or return an empty string; this previously crashed
+the interpreter before any script ran. The embedded `init.ss` still loads
+normally (it is a manifest resource, not a filesystem file).
+
+### Optional standard library
+
+`stdlib.scm` (at the repo root) provides `filter`, `for-each`, `assoc`,
+`assq`, `member`, `memq`, `list-tail`, `fold-left`, `fold-right`, `every`,
+`any`, `iota`, `gcd`, `lcm`, and more — all implemented in Scheme.
+
+**It is not auto-loaded.** Load it explicitly when you need it:
+```csharp
+interpreter.Evaluate(File.OpenText("stdlib.scm"));
+```
+or from Scheme: `(load "stdlib.scm")`
 

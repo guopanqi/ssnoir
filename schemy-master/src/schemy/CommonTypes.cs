@@ -11,6 +11,36 @@ namespace Schemy
         public static readonly None Instance = new None();
     }
 
+    /// <summary>
+    /// Represents the parameter list of a lambda / procedure.
+    /// Covers all three R5RS forms:
+    ///   (lambda args body)          → RestOnly
+    ///   (lambda (a b) body)         → Fixed
+    ///   (lambda (a b . rest) body)  → WithRest
+    /// </summary>
+    public class LambdaParams
+    {
+        public readonly List<Symbol> Required;
+        public readonly Symbol Rest;
+
+        private LambdaParams(List<Symbol> required, Symbol rest)
+        {
+            Required = required;
+            Rest = rest;
+        }
+
+        public static LambdaParams RestOnly(Symbol rest) =>
+            new LambdaParams(new List<Symbol>(), rest);
+
+        public static LambdaParams Fixed(List<Symbol> syms) =>
+            new LambdaParams(syms, null);
+
+        public static LambdaParams WithRest(List<Symbol> required, Symbol rest) =>
+            new LambdaParams(required, rest);
+
+        public bool IsVariadic => Rest != null;
+    }
+
     class AssertionFailedError : Exception
     {
         public AssertionFailedError(string msg) : base(msg)

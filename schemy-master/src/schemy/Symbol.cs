@@ -72,6 +72,7 @@ namespace Schemy
         public static Symbol EOF { get { return Symbol.FromString("#<eof-object>"); } }
         public static Symbol APPEND { get { return Symbol.FromString("append"); } }
         public static Symbol CONS { get { return Symbol.FromString("cons"); } }
+        public static Symbol DOT { get { return Symbol.FromString("."); } }
         #endregion wellknown symbols
 
         #region object implementations
