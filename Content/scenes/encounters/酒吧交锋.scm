@@ -33,7 +33,7 @@
   (tick-n! info n)
   (if (info 'full?)
       (begin
-        (notify! "你终于拼凑出了足够的信息。")
+        (spotlight! "情报到手" "你终于拼凑出了足够的信息。")
         (end-encounter 'success))
       #f))
 
@@ -41,7 +41,7 @@
   (tick-n! tension n)
   (if (tension 'full?)
       (begin
-        (notify! "气氛彻底崩了，几个大汉站了起来。你夺门而出。")
+        (spotlight! "局势失控" "气氛彻底崩了，几个大汉站了起来。你夺门而出。")
         (end-encounter 'fail))
       #f))
 
@@ -88,6 +88,9 @@
   (random-choice (collect-available 0 '())))
 
 ;; ── Turn Rules ─────────────────────────────────
+(define-turn-rule "气氛升温"
+  (lambda () #t)
+  (lambda () (tension-tick! 1)))
 
 (define-turn-rule "话头消失"
   (lambda () tip-available)
@@ -126,54 +129,62 @@
 (define (node-order-drink)
   (action "点一杯酒"
     (list (req-item "金钱" 10))
-    (instant (lambda ()
-      (set! bar-ordered #t)
-      (set! listen-uses 4)
-      (add-supplies! 1)
-      (notify! "你点了一杯烧酒，老板没多话，把杯子推过来。物资+1。")))))
+    (instant (outcome "烧酒一杯"
+      "老板没多话，把杯子推过来。物资+1。"
+      (lambda ()
+        (set! bar-ordered #t)
+        (set! listen-uses 4)
+        (add-supplies! 1))))))
 
 (define (node-listen)
   (action (string-append "在吧台聆听 (×" (number->string listen-uses) ")")
     (list (req-die))
     (roll 'sharpness
-      (lambda ()
-        (set! listen-uses (- listen-uses 1))
-        (if (= listen-uses 0) (set! bar-ordered #f) #f)
-        (notify! "静下心来，却什么都没抓住。"))
-      (lambda ()
-        (set! listen-uses (- listen-uses 1))
-        (if (= listen-uses 0) (set! bar-ordered #f) #f)
-        (set! tip-available #t)
-        (notify! "隐约听到了几个字，话头出现了。"))
-      (lambda ()
-        (set! listen-uses (- listen-uses 1))
-        (if (= listen-uses 0) (set! bar-ordered #f) #f)
-        (set! tip-available #t)
-        (notify! "清楚地捕捉到了一个话头。")))))
+      (outcome "没抓到什么"
+        "静下心来，却什么都没捕捉到。"
+        (lambda ()
+          (set! listen-uses (- listen-uses 1))
+          (if (= listen-uses 0) (set! bar-ordered #f) #f)))
+      (outcome "话头出现"
+        "隐约听到了几个字，或许值得搭话。"
+        (lambda ()
+          (set! listen-uses (- listen-uses 1))
+          (if (= listen-uses 0) (set! bar-ordered #f) #f)
+          (set! tip-available #t)))
+      (outcome "清晰捕捉"
+        "一个话头清楚地浮现，时机刚好。"
+        (lambda ()
+          (set! listen-uses (- listen-uses 1))
+          (if (= listen-uses 0) (set! bar-ordered #f) #f)
+          (set! tip-available #t))))))
 
 (define (node-follow-up)
   (action "接话"
     (list (req-die))
     (roll 'sharpness
-      (lambda ()
-        (set! tip-available #f)
-        (notify! "时机没对，对方回头走了。"))
-      (lambda ()
-        (set! tip-available #f)
-        (info-tick! 1)
-        (notify! "对方随口回了你一句，有点用。"))
-      (lambda ()
-        (set! tip-available #f)
-        (info-tick! 2)
-        (notify! "话头接上了，对方多说了不少。")))))
+      (outcome "时机没对"
+        "话头没接上，对方回头走了。"
+        (lambda ()
+          (set! tip-available #f)))
+      (outcome "随口一句"
+        "对方回了你一句，说了一点有用的东西。"
+        (lambda ()
+          (set! tip-available #f)
+          (info-tick! 1)))
+      (outcome "话头接上"
+        "话头接上了，对方多说了不少。"
+        (lambda ()
+          (set! tip-available #f)
+          (info-tick! 2))))))
 
 ;; ── 路线二：向酒保买消息 ─────────────────────────
 (define (node-buy-info)
   (action "向酒保买消息"
     (list (req-item "金钱" 15))
-    (instant (lambda ()
-      (info-tick! 2)
-      (notify! "酒保把嘴凑过来，低声说了几句，干脆利落。")))))
+    (instant (outcome "买到消息"
+      "酒保把嘴凑过来，低声说了几句，干脆利落。"
+      (lambda ()
+        (info-tick! 2))))))
 
 ;; ── 路线三：直接搭话 ─────────────────────────────
 (define (make-patron-node pool-idx)
@@ -187,33 +198,40 @@
             (list (req-die))
             (if (equal? risk 'high)
                 (roll skill
-                  (lambda ()
-                    (set! talked-set (cons pool-idx talked-set))
-                    (tension-tick! 2)
-                    (stress-current-actor! 1)
-                    (notify! "对方猛地站起来，周围几个人都看过来了。"))
-                  (lambda ()
-                    (set! talked-set (cons pool-idx talked-set))
-                    (info-tick! 1)
-                    (tension-tick! 1)
-                    (notify! "他皱眉，但还是扔出了一句话，不太友善。"))
-                  (lambda ()
-                    (set! talked-set (cons pool-idx talked-set))
-                    (info-tick! 2)
-                    (notify! "出乎意料，他说了不少有用的东西。")))
+                  (outcome "话不投机"
+                    "对方猛地站起来，周围几个人都看过来了。"
+                    (lambda ()
+                      (set! talked-set (cons pool-idx talked-set))
+                      (tension-tick! 2)
+                      (stress-current-actor! 1))
+                    'heavy)
+                  (outcome "皱眉搭话"
+                    "他皱眉，但还是扔出了一句话，不太友善。"
+                    (lambda ()
+                      (set! talked-set (cons pool-idx talked-set))
+                      (info-tick! 1)
+                      (tension-tick! 1)))
+                  (outcome "出乎意料"
+                    "他开口了，说的比你预想的多。"
+                    (lambda ()
+                      (set! talked-set (cons pool-idx talked-set))
+                      (info-tick! 2))))
                 (roll skill
-                  (lambda ()
-                    (set! talked-set (cons pool-idx talked-set))
-                    (tension-tick! 1)
-                    (notify! "他挥挥手，不耐烦地走开了。"))
-                  (lambda ()
-                    (set! talked-set (cons pool-idx talked-set))
-                    (info-tick! 1)
-                    (notify! "他随口说了几句，有点用。"))
-                  (lambda ()
-                    (set! talked-set (cons pool-idx talked-set))
-                    (info-tick! 2)
-                    (notify! "话匣子开了，颇有收获。")))))))))
+                  (outcome "不耐烦"
+                    "他挥挥手，不耐烦地走开了。"
+                    (lambda ()
+                      (set! talked-set (cons pool-idx talked-set))
+                      (tension-tick! 1)))
+                  (outcome "随口说了几句"
+                    "他随口说了几句，有点用。"
+                    (lambda ()
+                      (set! talked-set (cons pool-idx talked-set))
+                      (info-tick! 1)))
+                  (outcome "话匣子开了"
+                    "聊了不少，颇有收获。"
+                    (lambda ()
+                      (set! talked-set (cons pool-idx talked-set))
+                      (info-tick! 2))))))))))
 
 (define (patron-nodes)
   (list

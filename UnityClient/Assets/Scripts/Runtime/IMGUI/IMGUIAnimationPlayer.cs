@@ -17,8 +17,13 @@ namespace SSNoir.IMGUI
         public int FinalValue { get; private set; }
         public RollOutcome FinalOutcome { get; private set; }
         public int ChosenDie { get; private set; }
+        public int Phase => _phase;
         public string ActionName { get; private set; } = "";
         public List<int> RandomDice { get; private set; } = new List<int>();
+        public ActionReport? CurrentReport { get; private set; }
+        public bool UsesModal =>
+            CurrentReport != null
+            && OutcomePresentationPolicy.ShouldUseRollModal(CurrentReport, ActionName);
         public Action? OnAcknowledged;
 
         private float _phaseStartTime;
@@ -32,6 +37,7 @@ namespace SSNoir.IMGUI
             _phaseStartTime = Time.time;
             FinalValue = report.FinalRollValue;
             FinalOutcome = report.Outcome;
+            CurrentReport = report;
             ChosenDie = report.ChosenDieValue;
             ActionName = actionName;
             RandomDice = new List<int>(report.RandomDice);
@@ -104,6 +110,7 @@ namespace SSNoir.IMGUI
             {
                 IsPlaying = false;
                 _phase = 3;
+                CurrentReport = null;
                 OnAcknowledged?.Invoke();
             }
         }
@@ -116,6 +123,7 @@ namespace SSNoir.IMGUI
         public void DrawModal()
         {
             if (!IsPlaying) return;
+            if (!UsesModal) return;
 
             // Blocker
             GUI.color = IMGUIStyles.Blocker;
@@ -124,7 +132,7 @@ namespace SSNoir.IMGUI
 
             // Modal panel
             float modalW = 380;
-            float modalH = 260;
+            float modalH = CurrentReport?.OutcomePresentation?.HasText == true ? 330 : 260;
             float modalX = (UIScale.VW - modalW) / 2f;
             float modalY = (UIScale.VH - modalH) / 2f;
             var modalRect = new Rect(modalX, modalY, modalW, modalH);
@@ -142,7 +150,8 @@ namespace SSNoir.IMGUI
             float contentW = modalW - 40;
 
             // Title
-            GUI.Label(new Rect(contentX, contentY, contentW, 24), $"[判定结果] {ActionName}", IMGUIStyles.ModalTitle);
+            string title = string.IsNullOrEmpty(ActionName) ? "[判定结果]" : $"[判定结果] {ActionName}";
+            GUI.Label(new Rect(contentX, contentY, contentW, 24), title, IMGUIStyles.ModalTitle);
             contentY += 28;
 
             // Rolling die
@@ -186,6 +195,21 @@ namespace SSNoir.IMGUI
                 outcomeStyle.normal.textColor = DisplayOutcomeColor;
                 GUI.Label(new Rect(contentX, contentY, contentW, 24), $"判定结果: {DisplayOutcomeText}", outcomeStyle);
                 contentY += 32;
+
+                var presentation = CurrentReport?.OutcomePresentation;
+                if (presentation != null && presentation.HasText)
+                {
+                    var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle);
+                    titleStyle.fontSize = 15;
+                    titleStyle.alignment = TextAnchor.MiddleCenter;
+                    GUI.Label(new Rect(contentX, contentY, contentW, 22), presentation.Title, titleStyle);
+                    contentY += 24;
+
+                    var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody);
+                    subtitleStyle.wordWrap = true;
+                    subtitleStyle.alignment = TextAnchor.UpperCenter;
+                    GUI.Label(new Rect(contentX, contentY, contentW, 42), presentation.Subtitle, subtitleStyle);
+                }
             }
 
             // Acknowledge button

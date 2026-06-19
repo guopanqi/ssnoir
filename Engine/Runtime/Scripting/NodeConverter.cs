@@ -205,11 +205,11 @@ namespace SSNoir.Scripting
             var typeStr = typeSym.AsString.ToLowerInvariant();
             if (typeStr == "instant" && list.Count >= 2)
             {
-                var effectProc = list[1] as Procedure;
+                var outcome = ParseActionOutcome(list[1], "instant effect");
                 return new GameResolve
                 {
                     Type = ResolveType.Instant,
-                    Effect = effectProc != null ? () => effectProc.Call(new List<object>()) : null
+                    Outcome = outcome
                 };
             }
             else if (typeStr == "roll" && list.Count >= 5)
@@ -231,18 +231,18 @@ namespace SSNoir.Scripting
                     failIndex = 3;
                 }
 
-                var failProc = list[failIndex] as Procedure;
-                var neutralProc = list[failIndex + 1] as Procedure;
-                var successProc = list[failIndex + 2] as Procedure;
+                var failOutcome = ParseActionOutcome(list[failIndex], "roll fail branch");
+                var neutralOutcome = ParseActionOutcome(list[failIndex + 1], "roll neutral branch");
+                var successOutcome = ParseActionOutcome(list[failIndex + 2], "roll success branch");
 
                 return new GameResolve
                 {
                     Type = ResolveType.Roll,
                     SkillName = skillName,
                     DifficultyModifiers = modifiers,
-                    OnFail = failProc != null ? () => failProc.Call(new List<object>()) : null,
-                    OnNeutral = neutralProc != null ? () => neutralProc.Call(new List<object>()) : null,
-                    OnSuccess = successProc != null ? () => successProc.Call(new List<object>()) : null
+                    FailOutcome = failOutcome,
+                    NeutralOutcome = neutralOutcome,
+                    SuccessOutcome = successOutcome
                 };
             }
             else if (typeStr == "observe" && list.Count >= 2)
@@ -264,6 +264,70 @@ namespace SSNoir.Scripting
             }
 
             throw new InvalidOperationException($"Unknown resolve type or invalid argument count: {typeStr}");
+        }
+
+        private static ActionOutcome ParseActionOutcome(object expr, string context)
+        {
+            if (expr is Procedure proc)
+            {
+                return new ActionOutcome
+                {
+                    Effect = () => proc.Call(new List<object>())
+                };
+            }
+
+            if (!(expr is List<object> list) || list.Count == 0)
+            {
+                throw new InvalidOperationException($"Invalid {context}: expected procedure or outcome list, got {expr?.GetType().FullName ?? "null"}");
+            }
+
+            if (!(list[0] is Symbol header) || header.AsString != "outcome")
+            {
+                throw new InvalidOperationException($"Invalid {context}: expected procedure or (outcome title subtitle mode effect)");
+            }
+
+            if (list.Count != 5)
+            {
+                throw new InvalidOperationException($"Invalid {context}: outcome expects exactly 4 values after 'outcome (title subtitle mode effect), got {list.Count - 1}");
+            }
+
+            if (!(list[1] is string title))
+            {
+                throw new InvalidOperationException($"Invalid {context}: outcome title must be a string");
+            }
+
+            if (!(list[2] is string subtitle))
+            {
+                throw new InvalidOperationException($"Invalid {context}: outcome subtitle must be a string");
+            }
+
+            if (!(list[3] is Symbol modeSym))
+            {
+                throw new InvalidOperationException($"Invalid {context}: outcome mode must be 'light or 'heavy");
+            }
+
+            var mode = modeSym.AsString.ToLowerInvariant() switch
+            {
+                "light" => OutcomePresentationMode.Light,
+                "heavy" => OutcomePresentationMode.Heavy,
+                _ => throw new InvalidOperationException($"Invalid {context}: unknown outcome mode '{modeSym.AsString}', expected 'light or 'heavy")
+            };
+
+            if (!(list[4] is Procedure effectProc))
+            {
+                throw new InvalidOperationException($"Invalid {context}: outcome effect must be a procedure");
+            }
+
+            return new ActionOutcome
+            {
+                Presentation = new OutcomePresentation
+                {
+                    Title = title,
+                    Subtitle = subtitle,
+                    Mode = mode
+                },
+                Effect = () => effectProc.Call(new List<object>())
+            };
         }
 
         private static List<DifficultyModifierInfo> ParseDifficultyModifiers(object modifiersExpr)

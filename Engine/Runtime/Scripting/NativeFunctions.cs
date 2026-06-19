@@ -138,6 +138,18 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__notify!"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__spotlight!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 2) throw new ArgumentException("__spotlight! requires 2 arguments: title subtitle");
+                if (!(args[0] is string title)) throw new ArgumentException("__spotlight! title must be a string");
+                if (!(args[1] is string subtitle)) throw new ArgumentException("__spotlight! subtitle must be a string");
+                if (gameState.CurrentActionReport != null)
+                    gameState.CurrentActionReport.Spotlights.Add(new SpotlightCard { Title = title, Subtitle = subtitle });
+                else
+                    gameState.SpotlightCenter.Show(title, subtitle);
+                return new None();
+            }, "__spotlight!"));
+
             interpreter.DefineGlobal(Symbol.FromString("__upgrade-actor-stat!"), new NativeProcedure(args =>
             {
                 if (args.Count < 2) throw new ArgumentException("__upgrade-actor-stat! requires 2 arguments: actor-id and stat-id");

@@ -18,7 +18,9 @@ namespace SSNoir.IMGUI
 
         public static CardInteraction DrawCard(Rect rect, GameNode node, bool isHovered, bool isFlipped, bool isFocused,
             List<SlottedResource?>? slotted, List<GameClock> clocks, string backText,
-            IMGUIInteractionContext ui, SSNoirGameManager gameManager, bool isExecuting = false, float executeProgress = 0f, string executingText = "执行中")
+            IMGUIInteractionContext ui, SSNoirGameManager gameManager, bool isExecuting = false, float executeProgress = 0f, string executingText = "执行中",
+            ActionReport? localRoll = null, int localRollPhase = 0, int localRollDisplayDieValue = 1, float localRollDisplayScale = 1f,
+            CardPresentationResidue? residue = null)
         {
             var interaction = new CardInteraction { CardClicked = false, ClickedSlotIndex = -1, DroppedSlotIndex = -1, ExecuteClicked = false };
 
@@ -103,16 +105,28 @@ namespace SSNoir.IMGUI
 
             bool hasRequires = node.Requires != null && node.Requires.Count > 0 && slotted != null && slotted.Count == node.Requires.Count;
             bool showButton = hasRequires || (node.Resolve != null && node.Resolve.Type == ResolveType.Instant);
+            bool hasSubtitle = !string.IsNullOrWhiteSpace(node.Subtitle);
 
             // Title
-            float titleY = showButton ? rect.y + 16 : rect.y + rect.height / 2f - 24;
+            float titleY = showButton ? rect.y + 12 : rect.y + rect.height / 2f - (hasSubtitle ? 34 : 24);
             GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, 28), node.Name, IMGUIStyles.CardTitle);
 
+            if (hasSubtitle)
+            {
+                var subtitleStyle = new GUIStyle(IMGUIStyles.CardSubtitle)
+                {
+                    fontSize = 14,
+                    alignment = TextAnchor.MiddleCenter,
+                    wordWrap = false
+                };
+                GUI.Label(new Rect(rect.x + 12f, titleY + 28f, rect.width - 24f, 20f), node.Subtitle, subtitleStyle);
+            }
+
             // Type label
-            float typeY = showButton ? rect.y + 48 : rect.y + rect.height / 2f + 6;
+            float typeY = showButton ? rect.y + (hasSubtitle ? 64 : 48) : rect.y + rect.height / 2f + 6;
             GUI.Label(new Rect(rect.x + 10f, typeY, rect.width - 20f, 22), $"— {typeLabel} —", IMGUIStyles.CardSubtitle);
 
-            DrawNodeTags(rect, node.Tags, hasRequires ? rect.y + 8f : (showButton ? rect.y + 72f : rect.y + 8f));
+            DrawNodeTags(rect, node.Tags, hasRequires ? rect.y + 8f : (showButton ? rect.y + (hasSubtitle ? 88f : 72f) : rect.y + 8f));
 
             if (hasRequires)
             {
@@ -124,7 +138,7 @@ namespace SSNoir.IMGUI
                 float spacing = 10;
                 float totalWidth = M * slotW + (M - 1) * spacing;
                 float slotStartX = rect.x + (rect.width - totalWidth) / 2f;
-                float slotY = rect.y + 78;
+                float slotY = rect.y + (hasSubtitle ? 92 : 78);
 
                 for (int j = 0; j < M; j++)
                 {
@@ -189,7 +203,7 @@ namespace SSNoir.IMGUI
                 float exeW = 112;
                 float exeH = 28;
                 float exeX = rect.x + (rect.width - exeW) / 2f;
-                float exeY = slotY + slotH + 12;
+                float exeY = slotY + slotH + 10;
                 var exeRect = new Rect(exeX, exeY, exeW, exeH);
 
                 bool allFilled = slotted != null && slotted.All(s => s != null);
@@ -215,7 +229,7 @@ namespace SSNoir.IMGUI
                 float exeW = 112;
                 float exeH = 30;
                 float exeX = rect.x + (rect.width - exeW) / 2f;
-                float exeY = rect.y + 100;
+                float exeY = rect.y + (hasSubtitle ? 124 : 100);
                 var exeRect = new Rect(exeX, exeY, exeW, exeH);
 
                 if (isExecuting)
@@ -272,7 +286,132 @@ namespace SSNoir.IMGUI
                 }
             }
 
+            if (localRoll != null)
+            {
+                DrawLocalRoll(rect, localRoll, localRollPhase, localRollDisplayDieValue, localRollDisplayScale);
+            }
+            else if (residue != null)
+            {
+                DrawResidue(rect, residue);
+            }
+
             return interaction;
+        }
+
+        private static void DrawLocalRoll(Rect rect, ActionReport report, int phase, int displayDieValue, float displayScale)
+        {
+            var panel = new Rect(rect.x + 12f, rect.yMax - 66f, rect.width - 24f, 54f);
+            GUI.color = new Color(0.07f, 0.08f, 0.12f, 0.96f);
+            GUI.DrawTexture(panel, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(panel, 1.5f, IMGUIStyles.ClockActive);
+
+            int dieValue = phase == 0 ? displayDieValue : report.FinalRollValue;
+            var dieStyle = new GUIStyle(IMGUIStyles.CardTitle)
+            {
+                fontSize = Mathf.RoundToInt(26 * Mathf.Clamp(displayScale, 0.8f, 1.35f)),
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = IMGUIStyles.ClockActive }
+            };
+            GUI.Label(new Rect(panel.x + 10f, panel.y + 4f, 52f, panel.height - 8f), $"D{dieValue}", dieStyle);
+
+            string label = phase >= 2 ? FormatOutcome(report.Outcome) : "判定中";
+            var labelStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                fontSize = 15,
+                normal = { textColor = phase >= 2 ? OutcomeColor(report.Outcome) : IMGUIStyles.OnSurface }
+            };
+            GUI.Label(new Rect(panel.x + 72f, panel.y + 9f, panel.width - 82f, 22f), label, labelStyle);
+
+            string detail = phase >= 2 ? $"最终值 {report.ModifiedRollValue}" : "骰子滚动...";
+            GUI.Label(new Rect(panel.x + 72f, panel.y + 30f, panel.width - 82f, 18f), detail, IMGUIStyles.ModalBody);
+        }
+
+        private static void DrawResidue(Rect rect, CardPresentationResidue residue)
+        {
+            var panel = new Rect(rect.x + 12f, rect.yMax - 68f, rect.width - 24f, 56f);
+            GUI.color = new Color(0.08f, 0.09f, 0.14f, 0.96f);
+            GUI.DrawTexture(panel, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(panel, 1f, IMGUIStyles.PrimaryColor);
+
+            string title = residue.RollOutcome.HasValue
+                ? $"{FormatOutcome(residue.RollOutcome.Value)}：{residue.Title}"
+                : residue.Title;
+            var titleStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                fontSize = 13,
+                wordWrap = true,
+                normal = { textColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : IMGUIStyles.OnSurface }
+            };
+            GUI.Label(new Rect(panel.x + 8f, panel.y + 6f, panel.width - 16f, 22f), title, titleStyle);
+
+            var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                fontSize = 11,
+                wordWrap = true,
+                normal = { textColor = IMGUIStyles.OnSurfaceVariant }
+            };
+            GUI.Label(new Rect(panel.x + 8f, panel.y + 28f, panel.width - 16f, 24f), residue.Subtitle, subtitleStyle);
+        }
+
+        public static void DrawResidueCard(Rect rect, CardPresentationResidue residue)
+        {
+            GUI.color = new Color(0.08f, 0.09f, 0.14f, 0.98f);
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(rect, 1.5f, IMGUIStyles.PrimaryColor);
+
+            string label = residue.RollOutcome.HasValue ? FormatOutcome(residue.RollOutcome.Value) : "行动结果";
+            var labelStyle = new GUIStyle(IMGUIStyles.CardSubtitle)
+            {
+                fontSize = 13,
+                alignment = TextAnchor.MiddleCenter
+            };
+            GUI.Label(new Rect(rect.x + 12f, rect.y + 14f, rect.width - 24f, 22f), label, labelStyle);
+
+            string title = residue.RollOutcome.HasValue
+                ? $"{FormatOutcome(residue.RollOutcome.Value)}：{residue.Title}"
+                : residue.Title;
+            var titleStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                fontSize = 15,
+                wordWrap = true,
+                alignment = TextAnchor.UpperCenter,
+                normal = { textColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : IMGUIStyles.OnSurface }
+            };
+            GUI.Label(new Rect(rect.x + 18f, rect.y + 46f, rect.width - 36f, 42f), title, titleStyle);
+
+            var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                fontSize = 12,
+                wordWrap = true,
+                alignment = TextAnchor.UpperCenter,
+                normal = { textColor = IMGUIStyles.OnSurfaceVariant }
+            };
+            GUI.Label(new Rect(rect.x + 18f, rect.y + 94f, rect.width - 36f, rect.height - 106f), residue.Subtitle, subtitleStyle);
+        }
+
+        private static string FormatOutcome(RollOutcome outcome)
+        {
+            return outcome switch
+            {
+                RollOutcome.Success => "判定成功",
+                RollOutcome.Neutral => "判定中性",
+                RollOutcome.Fail => "判定失败",
+                _ => "判定结果"
+            };
+        }
+
+        private static Color OutcomeColor(RollOutcome outcome)
+        {
+            return outcome switch
+            {
+                RollOutcome.Success => IMGUIStyles.OutcomeSuccess,
+                RollOutcome.Neutral => IMGUIStyles.OutcomeNeutral,
+                RollOutcome.Fail => IMGUIStyles.OutcomeFail,
+                _ => IMGUIStyles.OnSurface
+            };
         }
 
         private static void DrawNodeTags(Rect rect, List<string>? tags, float startY)

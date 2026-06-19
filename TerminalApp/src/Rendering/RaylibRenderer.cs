@@ -35,6 +35,8 @@ namespace SSNoir.Rendering
                 _state.IsPresentingAction = false;
                 _state.PendingReport = null;
                 _state.ActiveRollResult = null;
+                _state.ActiveOutcomeResult = null;
+                _state.ActiveOutcomeActionName = string.Empty;
                 AdoptLatestSnapshot();
             };
         }
@@ -47,6 +49,7 @@ namespace SSNoir.Rendering
             _state.CardsScrollOffset = 0f;
             _state.CardsScrollStack.Clear();
             _state.HandItemsScrollOffset = 0f;
+            _state.CardResidues.Clear();
             _state.IsTurnPanelOpen = false;
             _state.IsGrowthPanelOpen = false;
             _state.IsDebugMenuOpen = false;
@@ -61,30 +64,46 @@ namespace SSNoir.Rendering
 
         private void FinishPresentation()
         {
+            AddLightResidueIfNeeded();
             AdoptLatestSnapshot();
             _state.PendingReport = null;
             _state.PendingActionName = string.Empty;
             _state.IsPresentingAction = false;
             _state.PresentationStepIndex = 0;
             _state.PresentationTimer = 0f;
+            _state.PendingActionSpotlights.Clear();
+            _state.ActiveActionSpotlight = null;
 
             var callback = _presentationDoneCallback;
             _presentationDoneCallback = null;
             callback?.Invoke();
         }
 
+        private void AdvanceToBlockingPresentationOrFinish()
+        {
+            if (_state.PendingActionSpotlights.Count > 0)
+            {
+                _state.ActiveActionSpotlight = _state.PendingActionSpotlights.Dequeue();
+                return;
+            }
+            FinishPresentation();
+        }
+
         private void StartPresentation(ActionReport report, string actionName = "", Action? onDone = null)
         {
             _state.PendingActionName = actionName;
+            _state.PendingReport = report;
             _presentationDoneCallback = onDone;
+            _state.PendingActionSpotlights.Clear();
+            foreach (var s in report.Spotlights)
+                _state.PendingActionSpotlights.Enqueue(s);
             if (FastPresentationMode)
             {
-                FinishPresentation();
+                ShowHeavyOutcomeOrFinish();
                 return;
             }
 
             _state.IsPresentingAction = true;
-            _state.PendingReport = report;
             _state.PresentationStepIndex = 0;
             _state.PresentationTimer = 0f;
         }
@@ -96,7 +115,9 @@ namespace SSNoir.Rendering
                 return;
             }
 
-            if (_state.ActiveRollResult != null)
+            if (_state.ActiveRollResult != null
+                || _state.ActiveOutcomeResult != null
+                || _state.ActiveActionSpotlight != null)
             {
                 return;
             }
@@ -104,7 +125,7 @@ namespace SSNoir.Rendering
             var hints = _state.PendingReport.PresentationHints;
             if (hints == null || hints.Count == 0 || _state.PresentationStepIndex >= hints.Count)
             {
-                FinishPresentation();
+                ShowHeavyOutcomeOrFinish();
                 return;
             }
 
@@ -131,7 +152,7 @@ namespace SSNoir.Rendering
 
             if (_state.PresentationStepIndex >= hints.Count)
             {
-                FinishPresentation();
+                ShowHeavyOutcomeOrFinish();
             }
         }
 
@@ -143,8 +164,65 @@ namespace SSNoir.Rendering
             var hints = _state.PendingReport?.PresentationHints;
             if (hints == null || _state.PresentationStepIndex >= hints.Count)
             {
-                FinishPresentation();
+                ShowHeavyOutcomeOrFinish();
             }
+        }
+
+        private void ShowHeavyOutcomeOrFinish()
+        {
+            if (_state.PendingReport != null
+                && OutcomePresentationPolicy.ShouldUseOutcomeModal(_state.PendingReport, _state.PendingActionName))
+            {
+                _state.ActiveOutcomeResult = _state.PendingReport;
+                _state.ActiveOutcomeActionName = _state.PendingActionName;
+                return;
+            }
+
+            AdvanceToBlockingPresentationOrFinish();
+        }
+
+        private void ConfirmHeavyOutcome()
+        {
+            _state.ActiveOutcomeResult = null;
+            _state.ActiveOutcomeActionName = string.Empty;
+            AdvanceToBlockingPresentationOrFinish();
+        }
+
+        private void ConfirmActionSpotlight()
+        {
+            _state.ActiveActionSpotlight = null;
+            AdvanceToBlockingPresentationOrFinish();
+        }
+
+        private bool ActiveRollUsesModal()
+        {
+            return _state.ActiveRollResult != null
+                && OutcomePresentationPolicy.ShouldUseRollModal(_state.ActiveRollResult, _state.ActiveRollActionName);
+        }
+
+        private void AddLightResidueIfNeeded()
+        {
+            var report = _state.PendingReport;
+            if (report?.OutcomePresentation == null)
+            {
+                return;
+            }
+            if (report.OutcomePresentation.Mode != OutcomePresentationMode.Light || !report.OutcomePresentation.HasText)
+            {
+                return;
+            }
+            if (string.IsNullOrEmpty(_state.PendingActionName))
+            {
+                return;
+            }
+
+            _state.CardResidues[_state.PendingActionName] = new CardPresentationResidue
+            {
+                AnchorNodeName = _state.PendingActionName,
+                Title = report.OutcomePresentation.Title,
+                Subtitle = report.OutcomePresentation.Subtitle,
+                RollOutcome = report.Type == ActionType.Roll ? report.Outcome : null
+            };
         }
 
         private void DrawPresentationOverlay()
@@ -201,14 +279,16 @@ namespace SSNoir.Rendering
         private void ExecuteNodeAction(GameNode node, List<SlottedResource?> slots)
         {
             string sceneBefore = _sceneManager.CurrentSceneName;
+            _state.CardResidues.Clear();
             var report = _sceneManager.ExecuteAction(node, slots);
             _state.NodeSlots.Remove(node.Name);
             _state.SelectedResource = null;
-            if (!string.Equals(sceneBefore, _sceneManager.CurrentSceneName, StringComparison.OrdinalIgnoreCase))
+            bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, StringComparison.OrdinalIgnoreCase);
+            if (sceneChanged)
             {
                 ResetSceneUiState();
             }
-            StartPresentation(report, node.Name);
+            StartPresentation(report, sceneChanged ? string.Empty : node.Name);
         }
 
         private void SaveCurrentGame(string? filePath = null)
@@ -441,9 +521,12 @@ namespace SSNoir.Rendering
 
             // Update Notification Center
             _gameState.NotificationCenter.Update(Raylib.GetFrameTime());
+            if (!_state.IsPresentingAction)
+                _state.Spotlight = _gameState.SpotlightCenter.Current;
             UpdatePresentation(Raylib.GetFrameTime());
 
-            bool inputBlocked = _state.ActiveRollResult != null || _state.IsPresentingAction;
+            bool inputBlocked = _state.ActiveRollResult != null || _state.IsPresentingAction
+                || _state.ActiveActionSpotlight != null || _state.Spotlight != null;
 
             _windowStack.BeginFrame(mousePos, Raylib.IsMouseButtonPressed(MouseButton.Left));
 
@@ -650,6 +733,15 @@ namespace SSNoir.Rendering
                         _state.ActiveRollPhase = 2;
                         _state.ActiveRollTime = 0f;
                         _state.ActiveRollDisplayScale = 1f;
+
+                        if (!ActiveRollUsesModal())
+                        {
+                            _state.ActiveRollResult = null;
+                            if (_state.IsPresentingAction)
+                            {
+                                AdvancePresentationAfterRollConfirm();
+                            }
+                        }
                     }
                 }
             }
@@ -658,12 +750,29 @@ namespace SSNoir.Rendering
 
             // 8. Draw Overlays (Modals / Toasts)
             var overlayInteraction = OverlayWidget.Draw(_state, _gameState.NotificationCenter, ui, WindowWidth, WindowHeight);
-            if (overlayInteraction.ConfirmClicked || (_state.ActiveRollResult != null && Raylib.IsKeyPressed(KeyboardKey.Escape)))
+            if (overlayInteraction.ConfirmClicked)
             {
-                _state.ActiveRollResult = null;
-                if (_state.IsPresentingAction)
+                if (_state.ActiveOutcomeResult != null)
                 {
-                    AdvancePresentationAfterRollConfirm();
+                    ConfirmHeavyOutcome();
+                }
+                else if (_state.ActiveRollResult != null)
+                {
+                    _state.ActiveRollResult = null;
+                    if (_state.IsPresentingAction)
+                    {
+                        AdvancePresentationAfterRollConfirm();
+                    }
+                }
+            }
+            if (overlayInteraction.SpotlightDismissClicked)
+            {
+                if (_state.ActiveActionSpotlight != null)
+                    ConfirmActionSpotlight();
+                else
+                {
+                    _gameState.SpotlightCenter.Dismiss();
+                    _state.Spotlight = null;
                 }
             }
 
@@ -826,13 +935,20 @@ namespace SSNoir.Rendering
             float cardHeight = 125f;
             float spacing = 20f;
             int cardsPerRow = Math.Max(1, (int)((WindowWidth - startX * 2 + spacing) / (cardWidth + spacing)));
+            var visibleNodes = _state.VisibleNodes.ToList();
+            var visibleNames = new HashSet<string>(visibleNodes.Select(n => n.Name), StringComparer.OrdinalIgnoreCase);
+            var orphanResidues = _state.CardResidues
+                .Where(pair => !visibleNames.Contains(pair.Key))
+                .Select(pair => pair.Value)
+                .ToList();
+            int totalCards = visibleNodes.Count + orphanResidues.Count;
             float viewportTop = startY;
             float viewportBottom = WindowHeight - 108f;
             float viewportHeight = Math.Max(0f, viewportBottom - viewportTop);
             var viewport = new Rectangle(0, viewportTop, WindowWidth, viewportHeight);
-            int rowCount = _state.VisibleNodes.Count == 0
+            int rowCount = totalCards == 0
                 ? 0
-                : (_state.VisibleNodes.Count + cardsPerRow - 1) / cardsPerRow;
+                : (totalCards + cardsPerRow - 1) / cardsPerRow;
             float contentHeight = rowCount == 0 ? 0f : rowCount * cardHeight + Math.Max(0, rowCount - 1) * spacing;
             float maxScroll = Math.Max(0f, contentHeight - viewportHeight);
 
@@ -850,9 +966,8 @@ namespace SSNoir.Rendering
                 (int)viewport.Width,
                 (int)viewport.Height);
 
-            for (int i = 0; i < _state.VisibleNodes.Count; i++)
+            for (int i = 0; i < totalCards; i++)
             {
-                var node = _state.VisibleNodes[i];
                 int row = i / cardsPerRow;
                 int col = i % cardsPerRow;
 
@@ -866,6 +981,14 @@ namespace SSNoir.Rendering
 
                 var bounds = new Rectangle(x, y, cardWidth, cardHeight);
                 bool isHovered = ui.CanHover(bounds);
+
+                if (i >= visibleNodes.Count)
+                {
+                    CardWidget.DrawResidueCard(bounds, orphanResidues[i - visibleNodes.Count]);
+                    continue;
+                }
+
+                var node = visibleNodes[i];
 
                 if (node.Resolve?.Type == ResolveType.Clock)
                 {
@@ -904,9 +1027,14 @@ namespace SSNoir.Rendering
 
                 List<DifficultyModifierInfo>? modifiers = node.Resolve?.DifficultyModifiers.Count > 0 ? node.Resolve.DifficultyModifiers : null;
                 var execution = GetCardExecutionState(node.Name);
+                bool isActiveRollCard = _state.ActiveRollResult != null
+                    && !ActiveRollUsesModal()
+                    && string.Equals(_state.ActiveRollActionName, node.Name, StringComparison.OrdinalIgnoreCase);
+                _state.CardResidues.TryGetValue(node.Name, out var residue);
                 var interaction = CardWidget.DrawCard(
                     bounds,
                     node.Name,
+                    node.Subtitle,
                     typeLabel,
                     isHovered,
                     node.Clocks,
@@ -921,7 +1049,12 @@ namespace SSNoir.Rendering
                     modifiers,
                     execution.IsExecuting,
                     execution.Progress,
-                    execution.Text);
+                    execution.Text,
+                    isActiveRollCard ? _state.ActiveRollResult : null,
+                    _state.ActiveRollPhase,
+                    _state.ActiveRollDisplayDieValue,
+                    _state.ActiveRollDisplayScale,
+                    residue);
 
                 if (interaction.CardClicked)
                 {
@@ -937,6 +1070,7 @@ namespace SSNoir.Rendering
                     {
                         if (node.Resolve.Type == ResolveType.Observe)
                         {
+                            _state.CardResidues.Clear();
                             if (isFlipped)
                             {
                                 _state.FlippedNodes.Remove(node.Name);
@@ -960,6 +1094,7 @@ namespace SSNoir.Rendering
 
                     if (_state.SelectedResource == null && res != null)
                     {
+                        _state.CardResidues.Clear();
                         _state.SelectedResource = CreateSelectedResourceFromSlot(res);
                         slotted[j] = null;
                     }
@@ -1067,6 +1202,7 @@ namespace SSNoir.Rendering
 
             if (req.Type == "die" && _state.SelectedResource.Type == "die")
             {
+                _state.CardResidues.Clear();
                 _state.ClearOtherNodeSlots(node.Name);
                 slotted[slotIndex] = new SlottedResource
                 {
@@ -1084,6 +1220,7 @@ namespace SSNoir.Rendering
             {
                 if (req.ItemId.Equals(_state.SelectedResource.ItemName, StringComparison.OrdinalIgnoreCase))
                 {
+                    _state.CardResidues.Clear();
                     _state.ClearOtherNodeSlots(node.Name);
                     slotted[slotIndex] = new SlottedResource
                     {

@@ -38,6 +38,24 @@
 (define (instant effect)
   (list 'instant effect))
 
+;; Outcome wraps an action effect with optional result presentation metadata.
+;;
+;; Supported forms:
+;; (outcome title subtitle effect)
+;; (outcome title subtitle effect 'light)
+;; (outcome title subtitle effect 'heavy)
+;;
+;; Schemy does not support dotted rest args, so this uses (lambda args)
+;; and reads the optional presentation argument manually.
+(define outcome
+  (lambda args
+    (let ((title (car args))
+          (subtitle (cadr args))
+          (effect (caddr args))
+          (rest (cdr (cdr (cdr args)))))
+      (let ((mode (if (null? rest) 'light (car rest))))
+        (list 'outcome title subtitle mode effect)))))
+
 ;; Modifier constructor
 (define (modifier value reason)
   (list 'modifier value reason))
@@ -239,10 +257,12 @@
 (define (notify! text)
   (__notify! text))
 
+(define (spotlight! title subtitle)
+  (__spotlight! title subtitle))
+
 (define (advance-chapter!)
   (let ((current (get-global 'chapter)))
     (set-global! 'chapter (if current (+ current 1) 1))))
 
 (define (upgrade-actor-stat! actor-id stat-id)
   (__upgrade-actor-stat! actor-id stat-id))
-

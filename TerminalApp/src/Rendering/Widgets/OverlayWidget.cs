@@ -10,11 +10,12 @@ namespace SSNoir.Rendering
         public struct OverlayInteraction
         {
             public bool ConfirmClicked;
+            public bool SpotlightDismissClicked;
         }
 
         public static OverlayInteraction Draw(RendererState state, NotificationCenter notificationCenter, SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float windowWidth, float windowHeight)
         {
-            var interaction = new OverlayInteraction { ConfirmClicked = false };
+            var interaction = new OverlayInteraction { ConfirmClicked = false, SpotlightDismissClicked = false };
 
             // 1. Toast Notifications
             var visibleNotifs = notificationCenter.GetVisible();
@@ -84,8 +85,9 @@ namespace SSNoir.Rendering
                 FontManager.DrawText(text, rect.X + (overlayW - textW) / 2f, rect.Y + 8, 12, Color.White);
             }
 
-            // 3. Roll Result Modal
-            if (state.ActiveRollResult != null)
+            // 3. Heavy Roll Result Modal
+            if (state.ActiveRollResult != null
+                && OutcomePresentationPolicy.ShouldUseRollModal(state.ActiveRollResult, state.ActiveRollActionName))
             {
                 Raylib.DrawRectangle(0, 0, (int)windowWidth, (int)windowHeight, new Color(0, 0, 0, 180));
 
@@ -98,7 +100,9 @@ namespace SSNoir.Rendering
                 Raylib.DrawRectangleRounded(modalRect, 0.1f, 8, new Color(30, 30, 42, 255));
                 Raylib.DrawRectangleRoundedLinesEx(modalRect, 0.1f, 8, 2f, new Color(100, 100, 130, 255));
 
-                string title = $"[判定结果] {state.ActiveRollActionName}";
+                string title = string.IsNullOrEmpty(state.ActiveRollActionName)
+                    ? "[判定结果]"
+                    : $"[判定结果] {state.ActiveRollActionName}";
                 int titleW = FontManager.MeasureTextWidth(title, 18);
                 FontManager.DrawText(title, modalX + (modalW - titleW) / 2f, modalY + 20, 18, Color.White);
 
@@ -219,6 +223,16 @@ namespace SSNoir.Rendering
                     string outcomeStr = $"判定结论: {outcomeText}";
                     int outW = FontManager.MeasureTextWidth(outcomeStr, 16);
                     FontManager.DrawText(outcomeStr, modalX + (modalW - outW) / 2f, contentY, 16, outcomeColor);
+                    contentY += 24;
+
+                    var presentation = state.ActiveRollResult.OutcomePresentation;
+                    if (presentation != null && presentation.HasText)
+                    {
+                        int resultTitleW = FontManager.MeasureTextWidth(presentation.Title, 15);
+                        FontManager.DrawText(presentation.Title, modalX + (modalW - resultTitleW) / 2f, contentY, 15, Color.White);
+                        contentY += 20;
+                        DrawWrappedText(presentation.Subtitle, modalX + 40, contentY, modalW - 80, 12, new Color(205, 205, 225, 255));
+                    }
 
                     float btnW = 90;
                     float btnH = 32;
@@ -242,7 +256,140 @@ namespace SSNoir.Rendering
                 }
             }
 
+            // 4. Heavy Instant Result Modal
+            if (state.ActiveOutcomeResult != null)
+            {
+                Raylib.DrawRectangle(0, 0, (int)windowWidth, (int)windowHeight, new Color(0, 0, 0, 180));
+
+                float modalW = 380;
+                float modalH = 190;
+                float modalX = (windowWidth - modalW) / 2f;
+                float modalY = (windowHeight - modalH) / 2f;
+                var modalRect = new Rectangle(modalX, modalY, modalW, modalH);
+
+                Raylib.DrawRectangleRounded(modalRect, 0.1f, 8, new Color(30, 30, 42, 255));
+                Raylib.DrawRectangleRoundedLinesEx(modalRect, 0.1f, 8, 2f, new Color(100, 100, 130, 255));
+
+                var presentation = state.ActiveOutcomeResult.OutcomePresentation;
+                string title = presentation?.Title ?? state.ActiveOutcomeActionName;
+                int titleW = FontManager.MeasureTextWidth(title, 18);
+                FontManager.DrawText(title, modalX + (modalW - titleW) / 2f, modalY + 30, 18, Color.White);
+
+                if (presentation != null && !string.IsNullOrWhiteSpace(presentation.Subtitle))
+                {
+                    DrawWrappedText(presentation.Subtitle, modalX + 42, modalY + 66, modalW - 84, 13, new Color(205, 205, 225, 255));
+                }
+
+                float btnW = 90;
+                float btnH = 32;
+                float btnX = modalX + (modalW - btnW) / 2f;
+                float btnY = modalY + modalH - 48;
+                var btnRect = new Rectangle(btnX, btnY, btnW, btnH);
+                var modalUi = new SSNoir.TerminalApp.Rendering.UiInteractionContext
+                {
+                    Mouse = ui.Mouse,
+                    IsLocked = false
+                };
+                var confirmBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(btnRect, "确定", modalUi, true, 14,
+                    new Color((byte)50, (byte)50, (byte)70, (byte)255), new Color((byte)80, (byte)80, (byte)110, (byte)255), null,
+                    new Color((byte)90, (byte)90, (byte)120, (byte)255), new Color((byte)180, (byte)180, (byte)250, (byte)255), null,
+                    Color.White, null);
+
+                if (confirmBtn.Clicked)
+                {
+                    interaction.ConfirmClicked = true;
+                }
+            }
+
+            var displaySpotlight = state.ActiveActionSpotlight ?? state.Spotlight;
+            if (displaySpotlight != null)
+            {
+                Raylib.DrawRectangle(0, 0, (int)windowWidth, (int)windowHeight, new Color(0, 0, 0, 185));
+
+                float modalW = 420;
+                float modalH = 210;
+                float modalX = (windowWidth - modalW) / 2f;
+                float modalY = (windowHeight - modalH) / 2f;
+                var modalRect = new Rectangle(modalX, modalY, modalW, modalH);
+
+                Raylib.DrawRectangleRounded(modalRect, 0.1f, 8, new Color(30, 30, 42, 255));
+                Raylib.DrawRectangleRoundedLinesEx(modalRect, 0.1f, 8, 2f, new Color(120, 125, 170, 255));
+
+                int titleW = FontManager.MeasureTextWidth(displaySpotlight.Title, 20);
+                FontManager.DrawText(displaySpotlight.Title, modalX + (modalW - titleW) / 2f, modalY + 34, 20, Color.White);
+
+                if (!string.IsNullOrWhiteSpace(displaySpotlight.Subtitle))
+                {
+                    DrawWrappedText(displaySpotlight.Subtitle, modalX + 46, modalY + 76, modalW - 92, 13, new Color(210, 212, 232, 255));
+                }
+
+                float btnW = 96;
+                float btnH = 32;
+                float btnX = modalX + (modalW - btnW) / 2f;
+                float btnY = modalY + modalH - 48;
+                var btnRect = new Rectangle(btnX, btnY, btnW, btnH);
+                var modalUi = new SSNoir.TerminalApp.Rendering.UiInteractionContext
+                {
+                    Mouse = ui.Mouse,
+                    IsLocked = false
+                };
+                var confirmBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(btnRect, "确定", modalUi, true, 14,
+                    new Color((byte)50, (byte)50, (byte)70, (byte)255), new Color((byte)80, (byte)80, (byte)110, (byte)255), null,
+                    new Color((byte)90, (byte)90, (byte)120, (byte)255), new Color((byte)180, (byte)180, (byte)250, (byte)255), null,
+                    Color.White, null);
+
+                if (confirmBtn.Clicked)
+                {
+                    interaction.SpotlightDismissClicked = true;
+                }
+            }
+
             return interaction;
+        }
+
+        private static void DrawWrappedText(string text, float x, float y, float width, int fontSize, Color color)
+        {
+            float currentY = y;
+            string currentLine = "";
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (c == '\n')
+                {
+                    FontManager.DrawText(currentLine, x, currentY, fontSize, color);
+                    currentLine = "";
+                    currentY += fontSize + 4;
+                    continue;
+                }
+
+                string testLine = currentLine + c;
+                int testW = FontManager.MeasureTextWidth(testLine, fontSize);
+                if (testW > width)
+                {
+                    if (currentLine.Length > 0)
+                    {
+                        FontManager.DrawText(currentLine, x, currentY, fontSize, color);
+                        currentLine = c.ToString();
+                        currentY += fontSize + 4;
+                    }
+                    else
+                    {
+                        FontManager.DrawText(testLine, x, currentY, fontSize, color);
+                        currentLine = "";
+                        currentY += fontSize + 4;
+                    }
+                }
+                else
+                {
+                    currentLine = testLine;
+                }
+            }
+
+            if (currentLine.Length > 0)
+            {
+                FontManager.DrawText(currentLine, x, currentY, fontSize, color);
+            }
         }
     }
 }

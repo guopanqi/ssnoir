@@ -24,6 +24,8 @@ namespace SSNoir.Core
         public RollOutcome Outcome { get; set; }
         public string AnimationTag { get; set; } = string.Empty;
         public IReadOnlyList<PresentationHint> PresentationHints { get; set; } = new List<PresentationHint>();
+        public OutcomePresentation? OutcomePresentation { get; set; }
+        public List<SpotlightCard> Spotlights { get; } = new List<SpotlightCard>();
 
         // Difficulty modifiers applied to this roll (e.g., "监控在线", -1)
         public List<DifficultyModifierInfo> DifficultyModifiers { get; set; } = new List<DifficultyModifierInfo>();

@@ -487,6 +487,7 @@ namespace SSNoir.Core
                 SlottedResources = slots
             };
             _gameState.CurrentContext = context;
+            _gameState.CurrentActionReport = report;
             _turnEndedDuringAction = false;
             bool wasExecutingAction = _isExecutingAction;
             _isExecutingAction = true;
@@ -539,7 +540,8 @@ namespace SSNoir.Core
                 if (node.Resolve.Type == ResolveType.Instant)
                 {
                     report.Type = ActionType.Instant;
-                    node.Resolve.Effect?.Invoke();
+                    node.Resolve.Outcome?.Effect?.Invoke();
+                    ApplyOutcomePresentation(report, node.Resolve.Outcome);
                     consumeResources();
                 }
                 else if (node.Resolve.Type == ResolveType.Roll)
@@ -590,17 +592,20 @@ namespace SSNoir.Core
                     if (modifiedValue <= 2)
                     {
                         report.Outcome = RollOutcome.Fail;
-                        node.Resolve.OnFail?.Invoke();
+                        node.Resolve.FailOutcome?.Effect?.Invoke();
+                        ApplyOutcomePresentation(report, node.Resolve.FailOutcome);
                     }
                     else if (modifiedValue <= 4)
                     {
                         report.Outcome = RollOutcome.Neutral;
-                        node.Resolve.OnNeutral?.Invoke();
+                        node.Resolve.NeutralOutcome?.Effect?.Invoke();
+                        ApplyOutcomePresentation(report, node.Resolve.NeutralOutcome);
                     }
                     else
                     {
                         report.Outcome = RollOutcome.Success;
-                        node.Resolve.OnSuccess?.Invoke();
+                        node.Resolve.SuccessOutcome?.Effect?.Invoke();
+                        ApplyOutcomePresentation(report, node.Resolve.SuccessOutcome);
                     }
 
                     consumeResources();
@@ -622,6 +627,7 @@ namespace SSNoir.Core
             finally
             {
                 _gameState.CurrentContext = null;
+                _gameState.CurrentActionReport = null;
                 _isExecutingAction = wasExecutingAction;
             }
 
@@ -663,6 +669,16 @@ namespace SSNoir.Core
             }
 
             report.PresentationHints = hints;
+        }
+
+        private static void ApplyOutcomePresentation(ActionReport report, ActionOutcome? outcome)
+        {
+            if (outcome == null || !outcome.HasText)
+            {
+                return;
+            }
+
+            report.OutcomePresentation = outcome.Presentation;
         }
     }
 }

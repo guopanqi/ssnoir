@@ -53,11 +53,18 @@ namespace SSNoir.Rendering
         public int ActiveRollPhase { get; set; } = 0; // 0: rolling, 1: reveal pulse, 2: outcome
         public int ActiveRollDisplayDieValue { get; set; } = 1;
         public float ActiveRollDisplayScale { get; set; } = 1f;
+        public ActionReport? ActiveOutcomeResult { get; set; } = null;
+        public string ActiveOutcomeActionName { get; set; } = string.Empty;
+        public SpotlightCard? Spotlight { get; set; } = null;
+        public Queue<SpotlightCard> PendingActionSpotlights { get; } = new Queue<SpotlightCard>();
+        public SpotlightCard? ActiveActionSpotlight { get; set; } = null;
+        public Dictionary<string, CardPresentationResidue> CardResidues { get; } = new Dictionary<string, CardPresentationResidue>();
 
         public void ClearAllNodeSlots()
         {
             NodeSlots.Clear();
             FlippedNodes.Clear();
+            CardResidues.Clear();
         }
 
         public void ClearOtherNodeSlots(string activeNodeName)
@@ -76,6 +83,10 @@ namespace SSNoir.Rendering
             var toUnflip = FlippedNodes.Where(n => n != activeNodeName).ToList();
             foreach (var n in toUnflip)
                 FlippedNodes.Remove(n);
+
+            var toClear = CardResidues.Keys.Where(n => n != activeNodeName).ToList();
+            foreach (var n in toClear)
+                CardResidues.Remove(n);
         }
 
         public bool IsDieSlotted(int dieIndex)
@@ -137,5 +148,13 @@ namespace SSNoir.Rendering
         {
             return Math.Max(0, DisplayedSnapshot.GrowthLevel - actor.SpentGrowthPoints);
         }
+    }
+
+    public class CardPresentationResidue
+    {
+        public string AnchorNodeName { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Subtitle { get; set; } = string.Empty;
+        public RollOutcome? RollOutcome { get; set; }
     }
 }

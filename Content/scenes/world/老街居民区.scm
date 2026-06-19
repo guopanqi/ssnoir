@@ -5,12 +5,18 @@
     (define helen-stage 1)
     ;; stage: 1=初见  2=索要酒  3=醉倒可搜查  4=拿到线索  5=下一小节占位
 
+    ;; Local scene helper: person state maps to node subtitle; description maps to observe text.
+    (define (person name state description)
+      (node name :subtitle state :resolve (observe description)))
+
     (define (node-give-wine)
-      (action "海伦"
-        (list (req-item '酒 2))
-        (instant (lambda ()
-          (set! helen-stage 3)
-          (notify! "酒劲很快翻上来。海伦伏在桌边，话没说完就睡了过去。")))))
+      (node "海伦"
+        :subtitle "索要烈酒"
+        :requires (list (req-item '酒 2))
+        :resolve (instant
+          (lambda ()
+            (set! helen-stage 3)
+            (notify! "酒劲很快翻上来。海伦伏在桌边，话没说完就睡了过去。")))))
 
     (define (node-search-room)
       (encounter-action "翻翻她的家，找一些东西"
@@ -37,10 +43,12 @@
       (cond
         ((= helen-stage 1)
          (list
-           (instant-action "海伦"
-             (lambda ()
-               (set! helen-stage 2)
-               (notify! "海伦：别问了，我真的不知道。可她的眼神总避开你，她知道些什么。")))
+           (node "海伦"
+             :subtitle "回避谈话"
+             :resolve (instant
+               (lambda ()
+                 (set! helen-stage 2)
+                 (notify! "海伦：别问了，我真的不知道。可她的眼神总避开你，她知道些什么。"))))
            (observe-action "几个空掉的酒瓶" "瓶口还湿着，廉价烈酒的味道压过了房间里的香水味。")))
         ((= helen-stage 2)
          (list
@@ -48,16 +56,16 @@
            (observe-action "几个空掉的酒瓶" "空瓶横七竖八地倒在桌边。")))
         ((= helen-stage 3)
          (list
-           (observe-action "醉倒的海伦" "海伦伏在桌边，呼吸沉重，短时间内不会醒。")
+           (person "海伦" "醉倒" "她伏在桌边，呼吸沉重，短时间内不会醒。")
            (node-search-room)))
         ((= helen-stage 4)
          (list
-           (observe-action "醉倒的海伦" "海伦仍旧睡着。房间里只剩下她沉重的呼吸声。")
+           (person "海伦" "沉睡" "她仍旧睡着，房间里只剩下沉重的呼吸声。")
            (observe-action "海伦的线索" "那张便条上有几个被反复描重的名字。")
            (node-finish-section)))
         (#t
          (list
-           (observe-action "翻过的公寓" "房间被你恢复成差不多原来的样子。海伦还没醒。")))))
+           (person "海伦" "未醒" "公寓已经被你整理好，她还没醒。")))))
 
     (define (helen-apartment-nodes)
       (if (get-global 'helen-apartment-open)

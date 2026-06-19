@@ -23,7 +23,6 @@ namespace SSNoir.TerminalApp.Rendering
         DebugMenu,
         GrowthPanel,
         TurnPanel,
-        RollResultModal,
     }
 
     public readonly struct UiWindowBlocker

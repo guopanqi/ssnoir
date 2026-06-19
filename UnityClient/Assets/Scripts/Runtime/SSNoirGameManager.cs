@@ -19,15 +19,6 @@ namespace SSNoir
         public int DieIndex { get; set; } = -1;
     }
 
-    public class RollResult
-    {
-        public string ActionName { get; set; } = string.Empty;
-        public int ChosenDie { get; set; }
-        public List<int> RandomDice { get; set; } = new List<int>();
-        public int FinalValue { get; set; } = 0;
-        public string Outcome { get; set; } = string.Empty;
-    }
-
     public class SSNoirGameManager : MonoBehaviour
     {
         private const string WorldRootNodeName = "世界";
@@ -52,8 +43,6 @@ namespace SSNoir
         private readonly List<GameNode> _navigationStack = new List<GameNode>();
         private List<GameNode> _visibleNodes = new List<GameNode>();
         private SelectedResource? _selectedResource;
-        private RollResult? _activeRollResult;
-
         private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
         private readonly HashSet<string> _flippedNodes = new HashSet<string>();
         private PresentationSnapshot _displayedSnapshot = new PresentationSnapshot();
@@ -67,7 +56,6 @@ namespace SSNoir
         public List<GameNode> NavigationStack => _navigationStack;
         public List<GameNode> VisibleNodes => _visibleNodes;
         public SelectedResource? SelectedResource => _selectedResource;
-        public RollResult? ActiveRollResult => _activeRollResult;
         public Font? ChineseFont => chineseFont;
         public SSNoirCameraManager CameraManager => _cameraManager;
         public StageTransitionController StageController => _stageController;
@@ -169,6 +157,7 @@ namespace SSNoir
 
         public void ToggleNodeFlipped(string nodeName)
         {
+            _renderer?.ClearCardResidues();
             if (_flippedNodes.Contains(nodeName))
                 _flippedNodes.Remove(nodeName);
             else
@@ -179,6 +168,7 @@ namespace SSNoir
         {
             if (node.IsContainer)
             {
+                _renderer?.ClearCardResidues();
                 _nodeSlots.Clear();
                 _navigationStack.Add(node);
                 ResolveNavigationStack();
@@ -393,6 +383,7 @@ namespace SSNoir
             var existing = slots[slotIndex];
             if (_selectedResource == null && existing != null)
             {
+                _renderer?.ClearCardResidues();
                 _selectedResource = CreateSelectedResourceFromSlot(existing);
                 slots[slotIndex] = null;
             }
@@ -495,6 +486,7 @@ namespace SSNoir
             ClearOtherNodeSlots(node.Name);
             if (req.Type == "die" && _selectedResource.Type == "die")
             {
+                _renderer?.ClearCardResidues();
                 ClearDieFromAllSlots(_selectedResource.SourceIndex);
                 slots[slotIndex] = new SlottedResource
                 {
@@ -510,6 +502,7 @@ namespace SSNoir
 
             if (req.Type == "item" && _selectedResource.Type == "item")
             {
+                _renderer?.ClearCardResidues();
                 slots[slotIndex] = new SlottedResource
                 {
                     Type = "item",
@@ -627,6 +620,7 @@ namespace SSNoir
         {
             var slots = GetSlotsForNode(node.Name) ?? new List<SlottedResource?>();
 
+            _renderer.ClearCardResidues();
             _renderer.SetInputLocked(true);
 
             bool done = false;
@@ -642,7 +636,7 @@ namespace SSNoir
                     ResetSceneUiState();
                 }
 
-                _renderer.PlayPresentation(report, node.Name, () =>
+                _renderer.PlayPresentation(report, sceneChanged ? string.Empty : node.Name, () =>
                 {
                     AdoptLatestSnapshot();
                     UpdateCameraFocus();
@@ -974,11 +968,6 @@ namespace SSNoir
             }
             ResolveNavigationStack();
             UpdateCameraFocus();
-        }
-
-        public void OnRollAckClicked()
-        {
-            _renderer.AcknowledgePresentationRoll();
         }
     }
 }

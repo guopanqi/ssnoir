@@ -19,6 +19,7 @@ namespace SSNoir.Rendering
         public static CardInteraction DrawCard(
             Rectangle bounds,
             string name,
+            string subtitle,
             string typeLabel,
             bool isHovered,
             List<GameClock> clocks,
@@ -33,7 +34,12 @@ namespace SSNoir.Rendering
             List<DifficultyModifierInfo>? modifiers = null,
             bool isExecuting = false,
             float executeProgress = 0f,
-            string executingText = "执行中")
+            string executingText = "执行中",
+            ActionReport? localRoll = null,
+            int localRollPhase = 0,
+            int localRollDisplayDieValue = 1,
+            float localRollDisplayScale = 1f,
+            CardPresentationResidue? residue = null)
         {
             var interaction = new CardInteraction
             {
@@ -92,24 +98,34 @@ namespace SSNoir.Rendering
             bool showButton = hasRequires || typeLabel == "行动";
 
             // Draw Title text (centered, adjusted upwards if card has slots/button)
+            bool hasSubtitle = !string.IsNullOrWhiteSpace(subtitle);
             int titleFontSize = 20;
             int titleWidth = FontManager.MeasureTextWidth(name, titleFontSize);
             float titleX = bounds.X + (bounds.Width - titleWidth) / 2f;
             float titleY = showButton 
-                ? bounds.Y + 12
-                : bounds.Y + (bounds.Height / 2f) - 15;
+                ? bounds.Y + 8
+                : bounds.Y + (bounds.Height / 2f) - (hasSubtitle ? 28 : 15);
             FontManager.DrawText(name, titleX, titleY, titleFontSize, titleColor);
+
+            if (hasSubtitle)
+            {
+                int subtitleFontSize = 12;
+                int subtitleWidth = FontManager.MeasureTextWidth(subtitle, subtitleFontSize);
+                float subtitleX = bounds.X + (bounds.Width - subtitleWidth) / 2f;
+                float subtitleY = titleY + 24;
+                FontManager.DrawText(subtitle, subtitleX, subtitleY, subtitleFontSize, new Color(170, 175, 205, 255));
+            }
 
             // Draw Type text (bottom-center or moved up if has slots/button)
             int typeFontSize = 14;
             int typeWidth = FontManager.MeasureTextWidth(typeLabel, typeFontSize);
             float typeX = bounds.X + (bounds.Width - typeWidth) / 2f;
             float typeY = showButton 
-                ? bounds.Y + 32
+                ? bounds.Y + (hasSubtitle ? 44 : 32)
                 : bounds.Y + bounds.Height - 22;
             FontManager.DrawText(typeLabel, typeX, typeY, typeFontSize, typeColor);
 
-            float tagBottomY = DrawNodeTags(bounds, tags, hasRequires ? bounds.Y + 6 : (showButton ? bounds.Y + 52 : bounds.Y + 6));
+            float tagBottomY = DrawNodeTags(bounds, tags, hasRequires ? bounds.Y + 6 : (showButton ? bounds.Y + (hasSubtitle ? 62 : 52) : bounds.Y + 6));
 
             // Draw Slots & Execute Button if there are requirements
             if (hasRequires)
@@ -125,7 +141,7 @@ namespace SSNoir.Rendering
                         totalWidth += spacing;
                 }
                 float slotStartX = bounds.X + (bounds.Width - totalWidth) / 2f;
-                float slotY = bounds.Y + 52;
+                float slotY = bounds.Y + (hasSubtitle ? 60 : 52);
                 float slotX = slotStartX;
 
                 for (int j = 0; j < M; j++)
@@ -173,7 +189,7 @@ namespace SSNoir.Rendering
                 float exeW = 84;
                 float exeH = 20;
                 float exeX = bounds.X + (bounds.Width - exeW) / 2f;
-                float exeY = bounds.Y + 88;
+                float exeY = slotY + 36;
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
 
                 bool allFilled = slotted != null && slotted.All(s => s != null);
@@ -200,7 +216,7 @@ namespace SSNoir.Rendering
                 float exeW = 80;
                 float exeH = 18;
                 float exeX = bounds.X + (bounds.Width - exeW) / 2f;
-                float exeY = bounds.Y + 70;
+                float exeY = bounds.Y + (hasSubtitle ? 84 : 70);
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
 
                 if (isExecuting)
@@ -254,7 +270,78 @@ namespace SSNoir.Rendering
                 }
             }
 
+            if (localRoll != null)
+            {
+                DrawLocalRoll(bounds, localRoll, localRollPhase, localRollDisplayDieValue, localRollDisplayScale);
+            }
+            else if (residue != null)
+            {
+                DrawResidue(bounds, residue);
+            }
+
             return interaction;
+        }
+
+        private static void DrawLocalRoll(Rectangle bounds, ActionReport report, int phase, int displayDieValue, float displayScale)
+        {
+            var panel = new Rectangle(bounds.X + 8f, bounds.Y + bounds.Height - 58f, bounds.Width - 16f, 48f);
+            Raylib.DrawRectangleRounded(panel, 0.16f, 6, new Color(20, 22, 30, 245));
+            Raylib.DrawRectangleRoundedLinesEx(panel, 0.16f, 6, 1.4f, new Color(255, 182, 147, 255));
+
+            int dieValue = phase == 0 ? displayDieValue : report.FinalRollValue;
+            int dieFont = (int)(26 * Math.Clamp(displayScale, 0.8f, 1.35f));
+            string dieText = $"D{dieValue}";
+            int dieW = FontManager.MeasureTextWidth(dieText, dieFont);
+            FontManager.DrawText(dieText, panel.X + 13f + (42f - dieW) / 2f, panel.Y + (panel.Height - dieFont) / 2f, dieFont, new Color(255, 182, 147, 255));
+
+            string label = phase >= 2 ? FormatOutcome(report.Outcome) : "判定中";
+            Color color = phase >= 2 ? OutcomeColor(report.Outcome) : new Color(220, 220, 235, 255);
+            FontManager.DrawText(label, panel.X + 66f, panel.Y + 9f, 14, color);
+
+            string detail = phase >= 2
+                ? $"最终值 {report.ModifiedRollValue}"
+                : "骰子滚动...";
+            FontManager.DrawText(detail, panel.X + 66f, panel.Y + 28f, 11, new Color(170, 170, 190, 255));
+        }
+
+        private static void DrawResidue(Rectangle bounds, CardPresentationResidue residue)
+        {
+            var panel = new Rectangle(bounds.X + 8f, bounds.Y + bounds.Height - 60f, bounds.Width - 16f, 50f);
+            Raylib.DrawRectangleRounded(panel, 0.16f, 6, new Color(22, 24, 34, 245));
+            Raylib.DrawRectangleRoundedLinesEx(panel, 0.16f, 6, 1.2f, new Color(105, 125, 180, 255));
+
+            string title = residue.RollOutcome.HasValue
+                ? $"{FormatOutcome(residue.RollOutcome.Value)}：{residue.Title}"
+                : residue.Title;
+            Color titleColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : new Color(230, 230, 245, 255);
+            DrawWrappedText(title, panel.X + 8f, panel.Y + 7f, panel.Width - 16f, 12, titleColor);
+
+            if (!string.IsNullOrWhiteSpace(residue.Subtitle))
+            {
+                DrawWrappedText(residue.Subtitle, panel.X + 8f, panel.Y + 25f, panel.Width - 16f, 10, new Color(180, 185, 205, 255));
+            }
+        }
+
+        private static string FormatOutcome(RollOutcome outcome)
+        {
+            return outcome switch
+            {
+                RollOutcome.Success => "判定成功",
+                RollOutcome.Neutral => "判定中性",
+                RollOutcome.Fail => "判定失败",
+                _ => "判定结果"
+            };
+        }
+
+        private static Color OutcomeColor(RollOutcome outcome)
+        {
+            return outcome switch
+            {
+                RollOutcome.Success => new Color(80, 250, 80, 255),
+                RollOutcome.Neutral => new Color(250, 220, 100, 255),
+                RollOutcome.Fail => new Color(250, 80, 80, 255),
+                _ => Color.White
+            };
         }
 
         public static void DrawClockCard(
@@ -342,6 +429,33 @@ namespace SSNoir.Rendering
             if (!string.IsNullOrEmpty(subtitle))
             {
                 DrawWrappedText(subtitle, bounds.X + 8, bounds.Y + bounds.Height - 24, bounds.Width - 16, 10, subtitleColor);
+            }
+        }
+
+        public static void DrawResidueCard(Rectangle bounds, CardPresentationResidue residue)
+        {
+            Color bgColor = new Color(22, 24, 34, 255);
+            Color outlineColor = new Color(105, 125, 180, 255);
+            Color typeColor = new Color(120, 135, 175, 255);
+
+            Raylib.DrawRectangleRounded(bounds, 0.1f, 8, bgColor);
+            Raylib.DrawRectangleRoundedLinesEx(bounds, 0.1f, 8, 1.6f, outlineColor);
+
+            string label = residue.RollOutcome.HasValue ? FormatOutcome(residue.RollOutcome.Value) : "行动结果";
+            int labelW = FontManager.MeasureTextWidth(label, 13);
+            FontManager.DrawText(label, bounds.X + (bounds.Width - labelW) / 2f, bounds.Y + 12f, 13, typeColor);
+
+            string title = residue.Title;
+            if (residue.RollOutcome.HasValue)
+            {
+                title = $"{FormatOutcome(residue.RollOutcome.Value)}：{residue.Title}";
+            }
+            Color titleColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : new Color(235, 235, 248, 255);
+            DrawWrappedText(title, bounds.X + 14f, bounds.Y + 38f, bounds.Width - 28f, 14, titleColor);
+
+            if (!string.IsNullOrWhiteSpace(residue.Subtitle))
+            {
+                DrawWrappedText(residue.Subtitle, bounds.X + 14f, bounds.Y + 72f, bounds.Width - 28f, 11, new Color(185, 190, 210, 255));
             }
         }
 

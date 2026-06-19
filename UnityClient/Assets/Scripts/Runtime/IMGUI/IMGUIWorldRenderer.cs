@@ -17,9 +17,18 @@ namespace SSNoir.IMGUI
         private readonly IMGUIWindowStack _windowStack = new();
 
         private readonly Dictionary<string, Vector2> _cardCenters = new Dictionary<string, Vector2>();
+        private readonly Dictionary<string, CardPresentationResidue> _cardResidues = new Dictionary<string, CardPresentationResidue>();
         private readonly List<float> _gridScrollStack = new();
         private float _gridScrollOffset = 0f;
         private int _lastNavigationDepth = 0;
+        private ActionReport? _activeHeavyOutcome;
+        private string _activeHeavyOutcomeActionName = string.Empty;
+        private Action? _activeHeavyOutcomeDone;
+        private readonly Queue<SpotlightCard> _pendingActionSpotlights = new Queue<SpotlightCard>();
+        private SpotlightCard? _activeActionSpotlight;
+        private ActionReport? _completionReport;
+        private string _completionActionName = string.Empty;
+        private Action? _completionDone;
 
         public void Initialize(SSNoirGameManager gameManager)
         {
@@ -29,11 +38,55 @@ namespace SSNoir.IMGUI
             _animator.OnAcknowledged = () => _presentationPlayer.OnRollAcknowledged();
         }
 
-        public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying;
+        public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null;
 
         public void PlayPresentation(ActionReport report, string actionName, Action onDone)
         {
-            _presentationPlayer.Play(report, actionName, onDone);
+            _pendingActionSpotlights.Clear();
+            foreach (var s in report.Spotlights)
+                _pendingActionSpotlights.Enqueue(s);
+            _completionReport = report;
+            _completionActionName = actionName;
+            _completionDone = onDone;
+
+            _presentationPlayer.Play(report, actionName, () =>
+            {
+                if (OutcomePresentationPolicy.ShouldUseOutcomeModal(report, actionName))
+                {
+                    _activeHeavyOutcome = report;
+                    _activeHeavyOutcomeActionName = actionName;
+                    _activeHeavyOutcomeDone = onDone;
+                    return;
+                }
+
+                AdvanceToBlockingPresentationOrFinish();
+            });
+        }
+
+        private void AdvanceToBlockingPresentationOrFinish()
+        {
+            if (_pendingActionSpotlights.Count > 0)
+            {
+                _activeActionSpotlight = _pendingActionSpotlights.Dequeue();
+                return;
+            }
+
+            var report = _completionReport;
+            var actionName = _completionActionName;
+            var done = _completionDone;
+            _completionReport = null;
+            _completionActionName = string.Empty;
+            _completionDone = null;
+
+            if (report != null)
+                AddLightResidueIfNeeded(report, actionName);
+            done?.Invoke();
+        }
+
+        private void ConfirmActionSpotlight()
+        {
+            _activeActionSpotlight = null;
+            AdvanceToBlockingPresentationOrFinish();
         }
 
         public void AcknowledgePresentationRoll()
@@ -46,15 +99,9 @@ namespace SSNoir.IMGUI
             _gameManager.GameState.NotificationCenter.Push(message, NotificationKind.Info);
         }
 
-        public void StartRollAnimation(ActionReport report, string actionName)
-        {
-            _animator.StartRoll(report, actionName);
-        }
-
-        public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying;
+        public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null;
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
-        public void AcknowledgeAnimation() => _animator?.Acknowledge();
-        public bool IsInputLocked => _inputLocked;
+        public bool IsInputLocked => _inputLocked || _activeHeavyOutcome != null || _activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight;
 
         private bool _inputLocked = false;
         public void SetInputLocked(bool locked)
@@ -70,7 +117,21 @@ namespace SSNoir.IMGUI
             _gridScrollOffset = 0f;
             _gridScrollStack.Clear();
             _lastNavigationDepth = 0;
+            _cardResidues.Clear();
+            _activeHeavyOutcome = null;
+            _activeHeavyOutcomeActionName = string.Empty;
+            _activeHeavyOutcomeDone = null;
+            _pendingActionSpotlights.Clear();
+            _activeActionSpotlight = null;
+            _completionReport = null;
+            _completionActionName = string.Empty;
+            _completionDone = null;
             DebugPanelDrawer.Reset();
+        }
+
+        public void ClearCardResidues()
+        {
+            _cardResidues.Clear();
         }
 
         private void Update()
@@ -137,9 +198,33 @@ namespace SSNoir.IMGUI
                 });
             }
 
+            if (_activeHeavyOutcome != null)
+            {
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.HeavyOutcome,
+                    Bounds = new Rect(0, 0, UIScale.VW, UIScale.VH),
+                    Layer = IMGUIWindowLayer.Modal,
+                    BlockMode = IMGUIBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
+
+            if (_activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight)
+            {
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.Spotlight,
+                    Bounds = new Rect(0, 0, UIScale.VW, UIScale.VH),
+                    Layer = IMGUIWindowLayer.Modal,
+                    BlockMode = IMGUIBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
+
             _windowStack.Update();
 
-            bool baseLocked = _inputLocked || IsAnimationPlaying;
+            bool baseLocked = IsInputLocked || IsAnimationPlaying;
             var worldUi = _windowStack.MakeContext(IMGUIWindowLayer.World, baseLocked);
             var panelUi = _windowStack.MakeContext(IMGUIWindowLayer.Panel, baseLocked);
 
@@ -172,6 +257,8 @@ namespace SSNoir.IMGUI
             OverlayDrawer.DrawNotifications(_gameManager.GameState.NotificationCenter);
             OverlayDrawer.DrawCursorFollower(_gameManager);
             DrawPresentationOverlay();
+            DrawHeavyOutcomeOverlay();
+            DrawSpotlightOverlay();
 
             // ── Growth Panel ──
             if (_isGrowthPanelOpen)
@@ -330,7 +417,7 @@ namespace SSNoir.IMGUI
             }
 
             // Draw grid cards below
-            if (gridNodes.Count > 0)
+            if (gridNodes.Count > 0 || _cardResidues.Count > 0)
             {
                 DrawCardsGrid(gridNodes, ui);
             }
@@ -338,13 +425,20 @@ namespace SSNoir.IMGUI
 
         private void DrawCardsGrid(List<GameNode> nodes, IMGUIInteractionContext ui)
         {
+            var visibleNodes = nodes.ToList();
             float cardWidth = 340f;
             float cardHeight = 170f;
             float spacing = 20f;
             float startX = 40f;
             float startY = 140f;
             int cardsPerRow = Mathf.Max(1, (int)((UIScale.VW - startX * 2) / (cardWidth + spacing)));
-            int rowCount = nodes.Count == 0 ? 0 : (nodes.Count + cardsPerRow - 1) / cardsPerRow;
+            var visibleNames = new HashSet<string>(visibleNodes.Select(n => n.Name), StringComparer.OrdinalIgnoreCase);
+            var orphanResidues = _cardResidues
+                .Where(pair => !visibleNames.Contains(pair.Key))
+                .Select(pair => pair.Value)
+                .ToList();
+            int totalCards = visibleNodes.Count + orphanResidues.Count;
+            int rowCount = totalCards == 0 ? 0 : (totalCards + cardsPerRow - 1) / cardsPerRow;
             float contentHeight = rowCount == 0 ? 0f : rowCount * cardHeight + Mathf.Max(0, rowCount - 1) * spacing;
             float viewportBottom = UIScale.VH - 175f;
             var viewport = new Rect(0f, startY, UIScale.VW, Mathf.Max(0f, viewportBottom - startY));
@@ -361,9 +455,8 @@ namespace SSNoir.IMGUI
             GUI.BeginGroup(viewport);
             var localUi = new IMGUIInteractionContext(ui.Mouse - new Vector2(viewport.x, viewport.y), ui.IsLocked);
 
-            for (int i = 0; i < nodes.Count; i++)
+            for (int i = 0; i < totalCards; i++)
             {
-                var node = nodes[i];
                 int row = i / cardsPerRow;
                 int col = i % cardsPerRow;
                 float x = startX + col * (cardWidth + spacing);
@@ -373,6 +466,14 @@ namespace SSNoir.IMGUI
                     continue;
                 }
                 var cardRect = new Rect(x, y, cardWidth, cardHeight);
+
+                if (i >= visibleNodes.Count)
+                {
+                    CardDrawer.DrawResidueCard(cardRect, orphanResidues[i - visibleNodes.Count]);
+                    continue;
+                }
+
+                var node = visibleNodes[i];
 
                 bool isHovered = localUi.CanHover(cardRect);
                 bool isFlipped = _gameManager.IsNodeFlipped(node.Name);
@@ -386,15 +487,25 @@ namespace SSNoir.IMGUI
 
                 string backText = (node.Resolve?.Type == ResolveType.Observe) ? (node.Resolve?.ObserveText ?? "") : "";
                 var execution = GetCardExecutionState(node.Name);
+                bool isLocalRoll = _animator.IsPlaying
+                    && !_animator.UsesModal
+                    && string.Equals(_animator.ActionName, node.Name, StringComparison.OrdinalIgnoreCase);
+                _cardResidues.TryGetValue(node.Name, out var residue);
 
                 var interaction = CardDrawer.DrawCard(cardRect, node, isHovered, isFlipped, focused,
                     slotted, node.Clocks, backText, localUi, _gameManager,
-                    execution.IsExecuting, execution.Progress, execution.Text);
+                    execution.IsExecuting, execution.Progress, execution.Text,
+                    isLocalRoll ? _animator.CurrentReport : null,
+                    _animator.Phase,
+                    _animator.DisplayedDieValue,
+                    _animator.DisplayScale,
+                    residue);
 
                 if (interaction.CardClicked)
                 {
                     if (node.IsContainer)
                     {
+                        _cardResidues.Clear();
                         _gridScrollStack.Add(_gridScrollOffset);
                         _gridScrollOffset = 0f;
                     }
@@ -451,10 +562,19 @@ namespace SSNoir.IMGUI
 
             string backText = (node.Resolve?.Type == ResolveType.Observe) ? (node.Resolve?.ObserveText ?? "") : "";
             var execution = GetCardExecutionState(node.Name);
+            bool isLocalRoll = _animator.IsPlaying
+                && !_animator.UsesModal
+                && string.Equals(_animator.ActionName, node.Name, StringComparison.OrdinalIgnoreCase);
+            _cardResidues.TryGetValue(node.Name, out var residue);
 
             var interaction = CardDrawer.DrawCard(cardRect, node, isHovered, isFlipped, focused,
                 slotted, node.Clocks, backText, ui, _gameManager,
-                execution.IsExecuting, execution.Progress, execution.Text);
+                execution.IsExecuting, execution.Progress, execution.Text,
+                isLocalRoll ? _animator.CurrentReport : null,
+                _animator.Phase,
+                _animator.DisplayedDieValue,
+                _animator.DisplayScale,
+                residue);
 
             if (interaction.CardClicked)
             {
@@ -596,6 +716,146 @@ namespace SSNoir.IMGUI
         private void DrawPresentationOverlay()
         {
             // Execution progress is drawn inside the active card's execute button.
+        }
+
+        private void AddLightResidueIfNeeded(ActionReport report, string actionName)
+        {
+            var presentation = report.OutcomePresentation;
+            if (presentation == null || !presentation.HasText || presentation.Mode != OutcomePresentationMode.Light)
+            {
+                return;
+            }
+
+            _cardResidues[actionName] = new CardPresentationResidue
+            {
+                AnchorNodeName = actionName,
+                Title = presentation.Title,
+                Subtitle = presentation.Subtitle,
+                RollOutcome = report.Type == ActionType.Roll ? report.Outcome : null
+            };
+        }
+
+        private void DrawHeavyOutcomeOverlay()
+        {
+            if (_activeHeavyOutcome == null)
+            {
+                return;
+            }
+
+            GUI.color = IMGUIStyles.Blocker;
+            GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            float modalW = 420f;
+            float modalH = 210f;
+            var modal = new Rect((UIScale.VW - modalW) / 2f, (UIScale.VH - modalH) / 2f, modalW, modalH);
+
+            GUI.color = IMGUIStyles.ModalBg;
+            GUI.DrawTexture(modal, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(modal, 1.5f, IMGUIStyles.PrimaryColor);
+
+            var presentation = _activeHeavyOutcome.OutcomePresentation;
+            string title = presentation?.Title ?? _activeHeavyOutcomeActionName;
+            var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 18
+            };
+            GUI.Label(new Rect(modal.x + 24f, modal.y + 28f, modal.width - 48f, 28f), title, titleStyle);
+
+            if (presentation != null && !string.IsNullOrWhiteSpace(presentation.Subtitle))
+            {
+                var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
+                {
+                    wordWrap = true,
+                    alignment = TextAnchor.UpperCenter
+                };
+                GUI.Label(new Rect(modal.x + 36f, modal.y + 70f, modal.width - 72f, 70f), presentation.Subtitle, subtitleStyle);
+            }
+
+            var btnRect = new Rect(modal.x + (modal.width - 112f) / 2f, modal.yMax - 50f, 112f, 30f);
+            var mouse = Event.current.mousePosition;
+            bool hovered = btnRect.Contains(mouse);
+            bool clicked = hovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
+            if (IMGUIStyles.DrawTechnicalButton(btnRect, "确定", hovered, clicked, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+            {
+                _activeHeavyOutcome = null;
+                _activeHeavyOutcomeActionName = string.Empty;
+                _activeHeavyOutcomeDone = null;
+                AdvanceToBlockingPresentationOrFinish();
+                Event.current.Use();
+            }
+            else
+            {
+                UsePointerEventForModal();
+            }
+        }
+
+        private void DrawSpotlightOverlay()
+        {
+            var spotlight = _activeActionSpotlight ?? _gameManager.GameState.SpotlightCenter.Current;
+            if (spotlight == null)
+            {
+                return;
+            }
+
+            GUI.color = IMGUIStyles.Blocker;
+            GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            float modalW = 460f;
+            float modalH = 220f;
+            var modal = new Rect((UIScale.VW - modalW) / 2f, (UIScale.VH - modalH) / 2f, modalW, modalH);
+
+            GUI.color = IMGUIStyles.ModalBg;
+            GUI.DrawTexture(modal, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(modal, 1.5f, IMGUIStyles.PrimaryColor);
+
+            var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 20
+            };
+            GUI.Label(new Rect(modal.x + 28f, modal.y + 32f, modal.width - 56f, 30f), spotlight.Title, titleStyle);
+
+            if (!string.IsNullOrWhiteSpace(spotlight.Subtitle))
+            {
+                var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
+                {
+                    wordWrap = true,
+                    alignment = TextAnchor.UpperCenter
+                };
+                GUI.Label(new Rect(modal.x + 44f, modal.y + 78f, modal.width - 88f, 72f), spotlight.Subtitle, subtitleStyle);
+            }
+
+            var btnRect = new Rect(modal.x + (modal.width - 112f) / 2f, modal.yMax - 52f, 112f, 30f);
+            var mouse = Event.current.mousePosition;
+            bool hovered = btnRect.Contains(mouse);
+            bool clicked = hovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
+            if (IMGUIStyles.DrawTechnicalButton(btnRect, "确定", hovered, clicked, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+            {
+                if (_activeActionSpotlight != null)
+                    ConfirmActionSpotlight();
+                else
+                    _gameManager.GameState.SpotlightCenter.Dismiss();
+                Event.current.Use();
+            }
+            else
+            {
+                UsePointerEventForModal();
+            }
+        }
+
+        private static void UsePointerEventForModal()
+        {
+            if (Event.current.type == EventType.MouseDown
+                || Event.current.type == EventType.MouseUp
+                || Event.current.type == EventType.ScrollWheel)
+            {
+                Event.current.Use();
+            }
         }
 
         private Rect ClampRect(Rect r, float cardWidth, float cardHeight)

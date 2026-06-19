@@ -25,7 +25,7 @@
   (tick-n! wake-pressure n)
   (if (wake-pressure 'full?)
       (begin
-        (notify! "海伦被响动惊醒了。")
+        (spotlight! "海伦醒了" "你的动作惊醒了她，搜查被迫中断。")
         (end-encounter 'fail))
       #f))
 
@@ -33,14 +33,15 @@
   (if (equal? clue-id target-clue)
       (begin
         (set! clue-found #t)
-        (notify! "你意识到这才是真正有用的东西。现在该离开了。"))
-      (notify! "这东西可疑，但和眼下要找的线索对不上。")))
+        (spotlight! "线索到手" "你意识到这才是真正有用的东西。现在该离开了。"))
+      #f))
 
 (define (node-leave)
   (instant-action "离开"
-    (lambda ()
-      (notify! "你带着线索悄悄离开了海伦的公寓。")
-      (end-encounter 'success))))
+    (outcome "悄然离开" "你带着线索离开了海伦的公寓，门锁在身后轻轻合上。"
+      (lambda ()
+        (end-encounter 'success))
+      'heavy)))
 
 (define (helen-subtitle)
   (cond
@@ -57,96 +58,95 @@
   (action "搜查卧室"
     (list (req-die))
     (roll 'sharpness
-      (lambda ()
-        (wake-tick! 2)
-        (notify! "衣柜门轴发出一声尖响，海伦在外面动了一下。"))
-      (lambda ()
-        (room-a-search 'tick!)
-        (wake-tick! 1)
-        (if (room-a-search 'full?)
-            (begin
+      (outcome "响动过大" "衣柜门轴发出一声尖响，海伦在外面动了一下。"
+        (lambda ()
+          (wake-tick! 2)))
+      (outcome "搜查进展" "你翻过床头和衣柜，还需要继续找。"
+        (lambda ()
+          (room-a-search 'tick!)
+          (wake-tick! 1)
+          (if (room-a-search 'full?)
               (set! room-a-found #t)
-              (notify! "你发现柜底压着一个东西，但它被沉重的柜脚卡住了。"))
-            (notify! "你翻过床头和衣柜，还需要继续找。")))
-      (lambda ()
-        (tick-n! room-a-search 2)
-        (if (room-a-search 'full?)
-            (begin
+              #f)))
+      (outcome "柜底异物" "你很快发现柜底压着一个东西，但它被沉重的柜脚卡住了。"
+        (lambda ()
+          (tick-n! room-a-search 2)
+          (if (room-a-search 'full?)
               (set! room-a-found #t)
-              (notify! "你很快发现柜底压着一个东西，但它被沉重的柜脚卡住了。"))
-            (notify! "你排除了几个显眼的位置，离关键处更近了。"))))))
+              #f))))))
 
 (define (node-lift-room-a)
   (action "搬开柜底"
     (list (req-die))
     (roll 'violence
-      (lambda ()
-        (wake-tick! 2)
-        (stress-current-actor! 1)
-        (notify! "柜子只挪开一点，又重重撞回地板。"))
-      (lambda ()
-        (room-a-lift 'tick!)
-        (wake-tick! 1)
-        (if (room-a-lift 'full?)
-            (begin
-              (set! room-a-checked #t)
-              (mark-clue! 'A))
-            (notify! "柜脚松动了一些，还差一点。")))
-      (lambda ()
-        (tick-n! room-a-lift 2)
-        (set! room-a-checked #t)
-        (notify! "你稳稳托起柜角，抽出了下面的东西。")
-        (mark-clue! 'A)))))
+      (outcome "柜子回落" "柜子只挪开一点，又重重撞回地板。"
+        (lambda ()
+          (wake-tick! 2)
+          (stress-current-actor! 1)))
+      (outcome "柜脚松动" "柜脚松动了一些，还差一点。"
+        (lambda ()
+          (room-a-lift 'tick!)
+          (wake-tick! 1)
+          (if (room-a-lift 'full?)
+              (begin
+                (set! room-a-checked #t)
+                (mark-clue! 'A))
+              #f)))
+      (outcome "抽出纸包" "你稳稳托起柜角，抽出了下面的东西。"
+        (lambda ()
+          (tick-n! room-a-lift 2)
+          (set! room-a-checked #t)
+          (mark-clue! 'A))))))
 
 (define (node-search-room-b)
   (action "搜查客厅"
     (list (req-die))
     (roll 'sharpness
-      (lambda ()
-        (wake-tick! 2)
-        (notify! "玻璃杯滚到桌沿，差点摔碎。"))
-      (lambda ()
-        (room-b-search 'tick!)
-        (wake-tick! 1)
-        (if (room-b-search 'full?)
-            (begin
+      (outcome "险些失手" "玻璃杯滚到桌沿，差点摔碎。"
+        (lambda ()
+          (wake-tick! 2)))
+      (outcome "继续翻找" "你检查了桌面和抽屉，还没找到关键物。"
+        (lambda ()
+          (room-b-search 'tick!)
+          (wake-tick! 1)
+          (if (room-b-search 'full?)
               (set! room-b-found #t)
-              (notify! "你在唱片机背后摸到一张折起来的纸。"))
-            (notify! "你检查了桌面和抽屉，还没找到关键物。")))
-      (lambda ()
-        (tick-n! room-b-search 2)
-        (if (room-b-search 'full?)
-            (begin
+              #f)))
+      (outcome "折起的纸" "你在唱片机背后摸到一张折起来的纸。"
+        (lambda ()
+          (tick-n! room-b-search 2)
+          (if (room-b-search 'full?)
               (set! room-b-found #t)
-              (notify! "你在唱片机背后摸到一张折起来的纸。"))
-            (notify! "客厅里的东西不多，你很快缩小了范围。"))))))
+              #f))))))
 
 (define (node-check-room-b)
   (instant-action "查看折纸"
-    (lambda ()
-      (set! room-b-checked #t)
-      (mark-clue! 'B))))
+    (outcome "纸上暗号" "纸面边角有一串仓促记下的暗号。"
+      (lambda ()
+        (set! room-b-checked #t)
+        (mark-clue! 'B)))))
 
 (define (node-search-room-c)
   (action "搜查杂物间"
     (list (req-die))
     (roll 'sharpness
-      (lambda ()
-        (wake-tick! 1)
-        (notify! "纸箱塌下来，灰尘呛得你差点咳出声。"))
-      (lambda ()
-        (room-c-search 'tick!)
-        (notify! "你找到几张被揉皱的留言，还能再翻一翻。"))
-      (lambda ()
-        (tick-n! room-c-search 2)
-        (notify! "你快速整理出一叠有用的留言。")))))
+      (outcome "纸箱塌落" "纸箱塌下来，灰尘呛得你差点咳出声。"
+        (lambda ()
+          (wake-tick! 1)))
+      (outcome "揉皱留言" "你找到几张被揉皱的留言，还能再翻一翻。"
+        (lambda ()
+          (room-c-search 'tick!)))
+      (outcome "整理留言" "你快速整理出一叠有用的留言。"
+        (lambda ()
+          (tick-n! room-c-search 2))))))
 
 (define (node-take-room-c)
   (instant-action "收起留言"
-    (lambda ()
-      (set! room-c-looted #t)
-      (add-item! '留言 1)
-      (notify! "获得留言。"))))
+    (outcome "收起留言" "这些留言不是目标线索，但能补上不少背景。"
+      (lambda ()
+        (set! room-c-looted #t)
+        (add-item! '留言 1)
+        (notify! "获得 留言 x1")))))
 
 (define (room-a-children)
   (cond

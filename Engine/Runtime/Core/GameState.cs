@@ -12,7 +12,9 @@ namespace SSNoir.Core
         public TeamState Team { get; } = new TeamState();
         public InventoryState Inventory { get; } = new InventoryState();
         public NotificationCenter NotificationCenter { get; } = new NotificationCenter();
+        public SpotlightCenter SpotlightCenter { get; } = new SpotlightCenter();
         public ActionExecutionContext? CurrentContext { get; set; } = null;
+        public ActionReport? CurrentActionReport { get; set; } = null;
 
         public event Action? OnStateChanged;
 

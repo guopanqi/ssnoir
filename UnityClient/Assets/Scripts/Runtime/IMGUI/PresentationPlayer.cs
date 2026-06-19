@@ -13,6 +13,7 @@ namespace SSNoir.IMGUI
         private int _stepIndex;
         private float _timer;
         private bool _isPlaying;
+        private bool _acknowledgingAnimator;
 
         public bool IsPlaying => _isPlaying;
         public string ProgressText { get; private set; } = string.Empty;
@@ -47,6 +48,10 @@ namespace SSNoir.IMGUI
             {
                 ProgressText = string.Empty;
                 Progress01 = 0f;
+                if (!_animator.UsesModal && _animator.IsReadyToAcknowledge())
+                {
+                    OnRollAcknowledged();
+                }
                 return;
             }
 
@@ -84,9 +89,16 @@ namespace SSNoir.IMGUI
 
         public void OnRollAcknowledged()
         {
+            if (_acknowledgingAnimator)
+            {
+                return;
+            }
+
             if (_animator.IsPlaying)
             {
+                _acknowledgingAnimator = true;
                 _animator.Acknowledge();
+                _acknowledgingAnimator = false;
             }
 
             if (!_isPlaying || _pendingReport == null)
