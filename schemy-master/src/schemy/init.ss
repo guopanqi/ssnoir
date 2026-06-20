@@ -7,7 +7,10 @@
     (define specs (car args))
     (define bodies (cdr args))
     (if (null? specs)
-      `(begin ,@bodies)
+      ;; Empty bindings still introduce a fresh scope: internal defines must stay
+      ;; local, not leak to the enclosing/global env. Wrap in an immediately
+      ;; invoked (lambda () ...), not (begin ...).
+      `((lambda () ,@bodies))
       (begin
         (define spec1 (car specs))
         (define spec_rest (cdr specs))
@@ -45,7 +48,8 @@
     (define specs (car args))
     (define bodies (cdr args))
     (if (null? specs)
-      `(begin ,@bodies)
+      ;; Empty bindings still introduce a fresh scope (see `let` above).
+      `((lambda () ,@bodies))
       `(let (,(car specs))
          (let* ,(cdr specs) ,@bodies)))))
 
@@ -66,7 +70,8 @@
         (define specs (car args))
         (define bodies (cdr args))
         (if (null? specs)
-          `(begin ,@bodies)
+          ;; Empty bindings still introduce a fresh scope (see Step 1).
+          `((lambda () ,@bodies))
           (begin
             (define spec1 (car specs))
             (define spec_rest (cdr specs))

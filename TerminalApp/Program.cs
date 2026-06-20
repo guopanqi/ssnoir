@@ -32,12 +32,6 @@ namespace SSNoir
                     return;
                 }
 
-                if (args.Length > 0 && args[0] == "--simulate")
-                {
-                    GameTester.SimulateMinimalFlow();
-                    return;
-                }
-
                 if (args.Length > 0 && args[0] == "--test-capabilities")
                 {
                     GameTester.TestCapabilities();

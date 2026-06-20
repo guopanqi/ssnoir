@@ -38,21 +38,26 @@ namespace SSNoir.Core
         {
             _gameState = gameState;
             _loader = loader;
-            _gameState.OnStateChanged += HandleGlobalStateChanged;
         }
 
-        private void HandleGlobalStateChanged()
+        // Explicit scene switch entry point for the UI. Scene transitions are an
+        // explicit action — they are not triggered as a side effect of writing the
+        // "location" global. No-op when already in the requested scene.
+        public void GoToLocation(string sceneName)
         {
-            var loc = _gameState.Get<string>("location");
-            if (loc != CurrentSceneName)
-            {
-                LoadScene(loc);
-            }
+            if (sceneName != CurrentSceneName)
+                LoadScene(sceneName);
+        }
+
+        // The world is a single shared interpreter; everything else is an encounter.
+        private static bool IsWorldScene(string sceneName)
+        {
+            return sceneName == "world" || sceneName == "world/world";
         }
 
         public void LoadScene(string sceneName)
         {
-            if (sceneName == "world" || sceneName == "world/world" || sceneName == "home" || sceneName == "office" || sceneName == "club")
+            if (IsWorldScene(sceneName))
             {
                 _encounterInterpreter = null;
                 _encounterSceneName = string.Empty;
@@ -88,8 +93,7 @@ namespace SSNoir.Core
                 }
             }
 
-            bool nextIsInEncounter = !(sceneName == "world" || sceneName == "world/world" || sceneName == "home" || sceneName == "office" || sceneName == "club");
-            RollSceneDice(nextIsInEncounter);
+            RollSceneDice(!IsWorldScene(sceneName));
 
             RebuildRenderTree();
             NotifySceneLoaded();
@@ -154,7 +158,7 @@ namespace SSNoir.Core
                 {
                     if (args.Count < 1)
                         throw new ArgumentException("start-encounter requires 1 argument (encounter name)");
-                    string name = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                    string name = SchemeValue.AsId(args[0]);
                     _encounterCallback = args.Count > 1 ? args[1] as Procedure : null;
                     StartEncounter(name);
                     return new None();
@@ -226,9 +230,9 @@ namespace SSNoir.Core
             // 4. Restore Inventory (replaces entirely — no stale items left over)
             _gameState.Inventory.ApplySaveData(data.Inventory);
 
-            // 5. Replace pure globals (chapter, reputation, etc.)
-            //    ReplacePureGlobals clears _states and forces location=world,
-            //    so HandleGlobalStateChanged cannot trigger a stray LoadScene during restore.
+            // 5. Replace pure globals (chapter, reputation, etc.).
+            //    ReplacePureGlobals clears _states and resets location=world; the
+            //    render tree is rebuilt explicitly at the end of this method.
             _gameState.ReplacePureGlobals(data.Globals);
 
             // 6. Restore Scheme world state (must run after C# state is fully set)
@@ -561,7 +565,7 @@ namespace SSNoir.Core
                         throw new InvalidOperationException($"未知技能/属性: {skillName} 对于角色 {actor.Id}");
                     }
 
-                    var rand = new Random();
+                    var rand = GameRandom.Instance;
                     var randomDice = new List<int>();
                     int finalValue = chosenDieVal;
 

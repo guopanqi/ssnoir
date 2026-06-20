@@ -807,7 +807,7 @@ namespace SSNoir
         {
             _selectedResource = null;
             _navigationStack.Clear();
-            _gameState.Set("location", sc);
+            _sceneManager.GoToLocation(sc);
         }
 
         public List<string> LoadAvailableSceneNames()
@@ -860,20 +860,7 @@ namespace SSNoir
                 _selectedResource = null;
             else
             {
-                string actorId = "";
-                int innerDieIndex = -1;
-                var owners = _gameState.Get<List<object>>("action-dice-owners");
-                if (owners != null && dieIndex >= 0 && dieIndex < owners.Count)
-                {
-                    actorId = owners[dieIndex]?.ToString() ?? "";
-                    int count = 0;
-                    for (int j = 0; j < dieIndex; j++)
-                    {
-                        if (owners[j]?.ToString() == actorId) count++;
-                    }
-                    innerDieIndex = count;
-                }
-
+                ResolveDieOwner(dieIndex, out string actorId, out int innerDieIndex);
                 _selectedResource = new SelectedResource
                 {
                     Type = "die",
@@ -883,6 +870,29 @@ namespace SSNoir
                     DieIndex = innerDieIndex
                 };
             }
+        }
+
+        // Maps a flat action-die index (as enumerated by the hand panel:
+        // Team.Actors in order, each actor's ActionDice in order) back to the
+        // owning actor and that actor's local die index.
+        private void ResolveDieOwner(int flatIndex, out string actorId, out int innerIndex)
+        {
+            int running = 0;
+            foreach (var actor in _gameState.Team.Actors)
+            {
+                for (int i = 0; i < actor.ActionDice.Count; i++)
+                {
+                    if (running == flatIndex)
+                    {
+                        actorId = actor.Id;
+                        innerIndex = i;
+                        return;
+                    }
+                    running++;
+                }
+            }
+            actorId = string.Empty;
+            innerIndex = -1;
         }
 
         public void OnItemClicked(string itemName, int qty)

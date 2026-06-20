@@ -40,7 +40,7 @@
     (define (node-growth-debugger)
       (container "成长测试面板"
         (list
-          (instant-action "增加3点成长等级" (lambda () (set-global! 'growth-level (+ (get-global 'growth-level) 3)))))))
+          (instant-action "增加3点成长等级" (lambda () (set-growth-level! (+ (growth-level) 3)))))))
 
     ;; ── Message Passing Interface ─────────────────
     (lambda args

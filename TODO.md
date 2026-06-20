@@ -2,23 +2,19 @@
 
 ## Schemy 的改造
 
-以后如果要改造 Schemy 解释器（为本项目或未来项目复用），以下问题值得处理：
+Schemy 已 fork(`schemy-master/`)。已做的改动(修复 / 新增)见
+[schemy-master/CHANGES.md](schemy-master/CHANGES.md);开发约定与流程见
+[schemy-master/AGENTS.md](schemy-master/AGENTS.md)。
 
-当前判断：现在继续使用现有 Schemy + `stdlib.scm` / native wrapper 绕开问题仍然可以接受；真正 fork / 改造解释器还偏早。等这些限制再次明显拖慢脚本编写、Unity 初始化再次出问题、或开始多个项目复用时，再根据下面线索统一实施。
+**已解决**(原先列在这里的限制):named let、dotted rest 变参、`let*`、`and`/`or` 短路、
+空 `(let)` 作用域泄漏、常用内置 / 库函数(`list-ref`、`filter`、`assoc` 等)、Unity 初始化
+(`Assembly.Location` try/catch,不再需要反射 hack)。
 
-当前比较丑陋但暂可接受的实现：
+**仍开放**:
 
-- **Unity 初始化反射 hack**：Unity 下通过反射绕开 Schemy 构造函数中的 entry assembly / `.init.ss` 假设。短期可用，但长期应该在解释器本体中移除这种宿主环境假设。
-- **项目层 `load-file` wrapper**：游戏内容加载走 SSNoir 自己的 `IScriptLoader`，绕开 Schemy 原生 `load` 的文件系统模型。这个方向是对的，但如果 Schemy 未来独立成库，需要提供通用 loader abstraction，而不是依赖具体游戏项目。
-- **语法限制靠写法规避**：目前用 `(lambda args)` 手动解包来代替 dotted rest args；能用，但脚本不够接近 Scheme/Racket 直觉。
-- **基础库缺口靠 `stdlib.scm` / native 补**：缺少常用函数时临时补在项目脚本层，能推进内容开发，但长期应把通用函数沉到 Schemy 库或标准库层。
-
-未来改造目标：把 fork 后的 Schemy 做成独立、现代、可复用、Unity 友好的 C# Scheme 库；库本身不包含 SSNoir 概念，SSNoir 只作为使用者。
-
-- **Named let 不支持**：`(let loop (...) body)` 这种写法会报错，需要在解释器的 `let` 展开阶段加一个分支，检测第一个参数是 symbol 时转为 `letrec`。
-- **不支持 dot rest 参数**：`(define (f x . rest) ...)` 这种 variadic 写法不可用，目前只能用 `args` + `car/cdr` 手动解包。
-- **内置函数偏少**：缺少 `filter`、`for-each`、`list-ref`、`assoc` 等常用 stdlib 函数，场景脚本里只能手写递归替代。
-- **文件读取与 Unity 冲突**：`load-file` 的路径处理和 Unity 资源加载机制有摩擦，跨平台部署时需要统一处理。
+- **`load-file` 与 loader 抽象**:游戏内容加载走 SSNoir 自己的 `IScriptLoader`,绕开 Schemy
+  原生 `load` 的文件系统模型。方向是对的;但若 Schemy 未来要独立成可复用库,需提供通用的
+  loader abstraction,而不是耦合具体游戏项目的路径模型。
 
 ## Presentation / State Sync
 

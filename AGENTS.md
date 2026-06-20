@@ -1,3 +1,17 @@
+# SSNoir — 工程指南（AGENTS）
+
+本文件是所有 AI / 协作者的**统一入口**。下面先是文档导航,再是常驻工程规则。
+
+## 文档导航
+
+- **架构总览(先读这个理解项目)**：[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **Scheme 内容编写指南(写 .scm:DSL + 约定)**：[schemy.md](schemy.md)
+- **改 Schemy 解释器本身(库开发)**：[schemy-master/AGENTS.md](schemy-master/AGENTS.md)
+- **Unity 客户端 UI 规则**：[UnityClient/AGENTS.md](UnityClient/AGENTS.md)
+- **已知限制 / 待办**：[TODO.md](TODO.md)
+
+---
+
 # 我的工程风格偏好
 
 请你以清晰的界限，简洁的结构，但不过度设计的最终目标来计划
@@ -22,13 +36,11 @@
 - 语法检查（仅在可能遗留括号缺失等低级语法错误或大范围重构时）
 - 全量内容校验与最小状态模拟（仅在需要验证复杂边界逻辑行为或修复疑难问题时）
 
-# 关于schemy
-- **修改 `schemy-master/` 下的任何源文件后，必须立即运行 `./schemy-master/build-unity-plugin.sh`** 以重新构建 DLL 并更新 `Engine/Plugins/schemy.dll`，否则 Unity 用的还是旧版本。
-- 当遇到 Schemy 不支持的标准 Scheme 语法、或与标准 Scheme 行为不同的地方时，将其记录到 [TODO.md](file:///Users/usr/Documents/play/ssnoir/TODO.md) 的"Schemy 的改造"模块中。
-- Schemy 解释器的完整特性、内置符号支持矩阵与 `stdlib.scm` 补全说明请参考 [schemy.md](file:///Users/usr/documents/play/ssnoir/schemy.md)。
-- Schemy 不能使用 dotted rest args（如 `first . rest`），但可以使用纯列表形式的 varargs 参数定义来实现相同的消息协议机制（详见 [schemy.md 中的说明](file:///Users/usr/documents/play/ssnoir/schemy.md#1-变参语法限制-varargs-syntax-constraints)）。
-- Scheme 脚本里的对白文本不要在字符串内容中再使用中文/英文引号。对话统一写成 `角色：内容`，例如 `"夜莺：你终于来了。"`。不要写 `"夜莺：“你终于来了。”"`，也不要写未转义的嵌套英文双引号；后者会让 Schemy 把后续中文当作 symbol 求值，运行时报 `Symbol not defined`。
+# 关于 Schemy（单一来源,不在此重复）
+- **写 `.scm` 内容**(DSL、对白引号、callback、状态分层等约定):见 [schemy.md](schemy.md)。
+- **改解释器本身**(fork 开发流程、改完必须重建 dll、改动记录):见 [schemy-master/AGENTS.md](schemy-master/AGENTS.md)。
+- 解释器支持什么语法/内置函数,以 [schemy-master/](schemy-master/) 为准。
 
 # Content 同步规则
-- Unity 客户端中的 `StreamingAssets/Content`、`Resources/Content` 和 `Fonts` 资源是从项目根目录的 `Content` 目录同步复制过去的（详见 [ContentSyncEditor.cs](file:///Users/usr/documents/play/ssnoir/UnityClient/Assets/Editor/ContentSyncEditor.cs)）, Unity 客户端在加载或进入 Play 模式时会自动运行同步导入, 不需要agent操作这些文件。
+- Unity 客户端中的 `StreamingAssets/Content`、`Resources/Content` 和 `Fonts` 资源是从项目根目录的 `Content` 目录同步复制过去的（详见 [ContentSyncEditor.cs](UnityClient/Assets/Editor/ContentSyncEditor.cs)）, Unity 客户端在加载或进入 Play 模式时会自动运行同步导入, 不需要agent操作这些文件。
 - 如果出现不同步的情况，可提醒用户在 Unity 中运行顶部菜单 `SSNoir -> Sync Content Now` 进行手动同步。

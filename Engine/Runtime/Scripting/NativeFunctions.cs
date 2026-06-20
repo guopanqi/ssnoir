@@ -8,29 +8,21 @@ namespace SSNoir.Scripting
 {
     public static class NativeFunctions
     {
-        private static int ConvertToInt(object value)
-        {
-            if (value is int i) return i;
-            if (value is double d) return (int)d;
-            if (value is long l) return (int)l;
-            return Convert.ToInt32(value);
-        }
-
         public static void Register(Interpreter interpreter, GameState gameState)
         {
             // --- New Native Bridge APIs ---
             interpreter.DefineGlobal(Symbol.FromString("__item-count"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("__item-count requires 1 argument: item-id");
-                string itemId = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                string itemId = SchemeValue.AsId(args[0]);
                 return gameState.Inventory.GetCount(itemId);
             }, "__item-count"));
 
             interpreter.DefineGlobal(Symbol.FromString("__set-item-count!"), new NativeProcedure(args =>
             {
                 if (args.Count < 2) throw new ArgumentException("__set-item-count! requires 2 arguments: item-id and count");
-                string itemId = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
-                int count = ConvertToInt(args[1]);
+                string itemId = SchemeValue.AsId(args[0]);
+                int count = SchemeValue.ToInt(args[1]);
                 if (count < 0) throw new ArgumentException("item count cannot be negative");
                 gameState.Inventory.SetCount(itemId, count);
                 return new None();
@@ -44,7 +36,7 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("__set-party-health!"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("__set-party-health! requires 1 argument");
-                int n = ConvertToInt(args[0]);
+                int n = SchemeValue.ToInt(args[0]);
                 gameState.Team.Health = Math.Clamp(n, 0, gameState.Team.MaxHealth);
                 return new None();
             }, "__set-party-health!"));
@@ -57,15 +49,29 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("__set-party-supplies!"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("__set-party-supplies! requires 1 argument");
-                int n = ConvertToInt(args[0]);
+                int n = SchemeValue.ToInt(args[0]);
                 gameState.Team.Supplies = Math.Clamp(n, 0, gameState.Team.MaxSupplies);
                 return new None();
             }, "__set-party-supplies!"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__growth-level"), new NativeProcedure(args =>
+            {
+                return gameState.Team.GrowthLevel;
+            }, "__growth-level"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__set-growth-level!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("__set-growth-level! requires 1 argument");
+                int n = SchemeValue.ToInt(args[0]);
+                if (n < 0) throw new ArgumentException("growth level cannot be negative");
+                gameState.Team.GrowthLevel = n;
+                return new None();
+            }, "__set-growth-level!"));
+
             interpreter.DefineGlobal(Symbol.FromString("__actor-stress"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("__actor-stress requires 1 argument: actor-id");
-                string actorId = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                string actorId = SchemeValue.AsId(args[0]);
                 var actor = gameState.Team.FindActor(actorId);
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
                 return actor.Stress;
@@ -74,8 +80,8 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("__set-actor-stress!"), new NativeProcedure(args =>
             {
                 if (args.Count < 2) throw new ArgumentException("__set-actor-stress! requires 2 arguments: actor-id and stress");
-                string actorId = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
-                int n = ConvertToInt(args[1]);
+                string actorId = SchemeValue.AsId(args[0]);
+                int n = SchemeValue.ToInt(args[1]);
                 if (n < 0) throw new ArgumentException("stress cannot be negative");
                 gameState.Team.SetActorStressSafe(actorId, n);
                 return new None();
@@ -84,7 +90,7 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("__actor-status"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("__actor-status requires 1 argument: actor-id");
-                string actorId = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                string actorId = SchemeValue.AsId(args[0]);
                 var actor = gameState.Team.FindActor(actorId);
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
                 return Symbol.FromString(actor.Status);
@@ -93,8 +99,8 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("__set-actor-status!"), new NativeProcedure(args =>
             {
                 if (args.Count < 2) throw new ArgumentException("__set-actor-status! requires 2 arguments: actor-id and status");
-                string actorId = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
-                string status = args[1] is Symbol symStatus ? symStatus.AsString : args[1]?.ToString() ?? "";
+                string actorId = SchemeValue.AsId(args[0]);
+                string status = SchemeValue.AsId(args[1]);
                 if (status != "active" && status != "away") throw new ArgumentException("status must be 'active or 'away");
                 var actor = gameState.Team.FindActor(actorId);
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
@@ -107,8 +113,8 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("__actor-stat"), new NativeProcedure(args =>
             {
                 if (args.Count < 2) throw new ArgumentException("__actor-stat requires 2 arguments: actor-id and stat-name");
-                string actorId = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
-                string statName = args[1] is Symbol symStat ? symStat.AsString : args[1]?.ToString() ?? "";
+                string actorId = SchemeValue.AsId(args[0]);
+                string statName = SchemeValue.AsId(args[1]);
                 
                 string normalizedStat = statName.ToLowerInvariant();
                 if (normalizedStat != "violence" && normalizedStat != "knowledge" && normalizedStat != "sharpness" && normalizedStat != "coding")
@@ -164,8 +170,8 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("__upgrade-actor-stat!"), new NativeProcedure(args =>
             {
                 if (args.Count < 2) throw new ArgumentException("__upgrade-actor-stat! requires 2 arguments: actor-id and stat-id");
-                string actorId = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
-                string statId = args[1] is Symbol symStat ? symStat.AsString : args[1]?.ToString() ?? "";
+                string actorId = SchemeValue.AsId(args[0]);
+                string statId = SchemeValue.AsId(args[1]);
                 gameState.Team.UpgradeActorStat(actorId, statId);
                 return new None();
             }, "__upgrade-actor-stat!"));
@@ -176,7 +182,7 @@ namespace SSNoir.Scripting
                 if (args.Count < 1)
                     throw new ArgumentException("get-global requires 1 argument: key symbol or string");
 
-                string key = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                string key = SchemeValue.AsId(args[0]);
                 if (string.IsNullOrEmpty(key))
                     throw new ArgumentException("get-global key cannot be null or empty");
 
@@ -188,7 +194,7 @@ namespace SSNoir.Scripting
                 if (args.Count < 2)
                     throw new ArgumentException("set-global! requires 2 arguments: key symbol or string and value");
 
-                string key = args[0] is Symbol sym ? sym.AsString : args[0]?.ToString() ?? "";
+                string key = SchemeValue.AsId(args[0]);
                 if (string.IsNullOrEmpty(key))
                     throw new ArgumentException("set-global! key cannot be null or empty");
 
@@ -212,24 +218,24 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("quotient"), new NativeProcedure(args =>
             {
                 if (args.Count < 2) throw new ArgumentException("quotient requires 2 arguments");
-                int divisor = ConvertToInt(args[1]);
+                int divisor = SchemeValue.ToInt(args[1]);
                 if (divisor == 0) throw new DivideByZeroException("quotient divisor cannot be zero");
-                return ConvertToInt(args[0]) / divisor;
+                return SchemeValue.ToInt(args[0]) / divisor;
             }, "quotient"));
 
             interpreter.DefineGlobal(Symbol.FromString("remainder"), new NativeProcedure(args =>
             {
                 if (args.Count < 2) throw new ArgumentException("remainder requires 2 arguments");
-                int divisor = ConvertToInt(args[1]);
+                int divisor = SchemeValue.ToInt(args[1]);
                 if (divisor == 0) throw new DivideByZeroException("remainder divisor cannot be zero");
-                return ConvertToInt(args[0]) % divisor;
+                return SchemeValue.ToInt(args[0]) % divisor;
             }, "remainder"));
 
             interpreter.DefineGlobal(Symbol.FromString("modulo"), new NativeProcedure(args =>
             {
                 if (args.Count < 2) throw new ArgumentException("modulo requires 2 arguments");
-                int dividend = ConvertToInt(args[0]);
-                int divisor = ConvertToInt(args[1]);
+                int dividend = SchemeValue.ToInt(args[0]);
+                int divisor = SchemeValue.ToInt(args[1]);
                 if (divisor == 0) throw new DivideByZeroException("modulo divisor cannot be zero");
                 int result = dividend % divisor;
                 if ((result < 0 && divisor > 0) || (result > 0 && divisor < 0))
@@ -242,22 +248,22 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("zero?"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("zero? requires 1 argument");
-                return ConvertToInt(args[0]) == 0;
+                return SchemeValue.ToInt(args[0]) == 0;
             }, "zero?"));
 
             interpreter.DefineGlobal(Symbol.FromString("even?"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("even? requires 1 argument");
-                return ConvertToInt(args[0]) % 2 == 0;
+                return SchemeValue.ToInt(args[0]) % 2 == 0;
             }, "even?"));
 
             interpreter.DefineGlobal(Symbol.FromString("odd?"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("odd? requires 1 argument");
-                return ConvertToInt(args[0]) % 2 != 0;
+                return SchemeValue.ToInt(args[0]) % 2 != 0;
             }, "odd?"));
 
-            var rand = new Random();
+            var rand = GameRandom.Instance;
             interpreter.DefineGlobal(Symbol.FromString("random-choice"), new NativeProcedure(args =>
             {
                 if (args.Count < 1)

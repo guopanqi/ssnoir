@@ -227,6 +227,12 @@
 (define (party-health)
   (__party-health))
 
+(define (growth-level)
+  (__growth-level))
+
+(define (set-growth-level! n)
+  (__set-growth-level! n))
+
 (define (damage-party! n)
   (__set-party-health! (- (__party-health) n)))
 

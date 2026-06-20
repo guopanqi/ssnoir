@@ -220,7 +220,7 @@ namespace SSNoir.Core
 
         public void RollActionDice(bool isInEncounter)
         {
-            var rand = new Random();
+            var rand = GameRandom.Instance;
             foreach (var actor in Actors)
             {
                 actor.ActionDice.Clear();

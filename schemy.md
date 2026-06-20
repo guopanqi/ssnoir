@@ -1,165 +1,124 @@
-# Schemy 解释器特性与内置符号说明
+# SSNoir Scheme 内容编写指南
 
-本文档记录了项目中使用的轻量级 C# Scheme 解释器 `Schemy` 的特性、支持的内置符号与语法，以及我们在项目底层加载的 Scheme 脚本所做的拓展和补全。
+写 `.scm` 游戏内容(场景 / 动作 / 对白 / 规则)看这里。
 
-为了保持工程结构的清晰，Scheme 自定义脚本被拆分为两个独立的文件：
-1. **`stdlib.scm`**：仅包含纯标准 Scheme 语法的扩充与基础辅助函数（如 `caddr`、`and`、`or`、`filter` 等）。
-2. **`engine.scm`**：包含游戏与引擎层面的业务定义与 DSL 框架（如 `node` 构造器、行动与修饰符构造、`make-clock` 计数器系统、规则系统、全局库存等）。
-
-## 1. 变参语法限制 (Varargs Syntax Constraints)
-
-### 不支持点号变参 (Dotted Rest Args)
-在标准 Scheme (R5RS) 中，可以通过 `.` 来定义带固定参数和剩余可变参数的函数，例如：
-```scheme
-(define (my-func first . rest)
-  rest)
-```
-或者使用 `lambda`：
-```scheme
-(lambda (first . rest) rest)
-```
-**但在 Schemy 解释器中，点号变参语法是不支持的**，使用 `.` 会导致语法解析错误或行为异常。
-
-### 支持纯列表变参 (Pure Varargs List)
-作为替代，Schemy 支持将整个参数列表捕获为一个 List：
-```scheme
-(define my-func
-  (lambda args
-    args))
-```
-或者简写为：
-```scheme
-(define (my-func args)
-  args)
-```
-这样所有的参数都会被放入一个 List 传给该函数。我们在 `node` 的构造逻辑和 `and`、`or` 逻辑运算符中均使用了这种方式。
+> **底层解释器(Schemy)支持哪些语法和内置函数,以唯一来源 [schemy-master/](schemy-master/) 为准**:
+> [README.md](schemy-master/README.md)(原版能力)+ [CHANGES.md](schemy-master/CHANGES.md)
+> (我们 fork 的修复 / 新增)。
+> 例如 dotted rest 变参 `(define (f a . rest) …)`、`let*`、`and`/`or` 短路、
+> `abs` / `eqv?` / `pair?` / `display` / `error` 等**现在都已可用**;`case` 仍不支持。
+> 本文件**不再重复**这些解释器事实,只讲 SSNoir 自己的脚本层。
 
 ---
 
-## 2. 核心语法与特殊形式 (Syntax & Special Forms)
+## 1. 脚本分层
 
-| 语法 / 特殊形式 | 可用性 | 说明 |
-| :--- | :---: | :--- |
-| `(let ((x 1)) x)` | **YES** | 支持常规的 `let` 局部变量绑定 |
-| `(let* ((x 1) (y (+ x 1))) y)` | **NO** | **不支持** `let*` 顺序绑定。如果需要，应使用嵌套的 `let` |
-| `(begin expr1 expr2)` | **YES** | 支持多表达式顺序执行，并返回最后一个表达式的值 |
-| `(if test then else)` | **YES** | 支持常规的条件判断 |
-| `(cond (test expr) ... (else expr))` | **YES** | 支持 `cond` 分支结构，是编写复杂场景/行为逻辑时的推荐做法 |
-| `(case val ...)` | **NO** | **不支持** `case` 模式匹配结构 |
-| `(lambda args body)` | **YES** | 支持定义匿名函数和闭包 |
-| `(define var val)` | **YES** | 支持定义局部与全局变量 |
+| 文件 | 内容 |
+|---|---|
+| `Content/scripts/stdlib.scm` | 纯标准 Scheme 的补充助手(`filter`、`for-each`、`assoc` 等) |
+| `Content/scripts/engine.scm` | SSNoir 的 DSL 与游戏框架(节点、时钟、规则、状态桥) |
+| `Content/scenes/world/*.scm` | 世界地点 |
+| `Content/scenes/encounters/*.scm` | encounter(交锋)场景 |
+
+整体架构见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
 ---
 
-## 3. 内置符号与函数支持矩阵 (Symbol Matrix)
+## 2. DSL 快速参考（engine.scm）
 
-下表列出了常见 Scheme 内置符号在 Raw Schemy（未经拓展的解释器）与项目解释器（加载了 `stdlib.scm` 及 C# 拓展）中的支持情况：
+完整定义以 [engine.scm](Content/scripts/engine.scm) 为准,这里只列常用构造。
 
-| 符号 / 函数 | Raw Schemy | 项目解释器 (带 stdlib) | 类别 & 备注 |
-| :--- | :---: | :---: | :--- |
-| `+`, `-`, `*`, `/` | **YES** | **YES** | 基础数学运算 |
-| `=`, `<`, `>`, `<=`, `>=` | **YES** | **YES** | 基础数值比较 |
-| `abs` | **NO** | **NO** | 其它数学运算 |
-| `modulo`, `remainder`, `quotient` | **NO** | **YES** | 由 C# 宿主环境注册的整数运算辅助 |
-| `even?`, `odd?`, `zero?` | **NO** | **YES** | 由 C# 宿主环境注册的数值断言 |
-| `eq?`, `equal?` | **YES** | **YES** | 相等性比较 |
-| `eqv?` | **NO** | **NO** | 比较 |
-| `null?`, `list?`, `string?`, `symbol?`, `boolean?` | **YES** | **YES** | 类型断言 |
-| `pair?`, `number?`, `procedure?` | **NO** | **NO** | 类型断言 |
-| `cons`, `car`, `cdr` | **YES** | **YES** | 基础列表操作 |
-| `cadr` | **YES** | **YES** | 快捷操作 (`car` of `cdr`) |
-| `caddr`, `cadddr` | **NO** | **YES** | 由 `stdlib.scm` 实现并补充 |
-| `list`, `length`, `append`, `reverse` | **YES** | **YES** | 列表工具函数（`append`已由`stdlib`扩展为支持多参变参的标准形式） |
-| `member`, `assoc` | **NO** | **NO** | 列表搜索 |
-| `map`, `apply` | **YES** | **YES** | 高阶函数 |
-| `filter` | **NO** | **YES** | 由 `stdlib.scm` 实现并补充 |
-| `not` | **YES** | **YES** | 逻辑非 |
-| `and`, `or` | **NO** | **YES** | 由 `stdlib.scm` 实现并补充（注意：通过普通过程模拟，不具备短路求值特性） |
-| `string-append`, `number->string` | **YES** | **YES** | 由 C# 宿主环境注册的辅助函数 |
-| `display`, `newline`, `error` | **NO** | **NO** | 标准 IO 和抛错函数 |
+**节点**
+- `(container name children)` — 含子节点的容器
+- `(node name :subtitle … :children … :clocks … :requires … :resolve …)` — 通用节点
+- `(action name requires resolve)` / `(instant-action name effect)` /
+  `(observe-action name text)` / `(roll-action name requires skill fail neutral success)`
 
----
+**动作结算(resolve)**
+- `(instant effect)`
+- `(roll skill fail neutral success)`,带难度修饰:`(roll skill mod-fn fail neutral success)`
+- `(observe text)`、`(clock clock-data)`
+- `(outcome title subtitle effect ['light | 'heavy])` — 给效果附加结果表现
+- `(modifier value reason)` — 难度修饰项
 
-## 4. stdlib.scm 中补充的自定义实现
+**时钟** `(make-clock label max style)` → 消息 `'tick!` `'reset!` `'full?` `'current` `'set!` `'render-data`
 
-为了解决 Schemy 本身不支持 `and`、`or` 和高阶 `filter` 等常用操作符的问题，我们在 `stdlib.scm` 里提供了以下普通过程级别的模拟实现：
+**要求(requires)** `(req-die)`、`(req-item name qty)`
 
-### and 与 or 运算
-```scheme
-(define and
-  (lambda args
-    (if (null? args)
-        #t
-        (if (car args)
-            (apply and (cdr args))
-            #f))))
+**规则系统** `(define-rule name cond act)` / `(define-turn-rule …)`,由 `(on-action)` / `(on-turn-end)` 统一遍历。
 
-(define or
-  (lambda args
-    (if (null? args)
-        #f
-        (if (car args)
-            #t
-            (apply or (cdr args))))))
-```
-*注：由于是作为普通过程（Procedure）传入，它们会被全部求值，因此**不具备短路求值特性**。*
+**状态桥**
+- 纯全局键:`(get-global k)` / `(set-global! k v)`(章节、声誉、剧情 flag)
+- 队伍 / 库存 / 成长:`party-health`、`damage-party!`、`item-count`、`add-item!`、
+  `growth-level`、`set-growth-level!`、`actor-stress` 等(见 engine.scm)
+- 表现:`(notify! text)`、`(spotlight! title subtitle)`、`(play-narration! id)`
 
-### filter 运算
-```scheme
-(define (filter pred lst)
-  (if (null? lst)
-      '()
-      (if (pred (car lst))
-          (cons (car lst) (filter pred (cdr lst)))
-          (filter pred (cdr lst)))))
-```
-
-### CADR 系列辅助
-```scheme
-(define (caddr xs)
-  (car (cdr (cdr xs))))
-
-(define (cadddr xs)
-  (car (cdr (cdr (cdr xs)))))
-```
-
-### append 运算（多参包装）
-```scheme
-(define raw-append append)
-(define append
-  (lambda args
-    (if (null? args)
-        '()
-        (if (null? (cdr args))
-            (car args)
-            (raw-append (car args) (apply append (cdr args)))))))
-```
-
+**encounter 切换** `(start-encounter name callback)` / `(end-encounter result)`
 
 ---
 
-## 5. C# 宿主环境中补充的辅助过程
+## 3. 编写约定（必须遵守）
 
-以下过程由项目运行时在 `NativeFunctions.cs` 中注册，不属于 Raw Schemy：
+### 3.1 字符串内嵌引号:一律用弯单引号
 
-| 过程 | 说明 |
-| :--- | :--- |
-| `(quotient a b)` | 整数除法，`b` 为 0 时抛错 |
-| `(remainder a b)` | C# `%` 语义的余数，`b` 为 0 时抛错 |
-| `(modulo a b)` | Scheme 风格模运算，结果符号跟随除数，`b` 为 0 时抛错 |
-| `(zero? n)` | 判断整数是否为 0 |
-| `(even? n)` | 判断整数是否为偶数 |
-| `(odd? n)` | 判断整数是否为奇数 |
+Schemy 只把 ASCII `"` (U+0022) 当字符串定界符。对白里要引号时,**一律用弯单引号 `'` `'`(U+2018 / U+2019)**。
 
-这些过程用于内容脚本中的简单数值逻辑，例如轮换 NPC 名称、阶段计数和索引归一化。复杂游戏规则仍应优先放在 `engine.scm` 或具体场景脚本中表达。
+```scheme
+;; 错误:弯双引号 / 反斜杠转义都会让解析出错
+(notify! "夜莺：“你终于来了。”")
+(notify! "夜莺:\"你终于来了。\"")
+;; 正确
+(notify! "夜莺：'你终于来了。'")
+(observe-action "老陈" "老陈：'你找到我了。'")
+```
 
----
+### 3.2 encounter → world 状态传递:用 callback,不用 global
 
-## 6. engine.scm 中的游戏与 DSL 框架定义
+encounter **不要**直接写 global 通知 world 推进任务(越权、污染全局命名空间)。
+`start-encounter` 传 callback,encounter 只汇报结果:
 
-游戏层面的所有 DSL 结构、动作构建与运行时状态管理代码存放在 `engine.scm` 中。主要定义了：
-* **结构化节点 (`node`)**：支持子节点、时钟、前置要求及执行回调的树状节点。
-* **时钟系统 (`make-clock`)**：用于控制行动冷却、关卡警报或敌人攻击计时的倒计时对象。
-* **动作构造器 (`instant`, `roll`, `observe`)**：规范各类可供玩家交互的底层行动的动作数据结构。
-* **规则与轮次生命周期 (`define-rule`, `define-turn-rule`, `on-action`, `on-turn-end`)**：控制事件触发机制的规则系统。
-* **游戏内库存机制 (`get-item`, `consume-item!`)**：在 Scheme 环境下读取与增删全局 `money` 和各类道具的接口。
+```scheme
+;; world 场景
+(start-encounter "追击黑衣人"
+  (lambda (result)
+    (when (equal? result 'success) (set! mission-stage 2))))
+;; encounter 场景
+(end-encounter 'success)   ; 只说结果,不知道外部是谁
+```
+
+callback 在 `LoadScene("world")` 之前执行,world 闭包状态更新后,render tree 一次性以正确状态重建。
+
+### 3.3 压力 / 伤害函数的调用场景
+
+`stress-current-actor!` 依赖 action 执行上下文,只有 `ExecuteAction` 期间有效;
+encounter 结束 callback 可能由回合结束规则触发,此时没有 action context。
+
+| 场景 | 正确用法 |
+|---|---|
+| roll 的 fail/neutral/success 回调(action lambda 内) | `(stress-current-actor! n)` |
+| `start-encounter` 的结果 callback | `(add-actor-stress! 'player n)` |
+
+### 3.4 节点函数扁平化:避免深嵌套 append/if
+
+Schemy 在深嵌套 `(append (if …) (if … (append …) '()))` 中,某些分支会求值成 `None`
+而非 `'()`,导致 `append` 报 `Cannot convert Schemy.None to type List`1`。
+
+**规则:每个 `define` 函数只构造一个节点或一段节点列表,单个表达式里 `if/append` 不超过两层。**
+
+```scheme
+;; 正确:每段逻辑抽成独立 helper
+(define (node-check-gate) (instant-action "查看大门" …))
+(define (node-gate)       (container "大门" …))
+(define (stage-one-nodes)
+  (append
+    (if (not gate-revealed) (list (node-check-gate)) '())
+    (if gate-revealed (list (node-gate)) '())))
+```
+
+### 3.5 地点状态分层
+
+| 状态类型 | 存放位置 |
+|---|---|
+| 任务阶段 / 跨场景进度 | 地点本地 `define` + save/load(不泄露到 global) |
+| 地点内部 UI 状态(门是否开、NPC 是否说过话) | 同上 |
+| 真正全局共享(声誉、跨地点资源) | `set-global!` / `get-global` |

@@ -17,8 +17,6 @@ namespace SSNoir.Core
         public ActionExecutionContext? CurrentContext { get; set; } = null;
         public ActionReport? CurrentActionReport { get; set; } = null;
 
-        public event Action? OnStateChanged;
-
         public GameState()
         {
             // Initial defaults for backwards compatibility and scenes
@@ -38,7 +36,7 @@ namespace SSNoir.Core
             Team.Health = 8;
             Team.Supplies = 3;
 
-            var rand = new Random();
+            var rand = GameRandom.Instance;
 
             // 主角
             var player = new ActorState
@@ -90,69 +88,13 @@ namespace SSNoir.Core
             laozhou.ActionDice.Add(rand.Next(1, 7));
             laozhou.ActionDice.Add(rand.Next(1, 7));
             Team.Actors.Add(laozhou);
-
-            Team.OnTeamChanged += () => OnStateChanged?.Invoke();
-            Inventory.OnInventoryChanged += () => OnStateChanged?.Invoke();
         }
 
+        // Pure global key-value store only (chapter, reputation, story flags).
+        // Team / Inventory / action dice / growth are owned by their typed objects
+        // (GameState.Team, GameState.Inventory) — read them there, not through here.
         public T Get<T>(string key, T defaultValue = default!)
         {
-            if (key.Equals("health", StringComparison.OrdinalIgnoreCase))
-            {
-                return (T)(object)Team.Health;
-            }
-            if (key.Equals("growth-level", StringComparison.OrdinalIgnoreCase))
-            {
-                return (T)(object)Team.GrowthLevel;
-            }
-            if (key.StartsWith("actor:spent-growth-points:", StringComparison.OrdinalIgnoreCase))
-            {
-                string actorId = key.Substring("actor:spent-growth-points:".Length);
-                var actor = Team.FindActor(actorId)
-                    ?? throw new ArgumentException($"Actor '{actorId}' not found. Cannot get spent growth points.");
-                return (T)(object)actor.SpentGrowthPoints;
-            }
-            if (key.StartsWith("actor:available-growth-points:", StringComparison.OrdinalIgnoreCase))
-            {
-                string actorId = key.Substring("actor:available-growth-points:".Length);
-                var actor = Team.FindActor(actorId)
-                    ?? throw new ArgumentException($"Actor '{actorId}' not found. Cannot get available growth points.");
-                return (T)(object)Team.GetAvailableGrowthPoints(actor);
-            }
-            if (key.Equals("supplies", StringComparison.OrdinalIgnoreCase))
-            {
-                return (T)(object)Team.Supplies;
-            }
-            if (key.StartsWith("item:", StringComparison.OrdinalIgnoreCase))
-            {
-                string itemId = key.Substring(5);
-                return (T)(object)Inventory.GetCount(itemId);
-            }
-            if (key.Equals("action-dice", StringComparison.OrdinalIgnoreCase))
-            {
-                var list = new List<object>();
-                foreach (var actor in Team.Actors)
-                {
-                    foreach (var die in actor.ActionDice)
-                    {
-                        list.Add(die);
-                    }
-                }
-                return (T)(object)list;
-            }
-            if (key.Equals("action-dice-owners", StringComparison.OrdinalIgnoreCase))
-            {
-                var list = new List<object>();
-                foreach (var actor in Team.Actors)
-                {
-                    foreach (var die in actor.ActionDice)
-                    {
-                        list.Add(actor.Id);
-                    }
-                }
-                return (T)(object)list;
-            }
-
             if (!_states.TryGetValue(key, out var val))
             {
                 return defaultValue;
@@ -180,49 +122,7 @@ namespace SSNoir.Core
         public void Set(string key, object value)
         {
             Debug.Assert(value != null, "GameState set value cannot be null");
-
-            if (key.Equals("health", StringComparison.OrdinalIgnoreCase))
-            {
-                Team.Health = ConvertToInt(value);
-                return;
-            }
-            if (key.Equals("growth-level", StringComparison.OrdinalIgnoreCase))
-            {
-                Team.GrowthLevel = ConvertToInt(value);
-                OnStateChanged?.Invoke();
-                return;
-            }
-            if (key.StartsWith("actor:spent-growth-points:", StringComparison.OrdinalIgnoreCase))
-            {
-                string actorId = key.Substring("actor:spent-growth-points:".Length);
-                var actor = Team.FindActor(actorId)
-                    ?? throw new ArgumentException($"Actor '{actorId}' not found. Cannot set spent growth points.");
-                actor.SpentGrowthPoints = ConvertToInt(value);
-                OnStateChanged?.Invoke();
-                return;
-            }
-            if (key.Equals("supplies", StringComparison.OrdinalIgnoreCase))
-            {
-                Team.Supplies = ConvertToInt(value);
-                return;
-            }
-            if (key.StartsWith("item:", StringComparison.OrdinalIgnoreCase))
-            {
-                string itemId = key.Substring(5);
-                Inventory.SetCount(itemId, ConvertToInt(value));
-                return;
-            }
-
             _states[key] = value;
-            OnStateChanged?.Invoke();
-        }
-
-        private int ConvertToInt(object value)
-        {
-            if (value is int i) return i;
-            if (value is double d) return (int)d;
-            if (value is long l) return (int)l;
-            return Convert.ToInt32(value);
         }
 
         // Returns only the pure global key-value store (chapter, reputation, etc.).
@@ -233,15 +133,14 @@ namespace SSNoir.Core
         }
 
         // Replaces the entire pure globals dict. Clears old keys (no stale flags left over).
-        // Forces location=world regardless of what the save dict contains,
-        // so HandleGlobalStateChanged in SceneManager cannot trigger a stray LoadScene.
+        // Loading always restores into world mode, so location is reset to "world" here;
+        // SceneManager.LoadGame rebuilds the render tree explicitly afterwards.
         public void ReplacePureGlobals(Dictionary<string, object> globals)
         {
             _states.Clear();
             foreach (var kv in globals)
                 _states[kv.Key] = kv.Value;
             _states["location"] = "world";
-            OnStateChanged?.Invoke();
         }
     }
 }

@@ -135,7 +135,7 @@ namespace SSNoir.Scripting
                             else if (firstStr == "item" && costExpr.Count >= 3)
                             {
                                 string itemId = costExpr[1] is Symbol s ? s.AsString : costExpr[1]?.ToString() ?? "Unknown";
-                                int qty = ConvertToInt(costExpr[2]);
+                                int qty = SchemeValue.ToInt(costExpr[2]);
                                 requires.Add(new ActionCost { Type = "item", ItemId = itemId, Qty = qty });
                             }
                         }
@@ -175,14 +175,6 @@ namespace SSNoir.Scripting
             }
 
             return tags;
-        }
-
-        private static int ConvertToInt(object value)
-        {
-            if (value is int i) return i;
-            if (value is double d) return (int)d;
-            if (value is long l) return (int)l;
-            return Convert.ToInt32(value);
         }
 
         private static GameResolve? ParseResolve(object resolveExpr, Interpreter interpreter)
@@ -383,8 +375,8 @@ namespace SSNoir.Scripting
                 return null;
 
             var label = expr[1] as string ?? "Unknown";
-            int current = ConvertToInt(expr[2]);
-            int max = ConvertToInt(expr[3]);
+            int current = SchemeValue.ToInt(expr[2]);
+            int max = SchemeValue.ToInt(expr[3]);
 
             ClockStyle style = ClockStyle.Segments;
             string styleStr = expr[4] is Symbol s ? s.AsString : expr[4] as string ?? "";
