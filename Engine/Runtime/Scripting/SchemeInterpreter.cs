@@ -1,24 +1,22 @@
 #nullable enable
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization;
 using Schemy;
 using SSNoir.Core;
 
 namespace SSNoir.Scripting
 {
+    // Blocks (load "...") from Scheme — scripts must use (load-file "...") instead.
     public class DummyFileSystemAccessor : IFileSystemAccessor
     {
         public Stream OpenRead(string path)
         {
-            return new MemoryStream();
+            throw new NotSupportedException($"Direct file access is disabled. Use (load-file \"{path}\") instead.");
         }
 
         public Stream OpenWrite(string path)
         {
-            return new MemoryStream();
+            throw new NotSupportedException("File write access is disabled.");
         }
     }
 
@@ -30,7 +28,7 @@ namespace SSNoir.Scripting
         public SchemeInterpreter(GameState gameState, IScriptLoader loader)
         {
             _loader = loader;
-            _interpreter = CreateInterpreter();
+            _interpreter = new Interpreter(fsAccessor: new DummyFileSystemAccessor());
 
             // Register our bridge functions
             NativeFunctions.Register(_interpreter, gameState);
@@ -85,119 +83,5 @@ namespace SSNoir.Scripting
         }
 
         public Interpreter RawInterpreter => _interpreter;
-
-        private static Interpreter CreateInterpreter()
-        {
-#if UNITY_5_3_OR_NEWER
-            return CreateUnitySafeInterpreter();
-#else
-            return new Interpreter(
-                new Interpreter.CreateSymbolTableDelegate[] { Builtins.CreateBuiltins },
-                new DummyFileSystemAccessor()
-            );
-#endif
-        }
-
-#if UNITY_5_3_OR_NEWER
-        private static Interpreter CreateUnitySafeInterpreter()
-        {
-            // Schemy 1.0.0 assumes Assembly.GetEntryAssembly() is non-null while
-            // loading its optional ".init.ss". Unity returns null there, so we
-            // construct the same core state and load only Schemy's embedded init.ss.
-            //
-            // This keeps the engine package usable inside Unity without modifying
-            // the upstream schemy.dll. If more Unity-specific Schemy issues show up,
-            // TODO: fork Schemy and patch the internals directly; that will be more
-            // stable than maintaining reflection-based initialization here.
-            var interpreter = (Interpreter)FormatterServices.GetUninitializedObject(typeof(Interpreter));
-            var environment = Schemy.Environment.CreateEmpty();
-            var macroTable = new Dictionary<Symbol, Procedure>();
-
-            var initializers = new Interpreter.CreateSymbolTableDelegate[]
-            {
-                Builtins.CreateBuiltins
-            };
-
-            foreach (var initializer in initializers)
-            {
-                environment = new Schemy.Environment(initializer(interpreter), environment);
-            }
-
-            SetPrivateField(interpreter, "fsAccessor", new DummyFileSystemAccessor());
-            SetPrivateField(interpreter, "environment", environment);
-            SetPrivateField(interpreter, "macroTable", macroTable);
-
-            using (var reader = CreateSchemyInitReader())
-            {
-                var result = interpreter.Evaluate(reader);
-                if (result.Error != null)
-                {
-                    throw new Exception($"Error loading Schemy init.ss: {result.Error}", result.Error);
-                }
-            }
-
-            return interpreter;
-        }
-
-        private static TextReader CreateSchemyInitReader()
-        {
-            var assembly = typeof(Interpreter).Assembly;
-            var stream = assembly.GetManifestResourceStream("init.ss");
-            if (stream == null)
-            {
-                foreach (var resourceName in assembly.GetManifestResourceNames())
-                {
-                    if (resourceName.EndsWith("init.ss", StringComparison.Ordinal))
-                    {
-                        stream = assembly.GetManifestResourceStream(resourceName);
-                        break;
-                    }
-                }
-            }
-
-            if (stream != null)
-            {
-                return new StreamReader(stream);
-            }
-
-            return new StringReader(SchemyInitSource);
-        }
-
-        private const string SchemyInitSource = @"
-(define-macro let
-              (lambda args
-                (define specs (car args))
-                (define bodies (cdr args))
-                (if (null? specs)
-                  `((lambda () ,@bodies))
-                  (begin
-                    (define spec1 (car specs))
-                    (define spec_rest (cdr specs))
-                    (define inner `((lambda ,(list (car spec1)) ,@bodies) ,(car (cdr spec1))))
-                    `(let ,spec_rest ,inner)))))
-
-(define-macro cond
-              (lambda args
-                (if (= 0 (length args)) ''()
-                  (begin
-                    (define first (car args))
-                    (define rest (cdr args))
-                    (define test1 (if (equal? (car first) 'else) '#t (car first)))
-                    (define expr1 (car (cdr first)))
-                    `(if ,test1 ,expr1
-                       (cond ,@rest))))))
-";
-
-        private static void SetPrivateField(object target, string fieldName, object value)
-        {
-            var field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-            if (field == null)
-            {
-                throw new MissingFieldException(target.GetType().FullName, fieldName);
-            }
-
-            field.SetValue(target, value);
-        }
-#endif
     }
 }

@@ -138,6 +138,17 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__notify!"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__play-narration!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("__play-narration! requires 1 argument: id");
+                if (!(args[0] is string id)) throw new ArgumentException("__play-narration! id must be a string");
+                if (gameState.CurrentActionReport != null)
+                    gameState.CurrentActionReport.NarrationIds.Add(id);
+                else
+                    gameState.NarrationCenter.Play(id);
+                return new None();
+            }, "__play-narration!"));
+
             interpreter.DefineGlobal(Symbol.FromString("__spotlight!"), new NativeProcedure(args =>
             {
                 if (args.Count < 2) throw new ArgumentException("__spotlight! requires 2 arguments: title subtitle");

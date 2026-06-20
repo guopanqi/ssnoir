@@ -13,6 +13,7 @@ namespace SSNoir.Core
         public InventoryState Inventory { get; } = new InventoryState();
         public NotificationCenter NotificationCenter { get; } = new NotificationCenter();
         public SpotlightCenter SpotlightCenter { get; } = new SpotlightCenter();
+        public NarrationCenter NarrationCenter { get; } = new NarrationCenter();
         public ActionExecutionContext? CurrentContext { get; set; } = null;
         public ActionReport? CurrentActionReport { get; set; } = null;
 

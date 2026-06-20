@@ -29,6 +29,8 @@ namespace SSNoir.Rendering
 
             SceneDropdownWidget.LoadAvailableScenes(_state);
 
+            _gameState.NarrationCenter.OnNarrationRequested += ShowNarration;
+
             _sceneManager.OnSceneLoaded += () =>
             {
                 ResetSceneUiState();
@@ -66,6 +68,8 @@ namespace SSNoir.Rendering
         {
             AddLightResidueIfNeeded();
             AdoptLatestSnapshot();
+
+            var report = _state.PendingReport;
             _state.PendingReport = null;
             _state.PendingActionName = string.Empty;
             _state.IsPresentingAction = false;
@@ -74,9 +78,37 @@ namespace SSNoir.Rendering
             _state.PendingActionSpotlights.Clear();
             _state.ActiveActionSpotlight = null;
 
+            if (report != null)
+                ReleaseNarrations(report.NarrationIds);
+
             var callback = _presentationDoneCallback;
             _presentationDoneCallback = null;
             callback?.Invoke();
+        }
+
+        private void ReleaseNarrations(System.Collections.Generic.List<string> ids)
+        {
+            foreach (var id in ids)
+                _gameState.NarrationCenter.Play(id);
+        }
+
+        private void ShowNarration(string id)
+        {
+            _state.ActiveNarrationId = id;
+            _state.ActiveNarrationTime = 0f;
+        }
+
+        private void UpdateNarration(float dt)
+        {
+            if (string.IsNullOrEmpty(_state.ActiveNarrationId))
+                return;
+
+            _state.ActiveNarrationTime += dt;
+            if (_state.ActiveNarrationTime >= _state.ActiveNarrationDuration)
+            {
+                _state.ActiveNarrationId = string.Empty;
+                _state.ActiveNarrationTime = 0f;
+            }
         }
 
         private void AdvanceToBlockingPresentationOrFinish()
@@ -519,11 +551,14 @@ namespace SSNoir.Rendering
 
             var mousePos = Raylib.GetMousePosition();
 
-            // Update Notification Center
-            _gameState.NotificationCenter.Update(Raylib.GetFrameTime());
+            float dt = Raylib.GetFrameTime();
+
+            // Update runtime presentation centers.
+            _gameState.NotificationCenter.Update(dt);
+            UpdateNarration(dt);
             if (!_state.IsPresentingAction)
                 _state.Spotlight = _gameState.SpotlightCenter.Current;
-            UpdatePresentation(Raylib.GetFrameTime());
+            UpdatePresentation(dt);
 
             bool inputBlocked = _state.ActiveRollResult != null || _state.IsPresentingAction
                 || _state.ActiveActionSpotlight != null || _state.Spotlight != null;
@@ -776,7 +811,34 @@ namespace SSNoir.Rendering
                 }
             }
 
+            DrawNarrationOverlay();
+
             Raylib.EndDrawing();
+        }
+
+        private void DrawNarrationOverlay()
+        {
+            if (string.IsNullOrEmpty(_state.ActiveNarrationId))
+                return;
+
+            float fadeIn = Math.Clamp(_state.ActiveNarrationTime / 0.2f, 0f, 1f);
+            float remaining = _state.ActiveNarrationDuration - _state.ActiveNarrationTime;
+            float fadeOut = remaining < 0.5f ? Math.Clamp(remaining / 0.5f, 0f, 1f) : 1f;
+            byte alpha = (byte)(220 * Math.Min(fadeIn, fadeOut));
+
+            string text = $"[旁白] {_state.ActiveNarrationId}";
+            int fontSize = 18;
+            float maxW = WindowWidth - 120f;
+            float textW = Math.Min(maxW - 48f, FontManager.MeasureTextWidth(text, fontSize));
+            float boxW = Math.Max(260f, textW + 48f);
+            float boxH = 40f;
+            float x = (WindowWidth - boxW) / 2f;
+            float y = WindowHeight - 154f;
+            var rect = new Rectangle(x, y, boxW, boxH);
+
+            Raylib.DrawRectangleRounded(rect, 0.08f, 8, new Color((byte)10, (byte)12, (byte)18, alpha));
+            Raylib.DrawRectangleRoundedLinesEx(rect, 0.08f, 8, 1.2f, new Color((byte)100, (byte)120, (byte)170, alpha));
+            FontManager.DrawText(text, x + 24f, y + 10f, fontSize, new Color((byte)220, (byte)226, (byte)245, alpha));
         }
 
         private static readonly Color DbgBg     = new Color((byte)20,  (byte)20,  (byte)28,  (byte)255);

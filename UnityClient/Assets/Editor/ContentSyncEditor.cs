@@ -24,6 +24,56 @@ namespace SSNoir.Editor
             }
         }
 
+        [MenuItem("SSNoir/Rebuild Schemy DLL")]
+        public static void RebuildSchemyDll()
+        {
+            string repoRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
+            string csproj = Path.Combine(repoRoot, "schemy-master", "src", "schemy", "schemy.csproj");
+            string dllSrc = Path.Combine(repoRoot, "schemy-master", "src", "schemy", "bin", "Release", "netstandard2.0", "schemy.dll");
+            string dllDest = Path.Combine(repoRoot, "Engine", "Plugins", "schemy.dll");
+
+            if (!File.Exists(csproj))
+            {
+                Debug.LogError($"[SchemyBuild] schemy.csproj not found at: {csproj}");
+                return;
+            }
+
+            Debug.Log("[SchemyBuild] Building schemy (netstandard2.0, Release)...");
+
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = $"build \"{csproj}\" -c Release --nologo -v q",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+
+            using (var proc = System.Diagnostics.Process.Start(psi))
+            {
+                string stdout = proc.StandardOutput.ReadToEnd();
+                string stderr = proc.StandardError.ReadToEnd();
+                proc.WaitForExit();
+
+                if (proc.ExitCode != 0)
+                {
+                    Debug.LogError($"[SchemyBuild] Build failed:\n{stderr}\n{stdout}");
+                    return;
+                }
+            }
+
+            if (!File.Exists(dllSrc))
+            {
+                Debug.LogError($"[SchemyBuild] Built DLL not found at: {dllSrc}");
+                return;
+            }
+
+            File.Copy(dllSrc, dllDest, overwrite: true);
+            Debug.Log($"[SchemyBuild] Copied schemy.dll to Engine/Plugins. Refreshing assets...");
+            AssetDatabase.Refresh();
+        }
+
         [MenuItem("SSNoir/Sync Content Now")]
         public static void SyncContent()
         {

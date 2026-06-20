@@ -260,6 +260,9 @@
 (define (spotlight! title subtitle)
   (__spotlight! title subtitle))
 
+(define (play-narration! id)
+  (__play-narration! id))
+
 (define (advance-chapter!)
   (let ((current (get-global 'chapter)))
     (set-global! 'chapter (if current (+ current 1) 1))))

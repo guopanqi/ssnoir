@@ -58,6 +58,9 @@ namespace SSNoir.Rendering
         public SpotlightCard? Spotlight { get; set; } = null;
         public Queue<SpotlightCard> PendingActionSpotlights { get; } = new Queue<SpotlightCard>();
         public SpotlightCard? ActiveActionSpotlight { get; set; } = null;
+        public string ActiveNarrationId { get; set; } = string.Empty;
+        public float ActiveNarrationTime { get; set; }
+        public float ActiveNarrationDuration { get; set; } = 4f;
         public Dictionary<string, CardPresentationResidue> CardResidues { get; } = new Dictionary<string, CardPresentationResidue>();
 
         public void ClearAllNodeSlots()

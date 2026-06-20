@@ -12,6 +12,7 @@ namespace SSNoir.IMGUI
         private SSNoirGameManager _gameManager = null!;
         private IMGUIAnimationPlayer _animator = null!;
         private PresentationPlayer _presentationPlayer = null!;
+        private UnityNarrationPlayer _narrationPlayer = null!;
 
         private bool _isGrowthPanelOpen = false;
         private readonly IMGUIWindowStack _windowStack = new();
@@ -35,7 +36,15 @@ namespace SSNoir.IMGUI
             _gameManager = gameManager;
             _animator = gameObject.AddComponent<IMGUIAnimationPlayer>();
             _presentationPlayer = new PresentationPlayer(_animator);
+            _narrationPlayer = gameObject.AddComponent<UnityNarrationPlayer>();
             _animator.OnAcknowledged = () => _presentationPlayer.OnRollAcknowledged();
+            _gameManager.GameState.NarrationCenter.OnNarrationRequested += ShowNarration;
+        }
+
+        private void OnDestroy()
+        {
+            if (_gameManager != null)
+                _gameManager.GameState.NarrationCenter.OnNarrationRequested -= ShowNarration;
         }
 
         public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null;
@@ -81,6 +90,19 @@ namespace SSNoir.IMGUI
             if (report != null)
                 AddLightResidueIfNeeded(report, actionName);
             done?.Invoke();
+            if (report != null)
+                ReleaseNarrations(report.NarrationIds);
+        }
+
+        private void ReleaseNarrations(System.Collections.Generic.List<string> ids)
+        {
+            foreach (var id in ids)
+                _gameManager.GameState.NarrationCenter.Play(id);
+        }
+
+        private void ShowNarration(string id)
+        {
+            _narrationPlayer.Play(id);
         }
 
         private void ConfirmActionSpotlight()
@@ -259,6 +281,7 @@ namespace SSNoir.IMGUI
             DrawPresentationOverlay();
             DrawHeavyOutcomeOverlay();
             DrawSpotlightOverlay();
+            DrawNarrationOverlay();
 
             // ── Growth Panel ──
             if (_isGrowthPanelOpen)
@@ -856,6 +879,30 @@ namespace SSNoir.IMGUI
             {
                 Event.current.Use();
             }
+        }
+
+        private void DrawNarrationOverlay()
+        {
+            string text = _narrationPlayer.CurrentSubtitle;
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            float bandH = 96f;
+            var rect = new Rect(0f, UIScale.VH - bandH, UIScale.VW, bandH);
+
+            var oldColor = GUI.color;
+            GUI.color = new Color(0f, 0f, 0f, 0.76f);
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = oldColor;
+
+            var style = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 22,
+                wordWrap = true
+            };
+            style.normal.textColor = IMGUIStyles.OnSurface;
+            GUI.Label(new Rect(160f, rect.y + 18f, UIScale.VW - 320f, bandH - 36f), text, style);
         }
 
         private Rect ClampRect(Rect r, float cardWidth, float cardHeight)

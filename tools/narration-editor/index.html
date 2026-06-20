@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SSNoir Narration Editor</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111218;
+      --panel: #191b24;
+      --panel-2: #202331;
+      --line: #3d4258;
+      --text: #e5e8f2;
+      --muted: #9da5bd;
+      --accent: #a7c7ff;
+      --danger: #ffb4ab;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      background: #141620;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 650;
+      min-width: 190px;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      min-width: 0;
+      border-left: 1px solid var(--line);
+    }
+
+    .toolbar-label {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    button, select, input, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 6px;
+      height: 32px;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+
+    button:hover { border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    select, input[type="number"] {
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 0 10px;
+    }
+
+    #audioSelect {
+      max-width: 180px;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      height: calc(100vh - 56px);
+      min-height: 620px;
+    }
+
+    .workspace {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .side {
+      border-left: 1px solid var(--line);
+      background: var(--panel);
+      padding: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .timeline-card {
+      padding: 16px;
+    }
+
+    .timeline-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .timeline {
+      position: relative;
+      height: 96px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(to right, rgba(167,199,255,0.10) 1px, transparent 1px) 0 0 / 10% 100%,
+        #0d0f15;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .playhead {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--accent);
+      pointer-events: none;
+    }
+
+    .cue-marker {
+      position: absolute;
+      top: 16px;
+      width: 16px;
+      height: 64px;
+      transform: translateX(-8px);
+      cursor: ew-resize;
+    }
+
+    .cue-marker::before {
+      content: "";
+      display: block;
+      width: 2px;
+      height: 64px;
+      margin: 0 auto;
+      background: #f4d7a1;
+    }
+
+    .cue-marker::after {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #f4d7a1;
+      border: 2px solid #382817;
+    }
+
+    .cue-marker.active::before,
+    .cue-marker.active::after {
+      background: var(--accent);
+    }
+
+    .cue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+      overflow: auto;
+    }
+
+    .cue-row {
+      border: 1px solid var(--line);
+      background: #151720;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .cue-row.active {
+      border-color: var(--accent);
+    }
+
+    .cue-row-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .cue-row-head input {
+      width: 92px;
+    }
+
+    .cue-row-head button {
+      margin-left: auto;
+      color: var(--danger);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 72px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #10121a;
+      color: var(--text);
+      padding: 8px;
+      resize: vertical;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .shortcut {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.58);
+      z-index: 10;
+    }
+
+    .modal-backdrop.hidden {
+      display: none;
+    }
+
+    .modal {
+      width: min(560px, calc(100vw - 48px));
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .modal h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .modal p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .modal textarea {
+      min-height: 220px;
+      margin-bottom: 10px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .danger-button {
+      border-color: rgba(255, 180, 171, 0.5);
+      color: var(--danger);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SSNoir Narration Editor</h1>
+    <div class="toolbar-group">
+      <span class="toolbar-label">目录</span>
+      <button id="authorizeDirBtn" disabled>授权上次目录</button>
+      <button id="openDirBtn">修改目录</button>
+      <button id="revealDirBtn">在 Finder 查看</button>
+    </div>
+    <div class="toolbar-group">
+      <span class="toolbar-label">音频</span>
+      <button id="openAudioBtn">只打开音频</button>
+      <select id="audioSelect" disabled></select>
+    </div>
+    <div class="toolbar-group">
+      <span class="toolbar-label">操作</span>
+      <button id="saveBtn" disabled>保存 JSON</button>
+      <button id="openBulkModalBtn" disabled>自动拆分</button>
+    </div>
+    <span id="status" class="status">选择 `Assets/Resources/Narrations`，再选择音频。</span>
+  </header>
+
+  <main>
+    <section class="workspace">
+      <div class="card">
+        <div class="meta">
+          <span id="title">未加载旁白</span>
+          <span id="duration">00:00.000</span>
+        </div>
+        <audio id="audio" controls></audio>
+      </div>
+
+      <div class="card timeline-card">
+        <div class="timeline-head">
+          <span>时间轴：点击空白处新增 cue，拖动指针调整时间。</span>
+          <button id="addCueBtn" disabled>在当前时间添加</button>
+        </div>
+        <div id="timeline" class="timeline">
+          <div id="playhead" class="playhead"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="meta">
+          <span>当前字幕预览</span>
+          <span id="currentTime">00:00.000</span>
+        </div>
+        <p id="preview" class="empty">播放音频后，这里显示当前时间对应的字幕。</p>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div id="cueList" class="cue-list">
+        <div class="empty">还没有 cue。点击时间轴或“在当前时间添加”。</div>
+      </div>
+      <div class="shortcut">
+        <span>Space</span><span>播放 / 暂停</span>
+        <span>Delete</span><span>删除选中的 cue</span>
+      </div>
+    </aside>
+  </main>
+
+  <div id="bulkModal" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bulkModalTitle">
+      <h2 id="bulkModalTitle">自动拆分字幕</h2>
+      <p>每行会变成一句字幕，并按音频总时长均分。执行后会覆盖当前所有 cue。</p>
+      <textarea id="bulkText" placeholder="每行一句字幕"></textarea>
+      <div class="modal-actions">
+        <button id="loadCueTextBtn">从当前 cue 填入</button>
+        <button id="closeBulkModalBtn">取消</button>
+        <button id="autoDistributeBtn" class="danger-button">覆盖并均分</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const audio = document.getElementById("audio");
+    const authorizeDirBtn = document.getElementById("authorizeDirBtn");
+    const openDirBtn = document.getElementById("openDirBtn");
+    const revealDirBtn = document.getElementById("revealDirBtn");
+    const openAudioBtn = document.getElementById("openAudioBtn");
+    const audioSelect = document.getElementById("audioSelect");
+    const saveBtn = document.getElementById("saveBtn");
+    const addCueBtn = document.getElementById("addCueBtn");
+    const openBulkModalBtn = document.getElementById("openBulkModalBtn");
+    const closeBulkModalBtn = document.getElementById("closeBulkModalBtn");
+    const autoDistributeBtn = document.getElementById("autoDistributeBtn");
+    const loadCueTextBtn = document.getElementById("loadCueTextBtn");
+    const bulkText = document.getElementById("bulkText");
+    const bulkModal = document.getElementById("bulkModal");
+    const timeline = document.getElementById("timeline");
+    const playhead = document.getElementById("playhead");
+    const cueList = document.getElementById("cueList");
+    const statusEl = document.getElementById("status");
+    const titleEl = document.getElementById("title");
+    const durationEl = document.getElementById("duration");
+    const currentTimeEl = document.getElementById("currentTime");
+    const previewEl = document.getElementById("preview");
+
+    const audioExtensions = [".wav", ".mp3", ".ogg", ".m4a"];
+    const dbName = "ssnoir-narration-editor";
+    const dbStore = "handles";
+    const narrationDirectoryKey = "narration-directory";
+    let directoryHandle = null;
+    let storedDirectoryHandle = null;
+    let audioHandles = [];
+    let jsonHandle = null;
+    let currentAudioName = "";
+    let narration = { id: "", audio: "", cues: [] };
+    let selectedCueIndex = -1;
+    let draggingCue = null;
+    let suppressNextTimelineClick = false;
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function openDb() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName, 1);
+        request.onupgradeneeded = () => {
+          request.result.createObjectStore(dbStore);
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function saveStoredDirectoryHandle(handle) {
+      const db = await openDb();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(dbStore, "readwrite");
+        tx.objectStore(dbStore).put(handle, narrationDirectoryKey);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+    }
+
+    async function loadStoredDirectoryHandle() {
+      const db = await openDb();
+      const handle = await new Promise((resolve, reject) => {
+        const tx = db.transaction(dbStore, "readonly");
+        const request = tx.objectStore(dbStore).get(narrationDirectoryKey);
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+      });
+      db.close();
+      return handle;
+    }
+
+    async function queryDirectoryPermission(handle) {
+      if (!handle) return false;
+      const options = { mode: "readwrite" };
+      return (await handle.queryPermission(options)) === "granted";
+    }
+
+    async function requestDirectoryPermission(handle) {
+      if (!handle) return false;
+      const options = { mode: "readwrite" };
+      if ((await handle.queryPermission(options)) === "granted") return true;
+      return (await handle.requestPermission(options)) === "granted";
+    }
+
+    function baseName(name) {
+      const dot = name.lastIndexOf(".");
+      return dot >= 0 ? name.slice(0, dot) : name;
+    }
+
+    function isAudioName(name) {
+      const lower = name.toLowerCase();
+      return audioExtensions.some(ext => lower.endsWith(ext));
+    }
+
+    function formatTime(value) {
+      if (!Number.isFinite(value)) value = 0;
+      const minutes = Math.floor(value / 60);
+      const seconds = Math.floor(value % 60);
+      const millis = Math.floor((value - Math.floor(value)) * 1000);
+      return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(millis).padStart(3, "0")}`;
+    }
+
+    function sortCues() {
+      narration.cues.sort((a, b) => a.time - b.time);
+    }
+
+    function clampTime(value) {
+      const duration = audio.duration || 0;
+      return Math.max(0, Math.min(duration, value));
+    }
+
+    function cueAtTime(time) {
+      let text = "";
+      for (const cue of narration.cues) {
+        if (time < cue.time) break;
+        text = cue.text;
+      }
+      return text;
+    }
+
+    function setAudioUrl(file) {
+      const old = audio.src;
+      audio.src = URL.createObjectURL(file);
+      if (old) URL.revokeObjectURL(old);
+    }
+
+    function resetNarration(id) {
+      narration = { id, audio: id, cues: [] };
+      selectedCueIndex = -1;
+      jsonHandle = null;
+      render();
+    }
+
+    async function useDirectoryHandle(handle) {
+      directoryHandle = handle;
+      await saveStoredDirectoryHandle(handle);
+      await scanDirectory();
+    }
+
+    async function scanDirectory() {
+      if (!directoryHandle) return;
+
+      audioHandles = [];
+      for await (const [name, handle] of directoryHandle.entries()) {
+        if (handle.kind === "file" && isAudioName(name)) {
+          audioHandles.push({ name, handle });
+        }
+      }
+      audioHandles.sort((a, b) => a.name.localeCompare(b.name, "zh-Hans-CN"));
+
+      audioSelect.innerHTML = "";
+      for (const item of audioHandles) {
+        const option = document.createElement("option");
+        option.value = item.name;
+        option.textContent = item.name;
+        audioSelect.appendChild(option);
+      }
+      audioSelect.disabled = audioHandles.length === 0;
+      saveBtn.disabled = audioHandles.length === 0;
+      addCueBtn.disabled = audioHandles.length === 0;
+      openBulkModalBtn.disabled = audioHandles.length === 0;
+
+      if (audioHandles.length === 0) {
+        setStatus("旁白目录里没有可识别的音频文件。默认应选择 UnityClient/Assets/Resources/Narrations。");
+        return;
+      }
+
+      await loadAudioFromHandle(audioHandles[0]);
+    }
+
+    async function openDirectory() {
+      if (!window.showDirectoryPicker) {
+        setStatus("当前浏览器不支持目录读写。请用 Chrome / Edge 打开这个 HTML。");
+        return;
+      }
+
+      const handle = await window.showDirectoryPicker({
+        mode: "readwrite",
+        startIn: "documents"
+      });
+      storedDirectoryHandle = handle;
+      await useDirectoryHandle(handle);
+    }
+
+    async function revealDirectory() {
+      if (!window.showDirectoryPicker) {
+        setStatus("当前浏览器不支持打开系统目录选择器。请用 Chrome / Edge。");
+        return;
+      }
+
+      const startIn = directoryHandle || storedDirectoryHandle || "documents";
+      const handle = await window.showDirectoryPicker({
+        mode: "readwrite",
+        startIn
+      });
+      storedDirectoryHandle = handle;
+      await useDirectoryHandle(handle);
+      setStatus("已从系统目录选择器返回，并加载所选目录。");
+    }
+
+    async function authorizeStoredDirectory() {
+      if (!storedDirectoryHandle) {
+        setStatus("没有已保存的目录。请点“修改目录”选择 UnityClient/Assets/Resources/Narrations。");
+        return;
+      }
+
+      if (!(await requestDirectoryPermission(storedDirectoryHandle))) {
+        setStatus("授权失败。请检查浏览器权限，或点“修改目录”重新选择。");
+        return;
+      }
+
+      authorizeDirBtn.disabled = true;
+      directoryHandle = storedDirectoryHandle;
+      await scanDirectory();
+      setStatus("已授权并加载上次目录。");
+    }
+
+    async function tryRestoreDirectory() {
+      if (!window.showDirectoryPicker) {
+        setStatus("当前浏览器不支持目录读写。请用 Chrome / Edge 打开这个 HTML。");
+        return;
+      }
+
+      const handle = await loadStoredDirectoryHandle();
+      if (!handle) {
+        authorizeDirBtn.disabled = true;
+        setStatus("首次使用请点“修改目录”，选择 UnityClient/Assets/Resources/Narrations。之后会自动记住。");
+        return;
+      }
+
+      storedDirectoryHandle = handle;
+      if (!(await queryDirectoryPermission(handle))) {
+        authorizeDirBtn.disabled = false;
+        setStatus("已记住旁白目录，但浏览器需要你点“授权上次目录”。不需要重新选择目录。");
+        return;
+      }
+
+      authorizeDirBtn.disabled = true;
+      directoryHandle = handle;
+      await scanDirectory();
+      setStatus("已自动加载上次授权的旁白目录。");
+    }
+
+    async function openAudioOnly() {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "audio/*";
+      input.onchange = async () => {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        directoryHandle = null;
+        audioHandles = [];
+        jsonHandle = null;
+        currentAudioName = file.name;
+        setAudioUrl(file);
+        resetNarration(baseName(file.name));
+        titleEl.textContent = file.name;
+        saveBtn.disabled = false;
+        addCueBtn.disabled = false;
+        openBulkModalBtn.disabled = false;
+        audioSelect.disabled = true;
+        setStatus("只打开音频模式：保存时会下载 JSON，不能直接写回同目录。");
+      };
+      input.click();
+    }
+
+    async function loadAudioFromHandle(item) {
+      currentAudioName = item.name;
+      const file = await item.handle.getFile();
+      setAudioUrl(file);
+      titleEl.textContent = item.name;
+      await loadOrCreateJson(baseName(item.name));
+      setStatus(`已加载 ${item.name}`);
+    }
+
+    async function loadOrCreateJson(id) {
+      if (!directoryHandle) {
+        resetNarration(id);
+        return;
+      }
+
+      const jsonName = `${id}.json`;
+      try {
+        jsonHandle = await directoryHandle.getFileHandle(jsonName, { create: false });
+        const jsonFile = await jsonHandle.getFile();
+        const text = await jsonFile.text();
+        const parsed = JSON.parse(text);
+        if (!Array.isArray(parsed.cues)) {
+          throw new Error("json 缺少 cues 数组");
+        }
+        narration = {
+          id: parsed.id || id,
+          audio: parsed.audio || id,
+          cues: parsed.cues.map(cue => ({
+            time: Number(cue.time),
+            text: String(cue.text || "")
+          })).filter(cue => Number.isFinite(cue.time))
+        };
+      } catch (err) {
+        jsonHandle = await directoryHandle.getFileHandle(jsonName, { create: true });
+        narration = { id, audio: id, cues: [] };
+      }
+      selectedCueIndex = -1;
+      sortCues();
+      render();
+    }
+
+    async function saveJson() {
+      if (!narration.id) return;
+      sortCues();
+      const text = JSON.stringify(narration, null, 2) + "\n";
+
+      if (directoryHandle) {
+        if (!jsonHandle) {
+          jsonHandle = await directoryHandle.getFileHandle(`${narration.id}.json`, { create: true });
+        }
+        const writable = await jsonHandle.createWritable();
+        await writable.write(text);
+        await writable.close();
+        setStatus(`已保存 ${narration.id}.json`);
+        return;
+      }
+
+      const blob = new Blob([text], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${narration.id}.json`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      setStatus(`已下载 ${narration.id}.json`);
+    }
+
+    function addCue(time) {
+      if (!Number.isFinite(audio.duration)) return;
+      narration.cues.push({ time: clampTime(time), text: "" });
+      sortCues();
+      selectedCueIndex = narration.cues.findIndex(cue => cue.time === clampTime(time) && cue.text === "");
+      render();
+    }
+
+    function deleteSelectedCue() {
+      if (selectedCueIndex < 0) return;
+      narration.cues.splice(selectedCueIndex, 1);
+      selectedCueIndex = -1;
+      render();
+    }
+
+    function autoDistributeFromText() {
+      const duration = audio.duration || 0;
+      if (!Number.isFinite(duration) || duration <= 0) {
+        setStatus("音频时长尚未加载，不能自动均分。");
+        return;
+      }
+
+      const lines = bulkText.value
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+
+      if (lines.length === 0) {
+        setStatus("请先输入至少一行字幕。");
+        return;
+      }
+
+      const message = `这会覆盖当前 ${narration.cues.length} 条 cue，并按 ${lines.length} 行字幕重新均分。确定继续吗？`;
+      if (!window.confirm(message)) {
+        return;
+      }
+
+      const step = duration / lines.length;
+      narration.cues = lines.map((text, index) => ({
+        time: Number((index * step).toFixed(3)),
+        text
+      }));
+      selectedCueIndex = -1;
+      sortCues();
+      render();
+      closeBulkModal();
+      setStatus(`已按 ${lines.length} 行字幕自动均分。`);
+    }
+
+    function loadCurrentCueTextToBulk() {
+      bulkText.value = narration.cues.map(cue => cue.text).join("\n");
+      setStatus("已把当前 cue 文本填入自动均分输入框。");
+    }
+
+    function openBulkModal() {
+      bulkText.value = narration.cues.map(cue => cue.text).join("\n");
+      bulkModal.classList.remove("hidden");
+      bulkModal.setAttribute("aria-hidden", "false");
+      bulkText.focus();
+    }
+
+    function closeBulkModal() {
+      bulkModal.classList.add("hidden");
+      bulkModal.setAttribute("aria-hidden", "true");
+    }
+
+    function render() {
+      renderTimeline();
+      renderCueList();
+      renderPlayback();
+    }
+
+    function renderTimeline() {
+      timeline.querySelectorAll(".cue-marker").forEach(el => el.remove());
+      const duration = audio.duration || 0;
+
+      narration.cues.forEach((cue, index) => {
+        const marker = document.createElement("div");
+        marker.className = "cue-marker" + (index === selectedCueIndex ? " active" : "");
+        marker.style.left = duration > 0 ? `${(cue.time / duration) * 100}%` : "0%";
+        marker.title = `${formatTime(cue.time)} ${cue.text}`;
+        marker.addEventListener("pointerdown", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          selectedCueIndex = index;
+          draggingCue = cue;
+          render();
+        });
+        timeline.appendChild(marker);
+      });
+    }
+
+    function renderCueList() {
+      cueList.innerHTML = "";
+      if (narration.cues.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "还没有 cue。点击时间轴或“在当前时间添加”。";
+        cueList.appendChild(empty);
+        return;
+      }
+
+      narration.cues.forEach((cue, index) => {
+        const row = document.createElement("div");
+        row.className = "cue-row" + (index === selectedCueIndex ? " active" : "");
+
+        const head = document.createElement("div");
+        head.className = "cue-row-head";
+
+        const timeInput = document.createElement("input");
+        timeInput.type = "number";
+        timeInput.step = "0.01";
+        timeInput.min = "0";
+        timeInput.value = cue.time.toFixed(2);
+        timeInput.addEventListener("input", () => {
+          cue.time = clampTime(Number(timeInput.value));
+          sortCues();
+          render();
+        });
+
+        const label = document.createElement("span");
+        label.textContent = formatTime(cue.time);
+
+        const del = document.createElement("button");
+        del.textContent = "删除";
+        del.addEventListener("click", () => {
+          narration.cues.splice(index, 1);
+          selectedCueIndex = -1;
+          render();
+        });
+
+        head.append(timeInput, label, del);
+
+        const text = document.createElement("textarea");
+        text.value = cue.text;
+        text.placeholder = "字幕文本";
+        text.addEventListener("focus", () => {
+          selectedCueIndex = index;
+          renderTimeline();
+        });
+        text.addEventListener("input", () => {
+          cue.text = text.value;
+          renderPlayback();
+        });
+
+        row.addEventListener("click", event => {
+          if (event.target === row || event.target === head || event.target === label) {
+            selectedCueIndex = index;
+            audio.currentTime = cue.time;
+            render();
+          }
+        });
+
+        row.append(head, text);
+        cueList.appendChild(row);
+      });
+    }
+
+    function renderPlayback() {
+      const duration = audio.duration || 0;
+      const current = audio.currentTime || 0;
+      playhead.style.left = duration > 0 ? `${(current / duration) * 100}%` : "0%";
+      durationEl.textContent = formatTime(duration);
+      currentTimeEl.textContent = formatTime(current);
+      const text = cueAtTime(current);
+      previewEl.textContent = text || "当前时间没有字幕。";
+      previewEl.className = text ? "" : "empty";
+    }
+
+    function timeFromTimelineEvent(event) {
+      const rect = timeline.getBoundingClientRect();
+      const x = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
+      const ratio = rect.width > 0 ? x / rect.width : 0;
+      return clampTime(ratio * (audio.duration || 0));
+    }
+
+    function updateDraggingCue(event) {
+      if (!draggingCue) return;
+      event.preventDefault();
+      draggingCue.time = timeFromTimelineEvent(event);
+      sortCues();
+      selectedCueIndex = narration.cues.findIndex(cue => cue === draggingCue);
+      render();
+    }
+
+    function finishDraggingCue() {
+      if (!draggingCue) return;
+      draggingCue = null;
+      suppressNextTimelineClick = true;
+      window.setTimeout(() => {
+        suppressNextTimelineClick = false;
+      }, 0);
+    }
+
+    authorizeDirBtn.addEventListener("click", () => authorizeStoredDirectory().catch(err => setStatus(err.message)));
+    openDirBtn.addEventListener("click", () => openDirectory().catch(err => setStatus(err.message)));
+    revealDirBtn.addEventListener("click", () => revealDirectory().catch(err => setStatus(err.message)));
+    openAudioBtn.addEventListener("click", openAudioOnly);
+    saveBtn.addEventListener("click", () => saveJson().catch(err => setStatus(err.message)));
+    addCueBtn.addEventListener("click", () => addCue(audio.currentTime || 0));
+    openBulkModalBtn.addEventListener("click", openBulkModal);
+    closeBulkModalBtn.addEventListener("click", closeBulkModal);
+    autoDistributeBtn.addEventListener("click", autoDistributeFromText);
+    loadCueTextBtn.addEventListener("click", loadCurrentCueTextToBulk);
+    bulkModal.addEventListener("click", event => {
+      if (event.target === bulkModal) closeBulkModal();
+    });
+
+    audioSelect.addEventListener("change", async () => {
+      const selected = audioHandles.find(item => item.name === audioSelect.value);
+      if (selected) await loadAudioFromHandle(selected);
+    });
+
+    timeline.addEventListener("click", event => {
+      if (suppressNextTimelineClick) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      if (event.target !== timeline) return;
+      addCue(timeFromTimelineEvent(event));
+    });
+
+    window.addEventListener("pointermove", updateDraggingCue);
+    window.addEventListener("pointerup", finishDraggingCue);
+    window.addEventListener("pointercancel", finishDraggingCue);
+
+    audio.addEventListener("loadedmetadata", render);
+    audio.addEventListener("timeupdate", renderPlayback);
+    audio.addEventListener("durationchange", render);
+
+    window.addEventListener("keydown", event => {
+      if (event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement) return;
+      if (event.code === "Space") {
+        event.preventDefault();
+        if (audio.paused) audio.play(); else audio.pause();
+      }
+      if (event.code === "Delete" || event.code === "Backspace") {
+        deleteSelectedCue();
+      }
+    });
+
+    tryRestoreDirectory().catch(err => setStatus(err.message));
+  </script>
+</body>
+</html>

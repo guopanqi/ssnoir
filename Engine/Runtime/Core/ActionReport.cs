@@ -26,6 +26,7 @@ namespace SSNoir.Core
         public IReadOnlyList<PresentationHint> PresentationHints { get; set; } = new List<PresentationHint>();
         public OutcomePresentation? OutcomePresentation { get; set; }
         public List<SpotlightCard> Spotlights { get; } = new List<SpotlightCard>();
+        public List<string> NarrationIds { get; } = new List<string>();
 
         // Difficulty modifiers applied to this roll (e.g., "监控在线", -1)
         public List<DifficultyModifierInfo> DifficultyModifiers { get; set; } = new List<DifficultyModifierInfo>();

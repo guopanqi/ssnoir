@@ -45,6 +45,11 @@
           #f))
 
     ;; ── NPC Nodes ─────────────────────────────────────
+    (define (node-test-narration)
+      (instant-action "测试旁白"
+        (lambda ()
+          (play-narration! "码头见闻"))))
+
     (define (node-npc-a)
       (roll-action (npc-a-label) (list (req-die)) 'violence
         (lambda ()
@@ -85,9 +90,10 @@
     (define (node-dock-container)
       (if (dock-clock 'full?)
           (container "码头"
-            (list (observe-action "码头全貌" "你已经摸透了这片码头，可以自由穿行。")))
+            (list (observe-action "码头全貌" "你已经摸透了这片码头，可以自由穿行。")
+            (node-test-narration)))
           (container-with-clocks "码头"
-            (list (node-npc-a) (node-npc-b))
+            (list (node-test-narration) (node-npc-a) (node-npc-b))
             (list (dock-clock 'render-data)))))
 
     ;; ── Message Passing Interface ─────────────────────

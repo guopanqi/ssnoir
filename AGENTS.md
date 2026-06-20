@@ -23,6 +23,7 @@
 - 全量内容校验与最小状态模拟（仅在需要验证复杂边界逻辑行为或修复疑难问题时）
 
 # 关于schemy
+- **修改 `schemy-master/` 下的任何源文件后，必须立即运行 `./schemy-master/build-unity-plugin.sh`** 以重新构建 DLL 并更新 `Engine/Plugins/schemy.dll`，否则 Unity 用的还是旧版本。
 - 当遇到 Schemy 不支持的标准 Scheme 语法、或与标准 Scheme 行为不同的地方时，将其记录到 [TODO.md](file:///Users/usr/Documents/play/ssnoir/TODO.md) 的"Schemy 的改造"模块中。
 - Schemy 解释器的完整特性、内置符号支持矩阵与 `stdlib.scm` 补全说明请参考 [schemy.md](file:///Users/usr/documents/play/ssnoir/schemy.md)。
 - Schemy 不能使用 dotted rest args（如 `first . rest`），但可以使用纯列表形式的 varargs 参数定义来实现相同的消息协议机制（详见 [schemy.md 中的说明](file:///Users/usr/documents/play/ssnoir/schemy.md#1-变参语法限制-varargs-syntax-constraints)）。
