@@ -51,6 +51,11 @@
       border-left: 1px solid var(--line);
     }
 
+    header .toolbar-group:first-child {
+      border-left: none;
+      padding-left: 0;
+    }
+
     .toolbar-label {
       color: var(--muted);
       font-size: 12px;
@@ -85,6 +90,27 @@
 
     #audioSelect {
       max-width: 180px;
+    }
+
+    .dir-path {
+      max-width: 220px;
+      color: var(--text);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 4px;
+    }
+
+    .icon-btn {
+      padding: 0 10px;
+    }
+
+    .save-btn {
+      margin-left: 8px;
+      border-color: var(--accent);
+      background: var(--panel-2);
+      font-weight: 600;
     }
 
     main {
@@ -128,6 +154,32 @@
       padding: 14px;
     }
 
+    .card-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+    }
+
+    .card-head .hint {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .meta {
       display: flex;
       align-items: center;
@@ -139,7 +191,30 @@
 
     audio {
       width: 100%;
+      margin-top: 4px;
+    }
+
+    .transport {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       margin-top: 12px;
+    }
+
+    .transport .play-btn {
+      min-width: 84px;
+      font-weight: 600;
+    }
+
+    .transport .time {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .transport .time .now {
+      color: var(--text);
     }
 
     .timeline-card {
@@ -211,10 +286,23 @@
       background: var(--accent);
     }
 
+    .cue-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
     .cue-list {
       display: flex;
       flex-direction: column;
       gap: 12px;
+      flex: 1;
       min-height: 0;
       overflow: auto;
     }
@@ -264,14 +352,20 @@
     }
 
     .shortcut {
-      display: grid;
-      grid-template-columns: 80px 1fr;
-      gap: 8px;
-      margin-top: 16px;
-      padding-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 16px;
+      margin-top: auto;
+      padding-top: 10px;
       border-top: 1px solid var(--line);
       color: var(--muted);
-      font-size: 13px;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .shortcut b {
+      color: var(--text);
+      font-weight: 600;
     }
 
     .modal-backdrop {
@@ -329,40 +423,45 @@
 </head>
 <body>
   <header>
-    <h1>SSNoir Narration Editor</h1>
     <div class="toolbar-group">
       <span class="toolbar-label">目录</span>
-      <button id="authorizeDirBtn" disabled>授权上次目录</button>
+      <span id="dirPath" class="dir-path" title="">未选择</span>
       <button id="openDirBtn">修改目录</button>
-      <button id="revealDirBtn">在 Finder 查看</button>
+      <button id="authorizeDirBtn" disabled>授权上次目录</button>
+      <button id="revealDirBtn" class="icon-btn" title="在 Finder 查看">📂</button>
     </div>
     <div class="toolbar-group">
       <span class="toolbar-label">音频</span>
-      <button id="openAudioBtn">只打开音频</button>
       <select id="audioSelect" disabled></select>
     </div>
-    <div class="toolbar-group">
-      <span class="toolbar-label">操作</span>
-      <button id="saveBtn" disabled>保存 JSON</button>
-      <button id="openBulkModalBtn" disabled>自动拆分</button>
-    </div>
     <span id="status" class="status">选择 `Assets/Resources/Narrations`，再选择音频。</span>
+    <button id="saveBtn" class="save-btn" disabled>保存 JSON</button>
   </header>
 
   <main>
     <section class="workspace">
-      <div class="card">
-        <div class="meta">
-          <span id="title">未加载旁白</span>
-          <span id="duration">00:00.000</span>
+      <div class="card player-card">
+        <div class="card-head">
+          <h2>播放器</h2>
+          <span id="title" class="hint">未加载旁白</span>
         </div>
         <audio id="audio" controls></audio>
+        <div class="transport">
+          <button id="seekBackBtn" title="后退 5 秒（←）">« 5s</button>
+          <button id="playPauseBtn" class="play-btn" title="播放 / 暂停（空格）">播放</button>
+          <button id="seekFwdBtn" title="前进 5 秒（→）">5s »</button>
+          <span class="time"><span id="currentTime" class="now">00:00.000</span> / <span id="duration">00:00.000</span></span>
+        </div>
       </div>
 
       <div class="card timeline-card">
+        <div class="card-head">
+          <h2>字幕时间轴</h2>
+          <span class="hint">点击空白处新增 cue · 拖动圆点调整时间</span>
+        </div>
         <div class="timeline-head">
-          <span>时间轴：点击空白处新增 cue，拖动指针调整时间。</span>
-          <button id="addCueBtn" disabled>在当前时间添加</button>
+          <span>共 <span id="cueCount">0</span> 条 cue</span>
+          <button id="addCueBtn" disabled>在当前时间添加 cue</button>
         </div>
         <div id="timeline" class="timeline">
           <div id="playhead" class="playhead"></div>
@@ -370,21 +469,28 @@
       </div>
 
       <div class="card">
-        <div class="meta">
-          <span>当前字幕预览</span>
-          <span id="currentTime">00:00.000</span>
+        <div class="card-head">
+          <h2>当前字幕</h2>
+          <span class="hint">播放头：<span id="currentTime2">00:00.000</span></span>
         </div>
         <p id="preview" class="empty">播放音频后，这里显示当前时间对应的字幕。</p>
+      </div>
+
+      <div class="shortcut">
+        <span><b>空格</b> 播放 / 暂停</span>
+        <span><b>← / →</b> 后退 / 前进 5 秒</span>
+        <span><b>Shift + ← / →</b> 微调 1 秒</span>
+        <span><b>Delete</b> 删除选中 cue</span>
       </div>
     </section>
 
     <aside class="side">
+      <div class="cue-panel-head">
+        <span>字幕列表</span>
+        <button id="openBulkModalBtn" disabled>批量导入</button>
+      </div>
       <div id="cueList" class="cue-list">
         <div class="empty">还没有 cue。点击时间轴或“在当前时间添加”。</div>
-      </div>
-      <div class="shortcut">
-        <span>Space</span><span>播放 / 暂停</span>
-        <span>Delete</span><span>删除选中的 cue</span>
       </div>
     </aside>
   </main>
@@ -407,10 +513,13 @@
     const authorizeDirBtn = document.getElementById("authorizeDirBtn");
     const openDirBtn = document.getElementById("openDirBtn");
     const revealDirBtn = document.getElementById("revealDirBtn");
-    const openAudioBtn = document.getElementById("openAudioBtn");
+    const dirPathEl = document.getElementById("dirPath");
     const audioSelect = document.getElementById("audioSelect");
     const saveBtn = document.getElementById("saveBtn");
     const addCueBtn = document.getElementById("addCueBtn");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const seekBackBtn = document.getElementById("seekBackBtn");
+    const seekFwdBtn = document.getElementById("seekFwdBtn");
     const openBulkModalBtn = document.getElementById("openBulkModalBtn");
     const closeBulkModalBtn = document.getElementById("closeBulkModalBtn");
     const autoDistributeBtn = document.getElementById("autoDistributeBtn");
@@ -424,6 +533,8 @@
     const titleEl = document.getElementById("title");
     const durationEl = document.getElementById("duration");
     const currentTimeEl = document.getElementById("currentTime");
+    const currentTime2El = document.getElementById("currentTime2");
+    const cueCountEl = document.getElementById("cueCount");
     const previewEl = document.getElementById("preview");
 
     const audioExtensions = [".wav", ".mp3", ".ogg", ".m4a"];
@@ -439,9 +550,14 @@
     let selectedCueIndex = -1;
     let draggingCue = null;
     let suppressNextTimelineClick = false;
+    let dirty = false;
 
     function setStatus(text) {
       statusEl.textContent = text;
+    }
+
+    function markDirty() {
+      dirty = true;
     }
 
     function openDb() {
@@ -537,6 +653,7 @@
       narration = { id, audio: id, cues: [] };
       selectedCueIndex = -1;
       jsonHandle = null;
+      dirty = false;
       render();
     }
 
@@ -548,6 +665,9 @@
 
     async function scanDirectory() {
       if (!directoryHandle) return;
+
+      dirPathEl.textContent = directoryHandle.name;
+      dirPathEl.title = directoryHandle.name;
 
       audioHandles = [];
       for await (const [name, handle] of directoryHandle.entries()) {
@@ -650,29 +770,6 @@
       setStatus("已自动加载上次授权的旁白目录。");
     }
 
-    async function openAudioOnly() {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "audio/*";
-      input.onchange = async () => {
-        const file = input.files && input.files[0];
-        if (!file) return;
-        directoryHandle = null;
-        audioHandles = [];
-        jsonHandle = null;
-        currentAudioName = file.name;
-        setAudioUrl(file);
-        resetNarration(baseName(file.name));
-        titleEl.textContent = file.name;
-        saveBtn.disabled = false;
-        addCueBtn.disabled = false;
-        openBulkModalBtn.disabled = false;
-        audioSelect.disabled = true;
-        setStatus("只打开音频模式：保存时会下载 JSON，不能直接写回同目录。");
-      };
-      input.click();
-    }
-
     async function loadAudioFromHandle(item) {
       currentAudioName = item.name;
       const file = await item.handle.getFile();
@@ -710,6 +807,7 @@
         narration = { id, audio: id, cues: [] };
       }
       selectedCueIndex = -1;
+      dirty = false;
       sortCues();
       render();
     }
@@ -726,6 +824,7 @@
         const writable = await jsonHandle.createWritable();
         await writable.write(text);
         await writable.close();
+        dirty = false;
         setStatus(`已保存 ${narration.id}.json`);
         return;
       }
@@ -736,6 +835,7 @@
       link.download = `${narration.id}.json`;
       link.click();
       URL.revokeObjectURL(link.href);
+      dirty = false;
       setStatus(`已下载 ${narration.id}.json`);
     }
 
@@ -744,6 +844,7 @@
       narration.cues.push({ time: clampTime(time), text: "" });
       sortCues();
       selectedCueIndex = narration.cues.findIndex(cue => cue.time === clampTime(time) && cue.text === "");
+      markDirty();
       render();
     }
 
@@ -751,6 +852,7 @@
       if (selectedCueIndex < 0) return;
       narration.cues.splice(selectedCueIndex, 1);
       selectedCueIndex = -1;
+      markDirty();
       render();
     }
 
@@ -782,6 +884,7 @@
         text
       }));
       selectedCueIndex = -1;
+      markDirty();
       sortCues();
       render();
       closeBulkModal();
@@ -855,6 +958,7 @@
         timeInput.value = cue.time.toFixed(2);
         timeInput.addEventListener("input", () => {
           cue.time = clampTime(Number(timeInput.value));
+          markDirty();
           sortCues();
           render();
         });
@@ -867,6 +971,7 @@
         del.addEventListener("click", () => {
           narration.cues.splice(index, 1);
           selectedCueIndex = -1;
+          markDirty();
           render();
         });
 
@@ -881,6 +986,7 @@
         });
         text.addEventListener("input", () => {
           cue.text = text.value;
+          markDirty();
           renderPlayback();
         });
 
@@ -903,9 +1009,23 @@
       playhead.style.left = duration > 0 ? `${(current / duration) * 100}%` : "0%";
       durationEl.textContent = formatTime(duration);
       currentTimeEl.textContent = formatTime(current);
+      currentTime2El.textContent = formatTime(current);
+      cueCountEl.textContent = String(narration.cues.length);
+      playPauseBtn.textContent = audio.paused ? "播放" : "暂停";
       const text = cueAtTime(current);
       previewEl.textContent = text || "当前时间没有字幕。";
       previewEl.className = text ? "" : "empty";
+    }
+
+    function togglePlay() {
+      if (!Number.isFinite(audio.duration)) return;
+      if (audio.paused) audio.play(); else audio.pause();
+    }
+
+    function seekBy(seconds) {
+      if (!Number.isFinite(audio.duration)) return;
+      audio.currentTime = clampTime((audio.currentTime || 0) + seconds);
+      renderPlayback();
     }
 
     function timeFromTimelineEvent(event) {
@@ -919,6 +1039,7 @@
       if (!draggingCue) return;
       event.preventDefault();
       draggingCue.time = timeFromTimelineEvent(event);
+      markDirty();
       sortCues();
       selectedCueIndex = narration.cues.findIndex(cue => cue === draggingCue);
       render();
@@ -936,9 +1057,11 @@
     authorizeDirBtn.addEventListener("click", () => authorizeStoredDirectory().catch(err => setStatus(err.message)));
     openDirBtn.addEventListener("click", () => openDirectory().catch(err => setStatus(err.message)));
     revealDirBtn.addEventListener("click", () => revealDirectory().catch(err => setStatus(err.message)));
-    openAudioBtn.addEventListener("click", openAudioOnly);
     saveBtn.addEventListener("click", () => saveJson().catch(err => setStatus(err.message)));
     addCueBtn.addEventListener("click", () => addCue(audio.currentTime || 0));
+    playPauseBtn.addEventListener("click", togglePlay);
+    seekBackBtn.addEventListener("click", () => seekBy(-5));
+    seekFwdBtn.addEventListener("click", () => seekBy(5));
     openBulkModalBtn.addEventListener("click", openBulkModal);
     closeBulkModalBtn.addEventListener("click", closeBulkModal);
     autoDistributeBtn.addEventListener("click", autoDistributeFromText);
@@ -949,7 +1072,30 @@
 
     audioSelect.addEventListener("change", async () => {
       const selected = audioHandles.find(item => item.name === audioSelect.value);
-      if (selected) await loadAudioFromHandle(selected);
+      if (!selected) return;
+
+      if (dirty) {
+        const wantSave = window.confirm(
+          `「${narration.id}.json」有未保存的改动。\n\n确定 = 先保存再切换\n取消 = 进入下一步（丢弃改动或返回）`
+        );
+        if (wantSave) {
+          try {
+            await saveJson();
+          } catch (err) {
+            setStatus(err.message);
+            audioSelect.value = currentAudioName;
+            return;
+          }
+        } else {
+          const discard = window.confirm("丢弃这些改动并切换音频？\n\n确定 = 丢弃并切换\n取消 = 留在当前音频");
+          if (!discard) {
+            audioSelect.value = currentAudioName;
+            return;
+          }
+        }
+      }
+
+      await loadAudioFromHandle(selected);
     });
 
     timeline.addEventListener("click", event => {
@@ -969,16 +1115,43 @@
     audio.addEventListener("loadedmetadata", render);
     audio.addEventListener("timeupdate", renderPlayback);
     audio.addEventListener("durationchange", render);
+    audio.addEventListener("play", renderPlayback);
+    audio.addEventListener("pause", renderPlayback);
+
+    // 不让原生 <audio> 控件抢走键盘焦点，否则空格/方向键会被它和下面的
+    // 全局快捷键同时处理，导致“播放又立刻暂停”“左右键互相抵消”。
+    audio.addEventListener("focusin", () => audio.blur());
 
     window.addEventListener("keydown", event => {
       if (event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement) return;
-      if (event.code === "Space") {
-        event.preventDefault();
-        if (audio.paused) audio.play(); else audio.pause();
+      // 捕获阶段拦截并彻底吃掉按键，避免原生媒体控件重复处理。
+      switch (event.code) {
+        case "Space":
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          togglePlay();
+          break;
+        case "ArrowLeft":
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          seekBy(event.shiftKey ? -1 : -5);
+          break;
+        case "ArrowRight":
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          seekBy(event.shiftKey ? 1 : 5);
+          break;
+        case "Delete":
+        case "Backspace":
+          deleteSelectedCue();
+          break;
       }
-      if (event.code === "Delete" || event.code === "Backspace") {
-        deleteSelectedCue();
-      }
+    }, true);
+
+    window.addEventListener("beforeunload", event => {
+      if (!dirty) return;
+      event.preventDefault();
+      event.returnValue = "";
     });
 
     tryRestoreDirectory().catch(err => setStatus(err.message));
