@@ -2,9 +2,8 @@
 
 写 `.scm` 游戏内容(场景 / 动作 / 对白 / 规则)看这里。
 
-> **底层解释器(Schemy)支持哪些语法和内置函数,以唯一来源 [schemy-master/](schemy-master/) 为准**:
-> [README.md](schemy-master/README.md)(原版能力)+ [CHANGES.md](schemy-master/CHANGES.md)
-> (我们 fork 的修复 / 新增)。
+> **底层解释器(Schemy)支持哪些语法和内置函数,以唯一来源
+> [schemy-master/AGENTS.md](schemy-master/AGENTS.md) 为准**(含能力总览与改动记录)。
 > 例如 dotted rest 变参 `(define (f a . rest) …)`、`let*`、`and`/`or` 短路、
 > `abs` / `eqv?` / `pair?` / `display` / `error` 等**现在都已可用**;`case` 仍不支持。
 > 本文件**不再重复**这些解释器事实,只讲 SSNoir 自己的脚本层。
