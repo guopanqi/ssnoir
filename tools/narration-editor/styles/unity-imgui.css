@@ -201,10 +201,45 @@ main {
 }
 
 audio {
-  width: 100%;
-  height: 28px;
-  margin-top: 4px;
-  filter: grayscale(1) brightness(0.92);
+  display: none;
+}
+
+.player-progress {
+  position: relative;
+  height: 14px;
+  margin-top: 6px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: #242424;
+  cursor: pointer;
+  user-select: none;
+}
+
+.player-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: var(--accent);
+}
+
+.player-progress-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 10px;
+  height: 18px;
+  border: 1px solid #1f1f1f;
+  border-radius: 2px;
+  background: #d4d4d4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  transform: translate(-50%, -50%);
+}
+
+.player-progress:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .transport {
@@ -228,6 +263,21 @@ audio {
 
 .transport .time .now {
   color: var(--text);
+  font-weight: 700;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.volume-control input {
+  width: 86px;
+  accent-color: var(--accent);
 }
 
 .timeline-card {
@@ -297,6 +347,20 @@ audio {
 .cue-marker.active::before,
 .cue-marker.active::after {
   background: #6fa8e0;
+}
+
+.cue-marker.active::before {
+  width: 3px;
+  box-shadow: 0 0 0 2px rgba(111, 168, 224, 0.28);
+}
+
+.cue-marker.active::after {
+  width: 12px;
+  height: 12px;
+  left: 2px;
+  top: -3px;
+  border-color: #101010;
+  box-shadow: 0 0 0 2px rgba(111, 168, 224, 0.35);
 }
 
 .cue-panel-head {

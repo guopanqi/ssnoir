@@ -50,10 +50,8 @@
 ### 2026-06-21 — 空 `(let)` / `(let*)` 作用域（回归修复）
 
 **文件**:`src/schemy/init.ss`(`let` 两处 + `let*`)。
-**性质**:**我们 fork 自己引入的回归**——上游空 `let` 本就展开成 `((lambda () …))`(正确),
-我们在 fork 重写 `init.ss` 时改成了 `(begin …)`,导致不建立作用域、内部 `define` 泄漏到全局。
-**后果**:SSNoir 每个地点 `(define 地点 (let () (define helper…) …))` 的 helper 全泄漏到全局,
-同名 helper 跨地点串台(`饭店` 渲染出 `废弃仓库` 的节点,触发渲染树重名断言)。
+**性质**:**我们 fork 自己引入的回归**——上游空 `let` 本就展开成 `((lambda () …))`(正确), sonnet 在 fork 重写 `init.ss` 时改成了 `(begin …)`,导致不建立作用域、内部 `define` 泄漏到全局。
+**后果**:SSNoir 每个地点 `(define 地点 (let () (define helper…) …))` 的 helper 全泄漏到全局, 同名 helper 跨地点串台(`饭店` 渲染出 `废弃仓库` 的节点,触发渲染树重名断言)。
 **修复**:空绑定改回 `((lambda () …))`,与非空 `let` 一致建立新帧。
 
 ### fork 初版 — 相对上游的主要改动

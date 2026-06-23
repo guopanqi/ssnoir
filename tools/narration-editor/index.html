@@ -30,11 +30,19 @@
           <h2>播放器</h2>
           <span id="title" class="hint">未加载旁白</span>
         </div>
-        <audio id="audio" controls></audio>
+        <audio id="audio"></audio>
+        <div id="playerProgress" class="player-progress" role="slider" aria-label="播放进度" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0">
+          <div id="playerProgressFill" class="player-progress-fill"></div>
+          <div id="playerProgressThumb" class="player-progress-thumb"></div>
+        </div>
         <div class="transport">
           <button id="seekBackBtn" title="后退 5 秒（←）">« 5s</button>
           <button id="playPauseBtn" class="play-btn" title="播放 / 暂停（空格）">播放</button>
           <button id="seekFwdBtn" title="前进 5 秒（→）">5s »</button>
+          <label class="volume-control">
+            <span>音量</span>
+            <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="1" tabindex="-1">
+          </label>
           <span class="time"><span id="currentTime" class="now">00:00.000</span> / <span id="duration">00:00.000</span></span>
         </div>
       </div>
@@ -42,7 +50,7 @@
       <div class="card timeline-card">
         <div class="card-head">
           <h2>字幕时间轴</h2>
-          <span class="hint">点击空白处新增 cue · 拖动圆点调整时间</span>
+          <span class="hint">点击空白处新增 cue · Delete 删除选中 cue</span>
         </div>
         <div class="timeline-head">
           <span>共 <span id="cueCount">0</span> 条 cue</span>
@@ -56,7 +64,7 @@
       <div class="card">
         <div class="card-head">
           <h2>当前字幕</h2>
-          <span class="hint">播放头：<span id="currentTime2">00:00.000</span></span>
+          <span class="hint">当前时间：<span id="currentTime2">00:00.000</span></span>
         </div>
         <p id="preview" class="empty">播放音频后，这里显示当前时间对应的字幕。</p>
       </div>
@@ -65,7 +73,6 @@
         <span><b>空格</b> 播放 / 暂停</span>
         <span><b>← / →</b> 后退 / 前进 5 秒</span>
         <span><b>Shift + ← / →</b> 微调 1 秒</span>
-        <span><b>Delete</b> 删除选中 cue</span>
       </div>
     </section>
 
@@ -104,6 +111,10 @@
     const playPauseBtn = document.getElementById("playPauseBtn");
     const seekBackBtn = document.getElementById("seekBackBtn");
     const seekFwdBtn = document.getElementById("seekFwdBtn");
+    const playerProgress = document.getElementById("playerProgress");
+    const playerProgressFill = document.getElementById("playerProgressFill");
+    const playerProgressThumb = document.getElementById("playerProgressThumb");
+    const volumeSlider = document.getElementById("volumeSlider");
     const openBulkModalBtn = document.getElementById("openBulkModalBtn");
     const closeBulkModalBtn = document.getElementById("closeBulkModalBtn");
     const autoDistributeBtn = document.getElementById("autoDistributeBtn");
@@ -133,6 +144,7 @@
     let narration = { id: "", audio: "", cues: [] };
     let selectedCueIndex = -1;
     let draggingCue = null;
+    let draggingPlayback = false;
     let suppressNextTimelineClick = false;
     let dirty = false;
 
@@ -225,6 +237,12 @@
         text = cue.text;
       }
       return text;
+    }
+
+    function isTextEditingTarget(target) {
+      if (target instanceof HTMLTextAreaElement) return true;
+      if (!(target instanceof HTMLInputElement)) return false;
+      return target.type !== "range";
     }
 
     function setAudioUrl(file) {
@@ -574,7 +592,13 @@
     function renderPlayback() {
       const duration = audio.duration || 0;
       const current = audio.currentTime || 0;
+      const progress = duration > 0 ? Math.max(0, Math.min(1, current / duration)) : 0;
       playhead.style.left = duration > 0 ? `${(current / duration) * 100}%` : "0%";
+      playerProgressFill.style.width = `${progress * 100}%`;
+      playerProgressThumb.style.left = `${progress * 100}%`;
+      playerProgress.setAttribute("aria-valuemax", duration.toFixed(3));
+      playerProgress.setAttribute("aria-valuenow", current.toFixed(3));
+      playerProgress.setAttribute("aria-valuetext", `${formatTime(current)} / ${formatTime(duration)}`);
       durationEl.textContent = formatTime(duration);
       currentTimeEl.textContent = formatTime(current);
       currentTime2El.textContent = formatTime(current);
@@ -596,6 +620,19 @@
       renderPlayback();
     }
 
+    function timeFromProgressEvent(event) {
+      const rect = playerProgress.getBoundingClientRect();
+      const x = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
+      const ratio = rect.width > 0 ? x / rect.width : 0;
+      return clampTime(ratio * (audio.duration || 0));
+    }
+
+    function setPlaybackTimeFromProgress(event) {
+      if (!Number.isFinite(audio.duration)) return;
+      audio.currentTime = timeFromProgressEvent(event);
+      renderPlayback();
+    }
+
     function timeFromTimelineEvent(event) {
       const rect = timeline.getBoundingClientRect();
       const x = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
@@ -613,6 +650,12 @@
       render();
     }
 
+    function updateDraggingPlayback(event) {
+      if (!draggingPlayback) return;
+      event.preventDefault();
+      setPlaybackTimeFromProgress(event);
+    }
+
     function finishDraggingCue() {
       if (!draggingCue) return;
       draggingCue = null;
@@ -622,6 +665,10 @@
       }, 0);
     }
 
+    function finishDraggingPlayback() {
+      draggingPlayback = false;
+    }
+
     authorizeDirBtn.addEventListener("click", () => authorizeStoredDirectory().catch(err => setStatus(err.message)));
     openDirBtn.addEventListener("click", () => openDirectory().catch(err => setStatus(err.message)));
     saveBtn.addEventListener("click", () => saveJson().catch(err => setStatus(err.message)));
@@ -629,6 +676,28 @@
     playPauseBtn.addEventListener("click", togglePlay);
     seekBackBtn.addEventListener("click", () => seekBy(-5));
     seekFwdBtn.addEventListener("click", () => seekBy(5));
+    playerProgress.addEventListener("pointerdown", event => {
+      event.preventDefault();
+      draggingPlayback = true;
+      setPlaybackTimeFromProgress(event);
+    });
+    playerProgress.addEventListener("keydown", event => {
+      switch (event.code) {
+        case "ArrowLeft":
+          event.preventDefault();
+          seekBy(event.shiftKey ? -1 : -5);
+          break;
+        case "ArrowRight":
+          event.preventDefault();
+          seekBy(event.shiftKey ? 1 : 5);
+          break;
+      }
+    });
+    volumeSlider.addEventListener("input", () => {
+      audio.volume = Number(volumeSlider.value);
+    });
+    volumeSlider.addEventListener("pointerup", () => volumeSlider.blur());
+    volumeSlider.addEventListener("pointercancel", () => volumeSlider.blur());
     openBulkModalBtn.addEventListener("click", openBulkModal);
     closeBulkModalBtn.addEventListener("click", closeBulkModal);
     autoDistributeBtn.addEventListener("click", autoDistributeFromText);
@@ -676,8 +745,11 @@
     });
 
     window.addEventListener("pointermove", updateDraggingCue);
+    window.addEventListener("pointermove", updateDraggingPlayback);
     window.addEventListener("pointerup", finishDraggingCue);
+    window.addEventListener("pointerup", finishDraggingPlayback);
     window.addEventListener("pointercancel", finishDraggingCue);
+    window.addEventListener("pointercancel", finishDraggingPlayback);
 
     audio.addEventListener("loadedmetadata", render);
     audio.addEventListener("timeupdate", renderPlayback);
@@ -690,7 +762,7 @@
     audio.addEventListener("focusin", () => audio.blur());
 
     window.addEventListener("keydown", event => {
-      if (event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement) return;
+      if (isTextEditingTarget(event.target)) return;
       // 捕获阶段拦截并彻底吃掉按键，避免原生媒体控件重复处理。
       switch (event.code) {
         case "Space":
