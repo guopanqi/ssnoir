@@ -662,16 +662,6 @@ namespace SSNoir.Core
                 });
             }
 
-            if (!string.IsNullOrEmpty(report.AnimationTag))
-            {
-                hints.Add(new PresentationHint
-                {
-                    Kind = PresentationHintKind.PlayAnimation,
-                    Tag = report.AnimationTag,
-                    DurationSeconds = 0.5f,
-                });
-            }
-
             report.PresentationHints = hints;
         }
 

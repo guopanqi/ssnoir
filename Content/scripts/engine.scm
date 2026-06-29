@@ -21,18 +21,15 @@
 
 ;; node constructor
 ;; Returns a list: ('node name :subtitle subtitle :clocks clocks :children children :requires requires :resolve resolve :tags tags)
-(define node
-  (lambda args
-    (let ((name (car args))
-          (kwargs (cdr args)))
-      (list 'node
-            name
-            :subtitle (get-kwarg kwargs ':subtitle "")
-            :clocks (get-kwarg kwargs ':clocks '())
-            :children (get-kwarg kwargs ':children '())
-            :requires (get-kwarg kwargs ':requires #f)
-            :resolve (get-kwarg kwargs ':resolve #f)
-            :tags (get-kwarg kwargs ':tags '())))))
+(define (node name . kwargs)
+  (list 'node
+        name
+        :subtitle (get-kwarg kwargs ':subtitle "")
+        :clocks (get-kwarg kwargs ':clocks '())
+        :children (get-kwarg kwargs ':children '())
+        :requires (get-kwarg kwargs ':requires #f)
+        :resolve (get-kwarg kwargs ':resolve #f)
+        :tags (get-kwarg kwargs ':tags '())))
 
 ;; Action constructors
 (define (instant effect)
@@ -45,16 +42,11 @@
 ;; (outcome title subtitle effect 'light)
 ;; (outcome title subtitle effect 'heavy)
 ;;
-;; Schemy does not support dotted rest args, so this uses (lambda args)
-;; and reads the optional presentation argument manually.
-(define outcome
-  (lambda args
-    (let ((title (car args))
-          (subtitle (cadr args))
-          (effect (caddr args))
-          (rest (cdr (cdr (cdr args)))))
-      (let ((mode (if (null? rest) 'light (car rest))))
-        (list 'outcome title subtitle mode effect)))))
+(define (outcome title subtitle effect . modes)
+  (if (> (length modes) 1)
+      (error "outcome: expected at most one presentation mode")
+      (let ((mode (if (null? modes) 'light (car modes))))
+        (list 'outcome title subtitle mode effect))))
 
 ;; Modifier constructor
 (define (modifier value reason)
@@ -63,15 +55,12 @@
 ;; Roll with optional difficulty modifier callback
 ;; (roll 'skill fail neutral success)         -> 4 args, no modifiers
 ;; (roll 'skill mod-fn fail neutral success)  -> 5 args, dynamic modifiers
-(define roll
-  (lambda args
-    (let ((skill (car args))
-          (rest (cdr args)))
-      (if (= (length rest) 4)
-          (list 'roll skill (car rest) (cadr rest) (caddr rest) (cadddr rest))
-          (if (= (length rest) 3)
-              (list 'roll skill (lambda () '()) (car rest) (cadr rest) (caddr rest))
-              (error "roll: expected 4 args (skill fail neutral success) or 5 args (skill mod-fn fail neutral success)"))))))
+(define (roll skill . branches)
+  (if (= (length branches) 4)
+      (list 'roll skill (car branches) (cadr branches) (caddr branches) (cadddr branches))
+      (if (= (length branches) 3)
+          (list 'roll skill (lambda () '()) (car branches) (cadr branches) (caddr branches))
+          (error "roll: expected 4 args (skill fail neutral success) or 5 args (skill mod-fn fail neutral success)"))))
 
 (define (observe text)
   (list 'observe text))
@@ -177,16 +166,15 @@
 
 (define (make-clock label max style)
   (let ((current 0))
-    (lambda args
-      (let ((msg (car args)))
-        (cond
-          ((equal? msg 'tick!)       (set! current (min (+ current 1) max)))
-          ((equal? msg 'reset!)      (set! current 0))
-          ((equal? msg 'full?)       (>= current max))
-          ((equal? msg 'current)     current)
-          ((equal? msg 'set!)        (set! current (cadr args)))
-          ((equal? msg 'render-data) (list 'clock label current max style))
-          (else #f))))))
+    (lambda (msg . args)
+      (cond
+        ((equal? msg 'tick!)       (set! current (min (+ current 1) max)))
+        ((equal? msg 'reset!)      (set! current 0))
+        ((equal? msg 'full?)       (>= current max))
+        ((equal? msg 'current)     current)
+        ((equal? msg 'set!)        (set! current (car args)))
+        ((equal? msg 'render-data) (list 'clock label current max style))
+        (else #f)))))
 
 ;; Reputation API
 (define (get-reputation faction)
@@ -268,6 +256,26 @@
 
 (define (play-narration! id)
   (__play-narration! id))
+
+;; 一条台词:(line 说话人 文本) / (line 说话人 文本 语音) / (line 说话人 文本 语音 停留秒)
+;; 停留秒仅 banter 使用;<=0 表示按文本长度自动估算。
+(define (line speaker text . rest)
+  (let* ((voice (if (null? rest) "" (car rest)))
+         (more  (if (null? rest) '() (cdr rest)))
+         (dwell (if (null? more) 0 (car more))))
+    (list speaker text voice dwell)))
+
+;; 非阻塞插话/斗嘴:游戏照常进行,气泡在角色处自动计时消失。变参,每个都是 (line ...)。
+(define (play-banter! . lines)
+  (__play-banter! lines))
+
+;; 阻塞对话:点击推进、锁输入、冻结导航,演完才把控制权还给玩家。变参,每个都是 (line ...)。
+(define (play-dialogue! . lines)
+  (__play-dialogue! lines))
+
+;; 命名动画(占位):目前只能在动作内调用,作为有序阻塞剧情步骤播放。
+(define (play-animation! tag)
+  (__play-animation! tag))
 
 (define (advance-chapter!)
   (let ((current (get-global 'chapter)))

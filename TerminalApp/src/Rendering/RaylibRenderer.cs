@@ -79,7 +79,10 @@ namespace SSNoir.Rendering
             _state.ActiveActionSpotlight = null;
 
             if (report != null)
+            {
                 ReleaseNarrations(report.NarrationIds);
+                ReleaseBanter(report.Banter);
+            }
 
             var callback = _presentationDoneCallback;
             _presentationDoneCallback = null;
@@ -90,6 +93,14 @@ namespace SSNoir.Rendering
         {
             foreach (var id in ids)
                 _gameState.NarrationCenter.Play(id);
+        }
+
+        // Terminal(兜底):banter 以非阻塞通知形式呈现。
+        private void ReleaseBanter(System.Collections.Generic.List<DialogueSequence> sequences)
+        {
+            foreach (var seq in sequences)
+                foreach (var line in seq.Lines)
+                    _gameState.NotificationCenter.Push($"{line.Speaker}:{line.Text}", NotificationKind.Info);
         }
 
         private void ShowNarration(string id)
@@ -127,8 +138,23 @@ namespace SSNoir.Rendering
             _state.PendingReport = report;
             _presentationDoneCallback = onDone;
             _state.PendingActionSpotlights.Clear();
-            foreach (var s in report.Spotlights)
-                _state.PendingActionSpotlights.Enqueue(s);
+            foreach (var step in report.BlockingStorySteps)
+            {
+                switch (step.Kind)
+                {
+                    case BlockingStoryStepKind.Spotlight when step.Spotlight != null:
+                        _state.PendingActionSpotlights.Enqueue(step.Spotlight);
+                        break;
+                    case BlockingStoryStepKind.Dialogue when step.Dialogue != null:
+                        // Terminal(兜底):阻塞对话逐句复用聚光弹窗呈现
+                        foreach (var ln in step.Dialogue.Lines)
+                            _state.PendingActionSpotlights.Enqueue(new SpotlightCard { Title = ln.Speaker, Subtitle = ln.Text });
+                        break;
+                    case BlockingStoryStepKind.Animation:
+                        _state.PendingActionSpotlights.Enqueue(new SpotlightCard { Title = "[动画]", Subtitle = step.AnimationTag });
+                        break;
+                }
+            }
             if (FastPresentationMode)
             {
                 ShowHeavyOutcomeOrFinish();
@@ -280,7 +306,7 @@ namespace SSNoir.Rendering
             }
 
             var hint = hints[_state.PresentationStepIndex];
-            if (hint.Kind != PresentationHintKind.ExecuteProgress && hint.Kind != PresentationHintKind.PlayAnimation)
+            if (hint.Kind != PresentationHintKind.ExecuteProgress)
             {
                 return (false, 0f, string.Empty);
             }

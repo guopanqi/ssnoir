@@ -54,6 +54,17 @@
     (helen-subtitle)
     (wake-pressure 'render-data)))
 
+;; 临时对话测试：先播放阻塞对话，adopt 后再释放非阻塞 banter。
+(define (node-test-dialogue)
+  (instant-action "测试对话"
+    (lambda ()
+      (play-dialogue!
+        (line "主角" "海伦，醒醒。")
+        (line "海伦" "别碰我……让我再睡一会儿。"))
+      (play-banter!
+        (line "主角" "她睡得比我想的还沉。")
+        (line "海伦" "我听见了。")))))
+
 (define (node-search-room-a)
   (action "搜查卧室"
     (list (req-die))
@@ -207,6 +218,7 @@
     (append
       (list
         (node-helen)
+        (node-test-dialogue)
         (container-with-clocks "卧室" (room-a-children) (room-a-clocks))
         (container-with-clocks "客厅" (room-b-children) (room-b-clocks))
         (container-with-clocks "杂物间" (room-c-children) (room-c-clocks)))

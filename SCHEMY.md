@@ -51,6 +51,7 @@
 - 队伍 / 库存 / 成长:`party-health`、`damage-party!`、`item-count`、`add-item!`、
   `growth-level`、`set-growth-level!`、`actor-stress` 等(见 engine.scm)
 - 表现:`(notify! text)`、`(spotlight! title subtitle)`、`(play-narration! id)`
+- 对话:`(play-banter! (line ...) ...)`、`(play-dialogue! (line ...) ...)`、`(play-animation! tag)`(见 3.6)
 
 **encounter 切换** `(start-encounter name callback)` / `(end-encounter result)`
 
@@ -121,3 +122,38 @@ Schemy 在深嵌套 `(append (if …) (if … (append …) '()))` 中,某些分�
 | 任务阶段 / 跨场景进度 | 地点本地 `define` + save/load(不泄露到 global) |
 | 地点内部 UI 状态(门是否开、NPC 是否说过话) | 同上 |
 | 真正全局共享(声誉、跨地点资源) | `set-global!` / `get-global` |
+
+### 3.6 角色对话:banter(非阻塞)与 dialogue(阻塞)
+
+两者共用 `(line 说话人 文本 [语音] [停留秒])` 构造台词,区别只在**阻不阻塞**(名字编码语气,不编码阻塞性,记住下表):
+
+| API | 阻塞 | 推进 | 用途 |
+|---|---|---|---|
+| `(play-banter! (line ...) ...)` | 否 | 自动计时 | 失败后斗嘴、行动后插话;游戏照常,气泡在角色处自动消失 |
+| `(play-dialogue! (line ...) ...)` | 是 | 点击 | 主角↔NPC 正经对话;锁输入、冻结导航,点屏幕推进,演完还控制权 |
+| `(play-animation! tag)` | 是 | 占位 | 命名动画占位(v1 仅显示 tag);**只能在动作内调用** |
+
+```scheme
+(play-banter!
+  (line "夜莺" "你管这叫计划?")
+  (line "主角" "至少我有计划。"))
+
+(play-dialogue!
+  (line "主角" "海伦,我们得谈谈。")
+  (line "海伦" "我没什么好说的。"))
+```
+
+`说话人` 解析顺序固定:**队员 Id → 队员 Name → 当前场景节点 Name → 解析不到直接报错**(不静默兜底)。
+
+**调用时机与延迟规则**(与 `spotlight!` / `play-narration!` 一致):
+
+- **动作内**:`play-dialogue!` / `spotlight!` / `play-animation!` 按调用顺序排入有序阻塞步骤,在动作结算后、采用新快照**之前**逐个播放;`play-banter!` 延迟到采用新快照**之后**释放(避免提前剧透)。
+- **动作外**(进场脚本、规则):`play-banter!` / `play-dialogue!` 立即触发;`play-animation!` 目前不支持动作外调用(没有即时动画通道)。
+
+**锚定约束(由"何时播放"决定,务必遵守):**
+
+- 动作内 `play-dialogue!` 锚定**动作前**的旧视觉状态。删掉海伦节点后再让海伦说话 ✓;新建"陌生人"节点后立刻让其说话 ✗(尚未采用,无锚点 → 报错)。
+- 动作内 `play-banter!` 锚定**动作后**的新视觉状态。新建角色插一句 ✓;给刚删掉的角色 banter ✗。
+- 需要让"刚出现的角色"做一段阻塞对话时:先用一次节点/场景推进让其出现,再单独 `play-dialogue!`;或改锚定到已在场的角色。
+
+**分支选择不进对话播放器**:对话播放器永远线性。需要玩家选择时用节点表达,各分支的 `instant-action` 里再调 `play-dialogue!` / `set!`。

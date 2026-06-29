@@ -19,9 +19,12 @@ namespace SSNoir.IMGUI
         private const float DotSize     = 7f;
         private const float DotGap      = 10f;
 
+        private static readonly Color DisabledResourceBg = new Color(0.043f, 0.055f, 0.078f, 0.55f);
+        private static readonly Color DisabledResourceText = new Color(0.549f, 0.565f, 0.620f, 0.38f);
+
         // ── Entry point ──────────────────────────────────────────────────
 
-        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors = null)
         {
             float handY   = UIScale.VH - PanelHeight - StatusBarHeight - BottomOffset;
             float statusY = UIScale.VH - StatusBarHeight - BottomOffset;
@@ -33,7 +36,7 @@ namespace SSNoir.IMGUI
                 new Rect(-1, handY, UIScale.VW + 2, PanelHeight + 2),
                 1f, IMGUIStyles.OutlineVariantColor);
 
-            float itemsStartX = DrawActorBlocks(handY, gameManager, ui);
+            float itemsStartX = DrawActorBlocks(handY, gameManager, ui, anchors);
             DrawItems(handY, itemsStartX, gameManager, ui);
             DrawEndTurnButton(handY, gameManager, ui);
             DrawStatusBar(statusY, gameManager);
@@ -41,7 +44,7 @@ namespace SSNoir.IMGUI
 
         // ── Actor blocks ─────────────────────────────────────────────────
 
-        private static float DrawActorBlocks(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        private static float DrawActorBlocks(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors)
         {
             var snapshot      = gameManager.DisplayedSnapshot;
             float blockX      = 8f;
@@ -56,6 +59,8 @@ namespace SSNoir.IMGUI
                 }
 
                 float blockW = BlockWidth(actor.ActionDice.Count);
+                var blockRect = new Rect(blockX, handY + 6, blockW, PanelHeight - 12f);
+                anchors?.RegisterActor(actor.Id, actor.Name, blockRect);
                 DrawActorBlock(actor, flatDieOffset, blockX, handY, blockW, gameManager, ui);
                 blockX += blockW + BlockGap;
                 flatDieOffset += actor.ActionDice.Count;
@@ -162,16 +167,21 @@ namespace SSNoir.IMGUI
                 }
                 else
                 {
-                    Color bg     = isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.DieHover : IMGUIStyles.DieNormal);
-                    Color border = (isSelected || hover) ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor;
+                    bool disabled = ui.IsLocked;
+                    Color bg = disabled
+                        ? DisabledResourceBg
+                        : isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.DieHover : IMGUIStyles.DieNormal);
+                    Color border = disabled
+                        ? IMGUIStyles.OutlineVariantColor
+                        : (isSelected || hover) ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor;
 
                     GUI.color = bg;
                     GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(dieRect, (isSelected || hover) ? 2f : 1f, border);
+                    IMGUIStyles.DrawOutline(dieRect, !disabled && (isSelected || hover) ? 2f : 1f, border);
 
                     var dieStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 24 };
-                    dieStyle.normal.textColor = Color.white;
+                    dieStyle.normal.textColor = disabled ? DisabledResourceText : Color.white;
                     GUI.Label(dieRect, val.ToString(), dieStyle);
 
                     if (ui.WasClicked(dieRect))
@@ -234,16 +244,21 @@ namespace SSNoir.IMGUI
                 }
                 else
                 {
-                    Color bg     = isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.ItemHover : IMGUIStyles.ItemNormal);
-                    Color border = (isSelected || hover) ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor;
+                    bool disabled = ui.IsLocked;
+                    Color bg = disabled
+                        ? DisabledResourceBg
+                        : isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.ItemHover : IMGUIStyles.ItemNormal);
+                    Color border = disabled
+                        ? IMGUIStyles.OutlineVariantColor
+                        : (isSelected || hover) ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor;
 
                     GUI.color = bg;
                     GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(itemRect, (isSelected || hover) ? 2f : 1f, border);
+                    IMGUIStyles.DrawOutline(itemRect, !disabled && (isSelected || hover) ? 2f : 1f, border);
 
                     var itemStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 15 };
-                    itemStyle.normal.textColor = Color.white;
+                    itemStyle.normal.textColor = disabled ? DisabledResourceText : Color.white;
                     GUI.Label(itemRect, FormatItem(item.Name, remaining), itemStyle);
 
                     if (ui.WasClicked(itemRect))

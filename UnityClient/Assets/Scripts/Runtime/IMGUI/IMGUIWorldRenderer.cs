@@ -13,6 +13,12 @@ namespace SSNoir.IMGUI
         private IMGUIAnimationPlayer _animator = null!;
         private PresentationPlayer _presentationPlayer = null!;
         private UnityNarrationPlayer _narrationPlayer = null!;
+        private DialogueVoicePlayer _voicePlayer = null!;
+        private BanterPlayer _banterPlayer = null!;
+        private ConversationPlayer _conversationPlayer = null!;
+        private readonly DialogueAnchors _dialogueAnchors = new DialogueAnchors();
+        private string? _activeAnimationTag;
+        private float _animationTimer;
 
         private bool _isGrowthPanelOpen = false;
         private readonly IMGUIWindowStack _windowStack = new();
@@ -25,7 +31,7 @@ namespace SSNoir.IMGUI
         private ActionReport? _activeHeavyOutcome;
         private string _activeHeavyOutcomeActionName = string.Empty;
         private Action? _activeHeavyOutcomeDone;
-        private readonly Queue<SpotlightCard> _pendingActionSpotlights = new Queue<SpotlightCard>();
+        private readonly Queue<BlockingStoryStep> _pendingBlockingSteps = new Queue<BlockingStoryStep>();
         private SpotlightCard? _activeActionSpotlight;
         private ActionReport? _completionReport;
         private string _completionActionName = string.Empty;
@@ -37,23 +43,39 @@ namespace SSNoir.IMGUI
             _animator = gameObject.AddComponent<IMGUIAnimationPlayer>();
             _presentationPlayer = new PresentationPlayer(_animator);
             _narrationPlayer = gameObject.AddComponent<UnityNarrationPlayer>();
+            _voicePlayer = gameObject.AddComponent<DialogueVoicePlayer>();
+            _banterPlayer = new BanterPlayer(_voicePlayer);
+            _conversationPlayer = new ConversationPlayer(_voicePlayer);
             _animator.OnAcknowledged = () => _presentationPlayer.OnRollAcknowledged();
             _gameManager.GameState.NarrationCenter.OnNarrationRequested += ShowNarration;
+            _gameManager.GameState.DialogueCenter.OnBanterRequested += _banterPlayer.Enqueue;
+            _gameManager.GameState.DialogueCenter.OnDialogueRequested += StartImmediateDialogue;
         }
 
         private void OnDestroy()
         {
             if (_gameManager != null)
+            {
                 _gameManager.GameState.NarrationCenter.OnNarrationRequested -= ShowNarration;
+                _gameManager.GameState.DialogueCenter.OnBanterRequested -= _banterPlayer.Enqueue;
+                _gameManager.GameState.DialogueCenter.OnDialogueRequested -= StartImmediateDialogue;
+            }
         }
 
-        public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null;
+        // 动作外即时触发的阻塞对话:暂停 banter,演完恢复(不接入动作表现流程)。
+        private void StartImmediateDialogue(SSNoir.Core.DialogueSequence sequence)
+        {
+            _banterPlayer.Suspend();
+            _conversationPlayer.Start(sequence, () => _banterPlayer.Resume());
+        }
+
+        public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null || _conversationPlayer.IsActive || _activeAnimationTag != null;
 
         public void PlayPresentation(ActionReport report, string actionName, Action onDone)
         {
-            _pendingActionSpotlights.Clear();
-            foreach (var s in report.Spotlights)
-                _pendingActionSpotlights.Enqueue(s);
+            _pendingBlockingSteps.Clear();
+            foreach (var step in report.BlockingStorySteps)
+                _pendingBlockingSteps.Enqueue(step);
             _completionReport = report;
             _completionActionName = actionName;
             _completionDone = onDone;
@@ -72,12 +94,30 @@ namespace SSNoir.IMGUI
             });
         }
 
+        // 按 Scheme 调用顺序逐个播放阻塞剧情步骤;每个步骤完成后回调本方法推进下一个。
         private void AdvanceToBlockingPresentationOrFinish()
         {
-            if (_pendingActionSpotlights.Count > 0)
+            if (_pendingBlockingSteps.Count > 0)
             {
-                _activeActionSpotlight = _pendingActionSpotlights.Dequeue();
-                return;
+                var step = _pendingBlockingSteps.Dequeue();
+                switch (step.Kind)
+                {
+                    case BlockingStoryStepKind.Spotlight:
+                        _activeActionSpotlight = step.Spotlight;
+                        return;
+                    case BlockingStoryStepKind.Dialogue:
+                        _banterPlayer.Suspend();   // 对话聚焦,杂音让位
+                        _conversationPlayer.Start(step.Dialogue!, () =>
+                        {
+                            _banterPlayer.Resume();
+                            AdvanceToBlockingPresentationOrFinish();
+                        });
+                        return;
+                    case BlockingStoryStepKind.Animation:
+                        _activeAnimationTag = step.AnimationTag;
+                        _animationTimer = AnimationPlaceholderSeconds;
+                        return;
+                }
             }
 
             var report = _completionReport;
@@ -89,10 +129,17 @@ namespace SSNoir.IMGUI
 
             if (report != null)
                 AddLightResidueIfNeeded(report, actionName);
-            done?.Invoke();
+            done?.Invoke();   // adopt 最新快照
             if (report != null)
+            {
                 ReleaseNarrations(report.NarrationIds);
+                // banter 在 adopt 之后释放,锚定动作后的新快照(避免提前剧透)
+                foreach (var sequence in report.Banter)
+                    _banterPlayer.Enqueue(sequence);
+            }
         }
+
+        private const float AnimationPlaceholderSeconds = 0.8f;
 
         private void ReleaseNarrations(System.Collections.Generic.List<string> ids)
         {
@@ -121,9 +168,9 @@ namespace SSNoir.IMGUI
             _gameManager.GameState.NotificationCenter.Push(message, NotificationKind.Info);
         }
 
-        public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null;
+        public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null || _conversationPlayer.IsActive || _activeAnimationTag != null;
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
-        public bool IsInputLocked => _inputLocked || _activeHeavyOutcome != null || _activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight;
+        public bool IsInputLocked => _inputLocked || _activeHeavyOutcome != null || _activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _activeAnimationTag != null;
 
         private bool _inputLocked = false;
         public void SetInputLocked(bool locked)
@@ -143,8 +190,12 @@ namespace SSNoir.IMGUI
             _activeHeavyOutcome = null;
             _activeHeavyOutcomeActionName = string.Empty;
             _activeHeavyOutcomeDone = null;
-            _pendingActionSpotlights.Clear();
+            _pendingBlockingSteps.Clear();
             _activeActionSpotlight = null;
+            _activeAnimationTag = null;
+            _animationTimer = 0f;
+            _banterPlayer.Reset();
+            _conversationPlayer.Reset();
             _completionReport = null;
             _completionActionName = string.Empty;
             _completionDone = null;
@@ -160,6 +211,18 @@ namespace SSNoir.IMGUI
         {
             _gameManager.GameState.NotificationCenter.Update(Time.deltaTime);
             _presentationPlayer.Update(Time.deltaTime);
+            _banterPlayer.Update(Time.deltaTime);
+
+            // 命名动画占位:到点后推进下一个阻塞剧情步骤
+            if (_activeAnimationTag != null)
+            {
+                _animationTimer -= Time.deltaTime;
+                if (_animationTimer <= 0f)
+                {
+                    _activeAnimationTag = null;
+                    AdvanceToBlockingPresentationOrFinish();
+                }
+            }
 
             _animator.Update();
 
@@ -244,7 +307,21 @@ namespace SSNoir.IMGUI
                 });
             }
 
+            // 阻塞对话:全屏 blocker 锁住下层(表现上不画遮罩),点击由顶层 overlay 消费来推进。
+            if (_conversationPlayer.IsActive)
+            {
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.Conversation,
+                    Bounds = new Rect(0, 0, UIScale.VW, UIScale.VH),
+                    Layer = IMGUIWindowLayer.Modal,
+                    BlockMode = IMGUIBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
+
             _windowStack.Update();
+            _dialogueAnchors.Clear();
 
             bool baseLocked = IsInputLocked || IsAnimationPlaying;
             var worldUi = _windowStack.MakeContext(IMGUIWindowLayer.World, baseLocked);
@@ -262,9 +339,11 @@ namespace SSNoir.IMGUI
 
             // ── Node Cards (3D projected) ──
             DrawCards(worldUi);
+            foreach (var kv in _cardCenters)
+                _dialogueAnchors.RegisterNode(kv.Key, new Rect(kv.Value.x - 60f, kv.Value.y - 80f, 120f, 160f));
 
             // ── Bottom Panel ──
-            HandPanelDrawer.Draw(_gameManager, worldUi);
+            HandPanelDrawer.Draw(_gameManager, worldUi, _dialogueAnchors);
 
             // ── Growth / Team Toggle Button ──
             DrawGrowthToggleButton(worldUi);
@@ -279,8 +358,11 @@ namespace SSNoir.IMGUI
             OverlayDrawer.DrawNotifications(_gameManager.GameState.NotificationCenter);
             OverlayDrawer.DrawCursorFollower(_gameManager);
             DrawPresentationOverlay();
+            DrawBanterOverlay();
             DrawHeavyOutcomeOverlay();
             DrawSpotlightOverlay();
+            DrawConversationOverlay();
+            DrawAnimationOverlay();
             DrawNarrationOverlay();
 
             // ── Growth Panel ──
@@ -497,6 +579,11 @@ namespace SSNoir.IMGUI
                 }
 
                 var node = visibleNodes[i];
+                _dialogueAnchors.RegisterNode(node.Name, new Rect(
+                    cardRect.x + viewport.x,
+                    cardRect.y + viewport.y,
+                    cardRect.width,
+                    cardRect.height));
 
                 bool isHovered = localUi.CanHover(cardRect);
                 bool isFlipped = _gameManager.IsNodeFlipped(node.Name);
@@ -869,6 +956,47 @@ namespace SSNoir.IMGUI
             {
                 UsePointerEventForModal();
             }
+        }
+
+        // 非阻塞:把当前可见的 banter 气泡画在各说话人锚点上方(不消费点击,游戏照常)。
+        private void DrawBanterOverlay()
+        {
+            if (_banterPlayer.Visible.Count == 0)
+                return;
+            DialogueBubbleDrawer.DrawBanter(_banterPlayer, _dialogueAnchors);
+        }
+
+        // 阻塞:画当前对话行;全屏接收点击以推进(表现上无遮罩)。
+        private void DrawConversationOverlay()
+        {
+            var line = _conversationPlayer.CurrentLine;
+            if (line == null)
+                return;
+
+            DialogueBubbleDrawer.DrawConversationLine(line.Speaker, line.Text, _dialogueAnchors);
+
+            if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
+            {
+                _conversationPlayer.Advance();
+                Event.current.Use();
+            }
+            else
+            {
+                UsePointerEventForModal();
+            }
+        }
+
+        // 命名动画 v1 占位:居中显示 [动画] tag。将来替换为真正的命名动画 / Timeline 播放。
+        private void DrawAnimationOverlay()
+        {
+            if (_activeAnimationTag == null)
+                return;
+            var style = new GUIStyle(IMGUIStyles.ModalTitle)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 22,
+            };
+            GUI.Label(new Rect(0f, UIScale.VH * 0.4f, UIScale.VW, 48f), $"[动画] {_activeAnimationTag}", style);
         }
 
         private static void UsePointerEventForModal()

@@ -6,7 +6,7 @@ from collections import defaultdict
 from mathutils import Vector
 
 ANGLE_THRESHOLD_DEGREES = 50
-LINE_RADIUS = 0.002
+LINE_RADIUS = 0.005
 MIN_EDGE_LENGTH = 0.02
 OUTLINE_NORMAL_OFFSET = 0.003
 

@@ -14,6 +14,7 @@ namespace SSNoir.Core
         public NotificationCenter NotificationCenter { get; } = new NotificationCenter();
         public SpotlightCenter SpotlightCenter { get; } = new SpotlightCenter();
         public NarrationCenter NarrationCenter { get; } = new NarrationCenter();
+        public DialogueCenter DialogueCenter { get; } = new DialogueCenter();
         public ActionExecutionContext? CurrentContext { get; set; } = null;
         public ActionReport? CurrentActionReport { get; set; } = null;
 

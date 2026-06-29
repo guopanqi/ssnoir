@@ -24,6 +24,7 @@ namespace SSNoir.IMGUI
         GrowthPanel,
         HeavyOutcome,
         Spotlight,
+        Conversation,
     }
 
     public struct IMGUIWindowBlocker

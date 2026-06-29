@@ -161,11 +161,45 @@ namespace SSNoir.Scripting
                 if (!(args[0] is string title)) throw new ArgumentException("__spotlight! title must be a string");
                 if (!(args[1] is string subtitle)) throw new ArgumentException("__spotlight! subtitle must be a string");
                 if (gameState.CurrentActionReport != null)
-                    gameState.CurrentActionReport.Spotlights.Add(new SpotlightCard { Title = title, Subtitle = subtitle });
+                    gameState.CurrentActionReport.BlockingStorySteps.Add(
+                        BlockingStoryStep.ForSpotlight(new SpotlightCard { Title = title, Subtitle = subtitle }));
                 else
                     gameState.SpotlightCenter.Show(title, subtitle);
                 return new None();
             }, "__spotlight!"));
+
+            // 阻塞对话:动作内排入有序剧情步骤(adopt 前播放),动作外即时广播。
+            interpreter.DefineGlobal(Symbol.FromString("__play-dialogue!"), new NativeProcedure(args =>
+            {
+                var sequence = ParseDialogueSequence(args, "__play-dialogue!");
+                if (gameState.CurrentActionReport != null)
+                    gameState.CurrentActionReport.BlockingStorySteps.Add(BlockingStoryStep.ForDialogue(sequence));
+                else
+                    gameState.DialogueCenter.RequestDialogue(sequence);
+                return new None();
+            }, "__play-dialogue!"));
+
+            // 非阻塞插话:动作内延迟到 adopt 之后释放,动作外即时广播。
+            interpreter.DefineGlobal(Symbol.FromString("__play-banter!"), new NativeProcedure(args =>
+            {
+                var sequence = ParseDialogueSequence(args, "__play-banter!");
+                if (gameState.CurrentActionReport != null)
+                    gameState.CurrentActionReport.Banter.Add(sequence);
+                else
+                    gameState.DialogueCenter.RequestBanter(sequence);
+                return new None();
+            }, "__play-banter!"));
+
+            // 命名动画:v1 仅携带 tag,作为有序阻塞剧情步骤(前端占位播放)。目前只支持动作内调用。
+            interpreter.DefineGlobal(Symbol.FromString("__play-animation!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1 || !(args[0] is string tag) || string.IsNullOrWhiteSpace(tag))
+                    throw new ArgumentException("__play-animation! requires 1 argument: a non-empty tag string");
+                if (gameState.CurrentActionReport == null)
+                    throw new InvalidOperationException("__play-animation! 目前只能在动作内调用(没有动作外的即时动画通道)");
+                gameState.CurrentActionReport.BlockingStorySteps.Add(BlockingStoryStep.ForAnimation(tag));
+                return new None();
+            }, "__play-animation!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__upgrade-actor-stat!"), new NativeProcedure(args =>
             {
@@ -278,6 +312,35 @@ namespace SSNoir.Scripting
 
                 throw new ArgumentException("random-choice argument must be a list");
             }, "random-choice"));
+        }
+
+        // 把 Scheme 端 (list (line speaker text [voice] [dwell]) ...) 解析成 DialogueSequence。
+        // 内容/配置错误一律直接抛出,尽早暴露。
+        private static DialogueSequence ParseDialogueSequence(IList<object> args, string who)
+        {
+            if (args.Count < 1 || !(args[0] is List<object> rawLines))
+                throw new ArgumentException($"{who} requires a list of lines: (line speaker text ...)");
+            if (rawLines.Count == 0)
+                throw new ArgumentException($"{who} requires at least one line");
+
+            var lines = new List<DialogueLine>(rawLines.Count);
+            foreach (var entry in rawLines)
+            {
+                if (!(entry is List<object> parts) || parts.Count < 2)
+                    throw new ArgumentException($"{who}: each line must be (line speaker text [voice] [dwell])");
+                if (!(parts[0] is string speaker) || string.IsNullOrWhiteSpace(speaker))
+                    throw new ArgumentException($"{who}: line speaker must be a non-empty string");
+                if (!(parts[1] is string text))
+                    throw new ArgumentException($"{who}: line text must be a string");
+
+                string? voice = parts.Count > 2 && parts[2] is string v && v.Length > 0 ? v : null;
+                float dwell = parts.Count > 3 ? Convert.ToSingle(parts[3]) : 0f;
+                if (dwell < 0f)
+                    throw new ArgumentException($"{who}: dwell seconds cannot be negative");
+
+                lines.Add(new DialogueLine { Speaker = speaker, Text = text, VoiceId = voice, DwellSeconds = dwell });
+            }
+            return new DialogueSequence(lines);
         }
     }
 }

@@ -6,7 +6,6 @@ namespace SSNoir.Core
     {
         ExecuteProgress,
         RollDice,
-        PlayAnimation,
         ShowNotification
     }
 
