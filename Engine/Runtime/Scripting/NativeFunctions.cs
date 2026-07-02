@@ -41,18 +41,18 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__set-party-health!"));
 
-            interpreter.DefineGlobal(Symbol.FromString("__party-supplies"), new NativeProcedure(args =>
+            interpreter.DefineGlobal(Symbol.FromString("__party-satiety"), new NativeProcedure(args =>
             {
-                return gameState.Team.Supplies;
-            }, "__party-supplies"));
+                return gameState.Team.Satiety;
+            }, "__party-satiety"));
 
-            interpreter.DefineGlobal(Symbol.FromString("__set-party-supplies!"), new NativeProcedure(args =>
+            interpreter.DefineGlobal(Symbol.FromString("__set-party-satiety!"), new NativeProcedure(args =>
             {
-                if (args.Count < 1) throw new ArgumentException("__set-party-supplies! requires 1 argument");
+                if (args.Count < 1) throw new ArgumentException("__set-party-satiety! requires 1 argument");
                 int n = SchemeValue.ToInt(args[0]);
-                gameState.Team.Supplies = Math.Clamp(n, 0, gameState.Team.MaxSupplies);
+                gameState.Team.Satiety = Math.Clamp(n, 0, gameState.Team.MaxSatiety);
                 return new None();
-            }, "__set-party-supplies!"));
+            }, "__set-party-satiety!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__growth-level"), new NativeProcedure(args =>
             {

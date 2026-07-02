@@ -330,7 +330,7 @@ namespace SSNoir.IMGUI
             };
             GUI.Label(new Rect(84, statusY + 3, 80, 22), $"{snapshot.Health}/{snapshot.MaxHealth}", healthStyle);
 
-            GUI.Label(new Rect(158, statusY + 3, 58, 22), "物资:", statusStyle);
+            GUI.Label(new Rect(158, statusY + 3, 58, 22), "饱腹:", statusStyle);
 
             float suppliesPct = snapshot.MaxSupplies > 0 ? (float)snapshot.Supplies / snapshot.MaxSupplies : 0f;
             var suppliesStyle = new GUIStyle(statusStyle)

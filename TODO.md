@@ -19,3 +19,6 @@ Schemy 已 fork(`schemy-master/`)。能力总览、改动记录与开发约定�
 
 - Notification currently follows real runtime state immediately. Some action-result notifications can appear before the action presentation finishes, while the visible UI is still showing the previous displayed snapshot. Later, consider routing notifications through the same presentation/adopt timing model, or buffering action-scoped notifications until presentation completion.
 - **Terminal/fallback grid 的 light outcome 残留位置问题**：动作执行后真实 render tree 会立刻刷新；如果执行节点消失，当前实现可能把结果残留作为 orphan card 排到 grid 末尾，视觉上会像“卡片跑了”。更完整的方案需要让残留保留旧布局信息、或改成最近结果条，但这会增加表现层复杂度。由于最终 Unity 场景里的节点应主要投射到 3D 空间 anchor 上，grid 只是测试/临时兜底，此问题暂不修复，后续根据实际使用频率再决定是否处理。
+
+## UI 过于单调
+我们的unity-IMGUI，一个是在黑白色的场景中表现不清晰，有时候找不到它，第二个是它仍然有些过于简单，缺乏细节，还有一个潜在的问题是，比如说人物或者是其他某些特殊节点，他们的表现形式可能也有优化空间。我们需要在将来让AI来重新做一版设计，改善UI。

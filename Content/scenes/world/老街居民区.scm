@@ -36,6 +36,7 @@
       (instant-action "整理海伦的线索"
         (lambda ()
           (set! helen-stage 5)
+          (add-pending-report!)
           (advance-chapter!)
           (notify! "海伦的线索暂时够了。你把便条收好，准备追下一条线。"))))
 

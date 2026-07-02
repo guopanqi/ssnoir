@@ -1,0 +1,21 @@
+/*
+ * Hide view actions — removes the row of action icons in pane headers
+ * that mostly go unused.
+ *
+ * Primary target: the File Explorer header buttons (new note, new folder,
+ * change sort order, collapse all). Also hides the note's own top-right
+ * action icons for good measure. Note this includes the "⋮ more options"
+ * menu — reach those commands via the Command Palette (Cmd/Ctrl+P) instead.
+ *
+ * Enable in Settings → Appearance → CSS snippets.
+ */
+
+/* File Explorer header: new note / new folder / sort / collapse-all */
+.workspace-leaf-content[data-type="file-explorer"] .nav-buttons-container {
+    display: none !important;
+}
+
+/* A note's own top-right action icons (edit/preview toggle, more-options…) */
+.view-actions {
+    display: none !important;
+}

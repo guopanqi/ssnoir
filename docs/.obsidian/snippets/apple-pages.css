@@ -1,0 +1,177 @@
+/*
+ * Apple Pages — authentic paper look for Obsidian.
+ *
+ * Goes further than a plain white box: real Pages canvas gray, a true
+ * sheet of US-Letter-proportioned paper with 1-inch margins, the soft
+ * Pages drop shadow, and Helvetica Neue typography to match.
+ *
+ * Enable in Settings → Appearance → CSS snippets.
+ */
+
+body {
+    /* The desk / canvas the page floats on (Pages light mode) */
+    --pg-canvas: #b8bcc2;
+    --pg-canvas-top: #b0b4ba;
+
+    /* The sheet of paper */
+    --pg-paper: #ffffff;
+    --pg-paper-width: 816px;          /* ~8.5in @ 96dpi */
+    --pg-paper-margin: 84px;          /* ~1in side margins */
+    --pg-paper-margin-top: 96px;
+    --pg-paper-margin-bottom: 110px;
+
+    /* Pages' characteristic soft, slightly contact shadow */
+    --pg-paper-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.06),
+        0 2px 6px rgba(0, 0, 0, 0.16),
+        0 12px 28px rgba(0, 0, 0, 0.10);
+
+    /* Type */
+    --pg-font-body: "Helvetica Neue", Helvetica, -apple-system, "SF Pro Text", Arial, sans-serif;
+    --pg-ink: #1d1d1f;
+    --pg-ink-soft: #3c3c43;
+    --pg-accent: #0a6cff;             /* Pages blue */
+}
+
+/* ---- Canvas / desk -------------------------------------------------- */
+
+.workspace-leaf-content[data-type="markdown"] .view-content {
+    background:
+        linear-gradient(var(--pg-canvas-top), var(--pg-canvas)) !important;
+    height: 100%;
+    padding: 0 !important;
+}
+
+.markdown-preview-view,
+.markdown-source-view.mod-cm6,
+.markdown-source-view.mod-cm6 .cm-scroller {
+    background: transparent !important;
+}
+
+/* Light toolbar to match the Pages chrome */
+.workspace-leaf-content[data-type="markdown"] .view-header {
+    background: #f3f3f4;
+    border-bottom: 1px solid #d6d6d8;
+    min-height: 42px;
+}
+
+.workspace-leaf-content[data-type="markdown"] .view-header-title {
+    font-family: var(--pg-font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pg-ink);
+}
+
+/* ---- The sheet of paper -------------------------------------------- */
+
+.markdown-source-view.mod-cm6 .cm-sizer,
+.markdown-preview-view .markdown-preview-sizer {
+    box-sizing: border-box;
+    max-width: var(--pg-paper-width) !important;
+    min-height: 100% !important;
+    margin: 0 auto !important;
+    background: var(--pg-paper);
+    box-shadow: var(--pg-paper-shadow);
+    border-radius: 2px;
+
+    padding-top: var(--pg-paper-margin-top) !important;
+    padding-bottom: var(--pg-paper-margin-bottom) !important;
+    padding-left: var(--pg-paper-margin) !important;
+    padding-right: var(--pg-paper-margin) !important;
+}
+
+/* Strip editor gutters / line padding so margins read as paper margins */
+.markdown-source-view.mod-cm6 .cm-content {
+    box-sizing: border-box;
+}
+
+.markdown-source-view.mod-cm6 .cm-line {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-gutters {
+    background: transparent !important;
+    border-right: 0 !important;
+}
+
+/* ---- Typography (the part that makes it *feel* like Pages) ---------- */
+
+.markdown-preview-view,
+.markdown-source-view.mod-cm6 .cm-content {
+    font-family: var(--pg-font-body) !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    color: var(--pg-ink) !important;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0.1px;
+}
+
+.markdown-preview-view p,
+.markdown-source-view.mod-cm6 .cm-line {
+    margin-block: 0.55em;
+}
+
+.markdown-preview-view h1,
+.markdown-preview-view h2,
+.markdown-preview-view h3,
+.markdown-preview-view h4,
+.markdown-preview-view h5,
+.markdown-preview-view h6,
+.markdown-source-view.mod-cm6 .HyperMD-header {
+    font-family: var(--pg-font-body) !important;
+    color: var(--pg-ink) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em;
+    line-height: 1.2 !important;
+}
+
+.markdown-preview-view h1 { font-size: 2.0em !important; margin: 0.2em 0 0.4em; }
+.markdown-preview-view h2 { font-size: 1.55em !important; margin: 1.1em 0 0.35em; }
+.markdown-preview-view h3 { font-size: 1.25em !important; margin: 1.0em 0 0.3em; }
+.markdown-preview-view h4 { font-size: 1.08em !important; }
+
+.markdown-preview-view a,
+.markdown-source-view.mod-cm6 .cm-link,
+.markdown-source-view.mod-cm6 .cm-url {
+    color: var(--pg-accent) !important;
+    text-decoration: none;
+}
+.markdown-preview-view a:hover { text-decoration: underline; }
+
+.markdown-preview-view blockquote {
+    border-left: 3px solid #d2d2d7;
+    color: var(--pg-ink-soft);
+    margin-left: 0;
+    padding-left: 1em;
+    font-style: normal;
+}
+
+.markdown-preview-view hr {
+    border: none;
+    border-top: 1px solid #e3e3e6;
+    margin: 1.6em 0;
+}
+
+.markdown-preview-view code,
+.markdown-source-view.mod-cm6 .cm-inline-code {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-size: 0.88em;
+    background: #f2f2f4;
+    border-radius: 4px;
+    padding: 0.12em 0.34em;
+}
+
+/* ---- Narrow screens: let the paper breathe edge-to-edge ------------- */
+
+@media (max-width: 920px) {
+    body {
+        --pg-paper-width: 100%;
+        --pg-paper-margin: 40px;
+        --pg-paper-margin-top: 48px;
+        --pg-paper-margin-bottom: 56px;
+    }
+    .workspace-leaf-content[data-type="markdown"] .view-content {
+        padding: 14px 12px !important;
+    }
+}

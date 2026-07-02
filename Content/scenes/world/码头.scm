@@ -29,18 +29,21 @@
                (not (get-global 'dock-market-open)))
           (begin
             (set-global! 'dock-market-open #t)
+            (add-pending-report!)
             (notify! "老街市集的方向传来叫卖声——那边有人在做生意。"))
           #f)
       (if (and (>= (dock-clock 'current) 4)
                (not (get-global 'dock-residential-open)))
           (begin
             (set-global! 'dock-residential-open #t)
+            (add-pending-report!)
             (notify! "你在码头深处发现了一片昏黄的灯火——有人住在那儿。"))
           #f)
       (if (and (>= (dock-clock 'current) 6)
                (not (get-global 'dock-bar-open)))
           (begin
             (set-global! 'dock-bar-open #t)
+            (add-pending-report!)
             (notify! "探索到了尽头，你注意到角落里有家破旧的酒吧，门缝里透出昏黄的光。"))
           #f))
 

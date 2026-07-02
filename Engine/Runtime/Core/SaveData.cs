@@ -16,7 +16,7 @@ namespace SSNoir.Core
     public class TeamSaveData
     {
         public int Health { get; set; }
-        public int Supplies { get; set; }
+        public int Satiety { get; set; }
         public int GrowthLevel { get; set; }
         public List<ActorSaveData> Actors { get; set; } = new();
     }

@@ -1,0 +1,268 @@
+/*
+ * WeChat Reading — a flat, modern reading surface for Obsidian.
+ *
+ * Descended from apple-pages, but with the paper taken away: no canvas
+ * desk, no drop shadow, no sheet edges. Instead a centered reading column
+ * resting as a calm light panel against slightly grayer sides — flat, just
+ * a tonal shift — with generous line-height and centered chapter headings.
+ * The look of the WeChat Reading (微信读书) e-reader.
+ *
+ * Enable in Settings → Appearance → CSS snippets.
+ * (Disable apple-pages first — they target the same surfaces.)
+ */
+
+body {
+    /* The page — the two sides, slightly gray */
+    --wr-page: #efefec;
+    /* The reading column — a calmer, lighter panel the body text sits on */
+    --wr-panel: #fbfbfa;
+    --wr-panel-radius: 6px;
+
+    /* Reading column */
+    --wr-column: 680px;          /* comfortable measure, ~38–40 CJK chars */
+    --wr-gutter: 24px;           /* breathing room on narrow screens */
+    --wr-pad-top: 72px;
+    --wr-pad-bottom: 120px;
+
+    /* Type */
+    --wr-font-body: -apple-system, "SF Pro Text", "PingFang SC",
+        "Helvetica Neue", "Microsoft YaHei", Arial, sans-serif;
+    --wr-ink: #2c2c2e;           /* warm dark gray, not pure black */
+    --wr-ink-soft: #6b6b70;
+    --wr-faint: #e6e6e4;         /* hairlines / rules / blockquote bar */
+    --wr-accent: #3b82f6;        /* the e-reader blue used for nav/links */
+
+    /* Code surface: a distinct inset, clearly off the reading panel */
+    --wr-code-bg: #eeedea;
+
+    /* Map our palette onto Obsidian's own theme variables, so code blocks
+       and blockquotes pick it up in BOTH reading and live-preview modes
+       (this is what recolors the base theme's blue blockquote bar). */
+    --code-background: var(--wr-code-bg);
+    --code-normal: var(--wr-ink);
+    --blockquote-border-color: var(--wr-faint);
+    --blockquote-color: var(--wr-ink-soft);
+}
+
+.theme-dark body,
+body.theme-dark {
+    /* Like WeChat Reading's night mode: the sides are a muted gray, the
+       reading column a deeper black — the body is the darkest, calmest
+       surface and the page around it is lighter. */
+    --wr-page: #262628;          /* gray sides */
+    --wr-panel: #1c1c1d;         /* deeper black, the reading surface */
+    --wr-ink: #c9c9c9;           /* light neutral gray, matching WeChat night mode */
+    --wr-ink-soft: #8c8c8e;
+    --wr-faint: #303032;
+    --wr-accent: #4493f8;        /* the e-reader blue links sit on dark */
+    --wr-code-bg: #202023;       /* elevated surface, lighter than the panel */
+}
+
+/* ---- The flat field ------------------------------------------------- */
+
+.workspace-leaf-content[data-type="markdown"] .view-content {
+    background: var(--wr-page) !important;
+    height: 100%;
+    padding: 0 !important;
+}
+
+.markdown-preview-view,
+.markdown-source-view.mod-cm6,
+.markdown-source-view.mod-cm6 .cm-scroller {
+    background: transparent !important;
+}
+
+/* Chrome dissolves into the field — flat, borderless toolbar */
+.workspace-leaf-content[data-type="markdown"] .view-header {
+    background: transparent;
+    border-bottom: none;
+    box-shadow: none;
+    min-height: 40px;
+}
+
+.workspace-leaf-content[data-type="markdown"] .view-header-title {
+    font-family: var(--wr-font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--wr-ink-soft);
+}
+
+/* ---- The reading column (no paper, just a centered measure) --------- */
+
+.markdown-source-view.mod-cm6 .cm-sizer,
+.markdown-preview-view .markdown-preview-sizer {
+    box-sizing: border-box;
+    max-width: calc(var(--wr-column) + 2 * var(--wr-gutter)) !important;
+    margin: 0 auto !important;
+
+    /* The body sits on a calmer panel, set off from the grayer sides.
+       Flat — just a tonal shift and a hair of rounding, no paper shadow. */
+    background: var(--wr-panel);
+    border-radius: var(--wr-panel-radius);
+    min-height: 100%;
+
+    padding-top: var(--wr-pad-top) !important;
+    padding-bottom: var(--wr-pad-bottom) !important;
+    padding-left: var(--wr-gutter) !important;
+    padding-right: var(--wr-gutter) !important;
+}
+
+/* Strip the editor's stock line padding so prose starts at the panel edge —
+   but NOT on structural lines (lists, quotes, code blocks). Obsidian uses
+   their padding-inline-start to hang bullets/numbers, offset the quote bar,
+   and inset code; zeroing it drags those left of the body's alignment line. */
+.markdown-source-view.mod-cm6
+    .cm-line:not(.HyperMD-list-line):not(.HyperMD-quote):not(.HyperMD-codeblock) {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-gutters {
+    background: transparent !important;
+    border-right: 0 !important;
+}
+
+/* ---- Typography — the airy, e-reader feel -------------------------- */
+
+.markdown-preview-view,
+.markdown-source-view.mod-cm6 .cm-content {
+    font-family: var(--wr-font-body) !important;
+    font-size: 18px !important;
+    line-height: 1.9 !important;            /* the signature generous leading */
+    color: var(--wr-ink) !important;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0.2px;
+}
+
+.markdown-preview-view p,
+.markdown-source-view.mod-cm6 .cm-line {
+    margin-block: 0.9em;
+}
+
+/* Headings: lighter weight, centered chapter titles like a reader */
+.markdown-preview-view h1,
+.markdown-preview-view h2,
+.markdown-preview-view h3,
+.markdown-preview-view h4,
+.markdown-preview-view h5,
+.markdown-preview-view h6,
+.markdown-source-view.mod-cm6 .HyperMD-header {
+    font-family: var(--wr-font-body) !important;
+    color: var(--wr-ink) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.4 !important;
+}
+
+.markdown-preview-view h1 {
+    font-size: 1.9em !important;
+    font-weight: 500 !important;
+    text-align: center;
+    margin: 0.4em 0 1.4em;
+}
+
+.markdown-preview-view h2 { font-size: 1.4em !important; margin: 1.6em 0 0.5em; }
+.markdown-preview-view h3 { font-size: 1.18em !important; margin: 1.3em 0 0.4em; }
+.markdown-preview-view h4 { font-size: 1.05em !important; }
+
+.markdown-preview-view a,
+.markdown-source-view.mod-cm6 .cm-link,
+.markdown-source-view.mod-cm6 .cm-url {
+    color: var(--wr-accent) !important;
+    text-decoration: none;
+}
+.markdown-preview-view a:hover { text-decoration: underline; }
+
+/* Footnote / reference markers like [1] — keep them quiet and on-ink,
+   not accent-colored, so they don't pull the eye away while reading. */
+.markdown-preview-view .footnote-ref a,
+.markdown-preview-view sup a.footnote-link,
+.markdown-source-view.mod-cm6 .cm-footref,
+.markdown-source-view.mod-cm6 .cm-blockid,
+/* Bare bracket markers like [1] (no link target): in live-preview these
+   are tokenized as bare links and would otherwise take the accent color. */
+.markdown-source-view.mod-cm6 .cm-hmd-barelink,
+.markdown-source-view.mod-cm6 .cm-formatting-link {
+    color: var(--wr-ink-soft) !important;
+    text-decoration: none;
+}
+.markdown-preview-view .footnote-ref a:hover { color: var(--wr-ink) !important; }
+
+/* Blockquote — a calm gray bar (never the base theme's blue), held away
+   from the text so the line doesn't crowd it. */
+.markdown-preview-view blockquote {
+    border-left: 3px solid var(--wr-faint) !important;
+    color: var(--wr-ink-soft) !important;
+    margin-left: 0;
+    padding: 0.25em 0 0.25em 1.4em;
+    font-style: normal;
+}
+/* Live-preview: just recolor the bar/text; let Obsidian keep its native
+   quote spacing (the earlier crowding was the padding:0 bug, now fixed). */
+.markdown-source-view.mod-cm6 .cm-blockquote,
+.markdown-source-view.mod-cm6 .HyperMD-quote {
+    border-left-color: var(--wr-faint) !important;
+    color: var(--wr-ink-soft) !important;
+}
+
+.markdown-preview-view hr {
+    border: none;
+    border-top: 1px solid var(--wr-faint);
+    margin: 2.4em auto;
+    width: 40%;                              /* short centered rule, reader-style */
+}
+
+/* Inline code — a small chip, distinct from the surrounding text. */
+.markdown-preview-view :not(pre) > code,
+.markdown-source-view.mod-cm6 .cm-inline-code {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-size: 0.86em;
+    background: var(--wr-code-bg);
+    border: 1px solid var(--wr-faint);
+    border-radius: 4px;
+    padding: 0.05em 0.34em;
+}
+
+/* Fenced code block — a clearly visible inset surface (reading view). */
+.markdown-preview-view pre {
+    background: var(--wr-code-bg) !important;
+    border: 1px solid var(--wr-faint);
+    border-radius: 8px;
+    padding: 0.9em 1.1em;
+}
+.markdown-preview-view pre > code {
+    background: transparent !important;
+    border: 0;
+    padding: 0;
+    font-size: 0.86em;
+}
+
+/* Fenced code block — live-preview: a continuous boxed surface. */
+.markdown-source-view.mod-cm6 .HyperMD-codeblock {
+    background: var(--wr-code-bg) !important;
+    border-left: 1px solid var(--wr-faint);
+    border-right: 1px solid var(--wr-faint);
+}
+.markdown-source-view.mod-cm6 .HyperMD-codeblock-begin {
+    border-top: 1px solid var(--wr-faint);
+    border-radius: 8px 8px 0 0;
+}
+.markdown-source-view.mod-cm6 .HyperMD-codeblock-end {
+    border-bottom: 1px solid var(--wr-faint);
+    border-radius: 0 0 8px 8px;
+}
+
+/* ---- Narrow screens ------------------------------------------------- */
+
+@media (max-width: 760px) {
+    body {
+        --wr-column: 100%;
+        --wr-gutter: 22px;
+        --wr-pad-top: 40px;
+        --wr-pad-bottom: 64px;
+    }
+    .markdown-preview-view,
+    .markdown-source-view.mod-cm6 .cm-content {
+        font-size: 17px !important;
+    }
+}

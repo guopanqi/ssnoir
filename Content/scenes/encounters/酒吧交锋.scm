@@ -130,7 +130,7 @@
   (action "点一杯酒"
     (list (req-item "金钱" 10))
     (instant (outcome "烧酒一杯"
-      "老板没多话，把杯子推过来。物资+1。"
+      "老板没多话，把杯子推过来。饱腹+1。"
       (lambda ()
         (set! bar-ordered #t)
         (set! listen-uses 4)

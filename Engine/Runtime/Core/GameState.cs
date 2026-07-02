@@ -23,19 +23,22 @@ namespace SSNoir.Core
             // Initial defaults for backwards compatibility and scenes
             Set("location", "world");
             Set("chapter", 0);
-            Set("reputation:mayor", 0);
-            Set("reputation:workers", 0);
-            Set("reputation:elites", 0);
+            // 三派关系（官僚 / 劳工 / 富商）：底层连续整数，效果离散四档，见 engine.scm relation API。
+            Set("relation:官僚", 0);
+            Set("relation:劳工", 0);
+            Set("relation:富商", 0);
 
             // Initialize Inventory
             Inventory.SetCount("金钱", 50);
-            Inventory.SetCount("物资包", 0);
+            Inventory.SetCount("情报", 0);
+            Inventory.SetCount("食物", 2);
+            Inventory.SetCount("药品", 1);
             Inventory.SetCount("枪", 1);
             Inventory.SetCount("酒", 0);
 
             // Initialize Team
             Team.Health = 8;
-            Team.Supplies = 3;
+            Team.Satiety = 3;
 
             var rand = GameRandom.Instance;
 
@@ -56,39 +59,8 @@ namespace SSNoir.Core
             player.ActionDice.Add(rand.Next(1, 7));
             Team.Actors.Add(player);
 
-            // 同伴：安娜
-            var anna = new ActorState
-            {
-                Id = "anna",
-                Name = "安娜",
-                Role = "companion",
-                Status = "active",
-                Stress = 0
-            };
-            anna.Stats["violence"] = 1;
-            anna.Stats["knowledge"] = 1;
-            anna.Stats["sharpness"] = 2;
-            anna.Stats["coding"] = 1;
-            anna.ActionDice.Add(rand.Next(1, 7));
-            anna.ActionDice.Add(rand.Next(1, 7));
-            Team.Actors.Add(anna);
-
-            // 同伴：老周
-            var laozhou = new ActorState
-            {
-                Id = "laozhou",
-                Name = "老周",
-                Role = "companion",
-                Status = "active",
-                Stress = 0
-            };
-            laozhou.Stats["violence"] = 2;
-            laozhou.Stats["knowledge"] = 1;
-            laozhou.Stats["sharpness"] = 1;
-            laozhou.Stats["coding"] = 2;
-            laozhou.ActionDice.Add(rand.Next(1, 7));
-            laozhou.ActionDice.Add(rand.Next(1, 7));
-            Team.Actors.Add(laozhou);
+            // 开局单人。同伴（安娜 / 老周）改为通过剧情 / 支线招募后加入，
+            // 招募 = +1 行动力，是"花预算换更多预算"的核心 pull（招募逻辑待后续接入）。
         }
 
         // Pure global key-value store only (chapter, reputation, story flags).

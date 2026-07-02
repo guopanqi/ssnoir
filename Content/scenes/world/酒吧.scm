@@ -22,6 +22,7 @@
                     (begin
                       (set! bar-stage 2)
                       (set-global! 'helen-apartment-open #t)
+                      (add-pending-report!)
                       (notify! "老混混低声说：'你找海伦？她在俱乐部，是个表演者。'"))
                     (begin
                       (set! bar-heat (min (+ bar-heat 1) 3))

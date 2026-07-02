@@ -12,10 +12,8 @@
            (list
              (container "告示板"
                (list
-                 (encounter-action "潜入保险箱"
-                   (lambda () (start-encounter "infiltration")))
-                 (encounter-action "街头交锋"
-                   (lambda () (start-encounter "combat")))))))
+                 (observe-action "褪色的旧告示"
+                   "几张褪色的旧告示。测试用的委托暂时撤下了。")))))
 
           ((equal? msg 'save)
            (list

@@ -15,7 +15,7 @@
         (instant (lambda ()
           (patronage-clock 'tick!)
           (add-supplies! 3)
-          (notify! "你点了一盘家常菜，老板娘殷勤地加了一道小菜。肚子填饱了，物资+3。")))))
+          (notify! "你点了一盘家常菜，老板娘殷勤地加了一道小菜。肚子填饱了，饱腹+3。")))))
 
     (define (node-get-info)
       (instant-action "和老板娘聊聊"

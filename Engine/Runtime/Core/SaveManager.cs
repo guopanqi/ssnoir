@@ -128,7 +128,7 @@ namespace SSNoir.Core
             return new JObject
             {
                 ["health"]      = team.Health,
-                ["supplies"]    = team.Supplies,
+                ["satiety"]     = team.Satiety,
                 ["growthLevel"] = team.GrowthLevel,
                 ["actors"]      = actorsArr,
             };
@@ -189,7 +189,7 @@ namespace SSNoir.Core
             var team = new TeamSaveData
             {
                 Health      = el["health"]!.Value<int>(),
-                Supplies    = el["supplies"]!.Value<int>(),
+                Satiety     = el["satiety"]!.Value<int>(),
                 GrowthLevel = el["growthLevel"]!.Value<int>(),
             };
             foreach (var actorEl in (JArray)el["actors"]!)

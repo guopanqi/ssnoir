@@ -49,7 +49,7 @@ namespace SSNoir.Rendering
             FontManager.DrawText("健康: ", 30, statusY + 4, 13, new Color(200, 200, 220, 255));
             FontManager.DrawText($"{snapshot.Health}/{snapshot.MaxHealth}", 70, statusY + 4, 13, healthColor);
 
-            FontManager.DrawText("物资: ", 130, statusY + 4, 13, new Color(200, 200, 220, 255));
+            FontManager.DrawText("饱腹: ", 130, statusY + 4, 13, new Color(200, 200, 220, 255));
             FontManager.DrawText($"{snapshot.Supplies}/{snapshot.MaxSupplies}", 170, statusY + 4, 13, suppliesColor);
 
             FontManager.DrawText("场景: ", 230, statusY + 4, 13, new Color(200, 200, 220, 255));

@@ -26,15 +26,16 @@ namespace SSNoir.Core
             return Math.Max(0, GrowthLevel - actor.SpentGrowthPoints);
         }
 
-        public int MaxSupplies { get; set; } = 6;
-        
-        private int _supplies = 3;
-        public int Supplies
+        public int MaxSatiety { get; set; } = 6;
+
+        private int _satiety = 3;
+        // 饱腹：每天睡觉 −1，归零后开始扣健康（见 EndTurn）。吃食物恢复。
+        public int Satiety
         {
-            get => _supplies;
+            get => _satiety;
             set
             {
-                _supplies = Math.Clamp(value, 0, MaxSupplies);
+                _satiety = Math.Clamp(value, 0, MaxSatiety);
                 OnTeamChanged?.Invoke();
             }
         }
@@ -145,14 +146,14 @@ namespace SSNoir.Core
 
         public void EndTurn(bool isInEncounter)
         {
-            // 1. Consume 1 supply
-            if (Supplies <= 0)
+            // 1. 饱腹 −1；已经饿到 0 则扣健康
+            if (Satiety <= 0)
             {
                 Health -= 1;
             }
             else
             {
-                Supplies -= 1;
+                Satiety -= 1;
             }
 
             // 2. Reduce stress for everyone by 1, and recovery away status if stress reaches 0
@@ -174,7 +175,7 @@ namespace SSNoir.Core
             var data = new TeamSaveData
             {
                 Health      = Health,
-                Supplies    = Supplies,
+                Satiety     = Satiety,
                 GrowthLevel = GrowthLevel,
             };
             foreach (var actor in Actors)
@@ -196,7 +197,7 @@ namespace SSNoir.Core
         public void ApplySaveData(TeamSaveData data)
         {
             Health      = data.Health;
-            Supplies    = data.Supplies;
+            Satiety     = data.Satiety;
             GrowthLevel = data.GrowthLevel;
             foreach (var actorData in data.Actors)
             {

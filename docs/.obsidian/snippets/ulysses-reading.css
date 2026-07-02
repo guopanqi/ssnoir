@@ -1,0 +1,56 @@
+/*
+ * Ulysses reading typography extracted from the local Ulysses theme.
+ * Focused on note body text only, so it can be used with any Obsidian theme.
+ */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* .markdown-preview-view, */
+/* .markdown-source-view, */
+/* .markdown-source-view.is-live-preview { */
+/*     font-size: 16px; */
+/* } */
+
+.markdown-preview-view h1,
+.markdown-preview-view h2,
+.markdown-preview-view h3,
+.markdown-preview-view h4,
+.markdown-preview-view h5,
+.markdown-preview-view h6,
+.markdown-rendered h1,
+.markdown-rendered h2,
+.markdown-rendered h3,
+.markdown-rendered h4,
+.markdown-rendered h5,
+.markdown-rendered h6 {
+    font-weight: 800;
+    line-height: 1.6;
+}
+
+.markdown-preview-view p,
+.markdown-preview-view ul,
+.markdown-preview-view ol,
+.markdown-rendered p,
+.markdown-rendered ul,
+.markdown-rendered ol,
+.markdown-source-view.mod-cm6 .cm-line,
+.CodeMirror pre.CodeMirror-line {
+    font-size: 1rem;
+    line-height: 2 !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-header-1,
+.markdown-source-view.mod-cm6 .cm-header-2,
+.markdown-source-view.mod-cm6 .cm-header-3,
+.markdown-source-view.mod-cm6 .cm-header-4,
+.markdown-source-view.mod-cm6 .cm-header-5,
+.cm-header-1,
+.cm-header-2,
+.cm-header-3,
+.cm-header-4,
+.cm-header-5 {
+    font-size: 1rem !important;
+}
