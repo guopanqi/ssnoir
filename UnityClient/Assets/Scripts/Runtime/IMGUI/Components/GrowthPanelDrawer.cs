@@ -13,7 +13,15 @@ namespace SSNoir.IMGUI
             public bool ShouldClose;
         }
 
-        private static readonly string[] StatKeys = { "violence", "knowledge", "coding", "sharpness" };
+        private static readonly string[] StatKeys = { "violence", "knowledge", "sharpness", "social" };
+
+        private static readonly Dictionary<string, string> StatLabels = new Dictionary<string, string>
+        {
+            { "violence", "力量" },
+            { "knowledge", "见识" },
+            { "sharpness", "敏锐" },
+            { "social", "交际" },
+        };
 
         public static Rect GetPanelRect()
         {
@@ -133,8 +141,9 @@ namespace SSNoir.IMGUI
 
                     int statVal = actor.Stats.TryGetValue(statKey, out var val) ? val : 1;
 
-                    // Display active system variables as English names (knowledge, coding, etc.)
-                    GUI.Label(new Rect(colX + 16f, rowY + 4f, colWidth - 70f, 20f), $"{statKey.ToUpper()} {statVal}", IMGUIStyles.ModalBody);
+                    // 中文属性名（力量/见识/敏锐/交际）。
+                    string statLabel = StatLabels.TryGetValue(statKey, out var lbl) ? lbl : statKey;
+                    GUI.Label(new Rect(colX + 16f, rowY + 4f, colWidth - 70f, 20f), $"{statLabel} {statVal}", IMGUIStyles.ModalBody);
 
                     // Upgrade [+] button - Technical Button style: rectangular, 1px border, 10% Primary tint on hover
                     float btnSize = 22f;

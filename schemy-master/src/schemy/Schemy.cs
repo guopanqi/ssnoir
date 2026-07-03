@@ -435,12 +435,41 @@ namespace Schemy
             if (token == "#t") return true;
             if (token == "#f") return false;
             if (token.Length > 0 && token[0] == '"')
-                return token.Substring(1, token.Length - 2);
+                return ParseStringLiteral(token);
             if (int.TryParse(token, out intVal)) return intVal;
             if (double.TryParse(token, System.Globalization.NumberStyles.Float,
                     System.Globalization.CultureInfo.InvariantCulture, out floatVal))
                 return floatVal;
             return Symbol.FromString(token);
+        }
+
+        private static string ParseStringLiteral(string token)
+        {
+            var value = new System.Text.StringBuilder(token.Length - 2);
+            for (int i = 1; i < token.Length - 1; i++)
+            {
+                var ch = token[i];
+                if (ch != '\\')
+                {
+                    value.Append(ch);
+                    continue;
+                }
+
+                Utils.CheckSyntax(token, i + 1 < token.Length - 1, "unterminated string escape");
+                var escaped = token[++i];
+                switch (escaped)
+                {
+                    case '"': value.Append('"'); break;
+                    case '\\': value.Append('\\'); break;
+                    case 'n': value.Append('\n'); break;
+                    case 'r': value.Append('\r'); break;
+                    case 't': value.Append('\t'); break;
+                    default:
+                        throw new SyntaxError("unsupported string escape: \\" + escaped);
+                }
+            }
+
+            return value.ToString();
         }
 
         public struct EvaluationResult

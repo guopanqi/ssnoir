@@ -11,16 +11,14 @@
 
     (define (node-search-clues)
       (roll-action "搜寻线索" (list (req-die)) 'sharpness
-        (lambda ()
-          (stress-current-actor! 1)
-          (notify! "仓库里一片寂静，什么异常都没找到。压力+1。"))
-        (lambda ()
-          (investigate-clock 'tick!)
-          (notify! "你发现了一些可疑痕迹，还需要继续深挖。"))
-        (lambda ()
-          (investigate-clock 'tick!)
-          (investigate-clock 'tick!)
-          (notify! "烟蒂、脚印、还有一截绳子——线索正在汇聚。"))))
+        (outcome "一无所获" "仓库里一片寂静，什么异常都没找到。"
+          (lambda () (stress-current-actor! 1)))
+        (outcome "发现痕迹" "你发现了一些可疑痕迹，还需要继续深挖。"
+          (lambda () (investigate-clock 'tick!)))
+        (outcome "线索汇聚" "烟蒂、脚印、还有一截绳子——线索正在汇聚。"
+          (lambda ()
+            (investigate-clock 'tick!)
+            (investigate-clock 'tick!)))))
 
     (define (node-contact-appears)
       (instant-action "跟踪线索"
@@ -38,16 +36,14 @@
 
     (define (node-warehouse-work)
       (roll-action "搬运货物" (list (req-die)) 'violence
-        (lambda ()
-          (stress-current-actor! 2)
-          (notify! "货物太重，你拉伤了腰，勉强撑完一天，什么都没挣到。"))
-        (lambda ()
-          (stress-current-actor! 1)
-          (add-item! "金钱" 10)
-          (notify! "完成了几趟，监工数了点工钱给你。压力+1。"))
-        (lambda ()
-          (add-item! "金钱" 15)
-          (notify! "手脚麻利，监工满意，工钱一分不少。"))))
+        (outcome "拉伤了腰" "货物太重，你勉强撑完一天，什么都没挣到。"
+          (lambda () (stress-current-actor! 2)))
+        (outcome "勉强做完" "完成了几趟，监工数了点工钱给你。"
+          (lambda ()
+            (stress-current-actor! 1)
+            (add-item! "金钱" 10)))
+        (outcome "手脚麻利" "监工很满意，工钱一分不少。"
+          (lambda () (add-item! "金钱" 15)))))
 
     ;; ── Per-stage Children ────────────────────────────
 

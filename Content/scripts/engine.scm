@@ -8,6 +8,7 @@
 (define :resolve ':resolve)
 (define :tags ':tags)
 (define :subtitle ':subtitle)
+(define :disabled ':disabled)
 
 ;; Helper to extract keyword arguments from a list
 (define (get-kwarg kwargs key default)
@@ -20,7 +21,7 @@
               (get-kwarg (cdr (cdr kwargs)) key default)))))
 
 ;; node constructor
-;; Returns a list: ('node name :subtitle subtitle :clocks clocks :children children :requires requires :resolve resolve :tags tags)
+;; Returns a node expression consumed by NodeConverter.
 (define (node name . kwargs)
   (list 'node
         name
@@ -29,7 +30,45 @@
         :children (get-kwarg kwargs ':children '())
         :requires (get-kwarg kwargs ':requires #f)
         :resolve (get-kwarg kwargs ':resolve #f)
-        :tags (get-kwarg kwargs ':tags '())))
+        :tags (get-kwarg kwargs ':tags '())
+        :disabled (get-kwarg kwargs ':disabled #f)))
+
+;; ── 休息阻塞 ─────────────────────────────────────
+;; 注册表只存在于当前解释器。world-load! 会先清空，再由各地点按存档状态同步。
+(define rest-blockers '())
+
+(define (remove-rest-blocker entries id)
+  (if (null? entries)
+      '()
+      (if (equal? (car (car entries)) id)
+          (remove-rest-blocker (cdr entries) id)
+          (cons (car entries) (remove-rest-blocker (cdr entries) id)))))
+
+(define (rest-block! id reason)
+  (if (not (string? id)) (error "rest-block!: id must be a string") #t)
+  (if (not (string? reason)) (error "rest-block!: reason must be a string") #t)
+  (if (equal? id "") (error "rest-block!: id cannot be empty") #t)
+  (if (equal? reason "") (error "rest-block!: reason cannot be empty") #t)
+  (set! rest-blockers
+        (cons (list id reason) (remove-rest-blocker rest-blockers id))))
+
+(define (rest-release! id)
+  (if (not (string? id)) (error "rest-release!: id must be a string") #t)
+  (set! rest-blockers (remove-rest-blocker rest-blockers id)))
+
+(define (rest-blocked?)
+  (not (null? rest-blockers)))
+
+(define (rest-block-reasons)
+  (map cadr (reverse rest-blockers)))
+
+(define (clear-rest-blockers!)
+  (set! rest-blockers '()))
+
+(define (end-turn!)
+  (if (rest-blocked?)
+      (error "end-turn!: required events remain unresolved")
+      (__end-turn!)))
 
 ;; Action constructors
 (define (instant effect)
@@ -47,6 +86,28 @@
       (error "outcome: expected at most one presentation mode")
       (let ((mode (if (null? modes) 'light (car modes))))
         (list 'outcome title subtitle mode effect))))
+
+(define (outcome? value)
+  (and (pair? value)
+       (= (length value) 5)
+       (equal? (car value) 'outcome)))
+
+(define (require-outcome value who)
+  (if (outcome? value)
+      value
+      (error (string-append who ": expected outcome"))))
+
+;; 保留 outcome 的标题/描述/模式，在原效果之后追加一个效果。
+(define (outcome-append-effect value extra-effect who)
+  (let ((checked (require-outcome value who)))
+    (let ((effect (list-ref checked 4)))
+      (list 'outcome
+            (list-ref checked 1)
+            (list-ref checked 2)
+            (list-ref checked 3)
+            (lambda ()
+              (effect)
+              (extra-effect))))))
 
 ;; Modifier constructor
 (define (modifier value reason)
@@ -109,8 +170,46 @@
 (define (observe-action name text)
   (action name #f (observe text)))
 
-(define (roll-action name requires skill fail-fn neutral-fn success-fn)
-  (action name requires (roll skill fail-fn neutral-fn success-fn)))
+(define (roll-action name requires skill fail-outcome neutral-outcome success-outcome)
+  (action name requires
+    (roll skill
+      (require-outcome fail-outcome "roll-action fail")
+      (require-outcome neutral-outcome "roll-action neutral")
+      (require-outcome success-outcome "roll-action success"))))
+
+;; ── 工作（work）DSL ───────────────────────────────────
+;; (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])
+;;   faction: "官僚"/"劳工"/"富商"，成功时缓慢 +1 关系（做这行混脸熟，攒得很慢）
+;;   risk:    '低/'中/'高/'越界，只决定风险标签 + 断言，不自动生成收益/惩罚
+;;   好/中/坏: 每项工作显式传入三个 outcome，标题和描述直接用于轻型结算
+;;   subtitle: 可选，只写“特别”的一句说明；一般风险由标签表达，不写 subtitle
+;; 表现约定：每个工作都打“工作”标签（＝能赚钱）+ 一个风险标签，前端给风险标签配色，
+;; 玩家一眼就能判断类型和大致风险。惩罚（钱/压力/健康、越界失败掉关系）写在各 outcome effect 里。
+(define (工作-风险标签 risk)
+  (cond ((equal? risk '低)   "低风险")
+        ((equal? risk '中)   "中风险")
+        ((equal? risk '高)   "高风险")
+        ((equal? risk '越界) "越界")
+        (else (error "工作: 未知风险等级（应为 低/中/高/越界）"))))
+
+(define (工作-合法势力? faction)
+  (or (equal? faction "官僚") (equal? faction "劳工") (equal? faction "富商")))
+
+(define (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
+  (if (工作-合法势力? faction) #t (error "工作: 未知势力（应为 官僚/劳工/富商）"))
+  (node name
+        :subtitle (if (null? extra) "" (car extra))
+        :tags (list "工作" (工作-风险标签 risk))
+        :requires (list (req-die))
+        :resolve (roll skill
+                       (require-outcome 坏-outcome "工作 坏")
+                       (require-outcome 中-outcome "工作 中")
+                       (outcome-append-effect
+                         好-outcome
+                         (lambda ()
+                           ;; 成功只缓慢 +1（关系很难攒；到脸熟 3 次、自己人 6 次成功）
+                           (change-faction-relation! faction 1))
+                         "工作 好"))))
 
 ;; Inventory helpers
 (define (get-item item-id)
@@ -118,6 +217,10 @@
 
 (define (consume-item! item-id n)
   (remove-item! item-id n))
+
+;; 罚款/赔偿用：最多扣 n，不够就扣光（不报错，floor 到 0）。
+(define (spend-up-to! item-id n)
+  (remove-item! item-id (min n (item-count item-id))))
 
 ;; Rule system
 (define rules '())
@@ -164,8 +267,13 @@
           (run-rules (cdr list-rules)))))
   (run-rules turn-rules))
 
-(define (make-clock label max style)
-  (let ((current 0))
+(define (make-clock label max style . note-args)
+  (if (> (length note-args) 1)
+      (error "make-clock: expected at most one note string")
+      #t)
+  (let ((current 0)
+        (note (if (null? note-args) "" (car note-args))))
+    (if (string? note) #t (error "make-clock: note must be a string"))
     (lambda (msg . args)
       (cond
         ((equal? msg 'tick!)       (set! current (min (+ current 1) max)))
@@ -173,18 +281,37 @@
         ((equal? msg 'full?)       (>= current max))
         ((equal? msg 'current)     current)
         ((equal? msg 'set!)        (set! current (car args)))
-        ((equal? msg 'render-data) (list 'clock label current max style))
+        ((equal? msg 'render-data) (list 'clock label current max style note))
         (else #f)))))
 
-;; Reputation API
-(define (get-reputation faction)
-  (let ((val (get-global (string-append "reputation:" faction))))
+;; 关系 API — 三派：官僚 / 劳工 / 富商。底层连续整数（工作小步累积），
+;; 折算成 5 个离散档位。档位阈值与范围以 RelationScale.cs 为唯一来源
+;; （通过 native __relation-band-index 读取），这里只做名字 <-> 序号的映射。
+(define (faction-relation faction)
+  (let ((val (get-global (string-append "relation:" faction))))
     (if val val 0)))
 
-(define (change-reputation! faction delta)
-  (let ((new-val (+ (get-reputation faction) delta)))
-    (let ((clamped (if (< new-val -100) -100 (if (> new-val 100) 100 new-val))))
-      (set-global! (string-append "reputation:" faction) clamped))))
+;; 范围 [-10,10]，与 RelationScale.cs 保持一致。
+(define (change-faction-relation! faction delta)
+  (__change-faction-relation! faction delta))
+
+;; 档位名（序号 0..4，与 RelationScale.BandNames 一一对应）。
+(define relation-band-names (list '敌视 '冷淡 '中立 '脸熟 '自己人))
+
+(define (relation-band faction)
+  (list-ref relation-band-names (__relation-band-index faction)))
+
+(define (band-index name)
+  (cond ((equal? name '敌视)   0)
+        ((equal? name '冷淡)   1)
+        ((equal? name '中立)   2)
+        ((equal? name '脸熟)   3)
+        ((equal? name '自己人) 4)
+        (else (error "band-index: unknown band"))))
+
+;; 门控：某派关系达到指定档位（含更高）返回 #t。
+(define (relation-at-least? faction band)
+  (>= (__relation-band-index faction) (band-index band)))
 
 ;; --- New Team, Item, and Stress wrappers ---
 (define (item-count item-id)
@@ -201,16 +328,17 @@
       (error "not enough item")
       (__set-item-count! item-id (- (__item-count item-id) n))))
 
-(define (party-supplies)
-  (__party-supplies))
+;; 饱腹：吃食物恢复；每天睡觉 −1，归零扣健康（EndTurn 处理）。native 已 clamp 到 MaxSatiety。
+(define (party-satiety)
+  (__party-satiety))
 
-(define (add-supplies! n)
-  (__set-party-supplies! (min 6 (+ (__party-supplies) n))))
+(define (add-satiety! n)
+  (__set-party-satiety! (+ (__party-satiety) n)))
 
-(define (remove-supplies! n)
-  (if (< (__party-supplies) n)
-      (error "not enough supplies")
-      (__set-party-supplies! (- (__party-supplies) n))))
+(define (remove-satiety! n)
+  (if (< (__party-satiety) n)
+      (error "not enough satiety")
+      (__set-party-satiety! (- (__party-satiety) n))))
 
 (define (party-health)
   (__party-health))
@@ -221,11 +349,16 @@
 (define (set-growth-level! n)
   (__set-growth-level! n))
 
+;; 主角当前可用成长点（成长等级 − 已花费）。供“长进”入口显示/门控。
+(define (available-growth-points)
+  (__available-growth-points))
+
 (define (damage-party! n)
   (__set-party-health! (- (__party-health) n)))
 
+;; 恢复健康（native 已 clamp 到 MaxHealth）。健康只应由药品、康复训练等医疗行为恢复，不由睡觉恢复。
 (define (heal-party! n)
-  (__set-party-health! (min 8 (+ (__party-health) n))))
+  (__set-party-health! (+ (__party-health) n)))
 
 (define (current-actor)
   (__current-actor))
@@ -248,8 +381,16 @@
 (define (stress-current-actor! n)
   (add-actor-stress! (__current-actor) n))
 
+;; 缓解压力（floor 到 0）。压力靠睡觉/喝酒/家里仪式/公园散步恢复。
+(define (heal-stress! actor-id n)
+  (set-actor-stress! actor-id (max 0 (- (actor-stress actor-id) n))))
+
 (define (notify! text)
   (__notify! text))
+
+;; 无法由状态变化自动推导的结算条目，例如“解锁：码头账房”。
+(define (result-note! text)
+  (__result-note! text))
 
 (define (spotlight! title subtitle)
   (__spotlight! title subtitle))

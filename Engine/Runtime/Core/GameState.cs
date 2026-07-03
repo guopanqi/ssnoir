@@ -54,7 +54,7 @@ namespace SSNoir.Core
             player.Stats["violence"] = 1;
             player.Stats["knowledge"] = 2;
             player.Stats["sharpness"] = 1;
-            player.Stats["coding"] = 1;
+            player.Stats["social"] = 1;
             player.ActionDice.Add(rand.Next(1, 7));
             player.ActionDice.Add(rand.Next(1, 7));
             Team.Actors.Add(player);

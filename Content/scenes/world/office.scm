@@ -16,7 +16,7 @@
     (define (node-work)
       (action "写代码"
               (list (req-die))
-              (roll 'coding
+              (roll 'knowledge
                     (lambda () #f)
                     (lambda () (work-clock 'tick!))
                     (lambda () (begin (work-clock 'tick!)

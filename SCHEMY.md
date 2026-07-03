@@ -29,7 +29,8 @@
 
 **节点**
 - `(container name children)` — 含子节点的容器
-- `(node name :subtitle … :children … :clocks … :requires … :resolve …)` — 通用节点
+- `(node name :subtitle … :children … :clocks … :requires … :resolve … :disabled bool)` — 通用节点；
+  `:disabled #t` 时前端灰显且引擎拒绝执行
 - `(action name requires resolve)` / `(instant-action name effect)` /
   `(observe-action name text)` / `(roll-action name requires skill fail neutral success)`
 
@@ -40,7 +41,9 @@
 - `(outcome title subtitle effect ['light | 'heavy])` — 给效果附加结果表现
 - `(modifier value reason)` — 难度修饰项
 
-**时钟** `(make-clock label max style)` → 消息 `'tick!` `'reset!` `'full?` `'current` `'set!` `'render-data`
+**时钟** `(make-clock label max style [note])` → 消息 `'tick!` `'reset!` `'full?` `'current` `'set!` `'render-data`。
+`note` 用于解释归零/填满会发生什么；凡是持续若干回合、延迟发生或下一回合消失的状态，都必须
+用可见 Clock 告知玩家，不能只藏在脚本计数器里。
 
 **要求(requires)** `(req-die)`、`(req-item name qty)`
 
@@ -50,29 +53,26 @@
 - 纯全局键:`(get-global k)` / `(set-global! k v)`(章节、声誉、剧情 flag)
 - 队伍 / 库存 / 成长:`party-health`、`damage-party!`、`item-count`、`add-item!`、
   `growth-level`、`set-growth-level!`、`actor-stress` 等(见 engine.scm)
-- 表现:`(notify! text)`、`(spotlight! title subtitle)`、`(play-narration! id)`
+- 轻型结算:`(outcome title subtitle effect ['light | 'heavy])`、`(result-note! text)`
+- 其他表现:`(notify! text)`、`(spotlight! title subtitle)`、`(play-narration! id)`
 - 对话:`(play-banter! (line ...) ...)`、`(play-dialogue! (line ...) ...)`、`(play-animation! tag)`(见 3.6)
 
 **encounter 切换** `(start-encounter name callback)` / `(end-encounter result)`
+
+**成长** `(growth-level)` / `(available-growth-points)` / `(upgrade-actor-stat! actor-id stat-id)`；
+当前主角能力 ID 为 `violence`、`knowledge`、`sharpness`、`social`。
+
+**休息阻塞** `(rest-block! id reason)` / `(rest-release! id)` / `(rest-blocked?)` /
+`(rest-block-reasons)`。用于已经到期、当天必须处理的关键事件；支持多个不同 `id` 同时存在。
+内容应在事件变为待处理状态时注册，在完成回调中释放。读取存档时先
+`(clear-rest-blockers!)`，再由各地点根据自己的持久状态重新注册；不要把注册写进节点渲染函数。
+公开的 `(end-turn!)` 在仍有 blocker 时会拒绝推进，住所休息节点负责用 `:disabled` 和原因标签提前展示。
 
 ---
 
 ## 3. 编写约定（必须遵守）
 
-### 3.1 字符串内嵌引号:一律用弯单引号
-
-Schemy 只把 ASCII `"` (U+0022) 当字符串定界符。对白里要引号时,**一律用弯单引号 `'` `'`(U+2018 / U+2019)**。
-
-```scheme
-;; 错误:弯双引号 / 反斜杠转义都会让解析出错
-(notify! "夜莺：“你终于来了。”")
-(notify! "夜莺:\"你终于来了。\"")
-;; 正确
-(notify! "夜莺：'你终于来了。'")
-(observe-action "老陈" "老陈：'你找到我了。'")
-```
-
-### 3.2 encounter → world 状态传递:用 callback,不用 global
+### 3.1 encounter → world 状态传递:用 callback,不用 global
 
 encounter **不要**直接写 global 通知 world 推进任务(越权、污染全局命名空间)。
 `start-encounter` 传 callback,encounter 只汇报结果:
@@ -88,7 +88,7 @@ encounter **不要**直接写 global 通知 world 推进任务(越权、污染�
 
 callback 在 `LoadScene("world")` 之前执行,world 闭包状态更新后,render tree 一次性以正确状态重建。
 
-### 3.3 压力 / 伤害函数的调用场景
+### 3.2 压力 / 伤害函数的调用场景
 
 `stress-current-actor!` 依赖 action 执行上下文,只有 `ExecuteAction` 期间有效;
 encounter 结束 callback 可能由回合结束规则触发,此时没有 action context。
@@ -98,7 +98,11 @@ encounter 结束 callback 可能由回合结束规则触发,此时没有 action 
 | roll 的 fail/neutral/success 回调(action lambda 内) | `(stress-current-actor! n)` |
 | `start-encounter` 的结果 callback | `(add-actor-stress! 'player n)` |
 
-### 3.4 节点函数扁平化:避免深嵌套 append/if
+`end-turn!` 只推进通用系统状态:饱腹消耗、饥饿伤害、行动骰重掷和 turn rules。
+它不再自动恢复压力。睡眠、露宿或其他休息方式必须在各自的内容动作里显式调用
+`heal-stress!` / `add-actor-stress!`,这样不同住所可以有不同效果,并且变化会进入动作效果条。
+
+### 3.3 节点函数扁平化:避免深嵌套 append/if
 
 Schemy 在深嵌套 `(append (if …) (if … (append …) '()))` 中,某些分支会求值成 `None`
 而非 `'()`,导致 `append` 报 `Cannot convert Schemy.None to type List`1`。
@@ -115,13 +119,37 @@ Schemy 在深嵌套 `(append (if …) (if … (append …) '()))` 中,某些分�
     (if gate-revealed (list (node-gate)) '())))
 ```
 
-### 3.5 地点状态分层
+### 3.4 地点状态分层
 
 | 状态类型 | 存放位置 |
 |---|---|
 | 任务阶段 / 跨场景进度 | 地点本地 `define` + save/load(不泄露到 global) |
 | 地点内部 UI 状态(门是否开、NPC 是否说过话) | 同上 |
 | 真正全局共享(声誉、跨地点资源) | `set-global!` / `get-global` |
+
+### 3.5 轻型动作结果:叙事与效果条
+
+动作 lambda 内对库存、健康、饱腹、压力、关系、成长的实际修改,会按执行顺序自动写入
+`ActionReport`,前端在原卡片上显示为效果条。脚本不要再重复编写“金钱 +8”一类展示文本。
+
+```scheme
+(outcome "勉强完成" "货送到了,但你累得够呛。"
+  (lambda ()
+    (add-item! "金钱" 8)       ; 自动生成:金钱 +8
+    (stress-current-actor! 1)  ; 自动生成:压力 +1
+    (change-faction-relation! "劳工" 2))) ; 自动生成:劳工关系 +2
+```
+
+`roll-action` 和 `工作` 的三个结果分支都必须传 `outcome`,传裸 lambda 会直接报错。
+结果描述只有 `outcome` 这一处来源,不要在 effect 中重复写通知。
+
+无法从状态变化推导的结果用 `(result-note! text)` 增加一条中性效果,例如
+`(result-note! "解锁:码头账房")`。
+
+`notify!` 只用于动作结果之外的即时系统提示。动作结算叙事必须使用 `outcome` 或
+其他专用表现接口,避免卡片结果与短暂通知重复。
+
+资源槽投入属于成本,不会进入效果条。所有数值条目记录 clamp 后的实际变化量。
 
 ### 3.6 角色对话:banter(非阻塞)与 dialogue(阻塞)
 
@@ -157,3 +185,13 @@ Schemy 在深嵌套 `(append (if …) (if … (append …) '()))` 中,某些分�
 - 需要让"刚出现的角色"做一段阻塞对话时:先用一次节点/场景推进让其出现,再单独 `play-dialogue!`;或改锚定到已在场的角色。
 
 **分支选择不进对话播放器**:对话播放器永远线性。需要玩家选择时用节点表达,各分支的 `instant-action` 里再调 `play-dialogue!` / `set!`。
+
+### 3.7 可复发交锋的状态边界
+
+可复发交锋的排期、发生次数、冷却和最终收尾属于 world 地点状态，由地点闭包保存并纳入
+`world-save`。encounter 每次新建，只读取本场需要的只读输入（例如场次、是否有盟友），结束时
+只通过 `end-encounter` 返回结果。地点传给 `start-encounter` 的 callback 负责统一结算、排下一场
+或收尾。不要让 encounter 直接修改外部任务阶段。
+
+若 encounter 必须读取地点私有状态，可在入场前镜像最小的只读值到 global；地点每次变更和
+`load!` 后都要重新同步。不要把整套地点状态复制到 global。

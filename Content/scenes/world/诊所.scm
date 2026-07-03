@@ -1,48 +1,30 @@
-;; scenes/world/诊所.scm
+;; scenes/world/诊所.scm - 诊所（官僚）
+;; 服务点：买药品（带回家用）/ 康复训练（少花钱，但占用行动骰）。用药动作在家里。
 
 (define clinic
   (let ()
-    ;; ── Node Helpers ──────────────────────────────────
 
-    (define (node-buy-medkit)
-      (action "购买急救包"
-              (list (req-item "金钱" 20))
-              (instant (lambda ()
-                         (add-item! "急救包" 1)
-                         (notify! "购买了1个急救包。")))))
+    (define (node-buy-medicine)
+      (action "买药品"
+        (list (req-item "金钱" 25))
+        (instant (lambda ()
+                   (add-item! "药品" 1)
+                   (notify! "买了一份药，揣进兜里。")))))
 
-    (define (node-buy-painkiller)
-      (action "购买止痛药"
-              (list (req-item "金钱" 10))
-              (instant (lambda ()
-                         (add-item! "止痛药" 1)
-                         (notify! "购买了1个止痛药。")))))
+    ;; 比买药省钱，但要投入一颗骰子，并且恢复量更低。
+    (define (node-rehabilitation)
+      (action "康复训练"
+        (list (req-die) (req-item "金钱" 15))
+        (instant
+          (outcome "完成训练" "医生带着你活动伤处，一点点找回力气。"
+            (lambda () (heal-party! 2))))))
 
-    (define (node-treat)
-      (action "接受医师治疗"
-              (list (req-item "金钱" 30))
-              (instant (lambda ()
-                         (heal-party! 2)
-                         (add-actor-stress! (current-actor) -1)
-                         (notify! "经过包扎与休息，生命值+2，压力-1。")))))
-
-    ;; ── Message Passing Interface ─────────────────────
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list
-             (container "诊所"
-               (list
-                 (observe-action "社区诊所" "消毒液的气味弥漫在空气中，穿着白大褂的医生正在整理药柜。")
-                 (node-buy-medkit)
-                 (node-buy-painkiller)
-                 (node-treat)))))
-
-          ((equal? msg 'complete?) #f)
-
+           (list (container "诊所"
+                   (list (node-buy-medicine) (node-rehabilitation)))))
           ((equal? msg 'save) '())
-
-          ((equal? msg 'load!) #f)
-
+          ((equal? msg 'load!) #t)
           (#t #f))))))

@@ -1,69 +1,49 @@
-;; scenes/world/test.scm - Test Area Sub-location
+;; scenes/world/test.scm - 调试台（新资源模型）
+;; 仅在 chapter="test" 时出现。用于手动拨动新的货币 / 关系 / 身体状态。
 
 (define test
   (let ()
-    ;; ── Local State ────────────────────────────────
-    (define trash-count 0)
-
-    (define (make-trash-nodes n)
-      (if (<= n 0)
-          '()
-          (cons (instant-action (string-append "清理垃圾" (number->string n))
-                                (lambda ()
-                                  (set! trash-count (- trash-count 1))))
-                (make-trash-nodes (- n 1)))))
-
-    (define (node-kick-bin)
-      (instant-action "踢垃圾桶"
-        (lambda () (set! trash-count (+ trash-count 1)))))
-
-    (define (node-odd-job)
-      (instant-action "打零工"
-        (lambda ()
-          (add-item! '金钱 25))))
-
-    (define (node-squander)
-      (instant-action "花光所有钱"
-        (lambda ()
-          (remove-item! '金钱 (item-count '金钱)))))
-
-    (define (node-rep-debugger)
-      (container "声望测试面板"
-        (list
-          (instant-action "安抚工人 (+15声望)" (lambda () (change-reputation! "workers" 15)))
-          (instant-action "激怒工人 (-35声望)" (lambda () (change-reputation! "workers" -35)))
-          (instant-action "贿赂市长 (+15声望)" (lambda () (change-reputation! "mayor" 15)))
-          (instant-action "得罪市长 (-15声望)" (lambda () (change-reputation! "mayor" -15)))
-          (instant-action "讨好权贵 (+15声望)" (lambda () (change-reputation! "elites" 15)))
-          (instant-action "疏远权贵 (-15声望)" (lambda () (change-reputation! "elites" -15))))))
-
-    (define (node-growth-debugger)
-      (container "成长测试面板"
-        (list
-          (instant-action "增加3点成长等级" (lambda () (set-growth-level! (+ (growth-level) 3)))))))
-
-    ;; ── Message Passing Interface ─────────────────
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
            (list
-             (container "测试"
-               (append
-                 (cons (node-kick-bin)
-                       (make-trash-nodes trash-count))
-                  (list
-                    (node-odd-job)
-                    (node-squander)
-                    (node-rep-debugger)
-                    (node-growth-debugger))))))
+             (container "调试台"
+               (list
+                 (container "调试-物品"
+                   (list
+                     (instant-action "+50 金钱" (lambda () (add-item! "金钱" 50)))
+                     (instant-action "+1 情报"  (lambda () (add-item! "情报" 1)))
+                     (instant-action "+1 食物"  (lambda () (add-item! "食物" 1)))
+                     (instant-action "+1 药品"  (lambda () (add-item! "药品" 1)))
+                     (instant-action "+1 酒"    (lambda () (add-item! "酒" 1)))))
+                 (container "调试-关系"
+                   (list
+                     (instant-action "劳工 +1" (lambda () (change-faction-relation! "劳工" 1)))
+                     (instant-action "劳工 -1" (lambda () (change-faction-relation! "劳工" -1)))
+                     (instant-action "官僚 +1" (lambda () (change-faction-relation! "官僚" 1)))
+                     (instant-action "富商 +1" (lambda () (change-faction-relation! "富商" 1)))))
+                 (container "调试-身体"
+                   (list
+                     (instant-action "饱腹 +3" (lambda () (add-satiety! 3)))
+                     (instant-action "健康 +2" (lambda () (heal-party! 2)))
+                     (instant-action "压力 -2" (lambda () (heal-stress! 'player 2)))))
+                 (container "调试-成长"
+                   (list
+                     (instant-action "成长等级 +1"
+                       (lambda () (set-growth-level! (+ (growth-level) 1))))))
+                 (container "调试-码头"
+                   (list
+                     (instant-action "解锁货单线索"
+                       (lambda () (set-global! "货单对不上" #t)))
+                     (instant-action "劳工→脸熟"   (lambda () (set-global! "relation:劳工" 3)))
+                     (instant-action "劳工→自己人" (lambda () (set-global! "relation:劳工" 6)))
+                     (instant-action "官僚→脸熟"   (lambda () (set-global! "relation:官僚" 3)))
+                     (instant-action "老周好感 +2" (lambda () (dock 'debug-favor)))
+                     (instant-action "强制刷新老周美差" (lambda () (dock 'debug-cushy)))
+                     (instant-action "直接触发码头交锋" (lambda () (dock 'debug-pending-bout)))
+                     (instant-action "清除走私风声" (lambda () (dock 'debug-clear-smuggle)))))))))
 
-          ((equal? msg 'save)
-           (list
-             (list "trash-count" trash-count)))
-
-          ((equal? msg 'load!)
-           (let ((data (cadr args)))
-             (set! trash-count (assoc-get data "trash-count" 0))))
-
+          ((equal? msg 'save) '())
+          ((equal? msg 'load!) #t)
           (#t #f))))))

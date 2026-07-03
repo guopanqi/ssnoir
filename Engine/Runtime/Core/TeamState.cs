@@ -6,9 +6,12 @@ namespace SSNoir.Core
 {
     public class TeamState
     {
-        public int MaxHealth { get; set; } = 8;
-        
-        private int _health = 8;
+        public int MaxHealth { get; set; } = 5;
+
+        // 压力上限。主角压力顶到上限后，继续加压会溢出成健康伤害（见 ApplyStress）。
+        public int MaxStress { get; set; } = 5;
+
+        private int _health = 5;
         public int Health
         {
             get => _health;
@@ -91,7 +94,7 @@ namespace SSNoir.Core
             {
                 int nextStress = actor.Stress + amount;
                 actor.Stress = nextStress;
-                if (actor.Stress >= 6)
+                if (actor.Stress >= MaxStress)
                 {
                     actor.Status = "away";
                 }
@@ -99,10 +102,10 @@ namespace SSNoir.Core
             else if (actor.Role == "protagonist")
             {
                 int curStress = actor.Stress;
-                if (curStress < 6)
+                if (curStress < MaxStress)
                 {
-                    actor.Stress = Math.Min(6, curStress + amount);
-                    int overflow = (curStress + amount) - 6;
+                    actor.Stress = Math.Min(MaxStress, curStress + amount);
+                    int overflow = (curStress + amount) - MaxStress;
                     if (overflow > 0)
                     {
                         Health -= overflow;
@@ -133,7 +136,7 @@ namespace SSNoir.Core
             else
             {
                 actor.Stress = newStress;
-                if (actor.Role == "companion" && actor.Stress < 6 && actor.Status == "away")
+                if (actor.Role == "companion" && actor.Stress < MaxStress && actor.Status == "away")
                 {
                     if (actor.Stress == 0)
                     {
@@ -156,15 +159,8 @@ namespace SSNoir.Core
                 Satiety -= 1;
             }
 
-            // 2. Reduce stress for everyone by 1, and recovery away status if stress reaches 0
-            foreach (var actor in Actors)
-            {
-                actor.Stress = Math.Max(0, actor.Stress - 1);
-                if (actor.Role == "companion" && actor.Stress == 0 && actor.Status == "away")
-                {
-                    actor.Status = "active";
-                }
-            }
+            // 2. Stress is content-driven (sleep, shelter, events), not a universal
+            // turn-end effect. EndTurn only advances mandatory systemic state.
 
             // 3. Roll action dice for active members
             RollActionDice(isInEncounter);

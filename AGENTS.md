@@ -5,6 +5,7 @@
 ## 文档导航
 
 - **架构总览(先读这个理解项目)**：[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **城市生活设计（内容与机制源头）**：[docs/城市生活设计.md](docs/城市生活设计.md)
 - **Scheme 内容编写指南(写 .scm:DSL + 约定)**：[SCHEMY.md](SCHEMY.md)
 - **改 Schemy 解释器本身(库开发)**：[schemy-master/AGENTS.md](schemy-master/AGENTS.md)
 - **Unity 客户端 UI 规则**：[UnityClient/AGENTS.md](UnityClient/AGENTS.md)
@@ -35,6 +36,8 @@
 避免不必要的频繁测试和构建。只有在必要时（例如：进行大量代码修改、完成某一模块的重构、或者需要排查并验证是否存在特定错误时）才进行检查。
 - 语法检查（仅在可能遗留括号缺失等低级语法错误或大范围重构时）
 - 全量内容校验与最小状态模拟（仅在需要验证复杂边界逻辑行为或修复疑难问题时）
+- 不要默认向 `GameTester` 添加测试。它只用于验证稳定的底层引擎 / DSL 契约、高风险且容易静默损坏的基础功能，或用户明确要求覆盖的行为。
+- 不要把频繁变化的剧情流程、内容节点名称、数值平衡或完整游玩弧线固化进 `GameTester`；这类测试难以跟随内容迭代，会拖慢修改速度。
 
 # Content 同步规则
 - Unity 客户端中的 `StreamingAssets/Content`、`Resources/Content` 和 `Fonts` 资源是从项目根目录的 `Content` 目录同步复制过去的（详见 [ContentSyncEditor.cs](UnityClient/Assets/Editor/ContentSyncEditor.cs)）, Unity 客户端在加载或进入 Play 模式时会自动运行同步导入, 不需要agent操作这些文件。

@@ -176,12 +176,12 @@ namespace SSNoir.Core
             );
 
             interpreter.RawInterpreter.DefineGlobal(
-                Symbol.FromString("end-turn!"),
+                Symbol.FromString("__end-turn!"),
                 new NativeProcedure(args =>
                 {
                     EndTurn();
                     return new None();
-                }, "end-turn!")
+                }, "__end-turn!")
             );
         }
 
@@ -279,11 +279,11 @@ namespace SSNoir.Core
                 inventory[item.Key] = item.Value;
             }
 
-            var reputation = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            var relations = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
             {
-                ["mayor"] = _gameState.Get<int>("reputation:mayor"),
-                ["workers"] = _gameState.Get<int>("reputation:workers"),
-                ["elites"] = _gameState.Get<int>("reputation:elites"),
+                ["官僚"] = _gameState.Get<int>("relation:官僚"),
+                ["劳工"] = _gameState.Get<int>("relation:劳工"),
+                ["富商"] = _gameState.Get<int>("relation:富商"),
             };
 
             var actors = new List<ActorSnapshot>();
@@ -307,12 +307,12 @@ namespace SSNoir.Core
                 RootNode = rootNode,
                 Health = _gameState.Team.Health,
                 MaxHealth = _gameState.Team.MaxHealth,
-                Supplies = _gameState.Team.Supplies,
-                MaxSupplies = _gameState.Team.MaxSupplies,
+                Satiety = _gameState.Team.Satiety,
+                MaxSatiety = _gameState.Team.MaxSatiety,
                 GrowthLevel = _gameState.Team.GrowthLevel,
                 Location = _gameState.Get<string>("location"),
                 Inventory = inventory,
-                Reputation = reputation,
+                Relations = relations,
                 Actors = actors,
             };
         }
@@ -352,13 +352,31 @@ namespace SSNoir.Core
             ActiveInterpreter.Eval("(on-turn-end)");
 
             bool isInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
+            int healthBefore = _gameState.Team.Health;
+            int satietyBefore = _gameState.Team.Satiety;
             _gameState.Team.EndTurn(isInEncounter);
+
+            var report = _gameState.CurrentActionReport;
+            if (report != null)
+            {
+                int satietyDelta = _gameState.Team.Satiety - satietyBefore;
+                report.AddEffect(
+                    ActionEffectKind.Satiety, "饱腹", satietyDelta,
+                    satietyDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+
+                int healthDelta = _gameState.Team.Health - healthBefore;
+                report.AddEffect(
+                    ActionEffectKind.Health, "健康", healthDelta,
+                    healthDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+            }
 
             RebuildRenderTree();
         }
 
         public ActionReport ExecuteAction(GameNode node, List<SlottedResource?> slots)
         {
+            if (node.Disabled)
+                throw new InvalidOperationException($"Node '{node.Name}' is disabled and cannot be executed.");
             Debug.Assert(node.Resolve != null, "Cannot execute action on a node that has no resolve");
             if (node.Resolve.Type == ResolveType.Observe)
             {

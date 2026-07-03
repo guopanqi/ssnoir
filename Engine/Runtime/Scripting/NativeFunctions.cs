@@ -24,7 +24,12 @@ namespace SSNoir.Scripting
                 string itemId = SchemeValue.AsId(args[0]);
                 int count = SchemeValue.ToInt(args[1]);
                 if (count < 0) throw new ArgumentException("item count cannot be negative");
+                int before = gameState.Inventory.GetCount(itemId);
                 gameState.Inventory.SetCount(itemId, count);
+                int delta = count - before;
+                gameState.CurrentActionReport?.AddEffect(
+                    ActionEffectKind.Item, itemId, delta,
+                    delta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                 return new None();
             }, "__set-item-count!"));
 
@@ -37,7 +42,12 @@ namespace SSNoir.Scripting
             {
                 if (args.Count < 1) throw new ArgumentException("__set-party-health! requires 1 argument");
                 int n = SchemeValue.ToInt(args[0]);
+                int before = gameState.Team.Health;
                 gameState.Team.Health = Math.Clamp(n, 0, gameState.Team.MaxHealth);
+                int delta = gameState.Team.Health - before;
+                gameState.CurrentActionReport?.AddEffect(
+                    ActionEffectKind.Health, "健康", delta,
+                    delta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                 return new None();
             }, "__set-party-health!"));
 
@@ -50,9 +60,40 @@ namespace SSNoir.Scripting
             {
                 if (args.Count < 1) throw new ArgumentException("__set-party-satiety! requires 1 argument");
                 int n = SchemeValue.ToInt(args[0]);
+                int before = gameState.Team.Satiety;
                 gameState.Team.Satiety = Math.Clamp(n, 0, gameState.Team.MaxSatiety);
+                int delta = gameState.Team.Satiety - before;
+                gameState.CurrentActionReport?.AddEffect(
+                    ActionEffectKind.Satiety, "饱腹", delta,
+                    delta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                 return new None();
             }, "__set-party-satiety!"));
+
+            // 势力关系档位：读 relation:<faction> 的当前整数值，按 RelationScale 折算成档位序号（0..4）。
+            interpreter.DefineGlobal(Symbol.FromString("__relation-band-index"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("__relation-band-index requires 1 argument: faction");
+                string faction = SchemeValue.AsId(args[0]);
+                return RelationScale.BandIndex(gameState.Get<int>("relation:" + faction));
+            }, "__relation-band-index"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__change-faction-relation!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 2) throw new ArgumentException("__change-faction-relation! requires 2 arguments: faction and delta");
+                string faction = SchemeValue.AsId(args[0]);
+                if (faction != "官僚" && faction != "劳工" && faction != "富商")
+                    throw new ArgumentException($"unknown faction '{faction}'");
+                int requestedDelta = SchemeValue.ToInt(args[1]);
+                string key = "relation:" + faction;
+                int before = gameState.Get<int>(key);
+                int after = Math.Clamp(before + requestedDelta, RelationScale.Min, RelationScale.Max);
+                gameState.Set(key, after);
+                int actualDelta = after - before;
+                gameState.CurrentActionReport?.AddEffect(
+                    ActionEffectKind.Relation, faction + "关系", actualDelta,
+                    actualDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                return new None();
+            }, "__change-faction-relation!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__growth-level"), new NativeProcedure(args =>
             {
@@ -64,7 +105,12 @@ namespace SSNoir.Scripting
                 if (args.Count < 1) throw new ArgumentException("__set-growth-level! requires 1 argument");
                 int n = SchemeValue.ToInt(args[0]);
                 if (n < 0) throw new ArgumentException("growth level cannot be negative");
+                int before = gameState.Team.GrowthLevel;
                 gameState.Team.GrowthLevel = n;
+                int delta = n - before;
+                gameState.CurrentActionReport?.AddEffect(
+                    ActionEffectKind.Growth, "成长", delta,
+                    delta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                 return new None();
             }, "__set-growth-level!"));
 
@@ -83,7 +129,20 @@ namespace SSNoir.Scripting
                 string actorId = SchemeValue.AsId(args[0]);
                 int n = SchemeValue.ToInt(args[1]);
                 if (n < 0) throw new ArgumentException("stress cannot be negative");
+                var actor = gameState.Team.FindActor(actorId);
+                if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
+                int stressBefore = actor.Stress;
+                int healthBefore = gameState.Team.Health;
                 gameState.Team.SetActorStressSafe(actorId, n);
+                int stressDelta = actor.Stress - stressBefore;
+                string stressLabel = gameState.CurrentContext?.ActorId == actorId ? "压力" : actor.Name + "压力";
+                gameState.CurrentActionReport?.AddEffect(
+                    ActionEffectKind.Stress, stressLabel, stressDelta,
+                    stressDelta < 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                int healthDelta = gameState.Team.Health - healthBefore;
+                gameState.CurrentActionReport?.AddEffect(
+                    ActionEffectKind.Health, "健康", healthDelta,
+                    healthDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                 return new None();
             }, "__set-actor-stress!"));
 
@@ -117,8 +176,8 @@ namespace SSNoir.Scripting
                 string statName = SchemeValue.AsId(args[1]);
                 
                 string normalizedStat = statName.ToLowerInvariant();
-                if (normalizedStat != "violence" && normalizedStat != "knowledge" && normalizedStat != "sharpness" && normalizedStat != "coding")
-                    throw new ArgumentException("statName must be violence/knowledge/sharpness/coding");
+                if (normalizedStat != "violence" && normalizedStat != "knowledge" && normalizedStat != "sharpness" && normalizedStat != "social")
+                    throw new ArgumentException("statName must be violence/knowledge/sharpness/social");
                 var actor = gameState.Team.FindActor(actorId);
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
                 return actor.Stats.TryGetValue(normalizedStat, out var val) ? val : 1;
@@ -143,6 +202,16 @@ namespace SSNoir.Scripting
                 gameState.NotificationCenter.Push(text, NotificationKind.Info);
                 return new None();
             }, "__notify!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__result-note!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1 || !(args[0] is string text) || string.IsNullOrWhiteSpace(text))
+                    throw new ArgumentException("__result-note! requires 1 non-empty string");
+                if (gameState.CurrentActionReport == null)
+                    throw new InvalidOperationException("result-note! can only be used while executing an action");
+                gameState.CurrentActionReport.AddNote(text);
+                return new None();
+            }, "__result-note!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__play-narration!"), new NativeProcedure(args =>
             {
@@ -206,9 +275,32 @@ namespace SSNoir.Scripting
                 if (args.Count < 2) throw new ArgumentException("__upgrade-actor-stat! requires 2 arguments: actor-id and stat-id");
                 string actorId = SchemeValue.AsId(args[0]);
                 string statId = SchemeValue.AsId(args[1]);
+                var actor = gameState.Team.FindActor(actorId)
+                    ?? throw new ArgumentException($"actor '{actorId}' not found");
+                int before = actor.Stats.TryGetValue(statId, out var value) ? value : 0;
                 gameState.Team.UpgradeActorStat(actorId, statId);
+                int delta = actor.Stats[statId] - before;
+                string label = statId switch
+                {
+                    "violence" => "力量",
+                    "knowledge" => "见识",
+                    "sharpness" => "敏锐",
+                    "social" => "交际",
+                    _ => statId,
+                };
+                gameState.CurrentActionReport?.AddEffect(
+                    ActionEffectKind.Growth, label, delta, ActionEffectTone.Positive);
                 return new None();
             }, "__upgrade-actor-stat!"));
+
+            // 可用成长点 = 队伍成长等级 − 该角色已花费（默认主角）。供内容层"长进"入口显示/门控。
+            interpreter.DefineGlobal(Symbol.FromString("__available-growth-points"), new NativeProcedure(args =>
+            {
+                string actorId = args.Count > 0 ? SchemeValue.AsId(args[0]) : "player";
+                var actor = gameState.Team.FindActor(actorId);
+                if (actor == null) return 0;
+                return gameState.Team.GetAvailableGrowthPoints(actor);
+            }, "__available-growth-points"));
 
             // --- Existing Native Procedures ---
             interpreter.DefineGlobal(Symbol.FromString("get-global"), new NativeProcedure(args =>

@@ -1,139 +1,284 @@
-;; scenes/world/home.scm - House Scene
+;; scenes/world/home.scm - 住所系统
+;; 旅馆（默认·付房租）→ 公寓（购买·资产中）→ 豪宅（购买·资产高）。
+;; 资产等级由拥有的住所推导，写入全局 '资产（供富商圈门槛用）。
+;; 恢复：旅馆睡觉压力 -1，自有住所睡觉压力 -2；门口露宿压力 +1。
+;; 吃饭补饱腹，喝酒/唱片/花缓解压力。住所中只能用药恢复健康。
 
 (define home
   (let ()
     ;; ── Local State ────────────────────────────────
+    (define residence "旅馆")        ; "旅馆" / "公寓" / "豪宅"
     (define has-flower? #f)
     (define has-gramophone? #f)
     (define playing-song "")
 
-    ;; 房租：家自己完全拥有。rent-due = 距交租还剩几天（countdown）。
-    ;; 交租 → rent-due += 6，rent-due-max 跟着跳（动态最大值）。归零没交 → 被赶出家（软罚）。
-    (define rent-due 6)
-    (define rent-due-max 6)
+    ;; 房租（仅旅馆）：rent-due = 距交租还剩几天。归零没交 → 被赶出（软罚）。
+    (define rent-due 3)
+    (define rent-due-max 3)
     (define rent-amount 40)
-    (define rent-extend 6)
+    (define rent-extend 3)
     (define evicted? #f)
 
-    (define (rent-render-data)
-      (list 'clock "房租到期" rent-due rent-due-max 'countdown))
+    ;; ── 资产推导 ────────────────────────────────────
+    (define (sync-asset!)
+      (set-global! '资产
+        (cond ((equal? residence "豪宅") "高")
+              ((equal? residence "公寓") "中")
+              (else "低"))))
+    (sync-asset!)
+
+    (define (in-hotel?) (equal? residence "旅馆"))
 
     ;; ── Rules ──────────────────────────────────────
+    ;; 房租只在住旅馆且未被赶出时流逝。
     (define-turn-rule "房租流逝"
-      (lambda () (not evicted?))
+      (lambda () (and (in-hotel?) (not evicted?)))
       (lambda ()
         (set! rent-due (- rent-due 1))
         (if (<= rent-due 0)
             (begin
               (set! rent-due 0)
               (set! evicted? #t)
-              (notify! "你交不出房租，房东把你的家锁了起来。"))
+              (notify! "你交不出房租，旅馆老板把门锁了。"))
             (if (<= rent-due 2)
-                (notify! "房租快到期了，记得回家找房东交租。")
+                (notify! "房租快到期了，记得交租。")
                 #f))))
 
-    ;; ── Node Definitions ──────────────────────────
-    (define (node-flower)
-      (observe-action "一盆花" "一盆散发着淡淡微香的白色雏菊，正静静地盛开着。"))
+    (define (rent-render-data)
+      (list 'clock "房租到期" rent-due rent-due-max 'countdown
+            "归零后旅馆房门会被锁上；交租可延长六天。"))
 
-    ;; 客厅：吃饭 / 喝酒，都是消耗资源换恢复。
+    ;; ── 恢复类 ──────────────────────────────────────
     (define (node-eat)
       (action "吃饭"
-              (list (req-item "食物" 1))
-              (instant
-                (lambda ()
-                  (add-supplies! 3)
-                  (notify! "你给自己做了顿饭，饱腹恢复了一些。")))))
+        (list (req-item "食物" 1))
+        (instant (lambda ()
+                   (add-satiety! 3)
+                   (notify! "你给自己做了顿饭，饱腹恢复了一些。")))))
 
-    (define (node-drink-wine)
+    ;; 看花 / 听唱片这类白天解压占一颗骰子（与工作争夺骰子池）；睡觉免费（回合结束）。
+    ;; 喝酒不占骰子，走“花钱买酒”这条线：垫点饱腹，松松神经。
+    (define (node-drink)
       (action "喝酒"
-              (list (req-item '酒 1))
-              (instant (lambda ()
-                         (heal-party! 1)))))
+        (list (req-item "酒" 1))
+        (instant
+          (outcome "借酒松神" "一杯下肚，紧绷的神经松了些，肚子也垫了垫。"
+            (lambda ()
+              (add-satiety! 1)
+              (heal-stress! 'player 2))))))
 
-    (define (node-living-room)
-      (container "客厅"
-        (list (node-eat) (node-drink-wine))))
+    ;; 用药：在住所中上药休养，不占用行动骰。
+    (define (node-use-medicine)
+      (action "用药"
+        (list (req-item "药品" 1))
+        (instant (lambda ()
+                   (heal-party! 3)
+                   (notify! "上了药、包扎好，伤口松快了些。")))))
+
+    (define (node-see-flower)
+      (action "看花"
+        (list (req-die))
+        (instant
+          (outcome "出神片刻" "白色的雏菊静静开着。你出神看了一会儿，心里松快了些。"
+            (lambda () (heal-stress! 'player 2))))))
 
     (define (format-song-name name)
-      (if (equal? playing-song name)
-          (string-append "-> " name)
-          name))
+      (if (equal? playing-song name) (string-append "-> " name) name))
+
+    ;; 听唱片：占一颗骰子，比看花更能缓神（值回那台机器的钱）。
+    (define (song-action name)
+      (action (format-song-name name)
+        (list (req-die))
+        (instant
+          (outcome "乐声流淌" "针尖落下，旧曲子转起来。你靠在椅背上，跟着晃了晃。"
+            (lambda ()
+              (set! playing-song name)
+              (heal-stress! 'player 3))))))
 
     (define (node-gramophone)
-      ;; 这会改变名字/ID, 会有一些麻烦, 但现在先不管
       (container "唱片机"
         (list
-          (instant-action (format-song-name "《甜蜜蜜》")
-                          (lambda () (set! playing-song "《甜蜜蜜》")))
-          (instant-action (format-song-name "《怒放的生命》")
-                          (lambda () (set! playing-song "《怒放的生命》")))
-          (instant-action (format-song-name "《爵士舞曲》")
-                          (lambda () (set! playing-song "《爵士舞曲》")))
+          (song-action "《甜蜜蜜》")
+          (song-action "《怒放的生命》")
+          (song-action "《爵士舞曲》")
           (instant-action "停止播放"
-                          (lambda () (set! playing-song ""))))))
+            (lambda () (set! playing-song ""))))))
 
-    ;; 房东：可主动交租。交一次租期延长，并解除被锁状态。
-    (define (node-landlord)
-      (action "找房东交租"
-              (list (req-item "金钱" rent-amount))
-              (instant
-                (lambda ()
-                  (set! rent-due (+ rent-due rent-extend))
-                  (set! rent-due-max rent-due)
-                  (set! evicted? #f)
-                  (notify! (string-append "你交了 " (number->string rent-amount)
-                                          " 金钱房租，租期延到 "
-                                          (number->string rent-due) " 天。"))))))
+    (define (rest-tags)
+      (if (rest-blocked?)
+          (append (list "不可休息") (rest-block-reasons))
+          '()))
 
     (define (node-sleep)
-      (instant-action "睡觉"
-                      (lambda () (end-turn!))))
+      (node "睡觉"
+        :disabled (rest-blocked?)
+        :tags (rest-tags)
+        :resolve (instant
+          (outcome
+            (if (in-hotel?) "睡了一夜" "安稳休息")
+            (if (in-hotel?)
+                "旅馆的床不算舒服，但至少能遮风挡雨。"
+                "这是属于你的住所，你终于能安稳睡下。")
+            (lambda ()
+              (heal-stress! 'player (if (in-hotel?) 1 2))
+              (end-turn!))))))
 
-    ;; 家：常驻显示房租 clock。被赶出后只剩门口 + 交租 + 睡觉。
-    (define (home-children)
+    (define (node-sleep-at-door)
+      (node "蜷缩在门口"
+        :disabled (rest-blocked?)
+        :tags (rest-tags)
+        :resolve (instant
+          (outcome "无处可去"
+                   "房门锁着。你靠着墙蜷了一夜，寒气一直往衣服里钻。"
+            (lambda ()
+              (add-actor-stress! 'player 1)
+              (end-turn!))))))
+
+    ;; ── 交易 / 布置 / 升级 ──────────────────────────
+    (define (node-pay-rent)
+      (action "交租"
+        (list (req-item "金钱" rent-amount))
+        (instant (lambda ()
+                   (set! rent-due (+ rent-due rent-extend))
+                   (set! rent-due-max rent-due)
+                   (set! evicted? #f)
+                   (notify! (string-append "你交了 " (number->string rent-amount)
+                                           " 金钱房租，租期延到 "
+                                           (number->string rent-due) " 天。"))))))
+
+    ;; 买酒：可反复购买的消耗品。带回家喝 → 少量饱腹 + 解压（不占骰子的解压路子）。
+    (define (node-buy-liquor)
+      (action "买酒"
+        (list (req-item "金钱" 8))
+        (instant (lambda () (add-item! "酒" 1) (notify! "打了一壶酒，搁在柜子里。")))))
+
+    (define (node-buy-flower)
+      (action "买一盆花"
+        (list (req-item "金钱" 15))
+        (instant (lambda () (set! has-flower? #t) (notify! "你买了一盆雏菊，摆在窗台。")))))
+
+    (define (node-buy-gramophone)
+      (action "买台唱片机"
+        (list (req-item "金钱" 60))
+        (instant (lambda () (set! has-gramophone? #t) (notify! "一台旧唱片机，还能转。")))))
+
+    (define (node-buy-apartment)
+      (action "买下公寓"
+        (list (req-item "金钱" 120))
+        (instant (lambda ()
+                   (set! residence "公寓")
+                   (sync-asset!)
+                   (notify! "你签下了公寓。不用再看旅馆老板的脸色了。")))))
+
+    (define (node-buy-mansion)
+      (action "买下豪宅"
+        (list (req-item "金钱" 400))
+        (instant (lambda ()
+                   (set! residence "豪宅")
+                   (sync-asset!)
+                   (notify! "富人飞地的一栋豪宅。你成了这里的新住户。")))))
+
+    ;; ── 组装子节点 ──────────────────────────────────
+    ;; 客厅：日常恢复 + 已拥有的家具。
+    (define (living-room-children)
+      (append
+        (list (node-eat) (node-drink) (node-use-medicine))
+        (if has-flower? (list (node-see-flower)) '())
+        (if has-gramophone? (list (node-gramophone)) '())))
+
+    (define (node-living-room)
+      (container "客厅" (living-room-children)))
+
+    ;; 订购：购买入口（以后可能挪到市集）。买酒可反复买，花/唱片机买过即消失。
+    (define (order-children)
+      (append
+        (list (node-buy-liquor))
+        (if has-flower? '() (list (node-buy-flower)))
+        (if has-gramophone? '() (list (node-buy-gramophone)))))
+
+    (define (order-nodes)
+      (if (null? (order-children)) '() (list (container "订购" (order-children)))))
+
+    (define (upgrade-nodes)
+      (cond ((equal? residence "旅馆") (list (node-buy-apartment)))
+            ((equal? residence "公寓") (list (node-buy-mansion)))
+            (else '())))
+
+    ;; ── 长进：把成长点投进属性 ──────────────────────
+    ;; 有可用成长点时才出现「长进」节点；每个属性未满级（<6）才可练。
+    (define (train-action key label)
+      (action (string-append "练" label) #f
+        (instant
+          (outcome (string-append label "长进了")
+                   "你把这些日子的历练，沉淀成了实打实的本事。"
+            (lambda () (upgrade-actor-stat! 'player key))))))
+
+    (define (train-children)
+      (append
+        (if (< (actor-stat 'player 'violence) 6)  (list (train-action 'violence "力量"))  '())
+        (if (< (actor-stat 'player 'knowledge) 6) (list (train-action 'knowledge "见识")) '())
+        (if (< (actor-stat 'player 'sharpness) 6) (list (train-action 'sharpness "敏锐")) '())
+        (if (< (actor-stat 'player 'social) 6)    (list (train-action 'social "交际"))    '())))
+
+    (define (growth-nodes)
+      (if (> (available-growth-points) 0)
+          (list (node "长进"
+                  :subtitle (string-append "可用成长点 " (number->string (available-growth-points)))
+                  :children (train-children)))
+          '()))
+
+    (define (hotel-body)
       (if evicted?
-          (list
-            (observe-action "锁着的家门" "房东把门锁了。先把房租交了才能回去。")
-            (node-landlord)
-            (node-sleep))
+          (list (observe-action "锁着的房门" "先把房租交了才能回去。")
+                (node-pay-rent) (node-sleep-at-door))
           (append
-            (if has-flower? (list (node-flower)) '())
-            (if has-gramophone? (list (node-gramophone)) '())
-            (list (node-living-room) (node-landlord) (node-sleep)))))
+            (list (node-living-room))
+            (growth-nodes)
+            (order-nodes)
+            (list (node-pay-rent))
+            (upgrade-nodes)
+            (list (node-sleep)))))
+
+    (define (owned-body)
+      (append
+        (list (node-living-room))
+        (growth-nodes)
+        (order-nodes)
+        (upgrade-nodes)
+        (list (node-sleep))))
+
+    ;; 容器名固定为“家”（导航按名字定位，不能随住所变），住所等级放 subtitle 显示。
+    (define (residence-container)
+      (if (in-hotel?)
+          (node "家" :subtitle residence :children (hotel-body) :clocks (list (rent-render-data)))
+          (node "家" :subtitle residence :children (owned-body))))
 
     ;; ── Message Passing Interface ─────────────────
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list
-             (container-with-clocks "家"
-               (home-children)
-               (list (rent-render-data)))))
-
-          ((equal? msg 'has-gramophone?) has-gramophone?)
-          ((equal? msg 'buy-gramophone!) (set! has-gramophone? #t))
-
-          ((equal? msg 'has-flower?) has-flower?)
-          ((equal? msg 'buy-flower!) (set! has-flower? #t))
+           (list (residence-container)))
 
           ((equal? msg 'save)
            (list
-             (list "has-flower?" has-flower?)
+             (list "residence"      residence)
+             (list "has-flower?"    has-flower?)
              (list "has-gramophone?" has-gramophone?)
-             (list "playing-song" playing-song)
-             (list "rent-due" rent-due)
-             (list "rent-due-max" rent-due-max)
-             (list "evicted?" evicted?)))
+             (list "playing-song"   playing-song)
+             (list "rent-due"       rent-due)
+             (list "rent-due-max"   rent-due-max)
+             (list "evicted?"       evicted?)))
 
           ((equal? msg 'load!)
            (let ((data (cadr args)))
-             (set! has-flower? (assoc-get data "has-flower?" #f))
+             (set! residence      (assoc-get data "residence" "旅馆"))
+             (set! has-flower?    (assoc-get data "has-flower?" #f))
              (set! has-gramophone? (assoc-get data "has-gramophone?" #f))
-             (set! playing-song (assoc-get data "playing-song" ""))
-             (set! rent-due (assoc-get data "rent-due" 6))
-             (set! rent-due-max (assoc-get data "rent-due-max" 6))
-             (set! evicted? (assoc-get data "evicted?" #f))))
+             (set! playing-song   (assoc-get data "playing-song" ""))
+             (set! rent-due       (assoc-get data "rent-due" 3))
+             (set! rent-due-max   (assoc-get data "rent-due-max" 3))
+             (set! evicted?       (assoc-get data "evicted?" #f))
+             (sync-asset!)))
 
           (#t #f))))))

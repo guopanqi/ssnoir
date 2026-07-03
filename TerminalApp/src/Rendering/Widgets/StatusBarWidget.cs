@@ -30,27 +30,27 @@ namespace SSNoir.Rendering
                 healthColor = new Color(245, 80, 80, 255); // Urgent: Critical Red
             }
 
-            // Dynamic Supplies Color
-            Color suppliesColor;
-            float suppliesPct = snapshot.MaxSupplies > 0 ? (float)snapshot.Supplies / snapshot.MaxSupplies : 0f;
-            if (suppliesPct >= 0.65f)
+            // Dynamic Satiety Color
+            Color satietyColor;
+            float satietyPct = snapshot.MaxSatiety > 0 ? (float)snapshot.Satiety / snapshot.MaxSatiety : 0f;
+            if (satietyPct >= 0.65f)
             {
-                suppliesColor = new Color(80, 220, 120, 255); // Safe: Vibrant Emerald Green
+                satietyColor = new Color(80, 220, 120, 255); // Safe: Vibrant Emerald Green
             }
-            else if (suppliesPct >= 0.3f)
+            else if (satietyPct >= 0.3f)
             {
-                suppliesColor = new Color(245, 175, 55, 255); // Warning: Warm Amber/Orange
+                satietyColor = new Color(245, 175, 55, 255); // Warning: Warm Amber/Orange
             }
             else
             {
-                suppliesColor = new Color(245, 80, 80, 255); // Urgent: Critical Red
+                satietyColor = new Color(245, 80, 80, 255); // Urgent: Critical Red
             }
 
             FontManager.DrawText("健康: ", 30, statusY + 4, 13, new Color(200, 200, 220, 255));
             FontManager.DrawText($"{snapshot.Health}/{snapshot.MaxHealth}", 70, statusY + 4, 13, healthColor);
 
             FontManager.DrawText("饱腹: ", 130, statusY + 4, 13, new Color(200, 200, 220, 255));
-            FontManager.DrawText($"{snapshot.Supplies}/{snapshot.MaxSupplies}", 170, statusY + 4, 13, suppliesColor);
+            FontManager.DrawText($"{snapshot.Satiety}/{snapshot.MaxSatiety}", 170, statusY + 4, 13, satietyColor);
 
             FontManager.DrawText("场景: ", 230, statusY + 4, 13, new Color(200, 200, 220, 255));
             FontManager.DrawText(snapshot.Location.ToUpper(), 270, statusY + 4, 13, new Color(100, 220, 100, 255));

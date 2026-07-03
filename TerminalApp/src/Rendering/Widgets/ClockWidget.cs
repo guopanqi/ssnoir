@@ -9,12 +9,12 @@ namespace SSNoir.Rendering
         public static float Draw(RendererState state, float y, float windowWidth)
         {
             var clocksToShow = new List<GameClock>();
-            if (state.NavigationStack.Count == 0)
+            if (state.DisplayedSnapshot.RootNode != null)
             {
-                if (state.DisplayedSnapshot.RootNode != null)
-                    clocksToShow.AddRange(state.DisplayedSnapshot.RootNode.Clocks);
+                // 世界级排期始终可见，不因玩家进入某个地点而消失。
+                clocksToShow.AddRange(state.DisplayedSnapshot.RootNode.Clocks);
             }
-            else
+            if (state.NavigationStack.Count > 0)
             {
                 var currentNode = state.NavigationStack[state.NavigationStack.Count - 1];
                 if (currentNode.Clocks != null)
@@ -28,6 +28,7 @@ namespace SSNoir.Rendering
                 return 110f;
             }
 
+            bool hasNotes = clocksToShow.Exists(clock => !string.IsNullOrEmpty(clock.Note));
             float x = 40f;
             FontManager.DrawText("当前节点状态: ", x, y, 14, new Color(150, 150, 170, 255));
             x += 105;
@@ -37,13 +38,15 @@ namespace SSNoir.Rendering
                 DrawDetailedClock(ref x, y, clock);
             }
 
-            Raylib.DrawLineEx(new System.Numerics.Vector2(40, y + 25), new System.Numerics.Vector2(windowWidth - 40, y + 25), 1.0f, new Color(50, 50, 60, 255));
+            float dividerY = y + (hasNotes ? 43f : 25f);
+            Raylib.DrawLineEx(new System.Numerics.Vector2(40, dividerY), new System.Numerics.Vector2(windowWidth - 40, dividerY), 1.0f, new Color(50, 50, 60, 255));
 
-            return y + 40f;
+            return y + (hasNotes ? 58f : 40f);
         }
 
         private static void DrawDetailedClock(ref float x, float y, GameClock clock)
         {
+            float startX = x;
             Color textColor = new Color(200, 200, 220, 255);
             Color activeColor = new Color(130, 130, 250, 255);
             Color inactiveColor = new Color(45, 45, 55, 255);
@@ -109,6 +112,13 @@ namespace SSNoir.Rendering
                 }
 
                 x += labelWidth + 8 + clock.Max * 14 + 20;
+            }
+
+            if (!string.IsNullOrEmpty(clock.Note))
+            {
+                FontManager.DrawText(clock.Note, startX, y + 22f, 12, new Color(135, 140, 160, 255));
+                int noteWidth = FontManager.MeasureTextWidth(clock.Note, 12);
+                x = System.Math.Max(x, startX + noteWidth + 20f);
             }
         }
     }

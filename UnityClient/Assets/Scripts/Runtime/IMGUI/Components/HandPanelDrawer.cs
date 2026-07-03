@@ -332,16 +332,16 @@ namespace SSNoir.IMGUI
 
             GUI.Label(new Rect(158, statusY + 3, 58, 22), "饱腹:", statusStyle);
 
-            float suppliesPct = snapshot.MaxSupplies > 0 ? (float)snapshot.Supplies / snapshot.MaxSupplies : 0f;
-            var suppliesStyle = new GUIStyle(statusStyle)
+            float satietyPct = snapshot.MaxSatiety > 0 ? (float)snapshot.Satiety / snapshot.MaxSatiety : 0f;
+            var satietyStyle = new GUIStyle(statusStyle)
             {
-                normal = { textColor = suppliesPct >= 0.65f
+                normal = { textColor = satietyPct >= 0.65f
                     ? new Color(0.31f, 0.86f, 0.47f, 1f)
-                    : suppliesPct >= 0.3f
+                    : satietyPct >= 0.3f
                         ? new Color(0.96f, 0.69f, 0.22f, 1f)
                         : new Color(0.96f, 0.31f, 0.31f, 1f) }
             };
-            GUI.Label(new Rect(212, statusY + 3, 80, 22), $"{snapshot.Supplies}/{snapshot.MaxSupplies}", suppliesStyle);
+            GUI.Label(new Rect(212, statusY + 3, 80, 22), $"{snapshot.Satiety}/{snapshot.MaxSatiety}", satietyStyle);
 
             GUI.Label(new Rect(292, statusY + 3, 58, 22), "场景:", statusStyle);
             var locStyle = new GUIStyle(statusStyle)

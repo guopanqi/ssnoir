@@ -27,7 +27,7 @@ namespace SSNoir.Core
             { "violence", 1 },
             { "knowledge", 1 },
             { "sharpness", 1 },
-            { "coding", 1 }
+            { "social", 1 }
         };
     }
 }

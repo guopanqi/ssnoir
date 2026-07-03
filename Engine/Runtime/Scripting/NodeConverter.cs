@@ -52,6 +52,7 @@ namespace SSNoir.Scripting
             List<ActionCost> requires = new List<ActionCost>();
             GameResolve? resolve = null;
             string subtitle = string.Empty;
+            bool disabled = false;
 
             for (int i = 2; i < nodeExpr.Count; i += 2)
             {
@@ -92,6 +93,12 @@ namespace SSNoir.Scripting
                 {
                     subtitle = val as string ?? string.Empty;
                 }
+                else if (kwStr == ":disabled")
+                {
+                    if (!(val is bool parsedDisabled))
+                        throw new InvalidOperationException("Node :disabled must be a boolean.");
+                    disabled = parsedDisabled;
+                }
                 else
                 {
                     throw new InvalidOperationException($"Unknown node keyword {kwStr}");
@@ -102,6 +109,7 @@ namespace SSNoir.Scripting
             {
                 Name = name,
                 Subtitle = subtitle,
+                Disabled = disabled,
                 Tags = tags,
                 Children = children,
                 Requires = requires,
@@ -383,7 +391,15 @@ namespace SSNoir.Scripting
             if (styleStr.Equals("countdown", StringComparison.OrdinalIgnoreCase)) style = ClockStyle.Countdown;
             else if (styleStr.Equals("pie", StringComparison.OrdinalIgnoreCase)) style = ClockStyle.Pie;
 
-            return new GameClock { Label = label, Current = current, Max = max, Style = style };
+            string note = string.Empty;
+            if (expr.Count >= 6)
+            {
+                if (!(expr[5] is string parsedNote))
+                    throw new InvalidOperationException("Clock note must be a string.");
+                note = parsedNote;
+            }
+
+            return new GameClock { Label = label, Note = note, Current = current, Max = max, Style = style };
         }
     }
 }

@@ -23,10 +23,12 @@ namespace SSNoir.IMGUI
             CardPresentationResidue? residue = null)
         {
             var interaction = new CardInteraction { CardClicked = false, ClickedSlotIndex = -1, DroppedSlotIndex = -1, ExecuteClicked = false };
+            bool disabled = node.Disabled;
 
             if (isFlipped)
             {
-                DrawFlippedCard(rect, node, backText, isHovered, ui, ref interaction, gameManager);
+                DrawFlippedCard(rect, node, backText, isHovered && !disabled, ui, ref interaction, gameManager);
+                if (disabled) interaction.CardClicked = false;
                 return interaction;
             }
 
@@ -35,7 +37,7 @@ namespace SSNoir.IMGUI
             if (isLocation && !isFocused)
             {
                 DrawLocationLabel(rect, node.Name, isHovered);
-                if (isHovered && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                if (!disabled && isHovered && Event.current.type == EventType.MouseDown && Event.current.button == 0)
                 {
                     interaction.CardClicked = true;
                     Event.current.Use();
@@ -76,8 +78,18 @@ namespace SSNoir.IMGUI
                 }
             }
 
+            if (disabled)
+            {
+                normalColor = new Color(0.10f, 0.10f, 0.11f, 0.96f);
+                hoverColor = normalColor;
+                outlineNormal = new Color(0.28f, 0.28f, 0.30f, 1f);
+                outlineHover = outlineNormal;
+            }
+
             Color bgColor = isHovered ? hoverColor : (isFocused ? hoverColor : normalColor);
-            Color outlineColor = isHovered ? outlineHover : (isFocused ? IMGUIStyles.PrimaryColor : outlineNormal);
+            Color outlineColor = disabled
+                ? outlineNormal
+                : isHovered ? outlineHover : (isFocused ? IMGUIStyles.PrimaryColor : outlineNormal);
             float outlineThickness = (isHovered || isFocused) ? 2f : 1f;
 
             // Draw card background
@@ -87,7 +99,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawOutline(rect, outlineThickness, outlineColor);
 
             // Draw subtle horizontal scanline animation over active focused panels
-            if (isFocused)
+            if (isFocused && !disabled)
             {
                 IMGUIStyles.DrawScanLine(rect, new Color(0.671f, 0.780f, 1.0f, 0.15f), 100f, 1.5f);
             }
@@ -109,7 +121,9 @@ namespace SSNoir.IMGUI
 
             // Title
             float titleY = showButton ? rect.y + 12 : rect.y + rect.height / 2f - (hasSubtitle ? 34 : 24);
-            GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, 28), node.Name, IMGUIStyles.CardTitle);
+            var titleStyle = new GUIStyle(IMGUIStyles.CardTitle);
+            if (disabled) titleStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
+            GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, 28), node.Name, titleStyle);
 
             if (hasSubtitle)
             {
@@ -119,6 +133,7 @@ namespace SSNoir.IMGUI
                     alignment = TextAnchor.MiddleCenter,
                     wordWrap = false
                 };
+                if (disabled) subtitleStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
                 GUI.Label(new Rect(rect.x + 12f, titleY + 28f, rect.width - 24f, 20f), node.Subtitle, subtitleStyle);
             }
 
@@ -143,10 +158,10 @@ namespace SSNoir.IMGUI
                 for (int j = 0; j < M; j++)
                 {
                     var slotRect = new Rect(slotStartX + j * (slotW + spacing), slotY, slotW, slotH);
-                    bool slotHover = ui.CanHover(slotRect);
+                    bool slotHover = !disabled && ui.CanHover(slotRect);
                     var res = slots[j];
-                    bool canMatchHeld = gameManager.CanMatchRequirement(requires[j]);
-                    bool canDropHeld = gameManager.CanPlaceSelectedResource(node, j);
+                    bool canMatchHeld = !disabled && gameManager.CanMatchRequirement(requires[j]);
+                    bool canDropHeld = !disabled && gameManager.CanPlaceSelectedResource(node, j);
 
                     if (res == null)
                     {
@@ -184,7 +199,7 @@ namespace SSNoir.IMGUI
                         GUI.Label(slotRect, valStr, vStyle);
                     }
 
-                    if (ui.WasClicked(slotRect))
+                    if (!disabled && ui.WasClicked(slotRect))
                     {
                         interaction.ClickedSlotIndex = j;
                         Event.current.Use();
@@ -211,7 +226,7 @@ namespace SSNoir.IMGUI
                 {
                     DrawExecuteProgress(exeRect, executeProgress, executingText);
                 }
-                else if (allFilled)
+                else if (allFilled && !disabled)
                 {
                     if (IMGUIButton.Draw(exeRect, "执行", ui, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
                     {
@@ -220,7 +235,7 @@ namespace SSNoir.IMGUI
                 }
                 else
                 {
-                    IMGUIButton.Draw(exeRect, "待命", ui, IMGUIStyles.OutlineVariantColor, Color.clear, IMGUIStyles.ExecuteLabel, false);
+                    IMGUIButton.Draw(exeRect, disabled ? "不可用" : "待命", ui, IMGUIStyles.OutlineVariantColor, Color.clear, IMGUIStyles.ExecuteLabel, false);
                 }
             }
             else if (showButton)
@@ -236,7 +251,7 @@ namespace SSNoir.IMGUI
                 {
                     DrawExecuteProgress(exeRect, executeProgress, executingText);
                 }
-                else if (IMGUIButton.Draw(exeRect, "执行", ui, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+                else if (IMGUIButton.Draw(exeRect, disabled ? "不可用" : "执行", ui, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel, !disabled))
                 {
                     interaction.ExecuteClicked = true;
                 }
@@ -244,7 +259,7 @@ namespace SSNoir.IMGUI
             else
             {
                 // Simple card click
-                if (ui.WasClicked(rect))
+                if (!disabled && ui.WasClicked(rect))
                 {
                     interaction.CardClicked = true;
                     Event.current.Use();
@@ -414,6 +429,28 @@ namespace SSNoir.IMGUI
             };
         }
 
+        // 标签配色：工作/风险标签全局一致，与终端 CardWidget.TagColors 保持一致。
+        private static (Color bg, Color border, Color text) TagColors(string label)
+        {
+            switch (label)
+            {
+                case "交锋":
+                    return (new Color(0.37f, 0.13f, 0.13f, 0.90f), new Color(0.82f, 0.34f, 0.30f, 1f), new Color(1f, 0.84f, 0.80f, 1f));
+                case "工作": // 能赚钱：青绿
+                    return (new Color(0.11f, 0.23f, 0.25f, 0.86f), new Color(0.35f, 0.71f, 0.75f, 1f), new Color(0.82f, 0.94f, 0.96f, 1f));
+                case "低风险": // 绿
+                    return (new Color(0.13f, 0.26f, 0.17f, 0.86f), new Color(0.38f, 0.75f, 0.47f, 1f), new Color(0.84f, 0.96f, 0.86f, 1f));
+                case "中风险": // 琥珀
+                    return (new Color(0.31f, 0.24f, 0.10f, 0.88f), new Color(0.84f, 0.66f, 0.27f, 1f), new Color(1f, 0.93f, 0.78f, 1f));
+                case "高风险": // 红
+                    return (new Color(0.35f, 0.16f, 0.13f, 0.88f), new Color(0.84f, 0.38f, 0.29f, 1f), new Color(1f, 0.86f, 0.80f, 1f));
+                case "越界": // 深红：越界/掉关系
+                    return (new Color(0.27f, 0.10f, 0.17f, 0.90f), new Color(0.78f, 0.27f, 0.43f, 1f), new Color(1f, 0.82f, 0.88f, 1f));
+                default:
+                    return (new Color(0.14f, 0.19f, 0.31f, 0.85f), new Color(0.42f, 0.57f, 0.86f, 1f), new Color(0.86f, 0.92f, 1f, 1f));
+            }
+        }
+
         private static void DrawNodeTags(Rect rect, List<string>? tags, float startY)
         {
             if (tags == null || tags.Count == 0)
@@ -433,12 +470,13 @@ namespace SSNoir.IMGUI
                     continue;
                 }
 
+                var (bg, border, text) = TagColors(label);
                 var style = new GUIStyle(GUI.skin.label)
                 {
                     font = IMGUIStyles.ChineseFont,
                     fontSize = 11,
                     alignment = TextAnchor.MiddleCenter,
-                    normal = { textColor = label == "交锋" ? new Color(1f, 0.84f, 0.80f, 1f) : new Color(0.86f, 0.92f, 1f, 1f) }
+                    normal = { textColor = text }
                 };
 
                 Vector2 size = style.CalcSize(new GUIContent(label));
@@ -450,12 +488,6 @@ namespace SSNoir.IMGUI
                 }
 
                 var tagRect = new Rect(x, y, tagW, 18f);
-                Color bg = label == "交锋"
-                    ? new Color(0.37f, 0.13f, 0.13f, 0.90f)
-                    : new Color(0.14f, 0.19f, 0.31f, 0.85f);
-                Color border = label == "交锋"
-                    ? new Color(0.82f, 0.34f, 0.30f, 1f)
-                    : new Color(0.42f, 0.57f, 0.86f, 1f);
 
                 GUI.color = bg;
                 GUI.DrawTexture(tagRect, Texture2D.whiteTexture);

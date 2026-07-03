@@ -12,7 +12,8 @@ namespace SSNoir.IMGUI
             if (clocks == null || clocks.Count == 0) return;
 
             float x = 40f;
-            float height = 22f;
+            bool hasNotes = clocks.Exists(clock => !string.IsNullOrEmpty(clock.Note));
+            float height = hasNotes ? 38f : 22f;
             float spacing = 16f;
 
             GUI.Label(new Rect(x, y, 100, height), "当前节点状态: ", IMGUIStyles.SectionLabel);
@@ -34,6 +35,7 @@ namespace SSNoir.IMGUI
             Color inactiveColor = IMGUIStyles.ClockInactive;
             Color outlineColor = IMGUIStyles.OutlineColor;
 
+            float valueRowHeight = 22f;
             float labelWidth = 60;
             float clockWidth = labelWidth + 8;
 
@@ -42,10 +44,10 @@ namespace SSNoir.IMGUI
                 float radius = 12f;
                 clockWidth = labelWidth + 8 + radius * 2 + 8;
 
-                GUI.Label(new Rect(x, y, labelWidth, height), clock.Label, IMGUIStyles.ClockLabel);
+                GUI.Label(new Rect(x, y, labelWidth, valueRowHeight), clock.Label, IMGUIStyles.ClockLabel);
 
                 float centerX = x + labelWidth + 8 + radius;
-                float centerY = y + height / 2f;
+                float centerY = y + valueRowHeight / 2f;
                 var pieRect = new Rect(centerX - radius, centerY - radius, radius * 2, radius * 2);
 
                 float fillPct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
@@ -54,17 +56,17 @@ namespace SSNoir.IMGUI
                 string frac = $"{clock.Current}/{clock.Max}";
                 var fracStyle = new GUIStyle(IMGUIStyles.ClockValue);
                 fracStyle.fontSize = 11;
-                GUI.Label(new Rect(x + labelWidth + 8 + radius * 2 + 4, y, 50, height), frac, fracStyle);
+                GUI.Label(new Rect(x + labelWidth + 8 + radius * 2 + 4, y, 50, valueRowHeight), frac, fracStyle);
             }
             else if (clock.Style == ClockStyle.Countdown)
             {
                 clockWidth = labelWidth + 8 + 40 + 8;
 
-                GUI.Label(new Rect(x, y, labelWidth, height), clock.Label, IMGUIStyles.ClockLabel);
+                GUI.Label(new Rect(x, y, labelWidth, valueRowHeight), clock.Label, IMGUIStyles.ClockLabel);
 
                 float boxX = x + labelWidth + 8;
                 float boxW = 30;
-                float boxH = height - 4;
+                float boxH = valueRowHeight - 4;
                 GUI.color = inactiveColor;
                 GUI.DrawTexture(new Rect(boxX, y + 2, boxW, boxH), Texture2D.whiteTexture);
                 GUI.color = Color.white;
@@ -78,7 +80,7 @@ namespace SSNoir.IMGUI
                 var maxStyle = new GUIStyle(IMGUIStyles.ClockValue);
                 maxStyle.fontSize = 11;
                 maxStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
-                GUI.Label(new Rect(boxX + boxW + 2, y, 40, height), $"/{clock.Max}", maxStyle);
+                GUI.Label(new Rect(boxX + boxW + 2, y, 40, valueRowHeight), $"/{clock.Max}", maxStyle);
             }
             else // Segments
             {
@@ -88,12 +90,12 @@ namespace SSNoir.IMGUI
                 float segTotalW = clock.Max * (segW + segSpacing) - segSpacing;
                 clockWidth = labelWidth + 8 + segTotalW + 8;
 
-                GUI.Label(new Rect(x, y, labelWidth, height), clock.Label, IMGUIStyles.ClockLabel);
+                GUI.Label(new Rect(x, y, labelWidth, valueRowHeight), clock.Label, IMGUIStyles.ClockLabel);
 
                 float segX = x + labelWidth + 8;
                 for (int i = 0; i < clock.Max; i++)
                 {
-                    var segRect = new Rect(segX + i * (segW + segSpacing), y + (height - segH) / 2f, segW, segH);
+                    var segRect = new Rect(segX + i * (segW + segSpacing), y + (valueRowHeight - segH) / 2f, segW, segH);
                     if (i < clock.Current)
                     {
                         GUI.color = activeColor;
@@ -110,8 +112,18 @@ namespace SSNoir.IMGUI
                 }
             }
 
+            if (!string.IsNullOrEmpty(clock.Note))
+            {
+                var noteStyle = new GUIStyle(IMGUIStyles.ClockLabel);
+                noteStyle.fontSize = 10;
+                noteStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
+                Vector2 noteSize = noteStyle.CalcSize(new GUIContent(clock.Note));
+                float noteWidth = Mathf.Min(noteSize.x + 8f, 300f);
+                GUI.Label(new Rect(x, y + 22f, noteWidth, 16f), clock.Note, noteStyle);
+                clockWidth = Mathf.Max(clockWidth, noteWidth);
+            }
+
             return clockWidth;
         }
     }
 }
-

@@ -44,6 +44,12 @@ namespace SSNoir
                     return;
                 }
 
+                if (args.Length > 0 && args[0] == "--test-arc")
+                {
+                    GameTester.TestGrowthArc();
+                    return;
+                }
+
                 SaveManager.DefaultSavePath = "save.json";
 
                 var gameState = new GameState();

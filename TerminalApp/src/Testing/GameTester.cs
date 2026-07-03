@@ -29,10 +29,9 @@ namespace SSNoir.Testing
             Console.WriteLine("[validate] Phase 1: paren balance...");
             foreach (var scmFile in Directory.GetFiles(scenesDir, "*.scm", SearchOption.AllDirectories))
             {
-                AssertSafeSchemeTextLiterals(scmFile);
                 AssertParenBalance(scmFile);
             }
-            Console.WriteLine("[validate] Phase 1: text literals safe and all files balanced.");
+            Console.WriteLine("[validate] Phase 1: all files balanced.");
 
             // Phase 2: load and render-validate each scene
             foreach (var scenePath in Directory.GetFiles(scenesDir, "*.scm", SearchOption.AllDirectories))
@@ -101,18 +100,18 @@ namespace SSNoir.Testing
                 sm1.LoadScene("world");
 
                 gs1.Set("chapter", 1);
-                gs1.Set("reputation:mayor", 42);
+                gs1.Set("relation:劳工", 5);
                 gs1.Team.ApplyStress("player", 2);
                 gs1.Inventory.SetCount("金钱", 99);
                 gs1.Inventory.SetCount("酒", 3);
-                sm1.Refresh(); // rebuild tree so savedNodes reflects chapter=1
-                ExecuteNode(sm1, "进入大门");
+                sm1.Refresh(); // rebuild tree after setting globals
+                ExecuteNode(sm1, "搬运"); // 码头低门槛工作，掷骰强制为 6 → 成功
 
                 sm1.SaveGame(savePath);
                 Console.WriteLine($"[saveload] Saved to {savePath}");
 
                 int savedChapter    = gs1.Get<int>("chapter");
-                int savedRep        = gs1.Get<int>("reputation:mayor");
+                int savedRep        = gs1.Get<int>("relation:劳工");
                 int savedStress     = gs1.Team.FindActor("player")!.Stress;
                 int savedMoney      = gs1.Inventory.GetCount("金钱");
                 int savedWine       = gs1.Inventory.GetCount("酒");
@@ -127,7 +126,7 @@ namespace SSNoir.Testing
                 sm2.LoadGame(savePath);   // creates world interpreter internally
 
                 int loadedChapter   = gs2.Get<int>("chapter");
-                int loadedRep       = gs2.Get<int>("reputation:mayor");
+                int loadedRep       = gs2.Get<int>("relation:劳工");
                 int loadedStress    = gs2.Team.FindActor("player")!.Stress;
                 int loadedMoney     = gs2.Inventory.GetCount("金钱");
                 int loadedWine      = gs2.Inventory.GetCount("酒");
@@ -136,7 +135,7 @@ namespace SSNoir.Testing
                 Console.WriteLine($"[saveload] chapter={loadedChapter} rep={loadedRep} stress={loadedStress} 金钱={loadedMoney} 酒={loadedWine} health={loadedHealth} locations={loadedLocations}");
 
                 AssertEq("chapter",         savedChapter,  loadedChapter);
-                AssertEq("reputation:mayor",savedRep,      loadedRep);
+                AssertEq("relation:劳工",   savedRep,      loadedRep);
                 AssertEq("player.stress",   savedStress,   loadedStress);
                 AssertEq("金钱",             savedMoney,    loadedMoney);
                 AssertEq("酒",               savedWine,     loadedWine);
@@ -162,7 +161,215 @@ namespace SSNoir.Testing
                 throw new Exception($"[saveload] FAIL: {label} expected={expected} actual={actual}");
             Console.WriteLine($"[saveload] OK: {label} = {actual}");
         }
-        private static void ExecuteActionWithDefaults(SceneManager sceneManager, GameNode node)
+
+        // 端到端跑一遍成长弧线：花成长点 → 对账拿点 → 老周好感 → 排期交锋 → 打赢回城。
+        // 全程强制骰=6（成功），验证动机/关系/交锋/复发/城市后果这条链不断。
+        public static void TestGrowthArc()
+        {
+            Console.WriteLine("=== Growth Arc Test ===");
+            var gs = new GameState();
+            var sm = new SceneManager(gs, new LocalScriptLoader());
+            sm.LoadScene("world");
+
+            void Assert(string label, bool ok, string detail)
+            {
+                if (!ok) throw new Exception($"[arc] FAIL: {label} — {detail}");
+                Console.WriteLine($"[arc] OK: {label} ({detail})");
+            }
+
+            var initialDock = FindNode(sm.CurrentRootNode, "码头")!;
+            Assert("交锋排期开局就在码头",
+                initialDock.Clocks.Exists(clock => clock.Label == "找上门"
+                    && clock.Current == 3 && clock.Note.Contains("再次找上码头")),
+                "找上门 3/3，仅挂在码头");
+            Assert("交锋排期不挂世界层",
+                !sm.CurrentRootNode!.Clocks.Exists(clock => clock.Label == "找上门"),
+                "世界根节点无找上门 Clock");
+
+            // 1) 成长点花费入口：给 1 点 → 练交际 → social 1→2
+            gs.Team.GrowthLevel = 1;
+            sm.Refresh();
+            int socialBefore = gs.Team.FindActor("player")!.Stats["social"];
+            var growthReport = ExecuteNode(sm, "练交际");
+            int socialAfter = gs.Team.FindActor("player")!.Stats["social"];
+            Assert("练交际提升属性", socialAfter == socialBefore + 1, $"social {socialBefore}→{socialAfter}");
+            Assert("属性成长进入效果条",
+                growthReport.Effects.Exists(effect => effect.Label == "交际" && effect.Delta == 1),
+                "交际 +1");
+
+            // 2) 对账动机：脸熟 + 持线索 → 完成给 +1 成长点
+            gs.Set("relation:劳工", 3);      // 脸熟
+            gs.Set("货单对不上", true);      // 记账线索
+            sm.Refresh();
+            int growthBefore = gs.Team.GrowthLevel;
+            ExecuteNode(sm, "帮老周对账");
+            Assert("对账给成长点", gs.Team.GrowthLevel == growthBefore + 1, $"growth {growthBefore}→{gs.Team.GrowthLevel}");
+            Assert("对账后老周常驻", FindNode(sm.CurrentRootNode, "老周") != null, "老周节点出现");
+
+            // 3) 老周好感：搭把手 → 好感到熟络门槛，交锋可增援
+            ExecuteNode(sm, "跟老周搭把手");  // 好感 2→3
+            Assert("好感达增援门槛", gs.Get<int>("laozhou-favor") >= 3, $"favor={gs.Get<int>("laozhou-favor")}");
+
+            // 4) 老周美差必须能随中途存档恢复，且做完一次立刻消失，不能同日反复刷。
+            sm.ActiveInterpreter.Eval("(dock 'debug-cushy)");
+            sm.Refresh();
+            Assert("老周美差已刷新", FindNode(sm.CurrentRootNode, "帮老周带个话") != null, "美差节点出现");
+
+            string arcSavePath = Path.Combine(Path.GetTempPath(), "ssnoir_growth_arc_save.json");
+            try
+            {
+                sm.SaveGame(arcSavePath);
+                var loadedGs = new GameState();
+                var loadedSm = new SceneManager(loadedGs, new LocalScriptLoader());
+                loadedSm.LoadGame(arcSavePath);
+                gs = loadedGs;
+                sm = loadedSm;
+            }
+            finally
+            {
+                if (File.Exists(arcSavePath)) File.Delete(arcSavePath);
+            }
+            Assert("中途读档保留老周美差", FindNode(sm.CurrentRootNode, "帮老周带个话") != null, "美差仍可用");
+            var cushyNode = FindNode(sm.CurrentRootNode, "帮老周带个话")!;
+            Assert("老周美差显示限时时钟",
+                cushyNode.Clocks.Exists(clock => clock.Label == "转瞬即逝"
+                    && clock.Current == 1 && clock.Max == 1 && clock.Style == ClockStyle.Countdown
+                    && clock.Note.Contains("只在今天有效")),
+                "转瞬即逝 1/1 countdown + 到期说明");
+            ExecuteNode(sm, "帮老周带个话");
+            Assert("老周美差只可做一次", FindNode(sm.CurrentRootNode, "帮老周带个话") == null, "结算后节点消失");
+
+            // 5) 复发 3 场，逐场升级；每场：排期 → 进场 → 谈条件打满 → 回城
+            int growthBeforeBouts = gs.Team.GrowthLevel;
+            for (int bout = 1; bout <= 3; bout++)
+            {
+                bool pending = false;
+                for (int day = 0; day < 6 && !pending; day++)
+                {
+                    sm.EndTurn();
+                    sm.Refresh();
+                    pending = FindNode(sm.CurrentRootNode, "有人来找你") != null;
+                }
+                Assert($"第{bout}场按时排到", pending, "出现交锋入口");
+                var pendingDock = FindNode(sm.CurrentRootNode, "码头")!;
+                Assert($"第{bout}场到期状态显示在码头",
+                    pendingDock.Clocks.Exists(clock => clock.Label == "找上门"
+                        && clock.Current == 0 && clock.Note.Contains("码头应付")),
+                    "Clock 在码头持续显示直到处理");
+
+                var blockedSleep = FindRestNode(sm.CurrentRootNode);
+                Assert($"第{bout}场到期后禁止休息",
+                    blockedSleep.Disabled && blockedSleep.Tags.Contains("不可休息")
+                        && blockedSleep.Tags.Contains("码头：必须处理找上门的人"),
+                    "睡觉 disabled，并显示阻塞原因");
+
+                bool disabledRejected = false;
+                try { sm.ExecuteAction(blockedSleep, new List<SlottedResource?>()); }
+                catch (InvalidOperationException) { disabledRejected = true; }
+                Assert($"第{bout}场 disabled 节点不可执行", disabledRejected, "ExecuteAction 拒绝睡觉");
+
+                if (bout == 1)
+                {
+                    string pendingSavePath = Path.Combine(Path.GetTempPath(), "ssnoir_pending_bout_save.json");
+                    try
+                    {
+                        sm.SaveGame(pendingSavePath);
+                        var loadedGs = new GameState();
+                        var loadedSm = new SceneManager(loadedGs, new LocalScriptLoader());
+                        loadedSm.LoadGame(pendingSavePath);
+                        gs = loadedGs;
+                        sm = loadedSm;
+                    }
+                    finally
+                    {
+                        if (File.Exists(pendingSavePath)) File.Delete(pendingSavePath);
+                    }
+                    Assert("待处理交锋读档后重新阻塞休息",
+                        FindRestNode(sm.CurrentRootNode).Disabled,
+                        "地点状态重新注册 blocker");
+
+                    sm.ActiveInterpreter.Eval("(rest-block! \"测试/第二事件\" \"警局：必须接受问询\")");
+                    sm.Refresh();
+                    var multiplyBlockedSleep = FindRestNode(sm.CurrentRootNode);
+                    Assert("多个 blocker 同时显示",
+                        multiplyBlockedSleep.Tags.Contains("码头：必须处理找上门的人")
+                            && multiplyBlockedSleep.Tags.Contains("警局：必须接受问询"),
+                        "两个原因都在睡觉节点上");
+                    sm.ActiveInterpreter.Eval("(rest-release! \"测试/第二事件\")");
+                    sm.Refresh();
+                    Assert("释放一个 blocker 后仍禁止休息",
+                        FindRestNode(sm.CurrentRootNode).Disabled,
+                        "码头 blocker 仍存在");
+
+                    bool wrapperRejected = false;
+                    try { sm.ActiveInterpreter.Eval("(end-turn!)"); }
+                    catch (Exception) { wrapperRejected = true; }
+                    Assert("Scheme end-turn 不能绕过 blocker", wrapperRejected, "end-turn! 拒绝推进");
+                }
+
+                int moneyBefore = gs.Inventory.GetCount("金钱");
+                ExecuteNode(sm, "有人来找你");
+                sm.Refresh();
+                Assert($"第{bout}场进入交锋", sm.CurrentSceneName != "world", $"scene={sm.CurrentSceneName}");
+                Assert($"第{bout}场老周增援", FindNode(sm.CurrentRootNode, "老周") != null, "好感门槛兑现为盟友单位");
+                if (bout == 1)
+                {
+                    sm.EndTurn();
+                    sm.Refresh();
+                    Assert("世界 blocker 不阻止交锋回合", sm.CurrentSceneName != "world", "交锋可正常推进回合");
+                }
+                for (int i = 0; i < 8 && sm.CurrentSceneName != "world"; i++)
+                {
+                    var talk = FindNode(sm.CurrentRootNode, "谈条件");
+                    if (talk == null) break;
+                    ExecuteActionWithDefaults(sm, talk);
+                    sm.Refresh();
+                }
+                Assert($"第{bout}场打赢回城", sm.CurrentSceneName == "world", $"scene={sm.CurrentSceneName}");
+                Assert($"第{bout}场处理后恢复休息", !FindRestNode(sm.CurrentRootNode).Disabled, "blocker 已释放");
+                Assert($"第{bout}场有收益", gs.Inventory.GetCount("金钱") > moneyBefore, $"金钱 {moneyBefore}→{gs.Inventory.GetCount("金钱")}");
+            }
+
+            // 6) 收尾：第 3 场全胜给里程碑成长点；之后不再排新场
+            Assert("弧线收尾给成长点", gs.Team.GrowthLevel == growthBeforeBouts + 1, $"growth {growthBeforeBouts}→{gs.Team.GrowthLevel}");
+            bool reArmed = false;
+            for (int day = 0; day < 6 && !reArmed; day++)
+            {
+                sm.EndTurn();
+                sm.Refresh();
+                reArmed = FindNode(sm.CurrentRootNode, "有人来找你") != null;
+            }
+            Assert("收尾后不再复发", !reArmed, "无新交锋入口");
+
+            // 7) 失败路径：必须打完整场交锋；失败回城、释放 blocker，并让走私暂闭。
+            var failureGs = new GameState();
+            var failureSm = new SceneManager(failureGs, new LocalScriptLoader());
+            failureSm.LoadScene("world");
+            // 从 7 开始，失败 -1 后仍保持“自己人”，从而单独验证三天风声冷却。
+            failureGs.Set("relation:劳工", 7);
+            failureSm.Refresh();
+            for (int day = 0; day < 3; day++) failureSm.EndTurn();
+            failureSm.Refresh();
+            Assert("失败测试开始前休息被阻塞", FindRestNode(failureSm.CurrentRootNode).Disabled, "交锋已经到期");
+            ExecuteNode(failureSm, "有人来找你");
+            for (int turn = 0; turn < 8 && failureSm.CurrentSceneName != "world"; turn++)
+                failureSm.EndTurn();
+            Assert("交锋失败仍回到城市", failureSm.CurrentSceneName == "world", $"scene={failureSm.CurrentSceneName}");
+            Assert("交锋失败后恢复休息", !FindRestNode(failureSm.CurrentRootNode).Disabled, "blocker 已释放");
+            Assert("失败后走私暂闭", FindNode(failureSm.CurrentRootNode, "走私") == null, "走私节点隐藏");
+            var retreatDock = FindNode(failureSm.CurrentRootNode, "码头")!;
+            Assert("走私冷却对玩家可见",
+                retreatDock.Clocks.Exists(clock => clock.Label == "码头风声"
+                    && clock.Current == 3 && clock.Style == ClockStyle.Countdown
+                    && clock.Note.Contains("走私工作恢复")),
+                "码头风声 3/3 + 恢复说明");
+            for (int day = 0; day < 3; day++) failureSm.EndTurn();
+            failureSm.Refresh();
+            Assert("风声三天后消退", FindNode(failureSm.CurrentRootNode, "走私") != null, "走私节点恢复");
+
+            Console.WriteLine("[arc] All assertions passed.");
+        }
+        private static ActionReport ExecuteActionWithDefaults(SceneManager sceneManager, GameNode node)
         {
             var slots = new List<SlottedResource?>();
             if (node.Requires != null)
@@ -195,10 +402,10 @@ namespace SSNoir.Testing
                     }
                 }
             }
-            sceneManager.ExecuteAction(node, slots);
+            return sceneManager.ExecuteAction(node, slots);
         }
 
-        private static void ExecuteNode(SceneManager sceneManager, string name)
+        private static ActionReport ExecuteNode(SceneManager sceneManager, string name)
         {
             var node = FindNode(sceneManager.CurrentRootNode, name);
             if (node == null)
@@ -206,7 +413,7 @@ namespace SSNoir.Testing
                 throw new InvalidOperationException($"Node not found: {name}");
             }
 
-            ExecuteActionWithDefaults(sceneManager, node);
+            return ExecuteActionWithDefaults(sceneManager, node);
         }
 
         private static GameNode? FindNode(GameNode? node, string name)
@@ -230,6 +437,14 @@ namespace SSNoir.Testing
 
             return null;
         }
+
+        private static GameNode FindRestNode(GameNode? root)
+        {
+            return FindNode(root, "睡觉")
+                ?? FindNode(root, "蜷缩在门口")
+                ?? throw new InvalidOperationException("Rest node not found.");
+        }
+
         public static void TestCapabilities()
         {
             Console.WriteLine("=== Schemy Capability Test ===");
@@ -757,68 +972,6 @@ namespace SSNoir.Testing
                 throw new InvalidDataException(
                     $"括号不平衡 [{fileName}] 第 {ul} 行第 {uc} 列：'(' 未关闭\n  {lines[ul - 1].Trim()}");
             }
-        }
-
-        private static void AssertSafeSchemeTextLiterals(string filePath)
-        {
-            string content = File.ReadAllText(filePath);
-            string fileName = Path.GetFileName(filePath);
-            string[] lines = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-
-            for (int li = 0; li < lines.Length; li++)
-            {
-                string line = lines[li];
-                bool inString = false;
-                bool escape = false;
-
-                for (int ci = 0; ci < line.Length; ci++)
-                {
-                    char c = line[ci];
-
-                    if (c == '“' || c == '”' || c == '‘' || c == '’')
-                    {
-                        throw new InvalidDataException(
-                            $"不允许在 Scheme 脚本文本中使用中文引号 [{fileName}] 第 {li + 1} 行第 {ci + 1} 列。\n" +
-                            $"  对话请写成：角色：内容，不要写嵌套引号。\n  {line.Trim()}");
-                    }
-
-                    if (inString)
-                    {
-                        if (escape) { escape = false; continue; }
-                        if (c == '\\') { escape = true; continue; }
-                        if (c == '"') inString = false;
-                        continue;
-                    }
-
-                    if (c == ';') break;
-                    if (c == '"') { inString = true; continue; }
-
-                    if (IsCjk(c) && (ci == 0 || !IsCjk(line[ci - 1])) && !IsQuotedSymbolAt(line, ci))
-                    {
-                        throw new InvalidDataException(
-                            $"疑似字符串被未转义双引号截断 [{fileName}] 第 {li + 1} 行第 {ci + 1} 列。\n" +
-                            $"  裸露中文会被 Schemy 当作 symbol 求值，可能报 Symbol not defined。\n" +
-                            $"  对话请写成：\"角色：内容\"，不要在字符串内部再放双引号。\n  {line.Trim()}");
-                    }
-                }
-            }
-        }
-
-        private static bool IsCjk(char c)
-        {
-            return (c >= '\u4e00' && c <= '\u9fff')
-                || (c >= '\u3400' && c <= '\u4dbf')
-                || (c >= '\uf900' && c <= '\ufaff');
-        }
-
-        private static bool IsQuotedSymbolAt(string line, int index)
-        {
-            int prev = index - 1;
-            while (prev >= 0 && char.IsWhiteSpace(line[prev]))
-            {
-                prev--;
-            }
-            return prev >= 0 && line[prev] == '\'';
         }
 
         private static void CheckParenthesesDiagnostics(string filePath)

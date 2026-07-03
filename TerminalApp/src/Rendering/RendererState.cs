@@ -159,5 +159,8 @@ namespace SSNoir.Rendering
         public string Title { get; set; } = string.Empty;
         public string Subtitle { get; set; } = string.Empty;
         public RollOutcome? RollOutcome { get; set; }
+        public int? DieValue { get; set; }
+        public int? ModifiedRollValue { get; set; }
+        public List<ActionEffectRecord> Effects { get; set; } = new List<ActionEffectRecord>();
     }
 }

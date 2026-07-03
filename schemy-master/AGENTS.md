@@ -23,6 +23,7 @@
 
 **语法 / 特殊形式**
 - `define`、`lambda`(固定参 / `(lambda args)` 全捕获 / `(a b . rest)` dotted rest 均支持)
+- 字符串支持 `\"`、`\\`、`\n`、`\r`、`\t` 转义;单引号和 Unicode 弯引号是普通字符
 - `if`、`cond`、`begin`、`quote` / `quasiquote`、`set!`、`define-macro`
 - `let` / `let*` / `letrec` / 命名 `let`(named let);空 `(let)` 也建立作用域
 - `and` / `or`(**短路**)、`when`、`unless`
@@ -46,6 +47,12 @@
 ---
 
 ## 改动日志（按时间倒序）
+
+### 2026-07-02 — 字符串转义解析
+
+**文件**:`src/schemy/Schemy.cs`、`src/test/Program.cs`。
+**原因**:reader 能识别反斜杠转义 token,但 `ParseAtom` 仅去掉首尾引号,导致 `\"`、`\\` 等没有被解码。
+**行为变化**:字符串现正确解码 `\"`、`\\`、`\n`、`\r`、`\t`;未知转义直接抛出 `SyntaxError`。
 
 ### 2026-06-21 — 空 `(let)` / `(let*)` 作用域（回归修复）
 

@@ -791,13 +791,13 @@ namespace SSNoir.IMGUI
         private List<GameClock> GetCurrentClocks()
         {
             var clocks = new List<GameClock>();
-            if (_gameManager.NavigationStack.Count == 0)
+            var root = _gameManager.DisplayedSnapshot.RootNode;
+            if (root != null)
             {
-                var root = _gameManager.DisplayedSnapshot.RootNode;
-                if (root != null)
-                    clocks.AddRange(root.Clocks);
+                // 世界级排期始终可见，不因玩家进入某个地点而消失。
+                clocks.AddRange(root.Clocks);
             }
-            else
+            if (_gameManager.NavigationStack.Count > 0)
             {
                 var currentNode = _gameManager.NavigationStack[_gameManager.NavigationStack.Count - 1];
                 clocks.AddRange(currentNode.Clocks);
