@@ -41,10 +41,15 @@ namespace SSNoir.Rendering
             {
                 var actor = snapshot.Actors[aIdx];
                 float actorX = startX + aIdx * (actorAreaWidth + 10);
-                
+
+                // Theme color by party join order — the SAME source the card right-rail uses,
+                // so a die's color matches its owner's ability chip on the cards.
+                var (thR, thG, thB) = ActorTheme.ColorFor(aIdx);
+                Color themeColor = new Color(thR, thG, thB, (byte)255);
+
                 // Draw Actor name and stress at the bottom: e.g. "主角 0/6"
                 string subtitle = $"{actor.Name} {actor.Stress}/6";
-                Color textColor = new Color(180, 180, 200, 255);
+                Color textColor = themeColor;
                 if (actor.Status == "away")
                 {
                     subtitle += " [离开]";
@@ -54,7 +59,7 @@ namespace SSNoir.Rendering
                 {
                     textColor = new Color(250, 100, 100, 255);
                 }
-                
+
                 int subW = FontManager.MeasureTextWidth(subtitle, 11);
                 FontManager.DrawText(subtitle, actorX + (actorAreaWidth - subW) / 2f, handY + 52, 11, textColor);
 
@@ -82,27 +87,11 @@ namespace SSNoir.Rendering
                         bool isSlotted = state.IsDieSlotted(currentFlatIdx);
                         bool hover = !isSlotted && ui.CanHover(dieRect);
 
-                        Color bg, border;
-                        if (actor.Id == "player")
-                        {
-                            bg = hover ? new Color(50, 90, 130, 255) : new Color(30, 60, 90, 255);
-                            border = hover ? Color.White : new Color(80, 150, 220, 255);
-                        }
-                        else if (actor.Id == "anna")
-                        {
-                            bg = hover ? new Color(100, 50, 120, 255) : new Color(70, 30, 80, 255);
-                            border = hover ? Color.White : new Color(180, 80, 200, 255);
-                        }
-                        else if (actor.Id == "laozhou")
-                        {
-                            bg = hover ? new Color(120, 60, 50, 255) : new Color(80, 40, 30, 255);
-                            border = hover ? Color.White : new Color(220, 100, 80, 255);
-                        }
-                        else
-                        {
-                            bg = hover ? new Color(70, 70, 100, 255) : new Color(45, 45, 60, 255);
-                            border = hover ? Color.White : new Color(90, 90, 110, 255);
-                        }
+                        // Die tint = owner's theme color (dim fill + theme border), brightening on hover.
+                        Color bg = hover
+                            ? new Color((byte)(thR * 0.5f), (byte)(thG * 0.5f), (byte)(thB * 0.5f), (byte)255)
+                            : new Color((byte)(thR * 0.32f), (byte)(thG * 0.32f), (byte)(thB * 0.32f), (byte)255);
+                        Color border = hover ? Color.White : themeColor;
 
                         string text = dieVal.ToString();
 

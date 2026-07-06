@@ -50,6 +50,12 @@ namespace SSNoir
                     return;
                 }
 
+                if (args.Length > 0 && args[0] == "--test-odds")
+                {
+                    GameTester.TestRollOdds();
+                    return;
+                }
+
                 SaveManager.DefaultSavePath = "save.json";
 
                 var gameState = new GameState();

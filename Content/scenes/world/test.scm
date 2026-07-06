@@ -34,14 +34,14 @@
                        (lambda () (set-growth-level! (+ (growth-level) 1))))))
                  (container "调试-码头"
                    (list
-                     (instant-action "解锁货单线索"
-                       (lambda () (set-global! "货单对不上" #t)))
+                     (instant-action "持有异常货单"
+                       (lambda () (set-global! '异常货单状态 "持有")))
                      (instant-action "劳工→脸熟"   (lambda () (set-global! "relation:劳工" 3)))
                      (instant-action "劳工→自己人" (lambda () (set-global! "relation:劳工" 6)))
                      (instant-action "官僚→脸熟"   (lambda () (set-global! "relation:官僚" 3)))
                      (instant-action "老周好感 +2" (lambda () (dock 'debug-favor)))
                      (instant-action "强制刷新老周美差" (lambda () (dock 'debug-cushy)))
-                     (instant-action "直接触发码头交锋" (lambda () (dock 'debug-pending-bout)))
+                     (instant-action "直接触发公共交锋" (lambda () (debug-trigger-public-event!)))
                      (instant-action "清除走私风声" (lambda () (dock 'debug-clear-smuggle)))))))))
 
           ((equal? msg 'save) '())

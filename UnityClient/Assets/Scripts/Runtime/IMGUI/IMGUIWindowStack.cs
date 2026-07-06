@@ -78,6 +78,27 @@ namespace SSNoir.IMGUI
             return requests;
         }
 
+        // True when the pointer sits over any registered blocker region (open
+        // panel or fullscreen modal). Used to keep camera drag from starting
+        // under UI whose inner content does not route through CanHover.
+        public bool IsPointerOverBlocker()
+        {
+            foreach (var blocker in _blockers)
+            {
+                bool over = blocker.BlockMode switch
+                {
+                    IMGUIBlockMode.Fullscreen => true,
+                    IMGUIBlockMode.Bounds => blocker.Bounds.Contains(_mouse),
+                    _ => false,
+                };
+                if (over)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public IMGUIInteractionContext MakeContext(IMGUIWindowLayer callerLayer, bool forceLocked = false)
         {
             if (forceLocked)

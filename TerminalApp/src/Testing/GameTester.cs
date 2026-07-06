@@ -162,8 +162,68 @@ namespace SSNoir.Testing
             Console.WriteLine($"[saveload] OK: {label} = {actual}");
         }
 
-        // 端到端跑一遍成长弧线：花成长点 → 对账拿点 → 老周好感 → 排期交锋 → 打赢回城。
-        // 全程强制骰=6（成功），验证动机/关系/交锋/复发/城市后果这条链不断。
+        // 判定概率是底层数学契约，算错会静默影响卡面预览与平衡感知，故固化。
+        public static void TestRollOdds()
+        {
+            Console.WriteLine("=== Roll Odds Test ===");
+
+            void Assert(string label, double expected, double actual)
+            {
+                if (Math.Abs(expected - actual) > 1e-9)
+                    throw new Exception($"[odds] FAIL: {label} expected={expected:F6} actual={actual:F6}");
+                Console.WriteLine($"[odds] OK: {label} = {actual:F4}");
+            }
+
+            void AssertSumsToOne(string label, RollOddsResult r)
+            {
+                double sum = r.Fail + r.Neutral + r.Success;
+                if (Math.Abs(sum - 1.0) > 1e-9)
+                    throw new Exception($"[odds] FAIL: {label} probabilities sum to {sum:F6}, not 1");
+            }
+
+            // 机制：final = d6 + (放入骰−4) + (技能−1) + 难度，按 ≤2 失败 / 3–4 中性 / ≥5 成功 分档。
+            // 放入4、技能1、无修正是中枢：final = d6 → 三档各 2/6。
+            var pivot = RollOdds.Compute(placedDie: 4, skillLevel: 1, modSum: 0);
+            AssertSumsToOne("die4 lvl1", pivot);
+            Assert("die4 lvl1 fail",    2.0 / 6.0, pivot.Fail);
+            Assert("die4 lvl1 neutral", 2.0 / 6.0, pivot.Neutral);
+            Assert("die4 lvl1 success", 2.0 / 6.0, pivot.Success);
+
+            // 放入1、技能1：位移 −3，final = d6−3 ∈ −2..3 → 5/6 失败、1/6 中性、0 成功。
+            // 这正是重设的目标：最差放置明显偏坏，而非 33/33/33。
+            var worst = RollOdds.Compute(placedDie: 1, skillLevel: 1, modSum: 0);
+            AssertSumsToOne("die1 lvl1", worst);
+            Assert("die1 lvl1 fail",    5.0 / 6.0, worst.Fail);
+            Assert("die1 lvl1 neutral", 1.0 / 6.0, worst.Neutral);
+            Assert("die1 lvl1 success", 0.0,       worst.Success);
+
+            // 放入6、技能1：位移 +2 → 0 失败、2/6 中性、4/6 成功。高骰偏好。
+            var best = RollOdds.Compute(placedDie: 6, skillLevel: 1, modSum: 0);
+            Assert("die6 lvl1 fail",    0.0,       best.Fail);
+            Assert("die6 lvl1 success", 4.0 / 6.0, best.Success);
+
+            // 放入骰是双向的：低骰失败率应高于高骰。
+            if (!(worst.Fail > best.Fail))
+                throw new Exception($"[odds] FAIL: expected die1 fail>die6 fail, got {worst.Fail:F4} vs {best.Fail:F4}");
+
+            // 技能可救差骰：放入1，技能3(位移 −1) → 3/6 失败、2/6 中性、1/6 成功（技能1 时成功为 0）。
+            var rescued = RollOdds.Compute(placedDie: 1, skillLevel: 3, modSum: 0);
+            AssertSumsToOne("die1 lvl3", rescued);
+            Assert("die1 lvl3 fail",    3.0 / 6.0, rescued.Fail);
+            Assert("die1 lvl3 success", 1.0 / 6.0, rescued.Success);
+            if (!(rescued.Success > worst.Success))
+                throw new Exception($"[odds] FAIL: expected skill to lift die1 success, got {rescued.Success:F4} vs {worst.Success:F4}");
+
+            // 难度修正整体平移：放入4、技能1、−2 → final=d6−2 → 4/6 失败、2/6 中性、0 成功。
+            var hard = RollOdds.Compute(4, 1, -2);
+            Assert("die4 lvl1 -2 fail",    4.0 / 6.0, hard.Fail);
+            Assert("die4 lvl1 -2 success", 0.0,       hard.Success);
+
+            Console.WriteLine("[odds] All assertions passed.");
+        }
+
+        // 端到端验证三条生活路线、世界公共事件、可选货单和小节成长。
+        // 全程强制骰=6（成功）；数值平衡另做报数，不在这里硬断言。
         public static void TestGrowthArc()
         {
             Console.WriteLine("=== Growth Arc Test ===");
@@ -177,195 +237,182 @@ namespace SSNoir.Testing
                 Console.WriteLine($"[arc] OK: {label} ({detail})");
             }
 
-            var initialDock = FindNode(sm.CurrentRootNode, "码头")!;
-            Assert("交锋排期开局就在码头",
-                initialDock.Clocks.Exists(clock => clock.Label == "找上门"
-                    && clock.Current == 3 && clock.Note.Contains("再次找上码头")),
-                "找上门 3/3，仅挂在码头");
-            Assert("交锋排期不挂世界层",
-                !sm.CurrentRootNode!.Clocks.Exists(clock => clock.Label == "找上门"),
-                "世界根节点无找上门 Clock");
+            Assert("公共事件时钟位于世界层",
+                sm.CurrentRootNode!.Clocks.Exists(clock => clock.Label == "码头公共事件"),
+                "世界根节点持有倒计时");
+            Assert("码头不再拥有公共事件时钟",
+                !FindNode(sm.CurrentRootNode, "码头")!.Clocks.Exists(clock => clock.Label == "码头公共事件"),
+                "地点与主线调度边界分离");
 
-            // 1) 成长点花费入口：给 1 点 → 练交际 → social 1→2
-            gs.Team.GrowthLevel = 1;
+            // 1) 劳工：工资和老周关系拆开；完成老周小节才获得成长与援助。
+            gs.Set("relation:劳工", 3);
             sm.Refresh();
-            int socialBefore = gs.Team.FindActor("player")!.Stats["social"];
-            var growthReport = ExecuteNode(sm, "练交际");
-            int socialAfter = gs.Team.FindActor("player")!.Stats["social"];
-            Assert("练交际提升属性", socialAfter == socialBefore + 1, $"social {socialBefore}→{socialAfter}");
-            Assert("属性成长进入效果条",
-                growthReport.Effects.Exists(effect => effect.Label == "交际" && effect.Delta == 1),
-                "交际 +1");
+            int favorBefore = gs.Get<int>("laozhou-favor");
+            ExecuteNode(sm, "替工头记账");
+            Assert("工头记账不涨老周好感", gs.Get<int>("laozhou-favor") == favorBefore,
+                $"favor={gs.Get<int>("laozhou-favor")}");
+            ExecuteNode(sm, "帮老周查账");
+            ExecuteNode(sm, "帮老周查账");
+            int growthBeforeZhou = gs.Team.GrowthLevel;
+            ExecuteNode(sm, "替老周跑一趟");
+            Assert("老周小节奖励成长", gs.Team.GrowthLevel == growthBeforeZhou + 1,
+                $"growth={gs.Team.GrowthLevel}");
+            Assert("老周支线解锁援助", gs.Get<bool>("laozhou-can-help"), "laozhou-can-help=true");
 
-            // 2) 对账动机：脸熟 + 持线索 → 完成给 +1 成长点
-            gs.Set("relation:劳工", 3);      // 脸熟
-            gs.Set("货单对不上", true);      // 记账线索
+            // 2) 官僚：完成探长小节；延期真实回退一天；办理有冷却的一次性通行证。
+            gs.Set("relation:官僚", 3);
             sm.Refresh();
-            int growthBefore = gs.Team.GrowthLevel;
-            ExecuteNode(sm, "帮老周对账");
-            Assert("对账给成长点", gs.Team.GrowthLevel == growthBefore + 1, $"growth {growthBefore}→{gs.Team.GrowthLevel}");
-            Assert("对账后老周常驻", FindNode(sm.CurrentRootNode, "老周") != null, "老周节点出现");
-
-            // 3) 老周好感：搭把手 → 好感到熟络门槛，交锋可增援
-            ExecuteNode(sm, "跟老周搭把手");  // 好感 2→3
-            Assert("好感达增援门槛", gs.Get<int>("laozhou-favor") >= 3, $"favor={gs.Get<int>("laozhou-favor")}");
-
-            // 4) 老周美差必须能随中途存档恢复，且做完一次立刻消失，不能同日反复刷。
-            sm.ActiveInterpreter.Eval("(dock 'debug-cushy)");
+            int growthBeforeDetective = gs.Team.GrowthLevel;
+            ExecuteNode(sm, "陪探长走访");
+            ExecuteNode(sm, "替探长整理口供");
+            Assert("探长小节奖励成长", gs.Team.GrowthLevel == growthBeforeDetective + 1,
+                $"growth={gs.Team.GrowthLevel}");
+            sm.EndTurn();
             sm.Refresh();
-            Assert("老周美差已刷新", FindNode(sm.CurrentRootNode, "帮老周带个话") != null, "美差节点出现");
+            int beforeDelay = sm.CurrentRootNode!.Clocks.Find(c => c.Label == "码头公共事件")!.Current;
+            ExecuteNode(sm, "请探长延期一天");
+            int afterDelay = sm.CurrentRootNode!.Clocks.Find(c => c.Label == "码头公共事件")!.Current;
+            Assert("官僚延期回退倒计时", afterDelay == beforeDelay + 1,
+                $"remaining {beforeDelay}→{afterDelay}");
+            ExecuteNode(sm, "办理办案通行证");
+            var passNode = FindNode(sm.CurrentRootNode, "办理办案通行证")!;
+            Assert("一次性办案通行证已准备",
+                gs.Inventory.GetCount("办案通行证") == 1 && passNode.Disabled,
+                "持有一张时不能继续办理");
+            Assert("办案通行证显示再次签发时钟",
+                passNode.Clocks.Exists(c => c.Label == "再次签发" && c.Current == 3),
+                "再次签发=3天");
 
-            string arcSavePath = Path.Combine(Path.GetTempPath(), "ssnoir_growth_arc_save.json");
+            // 3) 富商：应酬完成小节；投资需要考察、谈判、本金与等待。
+            gs.Set("relation:富商", 3);
+            gs.Inventory.SetCount("金钱", 200);
+            sm.Refresh();
+            int growthBeforeAgent = gs.Team.GrowthLevel;
+            ExecuteNode(sm, "陪货运代理应酬");
+            ExecuteNode(sm, "核对代理人的条件");
+            Assert("代理人小节尚未完成", gs.Team.GrowthLevel == growthBeforeAgent,
+                "必须等第一笔投资结算");
+            ExecuteNode(sm, "考察货运项目");
+            ExecuteNode(sm, "谈投资条件");
+            ExecuteNode(sm, "投入货运项目");
+            Assert("投资进入延迟结算", FindNode(sm.CurrentRootNode, "货运公司")!.Clocks.Exists(c => c.Label == "投资结算"),
+                "投资结算时钟可见");
+            for (int day = 0; day < 3; day++) sm.EndTurn();
+            sm.Refresh();
+            Assert("首笔投资结算后奖励成长", gs.Team.GrowthLevel == growthBeforeAgent + 1,
+                $"growth={gs.Team.GrowthLevel}");
+
+            // 4) 强制公共事件：世界入口、休息阻塞、存读档恢复。
+            sm.ActiveInterpreter.Eval("(debug-trigger-public-event!)");
+            sm.Refresh();
+            Assert("世界出现公共事件入口", FindNode(sm.CurrentRootNode, "处理码头公共事件") != null,
+                "公共事件为世界节点");
+            Assert("公共事件阻塞休息", FindRestNode(sm.CurrentRootNode).Disabled,
+                "睡觉 disabled");
+
+            string pendingSavePath = Path.Combine(Path.GetTempPath(), "ssnoir_public_event_save.json");
             try
             {
-                sm.SaveGame(arcSavePath);
+                sm.SaveGame(pendingSavePath);
                 var loadedGs = new GameState();
                 var loadedSm = new SceneManager(loadedGs, new LocalScriptLoader());
-                loadedSm.LoadGame(arcSavePath);
+                loadedSm.LoadGame(pendingSavePath);
                 gs = loadedGs;
                 sm = loadedSm;
             }
             finally
             {
-                if (File.Exists(arcSavePath)) File.Delete(arcSavePath);
+                if (File.Exists(pendingSavePath)) File.Delete(pendingSavePath);
             }
-            Assert("中途读档保留老周美差", FindNode(sm.CurrentRootNode, "帮老周带个话") != null, "美差仍可用");
-            var cushyNode = FindNode(sm.CurrentRootNode, "帮老周带个话")!;
-            Assert("老周美差显示限时时钟",
-                cushyNode.Clocks.Exists(clock => clock.Label == "转瞬即逝"
-                    && clock.Current == 1 && clock.Max == 1 && clock.Style == ClockStyle.Countdown
-                    && clock.Note.Contains("只在今天有效")),
-                "转瞬即逝 1/1 countdown + 到期说明");
-            ExecuteNode(sm, "帮老周带个话");
-            Assert("老周美差只可做一次", FindNode(sm.CurrentRootNode, "帮老周带个话") == null, "结算后节点消失");
+            Assert("待处理公共事件读档后仍阻塞", FindRestNode(sm.CurrentRootNode).Disabled,
+                "world blocker restored");
 
-            // 5) 复发 3 场，逐场升级；每场：排期 → 进场 → 谈条件打满 → 回城
-            int growthBeforeBouts = gs.Team.GrowthLevel;
-            for (int bout = 1; bout <= 3; bout++)
+            // 5) 交锋中路线兑现：老周免费援助、办案通行证、异常货单次要目标。
+            int growthBeforeEvent = gs.Team.GrowthLevel;
+            ExecuteNode(sm, "处理码头公共事件");
+            Assert("进入公共交锋", sm.CurrentSceneName != "world", $"scene={sm.CurrentSceneName}");
+            Assert("老周作为盟友出现", FindNode(sm.CurrentRootNode, "请老周出面") != null,
+                "人物支线兑现");
+            Assert("办案通行证成为额外行动", FindNode(sm.CurrentRootNode, "出示办案通行证") != null,
+                "一次性物品解锁程序手段");
+            ExecuteNode(sm, "请老周出面");
+            ExecuteNode(sm, "出示办案通行证");
+            Assert("办案通行证使用后消耗", gs.Inventory.GetCount("办案通行证") == 0,
+                "通行证=0");
+            ExecuteNode(sm, "抢下异常货单");
+            ExecuteNode(sm, "抢下异常货单");
+            Assert("可选目标完成后持有货单", gs.Get<string>("异常货单状态") == "持有",
+                $"state={gs.Get<string>("异常货单状态")}");
+            for (int i = 0; i < 6 && sm.CurrentSceneName != "world"; i++)
             {
-                bool pending = false;
-                for (int day = 0; day < 6 && !pending; day++)
-                {
-                    sm.EndTurn();
-                    sm.Refresh();
-                    pending = FindNode(sm.CurrentRootNode, "有人来找你") != null;
-                }
-                Assert($"第{bout}场按时排到", pending, "出现交锋入口");
-                var pendingDock = FindNode(sm.CurrentRootNode, "码头")!;
-                Assert($"第{bout}场到期状态显示在码头",
-                    pendingDock.Clocks.Exists(clock => clock.Label == "找上门"
-                        && clock.Current == 0 && clock.Note.Contains("码头应付")),
-                    "Clock 在码头持续显示直到处理");
-
-                var blockedSleep = FindRestNode(sm.CurrentRootNode);
-                Assert($"第{bout}场到期后禁止休息",
-                    blockedSleep.Disabled && blockedSleep.Tags.Contains("不可休息")
-                        && blockedSleep.Tags.Contains("码头：必须处理找上门的人"),
-                    "睡觉 disabled，并显示阻塞原因");
-
-                bool disabledRejected = false;
-                try { sm.ExecuteAction(blockedSleep, new List<SlottedResource?>()); }
-                catch (InvalidOperationException) { disabledRejected = true; }
-                Assert($"第{bout}场 disabled 节点不可执行", disabledRejected, "ExecuteAction 拒绝睡觉");
-
-                if (bout == 1)
-                {
-                    string pendingSavePath = Path.Combine(Path.GetTempPath(), "ssnoir_pending_bout_save.json");
-                    try
-                    {
-                        sm.SaveGame(pendingSavePath);
-                        var loadedGs = new GameState();
-                        var loadedSm = new SceneManager(loadedGs, new LocalScriptLoader());
-                        loadedSm.LoadGame(pendingSavePath);
-                        gs = loadedGs;
-                        sm = loadedSm;
-                    }
-                    finally
-                    {
-                        if (File.Exists(pendingSavePath)) File.Delete(pendingSavePath);
-                    }
-                    Assert("待处理交锋读档后重新阻塞休息",
-                        FindRestNode(sm.CurrentRootNode).Disabled,
-                        "地点状态重新注册 blocker");
-
-                    sm.ActiveInterpreter.Eval("(rest-block! \"测试/第二事件\" \"警局：必须接受问询\")");
-                    sm.Refresh();
-                    var multiplyBlockedSleep = FindRestNode(sm.CurrentRootNode);
-                    Assert("多个 blocker 同时显示",
-                        multiplyBlockedSleep.Tags.Contains("码头：必须处理找上门的人")
-                            && multiplyBlockedSleep.Tags.Contains("警局：必须接受问询"),
-                        "两个原因都在睡觉节点上");
-                    sm.ActiveInterpreter.Eval("(rest-release! \"测试/第二事件\")");
-                    sm.Refresh();
-                    Assert("释放一个 blocker 后仍禁止休息",
-                        FindRestNode(sm.CurrentRootNode).Disabled,
-                        "码头 blocker 仍存在");
-
-                    bool wrapperRejected = false;
-                    try { sm.ActiveInterpreter.Eval("(end-turn!)"); }
-                    catch (Exception) { wrapperRejected = true; }
-                    Assert("Scheme end-turn 不能绕过 blocker", wrapperRejected, "end-turn! 拒绝推进");
-                }
-
-                int moneyBefore = gs.Inventory.GetCount("金钱");
-                ExecuteNode(sm, "有人来找你");
+                var talk = FindNode(sm.CurrentRootNode, "谈条件");
+                if (talk == null) break;
+                ExecuteActionWithDefaults(sm, talk);
                 sm.Refresh();
-                Assert($"第{bout}场进入交锋", sm.CurrentSceneName != "world", $"scene={sm.CurrentSceneName}");
-                Assert($"第{bout}场老周增援", FindNode(sm.CurrentRootNode, "老周") != null, "好感门槛兑现为盟友单位");
-                if (bout == 1)
-                {
-                    sm.EndTurn();
-                    sm.Refresh();
-                    Assert("世界 blocker 不阻止交锋回合", sm.CurrentSceneName != "world", "交锋可正常推进回合");
-                }
-                for (int i = 0; i < 8 && sm.CurrentSceneName != "world"; i++)
-                {
-                    var talk = FindNode(sm.CurrentRootNode, "谈条件");
-                    if (talk == null) break;
-                    ExecuteActionWithDefaults(sm, talk);
-                    sm.Refresh();
-                }
-                Assert($"第{bout}场打赢回城", sm.CurrentSceneName == "world", $"scene={sm.CurrentSceneName}");
-                Assert($"第{bout}场处理后恢复休息", !FindRestNode(sm.CurrentRootNode).Disabled, "blocker 已释放");
-                Assert($"第{bout}场有收益", gs.Inventory.GetCount("金钱") > moneyBefore, $"金钱 {moneyBefore}→{gs.Inventory.GetCount("金钱")}");
             }
+            Assert("公共交锋结束回城", sm.CurrentSceneName == "world", $"scene={sm.CurrentSceneName}");
+            Assert("公共小节奖励成长", gs.Team.GrowthLevel == growthBeforeEvent + 1,
+                $"growth={gs.Team.GrowthLevel}");
+            Assert("主目标结束后货单仍保留", gs.Get<string>("异常货单状态") == "持有",
+                "异常货单状态=持有");
+            Assert("处理后恢复休息", !FindRestNode(sm.CurrentRootNode).Disabled,
+                "world blocker released");
 
-            // 6) 收尾：第 3 场全胜给里程碑成长点；之后不再排新场
-            Assert("弧线收尾给成长点", gs.Team.GrowthLevel == growthBeforeBouts + 1, $"growth {growthBeforeBouts}→{gs.Team.GrowthLevel}");
-            bool reArmed = false;
-            for (int day = 0; day < 6 && !reArmed; day++)
-            {
-                sm.EndTurn();
-                sm.Refresh();
-                reArmed = FindNode(sm.CurrentRootNode, "有人来找你") != null;
-            }
-            Assert("收尾后不再复发", !reArmed, "无新交锋入口");
+            // 6) 货单是持有状态，不是立即四选一；交付后其他去向消失。
+            ExecuteNode(sm, "把异常货单交给探长");
+            Assert("货单进入唯一终态", gs.Get<string>("异常货单状态") == "交给探长",
+                $"state={gs.Get<string>("异常货单状态")}");
+            Assert("其他货单去向消失",
+                FindNode(sm.CurrentRootNode, "把异常货单交给老周") == null
+                    && FindNode(sm.CurrentRootNode, "把异常货单卖给货运代理") == null,
+                "单一状态保证互斥");
 
-            // 7) 失败路径：必须打完整场交锋；失败回城、释放 blocker，并让走私暂闭。
+            // 7) 已取得的货单在主目标失败后保留；富商保险只赔付，不改变战局。
             var failureGs = new GameState();
             var failureSm = new SceneManager(failureGs, new LocalScriptLoader());
             failureSm.LoadScene("world");
-            // 从 7 开始，失败 -1 后仍保持“自己人”，从而单独验证三天风声冷却。
-            failureGs.Set("relation:劳工", 7);
+            failureGs.Set("relation:富商", 3);
+            failureGs.Inventory.SetCount("金钱", 100);
             failureSm.Refresh();
-            for (int day = 0; day < 3; day++) failureSm.EndTurn();
+            ExecuteNode(failureSm, "陪货运代理应酬");
+            ExecuteNode(failureSm, "核对代理人的条件");
+            ExecuteNode(failureSm, "考察货运项目");
+            ExecuteNode(failureSm, "投入货运项目");
+            ExecuteNode(failureSm, "购买意外保险");
+
+            string companySavePath = Path.Combine(Path.GetTempPath(), "ssnoir_company_state_save.json");
+            try
+            {
+                failureSm.SaveGame(companySavePath);
+                var loadedGs = new GameState();
+                var loadedSm = new SceneManager(loadedGs, new LocalScriptLoader());
+                loadedSm.LoadGame(companySavePath);
+                failureGs = loadedGs;
+                failureSm = loadedSm;
+            }
+            finally
+            {
+                if (File.Exists(companySavePath)) File.Delete(companySavePath);
+            }
+            Assert("投资与保险可存读档",
+                FindNode(failureSm.CurrentRootNode, "货运公司")!.Clocks.Exists(c => c.Label == "投资结算")
+                    && FindNode(failureSm.CurrentRootNode, "购买意外保险") == null
+                    && FindNode(failureSm.CurrentRootNode, "保单生效中") != null,
+                "投资进行中且保单有效");
+            failureSm.ActiveInterpreter.Eval("(debug-trigger-public-event!)");
             failureSm.Refresh();
-            Assert("失败测试开始前休息被阻塞", FindRestNode(failureSm.CurrentRootNode).Disabled, "交锋已经到期");
-            ExecuteNode(failureSm, "有人来找你");
+            ExecuteNode(failureSm, "处理码头公共事件");
+            ExecuteNode(failureSm, "抢下异常货单");
+            ExecuteNode(failureSm, "抢下异常货单");
+            int moneyBeforeFailure = failureGs.Inventory.GetCount("金钱");
             for (int turn = 0; turn < 8 && failureSm.CurrentSceneName != "world"; turn++)
                 failureSm.EndTurn();
-            Assert("交锋失败仍回到城市", failureSm.CurrentSceneName == "world", $"scene={failureSm.CurrentSceneName}");
-            Assert("交锋失败后恢复休息", !FindRestNode(failureSm.CurrentRootNode).Disabled, "blocker 已释放");
-            Assert("失败后走私暂闭", FindNode(failureSm.CurrentRootNode, "走私") == null, "走私节点隐藏");
-            var retreatDock = FindNode(failureSm.CurrentRootNode, "码头")!;
-            Assert("走私冷却对玩家可见",
-                retreatDock.Clocks.Exists(clock => clock.Label == "码头风声"
-                    && clock.Current == 3 && clock.Style == ClockStyle.Countdown
-                    && clock.Note.Contains("走私工作恢复")),
-                "码头风声 3/3 + 恢复说明");
-            for (int day = 0; day < 3; day++) failureSm.EndTurn();
-            failureSm.Refresh();
-            Assert("风声三天后消退", FindNode(failureSm.CurrentRootNode, "走私") != null, "走私节点恢复");
+            Assert("交锋失败仍回城", failureSm.CurrentSceneName == "world",
+                $"scene={failureSm.CurrentSceneName}");
+            Assert("失败后仍保留已取得货单", failureGs.Get<string>("异常货单状态") == "持有",
+                $"state={failureGs.Get<string>("异常货单状态")}");
+            Assert("保险只在失败后赔付", failureGs.Inventory.GetCount("金钱") == moneyBeforeFailure + 20,
+                $"金钱 {moneyBeforeFailure}→{failureGs.Inventory.GetCount("金钱")}");
 
             Console.WriteLine("[arc] All assertions passed.");
         }

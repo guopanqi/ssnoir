@@ -43,6 +43,17 @@ namespace SSNoir
         private readonly List<GameNode> _navigationStack = new List<GameNode>();
         private List<GameNode> _visibleNodes = new List<GameNode>();
         private SelectedResource? _selectedResource;
+
+        // Die drag-drop state. A die is "picked up" on mouse-down; on release we
+        // either place it (a slot consumed the drop) or, if the pointer moved and
+        // released over empty space, return it to hand. A release without movement
+        // is treated as a click (toggle selection) so click-to-select still works.
+        private bool _dieDragActive;
+        private Vector2 _dieDragStartMouse;
+        private bool _dieDragWasSelected;
+        private bool _dieDropHandled;
+        private const float DieDragThresholdSq = 6f * 6f;
+
         private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
         private readonly HashSet<string> _flippedNodes = new HashSet<string>();
         private PresentationSnapshot _displayedSnapshot = new PresentationSnapshot();
@@ -60,6 +71,7 @@ namespace SSNoir
         public SSNoirCameraManager CameraManager => _cameraManager;
         public StageTransitionController StageController => _stageController;
         public bool IsInputLocked => _renderer != null && _renderer.IsInputLocked;
+        public bool PointerOverUI => _renderer != null && _renderer.PointerOverUI;
         public Cinemachine.CinemachineVirtualCamera? CurrentFocusCamera => ResolveCurrentFocusCamera();
 
         public string? CurrentStageContextId
@@ -387,8 +399,9 @@ namespace SSNoir
                 _selectedResource = CreateSelectedResourceFromSlot(existing);
                 slots[slotIndex] = null;
             }
-            else if (_selectedResource != null && existing == null)
+            else if (_selectedResource != null)
             {
+                // Places into an empty slot, or replaces a filled one.
                 TryPlaceSelectedResource(node, slotIndex);
             }
         }
@@ -439,13 +452,14 @@ namespace SSNoir
         public bool CanPlaceSelectedResource(GameNode node, int slotIndex)
         {
             var slots = GetSlotsForNode(node.Name);
+            // A filled slot is a valid target too — placing replaces it, and the displaced
+            // die returns to hand automatically (slot state is derived, not consumed).
             if (_selectedResource == null
                 || node.Requires == null
                 || slots == null
                 || slotIndex < 0
                 || slotIndex >= node.Requires.Count
-                || slotIndex >= slots.Count
-                || slots[slotIndex] != null)
+                || slotIndex >= slots.Count)
             {
                 return false;
             }
@@ -854,22 +868,49 @@ namespace SSNoir
             }
         }
 
-        public void OnDieClicked(int dieIndex, int val)
+        public bool IsDraggingDie => _dieDragActive;
+
+        // Mouse-down on a die: pick it up (select so it follows the cursor) and
+        // begin tracking the gesture so release can decide place / return / toggle.
+        public void BeginDieDrag(int dieIndex, int val, Vector2 mouse)
         {
-            if (_selectedResource != null && _selectedResource.Type == "die" && _selectedResource.SourceIndex == dieIndex)
-                _selectedResource = null;
-            else
+            _dieDragActive = true;
+            _dieDragStartMouse = mouse;
+            _dieDropHandled = false;
+            _dieDragWasSelected = _selectedResource != null
+                && _selectedResource.Type == "die"
+                && _selectedResource.SourceIndex == dieIndex;
+
+            ResolveDieOwner(dieIndex, out string actorId, out int innerDieIndex);
+            _selectedResource = new SelectedResource
             {
-                ResolveDieOwner(dieIndex, out string actorId, out int innerDieIndex);
-                _selectedResource = new SelectedResource
-                {
-                    Type = "die",
-                    Value = val,
-                    SourceIndex = dieIndex,
-                    ActorId = actorId,
-                    DieIndex = innerDieIndex
-                };
-            }
+                Type = "die",
+                Value = val,
+                SourceIndex = dieIndex,
+                ActorId = actorId,
+                DieIndex = innerDieIndex
+            };
+        }
+
+        // Called when a slot consumed the drop, so release does not also return the die.
+        public void MarkDieDropHandled() => _dieDropHandled = true;
+
+        // Mouse-up while a die drag is active. Resolve the gesture:
+        //  • a slot already placed it → nothing to do;
+        //  • moved then released over empty space → return to hand;
+        //  • no movement (a click) → toggle selection.
+        public void EndDieDrag(Vector2 mouse)
+        {
+            if (!_dieDragActive) return;
+            _dieDragActive = false;
+
+            if (_dieDropHandled) return;
+
+            bool moved = (mouse - _dieDragStartMouse).sqrMagnitude > DieDragThresholdSq;
+            if (moved)
+                _selectedResource = null;               // dragged out → drop back to hand
+            else if (_dieDragWasSelected)
+                _selectedResource = null;               // click on already-held die → deselect
         }
 
         // Maps a flat action-die index (as enumerated by the hand panel:

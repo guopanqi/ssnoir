@@ -59,8 +59,9 @@
 
 **encounter 切换** `(start-encounter name callback)` / `(end-encounter result)`
 
-**成长** `(growth-level)` / `(available-growth-points)` / `(upgrade-actor-stat! actor-id stat-id)`；
-当前主角能力 ID 为 `violence`、`knowledge`、`sharpness`、`social`。
+**成长** `(growth-level)`；能力升级只由客户端人物成长面板操作，不在 Scheme 场景中提供升级动作。
+`(complete-section!)` 表示一个不可重复的主线/人物小节已经结束，只负责增加一点成长并提示；
+能否完成、是否已经完成由拥有该状态的单向状态机断言，不在 helper 内做去重兼容。
 
 **休息阻塞** `(rest-block! id reason)` / `(rest-release! id)` / `(rest-blocked?)` /
 `(rest-block-reasons)`。用于已经到期、当天必须处理的关键事件；支持多个不同 `id` 同时存在。
@@ -188,10 +189,12 @@ Schemy 在深嵌套 `(append (if …) (if … (append …) '()))` 中,某些分�
 
 ### 3.7 可复发交锋的状态边界
 
-可复发交锋的排期、发生次数、冷却和最终收尾属于 world 地点状态，由地点闭包保存并纳入
-`world-save`。encounter 每次新建，只读取本场需要的只读输入（例如场次、是否有盟友），结束时
-只通过 `end-encounter` 返回结果。地点传给 `start-encounter` 的 callback 负责统一结算、排下一场
-或收尾。不要让 encounter 直接修改外部任务阶段。
+事件状态归最小且明确的拥有者：只影响一个地点的事件由地点闭包保存；跨地点可见、阻塞世界日程的
+公共事件由 `world.scm` 保存。两者都纳入 `world-save`，不要把公共调度寄存在某个受影响地点里。
+
+encounter 每次新建，只读取本场需要的只读输入（例如场次、是否有盟友），结束时只通过
+`end-encounter` 返回结果。拥有者传给 `start-encounter` 的 callback 负责统一结算、排下一场或收尾。
+不要让 encounter 直接修改外部任务阶段。
 
 若 encounter 必须读取地点私有状态，可在入场前镜像最小的只读值到 global；地点每次变更和
 `load!` 后都要重新同步。不要把整套地点状态复制到 global。

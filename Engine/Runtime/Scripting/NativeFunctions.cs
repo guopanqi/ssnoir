@@ -270,38 +270,6 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__play-animation!"));
 
-            interpreter.DefineGlobal(Symbol.FromString("__upgrade-actor-stat!"), new NativeProcedure(args =>
-            {
-                if (args.Count < 2) throw new ArgumentException("__upgrade-actor-stat! requires 2 arguments: actor-id and stat-id");
-                string actorId = SchemeValue.AsId(args[0]);
-                string statId = SchemeValue.AsId(args[1]);
-                var actor = gameState.Team.FindActor(actorId)
-                    ?? throw new ArgumentException($"actor '{actorId}' not found");
-                int before = actor.Stats.TryGetValue(statId, out var value) ? value : 0;
-                gameState.Team.UpgradeActorStat(actorId, statId);
-                int delta = actor.Stats[statId] - before;
-                string label = statId switch
-                {
-                    "violence" => "力量",
-                    "knowledge" => "见识",
-                    "sharpness" => "敏锐",
-                    "social" => "交际",
-                    _ => statId,
-                };
-                gameState.CurrentActionReport?.AddEffect(
-                    ActionEffectKind.Growth, label, delta, ActionEffectTone.Positive);
-                return new None();
-            }, "__upgrade-actor-stat!"));
-
-            // 可用成长点 = 队伍成长等级 − 该角色已花费（默认主角）。供内容层"长进"入口显示/门控。
-            interpreter.DefineGlobal(Symbol.FromString("__available-growth-points"), new NativeProcedure(args =>
-            {
-                string actorId = args.Count > 0 ? SchemeValue.AsId(args[0]) : "player";
-                var actor = gameState.Team.FindActor(actorId);
-                if (actor == null) return 0;
-                return gameState.Team.GetAvailableGrowthPoints(actor);
-            }, "__available-growth-points"));
-
             // --- Existing Native Procedures ---
             interpreter.DefineGlobal(Symbol.FromString("get-global"), new NativeProcedure(args =>
             {

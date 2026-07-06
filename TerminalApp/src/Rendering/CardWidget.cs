@@ -40,7 +40,9 @@ namespace SSNoir.Rendering
             int localRollDisplayDieValue = 1,
             float localRollDisplayScale = 1f,
             CardPresentationResidue? residue = null,
-            bool disabled = false)
+            bool disabled = false,
+            string? rollSkill = null,
+            IReadOnlyList<ActorSnapshot>? actors = null)
         {
             var interaction = new CardInteraction
             {
@@ -122,28 +124,70 @@ namespace SSNoir.Rendering
                 : bounds.Y + (bounds.Height / 2f) - (hasSubtitle ? 28 : 15);
             FontManager.DrawText(name, titleX, titleY, titleFontSize, titleColor);
 
+            int subtitleFontSize = 15;
+            List<string> subtitleLines = new();
+            float subtitleY = titleY + 26;
             if (hasSubtitle)
             {
-                int subtitleFontSize = 15; // 稍微调大（12 -> 15），提升叙事小字可读性
-                int subtitleWidth = FontManager.MeasureTextWidth(subtitle, subtitleFontSize);
-                float subtitleX = bounds.X + (bounds.Width - subtitleWidth) / 2f;
-                float subtitleY = titleY + 26; // 稍微增加间距以防与主标题重叠
-                FontManager.DrawText(subtitle, subtitleX, subtitleY, subtitleFontSize, new Color(170, 175, 205, 255));
+                float subtitleWidth = bounds.Width - 24f;
+                subtitleLines = WrapTextLines(subtitle, subtitleWidth, subtitleFontSize);
+                while (subtitleLines.Count > 2 && subtitleFontSize > 11)
+                {
+                    subtitleFontSize--;
+                    subtitleLines = WrapTextLines(subtitle, subtitleWidth, subtitleFontSize);
+                }
+                subtitleLines = ClampWrappedLines(subtitleLines, 2, subtitleWidth, subtitleFontSize);
+
+                for (int i = 0; i < subtitleLines.Count; i++)
+                {
+                    string line = subtitleLines[i];
+                    int lineWidth = FontManager.MeasureTextWidth(line, subtitleFontSize);
+                    float lineX = bounds.X + (bounds.Width - lineWidth) / 2f;
+                    FontManager.DrawText(line, lineX, subtitleY + i * (subtitleFontSize + 4), subtitleFontSize, new Color(170, 175, 205, 255));
+                }
             }
 
-            // Draw Type text (bottom-center or moved up if has slots/button)
-            if (!string.IsNullOrEmpty(typeLabel))
+            float subtitleBottom = hasSubtitle
+                ? subtitleY + subtitleLines.Count * (subtitleFontSize + 4)
+                : titleY + 26;
+
+            // Draw skill badge (roll cards) or plain type text — the skill tells the player
+            // which ability this action tests, replacing the meaningless "判定" label.
+            bool hasSkill = !string.IsNullOrEmpty(rollSkill);
+            if (hasSkill && !disabled)
+            {
+                string skillText = SkillInfo.DisplayName(rollSkill!);
+                int skillFont = 14;
+                int skillTextW = FontManager.MeasureTextWidth(skillText, skillFont);
+                float badgeW = skillTextW + 22;
+                float badgeH = 20;
+                float badgeX = bounds.X + (bounds.Width - badgeW) / 2f;
+                float badgeY = showButton
+                    ? (hasSubtitle ? Math.Max(bounds.Y + 66, subtitleBottom + 2) : bounds.Y + 48)
+                    : bounds.Y + bounds.Height - 26;
+                var badgeRect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
+                Raylib.DrawRectangleRounded(badgeRect, 0.5f, 8, new Color(16, 29, 51, 255));
+                Raylib.DrawRectangleRoundedLinesEx(badgeRect, 0.5f, 8, 1f, new Color(63, 109, 176, 255));
+                FontManager.DrawText(skillText, badgeX + 11, badgeY + 3, skillFont, new Color(188, 216, 255, 255));
+            }
+            else if (!string.IsNullOrEmpty(typeLabel))
             {
                 int typeFontSize = 14;
                 int typeWidth = FontManager.MeasureTextWidth(typeLabel, typeFontSize);
                 float typeX = bounds.X + (bounds.Width - typeWidth) / 2f;
                 float typeY = showButton
-                    ? bounds.Y + (hasSubtitle ? 44 : 32)
+                    ? (hasSubtitle ? Math.Max(bounds.Y + 44, subtitleBottom + 2) : bounds.Y + 32)
                     : bounds.Y + bounds.Height - 22;
                 FontManager.DrawText(typeLabel, typeX, typeY, typeFontSize, typeColor);
             }
 
-            float tagBottomY = DrawNodeTags(bounds, tags, hasRequires ? bounds.Y + 6 : (showButton ? bounds.Y + (hasSubtitle ? 62 : 52) : bounds.Y + 6));
+            // For roll cards, tags sit on their own row below the title (left side); the ability
+            // chips mirror them on the right. Keeps a long centered title from colliding.
+            float tagBottomY = DrawNodeTags(bounds, tags, hasRequires ? bounds.Y + 30 : (showButton ? bounds.Y + (hasSubtitle ? 62 : 52) : bounds.Y + 6));
+
+            // Bottom of the execute button; used to gate the odds preview so it only shows
+            // when the card is tall enough to leave room below the button.
+            float executeBottomY = bounds.Y + bounds.Height;
 
             // Draw Slots & Execute Button if there are requirements
             if (hasRequires)
@@ -159,7 +203,11 @@ namespace SSNoir.Rendering
                         totalWidth += spacing;
                 }
                 float slotStartX = bounds.X + (bounds.Width - totalWidth) / 2f;
-                float slotY = bounds.Y + (hasSubtitle ? 60 : 52);
+                float slotY = bounds.Y + (hasSubtitle ? 88 : 74);
+                if (hasSubtitle)
+                {
+                    slotY = Math.Max(slotY, subtitleBottom + 22);
+                }
                 float slotX = slotStartX;
 
                 for (int j = 0; j < M; j++)
@@ -209,6 +257,7 @@ namespace SSNoir.Rendering
                 float exeX = bounds.X + (bounds.Width - exeW) / 2f;
                 float exeY = slotY + 36;
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
+                executeBottomY = exeY + exeH;
 
                 bool allFilled = slotted != null && slotted.All(s => s != null);
                 if (isExecuting)
@@ -236,6 +285,10 @@ namespace SSNoir.Rendering
                 float exeH = 18;
                 float exeX = bounds.X + (bounds.Width - exeW) / 2f;
                 float exeY = bounds.Y + (hasSubtitle ? 84 : 70);
+                if (hasSubtitle)
+                {
+                    exeY = Math.Max(exeY, subtitleBottom + 24);
+                }
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
 
                 if (isExecuting)
@@ -289,6 +342,13 @@ namespace SSNoir.Rendering
                 }
             }
 
+            // Right rail: each active party member's level in this card's skill, framed in
+            // that actor's theme color — an at-a-glance "who is good at this" comparison.
+            if (hasSkill && actors != null && actors.Count > 0)
+            {
+                DrawActorAbilityRail(bounds, rollSkill!, actors);
+            }
+
             if (localRoll != null)
             {
                 DrawLocalRoll(bounds, localRoll, localRollPhase, localRollDisplayDieValue, localRollDisplayScale);
@@ -297,8 +357,129 @@ namespace SSNoir.Rendering
             {
                 DrawResidue(bounds, residue);
             }
+            else if (hasSkill && !disabled && hasRequires && actors != null
+                     && bounds.Y + bounds.Height - executeBottomY >= 16f)
+            {
+                // Once a die is placed, preview the three outcome bands — exact, since only
+                // the advantage dice are random. Gated to cards with room below the button.
+                TryDrawOddsPreview(bounds, rollSkill!, slotted!, modifiers, actors, executeBottomY);
+            }
 
             return interaction;
+        }
+
+        private static void DrawActorAbilityRail(Rectangle bounds, string skill, IReadOnlyList<ActorSnapshot> actors)
+        {
+            const float chipW = 52f;
+            const float chipH = 18f;
+            float x = bounds.X + bounds.Width - chipW - 6f;
+            // Same row as the tags (below the title), mirrored to the right edge.
+            float y = bounds.Y + 30f;
+            int drawn = 0;
+            foreach (var actor in actors)
+            {
+                if (actor.Status == "away")
+                {
+                    continue;
+                }
+                if (!actor.Stats.TryGetValue(skill, out int level))
+                {
+                    continue;
+                }
+                var (r, g, b) = ActorTheme.ColorFor(actors, actor.Id);
+                var color = new Color(r, g, b, (byte)255);
+                var chip = new Rectangle(x, y + drawn * (chipH + 4f), chipW, chipH);
+                Raylib.DrawRectangleRounded(chip, 0.4f, 5, new Color((byte)(r / 5), (byte)(g / 5), (byte)(b / 5), (byte)235));
+                Raylib.DrawRectangleRoundedLinesEx(chip, 0.4f, 5, 1.4f, color);
+
+                string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
+                FontManager.DrawText(shortName, chip.X + 5f, chip.Y + 3f, 10, color);
+                string lvl = level.ToString();
+                int lvlW = FontManager.MeasureTextWidth(lvl, 13);
+                FontManager.DrawText(lvl, chip.X + chip.Width - lvlW - 6f, chip.Y + 2f, 13, new Color(235, 240, 255, 255));
+                drawn++;
+            }
+        }
+
+        private static readonly Color OddsFailColor    = new Color(209, 58, 74, 255);
+        private static readonly Color OddsNeutralColor  = new Color(214, 169, 78, 255);
+        private static readonly Color OddsSuccessColor  = new Color(89, 180, 119, 255);
+
+        private static void TryDrawOddsPreview(Rectangle bounds, string skill, List<SlottedResource?> slotted,
+            List<DifficultyModifierInfo>? modifiers, IReadOnlyList<ActorSnapshot> actors, float executeBottomY)
+        {
+            SlottedResource? dieSlot = null;
+            foreach (var s in slotted)
+            {
+                if (s != null && s.Type == "die")
+                {
+                    dieSlot = s;
+                    break;
+                }
+            }
+            if (dieSlot == null)
+            {
+                return;
+            }
+
+            int skillLevel = 1;
+            foreach (var actor in actors)
+            {
+                if (actor.Id == dieSlot.ActorId && actor.Stats.TryGetValue(skill, out int lv))
+                {
+                    skillLevel = lv;
+                    break;
+                }
+            }
+            int modSum = 0;
+            if (modifiers != null)
+            {
+                foreach (var m in modifiers)
+                {
+                    modSum += m.Value;
+                }
+            }
+
+            var odds = RollOdds.Compute(dieSlot.Value, skillLevel, modSum);
+            DrawOddsPreview(bounds, odds, executeBottomY);
+        }
+
+        // Compact tri-color proportion bar: the widths of 失败/中性/成功 show the odds split
+        // at a glance, with each percentage labeled beneath. Sits in the strip below the button.
+        private static void DrawOddsPreview(Rectangle bounds, RollOddsResult odds, float executeBottomY)
+        {
+            float pad = 8f;
+            float barY = executeBottomY + 4f;
+            float barX = bounds.X + pad;
+            float barW = bounds.Width - pad * 2f;
+            float barH = 5f;
+
+            var bands = new (double p, Color c)[]
+            {
+                (odds.Fail,    OddsFailColor),
+                (odds.Neutral, OddsNeutralColor),
+                (odds.Success, OddsSuccessColor),
+            };
+
+            float x = barX;
+            for (int i = 0; i < 3; i++)
+            {
+                float w = i == 2 ? (barX + barW - x) : barW * (float)bands[i].p;
+                if (w > 0.5f)
+                {
+                    Raylib.DrawRectangle((int)x, (int)barY, (int)Math.Ceiling(w), (int)barH, bands[i].c);
+                }
+                x += w;
+            }
+
+            float colW = barW / 3f;
+            for (int i = 0; i < 3; i++)
+            {
+                string pct = $"{(int)Math.Round(bands[i].p * 100)}%";
+                int pw = FontManager.MeasureTextWidth(pct, 10);
+                float cx = barX + i * colW + (colW - pw) / 2f;
+                FontManager.DrawText(pct, cx, barY + barH + 1f, 10, bands[i].c);
+            }
         }
 
         private static void DrawLocalRoll(Rectangle bounds, ActionReport report, int phase, int displayDieValue, float displayScale)
@@ -673,9 +854,9 @@ namespace SSNoir.Rendering
             return y + lineH;
         }
 
-        private static void DrawWrappedText(string text, float x, float y, float width, int fontSize, Color color)
+        private static List<string> WrapTextLines(string text, float width, int fontSize)
         {
-            float currentY = y;
+            var lines = new List<string>();
             string currentLine = "";
 
             for (int i = 0; i < text.Length; i++)
@@ -683,9 +864,8 @@ namespace SSNoir.Rendering
                 char c = text[i];
                 if (c == '\n')
                 {
-                    FontManager.DrawText(currentLine, x, currentY, fontSize, color);
+                    lines.Add(currentLine);
                     currentLine = "";
-                    currentY += fontSize + 4;
                     continue;
                 }
 
@@ -695,15 +875,13 @@ namespace SSNoir.Rendering
                 {
                     if (currentLine.Length > 0)
                     {
-                        FontManager.DrawText(currentLine, x, currentY, fontSize, color);
+                        lines.Add(currentLine);
                         currentLine = c.ToString();
-                        currentY += fontSize + 4;
                     }
                     else
                     {
-                        FontManager.DrawText(testLine, x, currentY, fontSize, color);
-                        currentLine = "";
-                        currentY += fontSize + 4;
+                        lines.Add(testLine);
+                        currentLine = string.Empty;
                     }
                 }
                 else
@@ -714,7 +892,35 @@ namespace SSNoir.Rendering
 
             if (currentLine.Length > 0)
             {
-                FontManager.DrawText(currentLine, x, currentY, fontSize, color);
+                lines.Add(currentLine);
+            }
+
+            return lines;
+        }
+
+        private static List<string> ClampWrappedLines(List<string> lines, int maxLines, float width, int fontSize)
+        {
+            if (lines.Count <= maxLines)
+            {
+                return lines;
+            }
+
+            var visible = lines.Take(maxLines).ToList();
+            string last = visible[maxLines - 1];
+            while (last.Length > 0 && FontManager.MeasureTextWidth(last + "…", fontSize) > width)
+            {
+                last = last.Substring(0, last.Length - 1);
+            }
+            visible[maxLines - 1] = last + "…";
+            return visible;
+        }
+
+        private static void DrawWrappedText(string text, float x, float y, float width, int fontSize, Color color)
+        {
+            var lines = WrapTextLines(text, width, fontSize);
+            for (int i = 0; i < lines.Count; i++)
+            {
+                FontManager.DrawText(lines[i], x, y + i * (fontSize + 4), fontSize, color);
             }
         }
 

@@ -119,27 +119,48 @@ namespace SSNoir.IMGUI
             bool showButton = hasRequires || (node.Resolve != null && node.Resolve.Type == ResolveType.Instant);
             bool hasSubtitle = !string.IsNullOrWhiteSpace(node.Subtitle);
 
+            // Bottom of the execute button; used to gate the odds preview so it only shows
+            // when the card is tall enough to leave room below the button.
+            float executeBottomY = rect.yMax;
+
             // Title
             float titleY = showButton ? rect.y + 12 : rect.y + rect.height / 2f - (hasSubtitle ? 34 : 24);
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle);
             if (disabled) titleStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
             GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, 28), node.Name, titleStyle);
 
+            float subtitleBottomY = titleY + 28f;
             if (hasSubtitle)
             {
                 var subtitleStyle = new GUIStyle(IMGUIStyles.CardSubtitle)
                 {
-                    fontSize = 14,
                     alignment = TextAnchor.MiddleCenter,
-                    wordWrap = false
+                    wordWrap = true,
+                    clipping = TextClipping.Clip
                 };
                 if (disabled) subtitleStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
-                GUI.Label(new Rect(rect.x + 12f, titleY + 28f, rect.width - 24f, 20f), node.Subtitle, subtitleStyle);
+                float subtitleWidth = rect.width - 24f;
+                float measuredHeight = subtitleStyle.CalcHeight(new GUIContent(node.Subtitle), subtitleWidth);
+                float subtitleHeight = Mathf.Clamp(measuredHeight, 20f, 40f);
+                float subtitleY = titleY + 28f;
+                GUI.Label(new Rect(rect.x + 12f, subtitleY, subtitleWidth, subtitleHeight), node.Subtitle, subtitleStyle);
+                subtitleBottomY = subtitleY + subtitleHeight;
             }
 
-            // Type label
-            float typeY = showButton ? rect.y + (hasSubtitle ? 64 : 48) : rect.y + rect.height / 2f + 6;
-            GUI.Label(new Rect(rect.x + 10f, typeY, rect.width - 20f, 22), $"— {typeLabel} —", IMGUIStyles.CardSubtitle);
+            // Skill badge (roll cards) or plain type label. The skill name tells the player
+            // which ability this action tests, replacing the meaningless "判定" label.
+            bool isRoll = node.Resolve != null && node.Resolve.Type == ResolveType.Roll && !string.IsNullOrEmpty(node.Resolve.SkillName);
+            float typeY = showButton
+                ? (hasSubtitle ? Mathf.Max(rect.y + 64f, subtitleBottomY + 2f) : rect.y + 48f)
+                : rect.y + rect.height / 2f + 6f;
+            if (isRoll && !disabled)
+            {
+                DrawSkillBadge(rect, typeY, SkillInfo.DisplayName(node.Resolve!.SkillName));
+            }
+            else
+            {
+                GUI.Label(new Rect(rect.x + 10f, typeY, rect.width - 20f, 22), $"— {typeLabel} —", IMGUIStyles.CardSubtitle);
+            }
 
             DrawNodeTags(rect, node.Tags, hasRequires ? rect.y + 8f : (showButton ? rect.y + (hasSubtitle ? 88f : 72f) : rect.y + 8f));
 
@@ -154,6 +175,10 @@ namespace SSNoir.IMGUI
                 float totalWidth = M * slotW + (M - 1) * spacing;
                 float slotStartX = rect.x + (rect.width - totalWidth) / 2f;
                 float slotY = rect.y + (hasSubtitle ? 92 : 78);
+                if (hasSubtitle)
+                {
+                    slotY = Mathf.Max(slotY, typeY + 24f);
+                }
 
                 for (int j = 0; j < M; j++)
                 {
@@ -220,6 +245,7 @@ namespace SSNoir.IMGUI
                 float exeX = rect.x + (rect.width - exeW) / 2f;
                 float exeY = slotY + slotH + 10;
                 var exeRect = new Rect(exeX, exeY, exeW, exeH);
+                executeBottomY = exeY + exeH;
 
                 bool allFilled = slotted != null && slotted.All(s => s != null);
                 if (isExecuting)
@@ -245,6 +271,10 @@ namespace SSNoir.IMGUI
                 float exeH = 30;
                 float exeX = rect.x + (rect.width - exeW) / 2f;
                 float exeY = rect.y + (hasSubtitle ? 124 : 100);
+                if (hasSubtitle)
+                {
+                    exeY = Mathf.Max(exeY, typeY + 26f);
+                }
                 var exeRect = new Rect(exeX, exeY, exeW, exeH);
 
                 if (isExecuting)
@@ -301,6 +331,14 @@ namespace SSNoir.IMGUI
                 }
             }
 
+            // Right rail: each active party member's level in this card's skill, framed in
+            // that actor's theme color — an at-a-glance "who is good at this" comparison.
+            var actors = gameManager.DisplayedSnapshot.Actors;
+            if (isRoll && actors != null && actors.Count > 0)
+            {
+                DrawActorAbilityRail(rect, node.Resolve!.SkillName, actors, clocks != null && clocks.Count > 0);
+            }
+
             if (localRoll != null)
             {
                 DrawLocalRoll(rect, localRoll, localRollPhase, localRollDisplayDieValue, localRollDisplayScale);
@@ -309,8 +347,152 @@ namespace SSNoir.IMGUI
             {
                 DrawResidue(rect, residue);
             }
+            else if (isRoll && !disabled && hasRequires && actors != null
+                     && rect.yMax - executeBottomY >= 16f)
+            {
+                // Once a die is placed, preview the three outcome bands — exact, since only
+                // the advantage dice are random. Gated to cards with room below the button.
+                TryDrawOddsPreview(rect, node.Resolve!.SkillName, slotted!, modifiers, actors, executeBottomY);
+            }
 
             return interaction;
+        }
+
+        private static void DrawSkillBadge(Rect rect, float y, string skillText)
+        {
+            var style = new GUIStyle(IMGUIStyles.CardSubtitle)
+            {
+                font = IMGUIStyles.ChineseFont,
+                fontSize = 14,
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = new Color(0.737f, 0.847f, 1f, 1f) }
+            };
+            Vector2 size = style.CalcSize(new GUIContent(skillText));
+            float badgeW = size.x + 24f;
+            float badgeH = 22f;
+            var badge = new Rect(rect.x + (rect.width - badgeW) / 2f, y, badgeW, badgeH);
+            GUI.color = new Color(0.063f, 0.114f, 0.20f, 1f);
+            GUI.DrawTexture(badge, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(badge, 1f, new Color(0.247f, 0.427f, 0.69f, 1f));
+            GUI.Label(badge, skillText, style);
+        }
+
+        private static void DrawActorAbilityRail(Rect rect, string skill, IReadOnlyList<ActorSnapshot> actors, bool hasClocks)
+        {
+            const float chipW = 54f;
+            const float chipH = 20f;
+            float x = rect.x + rect.width - chipW - 6f;
+            float y = rect.y + (hasClocks ? 24f : 6f);
+            int drawn = 0;
+            foreach (var actor in actors)
+            {
+                if (actor.Status == "away" || !actor.Stats.TryGetValue(skill, out int level))
+                {
+                    continue;
+                }
+                var (r, g, b) = ActorTheme.ColorFor(actors, actor.Id);
+                var color = new Color(r / 255f, g / 255f, b / 255f, 1f);
+                var chip = new Rect(x, y + drawn * (chipH + 4f), chipW, chipH);
+                GUI.color = new Color(r / 255f * 0.2f, g / 255f * 0.2f, b / 255f * 0.2f, 0.92f);
+                GUI.DrawTexture(chip, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(chip, 1.4f, color);
+
+                string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
+                var nameStyle = new GUIStyle(GUI.skin.label)
+                {
+                    font = IMGUIStyles.ChineseFont,
+                    fontSize = 10,
+                    alignment = TextAnchor.MiddleLeft,
+                    normal = { textColor = color }
+                };
+                GUI.Label(new Rect(chip.x + 5f, chip.y, 28f, chipH), shortName, nameStyle);
+                var lvlStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 14,
+                    alignment = TextAnchor.MiddleRight,
+                    normal = { textColor = new Color(0.92f, 0.94f, 1f, 1f) }
+                };
+                GUI.Label(new Rect(chip.x, chip.y, chip.width - 6f, chipH), level.ToString(), lvlStyle);
+                drawn++;
+            }
+        }
+
+        private static readonly Color OddsFailColor    = new Color(0.82f, 0.227f, 0.29f, 1f);
+        private static readonly Color OddsNeutralColor  = new Color(0.839f, 0.663f, 0.306f, 1f);
+        private static readonly Color OddsSuccessColor  = new Color(0.349f, 0.706f, 0.467f, 1f);
+
+        private static void TryDrawOddsPreview(Rect rect, string skill, List<SlottedResource?> slotted,
+            List<DifficultyModifierInfo>? modifiers, IReadOnlyList<ActorSnapshot> actors, float executeBottomY)
+        {
+            SlottedResource? dieSlot = null;
+            foreach (var s in slotted)
+            {
+                if (s != null && s.Type == "die") { dieSlot = s; break; }
+            }
+            if (dieSlot == null)
+            {
+                return;
+            }
+
+            int skillLevel = 1;
+            foreach (var actor in actors)
+            {
+                if (actor.Id == dieSlot.ActorId && actor.Stats.TryGetValue(skill, out int lv)) { skillLevel = lv; break; }
+            }
+            int modSum = 0;
+            if (modifiers != null)
+            {
+                foreach (var m in modifiers) modSum += m.Value;
+            }
+
+            var odds = RollOdds.Compute(dieSlot.Value, skillLevel, modSum);
+            DrawOddsPreview(rect, odds, executeBottomY);
+        }
+
+        // Compact tri-color proportion bar: the widths of 失败/中性/成功 show the odds split
+        // at a glance, with each percentage labeled beneath. Sits in the strip below the button.
+        private static void DrawOddsPreview(Rect rect, RollOddsResult odds, float executeBottomY)
+        {
+            float pad = 10f;
+            float barY = executeBottomY + 5f;
+            float barX = rect.x + pad;
+            float barW = rect.width - pad * 2f;
+            float barH = 5f;
+
+            var bands = new (double p, Color c)[]
+            {
+                (odds.Fail,    OddsFailColor),
+                (odds.Neutral, OddsNeutralColor),
+                (odds.Success, OddsSuccessColor),
+            };
+
+            float x = barX;
+            for (int i = 0; i < 3; i++)
+            {
+                float w = i == 2 ? (barX + barW - x) : barW * (float)bands[i].p;
+                if (w > 0.5f)
+                {
+                    GUI.color = bands[i].c;
+                    GUI.DrawTexture(new Rect(x, barY, w, barH), Texture2D.whiteTexture);
+                }
+                x += w;
+            }
+            GUI.color = Color.white;
+
+            float colW = barW / 3f;
+            for (int i = 0; i < 3; i++)
+            {
+                var pctStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 11,
+                    alignment = TextAnchor.MiddleCenter,
+                    normal = { textColor = bands[i].c }
+                };
+                GUI.Label(new Rect(barX + i * colW, barY + barH + 1f, colW, 14f),
+                    $"{Mathf.RoundToInt((float)bands[i].p * 100)}%", pctStyle);
+            }
         }
 
         private static void DrawLocalRoll(Rect rect, ActionReport report, int phase, int displayDieValue, float displayScale)

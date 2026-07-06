@@ -172,6 +172,9 @@ namespace SSNoir.IMGUI
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
         public bool IsInputLocked => _inputLocked || _activeHeavyOutcome != null || _activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _activeAnimationTag != null;
 
+        // Whether the pointer was over any interactive UI in the last OnGUI pass.
+        public bool PointerOverUI { get; private set; }
+
         private bool _inputLocked = false;
         public void SetInputLocked(bool locked)
         {
@@ -257,6 +260,10 @@ namespace SSNoir.IMGUI
             Vector2 mouse = Event.current.mousePosition;
             bool mouseDown = Event.current.type == EventType.MouseDown && Event.current.button == 0;
             _windowStack.BeginFrame(mouse, mouseDown);
+
+            // Reset the pointer-over-UI accumulator; widgets set it via CanHover
+            // during this pass, and we persist the result at the end of OnGUI.
+            IMGUIInteractionContext.ResetPointerOverUi();
 
             if (DebugPanelDrawer.IsOpen && !_isGrowthPanelOpen)
             {
@@ -387,6 +394,18 @@ namespace SSNoir.IMGUI
                 GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
                 GUI.color = oldColor;
             }
+
+            // Persist whether the pointer is over any UI this pass, so the camera
+            // manager (which polls raw Input in Update, one step ahead of OnGUI)
+            // can skip starting a drag that begins on the UI.
+            PointerOverUI = IMGUIInteractionContext.PointerOverUi || _windowStack.IsPointerOverBlocker();
+
+            // Resolve a die drag on release. rawType (not type) so this still fires
+            // when a slot already consumed the MouseUp to place the die.
+            if (Event.current.rawType == EventType.MouseUp && _gameManager.IsDraggingDie)
+            {
+                _gameManager.EndDieDrag(Event.current.mousePosition);
+            }
         }
 
         private void DrawCards(IMGUIInteractionContext ui)
@@ -451,7 +470,7 @@ namespace SSNoir.IMGUI
                 bool focused = isFocused(item.node.Name);
 
                 float cardWidth = focused ? 460f : (isLocation ? 160f : 340f);
-                float cardHeight = focused ? 340f : (isLocation ? 38f : 170f);
+                float cardHeight = focused ? 340f : (isLocation ? 38f : 190f);
 
                 // Default target center position (centered horizontally above 3D anchor point)
                 Vector2 targetCenter = new Vector2(anchorX, anchorY - cardHeight / 2f - 40f);
@@ -532,7 +551,7 @@ namespace SSNoir.IMGUI
         {
             var visibleNodes = nodes.ToList();
             float cardWidth = 340f;
-            float cardHeight = 170f;
+            float cardHeight = 190f;
             float spacing = 20f;
             float startX = 40f;
             float startY = 140f;
@@ -549,7 +568,10 @@ namespace SSNoir.IMGUI
             var viewport = new Rect(0f, startY, UIScale.VW, Mathf.Max(0f, viewportBottom - startY));
             float maxScroll = Mathf.Max(0f, contentHeight - viewport.height);
 
-            bool mouseInViewport = ui.CanHover(viewport);
+            // ContainsMouse (not CanHover): this viewport spans the whole play area
+            // and is only used to catch scroll-wheel events — it must not mark the
+            // area as UI, or camera dragging through empty grid space would break.
+            bool mouseInViewport = ui.ContainsMouse(viewport);
             if (mouseInViewport && Event.current.type == EventType.ScrollWheel && maxScroll > 0f)
             {
                 _gridScrollOffset += Event.current.delta.y * 18f;
@@ -628,6 +650,9 @@ namespace SSNoir.IMGUI
                 if (interaction.DroppedSlotIndex != -1 && slotted != null && node.Requires != null)
                 {
                     _gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex);
+                    // A drag-release landed on this slot; stop EndDieDrag from also
+                    // returning the die to hand.
+                    _gameManager.MarkDieDropHandled();
                 }
                 if (interaction.ExecuteClicked)
                 {
@@ -791,16 +816,18 @@ namespace SSNoir.IMGUI
         private List<GameClock> GetCurrentClocks()
         {
             var clocks = new List<GameClock>();
-            var root = _gameManager.DisplayedSnapshot.RootNode;
-            if (root != null)
-            {
-                // 世界级排期始终可见，不因玩家进入某个地点而消失。
-                clocks.AddRange(root.Clocks);
-            }
             if (_gameManager.NavigationStack.Count > 0)
             {
                 var currentNode = _gameManager.NavigationStack[_gameManager.NavigationStack.Count - 1];
                 clocks.AddRange(currentNode.Clocks);
+            }
+            else
+            {
+                var root = _gameManager.DisplayedSnapshot.RootNode;
+                if (root != null)
+                {
+                    clocks.AddRange(root.Clocks);
+                }
             }
             return clocks;
         }

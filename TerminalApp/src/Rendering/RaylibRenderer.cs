@@ -16,8 +16,8 @@ namespace SSNoir.Rendering
         private readonly UiWindowStack _windowStack = new();
         private Action? _presentationDoneCallback;
 
-        private const int WindowWidth = 800;
-        private const int WindowHeight = 600;
+        private const int WindowWidth = 900;
+        private const int WindowHeight = 700;
         private static readonly bool FastPresentationMode =
             string.Equals(Environment.GetEnvironmentVariable("SSNOIR_FAST_PRESENTATION"), "1", StringComparison.Ordinal);
 
@@ -1022,8 +1022,8 @@ namespace SSNoir.Rendering
         private void DrawCards(SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float startY)
         {
             float startX = 40f;
-            float cardWidth = 220f;
-            float cardHeight = 125f;
+            float cardWidth = 240f;
+            float cardHeight = 150f;
             float spacing = 20f;
             int cardsPerRow = Math.Max(1, (int)((WindowWidth - startX * 2 + spacing) / (cardWidth + spacing)));
             var visibleNodes = _state.VisibleNodes.ToList();
@@ -1146,7 +1146,9 @@ namespace SSNoir.Rendering
                     _state.ActiveRollDisplayDieValue,
                     _state.ActiveRollDisplayScale,
                     residue,
-                    node.Disabled);
+                    node.Disabled,
+                    node.Resolve?.Type == ResolveType.Roll ? node.Resolve.SkillName : null,
+                    _state.DisplayedSnapshot.Actors);
 
                 if (interaction.CardClicked)
                 {
@@ -1190,8 +1192,9 @@ namespace SSNoir.Rendering
                         _state.SelectedResource = CreateSelectedResourceFromSlot(res);
                         slotted[j] = null;
                     }
-                    else if (_state.SelectedResource != null && res == null)
+                    else if (_state.SelectedResource != null)
                     {
+                        // Places into an empty slot, or replaces a filled one.
                         TryPlaceSelectedResource(node, requires, slotted, j);
                     }
                 }
@@ -1248,8 +1251,9 @@ namespace SSNoir.Rendering
             var result = new List<bool>(requires.Count);
             for (int i = 0; i < requires.Count; i++)
             {
-                bool slotIsEmpty = slotted[i] == null;
-                result.Add(slotIsEmpty && ResourceSlotRules.CanPlaceSelectedResource(_state, requires[i], slotted, i));
+                // A filled slot is a valid drop target too — dropping replaces it, and the
+                // displaced die returns to hand automatically (slot state is derived).
+                result.Add(ResourceSlotRules.CanPlaceSelectedResource(_state, requires[i], slotted, i));
             }
             return result;
         }

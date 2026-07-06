@@ -50,18 +50,24 @@ namespace SSNoir.IMGUI
             float blockX      = 8f;
             int flatDieOffset = 0;
 
-            foreach (var actor in snapshot.Actors)
+            for (int i = 0; i < snapshot.Actors.Count; i++)
             {
+                var actor = snapshot.Actors[i];
                 if (actor.Status == "away")
                 {
                     flatDieOffset += actor.ActionDice.Count;
                     continue;
                 }
 
+                // Theme color by party join order — the SAME source the card right-rail uses,
+                // so a die's color matches its owner's ability chip on the cards.
+                var (tr, tg, tb) = ActorTheme.ColorFor(i);
+                Color themeColor = new Color(tr / 255f, tg / 255f, tb / 255f, 1f);
+
                 float blockW = BlockWidth(actor.ActionDice.Count);
                 var blockRect = new Rect(blockX, handY + 6, blockW, PanelHeight - 12f);
                 anchors?.RegisterActor(actor.Id, actor.Name, blockRect);
-                DrawActorBlock(actor, flatDieOffset, blockX, handY, blockW, gameManager, ui);
+                DrawActorBlock(actor, flatDieOffset, blockX, handY, blockW, gameManager, ui, themeColor);
                 blockX += blockW + BlockGap;
                 flatDieOffset += actor.ActionDice.Count;
             }
@@ -81,15 +87,21 @@ namespace SSNoir.IMGUI
             float blockX, float handY,
             float blockW,
             SSNoirGameManager gameManager,
-            IMGUIInteractionContext ui)
+            IMGUIInteractionContext ui,
+            Color themeColor)
         {
             float blockH  = PanelHeight - 12f;
             var blockRect = new Rect(blockX, handY + 6, blockW, blockH);
 
-            GUI.color = new Color(0.09f, 0.10f, 0.14f, 0.55f);
+            GUI.color = new Color(themeColor.r * 0.16f, themeColor.g * 0.16f, themeColor.b * 0.16f, 0.6f);
             GUI.DrawTexture(blockRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(blockRect, 1f, IMGUIStyles.OutlineVariantColor);
+            IMGUIStyles.DrawOutline(blockRect, 1f, new Color(themeColor.r, themeColor.g, themeColor.b, 0.65f));
+
+            // Left accent stripe in the actor's theme color — the region's identity marker.
+            GUI.color = themeColor;
+            GUI.DrawTexture(new Rect(blockX, handY + 6, 3f, blockH), Texture2D.whiteTexture);
+            GUI.color = Color.white;
 
             float cx = blockX + BlockPadX;
             float cw = blockW - BlockPadX * 2;
@@ -101,7 +113,7 @@ namespace SSNoir.IMGUI
                 fontSize  = 16,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleLeft,
-                normal    = { textColor = IMGUIStyles.OnSurface },
+                normal    = { textColor = themeColor },
             };
             GUI.Label(new Rect(cx, handY + 9, cw, 22), actor.Name, nameStyle);
 
@@ -173,7 +185,7 @@ namespace SSNoir.IMGUI
                         : isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.DieHover : IMGUIStyles.DieNormal);
                     Color border = disabled
                         ? IMGUIStyles.OutlineVariantColor
-                        : (isSelected || hover) ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor;
+                        : (isSelected || hover) ? IMGUIStyles.PrimaryColor : themeColor;
 
                     GUI.color = bg;
                     GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
@@ -186,7 +198,7 @@ namespace SSNoir.IMGUI
 
                     if (ui.WasClicked(dieRect))
                     {
-                        gameManager.OnDieClicked(globalIdx, val);
+                        gameManager.BeginDieDrag(globalIdx, val, ui.Mouse);
                         Event.current.Use();
                     }
                 }

@@ -25,8 +25,11 @@ namespace SSNoir
             var activeCamera = GetActiveCamera();
             if (activeCamera == null) return;
 
-            // Handle Camera Drag Panning / Orbiting
-            if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+            // Handle Camera Drag Panning / Orbiting.
+            // Only *start* a drag when the press does not begin over the UI — a
+            // press on a die/card/panel belongs to IMGUI, not the camera. Once a
+            // world-space drag is underway it keeps going even over the UI.
+            if ((Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) && !_gameManager.PointerOverUI)
             {
                 _isDraggingCam = true;
                 _dragStartMousePos = Input.mousePosition;

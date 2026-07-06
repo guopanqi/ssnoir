@@ -584,21 +584,15 @@ namespace SSNoir.Core
                     }
 
                     var rand = GameRandom.Instance;
-                    var randomDice = new List<int>();
-                    int finalValue = chosenDieVal;
 
-                    for (int i = 0; i < skillLevel - 1; i++)
-                    {
-                        int r = rand.Next(1, 7);
-                        randomDice.Add(r);
-                        if (r > finalValue)
-                        {
-                            finalValue = r;
-                        }
-                    }
+                    // 判定 = 一颗运气骰(d6) + 放入骰作为 ±修正(以 4 为中枢) + 技能平档加成(每级 +1) + 难度修正。
+                    // 放入低骰把结果拉低、高骰拉高；技能线性抬升，可救差骰。中枢 4 决定基础难度。
+                    int luckDie = rand.Next(1, 7);
+                    report.RandomDice = new List<int> { luckDie };
+                    report.FinalRollValue = luckDie;
 
-                    report.RandomDice = randomDice;
-                    report.FinalRollValue = finalValue;
+                    int dieModifier = chosenDieVal - 4;
+                    int skillBonus = skillLevel - 1;
 
                     var modifiers = node.Resolve.DifficultyModifiers;
                     int modifierSum = 0;
@@ -608,7 +602,7 @@ namespace SSNoir.Core
                     }
                     report.DifficultyModifiers = modifiers;
 
-                    int modifiedValue = finalValue + modifierSum;
+                    int modifiedValue = luckDie + dieModifier + skillBonus + modifierSum;
                     report.ModifiedRollValue = modifiedValue;
 
                     if (modifiedValue <= 2)

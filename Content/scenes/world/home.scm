@@ -46,7 +46,7 @@
 
     (define (rent-render-data)
       (list 'clock "房租到期" rent-due rent-due-max 'countdown
-            "归零后旅馆房门会被锁上；交租可延长六天。"))
+            "归零后旅馆房门会被锁上；交租可延长三天。"))
 
     ;; ── 恢复类 ──────────────────────────────────────
     (define (node-eat)
@@ -136,9 +136,10 @@
 
     ;; ── 交易 / 布置 / 升级 ──────────────────────────
     (define (node-pay-rent)
-      (action "交租"
-        (list (req-item "金钱" rent-amount))
-        (instant (lambda ()
+      (node "交租"
+        :subtitle "再安心住三天，房门锁了也能重新进去"
+        :requires (list (req-item "金钱" rent-amount))
+        :resolve (instant (lambda ()
                    (set! rent-due (+ rent-due rent-extend))
                    (set! rent-due-max rent-due)
                    (set! evicted? #f)
@@ -148,32 +149,37 @@
 
     ;; 买酒：可反复购买的消耗品。带回家喝 → 少量饱腹 + 解压（不占骰子的解压路子）。
     (define (node-buy-liquor)
-      (action "买酒"
-        (list (req-item "金钱" 8))
-        (instant (lambda () (add-item! "酒" 1) (notify! "打了一壶酒，搁在柜子里。")))))
+      (node "买酒"
+        :subtitle "给夜里留点松快，也能稍微垫垫肚子"
+        :requires (list (req-item "金钱" 8))
+        :resolve (instant (lambda () (add-item! "酒" 1) (notify! "打了一壶酒，搁在柜子里。")))))
 
     (define (node-buy-flower)
-      (action "买一盆花"
-        (list (req-item "金钱" 15))
-        (instant (lambda () (set! has-flower? #t) (notify! "你买了一盆雏菊，摆在窗台。")))))
+      (node "买一盆花"
+        :subtitle "窗台多点生气，烦闷时可以坐着看一会儿"
+        :requires (list (req-item "金钱" 15))
+        :resolve (instant (lambda () (set! has-flower? #t) (notify! "你买了一盆雏菊，摆在窗台。")))))
 
     (define (node-buy-gramophone)
-      (action "买台唱片机"
-        (list (req-item "金钱" 60))
-        (instant (lambda () (set! has-gramophone? #t) (notify! "一台旧唱片机，还能转。")))))
+      (node "买台唱片机"
+        :subtitle "在家听几首旧歌，比看花更能让人放松"
+        :requires (list (req-item "金钱" 60))
+        :resolve (instant (lambda () (set! has-gramophone? #t) (notify! "一台旧唱片机，还能转。")))))
 
     (define (node-buy-apartment)
-      (action "买下公寓"
-        (list (req-item "金钱" 120))
-        (instant (lambda ()
+      (node "买下公寓"
+        :subtitle "有个自己的家，不再交房租，也能睡得更安稳"
+        :requires (list (req-item "金钱" 120))
+        :resolve (instant (lambda ()
                    (set! residence "公寓")
                    (sync-asset!)
                    (notify! "你签下了公寓。不用再看旅馆老板的脸色了。")))))
 
     (define (node-buy-mansion)
-      (action "买下豪宅"
-        (list (req-item "金钱" 400))
-        (instant (lambda ()
+      (node "买下豪宅"
+        :subtitle "住进富人区，那些只看身份的门也会向你打开"
+        :requires (list (req-item "金钱" 400))
+        :resolve (instant (lambda ()
                    (set! residence "豪宅")
                    (sync-asset!)
                    (notify! "富人飞地的一栋豪宅。你成了这里的新住户。")))))
@@ -204,36 +210,12 @@
             ((equal? residence "公寓") (list (node-buy-mansion)))
             (else '())))
 
-    ;; ── 长进：把成长点投进属性 ──────────────────────
-    ;; 有可用成长点时才出现「长进」节点；每个属性未满级（<6）才可练。
-    (define (train-action key label)
-      (action (string-append "练" label) #f
-        (instant
-          (outcome (string-append label "长进了")
-                   "你把这些日子的历练，沉淀成了实打实的本事。"
-            (lambda () (upgrade-actor-stat! 'player key))))))
-
-    (define (train-children)
-      (append
-        (if (< (actor-stat 'player 'violence) 6)  (list (train-action 'violence "力量"))  '())
-        (if (< (actor-stat 'player 'knowledge) 6) (list (train-action 'knowledge "见识")) '())
-        (if (< (actor-stat 'player 'sharpness) 6) (list (train-action 'sharpness "敏锐")) '())
-        (if (< (actor-stat 'player 'social) 6)    (list (train-action 'social "交际"))    '())))
-
-    (define (growth-nodes)
-      (if (> (available-growth-points) 0)
-          (list (node "长进"
-                  :subtitle (string-append "可用成长点 " (number->string (available-growth-points)))
-                  :children (train-children)))
-          '()))
-
     (define (hotel-body)
       (if evicted?
           (list (observe-action "锁着的房门" "先把房租交了才能回去。")
                 (node-pay-rent) (node-sleep-at-door))
           (append
             (list (node-living-room))
-            (growth-nodes)
             (order-nodes)
             (list (node-pay-rent))
             (upgrade-nodes)
@@ -242,7 +224,6 @@
     (define (owned-body)
       (append
         (list (node-living-room))
-        (growth-nodes)
         (order-nodes)
         (upgrade-nodes)
         (list (node-sleep))))

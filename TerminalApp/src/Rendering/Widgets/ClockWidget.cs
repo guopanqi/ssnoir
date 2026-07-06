@@ -9,11 +9,6 @@ namespace SSNoir.Rendering
         public static float Draw(RendererState state, float y, float windowWidth)
         {
             var clocksToShow = new List<GameClock>();
-            if (state.DisplayedSnapshot.RootNode != null)
-            {
-                // 世界级排期始终可见，不因玩家进入某个地点而消失。
-                clocksToShow.AddRange(state.DisplayedSnapshot.RootNode.Clocks);
-            }
             if (state.NavigationStack.Count > 0)
             {
                 var currentNode = state.NavigationStack[state.NavigationStack.Count - 1];
@@ -21,6 +16,10 @@ namespace SSNoir.Rendering
                 {
                     clocksToShow.AddRange(currentNode.Clocks);
                 }
+            }
+            else if (state.DisplayedSnapshot.RootNode != null)
+            {
+                clocksToShow.AddRange(state.DisplayedSnapshot.RootNode.Clocks);
             }
 
             if (clocksToShow.Count == 0)

@@ -349,9 +349,11 @@
 (define (set-growth-level! n)
   (__set-growth-level! n))
 
-;; 主角当前可用成长点（成长等级 − 已花费）。供“长进”入口显示/门控。
-(define (available-growth-points)
-  (__available-growth-points))
+;; 完成一个不可重复的故事小节，获得一点成长。
+;; 小节是否允许完成由拥有该状态的主线/人物状态机负责；这里不做去重兼容。
+(define (complete-section!)
+  (set-growth-level! (+ (growth-level) 1))
+  (notify! "完成一个故事小节。获得 1 点成长。"))
 
 (define (damage-party! n)
   (__set-party-health! (- (__party-health) n)))
@@ -421,6 +423,3 @@
 (define (advance-chapter!)
   (let ((current (get-global 'chapter)))
     (set-global! 'chapter (if current (+ current 1) 1))))
-
-(define (upgrade-actor-stat! actor-id stat-id)
-  (__upgrade-actor-stat! actor-id stat-id))
