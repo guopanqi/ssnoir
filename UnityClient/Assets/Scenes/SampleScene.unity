@@ -6904,7 +6904,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13eb4edcc44fb44bcaba716af0b18e2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chineseFont: {fileID: 12800000, guid: 4dc774b2a0b5e4d81b3393642b32d347, type: 3}
   panSpeed: 0.02
 --- !u!4 &1042429451
 Transform:

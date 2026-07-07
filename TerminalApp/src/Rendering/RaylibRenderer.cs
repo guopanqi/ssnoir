@@ -55,6 +55,7 @@ namespace SSNoir.Rendering
             _state.IsTurnPanelOpen = false;
             _state.IsGrowthPanelOpen = false;
             _state.IsDebugMenuOpen = false;
+            _state.IsRelationExpanded = false;
         }
 
         private void AdoptLatestSnapshot()
@@ -733,30 +734,10 @@ namespace SSNoir.Rendering
                 }
             }
 
-            // 6. Draw Faction Relation Panel
-            DrawRelationPanel(panelUi);
+            // 6. Draw top-right controls: Relation, Growth/Team, Debug
+            DrawTopRightControls(worldUi, panelUi);
 
-            // 7. Draw Debug Menu (save/load + scene switch)
-            DrawDebugMenu(panelUi);
-
-            // Draw Team / Growth Toggle Button
-            float btnX = 520f;
-            float btnY = 30f;
-            float btnW = 80f;
-            float btnH = 32f;
-            var btnRect = new Rectangle(btnX, btnY, btnW, btnH);
-            var toggleBtn = UiButton.Draw(btnRect, "成长/队伍", worldUi, true, 13,
-                _state.IsGrowthPanelOpen ? new Color((byte)50, (byte)50, (byte)90, (byte)255) : new Color((byte)25, (byte)25, (byte)35, (byte)255),
-                new Color((byte)40, (byte)40, (byte)55, (byte)255), null,
-                _state.IsGrowthPanelOpen ? new Color((byte)130, (byte)130, (byte)220, (byte)255) : new Color((byte)50, (byte)50, (byte)70, (byte)255),
-                Color.White, null, Color.White, null);
-
-            if (toggleBtn.Clicked)
-            {
-                _state.IsGrowthPanelOpen = !_state.IsGrowthPanelOpen;
-            }
-
-            // Draw Growth Panel if open
+            // 7. Draw Growth Panel if open
             if (_state.IsGrowthPanelOpen)
             {
                 DrawGrowthPanel(panelUi);
@@ -862,7 +843,7 @@ namespace SSNoir.Rendering
             float boxW = Math.Max(260f, textW + 48f);
             float boxH = 40f;
             float x = (WindowWidth - boxW) / 2f;
-            float y = WindowHeight - 154f;
+            float y = WindowHeight - 165f;
             var rect = new Rectangle(x, y, boxW, boxH);
 
             Raylib.DrawRectangleRounded(rect, 0.08f, 8, new Color((byte)10, (byte)12, (byte)18, alpha));
@@ -880,19 +861,52 @@ namespace SSNoir.Rendering
 
         private (Rectangle ToggleRect, Rectangle PanelRect) GetDebugMenuRects()
         {
-            float btnX = WindowWidth - 76f;
-            float btnY = 30f;
-            var toggleRect = new Rectangle(btnX, btnY, 66f, 32f);
+            const float rightMargin = 40f;
+            const float btnW = 66f;
+            const float btnH = 32f;
+            float btnX = WindowWidth - rightMargin - btnW;
+            float btnY = 26f;
+            var toggleRect = new Rectangle(btnX, btnY, btnW, btnH);
 
             float pw = 260f;
-            float px = btnX + 66f - pw;
-            float py = btnY + 32f + 4f;
+            float px = btnX + btnW - pw;
+            float py = btnY + btnH + 4f;
             float itemH = 26f;
             float slotsHeight = 20f + 3 * 28f + 14f;
             float panelH = 8f + slotsHeight + _state.DropdownItems.Count * itemH + 8f;
             var panelRect = new Rectangle(px, py, pw, panelH);
 
             return (toggleRect, panelRect);
+        }
+
+        private void DrawTopRightControls(UiInteractionContext worldUi, UiInteractionContext panelUi)
+        {
+            const float rightMargin = 40f;
+            const float gap = 8f;
+            const float topY = 26f;
+            const float controlH = 32f;
+            const float debugW = 66f;
+            const float growthW = 80f;
+
+            float debugX = WindowWidth - rightMargin - debugW;
+            float growthX = debugX - gap - growthW;
+            float relationRightEdge = growthX - gap;
+
+            RelationWidget.Draw(_state, worldUi, relationRightEdge, 16f);
+
+            var growthRect = new Rectangle(growthX, topY, growthW, controlH);
+            var growthBtn = UiButton.Draw(growthRect, "成长/队伍", worldUi, true, 13,
+                _state.IsGrowthPanelOpen ? new Color((byte)50, (byte)50, (byte)90, (byte)255) : new Color((byte)25, (byte)25, (byte)35, (byte)255),
+                new Color((byte)40, (byte)40, (byte)55, (byte)255), null,
+                _state.IsGrowthPanelOpen ? new Color((byte)130, (byte)130, (byte)220, (byte)255) : new Color((byte)50, (byte)50, (byte)70, (byte)255),
+                Color.White, null, Color.White, null);
+
+            if (growthBtn.Clicked)
+            {
+                _state.IsGrowthPanelOpen = !_state.IsGrowthPanelOpen;
+            }
+
+            DrawDebugMenu(panelUi);
         }
 
         private void DrawDebugMenu(UiInteractionContext ui)
@@ -1034,7 +1048,7 @@ namespace SSNoir.Rendering
                 .ToList();
             int totalCards = visibleNodes.Count + orphanResidues.Count;
             float viewportTop = startY;
-            float viewportBottom = WindowHeight - 108f;
+            float viewportBottom = WindowHeight - 125f;
             float viewportHeight = Math.Max(0f, viewportBottom - viewportTop);
             var viewport = new Rectangle(0, viewportTop, WindowWidth, viewportHeight);
             int rowCount = totalCards == 0
@@ -1336,161 +1350,6 @@ namespace SSNoir.Rendering
         private void ExecuteSlottedAction(GameNode node, List<SlottedResource?> slotted)
         {
             ExecuteNodeAction(node, slotted);
-        }
-
-        // 关系档位配色（序号 0..4 对应 RelationScale.BandNames：敌视/冷淡/中立/脸熟/自己人）。
-        private static readonly Color[] RelationBandColors =
-        {
-            new Color((byte)190, (byte)70,  (byte)70,  (byte)255), // 敌视
-            new Color((byte)200, (byte)140, (byte)60,  (byte)255), // 冷淡
-            new Color((byte)110, (byte)112, (byte)130, (byte)255), // 中立
-            new Color((byte)70,  (byte)150, (byte)165, (byte)255), // 脸熟
-            new Color((byte)80,  (byte)185, (byte)115, (byte)255), // 自己人
-        };
-
-        private bool _relationExpanded;
-
-        // 默认只显示三派关系数值；点击后展开成完整进度条。
-        private void DrawRelationPanel(UiInteractionContext ui)
-        {
-            var snapshot = _state.DisplayedSnapshot;
-            string[] factions = { "官僚", "劳工", "富商" };
-
-            float panelX = 275f, panelY = 26f;
-            float pad = 6f;
-
-            if (_relationExpanded)
-            {
-                float rowH = 18f, labelW = 32f, valueW = 20f, gap = 6f;
-                float panelW = 225f;
-                float panelH = 3 * rowH + pad * 2;
-
-                var panelRect = new Rectangle(panelX, panelY, panelW, panelH);
-                bool hovered = ui.CanHover(panelRect);
-
-                Raylib.DrawRectangleRounded(panelRect, 0.15f, 4, new Color((byte)20, (byte)22, (byte)30, (byte)220));
-                var borderColor = hovered
-                    ? new Color((byte)90, (byte)120, (byte)180, (byte)255)
-                    : new Color((byte)55, (byte)60, (byte)80, (byte)255);
-                Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.15f, 4, 1.0f, borderColor);
-
-                if (ui.WasClicked(panelRect))
-                {
-                    _relationExpanded = false;
-                }
-
-                float barX = panelX + pad + labelW + gap;
-                float barW = panelW - pad * 2 - labelW - valueW - gap * 2;
-
-                var b = RelationScale.Boundaries;
-                int[] edges = new int[b.Length + 2];
-                edges[0] = RelationScale.Min;
-                for (int k = 0; k < b.Length; k++) edges[k + 1] = b[k];
-                edges[edges.Length - 1] = RelationScale.Max;
-
-                for (int i = 0; i < factions.Length; i++)
-                {
-                    int value = snapshot.Relations.TryGetValue(factions[i], out var v) ? v : 0;
-                    int bi = RelationScale.BandIndex(value);
-                    float rowY = panelY + pad + i * rowH;
-                    float textY = rowY + 2f;
-                    float barY = rowY + 6f;
-                    float barH = 5f;
-
-                    FontManager.DrawText(factions[i], panelX + pad, textY, 12, new Color((byte)170, (byte)175, (byte)195, (byte)255));
-
-                    var outlineRect = new Rectangle(barX, barY, barW, barH);
-                    Raylib.DrawRectangleRoundedLinesEx(outlineRect, 0.5f, 4, 1.0f, new Color((byte)50, (byte)53, (byte)70, (byte)255));
-
-                    float mx = barX + RelationScale.Fraction(value) * barW;
-
-                    for (int s = 0; s < edges.Length - 1; s++)
-                    {
-                        float x0 = barX + RelationScale.Fraction(edges[s]) * barW;
-                        float x1 = barX + RelationScale.Fraction(edges[s + 1]) * barW;
-                        var c = RelationBandColors[s];
-
-                        if (s < bi)
-                        {
-                            var col = new Color(c.R, c.G, c.B, (byte)35);
-                            Raylib.DrawRectangle((int)x0, (int)barY, (int)Math.Max(1f, x1 - x0), (int)barH, col);
-                        }
-                        else if (s == bi)
-                        {
-                            if (mx > x0)
-                            {
-                                var activeCol = new Color(c.R, c.G, c.B, (byte)75);
-                                Raylib.DrawRectangle((int)x0, (int)barY, (int)Math.Max(1f, mx - x0), (int)barH, activeCol);
-                            }
-                            if (x1 > mx)
-                            {
-                                var inactiveCol = new Color(c.R, c.G, c.B, (byte)12);
-                                Raylib.DrawRectangle((int)mx, (int)barY, (int)Math.Max(1f, x1 - mx), (int)barH, inactiveCol);
-                            }
-                        }
-                        else
-                        {
-                            var col = new Color(c.R, c.G, c.B, (byte)12);
-                            Raylib.DrawRectangle((int)x0, (int)barY, (int)Math.Max(1f, x1 - x0), (int)barH, col);
-                        }
-                    }
-
-                    for (int s = 1; s < edges.Length - 1; s++)
-                    {
-                        float segX = barX + RelationScale.Fraction(edges[s]) * barW;
-                        Raylib.DrawLineEx(
-                            new System.Numerics.Vector2(segX, barY - 1f),
-                            new System.Numerics.Vector2(segX, barY + barH + 1f),
-                            1.0f,
-                            new Color((byte)55, (byte)58, (byte)75, (byte)255)
-                        );
-                    }
-
-                    var activeColor = RelationBandColors[bi];
-                    Raylib.DrawCircle((int)mx, (int)(barY + barH / 2f), 3.5f, activeColor);
-                    Raylib.DrawCircleLines((int)mx, (int)(barY + barH / 2f), 4.5f, new Color(255, 255, 255, 180));
-
-                    string vs = value.ToString();
-                    int vw = FontManager.MeasureTextWidth(vs, 12);
-                    FontManager.DrawText(vs, barX + barW + gap + (valueW - vw) / 2f, textY, 12, RelationBandColors[bi]);
-                }
-            }
-            else
-            {
-                float panelW = 180f;
-                float panelH = 28f;
-
-                var panelRect = new Rectangle(panelX, panelY, panelW, panelH);
-                bool hovered = ui.CanHover(panelRect);
-
-                Raylib.DrawRectangleRounded(panelRect, 0.15f, 4, new Color((byte)20, (byte)22, (byte)30, (byte)220));
-                var borderColor = hovered
-                    ? new Color((byte)90, (byte)120, (byte)180, (byte)255)
-                    : new Color((byte)55, (byte)60, (byte)80, (byte)255);
-                Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.15f, 4, 1.0f, borderColor);
-
-                if (ui.WasClicked(panelRect))
-                {
-                    _relationExpanded = true;
-                }
-
-                float usableW = panelW - pad * 2;
-                float itemW = usableW / factions.Length;
-                float textY = panelY + 7f;
-
-                for (int i = 0; i < factions.Length; i++)
-                {
-                    int value = snapshot.Relations.TryGetValue(factions[i], out var v) ? v : 0;
-                    int bi = RelationScale.BandIndex(value);
-                    float itemX = panelX + pad + i * itemW;
-
-                    FontManager.DrawText(factions[i], itemX, textY, 12, new Color((byte)170, (byte)175, (byte)195, (byte)255));
-
-                    string vs = value.ToString();
-                    int vw = FontManager.MeasureTextWidth(vs, 12);
-                    FontManager.DrawText(vs, itemX + itemW - vw, textY, 12, RelationBandColors[bi]);
-                }
-            }
         }
 
         private void DrawGrowthPanel(SSNoir.TerminalApp.Rendering.UiInteractionContext ui)

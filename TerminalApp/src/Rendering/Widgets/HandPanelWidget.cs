@@ -24,64 +24,64 @@ namespace SSNoir.Rendering
                 ShouldClearSelection = false
             };
 
-            float handY = windowHeight - 100;
+            const float panelHeight = 90f;
+            const float statusBarHeight = 25f;
+            float handY = windowHeight - (panelHeight + statusBarHeight);
 
-            // Draw Hand Panel (height 75)
-            Raylib.DrawRectangle(0, (int)handY, (int)windowWidth, 75, new Color(18, 18, 24, 255));
+            // Draw Hand Panel
+            Raylib.DrawRectangle(0, (int)handY, (int)windowWidth, (int)panelHeight, new Color(18, 18, 24, 255));
             Raylib.DrawLineEx(new System.Numerics.Vector2(0, handY), new System.Numerics.Vector2(windowWidth, handY), 1.5f, new Color(40, 40, 50, 255));
 
             Color labelColor = new Color(150, 150, 170, 255);
 
             // ── Draw Action Dice Grouped by Actor ──
             int flatDieIdx = 0;
-            float actorAreaWidth = 110f;
+            float actorAreaWidth = 120f;
+            float actorGap = 12f;
             float startX = 20f;
 
             for (int aIdx = 0; aIdx < snapshot.Actors.Count; aIdx++)
             {
                 var actor = snapshot.Actors[aIdx];
-                float actorX = startX + aIdx * (actorAreaWidth + 10);
+                float actorX = startX + aIdx * (actorAreaWidth + actorGap);
 
                 // Theme color by party join order — the SAME source the card right-rail uses,
                 // so a die's color matches its owner's ability chip on the cards.
                 var (thR, thG, thB) = ActorTheme.ColorFor(aIdx);
                 Color themeColor = new Color(thR, thG, thB, (byte)255);
 
-                // Draw Actor name and stress at the bottom: e.g. "主角 0/6"
-                string subtitle = $"{actor.Name} {actor.Stress}/6";
-                Color textColor = themeColor;
+                // Status row: name (left) + stress/away state (right), more prominent than before.
+                const float statusY = 12f;
                 if (actor.Status == "away")
                 {
-                    subtitle += " [离开]";
-                    textColor = new Color(100, 100, 100, 255);
-                }
-                else if (actor.Stress >= 5)
-                {
-                    textColor = new Color(250, 100, 100, 255);
-                }
-
-                int subW = FontManager.MeasureTextWidth(subtitle, 11);
-                FontManager.DrawText(subtitle, actorX + (actorAreaWidth - subW) / 2f, handY + 52, 11, textColor);
-
-                // Draw their Action Dice at the top
-                if (actor.Status == "away")
-                {
-                    string awayText = "休息中";
-                    int awayW = FontManager.MeasureTextWidth(awayText, 12);
-                    FontManager.DrawText(awayText, actorX + (actorAreaWidth - awayW) / 2f, handY + 22, 12, new Color(100, 100, 100, 255));
+                    string awayText = $"{actor.Name} [离开]";
+                    int awayW = FontManager.MeasureTextWidth(awayText, 13);
+                    FontManager.DrawText(awayText, actorX + (actorAreaWidth - awayW) / 2f, handY + statusY, 13, new Color(120, 120, 120, 255));
                 }
                 else
                 {
+                    int nameW = FontManager.MeasureTextWidth(actor.Name, 13);
+                    FontManager.DrawText(actor.Name, actorX, handY + statusY, 13, themeColor);
+
+                    string stressText = $"{actor.Stress}/6";
+                    Color stressColor = actor.Stress >= 5 ? new Color(250, 100, 100, 255) : new Color(200, 200, 220, 255);
+                    int stressW = FontManager.MeasureTextWidth(stressText, 13);
+                    FontManager.DrawText(stressText, actorX + actorAreaWidth - stressW, handY + statusY, 13, stressColor);
+                }
+
+                // Draw their Action Dice below the status row
+                if (actor.Status != "away")
+                {
                     int diceCount = actor.ActionDice.Count;
                     float diceStartX = actorX + (actorAreaWidth - (diceCount * 44 + (diceCount - 1) * 6)) / 2f;
-                    
+
                     for (int d = 0; d < diceCount; d++)
                     {
                         int dieVal = actor.ActionDice[d];
-                        int currentFlatIdx = flatDieIdx++;
+                        int currentFlatIdx = flatDieIdx + d;
 
                         float dieX = diceStartX + d * 50;
-                        float dieY = handY + 12;
+                        float dieY = handY + 38;
                         var dieRect = new Rectangle(dieX, dieY, 44, 32);
 
                         bool isSlotted = state.IsDieSlotted(currentFlatIdx);
@@ -111,7 +111,7 @@ namespace SSNoir.Rendering
                             int numW = FontManager.MeasureTextWidth(text, 14);
                             FontManager.DrawText(text, dieX + (44 - numW) / 2f, dieY + 8, 14, Color.White);
 
-                            if (!isSlotted && ui.WasClicked(dieRect))
+                            if (ui.WasClicked(dieRect))
                             {
                                 interaction.SelectedResourceToSet = new SelectedResource
                                 {
@@ -125,19 +125,29 @@ namespace SSNoir.Rendering
                         }
                     }
                 }
+
+                flatDieIdx += actor.ActionDice.Count;
             }
 
             // ── Draw Turn Button ──
             float turnX = windowWidth - 110;
-            float turnY = handY + 18;
+            float turnY = handY + (panelHeight - 32) / 2f;
             var turnRect = new Rectangle(turnX, turnY, 80, 32);
 
             // ── Draw Items in Hand (plus money) ──
-            float itemsStartX = 370f;
-            FontManager.DrawText("手牌物品: ", itemsStartX, handY + 28, 14, labelColor);
+            float actorsEndX = startX + snapshot.Actors.Count * (actorAreaWidth + actorGap);
+            float itemsStartX = actorsEndX + 20f;
+            const int itemLabelFontSize = 14;
+            int itemLabelW = FontManager.MeasureTextWidth("手牌物品: ", itemLabelFontSize);
+            float itemLabelY = handY + (panelHeight - itemLabelFontSize) / 2f;
+            FontManager.DrawText("手牌物品: ", itemsStartX, itemLabelY, itemLabelFontSize, labelColor);
 
             var items = state.GetInventoryItems().ToList();
-            var itemViewport = new Rectangle(itemsStartX + 70f, handY + 6f, Math.Max(72f, turnX - (itemsStartX + 70f) - 14f), 66f);
+            var itemViewport = new Rectangle(
+                itemsStartX + itemLabelW + 10f,
+                handY + 12f,
+                Math.Max(72f, turnX - (itemsStartX + itemLabelW + 10f) - 14f),
+                66f);
             DrawHandItems(state, ui, items, itemViewport, ref interaction);
 
             string turnText = isInEncounter ? "休息" : "回家";
@@ -152,7 +162,7 @@ namespace SSNoir.Rendering
             }
 
             // Right click anywhere on the hand panel to clear selection
-            var panelRect = new Rectangle(0, handY, windowWidth, 75);
+            var panelRect = new Rectangle(0, handY, windowWidth, panelHeight);
             if (!ui.IsLocked && Raylib.CheckCollisionPointRec(ui.Mouse, panelRect) && Raylib.IsMouseButtonPressed(MouseButton.Right))
             {
                 interaction.ShouldClearSelection = true;

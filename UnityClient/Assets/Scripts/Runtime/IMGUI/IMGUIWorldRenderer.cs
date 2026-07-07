@@ -208,6 +208,9 @@ namespace SSNoir.IMGUI
         public void ClearCardResidues()
         {
             _cardResidues.Clear();
+            _completionReport = null;
+            _completionActionName = string.Empty;
+            _completionDone = null;
         }
 
         private void Update()
@@ -254,7 +257,7 @@ namespace SSNoir.IMGUI
             UIScale.Apply();
 
             // Initialize styles if needed
-            IMGUIStyles.Init(_gameManager.ChineseFont);
+            IMGUIStyles.Init(_gameManager.ChineseFont, _gameManager.SemiboldFont);
             SyncNavigationScrollState();
 
             Vector2 mouse = Event.current.mousePosition;
@@ -342,7 +345,7 @@ namespace SSNoir.IMGUI
             var clocks = GetCurrentClocks();
             if (clocks.Count > 0)
             {
-                ClockDrawer.DrawClocksBar(clocks, 34f);
+                ClockDrawer.DrawClocksBar(clocks, 28f);
             }
 
             // ── Node Cards (3D projected) ──
@@ -639,7 +642,6 @@ namespace SSNoir.IMGUI
                 {
                     if (node.IsContainer)
                     {
-                        _cardResidues.Clear();
                         _gridScrollStack.Add(_gridScrollOffset);
                         _gridScrollOffset = 0f;
                     }
@@ -874,7 +876,8 @@ namespace SSNoir.IMGUI
                 AnchorNodeName = actionName,
                 Title = presentation.Title,
                 Subtitle = presentation.Subtitle,
-                RollOutcome = report.Type == ActionType.Roll ? report.Outcome : null
+                RollOutcome = report.Type == ActionType.Roll ? report.Outcome : null,
+                Effects = new List<ActionEffectRecord>(report.Effects)
             };
         }
 

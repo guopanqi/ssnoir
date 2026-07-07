@@ -323,7 +323,86 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.UpperCenter,
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
-            GUI.Label(new Rect(rect.x + 18f, rect.y + 94f, rect.width - 36f, rect.height - 106f), residue.Subtitle, subtitleStyle);
+            GUI.Label(new Rect(rect.x + 18f, rect.y + 94f, rect.width - 36f, 34f), residue.Subtitle, subtitleStyle);
+
+            DrawEffectRows(new Rect(rect.x + 18f, rect.y + 132f, rect.width - 36f, rect.yMax - rect.y - 144f), residue.Effects);
+        }
+
+        public static void DrawEffectRows(Rect area, IReadOnlyList<ActionEffectRecord> effects)
+        {
+            if (effects.Count == 0 || area.height <= 0f)
+                return;
+
+            const float rowHeight = 14f;
+            const float rowGap = 16f;
+            int maxRows = Mathf.Max(0, Mathf.FloorToInt(area.height / rowGap));
+            if (maxRows == 0)
+                return;
+
+            int visibleCount = effects.Count <= maxRows ? effects.Count : maxRows - 1;
+            for (int i = 0; i < visibleCount; i++)
+                DrawSingleEffectRow(effects[i], new Rect(area.x, area.y + i * rowGap, area.width, rowHeight));
+
+            if (effects.Count > maxRows)
+            {
+                var moreRect = new Rect(area.x, area.y + visibleCount * rowGap, area.width, rowHeight);
+                Color accent = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.50f);
+                DrawEffectRowBg(moreRect, accent);
+
+                var style = new GUIStyle(IMGUIStyles.ModalBody)
+                {
+                    fontSize = 10,
+                    alignment = TextAnchor.MiddleLeft,
+                    normal = { textColor = IMGUIStyles.TextSecondary }
+                };
+                GUI.Label(new Rect(moreRect.x + 8f, moreRect.y, moreRect.width - 16f, moreRect.height), $"+ 还有 {effects.Count - visibleCount} 项影响...", style);
+            }
+        }
+
+        private static void DrawSingleEffectRow(ActionEffectRecord effect, Rect row)
+        {
+            Color accent = effect.Tone switch
+            {
+                ActionEffectTone.Positive => IMGUIStyles.OutcomeSuccess,
+                ActionEffectTone.Negative => IMGUIStyles.OutcomeFail,
+                _ => IMGUIStyles.TextSecondary
+            };
+            DrawEffectRowBg(row, accent);
+
+            var labelStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                fontSize = 10,
+                alignment = TextAnchor.MiddleLeft,
+                normal = { textColor = IMGUIStyles.TextPrimary }
+            };
+
+            if (effect.Kind == ActionEffectKind.Note)
+            {
+                GUI.Label(new Rect(row.x + 8f, row.y, row.width - 16f, row.height), effect.Text, labelStyle);
+                return;
+            }
+
+            GUI.Label(new Rect(row.x + 8f, row.y, row.width - 56f, row.height), effect.Label, labelStyle);
+
+            string value = effect.Delta.HasValue
+                ? (effect.Delta.Value > 0 ? $"+{effect.Delta.Value}" : effect.Delta.Value.ToString())
+                : string.Empty;
+            var valueStyle = new GUIStyle(labelStyle)
+            {
+                alignment = TextAnchor.MiddleRight,
+                normal = { textColor = accent }
+            };
+            IMGUIStyles.ApplyStrongFont(valueStyle);
+            GUI.Label(new Rect(row.x + row.width - 52f, row.y, 44f, row.height), value, valueStyle);
+        }
+
+        private static void DrawEffectRowBg(Rect row, Color accent)
+        {
+            GUI.color = new Color(accent.r, accent.g, accent.b, 0.16f);
+            GUI.DrawTexture(row, Texture2D.whiteTexture);
+            GUI.color = accent;
+            GUI.DrawTexture(new Rect(row.x, row.y, 3f, row.height), Texture2D.whiteTexture);
+            GUI.color = Color.white;
         }
 
         private static string FormatOutcomeLabel(RollOutcome outcome)

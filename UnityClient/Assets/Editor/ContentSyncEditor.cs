@@ -83,6 +83,7 @@ namespace SSNoir.Editor
             string sourcePath = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "Content"));
             string destPath = Path.GetFullPath(Path.Combine(Application.dataPath, "StreamingAssets", "Content"));
             string resourcesContentPath = Path.GetFullPath(Path.Combine(Application.dataPath, "Resources", "Content"));
+            string resourcesFontPath = Path.GetFullPath(Path.Combine(Application.dataPath, "Resources", "Fonts"));
 
             if (!Directory.Exists(sourcePath))
             {
@@ -100,14 +101,13 @@ namespace SSNoir.Editor
                 CopySchemeTextAssets(sourcePath, resourcesContentPath);
                 Debug.Log($"[ContentSync] Scheme content synchronized to Resources/Content for WebGL.");
 
-                // 3. Sync fonts to Assets/Fonts so Unity Editor can import them as real Assets
-                //    (Font Asset Creator requires a font to be in Assets/, not StreamingAssets)
+                // 3. Sync fonts to Resources/Fonts. This gives both Editor code and runtime
+                //    builds one stable load path: Resources.Load<Font>("Fonts/...").
                 string fontSourcePath = Path.Combine(sourcePath, "assets", "fonts");
-                string fontDestPath = Path.GetFullPath(Path.Combine(Application.dataPath, "Fonts"));
                 if (Directory.Exists(fontSourcePath))
                 {
-                CopyDirectory(fontSourcePath, fontDestPath, clean: false);
-                Debug.Log($"[ContentSync] Fonts synchronized to Assets/Fonts for Editor import.");
+                    CopyDirectory(fontSourcePath, resourcesFontPath, clean: false);
+                    Debug.Log($"[ContentSync] Fonts synchronized to Resources/Fonts.");
                 }
                 
                 // Refresh asset database so Unity notices the files

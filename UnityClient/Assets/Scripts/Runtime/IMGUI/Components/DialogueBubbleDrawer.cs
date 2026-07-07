@@ -55,9 +55,9 @@ namespace SSNoir.IMGUI
             {
                 font = IMGUIStyles.ChineseFont,
                 fontSize = 14,
-                fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleLeft,
             };
+            IMGUIStyles.ApplyStrongFont(nameStyle);
             nameStyle.normal.textColor = IMGUIStyles.PaperTextSecondary;
             GUI.Label(new Rect(rect.x + 12f, rect.y + 6f, textW, 20f), speaker, nameStyle);
             GUI.Label(new Rect(rect.x + 12f, rect.y + 26f, textW, textH), text, bodyStyle);

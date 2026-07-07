@@ -29,9 +29,12 @@ namespace SSNoir
     public class SSNoirGameManager : MonoBehaviour
     {
         private const string WorldRootNodeName = "世界";
-
-        [Header("Font")]
-        [SerializeField] private Font? chineseFont;
+        private const string RegularFontResourcePath = "Fonts/MiSans-Normal";
+        private const string SemiboldFontResourcePath = "Fonts/MiSans-Semibold";
+#if UNITY_EDITOR
+        private const string RegularFontAssetPath = "Assets/Resources/Fonts/MiSans-Normal.ttf";
+        private const string SemiboldFontAssetPath = "Assets/Resources/Fonts/MiSans-Semibold.ttf";
+#endif
 
         [Header("Camera Drag Settings")]
         [SerializeField] private float panSpeed = 0.02f;
@@ -44,6 +47,8 @@ namespace SSNoir
         private StageTransitionController _stageController = null!;
 
         private SSNoirCameraManager _cameraManager = null!;
+        private Font? _regularFont;
+        private Font? _semiboldFont;
 
         // Core Gameplay / Interaction State
         private string _focusedNodeName = string.Empty;
@@ -71,7 +76,8 @@ namespace SSNoir
         public List<GameNode> NavigationStack => _navigationStack;
         public List<GameNode> VisibleNodes => _visibleNodes;
         public SelectedResource? SelectedResource => _selectedResource;
-        public Font? ChineseFont => chineseFont;
+        public Font? ChineseFont => _regularFont;
+        public Font? SemiboldFont => _semiboldFont;
         public SSNoirCameraManager CameraManager => _cameraManager;
         public StageTransitionController StageController => _stageController;
         public bool IsInputLocked => _renderer != null && _renderer.IsInputLocked;
@@ -91,6 +97,7 @@ namespace SSNoir
         private void Start()
         {
             // 1. Initialize Game State & Script Loader
+            LoadFonts();
             _gameState = new GameState();
             _scriptLoader = new UnityScriptLoader();
 #if UNITY_EDITOR
@@ -140,6 +147,21 @@ namespace SSNoir
             _sceneManager.LoadScene(startingLocation);
         }
 
+        private void LoadFonts()
+        {
+#if UNITY_EDITOR
+            _regularFont = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>(RegularFontAssetPath);
+            _semiboldFont = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>(SemiboldFontAssetPath);
+#else
+            _regularFont = Resources.Load<Font>(RegularFontResourcePath);
+            _semiboldFont = Resources.Load<Font>(SemiboldFontResourcePath);
+#endif
+            if (_regularFont == null)
+                Debug.LogError($"[SSNoir] Missing regular font: {RegularFontResourcePath}");
+            if (_semiboldFont == null)
+                Debug.LogError($"[SSNoir] Missing semibold font: {SemiboldFontResourcePath}");
+        }
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -173,7 +195,7 @@ namespace SSNoir
 
         public void ToggleNodeFlipped(string nodeName)
         {
-            _renderer?.ClearCardResidues();
+            ClearTransientNodeUiState(clearSlots: false);
             if (_flippedNodes.Contains(nodeName))
                 _flippedNodes.Remove(nodeName);
             else
@@ -182,9 +204,10 @@ namespace SSNoir
 
         public void OnNodeCardClicked(GameNode node)
         {
+            ClearTransientNodeUiState(clearSlots: false);
+
             if (node.IsContainer)
             {
-                _renderer?.ClearCardResidues();
                 _nodeSlots.Clear();
                 _navigationStack.Add(node);
                 ResolveNavigationStack();
@@ -214,6 +237,7 @@ namespace SSNoir
 
         public void SetFocusedNode(string? nodeName)
         {
+            ClearTransientNodeUiState(clearSlots: false);
             _focusedNodeName = nodeName ?? string.Empty;
 
             if (!string.IsNullOrEmpty(_focusedNodeName))
@@ -393,6 +417,7 @@ namespace SSNoir
 
         public void OnSlotClicked(GameNode node, int slotIndex)
         {
+            ClearTransientNodeUiState(clearSlots: false);
             BeginSlotResourceDrag(node, slotIndex);
         }
 
@@ -490,7 +515,7 @@ namespace SSNoir
             ClearOtherNodeSlots(node.Name);
             if (req.Type == "die" && _selectedResource.Type == "die")
             {
-                _renderer?.ClearCardResidues();
+                ClearTransientNodeUiState(clearSlots: false);
                 ClearDieFromAllSlots(_selectedResource.SourceIndex);
                 slots[slotIndex] = new SlottedResource
                 {
@@ -506,7 +531,7 @@ namespace SSNoir
 
             if (req.Type == "item" && _selectedResource.Type == "item")
             {
-                _renderer?.ClearCardResidues();
+                ClearTransientNodeUiState(clearSlots: false);
                 slots[slotIndex] = new SlottedResource
                 {
                     Type = "item",
@@ -702,6 +727,8 @@ namespace SSNoir
 
         public void GoBackNavigation()
         {
+            ClearTransientNodeUiState(clearSlots: false);
+
             if (!string.IsNullOrEmpty(_focusedNodeName))
             {
                 // 从聚焦状态返回：取消聚焦
@@ -893,7 +920,7 @@ namespace SSNoir
             var existing = slots[slotIndex];
             if (existing == null) return;
 
-            _renderer?.ClearCardResidues();
+            ClearTransientNodeUiState(clearSlots: false);
             slots[slotIndex] = null;
             _resourceOriginNodeName = node.Name;
             _resourceOriginSlotIndex = slotIndex;
@@ -1062,13 +1089,14 @@ namespace SSNoir
             bool alreadyAtHome = _navigationStack.Count > 0
                 && _navigationStack[_navigationStack.Count - 1].Name == "家";
 
+            ClearTransientNodeUiState(clearSlots: true);
+            _selectedResource = null;
+
             if (alreadyAtHome)
             {
                 return;
             }
 
-            _nodeSlots.Clear();
-            _selectedResource = null;
             _navigationStack.Clear();
             foreach (var nodeName in homePath.GetRange(1, homePath.Count - 1))
             {
@@ -1079,6 +1107,13 @@ namespace SSNoir
             }
             ResolveNavigationStack();
             UpdateCameraFocus();
+        }
+
+        private void ClearTransientNodeUiState(bool clearSlots)
+        {
+            _renderer?.ClearCardResidues();
+            if (clearSlots)
+                _nodeSlots.Clear();
         }
     }
 }

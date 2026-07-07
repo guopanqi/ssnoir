@@ -97,32 +97,31 @@ namespace SSNoir.IMGUI
             var nameStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 16,
-                fontStyle = FontStyle.Bold,
+                fontSize = 18,
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = IMGUIStyles.TextPrimary },
             };
+            IMGUIStyles.ApplyStrongFont(nameStyle);
             GUI.Label(new Rect(x, nameY, clusterW, NameRowH), actor.Name, nameStyle);
-            if (!string.IsNullOrEmpty(actor.Role))
+            if (!isLead && !string.IsNullOrEmpty(actor.Role))
             {
                 float nameW = nameStyle.CalcSize(new GUIContent(actor.Name)).x;
                 var roleStyle = new GUIStyle(nameStyle)
                 {
-                    fontSize = 13,
+                    fontSize = 14,
                     fontStyle = FontStyle.Normal,
-                    normal = { textColor = IMGUIStyles.TextSecondary },
+                    normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
                 };
-                string roleText = isLead ? actor.Role + " · 主角" : actor.Role;
-                GUI.Label(new Rect(x + nameW + 8f, nameY + 2f, clusterW + 80f, NameRowH), roleText, roleStyle);
+                GUI.Label(new Rect(x + nameW + 8f, nameY + 1f, clusterW + 80f, NameRowH), actor.Role, roleStyle);
             }
 
             // ── 压力（每人一份；印章红 = 已承压，空段 25% 纸白）
             var stressLabelStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 12,
+                fontSize = 13,
                 alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = IMGUIStyles.TextSecondary },
+                normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
             GUI.Label(new Rect(x, stressY, 30f, StressRowH), "压力", stressLabelStyle);
             float dotsX = x + 34f;
@@ -215,10 +214,10 @@ namespace SSNoir.IMGUI
             var bigStyle = new GUIStyle(IMGUIStyles.SlotLabel)
             {
                 fontSize = 24,
-                fontStyle = FontStyle.Bold,
                 alignment = hasSmall ? TextAnchor.UpperCenter : TextAnchor.MiddleCenter,
                 normal = { textColor = content }
             };
+            IMGUIStyles.ApplyStrongFont(bigStyle);
             var bigRect = hasSmall ? new Rect(drawRect.x, drawRect.y + 6f, drawRect.width, 30f) : drawRect;
             GUI.Label(bigRect, big, bigStyle);
 
@@ -226,11 +225,12 @@ namespace SSNoir.IMGUI
             {
                 var smallStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
-                    fontSize = 9,
+                    fontSize = 13,
                     alignment = TextAnchor.MiddleCenter,
-                    normal = { textColor = disabled ? DisabledResourceText : (selected ? IMGUIStyles.Gold : IMGUIStyles.TextSecondary) }
+                    normal = { textColor = disabled ? DisabledResourceText : (selected ? IMGUIStyles.Gold : IMGUIStyles.Paper) }
                 };
-                GUI.Label(new Rect(drawRect.x, drawRect.y + 34f, drawRect.width, 16f), small, smallStyle);
+                IMGUIStyles.ApplyStrongFont(smallStyle);
+                GUI.Label(new Rect(drawRect.x, drawRect.y + 34f, drawRect.width, 18f), small, smallStyle);
             }
         }
 
@@ -240,9 +240,9 @@ namespace SSNoir.IMGUI
             var labelStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 12,
+                fontSize = 13,
                 alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = IMGUIStyles.TextSecondary },
+                normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
             GUI.Label(new Rect(x, y, 30f, VitalRowH), label, labelStyle);
 
@@ -262,7 +262,7 @@ namespace SSNoir.IMGUI
             var valStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 12,
+                fontSize = 13,
                 alignment = TextAnchor.MiddleRight,
                 normal = { textColor = fill },
             };
@@ -278,7 +278,12 @@ namespace SSNoir.IMGUI
             float restX = UIScale.VW - 24f - restW;
             float restY = baseline - restH;
             var restRect = new Rect(restX, restY, restW, restH);
-            var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel);
+            var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel)
+            {
+                fontSize = 17,
+                normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.82f) }
+            };
+            IMGUIStyles.ApplyStrongFont(sectionStyle);
             GUI.Label(new Rect(restX, restY - 20f, restW, 18f), "功能", sectionStyle);
 
             bool isInEncounter = !gameManager.SceneManager.CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
@@ -350,7 +355,7 @@ namespace SSNoir.IMGUI
         // 物品：与骰子共用手牌方块，大字=类别符号，小标签=数量/金额（金钱用 $，其它取首字）。
         private static void DrawItemBlock(Rect itemRect, string name, bool isSelected, bool hover, int remaining, bool disabled)
         {
-            string smallLabel = name == "金钱" ? $"${remaining}" : $"{name} x{remaining}";
+            string smallLabel = name == "金钱" ? $"${remaining}" : $"x{remaining}";
             DrawHandBlock(itemRect, ItemSymbol(name), smallLabel, isSelected, hover, disabled);
         }
 

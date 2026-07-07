@@ -128,13 +128,20 @@ namespace SSNoir.IMGUI
         // 不占卡内空间，也不遮主要元素——「贴在物件上的彩色便签」隐喻更足。
         private static void DrawEdgeTags(Rect rect, GameNode node)
         {
-            const float tagW = 58f;
-            const float tagH = 18f;
+            const float tagW = 68f;
+            const float tagH = 24f;
             float tagX = rect.x - 34f;
             float y = rect.y + 16f;
             float maxY = rect.yMax - 40f;
             int stickyCount = 0;
-            var tagStyle = new GUIStyle(GUI.skin.label) { fontSize = 9 };
+            var tagStyle = new GUIStyle(GUI.skin.label)
+            {
+                font = IMGUIStyles.ChineseFont,
+                fontSize = 13,
+                fontStyle = FontStyle.Normal,
+                alignment = TextAnchor.MiddleCenter,
+                clipping = TextClipping.Clip
+            };
 
             var modifiers = node.Resolve!.DifficultyModifiers;
             if (modifiers != null)
@@ -145,12 +152,11 @@ namespace SSNoir.IMGUI
                     if (tagY + tagH > maxY) return;
                     var mod = modifiers[k];
                     string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
-                    Color noteBg = mod.Value < 0 ? IMGUIStyles.StickyHighRiskBg
-                                : (mod.Value > 0 ? IMGUIStyles.StickyWorkBg : IMGUIStyles.StickyNegotiateBg);
-                    Color noteText = mod.Value < 0 ? IMGUIStyles.StickyHighRiskText
-                                : (mod.Value > 0 ? IMGUIStyles.StickyWorkText : IMGUIStyles.StickyNegotiateText);
-                    float noteRot = (stickyCount % 2 == 0) ? -2f : 2f;
-                    IMGUIStyles.DrawStickyNote(new Rect(tagX, tagY, tagW, tagH), modText, noteBg, noteText, noteRot, tagStyle);
+                    Color noteBg = mod.Value < 0 ? new Color(0.82f, 0.58f, 0.48f, 1f)
+                                : (mod.Value > 0 ? new Color(0.66f, 0.74f, 0.50f, 1f) : new Color(0.58f, 0.68f, 0.80f, 1f));
+                    Color noteText = mod.Value < 0 ? new Color(0.30f, 0.07f, 0.03f, 1f)
+                                : (mod.Value > 0 ? new Color(0.10f, 0.18f, 0.05f, 1f) : new Color(0.05f, 0.12f, 0.22f, 1f));
+                    DrawStaticTag(new Rect(tagX, tagY, tagW, tagH), modText, noteBg, noteText, tagStyle);
                     stickyCount++;
                 }
             }
@@ -164,11 +170,33 @@ namespace SSNoir.IMGUI
                     float tagY = y + stickyCount * (tagH + 4f);
                     if (tagY + tagH > maxY) return;
                     var (bg, text) = TagColors(tag);
-                    float noteRot = (stickyCount % 2 == 0) ? -2f : 2f;
-                    IMGUIStyles.DrawStickyNote(new Rect(tagX, tagY, tagW, tagH), tag, bg, text, noteRot, tagStyle);
+                    DrawStaticTag(new Rect(tagX, tagY, tagW, tagH), tag, bg, text, tagStyle);
                     stickyCount++;
                 }
             }
+        }
+
+        private static void DrawStaticTag(Rect rect, string text, Color bg, Color textColor, GUIStyle baseStyle)
+        {
+            GUI.color = bg;
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = new Color(textColor.r, textColor.g, textColor.b, 0.55f);
+            GUI.DrawTexture(new Rect(rect.x, rect.y, 3f, rect.height), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            var style = new GUIStyle(baseStyle)
+            {
+                font = IMGUIStyles.ChineseFont,
+                normal = { textColor = textColor }
+            };
+            style.hover.textColor = textColor;
+            style.active.textColor = textColor;
+            style.focused.textColor = textColor;
+            style.onNormal.textColor = textColor;
+            style.onHover.textColor = textColor;
+            style.onActive.textColor = textColor;
+            style.onFocused.textColor = textColor;
+            GUI.Label(rect, text, style);
         }
 
         // ── 需求骰位：方块 Slot（与手牌骰子/物品同族）──────────────────
@@ -263,10 +291,10 @@ namespace SSNoir.IMGUI
                 var s = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
                     fontSize = 26,
-                    fontStyle = FontStyle.Bold,
                     alignment = TextAnchor.MiddleCenter,
                     normal = { textColor = content }
                 };
+                IMGUIStyles.ApplyStrongFont(s);
                 GUI.Label(rect, big, s);
             }
             else
@@ -277,19 +305,19 @@ namespace SSNoir.IMGUI
                 var symStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
                     fontSize = 22,
-                    fontStyle = FontStyle.Bold,
                     alignment = TextAnchor.UpperCenter,
                     normal = { textColor = content }
                 };
+                IMGUIStyles.ApplyStrongFont(symStyle);
                 GUI.Label(new Rect(rect.x, rect.y + 8f, rect.width, 26f), symbol, symStyle);
 
                 var qtyStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
                     fontSize = 15,
-                    fontStyle = FontStyle.Bold,
                     alignment = TextAnchor.LowerCenter,
                     normal = { textColor = content }
                 };
+                IMGUIStyles.ApplyStrongFont(qtyStyle);
                 GUI.Label(new Rect(rect.x, rect.yMax - 24f, rect.width, 20f), $"×{qty}", qtyStyle);
             }
 
@@ -457,17 +485,18 @@ namespace SSNoir.IMGUI
                 GUI.color = IMGUIStyles.Ink;
                 GUI.DrawTexture(chip, Texture2D.whiteTexture);
                 GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(chip, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
+                IMGUIStyles.DrawOutline(chip, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
 
                 string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
                 var nameStyle = new GUIStyle(GUI.skin.label)
                 {
                     font = IMGUIStyles.ChineseFont,
-                    fontSize = 10,
+                    fontSize = 12,
                     alignment = TextAnchor.MiddleLeft,
-                    normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.60f) }
+                    normal = { textColor = IMGUIStyles.Paper }
                 };
-                GUI.Label(new Rect(chip.x + 5f, chip.y, 28f, chipH), shortName, nameStyle);
+                IMGUIStyles.ApplyStrongFont(nameStyle);
+                GUI.Label(new Rect(chip.x + 5f, chip.y, 30f, chipH), shortName, nameStyle);
 
                 var lvlStyle = new GUIStyle(GUI.skin.label)
                 {
@@ -599,7 +628,8 @@ namespace SSNoir.IMGUI
 
         private static void DrawResiduePanel(Rect rect, CardPresentationResidue residue)
         {
-            var panel = new Rect(rect.x + 12f, rect.yMax - 68f, rect.width - 24f, 56f);
+            float panelH = residue.Effects.Count > 0 ? 64f + Mathf.Min(3, residue.Effects.Count) * 16f : 56f;
+            var panel = new Rect(rect.x + 12f, rect.yMax - panelH - 12f, rect.width - 24f, panelH);
             GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, IMGUIStyles.ModalOpacity);
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
             GUI.color = Color.white;
@@ -632,6 +662,9 @@ namespace SSNoir.IMGUI
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
             GUI.Label(new Rect(panel.x + 8f, panel.y + 28f, panel.width - 16f, 24f), residue.Subtitle, subtitleStyle);
+
+            if (residue.Effects.Count > 0)
+                CardDrawer.DrawEffectRows(new Rect(panel.x + 8f, panel.y + 54f, panel.width - 16f, panel.height - 60f), residue.Effects);
         }
 
         // ── 标签配色（便签色板，DESIGN.md）──────────────────────────────
@@ -642,19 +675,19 @@ namespace SSNoir.IMGUI
             switch (label)
             {
                 case "交锋":
-                    return (IMGUIStyles.StickyHighRiskBg, IMGUIStyles.StickyHighRiskText);
+                    return (new Color(0.82f, 0.58f, 0.48f, 1f), new Color(0.30f, 0.07f, 0.03f, 1f));
                 case "工作":
                 case "低风险":
-                    return (IMGUIStyles.StickyWorkBg, IMGUIStyles.StickyWorkText);
+                    return (new Color(0.66f, 0.74f, 0.50f, 1f), new Color(0.10f, 0.18f, 0.05f, 1f));
                 case "中风险":
-                    return (IMGUIStyles.StickyMidRiskBg, IMGUIStyles.StickyMidRiskText);
+                    return (new Color(0.78f, 0.65f, 0.35f, 1f), new Color(0.25f, 0.16f, 0.02f, 1f));
                 case "高风险":
                 case "越界":
-                    return (IMGUIStyles.StickyHighRiskBg, IMGUIStyles.StickyHighRiskText);
+                    return (new Color(0.82f, 0.58f, 0.48f, 1f), new Color(0.30f, 0.07f, 0.03f, 1f));
                 case "机遇":
-                    return (IMGUIStyles.StickyOpportunityBg, IMGUIStyles.StickyOpportunityText);
+                    return (new Color(0.72f, 0.58f, 0.76f, 1f), new Color(0.19f, 0.08f, 0.22f, 1f));
                 default:
-                    return (IMGUIStyles.StickyNegotiateBg, IMGUIStyles.StickyNegotiateText);
+                    return (new Color(0.58f, 0.68f, 0.80f, 1f), new Color(0.05f, 0.12f, 0.22f, 1f));
             }
         }
 

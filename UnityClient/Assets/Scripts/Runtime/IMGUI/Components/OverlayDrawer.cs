@@ -81,10 +81,10 @@ namespace SSNoir.IMGUI
                 var style = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
                     fontSize = 24,
-                    fontStyle = FontStyle.Bold,
                     alignment = TextAnchor.MiddleCenter,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
+                IMGUIStyles.ApplyStrongFont(style);
                 GUI.Label(rect, selected.Value.ToString(), style);
             }
             else
@@ -93,10 +93,10 @@ namespace SSNoir.IMGUI
                 var bigStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
                     fontSize = 24,
-                    fontStyle = FontStyle.Bold,
                     alignment = TextAnchor.UpperCenter,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
+                IMGUIStyles.ApplyStrongFont(bigStyle);
                 GUI.Label(new Rect(rect.x, rect.y + 6f, rect.width, 30f), ItemSymbol(selected.ItemName), bigStyle);
 
                 var smallStyle = new GUIStyle(IMGUIStyles.SlotLabel)

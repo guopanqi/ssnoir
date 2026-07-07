@@ -6,6 +6,7 @@ namespace SSNoir.IMGUI
     public static class IMGUIStyles
     {
         public static Font? ChineseFont;
+        public static Font? SemiboldFont;
 
         // ══════════════════════════════════════════════════════════════════
         // 「墨与纸」Ink & Paper Noir 调色板（DESIGN.md 定稿，2026-07）
@@ -94,14 +95,19 @@ namespace SSNoir.IMGUI
 
         private static bool  _initialized;
         private static float _lastScale = -1f;
+        private static bool _missingSemiboldFontLogged;
 
-        public static void Init(Font? font)
+        public static void Init(Font? font, Font? semiboldFont = null)
         {
             float s = UIScale.Scale;
-            if (_initialized && Mathf.Approximately(s, _lastScale)) return;
+            if (_initialized
+                && Mathf.Approximately(s, _lastScale)
+                && ChineseFont == font
+                && SemiboldFont == semiboldFont) return;
             _initialized = true;
             _lastScale = s;
             ChineseFont = font;
+            SemiboldFont = semiboldFont;
 
             // PieMaterial is only created once (GL material, scale-independent).
             if (PieMaterial == null)
@@ -145,13 +151,52 @@ namespace SSNoir.IMGUI
         private static GUIStyle MakeStyle(int fontSize, Color textColor, TextAnchor alignment, FontStyle fontStyle)
         {
             var style = new GUIStyle();
-            style.font = ChineseFont;
+            style.font = ResolveFont(fontStyle);
             style.fontSize = fontSize;
             style.normal.textColor = textColor;
             style.alignment = alignment;
-            style.fontStyle = fontStyle;
+            style.fontStyle = ResolveFontStyle(fontStyle);
             style.wordWrap = true;
             return style;
+        }
+
+        public static void ApplyStrongFont(GUIStyle style)
+        {
+            if (SemiboldFont != null)
+            {
+                style.font = SemiboldFont;
+                style.fontStyle = FontStyle.Normal;
+            }
+            else
+            {
+                LogMissingSemiboldFont();
+                style.font = ChineseFont;
+                style.fontStyle = FontStyle.Normal;
+            }
+        }
+
+        private static Font? ResolveFont(FontStyle fontStyle)
+        {
+            if (fontStyle != FontStyle.Bold)
+                return ChineseFont;
+
+            if (SemiboldFont == null)
+                LogMissingSemiboldFont();
+            return SemiboldFont ?? ChineseFont;
+        }
+
+        private static FontStyle ResolveFontStyle(FontStyle fontStyle)
+        {
+            return fontStyle == FontStyle.Bold ? FontStyle.Normal : fontStyle;
+        }
+
+        private static void LogMissingSemiboldFont()
+        {
+            if (_missingSemiboldFontLogged)
+                return;
+
+            _missingSemiboldFontLogged = true;
+            Debug.LogError("[SSNoir] MiSans-Semibold font is not assigned. Strong IMGUI text will use the regular font without Unity faux-bold.");
         }
 
         public static GUIStyle BoxStyle(Color bg, Color border, int borderWidth = 1)
@@ -341,11 +386,13 @@ namespace SSNoir.IMGUI
 
             var style = new GUIStyle
             {
-                font = ChineseFont,
-                fontStyle = FontStyle.Bold,
+                font = SemiboldFont ?? ChineseFont,
+                fontStyle = FontStyle.Normal,
                 alignment = TextAnchor.MiddleCenter,
                 fontSize = Mathf.Max(10, Mathf.RoundToInt(radius * 0.7f)),
             };
+            if (SemiboldFont == null)
+                LogMissingSemiboldFont();
             style.normal.textColor = ring;
             GUI.Label(square, text, style);
 

@@ -33,6 +33,7 @@ namespace SSNoir.Rendering
         public bool IsDebugMenuOpen { get; set; } = false;
         public bool IsGrowthPanelOpen { get; set; } = false;
         public bool IsTurnPanelOpen { get; set; } = false;
+        public bool IsRelationExpanded { get; set; } = false;
         public List<DropdownItem> DropdownItems { get; } = new List<DropdownItem>();
 
         public bool IsPresentingAction { get; set; }
