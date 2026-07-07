@@ -25,39 +25,32 @@ namespace SSNoir.IMGUI
                 float cardY = 75f + i * (cardH + 8f);
                 var cardRect = new Rect(cardX, cardY, cardW, cardH);
 
-                Color bg, border, textCol;
+                // 通知：黑底 HUD 语言。收益/成功=金文字，失败/损失=印章红，警告=赭黄，一般=纸白。
+                Color accent;
                 switch (notif.Kind)
                 {
                     case NotificationKind.Success:
-                        bg = new Color(0.06f, 0.16f, 0.08f, alpha * 0.9f);
-                        border = new Color(0.20f, 0.78f, 0.31f, alpha);
-                        textCol = new Color(0.86f, 1.0f, 0.86f, alpha);
+                        accent = IMGUIStyles.Gold;
                         break;
                     case NotificationKind.Error:
-                        bg = new Color(0.18f, 0.06f, 0.06f, alpha * 0.9f);
-                        border = new Color(0.86f, 0.24f, 0.24f, alpha);
-                        textCol = new Color(1.0f, 0.86f, 0.86f, alpha);
+                        accent = IMGUIStyles.SealRed;
                         break;
                     case NotificationKind.Warning:
-                        bg = new Color(0.16f, 0.12f, 0.06f, alpha * 0.9f);
-                        border = new Color(0.86f, 0.63f, 0.16f, alpha);
-                        textCol = new Color(1.0f, 0.94f, 0.78f, alpha);
+                        accent = IMGUIStyles.OddsNeutral;
                         break;
                     case NotificationKind.Info:
                     default:
-                        bg = new Color(0.06f, 0.08f, 0.16f, alpha * 0.9f);
-                        border = new Color(0.31f, 0.59f, 0.94f, alpha);
-                        textCol = new Color(0.86f, 0.94f, 1.0f, alpha);
+                        accent = IMGUIStyles.Paper;
                         break;
                 }
 
-                GUI.color = bg;
+                GUI.color = new Color(IMGUIStyles.HudBg.r, IMGUIStyles.HudBg.g, IMGUIStyles.HudBg.b, alpha * IMGUIStyles.ModalOpacity);
                 GUI.DrawTexture(cardRect, Texture2D.whiteTexture);
                 GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(cardRect, 1f, border);
+                IMGUIStyles.DrawOutline(cardRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f * alpha));
 
                 var style = new GUIStyle(IMGUIStyles.ToastLabel);
-                style.normal.textColor = textCol;
+                style.normal.textColor = new Color(accent.r, accent.g, accent.b, alpha);
                 GUI.Label(cardRect, notif.Text, style);
             }
         }
@@ -77,14 +70,17 @@ namespace SSNoir.IMGUI
             float overlayH = 28f;
             var rect = new Rect(mousePos.x + 15, mousePos.y + 15, overlayW, overlayH);
 
-            GUI.color = IMGUIStyles.CardHoverBg;
+            // 拖拽跟随物：暗场景里的白纸片（白底黑字反转）+ 硬投影 + 金描边（选中态）
+            IMGUIStyles.DrawShadow(rect, new Vector2(2f, 2f), 0.45f);
+            GUI.color = IMGUIStyles.Paper;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.PrimaryColor);
+            IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.Gold);
 
             string text = selected.Type == "die" ? $"D{selected.Value}" : selected.ItemName;
             var style = new GUIStyle(IMGUIStyles.CursorFollower);
             style.alignment = TextAnchor.MiddleCenter;
+            style.normal.textColor = IMGUIStyles.PaperInk;
             GUI.Label(rect, text, style);
         }
 

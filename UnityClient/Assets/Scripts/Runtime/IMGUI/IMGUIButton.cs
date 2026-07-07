@@ -28,9 +28,13 @@ namespace SSNoir.IMGUI
                 isInteractable);
         }
 
+        // 默认 HUD 按钮：黑底白字，1px Paper 40% 描边，悬停提亮
         public static bool Draw(Rect rect, string label, IMGUIInteractionContext ui, bool enabled = true)
         {
-            return Draw(rect, label, ui, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel, enabled);
+            return Draw(rect, label, ui,
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f),
+                IMGUIStyles.ExecuteLabel, enabled);
         }
     }
 }

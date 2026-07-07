@@ -45,63 +45,46 @@ namespace SSNoir.IMGUI
                 return interaction;
             }
 
-            // Determine node type and colors
+            // Determine node type label (colors are now uniform Ink/Paper per DESIGN.md;
+            // type no longer changes the outline hue — only the sticky-note tag does).
             string typeLabel = "地点";
-            Color normalColor = IMGUIStyles.CardBg;
-            Color hoverColor = IMGUIStyles.CardHoverBg;
-            Color outlineNormal = IMGUIStyles.CardOutline;
-            Color outlineHover = IMGUIStyles.CardHoverOutline;
-
             if (node.IsContainer)
             {
                 typeLabel = "地点";
             }
             else if (node.Resolve != null)
             {
-                if (node.Resolve.Type == ResolveType.Instant)
-                {
-                    typeLabel = "行动";
-                    outlineNormal = IMGUIStyles.OutlineVariantColor;
-                    outlineHover = IMGUIStyles.SecondaryColor;
-                }
-                else if (node.Resolve.Type == ResolveType.Roll)
-                {
-                    typeLabel = "判定";
-                    outlineNormal = IMGUIStyles.OutlineColor;
-                    outlineHover = IMGUIStyles.TertiaryColor; // Burnt Amber alert/POIs
-                }
-                else if (node.Resolve.Type == ResolveType.Observe)
-                {
-                    typeLabel = "观察";
-                    outlineNormal = IMGUIStyles.OutlineColor;
-                    outlineHover = IMGUIStyles.SecondaryColor;
-                }
+                if (node.Resolve.Type == ResolveType.Instant) typeLabel = "行动";
+                else if (node.Resolve.Type == ResolveType.Roll) typeLabel = "判定";
+                else if (node.Resolve.Type == ResolveType.Observe) typeLabel = "观察";
             }
 
-            if (disabled)
-            {
-                normalColor = new Color(0.10f, 0.10f, 0.11f, 0.96f);
-                hoverColor = normalColor;
-                outlineNormal = new Color(0.28f, 0.28f, 0.30f, 1f);
-                outlineHover = outlineNormal;
-            }
-
-            Color bgColor = isHovered ? hoverColor : (isFocused ? hoverColor : normalColor);
+            // Ink fill + 纸白描边（70%默认/100%悬停）+ 内侧 20% 细线 + 硬投影 + 金选中框
             Color outlineColor = disabled
-                ? outlineNormal
-                : isHovered ? outlineHover : (isFocused ? IMGUIStyles.PrimaryColor : outlineNormal);
+                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f)
+                : isFocused
+                    ? IMGUIStyles.Gold
+                    : isHovered
+                        ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 1f)
+                        : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.72f);
             float outlineThickness = (isHovered || isFocused) ? 2f : 1f;
 
-            // Draw card background
-            GUI.color = bgColor;
+            IMGUIStyles.DrawShadow(rect, new Vector2(5f, 6f), 0.48f);
+
+            GUI.color = IMGUIStyles.Ink;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(rect, outlineThickness, outlineColor);
+            var innerLineRect = new Rect(rect.x + 3f, rect.y + 3f, rect.width - 6f, rect.height - 6f);
+            if (innerLineRect.width > 0 && innerLineRect.height > 0)
+            {
+                IMGUIStyles.DrawOutline(innerLineRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
+            }
 
-            // Draw subtle horizontal scanline animation over active focused panels
+            // "正在发生"用金光呼吸而非稳定描边高亮
             if (isFocused && !disabled)
             {
-                IMGUIStyles.DrawScanLine(rect, new Color(0.671f, 0.780f, 1.0f, 0.15f), 100f, 1.5f);
+                IMGUIStyles.DrawGoldPulse(rect);
             }
 
             // Draw clock badges (top-right)
@@ -126,7 +109,7 @@ namespace SSNoir.IMGUI
             // Title
             float titleY = showButton ? rect.y + 12 : rect.y + rect.height / 2f - (hasSubtitle ? 34 : 24);
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle);
-            if (disabled) titleStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
+            if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
             GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, 28), node.Name, titleStyle);
 
             float subtitleBottomY = titleY + 28f;
@@ -138,7 +121,7 @@ namespace SSNoir.IMGUI
                     wordWrap = true,
                     clipping = TextClipping.Clip
                 };
-                if (disabled) subtitleStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
+                if (disabled) subtitleStyle.normal.textColor = IMGUIStyles.TextSecondary;
                 float subtitleWidth = rect.width - 24f;
                 float measuredHeight = subtitleStyle.CalcHeight(new GUIContent(node.Subtitle), subtitleWidth);
                 float subtitleHeight = Mathf.Clamp(measuredHeight, 20f, 40f);
@@ -188,16 +171,14 @@ namespace SSNoir.IMGUI
                     bool canMatchHeld = !disabled && gameManager.CanMatchRequirement(requires[j]);
                     bool canDropHeld = !disabled && gameManager.CanPlaceSelectedResource(node, j);
 
+                    // 骰位/数值格在暗卡上反转为白底黑字。空槽用 Ink 底 + 白线；可放/可匹配态用金/印章红描边提示。
                     if (res == null)
                     {
-                        Color fill = canDropHeld
-                            ? (slotHover ? new Color(0.12f, 0.30f, 0.26f, 0.85f) : new Color(0.11f, 0.15f, 0.28f, 0.75f))
-                            : (canMatchHeld ? new Color(0.30f, 0.12f, 0.15f, 0.65f) : IMGUIStyles.SlotEmpty);
                         Color border = canDropHeld
-                            ? (slotHover ? new Color(0.43f, 0.95f, 0.80f, 1f) : new Color(0.63f, 0.74f, 1f, 1f))
-                            : (canMatchHeld ? new Color(0.55f, 0.28f, 0.34f, 1f) : (slotHover ? IMGUIStyles.PrimaryColor : IMGUIStyles.SlotEmptyBorder));
+                            ? IMGUIStyles.Gold
+                            : (canMatchHeld ? IMGUIStyles.SealRed : (slotHover ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 1f) : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f)));
 
-                        GUI.color = fill;
+                        GUI.color = IMGUIStyles.Ink;
                         GUI.DrawTexture(slotRect, Texture2D.whiteTexture);
                         GUI.color = Color.white;
                         IMGUIStyles.DrawOutline(slotRect, canDropHeld && slotHover ? 2f : 1f, border);
@@ -206,21 +187,23 @@ namespace SSNoir.IMGUI
                         int fontSize = placeholder.Length > 2 ? 12 : (placeholder.Length > 1 ? 15 : 19);
                         var pStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                         pStyle.fontSize = fontSize;
-                        pStyle.normal.textColor = canDropHeld ? Color.white : (canMatchHeld ? IMGUIStyles.ErrorColor : IMGUIStyles.OnSurfaceVariant);
+                        pStyle.normal.textColor = canDropHeld ? IMGUIStyles.Gold : (canMatchHeld ? IMGUIStyles.SealRed : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.6f));
                         GUI.Label(slotRect, placeholder, pStyle);
                     }
                     else
                     {
-                        GUI.color = canMatchHeld ? new Color(0.32f, 0.36f, 0.56f, 0.9f) : IMGUIStyles.SlotFilled;
+                        Color border = canMatchHeld ? IMGUIStyles.SealRed : (slotHover ? IMGUIStyles.Gold : new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.4f));
+
+                        GUI.color = IMGUIStyles.Paper;
                         GUI.DrawTexture(slotRect, Texture2D.whiteTexture);
                         GUI.color = Color.white;
-                        IMGUIStyles.DrawOutline(slotRect, canMatchHeld ? 2f : 1f, canMatchHeld ? new Color(0.75f, 0.84f, 1f, 1f) : IMGUIStyles.SlotFilledBorder);
+                        IMGUIStyles.DrawOutline(slotRect, canMatchHeld ? 2f : 1f, border);
 
                         string valStr = FormatSlottedLabel(res);
                         int fontSize = valStr.Length > 2 ? 12 : (valStr.Length > 1 ? 15 : 19);
                         var vStyle = new GUIStyle(IMGUIStyles.SlotLabel);
                         vStyle.fontSize = fontSize;
-                        vStyle.normal.textColor = Color.white;
+                        vStyle.normal.textColor = IMGUIStyles.PaperInk;
                         GUI.Label(slotRect, valStr, vStyle);
                     }
 
@@ -254,14 +237,14 @@ namespace SSNoir.IMGUI
                 }
                 else if (allFilled && !disabled)
                 {
-                    if (IMGUIButton.Draw(exeRect, "执行", ui, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+                    if (DrawExecuteButton(exeRect, "执 行", ui, true))
                     {
                         interaction.ExecuteClicked = true;
                     }
                 }
                 else
                 {
-                    IMGUIButton.Draw(exeRect, disabled ? "不可用" : "待命", ui, IMGUIStyles.OutlineVariantColor, Color.clear, IMGUIStyles.ExecuteLabel, false);
+                    DrawExecuteButton(exeRect, disabled ? "不可用" : "待 命", ui, false);
                 }
             }
             else if (showButton)
@@ -281,7 +264,7 @@ namespace SSNoir.IMGUI
                 {
                     DrawExecuteProgress(exeRect, executeProgress, executingText);
                 }
-                else if (IMGUIButton.Draw(exeRect, disabled ? "不可用" : "执行", ui, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel, !disabled))
+                else if (DrawExecuteButton(exeRect, disabled ? "不可用" : "执 行", ui, !disabled))
                 {
                     interaction.ExecuteClicked = true;
                 }
@@ -296,7 +279,7 @@ namespace SSNoir.IMGUI
                 }
             }
 
-            // Draw Modifier Tags on the left side of the card
+            // 修正标签（卡左侧）：便签形态。负修正 = 高风险纸，正修正 = 工作纸，中性 = 交涉纸。
             var modifiers = node.Resolve?.DifficultyModifiers.Count > 0 ? node.Resolve.DifficultyModifiers : null;
             if (modifiers != null && modifiers.Count > 0)
             {
@@ -304,11 +287,8 @@ namespace SSNoir.IMGUI
                 {
                     var mod = modifiers[k];
                     string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
-                    
-                    var tagStyle = new GUIStyle(GUI.skin.label);
-                    tagStyle.fontSize = 10;
-                    tagStyle.alignment = TextAnchor.MiddleCenter;
-                    tagStyle.normal.textColor = Color.white;
+
+                    var tagStyle = new GUIStyle(GUI.skin.label) { fontSize = 10 };
 
                     Vector2 textSize = tagStyle.CalcSize(new GUIContent(modText));
                     float tagW = textSize.x + 12;
@@ -317,17 +297,13 @@ namespace SSNoir.IMGUI
                     float tagY = rect.y + 8 + k * 22;
                     var tagRect = new Rect(tagX, tagY, tagW, tagH);
 
-                    Color tagBg = mod.Value < 0 ? new Color(0.412f, 0.0f, 0.020f, 0.85f) 
-                                 : (mod.Value > 0 ? new Color(0.0f, 0.184f, 0.40f, 0.85f) : IMGUIStyles.SlotEmpty);
-                    Color tagBorder = mod.Value < 0 ? IMGUIStyles.ErrorColor 
-                                     : (mod.Value > 0 ? IMGUIStyles.PrimaryColor : IMGUIStyles.OutlineColor);
-
-                    GUI.color = tagBg;
-                    GUI.DrawTexture(tagRect, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(tagRect, 1f, tagBorder);
-
-                    GUI.Label(tagRect, modText, tagStyle);
+                    Color noteBg = mod.Value < 0 ? IMGUIStyles.StickyHighRiskBg
+                                  : (mod.Value > 0 ? IMGUIStyles.StickyWorkBg : IMGUIStyles.StickyNegotiateBg);
+                    Color noteText = mod.Value < 0 ? IMGUIStyles.StickyHighRiskText
+                                    : (mod.Value > 0 ? IMGUIStyles.StickyWorkText : IMGUIStyles.StickyNegotiateText);
+                    // 微旋转 ±1.5°，按行号交替方向，避免整列同角度显得机械。
+                    float noteRot = (k % 2 == 0) ? -1.5f : 1.5f;
+                    IMGUIStyles.DrawStickyNote(tagRect, modText, noteBg, noteText, noteRot, tagStyle);
                 }
             }
 
@@ -358,6 +334,36 @@ namespace SSNoir.IMGUI
             return interaction;
         }
 
+        // 执行/主行动按钮：实心金底 + 深字（DESIGN.md 强调色岗位一：实心金 = 执行）。
+        // 禁用态：无填充，描边与文字降到 35%。
+        private static bool DrawExecuteButton(Rect rect, string text, IMGUIInteractionContext ui, bool enabled)
+        {
+            bool isInteractable = enabled && !ui.IsLocked;
+            bool isHovered = isInteractable && ui.CanHover(rect);
+            bool isClicked = isInteractable && ui.WasClicked(rect);
+
+            var style = new GUIStyle(IMGUIStyles.ExecuteLabel);
+            if (isInteractable)
+            {
+                IMGUIStyles.DrawShadow(rect, new Vector2(2f, 2f), 0.45f);
+                GUI.color = isHovered
+                    ? new Color(Mathf.Min(1f, IMGUIStyles.Gold.r * 1.08f), Mathf.Min(1f, IMGUIStyles.Gold.g * 1.08f), Mathf.Min(1f, IMGUIStyles.Gold.b * 1.08f), 1f)
+                    : IMGUIStyles.Gold;
+                GUI.DrawTexture(rect, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                style.normal.textColor = IMGUIStyles.GoldOnDark;
+            }
+            else
+            {
+                var faded = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
+                IMGUIStyles.DrawOutline(rect, 1f, faded);
+                style.normal.textColor = faded;
+            }
+            GUI.Label(rect, text, style);
+
+            return isClicked;
+        }
+
         private static void DrawSkillBadge(Rect rect, float y, string skillText)
         {
             var style = new GUIStyle(IMGUIStyles.CardSubtitle)
@@ -365,16 +371,16 @@ namespace SSNoir.IMGUI
                 font = IMGUIStyles.ChineseFont,
                 fontSize = 14,
                 alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = new Color(0.737f, 0.847f, 1f, 1f) }
+                normal = { textColor = IMGUIStyles.TextSecondary }
             };
             Vector2 size = style.CalcSize(new GUIContent(skillText));
             float badgeW = size.x + 24f;
             float badgeH = 22f;
             var badge = new Rect(rect.x + (rect.width - badgeW) / 2f, y, badgeW, badgeH);
-            GUI.color = new Color(0.063f, 0.114f, 0.20f, 1f);
+            GUI.color = IMGUIStyles.Ink;
             GUI.DrawTexture(badge, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(badge, 1f, new Color(0.247f, 0.427f, 0.69f, 1f));
+            IMGUIStyles.DrawOutline(badge, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
             GUI.Label(badge, skillText, style);
         }
 
@@ -412,16 +418,12 @@ namespace SSNoir.IMGUI
                 {
                     fontSize = 14,
                     alignment = TextAnchor.MiddleRight,
-                    normal = { textColor = new Color(0.92f, 0.94f, 1f, 1f) }
+                    normal = { textColor = IMGUIStyles.TextPrimary }
                 };
                 GUI.Label(new Rect(chip.x, chip.y, chip.width - 6f, chipH), level.ToString(), lvlStyle);
                 drawn++;
             }
         }
-
-        private static readonly Color OddsFailColor    = new Color(0.82f, 0.227f, 0.29f, 1f);
-        private static readonly Color OddsNeutralColor  = new Color(0.839f, 0.663f, 0.306f, 1f);
-        private static readonly Color OddsSuccessColor  = new Color(0.349f, 0.706f, 0.467f, 1f);
 
         private static void TryDrawOddsPreview(Rect rect, string skill, List<SlottedResource?> slotted,
             List<DifficultyModifierInfo>? modifiers, IReadOnlyList<ActorSnapshot> actors, float executeBottomY)
@@ -463,9 +465,9 @@ namespace SSNoir.IMGUI
 
             var bands = new (double p, Color c)[]
             {
-                (odds.Fail,    OddsFailColor),
-                (odds.Neutral, OddsNeutralColor),
-                (odds.Success, OddsSuccessColor),
+                (odds.Fail,    IMGUIStyles.OddsFail),
+                (odds.Neutral, IMGUIStyles.OddsNeutral),
+                (odds.Success, IMGUIStyles.OddsSuccess),
             };
 
             float x = barX;
@@ -498,17 +500,23 @@ namespace SSNoir.IMGUI
         private static void DrawLocalRoll(Rect rect, ActionReport report, int phase, int displayDieValue, float displayScale)
         {
             var panel = new Rect(rect.x + 12f, rect.yMax - 66f, rect.width - 24f, 54f);
-            GUI.color = new Color(0.07f, 0.08f, 0.12f, 0.96f);
+            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, IMGUIStyles.ModalOpacity);
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(panel, 1.5f, IMGUIStyles.ClockActive);
+            IMGUIStyles.DrawOutline(panel, 1.5f, IMGUIStyles.Gold);
+
+            // 掷骰瞬间是"正在发生"——金光呼吸只在滚动阶段亮起。
+            if (phase < 2)
+            {
+                IMGUIStyles.DrawGoldPulse(panel);
+            }
 
             int dieValue = phase == 0 ? displayDieValue : report.FinalRollValue;
             var dieStyle = new GUIStyle(IMGUIStyles.CardTitle)
             {
                 fontSize = Mathf.RoundToInt(26 * Mathf.Clamp(displayScale, 0.8f, 1.35f)),
                 alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = IMGUIStyles.ClockActive }
+                normal = { textColor = IMGUIStyles.Gold }
             };
             GUI.Label(new Rect(panel.x + 10f, panel.y + 4f, 52f, panel.height - 8f), $"D{dieValue}", dieStyle);
 
@@ -516,21 +524,40 @@ namespace SSNoir.IMGUI
             var labelStyle = new GUIStyle(IMGUIStyles.ModalBody)
             {
                 fontSize = 15,
-                normal = { textColor = phase >= 2 ? OutcomeColor(report.Outcome) : IMGUIStyles.OnSurface }
+                normal = { textColor = phase >= 2 ? OutcomeColor(report.Outcome) : IMGUIStyles.TextPrimary }
             };
             GUI.Label(new Rect(panel.x + 72f, panel.y + 9f, panel.width - 82f, 22f), label, labelStyle);
 
             string detail = phase >= 2 ? $"最终值 {report.ModifiedRollValue}" : "骰子滚动...";
-            GUI.Label(new Rect(panel.x + 72f, panel.y + 30f, panel.width - 82f, 18f), detail, IMGUIStyles.ModalBody);
+            var detailStyle = new GUIStyle(IMGUIStyles.ModalBody) { normal = { textColor = IMGUIStyles.TextSecondary } };
+            GUI.Label(new Rect(panel.x + 72f, panel.y + 30f, panel.width - 82f, 18f), detail, detailStyle);
+
+            // 判定完成态：旋转章形盖印（成=金，败=印章红；中性不盖）。
+            if (phase >= 2 && report.Outcome != RollOutcome.Neutral)
+            {
+                var sealRect = new Rect(rect.xMax - 62f, panel.y - 30f, 52f, 52f);
+                Color sealColor = report.Outcome == RollOutcome.Success ? IMGUIStyles.Gold : IMGUIStyles.SealRed;
+                string sealText = report.Outcome == RollOutcome.Success ? "成" : "败";
+                IMGUIStyles.DrawStampSeal(sealRect, sealText, sealColor);
+            }
         }
 
         private static void DrawResidue(Rect rect, CardPresentationResidue residue)
         {
             var panel = new Rect(rect.x + 12f, rect.yMax - 68f, rect.width - 24f, 56f);
-            GUI.color = new Color(0.08f, 0.09f, 0.14f, 0.96f);
+            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, IMGUIStyles.ModalOpacity);
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(panel, 1f, IMGUIStyles.PrimaryColor);
+            IMGUIStyles.DrawOutline(panel, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
+
+            // 结果盖印：成=金、败=印章红（中性不盖）。
+            if (residue.RollOutcome == RollOutcome.Success || residue.RollOutcome == RollOutcome.Fail)
+            {
+                var sealRect = new Rect(rect.xMax - 58f, panel.y - 26f, 46f, 46f);
+                Color sealColor = residue.RollOutcome == RollOutcome.Success ? IMGUIStyles.Gold : IMGUIStyles.SealRed;
+                string sealText = residue.RollOutcome == RollOutcome.Success ? "成" : "败";
+                IMGUIStyles.DrawStampSeal(sealRect, sealText, sealColor);
+            }
 
             string title = residue.RollOutcome.HasValue
                 ? $"{FormatOutcome(residue.RollOutcome.Value)}：{residue.Title}"
@@ -539,7 +566,7 @@ namespace SSNoir.IMGUI
             {
                 fontSize = 13,
                 wordWrap = true,
-                normal = { textColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : IMGUIStyles.OnSurface }
+                normal = { textColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : IMGUIStyles.TextPrimary }
             };
             GUI.Label(new Rect(panel.x + 8f, panel.y + 6f, panel.width - 16f, 22f), title, titleStyle);
 
@@ -547,17 +574,27 @@ namespace SSNoir.IMGUI
             {
                 fontSize = 11,
                 wordWrap = true,
-                normal = { textColor = IMGUIStyles.OnSurfaceVariant }
+                normal = { textColor = IMGUIStyles.TextSecondary }
             };
             GUI.Label(new Rect(panel.x + 8f, panel.y + 28f, panel.width - 16f, 24f), residue.Subtitle, subtitleStyle);
         }
 
         public static void DrawResidueCard(Rect rect, CardPresentationResidue residue)
         {
-            GUI.color = new Color(0.08f, 0.09f, 0.14f, 0.98f);
+            IMGUIStyles.DrawShadow(rect, new Vector2(5f, 6f), 0.48f);
+            GUI.color = IMGUIStyles.Ink;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(rect, 1.5f, IMGUIStyles.PrimaryColor);
+            IMGUIStyles.DrawDoubleOutline(rect, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.72f));
+
+            // 结果盖印（右上角）：成=金、败=印章红。
+            if (residue.RollOutcome == RollOutcome.Success || residue.RollOutcome == RollOutcome.Fail)
+            {
+                var sealRect = new Rect(rect.xMax - 60f, rect.y + 8f, 48f, 48f);
+                Color sealColor = residue.RollOutcome == RollOutcome.Success ? IMGUIStyles.Gold : IMGUIStyles.SealRed;
+                string sealText = residue.RollOutcome == RollOutcome.Success ? "成" : "败";
+                IMGUIStyles.DrawStampSeal(sealRect, sealText, sealColor);
+            }
 
             string label = residue.RollOutcome.HasValue ? FormatOutcome(residue.RollOutcome.Value) : "行动结果";
             var labelStyle = new GUIStyle(IMGUIStyles.CardSubtitle)
@@ -575,7 +612,7 @@ namespace SSNoir.IMGUI
                 fontSize = 15,
                 wordWrap = true,
                 alignment = TextAnchor.UpperCenter,
-                normal = { textColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : IMGUIStyles.OnSurface }
+                normal = { textColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : IMGUIStyles.TextPrimary }
             };
             GUI.Label(new Rect(rect.x + 18f, rect.y + 46f, rect.width - 36f, 42f), title, titleStyle);
 
@@ -584,7 +621,7 @@ namespace SSNoir.IMGUI
                 fontSize = 12,
                 wordWrap = true,
                 alignment = TextAnchor.UpperCenter,
-                normal = { textColor = IMGUIStyles.OnSurfaceVariant }
+                normal = { textColor = IMGUIStyles.TextSecondary }
             };
             GUI.Label(new Rect(rect.x + 18f, rect.y + 94f, rect.width - 36f, rect.height - 106f), residue.Subtitle, subtitleStyle);
         }
@@ -607,29 +644,29 @@ namespace SSNoir.IMGUI
                 RollOutcome.Success => IMGUIStyles.OutcomeSuccess,
                 RollOutcome.Neutral => IMGUIStyles.OutcomeNeutral,
                 RollOutcome.Fail => IMGUIStyles.OutcomeFail,
-                _ => IMGUIStyles.OnSurface
+                _ => IMGUIStyles.TextPrimary
             };
         }
 
-        // 标签配色：工作/风险标签全局一致，与终端 CardWidget.TagColors 保持一致。
-        private static (Color bg, Color border, Color text) TagColors(string label)
+        // 标签配色：便签色板（DESIGN.md）。同一语义永远同一张纸。
+        private static (Color bg, Color text) TagColors(string label)
         {
             switch (label)
             {
-                case "交锋":
-                    return (new Color(0.37f, 0.13f, 0.13f, 0.90f), new Color(0.82f, 0.34f, 0.30f, 1f), new Color(1f, 0.84f, 0.80f, 1f));
-                case "工作": // 能赚钱：青绿
-                    return (new Color(0.11f, 0.23f, 0.25f, 0.86f), new Color(0.35f, 0.71f, 0.75f, 1f), new Color(0.82f, 0.94f, 0.96f, 1f));
-                case "低风险": // 绿
-                    return (new Color(0.13f, 0.26f, 0.17f, 0.86f), new Color(0.38f, 0.75f, 0.47f, 1f), new Color(0.84f, 0.96f, 0.86f, 1f));
-                case "中风险": // 琥珀
-                    return (new Color(0.31f, 0.24f, 0.10f, 0.88f), new Color(0.84f, 0.66f, 0.27f, 1f), new Color(1f, 0.93f, 0.78f, 1f));
-                case "高风险": // 红
-                    return (new Color(0.35f, 0.16f, 0.13f, 0.88f), new Color(0.84f, 0.38f, 0.29f, 1f), new Color(1f, 0.86f, 0.80f, 1f));
-                case "越界": // 深红：越界/掉关系
-                    return (new Color(0.27f, 0.10f, 0.17f, 0.90f), new Color(0.78f, 0.27f, 0.43f, 1f), new Color(1f, 0.82f, 0.88f, 1f));
-                default:
-                    return (new Color(0.14f, 0.19f, 0.31f, 0.85f), new Color(0.42f, 0.57f, 0.86f, 1f), new Color(0.86f, 0.92f, 1f, 1f));
+                case "交锋": // 高危：高风险纸
+                    return (IMGUIStyles.StickyHighRiskBg, IMGUIStyles.StickyHighRiskText);
+                case "工作":
+                case "低风险": // 安全/能赚钱：工作纸
+                    return (IMGUIStyles.StickyWorkBg, IMGUIStyles.StickyWorkText);
+                case "中风险":
+                    return (IMGUIStyles.StickyMidRiskBg, IMGUIStyles.StickyMidRiskText);
+                case "高风险":
+                case "越界":
+                    return (IMGUIStyles.StickyHighRiskBg, IMGUIStyles.StickyHighRiskText);
+                case "机遇":
+                    return (IMGUIStyles.StickyOpportunityBg, IMGUIStyles.StickyOpportunityText);
+                default: // 交涉及其他
+                    return (IMGUIStyles.StickyNegotiateBg, IMGUIStyles.StickyNegotiateText);
             }
         }
 
@@ -652,13 +689,11 @@ namespace SSNoir.IMGUI
                     continue;
                 }
 
-                var (bg, border, text) = TagColors(label);
+                var (bg, text) = TagColors(label);
                 var style = new GUIStyle(GUI.skin.label)
                 {
                     font = IMGUIStyles.ChineseFont,
                     fontSize = 11,
-                    alignment = TextAnchor.MiddleCenter,
-                    normal = { textColor = text }
                 };
 
                 Vector2 size = style.CalcSize(new GUIContent(label));
@@ -671,11 +706,9 @@ namespace SSNoir.IMGUI
 
                 var tagRect = new Rect(x, y, tagW, 18f);
 
-                GUI.color = bg;
-                GUI.DrawTexture(tagRect, Texture2D.whiteTexture);
-                GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(tagRect, 1f, border);
-                GUI.Label(tagRect, label, style);
+                // 便签形态：微旋转 ±1.5° + 1px 硬投影 + 彩纸底 + 深色字。
+                float noteRot = (i % 2 == 0) ? -1.5f : 1.5f;
+                IMGUIStyles.DrawStickyNote(tagRect, label, bg, text, noteRot, style);
 
                 x += tagW + 6f;
             }
@@ -713,11 +746,14 @@ namespace SSNoir.IMGUI
         private static void DrawFlippedCard(Rect rect, GameNode node, string backText, bool isHovered, IMGUIInteractionContext ui,
             ref CardInteraction interaction, SSNoirGameManager gameManager)
         {
-            Color bg = isHovered ? IMGUIStyles.CardHoverBg : IMGUIStyles.FlippedBg;
-            Color outline = isHovered ? IMGUIStyles.PrimaryColor : IMGUIStyles.FlippedOutline;
+            // 悬停变亮不变色：白线 70% → 100%。
+            Color outline = isHovered
+                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 1f)
+                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f);
             float thickness = isHovered ? 2f : 1f;
 
-            GUI.color = bg;
+            IMGUIStyles.DrawShadow(rect, new Vector2(4f, 4f), 0.45f);
+            GUI.color = IMGUIStyles.Ink;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(rect, thickness, outline);
@@ -746,27 +782,32 @@ namespace SSNoir.IMGUI
         private static void DrawExecuteProgress(Rect rect, float progress, string text)
         {
             progress = Mathf.Clamp01(progress);
-            GUI.color = IMGUIStyles.ModalBg;
+            GUI.color = IMGUIStyles.Ink;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
 
             var fillRect = new Rect(rect.x + 2f, rect.y + 2f, (rect.width - 4f) * progress, rect.height - 4f);
-            GUI.color = IMGUIStyles.PrimaryColor;
+            GUI.color = IMGUIStyles.Gold;
             GUI.DrawTexture(fillRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.PrimaryColor);
+            IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.Gold);
+
+            // 进度中的按钮是"正在发生"的东西。
+            IMGUIStyles.DrawGoldPulse(rect);
 
             string label = string.IsNullOrEmpty(text) ? "执行中" : text;
             if (label.Length > 5)
             {
                 label = "执行中";
             }
-            GUI.Label(rect, label, IMGUIStyles.ExecuteLabel);
+            var progressStyle = new GUIStyle(IMGUIStyles.ExecuteLabel);
+            progressStyle.normal.textColor = progress > 0.5f ? IMGUIStyles.GoldOnDark : IMGUIStyles.Paper;
+            GUI.Label(rect, label, progressStyle);
         }
 
         private static void DrawClockBadge(ref float rightX, float topY, GameClock clock)
         {
-            Color activeColor = IMGUIStyles.ClockActive;
-            Color inactiveColor = IMGUIStyles.ClockInactive;
+            Color activeColor = IMGUIStyles.Gold;
+            Color inactiveColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
 
             if (clock.Style == ClockStyle.Countdown)
             {
@@ -778,10 +819,10 @@ namespace SSNoir.IMGUI
                 float badgeX = rightX - badgeW;
                 float badgeY = topY;
 
-                GUI.color = IMGUIStyles.SlotEmpty;
+                GUI.color = IMGUIStyles.Ink;
                 GUI.DrawTexture(new Rect(badgeX, badgeY, badgeW, badgeH), Texture2D.whiteTexture);
                 GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, IMGUIStyles.OutlineColor);
+                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
 
                 var style = new GUIStyle(IMGUIStyles.ClockLabel);
                 style.fontSize = fontSize;
@@ -803,10 +844,10 @@ namespace SSNoir.IMGUI
                 float badgeX = rightX - badgeW;
                 float badgeY = topY;
 
-                GUI.color = IMGUIStyles.SlotEmpty;
+                GUI.color = IMGUIStyles.Ink;
                 GUI.DrawTexture(new Rect(badgeX, badgeY, badgeW, badgeH), Texture2D.whiteTexture);
                 GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, IMGUIStyles.OutlineColor);
+                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
 
                 var style = new GUIStyle(IMGUIStyles.ClockLabel);
                 style.fontSize = fontSize;
@@ -826,7 +867,7 @@ namespace SSNoir.IMGUI
                         GUI.color = inactiveColor;
                         GUI.DrawTexture(dotRect, Texture2D.whiteTexture);
                         GUI.color = Color.white;
-                        IMGUIStyles.DrawOutline(dotRect, 1f, IMGUIStyles.OutlineColor);
+                        IMGUIStyles.DrawOutline(dotRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
                     }
                     GUI.color = Color.white;
                 }
@@ -844,10 +885,10 @@ namespace SSNoir.IMGUI
                 float badgeX = rightX - badgeW;
                 float badgeY = topY;
 
-                GUI.color = IMGUIStyles.SlotEmpty;
+                GUI.color = IMGUIStyles.Ink;
                 GUI.DrawTexture(new Rect(badgeX, badgeY, badgeW, badgeH), Texture2D.whiteTexture);
                 GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, IMGUIStyles.OutlineColor);
+                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
 
                 var style = new GUIStyle(IMGUIStyles.ClockLabel);
                 style.fontSize = fontSize;
@@ -858,7 +899,7 @@ namespace SSNoir.IMGUI
                 float pieY = badgeY + (badgeH - pieRadius * 2) / 2f;
                 var pieRect = new Rect(pieX, pieY, pieRadius * 2, pieRadius * 2);
                 float fillPct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
-                PieDrawer.DrawPieBadge(pieRect, fillPct, activeColor, IMGUIStyles.OutlineColor);
+                PieDrawer.DrawPieBadge(pieRect, fillPct, activeColor, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
 
                 rightX -= (badgeW + 4);
             }
@@ -866,10 +907,13 @@ namespace SSNoir.IMGUI
 
         private static void DrawLocationLabel(Rect rect, string name, bool isHovered)
         {
-            Color bgColor = isHovered ? IMGUIStyles.CardHoverBg : IMGUIStyles.CardBg;
-            Color border = isHovered ? IMGUIStyles.PrimaryColor : IMGUIStyles.CardOutline;
+            // 地点小标签：Ink 底 + 1px 纸白描边（70% 默认 / 100% 悬停，变亮不变色）。
+            Color border = isHovered
+                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 1f)
+                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f);
 
-            GUI.color = bgColor;
+            IMGUIStyles.DrawShadow(rect, new Vector2(3f, 3f), 0.45f);
+            GUI.color = IMGUIStyles.Ink;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(rect, 1f, border);
@@ -879,7 +923,9 @@ namespace SSNoir.IMGUI
                 fontSize = 13,
                 alignment = TextAnchor.MiddleCenter
             };
-            labelStyle.normal.textColor = isHovered ? Color.white : new Color(0.8f, 0.85f, 0.95f, 1f);
+            labelStyle.normal.textColor = isHovered
+                ? IMGUIStyles.Paper
+                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.85f);
             GUI.Label(rect, name, labelStyle);
         }
     }

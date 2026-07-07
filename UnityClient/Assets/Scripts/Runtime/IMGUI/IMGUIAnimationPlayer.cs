@@ -137,12 +137,11 @@ namespace SSNoir.IMGUI
             float modalY = (UIScale.VH - modalH) / 2f;
             var modalRect = new Rect(modalX, modalY, modalW, modalH);
 
+            // 纸物件：Paper 底 + 硬投影，无描边
+            IMGUIStyles.DrawShadow(modalRect, new Vector2(5f, 6f), 0.50f);
             GUI.color = IMGUIStyles.ModalBg;
             GUI.DrawTexture(modalRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-
-            // Outline
-            IMGUIStyles.DrawOutline(modalRect, 1f, IMGUIStyles.PrimaryColor);
 
             // Content
             float contentX = modalX + 20;
@@ -154,12 +153,11 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(contentX, contentY, contentW, 24), title, IMGUIStyles.ModalTitle);
             contentY += 28;
 
-            // Rolling die
-            GUI.color = IMGUIStyles.ClockActive; // Burnt Amber color
+            // Rolling die（纸上墨字大数字）
             var dieStyle = new GUIStyle(IMGUIStyles.CardTitle);
             dieStyle.fontSize = 48;
             dieStyle.alignment = TextAnchor.MiddleCenter;
-            dieStyle.normal.textColor = IMGUIStyles.ClockActive;
+            dieStyle.normal.textColor = IMGUIStyles.PaperInk;
             var dieRect = new Rect(contentX, contentY, contentW, 60);
             // Save the UIScale matrix and compose the die bounce on top of it (not replace it).
             var savedMatrix = GUI.matrix;
@@ -225,7 +223,7 @@ namespace SSNoir.IMGUI
                 bool isHovered = btnRect.Contains(mousePos);
                 bool isClicked = isHovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
 
-                if (IMGUIStyles.DrawTechnicalButton(btnRect, "确定", isHovered, isClicked, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+                if (IMGUIStyles.DrawTechnicalButton(btnRect, "确 定", isHovered, isClicked, IMGUIStyles.PaperInk, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f), IMGUIStyles.ExecuteLabel))
                 {
                     Acknowledge();
                 }

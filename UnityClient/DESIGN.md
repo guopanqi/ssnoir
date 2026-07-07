@@ -1,140 +1,123 @@
----
-name: Blueprint Noir
-colors:
-  surface: '#11131a'
-  surface-dim: '#11131a'
-  surface-bright: '#373940'
-  surface-container-lowest: '#0b0e14'
-  surface-container-low: '#191c22'
-  surface-container: '#1d2026'
-  surface-container-high: '#272a31'
-  surface-container-highest: '#32353c'
-  on-surface: '#e1e2eb'
-  on-surface-variant: '#c2c6d5'
-  inverse-surface: '#e1e2eb'
-  inverse-on-surface: '#2e3037'
-  outline: '#8c909e'
-  outline-variant: '#424753'
-  surface-tint: '#abc7ff'
-  primary: '#abc7ff'
-  on-primary: '#002f66'
-  primary-container: '#0464cb'
-  on-primary-container: '#dde6ff'
-  inverse-primary: '#005cbc'
-  secondary: '#b1c7f5'
-  on-secondary: '#193056'
-  secondary-container: '#31476e'
-  on-secondary-container: '#a0b5e3'
-  tertiary: '#ffb693'
-  on-tertiary: '#561f00'
-  tertiary-container: '#ae4701'
-  on-tertiary-container: '#ffe0d3'
-  error: '#ffb4ab'
-  on-error: '#690005'
-  error-container: '#93000a'
-  on-error-container: '#ffdad6'
-  primary-fixed: '#d7e2ff'
-  primary-fixed-dim: '#abc7ff'
-  on-primary-fixed: '#001b3f'
-  on-primary-fixed-variant: '#004590'
-  secondary-fixed: '#d7e2ff'
-  secondary-fixed-dim: '#b1c7f5'
-  on-secondary-fixed: '#001a40'
-  on-secondary-fixed-variant: '#31476e'
-  tertiary-fixed: '#ffdbcc'
-  tertiary-fixed-dim: '#ffb693'
-  on-tertiary-fixed: '#351000'
-  on-tertiary-fixed-variant: '#7a3000'
-  background: '#11131a'
-  on-background: '#e1e2eb'
-  surface-variant: '#32353c'
-typography:
-  display-lg:
-    fontFamily: Hanken Grotesk
-    fontSize: 48px
-    fontWeight: '700'
-    lineHeight: 56px
-    letterSpacing: -0.02em
-  headline-lg:
-    fontFamily: Hanken Grotesk
-    fontSize: 32px
-    fontWeight: '600'
-    lineHeight: 40px
-  headline-lg-mobile:
-    fontFamily: Hanken Grotesk
-    fontSize: 24px
-    fontWeight: '600'
-    lineHeight: 32px
-  body-md:
-    fontFamily: Hanken Grotesk
-    fontSize: 16px
-    fontWeight: '400'
-    lineHeight: 24px
-  data-mono:
-    fontFamily: JetBrains Mono
-    fontSize: 14px
-    fontWeight: '500'
-    lineHeight: 20px
-    letterSpacing: 0.05em
-  label-xs:
-    fontFamily: JetBrains Mono
-    fontSize: 11px
-    fontWeight: '700'
-    lineHeight: 16px
-spacing:
-  unit: 4px
-  gutter: 24px
-  margin-mobile: 16px
-  margin-desktop: 40px
-  hud-padding: 12px
----
+# SSNoir — UI 视觉规范「墨与纸」（Ink & Paper Noir）
 
-## Brand & Style
-The design system establishes a "Blueprint Noir" aesthetic—a synthesis of high-contrast technical drafting and atmospheric urban exploration. It targets users seeking a deep, investigative experience where the interface feels like a digital lens over a physical city. 
+适用范围：`UnityClient` 全部 IMGUI 界面。绘制与缩放的工程规则见 [AGENTS.md](AGENTS.md)。
+本规范取代旧的 Blueprint Noir 规范（2026-07 定稿）。
 
-The style is an **Expressive** hybrid of Minimalism and Tactile Technicality, now refined with a **Fidelity** color approach. It leverages the raw, hand-drawn precision of architectural cross-sections paired with the immersive depth of a dark-mode HUD. The visual tone is intellectual and precise; with the updated palette, it shifts from "electric" back to a more "authentic technical" atmosphere. It evokes the feeling of an architect or detective uncovering hidden layers of a metropolis using high-fidelity sensors. Key visual motifs include hairline-thin technical lines, coordinate overlays, and a strict adherence to a "deep zoom" spatial logic where detail density increases as the user focuses.
+## 设计哲学
 
-## Colors
-The palette is rooted in a "Deep Midnight" base but utilizes a "Fidelity" color variant to provide natural, sensor-accurate contrast for technical data.
+世界是一张深蓝近黑的图纸，建筑用白线勾勒。UI 不是浮在世界上的软件面板，而是**世界里的物件**，分三种材质：
 
-- **Primary (Steel Blue):** Used for foundational interactive elements and the primary "canvas" of the experience. It creates a sense of professional-grade utility and digital precision.
-- **Secondary (Muted Slate):** Used for active data paths, blueprint outlines, and interactive HUD elements. This represents the technical layer with a grounded, balanced feel.
-- **Tertiary (Burnt Amber):** Reserved for points of interest (POIs), critical alerts, and discovery markers. Its earthy, high-fidelity orange tone provides a sharp, functional break from the blue-heavy environment.
-- **Neutral (Industrial Gray):** Used for secondary technical annotations, standard text, and subtle structural lines, maintaining a neutral, non-distracting undertone throughout the UI.
+1. **墨（暗版节点）** — 长期存在于场景中的节点（动作、判定、普通、地点、人物）。它们是"用线勾勒出来的一块世界"：深蓝墨填充 + 细白线描边，与描边建筑同语言。
+2. **纸（白版物件）** — 弹出来打断玩家的东西（spotlight 海报、事件窗、结算单）。它们是"递到你面前的一张纸"：米白纸底 + 深墨文字 + 硬投影。深色场景里最亮的东西永远是这张纸——图底反转承担焦点管理。
+3. **黑底 HUD** — 常驻操作层（按钮、面板、手牌、底栏）。黑底白字白符号，越安静越好。
 
-## Typography
-Typography is split into two functional roles: narrative and data.
+一句话状态规则：**白线 = 存在，金线 = 选中，金光 = 正在发生。**
 
-- **Narrative (Hanken Grotesk):** A clean, sharp sans-serif used for headlines, building names, and descriptions. It provides a contemporary, professional feel that balances the technical monospaced elements.
-- **Technical (JetBrains Mono):** Used for all HUD data, coordinates, dimensions, and metadata. The monospaced nature ensures that data tables and numerical values align perfectly, reinforcing the architectural blueprint theme.
+## 色彩令牌
 
-All labels should be treated as "call-outs," often paired with thin leader lines that point directly to the subject in the 3D space.
+### 基底
 
-## Layout & Spacing
-The layout follows a **Fluid HUD** model. Rather than a traditional grid, elements are anchored to the corners of the viewport or "tethered" to specific coordinates within the 3D map.
+| 令牌 | 值 | 用途 |
+|---|---|---|
+| SceneBg（参考） | `#1A1E27` | 场景背景，不由 UI 绘制 |
+| Ink 墨 | `#0D1220` @ ≥95% | 暗版节点填充。相对规则：与场景背景同色相、明度降两档；调场景色时跟随推导 |
+| PhotoBlack 相纸黑 | `#0C0C0E` | 仅用于照片块（拍立得/海报内的图像底）。"相纸的黑"与"世界的墨"是两种材料 |
+| Paper 纸白 | `#EFEAE0` | 纸物件底色、暗版描边、暗版文字 |
+| PaperInk 纸上墨字 | `#1C1A15` | 纸物件上的主文字 |
+| HudBg | `rgba(10,12,18,0.92)` | 黑底 HUD 面板 |
 
-- **Safe Zones:** High-level navigation (Map/Global view) is anchored to the top and bottom edges.
-- **Contextual Panels:** When a building is selected, side-mounted panels slide in using a 24px gutter from the screen edge.
-- **Focus Reflow:** On mobile, the UI collapses into a vertical stack; architectural specifics are presented in an expandable bottom sheet to keep the central "Deep Zoom" area visible.
-- **Rhythm:** A 4px base unit ensures all technical lines and borders align to a consistent mathematical rhythm, mimicking a drafting board.
+### 文字
 
-## Elevation & Depth
-Depth is not conveyed via shadows, but through **Tonal Layers and Line Weight**, now rendered with a high-fidelity color profile.
+| 层级 | 暗版/HUD 上 | 纸上 |
+|---|---|---|
+| 主文字 | `#EFEAE0` | `#1C1A15` |
+| 次级 | Paper @ 60% | `#4A453C` |
+| 弱化/禁用 | Paper @ 35% | `#8A8375` |
 
-- **Z-Axis Hierarchy:** Background elements are rendered in low-opacity primary or neutral lines. As the user zooms in ("Focus"), the line weight of the target building increases and its color shifts to full-opacity Steel Blue.
-- **Glassmorphism HUD:** HUD panels use a high-blur background (20px+) with a 40% opacity fill. This allows the city geometry to remain visible beneath the interface.
-- **Technical Outlines:** Surfaces are defined by 1px solid borders. Hovering over an element adds a secondary "glow" stroke (2px) using the primary color to simulate a light-table effect.
-- **Parallax:** UI labels and data points exist on a plane slightly "above" the city geometry, moving at a slower rate during rotation to emphasize the HUD overlay.
+### 强调色 — 做旧金 `#E8C35A`
 
-## Shapes
-The design system utilizes **Sharp (0)** roundedness. All corners are 90-degree angles to maintain the architectural and blueprint-inspired aesthetic. 
+全局唯一主强调色，只有三个岗位，除此之外禁止出现：
 
-Small exceptions are made for "Points of Interest" markers which may use 45-degree chamfered corners (clipped corners) to denote interactive status without softening the overall technical "edge" of the system. Buttons and input fields must be strictly rectangular.
+1. **实心金** = 执行 / 主行动按钮（金底 + 深字 `#2A2107`）
+2. **金描边** = 选中 / 当前节点
+3. **金文字** = 收益、成功结果
 
-## Components
-- **Technical Buttons:** Rectangular, 1px Steel Blue border, with label text in monospaced caps. No fill by default; on hover, they fill with a 10% Primary tint.
-- **HUD Chips:** Small, transparent labels with a vertical "leader line" connecting them to map features. Use Burnt Amber for critical POI chips to ensure they stand out against the blue environment.
-- **Focus Cards:** Appear on the right side of the screen when a building is selected. They feature a wireframe thumbnail and a vertical scroll of technical specs.
-- **Coordinate Inputs:** Input fields feature a subtle "crosshair" icon in the corner. Text entry is always monospaced.
-- **Crosshair Cursor:** The standard pointer is replaced with a technical crosshair that displays local X/Y coordinates in real-time.
-- **Scan Lines:** A subtle, low-opacity horizontal scan line animation should run over the active "Focus" panels to reinforce the digital sensor narrative.
+### 印章红 `#B3402A`
+
+只做两件事：高危标记、失败结果。不做按钮，不做装饰。
+
+### 便签色板（纸的颜色，不是 UI 的颜色）
+
+标签一律是"贴在物件上的彩色便签"：低饱和彩纸底 + 同族深色字 + ±1–2° 微旋转 + 1px 硬投影。同一语义永远同一张纸：
+
+| 语义 | 纸底 | 字色 |
+|---|---|---|
+| 工作 | `#D8E4C4` | `#3D5226` |
+| 中风险 | `#F1DFA4` | `#6D5310` |
+| 高风险 | `#EFC9B8` | `#7A3018` |
+| 交涉 | `#C9D8E8` | `#2C4666` |
+| 机遇 | `#E3D0E4` | `#5C3260` |
+
+### 概率/结果三色（沉着版，替换旧荧光红黄绿）
+
+失败 陶红 `#D16A4E` · 中间 赭黄 `#D4B158` · 成功 苔绿 `#93B06A`。
+
+## 节点规范（暗版，场景内）
+
+通用：Ink 填充，**1px 纸白描边 @ 70–75%**（与建筑线同宽，偏纸白暖调以区别于建筑的冷白）。大卡不加粗边框，而是在内侧 3px 加一根 20% 细线——始终是"线"的语言，不是"框"。直角，无圆角。投影：偏移 (4,4)–(5,6) 的纯黑 @ 45–50% 硬投影，无模糊。
+
+- **动作 / 判定卡**：布局分区固定——标题居中；左侧类别/风险便签；右侧骰位（白框标签 + 白底黑字数值格连体）；中部判定纵列（属性药丸 → 骰子格）；执行按钮（实心金）；底部概率条 + 三色百分比。判定完成态：概率条换结算行，结果以旋转的章形盖印呈现（成=金，败=印章红）。
+- **普通节点**：Ink 底 + 白字标题 + 60% 次级文字。
+- **地点节点**：白色线稿图形（与场景建筑同语言）+ 白字地名，中间一根白色分隔线。
+- **人物节点**（黑相册页）：Ink 底白框，内嵌照片块（PhotoBlack 或头像图），下方白字注记，可 ±2° 微旋转。头像美术方案待定（倾向：世界色系内多档灰度做层次，可点缀极小暖色记忆点），节点框架不依赖此决定。
+- **骰子/数值格在暗卡上反转为白底黑字**（亮版纸上则为黑底白字）——"暗卡上的白纸片"与"白纸上的黑墨块"互为负片，可共用绘制函数。
+
+## 纸物件规范（白版，弹出层）
+
+Paper 底、PaperInk 文字、硬投影偏移 (5,6) 黑 @ 50%。叙事性物件（海报、信、告示）允许 ±1–2.5° 旋转；功能性窗口保持水平。纸上按钮：主选项 = 黑底白字实心块；次选项 = 1px 黑描边透明底。图像区用 PhotoBlack 底 + 白色图形。图下配展签式小字（居中、拉开字距）。
+
+- **Spotlight / 海报**：大幅纸面 + 照片块 + 居中大标题（拉字距）+ 说明小字。
+- **旁白/氛围字幕**：画面底部居中一行小字（默片间幕牌式），Paper @ 65%，拉字距。
+
+## HUD 规范（黑底常驻层）
+
+- 面板：HudBg 填充，可选 1px Paper @ 40% 描边。不透明度阶梯：场景 < 遮罩(60%) < 面板(≥88%) < 弹窗(≥96%)。
+- 按钮：黑底白字，1px Paper @ 40% 描边；悬停描边提到全亮；文字拉字距。
+- 图标条：黑底胶囊 + 白色线性符号，选中项金色 + 对勾。
+- 手牌/行动卡：黑方块 + 白色大字或类别符号 + 下方白色小字标签。选中：金描边 + 上浮几像素 + 金字。
+- 血量/金钱等数值保持低调；收益变动用金文字，损失用印章红。
+
+## 交互状态
+
+| 状态 | 表现 |
+|---|---|
+| 默认 | 白线 @ 70% |
+| 悬停 | 白线 @ 100%（变亮，**不变色**） |
+| 选中 | 金描边（暗版节点换金框；手牌加金框上浮） |
+| 正在发生 / 待处理 | 金光呼吸：外扩 2–3 圈递减透明度的金描边，alpha 随 sin 缓动。只给"活着的东西"（当前结算节点、待处理事件、掷骰瞬间），静止的光是装饰，脉动的光才是信号 |
+| 禁用 | 文字/描边降到 35%，无填充变化；必须走显式交互状态（见 AGENTS.md） |
+
+## 排版
+
+- 标题一律拉字距（中文 2–6px letterspacing，字数越少拉越开，如"执 行"）。
+- 图形在上、小字在下的"展签"结构；不用"图标+文字并排"的软件式排法。
+- 动作名大字：两字用大号，四字自动降档。
+- 字号必须经 `SF(baseSize, UIScale.Scale)`；禁止 emoji。
+
+## IMGUI 绘制技法（低成本配方）
+
+全部基于 `DrawTexture` / `DrawOutline` / `DrawLine`：
+
+- **硬投影**：先在偏移处画纯黑矩形再画本体，一次 DrawTexture。
+- **双线**：外框 1px + 内缩 3px 的 20% 细线。
+- **便签**：`GUIUtility.RotateAroundPivot` 包住"1px 黑影 + 彩纸矩形 + 深色字"。
+- **金光呼吸**：向外扩 2px/4px 各画一圈金描边，alpha = 基值 × (0.6 + 0.4·sin(t))。
+- **盖印**：旋转 −10°~−15° 的圆框 + 大字，alpha 80%。
+- **分段条**：离散数值（行动点等）用等宽小段 + 2px 间隙，不用连续填充。
+
+## 资产清单（封闭集合，未到位前用占位）
+
+- 地点线稿符号 ~10 个（木刻/版画风白色线条）；占位：现有几何图标或白色方块。
+- 类别符号 5–8 个（来自规则层的动作类别，动作本身永远不配图）。
+- 纸纹理一张（米白 + 轻噪点，全局复用）；占位:纯色 `#EFEAE0`。
+- 人物头像若干（美术方案待定）；占位：PhotoBlack 底 + 白色人形。

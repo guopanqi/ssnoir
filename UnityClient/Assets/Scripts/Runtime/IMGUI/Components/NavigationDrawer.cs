@@ -20,7 +20,10 @@ namespace SSNoir.IMGUI
                 style.alignment = TextAnchor.MiddleCenter;
                 style.fontSize = 16;
 
-                if (IMGUIButton.Draw(returnRect, "< 返回", ui, IMGUIStyles.PrimaryColor, new Color(0.671f, 0.780f, 1.0f, 0.10f), style))
+                // HUD 按钮：黑底白字，1px Paper 40% 描边，悬停提亮
+                if (IMGUIButton.Draw(returnRect, "< 返 回", ui,
+                        new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
+                        new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), style))
                 {
                     gameManager.GoBackNavigation();
                 }
@@ -41,7 +44,7 @@ namespace SSNoir.IMGUI
             }
 
             var crumbStyle = new GUIStyle(IMGUIStyles.StatusLabel);
-            crumbStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
+            crumbStyle.normal.textColor = IMGUIStyles.TextSecondary;
             crumbStyle.fontSize = 16;
             GUI.Label(new Rect(startX, startY + 8, 800, 26), breadcrumbText, crumbStyle);
 
@@ -49,17 +52,19 @@ namespace SSNoir.IMGUI
             DrawRelationPanel(gameManager);
 
             // Divider
-            IMGUIStyles.DrawLine(new Vector2(40, 88), new Vector2(UIScale.VW - 40, 88), IMGUIStyles.OutlineVariantColor, 1f);
+            IMGUIStyles.DrawLine(new Vector2(40, 88), new Vector2(UIScale.VW - 40, 88),
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
         }
 
         // 关系档位配色（序号 0..4 对应 RelationScale.BandNames：敌视/冷淡/中立/脸熟/自己人）。
+        // 沉着版：敌视=印章红，冷淡=陶红，中立=纸白次级，脸熟=赭黄，自己人=苔绿。
         private static readonly Color[] RelationBandColors =
         {
-            new Color(0.75f, 0.27f, 0.27f, 1f), // 敌视
-            new Color(0.78f, 0.55f, 0.24f, 1f), // 冷淡
-            new Color(0.43f, 0.44f, 0.51f, 1f), // 中立
-            new Color(0.27f, 0.59f, 0.65f, 1f), // 脸熟
-            new Color(0.31f, 0.73f, 0.45f, 1f), // 自己人
+            IMGUIStyles.SealRed,                                                       // 敌视
+            IMGUIStyles.OddsFail,                                                      // 冷淡
+            new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.60f), // 中立
+            IMGUIStyles.OddsNeutral,                                                   // 脸熟
+            IMGUIStyles.OddsSuccess,                                                   // 自己人
         };
 
         // 每个势力一条进度条：底色按档位分段，当前值放一个高亮标记。
@@ -76,10 +81,10 @@ namespace SSNoir.IMGUI
 
             var oldColor = GUI.color;
             var panelRect = new Rect(panelX, panelY, panelW, panelH);
-            GUI.color = new Color(0.098f, 0.110f, 0.133f, 0.8f);
+            GUI.color = IMGUIStyles.HudBg;
             GUI.DrawTexture(panelRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(panelRect, 1.5f, IMGUIStyles.OutlineVariantColor);
+            IMGUIStyles.DrawOutline(panelRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
 
             float barX = panelX + pad + labelW + gap;
             float barW = panelW - pad * 2 - labelW - valueW - gap * 2;
@@ -91,7 +96,7 @@ namespace SSNoir.IMGUI
             edges[edges.Length - 1] = RelationScale.Max;
 
             var labelStyle = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = 13 };
-            labelStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
+            labelStyle.normal.textColor = IMGUIStyles.TextSecondary;
 
             for (int i = 0; i < factions.Length; i++)
             {
@@ -113,7 +118,8 @@ namespace SSNoir.IMGUI
                     GUI.DrawTexture(new Rect(x0, barY, Mathf.Max(1f, x1 - x0), barH), Texture2D.whiteTexture);
                 }
                 GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(new Rect(barX, barY, barW, barH), 1f, new Color(0.24f, 0.24f, 0.31f, 1f));
+                IMGUIStyles.DrawOutline(new Rect(barX, barY, barW, barH), 1f,
+                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f));
 
                 // 当前值高亮标记
                 float mx = barX + RelationScale.Fraction(value) * barW;

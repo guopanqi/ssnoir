@@ -678,7 +678,9 @@ namespace SSNoir.IMGUI
             Vector2 pElbow = new Vector2(targetX, anchorY);
             Vector2 pEnd = new Vector2(targetX, targetY);
 
-            Color lineColor = isFocused(node.Name) ? IMGUIStyles.PrimaryColor : new Color(0.671f, 0.780f, 1.0f, 0.35f);
+            Color lineColor = isFocused(node.Name)
+                ? IMGUIStyles.Gold
+                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
             float lineThickness = isFocused(node.Name) ? 2f : 1f;
 
             // Draw the leader line segments behind the card
@@ -784,9 +786,9 @@ namespace SSNoir.IMGUI
             float thumbY = track.y + (maxScroll <= 0f ? 0f : travel * (scrollOffset / maxScroll));
             var thumb = new Rect(track.x, thumbY, track.width, thumbH);
 
-            GUI.color = new Color(0.08f, 0.09f, 0.13f, 0.75f);
+            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.75f);
             GUI.DrawTexture(track, Texture2D.whiteTexture);
-            GUI.color = new Color(0.42f, 0.48f, 0.68f, 0.85f);
+            GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f);
             GUI.DrawTexture(thumb, Texture2D.whiteTexture);
             GUI.color = Color.white;
         }
@@ -841,8 +843,10 @@ namespace SSNoir.IMGUI
             var btnRect = new Rect(btnX, btnY, btnW, btnH);
 
             bool btnHover = ui.CanHover(btnRect);
-            Color hoverBg = _isGrowthPanelOpen ? new Color(130f/255f, 130f/255f, 220f/255f, 0.4f) : new Color(1, 1, 1, 0.1f);
-            Color outlineColor = _isGrowthPanelOpen ? new Color(130f/255f, 130f/255f, 220f/255f, 1f) : IMGUIStyles.OutlineVariantColor;
+            Color hoverBg = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
+            Color outlineColor = _isGrowthPanelOpen
+                ? IMGUIStyles.Gold
+                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
 
             if (IMGUIButton.Draw(btnRect, "成长/队伍", ui, outlineColor, hoverBg, IMGUIStyles.ExecuteLabel))
             {
@@ -887,10 +891,10 @@ namespace SSNoir.IMGUI
             float modalH = 210f;
             var modal = new Rect((UIScale.VW - modalW) / 2f, (UIScale.VH - modalH) / 2f, modalW, modalH);
 
+            IMGUIStyles.DrawShadow(modal, new Vector2(5f, 6f), 0.50f);
             GUI.color = IMGUIStyles.ModalBg;
             GUI.DrawTexture(modal, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(modal, 1.5f, IMGUIStyles.PrimaryColor);
 
             var presentation = _activeHeavyOutcome.OutcomePresentation;
             string title = presentation?.Title ?? _activeHeavyOutcomeActionName;
@@ -915,7 +919,7 @@ namespace SSNoir.IMGUI
             var mouse = Event.current.mousePosition;
             bool hovered = btnRect.Contains(mouse);
             bool clicked = hovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
-            if (IMGUIStyles.DrawTechnicalButton(btnRect, "确定", hovered, clicked, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+            if (IMGUIStyles.DrawTechnicalButton(btnRect, "确 定", hovered, clicked, IMGUIStyles.PaperInk, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f), IMGUIStyles.ExecuteLabel))
             {
                 _activeHeavyOutcome = null;
                 _activeHeavyOutcomeActionName = string.Empty;
@@ -945,10 +949,10 @@ namespace SSNoir.IMGUI
             float modalH = 220f;
             var modal = new Rect((UIScale.VW - modalW) / 2f, (UIScale.VH - modalH) / 2f, modalW, modalH);
 
+            IMGUIStyles.DrawShadow(modal, new Vector2(5f, 6f), 0.50f);
             GUI.color = IMGUIStyles.ModalBg;
             GUI.DrawTexture(modal, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(modal, 1.5f, IMGUIStyles.PrimaryColor);
 
             var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle)
             {
@@ -971,7 +975,7 @@ namespace SSNoir.IMGUI
             var mouse = Event.current.mousePosition;
             bool hovered = btnRect.Contains(mouse);
             bool clicked = hovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
-            if (IMGUIStyles.DrawTechnicalButton(btnRect, "确定", hovered, clicked, IMGUIStyles.PrimaryColor, IMGUIStyles.ExecuteBtnHover, IMGUIStyles.ExecuteLabel))
+            if (IMGUIStyles.DrawTechnicalButton(btnRect, "确 定", hovered, clicked, IMGUIStyles.PaperInk, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f), IMGUIStyles.ExecuteLabel))
             {
                 if (_activeActionSpotlight != null)
                     ConfirmActionSpotlight();
@@ -1056,7 +1060,7 @@ namespace SSNoir.IMGUI
                 fontSize = 22,
                 wordWrap = true
             };
-            style.normal.textColor = IMGUIStyles.OnSurface;
+            style.normal.textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.65f);
             GUI.Label(new Rect(160f, rect.y + 18f, UIScale.VW - 320f, bandH - 36f), text, style);
         }
 

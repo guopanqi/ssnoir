@@ -26,14 +26,16 @@ namespace SSNoir.IMGUI
             }
 
             // Divider
-            IMGUIStyles.DrawLine(new Vector2(40, y + height + 4), new Vector2(UIScale.VW - 40, y + height + 4), IMGUIStyles.OutlineVariantColor, 1f);
+            IMGUIStyles.DrawLine(new Vector2(40, y + height + 4), new Vector2(UIScale.VW - 40, y + height + 4),
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
         }
 
         private static float DrawClock(ref float x, float y, float height, GameClock clock)
         {
-            Color activeColor = IMGUIStyles.ClockActive;
-            Color inactiveColor = IMGUIStyles.ClockInactive;
-            Color outlineColor = IMGUIStyles.OutlineColor;
+            // 新令牌：进行中 = 金；空段 = 25% 纸白；描边 = 70% 纸白
+            Color activeColor = IMGUIStyles.Gold;
+            Color inactiveColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
+            Color outlineColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f);
 
             float valueRowHeight = 22f;
             float labelWidth = 60;
@@ -79,7 +81,7 @@ namespace SSNoir.IMGUI
 
                 var maxStyle = new GUIStyle(IMGUIStyles.ClockValue);
                 maxStyle.fontSize = 11;
-                maxStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
+                maxStyle.normal.textColor = IMGUIStyles.TextSecondary;
                 GUI.Label(new Rect(boxX + boxW + 2, y, 40, valueRowHeight), $"/{clock.Max}", maxStyle);
             }
             else // Segments
@@ -116,7 +118,7 @@ namespace SSNoir.IMGUI
             {
                 var noteStyle = new GUIStyle(IMGUIStyles.ClockLabel);
                 noteStyle.fontSize = 10;
-                noteStyle.normal.textColor = IMGUIStyles.OnSurfaceVariant;
+                noteStyle.normal.textColor = IMGUIStyles.TextSecondary;
                 Vector2 noteSize = noteStyle.CalcSize(new GUIContent(clock.Note));
                 float noteWidth = Mathf.Min(noteSize.x + 8f, 300f);
                 GUI.Label(new Rect(x, y + 22f, noteWidth, 16f), clock.Note, noteStyle);

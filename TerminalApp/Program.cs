@@ -32,21 +32,9 @@ namespace SSNoir
                     return;
                 }
 
-                if (args.Length > 0 && args[0] == "--test-capabilities")
-                {
-                    GameTester.TestCapabilities();
-                    return;
-                }
-
                 if (args.Length > 0 && args[0] == "--test-saveload")
                 {
                     GameTester.TestSaveLoad();
-                    return;
-                }
-
-                if (args.Length > 0 && args[0] == "--test-arc")
-                {
-                    GameTester.TestGrowthArc();
                     return;
                 }
 

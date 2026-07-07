@@ -183,6 +183,39 @@ namespace SSNoir.Scripting
                 return actor.Stats.TryGetValue(normalizedStat, out var val) ? val : 1;
             }, "__actor-stat"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__recruit-companion!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 3)
+                    throw new ArgumentException("__recruit-companion! requires id, name, and stats alist");
+                string actorId = SchemeValue.AsId(args[0]);
+                string name = args[1] as string
+                    ?? throw new ArgumentException("companion name must be a string");
+                if (!(args[2] is List<object> rawStats))
+                    throw new ArgumentException("companion stats must be an alist");
+
+                var stats = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (object rawEntry in rawStats)
+                {
+                    if (!(rawEntry is List<object> entry) || entry.Count != 2)
+                        throw new ArgumentException("each companion stat entry must contain id and value");
+                    string statId = SchemeValue.AsId(entry[0]);
+                    if (stats.ContainsKey(statId))
+                        throw new ArgumentException($"duplicate companion stat '{statId}'");
+                    stats.Add(statId, SchemeValue.ToInt(entry[1]));
+                }
+
+                gameState.Team.RecruitCompanion(actorId, name, stats);
+                return new None();
+            }, "__recruit-companion!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__has-companion?"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("__has-companion? requires actor id");
+                string actorId = SchemeValue.AsId(args[0]);
+                var actor = gameState.Team.FindActor(actorId);
+                return actor != null && actor.Role == "companion";
+            }, "__has-companion?"));
+
             interpreter.DefineGlobal(Symbol.FromString("__current-actor"), new NativeProcedure(args =>
             {
                 if (gameState.CurrentContext == null) throw new InvalidOperationException("__current-actor called without action context");

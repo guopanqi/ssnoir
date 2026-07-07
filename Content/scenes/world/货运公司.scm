@@ -8,7 +8,6 @@
     (define project-quality 0)  ; 0=差，1=普通，2=好
     (define investment-days 0)
     (define investment-principal 60)
-    (define insurance-active? #f)
 
     (define (node-contract-work)
       (工作 "联络货主" "富商" '中 'social
@@ -131,17 +130,21 @@
                   #f))
             #f)))
 
-    (define (node-buy-insurance)
-      (action "购买意外保险"
-        (list (req-item "金钱" 15))
-        (instant
-          (outcome "保单生效" "它不能替你打架，但失败后至少有人承担一部分账单。"
-            (lambda () (set! insurance-active? #t))))))
+    (define (node-sell-contraband)
+      (node "把私货卖给代理人"
+        :subtitle "代理人有办法把货送进正规渠道，价钱比码头散卖好得多"
+        :requires (list (req-item "私货" 1))
+        :resolve (instant
+          (outcome "货已收下" "代理人验过货，按约定付了钱。"
+            (lambda () (add-item! "金钱" 25))))))
 
-    (define (node-insurance-status)
-      (node "保单生效中"
-        :subtitle "覆盖下一次码头公共交锋，失败可以获得赔付，结算后失效"
-        :resolve (observe "代理人已经替你把保单办妥。下一次码头公共交锋失败会赔付 20 金钱；无论结果如何，交锋结算后保单都会失效。")))
+    (define (node-find-project-with-intel)
+      (node "凭消息找项目"
+        :subtitle "用现成消息省去考察，找到一个回报普通但看得清的项目"
+        :requires (list (req-item "情报" 1))
+        :resolve (instant
+          (outcome "项目找到了" "消息指出了一批正在找周转的货，风险和回报都算普通。"
+            (lambda () (set-assessed-project! 1))))))
 
     (define (node-sell-invoice)
       (action "把异常货单卖给货运代理"
@@ -177,7 +180,9 @@
             '())
         (if (= agent-stage 1) (list (node-review-agent-terms)) '())
         (if (and (>= agent-stage 2) (equal? project-state "无"))
-            (list (node-assess-project))
+            (append
+              (list (node-assess-project))
+              (if (> (item-count "情报") 0) (list (node-find-project-with-intel)) '()))
             '())
         (if (equal? project-state "已考察")
             (list (node-negotiate-project) (node-invest))
@@ -185,10 +190,9 @@
         (if (equal? project-state "已谈判")
             (list (node-invest))
             '())
-        (if (and (>= agent-stage 2) (not insurance-active?))
-            (list (node-buy-insurance))
+        (if (and (> (item-count "私货") 0) (relation-at-least? "富商" '脸熟))
+            (list (node-sell-contraband))
             '())
-        (if insurance-active? (list (node-insurance-status)) '())
         (if (abnormal-invoice-held?) (list (node-sell-invoice)) '())))
 
     (lambda args
@@ -198,31 +202,18 @@
            (list (node "货运公司"
                    :children (company-children)
                    :clocks (investment-clocks))))
-          ((equal? msg 'on-public-event)
-           (let ((result (cadr args)))
-             (if insurance-active?
-                 (begin
-                   (if (equal? result 'fail)
-                       (begin
-                         (add-item! "金钱" 20)
-                         (notify! "保险赔付了 20 金钱，抵掉了一部分失败损失。"))
-                       #f)
-                   (set! insurance-active? #f))
-                 #f)))
           ((equal? msg 'save)
            (list
              (list "agent-stage" agent-stage)
              (list "project-state" project-state)
              (list "project-quality" project-quality)
-             (list "investment-days" investment-days)
-             (list "insurance-active?" insurance-active?)))
+             (list "investment-days" investment-days)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! agent-stage (assoc-get data "agent-stage" 0))
              (set! project-state (assoc-get data "project-state" "无"))
              (set! project-quality (assoc-get data "project-quality" 0))
-             (set! investment-days (assoc-get data "investment-days" 0))
-             (set! insurance-active? (assoc-get data "insurance-active?" #f))))
+             (set! investment-days (assoc-get data "investment-days" 0))))
           ((equal? msg 'debug-finish-section)
            (begin
              (if (= agent-stage 0) (set! agent-stage 1) #f)

@@ -52,6 +52,39 @@ namespace SSNoir.Core
             return Actors.Find(a => a.Id.Equals(actorId, StringComparison.OrdinalIgnoreCase));
         }
 
+        public ActorState RecruitCompanion(string actorId, string name, IReadOnlyDictionary<string, int> stats)
+        {
+            if (string.IsNullOrWhiteSpace(actorId) || string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Companion id and name must be non-empty.");
+            if (FindActor(actorId) != null)
+                throw new InvalidOperationException($"Actor '{actorId}' is already in the team.");
+
+            string[] requiredStats = { "violence", "knowledge", "sharpness", "social" };
+            if (stats.Count != requiredStats.Length)
+                throw new ArgumentException("Companion stats must define exactly violence, knowledge, sharpness, and social.");
+
+            var actor = new ActorState
+            {
+                Id = actorId,
+                Name = name,
+                Role = "companion",
+                Status = "active",
+                Stress = 0,
+            };
+            foreach (string statId in requiredStats)
+            {
+                if (!stats.TryGetValue(statId, out int value))
+                    throw new ArgumentException($"Companion stats are missing '{statId}'.");
+                if (value < 1 || value > 6)
+                    throw new ArgumentOutOfRangeException(nameof(stats), $"Companion stat '{statId}' must be between 1 and 6.");
+                actor.Stats[statId] = value;
+            }
+
+            Actors.Add(actor);
+            OnTeamChanged?.Invoke();
+            return actor;
+        }
+
         public void UpgradeActorStat(string actorId, string statId)
         {
             var actor = FindActor(actorId);
@@ -195,12 +228,26 @@ namespace SSNoir.Core
             Health      = data.Health;
             Satiety     = data.Satiety;
             GrowthLevel = data.GrowthLevel;
+
+            var savedActorIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var actorData in data.Actors)
+                savedActorIds.Add(actorData.Id);
+            Actors.RemoveAll(actor => actor.Role == "companion" && !savedActorIds.Contains(actor.Id));
+
             foreach (var actorData in data.Actors)
             {
-                var actor = FindActor(actorData.Id)
-                    ?? throw new ArgumentException($"Save file references unknown actor '{actorData.Id}'.");
+                var actor = FindActor(actorData.Id);
+                if (actor == null)
+                {
+                    if (actorData.Role != "companion")
+                        throw new ArgumentException($"Save file references unknown non-companion actor '{actorData.Id}'.");
+                    actor = RecruitCompanion(actorData.Id, actorData.Name, actorData.Stats);
+                }
+                if (!actor.Role.Equals(actorData.Role, StringComparison.OrdinalIgnoreCase))
+                    throw new ArgumentException($"Actor '{actorData.Id}' role does not match the save file.");
                 if (actorData.Status != "active" && actorData.Status != "away")
                     throw new ArgumentException($"Actor '{actorData.Id}' has invalid status '{actorData.Status}' in save file.");
+                actor.Name              = actorData.Name;
                 actor.Status            = actorData.Status;
                 actor.Stress            = actorData.Stress;
                 actor.SpentGrowthPoints = actorData.SpentGrowthPoints;

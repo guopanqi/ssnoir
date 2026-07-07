@@ -374,6 +374,12 @@
 (define (actor-stat actor-id stat-name)
   (__actor-stat actor-id stat-name))
 
+(define (recruit-companion! actor-id name stats-alist)
+  (__recruit-companion! actor-id name stats-alist))
+
+(define (has-companion? actor-id)
+  (__has-companion? actor-id))
+
 (define (set-actor-stress! actor-id n)
   (__set-actor-stress! actor-id n))
 

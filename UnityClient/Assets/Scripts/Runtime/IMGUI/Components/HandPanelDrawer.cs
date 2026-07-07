@@ -19,8 +19,10 @@ namespace SSNoir.IMGUI
         private const float DotSize     = 7f;
         private const float DotGap      = 10f;
 
-        private static readonly Color DisabledResourceBg = new Color(0.043f, 0.055f, 0.078f, 0.55f);
-        private static readonly Color DisabledResourceText = new Color(0.549f, 0.565f, 0.620f, 0.38f);
+        // 手牌黑方块（不透明纯黑一档，让方块从底栏上浮出来）
+        private static readonly Color CardBlockBg = new Color(0.024f, 0.031f, 0.047f, 1f);
+        private static readonly Color DisabledResourceBg = new Color(0.024f, 0.031f, 0.047f, 0.55f);
+        private static readonly Color DisabledResourceText = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
 
         // ── Entry point ──────────────────────────────────────────────────
 
@@ -29,12 +31,14 @@ namespace SSNoir.IMGUI
             float handY   = UIScale.VH - PanelHeight - StatusBarHeight - BottomOffset;
             float statusY = UIScale.VH - StatusBarHeight - BottomOffset;
 
-            GUI.color = IMGUIStyles.PanelBg;
+            // 黑底 HUD：HudBg 填充 + 1px Paper 40% 顶线
+            GUI.color = IMGUIStyles.HudBg;
             GUI.DrawTexture(new Rect(0, handY, UIScale.VW, PanelHeight), Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(
-                new Rect(-1, handY, UIScale.VW + 2, PanelHeight + 2),
-                1f, IMGUIStyles.OutlineVariantColor);
+            IMGUIStyles.DrawLine(
+                new Vector2(0, handY),
+                new Vector2(UIScale.VW, handY),
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f), 1f);
 
             float itemsStartX = DrawActorBlocks(handY, gameManager, ui, anchors);
             DrawItems(handY, itemsStartX, gameManager, ui);
@@ -93,10 +97,11 @@ namespace SSNoir.IMGUI
             float blockH  = PanelHeight - 12f;
             var blockRect = new Rect(blockX, handY + 6, blockW, blockH);
 
-            GUI.color = new Color(themeColor.r * 0.16f, themeColor.g * 0.16f, themeColor.b * 0.16f, 0.6f);
+            // 黑底安静块：黑方块 + 主题色只留左侧色条与描边低调提示
+            GUI.color = CardBlockBg;
             GUI.DrawTexture(blockRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(blockRect, 1f, new Color(themeColor.r, themeColor.g, themeColor.b, 0.65f));
+            IMGUIStyles.DrawOutline(blockRect, 1f, new Color(themeColor.r, themeColor.g, themeColor.b, 0.45f));
 
             // Left accent stripe in the actor's theme color — the region's identity marker.
             GUI.color = themeColor;
@@ -124,18 +129,18 @@ namespace SSNoir.IMGUI
                 {
                     fontSize  = 13,
                     fontStyle = FontStyle.Normal,
-                    normal    = { textColor = IMGUIStyles.OnSurfaceVariant },
+                    normal    = { textColor = IMGUIStyles.TextSecondary },
                 };
                 GUI.Label(new Rect(cx, handY + 31, cw, 18), actor.Role, roleStyle);
             }
 
-            // ── Stress dots
+            // ── Stress dots（分段离散：压力=印章红，空段=35% 纸白）
             float dotsY = handY + 52;
             for (int i = 0; i < MaxStress; i++)
             {
                 GUI.color = i < actor.Stress
-                    ? new Color(1.0f, 0.50f, 0.38f, 1f)
-                    : IMGUIStyles.OutlineVariantColor;
+                    ? IMGUIStyles.SealRed
+                    : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
                 GUI.DrawTexture(new Rect(cx + i * DotGap, dotsY, DotSize, DotSize), Texture2D.whiteTexture);
                 GUI.color = Color.white;
             }
@@ -146,7 +151,7 @@ namespace SSNoir.IMGUI
                 {
                     font    = IMGUIStyles.ChineseFont,
                     fontSize = 12,
-                    normal  = { textColor = new Color(1.0f, 0.50f, 0.38f, 0.75f) },
+                    normal  = { textColor = new Color(IMGUIStyles.SealRed.r, IMGUIStyles.SealRed.g, IMGUIStyles.SealRed.b, 0.85f) },
                 };
                 GUI.Label(new Rect(cx + MaxStress * DotGap + 4, dotsY - 4, 56, 18),
                     $"压力{actor.Stress}", stressLabelStyle);
@@ -169,32 +174,45 @@ namespace SSNoir.IMGUI
 
                 if (isSlotted)
                 {
-                    GUI.color = IMGUIStyles.SlotEmpty;
+                    // 已放入卡槽的骰子：留位但整体降到禁用亮度
+                    GUI.color = DisabledResourceBg;
                     GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(dieRect, 1f, IMGUIStyles.OutlineVariantColor);
+                    IMGUIStyles.DrawOutline(dieRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
                     var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 22 };
-                    dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
+                    dimStyle.normal.textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
                     GUI.Label(dieRect, val.ToString(), dimStyle);
                 }
                 else
                 {
                     bool disabled = ui.IsLocked;
-                    Color bg = disabled
-                        ? DisabledResourceBg
-                        : isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.DieHover : IMGUIStyles.DieNormal);
-                    Color border = disabled
-                        ? IMGUIStyles.OutlineVariantColor
-                        : (isSelected || hover) ? IMGUIStyles.PrimaryColor : themeColor;
 
-                    GUI.color = bg;
-                    GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
+                    // 选中：金描边 + 上浮几像素 + 金字；悬停：白描边变亮；默认：白线 70%
+                    var drawRect = isSelected && !disabled
+                        ? new Rect(dieRect.x, dieRect.y - 4f, dieRect.width, dieRect.height)
+                        : dieRect;
+                    Color border = disabled
+                        ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f)
+                        : isSelected
+                            ? IMGUIStyles.Gold
+                            : hover
+                                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 1f)
+                                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f);
+
+                    if (!disabled)
+                    {
+                        IMGUIStyles.DrawShadow(drawRect, new Vector2(2f, 2f), 0.45f);
+                    }
+                    GUI.color = disabled ? DisabledResourceBg : CardBlockBg;
+                    GUI.DrawTexture(drawRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(dieRect, !disabled && (isSelected || hover) ? 2f : 1f, border);
+                    IMGUIStyles.DrawOutline(drawRect, !disabled && (isSelected || hover) ? 2f : 1f, border);
 
                     var dieStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 24 };
-                    dieStyle.normal.textColor = disabled ? DisabledResourceText : Color.white;
-                    GUI.Label(dieRect, val.ToString(), dieStyle);
+                    dieStyle.normal.textColor = disabled
+                        ? DisabledResourceText
+                        : isSelected ? IMGUIStyles.Gold : IMGUIStyles.Paper;
+                    GUI.Label(drawRect, val.ToString(), dieStyle);
 
                     if (ui.WasClicked(dieRect))
                     {
@@ -223,7 +241,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLine(
                 new Vector2(startX - 4f, handY + 10),
                 new Vector2(startX - 4f, handY + PanelHeight - 10),
-                IMGUIStyles.OutlineVariantColor, 1f);
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f), 1f);
 
             var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel);
             GUI.Label(new Rect(startX + 4, handY + 9, 64, 22), "物品", sectionStyle);
@@ -246,32 +264,44 @@ namespace SSNoir.IMGUI
 
                 if (remaining <= 0)
                 {
-                    GUI.color = IMGUIStyles.SlotEmpty;
+                    GUI.color = DisabledResourceBg;
                     GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(itemRect, 1f, IMGUIStyles.OutlineVariantColor);
+                    IMGUIStyles.DrawOutline(itemRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
                     var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 15 };
-                    dimStyle.normal.textColor = new Color(0.549f, 0.565f, 0.620f, 0.3f);
+                    dimStyle.normal.textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
                     GUI.Label(itemRect, FormatItem(item.Name, 0), dimStyle);
                 }
                 else
                 {
                     bool disabled = ui.IsLocked;
-                    Color bg = disabled
-                        ? DisabledResourceBg
-                        : isSelected ? IMGUIStyles.DieSelected : (hover ? IMGUIStyles.ItemHover : IMGUIStyles.ItemNormal);
-                    Color border = disabled
-                        ? IMGUIStyles.OutlineVariantColor
-                        : (isSelected || hover) ? IMGUIStyles.PrimaryColor : IMGUIStyles.SecondaryColor;
 
-                    GUI.color = bg;
-                    GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
+                    // 与骰子同规则：黑方块白字；悬停白描边变亮；选中金描边+上浮+金字
+                    var drawRect = isSelected && !disabled
+                        ? new Rect(itemRect.x, itemRect.y - 4f, itemRect.width, itemRect.height)
+                        : itemRect;
+                    Color border = disabled
+                        ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f)
+                        : isSelected
+                            ? IMGUIStyles.Gold
+                            : hover
+                                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 1f)
+                                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f);
+
+                    if (!disabled)
+                    {
+                        IMGUIStyles.DrawShadow(drawRect, new Vector2(2f, 2f), 0.45f);
+                    }
+                    GUI.color = disabled ? DisabledResourceBg : CardBlockBg;
+                    GUI.DrawTexture(drawRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(itemRect, !disabled && (isSelected || hover) ? 2f : 1f, border);
+                    IMGUIStyles.DrawOutline(drawRect, !disabled && (isSelected || hover) ? 2f : 1f, border);
 
                     var itemStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 15 };
-                    itemStyle.normal.textColor = disabled ? DisabledResourceText : Color.white;
-                    GUI.Label(itemRect, FormatItem(item.Name, remaining), itemStyle);
+                    itemStyle.normal.textColor = disabled
+                        ? DisabledResourceText
+                        : isSelected ? IMGUIStyles.Gold : IMGUIStyles.Paper;
+                    GUI.Label(drawRect, FormatItem(item.Name, remaining), itemStyle);
 
                     if (ui.WasClicked(itemRect))
                     {
@@ -294,12 +324,14 @@ namespace SSNoir.IMGUI
             var restRect = new Rect(restX, restY, 100f, 70f);
 
             bool isInEncounter = !gameManager.SceneManager.CurrentSceneName.Equals("world", System.StringComparison.OrdinalIgnoreCase);
-            string btnText = isInEncounter ? "休息" : "回家";
+            // 标题类文字拉字距（两字插空格）
+            string btnText = isInEncounter ? "休 息" : "回 家";
 
+            // HUD 按钮：黑底白字，1px Paper 40% 描边，悬停提到全亮
             var style = new GUIStyle(IMGUIStyles.ExecuteLabel) { fontSize = 18 };
             if (IMGUIButton.Draw(restRect, btnText, ui,
-                    IMGUIStyles.TertiaryColor,
-                    new Color(1.0f, 0.714f, 0.576f, 0.10f),
+                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
+                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f),
                     style))
             {
                 if (isInEncounter)
@@ -319,26 +351,28 @@ namespace SSNoir.IMGUI
         {
             var snapshot = gameManager.DisplayedSnapshot;
 
-            GUI.color = IMGUIStyles.BottomBarBg;
+            GUI.color = IMGUIStyles.HudBg;
             GUI.DrawTexture(new Rect(0, statusY, UIScale.VW, StatusBarHeight), Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(
-                new Rect(-1, statusY, UIScale.VW + 2, StatusBarHeight + 2),
-                1f, IMGUIStyles.OutlineVariantColor);
+            IMGUIStyles.DrawLine(
+                new Vector2(0, statusY),
+                new Vector2(UIScale.VW, statusY),
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
 
             var statusStyle = new GUIStyle(IMGUIStyles.StatusLabel) { fontSize = 16 };
             var helpStyle = new GUIStyle(IMGUIStyles.HelpTip) { fontSize = 14 };
 
             GUI.Label(new Rect(30, statusY + 3, 58, 22), "健康:", statusStyle);
 
+            // 数值保持低调：正常段用主文字白，中段赭黄，危险段印章红
             float healthPct = snapshot.MaxHealth > 0 ? (float)snapshot.Health / snapshot.MaxHealth : 0f;
             var healthStyle = new GUIStyle(statusStyle)
             {
                 normal = { textColor = healthPct >= 0.75f
-                    ? new Color(0.31f, 0.86f, 0.47f, 1f)
+                    ? IMGUIStyles.TextPrimary
                     : healthPct >= 0.4f
-                        ? new Color(0.96f, 0.69f, 0.22f, 1f)
-                        : new Color(0.96f, 0.31f, 0.31f, 1f) }
+                        ? IMGUIStyles.OddsNeutral
+                        : IMGUIStyles.SealRed }
             };
             GUI.Label(new Rect(84, statusY + 3, 80, 22), $"{snapshot.Health}/{snapshot.MaxHealth}", healthStyle);
 
@@ -348,16 +382,16 @@ namespace SSNoir.IMGUI
             var satietyStyle = new GUIStyle(statusStyle)
             {
                 normal = { textColor = satietyPct >= 0.65f
-                    ? new Color(0.31f, 0.86f, 0.47f, 1f)
+                    ? IMGUIStyles.TextPrimary
                     : satietyPct >= 0.3f
-                        ? new Color(0.96f, 0.69f, 0.22f, 1f)
-                        : new Color(0.96f, 0.31f, 0.31f, 1f) }
+                        ? IMGUIStyles.OddsNeutral
+                        : IMGUIStyles.SealRed }
             };
             GUI.Label(new Rect(212, statusY + 3, 80, 22), $"{snapshot.Satiety}/{snapshot.MaxSatiety}", satietyStyle);
 
             GUI.Label(new Rect(292, statusY + 3, 58, 22), "场景:", statusStyle);
             var locStyle = new GUIStyle(statusStyle)
-                { normal = { textColor = IMGUIStyles.MoneyColor } };
+                { normal = { textColor = IMGUIStyles.TextSecondary } };
             GUI.Label(new Rect(346, statusY + 3, 130, 22), snapshot.Location.ToUpper(), locStyle);
 
             GUI.Label(new Rect(486, statusY + 3, 620, 22),

@@ -51,9 +51,15 @@ namespace SSNoir.IMGUI
                 }
             }
 
-            // Draw box
-            Color boxBg = hoverBox ? IMGUIStyles.DropdownHover : IMGUIStyles.DropdownBg;
-            Color boxBorder = _isOpen ? IMGUIStyles.PrimaryColor : IMGUIStyles.OutlineColor;
+            // Draw box：黑底 HUD；展开=金描边（选中态），默认=Paper 40%，悬停提亮
+            Color boxBg = hoverBox
+                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f)
+                : IMGUIStyles.HudBg;
+            Color boxBorder = _isOpen
+                ? IMGUIStyles.Gold
+                : hoverBox
+                    ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 1f)
+                    : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
 
             GUI.color = boxBg;
             GUI.DrawTexture(boxRect, Texture2D.whiteTexture);
@@ -74,21 +80,23 @@ namespace SSNoir.IMGUI
 
                     if (item.IsHeader)
                     {
-                        GUI.color = IMGUIStyles.SlotEmpty;
+                        GUI.color = IMGUIStyles.HudBg;
                         GUI.DrawTexture(optRect, Texture2D.whiteTexture);
                         GUI.color = Color.white;
 
                         var headerStyle = new GUIStyle(IMGUIStyles.HelpTip);
                         headerStyle.alignment = TextAnchor.MiddleCenter;
-                        headerStyle.normal.textColor = new Color(0.4f, 0.4f, 0.5f, 1f);
+                        headerStyle.normal.textColor = IMGUIStyles.TextDisabled;
                         headerStyle.fontSize = 11;
                         GUI.Label(optRect, item.Name, headerStyle);
                     }
                     else
                     {
                         bool hoverOpt = ui.CanHover(optRect);
-                        Color optBg = hoverOpt ? IMGUIStyles.DropdownHover : IMGUIStyles.DropdownBg;
-                        Color optText = hoverOpt ? Color.white : IMGUIStyles.OnSurfaceVariant;
+                        Color optBg = hoverOpt
+                            ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f)
+                            : IMGUIStyles.HudBg;
+                        Color optText = hoverOpt ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary;
 
                         GUI.color = optBg;
                         GUI.DrawTexture(optRect, Texture2D.whiteTexture);
@@ -96,7 +104,8 @@ namespace SSNoir.IMGUI
 
                         if (item.SceneName == currentScene)
                         {
-                            GUI.color = IMGUIStyles.PrimaryColor;
+                            // 当前所在场景 = 金（选中语义）
+                            GUI.color = IMGUIStyles.Gold;
                             GUI.DrawTexture(new Rect(optRect.x, optRect.y, 4, optRect.height), Texture2D.whiteTexture);
                             GUI.color = Color.white;
                         }
@@ -115,7 +124,8 @@ namespace SSNoir.IMGUI
 
                     if (i < _dropdownItems.Count - 1)
                     {
-                        IMGUIStyles.DrawLine(new Vector2(optRect.x, optRect.y + optRect.height), new Vector2(optRect.x + optRect.width, optRect.y + optRect.height), IMGUIStyles.OutlineVariantColor, 1f);
+                        IMGUIStyles.DrawLine(new Vector2(optRect.x, optRect.y + optRect.height), new Vector2(optRect.x + optRect.width, optRect.y + optRect.height),
+                            new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f), 1f);
                     }
                 }
 

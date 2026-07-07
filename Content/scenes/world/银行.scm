@@ -1,28 +1,15 @@
 ;; scenes/world/银行.scm - 银行（官僚）
-;; 安稳生活的隐喻：整存整取，每天 5% 累计生息。低回报、稳，
-;; 对冲走私 / 投资那种要押本钱、有风险的高回报路子。
+;; 只负责安全存放现金，不产生利息。为未来的现金风险预留位置。
 
 (define bank
   (let ()
     (define balance 0)
-    (define interest-rate-pct 5)   ; 每天 5%
-
-    ;; 每天结息：余额 >0 时按比例累计生息（睡觉推进）。
-    (define-turn-rule "银行结息"
-      (lambda () (> balance 0))
-      (lambda ()
-        (let ((gain (quotient (* balance interest-rate-pct) 100)))
-          (if (> gain 0)
-              (begin
-                (set! balance (+ balance gain))
-                (notify! (string-append "银行结息 +" (number->string gain)
-                                        "，储蓄账户余额 " (number->string balance) "。")))
-              #f))))
 
     (define (node-deposit)
-      (action "存款"
-        (list (req-item "金钱" 100))
-        (instant (lambda ()
+      (node "存款"
+        :subtitle "把现金收进账户，安全存放，但不会生出利息"
+        :requires (list (req-item "金钱" 100))
+        :resolve (instant (lambda ()
                    (set! balance (+ balance 100))
                    (notify! (string-append "存入 100，储蓄账户余额 " (number->string balance) "。"))))))
 

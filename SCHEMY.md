@@ -63,6 +63,10 @@
 `(complete-section!)` 表示一个不可重复的主线/人物小节已经结束，只负责增加一点成长并提示；
 能否完成、是否已经完成由拥有该状态的单向状态机断言，不在 helper 内做去重兼容。
 
+**同伴** `(recruit-companion! actor-id name stats-alist)` / `(has-companion? actor-id)`；招募要求四项
+能力都明确给出，例如 `((violence 2) (knowledge 3) (sharpness 1) (social 2))`。重复 ID、缺失或
+未知能力、超出 1–6 的数值都会直接报错。同伴在城市每天一颗骰，交锋中不掷骰；状态和能力随存档保存。
+
 **休息阻塞** `(rest-block! id reason)` / `(rest-release! id)` / `(rest-blocked?)` /
 `(rest-block-reasons)`。用于已经到期、当天必须处理的关键事件；支持多个不同 `id` 同时存在。
 内容应在事件变为待处理状态时注册，在完成回调中释放。读取存档时先

@@ -11,6 +11,8 @@
     (define has-flower? #f)
     (define has-gramophone? #f)
     (define playing-song "")
+    (define drank-today? #f)
+    (define medicated-today? #f)
 
     ;; 房租（仅旅馆）：rent-due = 距交租还剩几天。归零没交 → 被赶出（软罚）。
     (define rent-due 3)
@@ -44,6 +46,12 @@
                 (notify! "房租快到期了，记得交租。")
                 #f))))
 
+    (define-turn-rule "每日恢复次数重置"
+      (lambda () (or drank-today? medicated-today?))
+      (lambda ()
+        (set! drank-today? #f)
+        (set! medicated-today? #f)))
+
     (define (rent-render-data)
       (list 'clock "房租到期" rent-due rent-due-max 'countdown
             "归零后旅馆房门会被锁上；交租可延长三天。"))
@@ -59,19 +67,29 @@
     ;; 看花 / 听唱片这类白天解压占一颗骰子（与工作争夺骰子池）；睡觉免费（回合结束）。
     ;; 喝酒不占骰子，走“花钱买酒”这条线：垫点饱腹，松松神经。
     (define (node-drink)
-      (action "喝酒"
-        (list (req-item "酒" 1))
-        (instant
+      (node "喝酒"
+        :subtitle (if drank-today?
+                      "今天已经喝过了，再喝只会头疼"
+                      "一杯能让神经松下来，也稍微垫垫肚子")
+        :disabled drank-today?
+        :requires (list (req-item "酒" 1))
+        :resolve (instant
           (outcome "借酒松神" "一杯下肚，紧绷的神经松了些，肚子也垫了垫。"
             (lambda ()
+              (set! drank-today? #t)
               (add-satiety! 1)
               (heal-stress! 'player 2))))))
 
     ;; 用药：在住所中上药休养，不占用行动骰。
     (define (node-use-medicine)
-      (action "用药"
-        (list (req-item "药品" 1))
-        (instant (lambda ()
+      (node "用药"
+        :subtitle (if medicated-today?
+                      "一天上一次药就够了，伤口需要时间"
+                      "处理伤口不占行动，但一天只能用一份")
+        :disabled medicated-today?
+        :requires (list (req-item "药品" 1))
+        :resolve (instant (lambda ()
+                   (set! medicated-today? #t)
                    (heal-party! 3)
                    (notify! "上了药、包扎好，伤口松快了些。")))))
 
@@ -121,6 +139,7 @@
                 "这是属于你的住所，你终于能安稳睡下。")
             (lambda ()
               (heal-stress! 'player (if (in-hotel?) 1 2))
+              (if (has-companion? 'laozhou) (heal-stress! 'laozhou 1) #f)
               (end-turn!))))))
 
     (define (node-sleep-at-door)
@@ -247,6 +266,8 @@
              (list "has-flower?"    has-flower?)
              (list "has-gramophone?" has-gramophone?)
              (list "playing-song"   playing-song)
+             (list "drank-today?" drank-today?)
+             (list "medicated-today?" medicated-today?)
              (list "rent-due"       rent-due)
              (list "rent-due-max"   rent-due-max)
              (list "evicted?"       evicted?)))
@@ -257,6 +278,8 @@
              (set! has-flower?    (assoc-get data "has-flower?" #f))
              (set! has-gramophone? (assoc-get data "has-gramophone?" #f))
              (set! playing-song   (assoc-get data "playing-song" ""))
+             (set! drank-today?  (assoc-get data "drank-today?" #f))
+             (set! medicated-today? (assoc-get data "medicated-today?" #f))
              (set! rent-due       (assoc-get data "rent-due" 3))
              (set! rent-due-max   (assoc-get data "rent-due-max" 3))
              (set! evicted?       (assoc-get data "evicted?" #f))

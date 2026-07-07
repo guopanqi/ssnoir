@@ -4,7 +4,7 @@
 (define dock
   (let ()
     (define laozhou-favor 0)
-    (define laozhou-stage 0) ; 0=相识，1=信任，2=支线小节完成
+    (define laozhou-stage 0) ; 0=相识，1=信任，2=支线完成，3=已成为同伴
     (define smuggle-cooldown 0)
     (define cushy-available? #f)
 
@@ -48,16 +48,24 @@
 
     (define (node-smuggle)
       (工作 "走私" "劳工" '越界 'sharpness
-        (outcome "顺利出港" "货悄无声息地出了港，钱和消息都到了手。"
+        (outcome "顺利出港" "货悄无声息地出了港。真正赚多少，要看你能找到什么销路。"
           (lambda ()
-            (add-item! "金钱" 40)
+            (add-item! "私货" 2)
             (add-item! "情报" 1)))
-        (outcome "有惊无险" "货送到了，但一路都不太平。"
-          (lambda () (add-item! "金钱" 25)))
+        (outcome "有惊无险" "只保住了一件货，至少还能找地方脱手。"
+          (lambda () (add-item! "私货" 1)))
         (outcome "被巡警撞见" "巡警扣下了货。你虽然脱了身，名字却被记进了值班记录。"
           (lambda ()
             (change-faction-relation! "官僚" -2)
             (stress-current-actor! 2)))))
+
+    (define (node-sell-contraband-locally)
+      (node "把私货散卖给水手"
+        :subtitle "熟识的水手愿意零散收货，只是价钱压得很低"
+        :requires (list (req-item "私货" 1))
+        :resolve (instant
+          (outcome "私货脱手" "水手把货塞进外套，留下了一小叠钱。"
+            (lambda () (add-item! "金钱" 12))))))
 
     ;; ── 老周人物支线 ──────────────────────────────
     (define (node-help-laozhou-ledger)
@@ -90,7 +98,36 @@
           (outcome "事情办妥" "你把话带到，也替老周保住了一个人的脸面。"
             (lambda () (finish-laozhou-section!)))
           (outcome "两边都满意" "事情办得干净，老周不再只把你当临时帮工。"
-            (lambda () (finish-laozhou-section!))))))
+              (lambda () (finish-laozhou-section!))))))
+
+    (define (can-recruit-laozhou?)
+      (and (= laozhou-stage 2)
+           (or (= laozhou-favor favor-max)
+               (equal? (abnormal-invoice-state) "交给老周"))))
+
+    (define (recruit-laozhou!)
+      (if (not (can-recruit-laozhou?))
+          (error "请老周搭把手：招募条件未满足")
+          #t)
+      (if (has-companion? 'laozhou)
+          (error "请老周搭把手：老周已经在队伍中")
+          #t)
+      (recruit-companion! 'laozhou "老周"
+        (list
+          (list 'violence 2)
+          (list 'knowledge 3)
+          (list 'sharpness 1)
+          (list 'social 2)))
+      (set! laozhou-stage 3)
+      (set! cushy-available? #f)
+      (notify! "老周答应跟你一起跑动。从明天起，他每天会多带来一颗行动骰。"))
+
+    (define (node-recruit-laozhou)
+      (action "请老周搭把手"
+        (list (req-die))
+        (instant
+          (outcome "老周入队" "老周收起账本，决定以后不只在码头等你的消息。"
+            (lambda () (recruit-laozhou!))))))
 
     ;; 支线完成后偶尔出现的低风险美差。它是关系回报，不再推进支线。
     (define (node-cushy)
@@ -124,9 +161,16 @@
       (cond
         ((= laozhou-stage 0) "老周守着账房。想让他信你，得少上一班工，替他查查旧账。")
         ((= laozhou-stage 1) "老周有件不方便自己出面的事，正在等你的答复。")
-        ((equal? (abnormal-invoice-state) "交给老周")
-         "老周已经看过异常货单，工人们开始暗中留意那批货。")
-        (else "老周给你留了位置。码头真出事时，他会替你出面。")))
+        ((= laozhou-stage 2)
+         (if (can-recruit-laozhou?)
+             "老周已经准备好搭把手，只等你正式开口。"
+             "老周愿意在码头替你出面。想让他跟着你跑，还得把信任磨满，或者把异常货单交给他。"))
+        ((equal? (actor-status 'laozhou) 'away)
+         (string-append "老周压力已经到了 " (number->string (actor-stress 'laozhou))
+                        "，暂时离队休息。压力归零后才会回来。"))
+        (else
+         (string-append "老周正在队伍里，当前压力 "
+                        (number->string (actor-stress 'laozhou)) "。"))))
 
     (define (node-laozhou)
       (node "老周"
@@ -158,7 +202,7 @@
       (lambda () (set! smuggle-cooldown (- smuggle-cooldown 1))))
 
     (define-turn-rule "老周美差"
-      (lambda () (>= laozhou-stage 2))
+      (lambda () (= laozhou-stage 2))
       (lambda () (set! cushy-available? (random-choice cushy-roll-table))))
 
     ;; ── 组装 ──────────────────────────────────────
@@ -172,15 +216,19 @@
       (append
         (list (node-haul))
         (if (relation-at-least? "劳工" '脸熟)
-            (list (node-foreman-ledger) (node-help-laozhou-ledger))
+            (append
+              (list (node-foreman-ledger))
+              (if (< laozhou-stage 3) (list (node-help-laozhou-ledger)) '()))
             '())
         (list (node-laozhou))
         (if (= laozhou-stage 1) (list (node-laozhou-errand)) '())
+        (if (can-recruit-laozhou?) (list (node-recruit-laozhou)) '())
         (if cushy-available? (list (node-cushy)) '())
         (if (and (relation-at-least? "劳工" '自己人)
                  (<= smuggle-cooldown 0))
             (list (node-smuggle))
             '())
+        (if (> (item-count "私货") 0) (list (node-sell-contraband-locally)) '())
         (if (abnormal-invoice-held?) (list (node-give-invoice)) '())))
 
     (sync-laozhou!)
@@ -203,6 +251,12 @@
              (set! laozhou-stage (assoc-get data "laozhou-stage" 0))
              (set! smuggle-cooldown (assoc-get data "smuggle-cooldown" 0))
              (set! cushy-available? (assoc-get data "cushy-available?" #f))
+             (if (and (= laozhou-stage 3) (not (has-companion? 'laozhou)))
+                 (error "码头存档错误：老周已入队但队伍中没有老周")
+                 #t)
+             (if (and (< laozhou-stage 3) (has-companion? 'laozhou))
+                 (error "码头存档错误：队伍中有老周但支线尚未招募")
+                 #t)
              (sync-laozhou!)))
           ((equal? msg 'debug-favor) (bump-favor! 2))
           ((equal? msg 'debug-cushy) (set! cushy-available? #t))

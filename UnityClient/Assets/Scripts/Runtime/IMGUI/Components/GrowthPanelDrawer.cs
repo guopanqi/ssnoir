@@ -43,41 +43,34 @@ namespace SSNoir.IMGUI
             float panelX = panelRect.x;
             float panelY = panelRect.y;
 
-            // 1. Dark tech blueprint background (85% opacity SurfaceColor)
-            GUI.color = new Color(IMGUIStyles.SurfaceColor.r, IMGUIStyles.SurfaceColor.g, IMGUIStyles.SurfaceColor.b, 0.85f);
+            // 纸物件（功能性窗口，保持水平）：Paper 底 @96% + 硬投影 (5,6) 黑 @50%
+            IMGUIStyles.DrawShadow(panelRect, new Vector2(5f, 6f), 0.50f);
+            GUI.color = IMGUIStyles.ModalBg;
             GUI.DrawTexture(panelRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            
-            // Strictly rectangular 1px borders (no roundedness)
-            IMGUIStyles.DrawOutline(panelRect, 1f, IMGUIStyles.PrimaryColor);
 
-            // 2. L-shaped technical corners at the corners of the window
-            DrawTechCorners(panelRect, IMGUIStyles.PrimaryColor, 15f, 1f);
+            // Main Title（纸上墨字，拉字距）
+            GUI.Label(new Rect(panelX + 24f, panelY + 20f, 220f, 28f), "成 长 / 队 伍", IMGUIStyles.ModalTitle);
 
-            // 3. Grid Background lines (very subtle technical layout backdrop)
-            DrawBackgroundGrid(panelRect);
-
-            // 4. Tech Scan Line animation running over the panel
-            IMGUIStyles.DrawScanLine(panelRect, new Color(IMGUIStyles.PrimaryColor.r, IMGUIStyles.PrimaryColor.g, IMGUIStyles.PrimaryColor.b, 0.05f), speed: 90f, thickness: 1f);
-
-            // Main Title
-            GUI.Label(new Rect(panelX + 24f, panelY + 20f, 200f, 28f), "成长 / 队伍", IMGUIStyles.ModalTitle);
-
-            // Close [X] - Technical button style: rectangular, 1px border, 10% Primary/Error tint on hover
+            // Close [X]：纸上次级按钮 = 1px 黑描边透明底
             float closeX = panelX + panelW - 44f;
             float closeY = panelY + 16f;
             var closeRect = new Rect(closeX, closeY, 28f, 28f);
             bool closeHover = ui.CanHover(closeRect);
 
-            Color closeBg = closeHover ? new Color(1, 1, 1, 0.1f) : Color.clear;
-            GUI.color = closeBg;
-            GUI.DrawTexture(closeRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(closeRect, 1f, closeHover ? Color.white : IMGUIStyles.OutlineVariantColor);
-            
+            if (closeHover)
+            {
+                GUI.color = new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f);
+                GUI.DrawTexture(closeRect, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+            }
+            IMGUIStyles.DrawOutline(closeRect, 1f, closeHover
+                ? IMGUIStyles.PaperInk
+                : new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.55f));
+
             var closeStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             closeStyle.alignment = TextAnchor.MiddleCenter;
-            closeStyle.normal.textColor = closeHover ? Color.white : IMGUIStyles.OutlineVariantColor;
+            closeStyle.normal.textColor = closeHover ? IMGUIStyles.PaperInk : IMGUIStyles.PaperTextSecondary;
             GUI.Label(closeRect, "X", closeStyle);
 
             if (ui.WasClicked(closeRect))
@@ -86,12 +79,14 @@ namespace SSNoir.IMGUI
                 Event.current.Use();
             }
 
-            // Divider - Technical double hairline
-            IMGUIStyles.DrawLine(new Vector2(panelX + 24f, panelY + 58f), new Vector2(panelX + panelW - 24f, panelY + 58f), IMGUIStyles.OutlineVariantColor, 1f);
-            IMGUIStyles.DrawLine(new Vector2(panelX + 24f, panelY + 60f), new Vector2(panelX + panelW - 24f, panelY + 60f), new Color(IMGUIStyles.OutlineVariantColor.r, IMGUIStyles.OutlineVariantColor.g, IMGUIStyles.OutlineVariantColor.b, 0.4f), 1f);
+            // Divider（纸上单发丝线）
+            IMGUIStyles.DrawLine(new Vector2(panelX + 24f, panelY + 58f), new Vector2(panelX + panelW - 24f, panelY + 58f),
+                new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.35f), 1f);
 
-            // Team Growth Level
-            GUI.Label(new Rect(panelX + 24f, panelY + 72f, 300f, 22f), $"队伍成长等级：{snapshot.GrowthLevel}", IMGUIStyles.SectionLabel);
+            // Team Growth Level（纸上次级字）
+            var levelStyle = new GUIStyle(IMGUIStyles.SectionLabel);
+            levelStyle.normal.textColor = IMGUIStyles.PaperTextSecondary;
+            GUI.Label(new Rect(panelX + 24f, panelY + 72f, 300f, 22f), $"队伍成长等级：{snapshot.GrowthLevel}", levelStyle);
 
             var actors = snapshot.Actors;
             float contentStartY = panelY + 110f;
@@ -105,27 +100,28 @@ namespace SSNoir.IMGUI
                 // Vertical separator
                 if (i > 0)
                 {
-                    IMGUIStyles.DrawLine(new Vector2(colX, contentStartY), new Vector2(colX, panelY + panelH - 24f), IMGUIStyles.OutlineVariantColor, 1f);
+                    IMGUIStyles.DrawLine(new Vector2(colX, contentStartY), new Vector2(colX, panelY + panelH - 24f),
+                        new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.25f), 1f);
                 }
 
-                // Actor name
-                Color nameColor = actor.Status == "away" ? new Color(0.5f, 0.5f, 0.5f, 1f) : Color.white;
+                // Actor name（纸上墨字；暂离降为弱化字）
+                Color nameColor = actor.Status == "away" ? IMGUIStyles.PaperTextDisabled : IMGUIStyles.PaperInk;
                 var nameStyle = new GUIStyle(IMGUIStyles.CardTitle);
                 nameStyle.normal.textColor = nameColor;
                 GUI.Label(new Rect(colX + 16f, contentStartY + 4f, colWidth - 32f, 24f), actor.Name, nameStyle);
 
-                // Status label if away
+                // Status label if away（印章红只做高危/失败标记）
                 if (actor.Status == "away")
                 {
                     var awayStyle = new GUIStyle(IMGUIStyles.SectionLabel);
-                    awayStyle.normal.textColor = IMGUIStyles.ErrorColor;
+                    awayStyle.normal.textColor = IMGUIStyles.SealRed;
                     GUI.Label(new Rect(colX + 16f, contentStartY + 28f, colWidth - 32f, 18f), "[暂离]", awayStyle);
                 }
 
-                // Available points
+                // Available points（有可用点 = 收益语义 → 金文字；金在纸上用深金字保证对比）
                 int availPoints = snapshot.GrowthLevel - actor.SpentGrowthPoints;
                 if (availPoints < 0) availPoints = 0;
-                Color pointsColor = availPoints > 0 ? new Color(0.39f, 0.90f, 0.47f, 1f) : IMGUIStyles.OnSurfaceVariant;
+                Color pointsColor = availPoints > 0 ? new Color(0.62f, 0.47f, 0.10f, 1f) : IMGUIStyles.PaperTextSecondary;
                 var pointsStyle = new GUIStyle(IMGUIStyles.SectionLabel);
                 pointsStyle.normal.textColor = pointsColor;
                 GUI.Label(new Rect(colX + 16f, contentStartY + 50f, colWidth - 32f, 18f), $"可用：{availPoints}", pointsStyle);
@@ -145,7 +141,7 @@ namespace SSNoir.IMGUI
                     string statLabel = StatLabels.TryGetValue(statKey, out var lbl) ? lbl : statKey;
                     GUI.Label(new Rect(colX + 16f, rowY + 4f, colWidth - 70f, 20f), $"{statLabel} {statVal}", IMGUIStyles.ModalBody);
 
-                    // Upgrade [+] button - Technical Button style: rectangular, 1px border, 10% Primary tint on hover
+                    // Upgrade [+] button：纸上主选项 = 黑底白字实心块；禁用 = 35% 黑描边
                     float btnSize = 22f;
                     float btnX = colX + colWidth - btnSize - 20f;
                     var btnRect = new Rect(btnX, rowY + 2f, btnSize, btnSize);
@@ -153,22 +149,24 @@ namespace SSNoir.IMGUI
                     bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < 6;
                     bool btnHover = isEnabled && ui.CanHover(btnRect);
 
-                    Color btnBg = isEnabled ? (btnHover ? new Color(IMGUIStyles.PrimaryColor.r, IMGUIStyles.PrimaryColor.g, IMGUIStyles.PrimaryColor.b, 0.10f) : Color.clear) : Color.clear;
-                    Color btnBorder = isEnabled ? (btnHover ? Color.white : IMGUIStyles.PrimaryColor) : IMGUIStyles.OutlineVariantColor;
-
-                    if (btnHover)
-                    {
-                        GUI.color = btnBg;
-                        GUI.DrawTexture(btnRect, Texture2D.whiteTexture);
-                        GUI.color = Color.white;
-                    }
-                    IMGUIStyles.DrawOutline(btnRect, 1f, btnBorder);
-
                     var btnStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                     {
                         alignment = TextAnchor.MiddleCenter
                     };
-                    btnStyle.normal.textColor = isEnabled ? Color.white : new Color(0.5f, 0.5f, 0.5f, 0.5f);
+                    if (isEnabled)
+                    {
+                        GUI.color = btnHover
+                            ? new Color(IMGUIStyles.PaperInk.r * 1.8f, IMGUIStyles.PaperInk.g * 1.8f, IMGUIStyles.PaperInk.b * 1.8f, 1f)
+                            : IMGUIStyles.PaperInk;
+                        GUI.DrawTexture(btnRect, Texture2D.whiteTexture);
+                        GUI.color = Color.white;
+                        btnStyle.normal.textColor = IMGUIStyles.Paper;
+                    }
+                    else
+                    {
+                        IMGUIStyles.DrawOutline(btnRect, 1f, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.35f));
+                        btnStyle.normal.textColor = IMGUIStyles.PaperTextDisabled;
+                    }
                     GUI.Label(btnRect, "+", btnStyle);
 
                     if (isEnabled && ui.WasClicked(btnRect))
@@ -182,41 +180,5 @@ namespace SSNoir.IMGUI
             return interaction;
         }
 
-        private static void DrawTechCorners(Rect rect, Color color, float length, float thickness)
-        {
-            // Top-left
-            IMGUIStyles.DrawLine(new Vector2(rect.x, rect.y), new Vector2(rect.x + length, rect.y), color, thickness);
-            IMGUIStyles.DrawLine(new Vector2(rect.x, rect.y), new Vector2(rect.x, rect.y + length), color, thickness);
-            // Top-right
-            IMGUIStyles.DrawLine(new Vector2(rect.xMax, rect.y), new Vector2(rect.xMax - length, rect.y), color, thickness);
-            IMGUIStyles.DrawLine(new Vector2(rect.xMax, rect.y), new Vector2(rect.xMax, rect.y + length), color, thickness);
-            // Bottom-left
-            IMGUIStyles.DrawLine(new Vector2(rect.x, rect.yMax), new Vector2(rect.x + length, rect.yMax), color, thickness);
-            IMGUIStyles.DrawLine(new Vector2(rect.x, rect.yMax), new Vector2(rect.x, rect.yMax - length), color, thickness);
-            // Bottom-right
-            IMGUIStyles.DrawLine(new Vector2(rect.xMax, rect.yMax), new Vector2(rect.xMax - length, rect.yMax), color, thickness);
-            IMGUIStyles.DrawLine(new Vector2(rect.xMax, rect.yMax), new Vector2(rect.xMax, rect.yMax - length), color, thickness);
-        }
-
-        private static void DrawBackgroundGrid(Rect rect)
-        {
-            Color gridColor = new Color(IMGUIStyles.PrimaryColor.r, IMGUIStyles.PrimaryColor.g, IMGUIStyles.PrimaryColor.b, 0.02f);
-            
-            // 4 vertical grid lines
-            float vSpacing = rect.width / 5f;
-            for (int i = 1; i <= 4; i++)
-            {
-                float x = rect.x + i * vSpacing;
-                IMGUIStyles.DrawLine(new Vector2(x, rect.y + 2f), new Vector2(x, rect.yMax - 2f), gridColor, 1f);
-            }
-
-            // 3 horizontal grid lines
-            float hSpacing = rect.height / 4f;
-            for (int i = 1; i <= 3; i++)
-            {
-                float y = rect.y + i * hSpacing;
-                IMGUIStyles.DrawLine(new Vector2(rect.x + 2f, y), new Vector2(rect.xMax - 2f, y), gridColor, 1f);
-            }
-        }
     }
 }

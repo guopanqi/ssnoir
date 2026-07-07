@@ -48,8 +48,12 @@ namespace SSNoir.IMGUI
             float btnH = toggleRect.height;
 
             // Toggle button
-            Color toggleBg = _isOpen ? new Color(0.18f, 0.18f, 0.35f, 1f) : IMGUIStyles.DropdownBg;
-            Color toggleBorder = _isOpen ? IMGUIStyles.PrimaryColor : IMGUIStyles.OutlineColor;
+            Color toggleBg = _isOpen
+                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f)
+                : IMGUIStyles.HudBg;
+            Color toggleBorder = _isOpen
+                ? IMGUIStyles.Gold
+                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
             GUI.color = toggleBg;
             GUI.DrawTexture(toggleRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
@@ -60,7 +64,7 @@ namespace SSNoir.IMGUI
                 font = IMGUIStyles.ChineseFont,
                 fontSize = 13,
                 alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = _isOpen ? IMGUIStyles.PrimaryColor : IMGUIStyles.OnSurface }
+                normal = { textColor = _isOpen ? IMGUIStyles.Gold : IMGUIStyles.TextPrimary }
             };
             GUI.Label(toggleRect, "Debug ▾", labelStyle);
 
@@ -82,15 +86,15 @@ namespace SSNoir.IMGUI
             float panelX = panelRect.x;
             float panelY = panelRect.y;
 
-            GUI.color = new Color(0.078f, 0.086f, 0.11f, 1f);
+            GUI.color = new Color(IMGUIStyles.HudBg.r, IMGUIStyles.HudBg.g, IMGUIStyles.HudBg.b, IMGUIStyles.ModalOpacity);
             GUI.DrawTexture(panelRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(panelRect, 1.5f, IMGUIStyles.OutlineColor);
+            IMGUIStyles.DrawOutline(panelRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
 
             // Slots Section
             float curY = panelY + 8f;
             var mutedStyle = new GUIStyle(labelStyle) { fontSize = 11,
-                normal = { textColor = new Color(0.35f, 0.35f, 0.45f, 1f) } };
+                normal = { textColor = IMGUIStyles.TextDisabled } };
             GUI.Label(new Rect(panelX + 8, curY + 2f, panelW, 18f), "存档管理", mutedStyle);
             curY += 20f;
 
@@ -104,22 +108,24 @@ namespace SSNoir.IMGUI
 
                 string timeStr = hasSave ? saveTime : "（空）";
                 var timeStyle = new GUIStyle(labelStyle) {
-                    normal = { textColor = hasSave ? Color.white : new Color(0.35f, 0.35f, 0.45f, 1f) }
+                    normal = { textColor = hasSave ? IMGUIStyles.TextPrimary : IMGUIStyles.TextDisabled }
                 };
                 GUI.Label(new Rect(panelX + 52f, curY + 4f, 130f, 20f), timeStr, timeStyle);
 
                 var rectSave = new Rect(panelX + panelW - 8f - 64f, curY + 2f, 30f, 22f);
                 var rectLoad = new Rect(panelX + panelW - 8f - 30f, curY + 2f, 30f, 22f);
 
-                if (IMGUIButton.Draw(rectSave, "存", ui, IMGUIStyles.OutlineColor,
-                        new Color(0.2f, 0.2f, 0.35f, 1f), labelStyle))
+                if (IMGUIButton.Draw(rectSave, "存", ui,
+                        new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
+                        new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), labelStyle))
                 {
                     gameManager.SaveGame(slotPath);
                     Event.current.Use();
                 }
 
-                if (IMGUIButton.Draw(rectLoad, "读", ui, IMGUIStyles.OutlineColor,
-                        new Color(0.2f, 0.2f, 0.35f, 1f), labelStyle, hasSave))
+                if (IMGUIButton.Draw(rectLoad, "读", ui,
+                        new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
+                        new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), labelStyle, hasSave))
                 {
                     gameManager.LoadGame(slotPath);
                     _isOpen = false;
@@ -133,7 +139,7 @@ namespace SSNoir.IMGUI
             // Separator + label
             float sepY = curY + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
-                IMGUIStyles.OutlineVariantColor, 1f);
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
             GUI.Label(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "切换场景", mutedStyle);
 
             // Scene list
@@ -157,21 +163,21 @@ namespace SSNoir.IMGUI
 
                 if (isHovered)
                 {
-                    GUI.color = new Color(0.16f, 0.16f, 0.24f, 1f);
+                    GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
                     GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
                     GUI.color = Color.white;
                 }
 
                 if (isCurrent)
                 {
-                    GUI.color = IMGUIStyles.PrimaryColor;
+                    GUI.color = IMGUIStyles.Gold;
                     GUI.DrawTexture(new Rect(panelX + 4, itemRect.y + 2, 3, itemRect.height - 4), Texture2D.whiteTexture);
                     GUI.color = Color.white;
                 }
 
                 var itemStyle = new GUIStyle(labelStyle)
                 {
-                    normal = { textColor = isCurrent ? IMGUIStyles.PrimaryColor : (isHovered ? Color.white : IMGUIStyles.OnSurfaceVariant) }
+                    normal = { textColor = isCurrent ? IMGUIStyles.Gold : (isHovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary) }
                 };
                 GUI.Label(new Rect(itemRect.x + 10, itemRect.y + 4, itemRect.width, itemRect.height), item.Name, itemStyle);
 

@@ -46,14 +46,18 @@
       (notify! "证人的话还没有整理成正式口供，探长请你再帮一次。"))
 
     (define (node-accompany-detective)
+      (define (dock-witness-mods)
+        (if (relation-at-least? "劳工" '脸熟)
+            (list (modifier 1 "码头工人认得你"))
+            '()))
       (action "陪探长走访"
         (list (req-die))
-        (roll 'social
-          (outcome "碰了一鼻子灰" "问了一圈，没人愿意当着警察的面说实话。"
+        (roll 'social dock-witness-mods
+          (outcome "碰了一鼻子灰" "证人在码头讨生活，见了警察更不肯开口。"
             (lambda () (stress-current-actor! 1)))
-          (outcome "找到证人" "你替探长缓和了气氛，终于有人愿意开口。"
+          (outcome "找到证人" "你替探长缓和了气氛，码头上的证人终于愿意开口。"
             (lambda () (finish-detective-visit!)))
-          (outcome "问到关键处" "你找准了说话方式，探长顺势拿到了口供。"
+          (outcome "问到关键处" "你找准了码头人的说话方式，探长顺势拿到了口供。"
             (lambda () (finish-detective-visit!))))))
 
     (define (node-file-statement)

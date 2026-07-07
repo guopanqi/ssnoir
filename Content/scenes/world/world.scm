@@ -9,6 +9,7 @@
 (load-file "world/公园.scm")
 (load-file "world/警局.scm")
 (load-file "world/货运公司.scm")
+(load-file "world/board.scm")
 (load-file "world/test.scm")
 
 ;; ── 世界级状态 ───────────────────────────────────
@@ -94,7 +95,6 @@
   (let ((guaranteed? (and (equal? result 'fail) (get-global '探长愿意担保))))
     (if guaranteed? (set-global! '探长愿意担保 #f) #f)
     (dock 'on-public-event result guaranteed?))
-  (freight-company 'on-public-event result)
   (complete-section!)
   (set! public-event-count (+ public-event-count 1))
   (set! public-event-delay-used? #f)
@@ -143,12 +143,13 @@
   (list
     (list home            (lambda () #t))
     (list dock            (lambda () #t))
-    (list diner           (lambda () #t))
-    (list clinic          (lambda () #t))
-    (list bank            (lambda () #t))
-    (list park            (lambda () #t))
-    (list police-station  (lambda () #t))
-    (list freight-company (lambda () #t))
+    ; (list diner           (lambda () #t))
+    ; (list clinic          (lambda () #t))
+    ; (list bank            (lambda () #t))
+    ; (list park            (lambda () #t))
+    ; (list police-station  (lambda () #t))
+    ; (list freight-company (lambda () #t))
+    ; (list board           (lambda () #t))
     (list test            (lambda () (equal? (get-global 'chapter) "test")))))
 
 (define (filter-locations entries)
@@ -187,6 +188,7 @@
     (list "park" (park 'save))
     (list "police-station" (police-station 'save))
     (list "freight-company" (freight-company 'save))
+    (list "board" (board 'save))
     (list "test" (test 'save))))
 
 (define (world-load! data)
@@ -205,5 +207,6 @@
   (park 'load! (assoc-get data "park" '()))
   (police-station 'load! (assoc-get data "police-station" '()))
   (freight-company 'load! (assoc-get data "freight-company" '()))
+  (board 'load! (assoc-get data "board" '()))
   (test 'load! (assoc-get data "test" '()))
   (sync-public-event-blocker!))

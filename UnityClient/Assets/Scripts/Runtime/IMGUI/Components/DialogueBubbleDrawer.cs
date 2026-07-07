@@ -27,13 +27,14 @@ namespace SSNoir.IMGUI
                 throw new System.InvalidOperationException(
                     $"对话说话人无法解析到屏幕锚点: '{speaker}'(必须是在场队员或当前可见的场景节点)");
 
+            // 对话气泡是"递到面前的一张纸"：Paper 底 + PaperInk 字 + 硬投影
             var bodyStyle = new GUIStyle(IMGUIStyles.ModalBody)
             {
                 wordWrap = true,
                 fontSize = 16,
                 alignment = TextAnchor.UpperLeft,
             };
-            bodyStyle.normal.textColor = IMGUIStyles.OnSurface;
+            bodyStyle.normal.textColor = IMGUIStyles.PaperInk;
 
             float textW = BubbleWidth - 24f;
             float textH = bodyStyle.CalcHeight(new GUIContent(text), textW);
@@ -45,10 +46,10 @@ namespace SSNoir.IMGUI
                 y = anchor.yMax + 10f;   // 上方没空间就画到锚点下方
             var rect = new Rect(x, y, BubbleWidth, h);
 
-            GUI.color = IMGUIStyles.PanelBg;
+            IMGUIStyles.DrawShadow(rect, new Vector2(5f, 6f), 0.50f);
+            GUI.color = IMGUIStyles.Paper;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(rect, 1.5f, IMGUIStyles.PrimaryColor);
 
             var nameStyle = new GUIStyle(GUI.skin.label)
             {
@@ -57,7 +58,7 @@ namespace SSNoir.IMGUI
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleLeft,
             };
-            nameStyle.normal.textColor = IMGUIStyles.PrimaryColor;
+            nameStyle.normal.textColor = IMGUIStyles.PaperTextSecondary;
             GUI.Label(new Rect(rect.x + 12f, rect.y + 6f, textW, 20f), speaker, nameStyle);
             GUI.Label(new Rect(rect.x + 12f, rect.y + 26f, textW, textH), text, bodyStyle);
         }
