@@ -19,6 +19,13 @@ namespace SSNoir
         public int DieIndex { get; set; } = -1;
     }
 
+    internal enum ResourceDragOriginKind
+    {
+        None,
+        Hand,
+        Slot
+    }
+
     public class SSNoirGameManager : MonoBehaviour
     {
         private const string WorldRootNodeName = "世界";
@@ -44,15 +51,12 @@ namespace SSNoir
         private List<GameNode> _visibleNodes = new List<GameNode>();
         private SelectedResource? _selectedResource;
 
-        // Die drag-drop state. A die is "picked up" on mouse-down; on release we
-        // either place it (a slot consumed the drop) or, if the pointer moved and
-        // released over empty space, return it to hand. A release without movement
-        // is treated as a click (toggle selection) so click-to-select still works.
-        private bool _dieDragActive;
-        private Vector2 _dieDragStartMouse;
-        private bool _dieDragWasSelected;
-        private bool _dieDropHandled;
-        private const float DieDragThresholdSq = 6f * 6f;
+        private bool _resourceDragActive;
+        private bool _resourceDropHandled;
+        private ResourceDragOriginKind _resourceDragOrigin = ResourceDragOriginKind.None;
+        private string _resourceOriginNodeName = string.Empty;
+        private int _resourceOriginSlotIndex = -1;
+        private SlottedResource? _resourceOriginSlotResource;
 
         private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
         private readonly HashSet<string> _flippedNodes = new HashSet<string>();
@@ -389,21 +393,7 @@ namespace SSNoir
 
         public void OnSlotClicked(GameNode node, int slotIndex)
         {
-            var slots = GetSlotsForNode(node.Name);
-            if (slots == null || slotIndex < 0 || slotIndex >= slots.Count) return;
-
-            var existing = slots[slotIndex];
-            if (_selectedResource == null && existing != null)
-            {
-                _renderer?.ClearCardResidues();
-                _selectedResource = CreateSelectedResourceFromSlot(existing);
-                slots[slotIndex] = null;
-            }
-            else if (_selectedResource != null)
-            {
-                // Places into an empty slot, or replaces a filled one.
-                TryPlaceSelectedResource(node, slotIndex);
-            }
+            BeginSlotResourceDrag(node, slotIndex);
         }
 
         private SelectedResource CreateSelectedResourceFromSlot(SlottedResource resource)
@@ -610,17 +600,19 @@ namespace SSNoir
                 }
             }
 
-            if (_selectedResource != null && _selectedResource.Type == "item" && _selectedResource.ItemName == itemName)
-            {
-                if (itemName != "金钱")
-                    total -= 1;
-            }
-
             return Mathf.Max(0, total);
         }
 
         public void ClearSelectedResource()
         {
+            if (_resourceDragActive)
+            {
+                RestoreResourceDragOrigin();
+                _resourceDragActive = false;
+                ClearResourceDragState();
+                return;
+            }
+
             _selectedResource = null;
         }
 
@@ -868,49 +860,132 @@ namespace SSNoir
             }
         }
 
-        public bool IsDraggingDie => _dieDragActive;
+        public bool IsDraggingResource => _resourceDragActive;
 
-        // Mouse-down on a die: pick it up (select so it follows the cursor) and
-        // begin tracking the gesture so release can decide place / return / toggle.
         public void BeginDieDrag(int dieIndex, int val, Vector2 mouse)
         {
-            _dieDragActive = true;
-            _dieDragStartMouse = mouse;
-            _dieDropHandled = false;
-            _dieDragWasSelected = _selectedResource != null
-                && _selectedResource.Type == "die"
-                && _selectedResource.SourceIndex == dieIndex;
-
             ResolveDieOwner(dieIndex, out string actorId, out int innerDieIndex);
-            _selectedResource = new SelectedResource
+            BeginResourceDrag(new SelectedResource
             {
                 Type = "die",
                 Value = val,
                 SourceIndex = dieIndex,
                 ActorId = actorId,
                 DieIndex = innerDieIndex
-            };
+            }, ResourceDragOriginKind.Hand);
         }
 
-        // Called when a slot consumed the drop, so release does not also return the die.
-        public void MarkDieDropHandled() => _dieDropHandled = true;
-
-        // Mouse-up while a die drag is active. Resolve the gesture:
-        //  • a slot already placed it → nothing to do;
-        //  • moved then released over empty space → return to hand;
-        //  • no movement (a click) → toggle selection.
-        public void EndDieDrag(Vector2 mouse)
+        public void BeginItemDrag(string itemName, int qty, Vector2 mouse)
         {
-            if (!_dieDragActive) return;
-            _dieDragActive = false;
+            BeginResourceDrag(new SelectedResource
+            {
+                Type = "item",
+                ItemName = itemName,
+                Value = qty
+            }, ResourceDragOriginKind.Hand);
+        }
 
-            if (_dieDropHandled) return;
+        public void BeginSlotResourceDrag(GameNode node, int slotIndex)
+        {
+            var slots = GetSlotsForNode(node.Name);
+            if (slots == null || slotIndex < 0 || slotIndex >= slots.Count) return;
 
-            bool moved = (mouse - _dieDragStartMouse).sqrMagnitude > DieDragThresholdSq;
-            if (moved)
-                _selectedResource = null;               // dragged out → drop back to hand
-            else if (_dieDragWasSelected)
-                _selectedResource = null;               // click on already-held die → deselect
+            var existing = slots[slotIndex];
+            if (existing == null) return;
+
+            _renderer?.ClearCardResidues();
+            slots[slotIndex] = null;
+            _resourceOriginNodeName = node.Name;
+            _resourceOriginSlotIndex = slotIndex;
+            _resourceOriginSlotResource = CloneSlottedResource(existing);
+            BeginResourceDrag(CreateSelectedResourceFromSlot(existing), ResourceDragOriginKind.Slot);
+        }
+
+        public void MarkResourceDropHandled() => _resourceDropHandled = true;
+
+        public void EndResourceDrag(Vector2 mouse)
+        {
+            if (!_resourceDragActive) return;
+            _resourceDragActive = false;
+
+            if (!_resourceDropHandled)
+                RestoreResourceDragOrigin();
+
+            ClearResourceDragState();
+        }
+
+        private void BeginResourceDrag(SelectedResource resource, ResourceDragOriginKind origin)
+        {
+            _selectedResource = resource;
+            _resourceDragActive = true;
+            _resourceDropHandled = false;
+            _resourceDragOrigin = origin;
+            if (origin != ResourceDragOriginKind.Slot)
+            {
+                _resourceOriginNodeName = string.Empty;
+                _resourceOriginSlotIndex = -1;
+                _resourceOriginSlotResource = null;
+            }
+        }
+
+        private void RestoreResourceDragOrigin()
+        {
+            if (_resourceDragOrigin == ResourceDragOriginKind.Slot)
+            {
+                RestoreDraggedSlotResource();
+            }
+
+            _selectedResource = null;
+        }
+
+        private void RestoreDraggedSlotResource()
+        {
+            if (string.IsNullOrEmpty(_resourceOriginNodeName)
+                || _resourceOriginSlotIndex < 0
+                || _resourceOriginSlotResource == null)
+            {
+                Debug.LogError("[SSNoir] Resource drag lost its slot origin.");
+                return;
+            }
+
+            var slots = GetSlotsForNode(_resourceOriginNodeName);
+            if (slots == null || _resourceOriginSlotIndex >= slots.Count)
+            {
+                Debug.LogError($"[SSNoir] Resource drag origin slot is invalid: {_resourceOriginNodeName}[{_resourceOriginSlotIndex}].");
+                return;
+            }
+
+            if (slots[_resourceOriginSlotIndex] != null)
+            {
+                Debug.LogError($"[SSNoir] Resource drag origin slot was unexpectedly occupied: {_resourceOriginNodeName}[{_resourceOriginSlotIndex}].");
+                return;
+            }
+
+            slots[_resourceOriginSlotIndex] = CloneSlottedResource(_resourceOriginSlotResource);
+        }
+
+        private void ClearResourceDragState()
+        {
+            _selectedResource = null;
+            _resourceDropHandled = false;
+            _resourceDragOrigin = ResourceDragOriginKind.None;
+            _resourceOriginNodeName = string.Empty;
+            _resourceOriginSlotIndex = -1;
+            _resourceOriginSlotResource = null;
+        }
+
+        private static SlottedResource CloneSlottedResource(SlottedResource resource)
+        {
+            return new SlottedResource
+            {
+                Type = resource.Type,
+                ItemId = resource.ItemId,
+                Value = resource.Value,
+                SourceIndex = resource.SourceIndex,
+                ActorId = resource.ActorId,
+                DieIndex = resource.DieIndex,
+                Qty = resource.Qty
+            };
         }
 
         // Maps a flat action-die index (as enumerated by the hand panel:
@@ -934,21 +1009,6 @@ namespace SSNoir
             }
             actorId = string.Empty;
             innerIndex = -1;
-        }
-
-        public void OnItemClicked(string itemName, int qty)
-        {
-            if (_selectedResource != null && _selectedResource.Type == "item" && _selectedResource.ItemName == itemName)
-                _selectedResource = null;
-            else
-            {
-                _selectedResource = new SelectedResource
-                {
-                    Type = "item",
-                    ItemName = itemName,
-                    Value = qty
-                };
-            }
         }
 
         public void OnEndTurnClicked()

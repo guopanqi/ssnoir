@@ -59,30 +59,66 @@ namespace SSNoir.IMGUI
         {
             var selected = gameManager.SelectedResource;
             var mousePos = Event.current.mousePosition;
-            if (selected == null)
+            if (selected == null || !gameManager.IsDraggingResource)
             {
                 Cursor.visible = true;
                 return;
             }
 
             Cursor.visible = true;
-            float overlayW = selected.Type == "die" ? 50f : 100f;
-            float overlayH = 28f;
-            var rect = new Rect(mousePos.x + 15, mousePos.y + 15, overlayW, overlayH);
+            const float tokenSize = 56f;
+            var rect = new Rect(mousePos.x - tokenSize * 0.5f, mousePos.y - tokenSize * 0.5f, tokenSize, tokenSize);
 
-            // 拖拽跟随物：暗场景里的白纸片（白底黑字反转）+ 硬投影 + 金描边（选中态）
+            // 拖拽 ghost 使用与手牌/slot 同一族方块，不退回成文字标签。
             IMGUIStyles.DrawShadow(rect, new Vector2(2f, 2f), 0.45f);
-            GUI.color = IMGUIStyles.Paper;
+            GUI.color = new Color(0.024f, 0.031f, 0.047f, 0.92f);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.Gold);
+            IMGUIStyles.DrawOutline(rect, 2f, IMGUIStyles.Gold);
 
-            string text = selected.Type == "die" ? $"D{selected.Value}" : selected.ItemName;
-            var style = new GUIStyle(IMGUIStyles.CursorFollower);
-            style.alignment = TextAnchor.MiddleCenter;
-            style.normal.textColor = IMGUIStyles.PaperInk;
-            GUI.Label(rect, text, style);
+            if (selected.Type == "die")
+            {
+                var style = new GUIStyle(IMGUIStyles.SlotLabel)
+                {
+                    fontSize = 24,
+                    fontStyle = FontStyle.Bold,
+                    alignment = TextAnchor.MiddleCenter,
+                    normal = { textColor = IMGUIStyles.Gold }
+                };
+                GUI.Label(rect, selected.Value.ToString(), style);
+            }
+            else
+            {
+                string small = selected.Value > 1 ? $"{selected.ItemName} x{selected.Value}" : selected.ItemName;
+                var bigStyle = new GUIStyle(IMGUIStyles.SlotLabel)
+                {
+                    fontSize = 24,
+                    fontStyle = FontStyle.Bold,
+                    alignment = TextAnchor.UpperCenter,
+                    normal = { textColor = IMGUIStyles.Gold }
+                };
+                GUI.Label(new Rect(rect.x, rect.y + 6f, rect.width, 30f), ItemSymbol(selected.ItemName), bigStyle);
+
+                var smallStyle = new GUIStyle(IMGUIStyles.SlotLabel)
+                {
+                    fontSize = 9,
+                    alignment = TextAnchor.MiddleCenter,
+                    normal = { textColor = IMGUIStyles.Gold }
+                };
+                GUI.Label(new Rect(rect.x, rect.y + 34f, rect.width, 16f), small, smallStyle);
+            }
         }
 
+        private static string ItemSymbol(string name)
+        {
+            return name switch
+            {
+                "金钱" => "$",
+                "酒" => "酒",
+                "药品" => "药",
+                "食物" => "食",
+                _ => name.Length > 0 ? name.Substring(0, 1) : "?"
+            };
+        }
     }
 }

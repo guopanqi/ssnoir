@@ -1,58 +1,65 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using SSNoir.Core;
 
 namespace SSNoir.IMGUI
 {
+    // 手牌 HUD。新组织（2026-07 迭代）：不再是底部一整条 HUD 栏，而是拆成两个
+    // 独立、无外框的角落簇——左下「人物 / 行动池」，右下「物品 / 功能」。
+    //
+    // 统一语言：悬浮靠阴影，操作靠描边。要点/要拖的器物（骰子、物品、按钮）才描一圈
+    // 安静的边并加硬投影托起；名字、压力、生命体征、标题等直接落在场景上（Paper 亮字，
+    // 对深蓝图纸对比足够）。没有底栏、没有把两簇统一在一起的外框。
+    //
+    // 每个行动者是一个「靠间距聚拢的簇」，自底向上：行动骰 → 名字 → 压力。
+    // 所有行动者共享同一条压力/名字/骰池基线；只有主角（最左第一个）从压力线往上
+    // 多长出队伍生命体征（健康 / 饱腹，均为快照级属性）。
     public static class HandPanelDrawer
     {
-        private const float PanelHeight     = 150f;
-        private const float StatusBarHeight = 25f;
-        private const float BottomOffset    = 0f;
-
         private const int   MaxStress   = 6;
-        private const float DieSize     = 54f;
-        private const float DieSpacing  = 62f;
-        private const float BlockPadX   = 10f;
-        private const float BlockGap    = 8f;
-        private const float DotSize     = 7f;
-        private const float DotGap      = 10f;
+        private const float DotSize     = 8f;
+        private const float DotGap      = 12f;
 
-        // 手牌黑方块（不透明纯黑一档，让方块从底栏上浮出来）
+        // 手牌方块：骰子与物品共用同一族方块（同尺寸、同底纹、同交互状态），只是内容不同。
+        private const float TokenSize   = 56f;
+        private const float TokenSpacing = 64f;    // TokenSize + 间隙
+
+        private const float BottomMargin = 22f;   // 底边到屏幕底的留白
+        private const float LeftStartX   = 40f;
+        private const float ClusterGap   = 28f;    // 两个行动者簇之间的间距
+
+        private const float NameRowH   = 20f;
+        private const float StressRowH = 20f;
+        private const float VitalRowH  = 18f;
+
+        // 手牌黑方块：不透明纯黑一档 + 描边 + 硬投影，让它从深蓝图纸上浮起来。
         private static readonly Color CardBlockBg = new Color(0.024f, 0.031f, 0.047f, 1f);
         private static readonly Color DisabledResourceBg = new Color(0.024f, 0.031f, 0.047f, 0.55f);
         private static readonly Color DisabledResourceText = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
+        private static readonly Color Paper70 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f);
+        private static readonly Color Paper35 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
+        private static readonly Color Paper25 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
+        private static readonly Color Paper14 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.14f);
 
-        // ── Entry point ──────────────────────────────────────────────────
+        // ── 入口 ───────────────────────────────────────────────────────
 
         public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors = null)
         {
-            float handY   = UIScale.VH - PanelHeight - StatusBarHeight - BottomOffset;
-            float statusY = UIScale.VH - StatusBarHeight - BottomOffset;
-
-            // 黑底 HUD：HudBg 填充 + 1px Paper 40% 顶线
-            GUI.color = IMGUIStyles.HudBg;
-            GUI.DrawTexture(new Rect(0, handY, UIScale.VW, PanelHeight), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            IMGUIStyles.DrawLine(
-                new Vector2(0, handY),
-                new Vector2(UIScale.VW, handY),
-                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f), 1f);
-
-            float itemsStartX = DrawActorBlocks(handY, gameManager, ui, anchors);
-            DrawItems(handY, itemsStartX, gameManager, ui);
-            DrawEndTurnButton(handY, gameManager, ui);
-            DrawStatusBar(statusY, gameManager);
+            float baseline = UIScale.VH - BottomMargin;   // 行动骰底边
+            DrawCharacters(baseline, gameManager, ui, anchors);
+            DrawItemsAndFunctions(baseline, gameManager, ui);
         }
 
-        // ── Actor blocks ─────────────────────────────────────────────────
+        // ── 左下：人物簇 ───────────────────────────────────────────────
 
-        private static float DrawActorBlocks(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors)
+        private static void DrawCharacters(float baseline, SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors)
         {
-            var snapshot      = gameManager.DisplayedSnapshot;
-            float blockX      = 8f;
+            var snapshot = gameManager.DisplayedSnapshot;
+            float x = LeftStartX;
             int flatDieOffset = 0;
+            bool leadDrawn = false;
 
             for (int i = 0; i < snapshot.Actors.Count; i++)
             {
@@ -63,200 +70,261 @@ namespace SSNoir.IMGUI
                     continue;
                 }
 
-                // Theme color by party join order — the SAME source the card right-rail uses,
-                // so a die's color matches its owner's ability chip on the cards.
-                var (tr, tg, tb) = ActorTheme.ColorFor(i);
-                Color themeColor = new Color(tr / 255f, tg / 255f, tb / 255f, 1f);
+                bool isLead = !leadDrawn;   // 最左第一个在场角色 = 主角，头顶挂队伍生命体征
+                leadDrawn = true;
 
-                float blockW = BlockWidth(actor.ActionDice.Count);
-                var blockRect = new Rect(blockX, handY + 6, blockW, PanelHeight - 12f);
-                anchors?.RegisterActor(actor.Id, actor.Name, blockRect);
-                DrawActorBlock(actor, flatDieOffset, blockX, handY, blockW, gameManager, ui, themeColor);
-                blockX += blockW + BlockGap;
+                float clusterW = DrawCluster(x, baseline, actor, flatDieOffset, isLead, snapshot, gameManager, ui, anchors);
+                x += clusterW + ClusterGap;
                 flatDieOffset += actor.ActionDice.Count;
             }
-
-            return blockX + 4f;
         }
 
-        private static float BlockWidth(int diceCount)
+        // 一个行动者簇：自底向上 行动骰 → 名字 → 压力（→ 主角再往上 饱腹/健康）。返回簇宽度。
+        private static float DrawCluster(
+            float x, float baseline, ActorSnapshot actor, int flatDieOffset, bool isLead,
+            PresentationSnapshot snapshot, SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors)
         {
-            float diceW = diceCount > 0 ? (diceCount - 1) * DieSpacing + DieSize : 0f;
-            return Mathf.Max(110f, BlockPadX * 2 + diceW);
-        }
+            int diceCount = actor.ActionDice.Count;
+            float diceW = diceCount > 0 ? (diceCount - 1) * TokenSpacing + TokenSize : 0f;
+            float clusterW = Mathf.Max(isLead ? 176f : 120f, diceW);
 
-        private static void DrawActorBlock(
-            ActorSnapshot actor,
-            int flatDieOffset,
-            float blockX, float handY,
-            float blockW,
-            SSNoirGameManager gameManager,
-            IMGUIInteractionContext ui,
-            Color themeColor)
-        {
-            float blockH  = PanelHeight - 12f;
-            var blockRect = new Rect(blockX, handY + 6, blockW, blockH);
+            float diceY   = baseline - TokenSize;
+            float nameY   = diceY - NameRowH - 4f;
+            float stressY = nameY - StressRowH;
+            float topY    = stressY;
 
-            // 黑底安静块：黑方块 + 主题色只留左侧色条与描边低调提示
-            GUI.color = CardBlockBg;
-            GUI.DrawTexture(blockRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(blockRect, 1f, new Color(themeColor.r, themeColor.g, themeColor.b, 0.45f));
-
-            // Left accent stripe in the actor's theme color — the region's identity marker.
-            GUI.color = themeColor;
-            GUI.DrawTexture(new Rect(blockX, handY + 6, 3f, blockH), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            float cx = blockX + BlockPadX;
-            float cw = blockW - BlockPadX * 2;
-
-            // ── Name
+            // ── 名字 + 职业（自由文字，直接落在场景上）
             var nameStyle = new GUIStyle(GUI.skin.label)
             {
-                font      = IMGUIStyles.ChineseFont,
-                fontSize  = 16,
+                font = IMGUIStyles.ChineseFont,
+                fontSize = 16,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleLeft,
-                normal    = { textColor = themeColor },
+                normal = { textColor = IMGUIStyles.TextPrimary },
             };
-            GUI.Label(new Rect(cx, handY + 9, cw, 22), actor.Name, nameStyle);
-
-            // ── Role tag
+            GUI.Label(new Rect(x, nameY, clusterW, NameRowH), actor.Name, nameStyle);
             if (!string.IsNullOrEmpty(actor.Role))
             {
+                float nameW = nameStyle.CalcSize(new GUIContent(actor.Name)).x;
                 var roleStyle = new GUIStyle(nameStyle)
                 {
-                    fontSize  = 13,
+                    fontSize = 13,
                     fontStyle = FontStyle.Normal,
-                    normal    = { textColor = IMGUIStyles.TextSecondary },
+                    normal = { textColor = IMGUIStyles.TextSecondary },
                 };
-                GUI.Label(new Rect(cx, handY + 31, cw, 18), actor.Role, roleStyle);
+                string roleText = isLead ? actor.Role + " · 主角" : actor.Role;
+                GUI.Label(new Rect(x + nameW + 8f, nameY + 2f, clusterW + 80f, NameRowH), roleText, roleStyle);
             }
 
-            // ── Stress dots（分段离散：压力=印章红，空段=35% 纸白）
-            float dotsY = handY + 52;
-            for (int i = 0; i < MaxStress; i++)
+            // ── 压力（每人一份；印章红 = 已承压，空段 25% 纸白）
+            var stressLabelStyle = new GUIStyle(GUI.skin.label)
             {
-                GUI.color = i < actor.Stress
-                    ? IMGUIStyles.SealRed
-                    : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
-                GUI.DrawTexture(new Rect(cx + i * DotGap, dotsY, DotSize, DotSize), Texture2D.whiteTexture);
+                font = IMGUIStyles.ChineseFont,
+                fontSize = 12,
+                alignment = TextAnchor.MiddleLeft,
+                normal = { textColor = IMGUIStyles.TextSecondary },
+            };
+            GUI.Label(new Rect(x, stressY, 30f, StressRowH), "压力", stressLabelStyle);
+            float dotsX = x + 34f;
+            float dotY = stressY + (StressRowH - DotSize) / 2f;
+            for (int s = 0; s < MaxStress; s++)
+            {
+                GUI.color = s < actor.Stress ? IMGUIStyles.SealRed : Paper25;
+                GUI.DrawTexture(new Rect(dotsX + s * DotGap, dotY, DotSize, DotSize), Texture2D.whiteTexture);
                 GUI.color = Color.white;
             }
 
-            if (actor.Stress > 0)
+            // ── 主角：压力线往上再挂 饱腹 / 健康（队伍级生命体征）
+            if (isLead)
             {
-                var stressLabelStyle = new GUIStyle(GUI.skin.label)
-                {
-                    font    = IMGUIStyles.ChineseFont,
-                    fontSize = 12,
-                    normal  = { textColor = new Color(IMGUIStyles.SealRed.r, IMGUIStyles.SealRed.g, IMGUIStyles.SealRed.b, 0.85f) },
-                };
-                GUI.Label(new Rect(cx + MaxStress * DotGap + 4, dotsY - 4, 56, 18),
-                    $"压力{actor.Stress}", stressLabelStyle);
+                float satietyY = stressY - VitalRowH - 2f;
+                float healthY  = satietyY - VitalRowH - 2f;
+                DrawVitalBar(x, satietyY, 172f, "饱腹", snapshot.Satiety, snapshot.MaxSatiety, 0.65f, 0.30f);
+                DrawVitalBar(x, healthY, 172f, "健康", snapshot.Health, snapshot.MaxHealth, 0.75f, 0.40f);
+                topY = healthY;
+                clusterW = Mathf.Max(clusterW, 172f);
             }
 
-            // ── Action dice
-            float diceY = handY + 70;
-            for (int d = 0; d < actor.ActionDice.Count; d++)
+            // ── 行动骰（手牌方块；选中金描边+上浮+金字；已放入卡槽降为禁用亮度）
+            for (int d = 0; d < diceCount; d++)
             {
-                int   globalIdx = flatDieOffset + d;
-                float dieX      = cx + d * DieSpacing;
-                var   dieRect   = new Rect(dieX, diceY, DieSize, DieSize);
-                int   val       = actor.ActionDice[d];
+                float dieX = x + d * TokenSpacing;
+                DrawDie(new Rect(dieX, diceY, TokenSize, TokenSize), actor.ActionDice[d], flatDieOffset + d, gameManager, ui);
+            }
 
-                bool isSlotted  = gameManager.IsDieSlotted(globalIdx);
-                bool isSelected = gameManager.SelectedResource != null
-                               && gameManager.SelectedResource.Type == "die"
-                               && gameManager.SelectedResource.SourceIndex == globalIdx;
-                bool hover = !isSlotted && ui.CanHover(dieRect);
+            anchors?.RegisterActor(actor.Id, actor.Name, new Rect(x, topY, clusterW, baseline - topY));
+            return clusterW;
+        }
 
-                if (isSlotted)
-                {
-                    // 已放入卡槽的骰子：留位但整体降到禁用亮度
-                    GUI.color = DisabledResourceBg;
-                    GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(dieRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
-                    var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 22 };
-                    dimStyle.normal.textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
-                    GUI.Label(dieRect, val.ToString(), dimStyle);
-                }
-                else
-                {
-                    bool disabled = ui.IsLocked;
+        private static void DrawDie(Rect dieRect, int val, int globalIdx, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        {
+            bool isSlotted  = gameManager.IsDieSlotted(globalIdx);
+            bool isSelected = gameManager.SelectedResource != null
+                           && gameManager.SelectedResource.Type == "die"
+                           && gameManager.SelectedResource.SourceIndex == globalIdx;
+            bool hover = !isSlotted && ui.CanHover(dieRect);
 
-                    // 选中：金描边 + 上浮几像素 + 金字；悬停：白描边变亮；默认：白线 70%
-                    var drawRect = isSelected && !disabled
-                        ? new Rect(dieRect.x, dieRect.y - 4f, dieRect.width, dieRect.height)
-                        : dieRect;
-                    Color border = disabled
-                        ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f)
-                        : isSelected
-                            ? IMGUIStyles.Gold
-                            : hover
-                                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 1f)
-                                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f);
+            if (isSlotted)
+            {
+                GUI.color = DisabledResourceBg;
+                GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(dieRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
+                var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 22 };
+                dimStyle.normal.textColor = Paper25;
+                GUI.Label(dieRect, val.ToString(), dimStyle);
+                return;
+            }
 
-                    if (!disabled)
-                    {
-                        IMGUIStyles.DrawShadow(drawRect, new Vector2(2f, 2f), 0.45f);
-                    }
-                    GUI.color = disabled ? DisabledResourceBg : CardBlockBg;
-                    GUI.DrawTexture(drawRect, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(drawRect, !disabled && (isSelected || hover) ? 2f : 1f, border);
+            bool disabled = ui.IsLocked;
+            // 骰子与物品同一族方块：骰值居中（无下方标签）。
+            DrawHandBlock(dieRect, val.ToString(), null, isSelected, hover, disabled);
 
-                    var dieStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 24 };
-                    dieStyle.normal.textColor = disabled
-                        ? DisabledResourceText
-                        : isSelected ? IMGUIStyles.Gold : IMGUIStyles.Paper;
-                    GUI.Label(drawRect, val.ToString(), dieStyle);
-
-                    if (ui.WasClicked(dieRect))
-                    {
-                        gameManager.BeginDieDrag(globalIdx, val, ui.Mouse);
-                        Event.current.Use();
-                    }
-                }
+            if (!disabled && ui.WasClicked(dieRect))
+            {
+                gameManager.BeginDieDrag(globalIdx, val, ui.Mouse);
+                Event.current.Use();
             }
         }
 
-        // ── Items section ─────────────────────────────────────────────────
-
-        private static void DrawItems(float handY, float startX, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        // 手牌方块（骰子 / 物品共用）：黑方块 + 描边 + 硬投影；大字（骰值或物品符号）在上/中，
+        // 下方可选小标签（物品的数量/金额）。选中：金描边 + 上浮 + 金字；禁用：整体降到 35%。
+        private static void DrawHandBlock(Rect rect, string big, string? small, bool selected, bool hover, bool disabled)
         {
-            var snapshot = gameManager.DisplayedSnapshot;
-            var items    = new List<(string Name, int Qty)>();
-            foreach (var kvp in snapshot.Inventory)
+            var drawRect = selected && !disabled
+                ? new Rect(rect.x, rect.y - 4f, rect.width, rect.height)
+                : rect;
+            Color border = disabled
+                ? Paper35
+                : selected
+                    ? IMGUIStyles.Gold
+                    : hover
+                        ? IMGUIStyles.Paper
+                        : Paper70;
+
+            if (!disabled)
+                IMGUIStyles.DrawShadow(drawRect, new Vector2(2f, 2f), 0.45f);
+            GUI.color = disabled ? DisabledResourceBg : CardBlockBg;
+            GUI.DrawTexture(drawRect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(drawRect, !disabled && (selected || hover) ? 2f : 1f, border);
+
+            Color content = disabled ? DisabledResourceText : selected ? IMGUIStyles.Gold : IMGUIStyles.Paper;
+            bool hasSmall = !string.IsNullOrEmpty(small);
+
+            var bigStyle = new GUIStyle(IMGUIStyles.SlotLabel)
             {
-                if (kvp.Value > 0)
-                    items.Add((kvp.Key, kvp.Value));
+                fontSize = 24,
+                fontStyle = FontStyle.Bold,
+                alignment = hasSmall ? TextAnchor.UpperCenter : TextAnchor.MiddleCenter,
+                normal = { textColor = content }
+            };
+            var bigRect = hasSmall ? new Rect(drawRect.x, drawRect.y + 6f, drawRect.width, 30f) : drawRect;
+            GUI.Label(bigRect, big, bigStyle);
+
+            if (hasSmall)
+            {
+                var smallStyle = new GUIStyle(IMGUIStyles.SlotLabel)
+                {
+                    fontSize = 9,
+                    alignment = TextAnchor.MiddleCenter,
+                    normal = { textColor = disabled ? DisabledResourceText : (selected ? IMGUIStyles.Gold : IMGUIStyles.TextSecondary) }
+                };
+                GUI.Label(new Rect(drawRect.x, drawRect.y + 34f, drawRect.width, 16f), small, smallStyle);
+            }
+        }
+
+        // 生命体征细条：标签 + 底槽 + 按阈值上色的填充 + 数值。正常白、中段赭黄、危险印章红。
+        private static void DrawVitalBar(float x, float y, float w, string label, int cur, int max, float highT, float midT)
+        {
+            var labelStyle = new GUIStyle(GUI.skin.label)
+            {
+                font = IMGUIStyles.ChineseFont,
+                fontSize = 12,
+                alignment = TextAnchor.MiddleLeft,
+                normal = { textColor = IMGUIStyles.TextSecondary },
+            };
+            GUI.Label(new Rect(x, y, 30f, VitalRowH), label, labelStyle);
+
+            float pct = max > 0 ? Mathf.Clamp01((float)cur / max) : 0f;
+            Color fill = pct >= highT ? IMGUIStyles.TextPrimary : pct >= midT ? IMGUIStyles.OddsNeutral : IMGUIStyles.SealRed;
+
+            float barX = x + 34f;
+            float barW = w - 34f - 36f;
+            float barH = 9f;
+            float barY = y + (VitalRowH - barH) / 2f;
+            GUI.color = Paper14;
+            GUI.DrawTexture(new Rect(barX, barY, barW, barH), Texture2D.whiteTexture);
+            GUI.color = fill;
+            GUI.DrawTexture(new Rect(barX, barY, barW * pct, barH), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            var valStyle = new GUIStyle(GUI.skin.label)
+            {
+                font = IMGUIStyles.ChineseFont,
+                fontSize = 12,
+                alignment = TextAnchor.MiddleRight,
+                normal = { textColor = fill },
+            };
+            GUI.Label(new Rect(barX + barW + 2f, y, 34f, VitalRowH), $"{cur}/{max}", valStyle);
+        }
+
+        // ── 右下：物品 + 功能 ──────────────────────────────────────────
+
+        private static void DrawItemsAndFunctions(float baseline, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        {
+            // 功能键（回家 / 休息）钉在最右
+            float restW = 110f, restH = 64f;
+            float restX = UIScale.VW - 24f - restW;
+            float restY = baseline - restH;
+            var restRect = new Rect(restX, restY, restW, restH);
+            var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel);
+            GUI.Label(new Rect(restX, restY - 20f, restW, 18f), "功能", sectionStyle);
+
+            bool isInEncounter = !gameManager.SceneManager.CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
+            string btnText = isInEncounter ? "休 息" : "回 家";
+
+            // 实心黑方块（与骰子/物品同语言：填充 + 描边 + 硬投影），不用空心描边，避免「不明确」。
+            bool locked = ui.IsLocked;
+            bool fnHover = ui.CanHover(restRect);
+            if (!locked)
+                IMGUIStyles.DrawShadow(restRect, new Vector2(2f, 2f), 0.45f);
+            GUI.color = locked ? DisabledResourceBg : CardBlockBg;
+            GUI.DrawTexture(restRect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            Color fnBorder = locked ? Paper35 : (fnHover ? IMGUIStyles.Paper : Paper70);
+            IMGUIStyles.DrawOutline(restRect, !locked && fnHover ? 2f : 1f, fnBorder);
+            var btnStyle = new GUIStyle(IMGUIStyles.ExecuteLabel)
+            {
+                fontSize = 18,
+                normal = { textColor = locked ? DisabledResourceText : IMGUIStyles.Paper }
+            };
+            GUI.Label(restRect, btnText, btnStyle);
+            if (ui.WasClicked(restRect))
+            {
+                if (isInEncounter) gameManager.OnEndTurnClicked();
+                else gameManager.NavigateToHome();
+                Event.current.Use();
             }
 
+            // 物品：黑方块 + 白色符号大字 + 下方小字标签，排在功能键左侧、从右往左贴住。
+            var snapshot = gameManager.DisplayedSnapshot;
+            var items = new List<(string Name, int Qty)>();
+            foreach (var kvp in snapshot.Inventory)
+                if (kvp.Value > 0) items.Add((kvp.Key, kvp.Value));
             if (items.Count == 0) return;
 
-            // Separator line between actors and items
-            IMGUIStyles.DrawLine(
-                new Vector2(startX - 4f, handY + 10),
-                new Vector2(startX - 4f, handY + PanelHeight - 10),
-                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f), 1f);
-
-            var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel);
-            GUI.Label(new Rect(startX + 4, handY + 9, 64, 22), "物品", sectionStyle);
-
-            const float ItemSize    = 60f;
-            const float ItemSpacing = 68f;
-            float itemY = handY + (PanelHeight - ItemSize) / 2f - 2f;
+            float itemsW = (items.Count - 1) * TokenSpacing + TokenSize;
+            float itemsRightEdge = restX - 28f;
+            float startX = itemsRightEdge - itemsW;
+            float itemY = baseline - TokenSize;
+            GUI.Label(new Rect(startX, itemY - 20f, 80f, 18f), "物品", sectionStyle);
 
             for (int i = 0; i < items.Count; i++)
             {
-                var   item     = items[i];
-                float itemX    = startX + 4 + i * ItemSpacing;
-                var   itemRect = new Rect(itemX, itemY, ItemSize, ItemSize);
-
-                int  remaining  = gameManager.GetRemainingItemQty(item.Name);
+                var item = items[i];
+                var itemRect = new Rect(startX + i * TokenSpacing, itemY, TokenSize, TokenSize);
+                int remaining = gameManager.GetRemainingItemQty(item.Name);
                 bool isSelected = gameManager.SelectedResource != null
                                && gameManager.SelectedResource.Type == "item"
                                && gameManager.SelectedResource.ItemName == item.Name;
@@ -264,138 +332,38 @@ namespace SSNoir.IMGUI
 
                 if (remaining <= 0)
                 {
-                    GUI.color = DisabledResourceBg;
-                    GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(itemRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
-                    var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 15 };
-                    dimStyle.normal.textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
-                    GUI.Label(itemRect, FormatItem(item.Name, 0), dimStyle);
+                    DrawItemBlock(itemRect, item.Name, isSelected, hover, remaining, disabled: true);
                 }
                 else
                 {
                     bool disabled = ui.IsLocked;
-
-                    // 与骰子同规则：黑方块白字；悬停白描边变亮；选中金描边+上浮+金字
-                    var drawRect = isSelected && !disabled
-                        ? new Rect(itemRect.x, itemRect.y - 4f, itemRect.width, itemRect.height)
-                        : itemRect;
-                    Color border = disabled
-                        ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f)
-                        : isSelected
-                            ? IMGUIStyles.Gold
-                            : hover
-                                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 1f)
-                                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f);
-
-                    if (!disabled)
+                    DrawItemBlock(itemRect, item.Name, isSelected, hover, remaining, disabled);
+                    if (!disabled && ui.WasClicked(itemRect))
                     {
-                        IMGUIStyles.DrawShadow(drawRect, new Vector2(2f, 2f), 0.45f);
-                    }
-                    GUI.color = disabled ? DisabledResourceBg : CardBlockBg;
-                    GUI.DrawTexture(drawRect, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                    IMGUIStyles.DrawOutline(drawRect, !disabled && (isSelected || hover) ? 2f : 1f, border);
-
-                    var itemStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 15 };
-                    itemStyle.normal.textColor = disabled
-                        ? DisabledResourceText
-                        : isSelected ? IMGUIStyles.Gold : IMGUIStyles.Paper;
-                    GUI.Label(drawRect, FormatItem(item.Name, remaining), itemStyle);
-
-                    if (ui.WasClicked(itemRect))
-                    {
-                        gameManager.OnItemClicked(item.Name, item.Qty);
+                        gameManager.BeginItemDrag(item.Name, item.Qty, ui.Mouse);
                         Event.current.Use();
                     }
                 }
             }
         }
 
-        private static string FormatItem(string name, int qty)
-            => name == "金钱" ? $"${qty}" : $"{name}\nx{qty}";
-
-        // ── End turn button ───────────────────────────────────────────────
-
-        private static void DrawEndTurnButton(float handY, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        // 物品：与骰子共用手牌方块，大字=类别符号，小标签=数量/金额（金钱用 $，其它取首字）。
+        private static void DrawItemBlock(Rect itemRect, string name, bool isSelected, bool hover, int remaining, bool disabled)
         {
-            float restX = UIScale.VW - 130f;
-            float restY = handY + (PanelHeight - 70f) / 2f;
-            var restRect = new Rect(restX, restY, 100f, 70f);
-
-            bool isInEncounter = !gameManager.SceneManager.CurrentSceneName.Equals("world", System.StringComparison.OrdinalIgnoreCase);
-            // 标题类文字拉字距（两字插空格）
-            string btnText = isInEncounter ? "休 息" : "回 家";
-
-            // HUD 按钮：黑底白字，1px Paper 40% 描边，悬停提到全亮
-            var style = new GUIStyle(IMGUIStyles.ExecuteLabel) { fontSize = 18 };
-            if (IMGUIButton.Draw(restRect, btnText, ui,
-                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
-                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f),
-                    style))
-            {
-                if (isInEncounter)
-                {
-                    gameManager.OnEndTurnClicked();
-                }
-                else
-                {
-                    gameManager.NavigateToHome();
-                }
-            }
+            string smallLabel = name == "金钱" ? $"${remaining}" : $"{name} x{remaining}";
+            DrawHandBlock(itemRect, ItemSymbol(name), smallLabel, isSelected, hover, disabled);
         }
 
-        // ── Status bar ────────────────────────────────────────────────────
-
-        private static void DrawStatusBar(float statusY, SSNoirGameManager gameManager)
+        private static string ItemSymbol(string name)
         {
-            var snapshot = gameManager.DisplayedSnapshot;
-
-            GUI.color = IMGUIStyles.HudBg;
-            GUI.DrawTexture(new Rect(0, statusY, UIScale.VW, StatusBarHeight), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            IMGUIStyles.DrawLine(
-                new Vector2(0, statusY),
-                new Vector2(UIScale.VW, statusY),
-                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-
-            var statusStyle = new GUIStyle(IMGUIStyles.StatusLabel) { fontSize = 16 };
-            var helpStyle = new GUIStyle(IMGUIStyles.HelpTip) { fontSize = 14 };
-
-            GUI.Label(new Rect(30, statusY + 3, 58, 22), "健康:", statusStyle);
-
-            // 数值保持低调：正常段用主文字白，中段赭黄，危险段印章红
-            float healthPct = snapshot.MaxHealth > 0 ? (float)snapshot.Health / snapshot.MaxHealth : 0f;
-            var healthStyle = new GUIStyle(statusStyle)
+            return name switch
             {
-                normal = { textColor = healthPct >= 0.75f
-                    ? IMGUIStyles.TextPrimary
-                    : healthPct >= 0.4f
-                        ? IMGUIStyles.OddsNeutral
-                        : IMGUIStyles.SealRed }
+                "金钱" => "$",
+                "酒" => "酒",
+                "药品" => "药",
+                "食物" => "食",
+                _ => name.Length > 0 ? name.Substring(0, 1) : "?"
             };
-            GUI.Label(new Rect(84, statusY + 3, 80, 22), $"{snapshot.Health}/{snapshot.MaxHealth}", healthStyle);
-
-            GUI.Label(new Rect(158, statusY + 3, 58, 22), "饱腹:", statusStyle);
-
-            float satietyPct = snapshot.MaxSatiety > 0 ? (float)snapshot.Satiety / snapshot.MaxSatiety : 0f;
-            var satietyStyle = new GUIStyle(statusStyle)
-            {
-                normal = { textColor = satietyPct >= 0.65f
-                    ? IMGUIStyles.TextPrimary
-                    : satietyPct >= 0.3f
-                        ? IMGUIStyles.OddsNeutral
-                        : IMGUIStyles.SealRed }
-            };
-            GUI.Label(new Rect(212, statusY + 3, 80, 22), $"{snapshot.Satiety}/{snapshot.MaxSatiety}", satietyStyle);
-
-            GUI.Label(new Rect(292, statusY + 3, 58, 22), "场景:", statusStyle);
-            var locStyle = new GUIStyle(statusStyle)
-                { normal = { textColor = IMGUIStyles.TextSecondary } };
-            GUI.Label(new Rect(346, statusY + 3, 130, 22), snapshot.Location.ToUpper(), locStyle);
-
-            GUI.Label(new Rect(486, statusY + 3, 620, 22),
-                "提示: 点击手牌选择，点击卡槽放入，右键取消选择。", helpStyle);
         }
     }
 }

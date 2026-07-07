@@ -338,10 +338,11 @@ namespace SSNoir.IMGUI
             NavigationDrawer.Draw(_gameManager, worldUi);
 
             // ── Node Clocks ──
+            // 当前所在层的时钟：干净徽章，居中且与顶栏控件同一行高（分割线 y=88 以上）。
             var clocks = GetCurrentClocks();
             if (clocks.Count > 0)
             {
-                ClockDrawer.DrawClocksBar(clocks, 100f);
+                ClockDrawer.DrawClocksBar(clocks, 34f);
             }
 
             // ── Node Cards (3D projected) ──
@@ -400,11 +401,11 @@ namespace SSNoir.IMGUI
             // can skip starting a drag that begins on the UI.
             PointerOverUI = IMGUIInteractionContext.PointerOverUi || _windowStack.IsPointerOverBlocker();
 
-            // Resolve a die drag on release. rawType (not type) so this still fires
-            // when a slot already consumed the MouseUp to place the die.
-            if (Event.current.rawType == EventType.MouseUp && _gameManager.IsDraggingDie)
+            // Resolve a resource drag on release. rawType (not type) so this still
+            // fires when a slot already consumed the MouseUp to place the token.
+            if (Event.current.rawType == EventType.MouseUp && _gameManager.IsDraggingResource)
             {
-                _gameManager.EndDieDrag(Event.current.mousePosition);
+                _gameManager.EndResourceDrag(Event.current.mousePosition);
             }
         }
 
@@ -469,8 +470,9 @@ namespace SSNoir.IMGUI
                 bool isLocation = item.node.IsContainer;
                 bool focused = isFocused(item.node.Name);
 
-                float cardWidth = focused ? 460f : (isLocation ? 160f : 340f);
-                float cardHeight = focused ? 340f : (isLocation ? 38f : 190f);
+                // 地点卡即使信息少也保持偏方的体量（更有存在感、不发「融」），且高度足以容下悬浮建筑线稿。
+                float cardWidth = focused ? 430f : (isLocation ? 180f : 340f);
+                float cardHeight = focused ? 320f : (isLocation ? 168f : 190f);
 
                 // Default target center position (centered horizontally above 3D anchor point)
                 Vector2 targetCenter = new Vector2(anchorX, anchorY - cardHeight / 2f - 40f);
@@ -624,7 +626,7 @@ namespace SSNoir.IMGUI
                     && string.Equals(_animator.ActionName, node.Name, StringComparison.OrdinalIgnoreCase);
                 _cardResidues.TryGetValue(node.Name, out var residue);
 
-                var interaction = CardDrawer.DrawCard(cardRect, node, isHovered, isFlipped, focused,
+                var interaction = CardDrawer.DrawCard(cardRect, node, CardDrawer.Classify(node, anchored: false), isHovered, isFlipped, focused,
                     slotted, node.Clocks, backText, localUi, _gameManager,
                     execution.IsExecuting, execution.Progress, execution.Text,
                     isLocalRoll ? _animator.CurrentReport : null,
@@ -649,10 +651,8 @@ namespace SSNoir.IMGUI
                 }
                 if (interaction.DroppedSlotIndex != -1 && slotted != null && node.Requires != null)
                 {
-                    _gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex);
-                    // A drag-release landed on this slot; stop EndDieDrag from also
-                    // returning the die to hand.
-                    _gameManager.MarkDieDropHandled();
+                    if (_gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex))
+                        _gameManager.MarkResourceDropHandled();
                 }
                 if (interaction.ExecuteClicked)
                 {
@@ -680,8 +680,8 @@ namespace SSNoir.IMGUI
 
             Color lineColor = isFocused(node.Name)
                 ? IMGUIStyles.Gold
-                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
-            float lineThickness = isFocused(node.Name) ? 2f : 1f;
+                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f);
+            float lineThickness = isFocused(node.Name) ? 2f : 1.5f;
 
             // Draw the leader line segments behind the card
             IMGUIStyles.DrawLine(pStart, pElbow, lineColor, lineThickness);
@@ -704,7 +704,7 @@ namespace SSNoir.IMGUI
                 && string.Equals(_animator.ActionName, node.Name, StringComparison.OrdinalIgnoreCase);
             _cardResidues.TryGetValue(node.Name, out var residue);
 
-            var interaction = CardDrawer.DrawCard(cardRect, node, isHovered, isFlipped, focused,
+            var interaction = CardDrawer.DrawCard(cardRect, node, CardDrawer.Classify(node, anchored: true), isHovered, isFlipped, focused,
                 slotted, node.Clocks, backText, ui, _gameManager,
                 execution.IsExecuting, execution.Progress, execution.Text,
                 isLocalRoll ? _animator.CurrentReport : null,
@@ -725,7 +725,8 @@ namespace SSNoir.IMGUI
 
             if (interaction.DroppedSlotIndex != -1 && slotted != null && node.Requires != null)
             {
-                _gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex);
+                if (_gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex))
+                    _gameManager.MarkResourceDropHandled();
             }
 
             if (interaction.ExecuteClicked)
@@ -836,10 +837,11 @@ namespace SSNoir.IMGUI
 
         private void DrawGrowthToggleButton(IMGUIInteractionContext ui)
         {
-            float btnX = 520f;
-            float btnY = 30f;
-            float btnW = 80f;
-            float btnH = 32f;
+            // 收进右上簇（关系条右侧），与「世界状态」归为一处，不再浮在半空。
+            float btnW = 112f;
+            float btnH = 34f;
+            float btnX = UIScale.VW - btnW - 40f;
+            float btnY = 26f;
             var btnRect = new Rect(btnX, btnY, btnW, btnH);
 
             bool btnHover = ui.CanHover(btnRect);

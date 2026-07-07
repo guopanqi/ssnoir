@@ -73,11 +73,12 @@ namespace SSNoir.IMGUI
             var snapshot = gameManager.DisplayedSnapshot;
             string[] factions = { "官僚", "劳工", "富商" };
 
-            float pad = 8f, rowH = 20f, labelW = 34f, valueW = 26f, gap = 8f;
+            // 压扁到顶栏分割线（y=88）以内，不再越界；右侧给成长/队伍按钮留位。
+            float pad = 5f, rowH = 18f, labelW = 34f, valueW = 26f, gap = 8f;
             float panelW = 250f;
             float panelH = 3 * rowH + pad * 2;
-            float panelX = UIScale.VW - 460f;
-            float panelY = 26f;
+            float panelX = UIScale.VW - 470f;
+            float panelY = 14f;
 
             var oldColor = GUI.color;
             var panelRect = new Rect(panelX, panelY, panelW, panelH);
