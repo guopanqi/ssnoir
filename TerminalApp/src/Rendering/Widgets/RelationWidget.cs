@@ -16,10 +16,10 @@ namespace SSNoir.Rendering
             new Color((byte)80,  (byte)185, (byte)115, (byte)255), // 自己人
         };
 
-        private const float CollapsedWidth = 180f;
-        private const float ExpandedWidth = 225f;
-        private const float CollapsedHeight = 28f;
-        private const float ExpandedHeight = 64f;
+        private const float CollapsedWidth = 190f;
+        private const float ExpandedWidth = 250f;
+        private const float CollapsedHeight = 32f;
+        private const float ExpandedHeight = 98f;
 
         /// <summary>
         /// 绘制右上角关系面板，右边缘对齐 <paramref name="rightEdge"/>。
@@ -50,17 +50,18 @@ namespace SSNoir.Rendering
                 state.IsRelationExpanded = !expanded;
             }
 
-            float pad = 6f;
+            float pad = 8f;
 
             if (expanded)
             {
-                float rowH = 18f;
-                float labelW = 32f;
-                float valueW = 20f;
-                float gap = 6f;
-
-                float barX = panelX + pad + labelW + gap;
-                float barW = panelW - pad * 2 - labelW - valueW - gap * 2;
+                float rowH = 27f;
+                float rowGap = 3f;
+                float labelX = panelX + pad;
+                float bandX = panelX + 62f;
+                float valueW = 24f;
+                float valueX = panelX + panelW - pad - valueW;
+                float barX = bandX;
+                float barW = valueX - barX - 8f;
 
                 var b = RelationScale.Boundaries;
                 int[] edges = new int[b.Length + 2];
@@ -72,12 +73,14 @@ namespace SSNoir.Rendering
                 {
                     int value = snapshot.Relations.TryGetValue(factions[i], out var v) ? v : 0;
                     int bi = RelationScale.BandIndex(value);
-                    float rowY = panelY + pad + i * rowH;
-                    float textY = rowY + 2f;
-                    float barY = rowY + 6f;
+                    float rowY = panelY + pad + i * (rowH + rowGap);
+                    float titleY = rowY;
+                    float barY = rowY + 17f;
                     float barH = 5f;
+                    string bandName = RelationScale.BandNames[bi];
 
-                    FontManager.DrawText(factions[i], panelX + pad, textY, 12, new Color((byte)170, (byte)175, (byte)195, (byte)255));
+                    FontManager.DrawText(factions[i], labelX, titleY, 12, new Color((byte)190, (byte)194, (byte)214, (byte)255));
+                    FontManager.DrawText(bandName, bandX, titleY, 12, RelationBandColors[bi]);
 
                     var outlineRect = new Rectangle(barX, barY, barW, barH);
                     Raylib.DrawRectangleRoundedLinesEx(outlineRect, 0.5f, 4, 1.0f, new Color((byte)50, (byte)53, (byte)70, (byte)255));
@@ -132,14 +135,14 @@ namespace SSNoir.Rendering
 
                     string vs = value.ToString();
                     int vw = FontManager.MeasureTextWidth(vs, 12);
-                    FontManager.DrawText(vs, barX + barW + gap + (valueW - vw) / 2f, textY, 12, RelationBandColors[bi]);
+                    FontManager.DrawText(vs, valueX + (valueW - vw) / 2f, titleY, 12, RelationBandColors[bi]);
                 }
             }
             else
             {
                 float usableW = panelW - pad * 2;
                 float itemW = usableW / factions.Length;
-                float textY = panelY + 7f;
+                float textY = panelY + (panelH - 12f) / 2f + 1f;
 
                 for (int i = 0; i < factions.Length; i++)
                 {
@@ -147,11 +150,15 @@ namespace SSNoir.Rendering
                     int bi = RelationScale.BandIndex(value);
                     float itemX = panelX + pad + i * itemW;
 
-                    FontManager.DrawText(factions[i], itemX, textY, 12, new Color((byte)170, (byte)175, (byte)195, (byte)255));
+                    float labelW = FontManager.MeasureTextWidth(factions[i], 12);
+                    float valueW = FontManager.MeasureTextWidth(value.ToString(), 12);
+                    float groupW = labelW + 6f + valueW;
+                    float groupX = itemX + (itemW - groupW) / 2f;
+
+                    FontManager.DrawText(factions[i], groupX, textY, 12, new Color((byte)170, (byte)175, (byte)195, (byte)255));
 
                     string vs = value.ToString();
-                    int vw = FontManager.MeasureTextWidth(vs, 12);
-                    FontManager.DrawText(vs, itemX + itemW - vw, textY, 12, RelationBandColors[bi]);
+                    FontManager.DrawText(vs, groupX + labelW + 6f, textY, 12, RelationBandColors[bi]);
                 }
             }
 

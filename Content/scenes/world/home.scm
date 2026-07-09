@@ -1,16 +1,14 @@
 ;; scenes/world/home.scm - 住所系统
-;; 旅馆（默认·付房租）→ 公寓（购买·资产中）→ 豪宅（购买·资产高）。
+;; 旅馆（默认·付房租）→ 公寓（购买·资产中）。
 ;; 资产等级由拥有的住所推导，写入全局 '资产（供富商圈门槛用）。
 ;; 恢复：旅馆睡觉压力 -1，自有住所睡觉压力 -2；门口露宿压力 +1。
-;; 吃饭补饱腹，喝酒/唱片/花缓解压力。住所中只能用药恢复健康。
+;; 吃饭补饱腹，喝酒/花缓解压力。住所中只能用药恢复健康。
 
 (define home
   (let ()
     ;; ── Local State ────────────────────────────────
-    (define residence "旅馆")        ; "旅馆" / "公寓" / "豪宅"
+    (define residence "旅馆")        ; "旅馆" / "公寓"
     (define has-flower? #f)
-    (define has-gramophone? #f)
-    (define playing-song "")
     (define drank-today? #f)
     (define medicated-today? #f)
 
@@ -24,9 +22,7 @@
     ;; ── 资产推导 ────────────────────────────────────
     (define (sync-asset!)
       (set-global! '资产
-        (cond ((equal? residence "豪宅") "高")
-              ((equal? residence "公寓") "中")
-              (else "低"))))
+        (if (equal? residence "公寓") "中" "低")))
     (sync-asset!)
 
     (define (in-hotel?) (equal? residence "旅馆"))
@@ -64,7 +60,7 @@
                    (add-satiety! 3)
                    (notify! "你给自己做了顿饭，饱腹恢复了一些。")))))
 
-    ;; 看花 / 听唱片这类白天解压占一颗骰子（与工作争夺骰子池）；睡觉免费（回合结束）。
+    ;; 看花这类白天解压占一颗骰子（与工作争夺骰子池）；睡觉免费（回合结束）。
     ;; 喝酒不占骰子，走“花钱买酒”这条线：垫点饱腹，松松神经。
     (define (node-drink)
       (node "喝酒"
@@ -99,28 +95,6 @@
         (instant
           (outcome "出神片刻" "白色的雏菊静静开着。你出神看了一会儿，心里松快了些。"
             (lambda () (heal-stress! 'player 2))))))
-
-    (define (format-song-name name)
-      (if (equal? playing-song name) (string-append "-> " name) name))
-
-    ;; 听唱片：占一颗骰子，比看花更能缓神（值回那台机器的钱）。
-    (define (song-action name)
-      (action (format-song-name name)
-        (list (req-die))
-        (instant
-          (outcome "乐声流淌" "针尖落下，旧曲子转起来。你靠在椅背上，跟着晃了晃。"
-            (lambda ()
-              (set! playing-song name)
-              (heal-stress! 'player 3))))))
-
-    (define (node-gramophone)
-      (container "唱片机"
-        (list
-          (song-action "《甜蜜蜜》")
-          (song-action "《怒放的生命》")
-          (song-action "《爵士舞曲》")
-          (instant-action "停止播放"
-            (lambda () (set! playing-song ""))))))
 
     (define (rest-tags)
       (if (rest-blocked?)
@@ -179,12 +153,6 @@
         :requires (list (req-item "金钱" 15))
         :resolve (instant (lambda () (set! has-flower? #t) (notify! "你买了一盆雏菊，摆在窗台。")))))
 
-    (define (node-buy-gramophone)
-      (node "买台唱片机"
-        :subtitle "在家听几首旧歌，比看花更能让人放松"
-        :requires (list (req-item "金钱" 60))
-        :resolve (instant (lambda () (set! has-gramophone? #t) (notify! "一台旧唱片机，还能转。")))))
-
     (define (node-buy-apartment)
       (node "买下公寓"
         :subtitle "有个自己的家，不再交房租，也能睡得更安稳"
@@ -194,40 +162,27 @@
                    (sync-asset!)
                    (notify! "你签下了公寓。不用再看旅馆老板的脸色了。")))))
 
-    (define (node-buy-mansion)
-      (node "买下豪宅"
-        :subtitle "住进富人区，那些只看身份的门也会向你打开"
-        :requires (list (req-item "金钱" 400))
-        :resolve (instant (lambda ()
-                   (set! residence "豪宅")
-                   (sync-asset!)
-                   (notify! "富人飞地的一栋豪宅。你成了这里的新住户。")))))
-
     ;; ── 组装子节点 ──────────────────────────────────
     ;; 客厅：日常恢复 + 已拥有的家具。
     (define (living-room-children)
       (append
         (list (node-eat) (node-drink) (node-use-medicine))
-        (if has-flower? (list (node-see-flower)) '())
-        (if has-gramophone? (list (node-gramophone)) '())))
+        (if has-flower? (list (node-see-flower)) '())))
 
     (define (node-living-room)
       (container "客厅" (living-room-children)))
 
-    ;; 订购：购买入口（以后可能挪到市集）。买酒可反复买，花/唱片机买过即消失。
+    ;; 订购：购买入口（以后可能挪到市集）。买酒可反复买，花买过即消失。
     (define (order-children)
       (append
         (list (node-buy-liquor))
-        (if has-flower? '() (list (node-buy-flower)))
-        (if has-gramophone? '() (list (node-buy-gramophone)))))
+        (if has-flower? '() (list (node-buy-flower)))))
 
     (define (order-nodes)
       (if (null? (order-children)) '() (list (container "订购" (order-children)))))
 
     (define (upgrade-nodes)
-      (cond ((equal? residence "旅馆") (list (node-buy-apartment)))
-            ((equal? residence "公寓") (list (node-buy-mansion)))
-            (else '())))
+      (if (equal? residence "旅馆") (list (node-buy-apartment)) '()))
 
     (define (hotel-body)
       (if evicted?
@@ -235,6 +190,10 @@
                 (node-pay-rent) (node-sleep-at-door))
           (append
             (list (node-living-room))
+            (if (and (= (let ((stage (get-global '夜莺阶段))) (if stage stage 0)) 2)
+                     (equal? (let ((p (get-global '夜莺保护方案))) (if p p "无")) "无"))
+                (list (nightingale 'node-apartment-protection))
+                '())
             (order-nodes)
             (list (node-pay-rent))
             (upgrade-nodes)
@@ -243,6 +202,10 @@
     (define (owned-body)
       (append
         (list (node-living-room))
+        (if (and (= (let ((stage (get-global '夜莺阶段))) (if stage stage 0)) 2)
+                 (equal? (let ((p (get-global '夜莺保护方案))) (if p p "无")) "无"))
+            (list (nightingale 'node-apartment-protection))
+            '())
         (order-nodes)
         (upgrade-nodes)
         (list (node-sleep))))
@@ -264,8 +227,6 @@
            (list
              (list "residence"      residence)
              (list "has-flower?"    has-flower?)
-             (list "has-gramophone?" has-gramophone?)
-             (list "playing-song"   playing-song)
              (list "drank-today?" drank-today?)
              (list "medicated-today?" medicated-today?)
              (list "rent-due"       rent-due)
@@ -275,9 +236,9 @@
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! residence      (assoc-get data "residence" "旅馆"))
+             ;; 旧档兼容：豪宅档位已删除，映射回公寓。
+             (if (equal? residence "豪宅") (set! residence "公寓") #f)
              (set! has-flower?    (assoc-get data "has-flower?" #f))
-             (set! has-gramophone? (assoc-get data "has-gramophone?" #f))
-             (set! playing-song   (assoc-get data "playing-song" ""))
              (set! drank-today?  (assoc-get data "drank-today?" #f))
              (set! medicated-today? (assoc-get data "medicated-today?" #f))
              (set! rent-due       (assoc-get data "rent-due" 3))

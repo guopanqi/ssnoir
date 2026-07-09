@@ -1,11 +1,12 @@
 ;; scenes/world/world.scm - 世界协调器（城市生活第一版）
-;; 世界拥有日期、强制公共事件及跨地点的异常货单状态；地点只拥有自己的生活内容。
+;; 世界拥有日期与强制公共事件；地点只拥有自己的生活内容。
 
 (load-file "world/home.scm")
 (load-file "world/码头.scm")
+(load-file "world/老街酒馆.scm")
+(load-file "world/夜莺.scm")
 (load-file "world/饭店.scm")
 (load-file "world/诊所.scm")
-(load-file "world/银行.scm")
 (load-file "world/公园.scm")
 (load-file "world/警局.scm")
 (load-file "world/货运公司.scm")
@@ -15,49 +16,84 @@
 ;; ── 世界级状态 ───────────────────────────────────
 (define world-day 1)
 
-;; 三次相同交锋暂代三个主线小节。正式主线接入后逐个替换。
+;; 夜莺委托线的三次交锋。正式主线接入后逐个替换。
 (define public-event-count 0)
 (define public-event-max 3)
-(define public-event-interval 6)
 (define public-event-pending? #f)
 (define public-event-delay-used? #f)
-(define next-public-event (make-clock "码头公共事件" public-event-interval 'segments))
 
-(define public-event-blocker-id "世界/码头公共事件")
-(define public-event-blocker-reason "城市：必须处理码头公共事件")
+;; 故事节拍表：间隔 (3 6 7) 对应第 4 / 10 / 17 天上门。
+;; 开场后第 3 个日终触发第一场，之后两场间隔递增。
+(define public-event-intervals '(3 6 7))
 
-;; 具名线索跨交锋和三个地点使用，归世界全局状态所有。
-(define invoice-state-key '异常货单状态)
+(define (current-public-event-interval)
+  (list-ref public-event-intervals public-event-count))
 
-(define (ensure-invoice-state!)
-  (if (get-global invoice-state-key)
-      #t
-      (set-global! invoice-state-key "未出现")))
+(define public-event-blocker-id "世界/夜莺公共事件")
 
-(define (abnormal-invoice-state)
-  (ensure-invoice-state!)
-  (get-global invoice-state-key))
-
-(define (abnormal-invoice-held?)
-  (equal? (abnormal-invoice-state) "持有"))
-
-(define (deliver-abnormal-invoice! recipient)
-  (if (not (abnormal-invoice-held?))
-      (error "deliver-abnormal-invoice!: abnormal invoice is not held")
-      #t)
+(define (public-event-blocker-reason)
   (cond
-    ((equal? recipient "老周") (set-global! invoice-state-key "交给老周"))
-    ((equal? recipient "探长") (set-global! invoice-state-key "交给探长"))
-    ((equal? recipient "货运代理") (set-global! invoice-state-key "卖给代理人"))
-    (else (error "deliver-abnormal-invoice!: unknown recipient"))))
+    ((= public-event-count 0) "酒馆附近有人盯梢,必须过去看看。")
+    ((= public-event-count 1) "收账人堵在门口,躲不掉。")
+    ((= public-event-count 2) "了断之日到了,必须去。")
+    (else "必须处理眼前的麻烦。")))
 
-(ensure-invoice-state!)
+(define (public-event-clock-title)
+  (cond
+    ((= public-event-count 0) "盯梢的人")
+    ((= public-event-count 1) "收账人再来")
+    ((= public-event-count 2) "了断之日")
+    (else "公共事件")))
+
+(define (public-event-clock-note)
+  (let ((stage (let ((v (get-global '夜莺阶段))) (if v v 0)))
+        (beat1-progress (let ((v (get-global '夜莺查访进度))) (if v v 0)))
+        (beat1-target (let ((v (get-global '夜莺查访目标))) (if v v 4))))
+    (cond
+      ((= public-event-count 0)
+       (cond
+         ((= stage 0) "雨夜有人敲门,先去看看是谁。")
+         ((and (= stage 1) (< beat1-progress beat1-target)) "查出盯梢者的落脚处。填满后可以主动找上门。")
+         (else "你已经摸到他的落脚处。可以主动去找他,也可以等他上门。")))
+      ((= public-event-count 1)
+       "收账人已经撂话。第 10 天前,至少要凑出一笔首期赎身钱,让他们先收手。")
+      ((= public-event-count 2)
+       "他们要的是一条命的交代。这次不能输。")
+      (else "归零后必须亲自处理。"))))
+
+(define (public-event-pending-note)
+  (cond
+    ((= public-event-count 0) "盯梢的人已经上门,先处理才能睡。")
+    ((= public-event-count 1) "收账人堵在门口,先处理才能睡。")
+    ((= public-event-count 2) "了断之日到了,先处理才能睡。")
+    (else "事情已经发生:必须先处理,才能结束一天。")))
+
+(define (public-event-action-name)
+  (cond
+    ((= public-event-count 0) "赶去酒馆")
+    ((= public-event-count 1) "迎上去")
+    ((= public-event-count 2) "做个了断")
+    (else "处理公共事件")))
 
 ;; ── 公共事件接口 ─────────────────────────────────
 (define (sync-public-event-blocker!)
   (if public-event-pending?
-      (rest-block! public-event-blocker-id public-event-blocker-reason)
+      (rest-block! public-event-blocker-id (public-event-blocker-reason))
       (rest-release! public-event-blocker-id)))
+
+;; 此时公共事件标题/备注/动作名函数均已定义，再创建时钟变量。
+(define (reset-public-event-clock!)
+  (set! next-public-event
+        (make-clock (public-event-clock-title)
+                    (current-public-event-interval)
+                    'segments
+                    (public-event-clock-note))))
+
+(define next-public-event
+  (make-clock (public-event-clock-title)
+              (current-public-event-interval)
+              'segments
+              (public-event-clock-note)))
 
 (define (public-event-active?)
   (< public-event-count public-event-max))
@@ -75,7 +111,7 @@
       #t)
   (next-public-event 'set! (max 0 (- (next-public-event 'current) 1)))
   (set! public-event-delay-used? #t)
-  (notify! "探长替你压了一天。码头的冲突会晚一天发生。"))
+  (notify! "探长替你压了一天。他们会晚一天上门。"))
 
 (define (set-public-event-pending!)
   (if (or public-event-pending? (not (public-event-active?)))
@@ -83,6 +119,18 @@
       #t)
   (set! public-event-pending? #t)
   (set-global! 'bout-idx public-event-count)
+  (set-global! '夜莺主动上门 #f)
+  (sync-public-event-blocker!))
+
+;; 节拍一主动结算：玩家查清落脚处后主动上门。
+;; 仍然走同一套 pending / encounter callback,保证存档与结算路径一致。
+(define (begin-public-event-early!)
+  (if (or public-event-pending? (not (public-event-active?)))
+      (error "begin-public-event-early!: invalid public event state")
+      #t)
+  (set! public-event-pending? #t)
+  (set-global! 'bout-idx public-event-count)
+  (set-global! '夜莺主动上门 #t)
   (sync-public-event-blocker!))
 
 (define (on-public-event-result result)
@@ -91,33 +139,50 @@
       #t)
   (set! public-event-pending? #f)
   (sync-public-event-blocker!)
-  ;; 探长担保只在失败时用掉：压下官方风声、减轻这场失利的后续。
-  (let ((guaranteed? (and (equal? result 'fail) (get-global '探长愿意担保))))
-    (if guaranteed? (set-global! '探长愿意担保 #f) #f)
-    (dock 'on-public-event result guaranteed?))
+  (nightingale 'on-bout-result public-event-count result)
   (complete-section!)
   (set! public-event-count (+ public-event-count 1))
   (set! public-event-delay-used? #f)
   (if (public-event-active?)
-      (next-public-event 'reset!)
+      (reset-public-event-clock!)
       #f))
 
+;; 取消后续公共事件(中途放她走)。回到无剧情静默状态。
+(define (cancel-public-events!)
+  (set! public-event-count public-event-max)
+  (set! public-event-pending? #f)
+  (sync-public-event-blocker!)
+  (next-public-event 'set! 0))
+
+(define (current-encounter-name)
+  (cond
+    ((= public-event-count 0) "夜莺·警告")
+    ((= public-event-count 1) "夜莺·抢人")
+    ((= public-event-count 2) "夜莺·了断")
+    (else (error "current-encounter-name: public-event-count 超出范围"))))
+
 (define (node-public-event)
-  (encounter-action "处理码头公共事件"
-    (lambda ()
-      (start-encounter "找上门的人" on-public-event-result))))
+  (if (and (= public-event-count 1) (nightingale 'has-protection?))
+      (instant-action "处理收账人再来"
+        (lambda ()
+          (nightingale 'resolve-protected-beat2!)
+          (on-public-event-result 'success)))
+      (encounter-action (public-event-action-name)
+        (lambda ()
+          (start-encounter (current-encounter-name) on-public-event-result)))))
 
 (define (public-event-clocks)
-  (cond
-    ((not (public-event-active?)) '())
-    (public-event-pending?
-     (list (list 'clock "码头公共事件" 0 public-event-interval 'countdown
-                 "事情已经发生：必须先处理，才能结束一天。")))
-    (else
-     (list (list 'clock "码头公共事件"
-                 (- public-event-interval (next-public-event 'current))
-                 public-event-interval 'countdown
-                 "归零后必须亲自处理；准备只能削小压力，不能跳过。")))))
+  (let ((interval (current-public-event-interval)))
+    (cond
+      ((not (public-event-active?)) '())
+      (public-event-pending?
+       (list (list 'clock (public-event-clock-title) 0 interval 'countdown
+                   (public-event-pending-note))))
+      (else
+       (list (list 'clock (public-event-clock-title)
+                   (- interval (next-public-event 'current))
+                   interval 'countdown
+                   (public-event-clock-note)))))))
 
 ;; 调试台使用。正式内容只通过日终规则推进。
 (define (debug-trigger-public-event!)
@@ -143,9 +208,9 @@
   (list
     (list home            (lambda () #t))
     (list dock            (lambda () #t))
+    (list old-street-tavern (lambda () #t))
     (list diner           (lambda () #t))
     (list clinic          (lambda () #t))
-    (list bank            (lambda () #t))
     (list park            (lambda () #t))
     (list police-station  (lambda () #t))
     (list freight-company (lambda () #t))
@@ -168,7 +233,9 @@
   (node "世界"
     :children
       (append
+        (nightingale 'world-nodes)
         (if public-event-pending? (list (node-public-event)) '())
+        (nightingale 'render-data)
         (apply append (map (lambda (loc) (loc 'render-data)) (current-locations))))
     :clocks (public-event-clocks)))
 
@@ -182,9 +249,10 @@
     (list "next-public-event" (next-public-event 'current))
     (list "home" (home 'save))
     (list "dock" (dock 'save))
+    (list "old-street-tavern" (old-street-tavern 'save))
+    (list "nightingale" (nightingale 'save))
     (list "diner" (diner 'save))
     (list "clinic" (clinic 'save))
-    (list "bank" (bank 'save))
     (list "park" (park 'save))
     (list "police-station" (police-station 'save))
     (list "freight-company" (freight-company 'save))
@@ -198,15 +266,19 @@
   (set! public-event-pending? (assoc-get data "public-event-pending?" #f))
   (set! public-event-delay-used? (assoc-get data "public-event-delay-used?" #f))
   (next-public-event 'set! (assoc-get data "next-public-event" 0))
-  (ensure-invoice-state!)
   (home 'load! (assoc-get data "home" '()))
   (dock 'load! (assoc-get data "dock" '()))
+  (old-street-tavern 'load! (assoc-get data "old-street-tavern" '()))
+  (nightingale 'load! (assoc-get data "nightingale" '()))
   (diner 'load! (assoc-get data "diner" '()))
   (clinic 'load! (assoc-get data "clinic" '()))
-  (bank 'load! (assoc-get data "bank" '()))
   (park 'load! (assoc-get data "park" '()))
   (police-station 'load! (assoc-get data "police-station" '()))
   (freight-company 'load! (assoc-get data "freight-company" '()))
   (board 'load! (assoc-get data "board" '()))
   (test 'load! (assoc-get data "test" '()))
-  (sync-public-event-blocker!))
+  (sync-public-event-blocker!)
+  (nightingale 'sync-blockers!))
+
+;; 初始同步:新游戏没有存档数据时,也要阻塞第一晚的睡眠。
+(nightingale 'sync-blockers!)

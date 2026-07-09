@@ -34,9 +34,8 @@
           (error "探长支线：非法重复完成")
           #t)
       (set! detective-stage 2)
-      (set-global! '探长愿意担保 #t)
       (complete-section!)
-      (notify! "探长记住了你。遇到程序上的麻烦，他愿意替你担保一次。"))
+      (notify! "探长记住了你。程序上的通行证和延期，他都愿意给。"))
 
     (define (finish-detective-visit!)
       (if (not (= detective-stage 0))
@@ -98,32 +97,25 @@
           (outcome "通行证办妥" "凭这张证件，你可以在需要时以协助办案的名义要求通行或调查。"
             (lambda () (issue-investigation-pass!))))))
 
-    (define (node-give-invoice)
-      (action "把异常货单交给探长"
-        (list (req-die))
-        (instant
-          (outcome "正式立案" "探长把货单压进案卷：这次终于有东西能写进正式记录。"
-            (lambda ()
-              (deliver-abnormal-invoice! "探长")
-              (change-faction-relation! "官僚" 1)
-              (if (and (not (has-investigation-pass?)) (= pass-cooldown 0))
-                  (begin
-                    (issue-investigation-pass!)
-                    (notify! "探长收下货单，并替你签发了一张办案通行证。"))
-                  #f))))))
-
     (define (detective-description)
       (cond
         ((= detective-stage 0) "探长忙着翻案卷。混个脸熟以后，也许能陪他出去走一趟。")
         ((= detective-stage 1) "走访拿到了证词，但还需要有人把它整理成正式口供。")
-        ((equal? (abnormal-invoice-state) "交给探长")
-         "异常货单已经进了案卷，码头接下来会多一些正式检查。")
         (else "探长已经认得你。程序上有余地时，他愿意替你说句话。")))
 
     (define (police-children)
       (append
         (list (node-paperwork)
               (observe-action "探长" (detective-description)))
+        (if (and (= (let ((stage (get-global '夜莺阶段))) (if stage stage 0)) 1)
+                 (< (let ((progress (get-global '夜莺查访进度))) (if progress progress 0))
+                    (let ((target (get-global '夜莺查访目标))) (if target target 4))))
+            (list (nightingale 'node-police-inquire-stalker))
+            '())
+        (if (and (= (let ((stage (get-global '夜莺阶段))) (if stage stage 0)) 2)
+                 (equal? (let ((p (get-global '夜莺保护方案))) (if p p "无")) "无"))
+            (list (nightingale 'node-police-protection))
+            '())
         (if (and (= detective-stage 0) (relation-at-least? "官僚" '脸熟))
             (list (node-accompany-detective))
             '())
@@ -133,8 +125,7 @@
             '())
         (if (>= detective-stage 2)
             (list (node-investigation-pass))
-            '())
-        (if (abnormal-invoice-held?) (list (node-give-invoice)) '())))
+            '())))
 
     (define-turn-rule "办案通行证再次签发"
       (lambda () (> pass-cooldown 0))

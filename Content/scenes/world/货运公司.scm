@@ -146,22 +146,10 @@
           (outcome "项目找到了" "消息指出了一批正在找周转的货，风险和回报都算普通。"
             (lambda () (set-assessed-project! 1))))))
 
-    (define (node-sell-invoice)
-      (action "把异常货单卖给货运代理"
-        (list (req-die))
-        (instant
-          (outcome "价钱谈妥" "代理人收起货单，立刻明白该调整哪一段货运。"
-            (lambda ()
-              (deliver-abnormal-invoice! "货运代理")
-              (add-item! "金钱" 30)
-              (change-faction-relation! "富商" 1))))))
-
     (define (agent-description)
       (cond
         ((= agent-stage 0) "代理人只和能把合同处理干净的人谈生意。")
         ((= agent-stage 1) "代理人给了你一份项目条件，等你看清里面的风险。")
-        ((equal? (abnormal-invoice-state) "卖给代理人")
-         "代理人拿到了异常货单，正在悄悄调整公司的货运安排。")
         ((= agent-stage 2) "代理人愿意让你投第一笔钱。只有结算以后，这段生意才算走完。")
         (else "第一笔项目已经结清。代理人会继续提供同类投资机会。")))
 
@@ -192,8 +180,7 @@
             '())
         (if (and (> (item-count "私货") 0) (relation-at-least? "富商" '脸熟))
             (list (node-sell-contraband))
-            '())
-        (if (abnormal-invoice-held?) (list (node-sell-invoice)) '())))
+            '())))
 
     (lambda args
       (let ((msg (car args)))

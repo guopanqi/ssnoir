@@ -4,8 +4,7 @@
 (define board
   (let ()
     (define template-ids
-      (list "帮人寻物" "替人带话" "押送一批货" "代查一笔账"
-            "急收私货的买家" "有人需要药"))
+      (list "帮人寻物" "替人带话" "押送一批货" "代查一笔账" "有人需要药"))
     (define active-missions '()) ; 每项：(模板 ID 剩余天数)
     (define refresh-days 0)
     (define mission-duration 2)
@@ -86,19 +85,6 @@
                 (complete-mission! id (lambda () (add-item! "金钱" good-pay))))))
           (mission-clocks entry))))
 
-    (define (private-buyer-node entry)
-      (let ((qty (min 2 (item-count "私货"))))
-        (node "急收私货的买家"
-          :subtitle "这位买家只停留两天，但给的价钱比代理人还高"
-          :clocks (mission-clocks entry)
-          :disabled (= qty 0)
-          :requires (list (req-item "私货" (max 1 qty)))
-          :resolve (instant
-            (outcome "当场成交" "买家没有多问，把货和钱各自收好。"
-              (lambda ()
-                (complete-mission! "急收私货的买家"
-                  (lambda () (add-item! "金钱" (* qty 30))))))))))
-
     (define (medicine-request-node entry)
       (node "有人需要药"
         :subtitle "老街有人急着用药，帮这一回会被大家记住"
@@ -125,7 +111,6 @@
              (lambda () (stress-current-actor! 1) (damage-party! 1))))
           ((equal? id "代查一笔账")
            (roll-mission entry 'knowledge 22 12 (lambda () (stress-current-actor! 1))))
-          ((equal? id "急收私货的买家") (private-buyer-node entry))
           ((equal? id "有人需要药") (medicine-request-node entry))
           (else (error "布告栏：未知委托模板")))))
 
@@ -140,12 +125,20 @@
                   (error "布告栏：没有可追加的委托模板")
                   #t))))))
 
+    ;; 存档兼容：模板已下线（如已删除的"急收私货的买家"）时静默丢弃该条委托,不当作错误。
+    (define (drop-unknown-templates entries)
+      (if (null? entries)
+          '()
+          (let ((entry (car entries)))
+            (if (valid-template? (mission-id entry))
+                (cons entry (drop-unknown-templates (cdr entries)))
+                (drop-unknown-templates (cdr entries))))))
+
     (define (validate-missions entries)
       (if (null? entries)
           #t
           (let ((entry (car entries)))
-            (if (or (not (valid-template? (mission-id entry)))
-                    (<= (mission-days entry) 0)
+            (if (or (<= (mission-days entry) 0)
                     (> (mission-days entry) mission-duration)
                     (mission-active? (mission-id entry) (cdr entries)))
                 (error "布告栏存档包含非法或重复委托")
@@ -183,7 +176,7 @@
              (list "refresh-days" refresh-days)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
-             (set! active-missions (assoc-get data "active-missions" '()))
+             (set! active-missions (drop-unknown-templates (assoc-get data "active-missions" '())))
              (set! refresh-days (assoc-get data "refresh-days" 0))
              (validate-missions active-missions)))
           ((equal? msg 'debug-refresh)

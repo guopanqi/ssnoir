@@ -14,7 +14,7 @@
 
 | 文件 | 内容 |
 |---|---|
-| `Content/scripts/stdlib.scm` | 纯标准 Scheme 的补充助手(`filter`、`for-each`、`assoc` 等) |
+| `Content/scripts/stdlib.scm` | SSNoir 内容脚本助手(`filter`、`member?`、`assoc-get` 等) |
 | `Content/scripts/engine.scm` | SSNoir 的 DSL 与游戏框架(节点、时钟、规则、状态桥) |
 | `Content/scenes/world/*.scm` | 世界地点 |
 | `Content/scenes/encounters/*.scm` | encounter(交锋)场景 |

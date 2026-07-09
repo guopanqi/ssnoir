@@ -892,7 +892,7 @@ namespace SSNoir.Rendering
             float growthX = debugX - gap - growthW;
             float relationRightEdge = growthX - gap;
 
-            RelationWidget.Draw(_state, worldUi, relationRightEdge, 16f);
+            RelationWidget.Draw(_state, worldUi, relationRightEdge, topY);
 
             var growthRect = new Rectangle(growthX, topY, growthW, controlH);
             var growthBtn = UiButton.Draw(growthRect, "成长/队伍", worldUi, true, 13,

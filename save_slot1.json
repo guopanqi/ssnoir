@@ -1,17 +1,26 @@
 {
   "version": 1,
-  "saveTime": "2026-07-03 01:52:38",
+  "saveTime": "2026-07-08 14:46:52",
   "globals": {
     "chapter": 0,
     "relation:官僚": 0,
-    "relation:劳工": 6,
+    "relation:劳工": 0,
     "relation:富商": 0,
     "资产": "低",
-    "货单对不上": true
+    "laozhou-favor": 0,
+    "laozhou-can-help": false,
+    "异常货单状态": "未出现",
+    "夜莺阶段": 1,
+    "夜莺安危": 0,
+    "夜莺查访进度": 4,
+    "夜莺查访目标": 4,
+    "夜莺主动上门": false,
+    "夜莺保护方案": "无",
+    "夜莺已打听": true
   },
   "team": {
-    "health": 3,
-    "satiety": 0,
+    "health": 5,
+    "satiety": 2,
     "growthLevel": 0,
     "actors": [
       {
@@ -19,20 +28,20 @@
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "stress": 1,
+        "stress": 0,
         "spentGrowthPoints": 0,
         "stats": {
           "violence": 1,
           "knowledge": 2,
           "sharpness": 1,
-          "coding": 1
+          "social": 1
         }
       }
     ]
   },
   "inventory": {
-    "金钱": 97,
-    "情报": 3,
+    "金钱": 45,
+    "情报": 1,
     "食物": 2,
     "药品": 1,
     "枪": 1,
@@ -41,7 +50,23 @@
   "worldData": [
     [
       "day",
-      7
+      2
+    ],
+    [
+      "public-event-count",
+      0
+    ],
+    [
+      "public-event-pending?",
+      false
+    ],
+    [
+      "public-event-delay-used?",
+      false
+    ],
+    [
+      "next-public-event",
+      1
     ],
     [
       "home",
@@ -63,12 +88,20 @@
           ""
         ],
         [
+          "drank-today?",
+          false
+        ],
+        [
+          "medicated-today?",
+          false
+        ],
+        [
           "rent-due",
-          6
+          2
         ],
         [
           "rent-due-max",
-          6
+          3
         ],
         [
           "evicted?",
@@ -78,7 +111,72 @@
     ],
     [
       "dock",
-      []
+      [
+        [
+          "laozhou-favor",
+          0
+        ],
+        [
+          "laozhou-stage",
+          0
+        ],
+        [
+          "smuggle-cooldown",
+          0
+        ],
+        [
+          "cushy-available?",
+          false
+        ]
+      ]
+    ],
+    [
+      "old-street-tavern",
+      [
+        [
+          "closed-days",
+          0
+        ],
+        [
+          "closed-days-max",
+          2
+        ]
+      ]
+    ],
+    [
+      "nightingale",
+      [
+        [
+          "story-stage",
+          1
+        ],
+        [
+          "safety",
+          0
+        ],
+        [
+          "beat1-progress",
+          4
+        ],
+        [
+          "beat1-early?",
+          false
+        ],
+        [
+          "protection",
+          "无"
+        ],
+        [
+          "installment-paid?",
+          false
+        ],
+        [
+          "scene-flags",
+          [
+            "已打听"
+          ]
+        ]
+      ]
     ],
     [
       "diner",
@@ -94,6 +192,66 @@
         [
           "balance",
           0
+        ]
+      ]
+    ],
+    [
+      "park",
+      []
+    ],
+    [
+      "police-station",
+      [
+        [
+          "detective-stage",
+          0
+        ],
+        [
+          "pass-cooldown",
+          0
+        ]
+      ]
+    ],
+    [
+      "freight-company",
+      [
+        [
+          "agent-stage",
+          0
+        ],
+        [
+          "project-state",
+          "无"
+        ],
+        [
+          "project-quality",
+          0
+        ],
+        [
+          "investment-days",
+          0
+        ]
+      ]
+    ],
+    [
+      "board",
+      [
+        [
+          "active-missions",
+          [
+            [
+              "急收私货的买家",
+              1
+            ],
+            [
+              "代查一笔账",
+              1
+            ]
+          ]
+        ],
+        [
+          "refresh-days",
+          1
         ]
       ]
     ],

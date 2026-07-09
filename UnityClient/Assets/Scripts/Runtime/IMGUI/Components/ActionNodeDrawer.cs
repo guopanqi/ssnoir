@@ -37,12 +37,14 @@ namespace SSNoir.IMGUI
         {
             bool disabled = node.Disabled;
             bool isRoll = node.Resolve!.Type == ResolveType.Roll;
-            bool hasRequires = node.Requires != null && node.Requires.Count > 0 && slotted != null && slotted.Count == node.Requires.Count;
+            int requiredSlotCount = node.Requires?.Count ?? 0;
+            bool hasRequires = requiredSlotCount > 0 && slotted != null && slotted.Count == requiredSlotCount;
+            bool isObserve = node.Resolve!.Type == ResolveType.Observe;
             var actors = gameManager.DisplayedSnapshot.Actors;
             bool showOdds = isRoll && !disabled && hasRequires && actors != null && localRoll == null && residue == null;
 
             // ── 1. 标题区（居中）──
-            float titleY = rect.y + 12f;
+            float titleY = rect.y + (node.Clocks != null && node.Clocks.Count > 0 ? 44f : 12f);
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleCenter };
             if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
             GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, 26f), node.Name, titleStyle);
@@ -79,12 +81,20 @@ namespace SSNoir.IMGUI
             int coreDieIndex = isRoll ? FindCoreDieIndex(node) : -1;
             DrawRequirementSlots(rect, bodyY, exeY, node, slotted, coreDieIndex, disabled, ui, gameManager, ref interaction);
 
-            // ── 6. 执行按钮（实心金 / 待命 / 不可用 / 执行中）──
+            // ── 6. 执行 / 查看按钮（实心金 / 待命 / 不可用 / 执行中）──
             var exeRect = new Rect(rect.x + (rect.width - 112f) / 2f, exeY, 112f, exeH);
-            bool allFilled = slotted != null && slotted.All(s => s != null);
+            bool allFilled = requiredSlotCount == 0 || (slotted != null && slotted.Count == requiredSlotCount && slotted.All(s => s != null));
             if (isExecuting)
             {
                 DrawExecuteProgress(exeRect, executeProgress, executingText);
+            }
+            else if (isObserve)
+            {
+                if (DrawExecuteButton(exeRect, disabled ? "不可用" : "查 看", ui, !disabled))
+                {
+                    interaction.CardClicked = true;
+                    Event.current.Use();
+                }
             }
             else if (allFilled && !disabled)
             {
@@ -124,20 +134,20 @@ namespace SSNoir.IMGUI
 
         // ── 边缘便签：类别 / 风险，骑在卡片左边缘外 ────────────────────
 
-        // 同族彩纸便签，半贴在卡左边缘上（约 60% 露在外），自上而下堆叠；微旋转 + 硬影。
+        // 同族彩纸便签，贴在卡左边缘外，文字竖排；自上而下堆叠。
         // 不占卡内空间，也不遮主要元素——「贴在物件上的彩色便签」隐喻更足。
         private static void DrawEdgeTags(Rect rect, GameNode node)
         {
-            const float tagW = 68f;
-            const float tagH = 24f;
-            float tagX = rect.x - 34f;
-            float y = rect.y + 16f;
+            const float tagW = 26f;
+            const float tagH = 72f;
+            float tagX = rect.x - 13f;
+            float y = rect.y + 22f;
             float maxY = rect.yMax - 40f;
             int stickyCount = 0;
             var tagStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 13,
+                fontSize = 12,
                 fontStyle = FontStyle.Normal,
                 alignment = TextAnchor.MiddleCenter,
                 clipping = TextClipping.Clip
@@ -148,7 +158,7 @@ namespace SSNoir.IMGUI
             {
                 for (int k = 0; k < modifiers.Count; k++)
                 {
-                    float tagY = y + stickyCount * (tagH + 4f);
+                    float tagY = y + stickyCount * (tagH + 6f);
                     if (tagY + tagH > maxY) return;
                     var mod = modifiers[k];
                     string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
@@ -156,7 +166,7 @@ namespace SSNoir.IMGUI
                                 : (mod.Value > 0 ? new Color(0.66f, 0.74f, 0.50f, 1f) : new Color(0.58f, 0.68f, 0.80f, 1f));
                     Color noteText = mod.Value < 0 ? new Color(0.30f, 0.07f, 0.03f, 1f)
                                 : (mod.Value > 0 ? new Color(0.10f, 0.18f, 0.05f, 1f) : new Color(0.05f, 0.12f, 0.22f, 1f));
-                    DrawStaticTag(new Rect(tagX, tagY, tagW, tagH), modText, noteBg, noteText, tagStyle);
+                    DrawVerticalTag(new Rect(tagX, tagY, tagW, tagH), modText, noteBg, noteText, tagStyle);
                     stickyCount++;
                 }
             }
@@ -167,10 +177,10 @@ namespace SSNoir.IMGUI
                 {
                     string tag = node.Tags[k];
                     if (string.IsNullOrWhiteSpace(tag)) continue;
-                    float tagY = y + stickyCount * (tagH + 4f);
+                    float tagY = y + stickyCount * (tagH + 6f);
                     if (tagY + tagH > maxY) return;
                     var (bg, text) = TagColors(tag);
-                    DrawStaticTag(new Rect(tagX, tagY, tagW, tagH), tag, bg, text, tagStyle);
+                    DrawVerticalTag(new Rect(tagX, tagY, tagW, tagH), tag, bg, text, tagStyle);
                     stickyCount++;
                 }
             }
@@ -197,6 +207,41 @@ namespace SSNoir.IMGUI
             style.onActive.textColor = textColor;
             style.onFocused.textColor = textColor;
             GUI.Label(rect, text, style);
+        }
+
+        private static void DrawVerticalTag(Rect rect, string text, Color bg, Color textColor, GUIStyle baseStyle)
+        {
+            GUI.color = bg;
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = new Color(textColor.r, textColor.g, textColor.b, 0.55f);
+            GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, 3f), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            var style = new GUIStyle(baseStyle)
+            {
+                font = IMGUIStyles.ChineseFont,
+                fontSize = 12,
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = textColor }
+            };
+            style.hover.textColor = textColor;
+            style.active.textColor = textColor;
+            style.focused.textColor = textColor;
+            style.onNormal.textColor = textColor;
+            style.onHover.textColor = textColor;
+            style.onActive.textColor = textColor;
+            style.onFocused.textColor = textColor;
+
+            string compact = text.Replace(" ", "");
+            int count = Mathf.Max(1, compact.Length);
+            float lineH = Mathf.Min(16f, rect.height / count);
+            float totalH = lineH * count;
+            float startY = rect.y + (rect.height - totalH) * 0.5f;
+
+            for (int i = 0; i < compact.Length; i++)
+            {
+                GUI.Label(new Rect(rect.x, startY + i * lineH, rect.width, lineH), compact[i].ToString(), style);
+            }
         }
 
         // ── 需求骰位：方块 Slot（与手牌骰子/物品同族）──────────────────

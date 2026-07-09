@@ -138,70 +138,104 @@ namespace SSNoir.IMGUI
         {
             if (clocks == null || clocks.Count == 0) return;
 
-            float badgeX = rect.x + rect.width - 6;
-            float badgeY = rect.y + 4;
-            foreach (var clock in clocks)
+            const float badgeH = 28f;
+            const float gap = 8f;
+            float maxRowW = rect.width - 24f;
+            float perBadgeMaxW = (maxRowW - gap * (clocks.Count - 1)) / clocks.Count;
+            perBadgeMaxW = Mathf.Clamp(perBadgeMaxW, 112f, 180f);
+
+            float[] widths = new float[clocks.Count];
+            float totalW = 0f;
+            for (int i = 0; i < clocks.Count; i++)
             {
-                DrawClockBadge(ref badgeX, badgeY, clock);
+                widths[i] = Mathf.Min(MeasureNodeClockBadgeWidth(clocks[i]), perBadgeMaxW);
+                totalW += widths[i];
+            }
+            totalW += gap * (clocks.Count - 1);
+
+            float x = rect.x + (rect.width - totalW) * 0.5f;
+            float y = rect.y + 8f;
+            for (int i = 0; i < clocks.Count; i++)
+            {
+                DrawNodeClockBadge(new Rect(x, y, widths[i], badgeH), clocks[i]);
+                x += widths[i] + gap;
             }
         }
 
-        private static void DrawClockBadge(ref float rightX, float topY, GameClock clock)
+        private static float MeasureNodeClockBadgeWidth(GameClock clock)
+        {
+            var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
+            {
+                fontSize = 14,
+                fontStyle = FontStyle.Bold
+            };
+            IMGUIStyles.ApplyStrongFont(labelStyle);
+
+            float labelW = labelStyle.CalcSize(new GUIContent(clock.Label)).x;
+            float valueW = clock.Style switch
+            {
+                ClockStyle.Countdown => 44f,
+                ClockStyle.Segments => Mathf.Max(0f, clock.Max * 10f + Mathf.Max(0, clock.Max - 1) * 5f),
+                ClockStyle.Pie => 56f,
+                _ => 44f
+            };
+            return 20f + labelW + 8f + valueW + 12f;
+        }
+
+        private static void DrawNodeClockBadge(Rect rect, GameClock clock)
         {
             Color activeColor = IMGUIStyles.Gold;
             Color inactiveColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
+            Color outline = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f);
 
+            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.96f);
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(rect, 1f, outline);
+
+            var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
+            {
+                fontSize = 14,
+                alignment = TextAnchor.MiddleLeft,
+                clipping = TextClipping.Clip
+            };
+            IMGUIStyles.ApplyStrongFont(labelStyle);
+
+            float valueW = clock.Style switch
+            {
+                ClockStyle.Countdown => 44f,
+                ClockStyle.Segments => Mathf.Max(0f, clock.Max * 10f + Mathf.Max(0, clock.Max - 1) * 5f),
+                ClockStyle.Pie => 56f,
+                _ => 44f
+            };
+            float labelW = Mathf.Max(24f, rect.width - 20f - 8f - valueW);
+            GUI.Label(new Rect(rect.x + 10f, rect.y, labelW, rect.height), clock.Label, labelStyle);
+
+            float vx = rect.xMax - 10f - valueW;
             if (clock.Style == ClockStyle.Countdown)
             {
-                string text = $"{clock.Label} {clock.Current}/{clock.Max}";
-                float textWidth = 80;
-                float badgeW = textWidth + 8;
-                float badgeH = 14;
-                float badgeX = rightX - badgeW;
-                float badgeY = topY;
-
-                GUI.color = IMGUIStyles.Ink;
-                GUI.DrawTexture(new Rect(badgeX, badgeY, badgeW, badgeH), Texture2D.whiteTexture);
-                GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
-
-                var style = new GUIStyle(IMGUIStyles.ClockLabel)
+                var valueStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
-                    fontSize = 10,
-                    alignment = TextAnchor.MiddleCenter
+                    fontSize = 15,
+                    alignment = TextAnchor.MiddleRight,
+                    normal = { textColor = IMGUIStyles.Gold }
                 };
-                GUI.Label(new Rect(badgeX, badgeY, badgeW, badgeH), text, style);
-
-                rightX -= (badgeW + 4);
+                GUI.Label(new Rect(vx, rect.y, valueW, rect.height), $"{clock.Current}/{clock.Max}", valueStyle);
             }
             else if (clock.Style == ClockStyle.Segments)
             {
-                string labelText = clock.Label;
-                float labelWidth = 40;
-                int dotSize = 5;
-                int spacing = 2;
-                float dotsW = clock.Max * (dotSize + spacing) - spacing;
-                float badgeW = labelWidth + 6 + dotsW + 6;
-                float badgeH = 14;
-                float badgeX = rightX - badgeW;
-                float badgeY = topY;
-
-                GUI.color = IMGUIStyles.Ink;
-                GUI.DrawTexture(new Rect(badgeX, badgeY, badgeW, badgeH), Texture2D.whiteTexture);
-                GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
-
-                var style = new GUIStyle(IMGUIStyles.ClockLabel) { fontSize = 10 };
-                GUI.Label(new Rect(badgeX + 4, badgeY, labelWidth, badgeH), labelText, style);
-
-                float dotStartX = badgeX + 4 + labelWidth + 4;
+                const float dot = 10f;
+                const float spacing = 5f;
+                float dotStartX = rect.xMax - 10f - valueW;
+                float dotY = rect.y + (rect.height - dot) * 0.5f;
                 for (int i = 0; i < clock.Max; i++)
                 {
-                    var dotRect = new Rect(dotStartX + i * (dotSize + spacing), badgeY + (badgeH - dotSize) / 2f, dotSize, dotSize);
+                    var dotRect = new Rect(dotStartX + i * (dot + spacing), dotY, dot, dot);
                     if (i < clock.Current)
                     {
                         GUI.color = activeColor;
                         GUI.DrawTexture(dotRect, Texture2D.whiteTexture);
+                        GUI.color = Color.white;
                     }
                     else
                     {
@@ -212,34 +246,21 @@ namespace SSNoir.IMGUI
                     }
                     GUI.color = Color.white;
                 }
-
-                rightX -= (badgeW + 4);
             }
             else // Pie
             {
-                string labelText = clock.Label;
-                float labelWidth = 40;
-                float pieRadius = 10f;
-                float badgeW = labelWidth + 6 + pieRadius * 2 + 6;
-                float badgeH = 14;
-                float badgeX = rightX - badgeW;
-                float badgeY = topY;
-
-                GUI.color = IMGUIStyles.Ink;
-                GUI.DrawTexture(new Rect(badgeX, badgeY, badgeW, badgeH), Texture2D.whiteTexture);
-                GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(new Rect(badgeX, badgeY, badgeW, badgeH), 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
-
-                var style = new GUIStyle(IMGUIStyles.ClockLabel) { fontSize = 10 };
-                GUI.Label(new Rect(badgeX + 4, badgeY, labelWidth, badgeH), labelText, style);
-
-                float pieX = badgeX + 4 + labelWidth + 4;
-                float pieY = badgeY + (badgeH - pieRadius * 2) / 2f;
-                var pieRect = new Rect(pieX, pieY, pieRadius * 2, pieRadius * 2);
+                float pieRadius = 9f;
+                var pieRect = new Rect(vx, rect.center.y - pieRadius, pieRadius * 2f, pieRadius * 2f);
                 float fillPct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
                 PieDrawer.DrawPieBadge(pieRect, fillPct, activeColor, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
 
-                rightX -= (badgeW + 4);
+                var fracStyle = new GUIStyle(IMGUIStyles.ClockValue)
+                {
+                    fontSize = 14,
+                    alignment = TextAnchor.MiddleRight,
+                    normal = { textColor = IMGUIStyles.Gold }
+                };
+                GUI.Label(new Rect(pieRect.xMax + 6f, rect.y, valueW - pieRect.width - 6f, rect.height), $"{clock.Current}/{clock.Max}", fracStyle);
             }
         }
 

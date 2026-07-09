@@ -29,7 +29,7 @@ namespace SSNoir.Core
             Set("relation:富商", 0);
 
             // Initialize Inventory
-            Inventory.SetCount("金钱", 50);
+            Inventory.SetCount("金钱", 15);
             Inventory.SetCount("情报", 0);
             Inventory.SetCount("食物", 2);
             Inventory.SetCount("药品", 1);

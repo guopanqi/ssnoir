@@ -1,35 +1,8 @@
-;; stdlib.scm - Standard Scheme library extensions for Schemy
-
-(define (cadr xs)
-  (car (cdr xs)))
-
-(define (caddr xs)
-  (car (cdr (cdr xs))))
-
-(define (cadddr xs)
-  (car (cdr (cdr (cdr xs)))))
-
-(define and
-  (lambda args
-    (if (null? args)
-        #t
-        (if (car args)
-            (apply and (cdr args))
-            #f))))
-
-(define or
-  (lambda args
-    (if (null? args)
-        #f
-        (if (car args)
-            #t
-            (apply or (cdr args))))))
-
-(define (min a b)
-  (if (< a b) a b))
-
-(define (max a b)
-  (if (> a b) a b))
+;; stdlib.scm - SSNoir content-script helpers.
+;;
+;; Keep this file small and project-driven. Generic Scheme capabilities belong in
+;; Schemy/init.ss or Builtins.cs; this layer is for helpers that content scripts
+;; actually use.
 
 (define (filter pred lst)
   (if (null? lst)
@@ -38,6 +11,13 @@
           (cons (car lst) (filter pred (cdr lst)))
           (filter pred (cdr lst)))))
 
+(define (member? x lst)
+  (if (null? lst)
+      #f
+      (if (equal? x (car lst))
+          #t
+          (member? x (cdr lst)))))
+
 ;; 从 assoc-list 中按 key 查找，找不到返回 default
 (define (assoc-get alist key default)
   (if (null? alist)
@@ -45,14 +25,3 @@
       (if (equal? (car (car alist)) key)
           (cadr (car alist))
           (assoc-get (cdr alist) key default))))
-
-;; 支持多变参的多元 append 包装（将内置的二元 append 扩展为标准的多参 append）
-(define raw-append append)
-(define append
-  (lambda args
-    (if (null? args)
-        '()
-        (if (null? (cdr args))
-            (car args)
-            (raw-append (car args) (apply append (cdr args)))))))
-
