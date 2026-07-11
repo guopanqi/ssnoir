@@ -10,6 +10,11 @@ namespace SSNoir.Rendering
 {
     public class RaylibRenderer
     {
+        // Font files follow: <family>-Regular.ttf / <family>-SemiBold.ttf.
+        private const string FontFamily = 
+        // "SourceHanSerifCN";
+        "MiSans";
+
         private readonly SceneManager _sceneManager;
         private readonly GameState _gameState;
         private readonly RendererState _state;
@@ -530,7 +535,7 @@ namespace SSNoir.Rendering
             Raylib.SetExitKey(KeyboardKey.Null); // Disable ESC key exiting the game
             Raylib.SetTargetFPS(60);
 
-            FontManager.LoadFont("assets/fonts/MiSans-Normal.ttf", 48);
+            FontManager.LoadFont($"assets/fonts/{FontFamily}-Regular.ttf", 48);
 
             _sceneManager.LoadScene(_gameState.Get<string>("location"));
 

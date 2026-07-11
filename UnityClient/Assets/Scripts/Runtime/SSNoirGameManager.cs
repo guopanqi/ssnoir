@@ -29,11 +29,13 @@ namespace SSNoir
     public class SSNoirGameManager : MonoBehaviour
     {
         private const string WorldRootNodeName = "世界";
-        private const string RegularFontResourcePath = "Fonts/MiSans-Normal";
-        private const string SemiboldFontResourcePath = "Fonts/MiSans-Semibold";
+        // Font files follow: <family>-Regular.ttf / <family>-SemiBold.ttf.
+        private const string FontFamily = "SourceHanSerifCN";
+        private const string RegularFontResourcePath = "Fonts/" + FontFamily + "-Regular";
+        private const string SemiboldFontResourcePath = "Fonts/" + FontFamily + "-SemiBold";
 #if UNITY_EDITOR
-        private const string RegularFontAssetPath = "Assets/Resources/Fonts/MiSans-Normal.ttf";
-        private const string SemiboldFontAssetPath = "Assets/Resources/Fonts/MiSans-Semibold.ttf";
+        private const string RegularFontAssetPath = "Assets/Resources/Fonts/" + FontFamily + "-Regular.ttf";
+        private const string SemiboldFontAssetPath = "Assets/Resources/Fonts/" + FontFamily + "-SemiBold.ttf";
 #endif
 
         [Header("Camera Drag Settings")]
