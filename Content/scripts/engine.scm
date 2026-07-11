@@ -123,6 +123,10 @@
           (list 'roll skill (lambda () '()) (car branches) (cadr branches) (caddr branches))
           (error "roll: expected 4 args (skill fail neutral success) or 5 args (skill mod-fn fail neutral success)"))))
 
+;; 恢复性判定与 roll 同构，但不受角色的压力修正影响。
+(define (recovery-roll skill fail-outcome neutral-outcome success-outcome)
+  (list 'recovery-roll skill (lambda () '()) fail-outcome neutral-outcome success-outcome))
+
 (define (observe text)
   (list 'observe text))
 
@@ -177,23 +181,35 @@
       (require-outcome neutral-outcome "roll-action neutral")
       (require-outcome success-outcome "roll-action success"))))
 
+(define (recovery-roll-action name requires skill fail-outcome neutral-outcome success-outcome)
+  (action name requires
+    (recovery-roll skill
+      (require-outcome fail-outcome "recovery-roll-action fail")
+      (require-outcome neutral-outcome "recovery-roll-action neutral")
+      (require-outcome success-outcome "recovery-roll-action success"))))
+
 ;; ── 工作（work）DSL ───────────────────────────────────
 ;; (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])
 ;;   faction: "官僚"/"劳工"/"富商"，成功时缓慢 +1 关系（做这行混脸熟，攒得很慢）
-;;   risk:    '低/'中/'高/'越界，只决定风险标签 + 断言，不自动生成收益/惩罚
+;;   risk:    '低/'中/'高只决定风险标签与结果代价；'非法是难度标签，固定 -2
 ;;   好/中/坏: 每项工作显式传入三个 outcome，标题和描述直接用于轻型结算
 ;;   subtitle: 可选，只写“特别”的一句说明；一般风险由标签表达，不写 subtitle
 ;; 表现约定：每个工作都打“工作”标签（＝能赚钱）+ 一个风险标签，前端给风险标签配色，
-;; 玩家一眼就能判断类型和大致风险。惩罚（钱/压力/健康、越界失败掉关系）写在各 outcome effect 里。
+;; 玩家一眼就能判断类型和大致风险。惩罚（钱/压力/健康、非法工作失败掉关系）写在各 outcome effect 里。
 (define (工作-风险标签 risk)
   (cond ((equal? risk '低)   "低风险")
         ((equal? risk '中)   "中风险")
         ((equal? risk '高)   "高风险")
-        ((equal? risk '越界) "越界")
-        (else (error "工作: 未知风险等级（应为 低/中/高/越界）"))))
+        ((equal? risk '非法) "非法")
+        (else (error "工作: 未知风险等级（应为 低/中/高/非法）"))))
 
 (define (工作-合法势力? faction)
   (or (equal? faction "官僚") (equal? faction "劳工") (equal? faction "富商")))
+
+(define (工作-难度修正 risk)
+  (cond ((or (equal? risk '低) (equal? risk '中) (equal? risk '高)) '())
+        ((equal? risk '非法) (list (modifier -2 "非法")))
+        (else (error "工作: 未知风险等级（应为 低/中/高/非法）"))))
 
 (define (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
   (if (工作-合法势力? faction) #t (error "工作: 未知势力（应为 官僚/劳工/富商）"))
@@ -202,6 +218,7 @@
         :tags (list "工作" (工作-风险标签 risk))
         :requires (list (req-die))
         :resolve (roll skill
+                       (lambda () (工作-难度修正 risk))
                        (require-outcome 坏-outcome "工作 坏")
                        (require-outcome 中-outcome "工作 中")
                        (outcome-append-effect

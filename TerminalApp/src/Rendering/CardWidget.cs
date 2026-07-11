@@ -42,7 +42,8 @@ namespace SSNoir.Rendering
             CardPresentationResidue? residue = null,
             bool disabled = false,
             string? rollSkill = null,
-            IReadOnlyList<ActorSnapshot>? actors = null)
+            IReadOnlyList<ActorSnapshot>? actors = null,
+            bool ignoresStressPenalty = false)
         {
             var interaction = new CardInteraction
             {
@@ -51,6 +52,8 @@ namespace SSNoir.Rendering
                 DroppedSlotIndex = -1,
                 ExecuteClicked = false
             };
+            List<DifficultyModifierInfo> effectiveModifiers = BuildEffectiveModifiers(
+                modifiers, slotted, actors, ignoresStressPenalty);
 
             Color bgColor = disabled
                 ? new Color(28, 28, 32, 255)
@@ -315,13 +318,13 @@ namespace SSNoir.Rendering
             }
 
             // Draw Difficulty Modifier Tags on the top-left of the card
-            if (modifiers != null && modifiers.Count > 0)
+            if (effectiveModifiers.Count > 0)
             {
                 float tagStartX = bounds.X + 6;
                 float tagStartY = Math.Max(bounds.Y + 6, tagBottomY + 4);
-                for (int k = 0; k < modifiers.Count; k++)
+                for (int k = 0; k < effectiveModifiers.Count; k++)
                 {
-                    var mod = modifiers[k];
+                    var mod = effectiveModifiers[k];
                     string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
                     int fontSize = 10;
                     int textWidth = FontManager.MeasureTextWidth(modText, fontSize);
@@ -358,11 +361,10 @@ namespace SSNoir.Rendering
                 DrawResidue(bounds, residue);
             }
             else if (hasSkill && !disabled && hasRequires && actors != null
-                     && bounds.Y + bounds.Height - executeBottomY >= 16f)
+                     && bounds.Y + bounds.Height - executeBottomY >= 32f)
             {
-                // Once a die is placed, preview the three outcome bands — exact, since only
-                // the advantage dice are random. Gated to cards with room below the button.
-                TryDrawOddsPreview(bounds, rollSkill!, slotted!, modifiers, actors, executeBottomY);
+                // Once a die is placed, preview all six fate faces. Gated to cards with room below the button.
+                TryDrawFatePreview(bounds, rollSkill!, slotted!, effectiveModifiers, actors, executeBottomY);
             }
 
             return interaction;
@@ -405,7 +407,30 @@ namespace SSNoir.Rendering
         private static readonly Color OddsNeutralColor  = new Color(214, 169, 78, 255);
         private static readonly Color OddsSuccessColor  = new Color(89, 180, 119, 255);
 
-        private static void TryDrawOddsPreview(Rectangle bounds, string skill, List<SlottedResource?> slotted,
+        private static List<DifficultyModifierInfo> BuildEffectiveModifiers(
+            List<DifficultyModifierInfo>? baseModifiers,
+            List<SlottedResource?>? slotted,
+            IReadOnlyList<ActorSnapshot>? actors,
+            bool ignoresStressPenalty)
+        {
+            var result = baseModifiers != null
+                ? new List<DifficultyModifierInfo>(baseModifiers)
+                : new List<DifficultyModifierInfo>();
+            if (ignoresStressPenalty || slotted == null || actors == null) return result;
+
+            SlottedResource? die = slotted.FirstOrDefault(s => s?.Type == "die");
+            if (die == null) return result;
+            ActorSnapshot? actor = actors.FirstOrDefault(a => a.Id == die.ActorId);
+            if (actor == null)
+                throw new InvalidOperationException($"Actor '{die.ActorId}' was not found for stress modifier preview.");
+
+            int value = TeamState.GetStressRollModifier(actor.Stress);
+            if (value != 0)
+                result.Add(new DifficultyModifierInfo { Value = value, Reason = "心绪不宁" });
+            return result;
+        }
+
+        private static void TryDrawFatePreview(Rectangle bounds, string skill, List<SlottedResource?> slotted,
             List<DifficultyModifierInfo>? modifiers, IReadOnlyList<ActorSnapshot> actors, float executeBottomY)
         {
             SlottedResource? dieSlot = null;
@@ -422,15 +447,19 @@ namespace SSNoir.Rendering
                 return;
             }
 
-            int skillLevel = 1;
+            int? skillLevel = null;
             foreach (var actor in actors)
             {
-                if (actor.Id == dieSlot.ActorId && actor.Stats.TryGetValue(skill, out int lv))
+                if (actor.Id == dieSlot.ActorId)
                 {
+                    if (!actor.Stats.TryGetValue(skill, out int lv))
+                        throw new InvalidOperationException($"Actor '{actor.Id}' is missing required stat '{skill}'.");
                     skillLevel = lv;
                     break;
                 }
             }
+            if (!skillLevel.HasValue)
+                throw new InvalidOperationException($"Actor '{dieSlot.ActorId}' was not found for fate preview.");
             int modSum = 0;
             if (modifiers != null)
             {
@@ -440,45 +469,38 @@ namespace SSNoir.Rendering
                 }
             }
 
-            var odds = RollOdds.Compute(dieSlot.Value, skillLevel, modSum);
-            DrawOddsPreview(bounds, odds, executeBottomY);
+            var strip = FateStrip.Compute(dieSlot.Value, skillLevel.Value, modSum);
+            DrawFateStrip(bounds, strip, executeBottomY);
         }
 
-        // Compact tri-color proportion bar: the widths of 失败/中性/成功 show the odds split
-        // at a glance, with each percentage labeled beneath. Sits in the strip below the button.
-        private static void DrawOddsPreview(Rectangle bounds, RollOddsResult odds, float executeBottomY)
+        private static void DrawFateStrip(Rectangle bounds, RollOutcome[] strip, float executeBottomY)
         {
             float pad = 8f;
-            float barY = executeBottomY + 4f;
-            float barX = bounds.X + pad;
-            float barW = bounds.Width - pad * 2f;
-            float barH = 5f;
+            float summaryY = executeBottomY + 1f;
+            string summary = FateStrip.Describe(strip);
+            int summaryW = FontManager.MeasureTextWidth(summary, 9);
+            FontManager.DrawText(summary, bounds.X + (bounds.Width - summaryW) / 2f, summaryY, 9, new Color(190, 190, 205, 255));
 
-            var bands = new (double p, Color c)[]
+            float rowY = summaryY + 12f;
+            float gap = 3f;
+            float cellW = Math.Min(24f, (bounds.Width - pad * 2f - gap * 5f) / 6f);
+            float totalW = cellW * 6f + gap * 5f;
+            float startX = bounds.X + (bounds.Width - totalW) / 2f;
+            for (int i = 0; i < 6; i++)
             {
-                (odds.Fail,    OddsFailColor),
-                (odds.Neutral, OddsNeutralColor),
-                (odds.Success, OddsSuccessColor),
-            };
-
-            float x = barX;
-            for (int i = 0; i < 3; i++)
-            {
-                float w = i == 2 ? (barX + barW - x) : barW * (float)bands[i].p;
-                if (w > 0.5f)
+                Color color = OutcomeColor(strip[i]);
+                var cell = new Rectangle(startX + i * (cellW + gap), rowY, cellW, 17f);
+                Raylib.DrawRectangleRounded(cell, 0.12f, 3,
+                    new Color((byte)(color.R / 5), (byte)(color.G / 5), (byte)(color.B / 5), (byte)245));
+                Raylib.DrawRectangleRoundedLinesEx(cell, 0.12f, 3, 1f, color);
+                string face = (i + 1).ToString();
+                int faceW = FontManager.MeasureTextWidth(face, 10);
+                FontManager.DrawText(face, cell.X + (cell.Width - faceW) / 2f, cell.Y + 3f, 10, color);
+                if (i == 0 || i == 5)
                 {
-                    Raylib.DrawRectangle((int)x, (int)barY, (int)Math.Ceiling(w), (int)barH, bands[i].c);
+                    string mark = i == 0 ? "-1" : "+1";
+                    FontManager.DrawText(mark, cell.X + 1f, cell.Y - 7f, 7, color);
                 }
-                x += w;
-            }
-
-            float colW = barW / 3f;
-            for (int i = 0; i < 3; i++)
-            {
-                string pct = $"{(int)Math.Round(bands[i].p * 100)}%";
-                int pw = FontManager.MeasureTextWidth(pct, 10);
-                float cx = barX + i * colW + (colW - pw) / 2f;
-                FontManager.DrawText(pct, cx, barY + barH + 1f, 10, bands[i].c);
             }
         }
 
@@ -488,7 +510,7 @@ namespace SSNoir.Rendering
             Raylib.DrawRectangleRounded(panel, 0.16f, 6, new Color(20, 22, 30, 245));
             Raylib.DrawRectangleRoundedLinesEx(panel, 0.16f, 6, 1.4f, new Color(255, 182, 147, 255));
 
-            int dieValue = phase == 0 ? displayDieValue : report.FinalRollValue;
+            int dieValue = phase == 0 ? displayDieValue : report.FateDieValue;
             int dieFont = (int)(26 * Math.Clamp(displayScale, 0.8f, 1.35f));
             string dieText = $"D{dieValue}";
             int dieW = FontManager.MeasureTextWidth(dieText, dieFont);
@@ -499,9 +521,17 @@ namespace SSNoir.Rendering
             FontManager.DrawText(label, panel.X + 66f, panel.Y + 9f, 14, color);
 
             string detail = phase >= 2
-                ? $"最终值 {report.ModifiedRollValue}"
-                : "骰子滚动...";
+                ? FormatRollDetail(report)
+                : "命运骰滚动...";
             FontManager.DrawText(detail, panel.X + 66f, panel.Y + 28f, 11, new Color(170, 170, 190, 255));
+        }
+
+        private static string FormatRollDetail(ActionReport report)
+        {
+            string natural = report.NaturalModifier == 0
+                ? string.Empty
+                : report.NaturalModifier > 0 ? " + 天然6" : " - 天然1";
+            return $"准备 {report.PreparedValue} + 命运 {report.FateDieValue}{natural} = {report.FinalTotal}";
         }
 
         private static void DrawResidue(Rectangle bounds, CardPresentationResidue residue)
@@ -528,9 +558,9 @@ namespace SSNoir.Rendering
             Raylib.DrawRectangleRoundedLinesEx(panel, 0.16f, 6, 1.0f, new Color(255, 182, 147, 180));
 
             float textX = panel.X + 66f;
-            if (residue.DieValue.HasValue)
+            if (residue.FateDieValue.HasValue)
             {
-                string dieText = $"D{residue.DieValue.Value}";
+                string dieText = $"D{residue.FateDieValue.Value}";
                 const int dieFont = 24;
                 int dieW = FontManager.MeasureTextWidth(dieText, dieFont);
                 FontManager.DrawText(dieText, panel.X + 13f + (42f - dieW) / 2f, panel.Y + (panel.Height - dieFont) / 2f, dieFont, new Color(255, 182, 147, 255));
@@ -541,8 +571,8 @@ namespace SSNoir.Rendering
                 title += " · " + residue.Title;
             Color titleColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : new Color(230, 230, 245, 255);
             FontManager.DrawText(title, textX, panel.Y + 6f, 12, titleColor);
-            if (residue.ModifiedRollValue.HasValue)
-                FontManager.DrawText($"最终值 {residue.ModifiedRollValue.Value}", textX, panel.Y + 23f, 10, new Color(170, 170, 190, 255));
+            if (residue.FinalTotal.HasValue)
+                FontManager.DrawText($"准备 {residue.PreparedValue} · 最终 {residue.FinalTotal.Value}", textX, panel.Y + 23f, 10, new Color(170, 170, 190, 255));
 
             float y = panel.Y + panel.Height + 3f;
             if (!string.IsNullOrWhiteSpace(residue.Subtitle))
@@ -756,9 +786,9 @@ namespace SSNoir.Rendering
             FontManager.DrawText(label, bounds.X + (bounds.Width - labelW) / 2f, bounds.Y + 12f, 13, typeColor);
 
             float titleY = bounds.Y + 38f;
-            if (residue.DieValue.HasValue)
+            if (residue.FateDieValue.HasValue)
             {
-                string dieText = $"D{residue.DieValue.Value}";
+                string dieText = $"D{residue.FateDieValue.Value}";
                 const int dieFont = 26;
                 int dieW = FontManager.MeasureTextWidth(dieText, dieFont);
                 FontManager.DrawText(dieText, bounds.X + (bounds.Width - dieW) / 2f, bounds.Y + 34f, dieFont, new Color(255, 182, 147, 255));
@@ -774,8 +804,8 @@ namespace SSNoir.Rendering
             DrawWrappedText(title, bounds.X + 14f, titleY, bounds.Width - 28f, 14, titleColor);
 
             string subtitle = residue.Subtitle;
-            if (string.IsNullOrWhiteSpace(subtitle) && residue.ModifiedRollValue.HasValue)
-                subtitle = $"最终值 {residue.ModifiedRollValue.Value}";
+            if (string.IsNullOrWhiteSpace(subtitle) && residue.FinalTotal.HasValue)
+                subtitle = $"准备 {residue.PreparedValue} · 最终 {residue.FinalTotal.Value}";
             if (!string.IsNullOrWhiteSpace(subtitle))
                 DrawWrappedText(subtitle, bounds.X + 14f, titleY + 30f, bounds.Width - 28f, 11, new Color(185, 190, 210, 255));
 
@@ -798,7 +828,7 @@ namespace SSNoir.Rendering
                     return (new Color(80, 62, 26, 225), new Color(214, 168, 70, 255), new Color(255, 238, 200, 255));
                 case "高风险": // 红
                     return (new Color(90, 40, 34, 225), new Color(214, 96, 74, 255), new Color(255, 220, 205, 255));
-                case "越界": // 深红：越界/掉关系
+                case "非法": // 深红：非法工作/掉关系
                     return (new Color(70, 26, 44, 230), new Color(200, 70, 110, 255), new Color(255, 210, 225, 255));
                 default:
                     return (new Color(35, 48, 78, 220), new Color(105, 145, 220, 255), new Color(220, 235, 255, 255));

@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using SSNoir.Core;
 
@@ -14,12 +13,11 @@ namespace SSNoir.IMGUI
         public float DisplayScale { get; private set; } = 1f;
         public string DisplayOutcomeText { get; private set; } = "";
         public Color DisplayOutcomeColor { get; private set; } = Color.white;
-        public int FinalValue { get; private set; }
+        public int FateDieValue { get; private set; }
         public RollOutcome FinalOutcome { get; private set; }
         public int ChosenDie { get; private set; }
         public int Phase => _phase;
         public string ActionName { get; private set; } = "";
-        public List<int> RandomDice { get; private set; } = new List<int>();
         public ActionReport? CurrentReport { get; private set; }
         public bool UsesModal =>
             CurrentReport != null
@@ -35,12 +33,11 @@ namespace SSNoir.IMGUI
             IsPlaying = true;
             _phase = 0;
             _phaseStartTime = Time.time;
-            FinalValue = report.FinalRollValue;
+            FateDieValue = report.FateDieValue;
             FinalOutcome = report.Outcome;
             CurrentReport = report;
             ChosenDie = report.ChosenDieValue;
             ActionName = actionName;
-            RandomDice = new List<int>(report.RandomDice);
             DisplayedDieValue = 1;
             DisplayScale = 1f;
             DisplayOutcomeText = "";
@@ -70,7 +67,7 @@ namespace SSNoir.IMGUI
                 {
                     _phase = 1;
                     _phaseStartTime = Time.time;
-                    DisplayedDieValue = FinalValue;
+                    DisplayedDieValue = FateDieValue;
                     DisplayScale = 1f;
                 }
             }
@@ -175,13 +172,15 @@ namespace SSNoir.IMGUI
                 GUI.Label(new Rect(contentX, contentY, contentW, 20), $"投入骰子值: {ChosenDie}", IMGUIStyles.ModalBody);
                 contentY += 22;
 
-                string randText = RandomDice.Count > 0
-                    ? "附加掷骰: " + string.Join(", ", RandomDice)
-                    : "无附加掷骰 (技能等级为1)";
-                GUI.Label(new Rect(contentX, contentY, contentW, 20), randText, IMGUIStyles.ModalBody);
+                GUI.Label(new Rect(contentX, contentY, contentW, 20),
+                    $"准备值: {CurrentReport!.PreparedValue} · 命运骰: {CurrentReport.FateDieValue}", IMGUIStyles.ModalBody);
                 contentY += 22;
 
-                GUI.Label(new Rect(contentX, contentY, contentW, 20), $"最终最大点数: {FinalValue}", IMGUIStyles.ModalBody);
+                string natural = CurrentReport.NaturalModifier == 0
+                    ? string.Empty
+                    : CurrentReport.NaturalModifier > 0 ? " · 天然6 +1" : " · 天然1 -1";
+                GUI.Label(new Rect(contentX, contentY, contentW, 20),
+                    $"最终总和: {CurrentReport.FinalTotal}{natural}", IMGUIStyles.ModalBody);
                 contentY += 26;
             }
 

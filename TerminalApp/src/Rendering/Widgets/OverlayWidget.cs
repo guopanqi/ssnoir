@@ -108,8 +108,8 @@ namespace SSNoir.Rendering
 
                 float contentY = modalY + 50;
 
-                // Render all rolled dice side-by-side, centered
-                int totalDice = 1 + state.ActiveRollResult.RandomDice.Count;
+                // Render the single fate die, centered.
+                int totalDice = 1;
                 float dieWidth = 60f;
                 float spacing = 20f;
                 float totalWidth = totalDice * dieWidth + (totalDice - 1) * spacing;
@@ -133,8 +133,8 @@ namespace SSNoir.Rendering
                     }
                     else
                     {
-                        val = (i == 0) ? state.ActiveRollResult.ChosenDieValue : state.ActiveRollResult.RandomDice[i - 1];
-                        isWinner = (val == state.ActiveRollResult.FinalRollValue);
+                        val = state.ActiveRollResult.FateDieValue;
+                        isWinner = true;
 
                         if (state.ActiveRollPhase == 1)
                         {
@@ -173,9 +173,7 @@ namespace SSNoir.Rendering
                     FontManager.DrawText(line1, modalX + 40, contentY, 14, new Color(200, 200, 220, 255));
                     contentY += 20;
 
-                    string line2 = state.ActiveRollResult.RandomDice.Count > 0 
-                        ? $"额外技能掷骰结果: {string.Join(", ", state.ActiveRollResult.RandomDice)}"
-                        : "无额外技能掷骰 (技能等级为1)";
+                    string line2 = $"准备值: {state.ActiveRollResult.PreparedValue} · 命运骰: {state.ActiveRollResult.FateDieValue}";
                     FontManager.DrawText(line2, modalX + 40, contentY, 14, new Color(200, 200, 220, 255));
                     contentY += 20;
 
@@ -196,7 +194,10 @@ namespace SSNoir.Rendering
                     FontManager.DrawText(lineMod, modalX + 40, contentY, 14, new Color(180, 180, 200, 255));
                     contentY += 20;
 
-                    string line3 = $"最终修正判定值: {state.ActiveRollResult.ModifiedRollValue} (原始最大值 {state.ActiveRollResult.FinalRollValue})";
+                    string naturalText = state.ActiveRollResult.NaturalModifier == 0
+                        ? ""
+                        : state.ActiveRollResult.NaturalModifier > 0 ? " · 天然6 +1" : " · 天然1 -1";
+                    string line3 = $"最终总和: {state.ActiveRollResult.FinalTotal}{naturalText}";
                     FontManager.DrawText(line3, modalX + 40, contentY, 14, new Color(220, 220, 250, 255));
                     contentY += 25;
                 }

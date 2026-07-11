@@ -877,6 +877,9 @@ namespace SSNoir.IMGUI
                 Title = presentation.Title,
                 Subtitle = presentation.Subtitle,
                 RollOutcome = report.Type == ActionType.Roll ? report.Outcome : null,
+                FateDieValue = report.Type == ActionType.Roll ? report.FateDieValue : null,
+                PreparedValue = report.Type == ActionType.Roll ? report.PreparedValue : 0,
+                FinalTotal = report.Type == ActionType.Roll ? report.FinalTotal : null,
                 Effects = new List<ActionEffectRecord>(report.Effects)
             };
         }

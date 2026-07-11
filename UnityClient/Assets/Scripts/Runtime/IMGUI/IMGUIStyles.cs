@@ -64,7 +64,7 @@ namespace SSNoir.IMGUI
         public static readonly Color ModalBg = new Color(Paper.r, Paper.g, Paper.b, ModalOpacity);
         // 全屏遮罩：深墨 @60%
         public static readonly Color Blocker = new Color(0.039f, 0.047f, 0.071f, MaskOpacity);
-        // 判定结果三色（与概率条同源）
+        // 判定结果三色（与命运预览同源）
         public static readonly Color OutcomeSuccess = OddsSuccess;
         public static readonly Color OutcomeNeutral = OddsNeutral;
         public static readonly Color OutcomeFail    = OddsFail;

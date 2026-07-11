@@ -15,7 +15,7 @@ namespace SSNoir.Core
         public int Stress
         {
             get => _stress;
-            set => _stress = Math.Clamp(value, 0, 6);
+            set => _stress = Math.Clamp(value, 0, TeamState.MaxStress);
         }
 
         public List<int> ActionDice { get; set; } = new List<int>();
@@ -24,10 +24,10 @@ namespace SSNoir.Core
         
         public Dictionary<string, int> Stats { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
         {
-            { "violence", 1 },
-            { "knowledge", 1 },
-            { "sharpness", 1 },
-            { "social", 1 }
+            { "violence", 0 },
+            { "knowledge", 0 },
+            { "sharpness", 0 },
+            { "social", 0 }
         };
     }
 }

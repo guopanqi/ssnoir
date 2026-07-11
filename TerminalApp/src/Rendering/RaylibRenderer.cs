@@ -286,8 +286,9 @@ namespace SSNoir.Rendering
                 Title = hasLightPresentation ? report!.OutcomePresentation!.Title : string.Empty,
                 Subtitle = hasLightPresentation ? report!.OutcomePresentation!.Subtitle : string.Empty,
                 RollOutcome = hasRollResult ? report!.Outcome : null,
-                DieValue = hasRollResult ? report!.FinalRollValue : null,
-                ModifiedRollValue = hasRollResult ? report!.ModifiedRollValue : null,
+                FateDieValue = hasRollResult ? report!.FateDieValue : null,
+                PreparedValue = hasRollResult ? report!.PreparedValue : 0,
+                FinalTotal = hasRollResult ? report!.FinalTotal : null,
                 Effects = new List<ActionEffectRecord>(report!.Effects)
             };
         }
@@ -768,7 +769,7 @@ namespace SSNoir.Rendering
                     {
                         _state.ActiveRollPhase = 1;
                         _state.ActiveRollTime = 0f; // Reset phase time
-                        _state.ActiveRollDisplayDieValue = _state.ActiveRollResult.FinalRollValue;
+                        _state.ActiveRollDisplayDieValue = _state.ActiveRollResult.FateDieValue;
                         _state.ActiveRollDisplayScale = 1f;
                     }
                 }
@@ -1167,7 +1168,8 @@ namespace SSNoir.Rendering
                     residue,
                     node.Disabled,
                     node.Resolve?.Type == ResolveType.Roll ? node.Resolve.SkillName : null,
-                    _state.DisplayedSnapshot.Actors);
+                    _state.DisplayedSnapshot.Actors,
+                    node.Resolve?.IgnoresStressPenalty == true);
 
                 if (interaction.CardClicked)
                 {
@@ -1445,7 +1447,8 @@ namespace SSNoir.Rendering
                     float rowY = rowStartY + s * rowHeight;
 
                     // Get stat value
-                    int statVal = actor.Stats.TryGetValue(stat.Key, out var val) ? val : 1;
+                    if (!actor.Stats.TryGetValue(stat.Key, out int statVal))
+                        throw new InvalidOperationException($"Actor '{actor.Id}' is missing required stat '{stat.Key}'.");
 
                     // Stat text
                     FontManager.DrawText($"{stat.Display} {statVal}", colX + 15, rowY + 3, 14, new Color((byte)210, (byte)210, (byte)225, (byte)255));
@@ -1456,7 +1459,7 @@ namespace SSNoir.Rendering
                     float btnX = colX + colWidth - btnW - 20f;
                     var btnRect = new Rectangle(btnX, rowY, btnW, btnH);
 
-                    bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < 6;
+                    bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < TeamState.MaxStatLevel;
                     
                     var upgradeBtn = UiButton.Draw(btnRect, "+", ui, isEnabled, 13,
                         new Color((byte)30, (byte)90, (byte)45, (byte)255),

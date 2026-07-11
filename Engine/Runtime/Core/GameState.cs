@@ -51,10 +51,10 @@ namespace SSNoir.Core
                 Status = "active",
                 Stress = 0
             };
-            player.Stats["violence"] = 1;
-            player.Stats["knowledge"] = 2;
-            player.Stats["sharpness"] = 1;
-            player.Stats["social"] = 1;
+            player.Stats["violence"] = 0;
+            player.Stats["knowledge"] = 1;
+            player.Stats["sharpness"] = 0;
+            player.Stats["social"] = 0;
             player.ActionDice.Add(rand.Next(1, 7));
             player.ActionDice.Add(rand.Next(1, 7));
             Team.Actors.Add(player);

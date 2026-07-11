@@ -40,7 +40,7 @@ namespace SSNoir
 
                 if (args.Length > 0 && args[0] == "--test-odds")
                 {
-                    GameTester.TestRollOdds();
+                    GameTester.TestFateStrip();
                     return;
                 }
 

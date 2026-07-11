@@ -11,6 +11,7 @@
     (define has-flower? #f)
     (define drank-today? #f)
     (define medicated-today? #f)
+    (define tidied-today? #f)
 
     ;; 房租（仅旅馆）：rent-due = 距交租还剩几天。归零没交 → 被赶出（软罚）。
     (define rent-due 3)
@@ -43,10 +44,11 @@
                 #f))))
 
     (define-turn-rule "每日恢复次数重置"
-      (lambda () (or drank-today? medicated-today?))
+      (lambda () (or drank-today? medicated-today? tidied-today?))
       (lambda ()
         (set! drank-today? #f)
-        (set! medicated-today? #f)))
+        (set! medicated-today? #f)
+        (set! tidied-today? #f)))
 
     (define (rent-render-data)
       (list 'clock "房租到期" rent-due rent-due-max 'countdown
@@ -95,6 +97,20 @@
         (instant
           (outcome "出神片刻" "白色的雏菊静静开着。你出神看了一会儿，心里松快了些。"
             (lambda () (heal-stress! 'player 2))))))
+
+    ;; 给低质量骰一个确定而克制的去处：不掷命运骰，只用时间换少量恢复。
+    (define (node-tidy-room)
+      (node "整理房间"
+        :subtitle (if tidied-today?
+                      "今天已经收拾过了"
+                      "投入任意行动骰，固定缓解 1 点压力；每天一次")
+        :disabled tidied-today?
+        :requires (list (req-die))
+        :resolve (instant
+          (outcome "收拾妥当" "把散乱的东西一件件归位，脑子也跟着清静了一点。"
+            (lambda ()
+              (set! tidied-today? #t)
+              (heal-stress! 'player 1))))))
 
     (define (rest-tags)
       (if (rest-blocked?)
@@ -166,7 +182,7 @@
     ;; 客厅：日常恢复 + 已拥有的家具。
     (define (living-room-children)
       (append
-        (list (node-eat) (node-drink) (node-use-medicine))
+        (list (node-eat) (node-drink) (node-use-medicine) (node-tidy-room))
         (if has-flower? (list (node-see-flower)) '())))
 
     (define (node-living-room)
@@ -229,6 +245,7 @@
              (list "has-flower?"    has-flower?)
              (list "drank-today?" drank-today?)
              (list "medicated-today?" medicated-today?)
+             (list "tidied-today?" tidied-today?)
              (list "rent-due"       rent-due)
              (list "rent-due-max"   rent-due-max)
              (list "evicted?"       evicted?)))
@@ -241,6 +258,7 @@
              (set! has-flower?    (assoc-get data "has-flower?" #f))
              (set! drank-today?  (assoc-get data "drank-today?" #f))
              (set! medicated-today? (assoc-get data "medicated-today?" #f))
+             (set! tidied-today? (assoc-get data "tidied-today?" #f))
              (set! rent-due       (assoc-get data "rent-due" 3))
              (set! rent-due-max   (assoc-get data "rent-due-max" 3))
              (set! evicted?       (assoc-get data "evicted?" #f))

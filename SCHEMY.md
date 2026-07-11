@@ -41,6 +41,24 @@
 - `(outcome title subtitle effect ['light | 'heavy])` — 给效果附加结果表现
 - `(modifier value reason)` — 难度修饰项
 
+`roll` 判定使用全游戏唯一的数字命运骰：
+
+```text
+准备值 B = 放入骰 + 技能 + 修正
+命运总和 T = B + d6 + 天然面修正
+d6 天然1 时额外 −1，天然6 时额外 +1
+T ≤6 坏，7–8 中，≥9 好
+```
+
+技能从 0 起，有效范围为 0–4。`modifier` 是玩家可见的数值修正，
+负数代表更难、正数代表更容易。角色压力达到 2 点后，引擎会自动为其所有任务判定
+加入 `(modifier -1 "心绪不宁")`；内容脚本不应重复添加。压力上限为 4，满格后的新增压力
+会对主角溢出为健康损失。
+
+恢复性判定使用 `(recovery-roll-action name requires skill fail neutral success)`。它与普通
+`roll-action` 使用同一套命运结算，但明确豁免压力修正。坏结果应当只消耗行动，不再追加
+压力或健康损失，确保恢复路线不会被压力的正反馈污染。
+
 **时钟** `(make-clock label max style [note])` → 消息 `'tick!` `'reset!` `'full?` `'current` `'set!` `'render-data`。
 `note` 用于解释归零/填满会发生什么；凡是持续若干回合、延迟发生或下一回合消失的状态，都必须
 用可见 Clock 告知玩家，不能只藏在脚本计数器里。
@@ -64,8 +82,8 @@
 能否完成、是否已经完成由拥有该状态的单向状态机断言，不在 helper 内做去重兼容。
 
 **同伴** `(recruit-companion! actor-id name stats-alist)` / `(has-companion? actor-id)`；招募要求四项
-能力都明确给出，例如 `((violence 2) (knowledge 3) (sharpness 1) (social 2))`。重复 ID、缺失或
-未知能力、超出 1–6 的数值都会直接报错。同伴在城市每天一颗骰，交锋中不掷骰；状态和能力随存档保存。
+能力都明确给出，例如 `((violence 1) (knowledge 2) (sharpness 0) (social 1))`。重复 ID、缺失或
+未知能力、超出 0–4 的数值都会直接报错。同伴在城市每天一颗骰，交锋中不掷骰；状态和能力随存档保存。
 
 **休息阻塞** `(rest-block! id reason)` / `(rest-release! id)` / `(rest-blocked?)` /
 `(rest-block-reasons)`。用于已经到期、当天必须处理的关键事件；支持多个不同 `id` 同时存在。

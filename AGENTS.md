@@ -6,6 +6,7 @@
 
 - **架构总览(先读这个理解项目)**：[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - **城市生活设计（内容与机制源头）**：[docs/城市生活设计.md](docs/城市生活设计.md)
+- **夜莺主线设计（故事源头）**：[docs/夜莺主线设计.md](docs/夜莺主线设计.md)
 - **Scheme 内容编写指南(写 .scm:DSL + 约定)**：[SCHEMY.md](SCHEMY.md)
 - **改 Schemy 解释器本身(库开发)**：[schemy-master/AGENTS.md](schemy-master/AGENTS.md)
 - **Unity 客户端 UI 规则**：[UnityClient/AGENTS.md](UnityClient/AGENTS.md)

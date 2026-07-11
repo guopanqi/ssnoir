@@ -19,8 +19,6 @@ namespace SSNoir.Core
     public class ActionReport
     {
         public ActionType Type { get; set; }
-        public int FinalRollValue { get; set; }
-        public int ModifiedRollValue { get; set; }
         public RollOutcome Outcome { get; set; }
         public IReadOnlyList<PresentationHint> PresentationHints { get; set; } = new List<PresentationHint>();
         public OutcomePresentation? OutcomePresentation { get; set; }
@@ -64,6 +62,9 @@ namespace SSNoir.Core
 
         // Diagnostic / rendering metadata for the rolling details
         public int ChosenDieValue { get; set; } = 1;
-        public List<int> RandomDice { get; set; } = new List<int>();
+        public int PreparedValue { get; set; }
+        public int FateDieValue { get; set; } = 1;
+        public int NaturalModifier { get; set; }
+        public int FinalTotal { get; set; }
     }
 }

@@ -63,8 +63,8 @@ namespace SSNoir.Rendering
                     int nameW = FontManager.MeasureTextWidth(actor.Name, 13);
                     FontManager.DrawText(actor.Name, actorX, handY + statusY, 13, themeColor);
 
-                    string stressText = $"{actor.Stress}/6";
-                    Color stressColor = actor.Stress >= 5 ? new Color(250, 100, 100, 255) : new Color(200, 200, 220, 255);
+                    string stressText = $"{actor.Stress}/{TeamState.MaxStress}";
+                    Color stressColor = actor.Stress >= TeamState.StressPenaltyThreshold ? new Color(250, 100, 100, 255) : new Color(200, 200, 220, 255);
                     int stressW = FontManager.MeasureTextWidth(stressText, 13);
                     FontManager.DrawText(stressText, actorX + actorAreaWidth - stressW, handY + statusY, 13, stressColor);
                 }

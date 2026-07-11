@@ -87,10 +87,10 @@ namespace SSNoir.Testing
                     "测试同伴",
                     new Dictionary<string, int>
                     {
-                        ["violence"] = 2,
-                        ["knowledge"] = 3,
-                        ["sharpness"] = 1,
-                        ["social"] = 2,
+                        ["violence"] = 1,
+                        ["knowledge"] = 2,
+                        ["sharpness"] = 0,
+                        ["social"] = 1,
                     });
                 source.Team.ApplyStress(companion.Id, 2);
                 sourceManager.SaveGame(savePath);
@@ -111,7 +111,7 @@ namespace SSNoir.Testing
                 AssertEq("companion role", "companion", loadedCompanion.Role);
                 AssertEq("companion name", "测试同伴", loadedCompanion.Name);
                 AssertEq("companion stress", 2, loadedCompanion.Stress);
-                AssertEq("companion knowledge", 3, loadedCompanion.Stats["knowledge"]);
+                AssertEq("companion knowledge", 2, loadedCompanion.Stats["knowledge"]);
                 AssertEq("player dice", 3, loaded.Team.FindActor("player")!.ActionDice.Count);
                 AssertEq("companion dice", 1, loadedCompanion.ActionDice.Count);
 
@@ -124,47 +124,75 @@ namespace SSNoir.Testing
         }
 
         // 判定概率是稳定的底层数学契约，算错会同时破坏结算和 UI 概率预览。
-        public static void TestRollOdds()
+        public static void TestFateStrip()
         {
-            Console.WriteLine("=== Roll Odds Contract Test ===");
+            Console.WriteLine("=== Fate Strip Contract Test ===");
 
-            static void AssertOdds(string label, double expected, double actual)
+            static (int fail, int neutral, int success) ExpectedCounts(int prepared)
             {
-                if (Math.Abs(expected - actual) > 1e-9)
-                    throw new Exception($"[odds] FAIL: {label} expected={expected:F6} actual={actual:F6}");
+                if (prepared <= -1) return (6, 0, 0);
+                if (prepared <= 1) return (5, 1, 0);
+                return prepared switch
+                {
+                    2 => (4, 1, 1),
+                    3 => (3, 2, 1),
+                    4 => (2, 2, 2),
+                    5 => (1, 2, 3),
+                    6 => (1, 1, 4),
+                    7 or 8 => (0, 1, 5),
+                    _ => (0, 0, 6),
+                };
             }
 
-            static void AssertSum(string label, RollOddsResult result)
+            for (int prepared = -2; prepared <= 10; prepared++)
             {
-                double sum = result.Fail + result.Neutral + result.Success;
-                if (Math.Abs(sum - 1.0) > 1e-9)
-                    throw new Exception($"[odds] FAIL: {label} probabilities sum to {sum:F6}");
+                int mod = prepared - 4; // placed die 4 + skill 0 + mod = prepared
+                var strip = FateStrip.Compute(placedDie: 4, skill: 0, modSum: mod);
+                int fail = 0, neutral = 0, success = 0;
+                for (int fate = 1; fate <= 6; fate++)
+                {
+                    AssertEq($"B={prepared} face={fate} resolve", strip[fate - 1],
+                        FateStrip.Resolve(4, 0, mod, fate));
+                    if (strip[fate - 1] == RollOutcome.Fail) fail++;
+                    else if (strip[fate - 1] == RollOutcome.Neutral) neutral++;
+                    else success++;
+                }
+                AssertEq($"B={prepared} counts", ExpectedCounts(prepared), (fail, neutral, success));
             }
 
-            var pivot = RollOdds.Compute(placedDie: 4, skillLevel: 1, modSum: 0);
-            AssertSum("pivot", pivot);
-            AssertOdds("pivot fail", 2.0 / 6.0, pivot.Fail);
-            AssertOdds("pivot neutral", 2.0 / 6.0, pivot.Neutral);
-            AssertOdds("pivot success", 2.0 / 6.0, pivot.Success);
+            AssertEq("natural 1 modifier", -1, FateStrip.NaturalModifier(1));
+            AssertEq("natural 6 modifier", 1, FateStrip.NaturalModifier(6));
+            AssertEq("stress 0 modifier", 0, TeamState.GetStressRollModifier(0));
+            AssertEq("stress 1 modifier", 0, TeamState.GetStressRollModifier(1));
+            AssertEq("stress 2 modifier", -1, TeamState.GetStressRollModifier(2));
+            AssertEq("stress 4 modifier", -1, TeamState.GetStressRollModifier(4));
+            var stressedState = new GameState();
+            stressedState.Team.ApplyStress("player", 5);
+            AssertEq("stress cap", 4, stressedState.Team.FindActor("player")!.Stress);
+            AssertEq("stress overflow health damage", 4, stressedState.Team.Health);
+            AssertEq("B=1 summary", "1–5 坏 · 6 中", FateStrip.Describe(FateStrip.Compute(1, 0, 0)));
+            AssertEq("B=4 summary", "1–2 坏 · 3–4 中 · 5–6 好", FateStrip.Describe(FateStrip.Compute(4, 0, 0)));
+            AssertEq("B=7 summary", "1 中 · 2–6 好", FateStrip.Describe(FateStrip.Compute(6, 1, 0)));
 
-            var low = RollOdds.Compute(placedDie: 1, skillLevel: 1, modSum: 0);
-            AssertSum("low die", low);
-            AssertOdds("low fail", 5.0 / 6.0, low.Fail);
-            AssertOdds("low success", 0.0, low.Success);
+            AssertThrows(() => FateStrip.Compute(0, 0, 0), "invalid placed die");
+            AssertThrows(() => FateStrip.Compute(1, -1, 0), "negative skill");
+            AssertThrows(() => FateStrip.Resolve(1, 0, 0, 7), "invalid fate die");
+            AssertThrows(() => TeamState.GetStressRollModifier(5), "invalid stress");
 
-            var high = RollOdds.Compute(placedDie: 6, skillLevel: 1, modSum: 0);
-            AssertSum("high die", high);
-            AssertOdds("high fail", 0.0, high.Fail);
-            AssertOdds("high success", 4.0 / 6.0, high.Success);
+            Console.WriteLine("[fate-strip] All contract assertions passed.");
+        }
 
-            var skilled = RollOdds.Compute(placedDie: 1, skillLevel: 3, modSum: 0);
-            AssertOdds("skill improves low die", 1.0 / 6.0, skilled.Success);
-
-            var modified = RollOdds.Compute(placedDie: 4, skillLevel: 1, modSum: -2);
-            AssertOdds("negative modifier fail", 4.0 / 6.0, modified.Fail);
-            AssertOdds("negative modifier success", 0.0, modified.Success);
-
-            Console.WriteLine("[odds] All contract assertions passed.");
+        private static void AssertThrows(Action action, string label)
+        {
+            try
+            {
+                action();
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return;
+            }
+            throw new Exception($"[assert] FAIL: {label} did not throw ArgumentOutOfRangeException");
         }
 
         private static void AssertEq<T>(string label, T expected, T actual)

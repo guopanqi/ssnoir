@@ -135,7 +135,8 @@ namespace SSNoir.IMGUI
                     string statKey = StatKeys[s];
                     float rowY = rowStartY + s * rowHeight;
 
-                    int statVal = actor.Stats.TryGetValue(statKey, out var val) ? val : 1;
+                    if (!actor.Stats.TryGetValue(statKey, out int statVal))
+                        throw new System.InvalidOperationException($"Actor '{actor.Id}' is missing required stat '{statKey}'.");
 
                     // 中文属性名（力量/见识/敏锐/交际）。
                     string statLabel = StatLabels.TryGetValue(statKey, out var lbl) ? lbl : statKey;
@@ -146,7 +147,7 @@ namespace SSNoir.IMGUI
                     float btnX = colX + colWidth - btnSize - 20f;
                     var btnRect = new Rect(btnX, rowY + 2f, btnSize, btnSize);
 
-                    bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < 6;
+                    bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < TeamState.MaxStatLevel;
                     bool btnHover = isEnabled && ui.CanHover(btnRect);
 
                     var btnStyle = new GUIStyle(IMGUIStyles.SlotLabel)

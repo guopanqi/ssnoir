@@ -11,8 +11,8 @@ namespace SSNoir.IMGUI
     // DESIGN.md「动作 / 判定卡」布局分区固定：
     //   标题居中 → 左侧类别/风险便签 → 中部判定纵列（属性药丸 → 骰子格）
     //   → 右侧骰位（白框标签 + 白底黑字数值格连体）→ 执行按钮（实心金）
-    //   → 底部概率条 + 三色百分比。
-    // 判定完成态：概率条换结算行，结果以旋转的章形盖印呈现（成=金，败=印章红）。
+    //   → 底部命运六面预览。
+    // 判定完成态：命运预览换结算行，结果以旋转的章形盖印呈现（成=金，败=印章红）。
     //
     // 负片规则（DESIGN.md）：骰子/数值格在暗卡上反转为白底黑字——「暗卡上的白纸片」。
     public static class ActionNodeDrawer
@@ -42,6 +42,8 @@ namespace SSNoir.IMGUI
             bool isObserve = node.Resolve!.Type == ResolveType.Observe;
             var actors = gameManager.DisplayedSnapshot.Actors;
             bool showOdds = isRoll && !disabled && hasRequires && actors != null && localRoll == null && residue == null;
+            var effectiveModifiers = BuildEffectiveModifiers(
+                node.Resolve.DifficultyModifiers, slotted, actors, node.Resolve.IgnoresStressPenalty);
 
             // ── 1. 标题区（居中）──
             float titleY = rect.y + (node.Clocks != null && node.Clocks.Count > 0 ? 44f : 12f);
@@ -67,13 +69,13 @@ namespace SSNoir.IMGUI
             }
 
             // ── 2. 三列分区的纵向边界 ──
-            // 执行按钮贴底；showOdds 时再往下留出概率条 + 三色百分比的空间。
+            // 执行按钮贴底；showOdds 时再往下留出命运六面预览的空间。
             float exeH = 26f;
-            float exeY = rect.yMax - (showOdds || localRoll != null || residue != null ? 54f : 34f);
+            float exeY = rect.yMax - (showOdds || localRoll != null || residue != null ? 62f : 34f);
             float bodyY = subtitleBottomY + 6f;
 
             // ── 3. 类别 / 风险便签：骑在卡片左边缘外（不遮内容、不占内部空间）。
-            DrawEdgeTags(rect, node);
+            DrawEdgeTags(rect, node, effectiveModifiers);
 
             // ── 4. 需求骰位：统一为「方块 Slot」（与手牌骰子/物品同族），居中横排。
             //     骰子 slot = 大字 D/值；物品 slot = 符号 + 数量（强调）+ 下方名称展签。
@@ -110,7 +112,7 @@ namespace SSNoir.IMGUI
             if (isRoll && actors != null && actors.Count > 0)
                 DrawActorAbilityRail(rect, node.Resolve!.SkillName, actors, node.Clocks != null && node.Clocks.Count > 0);
 
-            // ── 8. 底部：概率条 / 判定中 / 结算行 + 盖印 ──
+            // ── 8. 底部：命运预览 / 判定中 / 结算行 + 盖印 ──
             if (localRoll != null)
             {
                 DrawLocalRoll(rect, localRoll, localRollPhase, localRollDisplayDieValue, localRollDisplayScale);
@@ -121,7 +123,7 @@ namespace SSNoir.IMGUI
             }
             else if (showOdds)
             {
-                TryDrawOddsPreview(rect, node.Resolve!.SkillName, slotted!, node.Resolve.DifficultyModifiers, actors!, exeRect.yMax);
+                TryDrawFatePreview(rect, node.Resolve!.SkillName, slotted!, effectiveModifiers, actors!, exeRect.yMax);
             }
 
             // ── 9. 卡片级点击（仅无 requires 的非 Instant 类型，如 Observe / Clock）──
@@ -136,7 +138,7 @@ namespace SSNoir.IMGUI
 
         // 同族彩纸便签，贴在卡左边缘外，文字竖排；自上而下堆叠。
         // 不占卡内空间，也不遮主要元素——「贴在物件上的彩色便签」隐喻更足。
-        private static void DrawEdgeTags(Rect rect, GameNode node)
+        private static void DrawEdgeTags(Rect rect, GameNode node, List<DifficultyModifierInfo> effectiveModifiers)
         {
             const float tagW = 26f;
             const float tagH = 72f;
@@ -153,14 +155,13 @@ namespace SSNoir.IMGUI
                 clipping = TextClipping.Clip
             };
 
-            var modifiers = node.Resolve!.DifficultyModifiers;
-            if (modifiers != null)
+            if (effectiveModifiers.Count > 0)
             {
-                for (int k = 0; k < modifiers.Count; k++)
+                for (int k = 0; k < effectiveModifiers.Count; k++)
                 {
                     float tagY = y + stickyCount * (tagH + 6f);
                     if (tagY + tagH > maxY) return;
-                    var mod = modifiers[k];
+                    var mod = effectiveModifiers[k];
                     string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
                     Color noteBg = mod.Value < 0 ? new Color(0.82f, 0.58f, 0.48f, 1f)
                                 : (mod.Value > 0 ? new Color(0.66f, 0.74f, 0.50f, 1f) : new Color(0.58f, 0.68f, 0.80f, 1f));
@@ -554,9 +555,30 @@ namespace SSNoir.IMGUI
             }
         }
 
-        // ── 底部：概率条 + 三色百分比 ──────────────────────────────────
+        // ── 底部：命运六面预览 ────────────────────────────────────────
 
-        private static void TryDrawOddsPreview(Rect rect, string skill, List<SlottedResource?> slotted,
+        private static List<DifficultyModifierInfo> BuildEffectiveModifiers(
+            List<DifficultyModifierInfo> baseModifiers,
+            List<SlottedResource?>? slotted,
+            IReadOnlyList<ActorSnapshot>? actors,
+            bool ignoresStressPenalty)
+        {
+            var result = new List<DifficultyModifierInfo>(baseModifiers);
+            if (ignoresStressPenalty || slotted == null || actors == null) return result;
+
+            SlottedResource? die = slotted.FirstOrDefault(s => s?.Type == "die");
+            if (die == null) return result;
+            ActorSnapshot? actor = actors.FirstOrDefault(a => a.Id == die.ActorId);
+            if (actor == null)
+                throw new System.InvalidOperationException($"Actor '{die.ActorId}' was not found for stress modifier preview.");
+
+            int value = TeamState.GetStressRollModifier(actor.Stress);
+            if (value != 0)
+                result.Add(new DifficultyModifierInfo { Value = value, Reason = "心绪不宁" });
+            return result;
+        }
+
+        private static void TryDrawFatePreview(Rect rect, string skill, List<SlottedResource?> slotted,
             List<DifficultyModifierInfo>? modifiers, IReadOnlyList<ActorSnapshot> actors, float executeBottomY)
         {
             SlottedResource? dieSlot = null;
@@ -566,61 +588,63 @@ namespace SSNoir.IMGUI
             }
             if (dieSlot == null) return;
 
-            int skillLevel = 1;
+            int? skillLevel = null;
             foreach (var actor in actors)
             {
-                if (actor.Id == dieSlot.ActorId && actor.Stats.TryGetValue(skill, out int lv)) { skillLevel = lv; break; }
+                if (actor.Id != dieSlot.ActorId) continue;
+                if (!actor.Stats.TryGetValue(skill, out int lv))
+                    throw new System.InvalidOperationException($"Actor '{actor.Id}' is missing required stat '{skill}'.");
+                skillLevel = lv;
+                break;
             }
+            if (!skillLevel.HasValue)
+                throw new System.InvalidOperationException($"Actor '{dieSlot.ActorId}' was not found for fate preview.");
+
             int modSum = 0;
             if (modifiers != null)
             {
                 foreach (var m in modifiers) modSum += m.Value;
             }
 
-            var odds = RollOdds.Compute(dieSlot.Value, skillLevel, modSum);
-            DrawOddsPreview(rect, odds, executeBottomY);
+            DrawFateStrip(rect, FateStrip.Compute(dieSlot.Value, skillLevel.Value, modSum), executeBottomY);
         }
 
-        // 紧凑三色比例条：失败 / 中性 / 成功 的宽度即概率占比，下方标百分比。
-        private static void DrawOddsPreview(Rect rect, RollOddsResult odds, float executeBottomY)
+        private static void DrawFateStrip(Rect rect, RollOutcome[] strip, float executeBottomY)
         {
-            float pad = 10f;
-            float barY = executeBottomY + 5f;
-            float barX = rect.x + pad;
-            float barW = rect.width - pad * 2f;
-            float barH = 5f;
-
-            var bands = new (double p, Color c)[]
+            const float pad = 10f;
+            var summaryStyle = new GUIStyle(IMGUIStyles.ClockLabel)
             {
-                (odds.Fail,    IMGUIStyles.OddsFail),
-                (odds.Neutral, IMGUIStyles.OddsNeutral),
-                (odds.Success, IMGUIStyles.OddsSuccess),
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = IMGUIStyles.TextSecondary }
             };
+            GUI.Label(new Rect(rect.x + pad, executeBottomY, rect.width - pad * 2f, 14f),
+                FateStrip.Describe(strip), summaryStyle);
 
-            float x = barX;
-            for (int i = 0; i < 3; i++)
+            float rowY = executeBottomY + 14f;
+            const float gap = 3f;
+            float cellW = Mathf.Min(24f, (rect.width - pad * 2f - gap * 5f) / 6f);
+            float totalW = cellW * 6f + gap * 5f;
+            float startX = rect.center.x - totalW / 2f;
+            var faceStyle = new GUIStyle(IMGUIStyles.ClockValue) { alignment = TextAnchor.MiddleCenter };
+            for (int i = 0; i < 6; i++)
             {
-                float w = i == 2 ? (barX + barW - x) : barW * (float)bands[i].p;
-                if (w > 0.5f)
+                Color color = OutcomeColor(strip[i]);
+                var cell = new Rect(startX + i * (cellW + gap), rowY, cellW, 17f);
+                GUI.color = new Color(color.r * 0.18f, color.g * 0.18f, color.b * 0.18f, 1f);
+                GUI.DrawTexture(cell, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(cell, 1f, color);
+                faceStyle.normal.textColor = color;
+                GUI.Label(cell, (i + 1).ToString(), faceStyle);
+                if (i == 0 || i == 5)
                 {
-                    GUI.color = bands[i].c;
-                    GUI.DrawTexture(new Rect(x, barY, w, barH), Texture2D.whiteTexture);
+                    var markStyle = new GUIStyle(IMGUIStyles.ClockLabel)
+                    {
+                        alignment = TextAnchor.MiddleCenter,
+                        normal = { textColor = color }
+                    };
+                    GUI.Label(new Rect(cell.x, cell.y - 10f, cell.width, 10f), i == 0 ? "-1" : "+1", markStyle);
                 }
-                x += w;
-            }
-            GUI.color = Color.white;
-
-            float colW = barW / 3f;
-            for (int i = 0; i < 3; i++)
-            {
-                var pctStyle = new GUIStyle(GUI.skin.label)
-                {
-                    fontSize = 11,
-                    alignment = TextAnchor.MiddleCenter,
-                    normal = { textColor = bands[i].c }
-                };
-                GUI.Label(new Rect(barX + i * colW, barY + barH + 1f, colW, 14f),
-                    $"{Mathf.RoundToInt((float)bands[i].p * 100)}%", pctStyle);
             }
         }
 
@@ -638,7 +662,7 @@ namespace SSNoir.IMGUI
             if (phase < 2)
                 IMGUIStyles.DrawGoldPulse(panel);
 
-            int dieValue = phase == 0 ? displayDieValue : report.FinalRollValue;
+            int dieValue = phase == 0 ? displayDieValue : report.FateDieValue;
             var dieStyle = new GUIStyle(IMGUIStyles.CardTitle)
             {
                 fontSize = Mathf.RoundToInt(26 * Mathf.Clamp(displayScale, 0.8f, 1.35f)),
@@ -655,7 +679,12 @@ namespace SSNoir.IMGUI
             };
             GUI.Label(new Rect(panel.x + 72f, panel.y + 9f, panel.width - 82f, 22f), label, labelStyle);
 
-            string detail = phase >= 2 ? $"最终值 {report.ModifiedRollValue}" : "骰子滚动...";
+            string natural = report.NaturalModifier == 0
+                ? string.Empty
+                : report.NaturalModifier > 0 ? " + 天然6" : " - 天然1";
+            string detail = phase >= 2
+                ? $"准备 {report.PreparedValue} + 命运 {report.FateDieValue}{natural} = {report.FinalTotal}"
+                : "命运骰滚动...";
             var detailStyle = new GUIStyle(IMGUIStyles.ModalBody) { normal = { textColor = IMGUIStyles.TextSecondary } };
             GUI.Label(new Rect(panel.x + 72f, panel.y + 30f, panel.width - 82f, 18f), detail, detailStyle);
 
@@ -727,7 +756,7 @@ namespace SSNoir.IMGUI
                 case "中风险":
                     return (new Color(0.78f, 0.65f, 0.35f, 1f), new Color(0.25f, 0.16f, 0.02f, 1f));
                 case "高风险":
-                case "越界":
+                case "非法":
                     return (new Color(0.82f, 0.58f, 0.48f, 1f), new Color(0.30f, 0.07f, 0.03f, 1f));
                 case "机遇":
                     return (new Color(0.72f, 0.58f, 0.76f, 1f), new Color(0.19f, 0.08f, 0.22f, 1f));

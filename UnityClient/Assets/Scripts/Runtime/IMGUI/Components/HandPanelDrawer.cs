@@ -18,7 +18,6 @@ namespace SSNoir.IMGUI
     // 多长出队伍生命体征（健康 / 饱腹，均为快照级属性）。
     public static class HandPanelDrawer
     {
-        private const int   MaxStress   = 6;
         private const float DotSize     = 8f;
         private const float DotGap      = 12f;
 
@@ -126,7 +125,7 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(x, stressY, 30f, StressRowH), "压力", stressLabelStyle);
             float dotsX = x + 34f;
             float dotY = stressY + (StressRowH - DotSize) / 2f;
-            for (int s = 0; s < MaxStress; s++)
+            for (int s = 0; s < TeamState.MaxStress; s++)
             {
                 GUI.color = s < actor.Stress ? IMGUIStyles.SealRed : Paper25;
                 GUI.DrawTexture(new Rect(dotsX + s * DotGap, dotY, DotSize, DotSize), Texture2D.whiteTexture);

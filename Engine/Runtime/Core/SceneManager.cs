@@ -573,7 +573,7 @@ namespace SSNoir.Core
                     report.ChosenDieValue = chosenDieVal;
 
                     string skillName = node.Resolve.SkillName;
-                    int skillLevel = 1;
+                    int skillLevel;
                     if (actor.Stats.TryGetValue(skillName, out var sVal))
                     {
                         skillLevel = sVal;
@@ -585,16 +585,18 @@ namespace SSNoir.Core
 
                     var rand = GameRandom.Instance;
 
-                    // 判定 = 一颗运气骰(d6) + 放入骰作为 ±修正(以 4 为中枢) + 技能平档加成(每级 +1) + 难度修正。
-                    // 放入低骰把结果拉低、高骰拉高；技能线性抬升，可救差骰。中枢 4 决定基础难度。
-                    int luckDie = rand.Next(1, 7);
-                    report.RandomDice = new List<int> { luckDie };
-                    report.FinalRollValue = luckDie;
-
-                    int dieModifier = chosenDieVal - 4;
-                    int skillBonus = skillLevel - 1;
-
-                    var modifiers = node.Resolve.DifficultyModifiers;
+                    var modifiers = new List<DifficultyModifierInfo>(node.Resolve.DifficultyModifiers);
+                    int stressModifier = node.Resolve.IgnoresStressPenalty
+                        ? 0
+                        : TeamState.GetStressRollModifier(actor.Stress);
+                    if (stressModifier != 0)
+                    {
+                        modifiers.Add(new DifficultyModifierInfo
+                        {
+                            Value = stressModifier,
+                            Reason = "心绪不宁"
+                        });
+                    }
                     int modifierSum = 0;
                     foreach (var mod in modifiers)
                     {
@@ -602,24 +604,25 @@ namespace SSNoir.Core
                     }
                     report.DifficultyModifiers = modifiers;
 
-                    int modifiedValue = luckDie + dieModifier + skillBonus + modifierSum;
-                    report.ModifiedRollValue = modifiedValue;
+                    int fateDie = rand.Next(1, 7);
+                    report.PreparedValue = FateStrip.PreparedValue(chosenDieVal, skillLevel, modifierSum);
+                    report.FateDieValue = fateDie;
+                    report.NaturalModifier = FateStrip.NaturalModifier(fateDie);
+                    report.FinalTotal = FateStrip.FinalTotal(chosenDieVal, skillLevel, modifierSum, fateDie);
+                    report.Outcome = FateStrip.Resolve(chosenDieVal, skillLevel, modifierSum, fateDie);
 
-                    if (modifiedValue <= 2)
+                    if (report.Outcome == RollOutcome.Fail)
                     {
-                        report.Outcome = RollOutcome.Fail;
                         node.Resolve.FailOutcome?.Effect?.Invoke();
                         ApplyOutcomePresentation(report, node.Resolve.FailOutcome);
                     }
-                    else if (modifiedValue <= 4)
+                    else if (report.Outcome == RollOutcome.Neutral)
                     {
-                        report.Outcome = RollOutcome.Neutral;
                         node.Resolve.NeutralOutcome?.Effect?.Invoke();
                         ApplyOutcomePresentation(report, node.Resolve.NeutralOutcome);
                     }
                     else
                     {
-                        report.Outcome = RollOutcome.Success;
                         node.Resolve.SuccessOutcome?.Effect?.Invoke();
                         ApplyOutcomePresentation(report, node.Resolve.SuccessOutcome);
                     }

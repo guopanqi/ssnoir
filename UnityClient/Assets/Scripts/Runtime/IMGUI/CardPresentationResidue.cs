@@ -10,6 +10,9 @@ namespace SSNoir.IMGUI
         public string Title { get; set; } = string.Empty;
         public string Subtitle { get; set; } = string.Empty;
         public RollOutcome? RollOutcome { get; set; }
+        public int? FateDieValue { get; set; }
+        public int PreparedValue { get; set; }
+        public int? FinalTotal { get; set; }
         public List<ActionEffectRecord> Effects { get; set; } = new List<ActionEffectRecord>();
     }
 }

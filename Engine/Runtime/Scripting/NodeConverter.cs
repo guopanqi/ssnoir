@@ -212,7 +212,7 @@ namespace SSNoir.Scripting
                     Outcome = outcome
                 };
             }
-            else if (typeStr == "roll" && list.Count >= 5)
+            else if ((typeStr == "roll" || typeStr == "recovery-roll") && list.Count >= 5)
             {
                 string skillName = string.Empty;
                 if (list[1] is Symbol sSym) skillName = sSym.AsString;
@@ -239,6 +239,7 @@ namespace SSNoir.Scripting
                 {
                     Type = ResolveType.Roll,
                     SkillName = skillName,
+                    IgnoresStressPenalty = typeStr == "recovery-roll",
                     DifficultyModifiers = modifiers,
                     FailOutcome = failOutcome,
                     NeutralOutcome = neutralOutcome,

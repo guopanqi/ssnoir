@@ -46,13 +46,15 @@
           (lambda () (spend-up-to! "金钱" 5)))))
 
     (define (node-smuggle)
-      (工作 "走私" "劳工" '越界 'sharpness
+      (工作 "走私" "劳工" '非法 'sharpness
         (outcome "顺利出港" "货悄无声息地出了港。真正赚多少，要看你能找到什么销路。"
           (lambda ()
             (add-item! "私货" 2)
             (add-item! "情报" 1)))
-        (outcome "有惊无险" "只保住了一件货，至少还能找地方脱手。"
-          (lambda () (add-item! "私货" 1)))
+        (outcome "险些暴露" "只保住了一件货。你绕了很远才甩掉巡警，整路神经紧绷。"
+          (lambda ()
+            (add-item! "私货" 1)
+            (stress-current-actor! 1)))
         (outcome "被巡警撞见" "巡警扣下了货。你虽然脱了身，名字却被记进了值班记录。"
           (lambda ()
             (change-faction-relation! "官僚" -2)
@@ -112,10 +114,10 @@
           #t)
       (recruit-companion! 'laozhou "老周"
         (list
-          (list 'violence 2)
-          (list 'knowledge 3)
-          (list 'sharpness 1)
-          (list 'social 2)))
+          (list 'violence 1)
+          (list 'knowledge 2)
+          (list 'sharpness 0)
+          (list 'social 1)))
       (set! laozhou-stage 3)
       (set! cushy-available? #f)
       (notify! "老周答应跟你一起跑动。从明天起，他每天会多带来一颗行动骰。"))

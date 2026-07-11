@@ -24,6 +24,7 @@ namespace SSNoir.Core
 
         // Roll
         public string SkillName { get; set; } = string.Empty;
+        public bool IgnoresStressPenalty { get; set; }
         public List<DifficultyModifierInfo> DifficultyModifiers { get; set; } = new List<DifficultyModifierInfo>();
         public ActionOutcome? FailOutcome { get; set; }
         public ActionOutcome? NeutralOutcome { get; set; }

@@ -20,7 +20,6 @@ namespace SSNoir.Core
 
             var root = new JObject
             {
-                ["version"]   = data.Version,
                 ["saveTime"]  = data.SaveTime,
                 ["globals"]   = WriteGlobals(data.Globals),
                 ["team"]      = WriteTeam(data.Team),
@@ -37,7 +36,6 @@ namespace SSNoir.Core
 
             var data = new SaveData
             {
-                Version = root["version"]!.Value<int>(),
                 SaveTime = root["saveTime"]?.Value<string>() ?? "",
             };
 

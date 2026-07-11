@@ -6,10 +6,19 @@ namespace SSNoir.Core
 {
     public class TeamState
     {
+        public const int MinStatLevel = 0;
+        public const int MaxStatLevel = 4;
+        public const int MaxStress = 4;
+        public const int StressPenaltyThreshold = 2;
+
         public int MaxHealth { get; set; } = 5;
 
-        // 压力上限。主角压力顶到上限后，继续加压会溢出成健康伤害（见 ApplyStress）。
-        public int MaxStress { get; set; } = 5;
+        public static int GetStressRollModifier(int stress)
+        {
+            if (stress < 0 || stress > MaxStress)
+                throw new ArgumentOutOfRangeException(nameof(stress), $"Stress must be between 0 and {MaxStress}.");
+            return stress >= StressPenaltyThreshold ? -1 : 0;
+        }
 
         private int _health = 5;
         public int Health
@@ -75,8 +84,9 @@ namespace SSNoir.Core
             {
                 if (!stats.TryGetValue(statId, out int value))
                     throw new ArgumentException($"Companion stats are missing '{statId}'.");
-                if (value < 1 || value > 6)
-                    throw new ArgumentOutOfRangeException(nameof(stats), $"Companion stat '{statId}' must be between 1 and 6.");
+                if (value < MinStatLevel || value > MaxStatLevel)
+                    throw new ArgumentOutOfRangeException(nameof(stats),
+                        $"Companion stat '{statId}' must be between {MinStatLevel} and {MaxStatLevel}.");
                 actor.Stats[statId] = value;
             }
 
@@ -100,7 +110,6 @@ namespace SSNoir.Core
             {
                 throw new ArgumentException($"Stat '{statId}' not found on actor '{actorId}'.");
             }
-            const int MaxStatLevel = 6;
             if (actor.Stats[statId] >= MaxStatLevel)
             {
                 throw new InvalidOperationException($"Stat '{statId}' on actor '{actorId}' has reached the maximum level {MaxStatLevel}.");
@@ -255,6 +264,9 @@ namespace SSNoir.Core
                 {
                     if (!actor.Stats.ContainsKey(kv.Key))
                         throw new ArgumentException($"Save file contains unknown stat '{kv.Key}' for actor '{actorData.Id}'.");
+                    if (kv.Value < MinStatLevel || kv.Value > MaxStatLevel)
+                        throw new ArgumentOutOfRangeException(nameof(data),
+                            $"Save file stat '{kv.Key}' for actor '{actorData.Id}' must be between {MinStatLevel} and {MaxStatLevel}.");
                     actor.Stats[kv.Key] = kv.Value;
                 }
                 actor.ActionDice.Clear(); // re-rolled after load

@@ -180,7 +180,9 @@ namespace SSNoir.Scripting
                     throw new ArgumentException("statName must be violence/knowledge/sharpness/social");
                 var actor = gameState.Team.FindActor(actorId);
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
-                return actor.Stats.TryGetValue(normalizedStat, out var val) ? val : 1;
+                if (!actor.Stats.TryGetValue(normalizedStat, out var val))
+                    throw new InvalidOperationException($"actor '{actorId}' is missing required stat '{normalizedStat}'");
+                return val;
             }, "__actor-stat"));
 
             interpreter.DefineGlobal(Symbol.FromString("__recruit-companion!"), new NativeProcedure(args =>
