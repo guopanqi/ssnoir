@@ -339,6 +339,9 @@ namespace SSNoir.IMGUI
 
             // ── Navigation Bar ──
             NavigationDrawer.Draw(_gameManager, worldUi);
+            // 展开的关系进展图是显式的 HUD 浮层；锁住其后的世界控件，避免点击穿透。
+            if (NavigationDrawer.IsRelationExpanded)
+                worldUi = _windowStack.MakeContext(IMGUIWindowLayer.World, true);
 
             // ── Node Clocks ──
             // 当前所在层的时钟：干净徽章，居中且与顶栏控件同一行高（分割线 y=88 以上）。
@@ -364,6 +367,9 @@ namespace SSNoir.IMGUI
             {
                 DebugPanelDrawer.Draw(_gameManager, panelUi);
             }
+
+            // 大型关系进展图最后绘制在世界控件之上。
+            NavigationDrawer.DrawRelationOverlay(_gameManager.DisplayedSnapshot);
 
             // ── Overlays ──
             OverlayDrawer.DrawNotifications(_gameManager.GameState.NotificationCenter);
@@ -879,7 +885,6 @@ namespace SSNoir.IMGUI
                 RollOutcome = report.Type == ActionType.Roll ? report.Outcome : null,
                 FateDieValue = report.Type == ActionType.Roll ? report.FateDieValue : null,
                 PreparedValue = report.Type == ActionType.Roll ? report.PreparedValue : 0,
-                FinalTotal = report.Type == ActionType.Roll ? report.FinalTotal : null,
                 Effects = new List<ActionEffectRecord>(report.Effects)
             };
         }

@@ -22,7 +22,7 @@ namespace SSNoir.Rendering
         private Action? _presentationDoneCallback;
 
         private const int WindowWidth = 900;
-        private const int WindowHeight = 700;
+        private const int WindowHeight = 800;
         private static readonly bool FastPresentationMode =
             string.Equals(Environment.GetEnvironmentVariable("SSNOIR_FAST_PRESENTATION"), "1", StringComparison.Ordinal);
 
@@ -288,7 +288,6 @@ namespace SSNoir.Rendering
                 RollOutcome = hasRollResult ? report!.Outcome : null,
                 FateDieValue = hasRollResult ? report!.FateDieValue : null,
                 PreparedValue = hasRollResult ? report!.PreparedValue : 0,
-                FinalTotal = hasRollResult ? report!.FinalTotal : null,
                 Effects = new List<ActionEffectRecord>(report!.Effects)
             };
         }
@@ -639,6 +638,9 @@ namespace SSNoir.Rendering
             var lockedCtx = new UiInteractionContext { Mouse = mousePos, IsLocked = true };
             var worldUi = inputBlocked ? lockedCtx : _windowStack.MakeContext(UiLayer.World);
             var panelUi = inputBlocked ? lockedCtx : _windowStack.MakeContext(UiLayer.Panel);
+            var topControlsUi = worldUi;
+            if (_state.IsRelationExpanded)
+                worldUi = lockedCtx;
             var ui = new UiInteractionContext { Mouse = mousePos, IsLocked = inputBlocked };
 
             // Handle Command+R to restart
@@ -665,6 +667,10 @@ namespace SSNoir.Rendering
                     {
                         _state.IsGrowthPanelOpen = false;
                     }
+                    else if (_state.IsRelationExpanded)
+                    {
+                        _state.IsRelationExpanded = false;
+                    }
                     else if (Raylib.IsKeyPressed(KeyboardKey.Escape))
                     {
                         GoBack();
@@ -683,7 +689,7 @@ namespace SSNoir.Rendering
             }
 
             // 2. Draw Node Clocks (if any)
-            float cardsStartY = ClockWidget.Draw(_state, 90f, WindowWidth);
+            float cardsStartY = ClockWidget.Draw(_state, 66f, WindowWidth);
 
             // 3. Draw Node Cards
             DrawCards(worldUi, cardsStartY);
@@ -719,9 +725,6 @@ namespace SSNoir.Rendering
                 _state.SelectedResource = null;
             }
 
-            // 5. Draw Bottom Status Bar
-            StatusBarWidget.Draw(_state.DisplayedSnapshot, WindowWidth, WindowHeight);
-
             if (_state.IsTurnPanelOpen && IsInEncounter)
             {
                 bool justOpened = !turnPanelWasOpen;
@@ -741,7 +744,7 @@ namespace SSNoir.Rendering
             }
 
             // 6. Draw top-right controls: Relation, Growth/Team, Debug
-            DrawTopRightControls(worldUi, panelUi);
+            DrawTopRightControls(topControlsUi, panelUi);
 
             // 7. Draw Growth Panel if open
             if (_state.IsGrowthPanelOpen)
@@ -757,41 +760,48 @@ namespace SSNoir.Rendering
 
                 if (_state.ActiveRollPhase == 0)
                 {
-                    // Rolling phase: 0.3s (was 1.0s)
-                    float t = Math.Clamp(elapsed / 0.3f, 0f, 1f);
-                    float interval = 0.05f + (0.22f - 0.05f) * t;
+                    // 掷骰扫掠：命运高亮沿命运条减速滑动（easeOutCubic），精确落在最终骰面。
+                    // 命运条本身就是动画——不再是一个方框里跳变的随机数字。
+                    const float sweepDuration = 0.5f;
+                    int finalFace = _state.ActiveRollResult.FateDieValue;
+                    float t = Math.Clamp(elapsed / sweepDuration, 0f, 1f);
+                    float eased = 1f - (float)Math.Pow(1f - t, 3f);
+                    int totalSteps = 12 + (finalFace - 1); // 两圈扫掠后落格
+                    int step = (int)Math.Round(eased * totalSteps);
+                    _state.ActiveRollDisplayDieValue = step % 6 + 1;
+                    _state.ActiveRollDisplayScale = 1f;
 
-                    var rand = new Random();
-                    _state.ActiveRollDisplayDieValue = rand.Next(1, 7);
-                    _state.ActiveRollDisplayScale = 0.9f + (float)rand.NextDouble() * 0.25f;
-
-                    if (elapsed >= 0.3f)
+                    if (elapsed >= sweepDuration)
                     {
                         _state.ActiveRollPhase = 1;
-                        _state.ActiveRollTime = 0f; // Reset phase time
-                        _state.ActiveRollDisplayDieValue = _state.ActiveRollResult.FateDieValue;
+                        _state.ActiveRollTime = 0f;
+                        _state.ActiveRollDisplayDieValue = finalFace;
                         _state.ActiveRollDisplayScale = 1f;
                     }
                 }
                 else if (_state.ActiveRollPhase == 1)
                 {
-                    // Reveal pulse phase: 0.15s (was 0.25s)
-                    float t = Math.Clamp(elapsed / 0.15f, 0f, 1f);
+                    // 落格弹跳：命中格放大一下再收（sin 单峰）。
+                    const float popDuration = 0.2f;
+                    float t = Math.Clamp(elapsed / popDuration, 0f, 1f);
                     _state.ActiveRollDisplayScale = 1f + (float)Math.Sin(t * Math.PI) * 0.35f;
 
-                    if (elapsed >= 0.15f)
+                    if (elapsed >= popDuration)
                     {
                         _state.ActiveRollPhase = 2;
                         _state.ActiveRollTime = 0f;
                         _state.ActiveRollDisplayScale = 1f;
-
-                        if (!ActiveRollUsesModal())
+                    }
+                }
+                else if (_state.ActiveRollPhase == 2 && !ActiveRollUsesModal())
+                {
+                    // 结果停留：轻结算让「好/中/坏」定格片刻再推进（重结算走模态、等点击）。
+                    if (elapsed >= 0.45f)
+                    {
+                        _state.ActiveRollResult = null;
+                        if (_state.IsPresentingAction)
                         {
-                            _state.ActiveRollResult = null;
-                            if (_state.IsPresentingAction)
-                            {
-                                AdvancePresentationAfterRollConfirm();
-                            }
+                            AdvancePresentationAfterRollConfirm();
                         }
                     }
                 }
@@ -869,9 +879,9 @@ namespace SSNoir.Rendering
         {
             const float rightMargin = 40f;
             const float btnW = 66f;
-            const float btnH = 32f;
+            const float btnH = 28f;
             float btnX = WindowWidth - rightMargin - btnW;
-            float btnY = 26f;
+            float btnY = 14f;
             var toggleRect = new Rectangle(btnX, btnY, btnW, btnH);
 
             float pw = 260f;
@@ -889,8 +899,8 @@ namespace SSNoir.Rendering
         {
             const float rightMargin = 40f;
             const float gap = 8f;
-            const float topY = 26f;
-            const float controlH = 32f;
+            const float topY = 14f;
+            const float controlH = 28f;
             const float debugW = 66f;
             const float growthW = 80f;
 
@@ -902,14 +912,15 @@ namespace SSNoir.Rendering
 
             var growthRect = new Rectangle(growthX, topY, growthW, controlH);
             var growthBtn = UiButton.Draw(growthRect, "成长/队伍", worldUi, true, 13,
-                _state.IsGrowthPanelOpen ? new Color((byte)50, (byte)50, (byte)90, (byte)255) : new Color((byte)25, (byte)25, (byte)35, (byte)255),
-                new Color((byte)40, (byte)40, (byte)55, (byte)255), null,
-                _state.IsGrowthPanelOpen ? new Color((byte)130, (byte)130, (byte)220, (byte)255) : new Color((byte)50, (byte)50, (byte)70, (byte)255),
+                _state.IsGrowthPanelOpen ? TerminalPalette.AccentDark : TerminalPalette.SurfaceRaised,
+                new Color(52, 52, 82, 255), null,
+                _state.IsGrowthPanelOpen ? TerminalPalette.Accent : TerminalPalette.Border,
                 Color.White, null, Color.White, null);
 
             if (growthBtn.Clicked)
             {
                 _state.IsGrowthPanelOpen = !_state.IsGrowthPanelOpen;
+                if (_state.IsGrowthPanelOpen) _state.IsRelationExpanded = false;
             }
 
             DrawDebugMenu(panelUi);
@@ -1054,13 +1065,40 @@ namespace SSNoir.Rendering
                 .ToList();
             int totalCards = visibleNodes.Count + orphanResidues.Count;
             float viewportTop = startY;
-            float viewportBottom = WindowHeight - 125f;
+            float viewportBottom = WindowHeight - HandPanelWidget.PanelHeight - 8f;
             float viewportHeight = Math.Max(0f, viewportBottom - viewportTop);
             var viewport = new Rectangle(0, viewportTop, WindowWidth, viewportHeight);
             int rowCount = totalCards == 0
                 ? 0
                 : (totalCards + cardsPerRow - 1) / cardsPerRow;
-            float contentHeight = rowCount == 0 ? 0f : rowCount * cardHeight + Math.Max(0, rowCount - 1) * spacing;
+            var rowHeights = Enumerable.Repeat(cardHeight, rowCount).ToArray();
+            for (int i = 0; i < visibleNodes.Count; i++)
+            {
+                var node = visibleNodes[i];
+                if (node.Resolve?.Type != ResolveType.Roll) continue;
+
+                float attachment = 0f;
+                bool activeLocalRoll = _state.ActiveRollResult != null
+                    && !ActiveRollUsesModal()
+                    && string.Equals(_state.ActiveRollActionName, node.Name, StringComparison.OrdinalIgnoreCase);
+                if (activeLocalRoll) attachment = 68f;
+                else if (_state.CardResidues.TryGetValue(node.Name, out var residue))
+                    attachment = CardWidget.ResidueAttachmentHeight(residue) + 10f;
+                else if (_state.NodeSlots.TryGetValue(node.Name, out var previewSlots)
+                         && previewSlots.Any(slot => slot?.Type == "die")) attachment = 64f;
+
+                int row = i / cardsPerRow;
+                rowHeights[row] = Math.Max(rowHeights[row], cardHeight + attachment);
+            }
+
+            var rowOffsets = new float[rowCount];
+            float contentHeight = 0f;
+            for (int row = 0; row < rowCount; row++)
+            {
+                rowOffsets[row] = contentHeight;
+                contentHeight += rowHeights[row];
+                if (row < rowCount - 1) contentHeight += spacing;
+            }
             float maxScroll = Math.Max(0f, contentHeight - viewportHeight);
 
             bool mouseInViewport = ui.CanHover(viewport);
@@ -1083,9 +1121,9 @@ namespace SSNoir.Rendering
                 int col = i % cardsPerRow;
 
                 float x = startX + col * (cardWidth + spacing);
-                float y = startY + row * (cardHeight + spacing) - _state.CardsScrollOffset;
+                float y = startY + rowOffsets[row] - _state.CardsScrollOffset;
 
-                if (y > viewportBottom || y + cardHeight < viewportTop)
+                if (y > viewportBottom || y + rowHeights[row] < viewportTop)
                 {
                     continue;
                 }
@@ -1361,46 +1399,40 @@ namespace SSNoir.Rendering
 
         private void DrawGrowthPanel(SSNoir.TerminalApp.Rendering.UiInteractionContext ui)
         {
-            // Dim background (modal overlay overlaying cards/hand)
-            Raylib.DrawRectangle(0, 0, WindowWidth, WindowHeight, new Color((byte)10, (byte)10, (byte)15, (byte)180));
-
-            float panelW = 540f;
-            float panelH = 350f;
-            float panelX = (WindowWidth - panelW) / 2f;
-            float panelY = (WindowHeight - panelH) / 2f - 20f;
+            // 与关系面板同族的右上展开面板，不再使用居中的遮罩弹窗。
+            float panelW = Math.Min(620f, WindowWidth - 80f);
+            float panelH = 360f;
+            float panelX = WindowWidth - 40f - panelW;
+            float panelY = 50f;
             var panelRect = new Rectangle(panelX, panelY, panelW, panelH);
 
-            // Frame
-            Raylib.DrawRectangleRounded(panelRect, 0.15f, 4, new Color((byte)20, (byte)20, (byte)28, (byte)255));
-            Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.15f, 4, 2f, new Color((byte)70, (byte)70, (byte)95, (byte)255));
+            Raylib.DrawRectangleRounded(panelRect, 0.05f, 5, TerminalPalette.Surface);
+            Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.05f, 5, 1f, TerminalPalette.Border);
 
-            // Title
-            FontManager.DrawText("成长 / 队伍", panelX + 25, panelY + 20, 18, Color.White);
+            FontManager.DrawText("成长 / 队伍", panelX + 18f, panelY + 14f, 17, TerminalPalette.AccentBright);
+            FontManager.DrawText($"队伍成长等级 {_state.DisplayedSnapshot.GrowthLevel} · 成长点用于提升人物属性",
+                panelX + 126f, panelY + 18f, 11, new Color(150, 154, 170, 255));
 
-            // Close Button [X]
-            float closeX = panelX + panelW - 40f;
-            float closeY = panelY + 18f;
-            var closeRect = new Rectangle(closeX, closeY, 24, 24);
+            float closeX = panelX + panelW - 66f;
+            float closeY = panelY + 10f;
+            var closeRect = new Rectangle(closeX, closeY, 50, 24);
             bool hoverClose = ui.CanHover(closeRect);
-            Color closeColor = hoverClose ? Color.Red : new Color((byte)180, (byte)180, (byte)200, (byte)255);
-            FontManager.DrawText("X", closeX + 6, closeY + 3, 16, closeColor);
+            Raylib.DrawRectangleRounded(closeRect, 0.18f, 4,
+                hoverClose ? TerminalPalette.AccentDark : TerminalPalette.SurfaceRaised);
+            FontManager.DrawText("收起", closeX + 13f, closeY + 7f, 10, new Color(205, 208, 220, 255));
 
             if (ui.WasClicked(closeRect))
             {
                 _state.IsGrowthPanelOpen = false;
             }
 
-            // Divider line
-            Raylib.DrawLineEx(new System.Numerics.Vector2(panelX + 20, panelY + 52),
-                             new System.Numerics.Vector2(panelX + panelW - 20, panelY + 52),
-                             1f, new Color((byte)55, (byte)55, (byte)70, (byte)255));
-
-            // Team Growth Level
-            FontManager.DrawText($"队伍成长等级：{_state.DisplayedSnapshot.GrowthLevel}", panelX + 25, panelY + 65, 14, new Color((byte)150, (byte)220, (byte)255, (byte)255));
+            Raylib.DrawLineEx(new System.Numerics.Vector2(panelX + 16, panelY + 44),
+                             new System.Numerics.Vector2(panelX + panelW - 16, panelY + 44),
+                             1f, new Color(55, 58, 70, 255));
 
             var actors = _state.DisplayedSnapshot.Actors;
-            float contentStartY = panelY + 95f;
-            float colWidth = (panelW - 40f) / Math.Max(1, actors.Count);
+            float contentStartY = panelY + 56f;
+            float colWidth = (panelW - 48f - Math.Max(0, actors.Count - 1) * 10f) / Math.Max(1, actors.Count);
 
             var statsToUpgrade = new[] {
                 (Key: "violence", Display: "力量"),
@@ -1412,18 +1444,13 @@ namespace SSNoir.Rendering
             for (int i = 0; i < actors.Count; i++)
             {
                 var actor = actors[i];
-                float colX = panelX + 20f + i * colWidth;
-
-                // Draw vertical separator between columns (except first)
-                if (i > 0)
-                {
-                    Raylib.DrawLineEx(new System.Numerics.Vector2(colX, contentStartY),
-                                     new System.Numerics.Vector2(colX, panelY + panelH - 25f),
-                                     1f, new Color((byte)45, (byte)45, (byte)60, (byte)255));
-                }
+                float colX = panelX + 16f + i * (colWidth + 10f);
+                var actorCard = new Rectangle(colX, contentStartY, colWidth, panelH - 72f);
+                Raylib.DrawRectangleRounded(actorCard, 0.06f, 4, new Color(27, 29, 38, 245));
+                Raylib.DrawRectangleRoundedLinesEx(actorCard, 0.06f, 4, 1f, new Color(58, 61, 75, 255));
 
                 // Actor Name
-                Color nameColor = actor.Status == "away" ? new Color((byte)130, (byte)130, (byte)130, (byte)255) : Color.White;
+                Color nameColor = actor.Status == "away" ? new Color((byte)130, (byte)130, (byte)130, (byte)255) : new Color(224, 224, 216, 255);
                 FontManager.DrawText(actor.Name, colX + 15, contentStartY + 5, 15, nameColor);
 
                 // Status label if away
@@ -1434,7 +1461,7 @@ namespace SSNoir.Rendering
 
                 // Available points
                 int availPoints = _state.GetAvailableGrowthPoints(actor);
-                Color pointsColor = availPoints > 0 ? new Color((byte)100, (byte)230, (byte)120, (byte)255) : new Color((byte)170, (byte)170, (byte)180, (byte)255);
+                Color pointsColor = availPoints > 0 ? TerminalPalette.AccentBright : TerminalPalette.TextMuted;
                 FontManager.DrawText($"可用成长点：{availPoints}", colX + 15, contentStartY + 28, 12, pointsColor);
 
                 // Stats rows
@@ -1451,7 +1478,7 @@ namespace SSNoir.Rendering
                         throw new InvalidOperationException($"Actor '{actor.Id}' is missing required stat '{stat.Key}'.");
 
                     // Stat text
-                    FontManager.DrawText($"{stat.Display} {statVal}", colX + 15, rowY + 3, 14, new Color((byte)210, (byte)210, (byte)225, (byte)255));
+                    FontManager.DrawText($"{stat.Display} {statVal}", colX + 15, rowY + 3, 14, new Color(210, 210, 204, 255));
 
                     // Upgrade Button [+]
                     float btnW = 26f;
@@ -1462,10 +1489,10 @@ namespace SSNoir.Rendering
                     bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < TeamState.MaxStatLevel;
                     
                     var upgradeBtn = UiButton.Draw(btnRect, "+", ui, isEnabled, 13,
-                        new Color((byte)30, (byte)90, (byte)45, (byte)255),
-                        new Color((byte)50, (byte)140, (byte)70, (byte)255),
+                        TerminalPalette.AccentDark,
+                        new Color(65, 65, 112, 255),
                         new Color((byte)30, (byte)30, (byte)35, (byte)255),
-                        new Color((byte)100, (byte)210, (byte)120, (byte)255),
+                        TerminalPalette.Accent,
                         Color.White,
                         new Color((byte)50, (byte)50, (byte)55, (byte)255),
                         Color.White,

@@ -1,0 +1,253 @@
+{
+  "saveTime": "2026-07-12 17:12:30",
+  "globals": {
+    "chapter": 0,
+    "relation:官僚": 0,
+    "relation:劳工": 0,
+    "relation:富商": 0,
+    "资产": "低",
+    "laozhou-favor": 0,
+    "laozhou-can-help": false,
+    "relation-goal:官僚:脸熟": "陪探长走访；申请巡警照看酒馆",
+    "relation-goal:官僚:自己人": "当前 Demo 暂无新增动作",
+    "relation-goal:劳工:脸熟": "替工头记账；帮老周查账；请码头兄弟看场",
+    "relation-goal:劳工:自己人": "走私；交锋中召集码头兄弟",
+    "relation-goal:富商:脸熟": "应酬货运代理；出售私货；代理人项目",
+    "relation-goal:富商:自己人": "当前 Demo 暂无新增动作",
+    "夜莺阶段": 2,
+    "夜莺状态等级": 0,
+    "夜莺状态": "稳定",
+    "夜莺查访进度": 4,
+    "夜莺查访目标": 4,
+    "夜莺主动上门": true,
+    "夜莺保护方案": "无",
+    "夜莺已打听": true,
+    "bout-idx": 0,
+    "夜莺已先离场": false
+  },
+  "team": {
+    "health": 2,
+    "satiety": 3,
+    "growthLevel": 1,
+    "actors": [
+      {
+        "id": "player",
+        "name": "主角",
+        "role": "protagonist",
+        "status": "active",
+        "stress": 3,
+        "spentGrowthPoints": 0,
+        "stats": {
+          "violence": 0,
+          "knowledge": 1,
+          "sharpness": 0,
+          "social": 0
+        }
+      }
+    ]
+  },
+  "inventory": {
+    "金钱": 5,
+    "情报": 1,
+    "食物": 2,
+    "药品": 1,
+    "枪": 1,
+    "酒": 0
+  },
+  "worldData": [
+    [
+      "day",
+      1
+    ],
+    [
+      "public-event-count",
+      1
+    ],
+    [
+      "public-event-pending?",
+      false
+    ],
+    [
+      "public-event-delay-used?",
+      false
+    ],
+    [
+      "next-public-event",
+      0
+    ],
+    [
+      "home",
+      [
+        [
+          "residence",
+          "旅馆"
+        ],
+        [
+          "has-flower?",
+          false
+        ],
+        [
+          "drank-today?",
+          false
+        ],
+        [
+          "medicated-today?",
+          false
+        ],
+        [
+          "tidied-today?",
+          false
+        ],
+        [
+          "rent-due",
+          6
+        ],
+        [
+          "rent-due-max",
+          6
+        ],
+        [
+          "evicted?",
+          false
+        ]
+      ]
+    ],
+    [
+      "dock",
+      [
+        [
+          "laozhou-favor",
+          0
+        ],
+        [
+          "laozhou-stage",
+          0
+        ],
+        [
+          "cushy-available?",
+          false
+        ]
+      ]
+    ],
+    [
+      "old-street-tavern",
+      [
+        [
+          "closed-days",
+          0
+        ],
+        [
+          "closed-days-max",
+          2
+        ]
+      ]
+    ],
+    [
+      "nightingale",
+      [
+        [
+          "story-stage",
+          2
+        ],
+        [
+          "condition-level",
+          0
+        ],
+        [
+          "beat1-progress",
+          4
+        ],
+        [
+          "beat1-early?",
+          true
+        ],
+        [
+          "protection",
+          "无"
+        ],
+        [
+          "installment-paid?",
+          false
+        ],
+        [
+          "scene-flags",
+          [
+            "已打听"
+          ]
+        ]
+      ]
+    ],
+    [
+      "diner",
+      []
+    ],
+    [
+      "clinic",
+      []
+    ],
+    [
+      "park",
+      []
+    ],
+    [
+      "police-station",
+      [
+        [
+          "detective-stage",
+          0
+        ],
+        [
+          "pass-cooldown",
+          0
+        ]
+      ]
+    ],
+    [
+      "freight-company",
+      [
+        [
+          "agent-stage",
+          0
+        ],
+        [
+          "project-state",
+          "无"
+        ],
+        [
+          "project-quality",
+          0
+        ],
+        [
+          "investment-days",
+          0
+        ]
+      ]
+    ],
+    [
+      "board",
+      [
+        [
+          "active-missions",
+          [
+            [
+              "押送一批货",
+              2
+            ],
+            [
+              "帮人寻物",
+              2
+            ]
+          ]
+        ],
+        [
+          "refresh-days",
+          0
+        ]
+      ]
+    ],
+    [
+      "test",
+      []
+    ]
+  ]
+}

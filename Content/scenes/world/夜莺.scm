@@ -250,16 +250,36 @@
                       "前面的小节失利会让她更不安。最终路线会读取这个状态,调整成本、风险或可用性。"))
           '()))
 
+    ;; 夜莺当前情境下能做的关键动作。原先这些浮在世界根（world-nodes），
+    ;; 现并入夜莺自身——同一个夜莺，情境不同则可做的动作不同。
+    ;; 「回应敲门声」仍留在世界根：stage 0 时夜莺节点尚未出现，无处可挂。
+    (define (situation-nodes)
+      (append
+        (if (beat1-ready?) (list (node-confront-stalker)) '())
+        (if (and (= story-stage 2) (not (has-flag? '二层已揭)))
+            (list (node-reveal-layer-2))
+            '())
+        (if (and (= story-stage 3) (not (has-flag? '三层已揭)))
+            (list (node-reveal-layer-3))
+            '())))
+
+    ;; 夜莺是一个「可进入的容器」：进去才是与她的各种互动。
+    ;; 处境正文做成一张 observe 子卡（她的处境）放在最上面——不能给容器本身加
+    ;; :resolve，否则它会退化成动作、children 全部失效（见 SCHEMY.md 节点形状约束）。
     (define (render-data)
       (if (>= story-stage 1)
           (list (node "夜莺"
                  :subtitle (nightingale-subtitle)
-                 :resolve (observe (situation-text))
-                 :children (append (stage1-world-nodes) (stage2-world-nodes))
+                 :children (append
+                             (list (observe-action "她的处境" (situation-text)))
+                             (situation-nodes)
+                             (stage2-world-nodes))
                  :clocks (append (goal-note) (beat1-clock) (protection-clock) (condition-clock))))
           '()))
 
     ;; ── 节拍一：花消息买线索 ──────────────────────
+    ;; 这是「向酒馆老主顾买准话」，与夜莺本人无关，因此挂在老街酒馆（beat1-lead-nodes），
+    ;; 不进夜莺容器。只在 beat 1、且手里有情报可花时出现。
     (define (node-buy-lead)
       (node "花消息买线索"
         :subtitle "手里的消息换一句准话；不占行动骰"
@@ -268,8 +288,10 @@
           (lambda ()
             (advance-beat1! "买来的准话" "你把消息递给一个老主顾。他压低声音回你一句:外地人这几天在老街进出。")))))
 
-    (define (stage1-world-nodes)
-      (if (and (= story-stage 1) (< beat1-progress beat1-target))
+    (define (beat1-lead-nodes)
+      (if (and (= story-stage 1)
+               (< beat1-progress beat1-target)
+               (> (item-count "情报") 0))
           (list (node-buy-lead))
           '()))
 
@@ -351,16 +373,10 @@
          (error "resolve-protected-beat2!: no protection"))))
 
     ;; ── 注入世界根的紧急节点 ────────────────────────
+    ;; 只剩开场敲门：此时夜莺容器尚未出现，只能挂在世界根。
+    ;; 其余情境动作已并入夜莺容器自身（见 situation-nodes）。
     (define (world-nodes)
-      (append
-        (if (= story-stage 0) (list (node-answer-door)) '())
-        (if (beat1-ready?) (list (node-confront-stalker)) '())
-        (if (and (= story-stage 2) (not (has-flag? '二层已揭)))
-            (list (node-reveal-layer-2))
-            '())
-        (if (and (= story-stage 3) (not (has-flag? '三层已揭)))
-            (list (node-reveal-layer-3))
-            '())))
+      (if (= story-stage 0) (list (node-answer-door)) '()))
 
     ;; ── 节拍一：查访盯梢者 ──────────────────────────
     (define (node-confront-stalker)
@@ -516,6 +532,7 @@
           ((equal? msg 'render-data) (render-data))
           ((equal? msg 'world-nodes) (world-nodes))
           ((equal? msg 'tavern-nodes) (tavern-nodes))
+          ((equal? msg 'beat1-lead-nodes) (beat1-lead-nodes))
           ((equal? msg 'node-gossip) (node-gossip))
           ((equal? msg 'node-dock-inquire-stalker) (node-dock-inquire-stalker))
           ((equal? msg 'node-police-inquire-stalker) (node-police-inquire-stalker))

@@ -10,7 +10,7 @@
     (define investment-principal 60)
 
     (define (node-contract-work)
-      (工作 "联络货主" "富商" '中 'social
+      (关系工作 "联络货主" "富商" '中 'social
         (outcome "撮合成交" "你摸准双方的口风，把一批货和一条船接到了一起。"
           (lambda () (add-item! "金钱" 10)))
         (outcome "谈成一单" "条件不算漂亮，但双方都肯点头，你拿到一份普通佣金。"

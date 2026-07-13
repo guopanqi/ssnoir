@@ -24,10 +24,14 @@ namespace SSNoir.Rendering
 
             if (clocksToShow.Count == 0)
             {
-                return 110f;
+                FontManager.DrawText("当前节点状态: ", 40f, y, 14, new Color(150, 150, 170, 255));
+                FontManager.DrawText("—", 145f, y, 14, new Color(90, 94, 110, 255));
+                Raylib.DrawLineEx(new System.Numerics.Vector2(40f, y + 43f),
+                    new System.Numerics.Vector2(windowWidth - 40f, y + 43f),
+                    1f, new Color(50, 50, 60, 255));
+                return y + 58f;
             }
 
-            bool hasNotes = clocksToShow.Exists(clock => !string.IsNullOrEmpty(clock.Note));
             float x = 40f;
             FontManager.DrawText("当前节点状态: ", x, y, 14, new Color(150, 150, 170, 255));
             x += 105;
@@ -37,10 +41,10 @@ namespace SSNoir.Rendering
                 DrawDetailedClock(ref x, y, clock);
             }
 
-            float dividerY = y + (hasNotes ? 43f : 25f);
+            float dividerY = y + 43f;
             Raylib.DrawLineEx(new System.Numerics.Vector2(40, dividerY), new System.Numerics.Vector2(windowWidth - 40, dividerY), 1.0f, new Color(50, 50, 60, 255));
 
-            return y + (hasNotes ? 58f : 40f);
+            return y + 58f;
         }
 
         private static void DrawDetailedClock(ref float x, float y, GameClock clock)

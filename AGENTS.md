@@ -10,6 +10,7 @@
 - **Scheme 内容编写指南(写 .scm:DSL + 约定)**：[SCHEMY.md](SCHEMY.md)
 - **改 Schemy 解释器本身(库开发)**：[schemy-master/AGENTS.md](schemy-master/AGENTS.md)
 - **Unity 客户端 UI 规则**：[UnityClient/AGENTS.md](UnityClient/AGENTS.md)
+- **Terminal 客户端视觉设计规范**：[TerminalApp/DESIGN.md](TerminalApp/DESIGN.md)
 - **已知限制 / 待办**：[TODO.md](TODO.md)
 
 ---

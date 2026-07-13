@@ -7,7 +7,7 @@
 
     ;; ── 生计工作 ──────────────────────────────────
     (define (node-waiter)
-      (工作 "服务员" "劳工" '低 'social
+      (关系工作 "服务员" "劳工" '低 'social
         (outcome "手脚麻利" "跑了一晚上堂子，酒客赏钱都算在工钱里。"
           (lambda () (add-item! "金钱" 8)))
         (outcome "普通一班" "今晚的客人不多，工头按日结。"
@@ -40,6 +40,7 @@
                   (and stage (>= stage 2)))
                 (list (node-waiter))
                 '())
+            (nightingale 'beat1-lead-nodes)   ; 花消息买线索：向酒馆老主顾买准话
             (list (nightingale 'node-gossip) (node-atmosphere)))))
 
     (define-turn-rule "老街酒馆停业倒计时"

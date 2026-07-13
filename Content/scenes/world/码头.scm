@@ -37,7 +37,7 @@
           (lambda () (stress-current-actor! 1) (damage-party! 1)))))
 
     (define (node-foreman-ledger)
-      (工作 "替工头记账" "劳工" '中 'knowledge
+      (关系工作 "替工头记账" "劳工" '中 'knowledge
         (outcome "账目清楚" "账目按时交回，工头给了足额报酬。"
           (lambda () (add-item! "金钱" 10)))
         (outcome "按日结算" "账算清了，拿到普通工钱。"
@@ -58,7 +58,8 @@
         (outcome "被巡警撞见" "巡警扣下了货。你虽然脱了身，名字却被记进了值班记录。"
           (lambda ()
             (change-faction-relation! "官僚" -2)
-            (stress-current-actor! 2)))))
+            (stress-current-actor! 2)))
+        "事败将得罪官僚"))
 
     (define (node-sell-contraband-locally)
       (node "把私货散卖给水手"

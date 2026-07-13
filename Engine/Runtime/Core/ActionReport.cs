@@ -62,9 +62,9 @@ namespace SSNoir.Core
 
         // Diagnostic / rendering metadata for the rolling details
         public int ChosenDieValue { get; set; } = 1;
+        public int SkillLevel { get; set; }
+        public int ModifierTotal { get; set; }
         public int PreparedValue { get; set; }
         public int FateDieValue { get; set; } = 1;
-        public int NaturalModifier { get; set; }
-        public int FinalTotal { get; set; }
     }
 }

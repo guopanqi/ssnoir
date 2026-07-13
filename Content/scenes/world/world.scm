@@ -16,6 +16,14 @@
 ;; ── 世界级状态 ───────────────────────────────────
 (define world-day 1)
 
+;; 势力面板目标由内容定义；客户端只负责根据当前关系显示下一项。
+(set-global! "relation-goal:官僚:脸熟" "陪探长走访；申请巡警照看酒馆")
+(set-global! "relation-goal:官僚:自己人" "当前 Demo 暂无新增动作")
+(set-global! "relation-goal:劳工:脸熟" "替工头记账；帮老周查账；请码头兄弟看场")
+(set-global! "relation-goal:劳工:自己人" "走私；交锋中召集码头兄弟")
+(set-global! "relation-goal:富商:脸熟" "应酬货运代理；出售私货；代理人项目")
+(set-global! "relation-goal:富商:自己人" "当前 Demo 暂无新增动作")
+
 ;; 夜莺委托线的三次交锋。正式主线接入后逐个替换。
 (define public-event-count 0)
 (define public-event-max 3)
@@ -56,7 +64,7 @@
          ((and (= stage 1) (< beat1-progress beat1-target)) "查出盯梢者的落脚处。填满后可以主动找上门。")
          (else "你已经摸到他的落脚处。可以主动去找他,也可以等他上门。")))
       ((= public-event-count 1)
-       "收账人已经撂话。第 10 天前,至少要凑出一笔首期赎身钱,让他们先收手。")
+       "收账人已经撂话。第 10 天到期；时钟显示距到期的剩余天数。至少要凑出一笔首期赎身钱,让他们先收手。")
       ((= public-event-count 2)
        "他们要的是一条命的交代。这次不能输。")
       (else "归零后必须亲自处理。"))))

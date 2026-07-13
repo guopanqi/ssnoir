@@ -12,7 +12,9 @@ namespace SSNoir.IMGUI
         public RollOutcome? RollOutcome { get; set; }
         public int? FateDieValue { get; set; }
         public int PreparedValue { get; set; }
-        public int? FinalTotal { get; set; }
         public List<ActionEffectRecord> Effects { get; set; } = new List<ActionEffectRecord>();
+
+        // 结果首次可见（动画落定、切到 residue）的时刻；用于「结果从命运条下方揭开」的过渡。首帧惰性写入。
+        public float RevealStartTime { get; set; } = 0f;
     }
 }

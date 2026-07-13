@@ -285,6 +285,15 @@ namespace SSNoir.Core
                 ["劳工"] = _gameState.Get<int>("relation:劳工"),
                 ["富商"] = _gameState.Get<int>("relation:富商"),
             };
+            var relationUnlocks = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string faction in relations.Keys)
+            {
+                foreach (string band in new[] { "脸熟", "自己人" })
+                {
+                    relationUnlocks[$"{faction}:{band}"] =
+                        _gameState.Get<string>($"relation-goal:{faction}:{band}", "当前无新增动作");
+                }
+            }
 
             var actors = new List<ActorSnapshot>();
             foreach (var actor in _gameState.Team.Actors)
@@ -313,6 +322,7 @@ namespace SSNoir.Core
                 Location = _gameState.Get<string>("location"),
                 Inventory = inventory,
                 Relations = relations,
+                RelationUnlocks = relationUnlocks,
                 Actors = actors,
             };
         }
@@ -603,12 +613,12 @@ namespace SSNoir.Core
                         modifierSum += mod.Value;
                     }
                     report.DifficultyModifiers = modifiers;
+                    report.SkillLevel = skillLevel;
+                    report.ModifierTotal = modifierSum;
 
                     int fateDie = rand.Next(1, 7);
                     report.PreparedValue = FateStrip.PreparedValue(chosenDieVal, skillLevel, modifierSum);
                     report.FateDieValue = fateDie;
-                    report.NaturalModifier = FateStrip.NaturalModifier(fateDie);
-                    report.FinalTotal = FateStrip.FinalTotal(chosenDieVal, skillLevel, modifierSum, fateDie);
                     report.Outcome = FateStrip.Resolve(chosenDieVal, skillLevel, modifierSum, fateDie);
 
                     if (report.Outcome == RollOutcome.Fail)

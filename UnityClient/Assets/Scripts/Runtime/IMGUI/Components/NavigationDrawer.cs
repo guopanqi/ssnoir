@@ -49,7 +49,7 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(startX, startY + 8, 800, 26), breadcrumbText, crumbStyle);
 
             // Relation Panel
-            DrawRelationPanel(gameManager);
+            DrawRelationPanel(gameManager, ui);
 
             // Divider
             IMGUIStyles.DrawLine(new Vector2(40, 88), new Vector2(UIScale.VW - 40, 88),
@@ -67,73 +67,149 @@ namespace SSNoir.IMGUI
             IMGUIStyles.OddsSuccess,                                                   // 自己人
         };
 
-        // 每个势力一条进度条：底色按档位分段，当前值放一个高亮标记。
-        private static void DrawRelationPanel(SSNoirGameManager gameManager)
+        private static bool _relationExpanded;
+        public static bool IsRelationExpanded => _relationExpanded;
+        private static readonly string[] Factions = { "官僚", "劳工", "富商" };
+
+        // 收起态留在导航栏；展开态是一张完整的关系进展图，放到导航线下方。
+        private static void DrawRelationPanel(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             var snapshot = gameManager.DisplayedSnapshot;
-            string[] factions = { "官僚", "劳工", "富商" };
-
-            // 压扁到顶栏分割线（y=88）以内，不再越界；右侧给成长/队伍按钮留位。
-            float pad = 5f, rowH = 18f, labelW = 34f, valueW = 26f, gap = 8f;
-            float panelW = 250f;
-            float panelH = 3 * rowH + pad * 2;
-            float panelX = UIScale.VW - 470f;
-            float panelY = 14f;
-
-            var oldColor = GUI.color;
-            var panelRect = new Rect(panelX, panelY, panelW, panelH);
+            var toggleRect = new Rect(UIScale.VW - 276f, 25f, 236f, 36f);
             GUI.color = IMGUIStyles.HudBg;
-            GUI.DrawTexture(panelRect, Texture2D.whiteTexture);
+            GUI.DrawTexture(toggleRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(panelRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
-
-            float barX = panelX + pad + labelW + gap;
-            float barW = panelW - pad * 2 - labelW - valueW - gap * 2;
-
-            var b = RelationScale.Boundaries;
-            int[] edges = new int[b.Length + 2];
-            edges[0] = RelationScale.Min;
-            for (int k = 0; k < b.Length; k++) edges[k + 1] = b[k];
-            edges[edges.Length - 1] = RelationScale.Max;
-
-            var labelStyle = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = 13 };
-            labelStyle.normal.textColor = IMGUIStyles.TextSecondary;
-
-            for (int i = 0; i < factions.Length; i++)
+            IMGUIStyles.DrawOutline(toggleRect, 1f,
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
+            var toggleStyle = new GUIStyle(IMGUIStyles.StatusLabel)
             {
-                int value = snapshot.Relations.TryGetValue(factions[i], out var v) ? v : 0;
-                int bi = RelationScale.BandIndex(value);
-                float rowY = panelY + pad + i * rowH;
-                float barY = rowY + rowH * 0.5f - 3.5f;
-                float barH = 7f;
-
-                GUI.Label(new Rect(panelX + pad, rowY, labelW, rowH), factions[i], labelStyle);
-
-                // 分段底色，显示每个档位的区间
-                for (int s = 0; s < edges.Length - 1; s++)
-                {
-                    float x0 = barX + RelationScale.Fraction(edges[s]) * barW;
-                    float x1 = barX + RelationScale.Fraction(edges[s + 1]) * barW;
-                    var c = RelationBandColors[s];
-                    GUI.color = new Color(c.r, c.g, c.b, 0.28f);
-                    GUI.DrawTexture(new Rect(x0, barY, Mathf.Max(1f, x1 - x0), barH), Texture2D.whiteTexture);
-                }
-                GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(new Rect(barX, barY, barW, barH), 1f,
-                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f));
-
-                // 当前值高亮标记
-                float mx = barX + RelationScale.Fraction(value) * barW;
-                GUI.color = RelationBandColors[bi];
-                GUI.DrawTexture(new Rect(mx - 1.5f, barY - 2f, 3f, barH + 4f), Texture2D.whiteTexture);
-                GUI.color = Color.white;
-
-                var valStyle = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleCenter, fontSize = 13 };
-                valStyle.normal.textColor = RelationBandColors[bi];
-                GUI.Label(new Rect(barX + barW + gap, rowY, valueW, rowH), value.ToString(), valStyle);
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = SF(13)
+            };
+            GUI.Label(toggleRect, _relationExpanded ? "关系进展  ·  收起" : CompactSummary(snapshot), toggleStyle);
+            if (ui.WasClicked(toggleRect))
+            {
+                _relationExpanded = !_relationExpanded;
+                Event.current.Use();
             }
 
-            GUI.color = oldColor;
+        }
+
+        public static void DrawRelationOverlay(PresentationSnapshot snapshot)
+        {
+            if (!_relationExpanded) return;
+            float panelW = Mathf.Min(620f, UIScale.VW - 80f);
+            var panel = new Rect(UIScale.VW - 40f - panelW, 100f, panelW, 398f);
+            GUI.color = new Color(IMGUIStyles.HudBg.r, IMGUIStyles.HudBg.g, IMGUIStyles.HudBg.b, 0.98f);
+            GUI.DrawTexture(panel, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(panel, 1f,
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f));
+
+            var title = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleLeft, fontSize = SF(20) };
+            GUI.Label(new Rect(panel.x + 18f, panel.y + 12f, 130f, 28f), "城市关系", title);
+            var note = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = SF(11) };
+            note.normal.textColor = IMGUIStyles.TextSecondary;
+            GUI.Label(new Rect(panel.x + 140f, panel.y + 15f, panel.width - 160f, 24f),
+                "关系到达标记位置时，开放对应的工作、行动与援助", note);
+
+            for (int i = 0; i < Factions.Length; i++)
+                DrawFactionProgress(snapshot, Factions[i],
+                    new Rect(panel.x + 16f, panel.y + 50f + i * 112f, panel.width - 32f, 102f));
+        }
+
+        private static string CompactSummary(PresentationSnapshot snapshot)
+        {
+            string text = "关系";
+            foreach (string faction in Factions)
+            {
+                int value = snapshot.Relations.TryGetValue(faction, out int v) ? v : 0;
+                text += $"  {faction}{value}";
+            }
+            return text;
+        }
+
+        private static void DrawFactionProgress(PresentationSnapshot snapshot, string faction, Rect rect)
+        {
+            int value = snapshot.Relations.TryGetValue(faction, out int v) ? v : 0;
+            int band = RelationScale.BandIndex(value);
+            Color active = RelationBandColors[band];
+            GUI.color = new Color(0.07f, 0.08f, 0.11f, 0.92f);
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(rect, 1f,
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.22f));
+
+            var factionStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleLeft, fontSize = SF(16) };
+            GUI.Label(new Rect(rect.x + 12f, rect.y + 6f, 55f, 24f), faction, factionStyle);
+            var bandStyle = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = SF(12) };
+            bandStyle.normal.textColor = active;
+            GUI.Label(new Rect(rect.x + 68f, rect.y + 7f, 100f, 22f), $"{RelationScale.BandNames[band]}  {value}", bandStyle);
+
+            float trackX = rect.x + 160f, trackY = rect.y + 20f, trackW = rect.width - 180f;
+            const int pointCount = RelationScale.Max - RelationScale.Min + 1;
+            const float cellGap = 1f;
+            float cellW = (trackW - cellGap * (pointCount - 1)) / pointCount;
+            for (int point = RelationScale.Min; point <= RelationScale.Max; point++)
+            {
+                int index = point - RelationScale.Min;
+                Color bandColor = RelationBandColors[RelationScale.BandIndex(point)];
+                bool traversed = value >= 0 ? point >= 0 && point <= value : point <= 0 && point >= value;
+                GUI.color = new Color(bandColor.r, bandColor.g, bandColor.b, traversed ? 0.72f : 0.18f);
+                var cell = new Rect(trackX + index * (cellW + cellGap), trackY - 4f, cellW, 8f);
+                GUI.DrawTexture(cell, Texture2D.whiteTexture);
+                if (point == value)
+                    IMGUIStyles.DrawOutline(cell, 1.5f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.95f));
+            }
+            float currentX = trackX + (value - RelationScale.Min) * (cellW + cellGap) + cellW / 2f;
+            GUI.color = active;
+            GUI.DrawTexture(new Rect(currentX - 4f, trackY - 4f, 8f, 8f), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            float chipW = (rect.width - 32f) / 2f;
+            DrawUnlock(snapshot, faction, "脸熟", 3, value,
+                new Rect(rect.x + 12f, rect.y + 41f, chipW, 49f), trackX, trackY, trackW);
+            DrawUnlock(snapshot, faction, "自己人", 6, value,
+                new Rect(rect.x + 20f + chipW, rect.y + 41f, chipW, 49f), trackX, trackY, trackW);
+        }
+
+        private static void DrawUnlock(PresentationSnapshot snapshot, string faction, string band, int threshold,
+            int value, Rect chip, float trackX, float trackY, float trackW)
+        {
+            bool unlocked = value >= threshold;
+            Color color = unlocked ? IMGUIStyles.OddsSuccess : IMGUIStyles.OddsNeutral;
+            const int pointCount = RelationScale.Max - RelationScale.Min + 1;
+            const float cellGap = 1f;
+            float cellW = (trackW - cellGap * (pointCount - 1)) / pointCount;
+            float nodeX = trackX + (threshold - RelationScale.Min) * (cellW + cellGap) + cellW / 2f;
+            GUI.color = color;
+            GUI.DrawTexture(new Rect(nodeX - 3f, trackY - 3f, 6f, 6f), Texture2D.whiteTexture);
+            GUI.color = new Color(color.r, color.g, color.b, unlocked ? 0.20f : 0.10f);
+            GUI.DrawTexture(chip, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(chip, 1f, new Color(color.r, color.g, color.b, 0.70f));
+
+            var head = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = SF(11) };
+            head.normal.textColor = color;
+            string state = unlocked ? "已解锁" : $"还差 {Mathf.Max(0, threshold - value)}";
+            GUI.Label(new Rect(chip.x + 8f, chip.y + 4f, chip.width - 16f, 18f),
+                $"{band}  +{threshold}  ·  {state}", head);
+            var body = new GUIStyle(IMGUIStyles.StatusLabel)
+            {
+                alignment = TextAnchor.MiddleLeft,
+                fontSize = SF(10),
+                clipping = TextClipping.Clip
+            };
+            body.normal.textColor = IMGUIStyles.TextSecondary;
+            string key = $"{faction}:{band}";
+            string unlock = snapshot.RelationUnlocks.TryGetValue(key, out string configured)
+                ? configured : "当前无新增动作";
+            GUI.Label(new Rect(chip.x + 8f, chip.y + 23f, chip.width - 16f, 20f), unlock, body);
+        }
+
+        private static int SF(int baseSize)
+        {
+            return Mathf.Max(1, Mathf.RoundToInt(baseSize * UIScale.Scale));
         }
     }
 }

@@ -21,7 +21,7 @@
       (set! pass-cooldown pass-cooldown-max))
 
     (define (node-paperwork)
-      (工作 "整理警局文书" "官僚" '低 'knowledge
+      (关系工作 "整理警局文书" "官僚" '低 'knowledge
         (outcome "条目清楚" "案卷归了类，值班警员少见地夸了一句。"
           (lambda () (add-item! "金钱" 6)))
         (outcome "按时交差" "一下午都耗在纸堆里，拿到一点报酬。"

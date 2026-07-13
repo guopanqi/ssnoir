@@ -91,8 +91,8 @@ namespace SSNoir.Rendering
             {
                 Raylib.DrawRectangle(0, 0, (int)windowWidth, (int)windowHeight, new Color(0, 0, 0, 180));
 
-                float modalW = 380;
-                float modalH = 290;
+                float modalW = 440;
+                float modalH = 310;
                 float modalX = (windowWidth - modalW) / 2f;
                 float modalY = (windowHeight - modalH) / 2f;
                 var modalRect = new Rectangle(modalX, modalY, modalW, modalH);
@@ -108,97 +108,41 @@ namespace SSNoir.Rendering
 
                 float contentY = modalY + 50;
 
-                // Render the single fate die, centered.
-                int totalDice = 1;
-                float dieWidth = 60f;
-                float spacing = 20f;
-                float totalWidth = totalDice * dieWidth + (totalDice - 1) * spacing;
-                float startX = modalX + (modalW - totalWidth) / 2f;
+                // 命运条本身就是概率表；掷骰阶段命运高亮减速扫掠，落格弹跳，定格后压暗其余格。
+                var fateStrip = FateStrip.Compute(state.ActiveRollResult.ChosenDieValue,
+                    state.ActiveRollResult.SkillLevel, state.ActiveRollResult.ModifierTotal);
+                int highlightedFace = state.ActiveRollPhase == 0
+                    ? state.ActiveRollDisplayDieValue
+                    : state.ActiveRollResult.FateDieValue;
+                float stripPulse = state.ActiveRollPhase == 1
+                    ? Math.Max(0f, state.ActiveRollDisplayScale - 1f)
+                    : 0f;
+                bool stripSettled = state.ActiveRollPhase >= 2;
+                string summary = FateStrip.Describe(fateStrip);
+                int summaryW = FontManager.MeasureTextWidth(summary, 12);
+                FontManager.DrawText(summary, modalX + (modalW - summaryW) / 2f, contentY, 12,
+                    new Color(175, 178, 192, 255));
+                contentY += 20f;
 
-                for (int i = 0; i < totalDice; i++)
-                {
-                    float x = startX + i * (dieWidth + spacing);
-                    
-                    int val;
-                    bool isWinner = false;
-                    float scale = 1.0f;
-                    Color dieColor;
+                float stripW = 52f * 6f + 7f * 5f;
+                float startX = modalX + (modalW - stripW) / 2f;
+                CardWidget.DrawOddsStrip(new Rectangle(startX, contentY, stripW, 37f), fateStrip,
+                    highlightedFace, 14, stripPulse, stripSettled);
 
-                    if (state.ActiveRollPhase == 0)
-                    {
-                        var rand = new Random();
-                        val = rand.Next(1, 7);
-                        scale = 0.9f + (float)rand.NextDouble() * 0.2f;
-                        dieColor = new Color(255, 182, 147, 255); // Burnt Amber
-                    }
-                    else
-                    {
-                        val = state.ActiveRollResult.FateDieValue;
-                        isWinner = true;
-
-                        if (state.ActiveRollPhase == 1)
-                        {
-                            scale = isWinner ? state.ActiveRollDisplayScale : 1.0f;
-                        }
-                        else // Phase 2
-                        {
-                            scale = isWinner ? 1.1f : 0.9f;
-                        }
-
-                        dieColor = isWinner ? new Color(255, 182, 147, 255) : new Color(110, 110, 130, 255);
-                    }
-
-                    int fontSize = (int)(32 * scale); // Base size is 32 for multiple dice
-                    string text = $"D{val}";
-                    int textW = FontManager.MeasureTextWidth(text, fontSize);
-
-                    // Draw die container box
-                    var boxRect = new Rectangle(x, contentY, dieWidth, 50);
-                    Color boxBg = isWinner ? new Color(50, 40, 45, 255) : new Color(25, 25, 35, 255);
-                    Color boxBorder = dieColor;
-
-                    Raylib.DrawRectangleRounded(boxRect, 0.15f, 4, boxBg);
-                    Raylib.DrawRectangleRoundedLinesEx(boxRect, 0.15f, 4, 1.5f, boxBorder);
-
-                    // Center text in container
-                    FontManager.DrawText(text, boxRect.X + (dieWidth - textW) / 2f, boxRect.Y + (50 - fontSize) / 2f, fontSize, dieColor);
-                }
-
-                contentY += 65;
+                contentY += 52f;
 
                 // Details revealed in phase >= 1
                 if (state.ActiveRollPhase >= 1)
                 {
-                    string line1 = $"投入行动力骰子值: {state.ActiveRollResult.ChosenDieValue}";
+                    string mod = state.ActiveRollResult.ModifierTotal >= 0
+                        ? $"+ {state.ActiveRollResult.ModifierTotal}"
+                        : $"− {Math.Abs(state.ActiveRollResult.ModifierTotal)}";
+                    string line1 = $"准备 {state.ActiveRollResult.PreparedValue} = 骰 {state.ActiveRollResult.ChosenDieValue} + 技能 {state.ActiveRollResult.SkillLevel} {mod}";
                     FontManager.DrawText(line1, modalX + 40, contentY, 14, new Color(200, 200, 220, 255));
-                    contentY += 20;
+                    contentY += 22;
 
-                    string line2 = $"准备值: {state.ActiveRollResult.PreparedValue} · 命运骰: {state.ActiveRollResult.FateDieValue}";
-                    FontManager.DrawText(line2, modalX + 40, contentY, 14, new Color(200, 200, 220, 255));
-                    contentY += 20;
-
-                    string lineMod = "难度修正: ";
-                    if (state.ActiveRollResult.DifficultyModifiers.Count > 0)
-                    {
-                        var modStrList = new List<string>();
-                        foreach (var m in state.ActiveRollResult.DifficultyModifiers)
-                        {
-                            modStrList.Add($"{m.Reason}({(m.Value > 0 ? "+" : "")}{m.Value})");
-                        }
-                        lineMod += string.Join(", ", modStrList);
-                    }
-                    else
-                    {
-                        lineMod += "无";
-                    }
-                    FontManager.DrawText(lineMod, modalX + 40, contentY, 14, new Color(180, 180, 200, 255));
-                    contentY += 20;
-
-                    string naturalText = state.ActiveRollResult.NaturalModifier == 0
-                        ? ""
-                        : state.ActiveRollResult.NaturalModifier > 0 ? " · 天然6 +1" : " · 天然1 -1";
-                    string line3 = $"最终总和: {state.ActiveRollResult.FinalTotal}{naturalText}";
-                    FontManager.DrawText(line3, modalX + 40, contentY, 14, new Color(220, 220, 250, 255));
+                    string line2 = $"命运骰 {state.ActiveRollResult.FateDieValue} 落在赔率条上";
+                    FontManager.DrawText(line2, modalX + 40, contentY, 14, new Color(220, 220, 210, 255));
                     contentY += 25;
                 }
 

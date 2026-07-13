@@ -130,17 +130,15 @@ namespace SSNoir.Testing
 
             static (int fail, int neutral, int success) ExpectedCounts(int prepared)
             {
-                if (prepared <= -1) return (6, 0, 0);
-                if (prepared <= 1) return (5, 1, 0);
+                if (prepared <= 1) return (3, 3, 0);
                 return prepared switch
                 {
-                    2 => (4, 1, 1),
-                    3 => (3, 2, 1),
-                    4 => (2, 2, 2),
-                    5 => (1, 2, 3),
-                    6 => (1, 1, 4),
-                    7 or 8 => (0, 1, 5),
-                    _ => (0, 0, 6),
+                    2 => (2, 3, 1),
+                    3 => (1, 3, 2),
+                    4 => (1, 2, 3),
+                    5 => (0, 2, 4),
+                    6 => (0, 1, 5),
+                    _ => (0, 0, 6), // ≥7
                 };
             }
 
@@ -160,8 +158,6 @@ namespace SSNoir.Testing
                 AssertEq($"B={prepared} counts", ExpectedCounts(prepared), (fail, neutral, success));
             }
 
-            AssertEq("natural 1 modifier", -1, FateStrip.NaturalModifier(1));
-            AssertEq("natural 6 modifier", 1, FateStrip.NaturalModifier(6));
             AssertEq("stress 0 modifier", 0, TeamState.GetStressRollModifier(0));
             AssertEq("stress 1 modifier", 0, TeamState.GetStressRollModifier(1));
             AssertEq("stress 2 modifier", -1, TeamState.GetStressRollModifier(2));
@@ -170,9 +166,9 @@ namespace SSNoir.Testing
             stressedState.Team.ApplyStress("player", 5);
             AssertEq("stress cap", 4, stressedState.Team.FindActor("player")!.Stress);
             AssertEq("stress overflow health damage", 4, stressedState.Team.Health);
-            AssertEq("B=1 summary", "1–5 坏 · 6 中", FateStrip.Describe(FateStrip.Compute(1, 0, 0)));
-            AssertEq("B=4 summary", "1–2 坏 · 3–4 中 · 5–6 好", FateStrip.Describe(FateStrip.Compute(4, 0, 0)));
-            AssertEq("B=7 summary", "1 中 · 2–6 好", FateStrip.Describe(FateStrip.Compute(6, 1, 0)));
+            AssertEq("B=1 summary", "1–3 坏 · 4–6 中", FateStrip.Describe(FateStrip.Compute(1, 0, 0)));
+            AssertEq("B=4 summary", "1 坏 · 2–3 中 · 4–6 好", FateStrip.Describe(FateStrip.Compute(4, 0, 0)));
+            AssertEq("B=7 summary", "1–6 好", FateStrip.Describe(FateStrip.Compute(6, 1, 0)));
 
             AssertThrows(() => FateStrip.Compute(0, 0, 0), "invalid placed die");
             AssertThrows(() => FateStrip.Compute(1, -1, 0), "negative skill");

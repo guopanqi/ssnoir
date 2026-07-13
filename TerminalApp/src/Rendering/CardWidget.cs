@@ -100,11 +100,19 @@ namespace SSNoir.Rendering
             // Draw Clocks Badges
             if (clocks != null && clocks.Count > 0)
             {
-                float rightX = bounds.X + bounds.Width - 6;
-                float topY = bounds.Y;
+                float badgeX = bounds.X + 6f;
+                float badgeY = bounds.Y + 6f;
+                float rightEdge = bounds.X + bounds.Width - 6f;
                 foreach (var clock in clocks)
                 {
-                    DrawClockBadge(ref rightX, topY, clock);
+                    float badgeW = Math.Min(MeasureClockBadgeWidth(clock), bounds.Width - 12f);
+                    if (badgeX > bounds.X + 6f && badgeX + badgeW > rightEdge)
+                    {
+                        badgeX = bounds.X + 6f;
+                        badgeY += 20f;
+                    }
+                    DrawClockBadge(new Rectangle(badgeX, badgeY, badgeW, 16f), clock);
+                    badgeX += badgeW + 4f;
                 }
             }
 
@@ -119,7 +127,7 @@ namespace SSNoir.Rendering
 
             // Draw Title text (centered, adjusted upwards if card has slots/button)
             bool hasSubtitle = !string.IsNullOrWhiteSpace(subtitle);
-            int titleFontSize = 20;
+            int titleFontSize = 18;
             int titleWidth = FontManager.MeasureTextWidth(name, titleFontSize);
             float titleX = bounds.X + (bounds.Width - titleWidth) / 2f;
             float titleY = showButton 
@@ -127,14 +135,14 @@ namespace SSNoir.Rendering
                 : bounds.Y + (bounds.Height / 2f) - (hasSubtitle ? 28 : 15);
             FontManager.DrawText(name, titleX, titleY, titleFontSize, titleColor);
 
-            int subtitleFontSize = 15;
+            int subtitleFontSize = 13;
             List<string> subtitleLines = new();
             float subtitleY = titleY + 26;
             if (hasSubtitle)
             {
                 float subtitleWidth = bounds.Width - 24f;
                 subtitleLines = WrapTextLines(subtitle, subtitleWidth, subtitleFontSize);
-                while (subtitleLines.Count > 2 && subtitleFontSize > 11)
+                while (subtitleLines.Count > 2 && subtitleFontSize > 10)
                 {
                     subtitleFontSize--;
                     subtitleLines = WrapTextLines(subtitle, subtitleWidth, subtitleFontSize);
@@ -153,6 +161,14 @@ namespace SSNoir.Rendering
             float subtitleBottom = hasSubtitle
                 ? subtitleY + subtitleLines.Count * (subtitleFontSize + 4)
                 : titleY + 26;
+            float rollControlY = bounds.Y + (hasSubtitle ? 78f : 64f);
+            if (hasSubtitle)
+                rollControlY = Math.Max(rollControlY, subtitleBottom + 16f);
+
+            // 标签先占位，后续控件按 tagBottomY 向下流动，禁止互相覆盖。
+            float tagBottomY = DrawNodeTags(bounds, tags,
+                hasRequires ? bounds.Y + 30 : (showButton ? bounds.Y + (hasSubtitle ? 62 : 52) : bounds.Y + 6), disabled);
+            float controlY = Math.Max(rollControlY, tagBottomY + 8f);
 
             // Draw skill badge (roll cards) or plain type text — the skill tells the player
             // which ability this action tests, replacing the meaningless "判定" label.
@@ -164,16 +180,22 @@ namespace SSNoir.Rendering
                 int skillTextW = FontManager.MeasureTextWidth(skillText, skillFont);
                 float badgeW = skillTextW + 22;
                 float badgeH = 20;
-                float badgeX = bounds.X + (bounds.Width - badgeW) / 2f;
-                float badgeY = showButton
-                    ? (hasSubtitle ? Math.Max(bounds.Y + 66, subtitleBottom + 2) : bounds.Y + 48)
+                float badgeX = hasRequires
+                    ? bounds.X + 42f - badgeW / 2f
+                    : bounds.X + (bounds.Width - badgeW) / 2f;
+                float badgeY = hasRequires
+                    ? controlY + 6f
+                    : showButton
+                        ? (hasSubtitle ? Math.Max(bounds.Y + 66, subtitleBottom + 2) : bounds.Y + 48)
                     : bounds.Y + bounds.Height - 26;
                 var badgeRect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
-                Raylib.DrawRectangleRounded(badgeRect, 0.5f, 8, new Color(16, 29, 51, 255));
-                Raylib.DrawRectangleRoundedLinesEx(badgeRect, 0.5f, 8, 1f, new Color(63, 109, 176, 255));
-                FontManager.DrawText(skillText, badgeX + 11, badgeY + 3, skillFont, new Color(188, 216, 255, 255));
+                Raylib.DrawRectangleRounded(badgeRect, 0.5f, 8, TerminalPalette.AccentDark);
+                Raylib.DrawRectangleRoundedLinesEx(badgeRect, 0.5f, 8, 1f, TerminalPalette.Accent);
+                FontManager.DrawText(skillText, badgeX + 11, badgeY + 3, skillFont, TerminalPalette.AccentBright);
+                if (hasRequires)
+                    FontManager.DrawText("+", bounds.X + 84f, controlY + 9f, 14, TerminalPalette.TextMuted);
             }
-            else if (!string.IsNullOrEmpty(typeLabel))
+            else if (!string.IsNullOrEmpty(typeLabel) && !showButton)
             {
                 int typeFontSize = 14;
                 int typeWidth = FontManager.MeasureTextWidth(typeLabel, typeFontSize);
@@ -186,8 +208,6 @@ namespace SSNoir.Rendering
 
             // For roll cards, tags sit on their own row below the title (left side); the ability
             // chips mirror them on the right. Keeps a long centered title from colliding.
-            float tagBottomY = DrawNodeTags(bounds, tags, hasRequires ? bounds.Y + 30 : (showButton ? bounds.Y + (hasSubtitle ? 62 : 52) : bounds.Y + 6));
-
             // Bottom of the execute button; used to gate the odds preview so it only shows
             // when the card is tall enough to leave room below the button.
             float executeBottomY = bounds.Y + bounds.Height;
@@ -206,11 +226,7 @@ namespace SSNoir.Rendering
                         totalWidth += spacing;
                 }
                 float slotStartX = bounds.X + (bounds.Width - totalWidth) / 2f;
-                float slotY = bounds.Y + (hasSubtitle ? 88 : 74);
-                if (hasSubtitle)
-                {
-                    slotY = Math.Max(slotY, subtitleBottom + 22);
-                }
+                float slotY = controlY;
                 float slotX = slotStartX;
 
                 for (int j = 0; j < M; j++)
@@ -258,7 +274,8 @@ namespace SSNoir.Rendering
                 float exeW = 84;
                 float exeH = 20;
                 float exeX = bounds.X + (bounds.Width - exeW) / 2f;
-                float exeY = slotY + 36;
+                // 槽位高 32px；其后保留明确的 8px 呼吸空间。
+                float exeY = slotY + slotH + 8f;
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
                 executeBottomY = exeY + exeH;
 
@@ -271,8 +288,8 @@ namespace SSNoir.Rendering
                 {
                     bool canExecute = allFilled && !disabled;
                     var exeBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(exeRect, disabled ? "不可用" : (allFilled ? "执行" : "待命"), ui, canExecute, 12,
-                        new Color((byte)50, (byte)150, (byte)50, (byte)255), new Color((byte)100, (byte)200, (byte)100, (byte)255), new Color((byte)50, (byte)50, (byte)55, (byte)255),
-                        new Color((byte)50, (byte)150, (byte)50, (byte)255), Color.White, new Color((byte)70, (byte)70, (byte)75, (byte)255),
+                        TerminalPalette.AccentDark, new Color(65, 65, 112, 255), new Color((byte)50, (byte)50, (byte)55, (byte)255),
+                        TerminalPalette.Accent, Color.White, new Color((byte)70, (byte)70, (byte)75, (byte)255),
                         Color.White, new Color((byte)100, (byte)100, (byte)110, (byte)255));
                     
                     if (exeBtn.Clicked)
@@ -290,8 +307,9 @@ namespace SSNoir.Rendering
                 float exeY = bounds.Y + (hasSubtitle ? 84 : 70);
                 if (hasSubtitle)
                 {
-                    exeY = Math.Max(exeY, subtitleBottom + 24);
+                    exeY = Math.Max(exeY, subtitleBottom + 12);
                 }
+                exeY = Math.Max(exeY, tagBottomY + 8f);
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
 
                 if (isExecuting)
@@ -301,9 +319,9 @@ namespace SSNoir.Rendering
                 else
                 {
                     var exeBtn = SSNoir.TerminalApp.Rendering.UiButton.Draw(exeRect, disabled ? "不可用" : "执行", ui, !disabled, 12,
-                        new Color((byte)50, (byte)150, (byte)50, (byte)255), new Color((byte)100, (byte)200, (byte)100, (byte)255), null,
-                        new Color((byte)50, (byte)150, (byte)50, (byte)255), Color.White, null,
-                        Color.White, null);
+                        TerminalPalette.AccentDark, new Color(65, 65, 112, 255), new Color(50, 50, 55, 255),
+                        TerminalPalette.Accent, Color.White, new Color(70, 70, 75, 255),
+                        Color.White, new Color(100, 100, 110, 255));
                     
                     if (exeBtn.Clicked)
                     {
@@ -334,14 +352,19 @@ namespace SSNoir.Rendering
                     float tagY = tagStartY + k * 20;
                     var tagRect = new Rectangle(tagX, tagY, tagW, tagH);
 
-                    Color tagBg = mod.Value < 0 ? new Color(120, 30, 30, 255)
-                                 : (mod.Value > 0 ? new Color(30, 100, 30, 255) : new Color(60, 60, 60, 255));
-                    Color tagBorder = mod.Value < 0 ? new Color(180, 60, 60, 255)
-                                    : (mod.Value > 0 ? new Color(60, 160, 60, 255) : new Color(100, 100, 100, 255));
+                    Color tagBg = disabled
+                        ? new Color(44, 45, 52, 255)
+                        : mod.Value < 0 ? new Color(92, 34, 34, 255)
+                        : (mod.Value > 0 ? TerminalPalette.AccentDark : new Color(48, 49, 56, 255));
+                    Color tagBorder = disabled
+                        ? new Color(88, 90, 98, 255)
+                        : mod.Value < 0 ? new Color(180, 60, 60, 255)
+                        : (mod.Value > 0 ? TerminalPalette.Accent : new Color(100, 100, 100, 255));
+                    Color tagText = disabled ? new Color(145, 146, 152, 255) : Color.White;
 
                     Raylib.DrawRectangleRounded(tagRect, 0.4f, 4, tagBg);
                     Raylib.DrawRectangleRoundedLinesEx(tagRect, 0.4f, 4, 1f, tagBorder);
-                    FontManager.DrawText(modText, tagX + 5, tagY + 3, fontSize, Color.White);
+                    FontManager.DrawText(modText, tagX + 5, tagY + 3, fontSize, tagText);
                 }
             }
 
@@ -349,7 +372,7 @@ namespace SSNoir.Rendering
             // that actor's theme color — an at-a-glance "who is good at this" comparison.
             if (hasSkill && actors != null && actors.Count > 0)
             {
-                DrawActorAbilityRail(bounds, rollSkill!, actors);
+                DrawActorAbilityRail(bounds, rollSkill!, actors, ignoresStressPenalty);
             }
 
             if (localRoll != null)
@@ -360,20 +383,20 @@ namespace SSNoir.Rendering
             {
                 DrawResidue(bounds, residue);
             }
-            else if (hasSkill && !disabled && hasRequires && actors != null
-                     && bounds.Y + bounds.Height - executeBottomY >= 32f)
+            else if (hasSkill && !disabled && hasRequires && actors != null)
             {
-                // Once a die is placed, preview all six fate faces. Gated to cards with room below the button.
+                // 命运信息是卡片下缘附件：只有放入骰子后才出现，不占主卡内容区。
                 TryDrawFatePreview(bounds, rollSkill!, slotted!, effectiveModifiers, actors, executeBottomY);
             }
 
             return interaction;
         }
 
-        private static void DrawActorAbilityRail(Rectangle bounds, string skill, IReadOnlyList<ActorSnapshot> actors)
+        private static void DrawActorAbilityRail(Rectangle bounds, string skill,
+            IReadOnlyList<ActorSnapshot> actors, bool ignoresStressPenalty)
         {
-            const float chipW = 52f;
-            const float chipH = 18f;
+            const float chipW = 72f;
+            const float chipH = 32f;
             float x = bounds.X + bounds.Width - chipW - 6f;
             // Same row as the tags (below the title), mirrored to the right edge.
             float y = bounds.Y + 30f;
@@ -390,15 +413,22 @@ namespace SSNoir.Rendering
                 }
                 var (r, g, b) = ActorTheme.ColorFor(actors, actor.Id);
                 var color = new Color(r, g, b, (byte)255);
-                var chip = new Rectangle(x, y + drawn * (chipH + 4f), chipW, chipH);
+                var chip = new Rectangle(x, y + drawn * (chipH + 5f), chipW, chipH);
                 Raylib.DrawRectangleRounded(chip, 0.4f, 5, new Color((byte)(r / 5), (byte)(g / 5), (byte)(b / 5), (byte)235));
                 Raylib.DrawRectangleRoundedLinesEx(chip, 0.4f, 5, 1.4f, color);
 
                 string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
-                FontManager.DrawText(shortName, chip.X + 5f, chip.Y + 3f, 10, color);
-                string lvl = level.ToString();
-                int lvlW = FontManager.MeasureTextWidth(lvl, 13);
-                FontManager.DrawText(lvl, chip.X + chip.Width - lvlW - 6f, chip.Y + 2f, 13, new Color(235, 240, 255, 255));
+                FontManager.DrawText($"{shortName} · {level}", chip.X + 6f, chip.Y + 4f, 10, color);
+                int stressModifier = ignoresStressPenalty ? 0 : TeamState.GetStressRollModifier(actor.Stress);
+                string status = ignoresStressPenalty && actor.Stress >= TeamState.StressPenaltyThreshold
+                    ? "恢复判定豁免"
+                    : stressModifier == 0 ? "平稳" : "心绪不宁 −1";
+                Color statusColor = stressModifier != 0
+                    ? OddsFailColor
+                    : ignoresStressPenalty && actor.Stress >= TeamState.StressPenaltyThreshold
+                        ? TerminalPalette.AccentBright
+                        : TerminalPalette.Text;
+                FontManager.DrawText(status, chip.X + 6f, chip.Y + 18f, 10, statusColor);
                 drawn++;
             }
         }
@@ -470,185 +500,188 @@ namespace SSNoir.Rendering
             }
 
             var strip = FateStrip.Compute(dieSlot.Value, skillLevel.Value, modSum);
-            DrawFateStrip(bounds, strip, executeBottomY);
+            string modifierReasons = modifiers == null
+                ? string.Empty
+                : string.Join("、", modifiers.Where(m => m.Value != 0)
+                    .Select(m => $"{m.Reason}{(m.Value > 0 ? "+" : string.Empty)}{m.Value}"));
+            DrawFateResolutionPanel(bounds, strip, dieSlot.Value, skillLevel.Value, modSum,
+                modifierReasons, executeBottomY);
         }
 
-        private static void DrawFateStrip(Rectangle bounds, RollOutcome[] strip, float executeBottomY)
+        private static void DrawFateResolutionPanel(Rectangle bounds, RollOutcome[] strip,
+            int actionDie, int skill, int modifierTotal, string modifierReasons, float executeBottomY)
         {
-            float pad = 8f;
-            float summaryY = executeBottomY + 1f;
+            var panel = new Rectangle(bounds.X + 5f, bounds.Y + bounds.Height + 4f,
+                bounds.Width - 10f, 54f);
+            DrawAttachmentConnector(bounds, panel);
+            DrawResolutionPanelFrame(panel);
+
+            int prepared = FateStrip.PreparedValue(actionDie, skill, modifierTotal);
+            string modifier = modifierTotal >= 0 ? $"+ {modifierTotal}" : $"− {Math.Abs(modifierTotal)}";
+            string formula = $"准备 {prepared} = 骰 {actionDie} + 技能 {skill} {modifier}";
+            if (!string.IsNullOrEmpty(modifierReasons)) formula += $"  [{modifierReasons}]";
+            int formulaFont = FontManager.MeasureTextWidth(formula, 9) <= panel.Width - 14f ? 9 : 8;
+            FontManager.DrawText(formula, panel.X + 7f, panel.Y + 4f, formulaFont,
+                new Color(210, 212, 220, 255));
+
             string summary = FateStrip.Describe(strip);
             int summaryW = FontManager.MeasureTextWidth(summary, 9);
-            FontManager.DrawText(summary, bounds.X + (bounds.Width - summaryW) / 2f, summaryY, 9, new Color(190, 190, 205, 255));
+            FontManager.DrawText(summary, panel.X + (panel.Width - summaryW) / 2f, panel.Y + 17f, 9,
+                new Color(170, 174, 188, 255));
 
-            float rowY = summaryY + 12f;
-            float gap = 3f;
-            float cellW = Math.Min(24f, (bounds.Width - pad * 2f - gap * 5f) / 6f);
-            float totalW = cellW * 6f + gap * 5f;
-            float startX = bounds.X + (bounds.Width - totalW) / 2f;
-            for (int i = 0; i < 6; i++)
-            {
-                Color color = OutcomeColor(strip[i]);
-                var cell = new Rectangle(startX + i * (cellW + gap), rowY, cellW, 17f);
-                Raylib.DrawRectangleRounded(cell, 0.12f, 3,
-                    new Color((byte)(color.R / 5), (byte)(color.G / 5), (byte)(color.B / 5), (byte)245));
-                Raylib.DrawRectangleRoundedLinesEx(cell, 0.12f, 3, 1f, color);
-                string face = (i + 1).ToString();
-                int faceW = FontManager.MeasureTextWidth(face, 10);
-                FontManager.DrawText(face, cell.X + (cell.Width - faceW) / 2f, cell.Y + 3f, 10, color);
-                if (i == 0 || i == 5)
-                {
-                    string mark = i == 0 ? "-1" : "+1";
-                    FontManager.DrawText(mark, cell.X + 1f, cell.Y - 7f, 7, color);
-                }
-            }
+            // 放骰后、掷骰前的赔率预览：无落格高亮（highlightedFace = 0）。
+            DrawOddsStrip(new Rectangle(panel.X + 7f, panel.Y + 33f, panel.Width - 14f, 14f), strip, 0, 8);
+        }
+
+        private static void DrawResolutionPanelFrame(Rectangle panel)
+        {
+            Raylib.DrawRectangleRounded(panel, 0.08f, 4, new Color(16, 18, 25, 245));
+            Raylib.DrawRectangleRoundedLinesEx(panel, 0.08f, 4, 1f, new Color(72, 74, 86, 220));
         }
 
         private static void DrawLocalRoll(Rectangle bounds, ActionReport report, int phase, int displayDieValue, float displayScale)
         {
-            var panel = new Rectangle(bounds.X + 8f, bounds.Y + bounds.Height - 58f, bounds.Width - 16f, 48f);
-            Raylib.DrawRectangleRounded(panel, 0.16f, 6, new Color(20, 22, 30, 245));
-            Raylib.DrawRectangleRoundedLinesEx(panel, 0.16f, 6, 1.4f, new Color(255, 182, 147, 255));
+            var panel = new Rectangle(bounds.X + 5f, bounds.Y + bounds.Height + 4f, bounds.Width - 10f, 58f);
+            DrawAttachmentConnector(bounds, panel);
+            DrawResolutionPanelFrame(panel);
 
-            int dieValue = phase == 0 ? displayDieValue : report.FateDieValue;
-            int dieFont = (int)(26 * Math.Clamp(displayScale, 0.8f, 1.35f));
-            string dieText = $"D{dieValue}";
-            int dieW = FontManager.MeasureTextWidth(dieText, dieFont);
-            FontManager.DrawText(dieText, panel.X + 13f + (42f - dieW) / 2f, panel.Y + (panel.Height - dieFont) / 2f, dieFont, new Color(255, 182, 147, 255));
+            bool settled = phase >= 2;
+            string label = settled ? FormatOutcome(report.Outcome) : "判定中";
+            Color color = settled ? OutcomeColor(report.Outcome) : new Color(220, 220, 235, 255);
+            FontManager.DrawText(label, panel.X + 8f, panel.Y + 5f, 11, color);
 
-            string label = phase >= 2 ? FormatOutcome(report.Outcome) : "判定中";
-            Color color = phase >= 2 ? OutcomeColor(report.Outcome) : new Color(220, 220, 235, 255);
-            FontManager.DrawText(label, panel.X + 66f, panel.Y + 9f, 14, color);
-
-            string detail = phase >= 2
+            string detail = settled
                 ? FormatRollDetail(report)
-                : "命运骰滚动...";
-            FontManager.DrawText(detail, panel.X + 66f, panel.Y + 28f, 11, new Color(170, 170, 190, 255));
+                : $"准备 {report.PreparedValue} · 命运骰滚动...";
+            FontManager.DrawText(detail, panel.X + 60f, panel.Y + 6f, 9, new Color(170, 170, 190, 255));
+
+            var strip = FateStrip.Compute(report.ChosenDieValue, report.SkillLevel, report.ModifierTotal);
+            int highlightedFace = phase == 0 ? displayDieValue : report.FateDieValue;
+            float pulse = phase == 1 ? Math.Max(0f, displayScale - 1f) : 0f;
+            DrawOddsStrip(new Rectangle(panel.X + 8f, panel.Y + 23f, panel.Width - 16f, 20f),
+                strip, highlightedFace, 9, pulse, settled);
+
+            // 结果定格：面板描边染成结果色，给出清晰的成/败信号。
+            if (settled)
+                Raylib.DrawRectangleRoundedLinesEx(panel, 0.08f, 4, 1.5f, color);
         }
 
         private static string FormatRollDetail(ActionReport report)
         {
-            string natural = report.NaturalModifier == 0
-                ? string.Empty
-                : report.NaturalModifier > 0 ? " + 天然6" : " - 天然1";
-            return $"准备 {report.PreparedValue} + 命运 {report.FateDieValue}{natural} = {report.FinalTotal}";
+            return $"准备 {report.PreparedValue} · 命运骰 {report.FateDieValue}";
         }
 
+        private static void DrawAttachmentConnector(Rectangle bounds, Rectangle attachment)
+        {
+            float centerX = bounds.X + bounds.Width / 2f;
+            Raylib.DrawLineEx(new System.Numerics.Vector2(centerX, bounds.Y + bounds.Height - 1f),
+                new System.Numerics.Vector2(centerX, attachment.Y + 1f), 2f,
+                new Color(TerminalPalette.Accent.R, TerminalPalette.Accent.G, TerminalPalette.Accent.B, (byte)150));
+        }
+
+        private static float ResidueHeaderHeight(CardPresentationResidue residue)
+            => residue.FateDieValue.HasValue ? 58f : 24f;
+
+        private static Color WithA(Color c, float a)
+            => new Color(c.R, c.G, c.B, (byte)Math.Clamp(c.A * a, 0f, 255f));
+
+        // 结算结果 = 命运条「原地定格」+ 结果从其下方揭开。头部与掷骰动画落定态像素一致，
+        // 形成无缝冻结（动画一停，命运条就留在原处）；身体（叙事 + 影响）淡入并轻微下滑弹出。
         private static void DrawResidue(Rectangle bounds, CardPresentationResidue residue)
         {
-            // 残影作为盖在卡片上的历史投影，使用半透明的背景以透露下方原卡，创造“幻影”质感
-            Raylib.DrawRectangleRounded(bounds, 0.1f, 8, new Color(12, 14, 20, 210));
-            // 边框带有明显的半透明呼吸感
-            Raylib.DrawRectangleRoundedLinesEx(bounds, 0.1f, 8, 1.2f, new Color(105, 125, 180, 150));
+            // residue 只有动画落定后才被绘制——首帧即结果该「揭开」的时刻，惰性记录起点。
+            if (residue.RevealStartTime <= 0)
+                residue.RevealStartTime = Raylib.GetTime();
+            float reveal = (float)Math.Clamp((Raylib.GetTime() - residue.RevealStartTime) / 0.28, 0.0, 1.0);
+            float ease = 1f - (float)Math.Pow(1f - reveal, 3f);
 
-            // 绘制淡雅电子扫描线效果，强化数字残影/全息投影感
-            for (float sy = bounds.Y + 4f; sy < bounds.Y + bounds.Height - 4f; sy += 4f)
-            {
-                Raylib.DrawLineEx(
-                    new System.Numerics.Vector2(bounds.X + 6f, sy),
-                    new System.Numerics.Vector2(bounds.X + bounds.Width - 6f, sy),
-                    1.0f,
-                    new Color(255, 255, 255, 8)
-                );
-            }
+            var attachment = new Rectangle(bounds.X + 5f, bounds.Y + bounds.Height + 4f,
+                bounds.Width - 10f, ResidueAttachmentHeight(residue));
+            DrawAttachmentConnector(bounds, attachment);
 
-            // 保留掷骰动画结束时的结果块，叙事与效果条在其下依次堆叠。
-            var panel = new Rectangle(bounds.X + 7f, bounds.Y + 6f, bounds.Width - 14f, 42f);
-            Raylib.DrawRectangleRounded(panel, 0.16f, 6, new Color(18, 20, 28, 230));
-            Raylib.DrawRectangleRoundedLinesEx(panel, 0.16f, 6, 1.0f, new Color(255, 182, 147, 180));
+            // ── 头部：定格的命运条（几何与内容同 DrawLocalRoll 落定态，实现原地冻结）──
+            float headerH = ResidueHeaderHeight(residue);
+            var header = new Rectangle(attachment.X, attachment.Y, attachment.Width, headerH);
+            DrawResolutionPanelFrame(header);
 
-            float textX = panel.X + 66f;
+            bool hasOutcome = residue.RollOutcome.HasValue;
+            RollOutcome outcome = residue.RollOutcome ?? RollOutcome.Neutral;
+            Color oc = hasOutcome ? OutcomeColor(outcome) : new Color(210, 212, 222, 255);
+            string label = hasOutcome ? FormatOutcome(outcome)
+                : string.IsNullOrWhiteSpace(residue.Title) ? "行动结果" : residue.Title;
+            FontManager.DrawText(label, header.X + 8f, header.Y + 5f, 11, oc);
+
             if (residue.FateDieValue.HasValue)
             {
-                string dieText = $"D{residue.FateDieValue.Value}";
-                const int dieFont = 24;
-                int dieW = FontManager.MeasureTextWidth(dieText, dieFont);
-                FontManager.DrawText(dieText, panel.X + 13f + (42f - dieW) / 2f, panel.Y + (panel.Height - dieFont) / 2f, dieFont, new Color(255, 182, 147, 255));
+                FontManager.DrawText($"准备 {residue.PreparedValue} · 命运骰 {residue.FateDieValue.Value}",
+                    header.X + 60f, header.Y + 6f, 9, new Color(170, 170, 190, 255));
+                var strip = FateStrip.StripForPrepared(residue.PreparedValue);
+                DrawOddsStrip(new Rectangle(header.X + 8f, header.Y + 23f, header.Width - 16f, 20f),
+                    strip, residue.FateDieValue.Value, 9, 0f, true);
+                Raylib.DrawRectangleRoundedLinesEx(header, 0.08f, 4, 1.5f, oc);
             }
 
-            string title = residue.RollOutcome.HasValue ? FormatOutcome(residue.RollOutcome.Value) : "行动结果";
-            if (!string.IsNullOrWhiteSpace(residue.Title))
-                title += " · " + residue.Title;
-            Color titleColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : new Color(230, 230, 245, 255);
-            FontManager.DrawText(title, textX, panel.Y + 6f, 12, titleColor);
-            if (residue.FinalTotal.HasValue)
-                FontManager.DrawText($"准备 {residue.PreparedValue} · 最终 {residue.FinalTotal.Value}", textX, panel.Y + 23f, 10, new Color(170, 170, 190, 255));
+            // ── 身体：结果从命运条下方揭开（淡入 + 轻微下滑）──
+            float y = header.Y + headerH + 5f + (1f - ease) * 5f;
+            float bodyX = attachment.X + 3f;
+            float bodyW = attachment.Width - 6f;
 
-            float y = panel.Y + panel.Height + 3f;
             if (!string.IsNullOrWhiteSpace(residue.Subtitle))
             {
-                var narrative = new Rectangle(bounds.X + 7f, y, bounds.Width - 14f, 22f);
-                Raylib.DrawRectangleRounded(narrative, 0.18f, 5, new Color(28, 31, 43, 250));
-                Raylib.DrawRectangleRoundedLinesEx(narrative, 0.18f, 5, 1f, new Color(75, 86, 118, 255));
-                FontManager.DrawText(residue.Subtitle, narrative.X + 7f, narrative.Y + 5f, 9, new Color(205, 208, 222, 255));
-                y += 25f;
+                Raylib.DrawRectangleRounded(new Rectangle(bodyX, y + 1f, 2.5f, 13f), 1f, 2, WithA(oc, ease));
+                FontManager.DrawText(residue.Subtitle, bodyX + 9f, y + 2f, 9,
+                    WithA(new Color(206, 210, 226, 255), ease));
+                y += 19f;
             }
 
-            DrawEffectRows(new Rectangle(bounds.X + 7f, y, bounds.Width - 14f, bounds.Y + bounds.Height - y - 5f), residue.Effects);
+            DrawEffectRows(new Rectangle(bodyX, y, bodyW, 0f), residue.Effects, ease);
         }
 
-        private static void DrawEffectRows(Rectangle area, IReadOnlyList<ActionEffectRecord> effects)
+        private const float EffectRowHeight = 14f;
+        private const float EffectRowGap = 16f;
+
+        private static void DrawEffectRows(Rectangle area, IReadOnlyList<ActionEffectRecord> effects, float alpha = 1f)
         {
-            const float rowHeight = 12f;
-            const float rowGap = 14f; // 间距调微密（16f -> 14f），使得能在有限区域内画更多行
-            int maxRows = (int)(area.Height / rowGap);
-
-            if (effects.Count <= maxRows)
-            {
-                // 全都能放得下
-                for (int i = 0; i < effects.Count; i++)
-                {
-                    DrawSingleEffectRow(effects[i], area.X, area.Y + i * rowGap, area.Width, rowHeight);
-                }
-            }
-            else
-            {
-                // 超出，留最后一行写 "+ 还有 N 项影响..."
-                int visibleCount = Math.Max(0, maxRows - 1);
-                for (int i = 0; i < visibleCount; i++)
-                {
-                    DrawSingleEffectRow(effects[i], area.X, area.Y + i * rowGap, area.Width, rowHeight);
-                }
-
-                if (maxRows > 0)
-                {
-                    float y = area.Y + visibleCount * rowGap;
-                    var row = new Rectangle(area.X, y, area.Width, rowHeight);
-                    Color accent = new Color(130, 145, 175, 255); // 暗灰蓝
-
-                    Raylib.DrawRectangleRounded(row, 0.25f, 4, new Color(accent.R, accent.G, accent.B, (byte)25));
-                    Raylib.DrawRectangle((int)row.X, (int)row.Y, 3, (int)row.Height, accent);
-
-                    string moreText = $"+ 还有 {effects.Count - visibleCount} 项影响...";
-                    FontManager.DrawText(moreText, row.X + 8f, row.Y + 2f, 10, new Color(175, 180, 200, 255));
-                }
-            }
+            for (int i = 0; i < effects.Count; i++)
+                DrawSingleEffectRow(effects[i], area.X, area.Y + i * EffectRowGap, area.Width, alpha);
         }
 
-        private static void DrawSingleEffectRow(ActionEffectRecord effect, float x, float y, float width, float rowHeight)
+        public static float ResidueAttachmentHeight(CardPresentationResidue residue)
+        {
+            float h = ResidueHeaderHeight(residue) + 5f;
+            if (!string.IsNullOrWhiteSpace(residue.Subtitle)) h += 19f;
+            if (residue.Effects.Count > 0) h += residue.Effects.Count * EffectRowGap;
+            return Math.Max(74f, h + 5f);
+        }
+
+        // 影响行：极淡的结果色底 + 左侧实心结果色条，标签左、数值右（结果色）。alpha 用于揭开淡入。
+        private static void DrawSingleEffectRow(ActionEffectRecord effect, float x, float y, float width, float alpha)
         {
             Color accent = effect.Tone switch
             {
                 ActionEffectTone.Positive => new Color(90, 190, 125, 255),
                 ActionEffectTone.Negative => new Color(220, 105, 95, 255),
-                _ => new Color(130, 150, 195, 255)
+                _ => new Color(140, 158, 200, 255)
             };
-            var row = new Rectangle(x, y, width, rowHeight);
-            Raylib.DrawRectangleRounded(row, 0.25f, 4, new Color(accent.R, accent.G, accent.B, (byte)35));
-            Raylib.DrawRectangle((int)row.X, (int)row.Y, 3, (int)row.Height, accent);
+            var row = new Rectangle(x, y, width, EffectRowHeight);
+            Raylib.DrawRectangleRounded(row, 0.35f, 4, WithA(new Color(accent.R, accent.G, accent.B, (byte)28), alpha));
+            Raylib.DrawRectangleRounded(new Rectangle(x, y, 2.5f, EffectRowHeight), 1f, 2, WithA(accent, alpha));
 
             if (effect.Kind == ActionEffectKind.Note)
             {
-                FontManager.DrawText(effect.Text, row.X + 8f, row.Y + 2f, 10, new Color(210, 215, 232, 255));
+                FontManager.DrawText(effect.Text, x + 9f, y + 2f, 9, WithA(new Color(206, 210, 226, 255), alpha));
                 return;
             }
 
-            FontManager.DrawText(effect.Label, row.X + 8f, row.Y + 2f, 10, new Color(210, 215, 232, 255));
+            FontManager.DrawText(effect.Label, x + 9f, y + 2f, 9, WithA(new Color(214, 218, 234, 255), alpha));
             string value = effect.Delta.HasValue
                 ? (effect.Delta.Value > 0 ? $"+{effect.Delta.Value}" : effect.Delta.Value.ToString())
                 : string.Empty;
-            int valueW = FontManager.MeasureTextWidth(value, 10);
-            FontManager.DrawText(value, row.X + row.Width - valueW - 7f, row.Y + 2f, 10, accent);
+            if (value.Length > 0)
+            {
+                int valueW = FontManager.MeasureTextWidth(value, 9);
+                FontManager.DrawText(value, x + width - valueW - 8f, y + 2f, 9, WithA(accent, alpha));
+            }
         }
 
         private static string FormatOutcome(RollOutcome outcome)
@@ -671,6 +704,47 @@ namespace SSNoir.Rendering
                 RollOutcome.Fail => new Color(220, 105, 95, 255),    // 珊瑚红
                 _ => Color.White
             };
+        }
+
+        // 命运条即赔率条：实心染色让坏/中/好的比例一眼可读；档位之间留更大的缝，
+        // 把「三档占比」读成连续区段而非六颗独立骰子；命运骰落格的骰面抬起金描边。
+        // highlightPulse (0..~0.4)：落格弹跳的额外放大量；settled：结果定格时压暗其余格，让命中格更跳。
+        public static void DrawOddsStrip(Rectangle bounds, RollOutcome[] strip, int highlightedFace,
+            int fontSize, float highlightPulse = 0f, bool settled = false)
+        {
+            const float gap = 3f, boundaryGap = 10f;
+            int boundaries = 0;
+            for (int i = 1; i < strip.Length; i++)
+                if (strip[i] != strip[i - 1]) boundaries++;
+
+            float cellW = (bounds.Width - gap * (5 - boundaries) - boundaryGap * boundaries) / 6f;
+            float x = bounds.X;
+            for (int i = 0; i < 6; i++)
+            {
+                if (i > 0) x += strip[i] != strip[i - 1] ? boundaryGap : gap;
+                Color tier = OutcomeColor(strip[i]);
+                bool highlighted = i + 1 == highlightedFace;
+
+                // 命中格：抬起 + 弹跳放大；未命中格：默认略暗，结果定格时进一步压暗。
+                float pop = highlighted ? highlightPulse * 6f : 0f;
+                var cell = new Rectangle(x - pop / 2f, bounds.Y + (highlighted ? -2f : 0f) - pop,
+                    cellW + pop, bounds.Height + (highlighted ? 4f : 0f) + pop * 2f);
+                float dim = highlighted ? 1f : (settled ? 0.34f : 0.70f);
+                Color fill = new Color((byte)(tier.R * dim), (byte)(tier.G * dim), (byte)(tier.B * dim), (byte)255);
+                Raylib.DrawRectangleRounded(cell, 0.12f, 3, fill);
+                if (highlighted)
+                    Raylib.DrawRectangleRoundedLinesEx(cell, 0.12f, 3, 2f, new Color(240, 236, 220, 255));
+
+                string face = (i + 1).ToString();
+                int fs = highlighted ? fontSize + 1 : fontSize;
+                int faceW = FontManager.MeasureTextWidth(face, fs);
+                float textDim = highlighted ? 0.18f : (settled ? 0.10f : 0.20f);
+                Color faceColor = new Color((byte)(tier.R * textDim), (byte)(tier.G * textDim * 0.8f),
+                    (byte)(tier.B * textDim * 0.8f), (byte)255);
+                FontManager.DrawText(face, cell.X + (cell.Width - faceW) / 2f,
+                    cell.Y + (cell.Height - fs) / 2f, fs, faceColor);
+                x += cellW;
+            }
         }
 
         public static void DrawClockCard(
@@ -804,8 +878,8 @@ namespace SSNoir.Rendering
             DrawWrappedText(title, bounds.X + 14f, titleY, bounds.Width - 28f, 14, titleColor);
 
             string subtitle = residue.Subtitle;
-            if (string.IsNullOrWhiteSpace(subtitle) && residue.FinalTotal.HasValue)
-                subtitle = $"准备 {residue.PreparedValue} · 最终 {residue.FinalTotal.Value}";
+            if (string.IsNullOrWhiteSpace(subtitle) && residue.FateDieValue.HasValue)
+                subtitle = $"准备 {residue.PreparedValue} · 命运骰 {residue.FateDieValue.Value}";
             if (!string.IsNullOrWhiteSpace(subtitle))
                 DrawWrappedText(subtitle, bounds.X + 14f, titleY + 30f, bounds.Width - 28f, 11, new Color(185, 190, 210, 255));
 
@@ -814,8 +888,13 @@ namespace SSNoir.Rendering
         }
 
         // 标签配色：工作/风险标签全局一致，玩家一眼判断类型与风险。
-        private static (Color bg, Color border, Color text) TagColors(string label)
+        private static (Color bg, Color border, Color text) TagColors(string label, bool disabled = false)
         {
+            if (disabled)
+            {
+                return (new Color(44, 45, 52, 220), new Color(88, 90, 98, 255), new Color(145, 146, 152, 255));
+            }
+
             switch (label)
             {
                 case "交锋":
@@ -835,7 +914,7 @@ namespace SSNoir.Rendering
             }
         }
 
-        private static float DrawNodeTags(Rectangle bounds, List<string>? tags, float startY)
+        private static float DrawNodeTags(Rectangle bounds, List<string>? tags, float startY, bool disabled = false)
         {
             if (tags == null || tags.Count == 0)
             {
@@ -865,7 +944,7 @@ namespace SSNoir.Rendering
                 }
 
                 var rect = new Rectangle(x, y, tagW, lineH);
-                var (bg, border, text) = TagColors(label);
+                var (bg, border, text) = TagColors(label, disabled);
 
                 Raylib.DrawRectangleRounded(rect, 0.35f, 4, bg);
                 Raylib.DrawRectangleRoundedLinesEx(rect, 0.35f, 4, 1f, border);
@@ -1144,54 +1223,50 @@ namespace SSNoir.Rendering
             Raylib.DrawRectangleRoundedLinesEx(glowRect, 0.22f, 4, strong ? 2.8f : 2.2f, glowBorder);
         }
 
-        private static void DrawClockBadge(ref float rightX, float topY, GameClock clock)
+        private static float MeasureClockBadgeWidth(GameClock clock)
+        {
+            const int fontSize = 12;
+            int labelWidth = FontManager.MeasureTextWidth(clock.Label, fontSize);
+            return clock.Style switch
+            {
+                ClockStyle.Countdown => labelWidth + FontManager.MeasureTextWidth($" {clock.Current}/{clock.Max}", fontSize) + 8f,
+                ClockStyle.Segments => labelWidth + 12f + Math.Max(0, clock.Max * 8f - 2f),
+                ClockStyle.Pie => labelWidth + 26f,
+                _ => labelWidth + 8f
+            };
+        }
+
+        private static void DrawClockBadge(Rectangle rect, GameClock clock)
         {
             Color activeColor = new Color(130, 130, 250, 255);
             Color inactiveColor = new Color(50, 50, 60, 255);
             Color textColor = new Color(220, 220, 240, 255);
 
+            Raylib.DrawRectangleRounded(rect, 0.4f, 4, new Color(20, 20, 25, 180));
+            Raylib.DrawRectangleRoundedLinesEx(rect, 0.4f, 4, 1f, new Color(80, 80, 100, 255));
+
             if (clock.Style == ClockStyle.Countdown)
             {
-                string text = $"{clock.Label} {clock.Current}/{clock.Max}";
                 int fontSize = 12;
-                int textWidth = FontManager.MeasureTextWidth(text, fontSize);
-                
-                float badgeW = textWidth + 8;
-                float badgeH = 16;
-                float badgeX = rightX - badgeW;
-                float badgeY = topY + 6;
-
-                var rect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
-                Raylib.DrawRectangleRounded(rect, 0.4f, 4, new Color(20, 20, 25, 180));
-                Raylib.DrawRectangleRoundedLinesEx(rect, 0.4f, 4, 1f, new Color(80, 80, 100, 255));
-                FontManager.DrawText(text, badgeX + 4, badgeY + 2, fontSize, textColor);
-
-                rightX -= (badgeW + 4);
+                string progress = $" {clock.Current}/{clock.Max}";
+                float progressW = FontManager.MeasureTextWidth(progress, fontSize);
+                string label = FitTextWithEllipsis(clock.Label, rect.Width - progressW - 8f, fontSize);
+                FontManager.DrawText(label + progress, rect.X + 4f, rect.Y + 2f, fontSize, textColor);
             }
             else if (clock.Style == ClockStyle.Segments)
             {
-                string labelText = clock.Label;
                 int fontSize = 12;
-                int labelWidth = FontManager.MeasureTextWidth(labelText, fontSize);
-
                 int dotSize = 6;
                 int spacing = 2;
-                float dotsW = clock.Max * (dotSize + spacing) - spacing;
-                float badgeW = labelWidth + 6 + dotsW + 6;
-                float badgeH = 16;
-                float badgeX = rightX - badgeW;
-                float badgeY = topY + 6;
+                float dotsW = Math.Max(0, clock.Max * (dotSize + spacing) - spacing);
+                string labelText = FitTextWithEllipsis(clock.Label, rect.Width - dotsW - 12f, fontSize);
+                int labelWidth = FontManager.MeasureTextWidth(labelText, fontSize);
+                FontManager.DrawText(labelText, rect.X + 4f, rect.Y + 2f, fontSize, textColor);
 
-                var rect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
-                Raylib.DrawRectangleRounded(rect, 0.4f, 4, new Color(20, 20, 25, 180));
-                Raylib.DrawRectangleRoundedLinesEx(rect, 0.4f, 4, 1f, new Color(80, 80, 100, 255));
-
-                FontManager.DrawText(labelText, badgeX + 4, badgeY + 2, fontSize, textColor);
-
-                float dotStartX = badgeX + 4 + labelWidth + 4;
+                float dotStartX = rect.X + rect.Width - dotsW - 4f;
                 for (int i = 0; i < clock.Max; i++)
                 {
-                    var dotRect = new Rectangle(dotStartX + i * (dotSize + spacing), badgeY + (badgeH - dotSize) / 2f, dotSize, dotSize);
+                    var dotRect = new Rectangle(dotStartX + i * (dotSize + spacing), rect.Y + (rect.Height - dotSize) / 2f, dotSize, dotSize);
                     if (i < clock.Current)
                     {
                         Raylib.DrawRectangleRounded(dotRect, 0.5f, 4, activeColor);
@@ -1203,29 +1278,17 @@ namespace SSNoir.Rendering
                     }
                 }
 
-                rightX -= (badgeW + 4);
             }
             else if (clock.Style == ClockStyle.Pie)
             {
-                string labelText = clock.Label;
                 int fontSize = 12;
+                string labelText = FitTextWithEllipsis(clock.Label, rect.Width - 26f, fontSize);
                 int labelWidth = FontManager.MeasureTextWidth(labelText, fontSize);
 
                 float radius = 7f;
-                float badgeW = labelWidth + 6 + radius * 2 + 6;
-                float badgeH = 16;
-                float badgeX = rightX - badgeW;
-                float badgeY = topY + 6;
+                FontManager.DrawText(labelText, rect.X + 4f, rect.Y + 2f, fontSize, textColor);
 
-                var rect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
-                Raylib.DrawRectangleRounded(rect, 0.4f, 4, new Color(20, 20, 25, 180));
-                Raylib.DrawRectangleRoundedLinesEx(rect, 0.4f, 4, 1f, new Color(80, 80, 100, 255));
-
-                // Draw label first
-                FontManager.DrawText(labelText, badgeX + 4, badgeY + 2, fontSize, textColor);
-
-                // Draw pie sector next
-                var center = new System.Numerics.Vector2(badgeX + 4 + labelWidth + 4 + radius, badgeY + badgeH / 2f);
+                var center = new System.Numerics.Vector2(rect.X + rect.Width - radius - 4f, rect.Y + rect.Height / 2f);
                 // Empty ring
                 Raylib.DrawCircleLines((int)center.X, (int)center.Y, radius, new Color(70, 70, 90, 255));
                 // Filled sector
@@ -1234,9 +1297,19 @@ namespace SSNoir.Rendering
                     float pct = (float)clock.Current / clock.Max;
                     Raylib.DrawCircleSector(center, radius, -90f, -90f + 360f * pct, 36, activeColor);
                 }
-
-                rightX -= (badgeW + 4);
             }
+        }
+
+        private static string FitTextWithEllipsis(string text, float maxWidth, int fontSize)
+        {
+            if (maxWidth <= 0f) return string.Empty;
+            if (FontManager.MeasureTextWidth(text, fontSize) <= maxWidth) return text;
+            const string ellipsis = "…";
+            if (FontManager.MeasureTextWidth(ellipsis, fontSize) > maxWidth) return string.Empty;
+            int length = text.Length;
+            while (length > 0 && FontManager.MeasureTextWidth(text[..length] + ellipsis, fontSize) > maxWidth)
+                length--;
+            return text[..length] + ellipsis;
         }
     }
 }

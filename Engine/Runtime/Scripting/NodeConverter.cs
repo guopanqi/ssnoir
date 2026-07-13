@@ -105,6 +105,18 @@ namespace SSNoir.Scripting
                 }
             }
 
+            // 节点只有两种合法形状：容器（只有 :children）或动作（只有 :resolve）。
+            // 二者互斥——客户端 IsContainer = (Resolve == null)，带 resolve 的节点其 children
+            // 永远不会被导航或渲染。历史上这类矛盾节点能静默加载，子节点却神秘消失，
+            // 极难排查；这里在加载期直接拦下，把哑错变成响错。
+            if (resolve != null && children.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    $"Node '{name}' has both :resolve and :children. A node is either a container " +
+                    "(:children only) or an action (:resolve only); a resolve node's children are " +
+                    "silently ignored. Move the children into a container, or drop the :resolve.");
+            }
+
             var node = new GameNode
             {
                 Name = name,

@@ -25,8 +25,7 @@ namespace SSNoir.IMGUI
         public Action? OnAcknowledged;
 
         private float _phaseStartTime;
-        private int _phase; // 0: rolling, 1: reveal, 2: outcome, 3: done
-        private readonly System.Random _rand = new System.Random();
+        private int _phase; // 0: sweep, 1: pop, 2: outcome, 3: done
 
         public void StartRoll(ActionReport report, string actionName)
         {
@@ -51,19 +50,16 @@ namespace SSNoir.IMGUI
 
             if (_phase == 0)
             {
-                // Rolling phase: 1.0s
-                float t = Mathf.Clamp01(elapsed / 1.0f);
-                float interval = Mathf.Lerp(0.05f, 0.22f, t);
+                // 掷骰扫掠：命运高亮沿命运条减速滑动（easeOutCubic），精确落在最终骰面。
+                const float sweepDuration = 0.5f;
+                float t = Mathf.Clamp01(elapsed / sweepDuration);
+                float eased = 1f - Mathf.Pow(1f - t, 3f);
+                int totalSteps = 12 + (FateDieValue - 1); // 两圈扫掠后落格
+                int step = Mathf.RoundToInt(eased * totalSteps);
+                DisplayedDieValue = step % 6 + 1;
+                DisplayScale = 1f;
 
-                if (elapsed < 1.0f)
-                {
-                    // Update displayed value every interval
-                    int frames = Mathf.FloorToInt(elapsed / interval);
-                    int newVal = _rand.Next(1, 7);
-                    DisplayedDieValue = newVal;
-                    DisplayScale = UnityEngine.Random.Range(0.9f, 1.15f);
-                }
-                else
+                if (elapsed >= sweepDuration)
                 {
                     _phase = 1;
                     _phaseStartTime = Time.time;
@@ -73,11 +69,12 @@ namespace SSNoir.IMGUI
             }
             else if (_phase == 1)
             {
-                // Reveal pulse phase: 0.25s
-                float t = Mathf.Clamp01(elapsed / 0.25f);
+                // 落格弹跳：命中格放大一下再收（sin 单峰）。
+                const float popDuration = 0.2f;
+                float t = Mathf.Clamp01(elapsed / popDuration);
                 DisplayScale = 1f + Mathf.Sin(t * Mathf.PI) * 0.35f;
 
-                if (elapsed >= 0.25f)
+                if (elapsed >= popDuration)
                 {
                     _phase = 2;
                     _phaseStartTime = Time.time;
@@ -89,14 +86,6 @@ namespace SSNoir.IMGUI
                     DisplayOutcomeColor = FinalOutcome == RollOutcome.Success ? IMGUIStyles.OutcomeSuccess
                                         : FinalOutcome == RollOutcome.Neutral ? IMGUIStyles.OutcomeNeutral
                                         : IMGUIStyles.OutcomeFail;
-                }
-            }
-            else if (_phase == 2)
-            {
-                // Outcome display: wait for click
-                if (elapsed >= 0.8f)
-                {
-                    // Ready to acknowledge
                 }
             }
         }
@@ -114,7 +103,8 @@ namespace SSNoir.IMGUI
 
         public bool IsReadyToAcknowledge()
         {
-            return _phase == 2 && (Time.time - _phaseStartTime) >= 0.8f;
+            // 结果停留：轻结算让「好/中/坏」定格片刻，再切到 residue（命运条原地冻结 + 结果揭开）。
+            return _phase == 2 && (Time.time - _phaseStartTime) >= 0.55f;
         }
 
         public void DrawModal()
@@ -150,21 +140,28 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(contentX, contentY, contentW, 24), title, IMGUIStyles.ModalTitle);
             contentY += 28;
 
-            // Rolling die（纸上墨字大数字）
-            var dieStyle = new GUIStyle(IMGUIStyles.CardTitle);
-            dieStyle.fontSize = 48;
-            dieStyle.alignment = TextAnchor.MiddleCenter;
-            dieStyle.normal.textColor = IMGUIStyles.PaperInk;
-            var dieRect = new Rect(contentX, contentY, contentW, 60);
-            // Save the UIScale matrix and compose the die bounce on top of it (not replace it).
-            var savedMatrix = GUI.matrix;
-            var dieAnimMatrix = Matrix4x4.TRS(dieRect.center, Quaternion.identity, Vector3.one * DisplayScale)
-                              * Matrix4x4.TRS(-dieRect.center, Quaternion.identity, Vector3.one);
-            GUI.matrix = savedMatrix * dieAnimMatrix;
-            GUI.Label(dieRect, $"D{DisplayedDieValue}", dieStyle);
-            GUI.matrix = savedMatrix; // restore UIScale matrix, not identity
-            GUI.color = Color.white;
-            contentY += 65;
+            // 命运条（赔率条）：掷骰扫掠 → 落格弹跳 → 定格，与卡面轻结算同一套视觉。
+            if (CurrentReport != null)
+            {
+                var strip = FateStrip.StripForPrepared(CurrentReport.PreparedValue);
+
+                var summaryStyle = new GUIStyle(IMGUIStyles.ModalBody)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    fontSize = 12,
+                    normal = { textColor = IMGUIStyles.PaperTextSecondary }
+                };
+                GUI.Label(new Rect(contentX, contentY, contentW, 16), FateStrip.Describe(strip), summaryStyle);
+                contentY += 18;
+
+                int highlightedFace = _phase == 0 ? DisplayedDieValue : FateDieValue;
+                float pulse = _phase == 1 ? Mathf.Max(0f, DisplayScale - 1f) : 0f;
+                float stripW = Mathf.Min(contentW, 300f);
+                ActionNodeDrawer.DrawOddsStrip(
+                    new Rect(contentX + (contentW - stripW) / 2f, contentY, stripW, 30f),
+                    strip, highlightedFace, pulse, _phase >= 2);
+                contentY += 42;
+            }
 
             // Details
             if (_phase >= 1)
@@ -174,13 +171,6 @@ namespace SSNoir.IMGUI
 
                 GUI.Label(new Rect(contentX, contentY, contentW, 20),
                     $"准备值: {CurrentReport!.PreparedValue} · 命运骰: {CurrentReport.FateDieValue}", IMGUIStyles.ModalBody);
-                contentY += 22;
-
-                string natural = CurrentReport.NaturalModifier == 0
-                    ? string.Empty
-                    : CurrentReport.NaturalModifier > 0 ? " · 天然6 +1" : " · 天然1 -1";
-                GUI.Label(new Rect(contentX, contentY, contentW, 20),
-                    $"最终总和: {CurrentReport.FinalTotal}{natural}", IMGUIStyles.ModalBody);
                 contentY += 26;
             }
 

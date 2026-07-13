@@ -67,7 +67,8 @@
                       (tick-missions (cdr entries)))))))
 
     (define (mission-clocks entry)
-      (list (list 'clock (mission-id entry) (mission-days entry) mission-duration 'countdown
+      ;; 标签固定为「剩余时间」——时钟贴在各自委托卡角，标签无需再重复委托名。
+      (list (list 'clock "剩余时间" (mission-days entry) mission-duration 'countdown
                   "归零后买家或委托人就会离开。")))
 
     (define (roll-mission entry skill good-pay neutral-pay fail-effect)

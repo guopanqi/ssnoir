@@ -190,7 +190,8 @@
 
 ;; ── 工作（work）DSL ───────────────────────────────────
 ;; (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])
-;;   faction: "官僚"/"劳工"/"富商"，成功时缓慢 +1 关系（做这行混脸熟，攒得很慢）
+;; (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])
+;;   faction: "官僚"/"劳工"/"富商"。普通工作不产关系；关系工作仅在好结果 +1。
 ;;   risk:    '低/'中/'高只决定风险标签与结果代价；'非法是难度标签，固定 -2
 ;;   好/中/坏: 每项工作显式传入三个 outcome，标题和描述直接用于轻型结算
 ;;   subtitle: 可选，只写“特别”的一句说明；一般风险由标签表达，不写 subtitle
@@ -211,22 +212,30 @@
         ((equal? risk '非法) (list (modifier -2 "非法")))
         (else (error "工作: 未知风险等级（应为 低/中/高/非法）"))))
 
-(define (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
+(define (构造工作 name faction 产关系? risk skill 好-outcome 中-outcome 坏-outcome subtitle)
   (if (工作-合法势力? faction) #t (error "工作: 未知势力（应为 官僚/劳工/富商）"))
   (node name
-        :subtitle (if (null? extra) "" (car extra))
+        :subtitle subtitle
         :tags (list "工作" (工作-风险标签 risk))
         :requires (list (req-die))
         :resolve (roll skill
                        (lambda () (工作-难度修正 risk))
                        (require-outcome 坏-outcome "工作 坏")
                        (require-outcome 中-outcome "工作 中")
-                       (outcome-append-effect
-                         好-outcome
-                         (lambda ()
-                           ;; 成功只缓慢 +1（关系很难攒；到脸熟 3 次、自己人 6 次成功）
-                           (change-faction-relation! faction 1))
-                         "工作 好"))))
+                       (if 产关系?
+                           (outcome-append-effect
+                             好-outcome
+                             (lambda () (change-faction-relation! faction 1))
+                             "关系工作 好")
+                           (require-outcome 好-outcome "工作 好")))))
+
+(define (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
+  (构造工作 name faction #f risk skill 好-outcome 中-outcome 坏-outcome
+            (if (null? extra) "" (car extra))))
+
+(define (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
+  (构造工作 name faction #t risk skill 好-outcome 中-outcome 坏-outcome
+            (if (null? extra) "" (car extra))))
 
 ;; Inventory helpers
 (define (get-item item-id)

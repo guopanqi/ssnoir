@@ -27,12 +27,18 @@
 
 完整定义以 [engine.scm](Content/scripts/engine.scm) 为准,这里只列常用构造。
 
-**节点**
-- `(container name children)` — 含子节点的容器
-- `(node name :subtitle … :children … :clocks … :requires … :resolve … :disabled bool)` — 通用节点；
-  `:disabled #t` 时前端灰显且引擎拒绝执行
-- `(action name requires resolve)` / `(instant-action name effect)` /
-  `(observe-action name text)` / `(roll-action name requires skill fail neutral success)`
+**节点** — 一个节点只有两种合法形状。**优先用下列包装函数**,它们各自只对应一种形状,拼不出坏节点:
+- 容器(可进入、铺开子节点):`(container name children)` / `(container-with-clocks name children clocks)`
+- 动作 / 叶子(点击即结算或翻卡,**不带子节点**):`(action name requires resolve)` /
+  `(instant-action name effect)` / `(observe-action name text)` /
+  `(roll-action name requires skill fail neutral success)`
+
+裸 `(node name :subtitle … :children … :clocks … :requires … :resolve … :disabled bool)` 是通用底层构造,
+**除非清楚自己在做什么,否则别直接写**(典型正当理由:需要 `:disabled #t`——前端灰显且引擎拒绝执行,目前只有裸 `node` 暴露这个关键字)。
+
+> ⚠️ 引擎判据 `IsContainer = (Resolve == null)`:**节点要么是容器(只认 `:children`)、要么是动作(只认 `:resolve`),二者互斥**。
+> 裸 `node` 允许你同时写 `:resolve` 和 `:children`,此时 **`:children` 被静默忽略**——节点照常加载、`--validate` 也不报错,
+> 但子节点永远不显示。需要"既有说明、又有子动作"时,把说明做成一张 `observe-action` 子卡放进 `container`,不要给容器加 `:resolve`。
 
 **动作结算(resolve)**
 - `(instant effect)`
@@ -58,6 +64,10 @@ T ≤6 坏，7–8 中，≥9 好
 恢复性判定使用 `(recovery-roll-action name requires skill fail neutral success)`。它与普通
 `roll-action` 使用同一套命运结算，但明确豁免压力修正。坏结果应当只消耗行动，不再追加
 压力或健康损失，确保恢复路线不会被压力的正反馈污染。
+
+带薪工作默认使用 `(工作 ...)`，不会自动增加关系。只有内容语义明确偏向帮忙、经营人情或
+承担额外风险时才使用 `(关系工作 ...)`；其好结果自动令所属势力关系 +1。非法行动若可能损害
+其他势力，必须在 subtitle 中提前点名，例如“事败将得罪官僚”。
 
 **时钟** `(make-clock label max style [note])` → 消息 `'tick!` `'reset!` `'full?` `'current` `'set!` `'render-data`。
 `note` 用于解释归零/填满会发生什么；凡是持续若干回合、延迟发生或下一回合消失的状态，都必须

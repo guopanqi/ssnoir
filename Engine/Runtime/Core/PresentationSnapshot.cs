@@ -15,6 +15,8 @@ namespace SSNoir.Core
         public IReadOnlyDictionary<string, int> Inventory { get; init; } = new Dictionary<string, int>();
         // 三派关系（官僚 / 劳工 / 富商）的底层整数值。
         public IReadOnlyDictionary<string, int> Relations { get; init; } = new Dictionary<string, int>();
+        // 内容层配置的关系里程碑解锁说明，键为“势力:档位”（如“劳工:脸熟”）。
+        public IReadOnlyDictionary<string, string> RelationUnlocks { get; init; } = new Dictionary<string, string>();
         public IReadOnlyList<ActorSnapshot> Actors { get; init; } = new List<ActorSnapshot>();
     }
 }

@@ -75,7 +75,7 @@ namespace SSNoir.IMGUI
             float bodyY = subtitleBottomY + 6f;
 
             // ── 3. 类别 / 风险便签：骑在卡片左边缘外（不遮内容、不占内部空间）。
-            DrawEdgeTags(rect, node, effectiveModifiers);
+            DrawEdgeTags(rect, node, effectiveModifiers, disabled);
 
             // ── 4. 需求骰位：统一为「方块 Slot」（与手牌骰子/物品同族），居中横排。
             //     骰子 slot = 大字 D/值；物品 slot = 符号 + 数量（强调）+ 下方名称展签。
@@ -138,7 +138,7 @@ namespace SSNoir.IMGUI
 
         // 同族彩纸便签，贴在卡左边缘外，文字竖排；自上而下堆叠。
         // 不占卡内空间，也不遮主要元素——「贴在物件上的彩色便签」隐喻更足。
-        private static void DrawEdgeTags(Rect rect, GameNode node, List<DifficultyModifierInfo> effectiveModifiers)
+        private static void DrawEdgeTags(Rect rect, GameNode node, List<DifficultyModifierInfo> effectiveModifiers, bool disabled)
         {
             const float tagW = 26f;
             const float tagH = 72f;
@@ -163,10 +163,14 @@ namespace SSNoir.IMGUI
                     if (tagY + tagH > maxY) return;
                     var mod = effectiveModifiers[k];
                     string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
-                    Color noteBg = mod.Value < 0 ? new Color(0.82f, 0.58f, 0.48f, 1f)
-                                : (mod.Value > 0 ? new Color(0.66f, 0.74f, 0.50f, 1f) : new Color(0.58f, 0.68f, 0.80f, 1f));
-                    Color noteText = mod.Value < 0 ? new Color(0.30f, 0.07f, 0.03f, 1f)
-                                : (mod.Value > 0 ? new Color(0.10f, 0.18f, 0.05f, 1f) : new Color(0.05f, 0.12f, 0.22f, 1f));
+                    Color noteBg = disabled
+                        ? new Color(0.18f, 0.19f, 0.22f, 1f)
+                        : mod.Value < 0 ? new Color(0.82f, 0.58f, 0.48f, 1f)
+                        : (mod.Value > 0 ? new Color(0.66f, 0.74f, 0.50f, 1f) : new Color(0.58f, 0.68f, 0.80f, 1f));
+                    Color noteText = disabled
+                        ? new Color(0.55f, 0.56f, 0.60f, 1f)
+                        : mod.Value < 0 ? new Color(0.30f, 0.07f, 0.03f, 1f)
+                        : (mod.Value > 0 ? new Color(0.10f, 0.18f, 0.05f, 1f) : new Color(0.05f, 0.12f, 0.22f, 1f));
                     DrawVerticalTag(new Rect(tagX, tagY, tagW, tagH), modText, noteBg, noteText, tagStyle);
                     stickyCount++;
                 }
@@ -180,7 +184,7 @@ namespace SSNoir.IMGUI
                     if (string.IsNullOrWhiteSpace(tag)) continue;
                     float tagY = y + stickyCount * (tagH + 6f);
                     if (tagY + tagH > maxY) return;
-                    var (bg, text) = TagColors(tag);
+                    var (bg, text) = TagColors(tag, disabled);
                     DrawVerticalTag(new Rect(tagX, tagY, tagW, tagH), tag, bg, text, tagStyle);
                     stickyCount++;
                 }
@@ -620,132 +624,179 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(rect.x + pad, executeBottomY, rect.width - pad * 2f, 14f),
                 FateStrip.Describe(strip), summaryStyle);
 
-            float rowY = executeBottomY + 14f;
-            const float gap = 3f;
-            float cellW = Mathf.Min(24f, (rect.width - pad * 2f - gap * 5f) / 6f);
-            float totalW = cellW * 6f + gap * 5f;
-            float startX = rect.center.x - totalW / 2f;
+            float avail = rect.width - pad * 2f;
+            float stripW = Mathf.Min(avail, 178f);
+            DrawOddsStrip(new Rect(rect.center.x - stripW / 2f, executeBottomY + 14f, stripW, 17f), strip, 0);
+        }
+
+        // 命运条即赔率条：实心染色 + 档间留缝，占比一眼可读。命中格抬起 + 金描边 + 弹跳；
+        // settled（结果定格）时压暗其余格，让命中格更跳。掷骰时命中格随扫掠移动，落定后定在最终骰面。
+        // 公开供重结算大弹窗复用（掷骰态/结算态同一套视觉）。
+        public static void DrawOddsStrip(Rect area, RollOutcome[] strip, int highlightedFace,
+            float pulse = 0f, bool settled = false)
+        {
+            const float gap = 3f, boundaryGap = 9f;
+            int boundaries = 0;
+            for (int i = 1; i < strip.Length; i++)
+                if (strip[i] != strip[i - 1]) boundaries++;
+
+            float cellW = (area.width - gap * (5 - boundaries) - boundaryGap * boundaries) / 6f;
+            float x = area.x;
             var faceStyle = new GUIStyle(IMGUIStyles.ClockValue) { alignment = TextAnchor.MiddleCenter };
             for (int i = 0; i < 6; i++)
             {
-                Color color = OutcomeColor(strip[i]);
-                var cell = new Rect(startX + i * (cellW + gap), rowY, cellW, 17f);
-                GUI.color = new Color(color.r * 0.18f, color.g * 0.18f, color.b * 0.18f, 1f);
+                if (i > 0) x += strip[i] != strip[i - 1] ? boundaryGap : gap;
+                Color tier = OutcomeColor(strip[i]);
+                bool hi = i + 1 == highlightedFace;
+                float pop = hi ? pulse * 5f : 0f;
+                var cell = new Rect(x - pop / 2f, area.y + (hi ? -2f : 0f) - pop,
+                    cellW + pop, area.height + (hi ? 4f : 0f) + pop * 2f);
+                float dim = hi ? 1f : (settled ? 0.34f : 0.70f);
+                GUI.color = new Color(tier.r * dim, tier.g * dim, tier.b * dim, 1f);
                 GUI.DrawTexture(cell, Texture2D.whiteTexture);
                 GUI.color = Color.white;
-                IMGUIStyles.DrawOutline(cell, 1f, color);
-                faceStyle.normal.textColor = color;
+                if (hi)
+                    IMGUIStyles.DrawOutline(cell, 2f, IMGUIStyles.Gold);
+                float td = hi ? 0.18f : (settled ? 0.10f : 0.20f);
+                faceStyle.normal.textColor = new Color(tier.r * td, tier.g * td * 0.8f, tier.b * td * 0.8f, 1f);
                 GUI.Label(cell, (i + 1).ToString(), faceStyle);
-                if (i == 0 || i == 5)
-                {
-                    var markStyle = new GUIStyle(IMGUIStyles.ClockLabel)
-                    {
-                        alignment = TextAnchor.MiddleCenter,
-                        normal = { textColor = color }
-                    };
-                    GUI.Label(new Rect(cell.x, cell.y - 10f, cell.width, 10f), i == 0 ? "-1" : "+1", markStyle);
-                }
+                x += cellW;
             }
         }
 
         // ── 判定中：掷骰瞬间面板（金光呼吸）──────────────────────────
 
+        // 掷骰中：命运条本身就是动画（减速扫掠 → 落格弹跳 → 定格），而非一个方框里跳变的数字。
         private static void DrawLocalRoll(Rect rect, ActionReport report, int phase, int displayDieValue, float displayScale)
         {
             var panel = new Rect(rect.x + 12f, rect.yMax - 66f, rect.width - 24f, 54f);
+            IMGUIStyles.DrawShadow(panel, new Vector2(4f, 5f), 0.45f);
             GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, IMGUIStyles.ModalOpacity);
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(panel, 1.5f, IMGUIStyles.Gold);
 
-            // 掷骰瞬间是「正在发生」——金光呼吸只在滚动阶段亮起。
+            bool settled = phase >= 2;
+            Color oc = settled ? OutcomeColor(report.Outcome) : IMGUIStyles.Gold;
+            IMGUIStyles.DrawOutline(panel, 1.5f, oc);
             if (phase < 2)
                 IMGUIStyles.DrawGoldPulse(panel);
 
-            int dieValue = phase == 0 ? displayDieValue : report.FateDieValue;
-            var dieStyle = new GUIStyle(IMGUIStyles.CardTitle)
-            {
-                fontSize = Mathf.RoundToInt(26 * Mathf.Clamp(displayScale, 0.8f, 1.35f)),
-                alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = IMGUIStyles.Gold }
-            };
-            GUI.Label(new Rect(panel.x + 10f, panel.y + 4f, 52f, panel.height - 8f), $"D{dieValue}", dieStyle);
+            DrawRollHeaderText(panel, settled ? FormatOutcome(report.Outcome) : "判定中",
+                settled ? oc : IMGUIStyles.TextPrimary,
+                settled ? $"准备 {report.PreparedValue} · 命运骰 {report.FateDieValue}" : "命运骰滚动...");
 
-            string label = phase >= 2 ? FormatOutcome(report.Outcome) : "判定中";
-            var labelStyle = new GUIStyle(IMGUIStyles.ModalBody)
-            {
-                fontSize = 15,
-                normal = { textColor = phase >= 2 ? OutcomeColor(report.Outcome) : IMGUIStyles.TextPrimary }
-            };
-            GUI.Label(new Rect(panel.x + 72f, panel.y + 9f, panel.width - 82f, 22f), label, labelStyle);
+            int highlightedFace = phase == 0 ? displayDieValue : report.FateDieValue;
+            float pulse = phase == 1 ? Mathf.Max(0f, displayScale - 1f) : 0f;
+            var strip = FateStrip.StripForPrepared(report.PreparedValue);
+            DrawOddsStrip(new Rect(panel.x + 10f, panel.y + 26f, panel.width - 20f, 18f),
+                strip, highlightedFace, pulse, settled);
 
-            string natural = report.NaturalModifier == 0
-                ? string.Empty
-                : report.NaturalModifier > 0 ? " + 天然6" : " - 天然1";
-            string detail = phase >= 2
-                ? $"准备 {report.PreparedValue} + 命运 {report.FateDieValue}{natural} = {report.FinalTotal}"
-                : "命运骰滚动...";
-            var detailStyle = new GUIStyle(IMGUIStyles.ModalBody) { normal = { textColor = IMGUIStyles.TextSecondary } };
-            GUI.Label(new Rect(panel.x + 72f, panel.y + 30f, panel.width - 82f, 18f), detail, detailStyle);
-
-            // 判定完成态：旋转章形盖印（成=金，败=印章红；中性不盖）。
-            if (phase >= 2 && report.Outcome != RollOutcome.Neutral)
-            {
-                var sealRect = new Rect(rect.xMax - 62f, panel.y - 30f, 52f, 52f);
-                Color sealColor = report.Outcome == RollOutcome.Success ? IMGUIStyles.Gold : IMGUIStyles.SealRed;
-                string sealText = report.Outcome == RollOutcome.Success ? "成" : "败";
-                IMGUIStyles.DrawStampSeal(sealRect, sealText, sealColor);
-            }
+            if (settled && report.Outcome != RollOutcome.Neutral)
+                DrawResultSeal(rect, panel.y, report.Outcome);
         }
 
-        // ── 判定完成态：结算行 + 盖印（残卡内嵌版）────────────────────
-
+        // 结算结果 = 命运条「原地定格」+ 结果从其下方揭开。头部与 DrawLocalRoll 落定态同位置、同内容，
+        // 形成无缝冻结（动画一停，命运条就留在原处）；身体（叙事 + 影响）随揭开轻微下滑弹出。
         private static void DrawResiduePanel(Rect rect, CardPresentationResidue residue)
         {
-            float panelH = residue.Effects.Count > 0 ? 64f + Mathf.Min(3, residue.Effects.Count) * 16f : 56f;
-            var panel = new Rect(rect.x + 12f, rect.yMax - panelH - 12f, rect.width - 24f, panelH);
+            // residue 只有动画落定后才被绘制——首帧即结果该「揭开」的时刻，惰性记录起点。
+            if (residue.RevealStartTime <= 0f)
+                residue.RevealStartTime = Time.time;
+            float reveal = Mathf.Clamp01((Time.time - residue.RevealStartTime) / 0.28f);
+            float ease = 1f - Mathf.Pow(1f - reveal, 3f);
+
+            float bodyH = 0f;
+            if (!string.IsNullOrWhiteSpace(residue.Subtitle)) bodyH += 20f;
+            int effectRows = Mathf.Min(3, residue.Effects.Count);
+            if (effectRows > 0) bodyH += effectRows * 16f + 4f;
+
+            const float headerH = 54f;
+            // 头部与 DrawLocalRoll 落定态同位置（rect.yMax-66, 高 54）→ 原地冻结；身体向下延展。
+            var panel = new Rect(rect.x + 12f, rect.yMax - 66f, rect.width - 24f, headerH + bodyH);
+            IMGUIStyles.DrawShadow(panel, new Vector2(4f, 5f), 0.45f);
             GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, IMGUIStyles.ModalOpacity);
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(panel, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
 
-            // 结果盖印：成=金、败=印章红（中性不盖）。
-            if (residue.RollOutcome == RollOutcome.Success || residue.RollOutcome == RollOutcome.Fail)
+            var header = new Rect(panel.x, panel.y, panel.width, headerH);
+            bool hasOutcome = residue.RollOutcome.HasValue;
+            RollOutcome outcome = residue.RollOutcome ?? RollOutcome.Neutral;
+            Color oc = hasOutcome ? OutcomeColor(outcome) : IMGUIStyles.Gold;
+            IMGUIStyles.DrawOutline(header, 1.5f, oc);
+
+            string headerLabel = hasOutcome ? FormatOutcome(outcome)
+                : string.IsNullOrWhiteSpace(residue.Title) ? "行动结果" : residue.Title;
+            DrawRollHeaderText(header, headerLabel, hasOutcome ? oc : IMGUIStyles.TextPrimary,
+                residue.FateDieValue.HasValue ? $"准备 {residue.PreparedValue} · 命运骰 {residue.FateDieValue.Value}" : "");
+
+            if (residue.FateDieValue.HasValue)
             {
-                var sealRect = new Rect(rect.xMax - 58f, panel.y - 26f, 46f, 46f);
-                Color sealColor = residue.RollOutcome == RollOutcome.Success ? IMGUIStyles.Gold : IMGUIStyles.SealRed;
-                string sealText = residue.RollOutcome == RollOutcome.Success ? "成" : "败";
-                IMGUIStyles.DrawStampSeal(sealRect, sealText, sealColor);
+                var strip = FateStrip.StripForPrepared(residue.PreparedValue);
+                DrawOddsStrip(new Rect(header.x + 10f, header.y + 26f, header.width - 20f, 18f),
+                    strip, residue.FateDieValue.Value, 0f, true);
             }
 
-            string title = residue.RollOutcome.HasValue
-                ? $"{FormatOutcome(residue.RollOutcome.Value)}：{residue.Title}"
-                : residue.Title;
-            var titleStyle = new GUIStyle(IMGUIStyles.ModalBody)
-            {
-                fontSize = 13,
-                wordWrap = true,
-                normal = { textColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : IMGUIStyles.TextPrimary }
-            };
-            GUI.Label(new Rect(panel.x + 8f, panel.y + 6f, panel.width - 16f, 22f), title, titleStyle);
+            if (hasOutcome && outcome != RollOutcome.Neutral)
+                DrawResultSeal(rect, header.y, outcome);
 
-            var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            // 身体：结果从命运条下方揭开（叙事淡入、整体轻微下滑）。
+            float y = header.yMax + 4f + (1f - ease) * 5f;
+            if (!string.IsNullOrWhiteSpace(residue.Subtitle))
             {
-                fontSize = 11,
-                wordWrap = true,
-                normal = { textColor = IMGUIStyles.TextSecondary }
-            };
-            GUI.Label(new Rect(panel.x + 8f, panel.y + 28f, panel.width - 16f, 24f), residue.Subtitle, subtitleStyle);
+                GUI.color = new Color(oc.r, oc.g, oc.b, ease);
+                GUI.DrawTexture(new Rect(panel.x + 8f, y + 1f, 2.5f, 13f), Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                var subStyle = new GUIStyle(IMGUIStyles.ModalBody)
+                {
+                    fontSize = 11,
+                    wordWrap = true,
+                    normal = { textColor = new Color(IMGUIStyles.TextPrimary.r, IMGUIStyles.TextPrimary.g, IMGUIStyles.TextPrimary.b, ease) }
+                };
+                GUI.Label(new Rect(panel.x + 15f, y, panel.width - 22f, 18f), residue.Subtitle, subStyle);
+                y += 20f;
+            }
 
             if (residue.Effects.Count > 0)
-                CardDrawer.DrawEffectRows(new Rect(panel.x + 8f, panel.y + 54f, panel.width - 16f, panel.height - 60f), residue.Effects);
+                CardDrawer.DrawEffectRows(new Rect(panel.x + 8f, y, panel.width - 16f, panel.yMax - y - 4f), residue.Effects);
+        }
+
+        // 判定面板头部：左上结果/状态标签 + 右上「准备 · 命运骰」明细，供掷骰态与结算态共用。
+        private static void DrawRollHeaderText(Rect panel, string label, Color labelColor, string detail)
+        {
+            var labelStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                fontSize = 13,
+                normal = { textColor = labelColor }
+            };
+            GUI.Label(new Rect(panel.x + 8f, panel.y + 3f, 130f, 18f), label, labelStyle);
+
+            if (string.IsNullOrEmpty(detail)) return;
+            var detailStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                fontSize = 10,
+                alignment = TextAnchor.MiddleRight,
+                normal = { textColor = IMGUIStyles.TextSecondary }
+            };
+            GUI.Label(new Rect(panel.x + panel.width - 158f, panel.y + 4f, 150f, 16f), detail, detailStyle);
+        }
+
+        // 旋转章形盖印（成=金、败=印章红；中性不盖），骑在面板右上角外。
+        private static void DrawResultSeal(Rect rect, float panelY, RollOutcome outcome)
+        {
+            var sealRect = new Rect(rect.xMax - 62f, panelY - 30f, 52f, 52f);
+            Color sealColor = outcome == RollOutcome.Success ? IMGUIStyles.Gold : IMGUIStyles.SealRed;
+            string sealText = outcome == RollOutcome.Success ? "成" : "败";
+            IMGUIStyles.DrawStampSeal(sealRect, sealText, sealColor);
         }
 
         // ── 标签配色（便签色板，DESIGN.md）──────────────────────────────
 
         // 同一语义永远同一张纸：工作=绿纸、中风险=黄纸、高风险=橙红纸、交涉=蓝纸、机遇=紫纸。
-        private static (Color bg, Color text) TagColors(string label)
+        private static (Color bg, Color text) TagColors(string label, bool disabled = false)
         {
+            if (disabled)
+                return (new Color(0.18f, 0.19f, 0.22f, 1f), new Color(0.55f, 0.56f, 0.60f, 1f));
+
             switch (label)
             {
                 case "交锋":

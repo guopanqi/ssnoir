@@ -136,11 +136,11 @@ public sealed class AmbientBoat : MonoBehaviour
         // Get materials from assignable fields, fallback to Resources.Load
         Material customBodyMat = bodyTransparentMaterial != null 
             ? bodyTransparentMaterial 
-            : Resources.Load<Material>("Boat_DarkColor_Transparent");
+            : Resources.Load<Material>("Materials/Boat_DarkColor_Transparent");
 
-        Material customLineMat = lineTransparentMaterial != null 
-            ? lineTransparentMaterial 
-            : Resources.Load<Material>("Boat_LineColor_Transparent");
+        Material customLineMat = lineTransparentMaterial != null
+            ? lineTransparentMaterial
+            : Resources.Load<Material>("Materials/Boat_LineColor_Transparent");
 
         foreach (Renderer targetRenderer in renderersToFade)
         {
