@@ -8,6 +8,10 @@ namespace SSNoir.Rendering
 {
     public static class CardWidget
     {
+        private const float DefaultCardHeight = 150f;
+        private const float ActorAbilityChipHeight = 20f;
+        private const float ActorAbilityChipGap = 5f;
+
         public struct CardInteraction
         {
             public bool CardClicked;
@@ -165,14 +169,29 @@ namespace SSNoir.Rendering
             if (hasSubtitle)
                 rollControlY = Math.Max(rollControlY, subtitleBottom + 16f);
 
-            // 标签先占位，后续控件按 tagBottomY 向下流动，禁止互相覆盖。
-            float tagBottomY = DrawNodeTags(bounds, tags,
-                hasRequires ? bounds.Y + 30 : (showButton ? bounds.Y + (hasSubtitle ? 62 : 52) : bounds.Y + 6), disabled);
-            float controlY = Math.Max(rollControlY, tagBottomY + 8f);
+            bool hasSkill = !string.IsNullOrEmpty(rollSkill);
+            // 卡片内容严格按纵向流式排列：标题/说明 → 标签 → 角色能力状态 → 槽位 → 按钮。
+            // 角色能力状态是独立信息区，不能再作为右侧浮层压住资源槽。
+            float tagStartY = subtitleBottom + 8f;
+            float actorRailReservedWidth = hasSkill && actors != null
+                ? GetActorAbilityRailReservedWidth(rollSkill!, actors, ignoresStressPenalty)
+                : 0f;
+            float tagRightEdge = actorRailReservedWidth > 0f
+                ? bounds.X + bounds.Width - actorRailReservedWidth
+                : bounds.X + bounds.Width - 8f;
+            float tagBottomY = DrawNodeTags(bounds, tags, tagStartY, disabled, tagRightEdge);
+            // 能力标签与工作/风险标签共享同一行；只有左侧标签换行时才会向下延展。
+            float actorRailStartY = tagStartY;
+            float actorRailBottomY = actorRailStartY;
+            if (hasSkill && actors != null && actors.Count > 0)
+            {
+                actorRailBottomY = DrawActorAbilityRail(bounds, rollSkill!, actors,
+                    ignoresStressPenalty, actorRailStartY);
+            }
+            float controlY = Math.Max(rollControlY, Math.Max(tagBottomY + 8f, actorRailBottomY + 8f));
 
             // Draw skill badge (roll cards) or plain type text — the skill tells the player
             // which ability this action tests, replacing the meaningless "判定" label.
-            bool hasSkill = !string.IsNullOrEmpty(rollSkill);
             if (hasSkill && !disabled)
             {
                 string skillText = SkillInfo.DisplayName(rollSkill!);
@@ -339,7 +358,7 @@ namespace SSNoir.Rendering
             if (effectiveModifiers.Count > 0)
             {
                 float tagStartX = bounds.X + 6;
-                float tagStartY = Math.Max(bounds.Y + 6, tagBottomY + 4);
+                float modifierTagStartY = Math.Max(tagStartY, tagBottomY + 4);
                 for (int k = 0; k < effectiveModifiers.Count; k++)
                 {
                     var mod = effectiveModifiers[k];
@@ -349,7 +368,7 @@ namespace SSNoir.Rendering
                     float tagW = textWidth + 10;
                     float tagH = 16;
                     float tagX = tagStartX;
-                    float tagY = tagStartY + k * 20;
+                    float tagY = modifierTagStartY + k * 20;
                     var tagRect = new Rectangle(tagX, tagY, tagW, tagH);
 
                     Color tagBg = disabled
@@ -366,13 +385,6 @@ namespace SSNoir.Rendering
                     Raylib.DrawRectangleRoundedLinesEx(tagRect, 0.4f, 4, 1f, tagBorder);
                     FontManager.DrawText(modText, tagX + 5, tagY + 3, fontSize, tagText);
                 }
-            }
-
-            // Right rail: each active party member's level in this card's skill, framed in
-            // that actor's theme color — an at-a-glance "who is good at this" comparison.
-            if (hasSkill && actors != null && actors.Count > 0)
-            {
-                DrawActorAbilityRail(bounds, rollSkill!, actors, ignoresStressPenalty);
             }
 
             if (localRoll != null)
@@ -392,14 +404,57 @@ namespace SSNoir.Rendering
             return interaction;
         }
 
-        private static void DrawActorAbilityRail(Rectangle bounds, string skill,
-            IReadOnlyList<ActorSnapshot> actors, bool ignoresStressPenalty)
+        /// <summary>
+        /// Returns the minimum height needed for an action card with a skill rail. The renderer
+        /// uses this before laying out rows, so additional active actors grow the card instead
+        /// of overlapping its resource controls.
+        /// </summary>
+        public static float GetMinimumHeight(string subtitle, List<string>? tags,
+            List<ActionCost>? requires, string? rollSkill, IReadOnlyList<ActorSnapshot>? actors,
+            bool ignoresStressPenalty)
         {
-            const float chipW = 72f;
-            const float chipH = 32f;
-            float x = bounds.X + bounds.Width - chipW - 6f;
-            // Same row as the tags (below the title), mirrored to the right edge.
-            float y = bounds.Y + 30f;
+            if (string.IsNullOrEmpty(rollSkill) || requires == null || requires.Count == 0 || actors == null)
+            {
+                return DefaultCardHeight;
+            }
+
+            int activeActorCount = actors.Count(actor => actor.Status != "away" && actor.Stats.ContainsKey(rollSkill));
+            if (activeActorCount == 0)
+            {
+                return DefaultCardHeight;
+            }
+
+            const int titleFontSize = 18;
+            int subtitleFontSize = 13;
+            float subtitleBottom = 8f + titleFontSize + 8f;
+            if (!string.IsNullOrWhiteSpace(subtitle))
+            {
+                var subtitleLines = WrapTextLines(subtitle, 216f, subtitleFontSize);
+                while (subtitleLines.Count > 2 && subtitleFontSize > 10)
+                {
+                    subtitleFontSize--;
+                    subtitleLines = WrapTextLines(subtitle, 216f, subtitleFontSize);
+                }
+                subtitleLines = ClampWrappedLines(subtitleLines, 2, 216f, subtitleFontSize);
+                subtitleBottom = 8f + titleFontSize + 8f + subtitleLines.Count * (subtitleFontSize + 4);
+            }
+
+            float reservedRailWidth = GetActorAbilityRailReservedWidth(rollSkill, actors, ignoresStressPenalty);
+            float tagBottom = MeasureNodeTagsBottom(248f - reservedRailWidth, tags, subtitleBottom + 8f);
+            float railTop = subtitleBottom + 8f;
+            float railBottom = railTop + activeActorCount * ActorAbilityChipHeight
+                + Math.Max(0, activeActorCount - 1) * ActorAbilityChipGap;
+            float rollControlY = Math.Max(string.IsNullOrWhiteSpace(subtitle) ? 64f : 78f, subtitleBottom + 16f);
+            float controlY = Math.Max(rollControlY, railBottom + 8f);
+
+            // 槽位、按钮以及卡片底部的最小呼吸空间。
+            return Math.Max(DefaultCardHeight, controlY + 32f + 8f + 20f + 12f);
+        }
+
+        private static float DrawActorAbilityRail(Rectangle bounds, string skill,
+            IReadOnlyList<ActorSnapshot> actors, bool ignoresStressPenalty, float startY)
+        {
+            const float chipH = ActorAbilityChipHeight;
             int drawn = 0;
             foreach (var actor in actors)
             {
@@ -413,24 +468,53 @@ namespace SSNoir.Rendering
                 }
                 var (r, g, b) = ActorTheme.ColorFor(actors, actor.Id);
                 var color = new Color(r, g, b, (byte)255);
-                var chip = new Rectangle(x, y + drawn * (chipH + 5f), chipW, chipH);
-                Raylib.DrawRectangleRounded(chip, 0.4f, 5, new Color((byte)(r / 5), (byte)(g / 5), (byte)(b / 5), (byte)235));
-                Raylib.DrawRectangleRoundedLinesEx(chip, 0.4f, 5, 1.4f, color);
 
                 string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
-                FontManager.DrawText($"{shortName} · {level}", chip.X + 6f, chip.Y + 4f, 10, color);
                 int stressModifier = ignoresStressPenalty ? 0 : TeamState.GetStressRollModifier(actor.Stress);
-                string status = ignoresStressPenalty && actor.Stress >= TeamState.StressPenaltyThreshold
-                    ? "恢复判定豁免"
-                    : stressModifier == 0 ? "平稳" : "心绪不宁 −1";
-                Color statusColor = stressModifier != 0
-                    ? OddsFailColor
-                    : ignoresStressPenalty && actor.Stress >= TeamState.StressPenaltyThreshold
-                        ? TerminalPalette.AccentBright
-                        : TerminalPalette.Text;
-                FontManager.DrawText(status, chip.X + 6f, chip.Y + 18f, 10, statusColor);
+                string label = GetActorAbilityLabel(shortName, level, actor.Stress, ignoresStressPenalty);
+                float chipW = Math.Max(58f, FontManager.MeasureTextWidth(label, 10) + 12f);
+                var chip = new Rectangle(bounds.X + bounds.Width - chipW - 6f,
+                    startY + drawn * (chipH + ActorAbilityChipGap), chipW, chipH);
+                Raylib.DrawRectangleRounded(chip, 0.4f, 5, new Color((byte)(r / 5), (byte)(g / 5), (byte)(b / 5), (byte)235));
+                Raylib.DrawRectangleRoundedLinesEx(chip, 0.4f, 5, 1.4f, color);
+                Color labelColor = stressModifier != 0 ? OddsFailColor : color;
+                FontManager.DrawText(label, chip.X + 6f, chip.Y + 5f, 10, labelColor);
                 drawn++;
             }
+
+            return drawn == 0
+                ? startY
+                : startY + drawn * chipH + (drawn - 1) * ActorAbilityChipGap;
+        }
+
+        private static float GetActorAbilityRailReservedWidth(string skill,
+            IReadOnlyList<ActorSnapshot> actors, bool ignoresStressPenalty)
+        {
+            float widestChip = 0f;
+            foreach (var actor in actors)
+            {
+                if (actor.Status == "away" || !actor.Stats.TryGetValue(skill, out int level))
+                {
+                    continue;
+                }
+
+                string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
+                string label = GetActorAbilityLabel(shortName, level, actor.Stress, ignoresStressPenalty);
+                widestChip = Math.Max(widestChip, Math.Max(58f, FontManager.MeasureTextWidth(label, 10) + 12f));
+            }
+
+            // 右侧留白 6px，标签与能力状态之间保留 8px。
+            return widestChip > 0f ? widestChip + 14f : 0f;
+        }
+
+        private static string GetActorAbilityLabel(string shortName, int level, int stress,
+            bool ignoresStressPenalty)
+        {
+            int stressModifier = ignoresStressPenalty ? 0 : TeamState.GetStressRollModifier(stress);
+            string status = ignoresStressPenalty && stress >= TeamState.StressPenaltyThreshold
+                ? " · 恢复豁免"
+                : stressModifier != 0 ? " · 不宁 −1" : string.Empty;
+            return $"{shortName} · {level}{status}";
         }
 
         private static readonly Color OddsFailColor    = new Color(209, 58, 74, 255);
@@ -914,7 +998,8 @@ namespace SSNoir.Rendering
             }
         }
 
-        private static float DrawNodeTags(Rectangle bounds, List<string>? tags, float startY, bool disabled = false)
+        private static float DrawNodeTags(Rectangle bounds, List<string>? tags, float startY, bool disabled = false,
+            float? rightEdge = null)
         {
             if (tags == null || tags.Count == 0)
             {
@@ -923,7 +1008,7 @@ namespace SSNoir.Rendering
 
             float x = bounds.X + 6;
             float y = startY;
-            float maxRight = bounds.X + bounds.Width - 8;
+            float maxRight = rightEdge ?? bounds.X + bounds.Width - 8f;
             float lineH = 18;
 
             for (int i = 0; i < tags.Count; i++)
@@ -936,7 +1021,7 @@ namespace SSNoir.Rendering
 
                 int fontSize = 10;
                 int textW = FontManager.MeasureTextWidth(label, fontSize);
-                float tagW = Math.Min(textW + 12, bounds.Width - 16);
+                float tagW = Math.Min(textW + 12f, maxRight - (bounds.X + 6f));
                 if (x + tagW > maxRight)
                 {
                     x = bounds.X + 6;
@@ -958,6 +1043,37 @@ namespace SSNoir.Rendering
                 FontManager.DrawText(label, rect.X + (rect.Width - drawW) / 2f, rect.Y + 4f, fontSize, text);
 
                 x += tagW + 5;
+            }
+
+            return y + lineH;
+        }
+
+        private static float MeasureNodeTagsBottom(float width, List<string>? tags, float startY)
+        {
+            if (tags == null || tags.Count == 0)
+            {
+                return 2f;
+            }
+
+            float x = 6f;
+            float y = startY;
+            float maxRight = width - 8f;
+            const float lineH = 18f;
+
+            foreach (string label in tags)
+            {
+                if (string.IsNullOrWhiteSpace(label))
+                {
+                    continue;
+                }
+
+                float tagW = Math.Min(FontManager.MeasureTextWidth(label, 10) + 12f, maxRight - 6f);
+                if (x + tagW > maxRight)
+                {
+                    x = 6f;
+                    y += lineH + 3f;
+                }
+                x += tagW + 5f;
             }
 
             return y + lineH;

@@ -5,18 +5,29 @@ using SSNoir.Core;
 
 namespace SSNoir.Rendering
 {
-    // 关系不是一组孤立数字，而是一条“当前位置 → 里程碑 → 解锁内容”的进展轨道。
+    // 声望不是一组孤立数字，而是一条“当前位置 → 档位 → 解锁诱饵”的进展轨道。
     public static class RelationWidget
     {
         private static readonly string[] Factions = { "官僚", "劳工", "富商" };
+        // 六档配色（敌视/冷淡/中立/相识/信任/核心），正面三档逐级变亮。
         private static readonly Color[] BandColors =
         {
             new Color(186, 66, 62, 255),
             new Color(145, 105, 135, 255),
             new Color(132, 136, 150, 255),
             TerminalPalette.Accent,
+            new Color(150, 176, 168, 255),
             TerminalPalette.AccentBright,
         };
+
+        // 某势力在指定档位序号上的显示名：正面三档取内容层定制称呼，其余用通用档名。
+        private static string BandDisplay(PresentationSnapshot snapshot, string faction, int band)
+        {
+            if (band < 3) return RelationScale.BandNames[band];
+            string tier = RelationScale.PositiveTiers[band - 3];
+            return snapshot.RelationBandNames.TryGetValue($"{faction}:{tier}", out string? name)
+                ? name : tier;
+        }
 
         private const float CollapsedWidth = 220f;
         private const float CollapsedHeight = 28f;
@@ -26,12 +37,16 @@ namespace SSNoir.Rendering
         public static float Draw(RendererState state, SSNoir.TerminalApp.Rendering.UiInteractionContext ui,
             float rightEdge, float topY)
         {
-            return state.IsRelationExpanded
-                ? DrawExpanded(state, ui, rightEdge, topY)
-                : DrawCollapsed(state, ui, rightEdge, topY);
+            // 顶部开关始终可见；展开面板只是它的附属内容，而不是替换掉按钮。
+            float x = DrawToggle(state, ui, rightEdge, topY);
+            if (state.IsRelationExpanded)
+            {
+                DrawExpanded(state, ui, rightEdge, topY);
+            }
+            return x;
         }
 
-        private static float DrawCollapsed(RendererState state,
+        private static float DrawToggle(RendererState state,
             SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float rightEdge, float topY)
         {
             float x = rightEdge - CollapsedWidth;
@@ -48,7 +63,14 @@ namespace SSNoir.Rendering
                 int band = RelationScale.BandIndex(value);
                 FontManager.DrawText($"{Factions[i]} {value}", itemX + i * itemW, topY + 8f, 9, BandColors[band]);
             }
-            if (ui.WasClicked(rect)) state.IsRelationExpanded = true;
+            if (ui.WasClicked(rect))
+            {
+                state.IsRelationExpanded = !state.IsRelationExpanded;
+                if (state.IsRelationExpanded)
+                {
+                    state.IsGrowthPanelOpen = false;
+                }
+            }
             return x;
         }
 
@@ -60,8 +82,8 @@ namespace SSNoir.Rendering
             var rect = new Rectangle(x, panelY, ExpandedWidth, ExpandedHeight);
             DrawPanel(rect, false);
 
-            FontManager.DrawText("城市关系", x + 18f, panelY + 14f, 17, TerminalPalette.AccentBright);
-            FontManager.DrawText("关系上升会在对应里程碑开放新的工作、行动与援助",
+            FontManager.DrawText("城市声望", x + 18f, panelY + 14f, 17, TerminalPalette.AccentBright);
+            FontManager.DrawText("声望每上一档，会打开这条路线专属的营生、人脉与门路",
                 x + 108f, panelY + 18f, 11, new Color(150, 155, 175, 255));
 
             var closeRect = new Rectangle(x + ExpandedWidth - 66f, panelY + 10f, 50f, 24f);
@@ -86,7 +108,7 @@ namespace SSNoir.Rendering
             Raylib.DrawRectangleRounded(rect, 0.06f, 4, new Color(28, 30, 40, 245));
             Raylib.DrawRectangleRoundedLinesEx(rect, 0.06f, 4, 1f, new Color(58, 62, 80, 255));
             FontManager.DrawText(faction, rect.X + 12f, rect.Y + 10f, 15, new Color(215, 218, 230, 255));
-            FontManager.DrawText($"{RelationScale.BandNames[band]}  {value}", rect.X + 68f, rect.Y + 12f, 12, active);
+            FontManager.DrawText($"{BandDisplay(snapshot, faction, band)}  {value}", rect.X + 68f, rect.Y + 12f, 12, active);
 
             float trackX = rect.X + 150f;
             float trackY = rect.Y + 20f;
@@ -107,17 +129,19 @@ namespace SSNoir.Rendering
                 if (point == value)
                     Raylib.DrawRectangleRoundedLinesEx(cell, 0.16f, 2, 1.5f, new Color(245, 245, 245, 230));
             }
-            float currentX = trackX + (value - RelationScale.Min) * (cellW + cellGap) + cellW / 2f;
-            Raylib.DrawCircle((int)currentX, (int)(trackY - 9f), 3f, active);
+            // 当前位置已由轨道格子的白色描边表达，无需再叠加圆点标记。
 
-            DrawUnlock(snapshot, faction, "脸熟", 3, value,
-                new Rectangle(rect.X + 12f, rect.Y + 42f, (rect.Width - 32f) / 2f, 47f), trackX, trackY, trackW);
-            DrawUnlock(snapshot, faction, "自己人", 6, value,
-                new Rectangle(rect.X + 20f + (rect.Width - 32f) / 2f, rect.Y + 42f,
-                    (rect.Width - 32f) / 2f, 47f), trackX, trackY, trackW);
+            const float chipGap = 6f;
+            float chipW = (rect.Width - 24f - chipGap * 2f) / 3f;
+            for (int t = 0; t < RelationScale.PositiveTiers.Length; t++)
+            {
+                var chip = new Rectangle(rect.X + 12f + t * (chipW + chipGap), rect.Y + 42f, chipW, 47f);
+                DrawUnlock(snapshot, faction, RelationScale.PositiveTiers[t],
+                    RelationScale.PositiveThresholds[t], value, chip, trackX, trackY, trackW);
+            }
         }
 
-        private static void DrawUnlock(PresentationSnapshot snapshot, string faction, string band, int threshold,
+        private static void DrawUnlock(PresentationSnapshot snapshot, string faction, string tier, int threshold,
             int value, Rectangle chip, float trackX, float trackY, float trackW)
         {
             bool unlocked = value >= threshold;
@@ -134,11 +158,12 @@ namespace SSNoir.Rendering
                 unlocked ? TerminalPalette.AccentDark : new Color(34, 36, 45, 230));
             Raylib.DrawRectangleRoundedLinesEx(chip, 0.10f, 4, 1f, new Color(color.R, color.G, color.B, (byte)170));
 
+            string name = snapshot.RelationBandNames.TryGetValue($"{faction}:{tier}", out string? disp) ? disp : tier;
             string state = unlocked ? "已解锁" : $"还差 {Math.Max(0, threshold - value)}";
-            FontManager.DrawText($"{band}  {threshold:+#;-#;0}  ·  {state}", chip.X + 8f, chip.Y + 6f, 11, color);
-            string key = $"{faction}:{band}";
-            string unlock = snapshot.RelationUnlocks.TryGetValue(key, out string? text) ? text : "当前无新增动作";
-            FontManager.DrawText(unlock, chip.X + 8f, chip.Y + 25f, 10, new Color(185, 188, 202, 255));
+            FontManager.DrawText($"{name}  {threshold:+#;-#;0}  ·  {state}", chip.X + 8f, chip.Y + 6f, 10, color);
+            string unlock = snapshot.RelationUnlocks.TryGetValue($"{faction}:{tier}", out string? text)
+                ? text : "当前无新增动作";
+            FontManager.DrawText(unlock, chip.X + 8f, chip.Y + 25f, 9, new Color(185, 188, 202, 255));
         }
 
         private static void DrawPanel(Rectangle rect, bool hovered)

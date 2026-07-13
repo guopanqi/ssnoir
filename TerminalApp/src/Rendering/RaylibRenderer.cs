@@ -638,7 +638,11 @@ namespace SSNoir.Rendering
             var lockedCtx = new UiInteractionContext { Mouse = mousePos, IsLocked = true };
             var worldUi = inputBlocked ? lockedCtx : _windowStack.MakeContext(UiLayer.World);
             var panelUi = inputBlocked ? lockedCtx : _windowStack.MakeContext(UiLayer.Panel);
-            var topControlsUi = worldUi;
+            // 两个常驻面板展开后，顶部开关与其内容处在同一交互层，仍可用于收起；
+            // 其他全屏面板（例如回合面板）仍应屏蔽这些开关。
+            var topControlsUi = _state.IsGrowthPanelOpen || _state.IsRelationExpanded
+                ? panelUi
+                : worldUi;
             if (_state.IsRelationExpanded)
                 worldUi = lockedCtx;
             var ui = new UiInteractionContext { Mouse = mousePos, IsLocked = inputBlocked };
@@ -867,14 +871,6 @@ namespace SSNoir.Rendering
             FontManager.DrawText(text, x + 24f, y + 10f, fontSize, new Color((byte)220, (byte)226, (byte)245, alpha));
         }
 
-        private static readonly Color DbgBg     = new Color((byte)20,  (byte)20,  (byte)28,  (byte)255);
-        private static readonly Color DbgBorder = new Color((byte)60,  (byte)60,  (byte)90,  (byte)255);
-        private static readonly Color DbgBtn    = new Color((byte)25,  (byte)25,  (byte)38,  (byte)255);
-        private static readonly Color DbgBtnHov = new Color((byte)40,  (byte)40,  (byte)60,  (byte)255);
-        private static readonly Color DbgAccent = new Color((byte)110, (byte)110, (byte)200, (byte)255);
-        private static readonly Color DbgText   = new Color((byte)200, (byte)200, (byte)220, (byte)255);
-        private static readonly Color DbgMuted  = new Color((byte)90,  (byte)90,  (byte)115, (byte)255);
-
         private (Rectangle ToggleRect, Rectangle PanelRect) GetDebugMenuRects()
         {
             const float rightMargin = 40f;
@@ -884,12 +880,12 @@ namespace SSNoir.Rendering
             float btnY = 14f;
             var toggleRect = new Rectangle(btnX, btnY, btnW, btnH);
 
-            float pw = 260f;
+            float pw = 360f;
             float px = btnX + btnW - pw;
-            float py = btnY + btnH + 4f;
+            float py = btnY + btnH + 8f;
             float itemH = 26f;
             float slotsHeight = 20f + 3 * 28f + 14f;
-            float panelH = 8f + slotsHeight + _state.DropdownItems.Count * itemH + 8f;
+            float panelH = 56f + slotsHeight + _state.DropdownItems.Count * itemH + 8f;
             var panelRect = new Rectangle(px, py, pw, panelH);
 
             return (toggleRect, panelRect);
@@ -930,19 +926,15 @@ namespace SSNoir.Rendering
         {
             // ── Toggle button ─────────────────────────────────────────────
             var (toggleRect, panelRect) = GetDebugMenuRects();
-            float btnX = toggleRect.X;
-            float btnY = toggleRect.Y;
             bool isOpen = _state.IsDebugMenuOpen;
 
-            var togBg  = isOpen ? new Color((byte)45,(byte)45,(byte)80,(byte)255) : DbgBtn;
-            var togBdr = isOpen ? DbgAccent : DbgBorder;
-            bool hoverTog = ui.CanHover(toggleRect);
-            Raylib.DrawRectangleRounded(toggleRect, 0.25f, 4, hoverTog ? DbgBtnHov : togBg);
-            Raylib.DrawRectangleRoundedLinesEx(toggleRect, 0.25f, 4, 1.5f, togBdr);
-            int lblW = FontManager.MeasureTextWidth("Debug v", 13);
-            FontManager.DrawText("Debug v", btnX + (66 - lblW) / 2f, btnY + 9, 13, isOpen ? DbgAccent : DbgText);
+            var debugBtn = UiButton.Draw(toggleRect, "Debug", ui, true, 13,
+                isOpen ? TerminalPalette.AccentDark : TerminalPalette.SurfaceRaised,
+                new Color(52, 52, 82, 255), null,
+                isOpen ? TerminalPalette.Accent : TerminalPalette.Border,
+                Color.White, null, Color.White, null);
 
-            if (!ui.IsLocked && Raylib.IsMouseButtonPressed(MouseButton.Left) && hoverTog)
+            if (debugBtn.Clicked)
             {
                 _state.IsDebugMenuOpen = !isOpen;
                 if (_state.IsDebugMenuOpen)
@@ -960,12 +952,27 @@ namespace SSNoir.Rendering
             var items = _state.DropdownItems;
             float itemH = 26f;
 
-            Raylib.DrawRectangleRounded(panelRect, 0.15f, 4, DbgBg);
-            Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.15f, 4, 1.5f, DbgBorder);
+            Raylib.DrawRectangleRounded(panelRect, 0.05f, 5, TerminalPalette.Surface);
+            Raylib.DrawRectangleRoundedLinesEx(panelRect, 0.05f, 5, 1f, TerminalPalette.Border);
+
+            FontManager.DrawText("调试", px + 18f, py + 14f, 17, TerminalPalette.AccentBright);
+            FontManager.DrawText("存档管理与场景切换", px + 70f, py + 18f, 11, TerminalPalette.TextMuted);
+            var closeRect = new Rectangle(px + pw - 66f, py + 10f, 50f, 24f);
+            bool closeHover = ui.CanHover(closeRect);
+            Raylib.DrawRectangleRounded(closeRect, 0.18f, 4,
+                closeHover ? TerminalPalette.AccentDark : TerminalPalette.SurfaceRaised);
+            FontManager.DrawText("收起", closeRect.X + 13f, closeRect.Y + 7f, 10, TerminalPalette.Text);
+            if (ui.WasClicked(closeRect))
+            {
+                _state.IsDebugMenuOpen = false;
+                return;
+            }
+            Raylib.DrawLineEx(new Vector2(px + 16f, py + 44f), new Vector2(px + pw - 16f, py + 44f),
+                1f, new Color(55, 58, 70, 255));
 
             // Slots Section
-            float curY = py + 8f;
-            FontManager.DrawText("存档管理", px + 8, curY + 2f, 11, DbgMuted);
+            float curY = py + 56f;
+            FontManager.DrawText("存档管理", px + 16f, curY + 2f, 11, TerminalPalette.TextMuted);
             curY += 20f;
 
             for (int slot = 1; slot <= 3; slot++)
@@ -974,19 +981,21 @@ namespace SSNoir.Rendering
                 string saveTime = SaveManager.GetSaveTime(slotPath);
                 bool hasSave = !string.IsNullOrEmpty(saveTime);
 
-                FontManager.DrawText($"槽位 {slot}", px + 8, curY + 7f, 13, DbgText);
+                FontManager.DrawText($"槽位 {slot}", px + 16f, curY + 7f, 13, TerminalPalette.Text);
 
                 string timeStr = hasSave ? saveTime : "（空）";
-                Color timeColor = hasSave ? DbgText : DbgMuted;
-                FontManager.DrawText(timeStr, px + 52f, curY + 7f, 12, timeColor);
+                Color timeColor = hasSave ? TerminalPalette.Text : TerminalPalette.TextMuted;
+                FontManager.DrawText(timeStr, px + 64f, curY + 7f, 12, timeColor);
 
                 var rectSave = new Rectangle(px + pw - 8f - 64f, curY + 3f, 30f, 22f);
                 var rectLoad = new Rectangle(px + pw - 8f - 30f, curY + 3f, 30f, 22f);
 
                 var saveBtn = UiButton.Draw(rectSave, "存", ui, true, 12,
-                    DbgBtn, DbgBtnHov, null, DbgBorder, Color.White, null, Color.White, null);
+                    TerminalPalette.AccentDark, new Color(52, 52, 82, 255), null,
+                    TerminalPalette.Accent, Color.White, null, Color.White, null);
                 var loadBtn = UiButton.Draw(rectLoad, "读", ui, hasSave, 12,
-                    DbgBtn, DbgBtnHov, null, DbgBorder, Color.White, null, Color.White, null);
+                    TerminalPalette.AccentDark, new Color(52, 52, 82, 255), null,
+                    TerminalPalette.Accent, Color.White, null, Color.White, null);
 
                 if (saveBtn.Clicked)
                 {
@@ -1004,8 +1013,8 @@ namespace SSNoir.Rendering
 
             // Separator + "切换场景" label
             float sepY = curY + 6f;
-            Raylib.DrawLineEx(new Vector2(px + 8, sepY), new Vector2(px + pw - 8, sepY), 1f, DbgBorder);
-            FontManager.DrawText("切换场景", px + 8, sepY + 4, 11, DbgMuted);
+            Raylib.DrawLineEx(new Vector2(px + 16f, sepY), new Vector2(px + pw - 16f, sepY), 1f, TerminalPalette.Border);
+            FontManager.DrawText("切换场景", px + 16f, sepY + 4f, 11, TerminalPalette.TextMuted);
 
             // Scene list
             float listY = sepY + 4f + itemH * 0.5f;
@@ -1016,21 +1025,21 @@ namespace SSNoir.Rendering
             {
                 var item = items[i];
                 float iy = listY + i * itemH;
-                var itemRect = new Rectangle(px + 4, iy, pw - 8, itemH - 2);
+                var itemRect = new Rectangle(px + 12f, iy, pw - 24f, itemH - 2);
                 bool hover = Raylib.CheckCollisionPointRec(ui.Mouse, itemRect) && !ui.IsLocked;
 
                 if (item.IsHeader)
                 {
-                    FontManager.DrawText(item.Name, px + 10, iy + 5, 11, DbgMuted);
+                    FontManager.DrawText(item.Name, px + 18f, iy + 5f, 11, TerminalPalette.TextMuted);
                     continue;
                 }
 
                 bool isCurrent = string.Equals(item.SceneName, _sceneManager.CurrentSceneName, StringComparison.OrdinalIgnoreCase);
-                if (hover)  Raylib.DrawRectangleRounded(itemRect, 0.15f, 4, DbgBtnHov);
-                if (isCurrent) Raylib.DrawRectangle((int)px + 4, (int)iy + 2, 3, (int)itemH - 6, DbgAccent);
+                if (hover) Raylib.DrawRectangleRounded(itemRect, 0.15f, 4, TerminalPalette.SurfaceRaised);
+                if (isCurrent) Raylib.DrawRectangle((int)px + 12, (int)iy + 2, 3, (int)itemH - 6, TerminalPalette.Accent);
 
-                FontManager.DrawText(item.Name, px + 12, iy + 5, 13,
-                    isCurrent ? DbgAccent : (hover ? Color.White : DbgText));
+                FontManager.DrawText(item.Name, px + 20f, iy + 5f, 13,
+                    isCurrent ? TerminalPalette.AccentBright : (hover ? Color.White : TerminalPalette.Text));
 
                 if (mouseClick && hover && !clickHandled)
                 {
@@ -1054,7 +1063,7 @@ namespace SSNoir.Rendering
         {
             float startX = 40f;
             float cardWidth = 240f;
-            float cardHeight = 150f;
+            const float defaultCardHeight = 150f;
             float spacing = 20f;
             int cardsPerRow = Math.Max(1, (int)((WindowWidth - startX * 2 + spacing) / (cardWidth + spacing)));
             var visibleNodes = _state.VisibleNodes.ToList();
@@ -1071,10 +1080,17 @@ namespace SSNoir.Rendering
             int rowCount = totalCards == 0
                 ? 0
                 : (totalCards + cardsPerRow - 1) / cardsPerRow;
-            var rowHeights = Enumerable.Repeat(cardHeight, rowCount).ToArray();
+            var rowHeights = Enumerable.Repeat(defaultCardHeight, rowCount).ToArray();
             for (int i = 0; i < visibleNodes.Count; i++)
             {
                 var node = visibleNodes[i];
+                float nodeCardHeight = CardWidget.GetMinimumHeight(
+                    node.Subtitle,
+                    node.Tags,
+                    node.Requires,
+                    node.Resolve?.Type == ResolveType.Roll ? node.Resolve.SkillName : null,
+                    _state.DisplayedSnapshot.Actors,
+                    node.Resolve?.IgnoresStressPenalty == true);
                 if (node.Resolve?.Type != ResolveType.Roll) continue;
 
                 float attachment = 0f;
@@ -1088,7 +1104,7 @@ namespace SSNoir.Rendering
                          && previewSlots.Any(slot => slot?.Type == "die")) attachment = 64f;
 
                 int row = i / cardsPerRow;
-                rowHeights[row] = Math.Max(rowHeights[row], cardHeight + attachment);
+                rowHeights[row] = Math.Max(rowHeights[row], nodeCardHeight + attachment);
             }
 
             var rowOffsets = new float[rowCount];
@@ -1128,7 +1144,22 @@ namespace SSNoir.Rendering
                     continue;
                 }
 
-                var bounds = new Rectangle(x, y, cardWidth, cardHeight);
+                float nodeCardHeight = defaultCardHeight;
+                if (i < visibleNodes.Count)
+                {
+                    var cardNode = visibleNodes[i];
+                    string? rollSkill = cardNode.Resolve is { Type: ResolveType.Roll } resolve
+                        ? resolve.SkillName
+                        : null;
+                    nodeCardHeight = CardWidget.GetMinimumHeight(
+                        cardNode.Subtitle,
+                        cardNode.Tags,
+                        cardNode.Requires,
+                        rollSkill,
+                        _state.DisplayedSnapshot.Actors,
+                        cardNode.Resolve?.IgnoresStressPenalty == true);
+                }
+                var bounds = new Rectangle(x, y, cardWidth, nodeCardHeight);
                 bool isHovered = ui.CanHover(bounds);
 
                 if (i >= visibleNodes.Count)

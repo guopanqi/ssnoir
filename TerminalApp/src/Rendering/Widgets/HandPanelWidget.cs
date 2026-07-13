@@ -68,6 +68,8 @@ namespace SSNoir.Rendering
             const float vitalsW = 190f;
             DrawVital(area.X, area.Y + 27f, 184f, "健康", snapshot.Health, snapshot.MaxHealth, 0.75f, 0.40f);
             DrawVital(area.X, area.Y + 49f, 184f, "饱腹", snapshot.Satiety, snapshot.MaxSatiety, 0.65f, 0.30f);
+            if (snapshot.Health <= TeamState.HealthPenaltyThreshold)
+                FontManager.DrawText("健康 · 你几乎起不来床 −1颗骰", area.X, area.Y + 71f, 9, SealRed);
             Raylib.DrawLineEx(new System.Numerics.Vector2(area.X + vitalsW, area.Y + 22f),
                 new System.Numerics.Vector2(area.X + vitalsW, area.Y + area.Height - 4f),
                 1f, new Color(58, 62, 78, 150));

@@ -56,16 +56,25 @@ namespace SSNoir.IMGUI
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
         }
 
-        // 关系档位配色（序号 0..4 对应 RelationScale.BandNames：敌视/冷淡/中立/脸熟/自己人）。
-        // 沉着版：敌视=印章红，冷淡=陶红，中立=纸白次级，脸熟=赭黄，自己人=苔绿。
+        // 声望档位配色（序号 0..5 对应 RelationScale.BandNames：敌视/冷淡/中立/相识/信任/核心）。
+        // 沉着版：敌视=印章红，冷淡=陶红，中立=纸白次级，正面三档赭黄→中间→苔绿逐级抬亮。
         private static readonly Color[] RelationBandColors =
         {
             IMGUIStyles.SealRed,                                                       // 敌视
             IMGUIStyles.OddsFail,                                                      // 冷淡
             new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.60f), // 中立
-            IMGUIStyles.OddsNeutral,                                                   // 脸熟
-            IMGUIStyles.OddsSuccess,                                                   // 自己人
+            IMGUIStyles.OddsNeutral,                                                   // 相识
+            Color.Lerp(IMGUIStyles.OddsNeutral, IMGUIStyles.OddsSuccess, 0.5f),        // 信任
+            IMGUIStyles.OddsSuccess,                                                   // 核心
         };
+
+        // 某势力在指定档位序号上的显示名：正面三档取内容层定制称呼，其余用通用档名。
+        private static string BandDisplay(PresentationSnapshot snapshot, string faction, int band)
+        {
+            if (band < 3) return RelationScale.BandNames[band];
+            string tier = RelationScale.PositiveTiers[band - 3];
+            return snapshot.RelationBandNames.TryGetValue($"{faction}:{tier}", out string name) ? name : tier;
+        }
 
         private static bool _relationExpanded;
         public static bool IsRelationExpanded => _relationExpanded;
@@ -107,11 +116,11 @@ namespace SSNoir.IMGUI
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f));
 
             var title = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleLeft, fontSize = SF(20) };
-            GUI.Label(new Rect(panel.x + 18f, panel.y + 12f, 130f, 28f), "城市关系", title);
+            GUI.Label(new Rect(panel.x + 18f, panel.y + 12f, 130f, 28f), "城市声望", title);
             var note = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = SF(11) };
             note.normal.textColor = IMGUIStyles.TextSecondary;
             GUI.Label(new Rect(panel.x + 140f, panel.y + 15f, panel.width - 160f, 24f),
-                "关系到达标记位置时，开放对应的工作、行动与援助", note);
+                "声望每上一档，打开这条路线专属的营生、人脉与门路", note);
 
             for (int i = 0; i < Factions.Length; i++)
                 DrawFactionProgress(snapshot, Factions[i],
@@ -144,7 +153,7 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(rect.x + 12f, rect.y + 6f, 55f, 24f), faction, factionStyle);
             var bandStyle = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = SF(12) };
             bandStyle.normal.textColor = active;
-            GUI.Label(new Rect(rect.x + 68f, rect.y + 7f, 100f, 22f), $"{RelationScale.BandNames[band]}  {value}", bandStyle);
+            GUI.Label(new Rect(rect.x + 68f, rect.y + 7f, 100f, 22f), $"{BandDisplay(snapshot, faction, band)}  {value}", bandStyle);
 
             float trackX = rect.x + 160f, trackY = rect.y + 20f, trackW = rect.width - 180f;
             const int pointCount = RelationScale.Max - RelationScale.Min + 1;
@@ -166,14 +175,17 @@ namespace SSNoir.IMGUI
             GUI.DrawTexture(new Rect(currentX - 4f, trackY - 4f, 8f, 8f), Texture2D.whiteTexture);
             GUI.color = Color.white;
 
-            float chipW = (rect.width - 32f) / 2f;
-            DrawUnlock(snapshot, faction, "脸熟", 3, value,
-                new Rect(rect.x + 12f, rect.y + 41f, chipW, 49f), trackX, trackY, trackW);
-            DrawUnlock(snapshot, faction, "自己人", 6, value,
-                new Rect(rect.x + 20f + chipW, rect.y + 41f, chipW, 49f), trackX, trackY, trackW);
+            const float chipGap = 6f;
+            float chipW = (rect.width - 24f - chipGap * 2f) / 3f;
+            for (int t = 0; t < RelationScale.PositiveTiers.Length; t++)
+            {
+                var chip = new Rect(rect.x + 12f + t * (chipW + chipGap), rect.y + 41f, chipW, 49f);
+                DrawUnlock(snapshot, faction, RelationScale.PositiveTiers[t],
+                    RelationScale.PositiveThresholds[t], value, chip, trackX, trackY, trackW);
+            }
         }
 
-        private static void DrawUnlock(PresentationSnapshot snapshot, string faction, string band, int threshold,
+        private static void DrawUnlock(PresentationSnapshot snapshot, string faction, string tier, int threshold,
             int value, Rect chip, float trackX, float trackY, float trackW)
         {
             bool unlocked = value >= threshold;
@@ -191,9 +203,10 @@ namespace SSNoir.IMGUI
 
             var head = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = SF(11) };
             head.normal.textColor = color;
+            string name = snapshot.RelationBandNames.TryGetValue($"{faction}:{tier}", out string disp) ? disp : tier;
             string state = unlocked ? "已解锁" : $"还差 {Mathf.Max(0, threshold - value)}";
             GUI.Label(new Rect(chip.x + 8f, chip.y + 4f, chip.width - 16f, 18f),
-                $"{band}  +{threshold}  ·  {state}", head);
+                $"{name}  +{threshold}  ·  {state}", head);
             var body = new GUIStyle(IMGUIStyles.StatusLabel)
             {
                 alignment = TextAnchor.MiddleLeft,
@@ -201,8 +214,7 @@ namespace SSNoir.IMGUI
                 clipping = TextClipping.Clip
             };
             body.normal.textColor = IMGUIStyles.TextSecondary;
-            string key = $"{faction}:{band}";
-            string unlock = snapshot.RelationUnlocks.TryGetValue(key, out string configured)
+            string unlock = snapshot.RelationUnlocks.TryGetValue($"{faction}:{tier}", out string configured)
                 ? configured : "当前无新增动作";
             GUI.Label(new Rect(chip.x + 8f, chip.y + 23f, chip.width - 16f, 20f), unlock, body);
         }
