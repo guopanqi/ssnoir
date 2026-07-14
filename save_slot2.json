@@ -1,41 +1,59 @@
 {
-  "saveTime": "2026-07-12 17:12:30",
+  "saveTime": "2026-07-14 12:49:09",
   "globals": {
     "chapter": 0,
-    "relation:官僚": 0,
-    "relation:劳工": 0,
+    "relation:官僚": 2,
+    "relation:劳工": 6,
     "relation:富商": 0,
-    "资产": "低",
-    "laozhou-favor": 0,
-    "laozhou-can-help": false,
-    "relation-goal:官僚:脸熟": "陪探长走访；申请巡警照看酒馆",
-    "relation-goal:官僚:自己人": "当前 Demo 暂无新增动作",
-    "relation-goal:劳工:脸熟": "替工头记账；帮老周查账；请码头兄弟看场",
-    "relation-goal:劳工:自己人": "走私；交锋中召集码头兄弟",
-    "relation-goal:富商:脸熟": "应酬货运代理；出售私货；代理人项目",
-    "relation-goal:富商:自己人": "当前 Demo 暂无新增动作",
+    "资产": "中",
+    "laozhou-favor": 6,
+    "laozhou-can-help": true,
+    "relation-band-name:官僚:相识": "挂号",
+    "relation-band-name:官僚:信任": "备案",
+    "relation-band-name:官僚:核心": "有里子",
+    "relation-goal:官僚:相识": "陪探长走访取证",
+    "relation-goal:官僚:信任": "引荐书记员·缩短通行证冷却 (未实现)",
+    "relation-goal:官僚:核心": "抹去一次案底·引荐市长秘书 (未实现)",
+    "relation-band-name:劳工:相识": "面熟",
+    "relation-band-name:劳工:信任": "够朋友",
+    "relation-band-name:劳工:核心": "拜过码头",
+    "relation-goal:劳工:相识": "码头熟手活：替工头记账",
+    "relation-goal:劳工:信任": "码头走私门路（私货来源）",
+    "relation-goal:劳工:核心": "交锋召集兄弟看场·地下酒吧 (未实现)",
+    "relation-band-name:富商:相识": "有往来",
+    "relation-band-name:富商:信任": "座上宾",
+    "relation-band-name:富商:核心": "合伙人",
+    "relation-goal:富商:相识": "私货高价销路·陪代理谈投资",
+    "relation-goal:富商:信任": "花店/夜总会的圈子 (未实现)",
+    "relation-goal:富商:核心": "引荐博士·实验室科技线 (未实现)",
     "夜莺阶段": 2,
-    "夜莺状态等级": 0,
-    "夜莺状态": "稳定",
-    "夜莺查访进度": 4,
+    "夜莺状态等级": 1,
+    "夜莺状态": "不安",
+    "夜莺查访进度": 0,
     "夜莺查访目标": 4,
-    "夜莺主动上门": true,
-    "夜莺保护方案": "无",
-    "夜莺已打听": true,
-    "bout-idx": 0,
+    "夜莺主动上门": false,
+    "夜莺保护方案": "警局",
+    "夜莺二层已揭": true,
+    "夜莺已打听": false,
+    "夜莺真相": false,
+    "夜莺已送走": false,
+    "夜莺已付封口": false,
+    "夜莺已立案": false,
+    "夜莺已移交": false,
+    "bout-idx": 1,
     "夜莺已先离场": false
   },
   "team": {
     "health": 2,
-    "satiety": 3,
-    "growthLevel": 1,
+    "satiety": 2,
+    "growthLevel": 3,
     "actors": [
       {
         "id": "player",
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "stress": 3,
+        "stress": 0,
         "spentGrowthPoints": 0,
         "stats": {
           "violence": 0,
@@ -47,17 +65,18 @@
     ]
   },
   "inventory": {
-    "金钱": 5,
-    "情报": 1,
-    "食物": 2,
+    "金钱": 75,
+    "情报": 0,
+    "食物": 0,
     "药品": 1,
     "枪": 1,
-    "酒": 0
+    "酒": 0,
+    "把柄": 0
   },
   "worldData": [
     [
       "day",
-      1
+      10
     ],
     [
       "public-event-count",
@@ -65,7 +84,7 @@
     ],
     [
       "public-event-pending?",
-      false
+      true
     ],
     [
       "public-event-delay-used?",
@@ -73,14 +92,14 @@
     ],
     [
       "next-public-event",
-      0
+      6
     ],
     [
       "home",
       [
         [
           "residence",
-          "旅馆"
+          "公寓"
         ],
         [
           "has-flower?",
@@ -100,11 +119,11 @@
         ],
         [
           "rent-due",
-          6
+          1
         ],
         [
           "rent-due-max",
-          6
+          3
         ],
         [
           "evicted?",
@@ -117,15 +136,46 @@
       [
         [
           "laozhou-favor",
-          0
+          6
         ],
         [
           "laozhou-stage",
-          0
+          2
         ],
         [
           "cushy-available?",
           false
+        ],
+        [
+          "laozhou-injured?",
+          true
+        ],
+        [
+          "laozhou-injury-done?",
+          false
+        ],
+        [
+          "laozhou-recruit-lost?",
+          false
+        ],
+        [
+          "injury-days",
+          5
+        ],
+        [
+          "care-progress",
+          0
+        ],
+        [
+          "cared-today?",
+          false
+        ],
+        [
+          "dock-trouble",
+          [
+            false,
+            0
+          ]
         ]
       ]
     ],
@@ -151,28 +201,76 @@
         ],
         [
           "condition-level",
-          0
+          1
         ],
         [
           "beat1-progress",
-          4
+          0
         ],
         [
           "beat1-early?",
-          true
+          false
         ],
         [
           "protection",
-          "无"
+          "警局"
         ],
         [
           "installment-paid?",
           false
         ],
         [
+          "dock-guard",
+          0
+        ],
+        [
+          "truth-progress",
+          0
+        ],
+        [
+          "berth?",
+          false
+        ],
+        [
+          "farewell?",
+          false
+        ],
+        [
+          "hush-paid?",
+          false
+        ],
+        [
+          "case-filed?",
+          false
+        ],
+        [
+          "surrendered?",
+          false
+        ],
+        [
+          "detective-stage",
+          0
+        ],
+        [
+          "detective-evidence",
+          "无"
+        ],
+        [
+          "ending-day",
+          0
+        ],
+        [
+          "stage3-start-day",
+          0
+        ],
+        [
+          "nightingale-earnings",
+          0
+        ],
+        [
           "scene-flags",
           [
-            "已打听"
+            "二层已揭"
           ]
         ]
       ]
@@ -194,11 +292,22 @@
       [
         [
           "detective-stage",
-          0
+          2
         ],
         [
           "pass-cooldown",
           0
+        ],
+        [
+          "pass-cooldown-current-max",
+          3
+        ],
+        [
+          "police-trouble",
+          [
+            false,
+            0
+          ]
         ]
       ]
     ],
@@ -220,6 +329,13 @@
         [
           "investment-days",
           0
+        ],
+        [
+          "company-trouble",
+          [
+            false,
+            0
+          ]
         ]
       ]
     ],
@@ -234,7 +350,7 @@
               2
             ],
             [
-              "帮人寻物",
+              "代查一笔账",
               2
             ]
           ]
