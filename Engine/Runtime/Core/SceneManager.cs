@@ -286,12 +286,15 @@ namespace SSNoir.Core
                 ["富商"] = _gameState.Get<int>("relation:富商"),
             };
             var relationUnlocks = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var relationBandNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (string faction in relations.Keys)
             {
-                foreach (string band in new[] { "脸熟", "自己人" })
+                foreach (string tier in RelationScale.PositiveTiers)
                 {
-                    relationUnlocks[$"{faction}:{band}"] =
-                        _gameState.Get<string>($"relation-goal:{faction}:{band}", "当前无新增动作");
+                    relationUnlocks[$"{faction}:{tier}"] =
+                        _gameState.Get<string>($"relation-goal:{faction}:{tier}", "当前无新增动作");
+                    relationBandNames[$"{faction}:{tier}"] =
+                        _gameState.Get<string>($"relation-band-name:{faction}:{tier}", tier);
                 }
             }
 
@@ -323,6 +326,7 @@ namespace SSNoir.Core
                 Inventory = inventory,
                 Relations = relations,
                 RelationUnlocks = relationUnlocks,
+                RelationBandNames = relationBandNames,
                 Actors = actors,
             };
         }

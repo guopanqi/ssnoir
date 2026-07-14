@@ -76,12 +76,12 @@
         (action-with-clocks id
           (list (req-die))
           (roll skill
-            (outcome "没办成" "机会过去了，只留下这一趟的疲惫。"
+            (outcome "没办成" "机会从指缝里溜了，只剩这一趟的两腿酸痛。"
               (lambda () (complete-mission! id fail-effect)))
-            (outcome "勉强交差" "事情办得不算漂亮，委托人还是付了一部分报酬。"
+            (outcome "勉强交差" "活儿办得不算漂亮，委托人还是数出了一半报酬。"
               (lambda ()
                 (complete-mission! id (lambda () (add-item! "金钱" neutral-pay)))))
-            (outcome "办得漂亮" "委托人很满意，当场付清了报酬。"
+            (outcome "办得漂亮" "委托人挑不出毛病，当场把钱拍在了你手上。"
               (lambda ()
                 (complete-mission! id (lambda () (add-item! "金钱" good-pay))))))
           (mission-clocks entry))))
@@ -93,7 +93,7 @@
         :disabled (< (item-count "药品") 1)
         :requires (list (req-item "药品" 1))
         :resolve (instant
-          (outcome "药送到了" "病人家属收下药，老街的人也记住了这份人情。"
+          (outcome "药送到了" "病人家属攥着药，眼眶发红说不出话；老街的人把这份人情记下了。"
             (lambda ()
               (complete-mission! "有人需要药"
                 (lambda ()
@@ -120,7 +120,7 @@
         :subtitle "花掉一条消息，立刻找出一张额外的临时委托"
         :requires (list (req-item "情报" 1))
         :resolve (instant
-          (outcome "问到新门路" "角落里的人压低声音，告诉你一件刚刚冒出来的差事。"
+          (outcome "问到新门路" "角落里的人压低声音，往你耳边递了一件刚冒头的差事。"
             (lambda ()
               (if (not (add-random-mission!))
                   (error "布告栏：没有可追加的委托模板")

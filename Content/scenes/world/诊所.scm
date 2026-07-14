@@ -4,19 +4,32 @@
 (define clinic
   (let ()
 
+    ;; 官僚敌视时诊所涨价（约 +50%），但绝不拒诊——治病是唯一手段，没有替代路径，
+    ;; 关系再差也不能把它彻底禁掉，最多让它变贵。
+    (define (hostile-markup base)
+      (if (equal? (relation-band "官僚") '敌视)
+          (+ base (quotient base 2))
+          base))
+
     (define (node-buy-medicine)
-      (action "买药品"
-        (list (req-item "金钱" 25))
-        (instant (lambda ()
-                   (add-item! "药品" 1)
-                   (notify! "买了一份药，揣进兜里。")))))
+      (node "买药品"
+        :subtitle (if (equal? (relation-band "官僚") '敌视)
+                      "医生知道你现在不受待见，这份药比平时贵一截"
+                      "")
+        :requires (list (req-item "金钱" (hostile-markup 25)))
+        :resolve (instant
+          (outcome "抓了一份药" "抓了一份药，揣进兜里，留着熬不住的时候。"
+            (lambda () (add-item! "药品" 1))))))
 
     ;; 比买药省钱，但要投入一颗骰子，并且恢复量更低。
     (define (node-rehabilitation)
-      (action "康复训练"
-        (list (req-die) (req-item "金钱" 15))
-        (instant
-          (outcome "完成训练" "医生带着你活动伤处，一点点找回力气。"
+      (node "康复训练"
+        :subtitle (if (equal? (relation-band "官僚") '敌视)
+                      "医生知道你现在不受待见，这份诊金比平时贵一截"
+                      "")
+        :requires (list (req-die) (req-item "金钱" (hostile-markup 15)))
+        :resolve (instant
+          (outcome "完成训练" "医生按着你活动伤处，疼得龇牙，力气却一点点找了回来。"
             (lambda () (heal-party! 2))))))
 
     (lambda args

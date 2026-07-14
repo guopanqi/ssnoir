@@ -37,7 +37,7 @@ namespace SSNoir.Core
             Inventory.SetCount("酒", 0);
 
             // Initialize Team
-            Team.Health = 8;
+            Team.Health = 5;
             Team.Satiety = 3;
 
             var rand = GameRandom.Instance;

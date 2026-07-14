@@ -44,11 +44,11 @@
 (define pass-intervention? #f)
 
 (define (finish-success!)
-  (spotlight! "抢人：挡住" "他们又退了。这一次砸碎了灯,也砸碎了退路。")
+  (spotlight! "抢人：挡住" "他们又退了。这一回砸碎的是灯,连带砸碎了他们回头的底气。")
   (end-encounter 'success))
 
 (define (finish-fail!)
-  (spotlight! "抢人：失守" "他们拖走了她。你追出去时,只看见马车尾灯消失在雨里。")
+  (spotlight! "抢人：失守" "他们把她拖走了。你追出巷口时,只赶上马车的尾灯没进雨幕。")
   (end-encounter 'fail))
 
 ;; ── 压力：每回合按在场打手数递进 ──────────────────
@@ -139,7 +139,7 @@
 
 (define (extra-nodes)
   (append
-    (if (and (relation-at-least? "劳工" '自己人) (not crew-used?)) (list (node-call-crew)) '())
+    (if (and (relation-at-least? "劳工" '核心) (not crew-used?)) (list (node-call-crew)) '())
     (if (and (> (item-count "办案通行证") 0) (not pass-used?)) (list (node-use-pass)) '())
     (if (and (>= (item-count "金钱") 30) (not bribe-used?)) (list (node-bribe)) '())
     (if (and laozhou-help? (not laozhou-used?)) (list (node-laozhou-ally)) '())))

@@ -34,12 +34,36 @@
                        (lambda () (set-growth-level! (+ (growth-level) 1))))))
                  (container "调试-码头"
                    (list
-                     (instant-action "劳工→脸熟"   (lambda () (set-global! "relation:劳工" 3)))
-                     (instant-action "劳工→自己人" (lambda () (set-global! "relation:劳工" 6)))
-                     (instant-action "官僚→脸熟"   (lambda () (set-global! "relation:官僚" 3)))
+                     (instant-action "劳工→面熟"     (lambda () (set-global! "relation:劳工" 2)))
+                     (instant-action "劳工→够朋友"   (lambda () (set-global! "relation:劳工" 4)))
+                     (instant-action "劳工→拜过码头" (lambda () (set-global! "relation:劳工" 6)))
+                     (instant-action "官僚→挂号"     (lambda () (set-global! "relation:官僚" 2)))
+                     (instant-action "富商→有往来"   (lambda () (set-global! "relation:富商" 2)))
                      (instant-action "老周好感 +2" (lambda () (dock 'debug-favor)))
                      (instant-action "强制刷新老周美差" (lambda () (dock 'debug-cushy)))
-                     (instant-action "直接触发公共交锋" (lambda () (debug-trigger-public-event!)))))))))
+                     (instant-action "直接触发公共交锋" (lambda () (debug-trigger-public-event!)))))
+                 (container "调试-老周养伤"
+                   (list
+                     (instant-action "触发老周受伤" (lambda () (dock 'debug-trigger-injury!)))
+                     (instant-action "养伤进度设为 +6(痊愈)" (lambda () (dock 'debug-set-care! 6)))
+                     (instant-action "养伤进度设为 +2(留伤)" (lambda () (dock 'debug-set-care! 2)))
+                     (instant-action "养伤进度设为 -4(没保住)" (lambda () (dock 'debug-set-care! -4)))
+                     (instant-action "立即结算养伤" (lambda () (dock 'debug-finish-injury!)))))
+                 (container "调试-夜莺节拍三"
+                   (list
+                     (instant-action "拨到节拍三(已查明真相)"
+                       (lambda ()
+                         (nightingale 'debug-stage! 3)
+                         (nightingale 'debug-set-flag! '三层已揭)
+                         (nightingale 'debug-set-truth! 4)
+                         (nightingale 'debug-set-flag! '撒谎的人)
+                         (nightingale 'sync-blockers!)))
+                     (instant-action "拨到节拍三(未查真相)"
+                       (lambda ()
+                         (nightingale 'debug-stage! 3)
+                         (nightingale 'debug-set-flag! '三层已揭)
+                         (nightingale 'sync-blockers!)))
+                     (instant-action "+500 金钱(测试封口/舱位)" (lambda () (add-item! "金钱" 500)))))))))
 
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)

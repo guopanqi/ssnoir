@@ -69,7 +69,7 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__set-party-satiety!"));
 
-            // 势力关系档位：读 relation:<faction> 的当前整数值，按 RelationScale 折算成档位序号（0..4）。
+            // 声望档位：读 relation:<faction> 的当前整数值，按 RelationScale 折算成档位序号（0..5）。
             interpreter.DefineGlobal(Symbol.FromString("__relation-band-index"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("__relation-band-index requires 1 argument: faction");

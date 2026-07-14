@@ -6,7 +6,7 @@
   本目录不再保留上游 README,只保留下面三块:工作约定、能力总览、改动记录。
 - 目的:为 SSNoir(及未来项目)提供一个独立、Unity 友好的 C# Scheme 库;
   **库本身不含 SSNoir 概念**,SSNoir 只是使用者。
-- 写 SSNoir 脚本的人看 [../SCHEMY.md](../SCHEMY.md);本文件是底层解释器的事实来源。
+- 写 SSNoir 脚本的人看 [../SCRIPTING.md](../SCRIPTING.md);本文件是底层解释器的事实来源。
 
 ---
 

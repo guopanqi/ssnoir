@@ -1,29 +1,53 @@
-;; scenes/encounters/夜莺·了断.scm - 夜莺委托线·第三场
+;; scenes/encounters/夜莺·了断.scm - 夜莺委托线·终场
+;; 两阶段合同：第一幕谈判桌(不走钟，为第二幕挣修正)→ 第二幕摊牌(打手赛跑)。
+;; 路线一(封口)/四(立案)/五(坐视)在城市侧结算，不进本场；本场只服务
+;; 路线二(保底，标准变体)与路线三败(她已上船，无人变体)。
 ;; 对外契约:以 (end-encounter 'success) 或 (end-encounter 'fail) 结束。
 
 ;; ── 读镜像 ───────────────────────────────────────
-(define nightingale-condition (let ((v (get-global '夜莺状态等级))) (if v v 0)))
-(define nightingale-protection (let ((v (get-global '夜莺保护方案))) (if v v "无")))
-(define installment-paid? (let ((v (get-global '夜莺已付首期))) (if v v #f)))
-(define ransom-due (if installment-paid? 90 150))
-(define crew-threshold (if (equal? nightingale-protection "码头") '脸熟 '自己人))
-
-;; ── 核心时钟 ────────────────────────────────────
-(define resolve-clk
-  (make-clock "做个了断" 6 'segments
-              "填满即可让这笔账一笔勾销。"))
-
-(define press-clk
-  (let ((base-max 5))
-    (make-clock "收账人施压"
-                (if (>= nightingale-condition 2) (- base-max 1) base-max)
-                'segments
-                "失手,她会被带走。")))
+(define departed? (let ((v (get-global '夜莺已送走))) (if v v #f)))
+(define exposed? (let ((v (get-global '夜莺夹带暴露))) (if v v #f)))
+(define safety (let ((v (get-global '夜莺状态等级))) (if v v 0)))
+(define crew-threshold
+  (if (equal? (let ((p (get-global '夜莺保护方案))) (if p p "无")) "码头") '相识 '核心))
 
 (define (clock-tick-n! clock n)
   (if (> n 0)
       (begin (clock 'tick!) (clock-tick-n! clock (- n 1)))
       #f))
+
+;; ── 幕次状态 ─────────────────────────────────────
+(define phase 1)
+(define leverage? #f)      ; 第一幕谈出余地：他心虚了，第二幕失败钟上限 +1
+(define ledger-used? #f)
+(define pass-intervention? #f)
+
+;; ── 第一幕：谈判桌（不走钟）────────────────────────
+(define leverage-clk
+  (make-clock "谈出余地" 4 'segments "他心虚了：第二幕失败钟上限 +1（这笔账经不起吵）。"))
+
+(define collapse-clk
+  (make-clock "谈崩" 4 'segments "谈崩即入第二幕，没有修正。"))
+
+;; ── 第二幕：摊牌（打手赛跑，进幕时才创建，好读取第一幕的 leverage? 结果）──
+(define resolve-clk #f)
+(define press-clk #f)
+
+(define (press-clk-title) (if departed? "他们要你付出代价" "他们要带她走"))
+(define (press-clk-max)
+  (+ 5
+     (if leverage? 1 0)
+     (if (and (not departed?) (>= safety 2)) -1 0)))
+
+(define (enter-phase-2!)
+  (set! resolve-clk (make-clock "压住场子" 6 'segments "填满即可把这一架压下去。"))
+  (set! press-clk
+        (make-clock (press-clk-title) (press-clk-max) 'segments
+                    (if departed?
+                        "填满后，你独自扛下代价——她已经安全。"
+                        "填满后，她会被带走。")))
+  (if (and departed? exposed?) (press-clk 'tick!) #f)
+  (set! phase 2))
 
 ;; ── 敌人单位 ─────────────────────────────────────
 (define thug-seq 0)
@@ -34,6 +58,7 @@
     (lambda (msg)
       (cond
         ((equal? msg 'dead?) (<= hp 0))
+        ((equal? msg 'retire!) (set! hp 0))
         ((equal? msg 'render-data)
          (container-with-clocks (string-append "打手 " (number->string id))
            (list
@@ -51,56 +76,116 @@
 (define (live-thugs)
   (filter (lambda (e) (not (e 'dead?))) thugs))
 
-(define pass-intervention? #f)
+(define (retreat-press! n)
+  (press-clk 'set! (max 0 (- (press-clk 'current) n))))
 
+;; ── 结算 ─────────────────────────────────────────
 (define (finish-success!)
-  (spotlight! "了断：自由" "收账人退了。雨停后,她第一次唱完整的一场。")
+  (spotlight! "了断：自由" "收账人收了手。雨停下来那晚,她头一回把一整场唱完。")
   (end-encounter 'success))
 
 (define (finish-fail!)
-  (spotlight! "了断：她跟他们走了" "她自己走出去,换你一条命。门在她身后关上。")
+  (if departed?
+      (begin
+        (damage-party! 2)
+        (spend-up-to! "金钱" (quotient (item-count "金钱") 2))
+        (spotlight! "了断：你扛下了" "打完最后一拳,你自己爬起来。她已经安全,这笔账,记在你身上。"))
+      (begin
+        (damage-party! 1)
+        (spotlight! "了断：她跟他们走了" "她自己迈出门去,拿一条命换你一条命。门在她身后合上,没再开。")))
   (end-encounter 'fail))
 
-;; ── 压力：每回合按在场打手数递进 ──────────────────
+;; ── 第一幕推进与胜负 ─────────────────────────────
+(define-rule "谈出余地"
+  (lambda () (and (= phase 1) (leverage-clk 'full?)))
+  (lambda ()
+    (set! leverage? #t)
+    (spotlight! "他心虚了" "这笔账,他自己也知道经不起吵。")
+    (enter-phase-2!)))
+
+(define-rule "谈崩"
+  (lambda () (and (= phase 1) (collapse-clk 'full?)))
+  (lambda ()
+    (spotlight! "谈崩了" "他把椅子推开,站起身。'废话说完了?'")
+    (enter-phase-2!)))
+
+;; ── 第二幕推进与胜负 ─────────────────────────────
 (define-turn-rule "对方逼近"
-  (lambda () #t)
+  (lambda () (= phase 2))
   (lambda ()
     (if pass-intervention?
         (set! pass-intervention? #f)
         (clock-tick-n! press-clk (length (live-thugs))))
     (if (press-clk 'full?)
-        (begin
-          (damage-party! 1)
-          (finish-fail!))
+        (finish-fail!)
         #f)))
 
-;; ── 胜负规则 ─────────────────────────────────────
 (define-rule "了断成功"
-  (lambda () (resolve-clk 'full?))
+  (lambda () (and (= phase 2) (resolve-clk 'full?)))
   (lambda () (finish-success!)))
 
 (define-rule "了断失败"
-  (lambda () (press-clk 'full?))
-  (lambda ()
-    (damage-party! 1)
-    (finish-fail!)))
+  (lambda () (and (= phase 2) (press-clk 'full?)))
+  (lambda () (finish-fail!)))
 
-;; ── 非动手目标线 ─────────────────────────────────
-(define (node-see-through)
-  (action "看破底牌"
-    (list (req-die))
-    (roll 'sharpness
-      (lambda () (press-clk 'tick!))
-      (lambda () (resolve-clk 'tick!))
-      (lambda () (clock-tick-n! resolve-clk 2)))))
-
-(define (node-talk)
-  (action "谈条件"
+;; ── 第一幕：谈判动词 ──────────────────────────────
+(define (node-bargain)
+  (action "跟他谈价"
     (list (req-die))
     (roll 'social
-      (lambda () (press-clk 'tick!) (stress-current-actor! 1))
-      (lambda () (resolve-clk 'tick!))
-      (lambda () (clock-tick-n! resolve-clk 2)))))
+      (lambda () (collapse-clk 'tick!))
+      (lambda () (leverage-clk 'tick!))
+      (lambda () (clock-tick-n! leverage-clk 2)))))
+
+(define (node-see-through-motive)
+  (action "看破他的心事"
+    (list (req-die))
+    (roll 'sharpness
+      (lambda () (collapse-clk 'tick!))
+      (lambda () (leverage-clk 'tick!))
+      (lambda ()
+        (clock-tick-n! leverage-clk 2)
+        (spotlight! "他的心事" "死的那个人,是他一手带大的表弟。这笔账,他比谁都记得清楚。")))))
+
+(define (node-expose-ledger)
+  (action "点破这笔账见不得光"
+    (list (req-die))
+    (roll 'social
+      (lambda () (set! ledger-used? #t) (clock-tick-n! leverage-clk 1))
+      (lambda () (set! ledger-used? #t) (clock-tick-n! leverage-clk 2))
+      (lambda ()
+        (set! ledger-used? #t)
+        (clock-tick-n! leverage-clk 2)
+        (collapse-clk 'set! (max 0 (- (collapse-clk 'current) 1)))))))
+
+(define (node-flip-table)
+  (action "掀桌" #f
+    (instant (lambda () (enter-phase-2!)))))
+
+(define (phase1-nodes)
+  (append
+    (list (node-bargain) (node-see-through-motive))
+    (if (and (> (item-count "欠账凭据") 0) (not ledger-used?))
+        (list (node-expose-ledger))
+        '())
+    (list (node-flip-table))))
+
+;; ── 第二幕：攻防动词(沿用抢人场攻防组) ─────────────
+(define (node-hold-door)
+  (action "抵住前门"
+    (list (req-die))
+    (roll 'violence
+      (lambda () (stress-current-actor! 1))
+      (lambda () (retreat-press! 1))
+      (lambda () (retreat-press! 2)))))
+
+(define (node-shout-down)
+  (action "冲他们吼"
+    (list (req-die))
+    (roll 'social
+      (lambda () (press-clk 'tick!))
+      (lambda () (retreat-press! 1))
+      (lambda () (set! pass-intervention? #t)))))
 
 (define (node-loot)
   (action "趁乱摸点东西"
@@ -110,43 +195,36 @@
       (lambda () (add-item! "金钱" 8))
       (lambda () (add-item! "金钱" 8) (add-item! "情报" 1)))))
 
-;; ── 活法解锁的额外动作 ───────────────────────────
+;; ── 她的在场文本 ─────────────────────────────────
+(define (node-her-presence)
+  (cond
+    (departed?
+     (observe-action "空座位" "她的位置空着,只留下一只箱子——她已经在船上。"))
+    ((>= safety 2)
+     (observe-action "她不在场" "她伤着,没有露面。"))
+    (else
+     (observe-action "她在场" "她递给你一样东西,不多说话,只是不肯躲远。"))))
+
+;; ── 场内增益(读现有 global,各一次性,不是出口) ─────
 (define crew-used? #f)
 (define pass-used? #f)
 (define laozhou-used? #f)
 (define laozhou-help?
   (let ((v (get-global 'laozhou-can-help))) (if v v #f)))
 
-(define (node-pay-ransom)
-  (node "付清赎身钱"
-    :subtitle (if installment-paid?
-                  (string-append "首期他们认了账,尾款只要 " (number->string ransom-due))
-                  (string-append "交清 " (number->string ransom-due) " 金,买一个人的自由"))
-    :requires (list (req-item "金钱" ransom-due))
-    :resolve (instant
-      (outcome "钱买的不是道具"
-        (if installment-paid?
-            "尾款拍在桌上。首期他们认过账,这一次买断的是剩下的自由。"
-            "你把赎身钱拍在桌上。这一回,钱买的是一个人的自由。")
-        (lambda () (finish-success!))
-        'light))))
-
 (define (node-call-crew)
-  (node "码头兄弟到场"
-    :subtitle (if (equal? nightingale-protection "码头")
-                  "他们看过一次场,认这件事"
-                  "码头的自己人,替你扛一轮")
-    :requires (list (req-die))
-    :resolve (instant (lambda () (set! crew-used? #t) (clock-tick-n! resolve-clk 2)))))
+  (action "码头兄弟到场"
+    (list (req-die))
+    (instant (lambda ()
+      (set! crew-used? #t)
+      (let ((remaining (live-thugs)))
+        (if (not (null? remaining)) ((car remaining) 'retire!) #f))
+      (retreat-press! 1)))))
 
 (define (node-use-pass)
   (action "程序干预"
     (list (req-item "办案通行证" 1))
-    (instant
-      (lambda ()
-        (set! pass-used? #t)
-        (set! pass-intervention? #t)
-        (press-clk 'set! (max 0 (- (press-clk 'current) 2)))))))
+    (instant (lambda () (set! pass-used? #t) (set! pass-intervention? #t)))))
 
 (define (node-laozhou-ally)
   (container-with-clocks "老周"
@@ -154,22 +232,28 @@
       (instant-action "请老周出面"
         (lambda ()
           (set! laozhou-used? #t)
-          (resolve-clk 'tick!)
-          (press-clk 'set! (max 0 (- (press-clk 'current) 1))))))
+          (retreat-press! 2))))
     '()))
 
 (define (extra-nodes)
   (append
-    (if (>= (item-count "金钱") ransom-due) (list (node-pay-ransom)) '())
     (if (and (relation-at-least? "劳工" crew-threshold) (not crew-used?)) (list (node-call-crew)) '())
     (if (and (> (item-count "办案通行证") 0) (not pass-used?)) (list (node-use-pass)) '())
     (if (and laozhou-help? (not laozhou-used?)) (list (node-laozhou-ally)) '())))
 
+(define (phase2-nodes)
+  (append
+    (list (node-hold-door) (node-shout-down) (node-loot))
+    (map (lambda (e) (e 'render-data)) (live-thugs))
+    (list (node-her-presence))
+    (extra-nodes)))
+
 ;; ── 渲染 ─────────────────────────────────────────
 (define (get-render-data)
-  (container-with-clocks "夜莺·了断"
-    (append
-      (list (node-see-through) (node-talk) (node-loot))
-      (map (lambda (e) (e 'render-data)) (live-thugs))
-      (extra-nodes))
-    (list (resolve-clk 'render-data) (press-clk 'render-data))))
+  (if (= phase 1)
+      (container-with-clocks "夜莺·了断"
+        (phase1-nodes)
+        (list (leverage-clk 'render-data) (collapse-clk 'render-data)))
+      (container-with-clocks "夜莺·了断"
+        (phase2-nodes)
+        (list (resolve-clk 'render-data) (press-clk 'render-data)))))

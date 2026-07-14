@@ -10,6 +10,7 @@ namespace SSNoir.Core
         public const int MaxStatLevel = 4;
         public const int MaxStress = 4;
         public const int StressPenaltyThreshold = 2;
+        public const int HealthPenaltyThreshold = 2;
 
         public int MaxHealth { get; set; } = 5;
 
@@ -38,7 +39,7 @@ namespace SSNoir.Core
             return Math.Max(0, GrowthLevel - actor.SpentGrowthPoints);
         }
 
-        public int MaxSatiety { get; set; } = 6;
+        public int MaxSatiety { get; set; } = 5;
 
         private int _satiety = 3;
         // 饱腹：每天睡觉 −1，归零后开始扣健康（见 EndTurn）。吃食物恢复。
@@ -277,6 +278,7 @@ namespace SSNoir.Core
         public void RollActionDice(bool isInEncounter)
         {
             var rand = GameRandom.Instance;
+            bool healthDicePenalty = Health <= HealthPenaltyThreshold;
             foreach (var actor in Actors)
             {
                 actor.ActionDice.Clear();
@@ -288,6 +290,8 @@ namespace SSNoir.Core
                     }
 
                     int diceCount = actor.Role == "protagonist" ? 3 : 1;
+                    if (healthDicePenalty && actor.Role == "protagonist")
+                        diceCount -= 1;
                     for (int i = 0; i < diceCount; i++)
                         actor.ActionDice.Add(rand.Next(1, 7));
                 }

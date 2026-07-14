@@ -246,7 +246,7 @@ namespace SSNoir.Rendering
                 }
             }
 
-            var displaySpotlight = state.ActiveActionSpotlight ?? state.Spotlight;
+            var displaySpotlight = state.ActiveImmediateDialogueSpotlight ?? state.ActiveActionSpotlight ?? state.Spotlight;
             if (displaySpotlight != null)
             {
                 Raylib.DrawRectangle(0, 0, (int)windowWidth, (int)windowHeight, new Color(0, 0, 0, 185));

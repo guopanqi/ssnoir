@@ -16,13 +16,42 @@
 ;; ── 世界级状态 ───────────────────────────────────
 (define world-day 1)
 
-;; 势力面板目标由内容定义；客户端只负责根据当前关系显示下一项。
-(set-global! "relation-goal:官僚:脸熟" "陪探长走访；申请巡警照看酒馆")
-(set-global! "relation-goal:官僚:自己人" "当前 Demo 暂无新增动作")
-(set-global! "relation-goal:劳工:脸熟" "替工头记账；帮老周查账；请码头兄弟看场")
-(set-global! "relation-goal:劳工:自己人" "走私；交锋中召集码头兄弟")
-(set-global! "relation-goal:富商:脸熟" "应酬货运代理；出售私货；代理人项目")
-(set-global! "relation-goal:富商:自己人" "当前 Demo 暂无新增动作")
+;; ── 城市声望 ─────────────────────────────────────
+;; 三派各有一条三档声望阶梯（相识/信任/核心，阈值 +2/+4/+6）。
+;; 每档两项配置由内容定义、客户端据当前声望显示：
+;;   relation-band-name:<势力>:<档>  该势力对这一档的定制称呼（面板档名与诱饵标题）
+;;   relation-goal:<势力>:<档>       这一档解锁的具名诱饵
+;; 每档只写一件确实能在 demo 里做的事；暂时做不到的，标"（demo 暂未开放）"，
+;; 不堆第二个想法凑数——档位到了却只看见一句空话，比少写一档更打消玩家推进的意愿。
+;; 门控仍用通用内部名（相识/信任/核心），见 engine.scm。
+;;
+;; 爬升方式随档位换（见 engine.scm 的 grant-work-relation!/grant-favor-relation!）：
+;; 相识靠带薪工作混脸熟（到值 3 封顶）；信任靠不计报酬的帮忙类动作（到值 5 封顶）；
+;; 核心只认事迹——人物小节/主线段落完成时才给，不封顶，是唯一能到核心的路。
+
+;; 官僚〈秩序 · 程序 · 洗白〉：让麻烦消失、拿到程序特权。
+(set-global! "relation-band-name:官僚:相识" "挂号")
+(set-global! "relation-band-name:官僚:信任" "备案")
+(set-global! "relation-band-name:官僚:核心" "有里子")
+(set-global! "relation-goal:官僚:相识" "陪探长走访取证")
+(set-global! "relation-goal:官僚:信任" "办案通行证冷却从 3 天缩短到 1 天")
+(set-global! "relation-goal:官僚:核心" "引荐市长秘书，遇事能求到更高处（demo 暂未开放）")
+
+;; 劳工〈生存 · 暴力 · 销赃网〉：暴力援助与销赃/借钱网络。
+(set-global! "relation-band-name:劳工:相识" "面熟")
+(set-global! "relation-band-name:劳工:信任" "够朋友")
+(set-global! "relation-band-name:劳工:核心" "拜过码头")
+(set-global! "relation-goal:劳工:相识" "码头熟手活：替工头记账")
+(set-global! "relation-goal:劳工:信任" "码头走私门路（私货来源）")
+(set-global! "relation-goal:劳工:核心" "地下酒吧对你开门；了断之日也能召集码头兄弟到场撑腰")
+
+;; 富商〈欲望 · 资本 · 科技圈层〉：资本/投资与上流圈层。
+(set-global! "relation-band-name:富商:相识" "有往来")
+(set-global! "relation-band-name:富商:信任" "座上宾")
+(set-global! "relation-band-name:富商:核心" "合伙人")
+(set-global! "relation-goal:富商:相识" "私货能出手·陪代理谈投资（渠道价，非最高价）")
+(set-global! "relation-goal:富商:信任" "私货满价收购·投资本金打折")
+(set-global! "relation-goal:富商:核心" "引荐博士，牵出实验室科技线（demo 暂未开放）")
 
 ;; 夜莺委托线的三次交锋。正式主线接入后逐个替换。
 (define public-event-count 0)
@@ -56,7 +85,7 @@
 (define (public-event-clock-note)
   (let ((stage (let ((v (get-global '夜莺阶段))) (if v v 0)))
         (beat1-progress (let ((v (get-global '夜莺查访进度))) (if v v 0)))
-        (beat1-target (let ((v (get-global '夜莺查访目标))) (if v v 4))))
+        (beat1-target (let ((v (get-global '夜莺查访目标))) (if v v 6))))
     (cond
       ((= public-event-count 0)
        (cond
@@ -66,7 +95,7 @@
       ((= public-event-count 1)
        "收账人已经撂话。第 10 天到期；时钟显示距到期的剩余天数。至少要凑出一笔首期赎身钱,让他们先收手。")
       ((= public-event-count 2)
-       "他们要的是一条命的交代。这次不能输。")
+       "老板第 17 天亲自上门。付清封口钱、送她上船、让案子立起来,或者备好一场硬仗——路都摆在夜莺的卡上。")
       (else "归零后必须亲自处理。"))))
 
 (define (public-event-pending-note)
@@ -155,6 +184,21 @@
       (reset-public-event-clock!)
       #f))
 
+;; 节拍三·路线五(坐视不管)专用结算:与 on-public-event-result 同构,
+;; 但背过身去不算经历完一段处境,不奖励成长点(不调 complete-section!)。
+(define (on-final-event-walked-away!)
+  (if (not public-event-pending?)
+      (error "on-final-event-walked-away!: no pending public event")
+      #t)
+  (set! public-event-pending? #f)
+  (sync-public-event-blocker!)
+  (nightingale 'on-bout-result public-event-count 'walked-away)
+  (set! public-event-count (+ public-event-count 1))
+  (set! public-event-delay-used? #f)
+  (if (public-event-active?)
+      (reset-public-event-clock!)
+      #f))
+
 ;; 取消后续公共事件(中途放她走)。回到无剧情静默状态。
 (define (cancel-public-events!)
   (set! public-event-count public-event-max)
@@ -169,24 +213,31 @@
     ((= public-event-count 2) "夜莺·了断")
     (else (error "current-encounter-name: public-event-count 超出范围"))))
 
+;; 统一返回节点列表：节拍三按路线分派可能产出 0/1/2 个待办节点
+;; （了断交锋入口 + 查明真相时的“去饭店喝酒”），节拍一/二的场景各自只有一个。
 (define (node-public-event)
-  (if (and (= public-event-count 1) (nightingale 'has-protection?))
-      (instant-action "处理收账人再来"
-        (lambda ()
-          (nightingale 'resolve-protected-beat2!)
-          (on-public-event-result 'success)))
-      (encounter-action (public-event-action-name)
-        (lambda ()
-          (start-encounter (current-encounter-name) on-public-event-result)))))
+  (cond
+    ((and (= public-event-count 1) (nightingale 'has-protection?))
+     (list (instant-action "处理收账人再来"
+             (lambda ()
+               (nightingale 'resolve-protected-beat2!)
+               (on-public-event-result 'success)))))
+    ((= public-event-count 2)
+     (nightingale 'beat3-pending-nodes))
+    (else
+     (list (encounter-action (public-event-action-name)
+             (lambda ()
+               (start-encounter (current-encounter-name) on-public-event-result)))))))
 
 (define (public-event-clocks)
-  (let ((interval (current-public-event-interval)))
-    (cond
-      ((not (public-event-active?)) '())
-      (public-event-pending?
+  (cond
+    ((not (public-event-active?)) '())
+    (public-event-pending?
+     (let ((interval (current-public-event-interval)))
        (list (list 'clock (public-event-clock-title) 0 interval 'countdown
-                   (public-event-pending-note))))
-      (else
+                   (public-event-pending-note)))))
+    (else
+     (let ((interval (current-public-event-interval)))
        (list (list 'clock (public-event-clock-title)
                    (- interval (next-public-event 'current))
                    interval 'countdown
@@ -242,7 +293,7 @@
     :children
       (append
         (nightingale 'world-nodes)
-        (if public-event-pending? (list (node-public-event)) '())
+        (if public-event-pending? (node-public-event) '())
         (nightingale 'render-data)
         (apply append (map (lambda (loc) (loc 'render-data)) (current-locations))))
     :clocks (public-event-clocks)))
@@ -273,7 +324,13 @@
   (set! public-event-count (assoc-get data "public-event-count" 0))
   (set! public-event-pending? (assoc-get data "public-event-pending?" #f))
   (set! public-event-delay-used? (assoc-get data "public-event-delay-used?" #f))
-  (next-public-event 'set! (assoc-get data "next-public-event" 0))
+  ;; next-public-event 的 max/标题由当前节拍决定。旧实现只恢复 current，
+  ;; 导致读档后第三节拍仍沿用第一节拍的 3 格上限，三次日终便错误到期。
+  (if (public-event-active?)
+      (begin
+        (reset-public-event-clock!)
+        (next-public-event 'set! (assoc-get data "next-public-event" 0)))
+      (next-public-event 'set! 0))
   (home 'load! (assoc-get data "home" '()))
   (dock 'load! (assoc-get data "dock" '()))
   (old-street-tavern 'load! (assoc-get data "old-street-tavern" '()))

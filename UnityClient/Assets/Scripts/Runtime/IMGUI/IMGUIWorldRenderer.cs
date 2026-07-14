@@ -32,6 +32,7 @@ namespace SSNoir.IMGUI
         private string _activeHeavyOutcomeActionName = string.Empty;
         private Action? _activeHeavyOutcomeDone;
         private readonly Queue<BlockingStoryStep> _pendingBlockingSteps = new Queue<BlockingStoryStep>();
+        private readonly Queue<DialogueSequence> _pendingImmediateDialogues = new Queue<DialogueSequence>();
         private SpotlightCard? _activeActionSpotlight;
         private ActionReport? _completionReport;
         private string _completionActionName = string.Empty;
@@ -65,8 +66,28 @@ namespace SSNoir.IMGUI
         // 动作外即时触发的阻塞对话:暂停 banter,演完恢复(不接入动作表现流程)。
         private void StartImmediateDialogue(SSNoir.Core.DialogueSequence sequence)
         {
+            if (_conversationPlayer.IsActive)
+            {
+                _pendingImmediateDialogues.Enqueue(sequence);
+                return;
+            }
+
             _banterPlayer.Suspend();
-            _conversationPlayer.Start(sequence, () => _banterPlayer.Resume());
+            StartNextImmediateDialogue(sequence);
+        }
+
+        private void StartNextImmediateDialogue(SSNoir.Core.DialogueSequence sequence)
+        {
+            _conversationPlayer.Start(sequence, () =>
+            {
+                if (_pendingImmediateDialogues.Count > 0)
+                {
+                    StartNextImmediateDialogue(_pendingImmediateDialogues.Dequeue());
+                    return;
+                }
+
+                _banterPlayer.Resume();
+            }, allowsRemoteParticipants: true);
         }
 
         public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null || _conversationPlayer.IsActive || _activeAnimationTag != null;
@@ -74,6 +95,7 @@ namespace SSNoir.IMGUI
         public void PlayPresentation(ActionReport report, string actionName, Action onDone)
         {
             _pendingBlockingSteps.Clear();
+            _pendingImmediateDialogues.Clear();
             foreach (var step in report.BlockingStorySteps)
                 _pendingBlockingSteps.Enqueue(step);
             _completionReport = report;
@@ -1017,7 +1039,11 @@ namespace SSNoir.IMGUI
             if (line == null)
                 return;
 
-            DialogueBubbleDrawer.DrawConversationLine(line.Speaker, line.Text, _dialogueAnchors);
+            DialogueBubbleDrawer.DrawConversationLine(
+                line.Speaker,
+                line.Text,
+                _dialogueAnchors,
+                _conversationPlayer.AllowsRemoteParticipants);
 
             if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
             {

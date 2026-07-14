@@ -207,10 +207,18 @@
 (define (工作-合法势力? faction)
   (or (equal? faction "官僚") (equal? faction "劳工") (equal? faction "富商")))
 
-(define (工作-难度修正 risk)
-  (cond ((or (equal? risk '低) (equal? risk '中) (equal? risk '高)) '())
-        ((equal? risk '非法) (list (modifier -2 "非法")))
-        (else (error "工作: 未知风险等级（应为 低/中/高/非法）"))))
+;; 势力敌视时，该势力地点的判定统一 -1（可见修正，与非法的判定惩罚同构）。
+(define (关系难度修正 faction)
+  (if (equal? (relation-band faction) '敌视)
+      (list (modifier -1 "势力敌视"))
+      '()))
+
+(define (工作-难度修正 risk faction)
+  (append
+    (cond ((or (equal? risk '低) (equal? risk '中) (equal? risk '高)) '())
+          ((equal? risk '非法) (list (modifier -2 "非法")))
+          (else (error "工作: 未知风险等级（应为 低/中/高/非法）")))
+    (关系难度修正 faction)))
 
 (define (构造工作 name faction 产关系? risk skill 好-outcome 中-outcome 坏-outcome subtitle)
   (if (工作-合法势力? faction) #t (error "工作: 未知势力（应为 官僚/劳工/富商）"))
@@ -219,13 +227,13 @@
         :tags (list "工作" (工作-风险标签 risk))
         :requires (list (req-die))
         :resolve (roll skill
-                       (lambda () (工作-难度修正 risk))
+                       (lambda () (工作-难度修正 risk faction))
                        (require-outcome 坏-outcome "工作 坏")
                        (require-outcome 中-outcome "工作 中")
                        (if 产关系?
                            (outcome-append-effect
                              好-outcome
-                             (lambda () (change-faction-relation! faction 1))
+                             (lambda () (grant-work-relation! faction))
                              "关系工作 好")
                            (require-outcome 好-outcome "工作 好")))))
 
@@ -310,9 +318,52 @@
         ((equal? msg 'render-data) (list 'clock label current max style note))
         (else #f)))))
 
-;; 关系 API — 三派：官僚 / 劳工 / 富商。底层连续整数（工作小步累积），
-;; 折算成 5 个离散档位。档位阈值与范围以 RelationScale.cs 为唯一来源
+;; 麻烦追踪器：势力敌视时工作坏/中结果有概率触发一次，持续 max 天未处理则触发 on-expire。
+;; 消息：'active? 'start! 'resolve! 'tick! 'render-data 'save 'load!
+(define (make-trouble label max on-expire)
+  (let ((active? #f) (current 0))
+    (lambda (msg . args)
+      (cond
+        ((equal? msg 'active?) active?)
+        ((equal? msg 'start!)
+         (if active? #t (begin (set! active? #t) (set! current 0))))
+        ((equal? msg 'resolve!) (begin (set! active? #f) (set! current 0)))
+        ((equal? msg 'tick!)
+         (if active?
+             (begin
+               (set! current (+ current 1))
+               (if (>= current max)
+                   (begin (set! active? #f) (set! current 0) (on-expire))
+                   #f))
+             #f))
+        ((equal? msg 'render-data)
+         (if active?
+             (list (list 'clock label current max 'countdown
+                         "势力敌视惹出的麻烦，尽快处理，否则会有代价。"))
+             '()))
+        ((equal? msg 'save) (list active? current))
+        ((equal? msg 'load!)
+         (let ((data (car args)))
+           (set! active? (car data))
+           (set! current (cadr data))))
+        (else #f)))))
+
+;; 20% 概率触发一次麻烦（1/5，参照码头美差的写法）。
+(define trouble-roll-table (list #t #f #f #f #f))
+
+;; 势力敌视、麻烦未激活、且命中概率时触发；返回 #t/#f 供调用方决定是否 notify!。
+(define (maybe-trigger-trouble! tracker faction chance-table)
+  (if (and (equal? (relation-band faction) '敌视)
+           (not (tracker 'active?))
+           (random-choice chance-table))
+      (tracker 'start!)
+      #f))
+
+;; 声望 API — 三派：官僚 / 劳工 / 富商。底层连续整数（工作小步累积），
+;; 折算成 6 个离散档位。档位阈值与范围以 RelationScale.cs 为唯一来源
 ;; （通过 native __relation-band-index 读取），这里只做名字 <-> 序号的映射。
+;; 正面三档（相识/信任/核心）是门控用的通用内部名；各势力面板上的定制称呼
+;; （挂号/面熟/有往来 …）在 world.scm 以 relation-band-name:<势力>:<档> 配置。
 (define (faction-relation faction)
   (let ((val (get-global (string-append "relation:" faction))))
     (if val val 0)))
@@ -321,23 +372,43 @@
 (define (change-faction-relation! faction delta)
   (__change-faction-relation! faction delta))
 
-;; 档位名（序号 0..4，与 RelationScale.BandNames 一一对应）。
-(define relation-band-names (list '敌视 '冷淡 '中立 '脸熟 '自己人))
+;; 档位名（序号 0..5，与 RelationScale.BandNames 一一对应）。
+(define relation-band-names (list '敌视 '冷淡 '中立 '相识 '信任 '核心))
 
 (define (relation-band faction)
   (list-ref relation-band-names (__relation-band-index faction)))
 
 (define (band-index name)
-  (cond ((equal? name '敌视)   0)
-        ((equal? name '冷淡)   1)
-        ((equal? name '中立)   2)
-        ((equal? name '脸熟)   3)
-        ((equal? name '自己人) 4)
+  (cond ((equal? name '敌视) 0)
+        ((equal? name '冷淡) 1)
+        ((equal? name '中立) 2)
+        ((equal? name '相识) 3)
+        ((equal? name '信任) 4)
+        ((equal? name '核心) 5)
         (else (error "band-index: unknown band"))))
 
 ;; 门控：某派关系达到指定档位（含更高）返回 #t。
 (define (relation-at-least? faction band)
   (>= (__relation-band-index faction) (band-index band)))
+
+;; ── 声望增长来源分档 ──────────────────────────────
+;; 爬升方式随档位换，不是从头到尾刷同一种动作就能通关：
+;;   面熟（相识）：带薪工作的好结果——值 < work-relation-cap 时才生效，见 构造工作；
+;;   够朋友（信任）：不计报酬的帮忙类动作——值 < favor-relation-cap 时才生效，见 grant-favor-relation!；
+;;   拜过码头/有里子/合伙人（核心）：只认事迹——人物小节、主线段落完成时直接调用
+;;     change-faction-relation!，不设上限，是唯一能越过 favor-relation-cap 的路。
+(define work-relation-cap 3)   ; 带薪工作最多能混到相识刚过一点
+(define favor-relation-cap 5)  ; 帮忙类动作最多能混到信任刚过一点，再往上得靠事迹
+
+(define (grant-work-relation! faction)
+  (if (< (faction-relation faction) work-relation-cap)
+      (change-faction-relation! faction 1)
+      (notify! (string-append faction "那边，普通做工已经混得再熟不过了——想更进一步，得接不计报酬的忙。"))))
+
+(define (grant-favor-relation! faction)
+  (if (< (faction-relation faction) favor-relation-cap)
+      (change-faction-relation! faction 1)
+      (notify! (string-append faction "那边，光帮忙已经到头了——真要再进一步，得替他们办成一件事。"))))
 
 ;; --- New Team, Item, and Stress wrappers ---
 (define (item-count item-id)

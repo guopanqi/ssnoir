@@ -129,8 +129,21 @@ namespace SSNoir.Rendering
             FontManager.DrawText(label, x, y, 10, PaperDim);
             float barX = x + 34f;
             float barW = width - 72f;
-            Raylib.DrawRectangleRec(new Rectangle(barX, y + 3f, barW, 7f), new Color(224, 224, 216, 30));
-            Raylib.DrawRectangleRec(new Rectangle(barX, y + 3f, barW * pct, 7f), color);
+            int segmentCount = Math.Max(1, max);
+            int filledSegments = Math.Clamp(current, 0, segmentCount);
+            const float segmentGap = 2f;
+            float segmentW = (barW - segmentGap * (segmentCount - 1)) / segmentCount;
+            for (int i = 0; i < segmentCount; i++)
+            {
+                var segment = new Rectangle(barX + i * (segmentW + segmentGap), y + 2f, segmentW, 9f);
+                bool filled = i < filledSegments;
+                Raylib.DrawRectangleRounded(segment, 0.22f, 3,
+                    filled ? color : new Color(224, 224, 216, 30));
+                if (!filled)
+                {
+                    Raylib.DrawRectangleRoundedLinesEx(segment, 0.22f, 3, 1f, new Color(224, 224, 216, 48));
+                }
+            }
             FontManager.DrawText($"{current}/{max}", x + width - 34f, y, 10, color);
         }
 

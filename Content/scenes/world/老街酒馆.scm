@@ -10,15 +10,53 @@
       (关系工作 "服务员" "劳工" '低 'social
         (outcome "手脚麻利" "跑了一晚上堂子，酒客赏钱都算在工钱里。"
           (lambda () (add-item! "金钱" 8)))
-        (outcome "普通一班" "今晚的客人不多，工头按日结。"
+        (outcome "普通一班" "今晚客人稀稀落落，工头按日头结了账。"
           (lambda () (add-item! "金钱" 5)))
         (outcome "打翻酒杯" "一个醉客借故发作，你赔了一杯，也被骂了一顿。"
           (lambda () (stress-current-actor! 1)))))
 
+    ;; 打酒：在酒馆买一壶带回家。可反复购买，回住所喝解压垫饱腹（不占骰）。
+    (define (node-buy-liquor)
+      (node "打一壶酒"
+        :subtitle "给夜里留点松快，也能稍微垫垫肚子"
+        :requires (list (req-item "金钱" 8))
+        :resolve (instant
+          (outcome "打了一壶酒" "打了一壶酒，带回去搁着，留着夜里。"
+            (lambda () (add-item! "酒" 1))))))
+
+    ;; 当场点一杯：效果与在家喝自带的酒完全一样，共用同一次“当天第一杯”（home 的 drank-today?）。
+    ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
+    (define (node-drink-here)
+      (node "点一杯酒"
+        :subtitle (if (home 'drank-today?)
+                      "今天已经喝过了，再喝只会头疼"
+                      "不带走，当场喝掉：垫饱腹 +1，解压 −2（当天只算一次）")
+        :disabled (home 'drank-today?)
+        :requires (list (req-item "金钱" 8))
+        :resolve (instant
+          (outcome "借酒松神" "就着吧台喝了一杯，绷了一天的神经松了扣，肚子也垫了垫。"
+            (lambda () (home 'drink!))
+            'light))))
+
+    ;; ── 地下酒吧（劳工·核心）──────────────────────
+    ;; 拜过码头之后才请得进来的门路：押上本钱赌一把，输赢自己认。
+    (define (node-underground-bar)
+      (node "去地下酒吧押一把"
+        :subtitle "只有拜过码头的人才请得进来；押上的本钱，输赢自己认"
+        :tags (list "非法" "赌博")
+        :requires (list (req-die) (req-item "金钱" 20))
+        :resolve (roll 'sharpness (lambda () (list (modifier -2 "非法")))
+          (outcome "输光了押注" "骰子不给面子，押上的钱全喂了庄家。"
+            (lambda () #f))
+          (outcome "堪堪回本" "起起落落一晚，原样把钱拿了回来。"
+            (lambda () (add-item! "金钱" 20)))
+          (outcome "赢了台面" "骰子一路顺，你把桌上的钱扫了大半。"
+            (lambda () (add-item! "金钱" 60))))))
+
     ;; ── 氛围与歇业 ────────────────────────────────
     (define (node-atmosphere)
       (observe-action "酒馆内景"
-        "木桌被油灯照得发黄，角落里坐着几个不吭声的水手。驻唱的歌女今晚还没开嗓。"))
+        "油灯把木桌照得发黄，烟味浮在半空散不开。角落里几个水手闷头喝酒，谁也不吭声；台上的歌女，今晚还没开嗓。"))
 
     (define (node-closed)
       (observe-action "酒馆歇业"
@@ -36,12 +74,11 @@
           (list (node-closed))
           (append
             (nightingale 'tavern-nodes)
-            (if (let ((stage (get-global '夜莺阶段)))
-                  (and stage (>= stage 2)))
-                (list (node-waiter))
-                '())
-            (nightingale 'beat1-lead-nodes)   ; 花消息买线索：向酒馆老主顾买准话
-            (list (nightingale 'node-gossip) (node-atmosphere)))))
+            (list (node-waiter) (node-drink-here) (node-buy-liquor))  ; 酒馆常驻：值班当差 + 当场点酒 + 打酒带走
+            (nightingale 'tavern-inquiry-nodes)     ; 节拍一：打听盯梢的人
+            (nightingale 'beat1-lead-nodes)         ; 花消息买线索：向酒馆老主顾买准话
+            (if (relation-at-least? "劳工" '核心) (list (node-underground-bar)) '())
+            (list (node-atmosphere)))))
 
     (define-turn-rule "老街酒馆停业倒计时"
       (lambda () (> closed-days 0))

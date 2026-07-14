@@ -80,7 +80,7 @@ C# 引擎把脚本求值成一棵节点树,再由前端渲染成可交互的卡�
 
 约束:
 - `get-global/set-global!` **只管纯全局键**,不要拿它读写队伍/库存(那条字符串魔法键的旧路已删除)。
-- encounter 不直接写 global 通知 world,而是 `start-encounter` 传 callback、`end-encounter` 报结果。详见 [SCHEMY.md](../SCHEMY.md)。
+- encounter 不直接写 global 通知 world,而是 `start-encounter` 传 callback、`end-encounter` 报结果。详见 [SCRIPTING.md](../SCRIPTING.md)。
 
 ### 场景切换
 - `SceneManager`:world 是一个常驻解释器;每个 encounter 是临时新建的解释器。
@@ -97,7 +97,7 @@ C# 引擎把脚本求值成一棵节点树,再由前端渲染成可交互的卡�
 
 | 想做的事 | 入口文件 |
 |---|---|
-| 加/改一个游戏地点、动作、对白 | `Content/scenes/**.scm` + [SCHEMY.md](../SCHEMY.md) |
+| 加/改一个游戏地点、动作、对白 | `Content/scenes/**.scm` + [SCRIPTING.md](../SCRIPTING.md) |
 | 加一个 Scheme 能调用的引擎能力 | `Engine/Runtime/Scripting/NativeFunctions.cs` + `Content/scripts/engine.scm` 包装 |
 | 改节点的 DSL 结构(node/resolve/clock 语法) | `NodeConverter.cs` + `engine.scm` |
 | 改动作结算 / 骰子 / 回合逻辑 | `Engine/Runtime/Core/SceneManager.cs`、`TeamState.cs` |
@@ -125,4 +125,4 @@ C# 引擎把脚本求值成一棵节点树,再由前端渲染成可交互的卡�
 ## 6. 已知限制与待办
 
 解释器改造方向、表现/状态同步的遗留问题见 [TODO.md](../TODO.md)。
-写 `.scm` 内容看 [SCHEMY.md](../SCHEMY.md);解释器能力总览见 [schemy-master/AGENTS.md](../schemy-master/AGENTS.md)。
+写 `.scm` 内容看 [SCRIPTING.md](../SCRIPTING.md);解释器能力总览见 [schemy-master/AGENTS.md](../schemy-master/AGENTS.md)。

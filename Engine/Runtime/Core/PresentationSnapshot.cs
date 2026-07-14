@@ -13,10 +13,12 @@ namespace SSNoir.Core
         public int GrowthLevel { get; init; }
         public string Location { get; init; } = string.Empty;
         public IReadOnlyDictionary<string, int> Inventory { get; init; } = new Dictionary<string, int>();
-        // 三派关系（官僚 / 劳工 / 富商）的底层整数值。
+        // 三派声望（官僚 / 劳工 / 富商）的底层整数值。
         public IReadOnlyDictionary<string, int> Relations { get; init; } = new Dictionary<string, int>();
-        // 内容层配置的关系里程碑解锁说明，键为“势力:档位”（如“劳工:脸熟”）。
+        // 内容层配置的声望档解锁诱饵，键为“势力:通用档名”（如“劳工:信任”）。
         public IReadOnlyDictionary<string, string> RelationUnlocks { get; init; } = new Dictionary<string, string>();
+        // 内容层配置的各势力对正面三档的定制称呼，键同上（如“劳工:信任”→“够朋友”）。
+        public IReadOnlyDictionary<string, string> RelationBandNames { get; init; } = new Dictionary<string, string>();
         public IReadOnlyList<ActorSnapshot> Actors { get; init; } = new List<ActorSnapshot>();
     }
 }

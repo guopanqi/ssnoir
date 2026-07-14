@@ -35,6 +35,7 @@ namespace SSNoir.Rendering
             SceneDropdownWidget.LoadAvailableScenes(_state);
 
             _gameState.NarrationCenter.OnNarrationRequested += ShowNarration;
+            _gameState.DialogueCenter.OnDialogueRequested += EnqueueImmediateDialogue;
 
             _sceneManager.OnSceneLoaded += () =>
             {
@@ -113,6 +114,39 @@ namespace SSNoir.Rendering
         {
             _state.ActiveNarrationId = id;
             _state.ActiveNarrationTime = 0f;
+        }
+
+        // 动作外 dialogue 不会进入 ActionReport；Terminal 逐句复用 Spotlight 作为明确的阻塞兜底。
+        private void EnqueueImmediateDialogue(DialogueSequence sequence)
+        {
+            foreach (var line in sequence.Lines)
+            {
+                _state.PendingImmediateDialogueSpotlights.Enqueue(new SpotlightCard
+                {
+                    Title = line.Speaker,
+                    Subtitle = line.Text,
+                });
+            }
+        }
+
+        private void UpdateImmediateDialogue()
+        {
+            if (_state.ActiveImmediateDialogueSpotlight != null
+                || _state.PendingImmediateDialogueSpotlights.Count == 0
+                || _state.IsPresentingAction
+                || _state.ActiveRollResult != null
+                || _state.ActiveOutcomeResult != null
+                || _state.ActiveActionSpotlight != null)
+            {
+                return;
+            }
+
+            _state.ActiveImmediateDialogueSpotlight = _state.PendingImmediateDialogueSpotlights.Dequeue();
+        }
+
+        private void ConfirmImmediateDialogue()
+        {
+            _state.ActiveImmediateDialogueSpotlight = null;
         }
 
         private void UpdateNarration(float dt)
@@ -591,12 +625,13 @@ namespace SSNoir.Rendering
             // Update runtime presentation centers.
             _gameState.NotificationCenter.Update(dt);
             UpdateNarration(dt);
+            UpdateImmediateDialogue();
             if (!_state.IsPresentingAction)
                 _state.Spotlight = _gameState.SpotlightCenter.Current;
             UpdatePresentation(dt);
 
             bool inputBlocked = _state.ActiveRollResult != null || _state.IsPresentingAction
-                || _state.ActiveActionSpotlight != null || _state.Spotlight != null;
+                || _state.ActiveActionSpotlight != null || _state.ActiveImmediateDialogueSpotlight != null || _state.Spotlight != null;
 
             _windowStack.BeginFrame(mousePos, Raylib.IsMouseButtonPressed(MouseButton.Left));
 
@@ -654,6 +689,36 @@ namespace SSNoir.Rendering
                 return;
             }
 
+            // ESC 统一关闭阻塞性结算与剧情层；轻型卡片附件仍按自身的短暂停留自动结束。
+            if (Raylib.IsKeyPressed(KeyboardKey.Escape))
+            {
+                if (_state.ActiveOutcomeResult != null)
+                {
+                    ConfirmHeavyOutcome();
+                }
+                else if (_state.ActiveRollResult != null && ActiveRollUsesModal() && _state.ActiveRollPhase >= 2)
+                {
+                    _state.ActiveRollResult = null;
+                    if (_state.IsPresentingAction)
+                    {
+                        AdvancePresentationAfterRollConfirm();
+                    }
+                }
+                else if (_state.ActiveImmediateDialogueSpotlight != null)
+                {
+                    ConfirmImmediateDialogue();
+                }
+                else if (_state.ActiveActionSpotlight != null)
+                {
+                    ConfirmActionSpotlight();
+                }
+                else if (_state.Spotlight != null)
+                {
+                    _gameState.SpotlightCenter.Dismiss();
+                    _state.Spotlight = null;
+                }
+            }
+
             // Handle ESC key or right-click to clear selected card/resource first
             if (!inputBlocked)
             {
@@ -690,6 +755,13 @@ namespace SSNoir.Rendering
             if (navInteraction.GoBackClicked)
             {
                 GoBack();
+                // 返回会在同一帧重绘上一级的容器卡片。消费这次导航点击，
+                // 避免它继续被新出现的卡片当作一次进入容器的点击。
+                worldUi = new UiInteractionContext
+                {
+                    Mouse = mousePos,
+                    IsSuppressed = true,
+                };
             }
 
             // 2. Draw Node Clocks (if any)
@@ -832,7 +904,11 @@ namespace SSNoir.Rendering
             }
             if (overlayInteraction.SpotlightDismissClicked)
             {
-                if (_state.ActiveActionSpotlight != null)
+                if (_state.ActiveImmediateDialogueSpotlight != null)
+                {
+                    ConfirmImmediateDialogue();
+                }
+                else if (_state.ActiveActionSpotlight != null)
                     ConfirmActionSpotlight();
                 else
                 {

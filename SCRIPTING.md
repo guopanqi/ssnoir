@@ -83,7 +83,7 @@ T ≤6 坏，7–8 中，≥9 好
   `growth-level`、`set-growth-level!`、`actor-stress` 等(见 engine.scm)
 - 轻型结算:`(outcome title subtitle effect ['light | 'heavy])`、`(result-note! text)`
 - 其他表现:`(notify! text)`、`(spotlight! title subtitle)`、`(play-narration! id)`
-- 对话:`(play-banter! (line ...) ...)`、`(play-dialogue! (line ...) ...)`、`(play-animation! tag)`(见 3.6)
+- 对话:`(play-banter! (line ...) ...)`、`(play-dialogue! (line ...) ...)`、`(play-animation! tag)`(见 3.6-3.7)
 
 **encounter 切换** `(start-encounter name callback)` / `(end-encounter result)`
 
@@ -184,7 +184,24 @@ Schemy 在深嵌套 `(append (if …) (if … (append …) '()))` 中,某些分�
 
 资源槽投入属于成本,不会进入效果条。所有数值条目记录 clamp 后的实际变化量。
 
-### 3.6 角色对话:banter(非阻塞)与 dialogue(阻塞)
+### 3.6 表现方式总览:notify / spotlight / narration / banter / dialogue / outcome
+
+六种表现接口容易记混,尤其是 `spotlight!`——**它是一张"告示/公告卡":只有标题和一段说明文字,
+没有说话人、没有台词、不是对话**,用来宣布一个结果或转折(比如某个阶段性事件发生了),
+读者读到的是叙述而不是两个人的交谈。要有人物真正开口说话,必须用 `banter` 或 `dialogue`。
+
+| API | 阻塞? | 结构 | 谁来推进/关闭 | 典型用途 |
+|---|---|---|---|---|
+| `(notify! text)` | 否,定时消失 | 一行文字 | 自动淡出(toast) | 系统提示、背景事件播报;不代表"这次行动的结果" |
+| `(spotlight! title subtitle)` | 是,需要玩家点击关闭 | 标题 + 一段说明文字(**无说话人、无多行台词**) | 玩家点击 | 告示/公告卡:宣布一个转折或阶段性结果,是叙述,不是对话 |
+| `(play-narration! id)` | 否,定时消失 | 一行文字(按 `id` 展示,Terminal 端显示为 `[旁白] id`) | 自动淡出 | 环境/场景旁白字幕;**目前内容脚本里还没有实际用例**,可用可不用 |
+| `(play-banter! (line ...) ...)` | 否 | 多行台词(说话人+文本) | 自动逐条计时的气泡 | 失败后斗嘴、行动后随口一句;不打断游戏 |
+| `(play-dialogue! (line ...) ...)` | 是,点击推进 | 多行台词(说话人+文本),线性无分支 | 玩家点击推进 | 主角↔NPC 的正式对话 |
+| `(outcome title subtitle effect [mode])` | 是,跟随动作结果卡 | 标题+副标题+效果,附着在判定/instant 效果上 | 玩家确认动作结果卡 | 判定/即时动作的结果呈现;本体是"这次行动的结果",**只能用在动作 resolve 里**,不是对话 |
+
+`outcome` 见 §3.5;下面详细展开 `banter`/`dialogue` 的调用规则与阻塞语义。
+
+### 3.7 角色对话:banter(非阻塞)与 dialogue(阻塞)
 
 两者共用 `(line 说话人 文本 [语音] [停留秒])` 构造台词,区别只在**阻不阻塞**(名字编码语气,不编码阻塞性,记住下表):
 
@@ -204,7 +221,7 @@ Schemy 在深嵌套 `(append (if …) (if … (append …) '()))` 中,某些分�
   (line "海伦" "我没什么好说的。"))
 ```
 
-`说话人` 解析顺序固定:**队员 Id → 队员 Name → 当前场景节点 Name → 解析不到直接报错**(不静默兜底)。
+`说话人` 解析顺序固定:**队员 Id → 队员 Name → 当前场景节点 Name**。动作内对话解析不到会直接报错；动作外即时对话解析不到时，Unity 会以不可交互的侧边临时卡承接该说话人，表达电话、回忆或场外事件，而非自动导航到某地点。
 
 **调用时机与延迟规则**(与 `spotlight!` / `play-narration!` 一致):
 
@@ -216,10 +233,11 @@ Schemy 在深嵌套 `(append (if …) (if … (append …) '()))` 中,某些分�
 - 动作内 `play-dialogue!` 锚定**动作前**的旧视觉状态。删掉海伦节点后再让海伦说话 ✓;新建"陌生人"节点后立刻让其说话 ✗(尚未采用,无锚点 → 报错)。
 - 动作内 `play-banter!` 锚定**动作后**的新视觉状态。新建角色插一句 ✓;给刚删掉的角色 banter ✗。
 - 需要让"刚出现的角色"做一段阻塞对话时:先用一次节点/场景推进让其出现,再单独 `play-dialogue!`;或改锚定到已在场的角色。
+- 动作外 `play-dialogue!` 优先锚定仍在屏幕上的队员或节点；说话人不在场时会显示为侧边临时卡。用它表达来电、转述、回忆等不要求玩家已抵达现场的事件，不要借此掩盖动作内对白的拼写或节点配置错误。
 
 **分支选择不进对话播放器**:对话播放器永远线性。需要玩家选择时用节点表达,各分支的 `instant-action` 里再调 `play-dialogue!` / `set!`。
 
-### 3.7 可复发交锋的状态边界
+### 3.8 可复发交锋的状态边界
 
 事件状态归最小且明确的拥有者：只影响一个地点的事件由地点闭包保存；跨地点可见、阻塞世界日程的
 公共事件由 `world.scm` 保存。两者都纳入 `world-save`，不要把公共调度寄存在某个受影响地点里。
