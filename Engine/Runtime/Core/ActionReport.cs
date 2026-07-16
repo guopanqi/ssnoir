@@ -49,6 +49,32 @@ namespace SSNoir.Core
             });
         }
 
+        public void AddClockEffect(string label, int delta)
+        {
+            if (string.IsNullOrWhiteSpace(label))
+                throw new System.ArgumentException("clock effect label cannot be empty");
+            if (delta == 0)
+                return;
+
+            int existingIndex = Effects.FindIndex(effect =>
+                effect.Kind == ActionEffectKind.Clock && effect.Text == label);
+            int totalDelta = delta;
+            if (existingIndex >= 0)
+            {
+                totalDelta += Effects[existingIndex].Delta ?? 0;
+                Effects.RemoveAt(existingIndex);
+            }
+
+            Effects.Add(new ActionEffectRecord
+            {
+                Kind = ActionEffectKind.Clock,
+                Label = label,
+                Delta = totalDelta,
+                Text = label,
+                Tone = totalDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative
+            });
+        }
+
         // 阻塞剧情节拍(Spotlight / Dialogue / Animation),按 Scheme 调用顺序;adopt 之前逐个播放。
         public List<BlockingStoryStep> BlockingStorySteps { get; } = new List<BlockingStoryStep>();
 

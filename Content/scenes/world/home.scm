@@ -2,7 +2,8 @@
 ;; 旅馆（默认·付房租）→ 公寓（购买·资产中）。
 ;; 资产等级由拥有的住所推导，写入全局 '资产（供富商圈门槛用）。
 ;; 恢复：旅馆睡觉冷静 +1，自有住所睡觉冷静 +2；门口露宿冷静 -1。
-;; 喝酒/看花/收拾屋子恢复冷静。酒会让下一次城市骰池出现“宿醉”降质；住所中只能用药恢复健康。
+;; 喝酒/看花恢复冷静；日常投入行动骰的恢复以公园散步为主。
+;; 酒会让下一次城市骰池出现“宿醉”降质；住所中只能用药恢复健康。
 
 (define home
   (let ()
@@ -11,7 +12,6 @@
     (define has-flower? #f)
     (define drank-today? #f)
     (define medicated-today? #f)
-    (define tidied-today? #f)
 
     ;; 房租（仅旅馆）：rent-due = 距交租还剩几天。归零没交 → 被赶出（软罚）。
     (define rent-due 3)
@@ -45,11 +45,10 @@
                 #f))))
 
     (define-turn-rule "每日恢复次数重置"
-      (lambda () (or drank-today? medicated-today? tidied-today?))
+      (lambda () (or drank-today? medicated-today?))
       (lambda ()
         (set! drank-today? #f)
-        (set! medicated-today? #f)
-        (set! tidied-today? #f)))
+        (set! medicated-today? #f)))
 
     (define (rent-render-data)
       (list 'clock "房租到期" rent-due rent-due-max 'countdown
@@ -96,20 +95,6 @@
           (outcome "出神片刻" "白雏菊静静开着，不管窗外这座城多脏。你看了一会儿，胸口松了些。"
             (lambda () (restore-actor-composure! 'player 2))))))
 
-    ;; 给低质量骰一个确定而克制的去处：不掷命运骰，只用时间换少量恢复。
-    (define (node-tidy-room)
-      (node "整理房间"
-        :subtitle (if tidied-today?
-                      "今天已经收拾过了"
-                      "投入任意行动骰，固定恢复 1 点冷静；每天一次")
-        :disabled tidied-today?
-        :requires (list (req-die))
-        :resolve (instant
-          (outcome "收拾妥当" "把散乱的物件一件件归位，脑子里那些声音也跟着安静了一点。"
-            (lambda ()
-              (set! tidied-today? #t)
-              (restore-actor-composure! 'player 1))))))
-
     (define (rest-tags)
       (if (rest-blocked?)
           (append (list "不可休息") (rest-block-reasons))
@@ -127,7 +112,7 @@
                 "这是你自己的地方，门一关，城就锁在外头了。")
             (lambda ()
               (restore-actor-composure! 'player (if (in-hotel?) 1 2))
-              (if (has-companion? 'laozhou) (restore-actor-composure! 'laozhou 1) #f)
+              (if (has-companion? 'joe) (restore-actor-composure! 'joe 1) #f)
               (end-turn!))))))
 
     (define (node-sleep-at-door)
@@ -179,7 +164,7 @@
     ;; 客厅：日常恢复 + 已拥有的家具。
     (define (living-room-children)
       (append
-        (list (node-drink) (node-use-medicine) (node-tidy-room))
+        (list (node-drink) (node-use-medicine))
         (if has-flower? (list (node-see-flower)) '())))
 
     (define (node-living-room)
@@ -238,7 +223,6 @@
              (list "has-flower?"    has-flower?)
              (list "drank-today?" drank-today?)
              (list "medicated-today?" medicated-today?)
-             (list "tidied-today?" tidied-today?)
              (list "rent-due"       rent-due)
              (list "rent-due-max"   rent-due-max)
              (list "evicted?"       evicted?)))
@@ -251,7 +235,6 @@
              (set! has-flower?    (assoc-get data "has-flower?" #f))
              (set! drank-today?  (assoc-get data "drank-today?" #f))
              (set! medicated-today? (assoc-get data "medicated-today?" #f))
-             (set! tidied-today? (assoc-get data "tidied-today?" #f))
              (set! rent-due       (assoc-get data "rent-due" 3))
              (set! rent-due-max   (assoc-get data "rent-due-max" 3))
              (set! evicted?       (assoc-get data "evicted?" #f))

@@ -234,6 +234,25 @@ namespace SSNoir.Scripting
                 return actor != null && actor.Role == "companion";
             }, "__has-companion?"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__set-actor-permanent-die-penalty!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 3)
+                    throw new ArgumentException("__set-actor-permanent-die-penalty! requires actor id, label, and penalty");
+                string actorId = SchemeValue.AsId(args[0]);
+                string label = args[1] as string
+                    ?? throw new ArgumentException("permanent die penalty label must be a string");
+                int penalty = SchemeValue.ToInt(args[2]);
+                if (penalty > 0 || penalty < -2)
+                    throw new ArgumentOutOfRangeException(nameof(args), "permanent die penalty must be between -2 and 0");
+                if (penalty != 0 && string.IsNullOrWhiteSpace(label))
+                    throw new ArgumentException("permanent die penalty requires a non-empty label");
+                var actor = gameState.Team.FindActor(actorId)
+                    ?? throw new ArgumentException($"actor '{actorId}' not found");
+                actor.PermanentDiePenaltyLabel = penalty == 0 ? string.Empty : label;
+                actor.PermanentDiePenalty = penalty;
+                return new None();
+            }, "__set-actor-permanent-die-penalty!"));
+
             interpreter.DefineGlobal(Symbol.FromString("__current-actor"), new NativeProcedure(args =>
             {
                 if (gameState.CurrentContext == null) throw new InvalidOperationException("__current-actor called without action context");
@@ -263,6 +282,15 @@ namespace SSNoir.Scripting
                 gameState.CurrentActionReport.AddNote(text);
                 return new None();
             }, "__result-note!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__record-clock-effect!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 2 || !(args[0] is string label))
+                    throw new ArgumentException("__record-clock-effect! requires label and delta");
+                int delta = Convert.ToInt32(args[1]);
+                gameState.CurrentActionReport?.AddClockEffect(label, delta);
+                return new None();
+            }, "__record-clock-effect!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__play-narration!"), new NativeProcedure(args =>
             {

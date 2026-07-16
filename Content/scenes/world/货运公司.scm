@@ -9,6 +9,7 @@
     (define investment-days 0)
     (define investment-principal 60)
     (define investment-principal-discount 15) ; 富商·信任：代理人给的本金优惠
+    (define agent-identity "撮合货主、船东与投资项目的货运代理")
 
     (define (investment-principal-due)
       (if (relation-at-least? "富商" '信任)
@@ -29,7 +30,7 @@
           #f))
 
     (define (node-contract-work)
-      (关系工作 "联络货主" "富商" '中 'social
+      (关系工作 "联络货主" "富商" '低 'social
         (outcome "撮合成交" "你摸准双方的口风，把一批货和一条船接到了一起。"
           (lambda () (add-item! "金钱" 10)))
         (outcome "谈成一单" "条件不算漂亮，但双方都肯点头，你拿到一份普通佣金。"
@@ -63,9 +64,10 @@
       (notify! "代理人给了你一份项目条件。看清其中的缺口，才算真正入场。"))
 
     (define (node-entertain-agent)
-      (action "陪货运代理应酬"
-        (list (req-die) (req-item "金钱" 10))
-        (roll 'social
+      (node "陪货运代理应酬"
+        :subtitle agent-identity
+        :requires (list (req-die) (req-item "金钱" 10))
+        :resolve (roll 'social
           (outcome "话不投机" "钱花了，桌上的气氛却越来越冷。"
             (lambda () (spend-composure! 1)))
           (outcome "谈到生意" "代理人终于把一项货运周转的机会告诉了你。"
@@ -74,9 +76,10 @@
             (lambda () (finish-agent-dinner!) (grant-favor-relation! "富商"))))))
 
     (define (node-review-agent-terms)
-      (action "核对代理人的条件"
-        (list (req-die))
-        (roll 'sharpness
+      (node "核对代理人的条件"
+        :subtitle agent-identity
+        :requires (list (req-die))
+        :resolve (roll 'sharpness
           (outcome "没看出问题" "条款绕得太深，你只能先放下。"
             (lambda () (spend-composure! 1)))
           (outcome "看清风险" "你找到了真正需要承担的风险，也知道该怎么谈。"
@@ -124,9 +127,10 @@
 
     (define (node-invest)
       (node "投入货运项目"
-        :subtitle (if (relation-at-least? "富商" '信任)
-                      "代理人信得过你，这次本金打了折"
-                      "")
+        :subtitle (string-append agent-identity
+                    (if (relation-at-least? "富商" '信任)
+                        "；他信得过你，这次本金打了折"
+                        ""))
         :requires (list (req-item "金钱" (investment-principal-due)))
         :resolve (instant
           (outcome "本金入账" "钱被锁进货运周转里，三天后才知道结果。"
@@ -175,9 +179,10 @@
 
     (define (node-sell-contraband)
       (node "把私货卖给代理人"
-        :subtitle (if (relation-at-least? "富商" '信任)
-                      "代理人信得过你，这次按最好的价钱收"
-                      "代理人肯收，但价钱只是过得去——信得过你以后，价钱还能再往上走")
+        :subtitle (string-append agent-identity "；"
+                    (if (relation-at-least? "富商" '信任)
+                        "他信得过你，这次按最好的价钱收"
+                        "他肯收，但价钱只是过得去——信得过你以后还能再往上走"))
         :requires (list (req-item "私货" 1))
         :resolve (instant
           (outcome "货已收下" "代理人验过货，按约定付了钱。"
@@ -207,7 +212,9 @@
     (define (company-children)
       (append
         (list (node-contract-work)
-              (observe-action "货运代理" (agent-description)))
+              (node "货运代理"
+                :subtitle agent-identity
+                :resolve (observe (agent-description))))
         (if (and (= agent-stage 0) (relation-at-least? "富商" '相识))
             (list (node-entertain-agent))
             '())

@@ -49,16 +49,16 @@
 
 (define enemies
   (list (make-enemy "持刀者" 3 3 10)
-        (make-enemy "持枪手" 2 4 15)))
+        (make-enemy "棍棒手" 2 4 15)))
 
 (define (live-enemies)
   (filter (lambda (e) (not (e 'dead?))) enemies))
 
 (define (make-random-enemy)
-  (let ((type (random-choice '("持刀者" "持枪手"))))
+  (let ((type (random-choice '("持刀者" "棍棒手"))))
     (if (equal? type "持刀者")
         (make-enemy "持刀者" 3 3 10)
-        (make-enemy "持枪手" 2 4 15))))
+        (make-enemy "棍棒手" 2 4 15))))
 
 ;; ── Rules ──────────────────────────────────────
 (define-turn-rule "敌人时钟与攻击"

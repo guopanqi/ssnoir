@@ -20,6 +20,16 @@ namespace SSNoir.Rendering
         private readonly RendererState _state;
         private readonly UiWindowStack _windowStack = new();
         private Action? _presentationDoneCallback;
+        private StartupScreen _startupScreen = StartupScreen.MainMenu;
+        private string _startupError = string.Empty;
+        private bool _exitRequested;
+
+        private enum StartupScreen
+        {
+            MainMenu,
+            LoadSlots,
+            InGame,
+        }
 
         private const int WindowWidth = 900;
         private const int WindowHeight = 800;
@@ -389,13 +399,13 @@ namespace SSNoir.Rendering
             }
         }
 
-        private void LoadSavedGame(string? filePath = null)
+        private bool LoadSavedGame(string? filePath = null)
         {
             var path = filePath ?? SaveManager.DefaultSavePath;
             if (!System.IO.File.Exists(path))
             {
                 _gameState.NotificationCenter.Push("没有找到存档文件。", NotificationKind.Warning);
-                return;
+                return false;
             }
 
             try
@@ -404,11 +414,23 @@ namespace SSNoir.Rendering
                 _state.DisplayedSnapshot = _sceneManager.LatestSnapshot;
                 _state.SelectedResource = null;
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
+                return true;
             }
             catch (Exception ex)
             {
                 _gameState.NotificationCenter.Push($"读档失败: {ex.Message}", NotificationKind.Error);
+                return false;
             }
+        }
+
+        private void StartNewGame()
+        {
+            _sceneManager.LoadScene("world");
+            var opening = FindNodeByName(_state.DisplayedSnapshot.RootNode, "雨夜来客")
+                ?? throw new InvalidOperationException("新游戏缺少自动开场动作“雨夜来客”。");
+
+            _startupScreen = StartupScreen.InGame;
+            ExecuteNodeAction(opening, new List<SlottedResource?>());
         }
 
         private void ResolveNavigationStack()
@@ -554,9 +576,7 @@ namespace SSNoir.Rendering
 
             FontManager.LoadFont($"assets/fonts/{FontFamily}-Regular.ttf", 48);
 
-            _sceneManager.LoadScene(_gameState.Get<string>("location"));
-
-            while (!Raylib.WindowShouldClose())
+            while (!Raylib.WindowShouldClose() && !_exitRequested)
             {
                 UpdateAndDraw();
             }
@@ -567,6 +587,12 @@ namespace SSNoir.Rendering
 
         private void UpdateAndDraw()
         {
+            if (_startupScreen != StartupScreen.InGame)
+            {
+                DrawStartupScreen();
+                return;
+            }
+
             if (_state.DisplayedSnapshot.Health <= 0)
             {
                 if (Raylib.IsKeyPressed(KeyboardKey.Escape))
@@ -915,6 +941,97 @@ namespace SSNoir.Rendering
             Raylib.EndDrawing();
         }
 
+        private void DrawStartupScreen()
+        {
+            var mouse = Raylib.GetMousePosition();
+            var ui = new UiInteractionContext { Mouse = mouse };
+            float width = Raylib.GetScreenWidth();
+            float height = Raylib.GetScreenHeight();
+            float panelWidth = Math.Min(460f, width - 80f);
+            float panelX = (width - panelWidth) / 2f;
+            float panelY = Math.Max(72f, (height - 520f) / 2f);
+
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(new Color(14, 14, 20, 255));
+
+            FontManager.DrawText("SSNOIR", panelX, panelY, 44, TerminalPalette.AccentBright);
+            FontManager.DrawText("雨夜，旧账与一座不肯睡去的城", panelX + 2f, panelY + 58f, 16, TerminalPalette.TextMuted);
+            Raylib.DrawLineEx(
+                new Vector2(panelX, panelY + 94f),
+                new Vector2(panelX + panelWidth, panelY + 94f),
+                1f,
+                TerminalPalette.Border);
+
+            if (_startupScreen == StartupScreen.MainMenu)
+            {
+                float buttonY = panelY + 132f;
+                var newGame = UiButton.Draw(new Rectangle(panelX, buttonY, panelWidth, 54f), "新游戏", ui, true, 18,
+                    TerminalPalette.AccentDark, new Color(58, 58, 104, 255), null,
+                    TerminalPalette.Accent, TerminalPalette.AccentBright, null, TerminalPalette.Text, null);
+                var loadGame = UiButton.Draw(new Rectangle(panelX, buttonY + 70f, panelWidth, 54f), "从存档启动", ui, true, 18);
+                var exit = UiButton.Draw(new Rectangle(panelX, buttonY + 140f, panelWidth, 54f), "退出", ui, true, 18);
+
+                if (newGame.Clicked)
+                {
+                    try
+                    {
+                        _startupError = string.Empty;
+                        StartNewGame();
+                    }
+                    catch (Exception ex)
+                    {
+                        _startupError = $"新游戏启动失败：{ex.Message}";
+                    }
+                }
+                else if (loadGame.Clicked)
+                {
+                    _startupError = string.Empty;
+                    _startupScreen = StartupScreen.LoadSlots;
+                }
+                else if (exit.Clicked)
+                {
+                    _exitRequested = true;
+                }
+            }
+            else
+            {
+                FontManager.DrawText("选择存档", panelX, panelY + 122f, 22, TerminalPalette.Text);
+                float slotY = panelY + 164f;
+                for (int slot = 1; slot <= SaveManager.SlotCount; slot++)
+                {
+                    string path = SaveManager.GetSlotFilePath(slot);
+                    string saveTime = SaveManager.GetSaveTime(path);
+                    bool hasSave = !string.IsNullOrEmpty(saveTime);
+                    string label = hasSave ? $"槽位 {slot}    {saveTime}" : $"槽位 {slot}    空";
+                    var slotButton = UiButton.Draw(
+                        new Rectangle(panelX, slotY + (slot - 1) * 62f, panelWidth, 48f),
+                        label, ui, hasSave, 15);
+                    if (slotButton.Clicked)
+                    {
+                        _startupError = string.Empty;
+                        if (LoadSavedGame(path))
+                            _startupScreen = StartupScreen.InGame;
+                        else
+                            _startupError = $"槽位 {slot} 读取失败，请检查存档文件。";
+                    }
+
+                }
+
+                float backY = slotY + SaveManager.SlotCount * 62f + 8f;
+                var back = UiButton.Draw(new Rectangle(panelX, backY, panelWidth, 44f), "返回", ui, true, 15);
+                if (back.Clicked)
+                {
+                    _startupError = string.Empty;
+                    _startupScreen = StartupScreen.MainMenu;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(_startupError))
+                FontManager.DrawText(_startupError, panelX, panelY + 548f, 13, new Color(230, 105, 110, 255));
+
+            Raylib.EndDrawing();
+        }
+
         private void DrawNarrationOverlay()
         {
             if (string.IsNullOrEmpty(_state.ActiveNarrationId))
@@ -953,7 +1070,7 @@ namespace SSNoir.Rendering
             float px = btnX + btnW - pw;
             float py = btnY + btnH + 8f;
             float itemH = 26f;
-            float slotsHeight = 20f + 3 * 28f + 14f;
+            float slotsHeight = 20f + SaveManager.SlotCount * 28f + 14f;
             float panelH = 56f + slotsHeight + _state.DropdownItems.Count * itemH + 8f;
             var panelRect = new Rectangle(px, py, pw, panelH);
 
@@ -1044,7 +1161,7 @@ namespace SSNoir.Rendering
             FontManager.DrawText("存档管理", px + 16f, curY + 2f, 11, TerminalPalette.TextMuted);
             curY += 20f;
 
-            for (int slot = 1; slot <= 3; slot++)
+            for (int slot = 1; slot <= SaveManager.SlotCount; slot++)
             {
                 string slotPath = SaveManager.GetSlotFilePath(slot);
                 string saveTime = SaveManager.GetSaveTime(slotPath);

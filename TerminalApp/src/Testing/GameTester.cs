@@ -93,6 +93,8 @@ namespace SSNoir.Testing
                         ["social"] = 1,
                     });
                 source.Team.SpendComposure(companion.Id, 2);
+                companion.PermanentDiePenaltyLabel = "残疾";
+                companion.PermanentDiePenalty = -1;
                 sourceManager.SaveGame(savePath);
 
                 var loaded = new GameState();
@@ -112,6 +114,9 @@ namespace SSNoir.Testing
                 AssertEq("companion name", "测试同伴", loadedCompanion.Name);
                 AssertEq("companion composure", TeamState.MaxComposure - 2, loadedCompanion.Composure);
                 AssertEq("companion knowledge", 2, loadedCompanion.Stats["knowledge"]);
+                AssertEq("companion permanent penalty label", "残疾", loadedCompanion.PermanentDiePenaltyLabel);
+                AssertEq("companion permanent penalty", -1, loadedCompanion.PermanentDiePenalty);
+                AssertEq("companion permanent status count", 1, loaded.Team.GetActiveActionSlotStatuses(loadedCompanion).Count);
                 AssertEq("player dice", 3, loaded.Team.FindActor("player")!.ActionDice.Count);
                 AssertEq("companion dice", 1, loadedCompanion.ActionDice.Count);
 
@@ -185,13 +190,19 @@ namespace SSNoir.Testing
             slotState.Team.SpendComposure("player", 3);
             var slotPlayer = slotState.Team.FindActor("player")!;
             AssertEq("faint slot status count", 1, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
+            AssertEq("faint slot penalty", -1, slotState.Team.GetActiveActionSlotStatuses(slotPlayer)[0].DiePenalty);
             int faintSlot = slotState.Team.GetActiveActionSlotStatuses(slotPlayer)[0].SlotId;
             slotState.Team.SpendComposure("player", 3);
             AssertEq("loss-control slot status count", 2, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
             bool faintSlotStillPresent = false;
+            bool lossControlPenaltyPresent = false;
             foreach (var status in slotState.Team.GetActiveActionSlotStatuses(slotPlayer))
+            {
                 faintSlotStillPresent |= status.SlotId == faintSlot;
+                lossControlPenaltyPresent |= status.Label == "失控" && status.DiePenalty == -2;
+            }
             AssertEq("faint slot persists", true, faintSlotStillPresent);
+            AssertEq("loss-control slot penalty", true, lossControlPenaltyPresent);
             slotState.Team.RestoreComposure("player", 1);
             AssertEq("loss-control slot clears above 0", 1, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
             slotState.Team.RestoreComposure("player", 3);

@@ -6,17 +6,16 @@
     ;; ── 常量 ────────────────────────────────────────
     (define prepayment 30)
     (define ransom 150)              ; 节拍二文案里的名义数，节拍三涨成封口价
-    (define first-installment 60)
+    (define first-installment 100)
     (define ring-value 15)
-    (define beat1-target 4)
-    (define dock-guard-target 3)
+    (define beat1-location-target 4)
+    (define stranger-understanding-target 2)
     (define hush-price 480)             ; 封口总价
     (define hush-price-discounted 420)  ; 付过首期，仍由她承担一半左右
     (define hush-contribution-target 240)
     (define nightingale-daily-earning 40)
     (define rumor-price 50)
-    (define berth-price-freight 80)     ; 货运公司正规舱位
-    (define berth-price-dock 50)        ; 码头渔船夹带
+    (define berth-price-insurance 80)   ; 保险公司紧急转移条款的正规舱位
     (define truth-target 4)             ; 暗账查访格数
     (define letter-delay 2)             ; 结局 D 的信,几天后送到
     (define letter-money 40)            ; 信里附的钱
@@ -24,24 +23,22 @@
     ;; ── 状态 ────────────────────────────────────────
     (define story-stage 0)
     ;; 0=未开场 1=受托查探 2=账转你头(二层已揭) 3=知道真相(三层已揭)
-    ;; 90=真名(A) 91=她被带走(B) 92=中途放走(C)
+    ;; 90=真名(A) 91=她被带走(B)
     ;; 93=远方的信(D1) 94=信和疤(D2) 95=案卷(F) 96=你没有去(B') 97=随案移交(G)
     (define condition-level 0)
     ;; 0=稳定 1=不安 2=恐惧 3=被迫转移
-    (define beat1-progress 0)
-    ;; 查访进度 0..beat1-target。不限制同一来源重复贡献，靠目标格数与每日骰数控制节奏。
+    (define diner-inquiry-progress 0)
+    (define dock-inquiry-progress 0)
+    ;; 饭店与码头各自拥有一条 0..4 的查访 Clock；每完成一条，陌生人了解 +1。
     (define beat1-early? #f)
     (define protection "无")
     (define installment-paid? #f)
-    (define dock-guard 0)   ; 码头看场路线的凑人进度 0..dock-guard-target
     (define truth-progress 0)  ; 暗账查访进度 0..truth-target
     (define berth? #f)         ; 路线三①：是否已弄到舱位
     (define farewell? #f)      ; 路线三②：是否已送她上船
     (define hush-paid? #f)     ; 路线一：是否已付封口钱
     (define case-filed? #f)    ; 路线四：是否已立案送警
-    (define surrendered? #f)   ; 将完整真相交给刑警：她随案移交
-    (define detective-stage 0) ; 0=未见 1=初谈 2=说起死者
-    (define detective-evidence "无") ; 无 / 老板 / 完整
+    (define surrendered? #f)   ; 将完整真相交给萨姆：她随案移交
     (define ending-day 0)      ; 进入终值 stage 时的 world-day（结局信用）
     (define stage3-start-day 0)
     (define nightingale-earnings 0) ; 她替封口钱凑出的部分
@@ -61,8 +58,6 @@
         ((or (equal? flag '二层已揭) (equal? flag "二层已揭")) "二层已揭")
         ((or (equal? flag '三层已揭) (equal? flag "三层已揭")) "三层已揭")
         ((or (equal? flag '唱歌) (equal? flag "唱歌")) "唱歌")
-        ((or (equal? flag '软选择) (equal? flag "软选择")) "软选择")
-        ((or (equal? flag '留下) (equal? flag "留下")) "留下")
         ((or (equal? flag '旧戒指) (equal? flag "旧戒指")) "旧戒指")
         ((or (equal? flag '撒谎的人) (equal? flag "撒谎的人")) "撒谎的人")
         ((or (equal? flag '案卷备妥) (equal? flag "案卷备妥")) "案卷备妥")
@@ -92,21 +87,23 @@
     (define (stage3-open?) (and (= story-stage 3) (has-flag? '三层已揭)))
     ;; 路线一/三/四互斥：任一落定，其余路线的准备节点全部消失。
     (define (route-settled?) (or hush-paid? farewell? case-filed? surrendered?))
-    ;; 立案交割是否已经就绪：自己拼过案卷，或节拍二走过警局方案（探长已信你）。
-    (define (case-ready?) (and (equal? detective-evidence "老板")
+    ;; 立案交割是否已经就绪：自己拼过案卷，或节拍二走过阿瑟的提级方案。
+    (define (case-ready?) (and (equal? (sam 'evidence) "老板")
                                (or (has-flag? '案卷备妥) (equal? protection "警局"))))
-    (define (case-evidence-submitted?) (equal? detective-evidence "老板"))
-    (define (detective-remembrance-ready?)
-      (and (= detective-stage 1) (>= truth-progress 2)))
+    (define (case-evidence-submitted?) (equal? (sam 'evidence) "老板"))
     (define (hush-total) (if installment-paid? hush-price-discounted hush-price))
     (define (hush-due) (max 0 (- (hush-total) nightingale-earnings)))
+
+    (define (stranger-understanding)
+      (+ (if (>= diner-inquiry-progress beat1-location-target) 1 0)
+         (if (>= dock-inquiry-progress beat1-location-target) 1 0)))
 
     (define (sync-globals!)
       (set-global! '夜莺阶段 story-stage)
       (set-global! '夜莺状态等级 condition-level)
       (set-global! '夜莺状态 (condition-label))
-      (set-global! '夜莺查访进度 beat1-progress)
-      (set-global! '夜莺查访目标 beat1-target)
+      (set-global! '夜莺查访进度 (stranger-understanding))
+      (set-global! '夜莺查访目标 stranger-understanding-target)
       (set-global! '夜莺主动上门 beat1-early?)
       (set-global! '夜莺保护方案 protection)
       (set-global! '夜莺二层已揭 (has-flag? '二层已揭))
@@ -153,14 +150,32 @@
           (string-append "首期他们认了账,封口钱只要 " (number->string hush-price-discounted) "。")
           ""))
 
-    (define (advance-beat1! label detail)
-      (set! beat1-progress (min beat1-target (+ beat1-progress 1)))
-      (set-flag! '已打听)
-      (sync-globals!)
-      (spotlight! label detail))
+    (define (advance-beat1-location! location n)
+      (let ((before (stranger-understanding)))
+        (cond
+          ((equal? location "饭店")
+           (let ((location-before diner-inquiry-progress))
+             (set! diner-inquiry-progress
+                   (min beat1-location-target (+ diner-inquiry-progress n)))
+             (record-clock-progress! "饭店里的说法" (- diner-inquiry-progress location-before))))
+          ((equal? location "码头")
+           (let ((location-before dock-inquiry-progress))
+             (set! dock-inquiry-progress
+                   (min beat1-location-target (+ dock-inquiry-progress n)))
+             (record-clock-progress! "码头上的来路" (- dock-inquiry-progress location-before))))
+          (else (error "夜莺节拍一：未知查访地点")))
+        (set-flag! '已打听)
+        (sync-globals!)
+        (if (> (stranger-understanding) before)
+            (if (>= (stranger-understanding) stranger-understanding-target)
+                (spotlight! "藏身处揭晓" "饭店的描述和码头的来路对上了。陌生人的藏身处已经标在城市地图上。")
+                (spotlight! "一条线索坐实" "这一处的说法已经能够互相印证。再查清另一处，就能找出陌生人的藏身处。"))
+            #f)))
 
     (define (advance-truth! label detail)
-      (set! truth-progress (min truth-target (+ truth-progress 1)))
+      (let ((before truth-progress))
+        (set! truth-progress (min truth-target (+ truth-progress 1)))
+        (record-clock-progress! "那晚码头上发生了什么" (- truth-progress before)))
       (sync-globals!)
       (sync-blockers!)
       (if (= truth-progress 1)
@@ -175,8 +190,10 @@
 
     (define (beat1-ready?)
       (and (= story-stage 1)
-           (>= beat1-progress beat1-target)
+           (>= (stranger-understanding) stranger-understanding-target)
            (not public-event-pending?)))
+
+    (define (hideout-visible?) (beat1-ready?))
 
     ;; ── 阻塞同步 ────────────────────────────────────
     (define (sync-blockers!)
@@ -198,16 +215,16 @@
 
     ;; ── 开场节点 ────────────────────────────────────
     (define (node-answer-door)
-      (instant-action "回应敲门声"
+      (instant-action "雨夜来客"
         (lambda ()
           (play-dialogue!
-            (line "回应敲门声" "门外雨下得像不要钱。钱在桌上,预付的——我要你查清楚,是谁在盯我的梢。")
+            (line "夜莺" "门外雨下得像不要钱。钱在桌上,预付的——我要你查清楚,是谁在盯我的梢。")
             (line "主角" "你是谁?")
-            (line "回应敲门声" "他们都叫我夜莺。那只死鸟和字条,也是他们送的。先开门,行吗?"))
+            (line "夜莺" "他们都叫我夜莺。那只死鸟和字条,也是他们送的。先开门,行吗?"))
           (add-item! "金钱" prepayment)
           (advance-stage! 1)
           (rest-release! "夜莺/开场敲门")
-          (spotlight! "雨夜来客" "你把钱收进兜里。这不是委托,是一根钓钩,而你已经张了嘴。四天之内,查清那个盯梢的人落脚在哪。"))))
+          (spotlight! "雨夜来客" "你把钱收进兜里。这不是委托,是一根钓钩,而你已经张了嘴。第三天以前,去饭店和码头查清那个陌生人藏在哪里。"))))
 
     ;; ── 第二层揭开(交锋一后,必看) ──────────────────
     (define (node-reveal-layer-2)
@@ -281,18 +298,13 @@
       (cond
         ((= story-stage 0) "还没有发生什么。")
         ((= story-stage 1) "一个叫夜莺的歌女,在雨夜敲开了你的门。她撂下一笔预付钱,要你查清是谁在盯她的梢。")
-        ((= story-stage 2) (if (has-flag? '留下)
-                               "收账人把账算到了你头上。她本可以一走了之,却为你一句话留了下来。第十天前,最干脆的办法是替她垫一笔首期赎身钱;凑不出钱,就得找人替她撑腰——让码头的兄弟第十天守在酒馆门口,或者请警局那边出面。"
-                               "收账人把账算到了你头上。夜莺认得他们:她从邻城歌厅逃出来,对方要一笔赎身钱。第十天前,最干脆的办法是替她垫一笔首期赎身钱;凑不出钱,就得找人替她撑腰——让码头的兄弟第十天守在酒馆门口,或者请警局那边出面。"))
+        ((= story-stage 2) "收账人把账算到了你头上。夜莺认得他们:她从邻城歌厅逃出来,对方要一笔赎身钱。第十天前,可以替她垫一笔首期赎身钱,也可以请阿瑟把这件事提到巡警会出面的优先级。")
         ((= story-stage 3)
          (string-append
-           (if (has-flag? '留下)
-               "那晚,码头的水吞了一个人。她留了下来,可这事没完。"
-               "那晚,码头的水吞了一个人。老板一口咬定是夜莺推的——这不只是一笔账,是一条命。")
+           "那晚,码头的水吞了一个人。老板一口咬定是夜莺推的——这不只是一笔账,是一条命。"
            (ransom-hint)))
         ((= story-stage 90) "她留在了这座城。真名,只在你耳边轻轻说过一次。")
         ((= story-stage 91) "她跟他们走了,拿自己抵了你一条命。酒馆的台子上,再没人开嗓。")
-        ((= story-stage 92) "你放她走了。欠她的,和没欠她的,这辈子都没法还了。")
         ((and (= story-stage 93) (not (has-flag? '结局信)))
          (if (truth-known?)
              "她安全了。船开的那晚,酒馆的灯灭了,再没人开嗓——她曾经只顾自己逃命,这一回,却是不想再连累你。"
@@ -311,7 +323,7 @@
              "她安全了。信照样来了——她不知道你为这件事付出了什么。"))
         ((= story-stage 95) "第 17 天来的不是老板,是巡警。她留下了,案子只是压着——你们都清楚这一点。")
         ((= story-stage 96) "你在饭店坐到很晚。第二天,酒馆的门关着,没人跟你说发生了什么——你也没问。")
-        ((= story-stage 97) "她跟着巡警走了。邻城刑警带着完整案卷，也带着那个死者曾经活过的证词。")
+        ((= story-stage 97) "她跟着巡警走了。萨姆带着完整案卷，也带着亨利曾经活过的证词。")
         (else "……")))
 
     (define (nightingale-subtitle)
@@ -324,7 +336,6 @@
         ((= story-stage 3) (string-append (condition-label) "；等一个了断"))
         ((= story-stage 90) "留在城里")
         ((= story-stage 91) "被带走")
-        ((= story-stage 92) "已离开")
         ((= story-stage 93) "已平安离开")
         ((= story-stage 94) "带伤扛下了")
         ((= story-stage 95) "案子压着")
@@ -338,7 +349,7 @@
             (hush-paid? "封口钱已经付清。第 17 天,他会当面烧掉那纸约。")
             (farewell? "她已经上船。第 17 天,账不会跟着她走,只会找上你。")
             (case-filed? "案子已经立起来。第 17 天,来的会是巡警,不是老板。")
-            (surrendered? "完整真相已经交给刑警。第 17 天,她会随案离开。")
+            (surrendered? "完整真相已经交给萨姆。第 17 天,她会随案离开。")
             (else ""))
           (string-append
             "第 17 天前,这件事要有个了断——不作任何准备,任由那天当面碰上,就是硬碰硬；"
@@ -351,15 +362,15 @@
 
     (define (case-route-note)
       (cond
-        ((= detective-stage 0) "立案送警：去警局见一见邻城来的刑警")
-        ((not (equal? detective-evidence "老板")) "立案送警：把老板那一半证据交给刑警")
-        ((not (relation-at-least? "官僚" '信任))
-         "立案送警：去警局，把官僚关系升到信任")
+        ((= (sam 'stage) 0) "立案送警：去警局外见萨姆")
+        ((not (equal? (sam 'evidence) "老板")) "立案送警：把老板那一半证据交给萨姆")
+        ((not (arthur 'can-escalate?))
+         "立案送警：先替阿瑟处理那件程序管不了的麻烦")
         ((not (case-ready?))
-         "立案送警：去警局拼案卷，再带办案通行证请探长立案")
+         "立案送警：去警局拼案卷，再带通行证请阿瑟送进程序")
         ((= (item-count "办案通行证") 0)
-         "立案送警：先拿到一张办案通行证，再去警局请探长立案")
-        (else "立案送警：带办案通行证去警局请探长立案")))
+         "立案送警：先请阿瑟办理一张通行证")
+        (else "立案送警：带通行证请阿瑟把案子送进程序")))
 
     (define (goal-note)
       (cond
@@ -369,9 +380,9 @@
          (list (list 'clock "夜莺的目标" 0 1 'countdown
                      (cond
                        ((= story-stage 1)
-                        (string-append "第 4 天他会上门。在那之前查出他的落脚处("
-                                       (number->string beat1-progress) "/"
-                                       (number->string beat1-target) ")。"))
+                        (string-append "第 3 天他会上门。在那之前完成饭店与码头的查访，对陌生人的了解("
+                                       (number->string (stranger-understanding)) "/"
+                                       (number->string stranger-understanding-target) ")。"))
                        ((= story-stage 2)
                         (if (equal? protection "无")
                             (string-append "第 10 天他们会来。先把首期赎身钱 "
@@ -383,8 +394,8 @@
 
     (define (beat1-clock)
       (if (= story-stage 1)
-          (list (list 'clock "查访盯梢者" beat1-progress beat1-target 'segments
-                      "填满后可以主动去找收账人；未查清则第 4 天他会找上门。"))
+          (list (list 'clock "对陌生人的了解" (stranger-understanding) stranger-understanding-target 'segments
+                      "饭店与码头的查访 Clock 每完成一条，增加 1 格；满格后揭晓藏身处。"))
           '()))
 
     (define (protection-clock)
@@ -400,9 +411,9 @@
 
     (define (condition-clock)
       (if (>= story-stage 1)
-          (list (list 'clock (string-append "夜莺状态：" (condition-label))
+          (list (list 'clock (string-append "夜莺的不安：" (condition-label))
                       condition-level 3 'segments
-                      "前面的小节失利会让她更不安。最终路线会读取这个状态,调整成本、风险或可用性。"))
+                      "主动出击不会增加；等他上门，无论交锋成败都会增加 1。后续小节失败还会继续恶化。"))
           '()))
 
     (define (truth-clock)
@@ -425,12 +436,9 @@
                           "夜莺的说辞有些含混。先把眼前的账和日子过下去。")))
           '()))
 
-    ;; 夜莺当前情境下能做的关键动作。原先这些浮在世界根（world-nodes），
-    ;; 现并入夜莺自身——同一个夜莺，情境不同则可做的动作不同。
-    ;; 「回应敲门声」仍留在世界根：stage 0 时夜莺节点尚未出现，无处可挂。
+    ;; 夜莺当前情境下能做的关键动作。开场动作只供客户端在新游戏时自动执行。
     (define (situation-nodes)
       (append
-        (if (beat1-ready?) (list (node-confront-stalker)) '())
         (if (and (= story-stage 2) (not (has-flag? '二层已揭)))
             (list (node-reveal-layer-2))
             '())
@@ -459,92 +467,28 @@
                                  (condition-clock) (nightingale-earning-clock) (truth-lead-clock) (truth-clock))))
           '()))
 
-    ;; ── 节拍一：花消息买线索 ──────────────────────
-    ;; 这是「向酒馆老主顾买准话」，与夜莺本人无关，因此挂在老街酒馆（beat1-lead-nodes），
-    ;; 不进夜莺容器。只在 beat 1、且手里有情报可花时出现。
-    (define (node-buy-lead)
-      (node "花消息买线索"
-        :subtitle "手里的消息换一句准话；不占行动骰"
-        :requires (list (req-item "情报" 1))
-        :resolve (instant
-          (lambda ()
-            (advance-beat1! "买来的准话" "你把消息塞给一个老主顾。他压低嗓子回你半句:那个外地人,这几天老在老街进出。")))))
-
-    (define (beat1-lead-nodes)
-      (if (and (= story-stage 1)
-               (< beat1-progress beat1-target)
-               (> (item-count "情报") 0))
-          (list (node-buy-lead))
-          '()))
-
     ;; ── 节拍二：落实临时保护 ────────────────────────
     (define (node-pay-installment)
       (node "交首期赎身钱"
         :subtitle (string-append "交给她 " (number->string first-installment)
                                  " 金；她知道该把钱送到谁手上")
-        :requires (list (req-die) (req-item "金钱" first-installment))
+        :requires (list (req-item "金钱" first-installment))
         :resolve (instant
           (outcome "首期交出" "她收下钱,没道谢。'我知道该送到谁手上。第十天以前,他们总得先认这笔账。'"
             (lambda () (set-protection! "首期"))))))
 
-    ;; 警局路线是两步:探长碍于身份,把「不方便的事」交给你去办。
-    ;; 第一步跑一场取证交锋拿到把柄；第二步把把柄交回探长,他才有由头出面。
-    (define (on-police-errand-result result)
-      (if (equal? result 'success)
-          (add-item! "把柄" 1)
-          #f))
-
-    (define (node-police-errand)
-      (node "替探长取证"
-        :subtitle (if (relation-at-least? "官僚" '相识)
-                      "探长碍于身份不便亲自动手；办成了,能拿到按住收账人的把柄"
-                      "你现在只是陌生人；需要先在警局挂上号")
-        :tags (list "交锋")
-        :disabled (not (relation-at-least? "官僚" '相识))
-        :resolve (instant
-          (lambda () (start-encounter "夜莺·套线" on-police-errand-result)))))
-
-    (define (node-police-handover)
-      (node "把把柄交给探长"
-        :subtitle "他捏着这个,就有由头让巡警第十天守着酒馆"
-        :requires (list (req-item "把柄" 1))
-        :resolve (instant
-          (outcome "官面上的照应" "探长掂了掂那份把柄,慢条斯理地点头。'第十天,门口会有穿制服的人。'"
-            (lambda () (set-protection! "警局"))))))
-
-    ;; 保护方案入口:没拿到把柄先去取证,拿到了就交给探长。
+    ;; 阿瑟的人物线独立于主线；节拍二只读取已经建立的关系。
     (define (node-police-protection)
-      (if (> (item-count "把柄") 0)
-          (node-police-handover)
-          (node-police-errand)))
-
-    ;; 码头看场是多日的凑人活:一两个人不算数,凑够 dock-guard-target 才落实保护。
-    (define (advance-dock-guard! n)
-      (set! dock-guard (min dock-guard-target (+ dock-guard n)))
-      (if (>= dock-guard dock-guard-target)
-          (begin
-            (set-protection! "码头")
-            (result-note! "人手凑齐了:第十天,酒馆门口不会只有你一个。"))
-          #f))
-
-    (define (node-dock-protection)
-      (node "请码头兄弟看场"
-        :subtitle (if (relation-at-least? "劳工" '相识)
-                      "一个个把靠得住的人凑到第十天的酒馆门口;人齐了才算数"
-                      "你现在谁都不认识；需要先在码头混个面熟")
-        :tags (list "中风险")
-        :disabled (not (relation-at-least? "劳工" '相识))
+      (node "请阿瑟把夜莺的事提级"
+        :subtitle (string-append "辖区警局的登记与档案职员；"
+                    (if (arthur 'can-escalate?)
+                        "欠你一次程序内的方便，能让巡警第十天守在酒馆外"
+                        "还不会为你的事改动警局的优先级"))
+        :disabled (not (arthur 'can-escalate?))
         :requires (list (req-die))
-        :clocks (list (list 'clock "凑齐看场的人" dock-guard dock-guard-target 'segments
-                            "凑够人手才落实保护;一次顶多拉到一两个。"))
-        :resolve
-          (roll 'social
-            (outcome "没人接话" "他们听完只是低头喝酒。夜莺的麻烦,还没变成他们的麻烦。"
-              (lambda () (spend-composure! 1)))
-            (outcome "有人答应" "一个码头汉子答应那晚过来搭把手。人还不够,但是个开头。"
-              (lambda () (advance-dock-guard! 1)))
-            (outcome "拉来一伙" "你把话递到了对的人耳朵里,一口气应下好几个。"
-              (lambda () (advance-dock-guard! 2))))))
+        :resolve (instant
+          (outcome "事情被提级" "阿瑟把登记单挪进另一叠文件。第十天，酒馆门外会有穿制服的人。"
+            (lambda () (set-protection! "警局"))))))
 
     (define (stage2-world-nodes)
       (if (stage2-open?)
@@ -557,8 +501,6 @@
          (spotlight! "首期" "收账人来了,也收住了手。他点了点那笔首期:'老板要亲自来做个了断。'"))
         ((equal? protection "警局")
          (spotlight! "巡警在场" "收账人看见巡警在街角站着,把话咽了回去。'好。那就等老板亲自来。'"))
-        ((equal? protection "码头")
-         (spotlight! "门口有人" "几个码头汉子抱着胳膊站在酒馆门口。收账人算了算成本,转身走了。"))
         (else
          (error "resolve-protected-beat2!: no protection"))))
 
@@ -580,41 +522,24 @@
           '()))
 
     ;; ── 节拍三·路线三：送她走，自己扛 ────────────────
-    (define (node-dock-berth)
-      (node "找码头渔船夹带"
-        :subtitle "价钱便宜,但要过一次走私判定——万一被人看见,眼线会把话递回去"
-        :tags (list "非法")
-        :requires (list (req-die) (req-item "金钱" berth-price-dock))
-        :resolve
-          (roll 'sharpness (lambda () (list (modifier -2 "非法")))
-            (outcome "被人看了个正着" "货舱缝里塞人的事,让一双眼睛看了个正着。舱位到手了,但风声也跟着走漏了。"
-              (lambda () (set! berth? #t) (set-global! '夜莺夹带暴露 #t) (sync-globals!)))
-            (outcome "混上了船" "你把她安顿进了货舱夹层,没人多问。"
-              (lambda () (set! berth? #t) (sync-globals!)))
-            (outcome "干干净净" "船工是老熟人,连账都没细算就点了头。"
-              (lambda () (set! berth? #t) (sync-globals!))))))
-
-    (define (node-freight-berth)
-      (node "订一个正规舱位"
-        :subtitle (if (relation-at-least? "富商" '相识)
-                      "货运代理能弄到一张干净的船票,价钱摆在明处"
-                      "你现在跟代理说不上话；需要先在货运公司混出点交情")
-        :disabled (not (relation-at-least? "富商" '相识))
-        :requires (list (req-item "金钱" berth-price-freight))
+    (define (node-insurance-berth)
+      (node "通过保险公司安排舱位"
+        :subtitle "沃尔特是保险公司的理赔调查员；夜莺本人名下的紧急转移条款，80金"
+        :requires (list (req-die) (req-item "金钱" berth-price-insurance))
         :resolve (instant
-          (outcome "舱位订下了" "代理把船票压进你手里。'干净的舱位,不会有人多问。'"
+          (outcome "公司舱位办妥" "沃尔特把盖过章的船票递给你。投保人和受益人那两栏，写的都是夜莺自己。"
             (lambda () (set! berth? #t) (sync-globals!))))))
 
     (define (detective-blocks-farewell?)
-      ;; 真相揭开后，不能把人送走再假装什么也没发生；至少得向刑警交代老板那一半。
-      (and (truth-known?) (equal? detective-evidence "无")))
+      ;; 真相揭开后，不能把人送走再假装什么也没发生；至少得向萨姆交代老板那一半。
+      (and (truth-known?) (equal? (sam 'evidence) "无")))
 
     (define (node-farewell)
       (node "送她上船"
         :subtitle (if (detective-blocks-farewell?)
-                      "邻城刑警已经盯上这桩案子。没有给他一个交代，他会在码头拦下夜莺。"
+                      "萨姆已经盯上这桩案子。没有给他一个交代，他会在码头拦下夜莺。"
                       "跳板快收了。第 17 天的账，不会跟着她走，只会找上你。")
-        :tags (if (detective-blocks-farewell?) (list "需要向刑警交代") '())
+        :tags (if (detective-blocks-farewell?) (list "需要向萨姆交代") '())
         :disabled (detective-blocks-farewell?)
         :requires (list (req-die))
         :resolve (instant
@@ -646,58 +571,9 @@
     ;; ── 节拍三·路线四：立案送警 ────────────────────
     (define (node-case-route-locked)
       (node "立案送警"
-        :subtitle "探长不会替陌生人压下一桩跨城命案；先把官僚关系升到信任"
-        :tags (list "需要官僚·信任")
+        :subtitle "阿瑟是辖区警局的登记与档案职员；他还不会把跨城命案送进正式程序"
+        :tags (list "需要阿瑟·熟")
         :disabled #t))
-
-    ;; 邻城刑警不替夜莺定罪，也不替她开脱。他带来的是死者仍有亲人、同事和名字这一面。
-    (define (node-detective-introduction)
-      (instant-action "见见邻城来的刑警"
-        (lambda ()
-          (play-dialogue!
-            (line "世界" "邻城刑警把帽子放在膝上。他说，死者叫何迁，是老板的跑腿，也是他以前的同事。")
-            (line "世界" "‘他不是什么好人。可他有个妹妹，等了三年，连一句准话都没等到。’")
-            (line "主角" "你是来抓夜莺的？")
-            (line "世界" "‘我是来查那一晚。查清之前，谁都别替我把结论写了。’"))
-          (set! detective-stage 1)
-          (sync-globals!)
-          (spotlight! "邻城刑警" "他不拿正义当棍子，却也不肯把死者抹成一行旧账。"))))
-
-    (define (node-detective-remembrance)
-      (instant-action "听他说起何迁"
-        (lambda ()
-          (play-dialogue!
-            (line "世界" "刑警说，何迁每月都往邻城寄钱，妹妹病过一场，药钱里有几张还是他从码头活里扣出来的。")
-            (line "世界" "‘他替老板做脏活，也有过不敢回家的晚上。人不是一张好人坏人的纸。’")
-            (line "主角" "可那晚是他抓住夜莺的。")
-            (line "世界" "‘所以我得知道，是谁把他逼到栈桥上，又是谁让活人只能靠谎话活着。’"))
-          (set! detective-stage 2)
-          (sync-globals!)
-          (spotlight! "一个名字" "死者不再只是案卷里的‘一名男子’。这不会替夜莺定罪，也不会替任何人免责。"))))
-
-    (define (node-give-detective-evidence)
-      (container "把证据交给邻城刑警"
-        (list
-          (instant-action "请他只查老板"
-            (lambda ()
-              (play-dialogue!
-                (line "主角" "船期、账本和抓痕，够你顺着老板查下去。夜莺那一半，先别写死。")
-                (line "世界" "刑警把材料分成两叠。‘我会查雇凶、拐卖和压案。她那一晚，我留着，等该说话的人自己说。’"))
-              (set! detective-evidence "老板")
-              (sync-globals!)
-              (spotlight! "留下一半" "你把最能咬住老板的证据交了出去，也把夜莺那一半暂时留在了纸外。")))
-          (instant-action "把完整真相交给他"
-            (lambda ()
-              (play-dialogue!
-                (line "主角" "都在这里。她甩开了何迁，他落了水。老板的账、她的谎，都别替任何人藏。")
-                (line "世界" "刑警沉默很久，把两叠纸重新合上。‘我会把她当作当事人，不当作一件货。可她得跟我回去，把话说完。’")
-                (line "夜莺" "……好。总该有人把那一晚说清楚。")
-                (line "主角" "不是替老板说清。")
-                (line "夜莺" "我知道。"))
-              (set! detective-evidence "完整")
-              (set! surrendered? #t)
-              (sync-globals!)
-              (spotlight! "完整案卷" "你没有替她选无罪，也没有把她交回老板；你把真相交给了会追问下去的人。"))))))
 
     (define (node-build-case)
       (action "把那晚的案卷拼起来"
@@ -708,12 +584,12 @@
           (outcome "拼得严丝合缝" "案卷拼得严丝合缝,连日期都对得上。" (lambda () (set-flag! '案卷备妥))))))
 
     (define (node-file-case)
-      (node "请探长立案"
-        :subtitle "通行证是由头,官僚信任是探长愿意替你压的人情——他只立老板那一半"
+      (node "请阿瑟把案子送进程序"
+        :subtitle "辖区警局的登记与档案职员；通行证是由头，人情让材料不会停在收件桌上"
         :tags (if (> (item-count "办案通行证") 0) '() (list "需要办案通行证"))
         :requires (list (req-item "办案通行证" 1))
         :resolve (instant
-          (outcome "案子立起来了" "探长收下通行证,合上案卷。'雇凶跨城抢人,腕上的抓痕——这些够立案了。她那半,我压着。'"
+          (outcome "案子立起来了" "阿瑟收下通行证，把材料放进提级案卷。老板那一半从此不能再被当作普通纠纷。"
             (lambda () (set! case-filed? #t) (sync-globals!))))))
 
     ;; ── 节拍三·到期日分派 ───────────────────────────
@@ -737,9 +613,9 @@
       (instant-action "看着她跟巡警走"
         (lambda ()
           (play-dialogue!
-            (line "世界" "第十七天，来的是邻城刑警和两名巡警。没有镣铐，只有一只装着案卷的牛皮袋。")
-            (line "夜莺" "我会把话说完。何迁的妹妹，也该听见一个不是老板编的说法。")
-            (line "世界" "她走进雨里，没有回头。刑警把伞往她那边偏了一点。"))
+            (line "世界" "第十七天，来的是萨姆和两名巡警。没有镣铐，只有一只装着案卷的牛皮袋。")
+            (line "夜莺" "我会把话说完。亨利的妹妹，也该听见一个不是老板编的说法。")
+            (line "世界" "她走进雨里，没有回头。萨姆把伞往她那边偏了一点。"))
           (on-public-event-result 'surrendered))))
 
     (define (node-encounter-entry)
@@ -837,56 +713,58 @@
 
     ;; ── 节拍一：查访盯梢者 ──────────────────────────
     (define (node-confront-stalker)
-      (encounter-action "去找收账人"
-        (lambda ()
-          (set! beat1-early? #t)
-          (sync-globals!)
-          (begin-public-event-early!)
-          (start-encounter "夜莺·警告" on-public-event-result))))
+      (node "主动出击"
+        :subtitle "陌生人的藏身处；抢在他找上夜莺之前进行交锋"
+        :tags (list "交锋")
+        :resolve (instant
+          (lambda ()
+            (set! beat1-early? #t)
+            (sync-globals!)
+            (begin-public-event-early!)
+            (start-encounter "夜莺·警告" on-public-event-result)))))
 
-    (define (node-inquire-stalker)
-      (action "打听盯梢的人"
-        (list (req-die))
-        (roll 'social
-          (lambda ()
-            (spend-composure! 1)
-            (set-flag! '已打听))
-          (lambda ()
-            (set-flag! '已打听)
-            (advance-beat1! "外地人" "酒客只确认了一件事:那人是外地来的,用的不是本地名字。"))
-          (lambda ()
-            (set-flag! '已打听)
-            (add-item! "情报" 1)
-            (advance-beat1! "另一个名字" "水手漏了口风:那人在码头打听她时,用的是邻城歌厅的名字。")))))
+    (define (node-diner-inquire-stalker)
+      (node "在饭店打听陌生人"
+        :subtitle "向不认识他的食客拼凑外貌、口音和习惯"
+        :tags (list "低风险")
+        :clocks (list (list 'clock "饭店里的说法" diner-inquiry-progress beat1-location-target 'segments
+                            "填满后，对陌生人的了解增加 1 格。"))
+        :requires (list (req-die))
+        :resolve (roll 'social
+          (outcome "问得太急" "你把几桌客人问得起了戒心，只能先退开。"
+            (lambda () (spend-composure! 1)))
+          (outcome "拼出轮廓" "有人记得他的外套，有人记得他的口音。零碎说法开始对得上。"
+            (lambda () (advance-beat1-location! "饭店" 1)))
+          (outcome "认出那张脸" "一个跑堂见过他几次，把他的作息和常坐的位置都说清楚了。"
+            (lambda () (advance-beat1-location! "饭店" 2))))))
 
     (define (node-dock-inquire-stalker)
-      (action "在码头打听盯梢的人"
-        (list (req-die))
-        (roll 'social
-          (lambda ()
-            (spend-composure! 1))
-          (lambda ()
-            (advance-beat1! "坐船来的" "有搬运工记得那张脸:他不是本地人,是坐夜船来的。"))
-          (lambda ()
-            (advance-beat1! "落脚处" "一个水手说漏了嘴:那人夜里常在酒馆后街的短租屋出入。")))))
+      (node "在码头打听陌生人"
+        :subtitle "向船员和搬运工追查他从哪里来、把东西送去哪里"
+        :tags (list "低风险")
+        :clocks (list (list 'clock "码头上的来路" dock-inquiry-progress beat1-location-target 'segments
+                            "填满后，对陌生人的了解增加 1 格。"))
+        :requires (list (req-die))
+        :resolve (roll 'social
+          (outcome "没人愿意开口" "码头上的人看了看你，又看了看彼此。你只换来一阵沉默。"
+            (lambda () (spend-composure! 1)))
+          (outcome "查到船期" "搬运工记得那张脸：他是坐夜船来的，而且没打算久留。"
+            (lambda () (advance-beat1-location! "码头" 1)))
+          (outcome "追到去向" "水手说出了他下船后的路线，终点是老街后面一间短租屋。"
+            (lambda () (advance-beat1-location! "码头" 2))))))
 
-    (define (node-police-inquire-stalker)
-      (action "查旅店登记簿"
-        (list (req-die))
-        (roll 'knowledge
-          (lambda ()
-            #f)
-          (lambda ()
-            (advance-beat1! "登记簿" "外地人都得登记。你在一本皱巴巴的登记簿里找到了他用过的假名。"))
-          (lambda ()
-            (advance-beat1! "短租屋" "登记簿边角夹着一张房钱收据。地址在酒馆后街。")))))
+    (define (beat1-nodes-at location)
+      (cond
+        ((and (equal? location "饭店") (= story-stage 1)
+              (< diner-inquiry-progress beat1-location-target))
+         (list (node-diner-inquire-stalker)))
+        ((and (equal? location "码头") (= story-stage 1)
+              (< dock-inquiry-progress beat1-location-target))
+         (list (node-dock-inquire-stalker)))
+        (else '())))
 
-    ;; 节拍一在酒馆的打听盯梢动作;非节拍一时段酒馆不再挂通用「打听消息」工作,
-    ;; 日常生计统一由酒馆的「服务员」承担,避免两份同质的劳工社交工作。
-    (define (tavern-inquiry-nodes)
-      (if (and (= story-stage 1) (< beat1-progress beat1-target))
-          (list (node-inquire-stalker))
-          '()))
+    (define (hideout-nodes)
+      (if (hideout-visible?) (list (node-confront-stalker)) '()))
 
     ;; ── 节拍三：暗账查访「那晚码头上发生了什么」──────
     ;; 复用节拍一的查访语法：三个来源横跨三条生活线，满格触发必看的「撒谎的人」。
@@ -909,9 +787,10 @@
 
     (define (node-police-truth)
       (node "调邻城的案卷抄件"
-        :subtitle (if (relation-at-least? "官僚" '相识)
-                      "探长肯替你压一张抄件,但得你自己从字缝里找出破绽"
-                      "得先在警局挂上号,探长才会替你调邻城的旧卷")
+        :subtitle (string-append "阿瑟是辖区警局的登记与档案职员；"
+                    (if (relation-at-least? "官僚" '相识)
+                        "肯替你调一张抄件，但得你自己找出破绽"
+                        "得先在警局登记，他才会替你调邻城旧卷"))
         :tags (if (relation-at-least? "官僚" '相识) '() (list "需要官僚·相识"))
         :disabled (not (relation-at-least? "官僚" '相识))
         :requires (list (req-die))
@@ -938,28 +817,6 @@
           (lambda () (advance-truth! "查无此船" "船期表翻了三遍:那晚,压根没有那班船。")))))
 
     ;; ── 幕间场景(酒馆) ──────────────────────────────
-    (define (node-singing)
-      (instant-action "听她唱一首歌"
-        (lambda ()
-          (set-flag! '唱歌)
-          (spotlight! "一首歌" "她唱一支旧情歌,唱到一半停了。'等这事过去,'她说,'我再给你唱完。'"))))
-
-    (define (node-soft-choice)
-      (container "她要走"
-        (list
-          (instant-action "留下"
-            (lambda ()
-              (set-flag! '软选择)
-              (set-flag! '留下)
-              (sync-globals!)
-              (spotlight! "一句话" "'你不开口,我就走。'她说。你开了口。她低下头,这回没说谢谢。")))
-          (instant-action "让她走"
-            (lambda ()
-              (set-flag! '软选择)
-              (advance-stage! 92)
-              (cancel-public-events!)
-              (spotlight! "怅然" "她留下那笔预付金,只裹上外套走进雨里。你数了数,一分没动。"))))))
-
     (define (node-old-ring)
       (container "旧戒指"
         (list
@@ -984,9 +841,6 @@
            (if (has-flag? '旧戒指)
                "酒馆的灯还亮着,台上却空了,再没人开嗓。那枚旧戒指的来历,如今只剩你一个人记得。"
                "酒馆的灯还亮着,台上却空了,再没人开嗓。")))
-        ((= story-stage 92)
-         (observe-action "空座位"
-           "她坐过的那把椅子,还在原处。老板擦着杯子:那位,不会再来了。"))
         ((or (= story-stage 93) (= story-stage 94))
          (observe-action "空舞台"
            "台上没有人唱歌了,但这寂静不一样——你知道她在哪儿,也知道她安好。"))
@@ -1003,12 +857,6 @@
 
     (define (tavern-nodes)
       (append
-        (if (and (>= story-stage 2) (>= world-day 5) (not (has-flag? '唱歌)))
-            (list (node-singing))
-            '())
-        (if (and (>= story-stage 2) (>= world-day 7) (not (has-flag? '软选择)))
-            (list (node-soft-choice))
-            '())
         (if (and (= story-stage 3) (>= world-day 12) (not (has-flag? '旧戒指)))
             (list (node-old-ring))
             '())
@@ -1016,7 +864,7 @@
             (list (ending-tavern-node))
             '())))
 
-    ;; ── 跨地点节点收拢（码头/警局/货运公司）────────────
+    ;; ── 跨地点节点收拢（警局/码头/货运公司）────────────
     ;; 三个地点文件只认「我在哪、这批节点该插在列表的哪个槽位」，
     ;; 可见性判断全部收回夜莺自己算——谁拥有状态，谁决定这段状态驱动
     ;; 的节点该不该出现在别人的地盘上。分成 lead（查访盯梢/临时保护，
@@ -1024,72 +872,49 @@
     ;; 对应各地点原本把这两批内容分开插入列表两处的顺序。
     (define (lead-nodes-at location)
       (cond
-        ((equal? location "码头")
-         (append
-           (if (and (= story-stage 1) (< beat1-progress beat1-target))
-               (list (node-dock-inquire-stalker))
-               '())
-           (if (stage2-open?) (list (node-dock-protection)) '())))
         ((equal? location "警局")
-         (append
-           (if (and (= story-stage 1) (< beat1-progress beat1-target))
-               (list (node-police-inquire-stalker))
-               '())
-           (if (stage2-open?) (list (node-police-protection)) '())))
+         (if (stage2-open?) (list (node-police-protection)) '()))
         (else '())))
 
     (define (route-nodes-at location)
       (cond
         ((equal? location "码头")
-         (append
-           (if (and (stage3-open?) (truth-lead?) (truth-pending?) (not (route-settled?)))
-               (list (node-dock-truth))
-               '())
-           (if (and (stage3-open?) (relation-at-least? "劳工" '信任)
-                    (not berth?) (not (route-settled?)))
-               (list (node-dock-berth))
-               '())))
+         (if (and (stage3-open?) (truth-lead?) (truth-pending?) (not (route-settled?)))
+             (list (node-dock-truth))
+             '()))
         ((equal? location "警局")
          (append
            (if (and (stage3-open?) (truth-lead?) (truth-pending?) (not (route-settled?)))
                (list (node-police-truth))
                '())
-           (if (and (stage3-open?) (truth-lead?) (= detective-stage 0) (not (route-settled?)))
-               (list (node-detective-introduction))
-               '())
-           (if (and (stage3-open?) (detective-remembrance-ready?) (not (route-settled?)))
-               (list (node-detective-remembrance))
-               '())
-           (if (and (stage3-open?) (truth-known?) (= detective-stage 2) (not (route-settled?)))
-               (list (node-give-detective-evidence))
-               '())
            (if (and (stage3-open?) (truth-known?) (case-evidence-submitted?)
-                    (not (route-settled?)) (not (relation-at-least? "官僚" '信任)))
+                    (not (route-settled?)) (not (arthur 'can-escalate?)))
                (list (node-case-route-locked))
                '())
-           (if (and (stage3-open?) (truth-known?) (case-evidence-submitted?) (relation-at-least? "官僚" '信任)
+           (if (and (stage3-open?) (truth-known?) (case-evidence-submitted?) (arthur 'can-escalate?)
                     (not (route-settled?)) (not (case-ready?)))
                (list (node-build-case))
                '())
-           (if (and (stage3-open?) (truth-known?) (case-evidence-submitted?) (relation-at-least? "官僚" '信任)
+           (if (and (stage3-open?) (truth-known?) (case-evidence-submitted?) (arthur 'can-escalate?)
                     (not (route-settled?)) (case-ready?))
                (list (node-file-case))
                '())))
         ((equal? location "货运公司")
-         (append
-           (if (and (stage3-open?) (truth-lead?) (truth-pending?) (not (route-settled?)))
-               (list (node-freight-truth))
-               '())
-           (if (and (stage3-open?) (not berth?) (not (route-settled?)))
-               (list (node-freight-berth))
-               '())))
+         (if (and (stage3-open?) (truth-lead?) (truth-pending?) (not (route-settled?)))
+             (list (node-freight-truth))
+             '()))
+        ((equal? location "保险公司")
+         (if (and (stage3-open?) (walter 'can-arrange-berth?)
+                  (not berth?) (not (route-settled?)))
+             (list (node-insurance-berth))
+             '()))
         (else '())))
 
     ;; ── 交锋结果回调 ────────────────────────────────
     (define (on-bout-result bout result)
       (cond
         ((= bout 0)
-         (if (and (equal? result 'fail) (not (get-global '夜莺已先离场)))
+         (if (not beat1-early?)
              (worsen-condition! 1)
              #f)
          (advance-stage! 2)
@@ -1126,10 +951,22 @@
           ((equal? msg 'render-data) (render-data))
           ((equal? msg 'world-nodes) (world-nodes))
           ((equal? msg 'tavern-nodes) (tavern-nodes))
-          ((equal? msg 'beat1-lead-nodes) (beat1-lead-nodes))
-          ((equal? msg 'tavern-inquiry-nodes) (tavern-inquiry-nodes))
+          ((equal? msg 'beat1-nodes-at) (beat1-nodes-at (cadr args)))
+          ((equal? msg 'hideout-visible?) (hideout-visible?))
+          ((equal? msg 'hideout-nodes) (hideout-nodes))
           ((equal? msg 'lead-nodes-at) (lead-nodes-at (cadr args)))
           ((equal? msg 'route-nodes-at) (route-nodes-at (cadr args)))
+          ((equal? msg 'story-stage) story-stage)
+          ((equal? msg 'truth-progress) truth-progress)
+          ((equal? msg 'truth-lead?) (truth-lead?))
+          ((equal? msg 'truth-known?) (truth-known?))
+          ((equal? msg 'route-settled?) (route-settled?))
+          ((equal? msg 'set-surrendered!)
+           (begin
+             (if (or (not (truth-known?)) (route-settled?))
+                 (error "夜莺完整移交：当前状态不允许") #t)
+             (set! surrendered? #t)
+             (sync-globals!)))
           ((equal? msg 'has-protection?) (not (equal? protection "无")))
           ((equal? msg 'resolve-protected-beat2!) (resolve-protected-beat2!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
@@ -1139,19 +976,17 @@
            (list
              (list "story-stage" story-stage)
              (list "condition-level" condition-level)
-             (list "beat1-progress" beat1-progress)
+             (list "diner-inquiry-progress" diner-inquiry-progress)
+             (list "dock-inquiry-progress" dock-inquiry-progress)
              (list "beat1-early?" beat1-early?)
              (list "protection" protection)
              (list "installment-paid?" installment-paid?)
-             (list "dock-guard" dock-guard)
              (list "truth-progress" truth-progress)
              (list "berth?" berth?)
              (list "farewell?" farewell?)
              (list "hush-paid?" hush-paid?)
              (list "case-filed?" case-filed?)
              (list "surrendered?" surrendered?)
-             (list "detective-stage" detective-stage)
-             (list "detective-evidence" detective-evidence)
              (list "ending-day" ending-day)
              (list "stage3-start-day" stage3-start-day)
              (list "nightingale-earnings" nightingale-earnings)
@@ -1163,27 +998,17 @@
              (if (or (< condition-level 0) (> condition-level 3))
                  (error "夜莺存档错误：状态等级非法")
                  #t)
-             (set! beat1-progress (assoc-get data "beat1-progress" 0))
+             (set! diner-inquiry-progress (assoc-get data "diner-inquiry-progress" 0))
+             (set! dock-inquiry-progress (assoc-get data "dock-inquiry-progress" 0))
              (set! beat1-early? (assoc-get data "beat1-early?" #f))
              (set! protection (assoc-get data "protection" "无"))
              (set! installment-paid? (assoc-get data "installment-paid?" #f))
-             (set! dock-guard (assoc-get data "dock-guard" 0))
              (set! truth-progress (assoc-get data "truth-progress" 0))
              (set! berth? (assoc-get data "berth?" #f))
              (set! farewell? (assoc-get data "farewell?" #f))
              (set! hush-paid? (assoc-get data "hush-paid?" #f))
              (set! case-filed? (assoc-get data "case-filed?" #f))
              (set! surrendered? (assoc-get data "surrendered?" #f))
-             (set! detective-stage (assoc-get data "detective-stage" 0))
-             (if (or (< detective-stage 0) (> detective-stage 2))
-                 (error "夜莺存档错误：邻城刑警阶段非法")
-                 #t)
-             (set! detective-evidence (assoc-get data "detective-evidence" "无"))
-             (if (or (equal? detective-evidence "无")
-                     (equal? detective-evidence "老板")
-                     (equal? detective-evidence "完整"))
-                 #t
-                 (error "夜莺存档错误：邻城刑警证据状态非法"))
              (set! ending-day (assoc-get data "ending-day" 0))
              (set! stage3-start-day (assoc-get data "stage3-start-day" world-day))
              (set! nightingale-earnings (assoc-get data "nightingale-earnings" 0))
@@ -1195,5 +1020,5 @@
           ((equal? msg 'debug-set-truth!) (set! truth-progress (cadr args)) (sync-globals!))
           ((equal? msg 'debug-force-hush-paid!) (set! hush-paid? #t) (sync-globals!))
           ((equal? msg 'debug-force-farewell!) (set! farewell? #t) (sync-globals!))
-          ((equal? msg 'debug-force-case-filed!) (set! detective-evidence "老板") (set! case-filed? #t) (sync-globals!))
+          ((equal? msg 'debug-force-case-filed!) (set! case-filed? #t) (sync-globals!))
           (#t #f))))))

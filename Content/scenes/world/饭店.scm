@@ -1,4 +1,4 @@
-;; scenes/world/饭店.scm - 老街饭摊（劳工）
+;; scenes/world/饭店.scm - 饭店（劳工）
 ;; 低风险生计：刷盘子（稳、钱少、偶尔破防）。
 ;; 与码头形成对比：图个稳 vs 博一把。
 ;; 饱腹系统已移除（其"城市日常消耗"职能由房租接管），"买食物"/"在饭摊直接吃"随之删除。
@@ -20,8 +20,10 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list (container "老街饭摊"
-                   (list (node-dishwash)))))
+           (list (container "饭店"
+                   (append
+                     (nightingale 'beat1-nodes-at "饭店")
+                     (list (node-dishwash))))))
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)
           (#t #f))))))

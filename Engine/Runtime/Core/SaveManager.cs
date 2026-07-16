@@ -9,6 +9,8 @@ namespace SSNoir.Core
 {
     public static class SaveManager
     {
+        public const int SlotCount = 5;
+
         // Set once at app startup. TerminalApp: "save.json". Unity: Application.persistentDataPath + "/save.json".
         public static string DefaultSavePath { get; set; } = "save.json";
 
@@ -122,6 +124,8 @@ namespace SSNoir.Core
                     ["hangoverSlotId"]    = a.HangoverSlotId == null ? JValue.CreateNull() : new JValue(a.HangoverSlotId.Value),
                     ["faintSlotId"]       = a.FaintSlotId == null ? JValue.CreateNull() : new JValue(a.FaintSlotId.Value),
                     ["lossOfControlSlotId"] = a.LossOfControlSlotId == null ? JValue.CreateNull() : new JValue(a.LossOfControlSlotId.Value),
+                    ["permanentDiePenaltyLabel"] = a.PermanentDiePenaltyLabel,
+                    ["permanentDiePenalty"] = a.PermanentDiePenalty,
                     ["spentGrowthPoints"] = a.SpentGrowthPoints,
                     ["stats"]             = stats,
                 });
@@ -204,6 +208,8 @@ namespace SSNoir.Core
                     HangoverSlotId = ao["hangoverSlotId"]?.Type == JTokenType.Null ? null : ao["hangoverSlotId"]?.Value<int>(),
                     FaintSlotId = ao["faintSlotId"]?.Type == JTokenType.Null ? null : ao["faintSlotId"]?.Value<int>(),
                     LossOfControlSlotId = ao["lossOfControlSlotId"]?.Type == JTokenType.Null ? null : ao["lossOfControlSlotId"]?.Value<int>(),
+                    PermanentDiePenaltyLabel = ao["permanentDiePenaltyLabel"]?.Value<string>() ?? string.Empty,
+                    PermanentDiePenalty = ao["permanentDiePenalty"]?.Value<int>() ?? 0,
                     SpentGrowthPoints = ao["spentGrowthPoints"]!.Value<int>(),
                 };
                 foreach (var stat in ((JObject)ao["stats"]!).Properties())
@@ -215,6 +221,8 @@ namespace SSNoir.Core
 
         public static string GetSlotFilePath(int slotIndex)
         {
+            if (slotIndex < 1 || slotIndex > SlotCount)
+                throw new ArgumentOutOfRangeException(nameof(slotIndex), $"Save slot must be between 1 and {SlotCount}.");
             var dir = Path.GetDirectoryName(DefaultSavePath);
             var filename = $"save_slot{slotIndex}.json";
             if (string.IsNullOrEmpty(dir))

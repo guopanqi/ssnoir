@@ -1,34 +1,49 @@
 {
-  "saveTime": "2026-07-13 20:42:10",
+  "saveTime": "2026-07-16 22:53:28",
   "globals": {
     "chapter": 0,
-    "relation:官僚": 0,
-    "relation:劳工": 0,
-    "relation:富商": 3,
+    "relation:官僚": 3,
+    "relation:劳工": 4,
+    "relation:富商": 0,
+    "frank-final-help": false,
     "资产": "低",
-    "laozhou-favor": 0,
-    "laozhou-can-help": false,
-    "relation-goal:官僚:脸熟": "陪探长走访；申请巡警照看酒馆",
-    "relation-goal:官僚:自己人": "当前 Demo 暂无新增动作",
-    "relation-goal:劳工:脸熟": "替工头记账；帮老周查账；请码头兄弟看场",
-    "relation-goal:劳工:自己人": "走私；交锋中召集码头兄弟",
-    "relation-goal:富商:脸熟": "应酬货运代理；出售私货；代理人项目",
-    "relation-goal:富商:自己人": "当前 Demo 暂无新增动作",
-    "夜莺阶段": 3,
-    "夜莺状态等级": 0,
-    "夜莺状态": "稳定",
-    "夜莺查访进度": 4,
-    "夜莺查访目标": 4,
+    "relation-band-name:官僚:相识": "挂号",
+    "relation-band-name:官僚:信任": "备案",
+    "relation-band-name:官僚:核心": "有里子",
+    "relation-goal:官僚:相识": "替阿瑟处理程序管不了的麻烦",
+    "relation-goal:官僚:信任": "请阿瑟提级、延期并办理通行证",
+    "relation-goal:官僚:核心": "引荐市长秘书，遇事能求到更高处（demo 暂未开放）",
+    "relation-band-name:劳工:相识": "面熟",
+    "relation-band-name:劳工:信任": "够朋友",
+    "relation-band-name:劳工:核心": "拜过码头",
+    "relation-goal:劳工:相识": "弗兰克的清栈急活",
+    "relation-goal:劳工:信任": "替弗兰克查账并接触旧悬案",
+    "relation-goal:劳工:核心": "走私工作；了断之日弗兰克带人到场",
+    "relation-band-name:富商:相识": "有往来",
+    "relation-band-name:富商:信任": "座上宾",
+    "relation-band-name:富商:核心": "合伙人",
+    "relation-goal:富商:相识": "私货能出手·陪代理谈投资·接触保险核赔",
+    "relation-goal:富商:信任": "私货满价收购·投资本金打折",
+    "relation-goal:富商:核心": "引荐博士，牵出实验室科技线（demo 暂未开放）",
+    "夜莺阶段": 2,
+    "夜莺状态等级": 1,
+    "夜莺状态": "不安",
+    "夜莺查访进度": 2,
+    "夜莺查访目标": 2,
     "夜莺主动上门": false,
     "夜莺保护方案": "无",
-    "夜莺已打听": true,
     "夜莺二层已揭": true,
-    "bout-idx": 1,
+    "夜莺已打听": true,
+    "夜莺真相": false,
+    "夜莺已送走": false,
+    "夜莺已付封口": false,
+    "夜莺已立案": false,
+    "夜莺已移交": false,
+    "bout-idx": 0,
     "夜莺已先离场": false
   },
   "team": {
-    "health": 3,
-    "satiety": 2,
+    "health": 4,
     "growthLevel": 2,
     "actors": [
       {
@@ -36,10 +51,15 @@
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "stress": 0,
-        "spentGrowthPoints": 0,
+        "composure": 2,
+        "hangoverSlotId": 0,
+        "faintSlotId": 2,
+        "lossOfControlSlotId": null,
+        "permanentDiePenaltyLabel": "",
+        "permanentDiePenalty": 0,
+        "spentGrowthPoints": 1,
         "stats": {
-          "violence": 0,
+          "violence": 1,
           "knowledge": 1,
           "sharpness": 0,
           "social": 0
@@ -48,21 +68,20 @@
     ]
   },
   "inventory": {
-    "金钱": 34,
-    "情报": 3,
-    "食物": 0,
+    "金钱": 24,
+    "情报": 1,
     "药品": 1,
-    "枪": 1,
-    "酒": 0
+    "酒": 0,
+    "香烟": 0
   },
   "worldData": [
     [
       "day",
-      8
+      9
     ],
     [
       "public-event-count",
-      2
+      1
     ],
     [
       "public-event-pending?",
@@ -74,7 +93,7 @@
     ],
     [
       "next-public-event",
-      0
+      6
     ],
     [
       "home",
@@ -96,12 +115,8 @@
           false
         ],
         [
-          "tidied-today?",
-          false
-        ],
-        [
           "rent-due",
-          0
+          3
         ],
         [
           "rent-due-max",
@@ -109,33 +124,13 @@
         ],
         [
           "evicted?",
-          true
+          false
         ]
       ]
     ],
     [
       "dock",
-      [
-        [
-          "laozhou-favor",
-          0
-        ],
-        [
-          "laozhou-stage",
-          0
-        ],
-        [
-          "cushy-available?",
-          false
-        ],
-        [
-          "dock-trouble",
-          [
-            false,
-            0
-          ]
-        ]
-      ]
+      []
     ],
     [
       "old-street-tavern",
@@ -155,14 +150,18 @@
       [
         [
           "story-stage",
-          3
+          2
         ],
         [
           "condition-level",
-          0
+          1
         ],
         [
-          "beat1-progress",
+          "diner-inquiry-progress",
+          4
+        ],
+        [
+          "dock-inquiry-progress",
           4
         ],
         [
@@ -178,13 +177,44 @@
           false
         ],
         [
-          "dock-guard",
+          "truth-progress",
+          0
+        ],
+        [
+          "berth?",
+          false
+        ],
+        [
+          "farewell?",
+          false
+        ],
+        [
+          "hush-paid?",
+          false
+        ],
+        [
+          "case-filed?",
+          false
+        ],
+        [
+          "surrendered?",
+          false
+        ],
+        [
+          "ending-day",
+          0
+        ],
+        [
+          "stage3-start-day",
+          0
+        ],
+        [
+          "nightingale-earnings",
           0
         ],
         [
           "scene-flags",
           [
-            "唱歌",
             "二层已揭",
             "已打听"
           ]
@@ -205,42 +235,26 @@
     ],
     [
       "police-station",
-      [
-        [
-          "detective-stage",
-          0
-        ],
-        [
-          "pass-cooldown",
-          0
-        ],
-        [
-          "police-trouble",
-          [
-            false,
-            0
-          ]
-        ]
-      ]
+      []
     ],
     [
       "freight-company",
       [
         [
           "agent-stage",
-          2
+          0
         ],
         [
           "project-state",
-          "已投资"
+          "无"
         ],
         [
           "project-quality",
-          1
+          0
         ],
         [
           "investment-days",
-          2
+          0
         ],
         [
           "company-trouble",
@@ -252,24 +266,135 @@
       ]
     ],
     [
+      "joe",
+      [
+        [
+          "stage",
+          1
+        ],
+        [
+          "favor",
+          4
+        ],
+        [
+          "child-progress",
+          0
+        ],
+        [
+          "child-cared-today?",
+          false
+        ],
+        [
+          "injury-days",
+          0
+        ],
+        [
+          "care-progress",
+          0
+        ],
+        [
+          "injury-started-today?",
+          false
+        ],
+        [
+          "cared-today?",
+          false
+        ]
+      ]
+    ],
+    [
+      "frank",
+      [
+        [
+          "stage",
+          3
+        ],
+        [
+          "favor",
+          3
+        ],
+        [
+          "repair-progress",
+          12
+        ],
+        [
+          "smuggled-today?",
+          false
+        ],
+        [
+          "trouble",
+          [
+            false,
+            0
+          ]
+        ]
+      ]
+    ],
+    [
+      "arthur",
+      [
+        [
+          "stage",
+          1
+        ],
+        [
+          "pass-cooldown",
+          0
+        ],
+        [
+          "problem-invited?",
+          true
+        ]
+      ]
+    ],
+    [
+      "walter",
+      [
+        [
+          "stage",
+          0
+        ],
+        [
+          "claim-result",
+          "无"
+        ]
+      ]
+    ],
+    [
+      "sam",
+      [
+        [
+          "stage",
+          0
+        ],
+        [
+          "evidence",
+          "无"
+        ]
+      ]
+    ],
+    [
+      "residential-district",
+      []
+    ],
+    [
+      "insurance-company",
+      []
+    ],
+    [
+      "stranger-hideout",
+      []
+    ],
+    [
       "board",
       [
         [
           "active-missions",
-          [
-            [
-              "押送一批货",
-              1
-            ],
-            [
-              "帮人寻物",
-              1
-            ]
-          ]
+          []
         ],
         [
           "refresh-days",
-          1
+          2
         ]
       ]
     ],

@@ -171,7 +171,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
-            string state = composure <= TeamState.LossOfControlThreshold ? "失控 · 两格 −1"
+            string state = composure <= TeamState.LossOfControlThreshold ? "失控 · 再一格 −2"
                          : composure <= TeamState.FaintThreshold ? "失态 · 一格 −1"
                          : "冷静";
             GUI.Label(new Rect(x, y, 50f, VitalRowH), state, labelStyle);

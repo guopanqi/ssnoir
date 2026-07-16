@@ -101,17 +101,8 @@
       (lambda () (add-item! "金钱" 8) (add-item! "情报" 1)))))
 
 ;; ── 活法解锁的额外动作 ───────────────────────────
-(define crew-used? #f)
 (define pass-used? #f)
 (define bribe-used? #f)
-(define laozhou-used? #f)
-(define laozhou-help?
-  (let ((v (get-global 'laozhou-can-help))) (if v v #f)))
-
-(define (node-call-crew)
-  (action "码头兄弟到场"
-    (list (req-die))
-    (instant (lambda () (set! crew-used? #t) (clock-tick-n! resolve-clk 2)))))
 
 (define (node-use-pass)
   (action "程序干预"
@@ -127,22 +118,10 @@
     (list (req-item "金钱" 30))
     (instant (lambda () (set! bribe-used? #t) (clock-tick-n! resolve-clk 2)))))
 
-(define (node-laozhou-ally)
-  (container-with-clocks "老周"
-    (list
-      (instant-action "请老周出面"
-        (lambda ()
-          (set! laozhou-used? #t)
-          (resolve-clk 'tick!)
-          (press-clk 'set! (max 0 (- (press-clk 'current) 1))))))
-    '()))
-
 (define (extra-nodes)
   (append
-    (if (and (relation-at-least? "劳工" '核心) (not crew-used?)) (list (node-call-crew)) '())
     (if (and (> (item-count "办案通行证") 0) (not pass-used?)) (list (node-use-pass)) '())
-    (if (and (>= (item-count "金钱") 30) (not bribe-used?)) (list (node-bribe)) '())
-    (if (and laozhou-help? (not laozhou-used?)) (list (node-laozhou-ally)) '())))
+    (if (and (>= (item-count "金钱") 30) (not bribe-used?)) (list (node-bribe)) '())))
 
 ;; ── 渲染 ─────────────────────────────────────────
 (define (get-render-data)

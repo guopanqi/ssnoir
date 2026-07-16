@@ -10,7 +10,7 @@ namespace SSNoir.Core
         public const int MaxStatLevel = 4;
 
         // 冷静三段阈值（见 docs/城市生活设计.md）：4–6 为缓冲，1–3 为失态，0 为失控。
-        // 失态随机一个骰池位置 -1；失控再随机一个骰池位置 -1。0 点后继续花冷静会击穿为健康伤害。
+        // 失态随机一个骰池位置 -1；失控再随机一个骰池位置 -2。0 点后继续花冷静会击穿为健康伤害。
         public const int MaxComposure = 6;
         public const int FaintThreshold = 3;
         public const int LossOfControlThreshold = 0;
@@ -216,6 +216,8 @@ namespace SSNoir.Core
                     HangoverSlotId     = actor.HangoverSlotId,
                     FaintSlotId        = actor.FaintSlotId,
                     LossOfControlSlotId = actor.LossOfControlSlotId,
+                    PermanentDiePenaltyLabel = actor.PermanentDiePenaltyLabel,
+                    PermanentDiePenalty = actor.PermanentDiePenalty,
                     SpentGrowthPoints = actor.SpentGrowthPoints,
                     Stats             = new Dictionary<string, int>(actor.Stats),
                 });
@@ -252,6 +254,13 @@ namespace SSNoir.Core
                 actor.HangoverSlotId = actorData.HangoverSlotId;
                 actor.FaintSlotId = actorData.FaintSlotId;
                 actor.LossOfControlSlotId = actorData.LossOfControlSlotId;
+                if (actorData.PermanentDiePenalty > 0 || actorData.PermanentDiePenalty < -2)
+                    throw new ArgumentOutOfRangeException(nameof(data),
+                        $"Actor '{actorData.Id}' permanent die penalty must be between -2 and 0.");
+                if (actorData.PermanentDiePenalty != 0 && string.IsNullOrWhiteSpace(actorData.PermanentDiePenaltyLabel))
+                    throw new ArgumentException($"Actor '{actorData.Id}' permanent die penalty requires a label.");
+                actor.PermanentDiePenaltyLabel = actorData.PermanentDiePenaltyLabel ?? string.Empty;
+                actor.PermanentDiePenalty = actorData.PermanentDiePenalty;
                 actor.SpentGrowthPoints = actorData.SpentGrowthPoints;
                 foreach (var kv in actorData.Stats)
                 {
@@ -309,8 +318,10 @@ namespace SSNoir.Core
         public IReadOnlyList<ActionSlotStatus> GetActiveActionSlotStatuses(ActorState actor)
         {
             var result = new List<ActionSlotStatus>();
+            if (actor.PermanentDiePenalty != 0)
+                result.Add(new ActionSlotStatus { SlotId = 0, Label = actor.PermanentDiePenaltyLabel, DiePenalty = actor.PermanentDiePenalty });
             if (actor.FaintSlotId != null) result.Add(new ActionSlotStatus { SlotId = actor.FaintSlotId.Value, Label = "失态", DiePenalty = -1 });
-            if (actor.LossOfControlSlotId != null) result.Add(new ActionSlotStatus { SlotId = actor.LossOfControlSlotId.Value, Label = "失控", DiePenalty = -1 });
+            if (actor.LossOfControlSlotId != null) result.Add(new ActionSlotStatus { SlotId = actor.LossOfControlSlotId.Value, Label = "失控", DiePenalty = -2 });
             return result;
         }
 
@@ -341,9 +352,9 @@ namespace SSNoir.Core
 
         private static int GetCurrentSlotPenalty(ActorState actor, int slotId)
         {
-            int penalty = 0;
+            int penalty = slotId == 0 ? actor.PermanentDiePenalty : 0;
             if (actor.FaintSlotId == slotId) penalty--;
-            if (actor.LossOfControlSlotId == slotId) penalty--;
+            if (actor.LossOfControlSlotId == slotId) penalty -= 2;
             return penalty;
         }
     }

@@ -29,6 +29,8 @@ namespace SSNoir.Core
         public int? HangoverSlotId { get; set; }
         public int? FaintSlotId { get; set; }
         public int? LossOfControlSlotId { get; set; }
+        public string PermanentDiePenaltyLabel { get; set; } = "";
+        public int PermanentDiePenalty { get; set; }
         public int SpentGrowthPoints { get; set; }
         public Dictionary<string, int> Stats { get; set; } = new();
         // ActionDice intentionally omitted — re-rolled on load

@@ -29,6 +29,11 @@ namespace SSNoir.Core
         public int? FaintSlotId { get; set; }
         public int? LossOfControlSlotId { get; set; }
 
+        // 人物经历造成的永久骰位状态。协作者每天只有 slot 0，一项永久损伤
+        // 会直接附着在这颗骰上，并与失态等临时状态叠加。
+        public string PermanentDiePenaltyLabel { get; set; } = string.Empty;
+        public int PermanentDiePenalty { get; set; }
+
         public int SpentGrowthPoints { get; set; } = 0;
         
         public Dictionary<string, int> Stats { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)

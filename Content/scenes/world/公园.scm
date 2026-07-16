@@ -22,7 +22,7 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list (container "公园" (list (node-walk)))))
+           (list (container "公园" (append (list (node-walk)) (walter 'park-nodes)))))
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)
           (#t #f))))))

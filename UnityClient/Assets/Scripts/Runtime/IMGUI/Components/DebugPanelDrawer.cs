@@ -34,7 +34,7 @@ namespace SSNoir.IMGUI
             float panelW = 260f;
             float panelX = btnX + btnW - panelW;
             float panelY = btnY + btnH + 4f;
-            float slotsHeight = 20f + 3 * 28f + 14f;
+            float slotsHeight = 20f + SaveManager.SlotCount * 28f + 14f;
             float panelH = 8f + slotsHeight + _scenes.Count * itemH + 8f;
             return (toggleRect, new Rect(panelX, panelY, panelW, panelH));
         }
@@ -98,7 +98,7 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(panelX + 8, curY + 2f, panelW, 18f), "存档管理", mutedStyle);
             curY += 20f;
 
-            for (int slot = 1; slot <= 3; slot++)
+            for (int slot = 1; slot <= SaveManager.SlotCount; slot++)
             {
                 string slotPath = SaveManager.GetSlotFilePath(slot);
                 string saveTime = SaveManager.GetSaveTime(slotPath);

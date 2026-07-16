@@ -106,7 +106,12 @@ namespace SSNoir.Rendering
                     int globalIndex = flatDie + d;
                     int slotId = actor.ActionDiceSlotIds[d];
                     var rect = new Rectangle(poolX + slotId * (TokenSize + TokenGap), area.Y + 34f, TokenSize, TokenSize);
-                    DrawDie(state, ui, rect, actor.ActionDice[d], globalIndex, actor.Id, slotId, ref interaction);
+                    var activeDamage = actor.ActiveActionSlotStatuses
+                        .Where(status => status.SlotId == slotId && status.DiePenalty < 0)
+                        .ToList();
+                    bool damaged = activeDamage.Count > 0;
+                    DrawDie(state, ui, rect, actor.ActionDice[d], globalIndex, actor.Id, slotId,
+                        damaged, ref interaction);
                 }
 
                 x += clusterW + 24f;
@@ -128,13 +133,39 @@ namespace SSNoir.Rendering
                 var cell = new Rectangle(poolX + slotId * (TokenSize + TokenGap), y, TokenSize, 24f);
                 Raylib.DrawRectangleRounded(cell, 0.3f, 3, new Color((byte)color.R, (byte)color.G, (byte)color.B, (byte)46));
                 Raylib.DrawRectangleRoundedLinesEx(cell, 0.3f, 3, 1f, color);
+                if (statuses.Count == 1 && statuses[0].Label == "失态")
+                {
+                    DrawCenteredStatusLine(cell, statuses[0].Label, cell.Y + 2f, 8, StatusColor(statuses[0]));
+                    DrawCenteredStatusLine(cell, FormatPenalty(statuses[0]), cell.Y + 12f, 8, StatusColor(statuses[0]));
+                    continue;
+                }
                 for (int i = 0; i < statuses.Count; i++)
                 {
-                    string label = statuses[i].Label;
-                    int labelW = FontManager.MeasureTextWidth(label, 8);
-                    FontManager.DrawText(label, cell.X + (cell.Width - labelW) / 2f, cell.Y + 3f + i * 10f, 8, StatusColor(statuses[i]));
+                    string label = FormatStatusLabel(statuses[i]);
+                    int fontSize = FontManager.MeasureTextWidth(label, 8) <= cell.Width - 4f ? 8 : 7;
+                    int labelW = FontManager.MeasureTextWidth(label, fontSize);
+                    FontManager.DrawText(label, cell.X + (cell.Width - labelW) / 2f,
+                        cell.Y + 3f + i * 10f, fontSize, StatusColor(statuses[i]));
                 }
             }
+        }
+
+        private static void DrawCenteredStatusLine(Rectangle cell, string text, float y, int fontSize, Color color)
+        {
+            int textWidth = FontManager.MeasureTextWidth(text, fontSize);
+            FontManager.DrawText(text, cell.X + (cell.Width - textWidth) / 2f, y, fontSize, color);
+        }
+
+        private static string FormatPenalty(ActionSlotStatus status)
+        {
+            return status.DiePenalty < 0
+                ? $"-{Math.Abs(status.DiePenalty)}"
+                : $"+{status.DiePenalty}";
+        }
+
+        private static string FormatStatusLabel(ActionSlotStatus status)
+        {
+            return $"{status.Label}，{FormatPenalty(status)}";
         }
 
         private static List<ActionSlotStatus> GetSlotStatuses(ActorSnapshot actor, int slotId)
@@ -223,12 +254,17 @@ namespace SSNoir.Rendering
 
         private static void DrawDie(RendererState state, SSNoir.TerminalApp.Rendering.UiInteractionContext ui,
             Rectangle rect, int value, int globalIndex, string actorId, int dieIndex,
+            bool damaged,
             ref HandPanelInteraction interaction)
         {
             bool slotted = state.IsDieSlotted(globalIndex);
             bool selected = state.SelectedResource?.Type == "die" && state.SelectedResource.SourceIndex == globalIndex;
             bool hover = !slotted && ui.CanHover(rect);
-            DrawToken(rect, value.ToString(), null, selected, hover, slotted || ui.IsLocked);
+            bool disabled = slotted || ui.IsLocked;
+            Action<Rectangle>? backgroundPattern = damaged
+                ? drawRect => DrawDamagedDiePattern(drawRect, disabled)
+                : null;
+            DrawToken(rect, value.ToString(), null, selected, hover, disabled, backgroundPattern);
             if (!slotted && !ui.IsLocked && ui.WasClicked(rect))
             {
                 interaction.SelectedResourceToSet = new SelectedResource
@@ -237,6 +273,39 @@ namespace SSNoir.Rendering
                     ActorId = actorId, DieIndex = dieIndex
                 };
             }
+        }
+
+        private static void DrawDamagedDiePattern(Rectangle rect, bool dimmed)
+        {
+            byte lineAlpha = dimmed ? (byte)38 : (byte)96;
+            byte fillAlpha = dimmed ? (byte)10 : (byte)24;
+            var line = new Color((byte)142, (byte)126, (byte)202, lineAlpha);
+            var fillA = new Color((byte)126, (byte)108, (byte)190, fillAlpha);
+            var fillB = new Color((byte)164, (byte)146, (byte)218, fillAlpha);
+            float lineWidth = dimmed ? 0.65f : 0.95f;
+
+            var topLeft = new System.Numerics.Vector2(rect.X + 2f, rect.Y + rect.Height * 0.16f);
+            var topMid = new System.Numerics.Vector2(rect.X + rect.Width * 0.56f, rect.Y + 1f);
+            var rightTop = new System.Numerics.Vector2(rect.X + rect.Width - 2f, rect.Y + rect.Height * 0.25f);
+            var rightBottom = new System.Numerics.Vector2(rect.X + rect.Width - 2f, rect.Y + rect.Height * 0.78f);
+            var bottomMid = new System.Numerics.Vector2(rect.X + rect.Width * 0.58f, rect.Y + rect.Height - 1f);
+            var leftBottom = new System.Numerics.Vector2(rect.X + 2f, rect.Y + rect.Height * 0.74f);
+            var center = new System.Numerics.Vector2(rect.X + rect.Width * 0.49f, rect.Y + rect.Height * 0.48f);
+
+            Raylib.DrawTriangle(topMid, rightTop, center, fillA);
+            Raylib.DrawTriangle(rightTop, rightBottom, center, fillB);
+            Raylib.DrawTriangle(bottomMid, leftBottom, center, fillA);
+            Raylib.DrawTriangle(leftBottom, topLeft, center, fillB);
+
+            Raylib.DrawLineEx(topLeft, center, lineWidth, line);
+            Raylib.DrawLineEx(topMid, center, lineWidth, line);
+            Raylib.DrawLineEx(rightTop, center, lineWidth, line);
+            Raylib.DrawLineEx(rightBottom, center, lineWidth, line);
+            Raylib.DrawLineEx(bottomMid, center, lineWidth, line);
+            Raylib.DrawLineEx(leftBottom, center, lineWidth, line);
+            Raylib.DrawLineEx(topLeft, topMid, lineWidth, line);
+            Raylib.DrawLineEx(rightTop, rightBottom, lineWidth, line);
+            Raylib.DrawLineEx(bottomMid, leftBottom, lineWidth, line);
         }
 
         private static void DrawItemsAndFunction(RendererState state,
@@ -317,7 +386,7 @@ namespace SSNoir.Rendering
         }
 
         private static void DrawToken(Rectangle rect, string big, string? small,
-            bool selected, bool hover, bool disabled)
+            bool selected, bool hover, bool disabled, Action<Rectangle>? backgroundPattern = null)
         {
             Rectangle drawRect = selected && !disabled
                 ? new Rectangle(rect.X, rect.Y - 4f, rect.Width, rect.Height) : rect;
@@ -327,6 +396,7 @@ namespace SSNoir.Rendering
                 0.08f, 3, new Color(0, 0, 0, disabled ? 40 : 130));
             Raylib.DrawRectangleRounded(drawRect, 0.08f, 3,
                 disabled ? new Color(8, 10, 15, 120) : BlockBg);
+            backgroundPattern?.Invoke(drawRect);
             Raylib.DrawRectangleRoundedLinesEx(drawRect, 0.08f, 3, selected || hover ? 2f : 1f, border);
             Color text = disabled ? new Color(224, 224, 216, 65) : selected ? TerminalPalette.AccentBright : Paper;
             int bigSize = small == null ? 14 : 15;

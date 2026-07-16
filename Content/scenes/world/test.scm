@@ -38,16 +38,11 @@
                      (instant-action "劳工→拜过码头" (lambda () (set-global! "relation:劳工" 6)))
                      (instant-action "官僚→挂号"     (lambda () (set-global! "relation:官僚" 2)))
                      (instant-action "富商→有往来"   (lambda () (set-global! "relation:富商" 2)))
-                     (instant-action "老周好感 +2" (lambda () (dock 'debug-favor)))
-                     (instant-action "强制刷新老周美差" (lambda () (dock 'debug-cushy)))
+                     (instant-action "乔好感 +2" (lambda () (joe 'debug-favor! 2)))
                      (instant-action "直接触发公共交锋" (lambda () (debug-trigger-public-event!)))))
-                 (container "调试-老周养伤"
+                 (container "调试-乔养伤"
                    (list
-                     (instant-action "触发老周受伤" (lambda () (dock 'debug-trigger-injury!)))
-                     (instant-action "养伤进度设为 +6(痊愈)" (lambda () (dock 'debug-set-care! 6)))
-                     (instant-action "养伤进度设为 +2(留伤)" (lambda () (dock 'debug-set-care! 2)))
-                     (instant-action "养伤进度设为 -4(没保住)" (lambda () (dock 'debug-set-care! -4)))
-                     (instant-action "立即结算养伤" (lambda () (dock 'debug-finish-injury!)))))
+                     (instant-action "触发乔受伤" (lambda () (joe 'debug-injure!)))))
                  (container "调试-夜莺节拍三"
                    (list
                      (instant-action "拨到节拍三(已查明真相)"

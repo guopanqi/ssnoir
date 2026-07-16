@@ -84,8 +84,6 @@
           (append
             (nightingale 'tavern-nodes)
             (list (node-waiter) (node-drink-here) (node-buy-liquor) (node-buy-cigarettes))  ; 酒馆常驻：值班当差 + 当场点酒 + 打酒带走 + 买烟
-            (nightingale 'tavern-inquiry-nodes)     ; 节拍一：打听盯梢的人
-            (nightingale 'beat1-lead-nodes)         ; 花消息买线索：向酒馆老主顾买准话
             (if (relation-at-least? "劳工" '核心) (list (node-underground-bar)) '())
             (list (node-atmosphere)))))
 

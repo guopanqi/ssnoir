@@ -32,7 +32,6 @@ namespace SSNoir.Core
             Inventory.SetCount("金钱", 15);
             Inventory.SetCount("情报", 0);
             Inventory.SetCount("药品", 1);
-            Inventory.SetCount("枪", 1);
             Inventory.SetCount("酒", 0);
             Inventory.SetCount("香烟", 0);
 
@@ -55,7 +54,7 @@ namespace SSNoir.Core
             Team.Actors.Add(player);
             // SceneManager 进入场景时统一掷骰；这里不预生成没有骰池位置身份的裸骰。
 
-            // 开局单人。同伴（安娜 / 老周）改为通过剧情 / 支线招募后加入，
+            // 开局单人。同伴改为通过剧情 / 支线招募后加入，
             // 招募 = +1 行动力，是"花预算换更多预算"的核心 pull（招募逻辑待后续接入）。
         }
 

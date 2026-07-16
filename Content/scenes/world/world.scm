@@ -1,6 +1,11 @@
 ;; scenes/world/world.scm - 世界协调器（城市生活第一版）
 ;; 世界拥有日期与强制公共事件；地点只拥有自己的生活内容。
 
+(load-file "world/人物/乔.scm")
+(load-file "world/人物/弗兰克.scm")
+(load-file "world/人物/阿瑟.scm")
+(load-file "world/人物/沃尔特.scm")
+(load-file "world/人物/萨姆.scm")
 (load-file "world/home.scm")
 (load-file "world/码头.scm")
 (load-file "world/老街酒馆.scm")
@@ -10,6 +15,9 @@
 (load-file "world/公园.scm")
 (load-file "world/警局.scm")
 (load-file "world/货运公司.scm")
+(load-file "world/居民区.scm")
+(load-file "world/保险公司.scm")
+(load-file "world/陌生人藏身处.scm")
 (load-file "world/board.scm")
 (load-file "world/test.scm")
 
@@ -33,23 +41,23 @@
 (set-global! "relation-band-name:官僚:相识" "挂号")
 (set-global! "relation-band-name:官僚:信任" "备案")
 (set-global! "relation-band-name:官僚:核心" "有里子")
-(set-global! "relation-goal:官僚:相识" "陪探长走访取证")
-(set-global! "relation-goal:官僚:信任" "办案通行证冷却从 3 天缩短到 1 天")
+(set-global! "relation-goal:官僚:相识" "替阿瑟处理程序管不了的麻烦")
+(set-global! "relation-goal:官僚:信任" "请阿瑟提级、延期并办理通行证")
 (set-global! "relation-goal:官僚:核心" "引荐市长秘书，遇事能求到更高处（demo 暂未开放）")
 
 ;; 劳工〈生存 · 暴力 · 销赃网〉：暴力援助与销赃/借钱网络。
 (set-global! "relation-band-name:劳工:相识" "面熟")
 (set-global! "relation-band-name:劳工:信任" "够朋友")
 (set-global! "relation-band-name:劳工:核心" "拜过码头")
-(set-global! "relation-goal:劳工:相识" "码头熟手活：替工头记账")
-(set-global! "relation-goal:劳工:信任" "码头走私门路（私货来源）")
-(set-global! "relation-goal:劳工:核心" "地下酒吧对你开门；了断之日也能召集码头兄弟到场撑腰")
+(set-global! "relation-goal:劳工:相识" "参与搁浅货船的紧急抢修")
+(set-global! "relation-goal:劳工:信任" "替弗兰克查账并接触旧悬案")
+(set-global! "relation-goal:劳工:核心" "走私工作；了断之日弗兰克带人到场")
 
 ;; 富商〈欲望 · 资本 · 科技圈层〉：资本/投资与上流圈层。
 (set-global! "relation-band-name:富商:相识" "有往来")
 (set-global! "relation-band-name:富商:信任" "座上宾")
 (set-global! "relation-band-name:富商:核心" "合伙人")
-(set-global! "relation-goal:富商:相识" "私货能出手·陪代理谈投资（渠道价，非最高价）")
+(set-global! "relation-goal:富商:相识" "私货能出手·陪代理谈投资·接触保险核赔")
 (set-global! "relation-goal:富商:信任" "私货满价收购·投资本金打折")
 (set-global! "relation-goal:富商:核心" "引荐博士，牵出实验室科技线（demo 暂未开放）")
 
@@ -59,9 +67,9 @@
 (define public-event-pending? #f)
 (define public-event-delay-used? #f)
 
-;; 故事节拍表：间隔 (3 6 7) 对应第 4 / 10 / 17 天上门。
-;; 开场后第 3 个日终触发第一场，之后两场间隔递增。
-(define public-event-intervals '(3 6 7))
+;; 故事节拍表：间隔 (2 7 7) 对应第 3 / 10 / 17 天上门。
+;; 开场后第 2 个日终触发第一场，之后两场仍落在第 10 / 17 天。
+(define public-event-intervals '(2 7 7))
 
 (define (current-public-event-interval)
   (list-ref public-event-intervals public-event-count))
@@ -85,13 +93,13 @@
 (define (public-event-clock-note)
   (let ((stage (let ((v (get-global '夜莺阶段))) (if v v 0)))
         (beat1-progress (let ((v (get-global '夜莺查访进度))) (if v v 0)))
-        (beat1-target (let ((v (get-global '夜莺查访目标))) (if v v 6))))
+        (beat1-target (let ((v (get-global '夜莺查访目标))) (if v v 2))))
     (cond
       ((= public-event-count 0)
        (cond
          ((= stage 0) "雨夜有人敲门,先去看看是谁。")
-         ((and (= stage 1) (< beat1-progress beat1-target)) "查出盯梢者的落脚处。填满后可以主动找上门。")
-         (else "你已经摸到他的落脚处。可以主动去找他,也可以等他上门。")))
+         ((and (= stage 1) (< beat1-progress beat1-target)) "完成饭店与码头两处查访，拼出陌生人的藏身处。")
+         (else "陌生人的藏身处已经揭晓。可以主动出击，也可以等他上门。")))
       ((= public-event-count 1)
        "收账人已经撂话。第 10 天到期；时钟显示距到期的剩余天数。至少要凑出一笔首期赎身钱,让他们先收手。")
       ((= public-event-count 2)
@@ -148,7 +156,7 @@
       #t)
   (next-public-event 'set! (max 0 (- (next-public-event 'current) 1)))
   (set! public-event-delay-used? #t)
-  (notify! "探长替你压了一天。他们会晚一天上门。"))
+  (notify! "阿瑟替你改了一张日期。他们会晚一天上门。"))
 
 (define (set-public-event-pending!)
   (if (or public-event-pending? (not (public-event-active?)))
@@ -273,6 +281,9 @@
     (list park            (lambda () #t))
     (list police-station  (lambda () #t))
     (list freight-company (lambda () #t))
+    (list residential-district (lambda () (joe 'residential-unlocked?)))
+    (list insurance-company (lambda () (walter 'known?)))
+    (list stranger-hideout (lambda () (nightingale 'hideout-visible?)))
     (list board           (lambda () #t))
     (list test            (lambda () (equal? (get-global 'chapter) "test")))))
 
@@ -315,6 +326,14 @@
     (list "park" (park 'save))
     (list "police-station" (police-station 'save))
     (list "freight-company" (freight-company 'save))
+    (list "joe" (joe 'save))
+    (list "frank" (frank 'save))
+    (list "arthur" (arthur 'save))
+    (list "walter" (walter 'save))
+    (list "sam" (sam 'save))
+    (list "residential-district" (residential-district 'save))
+    (list "insurance-company" (insurance-company 'save))
+    (list "stranger-hideout" (stranger-hideout 'save))
     (list "board" (board 'save))
     (list "test" (test 'save))))
 
@@ -340,6 +359,14 @@
   (park 'load! (assoc-get data "park" '()))
   (police-station 'load! (assoc-get data "police-station" '()))
   (freight-company 'load! (assoc-get data "freight-company" '()))
+  (joe 'load! (assoc-get data "joe" '()))
+  (frank 'load! (assoc-get data "frank" '()))
+  (arthur 'load! (assoc-get data "arthur" '()))
+  (walter 'load! (assoc-get data "walter" '()))
+  (sam 'load! (assoc-get data "sam" '()))
+  (residential-district 'load! (assoc-get data "residential-district" '()))
+  (insurance-company 'load! (assoc-get data "insurance-company" '()))
+  (stranger-hideout 'load! (assoc-get data "stranger-hideout" '()))
   (board 'load! (assoc-get data "board" '()))
   (test 'load! (assoc-get data "test" '()))
   (sync-public-event-blocker!)

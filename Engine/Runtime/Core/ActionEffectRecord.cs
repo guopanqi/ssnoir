@@ -9,6 +9,7 @@ namespace SSNoir.Core
         Composure,
         Relation,
         Growth,
+        Clock,
         Note
     }
 

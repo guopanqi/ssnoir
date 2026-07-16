@@ -953,8 +953,6 @@ namespace SSNoir.Rendering
                     return (new Color(28, 58, 64, 220), new Color(90, 180, 190, 255), new Color(210, 240, 245, 255));
                 case "低风险": // 绿
                     return (new Color(34, 66, 44, 220), new Color(96, 190, 120, 255), new Color(215, 245, 220, 255));
-                case "中风险": // 琥珀
-                    return (new Color(80, 62, 26, 225), new Color(214, 168, 70, 255), new Color(255, 238, 200, 255));
                 case "高风险": // 红
                     return (new Color(90, 40, 34, 225), new Color(214, 96, 74, 255), new Color(255, 220, 205, 255));
                 case "非法": // 深红：非法工作/掉关系

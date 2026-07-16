@@ -191,18 +191,18 @@
 ;; ── 工作（work）DSL ───────────────────────────────────
 ;; (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])
 ;; (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])
+;; (非法工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])
 ;;   faction: "官僚"/"劳工"/"富商"。普通工作不产关系；关系工作仅在好结果 +1。
-;;   risk:    '低/'中/'高只决定风险标签与结果代价；'非法是难度标签，固定 -2
+;;   risk:    只有 '低/'高，决定风险标签与结果代价。
+;;   非法工作是独立维度：额外显示“非法”并固定难度 -2，不再冒充第三种风险档。
 ;;   好/中/坏: 每项工作显式传入三个 outcome，标题和描述直接用于轻型结算
 ;;   subtitle: 可选，只写“特别”的一句说明；一般风险由标签表达，不写 subtitle
 ;; 表现约定：每个工作都打“工作”标签（＝能赚钱）+ 一个风险标签，前端给风险标签配色，
 ;; 玩家一眼就能判断类型和大致风险。惩罚（钱/冷静/健康、非法工作失败掉关系）写在各 outcome effect 里。
 (define (工作-风险标签 risk)
   (cond ((equal? risk '低)   "低风险")
-        ((equal? risk '中)   "中风险")
         ((equal? risk '高)   "高风险")
-        ((equal? risk '非法) "非法")
-        (else (error "工作: 未知风险等级（应为 低/中/高/非法）"))))
+        (else (error "工作: 未知风险等级（应为 低/高）"))))
 
 (define (工作-合法势力? faction)
   (or (equal? faction "官僚") (equal? faction "劳工") (equal? faction "富商")))
@@ -213,21 +213,22 @@
       (list (modifier -1 "势力敌视"))
       '()))
 
-(define (工作-难度修正 risk faction)
+(define (工作-难度修正 risk faction illegal?)
   (append
-    (cond ((or (equal? risk '低) (equal? risk '中) (equal? risk '高)) '())
-          ((equal? risk '非法) (list (modifier -2 "非法")))
-          (else (error "工作: 未知风险等级（应为 低/中/高/非法）")))
+    (begin (工作-风险标签 risk) '())
+    (if illegal? (list (modifier -2 "非法")) '())
     (关系难度修正 faction)))
 
-(define (构造工作 name faction 产关系? risk skill 好-outcome 中-outcome 坏-outcome subtitle)
+(define (构造工作 name faction 产关系? illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle)
   (if (工作-合法势力? faction) #t (error "工作: 未知势力（应为 官僚/劳工/富商）"))
   (node name
         :subtitle subtitle
-        :tags (list "工作" (工作-风险标签 risk))
+        :tags (if illegal?
+                  (list "工作" (工作-风险标签 risk) "非法")
+                  (list "工作" (工作-风险标签 risk)))
         :requires (list (req-die))
         :resolve (roll skill
-                       (lambda () (工作-难度修正 risk faction))
+                       (lambda () (工作-难度修正 risk faction illegal?))
                        (require-outcome 坏-outcome "工作 坏")
                        (require-outcome 中-outcome "工作 中")
                        (if 产关系?
@@ -238,11 +239,15 @@
                            (require-outcome 好-outcome "工作 好")))))
 
 (define (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
-  (构造工作 name faction #f risk skill 好-outcome 中-outcome 坏-outcome
+  (构造工作 name faction #f #f risk skill 好-outcome 中-outcome 坏-outcome
             (if (null? extra) "" (car extra))))
 
 (define (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
-  (构造工作 name faction #t risk skill 好-outcome 中-outcome 坏-outcome
+  (构造工作 name faction #t #f risk skill 好-outcome 中-outcome 坏-outcome
+            (if (null? extra) "" (car extra))))
+
+(define (非法工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
+  (构造工作 name faction #f #t risk skill 好-outcome 中-outcome 坏-outcome
             (if (null? extra) "" (car extra))))
 
 ;; Inventory helpers
@@ -310,11 +315,20 @@
     (if (string? note) #t (error "make-clock: note must be a string"))
     (lambda (msg . args)
       (cond
-        ((equal? msg 'tick!)       (set! current (min (+ current 1) max)))
-        ((equal? msg 'reset!)      (set! current 0))
+        ((equal? msg 'tick!)
+         (let ((before current))
+           (set! current (min (+ current 1) max))
+           (__record-clock-effect! label (- current before))))
+        ((equal? msg 'reset!)
+         (let ((before current))
+           (set! current 0)
+           (__record-clock-effect! label (- current before))))
         ((equal? msg 'full?)       (>= current max))
         ((equal? msg 'current)     current)
-        ((equal? msg 'set!)        (set! current (car args)))
+        ((equal? msg 'set!)
+         (let ((before current))
+           (set! current (car args))
+           (__record-clock-effect! label (- current before))))
         ((equal? msg 'render-data) (list 'clock label current max style note))
         (else #f)))))
 
@@ -462,6 +476,9 @@
 (define (recruit-companion! actor-id name stats-alist)
   (__recruit-companion! actor-id name stats-alist))
 
+(define (set-actor-permanent-die-penalty! actor-id label penalty)
+  (__set-actor-permanent-die-penalty! actor-id label penalty))
+
 (define (has-companion? actor-id)
   (__has-companion? actor-id))
 
@@ -489,6 +506,11 @@
 ;; 无法由状态变化自动推导的结算条目，例如“解锁：码头账房”。
 (define (result-note! text)
   (__result-note! text))
+
+;; 剧情局部整数时钟在动作结果中的统一记录入口。
+;; 动作外（读档、日终规则）调用时不产生结果行。
+(define (record-clock-progress! label delta)
+  (__record-clock-effect! label delta))
 
 (define (spotlight! title subtitle)
   (__spotlight! title subtitle))

@@ -6,10 +6,7 @@
 
 ;; ── 读镜像 ───────────────────────────────────────
 (define departed? (let ((v (get-global '夜莺已送走))) (if v v #f)))
-(define exposed? (let ((v (get-global '夜莺夹带暴露))) (if v v #f)))
 (define safety (let ((v (get-global '夜莺状态等级))) (if v v 0)))
-(define crew-threshold
-  (if (equal? (let ((p (get-global '夜莺保护方案))) (if p p "无")) "码头") '相识 '核心))
 
 (define (clock-tick-n! clock n)
   (if (> n 0)
@@ -46,7 +43,6 @@
                     (if departed?
                         "填满后，你独自扛下代价——她已经安全。"
                         "填满后，她会被带走。")))
-  (if (and departed? exposed?) (press-clk 'tick!) #f)
   (set! phase 2))
 
 ;; ── 敌人单位 ─────────────────────────────────────
@@ -208,14 +204,14 @@
 ;; ── 场内增益(读现有 global,各一次性,不是出口) ─────
 (define crew-used? #f)
 (define pass-used? #f)
-(define laozhou-used? #f)
-(define laozhou-help?
-  (let ((v (get-global 'laozhou-can-help))) (if v v #f)))
+(define frank-help?
+  (let ((v (get-global 'frank-final-help))) (if v v #f)))
 
 (define (node-call-crew)
-  (action "码头兄弟到场"
-    (list (req-die))
-    (instant (lambda ()
+  (node "弗兰克带人到场"
+    :subtitle "码头领袖，掌握分账与灰色门路；只在最终了断出面"
+    :requires (list (req-die))
+    :resolve (instant (lambda ()
       (set! crew-used? #t)
       (let ((remaining (live-thugs)))
         (if (not (null? remaining)) ((car remaining) 'retire!) #f))
@@ -226,20 +222,10 @@
     (list (req-item "办案通行证" 1))
     (instant (lambda () (set! pass-used? #t) (set! pass-intervention? #t)))))
 
-(define (node-laozhou-ally)
-  (container-with-clocks "老周"
-    (list
-      (instant-action "请老周出面"
-        (lambda ()
-          (set! laozhou-used? #t)
-          (retreat-press! 2))))
-    '()))
-
 (define (extra-nodes)
   (append
-    (if (and (relation-at-least? "劳工" crew-threshold) (not crew-used?)) (list (node-call-crew)) '())
-    (if (and (> (item-count "办案通行证") 0) (not pass-used?)) (list (node-use-pass)) '())
-    (if (and laozhou-help? (not laozhou-used?)) (list (node-laozhou-ally)) '())))
+    (if (and frank-help? (not crew-used?)) (list (node-call-crew)) '())
+    (if (and (> (item-count "办案通行证") 0) (not pass-used?)) (list (node-use-pass)) '())))
 
 (define (phase2-nodes)
   (append

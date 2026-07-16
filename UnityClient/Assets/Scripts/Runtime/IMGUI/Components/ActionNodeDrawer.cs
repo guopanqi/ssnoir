@@ -768,7 +768,7 @@ namespace SSNoir.IMGUI
 
         // ── 标签配色（便签色板，DESIGN.md）──────────────────────────────
 
-        // 同一语义永远同一张纸：工作=绿纸、中风险=黄纸、高风险=橙红纸、交涉=蓝纸、机遇=紫纸。
+        // 同一语义永远同一张纸：工作/低风险=绿纸、高风险=橙红纸、交涉=蓝纸、机遇=紫纸。
         private static (Color bg, Color text) TagColors(string label, bool disabled = false)
         {
             if (disabled)
@@ -781,8 +781,6 @@ namespace SSNoir.IMGUI
                 case "工作":
                 case "低风险":
                     return (new Color(0.66f, 0.74f, 0.50f, 1f), new Color(0.10f, 0.18f, 0.05f, 1f));
-                case "中风险":
-                    return (new Color(0.78f, 0.65f, 0.35f, 1f), new Color(0.25f, 0.16f, 0.02f, 1f));
                 case "高风险":
                 case "非法":
                     return (new Color(0.82f, 0.58f, 0.48f, 1f), new Color(0.30f, 0.07f, 0.03f, 1f));

@@ -1,0 +1,261 @@
+;; 乔（Joe Doyle）——码头搬运工、单亲父亲。
+;; 日常只显示名字“乔”；全名只在正式介绍中出现。
+
+(define joe
+  (let ()
+    ;; 0陌生 / 1熟悉 / 2开口求助 / 3接送孩子 / 4感谢后等待受伤
+    ;; 5养伤 / 6痊愈待邀请 / 7残疾待邀请 / 8死亡 / 9已入队
+    (define stage 0)
+    (define favor 0)
+    (define favor-target 5)
+    (define child-progress 0)
+    (define child-target 8)
+    (define child-cared-today? #f)
+    (define injury-days 0)
+    (define injury-duration 5)
+    (define injury-started-today? #f)
+    (define care-progress 0)
+    (define cared-today? #f)
+    (define injury-trigger-table (list #t #f #f))
+    (define identity "码头搬运工，独自抚养孩子")
+
+    (define (advance-favor! n)
+      (if (or (= stage 1) (= stage 2))
+          (let ((before favor))
+            (set! favor (min favor-target (+ favor n)))
+            (record-clock-progress! "与乔熟悉起来" (- favor before)))
+          #f)
+      (if (and (= stage 1) (>= favor favor-target))
+          (begin
+            (set! stage 2)
+            (notify! "乔有件家里的事想请你帮忙。"))
+          #f))
+
+    (define (on-haul!)
+      (if (and (= stage 0) (>= (faction-relation "劳工") 1))
+          (begin
+            (set! stage 1)
+            (set! favor 1)
+            (record-clock-progress! "与乔熟悉起来" 1)
+            (notify! "码头的乔开始认得你了。"))
+          (advance-favor! 1)))
+
+    (define (node-joe-at-dock)
+      (node "乔"
+        :subtitle identity
+        :clocks (if (>= stage 1)
+                    (list (list 'clock "与乔熟悉起来" favor favor-target 'segments
+                                "继续在码头搬运，让乔慢慢认得你；填满后他会请你帮一件私事。"))
+                    '())
+        :resolve (observe (cond
+          ((= stage 0) "一个沉默的搬运工，下工后总是走得很急。")
+          ((= stage 1) "你和乔在同一班货上见过许多次，已经能彼此叫出名字。")
+          ((= stage 2) "乔几次想开口，又把话咽了回去。")
+          ((= stage 3) "乔的下午班排得很满。孩子放学那段路，只能托给你。")
+          ((= stage 4) "乔记着你替他照看孩子的情分，日子暂时恢复了原样。")
+          ((= stage 5) "乔伤了腿，没有再来码头。")
+          ((= stage 6) "乔已经能重新站稳。他说欠你的，总得有机会还。")
+          ((= stage 7) "乔活了下来，但那条腿再也使不上从前的力。")
+          ((= stage 8) "乔的位置空着。工头第二天就把另一个人的名字写了上去。")
+          (else "乔现在跟着你跑动；每天会带来一颗行动骰。")))))
+
+    (define (node-ask-joe-to-join)
+      (node "邀请乔一起做事"
+        :subtitle identity
+        :resolve (instant (lambda ()
+          (if (and (not (= stage 6)) (not (= stage 7)))
+              (error "邀请乔入队：人物阶段错误")
+              #t)
+          (let ((disabled? (= stage 7)))
+            (recruit-companion! 'joe "乔"
+              (list (list 'violence 1) (list 'knowledge 1) (list 'sharpness 1) (list 'social 1)))
+            (if disabled?
+                (set-actor-permanent-die-penalty! 'joe "残疾" -1)
+                #f)
+            (set! stage 9)
+            (play-dialogue!
+              (line "乔" "我没钱还你。可我还有时间，也认得这座城里不少人。")
+              (line "主角" "那就从明天开始。"))
+            (spotlight! "多一个人" (if disabled?
+              "乔加入了队伍。他每天带来一颗行动骰，但残疾会令这颗骰永久 −1。"
+              "乔加入了队伍。从明天起，他每天带来一颗行动骰。")))))))
+
+    (define (dock-nodes)
+      (append
+        (list (node-joe-at-dock))
+        (if (= stage 2) (list (node-share-meal)) '())
+        (if (or (= stage 6) (= stage 7)) (list (node-ask-joe-to-join)) '())))
+
+    (define (node-share-meal)
+      (node "和乔吃顿饭"
+        :subtitle identity
+        :resolve (instant (lambda ()
+          (if (not (= stage 2)) (error "乔请托：人物阶段错误") #t)
+          (set! stage 3)
+          (play-dialogue!
+            (line "乔" "档案上写的是乔·多伊尔。码头的人只叫我乔。")
+            (line "乔" "我这几天都是下午班。孩子放学后没人接，你要是正好有空……")
+            (line "主角" "把地址给我。"))
+          (spotlight! "接送孩子" "居民区出现了一件每天最多处理一次的生活小事。它会和所有期限争用同一批行动骰。")))))
+
+    (define (finish-childcare!)
+      (if (< child-progress child-target) #f
+          (begin
+            (set! stage 4)
+            (add-item! "酒" 3)
+            (complete-section!)
+            (play-dialogue!
+              (line "乔" "没什么拿得出手的。这几瓶酒你留着。")
+              (line "乔" "你替我少误了几班工，也替孩子少等了几次空门。"))
+            (spotlight! "乔的谢礼" "乔送来三瓶酒。它们也是交锋里能救急的缓冲。"))))
+
+    (define (advance-childcare! n)
+      (let ((before child-progress))
+        (set! child-progress (min child-target (+ child-progress n)))
+        (record-clock-progress! "接送孩子" (- child-progress before)))
+      (set! child-cared-today? #t)
+      (finish-childcare!))
+
+    (define (node-childcare)
+      (node "接乔的孩子放学"
+        :subtitle (string-append identity "；" (if child-cared-today? "今天已经接过了" "每天最多一次"))
+        :tags (list "低风险")
+        :disabled child-cared-today?
+        :clocks (list (list 'clock "接送孩子" child-progress child-target 'segments
+                            "填满后乔会来道谢；这件事一直与主线期限争用行动骰。"))
+        :requires (list (req-die))
+        :resolve (roll 'social
+          (outcome "晚了一步" "孩子在校门口多等了一会儿。乔没责怪你，你却知道这事不能总出岔子。"
+            (lambda () (set! child-cared-today? #t) (spend-composure! 1)))
+          (outcome "平安送到" "一路没发生什么。对一个孩子来说，这已经是很好的一天。"
+            (lambda () (advance-childcare! 1)))
+          (outcome "路上很顺" "你们绕开了拥堵的街口，还赶在天黑前买到了晚饭。"
+            (lambda () (advance-childcare! 2))))))
+
+    (define (apply-care! n)
+      (set! care-progress (+ care-progress n))
+      (set! cared-today? #t))
+
+    (define (care-hint)
+      (cond
+        ((>= care-progress 5) "乔的脸色有了些血色。那条腿也许能保住。")
+        ((>= care-progress 1) "他还撑得住，但离真正好起来差得很远。")
+        ((>= care-progress -2) "他脸色不太好，这样下去怕是要留下永久损伤。")
+        (else "乔越来越少说话。屋里安静得让人不敢久看。")))
+
+    (define (node-care)
+      (node "照顾乔"
+        :subtitle (string-append identity "；" (if cared-today? "今天已经照顾过了" (care-hint)))
+        :tags (list "低风险")
+        :disabled cared-today?
+        :clocks (list (list 'clock "乔的伤势" (- injury-duration injury-days) injury-duration 'segments
+                            "第五天结算；内部照顾进度只通过文字暗示。"))
+        :requires (list (req-die))
+        :resolve (roll 'social
+          (outcome "帮不上忙" "你忙了半天，反而让他不得安生。"
+            (lambda () (apply-care! -1) (spend-composure! 1)))
+          (outcome "陪他熬过一天" "你换了水，弄了点吃的，陪他把最难受的几个钟头熬过去。"
+            (lambda () (apply-care! 1)))
+          (outcome "照料妥当" "你把药、饭和夜里的水都安排妥当，他终于睡沉了一会儿。"
+            (lambda () (apply-care! 2))))))
+
+    (define (node-medicate)
+      (node "给乔用药"
+        :subtitle (string-append identity "；消耗一份药品，稳定增加照顾进度；每天仍只能照顾一次")
+        :tags (list "低风险")
+        :disabled cared-today?
+        :requires (list (req-item "药品" 1))
+        :resolve (instant
+          (outcome "用过药了" "药没有让账单变轻，但至少让这一夜没有继续恶化。"
+            (lambda () (apply-care! 2))))))
+
+    (define (residential-nodes)
+      (append
+        (if (= stage 3) (list (node-childcare)) '())
+        (if (= stage 5)
+            (append (list (node-care))
+                    (if (> (item-count "药品") 0) (list (node-medicate)) '()))
+            '())))
+
+    (define (finish-injury!)
+      (cond
+        ((>= care-progress 6)
+         (set! stage 6)
+         (play-dialogue!
+           (line "乔" "这条腿还能站住。往后你要跑什么事，叫我。")))
+        ((>= care-progress 0)
+         (set! stage 7)
+         (play-dialogue!
+           (line "乔" "命留下了，腿没全留下。往后我走得慢一点，事还是能办。")))
+        (else
+         (set! stage 8)
+         (play-dialogue!
+           (line "世界" "第五天清晨，乔没有再醒来。")
+           (line "世界" "码头当天就补上了他的班，像补上一行漏写的数字。"))))
+      (set! injury-days 0)
+      (set! injury-started-today? #f)
+      (set! cared-today? #f)
+      (complete-section!))
+
+    (define-turn-rule "乔受伤"
+      (lambda () (and (= stage 4) (random-choice injury-trigger-table)))
+      (lambda ()
+        (set! stage 5)
+        (set! injury-days injury-duration)
+        (set! injury-started-today? #t)
+        (set! care-progress 0)
+        (set! cared-today? #f)
+        (play-dialogue!
+          (line "世界" "乔在搬货时伤了腿。工头把他送回居民区，没提工伤，也没提赔偿。")
+          (line "乔" "别去找保险公司。他们先算这条腿值多少钱，再决定我值不值得救。"))
+        (spotlight! "乔受伤了" "五天内每天最多照顾一次。第五天会按实际照顾情况结算。")))
+
+    (define-turn-rule "乔的伤势推进"
+      (lambda () (= stage 5))
+      (lambda ()
+        (if injury-started-today?
+            (set! injury-started-today? #f)
+            (begin
+              (if (not cared-today?) (set! care-progress (- care-progress 2)) #f)
+              (set! cared-today? #f)
+              (set! injury-days (- injury-days 1))
+              (if (<= injury-days 0) (finish-injury!) #f)))))
+
+    (define-turn-rule "乔每日次数重置"
+      (lambda () child-cared-today?)
+      (lambda () (set! child-cared-today? #f)))
+
+    (lambda args
+      (let ((msg (car args)))
+        (cond
+          ((equal? msg 'on-haul!) (on-haul!))
+          ((equal? msg 'dock-nodes) (dock-nodes))
+          ((equal? msg 'residential-nodes) (residential-nodes))
+          ((equal? msg 'residential-unlocked?) (>= stage 3))
+          ((equal? msg 'save)
+           (list (list "stage" stage) (list "favor" favor)
+                 (list "child-progress" child-progress)
+                 (list "child-cared-today?" child-cared-today?)
+                 (list "injury-days" injury-days) (list "care-progress" care-progress)
+                 (list "injury-started-today?" injury-started-today?)
+                 (list "cared-today?" cared-today?)))
+          ((equal? msg 'load!)
+           (let ((data (cadr args)))
+             (set! stage (assoc-get data "stage" 0))
+             (set! favor (assoc-get data "favor" 0))
+             (set! child-progress (assoc-get data "child-progress" 0))
+             (set! child-cared-today? (assoc-get data "child-cared-today?" #f))
+             (set! injury-days (assoc-get data "injury-days" 0))
+             (set! care-progress (assoc-get data "care-progress" 0))
+             (set! injury-started-today? (assoc-get data "injury-started-today?" #f))
+             (set! cared-today? (assoc-get data "cared-today?" #f))
+             (if (and (= stage 9) (not (has-companion? 'joe)))
+                 (error "乔存档错误：已入队但队伍中没有 joe") #t)
+             (if (and (not (= stage 9)) (has-companion? 'joe))
+                 (error "乔存档错误：队伍中有 joe 但人物阶段不是已入队") #t)))
+          ((equal? msg 'debug-favor!) (advance-favor! (cadr args)))
+          ((equal? msg 'debug-injure!)
+           (set! stage 5)
+           (set! injury-days injury-duration)
+           (set! injury-started-today? #t))
+          (else #f))))))
