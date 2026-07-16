@@ -29,7 +29,7 @@
       (make-trouble "码头麻烦" 3
         (lambda ()
           (spend-up-to! "金钱" 10)
-          (stress-current-actor! 1)
+          (spend-composure! 1)
           (notify! "码头这摊麻烦没压住：路过时被人堵了个正着，钱和精气神一块儿搭了进去。"))))
 
     ;; 交锋解释器读取镜像状态。老周的援助来自人物支线，不与势力关系混用。
@@ -59,9 +59,9 @@
         (outcome "工钱丰厚" "扛了一整天货，汗把衬衫贴在背上，工钱倒给得痛快。"
           (lambda () (add-item! "金钱" 15) (grant-work-relation! "劳工")))
         (outcome "累到脱力" "工钱是拿到了，可腰背像散了架子。"
-          (lambda () (add-item! "金钱" 8) (stress-current-actor! 1) (maybe-notify-dock-trouble!)))
+          (lambda () (add-item! "金钱" 8) (spend-composure! 1) (maybe-notify-dock-trouble!)))
         (outcome "砸伤了手" "货箱砸在手上，工头扭过头，只当没瞧见。"
-          (lambda () (stress-current-actor! 1) (damage-party! 1) (maybe-notify-dock-trouble!)))))
+          (lambda () (spend-composure! 1) (damage-party! 1) (maybe-notify-dock-trouble!)))))
 
     ;; 记账是搬熟了之后工头才让你碰的清闲活：工钱比搬运低，但换的是工头更信得过你，
     ;; 声望能继续往上走（封顶到 favor-relation-cap，比搬运能到的地方更高）。
@@ -83,11 +83,11 @@
         (outcome "险些暴露" "只保住了一件货。你绕了很远才甩掉巡警，整路神经紧绷。"
           (lambda ()
             (add-item! "私货" 1)
-            (stress-current-actor! 1)))
+            (spend-composure! 1)))
         (outcome "被巡警撞见" "巡警扣下了货。你虽然脱了身，名字却被记进了值班记录。"
           (lambda ()
             (change-faction-relation! "官僚" -2)
-            (stress-current-actor! 2)))
+            (spend-composure! 2)))
         "事败将得罪官僚"))
 
     (define (node-handle-trouble)
@@ -115,7 +115,7 @@
         (list (req-die))
         (roll 'knowledge
           (outcome "没理出头绪" "你白耗了一下午，账页还是乱成一团。"
-            (lambda () (stress-current-actor! 1)))
+            (lambda () (spend-composure! 1)))
           (outcome "查清一笔" "你替老周理清了一笔旧账。没有工钱，但他记下了。"
             (lambda () (bump-favor! 1)))
           (outcome "找到漏洞" "你指出账里的漏洞，老周第一次认真打量了你。"
@@ -137,7 +137,7 @@
         (list (req-die))
         (roll 'social
           (outcome "没把话带到" "对方不肯见你，这一趟白跑了。"
-            (lambda () (stress-current-actor! 1)))
+            (lambda () (spend-composure! 1)))
           (outcome "事情办妥" "你把话带到，也替老周保住了一个人的脸面。"
             (lambda () (finish-laozhou-section!)))
           (outcome "两边都满意" "事情办得干净，老周不再只把你当临时帮工。"
@@ -228,7 +228,7 @@
         :resolve
           (roll 'social
             (outcome "扑了个空" "人没找着，白跑一趟。"
-              (lambda () (set! cushy-available? #f) (stress-current-actor! 1)))
+              (lambda () (set! cushy-available? #f) (spend-composure! 1)))
             (outcome "办妥了" "话带到了，拿到了辛苦钱。"
               (lambda () (set! cushy-available? #f) (add-item! "金钱" 10)))
             (outcome "顺带的好处" "事情办得漂亮，老周多塞了些报酬。"
@@ -242,11 +242,10 @@
         (laozhou-recruit-lost? "老周还在码头，见面照旧打招呼，但那条腿废了，再也没提过跟你跑的事。")
         ((= laozhou-stage 2) "老周愿意在码头替你出面，日子照常过着。")
         ((equal? (actor-status 'laozhou) 'away)
-         (string-append "老周压力已经到了 " (number->string (actor-stress 'laozhou))
-                        "，暂时离队休息。压力归零后才会回来。"))
+         "老周冷静耗尽了，暂时离队休息。冷静回满才会回来。")
         (else
-         (string-append "老周正在队伍里，当前压力 "
-                        (number->string (actor-stress 'laozhou)) "。"))))
+         (string-append "老周正在队伍里，当前冷静 "
+                        (number->string (actor-composure 'laozhou)) "。"))))
 
     (define (node-laozhou)
       (node "老周"

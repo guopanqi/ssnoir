@@ -175,7 +175,7 @@
   (action "抵住前门"
     (list (req-die))
     (roll 'violence
-      (lambda () (stress-current-actor! 1))
+      (lambda () (spend-composure! 1))
       (lambda () (retreat-press! 1))
       (lambda () (retreat-press! 2)))))
 

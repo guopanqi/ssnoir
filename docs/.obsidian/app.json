@@ -1,1 +1,8 @@
-{}
+{
+  "alwaysUpdateLinks": true,
+  "showInlineTitle": true,
+  "readableLineLength": true,
+  "spellcheck": false,
+  "newLinkFormat": "relative",
+  "promptDelete": false
+}

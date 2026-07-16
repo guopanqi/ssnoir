@@ -42,8 +42,7 @@ namespace SSNoir.IMGUI
             bool isObserve = node.Resolve!.Type == ResolveType.Observe;
             var actors = gameManager.DisplayedSnapshot.Actors;
             bool showOdds = isRoll && !disabled && hasRequires && actors != null && localRoll == null && residue == null;
-            var effectiveModifiers = BuildEffectiveModifiers(
-                node.Resolve.DifficultyModifiers, slotted, actors, node.Resolve.IgnoresStressPenalty);
+            var effectiveModifiers = node.Resolve.DifficultyModifiers;
 
             // ── 1. 标题区（居中）──
             float titleY = rect.y + (node.Clocks != null && node.Clocks.Count > 0 ? 44f : 12f);
@@ -412,7 +411,6 @@ namespace SSNoir.IMGUI
                 "金钱" => "$",
                 "酒" => "酒",
                 "药品" => "药",
-                "食物" => "食",
                 _ => string.IsNullOrEmpty(name) ? "?" : name.Substring(0, 1)
             };
         }
@@ -560,27 +558,6 @@ namespace SSNoir.IMGUI
         }
 
         // ── 底部：命运六面预览 ────────────────────────────────────────
-
-        private static List<DifficultyModifierInfo> BuildEffectiveModifiers(
-            List<DifficultyModifierInfo> baseModifiers,
-            List<SlottedResource?>? slotted,
-            IReadOnlyList<ActorSnapshot>? actors,
-            bool ignoresStressPenalty)
-        {
-            var result = new List<DifficultyModifierInfo>(baseModifiers);
-            if (ignoresStressPenalty || slotted == null || actors == null) return result;
-
-            SlottedResource? die = slotted.FirstOrDefault(s => s?.Type == "die");
-            if (die == null) return result;
-            ActorSnapshot? actor = actors.FirstOrDefault(a => a.Id == die.ActorId);
-            if (actor == null)
-                throw new System.InvalidOperationException($"Actor '{die.ActorId}' was not found for stress modifier preview.");
-
-            int value = TeamState.GetStressRollModifier(actor.Stress);
-            if (value != 0)
-                result.Add(new DifficultyModifierInfo { Value = value, Reason = "心绪不宁" });
-            return result;
-        }
 
         private static void TryDrawFatePreview(Rect rect, string skill, List<SlottedResource?> slotted,
             List<DifficultyModifierInfo>? modifiers, IReadOnlyList<ActorSnapshot> actors, float executeBottomY)

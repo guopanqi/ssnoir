@@ -8,18 +8,15 @@ namespace SSNoir.Core
     {
         public const int MinStatLevel = 0;
         public const int MaxStatLevel = 4;
-        public const int MaxStress = 4;
-        public const int StressPenaltyThreshold = 2;
+
+        // 冷静三段阈值（见 docs/城市生活设计.md）：4–6 为缓冲，1–3 为失态，0 为失控。
+        // 失态随机一个骰池位置 -1；失控再随机一个骰池位置 -1。0 点后继续花冷静会击穿为健康伤害。
+        public const int MaxComposure = 6;
+        public const int FaintThreshold = 3;
+        public const int LossOfControlThreshold = 0;
         public const int HealthPenaltyThreshold = 2;
 
         public int MaxHealth { get; set; } = 5;
-
-        public static int GetStressRollModifier(int stress)
-        {
-            if (stress < 0 || stress > MaxStress)
-                throw new ArgumentOutOfRangeException(nameof(stress), $"Stress must be between 0 and {MaxStress}.");
-            return stress >= StressPenaltyThreshold ? -1 : 0;
-        }
 
         private int _health = 5;
         public int Health
@@ -33,24 +30,11 @@ namespace SSNoir.Core
         }
 
         public int GrowthLevel { get; set; } = 0;
-
+        // 三个骰池位置稳定存在；身体状态附着在位置上，而非可变骰子列表下标。
+        public const int ActionSlotCount = 3;
         public int GetAvailableGrowthPoints(ActorState actor)
         {
             return Math.Max(0, GrowthLevel - actor.SpentGrowthPoints);
-        }
-
-        public int MaxSatiety { get; set; } = 5;
-
-        private int _satiety = 3;
-        // 饱腹：每天睡觉 −1，归零后开始扣健康（见 EndTurn）。吃食物恢复。
-        public int Satiety
-        {
-            get => _satiety;
-            set
-            {
-                _satiety = Math.Clamp(value, 0, MaxSatiety);
-                OnTeamChanged?.Invoke();
-            }
         }
 
         public List<ActorState> Actors { get; } = new List<ActorState>();
@@ -79,7 +63,7 @@ namespace SSNoir.Core
                 Name = name,
                 Role = "companion",
                 Status = "active",
-                Stress = 0,
+                Composure = MaxComposure,
             };
             foreach (string statId in requiredStats)
             {
@@ -125,8 +109,12 @@ namespace SSNoir.Core
             OnTeamChanged?.Invoke();
         }
 
-        public void ApplyStress(string actorId, int amount)
+        // 花冷静（失败、交锋每回合自动流失）。协作者在 0 点失能离场；主角击穿
+        // 0 点后溢出直接伤健康——"冷静挡不住子弹"之外的第二个健康受伤口。
+        public void SpendComposure(string actorId, int amount)
         {
+            if (amount < 0)
+                throw new ArgumentOutOfRangeException(nameof(amount), "Composure spend cannot be negative.");
             var actor = FindActor(actorId);
             if (actor == null)
             {
@@ -135,20 +123,19 @@ namespace SSNoir.Core
 
             if (actor.Role == "companion")
             {
-                int nextStress = actor.Stress + amount;
-                actor.Stress = nextStress;
-                if (actor.Stress >= MaxStress)
+                actor.Composure -= amount;
+                if (actor.Composure <= 0)
                 {
                     actor.Status = "away";
                 }
             }
             else if (actor.Role == "protagonist")
             {
-                int curStress = actor.Stress;
-                if (curStress < MaxStress)
+                int curComposure = actor.Composure;
+                if (curComposure > 0)
                 {
-                    actor.Stress = Math.Min(MaxStress, curStress + amount);
-                    int overflow = (curStress + amount) - MaxStress;
+                    actor.Composure = Math.Max(0, curComposure - amount);
+                    int overflow = amount - curComposure;
                     if (overflow > 0)
                     {
                         Health -= overflow;
@@ -159,10 +146,39 @@ namespace SSNoir.Core
                     Health -= amount;
                 }
             }
+            UpdateComposureSlotStatuses(actor);
             OnTeamChanged?.Invoke();
         }
 
-        public void SetActorStressSafe(string actorId, int newStress)
+        // 恢复冷静（睡觉、城市恢复动词、烟）。只在满值时把离场协作者接回来。
+        public void RestoreComposure(string actorId, int amount)
+        {
+            if (amount < 0)
+                throw new ArgumentOutOfRangeException(nameof(amount), "Composure restoration cannot be negative.");
+            var actor = FindActor(actorId);
+            if (actor == null)
+            {
+                throw new ArgumentException($"Actor with id '{actorId}' not found in team.");
+            }
+
+            actor.Composure += amount;
+            if (actor.Role == "companion" && actor.Status == "away" && actor.Composure >= MaxComposure)
+            {
+                actor.Status = "active";
+            }
+            UpdateComposureSlotStatuses(actor);
+            OnTeamChanged?.Invoke();
+        }
+
+        public void ApplyHangover()
+        {
+            // 酒的延期成本固定在一个骰池位置上：今天先看见“宿醉”标签，下一次城市掷骰才兑现。
+            var player = FindActor("player") ?? throw new InvalidOperationException("Protagonist is missing from the team.");
+            player.HangoverSlotId = 0;
+            OnTeamChanged?.Invoke();
+        }
+
+        public void SetActorComposureSafe(string actorId, int newComposure)
         {
             var actor = FindActor(actorId);
             if (actor == null)
@@ -170,43 +186,15 @@ namespace SSNoir.Core
                 throw new ArgumentException($"Actor with id '{actorId}' not found in team.");
             }
 
-            int curStress = actor.Stress;
-            int delta = newStress - curStress;
-            if (delta > 0)
+            int delta = newComposure - actor.Composure;
+            if (delta < 0)
             {
-                ApplyStress(actorId, delta);
+                SpendComposure(actorId, -delta);
             }
             else
             {
-                actor.Stress = newStress;
-                if (actor.Role == "companion" && actor.Stress < MaxStress && actor.Status == "away")
-                {
-                    if (actor.Stress == 0)
-                    {
-                        actor.Status = "active";
-                    }
-                }
-                OnTeamChanged?.Invoke();
+                RestoreComposure(actorId, delta);
             }
-        }
-
-        public void EndTurn(bool isInEncounter)
-        {
-            // 1. 饱腹 −1；已经饿到 0 则扣健康
-            if (Satiety <= 0)
-            {
-                Health -= 1;
-            }
-            else
-            {
-                Satiety -= 1;
-            }
-
-            // 2. Stress is content-driven (sleep, shelter, events), not a universal
-            // turn-end effect. EndTurn only advances mandatory systemic state.
-
-            // 3. Roll action dice for active members
-            RollActionDice(isInEncounter);
         }
 
         public TeamSaveData Serialize()
@@ -214,7 +202,6 @@ namespace SSNoir.Core
             var data = new TeamSaveData
             {
                 Health      = Health,
-                Satiety     = Satiety,
                 GrowthLevel = GrowthLevel,
             };
             foreach (var actor in Actors)
@@ -225,7 +212,10 @@ namespace SSNoir.Core
                     Name              = actor.Name,
                     Role              = actor.Role,
                     Status            = actor.Status,
-                    Stress            = actor.Stress,
+                    Composure         = actor.Composure,
+                    HangoverSlotId     = actor.HangoverSlotId,
+                    FaintSlotId        = actor.FaintSlotId,
+                    LossOfControlSlotId = actor.LossOfControlSlotId,
                     SpentGrowthPoints = actor.SpentGrowthPoints,
                     Stats             = new Dictionary<string, int>(actor.Stats),
                 });
@@ -236,7 +226,6 @@ namespace SSNoir.Core
         public void ApplySaveData(TeamSaveData data)
         {
             Health      = data.Health;
-            Satiety     = data.Satiety;
             GrowthLevel = data.GrowthLevel;
 
             var savedActorIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -259,7 +248,10 @@ namespace SSNoir.Core
                     throw new ArgumentException($"Actor '{actorData.Id}' has invalid status '{actorData.Status}' in save file.");
                 actor.Name              = actorData.Name;
                 actor.Status            = actorData.Status;
-                actor.Stress            = actorData.Stress;
+                actor.Composure         = actorData.Composure;
+                actor.HangoverSlotId = actorData.HangoverSlotId;
+                actor.FaintSlotId = actorData.FaintSlotId;
+                actor.LossOfControlSlotId = actorData.LossOfControlSlotId;
                 actor.SpentGrowthPoints = actorData.SpentGrowthPoints;
                 foreach (var kv in actorData.Stats)
                 {
@@ -271,17 +263,21 @@ namespace SSNoir.Core
                     actor.Stats[kv.Key] = kv.Value;
                 }
                 actor.ActionDice.Clear(); // re-rolled after load
+                actor.ActionDiceSlotIds.Clear();
             }
             OnTeamChanged?.Invoke();
         }
 
-        public void RollActionDice(bool isInEncounter)
+        public void RollActionDice(bool isInEncounter, bool consumeHangover = true)
         {
             var rand = GameRandom.Instance;
             bool healthDicePenalty = Health <= HealthPenaltyThreshold;
             foreach (var actor in Actors)
             {
+                bool applyHangover = !isInEncounter && consumeHangover && actor.HangoverSlotId != null;
+                UpdateComposureSlotStatuses(actor);
                 actor.ActionDice.Clear();
+                actor.ActionDiceSlotIds.Clear();
                 if (actor.Status == "active")
                 {
                     if (isInEncounter && actor.Role == "companion")
@@ -290,13 +286,65 @@ namespace SSNoir.Core
                     }
 
                     int diceCount = actor.Role == "protagonist" ? 3 : 1;
-                    if (healthDicePenalty && actor.Role == "protagonist")
-                        diceCount -= 1;
-                    for (int i = 0; i < diceCount; i++)
-                        actor.ActionDice.Add(rand.Next(1, 7));
+                    if (actor.Role == "protagonist")
+                    {
+                        if (healthDicePenalty)
+                            diceCount -= 1;
+                    }
+                    for (int slotId = 0; slotId < diceCount; slotId++)
+                    {
+                        int penalty = GetCurrentSlotPenalty(actor, slotId);
+                        if (applyHangover && actor.HangoverSlotId == slotId)
+                            penalty--;
+                        actor.ActionDice.Add(Math.Max(1, rand.Next(1, 7) + penalty));
+                        actor.ActionDiceSlotIds.Add(slotId);
+                    }
                 }
+                if (applyHangover)
+                    actor.HangoverSlotId = null;
             }
             OnTeamChanged?.Invoke();
+        }
+
+        public IReadOnlyList<ActionSlotStatus> GetActiveActionSlotStatuses(ActorState actor)
+        {
+            var result = new List<ActionSlotStatus>();
+            if (actor.FaintSlotId != null) result.Add(new ActionSlotStatus { SlotId = actor.FaintSlotId.Value, Label = "失态", DiePenalty = -1 });
+            if (actor.LossOfControlSlotId != null) result.Add(new ActionSlotStatus { SlotId = actor.LossOfControlSlotId.Value, Label = "失控", DiePenalty = -1 });
+            return result;
+        }
+
+        public IReadOnlyList<ActionSlotStatus> GetPendingActionSlotStatuses(ActorState actor)
+        {
+            if (actor.HangoverSlotId == null) return Array.Empty<ActionSlotStatus>();
+            return new[] { new ActionSlotStatus { SlotId = actor.HangoverSlotId.Value, Label = "宿醉", DiePenalty = -1 } };
+        }
+
+        private void UpdateComposureSlotStatuses(ActorState actor)
+        {
+            if (actor.Composure > FaintThreshold)
+                actor.FaintSlotId = null;
+            else if (actor.FaintSlotId == null)
+                actor.FaintSlotId = GameRandom.Instance.Next(0, ActionSlotCount);
+
+            if (actor.Composure > LossOfControlThreshold)
+                actor.LossOfControlSlotId = null;
+            else if (actor.LossOfControlSlotId == null)
+                actor.LossOfControlSlotId = PickUnusedSlot(actor.FaintSlotId);
+        }
+
+        private static int PickUnusedSlot(int? excluded)
+        {
+            int pick = GameRandom.Instance.Next(0, excluded == null ? ActionSlotCount : ActionSlotCount - 1);
+            return excluded != null && pick >= excluded.Value ? pick + 1 : pick;
+        }
+
+        private static int GetCurrentSlotPenalty(ActorState actor, int slotId)
+        {
+            int penalty = 0;
+            if (actor.FaintSlotId == slotId) penalty--;
+            if (actor.LossOfControlSlotId == slotId) penalty--;
+            return penalty;
         }
     }
 }

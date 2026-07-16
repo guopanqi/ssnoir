@@ -88,7 +88,7 @@
   (action "谈条件"
     (list (req-die))
     (roll 'social
-      (lambda () (press-clk 'tick!) (stress-current-actor! 1))
+      (lambda () (press-clk 'tick!) (spend-composure! 1))
       (lambda () (resolve-clk 'tick!))
       (lambda () (clock-tick-n! resolve-clk 2)))))
 

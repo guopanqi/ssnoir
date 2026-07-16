@@ -13,9 +13,9 @@
         (outcome "普通一班" "今晚客人稀稀落落，工头按日头结了账。"
           (lambda () (add-item! "金钱" 5)))
         (outcome "打翻酒杯" "一个醉客借故发作，你赔了一杯，也被骂了一顿。"
-          (lambda () (stress-current-actor! 1)))))
+          (lambda () (spend-composure! 1)))))
 
-    ;; 打酒：在酒馆买一壶带回家。可反复购买，回住所喝解压垫饱腹（不占骰）。
+    ;; 打酒：在酒馆买一壶带回家。可反复购买，回住所喝当场恢复冷静（不占骰）。
     (define (node-buy-liquor)
       (node "打一壶酒"
         :subtitle "给夜里留点松快，也能稍微垫垫肚子"
@@ -24,17 +24,26 @@
           (outcome "打了一壶酒" "打了一壶酒，带回去搁着，留着夜里。"
             (lambda () (add-item! "酒" 1))))))
 
+    ;; 一包四根。交锋里每根恢复 2 点冷静；一场 4–6 回合通常会烧掉大半包。
+    (define (node-buy-cigarettes)
+      (node "买一包烟"
+        :subtitle "8 金 4 根；交锋中可在功能区抽一根，恢复 2 点冷静"
+        :requires (list (req-item "金钱" 8))
+        :resolve (instant
+          (outcome "买了一包烟" "廉价烟草和火柴塞进了口袋。真到顶不住时，它们能替你撑半步。"
+            (lambda () (add-item! "香烟" 4))))))
+
     ;; 当场点一杯：效果与在家喝自带的酒完全一样，共用同一次“当天第一杯”（home 的 drank-today?）。
     ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
     (define (node-drink-here)
       (node "点一杯酒"
         :subtitle (if (home 'drank-today?)
                       "今天已经喝过了，再喝只会头疼"
-                      "不带走，当场喝掉：垫饱腹 +1，解压 −2（当天只算一次）")
+                      "不带走，当场喝掉：恢复 2 点冷静，下一次城市骰池会有宿醉")
         :disabled (home 'drank-today?)
         :requires (list (req-item "金钱" 8))
         :resolve (instant
-          (outcome "借酒松神" "就着吧台喝了一杯，绷了一天的神经松了扣，肚子也垫了垫。"
+          (outcome "借酒松神" "就着吧台喝了一杯，绷着的神经松了扣。明早的头痛，会再来讨账。"
             (lambda () (home 'drink!))
             'light))))
 
@@ -74,7 +83,7 @@
           (list (node-closed))
           (append
             (nightingale 'tavern-nodes)
-            (list (node-waiter) (node-drink-here) (node-buy-liquor))  ; 酒馆常驻：值班当差 + 当场点酒 + 打酒带走
+            (list (node-waiter) (node-drink-here) (node-buy-liquor) (node-buy-cigarettes))  ; 酒馆常驻：值班当差 + 当场点酒 + 打酒带走 + 买烟
             (nightingale 'tavern-inquiry-nodes)     ; 节拍一：打听盯梢的人
             (nightingale 'beat1-lead-nodes)         ; 花消息买线索：向酒馆老主顾买准话
             (if (relation-at-least? "劳工" '核心) (list (node-underground-bar)) '())

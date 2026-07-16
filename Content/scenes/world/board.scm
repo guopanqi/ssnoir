@@ -104,14 +104,14 @@
       (let ((id (mission-id entry)))
         (cond
           ((equal? id "帮人寻物")
-           (roll-mission entry 'sharpness 22 12 (lambda () (stress-current-actor! 1))))
+           (roll-mission entry 'sharpness 22 12 (lambda () (spend-composure! 1))))
           ((equal? id "替人带话")
-           (roll-mission entry 'social 20 10 (lambda () (stress-current-actor! 1))))
+           (roll-mission entry 'social 20 10 (lambda () (spend-composure! 1))))
           ((equal? id "押送一批货")
            (roll-mission entry 'violence 25 14
-             (lambda () (stress-current-actor! 1) (damage-party! 1))))
+             (lambda () (spend-composure! 1) (damage-party! 1))))
           ((equal? id "代查一笔账")
-           (roll-mission entry 'knowledge 22 12 (lambda () (stress-current-actor! 1))))
+           (roll-mission entry 'knowledge 22 12 (lambda () (spend-composure! 1))))
           ((equal? id "有人需要药") (medicine-request-node entry))
           (else (error "布告栏：未知委托模板")))))
 

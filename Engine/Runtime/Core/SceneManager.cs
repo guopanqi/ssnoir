@@ -108,7 +108,7 @@ namespace SSNoir.Core
                 return;
             }
 
-            _gameState.Team.RollActionDice(isInEncounter);
+            _gameState.Team.RollActionDice(isInEncounter, consumeHangover: false);
         }
 
         private void ApplyPendingSceneDiceRoll()
@@ -119,7 +119,7 @@ namespace SSNoir.Core
             }
 
             _hasPendingSceneDiceRoll = false;
-            _gameState.Team.RollActionDice(_pendingSceneIsEncounter);
+            _gameState.Team.RollActionDice(_pendingSceneIsEncounter, consumeHangover: false);
         }
 
         private void NotifySceneLoaded()
@@ -224,7 +224,7 @@ namespace SSNoir.Core
                 _worldInterpreter.LoadFile("scenes/world/world.scm");
             }
 
-            // 3. Restore Team (health, supplies, actor stress/stats)
+            // 3. Restore Team (health, 骰池状态, actor composure/stats)
             _gameState.Team.ApplySaveData(data.Team);
 
             // 4. Restore Inventory (replaces entirely — no stale items left over)
@@ -244,7 +244,7 @@ namespace SSNoir.Core
             }
 
             // 7. Roll fresh action dice for world mode
-            _gameState.Team.RollActionDice(isInEncounter: false);
+            _gameState.Team.RollActionDice(isInEncounter: false, consumeHangover: false);
 
             // 8. Rebuild render tree and notify UI
             RebuildRenderTree();
@@ -307,10 +307,13 @@ namespace SSNoir.Core
                     Name = actor.Name,
                     Role = actor.Role,
                     Status = actor.Status,
-                    Stress = actor.Stress,
+                    Composure = actor.Composure,
                     SpentGrowthPoints = actor.SpentGrowthPoints,
                     Stats = new Dictionary<string, int>(actor.Stats),
                     ActionDice = actor.ActionDice.ToArray(),
+                    ActionDiceSlotIds = actor.ActionDiceSlotIds.ToArray(),
+                    ActiveActionSlotStatuses = _gameState.Team.GetActiveActionSlotStatuses(actor),
+                    PendingActionSlotStatuses = _gameState.Team.GetPendingActionSlotStatuses(actor),
                 });
             }
 
@@ -319,8 +322,6 @@ namespace SSNoir.Core
                 RootNode = rootNode,
                 Health = _gameState.Team.Health,
                 MaxHealth = _gameState.Team.MaxHealth,
-                Satiety = _gameState.Team.Satiety,
-                MaxSatiety = _gameState.Team.MaxSatiety,
                 GrowthLevel = _gameState.Team.GrowthLevel,
                 Location = _gameState.Get<string>("location"),
                 Inventory = inventory,
@@ -360,31 +361,95 @@ namespace SSNoir.Core
             ActiveInterpreter.Eval("(on-action)");
         }
 
-        public void EndTurn()
+        public ActionReport EndTurn()
         {
-            _turnEndedDuringAction = true;
-            ActiveInterpreter.Eval("(on-turn-end)");
-
+            if (_isExecutingAction)
+                _turnEndedDuringAction = true;
             bool isInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
-            int healthBefore = _gameState.Team.Health;
-            int satietyBefore = _gameState.Team.Satiety;
-            _gameState.Team.EndTurn(isInEncounter);
-
-            var report = _gameState.CurrentActionReport;
-            if (report != null)
+            bool ownsReport = _gameState.CurrentActionReport == null;
+            var report = _gameState.CurrentActionReport ?? new ActionReport { Type = ActionType.Instant };
+            if (ownsReport)
+                _gameState.CurrentActionReport = report;
+            try
             {
-                int satietyDelta = _gameState.Team.Satiety - satietyBefore;
-                report.AddEffect(
-                    ActionEffectKind.Satiety, "饱腹", satietyDelta,
-                    satietyDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                int healthBefore = _gameState.Team.Health;
+                int composureBefore = _gameState.Team.FindActor("player")?.Composure ?? 0;
 
-                int healthDelta = _gameState.Team.Health - healthBefore;
+                // 交锋时间成本先结算，保证因本回合结束而离开交锋时也不会绕过冷静消耗。
+                if (isInEncounter)
+                {
+                    _gameState.Team.SpendComposure("player", 1);
+                }
+                int automaticComposureDelta = (_gameState.Team.FindActor("player")?.Composure ?? 0) - composureBefore;
+                int automaticHealthDelta = _gameState.Team.Health - healthBefore;
+                ActiveInterpreter.Eval("(on-turn-end)");
+
+                bool stillInSameMode = isInEncounter == !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
+                if (stillInSameMode)
+                {
+                    _gameState.Team.RollActionDice(isInEncounter);
+                }
+
                 report.AddEffect(
-                    ActionEffectKind.Health, "健康", healthDelta,
-                    healthDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                    ActionEffectKind.Composure, "冷静", automaticComposureDelta,
+                    automaticComposureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+
+                report.AddEffect(
+                    ActionEffectKind.Health, "健康", automaticHealthDelta,
+                    automaticHealthDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                if (automaticHealthDelta < 0)
+                {
+                    report.AddNote("冷静击穿：你的手在抖，身体先一步承受了代价。");
+                }
+
+                RebuildRenderTree();
+                if (ownsReport)
+                {
+                    FillPresentationHints(report);
+                }
+                return report;
+            }
+            finally
+            {
+                if (ownsReport)
+                    _gameState.CurrentActionReport = null;
+            }
+        }
+
+        public ActionReport UseEncounterConsumable(string itemId)
+        {
+            if (CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Encounter consumables can only be used during an encounter.");
+
+            int restoreAmount = itemId switch
+            {
+                "香烟" => 2,
+                "酒" => 3,
+                _ => throw new ArgumentException($"Unsupported encounter consumable '{itemId}'.", nameof(itemId))
+            };
+            if (_gameState.Inventory.GetCount(itemId) < 1)
+                throw new InvalidOperationException($"Insufficient inventory: '{itemId}'.");
+
+            var report = new ActionReport { Type = ActionType.Instant };
+            _gameState.Inventory.SetCount(itemId, _gameState.Inventory.GetCount(itemId) - 1);
+            report.AddEffect(ActionEffectKind.Item, itemId, -1, ActionEffectTone.Negative);
+
+            var player = _gameState.Team.FindActor("player")
+                ?? throw new InvalidOperationException("Protagonist is missing from the team.");
+            int composureBefore = player.Composure;
+            _gameState.Team.RestoreComposure("player", restoreAmount);
+            int composureDelta = player.Composure - composureBefore;
+            report.AddEffect(ActionEffectKind.Composure, "冷静", composureDelta, ActionEffectTone.Positive);
+
+            if (itemId == "酒")
+            {
+                _gameState.Team.ApplyHangover();
+                report.AddNote("酒劲会留到下一次城市骰池：一格会带宿醉降质。");
             }
 
             RebuildRenderTree();
+            FillPresentationHints(report);
+            return report;
         }
 
         public ActionReport ExecuteAction(GameNode node, List<SlottedResource?> slots)
@@ -465,26 +530,27 @@ namespace SSNoir.Core
                             throw new InvalidOperationException($"Companions cannot act in encounter mode (slotted actor: {actorId}).");
                         }
 
-                        int idx = slot.DieIndex >= 0 ? slot.DieIndex : slot.SourceIndex;
-                        if (idx < 0 || idx >= a.ActionDice.Count)
+                        int slotId = slot.DieIndex >= 0 ? slot.DieIndex : slot.SourceIndex;
+                        int idx = a.ActionDiceSlotIds.IndexOf(slotId);
+                        if (idx < 0)
                         {
-                            throw new InvalidOperationException($"Die index {idx} is out of bounds for actor '{actorId}'.");
+                            throw new InvalidOperationException($"Action slot {slotId} has no available die for actor '{actorId}'.");
                         }
 
                         if (a.ActionDice[idx] != slot.Value)
                         {
-                            throw new InvalidOperationException($"Die value mismatch: slotted die has value {slot.Value}, but actor's die at index {idx} has value {a.ActionDice[idx]}.");
+                            throw new InvalidOperationException($"Die value mismatch: slotted die has value {slot.Value}, but actor's slot {slotId} has value {a.ActionDice[idx]}.");
                         }
 
                         if (!usedDicePerActor.ContainsKey(actorId))
                         {
                             usedDicePerActor[actorId] = new HashSet<int>();
                         }
-                        if (usedDicePerActor[actorId].Contains(idx))
+                        if (usedDicePerActor[actorId].Contains(slotId))
                         {
-                            throw new InvalidOperationException($"Die at index {idx} for actor '{actorId}' is slotted more than once.");
+                            throw new InvalidOperationException($"Die in slot {slotId} for actor '{actorId}' is slotted more than once.");
                         }
-                        usedDicePerActor[actorId].Add(idx);
+                        usedDicePerActor[actorId].Add(slotId);
                     }
                 }
             }
@@ -551,13 +617,14 @@ namespace SSNoir.Core
                         if (a != null)
                         {
                             var sorted = kvp.Value;
-                            sorted.Sort((x, y) => y.DieIndex.CompareTo(x.DieIndex));
                             foreach (var s in sorted)
                             {
-                                int idx = s.DieIndex >= 0 ? s.DieIndex : s.SourceIndex;
-                                if (idx >= 0 && idx < a.ActionDice.Count)
+                                int slotId = s.DieIndex >= 0 ? s.DieIndex : s.SourceIndex;
+                                int idx = a.ActionDiceSlotIds.IndexOf(slotId);
+                                if (idx >= 0)
                                 {
                                     a.ActionDice.RemoveAt(idx);
+                                    a.ActionDiceSlotIds.RemoveAt(idx);
                                 }
                             }
                         }
@@ -600,17 +667,6 @@ namespace SSNoir.Core
                     var rand = GameRandom.Instance;
 
                     var modifiers = new List<DifficultyModifierInfo>(node.Resolve.DifficultyModifiers);
-                    int stressModifier = node.Resolve.IgnoresStressPenalty
-                        ? 0
-                        : TeamState.GetStressRollModifier(actor.Stress);
-                    if (stressModifier != 0)
-                    {
-                        modifiers.Add(new DifficultyModifierInfo
-                        {
-                            Value = stressModifier,
-                            Reason = "心绪不宁"
-                        });
-                    }
                     int modifierSum = 0;
                     foreach (var mod in modifiers)
                     {

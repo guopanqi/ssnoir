@@ -1,20 +1,25 @@
 {
   "main": {
-    "id": "60334a30dead97a4",
+    "id": "bb755e595f3c1679",
     "type": "split",
     "children": [
       {
-        "id": "cde3ccb9e97e03ca",
+        "id": "0cd195408d7ea20e",
         "type": "tabs",
         "children": [
           {
-            "id": "3d56456f4698774d",
+            "id": "38e6494087c3244c",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "手动编辑的/demo短篇·剧本总表.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "demo短篇·剧本总表"
             }
           }
         ]
@@ -23,28 +28,28 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "963f818b083643b7",
+    "id": "7d21ea503127df92",
     "type": "split",
     "children": [
       {
-        "id": "25f58238d825e621",
+        "id": "245c6c1b21c916c1",
         "type": "tabs",
         "children": [
           {
-            "id": "a68a4da58a7e4106",
+            "id": "6ad2e079d788ef54",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": true
               },
               "icon": "lucide-folder-closed",
               "title": "文件列表"
             }
           },
           {
-            "id": "90e8580a39db05c5",
+            "id": "163d63f1f4786932",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -61,7 +66,7 @@
             }
           },
           {
-            "id": "900dc786d0915e0b",
+            "id": "36c829e1cb6dc358",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -77,46 +82,29 @@
     "width": 300
   },
   "right": {
-    "id": "1e5f0f8488d0afd3",
+    "id": "7f1eabdaa6d3cac7",
     "type": "split",
     "children": [
       {
-        "id": "c3c10b16e09ad806",
+        "id": "474ff2d2d9961538",
         "type": "tabs",
         "children": [
           {
-            "id": "dc600c3e68be04a2",
-            "type": "leaf",
-            "state": {
-              "type": "backlink",
-              "state": {
-                "collapseAll": false,
-                "extraContext": false,
-                "sortOrder": "alphabetical",
-                "showSearch": false,
-                "searchQuery": "",
-                "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
-              },
-              "icon": "links-coming-in",
-              "title": "反向链接"
-            }
-          },
-          {
-            "id": "b92c0d13c8f416d8",
+            "id": "4c020b74866c4b6f",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "草稿 - 该做什么工作.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "出链"
+              "title": "草稿 - 该做什么工作 的出链列表"
             }
           },
           {
-            "id": "514a67302c03daa1",
+            "id": "8e379189eef5aeb0",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -131,7 +119,22 @@
             }
           },
           {
-            "id": "9573ca3087497c5f",
+            "id": "20e8f64b26f3049e",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "草稿 - 该做什么工作.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "草稿 - 该做什么工作 的大纲"
+            }
+          },
+          {
+            "id": "7c7e18288bbfd489",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -143,23 +146,9 @@
               "icon": "lucide-archive",
               "title": "添加笔记属性"
             }
-          },
-          {
-            "id": "e8b4e1b9af7af341",
-            "type": "leaf",
-            "state": {
-              "type": "outline",
-              "state": {
-                "file": "剧本.md",
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-list",
-              "title": "剧本 的大纲"
-            }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
@@ -177,13 +166,56 @@
       "bases:新建数据库": false
     }
   },
-  "active": "a68a4da58a7e4106",
+  "active": "38e6494087c3244c",
   "lastOpenFiles": [
-    "夜莺剧本-第一章.md",
-    "剧本.md",
+    "手动编辑的/demo短篇·剧本总表.md.tmp.1405.2a42adfb1268",
+    "城市生活设计.md",
+    "手动编辑的/demo短篇·剧本总表.md",
+    "手动编辑的",
+    "故事设计总纲.md",
+    "原语扩展提案.md",
+    "交锋结构库.md",
+    "demo短篇·夜莺故事设计.md",
+    "demo短篇·夜莺交锋方案.md",
     "ARCHITECTURE.md",
-    "archive/夜莺剧本-第一章-空间结构.excalidraw",
-    "archive/chapter1.excalidraw",
-    "archive/chapter1-新剧本-空间结构.excalidraw"
+    "手动编辑的/Noir可以参考学习的游戏.md",
+    "手稿/生活方式模拟.md",
+    "手稿/夜莺剧本-第一章.md",
+    "手稿/夜莺人物表.md",
+    "手稿/Noir可以参考学习的游戏.md",
+    "手稿",
+    "archive/world.excalidraw",
+    "手动编辑的/夜莺人物表.md",
+    "design-audit/2026-07-06-unity-ui/audit.md",
+    "archive/三种生活方式实施计划.md",
+    "design-audit/2026-07-06-unity-ui/01-world-overview.png",
+    "夜莺主线设计.md",
+    "夜莺交锋设计.md",
+    "手动编辑的/生活方式模拟.md",
+    "手动编辑的/夜莺剧本-第一章.md",
+    "Noir可以参考学习的游戏.md",
+    "夜莺剧本-第一章.md",
+    "草稿 - 该做什么工作.md",
+    "夜莺人物表.md",
+    "生活方式模拟.md",
+    "posts/摘录/assets/有意思/oregon-trail.jpg",
+    "posts/摘录/assets/有意思/haxiachuan-header.jpg",
+    "posts/摘录/assets/有意思/haxiachuan.jpg",
+    "ss_b1861fd9e9e49fe5c4d62da7d62f154fa7535652.1920x1080.jpg",
+    "ss_07c0e9877d7dc53097ace30e8332492e6e615110.1920x1080.jpg",
+    "ss_35cec6e914fcd6024cde2bc9a3d2efe4927db891.1920x1080.jpg",
+    "ss_b07a11dc0f7b046fa4111511d1ade3a33842d8b9.1920x1080.jpg",
+    "ss_670f1989181e98881d43d89f0a27dad2acaa546f.1920x1080.jpg",
+    "posts/摘录/assets/好看/party-animals.jpg",
+    "未命名.canvas",
+    "关于游戏的一些闲谈/Will Wright",
+    "posts/摘录/assets/未命名.canvas",
+    "Ink/Drawing/2026.6.30 - 21.28pm.drawing",
+    "Ink/Drawing",
+    "Ink",
+    "posts/散文/assets/随笔示例",
+    "posts/散文/assets",
+    "games/assets/逃往南方",
+    "notes/未命名.canvas"
   ]
 }

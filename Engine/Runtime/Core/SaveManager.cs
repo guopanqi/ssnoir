@@ -118,7 +118,10 @@ namespace SSNoir.Core
                     ["name"]              = a.Name,
                     ["role"]              = a.Role,
                     ["status"]            = a.Status,
-                    ["stress"]            = a.Stress,
+                    ["composure"]         = a.Composure,
+                    ["hangoverSlotId"]    = a.HangoverSlotId == null ? JValue.CreateNull() : new JValue(a.HangoverSlotId.Value),
+                    ["faintSlotId"]       = a.FaintSlotId == null ? JValue.CreateNull() : new JValue(a.FaintSlotId.Value),
+                    ["lossOfControlSlotId"] = a.LossOfControlSlotId == null ? JValue.CreateNull() : new JValue(a.LossOfControlSlotId.Value),
                     ["spentGrowthPoints"] = a.SpentGrowthPoints,
                     ["stats"]             = stats,
                 });
@@ -126,7 +129,6 @@ namespace SSNoir.Core
             return new JObject
             {
                 ["health"]      = team.Health,
-                ["satiety"]     = team.Satiety,
                 ["growthLevel"] = team.GrowthLevel,
                 ["actors"]      = actorsArr,
             };
@@ -187,7 +189,6 @@ namespace SSNoir.Core
             var team = new TeamSaveData
             {
                 Health      = el["health"]!.Value<int>(),
-                Satiety     = el["satiety"]!.Value<int>(),
                 GrowthLevel = el["growthLevel"]!.Value<int>(),
             };
             foreach (var actorEl in (JArray)el["actors"]!)
@@ -199,7 +200,10 @@ namespace SSNoir.Core
                     Name              = ao["name"]!.Value<string>()!,
                     Role              = ao["role"]!.Value<string>()!,
                     Status            = ao["status"]!.Value<string>()!,
-                    Stress            = ao["stress"]!.Value<int>(),
+                    Composure         = ao["composure"]!.Value<int>(),
+                    HangoverSlotId = ao["hangoverSlotId"]?.Type == JTokenType.Null ? null : ao["hangoverSlotId"]?.Value<int>(),
+                    FaintSlotId = ao["faintSlotId"]?.Type == JTokenType.Null ? null : ao["faintSlotId"]?.Value<int>(),
+                    LossOfControlSlotId = ao["lossOfControlSlotId"]?.Type == JTokenType.Null ? null : ao["lossOfControlSlotId"]?.Value<int>(),
                     SpentGrowthPoints = ao["spentGrowthPoints"]!.Value<int>(),
                 };
                 foreach (var stat in ((JObject)ao["stats"]!).Properties())

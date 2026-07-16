@@ -46,8 +46,7 @@ namespace SSNoir.Rendering
             CardPresentationResidue? residue = null,
             bool disabled = false,
             string? rollSkill = null,
-            IReadOnlyList<ActorSnapshot>? actors = null,
-            bool ignoresStressPenalty = false)
+            IReadOnlyList<ActorSnapshot>? actors = null)
         {
             var interaction = new CardInteraction
             {
@@ -56,8 +55,7 @@ namespace SSNoir.Rendering
                 DroppedSlotIndex = -1,
                 ExecuteClicked = false
             };
-            List<DifficultyModifierInfo> effectiveModifiers = BuildEffectiveModifiers(
-                modifiers, slotted, actors, ignoresStressPenalty);
+            List<DifficultyModifierInfo> effectiveModifiers = modifiers ?? new List<DifficultyModifierInfo>();
 
             Color bgColor = disabled
                 ? new Color(28, 28, 32, 255)
@@ -174,7 +172,7 @@ namespace SSNoir.Rendering
             // 角色能力状态是独立信息区，不能再作为右侧浮层压住资源槽。
             float tagStartY = subtitleBottom + 8f;
             float actorRailReservedWidth = hasSkill && actors != null
-                ? GetActorAbilityRailReservedWidth(rollSkill!, actors, ignoresStressPenalty)
+                ? GetActorAbilityRailReservedWidth(rollSkill!, actors)
                 : 0f;
             float tagRightEdge = actorRailReservedWidth > 0f
                 ? bounds.X + bounds.Width - actorRailReservedWidth
@@ -185,8 +183,7 @@ namespace SSNoir.Rendering
             float actorRailBottomY = actorRailStartY;
             if (hasSkill && actors != null && actors.Count > 0)
             {
-                actorRailBottomY = DrawActorAbilityRail(bounds, rollSkill!, actors,
-                    ignoresStressPenalty, actorRailStartY);
+                actorRailBottomY = DrawActorAbilityRail(bounds, rollSkill!, actors, actorRailStartY);
             }
             float controlY = Math.Max(rollControlY, Math.Max(tagBottomY + 8f, actorRailBottomY + 8f));
 
@@ -410,8 +407,7 @@ namespace SSNoir.Rendering
         /// of overlapping its resource controls.
         /// </summary>
         public static float GetMinimumHeight(string subtitle, List<string>? tags,
-            List<ActionCost>? requires, string? rollSkill, IReadOnlyList<ActorSnapshot>? actors,
-            bool ignoresStressPenalty)
+            List<ActionCost>? requires, string? rollSkill, IReadOnlyList<ActorSnapshot>? actors)
         {
             if (string.IsNullOrEmpty(rollSkill) || requires == null || requires.Count == 0 || actors == null)
             {
@@ -439,7 +435,7 @@ namespace SSNoir.Rendering
                 subtitleBottom = 8f + titleFontSize + 8f + subtitleLines.Count * (subtitleFontSize + 4);
             }
 
-            float reservedRailWidth = GetActorAbilityRailReservedWidth(rollSkill, actors, ignoresStressPenalty);
+            float reservedRailWidth = GetActorAbilityRailReservedWidth(rollSkill, actors);
             float tagBottom = MeasureNodeTagsBottom(248f - reservedRailWidth, tags, subtitleBottom + 8f);
             float railTop = subtitleBottom + 8f;
             float railBottom = railTop + activeActorCount * ActorAbilityChipHeight
@@ -452,7 +448,7 @@ namespace SSNoir.Rendering
         }
 
         private static float DrawActorAbilityRail(Rectangle bounds, string skill,
-            IReadOnlyList<ActorSnapshot> actors, bool ignoresStressPenalty, float startY)
+            IReadOnlyList<ActorSnapshot> actors, float startY)
         {
             const float chipH = ActorAbilityChipHeight;
             int drawn = 0;
@@ -470,15 +466,13 @@ namespace SSNoir.Rendering
                 var color = new Color(r, g, b, (byte)255);
 
                 string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
-                int stressModifier = ignoresStressPenalty ? 0 : TeamState.GetStressRollModifier(actor.Stress);
-                string label = GetActorAbilityLabel(shortName, level, actor.Stress, ignoresStressPenalty);
+                string label = GetActorAbilityLabel(shortName, level);
                 float chipW = Math.Max(58f, FontManager.MeasureTextWidth(label, 10) + 12f);
                 var chip = new Rectangle(bounds.X + bounds.Width - chipW - 6f,
                     startY + drawn * (chipH + ActorAbilityChipGap), chipW, chipH);
                 Raylib.DrawRectangleRounded(chip, 0.4f, 5, new Color((byte)(r / 5), (byte)(g / 5), (byte)(b / 5), (byte)235));
                 Raylib.DrawRectangleRoundedLinesEx(chip, 0.4f, 5, 1.4f, color);
-                Color labelColor = stressModifier != 0 ? OddsFailColor : color;
-                FontManager.DrawText(label, chip.X + 6f, chip.Y + 5f, 10, labelColor);
+                FontManager.DrawText(label, chip.X + 6f, chip.Y + 5f, 10, color);
                 drawn++;
             }
 
@@ -488,7 +482,7 @@ namespace SSNoir.Rendering
         }
 
         private static float GetActorAbilityRailReservedWidth(string skill,
-            IReadOnlyList<ActorSnapshot> actors, bool ignoresStressPenalty)
+            IReadOnlyList<ActorSnapshot> actors)
         {
             float widestChip = 0f;
             foreach (var actor in actors)
@@ -499,7 +493,7 @@ namespace SSNoir.Rendering
                 }
 
                 string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
-                string label = GetActorAbilityLabel(shortName, level, actor.Stress, ignoresStressPenalty);
+                string label = GetActorAbilityLabel(shortName, level);
                 widestChip = Math.Max(widestChip, Math.Max(58f, FontManager.MeasureTextWidth(label, 10) + 12f));
             }
 
@@ -507,42 +501,14 @@ namespace SSNoir.Rendering
             return widestChip > 0f ? widestChip + 14f : 0f;
         }
 
-        private static string GetActorAbilityLabel(string shortName, int level, int stress,
-            bool ignoresStressPenalty)
+        private static string GetActorAbilityLabel(string shortName, int level)
         {
-            int stressModifier = ignoresStressPenalty ? 0 : TeamState.GetStressRollModifier(stress);
-            string status = ignoresStressPenalty && stress >= TeamState.StressPenaltyThreshold
-                ? " · 恢复豁免"
-                : stressModifier != 0 ? " · 不宁 −1" : string.Empty;
-            return $"{shortName} · {level}{status}";
+            return $"{shortName} · {level}";
         }
 
         private static readonly Color OddsFailColor    = new Color(209, 58, 74, 255);
         private static readonly Color OddsNeutralColor  = new Color(214, 169, 78, 255);
         private static readonly Color OddsSuccessColor  = new Color(89, 180, 119, 255);
-
-        private static List<DifficultyModifierInfo> BuildEffectiveModifiers(
-            List<DifficultyModifierInfo>? baseModifiers,
-            List<SlottedResource?>? slotted,
-            IReadOnlyList<ActorSnapshot>? actors,
-            bool ignoresStressPenalty)
-        {
-            var result = baseModifiers != null
-                ? new List<DifficultyModifierInfo>(baseModifiers)
-                : new List<DifficultyModifierInfo>();
-            if (ignoresStressPenalty || slotted == null || actors == null) return result;
-
-            SlottedResource? die = slotted.FirstOrDefault(s => s?.Type == "die");
-            if (die == null) return result;
-            ActorSnapshot? actor = actors.FirstOrDefault(a => a.Id == die.ActorId);
-            if (actor == null)
-                throw new InvalidOperationException($"Actor '{die.ActorId}' was not found for stress modifier preview.");
-
-            int value = TeamState.GetStressRollModifier(actor.Stress);
-            if (value != 0)
-                result.Add(new DifficultyModifierInfo { Value = value, Reason = "心绪不宁" });
-            return result;
-        }
 
         private static void TryDrawFatePreview(Rectangle bounds, string skill, List<SlottedResource?> slotted,
             List<DifficultyModifierInfo>? modifiers, IReadOnlyList<ActorSnapshot> actors, float executeBottomY)

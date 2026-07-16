@@ -10,10 +10,11 @@ namespace SSNoir.Rendering
     // Unity 手牌 HUD 的横屏版本：人物与物品仍是两个语义簇，但由一个底栏统一承载。
     public static class HandPanelWidget
     {
-        public const float PanelHeight = 118f;
+        public const float PanelHeight = 150f;
         private const float Pad = 18f;
         private const float TokenSize = 38f;
         private const float TokenGap = 6f;
+        private const float PoolLabelW = 48f;
 
         private static readonly Color PanelBg = new Color(15, 18, 26, 248);
         private static readonly Color BlockBg = new Color(8, 10, 15, 255);
@@ -25,6 +26,8 @@ namespace SSNoir.Rendering
         public struct HandPanelInteraction
         {
             public bool TurnClicked;
+            public bool SmokeClicked;
+            public bool DrinkClicked;
             public SelectedResource? SelectedResourceToSet;
             public bool ShouldClearSelection;
         }
@@ -65,13 +68,12 @@ namespace SSNoir.Rendering
             var snapshot = state.DisplayedSnapshot;
             FontManager.DrawText("人物 / 行动", area.X, area.Y, 13, PaperDim);
 
-            const float vitalsW = 190f;
-            DrawVital(area.X, area.Y + 27f, 184f, "健康", snapshot.Health, snapshot.MaxHealth, 0.75f, 0.40f);
-            DrawVital(area.X, area.Y + 49f, 184f, "饱腹", snapshot.Satiety, snapshot.MaxSatiety, 0.65f, 0.30f);
+            const float vitalsW = 126f;
+            DrawVital(area.X, area.Y + 26f, 120f, "健康", snapshot.Health, snapshot.MaxHealth, 0.75f, 0.40f);
             if (snapshot.Health <= TeamState.HealthPenaltyThreshold)
-                FontManager.DrawText("健康 · 你几乎起不来床 −1颗骰", area.X, area.Y + 71f, 9, SealRed);
-            Raylib.DrawLineEx(new System.Numerics.Vector2(area.X + vitalsW, area.Y + 22f),
-                new System.Numerics.Vector2(area.X + vitalsW, area.Y + area.Height - 4f),
+                FontManager.DrawText("健康低 · −1颗骰", area.X, area.Y + 44f, 9, SealRed);
+            Raylib.DrawLineEx(new System.Numerics.Vector2(area.X + vitalsW, area.Y + 18f),
+                new System.Numerics.Vector2(area.X + vitalsW, area.Y + area.Height - 2f),
                 1f, new Color(58, 62, 78, 150));
 
             float x = area.X + vitalsW + 18f;
@@ -84,41 +86,76 @@ namespace SSNoir.Rendering
                     continue;
                 }
 
-                float diceW = actor.ActionDice.Count == 0
-                    ? 0f : actor.ActionDice.Count * TokenSize + Math.Max(0, actor.ActionDice.Count - 1) * TokenGap;
-                float clusterW = Math.Max(120f, diceW);
+                float diceW = actor.Role == "protagonist"
+                    ? 3 * TokenSize + 2 * TokenGap
+                    : (actor.ActionDice.Count == 0 ? 0f : TokenSize);
+                float clusterW = Math.Max(150f, PoolLabelW + diceW);
+                float poolX = x + PoolLabelW;
 
-                float stressY = area.Y + 20f;
-                string stressState = actor.Stress >= TeamState.MaxStress
-                    ? "压力 · 濒临崩溃 −1"
-                    : actor.Stress >= TeamState.StressPenaltyThreshold
-                        ? "压力 · 心绪不宁 −1"
-                        : "压力 · 平稳";
-                Color stressTextColor = actor.Stress >= TeamState.StressPenaltyThreshold ? SealRed : PaperDim;
-                FontManager.DrawText(stressState, x, stressY, 9, stressTextColor);
-                for (int s = 0; s < TeamState.MaxStress; s++)
-                {
-                    var dot = new Rectangle(x + s * 13f, stressY + 15f, 9f, 9f);
-                    Raylib.DrawRectangleRec(dot, s < actor.Stress ? SealRed : new Color(224, 224, 216, 45));
-                }
-
-                FontManager.DrawText(actor.Name, x, area.Y + 49f, 14, Paper);
+                FontManager.DrawText(actor.Name, x, area.Y + 14f, 14, Paper);
                 if (!string.IsNullOrWhiteSpace(actor.Role) && actor.Role != "protagonist")
                 {
                     int nameW = FontManager.MeasureTextWidth(actor.Name, 14);
-                    FontManager.DrawText(actor.Role, x + nameW + 7f, area.Y + 52f, 9, PaperDim);
+                    FontManager.DrawText(actor.Role, x + nameW + 7f, area.Y + 17f, 9, PaperDim);
                 }
+                DrawDicePoolStatus(actor, x, poolX, area.Y + 80f);
+                DrawComposureCells(x, poolX, area.Y + 110f, actor.Composure);
 
                 for (int d = 0; d < actor.ActionDice.Count; d++)
                 {
                     int globalIndex = flatDie + d;
-                    var rect = new Rectangle(x + d * (TokenSize + TokenGap), area.Y + 67f, TokenSize, TokenSize);
-                    DrawDie(state, ui, rect, actor.ActionDice[d], globalIndex, actor.Id, d, ref interaction);
+                    int slotId = actor.ActionDiceSlotIds[d];
+                    var rect = new Rectangle(poolX + slotId * (TokenSize + TokenGap), area.Y + 34f, TokenSize, TokenSize);
+                    DrawDie(state, ui, rect, actor.ActionDice[d], globalIndex, actor.Id, slotId, ref interaction);
                 }
 
                 x += clusterW + 24f;
                 flatDie += actor.ActionDice.Count;
             }
+        }
+
+        // 骰池位置默认留空——没有状态就什么都不画，让人一眼看出这里干净。
+        // 只有当某个位置带上身体状态时，才在对应格贴一枚标签；同格多个状态纵向排开。
+        private static void DrawDicePoolStatus(ActorSnapshot actor, float labelX, float poolX, float y)
+        {
+            FontManager.DrawText("骰池", labelX, y + 5f, 9, PaperDim);
+            for (int slotId = 0; slotId < TeamState.ActionSlotCount; slotId++)
+            {
+                var statuses = GetSlotStatuses(actor, slotId);
+                if (statuses.Count == 0)
+                    continue;
+                Color color = StatusColor(statuses[0]);
+                var cell = new Rectangle(poolX + slotId * (TokenSize + TokenGap), y, TokenSize, 24f);
+                Raylib.DrawRectangleRounded(cell, 0.3f, 3, new Color((byte)color.R, (byte)color.G, (byte)color.B, (byte)46));
+                Raylib.DrawRectangleRoundedLinesEx(cell, 0.3f, 3, 1f, color);
+                for (int i = 0; i < statuses.Count; i++)
+                {
+                    string label = statuses[i].Label;
+                    int labelW = FontManager.MeasureTextWidth(label, 8);
+                    FontManager.DrawText(label, cell.X + (cell.Width - labelW) / 2f, cell.Y + 3f + i * 10f, 8, StatusColor(statuses[i]));
+                }
+            }
+        }
+
+        private static List<ActionSlotStatus> GetSlotStatuses(ActorSnapshot actor, int slotId)
+        {
+            var result = new List<ActionSlotStatus>();
+            foreach (var status in actor.ActiveActionSlotStatuses)
+            {
+                if (status.SlotId == slotId)
+                    result.Add(status);
+            }
+            foreach (var status in actor.PendingActionSlotStatuses)
+            {
+                if (status.SlotId == slotId)
+                    result.Add(status);
+            }
+            return result;
+        }
+
+        private static Color StatusColor(ActionSlotStatus status)
+        {
+            return status.Label == "失控" ? SealRed : Gold;
         }
 
         private static void DrawVital(float x, float y, float width, string label, int current, int max,
@@ -147,6 +184,43 @@ namespace SSNoir.Rendering
             FontManager.DrawText($"{current}/{max}", x + width - 34f, y, 10, color);
         }
 
+        // 单行冷静条：格数即数值，失态阈值靠一道留白分隔危险区与缓冲区，危险格常驻暖色暗示——
+        // 不再用文字与刻度重复说明，真正的失态/失控效果会显示在上方骰池标签里。
+        private static void DrawComposureCells(float labelX, float poolX, float y, int composure)
+        {
+            int max = TeamState.MaxComposure;
+            int faint = TeamState.FaintThreshold;
+            Color fill = composure <= TeamState.LossOfControlThreshold ? SealRed
+                       : composure <= faint ? Gold
+                       : Paper;
+            FontManager.DrawText("冷静", labelX, y + 1f, 9, PaperDim);
+
+            const float segmentW = 13f;
+            const float segmentGap = 2f;
+            const float boundaryGap = 6f; // 失态线：以留白替代刻度线和数字
+            int filledSegments = Math.Clamp(composure, 0, max);
+            for (int i = 0; i < max; i++)
+            {
+                float extra = i >= faint ? boundaryGap : 0f;
+                var segment = new Rectangle(poolX + i * (segmentW + segmentGap) + extra, y, segmentW, 12f);
+                bool filled = i < filledSegments;
+                bool danger = i < faint;
+                if (filled)
+                {
+                    Raylib.DrawRectangleRounded(segment, 0.24f, 3, fill);
+                }
+                else
+                {
+                    Color body = danger ? new Color((byte)Gold.R, (byte)Gold.G, (byte)Gold.B, (byte)24)
+                                        : new Color(224, 224, 216, 22);
+                    Color edge = danger ? new Color((byte)Gold.R, (byte)Gold.G, (byte)Gold.B, (byte)72)
+                                        : new Color(224, 224, 216, 48);
+                    Raylib.DrawRectangleRounded(segment, 0.24f, 3, body);
+                    Raylib.DrawRectangleRoundedLinesEx(segment, 0.24f, 3, 1f, edge);
+                }
+            }
+        }
+
         private static void DrawDie(RendererState state, SSNoir.TerminalApp.Rendering.UiInteractionContext ui,
             Rectangle rect, int value, int globalIndex, string actorId, int dieIndex,
             ref HandPanelInteraction interaction)
@@ -169,15 +243,32 @@ namespace SSNoir.Rendering
             SSNoir.TerminalApp.Rendering.UiInteractionContext ui, Rectangle area, bool isInEncounter,
             ref HandPanelInteraction interaction)
         {
-            const float functionW = 94f;
+            const float functionW = 158f;
             FontManager.DrawText("物品", area.X, area.Y, 13, PaperDim);
             float functionX = area.X + area.Width - functionW;
             FontManager.DrawText("功能", functionX, area.Y, 13, PaperDim);
 
-            var functionRect = new Rectangle(functionX, area.Y + 24f, functionW, 64f);
-            bool fnHover = ui.CanHover(functionRect);
-            DrawToken(functionRect, isInEncounter ? "休息" : "回家", null, false, fnHover, ui.IsLocked);
-            if (!ui.IsLocked && ui.WasClicked(functionRect)) interaction.TurnClicked = true;
+            if (isInEncounter)
+            {
+                var smokeRect = new Rectangle(functionX, area.Y + 24f, 46f, 64f);
+                var drinkRect = new Rectangle(functionX + 54f, area.Y + 24f, 46f, 64f);
+                var restRect = new Rectangle(functionX + 108f, area.Y + 24f, 50f, 64f);
+                bool hasSmoke = state.DisplayedSnapshot.Inventory.TryGetValue("香烟", out int smoke) && smoke > 0;
+                bool hasDrink = state.DisplayedSnapshot.Inventory.TryGetValue("酒", out int drink) && drink > 0;
+                DrawToken(smokeRect, "烟", null, false, ui.CanHover(smokeRect), ui.IsLocked || !hasSmoke);
+                DrawToken(drinkRect, "酒", null, false, ui.CanHover(drinkRect), ui.IsLocked || !hasDrink);
+                DrawToken(restRect, "休息", null, false, ui.CanHover(restRect), ui.IsLocked);
+                if (!ui.IsLocked && hasSmoke && ui.WasClicked(smokeRect)) interaction.SmokeClicked = true;
+                else if (!ui.IsLocked && hasDrink && ui.WasClicked(drinkRect)) interaction.DrinkClicked = true;
+                else if (!ui.IsLocked && ui.WasClicked(restRect)) interaction.TurnClicked = true;
+            }
+            else
+            {
+                var functionRect = new Rectangle(functionX + 48f, area.Y + 24f, 110f, 64f);
+                bool fnHover = ui.CanHover(functionRect);
+                DrawToken(functionRect, "回家", null, false, fnHover, ui.IsLocked);
+                if (!ui.IsLocked && ui.WasClicked(functionRect)) interaction.TurnClicked = true;
+            }
 
             var items = state.GetInventoryItems().ToList();
             var viewport = new Rectangle(area.X, area.Y + 24f,
@@ -251,7 +342,7 @@ namespace SSNoir.Rendering
 
         private static string ItemSymbol(string name) => name switch
         {
-            "金钱" => "$", "酒" => "酒", "药品" => "药", "食物" => "食",
+            "金钱" => "$", "酒" => "酒", "香烟" => "烟", "药品" => "药",
             _ => name.Length > 0 ? name.Substring(0, 1) : "?"
         };
     }

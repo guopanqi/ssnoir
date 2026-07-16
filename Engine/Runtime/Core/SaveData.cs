@@ -15,7 +15,6 @@ namespace SSNoir.Core
     public class TeamSaveData
     {
         public int Health { get; set; }
-        public int Satiety { get; set; }
         public int GrowthLevel { get; set; }
         public List<ActorSaveData> Actors { get; set; } = new();
     }
@@ -26,7 +25,10 @@ namespace SSNoir.Core
         public string Name { get; set; } = "";
         public string Role { get; set; } = "";
         public string Status { get; set; } = "";
-        public int Stress { get; set; }
+        public int Composure { get; set; }
+        public int? HangoverSlotId { get; set; }
+        public int? FaintSlotId { get; set; }
+        public int? LossOfControlSlotId { get; set; }
         public int SpentGrowthPoints { get; set; }
         public Dictionary<string, int> Stats { get; set; } = new();
         // ActionDice intentionally omitted — re-rolled on load

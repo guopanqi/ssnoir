@@ -52,7 +52,7 @@
     :requires (list (req-die))
     :resolve
       (roll 'social
-        (lambda () (heat-clk 'tick!) (stress-current-actor! 1))
+        (lambda () (heat-clk 'tick!) (spend-composure! 1))
         (lambda () (leverage-clk 'tick!))
         (lambda () (clock-tick-n! leverage-clk 2)))))
 
@@ -74,7 +74,7 @@
     :requires (list (req-die))
     :resolve
       (roll 'sharpness
-        (lambda () (clock-tick-n! heat-clk 2) (stress-current-actor! 1))
+        (lambda () (clock-tick-n! heat-clk 2) (spend-composure! 1))
         (lambda () (leverage-clk 'tick!) (heat-clk 'tick!))
         (lambda () (clock-tick-n! leverage-clk 2) (heat-clk 'tick!)))))
 

@@ -1030,7 +1030,7 @@ namespace SSNoir
                     if (running == flatIndex)
                     {
                         actorId = actor.Id;
-                        innerIndex = i;
+                        innerIndex = actor.ActionDiceSlotIds[i];
                         return;
                     }
                     running++;
@@ -1043,10 +1043,10 @@ namespace SSNoir
         public void OnEndTurnClicked()
         {
             _selectedResource = null;
-            _sceneManager.EndTurn();
+            var report = _sceneManager.EndTurn();
 
             bool done = false;
-            _renderer.PlayPresentation(CreateEndTurnReport(), "休息", () =>
+            _renderer.PlayPresentation(report, "休息", () =>
             {
                 AdoptLatestSnapshot();
                 done = true;
@@ -1054,21 +1054,17 @@ namespace SSNoir
             StartCoroutine(WaitForPresentation(() => done));
         }
 
-        private static ActionReport CreateEndTurnReport()
+        public void OnUseEncounterConsumable(string itemId)
         {
-            return new ActionReport
+            _selectedResource = null;
+            var report = _sceneManager.UseEncounterConsumable(itemId);
+            bool done = false;
+            _renderer.PlayPresentation(report, itemId == "香烟" ? "抽烟" : "喝酒", () =>
             {
-                Type = ActionType.Instant,
-                PresentationHints = new List<PresentationHint>
-                {
-                    new PresentationHint
-                    {
-                        Kind = PresentationHintKind.ExecuteProgress,
-                        Text = "回合结束",
-                        DurationSeconds = 0.2f,
-                    },
-                },
-            };
+                AdoptLatestSnapshot();
+                done = true;
+            });
+            StartCoroutine(WaitForPresentation(() => done));
         }
 
         private IEnumerator WaitForPresentation(Func<bool> isDone)

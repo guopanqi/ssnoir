@@ -123,7 +123,7 @@
           (list 'roll skill (lambda () '()) (car branches) (cadr branches) (caddr branches))
           (error "roll: expected 4 args (skill fail neutral success) or 5 args (skill mod-fn fail neutral success)"))))
 
-;; 恢复性判定与 roll 同构，但不受角色的压力修正影响。
+;; 恢复性判定与 roll 同构，节点类型不同只为内容语义区分，结算规则一致。
 (define (recovery-roll skill fail-outcome neutral-outcome success-outcome)
   (list 'recovery-roll skill (lambda () '()) fail-outcome neutral-outcome success-outcome))
 
@@ -196,7 +196,7 @@
 ;;   好/中/坏: 每项工作显式传入三个 outcome，标题和描述直接用于轻型结算
 ;;   subtitle: 可选，只写“特别”的一句说明；一般风险由标签表达，不写 subtitle
 ;; 表现约定：每个工作都打“工作”标签（＝能赚钱）+ 一个风险标签，前端给风险标签配色，
-;; 玩家一眼就能判断类型和大致风险。惩罚（钱/压力/健康、非法工作失败掉关系）写在各 outcome effect 里。
+;; 玩家一眼就能判断类型和大致风险。惩罚（钱/冷静/健康、非法工作失败掉关系）写在各 outcome effect 里。
 (define (工作-风险标签 risk)
   (cond ((equal? risk '低)   "低风险")
         ((equal? risk '中)   "中风险")
@@ -410,7 +410,7 @@
       (change-faction-relation! faction 1)
       (notify! (string-append faction "那边，光帮忙已经到头了——真要再进一步，得替他们办成一件事。"))))
 
-;; --- New Team, Item, and Stress wrappers ---
+;; --- New Team, Item, and Composure wrappers ---
 (define (item-count item-id)
   (__item-count item-id))
 
@@ -424,18 +424,6 @@
   (if (< (__item-count item-id) n)
       (error "not enough item")
       (__set-item-count! item-id (- (__item-count item-id) n))))
-
-;; 饱腹：吃食物恢复；每天睡觉 −1，归零扣健康（EndTurn 处理）。native 已 clamp 到 MaxSatiety。
-(define (party-satiety)
-  (__party-satiety))
-
-(define (add-satiety! n)
-  (__set-party-satiety! (+ (__party-satiety) n)))
-
-(define (remove-satiety! n)
-  (if (< (__party-satiety) n)
-      (error "not enough satiety")
-      (__set-party-satiety! (- (__party-satiety) n))))
 
 (define (party-health)
   (__party-health))
@@ -462,8 +450,8 @@
 (define (current-actor)
   (__current-actor))
 
-(define (actor-stress actor-id)
-  (__actor-stress actor-id))
+(define (actor-composure actor-id)
+  (__actor-composure actor-id))
 
 (define (actor-status actor-id)
   (__actor-status actor-id))
@@ -477,18 +465,23 @@
 (define (has-companion? actor-id)
   (__has-companion? actor-id))
 
-(define (set-actor-stress! actor-id n)
-  (__set-actor-stress! actor-id n))
+(define (set-actor-composure! actor-id n)
+  (__set-actor-composure! actor-id n))
 
-(define (add-actor-stress! actor-id n)
-  (__set-actor-stress! actor-id (+ (__actor-stress actor-id) n)))
+;; 花冷静（floor 到 0）：失败、交锋伤害等一切"变糟"的效果。
+(define (spend-actor-composure! actor-id n)
+  (__spend-actor-composure! actor-id n))
 
-(define (stress-current-actor! n)
-  (add-actor-stress! (__current-actor) n))
+(define (spend-composure! n)
+  (spend-actor-composure! (__current-actor) n))
 
-;; 缓解压力（floor 到 0）。压力靠睡觉/喝酒/家里仪式/公园散步恢复。
-(define (heal-stress! actor-id n)
-  (set-actor-stress! actor-id (max 0 (- (actor-stress actor-id) n))))
+;; 恢复冷静（clamp 到上限）：睡觉/喝酒/家里仪式/公园散步/香烟。
+(define (restore-actor-composure! actor-id n)
+  (set-actor-composure! actor-id (+ (actor-composure actor-id) n)))
+
+;; 喝酒的延期代价：下一次城市掷骰时，骰池中的一格会带“宿醉”降质。
+(define (apply-hangover!)
+  (__apply-hangover!))
 
 (define (notify! text)
   (__notify! text))

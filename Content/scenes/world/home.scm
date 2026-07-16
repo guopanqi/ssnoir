@@ -1,8 +1,8 @@
 ;; scenes/world/home.scm - 住所系统
 ;; 旅馆（默认·付房租）→ 公寓（购买·资产中）。
 ;; 资产等级由拥有的住所推导，写入全局 '资产（供富商圈门槛用）。
-;; 恢复：旅馆睡觉压力 -1，自有住所睡觉压力 -2；门口露宿压力 +1。
-;; 吃饭补饱腹，喝酒/花缓解压力。住所中只能用药恢复健康。
+;; 恢复：旅馆睡觉冷静 +1，自有住所睡觉冷静 +2；门口露宿冷静 -1。
+;; 喝酒/看花/收拾屋子恢复冷静。酒会让下一次城市骰池出现“宿醉”降质；住所中只能用药恢复健康。
 
 (define home
   (let ()
@@ -56,30 +56,23 @@
             "归零后旅馆房门会被锁上；交租可延长三天。"))
 
     ;; ── 恢复类 ──────────────────────────────────────
-    (define (node-eat)
-      (action "吃饭"
-        (list (req-item "食物" 1))
-        (instant
-          (outcome "吃了顿饭" "将就做了顿饭，胃里总算有了点着落。"
-            (lambda () (add-satiety! 3))))))
-
     ;; 看花这类白天解压占一颗骰子（与工作争夺骰子池）；睡觉免费（回合结束）。
-    ;; 喝酒不占骰子，走“花钱买酒”这条线：垫点饱腹，松松神经。
+    ;; 喝酒不占骰子，走“花钱买酒”这条线：当场大量恢复冷静。
     ;; 效果只写这一份：酒馆当场点酒（'drink! 消息）与家中喝自带的酒共用同一次“当天第一杯”。
     (define (apply-drink-effect!)
       (set! drank-today? #t)
-      (add-satiety! 1)
-      (heal-stress! 'player 2))
+      (restore-actor-composure! 'player 2)
+      (apply-hangover!))
 
     (define (node-drink)
       (node "喝酒"
         :subtitle (if drank-today?
                       "今天已经喝过了，再喝只会头疼"
-                      "一杯能让神经松下来，也稍微垫垫肚子")
+                      "恢复 2 点冷静；代价留到下一次城市骰池")
         :disabled drank-today?
         :requires (list (req-item "酒" 1))
         :resolve (instant
-          (outcome "借酒松神" "一杯下肚，绷了一天的神经松了扣，肚子也垫了垫。"
+          (outcome "借酒松神" "一杯下肚，绷着的神经松了扣。明早的头痛，会再来讨账。"
             (lambda () (apply-drink-effect!))))))
 
     ;; 用药：在住所中上药休养，不占用行动骰。
@@ -101,21 +94,21 @@
         (list (req-die))
         (instant
           (outcome "出神片刻" "白雏菊静静开着，不管窗外这座城多脏。你看了一会儿，胸口松了些。"
-            (lambda () (heal-stress! 'player 2))))))
+            (lambda () (restore-actor-composure! 'player 2))))))
 
     ;; 给低质量骰一个确定而克制的去处：不掷命运骰，只用时间换少量恢复。
     (define (node-tidy-room)
       (node "整理房间"
         :subtitle (if tidied-today?
                       "今天已经收拾过了"
-                      "投入任意行动骰，固定缓解 1 点压力；每天一次")
+                      "投入任意行动骰，固定恢复 1 点冷静；每天一次")
         :disabled tidied-today?
         :requires (list (req-die))
         :resolve (instant
           (outcome "收拾妥当" "把散乱的物件一件件归位，脑子里那些声音也跟着安静了一点。"
             (lambda ()
               (set! tidied-today? #t)
-              (heal-stress! 'player 1))))))
+              (restore-actor-composure! 'player 1))))))
 
     (define (rest-tags)
       (if (rest-blocked?)
@@ -133,8 +126,8 @@
                 "旅馆的床硬得像良心，可好歹遮风挡雨。"
                 "这是你自己的地方，门一关，城就锁在外头了。")
             (lambda ()
-              (heal-stress! 'player (if (in-hotel?) 1 2))
-              (if (has-companion? 'laozhou) (heal-stress! 'laozhou 1) #f)
+              (restore-actor-composure! 'player (if (in-hotel?) 1 2))
+              (if (has-companion? 'laozhou) (restore-actor-composure! 'laozhou 1) #f)
               (end-turn!))))))
 
     (define (node-sleep-at-door)
@@ -145,7 +138,7 @@
           (outcome "无处可去"
                    "门从里头锁死了。你缩在墙根挨了一夜，寒气顺着衣领一路往骨头里钻。"
             (lambda ()
-              (add-actor-stress! 'player 1)
+              (spend-actor-composure! 'player 1)
               (end-turn!))))))
 
     ;; ── 交易 / 布置 / 升级 ──────────────────────────
@@ -186,7 +179,7 @@
     ;; 客厅：日常恢复 + 已拥有的家具。
     (define (living-room-children)
       (append
-        (list (node-eat) (node-drink) (node-use-medicine) (node-tidy-room))
+        (list (node-drink) (node-use-medicine) (node-tidy-room))
         (if has-flower? (list (node-see-flower)) '())))
 
     (define (node-living-room)

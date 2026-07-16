@@ -14,7 +14,7 @@
       (make-trouble "警局麻烦" 3
         (lambda ()
           (spend-up-to! "金钱" 10)
-          (stress-current-actor! 1)
+          (spend-composure! 1)
           (notify! "一张说不清来路的罚单堵在了门口，不出这笔钱事情不算完。"))))
 
     (define (maybe-notify-police-trouble!)
@@ -44,7 +44,7 @@
         (outcome "按时交差" "一下午全耗在发霉的纸堆里，换来几个辛苦钱。"
           (lambda () (add-item! "金钱" 3) (maybe-notify-police-trouble!)))
         (outcome "抄错编号" "编号抄岔了，只能从头返工。"
-          (lambda () (stress-current-actor! 1) (maybe-notify-police-trouble!)))))
+          (lambda () (spend-composure! 1) (maybe-notify-police-trouble!)))))
 
     (define (node-handle-trouble)
       (action "摆平警局的麻烦"
@@ -82,7 +82,7 @@
         (list (req-die))
         (roll 'social dock-witness-mods
           (outcome "碰了一鼻子灰" "证人在码头讨生活，见了警察更不肯开口。"
-            (lambda () (stress-current-actor! 1)))
+            (lambda () (spend-composure! 1)))
           (outcome "找到证人" "你替探长缓和了气氛，码头上的证人终于愿意开口。"
             (lambda () (finish-detective-visit!)))
           (outcome "问到关键处" "你找准了码头人的说话方式，探长顺势拿到了口供。"
@@ -93,7 +93,7 @@
         (list (req-die))
         (roll 'knowledge
           (outcome "材料退回" "几处说法对不上，材料被退了回来。"
-            (lambda () (stress-current-actor! 1)))
+            (lambda () (spend-composure! 1)))
           (outcome "口供入档" "你把散乱的话整理成了能进入正式记录的口供。"
             (lambda () (finish-detective-section!)))
           (outcome "留下余地" "口供写得清楚，也替证人避开了不必要的麻烦。"

@@ -8,8 +8,6 @@ namespace SSNoir.Core
         public GameNode? RootNode { get; init; }
         public int Health { get; init; }
         public int MaxHealth { get; init; }
-        public int Satiety { get; init; }
-        public int MaxSatiety { get; init; }
         public int GrowthLevel { get; init; }
         public string Location { get; init; } = string.Empty;
         public IReadOnlyDictionary<string, int> Inventory { get; init; } = new Dictionary<string, int>();

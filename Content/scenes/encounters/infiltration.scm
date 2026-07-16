@@ -124,7 +124,7 @@
       get-safe-modifiers
       (lambda ()
         (alert 'tick!)
-        (stress-current-actor! 1))            ; 失败: +1警戒，增加压力
+        (spend-composure! 1))            ; 失败: +1警戒，冷静 -1
       (lambda () (safe 'tick!))               ; 中性: +1保险箱
       (lambda () (clock-tick-n! safe 2)))))   ; 成功: +2保险箱
 
@@ -142,7 +142,7 @@
       get-power-modifiers
       (lambda ()
         (alert 'tick!)
-        (stress-current-actor! 1))              ; 失败: +1警戒，增加压力
+        (spend-composure! 1))              ; 失败: +1警戒，冷静 -1
       (lambda () (power 'tick!))                ; 中性: +1断电
       (lambda ()
         (clock-tick-n! power 2)                  ; 成功: +2断电
@@ -174,7 +174,7 @@
       get-camera-modifiers
       (lambda ()
         (alert 'tick!)
-        (stress-current-actor! 1))              ; 失败: +1警戒，增加压力
+        (spend-composure! 1))              ; 失败: +1警戒，冷静 -1
       (lambda () (camera 'tick!))               ; 中性: +1监控
       (lambda ()
         (clock-tick-n! camera 2)                 ; 成功: +2监控
@@ -208,7 +208,7 @@
       get-sharpness-modifiers
       (lambda ()
         (alert 'tick!)
-        (stress-current-actor! 1))              ; 失败: +1警戒，增加压力
+        (spend-composure! 1))              ; 失败: +1警戒，冷静 -1
       (lambda () (tool-prep 'tick!))            ; 中性: +1道具
       (lambda () (clock-tick-n! tool-prep 2))))) ; 成功: +2道具
 
@@ -220,7 +220,7 @@
       (lambda ()
         (set! search-count (+ search-count 1))
         (alert 'tick!)
-        (stress-current-actor! 1))              ; 失败: +1警戒，增加压力
+        (spend-composure! 1))              ; 失败: +1警戒，冷静 -1
       (lambda ()
         (set! search-count (+ search-count 1))
         (add-item! '金钱 5))

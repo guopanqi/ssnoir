@@ -77,7 +77,7 @@
     :requires (list (req-die))
     :resolve
       (roll 'social
-        (lambda () (patience-clk 'tick!) (stress-current-actor! 1))
+        (lambda () (patience-clk 'tick!) (spend-composure! 1))
         (lambda () (truth-clk 'tick!))
         (lambda () (clock-tick-n! truth-clk 2)))))
 
@@ -100,7 +100,7 @@
     :requires (list (req-die))
     :resolve
       (roll 'violence
-        (lambda () (clock-tick-n! patience-clk 2) (stress-current-actor! 1))
+        (lambda () (clock-tick-n! patience-clk 2) (spend-composure! 1))
         (lambda () (truth-clk 'tick!) (patience-clk 'tick!))
         (lambda () (clock-tick-n! truth-clk 2) (patience-clk 'tick!)))))
 

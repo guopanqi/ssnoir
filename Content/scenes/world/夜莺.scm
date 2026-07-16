@@ -540,7 +540,7 @@
         :resolve
           (roll 'social
             (outcome "没人接话" "他们听完只是低头喝酒。夜莺的麻烦,还没变成他们的麻烦。"
-              (lambda () (stress-current-actor! 1)))
+              (lambda () (spend-composure! 1)))
             (outcome "有人答应" "一个码头汉子答应那晚过来搭把手。人还不够,但是个开头。"
               (lambda () (advance-dock-guard! 1)))
             (outcome "拉来一伙" "你把话递到了对的人耳朵里,一口气应下好几个。"
@@ -703,7 +703,7 @@
       (action "把那晚的案卷拼起来"
         (list (req-die))
         (roll 'knowledge
-          (outcome "拼不出头绪" "线索太散,拼不出一份站得住的案卷。" (lambda () (stress-current-actor! 1)))
+          (outcome "拼不出头绪" "线索太散,拼不出一份站得住的案卷。" (lambda () (spend-composure! 1)))
           (outcome "拼出个大概" "你把零碎的线索理成了一份说得过去的案卷。" (lambda () (set-flag! '案卷备妥)))
           (outcome "拼得严丝合缝" "案卷拼得严丝合缝,连日期都对得上。" (lambda () (set-flag! '案卷备妥))))))
 
@@ -792,7 +792,7 @@
       (action "截住跟梢的人"
         (list (req-die))
         (roll 'sharpness
-          (lambda () (stress-current-actor! 1))
+          (lambda () (spend-composure! 1))
           (lambda ()
             (set-flag! '跟梢的人)
             (spotlight! "一张名片" "他钻进人群前丢下一张名片。背面只写着一句：夜莺的事，五十金。"))
@@ -849,7 +849,7 @@
         (list (req-die))
         (roll 'social
           (lambda ()
-            (stress-current-actor! 1)
+            (spend-composure! 1)
             (set-flag! '已打听))
           (lambda ()
             (set-flag! '已打听)
@@ -864,7 +864,7 @@
         (list (req-die))
         (roll 'social
           (lambda ()
-            (stress-current-actor! 1))
+            (spend-composure! 1))
           (lambda ()
             (advance-beat1! "坐船来的" "有搬运工记得那张脸:他不是本地人,是坐夜船来的。"))
           (lambda ()
@@ -903,7 +903,7 @@
         :disabled (not (relation-at-least? "劳工" '相识))
         :requires (list (req-die))
         :resolve (roll 'social dock-truth-mods
-          (lambda () (stress-current-actor! 1))
+          (lambda () (spend-composure! 1))
           (lambda () (advance-truth! "争执声" "老人说,那晚栈桥上有争执声,压得很低。"))
           (lambda () (add-item! "情报" 1) (advance-truth! "栈桥上的女人" "他记得那晚栈桥上,有个女人。")))))
 
@@ -933,7 +933,7 @@
         :disabled (not (relation-at-least? "富商" '相识))
         :requires (list (req-die))
         :resolve (roll 'knowledge freight-truth-mods
-          (lambda () (stress-current-actor! 1))
+          (lambda () (spend-composure! 1))
           (lambda () (advance-truth! "对不上的船期" "货栈记录里,那晚根本没有她说的那班船。"))
           (lambda () (advance-truth! "查无此船" "船期表翻了三遍:那晚,压根没有那班船。")))))
 

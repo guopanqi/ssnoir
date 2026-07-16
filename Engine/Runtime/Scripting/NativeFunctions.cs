@@ -51,24 +51,6 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__set-party-health!"));
 
-            interpreter.DefineGlobal(Symbol.FromString("__party-satiety"), new NativeProcedure(args =>
-            {
-                return gameState.Team.Satiety;
-            }, "__party-satiety"));
-
-            interpreter.DefineGlobal(Symbol.FromString("__set-party-satiety!"), new NativeProcedure(args =>
-            {
-                if (args.Count < 1) throw new ArgumentException("__set-party-satiety! requires 1 argument");
-                int n = SchemeValue.ToInt(args[0]);
-                int before = gameState.Team.Satiety;
-                gameState.Team.Satiety = Math.Clamp(n, 0, gameState.Team.MaxSatiety);
-                int delta = gameState.Team.Satiety - before;
-                gameState.CurrentActionReport?.AddEffect(
-                    ActionEffectKind.Satiety, "饱腹", delta,
-                    delta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
-                return new None();
-            }, "__set-party-satiety!"));
-
             // 声望档位：读 relation:<faction> 的当前整数值，按 RelationScale 折算成档位序号（0..5）。
             interpreter.DefineGlobal(Symbol.FromString("__relation-band-index"), new NativeProcedure(args =>
             {
@@ -114,37 +96,71 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__set-growth-level!"));
 
-            interpreter.DefineGlobal(Symbol.FromString("__actor-stress"), new NativeProcedure(args =>
+            interpreter.DefineGlobal(Symbol.FromString("__actor-composure"), new NativeProcedure(args =>
             {
-                if (args.Count < 1) throw new ArgumentException("__actor-stress requires 1 argument: actor-id");
+                if (args.Count < 1) throw new ArgumentException("__actor-composure requires 1 argument: actor-id");
                 string actorId = SchemeValue.AsId(args[0]);
                 var actor = gameState.Team.FindActor(actorId);
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
-                return actor.Stress;
-            }, "__actor-stress"));
+                return actor.Composure;
+            }, "__actor-composure"));
 
-            interpreter.DefineGlobal(Symbol.FromString("__set-actor-stress!"), new NativeProcedure(args =>
+            interpreter.DefineGlobal(Symbol.FromString("__set-actor-composure!"), new NativeProcedure(args =>
             {
-                if (args.Count < 2) throw new ArgumentException("__set-actor-stress! requires 2 arguments: actor-id and stress");
+                if (args.Count < 2) throw new ArgumentException("__set-actor-composure! requires 2 arguments: actor-id and composure");
                 string actorId = SchemeValue.AsId(args[0]);
                 int n = SchemeValue.ToInt(args[1]);
-                if (n < 0) throw new ArgumentException("stress cannot be negative");
+                if (n < 0) throw new ArgumentException("composure cannot be negative");
                 var actor = gameState.Team.FindActor(actorId);
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
-                int stressBefore = actor.Stress;
+                int composureBefore = actor.Composure;
                 int healthBefore = gameState.Team.Health;
-                gameState.Team.SetActorStressSafe(actorId, n);
-                int stressDelta = actor.Stress - stressBefore;
-                string stressLabel = gameState.CurrentContext?.ActorId == actorId ? "压力" : actor.Name + "压力";
+                gameState.Team.SetActorComposureSafe(actorId, n);
+                int composureDelta = actor.Composure - composureBefore;
+                string composureLabel = gameState.CurrentContext?.ActorId == actorId ? "冷静" : actor.Name + "冷静";
                 gameState.CurrentActionReport?.AddEffect(
-                    ActionEffectKind.Stress, stressLabel, stressDelta,
-                    stressDelta < 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                    ActionEffectKind.Composure, composureLabel, composureDelta,
+                    composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                 int healthDelta = gameState.Team.Health - healthBefore;
                 gameState.CurrentActionReport?.AddEffect(
                     ActionEffectKind.Health, "健康", healthDelta,
                     healthDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                 return new None();
-            }, "__set-actor-stress!"));
+            }, "__set-actor-composure!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__spend-actor-composure!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 2) throw new ArgumentException("__spend-actor-composure! requires 2 arguments: actor-id and amount");
+                string actorId = SchemeValue.AsId(args[0]);
+                int amount = SchemeValue.ToInt(args[1]);
+                if (amount < 0) throw new ArgumentException("composure spend cannot be negative");
+                var actor = gameState.Team.FindActor(actorId);
+                if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
+
+                int composureBefore = actor.Composure;
+                int healthBefore = gameState.Team.Health;
+                gameState.Team.SpendComposure(actorId, amount);
+                int composureDelta = actor.Composure - composureBefore;
+                string composureLabel = gameState.CurrentContext?.ActorId == actorId ? "冷静" : actor.Name + "冷静";
+                gameState.CurrentActionReport?.AddEffect(
+                    ActionEffectKind.Composure, composureLabel, composureDelta,
+                    composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+
+                int healthDelta = gameState.Team.Health - healthBefore;
+                gameState.CurrentActionReport?.AddEffect(
+                    ActionEffectKind.Health, "健康", healthDelta,
+                    healthDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                if (healthDelta < 0)
+                    gameState.CurrentActionReport?.AddNote("冷静击穿：你的手在抖，身体先一步承受了代价。");
+                return new None();
+            }, "__spend-actor-composure!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__apply-hangover!"), new NativeProcedure(args =>
+            {
+                gameState.Team.ApplyHangover();
+                gameState.CurrentActionReport?.AddNote("酒劲会留到下一次城市骰池：一格会带宿醉降质。");
+                return new None();
+            }, "__apply-hangover!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__actor-status"), new NativeProcedure(args =>
             {
@@ -165,7 +181,7 @@ namespace SSNoir.Scripting
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
                 actor.Status = status;
                 // Trigger OnTeamChanged
-                gameState.Team.ApplyStress(actorId, 0);
+                gameState.Team.SpendComposure(actorId, 0);
                 return new None();
             }, "__set-actor-status!"));
 

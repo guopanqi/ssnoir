@@ -1,5 +1,16 @@
 {
+  "cssTheme": "",
+  "textFontFamily": "",
   "enabledCssSnippets": [
+    "lucent-reading",
+    "hide-view-actions",
     "wechat-reading"
-  ]
+  ],
+  "theme": "system",
+  "accentColor": "#006acb",
+  "nativeMenus": false,
+  "showViewHeader": false,
+  "showRibbon": false,
+  "baseFontSize": 16,
+  "translucency": false
 }

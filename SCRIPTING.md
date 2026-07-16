@@ -57,13 +57,15 @@ T ≤6 坏，7–8 中，≥9 好
 ```
 
 技能从 0 起，有效范围为 0–4。`modifier` 是玩家可见的数值修正，
-负数代表更难、正数代表更容易。角色压力达到 2 点后，引擎会自动为其所有任务判定
-加入 `(modifier -1 "心绪不宁")`；内容脚本不应重复添加。压力上限为 4，满格后的新增压力
-会对主角溢出为健康损失。
+负数代表更难、正数代表更容易。冷静不再给所有判定施加隐藏修正：低冷静的骰子降点在
+每天/每个交锋回合重掷时已经结算，并直接显示在手牌中。
+
+失败是否额外花冷静必须由内容明确决定：在对应 bad outcome 里写 `(spend-composure! 1)`。
+不要把它当成 `roll` 的隐式默认效果；有些失败只推进场面时钟，有些失败才会让主角破防。
+冷静已经为 0 时，这个调用会改为扣健康，并自动附上一条生理击穿说明。
 
 恢复性判定使用 `(recovery-roll-action name requires skill fail neutral success)`。它与普通
-`roll-action` 使用同一套命运结算，但明确豁免压力修正。坏结果应当只消耗行动，不再追加
-压力或健康损失，确保恢复路线不会被压力的正反馈污染。
+`roll-action` 使用同一套命运结算，区别只在内容语义；恢复动作失败是否有额外代价，同样由内容显式写出。
 
 带薪工作默认使用 `(工作 ...)`，不会自动增加关系。只有内容语义明确偏向帮忙、经营人情或
 承担额外风险时才使用 `(关系工作 ...)`；其好结果自动令所属势力关系 +1。非法行动若可能损害
@@ -80,7 +82,7 @@ T ≤6 坏，7–8 中，≥9 好
 **状态桥**
 - 纯全局键:`(get-global k)` / `(set-global! k v)`(章节、声誉、剧情 flag)
 - 队伍 / 库存 / 成长:`party-health`、`damage-party!`、`item-count`、`add-item!`、
-  `growth-level`、`set-growth-level!`、`actor-stress` 等(见 engine.scm)
+  `growth-level`、`set-growth-level!`、`actor-composure`、`spend-composure!` 等(见 engine.scm)
 - 轻型结算:`(outcome title subtitle effect ['light | 'heavy])`、`(result-note! text)`
 - 其他表现:`(notify! text)`、`(spotlight! title subtitle)`、`(play-narration! id)`
 - 对话:`(play-banter! (line ...) ...)`、`(play-dialogue! (line ...) ...)`、`(play-animation! tag)`(见 3.6-3.7)
@@ -121,19 +123,20 @@ encounter **不要**直接写 global 通知 world 推进任务(越权、污染�
 
 callback 在 `LoadScene("world")` 之前执行,world 闭包状态更新后,render tree 一次性以正确状态重建。
 
-### 3.2 压力 / 伤害函数的调用场景
+### 3.2 冷静 / 伤害函数的调用场景
 
-`stress-current-actor!` 依赖 action 执行上下文,只有 `ExecuteAction` 期间有效;
+`spend-composure!` 依赖 action 执行上下文,只有 `ExecuteAction` 期间有效;
 encounter 结束 callback 可能由回合结束规则触发,此时没有 action context。
 
 | 场景 | 正确用法 |
 |---|---|
-| roll 的 fail/neutral/success 回调(action lambda 内) | `(stress-current-actor! n)` |
-| `start-encounter` 的结果 callback | `(add-actor-stress! 'player n)` |
+| roll 的 fail/neutral/success 回调(action lambda 内) | `(spend-composure! n)` |
+| `start-encounter` 的结果 callback | `(spend-actor-composure! 'player n)` |
 
-`end-turn!` 只推进通用系统状态:饱腹消耗、饥饿伤害、行动骰重掷和 turn rules。
-它不再自动恢复压力。睡眠、露宿或其他休息方式必须在各自的内容动作里显式调用
-`heal-stress!` / `add-actor-stress!`,这样不同住所可以有不同效果,并且变化会进入动作效果条。
+`end-turn!` 在交锋中会自动花主角 1 点冷静，再推进 turn rules 并重掷骰；城市中只推进规则和重掷。
+睡眠、露宿或其他休息方式必须在各自的内容动作里显式调用
+`restore-actor-composure!` / `spend-actor-composure!`。喝酒恢复冷静后还必须调用
+`apply-hangover!`，把代价延后到下一次城市掷骰的一个骰池位置。每个行动者各自拥有冷静和骰池状态；低冷静的失态/失控状态会随机附着在其中一个位置；骰子可以自由投入行动，不能把位置误当成行动限制。
 
 ### 3.3 节点函数扁平化:避免深嵌套 append/if
 
@@ -162,14 +165,14 @@ Schemy 在深嵌套 `(append (if …) (if … (append …) '()))` 中,某些分�
 
 ### 3.5 轻型动作结果:叙事与效果条
 
-动作 lambda 内对库存、健康、饱腹、压力、关系、成长的实际修改,会按执行顺序自动写入
+动作 lambda 内对库存、健康、冷静、关系、成长的实际修改,会按执行顺序自动写入
 `ActionReport`,前端在原卡片上显示为效果条。脚本不要再重复编写“金钱 +8”一类展示文本。
 
 ```scheme
 (outcome "勉强完成" "货送到了,但你累得够呛。"
   (lambda ()
     (add-item! "金钱" 8)       ; 自动生成:金钱 +8
-    (stress-current-actor! 1)  ; 自动生成:压力 +1
+    (spend-composure! 1)       ; 自动生成:冷静 -1
     (change-faction-relation! "劳工" 2))) ; 自动生成:劳工关系 +2
 ```
 

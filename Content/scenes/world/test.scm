@@ -14,7 +14,6 @@
                    (list
                      (instant-action "+50 金钱" (lambda () (add-item! "金钱" 50)))
                      (instant-action "+1 情报"  (lambda () (add-item! "情报" 1)))
-                     (instant-action "+1 食物"  (lambda () (add-item! "食物" 1)))
                      (instant-action "+1 药品"  (lambda () (add-item! "药品" 1)))
                      (instant-action "+1 酒"    (lambda () (add-item! "酒" 1)))))
                  (container "调试-关系"
@@ -25,9 +24,9 @@
                      (instant-action "富商 +1" (lambda () (change-faction-relation! "富商" 1)))))
                  (container "调试-身体"
                    (list
-                     (instant-action "饱腹 +3" (lambda () (add-satiety! 3)))
                      (instant-action "健康 +2" (lambda () (heal-party! 2)))
-                     (instant-action "压力 -2" (lambda () (heal-stress! 'player 2)))))
+                     (instant-action "冷静 +2" (lambda () (restore-actor-composure! 'player 2)))
+                     (instant-action "冷静 -2" (lambda () (spend-actor-composure! 'player 2)))))
                  (container "调试-成长"
                    (list
                      (instant-action "成长等级 +1"

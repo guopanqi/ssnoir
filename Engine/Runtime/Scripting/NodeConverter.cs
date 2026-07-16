@@ -251,7 +251,6 @@ namespace SSNoir.Scripting
                 {
                     Type = ResolveType.Roll,
                     SkillName = skillName,
-                    IgnoresStressPenalty = typeStr == "recovery-roll",
                     DifficultyModifiers = modifiers,
                     FailOutcome = failOutcome,
                     NeutralOutcome = neutralOutcome,

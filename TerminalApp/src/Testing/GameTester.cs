@@ -79,9 +79,9 @@ namespace SSNoir.Testing
                 source.Set("test-global", "persisted");
                 source.Inventory.SetCount("测试物品", 7);
                 source.Team.Health = 4;
-                source.Team.Satiety = 2;
                 source.Team.GrowthLevel = 3;
-                source.Team.ApplyStress("player", 2);
+                source.Team.ApplyHangover();
+                source.Team.SpendComposure("player", 2);
                 var companion = source.Team.RecruitCompanion(
                     "test-companion",
                     "测试同伴",
@@ -92,7 +92,7 @@ namespace SSNoir.Testing
                         ["sharpness"] = 0,
                         ["social"] = 1,
                     });
-                source.Team.ApplyStress(companion.Id, 2);
+                source.Team.SpendComposure(companion.Id, 2);
                 sourceManager.SaveGame(savePath);
 
                 var loaded = new GameState();
@@ -102,15 +102,15 @@ namespace SSNoir.Testing
                 AssertEq("pure global", "persisted", loaded.Get<string>("test-global"));
                 AssertEq("inventory", 7, loaded.Inventory.GetCount("测试物品"));
                 AssertEq("health", 4, loaded.Team.Health);
-                AssertEq("satiety", 2, loaded.Team.Satiety);
                 AssertEq("growth", 3, loaded.Team.GrowthLevel);
-                AssertEq("player stress", 2, loaded.Team.FindActor("player")!.Stress);
+                AssertEq<int?>("hangover slot", 0, loaded.Team.FindActor("player")!.HangoverSlotId);
+                AssertEq("player composure", TeamState.MaxComposure - 2, loaded.Team.FindActor("player")!.Composure);
 
                 var loadedCompanion = loaded.Team.FindActor("test-companion")
                     ?? throw new Exception("[saveload] companion was not recreated during cold load");
                 AssertEq("companion role", "companion", loadedCompanion.Role);
                 AssertEq("companion name", "测试同伴", loadedCompanion.Name);
-                AssertEq("companion stress", 2, loadedCompanion.Stress);
+                AssertEq("companion composure", TeamState.MaxComposure - 2, loadedCompanion.Composure);
                 AssertEq("companion knowledge", 2, loadedCompanion.Stats["knowledge"]);
                 AssertEq("player dice", 3, loaded.Team.FindActor("player")!.ActionDice.Count);
                 AssertEq("companion dice", 1, loadedCompanion.ActionDice.Count);
@@ -158,14 +158,65 @@ namespace SSNoir.Testing
                 AssertEq($"B={prepared} counts", ExpectedCounts(prepared), (fail, neutral, success));
             }
 
-            AssertEq("stress 0 modifier", 0, TeamState.GetStressRollModifier(0));
-            AssertEq("stress 1 modifier", 0, TeamState.GetStressRollModifier(1));
-            AssertEq("stress 2 modifier", -1, TeamState.GetStressRollModifier(2));
-            AssertEq("stress 4 modifier", -1, TeamState.GetStressRollModifier(4));
-            var stressedState = new GameState();
-            stressedState.Team.ApplyStress("player", 5);
-            AssertEq("stress cap", 4, stressedState.Team.FindActor("player")!.Stress);
-            AssertEq("stress overflow health damage", 4, stressedState.Team.Health);
+            // 冷静击穿溢出是主角唯一的第二受伤口来源，容易在重构中静默改坏，值得覆盖。
+            var overflowState = new GameState();
+            overflowState.Team.SpendComposure("player", TeamState.MaxComposure + 4);
+            AssertEq("composure floor", 0, overflowState.Team.FindActor("player")!.Composure);
+            AssertEq("composure overflow health damage", 1, overflowState.Team.Health);
+
+            // 内容脚本必须走同一条击穿路径，不能在 0 点被 wrapper 静默截断。
+            var scriptedOverflowState = new GameState();
+            var scriptedOverflowManager = new SceneManager(scriptedOverflowState, new LocalScriptLoader());
+            scriptedOverflowManager.LoadScene("world");
+            scriptedOverflowManager.ActiveInterpreter.Eval("(spend-actor-composure! 'player 6)");
+            scriptedOverflowManager.ActiveInterpreter.Eval("(spend-actor-composure! 'player 1)");
+            AssertEq("scripted composure floor", 0, scriptedOverflowState.Team.FindActor("player")!.Composure);
+            AssertEq("scripted composure overflow health damage", 4, scriptedOverflowState.Team.Health);
+
+            // 谷底仍须保留两颗骰，失控只扩大降质范围，不再征用骰子。
+            var bottomState = new GameState();
+            bottomState.Team.Health = TeamState.HealthPenaltyThreshold;
+            bottomState.Team.SpendComposure("player", TeamState.MaxComposure - TeamState.LossOfControlThreshold);
+            bottomState.Team.RollActionDice(isInEncounter: false);
+            AssertEq("bottom-state dice", 2, bottomState.Team.FindActor("player")!.ActionDice.Count);
+
+            // 骰池状态的身份不能随骰子消耗而漂移：失态跨 1–3 保留，进入/离开失控线只增减第二个状态。
+            var slotState = new GameState();
+            slotState.Team.SpendComposure("player", 3);
+            var slotPlayer = slotState.Team.FindActor("player")!;
+            AssertEq("faint slot status count", 1, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
+            int faintSlot = slotState.Team.GetActiveActionSlotStatuses(slotPlayer)[0].SlotId;
+            slotState.Team.SpendComposure("player", 3);
+            AssertEq("loss-control slot status count", 2, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
+            bool faintSlotStillPresent = false;
+            foreach (var status in slotState.Team.GetActiveActionSlotStatuses(slotPlayer))
+                faintSlotStillPresent |= status.SlotId == faintSlot;
+            AssertEq("faint slot persists", true, faintSlotStillPresent);
+            slotState.Team.RestoreComposure("player", 1);
+            AssertEq("loss-control slot clears above 0", 1, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
+            slotState.Team.RestoreComposure("player", 3);
+            AssertEq("faint slot clears above 3", 0, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
+
+            var hangoverState = new GameState();
+            hangoverState.Team.ApplyHangover();
+            hangoverState.Team.RollActionDice(isInEncounter: false, consumeHangover: false);
+            AssertEq<int?>("hangover survives scene roll", 0, hangoverState.Team.FindActor("player")!.HangoverSlotId);
+            hangoverState.Team.RollActionDice(isInEncounter: false);
+            AssertEq<int?>("hangover consumed on day end", null, hangoverState.Team.FindActor("player")!.HangoverSlotId);
+
+            var consumableState = new GameState();
+            consumableState.Inventory.SetCount("香烟", 1);
+            consumableState.Inventory.SetCount("酒", 1);
+            consumableState.Team.SpendComposure("player", 3);
+            var consumableManager = new SceneManager(consumableState, new LocalScriptLoader());
+            consumableManager.LoadScene("encounters/夜莺·警告");
+            consumableManager.UseEncounterConsumable("香烟");
+            AssertEq("smoke consumed", 0, consumableState.Inventory.GetCount("香烟"));
+            AssertEq("smoke composure restore", 5, consumableState.Team.FindActor("player")!.Composure);
+            consumableManager.UseEncounterConsumable("酒");
+            AssertEq("drink consumed", 0, consumableState.Inventory.GetCount("酒"));
+            AssertEq("drink composure restore", 6, consumableState.Team.FindActor("player")!.Composure);
+            AssertEq<int?>("encounter drink hangover", 0, consumableState.Team.FindActor("player")!.HangoverSlotId);
             AssertEq("B=1 summary", "1–3 坏 · 4–6 中", FateStrip.Describe(FateStrip.Compute(1, 0, 0)));
             AssertEq("B=4 summary", "1 坏 · 2–3 中 · 4–6 好", FateStrip.Describe(FateStrip.Compute(4, 0, 0)));
             AssertEq("B=7 summary", "1–6 好", FateStrip.Describe(FateStrip.Compute(6, 1, 0)));
@@ -173,7 +224,6 @@ namespace SSNoir.Testing
             AssertThrows(() => FateStrip.Compute(0, 0, 0), "invalid placed die");
             AssertThrows(() => FateStrip.Compute(1, -1, 0), "negative skill");
             AssertThrows(() => FateStrip.Resolve(1, 0, 0, 7), "invalid fate die");
-            AssertThrows(() => TeamState.GetStressRollModifier(5), "invalid stress");
 
             Console.WriteLine("[fate-strip] All contract assertions passed.");
         }

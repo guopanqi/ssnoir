@@ -6,8 +6,7 @@ namespace SSNoir.Core
     {
         Item,
         Health,
-        Satiety,
-        Stress,
+        Composure,
         Relation,
         Growth,
         Note

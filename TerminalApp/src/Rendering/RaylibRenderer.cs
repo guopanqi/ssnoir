@@ -360,23 +360,6 @@ namespace SSNoir.Rendering
             return (true, progress, string.IsNullOrEmpty(hint.Text) ? "执行中" : hint.Text);
         }
 
-        private static ActionReport CreateEndTurnReport()
-        {
-            return new ActionReport
-            {
-                Type = ActionType.Instant,
-                PresentationHints = new List<PresentationHint>
-                {
-                    new PresentationHint
-                    {
-                        Kind = PresentationHintKind.ExecuteProgress,
-                        Text = "回合结束",
-                        DurationSeconds = 0.2f,
-                    },
-                },
-            };
-        }
-
         private void ExecuteNodeAction(GameNode node, List<SlottedResource?> slots)
         {
             string sceneBefore = _sceneManager.CurrentSceneName;
@@ -773,14 +756,25 @@ namespace SSNoir.Rendering
             // 4. Draw Hand Panel
             bool turnPanelWasOpen = _state.IsTurnPanelOpen;
             var handInteraction = HandPanelWidget.Draw(_state, worldUi, WindowWidth, WindowHeight, IsInEncounter);
-            if (handInteraction.TurnClicked)
+            if (handInteraction.SmokeClicked)
+            {
+                _state.ClearAllNodeSlots();
+                _state.SelectedResource = null;
+                StartPresentation(_sceneManager.UseEncounterConsumable("香烟"), "抽烟");
+            }
+            else if (handInteraction.DrinkClicked)
+            {
+                _state.ClearAllNodeSlots();
+                _state.SelectedResource = null;
+                StartPresentation(_sceneManager.UseEncounterConsumable("酒"), "喝酒");
+            }
+            else if (handInteraction.TurnClicked)
             {
                 if (IsInEncounter)
                 {
                     _state.ClearAllNodeSlots();
                     _state.SelectedResource = null;
-                    _sceneManager.EndTurn();
-                    StartPresentation(CreateEndTurnReport(), "休息");
+                    StartPresentation(_sceneManager.EndTurn(), "休息");
                 }
                 else
                 {
@@ -810,8 +804,7 @@ namespace SSNoir.Rendering
                     _state.IsTurnPanelOpen = false;
                     _state.ClearAllNodeSlots();
                     _state.SelectedResource = null;
-                    _sceneManager.EndTurn();
-                    StartPresentation(CreateEndTurnReport(), "休息");
+                    StartPresentation(_sceneManager.EndTurn(), "休息");
                 }
                 else if (turnPanelInteraction.ShouldClose)
                 {
@@ -1165,8 +1158,7 @@ namespace SSNoir.Rendering
                     node.Tags,
                     node.Requires,
                     node.Resolve?.Type == ResolveType.Roll ? node.Resolve.SkillName : null,
-                    _state.DisplayedSnapshot.Actors,
-                    node.Resolve?.IgnoresStressPenalty == true);
+                    _state.DisplayedSnapshot.Actors);
                 if (node.Resolve?.Type != ResolveType.Roll) continue;
 
                 float attachment = 0f;
@@ -1232,8 +1224,7 @@ namespace SSNoir.Rendering
                         cardNode.Tags,
                         cardNode.Requires,
                         rollSkill,
-                        _state.DisplayedSnapshot.Actors,
-                        cardNode.Resolve?.IgnoresStressPenalty == true);
+                        _state.DisplayedSnapshot.Actors);
                 }
                 var bounds = new Rectangle(x, y, cardWidth, nodeCardHeight);
                 bool isHovered = ui.CanHover(bounds);
@@ -1313,8 +1304,7 @@ namespace SSNoir.Rendering
                     residue,
                     node.Disabled,
                     node.Resolve?.Type == ResolveType.Roll ? node.Resolve.SkillName : null,
-                    _state.DisplayedSnapshot.Actors,
-                    node.Resolve?.IgnoresStressPenalty == true);
+                    _state.DisplayedSnapshot.Actors);
 
                 if (interaction.CardClicked)
                 {

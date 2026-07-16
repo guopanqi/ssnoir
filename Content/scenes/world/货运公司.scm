@@ -20,7 +20,7 @@
       (make-trouble "货运公司麻烦" 3
         (lambda ()
           (spend-up-to! "金钱" 12)
-          (stress-current-actor! 1)
+          (spend-composure! 1)
           (notify! "有人在公司门口泼了漆，清理这笔账只能自己出。"))))
 
     (define (maybe-notify-company-trouble!)
@@ -35,7 +35,7 @@
         (outcome "谈成一单" "条件不算漂亮，但双方都肯点头，你拿到一份普通佣金。"
           (lambda () (add-item! "金钱" 6) (maybe-notify-company-trouble!)))
         (outcome "两头落空" "货主和船东都不肯让步，你在两边之间白跑了一天。"
-          (lambda () (stress-current-actor! 1) (maybe-notify-company-trouble!)))))
+          (lambda () (spend-composure! 1) (maybe-notify-company-trouble!)))))
 
     (define (node-handle-trouble)
       (action "摆平货运公司的麻烦"
@@ -67,7 +67,7 @@
         (list (req-die) (req-item "金钱" 10))
         (roll 'social
           (outcome "话不投机" "钱花了，桌上的气氛却越来越冷。"
-            (lambda () (stress-current-actor! 1)))
+            (lambda () (spend-composure! 1)))
           (outcome "谈到生意" "代理人终于把一项货运周转的机会告诉了你。"
             (lambda () (finish-agent-dinner!)))
           (outcome "条件不错" "你听出了他真正缺的东西，也拿到了更好的开场条件。"
@@ -78,7 +78,7 @@
         (list (req-die))
         (roll 'sharpness
           (outcome "没看出问题" "条款绕得太深，你只能先放下。"
-            (lambda () (stress-current-actor! 1)))
+            (lambda () (spend-composure! 1)))
           (outcome "看清风险" "你找到了真正需要承担的风险，也知道该怎么谈。"
             (lambda () (unlock-agent-project!)))
           (outcome "抓住缺口" "你指出条款里的缺口，代理人终于把你当作谈判对手。"
@@ -107,7 +107,7 @@
         (list (req-die))
         (roll 'social
           (outcome "没谈拢" "代理人不肯松口。时间花了，条件没有变化。"
-            (lambda () (stress-current-actor! 1)))
+            (lambda () (spend-composure! 1)))
           (outcome "接受条件" "双方按原来的条件成交，项目可以投入了。"
             (lambda ()
               (if (not (equal? project-state "已考察"))
