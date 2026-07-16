@@ -12,17 +12,21 @@
         (list (req-die))
         'sharpness
         (outcome "心不在焉" "走是走了，脑子里那些事却怎么也甩不掉。" ; 坏
-          (lambda () #f))
+          (lambda () (walter 'on-park-walk!)))
         (outcome "松了口气" "沿着湖边走了一圈，风把脑子里的杂音吹散了些。" ; 中
-          (lambda () (restore-actor-composure! 'player 1)))
+          (lambda ()
+            (restore-actor-composure! 'player 1)
+            (walter 'on-park-walk!)))
         (outcome "神清气爽" "阳光、湖水、远处飘来的乐声。你久违地觉得轻快。" ; 好
-          (lambda () (restore-actor-composure! 'player 2)))))
+          (lambda ()
+            (restore-actor-composure! 'player 2)
+            (walter 'on-park-walk!)))))
 
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list (container "公园" (append (list (node-walk)) (walter 'park-nodes)))))
+           (list (container "公园" (list (node-walk)))))
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)
           (#t #f))))))

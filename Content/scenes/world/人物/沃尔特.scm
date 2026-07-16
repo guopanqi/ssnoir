@@ -7,20 +7,18 @@
     (define claim-result "无")
     (define identity "保险公司的理赔调查员")
 
-    (define (park-nodes)
+    (define (on-park-walk!)
       (if (and (= stage 0) (>= world-day 8))
-          (list
-            (node "和公园里的陌生人谈谈"
-              :subtitle "一名穿着整齐、手里夹着保险宣传册的男人"
-              :resolve (instant (lambda ()
-                (set! stage 1)
-                (play-dialogue!
-                  (line "沃尔特" "沃尔特·芬奇。我替保险公司跑外勤。意外不会先敲门，保单至少会在事后出现。")
-                  (line "主角" "我暂时不打算买保险。")
-                  (line "沃尔特" "可惜。不过我听说，你替人查一些不愿意见光的事。")
-                  (line "沃尔特" "码头有个人申请伤残理赔。表格很完整，他的伤却完整得让我起疑。你愿意替我看看吗？"))
-                (spotlight! "沃尔特·芬奇" "你在公园认识了保险公司的理赔调查员沃尔特。保险公司开放，那里有一桩疑似骗保的案子。")))))
-          '()))
+          (begin
+            (set! stage 1)
+            (play-dialogue!
+              (line "世界" "你沿着湖边走到长椅旁，一个穿着整齐、手里夹着保险宣传册的男人叫住了你。")
+              (line "沃尔特" "沃尔特·芬奇。我替保险公司跑外勤。意外不会先敲门，保单至少会在事后出现。")
+              (line "主角" "我暂时不打算买保险。")
+              (line "沃尔特" "可惜。不过我听说，你替人查一些不愿意见光的事。")
+              (line "沃尔特" "码头有个人申请伤残理赔。表格很完整，他的伤却完整得让我起疑。你愿意替我看看吗？"))
+            (spotlight! "沃尔特·芬奇" "一次散步中，你认识了保险公司的理赔调查员沃尔特。保险公司开放，那里有一桩疑似骗保的案子。"))
+          #f))
 
     (define (on-claim-result result)
       (if (or (equal? result 'confirmed) (equal? result 'mercy))
@@ -52,7 +50,7 @@
     (lambda args
       (let ((msg (car args)))
         (cond
-          ((equal? msg 'park-nodes) (park-nodes))
+          ((equal? msg 'on-park-walk!) (on-park-walk!))
           ((equal? msg 'nodes) (nodes))
           ((equal? msg 'known?) (>= stage 1))
           ((equal? msg 'can-arrange-berth?) (= stage 2))

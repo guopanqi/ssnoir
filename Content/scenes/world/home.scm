@@ -86,7 +86,7 @@
           (outcome "上了药" "重新缠好绷带，伤口总算消停些。"
             (lambda ()
               (set! medicated-today? #t)
-              (heal-party! 3))))))
+              (heal-party! 2))))))
 
     (define (node-see-flower)
       (action "看花"
