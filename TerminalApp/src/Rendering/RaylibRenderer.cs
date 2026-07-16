@@ -1263,43 +1263,54 @@ namespace SSNoir.Rendering
             float viewportBottom = WindowHeight - HandPanelWidget.PanelHeight - 8f;
             float viewportHeight = Math.Max(0f, viewportBottom - viewportTop);
             var viewport = new Rectangle(0, viewportTop, WindowWidth, viewportHeight);
-            int rowCount = totalCards == 0
-                ? 0
-                : (totalCards + cardsPerRow - 1) / cardsPerRow;
-            var rowHeights = Enumerable.Repeat(defaultCardHeight, rowCount).ToArray();
-            for (int i = 0; i < visibleNodes.Count; i++)
-            {
-                var node = visibleNodes[i];
-                float nodeCardHeight = CardWidget.GetMinimumHeight(
-                    node.Subtitle,
-                    node.Tags,
-                    node.Requires,
-                    node.Resolve?.Type == ResolveType.Roll ? node.Resolve.SkillName : null,
-                    _state.DisplayedSnapshot.Actors);
-                if (node.Resolve?.Type != ResolveType.Roll) continue;
 
+            // 固定列瀑布流：列号仍按 i % cardsPerRow 走，顺序和之前一样、逐帧稳定；
+            // 但每列的纵向位置只跟着本列自己已经摆下的卡片（含掷骰/结算挂件）累加，
+            // 矮卡不会再被同一"行"里最高的卡片拖着在下面留一大块空白。
+            var columnHeights = new float[cardsPerRow];
+            var cardOwnHeight = new float[totalCards]; // 卡片自身高度，传给 DrawCard 的 bounds
+            var cardFootprint = new float[totalCards]; // 自身高度 + 掷骰/结算挂件，用于瀑布流排布与滚动范围
+            var cardY = new float[totalCards];
+            for (int i = 0; i < totalCards; i++)
+            {
+                float ownHeight = defaultCardHeight;
                 float attachment = 0f;
-                bool activeLocalRoll = _state.ActiveRollResult != null
-                    && !ActiveRollUsesModal()
-                    && string.Equals(_state.ActiveRollActionName, node.Name, StringComparison.OrdinalIgnoreCase);
-                if (activeLocalRoll) attachment = 68f;
-                else if (_state.CardResidues.TryGetValue(node.Name, out var residue))
-                    attachment = CardWidget.ResidueAttachmentHeight(residue) + 10f;
-                else if (_state.NodeSlots.TryGetValue(node.Name, out var previewSlots)
-                         && previewSlots.Any(slot => slot?.Type == "die")) attachment = 64f;
+                if (i < visibleNodes.Count)
+                {
+                    var node = visibleNodes[i];
+                    ownHeight = CardWidget.GetMinimumHeight(
+                        node.Subtitle,
+                        node.Tags,
+                        node.Requires,
+                        node.Resolve?.Type == ResolveType.Roll ? node.Resolve.SkillName : null,
+                        _state.DisplayedSnapshot.Actors,
+                        node.Clocks,
+                        cardWidth,
+                        node.Resolve?.Type == ResolveType.Instant,
+                        node.Resolve?.DifficultyModifiers);
 
-                int row = i / cardsPerRow;
-                rowHeights[row] = Math.Max(rowHeights[row], nodeCardHeight + attachment);
+                    if (node.Resolve?.Type == ResolveType.Roll)
+                    {
+                        bool activeLocalRoll = _state.ActiveRollResult != null
+                            && !ActiveRollUsesModal()
+                            && string.Equals(_state.ActiveRollActionName, node.Name, StringComparison.OrdinalIgnoreCase);
+                        if (activeLocalRoll) attachment = 68f;
+                        else if (_state.CardResidues.TryGetValue(node.Name, out var residue))
+                            attachment = CardWidget.ResidueAttachmentHeight(residue) + 10f;
+                        else if (_state.NodeSlots.TryGetValue(node.Name, out var previewSlots)
+                                 && previewSlots.Any(slot => slot?.Type == "die")) attachment = 64f;
+                    }
+                }
+
+                int col = i % cardsPerRow;
+                if (columnHeights[col] > 0f) columnHeights[col] += spacing;
+                cardY[i] = columnHeights[col];
+                cardOwnHeight[i] = ownHeight;
+                cardFootprint[i] = ownHeight + attachment;
+                columnHeights[col] += cardFootprint[i];
             }
 
-            var rowOffsets = new float[rowCount];
-            float contentHeight = 0f;
-            for (int row = 0; row < rowCount; row++)
-            {
-                rowOffsets[row] = contentHeight;
-                contentHeight += rowHeights[row];
-                if (row < rowCount - 1) contentHeight += spacing;
-            }
+            float contentHeight = cardsPerRow > 0 ? columnHeights.Max() : 0f;
             float maxScroll = Math.Max(0f, contentHeight - viewportHeight);
 
             bool mouseInViewport = ui.CanHover(viewport);
@@ -1318,32 +1329,17 @@ namespace SSNoir.Rendering
 
             for (int i = 0; i < totalCards; i++)
             {
-                int row = i / cardsPerRow;
                 int col = i % cardsPerRow;
 
                 float x = startX + col * (cardWidth + spacing);
-                float y = startY + rowOffsets[row] - _state.CardsScrollOffset;
+                float y = startY + cardY[i] - _state.CardsScrollOffset;
 
-                if (y > viewportBottom || y + rowHeights[row] < viewportTop)
+                if (y > viewportBottom || y + cardFootprint[i] < viewportTop)
                 {
                     continue;
                 }
 
-                float nodeCardHeight = defaultCardHeight;
-                if (i < visibleNodes.Count)
-                {
-                    var cardNode = visibleNodes[i];
-                    string? rollSkill = cardNode.Resolve is { Type: ResolveType.Roll } resolve
-                        ? resolve.SkillName
-                        : null;
-                    nodeCardHeight = CardWidget.GetMinimumHeight(
-                        cardNode.Subtitle,
-                        cardNode.Tags,
-                        cardNode.Requires,
-                        rollSkill,
-                        _state.DisplayedSnapshot.Actors);
-                }
-                var bounds = new Rectangle(x, y, cardWidth, nodeCardHeight);
+                var bounds = new Rectangle(x, y, cardWidth, cardOwnHeight[i]);
                 bool isHovered = ui.CanHover(bounds);
 
                 if (i >= visibleNodes.Count)

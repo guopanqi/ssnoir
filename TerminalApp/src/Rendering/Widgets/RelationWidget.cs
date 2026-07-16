@@ -13,12 +13,19 @@ namespace SSNoir.Rendering
         private static readonly Color[] BandColors =
         {
             new Color(186, 66, 62, 255),
-            new Color(145, 105, 135, 255),
-            new Color(132, 136, 150, 255),
+            new Color(165, 120, 154, 255),
+            new Color(158, 162, 178, 255),
             TerminalPalette.Accent,
             new Color(150, 176, 168, 255),
             TerminalPalette.AccentBright,
         };
+
+        // 折叠栏背景很暗，直接用 BandColors 太暗读不清；文字单独调亮，不影响展开面板里同一套颜色的轨道/图表用途。
+        private static Color Brighten(Color c, float amount)
+        {
+            byte Lerp(byte channel) => (byte)Math.Min(255, channel + (255 - channel) * amount);
+            return new Color(Lerp(c.R), Lerp(c.G), Lerp(c.B), c.A);
+        }
 
         // 某势力在指定档位序号上的显示名：正面三档取内容层定制称呼，其余用通用档名。
         private static string BandDisplay(PresentationSnapshot snapshot, string faction, int band)
@@ -61,7 +68,7 @@ namespace SSNoir.Rendering
             {
                 int value = state.DisplayedSnapshot.Relations.TryGetValue(Factions[i], out int v) ? v : 0;
                 int band = RelationScale.BandIndex(value);
-                FontManager.DrawText($"{Factions[i]} {value}", itemX + i * itemW, topY + 8f, 9, BandColors[band]);
+                FontManager.DrawText($"{Factions[i]} {value}", itemX + i * itemW, topY + 7f, 11, Brighten(BandColors[band], 0.4f));
             }
             if (ui.WasClicked(rect))
             {

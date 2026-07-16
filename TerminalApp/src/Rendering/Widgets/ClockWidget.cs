@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Numerics;
 using Raylib_cs;
 using SSNoir.Core;
 
@@ -6,6 +7,14 @@ namespace SSNoir.Rendering
 {
     public static class ClockWidget
     {
+        private const float Margin = 40f;
+        private const float LabelColumnWidth = 105f;
+        private const float ClockGap = 28f;
+        private const float NoteMaxWidth = 200f;
+        private const int NoteFontSize = 12;
+        private const float NoteLineHeight = 15f;
+        private const int NoteMaxLines = 3;
+
         public static float Draw(RendererState state, float y, float windowWidth)
         {
             var clocksToShow = new List<GameClock>();
@@ -24,32 +33,88 @@ namespace SSNoir.Rendering
 
             if (clocksToShow.Count == 0)
             {
-                FontManager.DrawText("当前节点状态: ", 40f, y, 14, new Color(150, 150, 170, 255));
+                FontManager.DrawText("当前节点状态: ", Margin, y, 14, new Color(150, 150, 170, 255));
                 FontManager.DrawText("—", 145f, y, 14, new Color(90, 94, 110, 255));
-                Raylib.DrawLineEx(new System.Numerics.Vector2(40f, y + 43f),
-                    new System.Numerics.Vector2(windowWidth - 40f, y + 43f),
+                Raylib.DrawLineEx(new Vector2(Margin, y + 43f),
+                    new Vector2(windowWidth - Margin, y + 43f),
                     1f, new Color(50, 50, 60, 255));
                 return y + 58f;
             }
 
-            float x = 40f;
-            FontManager.DrawText("当前节点状态: ", x, y, 14, new Color(150, 150, 170, 255));
-            x += 105;
+            FontManager.DrawText("当前节点状态: ", Margin, y, 14, new Color(150, 150, 170, 255));
+
+            float x = Margin + LabelColumnWidth;
+            float rowHeight = 0f;
 
             foreach (var clock in clocksToShow)
             {
-                DrawDetailedClock(ref x, y, clock);
+                var layout = MeasureClock(clock, NoteMaxWidth);
+                DrawDetailedClock(x, y, clock, layout);
+                x += layout.Width + ClockGap;
+                if (layout.Height > rowHeight)
+                {
+                    rowHeight = layout.Height;
+                }
             }
 
-            float dividerY = y + 43f;
-            Raylib.DrawLineEx(new System.Numerics.Vector2(40, dividerY), new System.Numerics.Vector2(windowWidth - 40, dividerY), 1.0f, new Color(50, 50, 60, 255));
+            float dividerY = y + rowHeight + 6f;
+            Raylib.DrawLineEx(new Vector2(Margin, dividerY), new Vector2(windowWidth - Margin, dividerY), 1.0f, new Color(50, 50, 60, 255));
 
-            return y + 58f;
+            return dividerY + 15f;
         }
 
-        private static void DrawDetailedClock(ref float x, float y, GameClock clock)
+        private struct ClockLayout
         {
-            float startX = x;
+            public float Width;
+            public float Height;
+            public List<string> NoteLines;
+        }
+
+        private static ClockLayout MeasureClock(GameClock clock, float noteWrapWidth)
+        {
+            int labelWidth = FontManager.MeasureTextWidth(clock.Label, 16);
+            float contentWidth = labelWidth + 8;
+
+            if (clock.Style == ClockStyle.Pie)
+            {
+                float radius = 10f;
+                string frac = $"{clock.Current}/{clock.Max}";
+                int fracW = FontManager.MeasureTextWidth(frac, 14);
+                contentWidth += radius * 2 + 6 + fracW;
+            }
+            else if (clock.Style == ClockStyle.Countdown)
+            {
+                float boxW = 22;
+                string maxStr = $"/{clock.Max}";
+                int maxW = FontManager.MeasureTextWidth(maxStr, 14);
+                contentWidth += boxW + 4 + maxW;
+            }
+            else
+            {
+                contentWidth += clock.Max * 14;
+            }
+
+            var noteLines = new List<string>();
+            float noteWidth = 0f;
+            if (!string.IsNullOrEmpty(clock.Note))
+            {
+                float wrapWidth = System.Math.Max(contentWidth, noteWrapWidth);
+                noteLines = WrapTextLines(clock.Note, wrapWidth, NoteFontSize);
+                noteLines = ClampWrappedLines(noteLines, NoteMaxLines, wrapWidth, NoteFontSize);
+                foreach (var line in noteLines)
+                {
+                    noteWidth = System.Math.Max(noteWidth, FontManager.MeasureTextWidth(line, NoteFontSize));
+                }
+            }
+
+            float width = System.Math.Max(contentWidth, noteWidth);
+            float height = noteLines.Count > 0 ? 22f + noteLines.Count * NoteLineHeight : 37f;
+
+            return new ClockLayout { Width = width, Height = height, NoteLines = noteLines };
+        }
+
+        private static void DrawDetailedClock(float x, float y, GameClock clock, ClockLayout layout)
+        {
             Color textColor = new Color(200, 200, 220, 255);
             Color activeColor = new Color(130, 130, 250, 255);
             Color inactiveColor = new Color(45, 45, 55, 255);
@@ -62,8 +127,8 @@ namespace SSNoir.Rendering
             if (clock.Style == ClockStyle.Pie)
             {
                 float radius = 10f;
-                var center = new System.Numerics.Vector2(contentX + radius, y + 8);
-                
+                var center = new Vector2(contentX + radius, y + 8);
+
                 Raylib.DrawCircleLines((int)center.X, (int)center.Y, radius, outlineColor);
                 if (clock.Max > 0 && clock.Current > 0)
                 {
@@ -75,16 +140,13 @@ namespace SSNoir.Rendering
 
                 string frac = $"{clock.Current}/{clock.Max}";
                 FontManager.DrawText(frac, contentX + radius * 2 + 6, y, 14, textColor);
-                int fracW = FontManager.MeasureTextWidth(frac, 14);
-
-                x += labelWidth + 8 + radius * 2 + 6 + fracW + 20;
             }
             else if (clock.Style == ClockStyle.Countdown)
             {
                 float boxW = 22;
                 float boxH = 18;
                 var boxRect = new Rectangle(contentX, y, boxW, boxH);
-                
+
                 Raylib.DrawRectangleRounded(boxRect, 0.2f, 4, inactiveColor);
                 Raylib.DrawRectangleRoundedLinesEx(boxRect, 0.2f, 4, 1f, outlineColor);
 
@@ -94,9 +156,6 @@ namespace SSNoir.Rendering
 
                 string maxStr = $"/{clock.Max}";
                 FontManager.DrawText(maxStr, contentX + boxW + 4, y + 2, 14, new Color(120, 120, 140, 255));
-                int maxW = FontManager.MeasureTextWidth(maxStr, 14);
-
-                x += labelWidth + 8 + boxW + 4 + maxW + 20;
             }
             else
             {
@@ -113,16 +172,73 @@ namespace SSNoir.Rendering
                         Raylib.DrawRectangleRoundedLinesEx(segRect, 0.3f, 4, 1f, outlineColor);
                     }
                 }
-
-                x += labelWidth + 8 + clock.Max * 14 + 20;
             }
 
-            if (!string.IsNullOrEmpty(clock.Note))
+            for (int i = 0; i < layout.NoteLines.Count; i++)
             {
-                FontManager.DrawText(clock.Note, startX, y + 22f, 12, new Color(135, 140, 160, 255));
-                int noteWidth = FontManager.MeasureTextWidth(clock.Note, 12);
-                x = System.Math.Max(x, startX + noteWidth + 20f);
+                FontManager.DrawText(layout.NoteLines[i], x, y + 22f + i * NoteLineHeight, NoteFontSize, new Color(135, 140, 160, 255));
             }
+        }
+
+        private static List<string> WrapTextLines(string text, float width, int fontSize)
+        {
+            var lines = new List<string>();
+            string currentLine = "";
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (c == '\n')
+                {
+                    lines.Add(currentLine);
+                    currentLine = "";
+                    continue;
+                }
+
+                string testLine = currentLine + c;
+                int testW = FontManager.MeasureTextWidth(testLine, fontSize);
+                if (testW > width)
+                {
+                    if (currentLine.Length > 0)
+                    {
+                        lines.Add(currentLine);
+                        currentLine = c.ToString();
+                    }
+                    else
+                    {
+                        lines.Add(testLine);
+                        currentLine = string.Empty;
+                    }
+                }
+                else
+                {
+                    currentLine = testLine;
+                }
+            }
+
+            if (currentLine.Length > 0)
+            {
+                lines.Add(currentLine);
+            }
+
+            return lines;
+        }
+
+        private static List<string> ClampWrappedLines(List<string> lines, int maxLines, float width, int fontSize)
+        {
+            if (lines.Count <= maxLines)
+            {
+                return lines;
+            }
+
+            var visible = lines.GetRange(0, maxLines);
+            string last = visible[maxLines - 1];
+            while (last.Length > 0 && FontManager.MeasureTextWidth(last + "…", fontSize) > width)
+            {
+                last = last.Substring(0, last.Length - 1);
+            }
+            visible[maxLines - 1] = last + "…";
+            return visible;
         }
     }
 }

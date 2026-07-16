@@ -12,6 +12,28 @@ namespace SSNoir.Rendering
         private const float ActorAbilityChipHeight = 20f;
         private const float ActorAbilityChipGap = 5f;
 
+        // 下面这组常量在 DrawCard 的实际绘制流程和 GetMinimumHeight/GetTagPushDown/GetClockPushDown
+        // 的"预测"流程里各用一份——两边算的是同一件事（标题往下依次排开多少），数字必须对得上，
+        // 否则又会出现内容画出来了、卡片高度却没跟上的那类 bug。改这些数字时两边一起改。
+        private const int TitleFontSize = 18;
+        private const float TitleTopY = 8f;              // 贴顶布局标题的 Y（showButton == true 时）
+        private const float TitleToSubtitleGap = TitleFontSize + 8f;
+        private const int SubtitleFontSize = 13;
+        private const float SubtitleHorizontalMargin = 24f; // 副标题换行宽度 = 卡宽 - 这个值
+        private const float ControlYBaseWithSubtitle = 78f; // 判定卡（有槽位）控制行的默认起点
+        private const float ControlYBaseNoSubtitle = 64f;
+        private const float SimpleButtonYBaseWithSubtitle = 84f; // 纯按钮卡（无槽位）按钮的默认起点
+        private const float SimpleButtonYBaseNoSubtitle = 70f;
+        private const float SlotHeight = 32f;
+        private const float SlotButtonHeight = 20f;
+        private const float SimpleButtonHeight = 18f;
+        private const float ControlToButtonGap = 8f;
+        private const float CardBottomPadding = 12f;
+        private const float CenteredTitleOffsetWithSubtitle = 28f; // 居中布局：标题 Y = 卡高/2 - 这个偏移
+        private const float CenteredTitleOffsetNoSubtitle = 15f;
+        private const int MaxSubtitleLines = 2;
+        private const int MinSubtitleFontSize = 10;
+
         public struct CardInteraction
         {
             public bool CardClicked;
@@ -100,6 +122,7 @@ namespace SSNoir.Rendering
             Raylib.DrawRectangleRoundedLinesEx(bounds, 0.1f, 8, 2f, outlineColor);
 
             // Draw Clocks Badges
+            float clocksBottomY = bounds.Y;
             if (clocks != null && clocks.Count > 0)
             {
                 float badgeX = bounds.X + 6f;
@@ -116,6 +139,7 @@ namespace SSNoir.Rendering
                     DrawClockBadge(new Rectangle(badgeX, badgeY, badgeW, 16f), clock);
                     badgeX += badgeW + 4f;
                 }
+                clocksBottomY = badgeY + 16f;
             }
 
             // 如果是容器（container），抹除显示以提升卡牌视觉高级感
@@ -129,27 +153,30 @@ namespace SSNoir.Rendering
 
             // Draw Title text (centered, adjusted upwards if card has slots/button)
             bool hasSubtitle = !string.IsNullOrWhiteSpace(subtitle);
-            int titleFontSize = 18;
-            int titleWidth = FontManager.MeasureTextWidth(name, titleFontSize);
+            int titleWidth = FontManager.MeasureTextWidth(name, TitleFontSize);
             float titleX = bounds.X + (bounds.Width - titleWidth) / 2f;
-            float titleY = showButton 
-                ? bounds.Y + 8
-                : bounds.Y + (bounds.Height / 2f) - (hasSubtitle ? 28 : 15);
-            FontManager.DrawText(name, titleX, titleY, titleFontSize, titleColor);
+            float titleY = showButton
+                ? bounds.Y + TitleTopY
+                : bounds.Y + (bounds.Height / 2f) - (hasSubtitle ? CenteredTitleOffsetWithSubtitle : CenteredTitleOffsetNoSubtitle);
+            if (clocks != null && clocks.Count > 0)
+            {
+                titleY = Math.Max(titleY, clocksBottomY + 4f);
+            }
+            FontManager.DrawText(name, titleX, titleY, TitleFontSize, titleColor);
 
-            int subtitleFontSize = 13;
+            int subtitleFontSize = SubtitleFontSize;
             List<string> subtitleLines = new();
-            float subtitleY = titleY + 26;
+            float subtitleY = titleY + TitleToSubtitleGap;
             if (hasSubtitle)
             {
-                float subtitleWidth = bounds.Width - 24f;
+                float subtitleWidth = bounds.Width - SubtitleHorizontalMargin;
                 subtitleLines = WrapTextLines(subtitle, subtitleWidth, subtitleFontSize);
-                while (subtitleLines.Count > 2 && subtitleFontSize > 10)
+                while (subtitleLines.Count > MaxSubtitleLines && subtitleFontSize > MinSubtitleFontSize)
                 {
                     subtitleFontSize--;
                     subtitleLines = WrapTextLines(subtitle, subtitleWidth, subtitleFontSize);
                 }
-                subtitleLines = ClampWrappedLines(subtitleLines, 2, subtitleWidth, subtitleFontSize);
+                subtitleLines = ClampWrappedLines(subtitleLines, MaxSubtitleLines, subtitleWidth, subtitleFontSize);
 
                 for (int i = 0; i < subtitleLines.Count; i++)
                 {
@@ -162,8 +189,8 @@ namespace SSNoir.Rendering
 
             float subtitleBottom = hasSubtitle
                 ? subtitleY + subtitleLines.Count * (subtitleFontSize + 4)
-                : titleY + 26;
-            float rollControlY = bounds.Y + (hasSubtitle ? 78f : 64f);
+                : titleY + TitleToSubtitleGap;
+            float rollControlY = bounds.Y + (hasSubtitle ? ControlYBaseWithSubtitle : ControlYBaseNoSubtitle);
             if (hasSubtitle)
                 rollControlY = Math.Max(rollControlY, subtitleBottom + 16f);
 
@@ -232,7 +259,7 @@ namespace SSNoir.Rendering
             if (hasRequires)
             {
                 int M = requires!.Count;
-                float slotH = 32;
+                float slotH = SlotHeight;
                 float spacing = 8;
                 float totalWidth = 0f;
                 for (int j = 0; j < M; j++)
@@ -288,10 +315,10 @@ namespace SSNoir.Rendering
 
                 // Draw Execute Button
                 float exeW = 84;
-                float exeH = 20;
+                float exeH = SlotButtonHeight;
                 float exeX = bounds.X + (bounds.Width - exeW) / 2f;
                 // 槽位高 32px；其后保留明确的 8px 呼吸空间。
-                float exeY = slotY + slotH + 8f;
+                float exeY = slotY + slotH + ControlToButtonGap;
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
                 executeBottomY = exeY + exeH;
 
@@ -318,14 +345,14 @@ namespace SSNoir.Rendering
             {
                 // For instant-action cards (no requirements, but show button)
                 float exeW = 80;
-                float exeH = 18;
+                float exeH = SimpleButtonHeight;
                 float exeX = bounds.X + (bounds.Width - exeW) / 2f;
-                float exeY = bounds.Y + (hasSubtitle ? 84 : 70);
+                float exeY = bounds.Y + (hasSubtitle ? SimpleButtonYBaseWithSubtitle : SimpleButtonYBaseNoSubtitle);
                 if (hasSubtitle)
                 {
                     exeY = Math.Max(exeY, subtitleBottom + 12);
                 }
-                exeY = Math.Max(exeY, tagBottomY + 8f);
+                exeY = Math.Max(exeY, tagBottomY + ControlToButtonGap);
                 var exeRect = new Rectangle(exeX, exeY, exeW, exeH);
 
                 if (isExecuting)
@@ -407,44 +434,107 @@ namespace SSNoir.Rendering
         /// of overlapping its resource controls.
         /// </summary>
         public static float GetMinimumHeight(string subtitle, List<string>? tags,
-            List<ActionCost>? requires, string? rollSkill, IReadOnlyList<ActorSnapshot>? actors)
+            List<ActionCost>? requires, string? rollSkill, IReadOnlyList<ActorSnapshot>? actors,
+            List<GameClock>? clocks = null, float cardWidth = 240f, bool isInstant = false,
+            List<DifficultyModifierInfo>? modifiers = null)
         {
-            if (string.IsNullOrEmpty(rollSkill) || requires == null || requires.Count == 0 || actors == null)
+            // 与 DrawCard 的 showButton 判定保持一致，这样徽标要不要把卡片撑高才会跟实际绘制时的标题位置对得上。
+            bool hasRequires = requires != null && requires.Count > 0;
+            bool showButton = hasRequires || isInstant;
+            bool hasSubtitle = !string.IsNullOrWhiteSpace(subtitle);
+            float clockPushDown = GetClockPushDown(clocks, cardWidth, showButton, hasSubtitle);
+
+            bool qualifiesForRollLayout = !string.IsNullOrEmpty(rollSkill) && hasRequires && actors != null;
+            int activeActorCount = qualifiesForRollLayout
+                ? actors!.Count(actor => actor.Status != "away" && actor.Stats.ContainsKey(rollSkill!))
+                : 0;
+
+            if (!qualifiesForRollLayout || activeActorCount == 0)
             {
-                return DefaultCardHeight;
+                // 没有可用角色（或本来就不是判定卡）时 DrawCard 仍会画标签，甚至画完整的槽位/按钮，
+                // 只是不会有能力轨道——这里补上标签会不会把内容顶出默认高度的判断。
+                float tagPushDown = GetTagPushDown(tags, cardWidth, showButton, hasSubtitle, subtitle, hasRequires);
+                return DefaultCardHeight + clockPushDown + tagPushDown;
             }
 
-            int activeActorCount = actors.Count(actor => actor.Status != "away" && actor.Stats.ContainsKey(rollSkill));
-            if (activeActorCount == 0)
-            {
-                return DefaultCardHeight;
-            }
+            float subtitleBottom = MeasureSubtitleBottom(subtitle, TitleTopY, hasSubtitle, cardWidth);
 
-            const int titleFontSize = 18;
-            int subtitleFontSize = 13;
-            float subtitleBottom = 8f + titleFontSize + 8f;
-            if (!string.IsNullOrWhiteSpace(subtitle))
-            {
-                var subtitleLines = WrapTextLines(subtitle, 216f, subtitleFontSize);
-                while (subtitleLines.Count > 2 && subtitleFontSize > 10)
-                {
-                    subtitleFontSize--;
-                    subtitleLines = WrapTextLines(subtitle, 216f, subtitleFontSize);
-                }
-                subtitleLines = ClampWrappedLines(subtitleLines, 2, 216f, subtitleFontSize);
-                subtitleBottom = 8f + titleFontSize + 8f + subtitleLines.Count * (subtitleFontSize + 4);
-            }
-
-            float reservedRailWidth = GetActorAbilityRailReservedWidth(rollSkill, actors);
-            float tagBottom = MeasureNodeTagsBottom(248f - reservedRailWidth, tags, subtitleBottom + 8f);
+            float reservedRailWidth = GetActorAbilityRailReservedWidth(rollSkill!, actors!);
+            float tagBottom = MeasureNodeTagsBottom(cardWidth - reservedRailWidth, tags, subtitleBottom + 8f);
             float railTop = subtitleBottom + 8f;
             float railBottom = railTop + activeActorCount * ActorAbilityChipHeight
                 + Math.Max(0, activeActorCount - 1) * ActorAbilityChipGap;
-            float rollControlY = Math.Max(string.IsNullOrWhiteSpace(subtitle) ? 64f : 78f, subtitleBottom + 16f);
-            float controlY = Math.Max(rollControlY, railBottom + 8f);
+            float rollControlY = Math.Max(hasSubtitle ? ControlYBaseWithSubtitle : ControlYBaseNoSubtitle, subtitleBottom + 16f);
+            float controlY = Math.Max(rollControlY, Math.Max(railBottom + 8f, tagBottom + 8f));
+
+            // 难度修正标签紧贴在工作/风险标签下方纵向堆叠（每条 20px），条数一多也会顶到槽位。
+            int modifierCount = modifiers?.Count ?? 0;
+            if (modifierCount > 0)
+            {
+                float modifiersBottom = Math.Max(subtitleBottom + 8f, tagBottom + 4f) + modifierCount * 20f;
+                controlY = Math.Max(controlY, modifiersBottom + 8f);
+            }
 
             // 槽位、按钮以及卡片底部的最小呼吸空间。
-            return Math.Max(DefaultCardHeight, controlY + 32f + 8f + 20f + 12f);
+            return Math.Max(DefaultCardHeight, controlY + SlotHeight + ControlToButtonGap + SlotButtonHeight + CardBottomPadding) + clockPushDown;
+        }
+
+        // 副标题占用的高度：贴顶布局标题固定在 titleY，副标题紧随其后并按同一套换行/收缩规则处理。
+        // cardWidth 必须传实际卡宽——之前这里长期写死 216f，跟 DrawCard 用的 bounds.Width-24 只在卡宽正好
+        // 是 240 时凑巧一致，一旦卡宽换了两边就会悄悄对不上。
+        private static float MeasureSubtitleBottom(string subtitle, float titleY, bool hasSubtitle, float cardWidth)
+        {
+            if (!hasSubtitle)
+            {
+                return titleY + TitleToSubtitleGap;
+            }
+
+            float subtitleWidth = cardWidth - SubtitleHorizontalMargin;
+            int subtitleFontSize = SubtitleFontSize;
+            var lines = WrapTextLines(subtitle, subtitleWidth, subtitleFontSize);
+            while (lines.Count > MaxSubtitleLines && subtitleFontSize > MinSubtitleFontSize)
+            {
+                subtitleFontSize--;
+                lines = WrapTextLines(subtitle, subtitleWidth, subtitleFontSize);
+            }
+            lines = ClampWrappedLines(lines, MaxSubtitleLines, subtitleWidth, subtitleFontSize);
+            return titleY + TitleToSubtitleGap + lines.Count * (subtitleFontSize + 4);
+        }
+
+        // 标签把内容往下顶多少：贴顶布局用该分支实际会画的按钮/槽位落点反推；居中布局只要标签
+        // 自然伸展的高度别超过默认高度即可，超多少补多少（跟 GetClockPushDown 的两套逻辑呼应）。
+        private static float GetTagPushDown(List<string>? tags, float cardWidth, bool showButton,
+            bool hasSubtitle, string subtitle, bool hasRequires)
+        {
+            if (tags == null || tags.Count == 0) return 0f;
+
+            if (showButton)
+            {
+                float subtitleBottom = MeasureSubtitleBottom(subtitle, TitleTopY, hasSubtitle, cardWidth);
+                float tagBottom = MeasureNodeTagsBottom(cardWidth, tags, subtitleBottom + 8f);
+
+                float contentBottom;
+                if (hasRequires)
+                {
+                    float rollControlY = Math.Max(hasSubtitle ? ControlYBaseWithSubtitle : ControlYBaseNoSubtitle, subtitleBottom + 16f);
+                    float controlY = Math.Max(rollControlY, tagBottom + 8f);
+                    contentBottom = controlY + SlotHeight + ControlToButtonGap + SlotButtonHeight + CardBottomPadding;
+                }
+                else
+                {
+                    float exeY = Math.Max(hasSubtitle ? SimpleButtonYBaseWithSubtitle : SimpleButtonYBaseNoSubtitle,
+                        Math.Max(subtitleBottom + 12f, tagBottom + ControlToButtonGap));
+                    contentBottom = exeY + SimpleButtonHeight + CardBottomPadding;
+                }
+                return Math.Max(0f, contentBottom - DefaultCardHeight);
+            }
+            else
+            {
+                float titleY = DefaultCardHeight / 2f - (hasSubtitle ? CenteredTitleOffsetWithSubtitle : CenteredTitleOffsetNoSubtitle);
+                float subtitleBottom = MeasureSubtitleBottom(subtitle, titleY, hasSubtitle, cardWidth);
+                float tagBottom = MeasureNodeTagsBottom(cardWidth, tags, subtitleBottom + 8f);
+                return Math.Max(0f, tagBottom + 12f - DefaultCardHeight);
+            }
         }
 
         private static float DrawActorAbilityRail(Rectangle bounds, string skill,
@@ -1301,6 +1391,45 @@ namespace SSNoir.Rendering
 
             Raylib.DrawRectangleRounded(glowRect, 0.22f, 4, glowFill);
             Raylib.DrawRectangleRoundedLinesEx(glowRect, 0.22f, 4, strong ? 2.8f : 2.2f, glowBorder);
+        }
+
+        // 复刻 DrawCard 里徽标流式换行的判定，供 GetMinimumHeight 在实际绘制前预留同样的高度。
+        private static float MeasureClocksReservedHeight(List<GameClock>? clocks, float cardWidth)
+        {
+            if (clocks == null || clocks.Count == 0) return 0f;
+
+            float badgeX = 6f;
+            float badgeY = 6f;
+            float rightEdge = cardWidth - 6f;
+            foreach (var clock in clocks)
+            {
+                float badgeW = Math.Min(MeasureClockBadgeWidth(clock), cardWidth - 12f);
+                if (badgeX > 6f && badgeX + badgeW > rightEdge)
+                {
+                    badgeX = 6f;
+                    badgeY += 20f;
+                }
+                badgeX += badgeW + 4f;
+            }
+            return badgeY + 16f;
+        }
+
+        // 时钟徽标把标题往下挤了多少，卡片高度要同步补上——但两种标题布局的"够不够"判断不一样：
+        // showButton 卡标题贴顶（Y+8），徽标一旦更高就必然顶到它；居中卡标题在 height/2 附近，
+        // 默认高度本身就留了余量，通常不需要额外长高，硬套贴顶的判断只会平白拉长卡片。
+        private static float GetClockPushDown(List<GameClock>? clocks, float cardWidth, bool showButton, bool hasSubtitle)
+        {
+            if (clocks == null || clocks.Count == 0) return 0f;
+            float clocksBottom = MeasureClocksReservedHeight(clocks, cardWidth);
+
+            if (showButton)
+            {
+                return Math.Max(0f, clocksBottom + 4f - TitleTopY);
+            }
+
+            float titleOffset = hasSubtitle ? CenteredTitleOffsetWithSubtitle : CenteredTitleOffsetNoSubtitle;
+            float requiredHeight = 2f * (clocksBottom + 4f + titleOffset);
+            return Math.Max(0f, requiredHeight - DefaultCardHeight);
         }
 
         private static float MeasureClockBadgeWidth(GameClock clock)
