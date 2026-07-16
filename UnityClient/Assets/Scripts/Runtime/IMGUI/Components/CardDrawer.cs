@@ -64,10 +64,14 @@ namespace SSNoir.IMGUI
                 return interaction;
             }
 
+            // 时钟徽章可能换行——先量出它实际占到哪，卡内其余内容（标题/头像/能力栏）
+            // 才知道该从哪开始画，不会被压在徽章下面。
+            float clocksBottomY = MeasureClockBadgesBottom(rect, clocks);
+
             // ── 无边悬浮族（地点 / 普通）：Ink + 硬投影，不走框架，整卡可点。
             if (kind == CardKind.Location || kind == CardKind.Common)
             {
-                ContainerNodeDrawer.DrawFloating(rect, node, kind == CardKind.Location, isHovered && !disabled, disabled);
+                ContainerNodeDrawer.DrawFloating(rect, node, kind == CardKind.Location, isHovered && !disabled, disabled, clocksBottomY);
                 DrawClockBadges(rect, clocks);
                 if (!disabled && ui.WasClicked(rect))
                 {
@@ -91,7 +95,7 @@ namespace SSNoir.IMGUI
 
             if (isCharacter)
             {
-                ContainerNodeDrawer.DrawCharacter(rect, node, disabled);
+                ContainerNodeDrawer.DrawCharacter(rect, node, disabled, clocksBottomY);
                 if (!disabled && ui.WasClicked(rect))
                 {
                     interaction.CardClicked = true;
@@ -104,7 +108,7 @@ namespace SSNoir.IMGUI
                     rect, node, slotted, ui, gameManager,
                     isExecuting, executeProgress, executingText,
                     localRoll, localRollPhase, localRollDisplayDieValue, localRollDisplayScale,
-                    residue, ref interaction);
+                    residue, clocksBottomY, ref interaction);
             }
 
             if (isCharacter && isFocused)
@@ -132,34 +136,62 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawGoldPulse(rect);
         }
 
-        // ── 时钟徽章（卡右上角）──────────────────────────────────────
+        // ── 时钟徽章（卡右上角，居中，超一行自动换行）─────────────────
+
+        private const float ClockBadgeH = 28f;
+        private const float ClockBadgeGap = 8f;
+        private const float ClockBadgeRowGap = 6f;
+        private const float ClockBadgeMinW = 112f;
+        private const float ClockBadgeMaxW = 180f;
+
+        // 量出徽章会占到哪一行的哪个 Y——只做计算不画，供上层在画标题/头像前先留够空间。
+        private static float MeasureClockBadgesBottom(Rect rect, List<GameClock>? clocks)
+            => LayoutClockBadges(rect, clocks, draw: false);
 
         private static void DrawClockBadges(Rect rect, List<GameClock>? clocks)
+            => LayoutClockBadges(rect, clocks, draw: true);
+
+        // 量和画共用同一套换行逻辑——避免像旧版那样「预留的位置」和「实际画的位置」各算一遍、
+        // 改一处忘了改另一处。一行最多能放几个徽章按最小宽度 112 反推；单行放不下就自动换行，
+        // 不再像固定单行那样，徽章一多就被硬挤到卡片外面。
+        private static float LayoutClockBadges(Rect rect, List<GameClock>? clocks, bool draw)
         {
-            if (clocks == null || clocks.Count == 0) return;
+            if (clocks == null || clocks.Count == 0) return rect.y;
 
-            const float badgeH = 28f;
-            const float gap = 8f;
             float maxRowW = rect.width - 24f;
-            float perBadgeMaxW = (maxRowW - gap * (clocks.Count - 1)) / clocks.Count;
-            perBadgeMaxW = Mathf.Clamp(perBadgeMaxW, 112f, 180f);
+            int maxPerRow = Mathf.Max(1, Mathf.FloorToInt((maxRowW + ClockBadgeGap) / (ClockBadgeMinW + ClockBadgeGap)));
 
-            float[] widths = new float[clocks.Count];
-            float totalW = 0f;
-            for (int i = 0; i < clocks.Count; i++)
-            {
-                widths[i] = Mathf.Min(MeasureNodeClockBadgeWidth(clocks[i]), perBadgeMaxW);
-                totalW += widths[i];
-            }
-            totalW += gap * (clocks.Count - 1);
-
-            float x = rect.x + (rect.width - totalW) * 0.5f;
             float y = rect.y + 8f;
-            for (int i = 0; i < clocks.Count; i++)
+            int i = 0;
+            while (i < clocks.Count)
             {
-                DrawNodeClockBadge(new Rect(x, y, widths[i], badgeH), clocks[i]);
-                x += widths[i] + gap;
+                int rowCount = Mathf.Min(maxPerRow, clocks.Count - i);
+                float perBadgeMaxW = Mathf.Clamp((maxRowW - ClockBadgeGap * (rowCount - 1)) / rowCount, ClockBadgeMinW, ClockBadgeMaxW);
+
+                float totalW = 0f;
+                var widths = new float[rowCount];
+                for (int j = 0; j < rowCount; j++)
+                {
+                    widths[j] = Mathf.Min(MeasureNodeClockBadgeWidth(clocks[i + j]), perBadgeMaxW);
+                    totalW += widths[j];
+                }
+                totalW += ClockBadgeGap * (rowCount - 1);
+
+                if (draw)
+                {
+                    float x = rect.x + (rect.width - totalW) * 0.5f;
+                    for (int j = 0; j < rowCount; j++)
+                    {
+                        DrawNodeClockBadge(new Rect(x, y, widths[j], ClockBadgeH), clocks[i + j]);
+                        x += widths[j] + ClockBadgeGap;
+                    }
+                }
+
+                y += ClockBadgeH + ClockBadgeRowGap;
+                i += rowCount;
             }
+
+            return y - ClockBadgeRowGap;
         }
 
         private static float MeasureNodeClockBadgeWidth(GameClock clock)

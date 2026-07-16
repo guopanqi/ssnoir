@@ -33,6 +33,7 @@ namespace SSNoir.IMGUI
             int localRollDisplayDieValue,
             float localRollDisplayScale,
             CardPresentationResidue? residue,
+            float clockBadgesBottom,
             ref CardDrawer.CardInteraction interaction)
         {
             bool disabled = node.Disabled;
@@ -43,9 +44,11 @@ namespace SSNoir.IMGUI
             var actors = gameManager.DisplayedSnapshot.Actors;
             bool showOdds = isRoll && !disabled && hasRequires && actors != null && localRoll == null && residue == null;
             var effectiveModifiers = node.Resolve.DifficultyModifiers;
+            bool hasClocks = clockBadgesBottom > rect.y;
 
-            // ── 1. 标题区（居中）──
-            float titleY = rect.y + (node.Clocks != null && node.Clocks.Count > 0 ? 44f : 12f);
+            // ── 1. 标题区（居中）── clockBadgesBottom 是 CardDrawer 量出的时钟徽章实际底部，
+            // 徽章换行也不会被标题压住（旧版固定 44f 只够单行徽章用）。
+            float titleY = hasClocks ? clockBadgesBottom + 6f : rect.y + 12f;
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleCenter };
             if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
             GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, 26f), node.Name, titleStyle);
@@ -109,7 +112,7 @@ namespace SSNoir.IMGUI
 
             // ── 7. 右上角：角色能力栏（规范色：Ink 底 + Paper 描边 + 白字，无主题色）──
             if (isRoll && actors != null && actors.Count > 0)
-                DrawActorAbilityRail(rect, node.Resolve!.SkillName, actors, node.Clocks != null && node.Clocks.Count > 0);
+                DrawActorAbilityRail(rect, node.Resolve!.SkillName, actors, hasClocks ? clockBadgesBottom + 4f : rect.y + 6f);
 
             // ── 8. 底部：命运预览 / 判定中 / 结算行 + 盖印 ──
             if (localRoll != null)
@@ -137,14 +140,16 @@ namespace SSNoir.IMGUI
 
         // 同族彩纸便签，贴在卡左边缘外，文字竖排；自上而下堆叠。
         // 不占卡内空间，也不遮主要元素——「贴在物件上的彩色便签」隐喻更足。
+        // 卡矮或便签多时会堆不下：之前放不下就直接不画，玩家看不出还有没显示的标签/修正项——
+        // 现在放不下的部分折成一张「+N」提示条，信息不会被悄悄藏起来。
         private static void DrawEdgeTags(Rect rect, GameNode node, List<DifficultyModifierInfo> effectiveModifiers, bool disabled)
         {
             const float tagW = 26f;
             const float tagH = 72f;
+            const float tagStep = tagH + 6f;
             float tagX = rect.x - 13f;
             float y = rect.y + 22f;
             float maxY = rect.yMax - 40f;
-            int stickyCount = 0;
             var tagStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
@@ -154,39 +159,42 @@ namespace SSNoir.IMGUI
                 clipping = TextClipping.Clip
             };
 
-            if (effectiveModifiers.Count > 0)
+            var items = new List<(string text, Color bg, Color textColor)>();
+            foreach (var mod in effectiveModifiers)
             {
-                for (int k = 0; k < effectiveModifiers.Count; k++)
+                string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
+                Color noteBg = disabled
+                    ? new Color(0.18f, 0.19f, 0.22f, 1f)
+                    : mod.Value < 0 ? new Color(0.82f, 0.58f, 0.48f, 1f)
+                    : (mod.Value > 0 ? new Color(0.66f, 0.74f, 0.50f, 1f) : new Color(0.58f, 0.68f, 0.80f, 1f));
+                Color noteText = disabled
+                    ? new Color(0.55f, 0.56f, 0.60f, 1f)
+                    : mod.Value < 0 ? new Color(0.30f, 0.07f, 0.03f, 1f)
+                    : (mod.Value > 0 ? new Color(0.10f, 0.18f, 0.05f, 1f) : new Color(0.05f, 0.12f, 0.22f, 1f));
+                items.Add((modText, noteBg, noteText));
+            }
+            if (node.Tags != null)
+            {
+                foreach (var tag in node.Tags)
                 {
-                    float tagY = y + stickyCount * (tagH + 6f);
-                    if (tagY + tagH > maxY) return;
-                    var mod = effectiveModifiers[k];
-                    string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
-                    Color noteBg = disabled
-                        ? new Color(0.18f, 0.19f, 0.22f, 1f)
-                        : mod.Value < 0 ? new Color(0.82f, 0.58f, 0.48f, 1f)
-                        : (mod.Value > 0 ? new Color(0.66f, 0.74f, 0.50f, 1f) : new Color(0.58f, 0.68f, 0.80f, 1f));
-                    Color noteText = disabled
-                        ? new Color(0.55f, 0.56f, 0.60f, 1f)
-                        : mod.Value < 0 ? new Color(0.30f, 0.07f, 0.03f, 1f)
-                        : (mod.Value > 0 ? new Color(0.10f, 0.18f, 0.05f, 1f) : new Color(0.05f, 0.12f, 0.22f, 1f));
-                    DrawVerticalTag(new Rect(tagX, tagY, tagW, tagH), modText, noteBg, noteText, tagStyle);
-                    stickyCount++;
+                    if (string.IsNullOrWhiteSpace(tag)) continue;
+                    var (bg, text) = TagColors(tag, disabled);
+                    items.Add((tag, bg, text));
                 }
             }
 
-            if (node.Tags != null)
+            for (int i = 0; i < items.Count; i++)
             {
-                for (int k = 0; k < node.Tags.Count; k++)
+                float tagY = y + i * tagStep;
+                if (tagY + tagH > maxY)
                 {
-                    string tag = node.Tags[k];
-                    if (string.IsNullOrWhiteSpace(tag)) continue;
-                    float tagY = y + stickyCount * (tagH + 6f);
-                    if (tagY + tagH > maxY) return;
-                    var (bg, text) = TagColors(tag, disabled);
-                    DrawVerticalTag(new Rect(tagX, tagY, tagW, tagH), tag, bg, text, tagStyle);
-                    stickyCount++;
+                    var overflowBg = new Color(0.30f, 0.31f, 0.34f, 1f);
+                    var overflowText = new Color(0.82f, 0.83f, 0.86f, 1f);
+                    DrawVerticalTag(new Rect(tagX, tagY, tagW, tagH), $"+{items.Count - i}", overflowBg, overflowText, tagStyle);
+                    return;
                 }
+                var item = items[i];
+                DrawVerticalTag(new Rect(tagX, tagY, tagW, tagH), item.text, item.bg, item.textColor, tagStyle);
             }
         }
 
@@ -517,12 +525,12 @@ namespace SSNoir.IMGUI
 
         // 显示当前判定技能下每个在场角色的等级，用 Ink 底 + Paper 描边 + 白字的小芯片。
         // 不再使用主题色，符合 DESIGN.md「全局唯一主强调色」与「黑底安静块」的规则。
-        private static void DrawActorAbilityRail(Rect rect, string skill, IReadOnlyList<ActorSnapshot> actors, bool hasClocks)
+        private static void DrawActorAbilityRail(Rect rect, string skill, IReadOnlyList<ActorSnapshot> actors, float startY)
         {
             const float chipW = 54f;
             const float chipH = 20f;
             float x = rect.x + rect.width - chipW - 6f;
-            float y = rect.y + (hasClocks ? 24f : 6f);
+            float y = startY;
             int drawn = 0;
             foreach (var actor in actors)
             {
