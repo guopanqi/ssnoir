@@ -124,8 +124,14 @@
           (error "roll: expected 4 args (skill fail neutral success) or 5 args (skill mod-fn fail neutral success)"))))
 
 ;; 恢复性判定与 roll 同构，节点类型不同只为内容语义区分，结算规则一致。
-(define (recovery-roll skill fail-outcome neutral-outcome success-outcome)
-  (list 'recovery-roll skill (lambda () '()) fail-outcome neutral-outcome success-outcome))
+;; (recovery-roll 'skill fail neutral success)         -> 无修正
+;; (recovery-roll 'skill mod-fn fail neutral success)  -> 动态难度修正
+(define (recovery-roll skill . branches)
+  (if (= (length branches) 4)
+      (list 'recovery-roll skill (car branches) (cadr branches) (caddr branches) (cadddr branches))
+      (if (= (length branches) 3)
+          (list 'recovery-roll skill (lambda () '()) (car branches) (cadr branches) (caddr branches))
+          (error "recovery-roll: expected 4 args (skill fail neutral success) or 5 args (skill mod-fn fail neutral success)"))))
 
 (define (observe text)
   (list 'observe text))
@@ -181,12 +187,21 @@
       (require-outcome neutral-outcome "roll-action neutral")
       (require-outcome success-outcome "roll-action success"))))
 
-(define (recovery-roll-action name requires skill fail-outcome neutral-outcome success-outcome)
-  (action name requires
-    (recovery-roll skill
-      (require-outcome fail-outcome "recovery-roll-action fail")
-      (require-outcome neutral-outcome "recovery-roll-action neutral")
-      (require-outcome success-outcome "recovery-roll-action success"))))
+(define (recovery-roll-action name requires skill . branches)
+  (if (= (length branches) 4)
+      (action name requires
+        (recovery-roll skill
+          (car branches)
+          (require-outcome (cadr branches) "recovery-roll-action fail")
+          (require-outcome (caddr branches) "recovery-roll-action neutral")
+          (require-outcome (cadddr branches) "recovery-roll-action success")))
+      (if (= (length branches) 3)
+          (action name requires
+            (recovery-roll skill
+              (require-outcome (car branches) "recovery-roll-action fail")
+              (require-outcome (cadr branches) "recovery-roll-action neutral")
+              (require-outcome (caddr branches) "recovery-roll-action success")))
+          (error "recovery-roll-action: expected 6 args (name requires skill fail neutral success) or 7 args (name requires skill mod-fn fail neutral success)"))))
 
 ;; ── 工作（work）DSL ───────────────────────────────────
 ;; (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])

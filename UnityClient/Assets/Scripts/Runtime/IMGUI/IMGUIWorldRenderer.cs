@@ -450,6 +450,7 @@ namespace SSNoir.IMGUI
 
             // Split nodes into two groups: those with world anchors and those without
             var initialProjected = new List<(GameNode node, Vector3 screenPos, float distance)>();
+            var projectedResidues = new List<(CardPresentationResidue residue, Vector3 screenPos, float distance)>();
             var gridNodes = new List<GameNode>();
 
             foreach (var node in nodes)
@@ -481,8 +482,34 @@ namespace SSNoir.IMGUI
                 }
             }
 
+            // 已从新快照消失、但原本有世界锚点的行动，继续占据同一套投射布局。
+            // 它只是不再可交互，并以 SourceNode 作为结果附件的宿主。
+            var visibleNames = new HashSet<string>(initialProjected.Select(x => x.node.Name), StringComparer.OrdinalIgnoreCase);
+            foreach (var pair in _cardResidues)
+            {
+                if (visibleNames.Contains(pair.Key))
+                    continue;
+
+                var anchor = _gameManager.SceneDirectory?.GetAnchor(pair.Key);
+                if (anchor == null)
+                    continue;
+
+                var viewPos = cam.WorldToViewportPoint(anchor.transform.position);
+                const float padding = 0.05f;
+                bool inCameraSight = viewPos.z >= 0
+                    && viewPos.x >= -padding && viewPos.x <= 1f + padding
+                    && viewPos.y >= -padding && viewPos.y <= 1f + padding;
+                if (!inCameraSight)
+                    continue;
+
+                var screenPos = cam.WorldToScreenPoint(anchor.transform.position);
+                projectedResidues.Add((pair.Value, screenPos, screenPos.z));
+            }
+
             // Clean up old cached centers that are no longer visible to avoid memory leaks
             var visibleKeys = new HashSet<string>(initialProjected.Select(x => x.node.Name));
+            foreach (var item in projectedResidues)
+                visibleKeys.Add(item.residue.AnchorNodeName);
             var keysToRemove = _cardCenters.Keys.Where(k => !visibleKeys.Contains(k)).ToList();
             foreach (var key in keysToRemove)
             {
@@ -516,6 +543,28 @@ namespace SSNoir.IMGUI
                 }
 
                 layouts.Add(new ProjectedCardLayout(item.node, new Vector2(anchorX, anchorY), item.distance, targetCenter, currentCenter, cardWidth, cardHeight));
+            }
+
+            foreach (var item in projectedResidues)
+            {
+                var virtualAnchor = UIScale.WorldPointToVirtual(item.screenPos);
+                const float cardWidth = 340f;
+                const float cardHeight = 190f;
+                Vector2 targetCenter = new Vector2(virtualAnchor.x, virtualAnchor.y - cardHeight / 2f - 40f);
+                if (!_cardCenters.TryGetValue(item.residue.AnchorNodeName, out var currentCenter))
+                {
+                    currentCenter = targetCenter;
+                    _cardCenters[item.residue.AnchorNodeName] = currentCenter;
+                }
+
+                layouts.Add(new ProjectedCardLayout(
+                    item.residue,
+                    new Vector2(virtualAnchor.x, virtualAnchor.y),
+                    item.distance,
+                    targetCenter,
+                    currentCenter,
+                    cardWidth,
+                    cardHeight));
             }
 
             // Calculate mutual repulsion forces for overlapping cards
@@ -563,24 +612,27 @@ namespace SSNoir.IMGUI
 
                 // Update current layout state and persistent cache
                 layout.CurrentCenter = nextRect.center;
-                _cardCenters[layout.Node.Name] = layout.CurrentCenter;
+                _cardCenters[layout.Key] = layout.CurrentCenter;
             }
 
             // Draw projected cards (sorted by distance, far to near)
             layouts.Sort((a, b) => b.Distance.CompareTo(a.Distance));
             foreach (var layout in layouts)
             {
-                DrawNodeCard(layout.Node, layout.Rect, layout.AnchorPos, ui);
+                if (layout.Residue != null)
+                    DrawProjectedResidueCard(layout.Residue, layout.Rect, layout.AnchorPos, ui);
+                else
+                    DrawNodeCard(layout.Node!, layout.Rect, layout.AnchorPos, ui);
             }
 
             // Draw grid cards below
             if (gridNodes.Count > 0 || _cardResidues.Count > 0)
             {
-                DrawCardsGrid(gridNodes, ui);
+                DrawCardsGrid(gridNodes, ui, new HashSet<string>(projectedResidues.Select(x => x.residue.AnchorNodeName), StringComparer.OrdinalIgnoreCase));
             }
         }
 
-        private void DrawCardsGrid(List<GameNode> nodes, IMGUIInteractionContext ui)
+        private void DrawCardsGrid(List<GameNode> nodes, IMGUIInteractionContext ui, ISet<string> projectedResidueNames)
         {
             var visibleNodes = nodes.ToList();
             float cardWidth = 340f;
@@ -591,7 +643,7 @@ namespace SSNoir.IMGUI
             int cardsPerRow = Mathf.Max(1, (int)((UIScale.VW - startX * 2) / (cardWidth + spacing)));
             var visibleNames = new HashSet<string>(visibleNodes.Select(n => n.Name), StringComparer.OrdinalIgnoreCase);
             var orphanResidues = _cardResidues
-                .Where(pair => !visibleNames.Contains(pair.Key))
+                .Where(pair => !visibleNames.Contains(pair.Key) && !projectedResidueNames.Contains(pair.Key))
                 .Select(pair => pair.Value)
                 .ToList();
             int totalCards = visibleNodes.Count + orphanResidues.Count;
@@ -629,7 +681,7 @@ namespace SSNoir.IMGUI
 
                 if (i >= visibleNodes.Count)
                 {
-                    CardDrawer.DrawResidueCard(cardRect, orphanResidues[i - visibleNodes.Count]);
+                    DrawGridResidueCard(cardRect, orphanResidues[i - visibleNodes.Count], localUi);
                     continue;
                 }
 
@@ -763,6 +815,63 @@ namespace SSNoir.IMGUI
             {
                 _gameManager.ExecuteNodeAction(node);
             }
+        }
+
+        private void DrawProjectedResidueCard(CardPresentationResidue residue, Rect cardRect, Vector2 anchorPos, IMGUIInteractionContext ui)
+        {
+            DrawProjectedLeaderLine(cardRect, anchorPos, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.32f), 1f);
+
+            var source = residue.SourceNode ?? new GameNode
+            {
+                Name = residue.AnchorNodeName,
+                Resolve = new GameResolve { Type = ResolveType.Instant },
+            };
+            var host = CreateDisabledResidueHost(source);
+            var lockedUi = new IMGUIInteractionContext(ui.Mouse, isLocked: true);
+            CardDrawer.DrawCard(cardRect, host, CardDrawer.CardKind.Action,
+                isHovered: false, isFlipped: false, isFocused: false,
+                slotted: null, clocks: host.Clocks, backText: string.Empty,
+                ui: lockedUi, gameManager: _gameManager, residue: residue);
+        }
+
+        private void DrawGridResidueCard(Rect cardRect, CardPresentationResidue residue, IMGUIInteractionContext ui)
+        {
+            var source = residue.SourceNode ?? new GameNode
+            {
+                Name = residue.AnchorNodeName,
+                Resolve = new GameResolve { Type = ResolveType.Instant },
+            };
+            var host = CreateDisabledResidueHost(source);
+            var lockedUi = new IMGUIInteractionContext(ui.Mouse, isLocked: true);
+            CardDrawer.DrawCard(cardRect, host, CardDrawer.CardKind.Action,
+                isHovered: false, isFlipped: false, isFocused: false,
+                slotted: null, clocks: host.Clocks, backText: string.Empty,
+                ui: lockedUi, gameManager: _gameManager, residue: residue);
+        }
+
+        private static GameNode CreateDisabledResidueHost(GameNode source)
+        {
+            var host = new GameNode
+            {
+                Name = source.Name,
+                Subtitle = source.Subtitle,
+                Disabled = true,
+                Tags = new List<string>(source.Tags),
+                Requires = new List<ActionCost>(source.Requires),
+                Resolve = source.Resolve,
+            };
+            host.Clocks.AddRange(source.Clocks);
+            return host;
+        }
+
+        private static void DrawProjectedLeaderLine(Rect cardRect, Vector2 anchorPos, Color color, float thickness)
+        {
+            float targetY = anchorPos.y > cardRect.yMax ? cardRect.yMax
+                : anchorPos.y < cardRect.yMin ? cardRect.yMin : anchorPos.y;
+            float targetX = cardRect.center.x;
+            var elbow = new Vector2(targetX, anchorPos.y);
+            IMGUIStyles.DrawLine(anchorPos, elbow, color, thickness);
+            IMGUIStyles.DrawLine(elbow, new Vector2(targetX, targetY), color, thickness);
         }
 
         private void SyncNavigationScrollState()
@@ -907,7 +1016,9 @@ namespace SSNoir.IMGUI
                 RollOutcome = report.Type == ActionType.Roll ? report.Outcome : null,
                 FateDieValue = report.Type == ActionType.Roll ? report.FateDieValue : null,
                 PreparedValue = report.Type == ActionType.Roll ? report.PreparedValue : 0,
-                Effects = new List<ActionEffectRecord>(report.Effects)
+                Effects = new List<ActionEffectRecord>(report.Effects),
+                SourceNode = _gameManager.VisibleNodes.FirstOrDefault(node =>
+                    string.Equals(node.Name, actionName, StringComparison.OrdinalIgnoreCase))
             };
         }
 
@@ -1114,7 +1225,9 @@ namespace SSNoir.IMGUI
 
         private class ProjectedCardLayout
         {
-            public GameNode Node { get; }
+            public GameNode? Node { get; }
+            public CardPresentationResidue? Residue { get; }
+            public string Key => Node?.Name ?? Residue!.AnchorNodeName;
             public Vector2 AnchorPos { get; }
             public float Distance { get; }
             public Vector2 TargetCenter { get; }
@@ -1127,6 +1240,18 @@ namespace SSNoir.IMGUI
             public ProjectedCardLayout(GameNode node, Vector2 anchorPos, float distance, Vector2 targetCenter, Vector2 currentCenter, float width, float height)
             {
                 Node = node;
+                AnchorPos = anchorPos;
+                Distance = distance;
+                TargetCenter = targetCenter;
+                CurrentCenter = currentCenter;
+                Width = width;
+                Height = height;
+                RepulsionForce = Vector2.zero;
+            }
+
+            public ProjectedCardLayout(CardPresentationResidue residue, Vector2 anchorPos, float distance, Vector2 targetCenter, Vector2 currentCenter, float width, float height)
+            {
+                Residue = residue;
                 AnchorPos = anchorPos;
                 Distance = distance;
                 TargetCenter = targetCenter;

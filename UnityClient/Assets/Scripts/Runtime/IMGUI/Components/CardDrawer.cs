@@ -167,6 +167,10 @@ namespace SSNoir.IMGUI
             {
                 int rowCount = Mathf.Min(maxPerRow, clocks.Count - i);
                 float perBadgeMaxW = Mathf.Clamp((maxRowW - ClockBadgeGap * (rowCount - 1)) / rowCount, ClockBadgeMinW, ClockBadgeMaxW);
+                // 卡片本身比一个徽章的最小宽度还窄时（连续缩放投影下会发生），每行已经减到 1 个，
+                // 但 112 这个「最小宽度」偏好仍会把徽章撑得比卡还宽——这里再用整行可用宽度兜底，
+                // 宁可收窄到比设计预期更小，也不让徽章探出卡外。
+                perBadgeMaxW = Mathf.Min(perBadgeMaxW, maxRowW);
 
                 float totalW = 0f;
                 var widths = new float[rowCount];
@@ -329,58 +333,6 @@ namespace SSNoir.IMGUI
             }
         }
 
-        // ── 残卡（行动结算后留在网格里的孤儿卡）────────────────────────
-
-        // Ink 底 + 双线 + 结果盖印 + 结算标题 + 副文。卡锚点已不可见，仅展示历史结果。
-        public static void DrawResidueCard(Rect rect, CardPresentationResidue residue)
-        {
-            IMGUIStyles.DrawShadow(rect, new Vector2(5f, 6f), 0.48f);
-            GUI.color = IMGUIStyles.Ink;
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            IMGUIStyles.DrawDoubleOutline(rect, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.72f));
-
-            // 结果盖印（右上角）：成=金、败=印章红。
-            if (residue.RollOutcome == RollOutcome.Success || residue.RollOutcome == RollOutcome.Fail)
-            {
-                var sealRect = new Rect(rect.xMax - 60f, rect.y + 8f, 48f, 48f);
-                Color sealColor = residue.RollOutcome == RollOutcome.Success ? IMGUIStyles.Gold : IMGUIStyles.SealRed;
-                string sealText = residue.RollOutcome == RollOutcome.Success ? "成" : "败";
-                IMGUIStyles.DrawStampSeal(sealRect, sealText, sealColor);
-            }
-
-            string label = residue.RollOutcome.HasValue ? FormatOutcomeLabel(residue.RollOutcome.Value) : "行动结果";
-            var labelStyle = new GUIStyle(IMGUIStyles.CardSubtitle)
-            {
-                fontSize = 13,
-                alignment = TextAnchor.MiddleCenter
-            };
-            GUI.Label(new Rect(rect.x + 12f, rect.y + 14f, rect.width - 24f, 22f), label, labelStyle);
-
-            string title = residue.RollOutcome.HasValue
-                ? $"{FormatOutcomeLabel(residue.RollOutcome.Value)}：{residue.Title}"
-                : residue.Title;
-            var titleStyle = new GUIStyle(IMGUIStyles.ModalBody)
-            {
-                fontSize = 15,
-                wordWrap = true,
-                alignment = TextAnchor.UpperCenter,
-                normal = { textColor = residue.RollOutcome.HasValue ? OutcomeColorFor(residue.RollOutcome.Value) : IMGUIStyles.TextPrimary }
-            };
-            GUI.Label(new Rect(rect.x + 18f, rect.y + 46f, rect.width - 36f, 42f), title, titleStyle);
-
-            var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
-            {
-                fontSize = 12,
-                wordWrap = true,
-                alignment = TextAnchor.UpperCenter,
-                normal = { textColor = IMGUIStyles.TextSecondary }
-            };
-            GUI.Label(new Rect(rect.x + 18f, rect.y + 94f, rect.width - 36f, 34f), residue.Subtitle, subtitleStyle);
-
-            DrawEffectRows(new Rect(rect.x + 18f, rect.y + 132f, rect.width - 36f, rect.yMax - rect.y - 144f), residue.Effects);
-        }
-
         public static void DrawEffectRows(Rect area, IReadOnlyList<ActionEffectRecord> effects)
         {
             if (effects.Count == 0 || area.height <= 0f)
@@ -390,26 +342,38 @@ namespace SSNoir.IMGUI
             const float rowGap = 16f;
             int maxRows = Mathf.Max(0, Mathf.FloorToInt(area.height / rowGap));
             if (maxRows == 0)
+            {
+                // 连一整行都放不下时也不能直接 return：影响行是结算的核心信息，什么都不画等于
+                // 告诉玩家「这次行动什么都没发生」。挤出一条「+N」提示，把「有内容、但这里没
+                // 地方显示」明说出来（AGENTS.md：信息不能被悄悄藏起来）。
+                if (area.height >= 8f)
+                    DrawEffectMoreRow(new Rect(area.x, area.y, area.width, area.height), effects.Count);
                 return;
+            }
 
             int visibleCount = effects.Count <= maxRows ? effects.Count : maxRows - 1;
             for (int i = 0; i < visibleCount; i++)
                 DrawSingleEffectRow(effects[i], new Rect(area.x, area.y + i * rowGap, area.width, rowHeight));
 
             if (effects.Count > maxRows)
-            {
-                var moreRect = new Rect(area.x, area.y + visibleCount * rowGap, area.width, rowHeight);
-                Color accent = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.50f);
-                DrawEffectRowBg(moreRect, accent);
+                DrawEffectMoreRow(new Rect(area.x, area.y + visibleCount * rowGap, area.width, rowHeight), effects.Count - visibleCount);
+        }
 
-                var style = new GUIStyle(IMGUIStyles.ModalBody)
-                {
-                    fontSize = 10,
-                    alignment = TextAnchor.MiddleLeft,
-                    normal = { textColor = IMGUIStyles.TextSecondary }
-                };
-                GUI.Label(new Rect(moreRect.x + 8f, moreRect.y, moreRect.width - 16f, moreRect.height), $"+ 还有 {effects.Count - visibleCount} 项影响...", style);
-            }
+        // 「还有 N 项影响」折叠提示。行高不固定——高度紧张时它会被压到不足一行，
+        // 但只要还有 ≥8px 就必须画出来，这是「信息不被悄悄藏起来」的最后一道兜底。
+        private static void DrawEffectMoreRow(Rect row, int hiddenCount)
+        {
+            Color accent = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.50f);
+            DrawEffectRowBg(row, accent);
+
+            var style = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                fontSize = 10,
+                alignment = TextAnchor.MiddleLeft,
+                clipping = TextClipping.Clip,
+                normal = { textColor = IMGUIStyles.TextSecondary }
+            };
+            GUI.Label(new Rect(row.x + 8f, row.y, row.width - 16f, row.height), $"+ 还有 {hiddenCount} 项影响...", style);
         }
 
         private static void DrawSingleEffectRow(ActionEffectRecord effect, Rect row)
@@ -458,26 +422,5 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
         }
 
-        private static string FormatOutcomeLabel(RollOutcome outcome)
-        {
-            return outcome switch
-            {
-                RollOutcome.Success => "判定成功",
-                RollOutcome.Neutral => "判定中性",
-                RollOutcome.Fail => "判定失败",
-                _ => "判定结果"
-            };
-        }
-
-        private static Color OutcomeColorFor(RollOutcome outcome)
-        {
-            return outcome switch
-            {
-                RollOutcome.Success => IMGUIStyles.OutcomeSuccess,
-                RollOutcome.Neutral => IMGUIStyles.OutcomeNeutral,
-                RollOutcome.Fail => IMGUIStyles.OutcomeFail,
-                _ => IMGUIStyles.TextPrimary
-            };
-        }
     }
 }

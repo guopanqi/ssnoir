@@ -1301,6 +1301,12 @@ namespace SSNoir.Rendering
                                  && previewSlots.Any(slot => slot?.Type == "die")) attachment = 64f;
                     }
                 }
+                else
+                {
+                    // 消失节点仍需预留与在场节点相同的结算附件高度；否则效果行会压到下一张卡。
+                    var residue = orphanResidues[i - visibleNodes.Count];
+                    attachment = CardWidget.ResidueAttachmentHeight(residue) + 10f;
+                }
 
                 int col = i % cardsPerRow;
                 if (columnHeights[col] > 0f) columnHeights[col] += spacing;

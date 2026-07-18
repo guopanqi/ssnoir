@@ -10,7 +10,6 @@
 (load-file "world/码头.scm")
 (load-file "world/老街酒馆.scm")
 (load-file "world/夜莺.scm")
-(load-file "world/饭店.scm")
 (load-file "world/诊所.scm")
 (load-file "world/公园.scm")
 (load-file "world/警局.scm")
@@ -98,7 +97,7 @@
       ((= public-event-count 0)
        (cond
          ((= stage 0) "雨夜有人敲门,先去看看是谁。")
-         ((and (= stage 1) (< beat1-progress beat1-target)) "完成饭店与码头两处查访，拼出陌生人的藏身处。")
+         ((and (= stage 1) (< beat1-progress beat1-target)) "完成酒馆与码头两处查访，拼出陌生人的藏身处。")
          (else "陌生人的藏身处已经揭晓。可以主动出击，也可以等他上门。")))
       ((= public-event-count 1)
        "收账人已经撂话。第 10 天到期；时钟显示距到期的剩余天数。至少要凑出一笔首期赎身钱,让他们先收手。")
@@ -222,7 +221,7 @@
     (else (error "current-encounter-name: public-event-count 超出范围"))))
 
 ;; 统一返回节点列表：节拍三按路线分派可能产出 0/1/2 个待办节点
-;; （了断交锋入口 + 查明真相时的“去饭店喝酒”），节拍一/二的场景各自只有一个。
+;; （了断交锋入口 + 查明真相时的“去街角喝酒”），节拍一/二的场景各自只有一个。
 (define (node-public-event)
   (cond
     ((and (= public-event-count 1) (nightingale 'has-protection?))
@@ -276,7 +275,6 @@
     (list home            (lambda () #t))
     (list dock            (lambda () #t))
     (list old-street-tavern (lambda () #t))
-    (list diner           (lambda () #t))
     (list clinic          (lambda () #t))
     (list park            (lambda () #t))
     (list police-station  (lambda () #t))
@@ -321,7 +319,6 @@
     (list "dock" (dock 'save))
     (list "old-street-tavern" (old-street-tavern 'save))
     (list "nightingale" (nightingale 'save))
-    (list "diner" (diner 'save))
     (list "clinic" (clinic 'save))
     (list "park" (park 'save))
     (list "police-station" (police-station 'save))
@@ -354,7 +351,6 @@
   (dock 'load! (assoc-get data "dock" '()))
   (old-street-tavern 'load! (assoc-get data "old-street-tavern" '()))
   (nightingale 'load! (assoc-get data "nightingale" '()))
-  (diner 'load! (assoc-get data "diner" '()))
   (clinic 'load! (assoc-get data "clinic" '()))
   (park 'load! (assoc-get data "park" '()))
   (police-station 'load! (assoc-get data "police-station" '()))

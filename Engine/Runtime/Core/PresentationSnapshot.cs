@@ -18,5 +18,7 @@ namespace SSNoir.Core
         // 内容层配置的各势力对正面三档的定制称呼，键同上（如“劳工:信任”→“够朋友”）。
         public IReadOnlyDictionary<string, string> RelationBandNames { get; init; } = new Dictionary<string, string>();
         public IReadOnlyList<ActorSnapshot> Actors { get; init; } = new List<ActorSnapshot>();
+        // 交锋里只有主角行动（同伴不发骰），客户端据此决定是否隐藏同伴的人物簇。
+        public bool IsInEncounter { get; init; }
     }
 }

@@ -50,7 +50,8 @@ namespace SSNoir.Rendering
             Raylib.DrawLineEx(new System.Numerics.Vector2(dividerX, y + 14f),
                 new System.Numerics.Vector2(dividerX, windowHeight - 14f), 1f, new Color(58, 62, 78, 180));
 
-            DrawCharacters(state, ui, new Rectangle(Pad, y + 12f, leftW - Pad * 2f, PanelHeight - 24f), ref interaction);
+            DrawCharacters(state, ui, new Rectangle(Pad, y + 12f, leftW - Pad * 2f, PanelHeight - 24f),
+                isInEncounter, ref interaction);
             DrawItemsAndFunction(state, ui,
                 new Rectangle(dividerX + Pad, y + 12f, windowWidth - dividerX - Pad * 2f, PanelHeight - 24f),
                 isInEncounter, ref interaction);
@@ -63,7 +64,7 @@ namespace SSNoir.Rendering
 
         private static void DrawCharacters(RendererState state,
             SSNoir.TerminalApp.Rendering.UiInteractionContext ui, Rectangle area,
-            ref HandPanelInteraction interaction)
+            bool isInEncounter, ref HandPanelInteraction interaction)
         {
             var snapshot = state.DisplayedSnapshot;
             FontManager.DrawText("人物 / 行动", area.X, area.Y, 13, PaperDim);
@@ -78,6 +79,7 @@ namespace SSNoir.Rendering
 
             float x = area.X + vitalsW + 18f;
             int flatDie = 0;
+            bool leadDrawn = false;
             foreach (var actor in snapshot.Actors)
             {
                 if (actor.Status == "away")
@@ -86,18 +88,29 @@ namespace SSNoir.Rendering
                     continue;
                 }
 
+                // 交锋里只有主角行动，同伴连骰子都不发；再挂着名字和冷静只会让人
+                // 以为还能指挥他们，整簇不画。
+                if (isInEncounter && actor.Role != "protagonist")
+                {
+                    flatDie += actor.ActionDice.Count;
+                    continue;
+                }
+
+                // 主角与同伴之间一条淡分隔线，浓淡与左侧生命体征那条一致。
+                if (leadDrawn)
+                    Raylib.DrawLineEx(new System.Numerics.Vector2(x - 12f, area.Y + 18f),
+                        new System.Numerics.Vector2(x - 12f, area.Y + area.Height - 2f),
+                        1f, new Color(58, 62, 78, 150));
+                leadDrawn = true;
+
                 float diceW = actor.Role == "protagonist"
                     ? 3 * TokenSize + 2 * TokenGap
                     : (actor.ActionDice.Count == 0 ? 0f : TokenSize);
                 float clusterW = Math.Max(150f, PoolLabelW + diceW);
                 float poolX = x + PoolLabelW;
 
+                // 只画名字。Role 是内部标识（protagonist / companion），不是给玩家看的职业。
                 FontManager.DrawText(actor.Name, x, area.Y + 14f, 14, Paper);
-                if (!string.IsNullOrWhiteSpace(actor.Role) && actor.Role != "protagonist")
-                {
-                    int nameW = FontManager.MeasureTextWidth(actor.Name, 14);
-                    FontManager.DrawText(actor.Role, x + nameW + 7f, area.Y + 17f, 9, PaperDim);
-                }
                 DrawDicePoolStatus(actor, x, poolX, area.Y + 80f);
                 DrawComposureCells(x, poolX, area.Y + 110f, actor.Composure);
 

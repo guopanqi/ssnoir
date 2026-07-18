@@ -6,7 +6,7 @@
 
 ;; ── 读镜像 ───────────────────────────────────────
 (define departed? (let ((v (get-global '夜莺已送走))) (if v v #f)))
-(define safety (let ((v (get-global '夜莺状态等级))) (if v v 0)))
+(define safety (let ((v (get-global '夜莺状态等级))) (min 2 (if v v 0))))
 
 (define (clock-tick-n! clock n)
   (if (> n 0)
@@ -34,7 +34,7 @@
 (define (press-clk-max)
   (+ 5
      (if leverage? 1 0)
-     (if (and (not departed?) (>= safety 2)) -1 0)))
+     (if departed? 0 (- safety))))
 
 (define (enter-phase-2!)
   (set! resolve-clk (make-clock "压住场子" 6 'segments "填满即可把这一架压下去。"))

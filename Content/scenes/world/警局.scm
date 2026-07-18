@@ -1,4 +1,4 @@
-;; 警局——内部只有职员阿瑟；编外侦探萨姆站在程序边缘。
+;; 警局——内部只有职员阿瑟；萨姆常驻老街酒馆，不占警局节点。
 
 (define police-station
   (lambda args
@@ -10,7 +10,6 @@
              (append
                (nightingale 'lead-nodes-at "警局")
                (arthur 'nodes)
-               (sam 'nodes)
                (nightingale 'route-nodes-at "警局")))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)

@@ -188,6 +188,18 @@
           (outcome "货已收下" "代理人验过货，按约定付了钱。"
             (lambda () (add-item! "金钱" (contraband-sale-price)))))))
 
+    ;; 夜莺那枚戒指的当铺。价钱不砍、不看关系——他不知道这东西的来历，
+    ;; 对他这只是一件旧首饰；砍价会把这一下变成生意，而它该是玩家自己的取舍。
+    (define (node-sell-ring)
+      (node "把旧戒指出手"
+        :subtitle (string-append agent-identity "；他能给个实价，但东西就再也回不来了")
+        :requires (list (req-item "旧戒指" 1))
+        :resolve (instant
+          (outcome "戒指出手了" "代理人拿放大镜看了两眼，数出钱来，没问它从哪儿来。"
+            (lambda ()
+              (remove-item! "旧戒指" 1)
+              (add-item! "金钱" (nightingale 'ring-value)))))))
+
     (define (node-find-project-with-intel)
       (node "凭消息找项目"
         :subtitle "用现成消息省去考察，找到一个回报普通但看得清的项目"
@@ -233,6 +245,7 @@
         (if (and (> (item-count "私货") 0) (relation-at-least? "富商" '相识))
             (list (node-sell-contraband))
             '())
+        (if (> (item-count "旧戒指") 0) (list (node-sell-ring)) '())
         (nightingale 'route-nodes-at "货运公司")
         (if (company-trouble 'active?) (list (node-handle-trouble)) '())))
 

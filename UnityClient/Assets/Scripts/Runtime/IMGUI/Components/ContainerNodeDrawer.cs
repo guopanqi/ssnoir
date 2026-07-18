@@ -37,15 +37,18 @@ namespace SSNoir.IMGUI
         }
 
         // 地点：上=白色线稿建筑符号，中=一根白色地平线，下=白字地名。矮框退化为悬浮名牌。
+        // 判断「矮不矮」不能只看卡片原始高度——时钟徽章会先把内容起点往下推，卡片本身够高
+        // 但徽章一多照样挤不下建筑符号，所以按「让开徽章后还剩多少」(availH) 来判断退化，
+        // 而不是 rect.height 本身。
         private static void DrawLocationBody(Rect rect, GameNode node, Color line, float clocksBottomY)
         {
             bool hasClocks = clocksBottomY > rect.y;
+            float contentTop = hasClocks ? clocksBottomY + 4f : rect.y;
+            float availH = rect.yMax - contentTop;
 
-            if (rect.height < 90f)
+            if (availH < 90f)
             {
-                var plateRect = hasClocks
-                    ? new Rect(rect.x, clocksBottomY + 4f, rect.width, rect.yMax - (clocksBottomY + 4f))
-                    : rect;
+                var plateRect = new Rect(rect.x, contentTop, rect.width, Mathf.Max(0f, availH));
                 var plateStyle = new GUIStyle(IMGUIStyles.CardTitle)
                 {
                     fontSize = 15,
@@ -57,8 +60,10 @@ namespace SSNoir.IMGUI
                 return;
             }
 
-            float iconH = Mathf.Min(72f, rect.height * 0.42f);
-            float iconTop = Mathf.Max(rect.y + rect.height * 0.14f, hasClocks ? clocksBottomY + 6f : rect.y);
+            // 建筑线稿宽度同时受 availH（竖向）与 rect.width（横向）约束——瘦高卡（投影到窄立面）
+            // 不会再把线稿横向撑出卡外。
+            float iconH = Mathf.Min(72f, availH * 0.42f, rect.width * 0.7f / 1.1f);
+            float iconTop = contentTop + availH * 0.12f;
             var iconArea = new Rect(rect.center.x - iconH * 0.55f, iconTop, iconH * 1.1f, iconH);
             DrawBuildingGlyph(iconArea, line);
 
@@ -83,6 +88,10 @@ namespace SSNoir.IMGUI
             float startY = rect.y + (rect.height - contentH) / 2f;
             if (clocksBottomY > rect.y)
                 startY = Mathf.Max(startY, clocksBottomY + 6f);
+            // 徽章占用空间过多时，标题起点不能无限下压探出卡底：最多退到刚好留出一行标题的
+            // 位置，宁可这行标题贴近甚至压住徽章区，也不让文字画到卡外面。副标题在空间不够
+            // 时会被下面的 Mathf.Max(0f, …) 自然挤成 0 高度，等同于隐藏。
+            startY = Mathf.Min(startY, rect.yMax - 26f - 6f);
 
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle)
             {
@@ -129,9 +138,30 @@ namespace SSNoir.IMGUI
         // clocksBottomY：时钟徽章底部 Y（无徽章时等于 rect.y）——照片要让开，不然会被徽章压住。
         public static void DrawCharacter(Rect rect, GameNode node, bool disabled, float clocksBottomY)
         {
+            bool hasClocks = clocksBottomY > rect.y;
+            float photoTop = Mathf.Max(rect.y + 16f, hasClocks ? clocksBottomY + 6f : rect.y);
+
+            // 矮卡（或徽章占掉大半卡高）放不下照片时，退化为只有名字的悬浮名牌——
+            // 与地点节点的矮框退化同一套语言，而不是无视竖向空间硬画一张比卡还高的照片。
+            if (rect.yMax - photoTop < 90f)
+            {
+                var plateRect = new Rect(rect.x, photoTop, rect.width, Mathf.Max(0f, rect.yMax - photoTop));
+                var plateStyle = new GUIStyle(IMGUIStyles.CardTitle)
+                {
+                    fontSize = 15,
+                    alignment = TextAnchor.MiddleCenter,
+                    clipping = TextClipping.Clip,
+                    normal = { textColor = disabled ? IMGUIStyles.TextSecondary : IMGUIStyles.Paper }
+                };
+                GUI.Label(plateRect, node.Name, plateStyle);
+                return;
+            }
+
             float photoW = rect.width - 32f;
-            float photoH = photoW * 0.72f;
-            float photoTop = Mathf.Max(rect.y + 16f, clocksBottomY > rect.y ? clocksBottomY + 6f : rect.y);
+            // 照片高度同时受宽高比(0.72)与卡片剩余竖向空间约束——瘦高卡不会再把照片撑得
+            // 比卡还高；下方至少给标题预留一行 + 间距 + 底边距。
+            const float titleBudget = 12f + 26f + 6f;
+            float photoH = Mathf.Min(photoW * 0.72f, Mathf.Max(30f, rect.yMax - photoTop - titleBudget));
             var photoRect = new Rect(rect.x + 16f, photoTop, photoW, photoH);
 
             GUI.color = IMGUIStyles.PhotoBlack;

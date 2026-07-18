@@ -9,14 +9,19 @@
     (define favor 0)
     (define favor-target 5)
     (define child-progress 0)
-    (define child-target 8)
+    (define child-target 1)
     (define child-cared-today? #f)
     (define injury-days 0)
-    (define injury-duration 5)
+    (define injury-duration 4)
     (define injury-started-today? #f)
     (define care-progress 0)
+    (define care-heal-target 8)
     (define cared-today? #f)
-    (define injury-trigger-table (list #t #f #f))
+    ;; 受伤是伪随机：进入等待期后每天掷一次，没中就把第二天的概率抬高一档，
+    ;; 命中概率 (2 + injury-pity)/6 → 1/3、1/2、2/3、5/6，第五天必中。
+    ;; 纯随机会出现"一整局都没伤"的空转，这条线是主线的一部分，不能全靠运气。
+    (define injury-pity 0)
+    (define injury-pity-max 4)
     (define identity "码头搬运工，独自抚养孩子")
 
     (define (advance-favor! n)
@@ -80,9 +85,10 @@
               "乔加入了队伍。他每天带来一颗行动骰，但残疾会令这颗骰永久 −1。"
               "乔加入了队伍。从明天起，他每天带来一颗行动骰。")))))))
 
+    ;; 养伤期间乔不在码头，他的节点整个挪到居民区。
     (define (dock-nodes)
       (append
-        (list (node-joe-at-dock))
+        (if (= stage 5) '() (list (node-joe-at-dock)))
         (if (= stage 2) (list (node-share-meal)) '())
         (if (or (= stage 6) (= stage 7)) (list (node-ask-joe-to-join)) '())))
 
@@ -132,54 +138,65 @@
           (outcome "路上很顺" "你们绕开了拥堵的街口，还赶在天黑前买到了晚饭。"
             (lambda () (advance-childcare! 2))))))
 
+    ;; 填满即痊愈，不等第四天：满格后继续挂着，只会被"当天不管 -2"把已经满的条子重新掏空。
+    ;; n 恒 >= 0：照顾失败只是没有进展（代价是白扔一颗骰子加 1 点冷静），不倒扣进度。
+    ;; 进度跌成负数只有一条路——整天完全不管他。
     (define (apply-care! n)
       (set! care-progress (+ care-progress n))
-      (set! cared-today? #t))
+      (set! cared-today? #t)
+      (if (>= care-progress care-heal-target) (finish-injury!) #f))
 
     (define (care-hint)
       (cond
-        ((>= care-progress 5) "乔的脸色有了些血色。那条腿也许能保住。")
+        ((>= care-progress 8) "乔的脸色有了些血色。那条腿也许能保住。")
         ((>= care-progress 1) "他还撑得住，但离真正好起来差得很远。")
         ((>= care-progress -2) "他脸色不太好，这样下去怕是要留下永久损伤。")
         (else "乔越来越少说话。屋里安静得让人不敢久看。")))
 
     (define (node-care)
-      (node "照顾乔"
-        :subtitle (string-append identity "；" (if cared-today? "今天已经照顾过了" (care-hint)))
+      (node "照顾他"
+        :subtitle "花一颗行动骰陪他熬过今天"
         :tags (list "低风险")
-        :disabled cared-today?
-        :clocks (list (list 'clock "乔的伤势" (- injury-duration injury-days) injury-duration 'segments
-                            "第五天结算；内部照顾进度只通过文字暗示。"))
         :requires (list (req-die))
         :resolve (roll 'social
-          (outcome "帮不上忙" "你忙了半天，反而让他不得安生。"
-            (lambda () (apply-care! -1) (spend-composure! 1)))
+          (outcome "帮不上忙" "你忙了半天，能做的都做了，他还是老样子。"
+            (lambda () (apply-care! 0) (spend-composure! 1)))
           (outcome "陪他熬过一天" "你换了水，弄了点吃的，陪他把最难受的几个钟头熬过去。"
             (lambda () (apply-care! 1)))
           (outcome "照料妥当" "你把药、饭和夜里的水都安排妥当，他终于睡沉了一会儿。"
             (lambda () (apply-care! 2))))))
 
     (define (node-medicate)
-      (node "给乔用药"
-        :subtitle (string-append identity "；消耗一份药品，稳定增加照顾进度；每天仍只能照顾一次")
+      (node "给他用药"
+        :subtitle "消耗一份药品，稳定增加照顾进度"
         :tags (list "低风险")
-        :disabled cared-today?
         :requires (list (req-item "药品" 1))
         :resolve (instant
           (outcome "用过药了" "药没有让账单变轻，但至少让这一夜没有继续恶化。"
             (lambda () (apply-care! 2))))))
 
+    ;; 养伤期的乔本人是一个节点，照顾与用药是他名下的两个动作。
+    ;; 照料进度做成可见时钟：条子钳到 0 以上，跌破 0 的死亡区间由 care-hint 的文字承担。
+    (define (node-joe-injured)
+      (node "乔"
+        :subtitle (string-append identity "；" (care-hint))
+        :clocks (list
+          (list 'clock "乔的伤势" (- injury-duration injury-days) injury-duration 'segments
+                "倒计时；归零那天按照料进度结算。照料进度提前填满则不必等到期满。")
+          (list 'clock "照料进度" (max 0 care-progress) care-heal-target 'segments
+                "填满即痊愈；期满时不满但不为负是残疾，为负则乔会死。当天完全不管他会倒扣 2。"))
+        :children (append
+                    (list (node-care))
+                    (if (> (item-count "药品") 0) (list (node-medicate)) '()))))
+
     (define (residential-nodes)
       (append
         (if (= stage 3) (list (node-childcare)) '())
-        (if (= stage 5)
-            (append (list (node-care))
-                    (if (> (item-count "药品") 0) (list (node-medicate)) '()))
-            '())))
+        (if (= stage 5) (list (node-joe-injured)) '())))
 
     (define (finish-injury!)
       (cond
-        ((>= care-progress 6)
+        ((>= care-progress care-heal-target)
          (set! stage 6)
          (play-dialogue!
            (line "乔" "这条腿还能站住。往后你要跑什么事，叫我。")))
@@ -190,15 +207,28 @@
         (else
          (set! stage 8)
          (play-dialogue!
-           (line "世界" "第五天清晨，乔没有再醒来。")
+           (line "世界" "第四天清晨，乔没有再醒来。")
            (line "世界" "码头当天就补上了他的班，像补上一行漏写的数字。"))))
       (set! injury-days 0)
       (set! injury-started-today? #f)
       (set! cared-today? #f)
       (complete-section!))
 
+    ;; 造一张长度 total、其中 hits 项为 #t 的概率表，交给 random-choice 均匀抽。
+    (define (chance-table hits total)
+      (if (= total 0)
+          '()
+          (cons (> hits 0) (chance-table (- hits 1) (- total 1)))))
+
+    (define (injury-due?)
+      (if (random-choice (chance-table (+ 2 injury-pity) 6))
+          #t
+          (begin
+            (set! injury-pity (min injury-pity-max (+ injury-pity 1)))
+            #f)))
+
     (define-turn-rule "乔受伤"
-      (lambda () (and (= stage 4) (random-choice injury-trigger-table)))
+      (lambda () (and (= stage 4) (injury-due?)))
       (lambda ()
         (set! stage 5)
         (set! injury-days injury-duration)
@@ -208,7 +238,7 @@
         (play-dialogue!
           (line "世界" "乔在搬货时伤了腿。工头把他送回居民区，没提工伤，也没提赔偿。")
           (line "乔" "别去找保险公司。他们先算这条腿值多少钱，再决定我值不值得救。"))
-        (spotlight! "乔受伤了" "五天内每天最多照顾一次。第五天会按实际照顾情况结算。")))
+        (spotlight! "乔受伤了" "四天内每天都能照顾他，照顾几次取决于你愿意分出多少行动骰。第四天会按实际照顾情况结算。")))
 
     (define-turn-rule "乔的伤势推进"
       (lambda () (= stage 5))
@@ -238,7 +268,8 @@
                  (list "child-cared-today?" child-cared-today?)
                  (list "injury-days" injury-days) (list "care-progress" care-progress)
                  (list "injury-started-today?" injury-started-today?)
-                 (list "cared-today?" cared-today?)))
+                 (list "cared-today?" cared-today?)
+                 (list "injury-pity" injury-pity)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! stage (assoc-get data "stage" 0))
@@ -249,6 +280,7 @@
              (set! care-progress (assoc-get data "care-progress" 0))
              (set! injury-started-today? (assoc-get data "injury-started-today?" #f))
              (set! cared-today? (assoc-get data "cared-today?" #f))
+             (set! injury-pity (assoc-get data "injury-pity" 0))
              (if (and (= stage 9) (not (has-companion? 'joe)))
                  (error "乔存档错误：已入队但队伍中没有 joe") #t)
              (if (and (not (= stage 9)) (has-companion? 'joe))

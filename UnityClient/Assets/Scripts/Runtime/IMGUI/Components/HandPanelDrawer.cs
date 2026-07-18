@@ -15,7 +15,7 @@ namespace SSNoir.IMGUI
     //
     // 每个行动者是一个「靠间距聚拢的簇」，自底向上：行动骰 → 名字 → 压力。
     // 所有行动者共享同一条压力/名字/骰池基线；只有主角（最左第一个）从压力线往上
-    // 多长出队伍生命体征（健康 / 饱腹，均为快照级属性）。
+    // 多长出队伍生命体征（健康，为快照级属性）。
     public static class HandPanelDrawer
     {
         // 手牌方块：骰子与物品共用同一族方块（同尺寸、同底纹、同交互状态），只是内容不同。
@@ -66,8 +66,23 @@ namespace SSNoir.IMGUI
                     continue;
                 }
 
+                // 交锋里只有主角行动，同伴连骰子都不发；再挂着他们的名字和冷静只会
+                // 让人以为还能指挥他们，整簇不画。
+                if (snapshot.IsInEncounter && actor.Role != "protagonist")
+                {
+                    flatDieOffset += actor.ActionDice.Count;
+                    continue;
+                }
+
                 bool isLead = !leadDrawn;   // 最左第一个在场角色 = 主角，头顶挂队伍生命体征
                 leadDrawn = true;
+
+                // 主角与同伴之间一条淡分隔线：两簇本来只靠间距分开，人多了容易读成一片。
+                if (!isLead)
+                {
+                    float sepX = x - ClusterGap * 0.5f;
+                    DrawClusterSeparator(sepX, baseline);
+                }
 
                 float clusterW = DrawCluster(x, baseline, actor, flatDieOffset, isLead, snapshot, gameManager, ui, anchors);
                 x += clusterW + ClusterGap;
@@ -90,7 +105,8 @@ namespace SSNoir.IMGUI
             float nameY = diceY - NameRowH - 4f;
             float topY  = nameY;
 
-            // ── 名字 + 职业（自由文字，直接落在场景上）
+            // ── 名字（自由文字，直接落在场景上）
+            // 只画名字。Role 是内部标识（protagonist / companion），不是给玩家看的职业。
             var nameStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
@@ -100,17 +116,6 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.ApplyStrongFont(nameStyle);
             GUI.Label(new Rect(x, nameY, clusterW, NameRowH), actor.Name, nameStyle);
-            if (!isLead && !string.IsNullOrEmpty(actor.Role))
-            {
-                float nameW = nameStyle.CalcSize(new GUIContent(actor.Name)).x;
-                var roleStyle = new GUIStyle(nameStyle)
-                {
-                    fontSize = 14,
-                    fontStyle = FontStyle.Normal,
-                    normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
-                };
-                GUI.Label(new Rect(x + nameW + 8f, nameY + 1f, clusterW + 80f, NameRowH), actor.Role, roleStyle);
-            }
 
             // ── 每个行动者：名字线往上挂自己的冷静与骰池状态。
             float composureY = nameY - VitalRowH - 2f;
@@ -162,6 +167,16 @@ namespace SSNoir.IMGUI
         // 冷静三段阈值条（主角专用）：填充随当前档位换色（缓冲纸白 / 失态赭黄 / 失控印章红），
         // 两条固定刻度线钉在失控线、失态线——不管当前值多少，线的位置永远一样，
         // 玩家学的是"过线=不冷静"，不是盯着数字换算。
+        // 两簇之间的竖直分隔线。只覆盖所有行动者共享的那几行（冷静 → 名字 → 骰池），
+        // 不往上蹭主角独有的健康行，否则线会长得没有道理。
+        private static void DrawClusterSeparator(float x, float baseline)
+        {
+            float topY = baseline - TokenSize - NameRowH - 4f - VitalRowH - 2f;
+            GUI.color = Paper14;
+            GUI.DrawTexture(new Rect(x, topY, 1f, baseline - topY), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+        }
+
         private static void DrawComposureBar(float x, float y, float w, int composure)
         {
             var labelStyle = new GUIStyle(GUI.skin.label)

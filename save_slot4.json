@@ -1,10 +1,10 @@
 {
-  "saveTime": "2026-07-17 16:47:45",
+  "saveTime": "2026-07-17 19:24:08",
   "globals": {
     "chapter": 0,
     "relation:官僚": 3,
     "relation:劳工": 3,
-    "relation:富商": 0,
+    "relation:富商": 2,
     "frank-final-help": false,
     "资产": "低",
     "relation-band-name:官僚:相识": "挂号",
@@ -27,8 +27,8 @@
     "relation-goal:富商:核心": "引荐博士，牵出实验室科技线（demo 暂未开放）",
     "夜莺阶段": 3,
     "夜莺状态等级": 3,
-    "夜莺状态": "被迫转移",
-    "夜莺查访进度": 2,
+    "夜莺状态": "受伤",
+    "夜莺查访进度": 1,
     "夜莺查访目标": 2,
     "夜莺主动上门": false,
     "夜莺保护方案": "无",
@@ -44,14 +44,14 @@
   },
   "team": {
     "health": 3,
-    "growthLevel": 2,
+    "growthLevel": 5,
     "actors": [
       {
         "id": "player",
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "composure": 4,
+        "composure": 6,
         "hangoverSlotId": null,
         "faintSlotId": null,
         "lossOfControlSlotId": null,
@@ -64,20 +64,39 @@
           "sharpness": 0,
           "social": 0
         }
+      },
+      {
+        "id": "joe",
+        "name": "乔",
+        "role": "companion",
+        "status": "active",
+        "composure": 6,
+        "hangoverSlotId": null,
+        "faintSlotId": null,
+        "lossOfControlSlotId": null,
+        "permanentDiePenaltyLabel": "",
+        "permanentDiePenalty": 0,
+        "spentGrowthPoints": 0,
+        "stats": {
+          "violence": 1,
+          "knowledge": 1,
+          "sharpness": 1,
+          "social": 1
+        }
       }
     ]
   },
   "inventory": {
-    "金钱": 54,
+    "金钱": 14,
     "情报": 2,
-    "药品": 1,
-    "酒": 0,
+    "药品": 0,
+    "酒": 3,
     "香烟": 0
   },
   "worldData": [
     [
       "day",
-      11
+      15
     ],
     [
       "public-event-count",
@@ -93,7 +112,7 @@
     ],
     [
       "next-public-event",
-      1
+      5
     ],
     [
       "home",
@@ -120,7 +139,7 @@
         ],
         [
           "rent-due-max",
-          4
+          3
         ],
         [
           "evicted?",
@@ -137,7 +156,7 @@
       [
         [
           "closed-days",
-          1
+          0
         ],
         [
           "closed-days-max",
@@ -157,8 +176,8 @@
           3
         ],
         [
-          "diner-inquiry-progress",
-          4
+          "tavern-inquiry-progress",
+          0
         ],
         [
           "dock-inquiry-progress",
@@ -181,6 +200,22 @@
           0
         ],
         [
+          "dock-truth-progress",
+          0
+        ],
+        [
+          "police-truth-progress",
+          0
+        ],
+        [
+          "freight-truth-progress",
+          0
+        ],
+        [
+          "stance",
+          "无"
+        ],
+        [
           "berth?",
           false
         ],
@@ -201,30 +236,40 @@
           false
         ],
         [
+          "case-filed-day",
+          0
+        ],
+        [
+          "surrendered-day",
+          0
+        ],
+        [
+          "case-progress-shown",
+          0
+        ],
+        [
+          "surrender-progress-shown",
+          0
+        ],
+        [
           "ending-day",
           0
         ],
         [
-          "stage3-start-day",
-          10
-        ],
-        [
           "nightingale-earnings",
-          40
+          200
         ],
         [
           "scene-flags",
           [
+            "夜莺的消息",
+            "萨姆登门",
             "三层已揭",
             "二层已揭",
             "已打听"
           ]
         ]
       ]
-    ],
-    [
-      "diner",
-      []
     ],
     [
       "clinic",
@@ -271,7 +316,7 @@
       [
         [
           "stage",
-          2
+          9
         ],
         [
           "favor",
@@ -279,7 +324,7 @@
         ],
         [
           "child-progress",
-          0
+          1
         ],
         [
           "child-cared-today?",
@@ -291,7 +336,7 @@
         ],
         [
           "care-progress",
-          0
+          8
         ],
         [
           "injury-started-today?",
@@ -300,6 +345,10 @@
         [
           "cared-today?",
           false
+        ],
+        [
+          "injury-pity",
+          2
         ]
       ]
     ],
@@ -308,7 +357,7 @@
       [
         [
           "stage",
-          1
+          5
         ],
         [
           "favor",
@@ -320,7 +369,7 @@
         ],
         [
           "repair-days",
-          1
+          0
         ],
         [
           "repair-started-today?",
@@ -361,11 +410,11 @@
       [
         [
           "stage",
-          1
+          2
         ],
         [
           "claim-result",
-          "无"
+          "坐实"
         ]
       ]
     ],
@@ -399,20 +448,11 @@
       [
         [
           "active-missions",
-          [
-            [
-              "帮人寻物",
-              1
-            ],
-            [
-              "代查一笔账",
-              1
-            ]
-          ]
+          []
         ],
         [
           "refresh-days",
-          1
+          2
         ]
       ]
     ],

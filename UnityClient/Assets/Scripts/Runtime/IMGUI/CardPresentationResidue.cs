@@ -13,6 +13,8 @@ namespace SSNoir.IMGUI
         public int? FateDieValue { get; set; }
         public int PreparedValue { get; set; }
         public List<ActionEffectRecord> Effects { get; set; } = new List<ActionEffectRecord>();
+        // 结算前的节点外观。节点从新快照消失后，仍用它作为不可交互的结果卡宿主。
+        public GameNode? SourceNode { get; set; }
 
         // 结果首次可见（动画落定、切到 residue）的时刻；用于「结果从命运条下方揭开」的过渡。首帧惰性写入。
         public float RevealStartTime { get; set; } = 0f;

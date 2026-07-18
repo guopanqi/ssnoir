@@ -37,9 +37,9 @@
 
     (define (node-paperwork)
       (关系工作 "整理警局文书" "官僚" '低 'knowledge
-        (outcome "退回重填" "一个日期写错，整叠表格都被退了回来。" (lambda () (spend-composure! 1)))
+        (outcome "补上缺页" "你找回一页险些被丢掉的记录。" (lambda () (add-item! "情报" 1)))
         (outcome "按序归档" "文件回到各自的抽屉，没人因此得到什么，也没人因此倒霉。" (lambda () #f))
-        (outcome "补上缺页" "你找回一页险些被丢掉的记录。" (lambda () (add-item! "情报" 1)))))
+        (outcome "退回重填" "一个日期写错，整叠表格都被退了回来。" (lambda () (spend-composure! 1)))))
 
     (define (node-problem)
       (node "替阿瑟处理一个程序管不了的人"

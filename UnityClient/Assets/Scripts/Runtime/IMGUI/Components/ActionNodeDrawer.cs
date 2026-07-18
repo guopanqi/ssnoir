@@ -46,13 +46,39 @@ namespace SSNoir.IMGUI
             var effectiveModifiers = node.Resolve.DifficultyModifiers;
             bool hasClocks = clockBadgesBottom > rect.y;
 
+            // 结算面板优先级最高，会盖住其下的一切（执行按钮本来就画在它底下——这是既有约定）。
+            // 先把它的位置算出来，标题/副标题才能知道自己会不会被切成半截字：宁可整条不画，
+            // 也不留一道露在面板上沿的字头。
+            float contentBottom = residue != null ? ResiduePanelRect(rect, residue).y : rect.yMax;
+
             // ── 1. 标题区（居中）── clockBadgesBottom 是 CardDrawer 量出的时钟徽章实际底部，
             // 徽章换行也不会被标题压住（旧版固定 44f 只够单行徽章用）。
-            float titleY = hasClocks ? clockBadgesBottom + 6f : rect.y + 12f;
-            var titleStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleCenter };
-            if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
-            GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, 26f), node.Name, titleStyle);
+            // 徽章多到几乎吃满卡高时（如同一节点同时挂 5 个时钟）也不能任由标题被推出卡底——
+            // 宁可让标题少量压在徽章区之上，也不让文字画到卡外面去。
+            float titleY = Mathf.Min(hasClocks ? clockBadgesBottom + 6f : rect.y + 12f, rect.yMax - 32f);
+            if (titleY + 26f <= contentBottom)
+            {
+                var titleStyle = new GUIStyle(IMGUIStyles.CardTitle)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    clipping = TextClipping.Clip
+                };
+                if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
+                GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, 26f), node.Name, titleStyle);
+            }
 
+            // ── 2. 三列分区的纵向边界 ──
+            // 执行按钮贴底；showOdds 时再往下留出命运六面预览的空间。
+            // 骰位区要先于副标题定下预算，所以 exeY / coreDieIndex 都提到副标题之前算。
+            float exeH = 26f;
+            float exeY = rect.yMax - (showOdds || localRoll != null || residue != null ? 62f : 34f);
+            int coreDieIndex = isRoll ? FindCoreDieIndex(node) : -1;
+
+            // 副标题是气氛文本，骰位是这张卡的可交互核心（DESIGN.md 的「属性 → 骰子」纵列才是
+            // 判定卡主体）。空间不足时让位的必须是副标题——旧写法把它无条件 Clamp 到 18~36，
+            // 完全不看下游还需不需要空间，于是「一艘货船搁浅」这类 32 字副标题 + 2 时钟的真实
+            // 节点在 340×190 上把骰位挤到执行按钮上。现在改成从「预留完骰位最小需求后剩下的
+            // 空间」里分配：放不下就压到一行，连一行都放不下就整条收起。
             float subtitleBottomY = titleY + 26f;
             if (!string.IsNullOrWhiteSpace(node.Subtitle))
             {
@@ -66,14 +92,16 @@ namespace SSNoir.IMGUI
                 float subtitleWidth = rect.width - 24f;
                 float measuredHeight = subtitleStyle.CalcHeight(new GUIContent(node.Subtitle), subtitleWidth);
                 float subtitleHeight = Mathf.Clamp(measuredHeight, 18f, 36f);
-                GUI.Label(new Rect(rect.x + 12f, titleY + 26f, subtitleWidth, subtitleHeight), node.Subtitle, subtitleStyle);
+
+                float subtitleBudget = exeY - (titleY + 26f + 6f) - RequirementSlotsMinNeed(node, coreDieIndex);
+                if (subtitleHeight > subtitleBudget)
+                    subtitleHeight = subtitleBudget >= 18f ? 18f : 0f;
+
+                if (subtitleHeight > 0f && titleY + 26f + subtitleHeight <= contentBottom)
+                    GUI.Label(new Rect(rect.x + 12f, titleY + 26f, subtitleWidth, subtitleHeight), node.Subtitle, subtitleStyle);
                 subtitleBottomY = titleY + 26f + subtitleHeight;
             }
 
-            // ── 2. 三列分区的纵向边界 ──
-            // 执行按钮贴底；showOdds 时再往下留出命运六面预览的空间。
-            float exeH = 26f;
-            float exeY = rect.yMax - (showOdds || localRoll != null || residue != null ? 62f : 34f);
             float bodyY = subtitleBottomY + 6f;
 
             // ── 3. 类别 / 风险便签：骑在卡片左边缘外（不遮内容、不占内部空间）。
@@ -82,8 +110,7 @@ namespace SSNoir.IMGUI
             // ── 4. 需求骰位：统一为「方块 Slot」（与手牌骰子/物品同族），居中横排。
             //     骰子 slot = 大字 D/值；物品 slot = 符号 + 数量（强调）+ 下方名称展签。
             //     判定的核心骰上方挂技能药丸（属性 → 骰子）。
-            int coreDieIndex = isRoll ? FindCoreDieIndex(node) : -1;
-            DrawRequirementSlots(rect, bodyY, exeY, node, slotted, coreDieIndex, disabled, ui, gameManager, ref interaction);
+            DrawRequirementSlots(rect, bodyY, exeY, clockBadgesBottom, node, slotted, coreDieIndex, disabled, ui, gameManager, ref interaction);
 
             // ── 6. 执行 / 查看按钮（实心金 / 待命 / 不可用 / 执行中）──
             var exeRect = new Rect(rect.x + (rect.width - 112f) / 2f, exeY, 112f, exeH);
@@ -272,8 +299,29 @@ namespace SSNoir.IMGUI
 
         private static float SlotSize(ActionCost req) => req.Type == "die" ? DieSlot : ItemSlot;
 
+        // 方块能缩到多小由「里面装得下什么」决定，不是拍一个比例：
+        // 骰子格里是 26px 的大字 + 描边 → 32；物品格要上下叠符号(22px)和数量(15px)两行 → 48。
+        // 旧版那个 0.7 比例下限是假保底：die 格的 need=0.7×56+17=56.2 恒 > 触发缩放的 avail(<73)，
+        // 也就是说它一被用到就一定还在溢出，只是数字好看一点。下限必须由内容推导才有意义。
+        private static float SlotMinSize(ActionCost req) => req.Type == "die" ? 32f : 48f;
+
+        // 骰位区在最压缩状态下仍需要的高度：缩到内容下限的方块 + 展签行（属性名/物品名在这一行）。
+        // 副标题的高度预算要先扣掉它——先保住可交互核心，剩下的才给气氛文本。
+        private static float RequirementSlotsMinNeed(GameNode node, int coreDieIndex)
+        {
+            var reqs = node.Requires;
+            if (reqs == null || reqs.Count == 0) return 0f;
+
+            ActionCost biggest = reqs[0];
+            for (int j = 1; j < reqs.Count; j++)
+                if (SlotSize(reqs[j]) > SlotSize(biggest)) biggest = reqs[j];
+
+            float belowH = AnyCaption(node, reqs, coreDieIndex, showPill: false) ? CaptionRowH : 0f;
+            return SlotMinSize(biggest) + belowH;
+        }
+
         private static void DrawRequirementSlots(
-            Rect rect, float bodyY, float exeY, GameNode node, List<SlottedResource?>? slotted,
+            Rect rect, float bodyY, float exeY, float clocksBottomY, GameNode node, List<SlottedResource?>? slotted,
             int coreDieIndex, bool disabled, IMGUIInteractionContext ui, SSNoirGameManager gameManager,
             ref CardDrawer.CardInteraction interaction)
         {
@@ -281,44 +329,84 @@ namespace SSNoir.IMGUI
             if (reqs == null || reqs.Count == 0) return;
 
             int n = reqs.Count;
-            float rowW = 0f, maxSize = 0f;
-            for (int j = 0; j < n; j++)
-            {
-                float s = SlotSize(reqs[j]);
-                rowW += s;
-                maxSize = Mathf.Max(maxSize, s);
-            }
-            rowW += SlotGap * (n - 1);
+            ActionCost biggest = reqs[0];
+            for (int j = 1; j < n; j++)
+                if (SlotSize(reqs[j]) > SlotSize(biggest)) biggest = reqs[j];
+            float maxSize = SlotSize(biggest);
 
-            float aboveH = coreDieIndex >= 0 ? (PillH + PillGap) : 0f;
-            float belowH = CaptionH + CaptionGap;
-            float need = aboveH + maxSize + belowH;
-            float startY = bodyY + Mathf.Max(0f, (exeY - bodyY - need) * 0.5f);
-            float centerY = startY + aboveH + maxSize * 0.5f;
+            // 让位顺序的依据：判定属性名是这张卡的核心信息（DESIGN.md「属性 → 骰子」纵列），
+            // 任何压缩下都不能丢——空间够就挂成核心骰上方的药丸，不够就降级成下方展签。
+            // 展签行是所有 slot 共用的一行：它比药丸矮 9px，而且次要展签（物品名 /「骰子」）
+            // 本来就占着这一行，属性名挤进去不额外花钱。所以「保留药丸、砍掉次要展签」这个
+            // 中间档没有意义（比降级成展签更高、信息还更少），不设该档。
+            float avail = Mathf.Max(0f, exeY - bodyY);
+            bool hasCore = coreDieIndex >= 0;
+            float belowIfPill = AnyCaption(node, reqs, coreDieIndex, showPill: true) ? CaptionRowH : 0f;
+            bool showPill = hasCore && PillH + PillGap + maxSize + belowIfPill <= avail;
+
+            float aboveH = showPill ? PillH + PillGap : 0f;
+            float belowH = AnyCaption(node, reqs, coreDieIndex, showPill) ? CaptionRowH : 0f;
+            float scale = 1f;
+            if (aboveH + maxSize + belowH > avail && maxSize > 0f)
+                scale = Mathf.Clamp((avail - aboveH - belowH) / maxSize, SlotMinSize(biggest) / maxSize, 1f);
+
+            float scaledMax = maxSize * scale;
+            float need = aboveH + scaledMax + belowH;
+            float startY = bodyY + Mathf.Max(0f, (avail - need) * 0.5f);
+            // 上面这些让位/缩放都只是「尽量好看」，真正的保证在这两行：
+            // 骰位与执行按钮都是可交互元素，谁压住谁都是 bug，所以最后无条件把整块（含药丸与
+            // 展签）钉在执行按钮上方；实在挤不下就向上侵占标题/副标题区（那是展示，不是交互），
+            // 但不盖住时钟徽章。这样结论不依赖上面任何一档参数调得准不准。
+            startY = Mathf.Max(startY, clocksBottomY);
+            startY = Mathf.Min(startY, exeY - need);
+            float centerY = startY + aboveH + scaledMax * 0.5f;
+
+            float rowW = 0f;
+            for (int j = 0; j < n; j++) rowW += SlotSize(reqs[j]) * scale;
+            rowW += SlotGap * (n - 1);
 
             float x = rect.center.x - rowW * 0.5f;
             for (int j = 0; j < n; j++)
             {
                 var req = reqs[j];
-                float size = SlotSize(req);
+                float size = SlotSize(req) * scale;
                 var square = new Rect(x, centerY - size * 0.5f, size, size);
                 bool isRollCore = j == coreDieIndex;
 
-                if (isRollCore)
+                if (isRollCore && showPill)
                     DrawSkillPill(square, SkillInfo.DisplayName(node.Resolve!.SkillName));
 
                 DrawSlotBlock(square, node, j, req, slotted != null ? slotted[j] : null, disabled, ui, gameManager, ref interaction);
 
-                // 名称展签：物品=物品名；消耗骰=「骰子」；判定核心骰用上方药丸表达，不再重复。
-                if (!isRollCore)
-                {
-                    string caption = req.Type == "die" ? "骰子" : (string.IsNullOrEmpty(req.ItemId) ? "" : req.ItemId);
-                    if (!string.IsNullOrEmpty(caption))
-                        DrawSlotCaption(square, caption);
-                }
+                // 展签行的高度已经由 belowH 预算过，这里无条件按 CaptionFor 的结果画：
+                // 核心骰在药丸态下返回空串（属性名已由药丸表达，不重复），药丸被收起时返回属性名。
+                string caption = CaptionFor(node, req, isRollCore, showPill);
+                if (!string.IsNullOrEmpty(caption))
+                    DrawSlotCaption(square, caption);
 
                 x += size + SlotGap;
             }
+        }
+
+        private const float CaptionRowH = CaptionH + CaptionGap;
+
+        // 展签文字的唯一来源——预算（AnyCaption）与绘制共用它，避免「算的」和「画的」各写一遍。
+        // 核心骰：药丸态下不重复属性名（返回空）；药丸被收起时由展签承担属性名。
+        private static string CaptionFor(GameNode node, ActionCost req, bool isRollCore, bool showPill)
+        {
+            if (isRollCore)
+                return showPill ? "" : SkillInfo.DisplayName(node.Resolve!.SkillName);
+            return req.Type == "die" ? "骰子" : (string.IsNullOrEmpty(req.ItemId) ? "" : req.ItemId);
+        }
+
+        private static bool AnyCaption(GameNode node, List<ActionCost> reqs, int coreDieIndex, bool showPill)
+        {
+            for (int j = 0; j < reqs.Count; j++)
+            {
+                if (!string.IsNullOrEmpty(CaptionFor(node, reqs[j], j == coreDieIndex, showPill)))
+                    return true;
+            }
+            return false;
         }
 
         // 方块 Slot：与手牌方块同族。空 = Ink 槽 + 占位符（提示放什么）；填 = 实心黑方块 + 亮内容。
@@ -342,12 +430,17 @@ namespace SSNoir.IMGUI
 
             Color content = filled ? IMGUIStyles.Paper : SlotPlaceholderColor(canDropHeld, canMatchHeld);
 
+            // 方块被压缩时（见 DrawRequirementSlots 的 scale）内部字号与留白按同一比例跟着走。
+            // 否则物品格缩到 48px 时，固定偏移的符号(y+8 高26)和数量(yMax-24 高20)会直接叠在一起。
+            // k=1 时与原本的固定数值完全一致，正常尺寸下无任何变化。
+            float k = rect.height / SlotSize(req);
+
             if (req.Type == "die")
             {
                 string big = filled ? res!.Value.ToString() : "D";
                 var s = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
-                    fontSize = 26,
+                    fontSize = Mathf.RoundToInt(26f * k),
                     alignment = TextAnchor.MiddleCenter,
                     normal = { textColor = content }
                 };
@@ -361,21 +454,21 @@ namespace SSNoir.IMGUI
                 int qty = filled ? (res!.Qty > 0 ? res.Qty : 1) : req.Qty;
                 var symStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
-                    fontSize = 22,
+                    fontSize = Mathf.RoundToInt(22f * k),
                     alignment = TextAnchor.UpperCenter,
                     normal = { textColor = content }
                 };
                 IMGUIStyles.ApplyStrongFont(symStyle);
-                GUI.Label(new Rect(rect.x, rect.y + 8f, rect.width, 26f), symbol, symStyle);
+                GUI.Label(new Rect(rect.x, rect.y + 8f * k, rect.width, 26f * k), symbol, symStyle);
 
                 var qtyStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
-                    fontSize = 15,
+                    fontSize = Mathf.RoundToInt(15f * k),
                     alignment = TextAnchor.LowerCenter,
                     normal = { textColor = content }
                 };
                 IMGUIStyles.ApplyStrongFont(qtyStyle);
-                GUI.Label(new Rect(rect.x, rect.yMax - 24f, rect.width, 20f), $"×{qty}", qtyStyle);
+                GUI.Label(new Rect(rect.x, rect.yMax - 24f * k, rect.width, 20f * k), $"×{qty}", qtyStyle);
             }
 
             HandleSlotClick(rect, slotIndex, filled, disabled, canDropHeld, slotHover, ui, ref interaction);
@@ -651,10 +744,17 @@ namespace SSNoir.IMGUI
 
         // ── 判定中：掷骰瞬间面板（金光呼吸）──────────────────────────
 
+        // 掷骰面板与结算面板共用的锚点：头部固定高度 54，理想情况下贴在 rect.yMax-66（留 12 底边距）。
+        // DrawResiduePanel 的 body 会撑大总高度——两者共用这组常量，避免数值各改一遍互相漂移。
+        private const float PanelHeaderH = 54f;
+        private const float PanelBottomOffset = 66f;
+        private const float PanelBottomMargin = 12f;
+        private const float PanelTopMargin = 8f;
+
         // 掷骰中：命运条本身就是动画（减速扫掠 → 落格弹跳 → 定格），而非一个方框里跳变的数字。
         private static void DrawLocalRoll(Rect rect, ActionReport report, int phase, int displayDieValue, float displayScale)
         {
-            var panel = new Rect(rect.x + 12f, rect.yMax - 66f, rect.width - 24f, 54f);
+            var panel = new Rect(rect.x + 12f, rect.yMax - PanelBottomOffset, rect.width - 24f, PanelHeaderH);
             IMGUIStyles.DrawShadow(panel, new Vector2(4f, 5f), 0.45f);
             GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, IMGUIStyles.ModalOpacity);
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
@@ -680,8 +780,38 @@ namespace SSNoir.IMGUI
                 DrawResultSeal(rect, panel.y, report.Outcome);
         }
 
-        // 结算结果 = 命运条「原地定格」+ 结果从其下方揭开。头部与 DrawLocalRoll 落定态同位置、同内容，
-        // 形成无缝冻结（动画一停，命运条就留在原处）；身体（叙事 + 影响）随揭开轻微下滑弹出。
+        // 结算面板的几何是 rect + residue 的纯函数——绘制和「标题会不会被盖住」的判断共用它，
+        // 免得两边各算一遍再慢慢漂移。
+        //
+        // 理想位置与 DrawLocalRoll 落定态同位（rect.yMax - PanelBottomOffset）→ 原地冻结；
+        // body 撑破卡底预留时整个面板上移。上移的下界只取卡片自身（rect.y + PanelTopMargin），
+        // **不给标题/副标题/骰位让路**：residue 一旦存在，这张卡的使命就从「让你操作」变成
+        // 「告诉你结果」，让面板盖住那些操作用的元素是合理的（执行按钮本来就画在它底下），
+        // 让结算内容消失不合理。反过来把面板上界钉在骰位区下沿，会在 340×190 这类常见档位上
+        // 把叙事和全部影响行静默吞掉——那是更严重的错误。
+        //
+        // bodyH 必须与 DrawResiduePanel 里 body 的实际画法逐项对齐（头部下方 4 + 副标题 20 +
+        // 影响行 16/行 + 底部 4），否则预算与实际可用高度对不上，影响行会被 DrawEffectRows 误折成「+N」。
+        private static Rect ResiduePanelRect(Rect rect, CardPresentationResidue residue)
+        {
+            bool hasSubtitle = !string.IsNullOrWhiteSpace(residue.Subtitle);
+            int effectRows = Mathf.Min(3, residue.Effects.Count);
+            float bodyH = 0f;
+            if (hasSubtitle || effectRows > 0) bodyH += 8f;
+            if (hasSubtitle) bodyH += 20f;
+            bodyH += effectRows * 16f;
+
+            float totalH = PanelHeaderH + bodyH;
+            float top = Mathf.Max(
+                Mathf.Min(rect.yMax - PanelBottomOffset, rect.yMax - PanelBottomMargin - totalH),
+                rect.y + PanelTopMargin);
+            totalH = Mathf.Max(PanelHeaderH, Mathf.Min(totalH, rect.yMax - PanelBottomMargin - top));
+            return new Rect(rect.x + 12f, top, rect.width - 24f, totalH);
+        }
+
+        // 结算结果 = 命运条「原地定格」+ 结果从其下方揭开。头部与 DrawLocalRoll 落定态同内容，
+        // 位置由 ResiduePanelRect 决定（body 不撑破卡底时即同位，形成无缝冻结）；
+        // 身体（叙事 + 影响）随揭开轻微下滑弹出。
         private static void DrawResiduePanel(Rect rect, CardPresentationResidue residue)
         {
             // residue 只有动画落定后才被绘制——首帧即结果该「揭开」的时刻，惰性记录起点。
@@ -690,20 +820,13 @@ namespace SSNoir.IMGUI
             float reveal = Mathf.Clamp01((Time.time - residue.RevealStartTime) / 0.28f);
             float ease = 1f - Mathf.Pow(1f - reveal, 3f);
 
-            float bodyH = 0f;
-            if (!string.IsNullOrWhiteSpace(residue.Subtitle)) bodyH += 20f;
-            int effectRows = Mathf.Min(3, residue.Effects.Count);
-            if (effectRows > 0) bodyH += effectRows * 16f + 4f;
-
-            const float headerH = 54f;
-            // 头部与 DrawLocalRoll 落定态同位置（rect.yMax-66, 高 54）→ 原地冻结；身体向下延展。
-            var panel = new Rect(rect.x + 12f, rect.yMax - 66f, rect.width - 24f, headerH + bodyH);
+            var panel = ResiduePanelRect(rect, residue);
             IMGUIStyles.DrawShadow(panel, new Vector2(4f, 5f), 0.45f);
             GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, IMGUIStyles.ModalOpacity);
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
             GUI.color = Color.white;
 
-            var header = new Rect(panel.x, panel.y, panel.width, headerH);
+            var header = new Rect(panel.x, panel.y, panel.width, PanelHeaderH);
             bool hasOutcome = residue.RollOutcome.HasValue;
             RollOutcome outcome = residue.RollOutcome ?? RollOutcome.Neutral;
             Color oc = hasOutcome ? OutcomeColor(outcome) : IMGUIStyles.Gold;
@@ -725,8 +848,9 @@ namespace SSNoir.IMGUI
                 DrawResultSeal(rect, header.y, outcome);
 
             // 身体：结果从命运条下方揭开（叙事淡入、整体轻微下滑）。
+            // body 预算被压缩到连副标题都放不下的极端情况下，宁可跳过副标题也不画出面板外。
             float y = header.yMax + 4f + (1f - ease) * 5f;
-            if (!string.IsNullOrWhiteSpace(residue.Subtitle))
+            if (!string.IsNullOrWhiteSpace(residue.Subtitle) && y + 18f <= panel.yMax)
             {
                 GUI.color = new Color(oc.r, oc.g, oc.b, ease);
                 GUI.DrawTexture(new Rect(panel.x + 8f, y + 1f, 2.5f, 13f), Texture2D.whiteTexture);

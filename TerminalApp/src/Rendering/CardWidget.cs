@@ -977,54 +977,17 @@ namespace SSNoir.Rendering
 
         public static void DrawResidueCard(Rectangle bounds, CardPresentationResidue residue)
         {
-            Color bgColor = new Color(12, 14, 20, 210); // 半透明幽灵黑
-            Color outlineColor = new Color(105, 125, 180, 150); // 半透明灰蓝
-            Color typeColor = new Color(120, 135, 175, 220);
-
-            Raylib.DrawRectangleRounded(bounds, 0.1f, 8, bgColor);
-            Raylib.DrawRectangleRoundedLinesEx(bounds, 0.1f, 8, 1.2f, outlineColor);
-
-            // 绘制电子扫描线效果
-            for (float sy = bounds.Y + 4f; sy < bounds.Y + bounds.Height - 4f; sy += 4f)
-            {
-                Raylib.DrawLineEx(
-                    new System.Numerics.Vector2(bounds.X + 6f, sy),
-                    new System.Numerics.Vector2(bounds.X + bounds.Width - 6f, sy),
-                    1.0f,
-                    new Color(255, 255, 255, 8)
-                );
-            }
-
-            string label = residue.RollOutcome.HasValue ? FormatOutcome(residue.RollOutcome.Value) : "行动结果";
-            int labelW = FontManager.MeasureTextWidth(label, 13);
-            FontManager.DrawText(label, bounds.X + (bounds.Width - labelW) / 2f, bounds.Y + 12f, 13, typeColor);
-
-            float titleY = bounds.Y + 38f;
-            if (residue.FateDieValue.HasValue)
-            {
-                string dieText = $"D{residue.FateDieValue.Value}";
-                const int dieFont = 26;
-                int dieW = FontManager.MeasureTextWidth(dieText, dieFont);
-                FontManager.DrawText(dieText, bounds.X + (bounds.Width - dieW) / 2f, bounds.Y + 34f, dieFont, new Color(255, 182, 147, 255));
-                titleY = bounds.Y + 66f;
-            }
-
-            string title = residue.Title;
-            if (residue.RollOutcome.HasValue)
-            {
-                title = $"{FormatOutcome(residue.RollOutcome.Value)}：{residue.Title}";
-            }
-            Color titleColor = residue.RollOutcome.HasValue ? OutcomeColor(residue.RollOutcome.Value) : new Color(235, 235, 248, 255);
-            DrawWrappedText(title, bounds.X + 14f, titleY, bounds.Width - 28f, 14, titleColor);
-
-            string subtitle = residue.Subtitle;
-            if (string.IsNullOrWhiteSpace(subtitle) && residue.FateDieValue.HasValue)
-                subtitle = $"准备 {residue.PreparedValue} · 命运骰 {residue.FateDieValue.Value}";
-            if (!string.IsNullOrWhiteSpace(subtitle))
-                DrawWrappedText(subtitle, bounds.X + 14f, titleY + 30f, bounds.Width - 28f, 11, new Color(185, 190, 210, 255));
-
-            float effectsY = string.IsNullOrWhiteSpace(subtitle) ? titleY + 30f : titleY + 48f;
-            DrawEffectRows(new Rectangle(bounds.X + 10f, effectsY, bounds.Width - 20f, bounds.Y + bounds.Height - effectsY - 8f), residue.Effects);
+            // 节点在结算时被移除，仍保留一个不可交互的卡片宿主。
+            // 与仍在场的节点共用 DrawResidue，保证命运条、叙事和影响行完全同构。
+            DrawCard(
+                bounds,
+                residue.AnchorNodeName,
+                "已结算",
+                "结果",
+                isHovered: false,
+                clocks: new List<GameClock>(),
+                residue: residue,
+                disabled: true);
         }
 
         // 标签配色：工作/风险标签全局一致，玩家一眼判断类型与风险。

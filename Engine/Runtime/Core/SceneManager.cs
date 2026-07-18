@@ -329,6 +329,7 @@ namespace SSNoir.Core
                 RelationUnlocks = relationUnlocks,
                 RelationBandNames = relationBandNames,
                 Actors = actors,
+                IsInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase),
             };
         }
 

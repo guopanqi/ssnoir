@@ -11,6 +11,7 @@
       (recovery-roll-action "散步"
         (list (req-die))
         'sharpness
+        (lambda () (list (modifier 1 "散步")))
         (outcome "心不在焉" "走是走了，脑子里那些事却怎么也甩不掉。" ; 坏
           (lambda () (walter 'on-park-walk!)))
         (outcome "松了口气" "沿着湖边走了一圈，风把脑子里的杂音吹散了些。" ; 中

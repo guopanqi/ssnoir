@@ -13,13 +13,13 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "手动编辑的/demo短篇·剧本总表.md",
+                "file": "手稿/未命名.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": false
               },
               "icon": "lucide-file",
-              "title": "demo短篇·剧本总表"
+              "title": "未命名"
             }
           }
         ]
@@ -79,7 +79,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "7f1eabdaa6d3cac7",
@@ -168,23 +169,36 @@
   },
   "active": "38e6494087c3244c",
   "lastOpenFiles": [
-    "手动编辑的/demo短篇·剧本总表.md.tmp.1405.2a42adfb1268",
+    "手稿/设计参考和一些思考/Fable：关于CS2合同的策略性来源.md",
+    "手稿/未命名.md",
+    "手稿/设计参考和一些思考/Claude关于活侠传的经济结构.md",
+    "手稿/设计参考和一些思考/images/Pasted Graphic 2.png",
+    "手稿/设计参考和一些思考/images",
+    "手稿/设计参考和一些思考/images/Pasted Graphic 3.png",
+    "demo短篇·剧本总表.md",
     "城市生活设计.md",
-    "手动编辑的/demo短篇·剧本总表.md",
-    "手动编辑的",
-    "故事设计总纲.md",
+    "手稿/设计参考和一些思考",
+    "收藏.md",
     "原语扩展提案.md",
     "交锋结构库.md",
+    "archive/demo短篇·夜莺交锋方案.md",
     "demo短篇·夜莺故事设计.md",
     "demo短篇·夜莺交锋方案.md",
+    "手稿/Noir可以参考学习的游戏.md",
+    "手稿/设计参考和一些思考/记号法/关于记号法的对话-重制精简版.txt",
+    "手稿/设计参考和一些思考/记号法/关于记号法的对话-原始记录.txt",
+    "手稿/设计参考和一些思考/记号法/关于记号法的对话.txt",
+    "手稿/设计参考和一些思考/记号法",
+    "记号法/关于记号法的对话.txt",
+    "记号法/关于记号法的对话-重制精简版.txt",
+    "记号法/关于记号法的对话-原始记录.txt",
+    "记号法",
+    "故事设计总纲.md",
     "ARCHITECTURE.md",
     "手动编辑的/Noir可以参考学习的游戏.md",
     "手稿/生活方式模拟.md",
     "手稿/夜莺剧本-第一章.md",
     "手稿/夜莺人物表.md",
-    "手稿/Noir可以参考学习的游戏.md",
-    "手稿",
-    "archive/world.excalidraw",
     "手动编辑的/夜莺人物表.md",
     "design-audit/2026-07-06-unity-ui/audit.md",
     "archive/三种生活方式实施计划.md",
@@ -194,10 +208,6 @@
     "手动编辑的/生活方式模拟.md",
     "手动编辑的/夜莺剧本-第一章.md",
     "Noir可以参考学习的游戏.md",
-    "夜莺剧本-第一章.md",
-    "草稿 - 该做什么工作.md",
-    "夜莺人物表.md",
-    "生活方式模拟.md",
     "posts/摘录/assets/有意思/oregon-trail.jpg",
     "posts/摘录/assets/有意思/haxiachuan-header.jpg",
     "posts/摘录/assets/有意思/haxiachuan.jpg",
@@ -205,17 +215,8 @@
     "ss_07c0e9877d7dc53097ace30e8332492e6e615110.1920x1080.jpg",
     "ss_35cec6e914fcd6024cde2bc9a3d2efe4927db891.1920x1080.jpg",
     "ss_b07a11dc0f7b046fa4111511d1ade3a33842d8b9.1920x1080.jpg",
-    "ss_670f1989181e98881d43d89f0a27dad2acaa546f.1920x1080.jpg",
-    "posts/摘录/assets/好看/party-animals.jpg",
     "未命名.canvas",
-    "关于游戏的一些闲谈/Will Wright",
     "posts/摘录/assets/未命名.canvas",
-    "Ink/Drawing/2026.6.30 - 21.28pm.drawing",
-    "Ink/Drawing",
-    "Ink",
-    "posts/散文/assets/随笔示例",
-    "posts/散文/assets",
-    "games/assets/逃往南方",
     "notes/未命名.canvas"
   ]
 }

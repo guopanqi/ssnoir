@@ -116,7 +116,6 @@ namespace SSNoir.IMGUI
                 "金钱" => "$",
                 "酒" => "酒",
                 "药品" => "药",
-                "食物" => "食",
                 _ => name.Length > 0 ? name.Substring(0, 1) : "?"
             };
         }
