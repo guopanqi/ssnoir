@@ -9,6 +9,7 @@
            (container "警局"
              (append
                (nightingale 'lead-nodes-at "警局")
+               (sam 'nodes-at "警局")
                (arthur 'nodes)
                (nightingale 'route-nodes-at "警局")))))
         ((equal? msg 'save) '())

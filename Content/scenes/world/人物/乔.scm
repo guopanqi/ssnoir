@@ -24,6 +24,27 @@
     (define injury-pity-max 4)
     (define identity "码头搬运工，独自抚养孩子")
 
+    (define (familiar-stage?)
+      (or (= stage 3) (= stage 4) (= stage 6) (= stage 7) (= stage 9)))
+
+    (define (maybe-haul-banter!)
+      (if (random-choice (chance-table 2 6))
+          (cond
+            ((= stage 1)
+             (play-banter!
+               (line "乔" (random-choice (list
+                 "这批压秤。腰上使不上劲,就用腿。"
+                 "工头今天心情好,趁早多搬两趟。"
+                 "你手上的茧还嫩。撑过头一个月就好了。")))))
+            ((familiar-stage?)
+             (play-banter!
+               (line "乔" (random-choice (list
+                 "今晚回去得给孩子听写。他的字比我的好,随他妈。"
+                 "干完这班就收。晚饭凉了再热,就不是那个味了。"
+                 "孩子问你是谁。我说,是个顺路的朋友。")))))
+            (else #f))
+          #f))
+
     (define (advance-favor! n)
       (if (or (= stage 1) (= stage 2))
           (let ((before favor))
@@ -37,13 +58,33 @@
           #f))
 
     (define (on-haul!)
-      (if (and (= stage 0) (>= (faction-relation "劳工") 1))
+      (begin
+        (maybe-haul-banter!)
+        (if (and (= stage 0) (>= (faction-relation "劳工") 1))
+            (begin
+              (set! stage 1)
+              (set! favor 1)
+              (record-clock-progress! "与乔熟悉起来" 1)
+              (notify! "码头的乔开始认得你了。"))
+            (advance-favor! 1))))
+
+    (define (can-catch?)
+      (and (>= stage 3) (< stage 5)))
+
+    (define (on-haul-neutral!)
+      (if (and (can-catch?) (random-choice (chance-table 2 6)))
+          (play-banter! (line "乔" "喏,水。别一口闷。"))
+          #f))
+
+    (define (on-haul-fail!)
+      (on-haul!)
+      (if (and (can-catch?) (random-choice (chance-table 3 6)))
           (begin
-            (set! stage 1)
-            (set! favor 1)
-            (record-clock-progress! "与乔熟悉起来" 1)
-            (notify! "码头的乔开始认得你了。"))
-          (advance-favor! 1)))
+            (spend-up-to! "金钱" 5)
+            (play-banter!
+              (line "乔" "手别抽——先垫膝。")
+              (line "乔" "裂的是箱角,货没事。工头那边,我说是我码歪的。")))
+          (spend-up-to! "金钱" 10)))
 
     (define (node-joe-at-dock)
       (node "乔"
@@ -259,6 +300,9 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'on-haul!) (on-haul!))
+          ((equal? msg 'on-haul-neutral!) (on-haul-neutral!))
+          ((equal? msg 'on-haul-fail!) (on-haul-fail!))
+          ((equal? msg 'can-catch?) (can-catch?))
           ((equal? msg 'dock-nodes) (dock-nodes))
           ((equal? msg 'residential-nodes) (residential-nodes))
           ((equal? msg 'residential-unlocked?) (>= stage 3))

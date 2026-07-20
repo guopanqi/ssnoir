@@ -4,18 +4,99 @@
   (let ()
     (define stage 1) ; 1初谈(登门当天即达) / 2讲过亨利
     (define evidence "无") ; 无 / 老板 / 完整
+    (define along? #f)
+    (define sighting-tavern? #f)
+    (define sighting-dock? #f)
+    (define favor-asked? #f)
+    (define favor-done? #f)
+    (define sighting-police? #f)
     (define identity "离开警队的邻城刑警，现为编外侦探")
+
+    (define (bool-count flags)
+      (if (null? flags)
+          0
+          (+ (if (car flags) 1 0) (bool-count (cdr flags)))))
+
+    (define (sighting-count)
+      (bool-count (list sighting-tavern? sighting-dock? sighting-police?)))
+
+    (define (sighting-recap)
+      (cond
+        ((and sighting-tavern? sighting-dock?) "酒馆里请酒的是我。码头问潮水的也是我。我查的,一直是同一件事。")
+        (sighting-tavern? "酒馆里请酒的是我。我查的,一直是同一件事。")
+        (sighting-dock? "码头问潮水的是我。我查的,一直是同一件事。")
+        (sighting-police? "警局柜台前争案卷的是我。我查的,一直是同一件事。")
+        (else "这件事我查了七年,没查到尽头。")))
 
     (define (remembrance-ready?)
       (and (= stage 1) (>= (nightingale 'truth-progress) 2)))
 
     ;; 三层已揭后他已经登门自报家门(见 夜莺.scm 的「萨姆登门」必看场景)，
-    ;; 这里只负责把内部 stage 从初始值推进、补一句酒馆场景才有的追加信息。
+    ;; 这里只负责酒馆中的追加信息。
     (define (debut!)
       (if (= stage 1)
           (spotlight! "萨姆" "他手里有三条能追下去的线：码头老人、邻城案卷、货栈船期。")
           #f))
 
+    ;; ── 登门之前的三次目击 ────────────────────────
+    (define (node-tavern-sighting)
+      (instant-action "角落里请酒的男人"
+        (lambda ()
+          (set! sighting-tavern? #t)
+          (play-dialogue!
+            (line "世界" "角落那桌,一个没见过的男人在给几个老码头工添酒。他自己那杯没动。")
+            (line "世界" "他问的都是七年前的旧事:那年冬天谁在栈桥上值夜,哪班船停靠过。")
+            (line "世界" "老工人们摇头。他也不追问,把酒钱压在杯底,走了。")))))
+
+    (define (node-dock-sighting)
+      (container "问潮水的男人"
+        (list
+          (instant-action "替他带句话"
+            (lambda ()
+              (set! sighting-dock? #t)
+              (set! favor-asked? #t)
+              (set! favor-done? #t)
+              (play-dialogue!
+                (line "世界" "还是那个男人。他在问七年前十一月的潮汐,和一个具体的日子。")
+                (line "萨姆" "劳驾。帮我问一句:登记房的老钟,那年是不是慢十分钟。就这一句。")
+                (line "主角" "就一句?")
+                (line "萨姆" "就一句。答案是或不是,都值一杯酒。"))
+              (spotlight! "带一句话" "你替他问了。登记房的人说:是,慢十分钟,后来才校的。你把答案带给他,他点了点头,像是补上了什么。")))
+          (instant-action "不掺和"
+            (lambda ()
+              (set! sighting-dock? #t)
+              (set! favor-asked? #t)
+              (play-dialogue!
+                (line "世界" "还是那个男人。他在问七年前十一月的潮汐,和一个具体的日子。")
+                (line "世界" "他朝你看了一眼,像是想开口,又算了。")))))))
+
+    (define (node-police-sighting)
+      (instant-action "柜台前的争执"
+        (lambda ()
+          (set! sighting-police? #t)
+          (if (relation-at-least? "官僚" '相识)
+              (play-dialogue!
+                (line "世界" "柜台前,那个男人在跟值班警员低声争一份邻城的旧案卷,被挡了回来。")
+                (line "世界" "他离开时,你听清了他念的名字:亨利·奎因。")
+                (line "世界" "值班的朝你摊手:'编外的。没有手续,谁也调不动邻城的卷。'"))
+              (play-dialogue!
+                (line "世界" "柜台前,那个男人在跟值班警员低声争一份什么卷宗,被挡了回来。")
+                (line "世界" "他把帽檐往下按了按,走进雨里。你没听清他要的是什么。"))))))
+
+    (define (sighting-nodes-at location)
+      (cond
+        ((and (equal? location "酒馆") (= (nightingale 'story-stage) 1)
+              (not (nightingale 'sam-intro?)) (not sighting-tavern?))
+         (list (node-tavern-sighting)))
+        ((and (equal? location "码头") (>= world-day 5) (<= world-day 10)
+              (>= (nightingale 'story-stage) 2) (not (nightingale 'sam-intro?)) (not sighting-dock?))
+         (list (node-dock-sighting)))
+        ((and (equal? location "警局") (>= world-day 8)
+              (>= (nightingale 'story-stage) 2) (not (nightingale 'sam-intro?)) (not sighting-police?))
+         (list (node-police-sighting)))
+        (else '())))
+
+    ;; ── 正式登场后 ────────────────────────────────
     (define (node-chat)
       (observe-action "聊聊旧案"
         (cond
@@ -29,11 +110,24 @@
         ((= stage 2) "编外侦探；等你决定如何交代真相")
         (else identity)))
 
+    (define (node-along)
+      (instant-action "跟他一起查"
+        (lambda ()
+          (set! along? #t)
+          (play-dialogue!
+            (line "萨姆" "行。丑话在前:我要的是那晚的全部,不是对她有利的那一半。")
+            (line "主角" "查到哪算哪。")
+            (line "萨姆" "三条线。码头的老人认得我这张脸就够了;案卷和货栈,得靠你的门路。"))
+          (spotlight! "两个人查" "从今晚起,三条查访线上都有他。他不占你的骰子,他带来的是他自己。"))))
+
     (define (node-sam)
       (node "萨姆"
         :subtitle (sam-subtitle)
         :children (append
                     (list (node-chat))
+                    (if (and (= stage 1) (not along?) (nightingale 'truth-pending?))
+                        (list (node-along))
+                        '())
                     (if (and (remembrance-ready?) (not (nightingale 'route-settled?)))
                         (list (node-remembrance))
                         '())
@@ -44,9 +138,6 @@
 
     (define (present?)
       (and (nightingale 'stage3-open?) (nightingale 'sam-intro?) (not (nightingale 'route-settled?))))
-
-    (define (nodes)
-      (if (present?) (list (node-sam)) '()))
 
     (define (node-remembrance)
       (node "听萨姆说起亨利"
@@ -78,18 +169,37 @@
                 (line "夜莺" "好。至少这一次，不让老板替所有人写结尾。"))
               (spotlight! "完整案卷" "夜莺将在第17天随案回去作证。"))))))
 
+    (define (nodes-at location)
+      (append
+        (sighting-nodes-at location)
+        (if (and (equal? location "酒馆") (present?)) (list (node-sam)) '())))
+
     (lambda args
       (let ((msg (car args)))
         (cond
-          ((equal? msg 'nodes) (nodes))
+          ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'stage) stage)
           ((equal? msg 'evidence) evidence)
+          ((equal? msg 'along?) along?)
+          ((equal? msg 'sighting-count) (sighting-count))
+          ((equal? msg 'sighting-recap) (sighting-recap))
+          ((equal? msg 'favor-done?) favor-done?)
           ((equal? msg 'debut!) (debut!))
-          ((equal? msg 'save) (list (list "stage" stage) (list "evidence" evidence)))
+          ((equal? msg 'save)
+           (list (list "stage" stage) (list "evidence" evidence) (list "along?" along?)
+                 (list "sighting-tavern?" sighting-tavern?) (list "sighting-dock?" sighting-dock?)
+                 (list "favor-asked?" favor-asked?) (list "favor-done?" favor-done?)
+                 (list "sighting-police?" sighting-police?)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! stage (assoc-get data "stage" 1))
              (set! evidence (assoc-get data "evidence" "无"))
+             (set! along? (assoc-get data "along?" #f))
+             (set! sighting-tavern? (assoc-get data "sighting-tavern?" #f))
+             (set! sighting-dock? (assoc-get data "sighting-dock?" #f))
+             (set! favor-asked? (assoc-get data "favor-asked?" #f))
+             (set! favor-done? (assoc-get data "favor-done?" #f))
+             (set! sighting-police? (assoc-get data "sighting-police?" #f))
              (if (or (equal? evidence "无") (equal? evidence "老板") (equal? evidence "完整"))
                  #t (error "萨姆存档错误：证据状态非法"))))
           (else #f))))))

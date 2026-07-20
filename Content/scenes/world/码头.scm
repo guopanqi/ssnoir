@@ -7,9 +7,9 @@
         (outcome "扛完一整班" "汗把衬衫贴在背上，工钱倒给得痛快。"
           (lambda () (add-item! "金钱" 15) (grant-work-relation! "劳工") (joe 'on-haul!)))
         (outcome "勉强做完" "工钱拿到了，腰背也像散了架。"
-          (lambda () (add-item! "金钱" 8) (spend-composure! 1) (joe 'on-haul!)))
+          (lambda () (add-item! "金钱" 8) (spend-composure! 1) (joe 'on-haul!) (joe 'on-haul-neutral!)))
         (outcome "货箱脱手" "货箱摔裂在跳板上，工头把损失和骂声全算在你头上。"
-          (lambda () (spend-composure! 2) (joe 'on-haul!)))))
+          (lambda () (spend-composure! 2) (joe 'on-haul-fail!)))))
 
     (define (node-sell-contraband-locally)
       (node "把私货散卖给水手"
@@ -23,6 +23,7 @@
       (append
         (list (node-haul))
         (nightingale 'beat1-nodes-at "码头")
+        (sam 'nodes-at "码头")
         (joe 'dock-nodes)
         (frank 'dock-nodes)
         (nightingale 'route-nodes-at "码头")
