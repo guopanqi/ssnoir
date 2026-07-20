@@ -1,10 +1,10 @@
 {
-  "saveTime": "2026-07-17 19:24:08",
+  "saveTime": "2026-07-19 18:32:52",
   "globals": {
     "chapter": 0,
     "relation:官僚": 3,
     "relation:劳工": 3,
-    "relation:富商": 2,
+    "relation:富商": 0,
     "frank-final-help": false,
     "资产": "低",
     "relation-band-name:官僚:相识": "挂号",
@@ -40,18 +40,19 @@
     "夜莺已立案": false,
     "夜莺已移交": false,
     "bout-idx": 1,
-    "夜莺已先离场": false
+    "夜莺已先离场": false,
+    "夜莺姿态": "无"
   },
   "team": {
     "health": 3,
-    "growthLevel": 5,
+    "growthLevel": 2,
     "actors": [
       {
         "id": "player",
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "composure": 6,
+        "composure": 4,
         "hangoverSlotId": null,
         "faintSlotId": null,
         "lossOfControlSlotId": null,
@@ -64,39 +65,20 @@
           "sharpness": 0,
           "social": 0
         }
-      },
-      {
-        "id": "joe",
-        "name": "乔",
-        "role": "companion",
-        "status": "active",
-        "composure": 6,
-        "hangoverSlotId": null,
-        "faintSlotId": null,
-        "lossOfControlSlotId": null,
-        "permanentDiePenaltyLabel": "",
-        "permanentDiePenalty": 0,
-        "spentGrowthPoints": 0,
-        "stats": {
-          "violence": 1,
-          "knowledge": 1,
-          "sharpness": 1,
-          "social": 1
-        }
       }
     ]
   },
   "inventory": {
-    "金钱": 14,
+    "金钱": 54,
     "情报": 2,
-    "药品": 0,
-    "酒": 3,
+    "药品": 1,
+    "酒": 0,
     "香烟": 0
   },
   "worldData": [
     [
       "day",
-      15
+      11
     ],
     [
       "public-event-count",
@@ -112,7 +94,7 @@
     ],
     [
       "next-public-event",
-      5
+      1
     ],
     [
       "home",
@@ -139,7 +121,7 @@
         ],
         [
           "rent-due-max",
-          3
+          4
         ],
         [
           "evicted?",
@@ -156,7 +138,7 @@
       [
         [
           "closed-days",
-          0
+          1
         ],
         [
           "closed-days-max",
@@ -257,13 +239,11 @@
         ],
         [
           "nightingale-earnings",
-          200
+          40
         ],
         [
           "scene-flags",
           [
-            "夜莺的消息",
-            "萨姆登门",
             "三层已揭",
             "二层已揭",
             "已打听"
@@ -316,7 +296,7 @@
       [
         [
           "stage",
-          9
+          2
         ],
         [
           "favor",
@@ -324,7 +304,7 @@
         ],
         [
           "child-progress",
-          1
+          0
         ],
         [
           "child-cared-today?",
@@ -336,7 +316,7 @@
         ],
         [
           "care-progress",
-          8
+          0
         ],
         [
           "injury-started-today?",
@@ -348,7 +328,7 @@
         ],
         [
           "injury-pity",
-          2
+          0
         ]
       ]
     ],
@@ -357,7 +337,7 @@
       [
         [
           "stage",
-          5
+          1
         ],
         [
           "favor",
@@ -369,7 +349,7 @@
         ],
         [
           "repair-days",
-          0
+          1
         ],
         [
           "repair-started-today?",
@@ -410,11 +390,11 @@
       [
         [
           "stage",
-          2
+          1
         ],
         [
           "claim-result",
-          "坐实"
+          "无"
         ]
       ]
     ],
@@ -448,11 +428,20 @@
       [
         [
           "active-missions",
-          []
+          [
+            [
+              "帮人寻物",
+              1
+            ],
+            [
+              "代查一笔账",
+              1
+            ]
+          ]
         ],
         [
           "refresh-days",
-          2
+          1
         ]
       ]
     ],

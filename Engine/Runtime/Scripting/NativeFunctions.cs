@@ -338,6 +338,18 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__play-banter!"));
 
+            // 显式场外插话:允许未在场的说话人以临时侧边卡为锚点。
+            // 不复用普通 banter 的静默兜底，保留后者对内容拼写/节点配置的严格校验。
+            interpreter.DefineGlobal(Symbol.FromString("__play-remote-banter!"), new NativeProcedure(args =>
+            {
+                var sequence = ParseDialogueSequence(args, "__play-remote-banter!", allowsRemoteParticipants: true);
+                if (gameState.CurrentActionReport != null)
+                    gameState.CurrentActionReport.Banter.Add(sequence);
+                else
+                    gameState.DialogueCenter.RequestBanter(sequence);
+                return new None();
+            }, "__play-remote-banter!"));
+
             // 命名动画:v1 仅携带 tag,作为有序阻塞剧情步骤(前端占位播放)。目前只支持动作内调用。
             interpreter.DefineGlobal(Symbol.FromString("__play-animation!"), new NativeProcedure(args =>
             {
@@ -455,7 +467,10 @@ namespace SSNoir.Scripting
 
         // 把 Scheme 端 (list (line speaker text [voice] [dwell]) ...) 解析成 DialogueSequence。
         // 内容/配置错误一律直接抛出,尽早暴露。
-        private static DialogueSequence ParseDialogueSequence(IList<object> args, string who)
+        private static DialogueSequence ParseDialogueSequence(
+            IList<object> args,
+            string who,
+            bool allowsRemoteParticipants = false)
         {
             if (args.Count < 1 || !(args[0] is List<object> rawLines))
                 throw new ArgumentException($"{who} requires a list of lines: (line speaker text ...)");
@@ -479,7 +494,7 @@ namespace SSNoir.Scripting
 
                 lines.Add(new DialogueLine { Speaker = speaker, Text = text, VoiceId = voice, DwellSeconds = dwell });
             }
-            return new DialogueSequence(lines);
+            return new DialogueSequence(lines, allowsRemoteParticipants);
         }
     }
 }

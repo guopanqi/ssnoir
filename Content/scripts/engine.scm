@@ -545,6 +545,11 @@
 (define (play-banter! . lines)
   (__play-banter! lines))
 
+;; 显式场外插话:未在场的说话人以不可交互的侧边临时卡承接。
+;; 普通 play-banter! 仍严格要求说话人能锚定到当前画面。
+(define (play-remote-banter! . lines)
+  (__play-remote-banter! lines))
+
 ;; 阻塞对话:点击推进、锁输入、冻结导航,演完才把控制权还给玩家。变参,每个都是 (line ...)。
 (define (play-dialogue! . lines)
   (__play-dialogue! lines))

@@ -100,7 +100,7 @@
          ((and (= stage 1) (< beat1-progress beat1-target)) "完成酒馆与码头两处查访，拼出陌生人的藏身处。")
          (else "陌生人的藏身处已经揭晓。可以主动出击，也可以等他上门。")))
       ((= public-event-count 1)
-       "收账人已经撂话。第 10 天到期；时钟显示距到期的剩余天数。至少要凑出一笔首期赎身钱,让他们先收手。")
+       "收账人已经撂话。第 10 天到期；交首期能让他暂时收手，阿瑟和自己的公寓则会改变撤离的场面。")
       ((= public-event-count 2)
        "老板第 17 天亲自上门。付清封口钱、送她上船、让案子立起来,或者备好一场硬仗——路都摆在夜莺的卡上。")
       (else "归零后必须亲自处理。"))))
@@ -224,7 +224,7 @@
 ;; （了断交锋入口 + 查明真相时的“去街角喝酒”），节拍一/二的场景各自只有一个。
 (define (node-public-event)
   (cond
-    ((and (= public-event-count 1) (nightingale 'has-protection?))
+    ((and (= public-event-count 1) (nightingale 'skip-beat2?))
      (list (instant-action "处理收账人再来"
              (lambda ()
                (nightingale 'resolve-protected-beat2!)

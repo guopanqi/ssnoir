@@ -12,6 +12,7 @@ namespace SSNoir.IMGUI
         public sealed class Bubble
         {
             public DialogueLine Line = null!;
+            public bool AllowsRemoteParticipants;
             public float Remaining;   // 剩余可见时间
         }
 
@@ -105,7 +106,12 @@ namespace SSNoir.IMGUI
                 ? line.DwellSeconds
                 : Mathf.Clamp(1.2f + line.Text.Length * 0.06f, 1.5f, 5f);
             _timer = dwell;
-            _visible.Add(new Bubble { Line = line, Remaining = dwell + OverlapSeconds });
+            _visible.Add(new Bubble
+            {
+                Line = line,
+                AllowsRemoteParticipants = _current.AllowsRemoteParticipants,
+                Remaining = dwell + OverlapSeconds,
+            });
             _voice?.Play(line.VoiceId);
         }
     }

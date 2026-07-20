@@ -133,7 +133,9 @@
       (set-global! '夜莺已送走 farewell?)
       (set-global! '夜莺已付封口 hush-paid?)
       (set-global! '夜莺已立案 case-filed?)
-      (set-global! '夜莺已移交 surrendered?))
+      (set-global! '夜莺已移交 surrendered?)
+      ;; 「了断」交锋要按这个基调分台词版本。只镜像这一个只读值,不搬整套状态。
+      (set-global! '夜莺姿态 stance))
 
     (define (advance-stage! new-stage)
       (set! story-stage new-stage)
@@ -445,8 +447,10 @@
                       1
                       'segments
                       (if (equal? protection "无")
-                          "落实任一保护方案后,第 10 天会以场景结算,不会进入抢人交锋。"
-                          (string-append "已落实: " protection))))
+                          "交首期可让收账人暂时认账,跳过抢人；阿瑟的巡警会守住舞台前门,让撤离少走一段。"
+                          (if (equal? protection "首期")
+                              "首期已交。第 10 天收账人会先认这笔钱,不会动手抢人。"
+                              "阿瑟已经提级。第 10 天巡警守住前门,撤离从后台开始。"))))
           '()))
 
     (define (condition-clock)
@@ -556,13 +560,9 @@
           '()))
 
     (define (resolve-protected-beat2!)
-      (cond
-        ((equal? protection "首期")
-         (spotlight! "首期" "收账人来了,也收住了手。他点了点那笔首期:'老板要亲自来做个了断。'"))
-        ((equal? protection "警局")
-         (spotlight! "巡警在场" "收账人看见巡警在街角站着,把话咽了回去。'好。那就等老板亲自来。'"))
-        (else
-         (error "resolve-protected-beat2!: no protection"))))
+      (if (equal? protection "首期")
+          (spotlight! "首期" "收账人来了,也收住了手。他点了点那笔首期:'老板要亲自来做个了断。'")
+          (error "resolve-protected-beat2!: 只有首期路线能够跳过抢人")))
 
     ;; ── 节拍三·路线一：付封口钱 ────────────────────
     (define (node-hush-payment)
@@ -1088,6 +1088,7 @@
              (set! surrendered-day world-day)
              (sync-globals!)))
           ((equal? msg 'has-protection?) (not (equal? protection "无")))
+          ((equal? msg 'skip-beat2?) (equal? protection "首期"))
           ((equal? msg 'resolve-protected-beat2!) (resolve-protected-beat2!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'on-bout-result) (on-bout-result (cadr args) (caddr args)))

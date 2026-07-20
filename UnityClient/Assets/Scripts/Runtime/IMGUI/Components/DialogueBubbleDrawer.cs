@@ -12,7 +12,7 @@ namespace SSNoir.IMGUI
         public static void DrawBanter(BanterPlayer banter, DialogueAnchors anchors)
         {
             foreach (var bubble in banter.Visible)
-                DrawBubble(bubble.Line.Speaker, bubble.Line.Text, anchors);
+                DrawBubble(bubble.Line.Speaker, bubble.Line.Text, anchors, bubble.AllowsRemoteParticipants);
         }
 
         // 阻塞:画当前对话行的气泡(点击推进由渲染器 overlay 负责,这里只管外观)。
@@ -78,7 +78,7 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(rect.x + 12f, rect.y + 26f, textW, textH), text, bodyStyle);
         }
 
-        // 动作外对话的未在场说话人，以一张临时侧边卡进入画面。
+        // 显式场外对话/插话的未在场说话人，以一张临时侧边卡进入画面。
         // 这不是场景节点，不参与交互或导航，只提供清晰的对话锚点。
         private static Rect DrawRemoteParticipantCard(string speaker)
         {
