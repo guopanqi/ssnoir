@@ -100,7 +100,7 @@
          ((and (= stage 1) (< beat1-progress beat1-target)) "完成酒馆与码头两处查访，拼出陌生人的藏身处。")
          (else "陌生人的藏身处已经揭晓。可以主动出击，也可以等他上门。")))
       ((= public-event-count 1)
-       "收账人已经撂话。第 10 天到期；交首期能让他暂时收手，阿瑟和自己的公寓则会改变撤离的场面。")
+       "收账人已经撂话。第 10 天到期；交首期能让他暂时收手，阿瑟会改变最后的警察封锁线，自己的公寓则让后窗退路更熟。")
       ((= public-event-count 2)
        "老板第 17 天亲自上门。付清封口钱、送她上船、让案子立起来,或者备好一场硬仗——路都摆在夜莺的卡上。")
       (else "归零后必须亲自处理。"))))
@@ -108,14 +108,14 @@
 (define (public-event-pending-note)
   (cond
     ((= public-event-count 0) "盯梢的人已经上门,先处理才能睡。")
-    ((= public-event-count 1) "收账人堵在门口,先处理才能睡。")
+    ((= public-event-count 1) "他们正在搜夜莺藏身的公寓,先处理才能睡。")
     ((= public-event-count 2) "了断之日到了,先处理才能睡。")
     (else "事情已经发生:必须先处理,才能结束一天。")))
 
 (define (public-event-action-name)
   (cond
     ((= public-event-count 0) "赶去酒馆")
-    ((= public-event-count 1) "迎上去")
+    ((= public-event-count 1) "赶去公寓")
     ((= public-event-count 2) "做个了断")
     (else "处理公共事件")))
 

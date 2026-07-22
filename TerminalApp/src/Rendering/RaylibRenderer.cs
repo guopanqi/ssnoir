@@ -46,6 +46,7 @@ namespace SSNoir.Rendering
 
             _gameState.NarrationCenter.OnNarrationRequested += ShowNarration;
             _gameState.DialogueCenter.OnDialogueRequested += EnqueueImmediateDialogue;
+            _gameState.DialogueCenter.OnBanterRequested += EnqueueBanter;
 
             _sceneManager.OnSceneLoaded += () =>
             {
@@ -72,6 +73,7 @@ namespace SSNoir.Rendering
             _state.IsGrowthPanelOpen = false;
             _state.IsDebugMenuOpen = false;
             _state.IsRelationExpanded = false;
+            _state.VisibleNodeCardBounds.Clear();
         }
 
         private void AdoptLatestSnapshot()
@@ -92,8 +94,10 @@ namespace SSNoir.Rendering
             _state.IsPresentingAction = false;
             _state.PresentationStepIndex = 0;
             _state.PresentationTimer = 0f;
-            _state.PendingActionSpotlights.Clear();
+            _state.PendingActionStorySteps.Clear();
             _state.ActiveActionSpotlight = null;
+            _state.ActiveActionDialogue = null;
+            _state.ActiveActionDialogueLineIndex = 0;
 
             if (report != null)
             {
@@ -112,12 +116,11 @@ namespace SSNoir.Rendering
                 _gameState.NarrationCenter.Play(id);
         }
 
-        // Terminal(兜底):banter 以非阻塞通知形式呈现。
+        // 动作内 banter 在结算表现落定后释放，仍保持非阻塞。
         private void ReleaseBanter(System.Collections.Generic.List<DialogueSequence> sequences)
         {
             foreach (var seq in sequences)
-                foreach (var line in seq.Lines)
-                    _gameState.NotificationCenter.Push($"{line.Speaker}:{line.Text}", NotificationKind.Info);
+                EnqueueBanter(seq);
         }
 
         private void ShowNarration(string id)
@@ -126,37 +129,82 @@ namespace SSNoir.Rendering
             _state.ActiveNarrationTime = 0f;
         }
 
-        // 动作外 dialogue 不会进入 ActionReport；Terminal 逐句复用 Spotlight 作为明确的阻塞兜底。
+        // 动作外 dialogue 不会进入 ActionReport；由独立对白层逐句呈现。
         private void EnqueueImmediateDialogue(DialogueSequence sequence)
         {
-            foreach (var line in sequence.Lines)
+            _state.PendingImmediateDialogues.Enqueue(sequence);
+        }
+
+        private void EnqueueBanter(DialogueSequence sequence)
+        {
+            _state.PendingBanter.Enqueue(sequence);
+        }
+
+        private void UpdateBanter(float dt, bool isCoveredByBlockingPresentation)
+        {
+            if (_state.ActiveBanter == null)
             {
-                _state.PendingImmediateDialogueSpotlights.Enqueue(new SpotlightCard
-                {
-                    Title = line.Speaker,
-                    Subtitle = line.Text,
-                });
+                if (_state.PendingBanter.Count == 0)
+                    return;
+
+                _state.ActiveBanter = _state.PendingBanter.Dequeue();
+                _state.ActiveBanterLineIndex = 0;
+                _state.ActiveBanterTime = 0f;
             }
+
+            if (isCoveredByBlockingPresentation)
+                return;
+
+            var sequence = _state.ActiveBanter;
+            if (sequence == null)
+                return;
+
+            var line = sequence.Lines[_state.ActiveBanterLineIndex];
+            float dwell = line.DwellSeconds > 0f
+                ? line.DwellSeconds
+                : Math.Clamp(1.25f + line.Text.Length * 0.075f, 1.8f, 5f);
+            _state.ActiveBanterTime += dt;
+            if (_state.ActiveBanterTime < dwell)
+                return;
+
+            _state.ActiveBanterLineIndex++;
+            _state.ActiveBanterTime = 0f;
+            if (_state.ActiveBanterLineIndex < sequence.Lines.Count)
+                return;
+
+            _state.ActiveBanter = null;
+            _state.ActiveBanterLineIndex = 0;
         }
 
         private void UpdateImmediateDialogue()
         {
-            if (_state.ActiveImmediateDialogueSpotlight != null
-                || _state.PendingImmediateDialogueSpotlights.Count == 0
+            if (_state.ActiveImmediateDialogue != null
+                || _state.PendingImmediateDialogues.Count == 0
                 || _state.IsPresentingAction
                 || _state.ActiveRollResult != null
                 || _state.ActiveOutcomeResult != null
-                || _state.ActiveActionSpotlight != null)
+                || _state.ActiveActionSpotlight != null
+                || _state.ActiveActionDialogue != null)
             {
                 return;
             }
 
-            _state.ActiveImmediateDialogueSpotlight = _state.PendingImmediateDialogueSpotlights.Dequeue();
+            _state.ActiveImmediateDialogue = _state.PendingImmediateDialogues.Dequeue();
+            _state.ActiveImmediateDialogueLineIndex = 0;
         }
 
         private void ConfirmImmediateDialogue()
         {
-            _state.ActiveImmediateDialogueSpotlight = null;
+            var sequence = _state.ActiveImmediateDialogue;
+            if (sequence == null)
+                return;
+
+            _state.ActiveImmediateDialogueLineIndex++;
+            if (_state.ActiveImmediateDialogueLineIndex < sequence.Lines.Count)
+                return;
+
+            _state.ActiveImmediateDialogue = null;
+            _state.ActiveImmediateDialogueLineIndex = 0;
         }
 
         private void UpdateNarration(float dt)
@@ -174,10 +222,24 @@ namespace SSNoir.Rendering
 
         private void AdvanceToBlockingPresentationOrFinish()
         {
-            if (_state.PendingActionSpotlights.Count > 0)
+            while (_state.PendingActionStorySteps.Count > 0)
             {
-                _state.ActiveActionSpotlight = _state.PendingActionSpotlights.Dequeue();
-                return;
+                var step = _state.PendingActionStorySteps.Dequeue();
+                switch (step.Kind)
+                {
+                    case BlockingStoryStepKind.Dialogue when step.Dialogue != null:
+                        _state.ActiveActionDialogue = step.Dialogue;
+                        _state.ActiveActionDialogueLineIndex = 0;
+                        return;
+                    case BlockingStoryStepKind.Spotlight when step.Spotlight != null:
+                        _state.ActiveActionSpotlight = step.Spotlight;
+                        return;
+                    case BlockingStoryStepKind.Animation:
+                        _state.ActiveActionSpotlight = new SpotlightCard { Title = "[动画]", Subtitle = step.AnimationTag };
+                        return;
+                    default:
+                        throw new InvalidOperationException("阻塞剧情步骤缺少与其类型匹配的数据。");
+                }
             }
             FinishPresentation();
         }
@@ -187,23 +249,10 @@ namespace SSNoir.Rendering
             _state.PendingActionName = actionName;
             _state.PendingReport = report;
             _presentationDoneCallback = onDone;
-            _state.PendingActionSpotlights.Clear();
+            _state.PendingActionStorySteps.Clear();
             foreach (var step in report.BlockingStorySteps)
             {
-                switch (step.Kind)
-                {
-                    case BlockingStoryStepKind.Spotlight when step.Spotlight != null:
-                        _state.PendingActionSpotlights.Enqueue(step.Spotlight);
-                        break;
-                    case BlockingStoryStepKind.Dialogue when step.Dialogue != null:
-                        // Terminal(兜底):阻塞对话逐句复用聚光弹窗呈现
-                        foreach (var ln in step.Dialogue.Lines)
-                            _state.PendingActionSpotlights.Enqueue(new SpotlightCard { Title = ln.Speaker, Subtitle = ln.Text });
-                        break;
-                    case BlockingStoryStepKind.Animation:
-                        _state.PendingActionSpotlights.Enqueue(new SpotlightCard { Title = "[动画]", Subtitle = step.AnimationTag });
-                        break;
-                }
+                _state.PendingActionStorySteps.Enqueue(step);
             }
             if (FastPresentationMode)
             {
@@ -225,7 +274,8 @@ namespace SSNoir.Rendering
 
             if (_state.ActiveRollResult != null
                 || _state.ActiveOutcomeResult != null
-                || _state.ActiveActionSpotlight != null)
+                || _state.ActiveActionSpotlight != null
+                || _state.ActiveActionDialogue != null)
             {
                 return;
             }
@@ -299,6 +349,21 @@ namespace SSNoir.Rendering
         private void ConfirmActionSpotlight()
         {
             _state.ActiveActionSpotlight = null;
+            AdvanceToBlockingPresentationOrFinish();
+        }
+
+        private void ConfirmActionDialogue()
+        {
+            var sequence = _state.ActiveActionDialogue;
+            if (sequence == null)
+                return;
+
+            _state.ActiveActionDialogueLineIndex++;
+            if (_state.ActiveActionDialogueLineIndex < sequence.Lines.Count)
+                return;
+
+            _state.ActiveActionDialogue = null;
+            _state.ActiveActionDialogueLineIndex = 0;
             AdvanceToBlockingPresentationOrFinish();
         }
 
@@ -635,12 +700,20 @@ namespace SSNoir.Rendering
             _gameState.NotificationCenter.Update(dt);
             UpdateNarration(dt);
             UpdateImmediateDialogue();
+            bool banterCoveredByBlockingPresentation = _state.ActiveImmediateDialogue != null
+                || _state.ActiveActionDialogue != null
+                || _state.ActiveActionSpotlight != null
+                || _state.ActiveRollResult != null
+                || _state.ActiveOutcomeResult != null
+                || _state.Spotlight != null;
+            UpdateBanter(dt, banterCoveredByBlockingPresentation);
             if (!_state.IsPresentingAction)
                 _state.Spotlight = _gameState.SpotlightCenter.Current;
             UpdatePresentation(dt);
 
             bool inputBlocked = _state.ActiveRollResult != null || _state.IsPresentingAction
-                || _state.ActiveActionSpotlight != null || _state.ActiveImmediateDialogueSpotlight != null || _state.Spotlight != null;
+                || _state.ActiveActionSpotlight != null || _state.ActiveActionDialogue != null
+                || _state.ActiveImmediateDialogue != null || _state.Spotlight != null;
 
             _windowStack.BeginFrame(mousePos, Raylib.IsMouseButtonPressed(MouseButton.Left));
 
@@ -713,9 +786,13 @@ namespace SSNoir.Rendering
                         AdvancePresentationAfterRollConfirm();
                     }
                 }
-                else if (_state.ActiveImmediateDialogueSpotlight != null)
+                else if (_state.ActiveImmediateDialogue != null)
                 {
                     ConfirmImmediateDialogue();
+                }
+                else if (_state.ActiveActionDialogue != null)
+                {
+                    ConfirmActionDialogue();
                 }
                 else if (_state.ActiveActionSpotlight != null)
                 {
@@ -923,17 +1000,20 @@ namespace SSNoir.Rendering
             }
             if (overlayInteraction.SpotlightDismissClicked)
             {
-                if (_state.ActiveImmediateDialogueSpotlight != null)
-                {
-                    ConfirmImmediateDialogue();
-                }
-                else if (_state.ActiveActionSpotlight != null)
+                if (_state.ActiveActionSpotlight != null)
                     ConfirmActionSpotlight();
                 else
                 {
                     _gameState.SpotlightCenter.Dismiss();
                     _state.Spotlight = null;
                 }
+            }
+            if (overlayInteraction.DialogueAdvanceClicked)
+            {
+                if (_state.ActiveImmediateDialogue != null)
+                    ConfirmImmediateDialogue();
+                else if (_state.ActiveActionDialogue != null)
+                    ConfirmActionDialogue();
             }
 
             DrawNarrationOverlay();
@@ -1253,6 +1333,7 @@ namespace SSNoir.Rendering
             float spacing = 20f;
             int cardsPerRow = Math.Max(1, (int)((WindowWidth - startX * 2 + spacing) / (cardWidth + spacing)));
             var visibleNodes = _state.VisibleNodes.ToList();
+            _state.VisibleNodeCardBounds.Clear();
             var visibleNames = new HashSet<string>(visibleNodes.Select(n => n.Name), StringComparer.OrdinalIgnoreCase);
             var orphanResidues = _state.CardResidues
                 .Where(pair => !visibleNames.Contains(pair.Key))
@@ -1355,6 +1436,7 @@ namespace SSNoir.Rendering
                 }
 
                 var node = visibleNodes[i];
+                _state.VisibleNodeCardBounds[node.Name] = bounds;
 
                 if (node.Resolve?.Type == ResolveType.Clock)
                 {

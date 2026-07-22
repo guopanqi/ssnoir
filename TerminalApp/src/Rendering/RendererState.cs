@@ -57,10 +57,19 @@ namespace SSNoir.Rendering
         public ActionReport? ActiveOutcomeResult { get; set; } = null;
         public string ActiveOutcomeActionName { get; set; } = string.Empty;
         public SpotlightCard? Spotlight { get; set; } = null;
-        public Queue<SpotlightCard> PendingActionSpotlights { get; } = new Queue<SpotlightCard>();
+        public Queue<BlockingStoryStep> PendingActionStorySteps { get; } = new Queue<BlockingStoryStep>();
         public SpotlightCard? ActiveActionSpotlight { get; set; } = null;
-        public Queue<SpotlightCard> PendingImmediateDialogueSpotlights { get; } = new Queue<SpotlightCard>();
-        public SpotlightCard? ActiveImmediateDialogueSpotlight { get; set; } = null;
+        public DialogueSequence? ActiveActionDialogue { get; set; } = null;
+        public int ActiveActionDialogueLineIndex { get; set; }
+        public Queue<DialogueSequence> PendingImmediateDialogues { get; } = new Queue<DialogueSequence>();
+        public DialogueSequence? ActiveImmediateDialogue { get; set; } = null;
+        public int ActiveImmediateDialogueLineIndex { get; set; }
+        public Queue<DialogueSequence> PendingBanter { get; } = new Queue<DialogueSequence>();
+        public DialogueSequence? ActiveBanter { get; set; } = null;
+        public int ActiveBanterLineIndex { get; set; }
+        public float ActiveBanterTime { get; set; }
+        public Dictionary<string, Raylib_cs.Rectangle> VisibleNodeCardBounds { get; } =
+            new Dictionary<string, Raylib_cs.Rectangle>(StringComparer.OrdinalIgnoreCase);
         public string ActiveNarrationId { get; set; } = string.Empty;
         public float ActiveNarrationTime { get; set; }
         public float ActiveNarrationDuration { get; set; } = 4f;

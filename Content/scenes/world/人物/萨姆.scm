@@ -5,6 +5,7 @@
     (define stage 1) ; 1初谈(登门当天即达) / 2讲过亨利
     (define evidence "无") ; 无 / 老板 / 完整
     (define along? #f)
+    (define met? #f)
     (define sighting-tavern? #f)
     (define sighting-dock? #f)
     (define favor-asked? #f)
@@ -28,6 +29,9 @@
         (sighting-police? "警局柜台前争案卷的是我。我查的,一直是同一件事。")
         (else "这件事我查了七年,没查到尽头。")))
 
+    (define (sighting-name anonymous-name)
+      (if met? "萨姆" anonymous-name))
+
     (define (remembrance-ready?)
       (and (= stage 1) (>= (nightingale 'truth-progress) 2)))
 
@@ -40,19 +44,24 @@
 
     ;; ── 登门之前的三次目击 ────────────────────────
     (define (node-tavern-sighting)
-      (instant-action "角落里请酒的男人"
+      (instant-action (sighting-name "角落里请酒的男人")
         (lambda ()
+          (set! met? #t)
           (set! sighting-tavern? #t)
           (play-dialogue!
             (line "世界" "角落那桌,一个没见过的男人在给几个老码头工添酒。他自己那杯没动。")
             (line "世界" "他问的都是七年前的旧事:那年冬天谁在栈桥上值夜,哪班船停靠过。")
+            (line "萨姆" "萨姆。酒我请，旧事你们要是想起来，就说。")
             (line "世界" "老工人们摇头。他也不追问,把酒钱压在杯底,走了。")))))
 
     (define (node-dock-sighting)
-      (container "问潮水的男人"
+      (node (sighting-name "问潮水的男人")
+        :subtitle (if met? "外地人；在查七年前的潮汐" "外地人；在问七年前的潮汐")
+        :children
         (list
           (instant-action "替他带句话"
             (lambda ()
+              (set! met? #t)
               (set! sighting-dock? #t)
               (set! favor-asked? #t)
               (set! favor-done? #t)
@@ -64,6 +73,7 @@
               (spotlight! "带一句话" "你替他问了。登记房的人说:是,慢十分钟,后来才校的。你把答案带给他,他点了点头,像是补上了什么。")))
           (instant-action "不掺和"
             (lambda ()
+              (set! met? #t)
               (set! sighting-dock? #t)
               (set! favor-asked? #t)
               (play-dialogue!
@@ -71,17 +81,21 @@
                 (line "世界" "他朝你看了一眼,像是想开口,又算了。")))))))
 
     (define (node-police-sighting)
-      (instant-action "柜台前的争执"
-        (lambda ()
-          (set! sighting-police? #t)
-          (if (relation-at-least? "官僚" '相识)
-              (play-dialogue!
-                (line "世界" "柜台前,那个男人在跟值班警员低声争一份邻城的旧案卷,被挡了回来。")
-                (line "世界" "他离开时,你听清了他念的名字:亨利·奎因。")
-                (line "世界" "值班的朝你摊手:'编外的。没有手续,谁也调不动邻城的卷。'"))
-              (play-dialogue!
-                (line "世界" "柜台前,那个男人在跟值班警员低声争一份什么卷宗,被挡了回来。")
-                (line "世界" "他把帽檐往下按了按,走进雨里。你没听清他要的是什么。"))))))
+      (node (sighting-name "柜台前的争执")
+        :subtitle (if met? "外地人；在争一份邻城旧案卷" "外地人；在警局柜台前争执")
+        :resolve (instant
+          (lambda ()
+            (set! met? #t)
+            (set! sighting-police? #t)
+            (if (relation-at-least? "官僚" '相识)
+                (play-dialogue!
+                  (line "世界" "柜台前,那个男人在跟值班警员低声争一份邻城的旧案卷,被挡了回来。")
+                  (line "世界" "他离开时,你听清了他念的名字:亨利·奎因。")
+                  (line "世界" "值班的朝你摊手:'编外的。没有手续,谁也调不动邻城的卷。'"))
+                (play-dialogue!
+                  (line "世界" "柜台前,那个男人在跟值班警员低声争一份什么卷宗,被挡了回来。")
+                  (line "萨姆" "萨姆。卷宗的名字不重要，重要的是有人不想让它翻出来。")
+                  (line "世界" "他把帽檐往下按了按,走进雨里。")))))))
 
     (define (sighting-nodes-at location)
       (cond
@@ -181,12 +195,13 @@
           ((equal? msg 'stage) stage)
           ((equal? msg 'evidence) evidence)
           ((equal? msg 'along?) along?)
+          ((equal? msg 'met?) met?)
           ((equal? msg 'sighting-count) (sighting-count))
           ((equal? msg 'sighting-recap) (sighting-recap))
           ((equal? msg 'favor-done?) favor-done?)
           ((equal? msg 'debut!) (debut!))
           ((equal? msg 'save)
-           (list (list "stage" stage) (list "evidence" evidence) (list "along?" along?)
+           (list (list "stage" stage) (list "evidence" evidence) (list "along?" along?) (list "met?" met?)
                  (list "sighting-tavern?" sighting-tavern?) (list "sighting-dock?" sighting-dock?)
                  (list "favor-asked?" favor-asked?) (list "favor-done?" favor-done?)
                  (list "sighting-police?" sighting-police?)))
@@ -195,6 +210,7 @@
              (set! stage (assoc-get data "stage" 1))
              (set! evidence (assoc-get data "evidence" "无"))
              (set! along? (assoc-get data "along?" #f))
+             (set! met? (assoc-get data "met?" #f))
              (set! sighting-tavern? (assoc-get data "sighting-tavern?" #f))
              (set! sighting-dock? (assoc-get data "sighting-dock?" #f))
              (set! favor-asked? (assoc-get data "favor-asked?" #f))

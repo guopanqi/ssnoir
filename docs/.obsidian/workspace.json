@@ -54,7 +54,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "物资",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -75,7 +75,8 @@
               "title": "书签"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -166,7 +167,7 @@
       "bases:新建数据库": false
     }
   },
-  "active": "38e6494087c3244c",
+  "active": "163d63f1f4786932",
   "lastOpenFiles": [
     "手稿/设计参考和一些思考/活侠传是如何制造玩家和人物之间的情感的.md",
     "demo短篇·夜莺故事设计.md",

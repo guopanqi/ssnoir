@@ -19,19 +19,19 @@
     (define (node-buy-liquor)
       (node "打一壶酒"
         :subtitle "给夜里留点松快，也能稍微垫垫肚子"
-        :requires (list (req-item "金钱" 8))
+        :requires (list (req-item "金钱" 15))
         :resolve (instant
           (outcome "打了一壶酒" "打了一壶酒，带回去搁着，留着夜里。"
             (lambda () (add-item! "酒" 1))))))
 
-    ;; 一包四根。交锋里每根恢复 2 点冷静；一场 4–6 回合通常会烧掉大半包。
+    ;; 散卖一根。交锋里每根恢复 2 点冷静；昂贵，但能在真正顶不住时救急。
     (define (node-buy-cigarettes)
-      (node "买一包烟"
-        :subtitle "8 金 4 根；交锋中可在功能区抽一根，恢复 2 点冷静"
-        :requires (list (req-item "金钱" 8))
+      (node "买一根烟"
+        :subtitle "10 金 1 根；交锋中可在功能区抽一根，恢复 2 点冷静"
+        :requires (list (req-item "金钱" 10))
         :resolve (instant
-          (outcome "买了一包烟" "廉价烟草和火柴塞进了口袋。真到顶不住时，它们能替你撑半步。"
-            (lambda () (add-item! "香烟" 4))))))
+          (outcome "买了一根烟" "烟和火柴塞进了口袋。真到顶不住时，它们能替你撑半步。"
+            (lambda () (add-item! "香烟" 1))))))
 
     ;; 当场点一杯：效果与在家喝自带的酒完全一样，共用同一次“当天第一杯”（home 的 drank-today?）。
     ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
@@ -41,7 +41,7 @@
                       "今天已经喝过了，再喝只会头疼"
                       "不带走，当场喝掉：恢复 2 点冷静，下一次城市骰池会有宿醉")
         :disabled (home 'drank-today?)
-        :requires (list (req-item "金钱" 8))
+        :requires (list (req-item "金钱" 15))
         :resolve (instant
           (outcome "借酒松神" "就着吧台喝了一杯，绷着的神经松了扣。明早的头痛，会再来讨账。"
             (lambda () (home 'drink!))

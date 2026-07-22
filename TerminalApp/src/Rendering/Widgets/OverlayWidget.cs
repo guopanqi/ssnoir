@@ -11,11 +11,12 @@ namespace SSNoir.Rendering
         {
             public bool ConfirmClicked;
             public bool SpotlightDismissClicked;
+            public bool DialogueAdvanceClicked;
         }
 
         public static OverlayInteraction Draw(RendererState state, NotificationCenter notificationCenter, SSNoir.TerminalApp.Rendering.UiInteractionContext ui, float windowWidth, float windowHeight)
         {
-            var interaction = new OverlayInteraction { ConfirmClicked = false, SpotlightDismissClicked = false };
+            var interaction = new OverlayInteraction { ConfirmClicked = false, SpotlightDismissClicked = false, DialogueAdvanceClicked = false };
 
             // 1. Toast Notifications
             var visibleNotifs = notificationCenter.GetVisible();
@@ -84,6 +85,8 @@ namespace SSNoir.Rendering
                 int textW = FontManager.MeasureTextWidth(text, 12);
                 FontManager.DrawText(text, rect.X + (overlayW - textW) / 2f, rect.Y + 8, 12, Color.White);
             }
+
+            DrawBanterBubble(state, windowWidth, windowHeight);
 
             // 3. Heavy Roll Result Modal
             if (state.ActiveRollResult != null
@@ -246,7 +249,16 @@ namespace SSNoir.Rendering
                 }
             }
 
-            var displaySpotlight = state.ActiveImmediateDialogueSpotlight ?? state.ActiveActionSpotlight ?? state.Spotlight;
+            var dialogue = state.ActiveImmediateDialogue ?? state.ActiveActionDialogue;
+            int dialogueLineIndex = state.ActiveImmediateDialogue != null
+                ? state.ActiveImmediateDialogueLineIndex
+                : state.ActiveActionDialogueLineIndex;
+            if (dialogue != null)
+            {
+                DrawDialogueOverlay(dialogue, dialogueLineIndex, ui, windowWidth, windowHeight, ref interaction);
+            }
+
+            var displaySpotlight = state.ActiveActionSpotlight ?? state.Spotlight;
             if (displaySpotlight != null)
             {
                 Raylib.DrawRectangle(0, 0, (int)windowWidth, (int)windowHeight, new Color(0, 0, 0, 185));
@@ -290,6 +302,149 @@ namespace SSNoir.Rendering
             }
 
             return interaction;
+        }
+
+        private static void DrawDialogueOverlay(
+            DialogueSequence dialogue,
+            int lineIndex,
+            SSNoir.TerminalApp.Rendering.UiInteractionContext ui,
+            float windowWidth,
+            float windowHeight,
+            ref OverlayInteraction interaction)
+        {
+            if (lineIndex < 0 || lineIndex >= dialogue.Lines.Count)
+                throw new InvalidOperationException("对白层收到越界的台词索引。");
+
+            var line = dialogue.Lines[lineIndex];
+            Raylib.DrawRectangle(0, 0, (int)windowWidth, (int)windowHeight, new Color(5, 6, 12, 105));
+
+            float bubbleW = Math.Min(680f, windowWidth - 96f);
+            float bubbleH = 184f;
+            float bubbleX = (windowWidth - bubbleW) / 2f;
+            float bubbleY = windowHeight - bubbleH - 70f;
+            var bubbleRect = new Rectangle(bubbleX, bubbleY, bubbleW, bubbleH);
+
+            Raylib.DrawRectangleRounded(bubbleRect, 0.08f, 8, TerminalPalette.SurfaceRaised);
+            Raylib.DrawRectangleRoundedLinesEx(bubbleRect, 0.08f, 8, 1.5f, TerminalPalette.AccentDark);
+            Raylib.DrawRectangleRounded(new Rectangle(bubbleX + 20f, bubbleY + 18f, 5f, 28f), 0.5f, 4, TerminalPalette.Accent);
+
+            FontManager.DrawText(line.Speaker, bubbleX + 40f, bubbleY + 20f, 18, TerminalPalette.AccentBright);
+            string progress = $"{lineIndex + 1}/{dialogue.Lines.Count}";
+            int progressW = FontManager.MeasureTextWidth(progress, 12);
+            FontManager.DrawText(progress, bubbleX + bubbleW - 28f - progressW, bubbleY + 25f, 12, TerminalPalette.TextMuted);
+
+            DrawWrappedText(line.Text, bubbleX + 40f, bubbleY + 64f, bubbleW - 80f, 16, TerminalPalette.Text);
+
+            string hint = "点击继续";
+            int hintW = FontManager.MeasureTextWidth(hint, 12);
+            FontManager.DrawText(hint, bubbleX + bubbleW - 30f - hintW, bubbleY + bubbleH - 27f, 12, TerminalPalette.TextMuted);
+
+            // 对白是全屏阻塞层：气泡之外的遮罩也承担“继续”的点击目标，
+            // 但底层世界仍由 Renderer 的 inputBlocked 明确锁定。
+            var dialogueUi = new SSNoir.TerminalApp.Rendering.UiInteractionContext { Mouse = ui.Mouse };
+            var overlayRect = new Rectangle(0f, 0f, windowWidth, windowHeight);
+            if (dialogueUi.WasClicked(overlayRect))
+                interaction.DialogueAdvanceClicked = true;
+        }
+
+        private static void DrawBanterBubble(RendererState state, float windowWidth, float windowHeight)
+        {
+            var sequence = state.ActiveBanter;
+            if (sequence == null)
+                return;
+            if (state.ActiveBanterLineIndex < 0 || state.ActiveBanterLineIndex >= sequence.Lines.Count)
+                throw new InvalidOperationException("插话气泡收到越界的台词索引。");
+
+            var line = sequence.Lines[state.ActiveBanterLineIndex];
+            bool anchored = state.VisibleNodeCardBounds.TryGetValue(line.Speaker, out var cardRect);
+            float bubbleW = anchored ? 276f : 300f;
+            float textWidth = bubbleW - 32f;
+            var textLines = WrapTextLines(line.Text, textWidth, 13);
+            float bubbleH = 46f + textLines.Count * 17f;
+            float bubbleX;
+            float bubbleY;
+            bool tailPointsDown;
+
+            if (anchored)
+            {
+                bubbleX = Math.Clamp(cardRect.X + (cardRect.Width - bubbleW) / 2f, 12f, windowWidth - bubbleW - 12f);
+                bubbleY = cardRect.Y - bubbleH - 12f;
+                tailPointsDown = true;
+                if (bubbleY < 52f)
+                {
+                    bubbleY = Math.Min(cardRect.Y + cardRect.Height + 12f, windowHeight - bubbleH - 12f);
+                    tailPointsDown = false;
+                }
+            }
+            else
+            {
+                bubbleX = windowWidth - bubbleW - 28f;
+                bubbleY = 84f;
+                tailPointsDown = false;
+            }
+
+            var bubbleRect = new Rectangle(bubbleX, bubbleY, bubbleW, bubbleH);
+            Raylib.DrawRectangleRounded(bubbleRect, 0.12f, 6, new Color(27, 30, 43, 238));
+            Raylib.DrawRectangleRoundedLinesEx(bubbleRect, 0.12f, 6, 1.2f, TerminalPalette.AccentDark);
+
+            float tailX = Math.Clamp(
+                anchored ? cardRect.X + cardRect.Width / 2f : bubbleX + 28f,
+                bubbleX + 18f,
+                bubbleX + bubbleW - 18f);
+            if (tailPointsDown)
+            {
+                Raylib.DrawTriangle(
+                    new System.Numerics.Vector2(tailX - 8f, bubbleY + bubbleH - 1f),
+                    new System.Numerics.Vector2(tailX + 8f, bubbleY + bubbleH - 1f),
+                    new System.Numerics.Vector2(tailX, bubbleY + bubbleH + 8f),
+                    new Color(27, 30, 43, 238));
+            }
+            else if (anchored)
+            {
+                Raylib.DrawTriangle(
+                    new System.Numerics.Vector2(tailX - 8f, bubbleY + 1f),
+                    new System.Numerics.Vector2(tailX + 8f, bubbleY + 1f),
+                    new System.Numerics.Vector2(tailX, bubbleY - 8f),
+                    new Color(27, 30, 43, 238));
+            }
+
+            FontManager.DrawText(line.Speaker, bubbleX + 16f, bubbleY + 11f, 12, TerminalPalette.AccentBright);
+            float textY = bubbleY + 29f;
+            foreach (var textLine in textLines)
+            {
+                FontManager.DrawText(textLine, bubbleX + 16f, textY, 13, TerminalPalette.Text);
+                textY += 17f;
+            }
+        }
+
+        private static List<string> WrapTextLines(string text, float width, int fontSize)
+        {
+            var lines = new List<string>();
+            string currentLine = string.Empty;
+            foreach (char c in text)
+            {
+                if (c == '\n')
+                {
+                    lines.Add(currentLine);
+                    currentLine = string.Empty;
+                    continue;
+                }
+
+                string candidate = currentLine + c;
+                if (FontManager.MeasureTextWidth(candidate, fontSize) > width && currentLine.Length > 0)
+                {
+                    lines.Add(currentLine);
+                    currentLine = c.ToString();
+                }
+                else
+                {
+                    currentLine = candidate;
+                }
+            }
+
+            if (currentLine.Length > 0)
+                lines.Add(currentLine);
+            return lines.Count > 0 ? lines : new List<string> { string.Empty };
         }
 
         private static void DrawWrappedText(string text, float x, float y, float width, int fontSize, Color color)
