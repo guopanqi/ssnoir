@@ -190,9 +190,18 @@
       (sync-blockers!)
       (notify! "今天是信上写的日子。钱得放进邮箱，你得在那儿盯着。"))
 
+    ;; 入场剧情由调用方播放:交锋脚本把「你已经在追了」当既定前提。
     (define (node-delivery-entry)
       (encounter-action "去码头盯着邮箱"
         (lambda ()
+          (play-dialogue!
+            (line "夜莺" "钱在这儿。我放进去就走，剩下的看你的。")
+            (line "主角" "放完别回头，一直走到电车站。"))
+          (spotlight! "一个钟头"
+            (string-append
+              "她把纸包投进邮箱，沿着街走了。你在斜对过的面摊上要了碗面，慢慢吃。"
+              "一个钟头里零零散散有人来投信。一个邮差过来收信，翻身上车——"
+              "邮差。这一片的邮差每天下午才来一趟。"))
           (start-encounter "交割" on-delivery-result))))
 
     ;; 三档结果:追到人 / 跟丢但拿到东西 / 人和钱都丢了。
