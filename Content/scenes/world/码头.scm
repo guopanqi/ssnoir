@@ -22,11 +22,9 @@
     (define (children)
       (append
         (list (node-haul))
-        (nightingale 'beat1-nodes-at "码头")
-        (sam 'nodes-at "码头")
+        (three-letters 'nodes-at "码头")
         (joe 'dock-nodes)
         (frank 'dock-nodes)
-        (nightingale 'route-nodes-at "码头")
         (if (> (item-count "私货") 0) (list (node-sell-contraband-locally)) '())))
 
     (lambda args

@@ -114,7 +114,7 @@
     ;; ── 氛围与歇业 ────────────────────────────────
     (define (node-atmosphere)
       (observe-action "酒馆内景"
-        (if (nightingale 'singer-present?)
+        (if (three-letters 'singer-present?)
             "油灯把木桌照得发黄，烟味浮在半空散不开。角落里几个水手闷头喝酒，谁也不吭声；台侧立着一把红伞——台上的歌女，今晚还没开嗓。"
             "油灯把木桌照得发黄，烟味浮在半空散不开。角落里几个水手闷头喝酒，谁也不吭声；台上的歌女，今晚还没开嗓。")))
 
@@ -139,9 +139,7 @@
       (if (> closed-days 0)
           (list (node-closed))
           (append
-            (nightingale 'beat1-nodes-at "酒馆")
-            (nightingale 'tavern-nodes)
-            (sam 'nodes-at "酒馆")
+            (three-letters 'nodes-at "酒馆")
             (list (node-waiter) (node-drink-here) (node-buy-liquor) (node-buy-cigarettes) (loan-shark-container))  ; 酒馆常驻：值班当差 + 当场点酒 + 打酒带走 + 买烟 + 放贷的
             (if (relation-at-least? "劳工" '核心) (list (node-underground-bar)) '())
             (list (node-atmosphere)))))

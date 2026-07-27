@@ -38,26 +38,19 @@
                      (instant-action "劳工→自己人" (lambda () (set-global! "relation:劳工" 6)))
                      (instant-action "官僚→挂号"     (lambda () (set-global! "relation:官僚" 2)))
                      (instant-action "富商→有往来"   (lambda () (set-global! "relation:富商" 2)))
-                     (instant-action "乔好感 +2" (lambda () (joe 'debug-favor! 2)))
-                     (instant-action "直接触发公共交锋" (lambda () (debug-trigger-public-event!)))))
+                     (instant-action "乔好感 +2" (lambda () (joe 'debug-favor! 2)))))
                  (container "调试-乔养伤"
                    (list
                      (instant-action "触发乔受伤" (lambda () (joe 'debug-injure!)))))
-                 (container "调试-夜莺节拍三"
+                 (container "调试-第一章"
                    (list
-                     (instant-action "拨到节拍三(已查明真相)"
+                     (instant-action "拨到小节一(已受托)"
                        (lambda ()
-                         (nightingale 'debug-stage! 3)
-                         (nightingale 'debug-set-flag! '三层已揭)
-                         (nightingale 'debug-set-truth! 4)
-                         (nightingale 'debug-set-flag! '撒谎的人)
-                         (nightingale 'sync-blockers!)))
-                     (instant-action "拨到节拍三(未查真相)"
-                       (lambda ()
-                         (nightingale 'debug-stage! 3)
-                         (nightingale 'debug-set-flag! '三层已揭)
-                         (nightingale 'sync-blockers!)))
-                     (instant-action "+500 金钱(测试封口/舱位)" (lambda () (add-item! "金钱" 500)))))))))
+                         (three-letters 'debug-stage! 1)
+                         (three-letters 'sync-blockers!)))
+                     (instant-action "码头准备拨满"
+                       (lambda () (three-letters 'debug-set-prep! 6)))
+                     (instant-action "+500 金钱" (lambda () (add-item! "金钱" 500)))))))))
 
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)
