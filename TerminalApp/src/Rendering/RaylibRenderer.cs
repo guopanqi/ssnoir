@@ -491,8 +491,13 @@ namespace SSNoir.Rendering
         private void StartNewGame()
         {
             _sceneManager.ResetForNewGame();
-            var opening = FindNodeByName(_state.DisplayedSnapshot.RootNode, "雨夜来客")
-                ?? throw new InvalidOperationException("新游戏缺少自动开场动作“雨夜来客”。");
+            // 开场动作的节点名由内容声明（(set-global! '开场动作 "…")），客户端不写死章节内容。
+            var openingName = _gameState.Get<string>("开场动作", string.Empty);
+            if (string.IsNullOrEmpty(openingName))
+                throw new InvalidOperationException(
+                    "新游戏缺少开场动作：内容需要设置全局 开场动作 为自动执行的节点名。");
+            var opening = FindNodeByName(_state.DisplayedSnapshot.RootNode, openingName)
+                ?? throw new InvalidOperationException($"新游戏找不到开场动作节点“{openingName}”。");
 
             _startupScreen = StartupScreen.InGame;
             ExecuteNodeAction(opening, new List<SlottedResource?>());

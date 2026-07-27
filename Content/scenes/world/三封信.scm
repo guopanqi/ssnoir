@@ -354,3 +354,6 @@
           ((equal? msg 'debug-stage!) (advance-stage! (cadr args)))
           ((equal? msg 'debug-set-prep!) (set! dock-prep (cadr args)) (sync-globals!))
           (#t #f))))))
+
+;; 新游戏自动执行的开场动作。客户端读这个全局去找节点，不写死章节内容。
+(set-global! '开场动作 "有人敲门")
