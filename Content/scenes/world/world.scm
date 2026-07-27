@@ -41,13 +41,13 @@
 (set-global! "relation-band-name:官僚:信任" "备案")
 (set-global! "relation-band-name:官僚:核心" "有里子")
 (set-global! "relation-goal:官僚:相识" "替阿瑟处理程序管不了的麻烦")
-(set-global! "relation-goal:官僚:信任" "请阿瑟提级、延期并办理通行证")
+(set-global! "relation-goal:官僚:信任" "真出事时警察封锁线放行拦车·办通行证更快")
 (set-global! "relation-goal:官僚:核心" "引荐市长秘书，遇事能求到更高处（demo 暂未开放）")
 
 ;; 劳工〈生存 · 暴力 · 销赃网〉：暴力援助与销赃/借钱网络。
 (set-global! "relation-band-name:劳工:相识" "面熟")
 (set-global! "relation-band-name:劳工:信任" "够朋友")
-(set-global! "relation-band-name:劳工:核心" "拜过码头")
+(set-global! "relation-band-name:劳工:核心" "自己人")
 (set-global! "relation-goal:劳工:相识" "参与搁浅货船的紧急抢修")
 (set-global! "relation-goal:劳工:信任" "替弗兰克查账并接触旧悬案")
 (set-global! "relation-goal:劳工:核心" "走私工作；了断之日弗兰克带人到场")
@@ -64,11 +64,10 @@
 (define public-event-count 0)
 (define public-event-max 3)
 (define public-event-pending? #f)
-(define public-event-delay-used? #f)
 
-;; 故事节拍表：间隔 (2 7 7) 对应第 3 / 10 / 17 天上门。
-;; 开场后第 2 个日终触发第一场，之后两场仍落在第 10 / 17 天。
-(define public-event-intervals '(2 7 7))
+;; 故事节拍表：间隔 (3 6 7) 对应第 4 / 10 / 17 天上门。
+;; 开场后第 3 个日终触发第一场；后两场缩短一个间隔，以维持第 10 / 17 天到期。
+(define public-event-intervals '(3 6 7))
 
 (define (current-public-event-interval)
   (list-ref public-event-intervals public-event-count))
@@ -100,7 +99,7 @@
          ((and (= stage 1) (< beat1-progress beat1-target)) "完成酒馆与码头两处查访，拼出陌生人的藏身处。")
          (else "陌生人的藏身处已经揭晓。可以主动出击，也可以等他上门。")))
       ((= public-event-count 1)
-       "收账人已经撂话。第 10 天到期；交首期能让他暂时收手，阿瑟会改变最后的警察封锁线，自己的公寓则让后窗退路更熟。")
+       "收账人已经撂话，第 10 天上门。到时你可以交 100 首期了事（跳过抢人，钱记进日后封口钱），也可以不掏钱、跟他们动手抢人（赢了钱还在手里，还能多抢一笔）。攒够 100 是为了有得选，不是非交不可。")
       ((= public-event-count 2)
        "老板第 17 天亲自上门。付清封口钱、送她上船、让案子立起来,或者备好一场硬仗——路都摆在夜莺的卡上。")
       (else "归零后必须亲自处理。"))))
@@ -108,7 +107,7 @@
 (define (public-event-pending-note)
   (cond
     ((= public-event-count 0) "盯梢的人已经上门,先处理才能睡。")
-    ((= public-event-count 1) "他们正在搜夜莺藏身的公寓,先处理才能睡。")
+    ((= public-event-count 1) "收账人已经上门,先做个决断才能睡:交钱了事,或者动手。")
     ((= public-event-count 2) "了断之日到了,先处理才能睡。")
     (else "事情已经发生:必须先处理,才能结束一天。")))
 
@@ -142,21 +141,6 @@
 (define (public-event-active?)
   (< public-event-count public-event-max))
 
-(define (public-event-can-delay?)
-  (and (public-event-active?)
-       (not public-event-pending?)
-       (not public-event-delay-used?)
-       (> (next-public-event 'current) 0)))
-
-;; 具体官僚手段：每个小节至多延后一天，不能取消事件。
-(define (delay-public-event-one-day!)
-  (if (not (public-event-can-delay?))
-      (error "delay-public-event-one-day!: event cannot be delayed now")
-      #t)
-  (next-public-event 'set! (max 0 (- (next-public-event 'current) 1)))
-  (set! public-event-delay-used? #t)
-  (notify! "阿瑟替你改了一张日期。他们会晚一天上门。"))
-
 (define (set-public-event-pending!)
   (if (or public-event-pending? (not (public-event-active?)))
       (error "set-public-event-pending!: invalid public event state")
@@ -186,7 +170,6 @@
   (nightingale 'on-bout-result public-event-count result)
   (complete-section!)
   (set! public-event-count (+ public-event-count 1))
-  (set! public-event-delay-used? #f)
   (if (public-event-active?)
       (reset-public-event-clock!)
       #f))
@@ -201,7 +184,6 @@
   (sync-public-event-blocker!)
   (nightingale 'on-bout-result public-event-count 'walked-away)
   (set! public-event-count (+ public-event-count 1))
-  (set! public-event-delay-used? #f)
   (if (public-event-active?)
       (reset-public-event-clock!)
       #f))
@@ -224,11 +206,8 @@
 ;; （了断交锋入口 + 查明真相时的“去街角喝酒”），节拍一/二的场景各自只有一个。
 (define (node-public-event)
   (cond
-    ((and (= public-event-count 1) (nightingale 'skip-beat2?))
-     (list (instant-action "处理收账人再来"
-             (lambda ()
-               (nightingale 'resolve-protected-beat2!)
-               (on-public-event-result 'success)))))
+    ((= public-event-count 1)
+     (nightingale 'beat2-pending-nodes))
     ((= public-event-count 2)
      (nightingale 'beat3-pending-nodes))
     (else
@@ -313,7 +292,6 @@
     (list "day" world-day)
     (list "public-event-count" public-event-count)
     (list "public-event-pending?" public-event-pending?)
-    (list "public-event-delay-used?" public-event-delay-used?)
     (list "next-public-event" (next-public-event 'current))
     (list "home" (home 'save))
     (list "dock" (dock 'save))
@@ -339,7 +317,6 @@
   (set! world-day (assoc-get data "day" 1))
   (set! public-event-count (assoc-get data "public-event-count" 0))
   (set! public-event-pending? (assoc-get data "public-event-pending?" #f))
-  (set! public-event-delay-used? (assoc-get data "public-event-delay-used?" #f))
   ;; next-public-event 的 max/标题由当前节拍决定。旧实现只恢复 current，
   ;; 导致读档后第三节拍仍沿用第一节拍的 3 格上限，三次日终便错误到期。
   (if (public-event-active?)

@@ -55,30 +55,20 @@
             (line "世界" "老工人们摇头。他也不追问,把酒钱压在杯底,走了。")))))
 
     (define (node-dock-sighting)
-      (node (sighting-name "问潮水的男人")
-        :subtitle (if met? "外地人；在查七年前的潮汐" "外地人；在问七年前的潮汐")
-        :children
-        (list
-          (instant-action "替他带句话"
-            (lambda ()
-              (set! met? #t)
-              (set! sighting-dock? #t)
-              (set! favor-asked? #t)
-              (set! favor-done? #t)
-              (play-dialogue!
-                (line "世界" "还是那个男人。他在问七年前十一月的潮汐,和一个具体的日子。")
-                (line "萨姆" "劳驾。帮我问一句:登记房的老钟,那年是不是慢十分钟。就这一句。")
-                (line "主角" "就一句?")
-                (line "萨姆" "就一句。答案是或不是,都值一杯酒。"))
-              (spotlight! "带一句话" "你替他问了。登记房的人说:是,慢十分钟,后来才校的。你把答案带给他,他点了点头,像是补上了什么。")))
-          (instant-action "不掺和"
-            (lambda ()
-              (set! met? #t)
-              (set! sighting-dock? #t)
-              (set! favor-asked? #t)
-              (play-dialogue!
-                (line "世界" "还是那个男人。他在问七年前十一月的潮汐,和一个具体的日子。")
-                (line "世界" "他朝你看了一眼,像是想开口,又算了。")))))))
+      (node "和问潮水的男人聊聊"
+        :subtitle "外地人；在问七年前的潮汐"
+        :resolve (instant
+          (lambda ()
+            (set! met? #t)
+            (set! sighting-dock? #t)
+            (set! favor-asked? #t)
+            (set! favor-done? #t)
+            (play-dialogue!
+              (line "世界" "还是那个男人。他在问七年前十一月的潮汐,和一个具体的日子。")
+              (line "萨姆" "劳驾。帮我问一句:登记房的老钟,那年是不是慢十分钟。就这一句。")
+              (line "主角" "就一句?")
+              (line "萨姆" "就一句。答案是或不是,都值一杯酒。"))
+            (spotlight! "带一句话" "你替他问了。登记房的人说:是,慢十分钟,后来才校的。你把答案带给他,他点了点头,像是补上了什么。")))))
 
     (define (node-police-sighting)
       (node (sighting-name "柜台前的争执")

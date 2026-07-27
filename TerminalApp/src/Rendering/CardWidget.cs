@@ -446,7 +446,7 @@ namespace SSNoir.Rendering
 
             bool qualifiesForRollLayout = !string.IsNullOrEmpty(rollSkill) && hasRequires && actors != null;
             int activeActorCount = qualifiesForRollLayout
-                ? actors!.Count(actor => actor.Status != "away" && actor.Stats.ContainsKey(rollSkill!))
+                ? actors!.Count(actor => actor.OnStage && actor.Stats.ContainsKey(rollSkill!))
                 : 0;
 
             if (!qualifiesForRollLayout || activeActorCount == 0)
@@ -544,7 +544,8 @@ namespace SSNoir.Rendering
             int drawn = 0;
             foreach (var actor in actors)
             {
-                if (actor.Status == "away")
+                // 只画本场登场的人：交锋里同伴不上场，挂着他们的技能会让人以为还能派他们出手。
+                if (!actor.OnStage)
                 {
                     continue;
                 }
@@ -577,7 +578,7 @@ namespace SSNoir.Rendering
             float widestChip = 0f;
             foreach (var actor in actors)
             {
-                if (actor.Status == "away" || !actor.Stats.TryGetValue(skill, out int level))
+                if (!actor.OnStage || !actor.Stats.TryGetValue(skill, out int level))
                 {
                     continue;
                 }

@@ -20,6 +20,19 @@ namespace SSNoir.Core
 
         public GameState()
         {
+            ResetForNewGame();
+        }
+
+        public void ResetForNewGame()
+        {
+            _states.Clear();
+            Team.ResetForNewGame();
+            Inventory.ApplySaveData(new Dictionary<string, int>());
+            NotificationCenter.Clear();
+            SpotlightCenter.Dismiss();
+            CurrentContext = null;
+            CurrentActionReport = null;
+
             // Initial defaults for backwards compatibility and scenes
             Set("location", "world");
             Set("chapter", 0);
@@ -28,15 +41,12 @@ namespace SSNoir.Core
             Set("relation:劳工", 0);
             Set("relation:富商", 0);
 
-            // Initialize Inventory
+            // Initialize inventory
             Inventory.SetCount("金钱", 15);
             Inventory.SetCount("情报", 0);
             Inventory.SetCount("药品", 1);
             Inventory.SetCount("酒", 0);
             Inventory.SetCount("香烟", 0);
-
-            // Initialize Team
-            Team.Health = 5;
 
             // 主角
             var player = new ActorState

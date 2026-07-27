@@ -30,8 +30,22 @@ namespace SSNoir.Core
         }
 
         public int GrowthLevel { get; set; } = 0;
-        // 三个骰池位置稳定存在；身体状态附着在位置上，而非可变骰子列表下标。
-        public const int ActionSlotCount = 3;
+        // 骰池位置稳定存在；身体状态附着在位置上，而非可变骰子列表下标。
+        // 主角承担城市与交锋的主要行动，同伴只在城市中提供一枚额外行动骰。
+        public const int ProtagonistActionSlotCount = 4;
+        public const int CompanionActionSlotCount = 1;
+
+        public static int GetActionSlotCount(string role) => role switch
+        {
+            "protagonist" => ProtagonistActionSlotCount,
+            "companion" => CompanionActionSlotCount,
+            _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown actor role.")
+        };
+        /// <summary>本场是否登场：城市里全队都在，交锋里只有主角上场（同伴连骰子都不发）。
+        /// 发骰和界面共用这一条规则，避免两边各判各的。</summary>
+        public static bool IsOnStage(ActorState actor, bool isInEncounter)
+            => actor.Status == "active" && !(isInEncounter && actor.Role == "companion");
+
         public int GetAvailableGrowthPoints(ActorState actor)
         {
             return Math.Max(0, GrowthLevel - actor.SpentGrowthPoints);
@@ -40,6 +54,15 @@ namespace SSNoir.Core
         public List<ActorState> Actors { get; } = new List<ActorState>();
 
         public event Action? OnTeamChanged;
+
+        public void ResetForNewGame()
+        {
+            MaxHealth = 5;
+            _health = MaxHealth;
+            GrowthLevel = 0;
+            Actors.Clear();
+            OnTeamChanged?.Invoke();
+        }
 
         public ActorState? FindActor(string actorId)
         {
@@ -287,14 +310,9 @@ namespace SSNoir.Core
                 UpdateComposureSlotStatuses(actor);
                 actor.ActionDice.Clear();
                 actor.ActionDiceSlotIds.Clear();
-                if (actor.Status == "active")
+                if (IsOnStage(actor, isInEncounter))
                 {
-                    if (isInEncounter && actor.Role == "companion")
-                    {
-                        continue;
-                    }
-
-                    int diceCount = actor.Role == "protagonist" ? 3 : 1;
+                    int diceCount = GetActionSlotCount(actor.Role);
                     if (actor.Role == "protagonist")
                     {
                         if (healthDicePenalty)
@@ -336,17 +354,17 @@ namespace SSNoir.Core
             if (actor.Composure > FaintThreshold)
                 actor.FaintSlotId = null;
             else if (actor.FaintSlotId == null)
-                actor.FaintSlotId = GameRandom.Instance.Next(0, ActionSlotCount);
+                actor.FaintSlotId = GameRandom.Instance.Next(0, GetActionSlotCount(actor.Role));
 
             if (actor.Composure > LossOfControlThreshold)
                 actor.LossOfControlSlotId = null;
             else if (actor.LossOfControlSlotId == null)
-                actor.LossOfControlSlotId = PickUnusedSlot(actor.FaintSlotId);
+                actor.LossOfControlSlotId = PickUnusedSlot(actor.FaintSlotId, GetActionSlotCount(actor.Role));
         }
 
-        private static int PickUnusedSlot(int? excluded)
+        private static int PickUnusedSlot(int? excluded, int actionSlotCount)
         {
-            int pick = GameRandom.Instance.Next(0, excluded == null ? ActionSlotCount : ActionSlotCount - 1);
+            int pick = GameRandom.Instance.Next(0, excluded == null ? actionSlotCount : actionSlotCount - 1);
             return excluded != null && pick >= excluded.Value ? pick + 1 : pick;
         }
 

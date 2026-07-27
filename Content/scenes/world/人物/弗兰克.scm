@@ -2,7 +2,7 @@
 
 (define frank
   (let ()
-    ;; 0未触发 / 1货船抢修 / 2认识 / 3悬案开放 / 4深熟 / 5错过抢修
+    ;; 0等待触发 / 1货船抢修 / 2认识 / 3悬案开放 / 4深熟 / 5错过抢修
     (define stage 0)
     (define favor 0)
     (define favor-target 4)
@@ -36,12 +36,9 @@
       (spotlight! "货船脱险" "抢修完成。弗兰克记住了你，从此愿意让你经手码头上更重要的事。"))
 
     (define (advance-ship-repair! n)
-      (if (= stage 0)
-          (begin
-            (set! stage 1)
-            (set! repair-days repair-duration)
-            (set! repair-started-today? #t))
-          #f)
+      (if (not (= stage 1))
+          (error "弗兰克抢修：货船尚未搁浅")
+          #t)
       (let ((before repair-progress))
         (set! repair-progress (min repair-target (+ repair-progress n)))
         (record-clock-progress! "投入工作" (- repair-progress before)))
@@ -59,11 +56,11 @@
         :requires (list (req-die))
         :resolve (roll 'violence
           (outcome "钢缆甩脱" "一根钢缆猛地崩开，码头上的人四散卧倒。船腹还在进水。"
-            (lambda () (damage-party! 1) (spend-composure! 2)))
+            (lambda () (spend-composure! 2)))
           (outcome "稳住漏口" "你们钉上临时补板，又把一台水泵送进了底舱。"
-            (lambda () (spend-composure! 1) (advance-ship-repair! 2)))
+            (lambda () (spend-composure! 1) (advance-ship-repair! 1)))
           (outcome "抢下关键处" "新钢缆绕过绞盘，船身终于停止倾斜。抢修队顺着你打开的空间压了上去。"
-            (lambda () (advance-ship-repair! 4))))))
+            (lambda () (advance-ship-repair! 2))))))
 
     (define (advance-favor! n)
       (let ((before favor))
@@ -129,7 +126,7 @@
 
     (define (dock-nodes)
       (append
-        (if (or (= stage 1) (and (= stage 0) (>= (faction-relation "劳工") 3)))
+        (if (= stage 1)
             (list (node-grounded-cargo-ship))
             '())
         (if (or (= stage 2) (= stage 3) (= stage 4))
@@ -149,14 +146,20 @@
         (if (= stage 4) (list (node-smuggle)) '())
         (if (frank-trouble 'active?) (list (node-handle-trouble)) '())))
 
-    (define-turn-rule "货船搁浅"
+    ;; 关系条件在当天行动中达到后，不立刻把抢修卡塞进码头；睡到下一天，
+    ;; 再以过场宣布事故并开放事件。
+    (define-turn-rule "货船搁浅过场"
       (lambda () (and (= stage 0) (>= (faction-relation "劳工") 3)))
       (lambda ()
+        (play-dialogue!
+          (line "弗兰克" "港外那条货船撞上沉桩了。船腹在进水，钢缆也撑不了多久。")
+          (line "主角" "你要人手？")
+          (line "弗兰克" "要能下舱、能上泵、也能在钢缆崩断时不先跑的人。码头已经封了。"))
         (set! stage 1)
         (set! repair-progress 0)
         (set! repair-days repair-duration)
         (set! repair-started-today? #t)
-        (spotlight! "货船搁浅" "一艘货船在港口外撞上沉桩，船腹开始进水。弗兰克封住码头，正在调集所有能抽水、补漏和拉钢缆的人。")))
+        (spotlight! "货船搁浅" "清晨的事故已经封住码头。弗兰克正在调集人手，抢修从今天开始。")))
 
     (define-turn-rule "货船抢修期限"
       (lambda () (= stage 1))

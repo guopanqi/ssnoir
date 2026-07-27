@@ -117,7 +117,7 @@ namespace SSNoir.Testing
                 AssertEq("companion permanent penalty label", "残疾", loadedCompanion.PermanentDiePenaltyLabel);
                 AssertEq("companion permanent penalty", -1, loadedCompanion.PermanentDiePenalty);
                 AssertEq("companion permanent status count", 1, loaded.Team.GetActiveActionSlotStatuses(loadedCompanion).Count);
-                AssertEq("player dice", 3, loaded.Team.FindActor("player")!.ActionDice.Count);
+                AssertEq("player dice", 4, loaded.Team.FindActor("player")!.ActionDice.Count);
                 AssertEq("companion dice", 1, loadedCompanion.ActionDice.Count);
 
                 Console.WriteLine("[saveload] All contract assertions passed.");
@@ -178,12 +178,12 @@ namespace SSNoir.Testing
             AssertEq("scripted composure floor", 0, scriptedOverflowState.Team.FindActor("player")!.Composure);
             AssertEq("scripted composure overflow health damage", 4, scriptedOverflowState.Team.Health);
 
-            // 谷底仍须保留两颗骰，失控只扩大降质范围，不再征用骰子。
+            // 谷底仍须保留三颗骰，失控只扩大降质范围，不再征用骰子。
             var bottomState = new GameState();
             bottomState.Team.Health = TeamState.HealthPenaltyThreshold;
             bottomState.Team.SpendComposure("player", TeamState.MaxComposure - TeamState.LossOfControlThreshold);
             bottomState.Team.RollActionDice(isInEncounter: false);
-            AssertEq("bottom-state dice", 2, bottomState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("bottom-state dice", 3, bottomState.Team.FindActor("player")!.ActionDice.Count);
 
             // 骰池状态的身份不能随骰子消耗而漂移：失态跨 1–3 保留，进入/离开失控线只增减第二个状态。
             var slotState = new GameState();

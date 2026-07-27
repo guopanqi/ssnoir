@@ -40,6 +40,23 @@ namespace SSNoir.Core
             _loader = loader;
         }
 
+        public void ResetForNewGame()
+        {
+            _worldInterpreter = null;
+            _encounterInterpreter = null;
+            _encounterSceneName = string.Empty;
+            _encounterCallback = null;
+            _encounterEnded = false;
+            _turnEndedDuringAction = false;
+            _hasPendingSceneDiceRoll = false;
+            _pendingSceneIsEncounter = false;
+            CurrentRootNode = null;
+            CurrentClocks.Clear();
+            LatestSnapshot = new PresentationSnapshot();
+            _gameState.ResetForNewGame();
+            LoadScene("world");
+        }
+
         // Explicit scene switch entry point for the UI. Scene transitions are an
         // explicit action — they are not triggered as a side effect of writing the
         // "location" global. No-op when already in the requested scene.
@@ -298,6 +315,7 @@ namespace SSNoir.Core
                 }
             }
 
+            bool isInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
             var actors = new List<ActorSnapshot>();
             foreach (var actor in _gameState.Team.Actors)
             {
@@ -307,6 +325,7 @@ namespace SSNoir.Core
                     Name = actor.Name,
                     Role = actor.Role,
                     Status = actor.Status,
+                    OnStage = TeamState.IsOnStage(actor, isInEncounter),
                     Composure = actor.Composure,
                     SpentGrowthPoints = actor.SpentGrowthPoints,
                     Stats = new Dictionary<string, int>(actor.Stats),
@@ -329,7 +348,7 @@ namespace SSNoir.Core
                 RelationUnlocks = relationUnlocks,
                 RelationBandNames = relationBandNames,
                 Actors = actors,
-                IsInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase),
+                IsInEncounter = isInEncounter,
             };
         }
 

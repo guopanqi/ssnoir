@@ -9,7 +9,7 @@
     (define favor 0)
     (define favor-target 5)
     (define child-progress 0)
-    (define child-target 1)
+    (define child-target 4)
     (define child-cared-today? #f)
     (define injury-days 0)
     (define injury-duration 4)

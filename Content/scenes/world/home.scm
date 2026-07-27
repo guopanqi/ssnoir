@@ -16,7 +16,7 @@
     ;; 房租（仅旅馆）：rent-due = 距交租还剩几天。归零没交 → 被赶出（软罚）。
     (define rent-due 3)
     (define rent-due-max 3)
-    (define rent-amount 40)
+    (define rent-amount 30)
     (define rent-extend 3)
     (define flower-price 40)
     (define evicted? #f)
@@ -121,9 +121,9 @@
         :tags (rest-tags)
         :resolve (instant
           (outcome "无处可去"
-                   "门从里头锁死了。你缩在墙根挨了一夜，寒气顺着衣领一路往骨头里钻。"
+                   "门从里头锁死了。你缩在墙根挨了一夜，寒气顺着衣领一路往骨头里钻——熬是熬过来了，只是一点没缓过来。"
             (lambda ()
-              (spend-actor-composure! 'player 1)
+              ;; 露宿不回复冷静，但也不再失血，免得把玩家推向失控/击穿健康的死亡循环。
               (end-turn!))))))
 
     ;; ── 交易 / 布置 / 升级 ──────────────────────────

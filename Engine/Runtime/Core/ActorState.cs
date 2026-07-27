@@ -20,7 +20,7 @@ namespace SSNoir.Core
         }
 
         // 骰值列表只保存尚未投入行动的骰子；SlotIds 与它严格平行，记录它来自
-        // 固定的三个骰池位置。不能再把列表下标当作位置身份：骰子被花掉后下标会移动。
+        // 固定骰池位置。不能再把列表下标当作位置身份：骰子被花掉后下标会移动。
         public List<int> ActionDice { get; } = new List<int>();
         public List<int> ActionDiceSlotIds { get; } = new List<int>();
 

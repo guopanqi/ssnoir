@@ -59,5 +59,10 @@ namespace SSNoir.Core
         {
             return _notifications.AsReadOnly();
         }
+
+        public void Clear()
+        {
+            _notifications.Clear();
+        }
     }
 }

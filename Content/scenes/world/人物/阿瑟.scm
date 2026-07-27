@@ -35,11 +35,16 @@
             (notify! "阿瑟欠你一次程序内的方便。"))
           #f))
 
+    ;; 官僚·知识类生计：低风险的桌面文书活，是刷官僚关系的入门工，也给一份体面的日结。
+    ;; 坏结果只是返工伤神（冷静 -1），不倒扣官僚关系——搞错日期是返工不是失职
+    ;; （见城市生活设计「失败降低哪个势力由后果决定」）。情报不再从这里稳定产出。
+    ;; 【待办】官僚线目前缺可重复的「保护/权限」产出，这份工暂以现金补足；
+    ;; 长远应把它接到某条权限或结局路线上，见城市生活设计「已知问题」一节。
     (define (node-paperwork)
       (关系工作 "整理警局文书" "官僚" '低 'knowledge
-        (outcome "补上缺页" "你找回一页险些被丢掉的记录。" (lambda () (add-item! "情报" 1)))
-        (outcome "按序归档" "文件回到各自的抽屉，没人因此得到什么，也没人因此倒霉。" (lambda () #f))
-        (outcome "退回重填" "一个日期写错，整叠表格都被退了回来。" (lambda () (spend-composure! 1)))))
+        (outcome "办得利落" "积压的卷宗理清了，登记台照规矩付了这天的工钱。" (lambda () (add-item! "金钱" 10)))
+        (outcome "按序归档" "文件各归各的抽屉，按日结拿了钱。" (lambda () (add-item! "金钱" 6)))
+        (outcome "退回重填" "一个日期写错，整叠表格被退了回来，你揉着太阳穴从头填。" (lambda () (spend-composure! 1)))))
 
     (define (node-problem)
       (node "替阿瑟处理一个程序管不了的人"
@@ -48,15 +53,6 @@
         :resolve (instant (lambda () (start-encounter "教训" on-lesson-result)))))
 
     (define (police-hostile?) (equal? (relation-band "官僚") '敌视))
-
-    (define (node-delay)
-      (node "请阿瑟延期一天"
-        :subtitle (string-append identity "；" (if (police-hostile?) "不会替一个被警局盯上的人改日期" "能让一份手续晚一天到桌上"))
-        :disabled (police-hostile?)
-        :requires (list (req-die))
-        :resolve (instant
-          (outcome "日期往后挪了一格" "阿瑟换了一张登记单。事情没有消失，只是晚一天发生。"
-            (lambda () (delay-public-event-one-day!))))))
 
     (define (node-pass)
       (node "请阿瑟办理通行证"
@@ -80,12 +76,16 @@
         (if (>= stage 1)
             (list (node "阿瑟"
                     :subtitle identity
-                    :resolve (observe (if (= stage 1)
-                        "阿瑟·贝尔相信每件事都该有一张表格；没有表格的事，只会在出后果时归警局管。"
-                        "阿瑟不关心你是不是正确。他只承认你替他解决过一个后果。"))))
+                    :resolve (observe
+                      (cond
+                        ((relation-at-least? "官僚" '信任)
+                         "警局记得你办过的事。真出了乱子，封锁线上的岗哨会认你的脸，该抬杆时抬杆——这点方便，够你在最紧要的一夜用上。")
+                        ((= stage 1)
+                         "阿瑟·贝尔相信每件事都该有一张表格；没有表格的事，只会在出后果时归警局管。")
+                        (else
+                         "阿瑟不关心你是不是正确。他只承认你替他解决过一个后果。")))))
             '())
         (if (and (= stage 1) problem-invited?) (list (node-problem)) '())
-        (if (and (= stage 2) (public-event-can-delay?)) (list (node-delay)) '())
         (if (= stage 2) (list (node-pass)) '())))
 
     (define-turn-rule "阿瑟通行证冷却"

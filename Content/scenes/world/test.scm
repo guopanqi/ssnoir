@@ -35,7 +35,7 @@
                    (list
                      (instant-action "劳工→面熟"     (lambda () (set-global! "relation:劳工" 2)))
                      (instant-action "劳工→够朋友"   (lambda () (set-global! "relation:劳工" 4)))
-                     (instant-action "劳工→拜过码头" (lambda () (set-global! "relation:劳工" 6)))
+                     (instant-action "劳工→自己人" (lambda () (set-global! "relation:劳工" 6)))
                      (instant-action "官僚→挂号"     (lambda () (set-global! "relation:官僚" 2)))
                      (instant-action "富商→有往来"   (lambda () (set-global! "relation:富商" 2)))
                      (instant-action "乔好感 +2" (lambda () (joe 'debug-favor! 2)))

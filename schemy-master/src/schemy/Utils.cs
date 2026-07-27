@@ -53,6 +53,18 @@ namespace Schemy
         {
             if (val is T) return (T)val;
 
+            // The unspecified value reaching a procedure that needs a real value is almost always a
+            // missing branch rather than a type error, so say that instead of "cannot convert".
+            if (val is None)
+            {
+                throw new InvalidOperationException(string.Format(
+                    "Expected {0} but got the unspecified value. Unspecified comes from a form with no " +
+                    "matching branch — `(if test conseq)` with no alternate, or a `cond` where no clause " +
+                    "matched. If the result is used (e.g. passed to `append`), give the form an explicit " +
+                    "branch such as '(). (`when` / `unless` are safe: they yield '().)",
+                    typeof(T).Name));
+            }
+
             // object x = 2;
             // double y = (double)x; // <-- this would fail.
             try
@@ -79,6 +91,7 @@ namespace Schemy
             else if (x is Symbol) return ((Symbol)x).AsString;
             else if (x is string) return string.Format(@"""{0}""", x);
             else if (x is List<object>) return string.Format("({0})", string.Join(" ", ((List<object>)x).Select(a => PrintExpr(a))));
+            else if (x is None) return "#<unspecified>";
             else if (x == null) return string.Empty;
             else return x.ToString();
         }

@@ -1,9 +1,9 @@
 {
-  "saveTime": "2026-07-16 22:16:42",
+  "saveTime": "2026-07-24 14:46:26",
   "globals": {
     "chapter": 0,
-    "relation:官僚": 3,
-    "relation:劳工": 0,
+    "relation:官僚": 0,
+    "relation:劳工": 3,
     "relation:富商": 0,
     "frank-final-help": false,
     "资产": "低",
@@ -16,7 +16,7 @@
     "relation-band-name:劳工:相识": "面熟",
     "relation-band-name:劳工:信任": "够朋友",
     "relation-band-name:劳工:核心": "拜过码头",
-    "relation-goal:劳工:相识": "弗兰克的清栈急活",
+    "relation-goal:劳工:相识": "参与搁浅货船的紧急抢修",
     "relation-goal:劳工:信任": "替弗兰克查账并接触旧悬案",
     "relation-goal:劳工:核心": "走私工作；了断之日弗兰克带人到场",
     "relation-band-name:富商:相识": "有往来",
@@ -26,11 +26,11 @@
     "relation-goal:富商:信任": "私货满价收购·投资本金打折",
     "relation-goal:富商:核心": "引荐博士，牵出实验室科技线（demo 暂未开放）",
     "夜莺阶段": 2,
-    "夜莺状态等级": 1,
-    "夜莺状态": "不安",
+    "夜莺状态等级": 0,
+    "夜莺状态": "稳定",
     "夜莺查访进度": 2,
     "夜莺查访目标": 2,
-    "夜莺主动上门": false,
+    "夜莺主动上门": true,
     "夜莺保护方案": "无",
     "夜莺二层已揭": true,
     "夜莺已打听": true,
@@ -39,11 +39,12 @@
     "夜莺已付封口": false,
     "夜莺已立案": false,
     "夜莺已移交": false,
-    "bout-idx": 0,
-    "夜莺已先离场": false
+    "夜莺信任达标": false,
+    "夜莺姿态": "无",
+    "bout-idx": 0
   },
   "team": {
-    "health": 5,
+    "health": 4,
     "growthLevel": 1,
     "actors": [
       {
@@ -51,7 +52,7 @@
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "composure": 3,
+        "composure": 2,
         "hangoverSlotId": null,
         "faintSlotId": 2,
         "lossOfControlSlotId": null,
@@ -68,8 +69,8 @@
     ]
   },
   "inventory": {
-    "金钱": 45,
-    "情报": 1,
+    "金钱": 84,
+    "情报": 0,
     "药品": 1,
     "酒": 0,
     "香烟": 0
@@ -93,7 +94,7 @@
     ],
     [
       "next-public-event",
-      2
+      3
     ],
     [
       "home",
@@ -115,12 +116,8 @@
           false
         ],
         [
-          "tidied-today?",
-          false
-        ],
-        [
           "rent-due",
-          0
+          2
         ],
         [
           "rent-due-max",
@@ -128,7 +125,7 @@
         ],
         [
           "evicted?",
-          true
+          false
         ]
       ]
     ],
@@ -158,10 +155,18 @@
         ],
         [
           "condition-level",
+          0
+        ],
+        [
+          "listened-today?",
+          false
+        ],
+        [
+          "trust",
           1
         ],
         [
-          "diner-inquiry-progress",
+          "tavern-inquiry-progress",
           4
         ],
         [
@@ -170,7 +175,7 @@
         ],
         [
           "beat1-early?",
-          false
+          true
         ],
         [
           "protection",
@@ -183,6 +188,22 @@
         [
           "truth-progress",
           0
+        ],
+        [
+          "dock-truth-progress",
+          0
+        ],
+        [
+          "police-truth-progress",
+          0
+        ],
+        [
+          "freight-truth-progress",
+          0
+        ],
+        [
+          "stance",
+          "无"
         ],
         [
           "berth?",
@@ -205,11 +226,23 @@
           false
         ],
         [
-          "ending-day",
+          "case-filed-day",
           0
         ],
         [
-          "stage3-start-day",
+          "surrendered-day",
+          0
+        ],
+        [
+          "case-progress-shown",
+          0
+        ],
+        [
+          "surrender-progress-shown",
+          0
+        ],
+        [
+          "ending-day",
           0
         ],
         [
@@ -224,10 +257,6 @@
           ]
         ]
       ]
-    ],
-    [
-      "diner",
-      []
     ],
     [
       "clinic",
@@ -274,11 +303,11 @@
       [
         [
           "stage",
-          0
+          3
         ],
         [
           "favor",
-          0
+          5
         ],
         [
           "child-progress",
@@ -303,6 +332,10 @@
         [
           "cared-today?",
           false
+        ],
+        [
+          "injury-pity",
+          0
         ]
       ]
     ],
@@ -318,11 +351,15 @@
           0
         ],
         [
-          "entry-days",
+          "repair-progress",
           0
         ],
         [
-          "entry-started-today?",
+          "repair-days",
+          0
+        ],
+        [
+          "repair-started-today?",
           false
         ],
         [
@@ -343,7 +380,7 @@
       [
         [
           "stage",
-          1
+          0
         ],
         [
           "pass-cooldown",
@@ -351,7 +388,7 @@
         ],
         [
           "problem-invited?",
-          true
+          false
         ]
       ]
     ],
@@ -373,11 +410,39 @@
       [
         [
           "stage",
-          0
+          1
         ],
         [
           "evidence",
           "无"
+        ],
+        [
+          "along?",
+          false
+        ],
+        [
+          "met?",
+          true
+        ],
+        [
+          "sighting-tavern?",
+          true
+        ],
+        [
+          "sighting-dock?",
+          false
+        ],
+        [
+          "favor-asked?",
+          false
+        ],
+        [
+          "favor-done?",
+          false
+        ],
+        [
+          "sighting-police?",
+          false
         ]
       ]
     ],
@@ -400,11 +465,11 @@
           "active-missions",
           [
             [
-              "有人需要药",
+              "帮人寻物",
               1
             ],
             [
-              "代查一笔账",
+              "有人需要药",
               1
             ]
           ]

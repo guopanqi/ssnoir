@@ -13,7 +13,6 @@
     (define beat1-location-target 4)
     (define stranger-understanding-target 2)
     (define hush-price 400)             ; 封口总价，也是状态卡唯一显示的账目总额
-    (define hush-contribution-target hush-price)
     (define nightingale-daily-earning 40)
     (define berth-price-insurance 80)   ; 保险公司紧急转移条款的正规舱位
     (define truth-target 8)             ; 暗账查访格数(码头/警局/货运三源分段推进)
@@ -41,6 +40,7 @@
     ;; 酒馆与码头各自拥有一条 0..4 的查访 Clock；每完成一条，陌生人了解 +1。
     (define beat1-early? #f)
     (define protection "无")
+    (define installment-reserved? #f) ; 已交给夜莺保管，等收账人上门时再决定是否交出
     (define installment-paid? #f)
     (define truth-progress 0)  ; 暗账查访进度 0..truth-target(三源分段之和)
     (define dock-truth-progress 0)    ; 老人处已问到第几层
@@ -113,9 +113,9 @@
           (= story-stage 95)))
     ;; 路线一/三/四互斥：任一落定，其余路线的准备节点全部消失。
     (define (route-settled?) (or hush-paid? farewell? case-filed? surrendered?))
-    ;; 立案交割是否已经就绪：自己拼过案卷，或节拍二走过阿瑟的提级方案。
+    ;; 立案交割是否已经就绪：需要老板那一半的证据，并且自己拼好了案卷。
     (define (case-ready?) (and (equal? (sam 'evidence) "老板")
-                               (or (has-flag? '案卷备妥) (equal? protection "警局"))))
+                               (has-flag? '案卷备妥)))
     (define (case-evidence-submitted?) (equal? (sam 'evidence) "老板"))
     ;; 萨姆登门(必看)：三层已揭后的第一个清晨,他主动找上门,不必玩家自己去酒馆发现他。
     (define (sam-intro?) (has-flag? '萨姆登门))
@@ -187,6 +187,7 @@
       (set! protection kind)
       (if (equal? kind "首期")
           (begin
+            (set! installment-reserved? #f)
             (set! installment-paid? #t)
             (set! nightingale-earnings first-installment))
           #f)
@@ -199,6 +200,24 @@
       (if installment-paid?
           (string-append "首期已经记入封口钱,还差 " (number->string (hush-due)) "。")
           ""))
+
+    (define (node-reserve-installment)
+      (node "把首期交给夜莺保管"
+        :subtitle (string-append "交出 " (number->string first-installment)
+                                 " 金。收账人第 10 天上门时，你可以让她交钱，也可以取回这笔钱后交锋")
+        :requires (list (req-item "金钱" first-installment))
+        :resolve (instant
+          (outcome "首期备好了" "她把钱装进牛皮纸袋，压在酒馆老板的账本底下。收账人第十天上门前，这笔钱不会再动。"
+            (lambda ()
+              (set! installment-reserved? #t)
+              (sync-globals!))))))
+
+    (define (node-installment-reserved)
+      (node "首期已备妥"
+        :subtitle (string-append (number->string first-installment)
+                                 " 金由夜莺保管。收账人第 10 天上门时，可交钱让他离开，或取回这笔钱后交锋")
+        :tags (list "安全" "等待第 10 天")
+        :disabled #t))
 
     (define (advance-beat1-location! location n)
       (let ((before (stranger-understanding)))
@@ -308,7 +327,7 @@
     (define (node-answer-door)
       (instant-action "雨夜来客"
         (lambda ()
-          (play-dialogue!
+          (play-remote-dialogue!
             (line "夜莺" "门外雨下得像不要钱。钱在桌上,预付的——我要你查清楚,是谁在盯我的梢。")
             (line "主角" "你是谁?")
             (line "夜莺" "他们都叫我夜莺。那只死鸟和字条,也是他们送的。先开门,行吗?"))
@@ -434,7 +453,7 @@
       (cond
         ((= story-stage 0) "还没有发生什么。")
         ((= story-stage 1) "一个叫夜莺的歌女,在雨夜敲开了你的门。她撂下一笔预付钱,要你查清是谁在盯她的梢。")
-        ((= story-stage 2) "收账人把账算到了你头上。夜莺认得他们:她从邻城歌厅逃出来,对方要一笔赎身钱。第十天前,可以替她垫一笔首期赎身钱,也可以请阿瑟把这件事提到巡警会出面的优先级。")
+        ((= story-stage 2) "收账人把账算到了你头上。夜莺认得他们:她从邻城歌厅逃出来,对方要一笔赎身钱。备好首期交给夜莺保管；第十天收账人上门时，再决定交钱还是动手。")
         ((= story-stage 3)
          (string-append
            "那晚,码头的水吞了一个人。老板一口咬定是夜莺推的——这不只是一笔账,是一条命。"
@@ -469,9 +488,7 @@
       (cond
         ((= story-stage 1) "受托查访")
         ((= story-stage 2)
-         (if (equal? protection "无")
-             (string-append (condition-label) "；等一个临时保护")
-             (string-append (condition-label) "；已有保护：" protection)))
+         (string-append (condition-label) "；收账人第 10 天上门"))
         ((= story-stage 3) (string-append (condition-label) "；等一个了断"))
         ((= story-stage 90) "留在城里")
         ((= story-stage 91) "被带走")
@@ -488,18 +505,6 @@
                       "酒馆与码头的查访 Clock 每完成一条，增加 1 格；满格后揭晓藏身处。"))
           '()))
 
-    (define (protection-clock)
-      (if (= story-stage 2)
-          (list (list 'clock "临时保护"
-                      (if (equal? protection "无") 0 1)
-                      1
-                      'segments
-                      (if (equal? protection "无")
-                          "交首期可让收账人暂时认账,跳过抢人；阿瑟的巡警会在追车抵达封锁线时放行并拦住后车。"
-                          (if (equal? protection "首期")
-                              "首期已交。第 10 天收账人会先认这笔钱,不会动手抢人。"
-                              "阿瑟已经提级。第 10 天岗哨会在警察封锁线放行，并拦住后面的追车。"))))
-          '()))
 
     (define (condition-clock)
       (if (and (>= story-stage 2) (> condition-level 0))
@@ -523,7 +528,7 @@
 
     (define (nightingale-earning-clock)
       (if (and (stage3-open?) (not (route-settled?)))
-          (list (list 'clock "封口钱" nightingale-earnings hush-contribution-target 'countdown
+          (list (list 'clock "封口钱" nightingale-earnings (hush-total) 'countdown
                       (string-append "总额 " (number->string (hush-total)) " 金"
                                      (if (sam-pressure?)
                                          (string-append "(含萨姆仍在查案的额外 "
@@ -586,6 +591,12 @@
         (if (and (= story-stage 2) (not (has-flag? '二层已揭)))
             (list (node-reveal-layer-2))
             '())
+        (if (and (stage2-open?) installment-reserved?)
+            (list (node-installment-reserved))
+            '())
+        (if (and (stage2-open?) (not installment-reserved?))
+            (list (node-reserve-installment))
+            '())
         (if (and (= story-stage 3) (not (has-flag? '三层已揭)))
             (list (node-reveal-layer-3))
             '())
@@ -601,7 +612,7 @@
 
     ;; 夜莺是一个「可进入的容器」：进去才是与她的各种互动。
     ;; 处境正文做成一张 observe 子卡（她的处境）放在最上面——不能给容器本身加
-    ;; :resolve，否则它会退化成动作、children 全部失效（见 SCRIPTING.md 节点形状约束）。
+    ;; :resolve，否则它会退化成动作、children 全部失效（NodeConverter 会在加载期拦下）。
     (define (render-data)
       (if (>= story-stage 1)
           (list (node "夜莺"
@@ -609,7 +620,6 @@
                  :children (append
                              (list (observe-action "她的处境" (situation-text)))
                              (situation-nodes)
-                             (stage2-world-nodes)
                              (route1-nodes)
                              (if (and (stage3-open?) (not (route-settled?)))
                                  (list (node-ask-about-hush-money))
@@ -617,42 +627,57 @@
                              (if (and (stage3-open?) (not (route-settled?)))
                                  (list (node-route-overview))
                                  '()))
-                 :clocks (append (beat1-clock) (protection-clock) (condition-clock) (trust-clock)
+                 :clocks (append (beat1-clock) (condition-clock) (trust-clock)
                                  (nightingale-earning-clock) (truth-clock) (case-progress-clock))))
           '()))
 
-    ;; ── 节拍二：落实临时保护 ────────────────────────
-    (define (node-pay-installment)
-      (node "交首期赎身钱"
-        :subtitle (string-append "交给她 " (number->string first-installment)
-                                 " 金；她知道该把钱送到谁手上")
-        :requires (list (req-item "金钱" first-installment))
+    ;; ── 节拍二·第 10 天：收账人上门时才做选择 ──────────
+    ;; 不再提前交钱。攒着的钱是玩家完成目标的动力,直到收账人真的上门那一刻,
+    ;; 才在两条路里选:
+    ;;   交钱了事 —— 交出首期,收账人收手,跳过抢人;这笔钱记进日后的封口钱。
+    ;;   动手     —— 进抢人交锋;赢了钱还在你手里,还从收账人身上多抢一笔。
+    ;; 这样为攒钱努力的玩家不会觉得"钱白掏了",选择硬扛的还能拿到额外回报。
+    (define beat2-fight-bonus 50)
+
+    (define (node-beat2-pay)
+      (node (if installment-reserved? "交出备好的首期" "当场交钱了事")
+        :subtitle (if installment-reserved?
+                      "让夜莺把备好的首期交出去；收账人收手离开，钱记进日后的封口钱"
+                      (string-append "交出 " (number->string first-installment)
+                                     " 金首期；收账人收手离开，钱记进日后的封口钱"))
+        :requires (if installment-reserved? '() (list (req-item "金钱" first-installment)))
         :resolve (instant
-          (outcome "首期交出" "她收下钱,没道谢。'我知道该送到谁手上。第十天以前,他们总得先认这笔账。'"
-            (lambda () (set-protection! "首期"))))))
+          (outcome "钱交出去了" "收账人点了点那笔首期:'老板要亲自来做个了断。'钱货两清,他转身走进雨里。"
+            (lambda ()
+              (set-protection! "首期")
+              (on-public-event-result 'success))))))
 
-    ;; 阿瑟的人物线独立于主线；节拍二只读取已经建立的关系。
-    (define (node-police-protection)
-      (node "请阿瑟把夜莺的事提级"
-        :subtitle (string-append "辖区警局的登记与档案职员；"
-                    (if (arthur 'can-escalate?)
-                        "欠你一次程序内的方便，能让巡警第十天守在酒馆外"
-                        "还不会为你的事改动警局的优先级"))
-        :disabled (not (arthur 'can-escalate?))
-        :requires (list (req-die))
-        :resolve (instant
-          (outcome "事情被提级" "阿瑟把登记单挪进另一叠文件。第十天，酒馆门外会有穿制服的人。"
-            (lambda () (set-protection! "警局"))))))
+    (define (node-beat2-fight)
+      (encounter-action "不掏钱,跟他们动手"
+        (lambda ()
+          (if installment-reserved?
+              (begin
+                (add-item! "金钱" first-installment)
+                (set! installment-reserved? #f)
+                (sync-globals!))
+              #f)
+          (start-encounter "夜莺·抢人"
+            (lambda (result)
+              (if (equal? result 'success)
+                  (begin
+                    (add-item! "金钱" beat2-fight-bonus)
+                    (notify! (string-append "收账人被撂在原地。你顺走了他身上的 "
+                                            (number->string beat2-fight-bonus)
+                                            " 金——这一场,你的钱一分没动,还多进了一笔。")))
+                  #f)
+              (on-public-event-result result))))))
 
-    (define (stage2-world-nodes)
-      (if (stage2-open?)
-          (list (node-pay-installment))
-          '()))
-
-    (define (resolve-protected-beat2!)
-      (if (equal? protection "首期")
-          (spotlight! "首期" "收账人来了,也收住了手。他点了点那笔首期:'老板要亲自来做个了断。'")
-          (error "resolve-protected-beat2!: 只有首期路线能够跳过抢人")))
+    (define (beat2-pending-nodes)
+      (append
+        (if (or installment-reserved? (>= (item-count "金钱") first-installment))
+            (list (node-beat2-pay))
+            '())
+        (list (node-beat2-fight))))
 
     ;; ── 节拍三·路线一：付封口钱 ────────────────────
     (define (node-hush-payment)
@@ -863,11 +888,11 @@
     (define-turn-rule "夜莺凑封口钱"
       (lambda ()
         (and (stage3-open?) (not (route-settled?))
-             (< nightingale-earnings hush-contribution-target)
+             (< nightingale-earnings (hush-total))
              (not public-event-pending?)))
       (lambda ()
         (set! nightingale-earnings
-              (min hush-contribution-target (+ nightingale-earnings nightingale-daily-earning)))
+              (min (hush-total) (+ nightingale-earnings nightingale-daily-earning)))
         (notify! (string-append "夜莺把今天挣到的 " (number->string nightingale-daily-earning)
                                 " 金放进封口钱。现有 " (number->string nightingale-earnings)
                                 "/" (number->string (hush-total)) "；你还需 "
@@ -1119,9 +1144,9 @@
       (node "听她唱一段"
         :subtitle (if listened-today?
                       "今晚这一段已经听过了"
-                      "6 金；恢复 2 点冷静，每天一次。她唱歌的时候，这座城安静一点")
+                      "10 金；恢复 2 点冷静，每天一次。她唱歌的时候，这座城安静一点")
         :disabled listened-today?
-        :requires (list (req-item "金钱" 6))
+        :requires (list (req-item "金钱" 10))
         :resolve (instant
           (outcome "听她唱了一段" (song-text)
             (lambda ()
@@ -1149,17 +1174,9 @@
             '())))
 
     ;; ── 跨地点节点收拢（警局/码头/货运公司）────────────
-    ;; 三个地点文件只认「我在哪、这批节点该插在列表的哪个槽位」，
+    ;; 地点文件只认「我在哪、这批节点该插在列表的哪个槽位」，
     ;; 可见性判断全部收回夜莺自己算——谁拥有状态，谁决定这段状态驱动
-    ;; 的节点该不该出现在别人的地盘上。分成 lead（查访盯梢/临时保护，
-    ;; 节拍一二）和 route（暗账查访与了断路线，节拍三）两槽，
-    ;; 对应各地点原本把这两批内容分开插入列表两处的顺序。
-    (define (lead-nodes-at location)
-      (cond
-        ((equal? location "警局")
-         (if (stage2-open?) (list (node-police-protection)) '()))
-        (else '())))
-
+    ;; 的节点该不该出现在别人的地盘上。route 槽承载节拍三的暗账查访与了断路线。
     (define (route-nodes-at location)
       (cond
         ((equal? location "码头")
@@ -1240,7 +1257,6 @@
           ((equal? msg 'beat1-nodes-at) (beat1-nodes-at (cadr args)))
           ((equal? msg 'hideout-visible?) (hideout-visible?))
           ((equal? msg 'hideout-nodes) (hideout-nodes))
-          ((equal? msg 'lead-nodes-at) (lead-nodes-at (cadr args)))
           ((equal? msg 'route-nodes-at) (route-nodes-at (cadr args)))
           ((equal? msg 'story-stage) story-stage)
           ((equal? msg 'singer-present?)
@@ -1267,10 +1283,9 @@
              (set! surrendered-day world-day)
              (sync-globals!)))
           ((equal? msg 'has-protection?) (not (equal? protection "无")))
-          ((equal? msg 'skip-beat2?) (equal? protection "首期"))
-          ((equal? msg 'resolve-protected-beat2!) (resolve-protected-beat2!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'on-bout-result) (on-bout-result (cadr args) (caddr args)))
+          ((equal? msg 'beat2-pending-nodes) (beat2-pending-nodes))
           ((equal? msg 'beat3-pending-nodes) (beat3-pending-nodes))
           ((equal? msg 'save)
            (list
@@ -1282,6 +1297,7 @@
              (list "dock-inquiry-progress" dock-inquiry-progress)
              (list "beat1-early?" beat1-early?)
              (list "protection" protection)
+             (list "installment-reserved?" installment-reserved?)
              (list "installment-paid?" installment-paid?)
              (list "truth-progress" truth-progress)
              (list "dock-truth-progress" dock-truth-progress)
@@ -1316,6 +1332,7 @@
              (set! dock-inquiry-progress (assoc-get data "dock-inquiry-progress" 0))
              (set! beat1-early? (assoc-get data "beat1-early?" #f))
              (set! protection (assoc-get data "protection" "无"))
+             (set! installment-reserved? (assoc-get data "installment-reserved?" #f))
              (set! installment-paid? (assoc-get data "installment-paid?" #f))
              (set! truth-progress (assoc-get data "truth-progress" 0))
              (set! dock-truth-progress (assoc-get data "dock-truth-progress" 0))

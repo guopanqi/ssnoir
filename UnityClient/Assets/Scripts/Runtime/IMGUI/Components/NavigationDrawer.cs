@@ -84,7 +84,7 @@ namespace SSNoir.IMGUI
         private static void DrawRelationPanel(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             var snapshot = gameManager.DisplayedSnapshot;
-            var toggleRect = new Rect(UIScale.VW - 276f, 25f, 236f, 36f);
+            var toggleRect = new Rect(UIScale.VW - 336f, 25f, 236f, 36f);
             GUI.color = IMGUIStyles.HudBg;
             GUI.DrawTexture(toggleRect, Texture2D.whiteTexture);
             GUI.color = Color.white;

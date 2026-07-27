@@ -6,7 +6,7 @@
   本目录不再保留上游 README,只保留下面三块:工作约定、能力总览、改动记录。
 - 目的:为 SSNoir(及未来项目)提供一个独立、Unity 友好的 C# Scheme 库;
   **库本身不含 SSNoir 概念**,SSNoir 只是使用者。
-- 写 SSNoir 脚本的人看 [../SCRIPTING.md](../SCRIPTING.md);本文件是底层解释器的事实来源。
+- 写 SSNoir 脚本的人看 [../skills/write-scheme/SKILL.md](../skills/write-scheme/SKILL.md);本文件是底层解释器的事实来源。
 
 ---
 
@@ -47,6 +47,19 @@
 ---
 
 ## 改动日志（按时间倒序）
+
+### 2026-07-25 — unspecified 值的错误信息
+
+**文件**：`src/schemy/Utils.cs`(`ConvertType` + `PrintExpr`)。
+**性质**：**不是语义修复,只是让哑错自解释**。`(if test conseq)` 缺 alternate 时 expand 期补
+`None.Instance`(`Schemy.cs`),`cond` 全部落空同理——这是 R5RS/R7RS 规定的 unspecified,
+上游行为正确,**不应改成返回 `'()`**(那会掩盖真错误)。
+**问题**:把 unspecified 喂给需要真值的内置函数(最常见是 `append`)时,只报
+`Cannot convert Schemy.None to type List`1`,完全不提示 None 从哪来,排查成本极高。
+**行为变化**:`ConvertType` 对 `None` 单独抛出说明性错误,指出 unspecified 的两个来源
+(`if` 缺 alternate / `cond` 落空)与修法(补 `'()`),并注明 `when`/`unless` 是安全的
+(本 fork 的 `init.ss` 让它们返回 `'()`);`PrintExpr(None)` 由 `Schemy.None` 改为 `#<unspecified>`。
+类型错误的原有信息不变。
 
 ### 2026-07-02 — 字符串转义解析
 

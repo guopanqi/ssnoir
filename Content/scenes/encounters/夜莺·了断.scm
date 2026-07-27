@@ -1,7 +1,13 @@
 ;; scenes/encounters/夜莺·了断.scm - 夜莺委托线·终场(第 17 天)
-;; 主结构:两幕。第一幕在老板进门以前清场,第二幕当面了断。
+;; 主结构:两幕。第一幕在老板进门以前把老街的眼睛拉过来,第二幕当面了断。
 ;; 设计原则:每个麻烦都是一个具体的人——命数、下一招还有几回合、那一招落地是什么,
 ;;           全部明牌。玩家永远在"拆哪一招"和"硬吃哪一招"之间选,而不是在猜。
+;; 数值骨架(改动它以前先读这两条):
+;;   1. 压制和击倒都要判定,分流靠难度与风险:压制 +1 修正、失手不额外疼,是差骰的去处,
+;;      但只买这一轮;击倒平难度、打空了要挨一下,是好骰的去处,买的是往后每一轮。
+;;      别把压制做成不判定的免费动作,也别让击倒的失败零成本——那两种改法都会让一边永远压倒另一边。
+;;   2. 打手不是目标,是税:不管他们,每回合都在抽你的冷静/健康/金钱。第一幕的骰子要在
+;;      压制、击倒、老街的眼睛之间分,老板到场 5 回合自动走,时间不是你能谈的东西。
 ;; 对外契约:只回传 'success / 'fail;不写任何世界状态。
 ;; 城市输入（只在顶部读取）:
 ;;   夜莺保护方案 - "首期" 时收账人收过钱,使眼色的节奏更慢(每 3 回合)。
@@ -43,7 +49,10 @@
 
 ;; ---- 打手 ----
 ;; 每个打手是同一套语法:命数 + 一个出招倒数 + 一句写明落地效果的招名。
-;; 压制换时间(把倒数推回去),击倒换命数。同一颗骰子,两种买法。
+;; 压制换时间,击倒换命数。两者都要判定,差别在**难度和风险**:
+;;   压制:+1 修正,只是把人顶开,坏结果不额外疼。差一点的骰子也敢用,但只买这一轮。
+;;   击倒:平难度,打空了他会回敬你一下(冷静 −1)。好骰子的去处,买的是往后每一轮。
+;; 所以"反正击倒更划算"不成立:低骰去压制的成功率明显更高,高骰才配去换命数。
 
 (define (make-thug name hp-max period first-in tell tell-note effect)
   (let ((hp hp-max)
@@ -53,11 +62,8 @@
         ((equal? msg 'name) name)
         ((equal? msg 'hp) hp)
         ((equal? msg 'dead?) (<= hp 0))
-        ((equal? msg 'hurt!) (set! hp (- hp 1)))
-        ((equal? msg 'hurt2!) (set! hp (- hp 2)))
         ((equal? msg 'reset!) (set! countdown period))
         ((equal? msg 'rush!) (set! countdown (max 1 (- countdown 1))))
-        ((equal? msg 'delay!) (set! countdown (+ countdown 2)))
         ((equal? msg 'tick!)
          (set! countdown (- countdown 1))
          (if (<= countdown 0)
@@ -66,25 +72,27 @@
         ((equal? msg 'render-data)
          (container-with-clocks name
            (list
-             (action (string-append "压制 " name)
-                     (list (req-die))
-                     (roll 'violence
-                       (outcome "他没停手" "你扑了个空,他反手把你推开。"
-                         (lambda () #f))
-                       (outcome "把他按住" (string-append name "被你顶在柱子上,那一招得重新起。")
-                         (lambda () (set! countdown period)))
-                       (outcome "按住还挨了一下" (string-append name "撞翻了身后的凳子,一时爬不起来。")
-                         (lambda () (set! hp (- hp 1)) (set! countdown period)))))
+             (node (string-append "压制 " name)
+                   :subtitle "顶开就行，比打倒他容易；他的出招重新起算"
+                   :requires (list (req-die))
+                   :resolve (roll 'violence
+                     (lambda () (list (modifier 1 "只是顶开他，不用打倒")))
+                     (outcome "他没停手" "你扑了个空,他反手把你推开。"
+                       (lambda () #f))
+                     (outcome "把他顶回去" (string-append name "被你顶在柱子上,那一招得重新起。")
+                       (lambda () (set! countdown period)))
+                     (outcome "顶得他撞翻了凳子" (string-append name "一时爬不起来,手里的势头全散了。")
+                       (lambda () (set! hp (- hp 1)) (set! countdown period)))))
              (action (string-append "击倒 " name)
                      (list (req-die))
                      (roll 'violence
-                       (outcome "他站得很稳" "你的拳头落在他肩上,像打在门板上。"
-                         (lambda () #f))
+                       (outcome "他站得很稳" "你的拳头落在他肩上,像打在门板上——他顺手回敬了一下。"
+                         (lambda () (spend-composure! 1)))
                        (outcome "打实了一下" "他闷哼一声,退了半步。"
                          (lambda () (set! hp (- hp 1))))
                        (outcome "打得他跪下" "他的膝盖先着地,手里的东西滚到桌下。"
                          (lambda () (set! hp (- hp 2)))))))
-           (list (list 'clock "命数" hp hp-max 'segments "归零即退场。")
+           (list (list 'clock "命数" hp hp-max 'segments "归零即退场。击倒要好骰子，但他一倒，往后每一轮都少一份账。")
                  (list 'clock tell countdown period 'countdown tell-note))))
         (#t #f)))))
 
@@ -151,7 +159,7 @@
 
 (define (node-flip-table)
   (node "掀翻长桌"
-    :subtitle "不判定。整张桌子横过来，全体打手的出招重新起算"
+    :subtitle "不判定，一次性。全体打手的出招重新起算"
     :requires (list (req-die))
     :resolve (instant
       (outcome "桌子横在中间" "杯子和牌一起砸在地上。他们要绕过去,得重新找路。"
@@ -164,13 +172,16 @@
       #f
       (begin ((car lst) 'reset!) (reset-all-thugs! (cdr lst)))))
 
-(define (node-throw-drink t)
-  (node (string-append "泼" (t 'name) "一脸酒")
-    :subtitle "不判定。只拖慢他一个人的出招倒数 +2"
+;; 你打不着收账人,但能泼他一脸。给没摸到凭据的玩家留的第二个答案。
+(define (node-throw-drink)
+  (node "泼收账人一脸酒"
+    :subtitle "不判定，一次性。他的使眼色倒数 +2"
     :requires (list (req-die))
     :resolve (instant
-      (outcome "他在抹脸" "酒顺着他的下巴往下淌。他先要看得见,才谈得上出手。"
-        (lambda () (set! drink-used? #t) (t 'delay!))))))
+      (outcome "他在抹脸" "酒顺着他的下巴往下淌。他先要看得见,才顾得上给谁使眼色。"
+        (lambda ()
+          (set! drink-used? #t)
+          (set! collector-countdown (+ collector-countdown 2)))))))
 
 ;; ---- 老街的眼睛 ----
 
@@ -411,11 +422,13 @@
 
 (define (node-shield-her)
   (node "把她拉到身后"
-    :subtitle "不判定。她被拖走的进度 −1"
+    :subtitle "不判定。她被拖走的进度 −1；护着她的时候你腾不出手——健康 −1"
     :requires (list (req-die))
     :resolve (instant
-      (outcome "她在你身后" "她的手抓着你的后襟,没有出声。"
-        (lambda () (drag-clk 'set! (max 0 (- (drag-clk 'current) 1))))))))
+      (outcome "她在你身后" "她的手抓着你的后襟,没有出声。有人的拳头结结实实落在你背上。"
+        (lambda ()
+          (drag-clk 'set! (max 0 (- (drag-clk 'current) 1)))
+          (damage-party! 1))))))
 
 (define (node-glass)
   (node "摔了他的酒杯"
@@ -522,9 +535,9 @@
 (define (act-one-tools)
   (append
     (if table-used? '() (list (node-flip-table)))
-    (if (or drink-used? (null? (live-thugs)))
+    (if (or drink-used? collector-gone?)
         '()
-        (list (node-throw-drink (car (live-thugs)))))))
+        (list (node-throw-drink)))))
 
 (define (act-one-nodes)
   (append

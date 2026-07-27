@@ -490,7 +490,7 @@ namespace SSNoir.Rendering
 
         private void StartNewGame()
         {
-            _sceneManager.LoadScene("world");
+            _sceneManager.ResetForNewGame();
             var opening = FindNodeByName(_state.DisplayedSnapshot.RootNode, "雨夜来客")
                 ?? throw new InvalidOperationException("新游戏缺少自动开场动作“雨夜来客”。");
 
@@ -660,33 +660,44 @@ namespace SSNoir.Rendering
 
             if (_state.DisplayedSnapshot.Health <= 0)
             {
-                if (Raylib.IsKeyPressed(KeyboardKey.Escape))
-                {
-                    Raylib.CloseWindow();
-                    Environment.Exit(0);
-                }
-
                 Raylib.BeginDrawing();
-                Raylib.ClearBackground(new Color(15, 15, 20, 255));
+                Raylib.ClearBackground(TerminalPalette.Surface);
 
                 int screenWidth = Raylib.GetScreenWidth();
                 int screenHeight = Raylib.GetScreenHeight();
+                var gameOverUi = new UiInteractionContext { Mouse = Raylib.GetMousePosition() };
 
                 string title = "GAME OVER";
                 string sub = "主角生命值归零，游戏结束。";
-                string tip = "按 ESC 或关闭窗口退出程序。";
 
                 int titleSize = 48;
                 int titleWidth = FontManager.MeasureTextWidth(title, titleSize);
-                FontManager.DrawText(title, (screenWidth - titleWidth) / 2f, screenHeight / 2f - 60f, titleSize, Color.Red);
+                FontManager.DrawText(title, (screenWidth - titleWidth) / 2f, screenHeight / 2f - 112f, titleSize, Color.Red);
 
                 int subSize = 24;
                 int subWidth = FontManager.MeasureTextWidth(sub, subSize);
-                FontManager.DrawText(sub, (screenWidth - subWidth) / 2f, screenHeight / 2f + 10f, subSize, new Color(200, 200, 220, 255));
+                FontManager.DrawText(sub, (screenWidth - subWidth) / 2f, screenHeight / 2f - 38f, subSize, TerminalPalette.Text);
 
-                int tipSize = 16;
-                int tipWidth = FontManager.MeasureTextWidth(tip, tipSize);
-                FontManager.DrawText(tip, (screenWidth - tipWidth) / 2f, screenHeight / 2f + 60f, tipSize, new Color(120, 120, 140, 255));
+                float buttonWidth = Math.Min(320f, screenWidth - 80f);
+                float buttonX = (screenWidth - buttonWidth) / 2f;
+                float buttonY = screenHeight / 2f + 24f;
+                var exit = UiButton.Draw(
+                    new Rectangle(buttonX, buttonY, buttonWidth, 52f), "退出", gameOverUi, true, 18);
+                var returnToMenu = UiButton.Draw(
+                    new Rectangle(buttonX, buttonY + 68f, buttonWidth, 52f), "回到主选单", gameOverUi, true, 18,
+                    TerminalPalette.AccentDark, new Color(58, 58, 104, 255), null,
+                    TerminalPalette.Accent, TerminalPalette.AccentBright, null, TerminalPalette.Text, null);
+
+                if (exit.Clicked)
+                {
+                    _exitRequested = true;
+                }
+                else if (returnToMenu.Clicked)
+                {
+                    ResetSceneUiState();
+                    _startupError = string.Empty;
+                    _startupScreen = StartupScreen.MainMenu;
+                }
 
                 Raylib.EndDrawing();
                 return;
@@ -805,31 +816,32 @@ namespace SSNoir.Rendering
                 }
             }
 
-            // Handle ESC key or right-click to clear selected card/resource first
-            if (!inputBlocked)
+            // ESC 逐层关闭当前叠层：调试菜单 / 选中资源 / 常驻面板；都关完了才返回上一级。
+            if (!inputBlocked && Raylib.IsKeyPressed(KeyboardKey.Escape))
             {
-                if (Raylib.IsKeyPressed(KeyboardKey.Escape) || Raylib.IsMouseButtonPressed(MouseButton.Right))
+                if (_state.IsDebugMenuOpen)
                 {
-                    if (_state.SelectedResource != null)
-                    {
-                        _state.SelectedResource = null;
-                    }
-                    else if (_state.IsTurnPanelOpen)
-                    {
-                        _state.IsTurnPanelOpen = false;
-                    }
-                    else if (_state.IsGrowthPanelOpen)
-                    {
-                        _state.IsGrowthPanelOpen = false;
-                    }
-                    else if (_state.IsRelationExpanded)
-                    {
-                        _state.IsRelationExpanded = false;
-                    }
-                    else if (Raylib.IsKeyPressed(KeyboardKey.Escape))
-                    {
-                        GoBack();
-                    }
+                    _state.IsDebugMenuOpen = false;
+                }
+                else if (_state.SelectedResource != null)
+                {
+                    _state.SelectedResource = null;
+                }
+                else if (_state.IsTurnPanelOpen)
+                {
+                    _state.IsTurnPanelOpen = false;
+                }
+                else if (_state.IsGrowthPanelOpen)
+                {
+                    _state.IsGrowthPanelOpen = false;
+                }
+                else if (_state.IsRelationExpanded)
+                {
+                    _state.IsRelationExpanded = false;
+                }
+                else
+                {
+                    GoBack();
                 }
             }
 
@@ -883,10 +895,6 @@ namespace SSNoir.Rendering
                 {
                     NavigateToHome();
                 }
-            }
-            else if (handInteraction.ShouldClearSelection)
-            {
-                _state.SelectedResource = null;
             }
             else if (handInteraction.SelectedResourceToSet != null)
             {
@@ -1223,6 +1231,18 @@ namespace SSNoir.Rendering
 
             FontManager.DrawText("调试", px + 18f, py + 14f, 17, TerminalPalette.AccentBright);
             FontManager.DrawText("存档管理与场景切换", px + 70f, py + 18f, 11, TerminalPalette.TextMuted);
+            // 重启：把原本隐藏的 Command+R 显性化成一个按钮（快捷键仍保留）。
+            var restartRect = new Rectangle(px + pw - 124f, py + 10f, 50f, 24f);
+            bool restartHover = ui.CanHover(restartRect);
+            Raylib.DrawRectangleRounded(restartRect, 0.18f, 4,
+                restartHover ? TerminalPalette.AccentDark : TerminalPalette.SurfaceRaised);
+            FontManager.DrawText("重启", restartRect.X + 13f, restartRect.Y + 7f, 10, TerminalPalette.Text);
+            if (ui.WasClicked(restartRect))
+            {
+                RestartApplication();
+                return;
+            }
+
             var closeRect = new Rectangle(px + pw - 66f, py + 10f, 50f, 24f);
             bool closeHover = ui.CanHover(closeRect);
             Raylib.DrawRectangleRounded(closeRect, 0.18f, 4,

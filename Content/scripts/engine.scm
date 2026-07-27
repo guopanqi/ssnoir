@@ -424,7 +424,7 @@
 ;; 爬升方式随档位换，不是从头到尾刷同一种动作就能通关：
 ;;   面熟（相识）：带薪工作的好结果——值 < work-relation-cap 时才生效，见 构造工作；
 ;;   够朋友（信任）：不计报酬的帮忙类动作——值 < favor-relation-cap 时才生效，见 grant-favor-relation!；
-;;   拜过码头/有里子/合伙人（核心）：只认事迹——人物小节、主线段落完成时直接调用
+;;   自己人/有里子/合伙人（核心）：只认事迹——人物小节、主线段落完成时直接调用
 ;;     change-faction-relation!，不设上限，是唯一能越过 favor-relation-cap 的路。
 (define work-relation-cap 3)   ; 带薪工作最多能混到相识刚过一点
 (define favor-relation-cap 5)  ; 帮忙类动作最多能混到信任刚过一点，再往上得靠事迹
@@ -553,6 +553,10 @@
 ;; 阻塞对话:点击推进、锁输入、冻结导航,演完才把控制权还给玩家。变参,每个都是 (line ...)。
 (define (play-dialogue! . lines)
   (__play-dialogue! lines))
+
+;; 阻塞对话(场外):未在场的说话人以临时侧边卡承接,其余行为同 play-dialogue!。
+(define (play-remote-dialogue! . lines)
+  (__play-remote-dialogue! lines))
 
 ;; 命名动画(占位):目前只能在动作内调用,作为有序阻塞剧情步骤播放。
 (define (play-animation! tag)

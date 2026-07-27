@@ -60,15 +60,9 @@ namespace SSNoir.IMGUI
             for (int i = 0; i < snapshot.Actors.Count; i++)
             {
                 var actor = snapshot.Actors[i];
-                if (actor.Status == "away")
-                {
-                    flatDieOffset += actor.ActionDice.Count;
-                    continue;
-                }
-
-                // 交锋里只有主角行动，同伴连骰子都不发；再挂着他们的名字和冷静只会
-                // 让人以为还能指挥他们，整簇不画。
-                if (snapshot.IsInEncounter && actor.Role != "protagonist")
+                // 只画本场登场的人。交锋里只有主角行动，同伴连骰子都不发；再挂着他们的
+                // 名字和冷静只会让人以为还能指挥他们，整簇不画。
+                if (!actor.OnStage)
                 {
                     flatDieOffset += actor.ActionDice.Count;
                     continue;
@@ -96,9 +90,9 @@ namespace SSNoir.IMGUI
             PresentationSnapshot snapshot, SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors)
         {
             int diceCount = actor.ActionDice.Count;
-            float diceW = actor.Role == "protagonist"
-                ? 2 * TokenSpacing + TokenSize
-                : (diceCount > 0 ? TokenSize : 0f);
+            float diceW = diceCount > 0
+                ? (diceCount - 1) * TokenSpacing + TokenSize
+                : 0f;
             float clusterW = Mathf.Max(isLead ? 176f : 150f, diceW);
 
             float diceY = baseline - TokenSize;

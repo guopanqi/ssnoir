@@ -627,7 +627,8 @@ namespace SSNoir.IMGUI
             int drawn = 0;
             foreach (var actor in actors)
             {
-                if (actor.Status == "away" || !actor.Stats.TryGetValue(skill, out int level))
+                // 只画本场登场的人：交锋里同伴不上场，挂着他们的技能会让人以为还能派他们出手。
+                if (!actor.OnStage || !actor.Stats.TryGetValue(skill, out int level))
                     continue;
 
                 var chip = new Rect(x, y + drawn * (chipH + 4f), chipW, chipH);

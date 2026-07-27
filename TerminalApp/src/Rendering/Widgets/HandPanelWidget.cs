@@ -29,7 +29,6 @@ namespace SSNoir.Rendering
             public bool SmokeClicked;
             public bool DrinkClicked;
             public SelectedResource? SelectedResourceToSet;
-            public bool ShouldClearSelection;
         }
 
         public static HandPanelInteraction Draw(RendererState state,
@@ -56,9 +55,6 @@ namespace SSNoir.Rendering
                 new Rectangle(dividerX + Pad, y + 12f, windowWidth - dividerX - Pad * 2f, PanelHeight - 24f),
                 isInEncounter, ref interaction);
 
-            if (!ui.IsLocked && Raylib.CheckCollisionPointRec(ui.Mouse, panel)
-                && Raylib.IsMouseButtonPressed(MouseButton.Right))
-                interaction.ShouldClearSelection = true;
             return interaction;
         }
 
@@ -82,15 +78,9 @@ namespace SSNoir.Rendering
             bool leadDrawn = false;
             foreach (var actor in snapshot.Actors)
             {
-                if (actor.Status == "away")
-                {
-                    flatDie += actor.ActionDice.Count;
-                    continue;
-                }
-
-                // 交锋里只有主角行动，同伴连骰子都不发；再挂着名字和冷静只会让人
-                // 以为还能指挥他们，整簇不画。
-                if (isInEncounter && actor.Role != "protagonist")
+                // 只画本场登场的人。交锋里只有主角行动，同伴连骰子都不发；再挂着名字和
+                // 冷静只会让人以为还能指挥他们，整簇不画。
+                if (!actor.OnStage)
                 {
                     flatDie += actor.ActionDice.Count;
                     continue;
@@ -103,9 +93,9 @@ namespace SSNoir.Rendering
                         1f, new Color(58, 62, 78, 150));
                 leadDrawn = true;
 
-                float diceW = actor.Role == "protagonist"
-                    ? 3 * TokenSize + 2 * TokenGap
-                    : (actor.ActionDice.Count == 0 ? 0f : TokenSize);
+                float diceW = actor.ActionDice.Count == 0
+                    ? 0f
+                    : actor.ActionDice.Count * TokenSize + (actor.ActionDice.Count - 1) * TokenGap;
                 float clusterW = Math.Max(150f, PoolLabelW + diceW);
                 float poolX = x + PoolLabelW;
 
@@ -137,7 +127,7 @@ namespace SSNoir.Rendering
         private static void DrawDicePoolStatus(ActorSnapshot actor, float labelX, float poolX, float y)
         {
             FontManager.DrawText("骰池", labelX, y + 5f, 9, PaperDim);
-            for (int slotId = 0; slotId < TeamState.ActionSlotCount; slotId++)
+            for (int slotId = 0; slotId < TeamState.GetActionSlotCount(actor.Role); slotId++)
             {
                 var statuses = GetSlotStatuses(actor, slotId);
                 if (statuses.Count == 0)

@@ -1,7 +1,7 @@
 ;; scenes/encounters/夜莺·警告.scm - 夜莺委托线·第一场「照面」
 ;; 主结构:话题拔河。你顶着"替外地人找门路的本地掮客"的假身份和收账人喝酒对谈。
-;;   对话的基本单位是「话题」——一根 5 位的双头条(0..4):
-;;   0 端 = 他收口,4 端 = 他松口。一次只开一个话题。
+;;   对话的基本单位是「话题」——一根 8 位的双头条(0..7):
+;;   0 端 = 他收口,7 端 = 他松口。一次只开一个话题。
 ;;   引擎 Clock 是单向的,所以指针用 'set! 移动,备注写明两端含义与当前局势。
 ;; 对外契约:确认身份后才允许收手并 success;被识破为 fail(身份已满则算狼狈的 success)。
 ;; 城市输入（只读）:
@@ -49,6 +49,7 @@
 ;; 于是段二的话题更省骰子,而不是"换套衣服再加钱"。
 ;; 玩家走到这里冷静通常已经在掉了,压力本来就在,不必再加码。
 (define (topic-open-pos) (if (= stage 2) 3 2))
+(define topic-max 7)
 
 ;; ============================================================
 ;; 话题的数据结构
@@ -193,8 +194,8 @@
   (lambda () (if (soured? t) (list (modifier -1 "他听过这话")) '())))
 
 (define (zone-line t pos)
-  (cond ((>= pos 3) (t-up t))
-        ((= pos 2) (t-mid t))
+  (cond ((>= pos 5) (t-up t))
+        ((>= pos 3) (t-mid t))
         (#t (t-down t))))
 
 ;; ============================================================
@@ -316,7 +317,7 @@
 
 (define (settle-topic!)
   (cond
-    ((>= topic-pos 4)
+    ((>= topic-pos topic-max)
      (play-banter! (line "收账人" (t-win topic)))
      (if (equal? (t-line topic) 'identity)
          (clock-tick-n! identity-clk (t-gain topic))
@@ -332,7 +333,7 @@
 
 (define (settle-question!)
   (cond
-    ((>= question-pos 4)
+    ((>= question-pos topic-max)
      (play-banter! (line "收账人" (t-win question)))
      (suspicion- 1)
      (set! question #f))
@@ -360,12 +361,12 @@
 ;; 与你是怎么推到那里的无关。这样每个话题只写三句区间台词就够了。
 
 (define (push-topic! n)
-  (set! topic-pos (max 0 (min 4 (+ topic-pos n))))
+  (set! topic-pos (max 0 (min topic-max (+ topic-pos n))))
   (play-banter! (line "收账人" (zone-line topic topic-pos)))
   (settle-topic!))
 
 (define (push-question! n)
-  (set! question-pos (max 0 (min 4 (+ question-pos n))))
+  (set! question-pos (max 0 (min topic-max (+ question-pos n))))
   (play-banter! (line "收账人" (zone-line question question-pos)))
   (settle-question!))
 
@@ -386,7 +387,7 @@
 
 (define (node-press t)
   (node (string-append "半真半假地压 · " (t-tag t))
-    :subtitle "烫：坏 −2 / 中 +1 / 好 +3"
+    :subtitle "烫：坏 −2 / 中 +1 / 好 +2"
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge (topic-mods t)
@@ -395,7 +396,7 @@
       (outcome "他让了半步" "半真的那一半够他信，半假的那一半他没查。"
         (lambda () (push-topic! 1)))
       (outcome "他整个让开了" "你把真话和假话拌在一起端上去。他一口喝了。"
-        (lambda () (push-topic! 3))))))
+        (lambda () (push-topic! 2))))))
 
 (define (node-drink t)
   (node (string-append "拿酒垫一句 · " (t-tag t))
@@ -416,8 +417,8 @@
   (container-with-clocks
     (string-append "话题：" (t-name t))
     (list (node-follow t) (node-press t) (node-drink t) (node-drop-topic t))
-    (list (list 'clock (string-append "拔河：" (t-tag t)) topic-pos 4 'segments
-                "0 端他收口、4 端他松口。回合末未谈完 −1。"))))
+    (list (list 'clock (string-append "拔河：" (t-tag t)) topic-pos topic-max 'segments
+                "0 端他收口，7 端他松口；回合末未谈完 −1。"))))
 
 ;; ---- 疑问的三个动词 ----
 
@@ -436,7 +437,7 @@
 
 (define (node-q-press q)
   (node (string-append "半真半假地压 · 疑问" (t-tag q))
-    :subtitle "烫：坏 −2 / 中 +1 / 好 +3"
+    :subtitle "烫：坏 −2 / 中 +1 / 好 +2"
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge
@@ -445,7 +446,7 @@
       (outcome "他让了半步" "他挑不出错，就先不挑了。"
         (lambda () (push-question! 1)))
       (outcome "他整个让开了" "你把话头推回他自己身上。他笑了。"
-        (lambda () (push-question! 3))))))
+        (lambda () (push-question! 2))))))
 
 (define (node-q-drink q)
   (node (string-append "拿酒垫一句 · 疑问" (t-tag q))
@@ -459,8 +460,8 @@
   (container-with-clocks
     (string-append "他的疑问：" (t-name q))
     (list (node-q-follow q) (node-q-press q) (node-q-drink q))
-    (list (list 'clock (string-append "拔河：疑问" (t-tag q)) question-pos 4 'segments
-                "开在他占优的一侧。拉到 4 圆过去、疑心 −1；滑到 0 露馅、疑心 +2。不理它，回合末自己往 0 走。"))))
+    (list (list 'clock (string-append "拔河：疑问" (t-tag q)) question-pos topic-max 'segments
+                "开在他占优的一侧；拉到 7 圆过去、疑心 −1；滑到 0 露馅、疑心 +2。"))))
 
 ;; ============================================================
 ;; 开话题

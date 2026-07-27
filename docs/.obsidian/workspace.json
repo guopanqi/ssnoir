@@ -54,7 +54,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "物资",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -75,8 +75,7 @@
               "title": "书签"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -167,9 +166,16 @@
       "bases:新建数据库": false
     }
   },
-  "active": "163d63f1f4786932",
+  "active": "38e6494087c3244c",
   "lastOpenFiles": [
+    "第一章·三封信.md",
+    "手稿/夜莺剧本-第一章.md",
+    "手稿/交锋手稿.md",
+    "手稿/设计参考和一些思考/Fable：关于CS2合同的策略性来源.md",
+    "手稿/设计参考和一些思考/Claude关于活侠传的经济结构.md",
+    "手稿/设计参考和一些思考/CS2 - 物资、食物.md",
     "手稿/设计参考和一些思考/活侠传是如何制造玩家和人物之间的情感的.md",
+    "手稿/我们可以参考学习的游戏.md",
     "demo短篇·夜莺故事设计.md",
     "交锋结构库.md",
     "故事设计总纲.md",
@@ -177,10 +183,7 @@
     "原语扩展提案.md",
     "demo短篇·剧本总表.md",
     "ARCHITECTURE.md",
-    "手稿/交锋手稿.md",
     "play.html",
-    "手稿/设计参考和一些思考/Fable：关于CS2合同的策略性来源.md",
-    "手稿/设计参考和一些思考/Claude关于活侠传的经济结构.md",
     "手稿/设计参考和一些思考/images/Pasted Graphic 2.png",
     "手稿/设计参考和一些思考/images",
     "手稿/设计参考和一些思考/images/Pasted Graphic 3.png",
@@ -188,7 +191,6 @@
     "收藏.md",
     "archive/demo短篇·夜莺交锋方案.md",
     "demo短篇·夜莺交锋方案.md",
-    "手稿/我们可以参考学习的游戏.md",
     "手稿/设计参考和一些思考/记号法/关于记号法的对话-重制精简版.txt",
     "手稿/设计参考和一些思考/记号法/关于记号法的对话-原始记录.txt",
     "手稿/设计参考和一些思考/记号法/关于记号法的对话.txt",
@@ -198,7 +200,6 @@
     "记号法/关于记号法的对话-原始记录.txt",
     "手动编辑的/Noir可以参考学习的游戏.md",
     "手稿/生活方式模拟.md",
-    "手稿/夜莺剧本-第一章.md",
     "手稿/夜莺人物表.md",
     "手动编辑的/夜莺人物表.md",
     "design-audit/2026-07-06-unity-ui/audit.md",
@@ -206,8 +207,6 @@
     "design-audit/2026-07-06-unity-ui/01-world-overview.png",
     "夜莺主线设计.md",
     "夜莺交锋设计.md",
-    "手动编辑的/生活方式模拟.md",
-    "手动编辑的/夜莺剧本-第一章.md",
     "posts/摘录/assets/有意思/oregon-trail.jpg",
     "posts/摘录/assets/有意思/haxiachuan-header.jpg",
     "posts/摘录/assets/有意思/haxiachuan.jpg",

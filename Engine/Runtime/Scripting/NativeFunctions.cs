@@ -255,7 +255,11 @@ namespace SSNoir.Scripting
 
             interpreter.DefineGlobal(Symbol.FromString("__current-actor"), new NativeProcedure(args =>
             {
-                if (gameState.CurrentContext == null) throw new InvalidOperationException("__current-actor called without action context");
+                if (gameState.CurrentContext == null)
+                    throw new InvalidOperationException(
+                        "__current-actor is only valid during ExecuteAction. An encounter-result callback " +
+                        "or a turn-end rule runs outside any action — address the actor explicitly there, " +
+                        "e.g. (spend-actor-composure! 'player n) / (restore-actor-composure! 'player n).");
                 return Symbol.FromString(gameState.CurrentContext.ActorId);
             }, "__current-actor"));
 
@@ -337,6 +341,17 @@ namespace SSNoir.Scripting
                     gameState.DialogueCenter.RequestBanter(sequence);
                 return new None();
             }, "__play-banter!"));
+
+            // 阻塞对话(场外):允许未在场的说话人以临时侧边卡为锚点。
+            interpreter.DefineGlobal(Symbol.FromString("__play-remote-dialogue!"), new NativeProcedure(args =>
+            {
+                var sequence = ParseDialogueSequence(args, "__play-remote-dialogue!", allowsRemoteParticipants: true);
+                if (gameState.CurrentActionReport != null)
+                    gameState.CurrentActionReport.BlockingStorySteps.Add(BlockingStoryStep.ForDialogue(sequence));
+                else
+                    gameState.DialogueCenter.RequestDialogue(sequence);
+                return new None();
+            }, "__play-remote-dialogue!"));
 
             // 显式场外插话:允许未在场的说话人以临时侧边卡为锚点。
             // 不复用普通 banter 的静默兜底，保留后者对内容拼写/节点配置的严格校验。

@@ -9,17 +9,20 @@ namespace SSNoir.Core
         public string Name { get; init; } = string.Empty;
         public string Role { get; init; } = string.Empty;
         public string Status { get; init; } = string.Empty;
+        /// <summary>本场是否登场——即这一场里真的会拿到骰子的人。城市里全队都在，交锋里只有主角。
+        /// 凡是「谁能出手」的界面（技能预览、命运条、手牌）都读这个，不要各自再判 Status / Role。</summary>
+        public bool OnStage { get; init; }
         public int Composure { get; init; }
         public int SpentGrowthPoints { get; init; }
         public IReadOnlyDictionary<string, int> Stats { get; init; } = new Dictionary<string, int>();
         public IReadOnlyList<int> ActionDice { get; init; } = new List<int>();
-        // 与 ActionDice 平行，是固定骰池位置编号（0/1/2），供客户端保持空间身份。
+        // 与 ActionDice 平行，是固定骰池位置编号，供客户端保持空间身份。
         public IReadOnlyList<int> ActionDiceSlotIds { get; init; } = new List<int>();
         public IReadOnlyList<ActionSlotStatus> ActiveActionSlotStatuses { get; init; } = new List<ActionSlotStatus>();
         public IReadOnlyList<ActionSlotStatus> PendingActionSlotStatuses { get; init; } = new List<ActionSlotStatus>();
     }
 
-    // 三个骰池位置是行动池的稳定空间；骰子可自由投入任意行动，但身体状态附着在位置上。
+    // 骰池位置是行动池的稳定空间；骰子可自由投入任意行动，但身体状态附着在位置上。
     public sealed class ActionSlotStatus
     {
         public int SlotId { get; init; }
