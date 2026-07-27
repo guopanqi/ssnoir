@@ -185,6 +185,10 @@
          (rest-block! "三封信/第三封信" "剧院来人找你，说她的化妆间里有东西。"))
         ((and (beat3-open?) (not (has-flag? '她不取消)))
          (rest-block! "三封信/她不取消" "她在剧院等你，说要当面讲。"))
+        (premiere-pending?
+         (rest-block! "三封信/首演" "今晚是首演。你答应过她要在场。"))
+        ((and (= story-stage 5) (not (has-flag? '结案)))
+         (rest-block! "三封信/结案" "剧院外面有人在等你说话。"))
         (else
          (begin
            (rest-release! "三封信/开场敲门")
@@ -192,7 +196,9 @@
            (rest-release! "三封信/伤后探望")
            (rest-release! "三封信/第二封信")
            (rest-release! "三封信/第三封信")
-           (rest-release! "三封信/她不取消")))))
+           (rest-release! "三封信/她不取消")
+           (rest-release! "三封信/首演")
+           (rest-release! "三封信/结案")))))
 
     ;; ── 开场：她找上门 ──────────────────────────────
     ;; 她不是经理介绍来的——老街的人脉听说旅馆住了个新来的侦探。
@@ -785,6 +791,78 @@
             (if decoy-set? '() (list (node-set-decoy))))
           '()))
 
+    ;; ── 首演之夜 ────────────────────────────────────
+    (define premiere-pending? #f)
+
+    (define (begin-premiere!)
+      (if premiere-pending?
+          (error "三封信：首演之夜已经在等待处理")
+          #t)
+      (set! premiere-pending? #t)
+      (sync-blockers!)
+      (notify! "今天是首演。天黑以前你得到剧院去。"))
+
+    (define (node-premiere-entry)
+      (encounter-action "去剧院"
+        (lambda ()
+          (play-dialogue!
+            (line "夜莺" "别站在台下。站在我能看见你的地方。")
+            (line "主角" "我就在侧台。")
+            (line "经理" "两分钟。各就各位。"))
+          (spotlight! "开演"
+            (string-append
+              "灯暗下去，乐队起了第一个音。她走进那束光里，前两段唱得干干净净。"
+              "第三段的舞台开始升起——就在这时候，全场的灯一起灭了。"))
+          (start-encounter "首演之夜" on-premiere-result))))
+
+    ;; 交锋只回传 'done：四个向量走 global，由这里解释并写成结案。
+    (define (on-premiere-result result)
+      (if (not premiere-pending?)
+          (error "三封信：没有待处理的首演")
+          #t)
+      (if (equal? result 'done) #t (error "三封信：首演交锋返回了未登记的结果"))
+      (set! premiere-pending? #f)
+      (set! premiere-done? #t)
+      (if (get-global '首演-她受伤) (worsen-condition! 2) #f)
+      (advance-stage! 5)
+      (complete-section!)
+      (sync-globals!)
+      (sync-blockers!))
+
+    ;; ── 公开结案(必看) ──────────────────────────────
+    ;; 第一章在情绪上是一次胜利。按这个基调写，不留反讽的语气。
+    ;; §9.1 的那些细节只写进台词和描述,不设 flag、不标注、不提示。
+    (define (node-closing)
+      (instant-action "散场之后"
+        (lambda ()
+          (play-dialogue!
+            (line "阿瑟" "莱恩已经在我们手里了。")
+            (line "主角" "这么快。")
+            (line "阿瑟" "上头催得紧。会有记者来问，你知道他们会写什么。")
+            (line "阿瑟" "港口失控，警方依法处置，夜莺没有受伤，演出是成功的。")
+            (line "主角" "追到后台的那个人，比他冷静得多。他知道哪道门通哪儿。")
+            (line "阿瑟" "他雇的人。这种人手上从来不干净。")
+            (line "阿瑟" "别把事情想复杂了。案子结了，姑娘没事，你拿到了钱。"))
+          (set-flag! '结案)
+          (rest-release! "三封信/结案")
+          (sync-globals!)
+          (spotlight! "第二天的头版"
+            (string-append
+              "「港口无业人员勒索威胁，夜莺不惧危险，华丽谢幕」——占了整个头版。"
+              "经理的公关团队准备得异常充分。三封信被装进同一份案卷。"
+              "警方以搜索同伙为由封锁了老街。"
+              (if (get-global '首演-她受伤)
+                  "她手上还缠着绷带，照片里看不出来。"
+                  "照片里她站在谢幕的灯下，恢复得比谁都快。")
+              "你拿到了报酬，委托到此结束。"))
+          (play-dialogue!
+            (line "夜莺" "你来了。")
+            (line "主角" "你唱完了。")
+            (line "夜莺" "我说过我会唱完的。")
+            (line "夜莺" "那张票我一直留着。你没用上——你站在后台。")
+            (line "主角" "下次吧。")
+            (line "夜莺" "下次。")))))
+
     ;; ── 状态卡 ──────────────────────────────────────
     (define (days-tail)
       (string-append " · 首演还有 " (number->string (days-to-premiere)) " 天"))
@@ -863,6 +941,10 @@
         (if (third-letter-due?) (list (node-third-letter)) '())
         (if (and (beat3-open?) (not (has-flag? '她不取消)))
             (list (node-she-refuses))
+            '())
+        (if premiere-pending? (list (node-premiere-entry)) '())
+        (if (and (= story-stage 5) (not (has-flag? '结案)))
+            (list (node-closing))
             '())))
 
     ;; 各地点向故事要自己这一拍的节点。地点不认识故事状态,只认自己的名字。
@@ -912,11 +994,18 @@
         (else '())))
 
     ;; ── 日终 ────────────────────────────────────────
+    ;; 两个钉死的日子：交割日（信上写的期限）与首演之夜。都在日终判定，
+    ;; 到期当天不自动播放——它们是必看事件，用阻塞休息逼玩家亲自去。
     (define-turn-rule "第一章定日事件"
       (lambda ()
-        (and (= story-stage 1) (not delivery-pending?)
-             (>= (+ world-day 1) delivery-day)))
-      (lambda () (begin-delivery!)))
+        (or (and (= story-stage 1) (not delivery-pending?)
+                 (>= (+ world-day 1) delivery-day))
+            (and (= story-stage 4) (not premiere-pending?) (not premiere-done?)
+                 (>= (+ world-day 1) premiere-day))))
+      (lambda ()
+        (if (= story-stage 1)
+            (begin-delivery!)
+            (begin-premiere!))))
 
     ;; ── 消息接口 ────────────────────────────────────
     (lambda args
@@ -962,6 +1051,7 @@
              (list "staging-changed?" staging-changed?)
              (list "decoy-set?" decoy-set?)
              (list "premiere-done?" premiere-done?)
+             (list "premiere-pending?" premiere-pending?)
              (list "scene-flags" scene-flags)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
@@ -994,6 +1084,7 @@
              (set! staging-changed? (assoc-get data "staging-changed?" #f))
              (set! decoy-set? (assoc-get data "decoy-set?" #f))
              (set! premiere-done? (assoc-get data "premiere-done?" #f))
+             (set! premiere-pending? (assoc-get data "premiere-pending?" #f))
              (set! scene-flags (normalize-flags (assoc-get data "scene-flags" '())))
              (sync-globals!)
              (sync-blockers!)))
