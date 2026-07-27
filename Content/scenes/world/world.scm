@@ -73,12 +73,15 @@
   (list
     (list home            (lambda () #t))
     (list dock            (lambda () #t))
-    (list old-street-tavern (lambda () #t))
+    ;; 老街（酒馆与码头居民区）到小节一结算才开放：开场只有旅馆、码头、
+    ;; 布告栏、公园、诊所、警局，这几天刻意是紧的。
+    (list old-street-tavern (lambda () (three-letters 'old-street-open?)))
     (list clinic          (lambda () #t))
     (list park            (lambda () #t))
     (list police-station  (lambda () #t))
     (list freight-company (lambda () #t))
-    (list residential-district (lambda () (joe 'residential-unlocked?)))
+    (list residential-district
+          (lambda () (or (three-letters 'old-street-open?) (joe 'residential-unlocked?))))
     (list insurance-company (lambda () (walter 'known?)))
     (list board           (lambda () #t))
     (list test            (lambda () (equal? (get-global 'chapter) "test")))))

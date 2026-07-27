@@ -16,8 +16,20 @@
     (define premiere-day 22)        ; 首演之夜,全章不变
     (define dock-prep-max 6)        ; 码头准备满格(三项各好结果 +2)
 
+    ;; ── 小节二·老街 ─────────────────────────────────
+    (define negative-target 3)      ; 「底片在哪」满格
+    (define familiar-max 3)         ; 老街熟脸满格;戒心随它递减
+    (define negatives-price 260)    ; 买回底片与照片的总价
+    (define manager-share 100)      ; 经理愿意出的那一部分
+    (define spread-max 4)           ; 「照片在老街传开」的格数
+    (define spread-interval 3)      ; 每几天推一格
+    (define trust-threshold 3)      ; 够这个数,小节三才能改动她的登台安排
+    (define manager-fee-good 220)   ; 结算报酬:办得干净
+    (define manager-fee-fair 150)   ; 勉强
+    (define manager-fee-poor 80)    ; 难看(含传开超时)
+
     ;; ── 状态 ────────────────────────────────────────
-    ;; 0=未开场 1=小节一·交割 2=小节二·老街
+    ;; 0=未开场 1=小节一·交割 2=小节二·老街 3=平静期 4=小节三 5=首演之后
     ;; 后续小节在各自批次接入,不预留空壳。
     (define story-stage 0)
     (define delivery-day 0)         ; 交割日的世界日,开场当天算出
@@ -28,6 +40,16 @@
     (define mailbox-checked? #f)    ; 邮箱周围已看过
     (define locals-asked? #f)       ; 地形已打听
     (define condition-level 0)      ; 夜莺处境 0=稳定 1=不安 2=受伤
+    (define trust 0)                ; 她对你的信任
+    (define negative-progress 0)    ; 「底片在哪」0..negative-target
+    (define familiar 0)             ; 老街熟脸 0..familiar-max
+    (define spread 0)               ; 「照片在老街传开」0..spread-max
+    (define spread-day 0)           ; 上一次推进传开钟的世界日
+    (define escorted-day 0)         ; 夜莺最近一次陪你走老街的世界日
+    (define material-settled? #f)   ; 底片与照片是否已经了结
+    (define settle-route "无")      ; 交易 / 关系 / 强制 / 传开
+    (define settle-quality "无")    ; 好 / 中 / 坏
+    (define lyon-fate "无")         ; 逃走 / 被释放 / 被扣押
     (define scene-flags '())
 
     ;; ── flag 登记 ───────────────────────────────────
@@ -36,6 +58,9 @@
       (cond
         ((or (equal? flag '交割已结算) (equal? flag "交割已结算")) "交割已结算")
         ((or (equal? flag '伤后探望) (equal? flag "伤后探望")) "伤后探望")
+        ((or (equal? flag '第二封信) (equal? flag "第二封信")) "第二封信")
+        ((or (equal? flag '她的过去) (equal? flag "她的过去")) "她的过去")
+        ((or (equal? flag '留下的信) (equal? flag "留下的信")) "留下的信")
         (else (error "三封信 flag 未登记"))))
 
     (define (has-flag? flag) (member? (flag-id flag) scene-flags))
@@ -56,8 +81,33 @@
     (define (beat1-open?) (and (= story-stage 1) (not delivery-pending?)))
 
     ;; 她在酒馆驻唱的日子。受伤时不上台——这份便宜随她一起消失。
+    ;; 平静期起她去剧院排练,酒馆里她出现的频率降低,这个变化本身就是叙事。
     (define (singer-present?)
-      (and (>= story-stage 1) (< condition-level 2)))
+      (and (>= story-stage 1) (<= story-stage 2) (< condition-level 2)))
+
+    ;; 老街从小节一结算后开放:酒馆、码头居民区都在这一片。
+    (define (old-street-open?) (>= story-stage 2))
+    ;; 小节二真正开始要等第二封信寄到剧院、经理找上门。
+    (define (beat2-open?)
+      (and (= story-stage 2) (has-flag? '第二封信) (not material-settled?)))
+    (define (negatives-located?) (>= negative-progress negative-target))
+    (define (trust-met?) (>= trust trust-threshold))
+
+    ;; 老街的戒心:你穿得不像这里的人,你替一个走了就没回来的姑娘办事。
+    ;; 混脸熟能把它磨掉,是可见修正,不是隐藏难度。
+    (define (street-modifiers)
+      (let ((wary (- 2 familiar)))
+        (if (> wary 0)
+            (list (modifier (- wary) "老街的戒心"))
+            '())))
+
+    (define (add-familiar! n)
+      (set! familiar (min familiar-max (+ familiar n)))
+      (sync-globals!))
+
+    (define (gain-trust! n)
+      (set! trust (+ trust n))
+      (sync-globals!))
 
     (define (condition-label)
       (cond
@@ -70,7 +120,13 @@
       (set-global! '第一章阶段 story-stage)
       (set-global! '夜莺处境 (condition-label))
       (set-global! '码头准备 dock-prep)
-      (set-global! '交割结果 delivery-result))
+      (set-global! '交割结果 delivery-result)
+      (set-global! '老街熟脸 familiar)
+      (set-global! '照片传开 spread)
+      (set-global! '底片去向 settle-route)
+      (set-global! '小节二结果 settle-quality)
+      (set-global! '莱恩下落 lyon-fate)
+      (set-global! '夜莺信任达标 (trust-met?)))
 
     (define (advance-stage! new-stage)
       (set! story-stage new-stage)
@@ -90,11 +146,14 @@
          (rest-block! "三封信/交割日" "钱已经放进邮箱，你得在那儿盯着。"))
         ((and (= story-stage 2) (not (has-flag? '伤后探望)))
          (rest-block! "三封信/伤后探望" "她在门外等着，要问今天的事。"))
+        ((and (= story-stage 2) (has-flag? '伤后探望) (not (has-flag? '第二封信)))
+         (rest-block! "三封信/第二封信" "剧院的经理在楼下等你，手里捏着一封信。"))
         (else
          (begin
            (rest-release! "三封信/开场敲门")
            (rest-release! "三封信/交割日")
-           (rest-release! "三封信/伤后探望")))))
+           (rest-release! "三封信/伤后探望")
+           (rest-release! "三封信/第二封信")))))
 
     ;; ── 开场：她找上门 ──────────────────────────────
     ;; 她不是经理介绍来的——老街的人脉听说旅馆住了个新来的侦探。
@@ -217,7 +276,11 @@
               ((equal? result '中) "中")
               ((equal? result '坏) "坏")
               (else (error "三封信：交割交锋返回了未登记的结果"))))
-      (if (equal? delivery-result "坏") (worsen-condition! 1) #f)
+      ;; 交割的三档兑现成小节二的起步条件,不是单纯的文案差别。
+      (cond
+        ((equal? delivery-result "好") (set! negative-progress 1))
+        ((equal? delivery-result "中") (set! familiar 1))
+        (else (worsen-condition! 1)))
       (set-flag! '交割已结算)
       (advance-stage! 2)
       (complete-section!)
@@ -250,6 +313,256 @@
           (spotlight! "老街"
             "她说那话的时候没看你，眼睛落在窗外。老街那一片在城市的另一头，从明天起，你可以往那边去了。"))))
 
+    ;; ── 小节二触发：第二封信(必看) ──────────────────
+    ;; 信寄到了剧院,经理因此第一次介入。他出钱,也开始用他自己的方式处理——
+    ;; 他的利益是首演成功、品牌不受损,和她的利益从此不完全重合。
+    (define (node-second-letter)
+      (instant-action "见剧院的经理"
+        (lambda ()
+          (play-dialogue!
+            (line "经理" "这封信寄到了剧院的收发室。收发室的姑娘拆开了，念了两行才反应过来。")
+            (line "经理" "他这次要的数目翻了一倍。还附了一张照片——裁过的，只留下半个人。")
+            (line "经理" "他说钱要她自己送到老街去。")
+            (line "主角" "他想让她穿着好衣服回那个地方低头。")
+            (line "经理" "我不关心他想什么。我关心的是三个星期以后那张海报上的名字还值不值钱。")
+            (line "经理" "查清楚他手里还剩什么，然后让这件事到此为止。钱我出一部分。"))
+          (set-flag! '第二封信)
+          (set! spread-day world-day)
+          (rest-release! "三封信/第二封信")
+          (sync-globals!)
+          (sync-blockers!)
+          (spotlight! "第二封信"
+            (string-append
+              "他手里确实有底片，不只是几张洗出来的照片。在他把东西散出去之前，"
+              "你得查清楚那些底片在谁手上、藏在哪儿，然后把它拿回来——买、换、还是抢，是你的事。")))))
+
+    ;; ── 小节二·账单一：底片在哪 ─────────────────────
+    (define (add-negative! n)
+      (set! negative-progress (min negative-target (+ negative-progress n)))
+      (sync-globals!))
+
+    (define (negative-clock)
+      (list (list 'clock "底片在哪" negative-progress negative-target 'segments
+                  "问清楚东西在谁手上、藏在什么地方。填满以后才谈得上拿回来。")))
+
+    (define (spread-clock)
+      (list (list 'clock "照片在老街传开" spread spread-max 'countdown
+                  (string-append "每 " (number->string spread-interval)
+                                 " 天多一格：看过那些照片的人越来越多。"
+                                 "填满就来不及了——东西散了出去，这件事只能以最难看的方式收场。"))))
+
+    ;; 酒馆老板：老街的守门人。他认识她,也不愿意谈她。
+    (define (node-ask-owner)
+      (node "跟酒馆老板打听"
+        :subtitle "他认识她,也不愿意谈她;这道门得慢慢磨"
+        :tags (list "低风险")
+        :clocks (negative-clock)
+        :requires (list (req-die))
+        :resolve (roll 'social street-modifiers
+          (outcome "他低头擦杯子" "他把杯子举到灯下看了看，又擦了一遍。等你说完，他去了后厨。"
+            (lambda () (spend-composure! 1)))
+          (outcome "他说了半句" "'那些东西不在他自己手上。'他说完就不再往下说了。"
+            (lambda () (add-negative! 1)))
+          (outcome "他说了个名字" "'他把值钱的东西都搁在别人那儿。'他报了个名字，'你别说是我讲的。'"
+            (lambda () (add-negative! 2) (add-familiar! 1))))))
+
+    ;; 居民区：挨着台阶一家一家问。这里的路很难走,房子挤在一起。
+    (define (node-search-district)
+      (node "在居民区搜集线索"
+        :subtitle "台阶、晾衣绳、挤在一起的房子;这里的人不喜欢你这身衣服"
+        :tags (list "低风险")
+        :clocks (negative-clock)
+        :requires (list (req-die))
+        :resolve (roll 'sharpness street-modifiers
+          (outcome "门一扇扇关上" "你敲过的门在你走开之后才重新打开。没人愿意在门口跟你站着说话。"
+            (lambda () (spend-composure! 1)))
+          (outcome "有人指了个方向" "一个晾衣服的女人朝坡下扬了扬下巴，没说话。"
+            (lambda () (add-negative! 1) (add-familiar! 1)))
+          (outcome "找到了那间屋" "半地下的一间屋，窗户糊着报纸。有人在那儿冲洗过东西——药水味还没散。"
+            (lambda () (add-negative! 2) (add-familiar! 1))))))
+
+    ;; 阿瑟：查莱恩的案底。程序管得着的那部分。
+    (define (node-check-record)
+      (node "请阿瑟查莱恩的案底"
+        :subtitle "偷窃、诈骗、小额敲诈;登记在册的那部分"
+        :tags (list "低风险")
+        :clocks (negative-clock)
+        :requires (list (req-die))
+        :resolve (roll 'knowledge
+          (outcome "卷宗调不出来" "阿瑟翻了两遍登记簿。'这个名字下面什么也没有——至少今天没有。'"
+            (lambda () #f))
+          (outcome "翻到了旧案" "偷窃、诈骗、几笔小额敲诈。'这种人，'阿瑟说，'从来不自己去取钱。'"
+            (lambda () (add-negative! 1)))
+          (outcome "翻到了住处" "旧案卷上留着一个地址，还有一个替他保管过东西的人的名字。"
+            (lambda () (add-negative! 2))))))
+
+    ;; 她陪你走一趟。每天一次——她还要排练,只有半天。
+    (define (escort-available?)
+      (and (beat2-open?) (< condition-level 2) (not (= escorted-day world-day))))
+
+    (define (node-with-nightingale)
+      (node "让夜莺带你走一趟"
+        :subtitle "她每天只有半天;有她在,老街的门开得快一些"
+        :tags (list "低风险" "每天一次")
+        :clocks (negative-clock)
+        :requires (list (req-die))
+        :resolve (roll 'social (lambda () (list (modifier 1 "夜莺同行")))
+          (outcome "她被人认了出来" "有人在背后喊了一句难听的。她没回头，脚步也没慢，可那半天就这么过去了。"
+            (lambda ()
+              (set! escorted-day world-day)
+              (spend-composure! 1)
+              (sync-globals!)))
+          (outcome "她带你穿过这里" "她走在前面，路熟得像从没离开过。有人叫她的旧名字，她应了。"
+            (lambda ()
+              (set! escorted-day world-day)
+              (add-negative! 1)
+              (add-familiar! 1)
+              (sync-globals!)))
+          (outcome "有人替她开了门" "一个老太太拉住她的手看了很久，然后把你们让进了屋。"
+            (lambda ()
+              (set! escorted-day world-day)
+              (add-negative! 2)
+              (add-familiar! 1)
+              (gain-trust! 1))))))
+
+    ;; ── 小节二·人物戏与见闻 ─────────────────────────
+    ;; 她谈起自己怎么离开。第一次读:袒露内心。
+    (define (node-her-past)
+      (instant-action "听她说起从前"
+        (lambda ()
+          (play-dialogue!
+            (line "夜莺" "那边第三个门洞，我在那儿住到十六岁。冬天水管冻上，得下坡去挑。")
+            (line "夜莺" "我在这条街的酒吧唱了六年。六年，先生。没人来听，来的人也不是来听的。")
+            (line "主角" "后来呢？")
+            (line "夜莺" "后来有一天我算了一笔账。我发现我再唱六年，还是站在同一块地板上。")
+            (line "夜莺" "所以我走了。走的时候没跟谁道别——这就是他们记恨的那件事。")
+            (line "主角" "值得吗？")
+            (line "夜莺" "你看见我现在站在哪儿了。"))
+          (set-flag! '她的过去)
+          (gain-trust! 1)
+          (sync-globals!))))
+
+    ;; 莱恩的下作,和"老街不是莱恩"。两张见闻卡分散在老街两处,
+    ;; 不做成一次性过场——这两件事要玩家在生活里反复撞见。
+    (define (node-lyon-talk)
+      (observe-action "酒馆里的闲话"
+        (if (>= familiar 2)
+            "他把那几张照片给人看过——就在这张桌子上，摊开了，添上些不存在的故事。'我们都认识她嘛。'有人笑，也有人把杯子推开走了。今天有个搬运工说：那些东西该烧掉。"
+            "角落里几个人正说着什么，看见你就停了。散开的时候，其中一个把桌上的东西按进了口袋。")))
+
+    (define (node-district-mood)
+      (observe-action "台阶上的人们"
+        (if (>= familiar 2)
+            "有人肯跟你说话了。他们不喜欢那个写信的人——'做得恶心'，一个老太太原话。但真提到把本地人交给警察，所有人都摇头。这是两码事，他们说。"
+            "晾衣绳底下有人在看你。你走过去，说话声就停了；你走开，声音又起来。你穿的衣服在这里像一句挑衅。")))
+
+    ;; ── 小节二·账单二：三条路线 ─────────────────────
+    (define (player-share) (max 0 (- negatives-price manager-share)))
+
+    (define (settle-material! route quality fate)
+      (set! material-settled? #t)
+      (set! settle-route route)
+      (set! settle-quality quality)
+      (set! lyon-fate fate)
+      (advance-stage! 3)
+      (complete-section!)
+      (set-flag! '留下的信)
+      (let ((fee (cond
+                   ((equal? quality "好") manager-fee-good)
+                   ((equal? quality "中") manager-fee-fair)
+                   (else manager-fee-poor))))
+        (add-item! "金钱" fee)
+        (sync-globals!)
+        (sync-blockers!)
+        (spotlight! "勒索到此为止"
+          (string-append
+            (cond
+              ((equal? quality "好")
+               "底片和照片都在你手里。你在旅馆的洗脸盆里把它们烧了，纸卷起来，边缘先黑。")
+              ((equal? quality "中")
+               "东西拿回来了，只是不能确定拿全了。剩下的只能赌他没留底。")
+              (else
+               "东西是拿回来了——用了不太好看的办法。老街那边，有些门以后不会再对你开。"))
+            "经理结了报酬 " (number->string fee) " 金。"
+            "她把取回的照片烧掉了，却留下了一封莱恩写过的信，压在梳妆台的镜子底下。"
+            "首演还有 " (number->string (days-to-premiere)) " 天。"))))
+
+    ;; 交易：钱最直接,代价纯经济。问题是给了钱怎么确保他不留底。
+    (define (node-buy-back)
+      (node "把底片买回来"
+        :subtitle (string-append "总价 " (number->string negatives-price)
+                                 " 金，经理出 " (number->string manager-share)
+                                 " 金，你出 " (number->string (player-share))
+                                 " 金；东西当场交割，留没留底只能赌")
+        :requires (list (req-item "金钱" (player-share)))
+        :resolve (instant
+          (outcome "钱货两清" "中间人把牛皮纸袋推过桌面，没有打开看。'剩下的事我不管。'"
+            (lambda ()
+              (remove-item! "金钱" (player-share))
+              (settle-material! "交易" "中" "逃走"))))))
+
+    ;; 关系：把时间和脸面换成东西。要老街真的把你当回事。
+    (define (node-through-street)
+      (node "让老街的人替你去谈"
+        :subtitle "不花钱;需要老街熟脸满格。他们不肯把本地人交给警察，但愿意替她把东西要回来"
+        :tags (list "低风险")
+        :requires (list (req-die))
+        :resolve (roll 'social street-modifiers
+          (outcome "他起了疑心" "话传到他耳朵里的时候变了味。当天晚上，又有人看见了那些照片。"
+            (lambda ()
+              (set! spread (min spread-max (+ spread 1)))
+              (spend-composure! 1)
+              (sync-globals!)))
+          (outcome "东西要回来了" "两个搬运工去了一趟，回来时手里多了个铁盒。'差不多都在里头。'"
+            (lambda () (settle-material! "关系" "中" "逃走")))
+          (outcome "连人带东西" "他们把铁盒放在桌上，又说：'那个人今天早上坐船走了。这里没人留他。'"
+            (lambda () (settle-material! "关系" "好" "逃走"))))))
+
+    ;; 强制：最快,但可能毁掉东西,也会得罪老街。
+    (define (node-force)
+      (node "直接上门把东西拿走"
+        :subtitle "高风险;成了最快，砸了他可能毁掉底片。事败会得罪劳工"
+        :tags (list "高风险")
+        :requires (list (req-die))
+        :resolve (roll 'violence street-modifiers
+          (outcome "他先把东西毁了" "门撞开的时候，他正把一卷底片按进洗手池。药水在池底冒泡。"
+            (lambda ()
+              (damage-party! 1)
+              (change-faction-relation! "劳工" -2)
+              (settle-material! "强制" "坏" "逃走")))
+          (outcome "东西拿到了" "你把铁盒从床板下面拖出来。他靠在墙角，一句狠话也没说出口。"
+            (lambda ()
+              (change-faction-relation! "劳工" -1)
+              (settle-material! "强制" "中" "逃走")))
+          (outcome "连人一起交出去" "阿瑟带的人堵住了后门。铁盒和他一起被带走了——问过话，第二天就放了。"
+            (lambda () (settle-material! "强制" "好" "被释放"))))))
+
+    (define (beat2-settle-nodes)
+      (if (and (beat2-open?) (negatives-located?))
+          (append
+            (list (node-buy-back))
+            (if (>= familiar familiar-max) (list (node-through-street)) '())
+            (list (node-force)))
+          '()))
+
+    ;; 传开钟满格:替玩家以最难看的方式收场。到期不是隐藏的,备注里写清楚了。
+    (define (force-settle-by-spread!)
+      (worsen-condition! 1)
+      (settle-material! "传开" "坏" "逃走"))
+
+    (define-turn-rule "照片在老街传开"
+      (lambda ()
+        (and (beat2-open?) (>= (- world-day spread-day) spread-interval)))
+      (lambda ()
+        (set! spread (min spread-max (+ spread 1)))
+        (set! spread-day world-day)
+        (sync-globals!)
+        (if (>= spread spread-max)
+            (force-settle-by-spread!)
+            (notify! (string-append "又有人看过那些照片了。照片在老街传开 "
+                                    (number->string spread) "/"
+                                    (number->string spread-max) "。")))))
+
     ;; ── 状态卡 ──────────────────────────────────────
     (define (client-subtitle)
       (cond
@@ -278,6 +591,12 @@
                      "信上写的日子。到期当天必须去码头盯住邮箱，那天之前的准备决定你从哪儿起跑。")))
         (else '())))
 
+    (define (card-clocks)
+      (cond
+        ((beat1-open?) (prep-clock))
+        ((beat2-open?) (append (negative-clock) (spread-clock)))
+        (else '())))
+
     (define (render-data)
       (if (>= story-stage 1)
           (list (node "夜莺"
@@ -286,20 +605,44 @@
                               (list (observe-action "她的处境" (situation-text)))
                               (if (and (= story-stage 2) (not (has-flag? '伤后探望)))
                                   (list (node-her-visit))
-                                  '()))
-                  :clocks (if (beat1-open?) (prep-clock) '())))
+                                  '())
+                              (beat2-settle-nodes))
+                  :clocks (card-clocks)))
           '()))
 
-    ;; 世界根节点上的待办:开场敲门与交割日入口。
+    ;; 世界根节点上的待办:开场敲门、交割日入口、经理登门。
     (define (world-nodes)
       (append
         (if (= story-stage 0) (list (node-answer-door)) '())
-        (if delivery-pending? (list (node-delivery-entry)) '())))
+        (if delivery-pending? (list (node-delivery-entry)) '())
+        (if (and (= story-stage 2) (has-flag? '伤后探望) (not (has-flag? '第二封信)))
+            (list (node-second-letter))
+            '())))
 
     ;; 各地点向故事要自己这一拍的节点。地点不认识故事状态,只认自己的名字。
     (define (nodes-at location)
       (cond
         ((equal? location "码头") (dock-prep-nodes))
+        ((equal? location "酒馆")
+         (if (beat2-open?)
+             (append
+               (if (negatives-located?) '() (list (node-ask-owner)))
+               (list (node-lyon-talk)))
+             '()))
+        ((equal? location "居民区")
+         (if (beat2-open?)
+             (append
+               (if (negatives-located?) '() (list (node-search-district)))
+               (if (escort-available?) (list (node-with-nightingale)) '())
+               (if (and (>= familiar 1) (not (has-flag? '她的过去)))
+                   (list (node-her-past))
+                   '())
+               (list (node-district-mood)))
+             '()))
+        ((equal? location "警局")
+         (if (and (beat2-open?) (not (negatives-located?)))
+             (list (node-check-record))
+             '()))
         (else '())))
 
     ;; ── 日终 ────────────────────────────────────────
@@ -319,8 +662,10 @@
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'story-stage) story-stage)
           ((equal? msg 'singer-present?) (singer-present?))
+          ((equal? msg 'old-street-open?) (old-street-open?))
           ((equal? msg 'dock-prep) dock-prep)
           ((equal? msg 'delivery-result) delivery-result)
+          ((equal? msg 'trust-met?) (trust-met?))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'save)
            (list
@@ -333,6 +678,16 @@
              (list "mailbox-checked?" mailbox-checked?)
              (list "locals-asked?" locals-asked?)
              (list "condition-level" condition-level)
+             (list "trust" trust)
+             (list "negative-progress" negative-progress)
+             (list "familiar" familiar)
+             (list "spread" spread)
+             (list "spread-day" spread-day)
+             (list "escorted-day" escorted-day)
+             (list "material-settled?" material-settled?)
+             (list "settle-route" settle-route)
+             (list "settle-quality" settle-quality)
+             (list "lyon-fate" lyon-fate)
              (list "scene-flags" scene-flags)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
@@ -348,6 +703,16 @@
              (if (or (< condition-level 0) (> condition-level 2))
                  (error "三封信存档错误：夜莺处境等级非法")
                  #t)
+             (set! trust (assoc-get data "trust" 0))
+             (set! negative-progress (assoc-get data "negative-progress" 0))
+             (set! familiar (assoc-get data "familiar" 0))
+             (set! spread (assoc-get data "spread" 0))
+             (set! spread-day (assoc-get data "spread-day" 0))
+             (set! escorted-day (assoc-get data "escorted-day" 0))
+             (set! material-settled? (assoc-get data "material-settled?" #f))
+             (set! settle-route (assoc-get data "settle-route" "无"))
+             (set! settle-quality (assoc-get data "settle-quality" "无"))
+             (set! lyon-fate (assoc-get data "lyon-fate" "无"))
              (set! scene-flags (normalize-flags (assoc-get data "scene-flags" '())))
              (sync-globals!)
              (sync-blockers!)))
