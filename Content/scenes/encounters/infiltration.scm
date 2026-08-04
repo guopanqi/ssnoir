@@ -98,7 +98,7 @@
 (define-rule "警戒满失败"
   (lambda () (alert 'full?))
   (lambda ()
-    (damage-party! 1)
+    (injure!)
     (reset-scene!)
     (end-encounter)))
 

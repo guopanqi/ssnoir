@@ -248,12 +248,26 @@ namespace SSNoir.Editor
         {
             config.orbitPivot = orbitPivot;
             config.dragMode = orbitPivot != null ? CameraDragMode.Orbit : CameraDragMode.Pan;
+            if (orbitPivot == null)
+                return;
+
+            // The authored shot is always a legal orbit position. Widening the band to
+            // contain it is what keeps the player's first drag from snapping the camera
+            // vertically onto a limit the artist never agreed to; the default band is
+            // only a floor, so a shot already inside it changes nothing.
+            const float AuthoredPitchMargin = 1f;
+            Vector3 offset = config.transform.position - orbitPivot.position;
+            float horizontal = new Vector2(offset.x, offset.z).magnitude;
+            float authoredPitch = Mathf.Atan2(offset.y, horizontal) * Mathf.Rad2Deg;
+            config.minPitch = Mathf.Min(config.minPitch, authoredPitch - AuthoredPitchMargin);
+            config.maxPitch = Mathf.Max(config.maxPitch, authoredPitch + AuthoredPitchMargin);
         }
 
         private static string DescribeDragMode(SSNoirVirtualCameraConfig config)
         {
             return config.dragMode == CameraDragMode.Orbit
-                ? $"Orbit, pivot '{config.orbitPivot!.name}'"
+                ? $"Orbit, pivot '{config.orbitPivot!.name}', pitch band " +
+                  $"{config.minPitch:F1}..{config.maxPitch:F1}"
                 : "Pan, no orbit pivot found";
         }
     }

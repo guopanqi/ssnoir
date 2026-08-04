@@ -46,17 +46,17 @@ namespace SSNoir.IMGUI
 
         public static float MeasureLocationHeight(GameNode node, float cardWidth, float clocksHeight)
         {
-            return ClocksBlock(clocksHeight)
+            return Mathf.Max(CardDrawer.MinCardHeight, ClocksBlock(clocksHeight)
                 + PreferredGlyphHeight(cardWidth) + GapGlyphToLine + GapLineToTitle
-                + TitleH + ContentPad;
+                + TitleH + ContentPad);
         }
 
         public static float MeasureCommonHeight(GameNode node, float cardWidth, float clocksHeight)
         {
             float subtitleH = MeasureSubtitleHeight(node, cardWidth);
-            return ClocksBlock(clocksHeight)
+            return Mathf.Max(CardDrawer.MinCardHeight, ClocksBlock(clocksHeight)
                 + TitleH + (subtitleH > 0f ? 6f + subtitleH : 0f)
-                + ContentPad;
+                + ContentPad);
         }
 
         public static float MeasureCharacterHeight(GameNode node, float cardWidth, float clocksHeight)

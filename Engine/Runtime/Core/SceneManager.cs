@@ -340,8 +340,12 @@ namespace SSNoir.Core
             return new PresentationSnapshot
             {
                 RootNode = rootNode,
-                Health = _gameState.Team.Health,
-                MaxHealth = _gameState.Team.MaxHealth,
+                InjurySeverity = _gameState.Team.Injury.Severity,
+                InjuryPart = _gameState.Team.Injury.Part,
+                InjuryBandName = Injury.BandName(_gameState.Team.Injury.Band),
+                InjurySkillName = _gameState.Team.Injury.SkillName,
+                InjurySkillPenalty = _gameState.Team.Injury.SkillPenalty,
+                InjuryCostsActionDie = _gameState.Team.Injury.CostsActionDie,
                 Failure = _gameState.Failure,
                 RestBlockers = _gameState.RestBlockers,
                 GrowthLevel = _gameState.Team.GrowthLevel,
@@ -396,16 +400,15 @@ namespace SSNoir.Core
                 _gameState.CurrentActionReport = report;
             try
             {
-                int healthBefore = _gameState.Team.Health;
+                int injuryBefore = _gameState.Team.Injury.Severity;
                 int composureBefore = _gameState.Team.FindActor("player")?.Composure ?? 0;
 
-                // 交锋时间成本先结算，保证因本回合结束而离开交锋时也不会绕过冷静消耗。
-                if (isInEncounter)
-                {
-                    _gameState.Team.SpendComposure("player", 1);
-                }
+                // 交锋不再每回合自动扣冷静。冷静缩到 2 点之后这条流失会让任何一场交锋
+                // （了断第一幕光"老板到场"就 5 回合）在中途反复撞穿倒下线；而交锋的时间
+                // 压力本来就由各自的钟表达（老板到场、拖走进度、危险钟），那些是可见的、
+                // 每场不同的，比一条全局流失更好。冷静现在纯粹是"今天还能扛几次失败"。
                 int automaticComposureDelta = (_gameState.Team.FindActor("player")?.Composure ?? 0) - composureBefore;
-                int automaticHealthDelta = _gameState.Team.Health - healthBefore;
+                int automaticInjuryDelta = _gameState.Team.Injury.Severity - injuryBefore;
                 ActiveInterpreter.Eval("(on-turn-end)");
 
                 bool stillInSameMode = isInEncounter == !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
@@ -418,10 +421,11 @@ namespace SSNoir.Core
                     ActionEffectKind.Composure, "冷静", automaticComposureDelta,
                     automaticComposureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
 
+                // 伤势的正负与其他资源相反：数值涨上去是坏事。
                 report.AddEffect(
-                    ActionEffectKind.Health, "健康", automaticHealthDelta,
-                    automaticHealthDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
-                if (automaticHealthDelta < 0)
+                    ActionEffectKind.Injury, "伤势", automaticInjuryDelta,
+                    automaticInjuryDelta > 0 ? ActionEffectTone.Negative : ActionEffectTone.Positive);
+                if (automaticInjuryDelta > 0)
                 {
                     report.AddNote("冷静击穿：你的手在抖，身体先一步承受了代价。");
                 }
@@ -691,6 +695,18 @@ namespace SSNoir.Core
                     var rand = GameRandom.Instance;
 
                     var modifiers = new List<DifficultyModifierInfo>(node.Resolve.DifficultyModifiers);
+                    // 伤势只压主角被打中的那一项能力，并且走和「势力敌视 −1」「非法 −2」
+                    // 同一条可见修正——玩家在投骰前就看得见它，不做暗扣。
+                    var injury = _gameState.Team.Injury;
+                    if (actor.Role == "protagonist" && injury.SkillPenalty != 0
+                        && injury.Skill.Equals(skillName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        modifiers.Add(new DifficultyModifierInfo
+                        {
+                            Value = injury.SkillPenalty,
+                            Reason = injury.Part + "伤",
+                        });
+                    }
                     int modifierSum = 0;
                     foreach (var mod in modifiers)
                     {

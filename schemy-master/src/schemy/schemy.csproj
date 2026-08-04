@@ -8,8 +8,5 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="init.ss">
-      <LogicalName>init.ss</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>

@@ -9,25 +9,20 @@ namespace SSNoir.Core
         public const int MinStatLevel = 0;
         public const int MaxStatLevel = 4;
 
-        // 冷静三段阈值（见 docs/城市生活设计.md）：4–6 为缓冲，1–3 为失态，0 为失控。
-        // 失态随机一个骰池位置 -1；失控再随机一个骰池位置 -2。0 点后继续花冷静会击穿为健康伤害。
-        public const int MaxComposure = 6;
-        public const int FaintThreshold = 3;
-        public const int LossOfControlThreshold = 0;
-        public const int HealthPenaltyThreshold = 2;
+        // 冷静是纯缓冲，本身没有档位效果（见 docs/城市生活设计.md §2.2）：
+        // 花到 0 之前不产生任何惩罚，0 之后每一点消耗直接转成伤势。
+        // 失态/失控两档已删除——它们和轻伤/重伤同构（都是"随机挑一个东西 −1"），
+        // 让玩家要学两套同样的惩罚语言。机械效果现在只由伤势一处承担。
+        //
+        // 只有 2 点：一天最多扛住两次失败，第三次就开始进身体。缓冲小是故意的——
+        // 它要在当天之内就见底，否则这条轴在城市里不会产生任何决策。
+        public const int MaxComposure = 2;
 
-        public int MaxHealth { get; set; } = 5;
+        /// <summary>队伍唯一的身体轴，取代旧的健康血条。规则与档位见 <see cref="Core.Injury"/>。</summary>
+        public Injury Injury { get; } = new Injury();
 
-        private int _health = 5;
-        public int Health
-        {
-            get => _health;
-            set
-            {
-                _health = Math.Clamp(value, 0, MaxHealth);
-                OnTeamChanged?.Invoke();
-            }
-        }
+        /// <summary>伤势撞到倒下线，等待 GameState 结算送医（扣钱、作废当天骰子）。</summary>
+        public bool PendingCollapse { get; private set; }
 
         public int GrowthLevel { get; set; } = 0;
         // 骰池位置稳定存在；身体状态附着在位置上，而非可变骰子列表下标。
@@ -57,10 +52,43 @@ namespace SSNoir.Core
 
         public void ResetForNewGame()
         {
-            MaxHealth = 5;
-            _health = MaxHealth;
+            Injury.Reset();
+            PendingCollapse = false;
             GrowthLevel = 0;
             Actors.Clear();
+            OnTeamChanged?.Invoke();
+        }
+
+        // ── 伤势 ────────────────────────────────────────
+        // 受伤只有一个入口：身上没伤时随机落一处，已有伤则加深同一处。撞到倒下线时只
+        // 竖起 PendingCollapse，实际的送医结算（钱、关系、作废骰子）由 GameState 完成——
+        // TeamState 不认识钱包和声望。
+        public void Injure(int amount)
+        {
+            AggravateInjury(amount);
+            OnTeamChanged?.Invoke();
+        }
+
+        public void HealInjury(int amount)
+        {
+            Injury.Heal(amount);
+            OnTeamChanged?.Invoke();
+        }
+
+        private void AggravateInjury(int amount)
+        {
+            if (Injury.Aggravate(amount))
+                PendingCollapse = true;
+        }
+
+        /// <summary>倒下：当天剩余骰子作废，伤势回落到重伤段。由 GameState 在扣完治疗费后调用。</summary>
+        public void ResolveCollapse()
+        {
+            PendingCollapse = false;
+            Injury.ResolveCollapse();
+            var player = FindActor("player") ?? throw new InvalidOperationException("Protagonist is missing from the team.");
+            player.ActionDice.Clear();
+            player.ActionDiceSlotIds.Clear();
             OnTeamChanged?.Invoke();
         }
 
@@ -133,7 +161,7 @@ namespace SSNoir.Core
         }
 
         // 花冷静（失败、交锋每回合自动流失）。协作者在 0 点失能离场；主角击穿
-        // 0 点后溢出直接伤健康——"冷静挡不住子弹"之外的第二个健康受伤口。
+        // 0 点后溢出直接加伤势——"冷静挡不住子弹"之外的第二个受伤口。
         public void SpendComposure(string actorId, int amount)
         {
             if (amount < 0)
@@ -161,15 +189,14 @@ namespace SSNoir.Core
                     int overflow = amount - curComposure;
                     if (overflow > 0)
                     {
-                        Health -= overflow;
+                        AggravateInjury(overflow);
                     }
                 }
                 else
                 {
-                    Health -= amount;
+                    AggravateInjury(amount);
                 }
             }
-            UpdateComposureSlotStatuses(actor);
             OnTeamChanged?.Invoke();
         }
 
@@ -189,7 +216,6 @@ namespace SSNoir.Core
             {
                 actor.Status = "active";
             }
-            UpdateComposureSlotStatuses(actor);
             OnTeamChanged?.Invoke();
         }
 
@@ -224,8 +250,9 @@ namespace SSNoir.Core
         {
             var data = new TeamSaveData
             {
-                Health      = Health,
-                GrowthLevel = GrowthLevel,
+                InjurySeverity = Injury.Severity,
+                InjuryPart     = Injury.Part,
+                GrowthLevel    = GrowthLevel,
             };
             foreach (var actor in Actors)
             {
@@ -237,8 +264,6 @@ namespace SSNoir.Core
                     Status            = actor.Status,
                     Composure         = actor.Composure,
                     HangoverSlotId     = actor.HangoverSlotId,
-                    FaintSlotId        = actor.FaintSlotId,
-                    LossOfControlSlotId = actor.LossOfControlSlotId,
                     PermanentDiePenaltyLabel = actor.PermanentDiePenaltyLabel,
                     PermanentDiePenalty = actor.PermanentDiePenalty,
                     SpentGrowthPoints = actor.SpentGrowthPoints,
@@ -250,7 +275,8 @@ namespace SSNoir.Core
 
         public void ApplySaveData(TeamSaveData data)
         {
-            Health      = data.Health;
+            Injury.Restore(data.InjurySeverity, data.InjuryPart);
+            PendingCollapse = false;
             GrowthLevel = data.GrowthLevel;
 
             var savedActorIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -275,8 +301,6 @@ namespace SSNoir.Core
                 actor.Status            = actorData.Status;
                 actor.Composure         = actorData.Composure;
                 actor.HangoverSlotId = actorData.HangoverSlotId;
-                actor.FaintSlotId = actorData.FaintSlotId;
-                actor.LossOfControlSlotId = actorData.LossOfControlSlotId;
                 if (actorData.PermanentDiePenalty > 0 || actorData.PermanentDiePenalty < -2)
                     throw new ArgumentOutOfRangeException(nameof(data),
                         $"Actor '{actorData.Id}' permanent die penalty must be between -2 and 0.");
@@ -303,11 +327,10 @@ namespace SSNoir.Core
         public void RollActionDice(bool isInEncounter, bool consumeHangover = true)
         {
             var rand = GameRandom.Instance;
-            bool healthDicePenalty = Health <= HealthPenaltyThreshold;
+            bool injuryDicePenalty = Injury.CostsActionDie;
             foreach (var actor in Actors)
             {
                 bool applyHangover = !isInEncounter && consumeHangover && actor.HangoverSlotId != null;
-                UpdateComposureSlotStatuses(actor);
                 actor.ActionDice.Clear();
                 actor.ActionDiceSlotIds.Clear();
                 if (IsOnStage(actor, isInEncounter))
@@ -315,7 +338,7 @@ namespace SSNoir.Core
                     int diceCount = GetActionSlotCount(actor.Role);
                     if (actor.Role == "protagonist")
                     {
-                        if (healthDicePenalty)
+                        if (injuryDicePenalty)
                             diceCount -= 1;
                     }
                     for (int slotId = 0; slotId < diceCount; slotId++)
@@ -338,8 +361,6 @@ namespace SSNoir.Core
             var result = new List<ActionSlotStatus>();
             if (actor.PermanentDiePenalty != 0)
                 result.Add(new ActionSlotStatus { SlotId = 0, Label = actor.PermanentDiePenaltyLabel, DiePenalty = actor.PermanentDiePenalty });
-            if (actor.FaintSlotId != null) result.Add(new ActionSlotStatus { SlotId = actor.FaintSlotId.Value, Label = "失态", DiePenalty = -1 });
-            if (actor.LossOfControlSlotId != null) result.Add(new ActionSlotStatus { SlotId = actor.LossOfControlSlotId.Value, Label = "失控", DiePenalty = -2 });
             return result;
         }
 
@@ -349,31 +370,8 @@ namespace SSNoir.Core
             return new[] { new ActionSlotStatus { SlotId = actor.HangoverSlotId.Value, Label = "宿醉", DiePenalty = -1 } };
         }
 
-        private void UpdateComposureSlotStatuses(ActorState actor)
-        {
-            if (actor.Composure > FaintThreshold)
-                actor.FaintSlotId = null;
-            else if (actor.FaintSlotId == null)
-                actor.FaintSlotId = GameRandom.Instance.Next(0, GetActionSlotCount(actor.Role));
-
-            if (actor.Composure > LossOfControlThreshold)
-                actor.LossOfControlSlotId = null;
-            else if (actor.LossOfControlSlotId == null)
-                actor.LossOfControlSlotId = PickUnusedSlot(actor.FaintSlotId, GetActionSlotCount(actor.Role));
-        }
-
-        private static int PickUnusedSlot(int? excluded, int actionSlotCount)
-        {
-            int pick = GameRandom.Instance.Next(0, excluded == null ? actionSlotCount : actionSlotCount - 1);
-            return excluded != null && pick >= excluded.Value ? pick + 1 : pick;
-        }
-
+        // 骰池位置上现在只剩人物经历造成的永久损伤（乔的残疾），临时降质走 pending 的宿醉。
         private static int GetCurrentSlotPenalty(ActorState actor, int slotId)
-        {
-            int penalty = slotId == 0 ? actor.PermanentDiePenalty : 0;
-            if (actor.FaintSlotId == slotId) penalty--;
-            if (actor.LossOfControlSlotId == slotId) penalty -= 2;
-            return penalty;
-        }
+            => slotId == 0 ? actor.PermanentDiePenalty : 0;
     }
 }

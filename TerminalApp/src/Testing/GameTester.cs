@@ -78,10 +78,10 @@ namespace SSNoir.Testing
 
                 source.Set("test-global", "persisted");
                 source.Inventory.SetCount("测试物品", 7);
-                source.Team.Health = 4;
+                source.Team.Injure(2);
                 source.Team.GrowthLevel = 3;
                 source.Team.ApplyHangover();
-                source.Team.SpendComposure("player", 2);
+                source.Team.SpendComposure("player", 1);
                 var companion = source.Team.RecruitCompanion(
                     "test-companion",
                     "测试同伴",
@@ -92,7 +92,8 @@ namespace SSNoir.Testing
                         ["sharpness"] = 0,
                         ["social"] = 1,
                     });
-                source.Team.SpendComposure(companion.Id, 2);
+                // 只花 1 点：花到 0 会让同伴离场，那是另一条契约，别和存档往返混在一起。
+                source.Team.SpendComposure(companion.Id, 1);
                 companion.PermanentDiePenaltyLabel = "残疾";
                 companion.PermanentDiePenalty = -1;
                 sourceManager.SaveGame(savePath);
@@ -103,16 +104,18 @@ namespace SSNoir.Testing
 
                 AssertEq("pure global", "persisted", loaded.Get<string>("test-global"));
                 AssertEq("inventory", 7, loaded.Inventory.GetCount("测试物品"));
-                AssertEq("health", 4, loaded.Team.Health);
+                AssertEq("injury severity", 2, loaded.Team.Injury.Severity);
+                AssertEq("injury part", source.Team.Injury.Part, loaded.Team.Injury.Part);
+                AssertEq("injury skill", source.Team.Injury.Skill, loaded.Team.Injury.Skill);
                 AssertEq("growth", 3, loaded.Team.GrowthLevel);
                 AssertEq<int?>("hangover slot", 0, loaded.Team.FindActor("player")!.HangoverSlotId);
-                AssertEq("player composure", TeamState.MaxComposure - 2, loaded.Team.FindActor("player")!.Composure);
+                AssertEq("player composure", TeamState.MaxComposure - 1, loaded.Team.FindActor("player")!.Composure);
 
                 var loadedCompanion = loaded.Team.FindActor("test-companion")
                     ?? throw new Exception("[saveload] companion was not recreated during cold load");
                 AssertEq("companion role", "companion", loadedCompanion.Role);
                 AssertEq("companion name", "测试同伴", loadedCompanion.Name);
-                AssertEq("companion composure", TeamState.MaxComposure - 2, loadedCompanion.Composure);
+                AssertEq("companion composure", TeamState.MaxComposure - 1, loadedCompanion.Composure);
                 AssertEq("companion knowledge", 2, loadedCompanion.Stats["knowledge"]);
                 AssertEq("companion permanent penalty label", "残疾", loadedCompanion.PermanentDiePenaltyLabel);
                 AssertEq("companion permanent penalty", -1, loadedCompanion.PermanentDiePenalty);
@@ -167,46 +170,25 @@ namespace SSNoir.Testing
             var overflowState = new GameState();
             overflowState.Team.SpendComposure("player", TeamState.MaxComposure + 4);
             AssertEq("composure floor", 0, overflowState.Team.FindActor("player")!.Composure);
-            AssertEq("composure overflow health damage", 1, overflowState.Team.Health);
+            AssertEq("composure overflow injury", 4, overflowState.Team.Injury.Severity);
 
             // 内容脚本必须走同一条击穿路径，不能在 0 点被 wrapper 静默截断。
             var scriptedOverflowState = new GameState();
             var scriptedOverflowManager = new SceneManager(scriptedOverflowState, new LocalScriptLoader());
             scriptedOverflowManager.LoadScene("world");
-            scriptedOverflowManager.ActiveInterpreter.Eval("(spend-actor-composure! 'player 6)");
+            // 先精确花到 0（不溢出），再花 1 点——这一点必须变成伤势，不能被 wrapper 静默吞掉。
+            scriptedOverflowManager.ActiveInterpreter.Eval(
+                $"(spend-actor-composure! 'player {TeamState.MaxComposure})");
             scriptedOverflowManager.ActiveInterpreter.Eval("(spend-actor-composure! 'player 1)");
             AssertEq("scripted composure floor", 0, scriptedOverflowState.Team.FindActor("player")!.Composure);
-            AssertEq("scripted composure overflow health damage", 4, scriptedOverflowState.Team.Health);
+            AssertEq("scripted composure overflow injury", 1, scriptedOverflowState.Team.Injury.Severity);
 
-            // 谷底仍须保留三颗骰，失控只扩大降质范围，不再征用骰子。
+            // 谷底仍须保留三颗骰：重伤减一颗，冷静见底本身不再征用或降质任何骰子。
             var bottomState = new GameState();
-            bottomState.Team.Health = TeamState.HealthPenaltyThreshold;
-            bottomState.Team.SpendComposure("player", TeamState.MaxComposure - TeamState.LossOfControlThreshold);
+            bottomState.Team.Injure(Injury.SevereThreshold);
+            bottomState.Team.SpendComposure("player", TeamState.MaxComposure);
             bottomState.Team.RollActionDice(isInEncounter: false);
             AssertEq("bottom-state dice", 3, bottomState.Team.FindActor("player")!.ActionDice.Count);
-
-            // 骰池状态的身份不能随骰子消耗而漂移：失态跨 1–3 保留，进入/离开失控线只增减第二个状态。
-            var slotState = new GameState();
-            slotState.Team.SpendComposure("player", 3);
-            var slotPlayer = slotState.Team.FindActor("player")!;
-            AssertEq("faint slot status count", 1, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
-            AssertEq("faint slot penalty", -1, slotState.Team.GetActiveActionSlotStatuses(slotPlayer)[0].DiePenalty);
-            int faintSlot = slotState.Team.GetActiveActionSlotStatuses(slotPlayer)[0].SlotId;
-            slotState.Team.SpendComposure("player", 3);
-            AssertEq("loss-control slot status count", 2, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
-            bool faintSlotStillPresent = false;
-            bool lossControlPenaltyPresent = false;
-            foreach (var status in slotState.Team.GetActiveActionSlotStatuses(slotPlayer))
-            {
-                faintSlotStillPresent |= status.SlotId == faintSlot;
-                lossControlPenaltyPresent |= status.Label == "失控" && status.DiePenalty == -2;
-            }
-            AssertEq("faint slot persists", true, faintSlotStillPresent);
-            AssertEq("loss-control slot penalty", true, lossControlPenaltyPresent);
-            slotState.Team.RestoreComposure("player", 1);
-            AssertEq("loss-control slot clears above 0", 1, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
-            slotState.Team.RestoreComposure("player", 3);
-            AssertEq("faint slot clears above 3", 0, slotState.Team.GetActiveActionSlotStatuses(slotPlayer).Count);
 
             var hangoverState = new GameState();
             hangoverState.Team.ApplyHangover();
@@ -218,15 +200,18 @@ namespace SSNoir.Testing
             var consumableState = new GameState();
             consumableState.Inventory.SetCount("香烟", 1);
             consumableState.Inventory.SetCount("酒", 1);
-            consumableState.Team.SpendComposure("player", 3);
+            // 精确花到 0（不溢出成伤势），再验证消耗品这条路接通。
+            // 注意：冷静只有 2 点之后，烟(+2)和酒(+3)都会把它一次填满，所以两处断言的
+            // 期望值相同——这里守的是"消耗品被扣掉且冷静真的回了"，不是具体数值。
+            consumableState.Team.SpendComposure("player", TeamState.MaxComposure);
             var consumableManager = new SceneManager(consumableState, new LocalScriptLoader());
             consumableManager.LoadScene("encounters/夜莺·警告");
             consumableManager.UseEncounterConsumable("香烟");
             AssertEq("smoke consumed", 0, consumableState.Inventory.GetCount("香烟"));
-            AssertEq("smoke composure restore", 5, consumableState.Team.FindActor("player")!.Composure);
+            AssertEq("smoke composure restore", TeamState.MaxComposure, consumableState.Team.FindActor("player")!.Composure);
             consumableManager.UseEncounterConsumable("酒");
             AssertEq("drink consumed", 0, consumableState.Inventory.GetCount("酒"));
-            AssertEq("drink composure restore", 6, consumableState.Team.FindActor("player")!.Composure);
+            AssertEq("drink composure restore", TeamState.MaxComposure, consumableState.Team.FindActor("player")!.Composure);
             AssertEq<int?>("encounter drink hangover", 0, consumableState.Team.FindActor("player")!.HangoverSlotId);
             AssertEq("B=1 summary", "1–3 坏 · 4–6 中", FateStrip.Describe(FateStrip.Compute(1, 0, 0)));
             AssertEq("B=4 summary", "1 坏 · 2–3 中 · 4–6 好", FateStrip.Describe(FateStrip.Compute(4, 0, 0)));

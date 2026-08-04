@@ -213,10 +213,10 @@
   (drop-active! (t 'id))
   (cond
     ((equal? (t 'id) "升降台卡在半程")
-     (damage-party! 1)
+     (injure!)
      (spend-composure! 1))
     ((equal? (t 'id) "台下的恐慌")
-     (damage-party! 1)
+     (injure!)
      (set! usher-quit? #t))
     ((equal? (t 'id) "从三号门进来的那个人")
      (spend-composure! 2))
@@ -259,7 +259,7 @@
       (outcome "没按住"
         (lambda ()
           (if (equal? (t 'ability) 'violence)
-              (damage-party! 1)
+              (injure!)
               (spend-composure! 1))))
       (outcome "往前推了一步"
         (lambda () (push-trouble! t 1)))
@@ -416,7 +416,7 @@
         (set-global! '首演-有人被踩 (expired? "台下的恐慌"))
         (set-global! '首演-警察到场 aide-police)
         (set-global! '首演-老街到场 (or aide-joe aide-frank))
-        (if (her-hurt?) (damage-party! 1) #f)
+        (if (her-hurt?) (injure!) #f)
         (spotlight! (if (her-hurt?) "首演之夜：人群压了上来" "首演之夜：她唱完了")
                     (closing-text))
         (end-encounter 'done))))

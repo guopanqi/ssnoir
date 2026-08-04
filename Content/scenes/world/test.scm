@@ -25,7 +25,9 @@
                      (instant-action "富商 +1" (lambda () (change-faction-relation! "富商" 1)))))
                  (container "调试-身体"
                    (list
-                     (instant-action "健康 +2" (lambda () (heal-party! 2)))
+                     (instant-action "受伤 +1" (lambda () (injure!)))
+                     (instant-action "重创 +3" (lambda () (injure-badly!)))
+                     (instant-action "治疗 -3" (lambda () (heal-injury! 3)))
                      (instant-action "冷静 +2" (lambda () (restore-actor-composure! 'player 2)))
                      (instant-action "冷静 -2" (lambda () (spend-actor-composure! 'player 2)))))
                  (container "调试-成长"

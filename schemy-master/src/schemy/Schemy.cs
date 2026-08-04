@@ -65,23 +65,15 @@ namespace Schemy
             // yield return is illegal inside try/catch, so we collect into a list first.
             var readers = new List<TextReader>();
 
-            // Load the embedded init.ss. Try both resource name conventions:
-            // old-style csproj uses <LogicalName>init.ss</LogicalName> → "init.ss"
-            // SDK-style default → "Schemy.init.ss"
-            var asm = typeof(Interpreter).Assembly;
-            foreach (var resourceName in new[] { "init.ss", "Schemy.init.ss" })
-            {
-                using (var stream = asm.GetManifestResourceStream(resourceName))
-                {
-                    if (stream != null)
-                    {
-                        readers.Add(new StringReader(new StreamReader(stream).ReadToEnd()));
-                        break;
-                    }
-                }
-            }
+            // The core macro prelude, compiled into the assembly as a string constant.
+            // It used to be an <EmbeddedResource> read back through
+            // GetManifestResourceStream; that does not survive Unity's IL2CPP conversion,
+            // and the interpreter would then come up silently without `let`/`cond`/`and`.
+            // See Init.cs.
+            readers.Add(new StringReader(Init.Source));
 
             // Optional host-level .init.ss next to the dll.
+            var asm = typeof(Interpreter).Assembly;
             // Skipped gracefully when Assembly.Location is unavailable (Unity IL2CPP).
             try
             {

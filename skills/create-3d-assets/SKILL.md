@@ -70,6 +70,14 @@ blender --background path/to/model.blend \
   --require-camera --require-outline --require-orbit-pivot
 ```
 
+检查（默认）或修正相机与 orbit pivot 的对齐，整城资产同样适用：
+
+```bash
+blender --background path/to/model.blend \
+  --python skills/create-3d-assets/scripts/align_camera_to_pivot.py -- \
+  --apply --save
+```
+
 生成并可选保存统一的正交 3/4 预览相机：
 
 ```bash

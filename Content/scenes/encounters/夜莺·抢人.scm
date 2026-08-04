@@ -253,7 +253,7 @@
 
 (define (road-right-note)
   (cond
-    ((= road 0) "填满 = 你亲手掀倒卸货架，追兵 −2，不伤劳工关系；坏结果会伤健康。")
+    ((= road 0) "填满 = 你亲手掀倒卸货架，追兵 −2，不伤劳工关系；坏结果会受伤。")
     ((= road 1) "填满 = 切断信号线；警察封锁线路段的追兵自动推进取消。现在不减追兵。")
     ((= road 2) "填满 = 把追车引进检查口，追兵 −2；坏结果会令追兵 +1、官僚关系 −1。")
     (else (error "抢人第二幕：未知右侧说明"))))
@@ -371,11 +371,11 @@
 
 (define (node-drop-loading-rack)
   (node "探出车外掀倒木架"
-    :subtitle "暴力；坏：健康 −1，中：木架 +1，好：木架 +2；填满不损害劳工关系"
+    :subtitle "暴力；坏：受伤，中：木架 +1，好：木架 +2；填满不损害劳工关系"
     :requires (list (req-die))
     :resolve (roll 'violence
       (outcome "肩膀撞上砖墙"
-        (lambda () (damage-party! 1)))
+        (lambda () (injure!)))
       (outcome "扯松一根支腿"
         (lambda () (road-right-clk 'tick!)))
       (outcome "整排木架倒下"
@@ -407,11 +407,11 @@
 
 (define (node-break-police-barrier)
   (node "撞开封锁线侧栏"
-    :subtitle "暴力；坏：健康 −1，中：侧栏 +1，好：侧栏 +2；填满还会令官僚关系 −1"
+    :subtitle "暴力；坏：受伤，中：侧栏 +1，好：侧栏 +2；填满还会令官僚关系 −1"
     :requires (list (req-die))
     :resolve (roll 'violence
       (outcome "木杆扫进车窗"
-        (lambda () (damage-party! 1)))
+        (lambda () (injure!)))
       (outcome "撞松一根立柱"
         (lambda () (road-left-clk 'tick!)))
       (outcome "栏杆飞进雨里"
@@ -520,7 +520,7 @@
       #f
       (begin
         (set! finished? #t)
-        (damage-party! 1)
+        (injure!)
         (if (= act 1)
             (begin
               (play-dialogue!

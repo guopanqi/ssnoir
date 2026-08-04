@@ -226,7 +226,7 @@
 ;;   好/中/坏: 每项工作显式传入三个 outcome，标题和描述直接用于轻型结算
 ;;   subtitle: 可选，只写“特别”的一句说明；一般风险由标签表达，不写 subtitle
 ;; 表现约定：每个工作都打“工作”标签（＝能赚钱）+ 一个风险标签，前端给风险标签配色，
-;; 玩家一眼就能判断类型和大致风险。惩罚（钱/冷静/健康、非法工作失败掉关系）写在各 outcome effect 里。
+;; 玩家一眼就能判断类型和大致风险。惩罚（钱/冷静/伤势、非法工作失败掉关系）写在各 outcome effect 里。
 (define (工作-风险标签 risk)
   (cond ((equal? risk '低)   "低风险")
         ((equal? risk '高)   "高风险")
@@ -535,16 +535,36 @@
   (set-growth-level! (+ (growth-level) 1))
   (notify! "完成一个故事小节。获得 1 点成长。"))
 
-(define (damage-party! n)
-  (__set-party-health! (- (__party-health) n)))
+;; ── 伤势 ──────────────────────────────────────────────────────────
+;; 队伍只有一条身体轴：0 完好 / 1–3 轻伤（命中的能力 −1）/ 4–6 重伤（该能力 −2，少一颗骰）/ 7 倒下。
+;; 内容层不选部位——第一次受伤由引擎随机命中一项能力，之后的伤害都加深同一处。
+;; 规则与档位见 Injury.cs 与 docs/城市生活设计.md §2.2。
+
+;; 一般坏结果：劳作失手、挨一下。身上没伤是轻伤，带着伤就是加重。
+(define (injure!)
+  (__injure! 1))
+
+;; 明确的重创：枪伤、坠落、被几个人围住打。能把完好的人一次打进重伤段。
+(define (injure-badly!)
+  (__injure! 3))
+
+;; 治疗。刻度本身就是康复进度，降到 0 即痊愈。
+(define (heal-injury! n)
+  (__heal-injury! n))
+
+(define (injury-severity)
+  (__injury-severity))
+
+;; 档位名（序号 0..2，与 Injury.InjuryBand 一一对应）。内容判断档位时不写魔数。
+(define injury-band-names (list '完好 '轻伤 '重伤))
+
+(define (injury-band)
+  (list-ref injury-band-names (__injury-band-index)))
 
 ;; 终止本局游戏。标题和说明由内容声明，客户端只忠实呈现状态。
 (define (fail-game! title description)
   (__fail-game! title description))
 
-;; 恢复健康（native 已 clamp 到 MaxHealth）。健康只应由药品、康复训练等医疗行为恢复，不由睡觉恢复。
-(define (heal-party! n)
-  (__set-party-health! (+ (__party-health) n)))
 
 (define (current-actor)
   (__current-actor))

@@ -66,9 +66,15 @@ namespace SSNoir.Rendering
             FontManager.DrawText("人物 / 行动", area.X, area.Y, 13, PaperDim);
 
             const float vitalsW = 126f;
-            DrawVital(area.X, area.Y + 26f, 120f, "健康", snapshot.Health, snapshot.MaxHealth, 0.75f, 0.40f);
-            if (snapshot.Health <= TeamState.HealthPenaltyThreshold)
-                FontManager.DrawText("健康低 · −1颗骰", area.X, area.Y + 44f, 9, SealRed);
+            DrawInjury(area.X, area.Y + 26f, 120f, snapshot);
+            if (snapshot.InjurySeverity > 0)
+            {
+                string line = snapshot.InjuryCostsActionDie
+                    ? $"{snapshot.InjuryPart}伤 · {snapshot.InjurySkillName}{snapshot.InjurySkillPenalty} · −1颗骰"
+                    : $"{snapshot.InjuryPart}伤 · {snapshot.InjurySkillName}{snapshot.InjurySkillPenalty}";
+                FontManager.DrawText(line, area.X, area.Y + 44f, 9,
+                    snapshot.InjuryCostsActionDie ? SealRed : Gold);
+            }
             Raylib.DrawLineEx(new System.Numerics.Vector2(area.X + vitalsW, area.Y + 18f),
                 new System.Numerics.Vector2(area.X + vitalsW, area.Y + area.Height - 2f),
                 1f, new Color(58, 62, 78, 150));
@@ -136,7 +142,7 @@ namespace SSNoir.Rendering
                 var cell = new Rectangle(poolX + slotId * (TokenSize + TokenGap), y, TokenSize, 24f);
                 Raylib.DrawRectangleRounded(cell, 0.3f, 3, new Color((byte)color.R, (byte)color.G, (byte)color.B, (byte)46));
                 Raylib.DrawRectangleRoundedLinesEx(cell, 0.3f, 3, 1f, color);
-                if (statuses.Count == 1 && statuses[0].Label == "失态")
+                if (statuses.Count == 1)
                 {
                     DrawCenteredStatusLine(cell, statuses[0].Label, cell.Y + 2f, 8, StatusColor(statuses[0]));
                     DrawCenteredStatusLine(cell, FormatPenalty(statuses[0]), cell.Y + 12f, 8, StatusColor(statuses[0]));
@@ -187,70 +193,63 @@ namespace SSNoir.Rendering
             return result;
         }
 
+        // 按降质幅度上色，不按标签名——标签会随内容增删，幅度才是玩家要读的东西。
         private static Color StatusColor(ActionSlotStatus status)
         {
-            return status.Label == "失控" ? SealRed : Gold;
+            return status.DiePenalty <= -2 ? SealRed : Gold;
         }
 
-        private static void DrawVital(float x, float y, float width, string label, int current, int max,
-            float highThreshold, float midThreshold)
+        // 伤势条：格数即刻度，越满越糟，和冷静条方向相反。重伤线用一道留白分开，
+        // 玩家一眼看得出「再挨几下就跨过去」——可规划性全靠这道留白。
+        private static void DrawInjury(float x, float y, float width, PresentationSnapshot snapshot)
         {
-            float pct = max > 0 ? Math.Clamp(current / (float)max, 0f, 1f) : 0f;
-            Color color = pct >= highThreshold ? Paper : pct >= midThreshold ? Gold : SealRed;
-            FontManager.DrawText(label, x, y, 10, PaperDim);
+            int max = snapshot.InjuryCollapseThreshold;
+            int severity = Math.Clamp(snapshot.InjurySeverity, 0, max);
+            Color color = snapshot.InjuryCostsActionDie ? SealRed : severity > 0 ? Gold : Paper;
+            FontManager.DrawText("伤势", x, y, 10, PaperDim);
+
             float barX = x + 34f;
             float barW = width - 72f;
-            int segmentCount = Math.Max(1, max);
-            int filledSegments = Math.Clamp(current, 0, segmentCount);
             const float segmentGap = 2f;
-            float segmentW = (barW - segmentGap * (segmentCount - 1)) / segmentCount;
-            for (int i = 0; i < segmentCount; i++)
+            const float boundaryGap = 6f; // 重伤线：以留白替代刻度线
+            float segmentW = (barW - segmentGap * (max - 1) - (boundaryGap - segmentGap)) / max;
+            for (int i = 0; i < max; i++)
             {
-                var segment = new Rectangle(barX + i * (segmentW + segmentGap), y + 2f, segmentW, 9f);
-                bool filled = i < filledSegments;
+                float offset = i * (segmentW + segmentGap)
+                             + (i >= Injury.SevereThreshold ? boundaryGap - segmentGap : 0f);
+                var segment = new Rectangle(barX + offset, y + 2f, segmentW, 9f);
+                bool filled = i < severity;
                 Raylib.DrawRectangleRounded(segment, 0.22f, 3,
                     filled ? color : new Color(224, 224, 216, 30));
                 if (!filled)
-                {
                     Raylib.DrawRectangleRoundedLinesEx(segment, 0.22f, 3, 1f, new Color(224, 224, 216, 48));
-                }
             }
-            FontManager.DrawText($"{current}/{max}", x + width - 34f, y, 10, color);
+            FontManager.DrawText(severity > 0 ? $"{severity}/{max}" : "完好",
+                x + width - 34f, y, 10, color);
         }
 
-        // 单行冷静条：格数即数值，失态阈值靠一道留白分隔危险区与缓冲区，危险格常驻暖色暗示——
-        // 不再用文字与刻度重复说明，真正的失态/失控效果会显示在上方骰池标签里。
+        // 单行冷静条：格数即数值。冷静是纯缓冲，中间没有档位，所以没有阈值留白——
+        // 唯一有意义的是「还剩几格」和「见底」，见底后每一点消耗都变成伤势。
         private static void DrawComposureCells(float labelX, float poolX, float y, int composure)
         {
             int max = TeamState.MaxComposure;
-            int faint = TeamState.FaintThreshold;
-            Color fill = composure <= TeamState.LossOfControlThreshold ? SealRed
-                       : composure <= faint ? Gold
-                       : Paper;
+            Color fill = composure <= 0 ? SealRed : composure <= 1 ? Gold : Paper;
             FontManager.DrawText("冷静", labelX, y + 1f, 9, PaperDim);
 
             const float segmentW = 13f;
             const float segmentGap = 2f;
-            const float boundaryGap = 6f; // 失态线：以留白替代刻度线和数字
             int filledSegments = Math.Clamp(composure, 0, max);
             for (int i = 0; i < max; i++)
             {
-                float extra = i >= faint ? boundaryGap : 0f;
-                var segment = new Rectangle(poolX + i * (segmentW + segmentGap) + extra, y, segmentW, 12f);
-                bool filled = i < filledSegments;
-                bool danger = i < faint;
-                if (filled)
+                var segment = new Rectangle(poolX + i * (segmentW + segmentGap), y, segmentW, 12f);
+                if (i < filledSegments)
                 {
                     Raylib.DrawRectangleRounded(segment, 0.24f, 3, fill);
                 }
                 else
                 {
-                    Color body = danger ? new Color((byte)Gold.R, (byte)Gold.G, (byte)Gold.B, (byte)24)
-                                        : new Color(224, 224, 216, 22);
-                    Color edge = danger ? new Color((byte)Gold.R, (byte)Gold.G, (byte)Gold.B, (byte)72)
-                                        : new Color(224, 224, 216, 48);
-                    Raylib.DrawRectangleRounded(segment, 0.24f, 3, body);
-                    Raylib.DrawRectangleRoundedLinesEx(segment, 0.24f, 3, 1f, edge);
+                    Raylib.DrawRectangleRounded(segment, 0.24f, 3, new Color(224, 224, 216, 22));
+                    Raylib.DrawRectangleRoundedLinesEx(segment, 0.24f, 3, 1f, new Color(224, 224, 216, 48));
                 }
             }
         }

@@ -15,7 +15,7 @@ namespace SSNoir.IMGUI
     //
     // 每个行动者是一个「靠间距聚拢的簇」，自底向上：行动骰 → 名字 → 压力。
     // 所有行动者共享同一条压力/名字/骰池基线；只有主角（最左第一个）从压力线往上
-    // 多长出队伍生命体征（健康，为快照级属性）。
+    // 多长出队伍伤势（为快照级属性）。
     public static class HandPanelDrawer
     {
         // 手牌方块：骰子与物品共用同一族方块（同尺寸、同底纹、同交互状态），只是内容不同。
@@ -29,9 +29,9 @@ namespace SSNoir.IMGUI
         private const float BustHeight  = 190f;   // 立起来的半身像高度（主角；同伴略矮）
         private const float BustOverlap = 26f;    // 半身像下缘压进数值行的深度
 
-        private const float NameRowH   = 20f;
-        private const float ComposureRowH = 20f;
-        private const float VitalRowH  = 18f;
+        private const float NameRowH   = 20f;   // 只在没有半身像时才占位
+        private const float VitalRowH  = 22f;   // 冷静 / 伤势条那一行；字比以前大一号
+        private const float VitalLabelW = 40f;  // 两条共用同一个标签宽度，左端才对得齐
 
         // 手牌黑方块：不透明纯黑一档 + 描边 + 硬投影，让它从深蓝图纸上浮起来。
         private static readonly Color CardBlockBg = new Color(0.024f, 0.031f, 0.047f, 1f);
@@ -87,7 +87,7 @@ namespace SSNoir.IMGUI
             }
         }
 
-        // 一个行动者簇：自底向上 行动骰 → 名字 →（协作者：紧凑冷静段条 / 主角再往上 健康 + 冷静）。返回簇宽度。
+        // 一个行动者簇：自底向上 行动骰 →（名字）→ 冷静 →（带伤时的伤势）→ 状态说明。返回簇宽度。
         private static float DrawCluster(
             float x, float baseline, ActorSnapshot actor, int flatDieOffset, bool isLead,
             PresentationSnapshot snapshot, SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors)
@@ -98,17 +98,30 @@ namespace SSNoir.IMGUI
                 : 0f;
             float clusterW = Mathf.Max(isLead ? 176f : 150f, diceW);
 
+            // 半身像已经说明这是谁，就不再写名字——省下的一行让条子整体往下坐，上方更宽裕。
+            var neon = NeonPortraitLibrary.Load(actor.Name);
+            bool drawName = neon == null;
+            // 完好的人身上什么都没有：伤势条只在真的带着伤时才占位置。
+            bool showInjury = isLead && snapshot.InjurySeverity > 0;
+
             float diceY = baseline - TokenSize;
             float nameY = diceY - NameRowH - 4f;
-            float composureY = nameY - VitalRowH - 2f;
-            float healthY = isLead ? composureY - VitalRowH - 2f : composureY;
-            bool hasStatus = actor.ActiveActionSlotStatuses.Count > 0 || actor.PendingActionSlotStatuses.Count > 0;
-            float statusY = hasStatus ? healthY - 18f : healthY;
+            float composureY = (drawName ? nameY : diceY - 4f) - VitalRowH - 2f;
+            float injuryY = showInjury ? composureY - VitalRowH - 2f : composureY;
+            string statusText = DescribeSlotStatuses(actor);
+            // 伤势是队伍级的，只挂在主角这一簇上；它和骰池状态共用同一行说明文字。
+            if (showInjury)
+            {
+                string injuryText = $"{snapshot.InjuryPart}伤 · {snapshot.InjurySkillName}{snapshot.InjurySkillPenalty}"
+                                  + (snapshot.InjuryCostsActionDie ? " · −1颗骰" : "");
+                statusText = statusText.Length > 0 ? injuryText + "  " + statusText : injuryText;
+            }
+            bool hasStatus = statusText.Length > 0;
+            float statusY = hasStatus ? injuryY - 18f : injuryY;
             float topY = statusY;
 
-            // ── 半身像先落笔：人物从 HUD 里立起来，名字、条、骰子随后画上去压住它下缘，
+            // ── 半身像先落笔：人物从 HUD 里立起来，条子和骰子随后画上去压住它下缘，
             // 像栏杆后面站着的人。不给它画框——一有边框就变回图标了。
-            var neon = NeonPortraitLibrary.Load(actor.Name);
             if (neon != null)
             {
                 float bustHeight = isLead ? BustHeight : BustHeight * 0.86f;
@@ -120,24 +133,25 @@ namespace SSNoir.IMGUI
                 topY = bust.y;
             }
 
-            // ── 名字（自由文字，直接落在场景上）
-            // 只画名字。Role 是内部标识（protagonist / companion），不是给玩家看的职业。
-            var nameStyle = new GUIStyle(GUI.skin.label)
+            // ── 名字：只有没有半身像的人才需要写出来，否则是重复信息。
+            if (drawName)
             {
-                font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(18),
-                alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = IMGUIStyles.TextPrimary },
-            };
-            IMGUIStyles.ApplyStrongFont(nameStyle);
-            GUI.Label(new Rect(x, nameY, clusterW, NameRowH), actor.Name, nameStyle);
+                var nameStyle = new GUIStyle(GUI.skin.label)
+                {
+                    font = IMGUIStyles.ChineseFont,
+                    fontSize = IMGUIStyles.FontSize(18),
+                    alignment = TextAnchor.MiddleLeft,
+                    normal = { textColor = IMGUIStyles.TextPrimary },
+                };
+                IMGUIStyles.ApplyStrongFont(nameStyle);
+                GUI.Label(new Rect(x, nameY, clusterW, NameRowH), actor.Name, nameStyle);
+            }
 
-            // ── 每个行动者：名字线往上挂自己的冷静与骰池状态。
             DrawComposureBar(x, composureY, 172f, actor.Composure);
-            if (isLead)
+            if (showInjury)
             {
-                // 主角额外挂队伍级健康。
-                DrawVitalBar(x, healthY, 172f, "健康", snapshot.Health, snapshot.MaxHealth, 0.75f, 0.40f);
+                // 伤势是队伍级的，只挂在主角这一簇上。
+                DrawInjuryBar(x, injuryY, 172f, snapshot);
             }
             if (hasStatus)
             {
@@ -148,7 +162,7 @@ namespace SSNoir.IMGUI
                     alignment = TextAnchor.MiddleLeft,
                     normal = { textColor = IMGUIStyles.OddsNeutral },
                 };
-                GUI.Label(new Rect(x, statusY, 240f, 16f), DescribeSlotStatuses(actor), statusStyle);
+                GUI.Label(new Rect(x, statusY, 240f, 16f), statusText, statusStyle);
             }
             clusterW = Mathf.Max(clusterW, 172f);
 
@@ -212,14 +226,14 @@ namespace SSNoir.IMGUI
             return string.Join("  ", labels);
         }
 
-        // 冷静三段阈值条（主角专用）：填充随当前档位换色（缓冲纸白 / 失态赭黄 / 失控印章红），
-        // 两条固定刻度线钉在失控线、失态线——不管当前值多少，线的位置永远一样，
-        // 玩家学的是"过线=不冷静"，不是盯着数字换算。
+        // 冷静条（主角专用）：冷静是纯缓冲，中间没有档位，所以不画阈值刻度线。
+        // 玩家要读的只有"还剩几格"和"见底"——见底之后每一点消耗都变成伤势。
         // 两簇之间的竖直分隔线。只覆盖所有行动者共享的那几行（冷静 → 名字 → 骰池），
-        // 不往上蹭主角独有的健康行，否则线会长得没有道理。
+        // 不往上蹭主角独有的伤势行，否则线会长得没有道理。按「有半身像、不画名字」的
+        // 常规布局取顶端；没有立绘的人多出一行名字，线短一点点，不值得为此把布局传进来。
         private static void DrawClusterSeparator(float x, float baseline)
         {
-            float topY = baseline - TokenSize - NameRowH - 4f - VitalRowH - 2f;
+            float topY = baseline - TokenSize - 4f - VitalRowH - 2f;
             GUI.color = Paper14;
             GUI.DrawTexture(new Rect(x, topY, 1f, baseline - topY), Texture2D.whiteTexture);
             GUI.color = Color.white;
@@ -230,22 +244,19 @@ namespace SSNoir.IMGUI
             var labelStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(13),
+                fontSize = IMGUIStyles.FontSize(15),
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
-            string state = composure <= TeamState.LossOfControlThreshold ? "失控 · 再一格 −2"
-                         : composure <= TeamState.FaintThreshold ? "失态 · 一格 −1"
-                         : "冷静";
-            GUI.Label(new Rect(x, y, 50f, VitalRowH), state, labelStyle);
+            GUI.Label(new Rect(x, y, VitalLabelW, VitalRowH), "冷静", labelStyle);
 
             int max = TeamState.MaxComposure;
-            Color fill = composure <= TeamState.LossOfControlThreshold ? IMGUIStyles.SealRed
-                       : composure <= TeamState.FaintThreshold ? IMGUIStyles.OddsNeutral
+            Color fill = composure <= 0 ? IMGUIStyles.SealRed
+                       : composure <= 1 ? IMGUIStyles.OddsNeutral
                        : IMGUIStyles.TextPrimary;
 
-            float barX = x + 54f;
-            float barW = w - 54f - 36f;
+            float barX = x + VitalLabelW + 8f;
+            float barW = w - (VitalLabelW + 8f) - 40f;
             float barH = 9f;
             float barY = y + (VitalRowH - barH) / 2f;
             const float cellGap = 2f;
@@ -259,53 +270,16 @@ namespace SSNoir.IMGUI
             }
             GUI.color = Color.white;
 
-            DrawComposureThresholdTick(barX, barY, barH, cellW, cellGap, TeamState.LossOfControlThreshold, IMGUIStyles.SealRed);
-            DrawComposureThresholdTick(barX, barY, barH, cellW, cellGap, TeamState.FaintThreshold, IMGUIStyles.OddsNeutral);
-
             var valStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(13),
+                fontSize = IMGUIStyles.FontSize(15),
                 alignment = TextAnchor.MiddleRight,
                 normal = { textColor = fill },
             };
-            GUI.Label(new Rect(barX + barW + 2f, y, 34f, VitalRowH), $"{composure}/{max}", valStyle);
-        }
-
-        // 阈值刻度：钉在"恰好跌破该档"的格边界上，与当前填充无关，固定不动。
-        private static void DrawComposureThresholdTick(float barX, float barY, float barH, float cellW, float cellGap, int threshold, Color color)
-        {
-            float tickX = barX + threshold * (cellW + cellGap) - cellGap * 0.5f;
-            GUI.color = color;
-            GUI.DrawTexture(new Rect(tickX - 1f, barY - 3f, 2f, barH + 6f), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-        }
-
-        // 协作者的紧凑冷静段条：只有满/空两种视觉意义（0 点离场），不画阈值刻度。
-        private static void DrawCompactComposureBar(float x, float y, float clusterW, int composure)
-        {
-            int max = TeamState.MaxComposure;
-            Color fill = composure <= 0 ? IMGUIStyles.SealRed : Paper70;
-
-            var labelStyle = new GUIStyle(GUI.skin.label)
-            {
-                font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(13),
-                alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
-            };
-            GUI.Label(new Rect(x, y, 30f, ComposureRowH), "冷静", labelStyle);
-
-            float dotsX = x + 34f;
-            float dotSize = 6f;
-            float dotGap = Mathf.Max(dotSize + 2f, (clusterW - 34f) / max);
-            float dotY = y + (ComposureRowH - dotSize) / 2f;
-            for (int i = 0; i < max; i++)
-            {
-                GUI.color = i < composure ? fill : Paper25;
-                GUI.DrawTexture(new Rect(dotsX + i * dotGap, dotY, dotSize, dotSize), Texture2D.whiteTexture);
-                GUI.color = Color.white;
-            }
+            // 见底比 "0/2" 说得清楚：再扛一次就进身体。
+            GUI.Label(new Rect(barX + barW + 4f, y, 38f, VitalRowH),
+                composure > 0 ? $"{composure}/{max}" : "见底", valStyle);
         }
 
         private static void DrawDie(Rect dieRect, int val, int globalIdx, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
@@ -387,39 +361,49 @@ namespace SSNoir.IMGUI
             }
         }
 
-        // 生命体征细条：标签 + 底槽 + 按阈值上色的填充 + 数值。正常白、中段赭黄、危险印章红。
-        private static void DrawVitalBar(float x, float y, float w, string label, int cur, int max, float highT, float midT)
+        // 伤势细条：格数即刻度，越满越糟——和冷静条方向相反。重伤线用一道留白分开，
+        // 让"再挨几下就跨过去"直接看得见。完好时整条不画，由调用方决定。
+        private static void DrawInjuryBar(float x, float y, float w, PresentationSnapshot snapshot)
         {
             var labelStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(13),
+                fontSize = IMGUIStyles.FontSize(15),
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
-            GUI.Label(new Rect(x, y, 30f, VitalRowH), label, labelStyle);
+            GUI.Label(new Rect(x, y, VitalLabelW, VitalRowH), "伤势", labelStyle);
 
-            float pct = max > 0 ? Mathf.Clamp01((float)cur / max) : 0f;
-            Color fill = pct >= highT ? IMGUIStyles.TextPrimary : pct >= midT ? IMGUIStyles.OddsNeutral : IMGUIStyles.SealRed;
+            int max = snapshot.InjuryCollapseThreshold;
+            int severity = Mathf.Clamp(snapshot.InjurySeverity, 0, max);
+            Color fill = snapshot.InjuryCostsActionDie ? IMGUIStyles.SealRed
+                       : severity > 0 ? IMGUIStyles.OddsNeutral
+                       : IMGUIStyles.TextPrimary;
 
-            float barX = x + 34f;
-            float barW = w - 34f - 36f;
+            float barX = x + VitalLabelW + 8f;
+            float barW = w - (VitalLabelW + 8f) - 40f;
             float barH = 9f;
             float barY = y + (VitalRowH - barH) / 2f;
-            GUI.color = Paper14;
-            GUI.DrawTexture(new Rect(barX, barY, barW, barH), Texture2D.whiteTexture);
-            GUI.color = fill;
-            GUI.DrawTexture(new Rect(barX, barY, barW * pct, barH), Texture2D.whiteTexture);
+            const float cellGap = 2f;
+            const float boundaryGap = 6f;   // 重伤线：以留白替代刻度线
+            float cellW = (barW - cellGap * (max - 1) - (boundaryGap - cellGap)) / max;
+            for (int i = 0; i < max; i++)
+            {
+                float offset = i * (cellW + cellGap)
+                             + (i >= Injury.SevereThreshold ? boundaryGap - cellGap : 0f);
+                GUI.color = i < severity ? fill : Paper14;
+                GUI.DrawTexture(new Rect(barX + offset, barY, cellW, barH), Texture2D.whiteTexture);
+            }
             GUI.color = Color.white;
 
             var valStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(13),
+                fontSize = IMGUIStyles.FontSize(15),
                 alignment = TextAnchor.MiddleRight,
                 normal = { textColor = fill },
             };
-            GUI.Label(new Rect(barX + barW + 2f, y, 34f, VitalRowH), $"{cur}/{max}", valStyle);
+            GUI.Label(new Rect(barX + barW + 4f, y, 38f, VitalRowH), $"{severity}/{max}", valStyle);
         }
 
         // ── 右下：物品 + 功能 ──────────────────────────────────────────

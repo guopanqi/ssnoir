@@ -109,7 +109,7 @@
            (roll-mission entry 'social 20 10 (lambda () (spend-composure! 1))))
           ((equal? id "押送一批货")
            (roll-mission entry 'violence 25 14
-             (lambda () (spend-composure! 1) (damage-party! 1))))
+             (lambda () (spend-composure! 1) (injure!))))
           ((equal? id "代查一笔账")
            (roll-mission entry 'knowledge 22 12 (lambda () (spend-composure! 1))))
           ((equal? id "有人需要药") (medicine-request-node entry))

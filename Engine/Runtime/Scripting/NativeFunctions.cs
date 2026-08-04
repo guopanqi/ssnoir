@@ -33,23 +33,44 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__set-item-count!"));
 
-            interpreter.DefineGlobal(Symbol.FromString("__party-health"), new NativeProcedure(args =>
+            interpreter.DefineGlobal(Symbol.FromString("__injury-severity"), new NativeProcedure(args =>
             {
-                return gameState.Team.Health;
-            }, "__party-health"));
+                return gameState.Team.Injury.Severity;
+            }, "__injury-severity"));
 
-            interpreter.DefineGlobal(Symbol.FromString("__set-party-health!"), new NativeProcedure(args =>
+            // 档位以序号回给内容层，符号名在 engine.scm 侧映射——与 __relation-band-index 同一惯例。
+            interpreter.DefineGlobal(Symbol.FromString("__injury-band-index"), new NativeProcedure(args =>
             {
-                if (args.Count < 1) throw new ArgumentException("__set-party-health! requires 1 argument");
-                int n = SchemeValue.ToInt(args[0]);
-                int before = gameState.Team.Health;
-                gameState.Team.Health = Math.Clamp(n, 0, gameState.Team.MaxHealth);
-                int delta = gameState.Team.Health - before;
-                gameState.CurrentActionReport?.AddEffect(
-                    ActionEffectKind.Health, "健康", delta,
-                    delta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                return (int)gameState.Team.Injury.Band;
+            }, "__injury-band-index"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__injure!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("__injure! requires 1 argument: amount");
+                int amount = SchemeValue.ToInt(args[0]);
+                if (amount <= 0) throw new ArgumentException("injury amount must be positive");
+                var injury = gameState.Team.Injury;
+                int before = injury.Severity;
+                gameState.Team.Injure(amount);
+                ReportInjuryChange(gameState, injury.Severity - before);
+                if (injury.Severity > before)
+                    gameState.CurrentActionReport?.AddNote(
+                        before == 0
+                            ? $"伤在{injury.Part}上：{injury.SkillName}判定 {injury.SkillPenalty}。"
+                            : $"{injury.Part}上的旧伤又被扯开了：{injury.SkillName}判定 {injury.SkillPenalty}。");
                 return new None();
-            }, "__set-party-health!"));
+            }, "__injure!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__heal-injury!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("__heal-injury! requires 1 argument: amount");
+                int amount = SchemeValue.ToInt(args[0]);
+                if (amount <= 0) throw new ArgumentException("heal amount must be positive");
+                int before = gameState.Team.Injury.Severity;
+                gameState.Team.HealInjury(amount);
+                ReportInjuryChange(gameState, gameState.Team.Injury.Severity - before);
+                return new None();
+            }, "__heal-injury!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__fail-game!"), new NativeProcedure(args =>
             {
@@ -147,17 +168,14 @@ namespace SSNoir.Scripting
                 var actor = gameState.Team.FindActor(actorId);
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
                 int composureBefore = actor.Composure;
-                int healthBefore = gameState.Team.Health;
+                int injuryBefore = gameState.Team.Injury.Severity;
                 gameState.Team.SetActorComposureSafe(actorId, n);
                 int composureDelta = actor.Composure - composureBefore;
                 string composureLabel = gameState.CurrentContext?.ActorId == actorId ? "冷静" : actor.Name + "冷静";
                 gameState.CurrentActionReport?.AddEffect(
                     ActionEffectKind.Composure, composureLabel, composureDelta,
                     composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
-                int healthDelta = gameState.Team.Health - healthBefore;
-                gameState.CurrentActionReport?.AddEffect(
-                    ActionEffectKind.Health, "健康", healthDelta,
-                    healthDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                ReportInjuryChange(gameState, gameState.Team.Injury.Severity - injuryBefore);
                 return new None();
             }, "__set-actor-composure!"));
 
@@ -171,7 +189,7 @@ namespace SSNoir.Scripting
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
 
                 int composureBefore = actor.Composure;
-                int healthBefore = gameState.Team.Health;
+                int injuryBefore = gameState.Team.Injury.Severity;
                 gameState.Team.SpendComposure(actorId, amount);
                 int composureDelta = actor.Composure - composureBefore;
                 string composureLabel = gameState.CurrentContext?.ActorId == actorId ? "冷静" : actor.Name + "冷静";
@@ -179,11 +197,9 @@ namespace SSNoir.Scripting
                     ActionEffectKind.Composure, composureLabel, composureDelta,
                     composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
 
-                int healthDelta = gameState.Team.Health - healthBefore;
-                gameState.CurrentActionReport?.AddEffect(
-                    ActionEffectKind.Health, "健康", healthDelta,
-                    healthDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
-                if (healthDelta < 0)
+                int injuryDelta = gameState.Team.Injury.Severity - injuryBefore;
+                ReportInjuryChange(gameState, injuryDelta);
+                if (injuryDelta > 0)
                     gameState.CurrentActionReport?.AddNote("冷静击穿：你的手在抖，身体先一步承受了代价。");
                 return new None();
             }, "__spend-actor-composure!"));
@@ -543,6 +559,15 @@ namespace SSNoir.Scripting
                 lines.Add(new DialogueLine { Speaker = speaker, Text = text, VoiceId = voice, DwellSeconds = dwell });
             }
             return new DialogueSequence(lines, allowsRemoteParticipants);
+        }
+
+        // 伤势的正负与其他资源相反：刻度涨上去是坏事，所以 tone 反着挂。
+        private static void ReportInjuryChange(GameState gameState, int delta)
+        {
+            if (delta == 0) return;
+            gameState.CurrentActionReport?.AddEffect(
+                ActionEffectKind.Injury, "伤势", delta,
+                delta > 0 ? ActionEffectTone.Negative : ActionEffectTone.Positive);
         }
     }
 }

@@ -213,7 +213,7 @@
 
 (define (finish-exposed!)
   (define won? (identity-clk 'full?))
-  (damage-party! 1)
+  (injure!)
   (spend-actor-composure! 'player 2)
   (spend-up-to! "金钱" 15)
   (set-global! '收账人识破过你 #t)

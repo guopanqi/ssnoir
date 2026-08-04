@@ -414,7 +414,7 @@ namespace SSNoir.IMGUI
             IReadOnlyList<ActorSnapshot>? actors)
         {
             if (node.Resolve == null)
-                return MinCardHeight;
+                return CardDrawer.MinCardHeight;
 
             bool isRoll = node.Resolve.Type == ResolveType.Roll;
             float clockHeight = CardDrawer.MeasureClockBadgesHeight(cardWidth, node.Clocks);
@@ -435,10 +435,8 @@ namespace SSNoir.IMGUI
 
             // 与 DrawContent 的 exeY 反向对齐：按钮高 26，命运条另占 28，其下留 BottomPad。
             float bottomControls = GapTitleToBody + 26f + (isRoll ? 28f : 0f) + BottomPad;
-            return Mathf.Max(MinCardHeight, bodyBottom + bottomControls);
+            return Mathf.Max(CardDrawer.MinCardHeight, bodyBottom + bottomControls);
         }
-
-        public const float MinCardHeight = 150f;
 
         private static float PreferredRequirementSlotsHeight(GameNode node, int coreDieIndex)
         {

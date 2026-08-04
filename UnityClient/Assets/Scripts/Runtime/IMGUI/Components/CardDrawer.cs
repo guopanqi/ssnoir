@@ -19,6 +19,9 @@ namespace SSNoir.IMGUI
     // 普通 / 地点 / 人物节点内容委托 ContainerNodeDrawer。
     public static class CardDrawer
     {
+        // 场景内每张节点卡都需要稳定的点击目标；内容再少也不能退化成难以点中的细条。
+        public const float MinCardHeight = 150f;
+
         public struct CardInteraction
         {
             public bool CardClicked;
@@ -204,6 +207,10 @@ namespace SSNoir.IMGUI
         private const float ClockBadgeRowGap = 6f;
         private const float ClockBadgeMinW = 112f;
         private const float ClockBadgeMaxW = 180f;
+        private const float ClockBadgePadX = 10f;
+        private const float ClockLabelValueGap = 8f;
+        private const float PieDiameter = 18f;
+        private const float PieValueGap = 6f;
 
         // 量出徽章会占到哪一行的哪个 Y——只做计算不画，供上层在画标题/头像前先留够空间。
         private static float MeasureClockBadgesBottom(Rect rect, List<GameClock>? clocks)
@@ -227,7 +234,7 @@ namespace SSNoir.IMGUI
         {
             if (clocks == null || clocks.Count == 0) return rect.y;
 
-            float maxRowW = rect.width - 24f;
+            float maxRowW = Mathf.Max(0f, rect.width - 24f);
             int maxPerRow = Mathf.Max(1, Mathf.FloorToInt((maxRowW + ClockBadgeGap) / (ClockBadgeMinW + ClockBadgeGap)));
 
             float y = rect.y + 8f;
@@ -277,14 +284,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.ApplyStrongFont(labelStyle);
 
             float labelW = labelStyle.CalcSize(new GUIContent(clock.Label)).x;
-            float valueW = clock.Style switch
-            {
-                ClockStyle.Countdown => 44f,
-                ClockStyle.Segments => Mathf.Max(0f, clock.Max * 10f + Mathf.Max(0, clock.Max - 1) * 5f),
-                ClockStyle.Pie => 56f,
-                _ => 44f
-            };
-            return 20f + labelW + 8f + valueW + 12f;
+            return ClockBadgePadX * 2f + labelW + ClockLabelValueGap + MeasureNodeClockValueWidth(clock);
         }
 
         private static void DrawNodeClockBadge(Rect rect, GameClock clock)
@@ -306,34 +306,39 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.ApplyStrongFont(labelStyle);
 
-            float valueW = clock.Style switch
-            {
-                ClockStyle.Countdown => 44f,
-                ClockStyle.Segments => Mathf.Max(0f, clock.Max * 10f + Mathf.Max(0, clock.Max - 1) * 5f),
-                ClockStyle.Pie => 56f,
-                _ => 44f
-            };
-            float labelW = Mathf.Max(24f, rect.width - 20f - 8f - valueW);
-            GUI.Label(new Rect(rect.x + 10f, rect.y, labelW, rect.height), clock.Label, labelStyle);
+            // 徽章会随卡片收窄。不能只收窄外框、继续以固定的 valueW 画内容：这样长分数
+            // （如 74/100）与饼图会从框内探出去。值优先占据可用空间，标签再使用剩余部分；
+            // 两个 Label 都显式 Clip，作为数值或卡片异常窄时的最后一道边界。
+            float innerW = Mathf.Max(0f, rect.width - ClockBadgePadX * 2f);
+            float desiredValueW = MeasureNodeClockValueWidth(clock);
+            float valueW = Mathf.Min(desiredValueW, innerW);
+            float gap = valueW > 0f && !string.IsNullOrEmpty(clock.Label) ? ClockLabelValueGap : 0f;
+            float labelW = Mathf.Min(
+                labelStyle.CalcSize(new GUIContent(clock.Label)).x,
+                Mathf.Max(0f, innerW - valueW - gap));
 
-            float vx = rect.xMax - 10f - valueW;
+            var valueRect = new Rect(rect.xMax - ClockBadgePadX - valueW, rect.y, valueW, rect.height);
+            GUI.Label(new Rect(rect.x + ClockBadgePadX, rect.y, labelW, rect.height), clock.Label, labelStyle);
+
             if (clock.Style == ClockStyle.Countdown)
             {
                 var valueStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
                     fontSize = IMGUIStyles.FontSize(15),
                     alignment = TextAnchor.MiddleRight,
+                    clipping = TextClipping.Clip,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
-                GUI.Label(new Rect(vx, rect.y, valueW, rect.height), $"{clock.Current}/{clock.Max}", valueStyle);
+                GUI.Label(valueRect, $"{clock.Current}/{clock.Max}", valueStyle);
             }
             else if (clock.Style == ClockStyle.Segments)
             {
                 const float dot = 10f;
                 const float spacing = 5f;
-                float dotStartX = rect.xMax - 10f - valueW;
+                float dotStartX = valueRect.x;
                 float dotY = rect.y + (rect.height - dot) * 0.5f;
-                for (int i = 0; i < clock.Max; i++)
+                int visibleCount = Mathf.Min(clock.Max, Mathf.Max(0, Mathf.FloorToInt((valueW + spacing) / (dot + spacing))));
+                for (int i = 0; i < visibleCount; i++)
                 {
                     var dotRect = new Rect(dotStartX + i * (dot + spacing), dotY, dot, dot);
                     if (i < clock.Current)
@@ -354,19 +359,48 @@ namespace SSNoir.IMGUI
             }
             else // Pie
             {
-                float pieRadius = 9f;
-                var pieRect = new Rect(vx, rect.center.y - pieRadius, pieRadius * 2f, pieRadius * 2f);
+                // 先给圆形分配实际放得下的直径，再让分数占剩余宽度；两者都不会越过 valueRect。
+                float pieSize = Mathf.Min(PieDiameter, valueW);
+                float fractionGap = pieSize > 0f && valueW > pieSize ? Mathf.Min(PieValueGap, valueW - pieSize) : 0f;
+                var pieRect = new Rect(valueRect.x, rect.center.y - pieSize * 0.5f, pieSize, pieSize);
                 float fillPct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
-                PieDrawer.DrawPieBadge(pieRect, fillPct, activeColor, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
+                if (pieSize >= 4f)
+                    PieDrawer.DrawPieBadge(pieRect, fillPct, activeColor, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
 
                 var fracStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
                     fontSize = IMGUIStyles.FontSize(14),
                     alignment = TextAnchor.MiddleRight,
+                    clipping = TextClipping.Clip,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
-                GUI.Label(new Rect(pieRect.xMax + 6f, rect.y, valueW - pieRect.width - 6f, rect.height), $"{clock.Current}/{clock.Max}", fracStyle);
+                GUI.Label(new Rect(pieRect.xMax + fractionGap, rect.y,
+                    Mathf.Max(0f, valueRect.xMax - pieRect.xMax - fractionGap), rect.height),
+                    $"{clock.Current}/{clock.Max}", fracStyle);
             }
+        }
+
+        private static float MeasureNodeClockValueWidth(GameClock clock)
+        {
+            string fraction = $"{clock.Current}/{clock.Max}";
+            return clock.Style switch
+            {
+                ClockStyle.Countdown => MeasureClockValueTextWidth(fraction, 15),
+                ClockStyle.Segments => Mathf.Max(0f, clock.Max * 10f + Mathf.Max(0, clock.Max - 1) * 5f),
+                ClockStyle.Pie => PieDiameter + PieValueGap + MeasureClockValueTextWidth(fraction, 14),
+                _ => MeasureClockValueTextWidth(fraction, 15)
+            };
+        }
+
+        private static float MeasureClockValueTextWidth(string text, int fontSize)
+        {
+            var style = new GUIStyle(IMGUIStyles.ClockValue)
+            {
+                fontSize = IMGUIStyles.FontSize(fontSize),
+                fontStyle = FontStyle.Bold
+            };
+            IMGUIStyles.ApplyStrongFont(style);
+            return style.CalcSize(new GUIContent(text)).x;
         }
 
         // ── 翻转卡（观察线索背面）──────────────────────────────────────

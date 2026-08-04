@@ -6,7 +6,7 @@
 ;;   1. 压制和击倒都要判定,分流靠难度与风险:压制 +1 修正、失手不额外疼,是差骰的去处,
 ;;      但只买这一轮;击倒平难度、打空了要挨一下,是好骰的去处,买的是往后每一轮。
 ;;      别把压制做成不判定的免费动作,也别让击倒的失败零成本——那两种改法都会让一边永远压倒另一边。
-;;   2. 打手不是目标,是税:不管他们,每回合都在抽你的冷静/健康/金钱。第一幕的骰子要在
+;;   2. 打手不是目标,是税:不管他们,每回合都在抽你的冷静/身体/金钱。第一幕的骰子要在
 ;;      压制、击倒、老街的眼睛之间分,老板到场 5 回合自动走,时间不是你能谈的东西。
 ;; 对外契约:只回传 'success / 'fail;不写任何世界状态。
 ;; 城市输入（只在顶部读取）:
@@ -100,8 +100,8 @@
   (list
     (make-thug "刀疤" 2 2 2 "闷拳" "落地:冷静 −2。"
                (lambda () (spend-actor-composure! 'player 2)))
-    (make-thug "大个子" 3 3 3 "抡椅子" "落地:健康 −1。"
-               (lambda () (damage-party! 1)))
+    (make-thug "大个子" 3 3 3 "抡椅子" "落地:受伤。"
+               (lambda () (injure!)))
     (make-thug "三只手" 2 2 4 "摸口袋" "落地:金钱 −5。"
                (lambda () (spend-up-to! "金钱" 5)))))
 
@@ -281,9 +281,9 @@
 
 (define (move-note)
   (cond
-    ((= move-index 0) "落地:健康 −1、冷静 −1。拆法:交际判定压回去。")
+    ((= move-index 0) "落地:受伤、冷静 −1。拆法:交际判定压回去。")
     ((= move-index 1) "落地:拖走 +2。拆法:撂倒场上正在执行的那个打手——他一倒,这一招自己作废。")
-    (#t "落地:健康 −2。拆法:武力判定挡下来。")))
+    (#t "落地:重创。拆法:武力判定挡下来。")))
 
 ;; 人心兑现:他每当着老街动一次粗,自己就更难看一分。
 (define (crowd-backlash!)
@@ -294,17 +294,16 @@
 (define (land-move!)
   (cond
     ((= move-index 0)
-     (damage-party! 1)
+     (injure!)
      (spend-actor-composure! 'player 1)
      (crowd-backlash!))
     ((= move-index 1)
      (if alone?
-         (begin (damage-party! 1) (spend-actor-composure! 'player 1) (drag-clk 'tick!))
+         (begin (injure!) (spend-actor-composure! 'player 1) (drag-clk 'tick!))
          (begin (drag-clk 'tick!) (drag-clk 'tick!)))
      (crowd-backlash!))
     (#t
-     (damage-party! 1)
-     (damage-party! 1)
+     (injure-badly!)
      (crowd-backlash!)))
   (cancel-move!))
 
@@ -422,13 +421,13 @@
 
 (define (node-shield-her)
   (node "把她拉到身后"
-    :subtitle "不判定。她被拖走的进度 −1；护着她的时候你腾不出手——健康 −1"
+    :subtitle "不判定。她被拖走的进度 −1；护着她的时候你腾不出手——受伤"
     :requires (list (req-die))
     :resolve (instant
       (outcome "她在你身后"
         (lambda ()
           (drag-clk 'set! (max 0 (- (drag-clk 'current) 1)))
-          (damage-party! 1))))))
+          (injure!))))))
 
 (define (node-glass)
   (node "摔了他的酒杯"

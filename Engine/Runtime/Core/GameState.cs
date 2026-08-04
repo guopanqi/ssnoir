@@ -23,7 +23,7 @@ namespace SSNoir.Core
 
         public GameState()
         {
-            Team.OnTeamChanged += CheckHealthFailure;
+            Team.OnTeamChanged += CheckCollapse;
             ResetForNewGame();
         }
 
@@ -105,10 +105,34 @@ namespace SSNoir.Core
             Failure = new GameFailure(true, title, description);
         }
 
-        private void CheckHealthFailure()
+        /// <summary>倒下送医的价钱。付不起就记在诊所账上，用官僚关系抵。</summary>
+        public const int CollapseTreatmentFee = 80;
+
+        // 伤势撞到倒下线：当天剩余骰子作废、付一笔治疗费、伤势回落到重伤段。
+        // 这不是 GAME OVER——倒下是最贵的兜底，不是终局（谷底校验见 docs/城市生活设计.md §2.2）。
+        // ResolveCollapse 会再次触发 OnTeamChanged，靠先清 PendingCollapse 挡住重入。
+        private void CheckCollapse()
         {
-            if (Team.Health <= 0)
-                FailGame("GAME OVER", "主角生命值归零，游戏结束。");
+            if (!Team.PendingCollapse) return;
+            Team.ResolveCollapse();
+
+            int cash = Inventory.GetCount("金钱");
+            if (cash >= CollapseTreatmentFee)
+            {
+                Inventory.SetCount("金钱", cash - CollapseTreatmentFee);
+                NotificationCenter.Push(
+                    $"你在人行道上醒过来，已经躺在诊所里了。账单 {CollapseTreatmentFee} 金，先收后问。",
+                    NotificationKind.Warning);
+            }
+            else
+            {
+                Inventory.SetCount("金钱", 0);
+                string key = "relation:官僚";
+                Set(key, Math.Clamp(Get<int>(key) - 1, RelationScale.Min, RelationScale.Max));
+                NotificationCenter.Push(
+                    "你在诊所里醒过来。身上的钱不够付账，剩下的记在了本子上——这种本子他们记得很牢。",
+                    NotificationKind.Warning);
+            }
         }
 
         // Pure global key-value store only (chapter, reputation, story flags).

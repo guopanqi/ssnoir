@@ -5,7 +5,7 @@ namespace SSNoir.Core
     public enum ActionEffectKind
     {
         Item,
-        Health,
+        Injury,
         Composure,
         Relation,
         Growth,

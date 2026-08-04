@@ -40,6 +40,28 @@
 
 每个独立场景资产优先只放一个 `orbit pivot`。多相机、多 pivot 时必须检查“最近者”是否真是预期绑定。
 
+#### 相机与 pivot 必须对齐
+
+来源：`SSNoirVirtualCameraConfig.ApplyOrbitFromDrag`（拖拽时 `LookAt(pivot)`）、
+`SSNoirModelImporter.ConfigureDragMode`（按出厂机位撑开 pitch 区间）。
+
+聚焦落点用的是相机自己的朝向，玩家一拖拽却改用绕 pivot 的姿态，两者不一致时画面会**跳**。所以出厂的
+Orbit 相机必须满足：
+
+- **相机看向自己的 orbit pivot**，偏离角 ≈ 0（容差 0.5°）。构图想让建筑偏离画面中心时，把 pivot 一起
+  挪到相机真正的注视点，而不是让相机斜着看 pivot。
+- pivot 放在建筑视觉重心：它既是旋转中心，也是玩家拖拽时的画面中心。
+- **不要对建筑做非等比缩放**。缩放只改位置不改朝向，非等比就会把对准好的视线拧歪，拉得越狠歪得越多。
+  CityBox 装配因此只做三轴等比，并在最后一步重新对准每台建筑相机。
+
+俯角不必迁就默认的 `[minPitch, maxPitch]`（10°/25°）：导入器会把每台 Orbit 相机的 pitch 区间**撑到
+包含出厂机位**（各留 1° 余量），出厂机位因此永远是合法的 orbit 位置，第一次拖拽不会被 clamp 弹。
+默认带只是下限，机位本来就在带内时什么都不变。
+
+检查与修复用 `scripts/align_camera_to_pivot.py`：默认只报告并以退出码 1 拦截；`--apply` 配合
+`--fix pivot`（默认，把 pivot 滑到相机视轴上、构图不变）或 `--fix camera`（把相机转向 pivot、构图会变），
+`--save` 才写回文件。该脚本复刻了导入器的“子树内最近 pivot”绑定规则，因此报告里的配对与 Unity 实际绑定一致。
+
 ### Anchor
 
 来源：`SSNoirModelImporter.cs`、`NodeAnchor.cs`、`SceneDirectory.cs`、`IMGUIWorldRenderer.cs`

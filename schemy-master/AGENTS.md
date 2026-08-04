@@ -35,7 +35,7 @@
 - 类型谓词 `null?`、`pair?`、`list?`、`number?`、`string?`、`symbol?`、`boolean?`、`procedure?`
 - 列表 `cons car cdr list length list-ref reverse append`(变参)`map`(多列表)`apply`
 - `not`、`range`、`error`、`assert`、`display` / `write` / `newline`、`load`
-- `cXr` 组合(`cadr caddr cadddr cddr caar …`,在 `init.ss`)
+- `cXr` 组合(`cadr caddr cadddr cddr caar …`,在 `Init.cs` 的宏前奏里)
 - 真值:**只有 `#f` 为假**(`0`、`""`、`'()` 都为真)
 
 **可选 `stdlib.scm`**(本目录根,需手动 `load`,SSNoir 未自动加载):
@@ -47,6 +47,20 @@
 ---
 
 ## 改动日志（按时间倒序）
+
+### 2026-08-04 — 宏前奏改为编译进程序集（IL2CPP / WebGL 修复）
+
+**文件**:新增 `src/schemy/Init.cs`;`src/schemy/Schemy.cs`(`GetInitializeReaders`);
+`src/schemy/schemy.csproj`(去掉 `<EmbeddedResource>`);删除 `src/schemy/init.ss`。
+**问题**:前奏原本是嵌入资源,靠 `Assembly.GetManifestResourceStream("init.ss")` 读回。
+CLR 直接跑程序集时没问题,**Unity IL2CPP 下取不到**——托管程序集被转成 C++,资源没跟过去。
+`GetInitializeReaders` 当时找不到就返回空列表,**不报错**,解释器于是在没有
+`let`/`cond`/`and`/`or` 的状态下静默启动。宿主脚本里第一个 `(let () …)` 不再被宏展开,
+成了字面空表,报 `Syntax error: ()`——错误现场离真正的原因隔了十万八千里。
+SSNoir 的表现是 WebGL 版整个世界加载失败(无节点、无人物),Editor 一切正常。
+**行为变化**:前奏改为 `Init.cs` 里的 `const string`,是代码而非资源,构建怎么处理程序集都带得走;
+`init.ss` 删除,`Init.Source` 是唯一来源(仍按 Scheme 编辑,verbatim 字符串,只需注意双引号)。
+DLL 之外的可选宿主级 `.init.ss` 机制不变。
 
 ### 2026-07-25 — unspecified 值的错误信息
 

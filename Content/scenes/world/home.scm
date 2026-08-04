@@ -1,9 +1,10 @@
 ;; scenes/world/home.scm - 住所系统
 ;; 旅馆（默认·付房租）→ 公寓（购买·资产中）。
 ;; 资产等级由拥有的住所推导，写入全局 '资产（供富商圈门槛用）。
-;; 恢复：旅馆睡觉冷静 +1，自有住所睡觉冷静 +2；门口露宿冷静 -1。
+;; 恢复：旅馆睡觉冷静 +1，自有住所睡觉冷静 +2；门口露宿不回冷静。
 ;; 喝酒/看花恢复冷静；日常投入行动骰的恢复以公园散步为主。
-;; 酒会让下一次城市骰池出现“宿醉”降质；住所中只能用药恢复健康。
+;; 酒会让下一次城市骰池出现“宿醉”降质。
+;; 伤势：睡觉只压得动轻伤（每晚 1 点），重伤得去诊所；住所里的用药压 2 点、每天一份。
 
 (define home
   (let ()
@@ -74,19 +75,21 @@
           (outcome "借酒松神"
             (lambda () (apply-drink-effect!))))))
 
-    ;; 用药：在住所中上药休养，不占用行动骰。
+    ;; 用药：在住所中上药休养，不占用行动骰，压 2 点伤势。
+    ;; 它是"花钱买时间"的那条路——不占骰子，但药得先花 25 金从诊所买回来。
     (define (node-use-medicine)
       (node "用药"
-        :subtitle (if medicated-today?
-                      "一天上一次药就够了，伤口需要时间"
-                      "处理伤口不占行动，但一天只能用一份")
-        :disabled medicated-today?
+        :subtitle (cond
+                    ((equal? (injury-band) '完好) "身上没有需要处理的伤")
+                    (medicated-today? "一天上一次药就够了，伤口需要时间")
+                    (#t "不占行动骰，压 2 点伤势；一天只能用一份"))
+        :disabled (or medicated-today? (equal? (injury-band) '完好))
         :requires (list (req-item "药品" 1))
         :resolve (instant
           (outcome "上了药"
             (lambda ()
               (set! medicated-today? #t)
-              (heal-party! 2))))))
+              (heal-injury! 2))))))
 
     (define (node-see-flower)
       (action "看花"
@@ -100,6 +103,11 @@
           (append (list "不可休息") (rest-block-reasons))
           '()))
 
+    ;; 睡觉只养得好轻伤：擦伤磕碰过一夜就好一点，断了的地方不会。
+    ;; 这条让轻伤成为"可以选择忍"的慢性成本，也让重伤必须真的花骰子和钱去治。
+    (define (sleep-off-injury!)
+      (if (equal? (injury-band) '轻伤) (heal-injury! 1) #f))
+
     (define (node-sleep)
       (node "睡觉"
         :disabled (rest-blocked?)
@@ -110,6 +118,7 @@
             (lambda ()
               (restore-actor-composure! 'player (if (in-hotel?) 1 2))
               (if (has-companion? 'joe) (restore-actor-composure! 'joe 1) #f)
+              (sleep-off-injury!)
               (end-turn!))))))
 
     (define (node-sleep-at-door)
@@ -119,7 +128,7 @@
         :resolve (instant
           (outcome "无处可去"
             (lambda ()
-              ;; 露宿不回复冷静，但也不再失血，免得把玩家推向失控/击穿健康的死亡循环。
+              ;; 露宿不回复冷静，但也不再伤身，免得把玩家推向击穿受伤的死亡循环。
               (end-turn!))))))
 
     ;; ── 交易 / 布置 / 升级 ──────────────────────────

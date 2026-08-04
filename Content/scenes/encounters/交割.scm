@@ -113,11 +113,11 @@
            (lambda () (clock-tick-n! chase-clk 2))))))
     ((= seg 2)
      (node "扑上去"
-       :subtitle "力量；坏：健康 −1，中：+1 格，好：+2 格"
+       :subtitle "力量；坏：受伤，中：+1 格，好：+2 格"
        :requires (list (req-die))
        :resolve (roll 'violence
          (outcome "扑空了"
-           (lambda () (damage-party! 1)))
+           (lambda () (injure!)))
          (outcome "拽住了他"
            (lambda () (chase-clk 'tick!)))
          (outcome "把车掀了"
@@ -187,7 +187,7 @@
     (line "主角" "长什么样。")
     (line "取信人" "喝多了。穿得倒体面，袖口磨了。他给钱的时候顺手抽了两根烟给我，说留着。")
     (line "取信人" "那半包他忘在我这儿了。你拿去，别打了。"))
-  (damage-party! 1))
+  (injure!))
 
 (define (finish!)
   (if finished?

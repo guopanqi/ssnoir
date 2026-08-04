@@ -30,7 +30,7 @@
   (end-encounter 'success))
 
 (define (finish-fail!)
-  (damage-party! 1)
+  (injure!)
   (spend-actor-composure! 'player 2)
   (play-dialogue!
     (line "萨姆" "跑。答案还在里面,可今晚它不欠我们。"))

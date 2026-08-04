@@ -488,7 +488,7 @@
                 (line "主角" "他敲诈一个姑娘。")
                 (line "搬运工" "那也是我们的事。")
                 (line "世界" "两只手扣住你的胳膊，把你架出了巷子。"))
-              (damage-party! 1))
+              (injure!))
             #f)
         (end-encounter
           (list (if forced? 0 (yield-clk 'current))

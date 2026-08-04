@@ -11,7 +11,8 @@ namespace SSNoir.Core
         public string Role { get; set; } = string.Empty; // "protagonist", "companion"
         public string Status { get; set; } = "active";  // "active", "away"
         
-        // 冷静：满值=处变不惊，向 0 花，唯一常规真实池（见 docs/城市生活设计.md）。
+        // 冷静：纯缓冲。花掉本身没有惩罚，归零后每一点消耗直接转成伤势
+        // ——机械效果只由伤势一处承担（见 docs/城市生活设计.md §2.2）。
         private int _composure = TeamState.MaxComposure;
         public int Composure
         {
@@ -26,11 +27,9 @@ namespace SSNoir.Core
 
         // 行动者自己的身体状态都挂在自己的骰池位置上。
         public int? HangoverSlotId { get; set; }
-        public int? FaintSlotId { get; set; }
-        public int? LossOfControlSlotId { get; set; }
 
         // 人物经历造成的永久骰位状态。协作者每天只有 slot 0，一项永久损伤
-        // 会直接附着在这颗骰上，并与失态等临时状态叠加。
+        // 会直接附着在这颗骰上，并与宿醉等临时状态叠加。
         public string PermanentDiePenaltyLabel { get; set; } = string.Empty;
         public int PermanentDiePenalty { get; set; }
 

@@ -122,8 +122,6 @@ namespace SSNoir.Core
                     ["status"]            = a.Status,
                     ["composure"]         = a.Composure,
                     ["hangoverSlotId"]    = a.HangoverSlotId == null ? JValue.CreateNull() : new JValue(a.HangoverSlotId.Value),
-                    ["faintSlotId"]       = a.FaintSlotId == null ? JValue.CreateNull() : new JValue(a.FaintSlotId.Value),
-                    ["lossOfControlSlotId"] = a.LossOfControlSlotId == null ? JValue.CreateNull() : new JValue(a.LossOfControlSlotId.Value),
                     ["permanentDiePenaltyLabel"] = a.PermanentDiePenaltyLabel,
                     ["permanentDiePenalty"] = a.PermanentDiePenalty,
                     ["spentGrowthPoints"] = a.SpentGrowthPoints,
@@ -132,7 +130,8 @@ namespace SSNoir.Core
             }
             return new JObject
             {
-                ["health"]      = team.Health,
+                ["injurySeverity"] = team.InjurySeverity,
+                ["injuryPart"]     = team.InjuryPart,
                 ["growthLevel"] = team.GrowthLevel,
                 ["actors"]      = actorsArr,
             };
@@ -192,7 +191,8 @@ namespace SSNoir.Core
         {
             var team = new TeamSaveData
             {
-                Health      = el["health"]!.Value<int>(),
+                InjurySeverity = el["injurySeverity"]!.Value<int>(),
+                InjuryPart     = el["injuryPart"]!.Value<string>()!,
                 GrowthLevel = el["growthLevel"]!.Value<int>(),
             };
             foreach (var actorEl in (JArray)el["actors"]!)
@@ -206,8 +206,6 @@ namespace SSNoir.Core
                     Status            = ao["status"]!.Value<string>()!,
                     Composure         = ao["composure"]!.Value<int>(),
                     HangoverSlotId = ao["hangoverSlotId"]?.Type == JTokenType.Null ? null : ao["hangoverSlotId"]?.Value<int>(),
-                    FaintSlotId = ao["faintSlotId"]?.Type == JTokenType.Null ? null : ao["faintSlotId"]?.Value<int>(),
-                    LossOfControlSlotId = ao["lossOfControlSlotId"]?.Type == JTokenType.Null ? null : ao["lossOfControlSlotId"]?.Value<int>(),
                     PermanentDiePenaltyLabel = ao["permanentDiePenaltyLabel"]?.Value<string>() ?? string.Empty,
                     PermanentDiePenalty = ao["permanentDiePenalty"]?.Value<int>() ?? 0,
                     SpentGrowthPoints = ao["spentGrowthPoints"]!.Value<int>(),

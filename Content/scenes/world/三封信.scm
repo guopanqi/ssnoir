@@ -741,7 +741,7 @@
         :requires (list (req-die))
         :resolve (roll 'social
           (outcome "事情动了手"
-            (lambda () (damage-party! 1)))
+            (lambda () (injure!)))
           (outcome "他们勉强让开"
             (lambda () (spend-composure! 1) (resolve-west-friction!)))
           (outcome "你没有把它变成一场架"
@@ -1313,7 +1313,7 @@
         :requires (list (req-die))
         :resolve (roll 'violence
           (outcome "扛布景闪了腰"
-            (lambda () (damage-party! 1)))
+            (lambda () (injure!)))
           (outcome "清出一段"
             (lambda () (fill-ring! inner-ring-clk inner-note 1)))
           (outcome "半圈都清干净了"

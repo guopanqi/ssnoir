@@ -1074,7 +1074,7 @@
 
     (define (node-night-check)
       (node "和萨姆夜查货栈"
-        :subtitle "失败会被守夜人撵出来:损失健康与冷静,夜账改天再翻"
+        :subtitle "失败会被守夜人撵出来:受伤并损失冷静,夜账改天再翻"
         :tags (list "交锋")
         :requires (list (req-die))
         :resolve (instant

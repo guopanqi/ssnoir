@@ -81,7 +81,7 @@
             (let ((e (car list-enemies)))
               (if (e 'atk-full?)
                   (begin
-                    (damage-party! 1)
+                    (injure!)
                     (e 'reset-atk!))
                   #f))
             (process-enemy-atk (cdr list-enemies)))))

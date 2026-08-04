@@ -168,7 +168,11 @@ namespace SSNoir
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (_renderer != null && _renderer.IsAnimationPlaying)
+                if (_renderer != null && _renderer.TryAdvanceConversation())
+                {
+                    // 对白已消费 ESC；未打完时显示全文，已打完时推进下一句。
+                }
+                else if (_renderer != null && _renderer.IsAnimationPlaying)
                 {
                     if (_renderer.IsAnimationReadyToAcknowledge)
                     {
