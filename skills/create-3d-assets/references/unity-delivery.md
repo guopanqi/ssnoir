@@ -19,6 +19,8 @@
 2. 优先保存 `.blend`，除非目标运行链明确要求 `.fbx`。
 3. **Codex 的交付在正式 `.blend` 写入该目录时结束。**不手工伪造、等待或检查 `.meta`；也不启动、刷新或操作 Unity 来检查导入器、Console、VCam、Anchor、orbit pivot 或 Play Mode。以上 Unity 侧操作一律由用户手动完成。
 
+CityBox 整城管线是第 2 条的明确例外：独立建筑仍以同名 `.blend` 作为源资产，`city/export_unity.py` 生成的 `City.fbx` 是经过合并、三角化和语义契约校验的发布产物。它覆盖 Unity 中已有固定路径的整城 FBX，但仍不由 Codex 启动 Unity 验证导入结果。
+
 ## 验证边界
 
 后台 Blender 验证证明文件可读、几何统计与命名契约；它不试图证明 Unity 导入器和运行时行为。Codex 不报告或等待 Unity 导入/Play Mode 验证，因为这属于用户手动步骤。

@@ -7,6 +7,8 @@ Run with:
 import argparse
 import json
 import math
+import os
+import re
 import sys
 
 import bpy
@@ -19,12 +21,16 @@ def parse_args():
     parser.add_argument("--require-outline", action="store_true")
     parser.add_argument("--require-orbit-pivot", action="store_true")
     parser.add_argument("--require-anchor", action="append", default=[])
+    parser.add_argument(
+        "--require-location", action="append", default=[],
+        help="require <name>.blend + Anchor_<name> + Camera_<name>")
     parser.add_argument("--require-quads", action="store_true")
     parser.add_argument("--max-polygons", type=int)
     return parser.parse_args(args)
 
 
 def normalized_marker_name(name):
+    name = re.sub(r"\.\d+$", "", name)
     return name.replace(" ", "").replace("_", "").replace("-", "").lower()
 
 
@@ -81,10 +87,24 @@ if options.require_quads and polygon_count != quad_count:
     )
 
 anchor_names = {obj.name for obj in anchors}
+camera_names = {obj.name for obj in cameras}
 for node_name in options.require_anchor:
     expected = f"Anchor_{node_name}"
     if expected not in anchor_names:
         errors.append(f"missing required anchor '{expected}'")
+
+for location_name in options.require_location:
+    expected_file = f"{location_name}.blend"
+    if os.path.basename(bpy.data.filepath) != expected_file:
+        errors.append(
+            f"location '{location_name}' requires source filename '{expected_file}'"
+        )
+    expected_anchor = f"Anchor_{location_name}"
+    expected_camera = f"Camera_{location_name}"
+    if expected_anchor not in anchor_names:
+        errors.append(f"missing location anchor '{expected_anchor}'")
+    if expected_camera not in camera_names:
+        errors.append(f"missing location camera '{expected_camera}'")
 
 anchor_node_names = []
 for anchor in anchors:

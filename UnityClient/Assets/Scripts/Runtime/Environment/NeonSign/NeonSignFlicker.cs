@@ -16,7 +16,7 @@ using UnityEngine;
 /// sparks come off the electrode, and how loud the buzz is. That coupling is
 /// what makes the re-strike after a long blackout read as the big one.
 ///
-/// Point this at the "Grp_NeonFlicker" child of the 老街酒吧 model -- the H's
+/// Point this at the "Grp_NeonFlicker" child of the 老街酒馆 model -- the H's
 /// right stem. Its tubes need a material with emission enabled in the
 /// inspector: a MaterialPropertyBlock can change _EmissionColor but cannot
 /// switch the _EMISSION shader keyword on.

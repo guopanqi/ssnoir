@@ -4,6 +4,18 @@
 
 ## 已实现的通用契约
 
+### 地点主键与整城装配
+
+来源：`city-box/city/build_city.py`、`city-box/city/export_unity.py`、`SSNoirModelImporter.cs`、`SceneDirectory.cs`
+
+- Scheme 运行时 `GameNode.Name` 是地点的唯一主键。交互建筑必须使用同一个精确名称派生正式文件与语义节点：`<地点>.blend`、整城中的建筑根节点 `<地点>`、`Anchor_<地点>`、`Camera_<地点>`。
+- 不为历史命名维护 alias 表。`剧院2`、`bar`、`老街酒吧` 之类的制作过程名必须在源资产处迁移成正式地点名。
+- 行动 Anchor 继续使用它自己的全局 `GameNode.Name`，但可以不建专属 Camera；导入器会在该建筑子树内回退到主相机。
+- 纯视觉地标必须被显式标记为非交互。非交互地标不导出 Anchor、Camera 或 orbit pivot，不能用一个没有对应 Scheme 节点的假名字占位。
+- CityBox 的生产构建会拒绝缺少同名模型、缺少主 Anchor/Camera、重复 NodeName 或不符合上述规则的资产，而不是悄悄退回灰盒或猜测名称。
+
+整城 `City.fbx` 是一个发布产物，不是美术源文件。重要建筑仍以独立 `.blend` 维护；CityBox 负责装配、校验并生成 FBX，Unity 只消费固定路径的整城资产与语义节点。
+
 ### Camera
 
 来源：`UnityClient/Assets/Editor/SSNoirModelImporter.cs`
@@ -18,8 +30,8 @@
 
 来源：`SSNoirModelImporter.cs`、`SSNoirVirtualCameraConfig.cs`、`SSNoirCameraManager.cs`
 
-- 导入器把移除空格、下划线和连字符后等于 `orbitpivot`（忽略大小写）的 Transform 识别为旋转中心。因此 `orbit pivot`、`orbit_pivot`、`Orbit-Pivot` 都有效。
-- 每个相机绑定空间距离最近的 orbit pivot。
+- 导入器先剥掉 Blender 合并同名对象时产生的末尾数字后缀（例如 `.001`），再把移除空格、下划线和连字符后等于 `orbitpivot`（忽略大小写）的 Transform 识别为旋转中心。因此 `orbit pivot`、`orbit_pivot.003`、`Orbit-Pivot` 都有效。
+- 每个相机只在最近的资产子树内绑定空间距离最近的 orbit pivot；不会跨到整城另一栋建筑。单体资产只有一个 pivot 时允许全资产唯一回退。
 - 找到 pivot 时，相机拖拽模式为 Orbit；没有时为 Pan。
 - pivot 是稳定的镜头旋转中心，不是交互卡片的位置。它通常放在资产视觉重心附近、略高于地面。
 - Orbit 模式缺少 pivot 会被强制改为 Pan；运行时配置自相矛盾时会 assert/throw。
@@ -34,8 +46,8 @@
 - `NodeName` 是对象名第一个下划线之后的全部文字；规范形式为 `Anchor_<SCM 节点名>`。
 - `NodeName` 必须与运行时 `GameNode.Name` 精确一致。中文可直接使用，例如 `Anchor_公园`。
 - Unity 用 Anchor 的世界坐标投射对应卡片；Anchor 应放在画面中适合悬挂卡片的位置，而不一定是几何中心。
-- 导入器优先绑定名字包含该 `NodeName` 的 VCam；找不到时回退到导入模型中的第一个 VCam并发出警告。因此推荐配对 `Anchor_公园` 与 `Camera_公园`。
-- `SceneDirectory` 以 `NodeName` 为字典键。重复 NodeName 会静默覆盖，禁止在场景中创建重复 Anchor。
+- 导入器在 Anchor 所属的最近资产子树内优先绑定精确名称 `Camera_<NodeName>_VCam`；行动点找不到专属相机时回退到同一子树里的主 VCam，绝不回退到整城第一个 VCam。
+- `SceneDirectory` 以 `NodeName` 为字典键。重复 NodeName 会记录错误并 assert/throw，禁止在场景中创建重复 Anchor。
 - 没有下划线或下划线后为空会得到空 NodeName，不会进入有效目录。
 
 ### 描边对象与材质
@@ -52,7 +64,7 @@
 来源：`UnityClient/Assets/Scripts/Runtime/Environment/NeonSign/NeonSignFlicker.cs`
 
 - `SparkPoint_*` Transform 会被霓虹灯故障组件发现并用作火花发射点。
-- `Grp_NeonFlicker` 是老街酒吧专用的可闪烁灯管组，组件应挂到该组。
+- `Grp_NeonFlicker` 是老街酒馆专用的可闪烁灯管组，组件应挂到该组。
 
 这些不是所有模型都必须具有的通用节点。只有资产使用对应运行时组件时才创建。
 

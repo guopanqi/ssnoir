@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace SSNoir
 {
@@ -20,9 +22,32 @@ namespace SSNoir
             {
                 if (!string.IsNullOrEmpty(anchor.NodeName))
                 {
-                    _anchors[anchor.NodeName] = anchor;
+                    if (_anchors.TryGetValue(anchor.NodeName, out var existing))
+                    {
+                        var message =
+                            $"SceneDirectory found duplicate NodeName '{anchor.NodeName}' " +
+                            $"on '{GetHierarchyPath(existing.transform)}' and " +
+                            $"'{GetHierarchyPath(anchor.transform)}'. " +
+                            "Anchor NodeName must be globally unique and exactly match GameNode.Name.";
+                        Debug.LogError(message, anchor);
+                        Assert.IsTrue(false, message);
+                        throw new InvalidOperationException(message);
+                    }
+
+                    _anchors.Add(anchor.NodeName, anchor);
                 }
             }
+        }
+
+        private static string GetHierarchyPath(Transform transform)
+        {
+            var parts = new Stack<string>();
+            for (var current = transform; current != null; current = current.parent)
+            {
+                parts.Push(current.name);
+            }
+
+            return string.Join("/", parts);
         }
 
         public NodeAnchor GetAnchor(string nodeName)

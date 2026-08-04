@@ -3,6 +3,7 @@
 using UnityEngine;
 using UnityEditor;
 using Cinemachine;
+using System;
 using System.Linq;
 
 namespace SSNoir.Editor
@@ -48,7 +49,7 @@ namespace SSNoir.Editor
 
                     // Configure custom camera config for drag/orbit behavior.
                     var config = vcamGo.AddComponent<SSNoirVirtualCameraConfig>();
-                    ConfigureDragMode(config, cam.transform, orbitPivots);
+                    ConfigureDragMode(config, cam.transform, root.transform, orbitPivots);
 
                     // Disable the original Camera node to prevent rendering interference
                     cam.gameObject.SetActive(false);
@@ -81,18 +82,32 @@ namespace SSNoir.Editor
                     anchor.NodeName = extractedName;
 
                     // Bind matching FocusVirtualCamera
-                    if (!string.IsNullOrEmpty(extractedName) && allVcamComponents != null && allVcamComponents.Length > 0)
+                    if (!string.IsNullOrEmpty(extractedName) && allVcamComponents.Length > 0)
                     {
-                        // Match camera and anchor by suffix (e.g. "黑市商人")
-                        var matchedVcam = allVcamComponents.FirstOrDefault(v => v.name.Contains(extractedName));
+                        var scopedVcams = FindNearestScopedComponents(
+                            t, root.transform, allVcamComponents,
+                            v => v.transform);
+                        var expectedCameraName = $"Camera_{extractedName}_VCam";
+                        var matchedVcam = scopedVcams.FirstOrDefault(v =>
+                            string.Equals(v.name, expectedCameraName, StringComparison.Ordinal));
                         if (matchedVcam != null)
                         {
                             anchor.FocusVirtualCamera = matchedVcam;
                         }
+                        else if (scopedVcams.Length > 0)
+                        {
+                            // 行动点通常没有专属 Camera，应该共享所属建筑的主相机。
+                            // 这里绝不能回退到整座城市的第一个 VCam，否则整城 FBX 中
+                            // 一个酒馆行动点可能会聚焦到码头或诊所。
+                            anchor.FocusVirtualCamera = scopedVcams[0];
+                            if (scopedVcams.Length > 1)
+                            {
+                                Debug.LogWarning($"[SSNoir] ModelImporter: NodeAnchor '{anchor.NodeName}' has no exact camera '{expectedCameraName}' and its asset subtree contains {scopedVcams.Length} VCams. Using '{scopedVcams[0].name}'. Add an exact camera name to remove ambiguity.");
+                            }
+                        }
                         else
                         {
-                            anchor.FocusVirtualCamera = allVcamComponents[0];
-                            Debug.LogWarning($"[SSNoir] ModelImporter: No VCam name matched NodeAnchor '{anchor.NodeName}' on '{t.name}'. Falling back to first VCam '{allVcamComponents[0].name}'. Configure FocusVirtualCamera manually if this anchor is only an interaction point.");
+                            Debug.LogWarning($"[SSNoir] ModelImporter: NodeAnchor '{anchor.NodeName}' has no VCam in its own asset subtree. FocusVirtualCamera remains unassigned.");
                         }
                     }
 
@@ -119,20 +134,69 @@ namespace SSNoir.Editor
 
         private static bool IsOrbitPivotName(string name)
         {
-            var normalized = name.Replace(" ", string.Empty)
+            var normalized = StripBlenderNumericSuffix(name)
+                .Replace(" ", string.Empty)
                 .Replace("_", string.Empty)
                 .Replace("-", string.Empty);
-            return string.Equals(normalized, "orbitpivot", System.StringComparison.OrdinalIgnoreCase);
+            return string.Equals(normalized, "orbitpivot", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static Transform? FindClosestOrbitPivot(Transform cameraTransform, Transform[] orbitPivots)
+        private static string StripBlenderNumericSuffix(string name)
         {
-            if (orbitPivots == null || orbitPivots.Length == 0)
+            var dot = name.LastIndexOf('.');
+            if (dot < 0 || dot == name.Length - 1)
+                return name;
+
+            return name.Skip(dot + 1).All(char.IsDigit)
+                ? name.Substring(0, dot)
+                : name;
+        }
+
+        private static T[] FindNearestScopedComponents<T>(
+            Transform source,
+            Transform importRoot,
+            T[] candidates,
+            Func<T, Transform> getTransform)
+        {
+            // 从节点父级向上找第一个含候选对象的资产子树，但不允许上升到整城根。
+            // 单体模型的 Anchor/Camera 可能恰好都是导入根的直接子节点；这种情况下
+            // 只有全资产唯一候选才可安全回退。
+            for (var scope = source.parent; scope != null && scope != importRoot; scope = scope.parent)
+            {
+                var matches = candidates
+                    .Where(candidate => IsSameOrChildOf(getTransform(candidate), scope))
+                    .ToArray();
+                if (matches.Length > 0)
+                    return matches;
+            }
+
+            return candidates.Length == 1 ? candidates : Array.Empty<T>();
+        }
+
+        private static bool IsSameOrChildOf(Transform candidate, Transform scope)
+        {
+            for (var current = candidate; current != null; current = current.parent)
+            {
+                if (current == scope)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static Transform? FindClosestOrbitPivot(
+            Transform cameraTransform,
+            Transform importRoot,
+            Transform[] orbitPivots)
+        {
+            if (orbitPivots.Length == 0)
                 return null;
 
+            var scopedPivots = FindNearestScopedComponents(
+                cameraTransform, importRoot, orbitPivots, pivot => pivot);
             Transform? closest = null;
             float closestDistance = float.MaxValue;
-            foreach (var pivot in orbitPivots)
+            foreach (var pivot in scopedPivots)
             {
                 float distance = Vector3.SqrMagnitude(cameraTransform.position - pivot.position);
                 if (distance < closestDistance)
@@ -145,9 +209,13 @@ namespace SSNoir.Editor
             return closest;
         }
 
-        private static void ConfigureDragMode(SSNoirVirtualCameraConfig config, Transform cameraTransform, Transform[] orbitPivots)
+        private static void ConfigureDragMode(
+            SSNoirVirtualCameraConfig config,
+            Transform cameraTransform,
+            Transform importRoot,
+            Transform[] orbitPivots)
         {
-            var orbitPivot = FindClosestOrbitPivot(cameraTransform, orbitPivots);
+            var orbitPivot = FindClosestOrbitPivot(cameraTransform, importRoot, orbitPivots);
             config.orbitPivot = orbitPivot;
             config.dragMode = orbitPivot != null ? CameraDragMode.Orbit : CameraDragMode.Pan;
         }
