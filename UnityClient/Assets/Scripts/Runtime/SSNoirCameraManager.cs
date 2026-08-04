@@ -63,6 +63,8 @@ namespace SSNoir
         private Quaternion _focusArcTargetAim;
         private Vector3 _focusArcTargetPosition;
         private Quaternion _focusArcTargetRotation;
+        private float _focusArcStartNearClip;
+        private float _focusArcTargetNearClip;
         private float _focusArcStartFarClip;
         private float _focusArcTargetFarClip;
 
@@ -81,6 +83,7 @@ namespace SSNoir
         private Cinemachine.CinemachineVirtualCamera? _reducedParkedCamera;
         private Vector3 _reducedTargetPosition;
         private Quaternion _reducedTargetRotation;
+        private float _reducedTargetNearClip;
         private float _reducedTargetFarClip;
         private int _reducedParkedFrame;
 
@@ -248,6 +251,11 @@ namespace SSNoir
             if (ReferenceEquals(brain.ActiveVirtualCamera, focusCamera) && !brain.IsBlending)
                 return false;
 
+            // Debug hard-cut is a zero-duration test path, not an accessibility effect:
+            // no arc and no dissolve, just place the destination and let the brain cut.
+            if (MotionSettings.DebugInstantCameraCuts)
+                return BeginInstantFocusChange(focusCamera, brain);
+
             // Reduce motion takes the same fork every time, whatever the two ends are:
             // no road at all, just a dissolve over a cut.
             if (MotionSettings.ReduceMotion)
@@ -263,6 +271,8 @@ namespace SSNoir
             Quaternion targetRotation = destinationOrbits ? config!.AuthoredRotation : focusCamera.transform.rotation;
             Vector3 startPosition = renderedCamera.transform.position;
             Quaternion startRotation = renderedCamera.transform.rotation;
+            float startNearClip = renderedCamera.nearClipPlane;
+            float targetNearClip = focusCamera.m_Lens.NearClipPlane;
             float startFarClip = renderedCamera.farClipPlane;
             float targetFarClip = focusCamera.m_Lens.FarClipPlane;
 
@@ -295,6 +305,8 @@ namespace SSNoir
             _focusArcTargetInterest = targetInterest;
             _focusArcTargetPosition = targetPosition;
             _focusArcTargetRotation = targetRotation;
+            _focusArcStartNearClip = startNearClip;
+            _focusArcTargetNearClip = targetNearClip;
             _focusArcStartFarClip = startFarClip;
             _focusArcTargetFarClip = targetFarClip;
             _focusArcStartedAt = Time.unscaledTime;
@@ -306,9 +318,36 @@ namespace SSNoir
             brain.m_DefaultBlend = new Cinemachine.CinemachineBlendDefinition(
                 Cinemachine.CinemachineBlendDefinition.Style.Cut, 0f);
             focusCamera.transform.SetPositionAndRotation(startPosition, startRotation);
-            SetFarClipPlane(focusCamera, startFarClip);
+            SetClipPlanes(focusCamera, startNearClip, startFarClip);
 
             _isFocusArcActive = true;
+            return true;
+        }
+
+        /// <summary>
+        /// Debug-only zero-duration focus change. Orbit shots still return to their authored
+        /// framing, but there is no travel and no dissolve around the Cinemachine cut.
+        /// </summary>
+        private bool BeginInstantFocusChange(
+            Cinemachine.CinemachineVirtualCamera focusCamera,
+            Cinemachine.CinemachineBrain brain)
+        {
+            _isNavigating = false;
+            _isDraggingCam = false;
+            ReleaseReducedPark();
+
+            var config = focusCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            if (config != null && config.dragMode == CameraDragMode.Orbit)
+            {
+                focusCamera.transform.SetPositionAndRotation(
+                    config.AuthoredPosition, config.AuthoredRotation);
+            }
+
+            _cutHoldSavedBlend = brain.m_DefaultBlend;
+            brain.m_DefaultBlend = new Cinemachine.CinemachineBlendDefinition(
+                Cinemachine.CinemachineBlendDefinition.Style.Cut, 0f);
+            _cutHoldBrain = brain;
+            _cutHoldFrame = Time.frameCount;
             return true;
         }
 
@@ -344,12 +383,14 @@ namespace SSNoir
             _reducedParkedCamera = focusCamera;
             _reducedTargetPosition = destinationOrbits ? config!.AuthoredPosition : focusCamera.transform.position;
             _reducedTargetRotation = destinationOrbits ? config!.AuthoredRotation : focusCamera.transform.rotation;
+            _reducedTargetNearClip = focusCamera.m_Lens.NearClipPlane;
             _reducedTargetFarClip = focusCamera.m_Lens.FarClipPlane;
             _reducedParkedFrame = Time.frameCount;
 
             focusCamera.transform.SetPositionAndRotation(
                 renderedCamera.transform.position, renderedCamera.transform.rotation);
-            SetFarClipPlane(focusCamera, renderedCamera.farClipPlane);
+            SetClipPlanes(
+                focusCamera, renderedCamera.nearClipPlane, renderedCamera.farClipPlane);
 
             // 抓帧相机照抄此刻的 renderedCamera——brain 要到 LateUpdate 才动它，所以它
             // 现在还站在要留下的那一镜上。
@@ -375,7 +416,8 @@ namespace SSNoir
 
             _reducedParkedCamera.transform.SetPositionAndRotation(
                 _reducedTargetPosition, _reducedTargetRotation);
-            SetFarClipPlane(_reducedParkedCamera, _reducedTargetFarClip);
+            SetClipPlanes(
+                _reducedParkedCamera, _reducedTargetNearClip, _reducedTargetFarClip);
             _reducedParkedCamera = null;
         }
 
@@ -438,8 +480,9 @@ namespace SSNoir
                 : Quaternion.LookRotation(toInterest, Vector3.up) * aim;
 
             _focusArcCamera.transform.SetPositionAndRotation(position, rotation);
-            SetFarClipPlane(
+            SetClipPlanes(
                 _focusArcCamera,
+                Mathf.Lerp(_focusArcStartNearClip, _focusArcTargetNearClip, eased),
                 Mathf.Lerp(_focusArcStartFarClip, _focusArcTargetFarClip, eased));
         }
 
@@ -464,7 +507,8 @@ namespace SSNoir
             if (_focusArcCamera != null)
             {
                 _focusArcCamera.transform.SetPositionAndRotation(_focusArcTargetPosition, _focusArcTargetRotation);
-                SetFarClipPlane(_focusArcCamera, _focusArcTargetFarClip);
+                SetClipPlanes(
+                    _focusArcCamera, _focusArcTargetNearClip, _focusArcTargetFarClip);
             }
 
             if (_focusArcBrain != null)
@@ -484,11 +528,23 @@ namespace SSNoir
             _cutHoldBrain = null;
         }
 
-        private static void SetFarClipPlane(
+        private static void SetClipPlanes(
             Cinemachine.CinemachineVirtualCamera camera,
+            float nearClipPlane,
             float farClipPlane)
         {
+            if (nearClipPlane <= 0f || farClipPlane <= nearClipPlane)
+            {
+                string message =
+                    $"[SSNoir] Camera '{camera.name}' has an invalid clip range " +
+                    $"{nearClipPlane:F3}..{farClipPlane:F3}.";
+                Debug.LogError(message);
+                UnityEngine.Assertions.Assert.IsTrue(false, message);
+                throw new System.InvalidOperationException(message);
+            }
+
             var lens = camera.m_Lens;
+            lens.NearClipPlane = nearClipPlane;
             lens.FarClipPlane = farClipPlane;
             camera.m_Lens = lens;
         }
@@ -649,6 +705,13 @@ namespace SSNoir
 
             _isNavigating = true;
 
+            if (MotionSettings.DebugInstantCameraCuts)
+            {
+                ApplyNavigationPose(activeCamera, 1f);
+                _isNavigating = false;
+                return;
+            }
+
             // Reduce motion draws the line at rotation, not at movement: a slide across
             // the city keeps the player oriented and costs nothing, so it stays (just
             // shorter). Swinging around a pivot is the part that makes people ill — that
@@ -672,6 +735,7 @@ namespace SSNoir
                     _reducedParkedCamera = activeCamera;
                     _reducedTargetPosition = activeCamera.transform.position;
                     _reducedTargetRotation = activeCamera.transform.rotation;
+                    _reducedTargetNearClip = activeCamera.m_Lens.NearClipPlane;
                     _reducedTargetFarClip = activeCamera.m_Lens.FarClipPlane;
                     _reducedParkedFrame = Time.frameCount;
 

@@ -19,6 +19,14 @@ obj/
 .DS_Store
 Thumbs.db
 
+# Local Codex diagnostics and generated previews
+/.cache/
+/.codex-artifacts/
+/tmp/
+
+# CityBox is maintained as its own Git repository
+/city-box/
+
 # Unity specific ignores
 **/UnityClient/Library/
 **/UnityClient/Temp/
@@ -28,6 +36,7 @@ Thumbs.db
 **/UnityClient/Build/
 **/UnityClient/Builds/
 **/UnityClient/UserSettings/
+**/UnityClient/mono_crash.*.json
 # Unity generated content and fonts from the root Content directory
 **/UnityClient/Assets/StreamingAssets/Content/
 **/UnityClient/Assets/StreamingAssets/Content.meta

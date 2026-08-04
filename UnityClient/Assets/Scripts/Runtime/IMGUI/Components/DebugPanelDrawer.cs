@@ -6,7 +6,7 @@ using SSNoir.Core;
 
 namespace SSNoir.IMGUI
 {
-    // Unified debug panel: Save/Load + Scene switch.
+    // Unified debug panel: runtime test controls + Save/Load + Scene switch.
     // Mirrors TerminalApp's DrawDebugMenu in RaylibRenderer.
     public static class DebugPanelDrawer
     {
@@ -31,7 +31,8 @@ namespace SSNoir.IMGUI
             float panelX = toggleRect.xMax - panelW;
             float panelY = toggleRect.yMax + 4f;
             float slotsHeight = 20f + SaveManager.SlotCount * 28f + 14f;
-            float panelH = 8f + slotsHeight + _scenes.Count * itemH + 8f;
+            float cameraSectionHeight = 52f;
+            float panelH = 8f + slotsHeight + cameraSectionHeight + _scenes.Count * itemH + 8f;
             return (toggleRect, new Rect(panelX, panelY, panelW, panelH));
         }
 
@@ -128,8 +129,37 @@ namespace SSNoir.IMGUI
                 curY += 28f;
             }
 
-            // Separator + label
+            // Camera animation test mode
             float sepY = curY + 6f;
+            IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
+            GUI.Label(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "镜头测试", mutedStyle);
+
+            float cameraRowY = sepY + 20f;
+            bool instantCuts = MotionSettings.DebugInstantCameraCuts;
+            var cameraLabelStyle = new GUIStyle(labelStyle)
+            {
+                alignment = TextAnchor.MiddleLeft,
+                normal = { textColor = IMGUIStyles.TextPrimary }
+            };
+            GUI.Label(new Rect(panelX + 8f, cameraRowY + 2f, 120f, 22f),
+                "自动运镜", cameraLabelStyle);
+
+            var cameraModeStyle = new GUIStyle(labelStyle)
+            {
+                normal = { textColor = instantCuts ? IMGUIStyles.Gold : IMGUIStyles.TextSecondary }
+            };
+            var cameraModeRect = new Rect(panelX + panelW - 8f - 64f, cameraRowY + 2f, 64f, 22f);
+            if (IMGUIButton.Draw(cameraModeRect, instantCuts ? "0 秒" : "正常", ui,
+                    instantCuts ? IMGUIStyles.Gold : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
+                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), cameraModeStyle))
+            {
+                MotionSettings.DebugInstantCameraCuts = !instantCuts;
+                Event.current.Use();
+            }
+
+            // Scene switch section
+            sepY = cameraRowY + itemH + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
             GUI.Label(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "切换场景", mutedStyle);
