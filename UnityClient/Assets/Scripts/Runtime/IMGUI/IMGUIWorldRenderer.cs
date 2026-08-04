@@ -200,6 +200,26 @@ namespace SSNoir.IMGUI
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
         public bool IsInputLocked => _inputLocked || _activeHeavyOutcome != null || _activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _activeAnimationTag != null;
 
+        // 与对白舞台上的左键点击共用同一套推进语义：打字中先显示全文，否则进入下一句。
+        // 由 SSNoirGameManager 的全局 ESC 输入调用，避免 ESC 在对白期间落入返回导航逻辑。
+        public bool TryAdvanceConversation()
+        {
+            if (!_conversationPlayer.IsActive)
+                return false;
+
+            if (DialogueStageDrawer.IsCurrentLineFullyRevealed)
+            {
+                _conversationPlayer.Advance();
+                _warnedAboutCurrentDialogueRemoteFallback = false;
+            }
+            else
+            {
+                DialogueStageDrawer.CompleteCurrentLine();
+            }
+
+            return true;
+        }
+
         // Whether the pointer was over any interactive UI in the last OnGUI pass.
         public bool PointerOverUI { get; private set; }
 
@@ -291,9 +311,9 @@ namespace SSNoir.IMGUI
             IMGUIStyles.Init(_gameManager.ChineseFont, _gameManager.SemiboldFont);
 
             // ── Camera Crossfade (reduce-motion focus change) ──
-            // Drawn before anything else, so the frozen outgoing frame covers the live 3D
-            // but sits under every live panel. The UI therefore never fades in — what was
-            // on screen a moment ago just bleeds away behind what is on screen now.
+            // Drawn before anything else, so the frozen outgoing shot covers the live 3D
+            // and every live panel sits on top of it. Only the world dissolves; the UI is
+            // never in the frozen frame to begin with.
             var crossfade = _gameManager.CameraManager.Crossfade;
             var frozenView = crossfade.FrozenView;
             if (frozenView != null)
@@ -1459,15 +1479,7 @@ namespace SSNoir.IMGUI
 
             if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
             {
-                if (DialogueStageDrawer.IsCurrentLineFullyRevealed)
-                {
-                    _conversationPlayer.Advance();
-                    _warnedAboutCurrentDialogueRemoteFallback = false;
-                }
-                else
-                {
-                    DialogueStageDrawer.CompleteCurrentLine();
-                }
+                TryAdvanceConversation();
                 Event.current.Use();
             }
             else

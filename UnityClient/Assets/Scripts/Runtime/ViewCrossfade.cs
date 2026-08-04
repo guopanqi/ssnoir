@@ -1,30 +1,36 @@
 #nullable enable
-using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace SSNoir
 {
     /// <summary>
-    /// 交叉溶解：在相机切走之前把当前画面冻成一张贴图，切完之后让这张旧画面淡出。
+    /// 交叉溶解：在相机切走之前把当前这一镜渲进一张贴图，切完之后让这张旧画面淡出。
     ///
     /// 一个 3D 场景里没有"两个窗口"可以互相溶解，所以旧画面得自己留下来。新机位在这张
     /// 贴图底下已经就位，贴图退掉的过程就是整个过渡，全程没有任何东西在动。
     ///
-    /// 冻的是**整屏**（世界 + UI），和 macOS / iOS 减少动画里整扇窗一起淡出淡入是同一种
-    /// 处理。只单独冻世界需要按需渲染一次相机，而 URP 不接受在渲染当中再渲一次，
-    /// 2022.3 也没有 render request 那套 API——整屏抓帧只用最老的接口，没有版本风险。
-    /// 代价是这零点几秒里变化过的面板会跟着交叉溶解一下；没变的部分溶解在自己身上，看不出来。
+    /// 留旧画面的办法是**另开一台相机照着旧机位渲一帧**，不是去抓屏。抓后台缓冲看着更省事，
+    /// 但那是一张已经编码成显示值的图，再走一遍 GUI 的采样和输出就多编码了一次，线性工程里
+    /// 整张冻帧会比真实画面亮一大截——切镜时那下发白就是这么来的，而且抓屏还会把 UI 一起
+    /// 冻进去、在某些图形 API 上下颠倒。相机渲 RenderTexture 是引擎的常规路径，颜色空间、
+    /// 朝向、后处理都按正常管线走，这三件事一次全没了，冻的也只有世界，UI 不参与。
     ///
-    /// 抓帧必须等到帧末（WaitForEndOfFrame），那时这一帧的世界和 IMGUI 都已经合成完毕。
-    /// 焦点切换几乎都从 OnGUI 发起，而 Cinemachine 在 LateUpdate 才摆相机，所以发起当帧
-    /// 屏幕上仍然是旧机位——抓到的正是要留下的那一张，下一帧 brain 才切过去。
+    /// 时序：抓帧相机在**发起当帧**就位并渲一次，所以发起方必须先把目标机位按在旧视角上
+    /// 停一帧（见 <c>SSNoirCameraManager.BeginReducedFocusChange</c>）——发起方跑在 Update 里，
+    /// Cinemachine 同帧的 LateUpdate 就会把相机切走，不停这一帧，抓到的就是新机位，
+    /// 等于拿新画面溶解新画面，什么都看不见。
     /// </summary>
     public class ViewCrossfade
     {
+        private const string CaptureCameraName = "SSNoir.ViewCrossfade.Capture";
+
         private readonly MonoBehaviour _runner;
 
         private RenderTexture? _frozenView;
-        private Coroutine? _captureRoutine;
+        private Camera? _captureCamera;
+        private int _captureFrame = -1;
+        private bool _isCapturing;
         private float _startedAt;
         private float _duration;
         private bool _isFading;
@@ -43,20 +49,67 @@ namespace SSNoir
         public float Alpha { get; private set; }
 
         /// <summary>
-        /// 登记一次溶解。必须在相机被切走**之前**调用；真正的抓帧发生在本帧帧末。
+        /// 登记一次溶解，并让抓帧相机就位。必须在相机被切走**之前**调用，且调用时
+        /// <paramref name="source"/> 必须还站在要留下的那一镜上。
         /// </summary>
-        public void Begin(float duration)
+        public void Begin(float duration, Camera source)
         {
             if (duration <= 0f)
                 return;
 
             Finish();
-            _captureRoutine = _runner.StartCoroutine(CaptureThenFade(duration));
+
+            EnsureTarget(source.pixelWidth, source.pixelHeight);
+            if (_frozenView == null)
+                return;
+
+            var capture = EnsureCaptureCamera();
+
+            // CopyFrom 带走镜头、剔除、清除方式这些，但不带 transform，也不带 URP 那份
+            // 附加数据——后处理没跟过来的话，冻帧会和实时画面亮度对不上。
+            capture.CopyFrom(source);
+            capture.transform.SetPositionAndRotation(
+                source.transform.position, source.transform.rotation);
+
+            var sourceData = source.GetUniversalAdditionalCameraData();
+            var captureData = capture.GetUniversalAdditionalCameraData();
+            captureData.renderPostProcessing = sourceData.renderPostProcessing;
+            captureData.antialiasing = sourceData.antialiasing;
+            captureData.antialiasingQuality = sourceData.antialiasingQuality;
+            captureData.volumeLayerMask = sourceData.volumeLayerMask;
+            captureData.renderShadows = sourceData.renderShadows;
+
+            capture.targetTexture = _frozenView;
+            capture.enabled = true;
+
+            _duration = duration;
+            _captureFrame = Time.frameCount;
+            _isCapturing = true;
         }
 
         /// <summary>每帧推进。溶解走 unscaledTime，剧本节拍锁住输入时它照样要走完。</summary>
         public void Tick()
         {
+            // 抓帧相机在登记当帧的帧末才渲，所以至少要跨过一帧才能收工。Tick 和 Begin 同在
+            // Update 里跑，谁先谁后不定，用帧号卡死，别让同帧的 Tick 把还没渲的一帧收走。
+            if (_isCapturing)
+            {
+                if (Time.frameCount <= _captureFrame)
+                    return;
+
+                if (_captureCamera != null)
+                {
+                    _captureCamera.enabled = false;
+                    _captureCamera.targetTexture = null;
+                }
+
+                _isCapturing = false;
+                _startedAt = Time.unscaledTime;
+                Alpha = 1f;
+                _isFading = true;
+                return;
+            }
+
             if (!_isFading)
                 return;
 
@@ -67,7 +120,10 @@ namespace SSNoir
                 return;
             }
 
-            Alpha = 1f - t * t * (3f - 2f * t);
+            // 线性。新机位在底下是完全不透明的，所以合成结果就是一次真正的等速交叉溶解，
+            // 和胶片叠化同一条曲线。缓动曲线会把变化压在中段、两头各按住一会儿不动，
+            // 看上去就成了"停一下、闪过去、再停一下"。
+            Alpha = 1f - t;
         }
 
         /// <summary>
@@ -76,32 +132,28 @@ namespace SSNoir
         /// </summary>
         public void Finish()
         {
-            if (_captureRoutine != null)
+            if (_captureCamera != null)
             {
-                _runner.StopCoroutine(_captureRoutine);
-                _captureRoutine = null;
+                _captureCamera.enabled = false;
+                _captureCamera.targetTexture = null;
             }
 
+            _isCapturing = false;
             _isFading = false;
             Alpha = 0f;
         }
 
-        private IEnumerator CaptureThenFade(float duration)
+        private Camera EnsureCaptureCamera()
         {
-            yield return new WaitForEndOfFrame();
+            if (_captureCamera != null)
+                return _captureCamera;
 
-            _captureRoutine = null;
-
-            EnsureTarget(Screen.width, Screen.height);
-            if (_frozenView == null)
-                yield break;
-
-            ScreenCapture.CaptureScreenshotIntoRenderTexture(_frozenView);
-
-            _startedAt = Time.unscaledTime;
-            _duration = duration;
-            Alpha = 1f;
-            _isFading = true;
+            // 挂在发起方身上，跟着场景一起销毁；不加 AudioListener，只是一台渲进贴图的相机。
+            var go = new GameObject(CaptureCameraName) { hideFlags = HideFlags.DontSave };
+            go.transform.SetParent(_runner.transform, worldPositionStays: false);
+            _captureCamera = go.AddComponent<Camera>();
+            _captureCamera.enabled = false;
+            return _captureCamera;
         }
 
         private void EnsureTarget(int width, int height)
@@ -118,9 +170,8 @@ namespace SSNoir
                 Object.Destroy(_frozenView);
             }
 
-            // 必须和屏幕同尺寸，CaptureScreenshotIntoRenderTexture 按这个前提写。
-            // 淡出靠 GUI.color 的 alpha 调制，贴图自身的 alpha 由不透明画面写成 1。
-            _frozenView = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32)
+            // 深度位必须给够，这台相机要正经渲一遍世界，不是拷贝一张图。
+            _frozenView = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32)
             {
                 name = "SSNoir.ViewCrossfade",
             };

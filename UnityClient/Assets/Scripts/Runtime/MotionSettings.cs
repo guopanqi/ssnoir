@@ -1,5 +1,4 @@
 #nullable enable
-using UnityEngine;
 
 namespace SSNoir
 {
@@ -12,38 +11,23 @@ namespace SSNoir
     ///   · 焦点切换：不再走弧线，硬切 + 交叉溶解（见 <see cref="ViewCrossfade"/>）。
     ///   · 场景过渡：推进 / 穿过 / 拉出三段路全部不走，只留黑场对切。
     ///   · 灯标导航：平移保留但缩短；绕轴那支改成溶解。
+    ///
+    /// **只活在内存里，每次启动回到默认值。** 一个随手可改的显示开关不值得为它引入
+    /// 一套持久化：PlayerPrefs 在本项目的 WebGL 构建里被 TapSDK 接管，落盘又要自己
+    /// 铺一层文件读写和失败处理——两条路都比这个开关本身重。真要跨启动记住，
+    /// 以后跟着存档一起走即可。
     /// </summary>
     public static class MotionSettings
     {
-        private const string PrefsKey = "SSNoir.ReduceMotion";
-
-        /// <summary>低动画下焦点切换的溶解时长。短到不像一段动画，长到不像一次闪屏。</summary>
-        public const float CrossfadeDuration = 0.16f;
+        /// <summary>
+        /// 低动画下焦点切换的溶解时长。这是本模式唯一还看得见的"动画"，宁可偏慢也不能偏快：
+        /// 短了读起来就是硬切，而这个模式的用户要的正是"别抢我的眼睛"。
+        /// </summary>
+        public const float CrossfadeDuration = 0.5f;
 
         /// <summary>低动画下灯标平移的时长，对应正常模式的 0.42 秒。</summary>
         public const float ReducedNavigationDuration = 0.18f;
 
-        private static bool _loaded;
-        private static bool _reduceMotion;
-
-        public static bool ReduceMotion
-        {
-            get
-            {
-                if (!_loaded)
-                {
-                    _reduceMotion = PlayerPrefs.GetInt(PrefsKey, 0) != 0;
-                    _loaded = true;
-                }
-                return _reduceMotion;
-            }
-            set
-            {
-                _reduceMotion = value;
-                _loaded = true;
-                PlayerPrefs.SetInt(PrefsKey, value ? 1 : 0);
-                PlayerPrefs.Save();
-            }
-        }
+        public static bool ReduceMotion { get; set; }
     }
 }

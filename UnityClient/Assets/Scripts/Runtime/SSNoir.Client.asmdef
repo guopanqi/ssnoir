@@ -5,7 +5,8 @@
         "SSNoir.Engine",
         "Unity.TextMeshPro",
         "UnityEngine.UI",
-        "Cinemachine"
+        "Cinemachine",
+        "Unity.RenderPipelines.Universal.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
