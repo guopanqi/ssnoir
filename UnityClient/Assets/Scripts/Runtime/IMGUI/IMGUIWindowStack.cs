@@ -20,6 +20,7 @@ namespace SSNoir.IMGUI
 
     public enum IMGUIWindowId
     {
+        SettingsPanel,
         DebugPanel,
         GrowthPanel,
         HeavyOutcome,

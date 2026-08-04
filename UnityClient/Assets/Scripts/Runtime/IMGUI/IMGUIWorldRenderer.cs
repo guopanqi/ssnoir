@@ -233,6 +233,7 @@ namespace SSNoir.IMGUI
             _completionActionName = string.Empty;
             _completionDone = null;
             DebugPanelDrawer.Reset();
+            SettingsPanelDrawer.Reset();
         }
 
         public void ClearCardResidues()
@@ -288,6 +289,21 @@ namespace SSNoir.IMGUI
 
             // Initialize styles if needed
             IMGUIStyles.Init(_gameManager.ChineseFont, _gameManager.SemiboldFont);
+
+            // ── Camera Crossfade (reduce-motion focus change) ──
+            // Drawn before anything else, so the frozen outgoing frame covers the live 3D
+            // but sits under every live panel. The UI therefore never fades in — what was
+            // on screen a moment ago just bleeds away behind what is on screen now.
+            var crossfade = _gameManager.CameraManager.Crossfade;
+            var frozenView = crossfade.FrozenView;
+            if (frozenView != null)
+            {
+                var previousColor = GUI.color;
+                GUI.color = new Color(1f, 1f, 1f, crossfade.Alpha);
+                GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), frozenView);
+                GUI.color = previousColor;
+            }
+
             if (_gameManager.DisplayedSnapshot.Failure.IsFailed)
             {
                 DrawFailureOverlay(Event.current.mousePosition);
@@ -304,6 +320,19 @@ namespace SSNoir.IMGUI
             // during this pass, and we persist the result at the end of OnGUI.
             IMGUIInteractionContext.ResetPointerOverUi();
             TopHudLayout topHud = TopHudLayout.Create();
+
+            if (SettingsPanelDrawer.IsOpen && !_isGrowthPanelOpen)
+            {
+                var (_, settingsPanelRect) = SettingsPanelDrawer.GetRects(topHud);
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.SettingsPanel,
+                    Bounds = settingsPanelRect,
+                    Layer = IMGUIWindowLayer.Panel,
+                    BlockMode = IMGUIBlockMode.Bounds,
+                    CloseOnClickedOutside = false,
+                });
+            }
 
             if (DebugPanelDrawer.IsOpen && !_isGrowthPanelOpen)
             {
@@ -404,6 +433,12 @@ namespace SSNoir.IMGUI
 
             // ── Growth / Team Toggle Button ──
             DrawGrowthToggleButton(worldUi, topHud.GrowthToggle);
+
+            // ── Settings Panel (player options) ──
+            if (!_isGrowthPanelOpen)
+            {
+                SettingsPanelDrawer.Draw(panelUi, topHud);
+            }
 
             // ── Debug Panel (Save/Load + Scene Switch) ──
             if (!_isGrowthPanelOpen)

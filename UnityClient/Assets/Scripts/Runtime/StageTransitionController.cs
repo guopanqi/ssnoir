@@ -14,6 +14,10 @@ namespace SSNoir
         [SerializeField] private float flashDuration = 0.15f;
         [SerializeField] private float pushDuration = 0.3f;
         [SerializeField] private float pullDuration = 0.4f;
+        // Reduce motion keeps the dip to black but nothing else, so the dip carries the
+        // whole transition on its own and has to be a touch longer than the flash that
+        // used to sit in the middle of one.
+        [SerializeField] private float reducedFadeDuration = 0.22f;
         [SerializeField] private int transitionPriority = 100;
         [SerializeField] private AnimationCurve approachCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         [SerializeField] private AnimationCurve pushCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -60,7 +64,18 @@ namespace SSNoir
             string? lookupId = newContextId ?? _currentContextId;
             var portal = ResolvePortal(lookupId);
 
-            if (newContextId != null)
+            if (MotionSettings.ReduceMotion)
+            {
+                // The door's three legs — approach, push through, pull out — are the trip,
+                // and reduce motion does not take trips. What is left is the cut that was
+                // always hiding in the middle of one.
+                bool crossesAPortal = _activePortal != null || (newContextId != null && portal != null);
+                if (crossesAPortal)
+                    yield return ReducedTransition();
+
+                _activePortal = newContextId != null ? portal : null;
+            }
+            else if (newContextId != null)
             {
                 if (_activePortal != null)
                 {
@@ -83,6 +98,28 @@ namespace SSNoir
             _currentContextId = newContextId;
             _gameManager.SetInputLocked(false);
             IsTransitioning = false;
+        }
+
+        /// <summary>
+        /// The reduce-motion form of a portal: black, cut, back. The intro and out cams
+        /// describe a road through the door, and no road is taken here — the destination
+        /// focus camera was always the end of it, so it simply receives the shot while
+        /// the screen is dark. transitionVCam is never taken over, so there is nothing
+        /// to hand back afterwards.
+        /// </summary>
+        private IEnumerator ReducedTransition()
+        {
+            var targetCamera = _gameManager.CurrentFocusCamera;
+            Debug.Assert(targetCamera != null, "[StageTransition] Reduced transition target focus camera was not resolved.");
+
+            FadeAlpha = 0f;
+            yield return FadeTo(1f, reducedFadeDuration);
+
+            ResetFocusCameras();
+            if (targetCamera != null)
+                yield return CutToVirtualCamera(targetCamera, 20);
+
+            yield return FadeTo(0f, reducedFadeDuration);
         }
 
         private IEnumerator PushEnter(StagePortalConfig portal)

@@ -66,10 +66,24 @@ namespace SSNoir
         private float _focusArcStartFarClip;
         private float _focusArcTargetFarClip;
 
+        // Reduce motion: the trip is replaced by a cut under a dissolve. The brain must
+        // not blend on top of that — a blend and a dissolve running together reads as
+        // neither. The blend is held cut for as long as the dissolve lasts, which is
+        // also long enough for the cut to actually land: a focus change raised from
+        // OnGUI is one frame ahead of the brain, so releasing on the next tick would
+        // give the blend back before it ever cut.
+        private readonly ViewCrossfade _crossfade;
+        private Cinemachine.CinemachineBrain? _cutHoldBrain;
+        private Cinemachine.CinemachineBlendDefinition _cutHoldSavedBlend;
+        private int _cutHoldFrame;
+
+        public ViewCrossfade Crossfade => _crossfade;
+
         public SSNoirCameraManager(SSNoirGameManager gameManager, float panSpeed)
         {
             _gameManager = gameManager;
             _panSpeed = panSpeed;
+            _crossfade = new ViewCrossfade(gameManager);
         }
 
         public void Update()
@@ -227,6 +241,11 @@ namespace SSNoir
             if (ReferenceEquals(brain.ActiveVirtualCamera, focusCamera) && !brain.IsBlending)
                 return false;
 
+            // Reduce motion takes the same fork every time, whatever the two ends are:
+            // no road at all, just a dissolve over a cut.
+            if (MotionSettings.ReduceMotion)
+                return BeginReducedFocusChange(brain);
+
             float duration = brain.m_DefaultBlend.m_Time;
             if (duration <= 0.01f)
                 return false;
@@ -287,11 +306,44 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// Advances a running focus travel. Driven every frame, including while gameplay
-        /// input is locked — a focus change during a scripted beat still has to land.
+        /// Hands the focus change to a cut hidden under a dissolve — the reduce-motion
+        /// form of <see cref="BeginFocusTravel"/>. The outgoing view is frozen first,
+        /// while the camera is still standing in the old shot; the brain then snaps to
+        /// the destination underneath that frozen frame, and the frame fades off it.
+        /// Nothing travels, so nothing sweeps past the player.
+        /// </summary>
+        private bool BeginReducedFocusChange(Cinemachine.CinemachineBrain brain)
+        {
+            _isNavigating = false;
+            _isDraggingCam = false;
+
+            _crossfade.Begin(MotionSettings.CrossfadeDuration);
+
+            _cutHoldSavedBlend = brain.m_DefaultBlend;
+            brain.m_DefaultBlend = new Cinemachine.CinemachineBlendDefinition(
+                Cinemachine.CinemachineBlendDefinition.Style.Cut, 0f);
+            _cutHoldBrain = brain;
+            _cutHoldFrame = Time.frameCount;
+            return true;
+        }
+
+        /// <summary>
+        /// Advances a running focus travel — the arc, or the reduce-motion dissolve that
+        /// stands in for it. Driven every frame, including while gameplay input is
+        /// locked: a focus change during a scripted beat still has to land.
         /// </summary>
         public void TickFocusTravel()
         {
+            _crossfade.Tick();
+
+            // The brain gets its blend back once the dissolve is over, not before: until
+            // then any blend it ran would be a second transition underneath the first.
+            // The frame guard is what makes the cut land at all — the brain only reads
+            // the blend in LateUpdate, so a hold taken during OnGUI has to outlive the
+            // Update that follows it, even in the case where no dissolve ever started.
+            if (_cutHoldBrain != null && !_crossfade.IsFading && Time.frameCount > _cutHoldFrame + 1)
+                ReleaseCutHold();
+
             if (!_isFocusArcActive || _focusArcCamera == null)
                 return;
 
@@ -336,10 +388,15 @@ namespace SSNoir
         /// A travel always ends here — on arrival, when a new focus supersedes it, or
         /// when another system needs the brain (a stage transition drives its own cut).
         /// It is never dropped part-way: the shot it is delivering is the point of it,
-        /// and nothing may leave a camera stranded mid-flight.
+        /// and nothing may leave a camera stranded mid-flight. The reduce-motion form
+        /// ends here too — its dissolve is dropped and the brain handed back, since the
+        /// destination shot is already live underneath the frozen frame.
         /// </summary>
         public void FinishFocusTravel()
         {
+            _crossfade.Finish();
+            ReleaseCutHold();
+
             if (!_isFocusArcActive)
                 return;
 
@@ -355,6 +412,15 @@ namespace SSNoir
             _isFocusArcActive = false;
             _focusArcCamera = null;
             _focusArcBrain = null;
+        }
+
+        private void ReleaseCutHold()
+        {
+            if (_cutHoldBrain == null)
+                return;
+
+            _cutHoldBrain.m_DefaultBlend = _cutHoldSavedBlend;
+            _cutHoldBrain = null;
         }
 
         private static void SetFarClipPlane(
@@ -521,13 +587,39 @@ namespace SSNoir
             }
 
             _isNavigating = true;
+
+            // Reduce motion draws the line at rotation, not at movement: a slide across
+            // the city keeps the player oriented and costs nothing, so it stays (just
+            // shorter). Swinging around a pivot is the part that makes people ill — that
+            // one is cut and dissolved instead of turned.
+            if (MotionSettings.ReduceMotion && _navigationMode == CameraDragMode.Orbit)
+            {
+                // Freeze first: the camera is still standing where the player left it.
+                _crossfade.Begin(MotionSettings.CrossfadeDuration);
+                ApplyNavigationPose(activeCamera, 1f);
+                _isNavigating = false;
+            }
         }
 
         private void UpdateNavigation(Cinemachine.CinemachineVirtualCamera activeCamera)
         {
-            float t = Mathf.Clamp01((Time.unscaledTime - _navigationStartedAt) / NavigationDuration);
-            float eased = t * t * (3f - 2f * t);
+            float duration = MotionSettings.ReduceMotion
+                ? MotionSettings.ReducedNavigationDuration
+                : NavigationDuration;
+            float t = Mathf.Clamp01((Time.unscaledTime - _navigationStartedAt) / duration);
+            ApplyNavigationPose(activeCamera, t * t * (3f - 2f * t));
 
+            if (t >= 1f)
+                _isNavigating = false;
+        }
+
+        /// <summary>
+        /// Places the camera at a point along the beacon walk. Split out so the
+        /// reduce-motion path can jump straight to the far end (eased = 1) under a
+        /// dissolve instead of turning through it.
+        /// </summary>
+        private void ApplyNavigationPose(Cinemachine.CinemachineVirtualCamera activeCamera, float eased)
+        {
             if (_navigationMode == CameraDragMode.Orbit)
             {
                 float yaw = Mathf.LerpAngle(_navigationStartYaw, _navigationTargetYaw, eased) * Mathf.Deg2Rad;
@@ -547,9 +639,6 @@ namespace SSNoir
                     _navigationTargetPosition,
                     eased);
             }
-
-            if (t >= 1f)
-                _isNavigating = false;
         }
 
         public Cinemachine.CinemachineVirtualCamera? GetActiveCamera()

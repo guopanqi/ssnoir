@@ -14,12 +14,14 @@ namespace SSNoir.IMGUI
         private const float RowHeight = 36f;
         private const float Gap = 8f;
 
+        public Rect SettingsToggle { get; }
         public Rect DebugToggle { get; }
         public Rect GrowthToggle { get; }
         public Rect RelationToggle { get; }
 
-        private TopHudLayout(Rect debugToggle, Rect growthToggle, Rect relationToggle)
+        private TopHudLayout(Rect settingsToggle, Rect debugToggle, Rect growthToggle, Rect relationToggle)
         {
+            SettingsToggle = settingsToggle;
             DebugToggle = debugToggle;
             GrowthToggle = growthToggle;
             RelationToggle = relationToggle;
@@ -28,10 +30,11 @@ namespace SSNoir.IMGUI
         public static TopHudLayout Create()
         {
             float cursorX = UIScale.VW - RightMargin;
+            Rect settingsToggle = TakeFromRight(ref cursorX, 62f, 32f);
             Rect debugToggle = TakeFromRight(ref cursorX, 70f, 32f);
             Rect growthToggle = TakeFromRight(ref cursorX, 112f, 34f);
             Rect relationToggle = TakeFromRight(ref cursorX, 236f, 36f);
-            return new TopHudLayout(debugToggle, growthToggle, relationToggle);
+            return new TopHudLayout(settingsToggle, debugToggle, growthToggle, relationToggle);
         }
 
         private static Rect TakeFromRight(ref float cursorX, float width, float height)
