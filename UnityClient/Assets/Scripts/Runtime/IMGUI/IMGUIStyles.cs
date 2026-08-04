@@ -48,6 +48,9 @@ namespace SSNoir.IMGUI
         public static readonly Color StickyNegotiateText = new Color(0.173f, 0.275f, 0.400f, 1f); // #2C4666
         public static readonly Color StickyOpportunityBg   = new Color(0.890f, 0.816f, 0.894f, 1f); // #E3D0E4
         public static readonly Color StickyOpportunityText = new Color(0.361f, 0.196f, 0.376f, 1f); // #5C3260
+        // 禁用态与折叠「+N」：褪成灰纸，而不是压暗——压暗会立刻和深色卡糊在一起。
+        public static readonly Color StickyMutedBg     = new Color(0.796f, 0.812f, 0.839f, 1f); // #CBCFD6
+        public static readonly Color StickyMutedText   = new Color(0.271f, 0.290f, 0.325f, 1f); // #454A53
 
         // ── 概率/结果三色（沉着版）──
         public static readonly Color OddsFail    = new Color(0.820f, 0.416f, 0.306f, 1f); // #D16A4E 陶红
@@ -118,32 +121,37 @@ namespace SSNoir.IMGUI
 
             // Font sizes are snapped so (fontSize × scale) lands on an integer
             // physical pixel, minimising sub-pixel blur at non-1.0 scales.
-            CardTitle      = MakeStyle(SF(23,s), TextPrimary,        TextAnchor.MiddleCenter, FontStyle.Bold);
-            CardSubtitle   = MakeStyle(SF(16,s), TextSecondary,      TextAnchor.MiddleCenter, FontStyle.Normal);
-            CardTypeTag    = MakeStyle(SF(15,s), TextSecondary,      TextAnchor.MiddleCenter, FontStyle.Normal);
-            SlotLabel      = MakeStyle(SF(16,s), PaperInk,           TextAnchor.MiddleCenter, FontStyle.Bold);
-            ExecuteLabel   = MakeStyle(SF(16,s), GoldOnDark,         TextAnchor.MiddleCenter, FontStyle.Bold);
-            StatusLabel    = MakeStyle(SF(14,s), TextPrimary,        TextAnchor.MiddleLeft,   FontStyle.Bold);
-            SectionLabel   = MakeStyle(SF(16,s), TextSecondary,      TextAnchor.MiddleLeft,   FontStyle.Normal);
-            ToastLabel     = MakeStyle(SF(14,s), GoldOnDark,         TextAnchor.MiddleCenter, FontStyle.Bold);
-            ModalTitle     = MakeStyle(SF(22,s), PaperInk,           TextAnchor.MiddleCenter, FontStyle.Bold);
-            ModalBody      = MakeStyle(SF(14,s), PaperTextPrimary,   TextAnchor.MiddleLeft,   FontStyle.Normal);
-            FlippedTitle   = MakeStyle(SF(18,s), TextPrimary,        TextAnchor.MiddleCenter, FontStyle.Bold);
-            FlippedContent = MakeStyle(SF(14,s), TextPrimary,        TextAnchor.UpperCenter,  FontStyle.Normal);
-            FlippedTip     = MakeStyle(SF(12,s), TextSecondary,      TextAnchor.MiddleCenter, FontStyle.Italic);
-            ClockLabel     = MakeStyle(SF(12,s), TextPrimary,        TextAnchor.MiddleLeft,   FontStyle.Bold);
-            ClockValue     = MakeStyle(SF(12,s), Gold,               TextAnchor.MiddleRight,  FontStyle.Bold);
-            DropdownItem   = MakeStyle(SF(14,s), TextSecondary,      TextAnchor.MiddleLeft,   FontStyle.Normal);
-            DropdownCurrent= MakeStyle(SF(14,s), TextPrimary,        TextAnchor.MiddleLeft,   FontStyle.Normal);
-            CursorFollower = MakeStyle(SF(12,s), TextPrimary,        TextAnchor.MiddleCenter, FontStyle.Bold);
-            SceneLabel     = MakeStyle(SF(14,s), TextSecondary,      TextAnchor.MiddleLeft,   FontStyle.Normal);
-            HelpTip        = MakeStyle(SF(14,s), TextSecondary,      TextAnchor.MiddleLeft,   FontStyle.Normal);
+            CardTitle      = MakeStyle(FontSize(23), TextPrimary,        TextAnchor.MiddleCenter, FontStyle.Bold);
+            CardSubtitle   = MakeStyle(FontSize(16), TextSecondary,      TextAnchor.MiddleCenter, FontStyle.Normal);
+            CardTypeTag    = MakeStyle(FontSize(15), TextSecondary,      TextAnchor.MiddleCenter, FontStyle.Normal);
+            SlotLabel      = MakeStyle(FontSize(16), PaperInk,           TextAnchor.MiddleCenter, FontStyle.Bold);
+            ExecuteLabel   = MakeStyle(FontSize(16), GoldOnDark,         TextAnchor.MiddleCenter, FontStyle.Bold);
+            StatusLabel    = MakeStyle(FontSize(14), TextPrimary,        TextAnchor.MiddleLeft,   FontStyle.Bold);
+            SectionLabel   = MakeStyle(FontSize(16), TextSecondary,      TextAnchor.MiddleLeft,   FontStyle.Normal);
+            ToastLabel     = MakeStyle(FontSize(14), GoldOnDark,         TextAnchor.MiddleCenter, FontStyle.Bold);
+            ModalTitle     = MakeStyle(FontSize(22), PaperInk,           TextAnchor.MiddleCenter, FontStyle.Bold);
+            ModalBody      = MakeStyle(FontSize(14), PaperTextPrimary,   TextAnchor.MiddleLeft,   FontStyle.Normal);
+            FlippedTitle   = MakeStyle(FontSize(18), TextPrimary,        TextAnchor.MiddleCenter, FontStyle.Bold);
+            FlippedContent = MakeStyle(FontSize(14), TextPrimary,        TextAnchor.UpperCenter,  FontStyle.Normal);
+            FlippedTip     = MakeStyle(FontSize(12), TextSecondary,      TextAnchor.MiddleCenter, FontStyle.Italic);
+            ClockLabel     = MakeStyle(FontSize(12), TextPrimary,        TextAnchor.MiddleLeft,   FontStyle.Bold);
+            ClockValue     = MakeStyle(FontSize(12), Gold,               TextAnchor.MiddleRight,  FontStyle.Bold);
+            DropdownItem   = MakeStyle(FontSize(14), TextSecondary,      TextAnchor.MiddleLeft,   FontStyle.Normal);
+            DropdownCurrent= MakeStyle(FontSize(14), TextPrimary,        TextAnchor.MiddleLeft,   FontStyle.Normal);
+            CursorFollower = MakeStyle(FontSize(12), TextPrimary,        TextAnchor.MiddleCenter, FontStyle.Bold);
+            SceneLabel     = MakeStyle(FontSize(14), TextSecondary,      TextAnchor.MiddleLeft,   FontStyle.Normal);
+            HelpTip        = MakeStyle(FontSize(14), TextSecondary,      TextAnchor.MiddleLeft,   FontStyle.Normal);
         }
 
-        // Snap a virtual fontSize so that (result × scale) is the nearest integer
-        // physical pixel count, reducing sub-pixel blur at fractional scales.
-        private static int SF(int baseSize, float scale)
+        // 字号的唯一入口。把虚拟字号吸附到「乘以 Scale 后正好是整数物理像素」的那个值，
+        // 消掉非整数缩放（0.75 / 1.25）下的次像素模糊。Scale=1 时原样返回。
+        //
+        // 注意方向：这里是**除以** Scale 反算回虚拟空间，不是乘。GUI.matrix 已经统一缩放了
+        // 整个 IMGUI，任何再乘一次 Scale 的写法都会让字号被平方缩放（0.75 下 11px 只剩 6px）。
+        // 组件里不要各自再写一份 SF。
+        public static int FontSize(int baseSize)
         {
+            float scale = UIScale.Scale;
             int physPx = Mathf.RoundToInt(baseSize * scale);
             return Mathf.Max(8, Mathf.RoundToInt(physPx / scale));
         }
@@ -217,7 +225,7 @@ namespace SSNoir.IMGUI
             style.border = new RectOffset(borderWidth, borderWidth, borderWidth, borderWidth);
             style.alignment = TextAnchor.MiddleCenter;
             style.font = ChineseFont;
-            style.fontSize = SF(12, UIScale.Scale);
+            style.fontSize = FontSize(12);
             style.normal.textColor = Paper;
             style.hover.textColor = Paper;
             style.active.textColor = new Color(0.9f, 0.9f, 0.9f);

@@ -295,12 +295,12 @@ namespace SSNoir.Scripting
 
             if (!(list[0] is Symbol header) || header.AsString != "outcome")
             {
-                throw new InvalidOperationException($"Invalid {context}: expected procedure or (outcome title subtitle mode effect)");
+                throw new InvalidOperationException($"Invalid {context}: expected procedure or (outcome title mode effect)");
             }
 
-            if (list.Count != 5)
+            if (list.Count != 4)
             {
-                throw new InvalidOperationException($"Invalid {context}: outcome expects exactly 4 values after 'outcome (title subtitle mode effect), got {list.Count - 1}");
+                throw new InvalidOperationException($"Invalid {context}: outcome expects exactly 3 values after 'outcome (title mode effect), got {list.Count - 1}");
             }
 
             if (!(list[1] is string title))
@@ -308,12 +308,7 @@ namespace SSNoir.Scripting
                 throw new InvalidOperationException($"Invalid {context}: outcome title must be a string");
             }
 
-            if (!(list[2] is string subtitle))
-            {
-                throw new InvalidOperationException($"Invalid {context}: outcome subtitle must be a string");
-            }
-
-            if (!(list[3] is Symbol modeSym))
+            if (!(list[2] is Symbol modeSym))
             {
                 throw new InvalidOperationException($"Invalid {context}: outcome mode must be 'light or 'heavy");
             }
@@ -325,7 +320,7 @@ namespace SSNoir.Scripting
                 _ => throw new InvalidOperationException($"Invalid {context}: unknown outcome mode '{modeSym.AsString}', expected 'light or 'heavy")
             };
 
-            if (!(list[4] is Procedure effectProc))
+            if (!(list[3] is Procedure effectProc))
             {
                 throw new InvalidOperationException($"Invalid {context}: outcome effect must be a procedure");
             }
@@ -335,7 +330,6 @@ namespace SSNoir.Scripting
                 Presentation = new OutcomePresentation
                 {
                     Title = title,
-                    Subtitle = subtitle,
                     Mode = mode
                 },
                 Effect = () => effectProc.Call(new List<object>())

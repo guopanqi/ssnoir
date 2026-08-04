@@ -11,7 +11,7 @@
       (if (and (= stage 0) (>= world-day 8))
           (begin
             (set! stage 1)
-            (play-dialogue!
+            (play-remote-dialogue!
               (line "世界" "你沿着湖边走到长椅旁，一个穿着整齐、手里夹着保险宣传册的男人叫住了你。")
               (line "沃尔特" "沃尔特·芬奇。我替保险公司跑外勤。意外不会先敲门，保单至少会在事后出现。")
               (line "主角" "我暂时不打算买保险。")

@@ -71,7 +71,7 @@
         :disabled drank-today?
         :requires (list (req-item "酒" 1))
         :resolve (instant
-          (outcome "借酒松神" "一杯下肚，绷着的神经松了扣。明早的头痛，会再来讨账。"
+          (outcome "借酒松神"
             (lambda () (apply-drink-effect!))))))
 
     ;; 用药：在住所中上药休养，不占用行动骰。
@@ -83,7 +83,7 @@
         :disabled medicated-today?
         :requires (list (req-item "药品" 1))
         :resolve (instant
-          (outcome "上了药" "重新缠好绷带，伤口总算消停些。"
+          (outcome "上了药"
             (lambda ()
               (set! medicated-today? #t)
               (heal-party! 2))))))
@@ -92,7 +92,7 @@
       (action "看花"
         (list (req-die))
         (instant
-          (outcome "出神片刻" "白雏菊静静开着，不管窗外这座城多脏。你看了一会儿，胸口松了些。"
+          (outcome "出神片刻"
             (lambda () (restore-actor-composure! 'player 2))))))
 
     (define (rest-tags)
@@ -107,9 +107,6 @@
         :resolve (instant
           (outcome
             (if (in-hotel?) "睡了一夜" "安稳休息")
-            (if (in-hotel?)
-                "旅馆的床硬得像良心，可好歹遮风挡雨。"
-                "这是你自己的地方，门一关，城就锁在外头了。")
             (lambda ()
               (restore-actor-composure! 'player (if (in-hotel?) 1 2))
               (if (has-companion? 'joe) (restore-actor-composure! 'joe 1) #f)
@@ -121,7 +118,6 @@
         :tags (rest-tags)
         :resolve (instant
           (outcome "无处可去"
-                   "门从里头锁死了。你缩在墙根挨了一夜，寒气顺着衣领一路往骨头里钻——熬是熬过来了，只是一点没缓过来。"
             (lambda ()
               ;; 露宿不回复冷静，但也不再失血，免得把玩家推向失控/击穿健康的死亡循环。
               (end-turn!))))))
@@ -134,9 +130,6 @@
         :resolve (instant
           (let ((rent-due-after (+ rent-due rent-extend)))
             (outcome "交了房租"
-              (string-append "你交了 " (number->string rent-amount)
-                             " 金钱房租，租期延到 "
-                             (number->string rent-due-after) " 天。")
               (lambda ()
                 (set! rent-due rent-due-after)
                 (set! rent-due-max rent-due-after)
@@ -147,7 +140,7 @@
         :subtitle "自己的窗台才摆得下这点闲心；烦闷时可以坐着看一会儿"
         :requires (list (req-item "金钱" flower-price))
         :resolve (instant
-          (outcome "买了一盆花" "你买了一盆雏菊，摆上窗台，让这屋子有点活气。"
+          (outcome "买了一盆花"
             (lambda () (set! has-flower? #t))))))
 
     (define (node-buy-apartment)
@@ -155,7 +148,7 @@
         :subtitle "有个自己的家，不再交房租，也能睡得更安稳"
         :requires (list (req-item "金钱" 120))
         :resolve (instant
-          (outcome "签下了公寓" "你签下了公寓。往后不必再看旅馆老板那张脸了。"
+          (outcome "签下了公寓"
             (lambda ()
               (set! residence "公寓")
               (sync-asset!))))))
@@ -183,11 +176,13 @@
     (define (hotel-body)
       (if evicted?
           (append
+            (three-letters 'nodes-at "家")
             (list (observe-action "锁着的房门" "先把房租交了，或者干脆买下一处不用看人脸色的地方。")
                   (node-pay-rent))
             (upgrade-nodes)
             (list (node-sleep-at-door)))
           (append
+            (three-letters 'nodes-at "家")
             (list (node-living-room))
             (list (node-pay-rent))
             (upgrade-nodes)
@@ -195,6 +190,7 @@
 
     (define (owned-body)
       (append
+        (three-letters 'nodes-at "家")
         (list (node-living-room))
         (order-nodes)
         (upgrade-nodes)

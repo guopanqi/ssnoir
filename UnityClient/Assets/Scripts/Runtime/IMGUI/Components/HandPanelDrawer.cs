@@ -26,6 +26,9 @@ namespace SSNoir.IMGUI
         private const float LeftStartX   = 40f;
         private const float ClusterGap   = 28f;    // 两个行动者簇之间的间距
 
+        private const float BustHeight  = 190f;   // 立起来的半身像高度（主角；同伴略矮）
+        private const float BustOverlap = 26f;    // 半身像下缘压进数值行的深度
+
         private const float NameRowH   = 20f;
         private const float ComposureRowH = 20f;
         private const float VitalRowH  = 18f;
@@ -97,14 +100,32 @@ namespace SSNoir.IMGUI
 
             float diceY = baseline - TokenSize;
             float nameY = diceY - NameRowH - 4f;
-            float topY  = nameY;
+            float composureY = nameY - VitalRowH - 2f;
+            float healthY = isLead ? composureY - VitalRowH - 2f : composureY;
+            bool hasStatus = actor.ActiveActionSlotStatuses.Count > 0 || actor.PendingActionSlotStatuses.Count > 0;
+            float statusY = hasStatus ? healthY - 18f : healthY;
+            float topY = statusY;
+
+            // ── 半身像先落笔：人物从 HUD 里立起来，名字、条、骰子随后画上去压住它下缘，
+            // 像栏杆后面站着的人。不给它画框——一有边框就变回图标了。
+            var neon = NeonPortraitLibrary.Load(actor.Name);
+            if (neon != null)
+            {
+                float bustHeight = isLead ? BustHeight : BustHeight * 0.86f;
+                var uv = NeonPortraitLibrary.BustCrop;
+                float bustWidth = bustHeight * (uv.width / uv.height);
+                // 下缘故意压到冷静条那一行，让数值叠在人身上，而不是各占一块地。
+                var bust = new Rect(x - 6f, statusY - bustHeight + BustOverlap, bustWidth, bustHeight);
+                DrawNeonBust(bust, neon, uv);
+                topY = bust.y;
+            }
 
             // ── 名字（自由文字，直接落在场景上）
             // 只画名字。Role 是内部标识（protagonist / companion），不是给玩家看的职业。
             var nameStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 18,
+                fontSize = IMGUIStyles.FontSize(18),
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = IMGUIStyles.TextPrimary },
             };
@@ -112,28 +133,22 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(x, nameY, clusterW, NameRowH), actor.Name, nameStyle);
 
             // ── 每个行动者：名字线往上挂自己的冷静与骰池状态。
-            float composureY = nameY - VitalRowH - 2f;
             DrawComposureBar(x, composureY, 172f, actor.Composure);
-            topY = composureY;
             if (isLead)
             {
                 // 主角额外挂队伍级健康。
-                float healthY = composureY - VitalRowH - 2f;
                 DrawVitalBar(x, healthY, 172f, "健康", snapshot.Health, snapshot.MaxHealth, 0.75f, 0.40f);
-                topY = healthY;
             }
-            if (actor.ActiveActionSlotStatuses.Count > 0 || actor.PendingActionSlotStatuses.Count > 0)
+            if (hasStatus)
             {
                 var statusStyle = new GUIStyle(GUI.skin.label)
                 {
                     font = IMGUIStyles.ChineseFont,
-                    fontSize = 12,
+                    fontSize = IMGUIStyles.FontSize(12),
                     alignment = TextAnchor.MiddleLeft,
                     normal = { textColor = IMGUIStyles.OddsNeutral },
                 };
-                float statusY = topY - 18f;
                 GUI.Label(new Rect(x, statusY, 240f, 16f), DescribeSlotStatuses(actor), statusStyle);
-                topY = statusY;
             }
             clusterW = Mathf.Max(clusterW, 172f);
 
@@ -146,6 +161,45 @@ namespace SSNoir.IMGUI
 
             anchors?.RegisterActor(actor.Id, actor.Name, new Rect(x, topY, clusterW, baseline - topY));
             return clusterW;
+        }
+
+        // 立在 HUD 里的霓虹半身像。没有边框、没有底板——衬托靠人物背后那团椭圆暗晕，
+        // 它没有边界，所以人像是「从暗处走出来」而不是「贴在一块牌子上」。
+        // 刻意不做呼吸和闪烁：常驻 HUD 上的动画会一直勾眼睛，那是对白舞台该干的事。
+        private static void DrawNeonBust(Rect rect, Texture2D neon, Rect uv)
+        {
+            // 背后的暗晕：霓虹靠亮度对比活着，底必须压黑，否则贴在深蓝图纸上会糊。
+            var halo = NeonPortraitLibrary.RadialFalloff();
+            var glowArea = new Rect(
+                rect.center.x - rect.width * 1.05f,
+                rect.center.y - rect.height * 0.72f,
+                rect.width * 2.1f,
+                rect.height * 1.44f);
+            GUI.color = new Color(0.004f, 0.007f, 0.016f, 0.86f);
+            GUI.DrawTexture(glowArea, halo);
+            var core = new Rect(
+                rect.center.x - rect.width * 0.62f,
+                rect.center.y - rect.height * 0.52f,
+                rect.width * 1.24f,
+                rect.height * 1.04f);
+            GUI.color = new Color(0.004f, 0.007f, 0.016f, 0.80f);
+            GUI.DrawTexture(core, halo);
+
+            // 溢光一层：贴图本身带辉光，稍微放大压淡地垫一遍就够，不必像舞台那样叠三层。
+            var bleed = new Rect(rect.x - 4f, rect.y - 4f, rect.width + 8f, rect.height + 8f);
+            GUI.color = new Color(0.30f, 0.58f, 1f, 0.18f);
+            GUI.DrawTextureWithTexCoords(bleed, neon, uv, true);
+            // 灯管本体叠两遍，理由同对白舞台：Alpha From Grayscale 下蓝管偏透。
+            GUI.color = Color.white;
+            GUI.DrawTextureWithTexCoords(rect, neon, uv, true);
+            GUI.color = new Color(1f, 1f, 1f, 0.55f);
+            GUI.DrawTextureWithTexCoords(rect, neon, uv, true);
+
+            // 腰部是硬切口，用一段竖直渐变把它抹回暗处，不能让灯管断得那么直。
+            var hem = new Rect(rect.x - 8f, rect.yMax - rect.height * 0.30f, rect.width + 16f, rect.height * 0.30f);
+            GUI.color = new Color(0.004f, 0.007f, 0.016f, 0.96f);
+            GUI.DrawTexture(hem, NeonPortraitLibrary.VerticalFade());
+            GUI.color = Color.white;
         }
 
         private static string DescribeSlotStatuses(ActorSnapshot actor)
@@ -176,7 +230,7 @@ namespace SSNoir.IMGUI
             var labelStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 13,
+                fontSize = IMGUIStyles.FontSize(13),
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
@@ -211,7 +265,7 @@ namespace SSNoir.IMGUI
             var valStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 13,
+                fontSize = IMGUIStyles.FontSize(13),
                 alignment = TextAnchor.MiddleRight,
                 normal = { textColor = fill },
             };
@@ -236,7 +290,7 @@ namespace SSNoir.IMGUI
             var labelStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 13,
+                fontSize = IMGUIStyles.FontSize(13),
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
@@ -268,7 +322,7 @@ namespace SSNoir.IMGUI
                 GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
                 GUI.color = Color.white;
                 IMGUIStyles.DrawOutline(dieRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
-                var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = 22 };
+                var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = IMGUIStyles.FontSize(22) };
                 dimStyle.normal.textColor = Paper25;
                 GUI.Label(dieRect, val.ToString(), dimStyle);
                 return;
@@ -312,7 +366,7 @@ namespace SSNoir.IMGUI
 
             var bigStyle = new GUIStyle(IMGUIStyles.SlotLabel)
             {
-                fontSize = 24,
+                fontSize = IMGUIStyles.FontSize(24),
                 alignment = hasSmall ? TextAnchor.UpperCenter : TextAnchor.MiddleCenter,
                 normal = { textColor = content }
             };
@@ -324,7 +378,7 @@ namespace SSNoir.IMGUI
             {
                 var smallStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
-                    fontSize = 13,
+                    fontSize = IMGUIStyles.FontSize(13),
                     alignment = TextAnchor.MiddleCenter,
                     normal = { textColor = disabled ? DisabledResourceText : (selected ? IMGUIStyles.Gold : IMGUIStyles.Paper) }
                 };
@@ -339,7 +393,7 @@ namespace SSNoir.IMGUI
             var labelStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 13,
+                fontSize = IMGUIStyles.FontSize(13),
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
@@ -361,7 +415,7 @@ namespace SSNoir.IMGUI
             var valStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 13,
+                fontSize = IMGUIStyles.FontSize(13),
                 alignment = TextAnchor.MiddleRight,
                 normal = { textColor = fill },
             };
@@ -379,7 +433,7 @@ namespace SSNoir.IMGUI
             float functionY = baseline - functionH;
             var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel)
             {
-                fontSize = 17,
+                fontSize = IMGUIStyles.FontSize(17),
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.82f) }
             };
             IMGUIStyles.ApplyStrongFont(sectionStyle);
@@ -460,7 +514,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawOutline(rect, hover ? 2f : 1f, border);
             var style = new GUIStyle(IMGUIStyles.ExecuteLabel)
             {
-                fontSize = 16,
+                fontSize = IMGUIStyles.FontSize(16),
                 normal = { textColor = disabled ? DisabledResourceText : IMGUIStyles.Paper }
             };
             GUI.Label(rect, label, style);

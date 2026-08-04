@@ -22,30 +22,22 @@ namespace SSNoir.IMGUI
 
         public static bool IsOpen => _isOpen;
 
-        public static (Rect ToggleRect, Rect PanelRect) GetRects()
+        public static (Rect ToggleRect, Rect PanelRect) GetRects(TopHudLayout topHud)
         {
-            float btnW = 70f;
-            float btnH = 32f;
-            float btnX = UIScale.VW - btnW - 10f;
-            float btnY = 30f;
-            var toggleRect = new Rect(btnX, btnY, btnW, btnH);
+            var toggleRect = topHud.DebugToggle;
 
             float itemH = 26f;
             float panelW = 260f;
-            float panelX = btnX + btnW - panelW;
-            float panelY = btnY + btnH + 4f;
+            float panelX = toggleRect.xMax - panelW;
+            float panelY = toggleRect.yMax + 4f;
             float slotsHeight = 20f + SaveManager.SlotCount * 28f + 14f;
             float panelH = 8f + slotsHeight + _scenes.Count * itemH + 8f;
             return (toggleRect, new Rect(panelX, panelY, panelW, panelH));
         }
 
-        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui, TopHudLayout topHud)
         {
-            var (toggleRect, panelRect) = GetRects();
-            float btnX = toggleRect.x;
-            float btnY = toggleRect.y;
-            float btnW = toggleRect.width;
-            float btnH = toggleRect.height;
+            var (toggleRect, panelRect) = GetRects(topHud);
 
             // Toggle button
             Color toggleBg = _isOpen
@@ -62,7 +54,7 @@ namespace SSNoir.IMGUI
             var labelStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = 13,
+                fontSize = IMGUIStyles.FontSize(13),
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = _isOpen ? IMGUIStyles.Gold : IMGUIStyles.TextPrimary }
             };
@@ -93,7 +85,7 @@ namespace SSNoir.IMGUI
 
             // Slots Section
             float curY = panelY + 8f;
-            var mutedStyle = new GUIStyle(labelStyle) { fontSize = 11,
+            var mutedStyle = new GUIStyle(labelStyle) { fontSize = IMGUIStyles.FontSize(11),
                 normal = { textColor = IMGUIStyles.TextDisabled } };
             GUI.Label(new Rect(panelX + 8, curY + 2f, panelW, 18f), "存档管理", mutedStyle);
             curY += 20f;

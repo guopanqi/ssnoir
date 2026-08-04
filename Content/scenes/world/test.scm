@@ -13,6 +13,7 @@
                  (container "调试-物品"
                    (list
                      (instant-action "+50 金钱" (lambda () (add-item! "金钱" 50)))
+                     (instant-action "+500 金钱" (lambda () (add-item! "金钱" 500)))
                      (instant-action "+1 情报"  (lambda () (add-item! "情报" 1)))
                      (instant-action "+1 药品"  (lambda () (add-item! "药品" 1)))
                      (instant-action "+1 酒"    (lambda () (add-item! "酒" 1)))))
@@ -41,24 +42,7 @@
                      (instant-action "乔好感 +2" (lambda () (joe 'debug-favor! 2)))))
                  (container "调试-乔养伤"
                    (list
-                     (instant-action "触发乔受伤" (lambda () (joe 'debug-injure!)))))
-                 (container "调试-第一章"
-                   (list
-                     (instant-action "拨到小节一(已受托)"
-                       (lambda () (three-letters 'debug-jump! 1)))
-                     (instant-action "拨到小节二(老街已开)"
-                       (lambda () (three-letters 'debug-jump! 2)))
-                     (instant-action "拨到平静期(剧院已开)"
-                       (lambda () (three-letters 'debug-jump! 3)))
-                     (instant-action "拨到小节三(第三封信已到)"
-                       (lambda () (three-letters 'debug-jump! 4)))
-                     (instant-action "码头准备拨满"
-                       (lambda () (three-letters 'debug-set-prep! 6)))
-                     (instant-action "底片进度拨满"
-                       (lambda () (three-letters 'debug-locate-negatives!)))
-                     (instant-action "五项准备全做上"
-                       (lambda () (three-letters 'debug-all-prep!)))
-                     (instant-action "+500 金钱" (lambda () (add-item! "金钱" 500)))))))))
+                     (instant-action "触发乔受伤" (lambda () (joe 'debug-injure!)))))))))
 
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)

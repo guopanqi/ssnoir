@@ -17,6 +17,7 @@ namespace SSNoir.IMGUI
         private BanterPlayer _banterPlayer = null!;
         private ConversationPlayer _conversationPlayer = null!;
         private readonly DialogueAnchors _dialogueAnchors = new DialogueAnchors();
+        private bool _warnedAboutCurrentDialogueRemoteFallback;
         private string? _activeAnimationTag;
         private float _animationTimer;
 
@@ -78,6 +79,8 @@ namespace SSNoir.IMGUI
 
         private void StartNextImmediateDialogue(SSNoir.Core.DialogueSequence sequence)
         {
+            // 动作外即时对话仍以"此刻是否在场"校验说话人；普通 dialogue 不在场时会报警。
+            DialogueStageDrawer.BeginConversation();
             _conversationPlayer.Start(sequence, () =>
             {
                 if (_pendingImmediateDialogues.Count > 0)
@@ -87,7 +90,7 @@ namespace SSNoir.IMGUI
                 }
 
                 _banterPlayer.Resume();
-            }, allowsRemoteParticipants: true);
+            });
         }
 
         public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null || _conversationPlayer.IsActive || _activeAnimationTag != null;
@@ -129,6 +132,9 @@ namespace SSNoir.IMGUI
                         return;
                     case BlockingStoryStepKind.Dialogue:
                         _banterPlayer.Suspend();   // 对话聚焦,杂音让位
+                        // 动作内先尝试锚定动作前画面；普通对话失败时由绘制层报警并降级为场外卡，
+                        // 显式 remote 则直接允许场外说话人且不报警。
+                        DialogueStageDrawer.BeginConversation();
                         _conversationPlayer.Start(step.Dialogue!, () =>
                         {
                             _banterPlayer.Resume();
@@ -221,6 +227,8 @@ namespace SSNoir.IMGUI
             _animationTimer = 0f;
             _banterPlayer.Reset();
             _conversationPlayer.Reset();
+            DialogueStageDrawer.BeginConversation();
+            _warnedAboutCurrentDialogueRemoteFallback = false;
             _completionReport = null;
             _completionActionName = string.Empty;
             _completionDone = null;
@@ -280,6 +288,12 @@ namespace SSNoir.IMGUI
 
             // Initialize styles if needed
             IMGUIStyles.Init(_gameManager.ChineseFont, _gameManager.SemiboldFont);
+            if (_gameManager.DisplayedSnapshot.Failure.IsFailed)
+            {
+                DrawFailureOverlay(Event.current.mousePosition);
+                PointerOverUI = true;
+                return;
+            }
             SyncNavigationScrollState();
 
             Vector2 mouse = Event.current.mousePosition;
@@ -289,10 +303,11 @@ namespace SSNoir.IMGUI
             // Reset the pointer-over-UI accumulator; widgets set it via CanHover
             // during this pass, and we persist the result at the end of OnGUI.
             IMGUIInteractionContext.ResetPointerOverUi();
+            TopHudLayout topHud = TopHudLayout.Create();
 
             if (DebugPanelDrawer.IsOpen && !_isGrowthPanelOpen)
             {
-                var (_, debugPanelRect) = DebugPanelDrawer.GetRects();
+                var (_, debugPanelRect) = DebugPanelDrawer.GetRects(topHud);
                 _windowStack.Register(new IMGUIWindowBlocker
                 {
                     Id = IMGUIWindowId.DebugPanel,
@@ -355,12 +370,18 @@ namespace SSNoir.IMGUI
             _windowStack.Update();
             _dialogueAnchors.Clear();
 
+            // 你正身处其中的那些容器（导航栈）也是在场的人/地点，只是没有卡——进入「夜莺」
+            // 之后她本人依然能开口。锚在面包屑上（气泡会翻到它下方），先登记，这样同名的
+            // 真实卡片随后覆盖它，卡片优先。
+            foreach (var container in _gameManager.NavigationStack)
+                _dialogueAnchors.RegisterNode(container.Name, new Rect(40f, 30f, 360f, 44f));
+
             bool baseLocked = IsInputLocked || IsAnimationPlaying;
             var worldUi = _windowStack.MakeContext(IMGUIWindowLayer.World, baseLocked);
             var panelUi = _windowStack.MakeContext(IMGUIWindowLayer.Panel, baseLocked);
 
             // ── Navigation Bar ──
-            NavigationDrawer.Draw(_gameManager, worldUi);
+            NavigationDrawer.Draw(_gameManager, worldUi, topHud);
             // 展开的关系进展图是显式的 HUD 浮层；锁住其后的世界控件，避免点击穿透。
             if (NavigationDrawer.IsRelationExpanded)
                 worldUi = _windowStack.MakeContext(IMGUIWindowLayer.World, true);
@@ -382,12 +403,12 @@ namespace SSNoir.IMGUI
             HandPanelDrawer.Draw(_gameManager, worldUi, _dialogueAnchors);
 
             // ── Growth / Team Toggle Button ──
-            DrawGrowthToggleButton(worldUi);
+            DrawGrowthToggleButton(worldUi, topHud.GrowthToggle);
 
             // ── Debug Panel (Save/Load + Scene Switch) ──
             if (!_isGrowthPanelOpen)
             {
-                DebugPanelDrawer.Draw(_gameManager, panelUi);
+                DebugPanelDrawer.Draw(_gameManager, panelUi, topHud);
             }
 
             // 大型关系进展图最后绘制在世界控件之上。
@@ -400,7 +421,6 @@ namespace SSNoir.IMGUI
             DrawBanterOverlay();
             DrawHeavyOutcomeOverlay();
             DrawSpotlightOverlay();
-            DrawConversationOverlay();
             DrawAnimationOverlay();
             DrawNarrationOverlay();
 
@@ -416,6 +436,9 @@ namespace SSNoir.IMGUI
 
             // ── Animation Modal ──
             _animator.DrawModal();
+
+            // 阻塞对白必须盖住成长面板和其余可交互 UI；底层同时由 IsInputLocked 显式禁用。
+            DrawConversationOverlay();
 
             // ── Stage Transition Flash ──
             var stageCtrl = _gameManager.StageController;
@@ -440,6 +463,60 @@ namespace SSNoir.IMGUI
             }
         }
 
+        private void DrawFailureOverlay(Vector2 mouse)
+        {
+            var failure = _gameManager.DisplayedSnapshot.Failure;
+            var screen = new Rect(0f, 0f, UIScale.VW, UIScale.VH);
+            GUI.DrawTexture(screen, Texture2D.whiteTexture, ScaleMode.StretchToFill, false, 0f,
+                new Color(0.02f, 0.03f, 0.05f, 0.92f), 0f, 0f);
+
+            const float cardWidth = 560f;
+            const float cardHeight = 360f;
+            var card = new Rect((UIScale.VW - cardWidth) * 0.5f, (UIScale.VH - cardHeight) * 0.5f,
+                cardWidth, cardHeight);
+            IMGUIStyles.DrawShadow(card, new Vector2(6f, 7f), 0.55f);
+            GUI.DrawTexture(card, Texture2D.whiteTexture, ScaleMode.StretchToFill, false, 0f,
+                IMGUIStyles.Paper, 0f, 0f);
+            IMGUIStyles.DrawOutline(card, 1f, IMGUIStyles.PaperInk);
+
+            var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = IMGUIStyles.FontSize(34),
+                normal = { textColor = IMGUIStyles.SealRed }
+            };
+            var descriptionStyle = new GUIStyle(IMGUIStyles.StatusLabel)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                wordWrap = true,
+                fontSize = IMGUIStyles.FontSize(18),
+                normal = { textColor = IMGUIStyles.PaperInk }
+            };
+            GUI.Label(new Rect(card.x + 44f, card.y + 60f, card.width - 88f, 52f), failure.Title, titleStyle);
+            GUI.Label(new Rect(card.x + 64f, card.y + 132f, card.width - 128f, 56f), failure.Description, descriptionStyle);
+            IMGUIStyles.DrawLine(new Vector2(card.x + 64f, card.y + 212f), new Vector2(card.xMax - 64f, card.y + 212f),
+                new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.35f), 1f);
+
+            var ui = new IMGUIInteractionContext(mouse, isLocked: false);
+            var restart = new Rect(card.x + 64f, card.y + 244f, card.width - 128f, 42f);
+            var quit = new Rect(card.x + 64f, card.y + 296f, card.width - 128f, 34f);
+            if (IMGUIButton.Draw(restart, "重新开始", ui,
+                    IMGUIStyles.PaperInk, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.10f),
+                    IMGUIStyles.ExecuteLabel))
+            {
+                _gameManager.RestartGame();
+                Event.current.Use();
+            }
+            else if (IMGUIButton.Draw(quit, "退出游戏", ui,
+                         new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.50f),
+                         new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.06f),
+                         IMGUIStyles.StatusLabel))
+            {
+                Application.Quit();
+                Event.current.Use();
+            }
+        }
+
         private void DrawCards(IMGUIInteractionContext ui)
         {
             var cam = Camera.main;
@@ -452,12 +529,17 @@ namespace SSNoir.IMGUI
             var initialProjected = new List<(GameNode node, Vector3 screenPos, float distance)>();
             var projectedResidues = new List<(CardPresentationResidue residue, Vector3 screenPos, float distance)>();
             var gridNodes = new List<GameNode>();
+            var gridResidues = new List<CardPresentationResidue>();
+            var importantBeacons = new List<ImportantNodeBeacon>();
+            var currentNodeNames = new HashSet<string>(nodes.Select(node => node.Name), StringComparer.OrdinalIgnoreCase);
+            var restBlockers = _gameManager.DisplayedSnapshot.RestBlockers;
 
             foreach (var node in nodes)
             {
                 if (!string.IsNullOrEmpty(focusedName) && node.Name != focusedName)
                     continue;
 
+                var containedBlocker = RestBlockerPresentation.FindContained(node, restBlockers);
                 var anchor = _gameManager.SceneDirectory?.GetAnchor(node.Name);
                 if (anchor != null)
                 {
@@ -474,6 +556,13 @@ namespace SSNoir.IMGUI
                         var screenPos = cam.WorldToScreenPoint(anchor.transform.position);
                         initialProjected.Add((node, screenPos, screenPos.z)); // screenPos is actual screen pixels
                     }
+                    else if (containedBlocker != null)
+                    {
+                        importantBeacons.Add(new ImportantNodeBeacon(
+                            node.Name,
+                            containedBlocker.Reason,
+                            ViewportDirection(viewPos)));
+                    }
                     // Nodes with anchors panned out of view are not drawn (neither projected nor in fallback grid)
                 }
                 else
@@ -482,17 +571,23 @@ namespace SSNoir.IMGUI
                 }
             }
 
-            // 已从新快照消失、但原本有世界锚点的行动，继续占据同一套投射布局。
-            // 它只是不再可交互，并以 SourceNode 作为结果附件的宿主。
-            var visibleNames = new HashSet<string>(initialProjected.Select(x => x.node.Name), StringComparer.OrdinalIgnoreCase);
+            // residue 只有三个互斥归属：
+            // 1. 宿主节点仍在当前快照：由节点卡自己读取并绘制 residue；
+            // 2. 宿主已消失但仍有世界锚点：保留在世界投射布局，出镜时随世界卡一起隐藏；
+            // 3. 宿主已消失且没有世界锚点：才进入网格兜底。
+            // 不能用“本帧有没有画出来”判断归属，否则现存投射卡会多出网格副本，
+            // 有锚点的结果卡也会在相机转开时突然跳进网格。
             foreach (var pair in _cardResidues)
             {
-                if (visibleNames.Contains(pair.Key))
+                if (currentNodeNames.Contains(pair.Key))
                     continue;
 
                 var anchor = _gameManager.SceneDirectory?.GetAnchor(pair.Key);
                 if (anchor == null)
+                {
+                    gridResidues.Add(pair.Value);
                     continue;
+                }
 
                 var viewPos = cam.WorldToViewportPoint(anchor.transform.position);
                 const float padding = 0.05f;
@@ -530,7 +625,17 @@ namespace SSNoir.IMGUI
 
                 // 地点卡即使信息少也保持偏方的体量（更有存在感、不发「融」），且高度足以容下悬浮建筑线稿。
                 float cardWidth = focused ? 430f : (isLocation ? 180f : 340f);
-                float cardHeight = focused ? 320f : (isLocation ? 168f : 190f);
+                float contentHeight = CardDrawer.MeasureCardHeight(
+                    item.node,
+                    CardDrawer.Classify(item.node, anchored: true),
+                    cardWidth,
+                    _gameManager.DisplayedSnapshot.Actors);
+                // 聚焦卡放大是「凑近看」，只抬下限，不再把内容压回一个固定高度。
+                float cardHeight = focused ? Mathf.Max(320f, contentHeight) : contentHeight;
+                float attachmentHeight = AttachmentHeightForNode(item.node, spacious: true);
+                float attachmentWidth = attachmentHeight > 0f
+                    ? ActionNodeDrawer.AttachmentWidth(cardWidth, spacious: true)
+                    : cardWidth;
 
                 // Default target center position (centered horizontally above 3D anchor point)
                 Vector2 targetCenter = new Vector2(anchorX, anchorY - cardHeight / 2f - 40f);
@@ -542,7 +647,16 @@ namespace SSNoir.IMGUI
                     _cardCenters[item.node.Name] = currentCenter;
                 }
 
-                layouts.Add(new ProjectedCardLayout(item.node, new Vector2(anchorX, anchorY), item.distance, targetCenter, currentCenter, cardWidth, cardHeight));
+                layouts.Add(new ProjectedCardLayout(
+                    item.node,
+                    new Vector2(anchorX, anchorY),
+                    item.distance,
+                    targetCenter,
+                    currentCenter,
+                    cardWidth,
+                    cardHeight,
+                    attachmentWidth,
+                    attachmentHeight));
             }
 
             foreach (var item in projectedResidues)
@@ -550,6 +664,8 @@ namespace SSNoir.IMGUI
                 var virtualAnchor = UIScale.WorldPointToVirtual(item.screenPos);
                 const float cardWidth = 340f;
                 const float cardHeight = 190f;
+                float attachmentWidth = ActionNodeDrawer.AttachmentWidth(cardWidth, spacious: true);
+                float attachmentHeight = ActionNodeDrawer.ResidueAttachmentHeight(item.residue, spacious: true);
                 Vector2 targetCenter = new Vector2(virtualAnchor.x, virtualAnchor.y - cardHeight / 2f - 40f);
                 if (!_cardCenters.TryGetValue(item.residue.AnchorNodeName, out var currentCenter))
                 {
@@ -564,7 +680,9 @@ namespace SSNoir.IMGUI
                     targetCenter,
                     currentCenter,
                     cardWidth,
-                    cardHeight));
+                    cardHeight,
+                    attachmentWidth,
+                    attachmentHeight));
             }
 
             // Calculate mutual repulsion forces for overlapping cards
@@ -575,10 +693,11 @@ namespace SSNoir.IMGUI
                     var a = layouts[i];
                     var b = layouts[j];
 
-                    if (a.Rect.Overlaps(b.Rect))
+                    if (a.FootprintRect.Overlaps(b.FootprintRect))
                     {
                         // Calculate overlap on Y axis
-                        float overlapY = Mathf.Min(a.Rect.yMax, b.Rect.yMax) - Mathf.Max(a.Rect.yMin, b.Rect.yMin);
+                        float overlapY = Mathf.Min(a.FootprintRect.yMax, b.FootprintRect.yMax)
+                            - Mathf.Max(a.FootprintRect.yMin, b.FootprintRect.yMin);
                         if (overlapY > 0)
                         {
                             // A continuous push force proportional to overlap to eliminate jitter/oscillations
@@ -607,50 +726,161 @@ namespace SSNoir.IMGUI
                 Vector2 nextCenter = layout.CurrentCenter + attraction + layout.RepulsionForce;
 
                 // Create tentative rect and clamp to safe boundaries
-                Rect nextRect = new Rect(nextCenter.x - layout.Width / 2f, nextCenter.y - layout.Height / 2f, layout.Width, layout.Height);
-                nextRect = ClampRect(nextRect, layout.Width, layout.Height);
+                Rect nextFootprint = new Rect(
+                    nextCenter.x - layout.FootprintWidth / 2f,
+                    nextCenter.y - layout.Height / 2f,
+                    layout.FootprintWidth,
+                    layout.Height + layout.AttachmentHeight);
+                nextFootprint = ClampRect(nextFootprint, layout.FootprintWidth, layout.Height + layout.AttachmentHeight);
 
                 // Update current layout state and persistent cache
-                layout.CurrentCenter = nextRect.center;
+                layout.CurrentCenter = new Vector2(nextFootprint.center.x, nextFootprint.y + layout.Height / 2f);
                 _cardCenters[layout.Key] = layout.CurrentCenter;
             }
 
             // Draw projected cards (sorted by distance, far to near)
             layouts.Sort((a, b) => b.Distance.CompareTo(a.Distance));
+
+            // 命中归属：卡片是画家算法——投射卡按远→近画，网格卡再盖在最上面。而 IMGUI
+            // 的点击是「先处理者 Event.Use() 吃掉」，顺序正好相反：不先解析一遍，重叠区域
+            // 就会被画在最底下的那张卡抢走点击。这里先按绘制顺序挑出最上层那张，其余一律
+            // 标记为遮挡——遮挡只吞命中与悬停，不改变卡片的可用/禁用外观。
+            ProjectedCardLayout? hitOwner = null;
+            if (!MouseOverGridCard(gridNodes, gridResidues, ui.Mouse))
+            {
+                for (int i = 0; i < layouts.Count; i++)
+                {
+                    if (layouts[i].FootprintRect.Contains(ui.Mouse))
+                        hitOwner = layouts[i];
+                }
+            }
+
             foreach (var layout in layouts)
             {
+                var cardUi = ReferenceEquals(layout, hitOwner) ? ui : ui.Occluded();
                 if (layout.Residue != null)
-                    DrawProjectedResidueCard(layout.Residue, layout.Rect, layout.AnchorPos, ui);
+                    DrawProjectedResidueCard(layout.Residue, layout.Rect, layout.AnchorPos, cardUi);
                 else
-                    DrawNodeCard(layout.Node!, layout.Rect, layout.AnchorPos, ui);
+                    DrawNodeCard(layout.Node!, layout.Rect, layout.AnchorPos, cardUi);
             }
 
-            // Draw grid cards below
-            if (gridNodes.Count > 0 || _cardResidues.Count > 0)
+            // 网格卡最后绘制，因此视觉上压在世界投射卡之上。
+            if (gridNodes.Count > 0 || gridResidues.Count > 0)
             {
-                DrawCardsGrid(gridNodes, ui, new HashSet<string>(projectedResidues.Select(x => x.residue.AnchorNodeName), StringComparer.OrdinalIgnoreCase));
+                DrawCardsGrid(gridNodes, gridResidues, ui);
             }
+
+            string? beaconTarget = ImportantNodeBeaconDrawer.Draw(importantBeacons, ui);
+            if (beaconTarget != null)
+                _gameManager.CameraManager.NavigateToNode(beaconTarget);
         }
 
-        private void DrawCardsGrid(List<GameNode> nodes, IMGUIInteractionContext ui, ISet<string> projectedResidueNames)
+        private static Vector2 ViewportDirection(Vector3 viewportPosition)
         {
-            var visibleNodes = nodes.ToList();
-            float cardWidth = 340f;
-            float cardHeight = 190f;
-            float spacing = 20f;
-            float startX = 40f;
-            float startY = 140f;
-            int cardsPerRow = Mathf.Max(1, (int)((UIScale.VW - startX * 2) / (cardWidth + spacing)));
-            var visibleNames = new HashSet<string>(visibleNodes.Select(n => n.Name), StringComparer.OrdinalIgnoreCase);
-            var orphanResidues = _cardResidues
-                .Where(pair => !visibleNames.Contains(pair.Key) && !projectedResidueNames.Contains(pair.Key))
-                .Select(pair => pair.Value)
-                .ToList();
-            int totalCards = visibleNodes.Count + orphanResidues.Count;
-            int rowCount = totalCards == 0 ? 0 : (totalCards + cardsPerRow - 1) / cardsPerRow;
-            float contentHeight = rowCount == 0 ? 0f : rowCount * cardHeight + Mathf.Max(0, rowCount - 1) * spacing;
-            float viewportBottom = UIScale.VH - 175f;
-            var viewport = new Rect(0f, startY, UIScale.VW, Mathf.Max(0f, viewportBottom - startY));
+            var direction = new Vector2(viewportPosition.x - 0.5f, 0.5f - viewportPosition.y);
+            if (viewportPosition.z < 0f)
+                direction = -direction;
+            return direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.up;
+        }
+
+        // 网格卡的版面：位置只由序号、屏幕尺寸和滚动量决定，所以命中解析和实际绘制
+        // 共用这几个函数，不各算一遍。返回的是视口内的局部坐标。
+        private const float GridCardWidth = 340f;
+        // 残留（节点已消失、只剩结算结果的宿主卡）没有内容可量，保留一个固定的小盒子。
+        private const float GridResidueCardHeight = 150f;
+        private const float GridSpacing = 20f;
+        private const float GridStartX = 40f;
+        private const float GridStartY = 140f;
+
+        private static int GridCardsPerRow()
+        {
+            return Mathf.Max(1, (int)((UIScale.VW - GridStartX * 2) / (GridCardWidth + GridSpacing)));
+        }
+
+        private static Rect GridViewport()
+        {
+            return new Rect(0f, GridStartY, UIScale.VW, Mathf.Max(0f, (UIScale.VH - 175f) - GridStartY));
+        }
+
+        private float AttachmentHeightForNode(GameNode node, bool spacious)
+        {
+            bool isLocalRoll = _animator.IsPlaying
+                && !_animator.UsesModal
+                && string.Equals(_animator.ActionName, node.Name, StringComparison.OrdinalIgnoreCase);
+            if (isLocalRoll)
+                return ActionNodeDrawer.LocalRollAttachmentHeight(spacious);
+            if (_cardResidues.TryGetValue(node.Name, out var residue))
+                return ActionNodeDrawer.ResidueAttachmentHeight(residue, spacious);
+            return 0f;
+        }
+
+        private List<GridCardLayout> BuildGridCardLayouts(
+            IReadOnlyList<GameNode> nodes,
+            IReadOnlyList<CardPresentationResidue> residues,
+            float scrollOffset,
+            out float contentHeight)
+        {
+            int columnCount = GridCardsPerRow();
+            int totalCards = nodes.Count + residues.Count;
+            var columnHeights = new float[columnCount];
+            var layouts = new List<GridCardLayout>(totalCards);
+
+            for (int i = 0; i < totalCards; i++)
+            {
+                int column = i % columnCount;
+                float attachmentHeight = i < nodes.Count
+                    ? AttachmentHeightForNode(nodes[i], spacious: false)
+                    : ActionNodeDrawer.ResidueAttachmentHeight(residues[i - nodes.Count], spacious: false);
+                // 每张网格卡按自身内容定高（瀑布流本来就允许列内高度不齐）。以前这里是固定
+                // 190：副标题长一点、时钟徽章多一个，内容就只能在同一个盒子里互相挤。
+                float cardHeight = i < nodes.Count
+                    ? CardDrawer.MeasureCardHeight(
+                        nodes[i],
+                        CardDrawer.Classify(nodes[i], anchored: false),
+                        GridCardWidth,
+                        _gameManager.DisplayedSnapshot.Actors)
+                    : GridResidueCardHeight;
+                var cardRect = new Rect(
+                    GridStartX + column * (GridCardWidth + GridSpacing),
+                    columnHeights[column] - scrollOffset,
+                    GridCardWidth,
+                    cardHeight);
+                layouts.Add(new GridCardLayout(cardRect, attachmentHeight));
+                columnHeights[column] += cardHeight + attachmentHeight + GridSpacing;
+            }
+
+            contentHeight = totalCards == 0
+                ? 0f
+                : Mathf.Max(0f, columnHeights.Max() - GridSpacing);
+            return layouts;
+        }
+
+        // 鼠标是否落在某张可见网格卡上（视口裁剪之外的部分不算）。
+        private bool MouseOverGridCard(
+            IReadOnlyList<GameNode> nodes,
+            IReadOnlyList<CardPresentationResidue> residues,
+            Vector2 mouse)
+        {
+            var viewport = GridViewport();
+            if (nodes.Count + residues.Count <= 0 || !viewport.Contains(mouse))
+                return false;
+
+            var local = mouse - new Vector2(viewport.x, viewport.y);
+            var layouts = BuildGridCardLayouts(nodes, residues, _gridScrollOffset, out _);
+            foreach (var layout in layouts)
+            {
+                if (layout.FootprintRect.Contains(local))
+                    return true;
+            }
+            return false;
+        }
+
+        private void DrawCardsGrid(List<GameNode> nodes, List<CardPresentationResidue> gridResidues, IMGUIInteractionContext ui)
+        {
+            var visibleNodes = nodes;
+            int totalCards = visibleNodes.Count + gridResidues.Count;
+            BuildGridCardLayouts(visibleNodes, gridResidues, 0f, out float contentHeight);
+            var viewport = GridViewport();
             float maxScroll = Mathf.Max(0f, contentHeight - viewport.height);
 
             // ContainsMouse (not CanHover): this viewport spans the whole play area
@@ -663,25 +893,23 @@ namespace SSNoir.IMGUI
                 Event.current.Use();
             }
             _gridScrollOffset = Mathf.Clamp(_gridScrollOffset, 0f, maxScroll);
+            var layouts = BuildGridCardLayouts(visibleNodes, gridResidues, _gridScrollOffset, out _);
 
             GUI.BeginGroup(viewport);
             var localUi = new IMGUIInteractionContext(ui.Mouse - new Vector2(viewport.x, viewport.y), ui.IsLocked);
 
             for (int i = 0; i < totalCards; i++)
             {
-                int row = i / cardsPerRow;
-                int col = i % cardsPerRow;
-                float x = startX + col * (cardWidth + spacing);
-                float y = row * (cardHeight + spacing) - _gridScrollOffset;
-                if (y > viewport.height || y + cardHeight < 0f)
+                var layout = layouts[i];
+                var cardRect = layout.CardRect;
+                if (layout.FootprintRect.y > viewport.height || layout.FootprintRect.yMax < 0f)
                 {
                     continue;
                 }
-                var cardRect = new Rect(x, y, cardWidth, cardHeight);
 
                 if (i >= visibleNodes.Count)
                 {
-                    DrawGridResidueCard(cardRect, orphanResidues[i - visibleNodes.Count], localUi);
+                    DrawGridResidueCard(cardRect, gridResidues[i - visibleNodes.Count], localUi);
                     continue;
                 }
 
@@ -708,6 +936,8 @@ namespace SSNoir.IMGUI
                     && !_animator.UsesModal
                     && string.Equals(_animator.ActionName, node.Name, StringComparison.OrdinalIgnoreCase);
                 _cardResidues.TryGetValue(node.Name, out var residue);
+                bool isRestBlockerTarget = RestBlockerPresentation.IsTarget(node, _gameManager.DisplayedSnapshot.RestBlockers);
+                bool containsRestBlockerTarget = RestBlockerPresentation.ContainsTarget(node, _gameManager.DisplayedSnapshot.RestBlockers);
 
                 var interaction = CardDrawer.DrawCard(cardRect, node, CardDrawer.Classify(node, anchored: false), isHovered, isFlipped, focused,
                     slotted, node.Clocks, backText, localUi, _gameManager,
@@ -716,7 +946,9 @@ namespace SSNoir.IMGUI
                     _animator.Phase,
                     _animator.DisplayedDieValue,
                     _animator.DisplayScale,
-                    residue);
+                    residue,
+                    isRestBlockerTarget,
+                    containsRestBlockerTarget);
 
                 if (interaction.CardClicked)
                 {
@@ -744,6 +976,23 @@ namespace SSNoir.IMGUI
 
             GUI.EndGroup();
             DrawGridScrollbar(viewport, contentHeight, _gridScrollOffset, maxScroll);
+        }
+
+        private readonly struct GridCardLayout
+        {
+            public Rect CardRect { get; }
+            public float AttachmentHeight { get; }
+            public Rect FootprintRect => new Rect(
+                CardRect.x,
+                CardRect.y,
+                CardRect.width,
+                CardRect.height + AttachmentHeight);
+
+            public GridCardLayout(Rect cardRect, float attachmentHeight)
+            {
+                CardRect = cardRect;
+                AttachmentHeight = attachmentHeight;
+            }
         }
 
         private void DrawNodeCard(GameNode node, Rect cardRect, Vector2 anchorPos, IMGUIInteractionContext ui)
@@ -785,6 +1034,8 @@ namespace SSNoir.IMGUI
                 && !_animator.UsesModal
                 && string.Equals(_animator.ActionName, node.Name, StringComparison.OrdinalIgnoreCase);
             _cardResidues.TryGetValue(node.Name, out var residue);
+            bool isRestBlockerTarget = RestBlockerPresentation.IsTarget(node, _gameManager.DisplayedSnapshot.RestBlockers);
+            bool containsRestBlockerTarget = RestBlockerPresentation.ContainsTarget(node, _gameManager.DisplayedSnapshot.RestBlockers);
 
             var interaction = CardDrawer.DrawCard(cardRect, node, CardDrawer.Classify(node, anchored: true), isHovered, isFlipped, focused,
                 slotted, node.Clocks, backText, ui, _gameManager,
@@ -793,7 +1044,10 @@ namespace SSNoir.IMGUI
                 _animator.Phase,
                 _animator.DisplayedDieValue,
                 _animator.DisplayScale,
-                residue);
+                residue,
+                isRestBlockerTarget,
+                containsRestBlockerTarget,
+                spaciousAttachments: true);
 
             if (interaction.CardClicked)
             {
@@ -831,7 +1085,8 @@ namespace SSNoir.IMGUI
             CardDrawer.DrawCard(cardRect, host, CardDrawer.CardKind.Action,
                 isHovered: false, isFlipped: false, isFocused: false,
                 slotted: null, clocks: host.Clocks, backText: string.Empty,
-                ui: lockedUi, gameManager: _gameManager, residue: residue);
+                ui: lockedUi, gameManager: _gameManager, residue: residue,
+                spaciousAttachments: true);
         }
 
         private void DrawGridResidueCard(Rect cardRect, CardPresentationResidue residue, IMGUIInteractionContext ui)
@@ -974,15 +1229,8 @@ namespace SSNoir.IMGUI
             return clocks;
         }
 
-        private void DrawGrowthToggleButton(IMGUIInteractionContext ui)
+        private void DrawGrowthToggleButton(IMGUIInteractionContext ui, Rect btnRect)
         {
-            // 收进右上簇（关系条右侧），与「世界状态」归为一处，不再浮在半空。
-            float btnW = 112f;
-            float btnH = 34f;
-            float btnX = UIScale.VW - btnW - 40f;
-            float btnY = 26f;
-            var btnRect = new Rect(btnX, btnY, btnW, btnH);
-
             bool btnHover = ui.CanHover(btnRect);
             Color hoverBg = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
             Color outlineColor = _isGrowthPanelOpen
@@ -1012,7 +1260,6 @@ namespace SSNoir.IMGUI
             {
                 AnchorNodeName = actionName,
                 Title = presentation.Title,
-                Subtitle = presentation.Subtitle,
                 RollOutcome = report.Type == ActionType.Roll ? report.Outcome : null,
                 FateDieValue = report.Type == ActionType.Roll ? report.FateDieValue : null,
                 PreparedValue = report.Type == ActionType.Roll ? report.PreparedValue : 0,
@@ -1047,19 +1294,9 @@ namespace SSNoir.IMGUI
             var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle)
             {
                 alignment = TextAnchor.MiddleCenter,
-                fontSize = 18
+                fontSize = IMGUIStyles.FontSize(18)
             };
             GUI.Label(new Rect(modal.x + 24f, modal.y + 28f, modal.width - 48f, 28f), title, titleStyle);
-
-            if (presentation != null && !string.IsNullOrWhiteSpace(presentation.Subtitle))
-            {
-                var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
-                {
-                    wordWrap = true,
-                    alignment = TextAnchor.UpperCenter
-                };
-                GUI.Label(new Rect(modal.x + 36f, modal.y + 70f, modal.width - 72f, 70f), presentation.Subtitle, subtitleStyle);
-            }
 
             var btnRect = new Rect(modal.x + (modal.width - 112f) / 2f, modal.yMax - 50f, 112f, 30f);
             var mouse = Event.current.mousePosition;
@@ -1091,8 +1328,31 @@ namespace SSNoir.IMGUI
             GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
             GUI.color = Color.white;
 
-            float modalW = 460f;
-            float modalH = 220f;
+            // 聚光弹窗是「一封信 / 一条通告」，正文长度完全由内容决定：先量出正文换行后要多高，
+            // 弹窗再照这个高度长。以前是固定 220 高 + 固定 72 高的正文框，长信要么被挤到按钮上，
+            // 要么直接被裁掉。
+            const float modalW = 460f;
+            const float titleTop = 32f;
+            const float titleH = 30f;
+            const float bodyTop = 14f;      // 标题与正文之间
+            const float bodyToButton = 22f; // 正文与按钮之间
+            const float buttonH = 30f;
+            const float bottomPad = 22f;
+            float bodyWidth = modalW - 88f;
+
+            var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                wordWrap = true,
+                alignment = TextAnchor.UpperCenter
+            };
+            bool hasBody = !string.IsNullOrWhiteSpace(spotlight.Subtitle);
+            float bodyH = hasBody
+                ? subtitleStyle.CalcHeight(new GUIContent(spotlight.Subtitle), bodyWidth)
+                : 0f;
+
+            float modalH = titleTop + titleH
+                + (hasBody ? bodyTop + bodyH : 0f)
+                + bodyToButton + buttonH + bottomPad;
             var modal = new Rect((UIScale.VW - modalW) / 2f, (UIScale.VH - modalH) / 2f, modalW, modalH);
 
             IMGUIStyles.DrawShadow(modal, new Vector2(5f, 6f), 0.50f);
@@ -1103,21 +1363,17 @@ namespace SSNoir.IMGUI
             var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle)
             {
                 alignment = TextAnchor.MiddleCenter,
-                fontSize = 20
+                fontSize = IMGUIStyles.FontSize(20)
             };
-            GUI.Label(new Rect(modal.x + 28f, modal.y + 32f, modal.width - 56f, 30f), spotlight.Title, titleStyle);
+            GUI.Label(new Rect(modal.x + 28f, modal.y + titleTop, modal.width - 56f, titleH), spotlight.Title, titleStyle);
 
-            if (!string.IsNullOrWhiteSpace(spotlight.Subtitle))
+            if (hasBody)
             {
-                var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
-                {
-                    wordWrap = true,
-                    alignment = TextAnchor.UpperCenter
-                };
-                GUI.Label(new Rect(modal.x + 44f, modal.y + 78f, modal.width - 88f, 72f), spotlight.Subtitle, subtitleStyle);
+                GUI.Label(new Rect(modal.x + 44f, modal.y + titleTop + titleH + bodyTop, bodyWidth, bodyH),
+                    spotlight.Subtitle, subtitleStyle);
             }
 
-            var btnRect = new Rect(modal.x + (modal.width - 112f) / 2f, modal.yMax - 52f, 112f, 30f);
+            var btnRect = new Rect(modal.x + (modal.width - 112f) / 2f, modal.yMax - bottomPad - buttonH, 112f, buttonH);
             var mouse = Event.current.mousePosition;
             bool hovered = btnRect.Contains(mouse);
             bool clicked = hovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
@@ -1140,31 +1396,64 @@ namespace SSNoir.IMGUI
         {
             if (_banterPlayer.Visible.Count == 0)
                 return;
-            DialogueBubbleDrawer.DrawBanter(_banterPlayer, _dialogueAnchors);
+            DialogueBubbleDrawer.DrawBanter(
+                _banterPlayer,
+                _dialogueAnchors,
+                speaker => ReportRemoteFallback("play-banter!", speaker));
         }
 
-        // 阻塞:画当前对话行;全屏接收点击以推进(表现上无遮罩)。
+        // 阻塞：立绘舞台覆盖世界；全屏任意左键推进，后方控件由 IsInputLocked 显式禁用。
         private void DrawConversationOverlay()
         {
             var line = _conversationPlayer.CurrentLine;
             if (line == null)
                 return;
 
-            DialogueBubbleDrawer.DrawConversationLine(
+            bool usedRemoteFallback = DialogueStageDrawer.DrawConversationLine(
                 line.Speaker,
                 line.Text,
+                _conversationPlayer.CurrentLineIndex,
                 _dialogueAnchors,
                 _conversationPlayer.AllowsRemoteParticipants);
 
+            if (usedRemoteFallback && !_warnedAboutCurrentDialogueRemoteFallback)
+            {
+                ReportRemoteFallback("play-dialogue!", line.Speaker);
+                _warnedAboutCurrentDialogueRemoteFallback = true;
+            }
+
             if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
             {
-                _conversationPlayer.Advance();
+                if (DialogueStageDrawer.IsCurrentLineFullyRevealed)
+                {
+                    _conversationPlayer.Advance();
+                    _warnedAboutCurrentDialogueRemoteFallback = false;
+                }
+                else
+                {
+                    DialogueStageDrawer.CompleteCurrentLine();
+                }
                 Event.current.Use();
             }
             else
             {
                 UsePointerEventForModal();
             }
+        }
+
+        private void ReportRemoteFallback(string command, string speaker)
+        {
+            bool isBanter = command == "play-banter!";
+            _gameManager.GameState.NotificationCenter.Push(
+                isBanter
+                    ? $"警告：「{speaker}」未在场，已显示场外卡。"
+                    : $"警告：「{speaker}」未在场，已按场外对白呈现。",
+                NotificationKind.Warning);
+            Debug.LogWarning(
+                $"{command} 说话人 '{speaker}' 无法解析到当前屏幕锚点，"
+                + (isBanter ? "已自动改用场外临时卡。" : "立绘舞台仍会显示，但本行被视为场外对白。")
+                + "若此人确实不在场，请改用对应的 remote 调用；"
+                + "否则请检查说话人拼写和动作前的可见节点。");
         }
 
         // 命名动画 v1 占位:居中显示 [动画] tag。将来替换为真正的命名动画 / Timeline 播放。
@@ -1175,7 +1464,7 @@ namespace SSNoir.IMGUI
             var style = new GUIStyle(IMGUIStyles.ModalTitle)
             {
                 alignment = TextAnchor.MiddleCenter,
-                fontSize = 22,
+                fontSize = IMGUIStyles.FontSize(22),
             };
             GUI.Label(new Rect(0f, UIScale.VH * 0.4f, UIScale.VW, 48f), $"[动画] {_activeAnimationTag}", style);
         }
@@ -1207,7 +1496,7 @@ namespace SSNoir.IMGUI
             var style = new GUIStyle(IMGUIStyles.ModalBody)
             {
                 alignment = TextAnchor.MiddleCenter,
-                fontSize = 22,
+                fontSize = IMGUIStyles.FontSize(22),
                 wordWrap = true
             };
             style.normal.textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.65f);
@@ -1235,9 +1524,26 @@ namespace SSNoir.IMGUI
             public Vector2 RepulsionForce { get; set; }
             public float Width { get; }
             public float Height { get; }
+            public float AttachmentWidth { get; }
+            public float AttachmentHeight { get; }
+            public float FootprintWidth => Mathf.Max(Width, AttachmentWidth);
             public Rect Rect => new Rect(CurrentCenter.x - Width / 2f, CurrentCenter.y - Height / 2f, Width, Height);
+            public Rect FootprintRect => new Rect(
+                CurrentCenter.x - FootprintWidth / 2f,
+                Rect.y,
+                FootprintWidth,
+                Height + AttachmentHeight);
 
-            public ProjectedCardLayout(GameNode node, Vector2 anchorPos, float distance, Vector2 targetCenter, Vector2 currentCenter, float width, float height)
+            public ProjectedCardLayout(
+                GameNode node,
+                Vector2 anchorPos,
+                float distance,
+                Vector2 targetCenter,
+                Vector2 currentCenter,
+                float width,
+                float height,
+                float attachmentWidth,
+                float attachmentHeight)
             {
                 Node = node;
                 AnchorPos = anchorPos;
@@ -1246,10 +1552,21 @@ namespace SSNoir.IMGUI
                 CurrentCenter = currentCenter;
                 Width = width;
                 Height = height;
+                AttachmentWidth = attachmentWidth;
+                AttachmentHeight = attachmentHeight;
                 RepulsionForce = Vector2.zero;
             }
 
-            public ProjectedCardLayout(CardPresentationResidue residue, Vector2 anchorPos, float distance, Vector2 targetCenter, Vector2 currentCenter, float width, float height)
+            public ProjectedCardLayout(
+                CardPresentationResidue residue,
+                Vector2 anchorPos,
+                float distance,
+                Vector2 targetCenter,
+                Vector2 currentCenter,
+                float width,
+                float height,
+                float attachmentWidth,
+                float attachmentHeight)
             {
                 Residue = residue;
                 AnchorPos = anchorPos;
@@ -1258,6 +1575,8 @@ namespace SSNoir.IMGUI
                 CurrentCenter = currentCenter;
                 Width = width;
                 Height = height;
+                AttachmentWidth = attachmentWidth;
+                AttachmentHeight = attachmentHeight;
                 RepulsionForce = Vector2.zero;
             }
         }

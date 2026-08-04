@@ -44,17 +44,30 @@
           (remove-rest-blocker (cdr entries) id)
           (cons (car entries) (remove-rest-blocker (cdr entries) id)))))
 
-(define (rest-block! id reason)
+(define (rest-block! id reason . target)
   (if (not (string? id)) (error "rest-block!: id must be a string") #t)
   (if (not (string? reason)) (error "rest-block!: reason must be a string") #t)
   (if (equal? id "") (error "rest-block!: id cannot be empty") #t)
   (if (equal? reason "") (error "rest-block!: reason cannot be empty") #t)
-  (set! rest-blockers
-        (cons (list id reason) (remove-rest-blocker rest-blockers id))))
+  (if (and (not (null? target)) (not (= (length target) 2)))
+      (error "rest-block!: expected no target, or location and target-node")
+      #t)
+  (if (null? target)
+      (set! rest-blockers
+            (cons (list id reason) (remove-rest-blocker rest-blockers id)))
+      (let ((location (car target)) (target-node (cadr target)))
+        (if (not (string? location)) (error "rest-block!: location must be a string") #t)
+        (if (not (string? target-node)) (error "rest-block!: target-node must be a string") #t)
+        (if (equal? location "") (error "rest-block!: location cannot be empty") #t)
+        (if (equal? target-node "") (error "rest-block!: target-node cannot be empty") #t)
+        (set! rest-blockers
+              (cons (list id reason location target-node) (remove-rest-blocker rest-blockers id)))
+        (__register-rest-block! id reason location target-node))))
 
 (define (rest-release! id)
   (if (not (string? id)) (error "rest-release!: id must be a string") #t)
-  (set! rest-blockers (remove-rest-blocker rest-blockers id)))
+  (set! rest-blockers (remove-rest-blocker rest-blockers id))
+  (__release-rest-block! id))
 
 (define (rest-blocked?)
   (not (null? rest-blockers)))
@@ -63,7 +76,8 @@
   (map cadr (reverse rest-blockers)))
 
 (define (clear-rest-blockers!)
-  (set! rest-blockers '()))
+  (set! rest-blockers '())
+  (__clear-rest-blockers!))
 
 (define (end-turn!)
   (if (rest-blocked?)
@@ -77,19 +91,19 @@
 ;; Outcome wraps an action effect with optional result presentation metadata.
 ;;
 ;; Supported forms:
-;; (outcome title subtitle effect)
-;; (outcome title subtitle effect 'light)
-;; (outcome title subtitle effect 'heavy)
+;; (outcome title effect)
+;; (outcome title effect 'light)
+;; (outcome title effect 'heavy)
 ;;
-(define (outcome title subtitle effect . modes)
+(define (outcome title effect . modes)
   (if (> (length modes) 1)
       (error "outcome: expected at most one presentation mode")
       (let ((mode (if (null? modes) 'light (car modes))))
-        (list 'outcome title subtitle mode effect))))
+        (list 'outcome title mode effect))))
 
 (define (outcome? value)
   (and (pair? value)
-       (= (length value) 5)
+       (= (length value) 4)
        (equal? (car value) 'outcome)))
 
 (define (require-outcome value who)
@@ -97,14 +111,13 @@
       value
       (error (string-append who ": expected outcome"))))
 
-;; 保留 outcome 的标题/描述/模式，在原效果之后追加一个效果。
+;; 保留 outcome 的标题/模式，在原效果之后追加一个效果。
 (define (outcome-append-effect value extra-effect who)
   (let ((checked (require-outcome value who)))
-    (let ((effect (list-ref checked 4)))
+    (let ((effect (list-ref checked 3)))
       (list 'outcome
             (list-ref checked 1)
             (list-ref checked 2)
-            (list-ref checked 3)
             (lambda ()
               (effect)
               (extra-effect))))))
@@ -321,31 +334,84 @@
           (run-rules (cdr list-rules)))))
   (run-rules turn-rules))
 
+;; 局部整数时钟。交锋里的一次性时钟和故事模块里要存档的时钟共用这一个对象——
+;; 格数、上限、备注、进退和存档都收在闭包里，改上限只改 make-clock 那一行。
+;;
+;;   (make-clock 标签 上限 样式)            样式：'segments / 'countdown / 'pie
+;;   (make-clock 标签 上限 样式 备注)       备注是字符串
+;;   (make-clock 标签 上限 样式 (lambda (current max) → 字符串))
+;;                                          备注随格数变化（满格前后说不同的话）时用这个
+;;
+;; 消息一览（传错名字或参数个数会直接报错，错误信息里带着这张表，不必翻实现）：
+;;   (clk 'tick!)          +1
+;;   (clk 'advance! n)     +n，n 可负；不传 n 等同 'tick!
+;;   (clk 'set! n)         直接置为 n
+;;   (clk 'reset!)         归零
+;;   (clk 'current)        当前格数        (clk 'max)     上限
+;;   (clk 'full?)          是否满格        (clk 'empty?)  是否为零
+;;   (clk 'remaining)      距满格还差几格
+;;   (clk 'render-data)    一条 clock tuple；:clocks 要的是列表，单个钟写 (list (clk 'render-data))
+;;   (clk 'save)           存档值          (clk 'load! n) 读档，越界报错
+;;
+;; 进退一律 clamp 到 0..上限，并自动写进结算效果条（动作外调用不产生结果行）。
+(define clock-styles '(segments countdown pie))
+
+(define clock-messages
+  "'tick! 'advance! 'set! 'reset! 'current 'max 'full? 'empty? 'remaining 'render-data 'save 'load!")
+
 (define (make-clock label max style . note-args)
+  (if (string? label) #t (error "make-clock: 标签必须是字符串"))
+  (if (and (number? max) (> max 0)) #t (error "make-clock: 上限必须是正整数"))
+  (if (member? style clock-styles)
+      #t
+      (error "make-clock: 未知样式（应为 'segments / 'countdown / 'pie）"))
   (if (> (length note-args) 1)
-      (error "make-clock: expected at most one note string")
+      (error "make-clock: 备注最多一个")
       #t)
   (let ((current 0)
         (note (if (null? note-args) "" (car note-args))))
-    (if (string? note) #t (error "make-clock: note must be a string"))
+    (if (or (string? note) (procedure? note))
+        #t
+        (error "make-clock: 备注必须是字符串或 (lambda (current max) → 字符串)"))
+    ;; 形参 max 遮住了内置的 max 函数，所以下界自己写。
+    (define (clamp n) (if (< n 0) 0 (min n max)))
+    (define (move-to! n)
+      (let ((before current))
+        (set! current (clamp n))
+        (__record-clock-effect! label (- current before))))
+    ;; 参数取一个；没传就用默认值。传多了直接报错，别让手滑悄悄溜过去。
+    (define (one-arg args default who)
+      (cond
+        ((null? args) default)
+        ((null? (cdr args)) (car args))
+        (else (error (string-append "make-clock：" label " 的 " who " 只收一个参数")))))
     (lambda (msg . args)
       (cond
-        ((equal? msg 'tick!)
-         (let ((before current))
-           (set! current (min (+ current 1) max))
-           (__record-clock-effect! label (- current before))))
-        ((equal? msg 'reset!)
-         (let ((before current))
-           (set! current 0)
-           (__record-clock-effect! label (- current before))))
-        ((equal? msg 'full?)       (>= current max))
-        ((equal? msg 'current)     current)
+        ((equal? msg 'tick!)       (move-to! (+ current 1)))
+        ((equal? msg 'advance!)    (move-to! (+ current (one-arg args 1 "'advance!"))))
+        ((equal? msg 'reset!)      (move-to! 0))
         ((equal? msg 'set!)
-         (let ((before current))
-           (set! current (car args))
-           (__record-clock-effect! label (- current before))))
-        ((equal? msg 'render-data) (list 'clock label current max style note))
-        (else #f)))))
+         (let ((n (one-arg args #f "'set!")))
+           (if (number? n) #t (error (string-append "make-clock：" label " 的 'set! 需要一个数字")))
+           (move-to! n)))
+        ((equal? msg 'current)     current)
+        ((equal? msg 'max)         max)
+        ((equal? msg 'full?)       (>= current max))
+        ((equal? msg 'empty?)      (<= current 0))
+        ((equal? msg 'remaining)   (- max current))
+        ((equal? msg 'render-data)
+         (list 'clock label current max style
+               (if (procedure? note) (note current max) note)))
+        ((equal? msg 'save) current)
+        ((equal? msg 'load!)
+         (let ((n (one-arg args #f "'load!")))
+           (if (and (number? n) (>= n 0) (<= n max))
+               #t
+               (error (string-append "make-clock 存档错误：" label " 的格数非法")))
+           (set! current n)))
+        (else
+         (error (string-append "make-clock：" label " 收到未知消息。可用消息："
+                               clock-messages)))))))
 
 ;; 麻烦追踪器：势力敌视时工作坏/中结果有概率触发一次，持续 max 天未处理则触发 on-expire。
 ;; 消息：'active? 'start! 'resolve! 'tick! 'render-data 'save 'load!
@@ -472,6 +538,10 @@
 (define (damage-party! n)
   (__set-party-health! (- (__party-health) n)))
 
+;; 终止本局游戏。标题和说明由内容声明，客户端只忠实呈现状态。
+(define (fail-game! title description)
+  (__fail-game! title description))
+
 ;; 恢复健康（native 已 clamp 到 MaxHealth）。健康只应由药品、康复训练等医疗行为恢复，不由睡觉恢复。
 (define (heal-party! n)
   (__set-party-health! (+ (__party-health) n)))
@@ -546,15 +616,17 @@
   (__play-banter! lines))
 
 ;; 显式场外插话:未在场的说话人以不可交互的侧边临时卡承接。
-;; 普通 play-banter! 仍严格要求说话人能锚定到当前画面。
+;; 普通 play-banter! 默认说话人在场；若无法锚定，也会临时降级为场外卡，但客户端会报警。
 (define (play-remote-banter! . lines)
   (__play-remote-banter! lines))
 
-;; 阻塞对话:点击推进、锁输入、冻结导航,演完才把控制权还给玩家。变参,每个都是 (line ...)。
+;; 阻塞对话:立绘舞台 + 对白框;全屏点击推进,锁输入、冻结导航,演完才把控制权还给玩家。
+;; 变参,每个都是 (line ...)。说话人立绘按 Resources/Portraits/<说话人> 查找。
 (define (play-dialogue! . lines)
   (__play-dialogue! lines))
 
-;; 阻塞对话(场外):未在场的说话人以临时侧边卡承接,其余行为同 play-dialogue!。
+;; 阻塞对话(场外):使用同一立绘舞台,但明确声明说话人不在场。
+;; 普通 play-dialogue! 找不到锚点时舞台仍会继续显示并警告；明确不在场时用本接口表达意图。
 (define (play-remote-dialogue! . lines)
   (__play-remote-dialogue! lines))
 

@@ -33,6 +33,7 @@ namespace SSNoir.Rendering
 
         private const int WindowWidth = 900;
         private const int WindowHeight = 800;
+        private const int MaxQueuedBanter = 4;
         private static readonly bool FastPresentationMode =
             string.Equals(Environment.GetEnvironmentVariable("SSNOIR_FAST_PRESENTATION"), "1", StringComparison.Ordinal);
 
@@ -137,11 +138,18 @@ namespace SSNoir.Rendering
 
         private void EnqueueBanter(DialogueSequence sequence)
         {
+            if (sequence == null || sequence.Lines.Count == 0)
+                throw new ArgumentException("banter sequence cannot be empty", nameof(sequence));
+            while (_state.PendingBanter.Count >= MaxQueuedBanter)
+                _state.PendingBanter.Dequeue();
             _state.PendingBanter.Enqueue(sequence);
         }
 
         private void UpdateBanter(float dt, bool isCoveredByBlockingPresentation)
         {
+            if (isCoveredByBlockingPresentation)
+                return;
+
             if (_state.ActiveBanter == null)
             {
                 if (_state.PendingBanter.Count == 0)
@@ -152,9 +160,6 @@ namespace SSNoir.Rendering
                 _state.ActiveBanterTime = 0f;
             }
 
-            if (isCoveredByBlockingPresentation)
-                return;
-
             var sequence = _state.ActiveBanter;
             if (sequence == null)
                 return;
@@ -162,7 +167,7 @@ namespace SSNoir.Rendering
             var line = sequence.Lines[_state.ActiveBanterLineIndex];
             float dwell = line.DwellSeconds > 0f
                 ? line.DwellSeconds
-                : Math.Clamp(1.25f + line.Text.Length * 0.075f, 1.8f, 5f);
+                : Math.Clamp(1.2f + line.Text.Length * 0.06f, 1.5f, 5f);
             _state.ActiveBanterTime += dt;
             if (_state.ActiveBanterTime < dwell)
                 return;
@@ -393,7 +398,6 @@ namespace SSNoir.Rendering
             {
                 AnchorNodeName = _state.PendingActionName,
                 Title = hasLightPresentation ? report!.OutcomePresentation!.Title : string.Empty,
-                Subtitle = hasLightPresentation ? report!.OutcomePresentation!.Subtitle : string.Empty,
                 RollOutcome = hasRollResult ? report!.Outcome : null,
                 FateDieValue = hasRollResult ? report!.FateDieValue : null,
                 PreparedValue = hasRollResult ? report!.PreparedValue : 0,
@@ -663,7 +667,8 @@ namespace SSNoir.Rendering
                 return;
             }
 
-            if (_state.DisplayedSnapshot.Health <= 0)
+            var failure = _state.DisplayedSnapshot.Failure;
+            if (failure.IsFailed)
             {
                 Raylib.BeginDrawing();
                 Raylib.ClearBackground(TerminalPalette.Surface);
@@ -672,8 +677,8 @@ namespace SSNoir.Rendering
                 int screenHeight = Raylib.GetScreenHeight();
                 var gameOverUi = new UiInteractionContext { Mouse = Raylib.GetMousePosition() };
 
-                string title = "GAME OVER";
-                string sub = "主角生命值归零，游戏结束。";
+                string title = failure.Title;
+                string sub = failure.Description;
 
                 int titleSize = 48;
                 int titleWidth = FontManager.MeasureTextWidth(title, titleSize);
@@ -722,6 +727,7 @@ namespace SSNoir.Rendering
                 || _state.ActiveRollResult != null
                 || _state.ActiveOutcomeResult != null
                 || _state.Spotlight != null;
+            _state.IsBanterSuspended = banterCoveredByBlockingPresentation;
             UpdateBanter(dt, banterCoveredByBlockingPresentation);
             if (!_state.IsPresentingAction)
                 _state.Spotlight = _gameState.SpotlightCenter.Current;
@@ -1073,6 +1079,7 @@ namespace SSNoir.Rendering
                     }
                     catch (Exception ex)
                     {
+                        Console.Error.WriteLine($"StartNewGame failed: {ex}");
                         _startupError = $"新游戏启动失败：{ex.Message}";
                     }
                 }
@@ -1120,7 +1127,19 @@ namespace SSNoir.Rendering
             }
 
             if (!string.IsNullOrEmpty(_startupError))
-                FontManager.DrawText(_startupError, panelX, panelY + 548f, 13, new Color(230, 105, 110, 255));
+            {
+                const int errorFontSize = 13;
+                const int maxErrorLines = 4;
+                var errorLines = OverlayWidget.WrapTextLines(_startupError, panelWidth, errorFontSize);
+                float errorY = panelY + 548f;
+                for (int i = 0; i < Math.Min(errorLines.Count, maxErrorLines); i++)
+                {
+                    string line = (i == maxErrorLines - 1 && errorLines.Count > maxErrorLines)
+                        ? errorLines[i] + "…"
+                        : errorLines[i];
+                    FontManager.DrawText(line, panelX, errorY + i * 18f, errorFontSize, new Color(230, 105, 110, 255));
+                }
+            }
 
             Raylib.EndDrawing();
         }
@@ -1504,6 +1523,8 @@ namespace SSNoir.Rendering
                     && !ActiveRollUsesModal()
                     && string.Equals(_state.ActiveRollActionName, node.Name, StringComparison.OrdinalIgnoreCase);
                 _state.CardResidues.TryGetValue(node.Name, out var residue);
+                bool isRestBlockerTarget = RestBlockerPresentation.IsTarget(node, _state.DisplayedSnapshot.RestBlockers);
+                bool containsRestBlockerTarget = RestBlockerPresentation.ContainsTarget(node, _state.DisplayedSnapshot.RestBlockers);
                 var interaction = CardWidget.DrawCard(
                     bounds,
                     node.Name,
@@ -1530,7 +1551,9 @@ namespace SSNoir.Rendering
                     residue,
                     node.Disabled,
                     node.Resolve?.Type == ResolveType.Roll ? node.Resolve.SkillName : null,
-                    _state.DisplayedSnapshot.Actors);
+                    _state.DisplayedSnapshot.Actors,
+                    isRestBlockerTarget,
+                    containsRestBlockerTarget);
 
                 if (interaction.CardClicked)
                 {

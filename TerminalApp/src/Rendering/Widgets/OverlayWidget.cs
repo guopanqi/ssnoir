@@ -178,8 +178,6 @@ namespace SSNoir.Rendering
                     {
                         int resultTitleW = FontManager.MeasureTextWidth(presentation.Title, 15);
                         FontManager.DrawText(presentation.Title, modalX + (modalW - resultTitleW) / 2f, contentY, 15, Color.White);
-                        contentY += 20;
-                        DrawWrappedText(presentation.Subtitle, modalX + 40, contentY, modalW - 80, 12, new Color(205, 205, 225, 255));
                     }
 
                     float btnW = 90;
@@ -222,11 +220,6 @@ namespace SSNoir.Rendering
                 string title = presentation?.Title ?? state.ActiveOutcomeActionName;
                 int titleW = FontManager.MeasureTextWidth(title, 18);
                 FontManager.DrawText(title, modalX + (modalW - titleW) / 2f, modalY + 30, 18, Color.White);
-
-                if (presentation != null && !string.IsNullOrWhiteSpace(presentation.Subtitle))
-                {
-                    DrawWrappedText(presentation.Subtitle, modalX + 42, modalY + 66, modalW - 84, 13, new Color(205, 205, 225, 255));
-                }
 
                 float btnW = 90;
                 float btnH = 32;
@@ -349,6 +342,9 @@ namespace SSNoir.Rendering
 
         private static void DrawBanterBubble(RendererState state, float windowWidth, float windowHeight)
         {
+            if (state.IsBanterSuspended)
+                return;
+
             var sequence = state.ActiveBanter;
             if (sequence == null)
                 return;
@@ -417,7 +413,7 @@ namespace SSNoir.Rendering
             }
         }
 
-        private static List<string> WrapTextLines(string text, float width, int fontSize)
+        internal static List<string> WrapTextLines(string text, float width, int fontSize)
         {
             var lines = new List<string>();
             string currentLine = string.Empty;

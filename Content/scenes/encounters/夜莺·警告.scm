@@ -378,11 +378,11 @@
     :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'social (topic-mods t)
-      (outcome "话说岔了" "你顺得太用力，反而顶了他一句。"
+      (outcome "话说岔了"
         (lambda () (push-topic! -1)))
-      (outcome "跟上了" "你接住了他的半句话，把它往下续了续。"
+      (outcome "跟上了"
         (lambda () (push-topic! 1)))
-      (outcome "他自己往下说了" "你只需要点头。剩下的他替你说完。"
+      (outcome "他自己往下说了"
         (lambda () (push-topic! 2))))))
 
 (define (node-press t)
@@ -391,11 +391,11 @@
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge (topic-mods t)
-      (outcome "压过头了" "你说了一件本不该知道的事。他的脸沉了下来。"
+      (outcome "压过头了"
         (lambda () (push-topic! -2)))
-      (outcome "他让了半步" "半真的那一半够他信，半假的那一半他没查。"
+      (outcome "他让了半步"
         (lambda () (push-topic! 1)))
-      (outcome "他整个让开了" "你把真话和假话拌在一起端上去。他一口喝了。"
+      (outcome "他整个让开了"
         (lambda () (push-topic! 2))))))
 
 (define (node-drink t)
@@ -403,14 +403,14 @@
     :subtitle "不判定，但要钱：叫一轮酒把话续上。手气差的回合的出口"
     :requires (list (req-die) (req-item "金钱" 4))
     :resolve (instant
-      (outcome "杯子满上了" "你抬手要了一轮。话头没断，就还能往下走。"
+      (outcome "杯子满上了"
         (lambda () (spend-up-to! "金钱" 4) (push-topic! 1))))))
 
 (define (node-drop-topic t)
   (node (string-append "把这话放下 · " (t-tag t))
     :subtitle "不占骰。主动收手，不结算；以后可以重开，但他听过这话"
     :resolve (instant
-      (outcome "话头放下了" "你把话岔到了酒上。他没有追问。"
+      (outcome "话头放下了"
         (lambda () (sour! t) (set! topic #f) (set! topic-pos 0))))))
 
 (define (node-topic-open t)
@@ -428,11 +428,11 @@
     :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "话说岔了" "你补的那句比原来的问题还站不住。"
+      (outcome "话说岔了"
         (lambda () (push-question! -1)))
-      (outcome "圆了半句" "他哼了一声，暂时放过。"
+      (outcome "圆了半句"
         (lambda () (push-question! 1)))
-      (outcome "他自己替你圆了" "你只说了半句，他把后半句接了过去。"
+      (outcome "他自己替你圆了"
         (lambda () (push-question! 2))))))
 
 (define (node-q-press q)
@@ -441,11 +441,11 @@
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "压过头了" "你为了圆一句，又编了三句。"
+      (outcome "压过头了"
         (lambda () (push-question! -2)))
-      (outcome "他让了半步" "他挑不出错，就先不挑了。"
+      (outcome "他让了半步"
         (lambda () (push-question! 1)))
-      (outcome "他整个让开了" "你把话头推回他自己身上。他笑了。"
+      (outcome "他整个让开了"
         (lambda () (push-question! 2))))))
 
 (define (node-q-drink q)
@@ -453,7 +453,7 @@
     :subtitle "不判定，但要钱：叫一轮酒把这句盖过去"
     :requires (list (req-die) (req-item "金钱" 4))
     :resolve (instant
-      (outcome "这句被酒盖过去了" "等杯子落桌，刚才那句话已经没人再提。"
+      (outcome "这句被酒盖过去了"
         (lambda () (spend-up-to! "金钱" 4) (push-question! 1))))))
 
 (define (node-question-open q)
@@ -478,7 +478,7 @@
     :tags (if (soured? t) (list "他听过这话 · 难度−1") '())
     :requires (list (req-die))
     :resolve (instant
-      (outcome "话头递出去了" (t-open t)
+      (outcome "话头递出去了"
         (lambda ()
           (set! topic t)
           (set! topic-pos (topic-open-pos)))))))
@@ -503,11 +503,11 @@
     :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "什么也没看出来" "烟太浓，灯太暗。你白花了一会儿工夫。"
+      (outcome "什么也没看出来"
         (lambda () (spend-composure! 1)))
-      (outcome "记住了几处" "柜台后面有一道帘子，帘子后面有光。"
+      (outcome "记住了几处"
         (lambda () (money-clk 'tick!)))
-      (outcome "整间屋子都在你脑子里" "后门朝哪开、谁背对着你、他的箱子搁在哪一格，你都记下了。"
+      (outcome "整间屋子都在你脑子里"
         (lambda () (money-clk 'tick!))))))
 
 (define (node-sleight)
@@ -516,11 +516,11 @@
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "手伸早了" "他啪地按住账袋。现在他开始认真看你。"
+      (outcome "手伸早了"
         (lambda () (suspicion+ 1)))
-      (outcome "摸到一件" "你把东西滑进袖口的时候，杯子正好落桌。"
+      (outcome "摸到一件"
         (lambda () (money-clk 'tick!)))
-      (outcome "两只手都没空着" "他转头看门的那一刻，你的动作比他的目光快。"
+      (outcome "两只手都没空着"
         (lambda () (money-clk 'tick!))))))
 
 (define (node-space)

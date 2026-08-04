@@ -12,13 +12,13 @@
         (list (req-die))
         'sharpness
         (lambda () (list (modifier 1 "散步")))
-        (outcome "心不在焉" "走是走了，脑子里那些事却怎么也甩不掉。" ; 坏
+        (outcome "心不在焉" ; 坏
           (lambda () (walter 'on-park-walk!)))
-        (outcome "松了口气" "沿着湖边走了一圈，风把脑子里的杂音吹散了些。" ; 中
+        (outcome "松了口气" ; 中
           (lambda ()
             (restore-actor-composure! 'player 1)
             (walter 'on-park-walk!)))
-        (outcome "神清气爽" "阳光、湖水、远处飘来的乐声。你久违地觉得轻快。" ; 好
+        (outcome "神清气爽" ; 好
           (lambda ()
             (restore-actor-composure! 'player 2)
             (walter 'on-park-walk!)))))

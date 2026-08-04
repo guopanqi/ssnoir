@@ -29,6 +29,47 @@ namespace SSNoir
         private float _startPitch;
         private float _startRadius;
 
+        // The pose this camera was authored with in the scene. Dragging and focus
+        // transitions both move the transform at runtime, so the designed framing is
+        // remembered once, before anything can touch it, and stays the destination
+        // every time focus returns to this building.
+        private Vector3 _authoredPosition;
+        private Quaternion _authoredRotation;
+        private bool _authoredPoseCaptured;
+
+        public Vector3 AuthoredPosition
+        {
+            get
+            {
+                CaptureAuthoredPose();
+                return _authoredPosition;
+            }
+        }
+
+        public Quaternion AuthoredRotation
+        {
+            get
+            {
+                CaptureAuthoredPose();
+                return _authoredRotation;
+            }
+        }
+
+        private void Awake()
+        {
+            CaptureAuthoredPose();
+        }
+
+        private void CaptureAuthoredPose()
+        {
+            if (_authoredPoseCaptured)
+                return;
+
+            _authoredPosition = transform.position;
+            _authoredRotation = transform.rotation;
+            _authoredPoseCaptured = true;
+        }
+
         public void SaveDragStartState(Vector3 pivotPosition)
         {
             Vector3 offset = transform.position - pivotPosition;

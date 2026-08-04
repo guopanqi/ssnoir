@@ -11,7 +11,7 @@
 (load-file "world/三封信.scm")
 (load-file "world/诊所.scm")
 (load-file "world/公园.scm")
-(load-file "world/警局.scm")
+(load-file "world/警察局.scm")
 (load-file "world/货运公司.scm")
 (load-file "world/居民区.scm")
 (load-file "world/剧院.scm")
@@ -21,6 +21,7 @@
 
 ;; ── 世界级状态 ───────────────────────────────────
 (define world-day 1)
+(set-global! '世界日 world-day)
 
 ;; ── 城市声望 ─────────────────────────────────────
 ;; 三派各有一条三档声望阶梯（相识/信任/核心，阈值 +2/+4/+6）。
@@ -67,20 +68,25 @@
 ;; ── 日终规则 ─────────────────────────────────────
 (define-turn-rule "世界日历推进"
   (lambda () #t)
-  (lambda () (set! world-day (+ world-day 1))))
+  (lambda ()
+    (set! world-day (+ world-day 1))
+    (set-global! '世界日 world-day)))
 
 ;; ── 地点可见性 ───────────────────────────────────
 (define location-predicates
   (list
     (list home            (lambda () #t))
     (list dock            (lambda () #t))
-    ;; 老街（酒馆与码头居民区）到小节一结算才开放：开场只有旅馆、码头、
-    ;; 布告栏、公园、诊所、警局，这几天刻意是紧的。
-    (list old-street-tavern (lambda () (three-letters 'old-street-open?)))
+    ;; 开场三天刻意是紧的：只有旅馆、码头、老街酒馆、布告栏、公园、诊所。
+    ;; 酒馆开着是因为夜莺在那儿唱歌——委托人必须找得到人；但酒馆内部分两批放开，
+    ;; 能凭空变出钱的门路（放贷的）等老街一起开，别让它拆掉交割款的压力。
+    (list old-street-tavern (lambda () (>= (three-letters 'story-stage) 1)))
     (list clinic          (lambda () #t))
     (list park            (lambda () #t))
-    (list police-station  (lambda () #t))
-    (list freight-company (lambda () #t))
+    ;; 警察局与货运公司只在首演威胁明确后开放：前者提供后台保护，后者引出投资方的资本线。
+    ;; 第二小节专注老街调查，不提前抛出无关地点。
+    (list police-station  (lambda () (three-letters 'police-open?)))
+    (list freight-company (lambda () (three-letters 'freight-open?)))
     (list residential-district
           (lambda () (or (three-letters 'old-street-open?) (joe 'residential-unlocked?))))
     (list theater         (lambda () (three-letters 'theater-open?)))
@@ -134,6 +140,7 @@
 (define (world-load! data)
   (clear-rest-blockers!)
   (set! world-day (assoc-get data "day" 1))
+  (set-global! '世界日 world-day)
   (home 'load! (assoc-get data "home" '()))
   (dock 'load! (assoc-get data "dock" '()))
   (old-street-tavern 'load! (assoc-get data "old-street-tavern" '()))

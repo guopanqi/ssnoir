@@ -1,22 +1,23 @@
 {
-  "saveTime": "2026-07-19 18:32:52",
+  "saveTime": "2026-08-02 13:13:30",
   "globals": {
     "chapter": 0,
-    "relation:官僚": 3,
+    "relation:官僚": 0,
     "relation:劳工": 3,
     "relation:富商": 0,
     "frank-final-help": false,
     "资产": "低",
+    "开场动作": "有人敲门",
     "relation-band-name:官僚:相识": "挂号",
     "relation-band-name:官僚:信任": "备案",
     "relation-band-name:官僚:核心": "有里子",
     "relation-goal:官僚:相识": "替阿瑟处理程序管不了的麻烦",
-    "relation-goal:官僚:信任": "请阿瑟提级、延期并办理通行证",
+    "relation-goal:官僚:信任": "真出事时警察封锁线放行拦车·办通行证更快",
     "relation-goal:官僚:核心": "引荐市长秘书，遇事能求到更高处（demo 暂未开放）",
     "relation-band-name:劳工:相识": "面熟",
     "relation-band-name:劳工:信任": "够朋友",
-    "relation-band-name:劳工:核心": "拜过码头",
-    "relation-goal:劳工:相识": "弗兰克的清栈急活",
+    "relation-band-name:劳工:核心": "自己人",
+    "relation-goal:劳工:相识": "参与搁浅货船的紧急抢修",
     "relation-goal:劳工:信任": "替弗兰克查账并接触旧悬案",
     "relation-goal:劳工:核心": "走私工作；了断之日弗兰克带人到场",
     "relation-band-name:富商:相识": "有往来",
@@ -25,26 +26,26 @@
     "relation-goal:富商:相识": "私货能出手·陪代理谈投资·接触保险核赔",
     "relation-goal:富商:信任": "私货满价收购·投资本金打折",
     "relation-goal:富商:核心": "引荐博士，牵出实验室科技线（demo 暂未开放）",
-    "夜莺阶段": 3,
-    "夜莺状态等级": 3,
-    "夜莺状态": "受伤",
-    "夜莺查访进度": 1,
-    "夜莺查访目标": 2,
-    "夜莺主动上门": false,
-    "夜莺保护方案": "无",
-    "夜莺二层已揭": true,
-    "夜莺已打听": true,
-    "夜莺真相": false,
-    "夜莺已送走": false,
-    "夜莺已付封口": false,
-    "夜莺已立案": false,
-    "夜莺已移交": false,
-    "bout-idx": 1,
-    "夜莺已先离场": false,
-    "夜莺姿态": "无"
+    "第一章阶段": 3,
+    "夜莺处境": "稳定",
+    "交割结果": "拦下",
+    "老街熟脸": 3,
+    "小节二路线": "查明",
+    "小节二结果": "好",
+    "莱恩下落": "逃走",
+    "夜莺信任达标": false,
+    "准备-找到莱恩": false,
+    "准备-警方到场": false,
+    "准备-后台已封": false,
+    "准备-登台已改": false,
+    "准备-诱饵": false,
+    "识破假邮差": true,
+    "乔认得你": true,
+    "世界日": 8,
+    "unloaded-new-machines": false
   },
   "team": {
-    "health": 3,
+    "health": 2,
     "growthLevel": 2,
     "actors": [
       {
@@ -52,15 +53,15 @@
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "composure": 4,
+        "composure": 6,
         "hangoverSlotId": null,
         "faintSlotId": null,
         "lossOfControlSlotId": null,
         "permanentDiePenaltyLabel": "",
         "permanentDiePenalty": 0,
-        "spentGrowthPoints": 1,
+        "spentGrowthPoints": 0,
         "stats": {
-          "violence": 1,
+          "violence": 0,
           "knowledge": 1,
           "sharpness": 0,
           "social": 0
@@ -69,32 +70,16 @@
     ]
   },
   "inventory": {
-    "金钱": 54,
-    "情报": 2,
+    "金钱": 249,
+    "情报": 0,
     "药品": 1,
     "酒": 0,
-    "香烟": 0
+    "香烟": 2
   },
   "worldData": [
     [
       "day",
-      11
-    ],
-    [
-      "public-event-count",
-      2
-    ],
-    [
-      "public-event-pending?",
-      false
-    ],
-    [
-      "public-event-delay-used?",
-      false
-    ],
-    [
-      "next-public-event",
-      1
+      8
     ],
     [
       "home",
@@ -121,7 +106,7 @@
         ],
         [
           "rent-due-max",
-          4
+          3
         ],
         [
           "evicted?",
@@ -131,122 +116,234 @@
     ],
     [
       "dock",
-      []
+      [
+        [
+          "machine-stage",
+          1
+        ],
+        [
+          "machine-progress",
+          0
+        ]
+      ]
     ],
     [
       "old-street-tavern",
       [
         [
           "closed-days",
-          1
+          0
         ],
         [
           "closed-days-max",
           2
+        ],
+        [
+          "loan-owed",
+          0
+        ],
+        [
+          "loan-days",
+          0
         ]
       ]
     ],
     [
-      "nightingale",
+      "three-letters",
       [
         [
           "story-stage",
           3
         ],
         [
-          "condition-level",
-          3
-        ],
-        [
-          "tavern-inquiry-progress",
-          0
-        ],
-        [
-          "dock-inquiry-progress",
+          "delivery-day",
           4
         ],
         [
-          "beat1-early?",
+          "delivery-pending?",
           false
         ],
         [
-          "protection",
-          "无"
+          "delivery-result",
+          "拦下"
         ],
         [
-          "installment-paid?",
-          false
-        ],
-        [
-          "truth-progress",
-          0
-        ],
-        [
-          "dock-truth-progress",
-          0
-        ],
-        [
-          "police-truth-progress",
-          0
-        ],
-        [
-          "freight-truth-progress",
-          0
-        ],
-        [
-          "stance",
-          "无"
-        ],
-        [
-          "berth?",
-          false
-        ],
-        [
-          "farewell?",
-          false
-        ],
-        [
-          "hush-paid?",
-          false
-        ],
-        [
-          "case-filed?",
-          false
-        ],
-        [
-          "surrendered?",
-          false
-        ],
-        [
-          "case-filed-day",
-          0
-        ],
-        [
-          "surrendered-day",
-          0
-        ],
-        [
-          "case-progress-shown",
-          0
-        ],
-        [
-          "surrender-progress-shown",
-          0
-        ],
-        [
-          "ending-day",
-          0
-        ],
-        [
-          "nightingale-earnings",
+          "delivery-money",
           40
+        ],
+        [
+          "runner-cigarettes?",
+          true
+        ],
+        [
+          "delivery-shortfall",
+          0
+        ],
+        [
+          "mail-routine",
+          3
+        ],
+        [
+          "joe-mail-tip?",
+          true
+        ],
+        [
+          "condition-level",
+          0
+        ],
+        [
+          "trust",
+          1
+        ],
+        [
+          "song-day",
+          0
+        ],
+        [
+          "familiar",
+          3
+        ],
+        [
+          "west-friction-cleared?",
+          true
+        ],
+        [
+          "east-entry",
+          4
+        ],
+        [
+          "east-gallery",
+          4
+        ],
+        [
+          "west-stairs",
+          4
+        ],
+        [
+          "west-bridge",
+          4
+        ],
+        [
+          "merchant-trust",
+          8
+        ],
+        [
+          "union-checked?",
+          true
+        ],
+        [
+          "bridge-identified?",
+          true
+        ],
+        [
+          "patience",
+          6
+        ],
+        [
+          "patience-day",
+          7
+        ],
+        [
+          "unreported?",
+          true
+        ],
+        [
+          "inquiry-day",
+          8
+        ],
+        [
+          "inquiry-told?",
+          false
+        ],
+        [
+          "singer-key?",
+          false
+        ],
+        [
+          "lesson-done?",
+          false
+        ],
+        [
+          "lesson-day",
+          0
+        ],
+        [
+          "lesson-state",
+          0
+        ],
+        [
+          "lesson-forced?",
+          false
+        ],
+        [
+          "lesson-extra?",
+          false
+        ],
+        [
+          "lesson-material?",
+          false
+        ],
+        [
+          "envelope-thin?",
+          false
+        ],
+        [
+          "material-settled?",
+          true
+        ],
+        [
+          "settle-route",
+          "查明"
+        ],
+        [
+          "settle-quality",
+          "好"
+        ],
+        [
+          "lyon-fate",
+          "逃走"
+        ],
+        [
+          "settled-day",
+          8
+        ],
+        [
+          "found-lyon?",
+          false
+        ],
+        [
+          "police-guard?",
+          false
+        ],
+        [
+          "backstage-checked?",
+          false
+        ],
+        [
+          "staging-changed?",
+          false
+        ],
+        [
+          "decoy-set?",
+          false
+        ],
+        [
+          "premiere-done?",
+          false
+        ],
+        [
+          "premiere-pending?",
+          false
         ],
         [
           "scene-flags",
           [
-            "三层已揭",
-            "二层已揭",
-            "已打听"
+            "留下的信",
+            "第二封信",
+            "第二封信来电",
+            "她的过去",
+            "伤后探望",
+            "交割已结算"
           ]
         ]
       ]
@@ -296,7 +393,7 @@
       [
         [
           "stage",
-          2
+          3
         ],
         [
           "favor",
@@ -304,7 +401,7 @@
         ],
         [
           "child-progress",
-          0
+          1
         ],
         [
           "child-cared-today?",
@@ -337,7 +434,7 @@
       [
         [
           "stage",
-          1
+          5
         ],
         [
           "favor",
@@ -345,15 +442,11 @@
         ],
         [
           "repair-progress",
-          4
+          0
         ],
         [
-          "repair-days",
-          1
-        ],
-        [
-          "repair-started-today?",
-          false
+          "repair-deadline-day",
+          0
         ],
         [
           "smuggled-today?",
@@ -373,7 +466,7 @@
       [
         [
           "stage",
-          1
+          0
         ],
         [
           "pass-cooldown",
@@ -381,7 +474,7 @@
         ],
         [
           "problem-invited?",
-          true
+          false
         ]
       ]
     ],
@@ -390,23 +483,10 @@
       [
         [
           "stage",
-          1
-        ],
-        [
-          "claim-result",
-          "无"
-        ]
-      ]
-    ],
-    [
-      "sam",
-      [
-        [
-          "stage",
           0
         ],
         [
-          "evidence",
+          "claim-result",
           "无"
         ]
       ]
@@ -416,11 +496,11 @@
       []
     ],
     [
-      "insurance-company",
+      "theater",
       []
     ],
     [
-      "stranger-hideout",
+      "insurance-company",
       []
     ],
     [

@@ -1,0 +1,4 @@
+interface:
+  display_name: "制作 3D 场景资产"
+  short_description: "用 Gemini、Hunyuan、Blender 制作 Unity 3D 资产"
+  default_prompt: "使用 $create-3d-assets 按 Gemini 出图、Hunyuan 建模、Blender 加工、Unity 交付的流程制作一个 SSNoir 3D 场景资产。"

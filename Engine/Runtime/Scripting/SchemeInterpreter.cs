@@ -64,7 +64,7 @@ namespace SSNoir.Scripting
                 var result = _interpreter.Evaluate(reader);
                 if (result.Error != null)
                 {
-                    throw new Exception($"Error loading Scheme script '{relativePath}': {result.Error}", result.Error);
+                    throw new Exception($"Error loading Scheme script '{relativePath}': {result.Error.Message}", result.Error);
                 }
             }
         }

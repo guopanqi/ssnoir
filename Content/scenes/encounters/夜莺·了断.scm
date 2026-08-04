@@ -77,20 +77,20 @@
                    :requires (list (req-die))
                    :resolve (roll 'violence
                      (lambda () (list (modifier 1 "只是顶开他，不用打倒")))
-                     (outcome "他没停手" "你扑了个空,他反手把你推开。"
+                     (outcome "他没停手"
                        (lambda () #f))
-                     (outcome "把他顶回去" (string-append name "被你顶在柱子上,那一招得重新起。")
+                     (outcome "把他顶回去"
                        (lambda () (set! countdown period)))
-                     (outcome "顶得他撞翻了凳子" (string-append name "一时爬不起来,手里的势头全散了。")
+                     (outcome "顶得他撞翻了凳子"
                        (lambda () (set! hp (- hp 1)) (set! countdown period)))))
              (action (string-append "击倒 " name)
                      (list (req-die))
                      (roll 'violence
-                       (outcome "他站得很稳" "你的拳头落在他肩上,像打在门板上——他顺手回敬了一下。"
+                       (outcome "他站得很稳"
                          (lambda () (spend-composure! 1)))
-                       (outcome "打实了一下" "他闷哼一声,退了半步。"
+                       (outcome "打实了一下"
                          (lambda () (set! hp (- hp 1))))
-                       (outcome "打得他跪下" "他的膝盖先着地,手里的东西滚到桌下。"
+                       (outcome "打得他跪下"
                          (lambda () (set! hp (- hp 2)))))))
            (list (list 'clock "命数" hp hp-max 'segments "归零即退场。击倒要好骰子，但他一倒，往后每一轮都少一份账。")
                  (list 'clock tell countdown period 'countdown tell-note))))
@@ -143,7 +143,7 @@
         :subtitle "第一场从他账袋里摸出来的那张纸；用掉它，他就收手"
         :requires (list (req-item "欠账凭据" 1))
         :resolve (instant
-          (outcome "他合上了账本" "他看了那张纸很久,然后把账本夹回腋下。'这笔不该我背。'他从后门走了。"
+          (outcome "他合上了账本"
             (lambda ()
               (remove-item! "欠账凭据" 1)
               (set! collector-gone? #t))))))
@@ -162,7 +162,7 @@
     :subtitle "不判定，一次性。全体打手的出招重新起算"
     :requires (list (req-die))
     :resolve (instant
-      (outcome "桌子横在中间" "杯子和牌一起砸在地上。他们要绕过去,得重新找路。"
+      (outcome "桌子横在中间"
         (lambda ()
           (set! table-used? #t)
           (reset-all-thugs! (live-thugs)))))))
@@ -178,7 +178,7 @@
     :subtitle "不判定，一次性。他的使眼色倒数 +2"
     :requires (list (req-die))
     :resolve (instant
-      (outcome "他在抹脸" "酒顺着他的下巴往下淌。他先要看得见,才顾得上给谁使眼色。"
+      (outcome "他在抹脸"
         (lambda ()
           (set! drink-used? #t)
           (set! collector-countdown (+ collector-countdown 2)))))))
@@ -192,7 +192,7 @@
     :subtitle "不判定。让所有人愿意多看一眼；老街的眼睛 +1"
     :requires (list (req-die) (req-item "金钱" 6))
     :resolve (instant
-      (outcome "杯子举起来了" "老板娘把酒挨桌斟过去。有人开始正眼看这张台子。"
+      (outcome "杯子举起来了"
         (lambda () (spend-up-to! "金钱" 6) (crowd-clk 'tick!))))))
 
 (define (node-speak-up)
@@ -200,11 +200,11 @@
     :subtitle "把这笔账当着所有人念一遍"
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "没人接话" "你的声音停在半空。有人低头喝酒,像什么都没听见。"
+      (outcome "没人接话"
         (lambda () (spend-composure! 1)))
-      (outcome "有人抬了头" "后排有人放下杯子。"
+      (outcome "有人抬了头"
         (lambda () (crowd-clk 'tick!)))
-      (outcome "整间屋子安静了" "你把数目念出来的时候,连后厨都停了。"
+      (outcome "整间屋子安静了"
         (lambda () (crowd-clk 'tick!) (crowd-clk 'tick!))))))
 
 (define (node-badge)
@@ -212,7 +212,7 @@
     :subtitle "不判定，不消耗。让每张脸都意识到会被记下；老街的眼睛 +2"
     :requires (list (req-die) (req-item "办案通行证" 1))
     :resolve (instant
-      (outcome "他们看清了那张纸" "没人相信这张纸能管今晚的事,但也没人愿意第一个上镜。"
+      (outcome "他们看清了那张纸"
         (lambda () (set! badge-used? #t) (crowd-clk 'tick!) (crowd-clk 'tick!))))))
 
 (define (crowd-nodes)
@@ -342,11 +342,11 @@
        :subtitle "拆招：把话压回去，让他下不了手"
        :requires (list (req-die))
        :resolve (roll 'social
-         (outcome "他不听" "他把你的话当成了噪音。"
+         (outcome "他不听"
            (lambda () (spend-composure! 1)))
-         (outcome "他停了手" "他抬起的手停在半空,又放了下来。"
+         (outcome "他停了手"
            (lambda () (cancel-move!)))
-         (outcome "他被说得下不来" "满屋子的人都在看他要不要真砸。他没砸。"
+         (outcome "他被说得下不来"
            (lambda () (cancel-move!) (boss-clk 'tick!))))))
     ((= move-index 1)
      (observe-action "怎么拆「示意拖她」"
@@ -356,11 +356,11 @@
        :subtitle "拆招：接住这一下"
        :requires (list (req-die))
        :resolve (roll 'violence
-         (outcome "没接住" "他的手比你想的快。"
+         (outcome "没接住"
            (lambda () (spend-composure! 1)))
-         (outcome "接住了" "你把他的手腕别到一边。"
+         (outcome "接住了"
            (lambda () (cancel-move!)))
-         (outcome "接住还反了一下" "你顺着他的力道把他带得扑了个空。"
+         (outcome "接住还反了一下"
            (lambda () (cancel-move!) (boss-clk 'tick!))))))))
 
 (define (node-boss)
@@ -379,11 +379,11 @@
     :subtitle "不讲道理的那条路；两下就能打断他正在起的招"
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "打空了" "他往后一让,你的拳头擦着他的耳朵过去。"
+      (outcome "打空了"
         (lambda () (spend-composure! 1)))
-      (outcome "打实了" "他的嘴角裂了。"
+      (outcome "打实了"
         (lambda () (hit-boss! 1)))
-      (outcome "打得他扶住桌子" "他半边身子压在桌沿上,喘了两口。"
+      (outcome "打得他扶住桌子"
         (lambda () (hit-boss! 2))))))
 
 (define (node-confront)
@@ -395,11 +395,11 @@
     :resolve (roll 'social
       (lambda ()
         (if seen-through? (list (modifier -1 "他早知道你是谁")) '()))
-      (outcome "他笑了" "他让你把话说完,然后当没听见。"
+      (outcome "他笑了"
         (lambda () (spend-composure! 1)))
-      (outcome "他答不上来" "有一笔他算不清。他自己也知道。"
+      (outcome "他答不上来"
         (lambda () (hit-boss! 1)))
-      (outcome "他被账压住" "你把第七年那一条念出来的时候,他没有再看你。"
+      (outcome "他被账压住"
         (lambda () (hit-boss! 2))))))
 
 (define (node-truth)
@@ -407,7 +407,7 @@
     :subtitle "一次性。暗账里那笔钱到底进了谁的口袋——说出来，他这一招就起不来了"
     :requires (list (req-die))
     :resolve (instant
-      (outcome "满屋子都听见了" "他张了张嘴。这一次,他没有账本可翻。"
+      (outcome "满屋子都听见了"
         (lambda ()
           (set! truth-used? #t)
           (if (or (equal? stance "体谅") (equal? stance "自白"))
@@ -425,7 +425,7 @@
     :subtitle "不判定。她被拖走的进度 −1；护着她的时候你腾不出手——健康 −1"
     :requires (list (req-die))
     :resolve (instant
-      (outcome "她在你身后" "她的手抓着你的后襟,没有出声。有人的拳头结结实实落在你背上。"
+      (outcome "她在你身后"
         (lambda ()
           (drag-clk 'set! (max 0 (- (drag-clk 'current) 1)))
           (damage-party! 1))))))
@@ -435,7 +435,7 @@
     :subtitle "不判定，一次性。让他的当前招倒数 +1"
     :requires (list (req-die))
     :resolve (instant
-      (outcome "杯子碎在他脚边" "他低头看了看鞋面。就这一下,他停了停。"
+      (outcome "杯子碎在他脚边"
         (lambda () (set! glass-used? #t) (set! move-countdown (+ move-countdown 1)))))))
 
 ;; ---- 固定转折 ----

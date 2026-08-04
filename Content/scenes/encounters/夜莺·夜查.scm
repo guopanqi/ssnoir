@@ -49,22 +49,22 @@
   (action "翻夜账"
     (list (req-die))
     (roll 'knowledge book-modifiers
-      (outcome "纸页碰倒了墨水" "你翻得太急，碰倒了墨水瓶。守夜人的脚步近了一截。"
+      (outcome "纸页碰倒了墨水"
         (lambda () (consume-book-bonus!) (records 'tick!) (watchman 'tick!)))
-      (outcome "翻到一页旧账" "账页上有一行日期，字迹还得再对。"
+      (outcome "翻到一页旧账"
         (lambda () (consume-book-bonus!) (records 'tick!)))
-      (outcome "找对了装订册" "萨姆抽出一本重装过订线的旧册。"
+      (outcome "找对了装订册"
         (lambda () (consume-book-bonus!) (clock-tick-n! records 2))))))
 
 (define (node-keep-watch)
   (action "望风"
     (list (req-die))
     (roll 'sharpness
-      (outcome "喊得太急" "守夜人没听清你喊什么，却停在了走廊里。下次翻账得更小心。"
+      (outcome "喊得太急"
         (lambda () (set! next-book-bonus? #f)))
-      (outcome "门外没动静" "走廊里只有雨水顺着铁皮往下滴。"
+      (outcome "门外没动静"
         (lambda () #f))
-      (outcome "他多绕了一圈" "你把一只空箱踢进远处的巷口。守夜人的脚步朝那边去了。"
+      (outcome "他多绕了一圈"
         (lambda () (watchman 'set! (max 0 (- (watchman 'current) 1))))))))
 
 (define (node-bribe-watchman)
@@ -75,7 +75,7 @@
     :disabled bribed?
     :requires (if (relation-at-least? "劳工" '相识) '() (list (req-item "金钱" 10)))
     :resolve (instant
-      (outcome "他往外走了" "守夜人掂了掂手里的东西，朝门外的酒摊去了。"
+      (outcome "他往外走了"
         (lambda ()
           (set! bribed? #t)
           (watchman 'set! (max 0 (- (watchman 'current) 2))))))))
@@ -87,7 +87,7 @@
     :subtitle "整场一次；下一次翻夜账 +1，不占骰"
     :disabled instinct-used?
     :resolve (instant
-      (outcome "看墨色" "萨姆按住你的手背，指向一页补写过的账。"
+      (outcome "看墨色"
         (lambda ()
           (set! instinct-used? #t)
           (set! next-book-bonus? #t)

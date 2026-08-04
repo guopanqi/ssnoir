@@ -122,11 +122,11 @@
     :subtitle "社交；坏：搜查逼近 +1，中：搜查者 +1，好：搜查者 +2"
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "他停在门外" "你制造的动静太近了。他没有上楼，反而伸手按住了门把。"
+      (outcome "他停在门外"
         (lambda () (advance-search! 1)))
-      (outcome "声音去了楼上" "你扯动绕过楼梯扶手的细线，一只空瓶在上一层滚过地板，他转身追了过去。"
+      (outcome "声音去了楼上"
         (lambda () (searcher-clk 'tick!)))
-      (outcome "线索全指向楼上" "错放的门牌、半开的防火门和楼上传来的脚步，把他完整地带离这一层。"
+      (outcome "线索全指向楼上"
         (lambda () (clock-tick-n! searcher-clk 2))))))
 
 (define (node-leave-apartment)
@@ -134,11 +134,11 @@
     :subtitle "敏锐；坏：搜查逼近 +1，中：离开 +1，好：离开 +2"
     :requires (list (req-die))
     :resolve (roll 'sharpness
-      (outcome "玻璃碰了窗框" "你抬窗时碰响了玻璃，楼道里的脚步停了一瞬。"
+      (outcome "玻璃碰了窗框"
         (lambda () (advance-search! 1)))
-      (outcome "挪开窗边家具" "窗下露出一段锈红色的消防梯。"
+      (outcome "挪开窗边家具"
         (lambda () (exit-clk 'tick!)))
-      (outcome "消防梯落下去了" "铁梯没有砸地，只在雨里轻轻晃了一下。"
+      (outcome "消防梯落下去了"
         (lambda () (clock-tick-n! exit-clk 2))))))
 
 (define (node-build-decoys)
@@ -146,11 +146,11 @@
     :subtitle "见识；坏：搜查逼近 +1，中：假人 +1，好：假人 +2"
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "影子歪得不像人" "灯一打，床上的轮廓散了。你得重新塞。"
+      (outcome "影子歪得不像人"
         (lambda () (advance-search! 1)))
-      (outcome "垫出一副肩膀" "隔着窗帘看，床边像坐着一个低头的人。"
+      (outcome "垫出一副肩膀"
         (lambda () (decoy-clk 'tick!)))
-      (outcome "两个人还留在屋里" "帽子、外套和一盏背光的灯，把空房间留成了有人等候的样子。"
+      (outcome "两个人还留在屋里"
         (lambda () (clock-tick-n! decoy-clk 2))))))
 
 (define (luggage-full?) (luggage-clk 'full?))
@@ -161,7 +161,7 @@
     :disabled (luggage-full?)
     :requires (list (req-die))
     :resolve (instant
-      (outcome "压进箱底" "夜莺把几张钞票和一只首饰盒压在衣服下面。"
+      (outcome "压进箱底"
         (lambda ()
           (set! valuables-packed (+ valuables-packed 1))
           (luggage-clk 'tick!))
@@ -173,7 +173,7 @@
     :disabled (luggage-full?)
     :requires (list (req-die))
     :resolve (instant
-      (outcome "捆成一包" "玻璃瓶、短链和一块沉木被床单裹紧，刚好能从车后扔出去。"
+      (outcome "捆成一包"
         (lambda ()
           (set! roadblocks-packed (+ roadblocks-packed 1))
           (luggage-clk 'tick!))
@@ -362,11 +362,11 @@
     :subtitle "敏锐；坏：追兵 +1，中：鱼摊 +1，好：鱼摊 +2；填满还会令劳工关系 −1"
     :requires (list (req-die))
     :resolve (roll 'sharpness
-      (outcome "车尾擦过棚柱" "棚布掀起来，追车从另一侧看见了你们。"
+      (outcome "车尾擦过棚柱"
         (lambda () (pursuit+ 1)))
-      (outcome "逼开一条窄缝" "夜莺没有松油门，鱼筐从车门外擦过去。"
+      (outcome "逼开一条窄缝"
         (lambda () (road-left-clk 'tick!)))
-      (outcome "摊子横进街心" "木板、碎冰和鱼一起滑到追车轮前。"
+      (outcome "摊子横进街心"
         (lambda () (clock-tick-n! road-left-clk 2))))))
 
 (define (node-drop-loading-rack)
@@ -374,11 +374,11 @@
     :subtitle "暴力；坏：健康 −1，中：木架 +1，好：木架 +2；填满不损害劳工关系"
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "肩膀撞上砖墙" "夜莺猛打方向，你没来得及缩回手臂。"
+      (outcome "肩膀撞上砖墙"
         (lambda () (damage-party! 1)))
-      (outcome "扯松一根支腿" "木架歪向巷口，还差最后一下。"
+      (outcome "扯松一根支腿"
         (lambda () (road-right-clk 'tick!)))
-      (outcome "整排木架倒下" "你抓住横木往后一带，追车面前只剩一片倒下的货架。"
+      (outcome "整排木架倒下"
         (lambda () (clock-tick-n! road-right-clk 2))))))
 
 (define (node-cut-before-tram)
@@ -386,11 +386,11 @@
     :subtitle "敏锐；坏：追兵 +1，中：空隙 +1，好：空隙 +2；填满立即令追兵 −1"
     :requires (list (req-die))
     :resolve (roll 'sharpness
-      (outcome "慢了半个车身" "电车铃声压过引擎，追车已经贴到后窗。"
+      (outcome "慢了半个车身"
         (lambda () (pursuit+ 1)))
-      (outcome "车头挤进轨道" "送酒车和电车并行了半条街。"
+      (outcome "车头挤进轨道"
         (lambda () (road-left-clk 'tick!)))
-      (outcome "铃声落在身后" "夜莺一把回正方向，电车从追车前方切了过去。"
+      (outcome "铃声落在身后"
         (lambda () (clock-tick-n! road-left-clk 2))))))
 
 (define (node-cut-signal)
@@ -398,11 +398,11 @@
     :subtitle "见识；坏：冷静 −1，中：信号箱 +1，好：信号箱 +2；填满保护下一路段"
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "抓错了那根线" "铜线在手里打出一串火花，你下意识缩回车内。"
+      (outcome "抓错了那根线"
         (lambda () (spend-composure! 1)))
-      (outcome "撬开信号箱" "盖板飞进雨里，里面的线束露了出来。"
+      (outcome "撬开信号箱"
         (lambda () (road-right-clk 'tick!)))
-      (outcome "道口灯全亮了" "红灯同时亮起，栏杆开始往追车前方落。"
+      (outcome "道口灯全亮了"
         (lambda () (clock-tick-n! road-right-clk 2))))))
 
 (define (node-break-police-barrier)
@@ -410,11 +410,11 @@
     :subtitle "暴力；坏：健康 −1，中：侧栏 +1，好：侧栏 +2；填满还会令官僚关系 −1"
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "木杆扫进车窗" "断木从车窗穿进来，你用肩膀挡了一下。"
+      (outcome "木杆扫进车窗"
         (lambda () (damage-party! 1)))
-      (outcome "撞松一根立柱" "侧栏向外歪开，已经露出半个车身。"
+      (outcome "撞松一根立柱"
         (lambda () (road-left-clk 'tick!)))
-      (outcome "栏杆飞进雨里" "送酒车冲出缺口，警哨声全留在车后。"
+      (outcome "栏杆飞进雨里"
         (lambda () (clock-tick-n! road-left-clk 2))))))
 
 (define (node-lure-into-checkpoint)
@@ -422,13 +422,13 @@
     :subtitle "社交；坏：追兵 +1、官僚关系 −1，中：检查口 +1，好：检查口 +2"
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "警察先盯住了你们" "你的手势慢了一拍，警察举起哨子，追车却从另一边逼近。"
+      (outcome "警察先盯住了你们"
         (lambda ()
           (pursuit+ 1)
           (change-faction-relation! "官僚" -1)))
-      (outcome "让岗哨看见后车" "警察的视线越过你，落到那辆没有减速的追车上。"
+      (outcome "让岗哨看见后车"
         (lambda () (road-right-clk 'tick!)))
-      (outcome "追车自己撞进哨卡" "夜莺最后一刻切出车道，警察的枪口和栏杆全对准了后面。"
+      (outcome "追车自己撞进哨卡"
         (lambda () (clock-tick-n! road-right-clk 2))))))
 
 (define (node-road-left-action)
@@ -452,7 +452,7 @@
     :disabled (<= (roadblocks-left) 0)
     :requires (list (req-die))
     :resolve (instant
-      (outcome "从车后抛下去" "那包东西在车轮前散开，替这一步补上了最难控制的部分。"
+      (outcome "从车后抛下去"
         (lambda ()
           (set! roadblocks-used (+ roadblocks-used 1))
           (clock-tick-n! target 2))
@@ -550,7 +550,7 @@
     "岗哨认出了你，抬杆放行，又把栏杆落在追车前面。追兵 −2。")
   (play-dialogue!
     (line "世界" "岗哨看清你的脸，抬起栏杆。送酒车过去以后，栏杆又落了下来。")
-    (line "夜莺" "你在警局到底留了多少张脸？")
+    (line "夜莺" "你在警察局到底留了多少张脸？")
     (line "主角" "今晚刚好够用。"))
   (finish-success!))
 

@@ -44,7 +44,7 @@ namespace SSNoir.IMGUI
 
         private static float LabelWidth(GameClock clock)
         {
-            var style = new GUIStyle(IMGUIStyles.ClockLabel) { fontSize = 17 };
+            var style = new GUIStyle(IMGUIStyles.ClockLabel) { fontSize = IMGUIStyles.FontSize(17) };
             return style.CalcSize(new GUIContent(clock.Label)).x;
         }
 
@@ -74,7 +74,7 @@ namespace SSNoir.IMGUI
 
             var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
             {
-                fontSize = 17,
+                fontSize = IMGUIStyles.FontSize(17),
                 alignment = TextAnchor.MiddleLeft
             };
             float labelW = labelStyle.CalcSize(new GUIContent(clock.Label)).x;
@@ -94,12 +94,12 @@ namespace SSNoir.IMGUI
                 GUI.color = Color.white;
                 IMGUIStyles.DrawOutline(box, 1f, Outline);
 
-                var numStyle = new GUIStyle(IMGUIStyles.ClockValue) { fontSize = 18, alignment = TextAnchor.MiddleCenter };
+                var numStyle = new GUIStyle(IMGUIStyles.ClockValue) { fontSize = IMGUIStyles.FontSize(18), alignment = TextAnchor.MiddleCenter };
                 GUI.Label(box, clock.Current.ToString(), numStyle);
 
                 var maxStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
-                    fontSize = 16,
+                    fontSize = IMGUIStyles.FontSize(16),
                     alignment = TextAnchor.MiddleLeft,
                     normal = { textColor = IMGUIStyles.TextSecondary }
                 };
@@ -113,7 +113,7 @@ namespace SSNoir.IMGUI
                 float pct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
                 PieDrawer.DrawPie(pieRect, pct, Active, Outline);
 
-                var fracStyle = new GUIStyle(IMGUIStyles.ClockValue) { fontSize = 17, alignment = TextAnchor.MiddleLeft };
+                var fracStyle = new GUIStyle(IMGUIStyles.ClockValue) { fontSize = IMGUIStyles.FontSize(17), alignment = TextAnchor.MiddleLeft };
                 GUI.Label(new Rect(pieRect.xMax + 8f, y, 42f, BadgeH), $"{clock.Current}/{clock.Max}", fracStyle);
             }
             else // Segments

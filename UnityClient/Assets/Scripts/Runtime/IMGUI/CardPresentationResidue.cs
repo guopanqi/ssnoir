@@ -8,7 +8,6 @@ namespace SSNoir.IMGUI
     {
         public string AnchorNodeName { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
-        public string Subtitle { get; set; } = string.Empty;
         public RollOutcome? RollOutcome { get; set; }
         public int? FateDieValue { get; set; }
         public int PreparedValue { get; set; }

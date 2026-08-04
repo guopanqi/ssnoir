@@ -26,7 +26,7 @@
         ((and sighting-tavern? sighting-dock?) "酒馆里请酒的是我。码头问潮水的也是我。我查的,一直是同一件事。")
         (sighting-tavern? "酒馆里请酒的是我。我查的,一直是同一件事。")
         (sighting-dock? "码头问潮水的是我。我查的,一直是同一件事。")
-        (sighting-police? "警局柜台前争案卷的是我。我查的,一直是同一件事。")
+        (sighting-police? "警察局柜台前争案卷的是我。我查的,一直是同一件事。")
         (else "这件事我查了七年,没查到尽头。")))
 
     (define (sighting-name anonymous-name)
@@ -72,7 +72,7 @@
 
     (define (node-police-sighting)
       (node (sighting-name "柜台前的争执")
-        :subtitle (if met? "外地人；在争一份邻城旧案卷" "外地人；在警局柜台前争执")
+        :subtitle (if met? "外地人；在争一份邻城旧案卷" "外地人；在警察局柜台前争执")
         :resolve (instant
           (lambda ()
             (set! met? #t)
@@ -95,7 +95,7 @@
         ((and (equal? location "码头") (>= world-day 5) (<= world-day 10)
               (>= (nightingale 'story-stage) 2) (not (nightingale 'sam-intro?)) (not sighting-dock?))
          (list (node-dock-sighting)))
-        ((and (equal? location "警局") (>= world-day 8)
+        ((and (equal? location "警察局") (>= world-day 8)
               (>= (nightingale 'story-stage) 2) (not (nightingale 'sam-intro?)) (not sighting-police?))
          (list (node-police-sighting)))
         (else '())))

@@ -189,8 +189,20 @@ namespace SSNoir
             }
 
             // Update camera panning & orbiting
-            if (!IsInputLocked && (_stageController == null || !_stageController.IsTransitioning))
-                _cameraManager.Update();
+            if (_stageController != null && _stageController.IsTransitioning)
+            {
+                // A stage transition drives the brain itself; the focus arc must not
+                // be holding the brain's blend hostage while it does.
+                _cameraManager.FinishFocusTravel();
+            }
+            else
+            {
+                // The focus arc runs even while input is locked: a focus change during
+                // a scripted beat still has to reach its shot.
+                _cameraManager.TickFocusTravel();
+                if (!IsInputLocked)
+                    _cameraManager.Update();
+            }
         }
 
         public bool IsNodeFlipped(string nodeName) => _flippedNodes.Contains(nodeName);
@@ -266,6 +278,12 @@ namespace SSNoir
 
             if (focusCamera != null)
             {
+                // An orbit building keeps its authored shot as the destination; only the
+                // path there is taken over, so the camera arcs around the building
+                // instead of blending straight through it.
+                if (_stageController == null || !_stageController.IsTransitioning)
+                    _cameraManager.BeginFocusTravel(focusCamera);
+
                 ResetFocusCameraPriorities();
                 focusCamera.Priority = 20;
             }
@@ -887,6 +905,11 @@ namespace SSNoir
                 _gameState.NotificationCenter.Push($"读档失败: {ex.Message}", NotificationKind.Error);
                 Debug.LogError($"[SSNoir] LoadGame failed: {ex}");
             }
+        }
+
+        public void RestartGame()
+        {
+            _sceneManager.ResetForNewGame();
         }
 
         public bool IsDraggingResource => _resourceDragActive;

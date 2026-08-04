@@ -242,6 +242,7 @@ namespace SSNoir.Core
             }
 
             // 3. Restore Team (health, 骰池状态, actor composure/stats)
+            _gameState.PrepareForLoad();
             _gameState.Team.ApplySaveData(data.Team);
 
             // 4. Restore Inventory (replaces entirely — no stale items left over)
@@ -341,7 +342,10 @@ namespace SSNoir.Core
                 RootNode = rootNode,
                 Health = _gameState.Team.Health,
                 MaxHealth = _gameState.Team.MaxHealth,
+                Failure = _gameState.Failure,
+                RestBlockers = _gameState.RestBlockers,
                 GrowthLevel = _gameState.Team.GrowthLevel,
+                WorldDay = _gameState.Get<int>("世界日", 1),
                 Location = _gameState.Get<string>("location"),
                 Inventory = inventory,
                 Relations = relations,

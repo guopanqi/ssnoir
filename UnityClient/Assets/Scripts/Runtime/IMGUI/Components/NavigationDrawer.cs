@@ -6,19 +6,22 @@ namespace SSNoir.IMGUI
 {
     public static class NavigationDrawer
     {
-        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui, TopHudLayout topHud)
         {
-            float startX = 40f;
             float startY = 30f;
+            const float returnX = 40f;
+            const float breadcrumbX = 170f;
+            const float breadcrumbWidth = 480f;
+            const float dayX = 670f;
 
             // Return button
             if (gameManager.NavigationStack.Count > 0 || !string.IsNullOrEmpty(gameManager.FocusedNodeName))
             {
-                var returnRect = new Rect(startX, startY, 110, 40);
+                var returnRect = new Rect(returnX, startY, 110, 40);
 
                 var style = new GUIStyle(IMGUIStyles.StatusLabel);
                 style.alignment = TextAnchor.MiddleCenter;
-                style.fontSize = 16;
+                style.fontSize = IMGUIStyles.FontSize(16);
 
                 // HUD 按钮：黑底白字，1px Paper 40% 描边，悬停提亮
                 if (IMGUIButton.Draw(returnRect, "< 返 回", ui,
@@ -27,8 +30,6 @@ namespace SSNoir.IMGUI
                 {
                     gameManager.GoBackNavigation();
                 }
-
-                startX += 130f;
             }
 
             // Breadcrumb
@@ -45,15 +46,32 @@ namespace SSNoir.IMGUI
 
             var crumbStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             crumbStyle.normal.textColor = IMGUIStyles.TextSecondary;
-            crumbStyle.fontSize = 16;
-            GUI.Label(new Rect(startX, startY + 8, 800, 26), breadcrumbText, crumbStyle);
+            crumbStyle.fontSize = IMGUIStyles.FontSize(16);
+            breadcrumbText = FitTextWithEllipsis(breadcrumbText, breadcrumbWidth, crumbStyle);
+            GUI.Label(new Rect(breadcrumbX, startY + 8, breadcrumbWidth, 26), breadcrumbText, crumbStyle);
+
+            var dayStyle = new GUIStyle(IMGUIStyles.StatusLabel);
+            dayStyle.normal.textColor = IMGUIStyles.TextPrimary;
+            dayStyle.fontSize = IMGUIStyles.FontSize(16);
+            GUI.Label(new Rect(dayX, startY + 8, 92f, 26f), $"第 {gameManager.DisplayedSnapshot.WorldDay} 天", dayStyle);
 
             // Relation Panel
-            DrawRelationPanel(gameManager, ui);
+            DrawRelationPanel(gameManager, ui, topHud.RelationToggle);
 
             // Divider
             IMGUIStyles.DrawLine(new Vector2(40, 88), new Vector2(UIScale.VW - 40, 88),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
+        }
+
+        private static string FitTextWithEllipsis(string text, float maxWidth, GUIStyle style)
+        {
+            if (style.CalcSize(new GUIContent(text)).x <= maxWidth) return text;
+
+            const string ellipsis = "…";
+            int length = text.Length;
+            while (length > 0 && style.CalcSize(new GUIContent(text.Substring(0, length) + ellipsis)).x > maxWidth)
+                length--;
+            return length > 0 ? text.Substring(0, length) + ellipsis : string.Empty;
         }
 
         // 声望档位配色（序号 0..5 对应 RelationScale.BandNames：敌视/冷淡/中立/相识/信任/核心）。
@@ -81,10 +99,9 @@ namespace SSNoir.IMGUI
         private static readonly string[] Factions = { "官僚", "劳工", "富商" };
 
         // 收起态留在导航栏；展开态是一张完整的关系进展图，放到导航线下方。
-        private static void DrawRelationPanel(SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        private static void DrawRelationPanel(SSNoirGameManager gameManager, IMGUIInteractionContext ui, Rect toggleRect)
         {
             var snapshot = gameManager.DisplayedSnapshot;
-            var toggleRect = new Rect(UIScale.VW - 336f, 25f, 236f, 36f);
             GUI.color = IMGUIStyles.HudBg;
             GUI.DrawTexture(toggleRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
@@ -93,7 +110,7 @@ namespace SSNoir.IMGUI
             var toggleStyle = new GUIStyle(IMGUIStyles.StatusLabel)
             {
                 alignment = TextAnchor.MiddleCenter,
-                fontSize = SF(13)
+                fontSize = IMGUIStyles.FontSize(13)
             };
             GUI.Label(toggleRect, _relationExpanded ? "关系进展  ·  收起" : CompactSummary(snapshot), toggleStyle);
             if (ui.WasClicked(toggleRect))
@@ -115,9 +132,9 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawOutline(panel, 1f,
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f));
 
-            var title = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleLeft, fontSize = SF(20) };
+            var title = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleLeft, fontSize = IMGUIStyles.FontSize(20) };
             GUI.Label(new Rect(panel.x + 18f, panel.y + 12f, 130f, 28f), "城市声望", title);
-            var note = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = SF(11) };
+            var note = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = IMGUIStyles.FontSize(11) };
             note.normal.textColor = IMGUIStyles.TextSecondary;
             GUI.Label(new Rect(panel.x + 140f, panel.y + 15f, panel.width - 160f, 24f),
                 "声望每上一档，打开这条路线专属的营生、人脉与门路", note);
@@ -149,9 +166,9 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawOutline(rect, 1f,
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.22f));
 
-            var factionStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleLeft, fontSize = SF(16) };
+            var factionStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleLeft, fontSize = IMGUIStyles.FontSize(16) };
             GUI.Label(new Rect(rect.x + 12f, rect.y + 6f, 55f, 24f), faction, factionStyle);
-            var bandStyle = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = SF(12) };
+            var bandStyle = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = IMGUIStyles.FontSize(12) };
             bandStyle.normal.textColor = active;
             GUI.Label(new Rect(rect.x + 68f, rect.y + 7f, 100f, 22f), $"{BandDisplay(snapshot, faction, band)}  {value}", bandStyle);
 
@@ -201,7 +218,7 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(chip, 1f, new Color(color.r, color.g, color.b, 0.70f));
 
-            var head = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = SF(11) };
+            var head = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = IMGUIStyles.FontSize(11) };
             head.normal.textColor = color;
             string name = snapshot.RelationBandNames.TryGetValue($"{faction}:{tier}", out string disp) ? disp : tier;
             string state = unlocked ? "已解锁" : $"还差 {Mathf.Max(0, threshold - value)}";
@@ -210,18 +227,13 @@ namespace SSNoir.IMGUI
             var body = new GUIStyle(IMGUIStyles.StatusLabel)
             {
                 alignment = TextAnchor.MiddleLeft,
-                fontSize = SF(10),
+                fontSize = IMGUIStyles.FontSize(10),
                 clipping = TextClipping.Clip
             };
             body.normal.textColor = IMGUIStyles.TextSecondary;
             string unlock = snapshot.RelationUnlocks.TryGetValue($"{faction}:{tier}", out string configured)
                 ? configured : "当前无新增动作";
             GUI.Label(new Rect(chip.x + 8f, chip.y + 23f, chip.width - 16f, 20f), unlock, body);
-        }
-
-        private static int SF(int baseSize)
-        {
-            return Mathf.Max(1, Mathf.RoundToInt(baseSize * UIScale.Scale));
         }
     }
 }

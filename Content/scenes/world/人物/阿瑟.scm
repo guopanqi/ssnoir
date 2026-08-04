@@ -1,4 +1,4 @@
-;; 阿瑟（Arthur Bell）——辖区警局负责登记与档案的职员。
+;; 阿瑟（Arthur Bell）——辖区警察局负责登记与档案的职员。
 
 (define arthur
   (let ()
@@ -7,24 +7,14 @@
     (define pass-cooldown 0)
     (define pass-cooldown-max 3)
     (define problem-invited? #f)
-    (define identity "辖区警局的登记与档案职员")
+    (define identity "辖区警察局的登记与档案职员")
 
     (define (meet!)
       (if (= stage 0)
           (begin
             (set! stage 1)
-            (notify! "登记职员阿瑟记下了你的名字。先在警局做些事，他才会把程序外的麻烦交给你。"))
+            (notify! "登记职员阿瑟收下了威胁信。能不能派人，得看程序和他肯替你担多少责任。"))
           #f))
-
-    (define (node-introduction)
-      (node "见阿瑟"
-        :subtitle identity
-        :resolve (instant (lambda ()
-          (if (not (= stage 0)) (error "见阿瑟：人物阶段错误") #t)
-          (meet!)
-          (play-dialogue!
-            (line "世界" "阿瑟·贝尔坐在登记台后，桌上每一叠文件都用尺子压得笔直。")
-            (line "阿瑟" "登记、调卷、移交，都归这张桌子。至于没有表格能管的事——出了后果才归警局。"))))))
 
     (define (on-lesson-result result)
       (if (equal? result 'success)
@@ -41,10 +31,10 @@
     ;; 【待办】官僚线目前缺可重复的「保护/权限」产出，这份工暂以现金补足；
     ;; 长远应把它接到某条权限或结局路线上，见城市生活设计「已知问题」一节。
     (define (node-paperwork)
-      (关系工作 "整理警局文书" "官僚" '低 'knowledge
-        (outcome "办得利落" "积压的卷宗理清了，登记台照规矩付了这天的工钱。" (lambda () (add-item! "金钱" 10)))
-        (outcome "按序归档" "文件各归各的抽屉，按日结拿了钱。" (lambda () (add-item! "金钱" 6)))
-        (outcome "退回重填" "一个日期写错，整叠表格被退了回来，你揉着太阳穴从头填。" (lambda () (spend-composure! 1)))))
+      (关系工作 "整理警察局文书" "官僚" '低 'knowledge
+        (outcome "办得利落" (lambda () (add-item! "金钱" 10)))
+        (outcome "按序归档" (lambda () (add-item! "金钱" 6)))
+        (outcome "退回重填" (lambda () (spend-composure! 1)))))
 
     (define (node-problem)
       (node "替阿瑟处理一个程序管不了的人"
@@ -57,31 +47,30 @@
     (define (node-pass)
       (node "请阿瑟办理通行证"
         :subtitle (string-append identity "；" (cond
-                    ((police-hostile?) "警局现在不会给你签任何东西")
+                    ((police-hostile?) "警察局现在不会给你签任何东西")
                     ((> (item-count "办案通行证") 0) "你已经持有一张")
                     ((> pass-cooldown 0) (string-append "还要等 " (number->string pass-cooldown) " 天"))
                     (else "一张一次性通行证，能在交锋中制造程序干预")))
         :disabled (or (police-hostile?) (> (item-count "办案通行证") 0) (> pass-cooldown 0))
         :requires (list (req-die))
         :resolve (instant
-          (outcome "通行证签下来了" "阿瑟在末页盖章，没有问你准备拿它做什么。"
+          (outcome "通行证签下来了"
             (lambda ()
               (add-item! "办案通行证" 1)
               (set! pass-cooldown (if (relation-at-least? "官僚" '信任) 1 pass-cooldown-max)))))))
 
     (define (nodes)
       (append
-        (if (= stage 0) (list (node-introduction)) '())
-        (list (node-paperwork))
+        (if (>= stage 1) (list (node-paperwork)) '())
         (if (>= stage 1)
             (list (node "阿瑟"
                     :subtitle identity
                     :resolve (observe
                       (cond
                         ((relation-at-least? "官僚" '信任)
-                         "警局记得你办过的事。真出了乱子，封锁线上的岗哨会认你的脸，该抬杆时抬杆——这点方便，够你在最紧要的一夜用上。")
+                         "警察局记得你办过的事。真出了乱子，封锁线上的岗哨会认你的脸，该抬杆时抬杆——这点方便，够你在最紧要的一夜用上。")
                         ((= stage 1)
-                         "阿瑟·贝尔相信每件事都该有一张表格；没有表格的事，只会在出后果时归警局管。")
+                         "阿瑟·贝尔相信每件事都该有一张表格；没有表格的事，只会在出后果时归警察局管。")
                         (else
                          "阿瑟不关心你是不是正确。他只承认你替他解决过一个后果。")))))
             '())
@@ -97,7 +86,7 @@
         (and (= stage 1) (not problem-invited?) (relation-at-least? "官僚" '相识)))
       (lambda ()
         (set! problem-invited? #t)
-        (notify! "阿瑟已经看过你做事。他有一件程序管不了的麻烦，想在警局里和你谈。")))
+        (notify! "阿瑟已经看过你做事。他有一件程序管不了的麻烦，想在警察局里和你谈。")))
 
     (lambda args
       (let ((msg (car args)))

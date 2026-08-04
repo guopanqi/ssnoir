@@ -2,32 +2,43 @@
 ;;
 ;; 主结构：位移轨道。追逐分三段街景（巷口 → 货栈区 → 邮局后街），
 ;; 每结束一个回合就永久驶过一段——移动本身停不下来，问题不是「能不能前进」，
-;; 而是「这一段来得及制造什么影响」。每段两个局部对象共用同一批骰子，
-;; 未填满的进度随街景一起消失。
+;; 而是「这一段来得及制造什么影响」。
 ;;
-;; 考点：城市准备的兑现。前几天在码头投进去的骰子，在这里变成起跑位置。
+;; 加料：多目标取舍。两个目标各有自己的钟，共用同一批骰子，三段街景填不满两根：
+;;   拦下他（主）——由每段的追击动作喂。拦下了才有那场扭打，才有他身上掉出来的东西。
+;;   抢回信封（副）——由每段的机会动作喂。钱在别处兑现：房租、生活、下一段路。
+;; 主副之间没有换算，谁也不喂谁。玩家真正要答的是「今晚你要人还是要钱」。
 ;;
-;; 对外契约：回传 '好 / '中 / '坏 三档之一（不是成败二元）——
-;;   好：追上他，看清脸，追回一部分钱
-;;   中：人跑了，但从他身上扯下了东西
-;;   坏：人和钱都没留住
-;; 三档都让故事往前走；失败留疤，不阻断主线。
+;; 考点：城市生活的兑现。邮务差事让玩家提前识破假邮差，等于白送一段街景的自由；
+;; 在码头认识乔，则让货栈里的搬运工愿意听玩家招呼。
+;;
+;; 对外契约：回传 (list 人 钱)——
+;;   人：'拦下 / '跟丢
+;;   钱：追回的金额（0 / 20 / 40 / 60 / 80），由「抢回信封」的格数换算
+;; 两个轴都不阻断主线；结算文案与小节二的起步条件由《三封信》解释。
 ;;
 ;; 城市输入（只在顶部读取一次）：
-;;   码头准备 0..6 —— 每 3 格换 1 格起跑领先。
+;;   识破假邮差 —— 拦下他开局领先 1 格。
 
-(define prep
-  (let ((v (get-global '码头准备))) (if v v 0)))
+(define recognized-fake?
+  (let ((v (get-global '识破假邮差))) (if v v #f)))
+
+(define catch-target 5)
+(define money-target 4)
+(define money-per-grid 20)
 
 (define catch-clk
-  (make-clock "追上他" 6 'segments
-              "三段街景结束时按这条钟结算：满 5 格以上追到人，2–4 格只能扯下点东西，1 格以下人和钱都没了。"))
+  (make-clock "拦下他" catch-target 'segments
+              "主目标。填满就是把他按住了——那会打起来，你也会挨一下，但他身上的东西归你。没填满他就骑走了。"))
 
-(catch-clk 'set! (quotient prep 3))
+(define money-clk
+  (make-clock "抢回信封" money-target 'segments
+              "副目标。每格 20 金；信封在拉扯里散了，捡回多少算多少。这笔钱只在别处兑现，追不回来就是没了。"))
+
+(catch-clk 'set! (if recognized-fake? 1 0))
 
 (define seg 0)
 (define finished? #f)
-(define face-seen? #f)
 (define chase-clk #f)
 (define chance-clk #f)
 
@@ -37,6 +48,7 @@
       #f))
 
 (define (catch+ n) (clock-tick-n! catch-clk n))
+(define (money+ n) (clock-tick-n! money-clk n))
 
 ;; ============================================================
 ;; 三段街景
@@ -56,21 +68,23 @@
     ((= n 2) "扑上去")
     (else (error "交割：未知追击对象"))))
 
+;; 机会动作全部指向信封：它们不帮你拦人，只帮你把钱抢回来。
+;; 两条轨道不互相换算——这一场问的就是「今晚你要人还是要钱」。
 (define (chance-name n)
   (cond
-    ((= n 0) "记住他的样子")
-    ((= n 1) "让搬运工挡住他")
-    ((= n 2) "抓住车后架")
+    ((= n 0) "扯开他的挎包")
+    ((= n 1) "让搬运工截住车头")
+    ((= n 2) "在雨里把钱捡回来")
     (else (error "交割：未知机会对象"))))
 
 (define (enter-segment! n)
   (set! seg n)
   (set! chase-clk
         (make-clock (chase-name n) 3 'segments
-                    "填满：追上他 +2。这一段驶过之后，没填满的进度就没了。"))
+                    "填满：拦下他 +2。这一段驶过之后，没填满的进度就没了。"))
   (set! chance-clk
         (make-clock (chance-name n) 2 'segments
-                    "填满：追上他 +1，另外还留下点别的。这一段驶过之后作废。")))
+                    "填满：抢回信封 +2。这一段驶过之后作废。")))
 
 ;; ── 追击动作（每段一个，技能各不相同）──────────────
 (define (node-chase)
@@ -80,33 +94,33 @@
        :subtitle "力量；坏：冷静 −1，中：+1 格，好：+2 格"
        :requires (list (req-die))
        :resolve (roll 'violence
-         (outcome "他甩开了半条街" "自行车拐进积水，泥点全甩在你脸上。你慢了一步。"
+         (outcome "他甩开了半条街"
            (lambda () (spend-composure! 1)))
-         (outcome "跟住了" "你贴着墙根跑，车铃声始终在前面十几步。"
+         (outcome "跟住了"
            (lambda () (chase-clk 'tick!)))
-         (outcome "抓到了后轮" "你抄近路截在巷子另一头，手指擦到了后轮的挡泥板。"
+         (outcome "抓到了后轮"
            (lambda () (clock-tick-n! chase-clk 2))))))
     ((= seg 1)
      (node "抄货堆翻过去"
        :subtitle "敏锐；坏：冷静 −1，中：+1 格，好：+2 格"
        :requires (list (req-die))
        :resolve (roll 'sharpness
-         (outcome "跳板断了" "跳板从中间裂开，你半条腿陷进货箱缝里。"
+         (outcome "跳板断了"
            (lambda () (spend-composure! 1)))
-         (outcome "翻了过去" "你踩着麻袋堆翻过去，落地时他还在视野里。"
+         (outcome "翻了过去"
            (lambda () (chase-clk 'tick!)))
-         (outcome "抄到了前头" "你从货堆顶上直接跳下来，落在他要经过的那条道上。"
+         (outcome "抄到了前头"
            (lambda () (clock-tick-n! chase-clk 2))))))
     ((= seg 2)
      (node "扑上去"
        :subtitle "力量；坏：健康 −1，中：+1 格，好：+2 格"
        :requires (list (req-die))
        :resolve (roll 'violence
-         (outcome "扑空了" "你扑出去，肩膀先撞上砖墙。他的车没停。"
+         (outcome "扑空了"
            (lambda () (damage-party! 1)))
-         (outcome "拽住了他" "你的手扣住他的外套，两个人一起往前踉跄了几步。"
+         (outcome "拽住了他"
            (lambda () (chase-clk 'tick!)))
-         (outcome "把车掀了" "你侧身撞过去，自行车翻倒在地，他滚了一圈才爬起来。"
+         (outcome "把车掀了"
            (lambda () (clock-tick-n! chase-clk 2))))))
     (else (error "交割：未知追击动作"))))
 
@@ -114,91 +128,78 @@
 (define (node-chance)
   (cond
     ((= seg 0)
-     (node "记住他的样子"
-       :subtitle "敏锐；填满还会让你看清他的特征"
+     (node "扯开他的挎包"
+       :subtitle "敏锐；填满：抢回信封 +2。这一颗骰子就不在拦他身上了"
        :requires (list (req-die))
        :resolve (roll 'sharpness
-         (outcome "只看见黑布" "他脸上蒙着一块黑布，雨里什么也看不清。"
+         (outcome "只扯到带子"
            (lambda () #f))
-         (outcome "记住了衣着" "深色外套，裤脚沾着灰白的粉末。你把它记下了。"
+         (outcome "掀开了包盖"
            (lambda () (chance-clk 'tick!)))
-         (outcome "看清了半张脸" "风把黑布掀起一角。那张脸年轻得出乎意料。"
+         (outcome "抓出一把"
            (lambda () (clock-tick-n! chance-clk 2))))))
     ((= seg 1)
-     (node "让搬运工挡住他"
-       :subtitle "交际；填满会替你拦下他半拍"
+     (node "让搬运工截住车头"
+       :subtitle "交际；填满：抢回信封 +2"
        :requires (list (req-die))
        :resolve (roll 'social
-         (outcome "没人抬头" "你喊了一声。没有一个人抬头——他们只是让开了路。"
+         (outcome "没人抬头"
            (lambda () #f))
-         (outcome "有人挪了脚" "一个搬运工往路中间挪了半步，车把不得不歪了一下。"
+         (outcome "有人挪了脚"
            (lambda () (chance-clk 'tick!)))
-         (outcome "整排人堵上来" "你喊的是他们听得懂的那句话。一排推车横过了巷子。"
+         (outcome "整排人堵上来"
            (lambda () (clock-tick-n! chance-clk 2))))))
     ((= seg 2)
-     (node "抓住车后架"
-       :subtitle "敏锐；填满还会从他身上扯下东西"
+     (node "在雨里把钱捡回来"
+       :subtitle "敏锐；填满：抢回信封 +2。他还在往前骑——你弯下腰的时候就追不上了"
        :requires (list (req-die))
        :resolve (roll 'sharpness
-         (outcome "手滑了" "指尖擦过金属，什么也没抓住。"
+         (outcome "全泡了"
            (lambda () #f))
-         (outcome "抓住了后架" "你的手扣住车后架，被拖着跑了十几步。"
+         (outcome "捡回几张"
            (lambda () (chance-clk 'tick!)))
-         (outcome "扯下一块布" "你抓住的是他的外套下摆。布撕开了，一角留在你手里。"
+         (outcome "抢在水冲走之前"
            (lambda () (clock-tick-n! chance-clk 2))))))
     (else (error "交割：未知机会动作"))))
 
-;; ── 段末结算：把局部进度折成追击进度 ────────────────
+;; ── 段末结算：局部进度各自折进自己那条轨道 ──────────
+;; 追击喂「拦下他」，机会喂「抢回信封」。两条互不换算。
 (define (resolve-segment!)
   (if (chase-clk 'full?) (catch+ 2) #f)
-  (if (chance-clk 'full?)
-      (begin
-        (catch+ 1)
-        (if (= seg 0) (set! face-seen? #t) #f))
-      #f))
+  (if (chance-clk 'full?) (money+ 2) #f))
 
 ;; ============================================================
 ;; 结算
 ;; ============================================================
 
-(define (tier)
-  (let ((n (catch-clk 'current)))
-    (cond
-      ((>= n 5) '好)
-      ((>= n 2) '中)
-      (else '坏))))
+(define (caught?) (catch-clk 'full?))
+(define (recovered-money) (* money-per-grid (money-clk 'current)))
 
-(define recovered-money 40)
+;; 拦下他之后的那一下不掷骰：你按住了一个不想被按住的人，挨一记是既定代价，
+;; 不是又一次运气。玩家用三段街景赢来的东西，不该被最后一掷推翻。
+(define (play-scuffle!)
+  (play-dialogue!
+    (line "主角" "下来。")
+    (line "取信人" "放手——我什么都不知道，我什么都不知道！")
+    (line "世界" "他先动的手。车倒在两个人中间，你的肋下结结实实挨了一记车把。")
+    (line "主角" "谁让你来取的？")
+    (line "取信人" "一个先生。在老街的酒馆找的我，给了我钱。就这些，我不认识他。")
+    (line "主角" "长什么样。")
+    (line "取信人" "喝多了。穿得倒体面，袖口磨了。他给钱的时候顺手抽了两根烟给我，说留着。")
+    (line "取信人" "那半包他忘在我这儿了。你拿去，别打了。"))
+  (damage-party! 1))
 
 (define (finish!)
   (if finished?
       #f
       (begin
         (set! finished? #t)
-        (let ((result (tier)))
-          (cond
-            ((equal? result '好)
-             (begin
-               (add-item! "金钱" recovered-money)
-               (play-dialogue!
-                 (line "主角" "谁让你来取的？")
-                 (line "取信人" "有人给我钱，让我把信封拿到货栈后面去。就这些。我不认识他。")
-                 (line "主角" "货栈后面。哪一片？")
-                 (line "取信人" "码头那边。居民区。"))
-               (spotlight! "交割：按住了他"
-                 (string-append "你把他按在货栈的墙上。他不是写信的人，只是收钱跑腿的。"
-                                "信封里的钱追回了一部分，"
-                                (number->string recovered-money)
-                                " 金。他嘴里吐出来的方向，指着码头居民区。"))))
-            ((equal? result '中)
-             (spotlight! "交割：跟丢了"
-               "他在邮局后街拐了个弯，就没了。你手里攥着从他身上扯下来的东西——一角深色的布，和沾在上面的灰白粉末。方向是码头居民区。"))
-            (else
-             (begin
-               (damage-party! 1)
-               (spotlight! "交割：人和钱都没了"
-                 "自行车拐进雨里，再没出来。邮箱空了，钱也空了。你只知道他往哪个方向去——码头居民区，老街那一片。"))))
-          (end-encounter result)))))
+        (if (caught?) (play-scuffle!) #f)
+        (if (> (recovered-money) 0)
+            (add-item! "金钱" (recovered-money))
+            #f)
+        (end-encounter
+          (list (if (caught?) '拦下 '跟丢) (recovered-money))))))
 
 ;; ============================================================
 ;; 回合推进
@@ -213,8 +214,8 @@
         (finish!)
         (enter-segment! (+ seg 1)))))
 
-;; 追上他提前满格就不必跑完三段。
-(define-rule "追上即结束"
+;; 拦下他提前满格就不必跑完三段——但这一段没捡的钱也就跟着没了。
+(define-rule "拦下即结束"
   (lambda () (not finished?))
   (lambda ()
     (if (catch-clk 'full?)
@@ -232,26 +233,29 @@
 (define (node-runner)
   (container "取信人"
     (list (observe-action "你能看清多少"
-            (if face-seen?
-                "深色外套，裤脚上沾着灰白的粉末。风掀开过一次黑布——那张脸年轻得出乎意料，不像写那封信的人。"
-                "一件深色外套，脸上蒙着黑布。他骑得很稳，像走过这条路很多次。")))))
+            (cond
+              ((>= (catch-clk 'current) 3)
+               "你贴得够近了：制服是借来的，袖子长出一截。风掀开过一次黑布——那张脸年轻得出乎意料，不像写那封信的人。")
+              ((>= (catch-clk 'current) 1)
+               "一件深色外套罩在邮差制服外头，脸上蒙着黑布。他骑得很稳，像走过这条路很多次。")
+              (else
+               "前面只剩一个背影和一盏晃动的车灯。他和这条街上任何一个赶路的人没有分别。"))))))
 
-(define (prep-note)
-  (cond
-    ((>= prep 6) "码头那几天没白跑：巷子的走向、邮箱的视野、哪条道是死的，你全知道。")
-    ((>= prep 3) "你踩过一部分点，至少不至于跟丢在第一个岔口。")
-    ((>= prep 1) "你对这一片只有个模糊印象。")
-    (else "你对这一片一无所知——那几天你都花在别的事情上了。")))
+(define (start-note)
+  (if recognized-fake?
+      "你在邮务站记住了取信时间。真正的邮差早已来过；这个人刚碰邮箱，你就开始追了。拦下他开局 +1。"
+      "你直到他骑上车才意识到时间不对。追逐从零开始。"))
 
 (define (get-render-data)
   (container-with-clocks
     (string-append "交割：" (seg-name seg))
     (list
-      (observe-action "你从哪儿起跑" (prep-note))
+      (observe-action "你从哪儿起跑" (start-note))
       (node-runner)
       (node-chase)
       (node-chance))
     (list (catch-clk 'render-data)
+          (money-clk 'render-data)
           (chase-clk 'render-data)
           (chance-clk 'render-data)
           (list 'clock "还剩几段街" (- 3 seg) 3 'countdown

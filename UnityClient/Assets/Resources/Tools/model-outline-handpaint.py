@@ -71,6 +71,11 @@ def get_or_create_principled_material(name, color, emission_strength=1):
         mat = bpy.data.materials.new(name)
         mat.use_nodes = True
 
+    # Workbench material previews use diffuse_color rather than the node tree.
+    # Keep it aligned with the shipped Principled material so approval renders
+    # show the actual SSNoir palette rather than neutral clay.
+    mat.diffuse_color = color
+
     nodes = mat.node_tree.nodes
     bsdf = nodes.get("Principled BSDF")
 

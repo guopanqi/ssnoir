@@ -12,16 +12,17 @@ namespace SSNoir.IMGUI
         private DialogueSequence? _current;
         private int _index;
         private Action? _onComplete;
-        private bool _allowsRemoteParticipants;
 
         public ConversationPlayer(DialogueVoicePlayer? voice) => _voice = voice;
 
         public bool IsActive => _current != null;
         public DialogueLine? CurrentLine => _current != null ? _current.Lines[_index] : null;
-        // 动作外对话不要求说话人此刻存在于当前场景；前端会为其绘制临时场外卡片。
-        public bool AllowsRemoteParticipants => _allowsRemoteParticipants;
+        public int CurrentLineIndex => _current != null ? _index : -1;
+        // 这里只表达内容是否显式使用 play-remote-dialogue!。普通 play-dialogue! 的说话人不在场时
+        // 仍由立绘舞台承接，但需要报警，不能与显式 remote 混为一谈。
+        public bool AllowsRemoteParticipants => _current?.AllowsRemoteParticipants ?? false;
 
-        public void Start(DialogueSequence sequence, Action onComplete, bool allowsRemoteParticipants = false)
+        public void Start(DialogueSequence sequence, Action onComplete)
         {
             if (sequence == null || sequence.Lines.Count == 0)
                 throw new ArgumentException("dialogue sequence cannot be empty");
@@ -30,7 +31,6 @@ namespace SSNoir.IMGUI
             _current = sequence;
             _index = 0;
             _onComplete = onComplete;
-            _allowsRemoteParticipants = allowsRemoteParticipants;
             _voice?.Play(CurrentLine!.VoiceId);
         }
 
@@ -45,7 +45,6 @@ namespace SSNoir.IMGUI
                 var done = _onComplete;
                 _current = null;
                 _onComplete = null;
-                _allowsRemoteParticipants = false;
                 done?.Invoke();
             }
             else
@@ -59,7 +58,6 @@ namespace SSNoir.IMGUI
             _current = null;
             _index = 0;
             _onComplete = null;
-            _allowsRemoteParticipants = false;
         }
     }
 }

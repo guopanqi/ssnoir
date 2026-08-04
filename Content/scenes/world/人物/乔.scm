@@ -6,10 +6,12 @@
     ;; 0陌生 / 1熟悉 / 2开口求助 / 3接送孩子 / 4感谢后等待受伤
     ;; 5养伤 / 6痊愈待邀请 / 7残疾待邀请 / 8死亡 / 9已入队
     (define stage 0)
-    (define favor 0)
-    (define favor-target 5)
-    (define child-progress 0)
-    (define child-target 4)
+    (define favor-clk
+      (make-clock "与乔熟悉起来" 5 'segments
+        "继续在码头搬运，让乔慢慢认得你；填满后他会请你帮一件私事。"))
+    (define child-clk
+      (make-clock "接送孩子" 4 'segments
+        "填满后乔会来道谢；这件事一直与主线期限争用行动骰。"))
     (define child-cared-today? #f)
     (define injury-days 0)
     (define injury-duration 4)
@@ -47,11 +49,9 @@
 
     (define (advance-favor! n)
       (if (or (= stage 1) (= stage 2))
-          (let ((before favor))
-            (set! favor (min favor-target (+ favor n)))
-            (record-clock-progress! "与乔熟悉起来" (- favor before)))
+          (favor-clk 'advance! n)
           #f)
-      (if (and (= stage 1) (>= favor favor-target))
+      (if (and (= stage 1) (favor-clk 'full?))
           (begin
             (set! stage 2)
             (notify! "乔有件家里的事想请你帮忙。"))
@@ -60,11 +60,10 @@
     (define (on-haul!)
       (begin
         (maybe-haul-banter!)
-        (if (and (= stage 0) (>= (faction-relation "劳工") 1))
+        (if (= stage 0)
             (begin
               (set! stage 1)
-              (set! favor 1)
-              (record-clock-progress! "与乔熟悉起来" 1)
+              (favor-clk 'set! 1)
               (notify! "码头的乔开始认得你了。"))
             (advance-favor! 1))))
 
@@ -90,8 +89,7 @@
       (node "乔"
         :subtitle identity
         :clocks (if (>= stage 1)
-                    (list (list 'clock "与乔熟悉起来" favor favor-target 'segments
-                                "继续在码头搬运，让乔慢慢认得你；填满后他会请你帮一件私事。"))
+                    (list (favor-clk 'render-data))
                     '())
         :resolve (observe (cond
           ((= stage 0) "一个沉默的搬运工，下工后总是走得很急。")
@@ -146,20 +144,18 @@
           (spotlight! "接送孩子" "居民区出现了一件每天最多处理一次的生活小事。它会和所有期限争用同一批行动骰。")))))
 
     (define (finish-childcare!)
-      (if (< child-progress child-target) #f
+      (if (not (child-clk 'full?)) #f
           (begin
             (set! stage 4)
             (add-item! "酒" 3)
             (complete-section!)
-            (play-dialogue!
+            (play-remote-dialogue!
               (line "乔" "没什么拿得出手的。这几瓶酒你留着。")
               (line "乔" "你替我少误了几班工，也替孩子少等了几次空门。"))
             (spotlight! "乔的谢礼" "乔送来三瓶酒。它们也是交锋里能救急的缓冲。"))))
 
     (define (advance-childcare! n)
-      (let ((before child-progress))
-        (set! child-progress (min child-target (+ child-progress n)))
-        (record-clock-progress! "接送孩子" (- child-progress before)))
+      (child-clk 'advance! n)
       (set! child-cared-today? #t)
       (finish-childcare!))
 
@@ -168,15 +164,14 @@
         :subtitle (string-append identity "；" (if child-cared-today? "今天已经接过了" "每天最多一次"))
         :tags (list "低风险")
         :disabled child-cared-today?
-        :clocks (list (list 'clock "接送孩子" child-progress child-target 'segments
-                            "填满后乔会来道谢；这件事一直与主线期限争用行动骰。"))
+        :clocks (list (child-clk 'render-data))
         :requires (list (req-die))
         :resolve (roll 'social
-          (outcome "晚了一步" "孩子在校门口多等了一会儿。乔没责怪你，你却知道这事不能总出岔子。"
+          (outcome "晚了一步"
             (lambda () (set! child-cared-today? #t) (spend-composure! 1)))
-          (outcome "平安送到" "一路没发生什么。对一个孩子来说，这已经是很好的一天。"
+          (outcome "平安送到"
             (lambda () (advance-childcare! 1)))
-          (outcome "路上很顺" "你们绕开了拥堵的街口，还赶在天黑前买到了晚饭。"
+          (outcome "路上很顺"
             (lambda () (advance-childcare! 2))))))
 
     ;; 填满即痊愈，不等第四天：满格后继续挂着，只会被"当天不管 -2"把已经满的条子重新掏空。
@@ -200,11 +195,11 @@
         :tags (list "低风险")
         :requires (list (req-die))
         :resolve (roll 'social
-          (outcome "帮不上忙" "你忙了半天，能做的都做了，他还是老样子。"
+          (outcome "帮不上忙"
             (lambda () (apply-care! 0) (spend-composure! 1)))
-          (outcome "陪他熬过一天" "你换了水，弄了点吃的，陪他把最难受的几个钟头熬过去。"
+          (outcome "陪他熬过一天"
             (lambda () (apply-care! 1)))
-          (outcome "照料妥当" "你把药、饭和夜里的水都安排妥当，他终于睡沉了一会儿。"
+          (outcome "照料妥当"
             (lambda () (apply-care! 2))))))
 
     (define (node-medicate)
@@ -213,7 +208,7 @@
         :tags (list "低风险")
         :requires (list (req-item "药品" 1))
         :resolve (instant
-          (outcome "用过药了" "药没有让账单变轻，但至少让这一夜没有继续恶化。"
+          (outcome "用过药了"
             (lambda () (apply-care! 2))))))
 
     ;; 养伤期的乔本人是一个节点，照顾与用药是他名下的两个动作。
@@ -302,13 +297,15 @@
           ((equal? msg 'on-haul!) (on-haul!))
           ((equal? msg 'on-haul-neutral!) (on-haul-neutral!))
           ((equal? msg 'on-haul-fail!) (on-haul-fail!))
+          ((equal? msg 'known?) (>= stage 1))
+          ((equal? msg 'favor) (favor-clk 'current))
           ((equal? msg 'can-catch?) (can-catch?))
           ((equal? msg 'dock-nodes) (dock-nodes))
           ((equal? msg 'residential-nodes) (residential-nodes))
           ((equal? msg 'residential-unlocked?) (>= stage 3))
           ((equal? msg 'save)
-           (list (list "stage" stage) (list "favor" favor)
-                 (list "child-progress" child-progress)
+           (list (list "stage" stage) (list "favor" (favor-clk 'save))
+                 (list "child-progress" (child-clk 'save))
                  (list "child-cared-today?" child-cared-today?)
                  (list "injury-days" injury-days) (list "care-progress" care-progress)
                  (list "injury-started-today?" injury-started-today?)
@@ -317,8 +314,8 @@
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! stage (assoc-get data "stage" 0))
-             (set! favor (assoc-get data "favor" 0))
-             (set! child-progress (assoc-get data "child-progress" 0))
+             (favor-clk 'load! (assoc-get data "favor" 0))
+             (child-clk 'load! (assoc-get data "child-progress" 0))
              (set! child-cared-today? (assoc-get data "child-cared-today?" #f))
              (set! injury-days (assoc-get data "injury-days" 0))
              (set! care-progress (assoc-get data "care-progress" 0))

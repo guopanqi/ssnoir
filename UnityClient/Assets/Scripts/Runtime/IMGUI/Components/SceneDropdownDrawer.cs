@@ -87,7 +87,7 @@ namespace SSNoir.IMGUI
                         var headerStyle = new GUIStyle(IMGUIStyles.HelpTip);
                         headerStyle.alignment = TextAnchor.MiddleCenter;
                         headerStyle.normal.textColor = IMGUIStyles.TextDisabled;
-                        headerStyle.fontSize = 11;
+                        headerStyle.fontSize = IMGUIStyles.FontSize(11);
                         GUI.Label(optRect, item.Name, headerStyle);
                     }
                     else

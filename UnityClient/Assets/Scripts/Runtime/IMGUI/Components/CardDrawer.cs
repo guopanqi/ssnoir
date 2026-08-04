@@ -45,13 +45,34 @@ namespace SSNoir.IMGUI
             return CardKind.Common;
         }
 
+        // 这张卡按自身内容该有多高。所有摆卡的地方（网格瀑布流、世界投射）都必须问它，
+        // 不要再各自写「网格一律 190 / 地点 168」这类与内容无关的常量——那正是标题被时钟徽章
+        // 压住、副标题被截掉、按钮贴着骰位的根因：内容变了，盒子不跟着变。
+        public static float MeasureCardHeight(
+            GameNode node, CardKind kind, float cardWidth, IReadOnlyList<ActorSnapshot>? actors)
+        {
+            if (kind == CardKind.Action)
+                return ActionNodeDrawer.RecommendedCardHeight(node, cardWidth, actors);
+
+            float clocksHeight = MeasureClockBadgesHeight(cardWidth, node.Clocks);
+            return kind switch
+            {
+                CardKind.Character => ContainerNodeDrawer.MeasureCharacterHeight(node, cardWidth, clocksHeight),
+                CardKind.Location => ContainerNodeDrawer.MeasureLocationHeight(node, cardWidth, clocksHeight),
+                _ => ContainerNodeDrawer.MeasureCommonHeight(node, cardWidth, clocksHeight),
+            };
+        }
+
         public static CardInteraction DrawCard(
             Rect rect, GameNode node, CardKind kind, bool isHovered, bool isFlipped, bool isFocused,
             List<SlottedResource?>? slotted, List<GameClock> clocks, string backText,
             IMGUIInteractionContext ui, SSNoirGameManager gameManager,
             bool isExecuting = false, float executeProgress = 0f, string executingText = "执行中",
             ActionReport? localRoll = null, int localRollPhase = 0, int localRollDisplayDieValue = 1, float localRollDisplayScale = 1f,
-            CardPresentationResidue? residue = null)
+            CardPresentationResidue? residue = null,
+            bool isRestBlockerTarget = false,
+            bool containsRestBlockerTarget = false,
+            bool spaciousAttachments = false)
         {
             var interaction = new CardInteraction { CardClicked = false, ClickedSlotIndex = -1, DroppedSlotIndex = -1, ExecuteClicked = false };
             bool disabled = node.Disabled;
@@ -73,6 +94,7 @@ namespace SSNoir.IMGUI
             {
                 ContainerNodeDrawer.DrawFloating(rect, node, kind == CardKind.Location, isHovered && !disabled, disabled, clocksBottomY);
                 DrawClockBadges(rect, clocks);
+                DrawRestBlockerMarker(rect, isRestBlockerTarget, containsRestBlockerTarget);
                 if (!disabled && ui.WasClicked(rect))
                 {
                     interaction.CardClicked = true;
@@ -108,13 +130,52 @@ namespace SSNoir.IMGUI
                     rect, node, slotted, ui, gameManager,
                     isExecuting, executeProgress, executingText,
                     localRoll, localRollPhase, localRollDisplayDieValue, localRollDisplayScale,
-                    residue, clocksBottomY, ref interaction);
+                    residue, clocksBottomY, spaciousAttachments, ref interaction);
             }
+
+            // 重要性是卡片最上层的状态标记，必须在动作内容与结果附件之后绘制。
+            DrawRestBlockerMarker(rect, isRestBlockerTarget, containsRestBlockerTarget);
 
             if (isCharacter && isFocused)
                 GUI.matrix = oldMatrix;
 
             return interaction;
+        }
+
+        // 休息阻塞目标属于“正在等待玩家处理”，使用金色而不是失败/高危的印章红：
+        // 目标动作呼吸并挂“必须处理”签；路径容器只保留稳定索引，不与目标争夺注意力。
+        private static void DrawRestBlockerMarker(Rect rect, bool isTarget, bool containsTarget)
+        {
+            if (!containsTarget) return;
+
+            var rail = new Rect(rect.x + 1f, rect.y + 8f, 3f, Mathf.Max(0f, rect.height - 16f));
+            GUI.color = isTarget ? IMGUIStyles.Gold : new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.70f);
+            GUI.DrawTexture(rail, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            var marker = new Rect(rect.x + 10f, rect.y + 8f, isTarget ? 84f : 76f, 22f);
+            if (isTarget)
+            {
+                IMGUIStyles.DrawGoldPulse(rect, baseAlpha: 0.72f, rings: 3, ringStep: 2.5f, speed: 2.2f);
+                GUI.color = IMGUIStyles.Gold;
+                GUI.DrawTexture(marker, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+            }
+            else
+            {
+                GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.94f);
+                GUI.DrawTexture(marker, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(marker, 1.5f, IMGUIStyles.Gold);
+            }
+
+            var style = new GUIStyle(IMGUIStyles.StatusLabel)
+            {
+                fontSize = IMGUIStyles.FontSize(12),
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = isTarget ? new Color(0.16f, 0.13f, 0.03f, 1f) : IMGUIStyles.Gold }
+            };
+            GUI.Label(marker, isTarget ? "必须处理" : "目标在内", style);
         }
 
         // ── 共享卡框架 ─────────────────────────────────────────────────
@@ -147,6 +208,14 @@ namespace SSNoir.IMGUI
         // 量出徽章会占到哪一行的哪个 Y——只做计算不画，供上层在画标题/头像前先留够空间。
         private static float MeasureClockBadgesBottom(Rect rect, List<GameClock>? clocks)
             => LayoutClockBadges(rect, clocks, draw: false);
+
+        public static float MeasureClockBadgesHeight(float cardWidth, List<GameClock>? clocks)
+        {
+            if (clocks == null || clocks.Count == 0)
+                return 0f;
+            var measureRect = new Rect(0f, 0f, cardWidth, 1f);
+            return LayoutClockBadges(measureRect, clocks, draw: false);
+        }
 
         private static void DrawClockBadges(Rect rect, List<GameClock>? clocks)
             => LayoutClockBadges(rect, clocks, draw: true);
@@ -202,7 +271,7 @@ namespace SSNoir.IMGUI
         {
             var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
             {
-                fontSize = 14,
+                fontSize = IMGUIStyles.FontSize(14),
                 fontStyle = FontStyle.Bold
             };
             IMGUIStyles.ApplyStrongFont(labelStyle);
@@ -231,7 +300,7 @@ namespace SSNoir.IMGUI
 
             var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
             {
-                fontSize = 14,
+                fontSize = IMGUIStyles.FontSize(14),
                 alignment = TextAnchor.MiddleLeft,
                 clipping = TextClipping.Clip
             };
@@ -252,7 +321,7 @@ namespace SSNoir.IMGUI
             {
                 var valueStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
-                    fontSize = 15,
+                    fontSize = IMGUIStyles.FontSize(15),
                     alignment = TextAnchor.MiddleRight,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
@@ -292,7 +361,7 @@ namespace SSNoir.IMGUI
 
                 var fracStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
-                    fontSize = 14,
+                    fontSize = IMGUIStyles.FontSize(14),
                     alignment = TextAnchor.MiddleRight,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
@@ -333,13 +402,16 @@ namespace SSNoir.IMGUI
             }
         }
 
-        public static void DrawEffectRows(Rect area, IReadOnlyList<ActionEffectRecord> effects)
+        public static void DrawEffectRows(
+            Rect area,
+            IReadOnlyList<ActionEffectRecord> effects,
+            float rowHeight = 14f,
+            float rowGap = 16f,
+            int fontSize = 10)
         {
             if (effects.Count == 0 || area.height <= 0f)
                 return;
 
-            const float rowHeight = 14f;
-            const float rowGap = 16f;
             int maxRows = Mathf.Max(0, Mathf.FloorToInt(area.height / rowGap));
             if (maxRows == 0)
             {
@@ -347,28 +419,31 @@ namespace SSNoir.IMGUI
                 // 告诉玩家「这次行动什么都没发生」。挤出一条「+N」提示，把「有内容、但这里没
                 // 地方显示」明说出来（AGENTS.md：信息不能被悄悄藏起来）。
                 if (area.height >= 8f)
-                    DrawEffectMoreRow(new Rect(area.x, area.y, area.width, area.height), effects.Count);
+                    DrawEffectMoreRow(new Rect(area.x, area.y, area.width, area.height), effects.Count, fontSize);
                 return;
             }
 
             int visibleCount = effects.Count <= maxRows ? effects.Count : maxRows - 1;
             for (int i = 0; i < visibleCount; i++)
-                DrawSingleEffectRow(effects[i], new Rect(area.x, area.y + i * rowGap, area.width, rowHeight));
+                DrawSingleEffectRow(effects[i], new Rect(area.x, area.y + i * rowGap, area.width, rowHeight), fontSize);
 
             if (effects.Count > maxRows)
-                DrawEffectMoreRow(new Rect(area.x, area.y + visibleCount * rowGap, area.width, rowHeight), effects.Count - visibleCount);
+                DrawEffectMoreRow(
+                    new Rect(area.x, area.y + visibleCount * rowGap, area.width, rowHeight),
+                    effects.Count - visibleCount,
+                    fontSize);
         }
 
         // 「还有 N 项影响」折叠提示。行高不固定——高度紧张时它会被压到不足一行，
         // 但只要还有 ≥8px 就必须画出来，这是「信息不被悄悄藏起来」的最后一道兜底。
-        private static void DrawEffectMoreRow(Rect row, int hiddenCount)
+        private static void DrawEffectMoreRow(Rect row, int hiddenCount, int fontSize)
         {
             Color accent = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.50f);
             DrawEffectRowBg(row, accent);
 
             var style = new GUIStyle(IMGUIStyles.ModalBody)
             {
-                fontSize = 10,
+                fontSize = IMGUIStyles.FontSize(fontSize),
                 alignment = TextAnchor.MiddleLeft,
                 clipping = TextClipping.Clip,
                 normal = { textColor = IMGUIStyles.TextSecondary }
@@ -376,7 +451,7 @@ namespace SSNoir.IMGUI
             GUI.Label(new Rect(row.x + 8f, row.y, row.width - 16f, row.height), $"+ 还有 {hiddenCount} 项影响...", style);
         }
 
-        private static void DrawSingleEffectRow(ActionEffectRecord effect, Rect row)
+        private static void DrawSingleEffectRow(ActionEffectRecord effect, Rect row, int fontSize)
         {
             Color accent = effect.Tone switch
             {
@@ -388,7 +463,7 @@ namespace SSNoir.IMGUI
 
             var labelStyle = new GUIStyle(IMGUIStyles.ModalBody)
             {
-                fontSize = 10,
+                fontSize = IMGUIStyles.FontSize(fontSize),
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = IMGUIStyles.TextPrimary }
             };

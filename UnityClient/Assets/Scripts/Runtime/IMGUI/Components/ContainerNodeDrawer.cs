@@ -14,6 +14,60 @@ namespace SSNoir.IMGUI
         private static readonly Color Paper85 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.85f);
         private static readonly Color Paper35 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
 
+        // ── 纵向流量（测量与绘制共用）─────────────────────────────────
+        // 这一组常量是「卡有多高」和「东西画在哪」的同一份定义。地点卡的建筑线稿、人物卡的
+        // 照片都按内容宽度推出首选尺寸，卡片再按这个尺寸长高——而不是反过来，把图形塞进一个
+        // 与内容无关的固定卡高里（那样一挤就退化成光秃秃的名牌）。
+        private const float ContentPad = 14f;
+        private const float TitleH = 26f;
+        private const float GapAfterClocks = 10f;
+        private const float GapGlyphToLine = 14f;
+        private const float GapLineToTitle = 12f;
+        private const float PhotoTopPad = 16f;
+        private const float GapPhotoToTitle = 12f;
+        private const float MaxPhotoHeight = 168f;
+
+        private static float PreferredGlyphHeight(float cardWidth) => Mathf.Min(72f, cardWidth * 0.7f / 1.1f);
+
+        private static float PreferredPhotoHeight(float cardWidth)
+            => Mathf.Min((cardWidth - 32f) * 0.72f, MaxPhotoHeight);
+
+        // 副标题按实际换行结果占高（上限 4 行左右），不再固定「剩下多少算多少」。
+        private static float MeasureSubtitleHeight(GameNode node, float cardWidth)
+        {
+            if (string.IsNullOrEmpty(node.Subtitle))
+                return 0f;
+            var style = new GUIStyle(IMGUIStyles.CardSubtitle) { alignment = TextAnchor.MiddleCenter, wordWrap = true };
+            return Mathf.Clamp(style.CalcHeight(new GUIContent(node.Subtitle), cardWidth - 24f), 18f, 88f);
+        }
+
+        private static float ClocksBlock(float clocksHeight)
+            => clocksHeight > 0f ? clocksHeight + GapAfterClocks : ContentPad;
+
+        public static float MeasureLocationHeight(GameNode node, float cardWidth, float clocksHeight)
+        {
+            return ClocksBlock(clocksHeight)
+                + PreferredGlyphHeight(cardWidth) + GapGlyphToLine + GapLineToTitle
+                + TitleH + ContentPad;
+        }
+
+        public static float MeasureCommonHeight(GameNode node, float cardWidth, float clocksHeight)
+        {
+            float subtitleH = MeasureSubtitleHeight(node, cardWidth);
+            return ClocksBlock(clocksHeight)
+                + TitleH + (subtitleH > 0f ? 6f + subtitleH : 0f)
+                + ContentPad;
+        }
+
+        public static float MeasureCharacterHeight(GameNode node, float cardWidth, float clocksHeight)
+        {
+            float subtitleH = MeasureSubtitleHeight(node, cardWidth);
+            return Mathf.Max(clocksHeight + 6f, PhotoTopPad)
+                + PreferredPhotoHeight(cardWidth) + GapPhotoToTitle
+                + TitleH + (subtitleH > 0f ? 4f + subtitleH : 0f)
+                + ContentPad;
+        }
+
         // ── 无边悬浮（地点 / 普通）──────────────────────────────────────
 
         // Ink 填充 + 放大硬投影（无模糊），去描边。地点画建筑线稿 + 地平线 + 地名；
@@ -43,7 +97,7 @@ namespace SSNoir.IMGUI
         private static void DrawLocationBody(Rect rect, GameNode node, Color line, float clocksBottomY)
         {
             bool hasClocks = clocksBottomY > rect.y;
-            float contentTop = hasClocks ? clocksBottomY + 4f : rect.y;
+            float contentTop = hasClocks ? clocksBottomY + GapAfterClocks : rect.y + ContentPad;
             float availH = rect.yMax - contentTop;
 
             if (availH < 90f)
@@ -51,7 +105,7 @@ namespace SSNoir.IMGUI
                 var plateRect = new Rect(rect.x, contentTop, rect.width, Mathf.Max(0f, availH));
                 var plateStyle = new GUIStyle(IMGUIStyles.CardTitle)
                 {
-                    fontSize = 15,
+                    fontSize = IMGUIStyles.FontSize(15),
                     alignment = TextAnchor.MiddleCenter,
                     clipping = TextClipping.Clip,
                     normal = { textColor = line }
@@ -60,14 +114,15 @@ namespace SSNoir.IMGUI
                 return;
             }
 
-            // 建筑线稿宽度同时受 availH（竖向）与 rect.width（横向）约束——瘦高卡（投影到窄立面）
-            // 不会再把线稿横向撑出卡外。
-            float iconH = Mathf.Min(72f, availH * 0.42f, rect.width * 0.7f / 1.1f);
-            float iconTop = contentTop + availH * 0.12f;
+            // 建筑线稿用与 MeasureLocationHeight 同一个首选尺寸；卡片按内容定高时两者正好吻合，
+            // 卡被外部钉成更矮的尺寸时再按剩余空间收缩（瘦高卡也不会把线稿横向撑出卡外）。
+            float blockH = PreferredGlyphHeight(rect.width) + GapGlyphToLine + GapLineToTitle + TitleH;
+            float iconH = Mathf.Max(24f, PreferredGlyphHeight(rect.width) - Mathf.Max(0f, blockH - availH));
+            float iconTop = contentTop + Mathf.Max(0f, (availH - (iconH + GapGlyphToLine + GapLineToTitle + TitleH)) * 0.5f);
             var iconArea = new Rect(rect.center.x - iconH * 0.55f, iconTop, iconH * 1.1f, iconH);
             DrawBuildingGlyph(iconArea, line);
 
-            float lineY = iconArea.yMax + 14f;
+            float lineY = iconArea.yMax + GapGlyphToLine;
             IMGUIStyles.DrawLine(
                 new Vector2(rect.x + rect.width * 0.14f, lineY),
                 new Vector2(rect.xMax - rect.width * 0.14f, lineY), line, 1.5f);
@@ -78,20 +133,21 @@ namespace SSNoir.IMGUI
                 clipping = TextClipping.Clip,
                 normal = { textColor = line }
             };
-            GUI.Label(new Rect(rect.x + 8f, lineY + 10f, rect.width - 16f, 30f), node.Name, titleStyle);
+            GUI.Label(new Rect(rect.x + 8f, lineY + GapLineToTitle, rect.width - 16f, TitleH), node.Name, titleStyle);
         }
 
         // 普通：标题（+副标题）居中。无图形、无地平线——与地点区分。标题跟随悬停变亮。
         private static void DrawCommonBody(Rect rect, GameNode node, Color line, float clocksBottomY)
         {
-            float contentH = string.IsNullOrEmpty(node.Subtitle) ? 26f : 56f;
+            float subtitleH = MeasureSubtitleHeight(node, rect.width);
+            float contentH = TitleH + (subtitleH > 0f ? 6f + subtitleH : 0f);
             float startY = rect.y + (rect.height - contentH) / 2f;
             if (clocksBottomY > rect.y)
-                startY = Mathf.Max(startY, clocksBottomY + 6f);
+                startY = Mathf.Max(startY, clocksBottomY + GapAfterClocks);
             // 徽章占用空间过多时，标题起点不能无限下压探出卡底：最多退到刚好留出一行标题的
             // 位置，宁可这行标题贴近甚至压住徽章区，也不让文字画到卡外面。副标题在空间不够
             // 时会被下面的 Mathf.Max(0f, …) 自然挤成 0 高度，等同于隐藏。
-            startY = Mathf.Min(startY, rect.yMax - 26f - 6f);
+            startY = Mathf.Min(startY, rect.yMax - TitleH - 6f);
 
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle)
             {
@@ -99,16 +155,18 @@ namespace SSNoir.IMGUI
                 clipping = TextClipping.Clip,
                 normal = { textColor = line }
             };
-            GUI.Label(new Rect(rect.x + 10f, startY, rect.width - 20f, 26f), node.Name, titleStyle);
+            GUI.Label(new Rect(rect.x + 10f, startY, rect.width - 20f, TitleH), node.Name, titleStyle);
 
-            if (!string.IsNullOrEmpty(node.Subtitle))
+            if (subtitleH > 0f)
             {
                 var subStyle = new GUIStyle(IMGUIStyles.CardSubtitle)
                 {
                     alignment = TextAnchor.MiddleCenter,
+                    wordWrap = true,
                     clipping = TextClipping.Clip
                 };
-                GUI.Label(new Rect(rect.x + 12f, startY + 28f, rect.width - 24f, Mathf.Max(0f, rect.yMax - (startY + 28f) - 6f)), node.Subtitle, subStyle);
+                float subY = startY + TitleH + 6f;
+                GUI.Label(new Rect(rect.x + 12f, subY, rect.width - 24f, Mathf.Min(subtitleH, Mathf.Max(0f, rect.yMax - subY - 6f))), node.Subtitle, subStyle);
             }
         }
 
@@ -139,7 +197,7 @@ namespace SSNoir.IMGUI
         public static void DrawCharacter(Rect rect, GameNode node, bool disabled, float clocksBottomY)
         {
             bool hasClocks = clocksBottomY > rect.y;
-            float photoTop = Mathf.Max(rect.y + 16f, hasClocks ? clocksBottomY + 6f : rect.y);
+            float photoTop = Mathf.Max(rect.y + PhotoTopPad, hasClocks ? clocksBottomY + 6f : rect.y);
 
             // 矮卡（或徽章占掉大半卡高）放不下照片时，退化为只有名字的悬浮名牌——
             // 与地点节点的矮框退化同一套语言，而不是无视竖向空间硬画一张比卡还高的照片。
@@ -148,7 +206,7 @@ namespace SSNoir.IMGUI
                 var plateRect = new Rect(rect.x, photoTop, rect.width, Mathf.Max(0f, rect.yMax - photoTop));
                 var plateStyle = new GUIStyle(IMGUIStyles.CardTitle)
                 {
-                    fontSize = 15,
+                    fontSize = IMGUIStyles.FontSize(15),
                     alignment = TextAnchor.MiddleCenter,
                     clipping = TextClipping.Clip,
                     normal = { textColor = disabled ? IMGUIStyles.TextSecondary : IMGUIStyles.Paper }
@@ -158,10 +216,10 @@ namespace SSNoir.IMGUI
             }
 
             float photoW = rect.width - 32f;
-            // 照片高度同时受宽高比(0.72)与卡片剩余竖向空间约束——瘦高卡不会再把照片撑得
-            // 比卡还高；下方至少给标题预留一行 + 间距 + 底边距。
-            const float titleBudget = 12f + 26f + 6f;
-            float photoH = Mathf.Min(photoW * 0.72f, Mathf.Max(30f, rect.yMax - photoTop - titleBudget));
+            // 照片高度同时受首选尺寸（与 MeasureCharacterHeight 同一个）与卡片剩余竖向空间约束——
+            // 瘦高卡不会再把照片撑得比卡还高；下方至少给标题+副标题预留位置。
+            float titleBudget = GapPhotoToTitle + TitleH + MeasureSubtitleHeight(node, rect.width) + 6f;
+            float photoH = Mathf.Min(PreferredPhotoHeight(rect.width), Mathf.Max(30f, rect.yMax - photoTop - titleBudget));
             var photoRect = new Rect(rect.x + 16f, photoTop, photoW, photoH);
 
             GUI.color = IMGUIStyles.PhotoBlack;
@@ -171,20 +229,26 @@ namespace SSNoir.IMGUI
 
             var photoStyle = new GUIStyle(IMGUIStyles.CardTitle)
             {
-                fontSize = 32,
+                fontSize = IMGUIStyles.FontSize(32),
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f) }
             };
             GUI.Label(photoRect, "?", photoStyle);
 
-            float textY = photoRect.yMax + 12f;
+            float textY = photoRect.yMax + GapPhotoToTitle;
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Clip };
             if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
-            GUI.Label(new Rect(rect.x + 10f, textY, rect.width - 20f, 26f), node.Name, titleStyle);
+            GUI.Label(new Rect(rect.x + 10f, textY, rect.width - 20f, TitleH), node.Name, titleStyle);
 
             if (!string.IsNullOrEmpty(node.Subtitle))
             {
-                var subStyle = new GUIStyle(IMGUIStyles.CardSubtitle) { alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Clip };
-                GUI.Label(new Rect(rect.x + 10f, textY + 26f, rect.width - 20f, Mathf.Max(0f, rect.yMax - (textY + 26f) - 6f)), node.Subtitle, subStyle);
+                var subStyle = new GUIStyle(IMGUIStyles.CardSubtitle)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    wordWrap = true,
+                    clipping = TextClipping.Clip
+                };
+                float subY = textY + TitleH + 4f;
+                GUI.Label(new Rect(rect.x + 10f, subY, rect.width - 20f, Mathf.Max(0f, rect.yMax - subY - 6f)), node.Subtitle, subStyle);
             }
         }
     }

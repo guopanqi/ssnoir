@@ -1,0 +1,553 @@
+{
+  "saveTime": "2026-08-02 20:21:55",
+  "globals": {
+    "chapter": 0,
+    "relation:官僚": 0,
+    "relation:劳工": 3,
+    "relation:富商": 0,
+    "frank-final-help": false,
+    "资产": "低",
+    "开场动作": "有人敲门",
+    "relation-band-name:官僚:相识": "挂号",
+    "relation-band-name:官僚:信任": "备案",
+    "relation-band-name:官僚:核心": "有里子",
+    "relation-goal:官僚:相识": "替阿瑟处理程序管不了的麻烦",
+    "relation-goal:官僚:信任": "真出事时警察封锁线放行拦车·办通行证更快",
+    "relation-goal:官僚:核心": "引荐市长秘书，遇事能求到更高处（demo 暂未开放）",
+    "relation-band-name:劳工:相识": "面熟",
+    "relation-band-name:劳工:信任": "够朋友",
+    "relation-band-name:劳工:核心": "自己人",
+    "relation-goal:劳工:相识": "参与搁浅货船的紧急抢修",
+    "relation-goal:劳工:信任": "替弗兰克查账并接触旧悬案",
+    "relation-goal:劳工:核心": "走私工作；了断之日弗兰克带人到场",
+    "relation-band-name:富商:相识": "有往来",
+    "relation-band-name:富商:信任": "座上宾",
+    "relation-band-name:富商:核心": "合伙人",
+    "relation-goal:富商:相识": "私货能出手·陪代理谈投资·接触保险核赔",
+    "relation-goal:富商:信任": "私货满价收购·投资本金打折",
+    "relation-goal:富商:核心": "引荐博士，牵出实验室科技线（demo 暂未开放）",
+    "第一章阶段": 3,
+    "夜莺处境": "稳定",
+    "交割结果": "拦下",
+    "老街熟脸": 3,
+    "小节二路线": "查明",
+    "小节二结果": "好",
+    "莱恩下落": "逃走",
+    "夜莺信任达标": false,
+    "准备-找到莱恩": false,
+    "准备-警方到场": false,
+    "准备-后台已封": false,
+    "准备-登台已改": false,
+    "准备-诱饵": false,
+    "识破假邮差": true,
+    "乔认得你": true,
+    "世界日": 11,
+    "unloaded-new-machines": true,
+    "准备-外圈": 0,
+    "准备-内环": 0,
+    "准备-中央": 0,
+    "人手-乔": false,
+    "人手-弗兰克": false,
+    "人手-警察": false,
+    "人手-领班": false
+  },
+  "team": {
+    "health": 4,
+    "growthLevel": 2,
+    "actors": [
+      {
+        "id": "player",
+        "name": "主角",
+        "role": "protagonist",
+        "status": "active",
+        "composure": 6,
+        "hangoverSlotId": null,
+        "faintSlotId": null,
+        "lossOfControlSlotId": null,
+        "permanentDiePenaltyLabel": "",
+        "permanentDiePenalty": 0,
+        "spentGrowthPoints": 0,
+        "stats": {
+          "violence": 0,
+          "knowledge": 1,
+          "sharpness": 0,
+          "social": 0
+        }
+      }
+    ]
+  },
+  "inventory": {
+    "金钱": 278,
+    "情报": 0,
+    "药品": 1,
+    "酒": 0,
+    "香烟": 2
+  },
+  "worldData": [
+    [
+      "day",
+      11
+    ],
+    [
+      "home",
+      [
+        [
+          "residence",
+          "旅馆"
+        ],
+        [
+          "has-flower?",
+          false
+        ],
+        [
+          "drank-today?",
+          false
+        ],
+        [
+          "medicated-today?",
+          false
+        ],
+        [
+          "rent-due",
+          0
+        ],
+        [
+          "rent-due-max",
+          3
+        ],
+        [
+          "evicted?",
+          true
+        ]
+      ]
+    ],
+    [
+      "dock",
+      [
+        [
+          "machine-stage",
+          3
+        ],
+        [
+          "machine-progress",
+          3
+        ]
+      ]
+    ],
+    [
+      "old-street-tavern",
+      [
+        [
+          "closed-days",
+          0
+        ],
+        [
+          "closed-days-max",
+          2
+        ],
+        [
+          "loan-owed",
+          0
+        ],
+        [
+          "loan-days",
+          0
+        ]
+      ]
+    ],
+    [
+      "three-letters",
+      [
+        [
+          "story-stage",
+          3
+        ],
+        [
+          "delivery-day",
+          4
+        ],
+        [
+          "delivery-pending?",
+          false
+        ],
+        [
+          "delivery-result",
+          "拦下"
+        ],
+        [
+          "delivery-money",
+          40
+        ],
+        [
+          "runner-cigarettes?",
+          true
+        ],
+        [
+          "delivery-shortfall",
+          0
+        ],
+        [
+          "mail-routine",
+          3
+        ],
+        [
+          "joe-mail-tip?",
+          true
+        ],
+        [
+          "condition-level",
+          0
+        ],
+        [
+          "trust",
+          1
+        ],
+        [
+          "song-day",
+          0
+        ],
+        [
+          "familiar",
+          3
+        ],
+        [
+          "west-friction-cleared?",
+          true
+        ],
+        [
+          "east-entry",
+          4
+        ],
+        [
+          "east-gallery",
+          4
+        ],
+        [
+          "west-stairs",
+          4
+        ],
+        [
+          "west-bridge",
+          4
+        ],
+        [
+          "merchant-trust",
+          8
+        ],
+        [
+          "union-checked?",
+          true
+        ],
+        [
+          "bridge-identified?",
+          true
+        ],
+        [
+          "patience",
+          3
+        ],
+        [
+          "patience-day",
+          11
+        ],
+        [
+          "report-pending",
+          ""
+        ],
+        [
+          "inquiry-day",
+          8
+        ],
+        [
+          "inquiry-told?",
+          true
+        ],
+        [
+          "singer-key?",
+          true
+        ],
+        [
+          "lesson-done?",
+          false
+        ],
+        [
+          "lesson-day",
+          0
+        ],
+        [
+          "lesson-state",
+          0
+        ],
+        [
+          "lesson-forced?",
+          false
+        ],
+        [
+          "lesson-extra?",
+          false
+        ],
+        [
+          "lesson-material?",
+          false
+        ],
+        [
+          "envelope-thin?",
+          false
+        ],
+        [
+          "material-settled?",
+          true
+        ],
+        [
+          "settle-route",
+          "查明"
+        ],
+        [
+          "settle-quality",
+          "好"
+        ],
+        [
+          "lyon-fate",
+          "逃走"
+        ],
+        [
+          "settled-day",
+          8
+        ],
+        [
+          "outer-ring",
+          0
+        ],
+        [
+          "inner-ring",
+          0
+        ],
+        [
+          "core-ring",
+          0
+        ],
+        [
+          "roster",
+          0
+        ],
+        [
+          "aide-joe?",
+          false
+        ],
+        [
+          "aide-frank?",
+          false
+        ],
+        [
+          "aide-police?",
+          false
+        ],
+        [
+          "aide-usher?",
+          false
+        ],
+        [
+          "premiere-done?",
+          false
+        ],
+        [
+          "premiere-pending?",
+          false
+        ],
+        [
+          "scene-flags",
+          [
+            "她说起莱恩",
+            "留下的信",
+            "第二封信",
+            "第二封信来电",
+            "她的过去",
+            "伤后探望",
+            "交割已结算"
+          ]
+        ]
+      ]
+    ],
+    [
+      "clinic",
+      []
+    ],
+    [
+      "park",
+      []
+    ],
+    [
+      "police-station",
+      []
+    ],
+    [
+      "freight-company",
+      [
+        [
+          "agent-stage",
+          0
+        ],
+        [
+          "project-state",
+          "无"
+        ],
+        [
+          "project-quality",
+          0
+        ],
+        [
+          "investment-days",
+          0
+        ],
+        [
+          "company-trouble",
+          [
+            false,
+            0
+          ]
+        ]
+      ]
+    ],
+    [
+      "joe",
+      [
+        [
+          "stage",
+          3
+        ],
+        [
+          "favor",
+          5
+        ],
+        [
+          "child-progress",
+          2
+        ],
+        [
+          "child-cared-today?",
+          false
+        ],
+        [
+          "injury-days",
+          0
+        ],
+        [
+          "care-progress",
+          0
+        ],
+        [
+          "injury-started-today?",
+          false
+        ],
+        [
+          "cared-today?",
+          false
+        ],
+        [
+          "injury-pity",
+          0
+        ]
+      ]
+    ],
+    [
+      "frank",
+      [
+        [
+          "stage",
+          5
+        ],
+        [
+          "favor",
+          0
+        ],
+        [
+          "repair-progress",
+          0
+        ],
+        [
+          "repair-deadline-day",
+          0
+        ],
+        [
+          "smuggled-today?",
+          false
+        ],
+        [
+          "trouble",
+          [
+            false,
+            0
+          ]
+        ]
+      ]
+    ],
+    [
+      "arthur",
+      [
+        [
+          "stage",
+          0
+        ],
+        [
+          "pass-cooldown",
+          0
+        ],
+        [
+          "problem-invited?",
+          false
+        ]
+      ]
+    ],
+    [
+      "walter",
+      [
+        [
+          "stage",
+          0
+        ],
+        [
+          "claim-result",
+          "无"
+        ]
+      ]
+    ],
+    [
+      "residential-district",
+      []
+    ],
+    [
+      "theater",
+      []
+    ],
+    [
+      "insurance-company",
+      []
+    ],
+    [
+      "board",
+      [
+        [
+          "active-missions",
+          [
+            [
+              "代查一笔账",
+              1
+            ],
+            [
+              "替人带话",
+              1
+            ]
+          ]
+        ],
+        [
+          "refresh-days",
+          1
+        ]
+      ]
+    ],
+    [
+      "test",
+      []
+    ]
+  ]
+}

@@ -8,6 +8,7 @@ namespace SSNoir.Core
     public class GameState
     {
         private readonly Dictionary<string, object> _states = new Dictionary<string, object>();
+        private readonly Dictionary<string, RestBlocker> _restBlockers = new Dictionary<string, RestBlocker>();
 
         public TeamState Team { get; } = new TeamState();
         public InventoryState Inventory { get; } = new InventoryState();
@@ -17,14 +18,19 @@ namespace SSNoir.Core
         public DialogueCenter DialogueCenter { get; } = new DialogueCenter();
         public ActionExecutionContext? CurrentContext { get; set; } = null;
         public ActionReport? CurrentActionReport { get; set; } = null;
+        public GameFailure Failure { get; private set; } = GameFailure.None;
+        public IReadOnlyList<RestBlocker> RestBlockers => new List<RestBlocker>(_restBlockers.Values);
 
         public GameState()
         {
+            Team.OnTeamChanged += CheckHealthFailure;
             ResetForNewGame();
         }
 
         public void ResetForNewGame()
         {
+            Failure = GameFailure.None;
+            _restBlockers.Clear();
             _states.Clear();
             Team.ResetForNewGame();
             Inventory.ApplySaveData(new Dictionary<string, int>());
@@ -66,6 +72,43 @@ namespace SSNoir.Core
 
             // 开局单人。同伴改为通过剧情 / 支线招募后加入，
             // 招募 = +1 行动力，是"花预算换更多预算"的核心 pull（招募逻辑待后续接入）。
+        }
+
+        // 读档先清除上一次会话的失败；随后恢复的健康为 0 时会由事件立即重新置失败。
+        public void PrepareForLoad()
+        {
+            Failure = GameFailure.None;
+            _restBlockers.Clear();
+        }
+
+        public void RegisterRestBlocker(string id, string reason, string locationName, string targetNodeName)
+        {
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(reason)
+                || string.IsNullOrWhiteSpace(locationName) || string.IsNullOrWhiteSpace(targetNodeName))
+                throw new ArgumentException("rest blocker requires non-empty id, reason, location, and target node");
+            _restBlockers[id] = new RestBlocker(id, reason, locationName, targetNodeName);
+        }
+
+        public void ReleaseRestBlocker(string id) => _restBlockers.Remove(id);
+
+        public void ClearRestBlockers() => _restBlockers.Clear();
+
+        public void FailGame(string title, string description)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                throw new ArgumentException("failure title must be a non-empty string", nameof(title));
+            if (string.IsNullOrWhiteSpace(description))
+                throw new ArgumentException("failure description must be a non-empty string", nameof(description));
+            if (Failure.IsFailed)
+                return;
+
+            Failure = new GameFailure(true, title, description);
+        }
+
+        private void CheckHealthFailure()
+        {
+            if (Team.Health <= 0)
+                FailGame("GAME OVER", "主角生命值归零，游戏结束。");
         }
 
         // Pure global key-value store only (chapter, reputation, story flags).

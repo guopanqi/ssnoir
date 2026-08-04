@@ -8,7 +8,10 @@ namespace SSNoir.Core
         public GameNode? RootNode { get; init; }
         public int Health { get; init; }
         public int MaxHealth { get; init; }
+        public GameFailure Failure { get; init; } = GameFailure.None;
+        public IReadOnlyList<RestBlocker> RestBlockers { get; init; } = new List<RestBlocker>();
         public int GrowthLevel { get; init; }
+        public int WorldDay { get; init; } = 1;
         public string Location { get; init; } = string.Empty;
         public IReadOnlyDictionary<string, int> Inventory { get; init; } = new Dictionary<string, int>();
         // 三派声望（官僚 / 劳工 / 富商）的底层整数值。

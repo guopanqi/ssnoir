@@ -80,7 +80,7 @@ namespace SSNoir.IMGUI
             {
                 var style = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
-                    fontSize = 24,
+                    fontSize = IMGUIStyles.FontSize(24),
                     alignment = TextAnchor.MiddleCenter,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
@@ -92,7 +92,7 @@ namespace SSNoir.IMGUI
                 string small = selected.Value > 1 ? $"{selected.ItemName} x{selected.Value}" : selected.ItemName;
                 var bigStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
-                    fontSize = 24,
+                    fontSize = IMGUIStyles.FontSize(24),
                     alignment = TextAnchor.UpperCenter,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
@@ -101,7 +101,7 @@ namespace SSNoir.IMGUI
 
                 var smallStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
-                    fontSize = 9,
+                    fontSize = IMGUIStyles.FontSize(9),
                     alignment = TextAnchor.MiddleCenter,
                     normal = { textColor = IMGUIStyles.Gold }
                 };

@@ -13,11 +13,15 @@ namespace SSNoir.IMGUI
         {
             public DialogueLine Line = null!;
             public bool AllowsRemoteParticipants;
+            // 普通 play-banter! 锚定失败时，画面会降级为场外卡并发一次内容警告。
+            // 状态跟着气泡走，避免 OnGUI 每帧重复推送同一条警告。
+            public bool RemoteFallbackWarningIssued;
             public float Remaining;   // 剩余可见时间
         }
 
         private const float OverlapSeconds = 0.6f;   // 上一句残留,让"你一句我一句"看得到来回
         private const int MaxQueued = 4;              // 队列上限,溢出丢最旧,避免连续操作后积压
+        private static readonly IReadOnlyList<Bubble> NoVisibleBubbles = System.Array.Empty<Bubble>();
 
         private readonly DialogueVoicePlayer? _voice;
         private readonly Queue<DialogueSequence> _queue = new();
@@ -29,29 +33,24 @@ namespace SSNoir.IMGUI
 
         public BanterPlayer(DialogueVoicePlayer? voice) => _voice = voice;
 
-        public IReadOnlyList<Bubble> Visible => _visible;
+        public IReadOnlyList<Bubble> Visible => _suspended ? NoVisibleBubbles : _visible;
 
         public void Enqueue(DialogueSequence sequence)
         {
             if (sequence == null || sequence.Lines.Count == 0)
                 throw new System.ArgumentException("banter sequence cannot be empty");
-            if (_suspended)
-                return;   // 对话聚焦时,杂音直接丢弃
             while (_queue.Count >= MaxQueued)
                 _queue.Dequeue();
             _queue.Enqueue(sequence);
         }
 
-        // Conversation 启动:清空并暂停
+        // Conversation 启动:隐藏并冻结当前气泡；当前序列和等待队列都保留。
         public void Suspend()
         {
             _suspended = true;
-            _queue.Clear();
-            _visible.Clear();
-            _current = null;
         }
 
-        // Conversation 结束:恢复接受新台词(旧的已被清掉,不复活)
+        // Conversation 结束:从原来的计时位置继续。
         public void Resume() => _suspended = false;
 
         // 场景重置:彻底清空

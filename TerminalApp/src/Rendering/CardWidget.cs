@@ -68,7 +68,9 @@ namespace SSNoir.Rendering
             CardPresentationResidue? residue = null,
             bool disabled = false,
             string? rollSkill = null,
-            IReadOnlyList<ActorSnapshot>? actors = null)
+            IReadOnlyList<ActorSnapshot>? actors = null,
+            bool isRestBlockerTarget = false,
+            bool containsRestBlockerTarget = false)
         {
             var interaction = new CardInteraction
             {
@@ -120,6 +122,7 @@ namespace SSNoir.Rendering
             // Draw Card Background
             Raylib.DrawRectangleRounded(bounds, 0.1f, 8, bgColor);
             Raylib.DrawRectangleRoundedLinesEx(bounds, 0.1f, 8, 2f, outlineColor);
+            DrawRestBlockerMarker(bounds, isRestBlockerTarget, containsRestBlockerTarget);
 
             // Draw Clocks Badges
             float clocksBottomY = bounds.Y;
@@ -426,6 +429,26 @@ namespace SSNoir.Rendering
             }
 
             return interaction;
+        }
+
+        // 实心 !：当前动作就是阻塞休息的事件；空心 !：进入这张容器卡还能找到该事件。
+        // 信号来自引擎镜像的 Scheme 注册表，不从节点标签或文案推断。
+        private static void DrawRestBlockerMarker(Rectangle bounds, bool isTarget, bool containsTarget)
+        {
+            if (!containsTarget) return;
+
+            var marker = new Rectangle(bounds.X + bounds.Width - 24f, bounds.Y + 7f, 17f, 17f);
+            var red = new Color(194, 74, 67, 255);
+            if (isTarget)
+            {
+                Raylib.DrawRectangleRounded(marker, 0.2f, 4, red);
+                FontManager.DrawText("!", marker.X + 6f, marker.Y + 2f, 13, Color.White);
+            }
+            else
+            {
+                Raylib.DrawRectangleRoundedLinesEx(marker, 0.2f, 4, 1.5f, red);
+                FontManager.DrawText("!", marker.X + 6f, marker.Y + 2f, 13, red);
+            }
         }
 
         /// <summary>
@@ -767,14 +790,6 @@ namespace SSNoir.Rendering
             float bodyX = attachment.X + 3f;
             float bodyW = attachment.Width - 6f;
 
-            if (!string.IsNullOrWhiteSpace(residue.Subtitle))
-            {
-                Raylib.DrawRectangleRounded(new Rectangle(bodyX, y + 1f, 2.5f, 13f), 1f, 2, WithA(oc, ease));
-                FontManager.DrawText(residue.Subtitle, bodyX + 9f, y + 2f, 9,
-                    WithA(new Color(206, 210, 226, 255), ease));
-                y += 19f;
-            }
-
             DrawEffectRows(new Rectangle(bodyX, y, bodyW, 0f), residue.Effects, ease);
         }
 
@@ -790,7 +805,6 @@ namespace SSNoir.Rendering
         public static float ResidueAttachmentHeight(CardPresentationResidue residue)
         {
             float h = ResidueHeaderHeight(residue) + 5f;
-            if (!string.IsNullOrWhiteSpace(residue.Subtitle)) h += 19f;
             if (residue.Effects.Count > 0) h += residue.Effects.Count * EffectRowGap;
             return Math.Max(74f, h + 5f);
         }

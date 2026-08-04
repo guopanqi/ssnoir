@@ -15,7 +15,7 @@
     (define hush-price 400)             ; 封口总价，也是状态卡唯一显示的账目总额
     (define nightingale-daily-earning 40)
     (define berth-price-insurance 80)   ; 保险公司紧急转移条款的正规舱位
-    (define truth-target 8)             ; 暗账查访格数(码头/警局/货运三源分段推进)
+    (define truth-target 8)             ; 暗账查访格数(码头/警察局/货运三源分段推进)
     (define dock-truth-target 3)        ; 老人：分三层递进
     (define police-truth-target 3)      ; 案卷抄件：分三层递进
     (define freight-truth-target 2)     ; 船期与货栈：分两层递进
@@ -207,7 +207,7 @@
                                  " 金。收账人第 10 天上门时，你可以让她交钱，也可以取回这笔钱后交锋")
         :requires (list (req-item "金钱" first-installment))
         :resolve (instant
-          (outcome "首期备好了" "她把钱装进牛皮纸袋，压在酒馆老板的账本底下。收账人第十天上门前，这笔钱不会再动。"
+          (outcome "首期备好了"
             (lambda ()
               (set! installment-reserved? #t)
               (sync-globals!))))))
@@ -281,7 +281,7 @@
          (let ((entry (list-ref (dock-truth-steps) dock-truth-progress)))
            (set! dock-truth-progress (+ dock-truth-progress 1))
            (advance-truth! (car entry) (cadr entry))))
-        ((equal? source "警局")
+        ((equal? source "警察局")
          (let ((entry (list-ref (police-truth-steps) police-truth-progress)))
            (set! police-truth-progress (+ police-truth-progress 1))
            (advance-truth! (car entry) (cadr entry))))
@@ -361,7 +361,7 @@
                 (line "主角" "所以你才躲到我这里。")
                 (line "夜莺" "所以我再不敢跑。我一跑,那顶帽子就真扣实了。")
                 (line "主角" "那就跟他们碰一场。")
-                (line "夜莺" "他们不是一个人来的。你要碰,也别一个人碰——码头、警局,能拉一个是一个。")
+                (line "夜莺" "他们不是一个人来的。你要碰,也别一个人碰——码头、警察局,能拉一个是一个。")
                 (line "夜莺" "可我还是想自己凑一份钱。不图别的,不想让你把命也押在我这笔账上。"))
               (play-dialogue!
                 (line "夜莺" "有件事,我一直没跟你说。")
@@ -523,7 +523,7 @@
     (define (truth-clock)
       (if (and (stage3-open?) (truth-pending?))
           (list (list 'clock "那晚码头上发生了什么" truth-progress truth-target 'segments
-                      "先在码头、警局或货运公司混出门路,才能找到人、调到卷宗或翻到旧记录。查不查,都能走到第 17 天。"))
+                      "先在码头、警察局或货运公司混出门路,才能找到人、调到卷宗或翻到旧记录。查不查,都能走到第 17 天。"))
           '()))
 
     (define (nightingale-earning-clock)
@@ -563,7 +563,7 @@
         ((not (arthur 'can-escalate?)) "需要阿瑟把案子送进程序")
         ((not (case-ready?)) "需要拼好案卷")
         ((= (item-count "办案通行证") 0) "需要办案通行证")
-        (else "材料备妥，去警局立案")))
+        (else "材料备妥，去警察局立案")))
 
     (define (route-overview-text)
       (string-append
@@ -647,7 +647,7 @@
                                      " 金首期；收账人收手离开，钱记进日后的封口钱"))
         :requires (if installment-reserved? '() (list (req-item "金钱" first-installment)))
         :resolve (instant
-          (outcome "钱交出去了" "收账人点了点那笔首期:'老板要亲自来做个了断。'钱货两清,他转身走进雨里。"
+          (outcome "钱交出去了"
             (lambda ()
               (set-protection! "首期")
               (on-public-event-result 'success))))))
@@ -690,7 +690,7 @@
                                      ""))
         :requires (list (req-die) (req-item "金钱" (hush-due)))
         :resolve (instant
-          (outcome "钱送出去了" "钱送出去了。第 17 天,他会当面烧掉那纸约。"
+          (outcome "钱送出去了"
             (lambda () (set! hush-paid? #t) (sync-globals!))))))
 
     (define (route1-nodes)
@@ -708,7 +708,7 @@
                                      ""))
         :requires (list (req-die) (req-item "金钱" (berth-price-effective)))
         :resolve (instant
-          (outcome "公司舱位办妥" "沃尔特把盖过章的船票递给你。投保人和受益人那两栏，写的都是夜莺自己。"
+          (outcome "公司舱位办妥"
             (lambda () (set! berth? #t) (sync-globals!))))))
 
     (define (detective-blocks-farewell?)
@@ -752,7 +752,7 @@
     ;; ── 节拍三·路线四：立案送警 ────────────────────
     (define (node-case-route-locked)
       (node "立案送警"
-        :subtitle "阿瑟是辖区警局的登记与档案职员；他还不会把跨城命案送进正式程序"
+        :subtitle "阿瑟是辖区警察局的登记与档案职员；他还不会把跨城命案送进正式程序"
         :tags (list "需要阿瑟·熟")
         :disabled #t))
 
@@ -760,17 +760,17 @@
       (action "把那晚的案卷拼起来"
         (list (req-die))
         (roll 'knowledge
-          (outcome "拼不出头绪" "线索太散,拼不出一份站得住的案卷。" (lambda () (spend-composure! 1)))
-          (outcome "拼出个大概" "你把零碎的线索理成了一份说得过去的案卷。" (lambda () (set-flag! '案卷备妥)))
-          (outcome "拼得严丝合缝" "案卷拼得严丝合缝,连日期都对得上。" (lambda () (set-flag! '案卷备妥))))))
+          (outcome "拼不出头绪" (lambda () (spend-composure! 1)))
+          (outcome "拼出个大概" (lambda () (set-flag! '案卷备妥)))
+          (outcome "拼得严丝合缝" (lambda () (set-flag! '案卷备妥))))))
 
     (define (node-file-case)
       (node "请阿瑟把案子送进程序"
-        :subtitle "辖区警局的登记与档案职员；通行证是由头，人情让材料不会停在收件桌上"
+        :subtitle "辖区警察局的登记与档案职员；通行证是由头，人情让材料不会停在收件桌上"
         :tags (if (> (item-count "办案通行证") 0) '() (list "需要办案通行证"))
         :requires (list (req-item "办案通行证" 1))
         :resolve (instant
-          (outcome "案子立起来了" "阿瑟收下通行证，把材料放进提级案卷。老板那一半从此不能再被当作普通纠纷。"
+          (outcome "案子立起来了"
             (lambda () (set! case-filed? #t) (set! case-filed-day world-day) (sync-globals!))))))
 
     ;; ── 节拍三·到期日分派 ───────────────────────────
@@ -965,11 +965,11 @@
                             "填满后，对陌生人的了解增加 1 格。"))
         :requires (list (req-die))
         :resolve (roll 'social
-          (outcome "问得太急" "你把几桌客人问得起了戒心，只能先退开。"
+          (outcome "问得太急"
             (lambda () (spend-composure! 1)))
-          (outcome "拼出轮廓" "有人记得他的外套，有人记得他的口音。零碎说法开始对得上。"
+          (outcome "拼出轮廓"
             (lambda () (advance-beat1-location! "酒馆" 1)))
-          (outcome "认出那张脸" "一个老酒客见过他几次，把他的作息和常坐的位置都说清楚了。"
+          (outcome "认出那张脸"
             (lambda () (advance-beat1-location! "酒馆" 2))))))
 
     (define (node-dock-inquire-stalker)
@@ -980,11 +980,11 @@
                             "填满后，对陌生人的了解增加 1 格。"))
         :requires (list (req-die))
         :resolve (roll 'social
-          (outcome "没人愿意开口" "码头上的人看了看你，又看了看彼此。你只换来一阵沉默。"
+          (outcome "没人愿意开口"
             (lambda () (spend-composure! 1)))
-          (outcome "查到船期" "搬运工记得那张脸：他是坐夜船来的，而且没打算久留。"
+          (outcome "查到船期"
             (lambda () (advance-beat1-location! "码头" 1)))
-          (outcome "追到去向" "水手说出了他下船后的路线，终点是老街后面一间短租屋。"
+          (outcome "追到去向"
             (lambda () (advance-beat1-location! "码头" 2))))))
 
     (define (beat1-nodes-at location)
@@ -1029,12 +1029,12 @@
 
     (define (node-police-truth)
       (node "调邻城的案卷抄件"
-        :subtitle (string-append "阿瑟是辖区警局的登记与档案职员；"
+        :subtitle (string-append "阿瑟是辖区警察局的登记与档案职员；"
                     (if (relation-at-least? "官僚" '相识)
                         (if (sam 'along?)
                             "阿瑟调卷,萨姆读卷——他一眼能看出哪一页被抽换过"
                             "肯替你调一张抄件，但得你自己找出破绽")
-                        "得先在警局登记，他才会替你调邻城旧卷"))
+                        "得先在警察局登记，他才会替你调邻城旧卷"))
         :tags (if (relation-at-least? "官僚" '相识) '() (list "需要官僚·相识"))
         :disabled (not (relation-at-least? "官僚" '相识))
         :clocks (list (list 'clock "案卷抄件" police-truth-progress police-truth-target 'segments
@@ -1042,8 +1042,8 @@
         :requires (list (req-die))
         :resolve (roll 'knowledge
           (lambda () #f)
-          (lambda () (advance-source-truth! "警局"))
-          (lambda () (advance-source-truth! "警局")))))
+          (lambda () (advance-source-truth! "警察局"))
+          (lambda () (advance-source-truth! "警察局")))))
 
     (define (node-freight-truth)
       (define (freight-truth-mods)
@@ -1148,7 +1148,7 @@
         :disabled listened-today?
         :requires (list (req-item "金钱" 10))
         :resolve (instant
-          (outcome "听她唱了一段" (song-text)
+          (outcome "听她唱了一段"
             (lambda ()
               (set! listened-today? #t)
               (restore-actor-composure! 'player 2))
@@ -1173,7 +1173,7 @@
             (list (ending-tavern-node))
             '())))
 
-    ;; ── 跨地点节点收拢（警局/码头/货运公司）────────────
+    ;; ── 跨地点节点收拢（警察局/码头/货运公司）────────────
     ;; 地点文件只认「我在哪、这批节点该插在列表的哪个槽位」，
     ;; 可见性判断全部收回夜莺自己算——谁拥有状态，谁决定这段状态驱动
     ;; 的节点该不该出现在别人的地盘上。route 槽承载节拍三的暗账查访与了断路线。
@@ -1184,7 +1184,7 @@
                   (< dock-truth-progress dock-truth-target))
              (list (node-dock-truth))
              '()))
-        ((equal? location "警局")
+        ((equal? location "警察局")
          (append
            (if (and (stage3-open?) (truth-lead?) (truth-pending?) (not (route-settled?))
                     (< police-truth-progress police-truth-target))

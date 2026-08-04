@@ -8,8 +8,8 @@ namespace SSNoir.Core
     public sealed class DialogueSequence
     {
         public IReadOnlyList<DialogueLine> Lines { get; }
-        // 仅显式的 remote banter 会开启。未解析的说话人由临时侧边卡承接，
-        // 普通 banter 仍严格要求锚定，避免拼写或节点配置错误被悄悄吞掉。
+        // 显式 remote dialogue/banter 会开启。普通调用也允许前端把未解析的说话人
+        // 降级为临时侧边卡，但必须同时给出内容警告，不能静默吞掉拼写或场景配置错误。
         public bool AllowsRemoteParticipants { get; }
 
         public DialogueSequence(IReadOnlyList<DialogueLine> lines, bool allowsRemoteParticipants = false)

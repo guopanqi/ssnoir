@@ -6,10 +6,12 @@
 
 - **架构总览(先读这个理解项目)**：[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - **城市生活设计（内容与机制源头）**：[docs/城市生活设计.md](docs/城市生活设计.md)
+- **城市问题与求解结构（小节的决策结构与想法库）**：[docs/城市问题与求解结构库.md](docs/城市问题与求解结构库.md)
 - **故事设计总纲（章节写作原则）**：[docs/故事设计总纲.md](docs/故事设计总纲.md)
 - **第一章·三封信（真正第一章的故事与玩法设计）**：[docs/第一章·三封信.md](docs/第一章·三封信.md)
 - **demo短篇·夜莺故事设计（demo 试验故事，非真主线）**：[docs/demo短篇·夜莺故事设计.md](docs/demo短篇·夜莺故事设计.md)
 - **写 .scm 内容（世界观口径 + 引擎隐含行为 + 内容作者的判断）**：[skills/write-scheme/SKILL.md](skills/write-scheme/SKILL.md)
+- **制作 3D 资产（参考图、低模、Blender 加工、Unity 命名契约）**：[skills/create-3d-assets/SKILL.md](skills/create-3d-assets/SKILL.md)
 - **要不要验证 / 怎么验证（含 GameTester 红线）**：[skills/verify/SKILL.md](skills/verify/SKILL.md)
 - **改 Schemy 解释器本身(库开发)**：[schemy-master/AGENTS.md](schemy-master/AGENTS.md)
 - **Unity 客户端 UI 规则**：[UnityClient/AGENTS.md](UnityClient/AGENTS.md)

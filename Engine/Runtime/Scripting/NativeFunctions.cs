@@ -51,6 +51,39 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__set-party-health!"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__fail-game!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 2 || !(args[0] is string title) || !(args[1] is string description))
+                    throw new ArgumentException("__fail-game! requires title and description strings");
+                gameState.FailGame(title, description);
+                return new None();
+            }, "__fail-game!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__register-rest-block!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 4 || args[0] is not string id || args[1] is not string reason
+                    || args[2] is not string locationName || args[3] is not string targetNodeName)
+                    throw new ArgumentException("__register-rest-block! requires id, reason, location, and target node strings");
+                gameState.RegisterRestBlocker(id, reason, locationName, targetNodeName);
+                return new None();
+            }, "__register-rest-block!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__release-rest-block!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 1 || args[0] is not string id)
+                    throw new ArgumentException("__release-rest-block! requires one id string");
+                gameState.ReleaseRestBlocker(id);
+                return new None();
+            }, "__release-rest-block!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__clear-rest-blockers!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 0)
+                    throw new ArgumentException("__clear-rest-blockers! takes no arguments");
+                gameState.ClearRestBlockers();
+                return new None();
+            }, "__clear-rest-blockers!"));
+
             // 声望档位：读 relation:<faction> 的当前整数值，按 RelationScale 折算成档位序号（0..5）。
             interpreter.DefineGlobal(Symbol.FromString("__relation-band-index"), new NativeProcedure(args =>
             {

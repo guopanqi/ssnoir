@@ -1,21 +1,22 @@
 {
-  "saveTime": "2026-07-24 14:46:26",
+  "saveTime": "2026-07-31 15:33:09",
   "globals": {
     "chapter": 0,
     "relation:官僚": 0,
-    "relation:劳工": 3,
+    "relation:劳工": 2,
     "relation:富商": 0,
     "frank-final-help": false,
     "资产": "低",
+    "开场动作": "有人敲门",
     "relation-band-name:官僚:相识": "挂号",
     "relation-band-name:官僚:信任": "备案",
     "relation-band-name:官僚:核心": "有里子",
     "relation-goal:官僚:相识": "替阿瑟处理程序管不了的麻烦",
-    "relation-goal:官僚:信任": "请阿瑟提级、延期并办理通行证",
+    "relation-goal:官僚:信任": "真出事时警察封锁线放行拦车·办通行证更快",
     "relation-goal:官僚:核心": "引荐市长秘书，遇事能求到更高处（demo 暂未开放）",
     "relation-band-name:劳工:相识": "面熟",
     "relation-band-name:劳工:信任": "够朋友",
-    "relation-band-name:劳工:核心": "拜过码头",
+    "relation-band-name:劳工:核心": "自己人",
     "relation-goal:劳工:相识": "参与搁浅货船的紧急抢修",
     "relation-goal:劳工:信任": "替弗兰克查账并接触旧悬案",
     "relation-goal:劳工:核心": "走私工作；了断之日弗兰克带人到场",
@@ -25,36 +26,32 @@
     "relation-goal:富商:相识": "私货能出手·陪代理谈投资·接触保险核赔",
     "relation-goal:富商:信任": "私货满价收购·投资本金打折",
     "relation-goal:富商:核心": "引荐博士，牵出实验室科技线（demo 暂未开放）",
-    "夜莺阶段": 2,
-    "夜莺状态等级": 0,
-    "夜莺状态": "稳定",
-    "夜莺查访进度": 2,
-    "夜莺查访目标": 2,
-    "夜莺主动上门": true,
-    "夜莺保护方案": "无",
-    "夜莺二层已揭": true,
-    "夜莺已打听": true,
-    "夜莺真相": false,
-    "夜莺已送走": false,
-    "夜莺已付封口": false,
-    "夜莺已立案": false,
-    "夜莺已移交": false,
+    "第一章阶段": 1,
+    "夜莺处境": "稳定",
+    "交割结果": "未定",
+    "老街熟脸": 0,
+    "小节二路线": "无",
+    "小节二结果": "无",
+    "莱恩下落": "无",
     "夜莺信任达标": false,
-    "夜莺姿态": "无",
-    "bout-idx": 0
+    "准备-找到莱恩": false,
+    "准备-警方到场": false,
+    "准备-后台已封": false,
+    "准备-登台已改": false,
+    "准备-诱饵": false
   },
   "team": {
-    "health": 4,
-    "growthLevel": 1,
+    "health": 5,
+    "growthLevel": 0,
     "actors": [
       {
         "id": "player",
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "composure": 2,
+        "composure": 5,
         "hangoverSlotId": null,
-        "faintSlotId": 2,
+        "faintSlotId": null,
         "lossOfControlSlotId": null,
         "permanentDiePenaltyLabel": "",
         "permanentDiePenalty": 0,
@@ -69,7 +66,7 @@
     ]
   },
   "inventory": {
-    "金钱": 84,
+    "金钱": 96,
     "情报": 0,
     "药品": 1,
     "酒": 0,
@@ -78,23 +75,7 @@
   "worldData": [
     [
       "day",
-      5
-    ],
-    [
-      "public-event-count",
-      1
-    ],
-    [
-      "public-event-pending?",
-      false
-    ],
-    [
-      "public-event-delay-used?",
-      false
-    ],
-    [
-      "next-public-event",
-      3
+      2
     ],
     [
       "home",
@@ -143,118 +124,187 @@
         [
           "closed-days-max",
           2
+        ],
+        [
+          "loan-owed",
+          0
+        ],
+        [
+          "loan-days",
+          0
         ]
       ]
     ],
     [
-      "nightingale",
+      "three-letters",
       [
         [
           "story-stage",
-          2
+          1
+        ],
+        [
+          "delivery-day",
+          4
+        ],
+        [
+          "delivery-pending?",
+          false
+        ],
+        [
+          "delivery-result",
+          "未定"
+        ],
+        [
+          "delivery-money",
+          0
+        ],
+        [
+          "runner-cigarettes?",
+          false
+        ],
+        [
+          "delivery-shortfall",
+          -1
+        ],
+        [
+          "mail-routine",
+          3
+        ],
+        [
+          "joe-mail-tip?",
+          true
         ],
         [
           "condition-level",
           0
         ],
         [
-          "listened-today?",
-          false
-        ],
-        [
           "trust",
-          1
+          0
         ],
         [
-          "tavern-inquiry-progress",
-          4
+          "familiar",
+          0
         ],
         [
-          "dock-inquiry-progress",
-          4
+          "warren-stage",
+          0
         ],
         [
-          "beat1-early?",
-          true
+          "patience",
+          0
         ],
         [
-          "protection",
+          "patience-day",
+          0
+        ],
+        [
+          "unreported?",
+          false
+        ],
+        [
+          "lyon-know",
+          0
+        ],
+        [
+          "barber-told?",
+          false
+        ],
+        [
+          "owner-told?",
+          false
+        ],
+        [
+          "joe-told?",
+          false
+        ],
+        [
+          "gent-told?",
+          false
+        ],
+        [
+          "frank-told?",
+          false
+        ],
+        [
+          "lesson-done?",
+          false
+        ],
+        [
+          "lesson-day",
+          0
+        ],
+        [
+          "lesson-gain",
+          0
+        ],
+        [
+          "lesson-forced?",
+          false
+        ],
+        [
+          "warren-clk",
+          0
+        ],
+        [
+          "envelope-thin?",
+          false
+        ],
+        [
+          "escorted-day",
+          0
+        ],
+        [
+          "material-settled?",
+          false
+        ],
+        [
+          "settle-route",
           "无"
         ],
         [
-          "installment-paid?",
-          false
-        ],
-        [
-          "truth-progress",
-          0
-        ],
-        [
-          "dock-truth-progress",
-          0
-        ],
-        [
-          "police-truth-progress",
-          0
-        ],
-        [
-          "freight-truth-progress",
-          0
-        ],
-        [
-          "stance",
+          "settle-quality",
           "无"
         ],
         [
-          "berth?",
+          "lyon-fate",
+          "无"
+        ],
+        [
+          "settled-day",
+          0
+        ],
+        [
+          "found-lyon?",
           false
         ],
         [
-          "farewell?",
+          "police-guard?",
           false
         ],
         [
-          "hush-paid?",
+          "backstage-checked?",
           false
         ],
         [
-          "case-filed?",
+          "staging-changed?",
           false
         ],
         [
-          "surrendered?",
+          "decoy-set?",
           false
         ],
         [
-          "case-filed-day",
-          0
+          "premiere-done?",
+          false
         ],
         [
-          "surrendered-day",
-          0
-        ],
-        [
-          "case-progress-shown",
-          0
-        ],
-        [
-          "surrender-progress-shown",
-          0
-        ],
-        [
-          "ending-day",
-          0
-        ],
-        [
-          "nightingale-earnings",
-          0
+          "premiere-pending?",
+          false
         ],
         [
           "scene-flags",
-          [
-            "二层已揭",
-            "已打听"
-          ]
+          []
         ]
       ]
     ],
@@ -303,11 +353,11 @@
       [
         [
           "stage",
-          3
+          1
         ],
         [
           "favor",
-          5
+          3
         ],
         [
           "child-progress",
@@ -406,56 +456,15 @@
       ]
     ],
     [
-      "sam",
-      [
-        [
-          "stage",
-          1
-        ],
-        [
-          "evidence",
-          "无"
-        ],
-        [
-          "along?",
-          false
-        ],
-        [
-          "met?",
-          true
-        ],
-        [
-          "sighting-tavern?",
-          true
-        ],
-        [
-          "sighting-dock?",
-          false
-        ],
-        [
-          "favor-asked?",
-          false
-        ],
-        [
-          "favor-done?",
-          false
-        ],
-        [
-          "sighting-police?",
-          false
-        ]
-      ]
-    ],
-    [
       "residential-district",
       []
     ],
     [
-      "insurance-company",
+      "theater",
       []
     ],
     [
-      "stranger-hideout",
+      "insurance-company",
       []
     ],
     [
@@ -465,7 +474,7 @@
           "active-missions",
           [
             [
-              "帮人寻物",
+              "替人带话",
               1
             ],
             [

@@ -119,7 +119,7 @@ namespace SSNoir.IMGUI
 
             // Modal panel
             float modalW = 380;
-            float modalH = CurrentReport?.OutcomePresentation?.HasText == true ? 330 : 260;
+            float modalH = CurrentReport?.OutcomePresentation?.HasText == true ? 290 : 260;
             float modalX = (UIScale.VW - modalW) / 2f;
             float modalY = (UIScale.VH - modalH) / 2f;
             var modalRect = new Rect(modalX, modalY, modalW, modalH);
@@ -148,7 +148,7 @@ namespace SSNoir.IMGUI
                 var summaryStyle = new GUIStyle(IMGUIStyles.ModalBody)
                 {
                     alignment = TextAnchor.MiddleCenter,
-                    fontSize = 12,
+                    fontSize = IMGUIStyles.FontSize(12),
                     normal = { textColor = IMGUIStyles.PaperTextSecondary }
                 };
                 GUI.Label(new Rect(contentX, contentY, contentW, 16), FateStrip.Describe(strip), summaryStyle);
@@ -178,7 +178,7 @@ namespace SSNoir.IMGUI
             if (_phase >= 2)
             {
                 var outcomeStyle = new GUIStyle(IMGUIStyles.ModalTitle);
-                outcomeStyle.fontSize = 16;
+                outcomeStyle.fontSize = IMGUIStyles.FontSize(16);
                 outcomeStyle.normal.textColor = DisplayOutcomeColor;
                 GUI.Label(new Rect(contentX, contentY, contentW, 24), $"判定结果: {DisplayOutcomeText}", outcomeStyle);
                 contentY += 32;
@@ -187,15 +187,9 @@ namespace SSNoir.IMGUI
                 if (presentation != null && presentation.HasText)
                 {
                     var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle);
-                    titleStyle.fontSize = 15;
+                    titleStyle.fontSize = IMGUIStyles.FontSize(15);
                     titleStyle.alignment = TextAnchor.MiddleCenter;
                     GUI.Label(new Rect(contentX, contentY, contentW, 22), presentation.Title, titleStyle);
-                    contentY += 24;
-
-                    var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody);
-                    subtitleStyle.wordWrap = true;
-                    subtitleStyle.alignment = TextAnchor.UpperCenter;
-                    GUI.Label(new Rect(contentX, contentY, contentW, 42), presentation.Subtitle, subtitleStyle);
                 }
             }
 

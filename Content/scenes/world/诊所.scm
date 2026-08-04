@@ -18,7 +18,7 @@
                       "")
         :requires (list (req-item "金钱" (hostile-markup 25)))
         :resolve (instant
-          (outcome "抓了一份药" "抓了一份药，揣进兜里，留着熬不住的时候。"
+          (outcome "抓了一份药"
             (lambda () (add-item! "药品" 1))))))
 
     ;; 比买药省钱，但要投入一颗骰子，并且恢复量更低。
@@ -29,7 +29,7 @@
                       "")
         :requires (list (req-die) (req-item "金钱" (hostile-markup 15)))
         :resolve (instant
-          (outcome "完成训练" "医生按着你活动伤处，疼得龇牙，力气却一点点找了回来。"
+          (outcome "完成训练"
             (lambda () (heal-party! 2))))))
 
     (lambda args

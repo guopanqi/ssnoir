@@ -68,6 +68,7 @@ namespace SSNoir.Rendering
         public DialogueSequence? ActiveBanter { get; set; } = null;
         public int ActiveBanterLineIndex { get; set; }
         public float ActiveBanterTime { get; set; }
+        public bool IsBanterSuspended { get; set; }
         public Dictionary<string, Raylib_cs.Rectangle> VisibleNodeCardBounds { get; } =
             new Dictionary<string, Raylib_cs.Rectangle>(StringComparer.OrdinalIgnoreCase);
         public string ActiveNarrationId { get; set; } = string.Empty;
@@ -169,7 +170,6 @@ namespace SSNoir.Rendering
     {
         public string AnchorNodeName { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
-        public string Subtitle { get; set; } = string.Empty;
         public RollOutcome? RollOutcome { get; set; }
         public int? FateDieValue { get; set; }
         public int PreparedValue { get; set; }
