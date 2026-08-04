@@ -77,6 +77,13 @@ namespace SSNoir
         private Cinemachine.CinemachineBlendDefinition _cutHoldSavedBlend;
         private int _cutHoldFrame;
 
+        // Destination parked on the outgoing view for one frame while the freeze is taken.
+        private Cinemachine.CinemachineVirtualCamera? _reducedParkedCamera;
+        private Vector3 _reducedTargetPosition;
+        private Quaternion _reducedTargetRotation;
+        private float _reducedTargetFarClip;
+        private int _reducedParkedFrame;
+
         public ViewCrossfade Crossfade => _crossfade;
 
         public SSNoirCameraManager(SSNoirGameManager gameManager, float panSpeed)
@@ -244,7 +251,7 @@ namespace SSNoir
             // Reduce motion takes the same fork every time, whatever the two ends are:
             // no road at all, just a dissolve over a cut.
             if (MotionSettings.ReduceMotion)
-                return BeginReducedFocusChange(brain);
+                return BeginReducedFocusChange(focusCamera, brain, renderedCamera);
 
             float duration = brain.m_DefaultBlend.m_Time;
             if (duration <= 0.01f)
@@ -307,17 +314,46 @@ namespace SSNoir
 
         /// <summary>
         /// Hands the focus change to a cut hidden under a dissolve — the reduce-motion
-        /// form of <see cref="BeginFocusTravel"/>. The outgoing view is frozen first,
-        /// while the camera is still standing in the old shot; the brain then snaps to
-        /// the destination underneath that frozen frame, and the frame fades off it.
-        /// Nothing travels, so nothing sweeps past the player.
+        /// form of <see cref="BeginFocusTravel"/>. Nothing travels, so nothing sweeps
+        /// past the player; the old shot simply dissolves off the new one.
+        ///
+        /// The whole thing turns on getting the freeze *before* the cut, and the caller
+        /// runs in Update — the brain reaches LateUpdate of this same frame and would
+        /// have already snapped by the time the frame is captured, leaving us dissolving
+        /// the new shot onto itself. So the destination is parked on the outgoing view
+        /// for exactly one frame: the brain cuts to it and nothing changes on screen,
+        /// the freeze takes its copy at the end of that frame, and only then is the
+        /// camera released to its real pose, underneath the frozen frame.
         /// </summary>
-        private bool BeginReducedFocusChange(Cinemachine.CinemachineBrain brain)
+        private bool BeginReducedFocusChange(
+            Cinemachine.CinemachineVirtualCamera focusCamera,
+            Cinemachine.CinemachineBrain brain,
+            Camera renderedCamera)
         {
             _isNavigating = false;
             _isDraggingCam = false;
 
-            _crossfade.Begin(MotionSettings.CrossfadeDuration);
+            // A focus change landing on top of a parked one puts the previous destination
+            // back where it belongs first; otherwise it stays stranded on a stale view.
+            ReleaseReducedPark();
+
+            var config = focusCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            bool destinationOrbits = config != null && config.dragMode == CameraDragMode.Orbit;
+
+            // Read the destination before parking overwrites it.
+            _reducedParkedCamera = focusCamera;
+            _reducedTargetPosition = destinationOrbits ? config!.AuthoredPosition : focusCamera.transform.position;
+            _reducedTargetRotation = destinationOrbits ? config!.AuthoredRotation : focusCamera.transform.rotation;
+            _reducedTargetFarClip = focusCamera.m_Lens.FarClipPlane;
+            _reducedParkedFrame = Time.frameCount;
+
+            focusCamera.transform.SetPositionAndRotation(
+                renderedCamera.transform.position, renderedCamera.transform.rotation);
+            SetFarClipPlane(focusCamera, renderedCamera.farClipPlane);
+
+            // 抓帧相机照抄此刻的 renderedCamera——brain 要到 LateUpdate 才动它，所以它
+            // 现在还站在要留下的那一镜上。
+            _crossfade.Begin(MotionSettings.CrossfadeDuration, renderedCamera);
 
             _cutHoldSavedBlend = brain.m_DefaultBlend;
             brain.m_DefaultBlend = new Cinemachine.CinemachineBlendDefinition(
@@ -328,6 +364,22 @@ namespace SSNoir
         }
 
         /// <summary>
+        /// Puts a parked destination back on its real shot. Safe to call when nothing is
+        /// parked, and safe to call when no freeze ever arrived — the camera must never
+        /// be left standing on a view it does not own.
+        /// </summary>
+        private void ReleaseReducedPark()
+        {
+            if (_reducedParkedCamera == null)
+                return;
+
+            _reducedParkedCamera.transform.SetPositionAndRotation(
+                _reducedTargetPosition, _reducedTargetRotation);
+            SetFarClipPlane(_reducedParkedCamera, _reducedTargetFarClip);
+            _reducedParkedCamera = null;
+        }
+
+        /// <summary>
         /// Advances a running focus travel — the arc, or the reduce-motion dissolve that
         /// stands in for it. Driven every frame, including while gameplay input is
         /// locked: a focus change during a scripted beat still has to land.
@@ -335,6 +387,14 @@ namespace SSNoir
         public void TickFocusTravel()
         {
             _crossfade.Tick();
+
+            // Release the parked destination the moment the freeze exists — that frame is
+            // now holding the old shot on screen, so the camera underneath is free to be
+            // where it really belongs. The frame guard is the safety net for the case
+            // where no freeze ever arrives: the park must not outlive its one frame.
+            if (_reducedParkedCamera != null
+                && (_crossfade.IsFading || Time.frameCount > _reducedParkedFrame + 1))
+                ReleaseReducedPark();
 
             // The brain gets its blend back once the dissolve is over, not before: until
             // then any blend it ran would be a second transition underneath the first.
@@ -395,6 +455,7 @@ namespace SSNoir
         public void FinishFocusTravel()
         {
             _crossfade.Finish();
+            ReleaseReducedPark();
             ReleaseCutHold();
 
             if (!_isFocusArcActive)
@@ -594,9 +655,29 @@ namespace SSNoir
             // one is cut and dissolved instead of turned.
             if (MotionSettings.ReduceMotion && _navigationMode == CameraDragMode.Orbit)
             {
-                // Freeze first: the camera is still standing where the player left it.
-                _crossfade.Begin(MotionSettings.CrossfadeDuration);
-                ApplyNavigationPose(activeCamera, 1f);
+                var renderedCamera = Camera.main;
+                if (renderedCamera != null)
+                {
+                    // Freeze first: the camera is still standing where the player left it.
+                    _crossfade.Begin(MotionSettings.CrossfadeDuration, renderedCamera);
+
+                    // Then park it back there for the one frame the freeze needs. Landing
+                    // on the destination in this same frame would put the new shot on
+                    // screen before the frozen frame exists to cover it — one frame of
+                    // the swing's endpoint, which is exactly the flicker being avoided.
+                    Vector3 parkPosition = activeCamera.transform.position;
+                    Quaternion parkRotation = activeCamera.transform.rotation;
+
+                    ApplyNavigationPose(activeCamera, 1f);
+                    _reducedParkedCamera = activeCamera;
+                    _reducedTargetPosition = activeCamera.transform.position;
+                    _reducedTargetRotation = activeCamera.transform.rotation;
+                    _reducedTargetFarClip = activeCamera.m_Lens.FarClipPlane;
+                    _reducedParkedFrame = Time.frameCount;
+
+                    activeCamera.transform.SetPositionAndRotation(parkPosition, parkRotation);
+                }
+
                 _isNavigating = false;
             }
         }
