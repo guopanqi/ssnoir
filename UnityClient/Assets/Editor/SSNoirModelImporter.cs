@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using Cinemachine;
 using System;
+using System.IO;
 using System.Linq;
 
 namespace SSNoir.Editor
@@ -16,6 +17,10 @@ namespace SSNoir.Editor
     /// </summary>
     public class SSNoirModelImporter : AssetPostprocessor
     {
+        // Bump this whenever serialized importer output changes so existing model assets
+        // are reprocessed instead of keeping stale generated VCams in the import cache.
+        public override uint GetVersion() => 2;
+
         private void OnPostprocessModel(GameObject root)
         {
             var allTransforms = root.GetComponentsInChildren<Transform>(true);
@@ -29,6 +34,9 @@ namespace SSNoir.Editor
             {
                 foreach (var cam in cameras)
                 {
+                    var orbitPivot = FindClosestOrbitPivot(
+                        cam.transform, root.transform, orbitPivots);
+
                     // Create a sibling GameObject for the Cinemachine Virtual Camera
                     GameObject vcamGo = new GameObject(cam.name + "_VCam");
                     vcamGo.transform.SetParent(cam.transform.parent, false);
@@ -40,21 +48,37 @@ namespace SSNoir.Editor
                     var vcam = vcamGo.AddComponent<CinemachineVirtualCamera>();
                     vcam.m_Lens.FieldOfView = cam.fieldOfView;
                     
-                    // Correct Blender 100x unit scale factor for clipping planes (e.g. Near 10 -> 0.1, Far 9999 -> 100)
-                    vcam.m_Lens.NearClipPlane = Mathf.Max(0.01f, cam.nearClipPlane / 100f);
-                    vcam.m_Lens.FarClipPlane = Mathf.Max(vcam.m_Lens.NearClipPlane + 1.0f, cam.farClipPlane / 100f);
+                    // Unity's direct .blend importer reports camera clip planes in
+                    // centimetres; an authored FBX already carries the correct units.
+                    // Applying the old /100 correction to City.fbx reduced a 100-unit
+                    // far plane to 1 and clipped the whole building during focus travel.
+                    float clipScale = GetClipPlaneScale(assetPath);
+                    float nearClip = Mathf.Max(0.01f, cam.nearClipPlane * clipScale);
+                    float farClip = Mathf.Max(nearClip + 1.0f, cam.farClipPlane * clipScale);
+                    if (orbitPivot != null)
+                    {
+                        // An orbit shot must at least reach its own subject. Use the
+                        // imported asset-space distance so this remains safe even when
+                        // the final scene instance is uniformly scaled.
+                        float pivotDistance = Vector3.Distance(
+                            cam.transform.position, orbitPivot.position);
+                        farClip = Mathf.Max(farClip, pivotDistance * 1.25f);
+                    }
+
+                    vcam.m_Lens.NearClipPlane = nearClip;
+                    vcam.m_Lens.FarClipPlane = farClip;
                     vcam.m_Lens.Orthographic = cam.orthographic;
                     vcam.m_Lens.OrthographicSize = cam.orthographicSize;
                     vcam.Priority = 5; // Default priority for node cameras
 
                     // Configure custom camera config for drag/orbit behavior.
                     var config = vcamGo.AddComponent<SSNoirVirtualCameraConfig>();
-                    ConfigureDragMode(config, cam.transform, root.transform, orbitPivots);
+                    ConfigureDragMode(config, orbitPivot);
 
                     // Disable the original Camera node to prevent rendering interference
                     cam.gameObject.SetActive(false);
 
-                    Debug.Log($"[SSNoir] ModelImporter: Converted camera '{cam.name}' to Virtual Camera '{vcamGo.name}' ({DescribeDragMode(config)}).");
+                    Debug.Log($"[SSNoir] ModelImporter: Converted camera '{cam.name}' to Virtual Camera '{vcamGo.name}' ({DescribeDragMode(config)}; clip {nearClip:F3}..{farClip:F3}, source '{Path.GetExtension(assetPath)}').");
                 }
             }
 
@@ -141,6 +165,15 @@ namespace SSNoir.Editor
             return string.Equals(normalized, "orbitpivot", StringComparison.OrdinalIgnoreCase);
         }
 
+        private static float GetClipPlaneScale(string modelAssetPath)
+        {
+            return string.Equals(
+                Path.GetExtension(modelAssetPath), ".blend",
+                StringComparison.OrdinalIgnoreCase)
+                ? 0.01f
+                : 1.0f;
+        }
+
         private static string StripBlenderNumericSuffix(string name)
         {
             var dot = name.LastIndexOf('.');
@@ -211,11 +244,8 @@ namespace SSNoir.Editor
 
         private static void ConfigureDragMode(
             SSNoirVirtualCameraConfig config,
-            Transform cameraTransform,
-            Transform importRoot,
-            Transform[] orbitPivots)
+            Transform? orbitPivot)
         {
-            var orbitPivot = FindClosestOrbitPivot(cameraTransform, importRoot, orbitPivots);
             config.orbitPivot = orbitPivot;
             config.dragMode = orbitPivot != null ? CameraDragMode.Orbit : CameraDragMode.Pan;
         }

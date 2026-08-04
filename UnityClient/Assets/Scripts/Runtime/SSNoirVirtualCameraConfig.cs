@@ -58,6 +58,31 @@ namespace SSNoir
         private void Awake()
         {
             CaptureAuthoredPose();
+            ValidateOrbitFrustum();
+        }
+
+        private void ValidateOrbitFrustum()
+        {
+            if (dragMode != CameraDragMode.Orbit || orbitPivot == null)
+                return;
+
+            var vcam = GetComponent<Cinemachine.CinemachineVirtualCamera>();
+            if (vcam == null)
+                return;
+
+            float subjectDistance = Vector3.Distance(
+                transform.position, orbitPivot.position);
+            bool reachesSubject = vcam.m_Lens.FarClipPlane > subjectDistance;
+            if (reachesSubject)
+                return;
+
+            string message =
+                $"Orbit camera '{name}' cannot see pivot '{orbitPivot.name}': " +
+                $"FarClip={vcam.m_Lens.FarClipPlane:F3}, distance={subjectDistance:F3}. " +
+                "The model importer or authored camera clip range is invalid.";
+            Debug.LogError(message, this);
+            UnityEngine.Assertions.Assert.IsTrue(false, message);
+            throw new System.InvalidOperationException(message);
         }
 
         private void CaptureAuthoredPose()
