@@ -18,12 +18,13 @@
 
 ### Camera
 
-来源：`UnityClient/Assets/Editor/SSNoirModelImporter.cs`
+来源：`UnityClient/Assets/Editor/SSNoirModelImporter.cs`、`UnityClient/Assets/Scripts/Runtime/SSNoirCameraManager.cs`
 
 - 导入模型中的每个 Blender/FBX `Camera` 都会生成一个同级 Cinemachine Virtual Camera，名字为 `<原相机名>_VCam`。
 - 导入器复制相机的局部位置、旋转、缩放、FOV、正交状态和正交尺寸，默认 Priority 为 5。
 - Unity 直接导入 `.blend` 时，Near/Far clipping 乘 `0.01` 修正厘米尺度；CityBox 导出的 `.fbx` 已经是正确单位，不再重复除以 100。
 - Orbit 相机的 Far Clip 至少为导入资产空间中“相机到所属 orbit pivot 距离”的 `1.25` 倍，保证目标不会被远裁剪面切掉。运行时若 Far Clip 仍短于实际 pivot 距离，会 assert/throw，而不是显示空背景。
+- 地点聚焦过程会暂时把目标 VCam 移到当前渲染镜头的位置，因此同时把 Far Clip 从当前渲染值平滑过渡到资产定义的目标值，并在抵达或中断时恢复目标值；不得在远景位置立刻套用近景 Far Clip。
 - 原 Camera 节点会被禁用，实际游戏视图使用生成的 VCam。
 - 相机名应表达用途并保持稳定，例如 `Camera_公园`；不要保留无意义的 `Camera.001`。
 

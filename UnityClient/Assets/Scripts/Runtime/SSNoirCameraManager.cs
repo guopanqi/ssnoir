@@ -63,6 +63,8 @@ namespace SSNoir
         private Quaternion _focusArcTargetAim;
         private Vector3 _focusArcTargetPosition;
         private Quaternion _focusArcTargetRotation;
+        private float _focusArcStartFarClip;
+        private float _focusArcTargetFarClip;
 
         public SSNoirCameraManager(SSNoirGameManager gameManager, float panSpeed)
         {
@@ -235,6 +237,8 @@ namespace SSNoir
             Quaternion targetRotation = destinationOrbits ? config!.AuthoredRotation : focusCamera.transform.rotation;
             Vector3 startPosition = renderedCamera.transform.position;
             Quaternion startRotation = renderedCamera.transform.rotation;
+            float startFarClip = renderedCamera.farClipPlane;
+            float targetFarClip = focusCamera.m_Lens.FarClipPlane;
 
             // The shot being left only speaks for the view when it is the one actually
             // on screen. After a stage transition drove its own cameras, the last focus
@@ -265,6 +269,8 @@ namespace SSNoir
             _focusArcTargetInterest = targetInterest;
             _focusArcTargetPosition = targetPosition;
             _focusArcTargetRotation = targetRotation;
+            _focusArcStartFarClip = startFarClip;
+            _focusArcTargetFarClip = targetFarClip;
             _focusArcStartedAt = Time.unscaledTime;
             _focusArcDuration = duration;
 
@@ -274,6 +280,7 @@ namespace SSNoir
             brain.m_DefaultBlend = new Cinemachine.CinemachineBlendDefinition(
                 Cinemachine.CinemachineBlendDefinition.Style.Cut, 0f);
             focusCamera.transform.SetPositionAndRotation(startPosition, startRotation);
+            SetFarClipPlane(focusCamera, startFarClip);
 
             _isFocusArcActive = true;
             return true;
@@ -319,6 +326,9 @@ namespace SSNoir
                 : Quaternion.LookRotation(toInterest, Vector3.up) * aim;
 
             _focusArcCamera.transform.SetPositionAndRotation(position, rotation);
+            SetFarClipPlane(
+                _focusArcCamera,
+                Mathf.Lerp(_focusArcStartFarClip, _focusArcTargetFarClip, eased));
         }
 
         /// <summary>
@@ -334,7 +344,10 @@ namespace SSNoir
                 return;
 
             if (_focusArcCamera != null)
+            {
                 _focusArcCamera.transform.SetPositionAndRotation(_focusArcTargetPosition, _focusArcTargetRotation);
+                SetFarClipPlane(_focusArcCamera, _focusArcTargetFarClip);
+            }
 
             if (_focusArcBrain != null)
                 _focusArcBrain.m_DefaultBlend = _focusArcSavedBlend;
@@ -342,6 +355,15 @@ namespace SSNoir
             _isFocusArcActive = false;
             _focusArcCamera = null;
             _focusArcBrain = null;
+        }
+
+        private static void SetFarClipPlane(
+            Cinemachine.CinemachineVirtualCamera camera,
+            float farClipPlane)
+        {
+            var lens = camera.m_Lens;
+            lens.FarClipPlane = farClipPlane;
+            camera.m_Lens = lens;
         }
 
         /// <summary>
