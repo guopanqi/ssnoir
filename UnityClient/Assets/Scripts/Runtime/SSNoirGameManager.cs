@@ -172,12 +172,24 @@ namespace SSNoir
                 {
                     // 对白已消费 ESC；未打完时显示全文，已打完时推进下一句。
                 }
+                else if (_renderer != null && _renderer.TryAdvanceSpotlight())
+                {
+                    // Spotlight 已消费 ESC；动作内继续后续表现，全局 Spotlight 直接关闭。
+                }
+                else if (_renderer != null && _renderer.TryConfirmHeavyOutcome())
+                {
+                    // 重结算结果已消费 ESC，继续后续表现。
+                }
                 else if (_renderer != null && _renderer.IsAnimationPlaying)
                 {
                     if (_renderer.IsAnimationReadyToAcknowledge)
                     {
                         _renderer.AcknowledgePresentationRoll();
                     }
+                }
+                else if (_renderer != null && _renderer.TryCloseUiPanel())
+                {
+                    // ESC 关闭最上层界面面板，不穿透触发返回导航。
                 }
                 else if (_renderer == null || !_renderer.IsInputLocked)
                 {

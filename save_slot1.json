@@ -1,13 +1,15 @@
 {
-  "saveTime": "2026-07-31 15:33:09",
+  "saveTime": "2026-08-06 10:39:15",
   "globals": {
     "chapter": 0,
     "relation:官僚": 0,
-    "relation:劳工": 2,
+    "relation:劳工": 3,
     "relation:富商": 0,
     "frank-final-help": false,
     "资产": "低",
+    "unloaded-new-machines": false,
     "开场动作": "有人敲门",
+    "世界日": 3,
     "relation-band-name:官僚:相识": "挂号",
     "relation-band-name:官僚:信任": "备案",
     "relation-band-name:官僚:核心": "有里子",
@@ -34,14 +36,17 @@
     "小节二结果": "无",
     "莱恩下落": "无",
     "夜莺信任达标": false,
-    "准备-找到莱恩": false,
-    "准备-警方到场": false,
-    "准备-后台已封": false,
-    "准备-登台已改": false,
-    "准备-诱饵": false
+    "准备-外圈": 0,
+    "准备-内环": 0,
+    "准备-中央": 0,
+    "人手-乔": false,
+    "人手-弗兰克": false,
+    "人手-警察": false,
+    "人手-领班": false
   },
   "team": {
-    "health": 5,
+    "injurySeverity": 0,
+    "injuryPart": "",
     "growthLevel": 0,
     "actors": [
       {
@@ -49,10 +54,8 @@
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "composure": 5,
+        "composure": 1,
         "hangoverSlotId": null,
-        "faintSlotId": null,
-        "lossOfControlSlotId": null,
         "permanentDiePenaltyLabel": "",
         "permanentDiePenalty": 0,
         "spentGrowthPoints": 0,
@@ -66,7 +69,7 @@
     ]
   },
   "inventory": {
-    "金钱": 96,
+    "金钱": 125,
     "情报": 0,
     "药品": 1,
     "酒": 0,
@@ -75,7 +78,7 @@
   "worldData": [
     [
       "day",
-      2
+      3
     ],
     [
       "home",
@@ -98,7 +101,7 @@
         ],
         [
           "rent-due",
-          2
+          1
         ],
         [
           "rent-due-max",
@@ -112,7 +115,16 @@
     ],
     [
       "dock",
-      []
+      [
+        [
+          "machine-stage",
+          0
+        ],
+        [
+          "machine-progress",
+          0
+        ]
+      ]
     ],
     [
       "old-street-tavern",
@@ -168,11 +180,15 @@
         ],
         [
           "mail-routine",
-          3
+          1
         ],
         [
           "joe-mail-tip?",
           true
+        ],
+        [
+          "singer-mail-tip?",
+          false
         ],
         [
           "condition-level",
@@ -183,12 +199,44 @@
           0
         ],
         [
+          "song-day",
+          0
+        ],
+        [
           "familiar",
           0
         ],
         [
-          "warren-stage",
+          "west-friction-cleared?",
+          false
+        ],
+        [
+          "east-entry",
           0
+        ],
+        [
+          "east-gallery",
+          0
+        ],
+        [
+          "west-stairs",
+          0
+        ],
+        [
+          "west-bridge",
+          0
+        ],
+        [
+          "merchant-trust",
+          0
+        ],
+        [
+          "union-checked?",
+          false
+        ],
+        [
+          "bridge-identified?",
+          false
         ],
         [
           "patience",
@@ -199,31 +247,19 @@
           0
         ],
         [
-          "unreported?",
-          false
+          "report-pending",
+          ""
         ],
         [
-          "lyon-know",
+          "inquiry-day",
           0
         ],
         [
-          "barber-told?",
+          "inquiry-told?",
           false
         ],
         [
-          "owner-told?",
-          false
-        ],
-        [
-          "joe-told?",
-          false
-        ],
-        [
-          "gent-told?",
-          false
-        ],
-        [
-          "frank-told?",
+          "singer-key?",
           false
         ],
         [
@@ -235,7 +271,7 @@
           0
         ],
         [
-          "lesson-gain",
+          "lesson-state",
           0
         ],
         [
@@ -243,16 +279,16 @@
           false
         ],
         [
-          "warren-clk",
-          0
+          "lesson-extra?",
+          false
+        ],
+        [
+          "lesson-material?",
+          false
         ],
         [
           "envelope-thin?",
           false
-        ],
-        [
-          "escorted-day",
-          0
         ],
         [
           "material-settled?",
@@ -275,23 +311,35 @@
           0
         ],
         [
-          "found-lyon?",
+          "outer-ring",
+          0
+        ],
+        [
+          "inner-ring",
+          0
+        ],
+        [
+          "core-ring",
+          0
+        ],
+        [
+          "roster",
+          0
+        ],
+        [
+          "aide-joe?",
           false
         ],
         [
-          "police-guard?",
+          "aide-frank?",
           false
         ],
         [
-          "backstage-checked?",
+          "aide-police?",
           false
         ],
         [
-          "staging-changed?",
-          false
-        ],
-        [
-          "decoy-set?",
+          "aide-usher?",
           false
         ],
         [
@@ -357,7 +405,7 @@
         ],
         [
           "favor",
-          3
+          7
         ],
         [
           "child-progress",
@@ -394,7 +442,7 @@
       [
         [
           "stage",
-          0
+          1
         ],
         [
           "favor",
@@ -405,12 +453,8 @@
           0
         ],
         [
-          "repair-days",
-          0
-        ],
-        [
-          "repair-started-today?",
-          false
+          "repair-deadline-day",
+          6
         ],
         [
           "smuggled-today?",
@@ -472,20 +516,11 @@
       [
         [
           "active-missions",
-          [
-            [
-              "替人带话",
-              1
-            ],
-            [
-              "有人需要药",
-              1
-            ]
-          ]
+          []
         ],
         [
           "refresh-days",
-          1
+          2
         ]
       ]
     ],

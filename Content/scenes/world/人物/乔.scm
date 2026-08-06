@@ -7,7 +7,7 @@
     ;; 5养伤 / 6痊愈待邀请 / 7残疾待邀请 / 8死亡 / 9已入队
     (define stage 0)
     (define favor-clk
-      (make-clock "与乔熟悉起来" 5 'segments
+      (make-clock "与乔熟悉起来" 8 'segments
         "继续在码头搬运，让乔慢慢认得你；填满后他会请你帮一件私事。"))
     (define child-clk
       (make-clock "接送孩子" 4 'segments
@@ -79,11 +79,10 @@
       (on-haul!)
       (if (and (can-catch?) (random-choice (chance-table 3 6)))
           (begin
-            (spend-up-to! "金钱" 5)
             (play-banter!
-              (line "乔" "手别抽——先垫膝。")
-              (line "乔" "裂的是箱角,货没事。工头那边,我说是我码歪的。")))
-          (spend-up-to! "金钱" 10)))
+              (line "乔" "手别抽——先歇一会儿。")
+              (line "乔" "裂的是箱角,货没事。工头那边我来解释。")))
+          #f))
 
     (define (node-joe-at-dock)
       (node "乔"

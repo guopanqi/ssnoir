@@ -70,9 +70,15 @@
     (define delivery-pending? #f)   ; 交割日已到、尚未处理
     (define delivery-result "未定") ; 未定 / 拦下 / 跟丢
     (define delivery-money 0)       ; 交割那夜从街上捡回来的钱
-    (define runner-cigarettes? #f)  ; 半包「老金牌」——拦下取信人才拿得到
+    ;; 半包「老金牌」和巷子里拿到的照片/底片都做成物品,不做成脚本内部的布尔量:
+    ;; 它们在虚构里就是揣在兜里、能递给别人的东西,做成物品玩家才在物品栏里一直看得见。
+    ;; 判断线：能不能放进兜里、递给别人、被人拿走。是就做物品;
+    ;; 「已经查清了」「已经交给萨姆了」这种没有实体的,仍旧留在状态里。
+    (define cigs-item "半包「老金牌」")
+    (define (runner-cigarettes?) (> (item-count cigs-item) 0))
     (define delivery-shortfall -1)  ; -1=尚未装包;0=玩家备足;正数=夜莺补上的差额
     (define joe-mail-tip? #f)       ; 乔那一格已经拿过(只给一次)
+    (define singer-mail-tip? #f)    ; 夜莺那一格已经拿过(只给一次)
     (define condition-level 0)      ; 夜莺处境 0=稳定 1=不安 2=受伤
     (define trust 0)                ; 她对你的信任
     (define song-day 0)             ; 最近一次请她唱歌的世界日
@@ -91,7 +97,6 @@
     (define lesson-state 0)         ; 「他撒手」钟收手时停在第几格 0..6，就是那一晚的收获
     (define lesson-forced? #f)      ; 是被架出去的,不是自己收的手
     (define lesson-extra? #f)       ; 搜身翻出了他没打算给你的东西
-    (define lesson-material? #f)    ; 底片与照片到手
     (define material-settled? #f)   ; 小节二是否已经了结(查明身份)
     (define settle-route "无")      ; 查明 / 无
     (define settle-quality "无")    ; 好 / 中
@@ -239,23 +244,23 @@
       (rest-release! "三封信/结案")
       (cond
         ((= story-stage 0)
-         (rest-block! "三封信/开场敲门" "有人在敲门，先去看看是谁。" "家" "有人敲门"))
+         (rest-block! "三封信/开场敲门" "有人敲门" "家" "有人敲门"))
         (delivery-pending?
-         (rest-block! "三封信/交割日" "钱已经放进邮箱，你得在那儿盯着。" "码头" "去码头盯着邮箱"))
+         (rest-block! "三封信/交割日" "去码头交割" "码头" "去码头盯着邮箱"))
         ((and (= story-stage 2) (not (has-flag? '伤后探望)))
-         (rest-block! "三封信/伤后探望" "她在门外等着，要问今天的事。" "家" "她来看你"))
+         (rest-block! "三封信/伤后探望" "她在门外等你" "家" "她来看你"))
         ((second-letter-pending?)
-         (rest-block! "三封信/第二封信" "今早剧院打来紧急电话；经理要求你今天过去谈第二封信。" "剧院" "见剧院的经理"))
+         (rest-block! "三封信/第二封信" "剧院经理要见你" "剧院" "见剧院的经理"))
         ((and (= story-stage 3) (not (has-flag? '她说起莱恩)))
-         (rest-block! "三封信/她说起莱恩" "她在楼下坐着，说有件事该她自己讲。" "家" "听她讲莱恩"))
+         (rest-block! "三封信/她说起莱恩" "她要讲莱恩" "家" "听她讲莱恩"))
         ((third-letter-due?)
-         (rest-block! "三封信/第三封信" "剧院来人找你，说她的化妆间里有东西。" "剧院" "去剧院看那封信"))
+         (rest-block! "三封信/第三封信" "去剧院看信" "剧院" "去剧院看那封信"))
         ((and (beat3-open?) (not (has-flag? '她不取消)))
-         (rest-block! "三封信/她不取消" "她在剧院等你，说要当面讲。" "剧院" "她要当面跟你讲"))
+         (rest-block! "三封信/她不取消" "她在剧院等你" "剧院" "她要当面跟你讲"))
         (premiere-pending?
-         (rest-block! "三封信/首演" "今晚是首演。你答应过她要在场。" "剧院" "去剧院"))
+         (rest-block! "三封信/首演" "今晚首演" "剧院" "去剧院"))
         ((and (= story-stage 5) (not (has-flag? '结案)))
-         (rest-block! "三封信/结案" "剧院外面有人在等你说话。" "剧院" "散场之后"))
+         (rest-block! "三封信/结案" "剧院外有人等你" "剧院" "散场之后"))
         (else #t)))
 
     ;; ── 开场：她找上门 ──────────────────────────────
@@ -282,21 +287,32 @@
               "她说也许是莱恩，她在老街的旧朋友，也许不是。"
               "临走时她在楼梯口回过头：演出的夜晚我会给你留一张票的——如果你有空的话。")))))
 
-    ;; ── 小节一·交割：挣钱与一条具名线索 ─────────────
-    ;; 钱来自整座城市的现有工作。这里只加一份收入较低的临时差事：它仍能挣钱，
-    ;; 但中/好结果还会让玩家摸清邮务规律，直接改变交锋开局。
-    ;; 「摸清邮务规律」是一个 make-clock 对象:格数、上限、备注、存档都在它自己身上。
-    ;; 要把三格改成六格,只改下面这一行的 3。
-    ;; 满格之后钟不撤掉——它得一直在那儿告诉玩家「交割日我已经有这一手了」,
-    ;; 所以备注写成随格数变化的 lambda,而不是在调用方拼一份平行的渲染逻辑。
+    ;; ── 小节一·交割：一条不给钱的调查线 ─────────────
+    ;; 钱来自整座城市的现有工作。这里只加一条**踩点**：它一分钱不挣,投进去的骰子
+    ;; 换的是交割日那晚的形势。玩家每天要答的就是这一句——这颗骰子拿去挣钱,还是拿去踩点。
+    ;; 一根 0/6 的钟,两个里程碑,前三格认人、后三格认地,恰好对上交锋的两幕:
+    ;;   3 格「认得那张脸」—— 第一幕蹲守时,真邮差变成一个不花骰子就能认出的人
+    ;;   6 格「这一片你熟了」—— 另外两个住户也是;第二幕多一条只有你知道的边门
+    ;; 六格是按小节一只有三天定的:0/8 在这个窗口里长得没人填得满。
+    ;; 不做成两根 0/3:这是全章第一个进度结构,两根钟在教学位置上读起来太重。
+    ;; 也不做成 0/2:两颗骰子就满,加上乔和夜莺白送的两格等于不用付钱——那不是投资,是签到。
+    ;; 要改长短,改下面这一行的 6 和 mail-routine-fact 的句子。
+    (define scout-max 6)
+    (define scout-face 3)           ; 认人那一半的里程碑
+
     (define mail-clock
-      (make-clock "摸清邮务规律" 3 'segments
+      (make-clock "踩点" scout-max 'segments
         (lambda (current max)
-          (if (>= current max)
-              "你认得这片真正的邮差。交割日不必等对方骑上车，他一碰邮箱你就能起身——追上他开局 +1。"
-              "每摸清一件事填一格。满格后交割日能提前识破假邮差，追逐开局 +1。"))))
+          (cond
+            ((>= current max)
+             "这一片你熟了。交割日那晚，住这儿的几个人你一眼就认得出，不必费神；追起来还知道货栈边门在哪儿。")
+            ((>= current scout-face)
+             "你认得这片真正的邮差了——那晚不用花力气分辨他。再摸熟这一片，追逐里还能多一条路。")
+            (else
+             "每摸清一件事填一格。3 格认得真邮差，6 格摸熟这一片——两个价钱，都在交割日那晚兑现。")))))
 
     (define (mail-routine-full?) (mail-clock 'full?))
+    (define (scout-knows-face?) (>= (mail-clock 'current) scout-face))
 
     ;; 城寨的五根钟各有明确 owner：四个空间前沿与埃迪。
     ;; 前沿满格后由更深处的新前沿或永久结果取代；完成过的路线本身不留空节点。
@@ -361,17 +377,21 @@
                 "交割日要从库存里拿出一百金。钱仍可挪作房租和生活开销。"
                 "夜莺最多只能当掉 " (number->string nightingale-cover-max)
                 " 金替你补：差在这个数以内，她当首饰，处境差一档；"
-                "差得更多，信封就是薄的，写信的人清点之后会先动手。"))
-        (mail-clock 'render-data)))
+                "差得更多，信封就是薄的，写信的人清点之后会先动手。"))))
 
     ;; 每一格是一件具体的事,不是一段百分比。填格时把这件事说出来,
     ;; 玩家才知道自己「知道了什么」,而不只是看着条往上涨。
     ;; 事实文本是内容,留在这里;格数的加减归时钟自己管。
+    ;; 前三格是人,后三格是这片地方——后半段顺带是小节二的预告片:
+    ;; 玩家还没走进城寨,已经开始认得它的外墙。
     (define (mail-routine-fact n)
       (cond
         ((= n 1) "知道了：真正的邮差每天下午才来这一片")
         ((= n 2) "知道了：他隔天换班，换的人也走同一条线")
-        ((= n 3) "认得那张脸了：谁是真邮差，你不会再认错")
+        ((= n 3) "认得那张脸了：车铃坏的那辆，你不会再认错")
+        ((= n 4) "知道了：邮箱背后那条巷子一直通到货栈")
+        ((= n 5) "知道了：货栈的边门天黑落锁，可锁舌是坏的")
+        ((= n 6) "这一片你熟了：后街那几户都是常年住这儿的，往东是门廊，往西是楼梯")
         (else "")))
 
     (define (advance-mail-routine! delta)
@@ -381,27 +401,48 @@
             (result-note! (mail-routine-fact (mail-clock 'current)))
             #f)))
 
-    ;; 一次成功只填一格:摸清规律要三个不同的日子,不是干两天活就全知道了。
-    ;; 好结果比中结果多的是工钱,不是情报——否则玩家会觉得情报靠运气发。
-    (define (node-sort-mailbags)
-      (工作 "替邮务站清点邮袋" "官僚" '低 'sharpness
-        (outcome "顺带看明白一件事"
-          (lambda () (add-item! "金钱" 8) (advance-mail-routine! 1)))
-        (outcome "按号清点"
-          (lambda () (add-item! "金钱" 5) (advance-mail-routine! 1)))
-        (outcome "抄错了袋号"
-          (lambda () (spend-composure! 1)))
-        (if (mail-routine-full?)
-            "收入不高；这片的取信规律你已经摸透了，再来只是为了工钱"
-            "收入不高；中或好结果各填一格「摸清邮务规律」")))
+    ;; 踩点不是工作:它不发工钱,也不给势力关系。这是它和普通工作唯一也是最重要的区别。
+    ;; 中和好都只填一格——情报不该靠运气发;两档的差别记在**冷静**上:
+    ;; 在雨里站一晚上是要还的。冷静只有 2 点,于是一天之内也踩不了三次点,
+    ;; 身体自己就是这条线的节流阀,不必再写一条每日上限。
+    ;; 动作只有一个,标题和 subtitle 随进度走三段面貌(和城寨的前沿推进同一套语法)。
+    (define (scout-node-name)
+      (let ((n (mail-clock 'current)))
+        (cond
+          ((< n 2) "混进邮务站帮着清点邮袋")
+          ((< n scout-face) "白天到邮箱那一片转转")
+          (else "天黑了，蹲在对街看"))))
+
+    (define (scout-node-subtitle)
+      (let ((n (mail-clock 'current)))
+        (cond
+          ((>= n scout-max) "这一片你已经熟透了，再蹲也蹲不出新东西")
+          ((< n 2) "敏锐；不挣钱。排班表就摊在桌上，谁走哪条线一眼看得见")
+          ((< n scout-face) "敏锐；不挣钱。再认清一件事，交割日你就不必费神分辨邮差")
+          (else "敏锐；不挣钱。巷子、边门、住在这儿的都有谁"))))
+
+    (define (node-scout)
+      (node (scout-node-name)
+        :subtitle (scout-node-subtitle)
+        :clocks (list (mail-clock 'render-data))
+        :requires (list (req-die))
+        :disabled (mail-routine-full?)
+        :resolve (roll 'sharpness
+          (outcome "白站了一晚上"
+            (lambda () (spend-composure! 1)))
+          (outcome "看明白一件事"
+            (lambda () (advance-mail-routine! 1) (spend-composure! 1)))
+          (outcome "看明白一件事，也没人注意到你"
+            (lambda () (advance-mail-routine! 1))))))
 
     ;; 乔那一格：不花骰子，也不靠判定，但要跟他一起干过两班活他才会聊这个。
     ;; 头一天认得你不算数——码头上的事，他只跟一起卸过货的人说。
     (define joe-tip-favor 2)
 
     (define (node-joe-mail-tip)
-      (instant-action "跟乔提一句邮箱的事"
-        (lambda ()
+      (node "乔似乎知道一些关于邮箱的事"
+        :clocks (list (mail-clock 'render-data))
+        :resolve (instant (lambda ()
           (set! joe-mail-tip? #t)
           (play-dialogue!
             (line "主角" "街口那个邮箱，平时谁来取？")
@@ -409,17 +450,41 @@
             (line "乔" "上礼拜换过一回人，也是那个点。你问这个干什么？")
             (line "主角" "有人在那儿等一封不该他拿的信。"))
           (advance-mail-routine! 1)
-          (sync-globals!))))
+          (sync-globals!)))))
+
+    ;; 夜莺那一格:她在那一带长大。和乔那一格同构——不花骰子、不掷判定,
+    ;; 兑现的是人物关系本身。一格来自你新认识的人,一格来自你的委托人:
+    ;; 认识谁,本身就是情报的一部分。
+    (define (node-singer-mail-tip)
+      (node "问她邮箱那一片"
+        :clocks (list (mail-clock 'render-data))
+        :resolve (instant (lambda ()
+          (set! singer-mail-tip? #t)
+          (play-dialogue!
+            (line "主角" "码头那个邮箱，背后通哪儿？")
+            (line "夜莺" "巷子。一直通到货栈。小时候抄近路都走那儿。")
+            (line "夜莺" "货栈有个边门，天黑落锁——可那锁舌早就是坏的。")
+            (line "主角" "你还记得。")
+            (line "夜莺" "在那儿长大的人都记得。"))
+          (advance-mail-routine! 1)
+          (sync-globals!)))))
 
     (define (beat1-dock-nodes)
       (if (= story-stage 1)
           (append
-            (list (node-sort-mailbags))
+            (list (node-scout))
             (if (and (>= (joe 'favor) joe-tip-favor)
                      (not joe-mail-tip?)
                      (not (mail-routine-full?)))
                 (list (node-joe-mail-tip))
                 '()))
+          '()))
+
+    (define (beat1-tavern-nodes)
+      (if (and (= story-stage 1)
+               (not singer-mail-tip?)
+               (not (mail-routine-full?)))
+          (list (node-singer-mail-tip))
           '()))
 
     ;; ── 交割日 ──────────────────────────────────────
@@ -449,7 +514,9 @@
         (if (> (envelope-short) 0)
             (set! envelope-thin? #t)
             #f)
-        (set-global! '识破假邮差 (mail-routine-full?))))
+        ;; 交锋只读这一个数,两个里程碑由交锋自己按 4 / 8 判断——
+        ;; 免得城市和交锋各存一份平行的"我知道多少"。
+        (set-global! '踩点格数 (mail-clock 'current))))
 
     ;; 入场剧情由调用方播放:交锋脚本把「你已经在追了」当既定前提。
     (define (node-delivery-entry)
@@ -477,15 +544,18 @@
                (line "主角" "那就这么放进去。他不会当街数。")
                (line "夜莺" "他回去会数的。")
                (line "主角" "那就让他数。到时候他得先来找我。"))))
-          (spotlight! "一个钟头"
-            (if (mail-routine-full?)
-                (string-append
-                  "她把纸包投进邮箱，沿着街走了。真正的邮差早些时候已经来过。"
-                  "又一个穿制服的人把手伸进邮箱时，你已经从斜对过的面摊站了起来。")
-                (string-append
-                  "她把纸包投进邮箱，沿着街走了。你在斜对过的面摊上要了碗面，慢慢吃。"
-                  "一个钟头里零零散散有人来投信。一个邮差过来收信，翻身上车——"
-                  "邮差。这一片的邮差每天下午才来一趟。")))
+          ;; 入场只把玩家放到对街那张桌子上;辨认谁是谁,是交锋第一幕的事。
+          (spotlight! "斜对过的面摊"
+            (string-append
+              "她把纸包投进邮箱，沿着街走了，没有回头。"
+              "你在斜对过的面摊上要了碗面，慢慢吃。天擦黑，来来往往的人比你想的多。"
+              (cond
+                ((mail-routine-full?)
+                 "那辆车铃坏的车要是过来，你一听就知道是谁。这一片的路你也走熟了。")
+                ((scout-knows-face?)
+                 "那辆车铃坏的车要是过来，你一听就知道是谁。别的人你还没数过。")
+                (else
+                 "这条街上的人你一个也不认得。"))))
           (start-encounter "交割" on-delivery-result))))
 
     ;; 交锋回传两个轴：(list 人 钱)。人 = '拦下 / '跟丢，钱 = 追回的金额。
@@ -509,7 +579,7 @@
         ;; 拦下他才拿得到他身上掉出来的东西：那半包烟是小节二唯一的具名抓手。
         ;; 跟丢则只剩一个方向，她的处境也跟着差一档。
         (if (equal? caught '拦下)
-            (set! runner-cigarettes? #t)
+            (add-item! cigs-item 1)
             (worsen-condition! 1))
         (set-flag! '交割已结算)
         (advance-stage! 2)
@@ -581,7 +651,7 @@
           (sync-blockers!)
           (spotlight! "第二封信"
             (string-append
-              (if runner-cigarettes?
+              (if (runner-cigarettes?)
                   "你手上有半包烟和一个方向。"
                   "你手上只有一个方向，还有跑腿人那件事已经走样的描述。")
               "取信人说雇他的先生是在老街的酒馆找的他——"
@@ -769,9 +839,14 @@
                (line "埃迪" "老金牌。我店里不摆这个，买一包够他们抽三天的。")
                (line "主角" "但你认得。")
                (line "埃迪" "有人要，我才找城里的批发商订。近一个月，只来过两笔。")))
+            ;; 线索做成物品,不做成脚本内部的布尔量:这样「某处产出 → 某个动作需要它」
+            ;; 和买烟、买药是同一套概念,玩家在物品栏里看得见自己手上有什么牌。
+            ;; 两笔烟单是两条独立的线,所以是两件东西,各自被自己那个动作消耗掉。
             ((crossed? old new 8)
              (begin
-               (result-note! "获得线索：埃迪的两笔老金牌烟单")
+               (add-item! "老金牌的订单" 1)
+               (add-item! "买家的样貌" 1)
+               (result-note! "获得线索：老金牌的订单、买家的样貌")
                (play-dialogue!
                  (line "埃迪" "一箱记在弗兰克的账上，送进东边尽头的工会房间。")
                  (line "埃迪" "另一个人一包一包地买。旧西装，袖口磨得发白，从西楼梯上的桥廊过来。")
@@ -794,7 +869,7 @@
 
     (define (node-earn-eddie-trust)
       (node "让埃迪相信你的来意"
-        :subtitle (if runner-cigarettes?
+        :subtitle (if (runner-cigarettes?)
                       "把半包「老金牌」放上柜台；这是你手里最硬的一句话"
                       "你没拿到烟盒，只能从雇跑腿、旧西装和一封勒索信说起")
         :tags (list "低风险")
@@ -837,8 +912,8 @@
 
     (define (node-union-inquiry)
       (node "查清工会那箱烟"
-        :subtitle "埃迪的订单指向弗兰克；查清这是一位买家，还是一箱被众人分走的烟"
-        :requires (list (req-die))
+        :subtitle "凭埃迪的订单找弗兰克对质：这是一位买家，还是一箱被众人分走的烟"
+        :requires (list (req-die) (req-item "老金牌的订单" 1))
         :resolve (instant
           (outcome "排除了弗兰克"
             (lambda () (finish-union-inquiry!))))))
@@ -851,15 +926,15 @@
           (if union-checked?
               (list (observe-action "那箱烟的去向"
                       "弗兰克在会后把烟留给众人。他不是你要找的人，但有人从桌上拿走了整包。"))
-              (if (merchant-trusted?)
+              (if (> (item-count "老金牌的订单") 0)
                   (list (node-union-inquiry))
                   (list (node "查清工会那箱烟"
-                          :subtitle "需要线索：埃迪的两笔老金牌烟单"
+                          :subtitle "需要线索：老金牌的订单"
                           :disabled #t))))
+          ;; 人物没有可交互的动作时就是一张见闻卡，不做成点进去还是空的容器。
           (list (node "弗兰克"
                   :subtitle "码头工头；他的名字出现在老金牌的订单上"
-                  :children
-                    '())))))
+                  :resolve (observe "他坐在最里面那张桌子后面，听的时候比说的时候多。"))))))
 
     (define (finish-bridge-identity!)
       (set! bridge-identified? #t)
@@ -881,8 +956,8 @@
 
     (define (node-bridge-inquiry)
       (node "找出买散烟的人"
-        :subtitle "埃迪只知道他从桥廊过来；这里住过的人太多，得从邻居和生活痕迹里缩小范围"
-        :requires (list (req-die))
+        :subtitle "拿着埃迪给的样貌挨家问；这里住过的人太多，得从邻居和生活痕迹里缩小范围"
+        :requires (list (req-die) (req-item "买家的样貌" 1))
         :resolve (instant
           (outcome "找到了莱恩"
             (lambda () (finish-bridge-inquiry!))))))
@@ -895,25 +970,24 @@
           (if bridge-identified?
               (list (observe-action "她叫出的名字"
                       "穿旧西装、从这里下去买老金牌的人叫莱恩。他早已搬走，但这里的人还记得他。"))
-              (if (merchant-trusted?)
+              (if (> (item-count "买家的样貌") 0)
                   (list (node-bridge-inquiry))
                   (list (node "找出买散烟的人"
-                          :subtitle "需要线索：埃迪记得的买家特征"
+                          :subtitle "需要线索：买家的样貌"
                           :disabled #t))))
           (list (node "洛蒂"
                   :subtitle "桥廊公寓的老住户；她记得哪些人住过这里，也记得他们搬走时的样子"
-                  :children
-                    '())))))
+                  :resolve (observe "她在门口择菜，桥上过一个人就抬一次眼。"))))))
 
 
-    ;; ── 小节二·人物戏与见闻 ─────────────────────────
-    ;; 莱恩的下作,和"老街不是莱恩"。两张见闻卡分散在老街两处,
-    ;; 不做成一次性过场——这两件事要玩家在生活里反复撞见。
+    ;; ── 小节二·人物戏 ──────────────────────────────
+    ;; 老街熟脸在这里兑现:熟脸够了,你才听得见他们真正在说什么。
+    ;; 写短——这是一眼扫过去的东西,不是要人停下来读的段落。
     (define (node-lyon-talk)
       (observe-action "酒馆里的闲话"
         (if (>= familiar 2)
-            "他把那几张照片给人看过——就在这张桌子上，摊开了，添上些不存在的故事。'我们都认识她嘛。'有人笑，也有人把杯子推开走了。今天有个搬运工说：那些东西该烧掉。"
-            "角落里几个人正说着什么，看见你就停了。散开的时候，其中一个把桌上的东西按进了口袋。")))
+            "「那些东西该烧掉。」有人把杯子推开，走了。"
+            "几个人正说着什么，看见你就散了。")))
 
     ;; ── 小节二·收场：查明身份 ───────────────────────
     ;; 桥廊调查完成时已经叫出了名字。这里只负责结账与推进章节，
@@ -1042,8 +1116,13 @@
       (add-familiar! (list-ref result 3))
       (change-faction-relation! "劳工" (list-ref result 4))
       ;; 「他撒手」推到第 4 格，照片和信才到手；2–3 格他只答应不再写。
-      ;; 被架出巷子的人什么也带不走。
-      (set! lesson-material? (and (not lesson-forced?) (>= lesson-state 4)))
+      ;; 被架出巷子的人什么也带不走。东西直接进物品栏——它就是揣在兜里的东西。
+      (cond
+        (lesson-forced? #f)
+        ((>= lesson-state 6) (add-item! "莱恩的底片与照片" 1))
+        ((>= lesson-state 4) (add-item! "莱恩的照片与信" 1))
+        (else #f))
+      (if lesson-extra? (add-item! "他没打算给人看的那沓纸" 1) #f)
       (set! report-pending "巷子")
       ;; 越界的代价落在经理那边：事情闹得剧院难看,他往回收耐心。
       ;; 老街那边的后果只写进文案——熟脸在小节二结算时就已经用完了,
@@ -1069,7 +1148,7 @@
              "你自己松的手。他什么也没给你，只是一直看着巷口。"))
           (cond
             ((>= lesson-state 6) "底片和照片都在你口袋里。")
-            (lesson-material? "照片和他写过的信在你口袋里，底片还在他那儿。")
+            ((>= lesson-state 4) "照片和他写过的信在你口袋里，底片还在他那儿。")
             (#t "东西还在他那儿。"))
           (if lesson-extra? "还有一沓他没打算给任何人看的纸。" "")
           "这种人，吓一次也就够了——你是这么想的。")))
@@ -1524,7 +1603,7 @@
         ((= story-stage 2)
          (string-append
            "取信的人往码头居民区去了。那一片是她长大的地方，也是她再没回去过的地方。"
-           (if runner-cigarettes?
+           (if (runner-cigarettes?)
                "写信的人在老街的酒馆雇了他，还落下半包烟——那个牌子在老街买不起。"
                "跑腿的人跟丢了，你手上只有一个方向。")))
         ((= story-stage 3)
@@ -1552,7 +1631,7 @@
          "报纸把这件事写完了。案子结了，她站上了她等了多年的那个位置。")
         (else "")))
 
-    ;; 会阻塞世界日程的到期挂在世界根节点上；进度条挂在委托卡与各自的动作上。
+    ;; 会阻塞世界日程的到期挂在世界根节点上；进度条挂在各自的动作上。
     (define (world-clocks)
       (cond
         (delivery-pending?
@@ -1597,7 +1676,7 @@
                   :children (append
                               (list (observe-action "案情" (situation-text)))
                               ;; 手上确实攥着的东西，和「案情」分开一条：它是物证，不是叙述。
-                              (if runner-cigarettes?
+                              (if (runner-cigarettes?)
                                   (list (observe-action "半包「老金牌」"
                                           (string-append
                                             "从取信人身上掉出来的。烟盒软了，还剩七八根，纸口被反复捏过。"
@@ -1684,7 +1763,10 @@
                '())))
         ((equal? location "酒馆")
          (append
-           (if (singer-present?) (list (nightingale-node (list (node-request-song)))) '())
+           (if (singer-present?)
+               (list (nightingale-node
+                       (append (list (node-request-song)) (beat1-tavern-nodes))))
+               '())
            (if (beat2-open?) (list (node-lyon-talk)) '())
            (if (and (lesson-beat?) (not singer-key?) (singer-present?))
                (list (node-ask-singer))
@@ -1780,7 +1862,7 @@
           ((equal? msg 'freight-open?) (freight-open?))
           ((equal? msg 'delivery-result) delivery-result)
           ;; 小节二重构时从这里取抓手：半包「老金牌」是交割那夜唯一的具名物证。
-          ((equal? msg 'runner-cigarettes?) runner-cigarettes?)
+          ((equal? msg 'runner-cigarettes?) (runner-cigarettes?))
           ((equal? msg 'trust-met?) (trust-met?))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'save)
@@ -1790,10 +1872,10 @@
              (list "delivery-pending?" delivery-pending?)
              (list "delivery-result" delivery-result)
              (list "delivery-money" delivery-money)
-             (list "runner-cigarettes?" runner-cigarettes?)
              (list "delivery-shortfall" delivery-shortfall)
              (list "mail-routine" (mail-clock 'save))
              (list "joe-mail-tip?" joe-mail-tip?)
+             (list "singer-mail-tip?" singer-mail-tip?)
              (list "condition-level" condition-level)
              (list "trust" trust)
              (list "song-day" song-day)
@@ -1817,7 +1899,6 @@
              (list "lesson-state" lesson-state)
              (list "lesson-forced?" lesson-forced?)
              (list "lesson-extra?" lesson-extra?)
-             (list "lesson-material?" lesson-material?)
              (list "envelope-thin?" envelope-thin?)
              (list "material-settled?" material-settled?)
              (list "settle-route" settle-route)
@@ -1842,13 +1923,23 @@
              (set! delivery-pending? (assoc-get data "delivery-pending?" #f))
              (set! delivery-result (assoc-get data "delivery-result" "未定"))
              (set! delivery-money (assoc-get data "delivery-money" 0))
-             (set! runner-cigarettes? (assoc-get data "runner-cigarettes?" #f))
+             ;; 旧存档把这两样东西记成布尔量。读到 #t 而物品栏里没有,就补发一件;
+             ;; 新存档里它们只存在于物品栏,这两行读完就再也不写回去。
+             (if (and (assoc-get data "runner-cigarettes?" #f) (not (runner-cigarettes?)))
+                 (add-item! cigs-item 1)
+                 #f)
+             (if (and (assoc-get data "lesson-material?" #f)
+                      (= (item-count "莱恩的照片与信") 0)
+                      (= (item-count "莱恩的底片与照片") 0))
+                 (add-item! "莱恩的照片与信" 1)
+                 #f)
              (set! delivery-shortfall (assoc-get data "delivery-shortfall" -1))
              (if (or (< delivery-shortfall -1) (> delivery-shortfall delivery-price))
                  (error "三封信存档错误：交割款差额非法")
                  #t)
              (mail-clock 'load! (assoc-get data "mail-routine" 0))
              (set! joe-mail-tip? (assoc-get data "joe-mail-tip?" #f))
+             (set! singer-mail-tip? (assoc-get data "singer-mail-tip?" #f))
              (set! condition-level (assoc-get data "condition-level" 0))
              (if (or (< condition-level 0) (> condition-level 2))
                  (error "三封信存档错误：夜莺处境等级非法")
@@ -1883,7 +1974,6 @@
                  #t)
              (set! lesson-forced? (assoc-get data "lesson-forced?" #f))
              (set! lesson-extra? (assoc-get data "lesson-extra?" #f))
-             (set! lesson-material? (assoc-get data "lesson-material?" #f))
              (set! envelope-thin? (assoc-get data "envelope-thin?" #f))
              (set! material-settled? (assoc-get data "material-settled?" #f))
              (set! settle-route (assoc-get data "settle-route" "无"))

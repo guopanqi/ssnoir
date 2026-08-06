@@ -163,7 +163,11 @@
               (sync-asset!))))))
 
     ;; ── 组装子节点 ──────────────────────────────────
-    ;; 客厅：日常恢复 + 已拥有的家具。
+    ;; 旅馆大厅是公共空间，只提供随身物品的使用；旅馆没有玩家自己的客厅。
+    (define (node-hotel-lobby)
+      (container "大厅" (list (node-drink) (node-use-medicine))))
+
+    ;; 客厅只属于买下的公寓：日常恢复 + 已拥有的家具。
     (define (living-room-children)
       (append
         (list (node-drink) (node-use-medicine))
@@ -186,13 +190,16 @@
       (if evicted?
           (append
             (three-letters 'nodes-at "家")
-            (list (observe-action "锁着的房门" "先把房租交了，或者干脆买下一处不用看人脸色的地方。")
+            ;; 被赶出后仍保留大厅：库存里的酒和药是玩家随时可以使用的物品，
+            ;; 房门锁住只应改变住宿方式，不应把公共空间里的物品使用入口一起删掉。
+            (list (node-hotel-lobby)
+                  (observe-action "锁着的房门" "先把房租交了，或者干脆买下一处不用看人脸色的地方。")
                   (node-pay-rent))
             (upgrade-nodes)
             (list (node-sleep-at-door)))
           (append
             (three-letters 'nodes-at "家")
-            (list (node-living-room))
+            (list (node-hotel-lobby))
             (list (node-pay-rent))
             (upgrade-nodes)
             (list (node-sleep)))))

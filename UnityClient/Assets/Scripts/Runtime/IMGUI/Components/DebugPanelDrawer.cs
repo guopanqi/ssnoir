@@ -223,7 +223,9 @@ namespace SSNoir.IMGUI
             }
         }
 
-        public static void Reset() { _isOpen = false; }
+        public static void Close() { _isOpen = false; }
+
+        public static void Reset() { Close(); }
 
         private static void LoadScenes(SSNoirGameManager gameManager)
         {

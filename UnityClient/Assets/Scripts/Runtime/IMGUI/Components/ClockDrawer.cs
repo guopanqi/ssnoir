@@ -50,13 +50,27 @@ namespace SSNoir.IMGUI
 
         private static float ValueWidth(GameClock clock)
         {
+            string fraction = $"{clock.Current}/{clock.Max}";
             return clock.Style switch
             {
                 ClockStyle.Countdown => 42f + 6f + 34f,
                 ClockStyle.Segments  => Mathf.Max(0f, clock.Max * 15f - 4f),
-                ClockStyle.Pie       => 24f + 8f + 42f,
+                ClockStyle.Pie       => 24f + 8f + MeasureValueTextWidth(fraction, 17),
                 _ => 42f
             };
+        }
+
+        private static float MeasureValueTextWidth(string text, int fontSize)
+        {
+            var style = new GUIStyle(IMGUIStyles.ClockValue)
+            {
+                fontSize = IMGUIStyles.FontSize(fontSize),
+                fontStyle = FontStyle.Bold,
+                wordWrap = false,
+                clipping = TextClipping.Clip
+            };
+            IMGUIStyles.ApplyStrongFont(style);
+            return style.CalcSize(new GUIContent(text)).x;
         }
 
         private static float BadgeWidth(GameClock clock)
@@ -75,7 +89,9 @@ namespace SSNoir.IMGUI
             var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
             {
                 fontSize = IMGUIStyles.FontSize(17),
-                alignment = TextAnchor.MiddleLeft
+                alignment = TextAnchor.MiddleLeft,
+                wordWrap = false,
+                clipping = TextClipping.Clip
             };
             float labelW = labelStyle.CalcSize(new GUIContent(clock.Label)).x;
             GUI.Label(new Rect(x + PadX, y, labelW, BadgeH), clock.Label, labelStyle);
@@ -113,8 +129,15 @@ namespace SSNoir.IMGUI
                 float pct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
                 PieDrawer.DrawPie(pieRect, pct, Active, Outline);
 
-                var fracStyle = new GUIStyle(IMGUIStyles.ClockValue) { fontSize = IMGUIStyles.FontSize(17), alignment = TextAnchor.MiddleLeft };
-                GUI.Label(new Rect(pieRect.xMax + 8f, y, 42f, BadgeH), $"{clock.Current}/{clock.Max}", fracStyle);
+                var fracStyle = new GUIStyle(IMGUIStyles.ClockValue)
+                {
+                    fontSize = IMGUIStyles.FontSize(17),
+                    alignment = TextAnchor.MiddleLeft,
+                    wordWrap = false,
+                    clipping = TextClipping.Clip
+                };
+                float fractionW = MeasureValueTextWidth($"{clock.Current}/{clock.Max}", 17);
+                GUI.Label(new Rect(pieRect.xMax + 8f, y, fractionW, BadgeH), $"{clock.Current}/{clock.Max}", fracStyle);
             }
             else // Segments
             {

@@ -20,11 +20,18 @@ description: 完成或计划 SSNoir 的代码/内容改动、用户要求构建�
 | `schemy-master/**` | `./schemy-master/build-unity-plugin.sh`（同时重建 Unity 使用的 DLL） |
 | 判定分布 | `./run --test-odds` |
 | 存档契约 | `./run --test-saveload` |
-| `UnityClient/**` 独有代码 | 不用 Terminal 构建冒充 Unity 验证；以 Unity 编译为准，未运行时明确说明 |
-| 较大的 UI 布局 / 交互改动，或用户明确要求看实际效果 | 运行并检查相关客户端；构建通过不等于视觉或交互正确 |
+| `UnityClient/**` 独有代码 | 不用 Terminal 构建冒充 Unity 验证；默认做静态审阅，有现成的 Unity 编译证据时再报告，否则明确交给用户在 Unity 中编译 / 核验 |
+| 较大的非 Unity UI 布局 / 交互改动，或用户明确要求看实际效果 | 运行并检查相关客户端；构建通过不等于视觉或交互正确。Unity 交互按下节处理 |
 | 追一个具体的疑难 bug | 用能复现它的**最小**手段，别顺手做全量校验 |
 
 用户明确要求某项验证时执行它，除非环境不支持；此时说明限制，不要用不等价的检查替代后声称已验证。
+
+## Unity 验证边界
+
+- 默认不要为了验证而调用 `computer-use` 操作 Unity。Unity 的场景状态、Play Mode 和焦点不稳定，自动操作的成本与证据质量通常不匹配。
+- 用户没有明确要求 Codex 操作 Unity 时，完成静态审阅并提供简短的人工核验路径，让用户在 Unity 中确认编译、画面和手感。
+- 只有用户明确要求 Codex 使用 Unity 做实际交互验证时，才尝试用 `computer-use` 控制编辑器；操作前先保护未保存的场景和当前 Play Mode 状态。
+- 如果 Unity 已经自动刷新，且能通过只读日志或现成输出取得编译结果，可以直接采用该证据，不必为此操作编辑器。
 
 ## GameTester 红线
 

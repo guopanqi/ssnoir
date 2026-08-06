@@ -1,5 +1,5 @@
 {
-  "saveTime": "2026-07-31 15:45:17",
+  "saveTime": "2026-08-06 12:02:28",
   "globals": {
     "chapter": 0,
     "relation:官僚": 0,
@@ -7,7 +7,9 @@
     "relation:富商": 0,
     "frank-final-help": false,
     "资产": "低",
+    "unloaded-new-machines": false,
     "开场动作": "有人敲门",
+    "世界日": 4,
     "relation-band-name:官僚:相识": "挂号",
     "relation-band-name:官僚:信任": "备案",
     "relation-band-name:官僚:核心": "有里子",
@@ -27,23 +29,25 @@
     "relation-goal:富商:信任": "私货满价收购·投资本金打折",
     "relation-goal:富商:核心": "引荐博士，牵出实验室科技线（demo 暂未开放）",
     "第一章阶段": 2,
-    "夜莺处境": "稳定",
-    "交割结果": "拦下",
+    "夜莺处境": "受伤",
+    "交割结果": "跟丢",
     "老街熟脸": 0,
     "小节二路线": "无",
     "小节二结果": "无",
     "莱恩下落": "无",
     "夜莺信任达标": false,
-    "准备-找到莱恩": false,
-    "准备-警方到场": false,
-    "准备-后台已封": false,
-    "准备-登台已改": false,
-    "准备-诱饵": false,
-    "识破假邮差": true,
-    "乔认得你": true
+    "准备-外圈": 0,
+    "准备-内环": 0,
+    "准备-中央": 0,
+    "人手-乔": false,
+    "人手-弗兰克": false,
+    "人手-警察": false,
+    "人手-领班": false,
+    "踩点格数": 1
   },
   "team": {
-    "health": 3,
+    "injurySeverity": 3,
+    "injuryPart": "脸",
     "growthLevel": 1,
     "actors": [
       {
@@ -51,10 +55,8 @@
         "name": "主角",
         "role": "protagonist",
         "status": "active",
-        "composure": 3,
+        "composure": 0,
         "hangoverSlotId": null,
-        "faintSlotId": 1,
-        "lossOfControlSlotId": null,
         "permanentDiePenaltyLabel": "",
         "permanentDiePenalty": 0,
         "spentGrowthPoints": 0,
@@ -68,16 +70,16 @@
     ]
   },
   "inventory": {
-    "金钱": 89,
+    "金钱": 0,
     "情报": 0,
-    "药品": 1,
+    "药品": 0,
     "酒": 0,
     "香烟": 0
   },
   "worldData": [
     [
       "day",
-      3
+      4
     ],
     [
       "home",
@@ -96,11 +98,11 @@
         ],
         [
           "medicated-today?",
-          false
+          true
         ],
         [
           "rent-due",
-          1
+          0
         ],
         [
           "rent-due-max",
@@ -108,13 +110,22 @@
         ],
         [
           "evicted?",
-          false
+          true
         ]
       ]
     ],
     [
       "dock",
-      []
+      [
+        [
+          "machine-stage",
+          0
+        ],
+        [
+          "machine-progress",
+          0
+        ]
+      ]
     ],
     [
       "old-street-tavern",
@@ -154,34 +165,42 @@
         ],
         [
           "delivery-result",
-          "拦下"
+          "跟丢"
         ],
         [
           "delivery-money",
-          40
-        ],
-        [
-          "runner-cigarettes?",
-          true
-        ],
-        [
-          "delivery-shortfall",
           0
         ],
         [
+          "runner-cigarettes?",
+          false
+        ],
+        [
+          "delivery-shortfall",
+          5
+        ],
+        [
           "mail-routine",
-          3
+          1
         ],
         [
           "joe-mail-tip?",
           true
         ],
         [
+          "singer-mail-tip?",
+          false
+        ],
+        [
           "condition-level",
-          0
+          2
         ],
         [
           "trust",
+          0
+        ],
+        [
+          "song-day",
           0
         ],
         [
@@ -189,8 +208,36 @@
           0
         ],
         [
-          "warren-stage",
+          "west-friction-cleared?",
+          false
+        ],
+        [
+          "east-entry",
           0
+        ],
+        [
+          "east-gallery",
+          0
+        ],
+        [
+          "west-stairs",
+          0
+        ],
+        [
+          "west-bridge",
+          0
+        ],
+        [
+          "merchant-trust",
+          0
+        ],
+        [
+          "union-checked?",
+          false
+        ],
+        [
+          "bridge-identified?",
+          false
         ],
         [
           "patience",
@@ -201,31 +248,19 @@
           0
         ],
         [
-          "unreported?",
-          false
+          "report-pending",
+          ""
         ],
         [
-          "lyon-know",
+          "inquiry-day",
           0
         ],
         [
-          "barber-told?",
+          "inquiry-told?",
           false
         ],
         [
-          "owner-told?",
-          false
-        ],
-        [
-          "joe-told?",
-          false
-        ],
-        [
-          "gent-told?",
-          false
-        ],
-        [
-          "frank-told?",
+          "singer-key?",
           false
         ],
         [
@@ -237,7 +272,7 @@
           0
         ],
         [
-          "lesson-gain",
+          "lesson-state",
           0
         ],
         [
@@ -245,16 +280,16 @@
           false
         ],
         [
-          "warren-clk",
-          0
+          "lesson-extra?",
+          false
+        ],
+        [
+          "lesson-material?",
+          false
         ],
         [
           "envelope-thin?",
           false
-        ],
-        [
-          "escorted-day",
-          0
         ],
         [
           "material-settled?",
@@ -277,23 +312,35 @@
           0
         ],
         [
-          "found-lyon?",
+          "outer-ring",
+          0
+        ],
+        [
+          "inner-ring",
+          0
+        ],
+        [
+          "core-ring",
+          0
+        ],
+        [
+          "roster",
+          0
+        ],
+        [
+          "aide-joe?",
           false
         ],
         [
-          "police-guard?",
+          "aide-frank?",
           false
         ],
         [
-          "backstage-checked?",
+          "aide-police?",
           false
         ],
         [
-          "staging-changed?",
-          false
-        ],
-        [
-          "decoy-set?",
+          "aide-usher?",
           false
         ],
         [
@@ -307,6 +354,7 @@
         [
           "scene-flags",
           [
+            "伤后探望",
             "交割已结算"
           ]
         ]
@@ -357,19 +405,19 @@
       [
         [
           "stage",
-          3
-        ],
-        [
-          "favor",
-          5
-        ],
-        [
-          "child-progress",
           1
         ],
         [
+          "favor",
+          7
+        ],
+        [
+          "child-progress",
+          0
+        ],
+        [
           "child-cared-today?",
-          true
+          false
         ],
         [
           "injury-days",
@@ -406,15 +454,11 @@
         ],
         [
           "repair-progress",
-          0
+          3
         ],
         [
-          "repair-days",
-          4
-        ],
-        [
-          "repair-started-today?",
-          true
+          "repair-deadline-day",
+          6
         ],
         [
           "smuggled-today?",
@@ -476,11 +520,20 @@
       [
         [
           "active-missions",
-          []
+          [
+            [
+              "有人需要药",
+              2
+            ],
+            [
+              "押送一批货",
+              2
+            ]
+          ]
         ],
         [
           "refresh-days",
-          2
+          0
         ]
       ]
     ],

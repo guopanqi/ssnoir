@@ -102,13 +102,9 @@ namespace SSNoir.IMGUI
                 (Screen.height - screenPoint.y) / _scale);
 
         /// <summary>
-        /// Convert virtual GUI coordinates back to actual screen pixels.
-        /// Required for GL drawing calls that bypass the GUI matrix (PieDrawer).
+        /// Scale a virtual size value to actual screen pixels. GL positions should use
+        /// GUIUtility.GUIToScreenPoint so the current GUI group origin is preserved.
         /// </summary>
-        public static Vector2 VirtualToScreen(Vector2 virtualPos) =>
-            new Vector2(virtualPos.x * _scale, virtualPos.y * _scale);
-
-        /// <summary>Scale a virtual size value to actual screen pixels.</summary>
         public static float ScaleSize(float v) => v * _scale;
     }
 }

@@ -96,6 +96,7 @@ namespace SSNoir.IMGUI
 
         private static bool _relationExpanded;
         public static bool IsRelationExpanded => _relationExpanded;
+        public static void CollapseRelation() => _relationExpanded = false;
         private static readonly string[] Factions = { "官僚", "劳工", "富商" };
 
         // 收起态留在导航栏；展开态是一张完整的关系进展图，放到导航线下方。

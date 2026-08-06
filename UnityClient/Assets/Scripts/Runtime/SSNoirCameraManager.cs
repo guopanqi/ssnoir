@@ -61,12 +61,27 @@ namespace SSNoir
         private float _focusArcTargetPitch;
         private float _focusArcTargetRadius;
         private Quaternion _focusArcTargetAim;
-        private Vector3 _focusArcTargetPosition;
         private Quaternion _focusArcTargetRotation;
         private float _focusArcStartNearClip;
         private float _focusArcTargetNearClip;
         private float _focusArcStartFarClip;
         private float _focusArcTargetFarClip;
+
+        // Player steering during focus travel does not cancel the authored move. Input
+        // lives in the destination camera's interaction space and offsets the curve all
+        // the way to its endpoint: pan destinations translate the moving shot on XZ;
+        // orbit destinations add yaw/pitch around the curve's moving interest point.
+        private CameraDragMode _focusArcInputMode;
+        private SSNoirVirtualCameraConfig? _focusArcInputConfig;
+        private Vector3 _focusArcPanOffset;
+        private float _focusArcYawOffset;
+        private float _focusArcPitchOffset;
+        private bool _isDraggingFocusArc;
+        private Vector3 _focusArcDragStartPanOffset;
+        private float _focusArcDragStartYawOffset;
+        private float _focusArcDragStartPitchOffset;
+        private Vector3 _focusArcPanRight;
+        private Vector3 _focusArcPanForward;
 
         // Reduce motion: the trip is replaced by a cut under a dissolve. The brain must
         // not blend on top of that — a blend and a dissolve running together reads as
@@ -121,43 +136,51 @@ namespace SSNoir
             {
                 if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
                 {
-                    // A focus transition is not interruptible: the shot it is delivering
-                    // has to arrive. Input waits it out — and a press held across the
-                    // landing becomes a drag from there, no re-press needed.
                     if (!_isDraggingCam
-                        && !_isFocusArcActive
                         && (Input.mousePosition - _dragStartMousePos).magnitude >= DragThreshold)
-                        BeginDrag(activeCamera);
+                    {
+                        if (_isFocusArcActive)
+                            BeginFocusArcDrag(activeCamera);
+                        else
+                            BeginDrag(activeCamera);
+                    }
 
                     if (_isDraggingCam)
                     {
-                        // The origin was re-taken where the grab happened, not where the
-                        // press landed, so that taking over a moving camera does not jump.
-                        Vector3 mouseDelta = Input.mousePosition - _dragStartMousePos;
-
-                        var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
-                        if (config != null && config.dragMode == CameraDragMode.Orbit)
+                        if (_isDraggingFocusArc)
                         {
-                            var pivot = GetOrbitPivot(activeCamera);
-                            if (pivot != null)
-                            {
-                                // Apply orbit rotation using cumulative drag mouseDelta
-                                config.ApplyOrbitFromDrag(pivot.position, mouseDelta.x, mouseDelta.y);
-                            }
+                            UpdateFocusArcDrag(activeCamera);
                         }
                         else
                         {
-                            // Height-locked RTS/MOBA Pan (moves parallel to XZ ground plane)
-                            Vector3 right = activeCamera.transform.right;
-                            right.y = 0f;
-                            right.Normalize();
+                            // The origin was re-taken where the grab happened, not where the
+                            // press landed, so that taking over a moving camera does not jump.
+                            Vector3 mouseDelta = Input.mousePosition - _dragStartMousePos;
 
-                            Vector3 forward = activeCamera.transform.forward;
-                            forward.y = 0f;
-                            forward.Normalize();
+                            var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
+                            if (config != null && config.dragMode == CameraDragMode.Orbit)
+                            {
+                                var pivot = GetOrbitPivot(activeCamera);
+                                if (pivot != null)
+                                {
+                                    // Apply orbit rotation using cumulative drag mouseDelta
+                                    config.ApplyOrbitFromDrag(pivot.position, mouseDelta.x, mouseDelta.y);
+                                }
+                            }
+                            else
+                            {
+                                // Height-locked RTS/MOBA Pan (moves parallel to XZ ground plane)
+                                Vector3 right = activeCamera.transform.right;
+                                right.y = 0f;
+                                right.Normalize();
 
-                            Vector3 panTranslation = -mouseDelta.x * right * _panSpeed - mouseDelta.y * forward * _panSpeed;
-                            activeCamera.transform.position = _dragStartCamPos + panTranslation;
+                                Vector3 forward = activeCamera.transform.forward;
+                                forward.y = 0f;
+                                forward.Normalize();
+
+                                Vector3 panTranslation = -mouseDelta.x * right * _panSpeed - mouseDelta.y * forward * _panSpeed;
+                                activeCamera.transform.position = _dragStartCamPos + panTranslation;
+                            }
                         }
                     }
                 }
@@ -165,6 +188,7 @@ namespace SSNoir
                 {
                     _isPressingWorld = false;
                     _isDraggingCam = false;
+                    _isDraggingFocusArc = false;
                 }
             }
 
@@ -183,6 +207,7 @@ namespace SSNoir
             _isNavigating = false;
 
             _isDraggingCam = true;
+            _isDraggingFocusArc = false;
             _dragStartMousePos = Input.mousePosition;
             _dragStartCamPos = activeCamera.transform.position;
 
@@ -196,6 +221,72 @@ namespace SSNoir
                     config.SaveDragStartState(pivot.position);
                 }
             }
+        }
+
+        private void BeginFocusArcDrag(Cinemachine.CinemachineVirtualCamera activeCamera)
+        {
+            if (!_isFocusArcActive || _focusArcCamera == null)
+                return;
+
+            if (!ReferenceEquals(activeCamera, _focusArcCamera))
+            {
+                string message =
+                    $"[SSNoir] Focus travel camera '{_focusArcCamera.name}' does not match " +
+                    $"the active focus camera '{activeCamera.name}' while beginning a drag.";
+                Debug.LogError(message);
+                UnityEngine.Assertions.Assert.IsTrue(false, message);
+                throw new System.InvalidOperationException(message);
+            }
+
+            _isNavigating = false;
+            _isDraggingCam = true;
+            _isDraggingFocusArc = true;
+            _dragStartMousePos = Input.mousePosition;
+            _focusArcDragStartPanOffset = _focusArcPanOffset;
+            _focusArcDragStartYawOffset = _focusArcYawOffset;
+            _focusArcDragStartPitchOffset = _focusArcPitchOffset;
+
+            _focusArcPanRight = activeCamera.transform.right;
+            _focusArcPanRight.y = 0f;
+            _focusArcPanRight.Normalize();
+
+            _focusArcPanForward = activeCamera.transform.forward;
+            _focusArcPanForward.y = 0f;
+            _focusArcPanForward.Normalize();
+        }
+
+        private void UpdateFocusArcDrag(Cinemachine.CinemachineVirtualCamera activeCamera)
+        {
+            if (!_isFocusArcActive || !ReferenceEquals(activeCamera, _focusArcCamera))
+                return;
+
+            Vector3 mouseDelta = Input.mousePosition - _dragStartMousePos;
+            if (_focusArcInputMode == CameraDragMode.Orbit)
+            {
+                if (_focusArcInputConfig == null)
+                {
+                    string message =
+                        $"[SSNoir] Orbit focus travel camera '{activeCamera.name}' has no camera config.";
+                    Debug.LogError(message);
+                    UnityEngine.Assertions.Assert.IsTrue(false, message);
+                    throw new System.InvalidOperationException(message);
+                }
+
+                _focusArcYawOffset =
+                    _focusArcDragStartYawOffset + mouseDelta.x * _focusArcInputConfig.orbitSpeedX;
+                _focusArcPitchOffset = Mathf.Clamp(
+                    _focusArcDragStartPitchOffset - mouseDelta.y * _focusArcInputConfig.orbitSpeedY,
+                    Mathf.Min(0f, _focusArcInputConfig.minPitch - _focusArcTargetPitch),
+                    Mathf.Max(0f, _focusArcInputConfig.maxPitch - _focusArcTargetPitch));
+            }
+            else
+            {
+                _focusArcPanOffset = _focusArcDragStartPanOffset
+                    - mouseDelta.x * _focusArcPanRight * _panSpeed
+                    - mouseDelta.y * _focusArcPanForward * _panSpeed;
+            }
+
+            ApplyFocusArcPose(FocusArcEasedProgress());
         }
 
         public void NavigateToNode(string nodeName)
@@ -217,20 +308,27 @@ namespace SSNoir
         /// straight blend — for every focus camera, orbit or pan, so a trip and its
         /// return are the same curve rather than two different ones.
         ///
-        /// The destination shot itself never changes: an orbit building lands on its
-        /// authored pose (the framing the scene was designed with), a pan camera lands
-        /// where it currently stands (that is the player's place over the city, not a
-        /// designed shot). What changes is the road there — the camera stays turned
-        /// towards the interest point the whole way, so nothing gets flung out of frame
-        /// and swung back in on arrival.
+        /// Without player input, an orbit building lands on its authored pose (the
+        /// framing the scene was designed with), while a pan camera lands where it
+        /// currently stands. A world drag may steer that destination while the original
+        /// travel continues: orbit input offsets yaw/pitch and pan input offsets the
+        /// ground-plane destination. The camera therefore still completes a composed
+        /// shot instead of being abandoned at an arbitrary point along the way.
         ///
         /// Returns true when the travel took over; the caller may then raise priority as
         /// usual — the brain is cut for the duration, so this camera is the shot.
         /// </summary>
         public bool BeginFocusTravel(Cinemachine.CinemachineVirtualCamera focusCamera)
         {
-            // Any focus change lands the travel in flight — and gives the brain its real
-            // blend back before this one reads it as the travel time.
+            // A repeated refresh of the focus that is already travelling must be a
+            // no-op. Finishing first would snap the running arc to t=1 before the
+            // "already active" check below gets a chance to reject the duplicate.
+            if (_isFocusArcActive && ReferenceEquals(_focusArcCamera, focusCamera))
+                return true;
+
+            // A genuinely different focus change lands the previous travel in flight —
+            // and gives the brain its real blend back before this one reads it as the
+            // travel time.
             FinishFocusTravel();
 
             var previousFocus = _lastFocusCamera;
@@ -303,12 +401,17 @@ namespace SSNoir
             _focusArcBrain = brain;
             _focusArcStartInterest = startInterest;
             _focusArcTargetInterest = targetInterest;
-            _focusArcTargetPosition = targetPosition;
             _focusArcTargetRotation = targetRotation;
             _focusArcStartNearClip = startNearClip;
             _focusArcTargetNearClip = targetNearClip;
             _focusArcStartFarClip = startFarClip;
             _focusArcTargetFarClip = targetFarClip;
+            _focusArcInputMode = destinationOrbits ? CameraDragMode.Orbit : CameraDragMode.Pan;
+            _focusArcInputConfig = config;
+            _focusArcPanOffset = Vector3.zero;
+            _focusArcYawOffset = 0f;
+            _focusArcPitchOffset = 0f;
+            _isDraggingFocusArc = false;
             _focusArcStartedAt = Time.unscaledTime;
             _focusArcDuration = duration;
 
@@ -452,11 +555,23 @@ namespace SSNoir
             float t = Mathf.Clamp01((Time.unscaledTime - _focusArcStartedAt) / _focusArcDuration);
             if (t >= 1f)
             {
-                FinishFocusTravel();
+                FinishFocusTravel(continueHeldDrag: true);
                 return;
             }
 
-            float eased = t * t * (3f - 2f * t);
+            ApplyFocusArcPose(t * t * (3f - 2f * t));
+        }
+
+        private float FocusArcEasedProgress()
+        {
+            float t = Mathf.Clamp01((Time.unscaledTime - _focusArcStartedAt) / _focusArcDuration);
+            return t * t * (3f - 2f * t);
+        }
+
+        private void ApplyFocusArcPose(float eased)
+        {
+            if (_focusArcCamera == null)
+                return;
 
             // The centre of the arc slides from what the old shot was looking at to what
             // the new one looks at; the camera holds a polar position around that moving
@@ -467,6 +582,19 @@ namespace SSNoir
             float yaw = Mathf.LerpAngle(_focusArcStartYaw, _focusArcTargetYaw, eased);
             float pitch = Mathf.Lerp(_focusArcStartPitch, _focusArcTargetPitch, eased);
             float radius = Mathf.Lerp(_focusArcStartRadius, _focusArcTargetRadius, eased);
+
+            if (_focusArcInputMode == CameraDragMode.Orbit)
+            {
+                yaw += _focusArcYawOffset;
+                pitch += _focusArcPitchOffset;
+            }
+            else
+            {
+                // Moving both the camera and its interest point preserves the authored
+                // framing while the whole travelling shot slides across the ground plane.
+                interest += _focusArcPanOffset;
+            }
+
             Vector3 position = interest + FromPolar(yaw, pitch, radius);
 
             // Rotation is rebuilt from "look at the interest point" plus the framing
@@ -497,6 +625,11 @@ namespace SSNoir
         /// </summary>
         public void FinishFocusTravel()
         {
+            FinishFocusTravel(continueHeldDrag: false);
+        }
+
+        private void FinishFocusTravel(bool continueHeldDrag)
+        {
             _crossfade.Finish();
             ReleaseReducedPark();
             ReleaseCutHold();
@@ -504,19 +637,27 @@ namespace SSNoir
             if (!_isFocusArcActive)
                 return;
 
-            if (_focusArcCamera != null)
-            {
-                _focusArcCamera.transform.SetPositionAndRotation(_focusArcTargetPosition, _focusArcTargetRotation);
-                SetClipPlanes(
-                    _focusArcCamera, _focusArcTargetNearClip, _focusArcTargetFarClip);
-            }
+            var completedCamera = _focusArcCamera;
+            if (completedCamera != null)
+                ApplyFocusArcPose(1f);
 
             if (_focusArcBrain != null)
                 _focusArcBrain.m_DefaultBlend = _focusArcSavedBlend;
 
+            bool continueDragging = continueHeldDrag
+                && _isDraggingFocusArc
+                && (Input.GetMouseButton(0) || Input.GetMouseButton(1));
+
             _isFocusArcActive = false;
             _focusArcCamera = null;
             _focusArcBrain = null;
+            _focusArcInputConfig = null;
+            _isDraggingFocusArc = false;
+
+            if (continueDragging && completedCamera != null)
+                BeginDrag(completedCamera);
+            else if (_isDraggingCam)
+                _isDraggingCam = false;
         }
 
         private void ReleaseCutHold()

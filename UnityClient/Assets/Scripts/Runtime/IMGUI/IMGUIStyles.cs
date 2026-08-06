@@ -30,6 +30,10 @@ namespace SSNoir.IMGUI
         public static readonly Color PaperTextSecondary = new Color(0.290f, 0.271f, 0.235f, 1f); // #4A453C
         public static readonly Color PaperTextDisabled  = new Color(0.541f, 0.514f, 0.459f, 1f); // #8A8375
 
+        // ── 暗版禁用态洗色：换底色而非降透明度——Ink 已接近纯黑，再叠黑不可见。
+        // 复用 PaperTextDisabled 的暖灰基调，让"不可用"读成"褪色的纸"，与"待命"的幽灵描边区分开。
+        public static readonly Color DisabledWash = PaperTextDisabled; // #8A8375，暗卡上的统一禁用灰
+
         // ── 强调色：做旧金（全局唯一主强调色）──
         public static readonly Color Gold       = new Color(0.910f, 0.765f, 0.353f, 1f); // #E8C35A
         public static readonly Color GoldOnDark  = new Color(0.165f, 0.129f, 0.027f, 1f); // #2A2107 金底上的深字
@@ -38,19 +42,22 @@ namespace SSNoir.IMGUI
         public static readonly Color SealRed = new Color(0.702f, 0.251f, 0.165f, 1f); // #B3402A
 
         // ── 便签色板（贴在物件上的彩色便签：纸底 + 同族深字）──
+        // 深字原先是纸色的中饱和同族深调（如 #3D5226），同色系相近导致亮度对比其实不够——
+        // 跟下面 StickyMutedText 同一次治：字压到近黑、只留一点点色相，对比冲到 11:1+，
+        // 纸的彩色身份留在底色上就够了，不需要字也保持"彩"。
         public static readonly Color StickyWorkBg     = new Color(0.847f, 0.894f, 0.769f, 1f); // #D8E4C4
-        public static readonly Color StickyWorkText   = new Color(0.239f, 0.322f, 0.149f, 1f); // #3D5226
+        public static readonly Color StickyWorkText   = new Color(0.122f, 0.176f, 0.071f, 1f); // #1F2D12
         public static readonly Color StickyMidRiskBg   = new Color(0.945f, 0.875f, 0.643f, 1f); // #F1DFA4
-        public static readonly Color StickyMidRiskText = new Color(0.427f, 0.325f, 0.063f, 1f); // #6D5310
+        public static readonly Color StickyMidRiskText = new Color(0.180f, 0.137f, 0.031f, 1f); // #2E2308
         public static readonly Color StickyHighRiskBg   = new Color(0.937f, 0.788f, 0.722f, 1f); // #EFC9B8
-        public static readonly Color StickyHighRiskText = new Color(0.478f, 0.188f, 0.094f, 1f); // #7A3018
+        public static readonly Color StickyHighRiskText = new Color(0.200f, 0.078f, 0.031f, 1f); // #331408
         public static readonly Color StickyNegotiateBg   = new Color(0.788f, 0.847f, 0.910f, 1f); // #C9D8E8
-        public static readonly Color StickyNegotiateText = new Color(0.173f, 0.275f, 0.400f, 1f); // #2C4666
+        public static readonly Color StickyNegotiateText = new Color(0.055f, 0.094f, 0.188f, 1f); // #0E1830
         public static readonly Color StickyOpportunityBg   = new Color(0.890f, 0.816f, 0.894f, 1f); // #E3D0E4
-        public static readonly Color StickyOpportunityText = new Color(0.361f, 0.196f, 0.376f, 1f); // #5C3260
+        public static readonly Color StickyOpportunityText = new Color(0.125f, 0.063f, 0.122f, 1f); // #20101F
         // 禁用态与折叠「+N」：褪成灰纸，而不是压暗——压暗会立刻和深色卡糊在一起。
         public static readonly Color StickyMutedBg     = new Color(0.796f, 0.812f, 0.839f, 1f); // #CBCFD6
-        public static readonly Color StickyMutedText   = new Color(0.271f, 0.290f, 0.325f, 1f); // #454A53
+        public static readonly Color StickyMutedText   = new Color(0.110f, 0.141f, 0.188f, 1f); // #1C2430
 
         // ── 概率/结果三色（沉着版）──
         public static readonly Color OddsFail    = new Color(0.820f, 0.416f, 0.306f, 1f); // #D16A4E 陶红
@@ -60,7 +67,7 @@ namespace SSNoir.IMGUI
         // ── 面板不透明度阶梯 ──
         public const float PanelOpacity  = 0.88f; // 面板 ≥88%
         public const float ModalOpacity  = 0.96f; // 弹窗 ≥96%
-        public const float MaskOpacity   = 0.60f; // 遮罩 60%
+        public const float MaskOpacity   = 0.82f; // 遮罩：60% 在浅色场景里压不住，纸窗背后要暗下去而不是变白
 
         // ── 组合令牌（由基础令牌推导；旧 Blueprint Noir 调色板已全部退役）──
         // 弹窗是"递到面前的一张纸"：Paper 底 @96%（配 ModalTitle/ModalBody 的 PaperInk 字）
@@ -136,6 +143,12 @@ namespace SSNoir.IMGUI
             FlippedTip     = MakeStyle(FontSize(12), TextSecondary,      TextAnchor.MiddleCenter, FontStyle.Italic);
             ClockLabel     = MakeStyle(FontSize(12), TextPrimary,        TextAnchor.MiddleLeft,   FontStyle.Bold);
             ClockValue     = MakeStyle(FontSize(12), Gold,               TextAnchor.MiddleRight,  FontStyle.Bold);
+            // 时钟标签和数值是徽章内的单行信息。MakeStyle 默认允许换行，
+            // 会把类似「45/100」的分数拆成两行，破坏徽章的固定高度。
+            ClockLabel.wordWrap = false;
+            ClockLabel.clipping = TextClipping.Clip;
+            ClockValue.wordWrap = false;
+            ClockValue.clipping = TextClipping.Clip;
             DropdownItem   = MakeStyle(FontSize(14), TextSecondary,      TextAnchor.MiddleLeft,   FontStyle.Normal);
             DropdownCurrent= MakeStyle(FontSize(14), TextPrimary,        TextAnchor.MiddleLeft,   FontStyle.Normal);
             CursorFollower = MakeStyle(FontSize(12), TextPrimary,        TextAnchor.MiddleCenter, FontStyle.Bold);

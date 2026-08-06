@@ -46,9 +46,11 @@ namespace SSNoir.IMGUI
         {
             if (IMGUIStyles.PieMaterial == null) return;
 
-            // cx/cy/radius are in virtual GUI space; GL bypasses GUI.matrix so
-            // we convert to actual screen pixels before drawing.
-            var screenCenter = UIScale.VirtualToScreen(new Vector2(cx, cy));
+            // GL bypasses both GUI.matrix and the current GUI.BeginGroup clip stack.
+            // GUIToScreenPoint restores both transforms; scaling virtual coordinates
+            // directly would lose a grid viewport's local origin and draw the pie near
+            // the top of the screen instead of inside its clock badge.
+            var screenCenter = GUIUtility.GUIToScreenPoint(new Vector2(cx, cy));
             float screenRadius = UIScale.ScaleSize(radius);
             float scx = screenCenter.x;
             float scy = screenCenter.y;
@@ -84,7 +86,7 @@ namespace SSNoir.IMGUI
         {
             if (IMGUIStyles.PieMaterial == null) return;
 
-            var screenCenter = UIScale.VirtualToScreen(new Vector2(cx, cy));
+            var screenCenter = GUIUtility.GUIToScreenPoint(new Vector2(cx, cy));
             float screenRadius = UIScale.ScaleSize(radius);
             float scx = screenCenter.x;
             float scy = screenCenter.y;

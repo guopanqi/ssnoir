@@ -107,15 +107,10 @@ body.theme-dark {
     padding-right: var(--wr-gutter) !important;
 }
 
-/* Strip the editor's stock line padding so prose starts at the panel edge —
-   but NOT on structural lines (lists, quotes, code blocks). Obsidian uses
-   their padding-inline-start to hang bullets/numbers, offset the quote bar,
-   and inset code; zeroing it drags those left of the body's alignment line. */
-.markdown-source-view.mod-cm6
-    .cm-line:not(.HyperMD-list-line):not(.HyperMD-quote):not(.HyperMD-codeblock) {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
+/* Keep CodeMirror's line padding untouched. On lines containing only Tabs,
+   it writes an inline padding-inline-start to cancel a matching negative
+   text-indent. Overriding that padding makes every indentation guide move
+   one level farther left, eventually outside the reading panel. */
 
 .markdown-source-view.mod-cm6 .cm-gutters {
     background: transparent !important;

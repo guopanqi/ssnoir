@@ -43,6 +43,12 @@ namespace SSNoir.IMGUI
             float panelX = panelRect.x;
             float panelY = panelRect.y;
 
+            // 先压暗世界背景（跟 HeavyOutcome/Spotlight/AnimationPlayer 同一套纸物件模态惯例）——
+            // 之前少了这一步，背后城市线稿场景会透过纸面板漏出来，读数字时发花。
+            GUI.color = IMGUIStyles.Blocker;
+            GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
             // 纸物件（功能性窗口，保持水平）：Paper 底 @96% + 硬投影 (5,6) 黑 @50%
             IMGUIStyles.DrawShadow(panelRect, new Vector2(5f, 6f), 0.50f);
             GUI.color = IMGUIStyles.ModalBg;
@@ -84,9 +90,16 @@ namespace SSNoir.IMGUI
                 new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.35f), 1f);
 
             // Team Growth Level（纸上次级字）
+            // Regular 字重在小字号下偏瘦，数据类文字（等级/可用点数/属性值）统一换成 Semibold——
+            // 标题本来就是 Semibold，正文却是 Regular，读起来像标题重、内容轻，主次倒了。
             var levelStyle = new GUIStyle(IMGUIStyles.SectionLabel);
             levelStyle.normal.textColor = IMGUIStyles.PaperTextSecondary;
+            IMGUIStyles.ApplyStrongFont(levelStyle);
             GUI.Label(new Rect(panelX + 24f, panelY + 72f, 300f, 22f), $"队伍成长等级：{snapshot.GrowthLevel}", levelStyle);
+
+            // 属性行共用同一副样式（颜色不随 actor 变化），循环外建一次即可。
+            var statRowStyle = new GUIStyle(IMGUIStyles.ModalBody);
+            IMGUIStyles.ApplyStrongFont(statRowStyle);
 
             var actors = snapshot.Actors;
             float contentStartY = panelY + 110f;
@@ -124,6 +137,7 @@ namespace SSNoir.IMGUI
                 Color pointsColor = availPoints > 0 ? new Color(0.62f, 0.47f, 0.10f, 1f) : IMGUIStyles.PaperTextSecondary;
                 var pointsStyle = new GUIStyle(IMGUIStyles.SectionLabel);
                 pointsStyle.normal.textColor = pointsColor;
+                IMGUIStyles.ApplyStrongFont(pointsStyle);
                 GUI.Label(new Rect(colX + 16f, contentStartY + 50f, colWidth - 32f, 18f), $"可用：{availPoints}", pointsStyle);
 
                 // Stats rows
@@ -140,7 +154,7 @@ namespace SSNoir.IMGUI
 
                     // 中文属性名（力量/见识/敏锐/交际）。
                     string statLabel = StatLabels.TryGetValue(statKey, out var lbl) ? lbl : statKey;
-                    GUI.Label(new Rect(colX + 16f, rowY + 4f, colWidth - 70f, 20f), $"{statLabel} {statVal}", IMGUIStyles.ModalBody);
+                    GUI.Label(new Rect(colX + 16f, rowY + 4f, colWidth - 70f, 20f), $"{statLabel} {statVal}", statRowStyle);
 
                     // Upgrade [+] button：纸上主选项 = 黑底白字实心块；禁用 = 35% 黑描边
                     float btnSize = 22f;

@@ -7,8 +7,11 @@
     (define favor-clk
       (make-clock "与弗兰克建立信任" 4 'segments
         "替弗兰克查账建立私人信任；填满后他会让你接触旧悬案。"))
+    ;; 8 格，约 6–7 颗骰。原来是 12 格：按每颗骰平均 1.2 格算要 10 颗，
+    ;; 而那 10 颗骰在旧写法里还要付掉近 8 点冷静——四天里总共只回得来 5 点，
+    ;; 这件事在算术上就做不完。缩到 8 格，并把冷静的代价只留在坏结果上（见下）。
     (define repair-clk
-      (make-clock "投入工作" 12 'segments
+      (make-clock "投入工作" 8 'segments
         "投入人手抽水、补漏并重新固定钢缆；填满后货船脱险，弗兰克会记住你。"))
     (define repair-duration 4)
     (define repair-deadline-day 0)
@@ -56,11 +59,13 @@
           (list 'clock "货船沉没" (repair-days-left) repair-duration 'countdown
                 "每结束一天减少一格；归零时抢修失败，事件从码头消失。"))
         :requires (list (req-die))
+        ;; 中不掉冷静：这不是踩点那种一个人在雨里熬着的事，是一整队人轮班上泵。
+        ;; 该掉冷静的是钢缆崩断的那一下，不是每一班。
         :resolve (roll 'violence
           (outcome "钢缆甩脱"
             (lambda () (spend-composure! 2)))
           (outcome "稳住漏口"
-            (lambda () (spend-composure! 1) (advance-ship-repair! 1)))
+            (lambda () (advance-ship-repair! 1)))
           (outcome "抢下关键处"
             (lambda () (advance-ship-repair! 2))))))
 

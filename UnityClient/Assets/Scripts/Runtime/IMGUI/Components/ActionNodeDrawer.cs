@@ -121,7 +121,7 @@ namespace SSNoir.IMGUI
             }
             else if (isObserve)
             {
-                if (DrawExecuteButton(exeRect, disabled ? "不可用" : "查 看", ui, !disabled))
+                if (DrawExecuteButton(exeRect, disabled ? "不可用" : "查 看", ui, !disabled, dead: disabled))
                 {
                     interaction.CardClicked = true;
                     Event.current.Use();
@@ -134,7 +134,7 @@ namespace SSNoir.IMGUI
             }
             else
             {
-                DrawExecuteButton(exeRect, disabled ? "不可用" : "待 命", ui, false);
+                DrawExecuteButton(exeRect, disabled ? "不可用" : "待 命", ui, false, dead: disabled);
             }
 
             // ── 7. 右上角：角色能力栏（规范色：Ink 底 + Paper 描边 + 白字，无主题色）──
@@ -176,7 +176,7 @@ namespace SSNoir.IMGUI
         // 不占卡内空间，也不遮主要元素——「贴在物件上的彩色便签」隐喻更足。
         // 纸底一律浅色、字一律同族深色（DESIGN.md 便签色板）：便签压在深色卡与深色场景之上，
         // 只有浅纸深字这一种关系才在两种底上都读得清。
-        // 卡矮或便签多时会堆不下：放不下的部分折成一张「+N」提示条，信息不会被悄悄藏起来。
+        // 空间投影卡的边缘有独立的纵向空间，便签全部逐张展示，不再折叠成「+N」。
         private const float NotePadding = 10f;
         private const float NoteMaxWidth = 172f;
         private const float NoteOverlap = 12f;   // 便签压进卡内的宽度，其余露在卡外
@@ -194,16 +194,14 @@ namespace SSNoir.IMGUI
         private static void DrawEdgeTags(Rect rect, GameNode node, List<DifficultyModifierInfo> effectiveModifiers, bool disabled)
         {
             int fontSize = NoteFontSize();
-            float noteHeight = fontSize + 12f;
-            float noteStep = noteHeight + 6f;
             float y = rect.y + 22f;
-            float maxY = rect.yMax - 40f;
             var noteStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
                 fontSize = fontSize,
                 alignment = TextAnchor.MiddleCenter,
-                clipping = TextClipping.Clip
+                clipping = TextClipping.Clip,
+                wordWrap = true
             };
             IMGUIStyles.ApplyStrongFont(noteStyle);
 
@@ -226,18 +224,13 @@ namespace SSNoir.IMGUI
                 }
             }
 
-            // 能站下几张：站不下时最后一格让给「+N」，N 是被折叠掉的张数。
-            int capacity = Mathf.FloorToInt((maxY - y + (noteStep - noteHeight)) / noteStep);
-            if (capacity <= 0) return;
-
-            int shown = items.Count <= capacity ? items.Count : capacity - 1;
-            for (int i = 0; i < shown; i++)
-                DrawEdgeNote(rect, y + i * noteStep, noteHeight, items[i].text, items[i].bg, items[i].textColor, noteStyle);
-
-            if (items.Count > capacity)
+            // 每张便签按实际可用宽度量高度，长中文自动换行；空间投影允许标签向下延展，
+            // 因此不再因为卡片高度而截断或折叠。
+            foreach (var item in items)
             {
-                var (bg, ink) = NoteMuted;
-                DrawEdgeNote(rect, y + shown * noteStep, noteHeight, $"+{items.Count - shown}", bg, ink, noteStyle);
+                float noteHeight = MeasureEdgeNoteHeight(rect, item.text, noteStyle);
+                DrawEdgeNote(rect, y, noteHeight, item.text, item.bg, item.textColor, noteStyle);
+                y += noteHeight + 6f;
             }
         }
 
@@ -254,9 +247,10 @@ namespace SSNoir.IMGUI
             style.onActive.textColor = ink;
             style.onFocused.textColor = ink;
 
-            // 向左伸出，但不许伸出屏幕：贴边的卡（网格首列）把便签挤窄，文字自行裁切。
+            // 向左伸出，但不许伸出屏幕：贴边的卡（网格首列）把便签挤窄时，文字在便签内换行。
             float right = card.x + NoteOverlap;
-            float width = Mathf.Min(NoteMaxWidth, style.CalcSize(new GUIContent(text)).x + NotePadding * 2f);
+            var singleLineStyle = new GUIStyle(style) { wordWrap = false };
+            float width = Mathf.Min(NoteMaxWidth, singleLineStyle.CalcSize(new GUIContent(text)).x + NotePadding * 2f);
             float left = Mathf.Max(4f, right - width);
             var note = UIScale.PixelSnap(new Rect(left, noteY, right - left, noteHeight));
 
@@ -266,9 +260,20 @@ namespace SSNoir.IMGUI
             GUI.color = new Color(ink.r, ink.g, ink.b, 0.85f);
             GUI.DrawTexture(new Rect(note.x, note.y, 3f, note.height), Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(note, 1f, new Color(ink.r, ink.g, ink.b, 0.45f));
+            IMGUIStyles.DrawOutline(note, 1f, new Color(ink.r, ink.g, ink.b, 0.65f));
 
             GUI.Label(new Rect(note.x + 3f, note.y, note.width - 3f, note.height), text, style);
+        }
+
+        private static float MeasureEdgeNoteHeight(Rect card, string text, GUIStyle style)
+        {
+            var singleLineStyle = new GUIStyle(style) { wordWrap = false };
+            float right = card.x + NoteOverlap;
+            float desiredWidth = Mathf.Min(NoteMaxWidth, singleLineStyle.CalcSize(new GUIContent(text)).x + NotePadding * 2f);
+            float left = Mathf.Max(4f, right - desiredWidth);
+            float labelWidth = Mathf.Max(1f, right - left - 3f);
+            float wrappedHeight = style.CalcHeight(new GUIContent(text), labelWidth);
+            return Mathf.Max(style.fontSize + 12f, wrappedHeight + 6f);
         }
 
         // ── 需求骰位：方块 Slot（与手牌骰子/物品同族）──────────────────
@@ -486,12 +491,18 @@ namespace SSNoir.IMGUI
 
             if (!disabled && (filled || canDropHeld))
                 IMGUIStyles.DrawShadow(rect, new Vector2(2f, 2f), 0.4f);
-            GUI.color = filled ? SlotBlockBg : IMGUIStyles.Ink;
+            // 禁用态换成暖灰洗色（同 DrawCardFrame/DrawExecuteButton），别再用 Ink 叠透明——
+            // 卡面本身已经因为禁用而发灰发亮，槽位再用近黑填充只会显得突兀地"更黑"。
+            GUI.color = disabled
+                ? new Color(IMGUIStyles.DisabledWash.r, IMGUIStyles.DisabledWash.g, IMGUIStyles.DisabledWash.b, 0.22f)
+                : filled ? SlotBlockBg : IMGUIStyles.Ink;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(rect, (canDropHeld && slotHover) || filled ? 2f : 1f, border);
 
-            Color content = filled ? IMGUIStyles.Paper : SlotPlaceholderColor(canDropHeld, canMatchHeld);
+            Color content = disabled
+                ? IMGUIStyles.DisabledWash
+                : filled ? IMGUIStyles.Paper : SlotPlaceholderColor(canDropHeld, canMatchHeld);
 
             // 方块被压缩时（见 DrawRequirementSlots 的 scale）内部字号与留白按同一比例跟着走。
             // 否则物品格缩到 48px 时，固定偏移的符号(y+8 高26)和数量(yMax-24 高20)会直接叠在一起。
@@ -592,7 +603,7 @@ namespace SSNoir.IMGUI
 
         private static Color SlotBorderColor(bool disabled, bool canDropHeld, bool canMatchHeld, bool hover)
         {
-            if (disabled) return new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
+            if (disabled) return new Color(IMGUIStyles.DisabledWash.r, IMGUIStyles.DisabledWash.g, IMGUIStyles.DisabledWash.b, 0.70f);
             if (canDropHeld) return IMGUIStyles.Gold;
             if (canMatchHeld) return IMGUIStyles.SealRed;
             return hover
@@ -627,8 +638,10 @@ namespace SSNoir.IMGUI
         // ── 执行按钮（实心金 = 执行 / 主行动按钮）──────────────────────
 
         // DESIGN.md 强调色岗位一：实心金 = 执行。金底 + 深字 #2A2107。
-        // 禁用态：无填充，描边与文字降到 35%。
-        private static bool DrawExecuteButton(Rect rect, string text, IMGUIInteractionContext ui, bool enabled)
+        // dead=true（"不可用"）与 enabled=false 且 dead=false（"待命"）过去共用同一副淡描边，
+        // 只靠文字区分——两者含义完全不同（"待命"还有希望，"不可用"是彻底关闭），必须分开画：
+        // 待命＝幽灵描边（还悬着）；不可用＝实心盖章灰块（已经封死），不留几乎不可见的淡边框。
+        private static bool DrawExecuteButton(Rect rect, string text, IMGUIInteractionContext ui, bool enabled, bool dead = false)
         {
             bool isInteractable = enabled && !ui.IsLocked;
             bool isHovered = isInteractable && ui.CanHover(rect);
@@ -644,6 +657,13 @@ namespace SSNoir.IMGUI
                 GUI.DrawTexture(rect, Texture2D.whiteTexture);
                 GUI.color = Color.white;
                 style.normal.textColor = IMGUIStyles.GoldOnDark;
+            }
+            else if (dead)
+            {
+                GUI.color = IMGUIStyles.DisabledWash;
+                GUI.DrawTexture(rect, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                style.normal.textColor = IMGUIStyles.Ink;
             }
             else
             {
@@ -1028,6 +1048,9 @@ namespace SSNoir.IMGUI
         // 交涉=蓝纸、机遇=紫纸。
         private static (Color bg, Color text) TagColors(string label, bool disabled = false)
         {
+            if (label == "不可休息")
+                return NoteHighRisk;
+
             if (disabled)
                 return NoteMuted;
 

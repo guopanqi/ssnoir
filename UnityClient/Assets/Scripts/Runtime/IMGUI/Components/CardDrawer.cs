@@ -19,6 +19,10 @@ namespace SSNoir.IMGUI
     // 普通 / 地点 / 人物节点内容委托 ContainerNodeDrawer。
     public static class CardDrawer
     {
+        public const float ExternalRestBlockerMarkerHeight = 22f;
+        public const float ExternalRestBlockerMarkerGap = 6f;
+        public const float ExternalRestBlockerMarkerSpace = ExternalRestBlockerMarkerHeight + ExternalRestBlockerMarkerGap;
+
         // 场景内每张节点卡都需要稳定的点击目标；内容再少也不能退化成难以点中的细条。
         public const float MinCardHeight = 150f;
 
@@ -150,13 +154,20 @@ namespace SSNoir.IMGUI
         private static void DrawRestBlockerMarker(Rect rect, bool isTarget, bool containsTarget)
         {
             if (!containsTarget) return;
+            DrawExternalRestBlockerMarker(rect, isTarget);
+        }
 
-            var rail = new Rect(rect.x + 1f, rect.y + 8f, 3f, Mathf.Max(0f, rect.height - 16f));
-            GUI.color = isTarget ? IMGUIStyles.Gold : new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.70f);
-            GUI.DrawTexture(rail, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+        private static void DrawExternalRestBlockerMarker(Rect rect, bool isTarget)
+        {
+            const float markerHeight = ExternalRestBlockerMarkerHeight;
+            const float markerGap = ExternalRestBlockerMarkerGap;
+            const float markerWidth = 84f;
 
-            var marker = new Rect(rect.x + 10f, rect.y + 8f, isTarget ? 84f : 76f, 22f);
+            // 处理标签统一放到卡片上方，避免遮住建筑线稿、时钟和标题。
+            float markerX = Mathf.Clamp(rect.x + 10f, 4f, UIScale.VW - markerWidth - 4f);
+            float markerY = Mathf.Max(4f, rect.y - markerHeight - markerGap);
+            var marker = UIScale.PixelSnap(new Rect(markerX, markerY, markerWidth, markerHeight));
+
             if (isTarget)
             {
                 IMGUIStyles.DrawGoldPulse(rect, baseAlpha: 0.72f, rings: 3, ringStep: 2.5f, speed: 2.2f);
@@ -178,7 +189,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = isTarget ? new Color(0.16f, 0.13f, 0.03f, 1f) : IMGUIStyles.Gold }
             };
-            GUI.Label(marker, isTarget ? "必须处理" : "目标在内", style);
+            GUI.Label(marker, "必须处理", style);
         }
 
         // ── 共享卡框架 ─────────────────────────────────────────────────
@@ -192,6 +203,21 @@ namespace SSNoir.IMGUI
             GUI.color = IMGUIStyles.Ink;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
+
+            if (disabled)
+            {
+                // 禁用态不能只靠按钮文字区分。Ink 本身已接近纯黑，再叠黑几乎看不出变化——
+                // 换成暖灰洗色（DisabledWash）整张覆盖：卡面会明显发灰发亮，读成"褪色的纸"
+                // 而不是"更暗的黑"。侧栏与描边同用这支灰，三处统一成一套禁用态身份。
+                GUI.color = new Color(IMGUIStyles.DisabledWash.r, IMGUIStyles.DisabledWash.g, IMGUIStyles.DisabledWash.b, 0.30f);
+                GUI.DrawTexture(rect, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(rect, 1f,
+                    new Color(IMGUIStyles.DisabledWash.r, IMGUIStyles.DisabledWash.g, IMGUIStyles.DisabledWash.b, 0.75f));
+                GUI.color = IMGUIStyles.DisabledWash;
+                GUI.DrawTexture(new Rect(rect.x, rect.y, 4f, rect.height), Texture2D.whiteTexture);
+                GUI.color = Color.white;
+            }
 
             if (isFocused && !disabled)
                 IMGUIStyles.DrawOutline(rect, 2f, IMGUIStyles.Gold);

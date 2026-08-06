@@ -220,6 +220,65 @@ namespace SSNoir.IMGUI
             return true;
         }
 
+        // 动作内 Spotlight 与全局 Spotlight 都是“确认后继续”的阻塞层。
+        public bool TryAdvanceSpotlight()
+        {
+            if (_activeActionSpotlight != null)
+            {
+                ConfirmActionSpotlight();
+                return true;
+            }
+
+            if (!_gameManager.GameState.SpotlightCenter.HasSpotlight)
+                return false;
+
+            _gameManager.GameState.SpotlightCenter.Dismiss();
+            return true;
+        }
+
+        // 重结算结果弹窗的按钮与 ESC 都表示确认并进入后续表现。
+        public bool TryConfirmHeavyOutcome()
+        {
+            if (_activeHeavyOutcome == null)
+                return false;
+
+            _activeHeavyOutcome = null;
+            _activeHeavyOutcomeActionName = string.Empty;
+            _activeHeavyOutcomeDone = null;
+            AdvanceToBlockingPresentationOrFinish();
+            return true;
+        }
+
+        // 普通界面面板不参与剧情推进；ESC 只关闭当前最上层面板。
+        public bool TryCloseUiPanel()
+        {
+            if (_isGrowthPanelOpen)
+            {
+                _isGrowthPanelOpen = false;
+                return true;
+            }
+
+            if (NavigationDrawer.IsRelationExpanded)
+            {
+                NavigationDrawer.CollapseRelation();
+                return true;
+            }
+
+            if (DebugPanelDrawer.IsOpen)
+            {
+                DebugPanelDrawer.Close();
+                return true;
+            }
+
+            if (SettingsPanelDrawer.IsOpen)
+            {
+                SettingsPanelDrawer.Close();
+                return true;
+            }
+
+            return false;
+        }
+
         // Whether the pointer was over any interactive UI in the last OnGUI pass.
         public bool PointerOverUI { get; private set; }
 
@@ -349,7 +408,9 @@ namespace SSNoir.IMGUI
                     Id = IMGUIWindowId.SettingsPanel,
                     Bounds = settingsPanelRect,
                     Layer = IMGUIWindowLayer.Panel,
-                    BlockMode = IMGUIBlockMode.Bounds,
+                    // 现在是跟成长面板同一套居中纸卡模态，也要跟成长面板一样挡住整屏——
+                    // 否则背后世界还能被点到（相机拖拽/卡片点击穿透）。
+                    BlockMode = IMGUIBlockMode.Fullscreen,
                     CloseOnClickedOutside = false,
                 });
             }
@@ -435,14 +496,6 @@ namespace SSNoir.IMGUI
             if (NavigationDrawer.IsRelationExpanded)
                 worldUi = _windowStack.MakeContext(IMGUIWindowLayer.World, true);
 
-            // ── Node Clocks ──
-            // 当前所在层的时钟：干净徽章，居中且与顶栏控件同一行高（分割线 y=88 以上）。
-            var clocks = GetCurrentClocks();
-            if (clocks.Count > 0)
-            {
-                ClockDrawer.DrawClocksBar(clocks, 28f);
-            }
-
             // ── Node Cards (3D projected) ──
             DrawCards(worldUi);
             foreach (var kv in _cardCenters)
@@ -454,17 +507,22 @@ namespace SSNoir.IMGUI
             // ── Growth / Team Toggle Button ──
             DrawGrowthToggleButton(worldUi, topHud.GrowthToggle);
 
-            // ── Settings Panel (player options) ──
-            if (!_isGrowthPanelOpen)
+            // ── Settings / Debug 顶部按钮 ──
+            // 三个面板（成长/设置/Debug）都不能整段跳过绘制——之前那样做会让按钮凭空消失，
+            // 很突兀。改成始终画出来，被更高优先级面板占屏时只是传一个强制锁定的 ui 上下文，
+            // 按钮可见但点不动。优先级：成长 > 设置 > Debug；打开谁就顺手关掉下面优先级的
+            // 面板，避免两个居中纸卡模态叠在一起抢点击。
+            var lockedPanelUi = _windowStack.MakeContext(IMGUIWindowLayer.Panel, true);
+            var settingsUi = _isGrowthPanelOpen ? lockedPanelUi : panelUi;
+            bool settingsWasOpen = SettingsPanelDrawer.IsOpen;
+            SettingsPanelDrawer.Draw(settingsUi, topHud);
+            if (!settingsWasOpen && SettingsPanelDrawer.IsOpen)
             {
-                SettingsPanelDrawer.Draw(panelUi, topHud);
+                DebugPanelDrawer.Close();
             }
 
-            // ── Debug Panel (Save/Load + Scene Switch) ──
-            if (!_isGrowthPanelOpen)
-            {
-                DebugPanelDrawer.Draw(_gameManager, panelUi, topHud);
-            }
+            var debugUi = (_isGrowthPanelOpen || SettingsPanelDrawer.IsOpen) ? lockedPanelUi : panelUi;
+            DebugPanelDrawer.Draw(_gameManager, debugUi, topHud);
 
             // 大型关系进展图最后绘制在世界控件之上。
             NavigationDrawer.DrawRelationOverlay(_gameManager.DisplayedSnapshot);
@@ -846,6 +904,9 @@ namespace SSNoir.IMGUI
         private const float GridSpacing = 20f;
         private const float GridStartX = 40f;
         private const float GridStartY = 140f;
+        // 金色脉冲描边会向卡片外扩最多 7.5px；网格卡不能贴着 GUI.Group 顶部，
+        // 否则第一行卡片的上边会被父 Group 裁掉。
+        private const float GridContentTopPadding = 10f;
 
         private static int GridCardsPerRow()
         {
@@ -878,11 +939,17 @@ namespace SSNoir.IMGUI
             int columnCount = GridCardsPerRow();
             int totalCards = nodes.Count + residues.Count;
             var columnHeights = new float[columnCount];
+            for (int i = 0; i < columnHeights.Length; i++)
+                columnHeights[i] = GridContentTopPadding;
             var layouts = new List<GridCardLayout>(totalCards);
 
             for (int i = 0; i < totalCards; i++)
             {
                 int column = i % columnCount;
+                float markerSpace = i < nodes.Count
+                    && RestBlockerPresentation.ContainsTarget(nodes[i], _gameManager.DisplayedSnapshot.RestBlockers)
+                    ? CardDrawer.ExternalRestBlockerMarkerSpace
+                    : 0f;
                 float attachmentHeight = i < nodes.Count
                     ? AttachmentHeightForNode(nodes[i], spacious: false)
                     : ActionNodeDrawer.ResidueAttachmentHeight(residues[i - nodes.Count], spacious: false);
@@ -897,11 +964,11 @@ namespace SSNoir.IMGUI
                     : GridResidueCardHeight;
                 var cardRect = new Rect(
                     GridStartX + column * (GridCardWidth + GridSpacing),
-                    columnHeights[column] - scrollOffset,
+                    columnHeights[column] + markerSpace - scrollOffset,
                     GridCardWidth,
                     cardHeight);
                 layouts.Add(new GridCardLayout(cardRect, attachmentHeight));
-                columnHeights[column] += cardHeight + attachmentHeight + GridSpacing;
+                columnHeights[column] += markerSpace + cardHeight + attachmentHeight + GridSpacing;
             }
 
             contentHeight = totalCards == 0
@@ -1295,6 +1362,12 @@ namespace SSNoir.IMGUI
             if (IMGUIButton.Draw(btnRect, "成长/队伍", ui, outlineColor, hoverBg, IMGUIStyles.ExecuteLabel))
             {
                 _isGrowthPanelOpen = !_isGrowthPanelOpen;
+                if (_isGrowthPanelOpen)
+                {
+                    // 成长面板打开时不留一个悬在背后的下拉——避免两个 Panel 层弹窗抢点击。
+                    SettingsPanelDrawer.Close();
+                    DebugPanelDrawer.Close();
+                }
             }
         }
 
@@ -1359,10 +1432,7 @@ namespace SSNoir.IMGUI
             bool clicked = hovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
             if (IMGUIStyles.DrawTechnicalButton(btnRect, "确 定", hovered, clicked, IMGUIStyles.PaperInk, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f), IMGUIStyles.ExecuteLabel))
             {
-                _activeHeavyOutcome = null;
-                _activeHeavyOutcomeActionName = string.Empty;
-                _activeHeavyOutcomeDone = null;
-                AdvanceToBlockingPresentationOrFinish();
+                TryConfirmHeavyOutcome();
                 Event.current.Use();
             }
             else
@@ -1434,10 +1504,7 @@ namespace SSNoir.IMGUI
             bool clicked = hovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
             if (IMGUIStyles.DrawTechnicalButton(btnRect, "确 定", hovered, clicked, IMGUIStyles.PaperInk, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f), IMGUIStyles.ExecuteLabel))
             {
-                if (_activeActionSpotlight != null)
-                    ConfirmActionSpotlight();
-                else
-                    _gameManager.GameState.SpotlightCenter.Dismiss();
+                TryAdvanceSpotlight();
                 Event.current.Use();
             }
             else
