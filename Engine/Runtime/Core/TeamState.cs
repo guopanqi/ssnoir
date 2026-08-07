@@ -16,7 +16,7 @@ namespace SSNoir.Core
         //
         // 只有 2 点：一天最多扛住两次失败，第三次就开始进身体。缓冲小是故意的——
         // 它要在当天之内就见底，否则这条轴在城市里不会产生任何决策。
-        public const int MaxComposure = 2;
+        public const int MaxComposure = 3;
 
         /// <summary>队伍唯一的身体轴，取代旧的健康血条。规则与档位见 <see cref="Core.Injury"/>。</summary>
         public Injury Injury { get; } = new Injury();

@@ -201,14 +201,14 @@ namespace SSNoir.Testing
             consumableState.Inventory.SetCount("香烟", 1);
             consumableState.Inventory.SetCount("酒", 1);
             // 精确花到 0（不溢出成伤势），再验证消耗品这条路接通。
-            // 注意：冷静只有 2 点之后，烟(+2)和酒(+3)都会把它一次填满，所以两处断言的
-            // 期望值相同——这里守的是"消耗品被扣掉且冷静真的回了"，不是具体数值。
+            // 冷静上限 3 之后两者不再等价：烟 +2 回不满，酒 +3 一次填满。
+            // 这里守的是"消耗品被扣掉且冷静真的回了"，具体数值由 §2.2 的设计决定。
             consumableState.Team.SpendComposure("player", TeamState.MaxComposure);
             var consumableManager = new SceneManager(consumableState, new LocalScriptLoader());
             consumableManager.LoadScene("encounters/夜莺·警告");
             consumableManager.UseEncounterConsumable("香烟");
             AssertEq("smoke consumed", 0, consumableState.Inventory.GetCount("香烟"));
-            AssertEq("smoke composure restore", TeamState.MaxComposure, consumableState.Team.FindActor("player")!.Composure);
+            AssertEq("smoke composure restore", 2, consumableState.Team.FindActor("player")!.Composure);
             consumableManager.UseEncounterConsumable("酒");
             AssertEq("drink consumed", 0, consumableState.Inventory.GetCount("酒"));
             AssertEq("drink composure restore", TeamState.MaxComposure, consumableState.Team.FindActor("player")!.Composure);

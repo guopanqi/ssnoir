@@ -61,3 +61,6 @@ Thumbs.db
 **/UnityClient/*.pdb
 **/UnityClient/*.opendb
 **/UnityClient/*.tlog
+
+# 早期过场截图产物目录（输出已改到 ~/Downloads）
+**/UnityClient/Screenshots/

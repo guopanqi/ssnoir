@@ -374,7 +374,7 @@ namespace SSNoir.IMGUI
             };
             GUI.Label(new Rect(x, y, VitalLabelW, VitalRowH), "伤势", labelStyle);
 
-            int max = snapshot.InjuryCollapseThreshold;
+            int max = snapshot.InjuryMaxSeverity;
             int severity = Mathf.Clamp(snapshot.InjurySeverity, 0, max);
             Color fill = snapshot.InjuryCostsActionDie ? IMGUIStyles.SealRed
                        : severity > 0 ? IMGUIStyles.OddsNeutral

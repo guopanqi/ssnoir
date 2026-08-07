@@ -1517,7 +1517,28 @@ namespace SSNoir.Rendering
                 }
                 var canDropHeldResource = BuildDropStates(requires, slotted);
 
-                List<DifficultyModifierInfo>? modifiers = node.Resolve?.DifficultyModifiers.Count > 0 ? node.Resolve.DifficultyModifiers : null;
+                // 伤势修正由 SceneManager 在结算时才挂上，内容层的 DifficultyModifiers 里没有它。
+                // 卡面得自己补一份，否则预览和结算是两笔账（见 Injury.ModifierFor）。
+                List<DifficultyModifierInfo>? modifiers = null;
+                if (node.Resolve != null)
+                {
+                    var mods = new List<DifficultyModifierInfo>(node.Resolve.DifficultyModifiers);
+                    if (node.Resolve.Type == ResolveType.Roll)
+                    {
+                        var snap = _state.DisplayedSnapshot;
+                        if (snap.InjurySkillPenalty != 0
+                            && string.Equals(snap.InjurySkillKey, node.Resolve.SkillName,
+                                             StringComparison.OrdinalIgnoreCase))
+                        {
+                            mods.Add(new DifficultyModifierInfo
+                            {
+                                Value = snap.InjurySkillPenalty,
+                                Reason = snap.InjuryPart + "伤",
+                            });
+                        }
+                    }
+                    if (mods.Count > 0) modifiers = mods;
+                }
                 var execution = GetCardExecutionState(node.Name);
                 bool isActiveRollCard = _state.ActiveRollResult != null
                     && !ActiveRollUsesModal()

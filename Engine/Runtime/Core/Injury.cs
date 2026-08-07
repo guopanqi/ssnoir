@@ -23,14 +23,15 @@ namespace SSNoir.Core
     public sealed class Injury
     {
         public const int LightThreshold = 1;
-        public const int SevereThreshold = 4;
-        public const int CollapseThreshold = 7;
+        public const int SevereThreshold = 5;
+        /// <summary>刻度上限，也是伤势条的格数。满格之后再受伤才倒下。</summary>
+        public const int MaxSeverity = 7;
         /// <summary>倒下结算后回落到的伤势：医生把你拼回来了，但你还是重伤。</summary>
-        public const int PostCollapseSeverity = 4;
+        public const int PostCollapseSeverity = 5;
 
         /// <summary>一般坏结果的伤害量。</summary>
         public const int OrdinaryHarm = 1;
-        /// <summary>明确重创（枪伤、坠落、被围住打）的伤害量：能把完好的人一次打进重伤。</summary>
+        /// <summary>明确重创（枪伤、坠落、被围住打）的伤害量：一下就把完好的人顶到轻伤段顶上。</summary>
         public const int SevereHarm = 3;
 
         // 部位与能力一一对应，玩家读到的是「手伤 · 力量 −1」，不需要记映射表。
@@ -70,6 +71,18 @@ namespace SSNoir.Core
         /// <summary>重伤少一颗行动骰。</summary>
         public bool CostsActionDie => Band == InjuryBand.Severe;
 
+        /// <summary>
+        /// 这次判定要不要吃伤势修正；不吃返回 null。伤势只压主角被打中的那一项能力，
+        /// 并且走和「势力敌视 −1」「非法 −2」同一条**可见**修正——玩家投骰前就该看见它。
+        /// 卡面预览和实际结算都从这里取，否则会出现预览写 4、结算按 2 算的两套账。
+        /// </summary>
+        public DifficultyModifierInfo? ModifierFor(string actorRole, string skillName)
+        {
+            if (actorRole != "protagonist" || SkillPenalty == 0) return null;
+            if (!Skill.Equals(skillName, StringComparison.OrdinalIgnoreCase)) return null;
+            return new DifficultyModifierInfo { Value = SkillPenalty, Reason = Part + "伤" };
+        }
+
         /// <summary>面板上那一行：「手伤 · 力量 −1」。完好时为空。</summary>
         public string Describe()
         {
@@ -92,8 +105,10 @@ namespace SSNoir.Core
                 Skill = site.Skill;
                 SkillName = site.SkillName;
             }
-            Severity = Math.Min(CollapseThreshold, Severity + amount);
-            return Severity >= CollapseThreshold;
+            // 已经满格还挨一下 → 倒下。满格本身不倒：条填满是"再挨一下就完了"的警告。
+            bool collapses = Severity >= MaxSeverity;
+            Severity = Math.Min(MaxSeverity, Severity + amount);
+            return collapses;
         }
 
         /// <summary>治疗。降到 0 即痊愈，部位随之清除。</summary>
@@ -118,9 +133,9 @@ namespace SSNoir.Core
         /// <summary>读档：部位名是权威，能力由部位表推回，避免存档里出现两份互相矛盾的字段。</summary>
         public void Restore(int severity, string part)
         {
-            if (severity < 0 || severity > CollapseThreshold)
+            if (severity < 0 || severity > MaxSeverity)
                 throw new ArgumentOutOfRangeException(nameof(severity), severity,
-                    $"Injury severity must be between 0 and {CollapseThreshold}.");
+                    $"Injury severity must be between 0 and {MaxSeverity}.");
             if (severity == 0)
             {
                 Reset();

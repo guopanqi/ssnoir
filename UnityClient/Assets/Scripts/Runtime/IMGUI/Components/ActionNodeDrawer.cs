@@ -44,7 +44,10 @@ namespace SSNoir.IMGUI
             bool isObserve = node.Resolve!.Type == ResolveType.Observe;
             var actors = gameManager.DisplayedSnapshot.Actors;
             bool showOdds = isRoll && !disabled && hasRequires && actors != null && localRoll == null && residue == null;
-            var effectiveModifiers = node.Resolve.DifficultyModifiers;
+            // 伤势修正由 SceneManager 在结算时才挂上，内容层的 DifficultyModifiers 里没有它。
+            // 卡面必须自己补一份，否则「脸伤 · 交际 −2」在预览里看不见，赔率条也会按未受伤算——
+            // 预览写 4、结算按 2 算的两套账。这是同一份数据的两个读取点，不是两条规则。
+            var effectiveModifiers = EffectiveModifiers(node, gameManager.DisplayedSnapshot);
             bool hasClocks = clockBadgesBottom > rect.y;
             float abilityRailStartY = hasClocks ? clockBadgesBottom + 4f : rect.y + 6f;
             float abilityRailBottomY = isRoll && actors != null
@@ -159,7 +162,7 @@ namespace SSNoir.IMGUI
             }
             else if (showOdds)
             {
-                TryDrawFatePreview(rect, node.Resolve!.SkillName, slotted!, effectiveModifiers, actors!, exeRect.yMax);
+                TryDrawFatePreview(rect, node, gameManager.DisplayedSnapshot, slotted!, actors!, exeRect.yMax);
             }
 
             // ── 9. 卡片级点击（仅无 requires 的非 Instant 类型，如 Observe / Clock）──
@@ -189,6 +192,30 @@ namespace SSNoir.IMGUI
         {
             int wanted = Mathf.Clamp(Mathf.CeilToInt(12f / Mathf.Max(0.5f, UIScale.Scale)), 15, 24);
             return IMGUIStyles.FontSize(wanted);
+        }
+
+        // 卡面看见的修正 = 内容层写的 + 主角当前的伤势。判定用的是同一份 Injury 数据
+        // （SceneManager 结算时走 Injury.ModifierFor），这里只是把它提前显示出来。
+        private static List<DifficultyModifierInfo> EffectiveModifiers(
+            GameNode node, PresentationSnapshot snapshot, string actorRole = "protagonist")
+        {
+            var baseMods = node.Resolve!.DifficultyModifiers;
+            if (node.Resolve.Type != ResolveType.Roll) return baseMods;
+            // 伤势只压主角：同伴出的骰子不吃这一笔，预览也不能画上去。
+            if (actorRole != "protagonist") return baseMods;
+            if (snapshot.InjurySkillPenalty == 0) return baseMods;
+            if (!string.Equals(snapshot.InjurySkillKey, node.Resolve.SkillName,
+                               System.StringComparison.OrdinalIgnoreCase)) return baseMods;
+
+            var merged = new List<DifficultyModifierInfo>(baseMods)
+            {
+                new DifficultyModifierInfo
+                {
+                    Value = snapshot.InjurySkillPenalty,
+                    Reason = snapshot.InjuryPart + "伤",
+                }
+            };
+            return merged;
         }
 
         private static void DrawEdgeTags(Rect rect, GameNode node, List<DifficultyModifierInfo> effectiveModifiers, bool disabled)
@@ -755,9 +782,10 @@ namespace SSNoir.IMGUI
 
         // ── 底部：命运六面预览 ────────────────────────────────────────
 
-        private static void TryDrawFatePreview(Rect rect, string skill, List<SlottedResource?> slotted,
-            List<DifficultyModifierInfo>? modifiers, IReadOnlyList<ActorSnapshot> actors, float executeBottomY)
+        private static void TryDrawFatePreview(Rect rect, GameNode node, PresentationSnapshot snapshot,
+            List<SlottedResource?> slotted, IReadOnlyList<ActorSnapshot> actors, float executeBottomY)
         {
+            string skill = node.Resolve!.SkillName;
             SlottedResource? dieSlot = null;
             foreach (var s in slotted)
             {
@@ -766,22 +794,22 @@ namespace SSNoir.IMGUI
             if (dieSlot == null) return;
 
             int? skillLevel = null;
+            string actorRole = string.Empty;
             foreach (var actor in actors)
             {
                 if (actor.Id != dieSlot.ActorId) continue;
                 if (!actor.Stats.TryGetValue(skill, out int lv))
                     throw new System.InvalidOperationException($"Actor '{actor.Id}' is missing required stat '{skill}'.");
                 skillLevel = lv;
+                actorRole = actor.Role;
                 break;
             }
             if (!skillLevel.HasValue)
                 throw new System.InvalidOperationException($"Actor '{dieSlot.ActorId}' was not found for fate preview.");
 
+            // 按放骰子的那个人重算一遍修正：赔率条必须和 SceneManager 的结算走同一笔账。
             int modSum = 0;
-            if (modifiers != null)
-            {
-                foreach (var m in modifiers) modSum += m.Value;
-            }
+            foreach (var m in EffectiveModifiers(node, snapshot, actorRole)) modSum += m.Value;
 
             DrawFateStrip(rect, FateStrip.Compute(dieSlot.Value, skillLevel.Value, modSum), executeBottomY);
         }

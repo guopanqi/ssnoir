@@ -27,7 +27,7 @@
 ;;   额外?：#t 表示搜身翻出了他没打算给任何人看的东西
 ;;   熟脸增 / 劳工增：第一幕用谁的路走出来的关系，由《三封信》写回城市
 ;;
-;; 城市输入：六把钥匙，各自代表你在这座城里认识了谁。
+;; 城市输入：五把钥匙，各自代表你在这座城里认识了谁。
 ;; 钥匙不给专属按钮，只改开局态势——省掉的是你本来要花在开场上的那两颗骰。
 
 (define (key? name)
@@ -38,7 +38,6 @@
 (define key-eddie  (key? '钥匙-埃迪))
 (define key-lottie (key? '钥匙-洛蒂))
 (define key-owner  (key? '钥匙-酒馆老板))
-(define key-singer (key? '钥匙-夜莺))
 
 (define alarm-max 6)
 (define approach-max 10)
@@ -354,8 +353,7 @@
 (define (crowd-start in-position?)
   (let ((base (+ (alarm-clk 'current)
                  (if in-position? 0 2)
-                 (if (and in-position? (>= (arrival-clk 'current) 2)) -1 0)
-                 (if key-singer -1 0))))
+                 (if (and in-position? (>= (arrival-clk 'current) 2)) -1 0))))
     (max 0 (min base (- crowd-max 1)))))
 
 (define (begin-act2! in-position?)

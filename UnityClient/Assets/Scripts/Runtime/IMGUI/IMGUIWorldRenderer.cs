@@ -198,7 +198,7 @@ namespace SSNoir.IMGUI
 
         public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null || _conversationPlayer.IsActive || _activeAnimationTag != null;
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
-        public bool IsInputLocked => _inputLocked || _activeHeavyOutcome != null || _activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _activeAnimationTag != null;
+        public bool IsInputLocked => _inputLocked || _activeHeavyOutcome != null || _activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _activeAnimationTag != null || _gameManager.Cutscene.IsActive;
 
         // 与对白舞台上的左键点击共用同一套推进语义：打字中先显示全文，否则进入下一句。
         // 由 SSNoirGameManager 的全局 ESC 输入调用，避免 ESC 在对白期间落入返回导航逻辑。
@@ -342,12 +342,24 @@ namespace SSNoir.IMGUI
 
             _animator.Update();
 
+            // 过场首帧截图。截的是纯世界，界面开着照样干净，所以随时按都行，也不挑时机。
+            if (Input.GetKeyDown(KeyCode.F9))
+            {
+                CinematicCapture.Capture(this, 1080);
+            }
+            else if (Input.GetKeyDown(KeyCode.F10))
+            {
+                CinematicCapture.Capture(this, 2160);
+            }
+
             // Right-click to cancel selection
             if (Input.GetMouseButtonDown(1)
                 && !IsAnimationPlaying
                 && !_isGrowthPanelOpen
                 && !DebugPanelDrawer.IsOpen
-                && !_inputLocked)
+                && !_inputLocked
+                // 影幕期间没有任何 UI 反馈，右键把选中的资源清掉，玩家出来才发现，等于静默丢状态。
+                && !_gameManager.Cutscene.IsActive)
             {
                 if (_gameManager.SelectedResource != null)
                 {
@@ -368,6 +380,17 @@ namespace SSNoir.IMGUI
 
             // Initialize styles if needed
             IMGUIStyles.Init(_gameManager.ChineseFont, _gameManager.SemiboldFont);
+
+            // ── 影幕 ──
+            // 排在最前面，画完就走：过场期间一个游戏控件都不该出现，玩家看到的只有实时世界
+            // （或盖在上面的视频）加黑边。世界本身照常渲染，所以黑边压下来的过程中背景是活的，
+            // 视频首帧接上去才不会有缝。
+            if (_gameManager.Cutscene.IsActive)
+            {
+                _gameManager.Cutscene.Draw();
+                PointerOverUI = true;
+                return;
+            }
 
             // ── Camera Crossfade (reduce-motion focus change) ──
             // Drawn before anything else, so the frozen outgoing shot covers the live 3D
@@ -639,7 +662,7 @@ namespace SSNoir.IMGUI
             var focusedName = _gameManager.FocusedNodeName;
 
             // Split nodes into two groups: those with world anchors and those without
-            var initialProjected = new List<(GameNode node, Vector3 screenPos, float distance)>();
+            var initialProjected = new List<(GameNode node, Vector3 screenPos, float distance, int order)>();
             var projectedResidues = new List<(CardPresentationResidue residue, Vector3 screenPos, float distance)>();
             var gridNodes = new List<GameNode>();
             var gridResidues = new List<CardPresentationResidue>();
@@ -647,8 +670,9 @@ namespace SSNoir.IMGUI
             var currentNodeNames = new HashSet<string>(nodes.Select(node => node.Name), StringComparer.OrdinalIgnoreCase);
             var restBlockers = _gameManager.DisplayedSnapshot.RestBlockers;
 
-            foreach (var node in nodes)
+            for (int nodeIndex = 0; nodeIndex < nodes.Count; nodeIndex++)
             {
+                var node = nodes[nodeIndex];
                 if (!string.IsNullOrEmpty(focusedName) && node.Name != focusedName)
                     continue;
 
@@ -667,7 +691,9 @@ namespace SSNoir.IMGUI
                     if (inCameraSight)
                     {
                         var screenPos = cam.WorldToScreenPoint(anchor.transform.position);
-                        initialProjected.Add((node, screenPos, screenPos.z)); // screenPos is actual screen pixels
+                        // screenPos is actual screen pixels; order 是内容里的声明序号，
+                        // 只在锚点投影几乎重合时用来定先后（见 SolveProjectedStacks）。
+                        initialProjected.Add((node, screenPos, screenPos.z, nodeIndex));
                     }
                     else if (containedBlocker != null)
                     {
@@ -764,6 +790,7 @@ namespace SSNoir.IMGUI
                     item.node,
                     new Vector2(anchorX, anchorY),
                     item.distance,
+                    item.order,
                     targetCenter,
                     currentCenter,
                     cardWidth,
@@ -786,10 +813,12 @@ namespace SSNoir.IMGUI
                     _cardCenters[item.residue.AnchorNodeName] = currentCenter;
                 }
 
+                // 宿主已经不在快照里，没有声明序号可用；排在同高度节点之后，再由名字定序。
                 layouts.Add(new ProjectedCardLayout(
                     item.residue,
                     new Vector2(virtualAnchor.x, virtualAnchor.y),
                     item.distance,
+                    int.MaxValue,
                     targetCenter,
                     currentCenter,
                     cardWidth,
@@ -798,61 +827,29 @@ namespace SSNoir.IMGUI
                     attachmentHeight));
             }
 
-            // Calculate mutual repulsion forces for overlapping cards
-            for (int i = 0; i < layouts.Count; i++)
+            // 谁在上谁在下由 SolveProjectedStacks 一次算死，弹簧只负责把卡片平滑送过去。
+            SolveProjectedStacks(layouts);
+
+            // 位置只在重绘时推进：OnGUI 一帧会被调用多次（Layout / 输入 / Repaint），
+            // 每次都积分会让速度随事件数漂移，也会让命中判定用上一个还没画出来的位置。
+            if (Event.current != null && Event.current.type == EventType.Repaint)
             {
-                for (int j = i + 1; j < layouts.Count; j++)
+                float t = 1f - Mathf.Exp(-CardSettleSpeed * Time.deltaTime);
+                foreach (var layout in layouts)
                 {
-                    var a = layouts[i];
-                    var b = layouts[j];
-
-                    if (a.FootprintRect.Overlaps(b.FootprintRect))
-                    {
-                        // Calculate overlap on Y axis
-                        float overlapY = Mathf.Min(a.FootprintRect.yMax, b.FootprintRect.yMax)
-                            - Mathf.Max(a.FootprintRect.yMin, b.FootprintRect.yMin);
-                        if (overlapY > 0)
-                        {
-                            // A continuous push force proportional to overlap to eliminate jitter/oscillations
-                            float pushForce = overlapY * 0.4f;
-
-                            if (a.CurrentCenter.y < b.CurrentCenter.y)
-                            {
-                                a.RepulsionForce += new Vector2(0f, -pushForce);
-                                b.RepulsionForce += new Vector2(0f, pushForce);
-                            }
-                            else
-                            {
-                                a.RepulsionForce += new Vector2(0f, pushForce);
-                                b.RepulsionForce += new Vector2(0f, -pushForce);
-                            }
-                        }
-                    }
+                    layout.CurrentCenter = Vector2.Lerp(layout.CurrentCenter, layout.SolvedCenter, t);
+                    layout.CurrentCenter = ClampCardCenter(layout);
+                    _cardCenters[layout.Key] = layout.CurrentCenter;
                 }
             }
 
-            // Integrate forces: update positions smoothly
-            float attractionStrength = 0.08f; // Softer attraction strength to allow repulsion to dominate
-            foreach (var layout in layouts)
+            // Draw projected cards (sorted by distance, far to near)。List.Sort 不稳定，
+            // 同深度时再落回排序键，免得压叠关系和命中归属逐帧抖。
+            layouts.Sort((a, b) =>
             {
-                Vector2 attraction = (layout.TargetCenter - layout.CurrentCenter) * attractionStrength;
-                Vector2 nextCenter = layout.CurrentCenter + attraction + layout.RepulsionForce;
-
-                // Create tentative rect and clamp to safe boundaries
-                Rect nextFootprint = new Rect(
-                    nextCenter.x - layout.FootprintWidth / 2f,
-                    nextCenter.y - layout.Height / 2f,
-                    layout.FootprintWidth,
-                    layout.Height + layout.AttachmentHeight);
-                nextFootprint = ClampRect(nextFootprint, layout.FootprintWidth, layout.Height + layout.AttachmentHeight);
-
-                // Update current layout state and persistent cache
-                layout.CurrentCenter = new Vector2(nextFootprint.center.x, nextFootprint.y + layout.Height / 2f);
-                _cardCenters[layout.Key] = layout.CurrentCenter;
-            }
-
-            // Draw projected cards (sorted by distance, far to near)
-            layouts.Sort((a, b) => b.Distance.CompareTo(a.Distance));
+                int byDistance = b.Distance.CompareTo(a.Distance);
+                return byDistance != 0 ? byDistance : CompareStackRank(a, b);
+            });
 
             // 命中归属：卡片是画家算法——投射卡按远→近画，网格卡再盖在最上面。而 IMGUI
             // 的点击是「先处理者 Event.Use() 吃掉」，顺序正好相反：不先解析一遍，重叠区域
@@ -886,6 +883,164 @@ namespace SSNoir.IMGUI
             string? beaconTarget = ImportantNodeBeaconDrawer.Draw(importantBeacons, ui);
             if (beaconTarget != null)
                 _gameManager.CameraManager.NavigateToNode(beaconTarget);
+        }
+
+        // 卡片吸向解算位的速度（每秒 e 折次数）。只影响动画手感，不参与决定排布。
+        private const float CardSettleSpeed = 9f;
+        // 同一列里两张卡之间留出的呼吸缝。
+        private const float CardStackGap = 12f;
+        // 两个锚点的投影差在这个范围内视作一样高/一样偏，先后交给下一级键。
+        private const float AnchorTieBand = 6f;
+
+        // 世界投射卡的排布：先定出唯一的上下顺序，再在每一列里做一次一维消重叠，
+        // 得到唯一的 SolvedCenter。
+        //
+        // 不能像原来那样「看谁此刻偏上就把谁往上推」——那让顺序取决于卡片这一瞬间飘到
+        // 了哪里。同一栋楼的几个锚点投影得很近，卡片开局几乎重合，谁上谁下就由浮点噪声
+        // 决定：同样的镜头推进，这次埃迪在上，下次它在下。
+        //
+        // 排序键是锚点自己的投影位置：屏幕上锚点在上的，卡也在上。这既是玩家眼里唯一
+        // 说得通的顺序（楼上的房间卡如果排到楼下那张的下面，引线就是拧着的），也已经
+        // 足够稳定——它只跟镜头有关，同一个机位每次都算出同一份排布。锚点投影几乎重合
+        // 时才落到声明顺序和名字，避免在毫厘之差上分先后。
+        //
+        // 注：曾经试过用锚点的世界高度当主键，图上更「客观」，但读起来是反的——家在
+        // 世界里比码头高，屏幕上却是码头的锚点更靠上，卡片于是和它指的东西上下颠倒。
+        private static void SolveProjectedStacks(List<ProjectedCardLayout> layouts)
+        {
+            if (layouts.Count == 0)
+                return;
+
+            var ranked = new List<ProjectedCardLayout>(layouts);
+            ranked.Sort(CompareStackRank);
+
+            // 只有横向真压在一起的卡才需要争上下；彼此错开的卡各排各的，
+            // 否则屏幕两头毫不相干的两张卡会被硬拉进同一列。
+            foreach (var column in GroupIntoColumns(ranked))
+                SolveColumn(column);
+        }
+
+        private static int CompareStackRank(ProjectedCardLayout a, ProjectedCardLayout b)
+        {
+            // GUI 坐标 Y 向下：锚点投影得越靠上，排得越靠前。分档而不是直接比大小——
+            // 「差不多齐平」要判成平级，而分档是可传递的，直接比差值会得到 a<b、b<c 却
+            // a==c 的比较器，List.Sort 会当场抛。
+            int ya = Mathf.RoundToInt(a.AnchorPos.y / AnchorTieBand);
+            int yb = Mathf.RoundToInt(b.AnchorPos.y / AnchorTieBand);
+            if (ya != yb)
+                return ya.CompareTo(yb);
+            int xa = Mathf.RoundToInt(a.AnchorPos.x / AnchorTieBand);
+            int xb = Mathf.RoundToInt(b.AnchorPos.x / AnchorTieBand);
+            if (xa != xb)
+                return xa.CompareTo(xb);
+            if (a.DeclarationOrder != b.DeclarationOrder)
+                return a.DeclarationOrder.CompareTo(b.DeclarationOrder);
+            return string.CompareOrdinal(a.Key, b.Key);
+        }
+
+        // 按目标横向跨度扫一遍，把彼此搭上的卡归进同一列；列内保持稳定的上下顺序。
+        private static List<List<ProjectedCardLayout>> GroupIntoColumns(List<ProjectedCardLayout> ranked)
+        {
+            var order = new List<int>();
+            for (int i = 0; i < ranked.Count; i++)
+                order.Add(i);
+            order.Sort((x, y) =>
+            {
+                float lx = ranked[x].TargetCenter.x - ranked[x].FootprintWidth / 2f;
+                float ly = ranked[y].TargetCenter.x - ranked[y].FootprintWidth / 2f;
+                return !Mathf.Approximately(lx, ly) ? lx.CompareTo(ly) : x.CompareTo(y);
+            });
+
+            var columns = new List<List<ProjectedCardLayout>>();
+            var current = new List<int>();
+            float reach = float.NegativeInfinity;
+            foreach (int i in order)
+            {
+                float left = ranked[i].TargetCenter.x - ranked[i].FootprintWidth / 2f;
+                float right = ranked[i].TargetCenter.x + ranked[i].FootprintWidth / 2f;
+                if (current.Count > 0 && left >= reach)
+                {
+                    columns.Add(TakeColumn(ranked, current));
+                    current = new List<int>();
+                    reach = float.NegativeInfinity;
+                }
+                current.Add(i);
+                reach = Mathf.Max(reach, right);
+            }
+            if (current.Count > 0)
+                columns.Add(TakeColumn(ranked, current));
+            return columns;
+        }
+
+        private static List<ProjectedCardLayout> TakeColumn(List<ProjectedCardLayout> ranked, List<int> indices)
+        {
+            indices.Sort();   // 回到 rank 顺序
+            var column = new List<ProjectedCardLayout>(indices.Count);
+            foreach (int i in indices)
+                column.Add(ranked[i]);
+            return column;
+        }
+
+        // 一维消重叠：顺序已经定死，只需让挤在一起的卡各自让开。互相挤住的连成一「块」，
+        // 整块停在成员们期望位置的平均处——所以卡群仍然贴着锚点，不会整体往下漂。
+        private static void SolveColumn(List<ProjectedCardLayout> column)
+        {
+            int n = column.Count;
+
+            // cum[i]：第 i 张卡的中心相对本块块首至少要偏开多远（相邻最小间距的前缀和）。
+            var cum = new float[n];
+            for (int i = 1; i < n; i++)
+                cum[i] = cum[i - 1] + column[i - 1].BottomExtent + column[i].TopExtent + CardStackGap;
+
+            var blockHead = new List<int>();
+            var blockCount = new List<int>();
+            var blockSum = new List<float>();   // Σ(期望中心 − 相对块首的固定偏移)
+            for (int i = 0; i < n; i++)
+            {
+                blockHead.Add(i);
+                blockCount.Add(1);
+                blockSum.Add(column[i].TargetCenter.y);
+
+                while (blockHead.Count >= 2)
+                {
+                    int last = blockHead.Count - 1;
+                    int prev = last - 1;
+                    float span = cum[blockHead[last]] - cum[blockHead[prev]];
+                    if (blockSum[last] / blockCount[last] >= blockSum[prev] / blockCount[prev] + span)
+                        break;
+
+                    blockSum[prev] += blockSum[last] - blockCount[last] * span;
+                    blockCount[prev] += blockCount[last];
+                    blockHead.RemoveAt(last);
+                    blockCount.RemoveAt(last);
+                    blockSum.RemoveAt(last);
+                }
+            }
+
+            for (int b = 0; b < blockHead.Count; b++)
+            {
+                int head = blockHead[b];
+                int end = b + 1 < blockHead.Count ? blockHead[b + 1] : n;
+                float headY = blockSum[b] / blockCount[b];
+                for (int i = head; i < end; i++)
+                {
+                    column[i].SolvedCenter = new Vector2(
+                        column[i].TargetCenter.x,
+                        headY + cum[i] - cum[head]);
+                }
+            }
+        }
+
+        private Vector2 ClampCardCenter(ProjectedCardLayout layout)
+        {
+            float footprintHeight = layout.Height + layout.AttachmentHeight;
+            var footprint = new Rect(
+                layout.CurrentCenter.x - layout.FootprintWidth / 2f,
+                layout.CurrentCenter.y - layout.Height / 2f,
+                layout.FootprintWidth,
+                footprintHeight);
+            footprint = ClampRect(footprint, layout.FootprintWidth, footprintHeight);
+            return new Vector2(footprint.center.x, footprint.y + layout.Height / 2f);
         }
 
         private static Vector2 ViewportDirection(Vector3 viewportPosition)
@@ -1558,11 +1713,6 @@ namespace SSNoir.IMGUI
         private void ReportRemoteFallback(string command, string speaker)
         {
             bool isBanter = command == "play-banter!";
-            _gameManager.GameState.NotificationCenter.Push(
-                isBanter
-                    ? $"警告：「{speaker}」未在场，已显示场外卡。"
-                    : $"警告：「{speaker}」未在场，已按场外对白呈现。",
-                NotificationKind.Warning);
             Debug.LogWarning(
                 $"{command} 说话人 '{speaker}' 无法解析到当前屏幕锚点，"
                 + (isBanter ? "已自动改用场外临时卡。" : "立绘舞台仍会显示，但本行被视为场外对白。")
@@ -1633,14 +1783,19 @@ namespace SSNoir.IMGUI
             public string Key => Node?.Name ?? Residue!.AnchorNodeName;
             public Vector2 AnchorPos { get; }
             public float Distance { get; }
+            // 锚点投影几乎重合时的兜底排序键，见 SolveProjectedStacks。
+            public int DeclarationOrder { get; }
             public Vector2 TargetCenter { get; }
+            public Vector2 SolvedCenter { get; set; }
             public Vector2 CurrentCenter { get; set; }
-            public Vector2 RepulsionForce { get; set; }
             public float Width { get; }
             public float Height { get; }
             public float AttachmentWidth { get; }
             public float AttachmentHeight { get; }
             public float FootprintWidth => Mathf.Max(Width, AttachmentWidth);
+            // 卡的占位并不以中心对称：附件挂在卡下面，所以往下探得更远。
+            public float TopExtent => Height / 2f;
+            public float BottomExtent => Height / 2f + AttachmentHeight;
             public Rect Rect => new Rect(CurrentCenter.x - Width / 2f, CurrentCenter.y - Height / 2f, Width, Height);
             public Rect FootprintRect => new Rect(
                 CurrentCenter.x - FootprintWidth / 2f,
@@ -1652,6 +1807,7 @@ namespace SSNoir.IMGUI
                 GameNode node,
                 Vector2 anchorPos,
                 float distance,
+                int declarationOrder,
                 Vector2 targetCenter,
                 Vector2 currentCenter,
                 float width,
@@ -1662,19 +1818,21 @@ namespace SSNoir.IMGUI
                 Node = node;
                 AnchorPos = anchorPos;
                 Distance = distance;
+                DeclarationOrder = declarationOrder;
                 TargetCenter = targetCenter;
+                SolvedCenter = targetCenter;
                 CurrentCenter = currentCenter;
                 Width = width;
                 Height = height;
                 AttachmentWidth = attachmentWidth;
                 AttachmentHeight = attachmentHeight;
-                RepulsionForce = Vector2.zero;
             }
 
             public ProjectedCardLayout(
                 CardPresentationResidue residue,
                 Vector2 anchorPos,
                 float distance,
+                int declarationOrder,
                 Vector2 targetCenter,
                 Vector2 currentCenter,
                 float width,
@@ -1685,13 +1843,14 @@ namespace SSNoir.IMGUI
                 Residue = residue;
                 AnchorPos = anchorPos;
                 Distance = distance;
+                DeclarationOrder = declarationOrder;
                 TargetCenter = targetCenter;
+                SolvedCenter = targetCenter;
                 CurrentCenter = currentCenter;
                 Width = width;
                 Height = height;
                 AttachmentWidth = attachmentWidth;
                 AttachmentHeight = attachmentHeight;
-                RepulsionForce = Vector2.zero;
             }
         }
     }

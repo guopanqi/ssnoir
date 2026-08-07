@@ -8,10 +8,13 @@ namespace SSNoir.Core
         public GameNode? RootNode { get; init; }
         // 伤势：0 为完好。部位名与档位一起决定面板那一行怎么写，客户端不自己算档位。
         public int InjurySeverity { get; init; }
-        public int InjuryCollapseThreshold { get; init; } = Injury.CollapseThreshold;
+        public int InjuryMaxSeverity { get; init; } = Injury.MaxSeverity;
         public string InjuryPart { get; init; } = string.Empty;
         public string InjuryBandName { get; init; } = string.Empty;
         public string InjurySkillName { get; init; } = string.Empty;
+        // 被打中的那一项能力的**内部键**（violence/knowledge/…）。客户端画赔率预览时要用它
+        // 判断这次判定是否吃伤势修正——预览和结算必须读同一个来源。
+        public string InjurySkillKey { get; init; } = string.Empty;
         public int InjurySkillPenalty { get; init; }
         public bool InjuryCostsActionDie { get; init; }
         public GameFailure Failure { get; init; } = GameFailure.None;

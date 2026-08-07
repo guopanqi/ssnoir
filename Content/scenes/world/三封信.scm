@@ -35,7 +35,9 @@
     (define second-letter-day 7)    ; 第二封信钉死在第 7 天:经理由此登场
     (define patience-max 6)         ; 经理的耐心
     (define patience-interval 1)    ; 每次结束一天自己掉一格
-    (define patience-report 2)      ; 带着进展去见他,能补回几格
+    ;; 带着进展去见他能补回几格。补 2 太少：耐心一共 6 格、每天掉 1 格，
+    ;; 补两格等于只买回两天，玩家读不出"让他觉得这件事在往前走"有什么用。
+    (define patience-report 4)
     ;; 小节三是一段旅途:三道关口(进得去 → 找得着 → 落单),每一关都是一把锁配几把钥匙。
     ;; 钥匙全部来自前两节认识的人;没有钥匙也过得去,代价是惊动更多人。
     ;; 一路惊动的人数不在城里结算,直接成为巷子那一场「巷口的人」的起始格。
@@ -91,7 +93,6 @@
     (define report-pending "")      ; 完成的小节等待向经理汇报："" / "查明" / "巷子"
     (define inquiry-day 0)          ; 经理的人开始找莱恩那天
     (define inquiry-told? #f)       ; 三天到期的那条消息已经播过
-    (define singer-key? #f)         ; 你问过她莱恩晚上的习惯（代价：她的信任）
     (define lesson-done? #f)        ; 巷子那一场已经了结
     (define lesson-day 0)           ; 了结当天的世界日
     (define lesson-state 0)         ; 「他撒手」钟收手时停在第几格 0..6，就是那一晚的收获
@@ -147,10 +148,11 @@
     (define (days-to-premiere) (max 0 (- premiere-day world-day)))
     (define (beat1-open?) (and (= story-stage 1) (not delivery-pending?)))
 
-    ;; 第一章期间她始终在老街酒馆驻唱。受伤时不上台，首演结束后这份日常职能也随章节一起结束。
+    ;; 第一章期间她始终在老街酒馆驻唱。交割失利会改变她的处境，
+    ;; 但不撤掉这份日常职能；首演结束后才随章节一起结束。
     (define (singer-present?)
       (and (>= story-stage 1) (<= story-stage 4)
-           (not premiere-done?) (< condition-level 2)))
+           (not premiere-done?)))
 
     ;; 老街居民区从小节一结算后开放；警察局与货运公司留到首演威胁明确后。
     ;; 酒馆是例外:她在那儿唱歌,开场就得能找到人(见 world.scm 的地点表)。
@@ -403,7 +405,7 @@
 
     ;; 踩点不是工作:它不发工钱,也不给势力关系。这是它和普通工作唯一也是最重要的区别。
     ;; 中和好都只填一格——情报不该靠运气发;两档的差别记在**冷静**上:
-    ;; 在雨里站一晚上是要还的。冷静只有 2 点,于是一天之内也踩不了三次点,
+    ;; 在雨里站一晚上是要还的。冷静只有 3 点,于是一天之内也踩不了几次点,
     ;; 身体自己就是这条线的节流阀,不必再写一条每日上限。
     ;; 动作只有一个,标题和 subtitle 随进度走三段面貌(和城寨的前沿推进同一套语法)。
     (define (scout-node-name)
@@ -845,13 +847,14 @@
             ((crossed? old new 8)
              (begin
                (add-item! "老金牌的订单" 1)
-               (add-item! "买家的样貌" 1)
-               (result-note! "获得线索：老金牌的订单、买家的样貌")
+               (add-item! "埃迪写的字条" 1)
+               (result-note! "获得线索：老金牌的订单、埃迪写的字条")
                (play-dialogue!
                  (line "埃迪" "一箱记在弗兰克的账上，送进东边尽头的工会房间。")
                  (line "埃迪" "另一个人一包一包地买。旧西装，袖口磨得发白，从西楼梯上的桥廊过来。")
                  (line "主角" "名字。")
-                 (line "埃迪" "他不赊账，我就没问。你现在至少知道该敲哪些门了。"))))
+                 (line "埃迪" "他不赊账，我就没问。")
+                 (line "埃迪" "订货本上那一页你拿去。背面我把他的样子写给你——就这么多。"))))
             (else #f))
           (sync-globals!))))
 
@@ -956,8 +959,8 @@
 
     (define (node-bridge-inquiry)
       (node "找出买散烟的人"
-        :subtitle "拿着埃迪给的样貌挨家问；这里住过的人太多，得从邻居和生活痕迹里缩小范围"
-        :requires (list (req-die) (req-item "买家的样貌" 1))
+        :subtitle "拿着埃迪写的字条挨家问；这里住过的人太多，得从邻居和生活痕迹里缩小范围"
+        :requires (list (req-die) (req-item "埃迪写的字条" 1))
         :resolve (instant
           (outcome "找到了莱恩"
             (lambda () (finish-bridge-inquiry!))))))
@@ -970,10 +973,10 @@
           (if bridge-identified?
               (list (observe-action "她叫出的名字"
                       "穿旧西装、从这里下去买老金牌的人叫莱恩。他早已搬走，但这里的人还记得他。"))
-              (if (> (item-count "买家的样貌") 0)
+              (if (> (item-count "埃迪写的字条") 0)
                   (list (node-bridge-inquiry))
                   (list (node "找出买散烟的人"
-                          :subtitle "需要线索：买家的样貌"
+                          :subtitle "需要线索：埃迪写的字条"
                           :disabled #t))))
           (list (node "洛蒂"
                   :subtitle "桥廊公寓的老住户；她记得哪些人住过这里，也记得他们搬走时的样子"
@@ -1049,11 +1052,11 @@
             "她没有求你别伤害他。你后来会想起这件事——但不是今天。"))))
 
     ;; ── 小节三：找到并教训莱恩 ───────────────────────
-    ;; 城市侧只有三件事：等三天、（可选）去问她一句、然后挑一个晚上出发。
+    ;; 城市侧只有两件事：等三天,然后挑一个晚上出发。
     ;; 没有任何小节三专属的跑腿卡——钥匙就是你在小节二认识了谁,
     ;; 这三天里在码头做工、在老街露脸,都在悄悄开锁。
     ;;
-    ;; 六把钥匙由既有关系判定,进场前一次性镜像到 global 交给交锋。
+    ;; 五把钥匙由既有关系判定,进场前一次性镜像到 global 交给交锋。
     ;; 有钥匙那一手不掷骰、不惊动人;没钥匙照样过得去,只是脏一点。
     (define (lesson-beat?) (and (= story-stage 3) (not lesson-done?)))
     (define (days-waited) (- world-day inquiry-day))
@@ -1065,29 +1068,7 @@
       (set-global! '钥匙-乔 (joe 'known?))
       (set-global! '钥匙-埃迪 (merchant-trusted?))
       (set-global! '钥匙-洛蒂 (>= familiar 2))
-      (set-global! '钥匙-酒馆老板 (>= familiar 2))
-      (set-global! '钥匙-夜莺 singer-key?))
-
-    ;; 唯一一张小节三的城市卡。它不是机械兑现——
-    ;; 你为了堵住她的青梅竹马，去问了她他晚上几点出门。
-    (define (node-ask-singer)
-      (node "问她莱恩晚上的习惯"
-        :subtitle "她知道他什么时候出门、走哪条路。开口问她这件事，你们之间会少一点东西"
-        :requires (list (req-die))
-        :resolve (instant
-          (outcome "她告诉了你"
-            (lambda ()
-              (play-dialogue!
-                (line "主角" "他晚上几点回去。")
-                (line "夜莺" "……你要做什么。")
-                (line "主角" "跟他说清楚。")
-                (line "夜莺" "喝完最后一杯。他从来不走大路，走巷子那头。")
-                (line "夜莺" "他十四岁那年就那么走，怕人看见他鞋破了。")
-                (line "世界" "她说完就转过身去擦杯子，一直擦到你离开。"))
-              (set! singer-key? #t)
-              (set! trust (max 0 (- trust 1)))
-              (sync-globals!))
-            'heavy))))
+      (set-global! '钥匙-酒馆老板 (>= familiar 2)))
 
     ;; ── 巷子 ────────────────────────────────────────
     (define (node-alley-entry)
@@ -1164,6 +1145,18 @@
         ((<= (patience-clk 'current) 4) "他开始问你要不要「多一个人手」。")
         (else "他现在还把你当成他找对了的那个人。")))
 
+    ;; 全部报酬在小节三办完后一次结清：查明身份那一段（按结算档位）＋ 巷子那一段。
+    ;; 平静期没来得及领的，第三封信到场时一起补——它是设计里让玩家松手的那笔钱，
+    ;; 不能因为错过一天就消失。
+    (define (inquiry-fee)
+      (if (equal? settle-quality "好") manager-fee-good manager-fee-fair))
+
+    (define (settle-manager-pay! note)
+      (let ((total (+ (inquiry-fee) interim-fee)))
+        (add-item! "金钱" total)
+        (set-flag! '前段报酬)
+        (result-note! (string-append note "：" (number->string total) " 金"))))
+
     (define (node-report)
       (if (not (report-pending?))
           (error "三封信：没有可向经理汇报的小节")
@@ -1177,24 +1170,24 @@
                 (lambda ()
                   (patience-clk 'advance! patience-report)
                   (cond
+                    ;; 查到名字不结账。钱一旦在这里落袋，小节三就变成"钱已经到手、
+                    ;; 还得再跑一趟"——玩家会觉得没事做了。押到巷子那一段办完一起结，
+                    ;; 中间这几天你手上仍然是紧的，去教训莱恩才有非去不可的理由。
                     ((equal? report-pending "查明")
-                     (let ((fee (if (equal? settle-quality "好") manager-fee-good manager-fee-fair)))
-                       (play-remote-dialogue!
-                         (line "主角" "雇跑腿的人叫莱恩。老街桥廊出来的，夜莺以前认识他。")
-                         (line "经理" "名字和住处不是一回事。我让人去找他的门牌。")
-                         (line "经理" "这是这一段的钱。三天内，他们会给你一个地址。"))
-                       (add-item! "金钱" fee)
-                       (result-note! (string-append "经理结了报酬 " (number->string fee) " 金"))
-                       (set! inquiry-day world-day)
-                       (advance-stage! 3)))
+                     (play-remote-dialogue!
+                       (line "主角" "雇跑腿的人叫莱恩。老街桥廊出来的，夜莺以前认识他。")
+                       (line "经理" "名字和住处不是一回事。我让人去找他的门牌。")
+                       (line "主角" "那这一段的钱呢。")
+                       (line "经理" "等他不再写信了，一起算。三天内，他们会给你一个地址。"))
+                     (result-note! "经理要等这件事了结才结账")
+                     (set! inquiry-day world-day)
+                     (advance-stage! 3))
                     ((equal? report-pending "巷子")
                      (play-remote-dialogue!
                        (line "主角" "莱恩不会再写信了。照片和信也处理了。")
                        (line "经理" "那就到这里。海报已经贴出去，接下来是我的事。")
-                       (line "经理" "这是说好的前半段。你可以歇几天。"))
-                     (add-item! "金钱" interim-fee)
-                     (set-flag! '前段报酬)
-                     (result-note! "经理结了前半段的报酬"))
+                       (line "经理" "查名字那一段和这一段，一起结给你。你可以歇几天。"))
+                     (settle-manager-pay! "经理把两段的报酬一起结了"))
                     (else (error "三封信：未登记的汇报小节")))
                   (set! report-pending "")
                   (sync-globals!)))))))
@@ -1282,10 +1275,8 @@
           ;; 它是设计里让玩家松手的那笔钱，不能因为错过一天就消失。
           (if (not (has-flag? '前段报酬))
               (begin
-                (add-item! "金钱" interim-fee)
-                (set-flag! '前段报酬)
-                (set! report-pending "")
-                (result-note! "经理把前半段的报酬一起结了"))
+                (settle-manager-pay! "经理把前面两段的报酬一起结了")
+                (set! report-pending ""))
               #f)
           (set-flag! '第三封信)
           (advance-stage! 4)
@@ -1767,10 +1758,7 @@
                (list (nightingale-node
                        (append (list (node-request-song)) (beat1-tavern-nodes))))
                '())
-           (if (beat2-open?) (list (node-lyon-talk)) '())
-           (if (and (lesson-beat?) (not singer-key?) (singer-present?))
-               (list (node-ask-singer))
-               '())))
+           (if (beat2-open?) (list (node-lyon-talk)) '())))
         ;; 城寨节点全部平铺在居民区下；探索过程消失后，只留下有后续玩法的人物与地点。
         ((equal? location "居民区")
          (append
@@ -1893,7 +1881,6 @@
              (list "report-pending" report-pending)
              (list "inquiry-day" inquiry-day)
              (list "inquiry-told?" inquiry-told?)
-             (list "singer-key?" singer-key?)
              (list "lesson-done?" lesson-done?)
              (list "lesson-day" lesson-day)
              (list "lesson-state" lesson-state)
@@ -1965,7 +1952,6 @@
                  (error "三封信存档错误：待汇报小节非法"))
              (set! inquiry-day (assoc-get data "inquiry-day" 0))
              (set! inquiry-told? (assoc-get data "inquiry-told?" #f))
-             (set! singer-key? (assoc-get data "singer-key?" #f))
              (set! lesson-done? (assoc-get data "lesson-done?" #f))
              (set! lesson-day (assoc-get data "lesson-day" 0))
              (set! lesson-state (assoc-get data "lesson-state" 0))

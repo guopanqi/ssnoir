@@ -344,6 +344,7 @@ namespace SSNoir.Core
                 InjuryPart = _gameState.Team.Injury.Part,
                 InjuryBandName = Injury.BandName(_gameState.Team.Injury.Band),
                 InjurySkillName = _gameState.Team.Injury.SkillName,
+                InjurySkillKey = _gameState.Team.Injury.Skill,
                 InjurySkillPenalty = _gameState.Team.Injury.SkillPenalty,
                 InjuryCostsActionDie = _gameState.Team.Injury.CostsActionDie,
                 Failure = _gameState.Failure,
@@ -697,16 +698,8 @@ namespace SSNoir.Core
                     var modifiers = new List<DifficultyModifierInfo>(node.Resolve.DifficultyModifiers);
                     // 伤势只压主角被打中的那一项能力，并且走和「势力敌视 −1」「非法 −2」
                     // 同一条可见修正——玩家在投骰前就看得见它，不做暗扣。
-                    var injury = _gameState.Team.Injury;
-                    if (actor.Role == "protagonist" && injury.SkillPenalty != 0
-                        && injury.Skill.Equals(skillName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        modifiers.Add(new DifficultyModifierInfo
-                        {
-                            Value = injury.SkillPenalty,
-                            Reason = injury.Part + "伤",
-                        });
-                    }
+                    var injuryMod = _gameState.Team.Injury.ModifierFor(actor.Role, skillName);
+                    if (injuryMod != null) modifiers.Add(injuryMod);
                     int modifierSum = 0;
                     foreach (var mod in modifiers)
                     {

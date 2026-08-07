@@ -203,7 +203,7 @@ namespace SSNoir.Rendering
         // 玩家一眼看得出「再挨几下就跨过去」——可规划性全靠这道留白。
         private static void DrawInjury(float x, float y, float width, PresentationSnapshot snapshot)
         {
-            int max = snapshot.InjuryCollapseThreshold;
+            int max = snapshot.InjuryMaxSeverity;
             int severity = Math.Clamp(snapshot.InjurySeverity, 0, max);
             Color color = snapshot.InjuryCostsActionDie ? SealRed : severity > 0 ? Gold : Paper;
             FontManager.DrawText("伤势", x, y, 10, PaperDim);

@@ -47,6 +47,7 @@ namespace SSNoir
         private SceneDirectory? _sceneDirectory;
         private IMGUIWorldRenderer _renderer = null!;
         private StageTransitionController _stageController = null!;
+        private CutscenePlayer _cutscenePlayer = null!;
 
         private SSNoirCameraManager _cameraManager = null!;
         private Font? _regularFont;
@@ -82,6 +83,7 @@ namespace SSNoir
         public Font? SemiboldFont => _semiboldFont;
         public SSNoirCameraManager CameraManager => _cameraManager;
         public StageTransitionController StageController => _stageController;
+        public CutscenePlayer Cutscene => _cutscenePlayer;
         public bool IsInputLocked => _renderer != null && _renderer.IsInputLocked;
         public bool PointerOverUI => _renderer != null && _renderer.PointerOverUI;
         public Cinemachine.CinemachineVirtualCamera? CurrentFocusCamera => ResolveCurrentFocusCamera();
@@ -129,6 +131,9 @@ namespace SSNoir
             _stageController = GetComponent<StageTransitionController>();
             if (_stageController == null)
                 throw new InvalidOperationException("[SSNoir] StageTransitionController must be pre-placed on the SSNoirGameManager GameObject.");
+            // 过场播放器要排在渲染器前面：渲染器每帧开头都要问它影幕开没开。
+            _cutscenePlayer = gameObject.AddComponent<CutscenePlayer>();
+            _cutscenePlayer.Initialize(this);
             _renderer = gameObject.AddComponent<IMGUIWorldRenderer>();
             _renderer.Initialize(this);
             _stageController.Initialize(this);

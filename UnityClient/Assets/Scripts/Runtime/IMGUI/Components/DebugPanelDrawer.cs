@@ -19,6 +19,7 @@ namespace SSNoir.IMGUI
 
         private static bool _isOpen = false;
         private static readonly List<SceneItem> _scenes = new List<SceneItem>();
+        private static readonly List<CutsceneShot> _shots = new List<CutsceneShot>();
 
         public static bool IsOpen => _isOpen;
 
@@ -31,8 +32,11 @@ namespace SSNoir.IMGUI
             float panelX = toggleRect.xMax - panelW;
             float panelY = toggleRect.yMax + 4f;
             float slotsHeight = 20f + SaveManager.SlotCount * 28f + 14f;
-            float cameraSectionHeight = 52f;
-            float panelH = 8f + slotsHeight + cameraSectionHeight + _scenes.Count * itemH + 8f;
+            float cameraSectionHeight = 78f;
+            // 没有过场时也留一行，用来显示"场景里没有"，免得面板看起来像坏了。
+            float cutsceneSectionHeight = 26f + Mathf.Max(_shots.Count, 1) * itemH;
+            float panelH = 8f + slotsHeight + cameraSectionHeight + cutsceneSectionHeight
+                + _scenes.Count * itemH + 8f;
             return (toggleRect, new Rect(panelX, panelY, panelW, panelH));
         }
 
@@ -158,8 +162,96 @@ namespace SSNoir.IMGUI
                 Event.current.Use();
             }
 
+            // 过场首帧截图：渲的是纯世界，这个面板开着也不会进画面，所以就放在这儿点。
+            float captureRowY = cameraRowY + itemH;
+            GUI.Label(new Rect(panelX + 8f, captureRowY + 2f, 120f, 22f),
+                "过场截图", cameraLabelStyle);
+
+            var captureStyle = new GUIStyle(labelStyle)
+            {
+                normal = { textColor = CinematicCapture.IsCapturing ? IMGUIStyles.TextDisabled : IMGUIStyles.TextSecondary }
+            };
+            var captureBorder = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
+            var captureFill = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
+
+            if (IMGUIButton.Draw(new Rect(panelX + panelW - 8f - 132f, captureRowY + 2f, 64f, 22f),
+                    "1080p", ui, captureBorder, captureFill, captureStyle, !CinematicCapture.IsCapturing))
+            {
+                CinematicCapture.Capture(gameManager, 1080);
+                Event.current.Use();
+            }
+
+            if (IMGUIButton.Draw(new Rect(panelX + panelW - 8f - 64f, captureRowY + 2f, 64f, 22f),
+                    "4K", ui, captureBorder, captureFill, captureStyle, !CinematicCapture.IsCapturing))
+            {
+                CinematicCapture.Capture(gameManager, 2160);
+                Event.current.Use();
+            }
+
+            // 过场测试：列出场景里所有 CutsceneShot，点一个就走完整套流程
+            // （推镜头 → 压黑边 → 放片子 → 收黑边 → 镜头回来）。
+            float cutsceneSepY = captureRowY + itemH + 6f;
+            IMGUIStyles.DrawLine(new Vector2(panelX + 8, cutsceneSepY), new Vector2(panelX + panelW - 8, cutsceneSepY),
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
+            GUI.Label(new Rect(panelX + 8, cutsceneSepY + 2f, panelW, 18f), "过场测试", mutedStyle);
+
+            float cutsceneListY = cutsceneSepY + 22f;
+
+            if (_shots.Count == 0)
+            {
+                GUI.Label(new Rect(panelX + 12f, cutsceneListY + 2f, panelW - 16f, itemH),
+                    "（场景里没有 CutsceneShot）", mutedStyle);
+                cutsceneListY += itemH;
+            }
+            else
+            {
+                for (int i = 0; i < _shots.Count; i++)
+                {
+                    var shot = _shots[i];
+                    var shotRect = new Rect(panelX + 4f, cutsceneListY + i * itemH, panelW - 8f, itemH - 2f);
+
+                    // 场景切换后列表里的引用会失效，但面板可能还开着。
+                    if (shot == null)
+                        continue;
+
+                    bool shotHovered = ui.CanHover(shotRect);
+                    if (shotHovered)
+                    {
+                        GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
+                        GUI.DrawTexture(shotRect, Texture2D.whiteTexture);
+                        GUI.color = Color.white;
+                    }
+
+                    bool hasVideo = !string.IsNullOrWhiteSpace(shot.VideoFileName);
+                    var shotStyle = new GUIStyle(labelStyle)
+                    {
+                        alignment = TextAnchor.MiddleLeft,
+                        normal = { textColor = shotHovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary }
+                    };
+                    GUI.Label(new Rect(shotRect.x + 10, shotRect.y + 4, shotRect.width - 30f, shotRect.height),
+                        shot.DisplayName, shotStyle);
+
+                    // 标一下这镜有没有片子——没配视频只会走影幕流程，别让人以为视频没播出来。
+                    if (!hasVideo)
+                    {
+                        GUI.Label(new Rect(shotRect.xMax - 40f, shotRect.y + 4, 36f, shotRect.height),
+                            "空镜", mutedStyle);
+                    }
+
+                    if (ui.WasClicked(shotRect))
+                    {
+                        gameManager.Cutscene.Play(shot);
+                        _isOpen = false;
+                        Event.current.Use();
+                        return;
+                    }
+                }
+
+                cutsceneListY += _shots.Count * itemH;
+            }
+
             // Scene switch section
-            sepY = cameraRowY + itemH + 6f;
+            sepY = cutsceneListY + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
             GUI.Label(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "切换场景", mutedStyle);
@@ -229,6 +321,11 @@ namespace SSNoir.IMGUI
 
         private static void LoadScenes(SSNoirGameManager gameManager)
         {
+            // 过场清单每次开面板重扫：摆一个新机位、挂上 CutsceneShot，关开一次面板就能试，
+            // 不用重进 Play 模式。这一步是要反复跑的，能省一次重进就省一次。
+            _shots.Clear();
+            _shots.AddRange(Object.FindObjectsOfType<CutsceneShot>(true));
+
             _scenes.Clear();
             _scenes.Add(new SceneItem { Name = "--- 世界 ---", IsHeader = true });
             _scenes.Add(new SceneItem { Name = "world", SceneName = "world" });
