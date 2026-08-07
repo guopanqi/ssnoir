@@ -4,24 +4,18 @@
 
 ## 文档导航
 
-- **架构总览(先读这个理解项目)**：[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- **城市生活设计（内容与机制源头）**：[docs/城市生活设计.md](docs/城市生活设计.md)
-- **城市问题与求解结构（小节的决策结构与想法库）**：[docs/城市问题与求解结构库.md](docs/城市问题与求解结构库.md)
-- **故事设计总纲（章节写作原则）**：[docs/故事设计总纲.md](docs/故事设计总纲.md)
-- **第一章·三封信（真正第一章的故事与玩法设计）**：[docs/第一章·三封信.md](docs/第一章·三封信.md)
-- **demo短篇·夜莺故事设计（demo 试验故事，非真主线）**：[docs/demo短篇·夜莺故事设计.md](docs/demo短篇·夜莺故事设计.md)
+- **架构总览**：[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
+- **Schemy 解释器(库开发)**：[schemy-master/AGENTS.md](schemy-master/AGENTS.md)
+
 - **写 .scm 内容（世界观口径 + 引擎隐含行为 + 内容作者的判断）**：[skills/write-scheme/SKILL.md](skills/write-scheme/SKILL.md)
 - **制作 3D 资产（参考图、低模、Blender 加工、Unity 命名契约）**：[skills/create-3d-assets/SKILL.md](skills/create-3d-assets/SKILL.md)
-- **要不要验证 / 怎么验证（含 GameTester 红线）**：[skills/verify/SKILL.md](skills/verify/SKILL.md)
-- **改 Schemy 解释器本身(库开发)**：[schemy-master/AGENTS.md](schemy-master/AGENTS.md)
-- **Unity 客户端 UI 规则**：[UnityClient/AGENTS.md](UnityClient/AGENTS.md)
-- **Terminal 客户端视觉设计规范**：[TerminalApp/DESIGN.md](TerminalApp/DESIGN.md)
-- **已知限制 / 待办**：[TODO.md](TODO.md)
+- **要不要验证 / 怎么验证**：[skills/verify/SKILL.md](skills/verify/SKILL.md)
 
-文档分三种身份：**「设计」文档**回答"游戏该是什么"，长命、随游戏演进持续回修；
-**「方案 / 计划」文档**回答"这次怎么落地"，执行完移入 `docs/archive/`；
-**[`docs/手稿/`](docs/手稿/)** 是用户手写的故事源头（剧本、人物表），agent 默认只读，但用户明确授权时可以修改
-具体实现细节（某个动作的数值、某段文案）以 demo 内容脚本为准，不复制进设计文档。
+文档分两种身份：
+**「设计」文档**回答"游戏该是什么"，长命、随游戏演进持续回修；
+**「方案 / 计划」文档**回答"这次怎么落地"，执行完移入 `docs/归档/`；
+具体实现细节（某个动作的数值、某段文案）以 代码中的数值 为准。
 
 ---
 
@@ -50,7 +44,7 @@
 
 # 测试验证
 选择覆盖本次主要风险的最小充分验证；静态审阅足够时可以不运行命令。**要不要验证、验证到什么程度，以及往
-`GameTester` 加测试之前**，看 [skills/verify/SKILL.md](skills/verify/SKILL.md)（唯一权威）。
+`GameTester` 加测试之前**，看 [skills/verify/SKILL.md](skills/verify/SKILL.md)。
 
 # Content 同步规则
 - Unity 客户端中的 `StreamingAssets/Content`、`Resources/Content` 和 `Fonts` 资源是从项目根目录的 `Content` 目录同步复制过去的（详见 [ContentSyncEditor.cs](UnityClient/Assets/Editor/ContentSyncEditor.cs)）, Unity 客户端在加载或进入 Play 模式时会自动运行同步导入, 不需要agent操作这些文件。

@@ -2,9 +2,6 @@
 
 ## Schemy 的改造
 
-Schemy 已 fork(`schemy-master/`)。能力总览、改动记录与开发约定都在
-[schemy-master/AGENTS.md](schemy-master/AGENTS.md)。
-
 **已解决**(原先列在这里的限制):named let、dotted rest 变参、`let*`、`and`/`or` 短路、
 空 `(let)` 作用域泄漏、常用内置 / 库函数(`list-ref`、`filter`、`assoc` 等)、Unity 初始化
 (`Assembly.Location` try/catch,不再需要反射 hack)。

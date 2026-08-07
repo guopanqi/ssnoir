@@ -2,7 +2,7 @@
 
 本指导文档适用于 `UnityClient` 下的 IMGUI 界面编写。
 
-- 视觉风格规范（Blueprint Noir 配色 / 字体 / 组件）见 [DESIGN.md](DESIGN.md)。
+- 美术 / 视觉风格规范（「墨与纸」Ink & Paper Noir 视觉语言）见 [DESIGN.md](DESIGN.md)。
 - 项目整体架构见 [../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)。
 
 ## UI 绘制与缩放规则
