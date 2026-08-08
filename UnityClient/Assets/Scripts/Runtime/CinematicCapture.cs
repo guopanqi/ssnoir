@@ -102,12 +102,18 @@ namespace SSNoir
             // aspect 要在 targetTexture 之后设：接上贴图会把画幅重置成贴图的比例，而这里要的是
             // 「纵向视野照搬屏幕、横向按 16:9 重算」，所以得自己再按回来。
             capture.aspect = 16f / 9f;
+
+            // 登记这台相机，让统一涂装跳过它——首帧图要带后处理但不带抖动网纹，理由见
+            // SSNoirStylizeMaterial.CaptureCamera。按相机实例认而不是按帧开关，因为这一帧
+            // 主相机也在渲，玩家看着的画面不能跟着一起被摘掉涂装。
+            Rendering.SSNoirStylizeMaterial.CaptureCamera = capture;
             capture.enabled = true;
 
             // 相机在帧末才渲，读像素得等它渲完。
             yield return new WaitForEndOfFrame();
 
             capture.enabled = false;
+            Rendering.SSNoirStylizeMaterial.CaptureCamera = null;
             capture.targetTexture = null;
 
             SaveTarget(target, "play");

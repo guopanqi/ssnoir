@@ -64,3 +64,6 @@ Thumbs.db
 
 # 早期过场截图产物目录（输出已改到 ~/Downloads）
 **/UnityClient/Screenshots/
+
+# 过场视频规范化前的原始下载件（本地留存，不入库）
+**/UnityClient/CutsceneSource~/

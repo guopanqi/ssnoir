@@ -204,15 +204,18 @@ namespace SSNoir.Editor
             }
 
             // 出一张 16:9 首帧 PNG 到下载目录，拿去喂图生视频模型。按住 Alt 出 4K。
+            // 720p 是刻意的，不是省事：生成服务的输出上限就是 720p，原生渲到 720 喂给它，
+            // 描线是按 720 的线宽画出来的；渲 1080 再让下游缩，线宽会被一起缩掉——而线宽正是
+            // 这套白描风格最吃紧的东西。Alt 那档留着出大图作参考用，不走生成。
             var shotContent = new GUIContent(
-                "shot", "Save a 16:9 first-frame PNG to your Downloads folder (hold Alt for 4K)");
+                "shot", "存一张 16:9 首帧 PNG 到下载目录（720p，喂生成用；按住 Alt 出 4K 参考图）");
             var shotRect = new Rect(setRect.xMax + 4f, titleRect.y + 4f, 36f, 15f);
             if (DrawSmallButton(shotRect, shotContent, false))
             {
                 if (targetVcam != null)
                 {
                     CinematicShotCapture.CaptureFromVirtualCamera(
-                        targetVcam, Event.current.alt ? 2160 : 1080);
+                        targetVcam, Event.current.alt ? 2160 : 720);
                 }
                 Event.current.Use();
             }

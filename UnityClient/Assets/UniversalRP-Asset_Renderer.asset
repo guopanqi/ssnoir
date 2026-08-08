@@ -15,8 +15,9 @@ MonoBehaviour:
   debugShaders:
     debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7, type: 3}
     hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
-  m_RendererFeatures: []
-  m_RendererFeatureMap: 
+  m_RendererFeatures:
+  - {fileID: 2167145438457359655}
+  m_RendererFeatureMap: 27eddb534b3f131e
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -58,3 +59,33 @@ MonoBehaviour:
   m_CopyDepthMode: 1
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 1
+--- !u!114 &2167145438457359655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fd8b349b3b6e4369aee0de131ab325c, type: 3}
+  m_Name: SSNoirStylizeFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  _shader: {fileID: 4800000, guid: e98168c52c9394321832343f0fe53947, type: 3}
+  settings:
+    Intensity: 1
+    RampA: {r: 0.035, g: 0.045, b: 0.065, a: 1}
+    RampB: {r: 0.112, g: 0.143, b: 0.196, a: 1}
+    RampC: {r: 0.35, g: 0.42, b: 0.55, a: 1}
+    RampD: {r: 0.95, g: 0.97, b: 1, a: 1}
+    RampBPos: 0.3
+    RampCPos: 0.65
+    InBlack: 0.02
+    InWhite: 0.45
+    LumaGamma: 1
+    Levels: 6
+    DitherScale: 2
+    DitherStrength: 1
+    VideoPathIsLinear: 0
+    AffectSceneView: 1

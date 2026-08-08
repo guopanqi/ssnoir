@@ -70,7 +70,19 @@ namespace SSNoir.Editor
                 capture.aspect = 16f / 9f;
 
                 // 编辑器下没有帧循环可等，直接渲。预览面板一直是这么渲的，这条路走得通。
-                capture.Render();
+                //
+                // 登记一下，让统一涂装跳过这台相机——首帧图要带后处理但不带抖动网纹，
+                // 理由见 SSNoirStylizeMaterial.CaptureCamera。
+                SSNoir.Rendering.SSNoirStylizeMaterial.CaptureCamera = capture;
+                try
+                {
+                    capture.Render();
+                }
+                finally
+                {
+                    SSNoir.Rendering.SSNoirStylizeMaterial.CaptureCamera = null;
+                }
+
                 capture.targetTexture = null;
 
                 CinematicCapture.SaveTarget(target, SanitizeLabel(vcam.name));
