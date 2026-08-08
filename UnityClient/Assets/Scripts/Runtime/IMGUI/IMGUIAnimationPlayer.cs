@@ -208,6 +208,7 @@ namespace SSNoir.IMGUI
 
                 if (IMGUIStyles.DrawTechnicalButton(btnRect, "确 定", isHovered, isClicked, IMGUIStyles.PaperInk, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f), IMGUIStyles.ExecuteLabel))
                 {
+                    Event.current.Use();
                     Acknowledge();
                 }
             }

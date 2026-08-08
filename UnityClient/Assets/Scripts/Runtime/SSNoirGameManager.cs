@@ -48,6 +48,7 @@ namespace SSNoir
         private IMGUIWorldRenderer _renderer = null!;
         private StageTransitionController _stageController = null!;
         private CutscenePlayer _cutscenePlayer = null!;
+        private TitleScreen _titleScreen = null!;
 
         private SSNoirCameraManager _cameraManager = null!;
         private Font? _regularFont;
@@ -70,6 +71,10 @@ namespace SSNoir
         private readonly HashSet<string> _flippedNodes = new HashSet<string>();
         private PresentationSnapshot _displayedSnapshot = new PresentationSnapshot();
 
+        // 焦点上下文切换的演出窗口期：数据已切换，卡片还没换脸。见 BeginIncomingFocusContext。
+        private bool _incomingFocusContextActive;
+        private Cinemachine.CinemachineVirtualCamera? _incomingFocusContextCamera;
+
         // Public properties
         public GameState GameState => _gameState;
         public SceneManager SceneManager => _sceneManager;
@@ -84,6 +89,7 @@ namespace SSNoir
         public SSNoirCameraManager CameraManager => _cameraManager;
         public StageTransitionController StageController => _stageController;
         public CutscenePlayer Cutscene => _cutscenePlayer;
+        public TitleScreen Title => _titleScreen;
         public bool IsInputLocked => _renderer != null && _renderer.IsInputLocked;
         public bool PointerOverUI => _renderer != null && _renderer.PointerOverUI;
         public Cinemachine.CinemachineVirtualCamera? CurrentFocusCamera => ResolveCurrentFocusCamera();
@@ -105,9 +111,9 @@ namespace SSNoir
             _gameState = new GameState();
             _scriptLoader = new UnityScriptLoader();
 #if UNITY_EDITOR
-            // In editor, share save files with the TerminalApp (project root, same as "save.json" cwd default).
+            // In editor, share save files with the TerminalApp (project root, same as ".cache/saves/save.json" cwd default).
             var projectRoot = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(Application.dataPath));
-            SaveManager.DefaultSavePath = System.IO.Path.Combine(projectRoot, "save.json");
+            SaveManager.DefaultSavePath = System.IO.Path.Combine(projectRoot, ".cache", "saves", "save.json");
 #else
             SaveManager.DefaultSavePath = System.IO.Path.Combine(Application.persistentDataPath, "save.json");
 #endif
@@ -117,6 +123,7 @@ namespace SSNoir
 
             // 3. Initialize camera interaction. Stable camera selection is resolved from the current node focus.
             _cameraManager = new SSNoirCameraManager(this, panSpeed);
+            _titleScreen = new TitleScreen(this);
 
             // 4. Find scene directory
             _sceneDirectory = FindObjectOfType<SceneDirectory>();
@@ -138,20 +145,19 @@ namespace SSNoir
             _renderer.Initialize(this);
             _stageController.Initialize(this);
 
-            // 6. Listen to scene loads and world refreshes
+            // 6. 场景加载后重置界面状态并更新镜头。
             _sceneManager.OnSceneLoaded += () => {
-                Debug.Log($"[SSNoir] Scene Loaded: {_sceneManager.CurrentSceneName}");
                 ResetSceneUiState();
                 AdoptLatestSnapshot();
                 UpdateCameraFocus();
             };
 
-            _sceneManager.OnWorldRefreshed += () => {
-                Debug.Log($"[SSNoir] World Refreshed! Root node: {_sceneManager.CurrentRootNode?.Name ?? "<null>"}");
-            };
-
             string startingLocation = _gameState.Get<string>("location", "world");
             _sceneManager.LoadScene(startingLocation);
+
+            // 7. 世界先加载、镜头先落到世界视角，然后才升起菜单——菜单底下压着的是活的世界，
+            //    不是一张标题图。玩家在点"新游戏"之前就已经在看自己要进的那座城了。
+            _titleScreen.Open();
         }
 
         private void LoadFonts()
@@ -171,7 +177,7 @@ namespace SSNoir
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape) && !_titleScreen.IsActive)
             {
                 if (_renderer != null && _renderer.TryAdvanceConversation())
                 {
@@ -247,7 +253,7 @@ namespace SSNoir
                 _navigationStack.Add(node);
                 ResolveNavigationStack();
                 _selectedResource = null;
-                SetFocusedNode(null);
+                SetFocusedNode(null, updateCamera: true);
             }
             else if (node.Resolve != null && node.Resolve.Type == ResolveType.Observe && (node.Requires == null || node.Requires.Count == 0))
             {
@@ -270,7 +276,11 @@ namespace SSNoir
             }
         }
 
-        public void SetFocusedNode(string? nodeName)
+        /// <summary>
+        /// 设置卡片交互焦点。焦点用于槽位与高亮，不等同于镜头目标；只有导航路径变化时
+        /// 才显式要求更新镜头，避免对白、Spotlight 等 UI 表现打断正在进行的运镜。
+        /// </summary>
+        public void SetFocusedNode(string? nodeName, bool updateCamera = false)
         {
             ClearTransientNodeUiState(clearSlots: false);
             _focusedNodeName = nodeName ?? string.Empty;
@@ -278,7 +288,8 @@ namespace SSNoir
             if (!string.IsNullOrEmpty(_focusedNodeName))
                 ClearOtherNodeSlots(_focusedNodeName);
 
-            UpdateCameraFocus();
+            if (updateCamera)
+                UpdateCameraFocus();
         }
 
         private void UpdateCameraFocus()
@@ -340,6 +351,11 @@ namespace SSNoir
 
         private Cinemachine.CinemachineVirtualCamera? ResolveCurrentFocusCamera()
         {
+            // 焦点上下文切换的演出期间由新根节点作数，哪怕它解不出镜头也不退回旧答案——
+            // 那个答案一定是错的，宁可回 null（过场就不做回程运镜，交给回调重新聚焦）。
+            if (_incomingFocusContextActive)
+                return _incomingFocusContextCamera;
+
             return ResolveCurrentFocusCamera(GetCurrentFocusPathNames(), out _);
         }
 
@@ -699,19 +715,27 @@ namespace SSNoir
             try
             {
                 string sceneBefore = _sceneManager.CurrentSceneName;
+                string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
                 ActionReport report = _sceneManager.ExecuteAction(node, slots);
                 _nodeSlots.Remove(node.Name);
                 _selectedResource = null;
                 bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
+                bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Name ?? string.Empty, System.StringComparison.Ordinal);
+                bool focusContextChanged = sceneChanged || rootChanged;
                 if (sceneChanged)
-                {
                     ResetSceneUiState();
-                }
+
+                if (focusContextChanged)
+                    BeginIncomingFocusContext();
 
                 _renderer.PlayPresentation(report, sceneChanged ? string.Empty : node.Name, () =>
                 {
+                    EndIncomingFocusContext();
                     AdoptLatestSnapshot();
-                    UpdateCameraFocus();
+                    // 对白、Spotlight、banter 等 UI 表现不会改相机；只有场景或阶段根节点
+                    // 变化才代表空间上下文切换，需要在演出结束后重新聚焦。
+                    if (focusContextChanged)
+                        UpdateCameraFocus();
                     done = true;
                 });
             }
@@ -719,6 +743,9 @@ namespace SSNoir
             {
                 Debug.LogError($"[ExecuteNodeAction] Exception during execution: {ex}");
                 ShowNotification($"执行异常: {ex.Message}");
+                // 演出没起来的话回调不会来，窗口期得在这里关掉，否则焦点相机会一直答着
+                // 那个再也不会被采纳的新场景镜头。
+                EndIncomingFocusContext();
                 done = true;
             }
 
@@ -738,6 +765,50 @@ namespace SSNoir
             _selectedResource = null;
             _focusedNodeName = string.Empty;
             _renderer?.ResetUiState();
+        }
+
+        /// <summary>
+        /// 场景或阶段根节点切换之后、演出回调之前，焦点相机改由新根节点回答。
+        ///
+        /// 这一段窗口期里 _displayedSnapshot 还是旧场景（卡片要等演出走完才换脸），照常
+        /// 解析只会解出旧场景的镜头。谁在乎这个：过场起场时把当前焦点相机记成回程目标，
+        /// 记错了片子放完就先飞回旧场景，再由回调推第二趟。
+        ///
+        /// 只登记，不动优先级——首个阻塞演出可能是几句入场对白，这时候抬优先级会让 brain
+        /// 当场把画面blend到交锋镜头上，玩家在片子之前先看见一次多余的运镜。真正的接管点
+        /// 在过场的回程（见 CutscenePlayer.BeginReturn）。
+        /// </summary>
+        private void BeginIncomingFocusContext()
+        {
+            _incomingFocusContextActive = true;
+            _incomingFocusContextCamera = null;
+
+            var incomingRoot = _sceneManager.LatestSnapshot.RootNode;
+            if (incomingRoot == null)
+                return;
+
+            var anchor = _sceneDirectory?.GetAnchor(incomingRoot.Name);
+            if (anchor != null)
+                _incomingFocusContextCamera = anchor.FocusVirtualCamera;
+        }
+
+        private void EndIncomingFocusContext()
+        {
+            _incomingFocusContextActive = false;
+            _incomingFocusContextCamera = null;
+        }
+
+        /// <summary>
+        /// 让这台相机成为场上唯一的高优先级焦点相机。运镜本身不改优先级，所以任何"要让
+        /// brain 真的放这台"的地方都得配一次这个，否则会出现运镜在飞 A、画面在放 B。
+        /// </summary>
+        public void PromoteFocusCamera(Cinemachine.CinemachineVirtualCamera camera)
+        {
+            if (camera == null)
+                return;
+
+            ResetFocusCameraPriorities();
+            camera.Priority = 20;
         }
 
         public void AdoptLatestSnapshot()
@@ -773,7 +844,7 @@ namespace SSNoir
             if (!string.IsNullOrEmpty(_focusedNodeName))
             {
                 // 从聚焦状态返回：取消聚焦
-                SetFocusedNode(null);
+                SetFocusedNode(null, updateCamera: true);
             }
             else if (_navigationStack.Count > 0)
             {
@@ -933,6 +1004,31 @@ namespace SSNoir
             _sceneManager.ResetForNewGame();
         }
 
+        /// <summary>
+        /// 跑新游戏的开场动作。名字写在剧本的 '开场动作 全局里，客户端只负责按名字找节点、
+        /// 执行它——开场里放什么片子、说什么话、给什么 spotlight，全在 .scm 那一边。
+        /// 换章节、换开场都不该动这个文件。
+        ///
+        /// 剧本没定开场就什么都不做：直接落进世界，这是合法的开局方式。
+        /// </summary>
+        public void RunOpeningAction()
+        {
+            string actionName = _gameState.Get<string>("开场动作", string.Empty);
+            if (string.IsNullOrWhiteSpace(actionName))
+                return;
+
+            var node = FindNodeByName(actionName);
+            if (node == null)
+            {
+                // 不抛：开场缺一节戏也还是能玩，硬停在标题界面才是真的没救。
+                Debug.LogWarning(
+                    $"[SSNoir] 开场动作 '{actionName}' 在当前世界里找不到同名节点，直接进游戏。");
+                return;
+            }
+
+            ExecuteNodeAction(node);
+        }
+
         public bool IsDraggingResource => _resourceDragActive;
 
         public void BeginDieDrag(int dieIndex, int val, Vector2 mouse)
@@ -1087,12 +1183,25 @@ namespace SSNoir
         public void OnEndTurnClicked()
         {
             _selectedResource = null;
+            string sceneBefore = _sceneManager.CurrentSceneName;
+            string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
             var report = _sceneManager.EndTurn();
+            bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
+            bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Name ?? string.Empty, System.StringComparison.Ordinal);
+            bool focusContextChanged = sceneChanged || rootChanged;
+
+            if (sceneChanged)
+                ResetSceneUiState();
+            if (focusContextChanged)
+                BeginIncomingFocusContext();
 
             bool done = false;
             _renderer.PlayPresentation(report, "休息", () =>
             {
+                EndIncomingFocusContext();
                 AdoptLatestSnapshot();
+                if (focusContextChanged)
+                    UpdateCameraFocus();
                 done = true;
             });
             StartCoroutine(WaitForPresentation(() => done));

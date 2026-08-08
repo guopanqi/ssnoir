@@ -108,6 +108,11 @@ namespace SSNoir.Core
                 {
                     _gameState.Set("location", cleanName);
                 }
+
+                // 交锋自己的入场演出属于刚载入的交锋，而不是发起它的世界动作。
+                // 若本次载入来自一个动作，这些步骤会写进该动作仍持有的 ActionReport；
+                // Debug 直载时则由表现函数安全地忽略。
+                _encounterInterpreter.Eval("(on-encounter-enter)");
             }
 
             RollSceneDice(!IsWorldScene(sceneName));
@@ -385,9 +390,9 @@ namespace SSNoir.Core
             }
         }
 
-        private void RunOnActionRules()
+        private static void RunOnActionRules(SchemeInterpreter actionInterpreter)
         {
-            ActiveInterpreter.Eval("(on-action)");
+            actionInterpreter.Eval("(on-action)");
         }
 
         public ActionReport EndTurn()
@@ -491,6 +496,9 @@ namespace SSNoir.Core
                 throw new InvalidOperationException("Observe actions must not be executed via ExecuteAction.");
             }
 
+            // 一个 action 的后处理规则属于发起该 action 的场景。action 本身可以
+            // start/end encounter 并切换 ActiveInterpreter，但不能因此改写规则归属。
+            var actionInterpreter = ActiveInterpreter;
             var report = new ActionReport();
 
             slots = slots ?? new List<SlottedResource?>();
@@ -739,7 +747,7 @@ namespace SSNoir.Core
 
                 if (!_turnEndedDuringAction)
                 {
-                    RunOnActionRules();
+                    RunOnActionRules(actionInterpreter);
                 }
                 else
                 {

@@ -414,13 +414,14 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__play-remote-banter!"));
 
-            // 命名动画:v1 仅携带 tag,作为有序阻塞剧情步骤(前端占位播放)。目前只支持动作内调用。
+            // 命名动画:v1 仅携带 tag,作为有序阻塞剧情步骤(前端占位播放)。
+            // 交锋入场钩子也可调用；Debug 直载没有 ActionReport 时不播放、不报错。
             interpreter.DefineGlobal(Symbol.FromString("__play-animation!"), new NativeProcedure(args =>
             {
                 if (args.Count < 1 || !(args[0] is string tag) || string.IsNullOrWhiteSpace(tag))
                     throw new ArgumentException("__play-animation! requires 1 argument: a non-empty tag string");
                 if (gameState.CurrentActionReport == null)
-                    throw new InvalidOperationException("__play-animation! 目前只能在动作内调用(没有动作外的即时动画通道)");
+                    return new None();
                 gameState.CurrentActionReport.BlockingStorySteps.Add(BlockingStoryStep.ForAnimation(tag));
                 return new None();
             }, "__play-animation!"));

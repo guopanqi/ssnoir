@@ -77,6 +77,11 @@
 (define chance-clk #f)
 (define stakeout-left stakeout-turns)
 (define lost-first-segment? #f)
+(define investigation-attempts '())
+
+;; 开场、幕转和收尾都由交割自己拥有；世界只负责进入本交锋。
+(define (on-encounter-enter)
+  (play-animation! "交割-投信"))
 
 (define (clock-tick-n! clock n)
   (if (> n 0)
@@ -147,10 +152,6 @@
 (define (reveal! c)
   (if (cand-target? c)
       (begin
-        (play-dialogue!
-          (line "世界" "制服底下的裤脚是干的——他今天没在雨里跑过一整天。")
-          (line "世界" "他的手刚伸进邮箱，你已经绕过了面摊的挡布。")
-          (line "世界" "他回头看见你，一脚蹬开撑地的腿，车头拐进巷口。"))
         (begin-chase! #t))
       (begin
         (clear! (cand-name c))
@@ -166,16 +167,33 @@
     (clock-tick-n! clk n)
     (if (clk 'full?) (reveal! c) #f)))
 
+(define (attempt-count name entries)
+  (if (null? entries)
+      0
+      (+ (if (equal? name (car entries)) 1 0)
+         (attempt-count name (cdr entries)))))
+
+(define (mark-investigation! c)
+  (set! investigation-attempts (cons (cand-name c) investigation-attempts)))
+
+(define (investigation-subtitle c base)
+  (let ((attempts (attempt-count (cand-name c) investigation-attempts)))
+    (cond
+      ((= attempts 0) base)
+      ((= attempts 1) "刚才那一下没白看，再核一处细节")
+      (else "疑点已经浮出来，只差最后确认"))))
+
 ;; 每个人两种办法，故意跨技能。写法统一：坏 = 白花一颗骰、冷静 −1；中 = +1 格；好 = +2 格。
 ;; 好的那一档一颗骰子就够得出结论，所以"点数高的骰子放这儿"是有意义的。
 (define (way c name skill subtitle bad mid good)
-  (node (string-append (cand-name c) "·" name)
-    :subtitle subtitle
+  ;; 六种手段的短名在本场全局唯一；不再把目标姓名拼进卡片标题，避免动作卡标题截断。
+  (node name
+    :subtitle (investigation-subtitle c subtitle)
     :requires (list (req-die))
     :resolve (roll skill
-      (outcome bad (lambda () (spend-composure! 1)))
-      (outcome mid (lambda () (look+ c 1)))
-      (outcome good (lambda () (look+ c 2))))))
+      (outcome bad (lambda () (mark-investigation! c) (spend-composure! 1)))
+      (outcome mid (lambda () (mark-investigation! c) (look+ c 1)))
+      (outcome good (lambda () (mark-investigation! c) (look+ c 2))))))
 
 (define (ways c)
   (let ((n (cand-name c)))
@@ -193,7 +211,7 @@
          (way c "看他的制服" 'sharpness
               "敏锐；一整天在雨里跑的人，衣服是什么样，你见过"
               "他背对着你，看不清" "袖口的磨损不对" "裤脚是干的——这件事你记住了")
-         (way c "想想这个点该谁当班" 'knowledge
+         (way c "查班次" 'knowledge
               "学识；邮务的班次是有规矩的，规矩比人可靠"
               "你不知道这一片怎么排班" "这个点不该有第二班" "这个点根本不该有人来取")))
       ((equal? n "门口抽烟的男人")
@@ -274,12 +292,13 @@
                     "填满：捡回散掉的钱 +2。这一段驶过之后作废。")))
 
 (define (begin-chase! in-position?)
+  (play-animation! "交割-追上他")
   (set! act 2)
   (if in-position?
       (spotlight! "巷口"
-        "他没料到有人已经站起来了。你和他之间隔着半条街，还有一辆卖夜宵的推车。")
+        "他拐进巷口。你隔着半条街和一辆夜宵车。")
       (spotlight! "巷口"
-        "等你挤出人群，他已经骑过了整条巷口。你只能从货栈那头追。"))
+        "他已穿过巷口。你只能从货栈那头追。"))
   (enter-segment! (if in-position? 0 1)))
 
 ;; ── 追击动作：每段两条路，快的伤身、稳的慢 ──────────
@@ -432,12 +451,22 @@
     (line "取信人" "那半包他忘在我这儿了。你拿去，别打了。"))
   (injure!))
 
+(define (play-lost-trail!)
+  (play-dialogue!
+    (line "世界" "车尾灯在货栈后头一晃，巷子就把他吞了。")
+    (line "主角" "该死。")
+    (line "世界" "你没拦下他，也没问到那个先生是谁。线头到这里，干干净净地断了。")))
+
 (define (finish!)
   (if finished?
       #f
       (begin
         (set! finished? #t)
-        (if (caught?) (play-scuffle!) #f)
+        (if (caught?)
+            (begin
+              (play-animation! "交割-跟丢了")
+              (play-scuffle!))
+            (play-lost-trail!))
         (if (> (recovered-money) 0)
             (add-item! "金钱" (recovered-money))
             #f)
@@ -455,9 +484,6 @@
     (set! stakeout-left (- stakeout-left 1))
     (if (<= stakeout-left 0)
         (begin
-          (play-dialogue!
-            (line "世界" "面还没吃完，邮箱的盖子响了一下。")
-            (line "世界" "等你抬头，只看见一个背影蹬上车，拐进了巷口。"))
           (set! lost-first-segment? #t)
           (begin-chase! #f))
         #f)))
@@ -503,5 +529,4 @@
 (define (get-render-data)
   (if (= act 1)
       (container-with-clocks "交割：斜对过的面摊" (act1-nodes) (act1-clocks))
-      (container-with-clocks (string-append "交割：" (seg-name seg))
-                             (act2-nodes) (act2-clocks))))
+      (container-with-clocks "交割：巷口追逐" (act2-nodes) (act2-clocks))))

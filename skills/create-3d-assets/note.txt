@@ -1,0 +1,6 @@
+当前工作流说明：
+
+Sol生成prompt
+BananaPro生成image
+Hunyuan生成model （考虑尝试tripo）
+放入city-box并入城市之中

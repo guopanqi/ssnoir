@@ -74,7 +74,7 @@ MonoBehaviour:
   m_Active: 1
   _shader: {fileID: 4800000, guid: e98168c52c9394321832343f0fe53947, type: 3}
   settings:
-    Intensity: 1
+    Intensity: 0
     RampA: {r: 0.035, g: 0.045, b: 0.065, a: 1}
     RampB: {r: 0.112, g: 0.143, b: 0.196, a: 1}
     RampC: {r: 0.35, g: 0.42, b: 0.55, a: 1}
@@ -87,5 +87,6 @@ MonoBehaviour:
     Levels: 6
     DitherScale: 2
     DitherStrength: 1
-    VideoPathIsLinear: 0
+    VideoInputGamma: 1
+    VideoOutputGamma: 1.2
     AffectSceneView: 1

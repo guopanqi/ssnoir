@@ -20,12 +20,13 @@ namespace SSNoir
             var found = FindObjectsOfType<NodeAnchor>(true);
             foreach (var anchor in found)
             {
-                if (!string.IsNullOrEmpty(anchor.NodeName))
+                string nodeName = anchor.ResolvedNodeName;
+                if (!string.IsNullOrEmpty(nodeName))
                 {
-                    if (_anchors.TryGetValue(anchor.NodeName, out var existing))
+                    if (_anchors.TryGetValue(nodeName, out var existing))
                     {
                         var message =
-                            $"SceneDirectory found duplicate NodeName '{anchor.NodeName}' " +
+                            $"SceneDirectory found duplicate NodeName '{nodeName}' " +
                             $"on '{GetHierarchyPath(existing.transform)}' and " +
                             $"'{GetHierarchyPath(anchor.transform)}'. " +
                             "Anchor NodeName must be globally unique and exactly match GameNode.Name.";
@@ -34,7 +35,7 @@ namespace SSNoir
                         throw new InvalidOperationException(message);
                     }
 
-                    _anchors.Add(anchor.NodeName, anchor);
+                    _anchors.Add(nodeName, anchor);
                 }
             }
         }

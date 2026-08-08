@@ -312,6 +312,10 @@
           (run-rules (cdr list-rules)))))
   (run-rules rules))
 
+;; 交锋载入完成后的显式入口。交锋脚本可重定义它来安排开场演出；
+;; 世界动作的 on-action 仍属于世界自己，不能借场景切换的时机去跑交锋规则。
+(define (on-encounter-enter) #t)
+
 (define turn-rules '())
 
 ;; define-turn-rule registers a turn-end rule

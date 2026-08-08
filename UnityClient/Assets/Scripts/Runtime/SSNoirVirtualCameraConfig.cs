@@ -6,7 +6,8 @@ namespace SSNoir
     public enum CameraDragMode
     {
         Pan,
-        Orbit
+        Orbit,
+        Static
     }
 
     public class SSNoirVirtualCameraConfig : MonoBehaviour
@@ -152,6 +153,37 @@ namespace SSNoir
             Debug.Log($"[SSNoir] Aligned camera '{name}' to look at pivot '{pivot.name}' at position {pivot.position}.");
         }
 
+        [ContextMenu("Align Pivot to Camera")]
+        public void AlignPivotToCamera()
+        {
+            Transform? pivot = orbitPivot;
+            if (pivot == null)
+            {
+                Debug.LogWarning($"[SSNoir] AlignPivotToCamera failed on '{name}': Orbit Pivot is not configured.");
+                return;
+            }
+
+            // 沿当前镜头的视线移动中心点，同时保持已有的轨道半径。这样不会碰相机的
+            // 构图，却会让它下一次 Orbit 时围绕它现在正在看的中心转。
+            float radius = Vector3.Distance(transform.position, pivot.position);
+            if (radius <= Mathf.Epsilon)
+            {
+                Debug.LogWarning($"[SSNoir] AlignPivotToCamera failed on '{name}': camera and Orbit Pivot overlap, so the orbit radius is zero.");
+                return;
+            }
+
+#if UNITY_EDITOR
+            UnityEditor.Undo.RecordObject(pivot, "Align Orbit Pivot to Camera");
+#endif
+
+            pivot.position = transform.position + transform.forward * radius;
+
+#if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(pivot);
+#endif
+            Debug.Log($"[SSNoir] Aligned pivot '{pivot.name}' to camera '{name}' at position {pivot.position}.");
+        }
+
     }
 }
 
@@ -165,14 +197,35 @@ namespace SSNoir
     {
         public override void OnInspectorGUI()
         {
-            DrawDefaultInspector();
-
             var config = (SSNoirVirtualCameraConfig)target;
+            serializedObject.Update();
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("dragMode"));
+            if (config.dragMode == CameraDragMode.Orbit)
+            {
+                EditorGUILayout.Space(8);
+                EditorGUILayout.LabelField("Orbit Settings", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("orbitPivot"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("orbitSpeedX"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("orbitSpeedY"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("minPitch"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("maxPitch"));
+            }
+
+            serializedObject.ApplyModifiedProperties();
+
+            if (config.dragMode != CameraDragMode.Orbit)
+                return;
 
             GUILayout.Space(10);
             if (GUILayout.Button("Align Camera to Pivot (自动对齐中心点)"))
             {
                 config.AlignToPivot();
+            }
+
+            if (GUILayout.Button("Align Orbit Pivot to Camera (按当前构图移动中心点)"))
+            {
+                config.AlignPivotToCamera();
             }
         }
     }

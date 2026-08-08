@@ -95,11 +95,9 @@ namespace SSNoir.Editor
             {
                 // 1. Sync all content to StreamingAssets (runtime access)
                 CopyDirectory(sourcePath, destPath);
-                Debug.Log($"[ContentSync] Successfully synchronized Content from {sourcePath} to {destPath}");
 
                 // 2. Sync Scheme content to Resources as TextAssets for WebGL.
                 CopySchemeTextAssets(sourcePath, resourcesContentPath);
-                Debug.Log($"[ContentSync] Scheme content synchronized to Resources/Content for WebGL.");
 
                 // 3. Sync fonts to Resources/Fonts. This gives both Editor code and runtime
                 //    builds one stable load path: Resources.Load<Font>("Fonts/...").
@@ -107,7 +105,6 @@ namespace SSNoir.Editor
                 if (Directory.Exists(fontSourcePath))
                 {
                     CopyDirectory(fontSourcePath, resourcesFontPath, clean: false);
-                    Debug.Log($"[ContentSync] Fonts synchronized to Resources/Fonts.");
                 }
                 
                 // Refresh asset database so Unity notices the files

@@ -20,18 +20,58 @@ description: 完成或计划 SSNoir 的代码/内容改动、用户要求构建�
 | `schemy-master/**` | `./schemy-master/build-unity-plugin.sh`（同时重建 Unity 使用的 DLL） |
 | 判定分布 | `./run --test-odds` |
 | 存档契约 | `./run --test-saveload` |
-| `UnityClient/**` 独有代码 | 不用 Terminal 构建冒充 Unity 验证；默认做静态审阅，有现成的 Unity 编译证据时再报告，否则明确交给用户在 Unity 中编译 / 核验 |
+| `UnityClient/**` 独有代码 | 按下节「Unity C# 的编译验证」拿真编译结果；拿不到就静态审阅并交给用户，不用 `TerminalApp` 的构建冒充 |
 | 较大的非 Unity UI 布局 / 交互改动，或用户明确要求看实际效果 | 运行并检查相关客户端；构建通过不等于视觉或交互正确。Unity 交互按下节处理 |
 | 追一个具体的疑难 bug | 用能复现它的**最小**手段，别顺手做全量校验 |
 
 用户明确要求某项验证时执行它，除非环境不支持；此时说明限制，不要用不等价的检查替代后声称已验证。
+
+## Unity C# 的编译验证
+
+`dotnet build TerminalApp/ssnoir.csproj` 覆盖不到 `UnityClient/Assets/Scripts/**`——那些源文件
+根本不在那个工程里。要拿到它们的编译结果，按顺序试：
+
+**1. 编 Unity 生成的 csproj（首选，编辑器开着也能用）**
+
+```bash
+OUT=<scratchpad>/unitybuild
+dotnet build UnityClient/SSNoir.Client.csproj -nologo -v q \
+  -p:OutputPath="$OUT/bin/" -p:BaseIntermediateOutputPath="$OUT/obj/"
+```
+
+必须重定向那两个输出路径：csproj 默认写进 `UnityClient/Temp/`，那是运行中的编辑器在用的目录。
+
+用之前先确认这份 csproj 还作数——它是 Unity 生成的产物（已被 gitignore），**不会**自己跟上
+新增/删除的文件或改过的 `.asmdef`。文件不存在，或源文件集合比它新，就说明它是旧的，往下走。
+
+它检查的是当前构建目标那一套宏（现在是 WebGL + `UNITY_EDITOR`）。别的平台分支下的代码、
+以及一切非编译问题（序列化、Inspector 引线、`.meta`、资源引用、Play Mode 行为），它都不管。
+
+**2. 现成的编译证据**
+
+编辑器可能已经自己编过了。`UnityClient/Library/ScriptAssemblies/SSNoir.Client.dll` 的时间戳
+晚于改动的源文件，就说明编过且成功；再从 `~/Library/Logs/Unity/Editor.log` 里 grep `error CS`
+确认那一轮没报错。只读，不必碰编辑器。
+
+**3. batchmode（只在编辑器没开时）**
+
+```bash
+/Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -quit -nographics \
+  -projectPath "$(pwd)/UnityClient" -logFile - | grep -E "error CS|Compilation failed"
+```
+
+编辑器开着就用不了：Unity 对 `Library/` 是独占锁，会直接报 "Multiple Unity instances cannot open
+the same project"。先 `pgrep -lf "Unity.app/Contents/MacOS/Unity"` 看一眼。即使没开，冷启动会跑
+一次完整资源导入，几分钟起步——所以它是兜底，不是默认。
+
+**4. 都不行**：静态审阅，明说"未编译验证"，请用户切回 Unity 触发一次编译。
 
 ## Unity 验证边界
 
 - 默认不要为了验证而调用 `computer-use` 操作 Unity。Unity 的场景状态、Play Mode 和焦点不稳定，自动操作的成本与证据质量通常不匹配。
 - 用户没有明确要求 Codex 操作 Unity 时，完成静态审阅并提供简短的人工核验路径，让用户在 Unity 中确认编译、画面和手感。
 - 只有用户明确要求 Codex 使用 Unity 做实际交互验证时，才尝试用 `computer-use` 控制编辑器；操作前先保护未保存的场景和当前 Play Mode 状态。
-- 如果 Unity 已经自动刷新，且能通过只读日志或现成输出取得编译结果，可以直接采用该证据，不必为此操作编辑器。
+- 编译结果按上一节取；那几条路都不必操作编辑器。编译通过不等于画面和手感对，那一头始终由用户在 Play Mode 里确认。
 
 ## GameTester
 

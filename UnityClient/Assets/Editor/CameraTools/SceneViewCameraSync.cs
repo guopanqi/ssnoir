@@ -23,6 +23,10 @@ namespace SSNoir.Editor
     /// </summary>
     public static class SceneViewCameraSync
     {
+        // 警告只显示到 0.1°；比较也用同一精度，避免 26.96° / 27.04° 都显示 27.0°
+        // 却仍然报「不一致」的假警报。
+        private const float LensMismatchTolerance = 0.1f;
+
         /// <summary>把 Scene 视图搬到虚拟相机的机位和镜头上（预览面板的 <c>get</c>）。</summary>
         public static void PullFromVirtualCamera(CinemachineVirtualCamera vcam)
         {
@@ -90,7 +94,7 @@ namespace SSNoir.Editor
             }
 
             if (!orthographic
-                && !Mathf.Approximately(view.cameraSettings.fieldOfView, vcam.m_Lens.FieldOfView))
+                && Mathf.Abs(view.cameraSettings.fieldOfView - vcam.m_Lens.FieldOfView) > LensMismatchTolerance)
             {
                 Debug.LogWarning(
                     $"[SSNoir] Scene 视图 FOV 是 {view.cameraSettings.fieldOfView:F1}°，" +

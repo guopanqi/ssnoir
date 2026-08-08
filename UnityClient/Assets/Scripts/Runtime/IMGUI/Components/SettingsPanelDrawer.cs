@@ -132,7 +132,6 @@ namespace SSNoir.IMGUI
                     new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f), switchStyle))
             {
                 MotionSettings.ReduceMotion = !reduceMotion;
-                Event.current.Use();
             }
 
             // 说明文字

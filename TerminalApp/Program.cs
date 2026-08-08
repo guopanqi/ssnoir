@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using Raylib_cs;
 using SSNoir.Core;
@@ -44,7 +45,8 @@ namespace SSNoir
                     return;
                 }
 
-                SaveManager.DefaultSavePath = "save.json";
+                // 运行时产物统一放项目根 .cache/saves（已被 gitignore）。
+                SaveManager.DefaultSavePath = Path.Combine(".cache", "saves", "save.json");
 
                 var gameState = new GameState();
                 var loader = new LocalScriptLoader();

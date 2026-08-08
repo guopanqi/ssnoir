@@ -19,7 +19,7 @@ namespace SSNoir.IMGUI
 
         private static bool _isOpen = false;
         private static readonly List<SceneItem> _scenes = new List<SceneItem>();
-        private static readonly List<CutsceneShot> _shots = new List<CutsceneShot>();
+        private static readonly List<CutsceneSequence> _sequences = new List<CutsceneSequence>();
 
         public static bool IsOpen => _isOpen;
 
@@ -34,7 +34,7 @@ namespace SSNoir.IMGUI
             float slotsHeight = 20f + SaveManager.SlotCount * 28f + 14f;
             float cameraSectionHeight = 78f;
             // 没有过场时也留一行，用来显示"场景里没有"，免得面板看起来像坏了。
-            float cutsceneSectionHeight = 26f + Mathf.Max(_shots.Count, 1) * itemH;
+            float cutsceneSectionHeight = 26f + Mathf.Max(_sequences.Count, 1) * itemH;
             float panelH = 8f + slotsHeight + cameraSectionHeight + cutsceneSectionHeight
                 + _scenes.Count * itemH + 8f;
             return (toggleRect, new Rect(panelX, panelY, panelW, panelH));
@@ -117,7 +117,6 @@ namespace SSNoir.IMGUI
                         new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), labelStyle))
                 {
                     gameManager.SaveGame(slotPath);
-                    Event.current.Use();
                 }
 
                 if (IMGUIButton.Draw(rectLoad, "读", ui,
@@ -126,7 +125,6 @@ namespace SSNoir.IMGUI
                 {
                     gameManager.LoadGame(slotPath);
                     _isOpen = false;
-                    Event.current.Use();
                     return;
                 }
 
@@ -159,7 +157,6 @@ namespace SSNoir.IMGUI
                     new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), cameraModeStyle))
             {
                 MotionSettings.DebugInstantCameraCuts = !instantCuts;
-                Event.current.Use();
             }
 
             // 过场首帧截图：渲的是纯世界，这个面板开着也不会进画面，所以就放在这儿点。
@@ -178,18 +175,16 @@ namespace SSNoir.IMGUI
                     "1080p", ui, captureBorder, captureFill, captureStyle, !CinematicCapture.IsCapturing))
             {
                 CinematicCapture.Capture(gameManager, 1080);
-                Event.current.Use();
             }
 
             if (IMGUIButton.Draw(new Rect(panelX + panelW - 8f - 64f, captureRowY + 2f, 64f, 22f),
                     "4K", ui, captureBorder, captureFill, captureStyle, !CinematicCapture.IsCapturing))
             {
                 CinematicCapture.Capture(gameManager, 2160);
-                Event.current.Use();
             }
 
-            // 过场测试：列出场景里所有 CutsceneShot，点一个就走完整套流程
-            // （推镜头 → 压黑边 → 放片子 → 收黑边 → 镜头回来）。
+            // 过场测试：列出场景里所有 CutsceneSequence，点一个就走完整套流程
+            // （推第一镜 → 压黑边 → 逐镜放片子 → 收黑边 → 镜头回来）。
             float cutsceneSepY = captureRowY + itemH + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, cutsceneSepY), new Vector2(panelX + panelW - 8, cutsceneSepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
@@ -197,57 +192,56 @@ namespace SSNoir.IMGUI
 
             float cutsceneListY = cutsceneSepY + 22f;
 
-            if (_shots.Count == 0)
+            if (_sequences.Count == 0)
             {
                 GUI.Label(new Rect(panelX + 12f, cutsceneListY + 2f, panelW - 16f, itemH),
-                    "（场景里没有 CutsceneShot）", mutedStyle);
+                    "（场景里没有 CutsceneSequence）", mutedStyle);
                 cutsceneListY += itemH;
             }
             else
             {
-                for (int i = 0; i < _shots.Count; i++)
+                for (int i = 0; i < _sequences.Count; i++)
                 {
-                    var shot = _shots[i];
-                    var shotRect = new Rect(panelX + 4f, cutsceneListY + i * itemH, panelW - 8f, itemH - 2f);
+                    var sequence = _sequences[i];
+                    var rowRect = new Rect(panelX + 4f, cutsceneListY + i * itemH, panelW - 8f, itemH - 2f);
 
                     // 场景切换后列表里的引用会失效，但面板可能还开着。
-                    if (shot == null)
+                    if (sequence == null)
                         continue;
 
-                    bool shotHovered = ui.CanHover(shotRect);
-                    if (shotHovered)
+                    bool hovered = ui.CanHover(rowRect);
+                    if (hovered)
                     {
                         GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
-                        GUI.DrawTexture(shotRect, Texture2D.whiteTexture);
+                        GUI.DrawTexture(rowRect, Texture2D.whiteTexture);
                         GUI.color = Color.white;
                     }
 
-                    bool hasVideo = !string.IsNullOrWhiteSpace(shot.VideoFileName);
-                    var shotStyle = new GUIStyle(labelStyle)
+                    var rowStyle = new GUIStyle(labelStyle)
                     {
                         alignment = TextAnchor.MiddleLeft,
-                        normal = { textColor = shotHovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary }
+                        normal = { textColor = hovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary }
                     };
-                    GUI.Label(new Rect(shotRect.x + 10, shotRect.y + 4, shotRect.width - 30f, shotRect.height),
-                        shot.DisplayName, shotStyle);
+                    GUI.Label(new Rect(rowRect.x + 10, rowRect.y + 4, rowRect.width - 46f, rowRect.height),
+                        sequence.DisplayName, rowStyle);
 
-                    // 标一下这镜有没有片子——没配视频只会走影幕流程，别让人以为视频没播出来。
-                    if (!hasVideo)
-                    {
-                        GUI.Label(new Rect(shotRect.xMax - 40f, shotRect.y + 4, 36f, shotRect.height),
-                            "空镜", mutedStyle);
-                    }
+                    // 标镜头数：一眼看出这场是单镜还是多镜，也能立刻发现"列表忘了填"。
+                    int shotCount = 0;
+                    foreach (var _ in sequence.ValidShots())
+                        shotCount++;
+                    GUI.Label(new Rect(rowRect.xMax - 52f, rowRect.y + 4, 48f, rowRect.height),
+                        shotCount == 0 ? "空" : $"{shotCount} 镜", mutedStyle);
 
-                    if (ui.WasClicked(shotRect))
+                    if (ui.WasClicked(rowRect))
                     {
-                        gameManager.Cutscene.Play(shot);
+                        gameManager.Cutscene.Play(sequence);
                         _isOpen = false;
                         Event.current.Use();
                         return;
                     }
                 }
 
-                cutsceneListY += _shots.Count * itemH;
+                cutsceneListY += _sequences.Count * itemH;
             }
 
             // Scene switch section
@@ -321,10 +315,10 @@ namespace SSNoir.IMGUI
 
         private static void LoadScenes(SSNoirGameManager gameManager)
         {
-            // 过场清单每次开面板重扫：摆一个新机位、挂上 CutsceneShot，关开一次面板就能试，
-            // 不用重进 Play 模式。这一步是要反复跑的，能省一次重进就省一次。
-            _shots.Clear();
-            _shots.AddRange(Object.FindObjectsOfType<CutsceneShot>(true));
+            // 过场清单每次开面板重扫：配好一场戏，关开一次面板就能试，不用重进 Play 模式。
+            // 这一步是要反复跑的，能省一次重进就省一次。
+            _sequences.Clear();
+            _sequences.AddRange(Object.FindObjectsOfType<CutsceneSequence>(true));
 
             _scenes.Clear();
             _scenes.Add(new SceneItem { Name = "--- 世界 ---", IsHeader = true });

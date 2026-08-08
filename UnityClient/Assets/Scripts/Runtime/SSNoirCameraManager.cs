@@ -23,6 +23,59 @@ namespace SSNoir
         private Vector3 _dragStartMousePos;
         private Vector3 _dragStartCamPos;
 
+        // 松手后的惯性尾巴，三种模式共用一条。速度一律按「指针像素/秒」保存，到最后一步
+        // 才按各自的模式换算成平移、旋转或偏移——于是"甩起来是什么手感"只有这一处可调，
+        // 三种镜头不会各飘各的。
+        //
+        // 衰减是指数的，尾巴长度因此有个直白的读法：总位移 = 松手速度 ÷ InertiaDamping。
+        // 12 的意思就是"甩得再快，也只再滑十二分之一秒的路"。
+        private const float InertiaDamping = 12f;
+        // 甩得再狠也就这么快。2400 像素/秒对应约 200 像素的尾巴。
+        private const float MaxFlickPixelsPerSecond = 2400f;
+        // 低于这个速度按"挪到位"处理，不给惯性。它和"指针有没有停住"是两道关，都要过。
+        private const float MinFlickPixelsPerSecond = 200f;
+        // 慢到这个程度直接归零，免得留一条肉眼看不见却永远在动的零头。
+        private const float InertiaStopPixelsPerSecond = 12f;
+
+        private Cinemachine.CinemachineVirtualCamera? _inertiaCamera;
+        private CameraDragMode _inertiaMode;
+        private Vector2 _inertiaVelocity;
+        private readonly PointerVelocityTracker _pointer = new PointerVelocityTracker();
+
+        // Static is a globally consistent presentation gesture, not a per-camera tuning
+        // surface. These intentionally live here beside the other camera feel values.
+        // 静态镜头只给一点点"我碰得到画面"的反馈，不是一个可以逛的小范围。所以这里没有
+        // "自由区 + 越界才有橡皮筋"那一层：阻力从第一个像素就开始长，松手弹回作者构图。
+        //
+        // 曲线是对数的，**没有上限**：
+        //
+        //     b(x) = scale × ln(1 + x / scale)
+        //
+        // 原点处斜率正好是 1，所以起手完全跟手；之后每把手上的行程翻一倍，画面只多走
+        // scale×ln2 ≈ 0.083 —— 一个固定的、越来越不划算的增量。拉到后面就是"再拖很远也
+        // 只多一点点"，两只手交替倒着拉也一样。要的正是这个：理论上拉得动，实际上拉不动。
+        //
+        // 渐近线那种写法（位移趋近一个固定上限）不行：斜率会真的掉到 0，手上摸得出一堵墙，
+        // 画面看起来像卡住了。对数永远还在走，只是越来越慢，所以反馈一直在。
+        private const float StaticPullScale = 0.12f;
+        // 起手的跟手程度：曲线在原点是 1:1，所以这就是最初每像素走多远。
+        private const float StaticDragSensitivity = 0.012f;
+        // 回弹：指数收敛，先快后软。
+        private const float StaticReturnDamping = 14f;
+        // 小到这个程度直接归位，免得留一条收不干净的尾巴。
+        private const float StaticSettleOffset = 0.0005f;
+
+        // Static cameras only permit a small screen-plane nudge around their authored
+        // pose. Raw 记的是手拉了多远，Offset 是过完橡皮筋、真正落到画面上的那一份。
+        //
+        // 两者都是**向量**，橡皮筋作用在它的长度上——约束的是"构图允许偏离多远"，那是一个
+        // 距离，没有分轴的含义。分轴各压各的会得到一个方形的边界：斜着拉能比正着拉多走
+        // 41%，而且一个轴先到头之后，画面会变成只沿另一个轴动。手上摸得出那个角。
+        private Cinemachine.CinemachineVirtualCamera? _staticOffsetCamera;
+        private Vector2 _staticOffset;
+        private Vector2 _staticRawOffset;
+        private Vector2 _staticDragStartRawOffset;
+
         // Edge-beacon navigation moves the current camera without changing gameplay focus.
         // A real world drag always cancels this interpolation and takes control immediately.
         private bool _isNavigating;
@@ -90,6 +143,11 @@ namespace SSNoir
         // OnGUI is one frame ahead of the brain, so releasing on the next tick would
         // give the blend back before it ever cut.
         private readonly ViewCrossfade _crossfade;
+        // 两台不同的相机架在同一个取景上时的容差。给得很紧：只想认出"作者故意让这两镜接上"
+        // 这一种情况，别把真有一点点距离的运镜也吃掉。
+        private const float SamePoseDistance = 0.05f;
+        private const float SamePoseAngle = 0.25f;
+
         private Cinemachine.CinemachineBrain? _cutHoldBrain;
         private Cinemachine.CinemachineBlendDefinition _cutHoldSavedBlend;
         private int _cutHoldFrame;
@@ -103,6 +161,17 @@ namespace SSNoir
         private int _reducedParkedFrame;
 
         public ViewCrossfade Crossfade => _crossfade;
+
+        /// <summary>
+        /// 交给 <see cref="BeginFocusTravel"/> 的那趟运镜是否还在路上——弧线本身，或者
+        /// 减少动画下顶替它的那次溶解。
+        ///
+        /// 运镜期间 brain 是被切死的（弧线自己就是过渡），所以光问 brain「有没有在混合」
+        /// 会当场得到「已经到位了」。任何要等镜头真停稳才能往下走的地方（过场等首帧对齐），
+        /// 必须连这里一起问。
+        /// </summary>
+        public bool IsFocusTravelInFlight =>
+            _isFocusArcActive || _crossfade.IsFading || _reducedParkedCamera != null;
 
         public SSNoirCameraManager(SSNoirGameManager gameManager, float panSpeed)
         {
@@ -130,6 +199,9 @@ namespace SSNoir
                 _isPressingWorld = true;
                 _isDraggingCam = false;
                 _dragStartMousePos = Input.mousePosition;
+
+                // 按下就掐掉还在滑的尾巴——和列表滑到一半点一下就停住是同一件事。
+                _inertiaVelocity = Vector2.zero;
             }
 
             if (_isPressingWorld)
@@ -157,6 +229,9 @@ namespace SSNoir
                             // press landed, so that taking over a moving camera does not jump.
                             Vector3 mouseDelta = Input.mousePosition - _dragStartMousePos;
 
+                            // 一帧一笔，三种模式共用同一份采样。松手时的速度就从这里读。
+                            _pointer.Sample(Input.mousePosition);
+
                             var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
                             if (config != null && config.dragMode == CameraDragMode.Orbit)
                             {
@@ -167,30 +242,30 @@ namespace SSNoir
                                     config.ApplyOrbitFromDrag(pivot.position, mouseDelta.x, mouseDelta.y);
                                 }
                             }
+                            else if (config != null && config.dragMode == CameraDragMode.Static)
+                            {
+                                UpdateStaticDrag(activeCamera, mouseDelta);
+                                ApplyStaticRestPose(activeCamera, config);
+                            }
                             else
                             {
-                                // Height-locked RTS/MOBA Pan (moves parallel to XZ ground plane)
-                                Vector3 right = activeCamera.transform.right;
-                                right.y = 0f;
-                                right.Normalize();
-
-                                Vector3 forward = activeCamera.transform.forward;
-                                forward.y = 0f;
-                                forward.Normalize();
-
-                                Vector3 panTranslation = -mouseDelta.x * right * _panSpeed - mouseDelta.y * forward * _panSpeed;
-                                activeCamera.transform.position = _dragStartCamPos + panTranslation;
+                                UpdatePanDrag(activeCamera, mouseDelta);
                             }
                         }
                     }
                 }
                 else
                 {
+                    ReleaseDrag(activeCamera);
                     _isPressingWorld = false;
                     _isDraggingCam = false;
                     _isDraggingFocusArc = false;
                 }
             }
+
+            // 惯性先走，回弹后走：静态镜头的橡皮筋要能作用在这一帧刚滑出去的距离上。
+            TickDragInertia(activeCamera);
+            TickStaticReturn(activeCamera);
 
             if (!_isDraggingCam && _isNavigating)
                 UpdateNavigation(activeCamera);
@@ -211,8 +286,13 @@ namespace SSNoir
             _dragStartMousePos = Input.mousePosition;
             _dragStartCamPos = activeCamera.transform.position;
 
-            // Save starting极坐标 (polar coordinates) state on virtual camera config if in Orbit mode
             var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            _inertiaCamera = activeCamera;
+            _inertiaMode = config != null ? config.dragMode : CameraDragMode.Pan;
+            _inertiaVelocity = Vector2.zero;
+            _pointer.Reset(Input.mousePosition);
+
+            // Save starting极坐标 (polar coordinates) state on virtual camera config if in Orbit mode
             if (config != null && config.dragMode == CameraDragMode.Orbit)
             {
                 var pivot = GetOrbitPivot(activeCamera);
@@ -221,6 +301,345 @@ namespace SSNoir
                     config.SaveDragStartState(pivot.position);
                 }
             }
+            else if (config != null && config.dragMode == CameraDragMode.Static)
+            {
+                BeginStaticDrag(activeCamera);
+            }
+        }
+
+        /// <summary>
+        /// 松手：决定这一下留不留尾巴。
+        ///
+        /// 两道关都要过——指针在松手前那一小段还得在走（<c>IsParked</c>），而且走得够快。
+        /// "按住挪到某个构图再松手"是定位，最后那一小段一定是静止的，不管之前拖得多快，
+        /// 这种一点惯性都不该有；"滑动中甩开"才是甩。
+        /// </summary>
+        private void ReleaseDrag(Cinemachine.CinemachineVirtualCamera activeCamera)
+        {
+            if (!_isDraggingCam || _isDraggingFocusArc
+                || !ReferenceEquals(_inertiaCamera, activeCamera))
+            {
+                _inertiaVelocity = Vector2.zero;
+                return;
+            }
+
+            // 松手这一帧的位置还没进采样——它正是最有信息量的那一笔。
+            _pointer.Sample(Input.mousePosition);
+
+            Vector2 velocity = _pointer.IsParked ? Vector2.zero : _pointer.Velocity;
+            _inertiaVelocity = velocity.magnitude >= MinFlickPixelsPerSecond
+                ? Vector2.ClampMagnitude(velocity, MaxFlickPixelsPerSecond)
+                : Vector2.zero;
+        }
+
+        /// <summary>
+        /// 松手后的那条尾巴。速度按像素记，到这里才换算成各模式自己的动作，所以三种
+        /// 镜头的减速曲线是同一条。
+        /// </summary>
+        private void TickDragInertia(Cinemachine.CinemachineVirtualCamera activeCamera)
+        {
+            if (_inertiaVelocity == Vector2.zero)
+                return;
+
+            // 拖拽重新接管、或者焦点运镜要用这台相机时，尾巴当场作废：两个系统同时写
+            // 同一个 transform 就会打架。
+            if (_isDraggingCam || _isFocusArcActive || !ReferenceEquals(_inertiaCamera, activeCamera))
+            {
+                _inertiaVelocity = Vector2.zero;
+                return;
+            }
+
+            float deltaTime = Time.unscaledDeltaTime;
+            Vector2 stepPixels = _inertiaVelocity * deltaTime;
+            _inertiaVelocity *= Mathf.Exp(-InertiaDamping * deltaTime);
+            if (_inertiaVelocity.magnitude < InertiaStopPixelsPerSecond)
+                _inertiaVelocity = Vector2.zero;
+
+            switch (_inertiaMode)
+            {
+                case CameraDragMode.Orbit:
+                    ApplyOrbitInertiaStep(activeCamera, stepPixels);
+                    break;
+                case CameraDragMode.Static:
+                    ApplyStaticInertiaStep(activeCamera, stepPixels);
+                    break;
+                default:
+                    ApplyPanInertiaStep(activeCamera, stepPixels);
+                    break;
+            }
+        }
+
+        // 以下三个 Apply*Step 的换算必须和各自 UpdateXxxDrag 里那一条完全一致，
+        // 否则松手的瞬间画面会变速——尾巴和拖拽是同一个手势的两半。
+        private void ApplyPanInertiaStep(
+            Cinemachine.CinemachineVirtualCamera activeCamera, Vector2 stepPixels)
+        {
+            Vector3 right = activeCamera.transform.right;
+            right.y = 0f;
+            right.Normalize();
+
+            Vector3 forward = activeCamera.transform.forward;
+            forward.y = 0f;
+            forward.Normalize();
+
+            activeCamera.transform.position +=
+                -stepPixels.x * right * _panSpeed - stepPixels.y * forward * _panSpeed;
+        }
+
+        private void ApplyOrbitInertiaStep(
+            Cinemachine.CinemachineVirtualCamera activeCamera, Vector2 stepPixels)
+        {
+            var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            var pivot = config != null ? GetOrbitPivot(activeCamera) : null;
+            if (config == null || pivot == null)
+            {
+                _inertiaVelocity = Vector2.zero;
+                return;
+            }
+
+            ToPolar(
+                activeCamera.transform.position - pivot.position,
+                out float yaw, out float pitch, out float radius);
+            yaw += stepPixels.x * config.orbitSpeedX;
+            pitch = Mathf.Clamp(
+                pitch - stepPixels.y * config.orbitSpeedY, config.minPitch, config.maxPitch);
+            activeCamera.transform.position = pivot.position + FromPolar(yaw, pitch, radius);
+            activeCamera.transform.LookAt(pivot.position);
+        }
+
+        private void ApplyStaticInertiaStep(
+            Cinemachine.CinemachineVirtualCamera activeCamera, Vector2 stepPixels)
+        {
+            if (!ReferenceEquals(_staticOffsetCamera, activeCamera))
+            {
+                _inertiaVelocity = Vector2.zero;
+                return;
+            }
+
+            _staticRawOffset -= stepPixels * StaticDragSensitivity;
+        }
+
+        private void UpdatePanDrag(Cinemachine.CinemachineVirtualCamera activeCamera, Vector3 mouseDelta)
+        {
+            // Height-locked RTS/MOBA Pan (moves parallel to XZ ground plane)
+            Vector3 right = activeCamera.transform.right;
+            right.y = 0f;
+            right.Normalize();
+
+            Vector3 forward = activeCamera.transform.forward;
+            forward.y = 0f;
+            forward.Normalize();
+
+            Vector3 panTranslation = -mouseDelta.x * right * _panSpeed - mouseDelta.y * forward * _panSpeed;
+            activeCamera.transform.position = _dragStartCamPos + panTranslation;
+        }
+
+        private void BeginStaticDrag(Cinemachine.CinemachineVirtualCamera activeCamera)
+        {
+            if (!ReferenceEquals(_staticOffsetCamera, activeCamera))
+                ResetStaticOffset(activeCamera);
+
+            _staticDragStartRawOffset = _staticRawOffset;
+        }
+
+        private void UpdateStaticDrag(
+            Cinemachine.CinemachineVirtualCamera activeCamera,
+            Vector3 mouseDelta)
+        {
+            if (!ReferenceEquals(_staticOffsetCamera, activeCamera))
+                ResetStaticOffset(activeCamera);
+
+            _staticRawOffset = _staticDragStartRawOffset
+                - new Vector2(mouseDelta.x, mouseDelta.y) * StaticDragSensitivity;
+            _staticOffset = ApplyRubberBand(_staticRawOffset);
+        }
+
+        private void TickStaticReturn(Cinemachine.CinemachineVirtualCamera activeCamera)
+        {
+            if (_isDraggingCam || !ReferenceEquals(_staticOffsetCamera, activeCamera))
+                return;
+
+            var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            if (config == null || config.dragMode != CameraDragMode.Static)
+                return;
+
+            // 先把这一帧的惯性吃进画面里，再往回收——两者同时作用，不是二选一。甩出去的
+            // 那一下先往外滑，橡皮筋一直在拉，于是它自己减速、掉头、回位。分成两段互斥的话，
+            // 会先滑一段、停一下、再突然往回走。
+            _staticOffset = ApplyRubberBand(_staticRawOffset);
+
+            // 回收作用在**屏幕上看得见的位移**上，不是"手拉了多远"。橡皮筋压得越狠，同样
+            // 一段 raw 对应的画面移动越小；直接收 raw 的话，拉得越远回弹越慢，正好反了。
+            float returnFactor = 1f - Mathf.Exp(-StaticReturnDamping * Time.unscaledDeltaTime);
+            _staticOffset = Vector2.Lerp(_staticOffset, Vector2.zero, returnFactor);
+
+            if (_staticOffset.magnitude < StaticSettleOffset)
+                _staticOffset = Vector2.zero;
+
+            // raw 跟着回算，好让回弹半路上重新按住时接得上——手抓住的是画面，不是那个内部量。
+            _staticRawOffset = InverseRubberBand(_staticOffset);
+
+            // 回到位了就把尾巴掐掉，免得一条早就看不见的惯性还在跟橡皮筋拉锯。
+            if (_staticOffset == Vector2.zero
+                && _inertiaMode == CameraDragMode.Static)
+                _inertiaVelocity = Vector2.zero;
+
+            if (!_isFocusArcActive)
+                ApplyStaticRestPose(activeCamera, config);
+        }
+
+        private void ResetStaticOffset(Cinemachine.CinemachineVirtualCamera activeCamera)
+        {
+            _staticOffsetCamera = activeCamera;
+            _staticOffset = Vector2.zero;
+            _staticRawOffset = Vector2.zero;
+        }
+
+        /// <summary>
+        /// 指针速度采样。
+        ///
+        /// 松手那一瞬间"这一帧走了多远"是不能用来判断甩动的：那是十几毫秒的噪声，同一个
+        /// 手势在不同帧率下会得出完全不同的答案。改成按时间取样，并且把两个问题分开问：
+        ///
+        ///   甩得多快     —— 最近 <see cref="VelocityWindow"/> 秒的位移除以这段时间。
+        ///   松手前停没停 —— 最近 <see cref="StillWindow"/> 秒里指针一共走了几像素。
+        ///
+        /// 第二问才是"按住挪到某个构图再松手"和"滑动中甩开"的分界线：前者最后那一小段
+        /// 一定是静止的，不管之前拖得多快。只看速度分不出这两种，因为定位手势的平均速度
+        /// 也可以很高。
+        /// </summary>
+        private sealed class PointerVelocityTracker
+        {
+            private const float VelocityWindow = 0.1f;
+            private const float StillWindow = 0.05f;
+            private const float StillPixels = 5f;
+            private const int Capacity = 24;
+
+            private readonly float[] _times = new float[Capacity];
+            private readonly Vector2[] _positions = new Vector2[Capacity];
+            private int _count;
+            private int _next;
+
+            public void Reset(Vector2 position)
+            {
+                _count = 0;
+                _next = 0;
+                Sample(position);
+            }
+
+            public void Sample(Vector2 position)
+            {
+                _times[_next] = Time.unscaledTime;
+                _positions[_next] = position;
+                _next = (_next + 1) % Capacity;
+                if (_count < Capacity)
+                    _count++;
+            }
+
+            /// <summary>窗口内的平均速度，像素/秒。</summary>
+            public Vector2 Velocity
+            {
+                get
+                {
+                    if (_count < 2)
+                        return Vector2.zero;
+
+                    Vector2 latest = At(0, out float latestTime);
+                    Vector2 oldest = latest;
+                    float oldestTime = latestTime;
+
+                    // 至少吃下一笔间隔再看窗口，否则帧率一低窗口里就只剩当前这一笔，
+                    // 永远算出零速度——那正是"怎么甩都没有惯性"的另一半原因。
+                    for (int i = 1; i < _count; i++)
+                    {
+                        oldest = At(i, out oldestTime);
+                        if (latestTime - oldestTime >= VelocityWindow)
+                            break;
+                    }
+
+                    float elapsed = latestTime - oldestTime;
+                    return elapsed <= 0.0001f ? Vector2.zero : (latest - oldest) / elapsed;
+                }
+            }
+
+            /// <summary>松手前指针是不是已经停住了——停住就是定位，不是甩。</summary>
+            public bool IsParked
+            {
+                get
+                {
+                    if (_count < 2)
+                        return true;
+
+                    Vector2 previous = At(0, out float latestTime);
+                    float travelled = 0f;
+                    for (int i = 1; i < _count; i++)
+                    {
+                        Vector2 position = At(i, out float time);
+                        travelled += (previous - position).magnitude;
+                        if (travelled > StillPixels)
+                            return false;
+
+                        previous = position;
+                        if (latestTime - time >= StillWindow)
+                            break;
+                    }
+
+                    return true;
+                }
+            }
+
+            // 0 是最新的一笔，往后依次更旧。
+            private Vector2 At(int indexFromLatest, out float time)
+            {
+                int index = ((_next - 1 - indexFromLatest) % Capacity + Capacity) % Capacity;
+                time = _times[index];
+                return _positions[index];
+            }
+        }
+
+        /// <summary>
+        /// 橡皮筋：拉得越远越沉，但永远还在走。
+        ///
+        ///     b(x) = scale × ln(1 + x / scale)
+        ///
+        /// 压的是**向量的长度**，方向原样保留，所以边界是圆的。分轴各压各的会压出一个方形：
+        /// 斜着拉能比正着拉多走 41%，而且一个轴先到头之后画面会拐成只沿另一个轴动。约束的
+        /// 本意是"构图允许偏离多远"，那是一个距离，不该有角。
+        /// </summary>
+        private static Vector2 ApplyRubberBand(Vector2 rawOffset)
+        {
+            float magnitude = rawOffset.magnitude;
+            if (magnitude <= Mathf.Epsilon)
+                return Vector2.zero;
+
+            float pulled = StaticPullScale * Mathf.Log(1f + magnitude / StaticPullScale);
+            return rawOffset * (pulled / magnitude);
+        }
+
+        /// <summary>把屏幕上的位移换回"手拉了多远"，<see cref="ApplyRubberBand"/> 的反函数。</summary>
+        private static Vector2 InverseRubberBand(Vector2 offset)
+        {
+            float magnitude = offset.magnitude;
+            if (magnitude <= Mathf.Epsilon)
+                return Vector2.zero;
+
+            // 指数是反函数自带的。位移本身长得极慢，指数不会真的炸；上限只是别把浮点喂坏。
+            float raw = StaticPullScale
+                * (Mathf.Exp(Mathf.Min(magnitude / StaticPullScale, 20f)) - 1f);
+            return offset * (raw / magnitude);
+        }
+
+        private Vector3 GetStaticOffset(SSNoirVirtualCameraConfig config)
+        {
+            return config.AuthoredRotation * new Vector3(_staticOffset.x, _staticOffset.y, 0f);
+        }
+
+        private void ApplyStaticRestPose(
+            Cinemachine.CinemachineVirtualCamera activeCamera,
+            SSNoirVirtualCameraConfig config)
+        {
+            activeCamera.transform.SetPositionAndRotation(
+                config.AuthoredPosition + GetStaticOffset(config), config.AuthoredRotation);
         }
 
         private void BeginFocusArcDrag(Cinemachine.CinemachineVirtualCamera activeCamera)
@@ -245,6 +664,13 @@ namespace SSNoir
             _focusArcDragStartPanOffset = _focusArcPanOffset;
             _focusArcDragStartYawOffset = _focusArcYawOffset;
             _focusArcDragStartPitchOffset = _focusArcPitchOffset;
+
+            if (_focusArcInputMode == CameraDragMode.Static)
+            {
+                if (_focusArcInputConfig == null)
+                    throw new System.InvalidOperationException($"[SSNoir] Static focus travel camera '{activeCamera.name}' has no camera config.");
+                BeginStaticDrag(activeCamera);
+            }
 
             _focusArcPanRight = activeCamera.transform.right;
             _focusArcPanRight.y = 0f;
@@ -278,6 +704,12 @@ namespace SSNoir
                     _focusArcDragStartPitchOffset - mouseDelta.y * _focusArcInputConfig.orbitSpeedY,
                     Mathf.Min(0f, _focusArcInputConfig.minPitch - _focusArcTargetPitch),
                     Mathf.Max(0f, _focusArcInputConfig.maxPitch - _focusArcTargetPitch));
+            }
+            else if (_focusArcInputMode == CameraDragMode.Static)
+            {
+                if (_focusArcInputConfig == null)
+                    throw new System.InvalidOperationException($"[SSNoir] Static focus travel camera '{activeCamera.name}' has no camera config.");
+                UpdateStaticDrag(activeCamera, mouseDelta);
             }
             else
             {
@@ -349,6 +781,23 @@ namespace SSNoir
             if (ReferenceEquals(brain.ActiveVirtualCamera, focusCamera) && !brain.IsBlending)
                 return false;
 
+            var config = focusCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            bool destinationUsesAuthoredPose = config != null && config.dragMode != CameraDragMode.Pan;
+            if (config != null && config.dragMode == CameraDragMode.Static)
+                ResetStaticOffset(focusCamera);
+            Vector3 targetPosition = destinationUsesAuthoredPose ? config!.AuthoredPosition : focusCamera.transform.position;
+            Quaternion targetRotation = destinationUsesAuthoredPose ? config!.AuthoredRotation : focusCamera.transform.rotation;
+            Vector3 startPosition = renderedCamera.transform.position;
+            Quaternion startRotation = renderedCamera.transform.rotation;
+
+            // 换的是相机，不是画面：目的地的取景和此刻屏幕上的一模一样。过场末镜架在下一场的
+            // 机位上正是这种情况——两台不同的 vcam，同一个构图。上面那条早退只认「同一台相机」，
+            // 认不出这个。走到这儿的任何过渡都是在原地耗时间（弧线两秒，brain 的默认混合也是
+            // 两秒），画面一动不动，看上去就是卡住了。这种情况直接切。
+            if ((targetPosition - startPosition).sqrMagnitude <= SamePoseDistance * SamePoseDistance
+                && Quaternion.Angle(targetRotation, startRotation) <= SamePoseAngle)
+                return BeginInstantFocusChange(focusCamera, brain);
+
             // Debug hard-cut is a zero-duration test path, not an accessibility effect:
             // no arc and no dissolve, just place the destination and let the brain cut.
             if (MotionSettings.DebugInstantCameraCuts)
@@ -363,12 +812,6 @@ namespace SSNoir
             if (duration <= 0.01f)
                 return false;
 
-            var config = focusCamera.GetComponent<SSNoirVirtualCameraConfig>();
-            bool destinationOrbits = config != null && config.dragMode == CameraDragMode.Orbit;
-            Vector3 targetPosition = destinationOrbits ? config!.AuthoredPosition : focusCamera.transform.position;
-            Quaternion targetRotation = destinationOrbits ? config!.AuthoredRotation : focusCamera.transform.rotation;
-            Vector3 startPosition = renderedCamera.transform.position;
-            Quaternion startRotation = renderedCamera.transform.rotation;
             float startNearClip = renderedCamera.nearClipPlane;
             float targetNearClip = focusCamera.m_Lens.NearClipPlane;
             float startFarClip = renderedCamera.farClipPlane;
@@ -406,7 +849,7 @@ namespace SSNoir
             _focusArcTargetNearClip = targetNearClip;
             _focusArcStartFarClip = startFarClip;
             _focusArcTargetFarClip = targetFarClip;
-            _focusArcInputMode = destinationOrbits ? CameraDragMode.Orbit : CameraDragMode.Pan;
+            _focusArcInputMode = config != null ? config.dragMode : CameraDragMode.Pan;
             _focusArcInputConfig = config;
             _focusArcPanOffset = Vector3.zero;
             _focusArcYawOffset = 0f;
@@ -440,8 +883,10 @@ namespace SSNoir
             ReleaseReducedPark();
 
             var config = focusCamera.GetComponent<SSNoirVirtualCameraConfig>();
-            if (config != null && config.dragMode == CameraDragMode.Orbit)
+            if (config != null && config.dragMode != CameraDragMode.Pan)
             {
+                if (config.dragMode == CameraDragMode.Static)
+                    ResetStaticOffset(focusCamera);
                 focusCamera.transform.SetPositionAndRotation(
                     config.AuthoredPosition, config.AuthoredRotation);
             }
@@ -480,12 +925,14 @@ namespace SSNoir
             ReleaseReducedPark();
 
             var config = focusCamera.GetComponent<SSNoirVirtualCameraConfig>();
-            bool destinationOrbits = config != null && config.dragMode == CameraDragMode.Orbit;
+            bool destinationUsesAuthoredPose = config != null && config.dragMode != CameraDragMode.Pan;
+            if (config != null && config.dragMode == CameraDragMode.Static)
+                ResetStaticOffset(focusCamera);
 
             // Read the destination before parking overwrites it.
             _reducedParkedCamera = focusCamera;
-            _reducedTargetPosition = destinationOrbits ? config!.AuthoredPosition : focusCamera.transform.position;
-            _reducedTargetRotation = destinationOrbits ? config!.AuthoredRotation : focusCamera.transform.rotation;
+            _reducedTargetPosition = destinationUsesAuthoredPose ? config!.AuthoredPosition : focusCamera.transform.position;
+            _reducedTargetRotation = destinationUsesAuthoredPose ? config!.AuthoredRotation : focusCamera.transform.rotation;
             _reducedTargetNearClip = focusCamera.m_Lens.NearClipPlane;
             _reducedTargetFarClip = focusCamera.m_Lens.FarClipPlane;
             _reducedParkedFrame = Time.frameCount;
@@ -596,6 +1043,9 @@ namespace SSNoir
             }
 
             Vector3 position = interest + FromPolar(yaw, pitch, radius);
+
+            if (_focusArcInputMode == CameraDragMode.Static && _focusArcInputConfig != null)
+                position += GetStaticOffset(_focusArcInputConfig);
 
             // Rotation is rebuilt from "look at the interest point" plus the framing
             // offset each shot holds against that look direction. Interpolating the
@@ -795,6 +1245,10 @@ namespace SSNoir
             if (activeCamera == null)
                 return;
 
+            var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            if (config != null && config.dragMode == CameraDragMode.Static)
+                return;
+
             _isDraggingCam = false;
 
             // A beacon click during a transition waits for the shot to land, then walks
@@ -805,7 +1259,6 @@ namespace SSNoir
             _navigationStartedAt = Time.unscaledTime;
             _navigationStartPosition = activeCamera.transform.position;
 
-            var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
             _navigationMode = config != null ? config.dragMode : CameraDragMode.Pan;
             if (_navigationMode == CameraDragMode.Orbit)
             {

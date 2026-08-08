@@ -76,12 +76,12 @@ C# 引擎把脚本求值成一棵节点树,再由前端渲染成可交互的卡�
 | 地点本地状态(任务阶段、门是否开) | 各场景 `.scm` 里的 `define` | — | 地点自己管,存档随 `world-save` 序列化 |
 
 约束:
-- `get-global/set-global!` **只管纯全局键**,不要拿它读写队伍/库存(那条字符串魔法键的旧路已删除)。
+- `get-global/set-global!` **只管纯全局键**
 - encounter 不直接写 global 通知 world,而是 `start-encounter` 传 callback、`end-encounter` 报结果。详见 [skills/write-scheme/SKILL.md](../skills/write-scheme/SKILL.md)。
 
 ### 场景切换
 - `SceneManager`:world 是一个常驻解释器;每个 encounter 是临时新建的解释器。
-- 切场景走**显式** `GoToLocation(name)`(不再由写 `location` 全局键隐式触发)。
+- 切场景走**显式** `GoToLocation(name)`
 - `world` 与 `world/world` 视为世界场景,其余皆 encounter。
 
 ### 存档
@@ -106,7 +106,7 @@ C# 引擎把脚本求值成一棵节点树,再由前端渲染成可交互的卡�
 
 ---
 
-## 5. 关键设计决策(沿用至今)
+## 5. 关键设计决策
 
 | 决策 | 选择 | 原因 |
 |---|---|---|
@@ -116,10 +116,3 @@ C# 引擎把脚本求值成一棵节点树,再由前端渲染成可交互的卡�
 | 场景切换 | 每场景一个 `.scm`,encounter 用临时解释器 | 局部状态自然丢弃 |
 | 前端可替换 | 引擎与内容不感知 UI;Terminal/Unity 并存 | 解释器和 `.scm` 完全复用 |
 | 错误处理 | 数据/逻辑错误直接 assert 中断 | 最大化健壮性,尽早暴露内容配置错误 |
-
----
-
-## 6. 已知限制与待办
-
-解释器改造方向、表现/状态同步的遗留问题见 [TODO.md](../TODO.md)。
-写 `.scm` 内容看 [skills/write-scheme/SKILL.md](../skills/write-scheme/SKILL.md);解释器能力总览见 [schemy-master/AGENTS.md](../schemy-master/AGENTS.md)。

@@ -17,6 +17,14 @@ namespace SSNoir.IMGUI
             bool isHovered = isInteractable && ui.CanHover(rect);
             bool isClicked = isInteractable && ui.WasClicked(rect);
 
+            // Buttons own the pointer event they report. Without consuming it
+            // here, a caller that changes the view (for example, Back) leaves
+            // the same MouseDown available to widgets drawn later in OnGUI.
+            if (isClicked)
+            {
+                Event.current.Use();
+            }
+
             return IMGUIStyles.DrawTechnicalButton(
                 rect,
                 label,

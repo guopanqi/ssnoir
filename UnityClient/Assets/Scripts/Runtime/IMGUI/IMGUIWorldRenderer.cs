@@ -21,6 +21,10 @@ namespace SSNoir.IMGUI
         private string? _activeAnimationTag;
         private float _animationTimer;
 
+        // 这一步的收尾归过场播放器管，Update 里的占位倒计时要让开——否则两边都会去推进
+        // 下一个剧情步骤，同一步走两次。
+        private bool _animationOwnedByCutscene;
+
         private bool _isGrowthPanelOpen = false;
         private readonly IMGUIWindowStack _windowStack = new();
 
@@ -142,8 +146,7 @@ namespace SSNoir.IMGUI
                         });
                         return;
                     case BlockingStoryStepKind.Animation:
-                        _activeAnimationTag = step.AnimationTag;
-                        _animationTimer = AnimationPlaceholderSeconds;
+                        PlayAnimationStep(step.AnimationTag);
                         return;
                 }
             }
@@ -165,6 +168,36 @@ namespace SSNoir.IMGUI
                 foreach (var sequence in report.Banter)
                     _banterPlayer.Enqueue(sequence);
             }
+        }
+
+        /// <summary>
+        /// 剧本里的 (play-animation! "tag") 落到这里：tag 认场景里同名的 CutsceneSequence，
+        /// 找到就播那场过场，播完（或被 ESC 跳过）再推进下一个阻塞步骤。
+        ///
+        /// 找不到不算错，退回原来的定时占位就行——剧本先行、镜头后补是常态，不该因为镜头还
+        /// 没配就把剧情卡死。但要出声，否则配错名字会表现成"过场莫名其妙没播"。
+        /// </summary>
+        private void PlayAnimationStep(string? tag)
+        {
+            var sequence = CutsceneSequence.Find(tag ?? string.Empty);
+            if (sequence != null)
+            {
+                _activeAnimationTag = tag;
+                _animationOwnedByCutscene = true;
+                _gameManager.Cutscene.Play(sequence, () =>
+                {
+                    _activeAnimationTag = null;
+                    _animationOwnedByCutscene = false;
+                    AdvanceToBlockingPresentationOrFinish();
+                });
+                return;
+            }
+
+            Debug.LogWarning(
+                $"[SSNoir] play-animation! 的 tag '{tag}' 在场景里找不到对应的 CutsceneSequence，"
+                + "这一步按占位时长跳过。");
+            _activeAnimationTag = tag;
+            _animationTimer = AnimationPlaceholderSeconds;
         }
 
         private const float AnimationPlaceholderSeconds = 0.8f;
@@ -198,7 +231,7 @@ namespace SSNoir.IMGUI
 
         public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null || _conversationPlayer.IsActive || _activeAnimationTag != null;
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
-        public bool IsInputLocked => _inputLocked || _activeHeavyOutcome != null || _activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _activeAnimationTag != null || _gameManager.Cutscene.IsActive;
+        public bool IsInputLocked => _inputLocked || _activeHeavyOutcome != null || _activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _activeAnimationTag != null || _gameManager.Cutscene.IsActive || _gameManager.Title.IsActive;
 
         // 与对白舞台上的左键点击共用同一套推进语义：打字中先显示全文，否则进入下一句。
         // 由 SSNoirGameManager 的全局 ESC 输入调用，避免 ESC 在对白期间落入返回导航逻辑。
@@ -304,6 +337,7 @@ namespace SSNoir.IMGUI
             _activeActionSpotlight = null;
             _activeAnimationTag = null;
             _animationTimer = 0f;
+            _animationOwnedByCutscene = false;
             _banterPlayer.Reset();
             _conversationPlayer.Reset();
             DialogueStageDrawer.BeginConversation();
@@ -329,8 +363,9 @@ namespace SSNoir.IMGUI
             _presentationPlayer.Update(Time.deltaTime);
             _banterPlayer.Update(Time.deltaTime);
 
-            // 命名动画占位:到点后推进下一个阻塞剧情步骤
-            if (_activeAnimationTag != null)
+            // 命名动画占位:到点后推进下一个阻塞剧情步骤。
+            // 归过场管的那种不在这里收尾，它自己播完会回调。
+            if (_activeAnimationTag != null && !_animationOwnedByCutscene)
             {
                 _animationTimer -= Time.deltaTime;
                 if (_animationTimer <= 0f)
@@ -380,6 +415,16 @@ namespace SSNoir.IMGUI
 
             // Initialize styles if needed
             IMGUIStyles.Init(_gameManager.ChineseFont, _gameManager.SemiboldFont);
+
+            // ── 标题菜单 ──
+            // 和影幕同一个位置、同一个道理：菜单在的时候世界照常渲染（那就是背景），但一个
+            // 游戏控件都不出现。PointerOverUI 置真，镜头也就跟着不接受拖拽了。
+            if (_gameManager.Title.IsActive)
+            {
+                _gameManager.Title.Draw(Event.current.mousePosition);
+                PointerOverUI = true;
+                return;
+            }
 
             // ── 影幕 ──
             // 排在最前面，画完就走：过场期间一个游戏控件都不该出现，玩家看到的只有实时世界
@@ -641,7 +686,6 @@ namespace SSNoir.IMGUI
                     IMGUIStyles.ExecuteLabel))
             {
                 _gameManager.RestartGame();
-                Event.current.Use();
             }
             else if (IMGUIButton.Draw(quit, "退出游戏", ui,
                          new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.50f),
@@ -649,7 +693,6 @@ namespace SSNoir.IMGUI
                          IMGUIStyles.StatusLabel))
             {
                 Application.Quit();
-                Event.current.Use();
             }
         }
 
@@ -1611,19 +1654,20 @@ namespace SSNoir.IMGUI
             // 聚光弹窗是「一封信 / 一条通告」，正文长度完全由内容决定：先量出正文换行后要多高，
             // 弹窗再照这个高度长。以前是固定 220 高 + 固定 72 高的正文框，长信要么被挤到按钮上，
             // 要么直接被裁掉。
-            const float modalW = 460f;
-            const float titleTop = 32f;
-            const float titleH = 30f;
+            const float modalW = 600f;
+            const float titleTop = 42f;
+            const float titleH = 42f;
             const float bodyTop = 14f;      // 标题与正文之间
             const float bodyToButton = 22f; // 正文与按钮之间
-            const float buttonH = 30f;
-            const float bottomPad = 22f;
-            float bodyWidth = modalW - 88f;
+            const float buttonH = 34f;
+            const float bottomPad = 26f;
+            float bodyWidth = modalW - 104f;
 
             var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
             {
                 wordWrap = true,
-                alignment = TextAnchor.UpperCenter
+                alignment = TextAnchor.UpperCenter,
+                fontSize = IMGUIStyles.FontSize(20)
             };
             bool hasBody = !string.IsNullOrWhiteSpace(spotlight.Subtitle);
             float bodyH = hasBody
@@ -1643,7 +1687,7 @@ namespace SSNoir.IMGUI
             var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle)
             {
                 alignment = TextAnchor.MiddleCenter,
-                fontSize = IMGUIStyles.FontSize(20)
+                fontSize = IMGUIStyles.FontSize(28)
             };
             GUI.Label(new Rect(modal.x + 28f, modal.y + titleTop, modal.width - 56f, titleH), spotlight.Title, titleStyle);
 

@@ -4,8 +4,11 @@ namespace SSNoir
 {
     public class NodeAnchor : MonoBehaviour
     {
-        [Tooltip("The SCM node name this anchor corresponds to.")]
-        public string NodeName;
+        [Tooltip("对应的 SCM 节点名。留空时使用此 GameObject 名。")]
+        public string NodeName = string.Empty;
+
+        /// <summary>节点名留空时，使用 Anchor 自己的 GameObject 名。</summary>
+        public string ResolvedNodeName => string.IsNullOrWhiteSpace(NodeName) ? gameObject.name : NodeName;
 
         [Tooltip("Optional virtual camera to use when this node is selected/focused.")]
         public Cinemachine.CinemachineVirtualCamera FocusVirtualCamera;

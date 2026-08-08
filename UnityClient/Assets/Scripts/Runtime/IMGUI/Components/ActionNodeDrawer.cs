@@ -127,7 +127,6 @@ namespace SSNoir.IMGUI
                 if (DrawExecuteButton(exeRect, disabled ? "不可用" : "查 看", ui, !disabled, dead: disabled))
                 {
                     interaction.CardClicked = true;
-                    Event.current.Use();
                 }
             }
             else if (allFilled && !disabled)
@@ -673,6 +672,11 @@ namespace SSNoir.IMGUI
             bool isInteractable = enabled && !ui.IsLocked;
             bool isHovered = isInteractable && ui.CanHover(rect);
             bool isClicked = isInteractable && ui.WasClicked(rect);
+
+            if (isClicked)
+            {
+                Event.current.Use();
+            }
 
             var style = new GUIStyle(IMGUIStyles.ExecuteLabel);
             if (isInteractable)
