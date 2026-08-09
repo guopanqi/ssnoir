@@ -437,20 +437,6 @@ namespace SSNoir.IMGUI
                 return;
             }
 
-            // ── Camera Crossfade (reduce-motion focus change) ──
-            // Drawn before anything else, so the frozen outgoing shot covers the live 3D
-            // and every live panel sits on top of it. Only the world dissolves; the UI is
-            // never in the frozen frame to begin with.
-            var crossfade = _gameManager.CameraManager.Crossfade;
-            var frozenView = crossfade.FrozenView;
-            if (frozenView != null)
-            {
-                var previousColor = GUI.color;
-                GUI.color = new Color(1f, 1f, 1f, crossfade.Alpha);
-                GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), frozenView);
-                GUI.color = previousColor;
-            }
-
             if (_gameManager.DisplayedSnapshot.Failure.IsFailed)
             {
                 DrawFailureOverlay(Event.current.mousePosition);

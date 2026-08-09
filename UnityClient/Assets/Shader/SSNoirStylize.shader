@@ -36,6 +36,10 @@ Shader "SSNoir/Stylize"
             #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
             #include "SSNoirStylize.hlsl"
 
+            TEXTURE2D(_CrossfadeTexture);
+            SAMPLER(sampler_CrossfadeTexture);
+            float _CrossfadeAlpha;
+
             float4 Frag(Varyings input) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
@@ -45,9 +49,16 @@ Shader "SSNoir/Stylize"
 
                 float3 display = LinearToSRGB(saturate(src.rgb));
                 float3 styled = SSNoirStylize(display, input.positionCS.xy);
+                float3 live = lerp(display, styled, saturate(_Intensity));
 
-                return float4(
-                    SRGBToLinear(lerp(display, styled, saturate(_Intensity))), src.a);
+                // 减少动画的冻帧也在显示值空间混合。若交给目标缓冲做普通 alpha blend，
+                // Editor 与 WebGL 会因 sRGB 写入状态不同得到两种亮度；白描错位叠加时尤其明显。
+                float3 frozenLinear = SAMPLE_TEXTURE2D(
+                    _CrossfadeTexture, sampler_CrossfadeTexture, input.texcoord).rgb;
+                float3 frozenDisplay = LinearToSRGB(saturate(frozenLinear));
+                float3 composed = lerp(live, frozenDisplay, saturate(_CrossfadeAlpha));
+
+                return float4(SRGBToLinear(composed), src.a);
             }
             ENDHLSL
         }

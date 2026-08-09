@@ -226,7 +226,12 @@ namespace SSNoir
         /// </summary>
         private void BeginWindDown()
         {
-            if (_letterboxRaised && _phase != Phase.LetterboxOut)
+            // 收场一旦开始就只能向前。否则 Return 阶段再次按 ESC 会倒退回 LetterboxOut，
+            // 随后重复发起回程运镜，造成镜头瞬切后重新推一次。
+            if (_phase == Phase.LetterboxOut || _phase == Phase.Return)
+                return;
+
+            if (_letterboxRaised)
             {
                 EnterPhase(Phase.LetterboxOut);
                 return;

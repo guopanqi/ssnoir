@@ -25,6 +25,14 @@ namespace SSNoir
     {
         private const string CaptureCameraName = "SSNoir.ViewCrossfade.Capture";
 
+        private static ViewCrossfade? _active;
+
+        /// <summary>由世界全屏 pass 读取；只在冻帧真正开始淡出后出现。</summary>
+        internal static RenderTexture? ActiveFrozenView => _active?.FrozenView;
+
+        /// <summary>由世界全屏 pass 读取，与 <see cref="ActiveFrozenView"/> 属于同一次溶解。</summary>
+        internal static float ActiveAlpha => _active?.Alpha ?? 0f;
+
         private readonly MonoBehaviour _runner;
 
         private RenderTexture? _frozenView;
@@ -85,6 +93,7 @@ namespace SSNoir
             _duration = duration;
             _captureFrame = Time.frameCount;
             _isCapturing = true;
+            _active = this;
         }
 
         /// <summary>每帧推进。溶解走 unscaledTime，剧本节拍锁住输入时它照样要走完。</summary>
@@ -141,6 +150,9 @@ namespace SSNoir
             _isCapturing = false;
             _isFading = false;
             Alpha = 0f;
+
+            if (ReferenceEquals(_active, this))
+                _active = null;
         }
 
         private Camera EnsureCaptureCamera()

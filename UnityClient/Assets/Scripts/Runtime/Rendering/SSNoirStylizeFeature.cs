@@ -226,6 +226,8 @@ namespace SSNoir.Rendering
         {
             private static readonly int BlitTextureId = Shader.PropertyToID("_BlitTexture");
             private static readonly int BlitScaleBiasId = Shader.PropertyToID("_BlitScaleBias");
+            private static readonly int CrossfadeTextureId = Shader.PropertyToID("_CrossfadeTexture");
+            private static readonly int CrossfadeAlphaId = Shader.PropertyToID("_CrossfadeAlpha");
             private static readonly MaterialPropertyBlock Properties = new MaterialPropertyBlock();
 
             private readonly Material _material;
@@ -270,6 +272,18 @@ namespace SSNoir.Rendering
                     Properties.Clear();
                     Properties.SetTexture(BlitTextureId, _copy);
                     Properties.SetVector(BlitScaleBiasId, new Vector4(1f, 1f, 0f, 0f));
+
+                    // 只盖主游戏相机：SceneView 和抓冻帧的辅助相机不能吃到正在进行的溶解。
+                    var frozenView = global::SSNoir.ViewCrossfade.ActiveFrozenView;
+                    bool drawCrossfade = frozenView != null
+                        && renderingData.cameraData.cameraType == CameraType.Game
+                        && ReferenceEquals(renderingData.cameraData.camera, Camera.main);
+                    Properties.SetTexture(
+                        CrossfadeTextureId, drawCrossfade ? frozenView : Texture2D.blackTexture);
+                    Properties.SetFloat(
+                        CrossfadeAlphaId,
+                        drawCrossfade ? global::SSNoir.ViewCrossfade.ActiveAlpha : 0f);
+
                     cmd.DrawProcedural(
                         Matrix4x4.identity, _material, 0, MeshTopology.Triangles, 3, 1, Properties);
                 }

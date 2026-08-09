@@ -88,5 +88,5 @@ MonoBehaviour:
     DitherScale: 2
     DitherStrength: 1
     VideoInputGamma: 1
-    VideoOutputGamma: 1.2
+    VideoOutputGamma: 1
     AffectSceneView: 1
