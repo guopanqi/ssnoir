@@ -49,6 +49,7 @@ namespace SSNoir
         private StageTransitionController _stageController = null!;
         private CutscenePlayer _cutscenePlayer = null!;
         private TitleScreen _titleScreen = null!;
+        private CityDetailOutlineController? _cityDetailOutlines;
 
         private SSNoirCameraManager _cameraManager = null!;
         private Font? _regularFont;
@@ -132,6 +133,7 @@ namespace SSNoir
                 var sdGo = new GameObject("SceneDirectory", typeof(SceneDirectory));
                 _sceneDirectory = sdGo.GetComponent<SceneDirectory>();
             }
+            _cityDetailOutlines = FindObjectOfType<CityDetailOutlineController>(true);
 
             // 5. Get pre-placed StageTransitionController (must exist in scene with Inspector fields assigned),
             //    then spawn IMGUIWorldRenderer dynamically (no Inspector fields needed).
@@ -310,6 +312,8 @@ namespace SSNoir
 
             if (focusCamera != null)
             {
+                _cityDetailOutlines?.SetFocusedCamera(focusCamera);
+
                 // An orbit building keeps its authored shot as the destination; only the
                 // path there is taken over, so the camera arcs around the building
                 // instead of blending straight through it.
@@ -789,7 +793,10 @@ namespace SSNoir
 
             var anchor = _sceneDirectory?.GetAnchor(incomingRoot.Name);
             if (anchor != null)
+            {
                 _incomingFocusContextCamera = anchor.FocusVirtualCamera;
+                _cityDetailOutlines?.SetFocusedCamera(_incomingFocusContextCamera);
+            }
         }
 
         private void EndIncomingFocusContext()
@@ -807,6 +814,7 @@ namespace SSNoir
             if (camera == null)
                 return;
 
+            _cityDetailOutlines?.SetFocusedCamera(camera);
             ResetFocusCameraPriorities();
             camera.Priority = 20;
         }

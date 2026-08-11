@@ -104,18 +104,17 @@ namespace SSNoir.Rendering
             public float DitherStrength = 1f;
 
             [Header("过场视频·传递曲线")]
-            [Tooltip("视频读进来时的提亮指数。1.0 = 原样，2.2 ≈ 按 sRGB 转一次。\n"
+            [Tooltip("视频读进来时的提亮指数。1.0 = 原样（当前直通基线），2.2 ≈ 按 sRGB 转一次。\n"
                    + "2.2 时暗部能对上世界，但线条边缘的中间调会被抬过 In White、吸成纯白，"
                    + "白线看着胖一圈——往下调到白线粗细和世界一致为止。\n"
                    + "pow 保端点，拨它不动纯黑和纯白，只动中间调。")]
             [Range(1f, 2.4f)]
-            public float VideoInputGamma = 2.2f;
+            public float VideoInputGamma = 1f;
 
-            [Tooltip("视频写回屏幕时的指数，抵消 IMGUI 目标那头的编码。\n"
-                   + "1.0 = 原样写出（整体偏亮），2.2 ≈ 转回线性（整体偏黑）。先把这个定下来，"
-                   + "再调上面那个。")]
+            [Tooltip("视频写回屏幕时的指数。1.0 = 原样写出（当前直通基线），"
+                   + "2.2 会压暗中间调。只在重新校准视频链路时调整。")]
             [Range(1f, 2.4f)]
-            public float VideoOutputGamma = 2.2f;
+            public float VideoOutputGamma = 1f;
 
             [Header("范围")]
             [Tooltip("也涂 Scene 视图。找机位时通常关掉更好使。")]
@@ -168,6 +167,14 @@ namespace SSNoir.Rendering
             ApplySettings(_material);
 
             SSNoirStylizeMaterial.Shared = _material;
+
+            // Intensity 为零时，场景 Pass 的输出就是原相机颜色；继续做一次全屏拷贝和全屏绘制
+            // 没有视觉收益。视频仍然使用 Shared 的 GUI Pass，上面的参数（尤其两个 Gamma）也仍
+            // 每帧更新；不能通过停用整个 Renderer Feature 来省这趟，否则视频会退回另一条路径。
+            // 视角切换的冻帧合成也借用场景 Pass，所以溶解期间即使 Intensity 为零仍必须执行。
+            if (settings.Intensity <= 0f
+                && global::SSNoir.ViewCrossfade.ActiveFrozenView == null)
+                return;
 
             renderer.EnqueuePass(_pass);
         }
