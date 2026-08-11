@@ -1,7 +1,6 @@
 #if UNITY_EDITOR
 #nullable enable
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEditor;
 using Cinemachine;
 using System;
@@ -12,26 +11,18 @@ namespace SSNoir.Editor
 {
     /// <summary>
     /// Automatically processes imported Blender/FBX models.
-    /// Part 0: Applies asset-specific renderer policy to the generated CityBox city.
     /// Part 1: Converts imported Camera nodes into Cinemachine Virtual Cameras and corrects Blender 100x scale offsets.
     /// Part 2: Configures camera drag mode from optional orbit pivot markers.
     /// Part 3: Identifies Anchor nodes, configures NodeAnchor components, extracts NodeNames, and links corresponding FocusVirtualCameras.
     /// </summary>
     public class SSNoirModelImporter : AssetPostprocessor
     {
-        private const string CityAssetPath =
-            "Assets/Resources/Models/Environment/City.fbx";
-        private const string CityDetailAssetDirectory =
-            "Assets/Resources/Models/Environment/CityDetailOutlines/";
-
         // Bump this whenever serialized importer output changes so existing model assets
         // are reprocessed instead of keeping stale generated VCams in the import cache.
-        public override uint GetVersion() => 4;
+        public override uint GetVersion() => 5;
 
         private void OnPostprocessModel(GameObject root)
         {
-            ApplyAssetRendererPolicy(root);
-
             var allTransforms = root.GetComponentsInChildren<Transform>(true);
             var orbitPivots = allTransforms.Where(t => IsOrbitPivotName(t.name)).ToArray();
 
@@ -163,75 +154,6 @@ namespace SSNoir.Editor
 
                 EditorUtility.SetDirty(config);
             }
-
-            if (IsCityAsset(assetPath))
-                ConfigureCityDetailOutlines(root);
-        }
-
-        private void ApplyAssetRendererPolicy(GameObject root)
-        {
-            if (!IsCityAsset(assetPath) && !IsCityDetailAsset(assetPath))
-                return;
-
-            var renderers = root.GetComponentsInChildren<Renderer>(true);
-            foreach (var modelRenderer in renderers)
-                modelRenderer.shadowCastingMode = ShadowCastingMode.Off;
-
-            Debug.Log(
-                $"[SSNoir] ModelImporter: Disabled shadow casting on " +
-                $"{renderers.Length} CityBox renderers from '{assetPath}'. " +
-                "Receive Shadows remains unchanged.");
-        }
-
-        private static bool IsCityAsset(string modelAssetPath)
-        {
-            return string.Equals(modelAssetPath, CityAssetPath, StringComparison.Ordinal);
-        }
-
-        private static bool IsCityDetailAsset(string modelAssetPath)
-        {
-            return modelAssetPath.StartsWith(
-                       CityDetailAssetDirectory, StringComparison.Ordinal)
-                   && modelAssetPath.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static void ConfigureCityDetailOutlines(GameObject root)
-        {
-            if (root.GetComponent<CityDetailOutlineController>() == null)
-                root.AddComponent<CityDetailOutlineController>();
-
-            int configured = 0;
-            foreach (Transform buildingRoot in root.transform)
-            {
-                string expectedOutlineName = "描线_" + buildingRoot.name;
-                var outlines = buildingRoot
-                    .GetComponentsInChildren<Transform>(true)
-                    .Where(candidate => string.Equals(
-                        candidate.name, expectedOutlineName, StringComparison.Ordinal))
-                    .ToArray();
-                if (outlines.Length == 0)
-                    continue;
-                if (outlines.Length > 1)
-                {
-                    throw new InvalidOperationException(
-                        $"[SSNoir] CityBox building '{buildingRoot.name}' contains " +
-                        $"{outlines.Length} Overview outlines named '{expectedOutlineName}'.");
-                }
-
-                var host = buildingRoot.GetComponent<CityDetailOutlineHost>()
-                           ?? buildingRoot.gameObject.AddComponent<CityDetailOutlineHost>();
-                host.Configure(buildingRoot.name, outlines[0].gameObject);
-                configured++;
-            }
-
-            if (configured == 0)
-            {
-                throw new InvalidOperationException(
-                    "[SSNoir] City.fbx contains no CityBox Overview outline hosts.");
-            }
-
-            Debug.Log(
-                $"[SSNoir] ModelImporter: Configured {configured} CityBox detail outline hosts.");
         }
 
         private static bool IsOrbitPivotName(string name)

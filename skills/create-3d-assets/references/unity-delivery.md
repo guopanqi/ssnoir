@@ -19,7 +19,7 @@
 2. 优先保存 `.blend`，除非目标运行链明确要求 `.fbx`。
 3. **Codex 的交付在正式 `.blend` 写入该目录时结束。**不手工伪造、等待或检查 `.meta`；也不启动、刷新或操作 Unity 来检查导入器、Console、VCam、Anchor、orbit pivot 或 Play Mode。以上 Unity 侧操作一律由用户手动完成。
 
-CityBox 整城管线是第 2 条的明确例外：独立建筑仍以同名 `.blend` 作为源资产，`tools/publish_city.sh` 连续构建并发布经过合并、三角化和语义契约校验的 Overview `City.fbx`，以及只包含细描线网格的 `CityDetailOutlines/<地点>_Outline.fbx`。它们覆盖 Unity 中的固定发布路径，但仍不由 Codex 启动 Unity 验证导入或 Play Mode 结果。
+CityBox 整城管线是第 2 条的明确例外：独立建筑仍以同名 `.blend` 作为源资产，`tools/publish_city.sh` 单次组装 `city_build.blend`，并发布经过合并、三角化和语义契约校验的唯一 `City.fbx`。该 FBX 内含建筑本体和 Low / High 两档描线；不再产生逐建筑外部 FBX。它覆盖 Unity 中的固定发布路径，但仍不由 Codex 启动 Unity 验证导入或 Play Mode 结果。
 
 ## 验证边界
 

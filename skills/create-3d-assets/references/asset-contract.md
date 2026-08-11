@@ -13,8 +13,19 @@
 - 行动 Anchor 继续使用它自己的全局 `GameNode.Name`，但可以不建专属 Camera；导入器会在该建筑子树内回退到主相机。
 - 纯视觉地标必须被显式标记为非交互。非交互地标不导出 Anchor、Camera 或 orbit pivot，不能用一个没有对应 Scheme 节点的假名字占位。
 - CityBox 的生产构建会拒绝缺少同名模型、缺少主 Anchor/Camera、重复 NodeName 或不符合上述规则的资产，而不是悄悄退回灰盒或猜测名称。
+- 发布器会静态检查每个 AnchorName 是否出现于当前 Scheme 字符串字面量中。资产与内容可以不同步到达，因此缺失只打印构建警告、不阻断 `City.fbx` 发布；这不是模糊匹配。Scheme 在运行时真正引用不存在的 Anchor 时，仍由 `SceneDirectory` 的精确契约 assert/throw。
 
 整城 `City.fbx` 是一个发布产物，不是美术源文件。重要建筑仍以独立 `.blend` 维护；CityBox 负责装配、校验并生成 FBX，Unity 只消费固定路径的整城资产与语义节点。
+
+CityBox 的 `city_report.json` 同时记录最终导出几何的总量、程序化集合和逐重要建筑统计；性能判断以这份构建账本为准，不靠打开某次 FBX 后手工估算。
+
+`CityOutlineState` 在运行时初始化唯一 `City` 根节点时，统一关闭整城子 Renderer 的 Cast Shadows，但不改 Receive Shadows。该规则不再由 ModelImporter 实现；导入的 FBX 上不挂 City 专用运行时脚本。
+
+#### City Low / High 描线
+
+`build_city.py` 从同一批模型和 `HERO_SLOTS` 单次生成 `city_build.blend`。每栋重要建筑的本体、Anchor、Camera 和 orbit pivot 只有一份，同时生成两个独立描线 Mesh：`描线_<地点>_Low` 按全城视野标定，`描线_<地点>_High` 按该建筑聚焦相机标定。普通填充建筑和基础设施只生成 Low 描线。
+
+`export_unity.py` 校验每个重要建筑恰好有一个 Low 和一个 High，然后把建筑与两档描线一起写入唯一 `City.fbx`。不再发布外置高精描线目录，也不在运行时另行加载描线资源。`CityOutlineState` 一次扫描 City 层级建立聚焦相机到 Low / High Renderer 的对应；常态开 Low 关 High，聚焦建筑时只对该建筑开 High 关 Low。Low / High 使用同一个 `M_White_Emission_Lines` 材质，不设置独立发光参数；两档只在描线几何密度和线宽上存在差异。
 
 ### Camera
 

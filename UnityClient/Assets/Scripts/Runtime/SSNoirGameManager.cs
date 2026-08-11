@@ -49,7 +49,7 @@ namespace SSNoir
         private StageTransitionController _stageController = null!;
         private CutscenePlayer _cutscenePlayer = null!;
         private TitleScreen _titleScreen = null!;
-        private CityDetailOutlineController? _cityDetailOutlines;
+        private CityOutlineState? _cityOutlines;
 
         private SSNoirCameraManager _cameraManager = null!;
         private Font? _regularFont;
@@ -133,7 +133,7 @@ namespace SSNoir
                 var sdGo = new GameObject("SceneDirectory", typeof(SceneDirectory));
                 _sceneDirectory = sdGo.GetComponent<SceneDirectory>();
             }
-            _cityDetailOutlines = FindObjectOfType<CityDetailOutlineController>(true);
+            _cityOutlines = CityOutlineState.TryCreateFromActiveScene();
 
             // 5. Get pre-placed StageTransitionController (must exist in scene with Inspector fields assigned),
             //    then spawn IMGUIWorldRenderer dynamically (no Inspector fields needed).
@@ -312,7 +312,7 @@ namespace SSNoir
 
             if (focusCamera != null)
             {
-                _cityDetailOutlines?.SetFocusedCamera(focusCamera);
+                PresentCamera(focusCamera);
 
                 // An orbit building keeps its authored shot as the destination; only the
                 // path there is taken over, so the camera arcs around the building
@@ -795,7 +795,7 @@ namespace SSNoir
             if (anchor != null)
             {
                 _incomingFocusContextCamera = anchor.FocusVirtualCamera;
-                _cityDetailOutlines?.SetFocusedCamera(_incomingFocusContextCamera);
+                PresentCamera(_incomingFocusContextCamera, anchor);
             }
         }
 
@@ -814,9 +814,33 @@ namespace SSNoir
             if (camera == null)
                 return;
 
-            _cityDetailOutlines?.SetFocusedCamera(camera);
+            PresentCamera(camera);
             ResetFocusCameraPriorities();
             camera.Priority = 20;
+        }
+
+        /// <summary>
+        /// 统一登记屏幕上即将呈现的镜头。普通聚焦相机按自身所在的建筑解析；
+        /// 独立放置的过场相机由 <paramref name="focusAnchor"/> 显式提供建筑语义。
+        /// </summary>
+        public void PresentCamera(
+            Cinemachine.CinemachineVirtualCamera? camera,
+            NodeAnchor? focusAnchor = null)
+        {
+            var outlineCamera = focusAnchor != null
+                ? focusAnchor.FocusVirtualCamera
+                : camera;
+            if (focusAnchor != null && outlineCamera == null)
+            {
+                string message =
+                    $"[SSNoir] Camera presentation anchor '{focusAnchor.ResolvedNodeName}' " +
+                    "has no FocusVirtualCamera.";
+                Debug.LogError(message);
+                UnityEngine.Assertions.Assert.IsTrue(false, message);
+                throw new InvalidOperationException(message);
+            }
+
+            _cityOutlines?.SetFocusedCamera(outlineCamera);
         }
 
         public void AdoptLatestSnapshot()
