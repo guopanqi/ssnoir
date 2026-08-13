@@ -17,6 +17,19 @@
 - Notification currently follows real runtime state immediately. Some action-result notifications can appear before the action presentation finishes, while the visible UI is still showing the previous displayed snapshot. Later, consider routing notifications through the same presentation/adopt timing model, or buffering action-scoped notifications until presentation completion.
 - **Terminal/fallback grid 的 light outcome 残留位置问题**：动作执行后真实 render tree 会立刻刷新；如果执行节点消失，当前实现可能把结果残留作为 orphan card 排到 grid 末尾，视觉上会像“卡片跑了”。更完整的方案需要让残留保留旧布局信息、或改成最近结果条，但这会增加表现层复杂度。由于最终 Unity 场景里的节点应主要投射到 3D 空间 anchor 上，grid 只是测试/临时兜底，此问题暂不修复，后续根据实际使用频率再决定是否处理。
 
+## 存档演进
+
+- **为 Scheme 世界存档建立版本化与迁移机制**：`world-save` / 各内容模块的 `save`、`load!` 目前直接以字段表交换状态。内容迭代新增、删除或改写字段时，旧存档会在模块的严格校验处中断（例如旧的 `dock-collapse` 数据缺少后来新增的 `rescued-heads`）。下个版本前要定义统一的存档版本与迁移入口：先把旧结构升级为当前结构，再交给模块的严格 `load!` 校验；迁移必须按明确版本链执行，不能让每个模块静默吞掉任意缺失字段。需要同时考虑 C# 外层 `SaveData` 与 Scheme `worldData` 的边界、模块新增/移除、默认值的叙事含义，以及可回归验证的旧版本存档样本。
+
+## 交锋倒下
+
+- **倒下必须作为交锋的显式失败收场**：当前伤势到 `7/7` 会立即送医、清空当回合骰子并回落到轻伤，但引擎不会结束正在进行的交锋；玩家仍可在下一回合继续。后续应为交锋建立 `on-collapse` / 倒下败退入口：普通交锋走既有失败结算，返回列表或多分支结果的交锋由内容声明自己的最差合法结果（例如交割的跟丢与零追回、码头坍塌的救援中断）。不得由引擎一律硬编码 `end-encounter 'fail`，以免破坏各世界模块的回调契约。
+
+## Node Icons（待重做）
+
+- 当前 `Resources/UI/NodeIcons` 的地点符号和人物头像是可用的临时版，不应视为最终美术。正式版需要逐枚重新设计和细调：地点建立一套更抽象、少细节、以轮廓和剪影为主的统一符号系统；人物以 `Resources/Portraits/Neon` 为身份与风格基准，用少量线条抓住帽子、护目镜、发型等辨识特征，而不是把完整插画缩成图标。
+- 重做时统一线宽、视觉重量、圆框、安全区和 24px 下的可读性。图标资源保持白色单色 mask，由绘制层按载体决定前景色：当前 Ink 黑卡显示白色；以后若用于浅色载体则显示黑色，不为同一语义维护两套烘焙颜色的图片。
+
 ## 思想，而非代码
 我读了那篇Control the idea, not the code，其实是指我们应该掌握代码中的思想，不应该再审查代码或者说逐行去看代码，我们应该把精力放在代码上的思想、质量测试、你用代码来干的这种设计目标等等其他东西上面。所以我觉得我们这个项目其实我需要梳理一下它的思想。
 
@@ -28,3 +41,8 @@
 我学到的最大的一个东西就是限制其实是好的，无论是IMGUI还是游戏交互方式、呈现方式上的限制，它的本身的简洁能让我们很快把注意力集中在更上层的东西上。
 
 我学到另一个东西就是还是要买这些大模型的服务。模型和产品都非常重要。一个可靠的模型非常重要，一个快速的模型也很重要。因为你的时间非常宝贵，你的注意力需要放在最重要的事情上。
+
+# 手动记录的
+卡片现在内容，我觉得需要梳理一下，不然里面内容很多。
+物品的符号，还有那个地方的UI也需要处理一下。
+时钟在空间中怎么表示呢？这也是个问题。

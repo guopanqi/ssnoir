@@ -9,6 +9,7 @@
 (define :tags ':tags)
 (define :subtitle ':subtitle)
 (define :disabled ':disabled)
+(define :anchor ':anchor)
 
 ;; Helper to extract keyword arguments from a list
 (define (get-kwarg kwargs key default)
@@ -23,15 +24,20 @@
 ;; node constructor
 ;; Returns a node expression consumed by NodeConverter.
 (define (node name . kwargs)
-  (list 'node
-        name
-        :subtitle (get-kwarg kwargs ':subtitle "")
-        :clocks (get-kwarg kwargs ':clocks '())
-        :children (get-kwarg kwargs ':children '())
-        :requires (get-kwarg kwargs ':requires #f)
-        :resolve (get-kwarg kwargs ':resolve #f)
-        :tags (get-kwarg kwargs ':tags '())
-        :disabled (get-kwarg kwargs ':disabled #f)))
+  (let ((anchor-name (get-kwarg kwargs ':anchor #f)))
+    (append
+      (list 'node
+            name
+            :subtitle (get-kwarg kwargs ':subtitle "")
+            :clocks (get-kwarg kwargs ':clocks '())
+            :children (get-kwarg kwargs ':children '())
+            :requires (get-kwarg kwargs ':requires #f)
+            :resolve (get-kwarg kwargs ':resolve #f)
+            :tags (get-kwarg kwargs ':tags '())
+            :disabled (get-kwarg kwargs ':disabled #f))
+      (if (equal? anchor-name #f)
+          '()
+          (list :anchor anchor-name)))))
 
 ;; ── 休息阻塞 ─────────────────────────────────────
 ;; 注册表只存在于当前解释器。world-load! 会先清空，再由各地点按存档状态同步。
@@ -149,13 +155,20 @@
 (define (observe text)
   (list 'observe text))
 
-;; Clock resolve constructor — wraps a make-clock render-data snapshot
+;; Clock resolve constructor — wraps exactly one make-clock render-data snapshot.
 (define (clock clock-data)
   (list 'clock clock-data))
 
-;; Clock node: a display-only node that shows a spatial clock above its anchor
-(define (clock-node name subtitle clock-data)
-  (node name :subtitle subtitle :resolve (clock clock-data)))
+;; Clock node: a display-only card. name is an internal tree identity and is not rendered.
+(define (clock-node name clock-data)
+  (node name :resolve (clock clock-data)))
+
+;; 将一组钟各自立为只读卡。clock-node 本身始终只接受一根钟。
+(define (clock-nodes . clock-datas)
+  (map (lambda (clock-data)
+         ;; 前缀只供渲染树唯一性检查使用；钟卡不渲染节点名。
+         (clock-node (string-append "钟：" (cadr clock-data)) clock-data))
+       clock-datas))
 
 ;; Cost/Requirement constructors
 (define (req-die)
@@ -540,8 +553,8 @@
   (notify! "完成一个故事小节。获得 1 点成长。"))
 
 ;; ── 伤势 ──────────────────────────────────────────────────────────
-;; 队伍只有一条身体轴：0 完好 / 1–4 轻伤（命中的能力 −1）/ 5–7 重伤（该能力 −2，少一颗骰）。
-;; 倒下不在刻度上：7/7 时再受伤才倒下。
+;; 队伍只有一条身体轴：0 完好 / 1–4 轻伤（命中的能力 −1）/ 5–6 重伤（该能力 −2，少一颗骰）。
+;; 到达 7/7 当场倒下并送医，结算后伤势回落到轻伤段。
 ;; 内容层不选部位——第一次受伤由引擎随机命中一项能力，之后的伤害都加深同一处。
 ;; 规则与档位见 Injury.cs 与 docs/城市生活设计.md §2.2。
 
@@ -588,6 +601,15 @@
 
 (define (set-actor-permanent-die-penalty! actor-id label penalty)
   (__set-actor-permanent-die-penalty! actor-id label penalty))
+
+;; 让同伴离队。一场交锋临时请来的人必须在结算时离队，否则存档会当场报错。
+(define (dismiss-companion! actor-id)
+  (__dismiss-companion! actor-id))
+
+;; 定制某个人物的骰池：几颗骰 + 恒定点数（0 = 正常掷骰）。恒定点数必须带可见标签，
+;; 它会显示成骰位上的一枚徽章。
+(define (set-actor-die-profile! actor-id slot-count fixed-value label)
+  (__set-actor-die-profile! actor-id slot-count fixed-value label))
 
 (define (has-companion? actor-id)
   (__has-companion? actor-id))

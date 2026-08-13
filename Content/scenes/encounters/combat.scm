@@ -25,15 +25,15 @@
           ((equal? msg 'reset-atk!)(atk-clock 'reset!))
           ((equal? msg 'render-data)
            (container-with-clocks
-             (string-append type " " (number->string id))
+             (string-append type (number->string id))
              (list
-               (action (string-append "压制 " type " " (number->string id))
+               (action (string-append "压制#" (number->string id))
                        (list (req-die))
                        (roll 'violence
                              (lambda () #f)                    ; 失败: 无效果
                              (lambda () (atk-clock 'reset!))   ; 中性: 仅重置敌人攻击
                              (lambda () (suppress!))))         ; 成功: 伤害加重置
-               (action (string-append "击倒 " type " " (number->string id))
+               (action (string-append "击倒#" (number->string id))
                        (list (req-die))
                        (roll 'violence
                              (lambda () #f)                    ; 失败: 无效果
@@ -105,13 +105,12 @@
 
 ;; ── Render Data Entrypoint ────────────────────
 (define (get-render-data)
-  (container-with-clocks "仓库"
+  (container "仓库"
     (append
+      (clock-nodes (exit-clock 'render-data) (spawn-clock 'render-data))
       (map (lambda (e) (e 'render-data)) (live-enemies))
       (list
         (action "冲向出口"
                 (list (req-die))
                 (instant (lambda ()
-                           (exit-clock 'tick!))))))
-    (list (exit-clock 'render-data)
-          (spawn-clock 'render-data))))
+                           (exit-clock 'tick!))))))))

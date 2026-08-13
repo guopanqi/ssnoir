@@ -102,7 +102,7 @@
 ;; ---- 段二「上心」:他放下了杯子 ----
 
 (define topic-hall
-  (list '歌厅 "歌厅" "拿邻城歌厅的名字试他" 'identity 1
+  (list '歌厅 "歌厅" "拿歌厅名字试他" 'identity 1
     "这一次你报的是真名字。他没有立刻回话。"
     "他开始说那家歌厅的台子有多大、灯有多亮。"
     "他既没认，也没否认。"
@@ -111,7 +111,7 @@
     "他站起来又坐下。'这个名字，你从哪儿听来的？'"))
 
 (define topic-ransom
-  (list '赎身 "赎身" "把「赎身钱」三个字放在桌上" 'money 1
+  (list '赎身 "赎身" "把赎身钱摆上桌" 'money 1
     "你把那三个字说出来。桌上安静了一下。"
     "他开始算那笔数目——算得很熟，像算过很多遍。"
     "他盯着你，等你先说下一句。"
@@ -373,7 +373,7 @@
 ;; ---- 主动话题的三个动词 ----
 
 (define (node-follow t)
-  (node (string-append "顺着他说 · " (t-tag t))
+  (node (string-append "顺着说·" (t-tag t))
     :subtitle "稳：坏 −1 / 中 +1 / 好 +2"
     :tags (list "低风险")
     :requires (list (req-die))
@@ -386,7 +386,7 @@
         (lambda () (push-topic! 2))))))
 
 (define (node-press t)
-  (node (string-append "半真半假地压 · " (t-tag t))
+  (node (string-append "施压·" (t-tag t))
     :subtitle "烫：坏 −2 / 中 +1 / 好 +2"
     :tags (list "高风险")
     :requires (list (req-die))
@@ -399,7 +399,7 @@
         (lambda () (push-topic! 2))))))
 
 (define (node-drink t)
-  (node (string-append "拿酒垫一句 · " (t-tag t))
+  (node (string-append "拿酒垫话·" (t-tag t))
     :subtitle "不判定，但要钱：叫一轮酒把话续上。手气差的回合的出口"
     :requires (list (req-die) (req-item "金钱" 4))
     :resolve (instant
@@ -407,7 +407,7 @@
         (lambda () (spend-up-to! "金钱" 4) (push-topic! 1))))))
 
 (define (node-drop-topic t)
-  (node (string-append "把这话放下 · " (t-tag t))
+  (node (string-append "放下·" (t-tag t))
     :subtitle "不占骰。主动收手，不结算；以后可以重开，但他听过这话"
     :resolve (instant
       (outcome "话头放下了"
@@ -415,7 +415,7 @@
 
 (define (node-topic-open t)
   (container-with-clocks
-    (string-append "话题：" (t-name t))
+    (string-append "话题·" (t-tag t))
     (list (node-follow t) (node-press t) (node-drink t) (node-drop-topic t))
     (list (list 'clock (string-append "拔河：" (t-tag t)) topic-pos topic-max 'segments
                 "0 端他收口，7 端他松口；回合末未谈完 −1。"))))
@@ -423,7 +423,7 @@
 ;; ---- 疑问的三个动词 ----
 
 (define (node-q-follow q)
-  (node (string-append "顺着他说 · 疑问" (t-tag q))
+  (node (string-append "圆话·" (t-tag q))
     :subtitle "稳：坏 −1 / 中 +1 / 好 +2"
     :tags (list "低风险")
     :requires (list (req-die))
@@ -436,7 +436,7 @@
         (lambda () (push-question! 2))))))
 
 (define (node-q-press q)
-  (node (string-append "半真半假地压 · 疑问" (t-tag q))
+  (node (string-append "压问·" (t-tag q))
     :subtitle "烫：坏 −2 / 中 +1 / 好 +2"
     :tags (list "高风险")
     :requires (list (req-die))
@@ -449,7 +449,7 @@
         (lambda () (push-question! 2))))))
 
 (define (node-q-drink q)
-  (node (string-append "拿酒垫一句 · 疑问" (t-tag q))
+  (node (string-append "拿酒挡问·" (t-tag q))
     :subtitle "不判定，但要钱：叫一轮酒把这句盖过去"
     :requires (list (req-die) (req-item "金钱" 4))
     :resolve (instant
@@ -458,7 +458,7 @@
 
 (define (node-question-open q)
   (container-with-clocks
-    (string-append "他的疑问：" (t-name q))
+    (string-append "疑问·" (t-tag q))
     (list (node-q-follow q) (node-q-press q) (node-q-drink q))
     (list (list 'clock (string-append "拔河：疑问" (t-tag q)) question-pos topic-max 'segments
                 "开在他占优的一侧；拉到 7 圆过去、疑心 −1；滑到 0 露馅、疑心 +2。"))))
@@ -490,7 +490,7 @@
 
 (define (node-topic-menu)
   (container
-    (if (= stage 1) "开个话题（段一 · 应付）" "开个话题（段二 · 上心）")
+    (if (= stage 1) "话题：应付" "话题：上心")
     (open-topic-nodes (current-pool))))
 
 ;; ============================================================
@@ -584,9 +584,7 @@
     (list (node-leave))))
 
 (define (get-render-data)
-  (container-with-clocks
-    (if (= stage 1) "照面：他还当你是掮客" "照面：他放下了杯子")
-    (scene-nodes)
-    (list (identity-clk 'render-data)
-          (money-clk 'render-data)
-          (suspicion-clk 'render-data))))
+  (container
+    (if (= stage 1) "照面：应付" "照面：上心")
+    (append (clock-nodes (identity-clk 'render-data) (money-clk 'render-data) (suspicion-clk 'render-data))
+      (scene-nodes))))

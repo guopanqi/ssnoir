@@ -6,7 +6,8 @@
     (let ((msg (car args)))
       (cond
         ((equal? msg 'render-data)
-         (list (container "剧院" (three-letters 'nodes-at "剧院"))))
+         (list (container "剧院"
+                 (append (three-letters 'nodes-at "剧院") (lin 'theater-nodes)))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
         (else #f)))))

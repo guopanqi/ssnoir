@@ -8,6 +8,7 @@ namespace SSNoir.IMGUI
     public static class DialogueBubbleDrawer
     {
         private const float BubbleWidth = 320f;
+        private const float BubbleTailHalfWidth = 10f;
 
         // 旁白说话人：内容里用「世界」写不属于任何人的叙述句。它没有身体，也就没有锚点，
         // 画成一张不署名的叙述纸条贴在底部，而不是当作一个解析不到的角色报错。
@@ -84,10 +85,22 @@ namespace SSNoir.IMGUI
                 y = anchor.yMax + 10f;   // 上方没空间就画到锚点下方
             var rect = new Rect(x, y, BubbleWidth, h);
 
-            IMGUIStyles.DrawShadow(rect, new Vector2(5f, 6f), 0.50f);
+            // 尾巴不钉在气泡正中，而是指向说话者矩形与气泡之间最近的一对边界点。
+            // 人物卡偏到气泡一侧、或气泡因顶边空间不足翻到人物下方时，它仍然准确地"说"自谁。
+            GetTail(anchor, rect, out var tailBaseA, out var tailBaseB, out var tailTip);
+
+            var shadowOffset = new Vector2(5f, 6f);
+            IMGUIStyles.DrawShadow(rect, shadowOffset, 0.50f);
+            DrawTriangle(tailBaseA + shadowOffset, tailBaseB + shadowOffset, tailTip + shadowOffset,
+                new Color(0f, 0f, 0f, 0.50f));
             GUI.color = IMGUIStyles.Paper;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
+            DrawTriangle(tailBaseA, tailBaseB, tailTip, IMGUIStyles.Paper);
+            Color outline = new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.68f);
+            IMGUIStyles.DrawOutline(rect, 1f, outline);
+            IMGUIStyles.DrawLine(tailBaseA, tailTip, outline);
+            IMGUIStyles.DrawLine(tailTip, tailBaseB, outline);
 
             var nameStyle = new GUIStyle(GUI.skin.label)
             {
@@ -102,6 +115,67 @@ namespace SSNoir.IMGUI
             return usedRemoteFallback;
         }
 
+        // 返回气泡边上的尾巴底边与落在说话人边缘的尖端。Rect.ClosestPoint 的语义不适合
+        // "点在矩形内"的情形（它会返回点本身），因此这里明确投到四条边中距离最短的一条。
+        private static void GetTail(Rect speaker, Rect bubble, out Vector2 baseA, out Vector2 baseB, out Vector2 tip)
+        {
+            tip = ClosestPointOnEdge(speaker, bubble.center);
+            Vector2 baseCenter = ClosestPointOnEdge(bubble, tip);
+
+            if (Mathf.Approximately(baseCenter.x, bubble.x) || Mathf.Approximately(baseCenter.x, bubble.xMax))
+            {
+                float y = Mathf.Clamp(baseCenter.y, bubble.y + BubbleTailHalfWidth, bubble.yMax - BubbleTailHalfWidth);
+                baseA = new Vector2(baseCenter.x, y - BubbleTailHalfWidth);
+                baseB = new Vector2(baseCenter.x, y + BubbleTailHalfWidth);
+            }
+            else
+            {
+                float x = Mathf.Clamp(baseCenter.x, bubble.x + BubbleTailHalfWidth, bubble.xMax - BubbleTailHalfWidth);
+                baseA = new Vector2(x - BubbleTailHalfWidth, baseCenter.y);
+                baseB = new Vector2(x + BubbleTailHalfWidth, baseCenter.y);
+            }
+        }
+
+        private static Vector2 ClosestPointOnEdge(Rect rect, Vector2 point)
+        {
+            float left = Mathf.Abs(point.x - rect.x);
+            float right = Mathf.Abs(point.x - rect.xMax);
+            float top = Mathf.Abs(point.y - rect.y);
+            float bottom = Mathf.Abs(point.y - rect.yMax);
+            float min = Mathf.Min(left, right, top, bottom);
+
+            if (Mathf.Approximately(min, top))
+                return new Vector2(Mathf.Clamp(point.x, rect.x, rect.xMax), rect.y);
+            if (Mathf.Approximately(min, bottom))
+                return new Vector2(Mathf.Clamp(point.x, rect.x, rect.xMax), rect.yMax);
+            if (Mathf.Approximately(min, left))
+                return new Vector2(rect.x, Mathf.Clamp(point.y, rect.y, rect.yMax));
+            return new Vector2(rect.xMax, Mathf.Clamp(point.y, rect.y, rect.yMax));
+        }
+
+        private static void DrawTriangle(Vector2 a, Vector2 b, Vector2 c, Color color)
+        {
+            if (Event.current.type != EventType.Repaint || IMGUIStyles.PieMaterial == null)
+                return;
+
+            IMGUIStyles.PieMaterial.SetPass(0);
+            GL.PushMatrix();
+            GL.LoadPixelMatrix(0, Screen.width, Screen.height, 0);
+            GL.Begin(GL.TRIANGLES);
+            GL.Color(color);
+            DrawVertex(a);
+            DrawVertex(b);
+            DrawVertex(c);
+            GL.End();
+            GL.PopMatrix();
+        }
+
+        private static void DrawVertex(Vector2 point)
+        {
+            Vector2 screenPoint = GUIUtility.GUIToScreenPoint(point);
+            GL.Vertex3(screenPoint.x, screenPoint.y, 0f);
+        }
+
         // 旁白：不署名、不指向任何人，横向居中贴在底部手牌区上方。
         private static void DrawNarration(string text)
         {
@@ -113,10 +187,16 @@ namespace SSNoir.IMGUI
             };
             bodyStyle.normal.textColor = IMGUIStyles.PaperInk;
 
-            float textW = NarrationWidth - 32f;
+            // 窄屏上 560 的固定宽度会顶到两边；收进安全区，底边坐在手牌簇上方。
+            Rect safe = UIScale.SafeArea;
+            float width = Mathf.Min(NarrationWidth, safe.width - 32f);
+            float textW = width - 32f;
             float textH = bodyStyle.CalcHeight(new GUIContent(text), textW);
             float h = 14f + textH + 14f;
-            var rect = new Rect((UIScale.VW - NarrationWidth) / 2f, UIScale.VH - 175f - h - 16f, NarrationWidth, h);
+            var rect = new Rect(
+                safe.x + (safe.width - width) / 2f,
+                safe.yMax - HandPanelDrawer.ReservedHeight - h - 16f,
+                width, h);
 
             IMGUIStyles.DrawShadow(rect, new Vector2(5f, 6f), 0.50f);
             GUI.color = IMGUIStyles.Paper;

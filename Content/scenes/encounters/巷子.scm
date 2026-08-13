@@ -27,13 +27,18 @@
 ;;   额外?：#t 表示搜身翻出了他没打算给任何人看的东西
 ;;   熟脸增 / 劳工增：第一幕用谁的路走出来的关系，由《三封信》写回城市
 ;;
-;; 城市输入：五把钥匙，各自代表你在这座城里认识了谁。
+;; 城市输入：四把普通钥匙，以及弗兰克对玩家的离散态势。
 ;; 钥匙不给专属按钮，只改开局态势——省掉的是你本来要花在开场上的那两颗骰。
 
 (define (key? name)
   (let ((v (get-global name))) (if v v #f)))
 
-(define key-frank  (key? '钥匙-弗兰克))
+(define frank-state
+  (let ((value (get-global '态势-弗兰克)))
+    (if value value "普通")))
+(if (member? frank-state (list "认可" "普通" "不信任"))
+    #t
+    (error "巷子：缺少有效的弗兰克开局态势"))
 (define key-joe    (key? '钥匙-乔))
 (define key-eddie  (key? '钥匙-埃迪))
 (define key-lottie (key? '钥匙-洛蒂))
@@ -363,13 +368,13 @@
       (play-dialogue!
         (line "世界" "你贴着那扇没有窗的门站定，脚步声才从巷子那头过来。")
         (line "世界" "他一只手扶着墙，走到门口才看见你。")
-        (line "主角" "莱恩。")
+        (line "尼尔" "莱恩。")
         (line "莱恩" "你他妈是谁——")
         (line "世界" "他认出你不是这条街上的人，转身就要走。巷子那头是墙。"))
       (play-dialogue!
         (line "世界" "脚步声先你一步到了门口。你还在堆场那头，只能从后面追出去。")
         (line "世界" "板条箱被你带倒了一摞。整条巷子都听见了。")
-        (line "主角" "莱恩。")
+        (line "尼尔" "莱恩。")
         (line "莱恩" "你他妈是谁——")
         (line "世界" "他回头，看见的是一个跑着追过来的外地人。巷子那头是墙。")))
   (if (> (crowd-clk 'current) 0)
@@ -394,7 +399,7 @@
       (if (and (< old 4) (>= new 4))
           (play-dialogue!
             (line "莱恩" "东西在我这儿。都在。")
-            (line "主角" "拿出来。")
+            (line "尼尔" "拿出来。")
             (line "莱恩" "我又不是要她的命。我就是……要点钱。你知道港口现在什么样吗？")
             (line "莱恩" "拿去。跟她说，我不写了。"))
           #f)
@@ -483,7 +488,7 @@
               (play-dialogue!
                 (line "世界" "巷口站满了人。没有人喊，也没有人动手——他们只是围上来，一步一步。")
                 (line "搬运工" "够了。他是我们的人。")
-                (line "主角" "他敲诈一个姑娘。")
+                (line "尼尔" "他敲诈一个姑娘。")
                 (line "搬运工" "那也是我们的事。")
                 (line "世界" "两只手扣住你的胳膊，把你架出了巷子。"))
               (injure!))
@@ -515,10 +520,12 @@
 
 (define (get-render-data)
   (if (= act 1)
-      (container-with-clocks "货栈后面" (act1-nodes) (act1-clocks))
-      (container-with-clocks "巷子里" (act2-nodes)
-        (list (yield-clk 'render-data)
-              (crowd-clk 'render-data)))))
+      (container "货栈后面"
+        (append (apply clock-nodes (act1-clocks))
+          (act1-nodes)))
+      (container "巷子里"
+        (append (clock-nodes (yield-clk 'render-data) (crowd-clk 'render-data))
+          (act2-nodes)))))
 
 ;; ── 开局 ────────────────────────────────────────
 ;; 他从第一个回合就在往回走。这根钟不归任何动作管。
@@ -526,12 +533,13 @@
 
 ;; ── 开局态势由钥匙决定 ──────────────────────────
 ;; 钥匙不给专属按钮，只省掉你本来要花在开场上的那两颗骰。
-;; 弗兰克：看堆场的是劳工的人，今晚他压根不在棚子里。
-(if key-frank
+;; 弗兰克认可：看堆场的人被提前调开；不信任：消息先一步传进堆场。
+(if (equal? frank-state "认可")
     (begin (watch-clk 'set! (watch-clk 'max))
            (set! watch-away? #t)
            (watch-timer 'set! watch-turns))
     #f)
+(if (equal? frank-state "不信任") (tick-n! alarm-clk 2) #f)
 ;; 酒馆老板：这一片的门道他都讲过，气灯的阀你不用现找。
 (if key-owner (tick-n! lamp-clk 2) #f)
 (if key-joe (excuse-clk 'tick!) #f)

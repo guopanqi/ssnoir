@@ -10,7 +10,8 @@
 
 - Scheme 运行时 `GameNode.Name` 是地点的唯一主键。交互建筑必须使用同一个精确名称派生正式文件与语义节点：`<地点>.blend`、整城中的建筑根节点 `<地点>`、`Anchor_<地点>`、`Camera_<地点>`。
 - 不为历史命名维护 alias 表。`剧院2`、`bar`、`老街酒吧` 之类的制作过程名必须在源资产处迁移成正式地点名。
-- 行动 Anchor 继续使用它自己的全局 `GameNode.Name`，但可以不建专属 Camera；导入器会在该建筑子树内回退到主相机。
+- 行动 Anchor 默认使用它的 `GameNode.Name`；节点也可用 Scheme `:anchor` 显式声明不同的空间锚点名。
+  Anchor 可以不建专属 Camera；导入器会在该建筑子树内回退到主相机。
 - 纯视觉地标必须被显式标记为非交互。非交互地标不导出 Anchor、Camera 或 orbit pivot，不能用一个没有对应 Scheme 节点的假名字占位。
 - CityBox 的生产构建会拒绝缺少同名模型、缺少主 Anchor/Camera、重复 NodeName 或不符合上述规则的资产，而不是悄悄退回灰盒或猜测名称。
 - 发布器会静态检查每个 AnchorName 是否出现于当前 Scheme 字符串字面量中。资产与内容可以不同步到达，因此缺失只打印构建警告、不阻断 `City.fbx` 发布；这不是模糊匹配。Scheme 在运行时真正引用不存在的 Anchor 时，仍由 `SceneDirectory` 的精确契约 assert/throw。
@@ -19,11 +20,17 @@
 
 CityBox 的 `city_report.json` 同时记录最终导出几何的总量、程序化集合和逐重要建筑统计；性能判断以这份构建账本为准，不靠打开某次 FBX 后手工估算。
 
+CityBox 的贴地层由 `build_city.py` 在生成源头按 `郊野 0.00m / 城市地面 0.30m / 干道与无基座公园 0.65m / 街区顶面 1.05m` 分层。Unity 中 `City` 整体缩放为 `0.1`，不能恢复为原来的厘米级源间距，否则透视全城镜头下会出现 z-fighting。建筑、窗光、Low/High 描线和语义节点必须通过宿主层级继承相同抬升，禁止在导出器或材质上单独追加深度偏移。
+
 `CityOutlineState` 在运行时初始化唯一 `City` 根节点时，统一关闭整城子 Renderer 的 Cast Shadows，但不改 Receive Shadows。该规则不再由 ModelImporter 实现；导入的 FBX 上不挂 City 专用运行时脚本。
 
 #### City Low / High 描线
 
 `build_city.py` 从同一批模型和 `HERO_SLOTS` 单次生成 `city_build.blend`。每栋重要建筑的本体、Anchor、Camera 和 orbit pivot 只有一份，同时生成两个独立描线 Mesh：`描线_<地点>_Low` 按全城视野标定，`描线_<地点>_High` 按该建筑聚焦相机标定。普通填充建筑和基础设施只生成 Low 描线。
+
+重要建筑的 Low 用**结构勾勒**生成（`tools/structure_outline.py`），不是 High 的删减版：先把建筑读成若干个「大面」（墙、屋顶、退台），窗洞和线脚这类贴在墙上的小起伏并进它所属的大面，只画大面之间的交界，再用 Douglas-Peucker 把交界拉直成几笔。所有判据按全城机位的屏幕像素标定。少数资产描述的不是一栋楼而是一片街区（`码头`、`码头居民区`），按 `LOW_STRUCTURE_BY_HERO` 用更粗的粒度；这是对象尺度不同，不是逐资产打补丁。`hard_edges` 作为对照路径保留在 `--low-method`。
+
+填充建筑的描线按体量筛：只有在全城机位下屏幕高度达到 `FILL_OUTLINE_MIN_H_PX` 的才生成描线，低矮的那批完全没有线，靠自身明暗和雾读出来 —— 这是有意的，不是漏生成。描线预算属于全城共享：填充侧省下来的直接还给重要建筑的 Low 档。
 
 `export_unity.py` 校验每个重要建筑恰好有一个 Low 和一个 High，然后把建筑与两档描线一起写入唯一 `City.fbx`。不再发布外置高精描线目录，也不在运行时另行加载描线资源。`CityOutlineState` 一次扫描 City 层级建立聚焦相机到 Low / High Renderer 的对应；常态开 Low 关 High，聚焦建筑时只对该建筑开 High 关 Low。Low / High 使用同一个 `M_White_Emission_Lines` 材质，不设置独立发光参数；两档只在描线几何密度和线宽上存在差异。
 
@@ -79,11 +86,15 @@ Orbit 相机必须满足：
 来源：`SSNoirModelImporter.cs`、`NodeAnchor.cs`、`SceneDirectory.cs`、`IMGUIWorldRenderer.cs`
 
 - 名字以 `anchor` 开头（忽略大小写）的 Transform 会自动获得 `NodeAnchor`。
-- `NodeName` 是对象名第一个下划线之后的全部文字；规范形式为 `Anchor_<SCM 节点名>`。
-- `NodeName` 必须与运行时 `GameNode.Name` 精确一致。中文可直接使用，例如 `Anchor_公园`。
+- `NodeName` 字段实际保存的是**空间锚点名**：它是对象名第一个下划线之后的全部文字；规范形式为
+  `Anchor_<锚点名>`。
+- 节点不写 `:anchor` 时，运行时按 `GameNode.Name` 查找同名 Anchor；找不到就进入网格布局。普通情况
+  因此仍可直接使用 `Anchor_公园`。
+- 节点显式写 `:anchor` 时，运行时改查该值；找不到会 assert/throw，不能静默退回网格。移动人物可用
+  `Anchor_夜莺@酒馆`、`Anchor_夜莺@剧院`，两个节点实例仍共享唯一身份名 `夜莺`。
 - Unity 用 Anchor 的世界坐标投射对应卡片；Anchor 应放在画面中适合悬挂卡片的位置，而不一定是几何中心。
-- 导入器在 Anchor 所属的最近资产子树内优先绑定精确名称 `Camera_<NodeName>_VCam`；行动点找不到专属相机时回退到同一子树里的主 VCam，绝不回退到整城第一个 VCam。
-- `SceneDirectory` 以 `NodeName` 为字典键。重复 NodeName 会记录错误并 assert/throw，禁止在场景中创建重复 Anchor。
+- 导入器在 Anchor 所属的最近资产子树内优先绑定精确名称 `Camera_<锚点名>_VCam`；行动点找不到专属相机时回退到同一子树里的主 VCam，绝不回退到整城第一个 VCam。
+- `SceneDirectory` 以空间锚点名为字典键。重复锚点名会记录错误并 assert/throw，禁止在场景中创建重复 Anchor。
 - 没有下划线或下划线后为空会得到空 NodeName，不会进入有效目录。
 
 ### 描边对象与材质

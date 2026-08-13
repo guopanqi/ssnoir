@@ -10,6 +10,13 @@ namespace SSNoir.Core
     // so no locking is needed.
     public static class GameRandom
     {
-        public static readonly Random Instance = new Random();
+        public static Random Instance { get; private set; } = new Random();
+
+        /// <summary>固定随机种子，让一局可以原样重放。只给离线工具用（试跑、复现某一局），
+        /// 正式游戏不调用它。</summary>
+        public static void Reseed(int seed)
+        {
+            Instance = new Random(seed);
+        }
     }
 }

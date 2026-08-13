@@ -25,6 +25,10 @@ namespace SSNoir
                + "留空则这一镜只停不放片子——镜头和影幕可以先于视频单独测。")]
         public string VideoFileName = string.Empty;
 
+        [Tooltip("这一镜要高亮的城市建筑 Anchor。\n"
+               + "过场相机独立放置时必须填；留空则按相机所在的建筑层级解析。")]
+        public NodeAnchor? FocusAnchor;
+
         public string DisplayName => gameObject.name;
 
         public CinemachineVirtualCamera Camera => GetComponent<CinemachineVirtualCamera>();

@@ -449,7 +449,7 @@ namespace SSNoir
         private StagePortalConfig? ResolvePortal(string? contextId)
         {
             if (contextId == null) return null;
-            var anchor = _gameManager.SceneDirectory?.GetAnchor(contextId);
+            var anchor = _gameManager.ResolveAnchor(contextId);
             return anchor?.GetComponent<StagePortalConfig>();
         }
     }

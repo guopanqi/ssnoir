@@ -1,12 +1,15 @@
 ;; scenes/world/world.scm - 世界协调器（城市生活第一版）
 ;; 世界拥有日期与强制公共事件；地点只拥有自己的生活内容。
 
+(load-file "world/码头坍塌.scm")
 (load-file "world/人物/乔.scm")
 (load-file "world/人物/弗兰克.scm")
+(load-file "world/人物/林.scm")
 (load-file "world/人物/阿瑟.scm")
 (load-file "world/人物/沃尔特.scm")
 (load-file "world/home.scm")
 (load-file "world/码头.scm")
+(load-file "world/试验工棚.scm")
 (load-file "world/老街酒馆.scm")
 (load-file "world/三封信.scm")
 (load-file "world/诊所.scm")
@@ -44,13 +47,13 @@
 (set-global! "relation-goal:官僚:信任" "真出事时警察封锁线放行拦车·办通行证更快")
 (set-global! "relation-goal:官僚:核心" "引荐市长秘书，遇事能求到更高处（demo 暂未开放）")
 
-;; 劳工〈生存 · 暴力 · 销赃网〉：暴力援助与销赃/借钱网络。
+;; 劳工〈生存 · 组织 · 地方保护〉：做工建立面熟，具体事迹换来有边界的人手。
 (set-global! "relation-band-name:劳工:相识" "面熟")
 (set-global! "relation-band-name:劳工:信任" "够朋友")
 (set-global! "relation-band-name:劳工:核心" "自己人")
-(set-global! "relation-goal:劳工:相识" "参与搁浅货船的紧急抢修")
-(set-global! "relation-goal:劳工:信任" "替弗兰克查账并接触旧悬案")
-(set-global! "relation-goal:劳工:核心" "走私工作；了断之日弗兰克带人到场")
+(set-global! "relation-goal:劳工:相识" "参与旧货船的限期抢修")
+(set-global! "relation-goal:劳工:信任" "在不开的船事件里替工人争到实际补偿")
+(set-global! "relation-goal:劳工:核心" "获得弗兰克认可；莱恩与首演开局得到有边界的帮助")
 
 ;; 富商〈欲望 · 资本 · 科技圈层〉：资本/投资与上流圈层。
 (set-global! "relation-band-name:富商:相识" "有往来")
@@ -77,6 +80,7 @@
   (list
     (list home            (lambda () #t))
     (list dock            (lambda () #t))
+    (list test-workshop   (lambda () (lin 'workshop-open?)))
     ;; 开场三天刻意是紧的：只有旅馆、码头、老街酒馆、布告栏、公园、诊所。
     ;; 酒馆开着是因为夜莺在那儿唱歌——委托人必须找得到人；但酒馆内部分两批放开，
     ;; 能凭空变出钱的门路（放贷的）等老街一起开，别让它拆掉交割款的压力。
@@ -128,7 +132,9 @@
     (list "police-station" (police-station 'save))
     (list "freight-company" (freight-company 'save))
     (list "joe" (joe 'save))
+    (list "dock-collapse" (dock-collapse 'save))
     (list "frank" (frank 'save))
+    (list "lin" (lin 'save))
     (list "arthur" (arthur 'save))
     (list "walter" (walter 'save))
     (list "residential-district" (residential-district 'save))
@@ -150,14 +156,23 @@
   (police-station 'load! (assoc-get data "police-station" '()))
   (freight-company 'load! (assoc-get data "freight-company" '()))
   (joe 'load! (assoc-get data "joe" '()))
+  (dock-collapse 'load! (assoc-get data "dock-collapse" '()))
   (frank 'load! (assoc-get data "frank" '()))
+  (lin 'load! (assoc-get data "lin" '()))
   (arthur 'load! (assoc-get data "arthur" '()))
   (walter 'load! (assoc-get data "walter" '()))
   (residential-district 'load! (assoc-get data "residential-district" '()))
   (theater 'load! (assoc-get data "theater" '()))
   (insurance-company 'load! (assoc-get data "insurance-company" '()))
   (board 'load! (assoc-get data "board" '()))
-  (test 'load! (assoc-get data "test" '())))
+  (test 'load! (assoc-get data "test" '()))
+  ;; 涉及多个 owner 的不变量必须等各自状态都恢复后再校验。
+  (dock-collapse 'validate-with-joe!)
+  (lin 'validate-with-collapse!)
+  (frank 'validate!)
+  (three-letters 'validate-joe-aide!)
+  (three-letters 'validate-frank-aide!)
+  (three-letters 'sync-globals!))
 
 ;; 初始同步：新游戏没有存档数据时，也要阻塞第一晚的睡眠。
 (three-letters 'sync-blockers!)

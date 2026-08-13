@@ -47,10 +47,10 @@
         (end-encounter 'mercy)))))
 
 (define (get-render-data)
-  (container-with-clocks "核赔"
-    (if (evidence-clk 'full?)
+  (container "核赔"
+    (append (clock-nodes (evidence-clk 'render-data) (suspicion-clk 'render-data))
+      (if (evidence-clk 'full?)
         (if (suspicion-clk 'full?)
             (list (node-confirm))
             (list (node-confirm) (node-mercy)))
-        (list (node-inspect) (node-listen)))
-    (list (evidence-clk 'render-data) (suspicion-clk 'render-data))))
+        (list (node-inspect) (node-listen))))))

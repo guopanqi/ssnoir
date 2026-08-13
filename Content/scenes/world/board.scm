@@ -116,7 +116,7 @@
           (else (error "布告栏：未知委托模板")))))
 
     (define (node-ask-for-rumors)
-      (node "向消息灵通的人打听"
+      (node "找人打听消息"
         :subtitle "花掉一条消息，立刻找出一张额外的临时委托"
         :requires (list (req-item "情报" 1))
         :resolve (instant

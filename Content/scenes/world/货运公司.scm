@@ -41,7 +41,7 @@
           (lambda () (spend-composure! 1) (maybe-notify-company-trouble!)))))
 
     (define (node-handle-trouble)
-      (action "摆平货运公司的麻烦"
+      (action "摆平货运麻烦"
         (list (req-die))
         (roll 'social (lambda () (关系难度修正 "富商"))
           (outcome "没压住"

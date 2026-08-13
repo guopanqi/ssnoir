@@ -14,20 +14,20 @@ namespace SSNoir.Core
     ///
     ///   0     完好
     ///   1–3   轻伤   命中的能力 −1；睡觉每晚自愈 1
-    ///   4–6   重伤   该能力 −2，并少一颗行动骰；睡觉不回
-    ///   7     倒下   强制送医，结算后回落到重伤段
+    ///   5–6   重伤   该能力 −2，并少一颗行动骰；睡觉不回
+    ///   7     倒下   强制送医，结算后回落到轻伤段
     ///
-    /// 不治疗不会自行恶化（伤势钳在当前值），倒下只由「再受一次伤」触发。这两条一起
-    /// 保证谷底永远爬得起来：治不起伤的人会被拖慢，但不会被拖进死亡螺旋。
+    /// 不治疗不会自行恶化（伤势钳在当前值）。到达满格立刻倒下，结算后回落到轻伤段，
+    /// 所以谷底仍然爬得起来，不会被拖进死亡螺旋。
     /// </summary>
     public sealed class Injury
     {
         public const int LightThreshold = 1;
         public const int SevereThreshold = 5;
-        /// <summary>刻度上限，也是伤势条的格数。满格之后再受伤才倒下。</summary>
+        /// <summary>刻度上限，也是触发倒下结算的阈值。</summary>
         public const int MaxSeverity = 7;
-        /// <summary>倒下结算后回落到的伤势：医生把你拼回来了，但你还是重伤。</summary>
-        public const int PostCollapseSeverity = 5;
+        /// <summary>倒下结算后回落到的伤势：强制送医止住危险，仍留下可自行养好的轻伤。</summary>
+        public const int PostCollapseSeverity = 2;
 
         /// <summary>一般坏结果的伤害量。</summary>
         public const int OrdinaryHarm = 1;
@@ -105,8 +105,8 @@ namespace SSNoir.Core
                 Skill = site.Skill;
                 SkillName = site.SkillName;
             }
-            // 已经满格还挨一下 → 倒下。满格本身不倒：条填满是"再挨一下就完了"的警告。
-            bool collapses = Severity >= MaxSeverity;
+            // 到达满格就倒下。不能把 7/7 画成终点、规则却要求玩家再挨一下。
+            bool collapses = Severity + amount >= MaxSeverity;
             Severity = Math.Min(MaxSeverity, Severity + amount);
             return collapses;
         }

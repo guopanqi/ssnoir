@@ -43,6 +43,7 @@
          (end-encounter 'success))))))
 
 (define (get-render-data)
-  (container-with-clocks "教训"
-    (list (node-warn) (node-pressure) (node-leave))
-    (list (lesson-clk 'render-data) (trouble-clk 'render-data))))
+  (container "教训"
+    (append (clock-nodes (lesson-clk 'render-data) (trouble-clk 'render-data))
+      (list
+          (node-warn) (node-pressure) (node-leave)))))

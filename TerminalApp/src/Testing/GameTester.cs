@@ -60,8 +60,37 @@ namespace SSNoir.Testing
                 if (sceneManager.CurrentRootNode == null)
                     throw new InvalidDataException($"Scene '{sceneName}' produced an empty world.");
 
+                if (sceneName == "world/world")
+                    AssertNodeAnchorDsl(sceneManager);
+
                 Console.WriteLine($"Validated scene '{sceneName}' with root '{sceneManager.CurrentRootNode.Name}'.");
             }
+        }
+
+        private static void AssertNodeAnchorDsl(SceneManager sceneManager)
+        {
+            var explicitExpr = sceneManager.ActiveInterpreter.Eval(
+                "(node \"锚点DSL校验\" :anchor \"锚点DSL校验@测试\")");
+            var explicitNode = NodeConverter.ConvertSingle(
+                explicitExpr, sceneManager.ActiveInterpreter.RawInterpreter);
+            if (explicitNode.AnchorName != "锚点DSL校验@测试"
+                || explicitNode.EffectiveAnchorName != "锚点DSL校验@测试"
+                || !explicitNode.HasExplicitAnchor)
+            {
+                throw new InvalidDataException("node :anchor did not survive the Scheme-to-GameNode conversion.");
+            }
+
+            var defaultExpr = sceneManager.ActiveInterpreter.Eval("(node \"默认锚点DSL校验\")");
+            var defaultNode = NodeConverter.ConvertSingle(
+                defaultExpr, sceneManager.ActiveInterpreter.RawInterpreter);
+            if (defaultNode.AnchorName != null
+                || defaultNode.EffectiveAnchorName != defaultNode.Name
+                || defaultNode.HasExplicitAnchor)
+            {
+                throw new InvalidDataException("node without :anchor did not preserve name-based fallback.");
+            }
+
+            Console.WriteLine("[validate] node :anchor DSL contract passed.");
         }
 
         // 只验证稳定的存档契约：纯全局值、类型化资源、主角状态、动态同伴及读档后重掷骰。
@@ -190,6 +219,13 @@ namespace SSNoir.Testing
             bottomState.Team.RollActionDice(isInEncounter: false);
             AssertEq("bottom-state dice", 3, bottomState.Team.FindActor("player")!.ActionDice.Count);
 
+            // 伤势刻度的终点是立即结算线，不是“再挨一次才倒下”的预告线。
+            var collapseState = new GameState();
+            collapseState.Inventory.SetCount("金钱", GameState.CollapseTreatmentFee);
+            collapseState.Team.Injure(Injury.MaxSeverity);
+            AssertEq("injury collapse at threshold", Injury.PostCollapseSeverity, collapseState.Team.Injury.Severity);
+            AssertEq("injury collapse treatment fee", 0, collapseState.Inventory.GetCount("金钱"));
+
             var hangoverState = new GameState();
             hangoverState.Team.ApplyHangover();
             hangoverState.Team.RollActionDice(isInEncounter: false, consumeHangover: false);
@@ -201,7 +237,7 @@ namespace SSNoir.Testing
             consumableState.Inventory.SetCount("香烟", 1);
             consumableState.Inventory.SetCount("酒", 1);
             // 精确花到 0（不溢出成伤势），再验证消耗品这条路接通。
-            // 冷静上限 3 之后两者不再等价：烟 +2 回不满，酒 +3 一次填满。
+            // 2 点冷静下，烟 +2 与酒 +3 都会回满；酒的额外代价是宿醉。
             // 这里守的是"消耗品被扣掉且冷静真的回了"，具体数值由 §2.2 的设计决定。
             consumableState.Team.SpendComposure("player", TeamState.MaxComposure);
             var consumableManager = new SceneManager(consumableState, new LocalScriptLoader());

@@ -26,19 +26,20 @@ namespace SSNoir.IMGUI
         private const float BeaconHeight = 68f;
         private const float BeaconGap = 8f;
         private const float EdgeInset = 8f;
-        private const float TopSafeY = 112f;
         private const float BottomSafeInset = 8f;
 
-        public static string? Draw(IReadOnlyList<ImportantNodeBeacon> beacons, IMGUIInteractionContext ui)
+        public static string? Draw(IReadOnlyList<ImportantNodeBeacon> beacons, IMGUIInteractionContext ui, float topSafeY)
         {
             if (beacons.Count == 0)
                 return null;
 
+            // 贴的是安全区的边，不是画布的边——刘海屏横屏时左右两侧会被挖掉一块。
+            Rect safe = UIScale.SafeArea;
             var safeRect = new Rect(
-                EdgeInset,
-                TopSafeY,
-                Mathf.Max(0f, UIScale.VW - EdgeInset * 2f),
-                Mathf.Max(0f, UIScale.VH - TopSafeY - BottomSafeInset));
+                safe.x + EdgeInset,
+                topSafeY,
+                Mathf.Max(0f, safe.width - EdgeInset * 2f),
+                Mathf.Max(0f, safe.yMax - topSafeY - BottomSafeInset));
             var placed = new List<Rect>(beacons.Count);
 
             foreach (var beacon in beacons)
@@ -49,7 +50,7 @@ namespace SSNoir.IMGUI
 
                 bool hovered = ui.CanHover(rect);
                 DrawBeacon(rect, beacon, hovered);
-                if (ui.WasClicked(rect))
+                if (ui.WasTapped(rect))
                 {
                     Event.current.Use();
                     return beacon.NodeName;

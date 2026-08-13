@@ -195,12 +195,25 @@ Shader "Noir/KRZ River Lines UV"
 
                 float distanceToLine = abs(coordinates.y - curve);
 
-                // Screen-space antialiasing keeps narrow lines stable when
-                // the camera is far away or viewed at an angle.
-                float antialiasing = max(fwidth(distanceToLine) * 1.35, 0.0001);
+                // Fade lines by their screen-space coverage once they become
+                // narrower than a pixel. Keeping a full-strength center at
+                // that scale produces a dotted, crosshair-like aliasing trail
+                // under distant grazing-angle cameras.
+                float pixelFootprint = max(
+                    fwidth(distanceToLine) * 1.35,
+                    0.0001
+                );
+
                 float lineMask =
                     1.0 -
-                    smoothstep(width, width + antialiasing, distanceToLine);
+                    smoothstep(
+                        width - pixelFootprint,
+                        width + pixelFootprint,
+                        distanceToLine
+                    );
+
+                float screenCoverage = saturate(width / pixelFootprint);
+                lineMask *= screenCoverage;
 
                 // Long patches fade in and out. This leaves large black areas
                 // instead of covering the river with a continuous pattern.

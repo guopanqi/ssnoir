@@ -258,12 +258,12 @@
     (list (alert 'render-data) (tool-prep 'render-data))))
 
 (define (get-render-data)
-  (container-with-clocks "大厅"
-    (list
+  (container "大厅"
+    (append
+      (clock-nodes (alert 'render-data) (safe 'render-data))
+      (list
       (node-hall-crack)
       (node-hall-tool)
       (node-power-room)
       (node-camera-room)
-      (node-storage))
-    (list (alert 'render-data)
-          (safe 'render-data))))
+      (node-storage)))))

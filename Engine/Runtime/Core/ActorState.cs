@@ -33,6 +33,19 @@ namespace SSNoir.Core
         public string PermanentDiePenaltyLabel { get; set; } = string.Empty;
         public int PermanentDiePenalty { get; set; }
 
+        // 这个人每次上场发几颗骰。默认由 role 决定（主角 4、同伴 1），但个别人物
+        // 可以带着自己的数字入队——弗兰克带一队人来，他的行动本来就不止一次。
+        public int ActionSlotCount { get; set; } = TeamState.CompanionActionSlotCount;
+
+        // 恒定骰点：这个人的骰子不掷，每次都是同一个数。它是**人物**的性质
+        // （林和他那台机器），发骰时落到骰位上，并在骰池上显示成一枚徽章。
+        public int? FixedDieValue { get; set; }
+        public string FixedDieLabel { get; set; } = string.Empty;
+
+        public bool HasDefaultDieProfile =>
+            FixedDieValue == null
+            && ActionSlotCount == TeamState.GetDefaultActionSlotCount(Role);
+
         public int SpentGrowthPoints { get; set; } = 0;
         
         public Dictionary<string, int> Stats { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)

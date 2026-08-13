@@ -79,7 +79,34 @@ namespace SSNoir.Rendering
                 new System.Numerics.Vector2(area.X + vitalsW, area.Y + area.Height - 2f),
                 1f, new Color(58, 62, 78, 150));
 
-            float x = area.X + vitalsW + 18f;
+            // 角色簇可能比底栏左半边更宽（主角四骰 + 多名同伴）。以前直接继续往右画，
+            // 第三人会压进物品区；这里把角色区当作独立横向轨道，裁剪且可滚动。
+            var viewport = new Rectangle(
+                area.X + vitalsW + 18f,
+                area.Y + 12f,
+                Math.Max(1f, area.Width - vitalsW - 18f),
+                area.Height - 14f);
+            var stageActors = snapshot.Actors.Where(actor => actor.OnStage).ToList();
+            float contentW = 0f;
+            for (int i = 0; i < stageActors.Count; i++)
+            {
+                contentW += CharacterClusterWidth(stageActors[i]);
+                if (i + 1 < stageActors.Count)
+                    contentW += 24f;
+            }
+            float maxScroll = Math.Max(0f, contentW - viewport.Width);
+            if (ui.CanHover(viewport))
+                state.HandCharactersScrollOffset -= Raylib.GetMouseWheelMove() * 36f;
+            state.HandCharactersScrollOffset = Math.Clamp(state.HandCharactersScrollOffset, 0f, maxScroll);
+
+            var characterUi = new SSNoir.TerminalApp.Rendering.UiInteractionContext
+            {
+                Mouse = ui.Mouse,
+                IsLocked = ui.IsLocked,
+                IsSuppressed = ui.IsSuppressed || !Raylib.CheckCollisionPointRec(ui.Mouse, viewport),
+            };
+            Raylib.BeginScissorMode((int)viewport.X, (int)viewport.Y, (int)viewport.Width, (int)viewport.Height);
+            float x = viewport.X - state.HandCharactersScrollOffset;
             int flatDie = 0;
             bool leadDrawn = false;
             foreach (var actor in snapshot.Actors)
@@ -99,10 +126,7 @@ namespace SSNoir.Rendering
                         1f, new Color(58, 62, 78, 150));
                 leadDrawn = true;
 
-                float diceW = actor.ActionDice.Count == 0
-                    ? 0f
-                    : actor.ActionDice.Count * TokenSize + (actor.ActionDice.Count - 1) * TokenGap;
-                float clusterW = Math.Max(150f, PoolLabelW + diceW);
+                float clusterW = CharacterClusterWidth(actor);
                 float poolX = x + PoolLabelW;
 
                 // 只画名字。Role 是内部标识（protagonist / companion），不是给玩家看的职业。
@@ -119,13 +143,31 @@ namespace SSNoir.Rendering
                         .Where(status => status.SlotId == slotId && status.DiePenalty < 0)
                         .ToList();
                     bool damaged = activeDamage.Count > 0;
-                    DrawDie(state, ui, rect, actor.ActionDice[d], globalIndex, actor.Id, slotId,
+                    DrawDie(state, characterUi, rect, actor.ActionDice[d], globalIndex, actor.Id, slotId,
                         damaged, ref interaction);
                 }
 
                 x += clusterW + 24f;
                 flatDie += actor.ActionDice.Count;
             }
+            Raylib.EndScissorMode();
+
+            if (maxScroll > 0f)
+            {
+                var track = new Rectangle(viewport.X, viewport.Y + viewport.Height - 3f, viewport.Width, 2f);
+                float thumbW = Math.Max(24f, track.Width * viewport.Width / contentW);
+                float thumbX = track.X + (track.Width - thumbW) * state.HandCharactersScrollOffset / maxScroll;
+                Raylib.DrawRectangleRec(track, new Color(58, 62, 78, 160));
+                Raylib.DrawRectangleRec(new Rectangle(thumbX, track.Y, thumbW, track.Height), new Color(150, 154, 170, 210));
+            }
+        }
+
+        private static float CharacterClusterWidth(ActorSnapshot actor)
+        {
+            float diceW = actor.ActionSlotCount == 0
+                ? 0f
+                : actor.ActionSlotCount * TokenSize + (actor.ActionSlotCount - 1) * TokenGap;
+            return Math.Max(150f, PoolLabelW + diceW);
         }
 
         // 骰池位置默认留空——没有状态就什么都不画，让人一眼看出这里干净。
@@ -133,7 +175,7 @@ namespace SSNoir.Rendering
         private static void DrawDicePoolStatus(ActorSnapshot actor, float labelX, float poolX, float y)
         {
             FontManager.DrawText("骰池", labelX, y + 5f, 9, PaperDim);
-            for (int slotId = 0; slotId < TeamState.GetActionSlotCount(actor.Role); slotId++)
+            for (int slotId = 0; slotId < actor.ActionSlotCount; slotId++)
             {
                 var statuses = GetSlotStatuses(actor, slotId);
                 if (statuses.Count == 0)
@@ -167,6 +209,8 @@ namespace SSNoir.Rendering
 
         private static string FormatPenalty(ActionSlotStatus status)
         {
+            if (status.FixedDieValue != null)
+                return $"恒{status.FixedDieValue.Value}";
             return status.DiePenalty < 0
                 ? $"-{Math.Abs(status.DiePenalty)}"
                 : $"+{status.DiePenalty}";
@@ -194,8 +238,10 @@ namespace SSNoir.Rendering
         }
 
         // 按降质幅度上色，不按标签名——标签会随内容增删，幅度才是玩家要读的东西。
+        // 恒定点数不是降质，它是这颗骰的性质，用中性色。
         private static Color StatusColor(ActionSlotStatus status)
         {
+            if (status.FixedDieValue != null) return Paper;
             return status.DiePenalty <= -2 ? SealRed : Gold;
         }
 

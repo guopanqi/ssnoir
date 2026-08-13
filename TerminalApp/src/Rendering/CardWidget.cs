@@ -502,6 +502,15 @@ namespace SSNoir.Rendering
             return Math.Max(DefaultCardHeight, controlY + SlotHeight + ControlToButtonGap + SlotButtonHeight + CardBottomPadding) + clockPushDown;
         }
 
+        /// <summary>只读钟卡按钟逐行排版；数量增加时卡片随内容增长。</summary>
+        public static float GetClockCardMinimumHeight(GameClock clock, float cardWidth)
+        {
+            float notesHeight = string.IsNullOrWhiteSpace(clock.Note)
+                ? 0f
+                : WrappedTextHeight(clock.Note, cardWidth - 20f, 10);
+            return Math.Max(DefaultCardHeight, 12f + 58f + notesHeight + 12f);
+        }
+
         // 副标题占用的高度：贴顶布局标题固定在 titleY，副标题紧随其后并按同一套换行/收缩规则处理。
         // cardWidth 必须传实际卡宽——之前这里长期写死 216f，跟 DrawCard 用的 bounds.Width-24 只在卡宽正好
         // 是 240 时凑巧一致，一旦卡宽换了两边就会悄悄对不上。
@@ -904,30 +913,20 @@ namespace SSNoir.Rendering
 
         public static void DrawClockCard(
             Rectangle bounds,
-            string name,
-            string subtitle,
-            GameClock? clock)
+            GameClock clock)
         {
             Color bgColor      = new Color(18, 22, 32, 255);
             Color outlineColor = new Color(65, 85, 130, 255);
-            Color nameColor    = new Color(140, 170, 220, 255);
-            Color subtitleColor = new Color(85, 105, 150, 255);
+            Color noteColor    = new Color(85, 105, 150, 255);
             Color clockColor   = new Color(120, 150, 230, 255);
             Color dimColor     = new Color(55, 65, 90, 255);
 
             Raylib.DrawRectangleRounded(bounds, 0.1f, 8, bgColor);
             Raylib.DrawRectangleRoundedLinesEx(bounds, 0.1f, 8, 1.5f, outlineColor);
 
-            // Name
-            int nameFontSize = 18;
-            int nameWidth = FontManager.MeasureTextWidth(name, nameFontSize);
-            FontManager.DrawText(name, bounds.X + (bounds.Width - nameWidth) / 2f, bounds.Y + 10, nameFontSize, nameColor);
-
-            // Clock display — centered vertically between name and subtitle
-            if (clock != null)
-            {
-                float clockY = bounds.Y + 36f;
-                float clockCenterX = bounds.X + bounds.Width / 2f;
+            // 一张钟卡只呈现一根钟。
+            float clockY = bounds.Y + 12f;
+            float clockCenterX = bounds.X + bounds.Width / 2f;
 
                 if (clock.Style == ClockStyle.Countdown)
                 {
@@ -981,12 +980,11 @@ namespace SSNoir.Rendering
                     int lw = FontManager.MeasureTextWidth(label, 11);
                     FontManager.DrawText(label, clockCenterX - lw / 2f, clockY + radius * 2 + 20, 11, dimColor);
                 }
-            }
 
-            // Subtitle at bottom
-            if (!string.IsNullOrEmpty(subtitle))
+            clockY += 58f;
+            if (!string.IsNullOrWhiteSpace(clock.Note))
             {
-                DrawWrappedText(subtitle, bounds.X + 8, bounds.Y + bounds.Height - 24, bounds.Width - 16, 10, subtitleColor);
+                DrawWrappedText(clock.Note, bounds.X + 10, clockY - 12f, bounds.Width - 20, 10, noteColor);
             }
         }
 
@@ -1180,6 +1178,9 @@ namespace SSNoir.Rendering
                 FontManager.DrawText(lines[i], x, y + i * (fontSize + 4), fontSize, color);
             }
         }
+
+        private static float WrappedTextHeight(string text, float width, int fontSize)
+            => WrapTextLines(text, width, fontSize).Count * (fontSize + 4);
 
         private static void DrawExecuteProgress(Rectangle rect, float progress, string text)
         {

@@ -19,15 +19,93 @@ namespace SSNoir.IMGUI
     public static class HandPanelDrawer
     {
         // 手牌方块：骰子与物品共用同一族方块（同尺寸、同底纹、同交互状态），只是内容不同。
-        private const float TokenSize   = 56f;
-        private const float TokenSpacing = 64f;    // TokenSize + 间隙
+        // 卡里的骰位（ActionNodeDrawer.DieSlot）跟着同一个数走——
+        // 拖过去的东西和接它的坑必须一样大。
+        public const float TokenSize = 50f;
+        private const float TokenSpacing = TokenSize + 8f;
 
-        private const float BottomMargin = 22f;   // 底边到屏幕底的留白
-        private const float LeftStartX   = 40f;
+        private const float BottomMargin = 22f;   // 底边到安全区底的留白
         private const float ClusterGap   = 28f;    // 两个行动者簇之间的间距
 
-        private const float BustHeight  = 190f;   // 立起来的半身像高度（主角；同伴略矮）
+        // 左右两簇贴的是安全区，不是画布——刘海屏横屏时左右各会被挖掉一块。
+        // 留白随设备走：桌面 40px 的边距搬到手机那块小得多的虚拟画布上就是一大条空地。
+        private const float SideMargin = 16f;
+
+        // 立起来的半身像高度（主角；同伴略矮）。
+        // 它是装饰，不能按固定虚拟像素走：手机的虚拟画布只有 480 上下，190 的半身像会占掉
+        // 四成屏高，把城市整个挡住。按屏高收敛，桌面上仍然是原来的 190。
+        private static float BustHeight => Mathf.Min(190f, UIScale.VH * 0.22f);
         private const float BustOverlap = 26f;    // 半身像下缘压进数值行的深度
+
+        /// <summary>
+        /// 底部两簇占掉的高度。世界内容（卡片网格等）不该压到这条线以下——
+        /// 以前渲染器那边写死一个 175，屏幕一换就对不上了。半身像不算在内：它本来就是
+        /// 故意浮在世界上方的。
+        /// </summary>
+        public static float ReservedHeight =>
+            BottomMargin + TokenSize + 4f + VitalRowH * 2f + 4f + 18f + 8f;
+
+        /// <summary>
+        /// 底部两簇里**真的要用手指点或拖**的那几块地方：左下的行动骰、右下的物品与功能键。
+        /// 世界投射卡按这几个矩形避让。
+        ///
+        /// 不是一条横贯全屏的下边界——那正是卡片叠成一摞的原因之一。底栏中段本来就是空的，
+        /// 冷静条、伤势条、名字、半身像也都是读的不是点的，卡片飘到那上面一点不影响。
+        /// 真正不能盖的只有这几个方块。
+        ///
+        /// 量和画共用同一套宽度（<see cref="ClusterWidth"/> / <see cref="FunctionWidth"/>），
+        /// 免得「让开的地方」和「实际画的地方」各算一遍、改一处忘了另一处。
+        /// </summary>
+        public static void CollectTouchBlockers(SSNoirGameManager gameManager, List<Rect> into)
+        {
+            Rect safe = UIScale.SafeArea;
+            float baseline = safe.yMax - BottomMargin;
+            // 选中的方块会上浮 4px，避让范围跟着抬这一点。
+            float blockTop = baseline - TokenSize - 4f;
+            float blockH = TokenSize + 4f;
+            var snapshot = gameManager.DisplayedSnapshot;
+
+            // 左下：在场行动者的骰池，自左向右一簇挨一簇。
+            float x = safe.x + SideMargin;
+            float clustersLeft = x;
+            bool leadDrawn = false;
+            foreach (var actor in snapshot.Actors)
+            {
+                if (!actor.OnStage)
+                    continue;
+                x += ClusterWidth(actor, isLead: !leadDrawn) + ClusterGap;
+                leadDrawn = true;
+            }
+            if (leadDrawn)
+                into.Add(new Rect(clustersLeft, blockTop, x - ClusterGap - clustersLeft, blockH));
+
+            // 右下：功能键贴着右缘，物品排在它左侧。
+            float functionW = FunctionWidth(gameManager);
+            float right = safe.xMax - SideMargin;
+            float left = right - functionW;
+            int itemCount = 0;
+            foreach (var kvp in snapshot.Inventory)
+                if (kvp.Value > 0) itemCount++;
+            if (itemCount > 0)
+                left -= 28f + (itemCount - 1) * TokenSpacing + TokenSize;
+            into.Add(new Rect(left, blockTop, right - left, blockH));
+        }
+
+        // 一个行动者簇占多宽。这里必须按固定骰位数而不是当前剩余骰数：骰子投入行动后会
+        // 从 ActionDice 列表移除，但 SlotId 仍是身体状态与空间身份的归属；若簇随剩余数收缩，
+        // 后面的同伴会横跳，剩下的骰也会看起来换了位置。
+        private static float ClusterWidth(ActorSnapshot actor, bool isLead)
+        {
+            int slotCount = actor.ActionSlotCount;
+            float diceW = slotCount > 0 ? (slotCount - 1) * TokenSpacing + TokenSize : 0f;
+            return Mathf.Max(Mathf.Max(isLead ? 176f : 150f, diceW), 172f);
+        }
+
+        // 遭遇里功能键是三块（抽烟 / 喝酒 / 休息），世界里只有一块（回家）。
+        private static float FunctionWidth(SSNoirGameManager gameManager)
+            => gameManager.SceneManager.CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase)
+                ? 92f
+                : 180f;
 
         private const float NameRowH   = 20f;   // 只在没有半身像时才占位
         private const float VitalRowH  = 22f;   // 冷静 / 伤势条那一行；字比以前大一号
@@ -46,25 +124,40 @@ namespace SSNoir.IMGUI
 
         public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors = null)
         {
-            float baseline = UIScale.VH - BottomMargin;   // 行动骰底边
-            DrawCharacters(baseline, gameManager, ui, anchors);
+            float baseline = UIScale.SafeArea.yMax - BottomMargin;   // 行动骰底边
+            DrawCharacters(baseline, gameManager, ui, anchors, drawPortraits: false, drawForeground: true);
             DrawItemsAndFunctions(baseline, gameManager, ui);
+        }
+
+        /// <summary>
+        /// 人物半身像是环境层，不承载任何可操作或需优先阅读的信息。
+        /// 在世界卡与它们的 attachment 之前先画，保证判定条、结果条和骰池不会被肖像遮住。
+        /// </summary>
+        public static void DrawPortraits(SSNoirGameManager gameManager)
+        {
+            float baseline = UIScale.SafeArea.yMax - BottomMargin;
+            DrawCharacters(baseline, gameManager, default, anchors: null, drawPortraits: true, drawForeground: false);
         }
 
         // ── 左下：人物簇 ───────────────────────────────────────────────
 
-        private static void DrawCharacters(float baseline, SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors)
+        private static void DrawCharacters(
+            float baseline,
+            SSNoirGameManager gameManager,
+            IMGUIInteractionContext ui,
+            DialogueAnchors? anchors,
+            bool drawPortraits,
+            bool drawForeground)
         {
             var snapshot = gameManager.DisplayedSnapshot;
-            float x = LeftStartX;
+            float x = UIScale.SafeArea.x + SideMargin;
             int flatDieOffset = 0;
             bool leadDrawn = false;
 
             for (int i = 0; i < snapshot.Actors.Count; i++)
             {
                 var actor = snapshot.Actors[i];
-                // 只画本场登场的人。交锋里只有主角行动，同伴连骰子都不发；再挂着他们的
-                // 名字和冷静只会让人以为还能指挥他们，整簇不画。
+                // 只画本场登场的人；未登场者没有骰子也不能被指挥，整簇不画。
                 if (!actor.OnStage)
                 {
                     flatDieOffset += actor.ActionDice.Count;
@@ -75,13 +168,15 @@ namespace SSNoir.IMGUI
                 leadDrawn = true;
 
                 // 主角与同伴之间一条淡分隔线：两簇本来只靠间距分开，人多了容易读成一片。
-                if (!isLead)
+                if (drawForeground && !isLead)
                 {
                     float sepX = x - ClusterGap * 0.5f;
                     DrawClusterSeparator(sepX, baseline);
                 }
 
-                float clusterW = DrawCluster(x, baseline, actor, flatDieOffset, isLead, snapshot, gameManager, ui, anchors);
+                float clusterW = DrawCluster(
+                    x, baseline, actor, flatDieOffset, isLead, snapshot, gameManager, ui, anchors,
+                    drawPortraits, drawForeground);
                 x += clusterW + ClusterGap;
                 flatDieOffset += actor.ActionDice.Count;
             }
@@ -90,13 +185,11 @@ namespace SSNoir.IMGUI
         // 一个行动者簇：自底向上 行动骰 →（名字）→ 冷静 →（带伤时的伤势）→ 状态说明。返回簇宽度。
         private static float DrawCluster(
             float x, float baseline, ActorSnapshot actor, int flatDieOffset, bool isLead,
-            PresentationSnapshot snapshot, SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors)
+            PresentationSnapshot snapshot, SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors,
+            bool drawPortraits, bool drawForeground)
         {
             int diceCount = actor.ActionDice.Count;
-            float diceW = diceCount > 0
-                ? (diceCount - 1) * TokenSpacing + TokenSize
-                : 0f;
-            float clusterW = Mathf.Max(isLead ? 176f : 150f, diceW);
+            float clusterW = ClusterWidth(actor, isLead);
 
             // 半身像已经说明这是谁，就不再写名字——省下的一行让条子整体往下坐，上方更宽裕。
             var neon = NeonPortraitLibrary.Load(actor.Name);
@@ -129,9 +222,13 @@ namespace SSNoir.IMGUI
                 float bustWidth = bustHeight * (uv.width / uv.height);
                 // 下缘故意压到冷静条那一行，让数值叠在人身上，而不是各占一块地。
                 var bust = new Rect(x - 6f, statusY - bustHeight + BustOverlap, bustWidth, bustHeight);
-                DrawNeonBust(bust, neon, uv);
+                if (drawPortraits)
+                    DrawNeonBust(bust, neon, uv);
                 topY = bust.y;
             }
+
+            if (!drawForeground)
+                return clusterW;
 
             // ── 名字：只有没有半身像的人才需要写出来，否则是重复信息。
             if (drawName)
@@ -164,7 +261,6 @@ namespace SSNoir.IMGUI
                 };
                 GUI.Label(new Rect(x, statusY, 240f, 16f), statusText, statusStyle);
             }
-            clusterW = Mathf.Max(clusterW, 172f);
 
             // ── 行动骰（手牌方块；选中金描边+上浮+金字；已放入卡槽降为禁用亮度）
             for (int d = 0; d < diceCount; d++)
@@ -220,10 +316,21 @@ namespace SSNoir.IMGUI
         {
             var labels = new List<string>();
             foreach (var status in actor.ActiveActionSlotStatuses)
-                labels.Add($"{status.Label}{status.DiePenalty:+#;-#}");
+                labels.Add(DescribeSlotStatus(status));
             foreach (var status in actor.PendingActionSlotStatuses)
-                labels.Add($"{status.Label}{status.DiePenalty:+#;-#}");
-            return string.Join("  ", labels);
+                labels.Add(DescribeSlotStatus(status));
+            // 同一枚状态铺在多个骰位上时（恒定点数）只说一次，不逐位重复。
+            var unique = new List<string>();
+            foreach (var label in labels)
+                if (!unique.Contains(label)) unique.Add(label);
+            return string.Join("  ", unique);
+        }
+
+        private static string DescribeSlotStatus(ActionSlotStatus status)
+        {
+            return status.FixedDieValue != null
+                ? $"{status.Label}·恒{status.FixedDieValue.Value}"
+                : $"{status.Label}{status.DiePenalty:+#;-#}";
         }
 
         // 冷静条（主角专用）：冷静是纯缓冲，中间没有档位，所以不画阈值刻度线。
@@ -411,9 +518,10 @@ namespace SSNoir.IMGUI
         private static void DrawItemsAndFunctions(float baseline, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             bool isInEncounter = !gameManager.SceneManager.CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
-            float functionW = isInEncounter ? 180f : 110f;
-            float functionH = 64f;
-            float functionX = UIScale.VW - 24f - functionW;
+            float functionW = FunctionWidth(gameManager);
+            // 功能键按 64 画在手机上是一块很大的砖；跟手牌方块取齐，一排读起来才是一排。
+            float functionH = TokenSize;
+            float functionX = UIScale.SafeArea.xMax - SideMargin - functionW;
             float functionY = baseline - functionH;
             var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel)
             {
@@ -502,7 +610,7 @@ namespace SSNoir.IMGUI
                 normal = { textColor = disabled ? DisabledResourceText : IMGUIStyles.Paper }
             };
             GUI.Label(rect, label, style);
-            if (!disabled && ui.WasClicked(rect))
+            if (!disabled && ui.WasTapped(rect))
             {
                 Event.current.Use();
                 return true;

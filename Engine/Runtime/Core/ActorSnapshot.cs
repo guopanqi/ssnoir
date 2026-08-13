@@ -15,6 +15,8 @@ namespace SSNoir.Core
         public int Composure { get; init; }
         public int SpentGrowthPoints { get; init; }
         public IReadOnlyDictionary<string, int> Stats { get; init; } = new Dictionary<string, int>();
+        /// <summary>这个人有几个骰池位置。默认由 role 决定，个别人物带自己的数字。</summary>
+        public int ActionSlotCount { get; init; }
         public IReadOnlyList<int> ActionDice { get; init; } = new List<int>();
         // 与 ActionDice 平行，是固定骰池位置编号，供客户端保持空间身份。
         public IReadOnlyList<int> ActionDiceSlotIds { get; init; } = new List<int>();
@@ -28,5 +30,7 @@ namespace SSNoir.Core
         public int SlotId { get; init; }
         public string Label { get; init; } = string.Empty;
         public int DiePenalty { get; init; }
+        /// <summary>这个位置的骰子不掷，恒定是这个点数（林那台机器）。null = 正常掷骰。</summary>
+        public int? FixedDieValue { get; init; }
     }
 }

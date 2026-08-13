@@ -51,6 +51,7 @@ namespace SSNoir.Scripting
             List<GameNode> children = new List<GameNode>();
             List<ActionCost> requires = new List<ActionCost>();
             GameResolve? resolve = null;
+            string? anchorName = null;
             string subtitle = string.Empty;
             bool disabled = false;
 
@@ -93,6 +94,12 @@ namespace SSNoir.Scripting
                 {
                     subtitle = val as string ?? string.Empty;
                 }
+                else if (kwStr == ":anchor")
+                {
+                    if (!(val is string parsedAnchor) || string.IsNullOrWhiteSpace(parsedAnchor))
+                        throw new InvalidOperationException($"Node '{name}' :anchor must be a non-empty string.");
+                    anchorName = parsedAnchor;
+                }
                 else if (kwStr == ":disabled")
                 {
                     if (!(val is bool parsedDisabled))
@@ -120,6 +127,7 @@ namespace SSNoir.Scripting
             var node = new GameNode
             {
                 Name = name,
+                AnchorName = anchorName,
                 Subtitle = subtitle,
                 Disabled = disabled,
                 Tags = tags,
@@ -266,13 +274,20 @@ namespace SSNoir.Scripting
                     ObserveText = text
                 };
             }
-            else if (typeStr == "clock" && list.Count >= 2)
+            else if (typeStr == "clock" && list.Count == 2)
             {
                 return new GameResolve
                 {
                     Type = ResolveType.Clock,
                     Clock = ParseSingleClock(list[1])
+                        ?? throw new InvalidOperationException("clock resolve contains invalid clock data")
                 };
+            }
+
+            else if (typeStr == "clock")
+            {
+                throw new InvalidOperationException(
+                    "clock resolve 必须且只能包含一根钟：每个 clock-node 对应一张单独的钟卡。");
             }
 
             throw new InvalidOperationException($"Unknown resolve type or invalid argument count: {typeStr}");

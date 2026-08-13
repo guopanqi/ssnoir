@@ -1,4 +1,6 @@
 #nullable enable
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using SSNoir.Core;
 
@@ -15,22 +17,46 @@ namespace SSNoir.IMGUI
         private static readonly Color Paper35 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
 
         // ── 纵向流量（测量与绘制共用）─────────────────────────────────
-        // 这一组常量是「卡有多高」和「东西画在哪」的同一份定义。地点卡的建筑线稿、人物卡的
-        // 照片都按内容宽度推出首选尺寸，卡片再按这个尺寸长高——而不是反过来，把图形塞进一个
-        // 与内容无关的固定卡高里（那样一挤就退化成光秃秃的名牌）。
+        // 这一组常量是「卡有多高」和「东西画在哪」的同一份定义。人物卡的照片按内容宽度推出
+        // 首选尺寸，卡片再按这个尺寸长高——而不是反过来，把图形塞进一个与内容无关的固定卡高里
+        // （那样一挤就退化成光秃秃的名牌）。
         private const float ContentPad = 14f;
         private const float TitleH = 26f;
         private const float GapAfterClocks = 10f;
-        private const float GapGlyphToLine = 14f;
-        private const float GapLineToTitle = 12f;
         private const float PhotoTopPad = 16f;
         private const float GapPhotoToTitle = 12f;
-        private const float MaxPhotoHeight = 168f;
+        // 人物照在手机上不能按 168 画：一张人物卡光照片就占掉三成屏高，
+        // 和它旁边的动作卡一起就再也排不开了。
+        private const float MaxPhotoHeight = 120f;
 
-        private static float PreferredGlyphHeight(float cardWidth) => Mathf.Min(72f, cardWidth * 0.7f / 1.1f);
+        // ── 地点牌（一行读完）─────────────────────────────────────────
+        // 地点卡是「这儿有个地方」，不是一张插画。以前它上面顶着一枚半张卡高的建筑线稿，
+        // 一间酒馆的牌子就有一百五十像素高——同一栋楼挂三四个动作时，光地名牌就先把竖向
+        // 空间吃掉，剩下的卡只能叠成一摞。现在收成一行：有同名节点图时左边显示图标，右边地名；
+        // 没有图时只显示地名。
+        private const float LocationPadX = 14f;
+        private const float LocationIconSize = 24f;
+        private const float GapIconToName = 10f;
+        private const float LocationRowH = 28f;
+        private const string NodeIconResourceDirectory = "UI/NodeIcons";
+        private static readonly IReadOnlyDictionary<string, Texture2D> NodeIcons = LoadNodeIcons();
+        // 牌子再小也要好点：不低于一个手指目标。
+        private static float MinLocationHeight => UIScale.MinTouchSize;
 
         private static float PreferredPhotoHeight(float cardWidth)
             => Mathf.Min((cardWidth - 32f) * 0.72f, MaxPhotoHeight);
+
+        // 地点牌按「可选图标 + 一个地名」实际需要多宽收敛：叫「家」的地方不该和「老街酒馆」
+        // 占一样宽。窄卡在屏幕上少占地方，同一栋楼的几张卡也就更容易各自让开。
+        // 下限保证带时钟徽章的牌子仍排得开，上限压住长地名。
+        public static float PreferredLocationWidth(GameNode node)
+        {
+            float nameW = new GUIStyle(IMGUIStyles.CardTitle).CalcSize(new GUIContent(node.Name)).x;
+            float iconW = NodeIcon(node) != null ? LocationIconSize + GapIconToName : 0f;
+            return Mathf.Clamp(
+                LocationPadX * 2f + iconW + nameW,
+                136f, 260f);
+        }
 
         // 副标题按实际换行结果占高（上限 4 行左右），不再固定「剩下多少算多少」。
         private static float MeasureSubtitleHeight(GameNode node, float cardWidth)
@@ -44,11 +70,11 @@ namespace SSNoir.IMGUI
         private static float ClocksBlock(float clocksHeight)
             => clocksHeight > 0f ? clocksHeight + GapAfterClocks : ContentPad;
 
+        // 地点牌不套 MinCardHeight：那个下限是给「里面有东西要操作」的卡定的，
+        // 地名牌整张就是一个点击目标，按 MinTouchSize 兜底就够。
         public static float MeasureLocationHeight(GameNode node, float cardWidth, float clocksHeight)
         {
-            return Mathf.Max(CardDrawer.MinCardHeight, ClocksBlock(clocksHeight)
-                + PreferredGlyphHeight(cardWidth) + GapGlyphToLine + GapLineToTitle
-                + TitleH + ContentPad);
+            return Mathf.Max(MinLocationHeight, ClocksBlock(clocksHeight) + LocationRowH + ContentPad);
         }
 
         public static float MeasureCommonHeight(GameNode node, float cardWidth, float clocksHeight)
@@ -70,8 +96,8 @@ namespace SSNoir.IMGUI
 
         // ── 无边悬浮（地点 / 普通）──────────────────────────────────────
 
-        // Ink 填充 + 放大硬投影（无模糊），去描边。地点画建筑线稿 + 地平线 + 地名；
-        // 普通画标题（+副标题）。矮框退化为只有名字的悬浮名牌。
+        // Ink 填充 + 放大硬投影（无模糊），去描边。地点画一行「可选图标 + 地名」；
+        // 普通画「可选图标 + 标题」（+副标题）。矮框退化为只有名字的悬浮名牌。
         // clocksBottomY：CardDrawer 量出的时钟徽章底部 Y（无徽章时等于 rect.y）——内容要让开这块，
         // 不然徽章一多、换了行，标题/图标就会被压在下面。
         public static void DrawFloating(Rect rect, GameNode node, bool isLocation, bool hover, bool disabled, float clocksBottomY)
@@ -90,53 +116,56 @@ namespace SSNoir.IMGUI
                 DrawCommonBody(rect, node, line, clocksBottomY);
         }
 
-        // 地点：上=白色线稿建筑符号，中=一根白色地平线，下=白字地名。矮框退化为悬浮名牌。
-        // 判断「矮不矮」不能只看卡片原始高度——时钟徽章会先把内容起点往下推，卡片本身够高
-        // 但徽章一多照样挤不下建筑符号，所以按「让开徽章后还剩多少」(availH) 来判断退化，
-        // 而不是 rect.height 本身。
+        // 地点：一行读完——存在同名节点图时左边显示图标，右边地名（左对齐）。
+        //
+        // 图标只是节点的识别标记，不是插画，所以尺寸不跟卡宽走；地名才是要读的东西，
+        // 占掉这一行剩下的全部宽度。
+        // 时钟徽章会先把内容起点往下推，所以这一行按「让开徽章后还剩多少」(availH) 落位，
+        // 空间不够时先收窄符号、再由 Clip 兜底，绝不画到卡外面。
         private static void DrawLocationBody(Rect rect, GameNode node, Color line, float clocksBottomY)
         {
             bool hasClocks = clocksBottomY > rect.y;
             float contentTop = hasClocks ? clocksBottomY + GapAfterClocks : rect.y + ContentPad;
-            float availH = rect.yMax - contentTop;
-
-            if (availH < 90f)
-            {
-                var plateRect = new Rect(rect.x, contentTop, rect.width, Mathf.Max(0f, availH));
-                var plateStyle = new GUIStyle(IMGUIStyles.CardTitle)
-                {
-                    fontSize = IMGUIStyles.FontSize(15),
-                    alignment = TextAnchor.MiddleCenter,
-                    clipping = TextClipping.Clip,
-                    normal = { textColor = line }
-                };
-                GUI.Label(plateRect, node.Name, plateStyle);
+            // 与 MeasureLocationHeight 同一份流量：内容区下面还留一个 ContentPad。
+            float availH = rect.yMax - ContentPad - contentTop;
+            // 徽章占掉太多、按流量已经没地方了：挤到卡底也要把地名画出来，不能什么都不画。
+            if (availH < LocationRowH)
+                availH = Mathf.Min(LocationRowH, rect.yMax - contentTop);
+            if (availH <= 0f)
                 return;
-            }
 
-            // 建筑线稿用与 MeasureLocationHeight 同一个首选尺寸；卡片按内容定高时两者正好吻合，
-            // 卡被外部钉成更矮的尺寸时再按剩余空间收缩（瘦高卡也不会把线稿横向撑出卡外）。
-            float blockH = PreferredGlyphHeight(rect.width) + GapGlyphToLine + GapLineToTitle + TitleH;
-            float iconH = Mathf.Max(24f, PreferredGlyphHeight(rect.width) - Mathf.Max(0f, blockH - availH));
-            float iconTop = contentTop + Mathf.Max(0f, (availH - (iconH + GapGlyphToLine + GapLineToTitle + TitleH)) * 0.5f);
-            var iconArea = new Rect(rect.center.x - iconH * 0.55f, iconTop, iconH * 1.1f, iconH);
-            DrawBuildingGlyph(iconArea, line);
-
-            float lineY = iconArea.yMax + GapGlyphToLine;
-            IMGUIStyles.DrawLine(
-                new Vector2(rect.x + rect.width * 0.14f, lineY),
-                new Vector2(rect.xMax - rect.width * 0.14f, lineY), line, 1.5f);
+            float rowH = Mathf.Min(LocationRowH, availH);
+            float rowY = contentTop + (availH - rowH) * 0.5f;
 
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle)
             {
-                alignment = TextAnchor.MiddleCenter,
+                alignment = TextAnchor.MiddleLeft,
                 clipping = TextClipping.Clip,
                 normal = { textColor = line }
             };
-            GUI.Label(new Rect(rect.x + 8f, lineY + GapLineToTitle, rect.width - 16f, TitleH), node.Name, titleStyle);
+
+            float nameX = rect.x + LocationPadX;
+            var icon = NodeIcon(node);
+            if (icon != null)
+            {
+                float iconH = Mathf.Min(LocationIconSize, rowH);
+                var iconArea = new Rect(
+                    nameX,
+                    rowY + (rowH - iconH) * 0.5f,
+                    iconH,
+                    iconH);
+                GUI.color = line;
+                GUI.DrawTexture(iconArea, icon, ScaleMode.ScaleToFit, true);
+                GUI.color = Color.white;
+                nameX = iconArea.xMax + GapIconToName;
+            }
+
+            GUI.Label(
+                new Rect(nameX, rowY, Mathf.Max(0f, rect.xMax - LocationPadX - nameX), rowH),
+                node.Name, titleStyle);
         }
 
-        // 普通：标题（+副标题）居中。无图形、无地平线——与地点区分。标题跟随悬停变亮。
+        // 普通：可选的同名节点图 + 标题（+副标题）整体居中。标题跟随悬停变亮。
         private static void DrawCommonBody(Rect rect, GameNode node, Color line, float clocksBottomY)
         {
             float subtitleH = MeasureSubtitleHeight(node, rect.width);
@@ -155,7 +184,31 @@ namespace SSNoir.IMGUI
                 clipping = TextClipping.Clip,
                 normal = { textColor = line }
             };
-            GUI.Label(new Rect(rect.x + 10f, startY, rect.width - 20f, TitleH), node.Name, titleStyle);
+
+            var icon = NodeIcon(node);
+            if (icon == null)
+            {
+                GUI.Label(new Rect(rect.x + 10f, startY, rect.width - 20f, TitleH), node.Name, titleStyle);
+            }
+            else
+            {
+                float iconH = Mathf.Min(LocationIconSize, TitleH);
+                float nameW = Mathf.Min(
+                    titleStyle.CalcSize(new GUIContent(node.Name)).x,
+                    Mathf.Max(0f, rect.width - 20f - iconH - GapIconToName));
+                float groupW = iconH + GapIconToName + nameW;
+                float groupX = rect.center.x - groupW * 0.5f;
+                var iconArea = new Rect(groupX, startY + (TitleH - iconH) * 0.5f, iconH, iconH);
+                GUI.color = line;
+                GUI.DrawTexture(iconArea, icon, ScaleMode.ScaleToFit, true);
+                GUI.color = Color.white;
+
+                titleStyle.alignment = TextAnchor.MiddleLeft;
+                GUI.Label(
+                    new Rect(iconArea.xMax + GapIconToName, startY, nameW, TitleH),
+                    node.Name,
+                    titleStyle);
+            }
 
             if (subtitleH > 0f)
             {
@@ -170,23 +223,27 @@ namespace SSNoir.IMGUI
             }
         }
 
-        // 建筑线稿占位（缺省通用符号）：三角屋顶 + 方形楼身 + 中缝门线。
-        // 资产到位后可替换为木刻/版画白线符号；未提供时所有地点都画它。
-        private static void DrawBuildingGlyph(Rect area, Color line)
+        private static Texture2D? NodeIcon(GameNode node)
         {
-            float cx = area.center.x;
-            float roofBaseY = area.y + area.height * 0.42f;
-            float bodyW = area.width * 0.66f;
-            float left = cx - bodyW / 2f;
-            float right = cx + bodyW / 2f;
-            var apex = new Vector2(cx, area.y);
+            return NodeIcons.TryGetValue(node.Name, out var icon) ? icon : null;
+        }
 
-            IMGUIStyles.DrawLine(apex, new Vector2(left, roofBaseY), line, 1.5f);
-            IMGUIStyles.DrawLine(apex, new Vector2(right, roofBaseY), line, 1.5f);
+        private static IReadOnlyDictionary<string, Texture2D> LoadNodeIcons()
+        {
+            var iconsByNodeName = new Dictionary<string, Texture2D>(StringComparer.Ordinal);
+            foreach (var icon in Resources.LoadAll<Texture2D>(NodeIconResourceDirectory))
+            {
+                if (iconsByNodeName.ContainsKey(icon.name))
+                {
+                    throw new InvalidOperationException(
+                        $"[SSNoir] Duplicate node icon '{icon.name}' under " +
+                        $"Resources/{NodeIconResourceDirectory}. Node icon names must be unique.");
+                }
 
-            var body = new Rect(left, roofBaseY, bodyW, area.yMax - roofBaseY);
-            IMGUIStyles.DrawOutline(body, 1.5f, line);
-            IMGUIStyles.DrawLine(new Vector2(cx, roofBaseY + body.height * 0.35f), new Vector2(cx, area.yMax), line, 1f);
+                iconsByNodeName.Add(icon.name, icon);
+            }
+
+            return iconsByNodeName;
         }
 
         // ── 人物相册页（走共享卡框架）──────────────────────────────────

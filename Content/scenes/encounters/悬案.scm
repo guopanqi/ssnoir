@@ -43,8 +43,8 @@
       (end-encounter 'fail))))
 
 (define (get-render-data)
-  (container-with-clocks "悬案"
-    (if (clue-clk 'full?)
+  (container "悬案"
+    (append (clock-nodes (clue-clk 'render-data) (alarm-clk 'render-data))
+      (if (clue-clk 'full?)
         (list (node-correct) (node-wrong))
-        (list (node-ledger) (node-witness)))
-    (list (clue-clk 'render-data) (alarm-clk 'render-data))))
+        (list (node-ledger) (node-witness))))))

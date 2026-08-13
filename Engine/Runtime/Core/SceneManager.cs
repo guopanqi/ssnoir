@@ -158,10 +158,14 @@ namespace SSNoir.Core
             LoadScene(name);
         }
 
+        /// <summary>最后一次交锋结算交回来的值。正式流程由回调消费，这里留一份供离线试跑读取。</summary>
+        public object? LastEncounterResult { get; private set; }
+
         public void EndEncounter(object? result = null)
         {
             if (_encounterEnded) return;
             _encounterEnded = true;
+            LastEncounterResult = result;
 
             var cb = _encounterCallback;
             _encounterCallback = null;
@@ -282,6 +286,10 @@ namespace SSNoir.Core
             var rawData = active.Eval("(get-render-data)");
             var rootNode = NodeConverter.ConvertSingle(rawData, active.RawInterpreter);
 
+            if (rootNode.Clocks.Count > 0)
+                throw new InvalidOperationException(
+                    "根容器不能挂 :clocks：根节点不会被渲染为卡。请改用 clock-node 作为第一个子节点。");
+
             AssertUniqueNodeNames(rootNode);
             CurrentRootNode = rootNode;
 
@@ -335,6 +343,7 @@ namespace SSNoir.Core
                     Composure = actor.Composure,
                     SpentGrowthPoints = actor.SpentGrowthPoints,
                     Stats = new Dictionary<string, int>(actor.Stats),
+                    ActionSlotCount = actor.ActionSlotCount,
                     ActionDice = actor.ActionDice.ToArray(),
                     ActionDiceSlotIds = actor.ActionDiceSlotIds.ToArray(),
                     ActiveActionSlotStatuses = _gameState.Team.GetActiveActionSlotStatuses(actor),
@@ -375,18 +384,29 @@ namespace SSNoir.Core
 
         private static void AssertUniqueNodeNames(GameNode rootNode)
         {
-            var seen = new HashSet<string>(StringComparer.Ordinal);
-            AssertUniqueNodeNamesRecursive(rootNode, seen);
+            var firstPaths = new Dictionary<string, string>(StringComparer.Ordinal);
+            AssertUniqueNodeNamesRecursive(rootNode, "", firstPaths);
         }
 
-        private static void AssertUniqueNodeNamesRecursive(GameNode node, HashSet<string> seen)
+        private static void AssertUniqueNodeNamesRecursive(
+            GameNode node,
+            string parentPath,
+            Dictionary<string, string> firstPaths)
         {
-            Debug.Assert(!seen.Contains(node.Name),
-                $"重复节点名称: \"{node.Name}\"。节点名称在整棵渲染树中必须唯一。");
-            seen.Add(node.Name);
+            string path = string.IsNullOrEmpty(parentPath)
+                ? node.Name
+                : $"{parentPath} > {node.Name}";
+            if (firstPaths.TryGetValue(node.Name, out string? firstPath))
+            {
+                throw new InvalidOperationException(
+                    $"重复节点名称: \"{node.Name}\"。节点名称在整棵渲染树中必须唯一。"
+                    + $"\n首次出现: {firstPath}"
+                    + $"\n再次出现: {path}");
+            }
+            firstPaths[node.Name] = path;
             foreach (var child in node.Children)
             {
-                AssertUniqueNodeNamesRecursive(child, seen);
+                AssertUniqueNodeNamesRecursive(child, path, firstPaths);
             }
         }
 
@@ -561,12 +581,6 @@ namespace SSNoir.Core
                             throw new InvalidOperationException($"Actor '{actorId}' is not active (status: {a.Status}).");
                         }
 
-                        string currentMode = CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase) ? "world" : "encounter";
-                        if (currentMode == "encounter" && a.Role == "companion")
-                        {
-                            throw new InvalidOperationException($"Companions cannot act in encounter mode (slotted actor: {actorId}).");
-                        }
-
                         int slotId = slot.DieIndex >= 0 ? slot.DieIndex : slot.SourceIndex;
                         int idx = a.ActionDiceSlotIds.IndexOf(slotId);
                         if (idx < 0)
@@ -613,11 +627,8 @@ namespace SSNoir.Core
                 throw new InvalidOperationException($"Actor '{activeActorId}' is not active (status: {actor.Status}).");
             }
 
+            // 谁能出手由「他在不在队里」决定（TeamState.IsOnStage），不在这里按场景类型另判一次。
             string mode = CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase) ? "world" : "encounter";
-            if (mode == "encounter" && actor.Role == "companion")
-            {
-                throw new InvalidOperationException("Companions cannot act in encounter mode.");
-            }
 
             var context = new ActionExecutionContext
             {

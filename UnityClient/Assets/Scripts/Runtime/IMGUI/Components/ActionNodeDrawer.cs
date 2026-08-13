@@ -49,16 +49,12 @@ namespace SSNoir.IMGUI
             // 预览写 4、结算按 2 算的两套账。这是同一份数据的两个读取点，不是两条规则。
             var effectiveModifiers = EffectiveModifiers(node, gameManager.DisplayedSnapshot);
             bool hasClocks = clockBadgesBottom > rect.y;
-            float abilityRailStartY = hasClocks ? clockBadgesBottom + 4f : rect.y + 6f;
-            float abilityRailBottomY = isRoll && actors != null
-                ? abilityRailStartY + ActorAbilityRailHeight(node.Resolve.SkillName, actors)
-                : rect.y;
 
             // ── 1. 标题区（居中）── clockBadgesBottom 是 CardDrawer 量出的时钟徽章实际底部，
             // 徽章换行也不会被标题压住（旧版固定 44f 只够单行徽章用）。
             // 徽章多到几乎吃满卡高时（如同一节点同时挂 5 个时钟）也不能任由标题被推出卡底——
             // 宁可让标题少量压在徽章区之上，也不让文字画到卡外面去。
-            float topWidgetsBottom = Mathf.Max(hasClocks ? clockBadgesBottom : rect.y, abilityRailBottomY);
+            float topWidgetsBottom = hasClocks ? clockBadgesBottom : rect.y;
             float titleY = Mathf.Min(TitleTop(topWidgetsBottom, rect.y), rect.yMax - 32f);
             if (titleY + TitleH <= rect.yMax)
             {
@@ -109,6 +105,9 @@ namespace SSNoir.IMGUI
 
             // ── 3. 类别 / 风险便签：骑在卡片左边缘外（不遮内容、不占内部空间）。
             DrawEdgeTags(rect, node, effectiveModifiers, disabled);
+            // 能力预览与左侧标签同属 card attachment：它描述这张卡，但不该占主体的垂直预算。
+            if (isRoll && actors != null && actors.Count > 0)
+                DrawActorAbilityRail(rect, node.Resolve!.SkillName, actors);
 
             // ── 4. 需求骰位：统一为「方块 Slot」（与手牌骰子/物品同族），居中横排。
             //     骰子 slot = 大字 D/值；物品 slot = 符号 + 数量（强调）+ 下方名称展签。
@@ -139,33 +138,15 @@ namespace SSNoir.IMGUI
                 DrawExecuteButton(exeRect, disabled ? "不可用" : "待 命", ui, false, dead: disabled);
             }
 
-            // ── 7. 右上角：角色能力栏（规范色：Ink 底 + Paper 描边 + 白字，无主题色）──
-            if (isRoll && actors != null && actors.Count > 0)
-                DrawActorAbilityRail(rect, node.Resolve!.SkillName, actors, abilityRailStartY);
-
-            // ── 8. 命运预览留在主体卡；判定中与结算结果挂到卡片下方附件 ──
-            if (localRoll != null)
-            {
-                DrawLocalRoll(
-                    rect,
-                    localRoll,
-                    localRollPhase,
-                    localRollDisplayDieValue,
-                    localRollDisplayScale,
-                    ui,
-                    spaciousAttachments);
-            }
-            else if (residue != null)
-            {
-                DrawResiduePanel(rect, residue, ui, spaciousAttachments);
-            }
-            else if (showOdds)
+            // ── 7. 命运预览留在主体卡；判定中与结算结果由渲染器在全部卡片之后统一画到
+            // attachment overlay，避免被较近的世界卡压住。──
+            if (showOdds)
             {
                 TryDrawFatePreview(rect, node, gameManager.DisplayedSnapshot, slotted!, actors!, exeRect.yMax);
             }
 
-            // ── 9. 卡片级点击（仅无 requires 的非 Instant 类型，如 Observe / Clock）──
-            if (!disabled && ui.WasClicked(rect) && !hasRequires && node.Resolve!.Type != ResolveType.Instant)
+            // ── 8. 卡片级点击（仅无 requires 的非 Instant 类型，如 Observe / Clock）──
+            if (!disabled && ui.WasTapped(rect) && !hasRequires && node.Resolve!.Type != ResolveType.Instant)
             {
                 interaction.CardClicked = true;
                 Event.current.Use();
@@ -307,13 +288,15 @@ namespace SSNoir.IMGUI
         // 每个 require 画成一个方块 Slot，居中横排。骰子 slot = 大字 D/值；
         // 物品 slot = 符号 + 数量（强调）+ 下方名称展签。判定核心骰上方挂技能药丸。
         // 尺寸不小于手牌方块（56），物品略大以容纳信息。
-        private const float DieSlot    = 56f;
-        private const float ItemSlot   = 62f;
-        private const float SlotGap    = 14f;
+        // 骰位方块必须和手牌方块一样大——拖过去的东西和接它的坑不一样大，手感立刻就错。
+        private static float DieSlot => HandPanelDrawer.TokenSize;
+        private static float ItemSlot => DieSlot + 6f;
+        private const float SlotGap = 10f;
         private const float PillH      = 18f;
-        private const float PillGap    = 8f;
+        private const float PillGap = 5f;
         private const float CaptionH   = 14f;
         private const float CaptionGap = 3f;
+
         private static readonly Color SlotBlockBg = new Color(0.024f, 0.031f, 0.047f, 1f);
 
         private static float SlotSize(ActionCost req) => req.Type == "die" ? DieSlot : ItemSlot;
@@ -412,10 +395,10 @@ namespace SSNoir.IMGUI
         // 卡片纵向流量的唯一定义，绘制（DrawContent）与测量（RecommendedCardHeight）共用同一组常量：
         // 顶部挂件（时钟徽章 / 能力栏）→ 标题 → 副标题 → 骰位 → 执行按钮（+命运条）。
         private const float TitleH = 26f;
-        private const float TopPad = 12f;              // 无顶部挂件时标题距卡顶
-        private const float GapAfterTopWidgets = 10f;  // 顶部挂件与标题之间
-        private const float GapTitleToBody = 10f;      // 标题/副标题与骰位之间
-        private const float BottomPad = 12f;
+        private const float TopPad = 8f;               // 无顶部挂件时标题距卡顶
+        private const float GapAfterTopWidgets = 6f;   // 顶部挂件与标题之间
+        private const float GapTitleToBody = 6f;       // 标题/副标题与骰位之间
+        private const float BottomPad = 8f;
 
         private static float TitleTop(float topWidgetsBottom, float cardTop)
             => topWidgetsBottom > cardTop ? topWidgetsBottom + GapAfterTopWidgets : cardTop + TopPad;
@@ -449,11 +432,7 @@ namespace SSNoir.IMGUI
 
             bool isRoll = node.Resolve.Type == ResolveType.Roll;
             float clockHeight = CardDrawer.MeasureClockBadgesHeight(cardWidth, node.Clocks);
-            float abilityStart = clockHeight > 0f ? clockHeight + 4f : 6f;
-            float abilityBottom = isRoll && actors != null
-                ? abilityStart + ActorAbilityRailHeight(node.Resolve.SkillName, actors)
-                : 0f;
-            float topWidgetsBottom = Mathf.Max(clockHeight, abilityBottom);
+            float topWidgetsBottom = clockHeight;
             float titleY = TitleTop(topWidgetsBottom, 0f);
 
             float subtitleHeight = MeasureSubtitleHeight(node, cardWidth);
@@ -509,7 +488,8 @@ namespace SSNoir.IMGUI
             bool disabled, IMGUIInteractionContext ui, SSNoirGameManager gameManager,
             ref CardDrawer.CardInteraction interaction)
         {
-            bool slotHover = !disabled && ui.CanHover(rect);
+            bool slotTargeted = !disabled && ui.IsPointerInside(rect);
+            bool slotHover = slotTargeted && IMGUIInteractionContext.HoverAvailable;
             bool canMatchHeld = !disabled && gameManager.CanMatchRequirement(req);
             bool canDropHeld = !disabled && gameManager.CanPlaceSelectedResource(node, slotIndex);
             Color border = SlotBorderColor(disabled, canDropHeld, canMatchHeld, slotHover);
@@ -571,7 +551,7 @@ namespace SSNoir.IMGUI
                 GUI.Label(new Rect(rect.x, rect.yMax - 24f * k, rect.width, 20f * k), $"×{qty}", qtyStyle);
             }
 
-            HandleSlotClick(rect, slotIndex, filled, disabled, canDropHeld, slotHover, ui, ref interaction);
+            HandleSlotClick(rect, slotIndex, filled, disabled, canDropHeld, slotTargeted, ui, ref interaction);
         }
 
         // 技能药丸 + 连线，挂在判定核心骰方块上方（属性 → 骰子）。
@@ -645,16 +625,19 @@ namespace SSNoir.IMGUI
         }
 
         private static void HandleSlotClick(
-            Rect rect, int slotIndex, bool filled, bool disabled, bool canDropHeld, bool slotHover,
+            Rect rect, int slotIndex, bool filled, bool disabled, bool canDropHeld, bool slotTargeted,
             IMGUIInteractionContext ui, ref CardDrawer.CardInteraction interaction)
         {
             if (disabled) return;
+            // 已放入卡槽的资源和手牌资源必须在按下时就进入同一条拖拽状态机。
+            // 旧逻辑在 MouseUp 才拿起它，结果第一次松手只会让骰子“挂到鼠标上”，
+            // 根本不可能从当前卡连续拖到另一张卡。
             if (filled && ui.WasClicked(rect))
             {
                 interaction.ClickedSlotIndex = slotIndex;
                 Event.current.Use();
             }
-            else if (canDropHeld && slotHover && Event.current.type == EventType.MouseUp && Event.current.button == 0)
+            else if (canDropHeld && slotTargeted && Event.current.type == EventType.MouseUp && Event.current.button == 0)
             {
                 interaction.DroppedSlotIndex = slotIndex;
                 Event.current.Use();
@@ -671,7 +654,7 @@ namespace SSNoir.IMGUI
         {
             bool isInteractable = enabled && !ui.IsLocked;
             bool isHovered = isInteractable && ui.CanHover(rect);
-            bool isClicked = isInteractable && ui.WasClicked(rect);
+            bool isClicked = isInteractable && ui.WasTapped(rect);
 
             if (isClicked)
             {
@@ -728,31 +711,24 @@ namespace SSNoir.IMGUI
             GUI.Label(rect, label, progressStyle);
         }
 
-        // ── 右上角：角色能力栏（规范色，无主题色）──────────────────────
+        // ── 右缘能力附件（规范色，无主题色）────────────────────────────
 
         // 显示当前判定技能下每个在场角色的等级，用 Ink 底 + Paper 描边 + 白字的小芯片。
         // 不再使用主题色，符合 DESIGN.md「全局唯一主强调色」与「黑底安静块」的规则。
-        private static float ActorAbilityRailHeight(string skill, IReadOnlyList<ActorSnapshot> actors)
-        {
-            int count = 0;
-            foreach (var actor in actors)
-            {
-                if (actor.OnStage && actor.Stats.ContainsKey(skill))
-                    count++;
-            }
-            return count == 0 ? 0f : count * 24f - 4f;
-        }
-
-        private static void DrawActorAbilityRail(Rect rect, string skill, IReadOnlyList<ActorSnapshot> actors, float startY)
+        private static void DrawActorAbilityRail(Rect rect, string skill, IReadOnlyList<ActorSnapshot> actors)
         {
             const float chipW = 54f;
             const float chipH = 20f;
-            float x = rect.x + rect.width - chipW - 6f;
-            float y = startY;
+            const float overlap = 12f;
+            // 右缘附件和左便签一样只压进卡边一点。贴右屏的卡收进安全区，宁可贴着卡内缘，
+            // 也不让能力信息跑出画布。
+            float x = Mathf.Min(rect.xMax - overlap, UIScale.SafeArea.xMax - chipW - 4f);
+            float y = rect.y + 22f;
             int drawn = 0;
             foreach (var actor in actors)
             {
-                // 只画本场登场的人：交锋里同伴不上场，挂着他们的技能会让人以为还能派他们出手。
+                // 只画本场登场的人（在队且还站得住）。谁在队里由场景自己决定——
+                // 码头坍塌就是在场内把弗兰克和林请进队，他们的技能从这一刻起挂在每张卡上。
                 if (!actor.OnStage || !actor.Stats.TryGetValue(skill, out int level))
                     continue;
 
@@ -891,6 +867,44 @@ namespace SSNoir.IMGUI
             return AttachmentGap + ResiduePanelHeight(residue, spacious) + AttachmentShadowReserve;
         }
 
+        public static Rect ResidueAttachmentRect(Rect cardRect, CardPresentationResidue residue, bool spacious)
+        {
+            float panelWidth = AttachmentWidth(cardRect.width, spacious);
+            return new Rect(
+                cardRect.center.x - panelWidth / 2f,
+                cardRect.yMax + AttachmentGap,
+                panelWidth,
+                ResiduePanelHeight(residue, spacious));
+        }
+
+        // Attachment 不属于宿主卡的绘制层：调用者应在所有卡本体之后统一绘制它。
+        // 返回 true 表示玩家点了结果残影，调用者负责删除对应 residue。
+        public static bool DrawAttachmentOverlay(
+            Rect cardRect,
+            ActionReport? localRoll,
+            int localRollPhase,
+            int localRollDisplayDieValue,
+            float localRollDisplayScale,
+            CardPresentationResidue? residue,
+            IMGUIInteractionContext ui,
+            bool spacious)
+        {
+            if (localRoll != null)
+            {
+                DrawLocalRoll(cardRect, localRoll, localRollPhase, localRollDisplayDieValue,
+                    localRollDisplayScale, ui, spacious);
+                return false;
+            }
+            if (residue == null)
+                return false;
+
+            DrawResiduePanel(cardRect, residue, ui, spacious);
+            if (!ui.WasTapped(ResidueAttachmentRect(cardRect, residue, spacious)))
+                return false;
+            Event.current.Use();
+            return true;
+        }
+
         private static float RollHeaderHeight(bool spacious) => spacious ? 76f : 58f;
         private static float SimpleHeaderHeight(bool spacious) => spacious ? 36f : 28f;
         private static float EffectRowHeight(bool spacious) => spacious ? 20f : 14f;
@@ -970,12 +984,7 @@ namespace SSNoir.IMGUI
             float reveal = Mathf.Clamp01((Time.time - residue.RevealStartTime) / 0.28f);
             float ease = 1f - Mathf.Pow(1f - reveal, 3f);
 
-            float panelWidth = AttachmentWidth(rect.width, spacious);
-            var panel = new Rect(
-                rect.center.x - panelWidth / 2f,
-                rect.yMax + AttachmentGap,
-                panelWidth,
-                ResiduePanelHeight(residue, spacious));
+            var panel = ResidueAttachmentRect(rect, residue, spacious);
             DrawAttachmentConnector(rect, panel);
             ui.CanHover(panel);
             IMGUIStyles.DrawShadow(panel, new Vector2(4f, 5f), 0.45f);

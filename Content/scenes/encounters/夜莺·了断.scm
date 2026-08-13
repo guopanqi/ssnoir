@@ -228,7 +228,7 @@
 (define (enter-act-two!)
   (play-dialogue!
     (line "收账人" "我的部分到此为止。剩下的,他自己来。")
-    (line "主角" "把门留着。今晚谁都别想从后面走。"))
+    (line "尼尔" "把门留着。今晚谁都别想从后面走。"))
   (set! act 2)
   (set! collector-gone? #t))
 
@@ -329,7 +329,7 @@
         (play-dialogue!
           (line "老板" "我给过你台阶。")
           (line "老板" "现在我不给了。")
-          (line "主角" "那就别给。省得我还得谢你。")))
+          (line "尼尔" "那就别给。省得我还得谢你。")))
       #f))
 
 ;; ---- 第二幕的节点 ----
@@ -348,7 +348,7 @@
          (outcome "他被说得下不来"
            (lambda () (cancel-move!) (boss-clk 'tick!))))))
     ((= move-index 1)
-     (observe-action "怎么拆「示意拖她」"
+     (observe-action "破解拖人手势"
        "这一招不冲你来。撂倒场上正在执行的那个打手——他一倒,这一招自己作废。"))
     (#t
      (node "挡下他亲自动手"
@@ -366,7 +366,7 @@
   (container-with-clocks
     (if rage? "老板（撕破脸）" "老板")
     (list
-      (observe-action (string-append "他的下一招：" (move-name move-index))
+      (observe-action (string-append "下招：" (move-name move-index))
         (string-append (move-note) " 不拆也行——落地照付,把骰子花在别处。"))
       (node-boss-move))
     (list (boss-clk 'render-data)
@@ -411,11 +411,11 @@
           (set! truth-used? #t)
           (if (or (equal? stance "体谅") (equal? stance "自白"))
               (play-dialogue!
-                (line "主角" "她瞒着我,我知道为什么。她怕的是这个。")
-                (line "主角" "那笔钱进了你的口袋。她替你担了七年。"))
+                (line "尼尔" "她瞒着我,我知道为什么。她怕的是这个。")
+                (line "尼尔" "那笔钱进了你的口袋。她替你担了七年。"))
               (play-dialogue!
-                (line "主角" "她对我撒了谎。可撒谎的人不止她一个。")
-                (line "主角" "那笔钱进了你的口袋。七年,你一个字都没提过。")))
+                (line "尼尔" "她对我撒了谎。可撒谎的人不止她一个。")
+                (line "尼尔" "那笔钱进了你的口袋。七年,你一个字都没提过。")))
           (hit-boss! 2)
           (cancel-move!))))))
 
@@ -449,16 +449,16 @@
           (set-global! '了断姿态 "体谅")
           (drag-clk 'set! (max 0 (- (drag-clk 'current) 1)))
           (play-dialogue!
-            (line "主角" "先别说话。站到我后面来。")
+            (line "尼尔" "先别说话。站到我后面来。")
             (line "夜莺" "你不问我为什么骗你?")
-            (line "主角" "今晚不问。"))))
+            (line "尼尔" "今晚不问。"))))
       (instant-action "让她自己开口"
         (lambda ()
           (set! turning-point-done? #t)
           (set-global! '了断姿态 "责问")
           (boss-clk 'tick!)
           (play-dialogue!
-            (line "主角" "你自己说。当着他们的面。")
+            (line "尼尔" "你自己说。当着他们的面。")
             (line "夜莺" "……第七年。我数过。")
             (line "夜莺" "我一天都没数错过。")))))))
 
@@ -578,7 +578,9 @@
   (list (boss-clk 'render-data) (drag-clk 'render-data) (crowd-clk 'render-data)))
 
 (define (get-render-data)
-  (container-with-clocks
-    (if (= act 1) "了断：他进门以前" "了断：对面")
-    (scene-nodes)
-    (if (= act 1) (act-one-clocks) (act-two-clocks))))
+  (container
+    (if (= act 1) "了断：进门前" "了断：对面")
+    (append (if (= act 1)
+                (apply clock-nodes (act-one-clocks))
+                (apply clock-nodes (act-two-clocks)))
+      (scene-nodes))))

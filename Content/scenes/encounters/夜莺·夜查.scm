@@ -83,7 +83,7 @@
 ;; 引擎没有安全的“动作结算后重掷”中断点。把同一判断做成行动前的场内技能：
 ;; 玩家显式指定下一次翻账，由萨姆给出 +1 可见修正，不篡改已结算的骰子。
 (define (node-sam-instinct)
-  (node "萨姆：老警察的直觉"
+  (node "萨姆的直觉"
     :subtitle "整场一次；下一次翻夜账 +1，不占骰"
     :disabled instinct-used?
     :resolve (instant
@@ -99,6 +99,7 @@
   (lambda () (watchman 'tick!)))
 
 (define (get-render-data)
-  (container-with-clocks "夜查货栈"
-    (list (node-search-records) (node-keep-watch) (node-bribe-watchman) (node-sam-instinct))
-    (list (records 'render-data) (watchman 'render-data))))
+  (container "夜查货栈"
+    (append (clock-nodes (records 'render-data) (watchman 'render-data))
+      (list
+          (node-search-records) (node-keep-watch) (node-bribe-watchman) (node-sam-instinct)))))

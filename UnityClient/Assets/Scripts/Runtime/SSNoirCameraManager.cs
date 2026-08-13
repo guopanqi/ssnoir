@@ -19,6 +19,8 @@ namespace SSNoir
         // Mouse drag states. A press begins as a candidate (_isPressingWorld); it only
         // becomes a grab (_isDraggingCam) once the pointer clears DragThreshold.
         private bool _isPressingWorld = false;
+        // 按下后是否已经用「刷新过的」UI 覆盖信息复核过一次。见 Update 里的说明。
+        private bool _pressGateRechecked = false;
         private bool _isDraggingCam = false;
         private Vector3 _dragStartMousePos;
         private Vector3 _dragStartCamPos;
@@ -197,11 +199,26 @@ namespace SSNoir
                 // A press is not yet a grab: most presses are clicks on the world. The
                 // camera keeps doing what it was doing until the pointer actually travels.
                 _isPressingWorld = true;
+                _pressGateRechecked = false;
                 _isDraggingCam = false;
                 _dragStartMousePos = Input.mousePosition;
 
                 // 按下就掐掉还在滑的尾巴——和列表滑到一半点一下就停住是同一件事。
                 _inertiaVelocity = Vector2.zero;
+            }
+
+            // PointerOverUI 是上一帧 OnGUI 留下的结论。鼠标一直在移动，所以那份结论在按下的
+            // 瞬间就已经是对的；手指不是——它落下之前根本没有位置可言，上一帧算的是上一次
+            // 触碰的地方。于是"手指按在卡片上"会被判成"按在世界上"，一拖就同时拖动了镜头。
+            //
+            // 按下之后再复核一次：那时 OnGUI 已经按真正的触点跑过一遍了。放在这里而不是把
+            // 按下时的判断整个挪后，是因为按压本身要立刻成立（惯性得马上停），只有"这次按压
+            // 归不归镜头"可以晚一帧定。
+            if (_isPressingWorld && !_pressGateRechecked)
+            {
+                _pressGateRechecked = true;
+                if (_gameManager.PointerOverUI)
+                    _isPressingWorld = false;
             }
 
             if (_isPressingWorld)
@@ -723,7 +740,7 @@ namespace SSNoir
 
         public void NavigateToNode(string nodeName)
         {
-            var anchor = _gameManager.SceneDirectory?.GetAnchor(nodeName);
+            var anchor = _gameManager.ResolveAnchor(nodeName);
             if (anchor == null)
             {
                 string errorMsg = $"[SSNoir] Cannot navigate camera to node '{nodeName}': no scene anchor was found.";
@@ -752,11 +769,30 @@ namespace SSNoir
         /// </summary>
         public bool BeginFocusTravel(Cinemachine.CinemachineVirtualCamera focusCamera)
         {
+            return BeginFocusTravel(focusCamera, out _);
+        }
+
+        /// <summary>
+        /// 和 <see cref="BeginFocusTravel(CinemachineVirtualCamera)"/> 相同，同时给出这次画面过渡
+        /// 的设计时长。手写弧线、减少动画的溶解和退回 Cinemachine 的默认 blend 都会如实返回；
+        /// 已在目标构图或 Debug 硬切则是零。调用方可以据此让伴随演出和运镜同起同落，而不用猜
+        /// 当前到底走了哪一条相机路径。
+        /// </summary>
+        public bool BeginFocusTravel(
+            Cinemachine.CinemachineVirtualCamera focusCamera,
+            out float transitionDuration)
+        {
+            transitionDuration = 0f;
+
             // A repeated refresh of the focus that is already travelling must be a
             // no-op. Finishing first would snap the running arc to t=1 before the
             // "already active" check below gets a chance to reject the duplicate.
             if (_isFocusArcActive && ReferenceEquals(_focusArcCamera, focusCamera))
+            {
+                transitionDuration = Mathf.Max(
+                    0f, _focusArcDuration - (Time.unscaledTime - _focusArcStartedAt));
                 return true;
+            }
 
             // A genuinely different focus change lands the previous travel in flight —
             // and gives the brain its real blend back before this one reads it as the
@@ -806,9 +842,13 @@ namespace SSNoir
             // Reduce motion takes the same fork every time, whatever the two ends are:
             // no road at all, just a dissolve over a cut.
             if (MotionSettings.ReduceMotion)
+            {
+                transitionDuration = MotionSettings.CrossfadeDuration;
                 return BeginReducedFocusChange(focusCamera, brain, renderedCamera);
+            }
 
             float duration = brain.m_DefaultBlend.m_Time;
+            transitionDuration = Mathf.Max(0f, duration);
             if (duration <= 0.01f)
                 return false;
 

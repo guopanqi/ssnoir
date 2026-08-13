@@ -16,7 +16,7 @@ MonoBehaviour:
     Appid: tapmckoqrmm7uyjfns
     CDN: 
     assetLoadType: 1
-    compressDataPackage: 0
+    compressDataPackage: 1
     VideoUrl: 
     DST: /Users/usr/Documents/play/ssnoir/UnityClient/Build
     StreamCDN: 
@@ -27,7 +27,7 @@ MonoBehaviour:
     MemorySize: 256
     HideAfterCallMain: 1
     preloadFiles: 
-    Orientation: 0
+    Orientation: 1
     bgImageSrc: Assets/TapTapMiniGame/Runtime/minigame-default/images/background.png
     isCoverviewCustomized: 0
     dataFileSubPrefix: 
@@ -50,7 +50,7 @@ MonoBehaviour:
     AutoProfile: 0
     ScriptOnly: 0
     Il2CppOptimizeSize: 1
-    profilingFuncs: 1
+    profilingFuncs: 0
     Webgl2: 1
     fbslim: 0
     DeleteStreamingAssets: 1
@@ -58,13 +58,12 @@ MonoBehaviour:
     CleanBuild: 0
     CustomNodePath: 
     autoAdaptScreen: 1
-    showMonitorSuggestModal: 1
+    showMonitorSuggestModal: 0
     enableProfileStats: 0
     enableRenderAnalysis: 0
     iOSAutoGCInterval: 10000
-    enableIOSPerformancePlus: 0
+    enableIOSPerformancePlus: 1
     brotliMT: 1
-    enableIOSPerformancePlusMetal: 0
   PlayerPrefsKeys: []
   FontOptions:
     CJK_Unified_Ideographs: 1

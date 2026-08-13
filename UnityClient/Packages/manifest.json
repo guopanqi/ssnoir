@@ -1,17 +1,16 @@
 {
   "dependencies": {
     "com.adamgryu.inspectorhistory": "file:/Users/usr/Documents/play/ssnoir/InspectorHistory-Unity-main",
-    "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.ssnoir.engine": "file:/Users/usr/Documents/play/ssnoir/Engine",
     "com.taptap.minigame": "https://github.com/taptap/minigame-sdk-unity.git",
     "com.unity.cinemachine": "2.10.7",
     "com.unity.collab-proxy": "2.12.4",
     "com.unity.feature.development": "1.0.1",
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.render-pipelines.universal": "14.0.12",
     "com.unity.textmeshpro": "3.0.7",
     "com.unity.timeline": "1.7.7",
     "com.unity.ugui": "1.0.0",
-    "com.unity.visualscripting": "1.9.4",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",

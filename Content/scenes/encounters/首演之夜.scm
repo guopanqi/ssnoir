@@ -34,7 +34,16 @@
 (define prep-inner (prep-of '准备-内环))   ; 0..4
 (define prep-core (prep-of '准备-中央))    ; 0..2
 
-(define aide-joe (if (get-global '人手-乔) #t #f))
+(define joe-final-state (get-global '乔最终状态))
+(define aide-joe-requested (if (get-global '人手-乔) #t #f))
+(define (joe-final-state-can-act?)
+  (member? joe-final-state (list "痊愈待邀请" "残疾待邀请" "已入队")))
+(define aide-joe
+  (if aide-joe-requested
+      (if (joe-final-state-can-act?)
+          #t
+          (error "首演之夜：乔被列为外圈人手，但人物最终状态不能行动"))
+      #f))
 (define aide-frank (if (get-global '人手-弗兰克) #t #f))
 (define aide-police (if (get-global '人手-警察) #t #f))
 (define aide-usher (if (get-global '人手-领班) #t #f))
@@ -123,7 +132,7 @@
 
 ;; 他第二回合才进场，所以期限按余下的回合算：4 回合，第五段结束前必须拦住。
 (define runner-trouble
-  (make-trouble "从三号门进来的那个人" "外圈" 6 4 'sharpness
+  (make-trouble "三号门来人" "外圈" 6 4 'sharpness
     "他不慌，穿过人群，一直朝正中间去。归零就是他走到了她跟前"
     "他一直走到了台边。他够到她了。"
     (list (list 2 "你在人堆里认出了他——他是唯一一个不慌的")
@@ -218,7 +227,7 @@
     ((equal? (t 'id) "台下的恐慌")
      (injure!)
      (set! usher-quit? #t))
-    ((equal? (t 'id) "从三号门进来的那个人")
+    ((equal? (t 'id) "三号门来人")
      (spend-composure! 2))
     (#t #f))
   ;; 她被人流卷走 / 腿伤了，那就没有"重新站上去"这回事了。
@@ -358,18 +367,18 @@
 ;; ============================================================
 
 (define (her-hurt?)
-  (or (expired? "升降台卡在半程") (expired? "从三号门进来的那个人")))
+  (or (expired? "升降台卡在半程") (expired? "三号门来人")))
 
 (define (show-level)
   (cond
     ((solved? "她要重新站上去") "完整谢幕")
-    ((expired? "从三号门进来的那个人") "严重中断")
+    ((expired? "三号门来人") "严重中断")
     ((expired? "升降台卡在半程") "严重中断")
     ((expired? "台下的恐慌") "严重中断")
     ((and stand-open? (>= (stand-trouble 'current) 2)) "勉强收尾")
     (#t "严重中断")))
 
-(define (caught?) (solved? "从三号门进来的那个人"))
+(define (caught?) (solved? "三号门来人"))
 (define (has-evidence?) (and (caught?) (not evidence-damaged?)))
 
 (define (helpers-text)
@@ -385,7 +394,7 @@
 (define (closing-text)
   (string-append
     (cond
-      ((expired? "从三号门进来的那个人")
+      ((expired? "三号门来人")
        "那个人一直走到了台边才被拦下。她是被人从台阶下面抬出去的。")
       ((expired? "升降台卡在半程")
        "台子卡死在半程。等他们把她抬出来，她的腿已经不能站了。")
@@ -435,13 +444,13 @@
     (if usher-quit? "领班已经撂挑子了。" "")))
 
 (define (get-render-data)
-  (container-with-clocks "首演之夜"
+  (container "首演之夜"
     (list
+      (clock-node "演出正在垮" (show-clk 'render-data))
       (observe-action "此刻的场面" (situation-text))
       (container "外圈的门与后廊"
         (ring-nodes "外圈" "外圈眼下无事" "门都插着，后廊那头没有动静。"))
       (container "内环走道与看台"
         (ring-nodes "内环" "内环眼下无事" "人还坐着，环廊是通的。"))
       (container "中央台与升降口"
-        (ring-nodes "中央" "中央眼下无事" "台子空着。她不在上面。")))
-    (list (show-clk 'render-data))))
+        (ring-nodes "中央" "中央眼下无事" "台子空着。她不在上面。")))))

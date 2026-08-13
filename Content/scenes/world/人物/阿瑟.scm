@@ -37,7 +37,7 @@
         (outcome "退回重填" (lambda () (spend-composure! 1)))))
 
     (define (node-problem)
-      (node "替阿瑟处理一个程序管不了的人"
+      (node "替阿瑟清场"
         :subtitle identity
         :tags (list "交锋")
         :resolve (instant (lambda () (start-encounter "教训" on-lesson-result)))))

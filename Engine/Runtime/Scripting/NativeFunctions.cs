@@ -52,7 +52,12 @@ namespace SSNoir.Scripting
                 var injury = gameState.Team.Injury;
                 int before = injury.Severity;
                 gameState.Team.Injure(amount);
-                ReportInjuryChange(gameState, injury.Severity - before);
+                // 倒下会立刻送医并把伤势回落到 5；结果条仍应报告这一下把刻度顶满，
+                // 不能因最终数值变小而谎报成“伤势恢复”。
+                int reportedDelta = before + amount >= Injury.MaxSeverity
+                    ? Injury.MaxSeverity - before
+                    : injury.Severity - before;
+                ReportInjuryChange(gameState, reportedDelta);
                 if (injury.Severity > before)
                     gameState.CurrentActionReport?.AddNote(
                         before == 0
@@ -175,7 +180,10 @@ namespace SSNoir.Scripting
                 gameState.CurrentActionReport?.AddEffect(
                     ActionEffectKind.Composure, composureLabel, composureDelta,
                     composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
-                ReportInjuryChange(gameState, gameState.Team.Injury.Severity - injuryBefore);
+                int injuryDelta = gameState.Team.Injury.Severity - injuryBefore;
+                ReportInjuryChange(gameState, injuryDelta < 0 && injuryBefore > 0
+                    ? Injury.MaxSeverity - injuryBefore
+                    : injuryDelta);
                 return new None();
             }, "__set-actor-composure!"));
 
@@ -198,8 +206,11 @@ namespace SSNoir.Scripting
                     composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
 
                 int injuryDelta = gameState.Team.Injury.Severity - injuryBefore;
-                ReportInjuryChange(gameState, injuryDelta);
-                if (injuryDelta > 0)
+                bool collapsed = injuryDelta < 0 && injuryBefore > 0;
+                ReportInjuryChange(gameState, collapsed
+                    ? Injury.MaxSeverity - injuryBefore
+                    : injuryDelta);
+                if (injuryDelta > 0 || collapsed)
                     gameState.CurrentActionReport?.AddNote("冷静击穿：你的手在抖，身体先一步承受了代价。");
                 return new None();
             }, "__spend-actor-composure!"));
@@ -274,6 +285,28 @@ namespace SSNoir.Scripting
                 gameState.Team.RecruitCompanion(actorId, name, stats);
                 return new None();
             }, "__recruit-companion!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__dismiss-companion!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("__dismiss-companion! requires actor id");
+                gameState.Team.DismissCompanion(SchemeValue.AsId(args[0]));
+                return new None();
+            }, "__dismiss-companion!"));
+
+            // 定制某个人物的骰池：几颗骰，以及是否恒定点数（0 = 正常掷骰）。
+            interpreter.DefineGlobal(Symbol.FromString("__set-actor-die-profile!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 4)
+                    throw new ArgumentException("__set-actor-die-profile! requires actor id, slot count, fixed value (0 = roll), and label");
+                string actorId = SchemeValue.AsId(args[0]);
+                int slotCount = SchemeValue.ToInt(args[1]);
+                int fixedValue = SchemeValue.ToInt(args[2]);
+                string label = args[3] as string
+                    ?? throw new ArgumentException("fixed die label must be a string");
+                gameState.Team.SetActorDieProfile(actorId, slotCount,
+                    fixedValue == 0 ? (int?)null : fixedValue, label);
+                return new None();
+            }, "__set-actor-die-profile!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__has-companion?"), new NativeProcedure(args =>
             {

@@ -247,6 +247,43 @@ namespace SSNoir.IMGUI
             return style;
         }
 
+        // 世界锚点上那个「就是这儿」的标记：一圈细环加一个圆心点。白色 alpha 贴图，
+        // 用 GUI.color 染色，所以一张就够所有轻重档次使用。
+        private static Texture2D? _anchorRingTexture;
+
+        public static Texture2D AnchorRingTexture => _anchorRingTexture ??= MakeAnchorRing(64);
+
+        private static Texture2D MakeAnchorRing(int size)
+        {
+            float center = (size - 1) / 2f;
+            float outer = size * 0.47f;
+            float inner = size * 0.34f;
+            float dot = size * 0.11f;
+            // 半个像素的过渡带：这张图会缩到 10 像素画，硬边缘会锯得很明显。
+            const float feather = 1.2f;
+
+            var pixels = new Color[size * size];
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float d = Mathf.Sqrt((x - center) * (x - center) + (y - center) * (y - center));
+                    float ring = Mathf.Clamp01((outer - d) / feather) * Mathf.Clamp01((d - inner) / feather);
+                    float core = Mathf.Clamp01((dot - d) / feather);
+                    pixels[y * size + x] = new Color(1f, 1f, 1f, Mathf.Max(ring, core));
+                }
+            }
+
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+            };
+            texture.SetPixels(pixels);
+            texture.Apply();
+            return texture;
+        }
+
         public static Texture2D MakeTexture(int width, int height, Color color)
         {
             var pixels = new Color[width * height];

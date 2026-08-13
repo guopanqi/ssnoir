@@ -16,7 +16,7 @@ namespace SSNoir.Core
         //
         // 只有 2 点：一天最多扛住两次失败，第三次就开始进身体。缓冲小是故意的——
         // 它要在当天之内就见底，否则这条轴在城市里不会产生任何决策。
-        public const int MaxComposure = 3;
+        public const int MaxComposure = 2;
 
         /// <summary>队伍唯一的身体轴，取代旧的健康血条。规则与档位见 <see cref="Core.Injury"/>。</summary>
         public Injury Injury { get; } = new Injury();
@@ -30,16 +30,19 @@ namespace SSNoir.Core
         public const int ProtagonistActionSlotCount = 4;
         public const int CompanionActionSlotCount = 1;
 
-        public static int GetActionSlotCount(string role) => role switch
+        /// <summary>入队时的默认骰位数。个别人物可以带自己的数字，见 ActorState.ActionSlotCount。</summary>
+        public static int GetDefaultActionSlotCount(string role) => role switch
         {
             "protagonist" => ProtagonistActionSlotCount,
             "companion" => CompanionActionSlotCount,
             _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown actor role.")
         };
-        /// <summary>本场是否登场：城市里全队都在，交锋里只有主角上场（同伴连骰子都不发）。
-        /// 发骰和界面共用这一条规则，避免两边各判各的。</summary>
+
+        /// <summary>本场是否登场：在队里、还站得住，就发骰子。交锋与城市用同一条规则——
+        /// 谁能出手由「他在不在队里」决定，不由场景类型决定。要限制某一场的阵容，
+        /// 就在那一场里决定谁入队，而不是在发骰的地方加分支。</summary>
         public static bool IsOnStage(ActorState actor, bool isInEncounter)
-            => actor.Status == "active" && !(isInEncounter && actor.Role == "companion");
+            => actor.Status == "active";
 
         public int GetAvailableGrowthPoints(ActorState actor)
         {
@@ -81,7 +84,7 @@ namespace SSNoir.Core
                 PendingCollapse = true;
         }
 
-        /// <summary>倒下：当天剩余骰子作废，伤势回落到重伤段。由 GameState 在扣完治疗费后调用。</summary>
+        /// <summary>倒下：当天剩余骰子作废，伤势回落到轻伤段。由 GameState 在扣完治疗费后调用。</summary>
         public void ResolveCollapse()
         {
             PendingCollapse = false;
@@ -115,6 +118,7 @@ namespace SSNoir.Core
                 Role = "companion",
                 Status = "active",
                 Composure = MaxComposure,
+                ActionSlotCount = CompanionActionSlotCount,
             };
             foreach (string statId in requiredStats)
             {
@@ -129,6 +133,36 @@ namespace SSNoir.Core
             Actors.Add(actor);
             OnTeamChanged?.Invoke();
             return actor;
+        }
+
+        /// <summary>让同伴离队。一场交锋临时请来的人（弗兰克、林）必须在结算时走这里，
+        /// 否则他们的骰子会跟着玩家回到城市——存档时的 HasDefaultDieProfile 校验会抓住这种泄漏。</summary>
+        public void DismissCompanion(string actorId)
+        {
+            var actor = FindActor(actorId)
+                ?? throw new InvalidOperationException($"Actor '{actorId}' is not in the team.");
+            if (actor.Role != "companion")
+                throw new InvalidOperationException($"Actor '{actorId}' is not a companion and cannot leave the team.");
+            Actors.Remove(actor);
+            OnTeamChanged?.Invoke();
+        }
+
+        /// <summary>给某个人物定制骰池：几颗骰、是否恒定点数。恒定点数必须带一个可见标签。</summary>
+        public void SetActorDieProfile(string actorId, int slotCount, int? fixedDieValue, string fixedDieLabel)
+        {
+            var actor = FindActor(actorId)
+                ?? throw new InvalidOperationException($"Actor '{actorId}' is not in the team.");
+            if (slotCount < 1 || slotCount > ProtagonistActionSlotCount)
+                throw new ArgumentOutOfRangeException(nameof(slotCount),
+                    $"Action slot count must be between 1 and {ProtagonistActionSlotCount}.");
+            if (fixedDieValue != null && (fixedDieValue < 1 || fixedDieValue > 6))
+                throw new ArgumentOutOfRangeException(nameof(fixedDieValue), "Fixed die value must be between 1 and 6.");
+            if (fixedDieValue != null && string.IsNullOrWhiteSpace(fixedDieLabel))
+                throw new ArgumentException("A fixed die must carry a visible label.", nameof(fixedDieLabel));
+            actor.ActionSlotCount = slotCount;
+            actor.FixedDieValue = fixedDieValue;
+            actor.FixedDieLabel = fixedDieValue == null ? string.Empty : fixedDieLabel;
+            OnTeamChanged?.Invoke();
         }
 
         public void UpgradeActorStat(string actorId, string statId)
@@ -256,6 +290,11 @@ namespace SSNoir.Core
             };
             foreach (var actor in Actors)
             {
+                // 定制骰池只属于交锋临时请来的人。它出现在存档里，说明某场交锋结算时
+                // 忘了让人离队——这是内容错误，当场中断，不要把它写进城市。
+                if (!actor.HasDefaultDieProfile)
+                    throw new InvalidOperationException(
+                        $"Actor '{actor.Id}' still carries an encounter-only die profile; the encounter must dismiss them before returning to the city.");
                 data.Actors.Add(new ActorSaveData
                 {
                     Id                = actor.Id,
@@ -335,7 +374,7 @@ namespace SSNoir.Core
                 actor.ActionDiceSlotIds.Clear();
                 if (IsOnStage(actor, isInEncounter))
                 {
-                    int diceCount = GetActionSlotCount(actor.Role);
+                    int diceCount = actor.ActionSlotCount;
                     if (actor.Role == "protagonist")
                     {
                         if (injuryDicePenalty)
@@ -343,6 +382,13 @@ namespace SSNoir.Core
                     }
                     for (int slotId = 0; slotId < diceCount; slotId++)
                     {
+                        if (actor.FixedDieValue != null)
+                        {
+                            // 恒定骰点不受任何降质影响：机器不会宿醉，也不会手抖。
+                            actor.ActionDice.Add(actor.FixedDieValue.Value);
+                            actor.ActionDiceSlotIds.Add(slotId);
+                            continue;
+                        }
                         int penalty = GetCurrentSlotPenalty(actor, slotId);
                         if (applyHangover && actor.HangoverSlotId == slotId)
                             penalty--;
@@ -361,6 +407,16 @@ namespace SSNoir.Core
             var result = new List<ActionSlotStatus>();
             if (actor.PermanentDiePenalty != 0)
                 result.Add(new ActionSlotStatus { SlotId = 0, Label = actor.PermanentDiePenaltyLabel, DiePenalty = actor.PermanentDiePenalty });
+            if (actor.FixedDieValue != null)
+            {
+                for (int slotId = 0; slotId < actor.ActionSlotCount; slotId++)
+                    result.Add(new ActionSlotStatus
+                    {
+                        SlotId = slotId,
+                        Label = actor.FixedDieLabel,
+                        FixedDieValue = actor.FixedDieValue.Value
+                    });
+            }
             return result;
         }
 

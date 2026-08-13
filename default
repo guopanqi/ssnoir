@@ -1,0 +1,17 @@
+cos:
+  base:
+    secretid: plDlt4HQLvu0Y2qjgHZaYOJTW/K6nw48FiaPSwNO0na/WTnLJUWKsWRaaZvD8ikm
+    secretkey: VW7MwVbMK+sEAaMszM047HLgfqOv2Tk+MN86dnRCMg3eQ1lHjB+NSA6psd9+JBIz
+    sessiontoken: 3kNZR4wfjUgOqbHffiQSMw==
+    protocol: https
+    mode: auto
+    cvmrolename: ""
+    closeautoswitchhost: ""
+    disableencryption: ""
+    disableautofetchbuckettype: ""
+  buckets:
+  - name: ssnoir-taptap-1466784385
+    alias: ssnoir-taptap-1466784385
+    region: ""
+    endpoint: https://ssnoir-taptap-1466784385.cos.ap-guangzhou.myqcloud.com
+    ofs: false

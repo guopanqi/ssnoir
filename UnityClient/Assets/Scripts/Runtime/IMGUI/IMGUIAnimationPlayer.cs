@@ -118,11 +118,13 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
 
             // Modal panel
-            float modalW = 380;
-            float modalH = CurrentReport?.OutcomePresentation?.HasText == true ? 290 : 260;
-            float modalX = (UIScale.VW - modalW) / 2f;
-            float modalY = (UIScale.VH - modalH) / 2f;
-            var modalRect = new Rect(modalX, modalY, modalW, modalH);
+            var modalRect = UIScale.CenteredModal(
+                380f,
+                CurrentReport?.OutcomePresentation?.HasText == true ? 290f : 260f);
+            float modalW = modalRect.width;
+            float modalH = modalRect.height;
+            float modalX = modalRect.x;
+            float modalY = modalRect.y;
 
             // 纸物件：Paper 底 + 硬投影，无描边
             IMGUIStyles.DrawShadow(modalRect, new Vector2(5f, 6f), 0.50f);

@@ -58,10 +58,11 @@ namespace SSNoir.Core
             var player = new ActorState
             {
                 Id = "player",
-                Name = "主角",
+                Name = "尼尔",
                 Role = "protagonist",
                 Status = "active",
-                Composure = TeamState.MaxComposure
+                Composure = TeamState.MaxComposure,
+                ActionSlotCount = TeamState.ProtagonistActionSlotCount
             };
             player.Stats["violence"] = 0;
             player.Stats["knowledge"] = 1;
@@ -108,7 +109,7 @@ namespace SSNoir.Core
         /// <summary>倒下送医的价钱。付不起就记在诊所账上，用官僚关系抵。</summary>
         public const int CollapseTreatmentFee = 80;
 
-        // 伤势撞到倒下线：当天剩余骰子作废、付一笔治疗费、伤势回落到重伤段。
+        // 伤势撞到倒下线：当天剩余骰子作废、付一笔治疗费、伤势回落到轻伤段。
         // 这不是 GAME OVER——倒下是最贵的兜底，不是终局（谷底校验见 docs/城市生活设计.md §2.2）。
         // ResolveCollapse 会再次触发 OnTeamChanged，靠先清 PendingCollapse 挡住重入。
         private void CheckCollapse()

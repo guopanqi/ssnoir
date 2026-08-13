@@ -202,7 +202,7 @@
           ""))
 
     (define (node-reserve-installment)
-      (node "把首期交给夜莺保管"
+      (node "托夜莺保管首期"
         :subtitle (string-append "交出 " (number->string first-installment)
                                  " 金。收账人第 10 天上门时，你可以让她交钱，也可以取回这笔钱后交锋")
         :requires (list (req-item "金钱" first-installment))
@@ -250,10 +250,10 @@
       (if (= truth-progress 1)
           (play-dialogue!
             (line "夜莺" "你在查那晚。")
-            (line "主角" "船期和案卷都对不上。")
+            (line "尼尔" "船期和案卷都对不上。")
             (line "夜莺" "旧账翻出来,不会让谁干净一点。")
             (line "夜莺" "你不必替我把那一晚也算清。")
-            (line "主角" "可我得知道,第十七天到底该替谁挡。"))
+            (line "尼尔" "可我得知道,第十七天到底该替谁挡。"))
           #f)
       (spotlight! label detail))
 
@@ -329,7 +329,7 @@
         (lambda ()
           (play-remote-dialogue!
             (line "夜莺" "门外雨下得像不要钱。钱在桌上,预付的——我要你查清楚,是谁在盯我的梢。")
-            (line "主角" "你是谁?")
+            (line "尼尔" "你是谁?")
             (line "夜莺" "他们都叫我夜莺。那只死鸟和字条,也是他们送的。先开门,行吗?"))
           (add-item! "金钱" prepayment)
           (advance-stage! 1)
@@ -343,7 +343,7 @@
           (play-dialogue!
             (line "夜莺" "我不是逃债。我签了十年卖身约,跑了七年。")
             (line "夜莺" "他们找上门,要么带我回去,要么拿一笔赎身钱换我。")
-            (line "主角" "多少?")
+            (line "尼尔" "多少?")
             (line "夜莺" "一百五。这个数,搁你身上也一样压得慌。"))
           (set-flag! '二层已揭)
           (sync-globals!)
@@ -358,18 +358,18 @@
               (play-dialogue!
                 (line "夜莺" "那晚在码头……他追我,脚下一滑,栽进了水里。")
                 (line "夜莺" "水把他带走了。老板就认定是我推的。")
-                (line "主角" "所以你才躲到我这里。")
+                (line "尼尔" "所以你才躲到我这里。")
                 (line "夜莺" "所以我再不敢跑。我一跑,那顶帽子就真扣实了。")
-                (line "主角" "那就跟他们碰一场。")
+                (line "尼尔" "那就跟他们碰一场。")
                 (line "夜莺" "他们不是一个人来的。你要碰,也别一个人碰——码头、警察局,能拉一个是一个。")
                 (line "夜莺" "可我还是想自己凑一份钱。不图别的,不想让你把命也押在我这笔账上。"))
               (play-dialogue!
                 (line "夜莺" "有件事,我一直没跟你说。")
                 (line "夜莺" "逃走那晚,老板的心腹追到码头,自己踩空落了水。")
                 (line "夜莺" "老板咬定是我推的。这就不是一笔账了,是一条命。")
-                (line "主角" "那你更回不得。")
+                (line "尼尔" "那你更回不得。")
                 (line "夜莺" "所以我才不该把这笔账全压在你身上。")
-                (line "主角" "真要碰上,我们就跟他们碰一场。")
+                (line "尼尔" "真要碰上,我们就跟他们碰一场。")
                 (line "夜莺" "碰得过更好。碰不过,谁都没有回头路。钱我也会去凑——不是非它不可,是不想让你一个人扛。")))
           (set-flag! '三层已揭)
           (rest-release! "夜莺/第三层揭开")
@@ -389,7 +389,7 @@
             (if (sam 'favor-done?)
                 (line "萨姆" "登记房那句话,谢了。慢十分钟——她说她赶上了末班船,可那晚根本没有船能赶。")
                 (line "萨姆" "案卷和船期总有一处会对不上。我只差一双肯翻旧账的手。"))
-            (line "主角" "你想让我信一个丢了差事的人?")
+            (line "尼尔" "你想让我信一个丢了差事的人?")
             (line "萨姆" "不用信我,信你自己去查出来的。")
             (line "萨姆" "我在老街酒馆等你——你想听,随时来找我;你不想,我也会一个人查下去。"))
           (set-flag! '萨姆登门)
@@ -413,18 +413,18 @@
           (instant-action "你早该告诉我"
             (lambda ()
               (play-dialogue!
-                (line "主角" "船期对不上。那晚你根本没在等船。")
+                (line "尼尔" "船期对不上。那晚你根本没在等船。")
                 (line "夜莺" "……他抓住我的手腕,往船上拖。我甩开了。他自己没站稳。")
-                (line "主角" "你早该告诉我。")
+                (line "尼尔" "你早该告诉我。")
                 (line "夜莺" "告诉你,你就不管了?"))
               (set! stance "责问")
               (finish-lie-reveal!)))
           (instant-action "换我也一样推"
             (lambda ()
               (play-dialogue!
-                (line "主角" "船期对不上。那晚你根本没在等船。")
+                (line "尼尔" "船期对不上。那晚你根本没在等船。")
                 (line "夜莺" "……他抓住我的手腕,往船上拖。我甩开了。他自己没站稳。")
-                (line "主角" "换我也一样推。")
+                (line "尼尔" "换我也一样推。")
                 (line "夜莺" "……谢谢你这么说。哪怕是骗我。"))
               (set! stance "体谅")
               (finish-lie-reveal!))))))
@@ -436,7 +436,7 @@
             (line "夜莺" "明天他就到了。有件事,我想自己告诉你,不想让你从别人嘴里听来。")
             (line "夜莺" "那晚在栈桥上,他抓住我的手腕,往船上拖。是我甩开的。他自己没站稳。")
             (line "夜莺" "我对你撒了谎。对所有人都撒了。跑了七年,这句话我头一回自己说出口。")
-            (line "主角" "为什么现在说?")
+            (line "尼尔" "为什么现在说?")
             (line "夜莺" "因为明天不管怎么收场,我不想你是替一个你不认识的人挡的。")
             (line "夜莺" "现在你知道了。要把我交出去,也来得及。"))
           (set! truth-progress truth-target)
@@ -583,7 +583,7 @@
         (if (truth-known?) "可以背过身去" "需要先查明真相——没查真相的人,没有背过身的台阶")))
 
     (define (node-route-overview)
-      (observe-action "六条路,你走到了哪几条" (route-overview-text)))
+      (observe-action "六条路的进展" (route-overview-text)))
 
     ;; 夜莺当前情境下能做的关键动作。开场动作只供客户端在新游戏时自动执行。
     (define (situation-nodes)
@@ -653,7 +653,7 @@
               (on-public-event-result 'success))))))
 
     (define (node-beat2-fight)
-      (encounter-action "不掏钱,跟他们动手"
+      (encounter-action "拒付并动手"
         (lambda ()
           (if installment-reserved?
               (begin
@@ -700,7 +700,7 @@
 
     ;; ── 节拍三·路线三：送她走，自己扛 ────────────────
     (define (node-insurance-berth)
-      (node "通过保险公司安排舱位"
+      (node "委托保险安排舱位"
         :subtitle (string-append "沃尔特是保险公司的理赔调查员；夜莺本人名下的紧急转移条款，"
                                  (number->string (berth-price-effective)) "金"
                                  (if (sam-pressure?)
@@ -730,7 +730,7 @@
                   (line "夜莺" "跳板要收了。")
                   (line "夜莺" "我这一辈子,遇到麻烦只会自己跑。这回,你却先没打算丢下我。")
                   (line "夜莺" "谢谢你,把那句话听完了,还没走。")
-                  (line "主角" "一路平安。")
+                  (line "尼尔" "一路平安。")
                   (line "夜莺" "……我记住你了。真的记住了。"))
                 (play-dialogue!
                   (line "夜莺" "跳板要收了。")
@@ -757,7 +757,7 @@
         :disabled #t))
 
     (define (node-build-case)
-      (action "把那晚的案卷拼起来"
+      (action "拼合当晚案卷"
         (list (req-die))
         (roll 'knowledge
           (outcome "拼不出头绪" (lambda () (spend-composure! 1)))
@@ -765,7 +765,7 @@
           (outcome "拼得严丝合缝" (lambda () (set-flag! '案卷备妥))))))
 
     (define (node-file-case)
-      (node "请阿瑟把案子送进程序"
+      (node "请阿瑟走程序"
         :subtitle "辖区警察局的登记与档案职员；通行证是由头，人情让材料不会停在收件桌上"
         :tags (if (> (item-count "办案通行证") 0) '() (list "需要办案通行证"))
         :requires (list (req-item "办案通行证" 1))
@@ -781,7 +781,7 @@
             (line "世界" "他把那纸卖身约凑到烛火上。纸卷起来,黑掉,碎成灰。")
             (line "世界" "'账,清了。'他说完,转身走进雨里。")
             (line "夜莺" "钱是我们俩一起凑的。这一次,不是我一个人扛。")
-            (line "主角" "账清了就好。"))
+            (line "尼尔" "账清了就好。"))
           (if (truth-known?)
               (begin
                 (play-dialogue!
@@ -816,7 +816,7 @@
           (play-dialogue!
             (line "世界" "第十七天，来的是萨姆和两名巡警。没有镣铐，只有一只装着案卷的牛皮袋。")
             (line "夜莺" "我还以为,你会躲开这一天。")
-            (line "主角" (if (or (equal? stance "体谅") (equal? stance "自白")) "你没躲,我也不躲。" "该说清楚的,总得有人说清楚。"))
+            (line "尼尔" (if (or (equal? stance "体谅") (equal? stance "自白")) "你没躲,我也不躲。" "该说清楚的,总得有人说清楚。"))
             (line "夜莺" "我会把话说完。亨利的妹妹,也该听见一个不是老板编的说法。")
             (line "夜莺" "这一次,是我自己走进去的。")
             (line "世界" "她走进雨里，没有回头。萨姆把伞往她那边偏了一点。")
@@ -1007,7 +1007,7 @@
         (if (relation-at-least? "劳工" '相识)
             (list (modifier 1 "码头的人认得你"))
             '()))
-      (node "问那晚在码头的老人"
+      (node "询问码头老人"
         :subtitle (if (relation-at-least? "劳工" '相识)
                       "码头的人认得你,才肯带你去见那个还记得栈桥的人"
                       "得先在码头混个面熟,才有人肯把你带去见他")

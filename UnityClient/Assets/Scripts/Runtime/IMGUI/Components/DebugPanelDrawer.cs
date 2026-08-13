@@ -20,23 +20,42 @@ namespace SSNoir.IMGUI
         private static bool _isOpen = false;
         private static readonly List<SceneItem> _scenes = new List<SceneItem>();
         private static readonly List<CutsceneSequence> _sequences = new List<CutsceneSequence>();
+        private static float _scrollOffset;
+        private static bool _scrollDragActive;
+        private static float _scrollDragLastY;
+        private static float _scrollDragTravel;
 
         public static bool IsOpen => _isOpen;
+
+        // 列表行高。触控上抬一档才点得准；这是个开发面板，行数多，抬到完整的 44 会让面板
+        // 直接长出屏幕，所以取中间值而不是 UIScale.MinTouchSize。
+        private const float ItemH = 34f;
+
+        private static float ContentHeight()
+        {
+            float y = 8f + 20f + SaveManager.SlotCount * 28f;
+            y += 6f + 20f; // 镜头测试标题与第一行
+            y += ItemH; // 过场截图行
+            y += ItemH + 6f + 22f; // 过场测试标题及列表起点
+            y += Mathf.Max(_sequences.Count, 1) * ItemH;
+            y += 6f + 4f + ItemH * 0.5f; // 场景标题及列表起点
+            y += _scenes.Count * ItemH;
+            return y + 8f;
+        }
 
         public static (Rect ToggleRect, Rect PanelRect) GetRects(TopHudLayout topHud)
         {
             var toggleRect = topHud.DebugToggle;
 
-            float itemH = 26f;
             float panelW = 260f;
             float panelX = toggleRect.xMax - panelW;
             float panelY = toggleRect.yMax + 4f;
-            float slotsHeight = 20f + SaveManager.SlotCount * 28f + 14f;
-            float cameraSectionHeight = 78f;
-            // 没有过场时也留一行，用来显示"场景里没有"，免得面板看起来像坏了。
-            float cutsceneSectionHeight = 26f + Mathf.Max(_sequences.Count, 1) * itemH;
-            float panelH = 8f + slotsHeight + cameraSectionHeight + cutsceneSectionHeight
-                + _scenes.Count * itemH + 8f;
+            Rect safe = UIScale.SafeArea;
+            // 手机上内容高度远大于屏幕。面板只占 Debug 按钮下方的安全区，
+            // 内容由 Draw 里的触摸滚动负责；不再把面板顶到屏幕外。
+            float availableHeight = Mathf.Max(ItemH, safe.yMax - panelY);
+            float panelH = Mathf.Min(ContentHeight(), availableHeight);
+            panelX = Mathf.Clamp(panelX, safe.x, Mathf.Max(safe.x, safe.xMax - panelW));
             return (toggleRect, new Rect(panelX, panelY, panelW, panelH));
         }
 
@@ -65,12 +84,13 @@ namespace SSNoir.IMGUI
             };
             GUI.Label(toggleRect, "Debug ▾", labelStyle);
 
-            if (ui.WasClicked(toggleRect))
+            if (ui.WasTapped(toggleRect))
             {
                 _isOpen = !_isOpen;
                 if (_isOpen)
                 {
                     LoadScenes(gameManager);
+                    _scrollOffset = 0f;
                 }
                 Event.current.Use();
             }
@@ -78,15 +98,27 @@ namespace SSNoir.IMGUI
             if (!_isOpen) return;
 
             // Panel
-            float itemH = 26f;
+            float itemH = ItemH;
             float panelW = panelRect.width;
-            float panelX = panelRect.x;
-            float panelY = panelRect.y;
+            float contentHeight = ContentHeight();
+            float maxScroll = Mathf.Max(0f, contentHeight - panelRect.height);
 
             GUI.color = new Color(IMGUIStyles.HudBg.r, IMGUIStyles.HudBg.g, IMGUIStyles.HudBg.b, IMGUIStyles.ModalOpacity);
             GUI.DrawTexture(panelRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(panelRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
+
+            UpdateScroll(ui, panelRect, maxScroll);
+            _scrollOffset = Mathf.Clamp(_scrollOffset, 0f, maxScroll);
+
+            GUI.BeginGroup(panelRect);
+            try
+            {
+            float panelX = 0f;
+            float panelY = -_scrollOffset;
+            var translatedUi = ui.Translated(new Vector2(panelRect.x, panelRect.y));
+            // BeginGroup 只负责裁剪，命中判定还要显式拒绝面板外的指针。
+            var contentUi = panelRect.Contains(ui.Mouse) ? translatedUi : translatedUi.Occluded();
 
             // Slots Section
             float curY = panelY + 8f;
@@ -112,14 +144,14 @@ namespace SSNoir.IMGUI
                 var rectSave = new Rect(panelX + panelW - 8f - 64f, curY + 2f, 30f, 22f);
                 var rectLoad = new Rect(panelX + panelW - 8f - 30f, curY + 2f, 30f, 22f);
 
-                if (IMGUIButton.Draw(rectSave, "存", ui,
+                if (IMGUIButton.Draw(rectSave, "存", contentUi,
                         new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
                         new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), labelStyle))
                 {
                     gameManager.SaveGame(slotPath);
                 }
 
-                if (IMGUIButton.Draw(rectLoad, "读", ui,
+                if (IMGUIButton.Draw(rectLoad, "读", contentUi,
                         new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
                         new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), labelStyle, hasSave))
                 {
@@ -152,7 +184,7 @@ namespace SSNoir.IMGUI
                 normal = { textColor = instantCuts ? IMGUIStyles.Gold : IMGUIStyles.TextSecondary }
             };
             var cameraModeRect = new Rect(panelX + panelW - 8f - 64f, cameraRowY + 2f, 64f, 22f);
-            if (IMGUIButton.Draw(cameraModeRect, instantCuts ? "0 秒" : "正常", ui,
+            if (IMGUIButton.Draw(cameraModeRect, instantCuts ? "0 秒" : "正常", contentUi,
                     instantCuts ? IMGUIStyles.Gold : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
                     new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), cameraModeStyle))
             {
@@ -172,13 +204,13 @@ namespace SSNoir.IMGUI
             var captureFill = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
 
             if (IMGUIButton.Draw(new Rect(panelX + panelW - 8f - 132f, captureRowY + 2f, 64f, 22f),
-                    "1080p", ui, captureBorder, captureFill, captureStyle, !CinematicCapture.IsCapturing))
+                    "1080p", contentUi, captureBorder, captureFill, captureStyle, !CinematicCapture.IsCapturing))
             {
                 CinematicCapture.Capture(gameManager, 1080);
             }
 
             if (IMGUIButton.Draw(new Rect(panelX + panelW - 8f - 64f, captureRowY + 2f, 64f, 22f),
-                    "4K", ui, captureBorder, captureFill, captureStyle, !CinematicCapture.IsCapturing))
+                    "4K", contentUi, captureBorder, captureFill, captureStyle, !CinematicCapture.IsCapturing))
             {
                 CinematicCapture.Capture(gameManager, 2160);
             }
@@ -188,7 +220,7 @@ namespace SSNoir.IMGUI
             float cutsceneSepY = captureRowY + itemH + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, cutsceneSepY), new Vector2(panelX + panelW - 8, cutsceneSepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-            GUI.Label(new Rect(panelX + 8, cutsceneSepY + 2f, panelW, 18f), "过场测试", mutedStyle);
+            GUI.Label(new Rect(panelX + 8, cutsceneSepY + 2f, panelW, 18f), "过场测试（只播放，不进入交锋）", mutedStyle);
 
             float cutsceneListY = cutsceneSepY + 22f;
 
@@ -209,7 +241,7 @@ namespace SSNoir.IMGUI
                     if (sequence == null)
                         continue;
 
-                    bool hovered = ui.CanHover(rowRect);
+                    bool hovered = contentUi.CanHover(rowRect);
                     if (hovered)
                     {
                         GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
@@ -232,7 +264,7 @@ namespace SSNoir.IMGUI
                     GUI.Label(new Rect(rowRect.xMax - 52f, rowRect.y + 4, 48f, rowRect.height),
                         shotCount == 0 ? "空" : $"{shotCount} 镜", mutedStyle);
 
-                    if (ui.WasClicked(rowRect))
+                    if (contentUi.WasTapped(rowRect))
                     {
                         gameManager.Cutscene.Play(sequence);
                         _isOpen = false;
@@ -248,7 +280,7 @@ namespace SSNoir.IMGUI
             sepY = cutsceneListY + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-            GUI.Label(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "切换场景", mutedStyle);
+            GUI.Label(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "交锋测试（直接进入）", mutedStyle);
 
             // Scene list
             float listY = sepY + 4f + itemH * 0.5f;
@@ -266,7 +298,7 @@ namespace SSNoir.IMGUI
                     continue;
                 }
 
-                bool isHovered = ui.CanHover(itemRect);
+                bool isHovered = contentUi.CanHover(itemRect);
                 bool isCurrent = item.SceneName == currentScene;
 
                 if (isHovered)
@@ -289,7 +321,7 @@ namespace SSNoir.IMGUI
                 };
                 GUI.Label(new Rect(itemRect.x + 10, itemRect.y + 4, itemRect.width, itemRect.height), item.Name, itemStyle);
 
-                if (ui.WasClicked(itemRect))
+                if (contentUi.WasTapped(itemRect))
                 {
                     gameManager.OnSceneButtonClicked(item.SceneName);
                     _isOpen = false;
@@ -297,6 +329,14 @@ namespace SSNoir.IMGUI
                     return;
                 }
             }
+
+            }
+            finally
+            {
+                GUI.EndGroup();
+            }
+
+            DrawScrollbar(panelRect, contentHeight, maxScroll);
 
             // Close when clicking outside
             if (Event.current.type == EventType.MouseDown && Event.current.button == 0 && !ui.IsLocked)
@@ -309,9 +349,75 @@ namespace SSNoir.IMGUI
             }
         }
 
-        public static void Close() { _isOpen = false; }
+        public static void Close()
+        {
+            _isOpen = false;
+            _scrollDragActive = false;
+        }
 
         public static void Reset() { Close(); }
+
+        private static void UpdateScroll(IMGUIInteractionContext ui, Rect panelRect, float maxScroll)
+        {
+            bool pointerInPanel = panelRect.Contains(ui.Mouse);
+            var e = Event.current;
+
+            if (pointerInPanel && e.type == EventType.ScrollWheel && maxScroll > 0f)
+            {
+                _scrollOffset += e.delta.y * 18f;
+                e.Use();
+                return;
+            }
+
+            // 桌面用滚轮；手机用手指拖动。面板内的按钮都在 MouseUp 且未滑动时响应，
+            // 因此从按钮上开始滑动也不会误触。
+            if (UIScale.HasHoverPointer)
+                return;
+
+            switch (e.type)
+            {
+                case EventType.MouseDown when e.button == 0 && pointerInPanel && maxScroll > 0f:
+                    _scrollDragActive = true;
+                    _scrollDragLastY = ui.Mouse.y;
+                    _scrollDragTravel = 0f;
+                    break;
+
+                case EventType.MouseDrag when _scrollDragActive:
+                {
+                    float dy = ui.Mouse.y - _scrollDragLastY;
+                    _scrollDragLastY = ui.Mouse.y;
+                    _scrollDragTravel += Mathf.Abs(dy);
+                    _scrollOffset -= dy;
+                    if (_scrollDragTravel >= IMGUIInteractionContext.TapSlop)
+                        e.Use();
+                    break;
+                }
+
+                case EventType.MouseUp:
+                    _scrollDragActive = false;
+                    _scrollDragTravel = 0f;
+                    break;
+            }
+        }
+
+        private static void DrawScrollbar(Rect panelRect, float contentHeight, float maxScroll)
+        {
+            if (maxScroll <= 0f)
+                return;
+
+            const float trackW = 5f;
+            var track = new Rect(panelRect.xMax - trackW - 3f, panelRect.y + 4f,
+                trackW, panelRect.height - 8f);
+            float thumbH = Mathf.Max(ItemH, track.height * (panelRect.height / contentHeight));
+            float travel = Mathf.Max(0f, track.height - thumbH);
+            var thumb = new Rect(track.x, track.y + travel * (_scrollOffset / maxScroll), track.width, thumbH);
+
+            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.65f);
+            GUI.DrawTexture(track, Texture2D.whiteTexture);
+            GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f);
+            GUI.DrawTexture(thumb, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+        }
 
         private static void LoadScenes(SSNoirGameManager gameManager)
         {

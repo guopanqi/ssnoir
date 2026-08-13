@@ -68,6 +68,7 @@ namespace SSNoir.Rendering
             _state.SelectedResource = null;
             _state.CardsScrollOffset = 0f;
             _state.CardsScrollStack.Clear();
+            _state.HandCharactersScrollOffset = 0f;
             _state.HandItemsScrollOffset = 0f;
             _state.CardResidues.Clear();
             _state.IsTurnPanelOpen = false;
@@ -1414,6 +1415,9 @@ namespace SSNoir.Rendering
                         node.Resolve?.Type == ResolveType.Instant,
                         node.Resolve?.DifficultyModifiers);
 
+                    if (node.Resolve?.Type == ResolveType.Clock)
+                        ownHeight = CardWidget.GetClockCardMinimumHeight(node.Resolve.Clock!, cardWidth);
+
                     if (node.Resolve?.Type == ResolveType.Roll)
                     {
                         bool activeLocalRoll = _state.ActiveRollResult != null
@@ -1484,7 +1488,7 @@ namespace SSNoir.Rendering
 
                 if (node.Resolve?.Type == ResolveType.Clock)
                 {
-                    CardWidget.DrawClockCard(bounds, node.Name, node.Subtitle, node.Resolve.Clock);
+                    CardWidget.DrawClockCard(bounds, node.Resolve.Clock!);
                     continue;
                 }
 

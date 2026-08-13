@@ -116,11 +116,6 @@ namespace SSNoir
             float vw = UIScale.VW;
             float vh = UIScale.VH;
 
-            // 压暗，但压不死：底下是活的世界视角，玩家点新游戏之前就该看见自己要进的那座城。
-            GUI.color = new Color(0.02f, 0.03f, 0.05f, 0.62f);
-            GUI.DrawTexture(new Rect(0, 0, vw, vh), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
             float x = vw * ColumnX;
             float titleY = vh * TitleY;
 
@@ -212,7 +207,7 @@ namespace SSNoir
                 GUI.Label(new Rect(rect.x + 140f, rect.y, 220f, rect.height), hint, hintStyle);
             }
 
-            if (!enabled || !ui.WasClicked(rect))
+            if (!enabled || !ui.WasTapped(rect))
                 return false;
 
             // 吃掉这次点击：菜单下面就是世界，漏过去会当成一次世界点击。

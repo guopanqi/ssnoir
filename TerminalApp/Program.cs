@@ -45,6 +45,13 @@ namespace SSNoir
                     return;
                 }
 
+                // 交锋试跑：无头跑完一场，打出逐回合流水。见 src/Playtest/PlaytestRunner.cs。
+                if (args.Length > 0 && args[0] == "--playtest")
+                {
+                    SSNoir.Playtest.PlaytestRunner.Run(args);
+                    return;
+                }
+
                 // 运行时产物统一放项目根 .cache/saves（已被 gitignore）。
                 SaveManager.DefaultSavePath = Path.Combine(".cache", "saves", "save.json");
 

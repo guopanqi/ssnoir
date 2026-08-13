@@ -43,7 +43,7 @@ Material:
     - _CrossingAmplitude: 0.18
     - _CrossingAngle: 11
     - _CrossingSpacing: 2.05
-    - _CrossingStrength: 0.231
+    - _CrossingStrength: 0.033
     - _CrossingWidth: 0.025
     - _DriftSpeed: 1.54
     - _FadeSpeed: 0.73

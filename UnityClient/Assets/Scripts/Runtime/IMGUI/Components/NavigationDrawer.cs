@@ -8,16 +8,10 @@ namespace SSNoir.IMGUI
     {
         public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui, TopHudLayout topHud)
         {
-            float startY = 30f;
-            const float returnX = 40f;
-            const float breadcrumbX = 170f;
-            const float breadcrumbWidth = 480f;
-            const float dayX = 670f;
-
             // Return button
             if (gameManager.NavigationStack.Count > 0 || !string.IsNullOrEmpty(gameManager.FocusedNodeName))
             {
-                var returnRect = new Rect(returnX, startY, 110, 40);
+                var returnRect = topHud.Back;
 
                 var style = new GUIStyle(IMGUIStyles.StatusLabel);
                 style.alignment = TextAnchor.MiddleCenter;
@@ -33,7 +27,8 @@ namespace SSNoir.IMGUI
             }
 
             // Breadcrumb
-            string breadcrumbText = "当前位置: ";
+            // 「当前位置:」是纯损耗——面包屑本身已经说明了它是什么。
+            string breadcrumbText = string.Empty;
             string rootName = gameManager.DisplayedSnapshot.RootNode?.Name ?? "未加载";
             if (gameManager.NavigationStack.Count == 0)
             {
@@ -47,19 +42,22 @@ namespace SSNoir.IMGUI
             var crumbStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             crumbStyle.normal.textColor = IMGUIStyles.TextSecondary;
             crumbStyle.fontSize = IMGUIStyles.FontSize(16);
-            breadcrumbText = FitTextWithEllipsis(breadcrumbText, breadcrumbWidth, crumbStyle);
-            GUI.Label(new Rect(breadcrumbX, startY + 8, breadcrumbWidth, 26), breadcrumbText, crumbStyle);
+            breadcrumbText = FitTextWithEllipsis(breadcrumbText, topHud.Breadcrumb.width, crumbStyle);
+            GUI.Label(topHud.Breadcrumb, breadcrumbText, crumbStyle);
 
             var dayStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             dayStyle.normal.textColor = IMGUIStyles.TextPrimary;
             dayStyle.fontSize = IMGUIStyles.FontSize(16);
-            GUI.Label(new Rect(dayX, startY + 8, 92f, 26f), $"第 {gameManager.DisplayedSnapshot.WorldDay} 天", dayStyle);
+            dayStyle.alignment = TextAnchor.MiddleCenter;
+            GUI.Label(topHud.Day, $"第 {gameManager.DisplayedSnapshot.WorldDay} 天", dayStyle);
 
             // Relation Panel
-            DrawRelationPanel(gameManager, ui, topHud.RelationToggle);
+            DrawRelationPanel(gameManager, ui, topHud);
 
             // Divider
-            IMGUIStyles.DrawLine(new Vector2(40, 88), new Vector2(UIScale.VW - 40, 88),
+            IMGUIStyles.DrawLine(
+                new Vector2(topHud.Bar.xMin, topHud.DividerY),
+                new Vector2(topHud.Bar.xMax, topHud.DividerY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
         }
 
@@ -100,8 +98,9 @@ namespace SSNoir.IMGUI
         private static readonly string[] Factions = { "官僚", "劳工", "富商" };
 
         // 收起态留在导航栏；展开态是一张完整的关系进展图，放到导航线下方。
-        private static void DrawRelationPanel(SSNoirGameManager gameManager, IMGUIInteractionContext ui, Rect toggleRect)
+        private static void DrawRelationPanel(SSNoirGameManager gameManager, IMGUIInteractionContext ui, TopHudLayout topHud)
         {
+            var toggleRect = topHud.RelationToggle;
             var snapshot = gameManager.DisplayedSnapshot;
             GUI.color = IMGUIStyles.HudBg;
             GUI.DrawTexture(toggleRect, Texture2D.whiteTexture);
@@ -113,8 +112,9 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 fontSize = IMGUIStyles.FontSize(13)
             };
-            GUI.Label(toggleRect, _relationExpanded ? "关系进展  ·  收起" : CompactSummary(snapshot), toggleStyle);
-            if (ui.WasClicked(toggleRect))
+            // 按钮上放不下三个数字，只做入口——数字在展开的进展图里看。
+            GUI.Label(toggleRect, _relationExpanded ? "收 起" : "关 系", toggleStyle);
+            if (ui.WasTapped(toggleRect))
             {
                 _relationExpanded = !_relationExpanded;
                 Event.current.Use();
@@ -122,11 +122,19 @@ namespace SSNoir.IMGUI
 
         }
 
-        public static void DrawRelationOverlay(PresentationSnapshot snapshot)
+        public static void DrawRelationOverlay(PresentationSnapshot snapshot, TopHudLayout topHud)
         {
             if (!_relationExpanded) return;
-            float panelW = Mathf.Min(620f, UIScale.VW - 80f);
-            var panel = new Rect(UIScale.VW - 40f - panelW, 100f, panelW, 398f);
+
+            Rect safe = UIScale.SafeArea;
+            float panelW = Mathf.Min(620f, topHud.Bar.width);
+            // 高度按剩余竖直空间收敛：窄屏上 398 会直接顶穿屏幕底。
+            float headerH = 50f;
+            float available = Mathf.Max(0f, safe.yMax - 16f - topHud.ContentTop);
+            float rowH = Mathf.Clamp((available - headerH) / Factions.Length, 96f, 112f);
+            float panelH = headerH + rowH * Factions.Length;
+            float panelY = Mathf.Max(topHud.ContentTop - Mathf.Max(0f, panelH - available), topHud.Bar.yMax);
+            var panel = new Rect(topHud.Bar.xMax - panelW, panelY, panelW, panelH);
             GUI.color = new Color(IMGUIStyles.HudBg.r, IMGUIStyles.HudBg.g, IMGUIStyles.HudBg.b, 0.98f);
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
             GUI.color = Color.white;
@@ -142,7 +150,7 @@ namespace SSNoir.IMGUI
 
             for (int i = 0; i < Factions.Length; i++)
                 DrawFactionProgress(snapshot, Factions[i],
-                    new Rect(panel.x + 16f, panel.y + 50f + i * 112f, panel.width - 32f, 102f));
+                    new Rect(panel.x + 16f, panel.y + headerH + i * rowH, panel.width - 32f, rowH - 10f));
         }
 
         private static string CompactSummary(PresentationSnapshot snapshot)
@@ -194,10 +202,13 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
 
             const float chipGap = 6f;
+            const float chipTop = 41f;
             float chipW = (rect.width - 24f - chipGap * 2f) / 3f;
+            // 解锁条按行高剩下的空间收敛，不写死 49——行高本身随屏幕高度变。
+            float chipH = Mathf.Max(38f, rect.height - chipTop - 8f);
             for (int t = 0; t < RelationScale.PositiveTiers.Length; t++)
             {
-                var chip = new Rect(rect.x + 12f + t * (chipW + chipGap), rect.y + 41f, chipW, 49f);
+                var chip = new Rect(rect.x + 12f + t * (chipW + chipGap), rect.y + chipTop, chipW, chipH);
                 DrawUnlock(snapshot, faction, RelationScale.PositiveTiers[t],
                     RelationScale.PositiveThresholds[t], value, chip, trackX, trackY, trackW);
             }

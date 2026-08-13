@@ -7,6 +7,7 @@ namespace SSNoir.Core
     public class GameNode
     {
         public string Name { get; set; } = string.Empty;
+        public string? AnchorName { get; set; }
         public string Subtitle { get; set; } = string.Empty;
         public bool Disabled { get; set; }
         public List<GameClock> Clocks { get; } = new List<GameClock>();
@@ -19,5 +20,7 @@ namespace SSNoir.Core
         public bool HasChildren => Children != null && Children.Count > 0;
         public bool IsContainer => Resolve == null;
         public bool HasResolve => Resolve != null;
+        public bool HasExplicitAnchor => AnchorName != null;
+        public string EffectiveAnchorName => AnchorName ?? Name;
     }
 }

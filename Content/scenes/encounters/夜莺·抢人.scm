@@ -109,7 +109,7 @@
   (play-dialogue!
     (line "世界" "楼道里的脚步停在这一层。有人挨着门牌，一间一间往这里查。")
     (line "夜莺" "这个人刚才已经经过一次。")
-    (line "主角" "那就让他下一次经过时，往楼上走。")))
+    (line "尼尔" "那就让他下一次经过时，往楼上走。")))
 
 (define (node-background-search)
   (node "有人正在搜查"
@@ -445,8 +445,22 @@
     ((= road 2) (node-lure-into-checkpoint))
     (else (error "抢人第二幕：未知右侧动作"))))
 
-(define (node-use-roadblock target target-name)
-  (node (string-append "用路障材料配合：" target-name)
+(define (road-left-roadblock-name)
+  (cond
+    ((= road 0) "路障撞鱼摊")
+    ((= road 1) "路障抢电车")
+    ((= road 2) "路障撞侧栏")
+    (else (error "抢人第二幕：未知左侧路障动作"))))
+
+(define (road-right-roadblock-name)
+  (cond
+    ((= road 0) "路障砸木架")
+    ((= road 1) "路障断信号")
+    ((= road 2) "路障引追车")
+    (else (error "抢人第二幕：未知右侧路障动作"))))
+
+(define (node-use-roadblock target title)
+  (node title
     :subtitle (string-append "任意骰；消耗 1 份路障材料，确定推进 2 格。剩余 "
                  (number->string (roadblocks-left)) " 份")
     :disabled (<= (roadblocks-left) 0)
@@ -464,7 +478,7 @@
       (append
         (list (node-road-left-action))
         (if (> (roadblocks-left) 0)
-            (list (node-use-roadblock road-left-clk (road-left-name)))
+            (list (node-use-roadblock road-left-clk (road-left-roadblock-name)))
             '()))))
 
 (define (road-right-actions)
@@ -473,7 +487,7 @@
       (append
         (list (node-road-right-action))
         (if (and (> (roadblocks-left) 0) (roadblock-usable-on-right?))
-            (list (node-use-roadblock road-right-clk (road-right-name)))
+            (list (node-use-roadblock road-right-clk (road-right-roadblock-name)))
             '()))))
 
 (define (node-road-left)
@@ -504,7 +518,7 @@
   (set! finished? #t)
   (play-dialogue!
     (line "夜莺" "后面没灯了。")
-    (line "主角" "你可以慢一点。")
+    (line "尼尔" "你可以慢一点。")
     (line "夜莺" "你先把手松开再说。"))
   (spotlight! "抢人：甩掉了"
     (string-append
@@ -538,7 +552,7 @@
 (define (begin-chase!)
   (play-dialogue!
     (line "夜莺" "楼下那辆送酒的车。钥匙在我这儿。")
-    (line "主角" "你会开？")
+    (line "尼尔" "你会开？")
     (line "夜莺" "你还有时间换人吗？"))
   (set! act 2)
   (pursuit-clk 'set! (if (decoy-clk 'full?) 3 4))
@@ -551,7 +565,7 @@
   (play-dialogue!
     (line "世界" "岗哨看清你的脸，抬起栏杆。送酒车过去以后，栏杆又落了下来。")
     (line "夜莺" "你在警察局到底留了多少张脸？")
-    (line "主角" "今晚刚好够用。"))
+    (line "尼尔" "今晚刚好够用。"))
   (finish-success!))
 
 (define (advance-road!)
@@ -616,15 +630,14 @@
 (define (act1-title)
   (if own-apartment?
       "抢人：你的公寓"
-      "抢人：她借住的公寓"))
+      "抢人：借住公寓"))
 
 (define (get-render-data)
   (if (= act 1)
-      (container-with-clocks (act1-title)
-        (act1-nodes)
-        (list (search-clk 'render-data)))
-      (container-with-clocks (string-append "抢人：送酒车穿过" (road-name))
-        (road-nodes)
-        (append
-          (list (pursuit-clk 'render-data) (route-clock-data))
-          (roadblock-clock-data)))))
+      (container (act1-title)
+        (append (clock-nodes (search-clk 'render-data))
+          (act1-nodes)))
+      (container (string-append "抢人：" (road-name))
+        (append (apply clock-nodes
+                  (append (list (pursuit-clk 'render-data) (route-clock-data)) (roadblock-clock-data)))
+          (road-nodes)))))

@@ -6,7 +6,8 @@ namespace SSNoir.IMGUI
 {
     public sealed class CardPresentationResidue
     {
-        public string AnchorNodeName { get; set; } = string.Empty;
+        public string HostNodeName { get; set; } = string.Empty;
+        public string SpatialAnchorName { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public RollOutcome? RollOutcome { get; set; }
         public int? FateDieValue { get; set; }

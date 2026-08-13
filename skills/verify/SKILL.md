@@ -1,6 +1,6 @@
 ---
 name: verify
-description: 完成或计划 SSNoir 的代码/内容改动、用户要求构建或测试、为疑难 bug 选择复现手段，或准备修改 GameTester 时使用。根据主要风险选择最小充分验证，并提供仓库的准确命令。
+description: 修改 SSNoir 的代码或可执行内容后决定验证范围、用户要求构建或测试、为疑难 bug 选择复现手段，或准备修改 GameTester 时使用。纯说明文档、历史记录、方案文字和只读回答不使用。
 ---
 
 # 验证到什么程度
@@ -19,12 +19,38 @@ description: 完成或计划 SSNoir 的代码/内容改动、用户要求构建�
 | `Engine/Runtime/**`、`TerminalApp/**` | `dotnet build TerminalApp/ssnoir.csproj` |
 | `schemy-master/**` | `./schemy-master/build-unity-plugin.sh`（同时重建 Unity 使用的 DLL） |
 | 判定分布 | `./run --test-odds` |
+| 交锋的回合规则、目标结算、入场与结束路径 | `./run --playtest "<入场表达式>"`（见下节） |
 | 存档契约 | `./run --test-saveload` |
 | `UnityClient/**` 独有代码 | 按下节「Unity C# 的编译验证」拿真编译结果；拿不到就静态审阅并交给用户，不用 `TerminalApp` 的构建冒充 |
 | 较大的非 Unity UI 布局 / 交互改动，或用户明确要求看实际效果 | 运行并检查相关客户端；构建通过不等于视觉或交互正确。Unity 交互按下节处理 |
 | 追一个具体的疑难 bug | 用能复现它的**最小**手段，别顺手做全量校验 |
 
 用户明确要求某项验证时执行它，除非环境不支持；此时说明限制，不要用不等价的检查替代后声称已验证。
+
+## 交锋试跑（`--playtest`）
+
+`--validate` 只保证一场交锋**载入并渲染一次**；它碰不到回合规则、目标结算、同伴中途入场
+和结束路径——那些只有真的把一场打完才会跑到。改了交锋的可执行结构，用这个：
+
+```bash
+./run --playtest "(dock-collapse 'debug-enter!)" --runs 5 --growth 1 --seed 7
+./run --playtest "(dock-collapse 'debug-enter!)" --verbose      # 逐回合看牌面
+./run --playtest encounters/combat                              # 还没接进城市的交锋直接载入
+```
+
+参数写 Scheme 表达式时，从世界那头真的走一遍入场，返回值会经过世界模块结算与人物写回；
+写场景名则直接载入。`--seed` 固定随机数，同一局可以原样重放。
+
+它打出的是**逐回合流水**：谁的哪颗骰放到哪张卡、判定档、效果条、对白与告示卡，最后一行是
+`end-encounter` 交回来的值。读这份流水能一眼看出文案顺序、效果条措辞和结算路径对不对。
+
+默认打法是"每颗骰投给准备值最高的卡"，**是天花板不是玩家**：它从不浪费骰、也从不做错误的
+分诊。用它看"改了数值以后上限动了多少"，不要用它回答"这场难不难"——那个只有真人玩了才算数。
+
+驱动本身在 [TerminalApp/src/Playtest/EncounterDriver.cs](../../TerminalApp/src/Playtest/EncounterDriver.cs)：
+起局、列合法投骰、执行、结束回合、读结果。**它的观测只走渲染树**，不 Eval 脚本内部变量——
+某个状态如果这里读不出来，说明玩家也读不出来。要给某一场写专门的打法或断言，基于它写一个
+一次性脚本，别往 `GameTester` 里塞。
 
 ## Unity C# 的编译验证
 

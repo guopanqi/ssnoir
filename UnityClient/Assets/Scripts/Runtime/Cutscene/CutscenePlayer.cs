@@ -9,7 +9,7 @@ using SSNoir.IMGUI;
 namespace SSNoir
 {
     /// <summary>
-    /// 过场播放：推到第一个机位 → 压黑边进影幕 → 逐镜放片子（中间换镜头不动黑边）
+    /// 过场播放：推向第一个机位并同步压下黑边 → 逐镜放片子（中间换镜头不动黑边）
     /// → 收黑边 → 回原机位。
     ///
     /// 三条规矩，破一条整场就散：
@@ -34,7 +34,6 @@ namespace SSNoir
         {
             Idle,
             Approach,     // 推向当前这一镜的机位，等它停稳
-            LetterboxIn,  // 黑边压下来（整场仅一次）
             Playing,      // 放这一镜的片子
             LetterboxOut, // 黑边收回去（整场仅一次）
             Return,       // 回原机位
@@ -44,12 +43,13 @@ namespace SSNoir
         // 影幕里——超时就照常往下走，宁可首帧对不齐也不能卡死。
         private const float MoveTimeout = 4f;
 
-        // 没有视频的镜头仍要留出一小段时间，方便单独检查运镜和影幕。
-        private const float EmptyShotHoldSeconds = 3f;
+        // 没有视频的镜头仍要留出一小段时间，方便单独检查运镜和影幕。留太久会像是这里本该有
+        // 什么东西却没出来，一秒足够让影幕收放读得出是一次转场。
+        private const float EmptyShotHoldSeconds = 1f;
 
         // 影幕是全游戏统一的视觉语言，不允许由单场过场改写。
         private const float LetterboxAspect = 2.39f;
-        private const float LetterboxDuration = 0.5f;
+        private const float DefaultLetterboxDuration = 0.5f;
 
         // 片子迟迟没准备好时的兜底（解码失败、URL 打不开、平台不支持这个编码）。
         private const float VideoStartTimeout = 10f;
@@ -77,9 +77,15 @@ namespace SSNoir
 
         private CinemachineVirtualCamera? _returnCamera;
 
-        // 影幕是否真的压下来过。收场路径靠它决定要不要走收黑边——不能靠阶段推断：
+        // 影幕是否已经完整压下来过。收场路径不能只靠它决定：同步进入后，Approach 中途跳过时
+        // 也可能已经露出了一截黑边，那一截同样要平顺收回。
         // 镜头全部配置失效时会一路跳到收尾，那时黑边根本没出现过，再"收"一次就是凭空闪一下。
         private bool _letterboxRaised;
+        // 第一镜的黑边和本次画面过渡同时起步。正常运镜取它自己的设计时长；若镜头已在目标
+        // 构图而直接到位，仍保留默认进入时长，避免黑边一帧跳满。
+        private float _letterboxInDuration = DefaultLetterboxDuration;
+        private float _letterboxOutStartProgress = 1f;
+        private float _letterboxOutDuration = DefaultLetterboxDuration;
 
         private bool _hasVideo;
         private bool _videoPending;
@@ -125,6 +131,8 @@ namespace SSNoir
             _onComplete = onComplete;
             _shotIndex = 0;
             _letterboxRaised = false;
+            _letterboxOutStartProgress = 1f;
+            _letterboxOutDuration = DefaultLetterboxDuration;
 
             // 记下当前这一镜，散场时回到它。
             _returnCamera = _gameManager.CameraManager.GetActiveCamera();
@@ -168,19 +176,13 @@ namespace SSNoir
             {
                 case Phase.Approach:
                     // 超时也放行：卡在这里等于把玩家锁死在一个没有 UI 的世界里。
-                    if (IsSettledOn(_activeShot?.Camera) || elapsed >= MoveTimeout)
+                    bool cameraReady = IsSettledOn(_activeShot?.Camera) || elapsed >= MoveTimeout;
+                    bool letterboxReady = _letterboxRaised || elapsed >= _letterboxInDuration;
+                    if (cameraReady && letterboxReady)
                     {
-                        // 第一镜要先把影幕压下来；后面几镜影幕早就在了，直接开播。
-                        if (_shotIndex == 0)
-                            EnterPhase(Phase.LetterboxIn);
-                        else
-                            BeginPlayback();
-                    }
-                    break;
-
-                case Phase.LetterboxIn:
-                    if (elapsed >= LetterboxDuration)
+                        // 第一镜的影幕在运镜途中已经压完；后面几镜一直挂着，都是直接开播。
                         BeginPlayback();
+                    }
                     break;
 
                 case Phase.Playing:
@@ -191,7 +193,7 @@ namespace SSNoir
                     break;
 
                 case Phase.LetterboxOut:
-                    if (elapsed >= LetterboxDuration)
+                    if (elapsed >= _letterboxOutDuration)
                     {
                         StopVideo();
                         BeginReturn();
@@ -231,8 +233,12 @@ namespace SSNoir
             if (_phase == Phase.LetterboxOut || _phase == Phase.Return)
                 return;
 
-            if (_letterboxRaised)
+            float letterboxProgress = LetterboxProgress();
+            if (letterboxProgress > 0f)
             {
+                _letterboxOutStartProgress = letterboxProgress;
+                _letterboxOutDuration = Mathf.Max(
+                    0.01f, DefaultLetterboxDuration * letterboxProgress);
                 EnterPhase(Phase.LetterboxOut);
                 return;
             }
@@ -281,13 +287,23 @@ namespace SSNoir
             _activeShot = shot;
             _activeShotOriginalPriority = camera.Priority;
 
+            _gameManager.PresentCamera(camera, shot.FocusAnchor);
+
             // 和游戏里其他每一次换镜走同一条路：焦点运镜的那条弧线，同样的时长，同样受
             // 减少动画影响。玩家不该能从运镜方式上看出「这一下是过场」。
             //
             // 它解不出兴趣点时会返回 false（平视机位的中心射线打不到地面就是这种情况），
             // 那就什么都没发生，下面抬完优先级由 brain 按默认混合直线推过去——退化成直线，
             // 不是不动。
-            _gameManager.CameraManager.BeginFocusTravel(camera);
+            _gameManager.CameraManager.BeginFocusTravel(camera, out float cameraTransitionDuration);
+
+            if (!_letterboxRaised)
+            {
+                // 黑边与第一镜同起同落；但相机已足够接近而直接到位时，黑边仍走自己的最短节奏。
+                // 上限服从 Approach 的超时，否则一个异常的超长 blend 会绕过防卡死约束。
+                _letterboxInDuration = Mathf.Clamp(
+                    cameraTransitionDuration, DefaultLetterboxDuration, MoveTimeout);
+            }
 
             camera.Priority = CutscenePriority;
 
@@ -400,15 +416,18 @@ namespace SSNoir
                 return 0f;
 
             float elapsed = Time.unscaledTime - _phaseStartedAt;
-            float duration = Mathf.Max(0.01f, LetterboxDuration);
+            float enterDuration = Mathf.Max(0.01f, _letterboxInDuration);
+            float exitDuration = Mathf.Max(0.01f, _letterboxOutDuration);
 
             return _phase switch
             {
                 // 第一镜是从实时画面推过来的，那时还没有影幕；之后每次换镜头影幕都还挂着。
-                Phase.Approach => _letterboxRaised ? 1f : 0f,
-                Phase.LetterboxIn => Mathf.SmoothStep(0f, 1f, elapsed / duration),
+                Phase.Approach => _letterboxRaised
+                    ? 1f
+                    : Mathf.SmoothStep(0f, 1f, elapsed / enterDuration),
                 Phase.Playing => 1f,
-                Phase.LetterboxOut => Mathf.SmoothStep(1f, 0f, elapsed / duration),
+                Phase.LetterboxOut => Mathf.SmoothStep(
+                    _letterboxOutStartProgress, 0f, elapsed / exitDuration),
                 _ => 0f,
             };
         }
@@ -490,6 +509,17 @@ namespace SSNoir
             }
 
             string videoPath = Application.streamingAssetsPath + "/Cutscenes/" + shot.VideoFileName;
+
+#if SSNOIR_NO_STREAMING_ASSETS
+            // 过审构建把整个 StreamingAssets 删掉了，片子不在包里。这种包**绝不能**去碰
+            // VideoPlayer：小游戏容器的 _JS_Video_Create 会抛 TypeError: Unknown event，
+            // 异常从 wasm 栈里穿出 PlayerLoop，引擎当场停在那一帧再也不出帧——整个游戏卡死，
+            // 下面那条 errorReceived 的优雅回退根本轮不到执行。这里直接按空镜处理。
+            Debug.Log(
+                $"[SSNoir] 本次构建不含过场视频，'{shot.DisplayName}' 按空镜处理，"
+                + $"停留 {EmptyShotHoldSeconds:0.#} 秒。", shot);
+            return;
+#endif
 
 #if !UNITY_WEBGL || UNITY_EDITOR
             if (!System.IO.File.Exists(videoPath))

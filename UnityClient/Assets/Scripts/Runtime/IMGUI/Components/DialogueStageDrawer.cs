@@ -9,10 +9,16 @@ namespace SSNoir.IMGUI
     public static class DialogueStageDrawer
     {
         private const string NarratorSpeaker = "世界";
-        private const string ProtagonistSpeaker = "主角";
+        private const string ProtagonistSpeaker = "尼尔";
         private const string PortraitResourceRoot = "Portraits/";
         // 同名文件放进 Portraits/Neon/（见 NeonPortraitLibrary）就切换到霓虹灯管表现；
         // 留在 Portraits/ 下仍走传统半身像。
+        // 对白框的三个尺寸参数集中在这里：手机上框往下坐、也矮一档，让出来的全给立绘。
+        // 一句话的对白不需要一个 148 高的框，只需要够读那一句。
+        private const float BoxBottomMargin = 14f;
+        private const float BoxMinHeight = 104f;
+        private const float BoxHeightRatio = 0.26f;
+
         private const float EnterDuration = 0.20f;
         private const float TypewriterCharactersPerSecond = 30f;
 
@@ -111,9 +117,15 @@ namespace SSNoir.IMGUI
 
         private static void DrawPortraitStage(string speaker, Portrait portrait, bool onLeft, float reveal)
         {
-            float dialogueTop = UIScale.VH - Mathf.Min(230f, UIScale.VH * 0.26f) - 44f;
-            float portraitTop = 72f;
-            float portraitHeight = Mathf.Clamp(dialogueTop + 42f - portraitTop, 360f, 720f);
+            float dialogueTop = UIScale.VH - Mathf.Min(230f, UIScale.VH * BoxHeightRatio) - BoxBottomMargin;
+            // 立绘从更靠上的地方立起来，占满对白框以上的全部空间——对白舞台上人是主角，
+            // 框只是他说的话。上下限按屏高取比例：写死的 360 在手机的画布里既可能顶穿、
+            // 也可能把人压成一小条。
+            const float portraitTop = 28f;
+            float portraitHeight = Mathf.Clamp(
+                dialogueTop + 42f - portraitTop,
+                UIScale.VH * 0.55f,
+                UIScale.VH * 0.92f);
             // 霓虹是一整块封闭灯管图形，切半身等于把灯管掐断，因此改用整幅招牌的窄长比例。
             float portraitWidth = portraitHeight * (portrait.IsNeon ? NeonCropWidth / NeonCropHeight : 0.68f);
             float restingX = onLeft ? 64f : UIScale.VW - portraitWidth - 64f;
@@ -328,7 +340,7 @@ namespace SSNoir.IMGUI
             bool isNeon,
             float reveal)
         {
-            float boxWidth = Mathf.Min(1180f, Mathf.Max(440f, UIScale.VW - 160f));
+            float boxWidth = Mathf.Min(1180f, Mathf.Max(320f, UIScale.SafeArea.width - 80f));
             var bodyStyle = new GUIStyle(IMGUIStyles.ModalBody)
             {
                 wordWrap = true,
@@ -338,11 +350,15 @@ namespace SSNoir.IMGUI
             };
             float textWidth = boxWidth - 72f;
             float textHeight = bodyStyle.CalcHeight(new GUIContent(fullText), textWidth);
-            float boxHeight = Mathf.Clamp(textHeight + (isNarration ? 62f : 86f), 148f, Mathf.Min(230f, UIScale.VH * 0.32f));
+            float boxHeight = Mathf.Clamp(
+                textHeight + (isNarration ? 62f : 86f),
+                BoxMinHeight,
+                Mathf.Min(230f, UIScale.VH * BoxHeightRatio));
             // 每句都短促上弹一次以提示文本已更新；人物立绘使用独立计时，不跟着重复淡入。
             float sentenceBounce = (1f - reveal) * 16f - Mathf.Sin(reveal * Mathf.PI) * 5f;
-            float boxY = UIScale.VH - boxHeight - 44f + sentenceBounce;
-            var box = new Rect((UIScale.VW - boxWidth) / 2f, boxY, boxWidth, boxHeight);
+            Rect safe = UIScale.SafeArea;
+            float boxY = safe.yMax - boxHeight - BoxBottomMargin + sentenceBounce;
+            var box = new Rect(safe.x + (safe.width - boxWidth) / 2f, boxY, boxWidth, boxHeight);
 
             IMGUIStyles.DrawShadow(box, new Vector2(8f, 10f), 0.64f * reveal);
             GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, reveal);

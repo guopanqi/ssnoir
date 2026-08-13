@@ -22,8 +22,10 @@ namespace SSNoir
         public float orbitSpeedY = 0.05f;
 
         [Header("Pitch (Up/Down) Limits")]
-        public float minPitch = 10f;
-        public float maxPitch = 25f;
+        // 低机位仍保留，但 10° 太贴地，建筑和卡片容易挤成一层；默认上提一档，
+        // 让玩家能获得更清楚的空间关系，又不把城市拍成俯视地图。
+        public float minPitch = 16f;
+        public float maxPitch = 35f;
 
         // Persistent start values captured when drag begins
         private float _startYaw;

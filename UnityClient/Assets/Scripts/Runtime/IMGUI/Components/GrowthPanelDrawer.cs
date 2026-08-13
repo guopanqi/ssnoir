@@ -25,10 +25,12 @@ namespace SSNoir.IMGUI
 
         public static Rect GetPanelRect()
         {
-            float panelW = 640f;
-            float panelH = 420f;
-            float panelX = (UIScale.VW - panelW) / 2f;
-            float panelY = (UIScale.VH - panelH) / 2f;
+            // 窄屏上 640×420 会直接顶穿画布：面板不能比屏幕还大。
+            Rect safe = UIScale.SafeArea;
+            float panelW = Mathf.Min(640f, safe.width - 32f);
+            float panelH = Mathf.Min(420f, safe.height - 24f);
+            float panelX = safe.x + (safe.width - panelW) / 2f;
+            float panelY = safe.y + (safe.height - panelH) / 2f;
             return new Rect(panelX, panelY, panelW, panelH);
         }
 
@@ -79,7 +81,7 @@ namespace SSNoir.IMGUI
             closeStyle.normal.textColor = closeHover ? IMGUIStyles.PaperInk : IMGUIStyles.PaperTextSecondary;
             GUI.Label(closeRect, "X", closeStyle);
 
-            if (ui.WasClicked(closeRect))
+            if (ui.WasTapped(closeRect))
             {
                 interaction.ShouldClose = true;
                 Event.current.Use();
@@ -142,7 +144,7 @@ namespace SSNoir.IMGUI
 
                 // Stats rows
                 float rowStartY = contentStartY + 82f;
-                float rowHeight = 38f;
+                float rowHeight = UIScale.TouchHeight(38f);
 
                 for (int s = 0; s < StatKeys.Length; s++)
                 {
@@ -157,9 +159,10 @@ namespace SSNoir.IMGUI
                     GUI.Label(new Rect(colX + 16f, rowY + 4f, colWidth - 70f, 20f), $"{statLabel} {statVal}", statRowStyle);
 
                     // Upgrade [+] button：纸上主选项 = 黑底白字实心块；禁用 = 35% 黑描边
-                    float btnSize = 22f;
+                    // 22×22 在手机上只有两毫米见方，按不中；撑到最小触控尺寸，但留出行距不压邻行。
+                    float btnSize = Mathf.Min(UIScale.TouchHeight(22f), rowHeight - 6f);
                     float btnX = colX + colWidth - btnSize - 20f;
-                    var btnRect = new Rect(btnX, rowY + 2f, btnSize, btnSize);
+                    var btnRect = new Rect(btnX, rowY + (rowHeight - btnSize) * 0.5f, btnSize, btnSize);
 
                     bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < TeamState.MaxStatLevel;
                     bool btnHover = isEnabled && ui.CanHover(btnRect);
@@ -184,7 +187,7 @@ namespace SSNoir.IMGUI
                     }
                     GUI.Label(btnRect, "+", btnStyle);
 
-                    if (isEnabled && ui.WasClicked(btnRect))
+                    if (isEnabled && ui.WasTapped(btnRect))
                     {
                         gameManager.UpgradeActorStat(actor.Id, statKey);
                         Event.current.Use();

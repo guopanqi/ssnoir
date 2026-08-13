@@ -21,8 +21,10 @@ namespace SSNoir.IMGUI
 
                 float cardW = 240f;
                 float cardH = 34f;
-                float cardX = UIScale.VW - cardW - 40f;
-                float cardY = 75f + i * (cardH + 8f);
+                float cardX = UIScale.SafeArea.xMax - cardW - 24f;
+                // 通知也贴右上角，同样要让开宿主的胶囊按钮。
+                float cardTop = Mathf.Max(UIScale.SafeArea.y + 75f, UIScale.TopRightReserved.yMax + 8f);
+                float cardY = cardTop + i * (cardH + 8f);
                 var cardRect = new Rect(cardX, cardY, cardW, cardH);
 
                 // 通知：黑底 HUD 语言。收益/成功=金文字，失败/损失=印章红，警告=赭黄，一般=纸白。
@@ -66,7 +68,8 @@ namespace SSNoir.IMGUI
             }
 
             Cursor.visible = true;
-            const float tokenSize = 56f;
+            // 跟在指针上的那块和手牌里拿起来的那块必须一样大，否则拖起来会「变形」。
+            float tokenSize = HandPanelDrawer.TokenSize;
             var rect = new Rect(mousePos.x - tokenSize * 0.5f, mousePos.y - tokenSize * 0.5f, tokenSize, tokenSize);
 
             // 拖拽 ghost 使用与手牌/slot 同一族方块，不退回成文字标签。

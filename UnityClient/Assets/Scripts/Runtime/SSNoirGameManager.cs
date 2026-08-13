@@ -105,6 +105,33 @@ namespace SSNoir
 
         public void SetInputLocked(bool locked) => _renderer?.SetInputLocked(locked);
 
+        public NodeAnchor? ResolveAnchor(GameNode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException(nameof(node));
+
+            var anchor = _sceneDirectory?.GetAnchor(node.EffectiveAnchorName);
+            if (node.HasExplicitAnchor && anchor == null)
+            {
+                string message =
+                    $"[SSNoir] Node '{node.Name}' explicitly requires anchor " +
+                    $"'{node.AnchorName}', but no such scene anchor exists.";
+                Debug.LogError(message);
+                UnityEngine.Assertions.Assert.IsTrue(false, message);
+                throw new InvalidOperationException(message);
+            }
+
+            return anchor;
+        }
+
+        public NodeAnchor? ResolveAnchor(string nodeName)
+        {
+            var node = FindNodeByName(nodeName);
+            return node != null
+                ? ResolveAnchor(node)
+                : _sceneDirectory?.GetAnchor(nodeName);
+        }
+
         private void Start()
         {
             // 1. Initialize Game State & Script Loader
@@ -257,6 +284,11 @@ namespace SSNoir
                 _selectedResource = null;
                 SetFocusedNode(null, updateCamera: true);
             }
+            else if (node.Resolve?.Type == ResolveType.Clock)
+            {
+                // 钟卡仅展示状态，既不能翻面也不能成为执行 / 投骰目标。
+                return;
+            }
             else if (node.Resolve != null && node.Resolve.Type == ResolveType.Observe && (node.Requires == null || node.Requires.Count == 0))
             {
                 ToggleNodeFlipped(node.Name);
@@ -349,7 +381,7 @@ namespace SSNoir
             if (_stageController.HasActivePortal)
                 return true;
 
-            var anchor = _sceneDirectory?.GetAnchor(currentContextId);
+            var anchor = ResolveAnchor(currentContextId);
             return anchor != null && anchor.GetComponent<StagePortalConfig>() != null;
         }
 
@@ -368,14 +400,14 @@ namespace SSNoir
             usedWorldFallback = false;
             foreach (var nodeName in focusPath.AsEnumerable().Reverse())
             {
-                var anchor = _sceneDirectory?.GetAnchor(nodeName);
+                var anchor = ResolveAnchor(nodeName);
                 if (anchor != null && anchor.FocusVirtualCamera != null)
                     return anchor.FocusVirtualCamera;
             }
 
             if (string.Equals(_sceneManager.CurrentSceneName, "world", StringComparison.OrdinalIgnoreCase))
             {
-                var worldAnchor = _sceneDirectory?.GetAnchor(WorldRootNodeName);
+                var worldAnchor = ResolveAnchor(WorldRootNodeName);
                 if (worldAnchor != null && worldAnchor.FocusVirtualCamera != null)
                 {
                     usedWorldFallback = true;
@@ -415,7 +447,7 @@ namespace SSNoir
         {
             foreach (var nodeName in GetCurrentNavigationPathNames().AsEnumerable().Reverse())
             {
-                var anchor = _sceneDirectory?.GetAnchor(nodeName);
+                var anchor = ResolveAnchor(nodeName);
                 if (anchor != null && anchor.GetComponent<StagePortalConfig>() != null)
                     return nodeName;
             }
@@ -791,7 +823,7 @@ namespace SSNoir
             if (incomingRoot == null)
                 return;
 
-            var anchor = _sceneDirectory?.GetAnchor(incomingRoot.Name);
+            var anchor = ResolveAnchor(incomingRoot);
             if (anchor != null)
             {
                 _incomingFocusContextCamera = anchor.FocusVirtualCamera;
@@ -846,8 +878,19 @@ namespace SSNoir
         public void AdoptLatestSnapshot()
         {
             _displayedSnapshot = _sceneManager.LatestSnapshot;
+            if (_displayedSnapshot.RootNode != null)
+                ValidateExplicitAnchors(_displayedSnapshot.RootNode);
             ResolveNavigationStack();
             CleanupNodeSlots();
+        }
+
+        private void ValidateExplicitAnchors(GameNode node)
+        {
+            if (node.HasExplicitAnchor)
+                ResolveAnchor(node);
+
+            foreach (var child in node.Children)
+                ValidateExplicitAnchors(child);
         }
 
         public void UpgradeActorStat(string actorId, string statKey)

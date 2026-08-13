@@ -39,13 +39,14 @@ namespace SSNoir.IMGUI
         // 节点视觉类别。分两大族：
         //   有框（Action / Character）——框起来的「器物」，你在上面操作。
         //   无边悬浮（Location / Common）——漂在图纸上的「一个地方 / 一件事」，你点进去。
-        public enum CardKind { Action, Location, Character, Common }
+        public enum CardKind { Action, Clock, Location, Character, Common }
 
         // 数据驱动分类。内容里并没有「地点 / 人物」标签，真正的「这是个地方」信号是它
         // 锚定在场景 3D 建筑上（projected）；网格里的容器则是地点内部的事件/分组（Common）。
         // 标签留作显式覆盖，未来内容想强制某类时可用。
         public static CardKind Classify(GameNode node, bool anchored)
         {
+            if (node.Resolve?.Type == ResolveType.Clock) return CardKind.Clock;
             if (node.HasResolve) return CardKind.Action;
             if (node.Tags.Contains("人物")) return CardKind.Character;
             if (anchored || node.Tags.Contains("地点")) return CardKind.Location;
@@ -60,6 +61,14 @@ namespace SSNoir.IMGUI
         {
             if (kind == CardKind.Action)
                 return ActionNodeDrawer.RecommendedCardHeight(node, cardWidth, actors);
+
+            if (kind == CardKind.Clock)
+            {
+                var clock = node.Resolve?.Clock;
+                float badgeHeight = clock == null ? 0f : MeasureClockBadgesHeight(cardWidth, new List<GameClock> { clock });
+                float notesHeight = clock == null ? 0f : MeasureClockNotesHeight(cardWidth, new List<GameClock> { clock });
+                return Mathf.Max(MinCardHeight, 16f + badgeHeight + notesHeight + 16f);
+            }
 
             float clocksHeight = MeasureClockBadgesHeight(cardWidth, node.Clocks);
             return kind switch
@@ -94,7 +103,19 @@ namespace SSNoir.IMGUI
 
             // 时钟徽章可能换行——先量出它实际占到哪，卡内其余内容（标题/头像/能力栏）
             // 才知道该从哪开始画，不会被压在徽章下面。
-            float clocksBottomY = MeasureClockBadgesBottom(rect, clocks);
+            var displayClocks = kind == CardKind.Clock && node.Resolve?.Clock != null
+                ? new List<GameClock> { node.Resolve.Clock }
+                : clocks;
+            float clocksBottomY = MeasureClockBadgesBottom(rect, displayClocks);
+
+            // 只读钟卡：没有槽位、执行按钮或点击/悬停态；状态的存在感只靠悬浮阴影。
+            if (kind == CardKind.Clock)
+            {
+                DrawCardFrame(rect, isHovered: false, isFocused: false, disabled: false, isHappening: false);
+                DrawClockBadges(rect, displayClocks);
+                DrawClockNotes(rect, displayClocks, clocksBottomY);
+                return interaction;
+            }
 
             // ── 无边悬浮族（地点 / 普通）：Ink + 硬投影，不走框架，整卡可点。
             if (kind == CardKind.Location || kind == CardKind.Common)
@@ -102,7 +123,7 @@ namespace SSNoir.IMGUI
                 ContainerNodeDrawer.DrawFloating(rect, node, kind == CardKind.Location, isHovered && !disabled, disabled, clocksBottomY);
                 DrawClockBadges(rect, clocks);
                 DrawRestBlockerMarker(rect, isRestBlockerTarget, containsRestBlockerTarget);
-                if (!disabled && ui.WasClicked(rect))
+                if (!disabled && ui.WasTapped(rect))
                 {
                     interaction.CardClicked = true;
                     Event.current.Use();
@@ -125,7 +146,7 @@ namespace SSNoir.IMGUI
             if (isCharacter)
             {
                 ContainerNodeDrawer.DrawCharacter(rect, node, disabled, clocksBottomY);
-                if (!disabled && ui.WasClicked(rect))
+                if (!disabled && ui.WasTapped(rect))
                 {
                     interaction.CardClicked = true;
                     Event.current.Use();
@@ -147,6 +168,38 @@ namespace SSNoir.IMGUI
                 GUI.matrix = oldMatrix;
 
             return interaction;
+        }
+
+        private static float MeasureClockNotesHeight(float cardWidth, IReadOnlyList<GameClock>? clocks)
+        {
+            if (clocks == null) return 0f;
+            var subtitleStyle = new GUIStyle(IMGUIStyles.CardSubtitle)
+            {
+                wordWrap = true
+            };
+            float height = 0f;
+            foreach (var clock in clocks)
+                if (!string.IsNullOrWhiteSpace(clock.Note))
+                    height += subtitleStyle.CalcHeight(new GUIContent(clock.Note), cardWidth - 32f) + 6f;
+            return height;
+        }
+
+        private static void DrawClockNotes(Rect rect, IReadOnlyList<GameClock>? clocks, float startY)
+        {
+            if (clocks == null) return;
+            var style = new GUIStyle(IMGUIStyles.CardSubtitle)
+            {
+                alignment = TextAnchor.UpperCenter,
+                wordWrap = true
+            };
+            float y = startY + 6f;
+            foreach (var clock in clocks)
+            {
+                if (string.IsNullOrWhiteSpace(clock.Note)) continue;
+                float height = style.CalcHeight(new GUIContent(clock.Note), rect.width - 32f);
+                GUI.Label(new Rect(rect.x + 16f, y, rect.width - 32f, height), clock.Note, style);
+                y += height + 6f;
+            }
         }
 
         // 休息阻塞目标属于“正在等待玩家处理”，使用金色而不是失败/高危的印章红：
@@ -232,11 +285,25 @@ namespace SSNoir.IMGUI
         private const float ClockBadgeGap = 8f;
         private const float ClockBadgeRowGap = 6f;
         private const float ClockBadgeMinW = 112f;
-        private const float ClockBadgeMaxW = 180f;
+        // 长标签与多段进度（如「与乔熟悉起来」+ 8 格）需要约 230px；卡片仍会按自身可用
+        // 宽度收缩，避免徽章越出窄卡，而不是把标签静默裁掉。
+        private const float ClockBadgeMaxW = 240f;
         private const float ClockBadgePadX = 10f;
         private const float ClockLabelValueGap = 8f;
         private const float PieDiameter = 18f;
         private const float PieValueGap = 6f;
+
+        // 三枚以上的节点时钟在聚焦卡上很常见。正常规格会选择换行，信息虽没丢，
+        // 但形成的「两枚 + 一枚」会把任务卡的标题区挤成不稳定的两层。紧凑规格只
+        // 在所有徽章能完整同排时启用：字号、内边距和段格稍收，而不裁掉标签、分数或段数。
+        private const float CompactClockBadgeH = 24f;
+        private const float CompactClockBadgeMinW = 80f;
+        private const float CompactClockBadgePadX = 6f;
+        private const float CompactClockLabelValueGap = 4f;
+        private const float CompactSegmentSize = 7f;
+        private const float CompactSegmentSpacing = 3f;
+        private const float CompactPieDiameter = 16f;
+        private const float CompactPieValueGap = 4f;
 
         // 量出徽章会占到哪一行的哪个 Y——只做计算不画，供上层在画标题/头像前先留够空间。
         private static float MeasureClockBadgesBottom(Rect rect, List<GameClock>? clocks)
@@ -254,66 +321,85 @@ namespace SSNoir.IMGUI
             => LayoutClockBadges(rect, clocks, draw: true);
 
         // 量和画共用同一套换行逻辑——避免像旧版那样「预留的位置」和「实际画的位置」各算一遍、
-        // 改一处忘了改另一处。一行最多能放几个徽章按最小宽度 112 反推；单行放不下就自动换行，
-        // 不再像固定单行那样，徽章一多就被硬挤到卡片外面。
+        // 改一处忘了改另一处。
+        //
+        // 排法是「按各自真正需要多宽，能塞下就塞，塞不下就换行」。
+        // 以前是先用固定的最小宽度 112 反推一行放几个，再把这一行的宽度均分下去：手机上卡宽
+        // 约 380，于是三个时钟被判成"一行放得下"，每个只分到 115——而「交割款 45/100」需要
+        // 约 146，标签就被裁成了「交」。一行放几个必须由内容说了算，不能由一个猜出来的下限
+        // 说了算。
         private static float LayoutClockBadges(Rect rect, List<GameClock>? clocks, bool draw)
         {
             if (clocks == null || clocks.Count == 0) return rect.y;
 
             float maxRowW = Mathf.Max(0f, rect.width - 24f);
-            int maxPerRow = Mathf.Max(1, Mathf.FloorToInt((maxRowW + ClockBadgeGap) / (ClockBadgeMinW + ClockBadgeGap)));
+            bool compactSingleRow = clocks.Count >= 3 && FitsCompactSingleRow(clocks, maxRowW);
 
             float y = rect.y + 8f;
             int i = 0;
             while (i < clocks.Count)
             {
-                int rowCount = Mathf.Min(maxPerRow, clocks.Count - i);
-                float perBadgeMaxW = Mathf.Clamp((maxRowW - ClockBadgeGap * (rowCount - 1)) / rowCount, ClockBadgeMinW, ClockBadgeMaxW);
-                // 卡片本身比一个徽章的最小宽度还窄时（连续缩放投影下会发生），每行已经减到 1 个，
-                // 但 112 这个「最小宽度」偏好仍会把徽章撑得比卡还宽——这里再用整行可用宽度兜底，
-                // 宁可收窄到比设计预期更小，也不让徽章探出卡外。
-                perBadgeMaxW = Mathf.Min(perBadgeMaxW, maxRowW);
-
+                // 贪心装一行：至少放一个（哪怕它比整行还宽，收窄到整行为止），
+                // 之后每多一个都要求它按需要的宽度还塞得进去。
+                var widths = new List<float>();
                 float totalW = 0f;
-                var widths = new float[rowCount];
-                for (int j = 0; j < rowCount; j++)
+                while (i + widths.Count < clocks.Count)
                 {
-                    widths[j] = Mathf.Min(MeasureNodeClockBadgeWidth(clocks[i + j]), perBadgeMaxW);
-                    totalW += widths[j];
+                    bool compact = compactSingleRow;
+                    float want = Mathf.Clamp(
+                        MeasureNodeClockBadgeWidth(clocks[i + widths.Count], compact),
+                        Mathf.Min(compact ? CompactClockBadgeMinW : ClockBadgeMinW, maxRowW),
+                        compact ? maxRowW : ClockBadgeMaxW);
+                    float withGap = widths.Count == 0 ? want : totalW + ClockBadgeGap + want;
+                    if (widths.Count > 0 && withGap > maxRowW)
+                        break;
+
+                    widths.Add(Mathf.Min(want, maxRowW));
+                    totalW = widths.Count == 1 ? widths[0] : withGap;
                 }
-                totalW += ClockBadgeGap * (rowCount - 1);
 
                 if (draw)
                 {
                     float x = rect.x + (rect.width - totalW) * 0.5f;
-                    for (int j = 0; j < rowCount; j++)
+                    for (int j = 0; j < widths.Count; j++)
                     {
-                        DrawNodeClockBadge(new Rect(x, y, widths[j], ClockBadgeH), clocks[i + j]);
+                        float badgeH = compactSingleRow ? CompactClockBadgeH : ClockBadgeH;
+                        DrawNodeClockBadge(new Rect(x, y, widths[j], badgeH), clocks[i + j], compactSingleRow);
                         x += widths[j] + ClockBadgeGap;
                     }
                 }
 
-                y += ClockBadgeH + ClockBadgeRowGap;
-                i += rowCount;
+                y += (compactSingleRow ? CompactClockBadgeH : ClockBadgeH) + ClockBadgeRowGap;
+                i += widths.Count;
             }
 
             return y - ClockBadgeRowGap;
         }
 
-        private static float MeasureNodeClockBadgeWidth(GameClock clock)
+        private static bool FitsCompactSingleRow(IReadOnlyList<GameClock> clocks, float maxRowW)
+        {
+            float totalW = ClockBadgeGap * (clocks.Count - 1);
+            foreach (var clock in clocks)
+                totalW += MeasureNodeClockBadgeWidth(clock, compact: true);
+            return totalW <= maxRowW;
+        }
+
+        private static float MeasureNodeClockBadgeWidth(GameClock clock, bool compact = false)
         {
             var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
             {
-                fontSize = IMGUIStyles.FontSize(14),
+                fontSize = IMGUIStyles.FontSize(compact ? 12 : 14),
                 fontStyle = FontStyle.Bold
             };
             IMGUIStyles.ApplyStrongFont(labelStyle);
 
             float labelW = labelStyle.CalcSize(new GUIContent(clock.Label)).x;
-            return ClockBadgePadX * 2f + labelW + ClockLabelValueGap + MeasureNodeClockValueWidth(clock);
+            float padX = compact ? CompactClockBadgePadX : ClockBadgePadX;
+            float gap = compact ? CompactClockLabelValueGap : ClockLabelValueGap;
+            return padX * 2f + labelW + gap + MeasureNodeClockValueWidth(clock, compact);
         }
 
-        private static void DrawNodeClockBadge(Rect rect, GameClock clock)
+        private static void DrawNodeClockBadge(Rect rect, GameClock clock, bool compact)
         {
             Color activeColor = IMGUIStyles.Gold;
             Color inactiveColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
@@ -326,7 +412,7 @@ namespace SSNoir.IMGUI
 
             var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
             {
-                fontSize = IMGUIStyles.FontSize(14),
+                fontSize = IMGUIStyles.FontSize(compact ? 12 : 14),
                 alignment = TextAnchor.MiddleLeft,
                 clipping = TextClipping.Clip
             };
@@ -335,22 +421,24 @@ namespace SSNoir.IMGUI
             // 徽章会随卡片收窄。不能只收窄外框、继续以固定的 valueW 画内容：这样长分数
             // （如 74/100）与饼图会从框内探出去。值优先占据可用空间，标签再使用剩余部分；
             // 两个 Label 都显式 Clip，作为数值或卡片异常窄时的最后一道边界。
-            float innerW = Mathf.Max(0f, rect.width - ClockBadgePadX * 2f);
-            float desiredValueW = MeasureNodeClockValueWidth(clock);
+            float padX = compact ? CompactClockBadgePadX : ClockBadgePadX;
+            float labelValueGap = compact ? CompactClockLabelValueGap : ClockLabelValueGap;
+            float innerW = Mathf.Max(0f, rect.width - padX * 2f);
+            float desiredValueW = MeasureNodeClockValueWidth(clock, compact);
             float valueW = Mathf.Min(desiredValueW, innerW);
-            float gap = valueW > 0f && !string.IsNullOrEmpty(clock.Label) ? ClockLabelValueGap : 0f;
+            float gap = valueW > 0f && !string.IsNullOrEmpty(clock.Label) ? labelValueGap : 0f;
             float labelW = Mathf.Min(
                 labelStyle.CalcSize(new GUIContent(clock.Label)).x,
                 Mathf.Max(0f, innerW - valueW - gap));
 
-            var valueRect = new Rect(rect.xMax - ClockBadgePadX - valueW, rect.y, valueW, rect.height);
-            GUI.Label(new Rect(rect.x + ClockBadgePadX, rect.y, labelW, rect.height), clock.Label, labelStyle);
+            var valueRect = new Rect(rect.xMax - padX - valueW, rect.y, valueW, rect.height);
+            GUI.Label(new Rect(rect.x + padX, rect.y, labelW, rect.height), clock.Label, labelStyle);
 
             if (clock.Style == ClockStyle.Countdown)
             {
                 var valueStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
-                    fontSize = IMGUIStyles.FontSize(15),
+                    fontSize = IMGUIStyles.FontSize(compact ? 13 : 15),
                     alignment = TextAnchor.MiddleRight,
                     clipping = TextClipping.Clip,
                     normal = { textColor = IMGUIStyles.Gold }
@@ -359,8 +447,8 @@ namespace SSNoir.IMGUI
             }
             else if (clock.Style == ClockStyle.Segments)
             {
-                const float dot = 10f;
-                const float spacing = 5f;
+                float dot = compact ? CompactSegmentSize : 10f;
+                float spacing = compact ? CompactSegmentSpacing : 5f;
                 float dotStartX = valueRect.x;
                 float dotY = rect.y + (rect.height - dot) * 0.5f;
                 int visibleCount = Mathf.Min(clock.Max, Mathf.Max(0, Mathf.FloorToInt((valueW + spacing) / (dot + spacing))));
@@ -386,8 +474,10 @@ namespace SSNoir.IMGUI
             else // Pie
             {
                 // 先给圆形分配实际放得下的直径，再让分数占剩余宽度；两者都不会越过 valueRect。
-                float pieSize = Mathf.Min(PieDiameter, valueW);
-                float fractionGap = pieSize > 0f && valueW > pieSize ? Mathf.Min(PieValueGap, valueW - pieSize) : 0f;
+                float pieDiameter = compact ? CompactPieDiameter : PieDiameter;
+                float pieValueGap = compact ? CompactPieValueGap : PieValueGap;
+                float pieSize = Mathf.Min(pieDiameter, valueW);
+                float fractionGap = pieSize > 0f && valueW > pieSize ? Mathf.Min(pieValueGap, valueW - pieSize) : 0f;
                 var pieRect = new Rect(valueRect.x, rect.center.y - pieSize * 0.5f, pieSize, pieSize);
                 float fillPct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
                 if (pieSize >= 4f)
@@ -395,7 +485,7 @@ namespace SSNoir.IMGUI
 
                 var fracStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
-                    fontSize = IMGUIStyles.FontSize(14),
+                    fontSize = IMGUIStyles.FontSize(compact ? 12 : 14),
                     alignment = TextAnchor.MiddleRight,
                     clipping = TextClipping.Clip,
                     normal = { textColor = IMGUIStyles.Gold }
@@ -406,15 +496,19 @@ namespace SSNoir.IMGUI
             }
         }
 
-        private static float MeasureNodeClockValueWidth(GameClock clock)
+        private static float MeasureNodeClockValueWidth(GameClock clock, bool compact = false)
         {
             string fraction = $"{clock.Current}/{clock.Max}";
             return clock.Style switch
             {
-                ClockStyle.Countdown => MeasureClockValueTextWidth(fraction, 15),
-                ClockStyle.Segments => Mathf.Max(0f, clock.Max * 10f + Mathf.Max(0, clock.Max - 1) * 5f),
-                ClockStyle.Pie => PieDiameter + PieValueGap + MeasureClockValueTextWidth(fraction, 14),
-                _ => MeasureClockValueTextWidth(fraction, 15)
+                ClockStyle.Countdown => MeasureClockValueTextWidth(fraction, compact ? 13 : 15),
+                ClockStyle.Segments => compact
+                    ? Mathf.Max(0f, clock.Max * CompactSegmentSize + Mathf.Max(0, clock.Max - 1) * CompactSegmentSpacing)
+                    : Mathf.Max(0f, clock.Max * 10f + Mathf.Max(0, clock.Max - 1) * 5f),
+                ClockStyle.Pie => (compact ? CompactPieDiameter : PieDiameter)
+                    + (compact ? CompactPieValueGap : PieValueGap)
+                    + MeasureClockValueTextWidth(fraction, compact ? 12 : 14),
+                _ => MeasureClockValueTextWidth(fraction, compact ? 13 : 15)
             };
         }
 
@@ -455,7 +549,7 @@ namespace SSNoir.IMGUI
 
             GUI.Label(new Rect(rect.x + 8, rect.y + rect.height - 18, rect.width - 16, 14), "点击返回", IMGUIStyles.FlippedTip);
 
-            if (ui.WasClicked(rect))
+            if (ui.WasTapped(rect))
             {
                 interaction.CardClicked = true;
                 Event.current.Use();
