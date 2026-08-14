@@ -15,6 +15,7 @@
 
     (define (node-buy-medicine)
       (node "买药品"
+        :anchor "诊所-服务"
         :subtitle (if (equal? (relation-band "官僚") '敌视)
                       "医生知道你现在不受待见，这份药比平时贵一截"
                       "")
@@ -32,6 +33,7 @@
 
     (define (node-treatment)
       (node "看医生"
+        :anchor "诊所-服务"
         :subtitle (cond
                     ((equal? (injury-band) '完好) "身上没有需要处理的伤")
                     ((equal? (relation-band "官僚") '敌视)
@@ -43,12 +45,22 @@
           (outcome "医生给你处理了伤口"
             (lambda () (heal-injury! 2))))))
 
+    ;; ── 标注（不可操作）─────────────────────────────────────────
+    ;; 这两条是标注不是卡：碰不得、点不动，只告诉你这个地方是什么样子。
+    ;; 没有锚点的那条升到画面上方，说的是整个诊所；带锚点的那条挂在诊台旁边，
+    ;; 一根线指过去，说的是那一处（服务卡共用 Anchor_诊所-服务）。
+
+    (define (note-waiting-room)
+      (note-node "标注：候诊" ""
+        "夜里只留一盏灯。挂号窗后面那位从不问伤是怎么来的。"))
+
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
            (list (container "诊所"
-                   (list (node-buy-medicine) (node-treatment)))))
+                   (list (node-buy-medicine) (node-treatment)
+                         (note-waiting-room)))))
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)
           (#t #f))))))

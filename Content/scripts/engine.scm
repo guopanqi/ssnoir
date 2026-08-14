@@ -155,18 +155,42 @@
 (define (observe text)
   (list 'observe text))
 
+;; ── 标注 ─────────────────────────────────────────────────────────
+;; 空间里一段不可操作的说明。它不是卡：不能点、不能查看、不能导航进去，
+;; 唯一的反馈是它自己变了。玩家看到的就是漂在场景里的一行字。
+;;
+;;   (note "标题" "正文")              纯文字
+;;   (note "标题" "正文" 钟)           文字 + 读数
+;;
+;; 标题、正文都可以是空串（只想要一句话就把标题留空），但不能全空。
+(define (note title text . clock-data)
+  (if (null? clock-data)
+      (list 'note title text)
+      (list 'note title text (car clock-data))))
+
+;; 标注节点。name 只是渲染树里的身份，不会显示出来。
+;;
+;; 挂在哪儿由锚点决定，和动作卡同一套规则：能解析到场景锚点就浮在那一处旁边、
+;; 一根线指过去；解析不到就升到画面上方的场景标注带里，说这一整场在发生什么。
+;; 要显式指定锚点，直接用 node：(node "标注：值班表" :anchor "看医生" :resolve (note ...))。
+(define (note-node name title text . clock-data)
+  (node name :resolve (if (null? clock-data)
+                          (note title text)
+                          (note title text (car clock-data)))))
+
 ;; Clock resolve constructor — wraps exactly one make-clock render-data snapshot.
+;; 钟就是「带读数的标注」：读数取自钟，标题取钟的 label，正文取钟的 note。
 (define (clock clock-data)
   (list 'clock clock-data))
 
-;; Clock node: a display-only card. name is an internal tree identity and is not rendered.
+;; Clock node: a display-only annotation. name is an internal tree identity and is not rendered.
 (define (clock-node name clock-data)
   (node name :resolve (clock clock-data)))
 
-;; 将一组钟各自立为只读卡。clock-node 本身始终只接受一根钟。
+;; 将一组钟各自立为一条标注。clock-node 本身始终只接受一根钟。
 (define (clock-nodes . clock-datas)
   (map (lambda (clock-data)
-         ;; 前缀只供渲染树唯一性检查使用；钟卡不渲染节点名。
+         ;; 前缀只供渲染树唯一性检查使用；标注不渲染节点名。
          (clock-node (string-append "钟：" (cadr clock-data)) clock-data))
        clock-datas))
 
@@ -196,6 +220,9 @@
 ;; Shorthands for simple actions
 (define (instant-action name effect)
   (action name #f (instant effect)))
+
+(define (anchored-instant-action name anchor effect)
+  (node name :anchor anchor :requires #f :resolve (instant effect)))
 
 (define (instant-action-with-tags name tags effect)
   (action-with-tags name tags #f (instant effect)))
@@ -230,9 +257,9 @@
           (error "recovery-roll-action: expected 6 args (name requires skill fail neutral success) or 7 args (name requires skill mod-fn fail neutral success)"))))
 
 ;; ── 工作（work）DSL ───────────────────────────────────
-;; (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])
-;; (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])
-;; (非法工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle])
+;; (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name])
+;; (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name])
+;; (非法工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name])
 ;;   faction: "官僚"/"劳工"/"富商"。普通工作不产关系；关系工作仅在好结果 +1。
 ;;   risk:    只有 '低/'高，决定风险标签与结果代价。
 ;;   非法工作是独立维度：额外显示“非法”并固定难度 -2，不再冒充第三种风险档。
@@ -260,10 +287,11 @@
     (if illegal? (list (modifier -2 "非法")) '())
     (关系难度修正 faction)))
 
-(define (构造工作 name faction 产关系? illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle)
+(define (构造工作 name faction 产关系? illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle anchor)
   (if (工作-合法势力? faction) #t (error "工作: 未知势力（应为 官僚/劳工/富商）"))
   (node name
         :subtitle subtitle
+        :anchor anchor
         :tags (if illegal?
                   (list "工作" (工作-风险标签 risk) "非法")
                   (list "工作" (工作-风险标签 risk)))
@@ -279,17 +307,33 @@
                              "关系工作 好")
                            (require-outcome 好-outcome "工作 好")))))
 
+;; 工作包装的附加参数故意只接受一条副标题和一组 :anchor，不能静默吞错：工作是最常见
+;; 的空间节点之一，锚名写错必须在内容加载时暴露，而不是悄悄退回网格。
+(define (工作-附加参数 extra)
+  (cond
+    ((null? extra) (list "" #f))
+    ((and (= (length extra) 1) (string? (car extra))) (list (car extra) #f))
+    ((and (= (length extra) 2) (equal? (car extra) :anchor) (string? (cadr extra)))
+     (list "" (cadr extra)))
+    ((and (= (length extra) 3) (string? (car extra))
+          (equal? (cadr extra) :anchor) (string? (caddr extra)))
+     (list (car extra) (caddr extra)))
+    (else (error "工作: 附加参数应为 [subtitle] [:anchor 锚点名]"))))
+
 (define (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
-  (构造工作 name faction #f #f risk skill 好-outcome 中-outcome 坏-outcome
-            (if (null? extra) "" (car extra))))
+  (let ((args (工作-附加参数 extra)))
+    (构造工作 name faction #f #f risk skill 好-outcome 中-outcome 坏-outcome
+              (car args) (cadr args))))
 
 (define (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
-  (构造工作 name faction #t #f risk skill 好-outcome 中-outcome 坏-outcome
-            (if (null? extra) "" (car extra))))
+  (let ((args (工作-附加参数 extra)))
+    (构造工作 name faction #t #f risk skill 好-outcome 中-outcome 坏-outcome
+              (car args) (cadr args))))
 
 (define (非法工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
-  (构造工作 name faction #f #t risk skill 好-outcome 中-outcome 坏-outcome
-            (if (null? extra) "" (car extra))))
+  (let ((args (工作-附加参数 extra)))
+    (构造工作 name faction #f #t risk skill 好-outcome 中-outcome 坏-outcome
+              (car args) (cadr args))))
 
 ;; Inventory helpers
 (define (get-item item-id)

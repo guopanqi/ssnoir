@@ -2,12 +2,20 @@
 ;; 地点本身不拥有故事状态，只把自己的名字报给第一章模块。
 
 (define theater
-  (lambda args
-    (let ((msg (car args)))
+  (let ()
+    ;; 未指明区域的剧情、办公室和结算卡落在剧院主点；舞台布置等空间动作在内容里
+    ;; 显式使用剧院-外圈/内环/中央台/后台，避免每个动作各占一个模型 Anchor。
+    (define (anchor-at-theater node-data)
+      (if (member? :anchor node-data)
+          node-data
+          (append node-data (list :anchor "剧院"))))
+    (lambda args
+      (let ((msg (car args)))
       (cond
         ((equal? msg 'render-data)
          (list (container "剧院"
-                 (append (three-letters 'nodes-at "剧院") (lin 'theater-nodes)))))
+                 (map anchor-at-theater
+                   (append (three-letters 'nodes-at "剧院") (lin 'theater-nodes))))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
-        (else #f)))))
+        (else #f))))))

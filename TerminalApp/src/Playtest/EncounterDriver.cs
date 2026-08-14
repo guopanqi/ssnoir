@@ -158,7 +158,7 @@ namespace SSNoir.Playtest
             if (node.Disabled) text.Append(" (不可用)");
             foreach (var clock in node.Clocks)
                 text.Append($" {{{clock.Label} {clock.Current}/{clock.Max}}}");
-            if (node.Resolve?.Type == ResolveType.Clock && node.Resolve.Clock != null)
+            if (node.Resolve?.Type == ResolveType.Note && node.Resolve.Clock != null)
                 text.Append($" {{{node.Resolve.Clock.Label} {node.Resolve.Clock.Current}/{node.Resolve.Clock.Max}}}");
             text.AppendLine();
             if (!string.IsNullOrEmpty(node.Subtitle))
@@ -177,7 +177,7 @@ namespace SSNoir.Playtest
         private static void Collect(GameNode node, List<GameNode> found)
         {
             if (node.Resolve != null && !node.Disabled
-                && node.Resolve.Type != ResolveType.Observe && node.Resolve.Type != ResolveType.Clock)
+                && node.Resolve.Type != ResolveType.Observe && node.Resolve.Type != ResolveType.Note)
                 found.Add(node);
             foreach (var child in node.Children) Collect(child, found);
         }

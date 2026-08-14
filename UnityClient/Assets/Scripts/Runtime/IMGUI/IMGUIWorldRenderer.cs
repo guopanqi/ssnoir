@@ -46,6 +46,9 @@ namespace SSNoir.IMGUI
         private float _gridScrollOffset = 0f;
         // 本帧的顶栏布局。顶栏是「世界内容从哪开始」的唯一依据，网格视口和边缘信标都问它。
         private TopHudLayout _topHud;
+        // 本帧场景标注带占了多大。卡片排布与网格视口都要按它往下让，所以它必须在
+        // 任何卡片定位之前量好；没有场景标注时是一个零高度的空矩形。
+        private Rect _sceneBandRect;
         // 触控拖拽滚动的状态：手机没有滚轮，卡片网格只能靠手指推。
         private bool _gridDragActive;
         private float _gridDragLastY;
@@ -740,6 +743,7 @@ namespace SSNoir.IMGUI
             var projectedResidues = new List<(CardPresentationResidue residue, Vector3 screenPos, float distance)>();
             var gridNodes = new List<GameNode>();
             var gridResidues = new List<CardPresentationResidue>();
+            var sceneNotes = new List<GameNode>();
             var importantBeacons = new List<ImportantNodeBeacon>();
             var currentNodeNames = new HashSet<string>(nodes.Select(node => node.Name), StringComparer.OrdinalIgnoreCase);
             var restBlockers = _gameManager.DisplayedSnapshot.RestBlockers;
@@ -778,11 +782,28 @@ namespace SSNoir.IMGUI
                     }
                     // Nodes with anchors panned out of view are not drawn (neither projected nor in fallback grid)
                 }
+                else if (AnnotationDrawer.IsAnnotation(node))
+                {
+                    // 标注没有锚点就升到画面上方的场景标注带：它不指某一处，指的是整个画面。
+                    // 它永远不进网格——网格是"还没给锚点的卡"的临时住处，而一条标注宁可
+                    // 去说这一整场在发生什么，也不该排在待办里假装自己可以点。
+                    sceneNotes.Add(node);
+                }
                 else
                 {
                     gridNodes.Add(node); // No anchor, draw in grid
                 }
             }
+
+            // 带子先量后画：卡片的可用区间（含网格视口）要按它实际占了多高往下让。
+            // 标注是最底下的一层——它是印在图纸上的字，一切卡片都压在它上面。
+            _sceneBandRect = sceneNotes.Count == 0
+                ? new Rect(0f, _topHud.ContentTop, 0f, 0f)
+                : new Rect(
+                    UIScale.SafeArea.xMin, _topHud.ContentTop, UIScale.SafeArea.width,
+                    AnnotationDrawer.MeasureSceneBandHeight(sceneNotes, _topHud.ContentTop));
+            if (sceneNotes.Count > 0)
+                AnnotationDrawer.DrawSceneBand(sceneNotes, _topHud.ContentTop);
 
             // residue 只有三个互斥归属：
             // 1. 宿主节点仍在当前快照：由节点卡自己读取并绘制 residue；
@@ -833,22 +854,31 @@ namespace SSNoir.IMGUI
                 float anchorX = virtualAnchor.x;
                 float anchorY = virtualAnchor.y;
 
-                bool isLocation = item.node.IsContainer;
-                bool focused = isFocused(item.node.Name);
+                bool isAnnotation = AnnotationDrawer.IsAnnotation(item.node);
+                bool isLocation = !isAnnotation && item.node.IsContainer;
+                bool focused = !isAnnotation && isFocused(item.node.Name);
 
                 // 地点卡按地名实际需要多宽收敛（见 PreferredLocationWidth）：它现在是一行
                 // 「小符号 + 地名」的牌子，不需要偏方的体量。
-                float cardWidth = focused
-                    ? FocusedCardWidth
-                    : (isLocation ? ContainerNodeDrawer.PreferredLocationWidth(item.node) : ActionCardDesignWidth);
-                float contentHeight = CardDrawer.MeasureCardHeight(
-                    item.node,
-                    CardDrawer.Classify(item.node, anchored: true),
-                    cardWidth,
-                    _gameManager.DisplayedSnapshot.Actors);
+                // 标注与动作卡同宽，高度完全由内容定——它没有卡框，也就没有「最小卡高」
+                // 这回事：内容只有一行就只占一行。
+                float cardWidth = isAnnotation
+                    ? AnnotationDrawer.AnchoredWidth
+                    : (focused
+                        ? FocusedCardWidth
+                        : (isLocation ? ContainerNodeDrawer.PreferredLocationWidth(item.node) : ActionCardDesignWidth));
+                float contentHeight = isAnnotation
+                    ? AnnotationDrawer.MeasureHeight(item.node, cardWidth)
+                    : CardDrawer.MeasureCardHeight(
+                        item.node,
+                        CardDrawer.Classify(item.node, anchored: true),
+                        cardWidth,
+                        _gameManager.DisplayedSnapshot.Actors);
                 // 聚焦卡放大是「凑近看」，只抬下限，不再把内容压回一个固定高度。
                 // 地点牌不参与：它整张就是一行字，撑到 240 只会得到一个空盒子。
-                const float focusedMinHeight = 240f;
+                // 聚焦表示“凑近看”，不是额外塞一段留白。需求展签移除后，200 已足够让
+                // 短行动卡维持明确的可操作体量；实际内容更高时仍以 contentHeight 为准。
+                const float focusedMinHeight = 200f;
                 float cardHeight = focused && !isLocation ? Mathf.Max(focusedMinHeight, contentHeight) : contentHeight;
                 Vector2 targetCenter = inGutters
                     ? CardGutterLayout.TargetCenter(item.anchorKey, new Vector2(anchorX, anchorY), cardWidth, ActionCardDesignWidth)
@@ -870,7 +900,8 @@ namespace SSNoir.IMGUI
                     targetCenter,
                     currentCenter,
                     cardWidth,
-                    cardHeight));
+                    cardHeight,
+                    isAnnotation));
             }
 
             foreach (var item in projectedResidues)
@@ -951,6 +982,8 @@ namespace SSNoir.IMGUI
 
             foreach (var layout in layouts)
             {
+                if (layout.IsAnnotation)
+                    continue;   // 标注没有判定条也没有结果条，它不会长出附件
                 if (layout.Residue != null)
                     _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForResidue(layout.Rect, layout.Residue, spacious: true));
                 else
@@ -967,21 +1000,40 @@ namespace SSNoir.IMGUI
             {
                 for (int i = 0; i < layouts.Count; i++)
                 {
+                    // 标注永远不可点，也就永远不该抢走指针归属。
+                    if (layouts[i].IsAnnotation)
+                        continue;
                     if (layouts[i].Rect.Contains(ui.Mouse))
                         hitOwner = layouts[i];
                 }
+            }
+
+            // 标注在最底下：它是印在图纸上的字，卡片压在它上面——卡才是可操作层。
+            // 它自己画那一笔引线（线走到头长出字，见 AnnotationDrawer），所以不进下面
+            // 那一层；卡片引线接的是矩形边中点，两种线的语言本来就不同。
+            foreach (var layout in layouts)
+            {
+                if (layout.IsAnnotation)
+                    AnnotationDrawer.DrawAnchored(layout.Rect, layout.Node!, layout.AnchorPos);
             }
 
             // 引线自成一层，在所有卡片之前一次画完。让每张卡各画各的线，后画的卡就会把
             // 先画的线拦腰切断——理由与实现都在 CardLeaderLineDrawer。
             _tethers.Clear();
             foreach (var layout in layouts)
+            {
+                if (layout.IsAnnotation)
+                    continue;
                 _tethers.Add(new CardLeaderLineDrawer.Tether(
                     layout.AnchorPos, layout.Rect, TetherWeight(layout, hitOwner)));
+            }
             CardLeaderLineDrawer.Draw(_tethers);
 
             foreach (var layout in layouts)
             {
+                if (layout.IsAnnotation)
+                    continue;
+
                 var cardUi = ReferenceEquals(layout, hitOwner) ? ui : ui.Occluded();
                 if (layout.Residue != null)
                 {
@@ -1194,6 +1246,11 @@ namespace SSNoir.IMGUI
 
         private static int CompareStackRank(ProjectedCardLayout a, ProjectedCardLayout b)
         {
+            // 卡片先占位，标注填剩下的。卡是要点的，位置稳到能形成肌肉记忆比"离锚点最近"
+            // 重要；标注被挤下去一点不影响读。同一条边距里两者争位置时，这一行就是裁决。
+            if (a.IsAnnotation != b.IsAnnotation)
+                return a.IsAnnotation ? 1 : -1;
+
             // GUI 坐标 Y 向下：锚点投影得越靠上，排得越靠前。分档而不是直接比大小——
             // 「差不多齐平」要判成平级，而分档是可传递的，直接比差值会得到 a<b、b<c 却
             // a==c 的比较器，List.Sort 会当场抛。
@@ -1529,9 +1586,10 @@ namespace SSNoir.IMGUI
         }
 
         // 网格视口夹在顶栏下沿和底部手牌簇之间；两头都由各自的所有者报高度，这里不写死。
+        // 场景标注带也算一头：它占了画面上方多少，网格就从多少往下开始。
         private Rect GridViewport()
         {
-            float top = _topHud.ContentTop;
+            float top = _topHud.ContentTop + _sceneBandRect.height;
             float bottom = UIScale.SafeArea.yMax - HandPanelDrawer.ReservedHeight;
             return new Rect(0f, top, UIScale.VW, Mathf.Max(0f, bottom - top));
         }
@@ -2309,6 +2367,7 @@ namespace SSNoir.IMGUI
                 _topHud.DebugToggle,
                 _topHud.SettingsToggle,
                 UIScale.TopRightReserved,
+                _sceneBandRect,
             };
             HandPanelDrawer.CollectTouchBlockers(_gameManager, blockers);
             return new CardKeepOut(UIScale.SafeArea, blockers);
@@ -2330,6 +2389,9 @@ namespace SSNoir.IMGUI
         {
             public GameNode? Node { get; }
             public CardPresentationResidue? Residue { get; }
+            // 标注和卡片共用这套排布（同一片边距、同一个消重叠解算），但它不是卡：
+            // 不参与命中、不挂附件、不走卡片引线层，排位也让卡片先挑。
+            public bool IsAnnotation { get; }
             public string Key => Node?.Name ?? Residue!.HostNodeName;
             public Vector2 AnchorPos { get; }
             // 锚点相对上一帧移动了多少。卡片先按它刚性跟随，弹簧只消化排布的变化。
@@ -2357,9 +2419,11 @@ namespace SSNoir.IMGUI
                 Vector2 targetCenter,
                 Vector2 currentCenter,
                 float width,
-                float height)
+                float height,
+                bool isAnnotation = false)
             {
                 Node = node;
+                IsAnnotation = isAnnotation;
                 AnchorPos = anchorPos;
                 Distance = distance;
                 DeclarationOrder = declarationOrder;

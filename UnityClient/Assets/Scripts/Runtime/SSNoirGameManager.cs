@@ -284,9 +284,10 @@ namespace SSNoir
                 _selectedResource = null;
                 SetFocusedNode(null, updateCamera: true);
             }
-            else if (node.Resolve?.Type == ResolveType.Clock)
+            else if (node.Resolve?.Type == ResolveType.Note)
             {
-                // 钟卡仅展示状态，既不能翻面也不能成为执行 / 投骰目标。
+                // 标注永远不可点：不能翻面，也不能成为执行 / 投骰目标。它压根不该收到
+                // 这个回调（绘制层不给它任何点击目标），这里只是最后一道闸。
                 return;
             }
             else if (node.Resolve != null && node.Resolve.Type == ResolveType.Observe && (node.Requires == null || node.Requires.Count == 0))

@@ -274,20 +274,45 @@ namespace SSNoir.Scripting
                     ObserveText = text
                 };
             }
-            else if (typeStr == "clock" && list.Count == 2)
+            else if (typeStr == "note" && list.Count >= 3)
             {
+                // (note 标题 正文 [钟])。三项都可空，但一条什么都不说的标注是内容错误，
+                // 不是一个可以静默画成空白的状态。
+                var title = list[1] as string ?? string.Empty;
+                var text = list[2] as string ?? string.Empty;
+                var noteClock = list.Count >= 4 ? ParseSingleClock(list[3]) : null;
+                if (list.Count >= 4 && noteClock == null)
+                    throw new InvalidOperationException("note resolve contains invalid clock data");
+                if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(text) && noteClock == null)
+                    throw new InvalidOperationException("note resolve 至少要有标题、正文或一根钟。");
+
                 return new GameResolve
                 {
-                    Type = ResolveType.Clock,
-                    Clock = ParseSingleClock(list[1])
-                        ?? throw new InvalidOperationException("clock resolve contains invalid clock data")
+                    Type = ResolveType.Note,
+                    NoteTitle = title,
+                    NoteText = text,
+                    Clock = noteClock
+                };
+            }
+            else if (typeStr == "clock" && list.Count == 2)
+            {
+                // 钟卡就是「带读数的标注」。钟的 Label / Note 在这里摊平成标题与正文，
+                // 绘制层从此只认一种形状，不必再分「钟卡」与「说明卡」两条路。
+                var clock = ParseSingleClock(list[1])
+                    ?? throw new InvalidOperationException("clock resolve contains invalid clock data");
+                return new GameResolve
+                {
+                    Type = ResolveType.Note,
+                    NoteTitle = clock.Label,
+                    NoteText = clock.Note,
+                    Clock = clock
                 };
             }
 
             else if (typeStr == "clock")
             {
                 throw new InvalidOperationException(
-                    "clock resolve 必须且只能包含一根钟：每个 clock-node 对应一张单独的钟卡。");
+                    "clock resolve 必须且只能包含一根钟：每个 clock-node 对应一条单独的标注。");
             }
 
             throw new InvalidOperationException($"Unknown resolve type or invalid argument count: {typeStr}");

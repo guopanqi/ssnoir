@@ -503,12 +503,15 @@ namespace SSNoir.Rendering
         }
 
         /// <summary>只读钟卡按钟逐行排版；数量增加时卡片随内容增长。</summary>
-        public static float GetClockCardMinimumHeight(GameClock clock, float cardWidth)
+        // 标注（只读说明，可带一根钟）。Terminal 保持自己的视觉语言，不照搬 Unity 那套
+        // 「无底细线」——这里它仍是一张不可操作的卡，只是没有按钮和槽位。
+        public static float GetNoteCardMinimumHeight(string title, string text, GameClock? clock, float cardWidth)
         {
-            float notesHeight = string.IsNullOrWhiteSpace(clock.Note)
+            float bodyHeight = string.IsNullOrWhiteSpace(text)
                 ? 0f
-                : WrappedTextHeight(clock.Note, cardWidth - 20f, 10);
-            return Math.Max(DefaultCardHeight, 12f + 58f + notesHeight + 12f);
+                : WrappedTextHeight(text, cardWidth - 20f, 10);
+            float headHeight = clock == null ? 24f : 58f;
+            return Math.Max(DefaultCardHeight, 12f + headHeight + bodyHeight + 12f);
         }
 
         // 副标题占用的高度：贴顶布局标题固定在 titleY，副标题紧随其后并按同一套换行/收缩规则处理。
@@ -911,9 +914,11 @@ namespace SSNoir.Rendering
             }
         }
 
-        public static void DrawClockCard(
+        public static void DrawNoteCard(
             Rectangle bounds,
-            GameClock clock)
+            string title,
+            string text,
+            GameClock? clock)
         {
             Color bgColor      = new Color(18, 22, 32, 255);
             Color outlineColor = new Color(65, 85, 130, 255);
@@ -924,10 +929,23 @@ namespace SSNoir.Rendering
             Raylib.DrawRectangleRounded(bounds, 0.1f, 8, bgColor);
             Raylib.DrawRectangleRoundedLinesEx(bounds, 0.1f, 8, 1.5f, outlineColor);
 
-            // 一张钟卡只呈现一根钟。
             float clockY = bounds.Y + 12f;
             float clockCenterX = bounds.X + bounds.Width / 2f;
 
+            // 纯文字标注：没有读数可画，标题自己占那一行。
+            if (clock == null)
+            {
+                if (!string.IsNullOrWhiteSpace(title))
+                {
+                    int tw = FontManager.MeasureTextWidth(title, 14);
+                    FontManager.DrawText(title, clockCenterX - tw / 2f, clockY, 14, clockColor);
+                }
+                if (!string.IsNullOrWhiteSpace(text))
+                    DrawWrappedText(text, bounds.X + 10, clockY + 26f, bounds.Width - 20, 10, noteColor);
+                return;
+            }
+
+            // 一条标注只呈现一根钟。标题取自标注本身（钟的 label 解析时已经落在那儿）。
                 if (clock.Style == ClockStyle.Countdown)
                 {
                     string frac = $"{clock.Current}/{clock.Max}";
@@ -935,7 +953,7 @@ namespace SSNoir.Rendering
                     int tw = FontManager.MeasureTextWidth(frac, fs);
                     FontManager.DrawText(frac, clockCenterX - tw / 2f, clockY, fs, clockColor);
 
-                    string label = clock.Label;
+                    string label = title;
                     int lw = FontManager.MeasureTextWidth(label, 11);
                     FontManager.DrawText(label, clockCenterX - lw / 2f, clockY + 34, 11, dimColor);
                 }
@@ -958,7 +976,7 @@ namespace SSNoir.Rendering
                         }
                     }
 
-                    string label = clock.Label;
+                    string label = title;
                     int lw = FontManager.MeasureTextWidth(label, 11);
                     FontManager.DrawText(label, clockCenterX - lw / 2f, clockY + 20, 11, dimColor);
                 }
@@ -976,15 +994,15 @@ namespace SSNoir.Rendering
                     int fw = FontManager.MeasureTextWidth(frac, 11);
                     FontManager.DrawText(frac, clockCenterX - fw / 2f, clockY + radius * 2 + 6, 11, dimColor);
 
-                    string label = clock.Label;
+                    string label = title;
                     int lw = FontManager.MeasureTextWidth(label, 11);
                     FontManager.DrawText(label, clockCenterX - lw / 2f, clockY + radius * 2 + 20, 11, dimColor);
                 }
 
             clockY += 58f;
-            if (!string.IsNullOrWhiteSpace(clock.Note))
+            if (!string.IsNullOrWhiteSpace(text))
             {
-                DrawWrappedText(clock.Note, bounds.X + 10, clockY - 12f, bounds.Width - 20, 10, noteColor);
+                DrawWrappedText(text, bounds.X + 10, clockY - 12f, bounds.Width - 20, 10, noteColor);
             }
         }
 

@@ -294,8 +294,6 @@ namespace SSNoir.IMGUI
         private const float SlotGap = 10f;
         private const float PillH      = 18f;
         private const float PillGap = 5f;
-        private const float CaptionH   = 14f;
-        private const float CaptionGap = 3f;
 
         private static readonly Color SlotBlockBg = new Color(0.024f, 0.031f, 0.047f, 1f);
 
@@ -307,7 +305,7 @@ namespace SSNoir.IMGUI
         // 也就是说它一被用到就一定还在溢出，只是数字好看一点。下限必须由内容推导才有意义。
         private static float SlotMinSize(ActionCost req) => req.Type == "die" ? 32f : 48f;
 
-        // 骰位区在最压缩状态下仍需要的高度：缩到内容下限的方块 + 展签行（属性名/物品名在这一行）。
+        // 骰位区在最压缩状态下仍需要的高度：缩到内容下限的方块；判定核心额外带属性药丸。
         // 副标题的高度预算要先扣掉它——先保住可交互核心，剩下的才给气氛文本。
         private static float RequirementSlotsMinNeed(GameNode node, int coreDieIndex)
         {
@@ -318,8 +316,7 @@ namespace SSNoir.IMGUI
             for (int j = 1; j < reqs.Count; j++)
                 if (SlotSize(reqs[j]) > SlotSize(biggest)) biggest = reqs[j];
 
-            float belowH = AnyCaption(node, reqs, coreDieIndex, showPill: false) ? CaptionRowH : 0f;
-            return SlotMinSize(biggest) + belowH;
+            return SlotMinSize(biggest) + (coreDieIndex >= 0 ? PillH + PillGap : 0f);
         }
 
         private static void DrawRequirementSlots(
@@ -336,18 +333,13 @@ namespace SSNoir.IMGUI
                 if (SlotSize(reqs[j]) > SlotSize(biggest)) biggest = reqs[j];
             float maxSize = SlotSize(biggest);
 
-            // 让位顺序的依据：判定属性名是这张卡的核心信息（DESIGN.md「属性 → 骰子」纵列），
-            // 任何压缩下都不能丢——空间够就挂成核心骰上方的药丸，不够就降级成下方展签。
-            // 展签行是所有 slot 共用的一行：它比药丸矮 9px，而且次要展签（物品名 /「骰子」）
-            // 本来就占着这一行，属性名挤进去不额外花钱。所以「保留药丸、砍掉次要展签」这个
-            // 中间档没有意义（比降级成展签更高、信息还更少），不设该档。
+            // D 和物品符号已经足够说明需求类型；不再重复画“骰子 / 金钱”展签。
+            // 判定属性是唯一保留的文字标识，始终挂在核心骰上方的药丸里。
             float avail = Mathf.Max(0f, exeY - bodyY);
             bool hasCore = coreDieIndex >= 0;
-            float belowIfPill = AnyCaption(node, reqs, coreDieIndex, showPill: true) ? CaptionRowH : 0f;
-            bool showPill = hasCore && PillH + PillGap + maxSize + belowIfPill <= avail;
-
+            bool showPill = hasCore;
             float aboveH = showPill ? PillH + PillGap : 0f;
-            float belowH = AnyCaption(node, reqs, coreDieIndex, showPill) ? CaptionRowH : 0f;
+            const float belowH = 0f;
             float scale = 1f;
             if (aboveH + maxSize + belowH > avail && maxSize > 0f)
                 scale = Mathf.Clamp((avail - aboveH - belowH) / maxSize, SlotMinSize(biggest) / maxSize, 1f);
@@ -380,17 +372,9 @@ namespace SSNoir.IMGUI
 
                 DrawSlotBlock(square, node, j, req, slotted != null ? slotted[j] : null, disabled, ui, gameManager, ref interaction);
 
-                // 展签行的高度已经由 belowH 预算过，这里无条件按 CaptionFor 的结果画：
-                // 核心骰在药丸态下返回空串（属性名已由药丸表达，不重复），药丸被收起时返回属性名。
-                string caption = CaptionFor(node, req, isRollCore, showPill);
-                if (!string.IsNullOrEmpty(caption))
-                    DrawSlotCaption(square, caption);
-
                 x += size + SlotGap;
             }
         }
-
-        private const float CaptionRowH = CaptionH + CaptionGap;
 
         // 卡片纵向流量的唯一定义，绘制（DrawContent）与测量（RecommendedCardHeight）共用同一组常量：
         // 顶部挂件（时钟徽章 / 能力栏）→ 标题 → 副标题 → 骰位 → 执行按钮（+命运条）。
@@ -459,27 +443,7 @@ namespace SSNoir.IMGUI
                 maxSize = Mathf.Max(maxSize, SlotSize(req));
             bool hasCore = coreDieIndex >= 0;
             float above = hasCore ? PillH + PillGap : 0f;
-            float below = AnyCaption(node, reqs, coreDieIndex, showPill: hasCore) ? CaptionRowH : 0f;
-            return above + maxSize + below;
-        }
-
-        // 展签文字的唯一来源——预算（AnyCaption）与绘制共用它，避免「算的」和「画的」各写一遍。
-        // 核心骰：药丸态下不重复属性名（返回空）；药丸被收起时由展签承担属性名。
-        private static string CaptionFor(GameNode node, ActionCost req, bool isRollCore, bool showPill)
-        {
-            if (isRollCore)
-                return showPill ? "" : SkillInfo.DisplayName(node.Resolve!.SkillName);
-            return req.Type == "die" ? "骰子" : (string.IsNullOrEmpty(req.ItemId) ? "" : req.ItemId);
-        }
-
-        private static bool AnyCaption(GameNode node, List<ActionCost> reqs, int coreDieIndex, bool showPill)
-        {
-            for (int j = 0; j < reqs.Count; j++)
-            {
-                if (!string.IsNullOrEmpty(CaptionFor(node, reqs[j], j == coreDieIndex, showPill)))
-                    return true;
-            }
-            return false;
+            return above + maxSize;
         }
 
         // 方块 Slot：与手牌方块同族。空 = Ink 槽 + 占位符（提示放什么）；填 = 实心黑方块 + 亮内容。
@@ -572,17 +536,6 @@ namespace SSNoir.IMGUI
             GUI.Label(pill, skill, s);
             IMGUIStyles.DrawLine(new Vector2(pill.center.x, pill.yMax), new Vector2(square.center.x, square.y),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-        }
-
-        private static void DrawSlotCaption(Rect square, string text)
-        {
-            var s = new GUIStyle(IMGUIStyles.CardSubtitle)
-            {
-                fontSize = IMGUIStyles.FontSize(10),
-                alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = IMGUIStyles.TextSecondary }
-            };
-            GUI.Label(new Rect(square.x - 12f, square.yMax + CaptionGap, square.width + 24f, CaptionH), text, s);
         }
 
         private static string ItemSymbol(string name)

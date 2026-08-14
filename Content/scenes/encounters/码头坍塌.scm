@@ -91,6 +91,44 @@
   (list 'clock "没能等到" dead-heads roster-heads 'segments
         "有人的生命归零就涨一格。挖开以前，你不会知道是哪一片底下。"))
 
+;; 同伴亲手执行动作时，偶尔用一句话显出各自的工作方式。尼尔不在这里开口；
+;; 一半概率留白，避免弗兰克一回合两颗骰、林一颗骰把现场播报队列塞满。
+(define (companion-action-banter! kind result)
+  (if (random-choice (list #t #f))
+      (cond
+        ((equal? (current-actor) '弗兰克)
+         (play-banter! (line "弗兰克"
+           (cond
+             ((and (equal? kind '开挖) (equal? result '坏))
+              "停手。梁在走。人退半步，别把下面的气口堵死。")
+             ((and (equal? kind '开挖) (equal? result '中))
+              "这边留两个人撑住。其余的跟我挪下一层。")
+             ((and (equal? kind '开挖) (equal? result '好))
+              "缆绳吃住了。一起抬，听我的数。")
+             ((and (equal? kind '救人) (equal? result '坏))
+              "别拽他的胳膊。先托住背，再找腿卡在哪。")
+             ((and (equal? kind '救人) (equal? result '中))
+              "担架往前。给他留条能喘气的缝。")
+             (else
+              "接住他。两个人抬肩，一个人看脚下。")))))
+        ((equal? (current-actor) '林)
+         (play-banter! (line "林"
+           (cond
+             ((and (equal? kind '开挖) (equal? result '坏))
+              "停机。载荷在偏，继续压只会让裂口往下走。")
+             ((and (equal? kind '开挖) (equal? result '中))
+              "行程还够。先把重量锁在这里，再换支点。")
+             ((and (equal? kind '开挖) (equal? result '好))
+              "读数稳了。它能把这一层完整托起来。")
+             ((and (equal? kind '救人) (equal? result '坏))
+              "回一寸。机器没失手，是我给的角度错了。")
+             ((and (equal? kind '救人) (equal? result '中))
+              "保持这个间隙。人进去，机器不要再动。")
+             (else
+              "重量离开他了。现在把担架送进来。")))))
+        (else #f))
+      #f))
+
 ;; ============================================================
 ;; 受困者
 ;; ============================================================
@@ -143,13 +181,20 @@
           :resolve (roll skill
             (outcome "他从你手里滑回去"
               (lambda ()
-                (if (drain! 1)
-                    (spotlight! "没能拉住"
-                      (string-append label "滑回缝里。你再喊，下面没有回应。"))
-                    #f)
+                (let ((died? (drain! 1)))
+                  (if died?
+                      (spotlight! "没能拉住"
+                        (string-append label "滑回缝里。你再喊，下面没有回应。"))
+                      (companion-action-banter! '救人 '坏)))
                 (spend-actor-composure! 'player 1)))
-            (outcome "松了一寸" (lambda () (push! 1)))
-            (outcome "撬出一条缝" (lambda () (push! 2))))))
+            (outcome "松了一寸"
+              (lambda ()
+                (push! 1)
+                (companion-action-banter! '救人 '中)))
+            (outcome "撬出一条缝"
+              (lambda ()
+                (push! 2)
+                (companion-action-banter! '救人 '好))))))
 
       ;; 只有还能救的人留在牌面上。救走的、没能等到的都从场上撤掉——
       ;; 前者上了车，后者记在「没能等到」那根钟上，不必再占一张卡。
@@ -278,7 +323,7 @@
           (if (or a-died? b-died?)
               (spotlight! "下面安静了"
                 "碎料压下去以后，刚才还在响的地方没有了回应。")
-              #f)))
+              (companion-action-banter! '开挖 '坏))))
 
       (define (steady-node)
         (node steady-verb
@@ -290,9 +335,16 @@
             (outcome "你替他们挡了一下"
               (lambda ()
                 (spend-actor-composure! 'player 1)
-                (result-note! "梁头砸下来，你先伸的手")))
-            (outcome "腾出一个人的位置" (lambda () (advance! 1)))
-            (outcome "掀开一整层" (lambda () (advance! 2))))))
+                (result-note! "梁头砸下来，你先伸的手")
+                (companion-action-banter! '开挖 '坏)))
+            (outcome "腾出一个人的位置"
+              (lambda ()
+                (advance! 1)
+                (companion-action-banter! '开挖 '中)))
+            (outcome "掀开一整层"
+              (lambda ()
+                (advance! 2)
+                (companion-action-banter! '开挖 '好))))))
 
       (define (rough-node)
         (node rough-verb
@@ -302,8 +354,14 @@
           :requires (list (req-die))
           :resolve (roll 'violence
             (outcome "整片塌下去" (lambda () (collapse!)))
-            (outcome "整片挪开一段" (lambda () (advance! 2)))
-            (outcome "连底一起掀翻" (lambda () (advance! 3))))))
+            (outcome "整片挪开一段"
+              (lambda ()
+                (advance! 2)
+                (companion-action-banter! '开挖 '中)))
+            (outcome "连底一起掀翻"
+              (lambda ()
+                (advance! 3)
+                (companion-action-banter! '开挖 '好))))))
 
       (define (render)
         (if open?

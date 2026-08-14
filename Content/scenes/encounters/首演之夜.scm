@@ -223,12 +223,12 @@
   (cond
     ((equal? (t 'id) "升降台卡在半程")
      (injure!)
-     (spend-composure! 1))
+     (spend-actor-composure! 'player 1))
     ((equal? (t 'id) "台下的恐慌")
      (injure!)
      (set! usher-quit? #t))
     ((equal? (t 'id) "三号门来人")
-     (spend-composure! 2))
+     (spend-actor-composure! 'player 2))
     (#t #f))
   ;; 她被人流卷走 / 腿伤了，那就没有"重新站上去"这回事了。
   (if (member? (t 'id) (list "升降台卡在半程" "台下的恐慌"))
@@ -444,7 +444,11 @@
     (if usher-quit? "领班已经撂挑子了。" "")))
 
 (define (get-render-data)
-  (container "首演之夜"
+  ;; 首演发生在剧院内；交锋根节点也必须占用场所主点，不能因没有
+  ;; Anchor_首演之夜 而退回网格布局。
+  (node "首演之夜"
+    :anchor "剧院"
+    :children
     (list
       (clock-node "演出正在垮" (show-clk 'render-data))
       (observe-action "此刻的场面" (situation-text))

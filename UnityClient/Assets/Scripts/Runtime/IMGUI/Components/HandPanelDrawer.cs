@@ -452,7 +452,7 @@ namespace SSNoir.IMGUI
                 normal = { textColor = content }
             };
             IMGUIStyles.ApplyStrongFont(bigStyle);
-            var bigRect = hasSmall ? new Rect(drawRect.x, drawRect.y + 6f, drawRect.width, 30f) : drawRect;
+            var bigRect = hasSmall ? new Rect(drawRect.x, drawRect.y + 3f, drawRect.width, 28f) : drawRect;
             GUI.Label(bigRect, big, bigStyle);
 
             if (hasSmall)
@@ -464,7 +464,8 @@ namespace SSNoir.IMGUI
                     normal = { textColor = disabled ? DisabledResourceText : (selected ? IMGUIStyles.Gold : IMGUIStyles.Paper) }
                 };
                 IMGUIStyles.ApplyStrongFont(smallStyle);
-                GUI.Label(new Rect(drawRect.x, drawRect.y + 34f, drawRect.width, 18f), small, smallStyle);
+                // 方块高 50；旧的 y+34 / h18 实际画到方块外 2px，数量会压住底栏标题。
+                GUI.Label(new Rect(drawRect.x, drawRect.y + 31f, drawRect.width, 16f), small, smallStyle);
             }
         }
 

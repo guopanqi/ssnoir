@@ -65,11 +65,13 @@
         (outcome "普通一班"
           (lambda () (add-item! "金钱" 5)))
         (outcome "打翻酒杯"
-          (lambda () (spend-composure! 1)))))
+          (lambda () (spend-composure! 1)))
+        :anchor "老街酒馆-工作"))
 
     ;; 打酒：可带回住所或交锋中即时饮用，恢复量高于香烟，但会留下宿醉。
     (define (node-buy-liquor)
       (node "打一壶酒"
+        :anchor "老街酒馆-购买"
         :subtitle "给夜里留点松快，也能稍微垫垫肚子"
         :requires (list (req-item "金钱" 25))
         :resolve (instant
@@ -79,6 +81,7 @@
     ;; 烟可在交锋里即时救急，恢复 2 点冷静，故贵于城市内的恢复手段。
     (define (node-buy-cigarettes)
       (node "买烟"
+        :anchor "老街酒馆-购买"
         :subtitle "15 金；交锋中可在功能区抽烟，恢复 2 点冷静"
         :requires (list (req-item "金钱" 15))
         :resolve (instant
@@ -89,6 +92,7 @@
     ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
     (define (node-drink-here)
       (node "点一杯酒"
+        :anchor "老街酒馆-购买"
         :subtitle (if (home 'drank-today?)
                       "今天已经喝过了，再喝只会头疼"
                       "不带走，当场喝掉：恢复 2 点冷静，下一次城市骰池会有宿醉")
@@ -122,6 +126,20 @@
       (observe-action "酒馆歇业"
         "门板从里面上了闩。老板贴着告示：家中有事，歇业数日。从门缝望进去,台侧那把红伞还立在原处,没人来取。"))
 
+    ;; ── 标注（不可操作）──────────────────────────────
+    ;; 这两条不是卡：点不动、进不去，也不占骰子。它们只是漂在这个地方的字。
+    ;; 没有锚点的那条升到画面上方，说的是整间酒馆；带锚点的那条挂在台子旁边，
+    ;; 一根线指过去，说的是那一处。锚点取自城市模型里现成的 Anchor_夜莺@酒馆。
+
+    (define (note-tavern-night)
+      (note-node "标注：酒馆夜里" ""
+        "夜里这儿只剩两种人：还没回家的，和不打算回家的。"))
+
+    (define (note-stage)
+      (node "标注：台上"
+        :anchor "夜莺@酒馆"
+        :resolve (note "台上" "灯还亮着，谱架上压着昨晚没唱完的那几页。")))
+
     (define (tavern-clocks)
       (append
         (if (> closed-days 0)
@@ -140,6 +158,7 @@
       (if (> closed-days 0)
           (list (node-closed))
           (append
+            (list (note-tavern-night) (note-stage))
             (three-letters 'nodes-at "酒馆")
             (list (node-waiter) (node-drink-here) (node-buy-liquor) (node-buy-cigarettes))  ; 酒馆常驻：值班当差 + 当场点酒 + 打酒带走 + 买烟
             (if (three-letters 'old-street-open?)

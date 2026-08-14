@@ -1415,8 +1415,9 @@ namespace SSNoir.Rendering
                         node.Resolve?.Type == ResolveType.Instant,
                         node.Resolve?.DifficultyModifiers);
 
-                    if (node.Resolve?.Type == ResolveType.Clock)
-                        ownHeight = CardWidget.GetClockCardMinimumHeight(node.Resolve.Clock!, cardWidth);
+                    if (node.Resolve?.Type == ResolveType.Note)
+                        ownHeight = CardWidget.GetNoteCardMinimumHeight(
+                            node.Resolve.NoteTitle, node.Resolve.NoteText, node.Resolve.Clock, cardWidth);
 
                     if (node.Resolve?.Type == ResolveType.Roll)
                     {
@@ -1486,9 +1487,10 @@ namespace SSNoir.Rendering
                 var node = visibleNodes[i];
                 _state.VisibleNodeCardBounds[node.Name] = bounds;
 
-                if (node.Resolve?.Type == ResolveType.Clock)
+                if (node.Resolve?.Type == ResolveType.Note)
                 {
-                    CardWidget.DrawClockCard(bounds, node.Resolve.Clock!);
+                    CardWidget.DrawNoteCard(
+                        bounds, node.Resolve.NoteTitle, node.Resolve.NoteText, node.Resolve.Clock);
                     continue;
                 }
 

@@ -253,7 +253,9 @@
       (if (not (at-theater?))
           '()
           (list
-            (container "中央台边"
+            (node "中央台边"
+              :anchor "剧院-中央台"
+              :children
               (if (equal? theater-result "未发生")
                   (list
                     (node "林"

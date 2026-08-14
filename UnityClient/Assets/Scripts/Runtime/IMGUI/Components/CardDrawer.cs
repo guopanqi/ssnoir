@@ -24,7 +24,9 @@ namespace SSNoir.IMGUI
         public const float ExternalRestBlockerMarkerSpace = ExternalRestBlockerMarkerHeight + ExternalRestBlockerMarkerGap;
 
         // 场景内每张节点卡都需要稳定的点击目标；内容再少也不能退化成难以点中的细条。
-        public const float MinCardHeight = 150f;
+        // 需求展签已移除，短动作卡不再需要旧的 150 高空白；仍保留足够的触控目标与
+        // 标题/骰位/执行键间距。长副标题的卡高继续完全由内容测量决定。
+        public const float MinCardHeight = 132f;
 
         public struct CardInteraction
         {
@@ -36,17 +38,23 @@ namespace SSNoir.IMGUI
 
         // ── 入口 ───────────────────────────────────────────────────────
 
-        // 节点视觉类别。分两大族：
+        // 卡片的视觉类别。卡分两族，两族都是「可操作」的东西：
         //   有框（Action / Character）——框起来的「器物」，你在上面操作。
         //   无边悬浮（Location / Common）——漂在图纸上的「一个地方 / 一件事」，你点进去。
-        public enum CardKind { Action, Clock, Location, Character, Common }
+        //
+        // 第三族「标注」不在这里：它没有底、没有影子、没有框，也不可点，
+        // 整个由 AnnotationDrawer 负责——Ink 填充加硬投影正是「可以拿起来」的标志，
+        // 所以标注必须连这层框架一起绕开，而不是在这里多一个 CardKind。
+        public enum CardKind { Action, Location, Character, Common }
 
         // 数据驱动分类。内容里并没有「地点 / 人物」标签，真正的「这是个地方」信号是它
         // 锚定在场景 3D 建筑上（projected）；网格里的容器则是地点内部的事件/分组（Common）。
         // 标签留作显式覆盖，未来内容想强制某类时可用。
+        //
+        // 标注（ResolveType.Note）不在这里分类——它根本不是卡，由 AnnotationDrawer 独立
+        // 绘制，调用方必须先用 AnnotationDrawer.IsAnnotation 把它分流出去。
         public static CardKind Classify(GameNode node, bool anchored)
         {
-            if (node.Resolve?.Type == ResolveType.Clock) return CardKind.Clock;
             if (node.HasResolve) return CardKind.Action;
             if (node.Tags.Contains("人物")) return CardKind.Character;
             if (anchored || node.Tags.Contains("地点")) return CardKind.Location;
@@ -61,14 +69,6 @@ namespace SSNoir.IMGUI
         {
             if (kind == CardKind.Action)
                 return ActionNodeDrawer.RecommendedCardHeight(node, cardWidth, actors);
-
-            if (kind == CardKind.Clock)
-            {
-                var clock = node.Resolve?.Clock;
-                float badgeHeight = clock == null ? 0f : MeasureClockBadgesHeight(cardWidth, new List<GameClock> { clock });
-                float notesHeight = clock == null ? 0f : MeasureClockNotesHeight(cardWidth, new List<GameClock> { clock });
-                return Mathf.Max(MinCardHeight, 16f + badgeHeight + notesHeight + 16f);
-            }
 
             float clocksHeight = MeasureClockBadgesHeight(cardWidth, node.Clocks);
             return kind switch
@@ -103,19 +103,7 @@ namespace SSNoir.IMGUI
 
             // 时钟徽章可能换行——先量出它实际占到哪，卡内其余内容（标题/头像/能力栏）
             // 才知道该从哪开始画，不会被压在徽章下面。
-            var displayClocks = kind == CardKind.Clock && node.Resolve?.Clock != null
-                ? new List<GameClock> { node.Resolve.Clock }
-                : clocks;
-            float clocksBottomY = MeasureClockBadgesBottom(rect, displayClocks);
-
-            // 只读钟卡：没有槽位、执行按钮或点击/悬停态；状态的存在感只靠悬浮阴影。
-            if (kind == CardKind.Clock)
-            {
-                DrawCardFrame(rect, isHovered: false, isFocused: false, disabled: false, isHappening: false);
-                DrawClockBadges(rect, displayClocks);
-                DrawClockNotes(rect, displayClocks, clocksBottomY);
-                return interaction;
-            }
+            float clocksBottomY = MeasureClockBadgesBottom(rect, clocks);
 
             // ── 无边悬浮族（地点 / 普通）：Ink + 硬投影，不走框架，整卡可点。
             if (kind == CardKind.Location || kind == CardKind.Common)
@@ -168,38 +156,6 @@ namespace SSNoir.IMGUI
                 GUI.matrix = oldMatrix;
 
             return interaction;
-        }
-
-        private static float MeasureClockNotesHeight(float cardWidth, IReadOnlyList<GameClock>? clocks)
-        {
-            if (clocks == null) return 0f;
-            var subtitleStyle = new GUIStyle(IMGUIStyles.CardSubtitle)
-            {
-                wordWrap = true
-            };
-            float height = 0f;
-            foreach (var clock in clocks)
-                if (!string.IsNullOrWhiteSpace(clock.Note))
-                    height += subtitleStyle.CalcHeight(new GUIContent(clock.Note), cardWidth - 32f) + 6f;
-            return height;
-        }
-
-        private static void DrawClockNotes(Rect rect, IReadOnlyList<GameClock>? clocks, float startY)
-        {
-            if (clocks == null) return;
-            var style = new GUIStyle(IMGUIStyles.CardSubtitle)
-            {
-                alignment = TextAnchor.UpperCenter,
-                wordWrap = true
-            };
-            float y = startY + 6f;
-            foreach (var clock in clocks)
-            {
-                if (string.IsNullOrWhiteSpace(clock.Note)) continue;
-                float height = style.CalcHeight(new GUIContent(clock.Note), rect.width - 32f);
-                GUI.Label(new Rect(rect.x + 16f, y, rect.width - 32f, height), clock.Note, style);
-                y += height + 6f;
-            }
         }
 
         // 休息阻塞目标属于“正在等待玩家处理”，使用金色而不是失败/高危的印章红：

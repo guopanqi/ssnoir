@@ -460,8 +460,8 @@
       (let ((n (mail-clock 'current)))
         (cond
           ((>= n scout-max) "这一片你已经熟透了，再蹲也蹲不出新东西")
-          ((< n 2) "敏锐；不挣钱。排班表就摊在桌上，谁走哪条线一眼看得见")
-          ((< n scout-face) "敏锐；不挣钱。再认清一件事，交割日你就不必费神分辨邮差")
+          ; ((< n 2) "敏锐；不挣钱。班表摊在桌上。")
+          ; ((< n scout-face) "敏锐；不挣钱。再认清一件事，交割日你就不必费神分辨邮差")
           (else "敏锐；不挣钱。巷子、边门、住在这儿的都有谁"))))
 
     (define (node-scout)
@@ -760,6 +760,7 @@
 
     (define (node-east-entry)
       (node "穿过东侧门廊"
+        :anchor "码头居民区-东侧门廊"
         :subtitle "从东侧入口往里认路；门廊深处有人做生意"
         :tags (list "低风险")
         :clocks (list (east-entry-clk 'render-data))
@@ -774,6 +775,7 @@
 
     (define (node-east-gallery)
       (node "深入东侧回廊"
+        :anchor "码头居民区-东侧回廊"
         :subtitle "埃迪的铺子后面还有一段常亮着灯的回廊"
         :tags (list "低风险")
         :clocks (list (east-gallery-clk 'render-data))
@@ -788,6 +790,7 @@
 
     (define (node-west-stairs)
       (node "沿西侧楼梯往上走"
+        :anchor "码头居民区-西侧楼梯"
         :subtitle "从西侧入口往上；楼梯连着住户的厨房和共用平台"
         :tags (list "低风险")
         :clocks (list (west-stairs-clk 'render-data))
@@ -802,6 +805,7 @@
 
     (define (node-west-bridge)
       (node "穿过上层桥廊"
+        :anchor "码头居民区-上层桥廊"
         :subtitle "楼梯口已经让开；沿挂在两栋楼之间的桥廊继续往里"
         :tags (list "低风险")
         :clocks (list (west-bridge-clk 'render-data))
@@ -836,6 +840,7 @@
 
     (define (node-west-friction)
       (node "应付楼梯守门人"
+        :anchor "码头居民区-西侧楼梯"
         :subtitle "他们把椅子横在路中间；想继续往上，就得让这场面对你有个结果"
         :tags (list "高风险")
         :requires (list (req-die))
@@ -941,6 +946,7 @@
 
     (define (eddie-node)
       (node "埃迪"
+        :anchor "埃迪"
         :subtitle "门廊杂货商；卖烟、火柴和日用品，也记得哪些货是替谁特别订的"
         :clocks (list (merchant-trust-clk 'render-data))
         :children
@@ -978,7 +984,9 @@
             (lambda () (finish-union-inquiry!))))))
 
     (define (union-room-place)
-      (container "工会房间"
+      (node "工会房间"
+        :anchor "工会房间"
+        :children
         (append
           (if union-checked?
               (list (observe-action "那箱烟的去向"
@@ -1014,7 +1022,9 @@
             (lambda () (finish-bridge-inquiry!))))))
 
     (define (bridge-apartments-place)
-      (container "桥廊公寓"
+      (node "桥廊公寓"
+        :anchor "桥廊公寓"
+        :children
         (append
           (if bridge-identified?
               (list (observe-action "她叫出的名字"
@@ -1287,7 +1297,7 @@
 
     ;; 她第一次不在酒馆。人物节点仍留在老街(见 §1.5)，这只是一次性的事件。
     (define (node-rehearsal)
-      (instant-action "去看她排练"
+      (anchored-instant-action "去看她排练" "剧院-中央台"
         (lambda ()
           (play-dialogue!
             (line "夜莺" "你来了。他们让我从台底下升上来——像变戏法一样。")
@@ -1432,6 +1442,7 @@
 
     (define (node-outer-ring)
       (node "把外圈的门走一遍"
+        :anchor "剧院-外圈"
         :subtitle "五六扇门、插销、值夜的人、后廊堆的杂物;走满这一圈，那道后廊门今晚不会被撬开"
         :tags (list "低风险")
         :clocks (list (outer-ring-clk 'render-data))
@@ -1446,6 +1457,7 @@
 
     (define (node-inner-ring)
       (node "清理内环"
+        :anchor "剧院-内环"
         :subtitle "收折椅、钉活栏杆、跟引座的人交代路线;都是力气活，走满这一圈前排今晚翻不起来"
         :tags (list "低风险")
         :clocks (list (inner-ring-clk 'render-data))
@@ -1463,6 +1475,7 @@
     ;; 剩下的只能靠那天晚上你人在场——这也是为什么中央环没有人手。
     (define (node-core-ring)
       (node "摸升降台与台底"
+        :anchor "剧院-中央台"
         :subtitle "圆台四面无遮，能动的只有升降台的行程和台底那个封了一年的通风口"
         :tags (list "低风险")
         :clocks (list (core-ring-clk 'render-data))
@@ -1479,6 +1492,7 @@
     ;; 知道三号门是活的，于是知道该往哪个环铺格子。
     (define (node-roster)
       (node "翻后台名册"
+        :anchor "剧院-后台"
         :subtitle "写信的人知道换装的顺序，说明他就在这栋楼里;每查清一件事，那天晚上你就少瞎一只眼"
         :tags (list "低风险")
         :clocks (list (roster-clk 'render-data))
@@ -1560,6 +1574,7 @@
 
     (define (node-aide-usher)
       (node "跟领班交代疏散"
+        :anchor "剧院-内环"
         :subtitle "他认得每一排座位;可他也是花钱雇来的，被人推一次就不干了"
         :requires (list (req-die))
         :resolve (instant
