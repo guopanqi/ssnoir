@@ -767,20 +767,24 @@ namespace SSNoir
         /// Returns true when the travel took over; the caller may then raise priority as
         /// usual — the brain is cut for the duration, so this camera is the shot.
         /// </summary>
-        public bool BeginFocusTravel(Cinemachine.CinemachineVirtualCamera focusCamera)
+        public bool BeginFocusTravel(
+            Cinemachine.CinemachineVirtualCamera focusCamera,
+            bool respectReduceMotion = true)
         {
-            return BeginFocusTravel(focusCamera, out _);
+            return BeginFocusTravel(focusCamera, out _, respectReduceMotion);
         }
 
         /// <summary>
         /// 和 <see cref="BeginFocusTravel(CinemachineVirtualCamera)"/> 相同，同时给出这次画面过渡
         /// 的设计时长。手写弧线、减少动画的溶解和退回 Cinemachine 的默认 blend 都会如实返回；
         /// 已在目标构图或 Debug 硬切则是零。调用方可以据此让伴随演出和运镜同起同落，而不用猜
-        /// 当前到底走了哪一条相机路径。
+        /// 当前到底走了哪一条相机路径。过场等需要保留完整镜头运动的调用方可以将
+        /// <paramref name="respectReduceMotion"/> 设为 false。
         /// </summary>
         public bool BeginFocusTravel(
             Cinemachine.CinemachineVirtualCamera focusCamera,
-            out float transitionDuration)
+            out float transitionDuration,
+            bool respectReduceMotion = true)
         {
             transitionDuration = 0f;
 
@@ -841,7 +845,7 @@ namespace SSNoir
 
             // Reduce motion takes the same fork every time, whatever the two ends are:
             // no road at all, just a dissolve over a cut.
-            if (MotionSettings.ReduceMotion)
+            if (respectReduceMotion && MotionSettings.ReduceMotion)
             {
                 transitionDuration = MotionSettings.CrossfadeDuration;
                 return BeginReducedFocusChange(focusCamera, brain, renderedCamera);

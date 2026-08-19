@@ -21,6 +21,9 @@ namespace SSNoir.Core
         /// <summary>队伍唯一的身体轴，取代旧的健康血条。规则与档位见 <see cref="Core.Injury"/>。</summary>
         public Injury Injury { get; } = new Injury();
 
+        /// <summary>倒下留下的永久疤痕。治不好、不进伤势刻度，规则见 <see cref="Core.ScarSet"/>。</summary>
+        public ScarSet Scars { get; } = new ScarSet();
+
         /// <summary>伤势撞到倒下线，等待 GameState 结算送医（扣钱、作废当天骰子）。</summary>
         public bool PendingCollapse { get; private set; }
 
@@ -56,6 +59,7 @@ namespace SSNoir.Core
         public void ResetForNewGame()
         {
             Injury.Reset();
+            Scars.Clear();
             PendingCollapse = false;
             GrowthLevel = 0;
             Actors.Clear();
@@ -84,15 +88,21 @@ namespace SSNoir.Core
                 PendingCollapse = true;
         }
 
-        /// <summary>倒下：当天剩余骰子作废，伤势回落到轻伤段。由 GameState 在扣完治疗费后调用。</summary>
-        public void ResolveCollapse()
+        /// <summary>
+        /// 倒下：当天剩余骰子作废，伤势回落到轻伤段，并在当时受伤的那个部位永久留下一道疤。
+        /// 疤是这件事唯一带不走的代价——钱能再赚，伤能养好，这一条跟到结局。
+        /// 由 GameState 在扣完治疗费后调用，day 用于把这道疤钉在世界日历上。
+        /// </summary>
+        public ScarRecord ResolveCollapse(int day)
         {
             PendingCollapse = false;
+            var scar = Scars.Add(Injury.Part, day);
             Injury.ResolveCollapse();
             var player = FindActor("player") ?? throw new InvalidOperationException("Protagonist is missing from the team.");
             player.ActionDice.Clear();
             player.ActionDiceSlotIds.Clear();
             OnTeamChanged?.Invoke();
+            return scar;
         }
 
         public ActorState? FindActor(string actorId)
@@ -286,6 +296,7 @@ namespace SSNoir.Core
             {
                 InjurySeverity = Injury.Severity,
                 InjuryPart     = Injury.Part,
+                Scars          = Scars.Serialize(),
                 GrowthLevel    = GrowthLevel,
             };
             foreach (var actor in Actors)
@@ -315,6 +326,7 @@ namespace SSNoir.Core
         public void ApplySaveData(TeamSaveData data)
         {
             Injury.Restore(data.InjurySeverity, data.InjuryPart);
+            Scars.Restore(data.Scars);
             PendingCollapse = false;
             GrowthLevel = data.GrowthLevel;
 

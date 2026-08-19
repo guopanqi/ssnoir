@@ -38,6 +38,8 @@ namespace SSNoir.IMGUI
         private float _anchorsStillFor = AnchorSettleTime;
         private bool _stackDirty = true;
         private readonly Dictionary<string, CardPresentationResidue> _cardResidues = new Dictionary<string, CardPresentationResidue>();
+        // 关系浮层上一帧是否展开：只在「合→开」那一帧算作打开面板，不是每帧都算。
+        private bool _relationWasExpanded = false;
         // 判定条、结果条等不参与卡片布局；它们在所有卡本体之后统一绘制，才不会被近景卡遮住。
         private readonly List<CardAttachmentOverlay> _cardAttachmentOverlays = new List<CardAttachmentOverlay>();
         // 本帧的引线。与 attachment 相反，它们在所有卡本体**之前**统一绘制。
@@ -350,6 +352,7 @@ namespace SSNoir.IMGUI
             _gridScrollOffset = 0f;
             _gridScrollStack.Clear();
             _lastNavigationDepth = 0;
+            _relationWasExpanded = false;
             _cardResidues.Clear();
             _activeHeavyOutcome = null;
             _activeHeavyOutcomeActionName = string.Empty;
@@ -587,7 +590,12 @@ namespace SSNoir.IMGUI
             NavigationDrawer.Draw(_gameManager, worldUi, topHud);
             // 展开的关系进展图是显式的 HUD 浮层；锁住其后的世界控件，避免点击穿透。
             if (NavigationDrawer.IsRelationExpanded)
+            {
+                if (!_relationWasExpanded)
+                    ClearCardResidues();
                 worldUi = _windowStack.MakeContext(IMGUIWindowLayer.World, true);
+            }
+            _relationWasExpanded = NavigationDrawer.IsRelationExpanded;
 
             // 半身像只负责把人物钉在场景里；可读、可点的卡片与附件必须永远压在它上面。
             HandPanelDrawer.DrawPortraits(_gameManager);
@@ -614,6 +622,7 @@ namespace SSNoir.IMGUI
             SettingsPanelDrawer.Draw(settingsUi, topHud);
             if (!settingsWasOpen && SettingsPanelDrawer.IsOpen)
             {
+                ClearCardResidues();
                 DebugPanelDrawer.Close();
             }
 
@@ -704,8 +713,8 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(18),
                 normal = { textColor = IMGUIStyles.PaperInk }
             };
-            GUI.Label(new Rect(card.x + 44f, card.y + 60f, card.width - 88f, 52f), failure.Title, titleStyle);
-            GUI.Label(new Rect(card.x + 64f, card.y + 132f, card.width - 128f, 56f), failure.Description, descriptionStyle);
+            IMGUIStyles.DrawLabel(new Rect(card.x + 44f, card.y + 60f, card.width - 88f, 52f), failure.Title, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(card.x + 64f, card.y + 132f, card.width - 128f, 56f), failure.Description, descriptionStyle);
             IMGUIStyles.DrawLine(new Vector2(card.x + 64f, card.y + 212f), new Vector2(card.xMax - 64f, card.y + 212f),
                 new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.35f), 1f);
 
@@ -2052,6 +2061,8 @@ namespace SSNoir.IMGUI
                 _isGrowthPanelOpen = !_isGrowthPanelOpen;
                 if (_isGrowthPanelOpen)
                 {
+                    // 打开面板＝明确切换上下文，上一次的结算已经读完了。
+                    ClearCardResidues();
                     // 成长面板打开时不留一个悬在背后的下拉——避免两个 Panel 层弹窗抢点击。
                     SettingsPanelDrawer.Close();
                     DebugPanelDrawer.Close();
@@ -2114,7 +2125,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 fontSize = IMGUIStyles.FontSize(18)
             };
-            GUI.Label(new Rect(modal.x + 24f, modal.y + 28f, modal.width - 48f, 28f), title, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(modal.x + 24f, modal.y + 28f, modal.width - 48f, 28f), title, titleStyle);
 
             var btnRect = new Rect(modal.x + (modal.width - 112f) / 2f, modal.yMax - 50f, 112f, 30f);
             var mouse = Event.current.mousePosition;
@@ -2181,11 +2192,11 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 fontSize = IMGUIStyles.FontSize(28)
             };
-            GUI.Label(new Rect(modal.x + 28f, modal.y + titleTop, modal.width - 56f, titleH), spotlight.Title, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(modal.x + 28f, modal.y + titleTop, modal.width - 56f, titleH), spotlight.Title, titleStyle);
 
             if (hasBody)
             {
-                GUI.Label(new Rect(modal.x + 44f, modal.y + titleTop + titleH + bodyTop, bodyWidth, bodyH),
+                IMGUIStyles.DrawLabel(new Rect(modal.x + 44f, modal.y + titleTop + titleH + bodyTop, bodyWidth, bodyH),
                     spotlight.Subtitle, subtitleStyle);
             }
 
@@ -2266,7 +2277,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 fontSize = IMGUIStyles.FontSize(22),
             };
-            GUI.Label(new Rect(0f, UIScale.VH * 0.4f, UIScale.VW, 48f), $"[动画] {_activeAnimationTag}", style);
+            IMGUIStyles.DrawLabel(new Rect(0f, UIScale.VH * 0.4f, UIScale.VW, 48f), $"[动画] {_activeAnimationTag}", style);
         }
 
         private static void UsePointerEventForModal()
@@ -2300,7 +2311,7 @@ namespace SSNoir.IMGUI
                 wordWrap = true
             };
             style.normal.textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.65f);
-            GUI.Label(new Rect(160f, rect.y + 18f, UIScale.VW - 320f, bandH - 36f), text, style);
+            IMGUIStyles.DrawLabel(new Rect(160f, rect.y + 18f, UIScale.VW - 320f, bandH - 36f), text, style);
         }
 
         // 世界投射卡的活动范围。

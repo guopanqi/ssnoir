@@ -151,9 +151,9 @@ namespace SSNoir.IMGUI
                 normal = { textColor = IMGUIStyles.Gold }
             };
 
-            GUI.Label(new Rect(rect.x + 14f, rect.y + 8f, rect.width - 78f, 24f), beacon.NodeName, titleStyle);
-            GUI.Label(new Rect(rect.xMax - 62f, rect.y + 9f, 50f, 20f), "定 位", locateStyle);
-            GUI.Label(new Rect(rect.x + 14f, rect.y + 35f, rect.width - 28f, 24f), beacon.Reason, reasonStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 14f, rect.y + 8f, rect.width - 78f, 24f), beacon.NodeName, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.xMax - 62f, rect.y + 9f, 50f, 20f), "定 位", locateStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 14f, rect.y + 35f, rect.width - 28f, 24f), beacon.Reason, reasonStyle);
         }
     }
 }

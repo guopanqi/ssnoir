@@ -19,12 +19,19 @@
 
     ;; ── 小节二·城寨 ─────────────────────────────────
     ;; 目标只有一句话：查出那个抽「老金牌」的人是谁。
+    ;;
+    ;; 这一节分两趟。第一趟尼尔独自去,四条路一条也走不动——不是失败,是没人开口。
+    ;; 它有自己的短钟,填满即结束,产出不是线索,是「我一个人办不了这件事」。
+    ;; 第二趟她跟着去。四个空间前沿原样复用,判定全部走 social:问题从「看不看得懂这栋楼」
+    ;; 变成「这栋楼的人认不认她」。每推进一格出一段遭遇,坏结果不是走错路,是她被认出来。
+    ;;
     ;; 东、西两条通路并行往里长。每条通路由两个 0/4 的空间前沿组成：
     ;; 走完一段，旧动作消失，新动作出现在更深处的 Unity Anchor；人物和地点可在途中留下。
     ;; 烟只是让商人开口的抓手,真正的线索由地点里的人和生活痕迹拼出来。
     ;; 老街熟脸不改判定难度,只在两个地方兑现:酒馆闲话的分档,和小节二结算的报酬档位。
     (define familiar-max 3)
     (define warren-leg-max 4)       ; 每个空间前沿的长度；两段合计仍与旧 0/8 路线相同
+    (define warren-alone-max 3)     ; 独自那一趟：碰三次壁就够了，再多是罚玩家
     (define merchant-trust-max 8)   ; 埃迪愿意把客人的事告诉你
     (define trust-threshold 3)      ; 够这个数,小节三才能改动她的登台安排
     (define manager-fee-good 220)   ; 结算报酬:查得干净
@@ -86,6 +93,12 @@
     (define trust 0)                ; 她对你的信任
     (define song-day 0)             ; 最近一次请她唱歌的世界日
     (define familiar 0)             ; 老街熟脸 0..familiar-max
+    ;; 她答应跟你回老街的日子。0＝还没开口；否则＝她说的那两天到期的世界日。
+    ;; 不做成「去酒馆请她」的动作：那一趟跑腿不改变玩家要做的事，只是让他再读一次
+    ;; 目标、再点一次对话。碰壁的那一刻她就在场，让她当场把话说完。
+    (define singer-guiding-day 0)
+    (define singer-wait-days 2)
+    (define singer-guiding-told? #f) ; 她在巷口等你那条消息已经播过
     (define west-friction-cleared? #f) ; 西侧楼梯走完后出现的阻碍已经解决
     (define union-checked? #f)      ; 已按埃迪的东边地址排除弗兰克
     (define bridge-identified? #f)  ; 已按埃迪的西边地址从桥廊住户处问出莱恩
@@ -310,6 +323,15 @@
     ;; ── 开场：她找上门 ──────────────────────────────
     ;; 她不是经理介绍来的——老街的人脉听说旅馆住了个新来的侦探。
     ;; 一个穷歌女请得起的,刚好是一个穷侦探。
+    ;;
+    ;; 这一场要立三件事,一件也不能省:
+    ;;   1. 她的害怕是真的。这是全章唯一一次她不表演,玩家的同情从这里来。
+    ;;   2. 她要的不只是查案,是**保密**：别告诉经理,别报警,你替我送过去。
+    ;;      理由完全合理(剧院知道了就会取消首演),所以玩家不会起疑——
+    ;;      他只是第一次替她瞒住了一件事。
+    ;;   3. 预付款不是现金,是她从身上摘下来的东西。她穿得起这身衣服,
+    ;;      却拿不出一百金:她现在拥有的是别人愿意让她穿在身上的财富。
+    ;;      那件东西是谁送的,这一节不说破(见主线卡上的「那枚胸针」)。
     (define (node-answer-door)
       (instant-action "有人敲门"
         (lambda ()
@@ -320,15 +342,26 @@
             (line "夜莺" "你是那个新搬来的侦探？我打听过了，这条街上只有你收得起我这样的价钱。")
             (line "尼尔" "什么事？")
             (line "夜莺" "有人给我写信。他要钱，不然就把我从前的事抖出去。")
-            (line "夜莺" "钱放码头的邮箱，三天后。我想知道是谁写的，然后我想让他别再来了——不是这一次，是往后都别再来。")
+            (line "夜莺" "钱放码头的邮箱，三天后。我想知道是谁写的。")
+            (line "夜莺" "然后我想让他别再来了。不是这一次，是往后都别再来。")
             (line "尼尔" "为什么不报警？")
-            (line "夜莺" "我不能。"))
+            (line "夜莺" "不能报警。也别告诉剧院的经理。")
+            (line "尼尔" "为什么？")
+            (line "夜莺" "剧院要是知道有人写信威胁他们的新名字，他们不会去查是谁写的。")
+            (line "夜莺" "他们会把首演取消，换一个不惹事的人。")
+            (line "世界" "她说这句话的时候，手一直按在膝盖上。那不是演的——你见过怕成这样的人。")
+            (line "夜莺" "钱我来出。你替我送过去，别让第三个人知道。")
+            (line "尼尔" "一百金，三天。你现在拿得出多少？")
+            (line "世界" "她愣了一下，随即抬手到耳后，摘下一样东西放在桌上。")
+            (line "夜莺" "这个应该值一些。")
+            (line "世界" "你没有说话。她这一身衣服，抵得上你半年的房租。")
+            (line "夜莺" "剩下的我会想办法。你先拿着。"))
           (add-item! "金钱" prepayment)
           (set! delivery-day (+ world-day letter-deadline))
           (advance-stage! 1)
           (rest-release! "三封信/开场敲门")
           (spotlight! "交割委托"
-            "她付了三十金。信上要一百，三天后交到码头邮箱；署名没有，字迹刻意工整。"))))
+            "当铺给了三十金。信上要一百，三天后交到码头邮箱；署名没有，字迹刻意工整。这件事不能让剧院知道。"))))
 
     ;; ── 小节一·交割：一条不给钱的调查线 ─────────────
     ;; 钱来自整座城市的现有工作。这里只加一条**踩点**：它一分钱不挣,投进去的骰子
@@ -357,23 +390,33 @@
     (define (mail-routine-full?) (mail-clock 'full?))
     (define (scout-knows-face?) (>= (mail-clock 'current) scout-face))
 
+    ;; 独自那一趟只有这一根钟。它不记进度，记的是碰壁的次数：
+    ;; 填满不给线索，只给一个结论——这栋楼不对外人开口，你得带她回来。
+    (define warren-alone-clk
+      (make-clock "没人愿意开口" warren-alone-max 'segments
+        (lambda (current max)
+          (if (>= current max)
+              "四条路你都走过一遍了。门牌看得懂，人不理你。这件事你一个人办不了。"
+              "你能进去，能认路，可谁也不肯多说一个字。再碰两次壁，你就明白该带谁来了。"))))
+
     ;; 城寨的五根钟各有明确 owner：四个空间前沿与埃迪。
     ;; 前沿满格后由更深处的新前沿或永久结果取代；完成过的路线本身不留空节点。
+    ;; 描述写的是「带着她走这一段会遇上什么」，不是这栋楼的建筑。
     (define east-entry-clk
       (make-clock "东侧门廊" warren-leg-max 'segments
-        "穿过被加盖吞掉的入口。填满后发现埃迪，新前沿会移动到门廊深处。"))
+        "她走在你前面半步，不看两边。填满后你们会走到埃迪的柜台前。"))
 
     (define east-gallery-clk
       (make-clock "东侧回廊" warren-leg-max 'segments
-        "从埃迪的铺子继续往里认路。填满后发现工会房间。"))
+        "认得她的人越来越多。填满后发现工会房间。"))
 
     (define west-stairs-clk
       (make-clock "西侧楼梯" warren-leg-max 'segments
-        "沿住户共用的楼梯往上。填满后会抵达有人守着的平台。"))
+        "西边是她住过的那一侧。填满后会抵达有人守着的平台。"))
 
     (define west-bridge-clk
       (make-clock "上层桥廊" warren-leg-max 'segments
-        "越过楼梯口以后继续深入。填满后发现桥廊公寓。"))
+        "这段路她不用你带。填满后发现桥廊公寓。"))
 
     (define merchant-trust-clk
       (make-clock "埃迪的信任" merchant-trust-max 'segments
@@ -383,20 +426,21 @@
               "说清你为什么追这包烟。每到 2、4、6、8 格，他会多说一层。"))))
 
     ;; 小节四的三个环。每一格是具体的一件事，填格时用 result-note! 说出来。
-    ;; 满格的环，首演那张表上属于它的第一条直接不发生；每 2 格让该环的麻烦多撑一回合。
+    ;; 三个环各兑现成一件不同的事，不是同一种加成换三个名字（见 encounters/首演之夜.scm）：
+    ;; 外圈满格＝那一路电烧不起来，内环准备＝恐慌更耐打，中央满格＝台底那个口封死了。
     (define outer-ring-clk
       (make-clock "外圈的门与后廊" ring-max 'segments
         (lambda (current max)
           (if (>= current max)
-              "五六扇门都过了一遍。那道后廊的门今晚不会被撬开。"
-              "插销、值夜的人、后廊堆的杂物。满格能少掉一整处麻烦。"))))
+              "后廊清干净了，配电箱也查过。那一路电今晚烧不起来。"
+              "插销、值夜的人、后廊堆的杂物和那只配电箱。满格能少掉一整处麻烦。"))))
 
     (define inner-ring-clk
       (make-clock "内环走道与看台" ring-max 'segments
         (lambda (current max)
           (if (>= current max)
-              "疏散路线清过了，栏杆也钉死了。前排今晚翻不起来。"
-              "疏散路线、引座的人、翻得过去的栏杆。满格能少掉一整处麻烦。"))))
+              "疏散路线清过了，栏杆也钉死了。台下今晚更禁得住吓。"
+              "疏散路线、引座的人、翻得过去的栏杆。每 2 格，恐慌就更经得起一格。"))))
 
     (define core-ring-clk
       (make-clock "中央台与升降口" core-max 'segments
@@ -475,7 +519,7 @@
             (lambda () (spend-composure! 1)))
           (outcome "看明白一件事"
             (lambda () (advance-mail-routine! 1) (spend-composure! 1)))
-          (outcome "看明白一件事，也没人注意到你"
+          (outcome "没人注意到你"
             (lambda () (advance-mail-routine! 1))))))
 
     ;; 乔那一格：不花骰子，也不靠判定，但要跟他一起干过两班活他才会聊这个。
@@ -575,13 +619,13 @@
              (play-dialogue!
                (line "夜莺"
                  (string-append "还差 " (number->string delivery-shortfall)
-                                "。我把首饰押了，正好够。"))
+                                "。我又押了一件，正好够。"))
                (line "尼尔" "这笔差额算我的，等这件事完了还你。")
                (line "夜莺" "先别说这个。放完我就走。")))
             (else
              (play-dialogue!
                (line "夜莺"
-                 (string-append "我能当的都当了，也只凑出 "
+                 (string-append "身上能当的我都当了，也只凑出 "
                                 (number->string nightingale-cover-max)
                                 "。还差 " (number->string (envelope-short)) "。"))
                (line "尼尔" "那就这么放进去。他不会当街数。")
@@ -602,7 +646,8 @@
       (set! delivery-pending? #f)
       (let ((caught (car result))
             (money (cadr result)))
-        (if (or (= money 0) (= money 50) (= money 100))
+        ;; 钱不再是固定的三档：交锋里它是一路上抓回来的零头，任何 0..100 都合法。
+        (if (and (>= money 0) (<= money delivery-price))
             #t
             (error "三封信：交割交锋返回了非法的追款金额"))
         (frank 'on-delivery-chase! (list-ref result 2))
@@ -628,25 +673,55 @@
                 "跑腿的不是写信人。老金牌烟指向一个穿旧西装的买主。"
                 "你跟丢了他，只知道方向在码头居民区。")
             (cond
-              ((= money 100) "钱一分不少地拿回来了。")
-              ((= money 50) "拿回了一半，五十金。")
+              ((>= money delivery-price) "钱一分不少地拿回来了。")
+              ((> money 0)
+               (string-append "从地上抓回 " (number->string money) " 金，剩下的散在那几条街上了。"))
               (else "钱一分没剩。"))
             (if (> (envelope-short) 0)
                 "他会知道钱不够。"
                 "")))))
 
     ;; ── 结算后的人物戏(必看) ────────────────────────
+    ;; 全章埋得最早、也最容易被错过的一格在这里：你把烟盒递过去，她认出来了。
+    ;; 她只停了半秒，然后说「我不知道」。**不要揭穿**——尼尔不追问，玩家现在也读不出来。
+    ;; 它要等到小节三莱恩说「第一封信以后她就知道」时才回头生效。
     (define (node-her-visit)
       (instant-action "她来看你"
         (lambda ()
-          (play-dialogue!
-            (line "夜莺" "伤着了？")
-            (line "尼尔" "不要紧。钱没能全拿回来。")
-            (line "夜莺" "那些钱本来就是破财消灾。")
-            (line "夜莺" "我担心的不是这个。他们还会来吗？会不会要得更多？")
-            (line "尼尔" "我要去码头居民区一趟。")
-            (line "夜莺" "我在那里长大。东边门廊通向工会房间，西边楼梯上去是桥廊。外人进去，两边都不会好走。")
-            (line "夜莺" "在那之前你先把伤养好。"))
+          ;; 两条分支各自演完整一场——对白一场就是一场，不拆成三次开合舞台。
+          (if (runner-cigarettes?)
+              (play-dialogue!
+                (line "夜莺" "伤着了？")
+                (line "尼尔" "不要紧。钱没能全拿回来。")
+                (line "夜莺" "那些钱本来就是破财消灾。")
+                (line "夜莺" "我担心的不是这个。他们还会来吗？会不会要得更多？")
+                (line "尼尔" "跑腿的身上掉了这个。你见过这个牌子吗？")
+                (line "世界" "你把那半包烟推到桌子中间。她拿起来看了看，又放下。")
+                (line "世界" "中间有半秒钟，她什么也没做。然后她去看窗外。")
+                (line "夜莺" "我不知道。")
+                (line "尼尔" "老街的铺子不进这个牌子。买得起的人不住老街。")
+                (line "夜莺" "那你就去问问是谁买得起。")
+                (line "尼尔" "我要去码头居民区一趟。")
+                (line "夜莺" "我在那里长大。东边门廊通向工会房间，西边楼梯上去是桥廊。")
+                (line "夜莺" "外人进去，两边都不会好走。")
+                (line "尼尔" "那你跟我去。")
+                (line "夜莺" "我不回去。")
+                (line "世界" "她说这三个字的时候没有抬头，也没有留出让你再问一句的空。")
+                (line "夜莺" "在那之前你先把伤养好。"))
+              (play-dialogue!
+                (line "夜莺" "伤着了？")
+                (line "尼尔" "不要紧。钱没能全拿回来，人也跟丢了。")
+                (line "夜莺" "那些钱本来就是破财消灾。")
+                (line "夜莺" "我担心的不是这个。他们还会来吗？会不会要得更多？")
+                (line "尼尔" "只知道他往码头居民区去。")
+                (line "世界" "她点了一下头，没有问下去。")
+                (line "尼尔" "我要去码头居民区一趟。")
+                (line "夜莺" "我在那里长大。东边门廊通向工会房间，西边楼梯上去是桥廊。")
+                (line "夜莺" "外人进去，两边都不会好走。")
+                (line "尼尔" "那你跟我去。")
+                (line "夜莺" "我不回去。")
+                (line "世界" "她说这三个字的时候没有抬头，也没有留出让你再问一句的空。")
+                (line "夜莺" "在那之前你先把伤养好。")))
           (set-flag! '伤后探望)
           (rest-release! "三封信/伤后探望")
           (sync-globals!)
@@ -705,24 +780,127 @@
       (and (west-stairs-done?) (not west-friction-cleared?)))
     (define (merchant-trusted?) (merchant-trust-clk 'full?))
     (define (warren-done?) bridge-identified?)
+    ;; 第一趟：独自去，什么也问不出来。第二趟：她跟着，四个前沿才真正打开。
+    (define (alone-trip-done?) (warren-alone-clk 'full?))
+    (define (singer-guiding?)
+      (and (> singer-guiding-day 0) (>= world-day singer-guiding-day)))
+    (define (singer-waiting?)
+      (and (> singer-guiding-day 0) (< world-day singer-guiding-day)))
+    (define (alone-phase?) (and (beat2-open?) (not (singer-guiding?))))
+    (define (warren-open?) (and (beat2-open?) (singer-guiding?)))
+
+    ;; ── 带她走的那一路 ──────────────────────────────
+    ;; 每一格是一次遭遇，不是一段建筑描写。这栋楼要说的事只有一件：
+    ;; 她不是从老街走出来的明星，她是一个正在把老街从自己身上剥掉的人。
+    ;; 遭遇文字是内容，留在这里；格数的加减仍归时钟自己管。
+    (define (warren-encounter! route n)
+      (cond
+        ((equal? route 'east-entry)
+         (cond
+           ((= n 1)
+            (result-note! "有人从楼上叫了一个名字，不是「夜莺」")
+            (play-banter!
+              (line "楼上的女人" "是你吗？我还当是认错了——")
+              (line "夜莺" "别这么叫我。")))
+           ((= n 2)
+            (result-note! "卖鱼的女人认出了她")
+            (play-banter!
+              (line "卖鱼的女人" "听说你现在成明星了。")
+              (line "夜莺" "还没有。")))
+           ((= n 3)
+            (result-note! "一个从前的朋友拦住她开口借钱")
+            (play-banter!
+              (line "旧相识" "就这一次。你现在穿成这样，不缺这点。")
+              (line "夜莺" "我身上没有钱。")
+              (line "世界" "她说的是实话。你知道她说的是实话。那人不知道。")))
+           (else #f)))
+        ((equal? route 'east-gallery)
+         (cond
+           ((= n 1)
+            (result-note! "他们回答你之前，先看她一眼")
+            (play-banter!
+              (line "世界" "你问了三句，三次都是同一套动作：先看她，等她点头，再决定要不要开口。"))
+            #f)
+           ((= n 2)
+            (result-note! "有人主动说起莱恩最近混得多糟")
+            (play-banter!
+              (line "回廊里的男人" "他那铺子早撑不住了，成天欠着人的钱——")
+              (line "夜莺" "我们赶时间。")))
+           ((= n 3)
+            (result-note! "几个孩子跟了一路，盯着她的鞋")
+            (play-banter!
+              (line "世界" "他们不认得她的脸，只认得那双鞋。她走快了几步。"))
+            #f)
+           (else #f)))
+        ((equal? route 'west-stairs)
+         (cond
+           ((= n 1)
+            (result-note! "楼上有扇窗在你们上去以前关上了")
+            #f)
+           ((= n 2)
+            (result-note! "有人当着她的面，说给别人听")
+            (play-banter!
+              (line "平台上的女人" "有些人回来，是为了让人看见她回来过。")
+              (line "世界" "夜莺没有停下脚步，也没有回头。")))
+           ((= n 3)
+            (result-note! "一个老邻居问她走的那天为什么不打招呼")
+            (play-banter!
+              (line "老邻居" "你走的时候，连一声都没有。")
+              (line "夜莺" "我要是打了招呼，就走不掉了。")))
+           (else #f)))
+        ((equal? route 'west-bridge)
+         (cond
+           ((= n 1)
+            (result-note! "这一段她不用你带路")
+            (play-banter!
+              (line "世界" "她比你先拐弯，比你先侧身让开晾衣绳。她的脚知道该往哪儿踩。"))
+            #f)
+           ((= n 2)
+            (result-note! "一个男人叫她过去喝一杯，她没有过去")
+            #f)
+           ;; 这是全章埋得最深的一格：不是线索，是她第一次被逼着承认一件事。
+           ((= n 3)
+            (result-note! "有人替你说出了那个牌子")
+            (play-banter!
+              (line "桥廊上的老头" "老金牌？莱恩不是一直抽这个吗。")
+              (line "世界" "你看夜莺。她没有说话，也没有看你。")
+              (line "夜莺" "我们以前在一起。")))
+           (else #f)))
+        (else (error "三封信：城寨遭遇收到未登记的路线"))))
+
+    ;; 一次行动可能推进两格，两格就是两次遭遇——按顺序全部说出来，不许吞掉。
+    (define (emit-encounters! route old new)
+      (if (>= old new)
+          #f
+          (begin
+            (warren-encounter! route (+ old 1))
+            (emit-encounters! route (+ old 1) new))))
+
+    ;; 带着她走，坏结果不是走错路，是她被人认出来。
+    (define (recognized!)
+      (result-note! "她被认出来了；这一段白走")
+      (spend-composure! 1))
 
     (define (advance-east-entry! n)
       (let ((old (east-entry-clk 'current)))
         (east-entry-clk 'advance! n)
         (let ((new (east-entry-clk 'current)))
+          (emit-encounters! 'east-entry old new)
           (if (crossed? old new 4)
               (begin
                 (result-note! "发现人物：门廊杂货商埃迪")
                 (spotlight! "门廊里的铺子"
                   "埃迪守着门廊柜台。东侧回廊在他后面。")
                 (play-banter!
-                  (line "埃迪" "找路就看门牌。找人的话，别挡在我柜台前面。")))
+                  (line "埃迪" "找路就看门牌。找人的话，别挡在我柜台前面。")
+                  (line "世界" "他看了夜莺一眼，把话咽了回去，只把烟盒往里推了推。")))
               #f))))
 
     (define (advance-east-gallery! n)
       (let ((old (east-gallery-clk 'current)))
         (east-gallery-clk 'advance! n)
         (let ((new (east-gallery-clk 'current)))
+          (emit-encounters! 'east-gallery old new)
           (if (crossed? old new 4)
               (begin
                 (result-note! "发现地点：工会房间")
@@ -734,17 +912,19 @@
       (let ((old (west-stairs-clk 'current)))
         (west-stairs-clk 'advance! n)
         (let ((new (west-stairs-clk 'current)))
+          (emit-encounters! 'west-stairs old new)
           (if (crossed? old new 4)
               (begin
                 (result-note! "出现阻碍：楼梯口的人")
                 (spotlight! "楼梯口被堵住了"
-                  "几个人堵住楼梯。他们不想让你替她继续问下去。"))
+                  "几个人把椅子横在楼梯上。他们不是在拦一个外来的侦探——他们看的是站在你旁边的她。"))
               #f))))
 
     (define (advance-west-bridge! n)
       (let ((old (west-bridge-clk 'current)))
         (west-bridge-clk 'advance! n)
         (let ((new (west-bridge-clk 'current)))
+          (emit-encounters! 'west-bridge old new)
           (if (crossed? old new 4)
               (begin
                 (result-note! "发现地点：桥廊公寓")
@@ -759,61 +939,61 @@
         "每次休息后都会减一格；事情闹得剧院难看也会额外扣减。归零他换人,委托到此为止。"))
 
     (define (node-east-entry)
-      (node "穿过东侧门廊"
+      (node "带她穿过东侧门廊"
         :anchor "码头居民区-东侧门廊"
-        :subtitle "从东侧入口往里认路；门廊深处有人做生意"
+        :subtitle "她把首饰摘了，换了件旧外套；从东侧入口进去"
         :tags (list "低风险")
         :clocks (list (east-entry-clk 'render-data))
         :requires (list (req-die))
-        :resolve (roll 'sharpness
-          (outcome "路又被封住了"
-            (lambda () (spend-composure! 1)))
-          (outcome "认出了一段路"
+        :resolve (roll 'social
+          (outcome "有人围上来看她"
+            (lambda () (recognized!)))
+          (outcome "走过去了"
             (lambda () (advance-east-entry! 1)))
-          (outcome "看懂了这片门廊"
+          (outcome "没人拦你们"
             (lambda () (add-familiar! 1) (advance-east-entry! 2))))))
 
     (define (node-east-gallery)
-      (node "深入东侧回廊"
+      (node "带她走东侧回廊"
         :anchor "码头居民区-东侧回廊"
-        :subtitle "埃迪的铺子后面还有一段常亮着灯的回廊"
+        :subtitle "埃迪的铺子后面那段回廊常亮着灯，人也多"
         :tags (list "低风险")
         :clocks (list (east-gallery-clk 'render-data))
         :requires (list (req-die))
-        :resolve (roll 'sharpness
-          (outcome "又绕回杂货铺"
-            (lambda () (spend-composure! 1)))
-          (outcome "跟住送货的人"
+        :resolve (roll 'social
+          (outcome "一屋子人都转过头来"
+            (lambda () (recognized!)))
+          (outcome "有人肯搭话"
             (lambda () (advance-east-gallery! 1)))
-          (outcome "看懂回廊的用途"
+          (outcome "他们看她的面子开了口"
             (lambda () (add-familiar! 1) (advance-east-gallery! 2))))))
 
     (define (node-west-stairs)
-      (node "沿西侧楼梯往上走"
+      (node "陪她上西侧楼梯"
         :anchor "码头居民区-西侧楼梯"
-        :subtitle "从西侧入口往上；楼梯连着住户的厨房和共用平台"
+        :subtitle "西边是她住过的那一侧；楼梯连着住户的厨房和共用平台"
         :tags (list "低风险")
         :clocks (list (west-stairs-clk 'render-data))
         :requires (list (req-die))
         :resolve (roll 'social
-          (outcome "被挡了回来"
-            (lambda () (spend-composure! 1)))
+          (outcome "话是冲着她去的"
+            (lambda () (recognized!)))
           (outcome "他们让开了半级台阶"
             (lambda () (advance-west-stairs! 1)))
-          (outcome "有人给你指了近路"
+          (outcome "有人还念她的旧情"
             (lambda () (add-familiar! 1) (advance-west-stairs! 2))))))
 
     (define (node-west-bridge)
-      (node "穿过上层桥廊"
+      (node "跟她走上层桥廊"
         :anchor "码头居民区-上层桥廊"
-        :subtitle "楼梯口已经让开；沿挂在两栋楼之间的桥廊继续往里"
+        :subtitle "楼梯口已经让开；这一段她住到十六岁，不用你带路"
         :tags (list "低风险")
         :clocks (list (west-bridge-clk 'render-data))
         :requires (list (req-die))
         :resolve (roll 'social
           (outcome "房门一扇接一扇关上"
-            (lambda () (spend-composure! 1)))
-          (outcome "有人默许你过去"
+            (lambda () (recognized!)))
+          (outcome "有人默许你们过去"
             (lambda () (advance-west-bridge! 1)))
           (outcome "洛蒂给你指了门"
             (lambda () (add-familiar! 1) (advance-west-bridge! 2))))))
@@ -828,13 +1008,17 @@
           (begin
             (set-flag! '她的过去)
             (gain-trust! 1)
-            (play-remote-banter!
-              (line "世界" "他们收起椅子以前只说了一句：她既然走了，就不该叫外人回来问路。当天晚上，你把这句话带回了酒馆。")
-              (line "夜莺" "西楼梯尽头那段桥廊，我在那里住到十六岁。冬天风从地板缝里往上吹，得拿报纸把缝全糊住。")
+            (play-banter!
+              (line "楼梯口的人" "她既然走了，就不该带着外人回来问路。")
+              (line "世界" "椅子拖回墙边。她没有还嘴，等那几个人走远，才开口。")
+              (line "夜莺" "西楼梯尽头那段桥廊，我在那里住到十六岁。")
+              (line "夜莺" "冬天风从地板缝里往上吹，得拿报纸把缝全糊住。")
               (line "夜莺" "后来我在这条街的酒吧唱了六年。没人来听，来的人也不是来听的。")
               (line "尼尔" "所以你走了。")
               (line "夜莺" "有一天我算了一笔账。我再唱六年，还是站在同一块地板上。")
               (line "夜莺" "走的时候我没跟谁道别。这就是他们记恨的事。")
+              (line "尼尔" "你恨这里吗？")
+              (line "夜莺" "我花了很久才从这儿出去。你们为什么都希望我证明自己还属于这儿？")
               (line "尼尔" "值得吗？")
               (line "夜莺" "我现在至少知道，门外还有别的地方。")))))
 
@@ -852,6 +1036,56 @@
           (outcome "你没有把它变成一场架"
             (lambda () (add-familiar! 1) (resolve-west-friction!))))))
 
+
+    ;; ── 小节二·第一趟：独自去 ───────────────────────
+    ;; 这一趟不产出线索。它只让玩家自己撞出一句话：这栋楼不对外人开口。
+    ;; 因此三档结果全部填格——它不是判定「能不能查到」，是判定「你多快明白」。
+    ;; 填满即结束，动作随即消失；不留一个永远可以再点一次的空节点。
+    (define (alone-stonewall-fact n)
+      (cond
+        ((= n 1) "东边门廊：问一句，答一句，全是「不知道」")
+        ((= n 2) "西边楼梯：上到一半，两户人家把门带上了")
+        ((= n 3) "这不是查不到。是这栋楼不对外人开口")
+        (else "")))
+
+    (define (advance-alone! n)
+      (let ((old (warren-alone-clk 'current)))
+        (warren-alone-clk 'advance! n)
+        (let ((new (warren-alone-clk 'current)))
+          (if (> new old) (result-note! (alone-stonewall-fact new)) #f)
+          (if (crossed? old new warren-alone-max)
+              (begin
+                (set! singer-guiding-day (+ world-day singer-wait-days))
+                (sync-globals!)
+                (play-remote-dialogue!
+                  (line "尼尔" "那地方没人肯跟我说话。")
+                  (line "夜莺" "当然不会。你是外面来的。")
+                  (line "尼尔" "那就得有人带我进去。")
+                  (line "世界" "她把手里的杯子放下，很久没有出声。")
+                  (line "夜莺" "我不回去。")
+                  (line "尼尔" "那这件事就到此为止。我查不下去。")
+                  (line "世界" "台上的人在调音。她听着，像在听别的东西。")
+                  (line "夜莺" "给我两天。")
+                  (line "尼尔" "两天做什么？")
+                  (line "夜莺" "跟剧院说我病了。还有——我得找件能穿回去的衣服。"))
+                (spotlight! "两天以后"
+                  "她会在巷口等你。这两天是你自己的。"))
+              (sync-globals!)))))
+
+    (define (node-alone-warren)
+      (node "独自在城寨打听"
+        :anchor "码头居民区-东侧门廊"
+        :subtitle "你手上是半包烟和一个方向；这里的人有的是不认识你的理由"
+        :tags (list "低风险")
+        :clocks (list (warren-alone-clk 'render-data))
+        :requires (list (req-die))
+        :resolve (roll 'social
+          (outcome "连门都没让你靠近"
+            (lambda () (spend-composure! 1) (advance-alone! 1)))
+          (outcome "又走了一条空路"
+            (lambda () (advance-alone! 1)))
+          (outcome "有个人差点就说了"
+            (lambda () (advance-alone! 2))))))
 
     (define (grant-merchant-addresses!)
       (if (> (item-count eddie-address-item) 0)
@@ -1035,7 +1269,7 @@
                           :subtitle "这里住户太多；需要放入一张埃迪的地址纸条"
                           :disabled #t))))
           (list (node "洛蒂"
-                  :subtitle "桥廊公寓的老住户；她记得哪些人住过这里，也记得他们搬走时的样子"
+                  :subtitle "桥廊公寓的老住户；她记得谁住过这里"
                   :resolve (observe "她在门口择菜，桥上过一个人就抬一次眼。"))))))
 
 
@@ -1043,10 +1277,12 @@
     ;; 老街熟脸在这里兑现:熟脸够了,你才听得见他们真正在说什么。
     ;; 写短——这是一眼扫过去的东西,不是要人停下来读的段落。
     (define (node-lyon-talk)
-      (observe-action "酒馆里的闲话"
-        (if (>= familiar 2)
-            "「那些东西该烧掉。」有人把杯子推开，走了。"
-            "几个人正说着什么，看见你就散了。")))
+      (node "酒馆里的闲话"
+        :anchor "老街酒馆"
+        :resolve (observe
+          (if (>= familiar 2)
+              "「那些东西该烧掉。」有人把杯子推开，走了。"
+              "几个人正说着什么，看见你就散了。"))))
 
     ;; ── 小节二·收场：查明身份 ───────────────────────
     ;; 桥廊调查完成时已经叫出了名字。这里只负责结账与推进章节，
@@ -1071,6 +1307,19 @@
           "新行动：去剧院报告莱恩身份。")))
 
     ;; 三天到了：经理的人带回地址。这条消息点亮出发卡,它自己不花骰子。
+    ;; 两天到了：她自己在巷口等你。这条消息点亮四条路，它不花骰子，
+    ;; 也不需要玩家先跑一趟酒馆——约好的事到期就该发生。
+    (define-turn-rule "她在巷口等你"
+      (lambda () (and (beat2-open?) (singer-guiding?) (not singer-guiding-told?)))
+      (lambda ()
+        (set! singer-guiding-told? #t)
+        (sync-globals!)
+        (sync-blockers!)
+        (spotlight! "她在巷口等你"
+          "旧外套，头发扎起来，耳朵上什么也没有。她比你先转身往里走。")
+        (play-banter!
+          (line "夜莺" "别叫我的名字。跟着我。"))))
+
     (define-turn-rule "经理的人回话"
       (lambda () (and (lesson-beat?) (not inquiry-told?) (inquiry-done?)))
       (lambda ()
@@ -1364,7 +1613,8 @@
             (line "夜莺" "经理说你想让我别上台。")
             (line "尼尔" "有人写信说要你的命。")
             (line "夜莺" "我等了这么多年。")
-            (line "夜莺" "我在那条街上唱了六年，先生。六年里没有一个人写信说要我的命——因为没有一个人在乎我死不死。")
+            (line "夜莺" "我在那条街上唱了六年，先生。六年里没有一个人写信说要我的命。")
+            (line "夜莺" "因为没有一个人在乎我死不死。")
             (line "夜莺" "现在有人在乎了。这说明我走到了什么地方。")
             (line "尼尔" "这说明有人想让你下不来台。")
             (line "夜莺" "那天晚上你留在后台，行吗？")
@@ -1443,7 +1693,7 @@
     (define (node-outer-ring)
       (node "把外圈的门走一遍"
         :anchor "剧院-外圈"
-        :subtitle "五六扇门、插销、值夜的人、后廊堆的杂物;走满这一圈，那道后廊门今晚不会被撬开"
+        :subtitle "五六扇门、插销、值夜的人、后廊堆的杂物"
         :tags (list "低风险")
         :clocks (list (outer-ring-clk 'render-data))
         :requires (list (req-die))
@@ -1458,7 +1708,7 @@
     (define (node-inner-ring)
       (node "清理内环"
         :anchor "剧院-内环"
-        :subtitle "收折椅、钉活栏杆、跟引座的人交代路线;都是力气活，走满这一圈前排今晚翻不起来"
+        :subtitle "收折椅、钉活栏杆、跟引座的人交代路线"
         :tags (list "低风险")
         :clocks (list (inner-ring-clk 'render-data))
         :requires (list (req-die))
@@ -1476,7 +1726,7 @@
     (define (node-core-ring)
       (node "摸升降台与台底"
         :anchor "剧院-中央台"
-        :subtitle "圆台四面无遮，能动的只有升降台的行程和台底那个封了一年的通风口"
+        :subtitle "圆台四面无遮；能动的只有升降台和台底的风口"
         :tags (list "低风险")
         :clocks (list (core-ring-clk 'render-data))
         :requires (list (req-die))
@@ -1488,12 +1738,12 @@
           (outcome "两处都动过了"
             (lambda () (fill-ring! core-ring-clk core-note 2))))))
 
-    ;; 名册不产出真相，产出的是首演那张表上的几条：你提前知道台底会进烟、
-    ;; 知道三号门是活的，于是知道该往哪个环铺格子。
+    ;; 名册不产出真相，产出的是首演那晚的几条：你提前知道台底那个口是活的、
+    ;; 知道灯桥上过人，于是知道该往哪个环铺格子。
     (define (node-roster)
       (node "翻后台名册"
         :anchor "剧院-后台"
-        :subtitle "写信的人知道换装的顺序，说明他就在这栋楼里;每查清一件事，那天晚上你就少瞎一只眼"
+        :subtitle "写信的人知道换装的顺序——他就在这栋楼里"
         :tags (list "低风险")
         :clocks (list (roster-clk 'render-data))
         :requires (list (req-die))
@@ -1502,7 +1752,7 @@
             (lambda () (spend-composure! 1)))
           (outcome "对出一条"
             (lambda () (fill-ring! roster-clk roster-note 1)))
-          (outcome "对出一条，还问清了经手人"
+          (outcome "还问清了经手人"
             (lambda () (fill-ring! roster-clk roster-note 1))))))
 
     ;; ── 小节四·人手 ─────────────────────────────────
@@ -1510,7 +1760,7 @@
     ;; 那天晚上他每回合按自己的方式做一件事，也各有各的不做。
     (define (node-aide-joe)
       (node "请乔守外圈"
-        :subtitle "他认得每一辆能横过来的推车;他只管门，人从他手里过去了他也不追"
+        :subtitle "他认得每一辆能横过来的推车"
         :requires (list (req-die))
         :resolve (instant
           (outcome "他答应了"
@@ -1527,7 +1777,7 @@
 
     (define (node-aide-frank)
       (node "请弗兰克守后廊"
-        :subtitle "他的人认得这一片的每条巷子;他们不等你下令，局面难看了自己就动手"
+        :subtitle "他的人认得这一片的每条巷子"
         :requires (list (req-die))
         :resolve (instant
           (outcome "他派了四个人"
@@ -1693,8 +1943,14 @@
             (if (has-flag? '第二封信)
                 "当前目标：去剧院报告莱恩身份"
                 "当前目标：已查出莱恩；等剧院的下一步消息"))
+           ((singer-waiting?)
+            (string-append "当前目标：等夜莺安排好，还有 "
+                           (number->string (max 0 (- singer-guiding-day world-day)))
+                           " 天；这两天可以赚钱或交租"))
+           ((alone-phase?)
+            "当前目标：去码头居民区追查「老金牌」")
            (else
-            "当前目标：去码头居民区追查「老金牌」，找出写信人的身份")))
+            "当前目标：跟着夜莺走完城寨的四条路，找出写信人的身份")))
         ((= story-stage 3)
          (cond
            ((not (has-flag? '她说起莱恩))
@@ -1731,7 +1987,8 @@
         ((= story-stage 1)
          (string-append
            "她在老街的酒馆唱歌，刚被一个剧院经理看中。首演是她等了多年的那一步——如果走得到的话。"
-           "写信的人挑的就是这个时候。三天后，邮箱里得有一百金。"))
+           "写信的人挑的就是这个时候。三天后，邮箱里得有一百金。"
+           "她要你别报警，也别让剧院知道：他们不会去查是谁写的，他们会换一个不惹事的人。"))
         ((= story-stage 2)
          (string-append
            "取信的人往码头居民区去了。那一片是她长大的地方，也是她再没回去过的地方。"
@@ -1824,6 +2081,15 @@
                   :children (append
                               (list (observe-action "案情摘要" (situation-text)))
                               ;; 手上确实攥着的东西，和「案情」分开一条：它是物证，不是叙述。
+                              ;; 埋在这里的东西这一章不兑现,也不加提示。玩家现在读到的
+                              ;; 只是「她没有钱」;背面那行字要等经理出现以后才有意思。
+                              (if (and (>= story-stage 1) (<= story-stage 2))
+                                  (list (observe-action "那枚胸针"
+                                          (string-append
+                                            "她摘下来抵委托金的那件东西。当铺的人翻来覆去看了很久，"
+                                            "说做工是城里最好的那家铺子出的，价钱他给不到那个数。"
+                                            "背面刻着一行很小的字，不是她的名字。")))
+                                  '())
                               (if (runner-cigarettes?)
                                   (list (observe-action "半包「老金牌」"
                                           (string-append
@@ -1926,8 +2192,11 @@
            (if (and (beat3-open?) (not aide-joe?) (joe 'premiere-aide-eligible?))
                (list (node-aide-joe))
                '())
+           (if (and (alone-phase?) (not (alone-trip-done?)))
+               (list (node-alone-warren))
+               '())
            (if (and (not (east-merchant-found?))
-                    (or (beat2-open?) (> (east-entry-clk 'current) 0)))
+                    (or (warren-open?) (> (east-entry-clk 'current) 0)))
                (list (node-east-entry))
                '())
            (if (east-merchant-found?) (list (eddie-node)) '())
@@ -1936,7 +2205,7 @@
                '())
            (if (east-route-done?) (list (union-room-place)) '())
            (if (and (not (west-stairs-done?))
-                    (or (beat2-open?) (> (west-stairs-clk 'current) 0)))
+                    (or (warren-open?) (> (west-stairs-clk 'current) 0)))
                (list (node-west-stairs))
                '())
            (if (west-friction-pending?) (list (node-west-friction)) '())
@@ -2038,6 +2307,9 @@
              (list "trust" trust)
              (list "song-day" song-day)
              (list "familiar" familiar)
+             (list "warren-alone" (warren-alone-clk 'save))
+             (list "singer-guiding-day" singer-guiding-day)
+             (list "singer-guiding-told?" singer-guiding-told?)
              (list "west-friction-cleared?" west-friction-cleared?)
              (list "east-entry" (east-entry-clk 'save))
              (list "east-gallery" (east-gallery-clk 'save))
@@ -2104,6 +2376,9 @@
              (set! trust (assoc-get data "trust" 0))
              (set! song-day (assoc-get data "song-day" 0))
              (set! familiar (assoc-get data "familiar" 0))
+             (warren-alone-clk 'load! (assoc-get data "warren-alone" 0))
+             (set! singer-guiding-day (assoc-get data "singer-guiding-day" 0))
+             (set! singer-guiding-told? (assoc-get data "singer-guiding-told?" #f))
              (set! west-friction-cleared? (assoc-get data "west-friction-cleared?" #f))
              (east-entry-clk 'load! (assoc-get data "east-entry" 0))
              (east-gallery-clk 'load! (assoc-get data "east-gallery" 0))

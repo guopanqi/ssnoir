@@ -16,8 +16,11 @@
 ;; 第二幕·追逐 —— 三段街景（巷口 → 货栈区 → 邮局后街），每次休息才换景。
 ;;   「追上他」跨场景累积，填满立即成功；「逃脱」每次休息 +1，到 3 而仍未追上就失败。
 ;;   每段街景只改变可用的追逐手段和风险，不再另存一根会作废的局部追逐钟。
-;;   拿钱是副目标：「口袋里的钱」和「包里的钱」各有一根 0/3 的钟，
-;;   每填满一根才让「拿回所有的钱」推进一格，并结算 50。两份钱与追人共用骰子。
+;;   钱不是一个可以规划的副目标，也没有钟。它是**冒进那一手的残渣**：
+;;   三张冒进追击卡打出中档时，意思是你够到了他、抓下来的不是他——一叠钱撒在地上。
+;;   于是场上多出一张一次性机会卡，只活到本回合结束（回合末就换街景，钱留在上一条街）。
+;;   稳妥的那三张卡永远不掉钱。钱和人在虚构上就是同一件事的两面：
+;;   你抓到了钱，说明你没抓到人。这样两个目标不必靠任何罚则去对立。
 ;;
 ;; 城市输入：踩点格数（0..6）。它是这一场唯一的兑现，而且是结构性的，不是加数值：
 ;;   ≥3「认得那张脸」—— 第一幕：真邮差变成一个**不花骰子、不掉冷静**就能认出的人
@@ -29,7 +32,7 @@
 ;; 让他自己按一下「你认得他」，兑现才落在他手上。
 ;; 注意踩点从不直接指认取信人——它只让你**免费排除错的人**。
 ;;
-;; 第一幕：一个人一张卡，卡上一根 0/3 的短钟和**两种弄明白他的办法**。
+;; 第一幕：一个人一张卡，卡上一根 0/4 的短钟和**两种弄明白他的办法**。
 ;; 两种办法故意不同技能——如果全是「看清」，三张卡就是同一个动作抄三遍，
 ;; 骰子往哪儿放没有区别。眼睛之外还有嘴（过去搭一句）和脑子（这个点该谁当班），
 ;; 于是「手上这几颗骰的点数适合干什么」变成一个真问题。
@@ -52,29 +55,20 @@
 
 (define catch-target 6)
 (define escape-target 3)
-(define money-part-target 3)
-(define money-per-part 50)
+;; 钱不是目标，是「差一点抓住他」掉在地上的东西。一张机会卡最多 25，
+;; 一晚上顶天一百——和以前的上限一样，但每一枚都是你自己换来的。
+(define money-drop-full 25)
+(define money-drop-part 15)
+(define money-cap 100)
 (define stakeout-turns 2)
-;; 每个人 3 格。给得比"刚好够"多一点：这一幕才有"我这颗骰子先喂谁"的余地，
+;; 每个人 4 格。给得比"刚好够"多一点：这一幕才有"我这颗骰子先喂谁"的余地，
 ;; 而不是一颗骰子一个人。冷静不是这里的节流阀——烟和酒是用钱买缓冲的正经渠道，
 ;; 交锋不该按冷静的上限去反推格数。
-(define look-target 3)
+(define look-target 4)
 
 (define catch-clk
   (make-clock "追上他" catch-target 'segments
               "跨越三段街景的主目标。填满就把他按住；逃脱先满则跟丢。"))
-
-(define money-clk
-  (make-clock "拿回所有的钱" 2 'segments
-              "副目标。口袋与包里的钱各算一份；每填满一份结算 50。"))
-
-(define pocket-money-clk
-  (make-clock "口袋里的钱" money-part-target 'segments
-              "把沿路散掉的零钞收齐。填满才拿回 50。"))
-
-(define bag-money-clk
-  (make-clock "包里的钱" money-part-target 'segments
-              "把还卡在车筐里的纸包抢回来。填满才拿回 50。"))
 
 (define escape-clk
   (make-clock "逃脱" escape-target 'segments
@@ -83,6 +77,8 @@
 (define act 1)
 (define finished? #f)
 (define seg 0)
+(define money-taken 0)       ; 这一晚一共从地上抓回多少
+(define money-drop? #f)      ; 地上此刻有没有一叠钱；只活到本回合结束
 (define stakeout-left stakeout-turns)
 (define investigation-attempts '())
 (define motorcycle-intervened? #f)
@@ -239,7 +235,7 @@
      (node "认出老邮差"
        :subtitle (string-append (cand-desc c) "——这张脸你见过。不花骰子")
        :resolve (instant
-         (outcome "一眼就认出来了，不是他"
+         (outcome "一眼就认出，不是他"
            (lambda () (reveal! c))))))
     (else
      (container-with-clocks
@@ -250,10 +246,10 @@
 (define (act1-nodes)
   (map node-candidate (live-candidates)))
 
+;; 第一幕顶上只有窗口这一根。追人和钱这一幕一格也动不了，
+;; 把它们摆在那里只是让玩家去读两根自己现在碰不到的钟。
 (define (act1-clocks)
-  (list (catch-clk 'render-data)
-        (money-clk 'render-data)
-        (list 'clock "他随时会动手" stakeout-left stakeout-turns 'countdown
+  (list (list 'clock "他随时会动手" stakeout-left stakeout-turns 'countdown
               "每结束一个回合走一格。走完信封就被取走了，你没看见是谁——巷口那一段也就没了。")))
 
 ;; ============================================================
@@ -291,30 +287,27 @@
   (cond
     ((= seg 0)
      (node "翻过那辆推车"
-       :subtitle "力量；坏：冷静 −1，中：+1 格，好：+2 格"
-       :clocks (list (catch-clk 'render-data))
+       :subtitle "力量；冒进的一手。够到了他，抓下来的可能不是他"
        :requires (list (req-die))
        :resolve (roll 'violence
          (outcome "踩翻了一摞碗" (lambda () (spend-composure! 1)))
-         (outcome "翻了过去" (lambda () (catch-clk 'tick!)))
+         (outcome "邮袋带子断了" (lambda () (catch-clk 'tick!) (drop-money!)))
          (outcome "落地就在他后轮边上" (lambda () (catch+ 2))))))
     ((= seg 1)
      (node "跟进那条黑巷"
-       :subtitle "敏锐；坏：冷静 −1，中：+1 格，好：+2 格。看不见路，但这是最短的一条"
-       :clocks (list (catch-clk 'render-data))
+       :subtitle "敏锐；看不见路，但这是最短的一条"
        :requires (list (req-die))
        :resolve (roll 'sharpness
          (outcome "撞在没看见的货堆上" (lambda () (spend-composure! 1)))
-         (outcome "摸着墙跟上了" (lambda () (catch-clk 'tick!)))
+         (outcome "纸包撕开一角" (lambda () (catch-clk 'tick!) (drop-money!)))
          (outcome "从巷子另一头贴上了他" (lambda () (catch+ 2))))))
     ((= seg 2)
      (node "扑上去"
-       :subtitle "力量；坏：受伤，中：+1 格，好：+2 格"
-       :clocks (list (catch-clk 'render-data))
+       :subtitle "力量；最后一段了。扑得着人，也可能只扑得着他的外套"
        :requires (list (req-die))
        :resolve (roll 'violence
          (outcome "扑空了，肩膀先着地" (lambda () (injure!)))
-         (outcome "拽住了他" (lambda () (catch-clk 'tick!)))
+         (outcome "扯下他半个口袋" (lambda () (catch-clk 'tick!) (drop-money!)))
          (outcome "把车整个掀了" (lambda () (catch+ 2))))))
     (else (error "交割：未知追击动作"))))
 
@@ -322,17 +315,15 @@
   (cond
     ((= seg 0)
      (node "绕过去"
-       :subtitle "敏锐；慢，但干净。坏：无，中：+1 格，好：+1 格"
-       :clocks (list (catch-clk 'render-data))
+       :subtitle "敏锐；慢，但干净。手上不会沾东西"
        :requires (list (req-die))
        :resolve (roll 'sharpness
          (outcome "绕远了半条街" (lambda () #f))
          (outcome "从摊子侧面绕了出去" (lambda () (catch-clk 'tick!)))
-         (outcome "绕出去时他还在原地拐弯" (lambda () (catch-clk 'tick!))))))
+         (outcome "他还在原地拐弯" (lambda () (catch-clk 'tick!))))))
     ((= seg 1)
      (node "贴着货堆推进"
-       :subtitle "力量；稳。坏：冷静 −1，中：+1 格，好：+1 格"
-       :clocks (list (catch-clk 'render-data))
+       :subtitle "力量；推开一条道，不快也不丢东西"
        :requires (list (req-die))
        :resolve (roll 'violence
          (outcome "挤在两摞货中间动不了" (lambda () (spend-composure! 1)))
@@ -340,8 +331,7 @@
          (outcome "一路推到了空地上" (lambda () (catch-clk 'tick!))))))
     ((= seg 2)
      (node "喊住他"
-       :subtitle "交际；坏：冷静 −1，中：+1 格，好：+2 格。整条街都会记得今晚是谁在这儿喊"
-       :clocks (list (catch-clk 'render-data))
+       :subtitle "交际；整条街都会记得今晚是谁在这儿喊"
        :requires (list (req-die))
        :resolve (roll 'social
          (outcome "没人回头，他也没有" (lambda () (spend-composure! 1)))
@@ -354,73 +344,64 @@
 ;; 它一手抵得上一整段街景——这就是那两天蹲出来的东西。
 (define (node-side-door)
   (node "从货栈边门包抄"
-    :subtitle "敏锐；只有摸熟这一片才知道这扇门。坏：冷静 −1，中：追逐 +2，好：+3"
-    :clocks (list (catch-clk 'render-data))
-       :requires (list (req-die))
+    :subtitle "敏锐；只有摸熟这一片的人才知道这扇门"
+    :requires (list (req-die))
     :resolve (roll 'sharpness
       (outcome "锁舌今晚偏偏是好的" (lambda () (spend-composure! 1)))
-      (outcome "从边门穿了出去，正好在他前面" (lambda () (catch+ 2)))
-      (outcome "他冲出货栈时，你已经站在路当中" (lambda () (catch+ 3))))))
+      (outcome "边门穿出，在他前面" (lambda () (catch+ 2)))
+      (outcome "你已经站在路当中" (lambda () (catch+ 3))))))
 
-;; ── 机会动作：全部指向散掉的钱 ──────────────────────
-;; 它们不帮你追人，只帮你把钱拿回来。每份都要单独填满，填满之前不结算零头。
-(define (advance-money-part! clk label n)
-  (if (<= n 0) (error "交割：钱款进度必须为正数") #t)
-  (if (clk 'full?) (error "交割：重复推进已经拿回的钱") #t)
-  (clock-tick-n! clk n)
-  (if (clk 'full?)
+;; ── 机会：地上那一叠 ────────────────────────────────
+;; 它不是一个可以规划的副目标，是冒进那一手的残渣：你够到了他，抓下来的不是他。
+;; 所以它没有钟——一张卡就是一个槽，一颗骰子，用掉就没了。
+;; 也不写「逃脱 +1」这类惩罚：一颗本可以追人的骰子、不保证捡得着、只活一个回合，
+;; 代价已经收够三遍。再挂一条明写的罚则就是收两次钱，还会让它读起来像陷阱。
+;; 它活到本回合结束——回合就是你手上这几颗骰子的一次分配，取舍必须发生在这个窗口里。
+(define (drop-money!)
+  (if money-drop?
+      #f
       (begin
-        (money-clk 'tick!)
-        (result-note! (string-append "拿回：" label "（50 金）")))
-      #f))
+        (set! money-drop? #t)
+        (result-note! "钱撒在地上了——这一回合还捡得着"))))
 
-(define (node-pocket-money)
-  (node "收拢散钱"
-    :subtitle "敏锐；坏：无，中：+1 格，好：+2 格。每弯一次腰，他就远一点"
-    :clocks (list (pocket-money-clk 'render-data))
+(define (take-money! amount)
+  (set! money-drop? #f)
+  (let ((got (min amount (- money-cap money-taken))))
+    (set! money-taken (+ money-taken got))
+    (if (> got 0)
+        (result-note! (string-append "抓回 " (number->string got) " 金"))
+        #f)))
+
+(define (node-money-drop)
+  (node "地上那一叠"
+    :subtitle "敏锐；弯这一次腰，他就远一点"
     :requires (list (req-die))
     :resolve (roll 'sharpness
-      (outcome "钞票又被风卷开" (lambda () #f))
-      (outcome "按住几张" (lambda () (advance-money-part! pocket-money-clk "口袋里的钱" 1)))
-      (outcome "把半叠都搂了起来" (lambda () (advance-money-part! pocket-money-clk "口袋里的钱" 2))))))
-
-(define (node-bag-money)
-  (node "抢回纸包"
-    :subtitle "力量；坏：冷静 −1，中：+1 格，好：+2 格。纸包还卡在他的车筐里"
-    :clocks (list (bag-money-clk 'render-data))
-    :requires (list (req-die))
-    :resolve (roll 'violence
-      (outcome "手指擦过车筐" (lambda () (spend-composure! 1)))
-      (outcome "扯住了纸包一角" (lambda () (advance-money-part! bag-money-clk "包里的钱" 1)))
-      (outcome "连纸带绳一把拽了回来" (lambda () (advance-money-part! bag-money-clk "包里的钱" 2))))))
+      (outcome "钞票被风卷走了"
+        (lambda () (set! money-drop? #f)))
+      (outcome "抓起了几张"
+        (lambda () (take-money! money-drop-part)))
+      (outcome "一把全搂了起来"
+        (lambda () (take-money! money-drop-full))))))
 
 (define (act2-nodes)
   (append
     (list (node-runner) (node-chase-fast) (node-chase-safe))
     (if (and (= seg 1) (knows-block?)) (list (node-side-door)) '())
-    (if (pocket-money-clk 'full?) '() (list (node-pocket-money)))
-    (if (bag-money-clk 'full?) '() (list (node-bag-money)))))
+    (if money-drop? (list (node-money-drop)) '())))
 
+;; 第二幕顶上只有两根，而且都是关于同一个人的：你要的，和你怕的。
+;; 钱一根钟也没有——它在场上，不在顶栏。
 (define (act2-clocks)
   (list (catch-clk 'render-data)
-        (escape-clk 'render-data)
-        (money-clk 'render-data)
-        (pocket-money-clk 'render-data)
-        (bag-money-clk 'render-data)))
+        (escape-clk 'render-data)))
 
 ;; ============================================================
 ;; 结算
 ;; ============================================================
 
 (define (caught?) (catch-clk 'full?))
-(define (completed-money-parts)
-  (+ (if (pocket-money-clk 'full?) 1 0)
-     (if (bag-money-clk 'full?) 1 0)))
-
-(define (recovered-money)
-  (if (not (= (money-clk 'current) (completed-money-parts)))
-      (error "交割：拿回所有的钱与两份钱的完成状态不一致")
-      (* money-per-part (money-clk 'current))))
+(define (recovered-money) money-taken)
 
 ;; 拦下他之后的那一下不掷骰：你按住了一个不想被按住的人，挨一记是既定代价，
 ;; 不是又一次运气。玩家用三段街景赢来的东西，不该被最后一掷推翻。
@@ -451,7 +432,8 @@
         (set! motorcycle-intervened? #t)
         (set! motorcycle-noticed? (or (>= (catch-clk 'current) 3) (knows-block?)))
         (play-dialogue!
-          (line "世界" "你快贴上车尾时，一束摩托车前灯从侧巷直切过来。你只得闪开，取信人趁那几步钻向后街。")
+          (line "世界" "你快贴上车尾时，一束摩托车前灯从侧巷直切过来。")
+          (line "世界" "你只得闪开。取信人趁那几步钻向后街。")
           (line "世界"
             (if motorcycle-noticed?
                 "骑手穿皮夹克，后架的绳结打得很低。你没看见脸；他没有停车，也没有回头确认撞没撞到人。"
@@ -494,6 +476,8 @@
     (if (not (= (escape-clk 'current) seg))
         (error "交割：逃脱进度与当前街景不一致")
         #t)
+    ;; 回合结束＝换街景。地上那一叠就留在上一条街了，不跟着你跑。
+    (set! money-drop? #f)
     (escape-clk 'tick!)
     (if (escape-clk 'full?)
         (finish!)
@@ -525,7 +509,6 @@
 (define (node-runner)
   (node "取信人"
     :subtitle "穿着不合身的邮差制服，骑一辆不属于他的车"
-    :clocks (list (catch-clk 'render-data))
     :resolve (observe (runner-look seg))))
 
 (define (get-render-data)

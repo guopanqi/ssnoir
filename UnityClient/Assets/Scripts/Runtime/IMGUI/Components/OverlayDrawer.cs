@@ -53,7 +53,7 @@ namespace SSNoir.IMGUI
 
                 var style = new GUIStyle(IMGUIStyles.ToastLabel);
                 style.normal.textColor = new Color(accent.r, accent.g, accent.b, alpha);
-                GUI.Label(cardRect, notif.Text, style);
+                IMGUIStyles.DrawLabel(cardRect, notif.Text, style);
             }
         }
 
@@ -88,7 +88,7 @@ namespace SSNoir.IMGUI
                     normal = { textColor = IMGUIStyles.Gold }
                 };
                 IMGUIStyles.ApplyStrongFont(style);
-                GUI.Label(rect, selected.Value.ToString(), style);
+                IMGUIStyles.DrawLabel(rect, selected.Value.ToString(), style);
             }
             else
             {
@@ -100,7 +100,7 @@ namespace SSNoir.IMGUI
                     normal = { textColor = IMGUIStyles.Gold }
                 };
                 IMGUIStyles.ApplyStrongFont(bigStyle);
-                GUI.Label(new Rect(rect.x, rect.y + 6f, rect.width, 30f), ItemSymbol(selected.ItemName), bigStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x, rect.y + 6f, rect.width, 30f), ItemSymbol(selected.ItemName), bigStyle);
 
                 var smallStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
@@ -108,7 +108,7 @@ namespace SSNoir.IMGUI
                     alignment = TextAnchor.MiddleCenter,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
-                GUI.Label(new Rect(rect.x, rect.y + 34f, rect.width, 16f), small, smallStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x, rect.y + 34f, rect.width, 16f), small, smallStyle);
             }
         }
 

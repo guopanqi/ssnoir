@@ -58,7 +58,7 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
 
             // Main Title（纸上墨字，拉字距）
-            GUI.Label(new Rect(panelX + 24f, panelY + 20f, 220f, 28f), "成 长 / 队 伍", IMGUIStyles.ModalTitle);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 24f, panelY + 20f, 220f, 28f), "成 长 / 队 伍", IMGUIStyles.ModalTitle);
 
             // Close [X]：纸上次级按钮 = 1px 黑描边透明底
             float closeX = panelX + panelW - 44f;
@@ -79,7 +79,7 @@ namespace SSNoir.IMGUI
             var closeStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             closeStyle.alignment = TextAnchor.MiddleCenter;
             closeStyle.normal.textColor = closeHover ? IMGUIStyles.PaperInk : IMGUIStyles.PaperTextSecondary;
-            GUI.Label(closeRect, "X", closeStyle);
+            IMGUIStyles.DrawLabel(closeRect, "X", closeStyle);
 
             if (ui.WasTapped(closeRect))
             {
@@ -97,7 +97,7 @@ namespace SSNoir.IMGUI
             var levelStyle = new GUIStyle(IMGUIStyles.SectionLabel);
             levelStyle.normal.textColor = IMGUIStyles.PaperTextSecondary;
             IMGUIStyles.ApplyStrongFont(levelStyle);
-            GUI.Label(new Rect(panelX + 24f, panelY + 72f, 300f, 22f), $"队伍成长等级：{snapshot.GrowthLevel}", levelStyle);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 24f, panelY + 72f, 300f, 22f), $"队伍成长等级：{snapshot.GrowthLevel}", levelStyle);
 
             // 属性行共用同一副样式（颜色不随 actor 变化），循环外建一次即可。
             var statRowStyle = new GUIStyle(IMGUIStyles.ModalBody);
@@ -123,14 +123,14 @@ namespace SSNoir.IMGUI
                 Color nameColor = actor.Status == "away" ? IMGUIStyles.PaperTextDisabled : IMGUIStyles.PaperInk;
                 var nameStyle = new GUIStyle(IMGUIStyles.CardTitle);
                 nameStyle.normal.textColor = nameColor;
-                GUI.Label(new Rect(colX + 16f, contentStartY + 4f, colWidth - 32f, 24f), actor.Name, nameStyle);
+                IMGUIStyles.DrawLabel(new Rect(colX + 16f, contentStartY + 4f, colWidth - 32f, 24f), actor.Name, nameStyle);
 
                 // Status label if away（印章红只做高危/失败标记）
                 if (actor.Status == "away")
                 {
                     var awayStyle = new GUIStyle(IMGUIStyles.SectionLabel);
                     awayStyle.normal.textColor = IMGUIStyles.SealRed;
-                    GUI.Label(new Rect(colX + 16f, contentStartY + 28f, colWidth - 32f, 18f), "[暂离]", awayStyle);
+                    IMGUIStyles.DrawLabel(new Rect(colX + 16f, contentStartY + 28f, colWidth - 32f, 18f), "[暂离]", awayStyle);
                 }
 
                 // Available points（有可用点 = 收益语义 → 金文字；金在纸上用深金字保证对比）
@@ -140,7 +140,7 @@ namespace SSNoir.IMGUI
                 var pointsStyle = new GUIStyle(IMGUIStyles.SectionLabel);
                 pointsStyle.normal.textColor = pointsColor;
                 IMGUIStyles.ApplyStrongFont(pointsStyle);
-                GUI.Label(new Rect(colX + 16f, contentStartY + 50f, colWidth - 32f, 18f), $"可用：{availPoints}", pointsStyle);
+                IMGUIStyles.DrawLabel(new Rect(colX + 16f, contentStartY + 50f, colWidth - 32f, 18f), $"可用：{availPoints}", pointsStyle);
 
                 // Stats rows
                 float rowStartY = contentStartY + 82f;
@@ -156,7 +156,7 @@ namespace SSNoir.IMGUI
 
                     // 中文属性名（力量/见识/敏锐/交际）。
                     string statLabel = StatLabels.TryGetValue(statKey, out var lbl) ? lbl : statKey;
-                    GUI.Label(new Rect(colX + 16f, rowY + 4f, colWidth - 70f, 20f), $"{statLabel} {statVal}", statRowStyle);
+                    IMGUIStyles.DrawLabel(new Rect(colX + 16f, rowY + 4f, colWidth - 70f, 20f), $"{statLabel} {statVal}", statRowStyle);
 
                     // Upgrade [+] button：纸上主选项 = 黑底白字实心块；禁用 = 35% 黑描边
                     // 22×22 在手机上只有两毫米见方，按不中；撑到最小触控尺寸，但留出行距不压邻行。
@@ -185,7 +185,7 @@ namespace SSNoir.IMGUI
                         IMGUIStyles.DrawOutline(btnRect, 1f, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.35f));
                         btnStyle.normal.textColor = IMGUIStyles.PaperTextDisabled;
                     }
-                    GUI.Label(btnRect, "+", btnStyle);
+                    IMGUIStyles.DrawLabel(btnRect, "+", btnStyle);
 
                     if (isEnabled && ui.WasTapped(btnRect))
                     {

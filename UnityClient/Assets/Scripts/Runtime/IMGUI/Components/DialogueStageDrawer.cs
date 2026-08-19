@@ -327,7 +327,7 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(34),
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.72f * reveal) }
             };
-            GUI.Label(new Rect(rect.x + 24f, rect.center.y - 38f, rect.width - 48f, 76f), speaker, nameStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 24f, rect.center.y - 38f, rect.width - 48f, 76f), speaker, nameStyle);
         }
 
         private static void DrawDialogueBox(
@@ -367,7 +367,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawOutline(box, 1.5f, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.68f * reveal));
 
             float textY = box.y + (isNarration ? 28f : 48f);
-            GUI.Label(
+            IMGUIStyles.DrawLabel(
                 new Rect(box.x + 36f, textY, textWidth, box.yMax - textY - 32f),
                 visibleText,
                 bodyStyle);
@@ -381,7 +381,7 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(11),
                 normal = { textColor = new Color(IMGUIStyles.PaperTextSecondary.r, IMGUIStyles.PaperTextSecondary.g, IMGUIStyles.PaperTextSecondary.b, 0.72f * reveal) }
             };
-            GUI.Label(
+            IMGUIStyles.DrawLabel(
                 new Rect(box.xMax - 170f, box.yMax - 26f, 138f, 18f),
                 isTyping ? "点击显示全文" : "点击继续",
                 continueStyle);
@@ -422,7 +422,7 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(20),
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, reveal) }
             };
-            GUI.Label(tab, speaker, nameStyle);
+            IMGUIStyles.DrawLabel(tab, speaker, nameStyle);
         }
     }
 }

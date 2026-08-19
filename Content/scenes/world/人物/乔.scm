@@ -116,6 +116,7 @@
 
     (define (node-share-meal)
       (node "和乔吃顿饭"
+        :anchor "乔"
         :subtitle identity
         :resolve (instant (lambda ()
           (if (= stage 2) #t (error "乔请托：人物阶段错误"))
@@ -206,9 +207,11 @@
       (cond
         ((and (>= stage 0) (<= stage 4)
               (member? (dock-collapse 'state) (list "未浮现" "可发生")))
-         (append
-           (list (node-joe-at-dock))
-           (if (= stage 2) (list (node-share-meal)) '())))
+         ;; 等待请托（stage 2）时「和乔吃顿饭」取代「乔」观察卡：熟悉度已满，
+         ;; 观察卡只剩一句铺垫，而那个节拍正是这顿饭要演的事。
+         (if (= stage 2)
+             (list (node-share-meal))
+             (list (node-joe-at-dock))))
         ((and (= stage 5) (not injury-location-known?))
          (list (node-ask-about-joe)))
         ((= stage 10)

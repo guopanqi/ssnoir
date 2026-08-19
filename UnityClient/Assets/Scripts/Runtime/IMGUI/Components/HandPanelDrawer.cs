@@ -207,8 +207,13 @@ namespace SSNoir.IMGUI
             {
                 string injuryText = $"{snapshot.InjuryPart}伤 · {snapshot.InjurySkillName}{snapshot.InjurySkillPenalty}"
                                   + (snapshot.InjuryCostsActionDie ? " · −1颗骰" : "");
-                statusText = statusText.Length > 0 ? injuryText + "  " + statusText : injuryText;
+                statusText = statusText.Length > 0 ? injuryText + " ｜ " + statusText : injuryText;
             }
+            // 旧伤没有条子可画——它不会涨也不会退，只是一行永远在那儿的字。
+            if (isLead && snapshot.ScarSummary.Length > 0)
+                statusText = statusText.Length > 0
+                    ? statusText + " ｜ " + snapshot.ScarSummary
+                    : snapshot.ScarSummary;
             bool hasStatus = statusText.Length > 0;
             float statusY = hasStatus ? injuryY - 18f : injuryY;
             float topY = statusY;
@@ -241,7 +246,7 @@ namespace SSNoir.IMGUI
                     normal = { textColor = IMGUIStyles.TextPrimary },
                 };
                 IMGUIStyles.ApplyStrongFont(nameStyle);
-                GUI.Label(new Rect(x, nameY, clusterW, NameRowH), actor.Name, nameStyle);
+                IMGUIStyles.DrawLabel(new Rect(x, nameY, clusterW, NameRowH), actor.Name, nameStyle);
             }
 
             DrawComposureBar(x, composureY, 172f, actor.Composure);
@@ -252,14 +257,25 @@ namespace SSNoir.IMGUI
             }
             if (hasStatus)
             {
+                // 这行字压在霓虹半身像和城市描线上——两者都是高频细线，12px 赭黄落上去就没了。
+                // 先铺一条贴着字宽的暗底把背后的线切断，再用纸白写字：HUD 上唯一要读的信息
+                // 不能靠运气跟背景错开。
                 var statusStyle = new GUIStyle(GUI.skin.label)
                 {
                     font = IMGUIStyles.ChineseFont,
-                    fontSize = IMGUIStyles.FontSize(12),
+                    fontSize = IMGUIStyles.FontSize(13),
                     alignment = TextAnchor.MiddleLeft,
-                    normal = { textColor = IMGUIStyles.OddsNeutral },
+                    normal = { textColor = IMGUIStyles.TextPrimary },
                 };
-                GUI.Label(new Rect(x, statusY, 240f, 16f), statusText, statusStyle);
+                var content = new GUIContent(statusText);
+                float textW = statusStyle.CalcSize(content).x;
+                var textRect = new Rect(x, statusY, textW + 4f, 18f);
+                var oldColor = GUI.color;
+                GUI.color = new Color(0.004f, 0.007f, 0.016f, 0.86f);
+                GUI.DrawTexture(new Rect(textRect.x - 5f, textRect.y, textRect.width + 10f, textRect.height),
+                                Texture2D.whiteTexture);
+                GUI.color = oldColor;
+                IMGUIStyles.DrawLabel(textRect, statusText, statusStyle);
             }
 
             // ── 行动骰（手牌方块；选中金描边+上浮+金字；已放入卡槽降为禁用亮度）
@@ -355,7 +371,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
-            GUI.Label(new Rect(x, y, VitalLabelW, VitalRowH), "冷静", labelStyle);
+            IMGUIStyles.DrawLabel(new Rect(x, y, VitalLabelW, VitalRowH), "冷静", labelStyle);
 
             int max = TeamState.MaxComposure;
             Color fill = composure <= 0 ? IMGUIStyles.SealRed
@@ -385,7 +401,7 @@ namespace SSNoir.IMGUI
                 normal = { textColor = fill },
             };
             // 见底比 "0/2" 说得清楚：再扛一次就进身体。
-            GUI.Label(new Rect(barX + barW + 4f, y, 38f, VitalRowH),
+            IMGUIStyles.DrawLabel(new Rect(barX + barW + 4f, y, 38f, VitalRowH),
                 composure > 0 ? $"{composure}/{max}" : "见底", valStyle);
         }
 
@@ -405,7 +421,7 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawOutline(dieRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
                 var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = IMGUIStyles.FontSize(22) };
                 dimStyle.normal.textColor = Paper25;
-                GUI.Label(dieRect, val.ToString(), dimStyle);
+                IMGUIStyles.DrawLabel(dieRect, val.ToString(), dimStyle);
                 return;
             }
 
@@ -453,7 +469,7 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.ApplyStrongFont(bigStyle);
             var bigRect = hasSmall ? new Rect(drawRect.x, drawRect.y + 3f, drawRect.width, 28f) : drawRect;
-            GUI.Label(bigRect, big, bigStyle);
+            IMGUIStyles.DrawLabel(bigRect, big, bigStyle);
 
             if (hasSmall)
             {
@@ -465,7 +481,7 @@ namespace SSNoir.IMGUI
                 };
                 IMGUIStyles.ApplyStrongFont(smallStyle);
                 // 方块高 50；旧的 y+34 / h18 实际画到方块外 2px，数量会压住底栏标题。
-                GUI.Label(new Rect(drawRect.x, drawRect.y + 31f, drawRect.width, 16f), small, smallStyle);
+                IMGUIStyles.DrawLabel(new Rect(drawRect.x, drawRect.y + 31f, drawRect.width, 16f), small!, smallStyle);
             }
         }
 
@@ -480,7 +496,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
-            GUI.Label(new Rect(x, y, VitalLabelW, VitalRowH), "伤势", labelStyle);
+            IMGUIStyles.DrawLabel(new Rect(x, y, VitalLabelW, VitalRowH), "伤势", labelStyle);
 
             int max = snapshot.InjuryMaxSeverity;
             int severity = Mathf.Clamp(snapshot.InjurySeverity, 0, max);
@@ -511,7 +527,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleRight,
                 normal = { textColor = fill },
             };
-            GUI.Label(new Rect(barX + barW + 4f, y, 38f, VitalRowH), $"{severity}/{max}", valStyle);
+            IMGUIStyles.DrawLabel(new Rect(barX + barW + 4f, y, 38f, VitalRowH), $"{severity}/{max}", valStyle);
         }
 
         // ── 右下：物品 + 功能 ──────────────────────────────────────────
@@ -530,7 +546,7 @@ namespace SSNoir.IMGUI
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.82f) }
             };
             IMGUIStyles.ApplyStrongFont(sectionStyle);
-            GUI.Label(new Rect(functionX, functionY - 20f, functionW, 18f), "功能", sectionStyle);
+            IMGUIStyles.DrawLabel(new Rect(functionX, functionY - 20f, functionW, 18f), "功能", sectionStyle);
 
             if (isInEncounter)
             {
@@ -565,7 +581,7 @@ namespace SSNoir.IMGUI
             float itemsRightEdge = functionX - 28f;
             float startX = itemsRightEdge - itemsW;
             float itemY = baseline - TokenSize;
-            GUI.Label(new Rect(startX, itemY - 20f, 80f, 18f), "物品", sectionStyle);
+            IMGUIStyles.DrawLabel(new Rect(startX, itemY - 20f, 80f, 18f), "物品", sectionStyle);
 
             for (int i = 0; i < items.Count; i++)
             {
@@ -610,7 +626,7 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(16),
                 normal = { textColor = disabled ? DisabledResourceText : IMGUIStyles.Paper }
             };
-            GUI.Label(rect, label, style);
+            IMGUIStyles.DrawLabel(rect, label, style);
             if (!disabled && ui.WasTapped(rect))
             {
                 Event.current.Use();

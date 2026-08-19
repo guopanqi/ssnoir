@@ -361,6 +361,8 @@ namespace SSNoir.Core
                 InjurySkillKey = _gameState.Team.Injury.Skill,
                 InjurySkillPenalty = _gameState.Team.Injury.SkillPenalty,
                 InjuryCostsActionDie = _gameState.Team.Injury.CostsActionDie,
+                ScarModifiers = _gameState.Team.Scars.ModifiersBySkill(),
+                ScarSummary = _gameState.Team.Scars.Describe(),
                 Failure = _gameState.Failure,
                 RestBlockers = _gameState.RestBlockers,
                 GrowthLevel = _gameState.Team.GrowthLevel,
@@ -719,6 +721,9 @@ namespace SSNoir.Core
                     // 同一条可见修正——玩家在投骰前就看得见它，不做暗扣。
                     var injuryMod = _gameState.Team.Injury.ModifierFor(actor.Role, skillName);
                     if (injuryMod != null) modifiers.Add(injuryMod);
+                    // 旧伤同理：永久，治不掉，同样摆在明面上。
+                    var scarMod = _gameState.Team.Scars.ModifierFor(actor.Role, skillName);
+                    if (scarMod != null) modifiers.Add(scarMod);
                     int modifierSum = 0;
                     foreach (var mod in modifiers)
                     {

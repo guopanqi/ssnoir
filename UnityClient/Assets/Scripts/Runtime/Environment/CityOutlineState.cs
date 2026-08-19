@@ -116,6 +116,11 @@ namespace SSNoir
             return new CityOutlineState(candidates[0]);
         }
 
+        public bool HasOwner(CinemachineVirtualCamera? camera)
+        {
+            return camera != null && _cameraOwners.ContainsKey(camera);
+        }
+
         public void SetFocusedCamera(CinemachineVirtualCamera? camera)
         {
             OutlinePair? next = null;

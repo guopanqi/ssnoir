@@ -502,16 +502,14 @@ namespace SSNoir.Rendering
             return Math.Max(DefaultCardHeight, controlY + SlotHeight + ControlToButtonGap + SlotButtonHeight + CardBottomPadding) + clockPushDown;
         }
 
-        /// <summary>只读钟卡按钟逐行排版；数量增加时卡片随内容增长。</summary>
-        // 标注（只读说明，可带一根钟）。Terminal 保持自己的视觉语言，不照搬 Unity 那套
-        // 「无底细线」——这里它仍是一张不可操作的卡，只是没有按钮和槽位。
+        /// <summary>标注按正文自然高度伸展；它是状态说明，不占用行动卡的默认大高度。</summary>
         public static float GetNoteCardMinimumHeight(string title, string text, GameClock? clock, float cardWidth)
         {
             float bodyHeight = string.IsNullOrWhiteSpace(text)
                 ? 0f
-                : WrappedTextHeight(text, cardWidth - 20f, 10);
-            float headHeight = clock == null ? 24f : 58f;
-            return Math.Max(DefaultCardHeight, 12f + headHeight + bodyHeight + 12f);
+                : WrappedTextHeight(text, cardWidth - 32f, 12);
+            float headHeight = clock == null ? 30f : 56f;
+            return Math.Max(88f, 12f + headHeight + bodyHeight + 12f);
         }
 
         // 副标题占用的高度：贴顶布局标题固定在 titleY，副标题紧随其后并按同一套换行/收缩规则处理。
@@ -920,90 +918,39 @@ namespace SSNoir.Rendering
             string text,
             GameClock? clock)
         {
-            Color bgColor      = new Color(18, 22, 32, 255);
-            Color outlineColor = new Color(65, 85, 130, 255);
-            Color noteColor    = new Color(85, 105, 150, 255);
-            Color clockColor   = new Color(120, 150, 230, 255);
-            Color dimColor     = new Color(55, 65, 90, 255);
+            // 信息条刻意取消行动卡的圆角边框与居中大数字：标题、读数和说明按阅读顺序
+            // 自上而下排开，左侧细紫线只标示“状态”，不会把正文染成低对比紫色。
+            const float padding = 16f;
+            Raylib.DrawRectangleRec(bounds, TerminalPalette.InfoSurface);
+            Raylib.DrawRectangle((int)bounds.X, (int)bounds.Y + 2, 3, (int)bounds.Height - 4, TerminalPalette.AccentBright);
+            Raylib.DrawLineEx(new System.Numerics.Vector2(bounds.X, bounds.Y),
+                new System.Numerics.Vector2(bounds.X + bounds.Width, bounds.Y), 1f, TerminalPalette.InfoBorder);
+            Raylib.DrawLineEx(new System.Numerics.Vector2(bounds.X, bounds.Y + bounds.Height),
+                new System.Numerics.Vector2(bounds.X + bounds.Width, bounds.Y + bounds.Height), 1f, TerminalPalette.InfoBorder);
 
-            Raylib.DrawRectangleRounded(bounds, 0.1f, 8, bgColor);
-            Raylib.DrawRectangleRoundedLinesEx(bounds, 0.1f, 8, 1.5f, outlineColor);
-
-            float clockY = bounds.Y + 12f;
-            float clockCenterX = bounds.X + bounds.Width / 2f;
-
-            // 纯文字标注：没有读数可画，标题自己占那一行。
+            float contentX = bounds.X + padding;
+            float contentWidth = bounds.Width - padding * 2f;
+            float bodyY;
             if (clock == null)
             {
                 if (!string.IsNullOrWhiteSpace(title))
-                {
-                    int tw = FontManager.MeasureTextWidth(title, 14);
-                    FontManager.DrawText(title, clockCenterX - tw / 2f, clockY, 14, clockColor);
-                }
-                if (!string.IsNullOrWhiteSpace(text))
-                    DrawWrappedText(text, bounds.X + 10, clockY + 26f, bounds.Width - 20, 10, noteColor);
-                return;
+                    FontManager.DrawText(title, contentX, bounds.Y + 12f, 15, TerminalPalette.InfoText);
+                bodyY = bounds.Y + 38f;
             }
-
-            // 一条标注只呈现一根钟。标题取自标注本身（钟的 label 解析时已经落在那儿）。
-                if (clock.Style == ClockStyle.Countdown)
-                {
-                    string frac = $"{clock.Current}/{clock.Max}";
-                    int fs = 28;
-                    int tw = FontManager.MeasureTextWidth(frac, fs);
-                    FontManager.DrawText(frac, clockCenterX - tw / 2f, clockY, fs, clockColor);
-
-                    string label = title;
-                    int lw = FontManager.MeasureTextWidth(label, 11);
-                    FontManager.DrawText(label, clockCenterX - lw / 2f, clockY + 34, 11, dimColor);
-                }
-                else if (clock.Style == ClockStyle.Segments)
-                {
-                    int dotSize = 10;
-                    int spacing = 4;
-                    float totalW = clock.Max * (dotSize + spacing) - spacing;
-                    float dotStartX = clockCenterX - totalW / 2f;
-
-                    for (int i = 0; i < clock.Max; i++)
-                    {
-                        var dotRect = new Rectangle(dotStartX + i * (dotSize + spacing), clockY + 4, dotSize, dotSize);
-                        if (i < clock.Current)
-                            Raylib.DrawRectangleRounded(dotRect, 0.4f, 4, clockColor);
-                        else
-                        {
-                            Raylib.DrawRectangleRounded(dotRect, 0.4f, 4, new Color(25, 30, 45, 255));
-                            Raylib.DrawRectangleRoundedLinesEx(dotRect, 0.4f, 4, 1f, dimColor);
-                        }
-                    }
-
-                    string label = title;
-                    int lw = FontManager.MeasureTextWidth(label, 11);
-                    FontManager.DrawText(label, clockCenterX - lw / 2f, clockY + 20, 11, dimColor);
-                }
-                else // Pie
-                {
-                    float radius = 18f;
-                    var center = new System.Numerics.Vector2(clockCenterX, clockY + radius + 2);
-                    Raylib.DrawCircleLines((int)center.X, (int)center.Y, radius, dimColor);
-                    if (clock.Max > 0 && clock.Current > 0)
-                    {
-                        float pct = (float)clock.Current / clock.Max;
-                        Raylib.DrawCircleSector(center, radius, -90f, -90f + 360f * pct, 36, clockColor);
-                    }
-                    string frac = $"{clock.Current}/{clock.Max}";
-                    int fw = FontManager.MeasureTextWidth(frac, 11);
-                    FontManager.DrawText(frac, clockCenterX - fw / 2f, clockY + radius * 2 + 6, 11, dimColor);
-
-                    string label = title;
-                    int lw = FontManager.MeasureTextWidth(label, 11);
-                    FontManager.DrawText(label, clockCenterX - lw / 2f, clockY + radius * 2 + 20, 11, dimColor);
-                }
-
-            clockY += 58f;
-            if (!string.IsNullOrWhiteSpace(text))
+            else
             {
-                DrawWrappedText(text, bounds.X + 10, clockY - 12f, bounds.Width - 20, 10, noteColor);
+                string heading = string.IsNullOrWhiteSpace(title) ? clock.Label : title;
+                string progress = ClockWidget.ProgressText(clock);
+                int progressWidth = FontManager.MeasureTextWidth(progress, 15);
+                FontManager.DrawText(heading, contentX, bounds.Y + 12f, 15, TerminalPalette.InfoText);
+                FontManager.DrawText(progress, bounds.X + bounds.Width - padding - progressWidth,
+                    bounds.Y + 12f, 15, TerminalPalette.InfoText);
+                ClockWidget.DrawProgressTrack(new Rectangle(contentX, bounds.Y + 36f, contentWidth, 9f), clock);
+                bodyY = bounds.Y + 58f;
             }
+
+            if (!string.IsNullOrWhiteSpace(text))
+                DrawWrappedText(text, contentX, bodyY, contentWidth, 12, TerminalPalette.InfoBody);
         }
 
         public static void DrawResidueCard(Rectangle bounds, CardPresentationResidue residue)

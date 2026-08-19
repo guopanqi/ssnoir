@@ -160,7 +160,7 @@ namespace SSNoir.IMGUI
                 nameX = iconArea.xMax + GapIconToName;
             }
 
-            GUI.Label(
+            IMGUIStyles.DrawLabel(
                 new Rect(nameX, rowY, Mathf.Max(0f, rect.xMax - LocationPadX - nameX), rowH),
                 node.Name, titleStyle);
         }
@@ -188,7 +188,7 @@ namespace SSNoir.IMGUI
             var icon = NodeIcon(node);
             if (icon == null)
             {
-                GUI.Label(new Rect(rect.x + 10f, startY, rect.width - 20f, TitleH), node.Name, titleStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, startY, rect.width - 20f, TitleH), node.Name, titleStyle);
             }
             else
             {
@@ -204,7 +204,7 @@ namespace SSNoir.IMGUI
                 GUI.color = Color.white;
 
                 titleStyle.alignment = TextAnchor.MiddleLeft;
-                GUI.Label(
+                IMGUIStyles.DrawLabel(
                     new Rect(iconArea.xMax + GapIconToName, startY, nameW, TitleH),
                     node.Name,
                     titleStyle);
@@ -219,7 +219,7 @@ namespace SSNoir.IMGUI
                     clipping = TextClipping.Clip
                 };
                 float subY = startY + TitleH + 6f;
-                GUI.Label(new Rect(rect.x + 12f, subY, rect.width - 24f, Mathf.Min(subtitleH, Mathf.Max(0f, rect.yMax - subY - 6f))), node.Subtitle, subStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x + 12f, subY, rect.width - 24f, Mathf.Min(subtitleH, Mathf.Max(0f, rect.yMax - subY - 6f))), node.Subtitle, subStyle);
             }
         }
 
@@ -268,7 +268,7 @@ namespace SSNoir.IMGUI
                     clipping = TextClipping.Clip,
                     normal = { textColor = disabled ? IMGUIStyles.TextSecondary : IMGUIStyles.Paper }
                 };
-                GUI.Label(plateRect, node.Name, plateStyle);
+                IMGUIStyles.DrawLabel(plateRect, node.Name, plateStyle);
                 return;
             }
 
@@ -289,12 +289,12 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(32),
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f) }
             };
-            GUI.Label(photoRect, "?", photoStyle);
+            IMGUIStyles.DrawLabel(photoRect, "?", photoStyle);
 
             float textY = photoRect.yMax + GapPhotoToTitle;
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Clip };
             if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
-            GUI.Label(new Rect(rect.x + 10f, textY, rect.width - 20f, TitleH), node.Name, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, textY, rect.width - 20f, TitleH), node.Name, titleStyle);
 
             if (!string.IsNullOrEmpty(node.Subtitle))
             {
@@ -305,7 +305,7 @@ namespace SSNoir.IMGUI
                     clipping = TextClipping.Clip
                 };
                 float subY = textY + TitleH + 4f;
-                GUI.Label(new Rect(rect.x + 10f, subY, rect.width - 20f, Mathf.Max(0f, rect.yMax - subY - 6f)), node.Subtitle, subStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, subY, rect.width - 20f, Mathf.Max(0f, rect.yMax - subY - 6f)), node.Subtitle, subStyle);
             }
         }
     }

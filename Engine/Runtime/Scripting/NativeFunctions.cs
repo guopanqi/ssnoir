@@ -44,6 +44,16 @@ namespace SSNoir.Scripting
                 return (int)gameState.Team.Injury.Band;
             }, "__injury-band-index"));
 
+            // 疤痕只读：内容层不能发疤，也不能抹疤——疤只由「倒下」这一件事产生（见 ScarSet）。
+            // 不带参数是身上疤的总数，带部位名（"手"/"头"/"眼"/"脸"）是那一处的道数。
+            interpreter.DefineGlobal(Symbol.FromString("__scar-count"), new NativeProcedure(args =>
+            {
+                if (args.Count == 0) return gameState.Team.Scars.Count;
+                if (args[0] is not string part)
+                    throw new ArgumentException("__scar-count takes an optional body part string");
+                return gameState.Team.Scars.CountAt(part);
+            }, "__scar-count"));
+
             interpreter.DefineGlobal(Symbol.FromString("__injure!"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("__injure! requires 1 argument: amount");
@@ -62,7 +72,7 @@ namespace SSNoir.Scripting
                     gameState.CurrentActionReport?.AddNote(
                         before == 0
                             ? $"伤在{injury.Part}上：{injury.SkillName}判定 {injury.SkillPenalty}。"
-                            : $"{injury.Part}上的旧伤又被扯开了：{injury.SkillName}判定 {injury.SkillPenalty}。");
+                            : $"{injury.Part}上的伤又重了：{injury.SkillName}判定 {injury.SkillPenalty}。");
                 return new None();
             }, "__injure!"));
 

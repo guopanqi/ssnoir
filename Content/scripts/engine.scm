@@ -623,6 +623,22 @@
 (define (injury-band)
   (list-ref injury-band-names (__injury-band-index)))
 
+;; ── 疤痕 ──────────────────────────────────────────────────────────
+;; 每一次倒下送医，都在当时伤着的那个部位永久留下一道疤：那项能力从此 −1，可叠加，
+;; 治不掉、也不进伤势刻度。内容层只能读，不能发也不能抹——疤只由倒下产生（见 Scar.cs）。
+;; 拿它来写人物认得出来的东西：跛着的腿、见不得光的那只眼、别人先看一眼再开口。
+
+;; 身上疤的总数。
+(define (scar-count)
+  (__scar-count))
+
+;; 某一处的疤有几道。部位名："手" "头" "眼" "脸"。
+(define (scars-at part)
+  (__scar-count part))
+
+(define (has-scar? part)
+  (> (__scar-count part) 0))
+
 ;; 终止本局游戏。标题和说明由内容声明，客户端只忠实呈现状态。
 (define (fail-game! title description)
   (__fail-game! title description))

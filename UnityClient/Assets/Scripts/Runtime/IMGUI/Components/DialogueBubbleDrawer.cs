@@ -110,8 +110,8 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.ApplyStrongFont(nameStyle);
             nameStyle.normal.textColor = IMGUIStyles.PaperTextSecondary;
-            GUI.Label(new Rect(rect.x + 12f, rect.y + 6f, textW, 20f), speaker, nameStyle);
-            GUI.Label(new Rect(rect.x + 12f, rect.y + 26f, textW, textH), text, bodyStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 12f, rect.y + 6f, textW, 20f), speaker, nameStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 12f, rect.y + 26f, textW, textH), text, bodyStyle);
             return usedRemoteFallback;
         }
 
@@ -203,7 +203,7 @@ namespace SSNoir.IMGUI
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
 
-            GUI.Label(new Rect(rect.x + 16f, rect.y + 14f, textW, textH), text, bodyStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 16f, rect.y + 14f, textW, textH), text, bodyStyle);
         }
 
         // 显式场外对话/插话的未在场说话人，以一张临时侧边卡进入画面。
@@ -221,13 +221,39 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
             IMGUIStyles.DrawDoubleOutline(card, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.72f));
 
+            // 有霓虹立绘就让人真的露面：卡片本来只写个名字，和场上其他人物的表现不一致。
+            var neon = NeonPortraitLibrary.Load(speaker);
+            bool hasPortrait = neon != null;
+            if (hasPortrait)
+            {
+                var uv = NeonPortraitLibrary.BustCrop;
+                float bustH = card.height - 36f;
+                float bustW = bustH * (uv.width / uv.height);
+                var bust = new Rect(card.center.x - bustW / 2f, card.y + 6f, bustW, bustH);
+
+                var bleed = new Rect(bust.x - 4f, bust.y - 4f, bust.width + 8f, bust.height + 8f);
+                GUI.color = new Color(0.30f, 0.58f, 1f, 0.18f);
+                GUI.DrawTextureWithTexCoords(bleed, neon, uv, true);
+                // 叠两遍：Alpha From Grayscale 下蓝管偏透，理由同 HUD 半身像。
+                GUI.color = Color.white;
+                GUI.DrawTextureWithTexCoords(bust, neon, uv, true);
+                GUI.color = new Color(1f, 1f, 1f, 0.55f);
+                GUI.DrawTextureWithTexCoords(bust, neon, uv, true);
+                // 腰部硬切口抹回暗处，名字压在渐变上。
+                var hem = new Rect(bust.x - 8f, bust.yMax - bust.height * 0.30f, bust.width + 16f, bust.height * 0.30f);
+                GUI.color = new Color(0.024f, 0.031f, 0.047f, 0.96f);
+                GUI.DrawTexture(hem, NeonPortraitLibrary.VerticalFade());
+                GUI.color = Color.white;
+            }
+
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle)
             {
                 alignment = TextAnchor.MiddleCenter,
-                fontSize = IMGUIStyles.FontSize(20),
+                fontSize = IMGUIStyles.FontSize(hasPortrait ? 16 : 20),
             };
             IMGUIStyles.ApplyStrongFont(titleStyle);
-            GUI.Label(new Rect(card.x + 12f, card.y + 42f, card.width - 24f, 42f), speaker, titleStyle);
+            float nameY = hasPortrait ? card.yMax - 30f : card.y + 42f;
+            IMGUIStyles.DrawLabel(new Rect(card.x + 12f, nameY, card.width - 24f, 42f), speaker, titleStyle);
 
             return card;
         }

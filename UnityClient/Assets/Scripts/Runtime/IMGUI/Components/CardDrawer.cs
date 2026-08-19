@@ -198,7 +198,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = isTarget ? new Color(0.16f, 0.13f, 0.03f, 1f) : IMGUIStyles.Gold }
             };
-            GUI.Label(marker, "必须处理", style);
+            IMGUIStyles.DrawLabel(marker, "必须处理", style);
         }
 
         // ── 共享卡框架 ─────────────────────────────────────────────────
@@ -388,7 +388,7 @@ namespace SSNoir.IMGUI
                 Mathf.Max(0f, innerW - valueW - gap));
 
             var valueRect = new Rect(rect.xMax - padX - valueW, rect.y, valueW, rect.height);
-            GUI.Label(new Rect(rect.x + padX, rect.y, labelW, rect.height), clock.Label, labelStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + padX, rect.y, labelW, rect.height), clock.Label, labelStyle);
 
             if (clock.Style == ClockStyle.Countdown)
             {
@@ -399,7 +399,7 @@ namespace SSNoir.IMGUI
                     clipping = TextClipping.Clip,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
-                GUI.Label(valueRect, $"{clock.Current}/{clock.Max}", valueStyle);
+                IMGUIStyles.DrawLabel(valueRect, $"{clock.Current}/{clock.Max}", valueStyle);
             }
             else if (clock.Style == ClockStyle.Segments)
             {
@@ -446,7 +446,7 @@ namespace SSNoir.IMGUI
                     clipping = TextClipping.Clip,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
-                GUI.Label(new Rect(pieRect.xMax + fractionGap, rect.y,
+                IMGUIStyles.DrawLabel(new Rect(pieRect.xMax + fractionGap, rect.y,
                     Mathf.Max(0f, valueRect.xMax - pieRect.xMax - fractionGap), rect.height),
                     $"{clock.Current}/{clock.Max}", fracStyle);
             }
@@ -496,14 +496,14 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(rect, thickness, outline);
 
-            GUI.Label(new Rect(rect.x + 8, rect.y + 8, rect.width - 16, 20), node.Name, IMGUIStyles.FlippedTitle);
-            GUI.Label(new Rect(rect.x + 8, rect.y + 28, rect.width - 16, 16), "— 已解读线索 —", IMGUIStyles.FlippedTip);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + 8, rect.width - 16, 20), node.Name, IMGUIStyles.FlippedTitle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + 28, rect.width - 16, 16), "— 已解读线索 —", IMGUIStyles.FlippedTip);
 
             var contentRect = new Rect(rect.x + 8, rect.y + 48, rect.width - 16, rect.height - 68);
             string clueText = node.Resolve != null ? node.Resolve.ObserveText : "";
-            GUI.Label(contentRect, clueText, IMGUIStyles.FlippedContent);
+            IMGUIStyles.DrawLabel(contentRect, clueText, IMGUIStyles.FlippedContent);
 
-            GUI.Label(new Rect(rect.x + 8, rect.y + rect.height - 18, rect.width - 16, 14), "点击返回", IMGUIStyles.FlippedTip);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + rect.height - 18, rect.width - 16, 14), "点击返回", IMGUIStyles.FlippedTip);
 
             if (ui.WasTapped(rect))
             {
@@ -558,7 +558,7 @@ namespace SSNoir.IMGUI
                 clipping = TextClipping.Clip,
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
-            GUI.Label(new Rect(row.x + 8f, row.y, row.width - 16f, row.height), $"+ 还有 {hiddenCount} 项影响...", style);
+            IMGUIStyles.DrawLabel(new Rect(row.x + 8f, row.y, row.width - 16f, row.height), $"+ 还有 {hiddenCount} 项影响...", style);
         }
 
         private static void DrawSingleEffectRow(ActionEffectRecord effect, Rect row, int fontSize)
@@ -580,11 +580,11 @@ namespace SSNoir.IMGUI
 
             if (effect.Kind == ActionEffectKind.Note)
             {
-                GUI.Label(new Rect(row.x + 8f, row.y, row.width - 16f, row.height), effect.Text, labelStyle);
+                IMGUIStyles.DrawLabel(new Rect(row.x + 8f, row.y, row.width - 16f, row.height), effect.Text, labelStyle);
                 return;
             }
 
-            GUI.Label(new Rect(row.x + 8f, row.y, row.width - 56f, row.height), effect.Label, labelStyle);
+            IMGUIStyles.DrawLabel(new Rect(row.x + 8f, row.y, row.width - 56f, row.height), effect.Label, labelStyle);
 
             string value = effect.Delta.HasValue
                 ? (effect.Delta.Value > 0 ? $"+{effect.Delta.Value}" : effect.Delta.Value.ToString())
@@ -595,7 +595,7 @@ namespace SSNoir.IMGUI
                 normal = { textColor = accent }
             };
             IMGUIStyles.ApplyStrongFont(valueStyle);
-            GUI.Label(new Rect(row.x + row.width - 52f, row.y, 44f, row.height), value, valueStyle);
+            IMGUIStyles.DrawLabel(new Rect(row.x + row.width - 52f, row.y, 44f, row.height), value, valueStyle);
         }
 
         private static void DrawEffectRowBg(Rect row, Color accent)

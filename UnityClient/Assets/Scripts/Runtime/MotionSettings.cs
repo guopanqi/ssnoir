@@ -12,7 +12,7 @@ namespace SSNoir
     ///   · 场景过渡：推进 / 穿过 / 拉出三段路全部不走，只留黑场对切。
     ///   · 灯标导航：平移保留但缩短；绕轴那支改成溶解。
     ///
-    /// **只活在内存里，每次启动回到默认值。** 一个随手可改的显示开关不值得为它引入
+    /// **只活在内存里，每次启动默认开启。** 一个随手可改的显示开关不值得为它引入
     /// 一套持久化：PlayerPrefs 在本项目的 WebGL 构建里被 TapSDK 接管，落盘又要自己
     /// 铺一层文件读写和失败处理——两条路都比这个开关本身重。真要跨启动记住，
     /// 以后跟着存档一起走即可。
@@ -28,7 +28,7 @@ namespace SSNoir
         /// <summary>低动画下灯标平移的时长，对应正常模式的 0.42 秒。</summary>
         public const float ReducedNavigationDuration = 0.18f;
 
-        public static bool ReduceMotion { get; set; }
+        public static bool ReduceMotion { get; set; } = true;
 
         /// <summary>
         /// Debug 专用的零时长镜头模式。开启后所有自动运镜直接硬切到终点，优先级高于

@@ -75,6 +75,9 @@ namespace SSNoir
         // 焦点上下文切换的演出窗口期：数据已切换，卡片还没换脸。见 BeginIncomingFocusContext。
         private bool _incomingFocusContextActive;
         private Cinemachine.CinemachineVirtualCamera? _incomingFocusContextCamera;
+        // 回到世界视角时，建筑的 High 不能在相机离开近景前立刻撤掉；否则玩家会看到
+        // High -> Low 的替换瞬间。每次新的焦点请求都会使旧的清理请求失效。
+        private int _cityOutlineClearRequest;
 
         // Public properties
         public GameState GameState => _gameState;
@@ -345,17 +348,49 @@ namespace SSNoir
 
             if (focusCamera != null)
             {
-                PresentCamera(focusCamera);
+                bool ownsCityOutline = _cityOutlines?.HasOwner(focusCamera) == true;
+                if (ownsCityOutline)
+                {
+                    _cityOutlineClearRequest++;
+                    PresentCamera(focusCamera);
+                }
 
                 // An orbit building keeps its authored shot as the destination; only the
                 // path there is taken over, so the camera arcs around the building
                 // instead of blending straight through it.
+                bool travelStarted = false;
                 if (_stageController == null || !_stageController.IsTransitioning)
-                    _cameraManager.BeginFocusTravel(focusCamera);
+                    travelStarted = _cameraManager.BeginFocusTravel(focusCamera);
 
                 ResetFocusCameraPriorities();
                 focusCamera.Priority = 20;
+
+                if (!ownsCityOutline && _cityOutlines != null)
+                {
+                    if (travelStarted && _cameraManager.IsFocusTravelInFlight)
+                        DeferCityOutlineClearUntilFocusTravelSettles();
+                    else
+                    {
+                        _cityOutlineClearRequest++;
+                        _cityOutlines.SetFocusedCamera(null);
+                    }
+                }
             }
+        }
+
+        private void DeferCityOutlineClearUntilFocusTravelSettles()
+        {
+            int request = ++_cityOutlineClearRequest;
+            StartCoroutine(ClearCityOutlineWhenFocusTravelSettles(request));
+        }
+
+        private IEnumerator ClearCityOutlineWhenFocusTravelSettles(int request)
+        {
+            while (request == _cityOutlineClearRequest && _cameraManager.IsFocusTravelInFlight)
+                yield return null;
+
+            if (request == _cityOutlineClearRequest)
+                _cityOutlines?.SetFocusedCamera(null);
         }
 
         private void ResetFocusCameraPriorities()
@@ -1259,6 +1294,10 @@ namespace SSNoir
         public void OnEndTurnClicked()
         {
             _selectedResource = null;
+            // 一整天都翻篇了，上一次结算的残影没有理由跨过日界线。
+            // 这里不写 ?.：本方法下面就无条件用 _renderer 播休息演出，
+            // 加问号只会让可空分析认为它可能为 null，反而给那一行凭空造一条警告。
+            _renderer.ClearCardResidues();
             string sceneBefore = _sceneManager.CurrentSceneName;
             string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
             var report = _sceneManager.EndTurn();

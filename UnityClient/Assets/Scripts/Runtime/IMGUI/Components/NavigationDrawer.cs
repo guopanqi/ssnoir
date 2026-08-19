@@ -43,13 +43,13 @@ namespace SSNoir.IMGUI
             crumbStyle.normal.textColor = IMGUIStyles.TextSecondary;
             crumbStyle.fontSize = IMGUIStyles.FontSize(16);
             breadcrumbText = FitTextWithEllipsis(breadcrumbText, topHud.Breadcrumb.width, crumbStyle);
-            GUI.Label(topHud.Breadcrumb, breadcrumbText, crumbStyle);
+            IMGUIStyles.DrawLabel(topHud.Breadcrumb, breadcrumbText, crumbStyle);
 
             var dayStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             dayStyle.normal.textColor = IMGUIStyles.TextPrimary;
             dayStyle.fontSize = IMGUIStyles.FontSize(16);
             dayStyle.alignment = TextAnchor.MiddleCenter;
-            GUI.Label(topHud.Day, $"第 {gameManager.DisplayedSnapshot.WorldDay} 天", dayStyle);
+            IMGUIStyles.DrawLabel(topHud.Day, $"第 {gameManager.DisplayedSnapshot.WorldDay} 天", dayStyle);
 
             // Relation Panel
             DrawRelationPanel(gameManager, ui, topHud);
@@ -113,7 +113,7 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(13)
             };
             // 按钮上放不下三个数字，只做入口——数字在展开的进展图里看。
-            GUI.Label(toggleRect, _relationExpanded ? "收 起" : "关 系", toggleStyle);
+            IMGUIStyles.DrawLabel(toggleRect, _relationExpanded ? "收 起" : "关 系", toggleStyle);
             if (ui.WasTapped(toggleRect))
             {
                 _relationExpanded = !_relationExpanded;
@@ -142,10 +142,10 @@ namespace SSNoir.IMGUI
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f));
 
             var title = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleLeft, fontSize = IMGUIStyles.FontSize(20) };
-            GUI.Label(new Rect(panel.x + 18f, panel.y + 12f, 130f, 28f), "城市声望", title);
+            IMGUIStyles.DrawLabel(new Rect(panel.x + 18f, panel.y + 12f, 130f, 28f), "城市声望", title);
             var note = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = IMGUIStyles.FontSize(11) };
             note.normal.textColor = IMGUIStyles.TextSecondary;
-            GUI.Label(new Rect(panel.x + 140f, panel.y + 15f, panel.width - 160f, 24f),
+            IMGUIStyles.DrawLabel(new Rect(panel.x + 140f, panel.y + 15f, panel.width - 160f, 24f),
                 "声望每上一档，打开这条路线专属的营生、人脉与门路", note);
 
             for (int i = 0; i < Factions.Length; i++)
@@ -176,10 +176,10 @@ namespace SSNoir.IMGUI
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.22f));
 
             var factionStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleLeft, fontSize = IMGUIStyles.FontSize(16) };
-            GUI.Label(new Rect(rect.x + 12f, rect.y + 6f, 55f, 24f), faction, factionStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 12f, rect.y + 6f, 55f, 24f), faction, factionStyle);
             var bandStyle = new GUIStyle(IMGUIStyles.StatusLabel) { alignment = TextAnchor.MiddleLeft, fontSize = IMGUIStyles.FontSize(12) };
             bandStyle.normal.textColor = active;
-            GUI.Label(new Rect(rect.x + 68f, rect.y + 7f, 100f, 22f), $"{BandDisplay(snapshot, faction, band)}  {value}", bandStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 68f, rect.y + 7f, 100f, 22f), $"{BandDisplay(snapshot, faction, band)}  {value}", bandStyle);
 
             float trackX = rect.x + 160f, trackY = rect.y + 20f, trackW = rect.width - 180f;
             const int pointCount = RelationScale.Max - RelationScale.Min + 1;
@@ -234,7 +234,7 @@ namespace SSNoir.IMGUI
             head.normal.textColor = color;
             string name = snapshot.RelationBandNames.TryGetValue($"{faction}:{tier}", out string disp) ? disp : tier;
             string state = unlocked ? "已解锁" : $"还差 {Mathf.Max(0, threshold - value)}";
-            GUI.Label(new Rect(chip.x + 8f, chip.y + 4f, chip.width - 16f, 18f),
+            IMGUIStyles.DrawLabel(new Rect(chip.x + 8f, chip.y + 4f, chip.width - 16f, 18f),
                 $"{name}  +{threshold}  ·  {state}", head);
             var body = new GUIStyle(IMGUIStyles.StatusLabel)
             {
@@ -245,7 +245,7 @@ namespace SSNoir.IMGUI
             body.normal.textColor = IMGUIStyles.TextSecondary;
             string unlock = snapshot.RelationUnlocks.TryGetValue($"{faction}:{tier}", out string configured)
                 ? configured : "当前无新增动作";
-            GUI.Label(new Rect(chip.x + 8f, chip.y + 23f, chip.width - 16f, 20f), unlock, body);
+            IMGUIStyles.DrawLabel(new Rect(chip.x + 8f, chip.y + 23f, chip.width - 16f, 20f), unlock, body);
         }
     }
 }

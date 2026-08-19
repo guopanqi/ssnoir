@@ -1542,6 +1542,8 @@ namespace SSNoir.Rendering
                                 Reason = snap.InjuryPart + "伤",
                             });
                         }
+                        if (snap.ScarModifiers.TryGetValue(node.Resolve.SkillName, out var scarMod))
+                            mods.Add(scarMod);
                     }
                     if (mods.Count > 0) modifiers = mods;
                 }

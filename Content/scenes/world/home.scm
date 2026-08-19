@@ -24,7 +24,7 @@
     (define rent-cycle 4)
     (define rent-amount 30)
     (define rent-clk
-      (make-clock "房租到期" rent-cycle 'countdown
+      (make-clock "房租到期" rent-cycle 'segments
         (lambda (current max)
           (string-append "每 " (number->string max) " 天收一次，"
                          (number->string rent-amount) " 金。归零时老板自动上门收租。"))))
@@ -33,7 +33,7 @@
     (define grace grace-max)        ; 老板还愿意等你几天（信用）
     (define overdue? #f)            ; 已经到期没交，正在用宽限
     (define grace-clk
-      (make-clock "宽限到期" grace-max 'countdown
+      (make-clock "宽限到期" grace-max 'segments
         "宽限期内可以补交；归零仍未交上，老板会来锁门。"))
     (define flower-price 40)
     (define evicted? #f)
@@ -131,14 +131,7 @@
         (set! drank-today? #f)
         (set! medicated-today? #f)))
 
-    (define (rent-clocks)
-      (cond
-        (evicted? '())
-        (overdue? (list (grace-clk 'render-data)))
-        (else (list (rent-clk 'render-data)))))
-
-    ;; ── 恢复类 ──────────────────────────────────────
-    ;; 看花这类白天解压占一颗骰子（与工作争夺骰子池）；睡觉免费（回合结束）。
+    ;; ── 恢复类 ──────────────────────────────────────    ;; 看花这类白天解压占一颗骰子（与工作争夺骰子池）；睡觉免费（回合结束）。
     ;; 喝酒不占骰子，走“花钱买酒”这条线：当场大量恢复冷静。
     ;; 效果只写这一份：酒馆当场点酒（'drink! 消息）与家中喝自带的酒共用同一次“当天第一杯”。
     (define (apply-drink-effect!)
@@ -218,10 +211,6 @@
     ;; ── 交易 / 布置 / 升级 ──────────────────────────
     (define (node-pay-rent)
       (node "补交房租"
-        :subtitle (if evicted?
-                      (string-append "把欠下的 " (number->string rent-amount)
-                                     " 块交清，老板才会重新开门")
-                      "宽限还没到头；现在补上，下一次老板会少等一天")
         :requires (list (req-item "金钱" rent-amount))
         :resolve (instant
           (outcome "补上房租"
@@ -229,31 +218,22 @@
               (set! grace (max 0 (- grace 1)))
               (reset-rent-cycle!))))))
 
-    (define (rent-status-subtitle)
+    ;; 房租是跨导航持续跟踪的倒计时，用 clock-node 立成常驻标注，不占可交互版面；
+    ;; 补交房租仍是一张动作卡。被赶出后没有钟可挂，退成一段说明文字。
+    (define (rent-status-node)
       (cond
-        (evicted? (string-append "房门已经锁了；欠下的 "
-                                 (number->string rent-amount) " 块仍要补上"))
+        (evicted?
+         (note-node "标注：房租" "房门已锁"
+           (string-append "欠下的 " (number->string rent-amount) " 块补清，"
+                          "老板才会重新开门。")))
         (overdue?
-         (string-append (number->string rent-amount) " 块还没交；老板只再等 "
-                        (number->string (grace-clk 'current)) " 天"))
+         (clock-node "标注：房租" (grace-clk 'render-data)))
         (else
-         (string-append "每 " (number->string rent-cycle) " 天 "
-                        (number->string rent-amount) " 块；老板会在 "
-                        (number->string (rent-clk 'current)) " 天后上门"))))
-
-    (define (node-rent-status)
-      (node "房租"
-        :subtitle (rent-status-subtitle)
-        :clocks (rent-clocks)
-        :resolve (observe
-          (cond
-            (evicted? "老板已经锁了房门。欠下的房租补齐以前，只能睡在门口。")
-            (overdue? "租期已经过了。宽限到头以前补齐房租，门还不会锁。")
-            (else "老板每四天上门收一次房租；账到期时会直接从手头的钱里扣。")))))
+         (clock-node "标注：房租" (rent-clk 'render-data)))))
 
     (define (rent-nodes)
       (append
-        (list (node-rent-status))
+        (list (rent-status-node))
         (if (or overdue? evicted?) (list (node-pay-rent)) '())))
 
     (define (node-buy-flower)

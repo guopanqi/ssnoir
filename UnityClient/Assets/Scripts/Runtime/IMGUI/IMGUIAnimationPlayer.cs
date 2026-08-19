@@ -139,7 +139,7 @@ namespace SSNoir.IMGUI
 
             // Title
             string title = string.IsNullOrEmpty(ActionName) ? "[判定结果]" : $"[判定结果] {ActionName}";
-            GUI.Label(new Rect(contentX, contentY, contentW, 24), title, IMGUIStyles.ModalTitle);
+            IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 24), title, IMGUIStyles.ModalTitle);
             contentY += 28;
 
             // 命运条（赔率条）：掷骰扫掠 → 落格弹跳 → 定格，与卡面轻结算同一套视觉。
@@ -153,7 +153,7 @@ namespace SSNoir.IMGUI
                     fontSize = IMGUIStyles.FontSize(12),
                     normal = { textColor = IMGUIStyles.PaperTextSecondary }
                 };
-                GUI.Label(new Rect(contentX, contentY, contentW, 16), FateStrip.Describe(strip), summaryStyle);
+                IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 16), FateStrip.Describe(strip), summaryStyle);
                 contentY += 18;
 
                 int highlightedFace = _phase == 0 ? DisplayedDieValue : FateDieValue;
@@ -168,10 +168,10 @@ namespace SSNoir.IMGUI
             // Details
             if (_phase >= 1)
             {
-                GUI.Label(new Rect(contentX, contentY, contentW, 20), $"投入骰子值: {ChosenDie}", IMGUIStyles.ModalBody);
+                IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 20), $"投入骰子值: {ChosenDie}", IMGUIStyles.ModalBody);
                 contentY += 22;
 
-                GUI.Label(new Rect(contentX, contentY, contentW, 20),
+                IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 20),
                     $"准备值: {CurrentReport!.PreparedValue} · 命运骰: {CurrentReport.FateDieValue}", IMGUIStyles.ModalBody);
                 contentY += 26;
             }
@@ -182,7 +182,7 @@ namespace SSNoir.IMGUI
                 var outcomeStyle = new GUIStyle(IMGUIStyles.ModalTitle);
                 outcomeStyle.fontSize = IMGUIStyles.FontSize(16);
                 outcomeStyle.normal.textColor = DisplayOutcomeColor;
-                GUI.Label(new Rect(contentX, contentY, contentW, 24), $"判定结果: {DisplayOutcomeText}", outcomeStyle);
+                IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 24), $"判定结果: {DisplayOutcomeText}", outcomeStyle);
                 contentY += 32;
 
                 var presentation = CurrentReport?.OutcomePresentation;
@@ -191,7 +191,7 @@ namespace SSNoir.IMGUI
                     var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle);
                     titleStyle.fontSize = IMGUIStyles.FontSize(15);
                     titleStyle.alignment = TextAnchor.MiddleCenter;
-                    GUI.Label(new Rect(contentX, contentY, contentW, 22), presentation.Title, titleStyle);
+                    IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 22), presentation.Title, titleStyle);
                 }
             }
 

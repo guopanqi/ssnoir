@@ -82,7 +82,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = _isOpen ? IMGUIStyles.Gold : IMGUIStyles.TextPrimary }
             };
-            GUI.Label(toggleRect, "Debug ▾", labelStyle);
+            IMGUIStyles.DrawLabel(toggleRect, "Debug ▾", labelStyle);
 
             if (ui.WasTapped(toggleRect))
             {
@@ -124,7 +124,7 @@ namespace SSNoir.IMGUI
             float curY = panelY + 8f;
             var mutedStyle = new GUIStyle(labelStyle) { fontSize = IMGUIStyles.FontSize(11),
                 normal = { textColor = IMGUIStyles.TextDisabled } };
-            GUI.Label(new Rect(panelX + 8, curY + 2f, panelW, 18f), "存档管理", mutedStyle);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8, curY + 2f, panelW, 18f), "存档管理", mutedStyle);
             curY += 20f;
 
             for (int slot = 1; slot <= SaveManager.SlotCount; slot++)
@@ -133,13 +133,13 @@ namespace SSNoir.IMGUI
                 string saveTime = SaveManager.GetSaveTime(slotPath);
                 bool hasSave = !string.IsNullOrEmpty(saveTime);
 
-                GUI.Label(new Rect(panelX + 8f, curY + 4f, 50f, 20f), $"槽位 {slot}", labelStyle);
+                IMGUIStyles.DrawLabel(new Rect(panelX + 8f, curY + 4f, 50f, 20f), $"槽位 {slot}", labelStyle);
 
                 string timeStr = hasSave ? saveTime : "（空）";
                 var timeStyle = new GUIStyle(labelStyle) {
                     normal = { textColor = hasSave ? IMGUIStyles.TextPrimary : IMGUIStyles.TextDisabled }
                 };
-                GUI.Label(new Rect(panelX + 52f, curY + 4f, 130f, 20f), timeStr, timeStyle);
+                IMGUIStyles.DrawLabel(new Rect(panelX + 52f, curY + 4f, 130f, 20f), timeStr, timeStyle);
 
                 var rectSave = new Rect(panelX + panelW - 8f - 64f, curY + 2f, 30f, 22f);
                 var rectLoad = new Rect(panelX + panelW - 8f - 30f, curY + 2f, 30f, 22f);
@@ -167,7 +167,7 @@ namespace SSNoir.IMGUI
             float sepY = curY + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-            GUI.Label(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "镜头测试", mutedStyle);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "镜头测试", mutedStyle);
 
             float cameraRowY = sepY + 20f;
             bool instantCuts = MotionSettings.DebugInstantCameraCuts;
@@ -176,7 +176,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = IMGUIStyles.TextPrimary }
             };
-            GUI.Label(new Rect(panelX + 8f, cameraRowY + 2f, 120f, 22f),
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8f, cameraRowY + 2f, 120f, 22f),
                 "自动运镜", cameraLabelStyle);
 
             var cameraModeStyle = new GUIStyle(labelStyle)
@@ -193,7 +193,7 @@ namespace SSNoir.IMGUI
 
             // 过场首帧截图：渲的是纯世界，这个面板开着也不会进画面，所以就放在这儿点。
             float captureRowY = cameraRowY + itemH;
-            GUI.Label(new Rect(panelX + 8f, captureRowY + 2f, 120f, 22f),
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8f, captureRowY + 2f, 120f, 22f),
                 "过场截图", cameraLabelStyle);
 
             var captureStyle = new GUIStyle(labelStyle)
@@ -220,13 +220,13 @@ namespace SSNoir.IMGUI
             float cutsceneSepY = captureRowY + itemH + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, cutsceneSepY), new Vector2(panelX + panelW - 8, cutsceneSepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-            GUI.Label(new Rect(panelX + 8, cutsceneSepY + 2f, panelW, 18f), "过场测试（只播放，不进入交锋）", mutedStyle);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8, cutsceneSepY + 2f, panelW, 18f), "过场测试（只播放，不进入交锋）", mutedStyle);
 
             float cutsceneListY = cutsceneSepY + 22f;
 
             if (_sequences.Count == 0)
             {
-                GUI.Label(new Rect(panelX + 12f, cutsceneListY + 2f, panelW - 16f, itemH),
+                IMGUIStyles.DrawLabel(new Rect(panelX + 12f, cutsceneListY + 2f, panelW - 16f, itemH),
                     "（场景里没有 CutsceneSequence）", mutedStyle);
                 cutsceneListY += itemH;
             }
@@ -254,14 +254,14 @@ namespace SSNoir.IMGUI
                         alignment = TextAnchor.MiddleLeft,
                         normal = { textColor = hovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary }
                     };
-                    GUI.Label(new Rect(rowRect.x + 10, rowRect.y + 4, rowRect.width - 46f, rowRect.height),
+                    IMGUIStyles.DrawLabel(new Rect(rowRect.x + 10, rowRect.y + 4, rowRect.width - 46f, rowRect.height),
                         sequence.DisplayName, rowStyle);
 
                     // 标镜头数：一眼看出这场是单镜还是多镜，也能立刻发现"列表忘了填"。
                     int shotCount = 0;
                     foreach (var _ in sequence.ValidShots())
                         shotCount++;
-                    GUI.Label(new Rect(rowRect.xMax - 52f, rowRect.y + 4, 48f, rowRect.height),
+                    IMGUIStyles.DrawLabel(new Rect(rowRect.xMax - 52f, rowRect.y + 4, 48f, rowRect.height),
                         shotCount == 0 ? "空" : $"{shotCount} 镜", mutedStyle);
 
                     if (contentUi.WasTapped(rowRect))
@@ -280,7 +280,7 @@ namespace SSNoir.IMGUI
             sepY = cutsceneListY + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-            GUI.Label(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "交锋测试（直接进入）", mutedStyle);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "交锋测试（直接进入）", mutedStyle);
 
             // Scene list
             float listY = sepY + 4f + itemH * 0.5f;
@@ -293,7 +293,7 @@ namespace SSNoir.IMGUI
 
                 if (item.IsHeader)
                 {
-                    GUI.Label(new Rect(itemRect.x + 6, itemRect.y + 4, itemRect.width, itemRect.height),
+                    IMGUIStyles.DrawLabel(new Rect(itemRect.x + 6, itemRect.y + 4, itemRect.width, itemRect.height),
                         item.Name, mutedStyle);
                     continue;
                 }
@@ -319,7 +319,7 @@ namespace SSNoir.IMGUI
                 {
                     normal = { textColor = isCurrent ? IMGUIStyles.Gold : (isHovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary) }
                 };
-                GUI.Label(new Rect(itemRect.x + 10, itemRect.y + 4, itemRect.width, itemRect.height), item.Name, itemStyle);
+                IMGUIStyles.DrawLabel(new Rect(itemRect.x + 10, itemRect.y + 4, itemRect.width, itemRect.height), item.Name, itemStyle);
 
                 if (contentUi.WasTapped(itemRect))
                 {

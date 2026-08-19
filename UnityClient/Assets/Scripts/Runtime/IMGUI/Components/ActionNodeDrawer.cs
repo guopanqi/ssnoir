@@ -64,7 +64,7 @@ namespace SSNoir.IMGUI
                     clipping = TextClipping.Clip
                 };
                 if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
-                GUI.Label(new Rect(rect.x + 10f, titleY, rect.width - 20f, TitleH), node.Name, titleStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, titleY, rect.width - 20f, TitleH), node.Name, titleStyle);
             }
 
             // ── 2. 三列分区的纵向边界 ──
@@ -97,17 +97,19 @@ namespace SSNoir.IMGUI
                     subtitleHeight = subtitleBudget >= 18f ? subtitleBudget : 0f;
 
                 if (subtitleHeight > 0f && titleY + TitleH + subtitleHeight <= rect.yMax)
-                    GUI.Label(new Rect(rect.x + 12f, titleY + TitleH, subtitleWidth, subtitleHeight), node.Subtitle, subtitleStyle);
+                    IMGUIStyles.DrawLabel(new Rect(rect.x + 12f, titleY + TitleH, subtitleWidth, subtitleHeight), node.Subtitle, subtitleStyle);
                 subtitleBottomY = titleY + TitleH + subtitleHeight;
             }
 
             float bodyY = subtitleBottomY + GapTitleToBody;
 
             // ── 3. 类别 / 风险便签：骑在卡片左边缘外（不遮内容、不占内部空间）。
-            DrawEdgeTags(rect, node, effectiveModifiers, disabled);
+            // 左便签只说「这件事」：内容层写的难度修正 + 类别/风险标签。
+            // 伤势/旧伤是「这个人」的事，挂在右缘的人物能力片上（尼尔 0 −1）。
+            DrawEdgeTags(rect, node, node.Resolve!.DifficultyModifiers, disabled);
             // 能力预览与左侧标签同属 card attachment：它描述这张卡，但不该占主体的垂直预算。
             if (isRoll && actors != null && actors.Count > 0)
-                DrawActorAbilityRail(rect, node.Resolve!.SkillName, actors);
+                DrawActorAbilityRail(rect, node.Resolve!.SkillName, actors, gameManager.DisplayedSnapshot);
 
             // ── 4. 需求骰位：统一为「方块 Slot」（与手牌骰子/物品同族），居中横排。
             //     骰子 slot = 大字 D/值；物品 slot = 符号 + 数量（强调）+ 下方名称展签。
@@ -174,7 +176,7 @@ namespace SSNoir.IMGUI
             return IMGUIStyles.FontSize(wanted);
         }
 
-        // 卡面看见的修正 = 内容层写的 + 主角当前的伤势。判定用的是同一份 Injury 数据
+        // 卡面看见的修正 = 内容层写的 + 主角当前的伤势 + 身上的旧伤。判定用的是同一份 Injury 数据
         // （SceneManager 结算时走 Injury.ModifierFor），这里只是把它提前显示出来。
         private static List<DifficultyModifierInfo> EffectiveModifiers(
             GameNode node, PresentationSnapshot snapshot, string actorRole = "protagonist")
@@ -183,18 +185,22 @@ namespace SSNoir.IMGUI
             if (node.Resolve.Type != ResolveType.Roll) return baseMods;
             // 伤势只压主角：同伴出的骰子不吃这一笔，预览也不能画上去。
             if (actorRole != "protagonist") return baseMods;
-            if (snapshot.InjurySkillPenalty == 0) return baseMods;
-            if (!string.Equals(snapshot.InjurySkillKey, node.Resolve.SkillName,
-                               System.StringComparison.OrdinalIgnoreCase)) return baseMods;
+            bool hasInjury = snapshot.InjurySkillPenalty != 0
+                && string.Equals(snapshot.InjurySkillKey, node.Resolve.SkillName,
+                                 System.StringComparison.OrdinalIgnoreCase);
+            snapshot.ScarModifiers.TryGetValue(node.Resolve.SkillName, out var scarMod);
+            if (!hasInjury && scarMod == null) return baseMods;
 
-            var merged = new List<DifficultyModifierInfo>(baseMods)
+            var merged = new List<DifficultyModifierInfo>(baseMods);
+            if (hasInjury)
             {
-                new DifficultyModifierInfo
+                merged.Add(new DifficultyModifierInfo
                 {
                     Value = snapshot.InjurySkillPenalty,
                     Reason = snapshot.InjuryPart + "伤",
-                }
-            };
+                });
+            }
+            if (scarMod != null) merged.Add(scarMod);
             return merged;
         }
 
@@ -269,7 +275,7 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(note, 1f, new Color(ink.r, ink.g, ink.b, 0.65f));
 
-            GUI.Label(new Rect(note.x + 3f, note.y, note.width - 3f, note.height), text, style);
+            IMGUIStyles.DrawLabel(new Rect(note.x + 3f, note.y, note.width - 3f, note.height), text, style);
         }
 
         private static float MeasureEdgeNoteHeight(Rect card, string text, GUIStyle style)
@@ -489,7 +495,7 @@ namespace SSNoir.IMGUI
                     normal = { textColor = content }
                 };
                 IMGUIStyles.ApplyStrongFont(s);
-                GUI.Label(rect, big, s);
+                IMGUIStyles.DrawLabel(rect, big, s);
             }
             else
             {
@@ -503,7 +509,7 @@ namespace SSNoir.IMGUI
                     normal = { textColor = content }
                 };
                 IMGUIStyles.ApplyStrongFont(symStyle);
-                GUI.Label(new Rect(rect.x, rect.y + 8f * k, rect.width, 26f * k), symbol, symStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x, rect.y + 8f * k, rect.width, 26f * k), symbol, symStyle);
 
                 var qtyStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
@@ -512,7 +518,7 @@ namespace SSNoir.IMGUI
                     normal = { textColor = content }
                 };
                 IMGUIStyles.ApplyStrongFont(qtyStyle);
-                GUI.Label(new Rect(rect.x, rect.yMax - 24f * k, rect.width, 20f * k), $"×{qty}", qtyStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x, rect.yMax - 24f * k, rect.width, 20f * k), $"×{qty}", qtyStyle);
             }
 
             HandleSlotClick(rect, slotIndex, filled, disabled, canDropHeld, slotTargeted, ui, ref interaction);
@@ -533,7 +539,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
-            GUI.Label(pill, skill, s);
+            IMGUIStyles.DrawLabel(pill, skill, s);
             IMGUIStyles.DrawLine(new Vector2(pill.center.x, pill.yMax), new Vector2(square.center.x, square.y),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
         }
@@ -638,7 +644,7 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawOutline(rect, 1f, faded);
                 style.normal.textColor = faded;
             }
-            GUI.Label(rect, text, style);
+            IMGUIStyles.DrawLabel(rect, text, style);
 
             return isClicked;
         }
@@ -661,15 +667,25 @@ namespace SSNoir.IMGUI
             if (label.Length > 5) label = "执行中";
             var progressStyle = new GUIStyle(IMGUIStyles.ExecuteLabel);
             progressStyle.normal.textColor = progress > 0.5f ? IMGUIStyles.GoldOnDark : IMGUIStyles.Paper;
-            GUI.Label(rect, label, progressStyle);
+            IMGUIStyles.DrawLabel(rect, label, progressStyle);
         }
 
         // ── 右缘能力附件（规范色，无主题色）────────────────────────────
 
         // 显示当前判定技能下每个在场角色的等级，用 Ink 底 + Paper 描边 + 白字的小芯片。
         // 不再使用主题色，符合 DESIGN.md「全局唯一主强调色」与「黑底安静块」的规则。
-        private static void DrawActorAbilityRail(Rect rect, string skill, IReadOnlyList<ActorSnapshot> actors)
+        private static void DrawActorAbilityRail(
+            Rect rect, string skill, IReadOnlyList<ActorSnapshot> actors, PresentationSnapshot snapshot)
         {
+            // 人身上的减值和他的技能值长在一起读：0 −1 就是「底子 0，脸伤扣 1」。
+            // 只压主角，同伴出骰不吃这一笔——与 EffectiveModifiers 同一条规则。
+            int penalty = 0;
+            if (snapshot.InjurySkillPenalty != 0
+                && string.Equals(snapshot.InjurySkillKey, skill, System.StringComparison.OrdinalIgnoreCase))
+                penalty += snapshot.InjurySkillPenalty;
+            if (snapshot.ScarModifiers.TryGetValue(skill, out var scar) && scar != null)
+                penalty += scar.Value;
+
             const float chipW = 54f;
             const float chipH = 20f;
             const float overlap = 12f;
@@ -700,7 +716,7 @@ namespace SSNoir.IMGUI
                     normal = { textColor = IMGUIStyles.Paper }
                 };
                 IMGUIStyles.ApplyStrongFont(nameStyle);
-                GUI.Label(new Rect(chip.x + 5f, chip.y, 30f, chipH), shortName, nameStyle);
+                IMGUIStyles.DrawLabel(new Rect(chip.x + 5f, chip.y, 30f, chipH), shortName, nameStyle);
 
                 var lvlStyle = new GUIStyle(GUI.skin.label)
                 {
@@ -708,7 +724,20 @@ namespace SSNoir.IMGUI
                     alignment = TextAnchor.MiddleRight,
                     normal = { textColor = IMGUIStyles.Paper }
                 };
-                GUI.Label(new Rect(chip.x, chip.y, chip.width - 6f, chipH), level.ToString(), lvlStyle);
+                IMGUIStyles.DrawLabel(new Rect(chip.x, chip.y, chip.width - 6f, chipH), level.ToString(), lvlStyle);
+
+                // 修正贴在片子右边缘外，不挤技能值：红字负、绿字正，一眼看出净值往哪边走。
+                if (penalty != 0 && actor.Role == "protagonist")
+                {
+                    var modStyle = new GUIStyle(lvlStyle)
+                    {
+                        alignment = TextAnchor.MiddleLeft,
+                        fontSize = IMGUIStyles.FontSize(13),
+                        normal = { textColor = penalty < 0 ? IMGUIStyles.OddsFail : IMGUIStyles.OddsSuccess }
+                    };
+                    IMGUIStyles.DrawLabel(new Rect(chip.xMax + 4f, chip.y, 34f, chipH),
+                        (penalty > 0 ? "+" : "−") + Mathf.Abs(penalty), modStyle);
+                }
                 drawn++;
             }
         }
@@ -755,7 +784,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
-            GUI.Label(new Rect(rect.x + pad, executeBottomY, rect.width - pad * 2f, 14f),
+            IMGUIStyles.DrawLabel(new Rect(rect.x + pad, executeBottomY, rect.width - pad * 2f, 14f),
                 FateStrip.Describe(strip), summaryStyle);
 
             float avail = rect.width - pad * 2f;
@@ -793,7 +822,7 @@ namespace SSNoir.IMGUI
                     IMGUIStyles.DrawOutline(cell, 2f, IMGUIStyles.Gold);
                 float td = hi ? 0.18f : (settled ? 0.10f : 0.20f);
                 faceStyle.normal.textColor = new Color(tier.r * td, tier.g * td * 0.8f, tier.b * td * 0.8f, 1f);
-                GUI.Label(cell, (i + 1).ToString(), faceStyle);
+                IMGUIStyles.DrawLabel(cell, (i + 1).ToString(), faceStyle);
                 x += cellW;
             }
         }
@@ -1005,7 +1034,7 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(spacious ? 15 : 13),
                 normal = { textColor = labelColor }
             };
-            GUI.Label(new Rect(panel.x + (spacious ? 16f : 8f), panel.y + (spacious ? 8f : 3f),
+            IMGUIStyles.DrawLabel(new Rect(panel.x + (spacious ? 16f : 8f), panel.y + (spacious ? 8f : 3f),
                 spacious ? 180f : 130f, spacious ? 22f : 18f), label, labelStyle);
 
             if (string.IsNullOrEmpty(detail)) return;
@@ -1017,7 +1046,7 @@ namespace SSNoir.IMGUI
             };
             float detailWidth = spacious ? 230f : 150f;
             float detailInset = spacious ? 16f : 8f;
-            GUI.Label(new Rect(panel.xMax - detailWidth - detailInset, panel.y + (spacious ? 9f : 4f),
+            IMGUIStyles.DrawLabel(new Rect(panel.xMax - detailWidth - detailInset, panel.y + (spacious ? 9f : 4f),
                 detailWidth, spacious ? 20f : 16f), detail, detailStyle);
         }
 

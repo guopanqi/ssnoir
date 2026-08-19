@@ -174,11 +174,52 @@ namespace SSNoir.IMGUI
             var style = new GUIStyle();
             style.font = ResolveFont(fontStyle);
             style.fontSize = fontSize;
-            style.normal.textColor = textColor;
+            SetStaticTextColor(style, textColor);
             style.alignment = alignment;
             style.fontStyle = ResolveFontStyle(fontStyle);
             style.wordWrap = true;
             return style;
+        }
+
+        /// <summary>
+        /// Draw descriptive IMGUI text without allowing Unity's implicit hover state to
+        /// change its color. Interaction feedback belongs to the control's background or
+        /// outline; labels are not controls merely because the pointer is over their rect.
+        /// </summary>
+        public static void DrawLabel(Rect position, string text, GUIStyle style)
+        {
+            Color normal = style.normal.textColor;
+            Color hover = style.hover.textColor;
+            Color active = style.active.textColor;
+            Color focused = style.focused.textColor;
+            Color onNormal = style.onNormal.textColor;
+            Color onHover = style.onHover.textColor;
+            Color onActive = style.onActive.textColor;
+            Color onFocused = style.onFocused.textColor;
+
+            SetStaticTextColor(style, normal);
+            GUI.Label(position, text, style);
+
+            style.normal.textColor = normal;
+            style.hover.textColor = hover;
+            style.active.textColor = active;
+            style.focused.textColor = focused;
+            style.onNormal.textColor = onNormal;
+            style.onHover.textColor = onHover;
+            style.onActive.textColor = onActive;
+            style.onFocused.textColor = onFocused;
+        }
+
+        private static void SetStaticTextColor(GUIStyle style, Color color)
+        {
+            style.normal.textColor = color;
+            style.hover.textColor = color;
+            style.active.textColor = color;
+            style.focused.textColor = color;
+            style.onNormal.textColor = color;
+            style.onHover.textColor = color;
+            style.onActive.textColor = color;
+            style.onFocused.textColor = color;
         }
 
         public static void ApplyStrongFont(GUIStyle style)
@@ -406,7 +447,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
             };
             style.normal.textColor = textColor;
-            GUI.Label(rect, text, style);
+            DrawLabel(rect, text, style);
 
             GUI.matrix = oldMatrix;
         }
@@ -452,7 +493,7 @@ namespace SSNoir.IMGUI
             if (SemiboldFont == null)
                 LogMissingSemiboldFont();
             style.normal.textColor = ring;
-            GUI.Label(square, text, style);
+            DrawLabel(square, text, style);
 
             GUI.matrix = oldMatrix;
         }
@@ -503,7 +544,7 @@ namespace SSNoir.IMGUI
             style.hover.textColor = txtColor;
             style.active.textColor = txtColor;
 
-            GUI.Label(rect, text.ToUpper(), style);
+            DrawLabel(rect, text.ToUpper(), style);
 
             style.normal.textColor = oldTextColor;
             style.hover.textColor = oldHoverColor;

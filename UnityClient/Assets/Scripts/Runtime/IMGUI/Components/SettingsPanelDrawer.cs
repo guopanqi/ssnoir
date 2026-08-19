@@ -51,7 +51,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = _isOpen ? IMGUIStyles.Gold : IMGUIStyles.TextPrimary }
             };
-            GUI.Label(toggleRect, "设置", toggleLabelStyle);
+            IMGUIStyles.DrawLabel(toggleRect, "设置", toggleLabelStyle);
 
             if (ui.WasTapped(toggleRect))
             {
@@ -76,7 +76,7 @@ namespace SSNoir.IMGUI
             float panelW = panelRect.width;
 
             // Main Title（纸上墨字，跟成长面板同一套排版）
-            GUI.Label(new Rect(panelX + 24f, panelY + 20f, 160f, 28f), "设 置", IMGUIStyles.ModalTitle);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 24f, panelY + 20f, 160f, 28f), "设 置", IMGUIStyles.ModalTitle);
 
             // Close [X]：纸上次级按钮 = 1px 黑描边透明底
             float closeX = panelX + panelW - 44f;
@@ -97,7 +97,7 @@ namespace SSNoir.IMGUI
             var closeStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             closeStyle.alignment = TextAnchor.MiddleCenter;
             closeStyle.normal.textColor = closeHover ? IMGUIStyles.PaperInk : IMGUIStyles.PaperTextSecondary;
-            GUI.Label(closeRect, "X", closeStyle);
+            IMGUIStyles.DrawLabel(closeRect, "X", closeStyle);
 
             if (ui.WasTapped(closeRect))
             {
@@ -127,22 +127,22 @@ namespace SSNoir.IMGUI
             float y = panelY + 72f;
 
             // ── 界面尺寸 ──
-            GUI.Label(new Rect(contentX, y, 200f, 22f), "界面", sectionStyle);
+            IMGUIStyles.DrawLabel(new Rect(contentX, y, 200f, 22f), "界面", sectionStyle);
             y += 30f;
 
-            GUI.Label(new Rect(contentX, y, 160f, 22f), "界面尺寸", rowLabelStyle);
+            IMGUIStyles.DrawLabel(new Rect(contentX, y, 160f, 22f), "界面尺寸", rowLabelStyle);
             y += 26f;
             DrawSizePresetRow(new Rect(contentX, y, contentW, rowH), ui);
             y += rowH + 10f;
 
-            GUI.Label(new Rect(contentX, y, contentW, 22f), UIScale.DescribeCanvas(), hintStyle);
+            IMGUIStyles.DrawLabel(new Rect(contentX, y, contentW, 22f), UIScale.DescribeCanvas(), hintStyle);
             y += 30f;
 
             // ── 画面 ──
-            GUI.Label(new Rect(contentX, y, 200f, 22f), "画面", sectionStyle);
+            IMGUIStyles.DrawLabel(new Rect(contentX, y, 200f, 22f), "画面", sectionStyle);
             y += 30f;
 
-            GUI.Label(new Rect(contentX, y, 160f, rowH), "减少动画", rowLabelStyle);
+            IMGUIStyles.DrawLabel(new Rect(contentX, y, 160f, rowH), "减少动画", rowLabelStyle);
 
             bool reduceMotion = MotionSettings.ReduceMotion;
             var switchStyle = new GUIStyle(IMGUIStyles.ModalBody)
@@ -162,7 +162,7 @@ namespace SSNoir.IMGUI
             }
             y += rowH + 6f;
 
-            GUI.Label(new Rect(contentX, y, contentW, 24f),
+            IMGUIStyles.DrawLabel(new Rect(contentX, y, contentW, 24f),
                 "镜头不再推近旋转，改为快速淡入淡出。", hintStyle);
         }
 

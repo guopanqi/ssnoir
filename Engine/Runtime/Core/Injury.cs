@@ -43,6 +43,15 @@ namespace SSNoir.Core
             ("脸", "social",    "交际"),
         };
 
+        /// <summary>按部位名查回它对应的能力。疤痕（<see cref="ScarSet"/>）与读档都用它，
+        /// 保证部位与能力的映射只有这一份。</summary>
+        public static (string Part, string Skill, string SkillName) SiteOf(string part)
+        {
+            foreach (var site in Sites)
+                if (site.Part == part) return site;
+            throw new ArgumentException($"Unknown injury site '{part}'.", nameof(part));
+        }
+
         public int Severity { get; private set; }
         public string Part { get; private set; } = string.Empty;
         public string Skill { get; private set; } = string.Empty;

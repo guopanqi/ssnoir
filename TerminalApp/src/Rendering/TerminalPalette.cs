@@ -13,5 +13,13 @@ namespace SSNoir.Rendering
         public static readonly Color AccentDark = new Color(45, 45, 82, 255);
         public static readonly Color Text = new Color(220, 220, 240, 255);
         public static readonly Color TextMuted = new Color(150, 150, 175, 255);
+
+        // 只读信息（时钟、标注）不是可执行卡：用更平的表面与高对比冷白文字区分，
+        // 紫色仅表示进度，不能再承担说明文字的可读性。
+        public static readonly Color InfoSurface = new Color(25, 26, 37, 255);
+        public static readonly Color InfoBorder = new Color(77, 80, 108, 255);
+        public static readonly Color InfoTrack = new Color(52, 54, 70, 255);
+        public static readonly Color InfoText = new Color(225, 227, 238, 255);
+        public static readonly Color InfoBody = new Color(184, 188, 207, 255);
     }
 }

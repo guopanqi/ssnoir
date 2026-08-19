@@ -67,8 +67,8 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawOutline(boxRect, 1f, boxBorder);
 
             string currentScene = gameManager.SceneManager.CurrentSceneName;
-            GUI.Label(new Rect(boxX + 12, boxY + 6, boxW - 30, 20), currentScene, IMGUIStyles.DropdownCurrent);
-            GUI.Label(new Rect(boxX + boxW - 22, boxY + 6, 20, 20), "v", IMGUIStyles.DropdownCurrent);
+            IMGUIStyles.DrawLabel(new Rect(boxX + 12, boxY + 6, boxW - 30, 20), currentScene, IMGUIStyles.DropdownCurrent);
+            IMGUIStyles.DrawLabel(new Rect(boxX + boxW - 22, boxY + 6, 20, 20), "v", IMGUIStyles.DropdownCurrent);
 
             // Draw dropdown list
             if (_isOpen)
@@ -88,7 +88,7 @@ namespace SSNoir.IMGUI
                         headerStyle.alignment = TextAnchor.MiddleCenter;
                         headerStyle.normal.textColor = IMGUIStyles.TextDisabled;
                         headerStyle.fontSize = IMGUIStyles.FontSize(11);
-                        GUI.Label(optRect, item.Name, headerStyle);
+                        IMGUIStyles.DrawLabel(optRect, item.Name, headerStyle);
                     }
                     else
                     {
@@ -112,7 +112,7 @@ namespace SSNoir.IMGUI
 
                         var itemStyle = new GUIStyle(IMGUIStyles.DropdownItem);
                         itemStyle.normal.textColor = optText;
-                        GUI.Label(new Rect(optRect.x + 12, optRect.y + 6, optRect.width - 16, 20), item.Name, itemStyle);
+                        IMGUIStyles.DrawLabel(new Rect(optRect.x + 12, optRect.y + 6, optRect.width - 16, 20), item.Name, itemStyle);
 
                         if (ui.WasTapped(optRect))
                         {

@@ -90,6 +90,9 @@ namespace SSNoir
         private bool _hasVideo;
         private bool _videoPending;
         private bool _videoFinished;
+        // 开播过才能画贴图。没开播就跳过时贴图里是从未写入的垃圾（灰屏），不能拿
+        // VideoShowsCurrentShot 的帧数兜底顶替"这一镜的画面"。
+        private bool _videoStarted;
         private float _playDeadline;
         private int _playStartedFrame;
 
@@ -264,7 +267,7 @@ namespace SSNoir
             if (_returnCamera != null)
             {
                 _gameManager.PromoteFocusCamera(_returnCamera);
-                _gameManager.CameraManager.BeginFocusTravel(_returnCamera);
+                _gameManager.CameraManager.BeginFocusTravel(_returnCamera, respectReduceMotion: false);
             }
 
             EnterPhase(Phase.Return);
@@ -289,13 +292,14 @@ namespace SSNoir
 
             _gameManager.PresentCamera(camera, shot.FocusAnchor);
 
-            // 和游戏里其他每一次换镜走同一条路：焦点运镜的那条弧线，同样的时长，同样受
-            // 减少动画影响。玩家不该能从运镜方式上看出「这一下是过场」。
+            // 过场镜头保留完整的焦点运镜，即使玩家在设置里开启了减少动画。
+            // 减少动画只服务于玩家操作触发的导航，不应改写导演安排好的镜头语言。
             //
             // 它解不出兴趣点时会返回 false（平视机位的中心射线打不到地面就是这种情况），
             // 那就什么都没发生，下面抬完优先级由 brain 按默认混合直线推过去——退化成直线，
             // 不是不动。
-            _gameManager.CameraManager.BeginFocusTravel(camera, out float cameraTransitionDuration);
+            _gameManager.CameraManager.BeginFocusTravel(
+                camera, out float cameraTransitionDuration, respectReduceMotion: false);
 
             if (!_letterboxRaised)
             {
@@ -499,6 +503,7 @@ namespace SSNoir
             _hasVideo = false;
             _videoPending = false;
             _videoFinished = false;
+            _videoStarted = false;
 
             if (!shot.HasVideo)
             {
@@ -618,7 +623,8 @@ namespace SSNoir
         /// 实时世界，而那本来就该和首帧一样；抢早一点露出来的是刚清空的黑。
         /// </summary>
         private bool VideoShowsCurrentShot =>
-            _video != null && (_video.frame > 0 || Time.frameCount - _playStartedFrame > 15);
+            _video != null && _videoStarted
+            && (_video.frame > 0 || Time.frameCount - _playStartedFrame > 15);
 
         /// <summary>
         /// 把贴图刷成黑的。开播前调用，清掉上一镜残留的画面——不能指望"反正马上会被新画面
@@ -648,6 +654,7 @@ namespace SSNoir
             {
                 // 还在 pending 也照样 Play：VideoPlayer 会自己等准备完成。期限先按启动超时
                 // 给，等 prepareCompleted 回来知道真实时长了再续。
+                _videoStarted = true;
                 _video.Play();
                 _playDeadline = now + (_hasVideo ? (float)_video.length + 2f : VideoStartTimeout);
                 return;
@@ -677,6 +684,7 @@ namespace SSNoir
             _hasVideo = false;
             _videoPending = false;
             _videoFinished = false;
+            _videoStarted = false;
 
             // 回调放最后：剧情推进可能立刻又起一场过场，状态得先干净。
             var onComplete = _onComplete;

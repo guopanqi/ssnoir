@@ -126,7 +126,7 @@ namespace SSNoir
                 normal = { textColor = IMGUIStyles.Paper },
             };
             IMGUIStyles.ApplyStrongFont(titleStyle);
-            GUI.Label(new Rect(x, titleY, vw * 0.6f, 76f), Title, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(x, titleY, vw * 0.6f, 76f), Title, titleStyle);
 
             // 片名下面一条金发丝，和游戏内各处分隔线同一个手势。
             IMGUIStyles.DrawLine(
@@ -193,7 +193,7 @@ namespace SSNoir
                 },
             };
             IMGUIStyles.ApplyStrongFont(style);
-            GUI.Label(rect, label, style);
+            IMGUIStyles.DrawLabel(rect, label, style);
 
             if (!string.IsNullOrEmpty(hint))
             {
@@ -204,7 +204,7 @@ namespace SSNoir
                     alignment = TextAnchor.MiddleLeft,
                     normal = { textColor = IMGUIStyles.TextDisabled },
                 };
-                GUI.Label(new Rect(rect.x + 140f, rect.y, 220f, rect.height), hint, hintStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x + 140f, rect.y, 220f, rect.height), hint, hintStyle);
             }
 
             if (!enabled || !ui.WasTapped(rect))

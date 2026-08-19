@@ -25,9 +25,9 @@ namespace SSNoir.IMGUI
     //   它不指任何具体的东西，指的是整个画面，所以没有引线——它是这张图纸的标题栏。
     public static class AnnotationDrawer
     {
-        // 锚定标注与动作卡同宽：同一条边距里的东西共用一个入口 x，几行宽窄不同的
-        // 内容才不会各自为政。
-        public const float AnchoredWidth = 250f;
+        // 标注不是动作卡，不能借用动作卡的宽度。250 会让它在窄画幅里同普通卡争位，
+        // 也让一句说明看起来像另一张可操作的牌。锚定标注收成信息节点的基准宽度。
+        public const float AnchoredWidth = 220f;
 
         // 场景标注带。宽度<b>由内容定</b>：一条短句就只占一条短句那么宽，连它那根细线
         // 一起收到句子的长度。等分整行是错的——它把一句话撑成一条横幅，读起来像标题栏，
@@ -313,8 +313,8 @@ namespace SSNoir.IMGUI
         private static void LabelWithHalo(Rect rect, string text, GUIStyle style)
         {
             var haloStyle = new GUIStyle(style) { normal = { textColor = Halo } };
-            GUI.Label(new Rect(rect.x + HaloOffset.x, rect.y + HaloOffset.y, rect.width, rect.height), text, haloStyle);
-            GUI.Label(rect, text, style);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + HaloOffset.x, rect.y + HaloOffset.y, rect.width, rect.height), text, haloStyle);
+            IMGUIStyles.DrawLabel(rect, text, style);
         }
 
         // ── 场景标注带 ─────────────────────────────────────────────────
@@ -327,9 +327,8 @@ namespace SSNoir.IMGUI
             => LayoutSceneBand(notes, topY, draw: true);
 
         /// <summary>
-        /// 各条按自己需要多宽排，塞不下就换行——不给作者设一个隐形的条数上限。
-        /// 贪心装行：一行至少放一条（哪怕它比整行还宽，收到整行为止），之后每多一条
-        /// 都要求它按需要的宽度还塞得进去。
+        /// 各条按自己需要多宽排，塞不下就换行。信息带的首要职责是总览：不论正文多长，
+        /// 一行都必须留得出三个节点的位置；长正文向下换行，而不是横向挤走别的节点。
         /// </summary>
         private static float LayoutSceneBand(IReadOnlyList<GameNode> notes, float topY, bool draw)
         {
@@ -338,6 +337,9 @@ namespace SSNoir.IMGUI
             Rect safe = UIScale.SafeArea;
             float left = safe.xMin + SceneBandSideMargin;
             float maxRowW = Mathf.Max(1f, safe.width - SceneBandSideMargin * 2f);
+            // 两个间隙之外的三等份是单条标注的硬上限。这个值放在布局处计算，
+            // 不能只调 SceneNoteMaxWidth：可用宽度会随画幅变化。
+            float threeColumnWidth = Mathf.Max(1f, (maxRowW - SceneNoteGap * 2f) / 3f);
 
             float y = topY + SceneBandTopPad;
             int i = 0;
@@ -347,7 +349,7 @@ namespace SSNoir.IMGUI
                 float totalW = 0f;
                 while (i + widths.Count < notes.Count)
                 {
-                    float want = Mathf.Min(NaturalWidth(notes[i + widths.Count]), maxRowW);
+                    float want = Mathf.Min(NaturalWidth(notes[i + widths.Count]), threeColumnWidth);
                     float withGap = widths.Count == 0 ? want : totalW + SceneNoteGap + want;
                     if (widths.Count > 0 && withGap > maxRowW)
                         break;

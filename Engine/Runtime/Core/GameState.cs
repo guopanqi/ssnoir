@@ -115,14 +115,15 @@ namespace SSNoir.Core
         private void CheckCollapse()
         {
             if (!Team.PendingCollapse) return;
-            Team.ResolveCollapse();
+            var scar = Team.ResolveCollapse(Get<int>("世界日", 1));
 
             int cash = Inventory.GetCount("金钱");
             if (cash >= CollapseTreatmentFee)
             {
                 Inventory.SetCount("金钱", cash - CollapseTreatmentFee);
                 NotificationCenter.Push(
-                    $"你在人行道上醒过来，已经躺在诊所里了。账单 {CollapseTreatmentFee} 金，先收后问。",
+                    $"你在人行道上醒过来，已经躺在诊所里了。账单 {CollapseTreatmentFee} 金，先收后问。"
+                    + ScarNotice(scar),
                     NotificationKind.Warning);
             }
             else
@@ -131,10 +132,16 @@ namespace SSNoir.Core
                 string key = "relation:官僚";
                 Set(key, Math.Clamp(Get<int>(key) - 1, RelationScale.Min, RelationScale.Max));
                 NotificationCenter.Push(
-                    "你在诊所里醒过来。身上的钱不够付账，剩下的记在了本子上——这种本子他们记得很牢。",
+                    "你在诊所里醒过来。身上的钱不够付账，剩下的记在了本子上——这种本子他们记得很牢。"
+                    + ScarNotice(scar),
                     NotificationKind.Warning);
             }
         }
+
+        // 送医通知的后半句：钱和骰子都会回来，这一句不会。写清楚是哪儿、扣多少，
+        // 玩家从此每次投这项能力都会再看见它一遍。
+        private static string ScarNotice(ScarRecord scar) =>
+            $" 缝合的地方留了道疤：{scar.Part}上的旧伤，{scar.SkillName} 永久 {ScarSet.PenaltyPerScar}。";
 
         // Pure global key-value store only (chapter, reputation, story flags).
         // Team / Inventory / action dice / growth are owned by their typed objects

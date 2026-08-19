@@ -1144,14 +1144,14 @@
       (node "听她唱一段"
         :subtitle (if listened-today?
                       "今晚这一段已经听过了"
-                      "10 金；恢复 2 点冷静，每天一次。她唱歌的时候，这座城安静一点")
+                      "10 金；恢复 1 点冷静，每天一次。她唱歌的时候，这座城安静一点")
         :disabled listened-today?
         :requires (list (req-item "金钱" 10))
         :resolve (instant
           (outcome "听她唱了一段"
             (lambda ()
               (set! listened-today? #t)
-              (restore-actor-composure! 'player 2))
+              (restore-actor-composure! 'player 1))
             'light))))
 
     (define (node-empty-stage)
