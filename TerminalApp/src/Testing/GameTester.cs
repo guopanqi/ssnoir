@@ -61,7 +61,10 @@ namespace SSNoir.Testing
                     throw new InvalidDataException($"Scene '{sceneName}' produced an empty world.");
 
                 if (sceneName == "world/world")
+                {
                     AssertNodeAnchorDsl(sceneManager);
+                    AssertArrivalDsl(sceneManager);
+                }
 
                 Console.WriteLine($"Validated scene '{sceneName}' with root '{sceneManager.CurrentRootNode.Name}'.");
             }
@@ -91,6 +94,66 @@ namespace SSNoir.Testing
             }
 
             Console.WriteLine("[validate] node :anchor DSL contract passed.");
+        }
+
+        // place / arrival 的 DSL 契约：作者写错的地方基本都在这一层，而写错的后果
+        // （节拍永远不触发）是静默的，必须在加载期就响。
+        private static void AssertArrivalDsl(SceneManager sceneManager)
+        {
+            var interpreter = sceneManager.ActiveInterpreter;
+            var raw = interpreter.RawInterpreter;
+
+            GameNode ConvertScheme(string expr) =>
+                NodeConverter.ConvertSingle(interpreter.Eval(expr), raw);
+
+            var plain = ConvertScheme("(container \"入场DSL校验-普通容器\" '())");
+            if (plain.IsPlace || plain.Arrivals.Count != 0)
+                throw new InvalidDataException("container 不该是 place，也不该带入场节拍。");
+
+            var bare = ConvertScheme("(place \"入场DSL校验-空地点\" :children '())");
+            if (!bare.IsPlace || bare.Arrivals.Count != 0)
+                throw new InvalidDataException("place 没有作为地点存活到 GameNode。");
+
+            // place 转发 node 的全部 kwargs——「家」要靠 :subtitle 显示住所等级。
+            var withSubtitle = ConvertScheme(
+                "(place \"入场DSL校验-带副标题\" :subtitle \"廉价旅馆\" :children '())");
+            if (withSubtitle.Subtitle != "廉价旅馆")
+                throw new InvalidDataException("place 没有转发 :subtitle。");
+
+            var withBeats = ConvertScheme(
+                "(place \"入场DSL校验-两拍\" :children '()"
+                + " :arrivals (list (arrival \"甲\" (lambda () #t))"
+                + "                 (arrival \"乙\" (lambda () #t))))");
+            if (withBeats.Arrivals.Count != 2
+                || withBeats.Arrivals[0].Id != "甲" || withBeats.Arrivals[1].Id != "乙")
+                throw new InvalidDataException("入场节拍没有按声明顺序保留。");
+
+            AssertThrowsAny(() => ConvertScheme(
+                "(place \"入场DSL校验-带结算\" :resolve (instant (lambda () #t)))"),
+                "place with :resolve");
+
+            AssertThrowsAny(() => ConvertScheme(
+                "(node \"入场DSL校验-节拍挂错\" :children '()"
+                + " :arrivals (list (arrival \"甲\" (lambda () #t))))"),
+                "arrivals on a non-place");
+
+            AssertThrowsAny(() => ConvertScheme(
+                "(place \"入场DSL校验-重复标识\" :children '()"
+                + " :arrivals (list (arrival \"甲\" (lambda () #t))"
+                + "                 (arrival \"甲\" (lambda () #t))))"),
+                "duplicate arrival id");
+
+            AssertThrowsAny(() => ConvertScheme(
+                "(place \"入场DSL校验-空标识\" :children '()"
+                + " :arrivals (list (arrival \"\" (lambda () #t))))"),
+                "empty arrival id");
+
+            AssertThrowsAny(() => ConvertScheme(
+                "(place \"入场DSL校验-非过程\" :children '()"
+                + " :arrivals (list (arrival \"甲\" \"不是过程\")))"),
+                "arrival effect that is not a procedure");
+
+            Console.WriteLine("[validate] place / arrival DSL contract passed.");
         }
 
         // 只验证稳定的存档契约：纯全局值、类型化资源、主角状态、动态同伴及读档后重掷骰。
@@ -241,7 +304,8 @@ namespace SSNoir.Testing
             // 这里守的是"消耗品被扣掉且冷静真的回了"，具体数值由 §2.2 的设计决定。
             consumableState.Team.SpendComposure("player", TeamState.MaxComposure);
             var consumableManager = new SceneManager(consumableState, new LocalScriptLoader());
-            consumableManager.LoadScene("encounters/夜莺·警告");
+            // 任意一场活的交锋都行，这里只需要一个已载入的交锋上下文。
+            consumableManager.LoadScene("encounters/巷子里在打人");
             consumableManager.UseEncounterConsumable("香烟");
             AssertEq("smoke consumed", 0, consumableState.Inventory.GetCount("香烟"));
             AssertEq("smoke composure restore", 2, consumableState.Team.FindActor("player")!.Composure);
@@ -258,6 +322,21 @@ namespace SSNoir.Testing
             AssertThrows(() => FateStrip.Resolve(1, 0, 0, 7), "invalid fate die");
 
             Console.WriteLine("[fate-strip] All contract assertions passed.");
+        }
+
+        // 只要求「拦下来了」：具体异常类型会被 Scheme 求值层包一层，钉死类型只会让
+        // 测试跟着实现细节走。
+        private static void AssertThrowsAny(Action action, string label)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception)
+            {
+                return;
+            }
+            throw new Exception($"[assert] FAIL: {label} did not throw");
         }
 
         private static void AssertThrows(Action action, string label)

@@ -604,6 +604,22 @@ namespace SSNoir.Rendering
             _state.NavigationStack.Clear();
             _state.NavigationStack.Add(homeNode);
             ResolveNavigationStack();
+            PlayArrival("家");
+        }
+
+        /// <summary>
+        /// 玩家真的走进了一个地点。只有这两条路径会走到这里：从世界层点开地点卡，
+        /// 以及主动回家。返回上一层、读档恢复、快照刷新都不算到达，不要在那些地方调。
+        /// 没有入场节拍时引擎返回 null，什么都不发生。
+        /// </summary>
+        private void PlayArrival(string placeName)
+        {
+            var report = _sceneManager.EnterPlace(placeName);
+            if (report == null)
+                return;
+
+            // 动作名留空：这不是一次动作，没有卡片可以锚定进度与投骰演出。
+            StartPresentation(report, "", () => AdoptLatestSnapshot());
         }
 
         private bool IsInEncounter =>
@@ -1593,6 +1609,8 @@ namespace SSNoir.Rendering
                         _state.CardsScrollOffset = 0f;
                         _state.NavigationStack.Add(node);
                         ResolveNavigationStack();
+                        if (node.IsPlace)
+                            PlayArrival(node.Name);
                     }
                     else if (node.Resolve != null)
                     {

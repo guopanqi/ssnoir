@@ -319,8 +319,8 @@
     ;; 容器名固定为“家”（导航按名字定位，不能随住所变），住所等级放 subtitle 显示。
     (define (residence-container)
       (if (in-hotel?)
-          (node "家" :subtitle residence :children (hotel-body))
-          (node "家" :subtitle residence :children (owned-body))))
+          (place "家" :subtitle residence :children (hotel-body))
+          (place "家" :subtitle residence :children (owned-body))))
 
     ;; ── Message Passing Interface ─────────────────
     (lambda args

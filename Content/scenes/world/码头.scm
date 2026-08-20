@@ -43,7 +43,7 @@
     (lambda args
       (let ((msg (car args)))
         (cond
-          ((equal? msg 'render-data) (list (container "码头" (children))))
+          ((equal? msg 'render-data) (list (place "码头" :children (children))))
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)
           (else #f))))))

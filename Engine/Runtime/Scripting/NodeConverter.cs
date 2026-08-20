@@ -54,6 +54,8 @@ namespace SSNoir.Scripting
             string? anchorName = null;
             string subtitle = string.Empty;
             bool disabled = false;
+            bool isPlace = false;
+            List<ArrivalBeat> arrivals = new List<ArrivalBeat>();
 
             for (int i = 2; i < nodeExpr.Count; i += 2)
             {
@@ -100,6 +102,16 @@ namespace SSNoir.Scripting
                         throw new InvalidOperationException($"Node '{name}' :anchor must be a non-empty string.");
                     anchorName = parsedAnchor;
                 }
+                else if (kwStr == ":place")
+                {
+                    if (!(val is bool parsedPlace))
+                        throw new InvalidOperationException("Node :place must be a boolean.");
+                    isPlace = parsedPlace;
+                }
+                else if (kwStr == ":arrivals")
+                {
+                    arrivals = ParseArrivals(val, name);
+                }
                 else if (kwStr == ":disabled")
                 {
                     if (!(val is bool parsedDisabled))
@@ -124,9 +136,26 @@ namespace SSNoir.Scripting
                     "silently ignored. Move the children into a container, or drop the :resolve.");
             }
 
+            // Place 是容器的一种，不是动作：它只有走进去这一种交互。
+            if (isPlace && resolve != null)
+            {
+                throw new InvalidOperationException(
+                    $"Place '{name}' 不能有 :resolve。地点只能被走进去，不能被执行。");
+            }
+
+            // 入场节拍属于「走进一个地点」这件事，挂在别处永远不会被触发。
+            if (arrivals.Count > 0 && !isPlace)
+            {
+                throw new InvalidOperationException(
+                    $"Node '{name}' 声明了 :arrivals 却不是 place。入场节拍只能挂在地点上——" +
+                    "把这个容器改成 (place ...)，或者把节拍搬到它所在的地点上。");
+            }
+
             var node = new GameNode
             {
                 Name = name,
+                IsPlace = isPlace,
+                Arrivals = arrivals,
                 AnchorName = anchorName,
                 Subtitle = subtitle,
                 Disabled = disabled,
@@ -137,6 +166,56 @@ namespace SSNoir.Scripting
             };
             node.Clocks.AddRange(clocks);
             return node;
+        }
+
+        // (arrival "id" effect) 的列表。ID 只在同一个地点内要求唯一——节点名已经全局
+        // 唯一（见 SceneManager.AssertUniqueNodeNames），(地点名, ID) 就足够定位一拍。
+        private static List<ArrivalBeat> ParseArrivals(object arrivalsExpr, string placeName)
+        {
+            var arrivals = new List<ArrivalBeat>();
+            if (arrivalsExpr is bool noArrivals && noArrivals == false)
+            {
+                return arrivals;
+            }
+
+            if (!(arrivalsExpr is List<object> list))
+            {
+                throw new InvalidOperationException(
+                    $"Place '{placeName}' :arrivals 必须是列表，得到 {arrivalsExpr?.GetType().FullName ?? "null"}。");
+            }
+
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var item in list)
+            {
+                if (!(item is List<object> expr) || expr.Count != 3
+                    || !(expr[0] is Symbol header) || header.AsString != "arrival")
+                {
+                    throw new InvalidOperationException(
+                        $"Place '{placeName}' 的入场节拍必须写成 (arrival \"标识\" 过程)。");
+                }
+
+                if (!(expr[1] is string id) || string.IsNullOrWhiteSpace(id))
+                {
+                    throw new InvalidOperationException(
+                        $"Place '{placeName}' 的 arrival 标识必须是非空字符串。");
+                }
+
+                if (!(expr[2] is Procedure effect))
+                {
+                    throw new InvalidOperationException(
+                        $"Place '{placeName}' 的 arrival \"{id}\" 的第二个参数必须是过程。");
+                }
+
+                if (!seen.Add(id))
+                {
+                    throw new InvalidOperationException(
+                        $"Place '{placeName}' 里有重复的 arrival 标识 \"{id}\"。同一个地点内标识必须唯一。");
+                }
+
+                arrivals.Add(new ArrivalBeat { Id = id, Effect = () => effect.Call(new List<object>()) });
+            }
+
+            return arrivals;
         }
 
         private static List<ActionCost> ParseRequires(object requiresExpr)

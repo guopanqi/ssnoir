@@ -289,6 +289,8 @@ namespace SSNoir
                 ResolveNavigationStack();
                 _selectedResource = null;
                 SetFocusedNode(null, updateCamera: true);
+                if (node.IsPlace)
+                    PlayArrival(node.Name);
             }
             else if (node.Resolve?.Type == ResolveType.Note)
             {
@@ -1399,6 +1401,55 @@ namespace SSNoir
             }
             ResolveNavigationStack();
             UpdateCameraFocus();
+            PlayArrival("家");
+        }
+
+        /// <summary>
+        /// 玩家真的走进了一个地点。只有这两条路径会走到这里：从世界层点开地点卡，
+        /// 以及主动回家。返回上一层、读档恢复、快照刷新都不算到达，不要在那些地方调。
+        /// 没有入场节拍时引擎返回 null，什么都不发生。
+        /// </summary>
+        private void PlayArrival(string placeName)
+        {
+            ActionReport? report;
+            try
+            {
+                report = _sceneManager.EnterPlace(placeName);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[EnterPlace] Exception entering '{placeName}': {ex}");
+                ShowNotification($"入场异常: {ex.Message}");
+                return;
+            }
+
+            if (report == null)
+                return;
+
+            StartCoroutine(ArrivalRoutine(report));
+        }
+
+        private IEnumerator ArrivalRoutine(ActionReport report)
+        {
+            _renderer.ClearCardResidues();
+            _renderer.SetInputLocked(true);
+
+            bool done = false;
+            // 动作名留空：这不是一次动作，没有卡片可以锚定进度与投骰演出。
+            _renderer.PlayPresentation(report, string.Empty, () =>
+            {
+                bool navigationCollapsed = AdoptLatestSnapshot();
+                if (navigationCollapsed)
+                    UpdateCameraFocus();
+                done = true;
+            });
+
+            while (!done)
+            {
+                yield return null;
+            }
+
+            _renderer.SetInputLocked(false);
         }
 
         private void ClearTransientNodeUiState(bool clearSlots)

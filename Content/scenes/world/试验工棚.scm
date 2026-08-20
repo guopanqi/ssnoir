@@ -5,7 +5,7 @@
     (let ((msg (car args)))
       (cond
         ((equal? msg 'render-data)
-         (list (container "三号货栈工棚" (lin 'workshop-nodes))))
+         (list (place "三号货栈工棚" :children (lin 'workshop-nodes))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
         (else (error "试验工棚：收到未知消息"))))))

@@ -156,6 +156,7 @@
             (list (note-tavern-night) (note-stage))
             (three-letters 'nodes-at "酒馆")
             (eddie 'nodes-at "酒馆")
+            (baines 'nodes-at "酒馆")
             (list (node-waiter) (node-drink-here) (node-buy-liquor) (node-buy-cigarettes))  ; 酒馆常驻：值班当差 + 当场点酒 + 打酒带走 + 买烟
             (if (three-letters 'old-street-open?)
                 (list (loan-shark-container))
@@ -169,7 +170,10 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list (node "老街酒馆" :children (tavern-children) :clocks (tavern-clocks))))
+           (list (place "老街酒馆"
+                   :children (tavern-children)
+                   :clocks (tavern-clocks)
+                   :arrivals (eddie 'arrivals-at "酒馆"))))
           ((equal? msg 'set-closed!)
            (set! closed-days (cadr args))
            (set! closed-days-max (max closed-days-max closed-days)))

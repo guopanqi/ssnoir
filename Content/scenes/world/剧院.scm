@@ -13,9 +13,9 @@
       (let ((msg (car args)))
       (cond
         ((equal? msg 'render-data)
-         (list (container "剧院"
-                 (map anchor-at-theater
-                   (append (three-letters 'nodes-at "剧院") (lin 'theater-nodes))))))
+         (list (place "剧院"
+                 :children (map anchor-at-theater
+                             (append (three-letters 'nodes-at "剧院") (lin 'theater-nodes))))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
         (else #f))))))

@@ -11,10 +11,10 @@
       (let ((msg (car args)))
       (cond
         ((equal? msg 'render-data)
-         (list (container "码头居民区"
-                 (map anchor-at-residential-district
-                   (append (three-letters 'nodes-at "居民区")
-                           (joe 'residential-nodes))))))
+         (list (place "码头居民区"
+                 :children (map anchor-at-residential-district
+                             (append (three-letters 'nodes-at "居民区")
+                                     (joe 'residential-nodes))))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
         (else #f))))))

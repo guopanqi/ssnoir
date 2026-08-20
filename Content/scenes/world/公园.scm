@@ -28,7 +28,7 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list (container "公园" (list (node-walk)))))
+           (list (place "公园" :children (list (node-walk)))))
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)
           (#t #f))))))

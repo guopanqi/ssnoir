@@ -58,9 +58,9 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list (container "诊所"
-                   (list (node-buy-medicine) (node-treatment)
-                         (note-waiting-room)))))
+           (list (place "诊所"
+                   :children (list (node-buy-medicine) (node-treatment)
+                                   (note-waiting-room)))))
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)
           (#t #f))))))

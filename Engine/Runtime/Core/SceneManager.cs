@@ -18,6 +18,7 @@ namespace SSNoir.Core
         private string _encounterSceneName = string.Empty;
         private bool _turnEndedDuringAction;
         private bool _isExecutingAction;
+        private bool _isEnteringPlace;
         private bool _hasPendingSceneDiceRoll;
         private bool _pendingSceneIsEncounter;
         private Procedure? _encounterCallback;
@@ -188,6 +189,11 @@ namespace SSNoir.Core
                     if (args.Count < 1)
                         throw new ArgumentException("start-encounter requires 1 argument (encounter name)");
                     string name = SchemeValue.AsId(args[0]);
+                    // 走进一个地点只能告诉玩家发生了什么；交锋仍由玩家点卡片主动开始。
+                    if (_isEnteringPlace)
+                        throw new InvalidOperationException(
+                            $"入场节拍里不能 start-encounter（\"{name}\"）。Arrival 只负责叙事，" +
+                            "把遭遇摆成卡片让玩家自己点。");
                     _encounterCallback = args.Count > 1 ? args[1] as Procedure : null;
                     StartEncounter(name);
                     return new None();
@@ -208,6 +214,9 @@ namespace SSNoir.Core
                 Symbol.FromString("__end-turn!"),
                 new NativeProcedure(args =>
                 {
+                    if (_isEnteringPlace)
+                        throw new InvalidOperationException(
+                            "入场节拍里不能 end-turn!。走进一个地点不推进时间。");
                     EndTurn();
                     return new None();
                 }, "__end-turn!")
@@ -294,6 +303,7 @@ namespace SSNoir.Core
                     "根容器不能挂 :clocks：根节点不会被渲染为卡。请改用 clock-node 作为第一个子节点。");
 
             AssertUniqueNodeNames(rootNode);
+            AssertPlacesWellFormed(rootNode, IsWorldScene(CurrentSceneName));
             CurrentRootNode = rootNode;
 
             var flatClocks = new List<GameClock>();
@@ -415,6 +425,41 @@ namespace SSNoir.Core
             }
         }
 
+        /// <summary>
+        /// Place 只能是世界根的直接子节点。地点里的地点会让「走进去」变成一个有层级的
+        /// 概念（进了酒馆再进后厨算不算又到了一个地方？），而导航栈里那一串到底哪一层
+        /// 是「玩家在哪」就说不清了。交锋树里则根本没有地点这回事。
+        /// </summary>
+        private static void AssertPlacesWellFormed(GameNode rootNode, bool isWorldScene)
+        {
+            foreach (var child in rootNode.Children)
+            {
+                AssertNoPlaceBelow(child, child.IsPlace ? child.Name : rootNode.Name);
+            }
+
+            if (isWorldScene)
+                return;
+
+            foreach (var child in rootNode.Children)
+            {
+                if (child.IsPlace)
+                    throw new InvalidOperationException(
+                        $"交锋树里不能出现地点：\"{child.Name}\"。地点只属于世界。");
+            }
+        }
+
+        private static void AssertNoPlaceBelow(GameNode node, string containerName)
+        {
+            foreach (var child in node.Children)
+            {
+                if (child.IsPlace)
+                    throw new InvalidOperationException(
+                        $"\"{child.Name}\" 是地点，却嵌在 \"{containerName}\" 里。"
+                        + "地点只能是世界根的直接子节点；里面的分区请用普通 container。");
+                AssertNoPlaceBelow(child, containerName);
+            }
+        }
+
         private static void RunOnActionRules(SchemeInterpreter actionInterpreter)
         {
             actionInterpreter.Eval("(on-action)");
@@ -475,6 +520,80 @@ namespace SSNoir.Core
                 if (ownsReport)
                     _gameState.CurrentActionReport = null;
             }
+        }
+
+        /// <summary>
+        /// 玩家真的走进一个地点。只在两条真实移动路径上调用：从世界层点开地点卡，
+        /// 以及主动「回家」。返回上一层、恢复导航栈、读档重建、快照刷新都不算到达，
+        /// 睡醒仍在家里也不算——那些路径不要调这个方法。
+        ///
+        /// 按名字取节点而不是收客户端手里的对象：客户端持有的是它自己那份快照里的
+        /// 节点，未必是引擎当前树里的那一个。节点名全局唯一（AssertUniqueNodeNames），
+        /// 按名字查是准的。
+        ///
+        /// 没有入场节拍时返回 null，客户端照常进入即可。
+        /// </summary>
+        public ActionReport? EnterPlace(string placeName)
+        {
+            if (!IsWorldScene(CurrentSceneName))
+                return null;
+            if (_isExecutingAction)
+                throw new InvalidOperationException(
+                    $"动作结算过程中不能进入地点(\"{placeName}\")。");
+            if (_isEnteringPlace)
+                throw new InvalidOperationException(
+                    $"入场节拍里不能再进入地点(\"{placeName}\")。");
+
+            var root = CurrentRootNode;
+            if (root == null)
+                return null;
+
+            var place = root.Children.Find(child => child.IsPlace && child.Name == placeName);
+            if (place == null || place.Arrivals.Count == 0)
+                return null;
+
+            var report = new ActionReport { Type = ActionType.Instant };
+            _gameState.CurrentActionReport = report;
+            _isEnteringPlace = true;
+            try
+            {
+                // 表现走报告而不是即时广播：动作外 __spotlight! 立刻显示而 __play-dialogue!
+                // 进队列，混用则顺序不保；__play-animation! 在无报告时干脆静默丢弃。
+                // 报告同时给出原子性——中途抛错就不交出报告，一句也不播。
+                foreach (var beat in place.Arrivals)
+                {
+                    beat.Effect();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"地点 \"{placeName}\" 的入场节拍执行失败：{ex.Message}", ex);
+            }
+            finally
+            {
+                _isEnteringPlace = false;
+                _gameState.CurrentActionReport = null;
+            }
+
+            // Arrival 只负责叙事。写进 Effects 的东西（result-note!、加钟、资源增减）
+            // 会让入场长得像一次动作结算——「这件事存在」必须在玩家走进来之前
+            // 就由日终规则或某个动作建立好。
+            if (report.Effects.Count > 0)
+                throw new InvalidOperationException(
+                    $"地点 \"{placeName}\" 的入场节拍产生了动作结算效果（钟／标注／资源变化）。"
+                    + "Arrival 只能播叙事：把状态变更移回日终规则或动作里。");
+
+            RebuildRenderTree();
+
+            var stillThere = CurrentRootNode?.Children.Find(child => child.IsPlace && child.Name == placeName);
+            if (stillThere == null)
+                throw new InvalidOperationException(
+                    $"地点 \"{placeName}\" 的入场节拍把玩家刚走进来的地点从世界里移掉了。");
+
+            // 故意不填 PresentationHints：那是动作的「执行中…」进度条与投骰动画，
+            // 走进一个地点没有这两样。空 hints 让播放器直接进阻塞剧情步骤。
+            return report;
         }
 
         public ActionReport UseEncounterConsumable(string itemId)

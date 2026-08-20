@@ -10,6 +10,8 @@
 (define :subtitle ':subtitle)
 (define :disabled ':disabled)
 (define :anchor ':anchor)
+(define :place ':place)
+(define :arrivals ':arrivals)
 
 ;; Helper to extract keyword arguments from a list
 (define (get-kwarg kwargs key default)
@@ -24,7 +26,9 @@
 ;; node constructor
 ;; Returns a node expression consumed by NodeConverter.
 (define (node name . kwargs)
-  (let ((anchor-name (get-kwarg kwargs ':anchor #f)))
+  (let ((anchor-name (get-kwarg kwargs ':anchor #f))
+        (is-place    (get-kwarg kwargs ':place #f))
+        (arrivals    (get-kwarg kwargs ':arrivals '())))
     (append
       (list 'node
             name
@@ -37,7 +41,13 @@
             :disabled (get-kwarg kwargs ':disabled #f))
       (if (equal? anchor-name #f)
           '()
-          (list :anchor anchor-name)))))
+          (list :anchor anchor-name))
+      (if (equal? is-place #f)
+          '()
+          (list :place #t))
+      (if (null? arrivals)
+          '()
+          (list :arrivals arrivals)))))
 
 ;; ── 休息阻塞 ─────────────────────────────────────
 ;; 注册表只存在于当前解释器。world-load! 会先清空，再由各地点按存档状态同步。
@@ -207,6 +217,19 @@
 
 (define (container-with-clocks name children clocks)
   (node name :children children :clocks clocks))
+
+;; ── 地点 ─────────────────────────────────────────
+;; 世界地点。和 container 的区别只有一条：玩家走进去这件事引擎认得，于是可以挂
+;; :arrivals。只有世界根的直接子节点能是 place，交锋树里不许出现。
+;; 接受 node 的全部 kwargs（家要用 :subtitle 显示住所等级）。
+(define (place name . kwargs)
+  (apply node (cons name (append kwargs (list :place #t)))))
+
+;; 一拍入场叙事。没有 condition——「这一拍在不在」由拼树时决定，和 children 一样：
+;;   :arrivals (if (and (= stage 4) (not told?)) (list beat) '())
+;; 一次性由内容自己置标记并跟着自己的 save 走；引擎不持有任何 arrival 状态。
+(define (arrival id effect)
+  (list 'arrival id effect))
 
 (define (action name requires resolve)
   (node name :requires requires :resolve resolve))

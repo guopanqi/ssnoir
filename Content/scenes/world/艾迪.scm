@@ -35,6 +35,7 @@
     ;; 4 和 5 排在后面，是为了不动 1..3 —— 那三个数字后面所有代码都在读。
     (define stage 0)
     (define alley-day 0)          ; 巷子那件事摆在哪天；过了这天就没了
+    (define alley-told? #f)       ; 这一轮的消息在酒馆里说过没有
     (define next-fight-day 0)     ; 下一场在哪天
     (define night 0)              ; 排到第几夜（1..4）
     (define shut-day 0)
@@ -140,19 +141,37 @@
             (spotlight! "这件事就到这儿"
               "第二天巷子里只剩几摊冲淡的血。酒馆里没有人提起昨晚有谁挨了打。"))))
 
-    ;; 遭遇的触发：老街那边开起来以后的某个早上，有人把这件事带到你面前。
-    ;; 日终规则在「世界日历推进」之后跑，world-day 已经是第二天，所以这条消息
-    ;; 是明早的事，alley-day 记的就是它摆出来的那一天。
+    ;; 遭遇的触发：老街那边开起来以后的某个早上，这件事摆到了酒馆门口。
+    ;; 日终规则在「世界日历推进」之后跑，world-day 已经是第二天，所以它摆出来的
+    ;; 就是明天那一天，alley-day 记的正是这个。
+    ;;
+    ;; 规则本身不说话：它只推进状态、记下日子、让遭遇卡出现在酒馆。消息要在酒馆里
+    ;; 听——事发生在老街侧墙，在家里被告知是错的位置。
     (define-turn-rule "巷子里在打人"
       (lambda () (and (= stage 0)
                       (>= (three-letters 'story-stage) 1)))
       (lambda ()
         (set! stage 4)
         (set! alley-day world-day)
-        (play-remote-dialogue!
-          (line "世界" "老街那边有人跑进酒馆找酒保，说侧墙那条巷子里有人在挨打。")
-          (line "酒保" "又不是头一回。别往那头去。")
-          (line "世界" "没有人打算过去。这一片今晚也不会有巡警。"))))
+        (set! alley-told? #f)))
+
+    ;; 走进酒馆时才听到。标记在回调里立刻置位——玩家可以退出去再进来，
+    ;; 等交锋打完再置就会重播一遍。
+    (define (arrival-alley)
+      (arrival "巷子里在打人"
+        (lambda ()
+          (set! alley-told? #t)
+          (play-remote-dialogue!
+            (line "世界" "老街那边有人跑进酒馆找酒保，说侧墙那条巷子里有人在挨打。")
+            (line "酒保" "又不是头一回。别往那头去。")
+            (line "世界" "没有人打算过去。这一片今晚也不会有巡警。")))))
+
+    ;; 和 nodes-at 同一套写法：地点不认识故事状态，只报自己的名字。
+    (define (arrivals-at location)
+      (cond
+        ((equal? location "酒馆")
+         (if (and (= stage 4) (not alley-told?)) (list (arrival-alley)) '()))
+        (else '())))
 
     ;; 没去就是没去。摆出来那天过完，这条线跟着一起收走。
     (define-turn-rule "巷子里那件事过去了"
@@ -587,12 +606,14 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
+          ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'stage) stage)
           ((equal? msg 'known?) (and (>= stage 1) (<= stage 3)))
           ((equal? msg 'hand-bad?) hand-bad?)
           ((equal? msg 'save)
            (list (list "stage" stage)
                  (list "alley-day" alley-day)
+                 (list "alley-told" (if alley-told? 1 0))
                  (list "next-fight-day" next-fight-day)
                  (list "night" night)
                  (list "shut-day" shut-day)
@@ -612,6 +633,7 @@
            (let ((data (cadr args)))
              (set! stage (assoc-get data "stage" 0))
              (set! alley-day (assoc-get data "alley-day" 0))
+             (set! alley-told? (= (assoc-get data "alley-told" 0) 1))
              (set! next-fight-day (assoc-get data "next-fight-day" 0))
              (set! night (assoc-get data "night" 0))
              (set! shut-day (assoc-get data "shut-day" 0))

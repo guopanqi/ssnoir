@@ -5,7 +5,7 @@
     (let ((msg (car args)))
       (cond
         ((equal? msg 'render-data)
-         (list (container "保险公司" (walter 'nodes))))
+         (list (place "保险公司" :children (walter 'nodes))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
         (else #f)))))

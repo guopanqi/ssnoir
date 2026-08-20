@@ -241,7 +241,7 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list (node "货运公司"
+           (list (place "货运公司"
                    :children (company-children)
                    :clocks (append (investment-clocks) (company-trouble 'render-data)))))
           ((equal? msg 'save)
