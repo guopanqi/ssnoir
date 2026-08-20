@@ -738,6 +738,143 @@ namespace SSNoir
             ApplyFocusArcPose(FocusArcEasedProgress());
         }
 
+        // [CAM] 高度守卫的容差与去重。容差要盖得住浮点误差和运镜落点的最后一点零头，
+        // 又要小到任何真的"沉下去/飘起来"都逃不掉。
+        private const float PanHeightTolerance = 0.05f;
+        private const float PanRotationTolerance = 0.5f;
+        private readonly System.Collections.Generic.HashSet<string> _panPoseOffenders =
+            new System.Collections.Generic.HashSet<string>();
+
+        /// <summary>
+        /// [CAM] Pan 相机的姿态守卫：它只允许在 XZ 平面上平移，高度和朝向都该恒等于作者构图。
+        ///
+        /// 拖拽（<see cref="UpdatePanDrag"/>）和信标行走都是显式锁高度的，所以高度一旦对不上，
+        /// 就一定是别的东西写了这个 transform——最可能是焦点运镜的弧线（<see cref="ApplyFocusArcPose"/>
+        /// 是按极坐标重建整个姿态的，只要它的兴趣点算错，落点就会连高度一起偏）。
+        /// 报错时把当时正在跑的运动一并打出来，就是为了指认凶手。
+        ///
+        /// 每台相机只报一次，回到正确高度后重新武装——不然一帧一条会把日志刷没。
+        /// </summary>
+        public void CheckPanCameraPose()
+        {
+            var camera = GetActiveCamera();
+            if (camera == null)
+                return;
+
+            var config = camera.GetComponent<SSNoirVirtualCameraConfig>();
+            if (config == null || config.dragMode != CameraDragMode.Pan)
+                return;
+
+            float heightDrift = camera.transform.position.y - config.AuthoredPosition.y;
+            float angleDrift = Quaternion.Angle(camera.transform.rotation, config.AuthoredRotation);
+            bool offending = Mathf.Abs(heightDrift) > PanHeightTolerance || angleDrift > PanRotationTolerance;
+
+            if (!offending)
+            {
+                _panPoseOffenders.Remove(camera.name);
+                return;
+            }
+
+            if (!_panPoseOffenders.Add(camera.name))
+                return;
+
+            string motion = _isFocusArcActive ? "焦点运镜（ApplyFocusArcPose）"
+                : _isNavigating ? "信标行走（ApplyNavigationPose）"
+                : _isDraggingCam ? "拖拽（UpdatePanDrag）"
+                : _inertiaVelocity != Vector2.zero ? "惯性尾巴（ApplyPanInertiaStep）"
+                : "无（这一帧没有任何相机运动在写它——是更早某一帧留下的）";
+
+            Debug.LogError(
+                $"[CAM] Pan 相机 '{camera.name}' 的姿态被改出了平面：高度偏 {heightDrift:F2}m、" +
+                $"朝向偏 {angleDrift:F1}°。Pan 只允许在 XZ 上平移。" +
+                $"当前机位 {camera.transform.position}，作者机位 {config.AuthoredPosition}。" +
+                $"此刻正在写它的运动：{motion}。");
+        }
+
+        /// <summary>
+        /// Debug 面板的镜头诊断读数。每一行都以 [CAM] 起头，方便在面板和日志里一眼认出来
+        /// 这是这一套临时诊断，而不是正式 UI。要删这套东西，搜 "[CAM]" 就能全找齐。
+        ///
+        /// 回答的是「画面为什么停在这儿」这一个问题：现在放的是哪台相机、按理该放哪台、
+        /// 这台离作者构图偏了多远、还有谁正在写它的 transform。
+        /// </summary>
+        public System.Collections.Generic.List<string> DebugCameraLines()
+        {
+            var lines = new System.Collections.Generic.List<string>();
+
+            var renderedCamera = Camera.main;
+            var brain = renderedCamera != null ? renderedCamera.GetComponent<Cinemachine.CinemachineBrain>() : null;
+            string live = brain?.ActiveVirtualCamera?.Name ?? "（无）";
+            lines.Add($"[CAM] 在放 {live}{(brain != null && brain.IsBlending ? " · 混合中" : "")}");
+
+            var focus = _gameManager.CurrentFocusCamera;
+            lines.Add($"[CAM] 该放 {(focus != null ? focus.name : "（解不出）")}");
+
+            if (focus != null)
+            {
+                var config = focus.GetComponent<SSNoirVirtualCameraConfig>();
+                if (config != null)
+                {
+                    float drift = Vector3.Distance(focus.transform.position, config.AuthoredPosition);
+                    float angle = Quaternion.Angle(focus.transform.rotation, config.AuthoredRotation);
+                    lines.Add($"[CAM] {config.dragMode} 偏离作者构图 {drift:F1}m / {angle:F0}°");
+                }
+                else
+                {
+                    lines.Add("[CAM] 这台没有 SSNoirVirtualCameraConfig");
+                }
+                lines.Add($"[CAM] 机位 {focus.transform.position.x:F0},{focus.transform.position.y:F0},{focus.transform.position.z:F0}");
+            }
+
+            string motion = _isFocusArcActive ? "运镜中"
+                : _isNavigating ? "信标行走中"
+                : _isDraggingCam ? "拖拽中"
+                : _inertiaVelocity != Vector2.zero ? "惯性中"
+                : "静止";
+            lines.Add($"[CAM] 运动 {motion} · 焦点推迟 {(_gameManager.IsFocusDeferredToPortal ? "是" : "否")}");
+
+            return lines;
+        }
+
+        /// <summary>
+        /// [CAM] 把所有 Pan 焦点相机放回作者构图。
+        ///
+        /// Orbit 相机每次聚焦都以作者机位为终点，Static 相机松手就弹回去——只有 Pan 是
+        /// 「相机现在站在哪儿就是哪儿」，它的位移没有任何回收路径。这是故意的：城市视角
+        /// 逛到哪儿就留在哪儿，玩家自己拖出来的取景不该被系统偷偷收走。
+        ///
+        /// 所以这里**不自动调用**：换场自动复位试过，逛到哪儿就被断在哪儿，不连贯。
+        /// 它现在只挂在 Debug 面板的 [CAM] 复位按钮上，用来判断一次「卡住」是不是 Pan 位移导致的。
+        /// </summary>
+        public void ResetPanCamerasToAuthoredPose()
+        {
+            var directory = _gameManager.SceneDirectory;
+            if (directory == null)
+                return;
+
+            foreach (var anchor in directory.AllAnchors)
+            {
+                var camera = anchor.FocusVirtualCamera;
+                if (camera == null)
+                    continue;
+
+                var config = camera.GetComponent<SSNoirVirtualCameraConfig>();
+                if (config == null || config.dragMode != CameraDragMode.Pan)
+                    continue;
+
+                // 复位要连着正在写这台相机的运动一起停掉，否则惯性尾巴或运镜会在下一帧
+                // 从旧目标继续写回去——两个系统同时写一个 transform 就是打架。
+                if (ReferenceEquals(_inertiaCamera, camera))
+                    _inertiaVelocity = Vector2.zero;
+                if (ReferenceEquals(_navigationCamera, camera))
+                    _isNavigating = false;
+                if (ReferenceEquals(_focusArcCamera, camera))
+                    FinishFocusTravel();
+
+                camera.transform.SetPositionAndRotation(config.AuthoredPosition, config.AuthoredRotation);
+            }
+        }
+
         public void NavigateToNode(string nodeName)
         {
             var anchor = _gameManager.ResolveAnchor(nodeName);

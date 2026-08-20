@@ -104,21 +104,11 @@
             (lambda () (home 'drink!))
             'light))))
 
-    ;; ── 地下酒吧（劳工·核心）──────────────────────
-    ;; 自己人之后才请得进来的门路：押上本钱赌一把，输赢自己认。
-    (define (node-underground-bar)
-      (node "去地下酒吧押一把"
-        :anchor "老街酒馆"
-        :subtitle "只有自己人才请得进来；押上的本钱，输赢自己认"
-        :tags (list "非法" "赌博")
-        :requires (list (req-die) (req-item "金钱" 20))
-        :resolve (roll 'sharpness (lambda () (list (modifier -2 "非法")))
-          (outcome "输光了押注"
-            (lambda () #f))
-          (outcome "堪堪回本"
-            (lambda () (add-item! "金钱" 20)))
-          (outcome "赢了台面"
-            (lambda () (add-item! "金钱" 60))))))
+    ;; ── 赌钱 ──────────────────────────────────────
+    ;; 这里曾有一张「去地下酒吧押一把」：花一颗骰 + 20 金，摇一次，0/20/60。
+    ;; 它其实只是另一份工作，方差大一点而已——骰子花在下注上，赌博就没有赌博。
+    ;; 老街只留一个赌钱的地方，而且是有人的那个：酒馆后面的地下拳场（见 艾迪.scm），
+    ;; 骰子花在看懂比赛上，钱才花在票上。
 
     ;; ── 歇业 ──────────────────────────────────────
     ;; 这里曾有一张「酒馆内景」的氛围卡，已删。原型阶段不摆纯氛围的观察卡：
@@ -157,18 +147,18 @@
     ;; ── 组装 ──────────────────────────────────────
     ;; 小节一酒馆就开门（夜莺在这儿唱歌），但只开一半：台上的人、跑堂的活、
     ;; 喝一杯、买点东西。放贷的等老街一起开——开场借得到四十金，第一小节
-    ;; 「三天凑一百」的压力就没了。地下酒吧本来就要劳工核心，顺带一起延后。
+    ;; 「三天凑一百」的压力就没了。
+    ;; 地下拳场不受这条限制：借钱是确定的钱，赌是方差，在三天死线上加方差是加压不是减压。
     (define (tavern-children)
       (if (> closed-days 0)
           (list (node-closed))
           (append
             (list (note-tavern-night) (note-stage))
             (three-letters 'nodes-at "酒馆")
+            (eddie 'nodes-at "酒馆")
             (list (node-waiter) (node-drink-here) (node-buy-liquor) (node-buy-cigarettes))  ; 酒馆常驻：值班当差 + 当场点酒 + 打酒带走 + 买烟
             (if (three-letters 'old-street-open?)
-                (append
-                  (list (loan-shark-container))
-                  (if (relation-at-least? "劳工" '核心) (list (node-underground-bar)) '()))
+                (list (loan-shark-container))
                 '()))))
 
     (define-turn-rule "老街酒馆停业倒计时"

@@ -31,11 +31,18 @@ namespace SSNoir.IMGUI
         // 直接长出屏幕，所以取中间值而不是 UIScale.MinTouchSize。
         private const float ItemH = 34f;
 
+        // ── [CAM] 镜头诊断（临时排查「回到世界镜头卡在怪机位」用，整套都以 [CAM] 标记）──
+        // 行数写死是为了让 ContentHeight 不必先算一遍读数：读数每帧都在变，面板高度不能跟着抖。
+        // 改 DebugCameraLines 的行数就要同步改这里。
+        private const int CamDiagLineCount = 5;
+        private const float CamDiagLineH = 15f;
+
         private static float ContentHeight()
         {
             float y = 8f + 20f + SaveManager.SlotCount * 28f;
             y += 6f + 20f; // 镜头测试标题与第一行
             y += ItemH; // 过场截图行
+            y += 6f + 20f + CamDiagLineCount * CamDiagLineH + ItemH; // [CAM] 镜头诊断：标题 + 读数 + 复位按钮
             y += ItemH + 6f + 22f; // 过场测试标题及列表起点
             y += Mathf.Max(_sequences.Count, 1) * ItemH;
             y += 6f + 4f + ItemH * 0.5f; // 场景标题及列表起点
@@ -215,9 +222,44 @@ namespace SSNoir.IMGUI
                 CinematicCapture.Capture(gameManager, 2160);
             }
 
+            // ── [CAM] 镜头诊断 ───────────────────────────────────────────────
+            // 这一整块是为了排查「回到世界视角，镜头卡在奇怪机位」加的临时读数。
+            // 它回答的是「画面为什么停在这儿」：在放哪台、该放哪台、偏离作者构图多远、
+            // 谁正在写这台相机。问题定位完就整块删掉——搜 [CAM] 能一次找齐所有相关代码。
+            float camDiagSepY = captureRowY + itemH + 6f;
+            IMGUIStyles.DrawLine(new Vector2(panelX + 8, camDiagSepY), new Vector2(panelX + panelW - 8, camDiagSepY),
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8, camDiagSepY + 2f, panelW, 18f), "[CAM] 镜头诊断（临时）", mutedStyle);
+
+            var camDiagStyle = new GUIStyle(labelStyle)
+            {
+                fontSize = IMGUIStyles.FontSize(11),
+                alignment = TextAnchor.MiddleLeft,
+                normal = { textColor = IMGUIStyles.TextSecondary },
+            };
+            float camDiagY = camDiagSepY + 20f;
+            var camDiagLines = gameManager.CameraManager.DebugCameraLines();
+            for (int i = 0; i < camDiagLines.Count; i++)
+            {
+                IMGUIStyles.DrawLabel(new Rect(panelX + 8f, camDiagY + i * CamDiagLineH, panelW - 16f, CamDiagLineH),
+                    camDiagLines[i], camDiagStyle);
+            }
+
+            // 手动复位：偏离读数不为 0 时点它，如果画面当场回到正常世界视角，
+            // 那这次卡住就是 Pan 相机的位移没被回收；如果不回，问题在别处。
+            float camResetY = camDiagY + CamDiagLineCount * CamDiagLineH;
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8f, camResetY + 2f, 150f, 22f), "复位 Pan 相机", cameraLabelStyle);
+            if (IMGUIButton.Draw(new Rect(panelX + panelW - 8f - 64f, camResetY + 2f, 64f, 22f),
+                    "复位", contentUi,
+                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
+                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), labelStyle))
+            {
+                gameManager.CameraManager.ResetPanCamerasToAuthoredPose();
+            }
+
             // 过场测试：列出场景里所有 CutsceneSequence，点一个就走完整套流程
             // （推第一镜 → 压黑边 → 逐镜放片子 → 收黑边 → 镜头回来）。
-            float cutsceneSepY = captureRowY + itemH + 6f;
+            float cutsceneSepY = camResetY + itemH + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, cutsceneSepY), new Vector2(panelX + panelW - 8, cutsceneSepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
             IMGUIStyles.DrawLabel(new Rect(panelX + 8, cutsceneSepY + 2f, panelW, 18f), "过场测试（只播放，不进入交锋）", mutedStyle);

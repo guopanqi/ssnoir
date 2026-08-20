@@ -686,7 +686,8 @@ namespace SSNoir.IMGUI
             if (snapshot.ScarModifiers.TryGetValue(skill, out var scar) && scar != null)
                 penalty += scar.Value;
 
-            const float chipW = 54f;
+            // 带修正的片子要宽一格：修正必须画在片子里，画到片外就会越过下面那条安全区夹紧。
+            float chipW = penalty != 0 ? 78f : 54f;
             const float chipH = 20f;
             const float overlap = 12f;
             // 右缘附件和左便签一样只压进卡边一点。贴右屏的卡收进安全区，宁可贴着卡内缘，
@@ -724,18 +725,20 @@ namespace SSNoir.IMGUI
                     alignment = TextAnchor.MiddleRight,
                     normal = { textColor = IMGUIStyles.Paper }
                 };
-                IMGUIStyles.DrawLabel(new Rect(chip.x, chip.y, chip.width - 6f, chipH), level.ToString(), lvlStyle);
+                // 修正只压主角：同伴出骰不吃这一笔，和 EffectiveModifiers 是同一条规则。
+                bool showPenalty = penalty != 0 && actor.Role == "protagonist";
+                // 底子值靠右收在修正左边，两个数并排读作「0 −1」。
+                float lvlRight = showPenalty ? chip.width - 28f : chip.width - 6f;
+                IMGUIStyles.DrawLabel(new Rect(chip.x, chip.y, lvlRight, chipH), level.ToString(), lvlStyle);
 
-                // 修正贴在片子右边缘外，不挤技能值：红字负、绿字正，一眼看出净值往哪边走。
-                if (penalty != 0 && actor.Role == "protagonist")
+                if (showPenalty)
                 {
                     var modStyle = new GUIStyle(lvlStyle)
                     {
-                        alignment = TextAnchor.MiddleLeft,
                         fontSize = IMGUIStyles.FontSize(13),
                         normal = { textColor = penalty < 0 ? IMGUIStyles.OddsFail : IMGUIStyles.OddsSuccess }
                     };
-                    IMGUIStyles.DrawLabel(new Rect(chip.xMax + 4f, chip.y, 34f, chipH),
+                    IMGUIStyles.DrawLabel(new Rect(chip.x, chip.y, chip.width - 6f, chipH),
                         (penalty > 0 ? "+" : "−") + Mathf.Abs(penalty), modStyle);
                 }
                 drawn++;
@@ -773,10 +776,28 @@ namespace SSNoir.IMGUI
             int modSum = 0;
             foreach (var m in EffectiveModifiers(node, snapshot, actorRole)) modSum += m.Value;
 
-            DrawFateStrip(rect, FateStrip.Compute(dieSlot.Value, skillLevel.Value, modSum), executeBottomY);
+            DrawFateStrip(rect, FateStrip.Compute(dieSlot.Value, skillLevel.Value, modSum), executeBottomY,
+                PreparedBreakdown(node.Resolve!.SkillName, dieSlot.Value, skillLevel.Value, modSum));
         }
 
-        private static void DrawFateStrip(Rect rect, RollOutcome[] strip, float executeBottomY)
+        // 命运条上面那一行小字。它以前写的是「1–2 坏 · 3–5 中 · 6 好」——
+        // 那正是下面那条彩色赔率条已经在画的东西，等于把同一件事说两遍。
+        // 改成算式：这颗骰几点、你的能力加几、卡上的修正加减几，最后凑出多少准备值。
+        // 这是玩家投骰前唯一算不出来的数，也是他决定"这颗骰给哪张卡"的依据。
+        private static string PreparedBreakdown(string skill, int dieValue, int skillLevel, int modSum)
+        {
+            int prepared = dieValue + skillLevel + modSum;
+            var text = new System.Text.StringBuilder();
+            text.Append("准备值 ").Append(prepared).Append(" ＝ 骰 ").Append(dieValue);
+            if (skillLevel != 0)
+                text.Append(skillLevel > 0 ? " + " : " − ")
+                    .Append(SkillInfo.DisplayName(skill)).Append(' ').Append(Mathf.Abs(skillLevel));
+            if (modSum != 0)
+                text.Append(modSum > 0 ? " + 修正 " : " − 修正 ").Append(Mathf.Abs(modSum));
+            return text.ToString();
+        }
+
+        private static void DrawFateStrip(Rect rect, RollOutcome[] strip, float executeBottomY, string caption)
         {
             const float pad = 10f;
             var summaryStyle = new GUIStyle(IMGUIStyles.ClockLabel)
@@ -785,7 +806,7 @@ namespace SSNoir.IMGUI
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
             IMGUIStyles.DrawLabel(new Rect(rect.x + pad, executeBottomY, rect.width - pad * 2f, 14f),
-                FateStrip.Describe(strip), summaryStyle);
+                caption, summaryStyle);
 
             float avail = rect.width - pad * 2f;
             float stripW = Mathf.Min(avail, 178f);

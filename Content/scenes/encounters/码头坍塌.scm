@@ -499,8 +499,8 @@
 
 (define (frank-arrive!)
   (recruit-companion! '弗兰克 "弗兰克"
-    (list (list 'violence 3) (list 'knowledge 0)
-          (list 'sharpness 1) (list 'social 3)))
+    (list (list 'violence 2) (list 'knowledge 0)
+          (list 'sharpness 1) (list 'social 2)))
   ;; 他带一队人来，所以他的行动本来就不止一次。
   (set-actor-die-profile! '弗兰克 2 0 "")
   (set! frank-here? #t)

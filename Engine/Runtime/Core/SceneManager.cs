@@ -121,6 +121,9 @@ namespace SSNoir.Core
             NotifySceneLoaded();
         }
 
+        /// <summary>交锋里每结束一个回合要付的冷静。见 EndTurn。</summary>
+        private const int EncounterTurnComposureCost = 1;
+
         private void RollSceneDice(bool isInEncounter)
         {
             if (_isExecutingAction)
@@ -431,10 +434,12 @@ namespace SSNoir.Core
                 int injuryBefore = _gameState.Team.Injury.Severity;
                 int composureBefore = _gameState.Team.FindActor("player")?.Composure ?? 0;
 
-                // 交锋不再每回合自动扣冷静。冷静缩到 2 点之后这条流失会让任何一场交锋
-                // （了断第一幕光"老板到场"就 5 回合）在中途反复撞穿倒下线；而交锋的时间
-                // 压力本来就由各自的钟表达（老板到场、拖走进度、危险钟），那些是可见的、
-                // 每场不同的，比一条全局流失更好。冷静现在纯粹是"今天还能扛几次失败"。
+                // 交锋里每结束一个回合扣一点冷静：时间本身就是代价。
+                // 没有它，"这一回合手气不好，什么都不投，等下一轮重摇"是完全免费的，
+                // 最优解就变成只投高点数——玩家不再需要在"现在动手"和"再等等"之间取舍。
+                // 花超的部分由 SpendComposure 自动溢出成伤势，那正是"熬太久要还的"。
+                if (isInEncounter)
+                    _gameState.Team.SpendComposure("player", EncounterTurnComposureCost);
                 int automaticComposureDelta = (_gameState.Team.FindActor("player")?.Composure ?? 0) - composureBefore;
                 int automaticInjuryDelta = _gameState.Team.Injury.Severity - injuryBefore;
                 ActiveInterpreter.Eval("(on-turn-end)");

@@ -34,6 +34,7 @@
         (append
           (list (node-haul))
           (three-letters 'nodes-at "码头")
+          (eddie 'nodes-at "码头")
           (joe 'dock-nodes)
           (frank 'dock-nodes)
           (dock-collapse 'dock-nodes)

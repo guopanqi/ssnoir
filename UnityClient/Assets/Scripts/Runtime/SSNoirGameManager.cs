@@ -248,6 +248,9 @@ namespace SSNoir
             }
 
             // Update camera panning & orbiting
+            // [CAM] Pan 相机只允许在 XZ 上走。守卫放在这儿而不是 _cameraManager.Update() 里：
+            // 那个方法在输入锁定和过场期间不跑，而"高度被改掉"最可能正是在那两段里发生的。
+            _cameraManager.CheckPanCameraPose();
             if (_stageController != null && _stageController.IsTransitioning)
             {
                 // A stage transition drives the brain itself; the focus arc must not
@@ -404,6 +407,9 @@ namespace SSNoir
                     a.FocusVirtualCamera.Priority = 5;
             }
         }
+
+        /// <summary>[CAM] 诊断读数用：焦点更新此刻是不是正被过场入口挡着（见下面那个方法）。</summary>
+        public bool IsFocusDeferredToPortal => ShouldDeferFocusToPendingPortal();
 
         private bool ShouldDeferFocusToPendingPortal()
         {
@@ -803,10 +809,10 @@ namespace SSNoir
                 _renderer.PlayPresentation(report, sceneChanged ? string.Empty : node.Name, () =>
                 {
                     EndIncomingFocusContext();
-                    AdoptLatestSnapshot();
-                    // 对白、Spotlight、banter 等 UI 表现不会改相机；只有场景或阶段根节点
-                    // 变化才代表空间上下文切换，需要在演出结束后重新聚焦。
-                    if (focusContextChanged)
+                    // 对白、Spotlight、banter 等 UI 表现不会改相机；需要重新聚焦的只有两种：
+                    // 场景／阶段根节点变了，或者你所在的那个容器执行完就从树上消失了。
+                    bool navigationCollapsed = AdoptLatestSnapshot();
+                    if (focusContextChanged || navigationCollapsed)
                         UpdateCameraFocus();
                     done = true;
                 });
@@ -911,13 +917,33 @@ namespace SSNoir
             _cityOutlines?.SetFocusedCamera(outlineCamera);
         }
 
-        public void AdoptLatestSnapshot()
+        /// <summary>
+        /// 采纳最新快照并重建导航栈。
+        /// </summary>
+        /// <returns>
+        /// true 表示导航栈在这次采纳里被改写了——你原本所在的容器从新树上消失，
+        /// ResolveNavigationStack 把栈截断（多半是一路退回世界根）。
+        /// 这是一次真实的空间上下文变化，调用方必须据此重新聚焦相机：
+        /// 否则人已经回到世界根，镜头还留在那个已经不存在的容器上。
+        /// </returns>
+        public bool AdoptLatestSnapshot()
         {
             _displayedSnapshot = _sceneManager.LatestSnapshot;
             if (_displayedSnapshot.RootNode != null)
                 ValidateExplicitAnchors(_displayedSnapshot.RootNode);
+            var pathBefore = new List<string>();
+            foreach (var node in _navigationStack)
+                pathBefore.Add(node.Name);
             ResolveNavigationStack();
             CleanupNodeSlots();
+            if (pathBefore.Count != _navigationStack.Count)
+                return true;
+            for (int i = 0; i < pathBefore.Count; i++)
+            {
+                if (!string.Equals(pathBefore[i], _navigationStack[i].Name, StringComparison.Ordinal))
+                    return true;
+            }
+            return false;
         }
 
         private void ValidateExplicitAnchors(GameNode node)
@@ -1314,8 +1340,8 @@ namespace SSNoir
             _renderer.PlayPresentation(report, "休息", () =>
             {
                 EndIncomingFocusContext();
-                AdoptLatestSnapshot();
-                if (focusContextChanged)
+                bool navigationCollapsed = AdoptLatestSnapshot();
+                if (focusContextChanged || navigationCollapsed)
                     UpdateCameraFocus();
                 done = true;
             });

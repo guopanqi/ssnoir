@@ -226,7 +226,13 @@ namespace SSNoir.IMGUI
                 var uv = NeonPortraitLibrary.BustCrop;
                 float bustWidth = bustHeight * (uv.width / uv.height);
                 // 下缘故意压到冷静条那一行，让数值叠在人身上，而不是各占一块地。
-                var bust = new Rect(x - 6f, statusY - bustHeight + BustOverlap, bustWidth, bustHeight);
+                //
+                // 站位一律以**冷静条**为准，不以 statusY 为准：冷静是每个人都有的一行，
+                // 而伤势条和状态文字只有主角带着伤时才存在——跟着 statusY 走，主角就会因为
+                // 自己身上多两行字而整个人比同伴高出一截，看起来像站在台阶上。
+                // 人像大小仍有主次之分（同伴 0.86），但脚下是同一条线。
+                float bustBottom = composureY + BustOverlap;
+                var bust = new Rect(x - 6f, bustBottom - bustHeight, bustWidth, bustHeight);
                 if (drawPortraits)
                     DrawNeonBust(bust, neon, uv);
                 topY = bust.y;

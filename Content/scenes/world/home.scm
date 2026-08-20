@@ -141,6 +141,7 @@
 
     (define (node-drink)
       (node "喝酒"
+        :anchor "窗台"
         :subtitle (if drank-today?
                       "今天已经喝过了，再喝只会头疼"
                       "恢复 2 点冷静；代价留到下一次城市骰池")
@@ -154,6 +155,7 @@
     ;; 它是"花钱买时间"的那条路——不占骰子，但药得先花 25 金从诊所买回来。
     (define (node-use-medicine)
       (node "用药"
+        :anchor "床边"
         :subtitle (cond
                     ((equal? (injury-band) '完好) "身上没有需要处理的伤")
                     (medicated-today? "一天上一次药就够了，伤口需要时间")
@@ -167,9 +169,10 @@
               (heal-injury! 2))))))
 
     (define (node-see-flower)
-      (action "看花"
-        (list (req-die))
-        (instant
+      (node "看花"
+        :anchor "窗台"
+        :requires (list (req-die))
+        :resolve (instant
           (outcome "出神片刻"
             (lambda () (restore-actor-composure! 'player 2))))))
 
@@ -185,6 +188,7 @@
 
     (define (node-sleep)
       (node "睡觉"
+        :anchor "床边"
         :disabled (rest-blocked?)
         :tags (rest-tags)
         :resolve (instant
@@ -200,6 +204,7 @@
 
     (define (node-sleep-at-door)
       (node "蜷缩在门口"
+        :anchor "门口"
         :disabled (rest-blocked?)
         :tags (rest-tags)
         :resolve (instant
@@ -211,6 +216,7 @@
     ;; ── 交易 / 布置 / 升级 ──────────────────────────
     (define (node-pay-rent)
       (node "补交房租"
+        :anchor "门口"
         :requires (list (req-item "金钱" rent-amount))
         :resolve (instant
           (outcome "补上房租"
@@ -223,13 +229,14 @@
     (define (rent-status-node)
       (cond
         (evicted?
-         (note-node "标注：房租" "房门已锁"
-           (string-append "欠下的 " (number->string rent-amount) " 块补清，"
-                          "老板才会重新开门。")))
+         (node "标注：房租" :anchor "门口" :resolve
+           (note "房门已锁"
+             (string-append "欠下的 " (number->string rent-amount) " 块补清，"
+                            "老板才会重新开门。"))))
         (overdue?
-         (clock-node "标注：房租" (grace-clk 'render-data)))
+         (node "标注：房租" :anchor "门口" :resolve (clock (grace-clk 'render-data))))
         (else
-         (clock-node "标注：房租" (rent-clk 'render-data)))))
+         (node "标注：房租" :anchor "门口" :resolve (clock (rent-clk 'render-data))))))
 
     (define (rent-nodes)
       (append
@@ -238,6 +245,7 @@
 
     (define (node-buy-flower)
       (node "买一盆花"
+        :anchor "窗台"
         :subtitle "自己的窗台才摆得下这点闲心；烦闷时可以坐着看一会儿"
         :requires (list (req-item "金钱" flower-price))
         :resolve (instant
@@ -246,6 +254,7 @@
 
     (define (node-buy-apartment)
       (node "买下公寓"
+        :anchor "门口"
         :subtitle "有个自己的家，不再交房租，也能睡得更安稳"
         :requires (list (req-item "金钱" 140))
         :resolve (instant
@@ -257,7 +266,7 @@
     ;; ── 组装子节点 ──────────────────────────────────
     ;; 旅馆大厅是公共空间，只提供随身物品的使用；旅馆没有玩家自己的客厅。
     (define (node-hotel-lobby)
-      (container "大厅" (list (node-drink) (node-use-medicine))))
+      (node "大厅" :anchor "门口" :children (list (node-drink) (node-use-medicine))))
 
     ;; 客厅只属于买下的公寓：日常恢复 + 已拥有的家具。
     (define (living-room-children)
@@ -266,14 +275,16 @@
         (if has-flower? (list (node-see-flower)) '())))
 
     (define (node-living-room)
-      (container "客厅" (living-room-children)))
+      (node "客厅" :anchor "窗台" :children (living-room-children)))
 
     ;; 订购：只属于自有住所。花买过即消失；买酒已挪到老街酒馆。
     (define (order-children)
       (if has-flower? '() (list (node-buy-flower))))
 
     (define (order-nodes)
-      (if (null? (order-children)) '() (list (container "订购" (order-children)))))
+      (if (null? (order-children))
+          '()
+          (list (node "订购" :anchor "窗台" :children (order-children)))))
 
     (define (upgrade-nodes)
       (if (equal? residence "旅馆") (list (node-buy-apartment)) '()))
@@ -285,7 +296,8 @@
             ;; 被赶出后仍保留大厅：库存里的酒和药是玩家随时可以使用的物品，
             ;; 房门锁住只应改变住宿方式，不应把公共空间里的物品使用入口一起删掉。
             (list (node-hotel-lobby)
-                  (observe-action "锁着的房门" "先把房租交了，或者干脆买下一处不用看人脸色的地方。"))
+                  (node "锁着的房门" :anchor "门口" :requires #f :resolve
+                    (observe "先把房租交了，或者干脆买下一处不用看人脸色的地方。")))
             (rent-nodes)
             (upgrade-nodes)
             (list (node-sleep-at-door)))

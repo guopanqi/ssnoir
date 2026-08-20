@@ -68,6 +68,11 @@
 (define prep-outer (prep-of '准备-外圈))   ; 0..4  门与后廊
 (define prep-inner (prep-of '准备-内环))   ; 0..4  走道与看台
 (define prep-core (prep-of '准备-中央))    ; 0..2  升降台行程与台底通风口
+;; 准备阶段你让了她几次。它不是好感度，是她今晚会为这一夜付出多少：
+;; 让得越多，她越不肯下台——演出更完整，她也在最亮的地方待得更久。
+(define her-night (prep-of '首演-她的一夜))  ; 0..4
+(define encore-cancelled?
+  (let ((v (get-global '首演-取消谢幕))) (if v v #f)))
 
 ;; 每 2 格算一步。布置替不了你把事办完，它只是让你不至于太晚才动手。
 (define (steps-of n) (cond ((>= n 4) 2) ((>= n 2) 1) (#t 0)))
@@ -643,17 +648,23 @@
       (spawn! blackout-crisis "半个场子黑了。台下开始站起来找门。"))
   (spawn! rig-crisis "整整一圈灯架松了，一格一格往下沉。"))
 
+;; 让到三格以上，她伤着也会自己走回去。这就是那几次让步的兑现——
+;; 演出因此更可能完整，而她也因此在台上多站了整整一段。
+(define (she-insists?) (>= her-night 3))
+
 (define (enter-act-three!)
   (set! act 3)
-  (if her-hurt?
+  (if (and her-hurt? (not (she-insists?)))
       (spotlight! "第三段"
         "台上没有人。乐队把那一段又弹了一遍，然后停了。")
       (begin
         (set! she-stands? #t)
         (spotlight! "她走回中心"
           (string-append
-            "她从台面下爬出来，整了整衣服，一步一步走回舞台正中，"
-            "把断掉的那一段接了下去。台下第一次安静。"
+            (if her-hurt?
+                "有人要扶她下去，她把手推开了。"
+                "她从台面下爬出来，整了整衣服，")
+            "一步一步走回舞台正中，把断掉的那一段接了下去。台下第一次安静。"
             "——而那一圈灯架就在她头顶。")))))
 
 (define-turn-rule "演出往下走"
@@ -708,7 +719,10 @@
        "她站回原来的位置，把中断的那一段接了下去。")
       (#t "台上一直空着。乐队等到最后收了乐器。"))
     (cond
-      ((equal? (show-level) "完整谢幕") "掌声比预定的谢幕长了很久。")
+      ((and (equal? (show-level) "完整谢幕") encore-cancelled?)
+       "没有谢幕。灯一暗她就从后廊出去了，掌声追着她，没追上。")
+      ((equal? (show-level) "完整谢幕")
+       "谢幕的灯只打她一个人。掌声比预定的长了很久，长到乐队都开始互相看。")
       ((equal? (show-level) "勉强收尾") "掌声稀稀落落，但她站到了最后一个音。")
       (#t "台下的人已经走了大半。"))
     (if (shadow-done?)
