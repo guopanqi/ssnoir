@@ -16,7 +16,7 @@
               (line "沃尔特" "沃尔特·芬奇。我替保险公司跑外勤。意外不会先敲门，保单至少会在事后出现。")
               (line "尼尔" "我暂时不打算买保险。")
               (line "沃尔特" "可惜。不过我听说，你替人查一些不愿意见光的事。")
-              (line "沃尔特" "码头有个人申请伤残理赔。表格很完整，他的伤却完整得让我起疑。你愿意替我看看吗？"))
+              (line "沃尔特" "码头有个人申请伤残理赔。表格很完整，他的伤却干净得让我起疑。你愿意替我看看吗？"))
             (spotlight! "沃尔特·芬奇" "一次散步中，你认识了保险公司的理赔调查员沃尔特。保险公司开放，那里有一桩疑似骗保的案子。"))
           #f))
 
@@ -25,9 +25,9 @@
           (begin
             (set! stage 2)
             (set! claim-result (if (equal? result 'confirmed) "坐实" "放水"))
-            (change-faction-relation! "富商" (if (equal? result 'confirmed) 2 1))
+            (change-faction-relation! "商业圈" (if (equal? result 'confirmed) 2 1))
             (complete-section!)
-            (notify! "沃尔特记住了你处理这份理赔的方式。"))
+            (notify! "沃尔特留下货运代理的地址。货运公司开放。"))
           #f))
 
     (define (node-claim)
@@ -54,6 +54,7 @@
           ((equal? msg 'nodes) (nodes))
           ((equal? msg 'known?) (>= stage 1))
           ((equal? msg 'can-arrange-berth?) (= stage 2))
+          ((equal? msg 'claim-result) claim-result)
           ((equal? msg 'save) (list (list "stage" stage) (list "claim-result" claim-result)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))

@@ -9,10 +9,10 @@
     ;; 5养伤中 / 6痊愈待邀请 / 7残疾待邀请 / 8死亡 / 9已入队 / 10未介入残疾
     (define stage 0)
     (define favor-clk
-      (make-clock "与乔熟悉起来" 8 'segments
+      (make-clock "与乔熟悉起来" 8 'gauge
         "继续在码头搬运，让乔慢慢认得你；填满后他会请你帮一件私事。"))
     (define child-clk
-      (make-clock "接送孩子" 4 'segments
+      (make-clock "接送孩子" 4 'gauge
         "填满后乔会来道谢；这件事一直与主线期限争用行动骰。"))
     (define child-cared-today? #f)
 
@@ -333,7 +333,7 @@
         :clocks (list
           (list 'clock "伤势倒计时" injury-days injury-duration 'countdown
                 "送回当天不扣；之后每个完整日终减一，归零时按实际照料进度结算。")
-          (list 'clock "照料进度" (max 0 care-progress) care-heal-target 'segments
+          (list 'clock "照料进度" (max 0 care-progress) care-heal-target 'gauge
                 "填满即痊愈；期满时不满但不为负是残疾，为负则乔会死。整天不管会倒扣 2。"))
         :children (list (node-care) (node-medicate))))
 

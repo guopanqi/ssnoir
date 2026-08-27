@@ -1,33 +1,37 @@
 ;; 弗兰克（Frank Delaney）——码头工头、老街组织者。
 ;;
-;; 本模块只拥有第一章「不开的船」人物线：摩托车疑点、统一货船抢修、扣船交锋、
-;; 分钱、莱恩边界与首演援助状态。劳工公共声望仍由引擎统一持有；relationship 只记录
-;; 这条人物线已经发生的离散事实，不是第二套可反复刷取的好感数值。
+;; 第一章他有一条不进卷宗的码头事件链。一个认为「这里的事由这里的人处理」的人，
+;; 不会站在地图上等你接任务；玩家先正式认识他，之后再进码头才会撞上他组织抢修。
+;;   一、货船抢修、船修好了却不开、分钱——三拍都在表现他如何管这条街。
+;;   二、巷子那一晚，他挡在你和莱恩中间。那一晚由《三封信》拥有，这里只收结果。
+;;
+;; 人物关系的核心事实是：**弗兰克认不认你这个人**。
+;; 它由巷子那晚写入（当街把已经不还手的人往死里打＝不认），
+;; 继续影响他自己的码头事件，不再折算成首演夜的自动战斗人手。
 
 (define frank
   (let ()
-    (define relationship "陌生")       ; 陌生 / 认识 / 认可 / 不信任
-    (define repair-state "未开放")      ; 未开放 / 进行中 / 按时修好 / 勉强修好 / 未介入
-    (define repair-participated? #f)
-    (define repair-attempts 0)
-    (define repair-duration 3)
-    (define repair-deadline-day 0)
-    (define repair-clk
-      (make-clock "货船抢修" 6 'segments
-        "统一抢修进度。抽水、补板、钢缆和货物固定都由弗兰克排在同一张班表上。"))
+    (define approved? #f)          ; 弗兰克认可
+    (define alley-settled? #f)     ; 巷子那晚已经结过
+    (define met? #f)               ; 见过他本人（工会房间或码头）
 
-    (define hold-state "未发生")        ; 未发生 / 待安排 / 待处理 / 六类结算
+    (define repair-state "未开放")  ; 未开放 / 进行中 / 已结束
+    (define repair-days 3)
+    (define repair-deadline-day 0)
+    (define repair-joined? #f)
+    (define repair-result "未结算") ; 未结算 / 按时修好 / 勉强修好 / 未介入
+    (define repair-clk
+      (make-clock "货船抢修" 4 'gauge
+        "抽水、补板、钢缆和货物固定都排在弗兰克同一张班表上。"))
+
+    (define hold-state "未发生")    ; 未发生 / 待安排 / 待处理 / 已结算 / 缺席
     (define hold-open-day 0)
-    (define hold-event-day 0)
-    (define hold-participated? #f)
+    (define hold-day 0)
+    (define hold-paid? #f)          ; 这条街当天拿到了东西
     (define hold-payment 0)
     (define distribution-viewed? #f)
-    (define cigarette-talked? #f)
 
-    (define motorcycle-seen? #f)
-    (define motorcycle-suspicion "未注意") ; 未注意 / 怀疑 / 近似确认
-    (define lyon-boundary "未提出")         ; 未提出 / 已提出 / 遵守 / 违背
-    (define premiere-aid "未开放")          ; 未开放 / 可请求 / 已请求
+    (define paper-seen? #f)         ; 首演之后看见他在看报纸
 
     (define (required-field data key)
       (let ((value (assoc-get data key 'missing)))
@@ -35,525 +39,350 @@
             (error (string-append "弗兰克存档错误：缺少 " key))
             value)))
 
-    (define (valid-relationship? value)
-      (member? value (list "陌生" "认识" "认可" "不信任")))
+    (define (boolean? value) (or (equal? value #t) (equal? value #f)))
 
-    (define (valid-repair-state? value)
-      (member? value (list "未开放" "进行中" "按时修好" "勉强修好" "未介入")))
-
-    (define (valid-hold-state? value)
-      (member? value
-        (list "未发生" "待安排" "待处理" "全额到账" "部分到账" "以货抵债"
-              "放船离开" "失控" "缺席")))
-
-    (define (valid-suspicion? value)
-      (member? value (list "未注意" "怀疑" "近似确认")))
-
-    (define (valid-boundary? value)
-      (member? value (list "未提出" "已提出" "遵守" "违背")))
-
-    (define (valid-aid? value)
-      (member? value (list "未开放" "可请求" "已请求")))
-
-    (define (boolean? value)
-      (or (equal? value #t) (equal? value #f)))
-
-    (define (repair-settled?)
-      (member? repair-state (list "按时修好" "勉强修好" "未介入")))
-
-    (define (hold-settled?)
-      (member? hold-state
-        (list "全额到账" "部分到账" "以货抵债" "放船离开" "失控" "缺席")))
-
-    (define (recognized?) (equal? relationship "认可"))
+    (define (repair-done?) (equal? repair-state "已结束"))
+    (define (hold-settled?) (member? hold-state (list "已结算" "缺席")))
 
     (define (sync-globals!)
-      (if (and (recognized?) (equal? premiere-aid "未开放"))
-          (set! premiere-aid "可请求")
-          #f)
-      (set-global! '弗兰克关系 relationship)
-      (set-global! '弗兰克抢修 repair-state)
-      (set-global! '弗兰克扣船 hold-state)
-      (set-global! '弗兰克摩托车 motorcycle-suspicion)
-      (set-global! '弗兰克莱恩边界 lyon-boundary)
-      (set-global! '弗兰克首演援助 premiere-aid))
+      (set-global! '弗兰克认可 approved?))
 
     (define (meet!)
-      (if (equal? relationship "陌生") (set! relationship "认识") #f)
-      (if (and motorcycle-seen? (equal? motorcycle-suspicion "未注意"))
-          (set! motorcycle-suspicion "怀疑")
-          #f)
+      (set! met? #t)
       (sync-globals!))
 
     (define (validate-state!)
-      (if (valid-relationship? relationship) #t (error "弗兰克存档错误：关系状态非法"))
-      (if (valid-repair-state? repair-state) #t (error "弗兰克存档错误：抢修状态非法"))
-      (if (valid-hold-state? hold-state) #t (error "弗兰克存档错误：扣船状态非法"))
-      (if (valid-suspicion? motorcycle-suspicion) #t (error "弗兰克存档错误：摩托车怀疑非法"))
-      (if (valid-boundary? lyon-boundary) #t (error "弗兰克存档错误：莱恩边界非法"))
-      (if (valid-aid? premiere-aid) #t (error "弗兰克存档错误：首演援助非法"))
-      (if (and (boolean? repair-participated?) (boolean? hold-participated?)
-               (boolean? distribution-viewed?) (boolean? cigarette-talked?)
-               (boolean? motorcycle-seen?))
-          #t (error "弗兰克存档错误：人物布尔状态类型非法"))
-      (if (and (number? repair-attempts) (>= repair-attempts 0))
-          #t (error "弗兰克存档错误：抢修参与次数非法"))
-      (if (and (number? repair-deadline-day) (>= repair-deadline-day 0))
-          #t (error "弗兰克存档错误：抢修期限非法"))
-      (if (and (number? hold-open-day) (>= hold-open-day 0)
-               (number? hold-event-day) (>= hold-event-day 0))
-          #t (error "弗兰克存档错误：扣船日期非法"))
+      (if (and (boolean? approved?) (boolean? alley-settled?) (boolean? met?)
+               (boolean? repair-joined?) (boolean? hold-paid?)
+               (boolean? distribution-viewed?)
+               (boolean? paper-seen?))
+          #t (error "弗兰克存档错误：布尔状态类型非法"))
+      (if (member? repair-state (list "未开放" "进行中" "已结束"))
+          #t (error "弗兰克存档错误：抢修状态非法"))
+      (if (member? repair-result (list "未结算" "按时修好" "勉强修好" "未介入"))
+          #t (error "弗兰克存档错误：抢修结果非法"))
+      (if (equal? repair-state "已结束")
+          (if (equal? repair-result "未结算")
+              (error "弗兰克存档错误：抢修结束却没有结果") #t)
+          (if (equal? repair-result "未结算") #t
+              (error "弗兰克存档错误：抢修尚未结束却已有结果")))
+      (if (and (equal? repair-result "按时修好")
+               (or (not repair-joined?) (not (repair-clk 'full?))))
+          (error "弗兰克存档错误：按时修好与玩家贡献不一致") #t)
+      (if (and (equal? repair-result "勉强修好") (not repair-joined?))
+          (error "弗兰克存档错误：未参与却记成勉强修好") #t)
+      (if (and (equal? repair-result "未介入") repair-joined?)
+          (error "弗兰克存档错误：参与过却记成未介入") #t)
+      (if (member? hold-state (list "未发生" "待安排" "待处理" "已结算" "缺席"))
+          #t (error "弗兰克存档错误：扣船状态非法"))
       (if (and (number? hold-payment) (>= hold-payment 0) (<= hold-payment 6))
           #t (error "弗兰克存档错误：扣船付款进度非法"))
-      (if (and motorcycle-seen? (equal? motorcycle-suspicion "未注意"))
-          #t
-          (if (and (not motorcycle-seen?) (not (equal? motorcycle-suspicion "未注意")))
-              (error "弗兰克存档错误：没有看见摩托车却已有怀疑") #t))
-      (if (and (equal? motorcycle-suspicion "近似确认") (not (recognized?)))
-          (error "弗兰克存档错误：关系不足却得到摩托车近似确认") #t)
-      (cond
-        ((equal? repair-state "未开放")
-         (if (and (= repair-deadline-day 0) (= (repair-clk 'current) 0)
-                  (not repair-participated?) (= repair-attempts 0)
-                  (equal? hold-state "未发生"))
-             #t (error "弗兰克存档错误：未开放抢修残留进度或后续事件")))
-        ((equal? repair-state "进行中")
-         (if (and (> repair-deadline-day world-day) (equal? hold-state "未发生"))
-             #t (error "弗兰克存档错误：进行中抢修缺少有效期限或提前开放扣船")))
-        ((repair-settled?)
-         (if (and (= repair-deadline-day 0) (not (equal? hold-state "未发生")))
-             #t (error "弗兰克存档错误：抢修已结算但扣船事件没有排期")))
-        (else (error "弗兰克存档错误：无法校验抢修状态")))
-      (if (equal? repair-participated? (> repair-attempts 0))
-          #t (error "弗兰克存档错误：抢修参与与参与次数不一致"))
-      (if (and (> (repair-clk 'current) 0) (not repair-participated?))
+      (if (and approved? (not alley-settled?))
+          (error "弗兰克存档错误：巷子未结算却已获认可") #t)
+      (if (and (equal? repair-state "进行中") (<= repair-deadline-day world-day))
+          (error "弗兰克存档错误：进行中的抢修没有有效期限") #t)
+      (if (and (equal? repair-state "未开放") (not (equal? hold-state "未发生")))
+          (error "弗兰克存档错误：抢修未开放却已排期扣船") #t)
+      (if (and (repair-done?) (equal? hold-state "未发生"))
+          (error "弗兰克存档错误：抢修结束却没有排期扣船") #t)
+      (if (and (> (repair-clk 'current) 0) (not repair-joined?))
           (error "弗兰克存档错误：有抢修进度却没有参与记录") #t)
-      (if (and (equal? repair-state "未介入") repair-participated?)
-          (error "弗兰克存档错误：未介入结算却记录了抢修参与") #t)
-      (if (and (member? repair-state (list "按时修好" "勉强修好")) (not repair-participated?))
-          (error "弗兰克存档错误：参加型抢修结算没有参与记录") #t)
-      (if (and (equal? repair-state "进行中") (repair-clk 'full?))
-          (error "弗兰克存档错误：抢修进度已满却仍在进行中") #t)
-      (cond
-        ((equal? hold-state "未发生")
-         (if (and (= hold-open-day 0) (= hold-event-day 0) (not hold-participated?))
-             #t (error "弗兰克存档错误：未发生扣船残留日期或参与")))
-        ((equal? hold-state "待安排")
-         (if (and (> hold-open-day 0) (= hold-event-day 0) (not hold-participated?))
-             #t (error "弗兰克存档错误：待安排扣船日期或参与状态错误")))
-        ((equal? hold-state "待处理")
-         (if (and (> hold-open-day 0) (> hold-event-day 0))
-             #t (error "弗兰克存档错误：待处理扣船缺少日期")))
-        ((hold-settled?)
-         (if (and (> hold-open-day 0) (> hold-event-day 0))
-             #t (error "弗兰克存档错误：扣船结算缺少发生日")))
-        (else (error "弗兰克存档错误：无法校验扣船状态")))
-      (if (and (equal? hold-state "缺席") hold-participated?)
-          (error "弗兰克存档错误：缺席结算却记录了当场参与") #t)
-      (if (and (hold-settled?) (not (equal? hold-state "缺席")) (not hold-participated?))
-          (error "弗兰克存档错误：当场扣船结算没有参与记录") #t)
-      (if (and (equal? hold-state "待处理") hold-participated?)
-          (error "弗兰克存档错误：普通城市存档不能停在已进入的扣船交锋") #t)
-      (cond
-        ((member? hold-state (list "未发生" "待安排" "待处理"))
-         (if (= hold-payment 0) #t (error "弗兰克存档错误：扣船结算前已有付款结果")))
-        ((equal? hold-state "全额到账")
-         (if (= hold-payment 6) #t (error "弗兰克存档错误：全额到账没有填满工钱")))
-        ((equal? hold-state "部分到账")
-         (if (and (>= hold-payment 3) (< hold-payment 6))
-             #t (error "弗兰克存档错误：部分到账不在可接受区间")))
-        ((equal? hold-state "缺席")
-         (if (= hold-payment 3) #t (error "弗兰克存档错误：缺席结算没有保留部分付款")))
-        (else #t))
-      (if (and distribution-viewed? (not (and hold-participated? (hold-settled?))))
-          (error "弗兰克存档错误：尚无可看的分钱场景却已标记看过") #t)
-      (if (and cigarette-talked? (not (repair-settled?)))
-          (error "弗兰克存档错误：抢修未结算却已经谈过老金牌") #t)
-      (if (and repair-participated? (equal? relationship "陌生"))
-          (error "弗兰克存档错误：参加过抢修却仍与弗兰克陌生") #t)
-      (if (and (not (equal? premiere-aid "未开放")) (not (recognized?)))
-          (error "弗兰克存档错误：未获认可却开放了首演援助") #t)
-      (if (and (recognized?) (equal? premiere-aid "未开放"))
-          (error "弗兰克存档错误：已获认可却未开放首演援助") #t)
-      (if (and (member? lyon-boundary (list "已提出" "遵守" "违背")) (not (recognized?)))
-          (error "弗兰克存档错误：未获认可却已有莱恩边界") #t))
+      (if (and distribution-viewed? (not (equal? hold-state "已结算")))
+          (error "弗兰克存档错误：没有可看的分钱场景却已标记看过") #t)
+      #t)
 
-    ;; ── 交割夜的摩托车疑点 ───────────────────────────
-    (define (on-delivery-chase! noticed?)
-      (if (or (equal? noticed? #t) (equal? noticed? #f))
-          #t (error "弗兰克：摩托车注意状态必须是布尔量"))
-      (if noticed? (set! motorcycle-seen? #t) #f)
+    ;; ── 巷子那一晚的唯一回执 ─────────────────────────
+    ;; 参数是「当街收场」：你在他面前把一个已经不还手的人按住搜、拖、打到难看。
+    (define (on-alley-result! rough?)
+      (if (boolean? rough?) #t (error "弗兰克：巷子回执必须是布尔量"))
+      (set! alley-settled? #t)
+      (set! met? #t)
+      (set! approved? (not rough?))
       (sync-globals!))
 
     ;; ── 货船抢修 ─────────────────────────────────────
     (define (repair-days-left)
-      (if (equal? repair-state "进行中")
-          (max 0 (- repair-deadline-day world-day))
-          0))
+      (if (equal? repair-state "进行中") (max 0 (- repair-deadline-day world-day)) 0))
 
-    (define (repair-frank-text)
-      (cond
-        ((= repair-attempts 1)
-         "弗兰克把喘得最厉害的老工人支去清点工具，让他照样算一班；熟泵房的人全被叫到舱底。")
-        ((= repair-attempts 2)
-         "有人割伤手，弗兰克立刻换人，自己顶到钢缆边；面包和药送到了，还能站的人继续干。")
-        ((= (modulo repair-attempts 2) 1)
-         "一只没有厂牌的泵接上了旧管线。没人问它从哪来；弗兰克等众人说完，才把下一班写上木板。")
-        (else
-         "他记得谁会补船板、谁夜里眼睛不好。人群说完以后安静下来，等他把每个人放到该在的位置。")))
-
-    (define (note-repair-work!)
-      (set! repair-participated? #t)
-      (set! repair-attempts (+ repair-attempts 1))
-      (meet!)
-      (play-banter! (line "世界" (repair-frank-text))))
-
-    (define (settle-repair! result)
+    (define (settle-repair! completed-by-player?)
       (if (equal? repair-state "进行中") #t (error "弗兰克：抢修只能从进行中结算"))
-      (if (member? result (list "按时修好" "勉强修好" "未介入"))
-          #t (error "弗兰克：未知抢修结算"))
-      (if (and (equal? result "按时修好") (not (repair-clk 'full?)))
-          (error "弗兰克：进度未满却结算为按时修好") #t)
-      (if (and (equal? result "未介入") repair-participated?)
-          (error "弗兰克：参加过抢修却结算为未介入") #t)
-      (set! repair-state result)
+      (set! repair-state "已结束")
       (set! repair-deadline-day 0)
+      (set! repair-result
+        (cond
+          (completed-by-player? "按时修好")
+          (repair-joined? "勉强修好")
+          (else "未介入")))
       (set! hold-state "待安排")
       (set! hold-open-day (+ world-day 1))
-      (if repair-participated? (grant-favor-relation! "劳工") #f)
+      (if repair-joined? (grant-favor-relation! "老码头") #f)
       (sync-globals!)
-      (spotlight! "货船达到离港标准"
-        (cond
-          ((equal? result "按时修好")
-           "泵压住了进水，补板和钢缆都按班表收尾。你留有完整抢修记录；代理明天就会来验船。")
-          ((equal? result "勉强修好")
-           "你参加过抢修，但进度没赶满。弗兰克带余下的人补到天亮，船勉强达到最低离港标准。")
-          (else
-           "你没有参加。弗兰克带码头上的人补到天亮，船仍达到最低离港标准；抢修记录不在你手里。"))))
+      ;; 玩家没有参加，就没有理由在别处收到这条现场结算；后续扣船事件仍按城市
+      ;; 自己的时间线发生。参加过的人才会收到自己做过的那班活最终怎样了。
+      (if repair-joined?
+          (spotlight! "货船达到离港标准"
+            (if (equal? repair-result "按时修好")
+                "泵压住了进水，补板和钢缆都按班表收尾。你把最后一班抢了下来，代理明天来验船。"
+                "你下过舱，但没赶完。弗兰克带人补到天亮，船勉强达到最低离港标准；班表上仍有你的名字。"))
+          #f))
 
-    (define (advance-repair! n)
-      (if (equal? repair-state "进行中") #t (error "弗兰克：货船抢修尚未开放"))
+    (define (join-repair! n)
+      (set! repair-joined? #t)
+      (meet!)
       (repair-clk 'advance! n)
-      (if (repair-clk 'full?) (settle-repair! "按时修好") #f))
+      (if (repair-clk 'full?) (settle-repair! #t) #f))
+
+    (define (node-repair-clock)
+      (clock-node "钟：货船抢修" (repair-clk 'render-data)))
 
     (define (node-repair)
-      (node "参加货船抢修"
-        :subtitle "力量；一根统一进度。坏：受伤，中：+1 格，好：+2 格"
-        :tags (list "限期" "高风险")
-        :clocks (list
-          (repair-clk 'render-data)
-          (list 'clock "抢修窗口" (repair-days-left) repair-duration 'countdown
-                "期限内可以反复投入行动；到期后弗兰克会带人补到最低离港标准。"))
-        :requires (list (req-die))
-        :resolve (roll 'violence
-          (outcome "钢缆扫过跳板"
-            (lambda () (note-repair-work!) (injure!)))
-          (outcome "稳住一段进水"
-            (lambda () (note-repair-work!) (advance-repair! 1)))
-          (outcome "抢下关键一班"
-            (lambda () (note-repair-work!) (advance-repair! 2))))))
+      (关系工作 "参加货船抢修" "老码头" '高 'violence
+        (outcome "抢下关键一班"
+          (lambda ()
+            (add-item! "金钱" 10)
+            (join-repair! 2)))
+        (outcome "稳住一段进水"
+          (lambda ()
+            (add-item! "金钱" 6)
+            (join-repair! 1)))
+        ;; 坏结果扣冷静，不直接写伤势：全城的工作都按这个刻度（见 码头.scm 的
+        ;; 「高风险由更高报酬与力量检定表达；日常失手仍只扣 2 点冷静」）。抢修比搬运凶，
+        ;; 所以是 3 不是 2——但它仍然打在垫子上。伤势是那条不会自己好的轴，
+        ;; 一次坏骰就直接往身上记，等于让一份工作绕过冷静把人送进诊所。
+        ;; 真要见血也仍然见得到：冷静见底之后一比一击穿，这 3 点就是 3 点伤——
+        ;; 那时候伤的原因是"你已经撑到底了还在干"，而不是一次骰子的运气。
+        (outcome "钢缆扫过跳板" (lambda () (join-repair! 0) (spend-composure! 3)))
+        (string-append "船主只留三天。还剩 " (number->string (repair-days-left)) " 天")))
 
     ;; ── 船修好了却不开 ───────────────────────────────
-    (define (result-name symbol)
-      (cond
-        ((equal? symbol '全额到账) "全额到账")
-        ((equal? symbol '部分到账) "部分到账")
-        ((equal? symbol '以货抵债) "以货抵债")
-        ((equal? symbol '放船离开) "放船离开")
-        ((equal? symbol '失控) "失控")
-        (else (error "弗兰克：扣船交锋返回了未登记结果"))))
-
-    (define (apply-hold-relationship! result payment)
-      (cond
-        ((or (equal? result "全额到账") (equal? result "以货抵债"))
-         (set! relationship "认可")
-         (change-faction-relation! "劳工" 1))
-        ((equal? result "部分到账")
-         (if (equal? relationship "陌生") (set! relationship "认识") #f))
-        ((equal? result "放船离开")
-         (set! relationship "不信任")
-         (change-faction-relation! "劳工" -1))
-        ((equal? result "失控")
-         (cond
-           ((>= payment 3) (set! relationship "认可"))
-           ((= payment 0) (set! relationship "不信任"))
-           ((equal? relationship "陌生") (set! relationship "认识") #f)))
-        (else (error "弗兰克：无法按扣船结果写回关系"))))
-
-    (define (on-hold-result result)
+    (define (on-hold-result! result)
       (if (equal? hold-state "待处理") #t (error "弗兰克：没有待结算的扣船交锋"))
       (if (and (list? result) (= (length result) 2))
-          #t (error "弗兰克：扣船交锋应回传 (list 结算 工钱格数)"))
-      (let ((final-result (result-name (car result)))
+          #t (error "弗兰克：扣船交锋应回传 (list 'success/'fail 工钱格数)"))
+      (let ((verdict (car result))
             (payment (cadr result)))
+        (if (member? verdict (list 'success 'fail))
+            #t (error "弗兰克：扣船交锋返回了未登记的结算"))
         (if (and (number? payment) (>= payment 0) (<= payment 6))
             #t (error "弗兰克：扣船交锋付款进度非法"))
-        (set! hold-state final-result)
+        (set! hold-state "已结算")
+        (set! hold-paid? (equal? verdict 'success))
         (set! hold-payment payment)
-        (apply-hold-relationship! final-result payment)
-        (complete-section!)
-        (sync-globals!)))
-
-    (define (start-hold!)
-      (if (and (equal? hold-state "待处理") (= world-day hold-event-day))
-          #t (error "弗兰克：扣船交锋已经不在开放当天"))
-      (set! hold-participated? #t)
-      (meet!)
-      (set-global! '扣船-抢修结果 repair-state)
-      (set-global! '扣船-掌握情报 (> (item-count "情报") 0))
-      (start-encounter "船修好了却不开" on-hold-result))
+        (meet!)
+        (if hold-paid? (change-faction-relation! "老码头" 1) #f)
+        (sync-globals!)
+        ;; 扣船这一场是弗兰克这条线的结算：成败都算经历完，按成长点的规则发一点。
+        (complete-section!)))
 
     (define (node-hold-entry)
       (encounter-action "去看那条不开的船"
-        (lambda () (start-hold!))))
+        (lambda ()
+          (meet!)
+          (set-global! '扣船-抢修结果 repair-result)
+          (set-global! '扣船-以货抵债 #f)
+          (start-encounter "船修好了却不开" on-hold-result!))))
 
-    (define (settle-hold-absence!)
-      (if (equal? hold-state "待处理") #t (error "弗兰克：扣船缺席结算时事件并非待处理"))
-      (if hold-participated? (error "弗兰克：已经进入扣船交锋却试图按缺席结算") #t)
-      (set! hold-state "缺席")
-      (set! hold-payment 3)
-      (sync-globals!)
-      (spotlight! "不开的船离港了"
-        "你没有去泊位。弗兰克让跳板封了一整天，最后逼到一部分现金；代理带走船，余下欠款仍挂在失踪承包人名下。"))
-
-    ;; ── 分钱与老金牌 ─────────────────────────────────
+    ;; ── 分钱：他真正在做的事 ─────────────────────────
     (define (distribution-text)
       (cond
-        ((equal? hold-state "全额到账")
-         "钱箱先摆到伤者那一边。欠租、家里有人吃药的排在下一列，然后才按抢修班次点名。最后一叠没有写进正式账簿。")
-        ((equal? hold-state "部分到账")
-         "钱不够。弗兰克先付伤者和快被赶出房子的几家，出过班的人按剩下的数分；每个人都等他在账本上落笔。")
-        ((equal? hold-state "以货抵债")
-         "木箱拆开以后，药、罐头和能转卖的布匹先分给伤者和欠租家庭。其余按班次记账，账本仍在弗兰克手里。")
-        ((equal? hold-state "放船离开")
-         "桌上没有钱。弗兰克仍把伤者、欠租家庭和临时工的名字抄进一本没有封皮的账册，屋里的人等他决定下一笔从哪里补。")
-        ((equal? hold-state "失控")
-         (string-append
-           "警卫清场前带回来的钱只有 " (number->string hold-payment)
-           " 格。弗兰克先分给伤者和没有稳定班次的人，剩下的人等他把名字一笔一笔划过去。"))
-        (else (error "弗兰克：缺席玩家不应进入分钱场景"))))
+        ((get-global '扣船-以货抵债)
+         "木箱拆开以后，药、罐头和能转卖的布匹先分给伤者和欠租的几家。其余按班次记账。")
+        ((= hold-payment 6)
+         "钱箱里是全数。伤者、欠租的几家和临时顶过班的人都在账册上，然后才按班次点名。")
+        ((>= hold-payment 3)
+         "钱箱里只有答应数目的一部分。伤者和欠租的排在前面；点到临时顶班的人时，已经没剩多少。")
+        ((> hold-payment 0)
+         "被警卫清场前抢下的钱摆在桌上，只够先付伤者和最急的几家。其他名字仍留在账册里。")
+        (else
+         "桌上没有钱。他仍把伤者、欠租的、临时顶过班的名字抄进一本没有封皮的账册。")))
 
     (define (node-distribution)
       (instant-action "看弗兰克分钱"
         (lambda ()
+          (set! distribution-viewed? #t)
           (play-dialogue!
             (line "世界" (distribution-text))
-            (line "尼尔" "不按每个人的班次平均分？")
-            (line "弗兰克" "每个人过的不是一样的日子。能等下一班的，先让不能等的拿。")
-            (line "世界" "他说完继续点名。账本没有离开他的手。屋里也没有人催他。"))
-          (set! distribution-viewed? #t))))
+            (line "世界" "到了后半段，一个人站起来说自己不在名单上。弗兰克翻了两页账册，说了一个日期和一个班次。那人坐下来了，没有再说话。")
+            (line "世界" "最后一叠没有写进正式账簿。屋里没有人问为什么。")
+            (line "尼尔" "谁定这个顺序？")
+            (line "弗兰克" "我。")))))
 
-    (define (absence-observation)
-      (observe-action "扣船后的传闻"
-        "你没在场。工人说弗兰克封了一天跳板，逼到一部分现金；分钱时伤者、欠租家庭和没有固定班次的人排在最前面。"))
-
-    (define (node-cigarettes)
-      (instant-action "问那包老金牌"
+    ;; ── 首演之后：他在看报纸 ─────────────────────────
+    ;; 这一拍不给任何东西。它只是让玩家看见第二章从哪里开始长出来。
+    (define (node-newspaper)
+      (instant-action "他在看报纸"
         (lambda ()
-          (meet!)
-          (if motorcycle-seen?
-              (play-dialogue!
-                (line "世界" "一包红色老金牌从工具桌这头传到那头。每个人抽一根，又把烟盒递给下一个。")
-                (line "尼尔" "交割那晚，也有人带着这个牌子。")
-                (line "弗兰克" "工会房里一包烟能转十只手。它能把你领到一扇门，不能替你认出门里的人。")
-                (line "尼尔" "还有一辆摩托车。")
-                (line "弗兰克" "你那晚喊过自己是谁吗？一个本地人看见外地人追老街的人，还能先问什么？")
-                (if (recognized?)
-                    (line "弗兰克" "我让那辆车从你们中间过去。至于他为什么被追，我当时不知道，现在也不替他认。")
-                    (line "弗兰克" "背影和烟盒都不是脸。你要问人，就继续问人。")))
-              (play-dialogue!
-                (line "世界" "一包红色老金牌从工具桌这头传到那头。每个人抽一根，又把烟盒递给下一个。")
-                (line "尼尔" "交割那晚，也有人带着这个牌子。")
-                (line "弗兰克" "工会房里一包烟能转十只手。它能把你领到一扇门，不能替你认出门里的人。")))
-          (set! cigarette-talked? #t)
-          (if motorcycle-seen?
-              (set! motorcycle-suspicion (if (recognized?) "近似确认" "怀疑"))
-              #f)
-          (result-note! "调查方向：老街工会房间；老金牌不能证明骑手身份")
-          (sync-globals!))))
-
-    (define (node-confirm-motorcycle)
-      (instant-action "再问那晚的摩托车"
-        (lambda ()
+          (set! paper-seen? #t)
           (play-dialogue!
-            (line "尼尔" "那晚的车，是你骑的。")
-            (line "弗兰克" "我让一个老街人从外地人手里多了一条路。")
-            (line "尼尔" "你知道他在替谁拿钱？")
-            (line "弗兰克" "不知道。知道了，我也不会替他做的事说情。"))
-          (set! motorcycle-suspicion "近似确认")
-          (sync-globals!))))
-
-    ;; ── 莱恩与首演接口 ───────────────────────────────
-    (define (lyon-entry-state)
-      (cond
-        ((equal? relationship "认可") "认可")
-        ((equal? relationship "不信任") "不信任")
-        (else "普通")))
-
-    (define (prepare-lyon-entry!)
-      (cond
-        ((equal? relationship "认可")
-         (if (equal? lyon-boundary "未提出")
-             (begin
-               (set! lyon-boundary "已提出")
-               (play-dialogue!
-                 (line "弗兰克" "看堆场的人今晚不会在。你可以进去。")
-                 (line "弗兰克" "莱恩做的事下作。但你不能把他交给警察——老街的人，由老街自己处置。")))
-             #f))
-        ((equal? relationship "不信任")
-         (play-remote-dialogue!
-           (line "世界" "你还没走到堆场，沿路的窗已经一扇接一扇亮起来。有人提前放了风。")))
-        (else #f))
-      (sync-globals!))
-
-    (define (on-lyon-result! handed-to-police?)
-      (if (boolean? handed-to-police?)
-          #t (error "弗兰克：莱恩去向必须明确说明是否交给警方"))
-      (if (equal? lyon-boundary "已提出")
-          (set! lyon-boundary (if handed-to-police? "违背" "遵守"))
-          #f)
-      (sync-globals!))
-
-    (define (request-premiere-aid!)
-      (if (equal? premiere-aid "可请求")
-          (set! premiere-aid "已请求")
-          (error "弗兰克：当前不能请求首演外圈援助"))
-      (sync-globals!))
-
-    (define (validate-premiere-request! requested?)
-      (if (or (equal? requested? #t) (equal? requested? #f))
-          #t (error "弗兰克：首演主线传入了非布尔援助状态"))
-      (if (equal? requested? (equal? premiere-aid "已请求"))
-          #t (error "弗兰克存档错误：人物线与首演主线的人手请求不一致")))
+            (line "世界" "他靠在缆桩上看报。头版之后那一整版都在写老街。")
+            (line "弗兰克" "莱恩自己做的事，自己背。")
+            (line "世界" "他把报纸翻过来，指着中间一段：旧码头治安恶化，城市需要整顿。")
+            (line "弗兰克" "但这算什么？")
+            (line "尼尔" "他们得有个说法。")
+            (line "弗兰克" "他们有的从来不是说法。")
+            (line "弗兰克" "他们只是终于找到一个理由，来说这条街该归谁管。")))))
 
     (define (validate-chapter-end!)
       (validate-state!)
-      (if (repair-settled?) #t (error "第一章结算错误：货船抢修尚未结算"))
-      (if (hold-settled?) #t (error "第一章结算错误：不开的船仍未结算"))
-      (if (equal? lyon-boundary "已提出")
-          (error "第一章结算错误：弗兰克的莱恩边界尚未写回结果") #t))
+      (if alley-settled? #t (error "第一章结算错误：巷子那晚没有写回弗兰克")))
 
-    ;; ── 码头节点与日程 ───────────────────────────────
-    (define (frank-description)
-      (cond
-        ((equal? relationship "认可")
-         "码头工头。人们把班表、伤者和欠款都报到他这里，然后等他决定先办哪一件。")
-        ((equal? relationship "不信任")
-         "码头工头。他仍能让整条跳板停下来，但看见你时不再把账本摊开。")
-        (else
-         "码头工头。他不抬高声音；四周的人说完以后会自然安静，等他作决定。")))
+    ;; ── 码头节点 ─────────────────────────────────────
+    ;; 他多数日子里没有事给你做。那时候这张卡点进去是**空的**——
+    ;; 而一个空容器读起来不像"今天没事"，像"是不是坏了"。
+    ;; 所以没有动作的时候放一条标注：说清他此刻在干什么。
+    ;; 玩家看见字，就知道自己没漏掉东西，这里今天确实没有他的事。
+    ;;
+    ;; 只在空的时候放。有事可做的日子不摆——那就成了每次都要先读一遍的墙纸。
+    (define (node-frank-idle)
+      (note-node "标注：弗兰克此刻" ""
+        (cond
+          ((equal? repair-state "进行中")
+           "他在跳板边上写班表，一整天没离开这个泊位。现在跟他说话，他会让你等。")
+          ((equal? hold-state "待安排")
+           "工会房间的门虚掩着。里面在说船上的事，说到你能听见的时候都压低了。")
+          ((>= (three-letters 'story-stage) 5)
+           "他坐在工会房间那张长桌尽头，面前摊着报纸，没在看。")
+          (#t
+           "工会房间的门开着。他在对这个月的账，抬头看了你一眼，又低下去。"))))
 
     (define (node-frank)
-      (node "弗兰克"
-        :subtitle "Frank Delaney；码头工头、老街组织者"
-        :resolve (observe (frank-description))))
+      (let ((actions
+              (append
+                (if (equal? hold-state "待处理") (list (node-hold-entry)) '())
+                (if (and (equal? hold-state "已结算") (not distribution-viewed?))
+                    (list (node-distribution)) '())
+                (if (and (not paper-seen?) (>= (three-letters 'story-stage) 5))
+                    (list (node-newspaper))
+                    '()))))
+        (node "弗兰克"
+          :subtitle "Frank Delaney；码头工头、老街组织者"
+          :children (if (null? actions)
+                        (list (node-frank-idle))
+                        actions))))
 
     (define (dock-nodes)
       (append
-        (if (equal? repair-state "进行中") (list (node-repair)) '())
-        (if (equal? hold-state "待处理") (list (node-hold-entry)) '())
-        (if (or (not (equal? repair-state "未开放")) (not (equal? hold-state "未发生")))
-            (list (node-frank)) '())
-        (if (and hold-participated? (hold-settled?) (not distribution-viewed?))
-            (list (node-distribution)) '())
-        (if (and (equal? hold-state "缺席") (not hold-participated?))
-            (list (absence-observation)) '())
-        (if (and (repair-settled?) (not cigarette-talked?))
-            (list (node-cigarettes)) '())
-        (if (and cigarette-talked? (recognized?) (equal? motorcycle-suspicion "怀疑"))
-            (list (node-confirm-motorcycle)) '())))
+        ;; 抢修**摆在码头上，不摆在弗兰克底下**。它跟他有关系——班表是他排的——
+        ;; 但它是这个空间里正在发生的一件事：一条进水的船停在泊位上，谁都看得见。
+        ;; 挂进人物节点等于说"要先找到这个人才知道码头上出了事"，那不是真的。
+        ;; 人物节点收的是**只跟他这个人有关**的事：扣船、分钱、他来找你。
+        (if (equal? repair-state "进行中")
+            (list (node-repair-clock) (node-repair))
+            '())
+        ;; 工会房间的正式会面就是人物开放点。
+        (if met? (list (node-frank)) '())))
 
-    (define-turn-rule "货船抢修开放"
-      (lambda () (and (equal? repair-state "未开放") (>= (three-letters 'story-stage) 2)))
-      (lambda ()
-        (set! repair-state "进行中")
-        (set! repair-deadline-day (+ world-day repair-duration))
-        (sync-globals!)
-        (spotlight! "旧货船进水"
-          "一艘进水的旧货船被拖回码头。船主只留三天抢修窗口；码头现在开放统一目标「参加货船抢修」。")))
+    (define (dossier-entry)
+      (if met?
+          (list (dossier "弗兰克"
+                  :kind '人物
+                  :status '进行中
+                  :now (cond
+                         ((equal? repair-state "进行中") "他在码头排货船抢修的班表")
+                         ((equal? hold-state "待处理") "他扣下了船上的关键部件，工人正封着跳板")
+                         (else "码头工头；工会房间和泊位上的事都会报到他那里"))
+                  :where "码头"))
+          '()))
+
+    (define (arrival-repair)
+      (arrival "旧货船进水"
+        (lambda ()
+          (meet!)
+          (set! repair-state "进行中")
+          (set! repair-deadline-day (+ world-day repair-days))
+          (sync-globals!)
+          (play-dialogue!
+            (line "世界" "一艘进水的旧货船被拖到泊位。抽水泵沿着跳板排成一列，舱里的人把湿木板一块块递出来。")
+            (line "世界" "弗兰克站在跳板边写班表。有人从舱里上来报了伤，说了个名字。他没有抬头，在账册里另记了一格。")
+            (line "弗兰克" "船主只留三天。四件事，一样也不能少。")
+            (line "尼尔" "缺哪一班？")
+            (line "弗兰克" "每一班。名字写这里。")
+            (line "世界" "他把班表推过来，手指停在一行空格上。"))
+          (spotlight! "货船抢修"
+            "船主只留三天。弗兰克把四项抢修排进同一张班表；参加与否由你决定。"))))
+
+    (define (arrivals-at location)
+      (if (and (equal? location "码头")
+               met?
+               (equal? repair-state "未开放")
+               (three-letters 'has-flag? '第二封信)
+               (lin 'known?))
+          (list (arrival-repair))
+          '()))
 
     (define-turn-rule "货船抢修期限"
       (lambda () (and (equal? repair-state "进行中") (>= world-day repair-deadline-day)))
-      (lambda ()
-        (settle-repair! (if repair-participated? "勉强修好" "未介入"))))
+      (lambda () (settle-repair! #f)))
 
     (define-turn-rule "不开的船等待合适白天"
-      (lambda () (equal? hold-state "待安排"))
+      (lambda () (and (equal? hold-state "待安排")
+                      (>= world-day hold-open-day)
+                      (not (rest-blocked?))))
       (lambda ()
-        (if (and (>= world-day hold-open-day) (not (rest-blocked?)))
-            (begin
-              (set! hold-state "待处理")
-              (set! hold-event-day world-day)
-              (sync-globals!)
-              (spotlight! "船修好了却不开"
-                "货运代理拒绝直接支付工钱。弗兰克已经扣下一件可随时装回的关键部件，并让工人封住跳板；事件只开放今天。"))
-            #f)))
+        (set! hold-state "待处理")
+        (set! hold-day world-day)
+        (sync-globals!)
+        (spotlight! "船修好了却不开"
+          "代理拒绝付工钱——承包人跑了。弗兰克扣下一件关键部件，让工人封住跳板；只有今天。")))
 
     (define-turn-rule "不开的船缺席结算"
-      (lambda () (and (equal? hold-state "待处理") (> world-day hold-event-day)))
-      (lambda () (settle-hold-absence!)))
+      (lambda () (and (equal? hold-state "待处理") (> world-day hold-day)))
+      (lambda ()
+        (set! hold-state "缺席")
+        (sync-globals!)
+        (spotlight! "不开的船离港了"
+          "你没有去泊位。弗兰克让跳板封了一整天，最后逼到一部分现金；代理带走了船。")))
 
     (sync-globals!)
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'dock-nodes) (dock-nodes))
-          ((equal? msg 'relationship) relationship)
+          ((equal? msg 'dossier) (dossier-entry))
+          ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
+          ((equal? msg 'approved?) approved?)
+          ((equal? msg 'met?) met?)
           ((equal? msg 'repair-state) repair-state)
           ((equal? msg 'hold-state) hold-state)
-          ((equal? msg 'motorcycle-suspicion) motorcycle-suspicion)
-          ((equal? msg 'lyon-boundary) lyon-boundary)
-          ((equal? msg 'premiere-aid) premiere-aid)
-          ((equal? msg 'premiere-aid-open?) (equal? premiere-aid "可请求"))
-          ((equal? msg 'premiere-aid-requested?) (equal? premiere-aid "已请求"))
-          ((equal? msg 'lyon-entry-state) (lyon-entry-state))
           ((equal? msg 'meet!) (meet!))
-          ((equal? msg 'on-delivery-chase!) (on-delivery-chase! (cadr args)))
-          ((equal? msg 'prepare-lyon-entry!) (prepare-lyon-entry!))
-          ((equal? msg 'on-lyon-result!) (on-lyon-result! (cadr args)))
-          ((equal? msg 'request-premiere-aid!) (request-premiere-aid!))
+          ((equal? msg 'on-alley-result!) (on-alley-result! (cadr args)))
           ((equal? msg 'validate!) (validate-state!))
-          ((equal? msg 'validate-premiere-request!) (validate-premiere-request! (cadr args)))
           ((equal? msg 'validate-chapter-end!) (validate-chapter-end!))
           ((equal? msg 'sync-globals!) (sync-globals!))
           ((equal? msg 'save)
            (list
-             (list "relationship" relationship)
+             (list "approved?" approved?)
+             (list "alley-settled?" alley-settled?)
+             (list "met?" met?)
              (list "repair-state" repair-state)
-             (list "repair-participated?" repair-participated?)
-             (list "repair-attempts" repair-attempts)
-             (list "repair-progress" (repair-clk 'save))
              (list "repair-deadline-day" repair-deadline-day)
+             (list "repair-joined?" repair-joined?)
+             (list "repair-result" repair-result)
+             (list "repair-progress" (repair-clk 'save))
              (list "hold-state" hold-state)
              (list "hold-open-day" hold-open-day)
-             (list "hold-event-day" hold-event-day)
-             (list "hold-participated?" hold-participated?)
+             (list "hold-day" hold-day)
+             (list "hold-paid?" hold-paid?)
              (list "hold-payment" hold-payment)
              (list "distribution-viewed?" distribution-viewed?)
-             (list "cigarette-talked?" cigarette-talked?)
-             (list "motorcycle-seen?" motorcycle-seen?)
-             (list "motorcycle-suspicion" motorcycle-suspicion)
-             (list "lyon-boundary" lyon-boundary)
-             (list "premiere-aid" premiere-aid)))
+             (list "paper-seen?" paper-seen?)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
-             (set! relationship (required-field data "relationship"))
+             (set! approved? (required-field data "approved?"))
+             (set! alley-settled? (required-field data "alley-settled?"))
+             (set! met? (required-field data "met?"))
              (set! repair-state (required-field data "repair-state"))
-             (set! repair-participated? (required-field data "repair-participated?"))
-             (set! repair-attempts (required-field data "repair-attempts"))
-             (repair-clk 'load! (required-field data "repair-progress"))
              (set! repair-deadline-day (required-field data "repair-deadline-day"))
+             (set! repair-joined? (required-field data "repair-joined?"))
+             (set! repair-result (required-field data "repair-result"))
+             (repair-clk 'load! (required-field data "repair-progress"))
              (set! hold-state (required-field data "hold-state"))
              (set! hold-open-day (required-field data "hold-open-day"))
-             (set! hold-event-day (required-field data "hold-event-day"))
-             (set! hold-participated? (required-field data "hold-participated?"))
+             (set! hold-day (required-field data "hold-day"))
+             (set! hold-paid? (required-field data "hold-paid?"))
              (set! hold-payment (required-field data "hold-payment"))
              (set! distribution-viewed? (required-field data "distribution-viewed?"))
-             (set! cigarette-talked? (required-field data "cigarette-talked?"))
-             (set! motorcycle-seen? (required-field data "motorcycle-seen?"))
-             (set! motorcycle-suspicion (required-field data "motorcycle-suspicion"))
-             (set! lyon-boundary (required-field data "lyon-boundary"))
-             (set! premiere-aid (required-field data "premiere-aid"))
+             (set! paper-seen? (required-field data "paper-seen?"))
              (validate-state!)
              (sync-globals!)))
           (else #f))))))

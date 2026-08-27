@@ -39,13 +39,13 @@
                              (lambda () #f)                    ; 失败: 无效果
                              (lambda () (set! hp (- hp 1)))    ; 中性: 造成1点小伤害
                              (lambda () (eliminate!)))))       ; 成功: 造成2点大伤害
-             (list (list 'clock "HP" hp hp-max 'segments)
+             (list (list 'clock "HP" hp hp-max 'gauge)
                    (atk-clock 'render-data))))
           (else #f))))))
 
 ;; ── Local State ────────────────────────────────
-(define exit-clock (make-clock "逃脱" 12 'pie))
-(define spawn-clock (make-clock "增援" 3 'segments))
+(define exit-clock (make-clock "逃脱" 12 'gauge))
+(define spawn-clock (make-clock "增援" 3 'gauge))
 
 (define enemies
   (list (make-enemy "持刀者" 3 3 10)

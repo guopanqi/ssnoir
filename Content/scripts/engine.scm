@@ -11,7 +11,13 @@
 (define :disabled ':disabled)
 (define :anchor ':anchor)
 (define :place ':place)
+(define :carry-item ':carry-item)
 (define :arrivals ':arrivals)
+(define :kind ':kind)
+(define :status ':status)
+(define :now ':now)
+(define :where ':where)
+(define :log ':log)
 
 ;; Helper to extract keyword arguments from a list
 (define (get-kwarg kwargs key default)
@@ -28,6 +34,7 @@
 (define (node name . kwargs)
   (let ((anchor-name (get-kwarg kwargs ':anchor #f))
         (is-place    (get-kwarg kwargs ':place #f))
+        (carry-item  (get-kwarg kwargs ':carry-item #f))
         (arrivals    (get-kwarg kwargs ':arrivals '())))
     (append
       (list 'node
@@ -45,6 +52,9 @@
       (if (equal? is-place #f)
           '()
           (list :place #t))
+      (if (equal? carry-item #f)
+          '()
+          (list :carry-item carry-item))
       (if (null? arrivals)
           '()
           (list :arrivals arrivals)))))
@@ -99,6 +109,27 @@
   (if (rest-blocked?)
       (error "end-turn!: required events remain unresolved")
       (__end-turn!)))
+
+;; 交锋内部的阶段切换可以换一手骰，但不把它算作一次休息：不推进回合规则，
+;; 也不收取时间代价。仅交锋解释器注册了这条桥接。
+(define (refresh-encounter-dice!)
+  (__refresh-encounter-dice!))
+
+;; 倒下协议。交锋不写新的送医路线，只声明这场在主角倒下时如何使用已有结算：
+;;   (collapse-result 原有结果)  调用原有回调，按失败/既有收场推进
+;;   (collapse-retry)            不调用回调，保留城市故事状态，出院后可重来
+;; 每个交锋必须重定义 on-encounter-collapse；漏写时在真正倒下处直接报配置错误。
+(define (hospitalization-pending?)
+  (__hospitalization-pending?))
+
+(define (collapse-result result)
+  (list 'collapse-result result))
+
+(define (collapse-retry)
+  (list 'collapse-retry))
+
+(define (on-encounter-collapse)
+  (error "交锋没有声明 on-encounter-collapse：请返回 collapse-result 或 collapse-retry"))
 
 ;; Action constructors
 (define (instant effect)
@@ -228,8 +259,69 @@
 ;; 一拍入场叙事。没有 condition——「这一拍在不在」由拼树时决定，和 children 一样：
 ;;   :arrivals (if (and (= stage 4) (not told?)) (list beat) '())
 ;; 一次性由内容自己置标记并跟着自己的 save 走；引擎不持有任何 arrival 状态。
+;; 必须当场发生的遭遇可以把 start-encounter 放在 effect 的最后：客户端会先播完
+;; arrival 的 dialogue / animation，再采用已经准备好的交锋快照。end-turn! 仍然禁止。
 (define (arrival id effect)
   (list 'arrival id effect))
+
+;; ── 卷宗 ─────────────────────────────────────────
+;; 一条故事线在卷宗里的样子。拥有故事的模块回一条（或零条），世界只负责收集，
+;; 和地点可见性一样——世界不解释故事。
+;;
+;; 每条线只有一句 :now。它不是任务描述，是玩家隔三天回来要读的那一句：
+;; 第二人称，说得出下一步该做什么。写不出这一句，说明那一拍的目标本身没想清楚，
+;; 那是内容的问题，别靠面板多列两行来遮。
+;;
+;; :clocks 直接放故事已经在用的钟（(某某-clk 'render-data)），不为卷宗新建一套——
+;; 同一根钟在动作卡上和卷宗里必须长得一模一样。
+(define dossier-kinds  (list '委托 '人物 '城市))
+(define dossier-states (list '进行中 '等着别人 '了结))
+
+(define (dossier id . kwargs)
+  (if (and (string? id) (not (equal? id ""))) #t (error "dossier: 标识必须是非空字符串"))
+  (let ((kind   (get-kwarg kwargs ':kind '委托))
+        (status (get-kwarg kwargs ':status '进行中))
+        (now    (get-kwarg kwargs ':now ""))
+        (where  (get-kwarg kwargs ':where "")))
+    (if (member? kind dossier-kinds)
+        #t
+        (error (string-append "dossier " id "：:kind 应为 委托 / 人物 / 城市")))
+    (if (member? status dossier-states)
+        #t
+        (error (string-append "dossier " id "：:status 应为 进行中 / 等着别人 / 了结")))
+    (if (string? now) #t (error (string-append "dossier " id "：:now 必须是字符串")))
+    (if (string? where) #t (error (string-append "dossier " id "：:where 必须是字符串")))
+    (list 'dossier id
+          :kind kind
+          :status status
+          :now now
+          :where where
+          :clocks (get-kwarg kwargs ':clocks '())
+          :log (get-kwarg kwargs ':log '()))))
+
+;; 一条线的履历。内容自己持有一份，跟自己的存档走。
+;;
+;; 由内容**显式**写一条：((某某-journal) 'add! "……")，写在现在调 spotlight! 的那些地方。
+;; 不从判定结果自动抽——自动生成的日志一定啰嗦，而且会在不该有条目的地方冒出来。
+;; 一拍一句，说已经发生了什么，不说接下来做什么（那是 :now 的事）。
+(define (make-journal)
+  (let ((entries '()))   ; 最新在前
+    (lambda (msg . args)
+      (cond
+        ((equal? msg 'add!)
+         (let ((text (car args)))
+           (if (and (string? text) (not (equal? text "")))
+               #t
+               (error "journal 'add!：正文必须是非空字符串"))
+           (set! entries (cons (list (get-global '世界日) text) entries))))
+        ((equal? msg 'render-data)
+         (map (lambda (e) (list 'journal-entry (car e) (cadr e))) entries))
+        ((equal? msg 'empty?) (null? entries))
+        ((equal? msg 'save) entries)
+        ((equal? msg 'load!)
+         (let ((data (car args)))
+           (set! entries (if (list? data) data '()))))
+        (else (error "make-journal：未知消息（'add! / 'render-data / 'empty? / 'save / 'load!）"))))))
 
 (define (action name requires resolve)
   (node name :requires requires :resolve resolve))
@@ -281,9 +373,12 @@
 
 ;; ── 工作（work）DSL ───────────────────────────────────
 ;; (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name])
-;; (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name])
-;; (非法工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name])
-;;   faction: "官僚"/"劳工"/"富商"。普通工作不产关系；关系工作仅在好结果 +1。
+;; (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle]
+;;           [:anchor name] [:clocks clocks])
+;; (非法工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle]
+;;           [:anchor name] [:clocks clocks])
+;;   faction: "老码头"/"商业圈"，不属于任何圈子的活写 "无"。
+;;            普通工作不产声誉；关系工作仅在好结果 +1。
 ;;   risk:    只有 '低/'高，决定风险标签与结果代价。
 ;;   非法工作是独立维度：额外显示“非法”并固定难度 -2，不再冒充第三种风险档。
 ;;   好/中/坏: 每项工作显式传入三个 outcome，标题和描述直接用于轻型结算
@@ -296,11 +391,12 @@
         (else (error "工作: 未知风险等级（应为 低/高）"))))
 
 (define (工作-合法势力? faction)
-  (or (equal? faction "官僚") (equal? faction "劳工") (equal? faction "富商")))
+  (or (equal? faction "老码头") (equal? faction "商业圈") (equal? faction "无")))
 
-;; 势力敌视时，该势力地点的判定统一 -1（可见修正，与非法的判定惩罚同构）。
+;; 圈子敌视时，该圈子地点的判定统一 -1（可见修正，与非法的判定惩罚同构）。
 (define (关系难度修正 faction)
-  (if (equal? (relation-band faction) '敌视)
+  (if (and (not (equal? faction "无"))
+           (equal? (relation-band faction) '敌视))
       (list (modifier -1 "势力敌视"))
       '()))
 
@@ -310,11 +406,13 @@
     (if illegal? (list (modifier -2 "非法")) '())
     (关系难度修正 faction)))
 
-(define (构造工作 name faction 产关系? illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle anchor)
-  (if (工作-合法势力? faction) #t (error "工作: 未知势力（应为 官僚/劳工/富商）"))
+(define (构造工作 name faction 产关系? illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle anchor clocks)
+  (if (工作-合法势力? faction) #t (error "工作: 未知圈子（应为 老码头/商业圈/无）"))
+  (if (and 产关系? (equal? faction "无")) (error "关系工作: 不能挂在「无」上") #t)
   (node name
         :subtitle subtitle
         :anchor anchor
+        :clocks clocks
         :tags (if illegal?
                   (list "工作" (工作-风险标签 risk) "非法")
                   (list "工作" (工作-风险标签 risk)))
@@ -330,33 +428,85 @@
                              "关系工作 好")
                            (require-outcome 好-outcome "工作 好")))))
 
-;; 工作包装的附加参数故意只接受一条副标题和一组 :anchor，不能静默吞错：工作是最常见
-;; 的空间节点之一，锚名写错必须在内容加载时暴露，而不是悄悄退回网格。
-(define (工作-附加参数 extra)
+;; 工作包装只接受一条可选副标题，以及 :anchor / :clocks 两组明确关键字。
+;; 未登记参数直接报错，不能静默吞掉锚点或时钟配置。
+(define (工作-关键字参数合法? args)
   (cond
-    ((null? extra) (list "" #f))
-    ((and (= (length extra) 1) (string? (car extra))) (list (car extra) #f))
-    ((and (= (length extra) 2) (equal? (car extra) :anchor) (string? (cadr extra)))
-     (list "" (cadr extra)))
-    ((and (= (length extra) 3) (string? (car extra))
-          (equal? (cadr extra) :anchor) (string? (caddr extra)))
-     (list (car extra) (caddr extra)))
-    (else (error "工作: 附加参数应为 [subtitle] [:anchor 锚点名]"))))
+    ((null? args) #t)
+    ((< (length args) 2) #f)
+    ((equal? (car args) :anchor)
+     (and (string? (cadr args)) (工作-关键字参数合法? (cddr args))))
+    ((equal? (car args) :clocks)
+     (and (list? (cadr args)) (工作-关键字参数合法? (cddr args))))
+    (else #f)))
+
+(define (工作-附加参数 extra)
+  (let ((subtitle (if (and (not (null? extra)) (string? (car extra))) (car extra) ""))
+        (kwargs (if (and (not (null? extra)) (string? (car extra))) (cdr extra) extra)))
+    (if (工作-关键字参数合法? kwargs)
+        (list subtitle
+              (get-kwarg kwargs :anchor #f)
+              (get-kwarg kwargs :clocks '()))
+        (error "工作: 附加参数应为 [subtitle] [:anchor 锚点名] [:clocks 时钟列表]"))))
 
 (define (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
   (let ((args (工作-附加参数 extra)))
     (构造工作 name faction #f #f risk skill 好-outcome 中-outcome 坏-outcome
-              (car args) (cadr args))))
+              (car args) (cadr args) (caddr args))))
 
 (define (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
   (let ((args (工作-附加参数 extra)))
     (构造工作 name faction #t #f risk skill 好-outcome 中-outcome 坏-outcome
-              (car args) (cadr args))))
+              (car args) (cadr args) (caddr args))))
 
 (define (非法工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
   (let ((args (工作-附加参数 extra)))
     (构造工作 name faction #f #t risk skill 好-outcome 中-outcome 坏-outcome
-              (car args) (cadr args))))
+              (car args) (cadr args) (caddr args))))
+
+;; ── 随身动作 ─────────────────────────────────────────
+;; 烟、酒这类你自己带进交锋的东西。它们不属于任何一场——没有哪个交锋脚本声明它们，
+;; 是引擎在每一场的树上补一份（见 SceneManager.RebuildRenderTree）。只在手里真有那件
+;; 东西的时候出现。
+;;
+;; 它们**不是场上的卡**：客户端把它们画成右下角一条常驻的小挂件（标题 + 一个骰位），
+;; 没有副标题也没有执行钮，骰子放进去就用掉。角落里那种一按就生效的按钮已经删掉了——
+;; 玩家没法从一个按钮上看出"这里能放骰子"，而放东西的表现形式必须处处一致。
+;;
+;; 要投骰，但不掷骰：骰面完全不参与结算。所以这是全场唯一一处**烂骰子和好骰子等价**
+;; 的地方，一颗 1 点骰投在这儿换回来的和 6 点一样多。手气差的那一轮，抽根烟不是浪费，
+;; 是分诊。
+(define (随身动作 name item amount title subtitle effect)
+  (node name
+    ;; 它属于哪件物品。客户端据此把这个小挂件从那件物品上引出来（一根引线），
+    ;; 而不是排进场上的卡片区——随身的东西不是这一场的事。
+    :carry-item item
+    :tags (list "随身")
+    :subtitle subtitle
+    ;; 只要一颗骰。那件东西本身不做成物品槽：这个挂件就是从它上面长出来的，
+    ;; 还要玩家把烟拖进它自己长出来的槽里，是绕一圈说同一句话。
+    :requires (list (req-die))
+    :resolve (instant
+      (outcome title
+        (lambda ()
+          (remove-item! item 1)
+          (restore-actor-composure! 'player amount)
+          (effect))))))
+
+(define (carry-nodes)
+  (append
+    ;; 交锋每回合自动流失 1，一根烟买回两个回合——这是它的单位。
+    (if (has-item? "香烟" 1)
+        (list (随身动作 "抽烟" "香烟" 2 "抽了一口"
+                "投一颗行动骰，用掉一根烟；恢复 2 点冷静。骰面不算数"
+                (lambda () #f)))
+        '())
+    ;; 酒回得多，代价推到明天：下一次城市骰池里有一格带宿醉。
+    (if (has-item? "酒" 1)
+        (list (随身动作 "喝酒" "酒" 3 "灌了一口"
+                "投一颗行动骰，喝掉这瓶；恢复 3 点冷静，酒劲留到明天"
+                (lambda () (apply-hangover!))))
+        '())))
 
 ;; Inventory helpers
 (define (get-item item-id)
@@ -379,7 +529,7 @@
 ;; on-action triggers all rules
 (define (on-action)
   (define (run-rules list-rules)
-    (if (null? list-rules)
+    (if (or (null? list-rules) (hospitalization-pending?))
         #t
         (begin
           (let ((rule (car list-rules)))
@@ -405,7 +555,7 @@
 ;; on-turn-end triggers all turn-end rules
 (define (on-turn-end)
   (define (run-rules list-rules)
-    (if (null? list-rules)
+    (if (or (null? list-rules) (hospitalization-pending?))
         #t
         (begin
           (let ((rule (car list-rules)))
@@ -421,7 +571,19 @@
 ;; 局部整数时钟。交锋里的一次性时钟和故事模块里要存档的时钟共用这一个对象——
 ;; 格数、上限、备注、进退和存档都收在闭包里，改上限只改 make-clock 那一行。
 ;;
-;;   (make-clock 标签 上限 样式)            样式：'segments / 'countdown / 'pie
+;; 样式声明的是**这是什么状态**，不是画成什么形状；画法由渲染层按样式和上限决定：
+;;   'gauge      一格一格的量：现在有多少 / 总共多少，满或空会触发事情。画成一排格子。
+;;               **它不含方向。**调查进度从 0 填到满是 gauge，生命值从满打到 0 也是
+;;               gauge，将来加了回血就是同一条往回涨。往哪边走由脚本自己决定，
+;;               样式不替你规定——这样全游戏所有「有几格」的东西共用一种读法。
+;;   'countdown  时间在逼近，归零触发。这一条才是有方向的：它只往下走，而且推它的
+;;               不是你。画成空心表盘，亮着的扇区＝还剩多少，中心写剩余数字；
+;;               上限 ≤6 分段，再多就是连续的一圈。
+;;   'readout    当前是多少，满/空都不触发任何事。画成纯文字「当前/上限」。
+;; 判据是一句话：**满或空会触发事情的，才是钟**。不触发的写 'readout。
+;; gauge 与 countdown 之间只问一件事：这条线是**你手里的量**，还是**在逼近你的时间**。
+;;
+;;   (make-clock 标签 上限 样式)
 ;;   (make-clock 标签 上限 样式 备注)       备注是字符串
 ;;   (make-clock 标签 上限 样式 (lambda (current max) → 字符串))
 ;;                                          备注随格数变化（满格前后说不同的话）时用这个
@@ -438,7 +600,7 @@
 ;;   (clk 'save)           存档值          (clk 'load! n) 读档，越界报错
 ;;
 ;; 进退一律 clamp 到 0..上限，并自动写进结算效果条（动作外调用不产生结果行）。
-(define clock-styles '(segments countdown pie))
+(define clock-styles '(gauge countdown readout))
 
 (define clock-messages
   "'tick! 'advance! 'set! 'reset! 'current 'max 'full? 'empty? 'remaining 'render-data 'save 'load!")
@@ -448,7 +610,7 @@
   (if (and (number? max) (> max 0)) #t (error "make-clock: 上限必须是正整数"))
   (if (member? style clock-styles)
       #t
-      (error "make-clock: 未知样式（应为 'segments / 'countdown / 'pie）"))
+      (error "make-clock: 未知样式（应为 'gauge / 'countdown / 'readout）"))
   (if (> (length note-args) 1)
       (error "make-clock: 备注最多一个")
       #t)
@@ -517,7 +679,8 @@
              #f))
         ((equal? msg 'render-data)
          (if active?
-             (list (list 'clock label current max 'countdown
+             ;; 内部 current 是「已经拖了几天」，表盘要的是「还剩几天」，这里翻过来。
+             (list (list 'clock label (- max current) max 'countdown
                          "势力敌视惹出的麻烦，尽快处理，否则会有代价。"))
              '()))
         ((equal? msg 'save) (list active? current))
@@ -538,11 +701,13 @@
       (tracker 'start!)
       #f))
 
-;; 声望 API — 三派：官僚 / 劳工 / 富商。底层连续整数（工作小步累积），
-;; 折算成 6 个离散档位。档位阈值与范围以 RelationScale.cs 为唯一来源
-;; （通过 native __relation-band-index 读取），这里只做名字 <-> 序号的映射。
-;; 正面三档（相识/信任/核心）是门控用的通用内部名；各势力面板上的定制称呼
-;; （挂号/面熟/有往来 …）在 world.scm 以 relation-band-name:<势力>:<档> 配置。
+;; 圈内声誉 API — 两个圈子：老码头 / 商业圈。它记的是「你的名声在哪个圈子里传开了」，
+;; 不是阵营归属：没有成员名单，人物只是走进这个圈子的入口。市政、警署与医院不在此列，
+;; 它们由具名人物状态承担（见 人物/贝恩斯.scm）。
+;; 底层连续整数（工作小步累积），折算成 6 个离散档位。档位阈值与范围以 RelationScale.cs
+;; 为唯一来源（通过 native __relation-band-index 读取），这里只做名字 <-> 序号的映射。
+;; 正面三档（相识/信任/核心）是门控用的通用内部名；各圈子面板上的定制称呼
+;; （面熟/够朋友/有往来 …）在 world.scm 以 relation-band-name:<圈子>:<档> 配置。
 (define (faction-relation faction)
   (let ((val (get-global (string-append "relation:" faction))))
     (if val val 0)))
@@ -579,10 +744,13 @@
 (define work-relation-cap 3)   ; 带薪工作最多能混到相识刚过一点
 (define favor-relation-cap 5)  ; 帮忙类动作最多能混到信任刚过一点，再往上得靠事迹
 
+;; 封顶时**不再提示**"想更进一步，得接不计报酬的忙"：那句话指的是「替人顶一班」
+;; 那类帮忙卡，而它这一版没有摆出来（见 码头.scm）。指着一张玩家找不到的卡说话，
+;; 比什么也不说更让人摸不着头脑。等帮忙类动作回来，把这条提示一起还回来。
 (define (grant-work-relation! faction)
   (if (< (faction-relation faction) work-relation-cap)
       (change-faction-relation! faction 1)
-      (notify! (string-append faction "那边，普通做工已经混得再熟不过了——想更进一步，得接不计报酬的忙。"))))
+      #f))
 
 (define (grant-favor-relation! faction)
   (if (< (faction-relation faction) favor-relation-cap)
@@ -596,8 +764,45 @@
 (define (has-item? item-id n)
   (>= (__item-count item-id) n))
 
+;; ── 物品容量 ────────────────────────────────────────
+;; 绝大多数东西不设上限：线索、钱、剧情物，多一件只是多一件。
+;; 烟不一样——它买得到也买得起，能囤就等于冷静随时可以拿钱换，交锋里那点压力也就不成立了。
+;; 所以这里不是给物品系统加一层通用容量，而是一件件点出「这东西不许囤」的那几样。
+(define item-capacities '(("香烟" 5)))
+
+;; 没上限的返回 #f。
+(define (item-capacity item-id)
+  (assoc-get item-capacities item-id #f))
+
+;; 引擎按这张表在物品格上画容量刻度（见 SceneManager.BuildPresentationSnapshot）。
+(define (item-capacity-table) item-capacities)
+
+(define (item-full? item-id)
+  (let ((cap (item-capacity item-id)))
+    (if cap (>= (__item-count item-id) cap) #f)))
+
+;; 装不下的部分直接丢掉，但一定要说一声：静默吞掉会让玩家以为钱白花了却不知道为什么。
+;; 买东西的卡自己该在满了的时候就灰掉（见 item-full?），走到这儿来才发现满，已经晚了一步。
 (define (add-item! item-id n)
-  (__set-item-count! item-id (+ (__item-count item-id) n)))
+  (let* ((cap (item-capacity item-id))
+         (target (+ (__item-count item-id) n))
+         (final (if cap (min target cap) target)))
+    (__set-item-count! item-id final)
+    (if (< final target)
+        (notify! (string-append item-id "带不了更多了，最多 " (number->string cap) " 个"))
+        #f)))
+
+;; 剧情直接交到玩家手里的具名物品。工作报酬、购买、调试与旧存档迁移仍用
+;; add-item!；只有需要玩家明确知道「线索进了物品栏」的内容走这里。
+(define (grant-story-item! item-id n)
+  (if (and (string? item-id) (not (equal? item-id ""))
+           (number? n) (> n 0))
+      #t
+      (error "grant-story-item!: 物品名必须是非空字符串，数量必须大于零"))
+  (add-item! item-id n)
+  (notify!
+    (string-append "获得：" item-id
+                   (if (= n 1) "" (string-append " ×" (number->string n))))))
 
 (define (remove-item! item-id n)
   (if (< (__item-count item-id) n)
@@ -620,10 +825,10 @@
   (notify! "完成一个故事小节。获得 1 点成长。"))
 
 ;; ── 伤势 ──────────────────────────────────────────────────────────
-;; 队伍只有一条身体轴：0 完好 / 1–4 轻伤（命中的能力 −1）/ 5–6 重伤（该能力 −2，少一颗骰）。
-;; 到达 7/7 当场倒下并送医，结算后伤势回落到轻伤段。
+;; 队伍只有一条身体轴：0 完好 / 1–3 轻伤（命中的能力 −1）/ 4–6 重伤（不扣能力，封一颗行动骰）。
+;; 到达 7/7 当场倒下并送医，结算后伤势与冷静归零，并在受伤部位留下永久疤痕。
 ;; 内容层不选部位——第一次受伤由引擎随机命中一项能力，之后的伤害都加深同一处。
-;; 规则与档位见 Injury.cs 与 docs/城市生活设计.md §2.2。
+;; 规则与档位见 Injury.cs（唯一来源；docs/城市生活设计.md 已不存在）。
 
 ;; 一般坏结果：劳作失手、挨一下。身上没伤是轻伤，带着伤就是加重。
 (define (injure!)

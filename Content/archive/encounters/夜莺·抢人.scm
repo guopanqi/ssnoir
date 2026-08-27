@@ -52,19 +52,19 @@
 ;; ============================================================
 
 (define search-clk
-  (make-clock "搜查逼近" 6 'segments
+  (make-clock "搜查逼近" 6 'gauge
               "「有人正在搜查」每回合 +1；具体的「搜查者」出现后，未被引开时再 +1。填满 = 他们撞开房门，夜莺受伤，本场失败。"))
 (define exit-clk
-  (make-clock "从后窗离开" 9 'segments
+  (make-clock "从后窗离开" 9 'gauge
               "填满 = 立即从后窗下楼，坐进酒馆的送酒车，进入追车。"))
 (define searcher-clk
-  (make-clock "搜查者" 2 'segments
+  (make-clock "搜查者" 2 'gauge
               "第一回合结束后出现。填满 = 他循着假线索去了楼上，本幕每回合不再额外增加 1 格搜查逼近。不会影响第二幕。"))
 (define decoy-clk
-  (make-clock "床边的两个假人" 2 'segments
+  (make-clock "床边的两个假人" 2 'gauge
               "可选。填满 = 追兵晚一拍认出被骗；第二幕追兵以 3/6 而不是 4/6 开始。"))
 (define luggage-clk
-  (make-clock "箱子里的两个位置" 2 'segments
+  (make-clock "箱子里的两个位置" 2 'gauge
               "可选。每格选择装贵重物品或路障材料；前者成功逃脱后换成 10 金，后者让第二幕的低骰确定推进一个物理对象。"))
 
 (define valuables-packed 0)
@@ -212,7 +212,7 @@
 ;; ============================================================
 
 (define pursuit-clk
-  (make-clock "追兵逼近" 6 'segments
+  (make-clock "追兵逼近" 6 'gauge
               "每驶过一个路段 +1；部分坏结果也会推进。填满 = 追车贴上来，夜莺受伤，本场失败。"))
 
 (define road 0) ; 0 鱼市 / 1 电车路口 / 2 警察封锁线
@@ -277,7 +277,7 @@
 
 (define (roadblock-clock-data)
   (if (> roadblocks-packed 0)
-      (list (list 'clock "路障材料已使用" roadblocks-used roadblocks-packed 'segments
+      (list (list 'clock "路障材料已使用" roadblocks-used roadblocks-packed 'gauge
                   "每份材料仍需投入任意骰；确定推进一个物理对象 2 格。用完即止。"))
       '()))
 
@@ -317,8 +317,8 @@
   (set! road-right-resolved? #f)
   (set! skip-current-pursuit? delay-next-pursuit?)
   (set! delay-next-pursuit? #f)
-  (set! road-left-clk (make-clock (road-left-name) (road-left-max) 'segments (road-left-note)))
-  (set! road-right-clk (make-clock (road-right-name) (road-right-max) 'segments (road-right-note)))
+  (set! road-left-clk (make-clock (road-left-name) (road-left-max) 'gauge (road-left-note)))
+  (set! road-right-clk (make-clock (road-right-name) (road-right-max) 'gauge (road-right-note)))
   (nightingale-act-on-road!))
 
 (define (resolve-road-left!)
@@ -504,7 +504,7 @@
   (list (node-nightingale) (node-road-left) (node-road-right)))
 
 (define (route-clock-data)
-  (list 'clock "冲出搜捕范围" road 3 'segments
+  (list 'clock "冲出搜捕范围" road 3 'gauge
         "每次结束回合驶过当前路段；局部对象未填满的进度随街景永久消失。通过第三段且追兵未满即成功。"))
 
 ;; ============================================================

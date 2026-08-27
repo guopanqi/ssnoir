@@ -18,15 +18,15 @@
 ;; ============================================================
 
 (define identity-clk
-  (make-clock "他的身份" 3 'segments
+  (make-clock "他的身份" 3 'gauge
               "主目标。成败只看这条:满后解锁「见好就收」。只有话题谈到他松口才会推进。"))
 
 (define money-clk
-  (make-clock "再多拿一点" 4 'segments
+  (make-clock "再多拿一点" 4 'gauge
               "副目标。满格一次性取得「欠账凭据」与 20 金;错过不补。每次只进一格——两个钱话题各一格,其余要靠空间线一件一件摸。"))
 
 (define suspicion-clk
-  (make-clock "他的疑心" 6 'segments
+  (make-clock "他的疑心" 6 'gauge
               "唯一的危险钟,不会自己走。只有三件事推它,每次都只 +1:话题谈崩、疑问露馅、段二的坏结果。到 3 他改成每回合问你一句;满了他会撕破脸把你打出去——而且从此把她一起重新算账。"))
 
 (define (clock-tick-n! clock n)
@@ -417,7 +417,7 @@
   (container-with-clocks
     (string-append "话题·" (t-tag t))
     (list (node-follow t) (node-press t) (node-drink t) (node-drop-topic t))
-    (list (list 'clock (string-append "拔河：" (t-tag t)) topic-pos topic-max 'segments
+    (list (list 'clock (string-append "拔河：" (t-tag t)) topic-pos topic-max 'gauge
                 "0 端他收口，7 端他松口；回合末未谈完 −1。"))))
 
 ;; ---- 疑问的三个动词 ----
@@ -460,7 +460,7 @@
   (container-with-clocks
     (string-append "疑问·" (t-tag q))
     (list (node-q-follow q) (node-q-press q) (node-q-drink q))
-    (list (list 'clock (string-append "拔河：疑问" (t-tag q)) question-pos topic-max 'segments
+    (list (list 'clock (string-append "拔河：疑问" (t-tag q)) question-pos topic-max 'gauge
                 "开在他占优的一侧；拉到 7 圆过去、疑心 −1；滑到 0 露馅、疑心 +2。"))))
 
 ;; ============================================================

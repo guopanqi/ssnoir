@@ -2,487 +2,362 @@
 ;;
 ;; 两幕，同一个晚上。两幕各只有一个想法，骨架都很小。
 ;;
-;; 第一幕·潜入 —— 照 infiltration 的骨架，是**环境潜入**不是 buff 按钮：
-;;   一根失败钟（惊动的人）、一根目标钟（摸到他门口），主动作「往里摸」两边都推；
-;;   除了堆场，还有两个**去处**，各自握着一个改写全局规则的开关：
-;;     走廊尽头的灯 —— 大开关。灭掉它，往里摸完全不惊动人，两个 −1 一起消失；
-;;                     代价前置（灭的瞬间 +1）、限时（两回合）、且**只有一次**：
-;;                     灯一亮回来 +2 惊动，这条路从此锁死。对应 infiltration 的断电。
-;;     看堆场的棚子 —— 小开关。把老头引开只清掉他那一个 −1，但**可以反复买**。
-;;   「由头」是不掷骰的推进出口（往里走一段 / 换一盏灯），差骰子有地方去。
-;;   压着这一切的是「他快回来了」：每回合末走一格，跟你做什么无关。
-;;   两个开关都很值，但每个开关都要花你一个回合，而他不等你布置完——这才是这一幕的题。
-;;   两头都不能不管：不动开关，灯亮着硬推惊动会先满；全花在布置上，他到家你还在堆场。
+;; 第一幕·谈妥一条界线 —— 一根双向轨道记录弗兰克的判断。游标从中点起步；
+;;   完整回答他的三个问题，正好抵达「相信你」。答坏会把游标推向「失去耐心」。
+;;   玩家也可以用行动骰作出保证，较快换取信任；每作一项保证，跨幕共用的
+;;   「老街的耐心」就少一格。到右端才进第二幕，到左端直接失败。
 ;;
-;; 幕间 —— 巷口的人的起始格 = 惊动的人 ± 你是等在那儿还是追出去的。
-;;         「你走到他面前的时候还剩下什么」的机械形式。
+;; 幕间 —— 弗兰克依据谈判结果把莱恩叫出来，不是被打退才让路。
+;;   「照刚才说的办」把第一幕亲口接受的约束带进第二幕。
 ;;
 ;; 第二幕·小心翼翼地处理他 —— 目标不是一根从头填到尾的进度条，是**这个人的形态**：
-;;   端着 → 翻脸 → 撒手。形态不额外占钟，它就是莱恩那张卡的面貌，
+;;   端着 → 翻脸。形态不额外占钟，它就是莱恩那张卡的面貌，
 ;;   标题、神态、能对他做的事整个换掉。推动形态的两根短钟同时只有一根在场：
 ;;     「他的面子」—— 拆掉他的表演。满：他不装了，承认前两封信都是他写的
-;;     「他的话」　—— 他开始说真的。中途给出「第一封她就知道」
-;;   第三形态没有钟，是三张一次性的卡：谈 / 逼 / 交换。选一张，这笔旧账就结了。
-;;
-;;   压力只有一根「老街看着」，只升不降。这不是老街在替勒索辩护——
-;;   他们只是不会允许一个外人当街把自己人拖走、搜身、按在墙上。
-;;   时间的代价不归它管：交锋每回合自己扣冷静，熬下去要还的是身体。
-;;   于是"这颗 2 现在投给高风险卡，还是烂在手里等下一轮"变成一个真问题。
+;;     「他的话」　—— 他开始说真的。中途给出「第一封她就知道」；满格时他直接
+;;                     交出铁盒，目标达成，交锋成功结束，不再追加处置选择。
 ;;
 ;;   底片跟着屈服走：他撒手了，东西就是你的。不单列成目标，也不做成机会卡——
 ;;   把它做成一次抢，这一节就又变回追债了。
 ;;
-;; 对外契约：回传 (list 收场 熟脸增 劳工增)
-;;   收场 ：'谈 / '逼 / '交换 / '难看——他都屈服了，区别是你用什么方式结的
-;;   熟脸增 / 劳工增：第一幕用谁的路走出来的关系，由《三封信》写回城市
+;; 对外契约：成功回传 '谈；任一幕耐心归零回传 '被赶出去，明天可以再来。
 ;;
-;; 城市输入：四把普通钥匙，以及弗兰克对玩家的离散态势。
-;; 钥匙不给专属按钮，只改开局态势——省掉的是你本来要花在开场上的那两颗骰。
+;; 城市输入：码头是否认得你，以及你是否在工会房间见过弗兰克。
 
 (define (key? name)
   (let ((v (get-global name))) (if v v #f)))
 
-(define frank-state
-  (let ((value (get-global '态势-弗兰克)))
-    (if value value "普通")))
-(if (member? frank-state (list "认可" "普通" "不信任"))
-    #t
-    (error "巷子：缺少有效的弗兰克开局态势"))
-(define key-joe    (key? '钥匙-乔))
-(define key-otto   (key? '钥匙-奥托))
-(define key-lottie (key? '钥匙-洛蒂))
-(define key-owner  (key? '钥匙-酒馆老板))
+(define key-dock   (key? '钥匙-码头))
+(define key-frank  (key? '钥匙-弗兰克))
 
-(define alarm-max 6)
-(define approach-max 10)
-;; 老街看着只有五格，而且只升不降。格子少是故意的：每一次冒进都看得见地贵。
-(define crowd-max 5)
-(define face-max 5)        ; 形态一：拆掉他的表演
-(define words-max 6)       ; 形态二：让他把话说完
-(define arrival-turns 4)   ; 他走回来要几个回合——这根钟跟你做什么无关
-(define dark-turns 2)      ; 灯灭之后还剩几个回合
-(define watch-turns 3)     ; 老头被引开之后还剩几个回合
-
-;; ── 两幕共用的失败钟 ────────────────────────────
-(define alarm-clk
-  (make-clock "惊动的人" alarm-max 'segments
-    "这一片有多少人知道今晚有个外人在。满格：整排屋子的灯都亮了，今晚办不成事。"))
+;; 老街的耐心从第一幕直接继承到第二幕。保证和冒进都花同一份余地。
+(define patience-max 5)
+(define lyon-stage-max 5)  ; 每一阶段的防线；满格后才换成下一种样子
 
 ;; ── 第一幕 ──────────────────────────────────────
-(define approach-clk
-  (make-clock "摸到他门口" approach-max 'segments
-    "从堆场到那扇没有窗的门。满格你就站在他回家的必经之路上。"))
+;; 十二格钟从中点起步。完整回答三问的最佳路线恰好能抵达右端。
+(define trust-clk
+  (make-clock "弗兰克的判断" 12 'gauge
+    "左端：你把外面的麻烦带进来。右端：你能按老街的规矩办完这件事。"))
+(trust-clk 'advance! 6)
+(define talk-turn 0)
+(define question-2-open? #f)
+(define question-3-open? #f)
+(define employer-clk
+  (make-clock "解答" 4 'gauge "填满：说清你和剧院经理的关系。"))
+(define standing-clk
+  (make-clock "解答" 4 'gauge "填满：说明这已经不是一对旧情人的私事。"))
+(define outcome-clk
+  (make-clock "解答" 4 'gauge "填满：说清你要带走什么、留下什么。"))
+(define promise-count 0)
+(define promised-no-first? #f)
+(define promised-no-search? #f)
+(define promised-no-manager? #f)
 
-;; 这一幕真正的压力源：它每回合走一格，你做什么都拦不住它。
-;; 两个开关都很值，但每个开关都要花你回合——这就是这场潜入的题。
-(define arrival-clk
-  (make-clock "他快回来了" arrival-turns 'countdown
-    (lambda (current max)
-      (if (<= current 1)
-          "巷子那头已经有脚步声了。这一回合结束他就到家——你还在半路上，就只能从后面追进去。"
-          "他喝完最后一杯就往回走。归零时你没摸到门口，就是从堆场追出去的，巷口的人会多两格。"))))
+;; ── 两幕共用 ────────────────────────────────────
+(define crowd-clk
+  (make-clock "老街的耐心" patience-max 'countdown
+    "保证会缩短它；第二幕里的冒进继续消耗同一份耐心。归零：这件事当街收场。"))
+(crowd-clk 'set! patience-max)
 
-;; 满格的钟不撤掉，只换一句话：灭着的时候它说你现在有什么，锁死之后它说这条路没了。
-(define lamp-clk
-  (make-clock "走廊的气灯" 3 'segments
+(define lyon-clk
+  (make-clock "莱恩的防线" lyon-stage-max 'gauge
     (lambda (current max)
       (cond
-        (lamp-locked? "有人换上了新灯罩守在灯下。这条走廊今晚再也灭不了。")
-        (lights-out? "灯全灭着。趁现在往里摸，不惊动任何人。")
-        (#t "一盏一盏拧掉。全灭：这一片黑下来，往里摸不再惊动任何人。")))))
-
-(define dark-clk
-  (make-clock "这一片还黑着" dark-turns 'countdown
-    "灯灭着还剩几个回合。归零：有人换上新灯罩站在灯下，惊动 +2，这条走廊今晚再也走不通。"))
-
-(define watch-clk
-  (make-clock "把老头引开" 2 'segments
-    (lambda (current max)
-      (if watch-away?
-          "他已经被支到堆场另一头去了。灯还是亮的——他只是一双眼睛。"
-          "看堆场的老头坐在棚子口。满格他会离开一阵子，他回来了还能再引一次。"))))
-
-(define watch-timer
-  (make-clock "他就要回来了" watch-turns 'countdown
-    "老头还离得开多久。归零他坐回棚子口，可以再引一次。"))
-
-(define excuse-clk
-  (make-clock "手上的由头" 2 'segments
-    "一件工服、一张送货单。用掉一个就能大方地办一件事，不必掷骰。"))
-
-;; ── 第二幕 ──────────────────────────────────────
-(define crowd-clk
-  (make-clock "老街看着" crowd-max 'segments
-    "一件私事正在变成「一个外人在老街欺负自己人」。满格：有人挡在你们中间，这事当街收场。"))
-
-(define face-clk
-  (make-clock "他的面子" face-max 'segments
-    "他还端着「她终于怕了」这套说辞。满格他就不装了。"))
-
-(define words-clk
-  (make-clock "他的话" words-max 'segments
-    "他开始说真的。让他说完，你才知道这笔旧账到底是谁欠谁的。"))
+        ((= form 1) "拆掉他的架子，让他承认两封信都是自己写的。")
+        ((= form 2) "让他把旧账说到底，不再把委屈藏在勒索后面。")
+        ((= form 3) "逼他承认这件事该停下，并把铁盒交出来。")
+        (else (error "巷子：莱恩处于未知状态"))))))
 
 (define act 1)
-(define form 1)             ; 莱恩的形态 1 端着 / 2 翻脸 / 3 撒手
-(define familiar-gain 0)
-(define labor-gain 0)
+(define form 1)             ; 莱恩的样子：1 端着 / 2 翻脸 / 3 屈服前
 (define cigs-used? #f)      ; 那半包老金牌只能拍一次桌子
 (define finished? #f)
-(define lights-out? #f)     ; 走廊现在黑着
-(define lamp-locked? #f)    ; 灯已经被换过，这条路锁死
-(define watch-away? #f)     ; 老头现在不在棚子口
-
-(define act1-blown? #f)     ; 潜入被彻底惊动：第二幕从最难的位置开始
+(define dock-word-used? #f) ; 码头替你说的那一句，只有一句
 
 (define (tick-n! clk n)
   (if (<= n 0) #f (begin (clk 'tick!) (tick-n! clk (- n 1)))))
 
 ;; ============================================================
-;; 第一幕·潜入
+;; 第一幕·谈妥一条界线
 ;; ============================================================
 
-;; 环境的两个开关。它们不是贴在你身上的加成，是改写全场规则的世界状态：
-;; 灯灭着，往里摸完全不惊动人；老头不在，少一双看着你的眼睛。
-(define (old-man-watching?)
-  (and (not watch-away?) (not lights-out?)))
+(define (crowd+ n) (crowd-clk 'advance! (- 0 n)))
 
-(define (alarm+ n)
-  (if lights-out? #f (tick-n! alarm-clk n)))
-
-(define (check-alarm!)
-  (if (and (= act 1) (not finished?) (alarm-clk 'full?))
-      (fail-act1!)
-      #f))
-
-;; 惊动满格不再是「今晚办不成事」。这一节必须真正结一次案——
-;; 一条"白跑一趟"的分支会让第三封信那记闷棍轻掉一半。
-;; 所以它改成最难的开局：整片地方都醒着，你只能直着走进棚子，
-;; 一进门老街就已经在看你了，几乎注定要当街收场。
-(define (fail-act1!)
-  (play-dialogue!
-    (line "世界" "一扇门开了，接着是第二扇。有人举着灯站到走廊上，谁也没说话。")
-    (line "世界" "藏不住了。你从阴影里走出来，直接朝那盏亮着的棚子灯走过去。"))
-  (set! act1-blown? #t)
-  (begin-act2! #f))
-
-;; 惊动先结算：同一手里灯先亮起来，就没有「到门口」这回事了。
-(define (approach+ n)
-  (if finished?
+(define (check-crowd!)
+  (if (or finished? (not (crowd-clk 'empty?)))
       #f
-      (begin
-        (approach-clk 'advance! n)
-        (if (approach-clk 'full?) (begin-act2! #t) #f))))
+      (thrown-out!)))
 
-;; ── 堆场：主动作与由头出口 ──────────────────────
+;; 真正的失败：你被架出老街。这一节没结，明天还能再来——
+;; 代价是经理的耐心，以及你在这条街上今晚欠下的那点脸。
+(define (thrown-out!)
+  (set! finished? #t)
+  (if (= act 1)
+      (play-dialogue!
+        (line "世界" "三四个人从两边围过来，谁也没喊。他们只是把你往煤渣路上推。")
+        (line "弗兰克" "别弄伤他。")
+        (line "弗兰克" "送到路口就行。")
+        (line "世界" "身后那扇门关上了。走廊的灯一盏接一盏灭掉。"))
+      (play-dialogue!
+        (line "弗兰克" "够了。今晚问到这里。")
+        (line "世界" "他挡到你和莱恩中间。铁盒仍在炉子后面。")
+        (line "弗兰克" "送他到路口。")))
+  (spotlight! "今晚到此为止"
+    "你被送回煤渣路的路口。堆场那头没有一点声音——他们在等你走远。")
+  (end-encounter '被赶出去))
 
-(define (sneak-modifiers)
-  (append
-    (if lights-out? '() (list (modifier -1 "灯还亮着")))
-    (if (old-man-watching?) (list (modifier -1 "老头在棚子口")) '())))
-
-(define (node-sneak)
-  (node "往里摸"
-    :subtitle (cond
-                (lights-out? "敏锐；这一片黑着——趁现在，走多远都没人看得见")
-                ((old-man-watching?) "敏锐；灯亮着，老头就坐在棚子口，每走一步都有人可能抬头")
-                (#t "敏锐；灯还亮着，但这会儿没人往这边看"))
-    :requires (list (req-die))
-    :resolve (roll 'sharpness sneak-modifiers
-      (outcome "你碰翻了什么"
-        (lambda () (alarm+ 2) (check-alarm!)))
-      (outcome "又往里挪了一段"
-        (lambda () (alarm+ 1) (check-alarm!) (approach+ 1)))
-      (outcome "一口气穿过了堆场"
-        (lambda () (alarm+ 1) (check-alarm!) (approach+ 2))))))
-
-(define (node-use-excuse)
-  (node "大方地走过去"
-    :subtitle (if (excuse-clk 'empty?)
-                  "手上没有由头。这么走过去只会被人叫住"
-                  "用掉一个由头。不掷骰，直接往里一段")
-    :disabled (excuse-clk 'empty?)
-    :resolve (instant
-      (outcome "没有人拦你"
-        (lambda ()
-          (excuse-clk 'advance! -1)
-          (approach+ 1))))))
-
-(define (node-grab-excuse)
-  (node "顺一件工服"
-    :subtitle "敏锐；工棚的架子上有工服和送货单。有了由头，办一件事不用掷骰"
-    :requires (list (req-die))
-    :resolve (roll 'sharpness
-      (outcome "架子上什么也没有"
-        (lambda () (alarm+ 1) (check-alarm!)))
-      (outcome "一件带油的工服"
-        (lambda () (excuse-clk 'tick!)))
-      (outcome "工服，还有一沓送货单"
-        (lambda () (tick-n! excuse-clk 2))))))
-
-;; ── 走廊尽头的灯：大开关，一次性 ────────────────
-
-(define (lights-out!)
-  (tick-n! alarm-clk 1)              ; 灭的瞬间总有人抬头，这一格躲不掉
-  (set! lights-out? #t)
-  (dark-clk 'set! dark-turns)
-  (spotlight! "走廊黑了"
-    "最后一盏灯芯灭下去，整条走廊连着堆场一起沉进黑里。有人在远处骂了一句，没有人过来。")
-  (check-alarm!))
-
-(define (lamp-check!)
-  (if (and (not lights-out?) (not lamp-locked?) (lamp-clk 'full?))
-      (lights-out!)
-      #f))
-
-(define (relight!)
-  (set! lights-out? #f)
-  (set! lamp-locked? #t)
-  (tick-n! alarm-clk 2)
-  (spotlight! "灯又亮了"
-    "有人拎着新灯罩过来，一盏一盏点回去，点完就靠在柱子上不走了。这条走廊今晚到此为止。")
-  (check-alarm!))
-
-(define (lamp-modifiers)
-  (if (old-man-watching?) (list (modifier -1 "老头在棚子口")) '()))
-
-(define (node-douse)
-  (node "摸上去拧掉气灯"
-    :subtitle "见识；气灯的阀在灯柱背面。全灭之前不算数，灭了也只黑一阵子"
-    :requires (list (req-die))
-    :resolve (roll 'knowledge lamp-modifiers
-      (outcome "你摸错了一个阀"
-        (lambda () (alarm+ 1) (check-alarm!)))
-      (outcome "灭了一盏"
-        (lambda () (lamp-clk 'tick!) (lamp-check!)))
-      (outcome "一连拧掉两盏"
-        (lambda ()
-          (tick-n! lamp-clk 2)
-          (set! familiar-gain (+ familiar-gain 1))
-          (lamp-check!))))))
-
-(define (node-douse-excuse)
-  (node "借着由头走到灯下"
-    :subtitle (if (excuse-clk 'empty?)
-                  "手上没有由头。这么站到灯下会被人问话"
-                  "用掉一个由头。不掷骰，直接灭一盏")
-    :disabled (excuse-clk 'empty?)
-    :resolve (instant
-      (outcome "换灯的人不会被多问"
-        (lambda ()
-          (excuse-clk 'advance! -1)
-          (lamp-clk 'tick!)
-          (lamp-check!))))))
-
-(define (node-lamp-room)
-  (container-with-clocks "走廊尽头的灯"
-    (cond
-      (lamp-locked?
-       (list (observe-action "换过的灯罩"
-               "新灯罩比原来的亮。换灯的人靠在柱子上抽烟，一直没走。")))
-      (lights-out?
-       (list (observe-action "黑着的走廊"
-               "灯全灭了。趁这会儿，堆场那头没有一个人看得见你。")))
-      (#t
-       (list (node-douse) (node-douse-excuse))))
-    (append
-      (list (lamp-clk 'render-data))
-      (if lights-out? (list (dark-clk 'render-data)) '()))))
-
-;; ── 看堆场的棚子：小开关，可反复买 ──────────────
-
-(define (watch-check!)
-  (if (and (not watch-away?) (watch-clk 'full?))
-      (begin
-        (set! watch-away? #t)
-        (watch-timer 'set! watch-turns)
-        (result-note! "看堆场的老头提着灯到另一头去了"))
-      #f))
-
-(define (node-lure)
-  (node "把老头引开"
-    :subtitle "交际；把他支到堆场另一头，少一双眼睛"
-    :requires (list (req-die))
-    :resolve (roll 'social
-      (outcome "他站起来往这边看"
-        (lambda () (alarm+ 1) (check-alarm!)))
-      (outcome "他往另一头走了几步"
-        (lambda () (watch-clk 'tick!) (watch-check!)))
-      (outcome "他跟着话走远了"
-        (lambda ()
-          (tick-n! watch-clk 2)
-          (set! labor-gain (+ labor-gain 1))
-          (watch-check!))))))
-
-(define (node-watch-shed)
-  (container-with-clocks "看堆场的棚子"
-    (if watch-away?
-        (list (observe-action "空着的棚子"
-                "凳子上放着还没凉的杯子，收音机开着。他很快就会坐回来。"))
-        (list (node-lure)))
-    (append
-      (list (watch-clk 'render-data))
-      (if watch-away? (list (watch-timer 'render-data)) '()))))
-
-;; ── 第一幕渲染 ──────────────────────────────────
-
-(define (act1-nodes)
-  (list
-    (observe-action "堆场和那条缝"
-      "堆到二层高的板条箱，中间只留一条走人的缝。走廊尽头有一排气灯，堆场口有个看夜的棚子。他那间在最里面，没有窗。")
-    (node-sneak)
-    (node-use-excuse)
-    (node-grab-excuse)
-    (node-lamp-room)
-    (node-watch-shed)))
-
-(define (act1-clocks)
-  (list (arrival-clk 'render-data)
-        (approach-clk 'render-data)
-        (alarm-clk 'render-data)
-        (excuse-clk 'render-data)))
-
-;; 回合末依次：两个开关往回退，然后他又走近一段。
-;; 灯是一次性的：亮回来就锁死，还要 +2 惊动——「趁现在」这三个字全在这里。
-;; 老头只是回到棚子口，可以再引一次。他回家这一根谁也拦不住。
-(define-turn-rule "开关在回位，而他在走回来"
-  (lambda () (and (= act 1) (not finished?)))
-  (lambda ()
-    (if lights-out?
-        (begin
-          (dark-clk 'advance! -1)
-          (if (dark-clk 'empty?) (relight!) #f))
-        #f)
-    (if (and watch-away? (not finished?))
-        (begin
-          (watch-timer 'advance! -1)
-          (if (watch-timer 'empty?)
-              (begin (set! watch-away? #f) (watch-clk 'reset!))
-              #f))
-        #f)
-    (if (and (= act 1) (not finished?))
-        (begin
-          (arrival-clk 'advance! -1)
-          (if (arrival-clk 'empty?) (begin-act2! #f) #f))
-        #f)))
-
-(define-rule "整排屋子都醒了"
-  (lambda () (and (= act 1) (not finished?)))
-  (lambda () (check-alarm!)))
+;; 倒下**在状态上完全等同「被赶出去」**（案子没结、明天再去、经理耐心 −1），
+;; 只是这一次你不是被送回路口的，是被抬出去的。文案见 三封信 的 on-lesson-result。
+(define (on-encounter-collapse)
+  (collapse-result '倒下))
 
 ;; ============================================================
 ;; 幕间
 ;; ============================================================
 
-;; 第一幕交给第二幕两样东西：一路惊动了多少人，以及你是**等在那儿**还是**追出去的**。
-;; 早到有余量（还剩两个回合以上）就能挑地方等，巷口少一格；没赶上多两格。
-;; 第一幕惊动了多少人，决定这条街一开始有多少人在看你。
-;; 惊动是 0/6、看着是 0/5，所以折半再算——不能照搬，否则潜入一失手第二幕就已经输了。
-(define (crowd-start in-position?)
-  (if act1-blown?
-      (- crowd-max 1)
-  (let ((base (+ (quotient (alarm-clk 'current) 2)
-                 (if in-position? 0 2)
-                 (if (and in-position? (>= (arrival-clk 'current) 2)) -1 0))))
-    (max 0 (min base (- crowd-max 1))))))
-
-(define (begin-act2! in-position?)
+;; 第一幕答得越完整，第二幕容错越高；约束换来的信任在这里兑现。
+(define (begin-act2!)
   (set! act 2)
-  (crowd-clk 'set! (crowd-start in-position?))
-  ;; 这个开场比「把底片交出来」重要：玩家第一句话就知道——**莱恩认为她早就知道**。
-  (if in-position?
-      (play-dialogue!
-        (line "世界" "修理棚亮着一盏灯。他背对着门，手里在弄一台拆开的机器。")
-        (line "世界" "周围几个老街人各干各的活，没人抬头。")
-        (line "尼尔" "莱恩。")
-        (line "世界" "他转过身，看了你一眼，就明白了。")
-        (line "莱恩" "她终于告诉你我是谁了？")
-        (line "尼尔" "信是你写的。")
-        (line "莱恩" "你跑这么远，就为了问这个？"))
-      (play-dialogue!
-        (line "世界" "你从堆场那头绕过来的动静太大，棚子里的人早就都看过来了。")
-        (line "尼尔" "莱恩。")
-        (line "世界" "他把手里的东西放下，慢慢站直。他早看见你了。")
-        (line "莱恩" "她终于告诉你我是谁了？")
-        (line "尼尔" "信是你写的。")
-        (line "莱恩" "你跑这么远，就为了问这个？")))
-  (if (> (crowd-clk 'current) 0)
-      (spotlight! "有人在看"
-        (if in-position?
-            "你一路摸进来惊动的那些人，这会儿在棚子外面各自忙着，眼睛却都朝这边。"
-            "你弄出的动静把半条街叫起来了。棚子外面已经站了人，还在往这边看。"))
+  (if (> promise-count 0)
+      (spotlight! "照约定办"
+        (cond
+          ((= promise-count 3)
+           "你作了三项保证。老街只再给你两格耐心。")
+          ((= promise-count 2)
+           "你作了两项保证。老街只再给你三格耐心。")
+          (promised-no-first?
+           "你答应不先动手。这里留给你的余地只有四格。")
+          (promised-no-search?
+           "你答应让他自己交出东西。这里留给你的余地只有四格。")
+          (else
+           "你答应不拿经理压他。这里留给你的余地只有四格。")))
       #f))
 
 ;; ============================================================
 ;; 第二幕·小心翼翼地处理他
 ;; ============================================================
 
-(define (crowd+ n) (tick-n! crowd-clk n))
-
-;; ── 形态一 → 二：他不装了 ────────────────────────
-(define (face+ n)
-  (face-clk 'advance! n)
-  (if (face-clk 'full?)
+;; 第一幕的谈判骨架。
+(define (trust+ n)
+  (if finished?
+      #f
       (begin
-        (set! form 2)
-        (play-dialogue!
-          (line "世界" "他停下来，看了你很久。那套「我无所谓」的架子自己塌了。")
-          (line "莱恩" "行。是我。")
-          (line "尼尔" "两封都是。")
-          (line "莱恩" "两封都是。我要钱。你知道港口现在什么样吗？")
-          (line "莱恩" "她住的那种地方，一个月的房钱够我过一年。"))
-        (spotlight! "他不装了"
-          "他不再演给你看，也不再演给这条街看。现在他说的是真的——而真话比谎话难听。"))
-      #f))
+        (trust-clk 'advance! n)
+        (cond
+          ((trust-clk 'full?) (frank-agrees!))
+          ((trust-clk 'empty?) (thrown-out!))
+          (else #f)))))
 
-;; ── 形态二：他说出那句改写案情的话 ──────────────
-(define (words+ n)
-  (let ((old (words-clk 'current)))
-    (words-clk 'advance! n)
-    (let ((new (words-clk 'current)))
-      ;; 这一格是全章的转折，不能藏在满格里——多数人走不到满格。
-      (if (and (< old 3) (>= new 3))
-          (play-dialogue!
-            (line "尼尔" "她为什么不直接告诉我是你。")
-            (line "世界" "他愣了一下。然后笑了。")
-            (line "莱恩" "她没告诉你？")
-            (line "尼尔" "……")
-            (line "莱恩" "第一封她就知道。")
-            (line "莱恩" "「别再装作不认识那条河」——那是我们以前说的话。")
-            (line "莱恩" "这条街上没有第二个人会这么写。她一眼就该认出来。"))
-          #f)
-      (if (words-clk 'full?)
-          (begin
-            (set! form 3)
-            (play-dialogue!
-              (line "莱恩" "那些照片不是你想的那种。")
-              (line "莱恩" "她在酒馆唱歌。穿那条便宜裙子。跟一堆码头工人喝酒。跟我。")
-              (line "莱恩" "上面还有她以前的名字。")
-              (line "尼尔" "那你拿着它做什么。")
-              (line "世界" "他很久没说话。")
-              (line "莱恩" "证明她在这儿待过。"))
-            (spotlight! "他说完了"
-              "他手上已经没有别的话了。剩下的是你怎么结束这笔旧账。"))
-          #f))))
+(define (topic-complete-banter! topic)
+  (cond
+    ((equal? topic '雇主)
+     (play-banter!
+       (line "弗兰克" "经理掏钱，不等于他替你挑人。")
+       (line "尼尔" "我知道。")
+       (line "弗兰克" "那就别让我看见他的手伸进来。")))
+    ((equal? topic '夜莺)
+     (play-banter!
+       (line "弗兰克" "她走了，也还是从这条街走出去的。")
+       (line "尼尔" "我不是来替谁抹掉她。")))
+    ((equal? topic '收场)
+     (play-banter!
+       (line "弗兰克" "只拿该拿的，别让这条街替你收场。")
+       (line "尼尔" "这正是我的打算。")))
+    (else (error "巷子：未知已完成议题"))))
+
+(define (answer+ clk n topic)
+  (let ((was-full? (clk 'full?)))
+    (clk 'advance! n)
+    ;; 议题本身需要说完整才构成一项可信的解释；中途的零散进展不改变判断。
+    ;; 同一议题溢出的点数不会重复结算，因为满格后它会从树里移除。
+    (if (and (not was-full?) (clk 'full?))
+        (begin (topic-complete-banter! topic) (trust+ 2))
+        #f)))
+
+(define (answer-failed! n)
+  ;; 说不通不仅消耗自己，也让弗兰克更确信你不值得放行。
+  (trust+ -1)
+  (spend-composure! n))
+
+(define (node-state-employer)
+  (node "说清谁付的钱"
+    :subtitle "社会；经理付钱，不等于他替你决定怎么收场"
+    :requires (list (req-die))
+    :resolve (roll 'social
+      (outcome "话说得太细" (lambda () (answer-failed! 2)))
+      (outcome "他听懂了区别" (lambda () (answer+ employer-clk 1 '雇主)))
+      (outcome "案子早于经理的人" (lambda () (answer+ employer-clk 2 '雇主))))))
+
+(define (node-state-timeline)
+  (node "从头讲起"
+    :subtitle "见识；接案、查信、走桥廊都早于经理的人"
+    :requires (list (req-die))
+    :resolve (roll 'knowledge
+      (outcome "只能证明你跑得快" (lambda () (answer-failed! 2)))
+      (outcome "时间对得上" (lambda () (answer+ employer-clk 1 '雇主)))
+      (outcome "你不是临时找来的" (lambda () (answer+ employer-clk 2 '雇主))))))
+
+(define (node-dock-testimony)
+  (node "让码头作证"
+    :subtitle "社会；卸货的人肯替你担一句，但你得让他现在开口"
+    :disabled dock-word-used?
+    :requires (list (req-die))
+    :resolve (roll 'social
+      (outcome "没人替你接话" (lambda () (set! dock-word-used? #t) (answer-failed! 2)))
+      (outcome "班表上有你的名字"
+        (lambda () (set! dock-word-used? #t) (answer+ employer-clk 2 '雇主)))
+      (outcome "他肯替你担保"
+        (lambda () (set! dock-word-used? #t) (answer+ employer-clk 3 '雇主))))))
+
+(define (node-open-letters)
+  (node "把两封信摊开"
+    :subtitle "见识；索钱之后是要命，已经不是旧情人的口角"
+    :requires (list (req-die))
+    :resolve (roll 'knowledge
+      (outcome "他没有接" (lambda () (answer-failed! 2)))
+      (outcome "他读完第一封" (lambda () (answer+ standing-clk 1 '夜莺)))
+      (outcome "他把两封都读完" (lambda () (answer+ standing-clk 2 '夜莺))))))
+
+(define (node-count-her-in)
+  (node "把她算回来"
+    :subtitle "社会；莱恩留下算这里的人，她走出去也不能除名"
+    :requires (list (req-die))
+    :resolve (roll 'social
+      (outcome "像拿出身压他" (lambda () (answer-failed! 2)))
+      (outcome "他记起那一层楼" (lambda () (answer+ standing-clk 1 '夜莺)))
+      (outcome "她也有资格讨说法" (lambda () (answer+ standing-clk 2 '夜莺))))))
+
+(define (node-limit-purpose)
+  (node "只拿信和底片"
+    :subtitle "社会；把今晚要带走的东西说清楚"
+    :requires (list (req-die))
+    :resolve (roll 'social
+      (outcome "像进门前的好听话" (lambda () (answer-failed! 2)))
+      (outcome "目标说清了" (lambda () (answer+ outcome-clk 1 '收场)))
+      (outcome "你要东西，不要人" (lambda () (answer+ outcome-clk 2 '收场))))))
+
+(define (node-state-consequence)
+  (node "把后果说到底"
+    :subtitle "社会；今晚不解决，明天来的就不是你"
+    :tags (list "高风险")
+    :requires (list (req-die))
+    :resolve (roll 'social
+      (outcome "他听成了威胁" (lambda () (answer-failed! 2)))
+      (outcome "他知道这是实话" (lambda () (answer+ outcome-clk 1 '收场)))
+      (outcome "你是可控的那个" (lambda () (answer+ outcome-clk 2 '收场))))))
+
+(define (make-promise! which trust-n)
+  (cond
+    ((equal? which '不先动手) (set! promised-no-first? #t))
+    ((equal? which '不搜身) (set! promised-no-search? #t))
+    ((equal? which '不用经理) (set! promised-no-manager? #t))
+    (else (error "巷子：未知保证")))
+  (set! promise-count (+ promise-count 1))
+  (crowd+ 1)
+  (check-crowd!)
+  (trust+ trust-n))
+
+(define (node-promise-no-first)
+  (node "保证不先动手"
+    :subtitle "约束自己：第二幕不先动手；武力；少一格耐心"
+    :requires (list (req-die))
+    :resolve (roll 'violence
+      (outcome "他不信你收得住手" (lambda () (make-promise! '不先动手 1)))
+      (outcome "他暂且记下" (lambda () (make-promise! '不先动手 3)))
+      (outcome "这句话有分量" (lambda () (make-promise! '不先动手 4))))))
+
+(define (node-promise-no-search)
+  (node "保证不搜身"
+    :subtitle "约束自己：第二幕不搜身；社会；少一格耐心"
+    :requires (list (req-die))
+    :resolve (roll 'social
+      (outcome "像进门前的空话" (lambda () (make-promise! '不搜身 1)))
+      (outcome "他接受这条界线" (lambda () (make-promise! '不搜身 3)))
+      (outcome "东西只能由莱恩交" (lambda () (make-promise! '不搜身 4))))))
+
+(define (node-promise-no-manager)
+  (node "保证不用经理压他"
+    :subtitle "约束自己：第二幕不借经理施压；社会；少一格耐心"
+    :requires (list (req-die))
+    :resolve (roll 'social
+      (outcome "他听见的还是经理" (lambda () (make-promise! '不用经理 1)))
+      (outcome "今晚只算你的话" (lambda () (make-promise! '不用经理 3)))
+      (outcome "剧院的人不会进来" (lambda () (make-promise! '不用经理 4))))))
+
+(define (frank-agrees!)
+  (play-dialogue!
+    (line "世界" "弗兰克很久没有说话。巷口的人还在原处，没人替你催。")
+    (line "弗兰克" "你把该说的都说了。剩下那件事，别把它办成别人的账。")
+    (line "尼尔" "我只拿该拿的。")
+    (line "世界" "他把手套折好，侧身让出通往修理棚的路。")
+    (line "弗兰克" "莱恩。出来。")
+    (line "世界" "椅脚在水泥地上刮了一声。莱恩从里面走出来。")
+    (line "莱恩" "她终于告诉你我是谁了？")
+    (line "弗兰克" "你问。照刚才说的办。"))
+  (begin-act2!))
+
+;; ── 三阶段：同一根防线满格，才换到下一种样子 ──────
+(define (lyon-look)
+  (cond
+    ((= form 1) "他倚着工作台，装作这件事只是夜莺终于回来还债。铁盒还藏在炉子后面。")
+    ((= form 2) "那套架子已经塌了。他承认信是自己写的，却还把七年的旧账攥在手里。")
+    ((= form 3) "莱恩看着工作台上的铁盒，没有再拿它当筹码；巷口的人都在等他先松手。")
+    (else (error "巷子：莱恩处于未知状态"))))
+
+(define (advance-lyon! n)
+  (lyon-clk 'advance! n)
+  (if (lyon-clk 'full?)
+      (cond
+        ((= form 1)
+         (set! form 2)
+         (lyon-clk 'set! 0)
+         (play-dialogue!
+           (line "世界" "他停下来，看了你很久。那套「我无所谓」的架子自己塌了。")
+           (line "莱恩" "行。是我。两封都是。")
+           (line "莱恩" "我要钱。你知道港口现在什么样吗？")
+           (line "莱恩" "她住的那种地方，一个月的房钱够我过一年。")))
+        ((= form 2)
+         (set! form 3)
+         (lyon-clk 'set! 0)
+         (play-dialogue!
+           (line "尼尔" "她为什么不直接告诉我是你。")
+           (line "世界" "他愣了一下。然后笑了。")
+           (line "莱恩" "第一封她就知道。那是我们以前说的话。")
+           (line "莱恩" "她一眼就该认出来。")))
+        ((= form 3)
+         (play-dialogue!
+           (line "莱恩" "那些照片不是你想的那种。她在酒馆唱歌，跟码头的人喝酒。跟我。")
+           (line "尼尔" "那你拿着它做什么。")
+           (line "莱恩" "证明她在这儿待过。")
+           (line "世界" "他把铁盒从炉子后面拿出来，推到工作台这一头。")
+           (line "莱恩" "拿走。告诉她，我不再找她了。"))
+         (spotlight! "东西到手了"
+           "底片、照片和剩下的信都在铁盒里。莱恩答应不再找夜莺。")
+         (finish! '谈))
+        (else (error "巷子：莱恩处于未知状态")))
+      #f))
 
 ;; ── 形态一的三张卡 ──────────────────────────────
 (define (node-letters)
   (node "摊开那两封信"
-    :subtitle "见识；纸就在你口袋里，他认得自己的字"
+    :subtitle "见识；低风险，纸就在口袋里，他认得自己的字"
+    :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge
       (outcome "他说不是他写的"
         (lambda () (spend-composure! 1)))
       (outcome "他不看那张纸"
-        (lambda () (face+ 1)))
+        (lambda () (advance-lyon! 1)))
       (outcome "他念出了自己写的话"
-        (lambda () (face+ 2))))))
+        (lambda () (advance-lyon! 2))))))
 
 (define (node-cigs)
   (node "把烟盒扔到桌上"
     :subtitle (if cigs-used?
                   "烟盒已经在桌上了"
-                  "不掷骰；他知道这半包是从哪儿捡回来的")
+                  "低风险；不掷骰，他知道这半包从哪儿来的")
+    :tags (list "低风险")
     :disabled cigs-used?
     :requires (list (req-item "半包「老金牌」" 1))
     :resolve (instant
@@ -492,118 +367,104 @@
           (play-banter!
             (line "世界" "软了的烟盒落在工作台上，滚了半圈。")
             (line "莱恩" "……那小子把这个也给你了。"))
-          (face+ 3))))))
+          (advance-lyon! 2))))))
 
 (define (node-her-now)
   (node "提她现在的样子"
-    :subtitle "交际；最快的一手。他会喊，整条街都听得见"
+    :subtitle "社会；高风险，失败才惊动老街，最快的一手"
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'social
       (outcome "他冲你吼回来"
-        (lambda () (spend-composure! 1) (crowd+ 2)))
+        (lambda () (spend-composure! 2) (crowd+ 1)))
       (outcome "他脸上挂不住"
-        (lambda () (face+ 2) (crowd+ 1)))
+        (lambda () (advance-lyon! 2)))
       (outcome "他自己把话接了下去"
-        (lambda () (face+ 3) (crowd+ 1))))))
+        (lambda () (advance-lyon! 3))))))
 
 ;; ── 形态二的四张卡 ──────────────────────────────
 (define (node-listen)
   (node "听他说完"
-    :subtitle "交际；不打断。慢，可这条街当没听见"
+    :subtitle "社会；低风险，不打断，这条街当没听见"
+    :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'social
       (outcome "他自己绕回去了"
         (lambda () (spend-composure! 1)))
       (outcome "他往下说了一段"
-        (lambda () (words+ 1)))
+        (lambda () (advance-lyon! 1)))
       (outcome "他说了没打算说的"
-        (lambda () (words+ 2))))))
+        (lambda () (advance-lyon! 2))))))
 
 (define (node-that-line)
   (node "追问那句话"
-    :subtitle "见识；信上那句你当初以为只是恐吓的话"
+    :subtitle "见识；低风险，追问信上那句河边的暗语"
+    :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge
       (outcome "他反问你信在哪儿"
         (lambda () (spend-composure! 1)))
       (outcome "他解释了半句"
-        (lambda () (words+ 2)))
+        (lambda () (advance-lyon! 1)))
       (outcome "他把来龙去脉说了"
-        (lambda () (words+ 3))))))
+        (lambda () (advance-lyon! 2))))))
 
 (define (node-strip)
   (node "拆穿他的委屈"
-    :subtitle "交际；他不是受害者，说破它。快，也会招人"
+    :subtitle "社会；高风险，失败才惊动老街；说破他的委屈"
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'social
       (outcome "他梗着脖子不认"
-        (lambda () (spend-composure! 1) (crowd+ 1)))
+        (lambda () (spend-composure! 2) (crowd+ 1)))
       (outcome "他没话说了"
-        (lambda () (words+ 2) (crowd+ 1)))
+        (lambda () (advance-lyon! 2)))
       (outcome "他自己认了"
-        (lambda () (words+ 3) (crowd+ 1))))))
+        (lambda () (advance-lyon! 3))))))
 
 (define (node-workbench)
   (node "逼近工作台"
-    :subtitle "力量；他一直用身子挡着那边。整条巷子都会看见"
+    :subtitle "力量；高风险，失败才惊动老街；逼近工作台"
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'violence
       (outcome "他把你推开"
-        (lambda () (spend-composure! 1) (crowd+ 2)))
+        (lambda () (spend-composure! 2) (crowd+ 2)))
       (outcome "他退了半步"
-        (lambda () (words+ 2) (crowd+ 2)))
+        (lambda () (advance-lyon! 2)))
       (outcome "他不敢再挡"
-        (lambda () (words+ 3) (crowd+ 2))))))
+        (lambda () (advance-lyon! 3))))))
 
-;; ── 形态三：三张一次性的卡，选一张就结 ──────────
-;; 三条都算他屈服，区别是你用什么方式结的——以及他会不会记着这件事。
-(define (node-settle-talk)
-  (node "就到这儿吧"
-    :subtitle (if (<= (crowd-clk 'current) 2)
-                  "交际；不再逼他。让他自己收手"
-                  "这条街已经站起来了，谈不成了")
-    :disabled (> (crowd-clk 'current) 2)
-    :resolve (instant
-      (outcome "他把底片扔过来"
-        (lambda ()
-          (play-dialogue!
-            (line "尼尔" "你已经拿到你要的了。她不会回来。")
-            (line "尼尔" "再写下去，下一个来的就不是我。")
-            (line "世界" "他坐了很久，然后从炉子后面掏出一个铁盒，扔在你脚边。")
-            (line "莱恩" "拿走。")
-            (line "莱恩" "告诉她，我不找她了。"))
-          (finish! '谈))))))
+;; ── 形态三：逼他自己把铁盒推过来 ──────────────────
+(define (node-leave-him-a-way-out)
+  (node "给他留条路"
+    :subtitle "社会；低风险，承认他有旧账，但这件事到今晚为止"
+    :tags (list "低风险")
+    :requires (list (req-die))
+    :resolve (roll 'social
+      (outcome "他又把话咽回去" (lambda () (spend-composure! 1)))
+      (outcome "他松了点手" (lambda () (advance-lyon! 1)))
+      (outcome "他不再拿铁盒当筹码" (lambda () (advance-lyon! 2))))))
 
-(define (node-settle-force)
-  (node "按住他搜"
-    :subtitle "力量；东西一定到手。整条街都会记住今晚"
+(define (node-name-the-price)
+  (node "说清该留下什么"
+    :subtitle "见识；低风险，照片能留下，威胁和底片不能"
+    :tags (list "低风险")
+    :requires (list (req-die))
+    :resolve (roll 'knowledge
+      (outcome "他只听见你要拿走东西" (lambda () (spend-composure! 1)))
+      (outcome "他看着那只铁盒" (lambda () (advance-lyon! 1)))
+      (outcome "他知道你没打算羞辱他" (lambda () (advance-lyon! 2))))))
+
+(define (node-reach-for-the-box)
+  (node "伸手拿铁盒"
+    :subtitle "力量；高风险，失败才惊动老街；逼他松手"
     :tags (list "高风险")
-    :resolve (instant
-      (outcome "东西到手"
-        (lambda ()
-          (crowd+ 2)
-          (play-dialogue!
-            (line "世界" "你把他按在工作台上，从炉子后面摸出那个铁盒。")
-            (line "莱恩" "东西拿走。")
-            (line "莱恩" "但这事没完。"))
-          (finish! '逼))))))
-
-(define (node-settle-trade)
-  (node "替他带句话"
-    :subtitle "交际；他要的不是钱了。你成了两个人之间最后一次传话"
-    :resolve (instant
-      (outcome "他把铁盒推过来"
-        (lambda ()
-          (play-dialogue!
-            (line "莱恩" "东西给你。")
-            (line "莱恩" "但你得让她自己说。")
-            (line "尼尔" "说什么。")
-            (line "莱恩" "说我们结束了。她当年走的时候一个字都没留。")
-            (line "世界" "他把铁盒推到工作台这一头，手一直没松开，直到你伸手去拿。"))
-          (finish! '交换))))))
+    :requires (list (req-die))
+    :resolve (roll 'violence
+      (outcome "他按住铁盒不放" (lambda () (spend-composure! 2) (crowd+ 2)))
+      (outcome "他退开了" (lambda () (advance-lyon! 2)))
+      (outcome "他的手先松开" (lambda () (advance-lyon! 3))))))
 
 ;; ── 收场 ────────────────────────────────────────
 ;; 老街站起来把你请出去，也算这笔旧账结了：东西你照样带走了，
@@ -622,39 +483,131 @@
               (line "世界" "莱恩自己把铁盒扔了过来——他不想让这条街看下去。")
               (line "莱恩" "滚吧。"))
             #f)
-        (end-encounter (list route familiar-gain labor-gain)))))
+        (end-encounter route))))
 
 (define-rule "围上来了"
-  (lambda () (and (= act 2) (not finished?)))
-  (lambda () (if (crowd-clk 'full?) (finish! '难看) #f)))
+  (lambda () (not finished?))
+  (lambda () (check-crowd!)))
 
-(define (lyon-look)
-  (cond
-    ((= form 1) "三十多岁，酒气很重，背抵着墙。他在等你先开口——他觉得今晚是他赢了。")
-    ((= form 2) "架子塌了以后，他看起来比刚才瘦。手上有码头留下的老茧，现在没处使。")
-    (#t "他不再看你，也不再看巷口。他只是坐在那儿，等这件事过去。")))
+;; 第一幕的问题按回合累积。每一项尚未解释清楚的真实担忧，都会在回合末
+;; 把弗兰克的判断向左推一格；第二、第三问分别在第一、第二回合后出现。
+(define (unresolved-question-count)
+  (+ (if (employer-clk 'full?) 0 1)
+     (if (and question-2-open? (not (standing-clk 'full?))) 1 0)
+     (if (and question-3-open? (not (outcome-clk 'full?))) 1 0)))
+
+(define-turn-rule "弗兰克继续追问"
+  (lambda () (and (= act 1) (not finished?)))
+  (lambda ()
+    (trust+ (- 0 (unresolved-question-count)))
+    (if (= act 1)
+        (begin
+          (set! talk-turn (+ talk-turn 1))
+          (cond
+            ((= talk-turn 1)
+             (set! question-2-open? #t)
+             (play-dialogue!
+               (line "弗兰克" "就算你不是跟下午那两个一拨的。")
+               (line "弗兰克" "她离开几年，现在派人回来找旧账。这跟你有什么关系？")))
+            ((= talk-turn 2)
+             (set! question-3-open? #t)
+             (play-dialogue!
+               (line "弗兰克" "好。信是他写的，这件事该有个说法。")
+               (line "弗兰克" "你问完，准备把他交给谁？")))
+            (else #f)))
+        #f)))
+
+;; 时间的代价不归「老街看着」管：那根钟只记这条街的注意力。
+;; 在门口耗一晚、在棚子里熬一晚，要还的是身体。
+;;
+;; 这里曾经有一条「熬下去」，每回合再扣 1 点冷静。冷静击穿改成一比一进伤势之后
+;; 它就得删：引擎每回合那 1 点本身就是身体的代价（见 SceneManager.EncounterTurnComposureCost），
+;; 满冷静五个回合、之后每回合 1 点伤。再叠一层就是把这条账单翻倍，
+;; 而这一场本来就要跑五回合左右——那不是压力，是打不完。
+;; 「这一场更耗」由老街看着自己表达，它已经在做这件事。
+
+(define (act2-scene-node)
+  ;; 当前场面是站在棚里就能看见的，不应伪装成要花行动观察的卡。
+  (note-node "场面：修理棚" "莱恩的样子" (lyon-look)))
 
 (define (act2-nodes)
   (append
-    (list (observe-action "你面前这个人" (lyon-look)))
+    (list (act2-scene-node))
     (cond
       ((= form 1) (list (node-letters) (node-cigs) (node-her-now)))
       ((= form 2) (list (node-listen) (node-that-line) (node-strip) (node-workbench)))
-      (#t (list (node-settle-talk) (node-settle-force) (node-settle-trade))))))
+      ((= form 3) (list (node-leave-him-a-way-out)
+                         (node-name-the-price)
+                         (node-reach-for-the-box)))
+      (else (error "巷子：莱恩处于未知状态")))))
 
 (define (act2-clocks)
-  (cond
-    ((= form 1) (list (face-clk 'render-data) (crowd-clk 'render-data)))
-    ((= form 2) (list (words-clk 'render-data) (crowd-clk 'render-data)))
-    (#t (list (crowd-clk 'render-data)))))
+  (list (lyon-clk 'render-data) (crowd-clk 'render-data)))
 
 ;; ============================================================
 ;; 渲染
 ;; ============================================================
 
+(define (topic-progress-node topic clk)
+  ;; 容器卡上的 :clocks 不会随导航带入子场景；议题内用标注保留自己的进度。
+  (clock-node (string-append "议题进度：" topic) (clk 'render-data)))
+
+(define (awaiting-next-question?)
+  ;; 当前已提出的问题都答完了，但弗兰克会在本回合末才提出下一件事。
+  (and (employer-clk 'full?)
+       (or (not question-2-open?) (standing-clk 'full?))
+       (or (not question-3-open?) (outcome-clk 'full?))))
+
+(define (node-frank-considers-next-question)
+  (observe-action "弗兰克还在想"
+    "他没有让开路，只是在掂量下一件该问的事。本回合结束后，他会继续问。"))
+
+(define (act1-nodes)
+  (let ((promises
+          (append
+            (if promised-no-first? '() (list (node-promise-no-first)))
+            (if promised-no-search? '() (list (node-promise-no-search)))
+            (if promised-no-manager? '() (list (node-promise-no-manager))))))
+    (append
+      (if (employer-clk 'full?)
+          '()
+          (list
+            (node "你替谁办事？"
+              :subtitle "未解答时，每回合使弗兰克的判断恶化一格"
+              :children (append (list (topic-progress-node "你替谁办事？" employer-clk)
+                                      (node-state-employer) (node-state-timeline))
+                                (if key-dock (list (node-dock-testimony)) '()))
+              :clocks (list (employer-clk 'render-data)))))
+      (if (or (not question-2-open?) (standing-clk 'full?))
+          '()
+          (list
+            (node "这为何归你管？"
+              :subtitle "未解答时，每回合使弗兰克的判断恶化一格"
+              :children (list (topic-progress-node "这为何归你管？" standing-clk)
+                              (node-open-letters) (node-count-her-in))
+              :clocks (list (standing-clk 'render-data)))))
+      (if (or (not question-3-open?) (outcome-clk 'full?))
+          '()
+          (list
+            (node "问完以后怎么办？"
+              :subtitle "未解答时，每回合使弗兰克的判断恶化一格"
+              :children (list (topic-progress-node "问完以后怎么办？" outcome-clk)
+                              (node-limit-purpose) (node-state-consequence))
+              :clocks (list (outcome-clk 'render-data)))))
+      ;; 这个空档不是「只剩保证可点」：新的议题会在回合末提出。
+      (if (awaiting-next-question?)
+          (list (node-frank-considers-next-question))
+          '())
+      ;; 约束是同一轮谈判的可选承诺，不应与三道主问题并列铺在场景中。
+      ;; 任一承诺兑现后移出；全数兑现时连容器一起省略，避免留下空容器。
+      (if (null? promises) '() (list (container "三项保证" promises))))))
+
+(define (act1-clocks)
+  (list (trust-clk 'render-data) (crowd-clk 'render-data)))
+
 (define (get-render-data)
   (if (= act 1)
-      (container "货栈后面"
+      (container "堆场路口"
         (append (apply clock-nodes (act1-clocks))
           (act1-nodes)))
       (container "修理棚"
@@ -662,20 +615,25 @@
           (act2-nodes)))))
 
 ;; ── 开局 ────────────────────────────────────────
-;; 他从第一个回合就在往回走。这根钟不归任何动作管。
-(arrival-clk 'set! arrival-turns)
+;; 码头声誉在第一问开放一次现场作证；见过弗兰克只改变开场口气。
 
-;; ── 开局态势由钥匙决定 ──────────────────────────
-;; 钥匙不给专属按钮，只省掉你本来要花在开场上的那两颗骰。
-;; 弗兰克认可：看堆场的人被提前调开；不信任：消息先一步传进堆场。
-(if (equal? frank-state "认可")
-    (begin (watch-clk 'set! (watch-clk 'max))
-           (set! watch-away? #t)
-           (watch-timer 'set! watch-turns))
-    #f)
-(if (equal? frank-state "不信任") (tick-n! alarm-clk 2) #f)
-;; 酒馆老板：这一片的门道他都讲过，气灯的阀你不用现找。
-(if key-owner (tick-n! lamp-clk 2) #f)
-(if key-joe (excuse-clk 'tick!) #f)
-(if key-otto (approach-clk 'advance! 2) #f)
-(if key-lottie (approach-clk 'advance! 2) #f)
+(define (on-encounter-enter)
+  (play-dialogue!
+    (line "世界" "煤渣路走到尽头，堆场口停着一辆摩托车，前灯还热着。")
+    (if key-frank
+        (line "世界" "弗兰克从摩托车旁抬起头。工会房间那次以后，他已经认得你。")
+        (line "世界" "路被人挡住了。他刚从车上下来，正在把手套摘掉。"))
+    (if key-frank
+        (line "弗兰克" "桥廊那边把名字给你了。")
+        (line "弗兰克" "上次差点撞着你。"))
+    (if key-frank
+        (line "尼尔" "所以你知道我为什么来。")
+        (line "尼尔" "……那晚是你。"))
+    (line "弗兰克" "一个本地人看见外地人追老街的人，还能先做什么？")
+    (line "尼尔" "我找莱恩。")
+    (line "弗兰克" "不在。")
+    (line "尼尔" "你知道我问的是谁。")
+    (line "弗兰克" "知道。")
+    (line "世界" "两边的屋檐下有人站着，没有走开，也没有靠近。")
+    (line "弗兰克" "下午来了两个人。鞋太亮，不像来找活。")
+    (line "弗兰克" "你跟他们，是一拨的吗？")))

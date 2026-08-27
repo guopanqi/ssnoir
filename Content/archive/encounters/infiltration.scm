@@ -5,11 +5,11 @@
 ;; ── Local State ────────────────────────────────
 
 ;; 核心进度条
-(define alert (make-clock "警戒" 6 'segments))    ; 失败条件
-(define safe (make-clock "保险箱" 8 'segments))    ; 胜利条件
-(define power (make-clock "断电" 4 'segments))     ; 配电房进度
-(define camera (make-clock "切断监控" 3 'segments)) ; 监控室进度
-(define tool-prep (make-clock "道具准备" 2 'segments)) ; 储藏间进度
+(define alert (make-clock "警戒" 6 'gauge))    ; 失败条件
+(define safe (make-clock "保险箱" 8 'gauge))    ; 胜利条件
+(define power (make-clock "断电" 4 'gauge))     ; 配电房进度
+(define camera (make-clock "切断监控" 3 'gauge)) ; 监控室进度
+(define tool-prep (make-clock "道具准备" 2 'gauge)) ; 储藏间进度
 
 ;; 倒计时
 (define power-timer (make-clock "备用电源" 2 'countdown))

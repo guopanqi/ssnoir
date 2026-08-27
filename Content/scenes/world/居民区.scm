@@ -1,4 +1,4 @@
-;; 码头居民区——乔的家庭生活与伤病发生在这里；小节二起也是老街调查的主场。
+;; 码头居民区——小节二起的老街调查主场。
 
 (define residential-district
   (let ()
@@ -13,8 +13,7 @@
         ((equal? msg 'render-data)
          (list (place "码头居民区"
                  :children (map anchor-at-residential-district
-                             (append (three-letters 'nodes-at "居民区")
-                                     (joe 'residential-nodes))))))
+                             (three-letters 'nodes-at "居民区")))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
         (else #f))))))

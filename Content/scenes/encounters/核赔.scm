@@ -1,7 +1,11 @@
 ;; 核赔——条款谱系基准。查清事实后，玩家决定坐实还是放水。
 
-(define evidence-clk (make-clock "事实" 4 'segments "填满后可以决定怎样写进理赔报告。"))
-(define suspicion-clk (make-clock "沃尔特的怀疑" 4 'segments "放水前若填满，沃尔特会接管调查。"))
+(define evidence-clk (make-clock "事实" 4 'gauge "填满后可以决定怎样写进理赔报告。"))
+(define suspicion-clk (make-clock "沃尔特的怀疑" 4 'gauge "放水前若填满，沃尔特会接管调查。"))
+
+;; 报告没有时限。倒下只中断这一次核对，不替玩家选择坐实骗保或替人放水。
+(define (on-encounter-collapse)
+  (collapse-retry))
 
 (define (tick-n! clk n)
   (if (<= n 0) #f (begin (clk 'tick!) (tick-n! clk (- n 1)))))
@@ -20,7 +24,7 @@
 (define (node-listen)
   (action "听报案人把话说完" (list (req-die))
     (roll 'social
-      (lambda () (spend-composure! 1))
+      (lambda () (spend-composure! 2))
       (lambda () (evidence-clk 'tick!))
       (lambda () (tick-n! evidence-clk 2) (suspicion-clk 'set! (max 0 (- (suspicion-clk 'current) 1)))))))
 

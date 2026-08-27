@@ -1,7 +1,7 @@
 ;; 悬案——隐藏胜利条件基准。先把旧账拼完整，再决定该找谁。
 
-(define clue-clk (make-clock "旧账的缺口" 4 'segments "填满后才会出现真正的收口。"))
-(define alarm-clk (make-clock "旧人察觉" 5 'segments "填满则证人与账页都会消失。"))
+(define clue-clk (make-clock "旧账的缺口" 4 'gauge "填满后才会出现真正的收口。"))
+(define alarm-clk (make-clock "旧人察觉" 5 'gauge "填满则证人与账页都会消失。"))
 
 (define (tick-n! clk n)
   (if (<= n 0) #f (begin (clk 'tick!) (tick-n! clk (- n 1)))))

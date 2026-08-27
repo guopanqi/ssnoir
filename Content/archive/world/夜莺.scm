@@ -501,14 +501,14 @@
 
     (define (beat1-clock)
       (if (= story-stage 1)
-          (list (list 'clock "对陌生人的了解" (stranger-understanding) stranger-understanding-target 'segments
+          (list (list 'clock "对陌生人的了解" (stranger-understanding) stranger-understanding-target 'gauge
                       "酒馆与码头的查访 Clock 每完成一条，增加 1 格；满格后揭晓藏身处。"))
           '()))
 
 
     (define (condition-clock)
       (if (and (>= story-stage 2) (> condition-level 0))
-          (list (list 'clock "夜莺的处境" condition-level 2 'segments
+          (list (list 'clock "夜莺的处境" condition-level 2 'gauge
                       (if (= condition-level 1)
                           "第一节没能抢在对方上门前解决。夜莺已经不安；第 17 天的带走时钟会少 1 格。"
                           "第二节失守后她受了伤；加上先前的不安，第 17 天的带走时钟会少 2 格。")))
@@ -516,13 +516,13 @@
 
     (define (trust-clock)
       (if (and (>= story-stage 1) (<= story-stage 3))
-          (list (list 'clock "夜莺对你的信任" trust trust-threshold 'segments
+          (list (list 'clock "夜莺对你的信任" trust trust-threshold 'gauge
                       "主动上门、落实保护、护住她、收下她的戒指，都会让她更信你。"))
           '()))
 
     (define (truth-clock)
       (if (and (stage3-open?) (truth-pending?))
-          (list (list 'clock "那晚码头上发生了什么" truth-progress truth-target 'segments
+          (list (list 'clock "那晚码头上发生了什么" truth-progress truth-target 'gauge
                       "先在码头、警察局或货运公司混出门路,才能找到人、调到卷宗或翻到旧记录。查不查,都能走到第 17 天。"))
           '()))
 
@@ -543,10 +543,10 @@
       (cond
         ((not (stage3-open?)) '())
         (case-filed?
-         (list (list 'clock "阿瑟的案情捎话" case-progress-shown (length (case-progress-texts)) 'segments
+         (list (list 'clock "阿瑟的案情捎话" case-progress-shown (length (case-progress-texts)) 'gauge
                      "每隔 3 天有新消息；满格后,就等第 17 天巡警上门。")))
         (surrendered?
-         (list (list 'clock "萨姆的案情捎话" surrender-progress-shown (length (surrender-progress-texts)) 'segments
+         (list (list 'clock "萨姆的案情捎话" surrender-progress-shown (length (surrender-progress-texts)) 'gauge
                      "每隔 3 天有新消息；满格后,就等第 17 天启程。")))
         (else '())))
 
@@ -961,7 +961,7 @@
       (node "向酒客打听陌生人"
         :subtitle "从酒客的闲话里拼凑他的外貌、口音和习惯"
         :tags (list "低风险")
-        :clocks (list (list 'clock "酒客的说法" tavern-inquiry-progress beat1-location-target 'segments
+        :clocks (list (list 'clock "酒客的说法" tavern-inquiry-progress beat1-location-target 'gauge
                             "填满后，对陌生人的了解增加 1 格。"))
         :requires (list (req-die))
         :resolve (roll 'social
@@ -976,7 +976,7 @@
       (node "在码头打听陌生人"
         :subtitle "向船员和搬运工追查他从哪里来、把东西送去哪里"
         :tags (list "低风险")
-        :clocks (list (list 'clock "码头上的来路" dock-inquiry-progress beat1-location-target 'segments
+        :clocks (list (list 'clock "码头上的来路" dock-inquiry-progress beat1-location-target 'gauge
                             "填满后，对陌生人的了解增加 1 格。"))
         :requires (list (req-die))
         :resolve (roll 'social
@@ -1013,7 +1013,7 @@
                       "得先在码头混个面熟,才有人肯把你带去见他")
         :tags (if (relation-at-least? "劳工" '相识) '() (list "需要劳工·相识"))
         :disabled (not (relation-at-least? "劳工" '相识))
-        :clocks (list (list 'clock "老人的记忆" dock-truth-progress dock-truth-target 'segments
+        :clocks (list (list 'clock "老人的记忆" dock-truth-progress dock-truth-target 'gauge
                             "问一次想起一层,想完为止。"))
         :requires (list (req-die))
         :resolve (roll 'social dock-truth-mods
@@ -1037,7 +1037,7 @@
                         "得先在警察局登记，他才会替你调邻城旧卷"))
         :tags (if (relation-at-least? "官僚" '相识) '() (list "需要官僚·相识"))
         :disabled (not (relation-at-least? "官僚" '相识))
-        :clocks (list (list 'clock "案卷抄件" police-truth-progress police-truth-target 'segments
+        :clocks (list (list 'clock "案卷抄件" police-truth-progress police-truth-target 'gauge
                             "翻一次找出一处破绽,翻完为止。"))
         :requires (list (req-die))
         :resolve (roll 'knowledge
@@ -1056,7 +1056,7 @@
                       "得先让货运代理认得你,货栈的旧记录才会打开")
         :tags (if (relation-at-least? "富商" '相识) '() (list "需要富商·相识"))
         :disabled (not (relation-at-least? "富商" '相识))
-        :clocks (list (list 'clock "船期与货栈" freight-truth-progress freight-truth-target 'segments
+        :clocks (list (list 'clock "船期与货栈" freight-truth-progress freight-truth-target 'gauge
                             "翻一次核一层,核完为止。"))
         :requires (list (req-die))
         :resolve (roll 'knowledge freight-truth-mods

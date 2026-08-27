@@ -1,46 +1,51 @@
-;; scenes/world/诊所.scm - 诊所（官僚）
+;; scenes/world/诊所.scm - 诊所
 ;; 服务点：买药品（带回家用）/ 正经治疗（占一颗骰，按伤势档位收费）。用药动作在家里。
 ;; 治疗是把伤势往下压的最快一条路，也是钱在这个游戏里最硬的去处：重伤那几天，
 ;; 每天固定一颗骰加一笔诊金，就是"欠账留到明天"的具体形状。
 
 (define clinic
   (let ()
+    ;; 开场地图上没有诊所。一个没受伤的人不会去记医院在哪儿——它挂在那儿只是
+    ;; 又一个「以后大概有用」的图标。第一次带伤那一刻它才出现，出现的同时
+    ;; 玩家正好需要它，于是它是答案，不是背景。
+    ;; 一旦露过面就不再收回：那条街你已经走过了。
+    (define discovered? #f)
 
-    ;; 官僚敌视时诊所涨价（约 +50%），但绝不拒诊——治病是唯一手段，没有替代路径，
-    ;; 关系再差也不能把它彻底禁掉，最多让它变贵。
-    (define (hostile-markup base)
-      (if (equal? (relation-band "官僚") '敌视)
-          (+ base (quotient base 2))
-          base))
+    (define (visible?)
+      (if discovered?
+          #t
+          ;; 倒下送医会先把伤势清零，再留下永久疤痕并强制切到诊所。
+          ;; 只查 injury-band 会使新快照重新把诊所藏掉，令强制落点无路可进。
+          (if (and (equal? (injury-band) '完好) (= (scar-count) 0))
+              #f
+              (begin (set! discovered? #t) #t))))
+
+    ;; 诊所对谁都是一个价。治病是唯一手段、没有替代路径，价格再挂上任何一条声誉，
+    ;; 都等于把已经删掉的那条全城关系换个名字装回来。
 
     (define (node-buy-medicine)
       (node "买药品"
         :anchor "诊所-服务"
-        :subtitle (if (equal? (relation-band "官僚") '敌视)
-                      "医生知道你现在不受待见，这份药比平时贵一截"
-                      "")
-        :requires (list (req-item "金钱" (hostile-markup 25)))
+        :requires (list (req-item "金钱" 25))
         :resolve (instant
           (outcome "抓了一份药"
             (lambda () (add-item! "药品" 1))))))
 
-    ;; 正经治疗：一颗骰 + 诊金，压 2 点伤势。重伤诊金翻倍——伤越重，还得越贵。
-    ;; 压 2 而不是 3：轻伤档上限就是 3 点，−3 意味着 15 金一次永远清空轻伤，
-    ;; 伤势根本攒不起来；而且 −3/15 金对上药品的 −2/25 金，等于把药品彻底压死。
-    ;; 现在两者效果相同、货币不同——「省一颗骰多花 10 金」，是一句读得懂的话。
-    (define (treatment-fee)
-      (hostile-markup (if (equal? (injury-band) '重伤) 30 15)))
+    ;; 正经治疗：一颗骰 + 20 金，压 2 点伤势。重伤不加价：若重伤治疗反而比
+    ;; 药品贵，就会被「25 金、零骰、同样压 2」严格压制。压 2 而不是 3，
+    ;; 避免一次治疗永远清空轻伤。
+    ;; 医生比药品省 5 金但花一颗骰；药品省骰、每天只能一份。
+    ;; 第三条路在住所：养伤 1 骰、0 金、−1（见 home.scm）。三条各自贵在不同的东西上。
+    (define treatment-fee 20)
 
     (define (node-treatment)
       (node "看医生"
         :anchor "诊所-服务"
-        :subtitle (cond
-                    ((equal? (injury-band) '完好) "身上没有需要处理的伤")
-                    ((equal? (relation-band "官僚") '敌视)
-                     "医生知道你现在不受待见，这份诊金比平时贵一截；压 2 点伤势")
-                    (#t "投入一颗行动骰，压 2 点伤势"))
+        :subtitle (if (equal? (injury-band) '完好)
+                      "身上没有需要处理的伤"
+                      "投入一颗行动骰，压 2 点伤势")
         :disabled (equal? (injury-band) '完好)
-        :requires (list (req-die) (req-item "金钱" (treatment-fee)))
+        :requires (list (req-die) (req-item "金钱" treatment-fee))
         :resolve (instant
           (outcome "医生给你处理了伤口"
             (lambda () (heal-injury! 2))))))
@@ -61,6 +66,8 @@
            (list (place "诊所"
                    :children (list (node-buy-medicine) (node-treatment)
                                    (note-waiting-room)))))
-          ((equal? msg 'save) '())
-          ((equal? msg 'load!) #t)
+          ((equal? msg 'visible?) (visible?))
+          ((equal? msg 'save) (list (list "discovered" (if discovered? 1 0))))
+          ((equal? msg 'load!)
+           (set! discovered? (= (assoc-get (cadr args) "discovered" 0) 1)))
           (#t #f))))))

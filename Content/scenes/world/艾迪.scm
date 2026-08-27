@@ -24,18 +24,23 @@
   (let ()
     ;; ── 常量 ────────────────────────────────────────
     (define fight-interval 2)     ; 每两天一场
+    ;; 开票日（比赛前一天）押票的赔率补贴，单位是十分之一。
+    ;; 它是这一整套的支点：不给补贴，前一天押票就永远是劣势选择——
+    ;; 谁会放着「先查再押」不要，跑去闭着眼睛下注？给了补贴，两天才各自
+    ;; 回答一个不同的问题：今天押是赔率好但没情报，明天押是情报全但赔率平。
+    (define eve-odds-bonus 2)
     (define last-night 4)         ; 一共四夜，之后查封
     (define heat-max 6)
-    (define heat-hurt 5)          ; 到这一格，第四夜之后那只手就不只是挨一顿
     (define reunion-delay 2)      ; 查封之后几天在码头再见到他
+    ;; 巷子那件事不排日子：整个第一封信到第二封信之间，窗口一直开着，
+    ;; 你哪天走进酒馆，就是哪天撞上。撞上以后只有当晚——一个人不可能连着几天挨打。
 
     ;; ── 状态 ────────────────────────────────────────
     ;; 0 还没听说 / 4 巷子里那件事今天可以去 / 5 这条线到此为止
     ;; 1 拳场开着 / 2 已查封 / 3 码头重逢已看过
     ;; 4 和 5 排在后面，是为了不动 1..3 —— 那三个数字后面所有代码都在读。
     (define stage 0)
-    (define alley-day 0)          ; 巷子那件事摆在哪天；过了这天就没了
-    (define alley-told? #f)       ; 这一轮的消息在酒馆里说过没有
+    (define alley-day 0)          ; 撞上的是哪天；0＝窗口开着，还没撞上
     (define next-fight-day 0)     ; 下一场在哪天
     (define night 0)              ; 排到第几夜（1..4）
     (define shut-day 0)
@@ -43,27 +48,34 @@
     ;; 今晚的临时状态，每天清空
     (define bet-side 0)           ; 0 没押 / 1 押甲 / 2 押乙
     (define bet-amount 0)
+    ;; 写票的时候赔率就写死在票上了。前一天押的那张票，赔率跟着那一天走，
+    ;; 不会因为第二天赔率变了而改口——所以结算读的是这个，不是当天的表。
+    (define bet-odds 0)
     (define warmup-seen 0)        ; 0 没查 / 1 坏 / 2 中 / 3 好
     (define ringside-seen 0)
     (define talked? #f)
     (define watched? #f)
     (define awaiting-signal? #f)
-    (define signal "")            ; 点头 / 摇头 / 别开眼
+    (define signal "")            ; 点头 / 摇头
     (define result-line "")       ; 看完比赛之后留在场里的一行字
 
     (define tip? #f)              ; 第四夜的内幕已经到手
     (define hand-bad? #f)
 
+    ;; 这根钟管的是**你还能押多大**，不管艾迪那只手，也不管场子开几天。
+    ;; 它以前的去处是决定手废不废，那让"点头还是摇头"的后果取决于你前几晚
+    ;; 赢过多少——玩家按下去的时候根本不知道自己在哪一边。后来一度改成提前
+    ;; 查封，那更糟：少掉第四夜就是少掉那个选择本身。
+    ;; 现在它只做一件事：填满之后写票的不再收你的大票，20 金档灰掉。
+    ;; 赢得太聪明的代价是**以后赚得慢**，而且是当场看得见的——他就在你面前收票。
     (define heat-clk
-      (make-clock "庄家的注意" heat-max 'segments
+      (make-clock "庄家的注意" heat-max 'gauge
         (lambda (current max)
           (cond
             ((>= current max)
-             "写票的已经认定有人在漏消息。他们会去找那个知道的人。")
-            ((>= current heat-hurt)
-             "有人在核对第三场的票是谁买的。再赚得准一点，他们就要找人问了。")
+             "写票的记住你了。他不再收你的大票。")
             ((> current 0)
-             "赢钱没问题。赢得太聪明才有问题。")
+             "赢钱没问题。赢得太聪明才有问题——押满了他们会开始记你的脸。")
             (else
              "你下的注还没大到值得他们抬一次头。")))))
 
@@ -84,8 +96,12 @@
     (define (odds-a n)
       (cond ((= n 1) 15) ((= n 2) 14) ((= n 3) 24) (else 14)))
 
+    ;; 第四夜凯利那档是 2.0，不是 3.8。
+    ;; 那一晚你手里有内幕，它不是一次赌，是一次兑现——3.8 乘满档就是 76 金，
+    ;; 搬一整周的货也就这个数，而且你一点风险都没冒。确定会赢的票，赔率本来
+    ;; 就不该是全场最高的那一个。上限收在 40：靠赔率收，不靠规则挡人。
     (define (odds-b n)
-      (cond ((= n 1) 25) ((= n 2) 28) ((= n 3) 16) (else 38)))
+      (cond ((= n 1) 25) ((= n 2) 28) ((= n 3) 16) (else 20)))
 
     ;; 写死的赢家。第四夜是唯一会被玩家改写的一晚。
     (define (winner n)
@@ -110,57 +126,84 @@
       (if (= side 1) (fighter-a n) (fighter-b n)))
 
     ;; ── 遭遇零：《不是说好第四回合吗》 ───────────────
-    ;; 它不是一张常驻的卡，是一次遭遇：某天有人把这件事带到你面前，你去或者不去，
-    ;; 当天过完就没了。去了是一场真交锋，赢了这条线才开——救不下来就是救不下来。
+    ;; 它不是一张常驻的卡，只在触发当天可见。去了是一场真交锋，
+    ;; 赢了这条线才开——窗口过去或救不下来，就是救不下来。
+
+    ;; 窗口开着（还没撞上）。这一段里任何一天走进酒馆都会撞上。
+    (define (alley-armed?)
+      (and (= stage 4) (= alley-day 0)))
+
+    ;; 就是今晚。卡只在撞上的那一天出现。
+    (define (alley-live?)
+      (and (= stage 4) (> alley-day 0) (= world-day alley-day)))
+
+    ;; 死线用钟，不用「剩 N 天」这种 tag——tag 是贴在卡上的一个词，它不长在
+    ;; 那条时间线上；同一个概念在别处（酒馆那件麻烦）已经是钟了，这里也得是钟。
+    ;; 不用 make-clock：这根钟永远是「就今晚」，没有要存档的状态。
+    (define (alley-clock)
+      (list 'clock "今晚之内" 1 1 'countdown
+            "就在你站着的这会儿。走开或者去睡，明天老街就没人再提这件事。"))
 
     (define (node-alley)
       (node "巷子里在打人"
         :anchor "老街酒馆"
-        :tags (list "交锋")
-        :subtitle "酒馆侧墙那条巷子。三个人围着一个。今晚过了就没了"
+        :clocks (list (alley-clock))
+        :subtitle "酒馆侧墙那条巷子。三个人围着一个，没人打算过去"
         :resolve (instant (lambda () (start-encounter "巷子里在打人" on-alley-result)))))
 
     (define (on-alley-result result)
       (if (equal? result 'success)
           (begin
             (set! stage 1)
+            (journal 'add! "巷子里那三个人围着艾迪。你插了手，他带你去看酒馆后面的拳场。")
             (set! next-fight-day (+ world-day 1))
             (set! night 0)
             (play-dialogue!
               (line "艾迪" "谢了。")
               (line "尼尔" "欠钱？")
-              (line "艾迪" "差不多。")
-              (line "艾迪" "昨晚说好第四回合躺下。第二回合那孙子专打我这儿。")
-              (line "艾迪" "我就把他打晕了。")
+              (line "艾迪" "差不多。说好第四回合躺下，没照办。")
               (line "尼尔" "……")
-              (line "艾迪" "老街酒馆后头有场子。既然你救了我，至少该知道你救的是个什么东西。"))
+              (line "艾迪" "酒馆后头有场子，每两天一场。有钱的话带上。"))
             (spotlight! "地下拳场"
               "酒馆后面那间货栈，每两天一场。他说了名字，也说了从哪扇门进。"))
-          (begin
-            (set! stage 5)
-            (spotlight! "这件事就到这儿"
-              "第二天巷子里只剩几摊冲淡的血。酒馆里没有人提起昨晚有谁挨了打。"))))
+          (if (equal? result '倒下)
+              ;; 倒下**只换文案，不换状态**：一样是 stage 5，这条线一样到此为止。
+              ;; 但你插了手，然后和他躺在同一条巷子里——讲成"没有人提起有谁挨了打"
+              ;; 就是把你替他挨的那几下抹掉了。
+              (begin
+                (set! stage 5)
+                (spotlight! "谁也没占着便宜"
+                  "他们走的时候，你和艾迪都躺在那条巷子里。第二天他没来找你，你也没去找他。"))
+              (begin
+                (set! stage 5)
+                (spotlight! "这件事就到这儿"
+                  "第二天巷子里只剩几摊冲淡的血。酒馆里没有人提起昨晚有谁挨了打。")))))
 
-    ;; 遭遇的触发：老街那边开起来以后的某个早上，这件事摆到了酒馆门口。
-    ;; 日终规则在「世界日历推进」之后跑，world-day 已经是第二天，所以它摆出来的
-    ;; 就是明天那一天，alley-day 记的正是这个。
+    ;; 窗口开启：第一封信那一段一开始，这件事就在等着了。
     ;;
-    ;; 规则本身不说话：它只推进状态、记下日子、让遭遇卡出现在酒馆。消息要在酒馆里
-    ;; 听——事发生在老街侧墙，在家里被告知是错的位置。
+    ;; 它<b>不排日子</b>。排日子等于要求玩家在某个特定的晚上正好路过老街——
+    ;; 而玩家那几天在忙什么，是他自己的事。窗口从这里一直开到第二封信为止，
+    ;; 你哪天走进酒馆，就是哪天撞上。这样"正好撞见"这件事是真的，
+    ;; 不是日历替他安排的。
+    ;;
+    ;; 规则本身不说话：它只把窗口打开。消息要在酒馆里听——
+    ;; 事发生在老街侧墙，在家里被告知是错的位置。
     (define-turn-rule "巷子里在打人"
       (lambda () (and (= stage 0)
                       (>= (three-letters 'story-stage) 1)))
       (lambda ()
         (set! stage 4)
-        (set! alley-day world-day)
-        (set! alley-told? #f)))
+        (set! alley-day 0)))
 
-    ;; 走进酒馆时才听到。标记在回调里立刻置位——玩家可以退出去再进来，
-    ;; 等交锋打完再置就会重播一遍。
+    ;; 走进酒馆的那一刻才撞上。alley-day 在回调里立刻记下——玩家可以退出去再进来，
+    ;; 等交锋打完再记就会重播一遍。
+    ;;
+    ;; 记下的是<b>今天</b>，于是这件事就发生在今晚，也只在今晚：一个人不可能
+    ;; 连着几天挨同一顿打。窗口是宽的，撞上之后的反应空间是一天。
     (define (arrival-alley)
       (arrival "巷子里在打人"
         (lambda ()
-          (set! alley-told? #t)
+          (set! alley-day world-day)
           (play-remote-dialogue!
             (line "世界" "老街那边有人跑进酒馆找酒保，说侧墙那条巷子里有人在挨打。")
             (line "酒保" "又不是头一回。别往那头去。")
@@ -170,15 +213,26 @@
     (define (arrivals-at location)
       (cond
         ((equal? location "酒馆")
-         (if (and (= stage 4) (not alley-told?)) (list (arrival-alley)) '()))
+         (if (alley-armed?) (list (arrival-alley)) '()))
         (else '())))
 
-    ;; 没去就是没去。摆出来那天过完，这条线跟着一起收走。
+    ;; 撞上了没去，就是没去。日终规则在「世界日历推进」之后跑，world-day 已经是
+    ;; 第二天，所以撞上的那一晚过完这条就成立——反应空间正好一天。
     (define-turn-rule "巷子里那件事过去了"
-      (lambda () (and (= stage 4) (> world-day alley-day)))
+      (lambda () (and (= stage 4)
+                      (> alley-day 0)
+                      (> world-day alley-day)))
       (lambda ()
         (set! stage 5)
-        (notify! "昨天老街侧墙那条巷子里的事，今天没有人再提。")))
+        (notify! "老街侧墙那条巷子已经没人再提。")))
+
+    ;; 从头到尾没进过酒馆：第二封信一来，这条线就悄悄合上了。
+    ;; 这里<b>不通知</b>——玩家从没听说过这件事，凭空来一句"没人再提"，
+    ;; 提的是他压根不知道的东西。
+    (define-turn-rule "老街那边的事过去了"
+      (lambda () (and (alley-armed?)
+                      (>= (three-letters 'story-stage) 2)))
+      (lambda () (set! stage 5)))
 
     ;; ── 情报 ────────────────────────────────────────
     ;; 好＝真且有用；中＝真但不够；坏＝一句听起来很确定的假话。
@@ -222,7 +276,7 @@
 
     (define (node-warmup)
       (node "看热身"
-        :subtitle "敏锐；台下那半个钟头，比谁说的都准——只要你看得懂"
+        :subtitle "台下那半个钟头，比谁说的都准——只要你看得懂"
         :disabled (> warmup-seen 0)
         :requires (list (req-die))
         :resolve (roll 'sharpness
@@ -241,7 +295,7 @@
 
     (define (node-ringside)
       (node "听场边"
-        :subtitle "交际；写票的那张桌子周围，话最多也最不值钱"
+        :subtitle "写票的那张桌子周围，话最多也最不值钱"
         :disabled (> ringside-seen 0)
         :requires (list (req-die))
         :resolve (roll 'social
@@ -259,64 +313,80 @@
               (result-note! (ringside-text night 3)))))))
 
     ;; 第三夜起他认得你了。不耗行动骰，一晚一次——这是救过他换来的东西。
+    ;; 第四夜的内幕也走这一张卡：他在门口等你，本身就是这晚「找他聊聊」的内容，
+    ;; 不再并排放两个谈话入口。
     (define (node-talk)
-      (node "找艾迪聊聊"
-        :subtitle "不耗行动骰；他在后面缠手"
-        :disabled talked?
+      (node (if (= night 4) "艾迪在门口等你" "找艾迪聊聊")
+        :subtitle (if (= night 4) "不耗行动骰；他有一件事要先告诉你" "不耗行动骰；他在后面缠手")
         :resolve (instant
-          (outcome "他跟你说了句实话"
+          (outcome (if (= night 4) "他把话说完就进去了" "他跟你说了句实话")
             (lambda ()
               (set! talked? #t)
-              (if (= night 3)
-                  (play-dialogue!
-                    (line "艾迪" "今天别买我输。")
-                    (line "尼尔" "为什么？")
-                    (line "艾迪" "今天没人付我。"))
-                  (play-dialogue!
-                    (line "艾迪" "别问了。你知道的比这儿所有人都多。")
-                    (line "艾迪" "钱带够没有。"))))))))
-
-    ;; 第四夜的内幕：他自己找上门。不耗骰，也不要求你跟他多熟——
-    ;; 你救过他一次，这条线上没有别的关系可攒。
-    (define (node-tip)
-      (node "艾迪在门口等你"
-        :subtitle "不耗行动骰"
-        :resolve (instant
-          (outcome "他把话说完就进去了"
-            (lambda ()
-              (set! tip? #t)
-              (play-dialogue!
-                (line "艾迪" "今晚。第三场。")
-                (line "艾迪" "压我输。")
-                (line "尼尔" "赔率多少？")
-                (line "艾迪" "三块八赔一。")
-                (line "艾迪" "第四回合。你手上要是有钱，现在就去写票。")
-                (line "尼尔" "你为什么告诉我。")
-                (line "艾迪" "你不是缺钱吗。"))
-              (result-note! "内幕：他会在第四回合倒下。"))))))
+              (cond
+                ((= night 4)
+                 (set! tip? #t)
+                 (play-dialogue!
+                   (line "艾迪" "今晚第三场。")
+                   (line "艾迪" "压我输。第四回合。")
+                   (line "尼尔" "你喜欢那样打吗。")
+                   (line "艾迪" "不常有机会。")
+                   (line "尼尔" "你为什么告诉我。")
+                   (line "艾迪" "你不是缺钱吗。"))
+                 (result-note! "内幕：他会在第四回合倒下。"))
+                ((= night 3)
+                 (play-dialogue!
+                   (line "艾迪" "今天别买我输。")
+                   (line "尼尔" "为什么？")
+                   (line "艾迪" "今天没人付我。")))
+                (else
+                 (play-dialogue!
+                   (line "艾迪" "别问了。你知道的比这儿所有人都多。")
+                   (line "艾迪" "钱带够没有。")))))))))
 
     ;; ── 下注 ────────────────────────────────────────
     ;; 卡名要在整棵渲染树里唯一，所以带上押的是谁——两边各三档，不带名字就会撞。
+
+    ;; 注意满格之后，写票的不再收 20 金那一档。
+    ;; 档位照样摆着，只是灰的：让玩家看见"你想押但押不了"，比它凭空消失强——
+    ;; 这一档是怎么没的，他自己一晚一晚数着钟看过来的。
+    (define big-ticket 20)
+
+    (define (big-ticket-refused? amount)
+      (and (= amount big-ticket) (heat-clk 'full?)))
+
     (define (node-bet side amount)
-      (node (string-append (side-name side night) "·" (number->string amount) " 金")
-        :subtitle (string-append "赢了拿回 "
-                                 (number->string (payout amount (odds-of side night)))
-                                 " 金；输了什么也没有")
+      (node (string-append (side-name side (card-night)) "·" (number->string amount) " 金")
+        :subtitle (if (big-ticket-refused? amount)
+                      "写票的不再收你这么大的票"
+                      (string-append "赢了拿回 "
+                                     (number->string (payout amount (today-odds side)))
+                                     " 金；输了什么也没有"))
+        :disabled (big-ticket-refused? amount)
         :requires (list (req-item "金钱" amount))
         :resolve (instant
           (outcome "票写好了"
             (lambda ()
               (set! bet-side side)
               (set! bet-amount amount)
-              (rest-block! "拳赛" "你押了今晚的票，总得看完再回去睡"
-                           "老街酒馆" "看比赛")
-              (result-note! (string-append "你押了 " (side-name side night)
+              ;; 赔率写死在票上，从此不再看当天的表。
+              (set! bet-odds (today-odds side))
+              ;; 押完就不许回去睡，只在比赛当天成立：开票日押的票，那一晚
+              ;; 根本没有比赛可看，拦着人睡觉是拦一场不存在的戏。
+              ;; 比赛当天早上会替这张票重新上锁（见「地下拳场排期」）。
+              (if (fight-night?)
+                  (rest-block! "拳赛" "你押了今晚的票，总得看完再回去睡"
+                               "老街酒馆" "看比赛")
+                  #f)
+              (result-note! (string-append "你押了 " (side-name side (card-night))
                                            " " (number->string amount) " 金。")))))))
 
     (define (node-bet-side side)
-      (node (string-append "押 " (side-name side night) " 赢")
-        :subtitle (string-append "赔率 " (odds-text (odds-of side night)) "；只有三个档，写票的不收零头")
-        :children (list (node-bet side 5) (node-bet side 10) (node-bet side 20))))
+      (node (string-append "押 " (side-name side (card-night)) " 赢")
+        :subtitle (string-append "赔率 " (odds-text (today-odds side))
+                                 (if (eve?)
+                                     "（提前写票，写票的还没收到大注）；只有三个档"
+                                     "；只有三个档，写票的不收零头"))
+        :children (list (node-bet side 5) (node-bet side 10) (node-bet side big-ticket))))
 
     ;; ── 比赛 ────────────────────────────────────────
     (define (bet-heat)
@@ -328,7 +398,8 @@
       (if (= bet-side 0)
           #f
           (if (= bet-side (winner night))
-              (let ((take (payout bet-amount (odds-of bet-side night))))
+              ;; 读票上写死的赔率，不读当天的表：前一天写的票就该按前一天的数赔。
+              (let ((take (payout bet-amount bet-odds)))
                 (add-item! "金钱" take)
                 (heat-clk 'advance! (+ (bet-heat) 1))
                 (result-note! (string-append "写票的数了 " (number->string take) " 金给你。")))
@@ -344,11 +415,14 @@
     (define (fight-1!)
       (play-dialogue!
         (line "世界" "第一回合，莫里斯把那小子按在绳上打了半分钟。看台上都在笑。")
-        (line "世界" "第二回合他还在笑。第三回合他抬手的时候慢了半拍。")
-        (line "世界" "小马丁一记直的从中间穿过去。莫里斯坐在了地上，没再站起来。"))
+        (line "世界" "第二回合还在笑。第三回合，莫里斯抬手慢了一拍。")
+        (line "世界" "小马丁从中间穿过去，一记直拳。莫里斯坐在了地上，没再站起来。"))
       (set! result-line "小马丁赢。看台上一半的人把票撕了。")
       (settle-bet!)
       (finish-night!)
+      (play-banter!
+        (line "世界" "人往外走的时候，艾迪从后面出来，在你旁边经过，没停。")
+        (line "世界" "他看了一眼你手里有没有票。"))
       (spotlight! "冷门" "写票的一晚上收了三十几张莫里斯的票。他一张也不用付。"))
 
     (define (fight-2!)
@@ -360,29 +434,33 @@
       (set! result-line "韦德赢。有人在场边输掉了不该输的数目。")
       (settle-bet!)
       (finish-night!)
+      (play-banter!
+        (line "世界" "人往外走。后门那个位子空着。")
+        (line "世界" "艾迪从后面绕过来，在那个位子旁边站了一步，然后走了。"))
       (spotlight! "别人的大注不是情报"
         "那个人一口气吃下的票，只证明他也在猜。写票的记住的不是他买了谁，是他买了多少。"))
 
     (define (fight-3!)
       (play-dialogue!
         (line "世界" "艾迪挨了很多拳。他不躲，他等。")
-        (line "世界" "第五回合，莫里斯的右手慢下来。艾迪一直在等的就是这个。")
-        (line "世界" "他把莫里斯打到绳子上，然后打到地上。看台站起来了。"))
+        (line "世界" "第五回合，莫里斯出右手，慢了一点。就一点。")
+        (line "世界" "艾迪往里走了一步，把他打到绳子上，然后打到地上。看台站起来了。"))
       (set! result-line "艾迪赢了。他在后面坐着，手还没解开。")
       (settle-bet!)
       (finish-night!)
       (play-dialogue!
         (line "艾迪" "八块。")
         (line "尼尔" "赢了才八块？")
-        (line "艾迪" "赢是给观众看的。挣钱才是工作。")
-        (line "艾迪" "所以我不常认真打。"))
+        (line "艾迪" "赢是给观众看的。挣钱才是工作。"))
+      (play-banter!
+        (line "世界" "看台上还有几个人没散，还在叫唤。他没往那边看。"))
       (spotlight! "八块" "他把钱折了两折，塞进袜子里，然后开始解手上的布。"))
 
     ;; 第四夜分两段：先打到第三回合，他抬头看你，然后才结算。
     (define (fight-4-open!)
       (play-dialogue!
         (line "世界" "第一回合什么也没发生。")
-        (line "世界" "第二回合凯利往里冲，艾迪的右手比脑子快——那一下是本能的。")
+        (line "世界" "第二回合凯利往里冲，艾迪的右手比脑子快。")
         (line "世界" "凯利退到绳边，扶着绳子站着，眼睛已经不在焦点上了。")
         (line "世界" "第三回合。看台在喊：结束他。")
         (line "世界" "艾迪站在他面前，不出手。他抬头，往你这边看了一眼。"))
@@ -438,11 +516,12 @@
               (set! signal name)
               (after))))))
 
+    ;; 两个选项，不是三个。原来还有一张「别开眼」，它调用的函数和「点头」
+    ;; 一模一样——同一个决定换了个说法，摆在那儿只会让人以为自己有第三条路。
     (define (signal-nodes)
       (list
-        (node-signal "点头" "按你们说好的来" fight-4-dive!)
-        (node-signal "摇头" "让他赢；你押的票作废" fight-4-win!)
-        (node-signal "别开眼" "什么也不做；他会按原计划" fight-4-dive!)))
+        (node-signal "点头" "按你们说好的来；他第四回合倒下" fight-4-dive!)
+        (node-signal "摇头" "让他赢；你押他倒下的票作废" fight-4-win!)))
 
     (define (node-watch-fight)
       (node "看比赛"
@@ -458,18 +537,40 @@
     ;; ── 拳场 ────────────────────────────────────────
     (define (fight-night?) (and (= stage 1) (= world-day next-fight-day)))
 
+    ;; 开票日＝比赛的前一天。每两天一场，所以拳场那边其实天天有事：
+    ;; 前一天开票，第二天开打。原来中间那一天只会告诉你「今晚门锁着」，
+    ;; 一个占着位置的空节点。
+    (define (eve?) (and (= stage 1) (= world-day (- next-fight-day 1))))
+
+    ;; night 要到比赛当天早上才 +1，所以开票日那天它还是上一场的编号。
+    ;; 盘口、赔率、押谁，问的都是「下一场」，一律走这个。
+    (define (card-night) (if (fight-night?) night (+ night 1)))
+
+    ;; 今天写票按什么赔率：开票日加早鸟补贴，比赛当天就是表上的数。
+    (define (today-odds side)
+      (+ (odds-of side (card-night)) (if (eve?) eve-odds-bonus 0)))
+
     (define (card-note)
-      (node "标注：今晚的盘口"
+      (node (if (eve?) "标注：明晚的盘口" "标注：今晚的盘口")
         :resolve (note
-          (string-append "第 " (number->string night) " 场")
+          (string-append "第 " (number->string (card-night)) " 场")
           (string-append
-            (fighter-a night) "　" (odds-text (odds-a night))
+            (fighter-a (card-night)) "　" (odds-text (today-odds 1))
             "　／　"
-            (fighter-b night) "　" (odds-text (odds-b night))
+            (fighter-b (card-night)) "　" (odds-text (today-odds 2))
             (if (> bet-side 0)
-                (string-append "　　你押了 " (side-name bet-side night)
-                               " " (number->string bet-amount) " 金。")
+                (string-append "　　你押了 " (side-name bet-side (card-night))
+                               " " (number->string bet-amount) " 金，赔率 "
+                               (odds-text bet-odds) "。")
                 "")))))
+
+    ;; 开票日站在这儿看得见什么：牌子已经挂出来了，人还没到。
+    (define (eve-note-node)
+      (node "标注：明晚的场子"
+        :resolve (note "开票"
+          (if (> bet-side 0)
+              "票已经写好了。明晚这个时候，你会知道自己押得对不对。"
+              "牌子挂出来了，拳手明晚才到。现在写票，赔率还没被大注压下去；等到明晚，你能先看人再掏钱。"))))
 
     (define (result-note-node)
       (node "标注：结果"
@@ -501,36 +602,56 @@
          (append
            (list (card-note))
            (if (and (= night 4) tip?) (list (tip-note-node)) '())
-           (if (and (= night 4) (not tip?) (not awaiting-signal?)) (list (node-tip)) '())
            (if awaiting-signal?
                (signal-nodes)
                (append
                  (list (node-warmup) (node-ringside))
-                 (if (>= night 3) (list (node-talk)) '())
+                 (if (and (>= night 3) (not talked?)) (list (node-talk)) '())
                  (if (= bet-side 0)
                      (list (node-bet-side 1) (node-bet-side 2))
                      '())
                  (list (node-watch-fight))))))
         ;; 比赛日，看完了
         ((fight-night?) (list (result-note-node)))
-        ;; 不是比赛日
+        ;; 开票日：盘口已经挂出来，可以提前写票，但看不到人
+        ;; ——看热身、听场边都要拳手在场，那是明晚的事。
+        ((eve?)
+         (append
+           (list (card-note) (eve-note-node))
+           (if (= bet-side 0)
+               (list (node-bet-side 1) (node-bet-side 2))
+               '())))
+        ;; 排期之外（查封前后的过渡日）
         (else (list (quiet-note-node))))))
 
     (define (ring-node)
       (node "地下拳场"
         :anchor "老街酒馆"
-        :subtitle (if (fight-night?)
-                      "酒馆后面那间货栈。今晚有场子"
-                      "酒馆后面那间货栈。今晚门锁着")
+        :subtitle (cond
+                    ((fight-night?) "酒馆后面那间货栈。今晚有场子")
+                    ((eve?) "酒馆后面那间货栈。明晚的牌子已经挂出来了")
+                    (else "酒馆后面那间货栈。今晚门锁着"))
         :children (ring-children)))
 
     ;; ── 查封 ────────────────────────────────────────
+    ;; 只有一条路走到这儿：四夜打完。
+    ;; 这里曾经还有第二条——「庄家的注意」满格就提前查封。那是个窟窿：
+    ;; 少掉第四夜，就等于少掉点头还是摇头那个选择，这条线最后的戏被一根
+    ;; 数值钟掐掉了。注意涨满该收紧的是你的钱，不是艾迪的故事。
     (define (shut-down!)
       (set! stage 2)
       (set! shut-day world-day)
-      (set! hand-bad? (and (>= (heat-clk 'current) heat-hurt)
-                           (not (equal? signal "摇头"))))
+      ;; 手废不废，只看你那一下，和任何钟都无关。
+      ;; 它以前还要求「庄家的注意 ≥ 5」：于是同一个点头，有人换来两根废手指，
+      ;; 有人什么事也没有——而玩家按下去的那一刻根本不知道自己在哪一边。
+      ;; 那是数值上的分岔，不是选择上的分岔，玩起来只是无聊。现在就一句话：
+      ;; 你点头，他按计划倒下，对家赔了钱，他们回头去找漏消息的人；
+      ;; 你摇头，他违约挨一顿，手还是他自己的。
+      (set! hand-bad? (equal? signal "点头"))
       (rest-release! "拳赛")
+      (journal 'add! (if hand-bad?
+                         "拳场贴了封条。那一场是卖的，赔钱的人回头去找了漏消息的人。"
+                         "拳场贴了封条。有人举报了。"))
       (notify! "地下拳场今早贴了封条。有人举报了。艾迪也不在码头。"))
 
     ;; ── 码头重逢 ────────────────────────────────────
@@ -559,10 +680,23 @@
                     (line "工头" "你这样怎么干？")
                     (line "艾迪" "左手不是还在吗。")
                     (line "世界" "他把箱子架回肩上，走了。")))
+              ;; 码头重逢是这条线的收束。stage 5（没去巷子 / 窗口过了）不发——
+              ;; 那条路上玩家什么也没经历。发点放在对白之后，否则通知被整段对白盖掉。
+              (complete-section!)
               (result-note! "他还在码头。仅此而已。"))))))
 
     (define (reunion-open?)
       (and (= stage 2) (>= world-day (+ shut-day reunion-delay))))
+
+    ;; 说完话他不会从码头上消失——只是没有可做的事了。往后他是一条标注：
+    ;; 站在这儿就看得见的人，不是一张要点的卡。
+    ;; 标注的节点名不渲染，所以这里把它当 ID 用，固定不变；玩家看见的标题是「艾迪」。
+    ;; 重逢前那张卡叫「码头上那个包着手的人」——那时候还没认出他来，标题本身是那一眼。
+    (define (node-eddie-at-dock)
+      (note-node "艾迪·码头" "艾迪"
+        (if hand-bad?
+            "在货堆那头搬箱子。右手包着，包得很厚，箱子架在左肩上。他不往这边看。"
+            "在货堆那头搬箱子。右手包着，包得不厚。他不往这边看。")))
 
     ;; ── 日终 ────────────────────────────────────────
     ;; 日终规则按注册的倒序跑，「世界日历推进」是最后注册的，所以它先走：
@@ -573,48 +707,101 @@
     (define-turn-rule "地下拳场排期"
       (lambda () (= stage 1))
       (lambda ()
-        (set! bet-side 0)
-        (set! bet-amount 0)
-        (set! warmup-seen 0)
-        (set! ringside-seen 0)
-        (set! talked? #f)
-        (set! watched? #f)
-        (set! awaiting-signal? #f)
-        (set! result-line "")
+        ;; 清空只发生在**比赛过完的第二天早上**，不再每天清一次。
+        ;; 开票日押下的票必须活过这一夜——那正是开票日存在的意义。
         (if (> world-day next-fight-day)
-            (if (>= night last-night)
-                (shut-down!)
-                (set! next-fight-day (+ next-fight-day fight-interval)))
+            (begin
+              (set! bet-side 0)
+              (set! bet-amount 0)
+              (set! bet-odds 0)
+              (set! warmup-seen 0)
+              (set! ringside-seen 0)
+              (set! talked? #f)
+              (set! watched? #f)
+              (set! awaiting-signal? #f)
+              (set! result-line "")
+              (if (>= night last-night)
+                  (shut-down!)
+                  (set! next-fight-day (+ next-fight-day fight-interval))))
             #f)
         (if (and (= stage 1) (= world-day next-fight-day))
-            (set! night (+ night 1))
+            (begin
+              (set! night (+ night 1))
+              ;; 前一天写的票，到了比赛当天才开始拦你回去睡。
+              (if (> bet-side 0)
+                  (rest-block! "拳赛" "你押了今晚的票，总得看完再回去睡"
+                               "老街酒馆" "看比赛")
+                  #f))
             #f)))
+
+    ;; ── 卷宗 ────────────────────────────────────────
+    ;; 这条线的压力全在「还剩几夜」上：拳场只开四个晚上，过了就查封。
+    ;; 履历只记真正过去的那几夜，不记每天的输赢——那是钱的事，不是故事的事。
+    (define journal (make-journal))
+
+    (define (dossier-entry)
+      (cond
+        ((= stage 1)
+         (list (dossier "地下拳场"
+                 :kind '人物
+                 :status (if (fight-night?) '进行中 '等着别人)
+                 :now (cond
+                        ((fight-night?) "今晚有一场。去酒馆后面，先看懂比赛再押钱")
+                        ((eve?) "明晚有一场。今晚可以先去酒馆后面写票，赔率比明晚好")
+                        (#t (string-append "下一场在第 " (number->string next-fight-day)
+                                           " 天")))
+                 :where "酒馆"
+                 :clocks (list (heat-clk 'render-data))
+                 :log (journal 'render-data))))
+        ;; 只有撞上了才立卷宗。窗口开着但还没进过酒馆时，玩家根本没听说过这件事——
+        ;; 卷宗里凭空多出一条「地下拳场」，等于替他剧透一个他还没遇到的晚上。
+        ((alley-live?)
+         (list (dossier "地下拳场"
+                 :kind '人物
+                 :status '进行中
+                 :now "酒馆侧墙今晚有人在挨打；只有今晚"
+                 :where "酒馆"
+                 :log (journal 'render-data))))
+        ((>= stage 2)
+         (list (dossier "地下拳场"
+                 :kind '人物
+                 :status (if (>= stage 3) '了结 '进行中)
+                 :now (if (>= stage 3) "他走了。" "拳场查封了；过几天码头上还能碰见他")
+                 :where (if (>= stage 3) "" "码头")
+                 :log (journal 'render-data))))
+        (else '())))
 
     ;; ── 对外 ────────────────────────────────────────
     (define (nodes-at location)
       (cond
         ((equal? location "酒馆")
          (cond
-           ((= stage 4) (list (node-alley)))
+           ((alley-live?) (list (node-alley)))
            ((= stage 1) (list (ring-node)))
            (else '())))
         ((equal? location "码头")
-         (if (reunion-open?) (list (node-reunion)) '()))
+         ;; stage 5 是这条线断掉的那一支，那时候玩家从没认识过他，码头上也就没有他。
+         (cond
+           ((reunion-open?) (list (node-reunion)))
+           ((= stage 3) (list (node-eddie-at-dock)))
+           (else '())))
         (else '())))
 
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
+          ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'stage) stage)
           ((equal? msg 'known?) (and (>= stage 1) (<= stage 3)))
           ((equal? msg 'hand-bad?) hand-bad?)
           ((equal? msg 'save)
            (list (list "stage" stage)
+                 (list "journal" (journal 'save))
                  (list "alley-day" alley-day)
-                 (list "alley-told" (if alley-told? 1 0))
                  (list "next-fight-day" next-fight-day)
+                 (list "bet-odds" bet-odds)
                  (list "night" night)
                  (list "shut-day" shut-day)
                  (list "bet-side" bet-side)
@@ -632,9 +819,10 @@
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! stage (assoc-get data "stage" 0))
+             (journal 'load! (assoc-get data "journal" '()))
              (set! alley-day (assoc-get data "alley-day" 0))
-             (set! alley-told? (= (assoc-get data "alley-told" 0) 1))
              (set! next-fight-day (assoc-get data "next-fight-day" 0))
+             (set! bet-odds (assoc-get data "bet-odds" 0))
              (set! night (assoc-get data "night" 0))
              (set! shut-day (assoc-get data "shut-day" 0))
              (set! bet-side (assoc-get data "bet-side" 0))

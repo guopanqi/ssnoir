@@ -98,35 +98,25 @@
               (complete-mission! "有人需要药"
                 (lambda ()
                   (add-item! "金钱" 20)
-                  (change-faction-relation! "劳工" 1))))))))
+                  (change-faction-relation! "老码头" 1))))))))
 
     (define (mission-node entry)
       (let ((id (mission-id entry)))
         (cond
           ((equal? id "帮人寻物")
-           (roll-mission entry 'sharpness 22 12 (lambda () (spend-composure! 1))))
+           (roll-mission entry 'sharpness 22 12 (lambda () (spend-composure! 2))))
           ((equal? id "替人带话")
-           (roll-mission entry 'social 20 10 (lambda () (spend-composure! 1))))
+           (roll-mission entry 'social 20 10 (lambda () (spend-composure! 2))))
+          ;; 押送是这块板上唯一的高风险委托：报酬最高，坏结果也比其它几张重一档。
           ((equal? id "押送一批货")
            (roll-mission entry 'violence 25 14
-             (lambda () (spend-composure! 1) (injure!))))
+             (lambda () (spend-composure! 3))))
           ((equal? id "代查一笔账")
-           (roll-mission entry 'knowledge 22 12 (lambda () (spend-composure! 1))))
+           (roll-mission entry 'knowledge 22 12 (lambda () (spend-composure! 2))))
           ((equal? id "有人需要药") (medicine-request-node entry))
           (else (error "布告栏：未知委托模板")))))
 
-    (define (node-ask-for-rumors)
-      (node "找人打听消息"
-        :subtitle "花掉一条消息，立刻找出一张额外的临时委托"
-        :requires (list (req-item "情报" 1))
-        :resolve (instant
-          (outcome "问到新门路"
-            (lambda ()
-              (if (not (add-random-mission!))
-                  (error "布告栏：没有可追加的委托模板")
-                  #t))))))
-
-    ;; 存档兼容：模板已下线（如已删除的"急收私货的买家"）时静默丢弃该条委托,不当作错误。
+    ;; 已下线的旧模板不再进入现行委托池；载入时只保留当前登记的模板。
     (define (drop-unknown-templates entries)
       (if (null? entries)
           '()
@@ -158,19 +148,21 @@
 
     (fill-board-to! 2)
 
+    (define (phone-nodes)
+      (if (null? active-missions)
+          (list (note-node "标注：电话没有委托" "电话没响"
+                  "眼下没人愿意花钱请侦探。过几天再等。"))
+          (map mission-node active-missions)))
+
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
            (list
              (node "布告栏"
-               :children
-                 (append
-                   (map mission-node active-missions)
-                   (if (and (> (item-count "情报") 0)
-                            (not (null? (available-template-ids))))
-                       (list (node-ask-for-rumors))
-                       '())))))
+               :children (map mission-node active-missions))))
+          ((equal? msg 'phone-nodes) (phone-nodes))
+          ((equal? msg 'open-line!) (fill-board-to! 2))
           ((equal? msg 'save)
            (list
              (list "active-missions" active-missions)

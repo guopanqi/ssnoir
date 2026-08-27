@@ -40,11 +40,11 @@
 ;; ============================================================
 
 (define boss-arrival-clk
-  (make-clock "老板到场" 5 'segments
+  (make-clock "老板到场" 5 'gauge
               "自动 +1/回合。满 → 他推门进来,第一幕结束。没倒下的打手跟他一起进来;收账人无论如何在这时合上账本走人。"))
 
 (define crowd-clk
-  (make-clock "老街的眼睛" 4 'segments
+  (make-clock "老街的眼睛" 4 'gauge
               "可选。攒到 3 格以上,第二幕里老板每动一次粗都会让他自己更难看:当着老街动粗,他在输。"))
 
 ;; ---- 打手 ----
@@ -92,7 +92,7 @@
                          (lambda () (set! hp (- hp 1))))
                        (outcome "打得他跪下"
                          (lambda () (set! hp (- hp 2)))))))
-           (list (list 'clock "命数" hp hp-max 'segments "归零即退场。击倒要好骰子，但他一倒，往后每一轮都少一份账。")
+           (list (list 'clock "命数" hp hp-max 'gauge "归零即退场。击倒要好骰子，但他一倒，往后每一轮都少一份账。")
                  (list 'clock tell countdown period 'countdown tell-note))))
         (#t #f)))))
 
@@ -237,14 +237,14 @@
 ;; ============================================================
 
 (define boss-clk
-  (make-clock "老板" 8 'segments
+  (make-clock "老板" 8 'gauge
               "填满 = 他认账、收手,今晚到此为止。填到 4 格他会撕破脸,出招间隔缩到 1 回合。"))
 
 (define drag-clk
   (if alone?
-      (make-clock "你撑不住" 4 'segments
+      (make-clock "你撑不住" 4 'gauge
                   "填满 = 你被按在地上,今晚由不得你说话。她已经上了船,这一次赌的是你自己。")
-      (make-clock "她被拖走" 4 'segments
+      (make-clock "她被拖走" 4 'gauge
                   "填满 = 他们把她从后门带走,交锋结束。她被带回邻城,这一次没有第二个第七年。")))
 
 ;; 老板的招是一个固定循环。每一招都是一张预告卡:还有几回合、落地什么、怎么拆。

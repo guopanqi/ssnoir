@@ -14,15 +14,12 @@
                    (list
                      (instant-action "+50 金钱" (lambda () (add-item! "金钱" 50)))
                      (instant-action "+500 金钱" (lambda () (add-item! "金钱" 500)))
-                     (instant-action "+1 情报"  (lambda () (add-item! "情报" 1)))
-                     (instant-action "+1 药品"  (lambda () (add-item! "药品" 1)))
-                     (instant-action "+1 酒"    (lambda () (add-item! "酒" 1)))))
+                     (instant-action "+1 药品"  (lambda () (add-item! "药品" 1)))))
                  (container "调试-关系"
                    (list
-                     (instant-action "劳工 +1" (lambda () (change-faction-relation! "劳工" 1)))
-                     (instant-action "劳工 -1" (lambda () (change-faction-relation! "劳工" -1)))
-                     (instant-action "官僚 +1" (lambda () (change-faction-relation! "官僚" 1)))
-                     (instant-action "富商 +1" (lambda () (change-faction-relation! "富商" 1)))))
+                     (instant-action "老码头 +1" (lambda () (change-faction-relation! "老码头" 1)))
+                     (instant-action "老码头 -1" (lambda () (change-faction-relation! "老码头" -1)))
+                     (instant-action "商业圈 +1" (lambda () (change-faction-relation! "商业圈" 1)))))
                  (container "调试-身体"
                    (list
                      (instant-action "受伤 +1" (lambda () (injure!)))
@@ -36,22 +33,10 @@
                        (lambda () (set-growth-level! (+ (growth-level) 1))))))
                  (container "调试-码头"
                    (list
-                     (instant-action "劳工→面熟"     (lambda () (set-global! "relation:劳工" 2)))
-                     (instant-action "劳工→够朋友"   (lambda () (set-global! "relation:劳工" 4)))
-                     (instant-action "劳工→自己人" (lambda () (set-global! "relation:劳工" 6)))
-                     (instant-action "官僚→挂号"     (lambda () (set-global! "relation:官僚" 2)))
-                     (instant-action "富商→有往来"   (lambda () (set-global! "relation:富商" 2)))
-                     (instant-action "乔好感 +2" (lambda () (joe 'debug-favor! 2)))))
-                 (container "调试-乔坍塌"
-                   (list
-                     (instant-action "让坍塌等待响应"
-                       (lambda () (dock-collapse 'debug-make-pending!)))
-                     (instant-action "直接进入救援"
-                       (lambda () (dock-collapse 'debug-enter!)))
-                     (instant-action "触发小型伤亡"
-                       (lambda ()
-                         (joe 'debug-establish!)
-                         (dock-collapse 'debug-resolve! "小型")))))))))
+                     (instant-action "老码头→面熟"     (lambda () (set-global! "relation:老码头" 2)))
+                     (instant-action "老码头→够朋友"   (lambda () (set-global! "relation:老码头" 4)))
+                     (instant-action "老码头→自己人" (lambda () (set-global! "relation:老码头" 6)))
+                     (instant-action "商业圈→有往来"   (lambda () (set-global! "relation:商业圈" 2)))))))))
 
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)

@@ -3,7 +3,7 @@
 
 (define theater
   (let ()
-    ;; 未指明区域的剧情、办公室和结算卡落在剧院主点；舞台布置等空间动作在内容里
+    ;; 未指明区域的剧情和结算卡落在剧院主点；舞台布置等空间动作在内容里
     ;; 显式使用剧院-外圈/内环/中央台/后台，避免每个动作各占一个模型 Anchor。
     (define (anchor-at-theater node-data)
       (if (member? :anchor node-data)
@@ -15,7 +15,7 @@
         ((equal? msg 'render-data)
          (list (place "剧院"
                  :children (map anchor-at-theater
-                             (append (three-letters 'nodes-at "剧院") (lin 'theater-nodes))))))
+                             (append (three-letters 'nodes-at "剧院"))))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
         (else #f))))))

@@ -1,7 +1,7 @@
 ;; 夜莺·夜查——萨姆同行时的短交锋。
 ;; 主结构：抢时间。夜账满格即拿到记录；守夜人巡回满格即被撵出货栈。
 
-(define records (make-clock "夜账" 5 'segments
+(define records (make-clock "夜账" 5 'gauge
                             "填满 = 翻到那一行。"))
 (define watchman (make-clock "守夜人的巡回" 4 'countdown
                              "每回合 +1；填满 = 他转回账房，把你们撵出去。"))

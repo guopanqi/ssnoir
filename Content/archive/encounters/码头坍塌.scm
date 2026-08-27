@@ -84,11 +84,11 @@
 ;;
 ;; 这两根钟必须挂在一张**卡**上：根容器不会被画出来，也禁止挂 :clocks。
 (define (rescued-clock-data)
-  (list 'clock "送上救护车" rescued-heads roster-heads 'segments
+  (list 'clock "送上救护车" rescued-heads roster-heads 'gauge
         "班表上说下面有这么多人。"))
 
 (define (lost-clock-data)
-  (list 'clock "没能等到" dead-heads roster-heads 'segments
+  (list 'clock "没能等到" dead-heads roster-heads 'gauge
         "有人的生命归零就涨一格。挖开以前，你不会知道是哪一片底下。"))
 
 ;; 同伴亲手执行动作时，偶尔用一句话显出各自的工作方式。尼尔不在这里开口；
@@ -135,7 +135,7 @@
 
 (define (make-victim label person-name heads life-max out-max skill verb voice frank-line)
   (let ((life (make-clock "生命" life-max 'countdown "每次结束回合减一；涨潮后减二。"))
-        (out (make-clock "抬出来" out-max 'segments "填满＝送上救护车。"))
+        (out (make-clock "抬出来" out-max 'gauge "填满＝送上救护车。"))
         (revealed? #f)
         ;; 还没被埋下去的人不掉命。第二次坍塌之前，滑道那两个还站在岸上。
         (armed? #t)
@@ -304,7 +304,7 @@
 ;;   硬掀开——快一格，出岔子时整片压实，底下每个还活着的人各失一格生命。
 ;; 稳的那手考的是眼力和门道（各片不同），硬掀一律考力量——所以弗兰克天生是干这个的人。
 (define (make-site name steady-skill steady-verb rough-verb calls slot-a slot-b)
-  (let ((dig (make-clock "挖开" 6 'segments "填满＝看清这片底下压着什么。"))
+  (let ((dig (make-clock "挖开" 6 'gauge "填满＝看清这片底下压着什么。"))
         (open? #f))
     (let ()
       (define (open!)
