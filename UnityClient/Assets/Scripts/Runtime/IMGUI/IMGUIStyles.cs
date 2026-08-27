@@ -101,8 +101,6 @@ namespace SSNoir.IMGUI
         public static GUIStyle SceneLabel = null!;
         public static GUIStyle HelpTip = null!;
 
-        public static Material? PieMaterial;
-
         private static bool  _initialized;
         private static float _lastScale = -1f;
         private static bool _missingSemiboldFontLogged;
@@ -119,17 +117,13 @@ namespace SSNoir.IMGUI
             ChineseFont = font;
             SemiboldFont = semiboldFont;
 
-            // PieMaterial is only created once (GL material, scale-independent).
-            if (PieMaterial == null)
-            {
-                PieMaterial = new Material(Shader.Find("Hidden/Internal-Colored"));
-                PieMaterial.hideFlags = HideFlags.HideAndDontSave;
-            }
+            // 这里曾经建一个 Hidden/Internal-Colored 材质给 GL 画饼和气泡尾巴用。
+            // 那两处都改成贴图了（见 ShapeDrawer），界面里不再有 GL 绘制。
 
             // Font sizes are snapped so (fontSize × scale) lands on an integer
             // physical pixel, minimising sub-pixel blur at non-1.0 scales.
             CardTitle      = MakeStyle(FontSize(23), TextPrimary,        TextAnchor.MiddleCenter, FontStyle.Bold);
-            CardSubtitle   = MakeStyle(FontSize(16), TextSecondary,      TextAnchor.MiddleCenter, FontStyle.Normal);
+            CardSubtitle   = MakeStyle(FontSize(14), TextSecondary,      TextAnchor.MiddleCenter, FontStyle.Normal);
             CardTypeTag    = MakeStyle(FontSize(15), TextSecondary,      TextAnchor.MiddleCenter, FontStyle.Normal);
             SlotLabel      = MakeStyle(FontSize(16), PaperInk,           TextAnchor.MiddleCenter, FontStyle.Bold);
             ExecuteLabel   = MakeStyle(FontSize(16), GoldOnDark,         TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -182,11 +176,75 @@ namespace SSNoir.IMGUI
         }
 
         /// <summary>
-        /// Draw descriptive IMGUI text without allowing Unity's implicit hover state to
-        /// change its color. Interaction feedback belongs to the control's background or
-        /// outline; labels are not controls merely because the pointer is over their rect.
+        /// 画一段说明性文字，并挡住 Unity 隐式的 hover 变色——鼠标划过一段标签不等于它是控件，
+        /// 交互反馈属于控件的底或描边。
         /// </summary>
         public static void DrawLabel(Rect position, string text, GUIStyle style)
+            => DrawLabelRaw(position, text, style);
+
+        /// <summary>纸面板的内容顶边（标题 + 分隔线之下）。三个面板共用同一个数。</summary>
+        public const float ModalContentTop = 74f;
+
+        /// <summary>
+        /// 纸面板的外壳：压暗背景 → 硬投影 + 纸底 → 标题 → 关闭 X → 分隔线。返回是否点了关闭。
+        ///
+        /// 设置 / 队伍 / 卷宗原本各写一份几乎一样的代码，于是标题字号、X 的位置、分隔线的
+        /// 深浅都各飘各的。收成一处之后，"这三个是同一类东西"是**结构上**成立的，不靠自觉维护。
+        ///
+        /// 标题 28px：对 14px 的正文是 2 倍差。原来 22 只有 1.6 倍，层级几乎全靠灰度撑，
+        /// 而灰度差在纸底上最先被吃掉。
+        /// </summary>
+        public static bool DrawModalChrome(Rect panelRect, string title, IMGUIInteractionContext ui)
+        {
+            GUI.color = Blocker;
+            GUI.DrawTexture(new Rect(0f, 0f, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            DrawShadow(panelRect, new Vector2(5f, 6f), 0.50f);
+            GUI.color = ModalBg;
+            GUI.DrawTexture(panelRect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            var titleStyle = new GUIStyle(ModalTitle)
+            {
+                fontSize = FontSize(28),
+                alignment = TextAnchor.MiddleLeft,
+            };
+            DrawLabel(new Rect(panelRect.x + 24f, panelRect.y + 18f, panelRect.width - 80f, 32f), title, titleStyle);
+
+            // 关闭 X：纸上次级按钮＝1px 墨描边、透明底。
+            var closeRect = new Rect(panelRect.xMax - 44f, panelRect.y + 16f, 28f, 28f);
+            bool closeHover = ui.CanHover(closeRect);
+            if (closeHover)
+            {
+                GUI.color = new Color(PaperInk.r, PaperInk.g, PaperInk.b, 0.08f);
+                GUI.DrawTexture(closeRect, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+            }
+            DrawOutline(closeRect, 1f, closeHover
+                ? PaperInk
+                : new Color(PaperInk.r, PaperInk.g, PaperInk.b, 0.55f));
+            var closeStyle = new GUIStyle(StatusLabel)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = closeHover ? PaperInk : PaperTextSecondary },
+            };
+            DrawLabel(closeRect, "X", closeStyle);
+
+            DrawLine(
+                new Vector2(panelRect.x + 24f, panelRect.y + 58f),
+                new Vector2(panelRect.xMax - 24f, panelRect.y + 58f),
+                new Color(PaperInk.r, PaperInk.g, PaperInk.b, 0.35f), 1f);
+
+            if (ui.WasTapped(closeRect))
+            {
+                Event.current.Use();
+                return true;
+            }
+            return false;
+        }
+
+        private static void DrawLabelRaw(Rect position, string text, GUIStyle style)
         {
             Color normal = style.normal.textColor;
             Color hover = style.hover.textColor;
@@ -220,6 +278,65 @@ namespace SSNoir.IMGUI
             style.onHover.textColor = color;
             style.onActive.textColor = color;
             style.onFocused.textColor = color;
+        }
+
+        /// <summary>
+        /// 按**字形的实际墨迹**把一小段文字放到 rect 正中，用于表盘中心的剩余数字。
+        ///
+        /// 为什么不能直接用 TextAnchor.MiddleCenter：IMGUI 居中的是**字框**——横向是
+        /// advance（含左右边距），纵向是 ascent/descent（含数字根本用不到的下伸空间）。
+        /// 于是「几何居中」和「看起来在正中」差一截，而且**每个数字差的还不一样**：
+        /// 我们这套用的是中文半粗体，它的拉丁数字边距逐字不同，2 正了 3 和 9 就偏。
+        ///
+        /// 这里改成问字体要每个字形的 minX/maxX/minY/maxY，算出墨迹中心和字框中心的差，
+        /// 用 contentOffset 补掉。补的是字体真实的度量，不是一个试出来的常数，
+        /// 所以换字号、换字体、换数字都成立。
+        /// </summary>
+        public static void DrawInkCenteredText(Rect rect, string text, GUIStyle style)
+        {
+            var font = style.font;
+            if (font == null || string.IsNullOrEmpty(text))
+            {
+                DrawLabel(rect, text, style);
+                return;
+            }
+
+            // 不先请求，动态字体的图集里可能还没有这些字形，取到的度量全是 0。
+            font.RequestCharactersInTexture(text, style.fontSize, style.fontStyle);
+
+            float advance = 0f;
+            float inkMinX = float.MaxValue, inkMaxX = float.MinValue;
+            float inkMinY = float.MaxValue, inkMaxY = float.MinValue;
+            bool measured = false;
+            foreach (char c in text)
+            {
+                if (!font.GetCharacterInfo(c, out var info, style.fontSize, style.fontStyle))
+                    continue;
+                measured = true;
+                inkMinX = Mathf.Min(inkMinX, advance + info.minX);
+                inkMaxX = Mathf.Max(inkMaxX, advance + info.maxX);
+                inkMinY = Mathf.Min(inkMinY, info.minY);
+                inkMaxY = Mathf.Max(inkMaxY, info.maxY);
+                advance += info.advance;
+            }
+
+            if (!measured || advance <= 0f)
+            {
+                DrawLabel(rect, text, style);
+                return;
+            }
+
+            float scale = font.fontSize > 0 ? (float)style.fontSize / font.fontSize : 1f;
+            float ascent = font.ascent * scale;
+            float lineHeight = font.lineHeight * scale;
+            float boxCenterAboveBaseline = ascent - lineHeight * 0.5f;
+            float inkCenterAboveBaseline = (inkMinY + inkMaxY) * 0.5f;
+
+            var centered = new GUIStyle(style) { alignment = TextAnchor.MiddleCenter };
+            centered.contentOffset = new Vector2(
+                -((inkMinX + inkMaxX) * 0.5f - advance * 0.5f),
+                inkCenterAboveBaseline - boxCenterAboveBaseline);
+            DrawLabel(rect, text, centered);
         }
 
         public static void ApplyStrongFont(GUIStyle style)
@@ -369,7 +486,11 @@ namespace SSNoir.IMGUI
                 Vector2 d = end - start;
                 float angle = Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg;
                 float dist = d.magnitude;
-                GUI.matrix = Matrix4x4.TRS(start, Quaternion.Euler(0, 0, angle), Vector3.one) * matrix;
+                // start/end are virtual IMGUI coordinates. Compose the local line transform
+                // after the current GUI matrix so the global UIScale/group transform also
+                // applies to the line's origin. Reversing this order leaves the diagonal
+                // line detached from the Rect while axis-aligned lines still look correct.
+                GUI.matrix = matrix * Matrix4x4.TRS(start, Quaternion.Euler(0, 0, angle), Vector3.one);
                 GUI.DrawTexture(new Rect(0, -thickness / 2f, dist, thickness), Texture2D.whiteTexture);
                 GUI.matrix = matrix;
             }

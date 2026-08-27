@@ -48,14 +48,22 @@ namespace SSNoir.IMGUI
 
         // 地点牌按「可选图标 + 一个地名」实际需要多宽收敛：叫「家」的地方不该和「老街酒馆」
         // 占一样宽。窄卡在屏幕上少占地方，同一栋楼的几张卡也就更容易各自让开。
-        // 下限保证带时钟徽章的牌子仍排得开，上限压住长地名。
+        //
+        // 牌子上挂着的时钟按自己需要的宽度一起参与：地名短不等于这张牌可以窄到把钟裁掉。
+        // 「码头」两个字算出 136 的下限，而「下一班船靠岸 2/2」要 146，标签就被切成
+        // 「下一班船靠」——和 CardDrawer.LayoutClockBadges 注释里说的是同一个错误：
+        // 宽度必须由内容说了算，不能由一个猜出来的下限说了算。
         public static float PreferredLocationWidth(GameNode node)
         {
             float nameW = new GUIStyle(IMGUIStyles.CardTitle).CalcSize(new GUIContent(node.Name)).x;
             float iconW = NodeIcon(node) != null ? LocationIconSize + GapIconToName : 0f;
-            return Mathf.Clamp(
-                LocationPadX * 2f + iconW + nameW,
-                136f, 260f);
+            float need = LocationPadX * 2f + iconW + nameW;
+
+            // +24 是 LayoutClockBadges 给徽章行留的左右余量，两边必须用同一个数。
+            foreach (var clock in node.Clocks)
+                need = Mathf.Max(need, CardDrawer.MeasureClockBadge(clock, compact: false) + 24f);
+
+            return Mathf.Clamp(need, 136f, 260f);
         }
 
         // 副标题按实际换行结果占高（上限 4 行左右），不再固定「剩下多少算多少」。

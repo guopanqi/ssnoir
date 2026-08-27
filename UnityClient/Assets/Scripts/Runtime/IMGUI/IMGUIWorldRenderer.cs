@@ -48,6 +48,8 @@ namespace SSNoir.IMGUI
         private float _gridScrollOffset = 0f;
         // 本帧的顶栏布局。顶栏是「世界内容从哪开始」的唯一依据，网格视口和边缘信标都问它。
         private TopHudLayout _topHud;
+        // 本帧钉住条实际占的位置。卡片要绕开它，和顶栏按钮一样。
+        private Rect _pinStripRect;
         // 本帧场景标注带占了多大。卡片排布与网格视口都要按它往下让，所以它必须在
         // 任何卡片定位之前量好；没有场景标注时是一个零高度的空矩形。
         private Rect _sceneBandRect;
@@ -170,6 +172,11 @@ namespace SSNoir.IMGUI
                         return;
                     case BlockingStoryStepKind.Animation:
                         PlayAnimationStep(step.AnimationTag);
+                        return;
+                    case BlockingStoryStepKind.EnterPlace:
+                        _gameManager.EnterForcedPlace(step.PlaceName);
+                        // 位置切换本身没有确认按钮；下一张倒下卡立刻在诊所画面上接管输入。
+                        AdvanceToBlockingPresentationOrFinish();
                         return;
                 }
             }
@@ -323,6 +330,12 @@ namespace SSNoir.IMGUI
             if (DebugPanelDrawer.IsOpen)
             {
                 DebugPanelDrawer.Close();
+                return true;
+            }
+
+            if (DossierPanelDrawer.IsOpen)
+            {
+                DossierPanelDrawer.Close();
                 return true;
             }
 
@@ -494,6 +507,19 @@ namespace SSNoir.IMGUI
             TopHudLayout topHud = TopHudLayout.Create();
             _topHud = topHud;
 
+            if (DossierPanelDrawer.IsOpen && !_isGrowthPanelOpen)
+            {
+                var (_, dossierPanelRect) = DossierPanelDrawer.GetRects(topHud);
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.DossierPanel,
+                    Bounds = dossierPanelRect,
+                    Layer = IMGUIWindowLayer.Panel,
+                    BlockMode = IMGUIBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
+
             if (SettingsPanelDrawer.IsOpen && !_isGrowthPanelOpen)
             {
                 var (_, settingsPanelRect) = SettingsPanelDrawer.GetRects(topHud);
@@ -606,7 +632,11 @@ namespace SSNoir.IMGUI
                 _dialogueAnchors.RegisterNode(kv.Key, new Rect(kv.Value.x - 60f, kv.Value.y - 80f, 120f, 160f));
 
             // ── Bottom Panel ──
+            // 结果 attachment 的视觉层在物品栏之后；点击消费提前做，避免结果盖住物品栏后
+            // 视觉层在前、交互层却误点到底下的物品。
+            HandleCardAttachmentTaps(worldUi);
             HandPanelDrawer.Draw(_gameManager, worldUi, _dialogueAnchors);
+            DrawCardAttachmentOverlays(worldUi);
 
             // ── Growth / Team Toggle Button ──
             DrawGrowthToggleButton(worldUi, topHud.GrowthToggle);
@@ -617,7 +647,26 @@ namespace SSNoir.IMGUI
             // 按钮可见但点不动。优先级：成长 > 设置 > Debug；打开谁就顺手关掉下面优先级的
             // 面板，避免两个居中纸卡模态叠在一起抢点击。
             var lockedPanelUi = _windowStack.MakeContext(IMGUIWindowLayer.Panel, true);
-            var settingsUi = _isGrowthPanelOpen ? lockedPanelUi : panelUi;
+
+            // 卷宗：城里的事，交锋里不给入口。
+            if (!_gameManager.DisplayedSnapshot.IsInEncounter)
+            {
+                bool dossierWasOpen = DossierPanelDrawer.IsOpen;
+                DossierPanelDrawer.Draw(_gameManager, _isGrowthPanelOpen ? lockedPanelUi : panelUi, topHud);
+                if (!dossierWasOpen && DossierPanelDrawer.IsOpen)
+                {
+                    ClearCardResidues();
+                    SettingsPanelDrawer.Close();
+                    DebugPanelDrawer.Close();
+                }
+            }
+            else
+            {
+                // 交锋开场时把它收起来：否则打完回到城里，面板会自己弹回来。
+                DossierPanelDrawer.Close();
+            }
+
+            var settingsUi = (_isGrowthPanelOpen || DossierPanelDrawer.IsOpen) ? lockedPanelUi : panelUi;
             bool settingsWasOpen = SettingsPanelDrawer.IsOpen;
             SettingsPanelDrawer.Draw(settingsUi, topHud);
             if (!settingsWasOpen && SettingsPanelDrawer.IsOpen)
@@ -626,7 +675,8 @@ namespace SSNoir.IMGUI
                 DebugPanelDrawer.Close();
             }
 
-            var debugUi = (_isGrowthPanelOpen || SettingsPanelDrawer.IsOpen) ? lockedPanelUi : panelUi;
+            var debugUi = (_isGrowthPanelOpen || SettingsPanelDrawer.IsOpen || DossierPanelDrawer.IsOpen)
+                ? lockedPanelUi : panelUi;
             DebugPanelDrawer.Draw(_gameManager, debugUi, topHud);
 
             // 大型关系进展图最后绘制在世界控件之上。
@@ -685,6 +735,17 @@ namespace SSNoir.IMGUI
             IMGUIInteractionContext.FinishPointerEvent(Event.current);
         }
 
+        // 失败卡。这一屏是一章的句号，也是玩家在这一局里读到的最后一段字——
+        // 它的排版不能比路边一张动作卡还随便。
+        //
+        // 上一版三个具体的毛病，都不是"审美问题"，是排版规则用错了：
+        //   · 正文居中。中文段落居中排，最后一行常常只剩一个句号孤零零挂在中间。
+        //     叙述性段落一律左对齐——居中只留给标题这种一两行的东西。
+        //   · 正文框写死 56px 高，而三行 18px 的字要 80 上下。文字从框里溢出去，
+        //     和下面的分隔线挤在一起。现在高度由 CalcHeight 量出来，卡的高度跟着走，
+        //     以后写多长的失败文案都不会再撞。
+        //   · 「退出游戏」直接借了 StatusLabel，那是个 MiddleLeft、给暗底用的样式，
+        //     落在纸白卡上就是一行左对齐的浅灰字。按钮的样式在这儿现配，不借共享静态的。
         private void DrawFailureOverlay(Vector2 mouse)
         {
             var failure = _gameManager.DisplayedSnapshot.Failure;
@@ -693,47 +754,111 @@ namespace SSNoir.IMGUI
                 new Color(0.02f, 0.03f, 0.05f, 0.92f), 0f, 0f);
 
             const float cardWidth = 560f;
-            const float cardHeight = 360f;
-            var card = UIScale.CenteredModal(cardWidth, cardHeight);
+            const float padX = 52f;
+            const float padTop = 46f;
+            const float padBottom = 40f;
+            const float ruleWidth = 44f;     // 标题上方那一道红杠：印章的语气，不是装饰线
+            const float ruleHeight = 3f;
+            const float gapRuleToTitle = 18f;
+            const float gapTitleToBody = 20f;
+            const float gapBodyToDivider = 28f;
+            const float gapDividerToButtons = 24f;
+            const float gapBetweenButtons = 10f;
+            const float primaryH = 44f;
+            const float secondaryH = 38f;
+            float contentW = cardWidth - padX * 2f;
+
+            var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle)
+            {
+                alignment = TextAnchor.UpperLeft,
+                wordWrap = true,
+                fontSize = IMGUIStyles.FontSize(32),
+                normal = { textColor = IMGUIStyles.SealRed },
+            };
+            // 正文自带一份样式，不从 StatusLabel 派生：那一份是 MiddleLeft + 暗底配色，
+            // 每次都要改两个字段才能用在纸上，改漏一个就是上一版那行浅灰字。
+            var bodyStyle = new GUIStyle(GUI.skin.label)
+            {
+                font = IMGUIStyles.ChineseFont,
+                fontSize = IMGUIStyles.FontSize(17),
+                alignment = TextAnchor.UpperLeft,
+                wordWrap = true,
+                richText = false,
+                normal = { textColor = new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.88f) },
+            };
+
+            float titleH = Mathf.Max(
+                titleStyle.CalcHeight(new GUIContent(failure.Title), contentW),
+                IMGUIStyles.FontSize(32) * 1.3f);
+            float bodyH = string.IsNullOrEmpty(failure.Description)
+                ? 0f
+                : bodyStyle.CalcHeight(new GUIContent(failure.Description), contentW);
+
+            // 卡有多高由内容说了算。写死高度是上一版文字溢出来的根源。
+            float cardHeight = padTop + ruleHeight + gapRuleToTitle + titleH
+                             + (bodyH > 0f ? gapTitleToBody + bodyH : 0f)
+                             + gapBodyToDivider + 1f + gapDividerToButtons
+                             + primaryH + gapBetweenButtons + secondaryH + padBottom;
+
+            var card = UIScale.PixelSnap(UIScale.CenteredModal(cardWidth, cardHeight));
             IMGUIStyles.DrawShadow(card, new Vector2(6f, 7f), 0.55f);
             GUI.DrawTexture(card, Texture2D.whiteTexture, ScaleMode.StretchToFill, false, 0f,
                 IMGUIStyles.Paper, 0f, 0f);
             IMGUIStyles.DrawOutline(card, 1f, IMGUIStyles.PaperInk);
 
-            var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle)
+            float x = card.x + padX;
+            float y = card.y + padTop;
+
+            GUI.color = IMGUIStyles.SealRed;
+            GUI.DrawTexture(new Rect(x, y, ruleWidth, ruleHeight), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            y += ruleHeight + gapRuleToTitle;
+
+            IMGUIStyles.DrawLabel(new Rect(x, y, contentW, titleH), failure.Title, titleStyle);
+            y += titleH;
+
+            if (bodyH > 0f)
             {
-                alignment = TextAnchor.MiddleCenter,
-                fontSize = IMGUIStyles.FontSize(34),
-                normal = { textColor = IMGUIStyles.SealRed }
-            };
-            var descriptionStyle = new GUIStyle(IMGUIStyles.StatusLabel)
+                y += gapTitleToBody;
+                IMGUIStyles.DrawLabel(new Rect(x, y, contentW, bodyH), failure.Description, bodyStyle);
+                y += bodyH;
+            }
+
+            y += gapBodyToDivider;
+            IMGUIStyles.DrawLine(new Vector2(x, y), new Vector2(card.xMax - padX, y),
+                new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.30f), 1f);
+            y += 1f + gapDividerToButtons;
+
+            // 两个按钮的字都在这儿现配成居中的深色：DrawTechnicalButton 会拿描边色去写字，
+            // 所以主次之分靠 alpha（0.85 / 0.55），不靠换一个给暗底用的样式。
+            var buttonLabel = new GUIStyle(GUI.skin.label)
             {
+                font = IMGUIStyles.ChineseFont,
+                fontSize = IMGUIStyles.FontSize(16),
                 alignment = TextAnchor.MiddleCenter,
-                wordWrap = true,
-                fontSize = IMGUIStyles.FontSize(18),
-                normal = { textColor = IMGUIStyles.PaperInk }
+                wordWrap = false,
             };
-            IMGUIStyles.DrawLabel(new Rect(card.x + 44f, card.y + 60f, card.width - 88f, 52f), failure.Title, titleStyle);
-            IMGUIStyles.DrawLabel(new Rect(card.x + 64f, card.y + 132f, card.width - 128f, 56f), failure.Description, descriptionStyle);
-            IMGUIStyles.DrawLine(new Vector2(card.x + 64f, card.y + 212f), new Vector2(card.xMax - 64f, card.y + 212f),
-                new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.35f), 1f);
+            IMGUIStyles.ApplyStrongFont(buttonLabel);
 
             var ui = new IMGUIInteractionContext(mouse, isLocked: false);
-            var restart = new Rect(card.x + 64f, card.y + 244f, card.width - 128f, 42f);
-            var quit = new Rect(card.x + 64f, card.y + 296f, card.width - 128f, 34f);
-            if (IMGUIButton.Draw(restart, "重新开始", ui,
-                    IMGUIStyles.PaperInk, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.10f),
-                    IMGUIStyles.ExecuteLabel))
-            {
+            var restart = new Rect(x, y, contentW, primaryH);
+            var quit = new Rect(x, y + primaryH + gapBetweenButtons, contentW, secondaryH);
+
+            // 两个各自判断。上一版写成 if / else if——重新开始被点中的那一帧，
+            // 退出按钮整个不画，屏幕上会缺一块。
+            bool restartClicked = IMGUIButton.Draw(restart, "重新开始", ui,
+                new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.85f),
+                new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.10f),
+                buttonLabel);
+            bool quitClicked = IMGUIButton.Draw(quit, "退出游戏", ui,
+                new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.55f),
+                new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.06f),
+                buttonLabel);
+
+            if (restartClicked)
                 _gameManager.RestartGame();
-            }
-            else if (IMGUIButton.Draw(quit, "退出游戏", ui,
-                         new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.50f),
-                         new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.06f),
-                         IMGUIStyles.StatusLabel))
-            {
+            else if (quitClicked)
                 Application.Quit();
-            }
         }
 
         private void DrawCards(IMGUIInteractionContext ui)
@@ -804,15 +929,33 @@ namespace SSNoir.IMGUI
                 }
             }
 
+            // ── 钉住条 ──
+            // 地图上常驻的唯一一条故事信息：玩家钉的那条线的读数和那一句「现在」。
+            //
+            // 它紧贴顶栏，位置**恒定**：玩家每天要看的就是这两个数，眼睛该知道往哪儿落，
+            // 不能今天这个地点有一条标注、它就往下挪一截。所以让位的是标注带——
+            // 标注是"这一场是什么样子"，一天里换好几副面孔，本来就该跟着环境走。
+            // 但"让位"是让开这 300 宽的一块，不是让开整整一行：标注带绕着它排。
+            // 交锋里不画：那时候没有别的线可想。
+            _pinStripRect = _gameManager.DisplayedSnapshot.IsInEncounter
+                ? new Rect(0f, 0f, 0f, 0f)
+                : DossierPanelDrawer.DrawPinStrip(_gameManager, _topHud.ContentTop);
+
             // 带子先量后画：卡片的可用区间（含网格视口）要按它实际占了多高往下让。
             // 标注是最底下的一层——它是印在图纸上的字，一切卡片都压在它上面。
+            //
+            // 带子和钉住条同高起排，绕着钉住条走（见 LayoutSceneBand）。所以卡片让位的
+            // 底边要取两者的较大值：绕排时带子可能收在钉住条上方结束，那时该让的是钉住条。
+            float bandTop = _topHud.ContentTop;
             _sceneBandRect = sceneNotes.Count == 0
-                ? new Rect(0f, _topHud.ContentTop, 0f, 0f)
+                ? new Rect(0f, _pinStripRect.yMax, 0f, 0f)
                 : new Rect(
-                    UIScale.SafeArea.xMin, _topHud.ContentTop, UIScale.SafeArea.width,
-                    AnnotationDrawer.MeasureSceneBandHeight(sceneNotes, _topHud.ContentTop));
+                    UIScale.SafeArea.xMin, bandTop, UIScale.SafeArea.width,
+                    Mathf.Max(
+                        AnnotationDrawer.MeasureSceneBandHeight(sceneNotes, bandTop, _pinStripRect),
+                        _pinStripRect.yMax - bandTop));
             if (sceneNotes.Count > 0)
-                AnnotationDrawer.DrawSceneBand(sceneNotes, _topHud.ContentTop);
+                AnnotationDrawer.DrawSceneBand(sceneNotes, bandTop, _pinStripRect);
 
             // residue 只有三个互斥归属：
             // 1. 宿主节点仍在当前快照：由节点卡自己读取并绘制 residue；
@@ -1060,9 +1203,6 @@ namespace SSNoir.IMGUI
                 DrawCardsGrid(gridNodes, gridResidues, ui);
             }
 
-            // attachment overlay 高于全部世界卡（含网格兜底），但仍低于手牌、HUD 与对话层。
-            DrawCardAttachmentOverlays(ui);
-
             string? beaconTarget = ImportantNodeBeaconDrawer.Draw(importantBeacons, ui, _topHud.ContentTop);
             if (beaconTarget != null)
                 _gameManager.CameraManager.NavigateToNode(beaconTarget);
@@ -1112,6 +1252,9 @@ namespace SSNoir.IMGUI
             for (int i = 0; i < _cardAttachmentOverlays.Count; i++)
             {
                 var attachment = _cardAttachmentOverlays[i];
+                if (attachment.Residue != null
+                    && !_cardResidues.ContainsKey(attachment.Residue.HostNodeName))
+                    continue;
                 if (ActionNodeDrawer.DrawAttachmentOverlay(
                         attachment.CardRect, attachment.LocalRoll, attachment.LocalRollPhase,
                         attachment.LocalRollDieValue, attachment.LocalRollScale, attachment.Residue,
@@ -1120,6 +1263,25 @@ namespace SSNoir.IMGUI
                 {
                     _cardResidues.Remove(attachment.Residue.HostNodeName);
                 }
+            }
+        }
+
+        private void HandleCardAttachmentTaps(IMGUIInteractionContext ui)
+        {
+            for (int i = 0; i < _cardAttachmentOverlays.Count; i++)
+            {
+                var attachment = _cardAttachmentOverlays[i];
+                if (attachment.Residue == null)
+                    continue;
+
+                var residueRect = ActionNodeDrawer.ResidueAttachmentRect(
+                    attachment.CardRect, attachment.Residue, attachment.Spacious);
+                ui.CanHover(residueRect);
+                if (!ui.WasTapped(residueRect))
+                    continue;
+
+                Event.current.Use();
+                _cardResidues.Remove(attachment.Residue.HostNodeName);
             }
         }
 
@@ -1595,10 +1757,14 @@ namespace SSNoir.IMGUI
         }
 
         // 网格视口夹在顶栏下沿和底部手牌簇之间；两头都由各自的所有者报高度，这里不写死。
-        // 场景标注带也算一头：它占了画面上方多少，网格就从多少往下开始。
+        // 场景标注带和钉住条也算这一头：它们占了画面上方多少，网格就从多少往下开始。
         private Rect GridViewport()
         {
-            float top = _topHud.ContentTop + _sceneBandRect.height;
+            // 网格是固定在屏幕上的 UI，不会像空间投射卡那样随视角移动；它的最低上界
+            // 永远是顶栏内容区。交锋里没有钉住条，且根节点没有场景标注时，下面两个
+            // Rect 都是零矩形；只取它们的 yMax 会让网格从 y=0 开始，把顶栏整块盖住。
+            float top = Mathf.Max(_topHud.ContentTop,
+                Mathf.Max(_sceneBandRect.yMax, _pinStripRect.yMax));
             float bottom = UIScale.SafeArea.yMax - HandPanelDrawer.ReservedHeight;
             return new Rect(0f, top, UIScale.VW, Mathf.Max(0f, bottom - top));
         }
@@ -1743,6 +1909,11 @@ namespace SSNoir.IMGUI
                 ? ui.Occluded().Translated(new Vector2(viewport.x, viewport.y))
                 : ui.Translated(new Vector2(viewport.x, viewport.y));
 
+            // 卡片的边缘外挂（便签 / 能力片）攒到最后一起画：网格列间距只有 GridSpacing，
+            // 外挂一定伸进邻居的地盘，一遍画下来右缘的能力片会被下一张卡的卡身盖掉。
+            // 详见 ActionNodeDrawer.BeginDeferredEdgeAttachments。
+            ActionNodeDrawer.BeginDeferredEdgeAttachments();
+
             for (int i = 0; i < totalCards; i++)
             {
                 var layout = layouts[i];
@@ -1776,7 +1947,7 @@ namespace SSNoir.IMGUI
                 }
 
                 string backText = (node.Resolve?.Type == ResolveType.Observe) ? (node.Resolve?.ObserveText ?? "") : "";
-                var execution = GetCardExecutionState(node.Name);
+                var execution = GetExecutionState(node.Name);
                 bool isLocalRoll = _animator.IsPlaying
                     && !_animator.UsesModal
                     && string.Equals(_animator.ActionName, node.Name, StringComparison.OrdinalIgnoreCase);
@@ -1818,6 +1989,11 @@ namespace SSNoir.IMGUI
                     _gameManager.ExecuteNodeAction(node);
                 }
             }
+
+            // 必须在 EndGroup 之前：外挂的坐标是这个分组里的局部坐标。
+            // 这一句不能被上面任何一条 continue 或异常绕过，否则标志位会卡在"还在攒"，
+            // 世界投射的卡也跟着不画外挂了。
+            ActionNodeDrawer.FlushDeferredEdgeAttachments();
 
             GUI.EndGroup();
             DrawGridScrollbar(viewport, contentHeight, _gridScrollOffset, maxScroll);
@@ -1881,7 +2057,7 @@ namespace SSNoir.IMGUI
             }
 
             string backText = (node.Resolve?.Type == ResolveType.Observe) ? (node.Resolve?.ObserveText ?? "") : "";
-            var execution = GetCardExecutionState(node.Name);
+            var execution = GetExecutionState(node.Name);
             bool isLocalRoll = _animator.IsPlaying
                 && !_animator.UsesModal
                 && string.Equals(_animator.ActionName, node.Name, StringComparison.OrdinalIgnoreCase);
@@ -2031,7 +2207,12 @@ namespace SSNoir.IMGUI
             return _gameManager.FocusedNodeName == nodeName;
         }
 
-        private (bool IsExecuting, float Progress, string Text) GetCardExecutionState(string nodeName)
+        /// <summary>
+        /// 某个动作此刻的「执行中」进度。原来这只服务画成卡的节点（进度条画在执行钮里），
+        /// 于是没有执行钮的两处——右下角的随身挂件（抽烟）和交锋里的休息键——
+        /// 明明也在播同一段演出，却什么都不显示。改成按名字问，谁都能来取。
+        /// </summary>
+        public (bool IsExecuting, float Progress, string Text) GetExecutionState(string nodeName)
         {
             if (!_presentationPlayer.IsPlaying || _animator.IsPlaying)
             {
@@ -2050,13 +2231,9 @@ namespace SSNoir.IMGUI
 
         private void DrawGrowthToggleButton(IMGUIInteractionContext ui, Rect btnRect)
         {
-            bool btnHover = ui.CanHover(btnRect);
-            Color hoverBg = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
-            Color outlineColor = _isGrowthPanelOpen
-                ? IMGUIStyles.Gold
-                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
-
-            if (IMGUIButton.Draw(btnRect, "队 伍", ui, outlineColor, hoverBg, IMGUIStyles.ExecuteLabel))
+            // 和声誉 / 卷宗 / 设置共用同一份顶栏开关实现。原来这里是另写的一份，
+            // 用了 ExecuteLabel、也没铺 HUD 底，排在其余三个旁边一眼就看得出不是一伙的。
+            if (IMGUIButton.DrawHudToggle(btnRect, "成 长", _isGrowthPanelOpen, ui))
             {
                 _isGrowthPanelOpen = !_isGrowthPanelOpen;
                 if (_isGrowthPanelOpen)
@@ -2077,6 +2254,16 @@ namespace SSNoir.IMGUI
 
         private void AddLightResidueIfNeeded(ActionReport report, string actionName)
         {
+            // 结果残影是城市世界卡的短暂附着物。交锋里的行动/时钟只在交锋场景
+            // 有意义，不能在交锋结束后随旧 actionName 一起泄漏到世界；没有锚定动作名
+            // 的入场/离场演出也没有宿主卡，不能创建残影。
+            if (string.IsNullOrWhiteSpace(actionName)
+                || !string.Equals(_gameManager.SceneManager.CurrentSceneName, "world",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             var presentation = report.OutcomePresentation;
             if (presentation == null || !presentation.HasText || presentation.Mode != OutcomePresentationMode.Light)
             {
@@ -2365,9 +2552,8 @@ namespace SSNoir.IMGUI
             }
         }
 
-        // 本帧要避开的控件。顶栏按钮**恒定预留**（返回键有时不画，但位置照让），
-        // 理由与 UIScale.TopRightReserved 一样：让位只在某些情况下发生的话，
-        // 排布就会跟着状态跳来跳去。
+        // 本帧要避开的控件。顶栏按钮**恒定预留**（返回键有时不画，但位置照让）：
+        // 让位只在某些情况下发生的话，排布就会跟着状态跳来跳去。
         private CardKeepOut BuildCardKeepOut()
         {
             var blockers = new List<Rect>
@@ -2376,8 +2562,9 @@ namespace SSNoir.IMGUI
                 _topHud.RelationToggle,
                 _topHud.GrowthToggle,
                 _topHud.DebugToggle,
+                _topHud.DossierToggle,
                 _topHud.SettingsToggle,
-                UIScale.TopRightReserved,
+                _pinStripRect,
                 _sceneBandRect,
             };
             HandPanelDrawer.CollectTouchBlockers(_gameManager, blockers);

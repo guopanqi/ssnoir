@@ -19,10 +19,13 @@ namespace SSNoir
     public class TitleScreen
     {
         // 片名占位。定下来之后改这一处。
-        private const string Title = "SSNOIR";
+        private const string Title = "The Ballad\nof Belleville";
 
         private const float ColumnX = 0.10f;   // 文字栏左边距（屏宽占比）
         private const float TitleY = 0.30f;    // 片名基线（屏高占比）
+        private const float TitleHeight = 152f;
+        private const float TitleRuleOffset = 164f;
+        private const float MenuTopOffset = 204f;
         private const float ItemHeight = 44f;
         private const float ItemSpacing = 4f;
 
@@ -126,16 +129,16 @@ namespace SSNoir
                 normal = { textColor = IMGUIStyles.Paper },
             };
             IMGUIStyles.ApplyStrongFont(titleStyle);
-            IMGUIStyles.DrawLabel(new Rect(x, titleY, vw * 0.6f, 76f), Title, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(x, titleY, vw * 0.6f, TitleHeight), Title, titleStyle);
 
             // 片名下面一条金发丝，和游戏内各处分隔线同一个手势。
             IMGUIStyles.DrawLine(
-                new Vector2(x, titleY + 88f),
-                new Vector2(x + 220f, titleY + 88f),
+                new Vector2(x, titleY + TitleRuleOffset),
+                new Vector2(x + 220f, titleY + TitleRuleOffset),
                 new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.75f),
                 1f);
 
-            float itemY = titleY + 128f;
+            float itemY = titleY + MenuTopOffset;
 
             if (DrawItem(new Rect(x, itemY, 300f, ItemHeight), "新游戏", ui, enabled: true))
             {

@@ -17,11 +17,18 @@ namespace SSNoir.IMGUI
     {
         // 边距与行高随设备走：桌面 40px 的留白放到手机的虚拟画布上就是一大条空地。
         private const float SideMargin = 16f;
-        private const float TopInset = 12f;
-        private const float Gap = 10f;
+        private const float TopInset = 10f;
+        private const float Gap = 8f;
 
-        // 顶栏控件都是主要操作入口，一律不低于最小触控尺寸。
-        private static float RowHeight => UIScale.TouchHeight(40f);
+        // 顶栏比手牌和骰位低一档，是有意的：这几个都是"想起来才点一下"的入口
+        // （面板、设置、Debug），不是每回合都要瞄准的操作位。它们按最小触控尺寸撑满，
+        // 就等于用整条屏幕顶去换几个几乎不点的按钮。34 仍在手指够得着的范围内，
+        // 省下来的高度全部还给世界。真正的难点控件另有放大规则，不受这里影响。
+        // 刻意不走 UIScale.TouchHeight()——那条下限（40）是给"要瞄准的控件"定的，
+        // 这里是明知故犯的一档例外，不是忘了调。
+        private const float RowHeightValue = 34f;
+
+        private static float RowHeight => RowHeightValue;
 
         /// <summary>整条顶栏（含左右两组）占据的矩形。</summary>
         public Rect Bar { get; }
@@ -29,6 +36,7 @@ namespace SSNoir.IMGUI
         public Rect Back { get; }
         public Rect Breadcrumb { get; }
         public Rect Day { get; }
+        public Rect DossierToggle { get; }
         public Rect RelationToggle { get; }
         public Rect GrowthToggle { get; }
         public Rect DebugToggle { get; }
@@ -40,7 +48,7 @@ namespace SSNoir.IMGUI
         /// <summary>顶栏之下、可以开始摆世界内容（卡片 / 边缘信标）的 y。</summary>
         public float ContentTop { get; }
 
-        private TopHudLayout(Rect bar, Rect back, Rect breadcrumb, Rect day,
+        private TopHudLayout(Rect bar, Rect back, Rect breadcrumb, Rect day, Rect dossierToggle,
             Rect relationToggle, Rect growthToggle, Rect debugToggle, Rect settingsToggle,
             float dividerY, float contentTop)
         {
@@ -48,6 +56,7 @@ namespace SSNoir.IMGUI
             Back = back;
             Breadcrumb = breadcrumb;
             Day = day;
+            DossierToggle = dossierToggle;
             RelationToggle = relationToggle;
             GrowthToggle = growthToggle;
             DebugToggle = debugToggle;
@@ -68,41 +77,42 @@ namespace SSNoir.IMGUI
             float left = safe.x + margin;
             float right = safe.xMax - margin;
 
-            // 小游戏宿主的胶囊按钮占着右上角。那块地不归游戏管，画上去就是被压住、点不到
-            // ——按钮组必须整体往左让，而不是指望它不挡。
-            Rect hostReserved = UIScale.TopRightReserved;
-            if (hostReserved.width > 0f && top < hostReserved.yMax)
-                right = Mathf.Min(right, hostReserved.xMin - gap);
-
             var bar = new Rect(left, top, Mathf.Max(0f, right - left), rowH);
 
             // 右组：从右往左依次安放，宽度在窄屏上收成短名。
             float cursorRight = right;
-            Rect settings = TakeFromRight(ref cursorRight, 60f, rowH, top, gap);
-            Rect debug    = TakeFromRight(ref cursorRight, 60f, rowH, top, gap);
-            Rect growth   = TakeFromRight(ref cursorRight, 72f, rowH, top, gap);
-            Rect relation = TakeFromRight(ref cursorRight, 72f, rowH, top, gap);
+            Rect settings = TakeFromRight(ref cursorRight, 54f, rowH, top, gap);
+            Rect debug    = TakeFromRight(ref cursorRight, 54f, rowH, top, gap);
+            Rect growth   = TakeFromRight(ref cursorRight, 64f, rowH, top, gap);
+            // 声誉这一版整个收起来（见 NavigationDrawer.ShowRelationPanel），
+            // 位置也一起让出去：它不是"有时候不画"，是这一版没有这个东西。
+            Rect relation = NavigationDrawer.ShowRelationPanel
+                ? TakeFromRight(ref cursorRight, 64f, rowH, top, gap)
+                : Rect.zero;
+            // 卷宗排在这一组最左：它是这组里唯一每天都要开的，离面包屑最近。
+            Rect dossier  = TakeFromRight(ref cursorRight, 64f, rowH, top, gap);
 
-            // 左组：返回 → 天数 → 面包屑（吃掉剩下的全部宽度，自己打省略号）。
+            // 左组：返回 → 面包屑 → 天数。读起来是一句话：从哪儿回去、我在哪、第几天。
             //
-            // 天数放在左边而不是跟着右组：右上角除了胶囊还压着开发版的绿色横幅，屏幕中上部
-            // 那一条基本是别人的地方。左边这一串正好是"我在哪、第几天"，读起来也是一句话。
+            // 天数不紧跟在面包屑后面，而是靠着右边那组按钮：面包屑是弹性的（地点名一长
+            // 一短），跟着它走天数就会左右跳。它是每天都要瞟一眼的读数，位置必须钉死。
+            // 代价是面包屑和天数之间会空一段——空的那段总比会动的读数好。
             float cursorLeft = left;
-            Rect back = new Rect(cursorLeft, top, 92f, rowH);
+            Rect back = new Rect(cursorLeft, top, 82f, rowH);
             cursorLeft = back.xMax + gap;
-            Rect day = new Rect(cursorLeft, top, 72f, rowH);
-            cursorLeft = day.xMax + gap;
-            float breadcrumbWidth = Mathf.Max(0f, cursorRight - cursorLeft);
+            Rect day = new Rect(Mathf.Max(cursorLeft, cursorRight - 64f), top, 64f, rowH);
+            float breadcrumbWidth = Mathf.Max(0f, day.x - gap - cursorLeft);
             var breadcrumb = new Rect(cursorLeft, top, breadcrumbWidth, rowH);
 
-            float dividerY = top + rowH + 12f;
-            float contentTop = dividerY + 14f;
+            float dividerY = top + rowH + 9f;
+            float contentTop = dividerY + 12f;
 
             return new TopHudLayout(
                 bar,
                 UIScale.PixelSnap(back),
                 breadcrumb,
                 UIScale.PixelSnap(day),
+                UIScale.PixelSnap(dossier),
                 UIScale.PixelSnap(relation),
                 UIScale.PixelSnap(growth),
                 UIScale.PixelSnap(debug),

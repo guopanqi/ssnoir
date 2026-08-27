@@ -15,7 +15,7 @@ namespace SSNoir.IMGUI
 
                 var style = new GUIStyle(IMGUIStyles.StatusLabel);
                 style.alignment = TextAnchor.MiddleCenter;
-                style.fontSize = IMGUIStyles.FontSize(16);
+                style.fontSize = IMGUIStyles.FontSize(14);
 
                 // HUD 按钮：黑底白字，1px Paper 40% 描边，悬停提亮
                 if (IMGUIButton.Draw(returnRect, "< 返 回", ui,
@@ -41,13 +41,13 @@ namespace SSNoir.IMGUI
 
             var crumbStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             crumbStyle.normal.textColor = IMGUIStyles.TextSecondary;
-            crumbStyle.fontSize = IMGUIStyles.FontSize(16);
+            crumbStyle.fontSize = IMGUIStyles.FontSize(14);
             breadcrumbText = FitTextWithEllipsis(breadcrumbText, topHud.Breadcrumb.width, crumbStyle);
             IMGUIStyles.DrawLabel(topHud.Breadcrumb, breadcrumbText, crumbStyle);
 
             var dayStyle = new GUIStyle(IMGUIStyles.StatusLabel);
             dayStyle.normal.textColor = IMGUIStyles.TextPrimary;
-            dayStyle.fontSize = IMGUIStyles.FontSize(16);
+            dayStyle.fontSize = IMGUIStyles.FontSize(14);
             dayStyle.alignment = TextAnchor.MiddleCenter;
             IMGUIStyles.DrawLabel(topHud.Day, $"第 {gameManager.DisplayedSnapshot.WorldDay} 天", dayStyle);
 
@@ -84,7 +84,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.OddsSuccess,                                                   // 核心
         };
 
-        // 某势力在指定档位序号上的显示名：正面三档取内容层定制称呼，其余用通用档名。
+        // 某圈子在指定档位序号上的显示名：正面三档取内容层定制称呼，其余用通用档名。
         private static string BandDisplay(PresentationSnapshot snapshot, string faction, int band)
         {
             if (band < 3) return RelationScale.BandNames[band];
@@ -92,39 +92,39 @@ namespace SSNoir.IMGUI
             return snapshot.RelationBandNames.TryGetValue($"{faction}:{tier}", out string name) ? name : tier;
         }
 
-        private static bool _relationExpanded;
-        public static bool IsRelationExpanded => _relationExpanded;
-        public static void CollapseRelation() => _relationExpanded = false;
-        private static readonly string[] Factions = { "官僚", "劳工", "富商" };
+        /// <summary>
+        /// 圈内声誉这套东西暂时整个收起来：顶栏不出按钮，面板也不画。
+        ///
+        /// 不是删掉——数值仍在跑（关系工作的好结果照样加），只是**现在还兑现不出什么**：
+        /// 能靠它打开的门就那么几扇，玩家看着一块四条进度条的面板却找不到它有什么用，
+        /// 只会以为自己漏掉了一个系统。等它真的有东西可换，把这个常量翻回 true 就回来了。
+        /// 顶栏按钮的位置也一起让出去（见 TopHudLayout），不留一块恒定的空位——
+        /// 恒定预留是给"有时候不画"的控件用的，这个是"这一版根本没有"。
+        /// </summary>
+        // static readonly 而不是 const：const false 会让编译器把后面整段判成不可达代码，
+        // 于是这个开关自己制造一条警告。它是一个开关，不是一个常量事实。
+        public static readonly bool ShowRelationPanel = false;
 
-        // 收起态留在导航栏；展开态是一张完整的关系进展图，放到导航线下方。
+        private static bool _relationExpanded;
+        public static bool IsRelationExpanded => ShowRelationPanel && _relationExpanded;
+        public static void CollapseRelation() => _relationExpanded = false;
+        // 圈子名单以 GameState.Circles 为唯一来源——面板不再自己维护一份。
+        private static readonly string[] Factions = GameState.Circles;
+
+        // 收起态留在导航栏；展开态是一张完整的声誉进展图，放到导航线下方。
         private static void DrawRelationPanel(SSNoirGameManager gameManager, IMGUIInteractionContext ui, TopHudLayout topHud)
         {
+            if (!ShowRelationPanel) return;
             var toggleRect = topHud.RelationToggle;
-            var snapshot = gameManager.DisplayedSnapshot;
-            GUI.color = IMGUIStyles.HudBg;
-            GUI.DrawTexture(toggleRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(toggleRect, 1f,
-                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
-            var toggleStyle = new GUIStyle(IMGUIStyles.StatusLabel)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fontSize = IMGUIStyles.FontSize(13)
-            };
-            // 按钮上放不下三个数字，只做入口——数字在展开的进展图里看。
-            IMGUIStyles.DrawLabel(toggleRect, _relationExpanded ? "收 起" : "关 系", toggleStyle);
-            if (ui.WasTapped(toggleRect))
-            {
+            // 按钮上放不下两条轨道，只做入口——数字在展开的进展图里看。
+            // 和队伍 / 卷宗 / 设置共用同一份顶栏开关实现。
+            if (IMGUIButton.DrawHudToggle(toggleRect, "声 誉", _relationExpanded, ui))
                 _relationExpanded = !_relationExpanded;
-                Event.current.Use();
-            }
-
         }
 
         public static void DrawRelationOverlay(PresentationSnapshot snapshot, TopHudLayout topHud)
         {
-            if (!_relationExpanded) return;
+            if (!ShowRelationPanel || !_relationExpanded) return;
 
             Rect safe = UIScale.SafeArea;
             float panelW = Mathf.Min(620f, topHud.Bar.width);
@@ -155,7 +155,7 @@ namespace SSNoir.IMGUI
 
         private static string CompactSummary(PresentationSnapshot snapshot)
         {
-            string text = "关系";
+            string text = "圈内声誉";
             foreach (string faction in Factions)
             {
                 int value = snapshot.Relations.TryGetValue(faction, out int v) ? v : 0;

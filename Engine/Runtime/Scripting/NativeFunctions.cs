@@ -44,6 +44,13 @@ namespace SSNoir.Scripting
                 return (int)gameState.Team.Injury.Band;
             }, "__injury-band-index"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__hospitalization-pending?"), new NativeProcedure(args =>
+            {
+                if (args.Count != 0)
+                    throw new ArgumentException("__hospitalization-pending? takes no arguments");
+                return gameState.HasPendingHospitalization;
+            }, "__hospitalization-pending?"));
+
             // 疤痕只读：内容层不能发疤，也不能抹疤——疤只由「倒下」这一件事产生（见 ScarSet）。
             // 不带参数是身上疤的总数，带部位名（"手"/"头"/"眼"/"脸"）是那一处的道数。
             interpreter.DefineGlobal(Symbol.FromString("__scar-count"), new NativeProcedure(args =>
@@ -62,7 +69,7 @@ namespace SSNoir.Scripting
                 var injury = gameState.Team.Injury;
                 int before = injury.Severity;
                 gameState.Team.Injure(amount);
-                // 倒下会立刻送医并把伤势回落到 5；结果条仍应报告这一下把刻度顶满，
+                // 倒下会立刻完成医疗数值结算并把伤势归零；结果条仍应报告这一下把刻度顶满，
                 // 不能因最终数值变小而谎报成“伤势恢复”。
                 int reportedDelta = before + amount >= Injury.MaxSeverity
                     ? Injury.MaxSeverity - before
@@ -70,9 +77,11 @@ namespace SSNoir.Scripting
                 ReportInjuryChange(gameState, reportedDelta);
                 if (injury.Severity > before)
                     gameState.CurrentActionReport?.AddNote(
-                        before == 0
-                            ? $"伤在{injury.Part}上：{injury.SkillName}判定 {injury.SkillPenalty}。"
-                            : $"{injury.Part}上的伤又重了：{injury.SkillName}判定 {injury.SkillPenalty}。");
+                        injury.Band == InjuryBand.Severe
+                            ? $"{injury.Part}上的伤进了重伤：少一颗行动骰。"
+                            : before == 0
+                                ? $"伤在{injury.Part}上：{injury.SkillName}判定 {injury.SkillPenalty}。"
+                                : $"{injury.Part}上的伤又重了：{injury.SkillName}判定 {injury.SkillPenalty}。");
                 return new None();
             }, "__injure!"));
 
@@ -132,8 +141,8 @@ namespace SSNoir.Scripting
             {
                 if (args.Count < 2) throw new ArgumentException("__change-faction-relation! requires 2 arguments: faction and delta");
                 string faction = SchemeValue.AsId(args[0]);
-                if (faction != "官僚" && faction != "劳工" && faction != "富商")
-                    throw new ArgumentException($"unknown faction '{faction}'");
+                if (Array.IndexOf(GameState.Circles, faction) < 0)
+                    throw new ArgumentException($"unknown circle '{faction}'");
                 int requestedDelta = SchemeValue.ToInt(args[1]);
                 string key = "relation:" + faction;
                 int before = gameState.Get<int>(key);
@@ -141,7 +150,7 @@ namespace SSNoir.Scripting
                 gameState.Set(key, after);
                 int actualDelta = after - before;
                 gameState.CurrentActionReport?.AddEffect(
-                    ActionEffectKind.Relation, faction + "关系", actualDelta,
+                    ActionEffectKind.Relation, faction + "声誉", actualDelta,
                     actualDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                 return new None();
             }, "__change-faction-relation!"));
@@ -293,13 +302,19 @@ namespace SSNoir.Scripting
                 }
 
                 gameState.Team.RecruitCompanion(actorId, name, stats);
+                gameState.NotificationCenter.Push($"{name}加入队伍", NotificationKind.Info);
                 return new None();
             }, "__recruit-companion!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__dismiss-companion!"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("__dismiss-companion! requires actor id");
-                gameState.Team.DismissCompanion(SchemeValue.AsId(args[0]));
+                string actorId = SchemeValue.AsId(args[0]);
+                var actor = gameState.Team.FindActor(actorId)
+                    ?? throw new InvalidOperationException($"Actor '{actorId}' is not in the team.");
+                string name = actor.Name;
+                gameState.Team.DismissCompanion(actorId);
+                gameState.NotificationCenter.Push($"{name}离开队伍", NotificationKind.Info);
                 return new None();
             }, "__dismiss-companion!"));
 

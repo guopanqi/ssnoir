@@ -1,89 +1,63 @@
 ---
 name: create-3d-assets
-description: 使用固定职责链为 SSNoir 制作 3D 资产：参考图阶段由 Codex 撰写和迭代提示词并操作网页、Gemini AI Studio 实际生图；随后由 Codex 操作指定的 Hunyuan 3D Studio 生成模型与低模拓扑，在 Blender 加工，最终交付 Unity Resources。制作或修改参考图提示词、Hunyuan 模型、低模四边面、.blend/.fbx、模型相机、Anchor、orbit pivot、Actor 标记、描边材质、预览图或 Resources/Models 下的资产，以及维护相关艺术基调和 Unity 命名契约时使用。
+description: 为 SSNoir 制作、接入或修复 3D 资产。覆盖 Gemini 参考图、Hunyuan Geo/Poly、Blender 几何与语义节点、CityBox 城市装配、Unity 导入和运行画面验证；涉及地点建筑、City.fbx、Anchor、Camera、orbit pivot、描线或资产预览时使用。
 ---
 
-# 制作 SSNoir 3D 资产
+# SSNoir 3D 资产
 
-把模型视为同时包含几何、视觉处理和运行时语义的资产，不把 Blender 文件当作只有网格的中间产物。保留人工确认关口；未经用户确认，不跨越参考图、原始模型、低模和视觉加工四个阶段。单独新增或调整 Anchor、orbit pivot、Actor 标记等不可见语义节点不构成视觉加工阶段，可以在用户授权后直接修改并做契约验证。
+资产同时包含几何、镜头和运行时语义。先判断资产属于哪条发布链，不允许把城市地点建筑直接塞进 Unity，也不把普通独立资产绕进 CityBox。
 
-严格区分“Codex 负责制作提示词”和“Gemini 负责生成图片”。除非用户明确改变工具链，不调用 Codex `$imagegen`、`image_gen` 或其他生图能力代替 Gemini，也不自行搜索或选择其他同名 3D 产品代替指定的 Hunyuan 3D Studio。
+## 先路由
 
-## 开始前
+- **城市地点建筑**：正式源是 `city-box/models/<地点>.blend`；城市位置由 `city-box/city/build_city.py` 的 `HERO_SLOTS` 定义；Unity 只消费 `Assets/Resources/Models/Environment/City.fbx`。完整流程见 [references/citybox-delivery.md](references/citybox-delivery.md)。
+- **非城市独立资产**：道具、车辆或不属于整城的独立环境，才按职责放入 `UnityClient/Assets/Resources/Models/`。见 [references/unity-delivery.md](references/unity-delivery.md)。
+- **候选或废案**：放入 `city-box/models/review/`，不参与生产构建，也不由 Unity 直接引用。
 
-1. 读取 [references/asset-contract.md](references/asset-contract.md)，确认当前项目真正消费的命名、节点和材质契约。
-2. 读取 [references/workflow.md](references/workflow.md)，按当前阶段继续，不重复已经确认的阶段。
-3. 生成或修改参考图时，读取 [references/prompt-and-era.md](references/prompt-and-era.md)。
-4. 进入 Blender 加工时，读取 [references/blender-processing.md](references/blender-processing.md)。
-5. 保存到 Unity 或检查导入结果时，读取 [references/unity-delivery.md](references/unity-delivery.md)。
-6. 读取目标目录内的 `AGENTS.md`，修改项目内容后按 `skills/verify/SKILL.md` 选择验证。
-7. 用户反馈若形成可跨资产复用的艺术基调、年代约束、提示词模板或失败规避经验，立即更新对应 Reference；仅针对当前模型的局部修改不要写入 Skill。
+涉及命名、Anchor、Camera 或层级时读取 [references/asset-contract.md](references/asset-contract.md)。进入 Blender 时读取 [references/blender-processing.md](references/blender-processing.md)。生成式网格质量不确定时读取 [references/mesh-quality-baseline.md](references/mesh-quality-baseline.md)。
 
-## 核心工作流
+## 制作链
 
-1. **定义资产契约**：明确用途、时代、尺寸、分类、可交互节点、角色站位、相机行为和面数预算。区分已经有 Unity 消费者的契约与仅供制作使用的标记。
-2. **撰写并提交提示词**：Codex 根据需求撰写完整提示词，通过已登录浏览器提交给 Gemini AI Studio；当前优先使用 Nano Banana Pro。图片必须由 Gemini 生成。先生成单体完整构图；当前阶段不做多图拼接。
-3. **等待参考图确认**：提供 Gemini 生成的原图或清晰截图；只按反馈修改提示词或要求 Gemini 编辑图片，不提前生成模型。
-4. **生成原始模型**：把用户确认的 Gemini 图片提交到指定的 Hunyuan 3D Studio Geo。优先速度和可辨识轮廓，选择尽可能低但能通过生成器校验的面数。
-5. **等待原始模型确认**：用能说明体块、遮挡和圆弧质量的 3/4 视角提供预览。
-6. **低模拓扑**：在指定的 Hunyuan 3D Studio Poly 中从最小档开始；优先四边面，但可按资产用途选择四边面、三角面或可解释的混合拓扑。若主要质量目标未通过，只上调一级，避免无依据地提高面数。
-7. **等待低模确认**：再次提供合适角度的预览；详情页与普通截图都可以，信息清楚比界面形式重要。
-8. **Blender 加工**：统一尺度和朝向，应用几何变换，运行项目描边脚本，建立相机、交互 Anchor、orbit pivot 及已定义的扩展标记。
-9. **等待视觉加工确认**：几何、描边、材质、尺度、朝向或镜头构图发生可见变化时，渲染最终工作视角；用户确认前不写入正式 Unity 资源目录。仅修改不可见语义节点时跳过预览，以对象清单和契约校验代替。
-10. **交付 Unity**：按资产职责选择目录和稳定名称，保存 `.blend`，让 Unity 生成 `.meta`，然后检查导入器生成的组件和相机行为。
+1. 明确资产职责、正式地点名、目标尺寸、城市位置、交互节点、镜头和面数预算。城市地点名以 Scheme `GameNode.Name` 为唯一主键。
+2. Codex 撰写提示词并用 Gemini Images 生成参考图；生成提示见 [references/prompt-and-era.md](references/prompt-and-era.md)，网页操作见 [references/workflow.md](references/workflow.md)。
+3. 返回参考图和审阅结论。用户确认后才上传 Hunyuan Geo。
+4. 返回 Geo 模型的 3/4 预览。用户确认后进入 Poly。
+5. Poly 从最低档开始。轮廓或主要硬表面因预算失败时直接升一档，不为机械升档询问用户；返回低模预览和统计。
+6. Blender 中清理网格、统一米制尺度与朝向、应用 Rotation/Scale，并建立正式语义节点。城市源模型不预生成最终描线；Low/High 描线由 CityBox 从同一源模型生成。
+7. 可见加工完成后返回最终预览。城市模型需要逐栋微调 Low/High 时，按 [references/citybox-delivery.md](references/citybox-delivery.md) 的“逐模型描边调参”先生成聚焦预览；确认前不导出或发布整城。只有纯 Anchor/Camera/pivot 等不可见语义调整可用节点清单和校验结果代替视觉审批。
+8. 用户确认后写入对应正式源目录并执行该资产类型的唯一发布链；最后验证 Unity 导入和实际运行画面。
 
-用户说“下一步”只授权跨越当前已展示的一个确认关口，不代表一次性授权余下所有阶段。
+用户说“下一步”只通过当前展示的确认关口。用户已经明确表示某类机械修正无需询问时，按其授权继续，不重复确认。
 
-## 工具链边界
+## 工具边界
 
-准确入口和当前模型偏好见 [references/workflow.md](references/workflow.md)。模型版本可以写成“当前优先”，但服务职责不可由 Agent 自行替换：
+- Codex 负责提示词、浏览器操作、审阅、Blender/CityBox/Unity 接入；Gemini 负责参考图；Hunyuan Geo/Poly 负责原始模型和低模。
+- 优先使用 Codex in-app Browser 的已有登录会话；只有用户指定 Chrome 或内置浏览器不可用时才切换。
+- 不搜索同名替代产品，也不在服务失败时擅自改用 Codex ImageGen。
+- 每个审批关口必须直接返回足以判断的图片，并给出明确审阅结论；不能只说“已生成”。
+- 参考图默认走 `gemini.google.com/images`。AI Studio 仅在已有可用 API key 上下文或用户明确指定时使用；不要把缺少 key 的 `permission denied` 误判成点击问题。
 
-- Codex/GPT：撰写、审阅和迭代提示词；操作浏览器；自身不生成参考图。
-- Gemini AI Studio：生成和编辑参考图。
-- Hunyuan 3D Studio Geo/Poly：分别生成模型和低模拓扑。
-- Blender：尺寸、拓扑检查、描边、相机和语义节点加工。
-- Unity：导入正式资源并验证运行时契约。
+## 完成标准
 
-优先复用已登录的 in-app Browser/Chrome 会话。若没有对应标签页，直接导航到 Reference 中的准确 URL，不用搜索引擎寻找替代网站。指定服务不可访问、未登录或界面不存在时，报告阻塞并等待用户处理；不得无提示地改用 Codex ImageGen、其他图片服务或另一个“混元”产品。
+- 正式文件、根节点、主 Anchor 和主 Camera 使用同一地点名；无历史 alias 或 `final2` 一类过程名。
+- Blender 后台校验通过，面数、拓扑、尺度、层级和相机对齐有记录。
+- 城市资产必须完成 CityBox build → export → publish，并检查 `city_report.json`、源/目标 `City.fbx` 哈希及 Unity 运行画面。
+- 不在 `Main.unity` 中覆盖 `City.fbx` 子对象的材质、激活状态、名称或相机参数；FBX 重建会改变内部 fileID。City 实例只保留根节点变换，子对象行为由导入器和运行时代码按名称建立。
+- 修改了 Unity 可执行内容或发布产物后，按 `skills/verify/SKILL.md` 选择最小充分验证。
 
-只有用户明确要求更换工具链时才可以替换服务；替换后仍保留相同的阶段产物、确认关口和资产契约。用户要求快速时，优先直接截图或导出当前预览，不为“打开详情页”增加无价值步骤。
-
-## 维护跨阶段知识
-
-任何 Unity 代码若通过对象名、材质名、层级或文件目录触发行为，必须在同一次改动中更新 [references/asset-contract.md](references/asset-contract.md)。反过来，不能仅凭 Blender 中出现了某个名字，就宣称 Unity 已支持它；先找到或实现消费者。
-
-把用户已确认且能够指导后续多个资产的提示词经验写入 [references/prompt-and-era.md](references/prompt-and-era.md)。直接修订现有规则，删除已经被推翻的说法，避免追加互相冲突的历史版本。不要为 Skill 另建资产状态机、提示词版本日志或聊天档案；使用 Git 查看 Reference 的修改历史。
-
-把契约分成三种状态：
-
-- **已实现**：能指向读取它的 Unity/Blender 源码。
-- **制作约定**：帮助组织文件，但当前不自动触发运行时行为。
-- **提案**：准备引入但尚无消费者；不得作为已生效功能交付。
-
-## 自动化
-
-用 Blender 自带 Python 运行脚本：
+通用 Blender 命令：
 
 ```bash
-blender --background path/to/model.blend \
+blender --background model.blend \
   --python skills/create-3d-assets/scripts/validate_blend_asset.py -- \
   --require-camera --require-outline --require-orbit-pivot
-```
 
-检查（默认）或修正相机与 orbit pivot 的对齐，整城资产同样适用：
-
-```bash
-blender --background path/to/model.blend \
+blender --background model.blend \
   --python skills/create-3d-assets/scripts/align_camera_to_pivot.py -- \
   --apply --save
-```
 
-生成并可选保存统一的正交 3/4 预览相机：
-
-```bash
-blender --background path/to/model.blend \
+blender --background model.blend \
   --python skills/create-3d-assets/scripts/frame_and_render_preview.py -- \
   --output /absolute/path/preview.png --camera-name Camera_资产名 --save-camera
 ```
 
-脚本只覆盖机械检查和稳定取景，不能替代对年代、轮廓、遮挡、圆弧拓扑和游戏用途的人工判断。
+城市源模型的校验参数按实际契约选择；`--require-outline` 不适用于由 CityBox 生成描线的源建筑。

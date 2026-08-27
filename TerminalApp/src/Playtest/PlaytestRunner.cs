@@ -56,10 +56,9 @@ namespace SSNoir.Playtest
                     Console.WriteLine(driver.Observe());
                 }
 
-                // 冷静见底就抽一支烟：这是场内唯一的自我维护手段，基线打法必须会用。
-                var player = driver.State.Team.FindActor("player")!;
-                if (player.Composure == 0 && driver.State.Inventory.GetCount("香烟") > 0)
-                    Report(log, "抽烟", driver.UseConsumable("香烟"), verbose);
+                // 抽烟不再有专门的入口：它是交锋树上的普通动作卡（engine.scm 的 carry-nodes），
+                // 会跟着别的卡一起出现在 LegalMoves 里，驱动照常投骰执行。
+                // 它吃骰，所以基线打法按准备值排序时会自动把它排在后面——那和真人的分诊一致。
 
                 while (!driver.Finished)
                 {

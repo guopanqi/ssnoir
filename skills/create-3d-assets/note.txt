@@ -4,3 +4,29 @@ Sol生成prompt
 BananaPro生成image
 Hunyuan生成model （考虑尝试tripo）
 放入city-box并入城市之中
+
+---
+
+需要重做这个skill，不清晰有点
+
+另外很多内容建议引用一些东西，写在这里有点写死了
+
+```
+请你优化 [$create-3d-assets](/Users/usr/Documents/play/ssnoir/skills/create-3d-assets/SKILL.md) ，明确各个阶段，而且模块化，比如说
+
+1 根据用户要求生成图
+2 把图 生成一个模型
+3 把模型 低模拓扑
+4 得到经过渲染的模型 预览
+5 把 模型 放入 city 预览
+6 ...确认后发布等等
+
+
+1 可以使用的服务有
+google ai studio (codex内置浏览器）
+google gemini image
+image
+
+2 使用服务
+hunyuan3d
+```

@@ -31,7 +31,7 @@ namespace SSNoir.IMGUI
         {
             IsPlaying = true;
             _phase = 0;
-            _phaseStartTime = Time.time;
+            _phaseStartTime = Time.unscaledTime;
             FateDieValue = report.FateDieValue;
             FinalOutcome = report.Outcome;
             CurrentReport = report;
@@ -46,7 +46,7 @@ namespace SSNoir.IMGUI
         {
             if (!IsPlaying) return;
 
-            float elapsed = Time.time - _phaseStartTime;
+            float elapsed = Time.unscaledTime - _phaseStartTime;
 
             if (_phase == 0)
             {
@@ -62,7 +62,7 @@ namespace SSNoir.IMGUI
                 if (elapsed >= sweepDuration)
                 {
                     _phase = 1;
-                    _phaseStartTime = Time.time;
+                    _phaseStartTime = Time.unscaledTime;
                     DisplayedDieValue = FateDieValue;
                     DisplayScale = 1f;
                 }
@@ -77,7 +77,7 @@ namespace SSNoir.IMGUI
                 if (elapsed >= popDuration)
                 {
                     _phase = 2;
-                    _phaseStartTime = Time.time;
+                    _phaseStartTime = Time.unscaledTime;
                     DisplayScale = 1f;
 
                     DisplayOutcomeText = FinalOutcome == RollOutcome.Success ? "判定成功"
@@ -104,7 +104,7 @@ namespace SSNoir.IMGUI
         public bool IsReadyToAcknowledge()
         {
             // 结果停留：轻结算让「好/中/坏」定格片刻，再切到 residue（命运条原地冻结 + 结果揭开）。
-            return _phase == 2 && (Time.time - _phaseStartTime) >= 0.55f;
+            return _phase == 2 && (Time.unscaledTime - _phaseStartTime) >= 0.55f;
         }
 
         public void DrawModal()

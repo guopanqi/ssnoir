@@ -18,6 +18,14 @@ namespace SSNoir.Core
         public GameResolve? Resolve { get; set; }
 
         /// <summary>
+        /// 随身动作所属的物品（"香烟"/"酒"）。非空＝这张卡不属于任何一场交锋，
+        /// 是玩家自己带进来的东西；它不在渲染树里，由 PresentationSnapshot.CarryNodes 单独交给客户端，
+        /// 客户端把它画成从那件物品引出去的一张小卡，而不是排进场上的卡片区。
+        /// 见 engine.scm 的 carry-nodes 与 SceneManager.RebuildRenderTree。
+        /// </summary>
+        public string CarryItemId { get; set; } = string.Empty;
+
+        /// <summary>
         /// 世界地点。只有世界根的直接子节点能是 Place；交锋树里不允许出现。
         /// 「玩家现在站在哪」在引擎里没有表示，但「哪些容器算走进去了」有——
         /// 客户端只对 Place 调用 SceneManager.EnterPlace，交锋容器、人物容器、

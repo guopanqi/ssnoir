@@ -71,6 +71,10 @@ namespace SSNoir
         private readonly Dictionary<string, List<SlottedResource?>> _nodeSlots = new Dictionary<string, List<SlottedResource?>>();
         private readonly HashSet<string> _flippedNodes = new HashSet<string>();
         private PresentationSnapshot _displayedSnapshot = new PresentationSnapshot();
+        private const float ItemGainPulseDuration = 1.0f;
+        private readonly Dictionary<string, float> _itemGainPulseUntil =
+            new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+        private bool _inventoryPulseBaselineReady;
 
         // 焦点上下文切换的演出窗口期：数据已切换，卡片还没换脸。见 BeginIncomingFocusContext。
         private bool _incomingFocusContextActive;
@@ -78,6 +82,146 @@ namespace SSNoir
         // 回到世界视角时，建筑的 High 不能在相机离开近景前立刻撤掉；否则玩家会看到
         // High -> Low 的替换瞬间。每次新的焦点请求都会使旧的清理请求失效。
         private int _cityOutlineClearRequest;
+
+
+        // ── 冷静 / 伤势的变化脉冲 ────────────────────────────────────────
+        //
+        // 这两条轴讲的是同一件事的两段：冷静是缓冲，缓冲用完了才轮到身体。
+        // 挨一下的时候，冷静条在**缩短**、伤势条在**变长**——两个相反的运动，
+        // 但发生的是同一件事。统一它们的不是方向（方向的差别正是这套设计要讲的话），
+        // 而是**颜色和节奏**：同一件坏事在两条轴上闪的是同一个白、同一条曲线。
+        //
+        // 节奏分三层，一层套一层：
+        //
+        //   1. 一格一格来。掉 3 点冷静就是 3、2、1 依次熄灭，不是三格一起闪。
+        //      数量本身要能被**数出来**——同时闪只告诉玩家"少了一截"，
+        //      挨个闪才告诉他"少了三点"。填格子的方向相反：从低位往高位亮上去。
+        //   2. 还没轮到的那一格**保持旧样子**。冷静掉的时候它还亮着，伤势涨的时候
+        //      它还空着，等轮到了才带着闪光换过来。否则格子先变、光后到，队列就散了。
+        //   3. 击穿时两条轴接力：冷静那一串走完，隔 RelayDelay 才轮到伤势。
+        //      于是读起来是"白光顺着冷静条退下去，跳到伤势条上"，一个连续动作。
+        public enum VitalPulseTone { Loss, Gain }
+
+        public readonly struct VitalPulse
+        {
+            public readonly float Strength;      // 1 → 0 的衰减强度
+            public readonly VitalPulseTone Tone;
+            public readonly bool Pending;        // 还没轮到它：这一格先按旧样子画
+
+            public VitalPulse(float strength, VitalPulseTone tone, bool pending)
+            {
+                Strength = strength;
+                Tone = tone;
+                Pending = pending;
+            }
+        }
+
+        private sealed class VitalPulseState
+        {
+            public int LoCell;                   // 变化覆盖的格子区间 [LoCell, HiCell)
+            public int HiCell;
+            public bool FillingUp;               // true＝格子在亮起来，false＝在熄灭
+            public float StartTime;              // 队列里第一格的起闪时刻
+            public float Duration;               // 单格闪多久
+            public VitalPulseTone Tone;
+
+            // 队列里最后一格是什么时候开始闪的。接力要等的是整串走完，不是第一格。
+            public float LastCellStartTime => StartTime + (HiCell - LoCell - 1) * VitalPulseStepDelay;
+        }
+
+        // 变坏要硬（一下子过曝），变好要软（松一口气）。两者都得**看得清**：
+        // 第一版 0.25/0.40 在实机上一闪就没，等于没做。
+        private const float VitalPulseLossDuration = 0.45f;
+        private const float VitalPulseGainDuration = 0.60f;
+        private const float VitalPulseStepDelay = 0.14f;   // 一格接一格的间隔
+        private const float VitalPulseRelayDelay = 0.22f;  // 冷静那串走完 → 伤势起闪
+
+        private readonly Dictionary<string, VitalPulseState> _composurePulses =
+            new Dictionary<string, VitalPulseState>(StringComparer.OrdinalIgnoreCase);
+        private VitalPulseState? _injuryPulse;
+        private readonly Dictionary<string, int> _lastComposure =
+            new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        private int _lastInjurySeverity;
+        private bool _vitalPulseBaselineReady;
+
+        /// <summary>某人冷静条上第 cellIndex 格此刻的脉冲。</summary>
+        public VitalPulse GetComposureCellPulse(string actorId, int cellIndex)
+            => EvaluateVitalPulse(
+                _composurePulses.TryGetValue(actorId, out var state) ? state : null, cellIndex);
+
+        /// <summary>伤势条上第 cellIndex 格此刻的脉冲。伤势是队伍级的，只有一条。</summary>
+        public VitalPulse GetInjuryCellPulse(int cellIndex)
+            => EvaluateVitalPulse(_injuryPulse, cellIndex);
+
+        private static VitalPulse EvaluateVitalPulse(VitalPulseState? state, int cellIndex)
+        {
+            if (state == null || cellIndex < state.LoCell || cellIndex >= state.HiCell)
+                return default;
+
+            // 排队序号：亮起来的从低位数起，熄灭的从高位数起——两边都是"沿着变化的方向走"。
+            int order = state.FillingUp
+                ? cellIndex - state.LoCell
+                : state.HiCell - 1 - cellIndex;
+            float elapsed = Time.unscaledTime - (state.StartTime + order * VitalPulseStepDelay);
+
+            if (elapsed < 0f)
+                return new VitalPulse(0f, state.Tone, pending: true);
+            if (elapsed >= state.Duration)
+                return default;
+            return new VitalPulse(1f - elapsed / state.Duration, state.Tone, pending: false);
+        }
+
+        private void UpdateVitalPulses(PresentationSnapshot incoming)
+        {
+            float now = Time.unscaledTime;
+            // 击穿要等的是**主角**那串冷静走完。同伴掉冷静和伤势没有因果关系。
+            float leadComposureQueueEnd = float.NegativeInfinity;
+
+            if (_vitalPulseBaselineReady)
+            {
+                foreach (var actor in incoming.Actors)
+                {
+                    if (!_lastComposure.TryGetValue(actor.Id, out int before) || before == actor.Composure)
+                        continue;
+                    bool loss = actor.Composure < before;
+                    var pulse = new VitalPulseState
+                    {
+                        LoCell = Mathf.Min(actor.Composure, before),
+                        HiCell = Mathf.Max(actor.Composure, before),
+                        FillingUp = !loss,
+                        StartTime = now,
+                        Duration = loss ? VitalPulseLossDuration : VitalPulseGainDuration,
+                        Tone = loss ? VitalPulseTone.Loss : VitalPulseTone.Gain,
+                    };
+                    _composurePulses[actor.Id] = pulse;
+                    if (loss && string.Equals(actor.Id, "player", StringComparison.OrdinalIgnoreCase))
+                        leadComposureQueueEnd = pulse.LastCellStartTime;
+                }
+
+                if (incoming.InjurySeverity != _lastInjurySeverity)
+                {
+                    bool worse = incoming.InjurySeverity > _lastInjurySeverity;
+                    // 只有「主角冷静掉了、同时伤势涨了」才是击穿，才排接力；
+                    // 枪伤那种直接见血的不等，它本来就不是从缓冲溢出来的。
+                    bool relay = worse && !float.IsNegativeInfinity(leadComposureQueueEnd);
+                    _injuryPulse = new VitalPulseState
+                    {
+                        LoCell = Mathf.Min(incoming.InjurySeverity, _lastInjurySeverity),
+                        HiCell = Mathf.Max(incoming.InjurySeverity, _lastInjurySeverity),
+                        FillingUp = worse,
+                        StartTime = relay ? leadComposureQueueEnd + VitalPulseRelayDelay : now,
+                        Duration = worse ? VitalPulseLossDuration : VitalPulseGainDuration,
+                        Tone = worse ? VitalPulseTone.Loss : VitalPulseTone.Gain,
+                    };
+                }
+            }
+
+            _lastComposure.Clear();
+            foreach (var actor in incoming.Actors)
+                _lastComposure[actor.Id] = actor.Composure;
+            _lastInjurySeverity = incoming.InjurySeverity;
+            _vitalPulseBaselineReady = true;
+        }
 
         // Public properties
         public GameState GameState => _gameState;
@@ -98,6 +242,21 @@ namespace SSNoir
         public bool PointerOverUI => _renderer != null && _renderer.PointerOverUI;
         public Cinemachine.CinemachineVirtualCamera? CurrentFocusCamera => ResolveCurrentFocusCamera();
 
+
+        /// <summary>物品数量最近增加时返回 1→0 的亮起强度；读档和新游戏基线不触发。</summary>
+        public float GetItemGainPulse(string itemName)
+        {
+            if (!_itemGainPulseUntil.TryGetValue(itemName, out float until))
+                return 0f;
+            float remaining = until - Time.unscaledTime;
+            if (remaining <= 0f)
+            {
+                _itemGainPulseUntil.Remove(itemName);
+                return 0f;
+            }
+            return Mathf.Clamp01(remaining / ItemGainPulseDuration);
+        }
+
         public string? CurrentStageContextId
         {
             get
@@ -107,6 +266,10 @@ namespace SSNoir
         }
 
         public void SetInputLocked(bool locked) => _renderer?.SetInputLocked(locked);
+
+        /// <summary>某个动作此刻的「执行中」进度，供没有执行钮的控件自己画时间流逝。</summary>
+        public (bool IsExecuting, float Progress, string Text) GetExecutionState(string actionName)
+            => _renderer != null ? _renderer.GetExecutionState(actionName) : (false, 0f, string.Empty);
 
         public NodeAnchor? ResolveAnchor(GameNode node)
         {
@@ -409,9 +572,6 @@ namespace SSNoir
                     a.FocusVirtualCamera.Priority = 5;
             }
         }
-
-        /// <summary>[CAM] 诊断读数用：焦点更新此刻是不是正被过场入口挡着（见下面那个方法）。</summary>
-        public bool IsFocusDeferredToPortal => ShouldDeferFocusToPendingPortal();
 
         private bool ShouldDeferFocusToPendingPortal()
         {
@@ -786,6 +946,9 @@ namespace SSNoir
 
         private IEnumerator ExecuteRoutine(GameNode node)
         {
+            // 这里不再对骰子做第二道有效性检查。失效引用只在一个地方清：
+            // 采纳新快照的那一刻（AdoptLatestSnapshot → ClearUnavailableDiceReferences）。
+            // 玩家看见的卡槽和这里送出去的卡槽因此永远是同一份。
             var slots = GetSlotsForNode(node.Name) ?? new List<SlottedResource?>();
 
             _renderer.ClearCardResidues();
@@ -802,7 +965,7 @@ namespace SSNoir
                 bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
                 bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Name ?? string.Empty, System.StringComparison.Ordinal);
                 bool focusContextChanged = sceneChanged || rootChanged;
-                if (sceneChanged)
+                if (focusContextChanged)
                     ResetSceneUiState();
 
                 if (focusContextChanged)
@@ -823,6 +986,13 @@ namespace SSNoir
             {
                 Debug.LogError($"[ExecuteNodeAction] Exception during execution: {ex}");
                 ShowNotification($"执行异常: {ex.Message}");
+                // 异常是从引擎中途抛出来的：这一手可能已经改了一半状态（场景换了、骰池重掷了），
+                // 而卡槽里还压着刚才那颗骰。留着它，下一次点同一张卡送进去的就是一颗
+                // 已经不存在的骰子，引擎照样抛——第一声异常之后每一声都是它的回声。
+                // 所以这里把这一手的痕迹全部丢掉，回到引擎当前真正的样子重来。
+                _nodeSlots.Clear();
+                ClearResourceDragState();
+                AdoptLatestSnapshot();
                 // 演出没起来的话回调不会来，窗口期得在这里关掉，否则焦点相机会一直答着
                 // 那个再也不会被采纳的新场景镜头。
                 EndIncomingFocusContext();
@@ -930,7 +1100,26 @@ namespace SSNoir
         /// </returns>
         public bool AdoptLatestSnapshot()
         {
+            var previousInventory = _displayedSnapshot.Inventory;
+            var incomingInventory = _sceneManager.LatestSnapshot.Inventory;
+            if (_inventoryPulseBaselineReady)
+            {
+                foreach (var item in incomingInventory)
+                {
+                    int before = previousInventory.TryGetValue(item.Key, out int count) ? count : 0;
+                    if (item.Value > before)
+                        _itemGainPulseUntil[item.Key] = Time.unscaledTime + ItemGainPulseDuration;
+                }
+            }
+            else
+            {
+                _inventoryPulseBaselineReady = true;
+            }
+
+            UpdateVitalPulses(_sceneManager.LatestSnapshot);
+
             _displayedSnapshot = _sceneManager.LatestSnapshot;
+            ClearUnavailableDiceReferences(_displayedSnapshot);
             if (_displayedSnapshot.RootNode != null)
                 ValidateExplicitAnchors(_displayedSnapshot.RootNode);
             var pathBefore = new List<string>();
@@ -967,7 +1156,9 @@ namespace SSNoir
 
                 var actor = _gameState.Team.FindActor(actorId);
                 string actorName = actor?.Name ?? actorId;
-                _gameState.NotificationCenter.Push($"{actorName} upgraded {statKey}!", NotificationKind.Success);
+                _gameState.NotificationCenter.Push(
+                    $"{actorName}的{SkillInfo.DisplayName(statKey)}提升到 {actor?.Stats.GetValueOrDefault(statKey) ?? 0}",
+                    NotificationKind.Success);
             }
             catch (System.Exception ex)
             {
@@ -1030,9 +1221,9 @@ namespace SSNoir
                 }
                 else
                 {
-                    _navigationStack.Clear();
-                    _visibleNodes = root.Children.ToList();
-                    return;
+                    // 当前容器可能被刚执行的动作移除。保留此前仍有效的祖先路径，
+                    // 让玩家退到最近一级，而不是因为最深一层消失就直接回世界根。
+                    break;
                 }
             }
 
@@ -1056,6 +1247,58 @@ namespace SSNoir
                 _nodeSlots.Remove(key);
         }
 
+        // 骰子按角色与固定骰池槽位识别；重掷、受伤或阶段换手都会让旧引用失效。
+        //
+        // 唯一的清理时机是**采纳新快照的那一刻**——玩家眼前的卡槽和送进引擎的卡槽
+        // 由此永远是同一份。别再在执行前补第二道检查：那道检查读的是还没显示出来的
+        // 新快照，等于用另一把尺子量同一件东西，反而制造出"看得见却用不了"的骰子。
+        private bool IsDieAvailable(PresentationSnapshot snapshot, string actorId, int dieIndex, int value)
+        {
+            foreach (var actor in snapshot.Actors)
+            {
+                if (!string.Equals(actor.Id, actorId, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                for (int i = 0; i < actor.ActionDice.Count; i++)
+                {
+                    if (actor.ActionDiceSlotIds[i] == dieIndex && actor.ActionDice[i] == value)
+                        return true;
+                }
+                return false;
+            }
+            return false;
+        }
+
+        private bool IsAvailableDieReference(PresentationSnapshot snapshot, SlottedResource resource)
+        {
+            if (resource.Type != "die")
+                return true;
+
+            string actorId = string.IsNullOrEmpty(resource.ActorId) ? "player" : resource.ActorId;
+            int dieIndex = resource.DieIndex >= 0 ? resource.DieIndex : resource.SourceIndex;
+            return IsDieAvailable(snapshot, actorId, dieIndex, resource.Value);
+        }
+
+        private void ClearUnavailableDiceReferences(PresentationSnapshot snapshot)
+        {
+            foreach (var slots in _nodeSlots.Values)
+            {
+                for (int i = 0; i < slots.Count; i++)
+                {
+                    if (slots[i] != null && !IsAvailableDieReference(snapshot, slots[i]!))
+                        slots[i] = null;
+                }
+            }
+
+            if (_selectedResource != null && _selectedResource.Type == "die")
+            {
+                string actorId = string.IsNullOrEmpty(_selectedResource.ActorId) ? "player" : _selectedResource.ActorId;
+                int dieIndex = _selectedResource.DieIndex >= 0 ? _selectedResource.DieIndex : _selectedResource.SourceIndex;
+                if (!IsDieAvailable(snapshot, actorId, dieIndex, _selectedResource.Value))
+                    ClearResourceDragState();
+            }
+        }
+
         private void CollectAllNodeNamesRecursive(GameNode node, HashSet<string> result)
         {
             result.Add(node.Name);
@@ -1066,7 +1309,16 @@ namespace SSNoir
         private GameNode? FindNodeByName(string name)
         {
             var root = GetRootNode();
-            return root == null ? null : FindNodeRecursive(root, name);
+            var found = root == null ? null : FindNodeRecursive(root, name);
+            if (found != null) return found;
+
+            // 随身动作（烟、酒）不在渲染树上——它们不属于任何一场交锋。但它们是货真价实的
+            // 动作节点，一样要有骰位、一样能放骰子，所以按名字找节点时必须也找得到它们，
+            // 否则 GetSlotsForNode 拿不到槽，槽就一直是"放不进去"的红。
+            foreach (var carry in _displayedSnapshot.CarryNodes)
+                if (string.Equals(carry.Name, name, StringComparison.Ordinal))
+                    return carry;
+            return null;
         }
 
         private GameNode? FindNodeRecursive(GameNode node, string name)
@@ -1106,7 +1358,6 @@ namespace SSNoir
                 var path = filePath ?? SaveManager.DefaultSavePath;
                 _sceneManager.SaveGame(path);
                 _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
-                Debug.Log($"[SSNoir] Game saved to {path}");
             }
             catch (System.Exception ex)
             {
@@ -1126,10 +1377,10 @@ namespace SSNoir
             }
             try
             {
+                ResetInventoryGainPulseBaseline();
                 _sceneManager.LoadGame(path);
                 // OnSceneLoaded fires inside LoadGame → ResetSceneUiState → ResetUiState
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
-                Debug.Log($"[SSNoir] Game loaded from {path}");
             }
             catch (System.Exception ex)
             {
@@ -1140,7 +1391,21 @@ namespace SSNoir
 
         public void RestartGame()
         {
+            ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
+        }
+
+        private void ResetInventoryGainPulseBaseline()
+        {
+            _inventoryPulseBaselineReady = false;
+            _itemGainPulseUntil.Clear();
+            // 读档和新游戏不是"发生了什么"，是换了一个世界：基线一起清掉，
+            // 否则开局第一帧整条冷静会莫名其妙闪一下。
+            _vitalPulseBaselineReady = false;
+            _composurePulses.Clear();
+            _injuryPulse = null;
+            _lastComposure.Clear();
+            _lastInjurySeverity = 0;
         }
 
         /// <summary>
@@ -1299,10 +1564,19 @@ namespace SSNoir
         // Maps a flat action-die index (as enumerated by the hand panel:
         // Team.Actors in order, each actor's ActionDice in order) back to the
         // owning actor and that actor's local die index.
+        /// <summary>
+        /// 手牌里那个「第几颗骰」是一个**位置**，位置只有放在它被画出来的那份名单里才有意义。
+        /// 所以这里数的是 <see cref="_displayedSnapshot"/>——HandPanelDrawer 数的就是它。
+        ///
+        /// 曾经这里数的是 _gameState.Team 的实时骰池。两份名单只在"没有任何事情正在发生"时
+        /// 才一样：演出播放期间快照故意落后一拍，执行中途抛异常时引擎那半边已经变了。
+        /// 一旦长度对不上，第 N 颗就指到别人头上，送进引擎就是
+        /// "Action slot N has no available die"——错的不是那颗骰，是数它的那把尺子。
+        /// </summary>
         private void ResolveDieOwner(int flatIndex, out string actorId, out int innerIndex)
         {
             int running = 0;
-            foreach (var actor in _gameState.Team.Actors)
+            foreach (var actor in _displayedSnapshot.Actors)
             {
                 for (int i = 0; i < actor.ActionDice.Count; i++)
                 {
@@ -1333,7 +1607,7 @@ namespace SSNoir
             bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Name ?? string.Empty, System.StringComparison.Ordinal);
             bool focusContextChanged = sceneChanged || rootChanged;
 
-            if (sceneChanged)
+            if (focusContextChanged)
                 ResetSceneUiState();
             if (focusContextChanged)
                 BeginIncomingFocusContext();
@@ -1350,18 +1624,8 @@ namespace SSNoir
             StartCoroutine(WaitForPresentation(() => done));
         }
 
-        public void OnUseEncounterConsumable(string itemId)
-        {
-            _selectedResource = null;
-            var report = _sceneManager.UseEncounterConsumable(itemId);
-            bool done = false;
-            _renderer.PlayPresentation(report, itemId == "香烟" ? "抽烟" : "喝酒", () =>
-            {
-                AdoptLatestSnapshot();
-                done = true;
-            });
-            StartCoroutine(WaitForPresentation(() => done));
-        }
+        // 这里曾有 OnUseEncounterConsumable / HasSelectedDie：烟和酒走引擎旁路的那条。
+        // 它们现在是交锋树上的普通动作卡，走 ExecuteNodeAction，不需要专门的入口。
 
         private IEnumerator WaitForPresentation(Func<bool> isDone)
         {
@@ -1402,6 +1666,32 @@ namespace SSNoir
             ResolveNavigationStack();
             UpdateCameraFocus();
             PlayArrival("家");
+        }
+
+        /// <summary>
+        /// 动作演出中的强制落点（目前只用于倒下送医）。采纳引擎已经准备好的世界快照，
+        /// 直接把导航栈落到地点；不触发普通 arrival，也不重置正在播放的阻塞演出队列。
+        /// </summary>
+        public void EnterForcedPlace(string placeName)
+        {
+            AdoptLatestSnapshot();
+            var path = FindPathToNode(placeName);
+            if (path.Count < 2)
+                throw new InvalidOperationException($"强制进入地点失败：世界中找不到“{placeName}”。");
+
+            _nodeSlots.Clear();
+            _flippedNodes.Clear();
+            _selectedResource = null;
+            _focusedNodeName = string.Empty;
+            _navigationStack.Clear();
+            foreach (var nodeName in path.GetRange(1, path.Count - 1))
+            {
+                var node = FindNodeByName(nodeName)
+                    ?? throw new InvalidOperationException($"强制进入地点失败：路径节点“{nodeName}”不存在。");
+                _navigationStack.Add(node);
+            }
+            ResolveNavigationStack();
+            UpdateCameraFocus();
         }
 
         /// <summary>

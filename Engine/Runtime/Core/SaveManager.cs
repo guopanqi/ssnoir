@@ -126,6 +126,8 @@ namespace SSNoir.Core
                     ["permanentDiePenalty"] = a.PermanentDiePenalty,
                     ["spentGrowthPoints"] = a.SpentGrowthPoints,
                     ["stats"]             = stats,
+                    ["actionDice"]        = new JArray(a.ActionDice),
+                    ["actionDiceSlotIds"] = new JArray(a.ActionDiceSlotIds),
                 });
             }
             return new JObject
@@ -195,9 +197,16 @@ namespace SSNoir.Core
                 InjuryPart     = el["injuryPart"]!.Value<string>()!,
                 GrowthLevel = el["growthLevel"]!.Value<int>(),
             };
+            bool? hasSavedActionDice = null;
             foreach (var actorEl in (JArray)el["actors"]!)
             {
                 var ao = (JObject)actorEl;
+                bool actorHasDice = ao["actionDice"] != null || ao["actionDiceSlotIds"] != null;
+                if ((ao["actionDice"] == null) != (ao["actionDiceSlotIds"] == null))
+                    throw new InvalidDataException($"Actor '{ao["id"]}' save data must contain both actionDice and actionDiceSlotIds.");
+                if (hasSavedActionDice != null && hasSavedActionDice.Value != actorHasDice)
+                    throw new InvalidDataException("Save data mixes actors with and without saved action dice.");
+                hasSavedActionDice = actorHasDice;
                 var a = new ActorSaveData
                 {
                     Id                = ao["id"]!.Value<string>()!,
@@ -212,8 +221,16 @@ namespace SSNoir.Core
                 };
                 foreach (var stat in ((JObject)ao["stats"]!).Properties())
                     a.Stats[stat.Name] = stat.Value.Value<int>();
+                if (actorHasDice)
+                {
+                    foreach (var die in (JArray)ao["actionDice"]!)
+                        a.ActionDice.Add(die.Value<int>());
+                    foreach (var slotId in (JArray)ao["actionDiceSlotIds"]!)
+                        a.ActionDiceSlotIds.Add(slotId.Value<int>());
+                }
                 team.Actors.Add(a);
             }
+            team.HasSavedActionDice = hasSavedActionDice ?? false;
             return team;
         }
 

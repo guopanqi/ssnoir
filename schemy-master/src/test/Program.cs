@@ -27,6 +27,17 @@
             AssertString(interpreter, "\"C:\\\\temp\\\\file\"", "C:\\temp\\file");
             AssertString(interpreter, "\"第一行\\n第二行\\t结束\"", "第一行\n第二行\t结束");
 
+            AssertNumber(interpreter, "(+)", 0);
+            AssertNumber(interpreter, "(+ 1 2 3)", 6);
+            AssertNumber(interpreter, "(*)", 1);
+            AssertNumber(interpreter, "(* 2 3 4)", 24);
+            AssertNumber(interpreter, "(- 3)", -3);
+            AssertNumber(interpreter, "(- 10 3 2)", 5);
+            AssertNumber(interpreter, "(/ 4)", 0.25);
+            AssertNumber(interpreter, "(/ 20 2 5)", 2);
+            AssertError(interpreter, "(-)", "Unary/binary subtraction requires an argument.");
+            AssertError(interpreter, "(/)", "Unary/binary division requires an argument.");
+
             var invalidEscape = interpreter.Evaluate("\"bad\\qescape\"");
             if (invalidEscape.Error == null)
                 throw new InvalidOperationException("Unknown string escapes must fail.");
@@ -42,6 +53,24 @@
             if (!object.Equals(result.Result, expected))
                 throw new InvalidOperationException(
                     string.Format("String test mismatch. Expected <{0}>, got <{1}>.", expected, result.Result));
+        }
+
+        private static void AssertNumber(Interpreter interpreter, string source, double expected)
+        {
+            var result = interpreter.Evaluate(source);
+            if (result.Error != null)
+                throw new InvalidOperationException("Number test failed: " + result.Error);
+            double actual = Convert.ToDouble(result.Result);
+            if (Math.Abs(actual - expected) > 0.0000001)
+                throw new InvalidOperationException(
+                    string.Format("Number test mismatch for {0}. Expected <{1}>, got <{2}>.", source, expected, result.Result));
+        }
+
+        private static void AssertError(Interpreter interpreter, string source, string message)
+        {
+            var result = interpreter.Evaluate(source);
+            if (result.Error == null)
+                throw new InvalidOperationException(message);
         }
     }
 }

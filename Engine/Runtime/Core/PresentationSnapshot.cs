@@ -6,6 +6,10 @@ namespace SSNoir.Core
     public sealed class PresentationSnapshot
     {
         public GameNode? RootNode { get; init; }
+        // 随身动作（烟、酒）：玩家自己带进这一场的东西，不在渲染树里。
+        // 客户端把它们画成从对应物品引出去的小卡，而不是排进场上的卡片区。
+        // 见 SceneManager.CurrentCarryNodes。
+        public IReadOnlyList<GameNode> CarryNodes { get; init; } = new List<GameNode>();
         // 伤势：0 为完好。部位名与档位一起决定面板那一行怎么写，客户端不自己算档位。
         public int InjurySeverity { get; init; }
         public int InjuryMaxSeverity { get; init; } = Injury.MaxSeverity;
@@ -29,12 +33,18 @@ namespace SSNoir.Core
         public int WorldDay { get; init; } = 1;
         public string Location { get; init; } = string.Empty;
         public IReadOnlyDictionary<string, int> Inventory { get; init; } = new Dictionary<string, int>();
-        // 三派声望（官僚 / 劳工 / 富商）的底层整数值。
+        // 带上限的物品才在这张表里（现在只有香烟）。绝大多数东西没有上限，客户端据此
+        // 决定物品格是画数字还是画容量刻度——不是给每个格子都加一层容量。
+        // 内容侧的表在 engine.scm 的 item-capacities。
+        public IReadOnlyDictionary<string, int> ItemCapacities { get; init; } = new Dictionary<string, int>();
+        // 圈内声誉（老码头 / 商业圈）的底层整数值。
         public IReadOnlyDictionary<string, int> Relations { get; init; } = new Dictionary<string, int>();
-        // 内容层配置的声望档解锁诱饵，键为“势力:通用档名”（如“劳工:信任”）。
+        // 内容层配置的声誉档解锁诱饵，键为“圈子:通用档名”（如“老码头:信任”）。
         public IReadOnlyDictionary<string, string> RelationUnlocks { get; init; } = new Dictionary<string, string>();
-        // 内容层配置的各势力对正面三档的定制称呼，键同上（如“劳工:信任”→“够朋友”）。
+        // 内容层配置的各圈子对正面三档的定制称呼，键同上（如“老码头:信任”→“够朋友”）。
         public IReadOnlyDictionary<string, string> RelationBandNames { get; init; } = new Dictionary<string, string>();
+        // 卷宗：城里所有故事线各自的「现在」。交锋里为空——那时候没有别的线可想。
+        public IReadOnlyList<DossierEntry> Dossier { get; init; } = new List<DossierEntry>();
         public IReadOnlyList<ActorSnapshot> Actors { get; init; } = new List<ActorSnapshot>();
         // 交锋里只有主角行动（同伴不发骰），客户端据此决定是否隐藏同伴的人物簇。
         public bool IsInEncounter { get; init; }

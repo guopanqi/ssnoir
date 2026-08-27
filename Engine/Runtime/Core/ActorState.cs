@@ -14,10 +14,15 @@ namespace SSNoir.Core
         // 冷静：纯缓冲。花掉本身没有惩罚，归零后每一点消耗直接转成伤势
         // ——机械效果只由伤势一处承担（见 docs/城市生活设计.md §2.2）。
         private int _composure = TeamState.MaxComposure;
+        /// <summary>主角的冷静是跨日资源；同伴的冷静表示他今天还能陪你行动多久，
+        /// 因此按骰位数缩放：每颗骰子 2 点。</summary>
+        public int MaxComposure => Role == "companion"
+            ? Math.Max(1, ActionSlotCount) * TeamState.CompanionComposurePerActionSlot
+            : TeamState.MaxComposure;
         public int Composure
         {
             get => _composure;
-            set => _composure = Math.Clamp(value, 0, TeamState.MaxComposure);
+            set => _composure = Math.Clamp(value, 0, MaxComposure);
         }
 
         // 骰值列表只保存尚未投入行动的骰子；SlotIds 与它严格平行，记录它来自

@@ -15,10 +15,10 @@ namespace Schemy
             var b = new Dictionary<Symbol, object>();
 
             // ── Arithmetic ────────────────────────────────────────────────────────────
-            b[Symbol.FromString("+")] = new NativeProcedure(Utils.MakeVariadic(Add), "+");
-            b[Symbol.FromString("-")] = new NativeProcedure(Utils.MakeVariadic(Minus), "-");
-            b[Symbol.FromString("*")] = new NativeProcedure(Utils.MakeVariadic(Multiply), "*");
-            b[Symbol.FromString("/")] = new NativeProcedure(Utils.MakeVariadic(Divide), "/");
+            b[Symbol.FromString("+")] = new NativeProcedure(VariadicAdd, "+");
+            b[Symbol.FromString("-")] = new NativeProcedure(VariadicMinus, "-");
+            b[Symbol.FromString("*")] = new NativeProcedure(VariadicMultiply, "*");
+            b[Symbol.FromString("/")] = new NativeProcedure(VariadicDivide, "/");
             b[Symbol.FromString("modulo")]    = NativeProcedure.Create<int, int, int>((a, n) => ((a % n) + n) % n, "modulo");
             b[Symbol.FromString("remainder")] = NativeProcedure.Create<int, int, int>((a, n) => a % n, "remainder");
             b[Symbol.FromString("quotient")]  = NativeProcedure.Create<int, int, int>((a, n) => a / n, "quotient");
@@ -208,10 +208,26 @@ namespace Schemy
             return Convert.ToDouble(x) + Convert.ToDouble(y);
         }
 
+        private static object VariadicAdd(List<object> args)
+        {
+            return args.Count == 0 ? (object)0 : args.Aggregate(Add);
+        }
+
         private static object Minus(object x, object y)
         {
             if (x is int && y is int) return (int)x - (int)y;
             return Convert.ToDouble(x) - Convert.ToDouble(y);
+        }
+
+        private static object VariadicMinus(List<object> args)
+        {
+            if (args.Count == 0) throw new SyntaxError("-: requires at least 1 argument");
+            if (args.Count == 1)
+            {
+                object x = args[0];
+                return x is int ? (object)(-(int)x) : -Convert.ToDouble(x);
+            }
+            return args.Aggregate(Minus);
         }
 
         private static object Multiply(object x, object y)
@@ -220,10 +236,22 @@ namespace Schemy
             return Convert.ToDouble(x) * Convert.ToDouble(y);
         }
 
+        private static object VariadicMultiply(List<object> args)
+        {
+            return args.Count == 0 ? (object)1 : args.Aggregate(Multiply);
+        }
+
         private static object Divide(object x, object y)
         {
             if (x is int && y is int) return (int)x / (int)y;
             return Convert.ToDouble(x) / Convert.ToDouble(y);
+        }
+
+        private static object VariadicDivide(List<object> args)
+        {
+            if (args.Count == 0) throw new SyntaxError("/: requires at least 1 argument");
+            if (args.Count == 1) return 1.0 / Convert.ToDouble(args[0]);
+            return args.Aggregate(Divide);
         }
 
         #endregion

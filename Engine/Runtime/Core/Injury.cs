@@ -6,32 +6,40 @@ namespace SSNoir.Core
     public enum InjuryBand { None, Light, Severe }
 
     /// <summary>
-    /// 伤势：全队唯一的身体轴，取代旧的健康血条（见 docs/城市生活设计.md §2.2）。
+    /// 伤势：全队唯一的身体轴，取代旧的健康血条。规则以本文件为唯一来源。
     ///
     /// 一次只有一处伤。第一次受伤随机命中一项能力并定下部位名，之后的伤害都加在同一条上，
     /// 归 0 才清除——所以第二次受伤必然是加重，压力不会被分散到多个部位上。
     /// 刻度本身就是康复进度，反着读：治疗即降伤势，降到 0 就是痊愈。
     ///
     ///   0     完好
-    ///   1–3   轻伤   命中的能力 −1；睡觉每晚自愈 1
-    ///   5–6   重伤   该能力 −2，并少一颗行动骰；睡觉不回
-    ///   7     倒下   强制送医，结算后回落到轻伤段
+    ///   1–3   轻伤   命中的能力 −1
+    ///   4–6   重伤   不再扣能力，封掉一颗行动骰
+    ///   7     倒下   强制送医，结算后伤势归零
     ///
-    /// 不治疗不会自行恶化（伤势钳在当前值）。到达满格立刻倒下，结算后回落到轻伤段，
-    /// 所以谷底仍然爬得起来，不会被拖进死亡螺旋。
+    /// **伤势不会自己好。**这是它和冷静的全部区别：冷静是睡一觉就回一点的那条，
+    /// 伤势是你得为它腾出点什么的那条——药品花钱，诊所同时花钱和骰，
+    /// 弹簧床垫则解锁用行动骰换康复的长期通道。睡觉本身不治伤，轻伤与重伤都不会自动好。
+    ///
+    /// 冷静 5 点垫子 + 伤势 7 点身体 = 12 点。交锋每回合 1 点，前五个回合不流血，
+    /// 第六回合进轻伤，第九回合进重伤，第十二回合倒下。一场交锋不该长成那样：真正结束它的应该是交锋自己的时钟，
+    /// 这条轴只是兜底的账单。
+    ///
+    /// 不治疗不会自行恶化（伤势钳在当前值）。到达满格立刻倒下，结算后伤势归零，
+    /// 但会留下永久疤痕，所以谷底仍然爬得起来，不会被拖进死亡螺旋。
     /// </summary>
     public sealed class Injury
     {
         public const int LightThreshold = 1;
-        public const int SevereThreshold = 5;
+        public const int SevereThreshold = 4;
         /// <summary>刻度上限，也是触发倒下结算的阈值。</summary>
         public const int MaxSeverity = 7;
-        /// <summary>倒下结算后回落到的伤势：强制送医止住危险，仍留下可自行养好的轻伤。</summary>
-        public const int PostCollapseSeverity = 2;
+        /// <summary>倒下结算后的伤势：送医后伤势归零，永久代价由疤痕承担。</summary>
+        public const int PostCollapseSeverity = 0;
 
         /// <summary>一般坏结果的伤害量。</summary>
         public const int OrdinaryHarm = 1;
-        /// <summary>明确重创（枪伤、坠落、被围住打）的伤害量：一下就把完好的人顶到轻伤段顶上。</summary>
+        /// <summary>明确重创（枪伤、坠落、被围住打）的伤害量：一下就把完好的人顶到轻伤段顶上（3/3）。</summary>
         public const int SevereHarm = 3;
 
         // 部位与能力一一对应，玩家读到的是「手伤 · 力量 −1」，不需要记映射表。
@@ -69,10 +77,9 @@ namespace SSNoir.Core
             _ => throw new ArgumentOutOfRangeException(nameof(band), band, "Unknown injury band.")
         };
 
-        /// <summary>命中能力的判定修正：轻伤 −1，重伤 −2。只作用于被打中的那一项。</summary>
+        /// <summary>命中能力的判定修正：只有轻伤 −1；重伤改为封行动骰，不叠加能力扣减。</summary>
         public int SkillPenalty => Band switch
         {
-            InjuryBand.Severe => -2,
             InjuryBand.Light  => -1,
             _ => 0,
         };
@@ -96,7 +103,9 @@ namespace SSNoir.Core
         public string Describe()
         {
             if (Band == InjuryBand.None) return string.Empty;
-            return $"{Part}伤 · {BandName(Band)} · {SkillName} {SkillPenalty}";
+            return Band == InjuryBand.Severe
+                ? $"{Part}伤 · {BandName(Band)} · −1颗骰"
+                : $"{Part}伤 · {BandName(Band)} · {SkillName} {SkillPenalty}";
         }
 
         /// <summary>

@@ -64,11 +64,7 @@ namespace SSNoir
             string? lookupId = newContextId ?? _currentContextId;
             var portal = ResolvePortal(lookupId);
 
-            if (MotionSettings.DebugInstantCameraCuts)
-            {
-                yield return InstantTransition(newContextId, portal);
-            }
-            else if (MotionSettings.ReduceMotion)
+            if (MotionSettings.ReduceMotion)
             {
                 // The door's three legs — approach, push through, pull out — are the trip,
                 // and reduce motion does not take trips. What is left is the cut that was
@@ -102,26 +98,6 @@ namespace SSNoir
             _currentContextId = newContextId;
             _gameManager.SetInputLocked(false);
             IsTransitioning = false;
-        }
-
-        /// <summary>
-        /// Debug-only zero-duration portal transition. It skips the portal cameras, path and
-        /// black fade, then gives the destination focus camera one frame to receive a cut.
-        /// </summary>
-        private IEnumerator InstantTransition(string? newContextId, StagePortalConfig? portal)
-        {
-            FadeAlpha = 0f;
-            _gameManager.CameraManager.FinishFocusTravel();
-
-            var targetCamera = _gameManager.CurrentFocusCamera;
-            Debug.Assert(targetCamera != null,
-                "[StageTransition] Instant transition target focus camera was not resolved.");
-
-            ResetFocusCameras();
-            if (targetCamera != null)
-                yield return CutToVirtualCamera(targetCamera, 20);
-
-            _activePortal = newContextId != null ? portal : null;
         }
 
         /// <summary>

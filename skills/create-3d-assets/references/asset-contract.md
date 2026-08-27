@@ -16,6 +16,8 @@
 - CityBox 的生产构建会拒绝缺少同名模型、缺少主 Anchor/Camera、重复 NodeName 或不符合上述规则的资产，而不是悄悄退回灰盒或猜测名称。
 - 发布器会静态检查每个 AnchorName 是否出现于当前 Scheme 字符串字面量中。资产与内容可以不同步到达，因此缺失只打印构建警告、不阻断 `City.fbx` 发布；这不是模糊匹配。Scheme 在运行时真正引用不存在的 Anchor 时，仍由 `SceneDirectory` 的精确契约 assert/throw。
 
+正式 City 实例不得在 `Main.unity` 保存 FBX 子对象覆盖。`City.fbx` 每次完整重建，内部 fileID 不稳定；对子对象覆盖材质、名称、激活状态、Renderer、Camera 或 VCam 参数，会在下次导出后落到另一栋建筑。场景只保留 City 根节点的位置、旋转和统一缩放，子对象关系由导入器和运行时代码按名称建立。
+
 整城 `City.fbx` 是一个发布产物，不是美术源文件。重要建筑仍以独立 `.blend` 维护；CityBox 负责装配、校验并生成 FBX，Unity 只消费固定路径的整城资产与语义节点。
 
 CityBox 的 `city_report.json` 同时记录最终导出几何的总量、程序化集合和逐重要建筑统计；性能判断以这份构建账本为准，不靠打开某次 FBX 后手工估算。
@@ -102,12 +104,9 @@ Orbit 相机必须满足：
 
 ### 描边对象与材质
 
-来源：`UnityClient/Assets/Resources/Tools/model-outline-handpaint.py`、`model-outline.py`；船只淡出兼容见 `AmbientBoat.cs`
+城市描边的唯一生产者是 CityBox。`build_city.py` 生成 Low/High，`export_unity.py` 校验并写入 `City.fbx`；城市源 `.blend` 不保存历史单体描边。
 
-- 项目描边脚本生成 `OutlineLines_*` Curve，使用 `M_White_Emission_Lines`。
-- 主体材质统一为 `M_Dark_Blue_Model`，颜色 `#0A142A`。
-- `AmbientBoat` 通过材质名识别主体和线条；线材质至少应保留 `M_White_Emission_Lines`。对象名保留 `OutlineLines_*` 也有利于检查与其他兼容逻辑。
-- 描边脚本会清空目标 Mesh 的原材质槽，并写入项目主体材质；运行前必须确认这正是所需视觉结果。
+非城市独立资产不得默认复用城市描边流程。只有找到明确运行时消费者时，才采用该消费者要求的对象名和材质名。例如 `AmbientBoat` 当前仍按材质名区分船体和线条，这只是车辆系统专用契约，不是所有资产的通用规范。
 
 ## 已实现的专用扩展
 
@@ -118,18 +117,9 @@ Orbit 相机必须满足：
 
 这些不是所有模型都必须具有的通用节点。只有资产使用对应运行时组件时才创建。
 
-## Actor 标记：制作约定，尚非运行时契约
+## 不存在的契约
 
-当前仓库没有发现模型导入器或运行时代码读取 `Actor_<名字>` Transform。不要声称仅靠命名就会生成角色或绑定剧情。
-
-需要在模型里预留角色站位时，可使用 `Actor_<稳定角色ID>` Empty 作为制作约定，并遵守：
-
-- 使用内容数据中的稳定 ID，不以可能变化的显示名替代 ID。
-- Empty 的位置代表脚底落点，局部 Z 轴向上，局部 Y 轴表示建议朝向。
-- 同一资产内 ID 唯一。
-- 在 Unity 消费者实现前，把它当作人工参考点。
-
-一旦实现 Unity 消费者，必须把前缀、ID 匹配、朝向、缺失/重复行为和源码路径补充到本文件，并把状态改为“已实现”。
+当前没有运行时代码消费 `Actor_*`。不要主动创建，也不要声称它能生成角色或绑定剧情。确实需要角色站位时，应先实现并记录消费者，而不是把制作标记长期留在正式资产中。
 
 ## 新契约的准入规则
 

@@ -520,9 +520,6 @@ namespace SSNoir
             // VideoPlayer：小游戏容器的 _JS_Video_Create 会抛 TypeError: Unknown event，
             // 异常从 wasm 栈里穿出 PlayerLoop，引擎当场停在那一帧再也不出帧——整个游戏卡死，
             // 下面那条 errorReceived 的优雅回退根本轮不到执行。这里直接按空镜处理。
-            Debug.Log(
-                $"[SSNoir] 本次构建不含过场视频，'{shot.DisplayName}' 按空镜处理，"
-                + $"停留 {EmptyShotHoldSeconds:0.#} 秒。", shot);
             return;
 #endif
 

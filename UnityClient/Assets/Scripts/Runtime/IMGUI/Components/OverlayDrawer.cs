@@ -22,8 +22,8 @@ namespace SSNoir.IMGUI
                 float cardW = 240f;
                 float cardH = 34f;
                 float cardX = UIScale.SafeArea.xMax - cardW - 24f;
-                // 通知也贴右上角，同样要让开宿主的胶囊按钮。
-                float cardTop = Mathf.Max(UIScale.SafeArea.y + 75f, UIScale.TopRightReserved.yMax + 8f);
+                // 通知贴右上角，落在顶栏下面。
+                float cardTop = UIScale.SafeArea.y + 66f;
                 float cardY = cardTop + i * (cardH + 8f);
                 var cardRect = new Rect(cardX, cardY, cardW, cardH);
 
@@ -92,7 +92,9 @@ namespace SSNoir.IMGUI
             }
             else
             {
-                string small = selected.Value > 1 ? $"{selected.ItemName} x{selected.Value}" : selected.ItemName;
+                string small = selected.ItemName == "金钱"
+                    ? $"${selected.Value}"
+                    : $"x{selected.Value}";
                 var bigStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
                     fontSize = IMGUIStyles.FontSize(24),
@@ -100,15 +102,28 @@ namespace SSNoir.IMGUI
                     normal = { textColor = IMGUIStyles.Gold }
                 };
                 IMGUIStyles.ApplyStrongFont(bigStyle);
-                IMGUIStyles.DrawLabel(new Rect(rect.x, rect.y + 6f, rect.width, 30f), ItemSymbol(selected.ItemName), bigStyle);
+                var bigRect = new Rect(rect.x, rect.y + 3f, rect.width, 28f);
+                if (!ItemIconLibrary.TryDraw(bigRect, selected.ItemName, IMGUIStyles.Gold, 0.80f))
+                    IMGUIStyles.DrawLabel(bigRect, ItemSymbol(selected.ItemName), bigStyle);
 
                 var smallStyle = new GUIStyle(IMGUIStyles.SlotLabel)
                 {
-                    fontSize = IMGUIStyles.FontSize(9),
+                    fontSize = IMGUIStyles.FontSize(13),
                     alignment = TextAnchor.MiddleCenter,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
-                IMGUIStyles.DrawLabel(new Rect(rect.x, rect.y + 34f, rect.width, 16f), small, smallStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x, rect.y + 31f, rect.width, 16f), small, smallStyle);
+
+                // 手牌格底下写着名字，拖起来的这块也得写——否则一拿起来就不知道拿的是哪一件。
+                var captionStyle = new GUIStyle(IMGUIStyles.SlotLabel)
+                {
+                    fontSize = IMGUIStyles.FontSize(11),
+                    alignment = TextAnchor.UpperCenter,
+                    normal = { textColor = IMGUIStyles.Gold }
+                };
+                IMGUIStyles.DrawLabel(
+                    new Rect(rect.x - 4f, rect.yMax + 1f, rect.width + 8f, 15f),
+                    ItemDisplayName.Short(selected.ItemName), captionStyle);
             }
         }
 
@@ -118,6 +133,7 @@ namespace SSNoir.IMGUI
             {
                 "金钱" => "$",
                 "酒" => "酒",
+                "香烟" => "烟",
                 "药品" => "药",
                 _ => name.Length > 0 ? name.Substring(0, 1) : "?"
             };

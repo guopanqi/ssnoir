@@ -26,8 +26,6 @@ namespace SSNoir.Rendering
         public struct HandPanelInteraction
         {
             public bool TurnClicked;
-            public bool SmokeClicked;
-            public bool DrinkClicked;
             public SelectedResource? SelectedResourceToSet;
         }
 
@@ -70,7 +68,7 @@ namespace SSNoir.Rendering
             if (snapshot.InjurySeverity > 0)
             {
                 string line = snapshot.InjuryCostsActionDie
-                    ? $"{snapshot.InjuryPart}伤 · {snapshot.InjurySkillName}{snapshot.InjurySkillPenalty} · −1颗骰"
+                    ? $"{snapshot.InjuryPart}伤 · 重伤 · −1颗骰"
                     : $"{snapshot.InjuryPart}伤 · {snapshot.InjurySkillName}{snapshot.InjurySkillPenalty}";
                 FontManager.DrawText(line, area.X, area.Y + 44f, 9,
                     snapshot.InjuryCostsActionDie ? SealRed : Gold);
@@ -132,7 +130,7 @@ namespace SSNoir.Rendering
                 // 只画名字。Role 是内部标识（protagonist / companion），不是给玩家看的职业。
                 FontManager.DrawText(actor.Name, x, area.Y + 14f, 14, Paper);
                 DrawDicePoolStatus(actor, x, poolX, area.Y + 80f);
-                DrawComposureCells(x, poolX, area.Y + 110f, actor.Composure);
+                DrawComposureCells(x, poolX, area.Y + 110f, actor.Composure, actor.MaxComposure);
 
                 for (int d = 0; d < actor.ActionDice.Count; d++)
                 {
@@ -276,9 +274,8 @@ namespace SSNoir.Rendering
 
         // 单行冷静条：格数即数值。冷静是纯缓冲，中间没有档位，所以没有阈值留白——
         // 唯一有意义的是「还剩几格」和「见底」，见底后每一点消耗都变成伤势。
-        private static void DrawComposureCells(float labelX, float poolX, float y, int composure)
+        private static void DrawComposureCells(float labelX, float poolX, float y, int composure, int max)
         {
-            int max = TeamState.MaxComposure;
             Color fill = composure <= 0 ? SealRed : composure <= 1 ? Gold : Paper;
             FontManager.DrawText("冷静", labelX, y + 1f, 9, PaperDim);
 
@@ -367,17 +364,14 @@ namespace SSNoir.Rendering
 
             if (isInEncounter)
             {
-                var smokeRect = new Rectangle(functionX, area.Y + 24f, 46f, 64f);
-                var drinkRect = new Rectangle(functionX + 54f, area.Y + 24f, 46f, 64f);
-                var restRect = new Rectangle(functionX + 108f, area.Y + 24f, 50f, 64f);
-                bool hasSmoke = state.DisplayedSnapshot.Inventory.TryGetValue("香烟", out int smoke) && smoke > 0;
-                bool hasDrink = state.DisplayedSnapshot.Inventory.TryGetValue("酒", out int drink) && drink > 0;
-                DrawToken(smokeRect, "烟", null, false, ui.CanHover(smokeRect), ui.IsLocked || !hasSmoke);
-                DrawToken(drinkRect, "酒", null, false, ui.CanHover(drinkRect), ui.IsLocked || !hasDrink);
+                // 抽烟、喝酒这两格已经删掉：它们现在是交锋树上的普通动作卡
+                //（engine.scm 的 carry-nodes，由 SceneManager 补进每场交锋的树），
+                // 和别的卡一样有骰位、有物品位、有执行钮。放东西的表现形式必须处处一致——
+                // 玩家从一个角落按钮上看不出"这里能放骰子"。
+                // 功能区只剩"休息"：它是唯一一个真的不吃任何东西的动作。
+                var restRect = new Rectangle(functionX + 48f, area.Y + 24f, 110f, 64f);
                 DrawToken(restRect, "休息", null, false, ui.CanHover(restRect), ui.IsLocked);
-                if (!ui.IsLocked && hasSmoke && ui.WasClicked(smokeRect)) interaction.SmokeClicked = true;
-                else if (!ui.IsLocked && hasDrink && ui.WasClicked(drinkRect)) interaction.DrinkClicked = true;
-                else if (!ui.IsLocked && ui.WasClicked(restRect)) interaction.TurnClicked = true;
+                if (!ui.IsLocked && ui.WasClicked(restRect)) interaction.TurnClicked = true;
             }
             else
             {

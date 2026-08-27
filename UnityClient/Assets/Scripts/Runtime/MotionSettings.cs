@@ -30,10 +30,5 @@ namespace SSNoir
 
         public static bool ReduceMotion { get; set; } = true;
 
-        /// <summary>
-        /// Debug 专用的零时长镜头模式。开启后所有自动运镜直接硬切到终点，优先级高于
-        /// <see cref="ReduceMotion"/>，但不会修改玩家的减少动画设置。
-        /// </summary>
-        public static bool DebugInstantCameraCuts { get; set; }
     }
 }

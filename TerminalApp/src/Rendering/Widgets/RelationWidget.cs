@@ -5,10 +5,11 @@ using SSNoir.Core;
 
 namespace SSNoir.Rendering
 {
-    // 声望不是一组孤立数字，而是一条“当前位置 → 档位 → 解锁诱饵”的进展轨道。
+    // 声誉不是一组孤立数字，而是一条“当前位置 → 档位 → 解锁诱饵”的进展轨道。
     public static class RelationWidget
     {
-        private static readonly string[] Factions = { "官僚", "劳工", "富商" };
+        // 圈子名单以 GameState.Circles 为唯一来源——面板不再自己维护一份。
+        private static readonly string[] Factions = GameState.Circles;
         // 六档配色（敌视/冷淡/中立/相识/信任/核心），正面三档逐级变亮。
         private static readonly Color[] BandColors =
         {
@@ -27,7 +28,7 @@ namespace SSNoir.Rendering
             return new Color(Lerp(c.R), Lerp(c.G), Lerp(c.B), c.A);
         }
 
-        // 某势力在指定档位序号上的显示名：正面三档取内容层定制称呼，其余用通用档名。
+        // 某圈子在指定档位序号上的显示名：正面三档取内容层定制称呼，其余用通用档名。
         private static string BandDisplay(PresentationSnapshot snapshot, string faction, int band)
         {
             if (band < 3) return RelationScale.BandNames[band];
@@ -39,7 +40,8 @@ namespace SSNoir.Rendering
         private const float CollapsedWidth = 220f;
         private const float CollapsedHeight = 28f;
         private const float ExpandedWidth = 620f;
-        private const float ExpandedHeight = 392f;
+        // 面板高度跟着圈子数量走：48 顶栏 + 每条轨道 111 + 12 底边。
+        private static readonly float ExpandedHeight = 60f + Factions.Length * 111f;
 
         public static float Draw(RendererState state, SSNoir.TerminalApp.Rendering.UiInteractionContext ui,
             float rightEdge, float topY)
@@ -60,7 +62,7 @@ namespace SSNoir.Rendering
             var rect = new Rectangle(x, topY, CollapsedWidth, CollapsedHeight);
             bool hovered = ui.CanHover(rect);
             DrawPanel(rect, hovered);
-            FontManager.DrawText("关系", x + 12f, topY + 8f, 11, new Color(205, 208, 222, 255));
+            FontManager.DrawText("圈内声誉", x + 12f, topY + 8f, 11, new Color(205, 208, 222, 255));
 
             float itemX = x + 56f;
             float itemW = (CollapsedWidth - 64f) / Factions.Length;
@@ -89,8 +91,8 @@ namespace SSNoir.Rendering
             var rect = new Rectangle(x, panelY, ExpandedWidth, ExpandedHeight);
             DrawPanel(rect, false);
 
-            FontManager.DrawText("城市声望", x + 18f, panelY + 14f, 17, TerminalPalette.AccentBright);
-            FontManager.DrawText("声望每上一档，会打开这条路线专属的营生、人脉与门路",
+            FontManager.DrawText("圈内声誉", x + 18f, panelY + 14f, 17, TerminalPalette.AccentBright);
+            FontManager.DrawText("名声每上一档，这个圈子就多认你一分，跟着开的是营生、人脉与门路",
                 x + 108f, panelY + 18f, 11, new Color(150, 155, 175, 255));
 
             var closeRect = new Rectangle(x + ExpandedWidth - 66f, panelY + 10f, 50f, 24f);

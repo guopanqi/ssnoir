@@ -13,6 +13,7 @@ namespace SSNoir.Core
         /// 凡是「谁能出手」的界面（技能预览、命运条、手牌）都读这个，不要各自再判 Status / Role。</summary>
         public bool OnStage { get; init; }
         public int Composure { get; init; }
+        public int MaxComposure { get; init; }
         public int SpentGrowthPoints { get; init; }
         public IReadOnlyDictionary<string, int> Stats { get; init; } = new Dictionary<string, int>();
         /// <summary>这个人有几个骰池位置。默认由 role 决定，个别人物带自己的数字。</summary>

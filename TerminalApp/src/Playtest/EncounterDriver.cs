@@ -118,8 +118,9 @@ namespace SSNoir.Playtest
             return Scenes.ExecuteAction(move.Node, slots);
         }
 
-        /// <summary>用掉一件交锋消耗品（香烟、酒）。</summary>
-        public ActionReport UseConsumable(string itemId) => Scenes.UseEncounterConsumable(itemId);
+        // 这里曾有一个 UseConsumable：烟和酒走引擎的一条旁路。它们现在是普通动作卡
+        // （engine.scm 的 carry-nodes，由 SceneManager 补进每场交锋的树），
+        // 驱动照常把它们当成可投骰的卡列出来、执行，不需要专门的入口。
 
         public ActionReport EndTurn()
         {
@@ -141,7 +142,7 @@ namespace SSNoir.Playtest
                     .Append($"　力量{actor.Stats["violence"]} 见识{actor.Stats["knowledge"]}")
                     .Append($" 敏锐{actor.Stats["sharpness"]} 交际{actor.Stats["social"]}");
                 if (actor.Role == "protagonist")
-                    text.Append($"　冷静 {actor.Composure}/{TeamState.MaxComposure} 伤势 {State.Team.Injury.Severity}");
+                    text.Append($"　冷静 {actor.Composure}/{actor.MaxComposure} 伤势 {State.Team.Injury.Severity}");
                 text.AppendLine();
             }
             return text.ToString();
@@ -171,6 +172,9 @@ namespace SSNoir.Playtest
         {
             var found = new List<GameNode>();
             if (Scenes.CurrentRootNode != null) Collect(Scenes.CurrentRootNode, found);
+            // 随身动作（烟、酒）不在渲染树里——它们不属于这一场，客户端把它们画成从物品
+            // 引出去的小卡。但它们是货真价实的可执行节点，驱动照常把它们当牌看。
+            found.AddRange(Scenes.CurrentCarryNodes);
             return found;
         }
 

@@ -243,6 +243,9 @@ namespace SSNoir.Rendering
                     case BlockingStoryStepKind.Animation:
                         _state.ActiveActionSpotlight = new SpotlightCard { Title = "[动画]", Subtitle = step.AnimationTag };
                         return;
+                    case BlockingStoryStepKind.EnterPlace:
+                        EnterForcedPlace(step.PlaceName);
+                        continue;
                     default:
                         throw new InvalidOperationException("阻塞剧情步骤缺少与其类型匹配的数据。");
                 }
@@ -546,13 +549,17 @@ namespace SSNoir.Rendering
                 }
                 else
                 {
-                    _state.NavigationStack.Clear();
-                    _state.CardsScrollStack.Clear();
-                    _state.CardsScrollOffset = 0f;
-                    _state.VisibleNodes = root.Children.ToList();
-                    return;
+                    // 当前容器可能被刚执行的动作移除。保留此前仍有效的祖先路径，
+                    // 让玩家退到最近一级，而不是因为最深一层消失就直接回世界根。
+                    break;
                 }
             }
+
+            // 每一级导航都有一份进入前的滚动位置。路径被截短几级，就按返回键
+            // 的同一语义弹出几份，恢复最近有效祖先原来的浏览位置。
+            int removedDepth = path.Count - _state.NavigationStack.Count;
+            for (int i = 0; i < removedDepth; i++)
+                _state.CardsScrollOffset = PopCardsScrollOffset();
 
             _state.VisibleNodes = currentLevel;
         }
@@ -605,6 +612,22 @@ namespace SSNoir.Rendering
             _state.NavigationStack.Add(homeNode);
             ResolveNavigationStack();
             PlayArrival("家");
+        }
+
+        private void EnterForcedPlace(string placeName)
+        {
+            AdoptLatestSnapshot();
+            var place = FindNodeByName(_state.DisplayedSnapshot.RootNode, placeName);
+            if (place == null || !place.IsPlace)
+                throw new InvalidOperationException($"强制进入地点失败：世界中找不到“{placeName}”。");
+
+            _state.ClearAllNodeSlots();
+            _state.SelectedResource = null;
+            _state.CardsScrollOffset = 0f;
+            _state.CardsScrollStack.Clear();
+            _state.NavigationStack.Clear();
+            _state.NavigationStack.Add(place);
+            ResolveNavigationStack();
         }
 
         /// <summary>
@@ -899,19 +922,7 @@ namespace SSNoir.Rendering
             // 4. Draw Hand Panel
             bool turnPanelWasOpen = _state.IsTurnPanelOpen;
             var handInteraction = HandPanelWidget.Draw(_state, worldUi, WindowWidth, WindowHeight, IsInEncounter);
-            if (handInteraction.SmokeClicked)
-            {
-                _state.ClearAllNodeSlots();
-                _state.SelectedResource = null;
-                StartPresentation(_sceneManager.UseEncounterConsumable("香烟"), "抽烟");
-            }
-            else if (handInteraction.DrinkClicked)
-            {
-                _state.ClearAllNodeSlots();
-                _state.SelectedResource = null;
-                StartPresentation(_sceneManager.UseEncounterConsumable("酒"), "喝酒");
-            }
-            else if (handInteraction.TurnClicked)
+            if (handInteraction.TurnClicked)
             {
                 if (IsInEncounter)
                 {
@@ -1879,9 +1890,12 @@ namespace SSNoir.Rendering
                     float btnX = colX + colWidth - btnW - 20f;
                     var btnRect = new Rectangle(btnX, rowY, btnW, btnH);
 
-                    bool isEnabled = actor.Status != "away" && availPoints > 0 && statVal < TeamState.MaxStatLevel;
+                    int upgradeCost = TeamState.GetStatUpgradeCost(statVal);
+                    bool isEnabled = actor.Status != "away"
+                        && upgradeCost > 0
+                        && availPoints >= upgradeCost;
                     
-                    var upgradeBtn = UiButton.Draw(btnRect, "+", ui, isEnabled, 13,
+                    var upgradeBtn = UiButton.Draw(btnRect, upgradeCost > 0 ? $"+{upgradeCost}" : "满", ui, isEnabled, 13,
                         TerminalPalette.AccentDark,
                         new Color(65, 65, 112, 255),
                         new Color((byte)30, (byte)30, (byte)35, (byte)255),

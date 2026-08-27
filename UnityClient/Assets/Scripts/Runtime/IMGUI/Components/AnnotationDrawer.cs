@@ -52,8 +52,7 @@ namespace SSNoir.IMGUI
 
         private const float SegmentSize = 9f;
         private const float SegmentGap = 4f;
-        private const float PieDiameter = 15f;
-        private const float PieValueGap = 5f;
+        private const float DialDiameter = 22f;
 
         // 线与字都要压在亮着的窗户上还能读。垫一层暗色再画本体，比给整条标注
         // 垫一块半透明底板好——底板一加，它就又变回板子了。
@@ -117,11 +116,20 @@ namespace SSNoir.IMGUI
                     }
                     else
                     {
+                        // 读数跟着标题走，不贴右边缘。正文长、标注被撑到上限时，
+                        // 右对齐会把「□□□」甩到标题外几百像素，中间横穿画面——
+                        // 那时读数和它的名字已经不像同一条东西了。
+                        // 只有标题本身长到顶满可用宽度，读数才退回右端。
+                        var titleStyle = TitleStyle();
                         float gap = readoutW > 0f ? LabelReadoutGap : 0f;
-                        float titleW = Mathf.Max(0f, row.width - readoutW - gap);
-                        LabelWithHalo(new Rect(row.x, row.y, titleW, row.height), title, TitleStyle());
+                        float titleRoom = Mathf.Max(0f, row.width - readoutW - gap);
+                        float titleW = Mathf.Min(titleStyle.CalcSize(new GUIContent(title)).x, titleRoom);
+                        LabelWithHalo(new Rect(row.x, row.y, titleW, row.height), title, titleStyle);
                         if (clock != null)
-                            DrawReadout(new Rect(row.xMax - readoutW, row.y, readoutW, row.height), clock, pulse);
+                        {
+                            float readoutX = Mathf.Min(row.x + titleW + gap, row.xMax - readoutW);
+                            DrawReadout(new Rect(readoutX, row.y, readoutW, row.height), clock, pulse);
+                        }
                     }
                 }
                 y += TitleRowH;
@@ -232,9 +240,9 @@ namespace SSNoir.IMGUI
             string fraction = $"{clock.Current}/{clock.Max}";
             return clock.Style switch
             {
-                ClockStyle.Segments => Mathf.Max(0f,
+                ClockStyle.Gauge => Mathf.Max(0f,
                     clock.Max * SegmentSize + Mathf.Max(0, clock.Max - 1) * SegmentGap),
-                ClockStyle.Pie => PieDiameter + PieValueGap + TextWidth(fraction),
+                ClockStyle.Countdown => DialDiameter,
                 _ => TextWidth(fraction),
             };
         }
@@ -251,7 +259,7 @@ namespace SSNoir.IMGUI
             Color active = ReadoutColor(pulse);
             string fraction = $"{clock.Current}/{clock.Max}";
 
-            if (clock.Style == ClockStyle.Segments)
+            if (clock.Style == ClockStyle.Gauge)
             {
                 float dy = rect.y + (rect.height - SegmentSize) * 0.5f;
                 for (int i = 0; i < clock.Max; i++)
@@ -278,18 +286,28 @@ namespace SSNoir.IMGUI
                 return;
             }
 
-            if (clock.Style == ClockStyle.Pie)
+            if (clock.Style == ClockStyle.Countdown)
             {
-                float pieSize = Mathf.Min(PieDiameter, rect.width);
-                var pieRect = new Rect(rect.x, rect.center.y - pieSize * 0.5f, pieSize, pieSize);
-                float fill = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
-                if (pieSize >= 4f)
-                    PieDrawer.DrawPieBadge(pieRect, fill, active,
-                        new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
+                float diameter = Mathf.Min(DialDiameter, Mathf.Min(rect.width, rect.height));
+                // 环、底盘和数字共用同一个整数 Rect：半像素的差在 22px 上就看得出来。
+                var dialRect = UIScale.PixelSnap(
+                    new Rect(rect.xMax - diameter, rect.center.y - diameter * 0.5f, diameter, diameter));
 
-                var pieText = new Rect(pieRect.xMax + PieValueGap, rect.y,
-                    Mathf.Max(0f, rect.xMax - pieRect.xMax - PieValueGap), rect.height);
-                LabelWithHalo(pieText, fraction, ReadoutStyle(active, TextAnchor.MiddleRight));
+                // 标注没有卡面托着，直接压在城市上。先垫一层暗底盘，中心的数字才读得出来；
+                // 底盘比环略小一圈，免得在环外多出一道边。
+                float discInset = diameter * 0.06f;
+                ShapeDrawer.DrawDisc(
+                    new Rect(dialRect.x + discInset, dialRect.y + discInset,
+                        dialRect.width - discInset * 2f, dialRect.height - discInset * 2f),
+                    new Color(0f, 0f, 0f, 0.58f * active.a));
+
+                ShapeDrawer.DrawDial(dialRect, clock.Current, clock.Max, active,
+                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.30f * active.a));
+
+                // 数字落在环围出的空里，不再加光晕描边——细环加描边就糊成一团。
+                var centerStyle = ReadoutStyle(active, TextAnchor.MiddleCenter);
+                centerStyle.fontSize = IMGUIStyles.FontSize(clock.Current >= 10 ? 10 : 12);
+                IMGUIStyles.DrawInkCenteredText(dialRect, clock.Current.ToString(), centerStyle);
                 return;
             }
 
@@ -320,31 +338,51 @@ namespace SSNoir.IMGUI
         // ── 场景标注带 ─────────────────────────────────────────────────
 
         /// <summary>带子有多高。渲染器要先拿到它，才知道卡片该从哪儿往下让。</summary>
-        public static float MeasureSceneBandHeight(IReadOnlyList<GameNode> notes, float topY)
-            => LayoutSceneBand(notes, topY, draw: false);
+        public static float MeasureSceneBandHeight(IReadOnlyList<GameNode> notes, float topY, Rect reserved)
+            => LayoutSceneBand(notes, topY, reserved, draw: false);
 
-        public static void DrawSceneBand(IReadOnlyList<GameNode> notes, float topY)
-            => LayoutSceneBand(notes, topY, draw: true);
+        public static void DrawSceneBand(IReadOnlyList<GameNode> notes, float topY, Rect reserved)
+            => LayoutSceneBand(notes, topY, reserved, draw: true);
 
         /// <summary>
         /// 各条按自己需要多宽排，塞不下就换行。信息带的首要职责是总览：不论正文多长，
         /// 一行都必须留得出三个节点的位置；长正文向下换行，而不是横向挤走别的节点。
+        ///
+        /// <paramref name="reserved"/> 是画面上沿已经被占掉的那块（钉住条）。带子<b>绕着它排</b>，
+        /// 不整条让到它下面：钉住条只有 300 宽，让整行等于把一条短句右边一千多像素全空掉。
+        /// 恒定的是钉住条的位置，不是标注带必须下移。
+        /// 绕排后剩的宽度放不下一条标注，这一行才落到它底下——窄画幅于是自动退回堆叠，
+        /// 同一套数字，不分设备。
         /// </summary>
-        private static float LayoutSceneBand(IReadOnlyList<GameNode> notes, float topY, bool draw)
+        private static float LayoutSceneBand(IReadOnlyList<GameNode> notes, float topY, Rect reserved, bool draw)
         {
             if (notes == null || notes.Count == 0) return 0f;
 
             Rect safe = UIScale.SafeArea;
-            float left = safe.xMin + SceneBandSideMargin;
-            float maxRowW = Mathf.Max(1f, safe.width - SceneBandSideMargin * 2f);
-            // 两个间隙之外的三等份是单条标注的硬上限。这个值放在布局处计算，
-            // 不能只调 SceneNoteMaxWidth：可用宽度会随画幅变化。
-            float threeColumnWidth = Mathf.Max(1f, (maxRowW - SceneNoteGap * 2f) / 3f);
+            float rightEdge = safe.xMax - SceneBandSideMargin;
+            bool hasReserved = reserved.width > 0f && reserved.height > 0f;
 
             float y = topY + SceneBandTopPad;
             int i = 0;
             while (i < notes.Count)
             {
+                // 行的归属按行首那一条线判断。一行偶尔比钉住条长出去一截无所谓——
+                // 它只是继续用窄一点的宽度，不会压到任何东西。
+                float left = safe.xMin + SceneBandSideMargin;
+                if (hasReserved && y < reserved.yMax)
+                {
+                    float beside = reserved.xMax + SceneNoteGap;
+                    if (rightEdge - beside >= SceneNoteMinWidth)
+                        left = beside;
+                    else
+                        y = reserved.yMax + SceneBandTopPad;   // 挤不下就落到钉住条底下
+                }
+
+                float maxRowW = Mathf.Max(1f, rightEdge - left);
+                // 两个间隙之外的三等份是单条标注的硬上限。这个值放在布局处计算，
+                // 不能只调 SceneNoteMaxWidth：可用宽度会随画幅和钉住条变化。
+                float threeColumnWidth = Mathf.Max(1f, (maxRowW - SceneNoteGap * 2f) / 3f);
+
                 var widths = new List<float>();
                 float totalW = 0f;
                 while (i + widths.Count < notes.Count)

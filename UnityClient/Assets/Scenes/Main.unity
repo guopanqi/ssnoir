@@ -122,17 +122,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!114 &1534387 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1320866893202906815, guid: cdba53122464c42a49e23d0195ad83f2, type: 3}
-  m_PrefabInstance: {fileID: 555685260}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a611f080721043439003e745cbfc6a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &12631925
 GameObject:
   m_ObjectHideFlags: 0
@@ -144,7 +133,7 @@ GameObject:
   - component: {fileID: 12631926}
   - component: {fileID: 12631927}
   m_Layer: 0
-  m_Name: "\u4EA4\u5272-\u8DDF\u4E22\u4E86"
+  m_Name: "\u52D2\u7D22\u4FE1-\u8DDF\u4E22\u4E86"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -316,6 +305,9 @@ MonoBehaviour:
   orbitSpeedY: 0.05
   minPitch: 16
   maxPitch: 35
+  usePanBounds: 0
+  panBoundsMinXZ: {x: -25, y: -70}
+  panBoundsMaxXZ: {x: 95, y: 90}
 --- !u!1 &72287507
 GameObject:
   m_ObjectHideFlags: 0
@@ -394,7 +386,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VideoFileName: "\u8C08\u8BDD.mp4"
-  FocusAnchor: {fileID: 1534387}
+  FocusAnchor: {fileID: 0}
 --- !u!114 &97018876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -525,6 +517,9 @@ MonoBehaviour:
   orbitSpeedY: 0.05
   minPitch: 16
   maxPitch: 35
+  usePanBounds: 0
+  panBoundsMinXZ: {x: -25, y: -70}
+  panBoundsMaxXZ: {x: 95, y: 90}
 --- !u!1 &304510133
 GameObject:
   m_ObjectHideFlags: 0
@@ -739,7 +734,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VideoFileName: "\u6765\u8BBF.mp4"
-  FocusAnchor: {fileID: 1534387}
+  FocusAnchor: {fileID: 0}
 --- !u!1 &487098401
 GameObject:
   m_ObjectHideFlags: 0
@@ -751,7 +746,7 @@ GameObject:
   - component: {fileID: 487098403}
   - component: {fileID: 487098402}
   m_Layer: 0
-  m_Name: "\u4EA4\u5272\uFF1A\u659C\u5BF9\u8FC7\u7684\u9762\u644A"
+  m_Name: "\u52D2\u7D22\u4FE1-\u62A5\u644A"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -769,7 +764,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a611f080721043439003e745cbfc6a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NodeName: "\u4EA4\u5272\uFF1A\u659C\u5BF9\u8FC7\u7684\u9762\u644A"
+  NodeName: 
   FocusVirtualCamera: {fileID: 141791404}
 --- !u!4 &487098403
 Transform:
@@ -947,42 +942,6 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: -7688194437268803297, guid: cdba53122464c42a49e23d0195ad83f2, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 355ceda7c822442b8ac844b20ec98bcb, type: 2}
-    - target: {fileID: -6907419796292511378, guid: cdba53122464c42a49e23d0195ad83f2, type: 3}
-      propertyPath: m_Name
-      value: orbit pivot
-      objectReference: {fileID: 0}
-    - target: {fileID: -6816760824171309615, guid: cdba53122464c42a49e23d0195ad83f2, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -6689238334878443149, guid: cdba53122464c42a49e23d0195ad83f2, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -2564764701499784022, guid: cdba53122464c42a49e23d0195ad83f2, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: cdba53122464c42a49e23d0195ad83f2, type: 3}
-      propertyPath: m_Name
-      value: City
-      objectReference: {fileID: 0}
-    - target: {fileID: 1283223268172137925, guid: cdba53122464c42a49e23d0195ad83f2, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8451458618796142860, guid: cdba53122464c42a49e23d0195ad83f2, type: 3}
-      propertyPath: m_Lens.FarClipPlane
-      value: 1000
-      objectReference: {fileID: 0}
-    - target: {fileID: 9019197286882024476, guid: cdba53122464c42a49e23d0195ad83f2, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1034,7 +993,7 @@ GameObject:
   - component: {fileID: 592092980}
   - component: {fileID: 592092981}
   m_Layer: 0
-  m_Name: "\u4EA4\u5272-\u6295\u4FE1"
+  m_Name: "\u52D2\u7D22\u4FE1-\u6295\u4FE1"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1402,7 +1361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2eae067ce8d644fd69a991c04f64d781, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VideoFileName: "\u4EA4\u5272-\u8FFD\u4E0A\u4ED6.mp4"
+  VideoFileName: "\u52D2\u7D22\u4FE1-\u8FFD\u4E0A\u4ED6.mp4"
   FocusAnchor: {fileID: 0}
 --- !u!114 &803222358
 MonoBehaviour:
@@ -1500,7 +1459,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2eae067ce8d644fd69a991c04f64d781, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VideoFileName: "\u4EA4\u5272-\u6295\u4FE1.mp4"
+  VideoFileName: "\u52D2\u7D22\u4FE1-\u6295\u4FE1.mp4"
   FocusAnchor: {fileID: 812429198}
 --- !u!114 &812969426
 MonoBehaviour:
@@ -6759,7 +6718,7 @@ GameObject:
   - component: {fileID: 1001505764}
   - component: {fileID: 1001505765}
   m_Layer: 0
-  m_Name: "\u4EA4\u5272-\u8FFD\u4E0A\u4ED6"
+  m_Name: "\u52D2\u7D22\u4FE1-\u8FFD\u4E0A\u4ED6"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7395,7 +7354,7 @@ GameObject:
   - component: {fileID: 1427113474}
   - component: {fileID: 1427113473}
   m_Layer: 0
-  m_Name: "\u4EA4\u5272\uFF1A\u5DF7\u53E3\u8FFD\u9010"
+  m_Name: "\u52D2\u7D22\u4FE1-\u5DF7\u53E3"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12272,6 +12231,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1529868918}
   - component: {fileID: 1529868917}
+  - component: {fileID: 1529868920}
   m_Layer: 0
   m_Name: VCam_Global
   m_TagString: Untagged
@@ -12334,6 +12294,27 @@ Transform:
   - {fileID: 1291040188}
   m_Father: {fileID: 974616048}
   m_LocalEulerAnglesHint: {x: 43.881, y: -89.2, z: 0}
+--- !u!114 &1529868920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1529868916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98808da093f2d4beba9a84a5930becbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dragMode: 0
+  orbitPivot: {fileID: 0}
+  orbitSpeedX: 0.2
+  orbitSpeedY: 0.05
+  minPitch: 16
+  maxPitch: 35
+  usePanBounds: 1
+  panBoundsMinXZ: {x: -41.9, y: -54}
+  panBoundsMaxXZ: {x: 90.7, y: 37.7}
 --- !u!1 &1767342393
 GameObject:
   m_ObjectHideFlags: 3
@@ -12563,6 +12544,9 @@ MonoBehaviour:
   orbitSpeedY: 0.05
   minPitch: 16
   maxPitch: 35
+  usePanBounds: 0
+  panBoundsMinXZ: {x: -25, y: -70}
+  panBoundsMaxXZ: {x: 95, y: 90}
 --- !u!1 &1929777381
 GameObject:
   m_ObjectHideFlags: 0
@@ -12609,7 +12593,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2eae067ce8d644fd69a991c04f64d781, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VideoFileName: "\u4EA4\u5272-\u8DDF\u4E22\u4E86.mp4"
+  VideoFileName: "\u52D2\u7D22\u4FE1-\u8DDF\u4E22\u4E86.mp4"
   FocusAnchor: {fileID: 0}
 --- !u!114 &1929777384
 MonoBehaviour:

@@ -22,7 +22,8 @@ namespace SSNoir.IMGUI
     ///
     /// 1. <b>版面尺寸里不许出现平台判断。</b>没有 <c>if (手机)</c> 这种分支——
     ///    一旦有，Editor 里看到的就不是玩家看到的，预览失去意义，问题只能等打包到真机才暴露。
-    ///    宿主占位（小游戏胶囊）这类「不是我们的地盘」也一律**恒定预留**，让预览照样看得见。
+    ///    宿主占位（比如小游戏宿主的胶囊按钮）那种「不是我们的地盘」，哪天真要留也一律
+    ///    **恒定预留**，让预览照样看得见；绝不做「只在那个宿主里才让位」。
     /// 2. <b>能变的只有画布的宽高比。</b>竖直方向恒定 <see cref="DesignHeight"/> 个虚拟像素，
     ///    横向按屏幕比例延展。所以版面必须对宽度有弹性（约束驱动、流式），
     ///    但不需要、也不应该对「什么设备」有弹性。
@@ -32,8 +33,7 @@ namespace SSNoir.IMGUI
     ///
     /// OnGUI() 里的用法：
     ///   1. 开头调一次 UIScale.Apply()（在 IMGUIStyles.Init 之前）。
-    ///   2. 屏幕边缘定位用 VW / VH；<b>HUD 贴边一律用 SafeArea</b>，贴右上角还要避开
-    ///      <see cref="TopRightReserved"/>。
+    ///   2. 屏幕边缘定位用 VW / VH；<b>HUD 贴边一律用 SafeArea</b>。
     ///   3. Event.current.mousePosition 直接用——GUI.matrix 生效时 Unity 已换算好。
     ///   4. Camera.WorldToScreenPoint 用 WorldPointToVirtual() 转换。
     ///   5. 有边框/实底的 Rect 套一层 PixelSnap()，消掉非整数缩放下的边缘发虚。
@@ -65,22 +65,6 @@ namespace SSNoir.IMGUI
         /// 大按钮、反而抢内容。真正难点中的控件（骰位、手牌方块）另行放大。
         /// </summary>
         public const float MinTouchSize = 40f;
-
-        /// <summary>
-        /// 屏幕右上角被**宿主**占掉的那块地方（小游戏的胶囊按钮：「···」和「◉」）。
-        /// 虚拟坐标。
-        ///
-        /// <b>恒定预留，Editor 里也留。</b>那块地不归游戏管，画上去的东西会被胶囊压住、
-        /// 点不到；而如果只在小游戏里才让位，Editor 预览就和真机不是一回事了——那正是
-        /// 这套界面要避免的。宁可在显示器上空一条，也要让预览如实。
-        ///
-        /// 尺寸按真机标定：胶囊 87 CSS px 宽、右边距 14、上边距 24、高 32，各留一点余量，
-        /// 换算到 600 的画布上约 176×100。往下调要小心：少留就是按钮被压住点不到。
-        /// </summary>
-        public static Rect TopRightReserved { get; private set; }
-
-        private const float HostCapsuleWidth  = 176f;
-        private const float HostCapsuleHeight = 100f;
 
         private static float _scale = 1f;
         private static UISizePreset _sizePreset = UISizePreset.Standard;
@@ -130,13 +114,26 @@ namespace SSNoir.IMGUI
             VH = DesignHeight;
             VW = Screen.width  / _scale;
             SafeArea = ComputeSafeArea();
-            TopRightReserved = new Rect(VW - HostCapsuleWidth, 0f, HostCapsuleWidth, HostCapsuleHeight);
 
             GUI.matrix = Matrix4x4.TRS(
                 Vector3.zero,
                 Quaternion.identity,
                 new Vector3(_scale, _scale, 1f));
         }
+
+        // ── 关于文字发虚（已知问题，试过一次没成，留个路标）────────────────────
+        //
+        // 上面这层缩放会让文字比线糊：IMGUI 的动态字体只按 style.fontSize 烘字形、不看矩阵，
+        // 所以 1080 高的屏上 14px 的字形被拉到 25 个物理像素，信息量只有 14px。
+        // 边框由 PixelSnap() 对齐，所以线是利的——只有字是糊的。
+        // IMGUIStyles.FontSize() 那个反算救不了它：它返回的仍是虚拟字号。
+        //
+        // 试过的做法：画字前把 GUI.matrix 拍回 identity，rect 和字号一起乘 scale，
+        // 让字形按最终尺寸烘。设置面板上确实清楚很多，但**推广到全局会把交锋卡的文字画错位**。
+        // 原因：GUI.BeginGroup / BeginScrollView 的组偏移不在 GUI.matrix 里，
+        // 所以"矩阵还等于这层缩放"并不能证明当前坐标系没被平移过——闸放行了，字就跑到组外面去。
+        // 下次要再做，得用 GUIUtility.GUIToScreenPoint(Vector2.zero) 把组偏移也算进来，
+        // 并且**先在卷宗面板（BeginScrollView）上验**，不要在居中模态框上验——那里恰好没有 group。
 
         /// <summary>当前画布读数，供设置面板显示。</summary>
         public static string DescribeCanvas() =>

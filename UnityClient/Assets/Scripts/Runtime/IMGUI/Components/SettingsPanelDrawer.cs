@@ -11,7 +11,24 @@ namespace SSNoir.IMGUI
     public static class SettingsPanelDrawer
     {
         private const float PanelW = 420f;
-        private const float PanelH = 440f;
+
+        // ── 版面常量 ───────────────────────────────────────────────
+        // 每一项设置长成同一个样子：标题 / 说明 / 控件。说明**每项都有、位置固定**，
+        // 于是画布读数不再是一条无主的灰字，它就是「界面尺寸」这一项的说明。
+        // 分节标题（原来的「界面」「画面」）全部去掉：一节只管一行，那个标题不挣钱，
+        // 反而和说明文字撞成同一种灰，让面板出现三种角色、一种长相。
+        private const float HeaderH = IMGUIStyles.ModalContentTop;
+        private const float BlockTitleH = 20f;
+        private const float BlockCaptionH = 18f;
+        private const float TitleToCaption = 2f;
+        private const float CaptionToControl = 8f;
+        private const float BlockGap = 22f;
+        private const float BottomPad = 24f;
+
+        private static float ControlH => UIScale.TouchHeight(30f);
+        private static float BlockH =>
+            BlockTitleH + TitleToCaption + BlockCaptionH + CaptionToControl + ControlH;
+        private static float PanelH => HeaderH + BlockH * 2f + BlockGap + BottomPad;
 
         private static bool _isOpen = false;
 
@@ -32,175 +49,143 @@ namespace SSNoir.IMGUI
         {
             var (toggleRect, panelRect) = GetRects(topHud);
 
-            // 顶部常驻入口按钮，样式与位置不变。
-            Color toggleBg = _isOpen
-                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f)
-                : IMGUIStyles.HudBg;
-            Color toggleBorder = _isOpen
-                ? IMGUIStyles.Gold
-                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
-            GUI.color = toggleBg;
-            GUI.DrawTexture(toggleRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(toggleRect, 1f, toggleBorder);
-
-            var toggleLabelStyle = new GUIStyle(GUI.skin.label)
-            {
-                font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(13),
-                alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = _isOpen ? IMGUIStyles.Gold : IMGUIStyles.TextPrimary }
-            };
-            IMGUIStyles.DrawLabel(toggleRect, "设置", toggleLabelStyle);
-
-            if (ui.WasTapped(toggleRect))
-            {
+            // 顶栏开关和声誉 / 队伍 / 卷宗共用同一份实现，四个长得一模一样。
+            if (IMGUIButton.DrawHudToggle(toggleRect, "设 置", _isOpen, ui))
                 _isOpen = !_isOpen;
-                Event.current.Use();
-            }
 
             if (!_isOpen) return;
 
-            // 先压暗世界背景，再摆一张接近不透明的纸——跟成长面板同一套模态惯例。
-            GUI.color = IMGUIStyles.Blocker;
-            GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            IMGUIStyles.DrawShadow(panelRect, new Vector2(5f, 6f), 0.50f);
-            GUI.color = IMGUIStyles.ModalBg;
-            GUI.DrawTexture(panelRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            float panelX = panelRect.x;
-            float panelY = panelRect.y;
-            float panelW = panelRect.width;
-
-            // Main Title（纸上墨字，跟成长面板同一套排版）
-            IMGUIStyles.DrawLabel(new Rect(panelX + 24f, panelY + 20f, 160f, 28f), "设 置", IMGUIStyles.ModalTitle);
-
-            // Close [X]：纸上次级按钮 = 1px 黑描边透明底
-            float closeX = panelX + panelW - 44f;
-            float closeY = panelY + 16f;
-            var closeRect = new Rect(closeX, closeY, 28f, 28f);
-            bool closeHover = ui.CanHover(closeRect);
-
-            if (closeHover)
-            {
-                GUI.color = new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f);
-                GUI.DrawTexture(closeRect, Texture2D.whiteTexture);
-                GUI.color = Color.white;
-            }
-            IMGUIStyles.DrawOutline(closeRect, 1f, closeHover
-                ? IMGUIStyles.PaperInk
-                : new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.55f));
-
-            var closeStyle = new GUIStyle(IMGUIStyles.StatusLabel);
-            closeStyle.alignment = TextAnchor.MiddleCenter;
-            closeStyle.normal.textColor = closeHover ? IMGUIStyles.PaperInk : IMGUIStyles.PaperTextSecondary;
-            IMGUIStyles.DrawLabel(closeRect, "X", closeStyle);
-
-            if (ui.WasTapped(closeRect))
+            if (IMGUIStyles.DrawModalChrome(panelRect, "设 置", ui))
             {
                 _isOpen = false;
-                Event.current.Use();
+                return;
             }
 
-            // Divider（纸上单发丝线）
-            IMGUIStyles.DrawLine(new Vector2(panelX + 24f, panelY + 58f), new Vector2(panelX + panelW - 24f, panelY + 58f),
-                new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.35f), 1f);
+            float panelX = panelRect.x;
+            float panelW = panelRect.width;
+            float panelY = panelRect.y;
 
-            // 面板内是自上而下的流式布局：每一节都从上一节的底边往下接，不各写各的绝对 y。
-            var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel);
-            sectionStyle.normal.textColor = IMGUIStyles.PaperTextSecondary;
-            var rowLabelStyle = new GUIStyle(IMGUIStyles.ModalBody);
-            IMGUIStyles.ApplyStrongFont(rowLabelStyle);
-            var hintStyle = new GUIStyle(IMGUIStyles.SectionLabel)
-            {
-                alignment = TextAnchor.UpperLeft,
-                wordWrap = true,
-                normal = { textColor = IMGUIStyles.PaperTextDisabled }
-            };
-
+            // 面板内是自上而下的流式布局：每一项都从上一项的底边往下接，不各写各的绝对 y。
             float contentX = panelX + 24f;
             float contentW = panelW - 48f;
-            float rowH = UIScale.TouchHeight(26f);
-            float y = panelY + 72f;
+            float y = panelY + HeaderH;
 
             // ── 界面尺寸 ──
-            IMGUIStyles.DrawLabel(new Rect(contentX, y, 200f, 22f), "界面", sectionStyle);
-            y += 30f;
+            // 画布读数从"面板中间一条孤零零的灰字"变成这一项的说明——它本来就是
+            // 选了哪一档的结果，放在别处只会让人猜它在说谁。
+            var presets = new[] { UISizePreset.Compact, UISizePreset.Standard, UISizePreset.Large };
+            int presetIndex = System.Array.IndexOf(presets, UIScale.SizePreset);
+            int pickedPreset = DrawSetting(
+                new Rect(contentX, y, contentW, BlockH),
+                "界面尺寸", UIScale.DescribeCanvas(),
+                new[] { "紧凑", "标准", "放大" }, Mathf.Max(0, presetIndex), ui);
+            if (pickedPreset >= 0)
+                UIScale.SizePreset = presets[pickedPreset];
+            y += BlockH + BlockGap;
 
-            IMGUIStyles.DrawLabel(new Rect(contentX, y, 160f, 22f), "界面尺寸", rowLabelStyle);
-            y += 26f;
-            DrawSizePresetRow(new Rect(contentX, y, contentW, rowH), ui);
-            y += rowH + 10f;
-
-            IMGUIStyles.DrawLabel(new Rect(contentX, y, contentW, 22f), UIScale.DescribeCanvas(), hintStyle);
-            y += 30f;
-
-            // ── 画面 ──
-            IMGUIStyles.DrawLabel(new Rect(contentX, y, 200f, 22f), "画面", sectionStyle);
-            y += 30f;
-
-            IMGUIStyles.DrawLabel(new Rect(contentX, y, 160f, rowH), "减少动画", rowLabelStyle);
-
+            // ── 镜头动画 ──
+            // 原来这一项叫「减少动画」，控件上写「已开启」——标题说的是要做的事，
+            // 按钮说的却是当前状态，两句话方向相反，读的人得在脑子里绕一圈。
+            // 现在和上面一项同构：标题是这项设置的名字，控件直接摆出两个可选的档。
             bool reduceMotion = MotionSettings.ReduceMotion;
-            var switchStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            int pickedMotion = DrawSetting(
+                new Rect(contentX, y, contentW, BlockH),
+                "镜头动画", "「减少」后镜头不再推近旋转，改为快速淡入淡出。",
+                new[] { "完整", "减少" }, reduceMotion ? 1 : 0, ui);
+            if (pickedMotion >= 0)
+                MotionSettings.ReduceMotion = pickedMotion == 1;
+        }
+
+        // 一项设置：标题 / 说明 / 一排分段控件。返回被点中的段序号，没点中返回 -1。
+        // 两项设置共用它，所以它们在版面上长得一模一样——面板里只有一种「设置」的形状。
+        private static int DrawSetting(
+            Rect rect, string title, string caption, string[] options, int selected,
+            IMGUIInteractionContext ui)
+        {
+            var titleStyle = new GUIStyle(IMGUIStyles.ModalBody);
+            IMGUIStyles.ApplyStrongFont(titleStyle);
+            IMGUIStyles.DrawLabel(
+                new Rect(rect.x, rect.y, rect.width, BlockTitleH), title, titleStyle);
+
+            var captionStyle = new GUIStyle(IMGUIStyles.SectionLabel)
+            {
+                fontSize = IMGUIStyles.FontSize(13),
+                alignment = TextAnchor.MiddleLeft,
+                // 原来是 PaperTextDisabled：在纸底上只有约 3.4:1，小字号已经不合格。
+                // 说明该淡，淡到读不出来就不是层级，是失误。
+                normal = { textColor = IMGUIStyles.PaperTextSecondary },
+            };
+            IMGUIStyles.DrawLabel(
+                new Rect(rect.x, rect.y + BlockTitleH + TitleToCaption, rect.width, BlockCaptionH),
+                caption, captionStyle);
+
+            float controlY = rect.y + BlockTitleH + TitleToCaption + BlockCaptionH + CaptionToControl;
+            return DrawSegmented(
+                new Rect(rect.x, controlY, rect.width, ControlH), options, selected, ui);
+        }
+
+        // 分段控件：等宽格子拼成一条，选中那格是实心墨底。
+        private static int DrawSegmented(
+            Rect rect, string[] options, int selected, IMGUIInteractionContext ui)
+        {
+            const float gap = 8f;
+            float cellW = (rect.width - gap * (options.Length - 1)) / options.Length;
+            int picked = -1;
+            for (int i = 0; i < options.Length; i++)
+            {
+                var cell = new Rect(rect.x + i * (cellW + gap), rect.y, cellW, rect.height);
+                if (DrawPaperButton(cell, options[i], ui, i == selected))
+                    picked = i;
+            }
+            return picked;
+        }
+
+        // 纸上按钮。选中＝实心墨底 + 纸白字，未选中＝细描边 + 次级墨字。
+        //
+        // 原来两种状态都是"金字配细框"，而金 #E8C35A 压在纸白 #EFEAE0 上对比只有约 1.6:1——
+        // 整张面板最该一眼看见的当前选项，反倒是最虚的两处。改成实心还顺手解决另一件事：
+        // 这张纸上原本没有任何成片的深色，眼睛没有锚点，通篇就读成一片灰雾。
+        private static bool DrawPaperButton(
+            Rect rect, string label, IMGUIInteractionContext ui, bool selected)
+        {
+            bool interactable = !ui.IsLocked;
+            bool hover = interactable && ui.CanHover(rect);
+            var snapped = UIScale.PixelSnap(rect);
+
+            if (selected)
+            {
+                GUI.color = IMGUIStyles.PaperInk;
+                GUI.DrawTexture(snapped, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+            }
+            else if (hover)
+            {
+                GUI.color = new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f);
+                GUI.DrawTexture(snapped, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                IMGUIStyles.DrawOutline(snapped, 1f, IMGUIStyles.PaperInk);
+            }
+            else
+            {
+                IMGUIStyles.DrawOutline(snapped, 1f,
+                    new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.35f));
+            }
+
+            var style = new GUIStyle(IMGUIStyles.ModalBody)
             {
                 alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = reduceMotion ? new Color(0.62f, 0.47f, 0.10f, 1f) : IMGUIStyles.PaperTextSecondary }
+                normal = { textColor = selected ? IMGUIStyles.Paper : IMGUIStyles.PaperTextSecondary },
             };
-            IMGUIStyles.ApplyStrongFont(switchStyle);
-            var switchRect = new Rect(panelX + panelW - 24f - 88f, y, 88f, rowH);
-            // "已关闭"用不透明的 PaperTextDisabled，不用 PaperInk 降透明度——同一张纸上
-            // 降透明度的字会被纸底冲淡到快看不见，这一路踩过好几次坑了。
-            if (IMGUIButton.Draw(switchRect, reduceMotion ? "已开启" : "已关闭", ui,
-                    reduceMotion ? new Color(0.62f, 0.47f, 0.10f, 1f) : IMGUIStyles.PaperTextDisabled,
-                    new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f), switchStyle))
+            IMGUIStyles.ApplyStrongFont(style);
+            IMGUIStyles.DrawLabel(rect, label, style);
+
+            if (interactable && ui.WasTapped(rect))
             {
-                MotionSettings.ReduceMotion = !reduceMotion;
+                Event.current.Use();
+                return true;
             }
-            y += rowH + 6f;
-
-            IMGUIStyles.DrawLabel(new Rect(contentX, y, contentW, 24f),
-                "镜头不再推近旋转，改为快速淡入淡出。", hintStyle);
+            return false;
         }
-
-        // 三选一的尺寸档。
-        private static void DrawSizePresetRow(Rect rect, IMGUIInteractionContext ui)
-        {
-            var presets = new[] { UISizePreset.Compact, UISizePreset.Standard, UISizePreset.Large };
-            const float gap = 8f;
-            float cellW = (rect.width - gap * (presets.Length - 1)) / presets.Length;
-
-            for (int i = 0; i < presets.Length; i++)
-            {
-                var preset = presets[i];
-                bool selected = UIScale.SizePreset == preset;
-                var cell = new Rect(rect.x + i * (cellW + gap), rect.y, cellW, rect.height);
-
-                var style = new GUIStyle(IMGUIStyles.ModalBody)
-                {
-                    alignment = TextAnchor.MiddleCenter,
-                    normal = { textColor = selected ? new Color(0.62f, 0.47f, 0.10f, 1f) : IMGUIStyles.PaperTextSecondary }
-                };
-                IMGUIStyles.ApplyStrongFont(style);
-
-                if (IMGUIButton.Draw(cell, DescribePreset(preset), ui,
-                        selected ? new Color(0.62f, 0.47f, 0.10f, 1f) : IMGUIStyles.PaperTextDisabled,
-                        new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f), style))
-                {
-                    UIScale.SizePreset = preset;
-                }
-            }
-        }
-
-        private static string DescribePreset(UISizePreset preset) => preset switch
-        {
-            UISizePreset.Compact => "紧凑",
-            UISizePreset.Large   => "放大",
-            _                    => "标准",
-        };
 
         public static void Close() { _isOpen = false; }
 

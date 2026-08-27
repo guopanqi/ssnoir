@@ -378,7 +378,17 @@ namespace Schemy
                 {
                     var rawProc = EvaluateExpression(exprList[0], env);
                     if (!(rawProc is ICallable))
-                        throw new InvalidCastException(string.Format("Object is not callable: {0}", rawProc));
+                    {
+                        // 报错要说出**是谁**不可调用。只打印那个值（"False"）等于把调用者
+                        // 送进一整棵求值栈里大海捞针：宿主拿到的堆栈全是解释器自己的帧，
+                        // 没有一行指回脚本。带上头部符号和整个调用式，一眼就能定位。
+                        string head = Utils.PrintExpr(exprList[0]);
+                        string form = Utils.PrintExpr(exprList);
+                        if (form.Length > 200) form = form.Substring(0, 200) + " …)";
+                        throw new InvalidCastException(string.Format(
+                            "Object is not callable: {0} — `{1}` 求值成 {0}，但它出现在调用位置：{2}",
+                            Utils.PrintExpr(rawProc), head, form));
+                    }
 
                     var args = exprList.Skip(1).Select(a => EvaluateExpression(a, env)).ToList();
                     if (rawProc is Procedure)

@@ -78,6 +78,13 @@ namespace SSNoir
         private Vector2 _staticRawOffset;
         private Vector2 _staticDragStartRawOffset;
 
+        // Bounded Pan keeps an unbounded target position just like Static keeps a raw
+        // offset. The camera displays the clamped position plus a rubber-band overscroll;
+        // keeping the raw value makes inertia and re-grabbing during the return continuous.
+        private Cinemachine.CinemachineVirtualCamera? _panBoundsCamera;
+        private Vector3 _panRawPosition;
+        private Vector3 _panDragStartRawPosition;
+
         // Edge-beacon navigation moves the current camera without changing gameplay focus.
         // A real world drag always cancels this interpolation and takes control immediately.
         private bool _isNavigating;
@@ -283,6 +290,7 @@ namespace SSNoir
             // 惯性先走，回弹后走：静态镜头的橡皮筋要能作用在这一帧刚滑出去的距离上。
             TickDragInertia(activeCamera);
             TickStaticReturn(activeCamera);
+            TickPanReturn(activeCamera);
 
             if (!_isDraggingCam && _isNavigating)
                 UpdateNavigation(activeCamera);
@@ -321,6 +329,10 @@ namespace SSNoir
             else if (config != null && config.dragMode == CameraDragMode.Static)
             {
                 BeginStaticDrag(activeCamera);
+            }
+            else if (config != null && config.dragMode == CameraDragMode.Pan)
+            {
+                BeginPanDrag(activeCamera, config);
             }
         }
 
@@ -399,8 +411,18 @@ namespace SSNoir
             forward.y = 0f;
             forward.Normalize();
 
-            activeCamera.transform.position +=
+            Vector3 translation =
                 -stepPixels.x * right * _panSpeed - stepPixels.y * forward * _panSpeed;
+            var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            if (config == null || !config.usePanBounds)
+            {
+                activeCamera.transform.position += translation;
+                return;
+            }
+
+            EnsurePanBoundsState(activeCamera, config);
+            _panRawPosition += translation;
+            ApplyPanPosition(activeCamera, config, _panRawPosition);
         }
 
         private void ApplyOrbitInertiaStep(
@@ -448,7 +470,137 @@ namespace SSNoir
             forward.Normalize();
 
             Vector3 panTranslation = -mouseDelta.x * right * _panSpeed - mouseDelta.y * forward * _panSpeed;
-            activeCamera.transform.position = _dragStartCamPos + panTranslation;
+            var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            if (config == null || !config.usePanBounds)
+            {
+                activeCamera.transform.position = _dragStartCamPos + panTranslation;
+                return;
+            }
+
+            EnsurePanBoundsState(activeCamera, config);
+            _panRawPosition = _panDragStartRawPosition + panTranslation;
+            ApplyPanPosition(activeCamera, config, _panRawPosition);
+        }
+
+        private void BeginPanDrag(
+            Cinemachine.CinemachineVirtualCamera activeCamera,
+            SSNoirVirtualCameraConfig config)
+        {
+            if (!config.usePanBounds)
+                return;
+
+            // Reconstruct the raw target from the visible position. This is what lets a
+            // player grab the camera again while it is still springing back without a jump.
+            _panBoundsCamera = activeCamera;
+            _panRawPosition = RecoverPanRawPosition(activeCamera.transform.position, config);
+            _panRawPosition.y = config.AuthoredPosition.y;
+            _panDragStartRawPosition = _panRawPosition;
+        }
+
+        private void EnsurePanBoundsState(
+            Cinemachine.CinemachineVirtualCamera activeCamera,
+            SSNoirVirtualCameraConfig config)
+        {
+            if (ReferenceEquals(_panBoundsCamera, activeCamera))
+                return;
+
+            _panBoundsCamera = activeCamera;
+            _panRawPosition = activeCamera.transform.position;
+            _panRawPosition.y = config.AuthoredPosition.y;
+            _panDragStartRawPosition = _panRawPosition;
+        }
+
+        private void SynchronizePanBoundsState(
+            Cinemachine.CinemachineVirtualCamera activeCamera)
+        {
+            var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            if (config == null || config.dragMode != CameraDragMode.Pan || !config.usePanBounds)
+                return;
+
+            _panBoundsCamera = activeCamera;
+            _panRawPosition = RecoverPanRawPosition(activeCamera.transform.position, config);
+            _panRawPosition.y = config.AuthoredPosition.y;
+            _panDragStartRawPosition = _panRawPosition;
+        }
+
+        private void TickPanReturn(Cinemachine.CinemachineVirtualCamera activeCamera)
+        {
+            if (_isDraggingCam || _isNavigating || _isFocusArcActive
+                || !ReferenceEquals(_panBoundsCamera, activeCamera))
+                return;
+
+            var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
+            if (config == null || config.dragMode != CameraDragMode.Pan || !config.usePanBounds)
+                return;
+
+            Vector2 rawPosition = new Vector2(_panRawPosition.x, _panRawPosition.z);
+            Vector2 boundaryPosition = ClampPanPosition(rawPosition, config);
+            Vector2 visibleOverscroll = ApplyRubberBand(rawPosition - boundaryPosition);
+            if (visibleOverscroll.sqrMagnitude <= StaticSettleOffset * StaticSettleOffset)
+            {
+                _panRawPosition = new Vector3(
+                    boundaryPosition.x, config.AuthoredPosition.y, boundaryPosition.y);
+                activeCamera.transform.position = _panRawPosition;
+                if (_inertiaMode == CameraDragMode.Pan)
+                    _inertiaVelocity = Vector2.zero;
+                return;
+            }
+
+            float returnFactor = 1f - Mathf.Exp(-StaticReturnDamping * Time.unscaledDeltaTime);
+            visibleOverscroll = Vector2.Lerp(visibleOverscroll, Vector2.zero, returnFactor);
+            if (visibleOverscroll.sqrMagnitude <= StaticSettleOffset * StaticSettleOffset)
+                visibleOverscroll = Vector2.zero;
+
+            Vector2 rawOverscroll = InverseRubberBand(visibleOverscroll);
+            _panRawPosition = new Vector3(
+                boundaryPosition.x + rawOverscroll.x,
+                config.AuthoredPosition.y,
+                boundaryPosition.y + rawOverscroll.y);
+            ApplyPanPosition(activeCamera, config, _panRawPosition);
+
+            if (visibleOverscroll == Vector2.zero && _inertiaMode == CameraDragMode.Pan)
+                _inertiaVelocity = Vector2.zero;
+        }
+
+        private static Vector2 ClampPanPosition(
+            Vector2 position,
+            SSNoirVirtualCameraConfig config)
+        {
+            return new Vector2(
+                Mathf.Clamp(position.x, config.panBoundsMinXZ.x, config.panBoundsMaxXZ.x),
+                Mathf.Clamp(position.y, config.panBoundsMinXZ.y, config.panBoundsMaxXZ.y));
+        }
+
+        private static Vector3 ClampPanPosition(
+            Vector3 position,
+            SSNoirVirtualCameraConfig config)
+        {
+            Vector2 clamped = ClampPanPosition(new Vector2(position.x, position.z), config);
+            return new Vector3(clamped.x, position.y, clamped.y);
+        }
+
+        private static Vector3 RecoverPanRawPosition(
+            Vector3 visiblePosition,
+            SSNoirVirtualCameraConfig config)
+        {
+            Vector2 visible = new Vector2(visiblePosition.x, visiblePosition.z);
+            Vector2 boundary = ClampPanPosition(visible, config);
+            Vector2 rawOverscroll = InverseRubberBand(visible - boundary);
+            return new Vector3(
+                boundary.x + rawOverscroll.x, visiblePosition.y, boundary.y + rawOverscroll.y);
+        }
+
+        private static void ApplyPanPosition(
+            Cinemachine.CinemachineVirtualCamera activeCamera,
+            SSNoirVirtualCameraConfig config,
+            Vector3 rawPosition)
+        {
+            Vector2 raw = new Vector2(rawPosition.x, rawPosition.z);
+            Vector2 boundary = ClampPanPosition(raw, config);
+            Vector2 visibleOverscroll = ApplyRubberBand(raw - boundary);
+            activeCamera.transform.position = new Vector3(
+                boundary.x + visibleOverscroll.x, rawPosition.y,
+                boundary.y + visibleOverscroll.y);
         }
 
         private void BeginStaticDrag(Cinemachine.CinemachineVirtualCamera activeCamera)
@@ -757,6 +909,15 @@ namespace SSNoir
         /// </summary>
         public void CheckPanCameraPose()
         {
+            // Focus travel intentionally writes a complete temporary pose: reduced-motion
+            // parks the destination camera on the rendered camera, while the focus arc
+            // rebuilds height and rotation on every frame. The guard runs before
+            // TickFocusTravel, so checking here would report those valid transition poses
+            // as Pan violations. Once the travel is over, the normal check resumes and
+            // still catches a pose that was actually left behind.
+            if (IsFocusTravelInFlight)
+                return;
+
             var camera = GetActiveCamera();
             if (camera == null)
                 return;
@@ -789,90 +950,6 @@ namespace SSNoir
                 $"朝向偏 {angleDrift:F1}°。Pan 只允许在 XZ 上平移。" +
                 $"当前机位 {camera.transform.position}，作者机位 {config.AuthoredPosition}。" +
                 $"此刻正在写它的运动：{motion}。");
-        }
-
-        /// <summary>
-        /// Debug 面板的镜头诊断读数。每一行都以 [CAM] 起头，方便在面板和日志里一眼认出来
-        /// 这是这一套临时诊断，而不是正式 UI。要删这套东西，搜 "[CAM]" 就能全找齐。
-        ///
-        /// 回答的是「画面为什么停在这儿」这一个问题：现在放的是哪台相机、按理该放哪台、
-        /// 这台离作者构图偏了多远、还有谁正在写它的 transform。
-        /// </summary>
-        public System.Collections.Generic.List<string> DebugCameraLines()
-        {
-            var lines = new System.Collections.Generic.List<string>();
-
-            var renderedCamera = Camera.main;
-            var brain = renderedCamera != null ? renderedCamera.GetComponent<Cinemachine.CinemachineBrain>() : null;
-            string live = brain?.ActiveVirtualCamera?.Name ?? "（无）";
-            lines.Add($"[CAM] 在放 {live}{(brain != null && brain.IsBlending ? " · 混合中" : "")}");
-
-            var focus = _gameManager.CurrentFocusCamera;
-            lines.Add($"[CAM] 该放 {(focus != null ? focus.name : "（解不出）")}");
-
-            if (focus != null)
-            {
-                var config = focus.GetComponent<SSNoirVirtualCameraConfig>();
-                if (config != null)
-                {
-                    float drift = Vector3.Distance(focus.transform.position, config.AuthoredPosition);
-                    float angle = Quaternion.Angle(focus.transform.rotation, config.AuthoredRotation);
-                    lines.Add($"[CAM] {config.dragMode} 偏离作者构图 {drift:F1}m / {angle:F0}°");
-                }
-                else
-                {
-                    lines.Add("[CAM] 这台没有 SSNoirVirtualCameraConfig");
-                }
-                lines.Add($"[CAM] 机位 {focus.transform.position.x:F0},{focus.transform.position.y:F0},{focus.transform.position.z:F0}");
-            }
-
-            string motion = _isFocusArcActive ? "运镜中"
-                : _isNavigating ? "信标行走中"
-                : _isDraggingCam ? "拖拽中"
-                : _inertiaVelocity != Vector2.zero ? "惯性中"
-                : "静止";
-            lines.Add($"[CAM] 运动 {motion} · 焦点推迟 {(_gameManager.IsFocusDeferredToPortal ? "是" : "否")}");
-
-            return lines;
-        }
-
-        /// <summary>
-        /// [CAM] 把所有 Pan 焦点相机放回作者构图。
-        ///
-        /// Orbit 相机每次聚焦都以作者机位为终点，Static 相机松手就弹回去——只有 Pan 是
-        /// 「相机现在站在哪儿就是哪儿」，它的位移没有任何回收路径。这是故意的：城市视角
-        /// 逛到哪儿就留在哪儿，玩家自己拖出来的取景不该被系统偷偷收走。
-        ///
-        /// 所以这里**不自动调用**：换场自动复位试过，逛到哪儿就被断在哪儿，不连贯。
-        /// 它现在只挂在 Debug 面板的 [CAM] 复位按钮上，用来判断一次「卡住」是不是 Pan 位移导致的。
-        /// </summary>
-        public void ResetPanCamerasToAuthoredPose()
-        {
-            var directory = _gameManager.SceneDirectory;
-            if (directory == null)
-                return;
-
-            foreach (var anchor in directory.AllAnchors)
-            {
-                var camera = anchor.FocusVirtualCamera;
-                if (camera == null)
-                    continue;
-
-                var config = camera.GetComponent<SSNoirVirtualCameraConfig>();
-                if (config == null || config.dragMode != CameraDragMode.Pan)
-                    continue;
-
-                // 复位要连着正在写这台相机的运动一起停掉，否则惯性尾巴或运镜会在下一帧
-                // 从旧目标继续写回去——两个系统同时写一个 transform 就是打架。
-                if (ReferenceEquals(_inertiaCamera, camera))
-                    _inertiaVelocity = Vector2.zero;
-                if (ReferenceEquals(_navigationCamera, camera))
-                    _isNavigating = false;
-                if (ReferenceEquals(_focusArcCamera, camera))
-                    FinishFocusTravel();
-
-                camera.transform.SetPositionAndRotation(config.AuthoredPosition, config.AuthoredRotation);
-            }
         }
 
         public void NavigateToNode(string nodeName)
@@ -975,11 +1052,6 @@ namespace SSNoir
                 && Quaternion.Angle(targetRotation, startRotation) <= SamePoseAngle)
                 return BeginInstantFocusChange(focusCamera, brain);
 
-            // Debug hard-cut is a zero-duration test path, not an accessibility effect:
-            // no arc and no dissolve, just place the destination and let the brain cut.
-            if (MotionSettings.DebugInstantCameraCuts)
-                return BeginInstantFocusChange(focusCamera, brain);
-
             // Reduce motion takes the same fork every time, whatever the two ends are:
             // no road at all, just a dissolve over a cut.
             if (respectReduceMotion && MotionSettings.ReduceMotion)
@@ -1077,6 +1149,7 @@ namespace SSNoir
                 Cinemachine.CinemachineBlendDefinition.Style.Cut, 0f);
             _cutHoldBrain = brain;
             _cutHoldFrame = Time.frameCount;
+            SynchronizePanBoundsState(focusCamera);
             return true;
         }
 
@@ -1149,6 +1222,7 @@ namespace SSNoir
                 _reducedTargetPosition, _reducedTargetRotation);
             SetClipPlanes(
                 _reducedParkedCamera, _reducedTargetNearClip, _reducedTargetFarClip);
+            SynchronizePanBoundsState(_reducedParkedCamera);
             _reducedParkedCamera = null;
         }
 
@@ -1270,7 +1344,10 @@ namespace SSNoir
 
             var completedCamera = _focusArcCamera;
             if (completedCamera != null)
+            {
                 ApplyFocusArcPose(1f);
+                SynchronizePanBoundsState(completedCamera);
+            }
 
             if (_focusArcBrain != null)
                 _focusArcBrain.m_DefaultBlend = _focusArcSavedBlend;
@@ -1476,16 +1553,11 @@ namespace SSNoir
                 Vector3 translation = targetWorldPosition - centreRay.GetPoint(distance);
                 translation.y = 0f;
                 _navigationTargetPosition = _navigationStartPosition + translation;
+                if (config != null && config.dragMode == CameraDragMode.Pan && config.usePanBounds)
+                    _navigationTargetPosition = ClampPanPosition(_navigationTargetPosition, config);
             }
 
             _isNavigating = true;
-
-            if (MotionSettings.DebugInstantCameraCuts)
-            {
-                ApplyNavigationPose(activeCamera, 1f);
-                _isNavigating = false;
-                return;
-            }
 
             // Reduce motion draws the line at rotation, not at movement: a slide across
             // the city keeps the player oriented and costs nothing, so it stays (just
@@ -1554,10 +1626,21 @@ namespace SSNoir
             }
             else
             {
-                activeCamera.transform.position = Vector3.Lerp(
+                Vector3 position = Vector3.Lerp(
                     _navigationStartPosition,
                     _navigationTargetPosition,
                     eased);
+                var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
+                if (config == null || config.dragMode != CameraDragMode.Pan || !config.usePanBounds)
+                {
+                    activeCamera.transform.position = position;
+                    return;
+                }
+
+                _panBoundsCamera = activeCamera;
+                _panRawPosition = RecoverPanRawPosition(position, config);
+                _panRawPosition.y = config.AuthoredPosition.y;
+                ApplyPanPosition(activeCamera, config, _panRawPosition);
             }
         }
 

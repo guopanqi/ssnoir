@@ -6,17 +6,25 @@ namespace SSNoir.Core
 {
     public class TeamState
     {
-        public const int MinStatLevel = 0;
+        public const int MinStatLevel = -1;
         public const int MaxStatLevel = 4;
 
-        // 冷静是纯缓冲，本身没有档位效果（见 docs/城市生活设计.md §2.2）：
-        // 花到 0 之前不产生任何惩罚，0 之后每一点消耗直接转成伤势。
+        // 冷静是纯缓冲，本身没有档位效果：花到 0 之前不产生任何惩罚，
+        // 0 之后消耗一比一转成伤势——它是身体前面的一层垫子，垫子用完，代价照原价打在身上。
         // 失态/失控两档已删除——它们和轻伤/重伤同构（都是"随机挑一个东西 −1"），
         // 让玩家要学两套同样的惩罚语言。机械效果现在只由伤势一处承担。
         //
-        // 只有 2 点：一天最多扛住两次失败，第三次就开始进身体。缓冲小是故意的——
-        // 它要在当天之内就见底，否则这条轴在城市里不会产生任何决策。
-        public const int MaxComposure = 2;
+        // 5 点，而且**睡觉只回 2 点**：这条轴要跨天，不能一觉抹平。
+        // 一天四颗骰，顺的一天大约掉 2（一次坏结果），糟的一天掉 4 以上；
+        // 于是平稳的日子刚好打平，连着硬干就一天比一天低，必须主动花一颗骰去散步
+        // 或者花钱喝一杯把它拉回来——"恢复"这件事因此才存在。
+        //
+        // 代价的刻度（内容层照这个写，别再全部写 1）：
+        //   中结果的小磨损 1 ／ 坏结果 2 ／ 高风险工作与交锋里重的那种 3
+        //   交锋每回合自动流失 1（见 SceneManager.EncounterTurnComposureCost）
+        // 一比一意味着这些数字就是击穿之后的伤害，卡上写几点就是几点——不要再往中间塞换算率。
+        // 交锋因此有一条可以数出来的时间表：满冷静五个免费回合，之后每回合 1 点伤，第 11 回合倒下。
+        public const int MaxComposure = 5;
 
         /// <summary>队伍唯一的身体轴，取代旧的健康血条。规则与档位见 <see cref="Core.Injury"/>。</summary>
         public Injury Injury { get; } = new Injury();
@@ -32,6 +40,7 @@ namespace SSNoir.Core
         // 主角承担城市与交锋的主要行动，同伴只在城市中提供一枚额外行动骰。
         public const int ProtagonistActionSlotCount = 4;
         public const int CompanionActionSlotCount = 1;
+        public const int CompanionComposurePerActionSlot = 2;
 
         /// <summary>入队时的默认骰位数。个别人物可以带自己的数字，见 ActorState.ActionSlotCount。</summary>
         public static int GetDefaultActionSlotCount(string role) => role switch
@@ -50,6 +59,15 @@ namespace SSNoir.Core
         public int GetAvailableGrowthPoints(ActorState actor)
         {
             return Math.Max(0, GrowthLevel - actor.SpentGrowthPoints);
+        }
+
+        /// <summary>能力从当前等级升一级的成长点费用：-1→0 与 0→1 都花 1，之后依次花 2、3、4。</summary>
+        public static int GetStatUpgradeCost(int currentLevel)
+        {
+            if (currentLevel < MinStatLevel || currentLevel > MaxStatLevel)
+                throw new ArgumentOutOfRangeException(nameof(currentLevel),
+                    $"Stat level must be between {MinStatLevel} and {MaxStatLevel}.");
+            return currentLevel >= MaxStatLevel ? 0 : Math.Max(1, currentLevel + 1);
         }
 
         public List<ActorState> Actors { get; } = new List<ActorState>();
@@ -89,7 +107,7 @@ namespace SSNoir.Core
         }
 
         /// <summary>
-        /// 倒下：当天剩余骰子作废，伤势回落到轻伤段，并在当时受伤的那个部位永久留下一道疤。
+        /// 倒下：当天剩余骰子作废，伤势与冷静归零，并在当时受伤的那个部位永久留下一道疤。
         /// 疤是这件事唯一带不走的代价——钱能再赚，伤能养好，这一条跟到结局。
         /// 由 GameState 在扣完治疗费后调用，day 用于把这道疤钉在世界日历上。
         /// </summary>
@@ -101,6 +119,8 @@ namespace SSNoir.Core
             var player = FindActor("player") ?? throw new InvalidOperationException("Protagonist is missing from the team.");
             player.ActionDice.Clear();
             player.ActionDiceSlotIds.Clear();
+            // 送到医院后身体伤势和冷静都清零；能带出医院的永久代价只有这道疤。
+            player.Composure = 0;
             OnTeamChanged?.Invoke();
             return scar;
         }
@@ -127,8 +147,8 @@ namespace SSNoir.Core
                 Name = name,
                 Role = "companion",
                 Status = "active",
-                Composure = MaxComposure,
                 ActionSlotCount = CompanionActionSlotCount,
+                Composure = CompanionActionSlotCount * CompanionComposurePerActionSlot,
             };
             foreach (string statId in requiredStats)
             {
@@ -143,6 +163,32 @@ namespace SSNoir.Core
             Actors.Add(actor);
             OnTeamChanged?.Invoke();
             return actor;
+        }
+
+        /// <summary>
+        /// 城市里新的一天：同伴的冷静回满，昨天走掉的今天回来；返回真的被接回来的人的名字。
+        ///
+        /// 同伴的冷静和主角的不是一回事。主角那条必须跨天——它是这个游戏里"恢复"的载体
+        /// （见 <see cref="MaxComposure"/> 的注释）。同伴那条是"这个人今天还能陪你多久"，
+        /// 和行动骰一样按天重发：她掉到 0 就是今天不奉陪了，睡一觉明天照旧。
+        /// 让它跨天等于要玩家去照顾一个自己控制不了的人的状态条，而那条状态条
+        /// 没有任何可以投入的动作。
+        ///
+        /// 交锋的回合之间不走这里：一场之内耗光了就是耗光了。
+        /// </summary>
+        public List<string> BeginCityDay()
+        {
+            var returned = new List<string>();
+            foreach (var actor in Actors)
+            {
+                if (actor.Role != "companion") continue;
+                if (actor.Status == "away") returned.Add(actor.Name);
+                actor.Composure = actor.MaxComposure;
+                actor.Status = "active";
+            }
+            if (returned.Count > 0)
+                OnTeamChanged?.Invoke();
+            return returned;
         }
 
         /// <summary>让同伴离队。一场交锋临时请来的人（弗兰克、林）必须在结算时走这里，
@@ -169,7 +215,9 @@ namespace SSNoir.Core
                 throw new ArgumentOutOfRangeException(nameof(fixedDieValue), "Fixed die value must be between 1 and 6.");
             if (fixedDieValue != null && string.IsNullOrWhiteSpace(fixedDieLabel))
                 throw new ArgumentException("A fixed die must carry a visible label.", nameof(fixedDieLabel));
+            bool wasAtFullComposure = actor.Composure == actor.MaxComposure;
             actor.ActionSlotCount = slotCount;
+            actor.Composure = wasAtFullComposure ? actor.MaxComposure : actor.Composure;
             actor.FixedDieValue = fixedDieValue;
             actor.FixedDieLabel = fixedDieValue == null ? string.Empty : fixedDieLabel;
             OnTeamChanged?.Invoke();
@@ -190,22 +238,25 @@ namespace SSNoir.Core
             {
                 throw new ArgumentException($"Stat '{statId}' not found on actor '{actorId}'.");
             }
-            if (actor.Stats[statId] >= MaxStatLevel)
+            int currentLevel = actor.Stats[statId];
+            if (currentLevel >= MaxStatLevel)
             {
                 throw new InvalidOperationException($"Stat '{statId}' on actor '{actorId}' has reached the maximum level {MaxStatLevel}.");
             }
-            if (GetAvailableGrowthPoints(actor) <= 0)
+            int cost = GetStatUpgradeCost(currentLevel);
+            if (GetAvailableGrowthPoints(actor) < cost)
             {
-                throw new InvalidOperationException($"Actor '{actorId}' has no available growth points.");
+                throw new InvalidOperationException(
+                    $"Actor '{actorId}' needs {cost} growth points to upgrade stat '{statId}'.");
             }
 
             actor.Stats[statId]++;
-            actor.SpentGrowthPoints++;
+            actor.SpentGrowthPoints += cost;
             OnTeamChanged?.Invoke();
         }
 
         // 花冷静（失败、交锋每回合自动流失）。协作者在 0 点失能离场；主角击穿
-        // 0 点后溢出直接加伤势——"冷静挡不住子弹"之外的第二个受伤口。
+        // 0 点后溢出一比一转成伤势——"冷静挡不住子弹"之外的第二个受伤口。
         public void SpendComposure(string actorId, int amount)
         {
             if (amount < 0)
@@ -227,19 +278,21 @@ namespace SSNoir.Core
             else if (actor.Role == "protagonist")
             {
                 int curComposure = actor.Composure;
+                int overflow;
                 if (curComposure > 0)
                 {
                     actor.Composure = Math.Max(0, curComposure - amount);
-                    int overflow = amount - curComposure;
-                    if (overflow > 0)
-                    {
-                        AggravateInjury(overflow);
-                    }
+                    overflow = amount - curComposure;
                 }
                 else
                 {
-                    AggravateInjury(amount);
+                    overflow = amount;
                 }
+                // 一比一，没有换算率。冷静是身体前面的一层垫子：垫子用完，代价照原价打在身上。
+                // 这里曾经折半（补偿冷静上限提高而伤势没跟着放大），那条规则不可加
+                // ——在 0 点上挨两次 1 比挨一次 2 更疼——而且让卡面上那个数字不再等于伤害。
+                if (overflow > 0)
+                    AggravateInjury(overflow);
             }
             OnTeamChanged?.Invoke();
         }
@@ -256,7 +309,10 @@ namespace SSNoir.Core
             }
 
             actor.Composure += amount;
-            if (actor.Role == "companion" && actor.Status == "away" && actor.Composure >= MaxComposure)
+            // 缓过一口气就回来。这里曾要求回满才归队，那在上限 2 的时候等于"喝一杯就回来"，
+            // 上限提高之后等于"永远回不来"——同一行代码换了两个意思，所以改成不依赖上限的写法。
+            // 真正把人接回来的常规路径是 BeginCityDay：睡一觉，明天照旧。
+            if (actor.Role == "companion" && actor.Status == "away" && actor.Composure > 0)
             {
                 actor.Status = "active";
             }
@@ -298,6 +354,7 @@ namespace SSNoir.Core
                 InjuryPart     = Injury.Part,
                 Scars          = Scars.Serialize(),
                 GrowthLevel    = GrowthLevel,
+                HasSavedActionDice = true,
             };
             foreach (var actor in Actors)
             {
@@ -318,6 +375,8 @@ namespace SSNoir.Core
                     PermanentDiePenalty = actor.PermanentDiePenalty,
                     SpentGrowthPoints = actor.SpentGrowthPoints,
                     Stats             = new Dictionary<string, int>(actor.Stats),
+                    ActionDice        = new List<int>(actor.ActionDice),
+                    ActionDiceSlotIds = new List<int>(actor.ActionDiceSlotIds),
                 });
             }
             return data;
@@ -369,8 +428,60 @@ namespace SSNoir.Core
                             $"Save file stat '{kv.Key}' for actor '{actorData.Id}' must be between {MinStatLevel} and {MaxStatLevel}.");
                     actor.Stats[kv.Key] = kv.Value;
                 }
-                actor.ActionDice.Clear(); // re-rolled after load
+                actor.ActionDice.Clear();
                 actor.ActionDiceSlotIds.Clear();
+                if (data.HasSavedActionDice)
+                {
+                    if (actorData.ActionDice.Count != actorData.ActionDiceSlotIds.Count)
+                        throw new ArgumentException($"Actor '{actorData.Id}' saved dice and slot lists must have equal length.");
+
+                    int availableSlotCount = actor.Status == "active"
+                        ? actor.ActionSlotCount - (actor.Role == "protagonist" && Injury.CostsActionDie ? 1 : 0)
+                        : 0;
+                    var seenSlots = new HashSet<int>();
+                    for (int i = 0; i < actorData.ActionDice.Count; i++)
+                    {
+                        int die = actorData.ActionDice[i];
+                        int slotId = actorData.ActionDiceSlotIds[i];
+                        if (die < 1 || die > 6)
+                            throw new ArgumentOutOfRangeException(nameof(data),
+                                $"Actor '{actorData.Id}' saved die value must be between 1 and 6.");
+                        if (slotId < 0 || slotId >= availableSlotCount)
+                            throw new ArgumentOutOfRangeException(nameof(data),
+                                $"Actor '{actorData.Id}' saved action slot {slotId} is not available.");
+                        if (!seenSlots.Add(slotId))
+                            throw new ArgumentException($"Actor '{actorData.Id}' save data repeats action slot {slotId}.");
+                        actor.ActionDice.Add(die);
+                        actor.ActionDiceSlotIds.Add(slotId);
+                    }
+                }
+            }
+            OnTeamChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// 把当前骰池原样抄一份。用于「离开世界去打一场交锋」——世界骰池是当天的，
+        /// 交锋结束回来时要还回去，而不是重掷（见 SceneManager 的骰池暂存）。
+        /// </summary>
+        public Dictionary<string, (List<int> Dice, List<int> SlotIds)> CaptureActionDice()
+        {
+            var result = new Dictionary<string, (List<int>, List<int>)>();
+            foreach (var actor in Actors)
+                result[actor.Id] = (new List<int>(actor.ActionDice), new List<int>(actor.ActionDiceSlotIds));
+            return result;
+        }
+
+        /// <summary>把 CaptureActionDice 抄下的骰池放回去。名单里没有的行动者一律清空骰池。</summary>
+        public void RestoreActionDice(Dictionary<string, (List<int> Dice, List<int> SlotIds)> captured)
+        {
+            foreach (var actor in Actors)
+            {
+                actor.ActionDice.Clear();
+                actor.ActionDiceSlotIds.Clear();
+                if (!captured.TryGetValue(actor.Id, out var saved))
+                    continue;
+                actor.ActionDice.AddRange(saved.Dice);
+                actor.ActionDiceSlotIds.AddRange(saved.SlotIds);
             }
             OnTeamChanged?.Invoke();
         }

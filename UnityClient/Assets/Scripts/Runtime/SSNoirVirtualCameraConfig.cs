@@ -27,6 +27,12 @@ namespace SSNoir
         public float minPitch = 16f;
         public float maxPitch = 35f;
 
+        [Header("Pan Bounds")]
+        [Tooltip("Only applies to Pan cameras. X is world X and Y is world Z.")]
+        public bool usePanBounds = false;
+        public Vector2 panBoundsMinXZ = new Vector2(-25f, -70f);
+        public Vector2 panBoundsMaxXZ = new Vector2(95f, 90f);
+
         // Persistent start values captured when drag begins
         private float _startYaw;
         private float _startPitch;
@@ -61,8 +67,133 @@ namespace SSNoir
         private void Awake()
         {
             CaptureAuthoredPose();
+            ValidatePanBounds();
             ValidateOrbitFrustum();
         }
+
+        private void ValidatePanBounds()
+        {
+            if (!usePanBounds)
+                return;
+
+            if (dragMode != CameraDragMode.Pan)
+            {
+                string message =
+                    $"Camera '{name}' enables Pan Bounds but uses drag mode '{dragMode}'. " +
+                    "Pan Bounds only apply to Pan cameras.";
+                Debug.LogError(message, this);
+                UnityEngine.Assertions.Assert.IsTrue(false, message);
+                throw new System.InvalidOperationException(message);
+            }
+
+            if (panBoundsMaxXZ.x > panBoundsMinXZ.x && panBoundsMaxXZ.y > panBoundsMinXZ.y)
+                return;
+
+            string invalidBoundsMessage =
+                $"Camera '{name}' has invalid Pan Bounds: min={panBoundsMinXZ}, max={panBoundsMaxXZ}. " +
+                "Each maximum must be greater than its corresponding minimum.";
+            Debug.LogError(invalidBoundsMessage, this);
+            UnityEngine.Assertions.Assert.IsTrue(false, invalidBoundsMessage);
+            throw new System.InvalidOperationException(invalidBoundsMessage);
+        }
+
+        // 城市地面。Pan 相机全都俯视同一片平地，所以这里不做射线检测，也不加一个
+        // 需要每台相机各填一遍的字段。以后真有不在 0 面上的地点，再谈那个字段。
+        private const float GroundY = 0f;
+
+        // 画的时候把框抬离地面一点：贴着 y=0 就和地面网格共面，Scene 视图的 Gizmo 带深度
+        // 测试，共面必然 z-fighting——边和角会随视角忽隐忽现（右边两个角先没的就是这个）。
+        // 抬高只影响这条辅助线的画法，不参与任何计算。
+        private const float GroundDrawLift = 0.15f;
+
+        private void OnDrawGizmosSelected()
+        {
+            if (dragMode != CameraDragMode.Pan || !usePanBounds
+                || panBoundsMaxXZ.x <= panBoundsMinXZ.x
+                || panBoundsMaxXZ.y <= panBoundsMinXZ.y)
+                return;
+
+            float y = transform.position.y;
+            Vector3[] rig =
+            {
+                new Vector3(panBoundsMinXZ.x, y, panBoundsMinXZ.y),
+                new Vector3(panBoundsMaxXZ.x, y, panBoundsMinXZ.y),
+                new Vector3(panBoundsMaxXZ.x, y, panBoundsMaxXZ.y),
+                new Vector3(panBoundsMinXZ.x, y, panBoundsMaxXZ.y),
+            };
+
+            // Pan 只改 x/z，不改朝向也不改高度，所以「镜头中心扫过的地面」和「机身能站的范围」
+            // 是同一个矩形、差一个固定的平移。两个框大小一样、位置只差一点，从顶视图看极易
+            // 糊成一团——所以它们的区别不能靠颜色深浅，得靠形式：地面是一块实心的面，
+            // 机位是一圈虚线。再用一支从相机指向它落点的箭头说明那段偏移是怎么来的。
+            bool looksDown = transform.forward.y < -0.01f && y > GroundY;
+            Vector3 aimOffset = Vector3.zero;
+            Vector3 aimPoint = transform.position;
+            if (looksDown)
+            {
+                float t = (y - GroundY) / -transform.forward.y;
+                aimPoint = transform.position + transform.forward * t;
+                aimOffset = new Vector3(
+                    aimPoint.x - transform.position.x, GroundY - y, aimPoint.z - transform.position.z);
+            }
+
+#if UNITY_EDITOR
+            // 城市是实心的，辅助框却是用来看的：关掉深度测试，让它永远浮在最上面。
+            // 否则一栋楼、一段码头就能把半个框吃掉，而那半个框正是你要对的地方。
+            var savedZTest = UnityEditor.Handles.zTest;
+            UnityEditor.Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
+
+            // 机位范围：虚线，冷灰。它是这两个字段的字面意思，authoring 时要看得见，
+            // 但它不该和地面那块抢注意力。
+            var rigColor = new Color(0.62f, 0.68f, 0.80f, 0.85f);
+            UnityEditor.Handles.color = rigColor;
+            for (int i = 0; i < 4; i++)
+                UnityEditor.Handles.DrawDottedLine(rig[i], rig[(i + 1) % 4], 4f);
+            DrawGizmoLabel(Center(rig), "机位范围", rigColor);
+
+            if (!looksDown)
+            {
+                UnityEditor.Handles.zTest = savedZTest;
+                return;
+            }
+
+            var ground = new Vector3[4];
+            for (int i = 0; i < 4; i++)
+                ground[i] = rig[i] + aimOffset + Vector3.up * GroundDrawLift;
+
+            // 地面范围：实心面 + 实线边。这才是你在场景视图里想读的那个东西。
+            var groundLine = new Color(0.95f, 0.72f, 0.2f, 0.95f);
+            UnityEditor.Handles.DrawSolidRectangleWithOutline(
+                ground, new Color(0.95f, 0.72f, 0.2f, 0.12f), groundLine);
+            DrawGizmoLabel(Center(ground), "镜头扫过的地面", groundLine);
+
+            // 一支箭头代替原来的四条斜线：说明偏移只需要一条，四条只会织成星芒。
+            UnityEditor.Handles.color = groundLine;
+            UnityEditor.Handles.DrawLine(transform.position, aimPoint);
+            UnityEditor.Handles.ConeHandleCap(
+                0, aimPoint, Quaternion.LookRotation(transform.forward),
+                UnityEditor.HandleUtility.GetHandleSize(aimPoint) * 0.12f, EventType.Repaint);
+
+            UnityEditor.Handles.zTest = savedZTest;
+#endif
+        }
+
+        private static Vector3 Center(Vector3[] corners)
+            => (corners[0] + corners[2]) * 0.5f;
+
+#if UNITY_EDITOR
+        // 标签压在框中央，不挤在同一个角上；带一个暗底，免得落在城市线稿上读不出来。
+        private static void DrawGizmoLabel(Vector3 position, string text, Color color)
+        {
+            var style = new GUIStyle(UnityEditor.EditorStyles.boldLabel)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = color, background = Texture2D.grayTexture },
+                padding = new RectOffset(6, 6, 2, 2),
+            };
+            UnityEditor.Handles.Label(position, text, style);
+        }
+#endif
 
         private void ValidateOrbitFrustum()
         {
@@ -152,7 +283,9 @@ namespace SSNoir
 #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(gameObject);
 #endif
+#if UNITY_EDITOR
             Debug.Log($"[SSNoir] Aligned camera '{name}' to look at pivot '{pivot.name}' at position {pivot.position}.");
+#endif
         }
 
         [ContextMenu("Align Pivot to Camera")]
@@ -183,7 +316,9 @@ namespace SSNoir
 #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(pivot);
 #endif
+#if UNITY_EDITOR
             Debug.Log($"[SSNoir] Aligned pivot '{pivot.name}' to camera '{name}' at position {pivot.position}.");
+#endif
         }
 
     }
@@ -212,6 +347,17 @@ namespace SSNoir
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("orbitSpeedY"));
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("minPitch"));
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("maxPitch"));
+            }
+            else if (config.dragMode == CameraDragMode.Pan)
+            {
+                EditorGUILayout.Space(8);
+                EditorGUILayout.LabelField("Pan Bounds", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("usePanBounds"));
+                if (config.usePanBounds)
+                {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("panBoundsMinXZ"));
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("panBoundsMaxXZ"));
+                }
             }
 
             serializedObject.ApplyModifiedProperties();

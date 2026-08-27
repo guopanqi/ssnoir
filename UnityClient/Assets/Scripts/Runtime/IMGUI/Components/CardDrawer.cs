@@ -246,8 +246,9 @@ namespace SSNoir.IMGUI
         private const float ClockBadgeMaxW = 240f;
         private const float ClockBadgePadX = 10f;
         private const float ClockLabelValueGap = 8f;
-        private const float PieDiameter = 18f;
-        private const float PieValueGap = 6f;
+        // 倒计时表盘：直径受徽章高度限制（28/24），中心还要放得下两位数，
+        // 所以取行高减去上下各 3px 的呼吸位。
+        private const float DialDiameter = 24f;
 
         // 三枚以上的节点时钟在聚焦卡上很常见。正常规格会选择换行，信息虽没丢，
         // 但形成的「两枚 + 一枚」会把任务卡的标题区挤成不稳定的两层。紧凑规格只
@@ -256,10 +257,12 @@ namespace SSNoir.IMGUI
         private const float CompactClockBadgeMinW = 80f;
         private const float CompactClockBadgePadX = 6f;
         private const float CompactClockLabelValueGap = 4f;
+        // 进度格被挤时能收到多小：低于这个就不再是一格一格看得出来的东西了。
+        private const float MinSegmentSize = 4f;
+        private const float MinSegmentSpacing = 2f;
         private const float CompactSegmentSize = 7f;
         private const float CompactSegmentSpacing = 3f;
-        private const float CompactPieDiameter = 16f;
-        private const float CompactPieValueGap = 4f;
+        private const float CompactDialDiameter = 20f;
 
         // 量出徽章会占到哪一行的哪个 Y——只做计算不画，供上层在画标题/头像前先留够空间。
         private static float MeasureClockBadgesBottom(Rect rect, List<GameClock>? clocks)
@@ -302,10 +305,14 @@ namespace SSNoir.IMGUI
                 while (i + widths.Count < clocks.Count)
                 {
                     bool compact = compactSingleRow;
+                    // 上限取「基准上限与本枚真正需要的宽度中较大的那个」，再夹到整行宽。
+                    // 固定 240 会让「修复进度 + 12 格」这种长标签长进度既裁标签又丢格子——
+                    // 一根钟少画一格就是把玩家的进度读错，宁可这一枚宽一点。
+                    float need = MeasureNodeClockBadgeWidth(clocks[i + widths.Count], compact);
                     float want = Mathf.Clamp(
-                        MeasureNodeClockBadgeWidth(clocks[i + widths.Count], compact),
+                        need,
                         Mathf.Min(compact ? CompactClockBadgeMinW : ClockBadgeMinW, maxRowW),
-                        compact ? maxRowW : ClockBadgeMaxW);
+                        Mathf.Min(maxRowW, Mathf.Max(compact ? maxRowW : ClockBadgeMaxW, need)));
                     float withGap = widths.Count == 0 ? want : totalW + ClockBadgeGap + want;
                     if (widths.Count > 0 && withGap > maxRowW)
                         break;
@@ -339,6 +346,15 @@ namespace SSNoir.IMGUI
                 totalW += MeasureNodeClockBadgeWidth(clock, compact: true);
             return totalW <= maxRowW;
         }
+
+        // 卷宗要画的钟就是卡片上的这一枚，不另做一套——同一根钟在两处必须长得一模一样。
+        public const float ClockBadgeHeightCompact = CompactClockBadgeH;
+
+        public static float MeasureClockBadge(GameClock clock, bool compact = true) =>
+            MeasureNodeClockBadgeWidth(clock, compact);
+
+        public static void DrawClockBadge(Rect rect, GameClock clock, bool compact = true) =>
+            DrawNodeClockBadge(rect, clock, compact);
 
         private static float MeasureNodeClockBadgeWidth(GameClock clock, bool compact = false)
         {
@@ -381,33 +397,59 @@ namespace SSNoir.IMGUI
             float labelValueGap = compact ? CompactClockLabelValueGap : ClockLabelValueGap;
             float innerW = Mathf.Max(0f, rect.width - padX * 2f);
             float desiredValueW = MeasureNodeClockValueWidth(clock, compact);
-            float valueW = Mathf.Min(desiredValueW, innerW);
-            float gap = valueW > 0f && !string.IsNullOrEmpty(clock.Label) ? labelValueGap : 0f;
-            float labelW = Mathf.Min(
-                labelStyle.CalcSize(new GUIContent(clock.Label)).x,
-                Mathf.Max(0f, innerW - valueW - gap));
+            // 进度格（Gauge）可以压缩到最小格距仍画全每一格；数字和表盘不可压，缺一位就读错。
+            float minValueW = clock.Style == ClockStyle.Gauge
+                ? MinGaugeWidth(clock.Max)
+                : desiredValueW;
+            float gap = desiredValueW > 0f && !string.IsNullOrEmpty(clock.Label) ? labelValueGap : 0f;
+            float labelIdealW = labelStyle.CalcSize(new GUIContent(clock.Label)).x;
+            // 标签先拿它需要的，但至少给值留下不可压的那一份——宽度紧张时压的是格距，不是字。
+            float labelW = Mathf.Clamp(
+                Mathf.Min(labelIdealW, innerW - Mathf.Min(minValueW, innerW) - gap), 0f, innerW);
+            float valueW = Mathf.Min(desiredValueW, Mathf.Max(0f, innerW - labelW - gap));
 
             var valueRect = new Rect(rect.xMax - padX - valueW, rect.y, valueW, rect.height);
             IMGUIStyles.DrawLabel(new Rect(rect.x + padX, rect.y, labelW, rect.height), clock.Label, labelStyle);
 
             if (clock.Style == ClockStyle.Countdown)
             {
-                var valueStyle = new GUIStyle(IMGUIStyles.ClockValue)
+                // 圆环占满值区，剩余数字写在圆心——这是圆环相对横排分数省下的那点宽度。
+                float diameter = Mathf.Min(compact ? CompactDialDiameter : DialDiameter,
+                    Mathf.Min(valueW, rect.height - 2f));
+                // 环和数字必须共用同一个整数 Rect，否则半像素的差在 24px 上就看得出来。
+                var dialRect = UIScale.PixelSnap(
+                    new Rect(valueRect.xMax - diameter, rect.center.y - diameter * 0.5f, diameter, diameter));
+                ShapeDrawer.DrawDial(dialRect, clock.Current, clock.Max, activeColor,
+                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.22f));
+
+                var centerStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
-                    fontSize = IMGUIStyles.FontSize(compact ? 13 : 15),
-                    alignment = TextAnchor.MiddleRight,
+                    // 环细了之后中心的空大了一圈，数字可以比第一版大一号。
+                    fontSize = IMGUIStyles.FontSize(clock.Current >= 10
+                        ? (compact ? 10 : 11)
+                        : (compact ? 11 : 13)),
+                    alignment = TextAnchor.MiddleCenter,
                     clipping = TextClipping.Clip,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
-                IMGUIStyles.DrawLabel(valueRect, $"{clock.Current}/{clock.Max}", valueStyle);
+                IMGUIStyles.ApplyStrongFont(centerStyle);
+                IMGUIStyles.DrawInkCenteredText(dialRect, clock.Current.ToString(), centerStyle);
             }
-            else if (clock.Style == ClockStyle.Segments)
+            else if (clock.Style == ClockStyle.Gauge)
             {
                 float dot = compact ? CompactSegmentSize : 10f;
                 float spacing = compact ? CompactSegmentSpacing : 5f;
+                // 放不下就整体等比缩小格子与格距（有下限），而不是把末尾几格悄悄不画。
+                float needW = clock.Max * dot + Mathf.Max(0, clock.Max - 1) * spacing;
+                if (needW > valueW && needW > 0f)
+                {
+                    float f = valueW / needW;
+                    dot = Mathf.Max(MinSegmentSize, dot * f);
+                    spacing = Mathf.Max(MinSegmentSpacing, spacing * f);
+                }
                 float dotStartX = valueRect.x;
                 float dotY = rect.y + (rect.height - dot) * 0.5f;
-                int visibleCount = Mathf.Min(clock.Max, Mathf.Max(0, Mathf.FloorToInt((valueW + spacing) / (dot + spacing))));
+                int visibleCount = clock.Max;
                 for (int i = 0; i < visibleCount; i++)
                 {
                     var dotRect = new Rect(dotStartX + i * (dot + spacing), dotY, dot, dot);
@@ -427,43 +469,31 @@ namespace SSNoir.IMGUI
                     GUI.color = Color.white;
                 }
             }
-            else // Pie
+            else // Readout：不触发任何事的当前值，纯文字
             {
-                // 先给圆形分配实际放得下的直径，再让分数占剩余宽度；两者都不会越过 valueRect。
-                float pieDiameter = compact ? CompactPieDiameter : PieDiameter;
-                float pieValueGap = compact ? CompactPieValueGap : PieValueGap;
-                float pieSize = Mathf.Min(pieDiameter, valueW);
-                float fractionGap = pieSize > 0f && valueW > pieSize ? Mathf.Min(pieValueGap, valueW - pieSize) : 0f;
-                var pieRect = new Rect(valueRect.x, rect.center.y - pieSize * 0.5f, pieSize, pieSize);
-                float fillPct = clock.Max > 0 ? Mathf.Clamp01((float)clock.Current / clock.Max) : 0f;
-                if (pieSize >= 4f)
-                    PieDrawer.DrawPieBadge(pieRect, fillPct, activeColor, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
-
-                var fracStyle = new GUIStyle(IMGUIStyles.ClockValue)
+                var valueStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
-                    fontSize = IMGUIStyles.FontSize(compact ? 12 : 14),
+                    fontSize = IMGUIStyles.FontSize(compact ? 13 : 15),
                     alignment = TextAnchor.MiddleRight,
                     clipping = TextClipping.Clip,
                     normal = { textColor = IMGUIStyles.Gold }
                 };
-                IMGUIStyles.DrawLabel(new Rect(pieRect.xMax + fractionGap, rect.y,
-                    Mathf.Max(0f, valueRect.xMax - pieRect.xMax - fractionGap), rect.height),
-                    $"{clock.Current}/{clock.Max}", fracStyle);
+                IMGUIStyles.DrawLabel(valueRect, $"{clock.Current}/{clock.Max}", valueStyle);
             }
         }
+
+        private static float MinGaugeWidth(int max)
+            => Mathf.Max(0f, max * MinSegmentSize + Mathf.Max(0, max - 1) * MinSegmentSpacing);
 
         private static float MeasureNodeClockValueWidth(GameClock clock, bool compact = false)
         {
             string fraction = $"{clock.Current}/{clock.Max}";
             return clock.Style switch
             {
-                ClockStyle.Countdown => MeasureClockValueTextWidth(fraction, compact ? 13 : 15),
-                ClockStyle.Segments => compact
+                ClockStyle.Countdown => compact ? CompactDialDiameter : DialDiameter,
+                ClockStyle.Gauge => compact
                     ? Mathf.Max(0f, clock.Max * CompactSegmentSize + Mathf.Max(0, clock.Max - 1) * CompactSegmentSpacing)
                     : Mathf.Max(0f, clock.Max * 10f + Mathf.Max(0, clock.Max - 1) * 5f),
-                ClockStyle.Pie => (compact ? CompactPieDiameter : PieDiameter)
-                    + (compact ? CompactPieValueGap : PieValueGap)
-                    + MeasureClockValueTextWidth(fraction, compact ? 12 : 14),
                 _ => MeasureClockValueTextWidth(fraction, compact ? 13 : 15)
             };
         }
@@ -522,26 +552,93 @@ namespace SSNoir.IMGUI
             if (effects.Count == 0 || area.height <= 0f)
                 return;
 
-            int maxRows = Mathf.Max(0, Mathf.FloorToInt(area.height / rowGap));
-            if (maxRows == 0)
+            float usedHeight = 0f;
+            int visibleCount = 0;
+            for (int i = 0; i < effects.Count; i++)
+            {
+                float gap = visibleCount > 0 ? rowGap : 0f;
+                float height = MeasureEffectRowHeight(effects[i], area.width, rowHeight, fontSize);
+                if (usedHeight + gap + height > area.height + 0.01f)
+                    break;
+
+                usedHeight += gap + height;
+                visibleCount++;
+            }
+
+            if (visibleCount == 0)
             {
                 // 连一整行都放不下时也不能直接 return：影响行是结算的核心信息，什么都不画等于
                 // 告诉玩家「这次行动什么都没发生」。挤出一条「+N」提示，把「有内容、但这里没
                 // 地方显示」明说出来（AGENTS.md：信息不能被悄悄藏起来）。
-                if (area.height >= 8f)
-                    DrawEffectMoreRow(new Rect(area.x, area.y, area.width, area.height), effects.Count, fontSize);
+                float moreHeight = Mathf.Min(rowHeight, area.height);
+                if (moreHeight >= 8f)
+                    DrawEffectMoreRow(new Rect(area.x, area.y, area.width, moreHeight), effects.Count, fontSize);
                 return;
             }
 
-            int visibleCount = effects.Count <= maxRows ? effects.Count : maxRows - 1;
+            float y = area.y;
             for (int i = 0; i < visibleCount; i++)
-                DrawSingleEffectRow(effects[i], new Rect(area.x, area.y + i * rowGap, area.width, rowHeight), fontSize);
+            {
+                if (i > 0)
+                    y += rowGap;
+                float height = MeasureEffectRowHeight(effects[i], area.width, rowHeight, fontSize);
+                DrawSingleEffectRow(effects[i], new Rect(area.x, y, area.width, height), fontSize);
+                y += height;
+            }
 
-            if (effects.Count > maxRows)
-                DrawEffectMoreRow(
-                    new Rect(area.x, area.y + visibleCount * rowGap, area.width, rowHeight),
-                    effects.Count - visibleCount,
-                    fontSize);
+            if (visibleCount < effects.Count)
+            {
+                float moreY = y + rowGap;
+                float moreHeight = Mathf.Min(rowHeight, area.yMax - moreY);
+                if (moreHeight < 8f)
+                {
+                    moreY = y;
+                    moreHeight = Mathf.Min(rowHeight, area.yMax - moreY);
+                }
+                if (moreHeight >= 8f)
+                    DrawEffectMoreRow(
+                        new Rect(area.x, moreY, area.width, moreHeight),
+                        effects.Count - visibleCount,
+                        fontSize);
+            }
+        }
+
+        public static float MeasureEffectRowsHeight(
+            IReadOnlyList<ActionEffectRecord> effects,
+            float areaWidth,
+            float rowHeight = 14f,
+            float rowGap = 16f,
+            int fontSize = 10)
+        {
+            if (effects.Count == 0 || areaWidth <= 0f)
+                return 0f;
+
+            float total = 0f;
+            for (int i = 0; i < effects.Count; i++)
+            {
+                if (i > 0)
+                    total += rowGap;
+                total += MeasureEffectRowHeight(effects[i], areaWidth, rowHeight, fontSize);
+            }
+            return total;
+        }
+
+        private static float MeasureEffectRowHeight(
+            ActionEffectRecord effect, float areaWidth, float rowHeight, int fontSize)
+        {
+            float textWidth = effect.Kind == ActionEffectKind.Note
+                ? areaWidth - 16f
+                : areaWidth - 56f;
+            string text = effect.Kind == ActionEffectKind.Note ? effect.Text : effect.Label;
+            var style = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                fontSize = IMGUIStyles.FontSize(fontSize),
+                alignment = TextAnchor.MiddleLeft,
+                wordWrap = true,
+            };
+            float wrappedHeight = style.CalcHeight(
+                new GUIContent(text), Mathf.Max(1f, textWidth));
+            return Mathf.Max(rowHeight, wrappedHeight + 2f);
         }
 
         // 「还有 N 项影响」折叠提示。行高不固定——高度紧张时它会被压到不足一行，
@@ -575,6 +672,7 @@ namespace SSNoir.IMGUI
             {
                 fontSize = IMGUIStyles.FontSize(fontSize),
                 alignment = TextAnchor.MiddleLeft,
+                wordWrap = true,
                 normal = { textColor = IMGUIStyles.TextPrimary }
             };
 

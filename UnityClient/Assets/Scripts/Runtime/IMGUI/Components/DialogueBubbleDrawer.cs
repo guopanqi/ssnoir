@@ -153,28 +153,11 @@ namespace SSNoir.IMGUI
             return new Vector2(rect.xMax, Mathf.Clamp(point.y, rect.y, rect.yMax));
         }
 
+        // 尾巴以前是 GL 直接画的：绕开 GUI 的矩阵、分组偏移和裁剪栈，全靠这里自己
+        // 用 GUIToScreenPoint 补一次换算——气泡哪天被放进分组或滚动区就会画错地方，
+        // 而且永远不会被裁掉。现在交给 ShapeDrawer 用贴图画，走的是和其他控件同一条路。
         private static void DrawTriangle(Vector2 a, Vector2 b, Vector2 c, Color color)
-        {
-            if (Event.current.type != EventType.Repaint || IMGUIStyles.PieMaterial == null)
-                return;
-
-            IMGUIStyles.PieMaterial.SetPass(0);
-            GL.PushMatrix();
-            GL.LoadPixelMatrix(0, Screen.width, Screen.height, 0);
-            GL.Begin(GL.TRIANGLES);
-            GL.Color(color);
-            DrawVertex(a);
-            DrawVertex(b);
-            DrawVertex(c);
-            GL.End();
-            GL.PopMatrix();
-        }
-
-        private static void DrawVertex(Vector2 point)
-        {
-            Vector2 screenPoint = GUIUtility.GUIToScreenPoint(point);
-            GL.Vertex3(screenPoint.x, screenPoint.y, 0f);
-        }
+            => ShapeDrawer.DrawTriangle(a, b, c, color);
 
         // 旁白：不署名、不指向任何人，横向居中贴在底部手牌区上方。
         private static void DrawNarration(string text)

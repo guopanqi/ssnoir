@@ -90,10 +90,6 @@ namespace SSNoir
 
             if (pairCount == 0)
                 throw ContractError("City contains no Low / High outline pairs.");
-
-            Debug.Log(
-                $"[SSNoir] City outline state initialized: {pairCount} Low / High pairs, " +
-                $"{_cameraOwners.Count} focus cameras.");
         }
 
         /// <summary>
@@ -133,10 +129,6 @@ namespace SSNoir
             _activePair?.SetHigh(false);
             next?.SetHigh(true);
             _activePair = next;
-
-            Debug.Log(next == null
-                ? "[SSNoir] City outlines switched to all Low."
-                : $"[SSNoir] City outline switched to High: '{next.LocationName}'.");
         }
 
         private static InvalidOperationException ContractError(string message)

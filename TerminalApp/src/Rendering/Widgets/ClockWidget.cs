@@ -130,7 +130,7 @@ namespace SSNoir.Rendering
                 return;
 
             float fraction = System.Math.Clamp((float)clock.Current / clock.Max, 0f, 1f);
-            if (clock.Style == ClockStyle.Segments)
+            if (clock.Style == ClockStyle.Gauge)
             {
                 float gap = 2f;
                 float segmentWidth = (rect.Width - gap * System.Math.Max(0, clock.Max - 1)) / clock.Max;

@@ -21,6 +21,8 @@ namespace SSNoir.Core
         public List<ScarSaveData> Scars { get; set; } = new();
         public int GrowthLevel { get; set; }
         public List<ActorSaveData> Actors { get; set; } = new();
+        // 旧存档没有骰池字段；读取时用这一位区分“旧格式”与“当天骰子确实已耗尽”。
+        public bool HasSavedActionDice { get; set; }
     }
 
     public class ScarSaveData
@@ -41,6 +43,8 @@ namespace SSNoir.Core
         public int PermanentDiePenalty { get; set; }
         public int SpentGrowthPoints { get; set; }
         public Dictionary<string, int> Stats { get; set; } = new();
-        // ActionDice intentionally omitted — re-rolled on load
+        // 两张表严格平行：骰值 + 固定骰池位置。空表表示当天已经没有可用骰子。
+        public List<int> ActionDice { get; set; } = new();
+        public List<int> ActionDiceSlotIds { get; set; } = new();
     }
 }

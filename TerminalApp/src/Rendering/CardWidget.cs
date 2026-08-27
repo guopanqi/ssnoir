@@ -1382,10 +1382,9 @@ namespace SSNoir.Rendering
             int labelWidth = FontManager.MeasureTextWidth(clock.Label, fontSize);
             return clock.Style switch
             {
-                ClockStyle.Countdown => labelWidth + FontManager.MeasureTextWidth($" {clock.Current}/{clock.Max}", fontSize) + 8f,
-                ClockStyle.Segments => labelWidth + 12f + Math.Max(0, clock.Max * 8f - 2f),
-                ClockStyle.Pie => labelWidth + 26f,
-                _ => labelWidth + 8f
+                ClockStyle.Gauge => labelWidth + 12f + Math.Max(0, clock.Max * 8f - 2f),
+                // 终端端暂不画表盘：倒计时和 readout 都退回「标签 当前/上限」。
+                _ => labelWidth + FontManager.MeasureTextWidth($" {clock.Current}/{clock.Max}", fontSize) + 8f
             };
         }
 
@@ -1398,7 +1397,7 @@ namespace SSNoir.Rendering
             Raylib.DrawRectangleRounded(rect, 0.4f, 4, new Color(20, 20, 25, 180));
             Raylib.DrawRectangleRoundedLinesEx(rect, 0.4f, 4, 1f, new Color(80, 80, 100, 255));
 
-            if (clock.Style == ClockStyle.Countdown)
+            if (clock.Style != ClockStyle.Gauge)
             {
                 int fontSize = 12;
                 string progress = $" {clock.Current}/{clock.Max}";
@@ -1406,7 +1405,7 @@ namespace SSNoir.Rendering
                 string label = FitTextWithEllipsis(clock.Label, rect.Width - progressW - 8f, fontSize);
                 FontManager.DrawText(label + progress, rect.X + 4f, rect.Y + 2f, fontSize, textColor);
             }
-            else if (clock.Style == ClockStyle.Segments)
+            else
             {
                 int fontSize = 12;
                 int dotSize = 6;
@@ -1431,25 +1430,6 @@ namespace SSNoir.Rendering
                     }
                 }
 
-            }
-            else if (clock.Style == ClockStyle.Pie)
-            {
-                int fontSize = 12;
-                string labelText = FitTextWithEllipsis(clock.Label, rect.Width - 26f, fontSize);
-                int labelWidth = FontManager.MeasureTextWidth(labelText, fontSize);
-
-                float radius = 7f;
-                FontManager.DrawText(labelText, rect.X + 4f, rect.Y + 2f, fontSize, textColor);
-
-                var center = new System.Numerics.Vector2(rect.X + rect.Width - radius - 4f, rect.Y + rect.Height / 2f);
-                // Empty ring
-                Raylib.DrawCircleLines((int)center.X, (int)center.Y, radius, new Color(70, 70, 90, 255));
-                // Filled sector
-                if (clock.Max > 0 && clock.Current > 0)
-                {
-                    float pct = (float)clock.Current / clock.Max;
-                    Raylib.DrawCircleSector(center, radius, -90f, -90f + 360f * pct, 36, activeColor);
-                }
             }
         }
 

@@ -55,6 +55,7 @@ namespace SSNoir.Scripting
             string subtitle = string.Empty;
             bool disabled = false;
             bool isPlace = false;
+            string carryItemId = string.Empty;
             List<ArrivalBeat> arrivals = new List<ArrivalBeat>();
 
             for (int i = 2; i < nodeExpr.Count; i += 2)
@@ -108,6 +109,12 @@ namespace SSNoir.Scripting
                         throw new InvalidOperationException("Node :place must be a boolean.");
                     isPlace = parsedPlace;
                 }
+                else if (kwStr == ":carry-item")
+                {
+                    if (!(val is string parsedCarry) || string.IsNullOrWhiteSpace(parsedCarry))
+                        throw new InvalidOperationException("Node :carry-item must be a non-empty string.");
+                    carryItemId = parsedCarry;
+                }
                 else if (kwStr == ":arrivals")
                 {
                     arrivals = ParseArrivals(val, name);
@@ -155,6 +162,7 @@ namespace SSNoir.Scripting
             {
                 Name = name,
                 IsPlace = isPlace,
+                CarryItemId = carryItemId,
                 Arrivals = arrivals,
                 AnchorName = anchorName,
                 Subtitle = subtitle,
@@ -485,6 +493,127 @@ namespace SSNoir.Scripting
             return modifiers;
         }
 
+        // ── 物品容量 ─────────────────────────────────────────────────────
+        // (item-capacity-table) 回一串 ("香烟" 5)。只有真的带上限的物品在里面。
+        public static Dictionary<string, int> ConvertItemCapacities(object schemeVal)
+        {
+            var caps = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            if (schemeVal is bool none && none == false)
+                return caps;
+            if (!(schemeVal is List<object> list))
+                throw new InvalidOperationException(
+                    $"(item-capacity-table) 必须返回列表，得到 {schemeVal?.GetType().FullName ?? "null"}。");
+
+            foreach (var item in list)
+            {
+                if (!(item is List<object> pair) || pair.Count != 2 || !(pair[0] is string name))
+                    throw new InvalidOperationException("物品容量表的每一项必须是 (\"物品名\" 上限)。");
+                int cap = SchemeValue.ToInt(pair[1]);
+                if (cap <= 0)
+                    throw new InvalidOperationException($"物品 \"{name}\" 的容量必须大于零，得到 {cap}。");
+                caps[name] = cap;
+            }
+            return caps;
+        }
+
+        // ── 卷宗 ─────────────────────────────────────────────────────────
+        // (get-dossier) 回一串 (dossier "id" :kind … :log …)。字段全部必填由 Scheme 侧
+        // 的 dossier 构造器保证，这里只做形状检查——它读到的东西已经规整过。
+        public static List<DossierEntry> ConvertDossier(object schemeVal)
+        {
+            var entries = new List<DossierEntry>();
+            if (schemeVal is bool none && none == false)
+                return entries;
+
+            if (!(schemeVal is List<object> list))
+                throw new InvalidOperationException(
+                    $"(get-dossier) 必须返回列表，得到 {schemeVal?.GetType().FullName ?? "null"}。");
+
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var item in list)
+            {
+                var entry = ConvertDossierEntry(item);
+                if (!seen.Add(entry.Id))
+                    throw new InvalidOperationException(
+                        $"卷宗里有重复的标识 \"{entry.Id}\"。每条故事线的标识必须唯一——它同时是存档键。");
+                entries.Add(entry);
+            }
+            return entries;
+        }
+
+        private static DossierEntry ConvertDossierEntry(object item)
+        {
+            if (!(item is List<object> expr) || expr.Count < 2
+                || !(expr[0] is Symbol header) || header.AsString != "dossier")
+                throw new InvalidOperationException("卷宗条目必须由 (dossier \"标识\" …) 构造。");
+
+            if (!(expr[1] is string id) || string.IsNullOrWhiteSpace(id))
+                throw new InvalidOperationException("卷宗条目的标识必须是非空字符串。");
+
+            string kind = "委托";
+            string status = "进行中";
+            string now = string.Empty;
+            string where = string.Empty;
+            var clocks = new List<GameClock>();
+            var log = new List<DossierLogEntry>();
+
+            for (int i = 2; i < expr.Count; i += 2)
+            {
+                if (i + 1 >= expr.Count)
+                    throw new InvalidOperationException($"卷宗条目 '{id}' 的关键字 {expr[i]} 少了值。");
+                if (!(expr[i] is Symbol kw))
+                    throw new InvalidOperationException($"卷宗条目 '{id}' 期待关键字符号，得到 {expr[i]}。");
+
+                object val = expr[i + 1];
+                switch (kw.AsString.ToLowerInvariant())
+                {
+                    case ":kind":   kind = SymbolOrString(val, id, ":kind"); break;
+                    case ":status": status = SymbolOrString(val, id, ":status"); break;
+                    case ":now":    now = val as string ?? string.Empty; break;
+                    case ":where":  where = val as string ?? string.Empty; break;
+                    case ":clocks": clocks = ParseClocks(val); break;
+                    case ":log":    log = ParseJournal(val, id); break;
+                    default:
+                        throw new InvalidOperationException($"卷宗条目 '{id}' 收到未知关键字 {kw.AsString}。");
+                }
+            }
+
+            return new DossierEntry
+            {
+                Id = id, Kind = kind, Status = status, Now = now, Where = where,
+                Clocks = clocks, Log = log,
+            };
+        }
+
+        private static string SymbolOrString(object val, string id, string field) =>
+            val switch
+            {
+                Symbol s => s.AsString,
+                string str => str,
+                _ => throw new InvalidOperationException($"卷宗条目 '{id}' 的 {field} 必须是符号或字符串。")
+            };
+
+        private static List<DossierLogEntry> ParseJournal(object val, string id)
+        {
+            var log = new List<DossierLogEntry>();
+            if (!(val is List<object> list))
+                return log;
+
+            foreach (var item in list)
+            {
+                if (!(item is List<object> expr) || expr.Count != 3
+                    || !(expr[0] is Symbol header) || header.AsString != "journal-entry")
+                    throw new InvalidOperationException(
+                        $"卷宗条目 '{id}' 的履历必须是 (journal-entry 天 \"正文\") 的列表。");
+                log.Add(new DossierLogEntry
+                {
+                    Day = SchemeValue.ToInt(expr[1]),
+                    Text = expr[2] as string ?? string.Empty,
+                });
+            }
+            return log;
+        }
+
         private static List<GameClock> ParseClocks(object clocksExpr)
         {
             var clocks = new List<GameClock>();
@@ -511,10 +640,17 @@ namespace SSNoir.Scripting
             int current = SchemeValue.ToInt(expr[2]);
             int max = SchemeValue.ToInt(expr[3]);
 
-            ClockStyle style = ClockStyle.Segments;
+            // 未知语义直接中断：手写的 clock tuple 拼错样式时，静默退回 progress 会让
+            // 一根倒计时长成进度条，而这正是这套语义化要杜绝的事。
             string styleStr = expr[4] is Symbol s ? s.AsString : expr[4] as string ?? "";
-            if (styleStr.Equals("countdown", StringComparison.OrdinalIgnoreCase)) style = ClockStyle.Countdown;
-            else if (styleStr.Equals("pie", StringComparison.OrdinalIgnoreCase)) style = ClockStyle.Pie;
+            ClockStyle style = styleStr.ToLowerInvariant() switch
+            {
+                "gauge" => ClockStyle.Gauge,
+                "countdown" => ClockStyle.Countdown,
+                "readout" => ClockStyle.Readout,
+                _ => throw new InvalidOperationException(
+                    $"Clock '{label}' has unknown style '{styleStr}' (expected progress / countdown / readout).")
+            };
 
             string note = string.Empty;
             if (expr.Count >= 6)
