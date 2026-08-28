@@ -28,7 +28,7 @@ namespace SSNoir.IMGUI
         private static float ControlH => UIScale.TouchHeight(30f);
         private static float BlockH =>
             BlockTitleH + TitleToCaption + BlockCaptionH + CaptionToControl + ControlH;
-        private static float PanelH => HeaderH + BlockH * 2f + BlockGap + BottomPad;
+        private static float PanelH => HeaderH + BlockH * 3f + BlockGap * 2f + BottomPad;
 
         private static bool _isOpen = false;
 
@@ -94,6 +94,17 @@ namespace SSNoir.IMGUI
                 new[] { "完整", "减少" }, reduceMotion ? 1 : 0, ui);
             if (pickedMotion >= 0)
                 MotionSettings.ReduceMotion = pickedMotion == 1;
+            y += BlockH + BlockGap;
+
+            // ── 教程提示 ──
+            // 「关」之后什么都不会弹（帮助面板照样能翻）。从关切回开会把「看过」的记录清掉，
+            // 于是换一个人坐下来试玩，教程会从头再走一遍——demo 阶段这是最常用的一个动作。
+            int pickedTutorial = DrawSetting(
+                new Rect(contentX, y, contentW, BlockH),
+                "教程提示", "第一次遇到时自动弹出。重新打开会让教程从头再来一遍。",
+                new[] { "开", "关" }, TutorialState.Enabled ? 0 : 1, ui);
+            if (pickedTutorial >= 0)
+                TutorialState.Enabled = pickedTutorial == 0;
         }
 
         // 一项设置：标题 / 说明 / 一排分段控件。返回被点中的段序号，没点中返回 -1。

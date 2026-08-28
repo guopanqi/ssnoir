@@ -247,14 +247,11 @@
 
     (define (node-frank)
       (let ((actions
-              (append
-                (if (equal? hold-state "待处理") (list (node-hold-entry)) '())
-                (if (and (equal? hold-state "已结算") (not distribution-viewed?))
-                    (list (node-distribution)) '())
-                (if (and (not paper-seen?) (>= (three-letters 'story-stage) 5))
-                    (list (node-newspaper))
-                    '()))))
+              (if (and (equal? hold-state "已结算") (not distribution-viewed?))
+                  (list (node-distribution))
+                  '())))
         (node "弗兰克"
+          :anchor "工会房间"
           :subtitle "Frank Delaney；码头工头、老街组织者"
           :children (if (null? actions)
                         (list (node-frank-idle))
@@ -269,8 +266,18 @@
         (if (equal? repair-state "进行中")
             (list (node-repair-clock) (node-repair))
             '())
-        ;; 工会房间的正式会面就是人物开放点。
-        (if met? (list (node-frank)) '())))
+        ;; 船边发生的两件事直接留在泊位；弗兰克本人常驻居民区的工会房间。
+        (if (equal? hold-state "待处理") (list (node-hold-entry)) '())
+        (if (and (not paper-seen?) (>= (three-letters 'story-stage) 5))
+            (list (node-newspaper))
+            '())))
+
+    (define (residential-nodes)
+      ;; 工会房间是居民区东侧回廊的终点，正式会面与分钱都在这里，而不是借码头地点投射。
+      ;; 抢修期间他人就在泊位，不能同时把人物卡留在居民区。
+      (if (and met? (not (equal? repair-state "进行中")))
+          (list (node-frank))
+          '()))
 
     (define (dossier-entry)
       (if met?
@@ -281,7 +288,7 @@
                          ((equal? repair-state "进行中") "他在码头排货船抢修的班表")
                          ((equal? hold-state "待处理") "他扣下了船上的关键部件，工人正封着跳板")
                          (else "码头工头；工会房间和泊位上的事都会报到他那里"))
-                  :where "码头"))
+                  :where (if (equal? repair-state "进行中") "码头" "码头居民区")))
           '()))
 
     (define (arrival-repair)
@@ -338,6 +345,7 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'dock-nodes) (dock-nodes))
+          ((equal? msg 'residential-nodes) (residential-nodes))
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'approved?) approved?)

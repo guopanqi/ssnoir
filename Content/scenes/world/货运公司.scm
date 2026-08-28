@@ -3,6 +3,13 @@
 
 (define freight-company
   (let ()
+    ;; 代理、合同和投资都是办公室里的桌面业务。只有已经闹到楼外的麻烦才落在门口；
+    ;; 不声明落点的内容一律进办公室，避免新增业务卡悄悄退回网格。
+    (define (anchor-at-office node-data)
+      (if (member? :anchor node-data)
+          node-data
+          (append node-data (list :anchor "货运公司-办公室"))))
+
     (define agent-stage 0) ; 0=初识，1=应酬后待核对，2=项目开放，3=首个项目结算
     (define walter-reference-seen? #f)
     (define project-state "无") ; 无 / 已考察 / 已谈判 / 已投资
@@ -42,9 +49,10 @@
           (lambda () (spend-composure! 1) (maybe-notify-company-trouble!)))))
 
     (define (node-handle-trouble)
-      (action "摆平货运麻烦"
-        (list (req-die))
-        (roll 'social (lambda () (关系难度修正 "商业圈"))
+      (node "摆平货运麻烦"
+        :anchor "货运公司-门口"
+        :requires (list (req-die))
+        :resolve (roll 'social (lambda () (关系难度修正 "商业圈"))
           (outcome "没压住"
             (lambda () #f))
           (outcome "摆平了"
@@ -207,26 +215,27 @@
           '()))
 
     (define (company-children)
-      (append
-        (list (node-contract-work)
-              (node "货运代理"
-                :subtitle agent-identity
-                :resolve (observe (agent-description))))
-        (if (and (= agent-stage 0) (relation-at-least? "商业圈" '相识))
-            (list (node-entertain-agent))
-            '())
-        (if (= agent-stage 1) (list (node-review-agent-terms)) '())
-        (if (and (>= agent-stage 2) (equal? project-state "无"))
-            (list (node-assess-project))
-            '())
-        (if (equal? project-state "已考察")
-            (list (node-negotiate-project) (node-invest))
-            '())
-        (if (equal? project-state "已谈判")
-            (list (node-invest))
-            '())
-        (three-letters 'nodes-at "货运公司")
-        (if (company-trouble 'active?) (list (node-handle-trouble)) '())))
+      (map anchor-at-office
+        (append
+          (list (node-contract-work)
+                (node "货运代理"
+                  :subtitle agent-identity
+                  :resolve (observe (agent-description))))
+          (if (and (= agent-stage 0) (relation-at-least? "商业圈" '相识))
+              (list (node-entertain-agent))
+              '())
+          (if (= agent-stage 1) (list (node-review-agent-terms)) '())
+          (if (and (>= agent-stage 2) (equal? project-state "无"))
+              (list (node-assess-project))
+              '())
+          (if (equal? project-state "已考察")
+              (list (node-negotiate-project) (node-invest))
+              '())
+          (if (equal? project-state "已谈判")
+              (list (node-invest))
+              '())
+          (three-letters 'nodes-at "货运公司")
+          (if (company-trouble 'active?) (list (node-handle-trouble)) '()))))
 
     (lambda args
       (let ((msg (car args)))

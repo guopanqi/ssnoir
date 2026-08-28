@@ -13,7 +13,9 @@
         ((equal? msg 'render-data)
          (list (place "码头居民区"
                  :children (map anchor-at-residential-district
-                             (three-letters 'nodes-at "居民区")))))
+                             (append
+                               (three-letters 'nodes-at "居民区")
+                               (frank 'residential-nodes))))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
         (else #f))))))

@@ -58,6 +58,9 @@ namespace SSNoir.IMGUI
         private float _gridDragLastY;
         private float _gridDragTravel;
         private int _lastNavigationDepth = 0;
+        // 教程要圈的那张卡：本帧画出来的第一张「能投骰子的动作卡」，屏幕坐标。
+        // 网格与空间投射两条路都往这里报，教程那边不必知道当前是哪一种版面。
+        private Rect? _firstActionCardRect;
         private ActionReport? _activeHeavyOutcome;
         private string _activeHeavyOutcomeActionName = string.Empty;
         private Action? _activeHeavyOutcomeDone;
@@ -71,6 +74,7 @@ namespace SSNoir.IMGUI
         public void Initialize(SSNoirGameManager gameManager)
         {
             _gameManager = gameManager;
+            TutorialState.Bind(gameManager.GameState);
             _animator = gameObject.AddComponent<IMGUIAnimationPlayer>();
             _presentationPlayer = new PresentationPlayer(_animator);
             _narrationPlayer = gameObject.AddComponent<UnityNarrationPlayer>();
@@ -133,6 +137,10 @@ namespace SSNoir.IMGUI
             _completionReport = report;
             _completionActionName = actionName;
             _completionDone = onDone;
+
+            // 「冷静与伤势」讲的是不顺利会怎样，所以挂在第一次坏结果上，不挂在开局。
+            if (report.Type == ActionType.Roll && report.Outcome == RollOutcome.Fail)
+                TutorialDirector.RequestOnFailedRoll();
 
             _presentationPlayer.Play(report, actionName, () =>
             {
@@ -384,6 +392,8 @@ namespace SSNoir.IMGUI
             _completionDone = null;
             DebugPanelDrawer.Reset();
             SettingsPanelDrawer.Reset();
+            HelpPanelDrawer.Reset();
+            TutorialDirector.Reset();
         }
 
         public void ClearCardResidues()
@@ -504,6 +514,7 @@ namespace SSNoir.IMGUI
             // Reset the pointer-over-UI accumulator; widgets set it via CanHover
             // during this pass, and we persist the result at the end of OnGUI.
             IMGUIInteractionContext.ResetPointerOverUi();
+            _firstActionCardRect = null;
             TopHudLayout topHud = TopHudLayout.Create();
             _topHud = topHud;
 
@@ -530,6 +541,33 @@ namespace SSNoir.IMGUI
                     Layer = IMGUIWindowLayer.Panel,
                     // 现在是跟成长面板同一套居中纸卡模态，也要跟成长面板一样挡住整屏——
                     // 否则背后世界还能被点到（相机拖拽/卡片点击穿透）。
+                    BlockMode = IMGUIBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
+
+            if (HelpPanelDrawer.IsOpen && !_isGrowthPanelOpen)
+            {
+                var (_, helpPanelRect) = HelpPanelDrawer.GetRects(topHud);
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.HelpPanel,
+                    Bounds = helpPanelRect,
+                    Layer = IMGUIWindowLayer.Panel,
+                    BlockMode = IMGUIBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
+
+            // 教程是模态：它一出现，底下的世界和面板都不该被点到——正在教你怎么点，
+            // 你却先点到了别处，是最坏的一种混乱。
+            if (TutorialDirector.IsOpen)
+            {
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.Tutorial,
+                    Bounds = new Rect(0, 0, UIScale.VW, UIScale.VH),
+                    Layer = IMGUIWindowLayer.Modal,
                     BlockMode = IMGUIBlockMode.Fullscreen,
                     CloseOnClickedOutside = false,
                 });
@@ -675,7 +713,18 @@ namespace SSNoir.IMGUI
                 DebugPanelDrawer.Close();
             }
 
-            var debugUi = (_isGrowthPanelOpen || SettingsPanelDrawer.IsOpen || DossierPanelDrawer.IsOpen)
+            var helpUi = (_isGrowthPanelOpen || DossierPanelDrawer.IsOpen || SettingsPanelDrawer.IsOpen)
+                ? lockedPanelUi : panelUi;
+            bool helpWasOpen = HelpPanelDrawer.IsOpen;
+            HelpPanelDrawer.Draw(helpUi, topHud);
+            if (!helpWasOpen && HelpPanelDrawer.IsOpen)
+            {
+                ClearCardResidues();
+                DebugPanelDrawer.Close();
+            }
+
+            var debugUi = (_isGrowthPanelOpen || SettingsPanelDrawer.IsOpen || DossierPanelDrawer.IsOpen
+                    || HelpPanelDrawer.IsOpen)
                 ? lockedPanelUi : panelUi;
             DebugPanelDrawer.Draw(_gameManager, debugUi, topHud);
 
@@ -701,6 +750,19 @@ namespace SSNoir.IMGUI
                     _isGrowthPanelOpen = false;
                 }
             }
+
+            // ── 教程提示 ──
+            // 观察放在所有卡片画完之后：这一帧到底有没有动作卡、第一张在哪儿，这时才知道。
+            // 演出/对白/其它模态在跑的时候不弹——教程要指的东西这会儿正被盖着。
+            bool tutorialQuiet = !IsPresentationActive && !_isGrowthPanelOpen
+                && !DossierPanelDrawer.IsOpen && !SettingsPanelDrawer.IsOpen && !HelpPanelDrawer.IsOpen;
+            if (tutorialQuiet)
+                TutorialDirector.Observe(_gameManager, _firstActionCardRect.HasValue);
+            if (TutorialDirector.IsOpen && tutorialQuiet)
+                TutorialDirector.Draw(
+                    _gameManager,
+                    _windowStack.MakeContext(IMGUIWindowLayer.Modal),
+                    _firstActionCardRect);
 
             // ── Animation Modal ──
             _animator.DrawModal();
@@ -1900,7 +1962,10 @@ namespace SSNoir.IMGUI
                     _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForResidue(
                         screenCardRect, gridResidues[i - visibleNodes.Count], spacious: false));
                 else
+                {
+                    NoteActionCardRect(visibleNodes[i], screenCardRect);
                     AddAttachmentForNode(visibleNodes[i], screenCardRect, spacious: false);
+                }
             }
             bool attachmentConsumesPointer = AttachmentConsumesPointer(ui.Mouse);
 
@@ -2044,8 +2109,16 @@ namespace SSNoir.IMGUI
         }
 
         // 引线不在这里画：它是所有卡片之前的一整层，见 CardLeaderLineDrawer。
+        private void NoteActionCardRect(GameNode node, Rect screenRect)
+        {
+            if (_firstActionCardRect.HasValue) return;
+            if (node.Resolve == null || node.IsContainer) return;
+            _firstActionCardRect = screenRect;
+        }
+
         private void DrawNodeCard(GameNode node, Rect cardRect, IMGUIInteractionContext ui)
         {
+            NoteActionCardRect(node, cardRect);
             bool isHovered = ui.CanHover(cardRect);
             bool isFlipped = _gameManager.IsNodeFlipped(node.Name);
             bool focused = isFocused(node.Name);

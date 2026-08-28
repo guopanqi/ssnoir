@@ -1,0 +1,13 @@
+{
+  "name": "ssnoir-web-demo-cloudflare",
+  "private": true,
+  "scripts": {
+    "types": "wrangler types",
+    "check": "npm run types --silent && tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.127.0"
+  }
+}

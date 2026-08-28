@@ -22,6 +22,8 @@ namespace SSNoir.IMGUI
     {
         DossierPanel,
         SettingsPanel,
+        HelpPanel,
+        Tutorial,
         DebugPanel,
         GrowthPanel,
         HeavyOutcome,

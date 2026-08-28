@@ -43,7 +43,7 @@
         :anchor "诊所-服务"
         :subtitle (if (equal? (injury-band) '完好)
                       "身上没有需要处理的伤"
-                      "投入一颗行动骰，压 2 点伤势")
+                      "恢复 2 点伤势")
         :disabled (equal? (injury-band) '完好)
         :requires (list (req-die) (req-item "金钱" treatment-fee))
         :resolve (instant

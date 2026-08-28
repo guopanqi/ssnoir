@@ -40,6 +40,7 @@ namespace SSNoir.IMGUI
         public Rect RelationToggle { get; }
         public Rect GrowthToggle { get; }
         public Rect DebugToggle { get; }
+        public Rect HelpToggle { get; }
         public Rect SettingsToggle { get; }
 
         /// <summary>顶栏下方那条分隔线的 y。</summary>
@@ -49,8 +50,8 @@ namespace SSNoir.IMGUI
         public float ContentTop { get; }
 
         private TopHudLayout(Rect bar, Rect back, Rect breadcrumb, Rect day, Rect dossierToggle,
-            Rect relationToggle, Rect growthToggle, Rect debugToggle, Rect settingsToggle,
-            float dividerY, float contentTop)
+            Rect relationToggle, Rect growthToggle, Rect debugToggle, Rect helpToggle,
+            Rect settingsToggle, float dividerY, float contentTop)
         {
             Bar = bar;
             Back = back;
@@ -60,6 +61,7 @@ namespace SSNoir.IMGUI
             RelationToggle = relationToggle;
             GrowthToggle = growthToggle;
             DebugToggle = debugToggle;
+            HelpToggle = helpToggle;
             SettingsToggle = settingsToggle;
             DividerY = dividerY;
             ContentTop = contentTop;
@@ -82,6 +84,8 @@ namespace SSNoir.IMGUI
             // 右组：从右往左依次安放，宽度在窄屏上收成短名。
             float cursorRight = right;
             Rect settings = TakeFromRight(ref cursorRight, 54f, rowH, top, gap);
+            // 帮助紧挨设置：两个都是「想起来才点一下」的东西，但帮助在 demo 里要找得到。
+            Rect help     = TakeFromRight(ref cursorRight, 54f, rowH, top, gap);
             Rect debug    = TakeFromRight(ref cursorRight, 54f, rowH, top, gap);
             Rect growth   = TakeFromRight(ref cursorRight, 64f, rowH, top, gap);
             // 声誉这一版整个收起来（见 NavigationDrawer.ShowRelationPanel），
@@ -116,6 +120,7 @@ namespace SSNoir.IMGUI
                 UIScale.PixelSnap(relation),
                 UIScale.PixelSnap(growth),
                 UIScale.PixelSnap(debug),
+                UIScale.PixelSnap(help),
                 UIScale.PixelSnap(settings),
                 dividerY,
                 contentTop);

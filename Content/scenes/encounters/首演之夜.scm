@@ -66,15 +66,9 @@
 ;;   绞到第十格和一格没绞不该是同一件事。"让危险错过她"因此不是一张单独的卡，
 ;;   是你前面那几颗骰真的推进去了的结果。
 ;;
-;;   副目标  追上他 0/8。一根**累计**的钟，但只在门开着的那几回合
-;;           出现在板上——随机开两次，每次两回合。凑不满就下次接着凑，
-;;           两次都过去还没满，他今晚就走了。
-;;           八格意味着它要吃掉三四颗骰：它必须贵到和救场真的抢手。
-;;           不碰夜莺那条；这是全场唯一保存到第二章的东西。
-;;
 ;; 对外契约：以 'done 结束（成败不是二元的）。
-;; 城市输入（只在顶部读取一次）：两个漏洞各在哪一档、查到几片，以及请到了谁。
-;; 写回全局：'首演-她受伤（本章收场文本要读）、'首演-认出黑衣人（第二章要读）。
+;; 城市输入（只在顶部读取一次）：两个漏洞各在哪一档，以及请到了谁。
+;; 写回全局：'首演-她受伤（本章收场文本要读）。
 
 ;; ============================================================
 ;; 城市输入
@@ -91,11 +85,8 @@
 ;;    只是知道＝你摸清了它长什么样，一上手快一截，可它照原样流。
 ;;    「知道」和「堵上」不是同一件事，这是这一节唯一要求玩家分辨的东西。
 ;;    两样都不做，这两处就是满格、每回合都在推夜莺那条——那才是难的来处。
-;; 二、莱恩调查 0..3。你查得越完整，越早知道有人正在借他的名字行动；
-;;    那件外套出现时，「追上他」从对应格数开始。
 (define hole-vent (prep-of '漏洞-通风口))    ; 0 未知 / 1 已知 / 2 已堵
 (define hole-power (prep-of '漏洞-配电箱))   ; 0 未知 / 1 已知 / 2 已堵
-(define pieces (prep-of '调查-拼片))         ; 0..3
 
 ;; 堵上＝一半的活已经干完了；只是知道＝四分之一。
 (define (hole-head-start hole full)
@@ -528,124 +519,6 @@
       (list (low-node c) (high-node c)))))
 
 ;; ============================================================
-;; 副目标：二层环廊上的人
-;; ============================================================
-;;
-;; 一根**累计**的钟，但它不是常驻的——它只在门开着的那几回合出现在板上。
-;; 门随机开两次：第一次第 2 或第 3 回合，之后隔两三回合他再露一面，
-;; 每次开两个回合。你可以往里投任意多颗骰，凑不满就下次接着凑；
-;; 两次窗口都过去还没满，他就走了，今晚再没有第二个机会。
-;;
-;; 做成累计钟而不是一次判定：一次判定要么中要么不中，玩家没得盘算；
-;; 累计钟让"这一回合我抽几颗骰给他"变成一个真的决定，
-;; 而窗口的稀缺保证它永远和救场抢同一颗骰。
-;;
-;; 八格、一次成功推一到两格：它要吃掉三四颗骰。这个价钱是故意的——
-;; 便宜的副目标等于没有副目标，玩家会顺手把它做掉，什么都没放弃。
-;; 城里查到的每一片拼片直接落成这里的起手格数：你在城里花掉的那一天，
-;; 就是今晚少抽出去的那一颗骰。
-;;
-;; 它不碰夜莺那条。全场唯一不影响输赢的东西，也是唯一保存到第二章的东西。
-
-(define shadow-clk
-  (make-clock "追上他" 8 'gauge
-    "有人喊看见莱恩了。一个穿着他那件外套的男人从侧门闪过去。填满就是你抓着他了。"))
-;; 三处莱恩调查不再替玩家修舞台机械；它让尼尔更早看出冒充者的破绽。
-(shadow-clk 'set! pieces)
-
-;; 每扇门开两个回合：door1-turn 与它的下一回合，door2-turn 与它的下一回合。
-(define door1-turn (random-choice (list 2 3)))
-(define door2-turn (+ door1-turn (random-choice (list 2 3))))
-(define shadow-gone? #f)
-
-(define (in-window? t)
-  (or (= t door1-turn) (= t (+ door1-turn 1))
-      (= t door2-turn) (= t (+ door2-turn 1))))
-
-(define (first-window? t) (< t door2-turn))
-
-;; 他还有几回合就走脱了。这是这件事剩下的时间，所以是一根钟，不是一张便签。
-(define (window-left)
-  (cond ((= turn door1-turn) 2)
-        ((= turn (+ door1-turn 1)) 1)
-        ((= turn door2-turn) 2)
-        ((= turn (+ door2-turn 1)) 1)
-        (#t 0)))
-
-(define (shadow-done?) (shadow-clk 'full?))
-
-(define (push-shadow! n)
-  (let ((before (shadow-clk 'current)))
-    (shadow-clk 'advance! n)
-    (if (and (>= (shadow-clk 'current) 4) (< before 4))
-        (result-note! "那件外套的袖口是新的")
-        #f)
-    (if (shadow-done?)
-        (result-note! "外套是准备好的。那个人不是莱恩")
-        #f)))
-
-(define window-clk
-  (make-clock "跟丢" 2 'countdown
-    "再过这几回合他就混进人群里，今晚就找不着了。"))
-(window-clk 'set! 2)
-
-;; 城里查莱恩查到的东西，在这张卡上要看得见——不是只体现在钟的起手位置。
-(define (shadow-prep-note)
-  (cond ((>= pieces 3) "。你翻过他这几天的行踪，知道他根本不在城里")
-        ((= pieces 2) "。你翻过他的行踪，那几天对不上")
-        ((= pieces 1) "。你听过一嘴：这几天没人真见着莱恩")
-        (#t "。你对这个人一无所知")))
-
-(define (shadow-node)
-  (node (if (first-window? turn) "追上去" "堵侧门")
-    :subtitle (string-append
-                (if (first-window? turn)
-                    "有人喊那是莱恩。他往侧门去了"
-                    "他要从后廊那一头出去")
-                (shadow-prep-note) " · 敏锐")
-    :clocks (list (window-clk 'render-data) (shadow-clk 'render-data))
-    :requires (list (req-die))
-    :resolve (roll 'sharpness
-      (outcome "又被他甩开" (lambda () #t))
-      (outcome "近了一点" (lambda () (push-shadow! 1)))
-      (outcome "近了一大截" (lambda () (push-shadow! 2))))))
-
-(define (door-nodes)
-  (if (and (in-window? turn) (not (shadow-done?)) (not shadow-gone?))
-      (list (shadow-node))
-      '()))
-
-;; 只在窗口的第一回合说话；第二回合门还开着，但不再重复提醒。
-(define (open-doors!)
-  (window-clk 'set! (max 1 (window-left)))
-  (if (or (shadow-done?) shadow-gone?)
-      #f
-      (begin
-        (if (= turn door1-turn)
-            (play-remote-banter!
-              (line "领班" "有人看见他了——那件外套，是莱恩。")
-              (line "世界" "一个男人贴着侧门往后廊去了。"))
-            #f)
-        (if (= turn door2-turn)
-            (play-remote-banter!
-              (line "世界" "那件外套又晃过一次，这回在后廊那一头。"))
-            #f))))
-
-;; 窗口在它的第二回合末关上。第二扇也关上还没凑满，他今晚就走了。
-(define (close-doors!)
-  (if (or (shadow-done?) shadow-gone?)
-      #f
-      (begin
-        (if (= turn (+ door1-turn 1))
-            (notify! "他闪进侧门，不见了。")
-            #f)
-        (if (= turn (+ door2-turn 1))
-            (begin
-              (set! shadow-gone? #t)
-              (notify! "那件外套混进散场的人里走了。你连他的脸都没看清。"))
-            #f))))
-
-;; ============================================================
 ;; 回合推进
 ;; ============================================================
 
@@ -743,35 +616,28 @@
 (define-turn-rule "演出往下走"
   (lambda () (not finished?))
   (lambda ()
-    (close-doors!)
-    (if finished?
-        #f
+    (bleed!)
+    (fall-tick!)
+    (clear-eases!)
+    (show-clk 'advance! -1)
+    (if (collapsed?)
+        (finish!)
         (begin
-          (bleed!)
-          (fall-tick!)
-          (clear-eases!)
-          (show-clk 'advance! -1)
-          (if (collapsed?)
+          (set! turn (+ turn 1))
+          (if (> turn 6)
               (finish!)
               (begin
-                (set! turn (+ turn 1))
-                (if (> turn 6)
-                    (finish!)
-                    (begin
-                      (if (= turn 2) (enter-act-two!) #f)
-                      (if (= turn 3) (drop-the-rig!) #f)
-                      (if (= turn 4) (maybe-crush!) #f)
-                      (if (= turn 5) (enter-act-three!) #f)
-                      (play-mic! turn)
-                      (open-doors!)))))))))
+                (if (= turn 2) (enter-act-two!) #f)
+                (if (= turn 3) (drop-the-rig!) #f)
+                (if (= turn 4) (maybe-crush!) #f)
+                (if (= turn 5) (enter-act-three!) #f)
+                (play-mic! turn)))))))
 
 ;; ============================================================
 ;; 结算
 ;; ============================================================
 ;;
-;; 只有一件事保存到第二章：二层那个人。其余的一切——她伤没伤、
-;; 演出撑到哪一步、灯环掉在哪儿——都在这一晚的收场文本里交代完。
-;; ('首演-她受伤 是同一晚的收场文本要读的，不跨章。)
+;; 她伤没伤、演出撑到哪一步、灯环掉在哪儿，都在这一晚的收场文本里交代完。
 
 (define (show-level)
   (cond
@@ -797,9 +663,7 @@
        "谢幕的灯只打她一个人。掌声比预定的长了很久，长到乐队都开始互相看。")
       ((equal? (show-level) "勉强收尾") "掌声稀稀落落，但她站到了最后一个音。")
       (#t "台下的人已经走了大半。"))
-    (if (shadow-done?)
-        "你在后廊追上了那件外套。他挣脱了，可你看清了：外套是新的，袖口一点磨损都没有——那不是莱恩，那是有人替莱恩准备的一件衣服。"
-        "那件外套混在散场的人里走脱了。所有人都说那是莱恩，你也没有话反驳。")))
+    "黑场里有人见过莱恩往后台跑。等灯回来，他已经被按在过道上。"))
 
 (define (finish!)
   (if finished?
@@ -807,7 +671,6 @@
       (begin
         (set! finished? #t)
         (set-global! '首演-她受伤 (or her-hurt? (collapsed?)))
-        (set-global! '首演-认出黑衣人 (shadow-done?))
         (spotlight! (cond
                       ((collapsed?) "首演之夜：她出事了")
                       (her-hurt? "首演之夜：她被抬下去了")
@@ -819,7 +682,6 @@
 ;; 主线回调只接受 done；倒下把现有的两个结果向量压到最差值，然后仍走同一结案。
 (define (on-encounter-collapse)
   (set-global! '首演-她受伤 #t)
-  (set-global! '首演-认出黑衣人 #f)
   (collapse-result 'done))
 
 ;; ============================================================
@@ -837,5 +699,4 @@
     (append
       (clock-nodes (show-clk 'render-data)
                    (stage-clk 'render-data))
-      (crisis-nodes)
-      (door-nodes))))
+      (crisis-nodes))))

@@ -64,7 +64,6 @@ MonoBehaviour:
     iOSAutoGCInterval: 10000
     enableIOSPerformancePlus: 1
     brotliMT: 1
-  PlayerPrefsKeys: []
   FontOptions:
     CJK_Unified_Ideographs: 1
     C0_Controls_and_Basic_Latin: 1

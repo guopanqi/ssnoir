@@ -14,18 +14,33 @@ from pathlib import Path
 class PreviewHandler(SimpleHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
+    def __init__(self, *args, brotli: bool, cache_mode: str, **kwargs):
+        self._brotli = brotli
+        self._cache_mode = cache_mode
+        self._content_encoding: str | None = None
+        super().__init__(*args, **kwargs)
+
     def end_headers(self) -> None:
-        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
-        self.send_header("Pragma", "no-cache")
+        if self._cache_mode == "release" and not self.path.split("?", 1)[0].endswith("index.html"):
+            self.send_header("Cache-Control", "public, max-age=31536000, immutable")
+        else:
+            self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
+            self.send_header("Pragma", "no-cache")
+        if self._content_encoding:
+            self.send_header("Content-Encoding", self._content_encoding)
         self.send_header("Accept-Ranges", "bytes")
         super().end_headers()
 
     def guess_type(self, path: str) -> str:
+        if self._brotli and path.endswith(".br"):
+            self._content_encoding = "br"
+            path = path[:-3]
         if path.endswith(".wasm"):
             return "application/wasm"
         return super().guess_type(path)
 
     def send_head(self):
+        self._content_encoding = None
         range_header = self.headers.get("Range")
         if not range_header:
             return super().send_head()
@@ -117,16 +132,32 @@ def discover_lan_ip() -> str | None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Serve an SSNoir WebGL preview on the local network.")
+    parser = argparse.ArgumentParser(description="Serve an SSNoir WebGL build on the local network.")
     parser.add_argument("--directory", required=True, type=Path)
     parser.add_argument("--port", required=True, type=int)
+    parser.add_argument(
+        "--brotli",
+        action="store_true",
+        help="为 .br WebGL 资源补充 Content-Encoding: br 响应头",
+    )
+    parser.add_argument(
+        "--cache-mode",
+        choices=("preview", "release"),
+        default="preview",
+        help="preview 禁用缓存；release 为带哈希资源启用长期缓存",
+    )
     args = parser.parse_args()
 
     directory = args.directory.resolve()
     if not (directory / "index.html").is_file():
         raise SystemExit(f"Missing WebGL index: {directory / 'index.html'}")
 
-    handler = partial(PreviewHandler, directory=str(directory))
+    handler = partial(
+        PreviewHandler,
+        directory=str(directory),
+        brotli=args.brotli,
+        cache_mode=args.cache_mode,
+    )
     try:
         server = ThreadingHTTPServer(("0.0.0.0", args.port), handler)
     except OSError as exception:

@@ -103,6 +103,57 @@ namespace SSNoir.IMGUI
             }
         }
 
+        // ── 教程要指的那几块地方 ─────────────────────────────────────
+        //
+        // 高亮框由这里给，不由教程那边照着常量再算一遍：底栏的几何只有这个文件知道。
+        // 它们是「圈出来给人看」的框，不是命中区，所以宁可稍微宽一点。
+
+        /// <summary>左下角所有在场行动者的行动骰那一排。</summary>
+        public static Rect ActionDiceRect(SSNoirGameManager gameManager)
+        {
+            Rect safe = UIScale.SafeArea;
+            float baseline = safe.yMax - BottomMargin;
+            float x = safe.x + SideMargin;
+            float w = 0f;
+            bool leadDrawn = false;
+            foreach (var actor in gameManager.DisplayedSnapshot.Actors)
+            {
+                if (!actor.OnStage) continue;
+                w += ClusterWidth(actor, isLead: !leadDrawn) + ClusterGap;
+                leadDrawn = true;
+            }
+            if (!leadDrawn) return Rect.zero;
+            return new Rect(x, baseline - TokenSize - 4f, w - ClusterGap, TokenSize + 4f);
+        }
+
+        /// <summary>主角骰子上方那两条读数（冷静，带伤时还有伤势）。</summary>
+        public static Rect LeadVitalsRect(SSNoirGameManager gameManager)
+        {
+            Rect safe = UIScale.SafeArea;
+            float baseline = safe.yMax - BottomMargin;
+            float diceY = baseline - TokenSize;
+            var snapshot = gameManager.DisplayedSnapshot;
+            ActorSnapshot? lead = null;
+            foreach (var actor in snapshot.Actors)
+                if (actor.OnStage) { lead = actor; break; }
+            if (lead == null) return Rect.zero;
+
+            // 两条读数一起圈：有伤时是「冷静 + 伤势」，没伤时上面那半是名字，圈进去也无妨。
+            float h = VitalRowH * 2f + 6f;
+            return new Rect(safe.x + SideMargin, diceY - 6f - h,
+                ClusterWidth(lead, isLead: true), h);
+        }
+
+        /// <summary>右下角那个功能键（城里是「回家」，交锋里是「休息」）。</summary>
+        public static Rect FunctionKeyRect(SSNoirGameManager gameManager)
+        {
+            Rect safe = UIScale.SafeArea;
+            float baseline = safe.yMax - BottomMargin;
+            float functionW = FunctionWidth(gameManager);
+            return new Rect(safe.xMax - SideMargin - functionW, baseline - TokenSize - 4f,
+                functionW, TokenSize + 4f);
+        }
+
         // 一个行动者簇占多宽。这里必须按固定骰位数而不是当前剩余骰数：骰子投入行动后会
         // 从 ActionDice 列表移除，但 SlotId 仍是身体状态与空间身份的归属；若簇随剩余数收缩，
         // 后面的同伴会横跳，剩下的骰也会看起来换了位置。

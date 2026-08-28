@@ -36,7 +36,7 @@
 ;; 即使只剩最后一个，也必须把他认清；排除别人不能替代识别本人。
 ;;
 ;; 对外契约：回传 (list 人 钱)——
-;;   人：'拦下 / '跟丢
+;;   人：'拿到线索 / '跟丢
 ;;   钱：拿回的金额（0 / 50 / 100）
 ;; 两个轴都不阻断主线；结算文案与小节二的起步条件由《三封信》解释。
 
@@ -74,7 +74,9 @@
 
 ;; 开场、幕转和收尾都由勒索信交锋自己拥有；世界只负责进入本交锋。
 (define (on-encounter-enter)
-  (play-animation! "勒索信-投信"))
+  (play-animation! "勒索信-投信")
+  (spotlight! "找出嫌疑人"
+    "观察路过的人们的举止，分辨出嫌疑人！"))
 
 (define (clock-tick-n! clock n)
   (if (> n 0)
@@ -160,8 +162,8 @@
   (let ((attempts (attempt-count (cand-name c) investigation-attempts)))
     (cond
       ((= attempts 0) base)
-      ((= attempts 1) "刚才那一下没白看，再核一处细节")
-      (else "疑点已经浮出来，只差最后确认"))))
+      ((= attempts 1) "似乎有一些疑点，但又似乎不是")
+      (else "有些不对劲，但还需要确认"))))
 
 ;; 每个人两种办法，故意跨技能。写法统一：坏 = 白花一颗骰、冷静 −1；中 = +1 格；好 = +2 格。
 ;; 副标题只写情景，不写技能：技能由 (roll skill) 声明，卡面自己会画出那颗药丸
@@ -255,7 +257,7 @@
   ;; 一次追逐回合：人不额外拉开、冷静不额外扣。
   (refresh-encounter-dice!)
   (spotlight! "巷口"
-    "他拐进巷口。你隔着半条街和一辆夜宵车。")
+    "追上他！在他逃走之前")
   (enter-segment! 0))
 
 ;; ── 追击动作：每段两条路，快的伤身、稳的慢 ──────────
@@ -349,14 +351,14 @@
       #f
       (begin
         (set! money-drop? #t)
-        (result-note! "钱撒在地上了——这一回合还捡得着"))))
+        (result-note! "一些钱掉在了地上"))))
 
 (define (take-money! amount)
   (set! money-drop? #f)
   (let ((got (min amount (- money-cap money-taken))))
     (set! money-taken (+ money-taken got))
     (if (> got 0)
-        (result-note! (string-append "抓回 " (number->string got) " 金"))
+        (result-note! (string-append "拿回 " (number->string got) " 钱"))
         #f)))
 
 (define (node-money-drop)
@@ -366,9 +368,9 @@
     :resolve (roll 'sharpness
       (outcome "钞票被风卷走了"
         (lambda () (set! money-drop? #f)))
-      (outcome "抓了把，大半散了"
+      (outcome "抓起了一点"
         (lambda () (take-money! money-drop-part)))
-      (outcome "一把全搂了起来"
+      (outcome "一把全捡了起来"
         (lambda () (take-money! money-drop-full))))))
 
 (define (act2-nodes)
@@ -402,7 +404,7 @@
             (add-item! "金钱" (recovered-money))
             #f)
         (end-encounter
-          (list (if (caught?) '拦下 '跟丢) (recovered-money))))))
+          (list (if (caught?) '拿到线索 '跟丢) (recovered-money))))))
 
 ;; 倒下不是跟丢：你追上了他，然后被撂在巷口。回传自己的收场标签，
 ;; 让三封信那边讲对这一夜发生了什么（见 on-delivery-result）。
