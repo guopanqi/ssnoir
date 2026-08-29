@@ -24,9 +24,6 @@ Thumbs.db
 /.codex-artifacts/
 /tmp/
 
-# CityBox is maintained as its own Git repository
-/city-box/
-
 # Unity specific ignores
 **/UnityClient/Library/
 **/UnityClient/Temp/
