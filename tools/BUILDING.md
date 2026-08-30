@@ -18,6 +18,9 @@ staging，主工程始终保持完整。
 历史：
 
 ```bash
+# 只清理旧版本，保留 Web Release 和 TapTap Release 各自最新的时间戳版本
+./tools/build/clean.sh --old-releases
+
 # 只清理 UnityClient/Build 下的预览、Release 和 COS 本地产物
 ./tools/build/clean.sh --builds
 
