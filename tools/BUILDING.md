@@ -12,6 +12,25 @@ staging，主工程始终保持完整。
 视频交付只有三种明确模式：`local` 把清单内视频放进 Web 包；`none` 即 `review-no-video`，即使被引用
 也排除；`remote` 把清单内视频发布到远程资源目录，并在运行时配置中写入 HTTPS 基址。
 
+## 清理构建产物和缓存
+
+统一使用 `tools/build/clean.sh`，只会删除明确的生成目录，不会碰 `.cache/saves`、Unity 工程资源或 Git
+历史：
+
+```bash
+# 只清理 UnityClient/Build 下的预览、Release 和 COS 本地产物
+./tools/build/clean.sh --builds
+
+# 只清理构建 staging 缓存（下次构建会重新导入，首次构建较慢）
+./tools/build/clean.sh --cache
+
+# 两者都清理
+./tools/build/clean.sh --all
+```
+
+Web Release 和 TapTap Release 成功后会自动删除同一输出目录下旧的时间戳版本，所以通常不需要为了释放
+旧版本再手动清理；只有需要彻底回收构建目录或缓存空间时才使用上面的命令。
+
 ## 1. Web Preview：局域网快速预览
 
 ```bash
