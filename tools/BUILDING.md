@@ -48,6 +48,8 @@ staging，主工程始终保持完整。
 ./tools/web-release/build.sh --review-no-video
 ```
 
+每次完整构建成功后，`WebRelease/` 只保留本次时间戳目录、离线包、itch 包和日志；旧版本会自动删除。
+
 本机或局域网启动该包时，传入本次构建的输出目录：
 
 ```bash
@@ -150,6 +152,8 @@ COSCLI 凭据只保存在用户环境（默认 `~/.cos.yaml`），不得写入�
 - `game_wasm_split.zip`：用于 TapTap 后台 WASM 函数分包的包；需要分包时上传这一份并在后台完成
   函数采集、生成与提交。
 - `build-report.json`、`font-report.json`、`resource-plan.json`、`build.log`：本次构建证据。
+
+TapTap Release 在报告生成成功后会自动清理 `TapTapRelease/` 下旧的时间戳目录，只保留本次成功构建。
 
 COS 承载 Data 和 `Cutscenes/*.mp4`，不承载 TapTap WASM 代码包。WASM 下载慢时，应检查 TapTap 的
 WASM 分包流程，而不是调整 COS 流量包。

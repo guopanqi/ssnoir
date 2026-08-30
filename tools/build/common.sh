@@ -79,6 +79,52 @@ ssnoir_run_unity() {
         -logFile "$log_path"
 }
 
+ssnoir_remove_build_path() {
+    local target="$1"
+    [[ -e "$target" ]] || return 0
+
+    # 调用方只会传入已校验名称的构建产物；直接删除才能真正释放磁盘空间。
+    rm -rf -- "$target"
+}
+
+ssnoir_cleanup_web_release_history() {
+    local output_root="$1"
+    local current_stamp="$2"
+    local candidate name
+    [[ -d "$output_root" ]] || return 0
+
+    while IFS= read -r -d '' candidate; do
+        name="${candidate##*/}"
+        case "$name" in
+            "$current_stamp"|"$current_stamp-offline"|"$current_stamp.build.log"|\
+            "SSNoir-WebDemo-$current_stamp.zip"|"SSNoir-ItchWeb-$current_stamp.zip")
+                continue
+                ;;
+        esac
+
+        if [[ "$name" =~ ^[0-9]{8}-[0-9]{6}(-offline|\.build\.log)?$ \
+            || "$name" =~ ^(SSNoir-WebDemo|SSNoir-ItchWeb)-[0-9]{8}-[0-9]{6}\.zip$ ]]; then
+            echo "[Build] 清理旧 Web Release: $candidate"
+            ssnoir_remove_build_path "$candidate"
+        fi
+    done < <(find "$output_root" -mindepth 1 -maxdepth 1 -print0)
+}
+
+ssnoir_cleanup_timestamped_releases() {
+    local output_root="$1"
+    local current_output="$2"
+    local candidate name
+    [[ -d "$output_root" ]] || return 0
+
+    while IFS= read -r -d '' candidate; do
+        [[ "$candidate" == "$current_output" ]] && continue
+        name="${candidate##*/}"
+        [[ "$name" =~ ^[0-9]{8}-[0-9]{6}$ ]] || continue
+        echo "[Build] 清理旧 Release: $candidate"
+        ssnoir_remove_build_path "$candidate"
+    done < <(find "$output_root" -mindepth 1 -maxdepth 1 -type d -print0)
+}
+
 ssnoir_generate_font_subset() {
     local label="$1"
     [[ -f "$SSNOIR_RESOURCE_PLAN" ]] || {

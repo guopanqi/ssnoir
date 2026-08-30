@@ -171,6 +171,8 @@ python3 "$SCRIPT_DIR/write_build_report.py" \
     --cleanup-start-ns "$CLEANUP_START_NS" \
     --cleanup-end-ns "$CLEANUP_END_NS"
 
+ssnoir_cleanup_timestamped_releases "$SOURCE_PROJECT/Build/TapTapRelease" "$OUTPUT_DIR"
+
 echo "[TapTapBuild] 构建完成: $OUTPUT_DIR"
 if [[ -n "$CDN_URL" ]]; then
     echo "[TapTapBuild] CDN 地址: $CDN_URL"

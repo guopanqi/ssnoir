@@ -144,6 +144,8 @@ grep -qx 'index.html' <<<"$ITCH_ARCHIVE_ENTRIES" || {
     exit 4
 }
 
+ssnoir_cleanup_web_release_history "$OUTPUT_ROOT" "$BUILD_STAMP"
+
 echo "[WebRelease] 构建完成: $OUTPUT_DIR"
 echo "[WebRelease] 离线评审包: $ARCHIVE_PATH"
 echo "[WebRelease] itch HTML5 上传包: $ITCH_ARCHIVE_PATH"

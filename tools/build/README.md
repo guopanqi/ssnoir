@@ -6,3 +6,6 @@
 
 Unity staging 内的统一资源处理实现在
 `UnityClient/Assets/Editor/Build/BuildAssetPreparer.cs`。主工程资源不得由这些脚本直接裁剪。
+
+Web Release 和 TapTap Release 在新版本完整构建成功后，会自动删除同一输出目录下旧的时间戳版本，始终只保留
+本次成功构建；构建失败不会清理旧版本。
