@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 CDN_DIRECTORY="$REPO_ROOT/UnityClient/Build/TapTapCdn"
 CDN_PORT="${SSNOIR_CPOLAR_PORT:-18081}"
 CPOLAR_BIN="${CPOLAR_PATH:-}"

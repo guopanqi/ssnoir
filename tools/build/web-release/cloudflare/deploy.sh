@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 RELEASE_DIR=""
 BUCKET_NAME="ssnoir-web-demo"
 WRANGLER="$SCRIPT_DIR/node_modules/.bin/wrangler"

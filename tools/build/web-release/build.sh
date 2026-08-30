@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../build/common.sh"
+source "$SCRIPT_DIR/../common.sh"
 ssnoir_build_init "web-release"
 SOURCE_PROJECT="$SSNOIR_SOURCE_PROJECT"
 OUTPUT_ROOT="$SOURCE_PROJECT/Build/WebRelease"

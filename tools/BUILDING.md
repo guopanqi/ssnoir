@@ -37,24 +37,24 @@ Web Release 和 TapTap Release 成功后会自动删除同一输出目录下旧�
 ## 1. Web Preview：局域网快速预览
 
 ```bash
-./tools/web-preview/build-and-serve.sh
+./tools/build/preview/build-and-serve.sh
 ```
 
 它生成标准浏览器 WebGL，并启动局域网 HTTP 服务，适合用手机快速检查画面、布局、触摸和基本性能。
 它使用公共资源层，但采用 `local` 视频模式；平台参数则以构建速度为先，不具备 TapTap 容器、登录及
 小游戏 API 环境。需要模拟无视频评审包时加 `--review-no-video`。详细参数见
-[web-preview/README.md](web-preview/README.md)。
+[build/preview/README.md](build/preview/README.md)。
 
 ## 2. Web Release：标准浏览器正式包
 
 ```bash
-./tools/web-release/build.sh
+./tools/build/web-release/build.sh
 ```
 
 需要在构建成功后立即上传到 itch.io 时，直接加 `--itch`：
 
 ```bash
-./tools/web-release/build.sh --itch
+./tools/build/web-release/build.sh --itch
 ```
 
 它构建可部署到普通静态站点的浏览器 WebGL 正式包：关闭 Development Build 和调试符号，启用 Brotli
@@ -67,7 +67,7 @@ Web Release 和 TapTap Release 成功后会自动删除同一输出目录下旧�
 生成不含任何视频的极简评审包：
 
 ```bash
-./tools/web-release/build.sh --review-no-video
+./tools/build/web-release/build.sh --review-no-video
 ```
 
 每次完整构建成功后，`WebRelease/` 只保留本次时间戳目录、离线包、itch 包和日志；旧版本会自动删除。
@@ -75,7 +75,7 @@ Web Release 和 TapTap Release 成功后会自动删除同一输出目录下旧�
 本机或局域网启动该包时，传入本次构建的输出目录：
 
 ```bash
-./tools/web-release/serve.sh \
+./tools/build/web-release/serve.sh \
   --directory UnityClient/Build/WebRelease/<时间戳>
 ```
 
@@ -91,15 +91,15 @@ SSNoir-WebDemo/
 ```
 
 评委双击对应平台的 START 脚本即可，无需额外安装 Python、Node 或 Unity。启动器模板在
-`tools/web-release/offline-launcher/`。
+`tools/build/web-release/offline-launcher/`。
 
 ## Cloudflare Worker + R2：无域名公开链接
 
-`tools/web-release/cloudflare/` 用私有 R2 保存 Web Release，由 Worker 流式返回文件，因此不受
+`tools/build/web-release/cloudflare/` 用私有 R2 保存 Web Release，由 Worker 流式返回文件，因此不受
 Cloudflare Pages 的 25 MiB 单文件限制。首次部署需要在浏览器完成 `wrangler login`；之后执行：
 
 ```bash
-./tools/web-release/cloudflare/deploy.sh \
+./tools/build/web-release/cloudflare/deploy.sh \
   --release-dir UnityClient/Build/WebRelease/<时间戳>
 ```
 
@@ -120,11 +120,11 @@ Wrangler 输出，形如 `https://ssnoir-web-demo.<你的子域>.workers.dev/`�
 butler push UnityClient/Build/WebRelease/<时间戳> guopanqi/noir:web
 ```
 
-通常无需单独执行这条命令，推荐使用上面的 `./tools/web-release/build.sh --itch` 一次完成构建和上传。
+通常无需单独执行这条命令，推荐使用上面的 `./tools/build/web-release/build.sh --itch` 一次完成构建和上传。
 若要临时推送到其他页面或渠道，可设置 `ITCH_TARGET`：
 
 ```bash
-ITCH_TARGET=你的账号/你的游戏:测试渠道 ./tools/web-release/build.sh --itch
+ITCH_TARGET=你的账号/你的游戏:测试渠道 ./tools/build/web-release/build.sh --itch
 ```
 
 首次在 itch 后台上传或更新后，确认该渠道的文件已标为 **This file will be played in the browser**；之后同一渠道
@@ -135,7 +135,7 @@ ITCH_TARGET=你的账号/你的游戏:测试渠道 ./tools/web-release/build.sh 
 默认正式发布通过 COS 承载首资源 Data：
 
 ```bash
-./tools/taptap-build/build-and-upload-cos.sh \
+./tools/build/taptap/build-and-upload-cos.sh \
   --bucket ssnoir-taptap-1466784385 \
   --region ap-guangzhou \
   --cdn-url https://ssnoir-taptap-1466784385.cos.ap-guangzhou.myqcloud.com
@@ -148,7 +148,7 @@ Content-Type 和文件大小。TapTap 包中只保存远程基址；Data 由小�
 ### 包内 Data：同一流程的诊断模式
 
 ```bash
-./tools/taptap-build/build.sh
+./tools/build/taptap/build.sh
 ```
 
 它执行同一套公共资源处理，但把首资源 Data 放进 TapTap 小游戏包并采用 `none` 视频模式。适合用户
@@ -180,4 +180,4 @@ TapTap Release 在报告生成成功后会自动清理 `TapTapRelease/` 下旧�
 COS 承载 Data 和 `Cutscenes/*.mp4`，不承载 TapTap WASM 代码包。WASM 下载慢时，应检查 TapTap 的
 WASM 分包流程，而不是调整 COS 流量包。
 
-具体发布脚本参数和环境要求见 [taptap-build/README.md](taptap-build/README.md)。
+具体发布脚本参数和环境要求见 [build/taptap/README.md](build/taptap/README.md)。

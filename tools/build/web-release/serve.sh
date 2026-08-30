@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 OUTPUT_DIR=""
 PORT=8000
 
@@ -47,7 +47,7 @@ OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd)"
     exit 2
 }
 
-exec python3 "$REPO_ROOT/tools/web-preview/serve.py" \
+exec python3 "$REPO_ROOT/tools/build/preview/serve.py" \
     --directory "$OUTPUT_DIR" \
     --port "$PORT" \
     --brotli \

@@ -9,7 +9,7 @@ now_ns() {
 BUILD_START_NS="$(now_ns)"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../build/common.sh"
+source "$SCRIPT_DIR/../common.sh"
 ssnoir_build_init "taptap-release"
 REPO_ROOT="$SSNOIR_REPO_ROOT"
 SOURCE_PROJECT="$SSNOIR_SOURCE_PROJECT"
