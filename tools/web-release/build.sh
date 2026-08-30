@@ -3,25 +3,39 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-SOURCE_PROJECT="$REPO_ROOT/UnityClient"
-CACHE_ROOT="$REPO_ROOT/.cache/taptap-build"
-STAGING_ROOT="$CACHE_ROOT/staging"
-STAGING_PROJECT="$STAGING_ROOT/UnityClient"
+source "$SCRIPT_DIR/../build/common.sh"
+ssnoir_build_init "web-release"
+SOURCE_PROJECT="$SSNOIR_SOURCE_PROJECT"
 OUTPUT_ROOT="$SOURCE_PROJECT/Build/WebRelease"
 OFFLINE_SERVER_SOURCE="$SCRIPT_DIR/offline-server/main.go"
 OFFLINE_LAUNCHER_DIRECTORY="$SCRIPT_DIR/offline-launcher"
+ITCH_TARGET="${ITCH_TARGET:-guopanqi/noir:web}"
+PUBLISH_TO_ITCH=false
+REVIEW_NO_VIDEO=false
 
 usage() {
-    echo "用法: $0"
+    cat <<EOF
+用法: $0 [--itch] [--review-no-video]
+
+  --itch  构建完成后上传到 itch.io（默认渠道: ${ITCH_TARGET}）
+  --review-no-video  即使场景引用视频也不放入评审包
+
+可通过 ITCH_TARGET=user/game:channel 覆盖默认 itch 目标。
+EOF
 }
 
 remove_macos_metadata() {
     find "$1" -type f \( -name '.DS_Store' -o -name '._*' \) -delete
 }
 
-if [[ $# -gt 0 ]]; then
+while [[ $# -gt 0 ]]; do
     case "$1" in
+        --itch)
+            PUBLISH_TO_ITCH=true
+            ;;
+        --review-no-video)
+            REVIEW_NO_VIDEO=true
+            ;;
         -h|--help)
             usage
             exit 0
@@ -32,58 +46,32 @@ if [[ $# -gt 0 ]]; then
             exit 2
             ;;
     esac
+    shift
+done
+
+if [[ "$PUBLISH_TO_ITCH" == true ]]; then
+    command -v butler >/dev/null 2>&1 || {
+        echo "找不到 butler。请先安装并登录 itch.io Butler，或去掉 --itch 只构建。" >&2
+        exit 2
+    }
 fi
 
-AVAILABLE_KB="$(df -Pk "$REPO_ROOT" | awk 'NR == 2 { print $4 }')"
-REQUIRED_KB=$((2 * 1024 * 1024))
-if [[ "$AVAILABLE_KB" -lt "$REQUIRED_KB" ]]; then
-    AVAILABLE_MB=$((AVAILABLE_KB / 1024))
-    echo "磁盘可用空间只有 ${AVAILABLE_MB} MiB；WebGL 构建至少预留 2048 MiB。" >&2
-    exit 3
-fi
-
-mkdir -p "$CACHE_ROOT" "$STAGING_ROOT"
-if [[ ! -d "$STAGING_PROJECT" ]]; then
-    echo "[WebRelease] 首次创建 APFS staging 快照..."
-    cp -cR "$SOURCE_PROJECT" "$STAGING_PROJECT"
-fi
-
-echo "[WebRelease] 同步当前开发工程（保留全部资源和本地过场视频）..."
-rsync -a --delete \
-    --exclude '/Library/' \
-    --exclude '/Temp/' \
-    --exclude '/Logs/' \
-    --exclude '/Build/' \
-    --exclude '/Builds/' \
-    --exclude '/UserSettings/' \
-    --exclude '/Screenshots/' \
-    --exclude '/CutsceneSource~/' \
-    "$SOURCE_PROJECT/" "$STAGING_PROJECT/"
-
-mkdir -p "$STAGING_ROOT/Content"
-rsync -a --delete "$REPO_ROOT/Content/" "$STAGING_ROOT/Content/"
-
-rm -rf \
-    "$STAGING_PROJECT/Build" \
-    "$STAGING_PROJECT/Builds" \
-    "$STAGING_PROJECT/Logs" \
-    "$STAGING_PROJECT/Temp" \
-    "$STAGING_PROJECT/Screenshots" \
-    "$STAGING_PROJECT/CutsceneSource~"
-
-UNITY_EXECUTABLE="${UNITY_PATH:-/Applications/Unity/Unity.app/Contents/MacOS/Unity}"
-[[ -x "$UNITY_EXECUTABLE" ]] || {
-    echo "找不到 Unity。请通过 UNITY_PATH 指定 Unity 可执行文件。" >&2
-    exit 2
-}
+ssnoir_require_build_space "WebGL 构建"
+ssnoir_prepare_staging "WebRelease"
+ssnoir_generate_font_subset "WebRelease"
+ssnoir_require_unity
+VIDEO_MODE="local"
+[[ "$REVIEW_NO_VIDEO" == false ]] || VIDEO_MODE="none"
 [[ -f "$OFFLINE_SERVER_SOURCE" ]] || {
     echo "找不到离线启动服务源码: $OFFLINE_SERVER_SOURCE" >&2
     exit 2
 }
-[[ -d "$OFFLINE_LAUNCHER_DIRECTORY" ]] || {
-    echo "找不到离线启动器模板: $OFFLINE_LAUNCHER_DIRECTORY" >&2
-    exit 2
-}
+for launcher_file in "START-Mac.command" "START-Windows.bat" "README.txt"; do
+    [[ -f "$OFFLINE_LAUNCHER_DIRECTORY/$launcher_file" ]] || {
+        echo "找不到离线启动器模板: $OFFLINE_LAUNCHER_DIRECTORY/$launcher_file" >&2
+        exit 2
+    }
+done
 command -v go >/dev/null 2>&1 || {
     echo "找不到 Go。离线评审包需要 Go 编译内置本地服务器。" >&2
     exit 2
@@ -101,15 +89,13 @@ echo "[WebRelease] 构建标准浏览器 WebGL 正式包（非 Development Build
 echo "[WebRelease] 输出目录: $OUTPUT_DIR"
 
 set +e
-SSNOIR_WEB_RELEASE_OUTPUT="$OUTPUT_DIR" \
-    "$UNITY_EXECUTABLE" \
-        -batchmode \
-        -quit \
-        -nographics \
-        -buildTarget WebGL \
-        -projectPath "$STAGING_PROJECT" \
-        -executeMethod SSNoir.Editor.WebReleaseCommandLineBuilder.Build \
-        -logFile "$LOG_PATH"
+ssnoir_run_unity \
+    SSNoir.Editor.WebReleaseCommandLineBuilder.Build \
+    "$LOG_PATH" \
+    "SSNOIR_BUILD_RESOURCE_PLAN=$SSNOIR_RESOURCE_PLAN" \
+    "SSNOIR_BUILD_FONT_DIR=$SSNOIR_GENERATED_FONT_DIR" \
+    "SSNOIR_BUILD_VIDEO_MODE=$VIDEO_MODE" \
+    "SSNOIR_WEB_RELEASE_OUTPUT=$OUTPUT_DIR"
 UNITY_EXIT=$?
 set -e
 
@@ -126,14 +112,15 @@ fi
 remove_macos_metadata "$OUTPUT_DIR"
 
 echo "[WebRelease] 打包无需额外运行时的离线评审版..."
-mkdir -p "$OFFLINE_BUNDLE"
-rsync -a "$OUTPUT_DIR/" "$OFFLINE_BUNDLE/"
-cp "$OFFLINE_LAUNCHER_DIRECTORY/Start SSNoir Demo.command" "$OFFLINE_BUNDLE/"
-cp "$OFFLINE_LAUNCHER_DIRECTORY/Start SSNoir Demo.bat" "$OFFLINE_BUNDLE/"
-chmod +x "$OFFLINE_BUNDLE/Start SSNoir Demo.command"
-CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o "$OFFLINE_BUNDLE/SSNoirDemoServer-mac-arm64" "$OFFLINE_SERVER_SOURCE"
-CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o "$OFFLINE_BUNDLE/SSNoirDemoServer-mac-x64" "$OFFLINE_SERVER_SOURCE"
-CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o "$OFFLINE_BUNDLE/SSNoirDemoServer-win-x64.exe" "$OFFLINE_SERVER_SOURCE"
+mkdir -p "$OFFLINE_BUNDLE/game"
+rsync -a "$OUTPUT_DIR/" "$OFFLINE_BUNDLE/game/"
+cp "$OFFLINE_LAUNCHER_DIRECTORY/START-Mac.command" "$OFFLINE_BUNDLE/"
+cp "$OFFLINE_LAUNCHER_DIRECTORY/START-Windows.bat" "$OFFLINE_BUNDLE/"
+cp "$OFFLINE_LAUNCHER_DIRECTORY/README.txt" "$OFFLINE_BUNDLE/"
+chmod +x "$OFFLINE_BUNDLE/START-Mac.command"
+CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o "$OFFLINE_BUNDLE/game/SSNoirDemoServer-mac-arm64" "$OFFLINE_SERVER_SOURCE"
+CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o "$OFFLINE_BUNDLE/game/SSNoirDemoServer-mac-x64" "$OFFLINE_SERVER_SOURCE"
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o "$OFFLINE_BUNDLE/game/SSNoirDemoServer-win-x64.exe" "$OFFLINE_SERVER_SOURCE"
 
 rm -f "$ARCHIVE_PATH"
 (
@@ -149,7 +136,10 @@ rm -f "$ITCH_ARCHIVE_PATH"
     zip -q -r "$ITCH_ARCHIVE_PATH" . -x '*/.DS_Store' '*/._*'
 )
 unzip -tq "$ITCH_ARCHIVE_PATH" >/dev/null
-unzip -Z1 "$ITCH_ARCHIVE_PATH" | grep -qx 'index.html' || {
+# 先把清单落到变量里再 grep：直接管道给 grep -q 时，grep 命中即退出会给 unzip 一个
+# SIGPIPE，pipefail 于是把这次成功的检查判成失败——文件在不在纯看谁先跑完，偶发。
+ITCH_ARCHIVE_ENTRIES="$(unzip -Z1 "$ITCH_ARCHIVE_PATH")"
+grep -qx 'index.html' <<<"$ITCH_ARCHIVE_ENTRIES" || {
     echo "[WebRelease] itch 上传包缺少根目录 index.html。" >&2
     exit 4
 }
@@ -157,3 +147,9 @@ unzip -Z1 "$ITCH_ARCHIVE_PATH" | grep -qx 'index.html' || {
 echo "[WebRelease] 构建完成: $OUTPUT_DIR"
 echo "[WebRelease] 离线评审包: $ARCHIVE_PATH"
 echo "[WebRelease] itch HTML5 上传包: $ITCH_ARCHIVE_PATH"
+
+if [[ "$PUBLISH_TO_ITCH" == true ]]; then
+    echo "[WebRelease] 上传 itch.io: $ITCH_TARGET"
+    butler push "$OUTPUT_DIR" "$ITCH_TARGET"
+    echo "[WebRelease] itch.io 上传完成: https://guopanqi.itch.io/noir"
+fi

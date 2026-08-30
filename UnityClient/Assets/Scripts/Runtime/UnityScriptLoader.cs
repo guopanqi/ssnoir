@@ -1,4 +1,3 @@
-using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using SSNoir.Core;
@@ -9,51 +8,34 @@ namespace SSNoir
     {
         public string LoadScriptText(string path)
         {
-            string fullPath = Path.Combine(Application.streamingAssetsPath, "Content", path);
-
-            if (File.Exists(fullPath))
-            {
-                return File.ReadAllText(fullPath);
-            }
-
-            string resourcePath = Path.Combine("Content", path).Replace('\\', '/');
+            string resourcePath = ResourcePath(path);
             TextAsset resource = Resources.Load<TextAsset>(resourcePath);
             if (resource != null)
-            {
                 return resource.text;
-            }
 
-            Debug.LogError($"[UnityScriptLoader] Script file not found at: {fullPath} or Resources/{resourcePath}");
-            throw new FileNotFoundException($"Script file not found at: {fullPath} or Resources/{resourcePath}");
+            throw new System.IO.FileNotFoundException(
+                $"Scheme 脚本不存在或未正确导入: Resources/{resourcePath} ({path})");
         }
 
         public List<string> LoadSceneNames()
         {
             var sceneNames = new List<string>();
-            string scenesDir = Path.Combine(Application.streamingAssetsPath, "Content", "scenes");
-
-            if (Directory.Exists(scenesDir))
+            foreach (TextAsset sceneAsset in Resources.LoadAll<TextAsset>("Content/scenes"))
             {
-                foreach (string file in Directory.GetFiles(scenesDir, "*.scm"))
-                {
-                    sceneNames.Add(Path.GetFileNameWithoutExtension(file));
-                }
+                string sceneName = sceneAsset.name;
+                if (!sceneNames.Contains(sceneName))
+                    sceneNames.Add(sceneName);
             }
-
-            if (sceneNames.Count == 0)
-            {
-                foreach (TextAsset sceneAsset in Resources.LoadAll<TextAsset>("Content/scenes"))
-                {
-                    string sceneName = Path.GetFileNameWithoutExtension(sceneAsset.name);
-                    if (!sceneNames.Contains(sceneName))
-                    {
-                        sceneNames.Add(sceneName);
-                    }
-                }
-            }
-
             sceneNames.Sort();
             return sceneNames;
+        }
+
+        private static string ResourcePath(string scriptPath)
+        {
+            string normalized = scriptPath.Replace('\\', '/').TrimStart('/');
+            if (normalized.EndsWith(".scm", System.StringComparison.OrdinalIgnoreCase))
+                normalized = normalized.Substring(0, normalized.Length - ".scm".Length);
+            return "Content/" + normalized;
         }
     }
 }

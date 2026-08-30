@@ -13,8 +13,11 @@
 
 - 指定端口：`./tools/web-preview/build-and-serve.sh --port 8080`
 - 不重新构建，只启动上一次产物：`./tools/web-preview/build-and-serve.sh --serve-only`
+- 模拟无视频评审包：`./tools/web-preview/build-and-serve.sh --review-no-video`
 - 停止服务器：在终端按 `Ctrl-C`
 
-预览复用 TapTap 构建的独立 staging 和持久 `Library` 缓存，但不执行字体子集、视频清单或资源排除。产物固定在 `UnityClient/Build/WebPreview`，后续构建可以复用 Unity 的增量缓存。
+预览使用自己的 staging 和持久 `Library`，不会与 Web Release 或 TapTap 共用可变缓存。字体子集、资源
+排除和视频清单走公共构建层；平台设置仍以快速浏览器预览为目标。产物固定在
+`UnityClient/Build/WebPreview`。
 
 这是标准浏览器 WebGL，用于快速检查手机上的画面、布局、触摸和基本性能；TapTap 登录、小游戏原生 API、小游戏容器性能仍需通过 TapTap 包验证。

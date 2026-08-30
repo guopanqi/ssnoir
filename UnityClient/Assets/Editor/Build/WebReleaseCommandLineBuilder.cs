@@ -10,8 +10,7 @@ namespace SSNoir.Editor
 {
     /// <summary>
     /// 构建可部署到普通静态站点的浏览器 WebGL 正式包。
-    /// 它刻意不复用 TapTap 的发布处理：后者会移除 StreamingAssets 中的视频，
-    /// 而标准浏览器版必须保留它们以保证全部功能可用。
+    /// 平台参数属于 Web Release；字体、未使用资源和视频交付模式由公共资源准备器处理。
     /// </summary>
     public static class WebReleaseCommandLineBuilder
     {
@@ -25,6 +24,9 @@ namespace SSNoir.Editor
             public bool developmentBuild;
             public bool dataCaching;
             public bool includesStreamingAssets;
+            public string videoMode = string.Empty;
+            public string[] excludedAssets = Array.Empty<string>();
+            public long embeddedCutsceneBytes;
             public ulong totalBytes;
             public double buildSeconds;
         }
@@ -45,6 +47,8 @@ namespace SSNoir.Editor
                     throw new InvalidOperationException("Build Settings 中没有启用的场景。");
 
                 Directory.CreateDirectory(outputDirectory);
+                BuildAssetPreparer.Result prepared =
+                    BuildAssetPreparer.PrepareFromEnvironment("WebRelease");
                 ConfigureReleaseBuild();
 
                 var options = new BuildPlayerOptions
@@ -62,7 +66,7 @@ namespace SSNoir.Editor
                         $"WebGL 正式构建失败: {report.summary.result}，错误 {report.summary.totalErrors} 个。");
                 }
 
-                WriteReport(outputDirectory, scenes, report);
+                WriteReport(outputDirectory, scenes, report, prepared);
                 Debug.Log($"[WebRelease] 构建完成: {outputDirectory}");
             }
             catch (Exception exception)
@@ -91,8 +95,15 @@ namespace SSNoir.Editor
             EditorUserBuildSettings.development = false;
         }
 
-        private static void WriteReport(string outputDirectory, string[] scenes, BuildReport report)
+        private static void WriteReport(
+            string outputDirectory,
+            string[] scenes,
+            BuildReport report,
+            BuildAssetPreparer.Result prepared)
         {
+            string[] excludedAssets = prepared.Plan.exclude
+                .Select(exclusion => exclusion.path)
+                .ToArray();
             var releaseReport = new ReleaseBuildReport
             {
                 unityVersion = Application.unityVersion,
@@ -103,6 +114,9 @@ namespace SSNoir.Editor
                 dataCaching = PlayerSettings.WebGL.dataCaching,
                 includesStreamingAssets = Directory.Exists(
                     Path.Combine(Application.streamingAssetsPath, "Cutscenes")),
+                videoMode = prepared.VideoMode,
+                excludedAssets = excludedAssets,
+                embeddedCutsceneBytes = prepared.EmbeddedCutsceneBytes,
                 totalBytes = report.summary.totalSize,
                 buildSeconds = report.summary.totalTime.TotalSeconds
             };

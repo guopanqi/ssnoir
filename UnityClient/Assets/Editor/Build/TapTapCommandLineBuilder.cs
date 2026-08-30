@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using TapTapMiniGame;
@@ -12,33 +11,6 @@ namespace SSNoir.Editor
 {
     public static class TapTapCommandLineBuilder
     {
-        private const string RegularFontName = "SourceHanSerifCN-Regular.ttf";
-        private const string SemiboldFontName = "SourceHanSerifCN-SemiBold.ttf";
-        private const string ResourceFontDirectory = "Assets/Resources/Fonts";
-        private const string StreamingFontDirectory = "Assets/StreamingAssets/Content/assets/fonts";
-        private const string CutsceneVideoDirectory = "Assets/StreamingAssets/Cutscenes";
-
-        [Serializable]
-        private sealed class ReleasePlan
-        {
-            public int version;
-            public CutsceneVideoPlan cutsceneVideos = new CutsceneVideoPlan();
-            public ReleaseExclusion[] exclude = Array.Empty<ReleaseExclusion>();
-        }
-
-        [Serializable]
-        private sealed class CutsceneVideoPlan
-        {
-            public string[] keep = Array.Empty<string>();
-        }
-
-        [Serializable]
-        private sealed class ReleaseExclusion
-        {
-            public string path = string.Empty;
-            public string reason = string.Empty;
-        }
-
         [Serializable]
         private sealed class UnityBuildReport
         {
@@ -47,13 +19,15 @@ namespace SSNoir.Editor
             public string webGLTextureSubtarget = string.Empty;
             public bool unitySplashScreenEnabled;
             public string[] excludedAssets = Array.Empty<string>();
-            public string[] keptCutsceneVideos = Array.Empty<string>();
+            public string[] plannedCutsceneVideos = Array.Empty<string>();
             public string[] prunedCutsceneVideos = Array.Empty<string>();
             public long embeddedCutsceneBytes;
             public long gameZipBytes;
             public long wasmSplitZipBytes;
             public bool dataHostedRemotely;
             public string dataCdnUrl = string.Empty;
+            public string videoMode = string.Empty;
+            public string remoteAssetBaseUrl = string.Empty;
             public double releaseAssetPreparationSeconds;
             public double tapTapSdkBuildSeconds;
             public double archiveValidationSeconds;
@@ -63,18 +37,16 @@ namespace SSNoir.Editor
         {
             try
             {
-                string planPath = RequireEnvironmentPath("SSNOIR_TAPTAP_RELEASE_PLAN", File.Exists);
-                string fontDirectory = RequireEnvironmentPath("SSNOIR_TAPTAP_FONT_DIR", Directory.Exists);
                 string outputDirectory = RequireEnvironmentPath("SSNOIR_TAPTAP_OUTPUT", _ => true);
                 string dataCdnUrl = ReadOptionalDataCdnUrl();
 
                 if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.WebGL)
-                    throw new InvalidOperationException("TapTap 精简构建必须使用 WebGL BuildTarget。");
+                    throw new InvalidOperationException("TapTap Release 必须使用 WebGL BuildTarget。");
 
                 Directory.CreateDirectory(outputDirectory);
                 var preparationTimer = Stopwatch.StartNew();
-                ReleasePlan plan = LoadPlan(planPath);
-                string[] prunedCutsceneVideos = ApplyReleaseAssets(plan, fontDirectory);
+                BuildAssetPreparer.Result prepared =
+                    BuildAssetPreparer.PrepareFromEnvironment("TapTapRelease");
                 ConfigureTapTapRelease(outputDirectory, dataCdnUrl);
                 preparationTimer.Stop();
 
@@ -93,8 +65,7 @@ namespace SSNoir.Editor
                 validationTimer.Stop();
                 WriteUnityReport(
                     outputDirectory,
-                    plan,
-                    prunedCutsceneVideos,
+                    prepared,
                     gameZip,
                     wasmSplitZip,
                     dataCdnUrl,
@@ -106,158 +77,12 @@ namespace SSNoir.Editor
             catch (Exception exception)
             {
                 Debug.LogException(exception);
-                throw new BuildFailedException($"TapTap 精简构建失败: {exception.Message}");
-            }
-        }
-
-        private static ReleasePlan LoadPlan(string planPath)
-        {
-            var plan = JsonUtility.FromJson<ReleasePlan>(File.ReadAllText(planPath));
-            if (plan == null || plan.version != 1)
-                throw new InvalidOperationException($"不支持的发布计划格式: {planPath}");
-            if (plan.exclude == null)
-                throw new InvalidOperationException("发布计划缺少 exclude 数组。");
-            if (plan.cutsceneVideos == null || plan.cutsceneVideos.keep == null)
-                throw new InvalidOperationException("发布计划缺少 cutsceneVideos.keep 数组。");
-            return plan;
-        }
-
-        private static string[] ApplyReleaseAssets(ReleasePlan plan, string generatedFontDirectory)
-        {
-            CopySubsetFont(generatedFontDirectory, RegularFontName);
-            CopySubsetFont(generatedFontDirectory, SemiboldFontName);
-
-            DeleteAssetIfPresent($"{ResourceFontDirectory}/MiSans-Regular.ttf");
-            DeleteAssetIfPresent($"{ResourceFontDirectory}/MiSans-Semibold.ttf");
-            DeleteAssetIfPresent(StreamingFontDirectory);
-            string[] prunedCutsceneVideos = ApplyCutsceneVideoPlan(plan.cutsceneVideos);
-
-            var seenPaths = new HashSet<string>(StringComparer.Ordinal);
-            foreach (ReleaseExclusion exclusion in plan.exclude)
-            {
-                if (exclusion == null || string.IsNullOrWhiteSpace(exclusion.path))
-                    throw new InvalidOperationException("发布计划包含空的排除路径。");
-                string assetPath = NormalizeAndValidateAssetPath(exclusion.path);
-                if (!seenPaths.Add(assetPath))
-                    throw new InvalidOperationException($"发布计划包含重复路径: {assetPath}");
-                DeleteRequiredAsset(assetPath, exclusion.reason);
-            }
-
-            DeleteFinderMetadata();
-            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
-            RequireImportedFont($"{ResourceFontDirectory}/{RegularFontName}");
-            RequireImportedFont($"{ResourceFontDirectory}/{SemiboldFontName}");
-            return prunedCutsceneVideos;
-        }
-
-        private static string[] ApplyCutsceneVideoPlan(CutsceneVideoPlan plan)
-        {
-            string fullDirectory = Path.GetFullPath(CutsceneVideoDirectory);
-            if (!Directory.Exists(fullDirectory))
-                throw new DirectoryNotFoundException($"过场视频目录不存在: {fullDirectory}");
-
-            var keep = new HashSet<string>(StringComparer.Ordinal);
-            foreach (string fileName in plan.keep)
-            {
-                if (string.IsNullOrWhiteSpace(fileName)
-                    || Path.GetFileName(fileName) != fileName
-                    || !fileName.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new InvalidOperationException($"过场视频保留项必须是单个 mp4 文件名: {fileName}");
-                }
-                if (!keep.Add(fileName))
-                    throw new InvalidOperationException($"过场视频保留清单包含重复项: {fileName}");
-
-                string requiredPath = Path.Combine(fullDirectory, fileName);
-                if (!File.Exists(requiredPath))
-                    throw new FileNotFoundException($"场景需要的过场视频不存在: {requiredPath}");
-            }
-
-            var pruned = new List<string>();
-            foreach (string fullPath in Directory.GetFiles(fullDirectory, "*.mp4", SearchOption.TopDirectoryOnly))
-            {
-                string fileName = Path.GetFileName(fullPath);
-                if (keep.Contains(fileName))
-                {
-                    Debug.Log($"[TapTapRelease] 保留过场视频: {fileName}");
-                    continue;
-                }
-
-                string assetPath = $"{CutsceneVideoDirectory}/{fileName}";
-                if (!AssetDatabase.DeleteAsset(assetPath))
-                    throw new IOException($"无法从 staging 删除未使用的过场视频: {assetPath}");
-                pruned.Add(fileName);
-                Debug.Log($"[TapTapRelease] 排除未使用过场视频: {fileName}");
-            }
-
-            pruned.Sort(StringComparer.Ordinal);
-            return pruned.ToArray();
-        }
-
-        private static void CopySubsetFont(string generatedFontDirectory, string fontName)
-        {
-            string sourcePath = Path.Combine(generatedFontDirectory, fontName);
-            if (!File.Exists(sourcePath) || new FileInfo(sourcePath).Length == 0)
-                throw new InvalidOperationException($"字体子集不存在或为空: {sourcePath}");
-
-            string targetAssetPath = $"{ResourceFontDirectory}/{fontName}";
-            string targetPath = Path.GetFullPath(targetAssetPath);
-            Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
-            File.Copy(sourcePath, targetPath, true);
-            Debug.Log($"[TapTapRelease] 字体子集: {fontName} ({new FileInfo(sourcePath).Length} bytes)");
-        }
-
-        private static void RequireImportedFont(string assetPath)
-        {
-            if (AssetDatabase.LoadAssetAtPath<Font>(assetPath) == null)
-                throw new InvalidOperationException($"Unity 无法导入字体子集: {assetPath}");
-        }
-
-        private static string NormalizeAndValidateAssetPath(string value)
-        {
-            string path = value.Replace('\\', '/').Trim().TrimEnd('/');
-            bool allowedRoot = path.StartsWith("Assets/Resources/", StringComparison.Ordinal)
-                || path.StartsWith("Assets/StreamingAssets/", StringComparison.Ordinal);
-            if (!allowedRoot || path.Contains("/../") || path.EndsWith("/..", StringComparison.Ordinal))
-                throw new InvalidOperationException($"排除路径不在允许范围内: {value}");
-            return path;
-        }
-
-        private static void DeleteRequiredAsset(string assetPath, string reason)
-        {
-            string fullPath = Path.GetFullPath(assetPath);
-            if (!File.Exists(fullPath) && !Directory.Exists(fullPath))
-                throw new FileNotFoundException($"发布计划中的资源不存在，请让 Agent 重新审查计划: {assetPath}");
-            if (!AssetDatabase.DeleteAsset(assetPath))
-                throw new IOException($"无法从 staging 删除资源: {assetPath}");
-            Debug.Log($"[TapTapRelease] 排除资源: {assetPath}；原因: {reason}");
-        }
-
-        private static void DeleteAssetIfPresent(string assetPath)
-        {
-            string fullPath = Path.GetFullPath(assetPath);
-            if (!File.Exists(fullPath) && !Directory.Exists(fullPath))
-                return;
-            if (!AssetDatabase.DeleteAsset(assetPath))
-                throw new IOException($"无法从 staging 删除资源: {assetPath}");
-            Debug.Log($"[TapTapRelease] 排除固定资源: {assetPath}");
-        }
-
-        private static void DeleteFinderMetadata()
-        {
-            foreach (string path in Directory.GetFiles(Application.dataPath, ".DS_Store", SearchOption.AllDirectories))
-            {
-                File.Delete(path);
-                Debug.Log($"[TapTapRelease] 清理 Finder 元数据: {path}");
+                throw new BuildFailedException($"TapTap Release 构建失败: {exception.Message}");
             }
         }
 
         private static void ConfigureTapTapRelease(string outputDirectory, string dataCdnUrl)
         {
-            // 必须在动 MiniGameConfig 之前：改脚本宏会触发一次重编译，中途的域重载会把
-            // config 上还没写盘的字段（含数据包压缩开关）冲回磁盘上的旧值。
-            DeclareStreamingAssetsRemoved();
-
             var config = TapTapUtil.GetEditorConf(true);
             if (config == null)
                 throw new InvalidOperationException("无法加载 TapTap MiniGameConfig.asset。");
@@ -298,38 +123,11 @@ namespace SSNoir.Editor
             config.CompileOptions.enableProfileStats = false;
             config.CompileOptions.showMonitorSuggestModal = false;
 
-            // The review build intentionally excludes local cutscene videos. TapTap's native
-            // decoder cannot read Unity WebGL's packaged StreamingAssets paths; release builds
-            // will switch to HTTPS URLs when remote hosting is configured.
+            // TapTap 的本地 StreamingAssets 路径不能交给小游戏原生解码器。公共资源准备器已经
+            // 根据构建模式把视频改为远程 HTTPS，或显式禁用；包内始终删除 StreamingAssets。
             config.CompileOptions.DeleteStreamingAssets = true;
             EditorUtility.SetDirty(config);
             AssetDatabase.SaveAssets();
-        }
-
-        /// <summary>
-        /// 把「这个包没有 StreamingAssets」告诉运行时代码。删文件是构建期的事，但运行时必须
-        /// 知道——否则 CutscenePlayer 仍会为不存在的片子创建 VideoPlayer，而小游戏容器的
-        /// _JS_Video_Create 会抛 JS 异常穿出 PlayerLoop，把整个引擎卡死在那一帧。
-        /// </summary>
-        private static void DeclareStreamingAssetsRemoved()
-        {
-            const string symbol = "SSNOIR_NO_STREAMING_ASSETS";
-            string existing = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.WebGL);
-            var symbols = new List<string>();
-            foreach (string entry in existing.Split(';', StringSplitOptions.RemoveEmptyEntries))
-            {
-                string trimmed = entry.Trim();
-                if (trimmed.Length == 0)
-                    continue;
-                if (trimmed == symbol)
-                    return;
-                symbols.Add(trimmed);
-            }
-
-            symbols.Add(symbol);
-            PlayerSettings.SetScriptingDefineSymbols(
-                NamedBuildTarget.WebGL, string.Join(";", symbols));
-            Debug.Log($"[TapTapRelease] 已为本次构建加入脚本宏 {symbol}。");
         }
 
         private static void ValidateEtc2ReleaseSettings()
@@ -426,8 +224,7 @@ namespace SSNoir.Editor
 
         private static void WriteUnityReport(
             string outputDirectory,
-            ReleasePlan plan,
-            string[] prunedCutsceneVideos,
+            BuildAssetPreparer.Result prepared,
             string gameZip,
             string wasmSplitZip,
             string dataCdnUrl,
@@ -435,9 +232,9 @@ namespace SSNoir.Editor
             double tapTapSdkBuildSeconds,
             double archiveValidationSeconds)
         {
-            var excluded = new string[plan.exclude.Length];
-            for (int index = 0; index < plan.exclude.Length; index++)
-                excluded[index] = plan.exclude[index].path;
+            var excluded = new string[prepared.Plan.exclude.Length];
+            for (int index = 0; index < prepared.Plan.exclude.Length; index++)
+                excluded[index] = prepared.Plan.exclude[index].path;
 
             var report = new UnityBuildReport
             {
@@ -446,13 +243,15 @@ namespace SSNoir.Editor
                 webGLTextureSubtarget = EditorUserBuildSettings.webGLBuildSubtarget.ToString(),
                 unitySplashScreenEnabled = PlayerSettings.SplashScreen.show,
                 excludedAssets = excluded,
-                keptCutsceneVideos = plan.cutsceneVideos.keep,
-                prunedCutsceneVideos = prunedCutsceneVideos,
-                embeddedCutsceneBytes = 0,
+                plannedCutsceneVideos = prepared.Plan.cutsceneVideos.keep,
+                prunedCutsceneVideos = prepared.PrunedCutsceneVideos,
+                embeddedCutsceneBytes = prepared.EmbeddedCutsceneBytes,
                 gameZipBytes = new FileInfo(gameZip).Length,
                 wasmSplitZipBytes = new FileInfo(wasmSplitZip).Length,
                 dataHostedRemotely = !string.IsNullOrEmpty(dataCdnUrl),
                 dataCdnUrl = dataCdnUrl,
+                videoMode = prepared.VideoMode,
+                remoteAssetBaseUrl = prepared.RemoteAssetBaseUrl,
                 releaseAssetPreparationSeconds = releaseAssetPreparationSeconds,
                 tapTapSdkBuildSeconds = tapTapSdkBuildSeconds,
                 archiveValidationSeconds = archiveValidationSeconds,

@@ -15,13 +15,13 @@ description: 修改 SSNoir 的代码或可执行内容后决定验证范围、�
 |---|---|
 | `.scm` 纯文案、明确的局部数值调整 | 仔细审阅 diff；用户未要求时通常不运行命令 |
 | `.scm` 可执行结构：节点组装、新 DSL 调用、规则、Clock、save/load、encounter，或大段重构 | `./run --validate` |
-| `Content/scripts/engine.scm` | `./run --validate`；若同时改了 C# bridge，再按下一行构建 |
-| `Engine/Runtime/**`、`TerminalApp/**` | `dotnet build TerminalApp/ssnoir.csproj` |
+| `UnityClient/Assets/Resources/Content/scripts/engine.scm` | `./run --validate`；若同时改了 C# bridge，再按下一行构建 |
+| `Engine/Runtime/**`、`tools/content-validator/**` | `dotnet build tools/content-validator/SSNoir.ContentValidator.csproj` |
 | `schemy-master/**` | `./schemy-master/build-unity-plugin.sh`（同时重建 Unity 使用的 DLL） |
 | 判定分布 | `./run --test-odds` |
 | 交锋的回合规则、目标结算、入场与结束路径 | 审阅 diff；**只有用户要求试跑时**才 `./run --playtest`（见下节） |
 | 存档契约 | `./run --test-saveload` |
-| `UnityClient/**` 独有代码 | 按下节「Unity C# 的编译验证」拿真编译结果；拿不到就静态审阅并交给用户，不用 `TerminalApp` 的构建冒充 |
+| `UnityClient/**` 独有代码 | 按下节「Unity C# 的编译验证」拿真编译结果；拿不到就静态审阅并交给用户，不用内容校验器的构建冒充 |
 | 较大的非 Unity UI 布局 / 交互改动，或用户明确要求看实际效果 | 运行并检查相关客户端；构建通过不等于视觉或交互正确。Unity 交互按下节处理 |
 | 追一个具体的疑难 bug | 用能复现它的**最小**手段，别顺手做全量校验 |
 
@@ -47,7 +47,7 @@ description: 修改 SSNoir 的代码或可执行内容后决定验证范围、�
 ## 交锋试跑（`--playtest`）——**用户要求才跑**
 
 **不要在改完交锋后自动跑试跑。**默认只 `./run --validate`；C# 那头没动时用
-`dotnet run --no-build --project TerminalApp/ssnoir.csproj -- --validate`（省掉一次构建）。
+`dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --validate`（省掉一次构建）。
 交锋的手感最终由用户自己手玩确认，基线打法替代不了；每次顺手跑一轮模拟只是在拖慢编写循环。
 
 同样禁止的是**为了让驱动跑通而临时改内容**：注释掉退出卡、往世界模块里塞 `debug-enter!` 钩子、
@@ -74,14 +74,14 @@ description: 修改 SSNoir 的代码或可执行内容后决定验证范围、�
 它还会**先用光一切不吃骰的卡**。所以带「走开 / 就此收手」这类免费退出卡的交锋，驱动必定第一手
 退出、直接回传那条路径的结果。这不是内容写错了，是驱动的打法使然——看见这种流水不要去改内容。
 
-驱动本身在 [TerminalApp/src/Playtest/EncounterDriver.cs](../../TerminalApp/src/Playtest/EncounterDriver.cs)：
+驱动本身在 [tools/content-validator/Playtest/EncounterDriver.cs](../../tools/content-validator/Playtest/EncounterDriver.cs)：
 起局、列合法投骰、执行、结束回合、读结果。**它的观测只走渲染树**，不 Eval 脚本内部变量——
 某个状态如果这里读不出来，说明玩家也读不出来。要给某一场写专门的打法或断言，基于它写一个
 一次性脚本，别往 `GameTester` 里塞。
 
 ## Unity C# 的编译验证
 
-`dotnet build TerminalApp/ssnoir.csproj` 覆盖不到 `UnityClient/Assets/Scripts/**`——那些源文件
+`dotnet build tools/content-validator/SSNoir.ContentValidator.csproj` 覆盖不到 `UnityClient/Assets/Scripts/**`——那些源文件
 根本不在那个工程里。要拿到它们的编译结果，按顺序试：
 
 **1. 编 Unity 生成的 csproj（首选，编辑器开着也能用）**

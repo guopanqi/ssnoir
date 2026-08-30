@@ -11,7 +11,7 @@
 - **写 .scm 内容（世界观口径 + 引擎隐含行为 + 内容作者的判断）**：[skills/write-scheme/SKILL.md](skills/write-scheme/SKILL.md)
 - **制作 3D 资产（参考图、低模、Blender 加工、Unity 命名契约）**：[skills/create-3d-assets/SKILL.md](skills/create-3d-assets/SKILL.md)
 - **要不要验证 / 怎么验证**：[skills/verify/SKILL.md](skills/verify/SKILL.md)
-- **Web Preview、TapTap 包内资源、TapTap + COS 三种构建方式**：[tools/BUILDING.md](tools/BUILDING.md)
+- **Web Preview、Web Release、TapTap Release 三种构建方式**：[tools/BUILDING.md](tools/BUILDING.md)
 
 文档分两种身份：
 **「设计」文档**回答"游戏该是什么"，长命、随游戏演进持续回修；
@@ -65,6 +65,8 @@
 选择覆盖本次主要风险的最小充分验证；静态审阅足够时可以不运行命令。**要不要验证、验证到什么程度，以及往
 `GameTester` 加测试之前**，看 [skills/verify/SKILL.md](skills/verify/SKILL.md)。
 
-# Content 同步规则
-- Unity 客户端中的 `StreamingAssets/Content`、`Resources/Content` 和 `Fonts` 资源是从项目根目录的 `Content` 目录同步复制过去的（详见 [ContentSyncEditor.cs](UnityClient/Assets/Editor/ContentSyncEditor.cs)）, Unity 客户端在加载或进入 Play 模式时会自动运行同步导入, 不需要agent操作这些文件。
-- 如果出现不同步的情况，可提醒用户在 Unity 中运行顶部菜单 `SSNoir -> Sync Content Now` 进行手动同步。
+# Content 资源规则
+- `UnityClient/Assets/Resources/Content` 是可执行 Scheme 内容的唯一来源；直接修改其中的 `.scm`，不存在同步副本。
+- `UnityClient/Assets/Resources/Fonts` 保存字体源文件；发布构建只在 staging 工程中生成和替换字体子集，不修改主工程资源。
+- `UnityClient/Assets/StreamingAssets` 只放必须以原始文件形式读取的资源，目前是 `Cutscenes/*.mp4`；不要把 Scheme 或字体放进去。
+- 已退出运行时的旧内容放在 `docs/归档/Content`，只作历史说明；Git 才是版本历史的权威来源。

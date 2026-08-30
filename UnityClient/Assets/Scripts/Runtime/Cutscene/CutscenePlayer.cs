@@ -513,18 +513,20 @@ namespace SSNoir
                 return;
             }
 
-            string videoPath = Application.streamingAssetsPath + "/Cutscenes/" + shot.VideoFileName;
+            if (BuildRuntimeConfig.CutsceneVideosDisabled)
+            {
+                // review-no-video / 包内 Data 诊断构建没有片子。这种包**绝不能**去碰
+                // VideoPlayer：小游戏容器的 _JS_Video_Create 会抛 TypeError: Unknown event，
+                // 异常从 wasm 栈里穿出 PlayerLoop，引擎当场停在那一帧再也不出帧——整个游戏卡死，
+                // 下面那条 errorReceived 的优雅回退根本轮不到执行。这里直接按空镜处理。
+                return;
+            }
 
-#if SSNOIR_NO_STREAMING_ASSETS
-            // 过审构建把整个 StreamingAssets 删掉了，片子不在包里。这种包**绝不能**去碰
-            // VideoPlayer：小游戏容器的 _JS_Video_Create 会抛 TypeError: Unknown event，
-            // 异常从 wasm 栈里穿出 PlayerLoop，引擎当场停在那一帧再也不出帧——整个游戏卡死，
-            // 下面那条 errorReceived 的优雅回退根本轮不到执行。这里直接按空镜处理。
-            return;
-#endif
+            string videoPath = BuildRuntimeConfig.ResolveCutsceneUrl(shot.VideoFileName);
 
 #if !UNITY_WEBGL || UNITY_EDITOR
-            if (!System.IO.File.Exists(videoPath))
+            if (!videoPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                && !System.IO.File.Exists(videoPath))
             {
                 Debug.LogError(
                     $"[SSNoir] 过场镜头 '{shot.DisplayName}' 的视频文件不存在：{videoPath}。"

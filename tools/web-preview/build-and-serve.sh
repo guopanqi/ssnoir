@@ -3,17 +3,16 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-SOURCE_PROJECT="$REPO_ROOT/UnityClient"
-CACHE_ROOT="$REPO_ROOT/.cache/taptap-build"
-STAGING_ROOT="$CACHE_ROOT/staging"
-STAGING_PROJECT="$STAGING_ROOT/UnityClient"
+source "$SCRIPT_DIR/../build/common.sh"
+ssnoir_build_init "web-preview"
+SOURCE_PROJECT="$SSNOIR_SOURCE_PROJECT"
 OUTPUT_DIR="$SOURCE_PROJECT/Build/WebPreview"
 PORT=8000
 SERVE_ONLY=0
+REVIEW_NO_VIDEO=0
 
 usage() {
-    echo "用法: $0 [--port <端口>] [--serve-only]"
+    echo "用法: $0 [--port <端口>] [--serve-only] [--review-no-video]"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -25,6 +24,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --serve-only)
             SERVE_ONLY=1
+            shift
+            ;;
+        --review-no-video)
+            REVIEW_NO_VIDEO=1
             shift
             ;;
         -h|--help)
@@ -45,48 +48,12 @@ done
 }
 
 if [[ "$SERVE_ONLY" == 0 ]]; then
-    AVAILABLE_KB="$(df -Pk "$REPO_ROOT" | awk 'NR == 2 { print $4 }')"
-    REQUIRED_KB=$((2 * 1024 * 1024))
-    if [[ "$AVAILABLE_KB" -lt "$REQUIRED_KB" ]]; then
-        AVAILABLE_MB=$((AVAILABLE_KB / 1024))
-        echo "磁盘可用空间只有 ${AVAILABLE_MB} MiB；WebGL 构建至少预留 2048 MiB。" >&2
-        exit 3
-    fi
-
-    mkdir -p "$CACHE_ROOT" "$STAGING_ROOT"
-    if [[ ! -d "$STAGING_PROJECT" ]]; then
-        echo "[WebPreview] 首次创建 APFS staging 快照..."
-        cp -cR "$SOURCE_PROJECT" "$STAGING_PROJECT"
-    fi
-
-    echo "[WebPreview] 同步当前开发工程（保留全部开发资源）..."
-    rsync -a --delete \
-        --exclude '/Library/' \
-        --exclude '/Temp/' \
-        --exclude '/Logs/' \
-        --exclude '/Build/' \
-        --exclude '/Builds/' \
-        --exclude '/UserSettings/' \
-        --exclude '/Screenshots/' \
-        --exclude '/CutsceneSource~/' \
-        "$SOURCE_PROJECT/" "$STAGING_PROJECT/"
-
-    mkdir -p "$STAGING_ROOT/Content"
-    rsync -a --delete "$REPO_ROOT/Content/" "$STAGING_ROOT/Content/"
-
-    rm -rf \
-        "$STAGING_PROJECT/Build" \
-        "$STAGING_PROJECT/Builds" \
-        "$STAGING_PROJECT/Logs" \
-        "$STAGING_PROJECT/Temp" \
-        "$STAGING_PROJECT/Screenshots" \
-        "$STAGING_PROJECT/CutsceneSource~"
-
-    UNITY_EXECUTABLE="${UNITY_PATH:-/Applications/Unity/Unity.app/Contents/MacOS/Unity}"
-    [[ -x "$UNITY_EXECUTABLE" ]] || {
-        echo "找不到 Unity。请通过 UNITY_PATH 指定 Unity 可执行文件。" >&2
-        exit 2
-    }
+    ssnoir_require_build_space "WebGL 构建"
+    ssnoir_prepare_staging "WebPreview"
+    ssnoir_generate_font_subset "WebPreview"
+    ssnoir_require_unity
+    VIDEO_MODE="local"
+    [[ "$REVIEW_NO_VIDEO" == 0 ]] || VIDEO_MODE="none"
 
     mkdir -p "$OUTPUT_DIR"
     LOG_PATH="$OUTPUT_DIR/build.log"
@@ -94,15 +61,13 @@ if [[ "$SERVE_ONLY" == 0 ]]; then
     echo "[WebPreview] 输出目录: $OUTPUT_DIR"
 
     set +e
-    SSNOIR_WEB_PREVIEW_OUTPUT="$OUTPUT_DIR" \
-        "$UNITY_EXECUTABLE" \
-            -batchmode \
-            -quit \
-            -nographics \
-            -buildTarget WebGL \
-            -projectPath "$STAGING_PROJECT" \
-            -executeMethod SSNoir.Editor.WebPreviewCommandLineBuilder.Build \
-            -logFile "$LOG_PATH"
+    ssnoir_run_unity \
+        SSNoir.Editor.WebPreviewCommandLineBuilder.Build \
+        "$LOG_PATH" \
+        "SSNOIR_BUILD_RESOURCE_PLAN=$SSNOIR_RESOURCE_PLAN" \
+        "SSNOIR_BUILD_FONT_DIR=$SSNOIR_GENERATED_FONT_DIR" \
+        "SSNOIR_BUILD_VIDEO_MODE=$VIDEO_MODE" \
+        "SSNOIR_WEB_PREVIEW_OUTPUT=$OUTPUT_DIR"
     UNITY_EXIT=$?
     set -e
 
@@ -111,6 +76,7 @@ if [[ "$SERVE_ONLY" == 0 ]]; then
         tail -n 120 "$LOG_PATH" >&2 || true
         exit "$UNITY_EXIT"
     fi
+
 fi
 
 [[ -f "$OUTPUT_DIR/index.html" ]] || {

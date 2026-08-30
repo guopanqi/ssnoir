@@ -17,7 +17,7 @@ import (
 
 func main() {
 	directory := flag.String("directory", executableDirectory(), "WebGL 包目录")
-	port := flag.Int("port", 8000, "本地 HTTP 端口")
+	port := flag.Int("port", 0, "本地 HTTP 端口；0 表示自动选择空闲端口")
 	openBrowser := flag.Bool("open", false, "启动后打开默认浏览器")
 	flag.Parse()
 
@@ -30,12 +30,12 @@ func main() {
 	}
 
 	address := fmt.Sprintf("127.0.0.1:%d", *port)
-	localURL := fmt.Sprintf("http://%s/", address)
-	server := &http.Server{Addr: address, Handler: webGLHandler(root)}
+	server := &http.Server{Handler: webGLHandler(root)}
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Fatalf("无法启动本地服务 %s: %v", localURL, err)
+		log.Fatalf("无法启动本地服务 %s: %v", address, err)
 	}
+	localURL := fmt.Sprintf("http://%s/", listener.Addr().String())
 	if *openBrowser {
 		if err := open(localURL); err != nil {
 			log.Printf("无法自动打开浏览器，请手动访问 %s: %v", localURL, err)

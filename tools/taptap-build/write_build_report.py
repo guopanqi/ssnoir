@@ -48,7 +48,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--font-report", type=Path, required=True)
-    parser.add_argument("--release-plan", type=Path, required=True)
+    parser.add_argument("--resource-plan", type=Path, required=True)
     parser.add_argument("--build-log", type=Path, required=True)
     parser.add_argument("--build-start-ns", type=int, required=True)
     parser.add_argument("--staging-start-ns", type=int, required=True)
@@ -119,7 +119,7 @@ def main() -> None:
         "timings": timings,
         "artifacts": artifacts,
         "fonts": json.loads(args.font_report.read_text(encoding="utf-8")),
-        "releasePlan": json.loads(args.release_plan.read_text(encoding="utf-8")),
+        "resourcePlan": json.loads(args.resource_plan.read_text(encoding="utf-8")),
     }
     report_path = output_dir / "build-report.json"
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

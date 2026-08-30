@@ -16,6 +16,9 @@ namespace SSNoir.Editor
             public string unityVersion = string.Empty;
             public string outputDirectory = string.Empty;
             public string[] scenes = Array.Empty<string>();
+            public string videoMode = string.Empty;
+            public string[] excludedAssets = Array.Empty<string>();
+            public long embeddedCutsceneBytes;
             public ulong totalBytes;
             public double buildSeconds;
         }
@@ -36,6 +39,8 @@ namespace SSNoir.Editor
                     throw new InvalidOperationException("Build Settings 中没有启用的场景。");
 
                 Directory.CreateDirectory(outputDirectory);
+                BuildAssetPreparer.Result prepared =
+                    BuildAssetPreparer.PrepareFromEnvironment("WebPreview");
                 ConfigurePreviewBuild();
 
                 var options = new BuildPlayerOptions
@@ -53,7 +58,7 @@ namespace SSNoir.Editor
                         $"WebGL 构建失败: {report.summary.result}，错误 {report.summary.totalErrors} 个。");
                 }
 
-                WriteReport(outputDirectory, scenes, report);
+                WriteReport(outputDirectory, scenes, report, prepared);
                 Debug.Log($"[WebPreview] 构建完成: {outputDirectory}");
             }
             catch (Exception exception)
@@ -82,13 +87,23 @@ namespace SSNoir.Editor
             EditorUserBuildSettings.development = false;
         }
 
-        private static void WriteReport(string outputDirectory, string[] scenes, BuildReport report)
+        private static void WriteReport(
+            string outputDirectory,
+            string[] scenes,
+            BuildReport report,
+            BuildAssetPreparer.Result prepared)
         {
+            string[] excludedAssets = prepared.Plan.exclude
+                .Select(exclusion => exclusion.path)
+                .ToArray();
             var previewReport = new PreviewBuildReport
             {
                 unityVersion = Application.unityVersion,
                 outputDirectory = outputDirectory,
                 scenes = scenes,
+                videoMode = prepared.VideoMode,
+                excludedAssets = excludedAssets,
+                embeddedCutsceneBytes = prepared.EmbeddedCutsceneBytes,
                 totalBytes = report.summary.totalSize,
                 buildSeconds = report.summary.totalTime.TotalSeconds
             };

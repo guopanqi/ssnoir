@@ -9,20 +9,21 @@ now_ns() {
 BUILD_START_NS="$(now_ns)"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-SOURCE_PROJECT="$REPO_ROOT/UnityClient"
-CACHE_ROOT="$REPO_ROOT/.cache/taptap-build"
-STAGING_ROOT="$CACHE_ROOT/staging"
-STAGING_PROJECT="$STAGING_ROOT/UnityClient"
-GENERATED_FONT_DIR="$CACHE_ROOT/generated-fonts"
-DEFAULT_PLAN="$SCRIPT_DIR/release-plan.json"
-PLAN_PATH="$DEFAULT_PLAN"
+source "$SCRIPT_DIR/../build/common.sh"
+ssnoir_build_init "taptap-release"
+REPO_ROOT="$SSNOIR_REPO_ROOT"
+SOURCE_PROJECT="$SSNOIR_SOURCE_PROJECT"
+CACHE_ROOT="$SSNOIR_PROFILE_CACHE_ROOT"
+GENERATED_FONT_DIR="$SSNOIR_GENERATED_FONT_DIR"
+PLAN_PATH="$SSNOIR_RESOURCE_PLAN"
 CLEAN_CACHE=0
 CDN_URL=""
 CDN_PUBLISH_DIR="$SOURCE_PROJECT/Build/TapTapCdn"
+REMOTE_ASSET_OUTPUT="$CACHE_ROOT/remote-assets"
+REVIEW_NO_VIDEO=0
 
 usage() {
-    echo "用法: $0 [--plan <release-plan.json>] [--clean-cache] [--cdn-url <https-url>]"
+    echo "用法: $0 [--plan <resource-plan.json>] [--clean-cache] [--cdn-url <https-url>] [--review-no-video]"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -45,6 +46,10 @@ while [[ $# -gt 0 ]]; do
             }
             shift 2
             ;;
+        --review-no-video)
+            REVIEW_NO_VIDEO=1
+            shift
+            ;;
         -h|--help)
             usage
             exit 0
@@ -61,69 +66,34 @@ done
 PLAN_PATH="$(cd "$(dirname "$PLAN_PATH")" && pwd)/$(basename "$PLAN_PATH")"
 
 if [[ "$CLEAN_CACHE" == 1 ]]; then
-    case "$STAGING_ROOT" in
-        "$REPO_ROOT/.cache/taptap-build/staging") rm -rf "$STAGING_ROOT" ;;
-        *) echo "拒绝清理意外路径: $STAGING_ROOT" >&2; exit 2 ;;
+    case "$CACHE_ROOT" in
+        "$REPO_ROOT/.cache/build/taptap-release") rm -rf "$CACHE_ROOT" ;;
+        *) echo "拒绝清理意外路径: $CACHE_ROOT" >&2; exit 2 ;;
     esac
 fi
 
-AVAILABLE_KB="$(df -Pk "$REPO_ROOT" | awk 'NR == 2 { print $4 }')"
-REQUIRED_KB=$((2 * 1024 * 1024))
-if [[ "$AVAILABLE_KB" -lt "$REQUIRED_KB" ]]; then
-    AVAILABLE_MB=$((AVAILABLE_KB / 1024))
-    echo "磁盘可用空间只有 ${AVAILABLE_MB} MiB；TapTap WebGL 构建至少预留 2048 MiB。" >&2
-    exit 3
-fi
-
 STAGING_START_NS="$(now_ns)"
-mkdir -p "$CACHE_ROOT" "$STAGING_ROOT"
-
-if [[ ! -d "$STAGING_PROJECT" ]]; then
-    echo "[TapTapBuild] 首次创建 APFS staging 快照..."
-    cp -cR "$SOURCE_PROJECT" "$STAGING_PROJECT"
-fi
-
-# Library 是 staging 自己的持久缓存；构建产物和临时目录不从开发项目同步。
-rsync -a --delete \
-    --exclude '/Library/' \
-    --exclude '/Temp/' \
-    --exclude '/Logs/' \
-    --exclude '/Build/' \
-    --exclude '/Builds/' \
-    --exclude '/UserSettings/' \
-    --exclude '/Screenshots/' \
-    --exclude '/CutsceneSource~/' \
-    "$SOURCE_PROJECT/" "$STAGING_PROJECT/"
-
-mkdir -p "$STAGING_ROOT/Content"
-rsync -a --delete "$REPO_ROOT/Content/" "$STAGING_ROOT/Content/"
-
-rm -rf \
-    "$STAGING_PROJECT/Build" \
-    "$STAGING_PROJECT/Builds" \
-    "$STAGING_PROJECT/Logs" \
-    "$STAGING_PROJECT/Temp" \
-    "$STAGING_PROJECT/Screenshots" \
-    "$STAGING_PROJECT/CutsceneSource~"
+ssnoir_require_build_space "TapTap WebGL 构建"
+ssnoir_prepare_staging "TapTapBuild"
 STAGING_END_NS="$(now_ns)"
 
-echo "[TapTapBuild] 扫描文字并生成 SourceHan 子集..."
 FONT_START_NS="$(now_ns)"
-python3 "$SCRIPT_DIR/subset_fonts.py" \
-    --repo-root "$REPO_ROOT" \
-    --output-dir "$GENERATED_FONT_DIR"
+ssnoir_generate_font_subset "TapTapBuild"
 FONT_END_NS="$(now_ns)"
 
-UNITY_EXECUTABLE="${UNITY_PATH:-/Applications/Unity/Unity.app/Contents/MacOS/Unity}"
-[[ -x "$UNITY_EXECUTABLE" ]] || {
-    echo "找不到 Unity。请通过 UNITY_PATH 指定 Unity 可执行文件。" >&2
-    exit 2
-}
+ssnoir_require_unity
+
+VIDEO_MODE="none"
+if [[ -n "$CDN_URL" && "$REVIEW_NO_VIDEO" == 0 ]]; then
+    VIDEO_MODE="remote"
+fi
+rm -rf "$REMOTE_ASSET_OUTPUT"
+mkdir -p "$REMOTE_ASSET_OUTPUT"
 
 BUILD_STAMP="$(date '+%Y%m%d-%H%M%S')"
 OUTPUT_DIR="$SOURCE_PROJECT/Build/TapTapRelease/$BUILD_STAMP"
 LOG_PATH="$OUTPUT_DIR/build.log"
-SNAPSHOT_PLAN="$OUTPUT_DIR/release-plan.json"
+SNAPSHOT_PLAN="$OUTPUT_DIR/resource-plan.json"
 mkdir -p "$OUTPUT_DIR"
 cp "$PLAN_PATH" "$SNAPSHOT_PLAN"
 cp "$GENERATED_FONT_DIR/font-report.json" "$OUTPUT_DIR/font-report.json"
@@ -133,18 +103,16 @@ echo "[TapTapBuild] 输出目录: $OUTPUT_DIR"
 
 UNITY_START_NS="$(now_ns)"
 set +e
-SSNOIR_TAPTAP_RELEASE_PLAN="$SNAPSHOT_PLAN" \
-SSNOIR_TAPTAP_FONT_DIR="$GENERATED_FONT_DIR" \
-SSNOIR_TAPTAP_OUTPUT="$OUTPUT_DIR" \
-SSNOIR_TAPTAP_CDN_URL="$CDN_URL" \
-    "$UNITY_EXECUTABLE" \
-        -batchmode \
-        -quit \
-        -nographics \
-        -buildTarget WebGL \
-        -projectPath "$STAGING_PROJECT" \
-        -executeMethod SSNoir.Editor.TapTapCommandLineBuilder.Build \
-        -logFile "$LOG_PATH"
+ssnoir_run_unity \
+    SSNoir.Editor.TapTapCommandLineBuilder.Build \
+    "$LOG_PATH" \
+    "SSNOIR_BUILD_RESOURCE_PLAN=$SNAPSHOT_PLAN" \
+    "SSNOIR_BUILD_FONT_DIR=$GENERATED_FONT_DIR" \
+    "SSNOIR_BUILD_VIDEO_MODE=$VIDEO_MODE" \
+    "SSNOIR_BUILD_REMOTE_ASSET_URL=$CDN_URL" \
+    "SSNOIR_BUILD_REMOTE_ASSET_OUTPUT=$REMOTE_ASSET_OUTPUT" \
+    "SSNOIR_TAPTAP_OUTPUT=$OUTPUT_DIR" \
+    "SSNOIR_TAPTAP_CDN_URL=$CDN_URL"
 UNITY_EXIT=$?
 set -e
 UNITY_END_NS="$(now_ns)"
@@ -174,6 +142,9 @@ if [[ -n "$CDN_URL" ]]; then
     if [[ -d "$OUTPUT_DIR/webgl/Assets" ]]; then
         rsync -a "$OUTPUT_DIR/webgl/Assets/" "$CDN_STAGING_DIR/Assets/"
     fi
+    if [[ "$VIDEO_MODE" == "remote" ]]; then
+        rsync -a "$REMOTE_ASSET_OUTPUT/" "$CDN_STAGING_DIR/"
+    fi
     mkdir -p "$CDN_PUBLISH_DIR"
     rsync -a --delete "$CDN_STAGING_DIR/" "$CDN_PUBLISH_DIR/"
     rm -rf "$CDN_STAGING_DIR"
@@ -188,7 +159,7 @@ CLEANUP_END_NS="$(now_ns)"
 python3 "$SCRIPT_DIR/write_build_report.py" \
     --output-dir "$OUTPUT_DIR" \
     --font-report "$GENERATED_FONT_DIR/font-report.json" \
-    --release-plan "$SNAPSHOT_PLAN" \
+    --resource-plan "$SNAPSHOT_PLAN" \
     --build-log "$LOG_PATH" \
     --build-start-ns "$BUILD_START_NS" \
     --staging-start-ns "$STAGING_START_NS" \

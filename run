@@ -1,3 +1,3 @@
 #!/bin/zsh
-# Launch the Terminal app from the project root
-dotnet run --project TerminalApp/ssnoir.csproj "$@"
+# Run the headless content validator and playtest tools from the project root.
+dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj -- "$@"

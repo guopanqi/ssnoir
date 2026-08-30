@@ -11,7 +11,7 @@ namespace SSNoir.Core
     {
         public const int SlotCount = 5;
 
-        // Set once at app startup. TerminalApp: "save.json". Unity: Application.persistentDataPath + "/save.json".
+        // Unity 在启动时设置正式路径；无界面测试需要时显式传入自己的临时路径。
         public static string DefaultSavePath { get; set; } = "save.json";
 
         public static void Write(string filePath, SaveData data)

@@ -1,11 +1,11 @@
 ---
 name: write-scheme
-description: 创建、修改、审查或重构 SSNoir 的 Scheme 内容脚本（Content/**/*.scm：地点、人物、动作、对白、交锋、规则）时使用。提供玩家可见文字的世界观口径、无法从通用 Scheme 知识推断的运行时行为，以及必须由内容作者判断的设计问题。
+description: 创建、修改、审查或重构 SSNoir 的 Scheme 内容脚本（UnityClient/Assets/Resources/Content/**/*.scm：地点、人物、动作、对白、交锋、规则）时使用。提供玩家可见文字的世界观口径、无法从通用 Scheme 知识推断的运行时行为，以及必须由内容作者判断的设计问题。
 ---
 
 # 写 SSNoir 的 Scheme 内容
 
-把 [engine.scm](../../Content/scripts/engine.scm) 当作 DSL 的唯一事实来源。使用陌生构造、签名不确定、
+把 [engine.scm](../../UnityClient/Assets/Resources/Content/scripts/engine.scm) 当作 DSL 的唯一事实来源。使用陌生构造、签名不确定、
 遇到接口报错或准备扩展 DSL 时，用搜索定位并读取相关定义与调用点；**不要为每次内容修改通读整个文件**。
 参数个数、哪些构造必须传 `outcome`、风险等级、势力名、能力范围和节点形状，应由
 `engine.scm` / `NodeConverter.cs` / `NativeFunctions.cs` 的 `error` / `throw` 强制，而不是靠本文复述。
