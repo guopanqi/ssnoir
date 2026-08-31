@@ -24,6 +24,14 @@ namespace SSNoir.Core
         public OutcomePresentation? OutcomePresentation { get; set; }
         public List<ActionEffectRecord> Effects { get; } = new List<ActionEffectRecord>();
 
+        /// <summary>
+        /// 这一手里时间真的翻了一页——交锋里按下休息，或者在家里睡了一觉。
+        /// 由 <c>SceneManager.EndTurn</c> 打上；脚本调 <c>end-turn!</c> 时那次 EndTurn
+        /// 写的是同一份报告，所以「睡觉」这类把回合结束包在动作里的节点也带着这个标记。
+        /// 客户端据此在结算落地的瞬间放一次黑场，让"下一回合"有个明确的切换。
+        /// </summary>
+        public bool TurnEnded { get; set; }
+
         public void AddEffect(ActionEffectKind kind, string label, int delta, ActionEffectTone tone)
         {
             if (delta == 0)

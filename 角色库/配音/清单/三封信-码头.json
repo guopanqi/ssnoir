@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "module": "三封信",
+  "location": "码头",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm",
+  "cues": [
+    {
+      "id": "三封信/码头/踩点/01/世界",
+      "speaker": "世界",
+      "text": "你在邮箱斜对面的摊位坐了几晚，报纸翻来覆去。",
+      "sourcePath": "play-mail-routine-complete-banter!/1"
+    },
+    {
+      "id": "三封信/码头/踩点/02/世界",
+      "speaker": "世界",
+      "text": "真正的邮差下午才来。街对面的住户，你也都认得了。",
+      "sourcePath": "play-mail-routine-complete-banter!/2"
+    },
+    {
+      "id": "三封信/码头/踩点/03/世界",
+      "speaker": "世界",
+      "text": "天黑以后，邮箱前只剩一盏坏路灯。陌生人一靠近，你一眼就能看出来。",
+      "sourcePath": "play-mail-routine-complete-banter!/3"
+    },
+    {
+      "id": "三封信/码头/踩点/04/世界",
+      "speaker": "世界",
+      "text": "邮箱后的窄巷通向货栈。边门锁舌坏了，追人时能少绕一条街。",
+      "sourcePath": "play-mail-routine-complete-banter!/4"
+    },
+    {
+      "id": "三封信/码头/投信/足额/01/夜莺",
+      "speaker": "夜莺",
+      "text": "一百整。",
+      "sourcePath": "node-delivery-entry/足额/1"
+    },
+    {
+      "id": "三封信/码头/投信/足额/01/尼尔",
+      "speaker": "尼尔",
+      "text": "你把它放到邮箱里就走，我会在这儿盯着。",
+      "sourcePath": "node-delivery-entry/足额/2"
+    },
+    {
+      "id": "三封信/码头/投信/她补/01/尼尔",
+      "speaker": "尼尔",
+      "text": "我已经尽力了，还是差一点。",
+      "sourcePath": "node-delivery-entry/她补/1"
+    },
+    {
+      "id": "三封信/码头/投信/她补/01/夜莺",
+      "speaker": "夜莺",
+      "text": "我还有一点儿...",
+      "direction": "迟疑着开口，把自己最后的东西拿出来。",
+      "sourcePath": "node-delivery-entry/她补/2"
+    },
+    {
+      "id": "三封信/码头/投信/她补/02/尼尔",
+      "speaker": "尼尔",
+      "text": "你上次不是说已经是全部了吗",
+      "sourcePath": "node-delivery-entry/她补/3"
+    },
+    {
+      "id": "三封信/码头/投信/她补/02/夜莺",
+      "speaker": "夜莺",
+      "text": "我...我总不能...",
+      "direction": "说不下去。",
+      "sourcePath": "node-delivery-entry/她补/4"
+    },
+    {
+      "id": "三封信/码头/投信/她补/03/尼尔",
+      "speaker": "尼尔",
+      "text": "别说了，你去吧，你把它放邮箱里就走，我会在这儿盯着。",
+      "sourcePath": "node-delivery-entry/她补/5"
+    },
+    {
+      "id": "三封信/码头/投信/塞报纸/01/尼尔",
+      "speaker": "尼尔",
+      "text": "我已经尽力了，还是差一点。就这样吧，我们用旧报纸塞进去。",
+      "sourcePath": "node-delivery-entry/塞报纸/1"
+    },
+    {
+      "id": "三封信/码头/投信/塞报纸/01/夜莺",
+      "speaker": "夜莺",
+      "text": "他回去会数的。",
+      "direction": "害怕，但压着。",
+      "sourcePath": "node-delivery-entry/塞报纸/2"
+    },
+    {
+      "id": "三封信/码头/投信/塞报纸/02/尼尔",
+      "speaker": "尼尔",
+      "text": "那就让他数，别担心。你去吧，你把它放邮箱里就走，我会在这儿盯着。",
+      "sourcePath": "node-delivery-entry/塞报纸/3"
+    }
+  ]
+}

@@ -91,7 +91,7 @@ namespace SSNoir.IMGUI
             int pickedMotion = DrawSetting(
                 new Rect(contentX, y, contentW, BlockH),
                 "镜头动画", "「减少」后镜头不再推近旋转，改为快速淡入淡出。",
-                new[] { "完整", "减少" }, reduceMotion ? 1 : 0, ui);
+                new[] { "正常", "减少" }, reduceMotion ? 1 : 0, ui);
             if (pickedMotion >= 0)
                 MotionSettings.ReduceMotion = pickedMotion == 1;
             y += BlockH + BlockGap;

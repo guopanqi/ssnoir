@@ -9,6 +9,73 @@ namespace SSNoir.IMGUI
         public static Font? SemiboldFont;
 
         // ══════════════════════════════════════════════════════════════════
+        // 图层透明度
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 当前图层的整体不透明度。1 = 照常画。
+        ///
+        /// IMGUI 没有"图层"这回事：<c>GUI.color</c> 是一个全局乘子，会乘进这之后画的一切
+        /// （贴图、线、连 GUIStyle 的文字一起）。所以"整层淡入淡出"本来是免费的——只要
+        /// **没有人去覆写它**。而各个 drawer 一直在绝对地写（写死一个颜色、画完还原成
+        /// <c>Color.white</c>），一写就把图层那份 alpha 抹掉了。
+        ///
+        /// 于是有了下面这对函数：颜色照给，alpha 乘上去。所有 drawer 的 <c>GUI.color</c>
+        /// 赋值都改走它们，图层透明度才真的是一层的属性，而不是每个 drawer 各自记得乘一下。
+        ///
+        /// 用法是**成对的作用域**（见 <see cref="BeginLayer"/>）：谁开谁关，不要长期挂着。
+        /// </summary>
+        public static float LayerAlpha { get; private set; } = 1f;
+
+        /// <summary>
+        /// 开一层透明度，返回上一层的值——调用方负责在画完之后 <see cref="EndLayer"/> 还原。
+        /// 嵌套是相乘的：一层 0.5 里再开一层 0.5，得到 0.25，和直觉一致。
+        /// </summary>
+        public static float BeginLayer(float alpha)
+        {
+            float previous = LayerAlpha;
+            LayerAlpha = previous * Mathf.Clamp01(alpha);
+            GUI.color = new Color(1f, 1f, 1f, LayerAlpha);
+            return previous;
+        }
+
+        /// <summary>
+        /// 把图层透明度硬掰回 1。每帧开头调一次：BeginLayer / EndLayer 是成对的，中间任何
+        /// 一次异常都会让这一对断掉，而它是全局状态——断一次，整个界面从此半透明。
+        /// </summary>
+        public static void ResetLayer()
+        {
+            LayerAlpha = 1f;
+            GUI.color = Color.white;
+        }
+
+        /// <summary>还原 <see cref="BeginLayer"/> 返回的那个值。</summary>
+        public static void EndLayer(float previous)
+        {
+            LayerAlpha = previous;
+            GUI.color = new Color(1f, 1f, 1f, LayerAlpha);
+        }
+
+        /// <summary>
+        /// 设当前绘制颜色：色相照给，alpha 乘上图层那一份。
+        /// 一切原本直接写 <c>GUI.color</c> 的地方都改走这里。
+        /// </summary>
+        public static void SetColor(Color color)
+        {
+            GUI.color = LayerAlpha >= 1f
+                ? color
+                : new Color(color.r, color.g, color.b, color.a * LayerAlpha);
+        }
+
+        /// <summary>
+        /// 画完一笔之后还原：等价于原来的还原成白，但留着图层的 alpha。
+        /// </summary>
+        public static void ResetColor()
+        {
+            GUI.color = LayerAlpha >= 1f ? Color.white : new Color(1f, 1f, 1f, LayerAlpha);
+        }
+
+        // ══════════════════════════════════════════════════════════════════
         // 「墨与纸」Ink & Paper Noir 调色板（DESIGN.md 定稿，2026-07）
         // 取代旧 Blueprint Noir（Steel Blue / Muted Slate / Burnt Amber）体系。
         // ══════════════════════════════════════════════════════════════════
@@ -196,14 +263,14 @@ namespace SSNoir.IMGUI
         /// </summary>
         public static bool DrawModalChrome(Rect panelRect, string title, IMGUIInteractionContext ui)
         {
-            GUI.color = Blocker;
+            SetColor(Blocker);
             GUI.DrawTexture(new Rect(0f, 0f, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            ResetColor();
 
             DrawShadow(panelRect, new Vector2(5f, 6f), 0.50f);
-            GUI.color = ModalBg;
+            SetColor(ModalBg);
             GUI.DrawTexture(panelRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            ResetColor();
 
             var titleStyle = new GUIStyle(ModalTitle)
             {
@@ -217,9 +284,9 @@ namespace SSNoir.IMGUI
             bool closeHover = ui.CanHover(closeRect);
             if (closeHover)
             {
-                GUI.color = new Color(PaperInk.r, PaperInk.g, PaperInk.b, 0.08f);
+                SetColor(new Color(PaperInk.r, PaperInk.g, PaperInk.b, 0.08f));
                 GUI.DrawTexture(closeRect, Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                ResetColor();
             }
             DrawOutline(closeRect, 1f, closeHover
                 ? PaperInk
@@ -467,7 +534,7 @@ namespace SSNoir.IMGUI
         public static void DrawLine(Vector2 start, Vector2 end, Color color, float thickness = 1f)
         {
             var oldColor = GUI.color;
-            GUI.color = color;
+            SetColor(color);
             if (Mathf.Approximately(start.x, end.x))
             {
                 float y = Mathf.Min(start.y, end.y);
@@ -500,7 +567,7 @@ namespace SSNoir.IMGUI
         public static void DrawOutline(Rect rect, float thickness, Color color)
         {
             var oldColor = GUI.color;
-            GUI.color = color;
+            SetColor(color);
             GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, thickness), Texture2D.whiteTexture);
             GUI.DrawTexture(new Rect(rect.x, rect.y + rect.height - thickness, rect.width, thickness), Texture2D.whiteTexture);
             GUI.DrawTexture(new Rect(rect.x, rect.y, thickness, rect.height), Texture2D.whiteTexture);
@@ -513,7 +580,7 @@ namespace SSNoir.IMGUI
             if (rect.height <= 0) return;
             float scanY = rect.y + ((Time.time * speed) % rect.height);
             var oldColor = GUI.color;
-            GUI.color = color;
+            SetColor(color);
             GUI.DrawTexture(new Rect(rect.x, scanY, rect.width, thickness), Texture2D.whiteTexture);
             GUI.color = oldColor;
         }
@@ -527,7 +594,7 @@ namespace SSNoir.IMGUI
         public static void DrawShadow(Rect rect, Vector2 offset, float alpha = 0.48f)
         {
             var oldColor = GUI.color;
-            GUI.color = new Color(0f, 0f, 0f, alpha);
+            SetColor(new Color(0f, 0f, 0f, alpha));
             GUI.DrawTexture(new Rect(rect.x + offset.x, rect.y + offset.y, rect.width, rect.height), Texture2D.whiteTexture);
             GUI.color = oldColor;
         }
@@ -553,11 +620,11 @@ namespace SSNoir.IMGUI
 
             // 1px 黑影
             var oldColor = GUI.color;
-            GUI.color = new Color(0f, 0f, 0f, 0.35f);
+            SetColor(new Color(0f, 0f, 0f, 0.35f));
             GUI.DrawTexture(new Rect(rect.x + 1f, rect.y + 1f, rect.width, rect.height), Texture2D.whiteTexture);
 
             // 彩纸底
-            GUI.color = paperColor;
+            SetColor(paperColor);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = oldColor;
 
@@ -628,7 +695,7 @@ namespace SSNoir.IMGUI
             {
                 var segRect = new Rect(rect.x + i * (segW + gap), rect.y, segW, rect.height);
                 var oldColor = GUI.color;
-                GUI.color = i < current ? activeColor : inactiveColor;
+                SetColor(i < current ? activeColor : inactiveColor);
                 GUI.DrawTexture(segRect, Texture2D.whiteTexture);
                 GUI.color = oldColor;
             }
@@ -641,7 +708,7 @@ namespace SSNoir.IMGUI
             if (enabled && isHovered)
             {
                 var oldBg = GUI.color;
-                GUI.color = hoverBgColor;
+                SetColor(hoverBgColor);
                 GUI.DrawTexture(rect, Texture2D.whiteTexture);
                 GUI.color = oldBg;
             }

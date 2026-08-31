@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "purpose": "尾声第5句夜莺「下次」纯净重制：消除尾音杂音，保持温和轻柔与干净利落的终幕定格。",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm",
+  "cues": [
+    {
+      "id": "测试/尾声/第5句重制/选项1_干净收尾",
+      "speaker": "夜莺",
+      "text": "下次。",
+      "direction": "轻声温和，平静从容，干净收尾。"
+    },
+    {
+      "id": "测试/尾声/第5句重制/选项2_轻柔微笑",
+      "speaker": "夜莺",
+      "text": "下次。",
+      "direction": "轻柔低语，温和微笑。"
+    },
+    {
+      "id": "测试/尾声/第5句重制/选项3_平静温和",
+      "speaker": "夜莺",
+      "text": "下次。",
+      "direction": "语气平静温和，轻声回应。"
+    }
+  ]
+}

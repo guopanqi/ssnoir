@@ -137,10 +137,14 @@
   (if (cand-target? c)
       (begin
         (begin-chase!))
-      (begin
+      ;; 录音在划掉之前先选定：这一句一局里最多说两次(三个人里两个不是他)，
+      ;; 同一条连放两遍，第二次听着就像卡带。两条不同的录音按第几次排除来选。
+      (let ((take (if (null? cleared)
+                      "勒索信/蹲守/认错人/01/尼尔"
+                      "勒索信/蹲守/认错人/02/尼尔")))
         (clear! (cand-name c))
         (play-banter!
-          (line "尼尔" "抱歉，认错人了。"))
+          (line "尼尔" "抱歉，认错人了。" take))
         (result-note! (string-append "不是他。划掉：" (cand-name c))))))
 
 ;; 喂某个人那根钟。填满就直接出结论——不必玩家再点一次"下结论"。

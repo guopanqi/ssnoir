@@ -112,9 +112,9 @@ namespace SSNoir.IMGUI
         {
             // 阴影加重一档：Ink 与场景蓝太接近，无边卡靠更明确的硬投影才不「融」。
             IMGUIStyles.DrawShadow(rect, new Vector2(7f, 9f), 0.58f);
-            GUI.color = IMGUIStyles.Ink;
+            IMGUIStyles.SetColor(IMGUIStyles.Ink);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
 
             Color line = disabled ? Paper35 : (hover ? IMGUIStyles.Paper : Paper85);
 
@@ -162,9 +162,9 @@ namespace SSNoir.IMGUI
                     rowY + (rowH - iconH) * 0.5f,
                     iconH,
                     iconH);
-                GUI.color = line;
+                IMGUIStyles.SetColor(line);
                 GUI.DrawTexture(iconArea, icon, ScaleMode.ScaleToFit, true);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
                 nameX = iconArea.xMax + GapIconToName;
             }
 
@@ -207,9 +207,9 @@ namespace SSNoir.IMGUI
                 float groupW = iconH + GapIconToName + nameW;
                 float groupX = rect.center.x - groupW * 0.5f;
                 var iconArea = new Rect(groupX, startY + (TitleH - iconH) * 0.5f, iconH, iconH);
-                GUI.color = line;
+                IMGUIStyles.SetColor(line);
                 GUI.DrawTexture(iconArea, icon, ScaleMode.ScaleToFit, true);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
 
                 titleStyle.alignment = TextAnchor.MiddleLeft;
                 IMGUIStyles.DrawLabel(
@@ -287,9 +287,9 @@ namespace SSNoir.IMGUI
             float photoH = Mathf.Min(PreferredPhotoHeight(rect.width), Mathf.Max(30f, rect.yMax - photoTop - titleBudget));
             var photoRect = new Rect(rect.x + 16f, photoTop, photoW, photoH);
 
-            GUI.color = IMGUIStyles.PhotoBlack;
+            IMGUIStyles.SetColor(IMGUIStyles.PhotoBlack);
             GUI.DrawTexture(photoRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(photoRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.30f));
 
             var photoStyle = new GUIStyle(IMGUIStyles.CardTitle)

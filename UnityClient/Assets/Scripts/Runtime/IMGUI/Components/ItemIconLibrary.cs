@@ -108,7 +108,7 @@ namespace SSNoir.IMGUI
                 side, side);
 
             Color prev = GUI.color;
-            GUI.color = color;
+            IMGUIStyles.SetColor(color);
             GUI.DrawTexture(square, DieTexture());
             GUI.color = prev;
         }
@@ -134,7 +134,7 @@ namespace SSNoir.IMGUI
                 side, side);
 
             Color prev = GUI.color;
-            GUI.color = color;
+            IMGUIStyles.SetColor(color);
             GUI.DrawTexture(square, tex);
             GUI.color = prev;
             return true;

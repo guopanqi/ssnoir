@@ -1,5 +1,6 @@
 #nullable enable
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 namespace SSNoir
@@ -16,14 +17,23 @@ namespace SSNoir
     /// 冻进去、在某些图形 API 上下颠倒。相机渲 RenderTexture 是引擎的常规路径，颜色空间、
     /// 朝向、后处理都按正常管线走，这三件事一次全没了，冻的也只有世界，UI 不参与。
     ///
-    /// 时序：抓帧相机在**发起当帧**就位并渲一次，所以发起方必须先把目标机位按在旧视角上
-    /// 停一帧（见 <c>SSNoirCameraManager.BeginReducedFocusChange</c>）——发起方跑在 Update 里，
-    /// Cinemachine 同帧的 LateUpdate 就会把相机切走，不停这一帧，抓到的就是新机位，
-    /// 等于拿新画面溶解新画面，什么都看不见。
+    /// 时序：发起方必须先把目标机位按在旧视角上停住（见
+    /// <c>SSNoirCameraManager.BeginReducedFocusChange</c>）——Cinemachine 会在 LateUpdate 把
+    /// 相机切走，不停这一下，抓到的就是新机位，等于拿新画面溶解新画面，什么都看不见。
+    ///
+    /// **停几帧不能靠数。** 抓帧相机什么时候真的渲，取决于发起当时处在一帧的哪个位置：
+    /// 从 Update 发起，它当帧的渲染循环里就渲了；从 OnGUI 发起就晚一帧——OnGUI 跑在
+    /// 相机渲染**之后**，这时才启用的相机要等下一帧的渲染循环。而点卡片、点面包屑这些
+    /// 恰恰全是 OnGUI。所以这里不数帧，直接听 <see cref="RenderPipelineManager"/> 报告
+    /// 抓帧相机渲完，收到了才开始淡出。数帧的那一版会在 OnGUI 这条路上把还没渲的抓帧
+    /// 相机提前关掉，于是贴图里留着的是**上一次**溶解的旧画面（或者干脆是未初始化的
+    /// 显存）——切镜时先闪一张不知哪来的画面，就是这么来的。
     /// </summary>
     public class ViewCrossfade
     {
         private const string CaptureCameraName = "SSNoir.ViewCrossfade.Capture";
+        /// <summary>等抓帧等到这么多帧还没等到就认输。只是保险丝，正常路径上是 1～2 帧。</summary>
+        private const int CaptureTimeoutFrames = 8;
 
         private static ViewCrossfade? _active;
 
@@ -39,6 +49,8 @@ namespace SSNoir
         private Camera? _captureCamera;
         private int _captureFrame = -1;
         private bool _isCapturing;
+        private bool _captureRendered;
+        private bool _listening;
         private float _startedAt;
         private float _duration;
         private bool _isFading;
@@ -49,6 +61,12 @@ namespace SSNoir
         }
 
         public bool IsFading => _isFading;
+
+        /// <summary>
+        /// 冻帧还没抓到手。这段时间画面必须继续停在旧那一镜上：发起方的「停一帧」要停到
+        /// 这里说完为止，长短由渲染循环说了算，不是一个能写死的帧数。
+        /// </summary>
+        public bool IsCapturing => _isCapturing;
 
         /// <summary>正在淡出的旧画面；没有溶解在跑时为 null，绘制方据此决定画不画。</summary>
         public RenderTexture? FrozenView => _isFading ? _frozenView : null;
@@ -92,8 +110,10 @@ namespace SSNoir
 
             _duration = duration;
             _captureFrame = Time.frameCount;
+            _captureRendered = false;
             _isCapturing = true;
             _active = this;
+            Listen(true);
         }
 
         /// <summary>每帧推进。溶解走 unscaledTime，剧本节拍锁住输入时它照样要走完。</summary>
@@ -103,8 +123,15 @@ namespace SSNoir
             // Update 里跑，谁先谁后不定，用帧号卡死，别让同帧的 Tick 把还没渲的一帧收走。
             if (_isCapturing)
             {
-                if (Time.frameCount <= _captureFrame)
+                if (!_captureRendered)
+                {
+                    // 兜底：抓帧相机万一一直没渲（被别的东西关掉、管线被换掉），不能就这么
+                    // 把画面停在旧机位上不动了。放弃这次溶解，退回一次硬切——难看，但比卡住
+                    // 或者拿一张陈年贴图糊上去都强。
+                    if (Time.frameCount > _captureFrame + CaptureTimeoutFrames)
+                        Finish();
                     return;
+                }
 
                 if (_captureCamera != null)
                 {
@@ -113,6 +140,7 @@ namespace SSNoir
                 }
 
                 _isCapturing = false;
+                Listen(false);
                 _startedAt = Time.unscaledTime;
                 Alpha = 1f;
                 _isFading = true;
@@ -148,11 +176,33 @@ namespace SSNoir
             }
 
             _isCapturing = false;
+            Listen(false);
             _isFading = false;
             Alpha = 0f;
 
             if (ReferenceEquals(_active, this))
                 _active = null;
+        }
+
+        /// <summary>
+        /// 抓帧相机渲完这一趟没有。只认自己那台：同一帧里主相机、SceneView 都会走这条回调。
+        /// </summary>
+        private void OnEndCameraRendering(ScriptableRenderContext context, Camera camera)
+        {
+            if (_isCapturing && _captureCamera != null && ReferenceEquals(camera, _captureCamera))
+                _captureRendered = true;
+        }
+
+        private void Listen(bool on)
+        {
+            if (on == _listening)
+                return;
+
+            if (on)
+                RenderPipelineManager.endCameraRendering += OnEndCameraRendering;
+            else
+                RenderPipelineManager.endCameraRendering -= OnEndCameraRendering;
+            _listening = on;
         }
 
         private Camera EnsureCaptureCamera()

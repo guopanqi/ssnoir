@@ -44,11 +44,11 @@ namespace SSNoir.IMGUI
         /// </summary>
         public static bool DrawHudToggle(Rect rect, string label, bool isOpen, IMGUIInteractionContext ui)
         {
-            GUI.color = isOpen
+            IMGUIStyles.SetColor(isOpen
                 ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f)
-                : IMGUIStyles.HudBg;
+                : IMGUIStyles.HudBg);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
 
             bool hover = !ui.IsLocked && ui.CanHover(rect);
             Color accent = isOpen

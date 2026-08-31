@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "model": "mimo-v2.5-tts-voiceclone",
+  "characters": {
+    "尼尔": {
+      "sample": "../尼尔/声音/参考样音/尼尔voice.mp3",
+      "direction": ""
+    },
+    "夜莺": {
+      "sample": "../夜莺/声音/参考样音/夜莺voice.mp3",
+      "direction": ""
+    },
+    "莱恩": {
+      "sample": "../莱恩/声音/参考样音/莱恩voice.wav",
+      "direction": ""
+    },
+    "弗兰克": {
+      "sample": "../弗兰克/声音/参考样音/弗兰克voice.wav",
+      "direction": ""
+    },
+    "经理": {
+      "sample": "../经理/声音/参考样音/经理voice.wav",
+      "direction": ""
+    },
+    "记者": {
+      "sample": "../记者/声音/参考样音/记者voice.wav",
+      "direction": ""
+    },
+    "贝恩斯": {
+      "sample": "../贝恩斯/声音/参考样音/贝恩斯voice.wav",
+      "direction": ""
+    },
+    "林": {
+      "sample": "../林/声音/参考样音/林voice.wav",
+      "direction": ""
+    },
+    "薇拉": {
+      "sample": "../薇拉/声音/参考样音/薇拉voice.wav",
+      "direction": ""
+    },
+    "世界": {
+      "sample": "../世界/声音/参考样音/世界voice.wav",
+      "direction": "中文黑色电影风格的调查者式叙述：清晰、干燥、略有砂砾感；像在讲一桩正在发生的事，平稳利落，带有成熟感。"
+    }
+  }
+}

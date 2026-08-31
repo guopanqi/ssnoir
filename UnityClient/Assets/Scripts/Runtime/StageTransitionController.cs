@@ -18,6 +18,12 @@ namespace SSNoir
         // whole transition on its own and has to be a touch longer than the flash that
         // used to sit in the middle of one.
         [SerializeField] private float reducedFadeDuration = 0.22f;
+        // 过夜黑场只有两个对称半程：暗下去，再亮回来。减少动画时直接采用
+        // ViewCrossfade 的溶解时长，让这两种不移动镜头的过渡保持同一节奏。
+        //
+        // 写成常量、不挂 Inspector：完整动画下这是这个转场的手感，不是某个场景实例的配置。
+        // 挂上去就多一份能和代码对不上的真相——场景里存着旧值时，改这里等于没改。
+        private const float TurnDipFullMotionHalfDuration = 0.39f;
         [SerializeField] private int transitionPriority = 100;
         [SerializeField] private AnimationCurve approachCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         [SerializeField] private AnimationCurve pushCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -28,6 +34,7 @@ namespace SSNoir
         private Cinemachine.CinemachineBrain? _brain;
         private string? _currentContextId;
         private StagePortalConfig? _activePortal;
+        private bool _turnDipActive;
 
         public bool IsTransitioning { get; private set; }
         public float FadeAlpha { get; private set; }
@@ -398,6 +405,111 @@ namespace SSNoir
 
             if (hasBrain)
                 _brain!.m_DefaultBlend = originalBlend;
+        }
+
+        /// <summary>
+        /// 过夜黑场：柔和地渐暗 → 在触底的一刻把世界翻到下一回合 → 柔和地渐亮。
+        ///
+        /// 时间翻页和走进一扇门是两件事，但看起来该是同一种东西——都是"这一镜结束了"。
+        /// 所以它借的是 portal 那块同一张黑幕（<see cref="FadeAlpha"/>，由 IMGUI 全屏画在
+        /// 最上层，连 UI 一起盖住），玩家不会觉得多了一种新特效。
+        ///
+        /// 它和穿门的区别只在于没有镜头运动。低动画模式只是整体缩短，不取消：
+        /// 这里没有任何东西在移动，黑场本身正是低动画要的那种过渡。
+        ///
+        /// <paramref name="atBlack"/> 在最黑的那一帧调用，世界的变化都藏在它里面。
+        /// </summary>
+        public IEnumerator PlayTurnDip(System.Action? atBlack)
+        {
+            // 正在穿门的时候不抢黑幕：那边已经在放一次过渡了，两层黑叠起来只会闪。
+            if (IsTransitioning)
+            {
+                atBlack?.Invoke();
+                yield break;
+            }
+
+            yield return FadeOutForTurn();
+            yield return FinishTurnDip(atBlack);
+        }
+
+        /// <summary>
+        /// 只走"闭眼"这半程。给的是**按下去就开始黑**的用法：演出（那根进度条）和渐黑
+        /// 同时跑，玩家按完手就已经在往下沉，而不是等结算播完才想起来要睡。
+        /// 另一半由 <see cref="FinishTurnDip"/> 收尾，两者必须成对。
+        /// </summary>
+        public IEnumerator FadeOutForTurn()
+        {
+            if (IsTransitioning)
+                yield break;
+
+            _turnDipActive = true;
+            _gameManager.SetInputLocked(true);
+            yield return FadeLinear(1f, TurnDipHalfDuration);
+        }
+
+        /// <summary>
+        /// "睁眼"这半程：等黑透（演出可能比渐黑还短），在触底处翻页，然后立刻亮回来。
+        /// </summary>
+        public IEnumerator FinishTurnDip(System.Action? atBlack)
+        {
+            if (!_turnDipActive)
+            {
+                atBlack?.Invoke();
+                yield break;
+            }
+
+            // 演出比渐黑短的时候，这里补上剩下的那截黑：翻页永远发生在全黑里。
+            while (FadeAlpha < 1f)
+                yield return null;
+
+            atBlack?.Invoke();
+            // 不额外等待：翻页发生在 FadeAlpha == 1 的这一刻，下一步直接进入对称的亮起半程。
+            yield return FadeLinear(0f, TurnDipHalfDuration);
+            _turnDipActive = false;
+            _gameManager.SetInputLocked(false);
+        }
+
+        /// <summary>
+        /// 出事时把黑幕收掉。早黑是在结算**之前**起的，如果演出那头抛了异常，
+        /// 收尾的那一半永远不会跑——没有这条，玩家就留在一块黑屏里。
+        /// </summary>
+        public void AbortTurnDip()
+        {
+            if (!_turnDipActive)
+                return;
+            _turnDipActive = false;
+            FadeAlpha = 0f;
+            _gameManager.SetInputLocked(false);
+        }
+
+        private static float TurnDipHalfDuration => MotionSettings.ReduceMotion
+            ? MotionSettings.CrossfadeDuration
+            : TurnDipFullMotionHalfDuration;
+
+        /// <summary>
+        /// 闭眼睁眼用的线性溶解，节奏与 <see cref="ViewCrossfade"/> 保持一致。
+        ///
+        /// 交叉溶解的底层画面是不透明的，因此线性 alpha 就是等速的画面替换。
+        /// 缓动反而会让两头停住、中间集中变化，和减少动画模式的观感不一致。
+        ///
+        /// 时间走 unscaled：黑场不该被任何慢放或暂停影响。
+        /// </summary>
+        private IEnumerator FadeLinear(float target, float duration)
+        {
+            if (duration <= 0f)
+            {
+                FadeAlpha = target;
+                yield break;
+            }
+
+            float start = FadeAlpha;
+            for (float t = 0f; t < duration; t += Time.unscaledDeltaTime)
+            {
+                float k = Mathf.Clamp01(t / duration);
+                FadeAlpha = Mathf.Lerp(start, target, k);
+                yield return null;
+            }
+            FadeAlpha = target;
         }
 
         private IEnumerator FadeTo(float target, float duration)

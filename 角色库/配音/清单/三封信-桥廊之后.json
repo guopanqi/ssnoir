@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "module": "三封信",
+  "location": "居民区",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm",
+  "cues": [
+    {
+      "id": "三封信/居民区/桥廊之后/01/世界",
+      "speaker": "世界",
+      "text": "走出那条桥廊后，她一直没有说话。",
+      "sourcePath": "close-warren-with-her!/1"
+    },
+    {
+      "id": "三封信/居民区/桥廊之后/01/尼尔",
+      "speaker": "尼尔",
+      "text": "莱恩是你以前认识的人？",
+      "sourcePath": "close-warren-with-her!/2"
+    },
+    {
+      "id": "三封信/居民区/桥廊之后/01/夜莺",
+      "speaker": "夜莺",
+      "text": "以前的。我就是从那条街上出来的。",
+      "sourcePath": "close-warren-with-her!/3",
+      "direction": "一件不愿再提的旧事，说出来很轻。"
+    },
+    {
+      "id": "三封信/居民区/桥廊之后/02/尼尔",
+      "speaker": "尼尔",
+      "text": "你一开始就认出那包烟了。",
+      "sourcePath": "close-warren-with-her!/4"
+    },
+    {
+      "id": "三封信/居民区/桥廊之后/02/夜莺",
+      "speaker": "夜莺",
+      "text": "我只是想确认。他会做到哪一步，我不敢赌。",
+      "sourcePath": "close-warren-with-her!/5"
+    },
+    {
+      "id": "三封信/居民区/桥廊之后/03/尼尔",
+      "speaker": "尼尔",
+      "text": "现在我们知道他是谁了。",
+      "sourcePath": "close-warren-with-her!/6",
+      "direction": "对她说的一句话，不是宣布结论，语气松一点。"
+    }
+  ]
+}

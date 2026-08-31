@@ -738,6 +738,9 @@ namespace SSNoir.Core
             var report = _gameState.CurrentActionReport ?? new ActionReport { Type = ActionType.Instant };
             if (ownsReport)
                 _gameState.CurrentActionReport = report;
+            // 无论回合是玩家直接按休息结束的，还是脚本在动作里调 end-turn! 结束的，
+            // 拿到这份报告的人都该知道时间翻页了。
+            report.TurnEnded = true;
             try
             {
                 int injuryBefore = _gameState.Team.Injury.Severity;

@@ -300,12 +300,19 @@ namespace SSNoir
 
         private void Start()
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // 开发测试统一按 60 Hz 观察镜头节奏。vSync 开着时 targetFrameRate 会被忽略，
+            // 所以两项必须一起设；Release 构建继续服从平台自己的呈现策略。
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = 60;
+#endif
+
             // 1. Initialize Game State & Script Loader
             LoadFonts();
             _gameState = new GameState();
             _scriptLoader = new UnityScriptLoader();
 #if UNITY_EDITOR
-            // In editor, share save files with the TerminalApp (project root, same as ".cache/saves/save.json" cwd default).
+            // 编辑器存档放在仓库缓存目录，便于检查且不污染 Unity 项目资源。
             var projectRoot = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(Application.dataPath));
             SaveManager.DefaultSavePath = System.IO.Path.Combine(projectRoot, ".cache", "saves", "save.json");
 #else
@@ -971,15 +978,24 @@ namespace SSNoir
                 if (focusContextChanged)
                     BeginIncomingFocusContext();
 
+                // 家里的「睡觉」把 end-turn! 包在动作里，走的就是这条普通动作路径。
+                // 黑幕跟着执行一起起跑，不等演出播完。
+                bool dippedEarly = ShouldDipEarly(report);
+                if (dippedEarly)
+                    StartCoroutine(_stageController.FadeOutForTurn());
+
                 _renderer.PlayPresentation(report, sceneChanged ? string.Empty : node.Name, () =>
                 {
-                    EndIncomingFocusContext();
                     // 对白、Spotlight、banter 等 UI 表现不会改相机；需要重新聚焦的只有两种：
                     // 场景／阶段根节点变了，或者你所在的那个容器执行完就从树上消失了。
-                    bool navigationCollapsed = AdoptLatestSnapshot();
-                    if (focusContextChanged || navigationCollapsed)
-                        UpdateCameraFocus();
-                    done = true;
+                    Action land = () =>
+                    {
+                        EndIncomingFocusContext();
+                        bool navigationCollapsed = AdoptLatestSnapshot();
+                        if (focusContextChanged || navigationCollapsed)
+                            UpdateCameraFocus();
+                    };
+                    StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () => done = true));
                 });
             }
             catch (System.Exception ex)
@@ -992,6 +1008,9 @@ namespace SSNoir
                 // 所以这里把这一手的痕迹全部丢掉，回到引擎当前真正的样子重来。
                 _nodeSlots.Clear();
                 ClearResourceDragState();
+                // 早黑是在演出之前起的；演出这头炸了，收尾那一半就永远不会跑，
+                // 不收黑幕玩家会留在一块黑屏里。
+                _stageController.AbortTurnDip();
                 AdoptLatestSnapshot();
                 // 演出没起来的话回调不会来，窗口期得在这里关掉，否则焦点相机会一直答着
                 // 那个再也不会被采纳的新场景镜头。
@@ -1613,19 +1632,63 @@ namespace SSNoir
                 BeginIncomingFocusContext();
 
             bool done = false;
+            bool dippedEarly = ShouldDipEarly(report);
+            if (dippedEarly)
+                StartCoroutine(_stageController.FadeOutForTurn());
+
             _renderer.PlayPresentation(report, "休息", () =>
             {
-                EndIncomingFocusContext();
-                bool navigationCollapsed = AdoptLatestSnapshot();
-                if (focusContextChanged || navigationCollapsed)
-                    UpdateCameraFocus();
-                done = true;
+                Action land = () =>
+                {
+                    EndIncomingFocusContext();
+                    bool navigationCollapsed = AdoptLatestSnapshot();
+                    if (focusContextChanged || navigationCollapsed)
+                        UpdateCameraFocus();
+                };
+                StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () => done = true));
             });
             StartCoroutine(WaitForPresentation(() => done));
         }
 
         // 这里曾有 OnUseEncounterConsumable / HasSelectedDie：烟和酒走引擎旁路的那条。
         // 它们现在是交锋树上的普通动作卡，走 ExecuteNodeAction，不需要专门的入口。
+
+        /// <summary>
+        /// 这一手是不是该在**按下去的那一刻**就开始黑。
+        ///
+        /// 翻页与否报告里已经写着了（<see cref="ActionReport.TurnEnded"/>），所以不必等演出播完
+        /// 才知道——睡觉这件事该在手离开按钮时就开始，那根"执行中"的进度条本来演的就是
+        /// 这一夜过去。唯一的例外是演出里还压着阻塞剧情：对白、告示卡、动画都是要人看的，
+        /// 一开场就全黑等于把它们扔了。那种情况仍旧等演完再黑。
+        /// </summary>
+        private bool ShouldDipEarly(ActionReport report)
+            => report.TurnEnded
+                && report.Type == ActionType.Instant
+                && report.BlockingStorySteps.Count == 0;
+
+        /// <summary>
+        /// 世界真的换成下一拍的样子是在 <c>AdoptLatestSnapshot</c> 那一下；这个换页永远
+        /// 发生在全黑里。早黑的那半程在演出开始时就起跑了，这里只负责收尾；没翻页就原样落地。
+        /// </summary>
+        private IEnumerator LandAfterTurnDip(ActionReport report, bool dippedEarly, Action land, Action onDone)
+        {
+            if (dippedEarly)
+            {
+                yield return _stageController.FinishTurnDip(land);
+                onDone();
+                yield break;
+            }
+
+            if (!report.TurnEnded)
+            {
+                land();
+                onDone();
+                yield break;
+            }
+
+            yield return _stageController.PlayTurnDip(land);
+            onDone();
+        }
 
         private IEnumerator WaitForPresentation(Func<bool> isDone)
         {

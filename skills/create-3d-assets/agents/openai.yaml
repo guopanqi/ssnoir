@@ -1,4 +1,4 @@
 interface:
   display_name: "制作 3D 场景资产"
   short_description: "制作并接入 SSNoir 的 CityBox 或独立 3D 资产"
-  default_prompt: "使用 $create-3d-assets 制作一个 SSNoir 3D 资产，先判断它应进入 CityBox 还是 Unity 独立资产目录，再完成预览、语义节点、发布和运行验证。"
+  default_prompt: "使用 $create-3d-assets 制作一个 SSNoir 3D 资产：先确定 CityBox 或 Unity 独立资产交付目标，再依次完成视觉定义、网格生成、游戏化加工、场景接入与发布。"

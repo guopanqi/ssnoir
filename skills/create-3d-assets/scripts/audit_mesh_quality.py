@@ -10,7 +10,7 @@
     blender --background 模型.blend \
       --python skills/create-3d-assets/scripts/audit_mesh_quality.py -- --json
 
-指标为什么是这几项、Hunyuan 的实测基线是多少，见同目录 references/mesh-quality-baseline.md。
+指标为什么是这几项，见同目录 references/mesh-generation.md。
 脚本只做机械测量，不判断轮廓、年代和游戏用途。
 """
 

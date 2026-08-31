@@ -1,13 +1,11 @@
 #nullable enable
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using SSNoir.Core;
 
 namespace SSNoir.IMGUI
 {
     // Unified debug panel: runtime test controls + Save/Load + Scene switch.
-    // Mirrors TerminalApp's DrawDebugMenu in RaylibRenderer.
     public static class DebugPanelDrawer
     {
         private struct SceneItem
@@ -416,22 +414,10 @@ namespace SSNoir.IMGUI
             _scenes.Add(new SceneItem { Name = "world", SceneName = "world" });
             _scenes.Add(new SceneItem { Name = "--- 交锋 ---", IsHeader = true });
 
-            string streamingDir = Path.Combine(Application.streamingAssetsPath, "Content", "scenes", "encounters");
-            if (Directory.Exists(streamingDir))
+            foreach (var asset in Resources.LoadAll<TextAsset>("Content/scenes/encounters"))
             {
-                foreach (string file in Directory.GetFiles(streamingDir, "*.scm"))
-                {
-                    string name = Path.GetFileNameWithoutExtension(file);
-                    _scenes.Add(new SceneItem { Name = name, SceneName = name });
-                }
-            }
-            else
-            {
-                foreach (var asset in Resources.LoadAll<TextAsset>("Content/scenes/encounters"))
-                {
-                    string name = Path.GetFileNameWithoutExtension(asset.name.Replace(".scm", ""));
-                    _scenes.Add(new SceneItem { Name = name, SceneName = name });
-                }
+                string name = asset.name;
+                _scenes.Add(new SceneItem { Name = name, SceneName = name });
             }
         }
     }

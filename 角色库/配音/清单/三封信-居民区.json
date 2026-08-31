@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "module": "三封信",
+  "location": "居民区",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm",
+  "cues": [
+    {
+      "id": "三封信/开场/委托/01/夜莺",
+      "speaker": "夜莺",
+      "text": "这点钱连定金都不够，还要你垫着，我真不知道该怎么……",
+      "sourcePath": "node-answer-door/1",
+      "direction": "语气里有一点为难。"
+    },
+    {
+      "id": "三封信/开场/委托/01/尼尔",
+      "speaker": "尼尔",
+      "text": "钱的事我来想办法。他拿不走这笔钱。",
+      "sourcePath": "node-answer-door/2"
+    },
+    {
+      "id": "三封信/开场/委托/02/尼尔",
+      "speaker": "尼尔",
+      "text": "有一次就会有下一次，这事得让他彻底结束。",
+      "sourcePath": "node-answer-door/3"
+    },
+    {
+      "id": "三封信/开场/委托/02/夜莺",
+      "speaker": "夜莺",
+      "text": "那我能做什么？",
+      "sourcePath": "node-answer-door/4",
+      "direction": "语气里有一点为难。"
+    },
+    {
+      "id": "三封信/开场/委托/03/尼尔",
+      "speaker": "尼尔",
+      "text": "照信里说的，那天我们在码头碰面，你把钱放过去。剩下的交给我。",
+      "sourcePath": "node-answer-door/5"
+    },
+    {
+      "id": "三封信/开场/委托/03/夜莺",
+      "speaker": "夜莺",
+      "text": "我都听你的。",
+      "sourcePath": "node-answer-door/6",
+      "direction": "语气里有一点为难。"
+    },
+    {
+      "id": "三封信/居民区/东侧门廊/01/楼上的女人",
+      "speaker": "楼上的女人",
+      "text": "是你吗？我还当是认错了——",
+      "style": "四十多岁的港口居民区女人，略哑；认出旧人时意外，话没说完。",
+      "sourcePath": "warren-encounter!/east-entry/1/1"
+    },
+    {
+      "id": "三封信/居民区/东侧门廊/烟盒指路/01/柜台后的人/01",
+      "speaker": "柜台后的人",
+      "text": "这牌子我们不进。里头工会休息室那个弗兰克，倒常抽。",
+      "style": "守杂货铺的五十岁男人，干燥低沉，确认货品时语气平直。",
+      "sourcePath": "node-show-cigs-at-counter/2"
+    },
+    {
+      "id": "三封信/居民区/东侧门廊/烟盒指路/01/尼尔",
+      "speaker": "尼尔",
+      "text": "他在里面？",
+      "direction": "压低声音；简短确认。",
+      "sourcePath": "node-show-cigs-at-counter/3"
+    },
+    {
+      "id": "三封信/居民区/东侧门廊/烟盒指路/01/柜台后的人/02",
+      "speaker": "柜台后的人",
+      "text": "回廊走到底。",
+      "style": "守杂货铺的五十岁男人，干燥低沉，给出方向后立刻收声。",
+      "sourcePath": "node-show-cigs-at-counter/4"
+    },
+    {
+      "id": "三封信/居民区/东侧回廊/01/世界",
+      "speaker": "世界",
+      "text": "你问了几次，都是一样的结果。直到她开口，人们才有所回应。",
+      "style": "中文黑色电影风格的环境叙述，四十岁上下的男声，低沉、平静、克制；像在潮湿的港口回廊里陈述眼前所见，不煽情，节奏自然利落。",
+      "sourcePath": "warren-encounter!/east-gallery/1/1"
+    },
+    {
+      "sourcePath": "warren-encounter!/west-stairs/1/1",
+      "id": "三封信/居民区/西侧楼梯/01/楼梯上的女人",
+      "speaker": "楼梯上的女人",
+      "text": "你看你看——那不就是她吗？她还回来了。",
+      "style": "港口居民区的女人，三十多岁，嗓音偏亮；发现热闹时拽着旁边人一起看，语速快、音调上扬，压着嗓子但压不住兴奋。"
+    },
+    {
+      "id": "三封信/居民区/上层桥廊/01/世界",
+      "speaker": "世界",
+      "text": "在那些你已经认不清方向的路口，她甚至不需要看，直接向右拐了进去。",
+      "style": "中文黑色电影风格的环境叙述，四十岁上下男声，低沉、平静、克制；像在旧楼桥廊里陈述两人前行。",
+      "sourcePath": "warren-encounter!/west-bridge/1/1"
+    },
+    {
+      "id": "三封信/居民区/西侧楼梯/阻碍/01/楼梯口的人",
+      "speaker": "楼梯口的人",
+      "text": "她既然走了，就不该带着外人回来问路。",
+      "style": "港口居民区的中年男人，粗哑、冷硬；站在横椅子后面拦人，护着本地规矩。",
+      "sourcePath": "resolve-west-friction!/1"
+    },
+    {
+      "id": "三封信/居民区/西侧楼梯/阻碍/01/世界",
+      "speaker": "世界",
+      "text": "椅子拖回墙边。等那几个人走远，她才开口。",
+      "style": "中文黑色电影风格的环境叙述，四十岁上下男声，低沉、平静、克制；按动作节奏陈述。",
+      "sourcePath": "resolve-west-friction!/2"
+    }
+  ]
+}

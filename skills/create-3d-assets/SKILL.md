@@ -1,48 +1,68 @@
 ---
 name: create-3d-assets
-description: 为 SSNoir 制作、接入或修复 3D 资产。覆盖 Gemini 参考图、Hunyuan Geo/Poly、Blender 几何与语义节点、CityBox 城市装配、Unity 导入和运行画面验证；涉及地点建筑、City.fbx、Anchor、Camera、orbit pivot、描线或资产预览时使用。
+description: 为 SSNoir 设计、生成、加工、接入或修复游戏可用的 3D 资产。用于参考图、image-to-3D、低模拓扑、Blender 处理、CityBox 城市装配、Unity 发布，以及 Anchor、Camera、orbit pivot 和描线相关工作。
 ---
 
 # SSNoir 3D 资产
 
-资产同时包含几何、镜头和运行时语义。先判断资产属于哪条发布链，不允许把城市地点建筑直接塞进 Unity，也不把普通独立资产绕进 CityBox。
+把资产生产视为四个稳定阶段；生成服务和操作方式只是阶段内可替换的适配器，不属于主流程本身。
 
-## 先路由
+## 先确定交付目标
 
-- **城市地点建筑**：正式源是 `city-box/models/<地点>.blend`；城市位置由 `city-box/city/build_city.py` 的 `HERO_SLOTS` 定义；Unity 只消费 `Assets/Resources/Models/Environment/City.fbx`。完整流程见 [references/citybox-delivery.md](references/citybox-delivery.md)。
-- **非城市独立资产**：道具、车辆或不属于整城的独立环境，才按职责放入 `UnityClient/Assets/Resources/Models/`。见 [references/unity-delivery.md](references/unity-delivery.md)。
-- **候选或废案**：放入 `city-box/models/review/`，不参与生产构建，也不由 Unity 直接引用。
+- **城市地点建筑**：正式源是 `city-box/models/<地点>.blend`，布局在 `city-box/city/city_config.py` 的 `HERO_SLOTS`，Unity 只消费 `Assets/Resources/Models/Environment/City.fbx`。只读取 [references/delivery/citybox.md](references/delivery/citybox.md)。
+- **非城市独立资产**：按运行时职责放入 `UnityClient/Assets/Resources/Models/`。只读取 [references/delivery/unity-standalone.md](references/delivery/unity-standalone.md)。
+- **候选与中间结果**：保留在制作目录或 `city-box/models/review/`，不进入正式构建。
 
-涉及命名、Anchor、Camera 或层级时读取 [references/asset-contract.md](references/asset-contract.md)。进入 Blender 时读取 [references/blender-processing.md](references/blender-processing.md)。生成式网格质量不确定时读取 [references/mesh-quality-baseline.md](references/mesh-quality-baseline.md)。
+正式地点名以 Scheme `GameNode.Name` 为唯一主键。只有涉及命名、Anchor、Camera、层级、orbit pivot 或运行时描线契约时，才读取 [references/runtime-contract.md](references/runtime-contract.md)。
 
-## 制作链
+## 四个阶段
 
-1. 明确资产职责、正式地点名、目标尺寸、城市位置、交互节点、镜头和面数预算。城市地点名以 Scheme `GameNode.Name` 为唯一主键。
-2. Codex 撰写提示词并用 Gemini Images 生成参考图；生成提示见 [references/prompt-and-era.md](references/prompt-and-era.md)，网页操作见 [references/workflow.md](references/workflow.md)。
-3. 返回参考图和审阅结论。用户确认后才上传 Hunyuan Geo。
-4. 返回 Geo 模型的 3/4 预览。用户确认后进入 Poly。
-5. Poly 从最低档开始。轮廓或主要硬表面因预算失败时直接升一档，不为机械升档询问用户；返回低模预览和统计。
-6. Blender 中清理网格、统一米制尺度与朝向、应用 Rotation/Scale，并建立正式语义节点。城市源模型不预生成最终描线；Low/High 描线由 CityBox 从同一源模型生成。
-7. 可见加工完成后返回最终预览。城市模型需要逐栋微调 Low/High 时，按 [references/citybox-delivery.md](references/citybox-delivery.md) 的“逐模型描边调参”先生成聚焦预览；确认前不导出或发布整城。只有纯 Anchor/Camera/pivot 等不可见语义调整可用节点清单和校验结果代替视觉审批。
-8. 用户确认后写入对应正式源目录并执行该资产类型的唯一发布链；最后验证 Unity 导入和实际运行画面。
+### 1. 视觉定义
 
-用户说“下一步”只通过当前展示的确认关口。用户已经明确表示某类机械修正无需询问时，按其授权继续，不重复确认。
+根据用户目标、资产职责、游戏风格、年代、目标尺寸与城市语境撰写提示词，生成一批适合 image-to-3D 的参考图。先由 Agent 按轮廓、构图、年代、遮挡和可建模性淘汰不合格结果；只把合格候选与明确判断交给用户选择。
 
-## 工具边界
+读取 [references/visual-definition.md](references/visual-definition.md)。实际生图时按用户指定或当前默认选择 provider：Gemini 读取 [references/providers/gemini-image.md](references/providers/gemini-image.md)；LibTV 读取 `libtv-image-generate` Skill；其他 API 读取它自己的适配说明。不要为了比较服务而加载所有 provider。
 
-- Codex 负责提示词、浏览器操作、审阅、Blender/CityBox/Unity 接入；Gemini 负责参考图；Hunyuan Geo/Poly 负责原始模型和低模。
-- 优先使用 Codex in-app Browser 的已有登录会话；只有用户指定 Chrome 或内置浏览器不可用时才切换。
-- 不搜索同名替代产品，也不在服务失败时擅自改用 Codex ImageGen。
-- 每个审批关口必须直接返回足以判断的图片，并给出明确审阅结论；不能只说“已生成”。
-- 参考图默认走 `gemini.google.com/images`。AI Studio 仅在已有可用 API key 上下文或用户明确指定时使用；不要把缺少 key 的 `permission denied` 误判成点击问题。
+### 2. 网格生成
+
+用确认的参考图获得满足用途的低模网格。阶段的输入是参考图和预算，输出是可下载、可审计的低模；服务可以直接生成低模，也可以先生成高模再拓扑。
+
+Agent 必须在每次交给用户前先检查轮廓、主要结构、表面噪声、缺损和拓扑风险。若服务把高模生成与低模拓扑分开，可在高模通过 Agent 质量门后让用户确认是否消耗下一步用量；低模必须再次审阅。读取 [references/mesh-generation.md](references/mesh-generation.md)；确定使用 Hunyuan 后才读取 [references/providers/hunyuan.md](references/providers/hunyuan.md)。
+
+### 3. 游戏化加工
+
+在 Blender 中清理网格、替换为项目材质、统一米制尺度和朝向、应用 Rotation/Scale，并建立所需语义节点。先完成最终几何变换，再处理描线和镜头。读取 [references/asset-processing.md](references/asset-processing.md)；只在需要运行时语义时再读取 `runtime-contract.md`。
+
+生成最终 3/4 预览；城市资产同时生成现行 CityBox Low/High 描线下的聚焦预览。Agent 先按游戏画面标准检查材质、轮廓、比例、描线、相机和语义契约，合格后再交给用户确认。纯 Anchor/Camera/pivot 等不可见修正可用校验结果代替重复视觉审批。
+
+### 4. 场景接入与发布
+
+城市资产先进入 CityBox：已有槽位则替换并校准等比尺度；没有槽位或需要改变城市布局时，在 `HERO_SLOTS` 安排位置并生成整城预览。Agent 先排除遮挡、尺度、道路关系和构图问题；新增或改变布局必须由用户确认整城预览。
+
+用户确认最终单体效果以及必要的整城布局后，才提升为正式源并执行唯一发布链。最后验证 Unity 导入与实际运行画面。继续使用开头已经选定的唯一 delivery 文档，不加载另一条发布链。修改 Unity 可执行内容或发布产物后，按 `skills/verify/SKILL.md` 选择最小充分验证。
+
+## 质量门与确认门
+
+每个阶段都先经过 **Agent 质量门**：不达标就诊断并在合理范围内重做，不把明显失败品交给用户。重试会产生显著费用、覆盖正式产物或需要改变需求时停止并说明。
+
+**用户确认门**只用于需要主观取舍或扩大承诺的节点：参考图选择、可选的高模用量关口、最终低模、最终加工效果、新增/改变城市布局、正式发布。用户说“下一步”只通过当前展示的确认门；已经明确授权的机械修正不重复询问。
+
+审批输出必须包含足以判断的图片、Agent 的明确结论和当前阶段的关键统计或风险；不能只报告“已生成”。wireframe/clay 可作诊断，不能代替最终视觉预览。
+
+## 服务适配规则
+
+- 主流程只依赖阶段产物，不依赖 Gemini、Hunyuan、浏览器或 API。新增服务时在 `references/providers/` 增加窄适配文档，或复用已有专用 Skill；不改四阶段骨架。
+- 图片服务和网格服务分别选择；不要因为一个服务失败而隐式更换另一个阶段的方案。
+- 优先级是项目当前偏好，不是资产契约。服务不可用时报告具体阻塞；未经用户授权，不创建付费 key、不扩大费用，也不把失败结果冒充完成。
+- 浏览器、Computer Use、CLI、项目封装或 API 的点击与鉴权细节留在对应服务适配文档或专用 Skill，不写进主流程。
 
 ## 完成标准
 
-- 正式文件、根节点、主 Anchor 和主 Camera 使用同一地点名；无历史 alias 或 `final2` 一类过程名。
-- Blender 后台校验通过，面数、拓扑、尺度、层级和相机对齐有记录。
-- 城市资产必须完成 CityBox build → export → publish，并检查 `city_report.json`、源/目标 `City.fbx` 哈希及 Unity 运行画面。
-- 不在 `Main.unity` 中覆盖 `City.fbx` 子对象的材质、激活状态、名称或相机参数；FBX 重建会改变内部 fileID。City 实例只保留根节点变换，子对象行为由导入器和运行时代码按名称建立。
-- 修改了 Unity 可执行内容或发布产物后，按 `skills/verify/SKILL.md` 选择最小充分验证。
+- 低模在目标镜头下保持正确轮廓与主要结构，并有面数、拓扑和网格健康记录。
+- 正式文件、根节点、主 Anchor 和主 Camera 使用同一地点名，无 alias 或 `final2` 一类过程名。
+- Blender 后台校验通过；尺度、层级、材质、描线和相机符合该资产发布链。
+- 城市资产完成 CityBox build → export → publish，并检查 `city_report.json`、两份 `City.fbx` 哈希和 Unity 运行画面。
+- `Main.unity` 的 City 实例只保留根节点变换，不覆盖 `City.fbx` 子对象。
 
 通用 Blender 命令：
 
@@ -60,4 +80,4 @@ blender --background model.blend \
   --output /absolute/path/preview.png --camera-name Camera_资产名 --save-camera
 ```
 
-城市源模型的校验参数按实际契约选择；`--require-outline` 不适用于由 CityBox 生成描线的源建筑。
+城市源模型由 CityBox 生成描线，校验时不使用 `--require-outline`。

@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "module": "三封信",
+  "location": "家",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm",
+  "cues": [
+    {
+      "id": "三封信/家/伤后探望/01/夜莺",
+      "speaker": "夜莺",
+      "text": "你受伤了？",
+      "sourcePath": "node-her-visit/共用/1"
+    },
+    {
+      "id": "三封信/家/伤后探望/有烟/02/尼尔",
+      "speaker": "尼尔",
+      "text": "不要紧。他身上掉了这个。",
+      "sourcePath": "node-her-visit/有烟/2"
+    },
+    {
+      "id": "三封信/家/伤后探望/有烟/02/世界",
+      "speaker": "世界",
+      "text": "你把那半包烟推到桌子中间。她拿起来看了看，又放下。",
+      "sourcePath": "node-her-visit/有烟/3"
+    },
+    {
+      "id": "三封信/家/伤后探望/有烟/03/尼尔",
+      "speaker": "尼尔",
+      "text": "老街不进「老金牌」香烟。我要去码头居民区一趟。",
+      "sourcePath": "node-her-visit/有烟/4"
+    },
+    {
+      "id": "三封信/家/伤后探望/有烟/03/夜莺",
+      "speaker": "夜莺",
+      "text": "那里外人恐怕不好进去，他们不怎么认陌生人。",
+      "sourcePath": "node-her-visit/有烟/5"
+    },
+    {
+      "id": "三封信/家/伤后探望/无烟/02/尼尔",
+      "speaker": "尼尔",
+      "text": "不要紧。如果我没记错的话，他往码头居民区去了。",
+      "sourcePath": "node-her-visit/无烟/2"
+    },
+    {
+      "id": "三封信/家/伤后探望/无烟/02/夜莺",
+      "speaker": "夜莺",
+      "text": "你要去吗？那里外人恐怕不好进去，他们不怎么认陌生人。",
+      "sourcePath": "node-her-visit/无烟/3"
+    },
+    {
+      "id": "三封信/家/伤后探望/无烟/03/尼尔",
+      "speaker": "尼尔",
+      "text": "我要去码头居民区一趟。",
+      "sourcePath": "node-her-visit/无烟/4"
+    },
+    {
+      "id": "三封信/家/伤后探望/04/尼尔",
+      "speaker": "尼尔",
+      "text": "那你跟我去。",
+      "sourcePath": "node-her-visit/共用/6"
+    },
+    {
+      "id": "三封信/家/伤后探望/04/夜莺",
+      "speaker": "夜莺",
+      "text": "不，我不。",
+      "direction": "立刻回绝，不留余地。",
+      "sourcePath": "node-her-visit/共用/7"
+    }
+  ]
+}

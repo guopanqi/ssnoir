@@ -204,10 +204,10 @@ namespace SSNoir.IMGUI
             var rect = new Rect(center.x - RingSize / 2f, center.y - RingSize / 2f, RingSize, RingSize);
             var oldColor = GUI.color;
             // 环本身也要能压在亮窗户上，先垫一圈暗底。
-            GUI.color = new Color(0f, 0f, 0f, color.a * 0.55f);
+            IMGUIStyles.SetColor(new Color(0f, 0f, 0f, color.a * 0.55f));
             GUI.DrawTexture(new Rect(rect.x - 1f, rect.y - 1f, rect.width + 2f, rect.height + 2f),
                 IMGUIStyles.AnchorRingTexture);
-            GUI.color = color;
+            IMGUIStyles.SetColor(color);
             GUI.DrawTexture(rect, IMGUIStyles.AnchorRingTexture);
             GUI.color = oldColor;
         }

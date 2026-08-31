@@ -332,19 +332,19 @@ namespace SSNoir.IMGUI
                 Mathf.Max(1f, note.width - NoteTornDepth), note.height);
 
             IMGUIStyles.DrawShadow(body, new Vector2(2f, 3f), 0.55f);
-            GUI.color = bg;
+            IMGUIStyles.SetColor(bg);
             GUI.DrawTexture(body, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
 
             DrawTornLeftEdge(body, bg);
 
             // 描边只画三条切齐的边（上、下、右）——左边是撕口，撕口不描边。
             var edge = new Color(ink.r, ink.g, ink.b, 0.65f);
-            GUI.color = edge;
+            IMGUIStyles.SetColor(edge);
             GUI.DrawTexture(new Rect(body.x, body.y, body.width, 1f), Texture2D.whiteTexture);
             GUI.DrawTexture(new Rect(body.x, body.yMax - 1f, body.width, 1f), Texture2D.whiteTexture);
             GUI.DrawTexture(new Rect(body.xMax - 1f, body.y, 1f, body.height), Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
 
             DrawNoteTape(card, body, ink);
 
@@ -380,13 +380,13 @@ namespace SSNoir.IMGUI
                 card.x - 10f, body.center.y - tapeH * 0.5f,
                 Mathf.Max(12f, NoteOverlap + 14f), tapeH));
 
-            GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.45f);
+            IMGUIStyles.SetColor(new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.45f));
             GUI.DrawTexture(tape, Texture2D.whiteTexture);
             // 两条端线：胶带的边界要看得出来，否则只是一块发白的脏斑。
-            GUI.color = new Color(ink.r, ink.g, ink.b, 0.30f);
+            IMGUIStyles.SetColor(new Color(ink.r, ink.g, ink.b, 0.30f));
             GUI.DrawTexture(new Rect(tape.x, tape.y, 1f, tape.height), Texture2D.whiteTexture);
             GUI.DrawTexture(new Rect(tape.xMax - 1f, tape.y, 1f, tape.height), Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
         }
 
         // 便签的左端和宽度。量高和绘制共用这一份，两边各算一遍必然长出「盒子和文字对不上」。
@@ -698,9 +698,9 @@ namespace SSNoir.IMGUI
                 : filled ? SlotBlockBg : IMGUIStyles.Ink;
             if (judged)
             {
-                GUI.color = fill;
+                IMGUIStyles.SetColor(fill);
                 GUI.DrawTexture(rect, Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
             }
             else
             {
@@ -836,9 +836,9 @@ namespace SSNoir.IMGUI
         {
             const float pillW = 54f;
             var pill = new Rect(square.center.x - pillW * 0.5f, square.y - PillGap - PillH, pillW, PillH);
-            GUI.color = IMGUIStyles.Ink;
+            IMGUIStyles.SetColor(IMGUIStyles.Ink);
             GUI.DrawTexture(pill, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(pill, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
             var s = new GUIStyle(IMGUIStyles.CardSubtitle)
             {
@@ -931,18 +931,18 @@ namespace SSNoir.IMGUI
             if (isInteractable)
             {
                 IMGUIStyles.DrawShadow(rect, new Vector2(2f, 2f), 0.45f);
-                GUI.color = isHovered
+                IMGUIStyles.SetColor(isHovered
                     ? new Color(Mathf.Min(1f, IMGUIStyles.Gold.r * 1.08f), Mathf.Min(1f, IMGUIStyles.Gold.g * 1.08f), Mathf.Min(1f, IMGUIStyles.Gold.b * 1.08f), 1f)
-                    : IMGUIStyles.Gold;
+                    : IMGUIStyles.Gold);
                 GUI.DrawTexture(rect, Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
                 style.normal.textColor = IMGUIStyles.GoldOnDark;
             }
             else if (dead)
             {
-                GUI.color = IMGUIStyles.DisabledWash;
+                IMGUIStyles.SetColor(IMGUIStyles.DisabledWash);
                 GUI.DrawTexture(rect, Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
                 style.normal.textColor = IMGUIStyles.Ink;
             }
             else
@@ -960,13 +960,13 @@ namespace SSNoir.IMGUI
         private static void DrawExecuteProgress(Rect rect, float progress, string text)
         {
             progress = Mathf.Clamp01(progress);
-            GUI.color = IMGUIStyles.Ink;
+            IMGUIStyles.SetColor(IMGUIStyles.Ink);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
 
             var fillRect = new Rect(rect.x + 2f, rect.y + 2f, (rect.width - 4f) * progress, rect.height - 4f);
-            GUI.color = IMGUIStyles.Gold;
+            IMGUIStyles.SetColor(IMGUIStyles.Gold);
             GUI.DrawTexture(fillRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.Gold);
             IMGUIStyles.DrawGoldPulse(rect);
 
@@ -1012,9 +1012,9 @@ namespace SSNoir.IMGUI
                     continue;
 
                 var chip = new Rect(x, y + drawn * (chipH + 4f), chipW, chipH);
-                GUI.color = IMGUIStyles.Ink;
+                IMGUIStyles.SetColor(IMGUIStyles.Ink);
                 GUI.DrawTexture(chip, Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
                 IMGUIStyles.DrawOutline(chip, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
 
                 string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
@@ -1145,9 +1145,9 @@ namespace SSNoir.IMGUI
                 var cell = new Rect(x - pop / 2f, area.y + (hi ? -2f : 0f) - pop,
                     cellW + pop, area.height + (hi ? 4f : 0f) + pop * 2f);
                 float dim = hi ? 1f : (settled ? 0.34f : 0.70f);
-                GUI.color = new Color(tier.r * dim, tier.g * dim, tier.b * dim, 1f);
+                IMGUIStyles.SetColor(new Color(tier.r * dim, tier.g * dim, tier.b * dim, 1f));
                 GUI.DrawTexture(cell, Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
                 if (hi)
                     IMGUIStyles.DrawOutline(cell, 2f, IMGUIStyles.Gold);
                 float td = hi ? 0.18f : (settled ? 0.10f : 0.20f);
@@ -1416,8 +1416,8 @@ namespace SSNoir.IMGUI
         {
             IMGUIStyles.DrawShadow(panel, new Vector2(4f, 5f), 0.45f);
             var oldColor = GUI.color;
-            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b,
-                ResultAttachmentOpacity);
+            IMGUIStyles.SetColor(new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b,
+                ResultAttachmentOpacity));
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
             GUI.color = oldColor;
         }

@@ -123,9 +123,9 @@ namespace SSNoir.IMGUI
         private static void DrawBeacon(Rect rect, ImportantNodeBeacon beacon, bool hovered)
         {
             IMGUIStyles.DrawShadow(rect, new Vector2(6f, 7f), 0.58f);
-            GUI.color = IMGUIStyles.Ink;
+            IMGUIStyles.SetColor(IMGUIStyles.Ink);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
 
             IMGUIStyles.DrawOutline(rect, hovered ? 2f : 1.5f, IMGUIStyles.Gold);
             IMGUIStyles.DrawGoldPulse(rect, baseAlpha: hovered ? 0.65f : 0.42f, rings: 2, ringStep: 2f, speed: 1.8f);

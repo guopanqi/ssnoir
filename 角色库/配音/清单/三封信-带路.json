@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "module": "三封信",
+  "location": "居民区",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm",
+  "cues": [
+    {
+      "id": "三封信/居民区/带路/01/夜莺",
+      "speaker": "夜莺",
+      "text": "走吧，记得别叫我的名字，就假装不认识我。",
+      "direction": "语气里有一点为难。",
+      "sourcePath": "node-guided-warren/1"
+    }
+  ]
+}

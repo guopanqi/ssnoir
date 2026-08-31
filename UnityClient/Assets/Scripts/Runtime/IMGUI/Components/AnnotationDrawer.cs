@@ -218,10 +218,10 @@ namespace SSNoir.IMGUI
 
             var ringRect = new Rect(anchor.x - ringSize / 2f, anchor.y - ringSize / 2f, ringSize, ringSize);
             var oldColor = GUI.color;
-            GUI.color = new Color(0f, 0f, 0f, color.a * 0.55f);
+            IMGUIStyles.SetColor(new Color(0f, 0f, 0f, color.a * 0.55f));
             GUI.DrawTexture(new Rect(ringRect.x - 1f, ringRect.y - 1f, ringRect.width + 2f, ringRect.height + 2f),
                 IMGUIStyles.AnchorRingTexture);
-            GUI.color = color;
+            IMGUIStyles.SetColor(color);
             GUI.DrawTexture(ringRect, IMGUIStyles.AnchorRingTexture);
             GUI.color = oldColor;
         }
@@ -268,20 +268,20 @@ namespace SSNoir.IMGUI
                         new Rect(rect.x + i * (SegmentSize + SegmentGap), dy, SegmentSize, SegmentSize));
                     if (i < clock.Current)
                     {
-                        GUI.color = active;
+                        IMGUIStyles.SetColor(active);
                         GUI.DrawTexture(pip, Texture2D.whiteTexture);
                     }
                     else
                     {
                         // 空格也得垫一层暗底：没有卡面托着，只画一圈线的话，
                         // 压到亮窗户上就什么都看不见了。
-                        GUI.color = new Color(0f, 0f, 0f, 0.45f);
+                        IMGUIStyles.SetColor(new Color(0f, 0f, 0f, 0.45f));
                         GUI.DrawTexture(pip, Texture2D.whiteTexture);
-                        GUI.color = Color.white;
+                        IMGUIStyles.ResetColor();
                         IMGUIStyles.DrawOutline(pip, 1f,
                             new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.42f));
                     }
-                    GUI.color = Color.white;
+                    IMGUIStyles.ResetColor();
                 }
                 return;
             }

@@ -1,6 +1,5 @@
 #nullable enable
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 namespace SSNoir.IMGUI
@@ -144,22 +143,10 @@ namespace SSNoir.IMGUI
             
             _dropdownItems.Add(new DropdownItem { Name = "--- OTHERS ---", IsHeader = true });
 
-            string searchDir = Path.Combine(Application.streamingAssetsPath, "Content", "scenes", "encounters");
-            if (Directory.Exists(searchDir))
+            foreach (var asset in Resources.LoadAll<TextAsset>("Content/scenes/encounters"))
             {
-                foreach (string file in Directory.GetFiles(searchDir, "*.scm"))
-                {
-                    string name = Path.GetFileNameWithoutExtension(file);
-                    _dropdownItems.Add(new DropdownItem { Name = name, SceneName = name });
-                }
-            }
-            else
-            {
-                foreach (var asset in Resources.LoadAll<TextAsset>("Content/scenes/encounters"))
-                {
-                    string name = Path.GetFileNameWithoutExtension(asset.name);
-                    _dropdownItems.Add(new DropdownItem { Name = name, SceneName = name });
-                }
+                string name = asset.name;
+                _dropdownItems.Add(new DropdownItem { Name = name, SceneName = name });
             }
         }
     }

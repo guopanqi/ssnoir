@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "module": "勒索信",
+  "location": "码头",
+  "source": "UnityClient/Assets/Resources/Content/scenes/encounters/勒索信.scm",
+  "cues": [
+    {
+      "id": "勒索信/蹲守/认错人/01/尼尔",
+      "speaker": "尼尔",
+      "text": "抱歉，认错人了。",
+      "sourcePath": "reveal!/非目标/1",
+      "direction": "第二次说这句话了。"
+    },
+    {
+      "id": "勒索信/蹲守/认错人/02/尼尔",
+      "speaker": "尼尔",
+      "text": "抱歉，认错人了。",
+      "direction": "第二次说这句话了。",
+      "sourcePath": "reveal!/非目标/1"
+    }
+  ]
+}

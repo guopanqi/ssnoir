@@ -13,20 +13,41 @@ namespace SSNoir.IMGUI
         // 旁白说话人：内容里用「世界」写不属于任何人的叙述句。它没有身体，也就没有锚点，
         // 画成一张不署名的叙述纸条贴在底部，而不是当作一个解析不到的角色报错。
         private const string NarratorSpeaker = "世界";
-        private const float NarrationWidth = 560f;
+        private const float NarrationWidth = 680f;
+        // 底栏空地窄到这个数以下，就不硬塞了——一行放不下十来个字，折行比抬上去还难读。
+        private const float MinGapWidth = 300f;
+        // 暗带在字上下各留这么多，斜坡才在字外完成。
+        private const float FadePadding = 34f;
+        // 压住白描线要的是「暗」，不是「黑块」：中段 62% 已经够，再深就成了黑条。
+        private static readonly Color NarrationScrim = new Color(0.031f, 0.039f, 0.059f, 0.62f);
 
         // 非阻塞:把 BanterPlayer 当前可见的每个气泡画在各自说话人锚点上方。
         public static void DrawBanter(
             BanterPlayer banter,
             DialogueAnchors anchors,
+            SSNoirGameManager gameManager,
             System.Action<string> reportRemoteFallback)
         {
-            foreach (var bubble in banter.Visible)
+            // BanterPlayer 故意让上一句多留 0.6 秒（OverlapSeconds），好让"你一句我一句"
+            // 看得到来回——那对人物气泡成立，因为它们各自挂在各自的锚点上。旁白不成立：
+            // 它没有锚点，每一句都画在同一个落点，重叠期里两句字幕就会糊在一起。
+            // 所以旁白只画最新的那一句，上一句到点就走。
+            int newestNarration = -1;
+            for (int i = 0; i < banter.Visible.Count; i++)
+                if (banter.Visible[i].Line.Speaker == NarratorSpeaker)
+                    newestNarration = i;
+
+            for (int i = 0; i < banter.Visible.Count; i++)
             {
+                var bubble = banter.Visible[i];
+                if (bubble.Line.Speaker == NarratorSpeaker && i != newestNarration)
+                    continue;
+
                 bool usedRemoteFallback = DrawBubble(
                     bubble.Line.Speaker,
                     bubble.Line.Text,
                     anchors,
+                    gameManager,
                     bubble.AllowsRemoteParticipants,
                     fallsBackToRemoteParticipant: true);
                 if (usedRemoteFallback && !bubble.RemoteFallbackWarningIssued)
@@ -41,12 +62,13 @@ namespace SSNoir.IMGUI
             string speaker,
             string text,
             DialogueAnchors anchors,
+            SSNoirGameManager gameManager,
             bool allowsRemoteParticipant = false,
             bool fallsBackToRemoteParticipant = false)
         {
             if (speaker == NarratorSpeaker)
             {
-                DrawNarration(text);
+                DrawNarration(text, gameManager);
                 return false;
             }
 
@@ -159,34 +181,60 @@ namespace SSNoir.IMGUI
         private static void DrawTriangle(Vector2 a, Vector2 b, Vector2 c, Color color)
             => ShapeDrawer.DrawTriangle(a, b, c, color);
 
-        // 旁白：不署名、不指向任何人，横向居中贴在底部手牌区上方。
-        private static void DrawNarration(string text)
+        // 旁白：不署名、不指向任何人——它是画外音，不是谁递过来的一张纸。
+        //
+        // 以前它是一张 Paper 底 + PaperInk 字的卡片，还带硬投影。那读起来是「界面里多了
+        // 一个东西」：城市是白描线，纸片也是白的，两块白挤在一起，玩家看见的是一张卡，
+        // 而不是听见一句旁白。现在换成电影字幕的做法——底部居中的白字，底下垫一条上下
+        // 淡出的暗带。暗带没有边，压得住浅色线稿，又不给画面加一个框。
+        //
+        // 试过的另外两种，别再换回去：纯白字不垫底，压到白色楼体上就糊；实心黑框读成
+        // 播放器的字幕框，边界比字还显眼。
+        private static void DrawNarration(string text, SSNoirGameManager gameManager)
         {
             var bodyStyle = new GUIStyle(IMGUIStyles.ModalBody)
             {
                 wordWrap = true,
-                fontSize = IMGUIStyles.FontSize(16),
-                alignment = TextAnchor.UpperLeft,
+                fontSize = IMGUIStyles.FontSize(19),
+                alignment = TextAnchor.LowerCenter,
             };
-            bodyStyle.normal.textColor = IMGUIStyles.PaperInk;
+            bodyStyle.normal.textColor = IMGUIStyles.Paper;
 
-            // 窄屏上 560 的固定宽度会顶到两边；收进安全区，底边坐在手牌簇上方。
             Rect safe = UIScale.SafeArea;
-            float width = Mathf.Min(NarrationWidth, safe.width - 32f);
-            float textW = width - 32f;
-            float textH = bodyStyle.CalcHeight(new GUIContent(text), textW);
-            float h = 14f + textH + 14f;
-            var rect = new Rect(
-                safe.x + (safe.width - width) / 2f,
-                safe.yMax - HandPanelDrawer.ReservedHeight - h - 16f,
-                width, h);
 
-            IMGUIStyles.DrawShadow(rect, new Vector2(5f, 6f), 0.50f);
-            GUI.color = IMGUIStyles.Paper;
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            // 首选落点是底栏两簇之间那块空地——画面最下沿，最像电影字幕，也最不挡东西。
+            // 同伴一多，左边的骰池就往右长，那块地会被吃掉；这时字幕整条抬到底栏上方去。
+            // 门槛按「一行放不放得下几个字」定，而不是按人数：人数是原因，宽度才是理由。
+            Rect gap = HandPanelDrawer.BottomGap(gameManager);
+            bool inGap = gap.width >= MinGapWidth;
 
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 16f, rect.y + 14f, textW, textH), text, bodyStyle);
+            float width = inGap
+                ? gap.width - 24f
+                : Mathf.Min(NarrationWidth, safe.width - 64f);
+            float textH = bodyStyle.CalcHeight(new GUIContent(text), width);
+
+            // 两种落点都是「底边钉住，往上长」：字幕跳来跳去比挡住东西更让人分心。
+            // 挤在空地里时行宽窄，同一句话会多折一两行——那正是它该做的，不是往外溢。
+            float baseline = inGap
+                ? gap.yMax
+                : safe.yMax - HandPanelDrawer.ReservedHeight - 20f;
+            float x = inGap
+                ? gap.x + (gap.width - width) / 2f
+                : safe.x + (safe.width - width) / 2f;
+            var textRect = new Rect(x, baseline - textH, width, textH);
+
+            // 暗带比字宽、比字高：淡出的两端要在字之外完成，否则字的头尾自己在变暗。
+            // 挤在空地里时暗带也收进空地，免得从骰子和物品底下透出来一条横杠。
+            float fadeX = inGap ? gap.x : safe.x;
+            float fadeW = inGap ? gap.width : safe.width;
+            var fade = new Rect(fadeX, textRect.y - FadePadding, fadeW, textH + FadePadding * 2f);
+            ShapeDrawer.DrawVerticalFade(fade, NarrationScrim);
+
+            // 再垫一层贴着字的投影：暗带只保证「底下是暗的」，笔画边缘要靠它才立起来。
+            var shadowStyle = new GUIStyle(bodyStyle);
+            shadowStyle.normal.textColor = new Color(0f, 0f, 0f, 0.75f);
+            IMGUIStyles.DrawLabel(new Rect(textRect.x + 1f, textRect.y + 2f, textRect.width, textRect.height), text, shadowStyle);
+            IMGUIStyles.DrawLabel(textRect, text, bodyStyle);
         }
 
         // 显式场外对话/插话的未在场说话人，以一张临时侧边卡进入画面。

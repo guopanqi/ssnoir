@@ -11,22 +11,25 @@ namespace SSNoir
 
         private void Awake() => EnsureAudioSource();
 
-        public void Play(string? voiceId)
+        // 返回实际开始播放的时长。调用方用它延长非阻塞对白的可见时间，
+        // 使生成语音不会被下一句抢断；无语音或资源缺失时返回 0。
+        public float Play(string? voiceId)
         {
             if (string.IsNullOrWhiteSpace(voiceId))
-                return;
+                return 0f;
 
             EnsureAudioSource();
             var clip = Resources.Load<AudioClip>($"Voices/{voiceId}");
             if (clip == null)
             {
                 Debug.LogWarning($"[SSNoir] Dialogue voice not found: Resources/Voices/{voiceId}");
-                return;
+                return 0f;
             }
 
             _audioSource.Stop();
             _audioSource.clip = clip;
             _audioSource.Play();
+            return clip.length;
         }
 
         private void EnsureAudioSource()

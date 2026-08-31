@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "module": "三封信",
+  "location": "居民区",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm",
+  "cues": [
+    {
+      "id": "三封信/居民区/独自打听/碰壁01/尼尔",
+      "speaker": "尼尔",
+      "text": "这里有谁抽「老金牌」香烟？",
+      "sourcePath": "alone-stonewall-scene!/2/1"
+    },
+    {
+      "id": "三封信/居民区/独自打听/碰壁01/门廊里的男人",
+      "speaker": "门廊里的男人",
+      "text": "我们可抽不起这种烟。",
+      "style": "港口居民区门廊下的中年男人，粗哑、干冷；被外人搭话时敷衍一句就想走开。",
+      "sourcePath": "alone-stonewall-scene!/2/2"
+    },
+    {
+      "id": "三封信/居民区/独自打听/碰壁02/世界/01",
+      "speaker": "世界",
+      "text": "有个女人正要开口，旁边的人用胳膊肘碰了她一下。",
+      "sourcePath": "alone-stonewall-scene!/4/1"
+    },
+    {
+      "id": "三封信/居民区/独自打听/碰壁02/世界/02",
+      "speaker": "世界",
+      "text": "那人低声告诉她，弗兰克不喜欢外人在这里乱问。",
+      "sourcePath": "alone-stonewall-scene!/4/2"
+    },
+    {
+      "id": "三封信/居民区/独自打听/收场/01/尼尔",
+      "speaker": "尼尔",
+      "text": "我四处去问，没人搭理我。得有个这里认得的人带我进去。",
+      "sourcePath": "advance-alone!/收场/1"
+    },
+    {
+      "id": "三封信/居民区/独自打听/收场/01/夜莺",
+      "speaker": "夜莺",
+      "text": "我不愿意回去……我就是从那里出来的。",
+      "sourcePath": "advance-alone!/收场/2"
+    },
+    {
+      "id": "三封信/居民区/独自打听/收场/02/尼尔",
+      "speaker": "尼尔",
+      "text": "那只能你带我走。",
+      "sourcePath": "advance-alone!/收场/3"
+    },
+    {
+      "id": "三封信/居民区/独自打听/收场/02/夜莺",
+      "speaker": "夜莺",
+      "text": "等我两天，就两天。",
+      "direction": "下了决心才说出口。",
+      "sourcePath": "advance-alone!/收场/4"
+    },
+    {
+      "id": "三封信/居民区/桥廊公寓/01/尼尔",
+      "speaker": "尼尔",
+      "text": "这一带有没有人抽「老金牌」香烟，穿旧西装，走路有点跛。",
+      "sourcePath": "finish-bridge-inquiry!/1"
+    },
+    {
+      "id": "三封信/居民区/桥廊公寓/01/桥廊住户",
+      "speaker": "桥廊住户",
+      "text": "你说的是莱恩吧。夜莺，你们不是认识吗？",
+      "style": "住在桥廊尽头的中年女人，嗓音平常带点沙；随口说出一个人人都知道的名字，没有恶意。",
+      "sourcePath": "finish-bridge-inquiry!/2"
+    },
+    {
+      "id": "三封信/居民区/桥廊公寓/01/世界",
+      "speaker": "世界",
+      "text": "尼尔转过身去，看着夜莺。",
+      "sourcePath": "finish-bridge-inquiry!/3"
+    }
+  ]
+}

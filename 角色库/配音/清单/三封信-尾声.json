@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "module": "三封信",
+  "location": "尾声",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm",
+  "cues": [
+    {
+      "id": "三封信/尾声/01/夜莺",
+      "speaker": "夜莺",
+      "text": "你来了。",
+      "direction": "轻柔低语，演出后的疲惫与沉静。"
+    },
+    {
+      "id": "三封信/尾声/01/尼尔",
+      "speaker": "尼尔",
+      "text": "你唱完了。",
+      "direction": "低沉平静，温和，带着一丝欣慰。"
+    },
+    {
+      "id": "三封信/尾声/02/夜莺",
+      "speaker": "夜莺",
+      "text": "我说过我会唱完的。那张票我一直留着，你没用上，你站在后台。",
+      "direction": "轻柔平静，带着淡淡的笑意与遗憾。"
+    },
+    {
+      "id": "三封信/尾声/02/尼尔",
+      "speaker": "尼尔",
+      "text": "下次吧。",
+      "direction": "低沉温和，轻描淡写。"
+    },
+    {
+      "id": "三封信/尾声/03/夜莺",
+      "speaker": "夜莺",
+      "text": "下次。",
+      "direction": "轻声重复，带着默契与淡淡的微笑。"
+    }
+  ]
+}

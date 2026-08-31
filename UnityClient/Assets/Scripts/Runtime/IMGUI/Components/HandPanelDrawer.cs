@@ -103,6 +103,43 @@ namespace SSNoir.IMGUI
             }
         }
 
+        /// <summary>
+        /// 底栏两簇之间那块空地：左下骰池的右缘到右下物品簇的左缘，高度是骰子那一行。
+        ///
+        /// 旁白字幕坐在这里。同伴一多，左簇往右长，这块地会被吃掉——所以它可能返回一个
+        /// 很窄甚至反向的矩形，调用方按自己的最小宽度决定是用它还是躲到底栏上方去。
+        /// 几何只算在这一个文件里：字幕那边再照着 TokenSize / SideMargin 算一遍，
+        /// 迟早会和实际画的位置对不上。
+        /// </summary>
+        public static Rect BottomGap(SSNoirGameManager gameManager)
+        {
+            Rect safe = UIScale.SafeArea;
+            float baseline = safe.yMax - BottomMargin;
+            float top = baseline - TokenSize - 4f;
+            var snapshot = gameManager.DisplayedSnapshot;
+
+            float left = safe.x + SideMargin;
+            bool leadDrawn = false;
+            foreach (var actor in snapshot.Actors)
+            {
+                if (!actor.OnStage)
+                    continue;
+                left += ClusterWidth(actor, isLead: !leadDrawn) + ClusterGap;
+                leadDrawn = true;
+            }
+            if (leadDrawn)
+                left -= ClusterGap;
+
+            float right = safe.xMax - SideMargin - FunctionWidth(gameManager);
+            int itemCount = 0;
+            foreach (var kvp in snapshot.Inventory)
+                if (kvp.Value > 0) itemCount++;
+            if (itemCount > 0)
+                right -= 28f + (itemCount - 1) * TokenSpacing + TokenSize;
+
+            return new Rect(left, top, right - left, baseline - top);
+        }
+
         // ── 教程要指的那几块地方 ─────────────────────────────────────
         //
         // 高亮框由这里给，不由教程那边照着常量再算一遍：底栏的几何只有这个文件知道。

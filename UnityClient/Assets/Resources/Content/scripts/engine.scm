@@ -940,6 +940,7 @@
 
 ;; 一条台词:(line 说话人 文本) / (line 说话人 文本 语音) / (line 说话人 文本 语音 停留秒)
 ;; 停留秒仅 banter 使用;<=0 表示按文本长度自动估算。
+;; 绑定语音时,客户端总会至少等到音频播完;显式停留秒只能延长,不能截断语音。
 (define (line speaker text . rest)
   (let* ((voice (if (null? rest) "" (car rest)))
          (more  (if (null? rest) '() (cdr rest)))

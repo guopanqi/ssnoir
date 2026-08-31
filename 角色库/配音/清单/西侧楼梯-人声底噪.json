@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "purpose": "西侧楼梯 01 的七嘴八舌底噪素材；单条不入游戏，与主句混音后合成为 三封信/居民区/西侧楼梯/01/楼梯上的女人。",
+  "cues": [
+    {
+      "id": "素材/西侧楼梯/底噪/01",
+      "speaker": "底噪女声甲",
+      "text": "我早说了嘛。",
+      "style": "港口居民区的中年女人，嗓音略哑；跟身边人随口搭话，音量不高，含糊不刻意吐字。"
+    },
+    {
+      "id": "素材/西侧楼梯/底噪/02",
+      "speaker": "底噪女声乙",
+      "text": "那不是她妹妹家的？",
+      "style": "港口居民区的年轻女人，嗓音偏亮；边做事边接一句嘴，随意、含混。"
+    },
+    {
+      "id": "素材/西侧楼梯/底噪/03",
+      "speaker": "底噪女声丙",
+      "text": "天天有人来。",
+      "style": "港口居民区的老年女人，嗓音沙；自顾自地咕哝一句，语速偏快、吞字，音量低，不是说给谁听的。"
+    },
+    {
+      "id": "素材/西侧楼梯/底噪/04",
+      "speaker": "底噪女声丁",
+      "text": "回来做什么啊。",
+      "style": "港口居民区的中年女人，压着嗓子跟旁人咬耳朵，带评判口气，不喊。"
+    },
+    {
+      "id": "素材/西侧楼梯/底噪/05",
+      "speaker": "底噪女声戊",
+      "text": "别看了，别看了。",
+      "style": "港口居民区的女人，四十多岁，低声劝旁边的人，说话很快，含糊。"
+    }
+  ],
+  "mix": {
+    "target": "三封信/居民区/西侧楼梯/01/楼梯上的女人",
+    "note": "E2 结构：人群先响，主句进来时侧链把底噪压下去，说完涨回。底噪 03 单独压低压闷，避免抢主句。输出 24000Hz 单声道 pcm_s16le。",
+    "clear": {
+      "source": "MiMo 原始输出（未混音的主句干声）",
+      "volume": 1.0,
+      "delayMs": 1700,
+      "apadDur": 1.5
+    },
+    "bed": [
+      {
+        "id": "素材/西侧楼梯/底噪/01",
+        "rate": 0.97,
+        "volume": 0.22,
+        "lowpass": 2400,
+        "delayMs": 0
+      },
+      {
+        "id": "素材/西侧楼梯/底噪/02",
+        "rate": 1.06,
+        "volume": 0.18,
+        "lowpass": 2400,
+        "delayMs": 400
+      },
+      {
+        "id": "素材/西侧楼梯/底噪/03",
+        "rate": 0.94,
+        "volume": 0.13,
+        "lowpass": 1800,
+        "delayMs": 800
+      },
+      {
+        "id": "素材/西侧楼梯/底噪/04",
+        "rate": 1.03,
+        "volume": 0.2,
+        "lowpass": 2400,
+        "delayMs": 2300
+      },
+      {
+        "id": "素材/西侧楼梯/底噪/05",
+        "rate": 0.99,
+        "volume": 0.18,
+        "lowpass": 2400,
+        "delayMs": 3000
+      }
+    ],
+    "bedFilter": "asetrate=24000*<rate>,aresample=24000,volume=<volume>,lowpass=f=<lowpass>,adelay=<delayMs>",
+    "bedBus": "amix=inputs=5:normalize=0:duration=longest,apad=pad_dur=1.5",
+    "duck": "sidechaincompress=threshold=0.02:ratio=8:attack=20:release=350（旁链输入为主句）",
+    "master": "amix=inputs=2:normalize=0:duration=shortest,alimiter=limit=0.95，首尾 0.3/0.5s 淡入淡出"
+  }
+}

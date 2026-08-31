@@ -180,15 +180,15 @@ namespace SSNoir.IMGUI
             if (isTarget)
             {
                 IMGUIStyles.DrawGoldPulse(rect, baseAlpha: 0.72f, rings: 3, ringStep: 2.5f, speed: 2.2f);
-                GUI.color = IMGUIStyles.Gold;
+                IMGUIStyles.SetColor(IMGUIStyles.Gold);
                 GUI.DrawTexture(marker, Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
             }
             else
             {
-                GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.94f);
+                IMGUIStyles.SetColor(new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.94f));
                 GUI.DrawTexture(marker, Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
                 IMGUIStyles.DrawOutline(marker, 1.5f, IMGUIStyles.Gold);
             }
 
@@ -209,23 +209,23 @@ namespace SSNoir.IMGUI
         {
             IMGUIStyles.DrawShadow(rect, new Vector2(7f, 9f), 0.58f);
 
-            GUI.color = IMGUIStyles.Ink;
+            IMGUIStyles.SetColor(IMGUIStyles.Ink);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
 
             if (disabled)
             {
                 // 禁用态不能只靠按钮文字区分。Ink 本身已接近纯黑，再叠黑几乎看不出变化——
                 // 换成暖灰洗色（DisabledWash）整张覆盖：卡面会明显发灰发亮，读成"褪色的纸"
                 // 而不是"更暗的黑"。侧栏与描边同用这支灰，三处统一成一套禁用态身份。
-                GUI.color = new Color(IMGUIStyles.DisabledWash.r, IMGUIStyles.DisabledWash.g, IMGUIStyles.DisabledWash.b, 0.30f);
+                IMGUIStyles.SetColor(new Color(IMGUIStyles.DisabledWash.r, IMGUIStyles.DisabledWash.g, IMGUIStyles.DisabledWash.b, 0.30f));
                 GUI.DrawTexture(rect, Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
                 IMGUIStyles.DrawOutline(rect, 1f,
                     new Color(IMGUIStyles.DisabledWash.r, IMGUIStyles.DisabledWash.g, IMGUIStyles.DisabledWash.b, 0.75f));
-                GUI.color = IMGUIStyles.DisabledWash;
+                IMGUIStyles.SetColor(IMGUIStyles.DisabledWash);
                 GUI.DrawTexture(new Rect(rect.x, rect.y, 4f, rect.height), Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
             }
 
             if (isFocused && !disabled)
@@ -377,9 +377,9 @@ namespace SSNoir.IMGUI
             Color inactiveColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
             Color outline = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f);
 
-            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.96f);
+            IMGUIStyles.SetColor(new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.96f));
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(rect, 1f, outline);
 
             var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
@@ -455,18 +455,18 @@ namespace SSNoir.IMGUI
                     var dotRect = new Rect(dotStartX + i * (dot + spacing), dotY, dot, dot);
                     if (i < clock.Current)
                     {
-                        GUI.color = activeColor;
+                        IMGUIStyles.SetColor(activeColor);
                         GUI.DrawTexture(dotRect, Texture2D.whiteTexture);
-                        GUI.color = Color.white;
+                        IMGUIStyles.ResetColor();
                     }
                     else
                     {
-                        GUI.color = inactiveColor;
+                        IMGUIStyles.SetColor(inactiveColor);
                         GUI.DrawTexture(dotRect, Texture2D.whiteTexture);
-                        GUI.color = Color.white;
+                        IMGUIStyles.ResetColor();
                         IMGUIStyles.DrawOutline(dotRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
                     }
-                    GUI.color = Color.white;
+                    IMGUIStyles.ResetColor();
                 }
             }
             else // Readout：不触发任何事的当前值，纯文字
@@ -521,9 +521,9 @@ namespace SSNoir.IMGUI
             float thickness = isHovered ? 2f : 1f;
 
             IMGUIStyles.DrawShadow(rect, new Vector2(4f, 4f), 0.45f);
-            GUI.color = IMGUIStyles.Ink;
+            IMGUIStyles.SetColor(IMGUIStyles.Ink);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(rect, thickness, outline);
 
             IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + 8, rect.width - 16, 20), node.Name, IMGUIStyles.FlippedTitle);
@@ -698,11 +698,11 @@ namespace SSNoir.IMGUI
 
         private static void DrawEffectRowBg(Rect row, Color accent)
         {
-            GUI.color = new Color(accent.r, accent.g, accent.b, 0.16f);
+            IMGUIStyles.SetColor(new Color(accent.r, accent.g, accent.b, 0.16f));
             GUI.DrawTexture(row, Texture2D.whiteTexture);
-            GUI.color = accent;
+            IMGUIStyles.SetColor(accent);
             GUI.DrawTexture(new Rect(row.x, row.y, 3f, row.height), Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
         }
 
     }

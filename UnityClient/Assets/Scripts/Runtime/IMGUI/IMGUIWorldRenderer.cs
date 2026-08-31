@@ -42,6 +42,9 @@ namespace SSNoir.IMGUI
         private bool _relationWasExpanded = false;
         // 判定条、结果条等不参与卡片布局；它们在所有卡本体之后统一绘制，才不会被近景卡遮住。
         private readonly List<CardAttachmentOverlay> _cardAttachmentOverlays = new List<CardAttachmentOverlay>();
+        // 本帧世界投射层的浓度，由 DrawCards 写、附件那一段读——附件画在卡片之后、
+        // 物品栏之上，隔着几个绘制阶段，只能这样把浓度带过去。
+        private float _cardLayerReveal = 1f;
         // 本帧的引线。与 attachment 相反，它们在所有卡本体**之前**统一绘制。
         private readonly List<CardLeaderLineDrawer.Tether> _tethers = new List<CardLeaderLineDrawer.Tether>();
         private readonly List<float> _gridScrollStack = new();
@@ -459,6 +462,9 @@ namespace SSNoir.IMGUI
                 && Event.current.type != EventType.Layout)
                 return;
 
+            // 图层透明度每帧归位。它是全局状态，Begin / End 中间断一次就会一直半透明下去。
+            IMGUIStyles.ResetLayer();
+
             // 把整个 IMGUI 放进按设备物理尺寸推导出来的虚拟画布里。
             UIScale.Apply();
 
@@ -672,9 +678,13 @@ namespace SSNoir.IMGUI
             // ── Bottom Panel ──
             // 结果 attachment 的视觉层在物品栏之后；点击消费提前做，避免结果盖住物品栏后
             // 视觉层在前、交互层却误点到底下的物品。
-            HandleCardAttachmentTaps(worldUi);
+            // 影子状态的卡片不接点击，它的附件同理。
+            if (_cardLayerReveal >= 0.999f)
+                HandleCardAttachmentTaps(worldUi);
             HandPanelDrawer.Draw(_gameManager, worldUi, _dialogueAnchors);
+            float attachmentRestore = IMGUIStyles.BeginLayer(_cardLayerReveal);
             DrawCardAttachmentOverlays(worldUi);
+            IMGUIStyles.EndLayer(attachmentRestore);
 
             // ── Growth / Team Toggle Button ──
             DrawGrowthToggleButton(worldUi, topHud.GrowthToggle);
@@ -933,6 +943,12 @@ namespace SSNoir.IMGUI
             var focusedName = _gameManager.FocusedNodeName;
             // 建筑镜头下卡片退到左右两条栏里，把中间让给建筑；城市总览保持贴着锚点上浮。
             bool inGutters = CardGutterLayout.IsActive(_gameManager.CurrentFocusCamera);
+            // 世界投射层跟着换镜一起显形：新那一镜露出多少，这一层就画多浓（见下面
+            // BeginLayer 那一段）。低动画换镜之外恒为 1，什么都不变。
+            float viewReveal = _gameManager.CameraManager.ReducedViewReveal;
+            bool swappingView = viewReveal < 1f;
+            // 附件（判定条、结果条）画在别处、隔着几个绘制阶段，浓度只能这样带过去。
+            _cardLayerReveal = viewReveal;
 
             // Split nodes into two groups: those with world anchors and those without
             var initialProjected = new List<(GameNode node, string anchorKey, Vector3 screenPos, float distance, int order)>();
@@ -1171,7 +1187,11 @@ namespace SSNoir.IMGUI
                     ApplyRememberedStacks(layouts);
                 }
 
-                float t = 1f - Mathf.Exp(-CardSettleSpeed * Time.deltaTime);
+                // 低动画换镜期间不走弹簧：这一层此刻正从无到有地浮出来，位置必须一开始
+                // 就是最终位置——淡入的同时还在滑，恰恰是这个模式要消掉的那种运动。
+                float t = swappingView
+                    ? 1f
+                    : 1f - Mathf.Exp(-CardSettleSpeed * Time.deltaTime);
                 foreach (var layout in layouts)
                 {
                     // 先按锚点的位移刚性搬一次，再走弹簧。少了这一步，弹簧就得去追一个
@@ -1194,6 +1214,18 @@ namespace SSNoir.IMGUI
                 return byDistance != 0 ? byDistance : CompareStackRank(a, b);
             });
 
+            // ── 世界投射层：跟着换镜一起显形 ──
+            //
+            // 这一层是钉在世界上的东西（卡片、引线、标注、边缘信标），它属于**镜头看到的
+            // 那一镜**。低动画换镜时相机先一步落到新机位，屏幕上却还盖着旧画面的冻帧：
+            // 照常画，卡片就会扎在一张旧画面上先跳一下，再滑向新排布。所以这一层的浓度
+            // 直接跟着"新那一镜露出了多少"走——世界怎么显形，它就怎么显形。位置在上面
+            // 已经直接落到解算位，全程不动，只是从无到有地浮出来。
+            //
+            // 淡入途中不接点击：那时它还是个影子，点一张看不清的卡不该算数。
+            bool ghostLayer = viewReveal < 0.999f;
+            float cardLayerRestore = IMGUIStyles.BeginLayer(viewReveal);
+
             foreach (var layout in layouts)
             {
                 if (layout.IsAnnotation)
@@ -1210,7 +1242,8 @@ namespace SSNoir.IMGUI
             // 但只有没有任何卡本体占住时，结果残影才可接收一次"点此收起"。
             ProjectedCardLayout? hitOwner = null;
             bool attachmentConsumesPointer = AttachmentConsumesPointer(ui.Mouse);
-            if (!attachmentConsumesPointer && !MouseOverGridCard(gridNodes, gridResidues, ui.Mouse))
+            if (!ghostLayer && !attachmentConsumesPointer
+                && !MouseOverGridCard(gridNodes, gridResidues, ui.Mouse))
             {
                 for (int i = 0; i < layouts.Count; i++)
                 {
@@ -1248,7 +1281,7 @@ namespace SSNoir.IMGUI
                 if (layout.IsAnnotation)
                     continue;
 
-                var cardUi = ReferenceEquals(layout, hitOwner) ? ui : ui.Occluded();
+                var cardUi = !ghostLayer && ReferenceEquals(layout, hitOwner) ? ui : ui.Occluded();
                 if (layout.Residue != null)
                 {
                     DrawProjectedResidueCard(layout.Residue, layout.Rect, cardUi);
@@ -1259,14 +1292,20 @@ namespace SSNoir.IMGUI
                 }
             }
 
-            // 网格卡最后绘制，因此视觉上压在世界投射卡之上。
+            IMGUIStyles.EndLayer(cardLayerRestore);
+
+            // 网格卡最后绘制，因此视觉上压在世界投射卡之上。它钉在屏幕上、不在那一镜里，
+            // 所以不跟着换镜显形——上面那层已经收掉了。
             if (gridNodes.Count > 0 || gridResidues.Count > 0)
             {
                 DrawCardsGrid(gridNodes, gridResidues, ui);
             }
 
+            // 信标说的是"这一镜外头还有东西"，所以它和投射层同进同退。
+            cardLayerRestore = IMGUIStyles.BeginLayer(viewReveal);
             string? beaconTarget = ImportantNodeBeaconDrawer.Draw(importantBeacons, ui, _topHud.ContentTop);
-            if (beaconTarget != null)
+            IMGUIStyles.EndLayer(cardLayerRestore);
+            if (beaconTarget != null && !ghostLayer)
                 _gameManager.CameraManager.NavigateToNode(beaconTarget);
         }
 
@@ -2483,6 +2522,7 @@ namespace SSNoir.IMGUI
             DialogueBubbleDrawer.DrawBanter(
                 _banterPlayer,
                 _dialogueAnchors,
+                _gameManager,
                 speaker => ReportRemoteFallback("play-banter!", speaker));
         }
 

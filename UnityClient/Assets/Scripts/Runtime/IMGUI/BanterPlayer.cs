@@ -20,6 +20,7 @@ namespace SSNoir.IMGUI
         }
 
         private const float OverlapSeconds = 0.6f;   // 上一句残留,让"你一句我一句"看得到来回
+        private const float VoiceTailSeconds = 0.15f; // 留出音频播放结束的极短尾部,避免切字
         private const int MaxQueued = 4;              // 队列上限,溢出丢最旧,避免连续操作后积压
         private static readonly IReadOnlyList<Bubble> NoVisibleBubbles = System.Array.Empty<Bubble>();
 
@@ -101,9 +102,12 @@ namespace SSNoir.IMGUI
         private void ShowCurrentLine()
         {
             var line = _current!.Lines[_index];
-            float dwell = line.DwellSeconds > 0f
+            float textDwell = line.DwellSeconds > 0f
                 ? line.DwellSeconds
                 : Mathf.Clamp(1.2f + line.Text.Length * 0.06f, 1.5f, 5f);
+            float voiceDuration = _voice?.Play(line.VoiceId) ?? 0f;
+            // 配音是停留时间的下限。显式 dwell 仍可延长气泡，但不能把音频截断。
+            float dwell = Mathf.Max(textDwell, voiceDuration + VoiceTailSeconds);
             _timer = dwell;
             _visible.Add(new Bubble
             {
@@ -111,7 +115,6 @@ namespace SSNoir.IMGUI
                 AllowsRemoteParticipants = _current.AllowsRemoteParticipants,
                 Remaining = dwell + OverlapSeconds,
             });
-            _voice?.Play(line.VoiceId);
         }
     }
 }

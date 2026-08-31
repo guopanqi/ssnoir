@@ -21,6 +21,8 @@ namespace SSNoir
         private bool _isPressingWorld = false;
         // 按下后是否已经用「刷新过的」UI 覆盖信息复核过一次。见 Update 里的说明。
         private bool _pressGateRechecked = false;
+        // 按下发生在哪一帧。复核必须等到下一帧——同一帧里 OnGUI 还没跑，读到的仍是旧结论。
+        private int _pressFrame = -1;
         private bool _isDraggingCam = false;
         private Vector3 _dragStartMousePos;
         private Vector3 _dragStartCamPos;
@@ -124,6 +126,8 @@ namespace SSNoir
         private float _focusArcTargetRadius;
         private Quaternion _focusArcTargetAim;
         private Quaternion _focusArcTargetRotation;
+        private float _focusArcStartFieldOfView;
+        private float _focusArcTargetFieldOfView;
         private float _focusArcStartNearClip;
         private float _focusArcTargetNearClip;
         private float _focusArcStartFarClip;
@@ -161,13 +165,14 @@ namespace SSNoir
         private Cinemachine.CinemachineBlendDefinition _cutHoldSavedBlend;
         private int _cutHoldFrame;
 
-        // Destination parked on the outgoing view for one frame while the freeze is taken.
+        // Destination parked on the outgoing view while the freeze is being taken. How
+        // many frames that is, is the crossfade's answer to give — see TickFocusTravel.
         private Cinemachine.CinemachineVirtualCamera? _reducedParkedCamera;
         private Vector3 _reducedTargetPosition;
         private Quaternion _reducedTargetRotation;
+        private float _reducedTargetFieldOfView;
         private float _reducedTargetNearClip;
         private float _reducedTargetFarClip;
-        private int _reducedParkedFrame;
 
         public ViewCrossfade Crossfade => _crossfade;
 
@@ -180,7 +185,34 @@ namespace SSNoir
         /// 必须连这里一起问。
         /// </summary>
         public bool IsFocusTravelInFlight =>
-            _isFocusArcActive || _crossfade.IsFading || _reducedParkedCamera != null;
+            _isFocusArcActive || _crossfade.IsFading || _crossfade.IsCapturing
+            || _reducedParkedCamera != null;
+
+        /// <summary>
+        /// 低动画换镜的整段：从画面被按在旧那一镜上等冻帧，到冻帧淡完为止。
+        ///
+        /// 这段时间里**相机已经在新机位上，屏幕上却还是旧画面**——世界靠冻帧盖住了，
+        /// 跟着相机投影的那层 UI 没有。谁要跟着"看到的画面"走，就得问这里，别问相机。
+        /// </summary>
+        public bool IsReducedViewSwapping =>
+            _crossfade.IsFading || _crossfade.IsCapturing || _reducedParkedCamera != null;
+
+        /// <summary>
+        /// 新那一镜在屏幕上露出了多少：0 = 还整个被旧画面盖着，1 = 已经完全是它了。
+        ///
+        /// 世界那半边由冻帧负责（溶解到哪儿就是多少），跟着相机投影的那层 UI 没有冻帧可用，
+        /// 只能按同一条曲线自己淡进来。等冻帧的那一两帧算 0：那时相机已经在新机位上，
+        /// 屏幕上却还是上一镜，这层东西一个都不该露脸。
+        /// </summary>
+        public float ReducedViewReveal
+        {
+            get
+            {
+                if (_crossfade.IsFading)
+                    return 1f - _crossfade.Alpha;
+                return _crossfade.IsCapturing || _reducedParkedCamera != null ? 0f : 1f;
+            }
+        }
 
         public SSNoirCameraManager(SSNoirGameManager gameManager, float panSpeed)
         {
@@ -193,6 +225,16 @@ namespace SSNoir
         {
             var activeCamera = GetActiveCamera();
             if (activeCamera == null) return;
+
+            // 停在旧视角上等冻帧的那台相机，此刻并不是"当前镜头"——它只是替屏幕上那一镜
+            // 站岗。这段时间里下面每一样按当前机位算的姿态维护（拖拽、惯性尾巴、平移回弹、
+            // 静态回位）读到的都是一个不属于它的机位，算出来的结果就是把它甩到别处去；
+            // 而这一帧恰恰还在冻帧就位之前，那一下直接露在屏幕上——切镜时先闪一帧不知
+            // 哪儿的画面，再"跳回"旧画面开始溶解，就是这么来的。
+            //
+            // 站岗最多一两帧（见 TickFocusTravel），期间不接手势不会有感觉。
+            if (_reducedParkedCamera != null)
+                return;
 
             if (_isNavigating && _navigationCamera != activeCamera)
                 _isNavigating = false;
@@ -207,6 +249,7 @@ namespace SSNoir
                 // camera keeps doing what it was doing until the pointer actually travels.
                 _isPressingWorld = true;
                 _pressGateRechecked = false;
+                _pressFrame = Time.frameCount;
                 _isDraggingCam = false;
                 _dragStartMousePos = Input.mousePosition;
 
@@ -221,11 +264,26 @@ namespace SSNoir
             // 按下之后再复核一次：那时 OnGUI 已经按真正的触点跑过一遍了。放在这里而不是把
             // 按下时的判断整个挪后，是因为按压本身要立刻成立（惯性得马上停），只有"这次按压
             // 归不归镜头"可以晚一帧定。
-            if (_isPressingWorld && !_pressGateRechecked)
+            if (_isPressingWorld && !_pressGateRechecked && Time.frameCount != _pressFrame)
             {
                 _pressGateRechecked = true;
                 if (_gameManager.PointerOverUI)
                     _isPressingWorld = false;
+            }
+
+            // 骰子/物品一旦被拿在手上，这次按压就已经名花有主了。上面那两道闸门读的都是
+            // OnGUI 留下的结论，早一帧晚一帧都可能错过；这一个不是推断，是 IMGUI 自己说的
+            // 「我正拖着东西」，所以放在最后一道，也压得住前面两道漏掉的情况。
+            // WebGL 上帧率比编辑器低且不稳，「差一帧」的窗口被拉长到几十毫秒，于是快速
+            // 按下就拖的手势偶发地同时拖动了背景——正是这一条要堵的洞。
+            if (_gameManager.IsDraggingResource && _isPressingWorld)
+            {
+                if (_isDraggingCam)
+                    ReleaseDrag(activeCamera);
+                _isPressingWorld = false;
+                _isDraggingCam = false;
+                _isDraggingFocusArc = false;
+                _inertiaVelocity = Vector2.zero;
             }
 
             if (_isPressingWorld)
@@ -1069,6 +1127,8 @@ namespace SSNoir
             float targetNearClip = focusCamera.m_Lens.NearClipPlane;
             float startFarClip = renderedCamera.farClipPlane;
             float targetFarClip = focusCamera.m_Lens.FarClipPlane;
+            float startFieldOfView = renderedCamera.fieldOfView;
+            float targetFieldOfView = focusCamera.m_Lens.FieldOfView;
 
             // The shot being left only speaks for the view when it is the one actually
             // on screen. After a stage transition drove its own cameras, the last focus
@@ -1098,6 +1158,8 @@ namespace SSNoir
             _focusArcStartInterest = startInterest;
             _focusArcTargetInterest = targetInterest;
             _focusArcTargetRotation = targetRotation;
+            _focusArcStartFieldOfView = startFieldOfView;
+            _focusArcTargetFieldOfView = targetFieldOfView;
             _focusArcStartNearClip = startNearClip;
             _focusArcTargetNearClip = targetNearClip;
             _focusArcStartFarClip = startFarClip;
@@ -1117,7 +1179,7 @@ namespace SSNoir
             brain.m_DefaultBlend = new Cinemachine.CinemachineBlendDefinition(
                 Cinemachine.CinemachineBlendDefinition.Style.Cut, 0f);
             focusCamera.transform.SetPositionAndRotation(startPosition, startRotation);
-            SetClipPlanes(focusCamera, startNearClip, startFarClip);
+            SetLens(focusCamera, startFieldOfView, startNearClip, startFarClip);
 
             _isFocusArcActive = true;
             return true;
@@ -1158,13 +1220,13 @@ namespace SSNoir
         /// form of <see cref="BeginFocusTravel"/>. Nothing travels, so nothing sweeps
         /// past the player; the old shot simply dissolves off the new one.
         ///
-        /// The whole thing turns on getting the freeze *before* the cut, and the caller
-        /// runs in Update — the brain reaches LateUpdate of this same frame and would
-        /// have already snapped by the time the frame is captured, leaving us dissolving
-        /// the new shot onto itself. So the destination is parked on the outgoing view
-        /// for exactly one frame: the brain cuts to it and nothing changes on screen,
-        /// the freeze takes its copy at the end of that frame, and only then is the
-        /// camera released to its real pose, underneath the frozen frame.
+        /// The whole thing turns on getting the freeze *before* the cut: the brain reaches
+        /// LateUpdate and would have already snapped by the time the frame is captured,
+        /// leaving us dissolving the new shot onto itself. So the destination is parked on
+        /// the outgoing view: the brain cuts to it and nothing changes on screen, the
+        /// freeze takes its copy, and only then is the camera released to its real pose,
+        /// underneath the frozen frame. 停多久由冻帧说了算（<see cref="TickFocusTravel"/>），
+        /// 这里不数帧——从 OnGUI 点出来的换镜要比从 Update 发起的多等一帧。
         /// </summary>
         private bool BeginReducedFocusChange(
             Cinemachine.CinemachineVirtualCamera focusCamera,
@@ -1173,6 +1235,9 @@ namespace SSNoir
         {
             _isNavigating = false;
             _isDraggingCam = false;
+            // 甩出去的那条尾巴属于刚被换掉的那一镜。留着它，新机位一露面就会自己滑一段——
+            // 低动画模式下更是无从解释的一下漂移。
+            _inertiaVelocity = Vector2.zero;
 
             // A focus change landing on top of a parked one puts the previous destination
             // back where it belongs first; otherwise it stays stranded on a stale view.
@@ -1187,14 +1252,15 @@ namespace SSNoir
             _reducedParkedCamera = focusCamera;
             _reducedTargetPosition = destinationUsesAuthoredPose ? config!.AuthoredPosition : focusCamera.transform.position;
             _reducedTargetRotation = destinationUsesAuthoredPose ? config!.AuthoredRotation : focusCamera.transform.rotation;
+            _reducedTargetFieldOfView = focusCamera.m_Lens.FieldOfView;
             _reducedTargetNearClip = focusCamera.m_Lens.NearClipPlane;
             _reducedTargetFarClip = focusCamera.m_Lens.FarClipPlane;
-            _reducedParkedFrame = Time.frameCount;
 
             focusCamera.transform.SetPositionAndRotation(
                 renderedCamera.transform.position, renderedCamera.transform.rotation);
-            SetClipPlanes(
-                focusCamera, renderedCamera.nearClipPlane, renderedCamera.farClipPlane);
+            SetLens(
+                focusCamera, renderedCamera.fieldOfView,
+                renderedCamera.nearClipPlane, renderedCamera.farClipPlane);
 
             // 抓帧相机照抄此刻的 renderedCamera——brain 要到 LateUpdate 才动它，所以它
             // 现在还站在要留下的那一镜上。
@@ -1220,8 +1286,9 @@ namespace SSNoir
 
             _reducedParkedCamera.transform.SetPositionAndRotation(
                 _reducedTargetPosition, _reducedTargetRotation);
-            SetClipPlanes(
-                _reducedParkedCamera, _reducedTargetNearClip, _reducedTargetFarClip);
+            SetLens(
+                _reducedParkedCamera, _reducedTargetFieldOfView,
+                _reducedTargetNearClip, _reducedTargetFarClip);
             SynchronizePanBoundsState(_reducedParkedCamera);
             _reducedParkedCamera = null;
         }
@@ -1237,10 +1304,14 @@ namespace SSNoir
 
             // Release the parked destination the moment the freeze exists — that frame is
             // now holding the old shot on screen, so the camera underneath is free to be
-            // where it really belongs. The frame guard is the safety net for the case
-            // where no freeze ever arrives: the park must not outlive its one frame.
-            if (_reducedParkedCamera != null
-                && (_crossfade.IsFading || Time.frameCount > _reducedParkedFrame + 1))
+            // where it really belongs.
+            //
+            // 停到冻帧抓完为止，不数帧。抓帧相机是当帧就渲还是晚一帧，取决于这次换镜从
+            // Update 还是从 OnGUI 发起（见 ViewCrossfade 的时序说明）；按帧数放行的话，
+            // 从卡片点出来的那一类换镜会在冻帧就位前一帧就把新机位露出来——「先闪一下
+            // 新画面，再退回旧画面开始溶解」正是这么来的。溶解压根没起来（IsCapturing
+            // 一直是 false）时这里立刻放行，退回一次普通硬切。
+            if (_reducedParkedCamera != null && !_crossfade.IsCapturing)
                 ReleaseReducedPark();
 
             // The brain gets its blend back once the dissolve is over, not before: until
@@ -1313,8 +1384,9 @@ namespace SSNoir
                 : Quaternion.LookRotation(toInterest, Vector3.up) * aim;
 
             _focusArcCamera.transform.SetPositionAndRotation(position, rotation);
-            SetClipPlanes(
+            SetLens(
                 _focusArcCamera,
+                Mathf.Lerp(_focusArcStartFieldOfView, _focusArcTargetFieldOfView, eased),
                 Mathf.Lerp(_focusArcStartNearClip, _focusArcTargetNearClip, eased),
                 Mathf.Lerp(_focusArcStartFarClip, _focusArcTargetFarClip, eased));
         }
@@ -1382,17 +1454,28 @@ namespace SSNoir
             float nearClipPlane,
             float farClipPlane)
         {
-            if (nearClipPlane <= 0f || farClipPlane <= nearClipPlane)
+            SetLens(camera, camera.m_Lens.FieldOfView, nearClipPlane, farClipPlane);
+        }
+
+        private static void SetLens(
+            Cinemachine.CinemachineVirtualCamera camera,
+            float fieldOfView,
+            float nearClipPlane,
+            float farClipPlane)
+        {
+            if (fieldOfView <= 0f || fieldOfView >= 180f
+                || nearClipPlane <= 0f || farClipPlane <= nearClipPlane)
             {
                 string message =
-                    $"[SSNoir] Camera '{camera.name}' has an invalid clip range " +
-                    $"{nearClipPlane:F3}..{farClipPlane:F3}.";
+                    $"[SSNoir] Camera '{camera.name}' has an invalid lens: " +
+                    $"FOV {fieldOfView:F2}, clip {nearClipPlane:F3}..{farClipPlane:F3}.";
                 Debug.LogError(message);
                 UnityEngine.Assertions.Assert.IsTrue(false, message);
                 throw new System.InvalidOperationException(message);
             }
 
             var lens = camera.m_Lens;
+            lens.FieldOfView = fieldOfView;
             lens.NearClipPlane = nearClipPlane;
             lens.FarClipPlane = farClipPlane;
             camera.m_Lens = lens;
@@ -1571,10 +1654,10 @@ namespace SSNoir
                     // Freeze first: the camera is still standing where the player left it.
                     _crossfade.Begin(MotionSettings.CrossfadeDuration, renderedCamera);
 
-                    // Then park it back there for the one frame the freeze needs. Landing
-                    // on the destination in this same frame would put the new shot on
-                    // screen before the frozen frame exists to cover it — one frame of
-                    // the swing's endpoint, which is exactly the flicker being avoided.
+                    // Then park it back there for as long as the freeze needs. Landing on
+                    // the destination before the frozen frame exists to cover it would put
+                    // the swing's endpoint on screen for a frame — exactly the flicker
+                    // being avoided.
                     Vector3 parkPosition = activeCamera.transform.position;
                     Quaternion parkRotation = activeCamera.transform.rotation;
 
@@ -1582,9 +1665,9 @@ namespace SSNoir
                     _reducedParkedCamera = activeCamera;
                     _reducedTargetPosition = activeCamera.transform.position;
                     _reducedTargetRotation = activeCamera.transform.rotation;
+                    _reducedTargetFieldOfView = activeCamera.m_Lens.FieldOfView;
                     _reducedTargetNearClip = activeCamera.m_Lens.NearClipPlane;
                     _reducedTargetFarClip = activeCamera.m_Lens.FarClipPlane;
-                    _reducedParkedFrame = Time.frameCount;
 
                     activeCamera.transform.SetPositionAndRotation(parkPosition, parkRotation);
                 }

@@ -39,6 +39,7 @@ namespace SSNoir.IMGUI
         private static readonly Dictionary<int, Texture2D> _octagons = new Dictionary<int, Texture2D>();
         private static Texture2D? _ring;
         private static Texture2D? _triangle;
+        private static Texture2D? _fade;
 
         public static void DrawPie(Rect rect, float fillPercent, Color fillColor, Color outlineColor)
         {
@@ -116,6 +117,45 @@ namespace SSNoir.IMGUI
             }
         }
 
+        /// <summary>
+        /// 上下淡出的柔光带：中间实、两端透明，用来在画面上压一块「暗下去的地方」而不是
+        /// 画一个盒子。字幕垫在它上面，读得清，但没有一条边界告诉玩家这是一块 UI。
+        ///
+        /// 走的是和这里其他形状同一条路：一张纯白 + alpha 的 1×N 贴图，颜色由 GUI.color 上。
+        /// </summary>
+        public static void DrawVerticalFade(Rect rect, Color color)
+        {
+            if (Event.current.type != EventType.Repaint) return;
+            Color prev = GUI.color;
+            IMGUIStyles.SetColor(color);
+            GUI.DrawTexture(rect, FadeTexture());
+            GUI.color = prev;
+        }
+
+        // 竖向 alpha 斜坡：0 → 1 → 0，两端各占三成，中段是平的。
+        // 平的中段很重要：整条纯高斯的话，字所在的那一行也在变淡，字反而糊。
+        private static Texture2D FadeTexture()
+        {
+            if (_fade != null) return _fade;
+            const int height = 64;
+            var tex = new Texture2D(1, height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            for (int y = 0; y < height; y++)
+            {
+                float t = (y + 0.5f) / height;           // 0=底 1=顶
+                float edge = Mathf.Min(t, 1f - t) / 0.30f; // 两端 30% 是斜坡
+                float a = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(edge));
+                tex.SetPixel(0, y, new Color(1f, 1f, 1f, a));
+            }
+            tex.Apply();
+            _fade = tex;
+            return tex;
+        }
+
         /// <summary>实心圆。表盘底下垫一层，让中心的数字压在城市上也读得出来。</summary>
         public static void DrawDisc(Rect rect, Color color)
         {
@@ -132,7 +172,7 @@ namespace SSNoir.IMGUI
 
             var tex = ArcTexture(start, sweep);
             Color prev = GUI.color;
-            GUI.color = color;
+            IMGUIStyles.SetColor(color);
             GUI.DrawTexture(rect, tex);
             GUI.color = prev;
         }
@@ -151,7 +191,7 @@ namespace SSNoir.IMGUI
         {
             if (Event.current.type != EventType.Repaint) return;
             Color prev = GUI.color;
-            GUI.color = color;
+            IMGUIStyles.SetColor(color);
             GUI.DrawTexture(rect, OctagonTexture(0));
             GUI.color = prev;
         }
@@ -168,7 +208,7 @@ namespace SSNoir.IMGUI
             float side = Mathf.Max(1f, Mathf.Min(rect.width, rect.height));
             int sourceThickness = Mathf.Clamp(Mathf.RoundToInt(thickness * SourceSize / side), 1, 12);
             Color prev = GUI.color;
-            GUI.color = color;
+            IMGUIStyles.SetColor(color);
             GUI.DrawTexture(rect, OctagonTexture(sourceThickness));
             GUI.color = prev;
         }
@@ -194,7 +234,7 @@ namespace SSNoir.IMGUI
 
             var tex = SectorTexture(degrees);
             Color prev = GUI.color;
-            GUI.color = color;
+            IMGUIStyles.SetColor(color);
             GUI.DrawTexture(rect, tex);
             GUI.color = prev;
         }
@@ -203,7 +243,7 @@ namespace SSNoir.IMGUI
         {
             var tex = RingTexture();
             Color prev = GUI.color;
-            GUI.color = color;
+            IMGUIStyles.SetColor(color);
             GUI.DrawTexture(rect, tex);
             GUI.color = prev;
         }
@@ -228,7 +268,7 @@ namespace SSNoir.IMGUI
             Matrix4x4 prevMatrix = GUI.matrix;
             Color prevColor = GUI.color;
             GUI.matrix = prevMatrix * m;
-            GUI.color = color;
+            IMGUIStyles.SetColor(color);
             GUI.DrawTexture(new Rect(0f, 0f, 1f, 1f), tex);
             GUI.color = prevColor;
             GUI.matrix = prevMatrix;

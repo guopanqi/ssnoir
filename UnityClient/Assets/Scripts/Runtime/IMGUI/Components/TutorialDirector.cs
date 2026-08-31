@@ -78,14 +78,93 @@ namespace SSNoir.IMGUI
         /// <summary>结算出坏结果时喊一声。冷静那条讲的是「不顺利会怎样」，得在人真的不顺利之后才成立。</summary>
         public static void RequestOnFailedRoll() => Request(TutorialLibrary.Composure);
 
-        public static Rect GetPanelRect(TutorialEntry entry)
+        /// <summary>
+        /// 窗口摆在哪儿：**先让开自己圈出来的东西**。
+        ///
+        /// 一条教程说的是"看这里"，窗口却压在那块地方上，等于自己把话收回去了。
+        /// 所以这里拿到本条要圈的所有框，在几个候选位里挑一个和它们都不重叠的；
+        /// 实在挤不开（窄屏、框铺满了）就挑遮挡面积最小的那个——顺序即偏好，
+        /// 排在前面的是版面上更舒服的位置。
+        /// </summary>
+        public static Rect GetPanelRect(TutorialEntry entry, IReadOnlyList<Rect> highlights)
         {
             Rect safe = UIScale.SafeArea;
             float w = Mathf.Min(PanelW, safe.width - 32f);
             float h = Mathf.Min(MeasureHeight(entry, w), safe.height - 24f);
+
             // 竖直方向偏上：底下要露出行动骰和功能键——那正是这几条教程在指的东西。
-            float y = safe.y + Mathf.Max(12f, (safe.height - h) * 0.32f);
-            return UIScale.PixelSnap(new Rect(safe.x + (safe.width - w) / 2f, y, w, h));
+            float defaultY = safe.y + Mathf.Max(12f, (safe.height - h) * 0.32f);
+            float centerX = safe.x + (safe.width - w) / 2f;
+            float leftX = safe.x + 16f;
+            float rightX = safe.xMax - w - 16f;
+            float topY = safe.y + 12f;
+            float bottomY = safe.yMax - h - 12f;
+
+            var candidates = new[]
+            {
+                new Vector2(centerX, defaultY),
+                new Vector2(centerX, topY),
+                new Vector2(leftX, topY),
+                new Vector2(rightX, topY),
+                new Vector2(leftX, defaultY),
+                new Vector2(rightX, defaultY),
+                new Vector2(centerX, bottomY),
+                new Vector2(leftX, bottomY),
+                new Vector2(rightX, bottomY),
+            };
+
+            Rect best = new Rect(candidates[0].x, candidates[0].y, w, h);
+            float bestOverlap = float.MaxValue;
+            foreach (var pos in candidates)
+            {
+                var rect = new Rect(Mathf.Max(safe.x, pos.x), Mathf.Max(safe.y, pos.y), w, h);
+                float overlap = TotalOverlap(rect, highlights);
+                if (overlap <= 0f)
+                    return UIScale.PixelSnap(rect);
+                if (overlap < bestOverlap)
+                {
+                    bestOverlap = overlap;
+                    best = rect;
+                }
+            }
+            return UIScale.PixelSnap(best);
+        }
+
+        /// <summary>窗口盖住这些框的总面积。圈出来的框按画上去的样子算（带那圈 6px 外扩）。</summary>
+        private static float TotalOverlap(Rect panel, IReadOnlyList<Rect> highlights)
+        {
+            float total = 0f;
+            foreach (var raw in highlights)
+            {
+                if (raw.width <= 1f || raw.height <= 1f) continue;
+                var box = new Rect(raw.x - 6f, raw.y - 6f, raw.width + 12f, raw.height + 12f);
+                float ox = Mathf.Min(panel.xMax, box.xMax) - Mathf.Max(panel.x, box.x);
+                float oy = Mathf.Min(panel.yMax, box.yMax) - Mathf.Max(panel.y, box.y);
+                if (ox > 0f && oy > 0f)
+                    total += ox * oy;
+            }
+            return total;
+        }
+
+        /// <summary>本条教程要圈出来的框。摆窗口和画金圈读的是同一份，不会各算各的。</summary>
+        private static List<Rect> CollectHighlights(
+            SSNoirGameManager gameManager, TutorialHighlight highlight, Rect? firstCardRect)
+        {
+            var rects = new List<Rect>();
+            switch (highlight)
+            {
+                case TutorialHighlight.ActionDiceAndCard:
+                    rects.Add(HandPanelDrawer.ActionDiceRect(gameManager));
+                    if (firstCardRect.HasValue) rects.Add(firstCardRect.Value);
+                    break;
+                case TutorialHighlight.Vitals:
+                    rects.Add(HandPanelDrawer.LeadVitalsRect(gameManager));
+                    break;
+                case TutorialHighlight.FunctionKey:
+                    rects.Add(HandPanelDrawer.FunctionKeyRect(gameManager));
+                    break;
+            }
+            return rects;
         }
 
         private static float MeasureHeight(TutorialEntry entry, float panelW)
@@ -117,13 +196,15 @@ namespace SSNoir.IMGUI
             var entry = Current;
             if (entry == null) return;
 
-            var panel = GetPanelRect(entry);
+            var highlights = CollectHighlights(gameManager, entry.Highlight, firstCardRect);
+            var panel = GetPanelRect(entry, highlights);
 
             // 压暗 + 纸底 + 标题 + 关闭 X。关掉 X 和「继续」等价：都算读过了。
             bool closed = IMGUIStyles.DrawModalChrome(panel, entry.Title, ui);
 
             // 高亮画在压暗之后：被指的那块地方要浮在暗幕上面，否则等于没指。
-            DrawHighlights(gameManager, entry.Highlight, firstCardRect);
+            foreach (var rect in highlights)
+                DrawRing(rect);
 
             var body = BodyStyle();
             float textW = panel.width - PadX * 2f;
@@ -141,24 +222,6 @@ namespace SSNoir.IMGUI
             {
                 TutorialState.MarkSeen(entry.Id);
                 _queue.RemoveAt(0);
-            }
-        }
-
-        private static void DrawHighlights(
-            SSNoirGameManager gameManager, TutorialHighlight highlight, Rect? firstCardRect)
-        {
-            switch (highlight)
-            {
-                case TutorialHighlight.ActionDiceAndCard:
-                    DrawRing(HandPanelDrawer.ActionDiceRect(gameManager));
-                    if (firstCardRect.HasValue) DrawRing(firstCardRect.Value);
-                    break;
-                case TutorialHighlight.Vitals:
-                    DrawRing(HandPanelDrawer.LeadVitalsRect(gameManager));
-                    break;
-                case TutorialHighlight.FunctionKey:
-                    DrawRing(HandPanelDrawer.FunctionKeyRect(gameManager));
-                    break;
             }
         }
 
