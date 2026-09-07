@@ -13,7 +13,7 @@
           (error "试验工棚：工作节点必须显式指定功能锚点")))
 
     (define (children)
-      (map require-workshop-anchor (lin 'workshop-nodes)))
+      (map require-workshop-anchor (地点节点 "工棚")))
 
     (lambda args
       (let ((msg (car args)))
@@ -22,7 +22,7 @@
            (list (place "三号货栈工棚"
                         :anchor shed-anchor
                         :children (children)
-                        :arrivals (lin 'arrivals-at "工棚"))))
+                        :arrivals (地点入场 "工棚"))))
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)
           (else (error "试验工棚：收到未知消息")))))))

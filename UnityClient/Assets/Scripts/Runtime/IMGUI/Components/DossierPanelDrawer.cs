@@ -144,6 +144,10 @@ namespace SSNoir.IMGUI
                 // 钉着的那条已经不在卷宗里了（比如一条临时线收走了），退回自动。
             }
 
+            // 没表过态时的默认：当前这一章的主线优先，其次才是委托、再其次任何还没了结的线。
+            // 主线是玩家「这一章到底在干什么」的那一句，它不该被一条人物线挤下地图。
+            foreach (var e in dossier)
+                if (!e.IsClosed && e.Kind == "主线") return e;
             foreach (var e in dossier)
                 if (!e.IsClosed && e.Kind == "委托") return e;
             foreach (var e in dossier)
@@ -212,21 +216,25 @@ namespace SSNoir.IMGUI
                 _expandedId = _expandedId == toggledExpand ? string.Empty : toggledExpand;
         }
 
-        // 委托在前，人物/城市其次，了结的沉到最后。玩家不必自己在一串里翻找还在办的事。
+        // 主线在最前，委托其次，人物/城市再次，了结的沉到最后。
+        // 玩家不必自己在一串里翻找还在办的事，更不必翻找这一章的主轴。
         private static List<DossierEntry> Ordered(IReadOnlyList<DossierEntry> dossier)
         {
+            var main = new List<DossierEntry>();
             var open = new List<DossierEntry>();
             var others = new List<DossierEntry>();
             var closed = new List<DossierEntry>();
             foreach (var e in dossier)
             {
                 if (e.IsClosed) closed.Add(e);
+                else if (e.Kind == "主线") main.Add(e);
                 else if (e.Kind == "委托") open.Add(e);
                 else others.Add(e);
             }
-            open.AddRange(others);
-            open.AddRange(closed);
-            return open;
+            main.AddRange(open);
+            main.AddRange(others);
+            main.AddRange(closed);
+            return main;
         }
 
         private static GUIStyle NameStyle(bool closed) => new GUIStyle(IMGUIStyles.ModalBody)

@@ -60,6 +60,9 @@
     (define participated? #f)     ; 准备期真投入过
     (define authority? #f)        ; 技术负责人
     (define humane? #f)           ; 人文关怀
+    ;; 第二章起：他愿不愿意把你带进公司试验场。这是跨章节的事实，所以归他自己拥有；
+    ;; 哪一晚、用哪句话换来的，属于那件事的文件。
+    (define invited? #f)
 
     ;; 造零件：手上这一件 + 已经完成的
     (define part-int 0)
@@ -563,6 +566,12 @@
     (define (dock-nodes)
       '())
 
+    (define (nodes-at location)
+      (cond
+        ((equal? location "工棚") (workshop-nodes))
+        ((equal? location "码头") (dock-nodes))
+        (else '())))
+
     (define (symbol->string-safe v)
       (cond
         ((equal? v '断闸) "断闸")
@@ -601,14 +610,19 @@
     (lambda args
       (let ((msg (car args)))
         (cond
-          ((equal? msg 'workshop-nodes) (workshop-nodes))
+          ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'dossier) (dossier-entry))
-          ((equal? msg 'dock-nodes) (dock-nodes))
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'workshop-open?) (workshop-open?))
           ((equal? msg 'known?) (known?))
           ((equal? msg 'authority?) authority?)
           ((equal? msg 'humane?) humane?)
+          ((equal? msg 'on-banquet-talk!) (set! invited? #t))
+          ;; 第二章接着往「人文关怀」里写：他有没有真的看见机器成功之后落在谁身上。
+          ;; 第一章已经有三个入口（工人那句、坚持停机、尾声那个数字），这是第四个，
+          ;; 读的还是同一个事实——第三章问的是同一件事，不该有两份答案。
+          ((equal? msg 'on-saw-cost!) (set! humane? #t))
+          ((equal? msg 'invited?) invited?)
           ((equal? msg 'test-result) test-result)
           ((equal? msg 'save)
            (list (list "stage" stage)
@@ -622,6 +636,7 @@
                  (list "participated" (if participated? 1 0))
                  (list "authority" (if authority? 1 0))
                  (list "humane" (if humane? 1 0))
+                 (list "invited" (if invited? 1 0))
                  (list "rail" (rail-clk 'save))
                  (list "part-int" (part-int-clk 'save))
                  (list "part-flaw" (part-flaw-clk 'save))
@@ -642,6 +657,7 @@
              (set! participated? (= (assoc-get data "participated" 0) 1))
              (set! authority? (= (assoc-get data "authority" 0) 1))
              (set! humane? (= (assoc-get data "humane" 0) 1))
+             (set! invited? (= (assoc-get data "invited" 0) 1))
              (rail-clk 'load! (assoc-get data "rail" 0))
              (part-int-clk 'load! (assoc-get data "part-int" 0))
              (part-flaw-clk 'load! (assoc-get data "part-flaw" 0))

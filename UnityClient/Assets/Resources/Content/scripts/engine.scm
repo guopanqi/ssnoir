@@ -274,7 +274,9 @@
 ;;
 ;; :clocks 直接放故事已经在用的钟（(某某-clk 'render-data)），不为卷宗新建一套——
 ;; 同一根钟在动作卡上和卷宗里必须长得一模一样。
-(define dossier-kinds  (list '委托 '人物 '城市))
+;; 主线只有一条：当前这一章的那条必经线。它排在最前，也是钉住条的默认。
+;; 一个存档里同时出现两条 主线 是内容写错了，不是引擎该兼容的情形。
+(define dossier-kinds  (list '主线 '委托 '人物 '城市))
 (define dossier-states (list '进行中 '等着别人 '了结))
 
 (define (dossier id . kwargs)
@@ -285,7 +287,7 @@
         (where  (get-kwarg kwargs ':where "")))
     (if (member? kind dossier-kinds)
         #t
-        (error (string-append "dossier " id "：:kind 应为 委托 / 人物 / 城市")))
+        (error (string-append "dossier " id "：:kind 应为 主线 / 委托 / 人物 / 城市")))
     (if (member? status dossier-states)
         #t
         (error (string-append "dossier " id "：:status 应为 进行中 / 等着别人 / 了结")))
@@ -567,6 +569,12 @@
                   #f)))
           (run-rules (cdr list-rules)))))
   (run-rules turn-rules))
+
+;; 由日期算出来的倒计时。它**不持有格数**：格数就是「到期日减今天」，
+;; 所以永远不会和日历跑偏，读档也不必恢复它——属于上面说的第一类例外
+;; （渲染别处已有的真相）。有截止日的窗口一律用它，不要另开一根自己每天减一的钟。
+(define (日期倒计时 标签 到期日 跨度 备注)
+  (list 'clock 标签 (max 0 (- 到期日 (get-global '世界日))) 跨度 'countdown 备注))
 
 ;; 局部整数时钟。交锋里的一次性时钟和故事模块里要存档的时钟共用这一个对象——
 ;; 格数、上限、备注、进退和存档都收在闭包里，改上限只改 make-clock 那一行。

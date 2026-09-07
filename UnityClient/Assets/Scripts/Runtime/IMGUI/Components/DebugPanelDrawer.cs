@@ -29,6 +29,70 @@ namespace SSNoir.IMGUI
         // 直接长出屏幕，所以取中间值而不是 UIScale.MinTouchSize。
         private const float ItemH = 34f;
 
+        // 章节跳转：内容侧留了 debug-* 消息，这里只负责把它们摆成按钮。
+        // 原来这套开关是世界里一个叫「调试台」的地点（world/test.scm），它的门槛读的是
+        // 一个永远为假的全局，等于谁也打不开；调试入口只该有一处，就是这个面板。
+        private struct ChapterJump
+        {
+            public string Label;
+            public string Code;
+        }
+
+        private static readonly ChapterJump[] ChapterJumps =
+        {
+            new ChapterJump
+            {
+                Label = "跳进第二章（章内第 1 天）",
+                Code = "(debug-enter-chapter2!)"
+            },
+            new ChapterJump
+            {
+                Label = "第二章 → Phase B",
+                Code = "(debug-enter-chapter2-phase-b!)"
+            },
+        };
+
+        private static void RunChapterJump(SSNoirGameManager gameManager, string code)
+        {
+            var sceneManager = gameManager.SceneManager;
+            // 只在世界里跳章节：交锋中途改世界状态没有意义，还会把那一场的快照搅乱。
+            if (sceneManager.CurrentSceneName != "world")
+            {
+                gameManager.ShowNotification("先回到世界地图再跳章节。");
+                return;
+            }
+
+            try
+            {
+                sceneManager.ActiveInterpreter.Eval(code);
+                sceneManager.Refresh();
+            }
+            catch (System.Exception e)
+            {
+                gameManager.ShowNotification("章节跳转失败：" + e.Message);
+            }
+        }
+
+        private static bool DrawTapRow(IMGUIInteractionContext ui, Rect rowRect, string label, GUIStyle labelStyle)
+        {
+            bool hovered = ui.CanHover(rowRect);
+            if (hovered)
+            {
+                GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
+                GUI.DrawTexture(rowRect, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+            }
+
+            var rowStyle = new GUIStyle(labelStyle)
+            {
+                alignment = TextAnchor.MiddleLeft,
+                normal = { textColor = hovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary }
+            };
+            IMGUIStyles.DrawLabel(new Rect(rowRect.x + 10, rowRect.y + 4, rowRect.width - 12f, rowRect.height),
+                label, rowStyle);
+            return ui.WasTapped(rowRect);
+        }
+
         private static float ContentHeight()
         {
             float y = 8f + 20f + SaveManager.SlotCount * 28f;
@@ -36,6 +100,7 @@ namespace SSNoir.IMGUI
             y += ItemH; // 过场截图行
             y += 6f + 22f; // 过场测试标题及列表起点
             y += Mathf.Max(_sequences.Count, 1) * ItemH;
+            y += 6f + 22f + ChapterJumps.Length * ItemH; // 章节跳转
             y += 6f + 4f + ItemH * 0.5f; // 场景标题及列表起点
             y += _scenes.Count * ItemH;
             return y + 8f;
@@ -258,6 +323,26 @@ namespace SSNoir.IMGUI
 
                 cutsceneListY += _sequences.Count * itemH;
             }
+
+            // 章节跳转
+            float chapterSepY = cutsceneListY + 6f;
+            IMGUIStyles.DrawLine(new Vector2(panelX + 8, chapterSepY), new Vector2(panelX + panelW - 8, chapterSepY),
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8, chapterSepY + 2f, panelW, 18f), "章节跳转（调试）", mutedStyle);
+
+            float chapterY = chapterSepY + 22f;
+            for (int i = 0; i < ChapterJumps.Length; i++)
+            {
+                var jumpRect = new Rect(panelX + 4f, chapterY + i * itemH, panelW - 8f, itemH - 2f);
+                if (DrawTapRow(contentUi, jumpRect, ChapterJumps[i].Label, labelStyle))
+                {
+                    RunChapterJump(gameManager, ChapterJumps[i].Code);
+                    _isOpen = false;
+                    Event.current.Use();
+                    return;
+                }
+            }
+            cutsceneListY = chapterY + ChapterJumps.Length * itemH;
 
             // Scene switch section
             sepY = cutsceneListY + 6f;

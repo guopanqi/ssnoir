@@ -262,6 +262,21 @@
       (set-global! '漏洞-通风口 hole-vent)
       (set-global! '漏洞-配电箱 hole-power))
 
+    ;; 调试专用：把第一章直接放到「公开结案」那一刻，好让第二章能被单独手玩。
+    ;; 它只写结束态本身——阶段、首演已结算、几个必看的 flag——不补演任何一场戏，
+    ;; 所以它做不出一份「真玩过第一章」的存档，只能用来试第二章的东西。
+    (define (debug-finish!)
+      (set! story-stage 5)
+      (set! premiere-done? #t)
+      (set-flag! '警察局开放)
+      (set-flag! '第二封信)
+      (set-flag! '第三封信)
+      (set-flag! '灯亮起来)
+      (set-flag! '是他)
+      (set-flag! '结案)
+      (sync-globals!)
+      (sync-blockers!))
+
     (define (advance-stage! new-stage)
       (set! story-stage new-stage)
       (sync-globals!))
@@ -302,19 +317,30 @@
 
     ;; ── 阻塞同步 ────────────────────────────────────
     ;; 必看的拍子当晚不看完不能睡。读档后由 world-load! 统一重新注册。
+    ;;
+    ;; 名单和下面的 cond 是一对：**每一个在 cond 里竖得起来的 id，都必须在名单里**。
+    ;; 手抄一串 rest-release! 会漏——「三封信/灯亮起来」就漏过一次，
+    ;; 于是首演之后那条阻塞永远撤不掉，玩家从第一章结案起就再也睡不了觉。
+    ;; 所以这里改成一张表，撤销走 map，加一拍只在名单和 cond 里各加一行。
+    (define 阻塞名单
+      (list "三封信/开场敲门"
+            "三封信/勒索信"
+            "三封信/伤后探望"
+            "三封信/第二封信"
+            "三封信/她剪底片"
+            "三封信/经理汇报"
+            "三封信/第三封信"
+            "三封信/她不取消"
+            "三封信/首演"
+            "三封信/灯亮起来"
+            "三封信/是他"
+            "三封信/结案"))
+
     (define (sync-blockers!)
       ;; 先撤掉本故事上一拍留下的阻塞，再按当前状态注册唯一有效的一项。
       ;; 否则投信完成后旧的「去码头盯邮箱」会残留；下一拍做完后便既不能休息，
       ;; 也没有强制剧情动作，形成软锁。
-      (rest-release! "三封信/开场敲门")
-      (rest-release! "三封信/勒索信")
-      (rest-release! "三封信/伤后探望")
-      (rest-release! "三封信/第二封信")
-      (rest-release! "三封信/经理汇报")
-      (rest-release! "三封信/第三封信")
-      (rest-release! "三封信/她不取消")
-      (rest-release! "三封信/首演")
-      (rest-release! "三封信/结案")
+      (map rest-release! 阻塞名单)
       (cond
         ((= story-stage 0)
          (rest-block! "三封信/开场敲门" "有人敲门" "家" "有人敲门"))
@@ -2475,6 +2501,7 @@
           ((equal? msg 'found-cigarettes?) (found-cigarettes?))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'sync-globals!) (sync-globals!))
+          ((equal? msg 'debug-finish!) (debug-finish!))
           ((equal? msg 'mark-vera-met!) (mark-vera-met!))
           ((equal? msg 'save)
            (list

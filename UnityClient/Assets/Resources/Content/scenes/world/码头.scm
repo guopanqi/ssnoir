@@ -119,10 +119,7 @@
         (append
           (list (berth-status-node))
           (livelihood-nodes)
-          (three-letters 'nodes-at "码头")
-          (eddie 'nodes-at "码头")
-          (frank 'dock-nodes)
-          (lin 'dock-nodes))))
+          (地点节点 "码头"))))
 
     (lambda args
       (let ((msg (car args)))
@@ -130,8 +127,7 @@
           ((equal? msg 'render-data)
            (list (place "码头"
                         :children (children)
-                        :arrivals (append (lin 'arrivals-at "码头")
-                                          (frank 'arrivals-at "码头")))))
+                        :arrivals (地点入场 "码头"))))
           ;; 住所据此决定今晚睡觉回几点（见 home.scm 的 node-sleep）。
           ((equal? msg 'night-shift-today?) night-shift-today?)
           ((equal? msg 'save)

@@ -32,6 +32,10 @@
     (define distribution-viewed? #f)
 
     (define paper-seen? #f)         ; 首演之后看见他在看报纸
+    ;; 第二章：机器进老街那天，他还坐不坐得下来。没人劝的话他自己会走到硬的那一边——
+    ;; 所以这是「你有没有给过他第二种做法」，不是「你对他好不好」。
+    ;; 第三章问的是同一件事：他最后是能代表这条街谈判的人，还是一个暴力头领。
+    (define at-table? #f)
 
     (define (required-field data key)
       (let ((value (assoc-get data key 'missing)))
@@ -279,6 +283,13 @@
           (list (node-frank))
           '()))
 
+    ;; 地点问的是同一个问题：你在这儿有什么？内部按地点自己分。
+    (define (nodes-at location)
+      (cond
+        ((equal? location "码头") (dock-nodes))
+        ((equal? location "居民区") (residential-nodes))
+        (else '())))
+
     (define (dossier-entry)
       (if met?
           (list (dossier "弗兰克"
@@ -344,11 +355,15 @@
     (lambda args
       (let ((msg (car args)))
         (cond
-          ((equal? msg 'dock-nodes) (dock-nodes))
-          ((equal? msg 'residential-nodes) (residential-nodes))
+          ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'approved?) approved?)
+          ((equal? msg 'on-stayed-at-table!) (set! at-table? #t))
+          ((equal? msg 'on-pushed-to-force!) (set! at-table? #f))
+          ((equal? msg 'at-table?) at-table?)
+          ;; 调试用：当作巷子那一晚他认下了你。
+          ((equal? msg 'debug-approve!) (begin (set! met? #t) (set! approved? #t)))
           ((equal? msg 'met?) met?)
           ((equal? msg 'repair-state) repair-state)
           ((equal? msg 'hold-state) hold-state)
@@ -360,6 +375,7 @@
           ((equal? msg 'save)
            (list
              (list "approved?" approved?)
+             (list "at-table?" at-table?)
              (list "alley-settled?" alley-settled?)
              (list "met?" met?)
              (list "repair-state" repair-state)
@@ -377,6 +393,8 @@
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! approved? (required-field data "approved?"))
+             ;; 第二章新加的字段用宽容读法：第一章存的档里没有它，缺了就是 #f。
+             (set! at-table? (assoc-get data "at-table?" #f))
              (set! alley-settled? (required-field data "alley-settled?"))
              (set! met? (required-field data "met?"))
              (set! repair-state (required-field data "repair-state"))

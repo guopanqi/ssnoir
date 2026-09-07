@@ -295,9 +295,7 @@
             ;; 麻烦的死线钟挂在那张卡上，这里不再另立一条标注：同一件事说两遍，
             ;; 玩家还要自己认出它们是一件事。
             (list (node-tavern-rank))
-            (three-letters 'nodes-at "酒馆")
-            (eddie 'nodes-at "酒馆")
-            (baines 'nodes-at "酒馆")
+            (地点节点 "酒馆")
             ;; 麻烦留着时暂停新一班：玩家可以立刻处理，也可以离开、
             ;; 在日终承担后果，但不能无视问题继续刷领班班次。
             (list (if (equal? tavern-trouble "无")
@@ -350,7 +348,7 @@
            (list (place "老街酒馆"
                    :children (tavern-children)
                    :clocks (tavern-clocks)
-                   :arrivals (eddie 'arrivals-at "酒馆"))))
+                   :arrivals (地点入场 "酒馆"))))
           ((equal? msg 'set-closed!)
            (set! closed-days (cadr args))
            (set! closed-days-max (max closed-days-max closed-days)))

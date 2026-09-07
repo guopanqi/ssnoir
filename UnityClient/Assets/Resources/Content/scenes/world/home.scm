@@ -438,7 +438,7 @@
     (define (rented-body)
       (if evicted?
           (append
-            (three-letters 'nodes-at "家")
+            (地点节点 "家")
             ;; 被赶出后仍保留大厅：库存里的酒和药是玩家随时可以使用的物品，
             ;; 房门锁住只应改变住宿方式，不应把公共空间里的物品使用入口一起删掉。
             (list (node-entry-hall))
@@ -446,7 +446,7 @@
             (upgrade-nodes)
             (list (node-sleep-at-door)))
           (append
-            (three-letters 'nodes-at "家")
+            (地点节点 "家")
             (list (node-rented-room))
             (rent-nodes)
             (order-nodes)
@@ -455,7 +455,7 @@
 
     (define (owned-body)
       (append
-        (three-letters 'nodes-at "家")
+        (地点节点 "家")
         (list (node-living-room))
         (order-nodes)
         (upgrade-nodes)

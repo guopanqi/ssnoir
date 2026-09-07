@@ -47,11 +47,14 @@
             '())
         (if (= stage 1) (list (node-claim)) '())))
 
+    (define (nodes-at location)
+      (if (equal? location "保险公司") (nodes) '()))
+
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'on-park-walk!) (on-park-walk!))
-          ((equal? msg 'nodes) (nodes))
+          ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'known?) (>= stage 1))
           ((equal? msg 'can-arrange-berth?) (= stage 2))
           ((equal? msg 'claim-result) claim-result)

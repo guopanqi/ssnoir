@@ -61,6 +61,8 @@
 
     (define tip? #f)              ; 第四夜的内幕已经到手
     (define hand-bad? #f)
+    (define way-out? #f)          ; 第二章：他手上还有没有另一条路
+    (define crushed? #f)          ; 第二章高潮：另一只手也压在链条底下了
 
     ;; 这根钟管的是**你还能押多大**，不管艾迪那只手，也不管场子开几天。
     ;; 它以前的去处是决定手废不废，那让"点头还是摇头"的后果取决于你前几晚
@@ -796,8 +798,18 @@
           ((equal? msg 'stage) stage)
           ((equal? msg 'known?) (and (>= stage 1) (<= stage 3)))
           ((equal? msg 'hand-bad?) hand-bad?)
+          ;; 第二章起：他手上还有没有另一条路。机器进老街那天读的就是这一个。
+          ;; 怎么拿到的（培训、别的活、还是你替他找的门路）归那件事自己。
+          ((equal? msg 'on-training-passed!) (set! way-out? #t))
+          ((equal? msg 'has-way-out?) way-out?)
+          ((equal? msg 'on-crushed!) (set! crushed? #t))
+          ((equal? msg 'crushed?) crushed?)
+          ;; 调试用：把他的第一章当成「认识过、也道过别」。第二章的线要认得他才开。
+          ((equal? msg 'debug-met!) (set! stage 3))
           ((equal? msg 'save)
            (list (list "stage" stage)
+                 (list "way-out" (if way-out? 1 0))
+                 (list "crushed" (if crushed? 1 0))
                  (list "journal" (journal 'save))
                  (list "alley-day" alley-day)
                  (list "next-fight-day" next-fight-day)
@@ -819,6 +831,8 @@
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! stage (assoc-get data "stage" 0))
+             (set! way-out? (= (assoc-get data "way-out" 0) 1))
+             (set! crushed? (= (assoc-get data "crushed" 0) 1))
              (journal 'load! (assoc-get data "journal" '()))
              (set! alley-day (assoc-get data "alley-day" 0))
              (set! next-fight-day (assoc-get data "next-fight-day" 0))
