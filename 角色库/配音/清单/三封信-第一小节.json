@@ -1,0 +1,225 @@
+{
+  "version": 1,
+  "module": "三封信",
+  "section": "第一小节·勒索信",
+  "purpose": "第一小节完整配音清单：统一使用 MiMo Preset 预置音色（尼尔=白桦，夜莺=冰糖，世界=苏打）。以回忆录/故事书口吻统一叙事。",
+  "cues": [
+    {
+      "id": "三封信/开场/引子/01/世界",
+      "speaker": "世界",
+      "text": "敲门声响起来的时候，我正就着冷水咽下最后半块硬面包。那时候我很穷，没有名声，没有人找我来做什么，靠零工度日。我知道我需要一个机会，就在那时候……",
+      "sourcePath": "node-answer-door/0"
+    },
+    {
+      "id": "三封信/开场/委托/01/夜莺",
+      "speaker": "夜莺",
+      "text": "这点钱连定金都不够，还要你垫着，我真不知道该怎么……",
+      "sourcePath": "node-answer-door/1",
+      "direction": "语气里有一点为难。"
+    },
+    {
+      "id": "三封信/开场/委托/01/尼尔",
+      "speaker": "尼尔",
+      "text": "钱的事我来想办法。他拿不走这笔钱。",
+      "sourcePath": "node-answer-door/2"
+    },
+    {
+      "id": "三封信/开场/委托/02/尼尔",
+      "speaker": "尼尔",
+      "text": "尝到了甜头，就还会有下一次。我们得想个办法",
+      "sourcePath": "node-answer-door/3"
+    },
+    {
+      "id": "三封信/开场/委托/02/夜莺",
+      "speaker": "夜莺",
+      "text": "那我能做什么？",
+      "sourcePath": "node-answer-door/4",
+      "direction": "语气里有一点为难。"
+    },
+    {
+      "id": "三封信/开场/委托/03/尼尔",
+      "speaker": "尼尔",
+      "text": "照信里说的办。那天码头碰面，你把信封放进箱子里就走，我会在那儿看着。",
+      "sourcePath": "node-answer-door/5"
+    },
+    {
+      "id": "三封信/开场/委托/03/夜莺",
+      "speaker": "夜莺",
+      "text": "我都听你的。",
+      "sourcePath": "node-answer-door/6",
+      "direction": "语气里有一点为难。"
+    },
+    {
+      "id": "三封信/码头/踩点/01/世界",
+      "speaker": "世界",
+      "text": "在邮箱斜对面的小摊前，那份旧报纸被翻得起了毛边。",
+      "sourcePath": "play-mail-routine-complete-banter!/1"
+    },
+    {
+      "id": "三封信/码头/踩点/02/世界",
+      "speaker": "世界",
+      "text": "真正的邮差只在下午露面。到了天黑，街对面的住户早已摸得一清二楚。",
+      "sourcePath": "play-mail-routine-complete-banter!/2"
+    },
+    {
+      "id": "三封信/码头/踩点/03/世界",
+      "speaker": "世界",
+      "text": "入夜后，邮箱前只剩一盏接触不良的路灯。只要有生面孔靠近，谁也藏不住。",
+      "sourcePath": "play-mail-routine-complete-banter!/3"
+    },
+    {
+      "id": "三封信/码头/踩点/04/世界",
+      "speaker": "世界",
+      "text": "邮箱后的暗巷通向货栈。边门的锁舌早就坏了，真要追起来，能抢在所有人前头。",
+      "sourcePath": "play-mail-routine-complete-banter!/4"
+    },
+    {
+      "id": "三封信/码头/投信/足额/01/夜莺",
+      "speaker": "夜莺",
+      "text": "一百整。",
+      "sourcePath": "node-delivery-entry/足额/1"
+    },
+    {
+      "id": "三封信/码头/投信/足额/01/尼尔",
+      "speaker": "尼尔",
+      "text": "你把它放到邮箱里就走，我会在这儿盯着。",
+      "sourcePath": "node-delivery-entry/足额/2"
+    },
+    {
+      "id": "三封信/码头/投信/她补/01/尼尔",
+      "speaker": "尼尔",
+      "text": "我已经尽力了，还是差一点。",
+      "sourcePath": "node-delivery-entry/她补/1"
+    },
+    {
+      "id": "三封信/码头/投信/她补/01/夜莺",
+      "speaker": "夜莺",
+      "text": "我还有一点儿...",
+      "direction": "迟疑着开口，把自己最后的东西拿出来。",
+      "sourcePath": "node-delivery-entry/她补/2"
+    },
+    {
+      "id": "三封信/码头/投信/她补/02/尼尔",
+      "speaker": "尼尔",
+      "text": "你上次不是说，那已经是全部了？",
+      "sourcePath": "node-delivery-entry/她补/3"
+    },
+    {
+      "id": "三封信/码头/投信/她补/02/夜莺",
+      "speaker": "夜莺",
+      "text": "我...我总不能...",
+      "direction": "说不下去。",
+      "sourcePath": "node-delivery-entry/她补/4"
+    },
+    {
+      "id": "三封信/码头/投信/她补/03/尼尔",
+      "speaker": "尼尔",
+      "text": "别说了，你去吧。放进邮箱就走，我会在这儿盯着。",
+      "sourcePath": "node-delivery-entry/她补/5"
+    },
+    {
+      "id": "三封信/码头/投信/塞报纸/01/尼尔",
+      "speaker": "尼尔",
+      "text": "我已经尽力了，还是差一点。就这样吧，我们用旧报纸塞进去。",
+      "sourcePath": "node-delivery-entry/塞报纸/1"
+    },
+    {
+      "id": "三封信/码头/投信/塞报纸/01/夜莺",
+      "speaker": "夜莺",
+      "text": "他回去会数的。",
+      "direction": "害怕，但压着。",
+      "sourcePath": "node-delivery-entry/塞报纸/2"
+    },
+    {
+      "id": "三封信/码头/投信/塞报纸/02/尼尔",
+      "speaker": "尼尔",
+      "text": "那就让他数，别担心。你去吧，你把它放邮箱里就走，我会在这儿盯着。",
+      "sourcePath": "node-delivery-entry/塞报纸/3"
+    },
+    {
+      "id": "勒索信/蹲守/认错人/01/尼尔",
+      "speaker": "尼尔",
+      "text": "抱歉，认错人了。",
+      "sourcePath": "reveal!/非目标/1"
+    },
+    {
+      "id": "勒索信/蹲守/认错人/02/尼尔",
+      "speaker": "尼尔",
+      "text": "……脚步不对。不是他。",
+      "sourcePath": "reveal!/非目标/2"
+    },
+    {
+      "id": "三封信/家/伤后探望/01/夜莺",
+      "speaker": "夜莺",
+      "text": "你受伤了？",
+      "sourcePath": "node-her-visit/共用/1"
+    },
+    {
+      "id": "三封信/家/伤后探望/有烟/02/尼尔",
+      "speaker": "尼尔",
+      "text": "不要紧。他身上掉了这个。",
+      "sourcePath": "node-her-visit/有烟/2"
+    },
+    {
+      "id": "三封信/家/伤后探望/有烟/02/世界",
+      "speaker": "世界",
+      "text": "那半包揉皱的香烟推到了桌上。她拿起来看了一眼，又轻轻放下，什么也没说。",
+      "sourcePath": "node-her-visit/有烟/3"
+    },
+    {
+      "id": "三封信/家/伤后探望/有烟/03/尼尔",
+      "speaker": "尼尔",
+      "text": "老街不进「老金牌」香烟。我要去码头居民区一趟。",
+      "sourcePath": "node-her-visit/有烟/4"
+    },
+    {
+      "id": "三封信/家/伤后探望/有烟/03/夜莺",
+      "speaker": "夜莺",
+      "text": "那里外人恐怕不好进去，他们不怎么认陌生人。",
+      "sourcePath": "node-her-visit/有烟/5"
+    },
+    {
+      "id": "三封信/家/伤后探望/无烟/02/尼尔",
+      "speaker": "尼尔",
+      "text": "不要紧。如果我没记错的话，他往码头居民区去了。",
+      "sourcePath": "node-her-visit/无烟/2"
+    },
+    {
+      "id": "三封信/家/伤后探望/无烟/02/夜莺",
+      "speaker": "夜莺",
+      "text": "你要去吗？那里外人恐怕不好进去，他们不怎么认陌生人。",
+      "sourcePath": "node-her-visit/无烟/3"
+    },
+    {
+      "id": "三封信/家/伤后探望/无烟/03/尼尔",
+      "speaker": "尼尔",
+      "text": "我要去码头居民区一趟。",
+      "sourcePath": "node-her-visit/无烟/4"
+    },
+    {
+      "id": "三封信/家/伤后探望/04/尼尔",
+      "speaker": "尼尔",
+      "text": "那你跟我去。",
+      "sourcePath": "node-her-visit/共用/6"
+    },
+    {
+      "id": "三封信/家/伤后探望/04/夜莺",
+      "speaker": "夜莺",
+      "text": "不，我不。",
+      "direction": "立刻回绝，不留余地。",
+      "sourcePath": "node-her-visit/共用/7"
+    },
+    {
+      "id": "三封信/家/伤后探望/收尾/01/世界",
+      "speaker": "世界",
+      "text": "那半包烟在桌上躺了一整夜。我知道那地方外人进不去，但那时候，我已经没有别的路可选了。",
+      "sourcePath": "node-her-visit/有烟/8"
+    },
+    {
+      "id": "三封信/家/伤后探望/收尾/02/世界",
+      "speaker": "世界",
+      "text": "我知道那地方外人进不去，但那时候，我已经没有别的路可选了。",
+      "sourcePath": "node-her-visit/无烟/8"
+    }
+  ]
+}

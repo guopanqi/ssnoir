@@ -8,15 +8,13 @@
       "id": "勒索信/蹲守/认错人/01/尼尔",
       "speaker": "尼尔",
       "text": "抱歉，认错人了。",
-      "sourcePath": "reveal!/非目标/1",
-      "direction": "第二次说这句话了。"
+      "sourcePath": "reveal!/非目标/1"
     },
     {
       "id": "勒索信/蹲守/认错人/02/尼尔",
       "speaker": "尼尔",
-      "text": "抱歉，认错人了。",
-      "direction": "第二次说这句话了。",
-      "sourcePath": "reveal!/非目标/1"
+      "text": "……脚步不对。不是他。",
+      "sourcePath": "reveal!/非目标/2"
     }
   ]
 }

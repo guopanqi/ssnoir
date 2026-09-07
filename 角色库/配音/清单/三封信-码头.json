@@ -7,25 +7,25 @@
     {
       "id": "三封信/码头/踩点/01/世界",
       "speaker": "世界",
-      "text": "你在邮箱斜对面的摊位坐了几晚，报纸翻来覆去。",
+      "text": "在邮箱斜对面的小摊前，那份旧报纸被翻得起了毛边。",
       "sourcePath": "play-mail-routine-complete-banter!/1"
     },
     {
       "id": "三封信/码头/踩点/02/世界",
       "speaker": "世界",
-      "text": "真正的邮差下午才来。街对面的住户，你也都认得了。",
+      "text": "真正的邮差只在下午露面。到了天黑，街对面的住户早已摸得一清二楚。",
       "sourcePath": "play-mail-routine-complete-banter!/2"
     },
     {
       "id": "三封信/码头/踩点/03/世界",
       "speaker": "世界",
-      "text": "天黑以后，邮箱前只剩一盏坏路灯。陌生人一靠近，你一眼就能看出来。",
+      "text": "入夜后，邮箱前只剩一盏接触不良的路灯。只要有生面孔靠近，谁也藏不住。",
       "sourcePath": "play-mail-routine-complete-banter!/3"
     },
     {
       "id": "三封信/码头/踩点/04/世界",
       "speaker": "世界",
-      "text": "邮箱后的窄巷通向货栈。边门锁舌坏了，追人时能少绕一条街。",
+      "text": "邮箱后的暗巷通向货栈。边门的锁舌早就坏了，真要追起来，能抢在所有人前头。",
       "sourcePath": "play-mail-routine-complete-banter!/4"
     },
     {
@@ -56,7 +56,7 @@
     {
       "id": "三封信/码头/投信/她补/02/尼尔",
       "speaker": "尼尔",
-      "text": "你上次不是说已经是全部了吗",
+      "text": "你上次不是说，那已经是全部了？",
       "sourcePath": "node-delivery-entry/她补/3"
     },
     {
@@ -69,7 +69,7 @@
     {
       "id": "三封信/码头/投信/她补/03/尼尔",
       "speaker": "尼尔",
-      "text": "别说了，你去吧，你把它放邮箱里就走，我会在这儿盯着。",
+      "text": "别说了，你去吧。放进邮箱就走，我会在这儿盯着。",
       "sourcePath": "node-delivery-entry/她补/5"
     },
     {
