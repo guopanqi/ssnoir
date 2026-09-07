@@ -12,7 +12,7 @@ namespace SSNoir
     ///   · 场景过渡：推进 / 穿过 / 拉出三段路全部不走，只留黑场对切。
     ///   · 灯标导航：平移保留但缩短；绕轴那支改成溶解。
     ///
-    /// **只活在内存里，每次启动默认使用完整镜头动画。** 这是一个临时的显示开关；如果以后需要
+    /// **只活在内存里，每次启动默认使用减少镜头动画。** 这是一个临时的显示开关；如果以后需要
     /// 跨启动记住，应当明确纳入游戏存档，而不是另设一套持久化状态。
     /// </summary>
     public static class MotionSettings
@@ -26,7 +26,7 @@ namespace SSNoir
         /// <summary>低动画下灯标平移的时长，对应正常模式的 0.42 秒。</summary>
         public const float ReducedNavigationDuration = 0.18f;
 
-        public static bool ReduceMotion { get; set; } = false;
+        public static bool ReduceMotion { get; set; } = true;
 
     }
 }

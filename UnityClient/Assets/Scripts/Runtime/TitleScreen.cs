@@ -18,8 +18,7 @@ namespace SSNoir
     /// </summary>
     public class TitleScreen
     {
-        // 片名占位。定下来之后改这一处。
-        private const string Title = "The Ballad\nof Belleville";
+        private const string Title = "贝尔维尔的歌谣";
 
         private const float ColumnX = 0.10f;   // 文字栏左边距（屏宽占比）
         private const float TitleY = 0.30f;    // 片名基线（屏高占比）

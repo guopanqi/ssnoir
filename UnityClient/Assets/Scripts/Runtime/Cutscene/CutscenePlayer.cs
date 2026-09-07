@@ -664,8 +664,13 @@ namespace SSNoir
 
         private void StopVideo()
         {
-            if (_video != null && _video.isPlaying)
-                _video.Stop();
+            if (_video == null)
+                return;
+
+            // TapTap/WebGL 切到后台后，Unity 侧会先把 isPlaying 置为 false，底层视频实例
+            // 却仍可能保留音轨和恢复位置。不能把这个状态当作“已经停止”；Stop() 必须无条件
+            // 下发，才能让容器在回到前台时没有可继续播放的残留视频。
+            _video.Stop();
         }
 
         // ── 收场 ──────────────────────────────────────────────────────────
@@ -674,6 +679,9 @@ namespace SSNoir
         {
             // 保险：任何路径漏了归还，都在这里兜住。
             ReleaseCameras();
+            // 正常收场已经在 LetterboxOut 停过一次；这里再执行一次，覆盖任何跳过或平台
+            // 生命周期导致的非常规收尾，确保全局复用的 VideoPlayer 不会带着上一镜回到前台。
+            StopVideo();
 
             _phase = Phase.Idle;
             _sequence = null;

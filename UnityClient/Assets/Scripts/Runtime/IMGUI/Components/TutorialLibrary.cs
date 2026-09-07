@@ -105,7 +105,7 @@ namespace SSNoir.IMGUI
 
         public static bool Enabled
         {
-            get => CurrentGameState.Get(EnabledKey, true);
+            get => CurrentGameState.Get(EnabledKey, false);
             set
             {
                 bool was = Enabled;

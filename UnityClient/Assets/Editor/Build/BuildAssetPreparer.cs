@@ -246,7 +246,12 @@ namespace SSNoir.Editor
         {
             string fullPath = Path.GetFullPath(assetPath);
             if (!File.Exists(fullPath) && !Directory.Exists(fullPath))
-                throw new FileNotFoundException($"公共资源计划中的资源不存在: {assetPath}");
+            {
+                // staging 会复用上一次构建已经裁掉的 Resources；同一资源计划再次执行时，
+                // 缺失正是此前成功删除的正常结果，不能因此让发布构建失去幂等性。
+                Debug.Log($"[{buildLabel}] 资源已不在 staging，跳过排除: {assetPath}；原因: {reason}");
+                return;
+            }
             if (!AssetDatabase.DeleteAsset(assetPath))
                 throw new IOException($"无法从 staging 删除资源: {assetPath}");
             Debug.Log($"[{buildLabel}] 排除资源: {assetPath}；原因: {reason}");

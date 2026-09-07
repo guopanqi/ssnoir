@@ -356,6 +356,12 @@ namespace SSNoir.IMGUI
                 return true;
             }
 
+            if (HelpPanelDrawer.IsOpen)
+            {
+                HelpPanelDrawer.Close();
+                return true;
+            }
+
             return false;
         }
 

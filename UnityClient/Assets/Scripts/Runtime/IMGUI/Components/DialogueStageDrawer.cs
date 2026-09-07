@@ -10,9 +10,8 @@ namespace SSNoir.IMGUI
     {
         private const string NarratorSpeaker = "世界";
         private const string ProtagonistSpeaker = "尼尔";
-        private const string PortraitResourceRoot = "Portraits/";
-        // 同名文件放进 Portraits/Neon/（见 NeonPortraitLibrary）就切换到霓虹灯管表现；
-        // 留在 Portraits/ 下仍走传统半身像。
+        // 对话舞台只接受 Neon 立绘；普通立绘已归档，不能作为运行时回退，避免把错误资源
+        // 误当成人物肖像。
         // 对白框的三个尺寸参数集中在这里：手机上框往下坐、也矮一档，让出来的全给立绘。
         // 一句话的对白不需要一个 148 高的框，只需要够读那一句。
         private const float BoxBottomMargin = 14f;
@@ -139,7 +138,7 @@ namespace SSNoir.IMGUI
             if (portrait.IsNeon)
             {
                 // 霓虹不做横向滑入，改为「通电点亮」：位置固定，亮度带一次跳闸再稳住。
-                DrawNeonPortrait(new Rect(restingX, portraitTop, portraitWidth, portraitHeight), portrait.Texture, reveal);
+                DrawNeonPortrait(new Rect(restingX, portraitTop, portraitWidth, portraitHeight), portrait.Texture, reveal, onLeft);
                 return;
             }
 
@@ -155,16 +154,19 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
         }
 
-        // 霓虹贴图是方形画布、人物只占中间一条；这几个常量把灯管那一条裁出来。
+        // 霓虹贴图是方形画布；舞台须保留人物的手势和随身物，不能只取躯干中线。
         // 换新的霓虹立绘若构图不同，只需重调这四个值。
-        private const float NeonCropX = 0.30f;
+        private const float NeonCropX = 0.20f;
         private const float NeonCropY = 0.02f;
-        private const float NeonCropWidth = 0.44f;
+        private const float NeonCropWidth = 0.70f;
         private const float NeonCropHeight = 0.97f;
 
-        private static void DrawNeonPortrait(Rect rect, Texture2D portrait, float reveal)
+        private static void DrawNeonPortrait(Rect rect, Texture2D portrait, float reveal, bool onLeft)
         {
             var uv = new Rect(NeonCropX, NeonCropY, NeonCropWidth, NeonCropHeight);
+            // 素材统一面向右：左侧人物保持朝内，右侧人物翻转后同样朝内。
+            if (!onLeft)
+                uv = new Rect(uv.xMax, uv.y, -uv.width, uv.height);
             float brightness = NeonBrightness(reveal);
 
             // 人物正后方的暗晕：中心几乎全黑、向外径向散尽。
@@ -302,15 +304,13 @@ namespace SSNoir.IMGUI
                 return cached;
 
             var neon = NeonPortraitLibrary.Load(speaker);
-            var portrait = neon != null
-                ? new Portrait(neon, true)
-                : new Portrait(Resources.Load<Texture2D>(PortraitResourceRoot + speaker), false);
+            var portrait = new Portrait(neon, neon != null);
             PortraitCache[speaker] = portrait;
             if (portrait.Texture == null && MissingPortraitWarnings.Add(speaker))
             {
                 Debug.LogWarning(
                     $"[SSNoir] play-dialogue! 说话人 '{speaker}' 尚无立绘。"
-                    + $"请添加 Resources/{PortraitResourceRoot}{speaker}，当前使用缺图人物牌。");
+                    + $"请添加 Resources/Portraits/Neon/{speaker}，当前使用缺图人物牌。");
             }
             return portrait;
         }
