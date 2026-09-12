@@ -19,7 +19,7 @@ namespace SSNoir.Editor
     {
         // Bump this whenever serialized importer output changes so existing model assets
         // are reprocessed instead of keeping stale generated VCams in the import cache.
-        public override uint GetVersion() => 6;
+        public override uint GetVersion() => 7;
 
         private void OnPostprocessModel(GameObject root)
         {
@@ -74,8 +74,18 @@ namespace SSNoir.Editor
                     // Configure custom camera config for drag/orbit behavior.
                     var config = vcamGo.AddComponent<SSNoirVirtualCameraConfig>();
                     config.modelRoot = root.transform;
-                    ConfigureDragMode(config, orbitPivot);
-                    ConfigurePanBounds(config, cam.transform, root.transform);
+                    // 机位类型由 Prefab 里看得见的对象决定，没有默认分支：
+                    //   orbit pivot → Orbit；PanBounds_<名> → Pan；都没有 → Static；都有 → 错。
+                    var panBounds = FindPanBounds(cam.transform);
+                    if (orbitPivot != null && panBounds != null)
+                        throw new InvalidOperationException(
+                            $"[SSNoir] ModelImporter: '{cam.name}' has both an orbit pivot and '{panBounds.name}'. A camera is Orbit or Pan, not both.");
+                    if (orbitPivot != null)
+                        ConfigureOrbit(config, orbitPivot);
+                    else if (panBounds != null)
+                        ConfigurePan(config, panBounds, root.transform);
+                    else
+                        config.dragMode = CameraDragMode.Static;
 
                     // Disable the original Camera node to prevent rendering interference
                     cam.gameObject.SetActive(false);
@@ -148,29 +158,20 @@ namespace SSNoir.Editor
             }
 
             foreach (var config in root.GetComponentsInChildren<SSNoirVirtualCameraConfig>(true))
-            {
-                if (config.orbitPivot == null)
-                {
-                    if (config.dragMode != CameraDragMode.Pan)
-                        Debug.LogWarning($"[SSNoir] ModelImporter: VCam '{config.name}' had Orbit mode without an orbit pivot. Forcing Pan mode.");
-                    config.dragMode = CameraDragMode.Pan;
-                }
-                else
-                {
-                    config.dragMode = CameraDragMode.Orbit;
-                }
-
                 EditorUtility.SetDirty(config);
-            }
         }
 
+        /// <summary>
+        /// 规范名是 `OrbitPivot_<名>`（与 Anchor_/Camera_/PanBounds_ 同一套，整城里唯一，不会被 Blender 加 .001）。
+        /// 判定按"去掉空格、下划线、连字符和数字后缀后以 orbitpivot 开头"，所以独立资产里的 `orbit pivot` 也认。
+        /// </summary>
         private static bool IsOrbitPivotName(string name)
         {
             var normalized = StripBlenderNumericSuffix(name)
                 .Replace(" ", string.Empty)
                 .Replace("_", string.Empty)
                 .Replace("-", string.Empty);
-            return string.Equals(normalized, "orbitpivot", StringComparison.OrdinalIgnoreCase);
+            return normalized.StartsWith("orbitpivot", StringComparison.OrdinalIgnoreCase);
         }
 
         private static float GetClipPlaneScale(string modelAssetPath)
@@ -254,14 +255,10 @@ namespace SSNoir.Editor
             return closest;
         }
 
-        private static void ConfigureDragMode(
-            SSNoirVirtualCameraConfig config,
-            Transform? orbitPivot)
+        private static void ConfigureOrbit(SSNoirVirtualCameraConfig config, Transform orbitPivot)
         {
+            config.dragMode = CameraDragMode.Orbit;
             config.orbitPivot = orbitPivot;
-            config.dragMode = orbitPivot != null ? CameraDragMode.Orbit : CameraDragMode.Pan;
-            if (orbitPivot == null)
-                return;
 
             // The authored shot is always a legal orbit position. Widening the band to
             // contain it is what keeps the player's first drag from snapping the camera
@@ -275,25 +272,21 @@ namespace SSNoir.Editor
             config.maxPitch = Mathf.Max(config.maxPitch, authoredPitch + AuthoredPitchMargin);
         }
 
-        /// <summary>
-        /// Pan 边界来自与相机同根的 `PanBounds_<名>` 空物体（Blender 里是一块贴地的框，构建时换成
-        /// 带缩放的 Empty）：它在模型空间里的 XZ 包围盒就是机身能站的范围。
-        /// 不在这里手写 Blender→Unity 的轴换算，而是让 Transform 自己算——轴约定改了这里不用跟。
-        /// </summary>
-        private static void ConfigurePanBounds(
-            SSNoirVirtualCameraConfig config, Transform cameraTransform, Transform root)
+        /// <summary>同根的 `PanBounds_<名>`：Blender 里是一块贴地的框，构建时换成带缩放的 Empty。</summary>
+        private static Transform? FindPanBounds(Transform cameraTransform)
         {
             const string prefix = "Camera_";
             if (!cameraTransform.name.StartsWith(prefix, StringComparison.Ordinal) || cameraTransform.parent == null)
-                return;
-            string boundsName = "PanBounds_" + cameraTransform.name.Substring(prefix.Length);
-            var bounds = cameraTransform.parent.Find(boundsName);
-            if (bounds == null)
-                return;
-            if (config.dragMode != CameraDragMode.Pan)
-                throw new InvalidOperationException(
-                    $"[SSNoir] ModelImporter: '{boundsName}' exists but '{cameraTransform.name}' is an Orbit camera (has orbit pivot). Pan bounds only apply to Pan cameras.");
+                return null;
+            return cameraTransform.parent.Find("PanBounds_" + cameraTransform.name.Substring(prefix.Length));
+        }
 
+        /// <summary>
+        /// 机身能站的范围 = PanBounds Empty 在模型空间里的 XZ 包围盒。
+        /// 不在这里手写 Blender→Unity 的轴换算，而是让 Transform 自己算——轴约定改了这里不用跟。
+        /// </summary>
+        private static void ConfigurePan(SSNoirVirtualCameraConfig config, Transform bounds, Transform root)
+        {
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
             Vector2 max = new Vector2(float.MinValue, float.MinValue);
             foreach (var corner in new[] { new Vector3(-1, -1, 0), new Vector3(1, -1, 0), new Vector3(1, 1, 0), new Vector3(-1, 1, 0) })
@@ -302,19 +295,21 @@ namespace SSNoir.Editor
                 min = Vector2.Min(min, new Vector2(p.x, p.z));
                 max = Vector2.Max(max, new Vector2(p.x, p.z));
             }
+            config.dragMode = CameraDragMode.Pan;
             config.usePanBounds = true;
             config.panBoundsMinXZ = min;
             config.panBoundsMaxXZ = max;
             bounds.gameObject.SetActive(false);
-            Debug.Log($"[SSNoir] ModelImporter: '{cameraTransform.name}' pan bounds from '{boundsName}': x {min.x:F1}..{max.x:F1}, z {min.y:F1}..{max.y:F1} (model space).");
         }
 
         private static string DescribeDragMode(SSNoirVirtualCameraConfig config)
         {
-            return config.dragMode == CameraDragMode.Orbit
-                ? $"Orbit, pivot '{config.orbitPivot!.name}', pitch band " +
-                  $"{config.minPitch:F1}..{config.maxPitch:F1}"
-                : "Pan, no orbit pivot found";
+            return config.dragMode switch
+            {
+                CameraDragMode.Orbit => $"Orbit, pivot '{config.orbitPivot!.name}', pitch band {config.minPitch:F1}..{config.maxPitch:F1}",
+                CameraDragMode.Pan => $"Pan, bounds x {config.panBoundsMinXZ.x:F1}..{config.panBoundsMaxXZ.x:F1} z {config.panBoundsMinXZ.y:F1}..{config.panBoundsMaxXZ.y:F1} (model space)",
+                _ => "Static",
+            };
         }
     }
 }

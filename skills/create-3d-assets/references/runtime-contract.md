@@ -58,13 +58,12 @@ Prefab 的 Low 默认用**结构勾勒**生成（`pipeline/outline_structure.py`
 
 来源：`SSNoirModelImporter.cs`、`SSNoirVirtualCameraConfig.cs`、`SSNoirCameraManager.cs`
 
-- 导入器先剥掉 Blender 合并同名对象时产生的末尾数字后缀（例如 `.001`），再把移除空格、下划线和连字符后等于 `orbitpivot`（忽略大小写）的 Transform 识别为旋转中心。因此 `orbit pivot`、`orbit_pivot.003`、`Orbit-Pivot` 都有效。
-- 每个相机只在最近的资产子树内绑定空间距离最近的 orbit pivot；不会跨到整城另一栋建筑。单体资产只有一个 pivot 时允许全资产唯一回退。
-- 找到 pivot 时，相机拖拽模式为 Orbit；没有时为 Pan。
+- 规范名是 `OrbitPivot_<名>`（与 Anchor_/Camera_/PanBounds_ 同一套，整城唯一，不会被 Blender 加 `.001`）。导入器剥掉数字后缀、去掉空格/下划线/连字符后按“以 `orbitpivot` 开头”识别，所以独立资产里的 `orbit pivot` 也认。
+- 机位类型由同根的对象决定，没有默认分支：有 `OrbitPivot_<名>` → Orbit；有 `PanBounds_<名>` → Pan；都没有 → Static；都有 → 导入失败。CityBox 侧要求相机显式声明 `drag = "orbit" | "pan" | "static"` 并在构建时校验与对象一致。
 - pivot 是稳定的镜头旋转中心，不是交互卡片的位置。它通常放在资产视觉重心附近、略高于地面。
-- Orbit 模式缺少 pivot 会被强制改为 Pan；运行时配置自相矛盾时会 assert/throw。Pan 机位可带平移边界：Prefab 里一块贴地的框（`pan_bounds_for = "Camera_<名>"`，`preview_only`），构建时换成同根的 `PanBounds_<名>` Empty（中心 + 半长半宽做 scale）进 FBX；导入器按它的 Transform 算出模型空间 XZ 边界写进 `SSNoirVirtualCameraConfig.panBounds*`，运行时经 `modelRoot` 换算成世界值。`PanBounds_` 只能配 Pan 相机，配了 Orbit 相机导入失败。
+- 运行时配置自相矛盾时会 assert/throw。Pan 机位可带平移边界：Prefab 里一块贴地的框（`pan_bounds_for = "Camera_<名>"`，`preview_only`），构建时换成同根的 `PanBounds_<名>` Empty（中心 + 半长半宽做 scale）进 FBX；导入器按它的 Transform 算出模型空间 XZ 边界写进 `SSNoirVirtualCameraConfig.panBounds*`，运行时经 `modelRoot` 换算成世界值。
 
-每个独立场景资产优先只放一个 `orbit pivot`。多相机、多 pivot 时必须检查“最近者”是否真是预期绑定。
+每个 Prefab 的 `OrbitPivot_<名>` 只配同根的 `Camera_<名>`；相机只在同根直接子级里找 pivot。
 
 #### 相机与 pivot 必须对齐
 

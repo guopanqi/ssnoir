@@ -15,7 +15,7 @@ Unity 中同一时刻只有一个正式整城 `City.fbx`；地点和交锋场景
 
 ## 接入顺序
 
-1. 做出 `prefabs/<名>.blend`：带 Anchor 的 Prefab，名 = 主锚点的 Scheme 节点名；放 `Anchor_<名>`、`Camera_<名>`（50mm 透视）；要 Orbit 就加 `orbit pivot`，不加就是 Pan。
+1. 做出 `prefabs/<名>.blend`：带 Anchor 的 Prefab，名 = 主锚点的 Scheme 节点名；放 `Anchor_<名>`、`Camera_<名>`（50mm 透视，custom prop `drag = "orbit" | "pan" | "static"`）；orbit 配 `OrbitPivot_<名>`，pan 配贴地框 `PanBounds_<名>`（`pan_bounds_for`），static 什么都不配。
 2. 单体预览，直到形体和机位对：`blender -b --python pipeline/preview.py -- <名> [--clay]`。
 3. 放进城市：顶层地点在 `city.blend` 里加实例；依附别的地点的场景（酒馆后巷）在那个地点的 Prefab 里 instance，并把父 Prefab 的 `footprint`/`footprint_offset` 扩到能盖住它。
 4. 整城构建与审阅：`./build.sh --no-publish --render --focus <名>`；Pan 机位再加 `--pan <名>` 看四角极限画面。新增或改动布局要用户确认整城预览。
