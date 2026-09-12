@@ -19,7 +19,7 @@ namespace SSNoir.Editor
     {
         // Bump this whenever serialized importer output changes so existing model assets
         // are reprocessed instead of keeping stale generated VCams in the import cache.
-        public override uint GetVersion() => 5;
+        public override uint GetVersion() => 6;
 
         private void OnPostprocessModel(GameObject root)
         {
@@ -73,7 +73,9 @@ namespace SSNoir.Editor
 
                     // Configure custom camera config for drag/orbit behavior.
                     var config = vcamGo.AddComponent<SSNoirVirtualCameraConfig>();
+                    config.modelRoot = root.transform;
                     ConfigureDragMode(config, orbitPivot);
+                    ConfigurePanBounds(config, cam.transform, root.transform);
 
                     // Disable the original Camera node to prevent rendering interference
                     cam.gameObject.SetActive(false);
@@ -123,10 +125,16 @@ namespace SSNoir.Editor
                             // 行动点通常没有专属 Camera，应该共享所属建筑的主相机。
                             // 这里绝不能回退到整座城市的第一个 VCam，否则整城 FBX 中
                             // 一个酒馆行动点可能会聚焦到码头或诊所。
-                            anchor.FocusVirtualCamera = scopedVcams[0];
-                            if (scopedVcams.Length > 1)
+                            // 建筑里可以嵌套别的 Prefab（酒馆里有后巷，后巷带自己的相机），
+                            // 所以先找"所属子树根自己的主相机" Camera_<根名>_VCam，再退回第一台。
+                            var scopeRoot = t.parent;
+                            var mainCameraName = scopeRoot != null ? $"Camera_{scopeRoot.name}_VCam" : string.Empty;
+                            var mainVcam = scopedVcams.FirstOrDefault(v =>
+                                string.Equals(v.name, mainCameraName, StringComparison.Ordinal));
+                            anchor.FocusVirtualCamera = mainVcam != null ? mainVcam : scopedVcams[0];
+                            if (mainVcam == null && scopedVcams.Length > 1)
                             {
-                                Debug.LogWarning($"[SSNoir] ModelImporter: NodeAnchor '{anchor.NodeName}' has no exact camera '{expectedCameraName}' and its asset subtree contains {scopedVcams.Length} VCams. Using '{scopedVcams[0].name}'. Add an exact camera name to remove ambiguity.");
+                                Debug.LogWarning($"[SSNoir] ModelImporter: NodeAnchor '{anchor.NodeName}' has no exact camera '{expectedCameraName}' nor a main camera '{mainCameraName}'; its asset subtree contains {scopedVcams.Length} VCams. Using '{scopedVcams[0].name}'.");
                             }
                         }
                         else
@@ -191,16 +199,17 @@ namespace SSNoir.Editor
             T[] candidates,
             Func<T, Transform> getTransform)
         {
-            // 从节点父级向上找第一个含候选对象的资产子树，但不允许上升到整城根。
+            // 语义对象的作用域就是它的父节点 —— 那是它所属 Prefab 的根：
+            //   City / 老街酒馆 / { Camera_老街酒馆, orbit pivot, Anchor_*, 巷子里在打人 / { Camera_巷子里在打人, Anchor_* } }
+            // 不向上爬。爬会让嵌套 Prefab（后巷）的相机借到外层（酒馆）的 pivot，Pan 机位被误判成 Orbit。
             // 单体模型的 Anchor/Camera 可能恰好都是导入根的直接子节点；这种情况下
             // 只有全资产唯一候选才可安全回退。
-            for (var scope = source.parent; scope != null && scope != importRoot; scope = scope.parent)
+            var scope = source.parent;
+            if (scope != null && scope != importRoot)
             {
-                var matches = candidates
+                return candidates
                     .Where(candidate => IsSameOrChildOf(getTransform(candidate), scope))
                     .ToArray();
-                if (matches.Length > 0)
-                    return matches;
             }
 
             return candidates.Length == 1 ? candidates : Array.Empty<T>();
@@ -225,8 +234,11 @@ namespace SSNoir.Editor
             if (orbitPivots.Length == 0)
                 return null;
 
+            // 作用域内可能含嵌套 Prefab 的 pivot（酒馆作用域里有后巷的）：只取直接挂在同一根下的。
             var scopedPivots = FindNearestScopedComponents(
-                cameraTransform, importRoot, orbitPivots, pivot => pivot);
+                    cameraTransform, importRoot, orbitPivots, pivot => pivot)
+                .Where(p => p.parent == cameraTransform.parent)
+                .ToArray();
             Transform? closest = null;
             float closestDistance = float.MaxValue;
             foreach (var pivot in scopedPivots)
@@ -261,6 +273,40 @@ namespace SSNoir.Editor
             float authoredPitch = Mathf.Atan2(offset.y, horizontal) * Mathf.Rad2Deg;
             config.minPitch = Mathf.Min(config.minPitch, authoredPitch - AuthoredPitchMargin);
             config.maxPitch = Mathf.Max(config.maxPitch, authoredPitch + AuthoredPitchMargin);
+        }
+
+        /// <summary>
+        /// Pan 边界来自与相机同根的 `PanBounds_<名>` 空物体（Blender 里是一块贴地的框，构建时换成
+        /// 带缩放的 Empty）：它在模型空间里的 XZ 包围盒就是机身能站的范围。
+        /// 不在这里手写 Blender→Unity 的轴换算，而是让 Transform 自己算——轴约定改了这里不用跟。
+        /// </summary>
+        private static void ConfigurePanBounds(
+            SSNoirVirtualCameraConfig config, Transform cameraTransform, Transform root)
+        {
+            const string prefix = "Camera_";
+            if (!cameraTransform.name.StartsWith(prefix, StringComparison.Ordinal) || cameraTransform.parent == null)
+                return;
+            string boundsName = "PanBounds_" + cameraTransform.name.Substring(prefix.Length);
+            var bounds = cameraTransform.parent.Find(boundsName);
+            if (bounds == null)
+                return;
+            if (config.dragMode != CameraDragMode.Pan)
+                throw new InvalidOperationException(
+                    $"[SSNoir] ModelImporter: '{boundsName}' exists but '{cameraTransform.name}' is an Orbit camera (has orbit pivot). Pan bounds only apply to Pan cameras.");
+
+            Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
+            Vector2 max = new Vector2(float.MinValue, float.MinValue);
+            foreach (var corner in new[] { new Vector3(-1, -1, 0), new Vector3(1, -1, 0), new Vector3(1, 1, 0), new Vector3(-1, 1, 0) })
+            {
+                Vector3 p = root.InverseTransformPoint(bounds.TransformPoint(corner));
+                min = Vector2.Min(min, new Vector2(p.x, p.z));
+                max = Vector2.Max(max, new Vector2(p.x, p.z));
+            }
+            config.usePanBounds = true;
+            config.panBoundsMinXZ = min;
+            config.panBoundsMaxXZ = max;
+            bounds.gameObject.SetActive(false);
+            Debug.Log($"[SSNoir] ModelImporter: '{cameraTransform.name}' pan bounds from '{boundsName}': x {min.x:F1}..{max.x:F1}, z {min.y:F1}..{max.y:F1} (model space).");
         }
 
         private static string DescribeDragMode(SSNoirVirtualCameraConfig config)

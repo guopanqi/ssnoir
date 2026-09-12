@@ -9,9 +9,9 @@ description: 为 SSNoir 设计、生成、加工、接入或修复游戏可用�
 
 ## 先确定交付目标
 
-- **城市地点建筑**：正式源是 `city-box/models/<地点>.blend`，布局在 `city-box/city/city_config.py` 的 `HERO_SLOTS`，Unity 只消费 `Assets/Resources/Models/Environment/City.fbx`。只读取 [references/delivery/citybox.md](references/delivery/citybox.md)。
+- **城市地点与场景**：正式源是 `city-box/prefabs/<名>.blend`（Prefab），布局在 `city-box/city.blend`，Unity 只消费 `Assets/Resources/Models/Environment/City.fbx`。只读取 [references/delivery/citybox.md](references/delivery/citybox.md)。
 - **非城市独立资产**：按运行时职责放入 `UnityClient/Assets/Resources/Models/`。只读取 [references/delivery/unity-standalone.md](references/delivery/unity-standalone.md)。
-- **候选与中间结果**：保留在制作目录或 `city-box/models/review/`，不进入正式构建。
+- **候选与中间结果**：保留在制作目录或 `city-box/prefabs/review/`，不进入正式构建。
 
 正式地点名以 Scheme `GameNode.Name` 为唯一主键。只有涉及命名、Anchor、Camera、层级、orbit pivot 或运行时描线契约时，才读取 [references/runtime-contract.md](references/runtime-contract.md)。
 
@@ -37,7 +37,7 @@ Agent 必须在每次交给用户前先检查轮廓、主要结构、表面噪�
 
 ### 4. 场景接入与发布
 
-城市资产先进入 CityBox：已有槽位则替换并校准等比尺度；没有槽位或需要改变城市布局时，在 `HERO_SLOTS` 安排位置并生成整城预览。Agent 先排除遮挡、尺度、道路关系和构图问题；新增或改变布局必须由用户确认整城预览。
+城市资产先进入 CityBox：已有 Prefab 则替换其几何并保持 footprint；新地点在 `city.blend` 放实例，依附别的地点的场景在那个地点的 Prefab 里 instance，然后生成整城预览。Agent 先排除遮挡、尺度、道路关系和构图问题；新增或改变布局必须由用户确认整城预览。
 
 用户确认最终单体效果以及必要的整城布局后，才提升为正式源并执行唯一发布链。最后验证 Unity 导入与实际运行画面。继续使用开头已经选定的唯一 delivery 文档，不加载另一条发布链。修改 Unity 可执行内容或发布产物后，按 `skills/verify/SKILL.md` 选择最小充分验证。
 
@@ -61,7 +61,7 @@ Agent 必须在每次交给用户前先检查轮廓、主要结构、表面噪�
 - 低模在目标镜头下保持正确轮廓与主要结构，并有面数、拓扑和网格健康记录。
 - 正式文件、根节点、主 Anchor 和主 Camera 使用同一地点名，无 alias 或 `final2` 一类过程名。
 - Blender 后台校验通过；尺度、层级、材质、描线和相机符合该资产发布链。
-- 城市资产完成 CityBox build → export → publish，并检查 `city_report.json`、两份 `City.fbx` 哈希和 Unity 运行画面。
+- 城市资产完成 `./build.sh`，并检查 `build/city/report.json`、两份 `City.fbx` 哈希和 Unity 运行画面。
 - `Main.unity` 的 City 实例只保留根节点变换，不覆盖 `City.fbx` 子对象。
 
 通用 Blender 命令：

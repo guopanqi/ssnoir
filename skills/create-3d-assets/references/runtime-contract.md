@@ -6,35 +6,35 @@
 
 ### 地点主键与整城装配
 
-来源：`city-box/city/build_city.py`、`city-box/city/export_unity.py`、`SSNoirModelImporter.cs`、`SceneDirectory.cs`
+来源：`city-box/pipeline/build.py`、`city-box/pipeline/export.py`、`SSNoirModelImporter.cs`、`SceneDirectory.cs`
 
-- Scheme 运行时 `GameNode.Name` 是地点的唯一主键。交互建筑必须使用同一个精确名称派生正式文件与语义节点：`<地点>.blend`、整城中的建筑根节点 `<地点>`、`Anchor_<地点>`、`Camera_<地点>`。
+- Scheme 运行时 `GameNode.Name` 是地点的唯一主键。带 Anchor 的 Prefab 必须使用同一个精确名称派生正式文件与语义节点：`prefabs/<名>.blend`、整城中的子树根 `<名>`、`Anchor_<名>`、`Camera_<名>`。Prefab 可以嵌套（酒馆里放后巷），嵌套关系不需要镜像 Scheme 的树，锚点按名全局查找。
 - 不为历史命名维护 alias 表。`剧院2`、`bar`、`老街酒吧` 之类的制作过程名必须在源资产处迁移成正式地点名。
 - 行动 Anchor 默认使用它的 `GameNode.Name`；节点也可用 Scheme `:anchor` 显式声明不同的空间锚点名。
   Anchor 可以不建专属 Camera；导入器会在该建筑子树内回退到主相机。
-- 纯视觉地标必须被显式标记为非交互。非交互地标不导出 Anchor、Camera 或 orbit pivot，不能用一个没有对应 Scheme 节点的假名字占位。
-- CityBox 的生产构建会拒绝缺少同名模型、缺少主 Anchor/Camera、重复 NodeName 或不符合上述规则的资产，而不是悄悄退回灰盒或猜测名称。
+- 纯视觉的 Prefab 不放 Anchor、Camera；不能用一个没有对应 Scheme 节点的假名字占位。
+- CityBox 构建会拒绝缺少主 Anchor/Camera、重复锚点名或不符合上述规则的 Prefab，而不是悄悄退回灰盒或猜测名称。
 - 发布器会静态检查每个 AnchorName 是否出现于当前 Scheme 字符串字面量中。资产与内容可以不同步到达，因此缺失只打印构建警告、不阻断 `City.fbx` 发布；这不是模糊匹配。Scheme 在运行时真正引用不存在的 Anchor 时，仍由 `SceneDirectory` 的精确契约 assert/throw。
 
 正式 City 实例不得在 `Main.unity` 保存 FBX 子对象覆盖。`City.fbx` 每次完整重建，内部 fileID 不稳定；对子对象覆盖材质、名称、激活状态、Renderer、Camera 或 VCam 参数，会在下次导出后落到另一栋建筑。场景只保留 City 根节点的位置、旋转和统一缩放，子对象关系由导入器和运行时代码按名称建立。
 
-整城 `City.fbx` 是一个发布产物，不是美术源文件。重要建筑仍以独立 `.blend` 维护；CityBox 负责装配、校验并生成 FBX，Unity 只消费固定路径的整城资产与语义节点。
+整城 `City.fbx` 是一个发布产物，不是美术源文件。每个地点和场景以独立 Prefab `.blend` 维护；CityBox 负责装配、校验并生成 FBX，Unity 只消费固定路径的整城资产与语义节点。
 
-CityBox 的 `city_report.json` 同时记录最终导出几何的总量、程序化集合和逐重要建筑统计；性能判断以这份构建账本为准，不靠打开某次 FBX 后手工估算。
+CityBox 的 `build/city/report.json` 同时记录填充几何组和逐 Prefab 统计；性能判断以这份构建账本为准，不靠打开某次 FBX 后手工估算。
 
-CityBox 的贴地层由 `build_city.py` 在生成源头按 `郊野 0.00m / 城市地面 0.30m / 干道与无基座公园 0.65m / 街区顶面 1.05m` 分层。Unity 中 `City` 整体缩放为 `0.1`，不能恢复为原来的厘米级源间距，否则透视全城镜头下会出现 z-fighting。建筑、窗光、Low/High 描线和语义节点必须通过宿主层级继承相同抬升，禁止在导出器或材质上单独追加深度偏移。
+CityBox 的贴地层由构建在生成源头按 `郊野 0.00m / 城市地面 0.30m / 干道与无基座公园 0.65m / 街区顶面 1.05m` 分层。Unity 中 `City` 整体缩放为 `0.1`，不能恢复为原来的厘米级源间距，否则透视全城镜头下会出现 z-fighting。建筑、窗光、Low/High 描线和语义节点必须通过宿主层级继承相同抬升，禁止在导出器或材质上单独追加深度偏移。
 
 `CityOutlineState` 在运行时初始化唯一 `City` 根节点时，统一关闭整城子 Renderer 的 Cast Shadows，但不改 Receive Shadows。该规则不再由 ModelImporter 实现；导入的 FBX 上不挂 City 专用运行时脚本。
 
 #### City Low / High 描线
 
-`build_city.py` 从同一批模型和 `HERO_SLOTS` 单次生成 `city_build.blend`。每栋重要建筑的本体、Anchor、Camera 和 orbit pivot 只有一份，同时生成两个独立描线 Mesh：`描线_<地点>_Low` 按全城视野标定，`描线_<地点>_High` 按该建筑聚焦相机标定。普通填充建筑和基础设施只生成 Low 描线。
+构建从 `city.blend` 单次生成 `city_build.blend`。每个 Prefab 的本体、Anchor、Camera 和 orbit pivot 只有一份，同时生成两个独立描线 Mesh：`描线_<名>_Low` 按全城视野标定，`描线_<名>_High` 按该 Prefab 的聚焦相机标定；参数取自该 Prefab 顶层集合的 custom props。普通填充建筑和基础设施只生成一档细线。聚焦规则：机位所在的顶层 Prefab 整棵子树 High，其余 Low（嵌套 Prefab 各自一对）。
 
-重要建筑的 Low 用**结构勾勒**生成（`tools/structure_outline.py`），不是 High 的删减版：先把建筑读成若干个「大面」（墙、屋顶、退台），窗洞和线脚这类贴在墙上的小起伏并进它所属的大面，只画大面之间的交界，再用 Douglas-Peucker 把交界拉直成几笔。所有判据按全城机位的屏幕像素标定。少数资产描述的不是一栋楼而是一片街区（`码头`、`码头居民区`），按 `LOW_STRUCTURE_BY_HERO` 用更粗的粒度；这是对象尺度不同，不是逐资产打补丁。`hard_edges` 作为对照路径保留在 `--low-method`。
+Prefab 的 Low 默认用**结构勾勒**生成（`pipeline/outline_structure.py`），不是 High 的删减版：先把建筑读成若干个「大面」（墙、屋顶、退台），窗洞和线脚这类贴在墙上的小起伏并进它所属的大面，只画大面之间的交界，再用 Douglas-Peucker 把交界拉直成几笔。所有判据按全城机位的屏幕像素标定。少数资产描述的不是一栋楼而是一片街区（`码头`、`码头居民区`），在集合上标 `low_coarse = True` 用更粗的粒度；这是对象尺度不同，不是逐资产打补丁。`outline_low = "hard_edges"` 作为对照路径保留。
 
-填充建筑的描线按体量筛：只有在全城机位下屏幕高度达到 `FILL_OUTLINE_MIN_H_PX` 的才生成描线，低矮的那批完全没有线，靠自身明暗和雾读出来 —— 这是有意的，不是漏生成。描线预算属于全城共享：填充侧省下来的直接还给重要建筑的 Low 档。
+填充建筑的描线按体量筛：只有在全城机位下屏幕高度达到阈值（`pipeline/outline.py` 的 `FILL_MIN_H_PX`）的才生成描线，低矮的那批完全没有线，靠自身明暗和雾读出来 —— 这是有意的，不是漏生成。描线预算属于全城共享：填充侧省下来的直接还给 Prefab 的 Low 档。
 
-`export_unity.py` 校验每个重要建筑恰好有一个 Low 和一个 High，然后把建筑与两档描线一起写入唯一 `City.fbx`。不再发布外置高精描线目录，也不在运行时另行加载描线资源。`CityOutlineState` 一次扫描 City 层级建立聚焦相机到 Low / High Renderer 的对应；常态开 Low 关 High，聚焦建筑时只对该建筑开 High 关 Low。Low / High 使用同一个 `M_White_Emission_Lines` 材质，不设置独立发光参数；两档只在描线几何密度和线宽上存在差异。
+`pipeline/export.py` 校验每个 Prefab 恰好有一个 Low 和一个 High，然后把本体与两档描线一起写入唯一 `City.fbx`。不再发布外置高精描线目录，也不在运行时另行加载描线资源。`CityOutlineState` 一次扫描 City 层级建立聚焦相机到 Low / High Renderer 的对应；常态开 Low 关 High；聚焦时按上述子树规则切换（当前实现仍只切被聚焦的那一个直接子节点，待改）。Low / High 使用同一个 `M_White_Emission_Lines` 材质，不设置独立发光参数；两档只在描线几何密度和线宽上存在差异。
 
 ### Camera
 
@@ -47,7 +47,7 @@ CityBox 的贴地层由 `build_city.py` 在生成源头按 `郊野 0.00m / 城�
   透视镜头连续推进到近景，混入正交投影会在运镜首帧造成不可插值的投影跳变。
 - 正式交互地点相机统一使用 `50mm` 镜头（导入 Unity 后垂直 FOV 约 `27°`）。构图大小通过调整
   相机到 `orbit pivot` 的距离完成，不允许用不同焦距补构图；生产构建对焦距执行 `±0.01mm` 断言。
-- Unity 直接导入 `.blend` 时，Near/Far clipping 乘 `0.01` 修正厘米尺度；CityBox 导出的 `.fbx` 已经是正确单位，不再重复除以 100。
+- Prefab 相机的 Near/Far 是米（资产单位）。导入器原样复制；`SSNoirVirtualCameraConfig.Awake` 按 `modelRoot.lossyScale` 缩到世界单位（City 实例 0.1）。
 - Orbit 相机的 Far Clip 至少为导入资产空间中“相机到所属 orbit pivot 距离”的 `1.25` 倍，保证目标不会被远裁剪面切掉。运行时若 Far Clip 仍短于实际 pivot 距离，会 assert/throw，而不是显示空背景。
 - Blender/FBX 相机定义的是最终落点镜头的 Near/Far Clip；导入器不把所有镜头强制成同一个 Near Clip。远景可以使用较大的 Near Clip 保住 WebGL 深度精度，近景则可以保留较小值避免裁掉前景。
 - 地点聚焦过程会暂时把目标 VCam 移到当前渲染镜头的位置，因此把 Near/Far Clip 作为完整范围，从当前渲染值一起平滑过渡到资产定义的目标值，并在抵达或中断时一起恢复；不得在远景位置提前套用近景裁剪范围。
@@ -62,7 +62,7 @@ CityBox 的贴地层由 `build_city.py` 在生成源头按 `郊野 0.00m / 城�
 - 每个相机只在最近的资产子树内绑定空间距离最近的 orbit pivot；不会跨到整城另一栋建筑。单体资产只有一个 pivot 时允许全资产唯一回退。
 - 找到 pivot 时，相机拖拽模式为 Orbit；没有时为 Pan。
 - pivot 是稳定的镜头旋转中心，不是交互卡片的位置。它通常放在资产视觉重心附近、略高于地面。
-- Orbit 模式缺少 pivot 会被强制改为 Pan；运行时配置自相矛盾时会 assert/throw。
+- Orbit 模式缺少 pivot 会被强制改为 Pan；运行时配置自相矛盾时会 assert/throw。Pan 机位可带平移边界：Prefab 里一块贴地的框（`pan_bounds_for = "Camera_<名>"`，`preview_only`），构建时换成同根的 `PanBounds_<名>` Empty（中心 + 半长半宽做 scale）进 FBX；导入器按它的 Transform 算出模型空间 XZ 边界写进 `SSNoirVirtualCameraConfig.panBounds*`，运行时经 `modelRoot` 换算成世界值。`PanBounds_` 只能配 Pan 相机，配了 Orbit 相机导入失败。
 
 每个独立场景资产优先只放一个 `orbit pivot`。多相机、多 pivot 时必须检查“最近者”是否真是预期绑定。
 
@@ -103,13 +103,13 @@ Orbit 相机必须满足：
   `<地点>-<功能>`，例如 `Anchor_老街酒馆-购买`、`Anchor_老街酒馆-工作`；同一分区内的多个行动
   共用一个 Anchor，不能为每个动作各建一个 Anchor。
 - Unity 用 Anchor 的世界坐标投射对应卡片；Anchor 应放在画面中适合悬挂卡片的位置，而不一定是几何中心。
-- 导入器在 Anchor 所属的最近资产子树内优先绑定精确名称 `Camera_<锚点名>_VCam`；行动点找不到专属相机时回退到同一子树里的主 VCam，绝不回退到整城第一个 VCam。
+- 语义对象的作用域就是它的父节点（所属 Prefab 的根），不向上爬：Anchor 在同根内优先绑定精确名称 `Camera_<锚点名>_VCam`，找不到时回退到同根的主相机 `Camera_<根名>_VCam`；相机只在同根直接子级里找 orbit pivot。嵌套 Prefab（酒馆里的后巷）因此各用各的相机与 pivot。
 - `SceneDirectory` 以空间锚点名为字典键。重复锚点名会记录错误并 assert/throw，禁止在场景中创建重复 Anchor。
 - 没有下划线或下划线后为空会得到空 NodeName，不会进入有效目录。
 
 ### 描边对象与材质
 
-城市描边的唯一生产者是 CityBox。`build_city.py` 生成 Low/High，`export_unity.py` 校验并写入 `City.fbx`；城市源 `.blend` 不保存历史单体描边。
+城市描边的唯一生产者是 CityBox 构建：生成 Low/High、校验并写入 `City.fbx`；Prefab 源 `.blend` 不保存描边。
 
 非城市独立资产不得默认复用城市描边流程。只有找到明确运行时消费者时，才采用该消费者要求的对象名和材质名。例如 `AmbientBoat` 当前仍按材质名区分船体和线条，这只是车辆系统专用契约，不是所有资产的通用规范。
 

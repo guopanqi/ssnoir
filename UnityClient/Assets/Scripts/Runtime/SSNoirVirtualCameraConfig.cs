@@ -27,11 +27,29 @@ namespace SSNoir
         public float minPitch = 16f;
         public float maxPitch = 35f;
 
+        [Header("Model Space")]
+        [Tooltip("导入器指定：这台相机所属模型的根。Pan Bounds 与裁剪面按它的变换换算成世界值；为空则视为已是世界值。")]
+        public Transform? modelRoot;
+
         [Header("Pan Bounds")]
-        [Tooltip("Only applies to Pan cameras. X is world X and Y is world Z.")]
+        [Tooltip("Only applies to Pan cameras. X / Y = model-space X / Z（modelRoot 为空时即世界 X / Z）。")]
         public bool usePanBounds = false;
         public Vector2 panBoundsMinXZ = new Vector2(-25f, -70f);
         public Vector2 panBoundsMaxXZ = new Vector2(95f, 90f);
+
+        /// <summary>世界空间的机身 XZ 边界，由模型空间的 panBounds 经 modelRoot 换算。</summary>
+        public Vector2 WorldPanMinXZ => WorldPanBounds().min;
+        public Vector2 WorldPanMaxXZ => WorldPanBounds().max;
+
+        private (Vector2 min, Vector2 max) WorldPanBounds()
+        {
+            if (modelRoot == null)
+                return (panBoundsMinXZ, panBoundsMaxXZ);
+            Vector3 a = modelRoot.TransformPoint(new Vector3(panBoundsMinXZ.x, 0f, panBoundsMinXZ.y));
+            Vector3 b = modelRoot.TransformPoint(new Vector3(panBoundsMaxXZ.x, 0f, panBoundsMaxXZ.y));
+            return (new Vector2(Mathf.Min(a.x, b.x), Mathf.Min(a.z, b.z)),
+                    new Vector2(Mathf.Max(a.x, b.x), Mathf.Max(a.z, b.z)));
+        }
 
         // Persistent start values captured when drag begins
         private float _startYaw;
@@ -67,8 +85,23 @@ namespace SSNoir
         private void Awake()
         {
             CaptureAuthoredPose();
+            ScaleClipPlanesToWorld();
             ValidatePanBounds();
             ValidateOrbitFrustum();
+        }
+
+        // 模型里的裁剪面是资产单位（米）；City 实例整体缩放 0.1，世界里的近远面也要跟着缩。
+        // Cinemachine 的 Lens 是世界单位，导入器拿不到场景缩放，所以在这里做一次。
+        private void ScaleClipPlanesToWorld()
+        {
+            if (modelRoot == null)
+                return;
+            float s = modelRoot.lossyScale.x;
+            var vcam = GetComponent<Cinemachine.CinemachineVirtualCamera>();
+            if (vcam == null || Mathf.Approximately(s, 1f))
+                return;
+            vcam.m_Lens.NearClipPlane *= s;
+            vcam.m_Lens.FarClipPlane *= s;
         }
 
         private void ValidatePanBounds()
@@ -114,12 +147,13 @@ namespace SSNoir
                 return;
 
             float y = transform.position.y;
+            var (bmin, bmax) = WorldPanBounds();
             Vector3[] rig =
             {
-                new Vector3(panBoundsMinXZ.x, y, panBoundsMinXZ.y),
-                new Vector3(panBoundsMaxXZ.x, y, panBoundsMinXZ.y),
-                new Vector3(panBoundsMaxXZ.x, y, panBoundsMaxXZ.y),
-                new Vector3(panBoundsMinXZ.x, y, panBoundsMaxXZ.y),
+                new Vector3(bmin.x, y, bmin.y),
+                new Vector3(bmax.x, y, bmin.y),
+                new Vector3(bmax.x, y, bmax.y),
+                new Vector3(bmin.x, y, bmax.y),
             };
 
             // Pan 只改 x/z，不改朝向也不改高度，所以「镜头中心扫过的地面」和「机身能站的范围」

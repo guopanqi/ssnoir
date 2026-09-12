@@ -14,7 +14,7 @@ namespace SSNoir
         private const float DragThreshold = 6f;
 
         private readonly SSNoirGameManager _gameManager;
-        private readonly float _panSpeed;
+        private readonly float _panSpeedMultiplier;
 
         // Mouse drag states. A press begins as a candidate (_isPressingWorld); it only
         // becomes a grab (_isDraggingCam) once the pointer clears DragThreshold.
@@ -214,10 +214,10 @@ namespace SSNoir
             }
         }
 
-        public SSNoirCameraManager(SSNoirGameManager gameManager, float panSpeed)
+        public SSNoirCameraManager(SSNoirGameManager gameManager, float panSpeedMultiplier)
         {
             _gameManager = gameManager;
-            _panSpeed = panSpeed;
+            _panSpeedMultiplier = panSpeedMultiplier;
             _crossfade = new ViewCrossfade(gameManager);
         }
 
@@ -469,8 +469,8 @@ namespace SSNoir
             forward.y = 0f;
             forward.Normalize();
 
-            Vector3 translation =
-                -stepPixels.x * right * _panSpeed - stepPixels.y * forward * _panSpeed;
+            float mpp = PanMetersPerPixel(activeCamera);
+            Vector3 translation = -stepPixels.x * right * mpp - stepPixels.y * forward * mpp;
             var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
             if (config == null || !config.usePanBounds)
             {
@@ -516,6 +516,21 @@ namespace SSNoir
             _staticRawOffset -= stepPixels * StaticDragSensitivity;
         }
 
+        /// <summary>
+        /// 拖一像素，地面跟着走一像素：按视线中心落到地面那一点离相机多远换算每像素的世界距离。
+        /// 世界机位离地几十个单位、建筑机位只有几个单位，用固定的"每像素多少米"必然一头太慢一头太快。
+        /// </summary>
+        private float PanMetersPerPixel(Cinemachine.CinemachineVirtualCamera activeCamera)
+        {
+            Vector3 forward = activeCamera.transform.forward;
+            float distance = forward.y < -0.05f
+                ? activeCamera.transform.position.y / -forward.y
+                : activeCamera.transform.position.y;          // 近乎水平的机位：退化成按高度算
+            distance = Mathf.Max(distance, 1f);
+            float halfFov = activeCamera.m_Lens.FieldOfView * 0.5f * Mathf.Deg2Rad;
+            return 2f * distance * Mathf.Tan(halfFov) / Screen.height * _panSpeedMultiplier;
+        }
+
         private void UpdatePanDrag(Cinemachine.CinemachineVirtualCamera activeCamera, Vector3 mouseDelta)
         {
             // Height-locked RTS/MOBA Pan (moves parallel to XZ ground plane)
@@ -527,7 +542,8 @@ namespace SSNoir
             forward.y = 0f;
             forward.Normalize();
 
-            Vector3 panTranslation = -mouseDelta.x * right * _panSpeed - mouseDelta.y * forward * _panSpeed;
+            float mpp = PanMetersPerPixel(activeCamera);
+            Vector3 panTranslation = -mouseDelta.x * right * mpp - mouseDelta.y * forward * mpp;
             var config = activeCamera.GetComponent<SSNoirVirtualCameraConfig>();
             if (config == null || !config.usePanBounds)
             {
@@ -625,8 +641,8 @@ namespace SSNoir
             SSNoirVirtualCameraConfig config)
         {
             return new Vector2(
-                Mathf.Clamp(position.x, config.panBoundsMinXZ.x, config.panBoundsMaxXZ.x),
-                Mathf.Clamp(position.y, config.panBoundsMinXZ.y, config.panBoundsMaxXZ.y));
+                Mathf.Clamp(position.x, config.WorldPanMinXZ.x, config.WorldPanMaxXZ.x),
+                Mathf.Clamp(position.y, config.WorldPanMinXZ.y, config.WorldPanMaxXZ.y));
         }
 
         private static Vector3 ClampPanPosition(
@@ -940,9 +956,10 @@ namespace SSNoir
             }
             else
             {
+                float mpp = PanMetersPerPixel(activeCamera);
                 _focusArcPanOffset = _focusArcDragStartPanOffset
-                    - mouseDelta.x * _focusArcPanRight * _panSpeed
-                    - mouseDelta.y * _focusArcPanForward * _panSpeed;
+                    - mouseDelta.x * _focusArcPanRight * mpp
+                    - mouseDelta.y * _focusArcPanForward * mpp;
             }
 
             ApplyFocusArcPose(FocusArcEasedProgress());

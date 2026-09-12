@@ -39,7 +39,8 @@ namespace SSNoir
 #endif
 
         [Header("Camera Drag Settings")]
-        [SerializeField] private float panSpeed = 0.02f;
+        [Tooltip("Pan 拖拽：1 = 拖一像素地面走一像素（按视线落点距离换算），大于 1 更快。")]
+        [SerializeField] private float panSpeedMultiplier = 1f;
 
         private GameState _gameState = null!;
         private SceneManager _sceneManager = null!;
@@ -321,9 +322,10 @@ namespace SSNoir
 
             // 2. Initialize Scene Manager
             _sceneManager = new SceneManager(_gameState, _scriptLoader);
+            _sceneManager.OnWarning += message => Debug.LogWarning(message);
 
             // 3. Initialize camera interaction. Stable camera selection is resolved from the current node focus.
-            _cameraManager = new SSNoirCameraManager(this, panSpeed);
+            _cameraManager = new SSNoirCameraManager(this, panSpeedMultiplier);
             _titleScreen = new TitleScreen(this);
 
             // 4. Find scene directory
@@ -967,6 +969,7 @@ namespace SSNoir
                 string sceneBefore = _sceneManager.CurrentSceneName;
                 string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
                 ActionReport report = _sceneManager.ExecuteAction(node, slots);
+                var postTurnSteps = DetachPostTurnBlockingSteps(report);
                 _nodeSlots.Remove(node.Name);
                 _selectedResource = null;
                 bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
@@ -995,7 +998,13 @@ namespace SSNoir
                         if (focusContextChanged || navigationCollapsed)
                             UpdateCameraFocus();
                     };
-                    StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () => done = true));
+                    StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () =>
+                    {
+                        if (postTurnSteps.Count > 0)
+                            StartCoroutine(PlayPostTurnStepsAfterDiceSettle(postTurnSteps, () => done = true));
+                        else
+                            done = true;
+                    }));
                 });
             }
             catch (System.Exception ex)
@@ -1622,6 +1631,7 @@ namespace SSNoir
             string sceneBefore = _sceneManager.CurrentSceneName;
             string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
             var report = _sceneManager.EndTurn();
+            var postTurnSteps = DetachPostTurnBlockingSteps(report);
             bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
             bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Name ?? string.Empty, System.StringComparison.Ordinal);
             bool focusContextChanged = sceneChanged || rootChanged;
@@ -1645,7 +1655,13 @@ namespace SSNoir
                     if (focusContextChanged || navigationCollapsed)
                         UpdateCameraFocus();
                 };
-                StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () => done = true));
+                StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () =>
+                {
+                    if (postTurnSteps.Count > 0)
+                        StartCoroutine(PlayPostTurnStepsAfterDiceSettle(postTurnSteps, () => done = true));
+                    else
+                        done = true;
+                }));
             });
             StartCoroutine(WaitForPresentation(() => done));
         }
@@ -1665,6 +1681,22 @@ namespace SSNoir
             => report.TurnEnded
                 && report.Type == ActionType.Instant
                 && report.BlockingStorySteps.Count == 0;
+
+        private static List<BlockingStoryStep> DetachPostTurnBlockingSteps(ActionReport report)
+        {
+            var result = new List<BlockingStoryStep>();
+            if (!report.TurnEnded)
+                return result;
+            int firstAuto = report.BlockingStorySteps.FindIndex(
+                step => step.Kind == BlockingStoryStepKind.AutoAction);
+            if (firstAuto < 0)
+                return result;
+            for (int i = firstAuto; i < report.BlockingStorySteps.Count; i++)
+                result.Add(report.BlockingStorySteps[i]);
+            report.BlockingStorySteps.RemoveRange(
+                firstAuto, report.BlockingStorySteps.Count - firstAuto);
+            return result;
+        }
 
         /// <summary>
         /// 世界真的换成下一拍的样子是在 <c>AdoptLatestSnapshot</c> 那一下；这个换页永远
@@ -1688,6 +1720,17 @@ namespace SSNoir
 
             yield return _stageController.PlayTurnDip(land);
             onDone();
+        }
+
+        private IEnumerator PlayPostTurnStepsAfterDiceSettle(
+            IReadOnlyList<BlockingStoryStep> steps, Action onDone)
+        {
+            // AdoptLatestSnapshot 在黑幕中换上新骰池；至少让手牌绘制一帧，建立滚骰状态，
+            // 再等待这一把骰子真正落定，随后才让 auto-action 出牌并捕获它们。
+            yield return null;
+            while (HandPanelDrawer.HasUnsettledDice(_displayedSnapshot))
+                yield return null;
+            _renderer.PlayBlockingPresentation(steps, onDone);
         }
 
         private IEnumerator WaitForPresentation(Func<bool> isDone)
