@@ -7,22 +7,21 @@ using UnityEngine.SceneManagement;
 namespace SSNoir.Editor
 {
     /// <summary>
-    /// 编辑器取景时只看 City 的 High 描线。Low / High 都留在模型里是运行时焦点切换的契约，
-    /// 不能为了出参考图而改模型或 Renderer.enabled。
+    /// 编辑器取景时看 City 的标准描线、藏远景描线（运行时聚焦地点的样子）。两套都留在模型里
+    /// 是运行时焦点切换的契约，不能为了出参考图而改模型或 Renderer.enabled。
     /// </summary>
     [InitializeOnLoad]
     internal static class CityOutlineEditorPreview
     {
         private const string OutlinePrefix = "描线_";
-        private const string LowSuffix = "_Low";
-        private const string HighSuffix = "_High";
+        private const string FarSuffix = "_远景";
 
         static CityOutlineEditorPreview()
         {
-            EditorApplication.hierarchyChanged += ApplyHighPreview;
+            EditorApplication.hierarchyChanged += ApplyFocusedPreview;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             AssemblyReloadEvents.beforeAssemblyReload += ClearPreviewOverride;
-            EditorApplication.delayCall += ApplyHighPreview;
+            EditorApplication.delayCall += ApplyFocusedPreview;
         }
 
         private static void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -34,20 +33,20 @@ namespace SSNoir.Editor
                     ClearPreviewOverride();
                     break;
                 case PlayModeStateChange.EnteredEditMode:
-                    ApplyHighPreview();
+                    ApplyFocusedPreview();
                     break;
             }
         }
 
-        private static void ApplyHighPreview()
+        private static void ApplyFocusedPreview()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 return;
 
-            ForEachOutlineRenderer((renderer, isLow) =>
+            ForEachOutlineRenderer((renderer, isFar) =>
             {
                 // forceRenderingOff 是非序列化的渲染覆盖；不会制造场景修改或 FBX Prefab override。
-                renderer.forceRenderingOff = isLow;
+                renderer.forceRenderingOff = isFar;
             });
         }
 
@@ -72,10 +71,7 @@ namespace SSNoir.Editor
                         if (!name.StartsWith(OutlinePrefix, StringComparison.Ordinal))
                             continue;
 
-                        if (name.EndsWith(LowSuffix, StringComparison.Ordinal))
-                            action(renderer, true);
-                        else if (name.EndsWith(HighSuffix, StringComparison.Ordinal))
-                            action(renderer, false);
+                        action(renderer, name.EndsWith(FarSuffix, StringComparison.Ordinal));
                     }
                 }
             }

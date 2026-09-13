@@ -23,13 +23,13 @@ Unity 中同一时刻只有一个正式整城 `City.fbx`；地点和交锋场景
 
 ## 描线与外观
 
-源 Prefab 不带材质、不带描线。构建时套统一材质，并按 Prefab 顶层集合的 custom props 生成 `描线_<名>_Low` / `_High`（属性名见 README）。逐建筑调参 = 改该 Prefab 的属性，重跑 `./build.sh --no-publish --focus <名>`，看 `build/city/focus_<名>.png`。聚焦规则：机位所在的顶层 Prefab 整棵子树 High，其余 Low。代价是嵌套场景的机位下，外层建筑的 High（按外层自己的机位标定）会显得偏粗；这是有意的取舍，不按相机各标一档。
+源 Prefab 不带材质、不带描线。构建时套统一材质，并生成一套标准描线 `描线_<名>`（硬边 + 共享件的线 + `outline="hull"` 件的反向外壳，都在这个节点下），只在聚焦这个地点时显示；没聚焦时地点不描线、`layer="interior"` 的对象（`内部_<名>` 节点）隐藏。要在世界视角认得出的重要建筑，Prefab 里放 `outline="proxy"` 的手搭替身，构建出成 `描线_<名>_远景`。策略枚举与属性名见 `city-box/README.md`。逐建筑调参 = 改该 Prefab 的属性，重跑 `./build.sh --no-publish --focus <名>`，看 `build/city/focus_<名>.png`。聚焦规则：机位所在的顶层 Prefab 整棵子树聚焦，其余世界视角；嵌套场景的机位下外层建筑的线按外层自己的机位标定，会显得偏粗，这是有意的取舍。
 
 ## 发布后验证
 
 1. `build/city/report.json` 的 `problems` 为空。
 2. CityBox 与 Unity 两份 `City.fbx` SHA-256 相同，`.meta` GUID 未被替换。
-3. Unity 重导入无契约错误；进入全城和受影响地点确认相机、主体和描线属于同一子树。
+3. Unity 重导入无契约错误；进入全城和受影响地点确认相机、主体和描线属于同一子树，世界视角下内部已隐藏。
 4. `Main.unity` 的 City 实例只保留根节点变换，不对子对象保存覆盖。
 
 坐标换算：Unity(x, y, z) = (−Bx, Bz, By) × 0.1。

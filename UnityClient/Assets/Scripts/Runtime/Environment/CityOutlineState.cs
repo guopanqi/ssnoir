@@ -9,87 +9,124 @@ using UnityEngine.Rendering;
 namespace SSNoir
 {
     /// <summary>
-    /// Runtime state for the Low / High outline renderers already embedded in City.fbx.
+    /// Runtime focus state for the places embedded in City.fbx.
     /// This is deliberately a plain C# object: imported model assets never receive scripts.
+    ///
+    /// One top-level City child = one place. Focusing any camera inside a place switches that
+    /// whole subtree (including nested prefabs) to "focused"; everything else is in the world view.
+    /// Per prefab the CityBox pipeline emits:
+    ///   描线_&lt;名&gt;         standard outline (shared prop lines / figure hulls as children) — focused only
+    ///   描线_&lt;名&gt;_远景    optional hand-built far outline — world view only
+    ///   内部_&lt;名&gt;         optional node holding interior geometry (furniture, props, figures) — focused only
+    /// Nothing else changes between the two states; the split exists purely to keep the world
+    /// view cheap.
     /// </summary>
     public sealed class CityOutlineState
     {
         private const string CityRootName = "City";
-        private const string LowSuffix = "_Low";
-        private const string HighSuffix = "_High";
+        private const string OutlinePrefix = "描线_";
+        private const string FarSuffix = "_远景";
+        private const string InteriorPrefix = "内部_";
 
-        private sealed class OutlinePair
+        private sealed class PrefabView
         {
-            public OutlinePair(string locationName, Renderer low, Renderer high)
+            public PrefabView(string name, Renderer[] standard, Renderer? far, GameObject? interior)
             {
-                LocationName = locationName;
-                Low = low;
-                High = high;
+                Name = name;
+                Standard = standard;
+                Far = far;
+                Interior = interior;
             }
 
-            public string LocationName { get; }
-            public Renderer Low { get; }
-            public Renderer High { get; }
+            public string Name { get; }
+            public Renderer[] Standard { get; }
+            public Renderer? Far { get; }
+            public GameObject? Interior { get; }
 
-            public void SetHigh(bool high)
+            public void SetFocused(bool focused)
             {
-                Low.enabled = !high;
-                High.enabled = high;
+                foreach (var renderer in Standard)
+                    renderer.enabled = focused;
+                if (Far != null)
+                    Far.enabled = !focused;
+                if (Interior != null)
+                    Interior.SetActive(focused);
             }
         }
 
-        private readonly Dictionary<CinemachineVirtualCamera, OutlinePair> _cameraOwners = new();
-        private OutlinePair? _activePair;
+        private sealed class Place
+        {
+            public Place(string name, List<PrefabView> views)
+            {
+                Name = name;
+                Views = views;
+            }
+
+            public string Name { get; }
+            public List<PrefabView> Views { get; }
+
+            public void SetFocused(bool focused)
+            {
+                foreach (var view in Views)
+                    view.SetFocused(focused);
+            }
+        }
+
+        private readonly Dictionary<CinemachineVirtualCamera, Place> _cameraOwners = new();
+        private Place? _activePlace;
 
         private CityOutlineState(Transform cityRoot)
         {
             foreach (var renderer in cityRoot.GetComponentsInChildren<Renderer>(true))
                 renderer.shadowCastingMode = ShadowCastingMode.Off;
 
-            int pairCount = 0;
-            foreach (Transform buildingRoot in cityRoot)
+            int viewCount = 0;
+            foreach (Transform placeRoot in cityRoot)
             {
-                string lowName = $"描线_{buildingRoot.name}{LowSuffix}";
-                string highName = $"描线_{buildingRoot.name}{HighSuffix}";
-                var descendants = buildingRoot.GetComponentsInChildren<Transform>(true);
-                var lowMatches = descendants.Where(t => t.name == lowName).ToArray();
-                var highMatches = descendants.Where(t => t.name == highName).ToArray();
+                var descendants = placeRoot.GetComponentsInChildren<Transform>(true);
+                var views = new List<PrefabView>();
+                foreach (var standard in descendants.Where(t =>
+                             t.name.StartsWith(OutlinePrefix, StringComparison.Ordinal) &&
+                             !t.name.EndsWith(FarSuffix, StringComparison.Ordinal)))
+                {
+                    string prefabName = standard.name.Substring(OutlinePrefix.Length);
+                    if (descendants.Count(t => t.name == standard.name) != 1)
+                        throw ContractError($"City place '{placeRoot.name}' has more than one '{standard.name}'.");
+                    if (standard.GetComponent<Renderer>() == null)
+                        throw ContractError($"City outline node '{standard.name}' must contain a Renderer.");
 
-                if (lowMatches.Length == 0 && highMatches.Length == 0)
+                    var farMatches = descendants.Where(t => t.name == standard.name + FarSuffix).ToArray();
+                    if (farMatches.Length > 1)
+                        throw ContractError($"City place '{placeRoot.name}' has more than one '{standard.name}{FarSuffix}'.");
+                    Renderer? far = farMatches.Length == 1 ? farMatches[0].GetComponent<Renderer>() : null;
+                    if (farMatches.Length == 1 && far == null)
+                        throw ContractError($"City outline node '{farMatches[0].name}' must contain a Renderer.");
+
+                    var interior = descendants.FirstOrDefault(t => t.name == InteriorPrefix + prefabName);
+
+                    var view = new PrefabView(prefabName, standard.GetComponentsInChildren<Renderer>(true), far,
+                        interior != null ? interior.gameObject : null);
+                    view.SetFocused(false);
+                    views.Add(view);
+                    viewCount++;
+                }
+
+                if (views.Count == 0)
                     continue;
-                if (lowMatches.Length != 1 || highMatches.Length != 1)
-                {
-                    throw ContractError(
-                        $"City building '{buildingRoot.name}' requires exactly one '{lowName}' " +
-                        $"and one '{highName}'; found {lowMatches.Length} Low and " +
-                        $"{highMatches.Length} High.");
-                }
 
-                var lowRenderer = lowMatches[0].GetComponent<Renderer>();
-                var highRenderer = highMatches[0].GetComponent<Renderer>();
-                if (lowRenderer == null || highRenderer == null)
+                var place = new Place(placeRoot.name, views);
+                foreach (var camera in placeRoot.GetComponentsInChildren<CinemachineVirtualCamera>(true))
                 {
-                    throw ContractError(
-                        $"City building '{buildingRoot.name}' Low / High outline nodes " +
-                        "must each contain a Renderer.");
-                }
-
-                var pair = new OutlinePair(buildingRoot.name, lowRenderer, highRenderer);
-                pair.SetHigh(false);
-                pairCount++;
-
-                foreach (var camera in buildingRoot.GetComponentsInChildren<CinemachineVirtualCamera>(true))
-                {
-                    if (!_cameraOwners.TryAdd(camera, pair))
+                    if (!_cameraOwners.TryAdd(camera, place))
                     {
                         throw ContractError(
-                            $"City focus camera '{camera.name}' belongs to multiple buildings.");
+                            $"City focus camera '{camera.name}' belongs to multiple places.");
                     }
                 }
             }
 
-            if (pairCount == 0)
-                throw ContractError("City contains no Low / High outline pairs.");
+            if (viewCount == 0)
+                throw ContractError("City contains no place outlines.");
         }
 
         /// <summary>
@@ -119,16 +156,16 @@ namespace SSNoir
 
         public void SetFocusedCamera(CinemachineVirtualCamera? camera)
         {
-            OutlinePair? next = null;
+            Place? next = null;
             if (camera != null)
                 _cameraOwners.TryGetValue(camera, out next);
 
-            if (next == _activePair)
+            if (next == _activePlace)
                 return;
 
-            _activePair?.SetHigh(false);
-            next?.SetHigh(true);
-            _activePair = next;
+            _activePlace?.SetFocused(false);
+            next?.SetFocused(true);
+            _activePlace = next;
         }
 
         private static InvalidOperationException ContractError(string message)
