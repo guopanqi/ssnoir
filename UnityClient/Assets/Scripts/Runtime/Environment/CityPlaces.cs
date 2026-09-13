@@ -20,11 +20,19 @@ namespace SSNoir
     {
         public const string ResourcesFolder = "City/Places/";
 
-        /// <summary>Top-level City children that are places: they own at least one focus camera.</summary>
+        /// <summary>
+        /// The city base (CityBox role="base"): carries the overview camera and anchor but is the
+        /// world layer itself — no shell / detail split, no outline, no detail asset.
+        /// </summary>
+        public const string WorldBaseName = "世界";
+
+        /// <summary>Top-level City children that are places: they own at least one focus camera and are not the base.</summary>
         public static IEnumerable<Transform> ShellRoots(Transform cityRoot)
         {
             foreach (Transform child in cityRoot)
             {
+                if (child.name == WorldBaseName)
+                    continue;
                 if (child.GetComponentInChildren<CinemachineVirtualCamera>(true) != null)
                     yield return child;
             }
