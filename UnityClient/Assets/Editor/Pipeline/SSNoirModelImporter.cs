@@ -21,6 +21,23 @@ namespace SSNoir.Editor
         // are reprocessed instead of keeping stale generated VCams in the import cache.
         public override uint GetVersion() => 7;
 
+        /// <summary>
+        /// 地点细节文件（Resources/City/Places/&lt;名&gt;.fbx，由 CityBox 发布）：材质按名字在全工程找
+        /// （描线材质在 Models/Environment/Materials，不在它自己的目录旁），其余走默认导入。
+        /// </summary>
+        private void OnPreprocessModel()
+        {
+            if (!assetPath.Replace('\\', '/').Contains("/Resources/" + CityPlaces.ResourcesFolder))
+                return;
+            var importer = (ModelImporter)assetImporter;
+            importer.materialImportMode = ModelImporterMaterialImportMode.ImportStandard;
+            importer.materialLocation = ModelImporterMaterialLocation.External;
+            importer.materialName = ModelImporterMaterialName.BasedOnMaterialName;
+            importer.materialSearch = ModelImporterMaterialSearch.Everywhere;
+            importer.importCameras = false;
+            importer.importLights = false;
+        }
+
         private void OnPostprocessModel(GameObject root)
         {
             var allTransforms = root.GetComponentsInChildren<Transform>(true);
@@ -272,7 +289,7 @@ namespace SSNoir.Editor
             config.maxPitch = Mathf.Max(config.maxPitch, authoredPitch + AuthoredPitchMargin);
         }
 
-        /// <summary>同根的 `PanBounds_<名>`：Blender 里是一块贴地的框，构建时换成带缩放的 Empty。</summary>
+        /// <summary>同根的 `PanBounds_<名>`：Blender 里是一块贴地的框，构建时换成一个 Empty，角点是它的两个子 Empty。</summary>
         private static Transform? FindPanBounds(Transform cameraTransform)
         {
             const string prefix = "Camera_";
@@ -282,16 +299,24 @@ namespace SSNoir.Editor
         }
 
         /// <summary>
-        /// 机身能站的范围 = PanBounds Empty 在模型空间里的 XZ 包围盒。
-        /// 不在这里手写 Blender→Unity 的轴换算，而是让 Transform 自己算——轴约定改了这里不用跟。
+        /// 机身能站的范围 = 两个角点子 Empty（`_min` / `_max`）在模型空间里的 XZ 包围盒。
+        /// 角点用子物体的**位置**表示，不用 Empty 的 scale：FBX 导出把单位换算烘进每个 Prefab 根的
+        /// scale（=100），子物体的位置随之缩小、scale 却不会——按 scale 算出来的边界会大 100 倍，
+        /// 相机永远夹不到。位置和相机自己走的是同一套换算，所以这里不手写任何轴或单位。
         /// </summary>
         private static void ConfigurePan(SSNoirVirtualCameraConfig config, Transform bounds, Transform root)
         {
+            var lo = bounds.Find(bounds.name + "_min");
+            var hi = bounds.Find(bounds.name + "_max");
+            if (lo == null || hi == null)
+                throw new InvalidOperationException(
+                    $"[SSNoir] ModelImporter: '{bounds.name}' needs '{bounds.name}_min' and '{bounds.name}_max' child empties for its corners. Rebuild City.fbx with the current CityBox pipeline.");
+
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
             Vector2 max = new Vector2(float.MinValue, float.MinValue);
-            foreach (var corner in new[] { new Vector3(-1, -1, 0), new Vector3(1, -1, 0), new Vector3(1, 1, 0), new Vector3(-1, 1, 0) })
+            foreach (var corner in new[] { lo, hi })
             {
-                Vector3 p = root.InverseTransformPoint(bounds.TransformPoint(corner));
+                Vector3 p = root.InverseTransformPoint(corner.position);
                 min = Vector2.Min(min, new Vector2(p.x, p.z));
                 max = Vector2.Max(max, new Vector2(p.x, p.z));
             }

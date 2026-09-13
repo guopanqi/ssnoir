@@ -8,10 +8,11 @@ CityBox 以 Blender 为唯一媒介，**Prefab 是唯一的单位**。约定与�
 - 程序化 Prefab 的生成脚本：`city-box/prefabs/src/<名>.py`
 - 布局：`city-box/city.blend`（只有 Prefab 实例；人和 Agent 直接编辑）
 - 候选与参考图：`city-box/prefabs/review/`
-- 构建产物：`city-box/build/city/`（`city_build.blend`、`City.fbx`、`report.json`、预览图）
-- Unity 固定发布物：`UnityClient/Assets/Resources/Models/Environment/City.fbx`
+- 构建产物：`city-box/build/city/`（`city_build.blend`、`City.fbx`、`places/<名>.fbx`、`report.json`、预览图）
+- Unity 固定发布物：`UnityClient/Assets/Resources/Models/Environment/City.fbx`（世界层）和
+  `UnityClient/Assets/Resources/City/Places/<名>.fbx`（每个顶层 Prefab 的标准描线 + 内部）
 
-Unity 中同一时刻只有一个正式整城 `City.fbx`；地点和交锋场景都在里面，不单独发布 FBX。
+世界层带全部语义对象和外壳，导航、镜头在任何地点细节没加载时都能工作；细节文件运行时由 `CityPlaces` 按名挂回 City 下。一个顶层 Prefab = 一个文件，嵌套子 Prefab 跟外层走。
 
 ## 接入顺序
 
@@ -19,7 +20,7 @@ Unity 中同一时刻只有一个正式整城 `City.fbx`；地点和交锋场景
 2. 单体预览，直到形体和机位对：`blender -b --python pipeline/preview.py -- <名> [--clay]`。
 3. 放进城市：顶层地点在 `city.blend` 里加实例；依附别的地点的场景（酒馆后巷）在那个地点的 Prefab 里 instance，并把父 Prefab 的 `footprint`/`footprint_offset` 扩到能盖住它。
 4. 整城构建与审阅：`./build.sh --no-publish --render --focus <名>`；Pan 机位再加 `--pan <名>` 看四角极限画面。新增或改动布局要用户确认整城预览。
-5. 发布：`./build.sh`（构建 + 契约检查 + 原子覆盖 Unity `City.fbx`）。
+5. 发布：`./build.sh`（构建 + 契约检查 + 原子覆盖 Unity `City.fbx` 与 `Places/*.fbx`，过期地点文件连 .meta 一起删）。
 
 ## 描线与外观
 
@@ -28,7 +29,7 @@ Unity 中同一时刻只有一个正式整城 `City.fbx`；地点和交锋场景
 ## 发布后验证
 
 1. `build/city/report.json` 的 `problems` 为空。
-2. CityBox 与 Unity 两份 `City.fbx` SHA-256 相同，`.meta` GUID 未被替换。
+2. CityBox 与 Unity 两份 `City.fbx` SHA-256 相同，`.meta` GUID 未被替换；`Places/` 下文件集合与 `report.json` 的 `places` 一致。
 3. Unity 重导入无契约错误；进入全城和受影响地点确认相机、主体和描线属于同一子树，世界视角下内部已隐藏。
 4. `Main.unity` 的 City 实例只保留根节点变换，不对子对象保存覆盖。
 

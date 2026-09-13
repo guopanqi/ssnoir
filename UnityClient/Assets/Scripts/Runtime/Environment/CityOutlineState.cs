@@ -12,9 +12,10 @@ namespace SSNoir
     /// Runtime focus state for the places embedded in City.fbx.
     /// This is deliberately a plain C# object: imported model assets never receive scripts.
     ///
-    /// One top-level City child = one place. Focusing any camera inside a place switches that
-    /// whole subtree (including nested prefabs) to "focused"; everything else is in the world view.
-    /// Per prefab the CityBox pipeline emits:
+    /// One place = the top-level City children sharing a name: the shell from City.fbx (with the
+    /// cameras) plus the detail instance CityPlaces attached next to it. Focusing any camera inside
+    /// a place switches the whole place (including nested prefabs) to "focused"; everything else is
+    /// in the world view. Per prefab the CityBox pipeline emits:
     ///   描线_&lt;名&gt;         standard outline (shared prop lines / figure hulls as children) — focused only
     ///   描线_&lt;名&gt;_远景    optional hand-built far outline — world view only
     ///   内部_&lt;名&gt;         optional node holding interior geometry (furniture, props, figures) — focused only
@@ -81,9 +82,18 @@ namespace SSNoir
                 renderer.shadowCastingMode = ShadowCastingMode.Off;
 
             int viewCount = 0;
-            foreach (Transform placeRoot in cityRoot)
+            var byName = new Dictionary<string, List<Transform>>();
+            foreach (Transform child in cityRoot)
             {
-                var descendants = placeRoot.GetComponentsInChildren<Transform>(true);
+                if (!byName.TryGetValue(child.name, out var list))
+                    byName[child.name] = list = new List<Transform>();
+                list.Add(child);
+            }
+            foreach (var entry in byName)
+            {
+                string placeName = entry.Key;
+                var roots = entry.Value;
+                var descendants = roots.SelectMany(r => r.GetComponentsInChildren<Transform>(true)).ToArray();
                 var views = new List<PrefabView>();
                 foreach (var standard in descendants.Where(t =>
                              t.name.StartsWith(OutlinePrefix, StringComparison.Ordinal) &&
@@ -91,13 +101,13 @@ namespace SSNoir
                 {
                     string prefabName = standard.name.Substring(OutlinePrefix.Length);
                     if (descendants.Count(t => t.name == standard.name) != 1)
-                        throw ContractError($"City place '{placeRoot.name}' has more than one '{standard.name}'.");
+                        throw ContractError($"City place '{placeName}' has more than one '{standard.name}'.");
                     if (standard.GetComponent<Renderer>() == null)
                         throw ContractError($"City outline node '{standard.name}' must contain a Renderer.");
 
                     var farMatches = descendants.Where(t => t.name == standard.name + FarSuffix).ToArray();
                     if (farMatches.Length > 1)
-                        throw ContractError($"City place '{placeRoot.name}' has more than one '{standard.name}{FarSuffix}'.");
+                        throw ContractError($"City place '{placeName}' has more than one '{standard.name}{FarSuffix}'.");
                     Renderer? far = farMatches.Length == 1 ? farMatches[0].GetComponent<Renderer>() : null;
                     if (farMatches.Length == 1 && far == null)
                         throw ContractError($"City outline node '{farMatches[0].name}' must contain a Renderer.");
@@ -114,8 +124,8 @@ namespace SSNoir
                 if (views.Count == 0)
                     continue;
 
-                var place = new Place(placeRoot.name, views);
-                foreach (var camera in placeRoot.GetComponentsInChildren<CinemachineVirtualCamera>(true))
+                var place = new Place(placeName, views);
+                foreach (var camera in roots.SelectMany(r => r.GetComponentsInChildren<CinemachineVirtualCamera>(true)))
                 {
                     if (!_cameraOwners.TryAdd(camera, place))
                     {
@@ -146,6 +156,7 @@ namespace SSNoir
             if (candidates.Length != 1)
                 throw ContractError($"Expected one active-scene City root; found {candidates.Length}.");
 
+            CityPlaces.AttachAll(candidates[0]);
             return new CityOutlineState(candidates[0]);
         }
 
