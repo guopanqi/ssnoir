@@ -10,25 +10,33 @@ namespace SSNoir
     {
         [SerializeField] private Cinemachine.CinemachineVirtualCamera? transitionVCam;
 
-        [SerializeField] private float approachDuration = 0.45f;
-        [SerializeField] private float flashDuration = 0.15f;
-        [SerializeField] private float pushDuration = 0.3f;
-        [SerializeField] private float pullDuration = 0.4f;
-        // Reduce motion keeps the dip to black but nothing else, so the dip carries the
-        // whole transition on its own and has to be a touch longer than the flash that
-        // used to sit in the middle of one.
-        [SerializeField] private float reducedFadeDuration = 0.22f;
-        // 过夜黑场只有两个对称半程：暗下去，再亮回来。减少动画时直接采用
-        // ViewCrossfade 的溶解时长，让这两种不移动镜头的过渡保持同一节奏。
+        // Portal 的手感全在代码里，不挂 Inspector（理由同下面的过夜黑场）。
+        //
+        // 门有两端：A 是城市侧的 PortalIn（挂在 StagePortalConfig 上），B 是交锋根机位 Camera_<交锋名>
+        // （StagePortalConfig 挂在同名 Anchor 上，游戏本来就要解析它的焦点相机）。
+        //   进门：当前机位沿视轴出发 → 最后几米顺着 A 的视线俯冲 → 越过门线时最快，黑
+        //         → 亮起时在 B 后上方（视轴反向）→ 落进 B 坐稳。
+        //   出门：从 B 沿视轴向后拉到同一点，黑 → 亮起时在 A 门外 → 倒退升回城市机位。
+        // 用到的空间只有两处：A 前方 PortalPushDistance、B 身后 PortalRevealRatio × |B−Anchor|。
+        // 两处净空由 city-box/pipeline/export.py 在有几何的地方 ray_cast 核过，不够直接构建失败，
+        // 所以运行时不做任何避障，常量改了要同步那边。
+        private const float PortalHalfDuration = 0.9f;
+        private const float PortalFlashDuration = 0.12f;
+        // 黑场之前越过门线的距离。
+        private const float PortalPushDistance = 1.5f;
+        // 门轴那一头的贝塞尔手柄：最后几米必须顺着门的视线进出，门才像一扇门。
+        private const float PortalDoorHandle = 6.0f;
+        // 机位那一头的手柄占弦长的比例：离开 / 到达机位都沿它自己的视轴，像一次推拉。
+        private const float PortalShotHandleRatio = 0.35f;
+        // 揭幕起点在根机位身后多远：按机位到 Anchor 的距离取比例，远机位落得长、近机位落得短。
+        private const float PortalRevealRatio = 0.35f;
+        // 过夜黑场只有两个对称半程：暗下去，再亮回来。它本来就不动镜头，
+        // 「减少动画」对它没话说，两种模式一个节奏。
         //
         // 写成常量、不挂 Inspector：完整动画下这是这个转场的手感，不是某个场景实例的配置。
         // 挂上去就多一份能和代码对不上的真相——场景里存着旧值时，改这里等于没改。
-        private const float TurnDipFullMotionHalfDuration = 0.39f;
+        private const float TurnDipHalfDuration = 0.39f;
         [SerializeField] private int transitionPriority = 100;
-        [SerializeField] private AnimationCurve approachCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        [SerializeField] private AnimationCurve pushCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        [SerializeField] private AnimationCurve pullCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        [SerializeField] private AnimationCurve portalTravelCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         private SSNoirGameManager _gameManager = null!;
         private Cinemachine.CinemachineBrain? _brain;
@@ -57,6 +65,15 @@ namespace SSNoir
 
         private void Update()
         {
+            ReconcileContext();
+        }
+
+        /// <summary>
+        /// 在表现快照落地的确定时点接管 Stage 边界。Update 仍调用它作为安全网，但 Debug
+        /// 直载和正式交锋不再依赖“下一帧刚好先轮询、还是焦点系统先动”的执行顺序。
+        /// </summary>
+        public void ReconcileContext()
+        {
             if (_gameManager == null || IsTransitioning) return;
             var newContextId = _gameManager.CurrentStageContextId;
             if (newContextId != _currentContextId)
@@ -71,18 +88,10 @@ namespace SSNoir
             string? lookupId = newContextId ?? _currentContextId;
             var portal = ResolvePortal(lookupId);
 
-            if (MotionSettings.ReduceMotion)
-            {
-                // The door's three legs — approach, push through, pull out — are the trip,
-                // and reduce motion does not take trips. What is left is the cut that was
-                // always hiding in the middle of one.
-                bool crossesAPortal = _activePortal != null || (newContextId != null && portal != null);
-                if (crossesAPortal)
-                    yield return ReducedTransition();
-
-                _activePortal = newContextId != null ? portal : null;
-            }
-            else if (newContextId != null)
+            // Portal 不听「减少动画」：它走得不勤，而且推进 / 穿过 / 拉出这三段路本身就是
+            // 在告诉玩家"剧院在城里的哪儿、你现在进到了里面"。砍掉它，空间关系就断了。
+            // 减少动画管的是城里逛地点那种高频翻页，见 MotionSettings。
+            if (newContextId != null)
             {
                 if (_activePortal != null)
                 {
@@ -107,88 +116,58 @@ namespace SSNoir
             IsTransitioning = false;
         }
 
-        /// <summary>
-        /// The reduce-motion form of a portal: black, cut, back. The intro and out cams
-        /// describe a road through the door, and no road is taken here — the destination
-        /// focus camera was always the end of it, so it simply receives the shot while
-        /// the screen is dark. transitionVCam is never taken over, so there is nothing
-        /// to hand back afterwards.
-        /// </summary>
-        private IEnumerator ReducedTransition()
-        {
-            var targetCamera = _gameManager.CurrentFocusCamera;
-            Debug.Assert(targetCamera != null, "[StageTransition] Reduced transition target focus camera was not resolved.");
-
-            FadeAlpha = 0f;
-            yield return FadeTo(1f, reducedFadeDuration);
-
-            ResetFocusCameras();
-            if (targetCamera != null)
-                yield return CutToVirtualCamera(targetCamera, 20);
-
-            yield return FadeTo(0f, reducedFadeDuration);
-        }
-
         private IEnumerator PushEnter(StagePortalConfig portal)
         {
             Debug.Assert(transitionVCam != null, "[StageTransition] transitionVCam not assigned.");
             Debug.Assert(portal.IntroCam != null, "[StageTransition] StagePortalConfig.IntroCam not assigned.");
-            Debug.Assert(portal.OutCam != null, "[StageTransition] StagePortalConfig.OutCam not assigned.");
-            if (transitionVCam == null || portal.IntroCam == null || portal.OutCam == null) yield break;
+            if (transitionVCam == null || portal.IntroCam == null) yield break;
 
-            var introCam = portal.IntroCam;
-            var outCam = portal.OutCam;
+            var introCam = portal.IntroCam.transform;
             var targetCamera = _gameManager.CurrentFocusCamera;
             Debug.Assert(targetCamera != null, "[StageTransition] Enter target focus camera was not resolved.");
 
             FadeAlpha = 0f;
+            // 城市半程由 PortalIn 所属地点提供细节；通常玩家本来就在剧院，Debug
+            // 直载则靠这一句补齐与正式入口相同的视觉状态。
+            _gameManager.PresentCamera(portal.IntroCam);
             yield return TakeOverCurrentView();
 
             ResetFocusCameras();
             if (targetCamera != null)
                 targetCamera.Priority = 20;
 
-            yield return MoveTransitionCameraAlongPath(
-                new[]
-                {
-                    introCam.transform.position,
-                    introCam.transform.position + introCam.transform.forward * portal.pushDistance,
-                },
-                new[]
-                {
-                    introCam.transform.rotation,
-                    introCam.transform.rotation,
-                },
-                approachDuration + pushDuration,
-                portalTravelCurve);
+            // 外半程：从当前机位沿自己的视轴出发，最后几米顺着门的视线俯冲，越过门线时黑。
+            var from = transitionVCam.transform;
+            Vector3 doorEnd = introCam.position + introCam.forward * PortalPushDistance;
+            yield return SwoopTransitionCamera(
+                from.position, from.position + from.forward * ShotHandle(from.position, doorEnd),
+                introCam.position - introCam.forward * PortalDoorHandle, doorEnd,
+                from.rotation, introCam.rotation, LensOf(portal.IntroCam),
+                PortalHalfDuration, AccelerateIntoBlack);
 
-            yield return FadeTo(1f, flashDuration);
-            transitionVCam.transform.SetPositionAndRotation(
-                outCam.transform.position + outCam.transform.forward * portal.pullDistance,
-                outCam.transform.rotation);
-            yield return null;
-
-            yield return FadeTo(0f, flashDuration);
+            yield return FadeTo(1f, PortalFlashDuration);
             if (targetCamera != null)
             {
-                targetCamera.Priority = 20;
-                yield return MoveTransitionCameraAlongPath(
-                    new[]
-                    {
-                        outCam.transform.position,
-                        targetCamera.transform.position,
-                    },
-                    new[]
-                    {
-                        outCam.transform.rotation,
-                        targetCamera.transform.rotation,
-                    },
-                    pullDuration + approachDuration,
-                    portalTravelCurve);
+                // 内半程的起点：根机位身后、视轴反向。机位用它此刻的位置，玩家上次 Pan 到哪儿就落回哪儿。
+                var to = targetCamera.transform;
+                Vector3 revealStart = to.position - to.forward * RevealDistance(portal, to);
+                transitionVCam.transform.SetPositionAndRotation(revealStart, to.rotation);
+                transitionVCam.m_Lens = LensOf(targetCamera);
+                _gameManager.PresentCamera(targetCamera);
             }
-            else
+            yield return null;
+
+            yield return FadeTo(0f, PortalFlashDuration);
+            if (targetCamera != null)
             {
-                yield return MoveTransitionCameraTo(outCam.transform.position, outCam.transform.rotation, pullDuration, pullCurve);
+                // 内半程：从远处沿视轴落进机位坐稳，一段直线。
+                var to = targetCamera.transform;
+                Vector3 revealStart = transitionVCam.transform.position;
+                yield return SwoopTransitionCamera(
+                    revealStart, Vector3.Lerp(revealStart, to.position, 0.35f),
+                    Vector3.Lerp(revealStart, to.position, 0.65f), to.position,
+                    to.rotation, to.rotation, LensOf(targetCamera),
+                    PortalHalfDuration, DecelerateOutOfBlack);
             }
 
             yield return ReleaseTransitionCameraWithCut();
@@ -198,11 +177,9 @@ namespace SSNoir
         {
             Debug.Assert(transitionVCam != null, "[StageTransition] transitionVCam not assigned.");
             Debug.Assert(portal.IntroCam != null, "[StageTransition] StagePortalConfig.IntroCam not assigned.");
-            Debug.Assert(portal.OutCam != null, "[StageTransition] StagePortalConfig.OutCam not assigned.");
-            if (transitionVCam == null || portal.IntroCam == null || portal.OutCam == null) yield break;
+            if (transitionVCam == null || portal.IntroCam == null) yield break;
 
-            var introCam = portal.IntroCam;
-            var outCam = portal.OutCam;
+            var introCam = portal.IntroCam.transform;
             var targetCamera = _gameManager.CurrentFocusCamera;
             Debug.Assert(targetCamera != null, "[StageTransition] Exit target focus camera was not resolved.");
 
@@ -213,51 +190,54 @@ namespace SSNoir
             if (targetCamera != null)
                 targetCamera.Priority = 20;
 
-            yield return MoveTransitionCameraAlongPath(
-                new[]
-                {
-                    outCam.transform.position,
-                    outCam.transform.position + outCam.transform.forward * portal.pullDistance,
-                },
-                new[]
-                {
-                    outCam.transform.rotation,
-                    outCam.transform.rotation,
-                },
-                approachDuration + pushDuration,
-                portalTravelCurve);
+            // 内半程：从交锋机位沿视轴向后拉，拉到进门时的落点处黑——进门那段的倒放。
+            var from = transitionVCam.transform;
+            Vector3 pushEnd = from.position - from.forward * RevealDistance(portal, from);
+            yield return SwoopTransitionCamera(
+                from.position, Vector3.Lerp(from.position, pushEnd, 0.35f),
+                Vector3.Lerp(from.position, pushEnd, 0.65f), pushEnd,
+                from.rotation, from.rotation, transitionVCam.m_Lens,
+                PortalHalfDuration, AccelerateIntoBlack);
 
-            yield return FadeTo(1f, flashDuration);
-            transitionVCam.transform.SetPositionAndRotation(
-                introCam.transform.position + introCam.transform.forward * portal.pushDistance,
-                introCam.transform.rotation);
+            yield return FadeTo(1f, PortalFlashDuration);
+            // PortalIn 站在门外朝门内看：黑场后从这儿揭幕，正好是"刚退出门、回头还看着门"。
+            transitionVCam.transform.SetPositionAndRotation(introCam.position, introCam.rotation);
+            transitionVCam.m_Lens = LensOf(portal.IntroCam);
+            _gameManager.PresentCamera(portal.IntroCam);
             yield return null;
 
-            yield return FadeTo(0f, flashDuration);
+            yield return FadeTo(0f, PortalFlashDuration);
             if (targetCamera != null)
             {
-                targetCamera.Priority = 20;
-                yield return MoveTransitionCameraAlongPath(
-                    new[]
-                    {
-                        introCam.transform.position,
-                        targetCamera.transform.position,
-                    },
-                    new[]
-                    {
-                        introCam.transform.rotation,
-                        targetCamera.transform.rotation,
-                    },
-                    pullDuration + approachDuration,
-                    portalTravelCurve);
-            }
-            else
-            {
-                yield return MoveTransitionCameraTo(introCam.transform.position, introCam.transform.rotation, pullDuration, pullCurve);
+                // 外半程：倒退离开门，升回城市机位，沿它的视轴退进去坐稳。
+                var to = targetCamera.transform;
+                yield return SwoopTransitionCamera(
+                    introCam.position, introCam.position - introCam.forward * PortalDoorHandle,
+                    to.position + to.forward * ShotHandle(introCam.position, to.position), to.position,
+                    introCam.rotation, to.rotation, LensOf(targetCamera),
+                    PortalHalfDuration, DecelerateOutOfBlack);
             }
 
+            if (targetCamera != null)
+                _gameManager.PresentCamera(targetCamera);
             yield return ReleaseTransitionCameraWithCut();
         }
+
+        /// <summary>
+        /// 落点离根机位多远。Portal 配置挂在 Stage 自己的 Anchor 上，机位到它的距离就是
+        /// "机位到主体"的距离；按比例取，大厅落得长、地下室落得短。同一公式在导出端核净空。
+        /// </summary>
+        private static float RevealDistance(StagePortalConfig portal, Transform shot)
+            => Vector3.Distance(shot.position, portal.transform.position) * PortalRevealRatio;
+
+        private static float ShotHandle(Vector3 a, Vector3 b)
+            => Vector3.Distance(a, b) * PortalShotHandleRatio;
+
+        // 黑场前：起步慢、越过门线时最快。
+        private static float AccelerateIntoBlack(float t) => t * t;
+
+        // 黑场后：从门口带着速度出来，落进机位时归零。
+        private static float DecelerateOutOfBlack(float t) => 1f - (1f - t) * (1f - t);
 
         private IEnumerator TakeOverCurrentView()
         {
@@ -269,113 +249,98 @@ namespace SSNoir
                 : transitionVCam.transform;
 
             transitionVCam.transform.SetPositionAndRotation(sourceTransform.position, sourceTransform.rotation);
+            // 镜头参数也要一起接过来。过渡相机自己的远裁剪只有 100m，直接顶上去的话，城市机位
+            // 眼前的整座城都在裁剪面外——画面先是一片底色，再随着俯冲一点点"长"出来。
+            if (_brain != null && _brain.OutputCamera != null)
+            {
+                var output = _brain.OutputCamera;
+                SetLens(output.fieldOfView, output.nearClipPlane, output.farClipPlane);
+            }
             yield return CutToVirtualCamera(transitionVCam, transitionPriority);
         }
 
-        private IEnumerator MoveTransitionCameraTo(Vector3 targetPosition, Quaternion targetRotation, float duration, AnimationCurve curve)
+        private void SetLens(float fieldOfView, float nearClip, float farClip)
+        {
+            if (transitionVCam == null) return;
+            var lens = transitionVCam.m_Lens;
+            lens.FieldOfView = fieldOfView;
+            lens.NearClipPlane = nearClip;
+            lens.FarClipPlane = farClip;
+            transitionVCam.m_Lens = lens;
+        }
+
+        private static Cinemachine.LensSettings LensOf(Cinemachine.CinemachineVirtualCamera vcam)
+            => vcam.m_Lens;
+
+        /// <summary>
+        /// 沿三次贝塞尔把过渡相机从 p0 送到 p3。按弧长走，速度只由 <paramref name="ease"/> 决定，
+        /// 手柄长短只改路的形状不改节奏；姿态沿同一进度球面插值。
+        /// </summary>
+        private IEnumerator SwoopTransitionCamera(
+            Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3,
+            Quaternion r0, Quaternion r3, Cinemachine.LensSettings lens3,
+            float duration, System.Func<float, float> ease)
         {
             Debug.Assert(transitionVCam != null, "[StageTransition] transitionVCam not assigned.");
             if (transitionVCam == null) yield break;
 
-            Vector3 startPosition = transitionVCam.transform.position;
-            Quaternion startRotation = transitionVCam.transform.rotation;
+            var lens0 = transitionVCam.m_Lens;
 
-            if (duration <= 0f)
+            const int Samples = 48;
+            var arc = new float[Samples + 1];
+            Vector3 prev = p0;
+            for (int i = 1; i <= Samples; i++)
             {
-                transitionVCam.transform.SetPositionAndRotation(targetPosition, targetRotation);
+                Vector3 pt = Bezier(p0, p1, p2, p3, (float)i / Samples);
+                arc[i] = arc[i - 1] + Vector3.Distance(prev, pt);
+                prev = pt;
+            }
+            float total = arc[Samples];
+
+            if (duration <= 0f || total <= 0.0001f)
+            {
+                transitionVCam.transform.SetPositionAndRotation(p3, r3);
+                SetLens(lens3.FieldOfView, lens3.NearClipPlane, lens3.FarClipPlane);
                 yield break;
             }
 
             for (float t = 0f; t < duration; t += Time.deltaTime)
             {
-                float k = curve.Evaluate(Mathf.Clamp01(t / duration));
+                float progress = ease(Mathf.Clamp01(t / duration));
+                float u = ParameterAtArcLength(arc, progress * total);
                 transitionVCam.transform.SetPositionAndRotation(
-                    Vector3.LerpUnclamped(startPosition, targetPosition, k),
-                    Quaternion.SlerpUnclamped(startRotation, targetRotation, k));
+                    Bezier(p0, p1, p2, p3, u),
+                    Quaternion.SlerpUnclamped(r0, r3, progress));
+                SetLens(
+                    Mathf.Lerp(lens0.FieldOfView, lens3.FieldOfView, progress),
+                    Mathf.Lerp(lens0.NearClipPlane, lens3.NearClipPlane, progress),
+                    Mathf.Lerp(lens0.FarClipPlane, lens3.FarClipPlane, progress));
                 yield return null;
             }
 
-            transitionVCam.transform.SetPositionAndRotation(targetPosition, targetRotation);
+            transitionVCam.transform.SetPositionAndRotation(p3, r3);
+            SetLens(lens3.FieldOfView, lens3.NearClipPlane, lens3.FarClipPlane);
         }
 
-        private IEnumerator MoveTransitionCameraAlongPath(Vector3[] points, Quaternion[] rotations, float duration, AnimationCurve curve)
+        private static Vector3 Bezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
         {
-            Debug.Assert(transitionVCam != null, "[StageTransition] transitionVCam not assigned.");
-            Debug.Assert(points.Length == rotations.Length, "[StageTransition] Path points/rotations length mismatch.");
-            Debug.Assert(points.Length >= 1, "[StageTransition] Path must contain at least one waypoint.");
-            if (transitionVCam == null || points.Length == 0 || points.Length != rotations.Length)
-                yield break;
-
-            if (points.Length == 1)
-            {
-                yield return MoveTransitionCameraTo(points[0], rotations[0], duration, curve);
-                yield break;
-            }
-
-            var pathPoints = new Vector3[points.Length + 1];
-            var pathRotations = new Quaternion[rotations.Length + 1];
-            pathPoints[0] = transitionVCam.transform.position;
-            pathRotations[0] = transitionVCam.transform.rotation;
-            for (int i = 0; i < points.Length; i++)
-            {
-                pathPoints[i + 1] = points[i];
-                pathRotations[i + 1] = rotations[i];
-            }
-
-            float[] segmentLengths = new float[pathPoints.Length - 1];
-            float totalLength = 0f;
-            for (int i = 0; i < segmentLengths.Length; i++)
-            {
-                float segmentLength = Vector3.Distance(pathPoints[i], pathPoints[i + 1]);
-                segmentLengths[i] = segmentLength;
-                totalLength += segmentLength;
-            }
-
-            if (duration <= 0f || totalLength <= 0.0001f)
-            {
-                transitionVCam.transform.SetPositionAndRotation(pathPoints[pathPoints.Length - 1], pathRotations[pathRotations.Length - 1]);
-                yield break;
-            }
-
-            for (float t = 0f; t < duration; t += Time.deltaTime)
-            {
-                float curveT = curve.Evaluate(Mathf.Clamp01(t / duration));
-                float targetDistance = curveT * totalLength;
-                EvaluatePath(pathPoints, pathRotations, segmentLengths, targetDistance, out var position, out var rotation);
-                transitionVCam.transform.SetPositionAndRotation(position, rotation);
-                yield return null;
-            }
-
-            transitionVCam.transform.SetPositionAndRotation(pathPoints[pathPoints.Length - 1], pathRotations[pathRotations.Length - 1]);
+            float s = 1f - t;
+            return s * s * s * p0 + 3f * s * s * t * p1 + 3f * s * t * t * p2 + t * t * t * p3;
         }
 
-        private static void EvaluatePath(
-            Vector3[] points,
-            Quaternion[] rotations,
-            float[] segmentLengths,
-            float targetDistance,
-            out Vector3 position,
-            out Quaternion rotation)
+        private static float ParameterAtArcLength(float[] arc, float length)
         {
-            float traversed = 0f;
-            for (int i = 0; i < segmentLengths.Length; i++)
+            int n = arc.Length - 1;
+            for (int i = 1; i <= n; i++)
             {
-                float segmentLength = segmentLengths[i];
-                if (targetDistance <= traversed + segmentLength || i == segmentLengths.Length - 1)
+                if (length <= arc[i])
                 {
-                    float localT = segmentLength <= 0.0001f
-                        ? 1f
-                        : Mathf.Clamp01((targetDistance - traversed) / segmentLength);
-                    position = Vector3.LerpUnclamped(points[i], points[i + 1], localT);
-                    rotation = Quaternion.SlerpUnclamped(rotations[i], rotations[i + 1], localT);
-                    return;
+                    float seg = arc[i] - arc[i - 1];
+                    float local = seg <= 0.0001f ? 1f : (length - arc[i - 1]) / seg;
+                    return (i - 1 + local) / n;
                 }
-
-                traversed += segmentLength;
             }
-
-            position = points[points.Length - 1];
-            rotation = rotations[rotations.Length - 1];
+            return 1f;
         }
 
         private IEnumerator CutToVirtualCamera(Cinemachine.CinemachineVirtualCamera camera, int priority)
@@ -414,8 +379,8 @@ namespace SSNoir
         /// 所以它借的是 portal 那块同一张黑幕（<see cref="FadeAlpha"/>，由 IMGUI 全屏画在
         /// 最上层，连 UI 一起盖住），玩家不会觉得多了一种新特效。
         ///
-        /// 它和穿门的区别只在于没有镜头运动。低动画模式只是整体缩短，不取消：
-        /// 这里没有任何东西在移动，黑场本身正是低动画要的那种过渡。
+        /// 它和穿门的区别只在于没有镜头运动。「减少动画」对它没话说：
+        /// 这里没有任何东西在移动，两种模式一个节奏。
         ///
         /// <paramref name="atBlack"/> 在最黑的那一帧调用，世界的变化都藏在它里面。
         /// </summary>
@@ -481,10 +446,6 @@ namespace SSNoir
             FadeAlpha = 0f;
             _gameManager.SetInputLocked(false);
         }
-
-        private static float TurnDipHalfDuration => MotionSettings.ReduceMotion
-            ? MotionSettings.CrossfadeDuration
-            : TurnDipFullMotionHalfDuration;
 
         /// <summary>
         /// 闭眼睁眼用的线性溶解，节奏与 <see cref="ViewCrossfade"/> 保持一致。

@@ -13,14 +13,9 @@ namespace SSNoir.IMGUI
             {
                 var returnRect = topHud.Back;
 
-                var style = new GUIStyle(IMGUIStyles.StatusLabel);
-                style.alignment = TextAnchor.MiddleCenter;
-                style.fontSize = IMGUIStyles.FontSize(14);
-
-                // HUD 按钮：黑底白字，1px Paper 40% 描边，悬停提亮
-                if (IMGUIButton.Draw(returnRect, "< 返 回", ui,
-                        new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f),
-                        new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f), style))
+                // 顶栏最高频的动作，用 DrawPrimary：常态金底金描边，比旁边一排
+                // 查阅型开关（DrawHudToggle）扎眼，不用等悬停才被注意到。
+                if (IMGUIButton.DrawPrimary(returnRect, "< 返 回", ui))
                 {
                     gameManager.GoBackNavigation();
                 }

@@ -29,6 +29,14 @@ namespace SSNoir.IMGUI
         // 也让一句说明看起来像另一张可操作的牌。锚定标注收成信息节点的基准宽度。
         public const float AnchoredWidth = 220f;
 
+        // 字离竖线多远。调用方按这个值把标注整块推离锚点（见 IMGUIWorldRenderer），
+        // 线正好落在 anchor.x 上，字贴在线旁。
+        public const float StemGap = 8f;
+
+        // 雾罩：多浓、往字外散多远。散得宽才看不出矩形；浓度只要够把线稿压成底纹。
+        private const float FogAlpha = 0.72f;
+        private const float FogFeather = 28f;
+
         // 场景标注带。宽度<b>由内容定</b>：一条短句就只占一条短句那么宽，连它那根细线
         // 一起收到句子的长度。等分整行是错的——它把一句话撑成一条横幅，读起来像标题栏，
         // 而标注只是贴在这个地方的一小条字，该多大就多大。
@@ -73,19 +81,19 @@ namespace SSNoir.IMGUI
         public static float MeasureHeight(GameNode node, float width)
             => Layout(new Rect(0f, 0f, width, 1f), node, draw: false, pulse: 0f);
 
-        /// <summary>锚定标注：本体 + 那一笔从锚点走过来的线。</summary>
+        /// <summary>锚定标注：那一根从锚点直上的线 + 挂在线旁的字。</summary>
         public static void DrawAnchored(Rect rect, GameNode node, Vector2 anchorPos)
         {
             float pulse = Pulse(node);
             DrawLeader(rect, anchorPos, pulse);
-            Layout(rect, node, draw: true, pulse: pulse);
+            Layout(rect, node, draw: true, pulse: pulse, topRule: false);
         }
 
         /// <summary>
         /// 一条标注画多高、画在哪。量和画共用同一段代码——预留的位置和实际画的位置
         /// 分两处算，迟早会有一处忘了改。
         /// </summary>
-        private static float Layout(Rect rect, GameNode node, bool draw, float pulse)
+        private static float Layout(Rect rect, GameNode node, bool draw, float pulse, bool topRule = true)
         {
             var resolve = node.Resolve;
             if (resolve == null) return 0f;
@@ -96,7 +104,19 @@ namespace SSNoir.IMGUI
 
             float y = rect.y;
 
+            // 先罩雾再写字：字底下的线条退进场景底色里，字才读得出来，场景又没被盖住。
+            // 量一遍高度是为了知道罩多大——量和画是同一段代码，所以这里递归调自己的不画分支。
             if (draw)
+            {
+                float height = Layout(rect, node, draw: false, pulse: 0f, topRule);
+                var cam = Camera.main;
+                Color fog = cam != null ? cam.backgroundColor : IMGUIStyles.Ink;
+                IMGUIStyles.DrawFogPatch(new Rect(rect.x, rect.y, rect.width, height), fog, FogAlpha, FogFeather);
+            }
+
+            // 顶上那道横线只属于场景标注带（它是标题栏）。锚定标注的线是竖着的那根，
+            // 由 DrawLeader 画。
+            if (draw && topRule)
                 DrawRule(rect.x, rect.xMax, y, pulse);
 
             // 标题行：标题在左，读数在右。只有读数没标题时，读数占左边——
@@ -189,9 +209,13 @@ namespace SSNoir.IMGUI
         }
 
         /// <summary>
-        /// 引线接在细线的端点上，同粗同色——看上去就是同一笔折过去的。
-        /// 卡片的引线接四边中点（见 CardLeaderLineDrawer），那是「线连着一个物件」；
-        /// 这里要的是「一根线走到头，长出了字」。
+        /// 一根竖线陪着整段字（字顶到字底），锚点从近的那一端接进来；字挂在线的一侧。
+        /// 线不接矩形的角、不拐横线——一拐就成了框的一角，整条标注立刻读成「一个盒子
+        /// 外接一根线」。要的是：线从地上长出来，字长在线旁边。
+        ///
+        /// 竖线的 x 由字的近侧边退 StemGap 得到，通常正好落在 anchor.x 上（调用方就是
+        /// 这么摆的）。若排布把字整块推偏了，锚点到线脚那一小段斜着走，斜段在字的下方，
+        /// 不压字。
         /// </summary>
         private static void DrawLeader(Rect rect, Vector2 anchor, float pulse)
         {
@@ -204,16 +228,20 @@ namespace SSNoir.IMGUI
 
             if (!overlapping)
             {
-                // 靠锚点那一端的线头。标注贴着边距的内缘排，所以这个端点也是引线
-                // 每次都从同一侧进来的那个点。
-                var attach = new Vector2(anchor.x < rect.center.x ? rect.xMin : rect.xMax, rect.y);
-                var elbow = new Vector2(anchor.x, rect.y);
-                Vector2 start = StepOff(anchor, elbow, ringClearance);
+                bool textOnRight = anchor.x < rect.center.x;
+                float stemX = textOnRight ? rect.xMin - StemGap : rect.xMax + StemGap;
+                // 竖线永远陪完整段字（从字顶到字底），锚点接到离它近的那一端：
+                // 锚点在字下方就从线脚进来，锚点在字上方就从线头进来。线不能在字
+                // 中途停住——那样字的下半截就悬空了，像线只指着标题。
+                var head = new Vector2(stemX, rect.y);
+                var foot = new Vector2(stemX, rect.yMax);
+                Vector2 entry = anchor.y >= rect.center.y ? foot : head;
+                Vector2 start = StepOff(anchor, entry, ringClearance);
 
-                IMGUIStyles.DrawLine(start + HaloOffset, elbow + HaloOffset, Halo, 3f);
-                IMGUIStyles.DrawLine(elbow + HaloOffset, attach + HaloOffset, Halo, 3f);
-                IMGUIStyles.DrawLine(start, elbow, color, 1f);
-                IMGUIStyles.DrawLine(elbow, attach, color, 1f);
+                IMGUIStyles.DrawLine(start + HaloOffset, entry + HaloOffset, Halo, 3f);
+                IMGUIStyles.DrawLine(head + HaloOffset, foot + HaloOffset, Halo, 3f);
+                IMGUIStyles.DrawLine(start, entry, color, 1f);
+                IMGUIStyles.DrawLine(head, foot, color, 1f);
             }
 
             var ringRect = new Rect(anchor.x - ringSize / 2f, anchor.y - ringSize / 2f, ringSize, ringSize);
@@ -328,10 +356,19 @@ namespace SSNoir.IMGUI
             return style;
         }
 
+        // 字自己再描一圈暗边（八个方向各 1px）：雾只把线稿压淡，字与残线相切的地方还得靠
+        // 这圈边把笔画从背景里切出来。
+        private static readonly Vector2[] HaloRing =
+        {
+            new Vector2(-1f, 0f), new Vector2(1f, 0f), new Vector2(0f, -1f), new Vector2(0f, 1f),
+            new Vector2(-1f, -1f), new Vector2(1f, -1f), new Vector2(-1f, 1f), new Vector2(1f, 1f),
+        };
+
         private static void LabelWithHalo(Rect rect, string text, GUIStyle style)
         {
             var haloStyle = new GUIStyle(style) { normal = { textColor = Halo } };
-            IMGUIStyles.DrawLabel(new Rect(rect.x + HaloOffset.x, rect.y + HaloOffset.y, rect.width, rect.height), text, haloStyle);
+            foreach (var o in HaloRing)
+                IMGUIStyles.DrawLabel(new Rect(rect.x + o.x, rect.y + o.y, rect.width, rect.height), text, haloStyle);
             IMGUIStyles.DrawLabel(rect, text, style);
         }
 

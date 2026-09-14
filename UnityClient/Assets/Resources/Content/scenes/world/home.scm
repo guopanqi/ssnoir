@@ -52,7 +52,6 @@
     (define flower-price 40)
     (define mattress-price 60)
     (define typewriter-price 80)
-    (define phone-price 100)
     (define apartment-price 200)
     (define evicted? #f)
 
@@ -354,17 +353,6 @@
           (outcome "安置了书桌"
             (lambda () (set! has-typewriter? #t))))))
 
-    (define (node-install-phone)
-      (node "装一部电话"
-        :anchor "门口"
-        :subtitle "临时委托会直接打到家里"
-        :requires (list (req-item "金钱" phone-price))
-        :resolve (instant
-          (outcome "电话接通了"
-            (lambda ()
-              (set! has-phone? #t)
-              (board 'open-line!))))))
-
     (define (node-typing-work)
       (关系工作 "誊清账目" "商业圈" '低 'knowledge
         (outcome "账目清楚" (lambda () (add-item! "金钱" 14)))
@@ -375,8 +363,20 @@
     (define (node-telephone)
       (node "电话"
         :anchor "门口"
-        :subtitle "城里的临时委托会打到这条线上"
-        :children (board 'phone-nodes)))
+        :subtitle (if (baines 'registered?)
+                      "富裕客户的调查委托会打到这条线上"
+                      "电话还在，警局的背书已经没有了")
+        :children
+          (if (baines 'registered?)
+              (board 'phone-nodes)
+              (list (note-node "标注：没有正式委托" "电话没响"
+                      "正式客户不再通过这条线找你。")))))
+
+    ;; 电话是侦探职业的明确回报，不藏在「添置家具」里。备案完成时由
+    ;; 贝恩斯那一拍直接接通，不向玩家收取一笔以后会因身份暂停而失去用途的钱。
+    ;; 身份暂停时只撤掉正式侦探委托，电话本身留下，以后仍可承载人物来电和其他工作。
+    (define (phone-nodes)
+      (if has-phone? (list (node-telephone)) '()))
 
     (define (node-buy-apartment)
       (node "买下公寓"
@@ -408,22 +408,19 @@
         :anchor "床边"
         :children (portable-furniture-children)))
 
-    ;; 电话是固定线路，只属于买下的公寓。
+    ;; 客厅只组织可搬家具；电话作为职业入口，在「家」的顶层单独呈现。
     (define (living-room-children)
-      (append
-        (portable-furniture-children)
-        (if has-phone? (list (node-telephone)) '())))
+      (portable-furniture-children))
 
     (define (node-living-room)
       (node "客厅" :anchor "窗台" :children (living-room-children)))
 
-    ;; 可搬动家具与公寓报价同时开放；固定电话仍要有自己的公寓才能安装。
+    ;; 可搬动家具与公寓报价同时开放；电话不属于这个购置清单。
     (define (order-children)
       (append
         (if has-flower? '() (list (node-buy-flower)))
         (if has-mattress? '() (list (node-buy-mattress)))
-        (if has-typewriter? '() (list (node-buy-typewriter)))
-        (if (or (renting?) has-phone?) '() (list (node-install-phone)))))
+        (if has-typewriter? '() (list (node-buy-typewriter)))))
 
     (define (order-nodes)
       (if (or (not apartment-offer-known?) (null? (order-children)))
@@ -448,6 +445,7 @@
           (append
             (地点节点 "家")
             (list (node-rented-room))
+            (phone-nodes)
             (rent-nodes)
             (order-nodes)
             (upgrade-nodes)
@@ -457,6 +455,7 @@
       (append
         (地点节点 "家")
         (list (node-living-room))
+        (phone-nodes)
         (order-nodes)
         (upgrade-nodes)
         (list (node-sleep))))
@@ -477,6 +476,13 @@
           ;; 给其他地点（如老街酒馆的“点一杯酒”）查询/触发同一份每日一杯限制。
           ((equal? msg 'drank-today?) drank-today?)
           ((equal? msg 'drink!) (apply-drink-effect!))
+          ;; 警局备案后接通的职业联络线。重复调用不重置委托池。
+          ((equal? msg 'connect-phone!)
+           (if has-phone?
+               #f
+               (begin
+                 (set! has-phone? #t)
+                 (board 'open-line!))))
 
           ((equal? msg 'save)
            (list

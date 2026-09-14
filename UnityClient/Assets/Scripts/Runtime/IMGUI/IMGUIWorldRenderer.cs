@@ -29,6 +29,8 @@ namespace SSNoir.IMGUI
         private readonly IMGUIWindowStack _windowStack = new();
 
         private readonly Dictionary<string, Vector2> _cardCenters = new Dictionary<string, Vector2>();
+        // 见 DrawCards 里 RegisterWorldPoint 的注释。
+        private const float BanterHeadHeight = 1.6f;
         // 上一次解算给出的「相对锚点的偏移」，以及解算时各卡的占位尺寸。
         // 镜头在动的时候整套排布就靠这份偏移跟着锚点走，不重算——见 DrawCards 里的说明。
         private readonly Dictionary<string, Vector2> _stackOffsets = new Dictionary<string, Vector2>();
@@ -68,6 +70,13 @@ namespace SSNoir.IMGUI
         private string _activeHeavyOutcomeActionName = string.Empty;
         private Action? _activeHeavyOutcomeDone;
         private readonly Queue<BlockingStoryStep> _pendingBlockingSteps = new Queue<BlockingStoryStep>();
+        private BlockingStoryStep? _activeAutoAction;
+        private float _activeAutoActionStartedAt;
+        private const float AutoActionAppearSeconds = 0.18f;
+        private const float AutoActionFlightSeconds = 0.48f;
+        private const float AutoActionExecuteSeconds = 0.4f;
+        private const float AutoActionDuration = AutoActionAppearSeconds + AutoActionFlightSeconds + AutoActionExecuteSeconds;
+        private readonly Dictionary<string, Rect> _drawnCardRects = new(StringComparer.OrdinalIgnoreCase);
         private readonly Queue<DialogueSequence> _pendingImmediateDialogues = new Queue<DialogueSequence>();
         private SpotlightCard? _activeActionSpotlight;
         private ActionReport? _completionReport;
@@ -129,7 +138,10 @@ namespace SSNoir.IMGUI
             });
         }
 
-        public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null || _conversationPlayer.IsActive || _activeAnimationTag != null;
+        public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying
+            || _activeAutoAction != null
+            || _activeHeavyOutcome != null || _activeActionSpotlight != null
+            || _conversationPlayer.IsActive || _activeAnimationTag != null;
 
         public void PlayPresentation(ActionReport report, string actionName, Action onDone)
         {
@@ -157,6 +169,22 @@ namespace SSNoir.IMGUI
 
                 AdvanceToBlockingPresentationOrFinish();
             });
+        }
+
+        public void PlayBlockingPresentation(IReadOnlyList<BlockingStoryStep> steps, Action onDone)
+        {
+            if (steps.Count == 0)
+            {
+                onDone();
+                return;
+            }
+            _pendingBlockingSteps.Clear();
+            foreach (var step in steps)
+                _pendingBlockingSteps.Enqueue(step);
+            _completionReport = null;
+            _completionActionName = string.Empty;
+            _completionDone = onDone;
+            AdvanceToBlockingPresentationOrFinish();
         }
 
         // 按 Scheme 调用顺序逐个播放阻塞剧情步骤;每个步骤完成后回调本方法推进下一个。
@@ -188,6 +216,10 @@ namespace SSNoir.IMGUI
                         _gameManager.EnterForcedPlace(step.PlaceName);
                         // 位置切换本身没有确认按钮；下一张倒下卡立刻在诊所画面上接管输入。
                         AdvanceToBlockingPresentationOrFinish();
+                        return;
+                    case BlockingStoryStepKind.AutoAction:
+                        _activeAutoAction = step;
+                        _activeAutoActionStartedAt = Time.unscaledTime;
                         return;
                 }
             }
@@ -270,9 +302,15 @@ namespace SSNoir.IMGUI
             _gameManager.GameState.NotificationCenter.Push(message, NotificationKind.Info);
         }
 
-        public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying || _activeHeavyOutcome != null || _activeActionSpotlight != null || _conversationPlayer.IsActive || _activeAnimationTag != null;
+        public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying
+            || _activeAutoAction != null
+            || _activeHeavyOutcome != null || _activeActionSpotlight != null
+            || _conversationPlayer.IsActive || _activeAnimationTag != null;
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
-        public bool IsInputLocked => _inputLocked || _activeHeavyOutcome != null || _activeActionSpotlight != null || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _activeAnimationTag != null || _gameManager.Cutscene.IsActive || _gameManager.Title.IsActive;
+        public bool IsInputLocked => _inputLocked || _activeAutoAction != null
+            || _activeHeavyOutcome != null || _activeActionSpotlight != null
+            || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive
+            || _activeAnimationTag != null || _gameManager.Cutscene.IsActive || _gameManager.Title.IsActive;
 
         // 与对白舞台上的左键点击共用同一套推进语义：打字中先显示全文，否则进入下一句。
         // 由 SSNoirGameManager 的全局 ESC 输入调用，避免 ESC 在对白期间落入返回导航逻辑。
@@ -388,6 +426,7 @@ namespace SSNoir.IMGUI
             _activeHeavyOutcomeActionName = string.Empty;
             _activeHeavyOutcomeDone = null;
             _pendingBlockingSteps.Clear();
+            _activeAutoAction = null;
             _activeActionSpotlight = null;
             _activeAnimationTag = null;
             _animationTimer = 0f;
@@ -418,6 +457,15 @@ namespace SSNoir.IMGUI
             _gameManager.GameState.NotificationCenter.Update(Time.deltaTime);
             _presentationPlayer.Update(Time.deltaTime);
             _banterPlayer.Update(Time.deltaTime);
+            if (_activeAutoAction != null
+                && Time.unscaledTime - _activeAutoActionStartedAt >= AutoActionDuration)
+            {
+                var completedAutoAction = _activeAutoAction;
+                _activeAutoAction = null;
+                completedAutoAction.ResolveAutoAction();
+                _gameManager.AdoptLatestSnapshot();
+                AdvanceToBlockingPresentationOrFinish();
+            }
 
             // 命名动画占位:到点后推进下一个阻塞剧情步骤。
             // 归过场管的那种不在这里收尾，它自己播完会回调。
@@ -527,6 +575,7 @@ namespace SSNoir.IMGUI
             // during this pass, and we persist the result at the end of OnGUI.
             IMGUIInteractionContext.ResetPointerOverUi();
             _firstActionCardRect = null;
+            _drawnCardRects.Clear();
             TopHudLayout topHud = TopHudLayout.Create();
             _topHud = topHud;
 
@@ -687,7 +736,7 @@ namespace SSNoir.IMGUI
             // 影子状态的卡片不接点击，它的附件同理。
             if (_cardLayerReveal >= 0.999f)
                 HandleCardAttachmentTaps(worldUi);
-            HandPanelDrawer.Draw(_gameManager, worldUi, _dialogueAnchors);
+            HandPanelDrawer.Draw(_gameManager, worldUi, _dialogueAnchors, PendingAutoActionReservedDice());
             float attachmentRestore = IMGUIStyles.BeginLayer(_cardLayerReveal);
             DrawCardAttachmentOverlays(worldUi);
             IMGUIStyles.EndLayer(attachmentRestore);
@@ -751,6 +800,7 @@ namespace SSNoir.IMGUI
             OverlayDrawer.DrawNotifications(_gameManager.GameState.NotificationCenter);
             OverlayDrawer.DrawCursorFollower(_gameManager);
             DrawPresentationOverlay();
+            DrawAutoActionDiceFlights();
             DrawBanterOverlay();
             DrawHeavyOutcomeOverlay();
             DrawSpotlightOverlay();
@@ -945,10 +995,12 @@ namespace SSNoir.IMGUI
             if (cam == null) return;
             _cardAttachmentOverlays.Clear();
 
-            var nodes = _gameManager.VisibleNodes;
+            var nodes = new List<GameNode>(_gameManager.VisibleNodes);
+            if (_activeAutoAction?.AutoActionNode != null)
+                nodes.Add(_activeAutoAction.AutoActionNode);
             var focusedName = _gameManager.FocusedNodeName;
-            // 建筑镜头下卡片退到左右两条栏里，把中间让给建筑；城市总览保持贴着锚点上浮。
-            bool inGutters = CardGutterLayout.IsActive(_gameManager.CurrentFocusCamera);
+            // 版面按卡的身份定，不按机位：Container 牌子贴着锚点上浮（它就是「这儿有个地方」），
+            // 动作面板与结算残留退到左右两条栏（操作台不该压在场景上）。见 CardGutterLayout。
             // 世界投射层跟着换镜一起显形：新那一镜露出多少，这一层就画多浓（见下面
             // BeginLayer 那一段）。低动画换镜之外恒为 1，什么都不变。
             float viewReveal = _gameManager.CameraManager.ReducedViewReveal;
@@ -969,7 +1021,8 @@ namespace SSNoir.IMGUI
             for (int nodeIndex = 0; nodeIndex < nodes.Count; nodeIndex++)
             {
                 var node = nodes[nodeIndex];
-                if (!string.IsNullOrEmpty(focusedName) && node.Name != focusedName)
+                bool isAutoAction = _activeAutoAction?.AutoActionNode == node;
+                if (!isAutoAction && !string.IsNullOrEmpty(focusedName) && node.Name != focusedName)
                     continue;
 
                 var containedBlocker = RestBlockerPresentation.FindContained(node, restBlockers);
@@ -990,6 +1043,12 @@ namespace SSNoir.IMGUI
                         // screenPos is actual screen pixels; order 是内容里的声明序号，
                         // 只在锚点投影几乎重合时用来定先后（见 SolveProjectedStacks）。
                         initialProjected.Add((node, anchor.ResolvedNodeName, screenPos, screenPos.z, nodeIndex));
+
+                        // banter 气泡的落点：锚点是地面上的一个点，气泡要从人形的头上冒出来，
+                        // 所以抬一个人头的高度再投影。锚点按分区而不按人形摆，这个高度是
+                        // 「站在这儿的人大概多高」，不是某个模型量出来的数。
+                        var headScreen = cam.WorldToScreenPoint(anchor.transform.position + Vector3.up * BanterHeadHeight);
+                        _dialogueAnchors.RegisterWorldPoint(node.Name, UIScale.WorldPointToVirtual(headScreen));
                     }
                     else if (containedBlocker != null)
                     {
@@ -1109,17 +1168,33 @@ namespace SSNoir.IMGUI
                         item.node,
                         CardDrawer.Classify(item.node, anchored: true),
                         cardWidth,
-                        _gameManager.DisplayedSnapshot.Actors);
-                // 聚焦卡放大是「凑近看」，只抬下限，不再把内容压回一个固定高度。
-                // 地点牌不参与：它整张就是一行字，撑到 240 只会得到一个空盒子。
-                // 聚焦表示“凑近看”，不是额外塞一段留白。需求展签移除后，200 已足够让
-                // 短行动卡维持明确的可操作体量；实际内容更高时仍以 contentHeight 为准。
-                const float focusedMinHeight = 200f;
-                float cardHeight = focused && !isLocation ? Mathf.Max(focusedMinHeight, contentHeight) : contentHeight;
-                Vector2 targetCenter = inGutters
-                    ? CardGutterLayout.TargetCenter(item.anchorKey, new Vector2(anchorX, anchorY), cardWidth, ActionCardDesignWidth)
-                    // 城市总览：卡片浮在锚点正上方。
-                    : new Vector2(anchorX, anchorY - cardHeight / 2f - 40f);
+                        _gameManager.DisplayedSnapshot.Actors,
+                        SlotsForNode(item.node),
+                        GetExecutionState(item.node.Name).IsExecuting);
+                // 聚焦卡放大是「凑近看」：只加宽，不再撑高——高度永远由内容说了算。
+                float cardHeight = contentHeight;
+                bool toGutter = !isAnnotation && !item.node.IsContainer;
+                Vector2 targetCenter;
+                if (toGutter)
+                {
+                    targetCenter = CardGutterLayout.TargetCenter(item.anchorKey, new Vector2(anchorX, anchorY), cardWidth, ActionCardDesignWidth);
+                }
+                else if (isAnnotation)
+                {
+                    // 标注是一根从锚点直上的竖线加挂在线旁的字（见 AnnotationDrawer）：
+                    // 字整块偏到锚点的左边或右边，再退开 StemGap，竖线正好落在 anchor.x 上。
+                    // 展开方向跟着屏幕空间走：右边放得下就往右展开，放不下才转左。
+                    Rect safe = UIScale.SafeArea;
+                    float offset = AnnotationDrawer.StemGap + cardWidth / 2f;
+                    bool growRight = anchorX + AnnotationDrawer.StemGap + cardWidth <= safe.xMax - 16f;
+                    float centerX = growRight ? anchorX + offset : anchorX - offset;
+                    targetCenter = new Vector2(centerX, anchorY - cardHeight / 2f - 40f);
+                }
+                else
+                {
+                    // 牌子（地点节点）：浮在锚点正上方，居中。
+                    targetCenter = new Vector2(anchorX, anchorY - cardHeight / 2f - 40f);
+                }
 
                 // Retrieve from cache or initialize
                 if (!_cardCenters.TryGetValue(item.node.Name, out var currentCenter))
@@ -1145,9 +1220,7 @@ namespace SSNoir.IMGUI
                 var virtualAnchor = UIScale.WorldPointToVirtual(item.screenPos);
                 float cardWidth = ActionCardDesignWidth;
                 float cardHeight = GridResidueCardHeight;
-                Vector2 targetCenter = inGutters
-                    ? CardGutterLayout.TargetCenter(item.residue.SpatialAnchorName, virtualAnchor, cardWidth, ActionCardDesignWidth)
-                    : new Vector2(virtualAnchor.x, virtualAnchor.y - cardHeight / 2f - 40f);
+                Vector2 targetCenter = CardGutterLayout.TargetCenter(item.residue.SpatialAnchorName, virtualAnchor, cardWidth, ActionCardDesignWidth);
                 if (!_cardCenters.TryGetValue(item.residue.HostNodeName, out var currentCenter))
                 {
                     currentCenter = targetCenter;
@@ -1606,8 +1679,8 @@ namespace SSNoir.IMGUI
                 right = Mathf.Max(right, card.TargetCenter.x + card.Width / 2f);
             }
 
-            var band = keepOut.BandFor(left, right);
             float required = StackHeight(column);
+            var band = keepOut.BandFor(left, right, required);
 
             if (required > band.Bottom - band.Top)
             {
@@ -1704,8 +1777,8 @@ namespace SSNoir.IMGUI
                     card.SolvedCenter = new Vector2(laneCenter, card.SolvedCenter.y);
 
                 // 每摞按自己所在的横向位置重新问一次边界：靠边那摞可能正压在按钮上下。
-                var band = keepOut.BandFor(x, x + width);
                 float required = StackHeight(lane);
+                var band = keepOut.BandFor(x, x + width, required);
                 StackTight(lane, Mathf.Clamp(
                     MeanTargetY(lane) - required / 2f,
                     band.Top,
@@ -1892,10 +1965,15 @@ namespace SSNoir.IMGUI
             for (int i = 0; i < totalCards; i++)
             {
                 int column = i % columnCount;
-                float markerSpace = i < nodes.Count
-                    && RestBlockerPresentation.ContainsTarget(nodes[i], _gameManager.DisplayedSnapshot.RestBlockers)
-                    ? CardDrawer.ExternalRestBlockerMarkerSpace
-                    : 0f;
+                bool mustHandle = i < nodes.Count
+                    && RestBlockerPresentation.ContainsTarget(nodes[i], _gameManager.DisplayedSnapshot.RestBlockers);
+                // 动作卡的「必须处理」是一张顶部书签（见 ActionNodeDrawer.DrawTopTabs）；
+                // 只有人物/地点这类没有书签的卡还挂卡外的牌子。
+                bool isActionCard = i < nodes.Count && nodes[i].HasResolve;
+                float markerSpace = mustHandle && !isActionCard ? CardDrawer.ExternalRestBlockerMarkerSpace : 0f;
+                // 卡顶书签探出卡外，网格行距只有 GridSpacing，不预留就会盖住上一张卡的底。
+                if (isActionCard && ActionNodeDrawer.HasTopTabs(nodes[i], mustHandle))
+                    markerSpace += ActionNodeDrawer.TopTabsRise();
                 // 每张网格卡按自身内容定高（瀑布流本来就允许列内高度不齐）。以前这里是固定
                 // 190：副标题长一点、时钟徽章多一个，内容就只能在同一个盒子里互相挤。
                 float cardHeight = i < nodes.Count
@@ -1903,7 +1981,9 @@ namespace SSNoir.IMGUI
                         nodes[i],
                         CardDrawer.Classify(nodes[i], anchored: false),
                         GridCardWidth,
-                        _gameManager.DisplayedSnapshot.Actors)
+                        _gameManager.DisplayedSnapshot.Actors,
+                        SlotsForNode(nodes[i]),
+                        GetExecutionState(nodes[i].Name).IsExecuting)
                     : GridResidueCardHeight;
                 var cardRect = new Rect(
                     GridStartX + column * (GridCardWidth + GridSpacing),
@@ -2053,7 +2133,7 @@ namespace SSNoir.IMGUI
                 List<SlottedResource?>? slotted = null;
                 if (node.Requires != null && node.Requires.Count > 0)
                 {
-                    slotted = _gameManager.GetSlotsForNode(node.Name);
+                    slotted = SlotsForNode(node);
                 }
 
                 string backText = (node.Resolve?.Type == ResolveType.Observe) ? (node.Resolve?.ObserveText ?? "") : "";
@@ -2156,6 +2236,7 @@ namespace SSNoir.IMGUI
         // 引线不在这里画：它是所有卡片之前的一整层，见 CardLeaderLineDrawer。
         private void NoteActionCardRect(GameNode node, Rect screenRect)
         {
+            _drawnCardRects[node.Name] = screenRect;
             if (_firstActionCardRect.HasValue) return;
             if (node.Resolve == null || node.IsContainer) return;
             _firstActionCardRect = screenRect;
@@ -2171,7 +2252,7 @@ namespace SSNoir.IMGUI
             List<SlottedResource?>? slotted = null;
             if (node.Requires != null && node.Requires.Count > 0)
             {
-                slotted = _gameManager.GetSlotsForNode(node.Name);
+                slotted = SlotsForNode(node);
             }
 
             string backText = (node.Resolve?.Type == ResolveType.Observe) ? (node.Resolve?.ObserveText ?? "") : "";
@@ -2332,6 +2413,15 @@ namespace SSNoir.IMGUI
         /// </summary>
         public (bool IsExecuting, float Progress, string Text) GetExecutionState(string nodeName)
         {
+            if (_activeAutoAction?.AutoActionNode != null
+                && string.Equals(_activeAutoAction.AutoActionNode.Name, nodeName, StringComparison.OrdinalIgnoreCase))
+            {
+                float elapsed = Time.unscaledTime - _activeAutoActionStartedAt;
+                float executeStart = AutoActionAppearSeconds + AutoActionFlightSeconds;
+                if (elapsed < executeStart)
+                    return (false, 0f, string.Empty);
+                return (true, Mathf.Clamp01((elapsed - executeStart) / AutoActionExecuteSeconds), "执行中");
+            }
             if (!_presentationPlayer.IsPlaying || _animator.IsPlaying)
             {
                 return (false, 0f, string.Empty);
@@ -2345,6 +2435,22 @@ namespace SSNoir.IMGUI
                 return (false, 0f, string.Empty);
             }
             return (true, _presentationPlayer.Progress01, _presentationPlayer.ProgressText);
+        }
+
+        private List<SlottedResource?>? SlotsForNode(GameNode node)
+        {
+            if (_activeAutoAction?.AutoActionNode == node)
+            {
+                var result = new List<SlottedResource?>();
+                bool landed = Time.unscaledTime - _activeAutoActionStartedAt
+                    >= AutoActionAppearSeconds + AutoActionFlightSeconds;
+                for (int i = 0; i < node.Requires.Count; i++)
+                    result.Add(landed && i < _activeAutoAction.AutoActionSlots.Count
+                        ? _activeAutoAction.AutoActionSlots[i]
+                        : null);
+                return result;
+            }
+            return _gameManager.GetSlotsForNode(node.Name);
         }
 
         private void DrawGrowthToggleButton(IMGUIInteractionContext ui, Rect btnRect)
@@ -2368,6 +2474,51 @@ namespace SSNoir.IMGUI
         private void DrawPresentationOverlay()
         {
             // Execution progress is drawn inside the active card's execute button.
+        }
+
+        /// <summary>
+        /// 已经登记但还没轮到播放的 auto-action（排在 _pendingBlockingSteps 里，卡还没出现）
+        /// 早就在游戏状态里扣走了这些骰子——不然回合结束时骰子不够用没法校验。但那几支骰子
+        /// 在玩家眼里应该还在手上：真正"离手"的观感由 DrawAutoActionDiceFlights 从卡片出现
+        /// 那一刻开始画。这里把这段真空期要补的骰子列出来，交给 HandPanelDrawer 当成手牌
+        /// 还在的骰子画，卡片出现后这份数据自然从队列里消失，接力棒转给飞行动画。
+        /// 正在播放的那一个（_activeAutoAction）不算在内：它从第 0 帧起已经由
+        /// DrawAutoActionDiceFlights 在同一个位置画出实际数值，这里再画一遍只会重复。
+        /// </summary>
+        private List<SlottedResource> PendingAutoActionReservedDice()
+        {
+            var result = new List<SlottedResource>();
+            foreach (var step in _pendingBlockingSteps)
+                if (step.Kind == BlockingStoryStepKind.AutoAction)
+                    result.AddRange(step.AutoActionSlots);
+            return result;
+        }
+
+        private void DrawAutoActionDiceFlights()
+        {
+            var step = _activeAutoAction;
+            var node = step?.AutoActionNode;
+            if (step == null || node == null || !_drawnCardRects.TryGetValue(node.Name, out var cardRect))
+                return;
+
+            float elapsed = Time.unscaledTime - _activeAutoActionStartedAt;
+            if (elapsed >= AutoActionAppearSeconds + AutoActionFlightSeconds)
+                return;
+            float raw = Mathf.Clamp01((elapsed - AutoActionAppearSeconds) / AutoActionFlightSeconds);
+            float eased = raw * raw * (3f - 2f * raw);
+            for (int i = 0; i < step.AutoActionSlots.Count; i++)
+            {
+                var die = step.AutoActionSlots[i];
+                if (!HandPanelDrawer.TryGetActionDieRect(_gameManager, die.ActorId, die.DieIndex, out var source))
+                    continue;
+                var target = ActionNodeDrawer.AutoActionSlotRect(cardRect, node, i);
+                var moving = new Rect(
+                    Mathf.Lerp(source.x, target.x, eased),
+                    Mathf.Lerp(source.y, target.y, eased),
+                    Mathf.Lerp(source.width, target.width, eased),
+                    Mathf.Lerp(source.height, target.height, eased));
+                HandPanelDrawer.DrawMovingDie(moving, die.Value);
+            }
         }
 
         private void AddLightResidueIfNeeded(ActionReport report, string actionName)
@@ -2627,12 +2778,30 @@ namespace SSNoir.IMGUI
         // 这类读的字，底栏中段干脆是空的。卡片被两条并不存在的墙夹在中间，四百来像素里
         // 放不下两张带骰位的动作卡，一间挂了四五个动作的酒馆必然叠成一摞。
         //
-        // 现在按「这块地有没有人在用」算：安全区整块都能飘，只避开真的要用手指点的控件
-        // （返回键、右上那组按钮、宿主胶囊、骰子与物品方块）。而且避让是**按横向跨度**算的
-        // ——飘在屏幕中段的卡可以一直探到安全区的上下边缘，只有正压在某个按钮上下的卡才被
-        // 推开。名字、面包屑、冷静条这些是读的不是点的，卡片压上去无妨。
+        // 现在按「这块地有多重要」算：交互控件永远避让；顶栏和人物头像在空间充足时也避让，
+        // 放不下时按优先级逐层释放。避让仍按横向跨度计算，所以屏幕另一侧的控件不会无端
+        // 挤压这张卡。顶部空白和人物画面因此是可借用的空间，不再是假墙，也不是完全不存在。
         //
         // 这不只是好看：卡片能不能各自让开、不叠成一摞，差的就是这上下多出来的一百多像素。
+        private enum KeepOutPriority
+        {
+            Portrait = 10,
+            Hud = 20,
+            Hard = 100,
+        }
+
+        private readonly struct KeepOutZone
+        {
+            public Rect Rect { get; }
+            public KeepOutPriority Priority { get; }
+
+            public KeepOutZone(Rect rect, KeepOutPriority priority)
+            {
+                Rect = rect;
+                Priority = priority;
+            }
+        }
+
         private readonly struct CardKeepOut
         {
             // 卡片离安全区边缘、离控件各留一点缝，别贴着画。
@@ -2640,34 +2809,57 @@ namespace SSNoir.IMGUI
             private const float BlockerGap = 8f;
 
             private readonly Rect _safe;
-            private readonly List<Rect> _blockers;
+            private readonly List<KeepOutZone> _zones;
 
-            public CardKeepOut(Rect safe, List<Rect> blockers)
+            public CardKeepOut(Rect safe, List<KeepOutZone> zones)
             {
                 _safe = safe;
-                _blockers = blockers;
+                _zones = zones;
             }
 
-            /// <summary>给定卡片占用的横向跨度，返回它可以待的纵向区间。</summary>
-            public (float Top, float Bottom) BandFor(float left, float right)
+            /// <summary>
+            /// 给定横向跨度和所需高度，返回纵向区间。硬区永远保留；软区从高优先级开始
+            /// 尝试加入，只有仍放得下时才生效，因此空间不足时人物头像最先被侵占。
+            /// </summary>
+            public (float Top, float Bottom) BandFor(
+                float left, float right, float requiredHeight, bool includeSoft = true)
             {
                 float top = _safe.y + EdgeInset;
                 float bottom = _safe.yMax - EdgeInset;
-                float middle = _safe.center.y;
+                ApplyPriority(KeepOutPriority.Hard, left, right, ref top, ref bottom);
+                if (!includeSoft)
+                    return (top, Mathf.Max(top, bottom));
 
-                foreach (var blocker in _blockers)
+                var priorities = new[] { KeepOutPriority.Hud, KeepOutPriority.Portrait };
+                foreach (var priority in priorities)
                 {
-                    if (blocker.width <= 0f || blocker.height <= 0f)
-                        continue;
-                    if (blocker.xMax <= left || blocker.x >= right)
-                        continue;   // 横向不相干，这张卡从它旁边过得去
+                    float candidateTop = top;
+                    float candidateBottom = bottom;
+                    ApplyPriority(priority, left, right, ref candidateTop, ref candidateBottom);
+                    if (candidateBottom - candidateTop >= requiredHeight)
+                    {
+                        top = candidateTop;
+                        bottom = candidateBottom;
+                    }
+                }
+                return (top, Mathf.Max(top, bottom));
+            }
 
+            private void ApplyPriority(
+                KeepOutPriority priority, float left, float right, ref float top, ref float bottom)
+            {
+                float middle = _safe.center.y;
+                foreach (var zone in _zones)
+                {
+                    if (zone.Priority != priority) continue;
+                    Rect blocker = zone.Rect;
+                    if (blocker.width <= 0f || blocker.height <= 0f) continue;
+                    if (blocker.xMax <= left || blocker.x >= right) continue;
                     if (blocker.center.y < middle)
                         top = Mathf.Max(top, blocker.yMax + BlockerGap);
                     else
                         bottom = Mathf.Min(bottom, blocker.y - BlockerGap);
                 }
-                return (top, Mathf.Max(top, bottom));
             }
         }
 
@@ -2675,19 +2867,28 @@ namespace SSNoir.IMGUI
         // 让位只在某些情况下发生的话，排布就会跟着状态跳来跳去。
         private CardKeepOut BuildCardKeepOut()
         {
-            var blockers = new List<Rect>
+            var zones = new List<KeepOutZone>
             {
-                _topHud.Back,
-                _topHud.RelationToggle,
-                _topHud.GrowthToggle,
-                _topHud.DebugToggle,
-                _topHud.DossierToggle,
-                _topHud.SettingsToggle,
-                _pinStripRect,
-                _sceneBandRect,
+                new(_topHud.Bar, KeepOutPriority.Hud),
+                new(_topHud.Back, KeepOutPriority.Hard),
+                new(_topHud.RelationToggle, KeepOutPriority.Hard),
+                new(_topHud.GrowthToggle, KeepOutPriority.Hard),
+                new(_topHud.DebugToggle, KeepOutPriority.Hard),
+                new(_topHud.DossierToggle, KeepOutPriority.Hard),
+                new(_topHud.HelpToggle, KeepOutPriority.Hard),
+                new(_topHud.SettingsToggle, KeepOutPriority.Hard),
+                new(_pinStripRect, KeepOutPriority.Hard),
+                new(_sceneBandRect, KeepOutPriority.Hard),
             };
-            HandPanelDrawer.CollectTouchBlockers(_gameManager, blockers);
-            return new CardKeepOut(UIScale.SafeArea, blockers);
+            var hardRects = new List<Rect>();
+            HandPanelDrawer.CollectTouchBlockers(_gameManager, hardRects);
+            foreach (var rect in hardRects)
+                zones.Add(new KeepOutZone(rect, KeepOutPriority.Hard));
+            var portraits = new List<Rect>();
+            HandPanelDrawer.CollectPortraitBounds(_gameManager, portraits);
+            foreach (var rect in portraits)
+                zones.Add(new KeepOutZone(rect, KeepOutPriority.Portrait));
+            return new CardKeepOut(UIScale.SafeArea, zones);
         }
 
         private static Rect ClampRect(Rect r, float cardWidth, float cardHeight, in CardKeepOut keepOut)
@@ -2697,7 +2898,9 @@ namespace SSNoir.IMGUI
             float maxX = Mathf.Max(minX, safe.xMax - cardWidth - 12f);
             float x = Mathf.Clamp(r.x, minX, maxX);
 
-            var band = keepOut.BandFor(x, x + cardWidth);
+            // 弹簧途中的位置只需避开真正不可覆盖的交互控件；软区只影响最终解算目标，
+            // 否则卡片经过头像边缘时会被逐帧夹走，反而产生跳动。
+            var band = keepOut.BandFor(x, x + cardWidth, cardHeight, includeSoft: false);
             float maxY = Mathf.Max(band.Top, band.Bottom - cardHeight);
             return new Rect(x, Mathf.Clamp(r.y, band.Top, maxY), cardWidth, cardHeight);
         }

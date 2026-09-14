@@ -24,8 +24,8 @@
 (load-file "world/保险公司.scm")
 (load-file "world/board.scm")
 ;; 第二章开出来的地方
-(load-file "world/上城酒吧.scm")
-(load-file "world/公司试验场.scm")
+(load-file "world/格兰德酒店.scm")
+(load-file "world/港务技术区.scm")
 (load-file "world/报社.scm")
 ;; 章节只暴露一个入口；它自己的事件由它自己加载。
 (load-file "world/第二章/第二章.scm")
@@ -104,19 +104,29 @@
   (set! world-day (+ world-day n))
   (set-global! '世界日 world-day))
 
-(define (debug-enter-chapter2!)
+(define (debug-enter-chapter2-with-lin! core?)
+  ;; Debug 跳章是全量预设，不继承当前测试局的阻塞。
+  ;; 随后由第一、二章的合法结束态重建它们真正需要的阻塞。
+  (clear-rest-blockers!)
   (three-letters 'debug-finish!)
   (debug-skip-days! 第一章天数)
-  (第二章 'debug-cast!)
+  (if core? (第二章 'debug-cast-core-lin!) (第二章 'debug-cast!))
   (第二章 'debug-start!)
   (第二章 'sync-blockers!))
 
-(define (debug-enter-chapter2-phase-b!)
+(define (debug-enter-chapter2!) (debug-enter-chapter2-with-lin! #f))
+(define (debug-enter-chapter2-lin-core!) (debug-enter-chapter2-with-lin! #t))
+
+(define (debug-enter-chapter2-phase-b-with-lin! core?)
+  (clear-rest-blockers!)
   (three-letters 'debug-finish!)
   (debug-skip-days! 第一章天数)
-  (第二章 'debug-cast!)
+  (if core? (第二章 'debug-cast-core-lin!) (第二章 'debug-cast!))
   (第二章 'debug-phase-b!)
   (第二章 'sync-blockers!))
+
+(define (debug-enter-chapter2-phase-b!) (debug-enter-chapter2-phase-b-with-lin! #f))
+(define (debug-enter-chapter2-phase-b-lin-core!) (debug-enter-chapter2-phase-b-with-lin! #t))
 
 ;; ── 地点可见性 ───────────────────────────────────
 ;; 地图上有哪些地方、凭什么进得去，写在 world/地图.scm。

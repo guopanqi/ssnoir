@@ -23,6 +23,7 @@ namespace SSNoir.Core
             var root = new JObject
             {
                 ["saveTime"]  = data.SaveTime,
+                ["settings"]  = WriteGlobals(data.Settings),
                 ["globals"]   = WriteGlobals(data.Globals),
                 ["team"]      = WriteTeam(data.Team),
                 ["inventory"] = WriteInventory(data.Inventory),
@@ -40,6 +41,11 @@ namespace SSNoir.Core
             {
                 SaveTime = root["saveTime"]?.Value<string>() ?? "",
             };
+
+            // 旧存档没有 settings；调用方保留各设置自己的默认值。
+            if (root["settings"] is JObject settings)
+                foreach (var prop in settings.Properties())
+                    data.Settings[prop.Name] = ReadPrimitive(prop.Value, "settings." + prop.Name);
 
             foreach (var prop in ((JObject)root["globals"]!).Properties())
                 data.Globals[prop.Name] = ReadPrimitive(prop.Value, "globals." + prop.Name);
@@ -136,6 +142,8 @@ namespace SSNoir.Core
                 ["injuryPart"]     = team.InjuryPart,
                 ["growthLevel"] = team.GrowthLevel,
                 ["actors"]      = actorsArr,
+                ["supports"]    = new JArray(team.Supports),
+                ["carriedSupport"] = team.CarriedSupport,
             };
         }
 
@@ -231,6 +239,11 @@ namespace SSNoir.Core
                 team.Actors.Add(a);
             }
             team.HasSavedActionDice = hasSavedActionDice ?? false;
+            // 旧存档没有关系支援字段：没有就是没有。
+            if (el["supports"] is JArray supports)
+                foreach (var id in supports)
+                    team.Supports.Add(id.Value<string>()!);
+            team.CarriedSupport = el["carriedSupport"]?.Value<string>() ?? string.Empty;
             return team;
         }
 

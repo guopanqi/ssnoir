@@ -27,6 +27,9 @@
     (define route "")             ; 暴力 / 交易 / 施压——你用什么方式让他们安静的
     (define owed? #f)             ; 他欠你一次（首演那晚用掉）
     (define off-duty-seen? #f)    ; 《五点以后》已经看过
+    ;; 第二章的职业身份：未开放 / 请来 / 有效 / 暂停。
+    ;; 当前只写到「有效」，但状态一次定对，后面追查线可以直接把它改成「暂停」。
+    (define registration "未开放")
     (define paperwork-clk
       (make-clock "办事印象" 3 'gauge
         "只有把文书办得利落，才会让贝恩斯把程序管不了的事交给你。"))
@@ -141,7 +144,32 @@
         (line "尼尔" "然后呢？")
         (line "贝恩斯" "让他们安静。")
         (line "尼尔" "怎么安静？")
-        (line "贝恩斯" "这是你的职业。")))
+        (line "贝恩斯" "这类事你不是已经在做了吗。")))
+
+    ;; ── 第二章 Phase A：《手续已经好了》 ───────────────
+    ;; 媒体和晚宴先把尼尔叫成侦探，贝恩斯数日后只是把这个既成事实纳入程序。
+    ;; 这不是执照模拟：它表示警局肯向委托人确认「有这个人」。
+    (define (registered?) (equal? registration "有效"))
+
+    (define (node-registration)
+      (node "手续已经好了"
+        :subtitle "贝恩斯说手续已经办好了"
+        :resolve (instant
+          (outcome "私人调查员登记生效"
+            (lambda ()
+              (play-dialogue!
+                (line "世界" "贝恩斯桌上摆着一张已经盖过章的表。")
+                (line "贝恩斯" "你的名字已经备案了。私人调查员。")
+                (line "尼尔" "手续办完了？")
+                (line "贝恩斯" "章在这儿。")
+                (line "尼尔" "我问过不止一次。每次都说还缺人作保。")
+                (line "贝恩斯" "现在全城都知道你是谁。用不着再找一个人说第二遍。")
+                (line "尼尔" "这就算侦探了？")
+                (line "贝恩斯" "不算。只算出了事，我们知道去哪儿找你。"))
+              (set! registration "有效")
+              (home 'connect-phone!)
+              (spotlight! "侦探委托"
+                "你已在警局登记为私人调查员。家里的联络电话已经接通，上城客户的调查委托会直接找上门。"))))))
 
     ;; 三个手段标签不是三条剧情线,它们各自在别处兑现:
     ;;   暴力 —— 三份伤情报告。他要的结果拿到了,但他记得你是怎么办的。
@@ -239,6 +267,7 @@
          (append
            (list (node-self
                    (append
+                     (if (equal? registration "请来") (list (node-registration)) '())
                      (if (or receipt? (three-letters 'has-flag? '第三封信))
                          '()
                          (list (node-report-case)))
@@ -249,7 +278,7 @@
            (list (node-paperwork))))
         ;; 酒馆那张只在他下班以后、而且你已经替他办成过那件事之后才在:
         ;; 门是他欠你的那一次——不是一条声誉，是他自己知道欠着。
-        ((equal? location "酒馆")
+        ((equal? location "老街酒馆")
          (if (and (not off-duty-seen?) owed?)
              (list (node-off-duty))
              '()))
@@ -262,6 +291,20 @@
         (and (= quiet-stage 0) (reliable?)))
       (lambda () (invite!)))
 
+    ;; 晚宴后隔两天再来口信。不把它做成主线或限时任务：
+    ;; 警局已经办完了手续，尼尔什么时候去拿都是同一张纸。
+    (define-turn-rule "贝恩斯叫你去警局"
+      (lambda ()
+        (and (equal? registration "未开放")
+             (第二章 'started?)
+             (equal? (晚宴 'result) "已结束")
+             (>= (第二章 'day) 5)))
+      (lambda ()
+        (set! registration "请来")
+        (play-remote-dialogue!
+          (line "世界" "一个巡警在楼下等你。")
+          (line "巡警" "贝恩斯让你去警局一趟。不是问话。他只是有张纸要给你。"))))
+
     (lambda args
       (let ((msg (car args)))
         (cond
@@ -269,6 +312,8 @@
           ((equal? msg 'known?) (or receipt? (reliable?) (> quiet-stage 0)))
           ((equal? msg 'receipt?) receipt?)
           ((equal? msg 'owed?) owed?)
+          ((equal? msg 'registered?) (registered?))
+          ((equal? msg 'registration) registration)
           ;; 首演那晚用掉他那一次：一次就没了，别让它变成常驻特权。
           ((equal? msg 'spend-favor!) (set! owed? #f))
           ((equal? msg 'route) route)
@@ -278,6 +323,7 @@
                  (list "route" route)
                  (list "owed" (if owed? 1 0))
                  (list "off-duty-seen" (if off-duty-seen? 1 0))
+                 (list "registration" registration)
                  (list "paperwork-done" (paperwork-clk 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
@@ -286,5 +332,9 @@
              (set! route (assoc-get data "route" ""))
              (set! owed? (= (assoc-get data "owed" 0) 1))
              (set! off-duty-seen? (= (assoc-get data "off-duty-seen" 0) 1))
+             (set! registration (assoc-get data "registration" "未开放"))
+             (if (member? registration (list "未开放" "请来" "有效" "暂停"))
+                 #t
+                 (error "贝恩斯存档错误：私人调查员登记状态非法"))
              (paperwork-clk 'load! (assoc-get data "paperwork-done" 0))))
           (else #f))))))

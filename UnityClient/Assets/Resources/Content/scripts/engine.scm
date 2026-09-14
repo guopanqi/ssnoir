@@ -12,6 +12,7 @@
 (define :anchor ':anchor)
 (define :place ':place)
 (define :carry-item ':carry-item)
+(define :support ':support)
 (define :arrivals ':arrivals)
 (define :kind ':kind)
 (define :status ':status)
@@ -35,6 +36,7 @@
   (let ((anchor-name (get-kwarg kwargs ':anchor #f))
         (is-place    (get-kwarg kwargs ':place #f))
         (carry-item  (get-kwarg kwargs ':carry-item #f))
+        (support     (get-kwarg kwargs ':support #f))
         (arrivals    (get-kwarg kwargs ':arrivals '())))
     (append
       (list 'node
@@ -55,6 +57,9 @@
       (if (equal? carry-item #f)
           '()
           (list :carry-item carry-item))
+      (if (equal? support #f)
+          '()
+          (list :support support))
       (if (null? arrivals)
           '()
           (list :arrivals arrivals)))))
@@ -114,6 +119,13 @@
 ;; 也不收取时间代价。仅交锋解释器注册了这条桥接。
 (define (refresh-encounter-dice!)
   (__refresh-encounter-dice!))
+
+;; 回合边界上由场景发起的强制行动。demands 是 ((actor-id count) ...)。
+;; 它不产生新的玩家骰槽；只在内容内部指定谁的时间被占用，并排入一张锁输入的自动行动卡。
+(define (auto-action! name subtitle demands effect . anchor)
+  (if (> (length anchor) 1)
+      (error "auto-action!: expected at most one anchor")
+      (__auto-action! name subtitle (if (null? anchor) #f (car anchor)) demands effect)))
 
 ;; 倒下协议。交锋不写新的送医路线，只声明这场在主角倒下时如何使用已有结算：
 ;;   (collapse-result 原有结果)  调用原有回调，按失败/既有收场推进
@@ -341,6 +353,14 @@
 (define (anchored-instant-action name anchor effect)
   (node name :anchor anchor :requires #f :resolve (instant effect)))
 
+;; 给一张已经拼好的卡补落点。只用于构造器没有 :anchor 位的写法
+;; （roll-action / note-node / clock-node / encounter-action 这些），
+;; 有 :anchor 位的（node / 工作 / investigation-node）直接写在构造里。
+(define (at-anchor anchor node-data)
+  (if (member? :anchor node-data)
+      (error (string-append "at-anchor: 节点已经有落点了：" (cadr node-data)))
+      (append node-data (list :anchor anchor))))
+
 (define (instant-action-with-tags name tags effect)
   (action-with-tags name tags #f (instant effect)))
 
@@ -471,23 +491,17 @@
 ;; 是引擎在每一场的树上补一份（见 SceneManager.RebuildRenderTree）。只在手里真有那件
 ;; 东西的时候出现。
 ;;
-;; 它们**不是场上的卡**：客户端把它们画成右下角一条常驻的小挂件（标题 + 一个骰位），
-;; 没有副标题也没有执行钮，骰子放进去就用掉。角落里那种一按就生效的按钮已经删掉了——
-;; 玩家没法从一个按钮上看出"这里能放骰子"，而放东西的表现形式必须处处一致。
+;; 客户端把它们画成右下角的普通动作卡。物品和行动骰都是明确的消耗槽；两个槽填满后
+;; 玩家再按执行，不用引线暗示物品来源，也不会在最后一个资源落槽时自动生效。
 ;;
 ;; 要投骰，但不掷骰：骰面完全不参与结算。所以这是全场唯一一处**烂骰子和好骰子等价**
 ;; 的地方，一颗 1 点骰投在这儿换回来的和 6 点一样多。手气差的那一轮，抽根烟不是浪费，
 ;; 是分诊。
-(define (随身动作 name item amount title subtitle effect)
+(define (随身动作 name item amount title effect)
   (node name
-    ;; 它属于哪件物品。客户端据此把这个小挂件从那件物品上引出来（一根引线），
-    ;; 而不是排进场上的卡片区——随身的东西不是这一场的事。
+    ;; 它属于哪件物品。客户端据此把卡留在随身区，而不是排进场上的卡片区。
     :carry-item item
-    :tags (list "随身")
-    :subtitle subtitle
-    ;; 只要一颗骰。那件东西本身不做成物品槽：这个挂件就是从它上面长出来的，
-    ;; 还要玩家把烟拖进它自己长出来的槽里，是绕一圈说同一句话。
-    :requires (list (req-die))
+    :requires (list (req-item item 1) (req-die))
     :resolve (instant
       (outcome title
         (lambda ()
@@ -500,15 +514,68 @@
     ;; 交锋每回合自动流失 1，一根烟买回两个回合——这是它的单位。
     (if (has-item? "香烟" 1)
         (list (随身动作 "抽烟" "香烟" 2 "抽了一口"
-                "投一颗行动骰，用掉一根烟；恢复 2 点冷静。骰面不算数"
                 (lambda () #f)))
         '())
     ;; 酒回得多，代价推到明天：下一次城市骰池里有一格带宿醉。
     (if (has-item? "酒" 1)
         (list (随身动作 "喝酒" "酒" 3 "灌了一口"
-                "投一颗行动骰，喝掉这瓶；恢复 3 点冷静，酒劲留到明天"
                 (lambda () (apply-hangover!))))
         '())))
+
+;; ── 关系支援 ─────────────────────────────────────────
+;; 人物关系推进到某一步，给玩家一条能带进**任何一场**交锋的支援。它是独立的一层：
+;; 不属于哪张行动卡，也不认识这一场的剧情钟，只操作所有交锋共有的东西——骰子、人、冷静。
+;; 所以交锋脚本一行都不用改；哪一场要为它配合什么，说明动词选错了。
+;;
+;; 规则（第一版）：只在交锋里出现；一场只带一个（队伍的 carried support）；每场一次；
+;; 不占骰、不结束回合；用过当场变灰，下一场恢复。
+;; 「每场一次」由引擎在执行支援卡时消费（SceneManager.ExecuteAction），内容不写、也写不了；
+;; 卡上只需 :disabled (support-used?) 让它变灰。
+;;
+;; 支援卡和烟酒走同一个 encounter-action-nodes 入口；它没有需求槽，因此标准动作卡
+;; 直接显示执行钮。用过后卡仍保留，但明确进入禁用状态。
+;;
+;;   (grant-support! "弗兰克")      关系写回处调用；第一条自动成为带进交锋的那一个
+;;   (has-support? "弗兰克")
+;;   (set-carried-support! "弗兰克")  以后有了选人的界面再用
+(define (grant-support! id) (__grant-support! id))
+(define (has-support? id) (__has-support? id))
+(define (set-carried-support! id) (__set-carried-support! id))
+(define (carried-support) (__carried-support))
+(define (support-used?) (__support-used?))
+
+;; 支援叫来的临时帮手：入队并当场发一颗骰，本回合结束（或交锋结束）由引擎自动送走。
+(define (summon-helper! actor-id name stats-alist)
+  (__summon-helper! actor-id name stats-alist))
+
+;; 弗兰克《叫个人来》——「人手」这一形状：那个人的人自己入场，占一个骰位，用他自己的技能。
+;; 帮手是老街的人：力量有数，交际是零。他那颗骰投在体力动作上准备值高，投在谈判上就是废骰——
+;; 限制来自他的技能表，不来自规则。同伴的骰投出坏结果扣的是他的冷静，不是你的：
+;; 最难看的那一下由弗兰克的人顶，这就是这条支援的意思。
+(define (support-frank)
+  (node "叫个人来"
+    :support "弗兰克"
+    :disabled (or (support-used?) (has-companion? '老街帮手))
+    :resolve (instant
+      (outcome "有人应了一声"
+        (lambda ()
+          (summon-helper! '老街帮手 "老街帮手"
+            (list (list 'violence 2) (list 'knowledge 0) (list 'sharpness 1) (list 'social 0)))
+          (result-note! "帮手入队：本回合一颗骰")
+          (play-banter! (line "世界" "有人从后面应了一声，走过来站到你身边。")))))))
+
+;; 引擎在每一场交锋的树旁取一份。带了谁就出谁的卡；没带就是空。
+(define (support-nodes)
+  (let ((id (carried-support)))
+    (cond
+      ((equal? id #f) '())
+      ((equal? id "弗兰克") (list (support-frank)))
+      (else (error (string-append "support-nodes：没有登记的支援 " id))))))
+
+;; 不属于具体场景、但会在每场交锋里出现的动作统一从这里注入。随身物品和人物支援只是
+;; 两种出现条件；交给客户端之后都是普通动作卡，不再各自发明一套交互。
+(define (encounter-action-nodes)
+  (append (carry-nodes) (support-nodes)))
 
 ;; Inventory helpers
 (define (get-item item-id)

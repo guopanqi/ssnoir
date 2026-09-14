@@ -208,7 +208,7 @@
 
     (define (singer-at-theater?) (or (>= story-stage 3) material-settled?))
     (define (singer-location)
-      (if (singer-at-theater?) "剧院" "酒馆"))
+      (if (singer-at-theater?) "剧院" "老街酒馆"))
 
     ;; 老街居民区从小节一结算后开放；警察局与货运公司留到首演威胁明确后。
     ;; 酒馆是例外:她在那儿唱歌,开场就得能找到人(见 world.scm 的地点表)。
@@ -510,6 +510,7 @@
 
     (define (node-scout)
       (node "邮箱附近踩点"
+        :anchor "勒索信-报摊"
         :subtitle "摸清取信的人和附近退路"
         :clocks (list (mail-clock 'render-data))
         :requires (list (req-die))
@@ -566,7 +567,8 @@
 
     ;; 入场剧情由调用方播放:交锋脚本把「你已经在追了」当既定前提。
     (define (node-delivery-entry)
-      (encounter-action "去码头盯着邮箱"
+      (at-anchor "勒索信"
+       (encounter-action "去码头盯着邮箱"
         (lambda ()
           (prepare-delivery-money!)
           (cond
@@ -586,7 +588,7 @@
                (line "尼尔" "我已经尽力了，还是差一点。就这样吧，我们用旧报纸塞进去。" "三封信/码头/投信/塞报纸/01/尼尔")
                (line "夜莺" "他回去会数的。" "三封信/码头/投信/塞报纸/01/夜莺")
                (line "尼尔" "那就让他数，别担心。你去吧，你把它放邮箱里就走，我会在这儿盯着。" "三封信/码头/投信/塞报纸/02/尼尔"))))
-          (start-encounter "勒索信" on-delivery-result))))
+          (start-encounter "勒索信" on-delivery-result)))))
 
     ;; 交锋回传：(list 人 钱)。四种组合都让故事往前走——交锋失败留疤,不阻断主线。
     ;; 摩托车是这一夜的固定过场，不回传：骑手是谁要等他自己在老街说。
@@ -1224,7 +1226,8 @@
 
     ;; ── 巷子 ────────────────────────────────────────
     (define (node-alley-entry)
-      (encounter-action "今晚去货栈后面"
+      (at-anchor "码头-巷口"
+       (encounter-action "今晚去货栈后面"
         (lambda ()
           (sync-keys!)
           (play-dialogue!
@@ -1235,7 +1238,7 @@
                 (line "世界" "昨天送你出去的那几个人还在路口。他们看见你，没有动。" "三封信/巷子/入场/被赶/01/世界")
                 (line "世界" "他们只是转过身，往堆场那头喊了一句。" "三封信/巷子/入场/被赶/02/世界"))
               #f)
-          (start-encounter "巷子" on-lesson-result))))
+          (start-encounter "巷子" on-lesson-result)))))
 
     ;; 交锋只有一种成功：莱恩交出铁盒，答应不再找夜莺。
     ;;   这一节一定要真正结案一次：底片到手、他停止勒索、经理满意、世界恢复正常。
@@ -1504,7 +1507,7 @@
           ;; 兑现留到散场之后：第三封信一出现，突然什么都有了。
           (play-remote-dialogue!
             (line "世界" "我还没走出剧院，经理已经连打了好几个电话。" "三封信/第三封信/众生相/01/世界")
-            (line "世界" "不到中午，报社记者就堵在后门了。警察甚至主动派了人过来布控。" "三封信/第三封信/众生相/02/世界")
+            (line "世界" "下午两点前，报社记者就堵在后门了。警察甚至主动派了人过来布控。" "三封信/第三封信/众生相/02/世界")
             (line "尼尔" "上礼拜我拿着勒索信去警局，你们连笔录都懒得记。" "三封信/第三封信/众生相/01/尼尔")
             (line "世界" "现在不一样了。全城的人都在等着看一出大明星遭狂徒恐吓的戏码。" "三封信/第三封信/众生相/03/世界"))
           (set-flag! '第三封信)
@@ -1726,7 +1729,7 @@
            no-extra))))
 
     (define (node-paper-dock)
-      (investigation-node "沿码头追问" #f
+      (investigation-node "沿码头追问" "码头-账房"
         "问船位、问弗兰克，也问谁最后见过莱恩" 'social 'paper advance-paper!))
 
     ;; ── 小节四·两个漏洞 ─────────────────────────────
@@ -1819,15 +1822,18 @@
         (list (node-man-step))
         (list (local-investigation-clock "居民区调查" man-step))))
 
+    ;; 调查容器跟它唯一那张子卡落在同一处：船位记录在账房，名册在舞台门。
     (define (dock-lyon-investigation)
-      (container-with-clocks "在码头寻找莱恩"
+      (at-anchor "码头-账房"
+       (container-with-clocks "在码头寻找莱恩"
         (list (node-paper-dock))
-        (list (local-investigation-clock "码头调查" paper-step))))
+        (list (local-investigation-clock "码头调查" paper-step)))))
 
     (define (backstage-lyon-investigation)
-      (container-with-clocks "在后台寻找莱恩"
+      (at-anchor "剧院-后台"
+       (container-with-clocks "在后台寻找莱恩"
         (list (node-door-step))
-        (list (local-investigation-clock "后台调查" door-step))))
+        (list (local-investigation-clock "后台调查" door-step)))))
 
     (define (theater-investigation-children)
       (append
@@ -1844,9 +1850,10 @@
                 "检查外圈、内环和台底。")))
 
     (define (theater-investigation)
-      (container-with-clocks "检查剧院"
+      (at-anchor "剧院-内环"
+       (container-with-clocks "检查剧院"
         (theater-investigation-children)
-        (list (theater-check-clock))))
+        (list (theater-check-clock)))))
 
     ;; ── 小节四·把三处记录摆开 ───────────────────────
     ;; 三处都查清以后，回家把记录摆开。不给翻案，只让那点说不清的不安浮出来。
@@ -1931,7 +1938,7 @@
     ;; 第一章在情绪上是一次胜利。这一段就按胜利写，不留一点反讽的语气——
     ;; 反讽全部藏在事实里：警方还没查完，经理已经在跟记者说人抓到了。
     (define (node-lights-up)
-      (instant-action "灯重新亮起来"
+      (anchored-instant-action "灯重新亮起来" "剧院-后台"
         (lambda ()
           (play-dialogue!
             (line "世界" "大幕落下。后台乱成一团，闪光灯闪得人眼睛发疼。" "三封信/首演抓获/01/世界")
@@ -1961,7 +1968,7 @@
         (#t "她看了你一眼。")))
 
     (define (node-stay-quiet)
-      (instant-action "什么也不说"
+      (anchored-instant-action "什么也不说" "剧院-后台"
         (lambda ()
           (play-dialogue!
             (line "世界" "我没有开口。那些疑点还不够推翻任何事。" "三封信/是他/沉默/01/世界")
@@ -2195,10 +2202,11 @@
         (#t (string-append label "：还没人提起过这处"))))
 
     (define (node-hole-notes)
-      (note-node "标注-剧院的漏洞" ""
+      (at-anchor "剧院-内环"
+       (note-node "标注-剧院的漏洞" ""
         (string-append (hole-line "台底的通风口" hole-vent)
                        "；"
-                       (hole-line "后廊的配电箱" hole-power))))
+                       (hole-line "后廊的配电箱" hole-power)))))
 
     (define (card-clocks)
       (cond
@@ -2237,8 +2245,8 @@
            ((not (has-flag? '伤后探望)) "家")
            ((second-letter-pending?) "剧院")
            ((and material-settled? (has-flag? '第二封信)) "剧院")
-           ((alone-phase?) "居民区")
-           (#t "居民区")))
+           ((alone-phase?) "码头居民区")
+           (#t "码头居民区")))
         ((= story-stage 3)
          (cond
            ((and (not lesson-done?) (inquiry-done?)) "码头")
@@ -2307,7 +2315,7 @@
 
     (define (nightingale-anchor-name location)
       (cond
-        ((equal? location "酒馆") "夜莺@酒馆")
+        ((equal? location "老街酒馆") "夜莺@酒馆")
         ((equal? location "剧院") "夜莺@剧院")
         (else (error "夜莺：人物节点所在地点没有登记空间锚点"))))
 
@@ -2350,15 +2358,15 @@
            (if (and (beat3-open?) (not (piece-paper?)))
                (list (dock-lyon-investigation))
                '())))
-        ((equal? location "酒馆")
+        ((equal? location "老街酒馆")
          (append
-           (if (and (singer-present?) (equal? (singer-location) "酒馆"))
-               (list (nightingale-node "酒馆"
+           (if (and (singer-present?) (equal? (singer-location) "老街酒馆"))
+               (list (nightingale-node "老街酒馆"
                        (list (node-request-song))))
                '())
            (if (beat2-open?) (list (node-lyon-talk)) '())))
         ;; 老街节点全部平铺在居民区下；探索过程消失后，只留下有后续玩法的人物与地点。
-        ((equal? location "居民区")
+        ((equal? location "码头居民区")
          (append
            ;; 小节四·线一：他不见了。这条线全部在老街。
            (if (and (beat3-open?) (not (piece-man?)))

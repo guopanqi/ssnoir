@@ -7,7 +7,7 @@
 - **直接低模**：一次生成可用低模，直接进入低模质量门。
 - **高模再拓扑**：先生成高模确认形体，再通过 retopology 得到低模。高模是中间结果，不进入正式源。
 
-服务选择不改变阶段契约。比较不同服务时使用同一参考图、预算口径和审计脚本。使用 Hunyuan 时读取 [providers/hunyuan.md](providers/hunyuan.md)；使用其他服务时读取其专用 Skill 或适配说明，不推断网页、API 或计费细节。
+服务选择不改变阶段契约。比较不同服务时使用同一参考图、预算口径和审计脚本。使用 Hunyuan Studio 网页时读取 [providers/hunyuan.md](providers/hunyuan.md)；使用 TokenHub 3.0 直出低拓扑 API 时读取 [providers/hunyuan-api.md](providers/hunyuan-api.md)；使用其他服务时读取其专用 Skill 或适配说明，不推断网页、API 或计费细节。
 
 ## 质量门
 

@@ -5,16 +5,17 @@ using UnityEngine;
 namespace SSNoir.IMGUI
 {
     /// <summary>
-    /// 建筑镜头下的卡片版面：中间留给建筑，卡片退到左右两条栏里。
+    /// 动作面板的版面：退到左右两条栏里，把中间留给场景。
     ///
     /// <b>栏宽是个常数，不去测建筑。</b>曾经想过把建筑的旋转包络投影出来、按它的实际体量
     /// 决定卡片让开多少——那是在给一个不存在的问题造机器。卡片宽度本来就是固定的，
     /// 需要的只是两边各留一条够宽的缝；建筑在画面里多大，由 Blender 那头的机位保证，
     /// 拍得太满就去改机位，那本来就是做资产时该做的事。
     ///
-    /// <b>什么时候启用：只有 orbit 机位。</b>orbit 机位是绕着一栋楼转的，画面里就那一栋，
-    /// 让开中间才有意义。世界总览那台是 Pan/Static 的城市俯瞰，没有"主体"可言，
-    /// 卡片保持贴着自己的锚点上浮——一个点向上连到一块，那个读法本来就是对的。
+    /// <b>谁进栏按卡的身份定，不按机位。</b>Container 牌子（地点 / 人物 / 普通）是「这儿有个
+    /// 地方」，贴着它指的锚点上浮才读得对；动作面板和结算残留是操作台，压在场景上就把场景
+    /// 盖没了，所以一律进栏。曾经按机位判断（只有 orbit 机位进栏），结果 Pan 机位的室内
+    /// 交锋里几张面板全叠在房间正中。
     /// </summary>
     public static class CardGutterLayout
     {
@@ -31,15 +32,6 @@ namespace SSNoir.IMGUI
         // 每个锚点认定的那条栏。键是锚点名，取值范围就是这座城里的锚点集合（几十个），
         // 不会无限增长，所以不做清理。
         private static readonly Dictionary<string, bool> _sideByAnchor = new Dictionary<string, bool>();
-
-        /// <summary>这一帧的镜头是不是在框一栋楼。</summary>
-        public static bool IsActive(Cinemachine.CinemachineVirtualCamera? focusCamera)
-        {
-            if (focusCamera == null)
-                return false;
-            var config = focusCamera.GetComponent<SSNoirVirtualCameraConfig>();
-            return config != null && config.dragMode == CameraDragMode.Orbit;
-        }
 
         /// <summary>
         /// 这张卡该去哪条栏、停在哪。

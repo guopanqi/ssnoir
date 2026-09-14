@@ -23,6 +23,17 @@ Thumbs.db
 /.cache/
 /.codex-artifacts/
 /tmp/
+/scratch/
+
+# Local assistant configuration and skill links
+/.claude/
+
+# JavaScript dependencies installed locally by helper tools
+**/node_modules/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
 
 # Unity specific ignores
 **/UnityClient/Library/

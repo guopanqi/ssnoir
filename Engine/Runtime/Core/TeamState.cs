@@ -36,6 +36,62 @@ namespace SSNoir.Core
         public bool PendingCollapse { get; private set; }
 
         public int GrowthLevel { get; set; } = 0;
+
+        // ── 关系支援 ──────────────────────────────────────
+        // 人物关系推进到某一步，给玩家一条能带进任何一场交锋的支援能力。它是一个独立层级：
+        // 不属于哪张行动卡，也不认识某一场的剧情钟，只操作所有交锋共有的东西（骰、人、冷静）。
+        // 一场交锋只带一个（CarriedSupport），每场只能用一次（次数记在 SceneManager，随交锋开始归零）。
+        // 支援本身长什么样、做什么，写在 engine.scm 的 support-nodes；这里只记「有哪些、带了谁」。
+        private readonly List<string> _supports = new List<string>();
+        public IReadOnlyList<string> Supports => _supports;
+        public string CarriedSupport { get; private set; } = string.Empty;
+
+        public bool HasSupport(string id) => _supports.Contains(id);
+
+        /// <summary>获得一条支援。第一条自动成为带进交锋的那一个；以后换人走 <see cref="SetCarriedSupport"/>。</summary>
+        public void GrantSupport(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("Support id must be non-empty.", nameof(id));
+            if (_supports.Contains(id)) return;
+            _supports.Add(id);
+            if (CarriedSupport.Length == 0)
+                CarriedSupport = id;
+            OnTeamChanged?.Invoke();
+        }
+
+        public void SetCarriedSupport(string id)
+        {
+            if (id.Length > 0 && !_supports.Contains(id))
+                throw new InvalidOperationException($"Support '{id}' has not been granted.");
+            CarriedSupport = id;
+            OnTeamChanged?.Invoke();
+        }
+
+        /// <summary>支援叫来的临时帮手：入队、当场发一颗骰。回合结束或交锋结束由
+        /// <see cref="DismissTemporaryCompanions"/> 清走，不会跟着玩家回城。</summary>
+        public ActorState SummonHelper(string actorId, string name, IReadOnlyDictionary<string, int> stats)
+        {
+            var actor = RecruitCompanion(actorId, name, stats);
+            actor.IsTemporary = true;
+            RollActionDiceFor(actor);
+            OnTeamChanged?.Invoke();
+            return actor;
+        }
+
+        public List<string> DismissTemporaryCompanions()
+        {
+            var gone = new List<string>();
+            foreach (var actor in Actors.FindAll(a => a.IsTemporary))
+            {
+                gone.Add(actor.Name);
+                Actors.Remove(actor);
+            }
+            if (gone.Count > 0)
+                OnTeamChanged?.Invoke();
+            return gone;
+        }
+
         // 骰池位置稳定存在；身体状态附着在位置上，而非可变骰子列表下标。
         // 主角承担城市与交锋的主要行动，同伴只在城市中提供一枚额外行动骰。
         public const int ProtagonistActionSlotCount = 4;
@@ -128,6 +184,46 @@ namespace SSNoir.Core
         public ActorState? FindActor(string actorId)
         {
             return Actors.Find(a => a.Id.Equals(actorId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// 场景中的外部事件占用某个人尚未使用的行动骰。按稳定骰位从右向左取，
+        /// 不看点数；内容若要求了不存在的骰，说明事件调度错误，直接中断。
+        /// </summary>
+        public IReadOnlyList<SlottedResource> ConsumeAvailableActionDice(string actorId, int count)
+        {
+            if (count <= 0)
+                throw new ArgumentOutOfRangeException(nameof(count), "dice count must be positive");
+            var actor = FindActor(actorId)
+                ?? throw new InvalidOperationException($"Actor '{actorId}' is not in the team.");
+            if (actor.Status != "active")
+                throw new InvalidOperationException($"Actor '{actorId}' is not active.");
+            if (actor.ActionDice.Count < count)
+                throw new InvalidOperationException(
+                    $"Actor '{actorId}' has {actor.ActionDice.Count} available dice, but the event requires {count}.");
+
+            var consumed = new List<SlottedResource>();
+            for (int n = 0; n < count; n++)
+            {
+                int chosenIndex = 0;
+                for (int i = 1; i < actor.ActionDiceSlotIds.Count; i++)
+                {
+                    if (actor.ActionDiceSlotIds[i] > actor.ActionDiceSlotIds[chosenIndex])
+                        chosenIndex = i;
+                }
+                consumed.Add(new SlottedResource
+                {
+                    Type = "die",
+                    ActorId = actor.Id,
+                    DieIndex = actor.ActionDiceSlotIds[chosenIndex],
+                    SourceIndex = actor.ActionDiceSlotIds[chosenIndex],
+                    Value = actor.ActionDice[chosenIndex],
+                });
+                actor.ActionDice.RemoveAt(chosenIndex);
+                actor.ActionDiceSlotIds.RemoveAt(chosenIndex);
+            }
+            OnTeamChanged?.Invoke();
+            return consumed;
         }
 
         public ActorState RecruitCompanion(string actorId, string name, IReadOnlyDictionary<string, int> stats)
@@ -355,11 +451,16 @@ namespace SSNoir.Core
                 Scars          = Scars.Serialize(),
                 GrowthLevel    = GrowthLevel,
                 HasSavedActionDice = true,
+                Supports       = new List<string>(_supports),
+                CarriedSupport = CarriedSupport,
             };
             foreach (var actor in Actors)
             {
                 // 定制骰池只属于交锋临时请来的人。它出现在存档里，说明某场交锋结算时
                 // 忘了让人离队——这是内容错误，当场中断，不要把它写进城市。
+                if (actor.IsTemporary)
+                    throw new InvalidOperationException(
+                        $"Actor '{actor.Id}' is a temporary helper; the engine must dismiss them before returning to the city.");
                 if (!actor.HasDefaultDieProfile)
                     throw new InvalidOperationException(
                         $"Actor '{actor.Id}' still carries an encounter-only die profile; the encounter must dismiss them before returning to the city.");
@@ -388,6 +489,14 @@ namespace SSNoir.Core
             Scars.Restore(data.Scars);
             PendingCollapse = false;
             GrowthLevel = data.GrowthLevel;
+            _supports.Clear();
+            foreach (var id in data.Supports ?? new List<string>())
+                if (!string.IsNullOrWhiteSpace(id) && !_supports.Contains(id))
+                    _supports.Add(id);
+            string carried = data.CarriedSupport ?? string.Empty;
+            if (carried.Length > 0 && !_supports.Contains(carried))
+                throw new ArgumentException($"Save file carries support '{carried}' that was never granted.");
+            CarriedSupport = carried.Length == 0 && _supports.Count > 0 ? _supports[0] : carried;
 
             var savedActorIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var actorData in data.Actors)
@@ -488,41 +597,42 @@ namespace SSNoir.Core
 
         public void RollActionDice(bool isInEncounter, bool consumeHangover = true)
         {
-            var rand = GameRandom.Instance;
-            bool injuryDicePenalty = Injury.CostsActionDie;
             foreach (var actor in Actors)
             {
                 bool applyHangover = !isInEncounter && consumeHangover && actor.HangoverSlotId != null;
-                actor.ActionDice.Clear();
-                actor.ActionDiceSlotIds.Clear();
-                if (IsOnStage(actor, isInEncounter))
-                {
-                    int diceCount = actor.ActionSlotCount;
-                    if (actor.Role == "protagonist")
-                    {
-                        if (injuryDicePenalty)
-                            diceCount -= 1;
-                    }
-                    for (int slotId = 0; slotId < diceCount; slotId++)
-                    {
-                        if (actor.FixedDieValue != null)
-                        {
-                            // 恒定骰点不受任何降质影响：机器不会宿醉，也不会手抖。
-                            actor.ActionDice.Add(actor.FixedDieValue.Value);
-                            actor.ActionDiceSlotIds.Add(slotId);
-                            continue;
-                        }
-                        int penalty = GetCurrentSlotPenalty(actor, slotId);
-                        if (applyHangover && actor.HangoverSlotId == slotId)
-                            penalty--;
-                        actor.ActionDice.Add(Math.Max(1, rand.Next(1, 7) + penalty));
-                        actor.ActionDiceSlotIds.Add(slotId);
-                    }
-                }
+                RollActionDiceFor(actor, isInEncounter, applyHangover);
                 if (applyHangover)
                     actor.HangoverSlotId = null;
             }
             OnTeamChanged?.Invoke();
+        }
+
+        /// <summary>给一个人发这一手骰。交锋中途入队的帮手也走这里：他来的时候手里就该有骰。</summary>
+        private void RollActionDiceFor(ActorState actor, bool isInEncounter = true, bool applyHangover = false)
+        {
+            var rand = GameRandom.Instance;
+            actor.ActionDice.Clear();
+            actor.ActionDiceSlotIds.Clear();
+            if (!IsOnStage(actor, isInEncounter))
+                return;
+            int diceCount = actor.ActionSlotCount;
+            if (actor.Role == "protagonist" && Injury.CostsActionDie)
+                diceCount -= 1;
+            for (int slotId = 0; slotId < diceCount; slotId++)
+            {
+                if (actor.FixedDieValue != null)
+                {
+                    // 恒定骰点不受任何降质影响：机器不会宿醉，也不会手抖。
+                    actor.ActionDice.Add(actor.FixedDieValue.Value);
+                    actor.ActionDiceSlotIds.Add(slotId);
+                    continue;
+                }
+                int penalty = GetCurrentSlotPenalty(actor, slotId);
+                if (applyHangover && actor.HangoverSlotId == slotId)
+                    penalty--;
+                actor.ActionDice.Add(Math.Max(1, rand.Next(1, 7) + penalty));
+                actor.ActionDiceSlotIds.Add(slotId);
+            }
         }
 
         public IReadOnlyList<ActionSlotStatus> GetActiveActionSlotStatuses(ActorState actor)

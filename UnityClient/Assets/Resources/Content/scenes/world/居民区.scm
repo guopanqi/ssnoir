@@ -2,4 +2,4 @@
 ;; 路线、人物与发现地点各自声明专属 Anchor；其余剧情卡收回居民区主点。
 ;; 谁在这儿有卡片写在 world/内容登记.scm。
 
-(define residential-district (纯投射地点 "码头居民区" "居民区" "码头居民区"))
+(define residential-district (纯投射地点 "码头居民区" "码头居民区"))

@@ -3,8 +3,8 @@
 A camera that does not look at its orbit pivot reads as a bug in game: the shot
 arrives on its authored aim, then jumps the moment the player drags, because the
 runtime orbit re-aims at the pivot (SSNoirVirtualCameraConfig.ApplyOrbitFromDrag).
-The same runtime clamps the elevation into [minPitch, maxPitch], so a camera
-authored outside that band jumps vertically on the first drag too.
+The importer (ConfigureOrbit) widens [minPitch, maxPitch] to contain the authored
+pitch, so an out-of-band shot is reported as a note, never an error.
 
 Run with:
   blender --background asset.blend --python align_camera_to_pivot.py -- [options]
@@ -43,8 +43,9 @@ def parse_args():
     parser.add_argument(
         "--tolerance", type=float, default=0.5,
         help="aim error in degrees that still counts as aligned (default 0.5)")
-    parser.add_argument("--min-pitch", type=float, default=10.0)
-    parser.add_argument("--max-pitch", type=float, default=25.0)
+    # SSNoirVirtualCameraConfig 默认带；导入器会把每台 Orbit 相机的带撑到包含出厂机位，所以出带只提示不拦截。
+    parser.add_argument("--min-pitch", type=float, default=16.0)
+    parser.add_argument("--max-pitch", type=float, default=35.0)
     return parser.parse_args(args)
 
 
@@ -65,32 +66,23 @@ def is_same_or_child_of(candidate, scope):
 def nearest_pivot(camera, pivots):
     """Mirror SSNoirModelImporter.FindClosestOrbitPivot.
 
-    Walk up from the camera to the first ancestor subtree that owns any pivot —
-    never as far as the asset root, so one building's camera cannot bind the
-    neighbouring building's pivot. A whole-asset fallback applies only when the
-    file holds exactly one pivot.
+    A camera binds only a pivot that sits directly under the same parent — its own
+    Prefab root — so the nested alley's camera cannot borrow the bar's pivot, and
+    the bar's camera cannot bind the alley's. In a Prefab .blend both objects are
+    top-level (parent None); in the built FBX both hang under the Prefab root.
+    A whole-asset fallback applies only when the file holds exactly one pivot.
     """
-    # Every ancestor counts as a scope here: the Unity import root that the
-    # importer refuses to climb to is added at import time and has no
-    # counterpart in the .blend/.fbx itself.
-    scopes = []
-    scope = camera.parent
-    while scope is not None:
-        scopes.append(scope)
-        scope = scope.parent
-
     origin = camera.matrix_world.translation
-    for scope in scopes:
-        matches = [p for p in pivots if is_same_or_child_of(p, scope)]
-        if matches:
-            return min(matches, key=lambda p: (p.matrix_world.translation - origin).length)
-
+    siblings = [p for p in pivots if p.parent == camera.parent]
+    if siblings:
+        return min(siblings, key=lambda p: (p.matrix_world.translation - origin).length)
     return pivots[0] if len(pivots) == 1 else None
 
 
 options = parse_args()
 objects = list(bpy.context.scene.objects)
-pivots = [obj for obj in objects if normalized_marker_name(obj.name) == "orbitpivot"]
+# 规范名 OrbitPivot_<名>；导入器按"归一化后以 orbitpivot 开头"识别，独立资产里的 `orbit pivot` 也认。
+pivots = [obj for obj in objects if normalized_marker_name(obj.name).startswith("orbitpivot")]
 cameras = [obj for obj in objects if obj.type == "CAMERA"]
 if options.camera:
     wanted = set(options.camera)
@@ -100,6 +92,7 @@ else:
     missing = []
 
 rows = []
+notes = []
 errors = list(f"no camera named '{name}'" for name in missing)
 
 if not pivots:
@@ -152,10 +145,10 @@ for camera in cameras:
             f"camera '{camera.name}' misses pivot '{pivot.name}' by {aim_error:.1f} deg")
     # A pivot move changes the pitch, so let the post-move check report it instead.
     if not in_band and not (options.apply and options.fix == "pivot"):
-        errors.append(
-            f"camera '{camera.name}' pitch {pitch:.1f} deg is outside the runtime "
+        notes.append(
+            f"camera '{camera.name}' pitch {pitch:.1f} deg is outside the default "
             f"orbit band [{options.min_pitch:.0f}, {options.max_pitch:.0f}]; "
-            "the first drag will snap it")
+            "the importer widens the band to contain it")
 
     if options.apply and not aligned:
         if options.fix == "camera":
@@ -186,7 +179,7 @@ for camera in cameras:
                     math.atan2(-new_offset.z, math.hypot(new_offset.x, new_offset.y)))
                 rows[-1]["pitch_after"] = round(new_pitch, 3)
                 if not (options.min_pitch - 1e-3 <= new_pitch <= options.max_pitch + 1e-3):
-                    errors.append(
+                    notes.append(
                         f"camera '{camera.name}' pitch is {new_pitch:.1f} deg after the "
                         f"move, still outside [{options.min_pitch:.0f}, "
                         f"{options.max_pitch:.0f}]")
@@ -199,6 +192,7 @@ report = {
     "applied": bool(options.apply),
     "saved": bool(options.apply and options.save),
     "cameras": rows,
+    "notes": notes,
     "errors": errors,
 }
 print("SSNOIR_CAMERA_ALIGNMENT " + json.dumps(report, ensure_ascii=False))

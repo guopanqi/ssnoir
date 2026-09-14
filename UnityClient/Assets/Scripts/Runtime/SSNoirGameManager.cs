@@ -28,6 +28,7 @@ namespace SSNoir
 
     public class SSNoirGameManager : MonoBehaviour
     {
+        private const string ReduceMotionSettingKey = "reduceMotion";
         private const string WorldRootNodeName = "世界";
         // Font files follow: <family>-Regular.ttf / <family>-SemiBold.ttf.
         private const string FontFamily = "SourceHanSerifCN";
@@ -80,6 +81,7 @@ namespace SSNoir
         // 焦点上下文切换的演出窗口期：数据已切换，卡片还没换脸。见 BeginIncomingFocusContext。
         private bool _incomingFocusContextActive;
         private Cinemachine.CinemachineVirtualCamera? _incomingFocusContextCamera;
+        private bool _incomingFocusCrossesStagePortal;
         // 回到世界视角时，建筑的 High 不能在相机离开近景前立刻撤掉；否则玩家会看到
         // High -> Low 的替换瞬间。每次新的焦点请求都会使旧的清理请求失效。
         private int _cityOutlineClearRequest;
@@ -242,6 +244,7 @@ namespace SSNoir
         public bool IsInputLocked => _renderer != null && _renderer.IsInputLocked;
         public bool PointerOverUI => _renderer != null && _renderer.PointerOverUI;
         public Cinemachine.CinemachineVirtualCamera? CurrentFocusCamera => ResolveCurrentFocusCamera();
+        public bool IncomingFocusCrossesStagePortal => _incomingFocusCrossesStagePortal;
 
 
         /// <summary>物品数量最近增加时返回 1→0 的亮起强度；读档和新游戏基线不触发。</summary>
@@ -507,7 +510,16 @@ namespace SSNoir
                 UpdateCameraFocus();
         }
 
-        private void UpdateCameraFocus()
+        /// <summary>
+        /// 重新对准当前导航路径的焦点镜头。
+        ///
+        /// <paramref name="storyDriven"/> 区分两种换镜：玩家自己翻页（点地点卡、返回、回家）
+        /// 是城里最高频的动作，看多了会腻，「减少动画」就是给它准备的；而剧情把镜头带到
+        /// 另一个地方（交锋里换场、倒下送医、交锋收场退回地点）一局里没几次，这段路本身
+        /// 在交代"你从哪儿到了哪儿"，砍了空间关系就断了，所以不受该设置影响。Portal 和
+        /// 过场出于同样理由也永远走全动画。
+        /// </summary>
+        private void UpdateCameraFocus(bool storyDriven = false)
         {
             if (ShouldDeferFocusToPendingPortal())
                 return;
@@ -537,7 +549,8 @@ namespace SSNoir
                 // instead of blending straight through it.
                 bool travelStarted = false;
                 if (_stageController == null || !_stageController.IsTransitioning)
-                    travelStarted = _cameraManager.BeginFocusTravel(focusCamera);
+                    travelStarted = _cameraManager.BeginFocusTravel(
+                        focusCamera, respectReduceMotion: !storyDriven);
 
                 ResetFocusCameraPriorities();
                 focusCamera.Priority = 20;
@@ -588,11 +601,17 @@ namespace SSNoir
                 return false;
 
             var currentContextId = CurrentStageContextId;
-            if (currentContextId == null || currentContextId == _stageController.CurrentContextId)
+            if (currentContextId == _stageController.CurrentContextId)
                 return false;
 
+            // 离开独立舞台时目的上下文就是 null，但这正是 Portal 的反向行程。
+            // 不能把 null 当成“没有 Portal”：当前仍持有的 Portal 才是这次退场的所有者。
             if (_stageController.HasActivePortal)
                 return true;
+
+            // 从城市进入舞台时，目的 Anchor 上的配置声明这次换镜归 Portal。
+            if (currentContextId == null)
+                return false;
 
             var anchor = ResolveAnchor(currentContextId);
             return anchor != null && anchor.GetComponent<StagePortalConfig>() != null;
@@ -996,7 +1015,7 @@ namespace SSNoir
                         EndIncomingFocusContext();
                         bool navigationCollapsed = AdoptLatestSnapshot();
                         if (focusContextChanged || navigationCollapsed)
-                            UpdateCameraFocus();
+                            UpdateCameraFocus(storyDriven: true);
                     };
                     StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () =>
                     {
@@ -1060,6 +1079,8 @@ namespace SSNoir
         {
             _incomingFocusContextActive = true;
             _incomingFocusContextCamera = null;
+            string? outgoingStage = ResolveCurrentStageContextId();
+            string? incomingStage = null;
 
             var incomingRoot = _sceneManager.LatestSnapshot.RootNode;
             if (incomingRoot == null)
@@ -1069,14 +1090,18 @@ namespace SSNoir
             if (anchor != null)
             {
                 _incomingFocusContextCamera = anchor.FocusVirtualCamera;
+                if (anchor.GetComponent<StagePortalConfig>() != null)
+                    incomingStage = incomingRoot.Name;
                 PresentCamera(_incomingFocusContextCamera, anchor);
             }
+            _incomingFocusCrossesStagePortal = !string.Equals(outgoingStage, incomingStage, System.StringComparison.Ordinal);
         }
 
         private void EndIncomingFocusContext()
         {
             _incomingFocusContextActive = false;
             _incomingFocusContextCamera = null;
+            _incomingFocusCrossesStagePortal = false;
         }
 
         /// <summary>
@@ -1155,6 +1180,11 @@ namespace SSNoir
                 pathBefore.Add(node.Name);
             ResolveNavigationStack();
             CleanupNodeSlots();
+
+            // 快照是“玩家现在在哪”的唯一事实。Stage Portal 在这里同步接管，Debug 直载、
+            // 正式交锋和返回世界因而共用同一条边界，不再等下一帧 Update 猜执行顺序。
+            _stageController?.ReconcileContext();
+
             if (pathBefore.Count != _navigationStack.Count)
                 return true;
             for (int i = 0; i < pathBefore.Count; i++)
@@ -1384,6 +1414,7 @@ namespace SSNoir
             try
             {
                 var path = filePath ?? SaveManager.DefaultSavePath;
+                _sceneManager.Settings[ReduceMotionSettingKey] = MotionSettings.ReduceMotion;
                 _sceneManager.SaveGame(path);
                 _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
             }
@@ -1407,6 +1438,17 @@ namespace SSNoir
             {
                 ResetInventoryGainPulseBaseline();
                 _sceneManager.LoadGame(path);
+                if (_sceneManager.Settings.TryGetValue(ReduceMotionSettingKey, out object savedReduceMotion))
+                {
+                    if (savedReduceMotion is not bool reduceMotion)
+                        throw new System.IO.InvalidDataException(
+                            $"Save setting '{ReduceMotionSettingKey}' must be a boolean.");
+                    MotionSettings.ReduceMotion = reduceMotion;
+                }
+                else
+                {
+                    MotionSettings.ReduceMotion = true;
+                }
                 // OnSceneLoaded fires inside LoadGame → ResetSceneUiState → ResetUiState
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
             }
@@ -1421,6 +1463,7 @@ namespace SSNoir
         {
             ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
+            MotionSettings.ReduceMotion = true;
         }
 
         private void ResetInventoryGainPulseBaseline()
@@ -1653,7 +1696,7 @@ namespace SSNoir
                     EndIncomingFocusContext();
                     bool navigationCollapsed = AdoptLatestSnapshot();
                     if (focusContextChanged || navigationCollapsed)
-                        UpdateCameraFocus();
+                        UpdateCameraFocus(storyDriven: true);
                 };
                 StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () =>
                 {
@@ -1797,7 +1840,7 @@ namespace SSNoir
                 _navigationStack.Add(node);
             }
             ResolveNavigationStack();
-            UpdateCameraFocus();
+            UpdateCameraFocus(storyDriven: true);
         }
 
         /// <summary>
@@ -1836,7 +1879,7 @@ namespace SSNoir
             {
                 bool navigationCollapsed = AdoptLatestSnapshot();
                 if (navigationCollapsed)
-                    UpdateCameraFocus();
+                    UpdateCameraFocus(storyDriven: true);
                 done = true;
             });
 

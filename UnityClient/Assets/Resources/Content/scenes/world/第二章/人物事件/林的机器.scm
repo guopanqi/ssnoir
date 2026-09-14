@@ -1,139 +1,190 @@
-;; scenes/world/第二章/人物事件/林的机器.scm - 林·第二章第一拍《装配》
-;;
-;; 第一章那台在工棚里散架的机器，现在是公司拿出来展示的项目，而且要装到老码头来。
-;; 林负责装。他很兴奋——对他来说这是「终于能干活了」，不是「终于能省下人了」。
-;;
-;; 玩家能不能参与，取决于晚宴那晚有没有走向他（见 晚宴.scm 的「找林说话」）。
-;; **没走向他，这一段照样发生**，只是你插不上手：机器照装，他照样往上走，
-;; 只是没有人在旁边问他那句话。
-;;
-;; 三趟里前两趟是活，第三趟才是这条线真正要的东西：
-;;   校准／试跑  —— 他要人搭把手。你去，他就更快装完
-;;   问他那些人  —— 只有陪过两趟、他把你当自己人以后，这句话才问得出口
-;; 那句话写回的是他自己的「人文关怀」——第一章就有这个事实，这一章接着往里写，
-;; 不新开一个。第三章问的是同一个东西：机器成功以后，他有没有想过谁付代价。
-;;
-;; 这条线和艾迪那条压在同一段日子里。取舍不来自「今天开不开门」，来自骰子只有那么多：
-;; 两条都推完要花掉五六天，而这几天你还得挣钱、恢复、交房租。
+;; 林·第二章：第一章的位置决定他站在项目核心还是外围；第二章的现场事实决定他看见什么。
 (define 林的机器
   (let ()
-    (define 收工-第几天 8)
-    (define 要几趟 2)              ; 前两趟是搭手；第三趟是那句话
+    (define 身份已交代? #f)
+    (define 试运行状态 "未开放") ; 未开放 / 待进行 / 成功 / 失败
+    (define 试运行结束日 0)
+    (define 林的认识 "尚未动摇") ; 尚未动摇 / 看见人的经验 / 意识到转型问题
+    (define 培训状态 "未开放")   ; 未开放 / 进行中 / 通过 / 未完成
+    (define 培训进度 (make-clock "基础操作" 8 'gauge "填满后，老乔取得基础操作合格。"))
+    (define 培训说到作业单? #f)
+    (define 培训说到模拟? #f)
+    (define journal (make-journal))
 
-    ;; 未开始 / 进行中 / 装完了
-    (define 状态 "未开始")
-    (define 搭手 0)
-    (define 问过了? #f)
-    (define 说过了? #f)            ; 他当面跟你提过这件事（＝你知情）
+    (define (核心?) (lin 'authority?))
+    (define (开始了?) (第二章 'started?))
+    (define (phase-b?) (equal? (第二章 'phase) "B"))
+    (define (试运行结束?) (or (equal? 试运行状态 "成功") (equal? 试运行状态 "失败")))
+    (define (培训结束?) (or (equal? 培训状态 "通过") (equal? 培训状态 "未完成")))
+    (define (活动地点) (if (and (核心?) 身份已交代?) "港务技术区" "码头"))
 
-    (define (进行中?) (equal? 状态 "进行中"))
-    (define (够熟了?) (>= 搭手 要几趟))
-    (define (能插手?) (lin 'invited?))
-    (define (收工日) (第二章 'day-of 收工-第几天))
-    (define (还没收工?) (< world-day (收工日)))
+    ;; 活动在码头时落在三号货栈的院子；港务技术区还没有模型，那里的卡走网格。
+    (define (落在活动地点 node-data)
+      (if (equal? (活动地点) "码头")
+          (at-anchor "码头-三号货栈" node-data)
+          node-data))
 
-    ;; ── 日历推着走 ──────────────────────────────────
-    ;; 装配不等你。你没去过一次，它照样在第 8 天装完。
-    (define (on-day-end!)
-      (cond
-        ((and (equal? 状态 "未开始") (第二章 'started?) (>= (第二章 'day) 2))
-         (set! 状态 "进行中"))
-        ((and (进行中?) (>= world-day (收工日)))
-         (收工!))
-        (else #f)))
-
-    (define (收工!)
-      (set! 状态 "装完了")
-      (if 说过了?
-          (begin
-            ((第二章 'journal) 'add!
-              (if 问过了?
-                  "机器装完了。林把那个数字记下来了，虽然他没说要拿它做什么。"
-                  "机器装完了。林很高兴，他说这回它能自己跑一整班。"))
-            (spotlight! "机器装好了"
-              (if 问过了?
-                  "第一批设备装完了。你问过他那些人以后要去哪儿，他到现在还没给出答案。"
-                  "第一批设备装完了。林说它能自己跑一整班，说的时候眼睛是亮的。")))
-          #f))
-
-    ;; ── 他跟你提这件事（＝你知情）────────────────────
-    (define (arrivals-at location)
-      (if (and (equal? location "试验场") (进行中?) (not 说过了?) (能插手?))
-          (list (arrival "林的装配"
-                  (lambda ()
-                    (set! 说过了? #t)
-                    (play-dialogue!
-                      (line "林" "侦探。你来得正好，帮我扶一下这根轨道。")
-                      (line "尼尔" "这台就是要装到码头去的？")
-                      (line "林" "整条泊位。下个月第一班就归它跑。")
-                      (line "林" "在那之前它得在这儿跑通。你有空就过来。"))
-                    (spotlight! "林的装配"
-                      "林在试验场调第一批设备。他要人搭把手，装完之前你随时能去。"))))
-          '()))
-
-    ;; ── 搭把手 ──────────────────────────────────────
-    (define (node-help)
-      (action "帮林扶轨道" (list (req-die))
-        (instant
-          (outcome "又对上一段"
-            (lambda ()
-              (set! 搭手 (+ 搭手 1))
-              (if (够熟了?)
-                  (play-banter!
-                    (line "林" "行了。剩下的我自己能收尾。"))
-                  (play-banter!
-                    (line "林" "差半寸。半寸它就爬不上去。")))
-              (result-note! (string-append "搭了 " (number->string 搭手) " 趟")))))))
-
-    ;; 陪过两趟他才肯认真接这句话。问完这条线就到头了——它要的不是次数，是那一次。
-    (define (node-ask)
-      (instant-action "问他那些人"
+    (define (身份入场)
+      (arrival "工棚正在搬空"
         (lambda ()
-          (set! 问过了? #t)
-          (lin 'on-saw-cost!)
-          (play-dialogue!
-            (line "尼尔" "这一台顶几个人？")
-            (line "林" "整班。十二个。")
-            (line "尼尔" "那十二个人下礼拜干什么？")
-            (line "世界" "他手里的扳手停在那儿，没有转下去。")
-            (line "林" "……公司说转岗。")
-            (line "尼尔" "我问的是他们干什么。"))
-          ((第二章 'journal) 'add! "你在码头上问了林那十二个人的去处。他没答上来。")
-          (spotlight! "十二个"
-            "你问了他这台机器顶掉几个人。他答得出数字，答不出那些人去哪儿。"))))
+          (set! 身份已交代? #t)
+          (if (核心?)
+              (begin
+                (play-dialogue!
+                  (line "世界" "设备贴上公司编号，图纸装进铁柜。有人拿着清单等林签字。")
+                  (line "工作人员" "林先生，这批图纸送技术区还是旧档案室？")
+                  (line "林" "技术区。原件跟我走。")
+                  (line "世界" "技术区门口，警卫伸手拦住尼尔。")
+                  (line "林" "他跟我一起。"))
+                (journal 'add! "三号货栈的实验让林进入项目核心。他把尼尔带进了港务技术区。")
+                (spotlight! "港务技术区" "林进入了项目核心。凭他的许可，你可以正常进入港务技术区。"))
+              (begin
+                (play-dialogue!
+                  (line "世界" "公司的人把设备和原图装车，只留给林一套副本。")
+                  (line "工作人员" "正式设备采用总部方案。你继续负责旧轨数据。")
+                  (line "世界" "车开向港务技术区。林留在空下来的工棚门口。"))
+                (journal 'add! "自动化项目采用了另一套方案。林仍在参与，但被留在项目外围。")
+                (spotlight! "项目外围" "港务技术区已经投入使用。林没有权限带尼尔进去。"))))))
+
+    (define (arrivals-at location)
+      (if (and (equal? location "三号货栈工棚") (开始了?) (not 身份已交代?))
+          (list (身份入场)) '()))
+
+    (define (试运行结果! result)
+      (cond
+        ((and (list? result) (equal? (car result) '成功))
+         (let ((参数胜 (cadr result)) (经验胜 (caddr result)))
+           (set! 试运行状态 "成功")
+           (set! 试运行结束日 world-day)
+           (if (> 经验胜 参数胜)
+               (begin
+                 (set! 林的认识 "看见人的经验")
+                 (lin 'on-saw-cost!)
+                 (play-remote-dialogue!
+                   (line "林" "刚才那几种情况，还有多少种？")
+                   (line "老乔" "哪一种？")
+                   (line "林" "……全部。")
+                   (line "老乔" "那可多了。")))
+               (play-remote-dialogue!
+                 (line "林" "现场比试验场多了很多变量。")
+                 (line "尼尔" "所以呢？")
+                 (line "林" "所以把它们写进去。下次机器会认得。")))
+           (journal 'add!
+             (if (> 经验胜 参数胜)
+                 "试运行成功。异常主要依靠老乔的经验解决，林第一次承认系统没有描述这些知识。"
+                 "试运行成功。异常主要依靠参数修正解决，林更确信现场问题最终都能被建模。"))))
+        ((equal? result '崩溃)
+         (set! 试运行状态 "失败")
+         (set! 试运行结束日 world-day)
+         (journal 'add! "并发异常耗尽系统稳定，试运行以控制器崩溃告终。公司仍会继续部署。"))
+        (#t (error "林的机器：《试运行》返回未知结果"))))
+
+    (define (试运行节点)
+      (instant-action "开始试运行" (lambda () (start-encounter "码头试运行" 试运行结果!))))
+
+    (define (培训阶段)
+      (cond ((< (培训进度 'current) 3) 0)
+            ((< (培训进度 'current) 6) 1)
+            (#t 2)))
+
+    (define (培训推进! n)
+      (培训进度 'advance! n)
+      (if (and (>= (培训进度 'current) 3) (not 培训说到作业单?))
+          (begin
+            (set! 培训说到作业单? #t)
+            (play-dialogue!
+              (line "老乔" "我知道这批货怎么搬。可这张纸管它叫什么？")
+              (line "林" "标准混装单元。")
+              (line "老乔" "码头上没人这么叫。"))) #f)
+      (if (and (>= (培训进度 'current) 6) (not 培训说到模拟?))
+          (begin
+            (set! 培训说到模拟? #t)
+            (play-dialogue!
+              (line "世界" "模拟器要求老乔重新输入一遍刚才亲手处理过的货物。")
+              (line "老乔" "真货我会搬。这一箱假货倒把我难住了。"))) #f)
+      (if (培训进度 'full?)
+          (begin
+            (set! 培训状态 "通过")
+            (play-dialogue!
+              (line "世界" "打印机吐出一张薄纸：基础操作，合格。")
+              (line "林" "不对。")
+              (line "尼尔" "什么不对？")
+              (line "林" "我还不知道。"))
+            (if (equal? 林的认识 "看见人的经验")
+                (set! 林的认识 "意识到转型问题") #f)
+            (journal 'add! "老乔完成了基础培训。那张合格证几乎没有描述他在码头上真正会做的事。")) #f))
+
+    (define (培训动作 name subtitle skill)
+      (node name :subtitle subtitle :requires (list (req-die))
+        :resolve (roll skill
+          (outcome "越讲越乱" (lambda () (spend-actor-composure! 'player 1) (result-note! "培训没有推进")))
+          (outcome "弄懂一点" (lambda () (培训推进! 1)))
+          (outcome "终于接上了" (lambda () (培训推进! 2))))))
+
+    (define (培训节点)
+      (container "陪老乔培训"
+        (append
+          (clock-nodes (培训进度 'render-data))
+          (cond
+            ((= (培训阶段) 0)
+             (list (培训动作 "逐项解释按钮" "把终端上的每一步拆开讲" 'knowledge)
+                   (培训动作 "拿码头设备作比" "换成老乔熟悉的机械和动作" 'social)))
+            ((= (培训阶段) 1)
+             (list (培训动作 "拆开系统缩写" "把作业单翻回普通说法" 'knowledge)
+                   (培训动作 "按真实货物还原" "从货物和绳结反推表格含义" 'sharpness)))
+            (#t
+             (list (培训动作 "陪他核对步骤" "逐行检查模拟操作" 'knowledge)
+                   (培训动作 "让他按习惯做" "先做对，再找系统里的对应项" 'social)))))))
+
+    (define (on-day-end!)
+      (if (and (phase-b?) (equal? 试运行状态 "未开放"))
+          (begin
+            (set! 试运行状态 "待进行")
+            (spotlight! "第一次试运行" "设备将在真实旧轨上试运行。林在机器旁边，老乔也被叫来盯现场。")) #f)
+      (if (and (试运行结束?) (equal? 培训状态 "未开放")
+               (>= world-day (+ 试运行结束日 2)))
+          (begin
+            (set! 培训状态 "进行中")
+            (spotlight! "基础培训" "老乔收到转岗培训通知。课程不难——至少对设计课程的人来说不难。")) #f))
+
+    (define (close!)
+      (if (equal? 试运行状态 "待进行") (set! 试运行状态 "失败") #f)
+      (if (equal? 培训状态 "进行中")
+          (begin
+            (set! 培训状态 "未完成")
+            (if (equal? 林的认识 "看见人的经验")
+                (set! 林的认识 "意识到转型问题") #f)
+            (journal 'add! "第一批机器进场时，老乔仍没完成基础培训。这个阶段已经过去。"))
+          (if (equal? 培训状态 "未开放") (set! 培训状态 "未完成") #f)))
 
     (define (nodes-at location)
-      (if (and (equal? location "试验场") (进行中?) 说过了? (能插手?)
-               (还没收工?))
-          (cond
-            (问过了? '())
-            ((够熟了?) (list (node-ask)))
-            (#t (list (node-help))))
-          '()))
+      (cond
+        ((and (equal? 试运行状态 "待进行") (equal? location (活动地点))) (list (落在活动地点 (试运行节点))))
+        ((and (equal? 培训状态 "进行中") (equal? location (活动地点))) (list (落在活动地点 (培训节点))))
+        ((and 身份已交代? (not (核心?)) (equal? location "码头"))
+         (list (at-anchor "码头-三号货栈"
+                 (note-node "标注：技术区门禁" "港务技术区" "林的证件只允许他去外围工位。"))))
+        (#t '())))
 
-    ;; ── 卷宗 ────────────────────────────────────────
     (define (dossier-entry)
-      (if (or (not 说过了?) (not (能插手?)))
-          '()
-          (cond
-            ((进行中?)
-             (list (dossier "码头上的机器"
-                     :kind '人物
-                     :status '进行中
-                     :now (cond
-                            (问过了? "他还没想好怎么答。等装完")
-                            ((够熟了?) "他信得过你了。去试验场问他，那些人以后干什么")
-                            (#t "去试验场帮他扶轨道"))
-                     :where "试验场"
-                     :clocks (list (日期倒计时 "离装完" (收工日) 6
-                                     "装完就轮不到你插手了。")))))
-            (#t
-             (list (dossier "码头上的机器"
-                     :kind '人物 :status '了结
-                     :now (if 问过了?
-                              "机器装好了。那个数字他记着。"
-                              "机器装好了。没人问过他那些人去哪儿。")
-                     :where ""))))))
+      (if (not (开始了?)) '()
+          (list
+            (dossier "林与新机器" :kind '人物
+              :status (if (and (试运行结束?) (培训结束?)) '了结 '进行中)
+              :now (cond
+                     ((not 身份已交代?) "去三号货栈工棚看看林的位置发生了什么")
+                     ((equal? 试运行状态 "待进行") "参加第一次真实码头试运行")
+                     ((equal? 培训状态 "进行中") "陪老乔完成基础操作培训")
+                     ((equal? 培训状态 "未开放") "试运行结束了。项目仍在继续")
+                     ((equal? 培训状态 "通过") "老乔通过了基础培训")
+                     (#t "第一批机器进场，这一阶段结束了"))
+              :where (cond
+                       ((not 身份已交代?) "三号货栈工棚")
+                       ((equal? 试运行状态 "待进行") (活动地点))
+                       ((equal? 培训状态 "进行中") (活动地点))
+                       (#t ""))
+              :clocks (if (equal? 培训状态 "进行中") (list (培训进度 'render-data)) '())
+              :log (journal 'render-data)))))
 
     (lambda args
       (let ((msg (car args)))
@@ -142,16 +193,26 @@
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'on-day-end!) (on-day-end!))
-          ((equal? msg 'state) 状态)
-          ((equal? msg 'asked?) 问过了?)
+          ((equal? msg 'close!) (close!))
+          ((equal? msg 'has-access?) (and 身份已交代? (核心?)))
+          ((equal? msg 'insight) 林的认识)
           ((equal? msg 'save)
-           (list (list "state" 状态) (list "helped" 搭手)
-                 (list "asked" (if 问过了? 1 0))
-                 (list "told" (if 说过了? 1 0))))
+           (list (list "identity-shown" (if 身份已交代? 1 0))
+                 (list "trial-state" 试运行状态) (list "trial-end-day" 试运行结束日)
+                 (list "insight" 林的认识) (list "training-state" 培训状态)
+                 (list "training-progress" (培训进度 'save))
+                 (list "training-orders" (if 培训说到作业单? 1 0))
+                 (list "training-simulation" (if 培训说到模拟? 1 0))
+                 (list "journal" (journal 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
-             (set! 状态 (assoc-get data "state" "未开始"))
-             (set! 搭手 (assoc-get data "helped" 0))
-             (set! 问过了? (= (assoc-get data "asked" 0) 1))
-             (set! 说过了? (= (assoc-get data "told" 0) 1))))
+             (set! 身份已交代? (= (assoc-get data "identity-shown" 0) 1))
+             (set! 试运行状态 (assoc-get data "trial-state" "未开放"))
+             (set! 试运行结束日 (assoc-get data "trial-end-day" 0))
+             (set! 林的认识 (assoc-get data "insight" "尚未动摇"))
+             (set! 培训状态 (assoc-get data "training-state" "未开放"))
+             (培训进度 'load! (assoc-get data "training-progress" 0))
+             (set! 培训说到作业单? (= (assoc-get data "training-orders" 0) 1))
+             (set! 培训说到模拟? (= (assoc-get data "training-simulation" 0) 1))
+             (journal 'load! (assoc-get data "journal" '()))))
           (else (error "林的机器：收到未知消息")))))))

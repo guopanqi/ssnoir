@@ -20,10 +20,9 @@
 ;; 手在第一章伤过的人要多陪一趟。第一章你从他身上赚得越狠，这一章他越需要人。
 (define 艾迪的培训
   (let ()
-    (define 开门-第几天 2)
+    (define 准备天数 3)
     ;; 考试**当天**就考。所以能陪他练的是那天之前的日子：卡在 world-day < 考试日
     ;; 时才出现，结算在跨进考试日的那个日终发生。两处用的是同一条边界。
-    (define 考试-第几天 6)
 
     ;; 未开始 → 进行中 → 通过 / 没过。整条线由日历推动。
     (define 状态 "未开始")
@@ -33,8 +32,7 @@
     (define (要几趟) (if (eddie 'hand-bad?) 3 2))
     (define (够了?) (>= 练了 (要几趟)))
     (define (他还在?) (eddie 'known?))
-    (define (开门日) (第二章 'day-of 开门-第几天))
-    (define (考试日) (第二章 'day-of 考试-第几天))
+    (define (考试日) (+ (第二章 'phase-start-day) 准备天数))
     (define (进行中?) (equal? 状态 "进行中"))
     (define (还没考?) (< world-day (考试日)))
 
@@ -42,8 +40,7 @@
     ;; 由章节在日终统一调用（见 第二章.scm）。开门和结算都不问玩家在哪儿。
     (define (on-day-end!)
       (cond
-        ((and (equal? 状态 "未开始") (第二章 'started?) (他还在?)
-              (>= world-day (开门日)))
+        ((and (equal? 状态 "未开始") (equal? (第二章 'phase) "B") (他还在?))
          (set! 状态 "进行中"))
         ((and (进行中?) (>= world-day (考试日)))
          (结算!))
@@ -84,18 +81,18 @@
                     (play-dialogue!
                       (line "艾迪" "他们贴了张纸。说要办培训，学开新机器。")
                       (line "尼尔" "你报了？")
-                      (line "艾迪" "报了。考试在下礼拜。")
+                      (line "艾迪" "报了。三天后考试。")
                       (line "艾迪" "我这手拿扳手行，拿笔不行。你识字快。")
                       (line "尼尔" "考试哪天？")
-                      (line "艾迪" "下礼拜。你什么时候有空都行，我在码头上。"))
+                      (line "艾迪" "机器进场前就得定名单。你有空就来码头。"))
                     (spotlight! "培训通知"
-                      (string-append "艾迪报了名。考试在第 " (number->string (考试日))
-                                     " 天，在那之前陪他练几趟。")))))
+                      "艾迪报了名。三天后考试，在那之前可以去码头陪他练几趟。"))))
           '()))
 
     ;; ── 陪他练 ──────────────────────────────────────
     (define (node-practice)
-      (action "陪艾迪练手" (list (req-die))
+      (at-anchor "码头-货堆"
+       (action "陪艾迪练手" (list (req-die))
         (instant
           (outcome "又过了一遍"
             (lambda ()
@@ -105,7 +102,7 @@
                     (line "艾迪" "这几张我背下来了。真考的时候别慌就行。"))
                   (play-banter!
                     (line "艾迪" "……手抖不是紧张，是使不上劲。")))
-              (result-note! (string-append "练了 " (number->string 练了) " 趟")))))))
+              (result-note! (string-append "练了 " (number->string 练了) " 趟"))))))))
 
     (define (nodes-at location)
       (if (and (equal? location "码头") (进行中?) 说过了?
@@ -129,7 +126,7 @@
                             (#t (string-append "去码头陪他练，还要 "
                                                (number->string (- (要几趟) 练了)) " 趟")))
                      :where (if (还没考?) "码头" "")
-                     :clocks (list (日期倒计时 "离考试" (考试日) 4
+                     :clocks (list (日期倒计时 "离考试" (考试日) 准备天数
                                      "过了那天就没有下一场。")))))
             ((equal? 状态 "通过")
              (list (dossier "艾迪的手"

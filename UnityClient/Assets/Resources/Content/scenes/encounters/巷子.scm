@@ -593,11 +593,14 @@
 
 (define (get-render-data)
   (if (= act 1)
-      (container "堆场路口"
-        (append (apply clock-nodes (act1-clocks))
+      ;; 这一节还没有自己的场景，先借码头的三号货栈工棚：堆场路口＝工棚门口的院子，修理棚＝工棚里的工作台
+      (node "堆场路口"
+        :anchor "三号货栈工棚"
+        :children (append (apply clock-nodes (act1-clocks))
           (act1-nodes)))
-      (container "修理棚"
-        (append (apply clock-nodes (act2-clocks))
+      (node "修理棚"
+        :anchor "三号货栈工棚-工作台"
+        :children (append (apply clock-nodes (act2-clocks))
           (act2-nodes)))))
 
 ;; ── 开局 ────────────────────────────────────────

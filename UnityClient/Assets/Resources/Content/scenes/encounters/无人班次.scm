@@ -190,8 +190,9 @@
     (line "世界" "围栏外面站着几个下夜班没走的工人。没有人说话。")))
 
 (define (get-render-data)
-  (container "无人班次"
-    (append
+  (node "无人班次"
+    :anchor "三号货栈工棚"
+    :children (append
       (clock-nodes (shift-clk 'render-data)
                    (stability-clk 'render-data)
                    (manual-clk 'render-data))

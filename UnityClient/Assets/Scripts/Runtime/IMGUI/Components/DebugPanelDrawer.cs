@@ -42,13 +42,23 @@ namespace SSNoir.IMGUI
         {
             new ChapterJump
             {
-                Label = "跳进第二章（章内第 1 天）",
+                Label = "第二章第 1 天（林：外围）",
                 Code = "(debug-enter-chapter2!)"
             },
             new ChapterJump
             {
-                Label = "第二章 → Phase B",
+                Label = "第二章第 1 天（林：核心）",
+                Code = "(debug-enter-chapter2-lin-core!)"
+            },
+            new ChapterJump
+            {
+                Label = "Phase B（林：外围）",
                 Code = "(debug-enter-chapter2-phase-b!)"
+            },
+            new ChapterJump
+            {
+                Label = "Phase B（林：核心）",
+                Code = "(debug-enter-chapter2-phase-b-lin-core!)"
             },
         };
 
@@ -126,28 +136,8 @@ namespace SSNoir.IMGUI
         {
             var (toggleRect, panelRect) = GetRects(topHud);
 
-            // Toggle button
-            Color toggleBg = _isOpen
-                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f)
-                : IMGUIStyles.HudBg;
-            Color toggleBorder = _isOpen
-                ? IMGUIStyles.Gold
-                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
-            GUI.color = toggleBg;
-            GUI.DrawTexture(toggleRect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(toggleRect, 1f, toggleBorder);
-
-            var labelStyle = new GUIStyle(GUI.skin.label)
-            {
-                font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(13),
-                alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = _isOpen ? IMGUIStyles.Gold : IMGUIStyles.TextPrimary }
-            };
-            IMGUIStyles.DrawLabel(toggleRect, "Debug ▾", labelStyle);
-
-            if (ui.WasTapped(toggleRect))
+            // Toggle button：和卷宗/成长/设置/帮助共用同一份顶栏开关样式。
+            if (IMGUIButton.DrawHudToggle(toggleRect, "Debug ▾", _isOpen, ui))
             {
                 _isOpen = !_isOpen;
                 if (_isOpen)
@@ -155,10 +145,17 @@ namespace SSNoir.IMGUI
                     LoadScenes(gameManager);
                     _scrollOffset = 0f;
                 }
-                Event.current.Use();
             }
 
             if (!_isOpen) return;
+
+            var labelStyle = new GUIStyle(GUI.skin.label)
+            {
+                font = IMGUIStyles.ChineseFont,
+                fontSize = IMGUIStyles.FontSize(13),
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = IMGUIStyles.TextPrimary }
+            };
 
             // Panel
             float itemH = ItemH;

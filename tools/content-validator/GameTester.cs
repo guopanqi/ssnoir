@@ -300,12 +300,14 @@ namespace SSNoir.Testing
                 // 空表是重要状态：同伴的骰子已经用完，读档不能凭空补一颗。
                 companion.ActionDice.Clear();
                 companion.ActionDiceSlotIds.Clear();
+                sourceManager.Settings["reduceMotion"] = false;
                 sourceManager.SaveGame(savePath);
 
                 var loaded = new GameState();
                 var loadedManager = new SceneManager(loaded, new LocalScriptLoader());
                 loadedManager.LoadGame(savePath);
 
+                AssertEq("reduce motion setting", false, loadedManager.Settings["reduceMotion"]);
                 AssertEq("pure global", "persisted", loaded.Get<string>("test-global"));
                 AssertEq("inventory", 7, loaded.Inventory.GetCount("测试物品"));
                 AssertEq("injury severity", 2, loaded.Team.Injury.Severity);
@@ -362,6 +364,108 @@ namespace SSNoir.Testing
             {
                 if (File.Exists(savePath)) File.Delete(savePath);
             }
+
+            TestRelationSupport();
+        }
+
+        // 关系支援是引擎底层的一层契约（见 engine.scm「关系支援」与 TeamState.Supports）：
+        // 每场一次由引擎消费、帮手只活一回合、永远不进存档。这些都容易被回合结算的改动无声打破，
+        // 所以固化在这里。测试只走引擎接口和 CarryNodes，不依赖某一场交锋的内容。
+        private static void TestRelationSupport()
+        {
+            Console.WriteLine("=== Relation Support Contract Test ===");
+            var savePath = Path.Combine(Path.GetTempPath(), "ssnoir_test_support.json");
+            const string supportId = "弗兰克";
+            try
+            {
+                var state = new GameState();
+                var scenes = new SceneManager(state, new LocalScriptLoader());
+                scenes.LoadScene("world");
+
+                // 城市里没有支援卡；获得之后第一条自动成为带进交锋的那一个。
+                AssertEq("no support before grant", 0, state.Team.Supports.Count);
+                state.Team.GrantSupport(supportId);
+                AssertEq("carried defaults to first granted", supportId, state.Team.CarriedSupport);
+                AssertEq("no support card in the city", 0, scenes.CurrentCarryNodes.Count);
+                AssertThrowsAny(() => state.Team.SetCarriedSupport("没有的人"), "carrying an ungranted support");
+
+                // 存档往返。
+                scenes.SaveGame(savePath);
+                var loaded = new GameState();
+                var loadedScenes = new SceneManager(loaded, new LocalScriptLoader());
+                loadedScenes.LoadGame(savePath);
+                AssertEq("supports survive save", supportId, string.Join(",", loaded.Team.Supports));
+                AssertEq("carried survives save", supportId, loaded.Team.CarriedSupport);
+
+                // 进交锋：支援卡出现、不占骰、执行后帮手带着一颗骰入队。
+                loadedScenes.StartEncounter("失控的机械");
+                var card = FindSupportCard(loadedScenes, supportId);
+                AssertEq("support card takes no die", 0, card.Requires.Count);
+                AssertEq("support card enabled at start", false, card.Disabled);
+                loadedScenes.ExecuteAction(card, new List<SlottedResource?>());
+                var helper = loaded.Team.Actors.Find(a => a.IsTemporary)
+                    ?? throw new Exception("[support] helper did not join after using the support");
+                AssertEq("helper role", "companion", helper.Role);
+                AssertEq("helper has a die on arrival", 1, helper.ActionDice.Count);
+
+                // 每场一次由引擎消费：卡变灰，再执行直接报错。
+                card = FindSupportCard(loadedScenes, supportId);
+                AssertEq("support card greyed after use", true, card.Disabled);
+                AssertEq("support used flag", true, loadedScenes.SupportUsedThisEncounter);
+                AssertThrowsAny(() =>
+                {
+                    var forced = new GameNode { Name = card.Name, SupportId = supportId, Resolve = card.Resolve };
+                    loadedScenes.ExecuteAction(forced, new List<SlottedResource?>());
+                }, "using the support twice in one encounter");
+
+                // 骰子没用也一样：回合末帮手离场，新一手里没有他。
+                loadedScenes.EndTurn();
+                AssertEq("helper leaves at turn end", 0, loaded.Team.Actors.Count(a => a.IsTemporary));
+                AssertEq("support stays used across turns", true, loadedScenes.SupportUsedThisEncounter);
+                loadedScenes.EndEncounter();
+
+                // 新的一场：次数恢复；用了帮手之后直接结束交锋，帮手也不能跟回城市。
+                loadedScenes.StartEncounter("失控的机械");
+                AssertEq("support restored in a new encounter", false, loadedScenes.SupportUsedThisEncounter);
+                card = FindSupportCard(loadedScenes, supportId);
+                AssertEq("support card enabled in a new encounter", false, card.Disabled);
+                loadedScenes.ExecuteAction(card, new List<SlottedResource?>());
+                AssertEq("helper joined in the new encounter", 1, loaded.Team.Actors.Count(a => a.IsTemporary));
+                loadedScenes.EndEncounter();
+                AssertEq("helper gone after encounter end", 0, loaded.Team.Actors.Count(a => a.IsTemporary));
+                loaded.Team.Serialize();   // 临时帮手若泄漏到城市，这里会抛
+
+                // 城市里执行支援卡是内容错误。
+                AssertThrowsAny(() =>
+                {
+                    var stray = new GameNode { Name = "叫个人来", SupportId = supportId, Resolve = card.Resolve };
+                    loadedScenes.ExecuteAction(stray, new List<SlottedResource?>());
+                }, "using a support card in the city");
+
+                // 临时帮手不进存档：手动塞一个进去，序列化必须拒绝。
+                var leaked = loaded.Team.RecruitCompanion("leak", "漏网的帮手", new Dictionary<string, int>
+                {
+                    ["violence"] = 1, ["knowledge"] = 0, ["sharpness"] = 0, ["social"] = 0,
+                });
+                leaked.IsTemporary = true;
+                AssertThrowsAny(() => loaded.Team.Serialize(), "serializing a temporary helper");
+                loaded.Team.DismissTemporaryCompanions();
+                loaded.Team.Serialize();
+
+                Console.WriteLine("[support] All contract assertions passed.");
+            }
+            finally
+            {
+                if (File.Exists(savePath)) File.Delete(savePath);
+            }
+        }
+
+        private static GameNode FindSupportCard(SceneManager scenes, string supportId)
+        {
+            foreach (var node in scenes.CurrentCarryNodes)
+                if (node.SupportId == supportId)
+                    return node;
+            throw new Exception($"[support] no support card for '{supportId}' in encounter '{scenes.CurrentSceneName}'");
         }
 
         // 判定概率是稳定的底层数学契约，算错会同时破坏结算和 UI 概率预览。
@@ -513,6 +617,9 @@ namespace SSNoir.Testing
             var smokeNode = consumableManager.CurrentCarryNodes.FirstOrDefault(n => n.Name == "抽烟")
                 ?? throw new Exception("[saveload] 这一场没有随身动作「抽烟」");
             AssertEq("carry node names its item", "香烟", smokeNode.CarryItemId);
+            AssertEq("carry node has two consumable slots", 2, smokeNode.Requires.Count);
+            AssertEq("carry node item slot", "item", smokeNode.Requires[0].Type);
+            AssertEq("carry node action slot", "die", smokeNode.Requires[1].Type);
             // 随身卡不进渲染树：进了树就会被排进场上的卡片区，读起来像是这一场的事。
             AssertEq("carry node stays out of the scene tree", true,
                 consumableManager.CurrentRootNode!.Children.TrueForAll(n => n.Name != "抽烟"));
@@ -522,6 +629,10 @@ namespace SSNoir.Testing
             int diceBeforeSmoke = consumablePlayer.ActionDice.Count;
             consumableManager.ExecuteAction(smokeNode, new List<SlottedResource?>
             {
+                new SlottedResource
+                {
+                    Type = "item", ItemId = "香烟", Value = 1, Qty = 1
+                },
                 new SlottedResource
                 {
                     Type = "die", Value = consumablePlayer.ActionDice[0],

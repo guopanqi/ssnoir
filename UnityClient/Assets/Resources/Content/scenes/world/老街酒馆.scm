@@ -257,6 +257,68 @@
     ;; 老街只留一个赌钱的地方，而且是有人的那个：酒馆后面的地下拳场（见 艾迪.scm），
     ;; 骰子花在看懂比赛上，钱才花在票上。
 
+    ;; ── 酒馆后屋 ──────────────────────────────────
+    ;; 第二章弗兰克那一拍（别给他们想要的）调停成功之后，后屋对你开着。
+    ;; 第一章酒馆只是个调查地点；这是玩家第一次拥有**关系带来的据点**。
+    ;; 它给的不是更高的钱，是更低的生存成本：有人认识你，所以吃饭便宜，零活不用抢。
+    ;;
+    ;; 到了 Phase B，后屋的活也跟着少——仓库被登记了，看仓库那份先没了。
+    ;; 机器进来这件事，就该从你自己这层关系上被感觉到。
+    (define ate-day 0)
+
+    (define (ate-today?) (= ate-day world-day))
+
+    (define (node-eat)
+      (node "吃点东西"
+        :subtitle (if (ate-today?) "今天已经吃过了" "老街熟人价，恢复 2 点冷静")
+        :disabled (ate-today?)
+        :requires (list (req-item "金钱" 6))
+        :resolve (instant
+          (outcome "吃了一顿热的"
+            (lambda ()
+              (set! ate-day world-day)
+              (restore-actor-composure! 'player 2))
+            'light))))
+
+    (define (node-watch-warehouse)
+      (关系工作 "看仓库" "老码头" '低 'sharpness
+        (outcome "一夜无事"
+          (lambda () (add-item! "金钱" 10)))
+        (outcome "守完一班"
+          (lambda () (add-item! "金钱" 7)))
+        (outcome "打了个盹"
+          (lambda ()
+            (add-item! "金钱" 4)
+            (spend-composure! 1)))
+        "替弗兰克的人守一夜仓库"))
+
+    (define (node-run-errand)
+      (关系工作 "替人跑一趟" "老码头" '低 'social
+        (outcome "话带到了"
+          (lambda () (add-item! "金钱" 9)))
+        (outcome "跑了一趟"
+          (lambda () (add-item! "金钱" 6)))
+        (outcome "扑了个空"
+          (lambda ()
+            (add-item! "金钱" 3)
+            (spend-composure! 1)))
+        "老街有人要送东西、带句话"))
+
+    ;; 他多数日子里没有事给你做。空容器读起来像坏了，所以放一条标注说清他此刻在干什么。
+    (define (node-frank-in-back-room)
+      (note-node "标注：弗兰克在后屋" ""
+        (if (equal? (第二章 'phase) "B")
+            "他面前摊着一张从码头撕下来的培训名单，一个名字一个名字地看。"
+            "他在桌子那头对账。有人进来说了句什么，他点了一下头。")))
+
+    (define (back-room-container)
+      (container "酒馆后屋"
+        (append
+          (list (node-frank-in-back-room) (node-eat))
+          (if (equal? (第二章 'phase) "B")
+              (list (node-run-errand))
+              (list (node-watch-warehouse) (node-run-errand))))))
+
     ;; ── 歇业 ──────────────────────────────────────
     ;; 这里曾有一张「酒馆内景」的氛围卡，已删。原型阶段不摆纯氛围的观察卡：
     ;; 它不改变任何东西，也验证不了任何玩法，只是把真正要读的卡挤下去一格。
@@ -295,7 +357,7 @@
             ;; 麻烦的死线钟挂在那张卡上，这里不再另立一条标注：同一件事说两遍，
             ;; 玩家还要自己认出它们是一件事。
             (list (node-tavern-rank))
-            (地点节点 "酒馆")
+            (地点节点 "老街酒馆")
             ;; 麻烦留着时暂停新一班：玩家可以立刻处理，也可以离开、
             ;; 在日终承担后果，但不能无视问题继续刷领班班次。
             (list (if (equal? tavern-trouble "无")
@@ -305,6 +367,9 @@
                   (node-buy-cigarettes))
             (if (three-letters 'old-street-open?)
                 (list (loan-shark-container))
+                '())
+            (if (frank 'back-room?)
+                (list (back-room-container))
                 '()))))
 
     ;; 打烊。今晚那件麻烦到这儿有个结论，职级考核在这一刻结算——
@@ -348,7 +413,7 @@
            (list (place "老街酒馆"
                    :children (tavern-children)
                    :clocks (tavern-clocks)
-                   :arrivals (地点入场 "酒馆"))))
+                   :arrivals (地点入场 "老街酒馆"))))
           ((equal? msg 'set-closed!)
            (set! closed-days (cadr args))
            (set! closed-days-max (max closed-days-max closed-days)))
@@ -361,7 +426,8 @@
                  (list "tavern-rank-progress" (tavern-rank-clk 'save))
                  (list "tavern-trouble" tavern-trouble)
                  (list "tavern-trouble-time" (tavern-trouble-clk 'save))
-                 (list "tavern-trouble-outcome" tavern-trouble-outcome)))
+                 (list "tavern-trouble-outcome" tavern-trouble-outcome)
+                 (list "ate-day" ate-day)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! closed-days (assoc-get data "closed-days" 0))
@@ -388,6 +454,7 @@
                (assoc-get data "tavern-trouble-time" 0))
              (set! tavern-trouble-outcome
                (assoc-get data "tavern-trouble-outcome" "未了"))
+             (set! ate-day (assoc-get data "ate-day" 0))
              (if (member? tavern-trouble-outcome tavern-trouble-outcomes)
                  #t
                  (error "老街酒馆存档错误：领班麻烦收场非法"))

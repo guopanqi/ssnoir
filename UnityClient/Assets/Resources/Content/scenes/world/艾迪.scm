@@ -214,7 +214,7 @@
     ;; 和 nodes-at 同一套写法：地点不认识故事状态，只报自己的名字。
     (define (arrivals-at location)
       (cond
-        ((equal? location "酒馆")
+        ((equal? location "老街酒馆")
          (if (alley-armed?) (list (arrival-alley)) '()))
         (else '())))
 
@@ -659,6 +659,7 @@
     ;; ── 码头重逢 ────────────────────────────────────
     (define (node-reunion)
       (node "码头上那个包着手的人"
+        :anchor "码头-货堆"
         :subtitle "不耗行动骰"
         :resolve (instant
           (outcome "他还在搬货"
@@ -695,10 +696,11 @@
     ;; 标注的节点名不渲染，所以这里把它当 ID 用，固定不变；玩家看见的标题是「艾迪」。
     ;; 重逢前那张卡叫「码头上那个包着手的人」——那时候还没认出他来，标题本身是那一眼。
     (define (node-eddie-at-dock)
-      (note-node "艾迪·码头" "艾迪"
+      (at-anchor "码头-货堆"
+       (note-node "艾迪·码头" "艾迪"
         (if hand-bad?
             "在货堆那头搬箱子。右手包着，包得很厚，箱子架在左肩上。他不往这边看。"
-            "在货堆那头搬箱子。右手包着，包得不厚。他不往这边看。")))
+            "在货堆那头搬箱子。右手包着，包得不厚。他不往这边看。"))))
 
     ;; ── 日终 ────────────────────────────────────────
     ;; 日终规则按注册的倒序跑，「世界日历推进」是最后注册的，所以它先走：
@@ -752,7 +754,7 @@
                         ((eve?) "明晚有一场。今晚可以先去酒馆后面写票，赔率比明晚好")
                         (#t (string-append "下一场在第 " (number->string next-fight-day)
                                            " 天")))
-                 :where "酒馆"
+                 :where "老街酒馆"
                  :clocks (list (heat-clk 'render-data))
                  :log (journal 'render-data))))
         ;; 只有撞上了才立卷宗。窗口开着但还没进过酒馆时，玩家根本没听说过这件事——
@@ -762,7 +764,7 @@
                  :kind '人物
                  :status '进行中
                  :now "酒馆侧墙今晚有人在挨打；只有今晚"
-                 :where "酒馆"
+                 :where "老街酒馆"
                  :log (journal 'render-data))))
         ((>= stage 2)
          (list (dossier "地下拳场"
@@ -776,7 +778,7 @@
     ;; ── 对外 ────────────────────────────────────────
     (define (nodes-at location)
       (cond
-        ((equal? location "酒馆")
+        ((equal? location "老街酒馆")
          (cond
            ((alley-live?) (list (node-alley)))
            ((= stage 1) (list (ring-node)))
@@ -804,8 +806,19 @@
           ((equal? msg 'has-way-out?) way-out?)
           ((equal? msg 'on-crushed!) (set! crushed? #t))
           ((equal? msg 'crushed?) crushed?)
-          ;; 调试用：把他的第一章当成「认识过、也道过别」。第二章的线要认得他才开。
-          ((equal? msg 'debug-met!) (set! stage 3))
+          ;; 跳章调试：把巷子与拳场窗口全部收口，但保留「认识艾迪」。
+          ;; stage 3 是码头重逢已看过，不会再往酒馆投入场节拍。
+          ((equal? msg 'debug-finish-chapter1!)
+           (set! stage 3)
+           (set! alley-day 0)
+           (set! next-fight-day 0)
+           (set! night 0)
+           (set! shut-day 0)
+           (set! bet-side 0)
+           (set! bet-amount 0)
+           (set! awaiting-signal? #f)
+           (set! way-out? #f)
+           (set! crushed? #f))
           ((equal? msg 'save)
            (list (list "stage" stage)
                  (list "way-out" (if way-out? 1 0))

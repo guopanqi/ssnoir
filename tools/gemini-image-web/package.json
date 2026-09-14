@@ -1,0 +1,11 @@
+{
+  "name": "ssnoir-gemini-image-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "playwright": "1.55.0"
+  }
+}

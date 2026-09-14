@@ -108,23 +108,15 @@ namespace SSNoir.IMGUI
         // ── 印章红（高危 / 失败，专用不做按钮）──
         public static readonly Color SealRed = new Color(0.702f, 0.251f, 0.165f, 1f); // #B3402A
 
-        // ── 便签色板（贴在物件上的彩色便签：纸底 + 同族深字）──
-        // 深字原先是纸色的中饱和同族深调（如 #3D5226），同色系相近导致亮度对比其实不够——
-        // 跟下面 StickyMutedText 同一次治：字压到近黑、只留一点点色相，对比冲到 11:1+，
-        // 纸的彩色身份留在底色上就够了，不需要字也保持"彩"。
-        public static readonly Color StickyWorkBg     = new Color(0.847f, 0.894f, 0.769f, 1f); // #D8E4C4
-        public static readonly Color StickyWorkText   = new Color(0.122f, 0.176f, 0.071f, 1f); // #1F2D12
-        public static readonly Color StickyMidRiskBg   = new Color(0.945f, 0.875f, 0.643f, 1f); // #F1DFA4
-        public static readonly Color StickyMidRiskText = new Color(0.180f, 0.137f, 0.031f, 1f); // #2E2308
-        public static readonly Color StickyHighRiskBg   = new Color(0.937f, 0.788f, 0.722f, 1f); // #EFC9B8
-        public static readonly Color StickyHighRiskText = new Color(0.200f, 0.078f, 0.031f, 1f); // #331408
-        public static readonly Color StickyNegotiateBg   = new Color(0.788f, 0.847f, 0.910f, 1f); // #C9D8E8
-        public static readonly Color StickyNegotiateText = new Color(0.055f, 0.094f, 0.188f, 1f); // #0E1830
-        public static readonly Color StickyOpportunityBg   = new Color(0.890f, 0.816f, 0.894f, 1f); // #E3D0E4
-        public static readonly Color StickyOpportunityText = new Color(0.125f, 0.063f, 0.122f, 1f); // #20101F
-        // 禁用态与折叠「+N」：褪成灰纸，而不是压暗——压暗会立刻和深色卡糊在一起。
-        public static readonly Color StickyMutedBg     = new Color(0.796f, 0.812f, 0.839f, 1f); // #CBCFD6
-        public static readonly Color StickyMutedText   = new Color(0.110f, 0.141f, 0.188f, 1f); // #1C2430
+        // ── 书签色板（卡顶的类别 / 风险签，DESIGN.md）──
+        // 签就是一张 Paper：纸底 + 墨字，和弹出纸层、白底数值格同一张纸。语义不靠换纸色说，
+        // 只靠左侧一道色条——色条取结果三色 / 金，和进度格、生命条的阈值上色是同一套语言。
+        // 之前那组马卡龙彩纸（鼠尾草绿 / 粉橘 / 粉蓝 / 淡紫）在「墨与纸」色板里谁也不认识，故废。
+        public static readonly Color TabPaper = Paper;
+        public static readonly Color TabInk   = PaperInk;
+        // 禁用态：褪成灰纸、不带色条，而不是压暗——压暗会立刻和深色卡糊在一起。
+        public static readonly Color TabMutedPaper = new Color(0.796f, 0.812f, 0.839f, 1f); // #CBCFD6
+        public static readonly Color TabMutedInk   = new Color(0.290f, 0.271f, 0.235f, 1f); // #4A453C
 
         // ── 概率/结果三色（沉着版）──
         public static readonly Color OddsFail    = new Color(0.820f, 0.416f, 0.306f, 1f); // #D16A4E 陶红
@@ -609,6 +601,66 @@ namespace SSNoir.IMGUI
                 Color innerLine = new Color(Paper.r, Paper.g, Paper.b, 0.20f);
                 DrawOutline(inner, 1f, innerLine);
             }
+        }
+
+        /// <summary>
+        /// 雾底：一块朝四周慢慢散掉的场景底色。白描世界里「看不清」的自然形态是线条退进雾里，
+        /// 不是被糊成一团——线稿一模糊只剩灰斑，反而更扎眼。所以不动画面，只在字底下罩一层
+        /// 与场景底色同色的雾，线条在这里变淡，字浮在雾上。羽化很宽、没有边，看不出是块矩形。
+        /// </summary>
+        public static void DrawFogPatch(Rect rect, Color fog, float alpha, float feather = 28f)
+        {
+            if (Event.current.type != EventType.Repaint) return;
+            var tex = SoftRectTexture;
+            float f = Mathf.Min(feather, Mathf.Min(rect.width, rect.height) / 2f + feather);
+            // 纹理三段：[0,1/3) 羽化、[1/3,2/3] 实心、(2/3,1] 羽化。九宫格铺开。
+            // 九块的接缝必须落在同一个物理像素边上：矩形随镜头走到非整数坐标时，相邻两块
+            // 会在同一列像素上各画半个，叠出一条更暗的线，而且时有时无。四条分界线都按
+            // 物理像素取整，接缝就没有了。
+            float[] xs = { UIScale.Floor(rect.x - f), UIScale.Floor(rect.x), UIScale.Floor(rect.xMax), UIScale.Floor(rect.xMax + f) };
+            float[] ys = { UIScale.Floor(rect.y - f), UIScale.Floor(rect.y), UIScale.Floor(rect.yMax), UIScale.Floor(rect.yMax + f) };
+            float[] us = { 0f, 1f / 3f, 2f / 3f, 1f };
+
+            var oldColor = GUI.color;
+            SetColor(new Color(fog.r, fog.g, fog.b, alpha));
+            for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+            {
+                var r = new Rect(xs[i], ys[j], xs[i + 1] - xs[i], ys[j + 1] - ys[j]);
+                if (r.width <= 0f || r.height <= 0f) continue;
+                // GUI y 向下，纹理 v 向上：第 j 行取 v = 1 - us[j+1] .. 1 - us[j]。
+                var uv = new Rect(us[i], 1f - us[j + 1], us[i + 1] - us[i], us[j + 1] - us[j]);
+                GUI.DrawTextureWithTexCoords(r, tex, uv);
+            }
+            GUI.color = oldColor;
+        }
+
+        private static Texture2D? _softRect;
+        // 96×96：外圈 32px 按 smoothstep 淡出，中间 32×32 实心。用距内矩形的距离算，角上是圆的。
+        private static Texture2D SoftRectTexture => _softRect ??= MakeSoftRect(96, 32);
+
+        private static Texture2D MakeSoftRect(int size, int feather)
+        {
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            var pixels = new Color[size * size];
+            float inner0 = feather, inner1 = size - feather;
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float dx = Mathf.Max(inner0 - (x + 0.5f), (x + 0.5f) - inner1, 0f);
+                float dy = Mathf.Max(inner0 - (y + 0.5f), (y + 0.5f) - inner1, 0f);
+                float d = Mathf.Sqrt(dx * dx + dy * dy) / feather;
+                float a = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(d));
+                pixels[y * size + x] = new Color(1f, 1f, 1f, a);
+            }
+            tex.SetPixels(pixels);
+            tex.Apply(false, true);
+            return tex;
         }
 
         // 便签：RotateAroundPivot 包住"1px 黑影 + 彩纸矩形 + 深色字"。rotationDeg 建议 ±1–2°。

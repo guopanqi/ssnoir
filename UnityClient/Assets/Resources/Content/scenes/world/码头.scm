@@ -1,16 +1,22 @@
 ;; 码头——普通生计由地点拥有；弗兰克拥有自己的个人生活。
 ;;
 ;; 这里放着城市生活里三种不同形状的活，它们不是"报酬不同的同一份工作"：
-;;   搬运   ——常驻日结。每天都在，永远是保底的那一张。
+;;   搬运   ——常驻日结。Phase B 起每天只能做一次，码头不再容得下整天的零工。
 ;;   夜班   ——只在有船靠岸的那一晚出现。钱多、险，而且熬了一夜当晚睡不好。
 ;;   顶班   ——不结钱，只换人情。带薪工作到「面熟」就封顶，想再往上只有这条路。
 ;; 三张卡各自回答一个不同的问题：今天保底挣多少 / 要不要冒这一夜 / 要不要今天不挣钱。
 
 (define dock
   (let ()
-    ;; 码头内部没有独立空间语义的动作共用 City/Anchor_码头。它们不该落进移动端
-    ;; 的 fallback grid；同一锚点上的投射卡由客户端稳定排布。人物等已声明专属
-    ;; :anchor 的节点保留自己的落点，不在这里覆盖。
+    ;; 码头按分区落卡（锚点在 city-box/prefabs/src/码头.py）：
+    ;;   码头          泊位桥头——船边的事：靠岸钟、夜班、抢修、不开的船、机器上岸
+    ;;   码头-货堆     作业面上的货岛——扛包的活、在货堆那头的人
+    ;;   码头-岸口     木栅门和点工棚——等活、顶班、巡警
+    ;;   码头-账房     后街的账房——船位记录
+    ;;   码头-巷口     平台后面两间小屋之间的缝——去货栈后面
+    ;;   码头-三号货栈 北端工棚的院子——机器那头的告示、试运行、培训
+    ;;   勒索信 / 勒索信-报摊  南端邮箱一角（嵌套 Prefab 自己的锚点）——踩点、投信
+    ;; 没声明落点的卡收回桥头，不掉进网格；已声明的保留自己的落点。
     (define dock-anchor "码头")
 
     (define (anchor-at-dock node-data)
@@ -44,6 +50,7 @@
 
     ;; ── 每日一次的额度 ──────────────────────────────
     (define night-shift-today? #f)  ; 今天熬过夜班：当晚睡觉只回 1 点（见 home.scm）
+    (define haul-day 0)             ; Phase B 起，普通搬运每天只能做一次
 
     (define-turn-rule "码头每日额度重置"
       (lambda () night-shift-today?)
@@ -53,13 +60,22 @@
     (define (node-haul)
       (工作 "搬运" "老码头" '高 'violence
         (outcome "扛完一整班"
-          (lambda () (add-item! "金钱" 15) (grant-work-relation! "老码头")))
+          (lambda ()
+            (set! haul-day world-day)
+            (add-item! "金钱" 15)
+            (grant-work-relation! "老码头")))
         (outcome "勉强做完"
-          (lambda () (add-item! "金钱" 8) (spend-composure! 1)))
+          (lambda ()
+            (set! haul-day world-day)
+            (add-item! "金钱" 8)
+            (spend-composure! 1)))
         ;; 高风险由更高报酬与力量检定表达；日常失手仍只扣 2 点冷静。
         (outcome "货箱脱手"
-          (lambda () (spend-composure! 2)))
-        "扛一班货，挣一晚的钱"))
+          (lambda ()
+            (set! haul-day world-day)
+            (spend-composure! 2)))
+        "扛一班货，挣一晚的钱"
+        :anchor "码头-货堆"))
 
     ;; ── 夜班：只在有船的那一晚 ──────────────────────
     ;; 报酬明显高于白天，所以有船的那天它会吃掉玩家的好骰子——这正是它存在的理由。
@@ -90,6 +106,7 @@
     ;; 认识你之后才有人来求你顶班，所以它挂在「面熟」后面。
     (define (node-cover-shift)
       (node "替人顶一班"
+        :anchor "码头-岸口"
         :tags (list "人情" "低风险")
         :subtitle "有人今晚走不开。顶下来不结钱，但这条街会记着"
         :requires (list (req-die))
@@ -106,7 +123,9 @@
     ;; ── 组装 ────────────────────────────────────────
     (define (livelihood-nodes)
       (append
-        (list (node-haul))
+        (if (and (equal? (第二章 'phase) "B") (= haul-day world-day))
+            '()
+            (list (node-haul)))
         (if (berthed?) (list (node-night-shift)) '())
         ;; 「替人顶一班」这一版不摆出来：它的全部回报是老码头声誉，而声誉现在还兑现不出
         ;; 什么（面板也一并收起来了，见 NavigationDrawer.ShowRelationPanel）。一张花掉一颗骰、
@@ -132,9 +151,11 @@
           ((equal? msg 'night-shift-today?) night-shift-today?)
           ((equal? msg 'save)
            (list (list "berth" (berth-clk 'save))
-                 (list "night-shift-today?" night-shift-today?)))
+                 (list "night-shift-today?" night-shift-today?)
+                 (list "haul-day" haul-day)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (berth-clk 'load! (assoc-get data "berth" berth-cycle))
-             (set! night-shift-today? (assoc-get data "night-shift-today?" #f))))
+             (set! night-shift-today? (assoc-get data "night-shift-today?" #f))
+             (set! haul-day (assoc-get data "haul-day" 0))))
           (else #f))))))

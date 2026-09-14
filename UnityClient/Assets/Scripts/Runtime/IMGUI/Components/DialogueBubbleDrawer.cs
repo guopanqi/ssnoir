@@ -9,6 +9,10 @@ namespace SSNoir.IMGUI
     {
         private const float BubbleWidth = 320f;
         private const float BubbleTailHalfWidth = 10f;
+        // 等距视角里人形只有几十像素高，气泡尾巴指过去也难看出是谁；有立绘的说话人
+        // 在气泡左侧带一张头像。头像是 PhotoBlack 底 + 霓虹头部，和纸层上的照片块同一套。
+        private const float AvatarSize = 44f;
+        private const float AvatarGap = 10f;
 
         // 旁白说话人：内容里用「世界」写不属于任何人的叙述句。它没有身体，也就没有锚点，
         // 画成一张不署名的叙述纸条贴在底部，而不是当作一个解析不到的角色报错。
@@ -97,9 +101,11 @@ namespace SSNoir.IMGUI
             };
             bodyStyle.normal.textColor = IMGUIStyles.PaperInk;
 
-            float textW = BubbleWidth - 24f;
+            var avatar = NeonPortraitLibrary.Load(speaker);
+            float columnX = avatar != null ? 12f + AvatarSize + AvatarGap : 12f;
+            float textW = BubbleWidth - columnX - 12f;
             float textH = bodyStyle.CalcHeight(new GUIContent(text), textW);
-            float h = 26f + textH + 12f;
+            float h = Mathf.Max(26f + textH + 12f, avatar != null ? 8f + AvatarSize + 8f : 0f);
 
             float x = Mathf.Clamp(anchor.center.x - BubbleWidth / 2f, 8f, UIScale.VW - BubbleWidth - 8f);
             float y = anchor.y - h - 10f;
@@ -132,9 +138,27 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.ApplyStrongFont(nameStyle);
             nameStyle.normal.textColor = IMGUIStyles.PaperTextSecondary;
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 12f, rect.y + 6f, textW, 20f), speaker, nameStyle);
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 12f, rect.y + 26f, textW, textH), text, bodyStyle);
+            if (avatar != null)
+                DrawAvatar(new Rect(rect.x + 12f, rect.y + 8f, AvatarSize, AvatarSize), avatar);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + columnX, rect.y + 6f, textW, 20f), speaker, nameStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + columnX, rect.y + 26f, textW, textH), text, bodyStyle);
             return usedRemoteFallback;
+        }
+
+        // 霓虹图黑等于透明，直接铺在纸上就只剩一团淡蓝；先垫一块照片黑，头才立得起来。
+        private static void DrawAvatar(Rect rect, Texture2D neon)
+        {
+            GUI.color = IMGUIStyles.PhotoBlack;
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            var uv = NeonPortraitLibrary.HeadCrop;
+            // 叠两遍：Alpha From Grayscale 下蓝管偏透，理由同 HUD 半身像。
+            GUI.color = Color.white;
+            GUI.DrawTextureWithTexCoords(rect, neon, uv, true);
+            GUI.color = new Color(1f, 1f, 1f, 0.55f);
+            GUI.DrawTextureWithTexCoords(rect, neon, uv, true);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(rect, 1f,
+                new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.68f));
         }
 
         // 返回气泡边上的尾巴底边与落在说话人边缘的尖端。Rect.ClosestPoint 的语义不适合

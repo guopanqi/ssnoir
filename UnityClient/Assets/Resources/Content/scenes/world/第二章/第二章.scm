@@ -1,4 +1,4 @@
-;; scenes/world/第二章/第二章.scm - 第二章「他们要夜莺」协调器
+;; scenes/world/第二章/第二章.scm - 第二章城市时间轴协调器
 ;;
 ;; 设计见 docs/第二章-骨架.md。这里只有三件事：
 ;;   现在是哪个阶段、下一个锚点在哪一天、进入一个阶段时这座城市公开发生了什么。
@@ -10,16 +10,28 @@
 ;; 时间只有一份：世界日。章节存的是起始日和阶段起始日，「章节第几天」由减法得出，
 ;; 不另养一根每天自己加一的章节时钟——两份日历迟早对不上，读档那一刻尤其。
 ;;
-;; 阶段只有两个，中间只切换一次：
+;; 第二章有两条轴，它们**互不等待**：
+;;
+;;   城市主轴（自动）  首演成功 → 晚宴 → 文章刊登 → 新港计划公布 → 准备部署 → 机器进入老街
+;;                     按日子往前走。必经的那几拍会堵住休息，直到玩家到场处理完事件；
+;;                     做完之后城市继续走，不回头等任何人。
+;;
+;;   调查支线（玩家主动）  文章刊登之后才有得查。玩家主动设局、尾随和取证；
+;;                     两处诱饵完成后，早报等待钟才按世界日走。不查就停在当前阶段，
+;;                     第二章照样结束。它不是世界轴的锚点，也不参与 Phase 切换。
+;;
+;; 阶段只有两个，中间只切换一次，而且**由城市说了算**：
 ;;   A 成功以后        城市在扩张：上城打开、钱好赚、案子看起来结了
-;;   B 真相与替换逼近  城市在收紧：有人不再见你，机器正在开进老街
-;; 锚点不切换世界。切换 Phase 的是「玩家真的开始碰不该碰的东西」，那是 B 的入口条件。
+;;   B 新港计划公布后  城市在往前推：机器排上了日程，人物都被这件事牵动
+;; 调查可以在 A 或 B 中发生，也可以整章不发生。世界不等它，它也不改写城市日历。
 
 (load-file "world/第二章/晚宴.scm")
+(load-file "world/第二章/新港计划.scm")
 (load-file "world/第二章/人物事件/艾迪的培训.scm")
 (load-file "world/第二章/人物事件/林的机器.scm")
-(load-file "world/第二章/人物事件/弗兰克的地界.scm")
-(load-file "world/第二章/制造一个故事.scm")
+(load-file "world/第二章/人物事件/别给他们想要的.scm")
+(load-file "world/第二章/谁把她卖给了报纸.scm")
+(load-file "world/第二章/追查.scm")
 (load-file "world/第二章/机器进入老街.scm")
 
 (define 第二章
@@ -30,30 +42,21 @@
     ;; 文件加载顺序碰出来的——同一天里谁先发生，必须看得见。
     (define (事件表)
       (list (list "banquet" 晚宴)
+            (list "new-harbor-plan" 新港计划)
             (list "eddie-training" 艾迪的培训)
             (list "lin-machine" 林的机器)
-            (list "frank-turf" 弗兰克的地界)
-            (list "make-a-story" 制造一个故事)
+            (list "frank-mediation" 别给他们想要的)
+            (list "newspaper" 封面上的夜莺)
+            (list "investigation" 追查)
             (list "machines-arrive" 机器进入老街)))
 
     (define (事件们) (map cadr (事件表)))
-    ;; 卷宗里只有这一条主线，锚点自己不再往卷宗里投卡——否则同一件事会摆两遍。
-    ;; 卷宗里那一句主线跟着当前锚点走。锚点是主线必经的事件，按顺序排在这里；
-    ;; 谁还没结，谁就是「现在这一段」。
-    (define (锚点们) (list 晚宴 制造一个故事 机器进入老街))
-    (define (当前锚点)
-      (define (走 as)
-        (if (null? as)
-            机器进入老街                      ; 都结了，停在最后一个上
-            (if (equal? ((car as) 'where) "")
-                (走 (cdr as))
-                (car as))))
-      (走 (锚点们)))
-
     ;; ── 排期 ────────────────────────────────────────
     ;; 章节只说锚点哪天开门；那一天里发生什么归锚点自己。
     ;; 表里几行就是几个锚点，章节本身不知道「一共有几个」，也不该知道。
     (define 晚宴-第几天 3)
+    ;; 新港计划公布的日子。它不是谁做完了什么换来的——公司按自己的日程办事。
+    (define 新港计划-第几天 9)
 
     ;; ── 状态 ────────────────────────────────────────
     (define 阶段 "未开始")        ; 未开始 / A / B
@@ -71,16 +74,22 @@
     ;; ── 进入阶段 ────────────────────────────────────
     ;; 公共变化写在这里，**只在真的跨过去的那一刻发生一次**。
     ;; 读档不会走到这儿：读档只恢复「已经是 A 了」，不重放进入 A 那天的通知与结算。
-    ;; Phase B 不是「做完第二个锚点」自动来的，是玩家在那一晚真的碰到了
-    ;; 不该碰的东西——所以由《制造一个故事》收场时调用，而不是排在日历上。
+    ;; Phase B 由城市自己的日程带来：新港计划公开发布。它不问玩家查到哪一步，
+    ;; 也不因为玩家什么都没做就推迟——公司按自己的日子办事。
     (define (进入阶段-B!)
       (if (equal? 阶段 "A")
           (begin
             (set! 阶段 "B")
             (set! 阶段起始日 world-day)
-            (journal 'add! "有人在第三封信到之前就排好了它该怎么见报。这件事没完。")
-            (spotlight! "这件事没完"
-              "第三封信不是莱恩写的。从今天起，上城那些好说话的人开始躲着你，而机器已经在往老街开。"))
+            (机器进入老街 'announce!)
+            (journal 'add! "新港计划正式通过。第一批设备三天后进入老码头。")
+            (play-remote-dialogue!
+              (line "世界" "天刚亮，报童的喊声从街口一直追到窗下。")
+              (line "报童" "新港计划通过！第一批机器三天后进老码头！")
+              (line "世界" "公告列出了封闭泊位、调岗和培训的日期。")
+              (line "尼尔" "以前他们谈的是计划。现在纸上有日子了。"))
+            (spotlight! "三天后"
+              "第一批设备将在三天后进入老码头。城市已经开始为那一天腾地方。"))
           (error "第二章：只能从 A 进入 B")))
 
     (define (进入阶段-A!)
@@ -99,20 +108,35 @@
       (if (and (not (开始了?)) (three-letters 'has-flag? '结案))
           (进入阶段-A!)
           #f)
+      ;; 城市主轴上的世界变化：到日子就发生，不看玩家做过什么。
+      (if (and (equal? 阶段 "A")
+               (>= world-day (第几天的日子 新港计划-第几天)))
+          (进入阶段-B!)
+          #f)
       (map (lambda (e) (e 'on-day-end!)) (事件们))
       #t)
 
     ;; ── 卷宗 ────────────────────────────────────────
+    ;; 城市轴不是一条等玩家推进的长任务。只有某个必经节点已经被明确预告，
+    ;; 或事件已经发生、正等玩家到场时，才短暂投一条实名主线。事件之间可以没有主线。
     (define (主线卷宗)
-      (if (开始了?)
-          (list (dossier "他们要夜莺"
-                  :kind '主线
-                  :status '进行中
-                  :now ((当前锚点) 'now)
-                  :where ((当前锚点) 'where)
-                  :clocks ((当前锚点) 'clocks)
-                  :log (journal 'render-data)))
-          '()))
+      (define (一条 标题 事件)
+        (list (dossier 标题
+                :kind '主线
+                :status '进行中
+                :now (事件 'now)
+                :where (事件 'where)
+                :clocks (事件 'clocks)
+                :log (journal 'render-data))))
+      (cond
+        ((and (开始了?) (not (equal? (晚宴 'result) "已结束")))
+         (一条 "格兰德酒店晚宴" 晚宴))
+        ((equal? (封面上的夜莺 'state) "待去")
+         (一条 "封面上的夜莺" 封面上的夜莺))
+        ((or (equal? (机器进入老街 'state) "已公布")
+             (equal? (机器进入老街 'state) "今天"))
+         (一条 "机器进入老街" 机器进入老街))
+        (#t '())))
 
     (lambda args
       (let ((msg (car args)))
@@ -125,22 +149,35 @@
           ((equal? msg 'started?) (开始了?))
           ;; 调试台专用：不等第一章结案，直接开场。
           ((equal? msg 'debug-start!) (if (开始了?) #f (进入阶段-A!)))
-          ;; 调试用：给第二章补上它要读的第一章底子。第二章的人物线各自有前提——
-          ;; 艾迪要认得你，弗兰克要认下过你；林那条留给晚宴，那是玩家自己的选择。
+          ;; 跳章预设只负责叫各人物自己收束第一章。
+          ;; 协调器不直接猜他们各自的 stage，否则内部状态一改，Debug 就又会制造半份存档。
           ((equal? msg 'debug-cast!)
-           (eddie 'debug-met!)
-           (frank 'debug-approve!))
+           (lin 'debug-finish-chapter1!)
+           (eddie 'debug-finish-chapter1!)
+           (frank 'debug-finish-chapter1!))
+          ((equal? msg 'debug-cast-core-lin!)
+           (lin 'debug-finish-chapter1-core!)
+           (eddie 'debug-finish-chapter1!)
+           (frank 'debug-finish-chapter1!))
           ;; 调试用：直接站到 Phase B 的第一天。
           ((equal? msg 'debug-phase-b!)
            (if (开始了?) #f (进入阶段-A!))
            (if (equal? 阶段 "A")
-               (begin (晚宴 'debug-settle!) (制造一个故事 'debug-settle!) (进入阶段-B!))
+               (begin
+                 (晚宴 'debug-settle!)
+                 (封面上的夜莺 'debug-settle!)
+                 (进入阶段-B!)
+                 ;; 正常日历会在切阶段后继续分发当天结算；调试直达没有那一层，
+                 ;; 只唤醒随 Phase B 开门的两个人物事件，不能把所有日终事件再跑一遍。
+                 ;; 弗兰克那一拍属于 Phase A，直达 B 就是跳过了它：他没坐下来。
+                 (艾迪的培训 'on-day-end!)
+                 (林的机器 'on-day-end!))
                #f))
           ((equal? msg 'phase) 阶段)
           ((equal? msg '进入阶段-B!) (进入阶段-B!))
           ((equal? msg 'sync-blockers!)
            (晚宴 'sync-blockers!)
-           (制造一个故事 'sync-blockers!)
+           (封面上的夜莺 'sync-blockers!)
            (机器进入老街 'sync-blockers!))
           ((equal? msg 'day) (第几天))
           ((equal? msg 'day-of) (第几天的日子 (cadr args)))

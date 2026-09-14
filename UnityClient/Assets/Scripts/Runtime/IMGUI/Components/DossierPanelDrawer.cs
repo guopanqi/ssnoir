@@ -140,8 +140,8 @@ namespace SSNoir.IMGUI
             if (!string.IsNullOrEmpty(pin))
             {
                 foreach (var e in dossier)
-                    if (e.Id == pin) return e;
-                // 钉着的那条已经不在卷宗里了（比如一条临时线收走了），退回自动。
+                    if (e.Id == pin && !e.IsClosed) return e;
+                // 钉着的那条已经不在卷宗里了，或者自己了结了（不是玩家主动取消）——退回自动。
             }
 
             // 没表过态时的默认：当前这一章的主线优先，其次才是委托、再其次任何还没了结的线。
@@ -322,20 +322,24 @@ namespace SSNoir.IMGUI
             float textW = row.width - PinW - RowPad;
             float y = row.y + RowPad;
 
-            // 钉子。滚动视图里的坐标是本地的，命中测试要换算回屏幕坐标再问 ui。
-            var pinRect = new Rect(row.x, y, PinW - 4f, 22f);
-            var pinScreen = new Rect(pinRect.x + viewport.x - _scroll.x, pinRect.y + viewport.y - _scroll.y,
-                pinRect.width, pinRect.height);
-            var pinStyle = new GUIStyle(IMGUIStyles.ModalBody)
+            // 钉子。了结的条目只是履历回顾，钉在地图上没有意义——不画、也不接受点击。
+            // 滚动视图里的坐标是本地的，命中测试要换算回屏幕坐标再问 ui。
+            if (!e.IsClosed)
             {
-                alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = isPinned ? IMGUIStyles.SealRed : IMGUIStyles.PaperTextSecondary }
-            };
-            IMGUIStyles.DrawLabel(pinRect, isPinned ? "◆" : "◇", pinStyle);
-            if (ui.WasTapped(pinScreen))
-            {
-                toggledPin = e.Id;   // 点已经钉住的那条＝取消钉住，见调用处
-                Event.current.Use();
+                var pinRect = new Rect(row.x, y, PinW - 4f, 22f);
+                var pinScreen = new Rect(pinRect.x + viewport.x - _scroll.x, pinRect.y + viewport.y - _scroll.y,
+                    pinRect.width, pinRect.height);
+                var pinStyle = new GUIStyle(IMGUIStyles.ModalBody)
+                {
+                    alignment = TextAnchor.MiddleLeft,
+                    normal = { textColor = isPinned ? IMGUIStyles.SealRed : IMGUIStyles.PaperTextSecondary }
+                };
+                IMGUIStyles.DrawLabel(pinRect, isPinned ? "◆" : "◇", pinStyle);
+                if (ui.WasTapped(pinScreen))
+                {
+                    toggledPin = e.Id;   // 点已经钉住的那条＝取消钉住，见调用处
+                    Event.current.Use();
+                }
             }
 
             IMGUIStyles.DrawLabel(new Rect(textX, y, textW - 90f, 22f), e.Id, NameStyle(e.IsClosed));

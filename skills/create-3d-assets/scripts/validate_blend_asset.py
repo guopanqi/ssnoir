@@ -40,7 +40,7 @@ meshes = [obj for obj in objects if obj.type == "MESH"]
 cameras = [obj for obj in objects if obj.type == "CAMERA"]
 anchors = [obj for obj in objects if obj.name.lower().startswith("anchor")]
 orbit_pivots = [
-    obj for obj in objects if normalized_marker_name(obj.name) == "orbitpivot"
+    obj for obj in objects if normalized_marker_name(obj.name).startswith("orbitpivot")
 ]
 
 polygon_count = sum(len(obj.data.polygons) for obj in meshes)

@@ -20,10 +20,17 @@ namespace SSNoir.Core
         /// <summary>
         /// 随身动作所属的物品（"香烟"/"酒"）。非空＝这张卡不属于任何一场交锋，
         /// 是玩家自己带进来的东西；它不在渲染树里，由 PresentationSnapshot.CarryNodes 单独交给客户端，
-        /// 客户端把它画成从那件物品引出去的一张小卡，而不是排进场上的卡片区。
-        /// 见 engine.scm 的 carry-nodes 与 SceneManager.RebuildRenderTree。
+        /// 客户端把它画在休息键上方的非场景动作区，而不是排进场上的卡片区。
+        /// 见 engine.scm 的 encounter-action-nodes 与 SceneManager.RebuildRenderTree。
         /// </summary>
         public string CarryItemId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 关系支援卡所属的人物（"弗兰克"）。非空＝这张卡是玩家带进交锋的一条人物支援：
+        /// 和随身动作一样不进渲染树、由 CarryNodes 单独交给客户端；它没有需求槽，仍按
+        /// 标准动作卡渲染并通过执行钮使用。见 engine.scm 的 encounter-action-nodes。
+        /// </summary>
+        public string SupportId { get; set; } = string.Empty;
 
         /// <summary>
         /// 世界地点。只有世界根的直接子节点能是 Place；交锋树里不允许出现。

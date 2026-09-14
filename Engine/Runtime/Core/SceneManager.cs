@@ -19,7 +19,9 @@ namespace SSNoir.Core
         private bool _turnEndedDuringAction;
         private bool _isExecutingAction;
         private bool _isEnteringPlace;
+        private bool _isResolvingTurnEnd;
         private bool _hasPendingSceneDiceRoll;
+        private readonly List<(BlockingStoryStep Step, string ActorId, int Count)> _pendingAutoDiceDemands = new();
         // 出发去交锋前扣下的世界骰池；回到世界时还回去。null = 没有可还的（新开局/读档/新一天）。
         private Dictionary<string, (List<int> Dice, List<int> SlotIds)>? _stashedWorldDice;
         private bool _pendingSceneIsEncounter;
@@ -30,6 +32,10 @@ namespace SSNoir.Core
 
         public event Action? OnSceneLoaded;
         public event Action? OnWorldRefreshed;
+        public event Action<string>? OnWarning;
+
+        /// <summary>随当前存档保存的客户端设置；值只允许使用 SaveManager 支持的基础类型。</summary>
+        public Dictionary<string, object> Settings { get; } = new();
 
         public GameNode? CurrentRootNode { get; private set; }
         public List<GameClock> CurrentClocks { get; private set; } = new List<GameClock>();
@@ -58,6 +64,7 @@ namespace SSNoir.Core
 
         public void ResetForNewGame()
         {
+            Settings.Clear();
             _worldInterpreter = null;
             _encounterInterpreter = null;
             _encounterSceneName = string.Empty;
@@ -65,6 +72,8 @@ namespace SSNoir.Core
             _encounterEnded = false;
             _turnEndedDuringAction = false;
             _hasPendingSceneDiceRoll = false;
+            _pendingAutoDiceDemands.Clear();
+            _isResolvingTurnEnd = false;
             _pendingSceneIsEncounter = false;
             _stashedWorldDice = null;
             CurrentRootNode = null;
@@ -214,8 +223,13 @@ namespace SSNoir.Core
         public void StartEncounter(string name)
         {
             _encounterEnded = false;
+            SupportUsedThisEncounter = false;
             LoadScene(name);
         }
+
+        /// <summary>带进这一场的关系支援用过了没有。每场一次，随交锋开始归零；
+        /// 交锋中不能存档，所以它不进存档。</summary>
+        public bool SupportUsedThisEncounter { get; private set; }
 
         /// <summary>最后一次交锋结算交回来的值。正式流程由回调消费，这里留一份供离线试跑读取。</summary>
         public object? LastEncounterResult { get; private set; }
@@ -229,6 +243,9 @@ namespace SSNoir.Core
             var cb = _encounterCallback;
             _encounterCallback = null;
 
+            // 支援叫来的帮手只属于这一场：结算前先送走，回调和城市都不该看见他。
+            _gameState.Team.DismissTemporaryCompanions();
+
             if (cb != null)
                 cb.Call(new List<object> { result ?? Symbol.FromString("none") });
 
@@ -241,6 +258,7 @@ namespace SSNoir.Core
             _encounterEnded = true;
             LastEncounterResult = Symbol.FromString("倒下");
             _encounterCallback = null;
+            _gameState.Team.DismissTemporaryCompanions();
             LoadScene("world");
         }
 
@@ -345,6 +363,30 @@ namespace SSNoir.Core
                 }, "start-encounter")
             );
 
+            // 关系支援每场一次：次数记在这里，随 StartEncounter 归零；消费在 ExecuteAction 里由引擎做，
+            // 内容只读它来把卡变灰。
+            interpreter.RawInterpreter.DefineGlobal(
+                Symbol.FromString("__support-used?"),
+                new NativeProcedure(args => SupportUsedThisEncounter, "__support-used?"));
+
+            // 支援叫来的临时帮手：入队并当场发骰；回合末 / 交锋结束由引擎自动清走。只能在交锋里叫。
+            interpreter.RawInterpreter.DefineGlobal(
+                Symbol.FromString("__summon-helper!"),
+                new NativeProcedure(args =>
+                {
+                    if (args.Count < 3)
+                        throw new ArgumentException("__summon-helper! requires id, name, and stats alist");
+                    if (IsWorldScene(CurrentSceneName))
+                        throw new InvalidOperationException("summon-helper!: 帮手只能在交锋里叫，城市里没有他的骰位。");
+                    string actorId = SchemeValue.AsId(args[0]);
+                    string name = args[1] as string
+                        ?? throw new ArgumentException("helper name must be a string");
+                    var stats = NativeFunctions.ParseCompanionStats(args[2]);
+                    _gameState.Team.SummonHelper(actorId, name, stats);
+                    _gameState.NotificationCenter.Push($"{name}来了", NotificationKind.Info);
+                    return new None();
+                }, "__summon-helper!"));
+
             interpreter.RawInterpreter.DefineGlobal(
                 Symbol.FromString("end-encounter"),
                 new NativeProcedure(args =>
@@ -388,6 +430,109 @@ namespace SSNoir.Core
                     return new None();
                 }, "__refresh-encounter-dice!")
             );
+
+            interpreter.RawInterpreter.DefineGlobal(
+                Symbol.FromString("__auto-action!"),
+                new NativeProcedure(args =>
+                {
+                    if (args.Count != 5)
+                        throw new ArgumentException("auto-action!: expected name, subtitle, anchor, actor/count demands, and effect");
+                    if (CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException("auto-action!: 只能在交锋中使用。");
+                    if (!_isResolvingTurnEnd)
+                        throw new InvalidOperationException("auto-action!: 只能由交锋的回合结算规则调用。");
+                    var report = _gameState.CurrentActionReport
+                        ?? throw new InvalidOperationException("auto-action!: 必须在动作或回合结算中调用。");
+                    string name = args[0] as string
+                        ?? throw new ArgumentException("auto-action!: name must be a string");
+                    string text = args[1] as string
+                        ?? throw new ArgumentException("auto-action!: progress text must be a string");
+                    string? anchorName = args[2] is bool noAnchor && !noAnchor
+                        ? null
+                        : args[2] as string ?? throw new ArgumentException("auto-action!: anchor must be #f or a string");
+                    if (args[3] is not List<object> demands || demands.Count == 0)
+                        throw new ArgumentException("auto-action!: demands must be a non-empty list");
+                    if (args[4] is not ICallable effect)
+                        throw new ArgumentException("auto-action!: effect must be a procedure");
+
+                    // 回合规则发生在新一手骰子发出之前；这里只登记，EndTurn 发骰后统一校验、扣除。
+                    var parsed = new List<(string ActorId, int Count)>();
+                    int totalDice = 0;
+                    foreach (object raw in demands)
+                    {
+                        if (raw is not List<object> entry || entry.Count != 2)
+                            throw new ArgumentException("auto-action!: each demand must be (actor-id count)");
+                        string actorId = SchemeValue.AsId(entry[0]);
+                        int count = SchemeValue.ToInt(entry[1]);
+                        if (count <= 0)
+                            throw new ArgumentOutOfRangeException("auto-action!: demand count must be positive");
+                        parsed.Add((actorId, count));
+                        totalDice += count;
+                    }
+                    string sceneName = CurrentSceneName;
+                    var step = BlockingStoryStep.ForAutoAction(name, text, anchorName, totalDice, () =>
+                    {
+                        if (!CurrentSceneName.Equals(sceneName, StringComparison.OrdinalIgnoreCase))
+                            throw new InvalidOperationException(
+                                $"auto-action!: scene changed from '{sceneName}' to '{CurrentSceneName}' before resolution");
+                        effect.Call(new List<object>());
+                        RebuildRenderTree();
+                    });
+                    foreach (var demand in parsed)
+                        _pendingAutoDiceDemands.Add((step, demand.ActorId, demand.Count));
+
+                    report.BlockingStorySteps.Add(step);
+                    return new None();
+                }, "__auto-action!")
+            );
+
+        }
+
+        private void ApplyPendingAutoDiceDemands()
+        {
+            if (_pendingAutoDiceDemands.Count == 0)
+                return;
+
+            // 人物不存在或声明的总需求超过固有骰位，都是内容配置错误；不要用运行时容错掩盖。
+            var totals = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var demand in _pendingAutoDiceDemands)
+                totals[demand.ActorId] = totals.TryGetValue(demand.ActorId, out int n) ? n + demand.Count : demand.Count;
+            foreach (var demand in totals)
+            {
+                var actor = _gameState.Team.FindActor(demand.Key)
+                    ?? throw new InvalidOperationException($"auto-action!: actor '{demand.Key}' not found");
+                if (demand.Value > actor.ActionSlotCount)
+                    throw new InvalidOperationException(
+                        $"auto-action!: actor '{demand.Key}' has {actor.ActionSlotCount} action slots, " +
+                        $"but this turn demands {demand.Value}");
+            }
+
+            var affectedSteps = new HashSet<BlockingStoryStep>();
+            foreach (var demand in _pendingAutoDiceDemands)
+            {
+                var actor = _gameState.Team.FindActor(demand.ActorId)!;
+                int available = actor.Status == "active" ? actor.ActionDice.Count : 0;
+                int acquired = Math.Min(demand.Count, available);
+                if (acquired > 0)
+                    demand.Step.AutoActionSlots.AddRange(
+                        _gameState.Team.ConsumeAvailableActionDice(demand.ActorId, acquired));
+
+                if (acquired < demand.Count)
+                {
+                    string actionName = demand.Step.AutoActionNode?.Name ?? "<unknown>";
+                    string reason = actor.Status != "active"
+                        ? $"status is '{actor.Status}'"
+                        : $"only {available} action dice are available";
+                    OnWarning?.Invoke(
+                        $"[SSNoir] auto-action degraded: scene '{CurrentSceneName}', action '{actionName}', " +
+                        $"actor '{demand.ActorId}' requested {demand.Count} dice but acquired {acquired}; {reason}.");
+                }
+                affectedSteps.Add(demand.Step);
+            }
+
+            foreach (var step in affectedSteps)
+                step.MatchAutoActionRequirementsToSlots();
+            _pendingAutoDiceDemands.Clear();
         }
 
         public void SaveGame() => SaveGame(SaveManager.DefaultSavePath);
@@ -403,6 +548,7 @@ namespace SSNoir.Core
 
             var data = new SaveData
             {
+                Settings  = new Dictionary<string, object>(Settings),
                 Globals   = globals,
                 Team      = _gameState.Team.Serialize(),
                 Inventory = new Dictionary<string, int>(_gameState.Inventory.Items),
@@ -415,6 +561,10 @@ namespace SSNoir.Core
         public void LoadGame(string filePath)
         {
             var data = SaveManager.Read(filePath);
+
+            Settings.Clear();
+            foreach (var setting in data.Settings)
+                Settings.Add(setting.Key, setting.Value);
 
             // 1. Force exit any active encounter
             _encounterInterpreter = null;
@@ -484,7 +634,7 @@ namespace SSNoir.Core
             CollectClocksRecursive(rootNode, flatClocks);
             CurrentClocks = flatClocks;
 
-            CurrentCarryNodes = BuildCarryNodes(rootNode, active);
+            CurrentCarryNodes = BuildEncounterActionNodes(rootNode, active);
 
             CurrentDossier = IsWorldScene(CurrentSceneName)
                 ? NodeConverter.ConvertDossier(active.Eval("(get-dossier)"))
@@ -496,33 +646,37 @@ namespace SSNoir.Core
         }
 
         /// <summary>
-        /// 随身动作（烟、酒）：玩家自己带进交锋的东西。没有哪个交锋脚本声明它们——
-        /// 那样每写一场就得重抄一遍——所以由引擎在这里统一取一份（内容见 engine.scm 的 carry-nodes），
-        /// 只在手里真有那件东西时出现，城市里不给。
+        /// 非场景交锋动作：随身消耗品与人物支援都不由具体交锋声明，否则每写一场都要重抄。
+        /// 引擎通过 engine.scm 的 encounter-action-nodes 统一取一份，城市里不给。
         ///
         /// 它们**不进渲染树**：进了树就会被排进场上的卡片区，读起来像是这一场的事。
-        /// 客户端从 CarryNodes 单独取，画成从那件物品引出去的一张小卡。
-        /// 但它们是**货真价实的动作节点**——同一个骰位、同一个 ExecuteAction，
-        /// 放骰子的表现形式和别的卡一模一样，这正是它们不能是一个角落按钮的原因。
+        /// 客户端从 CarryNodes 单独取，但一律使用普通动作卡和同一个 ExecuteAction；差别只在
+        /// 出现条件与需求槽，不在 UI 类型。
         /// </summary>
         public IReadOnlyList<GameNode> CurrentCarryNodes { get; private set; } = new List<GameNode>();
 
-        private List<GameNode> BuildCarryNodes(GameNode rootNode, SchemeInterpreter active)
+        private List<GameNode> BuildEncounterActionNodes(GameNode rootNode, SchemeInterpreter active)
         {
             if (IsWorldScene(CurrentSceneName)) return new List<GameNode>();
 
-            var carried = NodeConverter.ConvertList(active.Eval("(carry-nodes)"), active.RawInterpreter);
+            var carried = NodeConverter.ConvertList(active.Eval("(encounter-action-nodes)"), active.RawInterpreter);
+            foreach (var node in carried)
+            {
+                if (!string.IsNullOrEmpty(node.SupportId) && node.Requires.Count > 0)
+                    throw new InvalidOperationException(
+                        $"支援动作 '{node.Name}' 不能有需求槽：这项人物能力本身不消耗资源。");
+            }
             var treeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             CollectNodeNames(rootNode, treeNames);
             foreach (var node in carried)
             {
-                if (string.IsNullOrEmpty(node.CarryItemId))
+                if (string.IsNullOrEmpty(node.CarryItemId) && string.IsNullOrEmpty(node.SupportId))
                     throw new InvalidOperationException(
-                        $"随身动作 '{node.Name}' 没有声明 :carry-item——客户端不知道该把它从哪件物品上引出来。");
+                        $"非场景交锋动作 '{node.Name}' 必须声明 :carry-item 或 :support。");
                 // 槽位状态按节点名索引，重名会让随身卡和场上某张卡共用同一份槽位。
                 if (treeNames.Contains(node.Name))
                     throw new InvalidOperationException(
-                        $"随身动作 '{node.Name}' 和交锋 '{CurrentSceneName}' 里的一张卡重名。");
+                        $"非场景交锋动作 '{node.Name}' 和交锋 '{CurrentSceneName}' 里的一张卡重名。");
             }
             return carried;
         }
@@ -759,10 +913,21 @@ namespace SSNoir.Core
 
                 var turnInterpreter = ActiveInterpreter;
                 if (!_gameState.HasPendingHospitalization)
-                    turnInterpreter.Eval("(on-turn-end)");
+                {
+                    _isResolvingTurnEnd = true;
+                    try
+                    {
+                        turnInterpreter.Eval("(on-turn-end)");
+                    }
+                    finally
+                    {
+                        _isResolvingTurnEnd = false;
+                    }
+                }
 
                 if (_gameState.HasPendingHospitalization)
                 {
+                    _gameState.Team.DismissTemporaryCompanions();
                     // 城市 EndTurn 的世界日历规则固定最先执行；若后续日终规则意外打倒玩家，
                     // 日期已经推进，不能再跑一遍。交锋 EndTurn 则还需要补跑一次世界日终。
                     ResolvePendingHospitalization(report, turnInterpreter, advanceWorldTurnRules: isInEncounter);
@@ -781,10 +946,16 @@ namespace SSNoir.Core
                     return report;
                 }
 
+                // 支援叫来的帮手只待这一回合：回合规则跑完就走，新一手骰子里没有他。
+                foreach (var name in _gameState.Team.DismissTemporaryCompanions())
+                    report.AddNote($"{name}走了。");
+
                 bool stillInSameMode = isInEncounter == !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
                 if (stillInSameMode)
                 {
                     _gameState.Team.RollActionDice(isInEncounter);
+                    if (isInEncounter)
+                        ApplyPendingAutoDiceDemands();
                 }
 
                 // 城市里过完一天：同伴的冷静和行动骰一样按天重发（见 TeamState.BeginCityDay）。
@@ -910,6 +1081,19 @@ namespace SSNoir.Core
             if (node.Resolve.Type == ResolveType.Observe)
             {
                 throw new InvalidOperationException("Observe actions must not be executed via ExecuteAction.");
+            }
+
+            // 关系支援卡：每场一次由引擎在这里消费，内容脚本不参与——漏写就能无限用的契约不该交给作者。
+            if (!string.IsNullOrEmpty(node.SupportId))
+            {
+                if (IsWorldScene(CurrentSceneName))
+                    throw new InvalidOperationException($"支援卡 '{node.Name}' 只能在交锋里用。");
+                if (!string.Equals(node.SupportId, _gameState.Team.CarriedSupport, StringComparison.Ordinal))
+                    throw new InvalidOperationException(
+                        $"支援卡 '{node.Name}' 属于 '{node.SupportId}'，但这一场带的是 '{_gameState.Team.CarriedSupport}'。");
+                if (SupportUsedThisEncounter)
+                    throw new InvalidOperationException($"支援卡 '{node.Name}'：这一场的支援已经用过了。");
+                SupportUsedThisEncounter = true;
             }
 
             // 一个 action 的后处理规则属于发起该 action 的场景。action 本身可以

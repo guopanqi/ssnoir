@@ -156,20 +156,10 @@ namespace SSNoir
                 new Vector3(bmin.x, y, bmax.y),
             };
 
-            // Pan 只改 x/z，不改朝向也不改高度，所以「镜头中心扫过的地面」和「机身能站的范围」
-            // 是同一个矩形、差一个固定的平移。两个框大小一样、位置只差一点，从顶视图看极易
-            // 糊成一团——所以它们的区别不能靠颜色深浅，得靠形式：地面是一块实心的面，
-            // 机位是一圈虚线。再用一支从相机指向它落点的箭头说明那段偏移是怎么来的。
+            // Pan 只改 x/z，不改朝向也不改高度。场景里只读两样东西：
+            // 灰色虚线 = 机身能站的范围（字段的字面意思）；金色空心线 = 画面能到的地面
+            // （机身在框的四角各站一次，frustum 落地四边形的外包络）。形式不同，不会糊。
             bool looksDown = transform.forward.y < -0.01f && y > GroundY;
-            Vector3 aimOffset = Vector3.zero;
-            Vector3 aimPoint = transform.position;
-            if (looksDown)
-            {
-                float t = (y - GroundY) / -transform.forward.y;
-                aimPoint = transform.position + transform.forward * t;
-                aimOffset = new Vector3(
-                    aimPoint.x - transform.position.x, GroundY - y, aimPoint.z - transform.position.z);
-            }
 
 #if UNITY_EDITOR
             // 城市是实心的，辅助框却是用来看的：关掉深度测试，让它永远浮在最上面。
@@ -191,22 +181,9 @@ namespace SSNoir
                 return;
             }
 
-            var ground = new Vector3[4];
-            for (int i = 0; i < 4; i++)
-                ground[i] = rig[i] + aimOffset + Vector3.up * GroundDrawLift;
-
-            // 地面范围：实心面 + 实线边。这才是你在场景视图里想读的那个东西。
-            var groundLine = new Color(0.95f, 0.72f, 0.2f, 0.95f);
-            UnityEditor.Handles.DrawSolidRectangleWithOutline(
-                ground, new Color(0.95f, 0.72f, 0.2f, 0.12f), groundLine);
-            DrawGizmoLabel(Center(ground), "镜头扫过的地面", groundLine);
-
-            // 一支箭头代替原来的四条斜线：说明偏移只需要一条，四条只会织成星芒。
-            UnityEditor.Handles.color = groundLine;
-            UnityEditor.Handles.DrawLine(transform.position, aimPoint);
-            UnityEditor.Handles.ConeHandleCap(
-                0, aimPoint, Quaternion.LookRotation(transform.forward),
-                UnityEditor.HandleUtility.GetHandleSize(aimPoint) * 0.12f, EventType.Repaint);
+            // 画面范围：金色空心线。单个机位的 frustum 白线只代表当前位置，
+            // 包络才代表整个拖动范围。
+            DrawFrustumReachEnvelope(rig);
 
             UnityEditor.Handles.zTest = savedZTest;
 #endif
@@ -214,6 +191,79 @@ namespace SSNoir
 
         private static Vector3 Center(Vector3[] corners)
             => (corners[0] + corners[2]) * 0.5f;
+
+#if UNITY_EDITOR
+        // 机身四角 × frustum 四角 = 16 条射线打地面，外包络即画面范围。
+        // 金色空心线，不填面；灰色虚线是机位框，形式不同不会糊。
+        private void DrawFrustumReachEnvelope(Vector3[] rig)
+        {
+            var vcam = GetComponent<Cinemachine.CinemachineVirtualCamera>();
+            if (vcam == null || vcam.m_Lens.Orthographic)
+                return;
+            float tanV = Mathf.Tan(vcam.m_Lens.FieldOfView * 0.5f * Mathf.Deg2Rad);
+            float tanH = tanV * vcam.m_Lens.Aspect;
+            Vector3 fwd = transform.forward;
+            Vector3[] cornerDir =
+            {
+                fwd - transform.right * tanH - transform.up * tanV,
+                fwd + transform.right * tanH - transform.up * tanV,
+                fwd + transform.right * tanH + transform.up * tanV,
+                fwd - transform.right * tanH + transform.up * tanV,
+            };
+            float planeY = GroundY + GroundDrawLift;
+            var hits = new System.Collections.Generic.List<Vector3>();
+            foreach (var c in rig)
+            foreach (var d in cornerDir)
+            {
+                if (d.y >= -0.001f)
+                    continue;
+                float s = (planeY - c.y) / d.y;
+                if (s > 0f)
+                    hits.Add(c + d * s);
+            }
+            var hull = ConvexHullXZ(hits);
+            if (hull.Count < 3)
+                return;
+            var gold = new Color(0.95f, 0.72f, 0.2f, 0.95f);
+            UnityEditor.Handles.color = gold;
+            for (int i = 0; i < hull.Count; i++)
+                UnityEditor.Handles.DrawLine(hull[i], hull[(i + 1) % hull.Count]);
+            Vector3 centroid = Vector3.zero;
+            foreach (var p in hull) centroid += p;
+            DrawGizmoLabel(centroid / hull.Count, "画面范围", gold);
+        }
+
+        private static System.Collections.Generic.List<Vector3> ConvexHullXZ(
+            System.Collections.Generic.List<Vector3> pts)
+        {
+            var hull = new System.Collections.Generic.List<Vector3>();
+            if (pts.Count < 3)
+                return hull;
+            Vector3 pivot = pts[0];
+            foreach (var p in pts)
+                if (p.z < pivot.z || (p.z == pivot.z && p.x < pivot.x))
+                    pivot = p;
+            var sorted = new System.Collections.Generic.List<Vector3>(pts);
+            sorted.Sort((a, b) =>
+            {
+                float aa = Mathf.Atan2(a.z - pivot.z, a.x - pivot.x);
+                float ab = Mathf.Atan2(b.z - pivot.z, b.x - pivot.x);
+                int c = aa.CompareTo(ab);
+                if (c != 0) return c;
+                return Vector3.SqrMagnitude(a - pivot).CompareTo(Vector3.SqrMagnitude(b - pivot));
+            });
+            foreach (var p in sorted)
+            {
+                while (hull.Count >= 2 && CrossXZ(hull[hull.Count - 2], hull[hull.Count - 1], p) <= 0f)
+                    hull.RemoveAt(hull.Count - 1);
+                hull.Add(p);
+            }
+            return hull;
+        }
+
+        private static float CrossXZ(Vector3 a, Vector3 b, Vector3 c)
+            => (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x);
+#endif
 
 #if UNITY_EDITOR
         // 标签压在框中央，不挤在同一个角上；带一个暗底，免得落在城市线稿上读不出来。

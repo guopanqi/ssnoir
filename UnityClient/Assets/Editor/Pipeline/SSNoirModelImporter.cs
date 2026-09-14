@@ -19,23 +19,55 @@ namespace SSNoir.Editor
     {
         // Bump this whenever serialized importer output changes so existing model assets
         // are reprocessed instead of keeping stale generated VCams in the import cache.
-        public override uint GetVersion() => 7;
+        public override uint GetVersion() => 12;
+
+        // CityBox 相机一律 50mm、36×24 传感器、按 16:9 标定（pipeline/export.py 强制焦距）。
+        // Blender 的 FBX 导出把 FieldOfView 写成**水平**视角（39.6°），Unity 却当**竖直**视角用，
+        // 结果游戏里比 Blender 预览宽一圈、东西小一圈、按像素标定的描线也细一圈。
+        // 这里把水平角按 16:9 换回竖直角（26.99°）；已经是竖直角的原样保留。
+        private const float BlenderHorizontalFov50mm = 39.5978f;
+        private const float CalibrationAspect = 16f / 9f;
+
+        private static float VerticalFieldOfView(float imported, string cameraName)
+        {
+            if (Mathf.Abs(imported - BlenderHorizontalFov50mm) > 0.5f)
+            {
+                Debug.Log($"[SSNoir] ModelImporter: '{cameraName}' FOV {imported:F2}° 不是 Blender 的 50mm 水平角，按竖直角原样使用。");
+                return imported;
+            }
+            float vertical = 2f * Mathf.Atan(Mathf.Tan(imported * 0.5f * Mathf.Deg2Rad) / CalibrationAspect) * Mathf.Rad2Deg;
+            Debug.Log($"[SSNoir] ModelImporter: '{cameraName}' FOV {imported:F2}°（Blender 水平角）→ 竖直 {vertical:F2}°。");
+            return vertical;
+        }
 
         /// <summary>
-        /// 地点细节文件（Resources/City/Places/&lt;名&gt;.fbx，由 CityBox 发布）：材质按名字在全工程找
-        /// （描线材质在 Models/Environment/Materials，不在它自己的目录旁），其余走默认导入。
+        /// CityBox 发布的世界层和地点细节层都使用 FBX 自带的材质描述。
+        /// 这样两层遵循同一套色彩转换，不再让 Places 通过同名工程 .mat 得到另一种明暗结果。
         /// </summary>
         private void OnPreprocessModel()
         {
-            if (!assetPath.Replace('\\', '/').Contains("/Resources/" + CityPlaces.ResourcesFolder))
+            string path = assetPath.Replace('\\', '/');
+            if (path.EndsWith("/Resources/Models/Environment/City.fbx", StringComparison.Ordinal))
+            {
+                ConfigureEmbeddedMaterials((ModelImporter)assetImporter);
+                return;
+            }
+
+            if (!path.Contains("/Resources/" + CityPlaces.ResourcesFolder))
                 return;
             var importer = (ModelImporter)assetImporter;
-            importer.materialImportMode = ModelImporterMaterialImportMode.ImportStandard;
-            importer.materialLocation = ModelImporterMaterialLocation.External;
-            importer.materialName = ModelImporterMaterialName.BasedOnMaterialName;
-            importer.materialSearch = ModelImporterMaterialSearch.Everywhere;
+            ConfigureEmbeddedMaterials(importer);
+            // 地点细节文件只有几何：相机、灯都在 City.fbx 里
             importer.importCameras = false;
             importer.importLights = false;
+        }
+
+        private static void ConfigureEmbeddedMaterials(ModelImporter importer)
+        {
+            importer.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
+            importer.materialLocation = ModelImporterMaterialLocation.InPrefab;
+            importer.materialName = ModelImporterMaterialName.BasedOnTextureName;
+            importer.materialSearch = ModelImporterMaterialSearch.Local;
         }
 
         private void OnPostprocessModel(GameObject root)
@@ -63,7 +95,7 @@ namespace SSNoir.Editor
 
                     // Configure Cinemachine Virtual Camera
                     var vcam = vcamGo.AddComponent<CinemachineVirtualCamera>();
-                    vcam.m_Lens.FieldOfView = cam.fieldOfView;
+                    vcam.m_Lens.FieldOfView = VerticalFieldOfView(cam.fieldOfView, cam.name);
                     
                     // Unity's direct .blend importer reports camera clip planes in
                     // centimetres; an authored FBX already carries the correct units.
@@ -88,26 +120,34 @@ namespace SSNoir.Editor
                     vcam.m_Lens.OrthographicSize = cam.orthographicSize;
                     vcam.Priority = 5; // Default priority for node cameras
 
-                    // Configure custom camera config for drag/orbit behavior.
-                    var config = vcamGo.AddComponent<SSNoirVirtualCameraConfig>();
-                    config.modelRoot = root.transform;
+                    bool isPortalCamera = cam.name.StartsWith("PortalIn_", StringComparison.Ordinal);
+                    // Portal Camera 只描述穿门路径，不是玩家可操纵的焦点相机。
+                    var config = isPortalCamera ? null : vcamGo.AddComponent<SSNoirVirtualCameraConfig>();
+                    if (config != null)
+                        config.modelRoot = root.transform;
                     // 机位类型由 Prefab 里看得见的对象决定，没有默认分支：
                     //   orbit pivot → Orbit；PanBounds_<名> → Pan；都没有 → Static；都有 → 错。
-                    var panBounds = FindPanBounds(cam.transform);
-                    if (orbitPivot != null && panBounds != null)
+                    var panBounds = isPortalCamera ? null : FindPanBounds(cam.transform);
+                    if (!isPortalCamera && orbitPivot != null && panBounds != null)
                         throw new InvalidOperationException(
                             $"[SSNoir] ModelImporter: '{cam.name}' has both an orbit pivot and '{panBounds.name}'. A camera is Orbit or Pan, not both.");
-                    if (orbitPivot != null)
-                        ConfigureOrbit(config, orbitPivot);
-                    else if (panBounds != null)
-                        ConfigurePan(config, panBounds, root.transform);
-                    else
-                        config.dragMode = CameraDragMode.Static;
+                    if (!isPortalCamera)
+                    {
+                        // 非 Portal 分支必然创建配置；显式断言也让 nullable 分析和运行时契约一致。
+                        Debug.Assert(config != null);
+                        if (orbitPivot != null)
+                            ConfigureOrbit(config!, orbitPivot);
+                        else if (panBounds != null)
+                            ConfigurePan(config!, panBounds, root.transform);
+                        else
+                            config!.dragMode = CameraDragMode.Static;
+                    }
 
                     // Disable the original Camera node to prevent rendering interference
                     cam.gameObject.SetActive(false);
 
-                    Debug.Log($"[SSNoir] ModelImporter: Converted camera '{cam.name}' to Virtual Camera '{vcamGo.name}' ({DescribeDragMode(config)}; clip {nearClip:F3}..{farClip:F3}, source '{Path.GetExtension(assetPath)}').");
+                    string cameraKind = isPortalCamera ? "Portal" : DescribeDragMode(config!);
+                    Debug.Log($"[SSNoir] ModelImporter: Converted camera '{cam.name}' to Virtual Camera '{vcamGo.name}' ({cameraKind}; clip {nearClip:F3}..{farClip:F3}, source '{Path.GetExtension(assetPath)}').");
                 }
             }
 
@@ -176,6 +216,34 @@ namespace SSNoir.Editor
 
             foreach (var config in root.GetComponentsInChildren<SSNoirVirtualCameraConfig>(true))
                 EditorUtility.SetDirty(config);
+
+            ConfigureStagePortals(root);
+        }
+
+        private static void ConfigureStagePortals(GameObject root)
+        {
+            var vcams = root.GetComponentsInChildren<CinemachineVirtualCamera>(true);
+            var anchors = root.GetComponentsInChildren<NodeAnchor>(true);
+            var ins = vcams.Where(v => v.name.StartsWith("PortalIn_", StringComparison.Ordinal)).ToArray();
+
+            // 一台 PortalIn 就是一个 Portal：挂到同名 Stage 的 Anchor 上。Stage 内的揭幕由
+            // StageTransitionController 从交锋根机位算出来，不再要求 PortalOut。
+            foreach (var inCam in ins)
+            {
+                string context = inCam.name.Substring("PortalIn_".Length);
+                if (context.EndsWith("_VCam", StringComparison.Ordinal))
+                    context = context.Substring(0, context.Length - "_VCam".Length);
+                var anchorMatches = anchors.Where(a => string.Equals(a.NodeName, context, StringComparison.Ordinal)).ToArray();
+                if (anchorMatches.Length != 1)
+                    throw new InvalidOperationException(
+                        $"[SSNoir] Portal '{context}' requires exactly one Anchor; got {anchorMatches.Length}.");
+
+                var portal = anchorMatches[0].GetComponent<StagePortalConfig>()
+                    ?? anchorMatches[0].gameObject.AddComponent<StagePortalConfig>();
+                portal.IntroCam = inCam;
+                EditorUtility.SetDirty(portal);
+                Debug.Log($"[SSNoir] ModelImporter: Configured Stage Portal '{context}' on Anchor '{anchorMatches[0].NodeName}' ({portal.IntroCam.name}).");
+            }
         }
 
         /// <summary>

@@ -34,14 +34,80 @@ namespace SSNoir.IMGUI
         // 一间酒馆的牌子就有一百五十像素高——同一栋楼挂三四个动作时，光地名牌就先把竖向
         // 空间吃掉，剩下的卡只能叠成一摞。现在收成一行：有同名节点图时左边显示图标，右边地名；
         // 没有图时只显示地名。
-        private const float LocationPadX = 14f;
-        private const float LocationIconSize = 24f;
-        private const float GapIconToName = 10f;
-        private const float LocationRowH = 28f;
+        //
+        // 牌子这一族（地点牌、动作牌）比动作面板更紧：内边距、行高、字号都收一档。
+        // 牌子是「场景里有个东西」的标记，不是要读一段话的物件；它越轻，场景越是主体。
+        // 字号 21 而不是卡标题的 23：一屏要同时看见十来块牌子，标题字再大就又变回卡了。
+        private const float LocationPadX = 12f;
+        private const float LocationIconSize = 22f;
+        private const float GapIconToName = 8f;
+        private const float LocationRowH = 26f;
+        private const float PlatePadY = 10f;
         private const string NodeIconResourceDirectory = "UI/NodeIcons";
         private static readonly IReadOnlyDictionary<string, Texture2D> NodeIcons = LoadNodeIcons();
         // 牌子再小也要好点：不低于一个手指目标。
         private static float MinLocationHeight => UIScale.MinTouchSize;
+
+        /// <summary>牌子族共用的标题样式（地点牌 / 动作牌），比卡标题小一档。</summary>
+        public static GUIStyle PlateTitleStyle(Color color) => new GUIStyle(IMGUIStyles.CardTitle)
+        {
+            fontSize = IMGUIStyles.FontSize(21),
+            alignment = TextAnchor.MiddleLeft,
+            clipping = TextClipping.Clip,
+            normal = { textColor = color }
+        };
+
+        /// <summary>牌子按「一行文字 + 左右内边距」需要多宽。动作牌也用这个量。</summary>
+        public static float PlateTextWidth(string text)
+            => LocationPadX * 2f + PlateTitleStyle(IMGUIStyles.Paper).CalcSize(new GUIContent(text)).x;
+
+        /// <summary>牌子（一行）的高度：时钟块 + 一行 + 下内边距，按触控尺寸兜底。</summary>
+        public static float MeasurePlateHeight(float clocksHeight)
+            => Mathf.Max(MinLocationHeight, (clocksHeight > 0f ? clocksHeight + GapAfterClocks : PlatePadY) + LocationRowH + PlatePadY);
+
+        /// <summary>牌子的底：Ink + 硬投影，无描边（存在靠阴影）。</summary>
+        // 试过把牌子换成「场景底色 + 描线框、无投影」的线稿牌，想让它更像长在图纸上。
+        // 结论：不要。卡是能拿起来的器物，实墨底 + 硬投影正是「可以碰」的信号，换掉就脏且
+        // 认不出；融入场景的活只交给标注那一族（雾底 + 描边字，见 AnnotationDrawer）。
+        public static void DrawPlateBase(Rect rect)
+        {
+            IMGUIStyles.DrawShadow(rect, new Vector2(7f, 9f), 0.58f);
+            IMGUIStyles.SetColor(IMGUIStyles.Ink);
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            IMGUIStyles.ResetColor();
+        }
+
+        public static Color PlateLineColor(bool disabled, bool hover)
+            => disabled ? Paper35 : (hover ? IMGUIStyles.Paper : Paper85);
+
+        /// <summary>牌子上那一行：让开时钟徽章后，在剩余高度里居中画「可选图标 + 文字」。</summary>
+        public static void DrawPlateRow(Rect rect, string text, Texture2D? icon, Color line, float clocksBottomY)
+        {
+            bool hasClocks = clocksBottomY > rect.y;
+            float contentTop = hasClocks ? clocksBottomY + GapAfterClocks : rect.y + PlatePadY;
+            float availH = rect.yMax - PlatePadY - contentTop;
+            // 徽章占掉太多、按流量已经没地方了：挤到卡底也要把字画出来，不能什么都不画。
+            if (availH < LocationRowH)
+                availH = Mathf.Min(LocationRowH, rect.yMax - contentTop);
+            if (availH <= 0f)
+                return;
+
+            float rowH = Mathf.Min(LocationRowH, availH);
+            float rowY = contentTop + (availH - rowH) * 0.5f;
+            float nameX = rect.x + LocationPadX;
+            if (icon != null)
+            {
+                float iconH = Mathf.Min(LocationIconSize, rowH);
+                var iconArea = new Rect(nameX, rowY + (rowH - iconH) * 0.5f, iconH, iconH);
+                IMGUIStyles.SetColor(line);
+                GUI.DrawTexture(iconArea, icon, ScaleMode.ScaleToFit, true);
+                IMGUIStyles.ResetColor();
+                nameX = iconArea.xMax + GapIconToName;
+            }
+            IMGUIStyles.DrawLabel(
+                new Rect(nameX, rowY, Mathf.Max(0f, rect.xMax - LocationPadX - nameX), rowH),
+                text, PlateTitleStyle(line));
+        }
 
         private static float PreferredPhotoHeight(float cardWidth)
             => Mathf.Min((cardWidth - 32f) * 0.72f, MaxPhotoHeight);
@@ -55,15 +121,14 @@ namespace SSNoir.IMGUI
         // 宽度必须由内容说了算，不能由一个猜出来的下限说了算。
         public static float PreferredLocationWidth(GameNode node)
         {
-            float nameW = new GUIStyle(IMGUIStyles.CardTitle).CalcSize(new GUIContent(node.Name)).x;
             float iconW = NodeIcon(node) != null ? LocationIconSize + GapIconToName : 0f;
-            float need = LocationPadX * 2f + iconW + nameW;
+            float need = PlateTextWidth(node.Name) + iconW;
 
             // +24 是 LayoutClockBadges 给徽章行留的左右余量，两边必须用同一个数。
             foreach (var clock in node.Clocks)
                 need = Mathf.Max(need, CardDrawer.MeasureClockBadge(clock, compact: false) + 24f);
 
-            return Mathf.Clamp(need, 136f, 260f);
+            return Mathf.Clamp(need, 96f, 260f);
         }
 
         // 副标题按实际换行结果占高（上限 4 行左右），不再固定「剩下多少算多少」。
@@ -75,22 +140,18 @@ namespace SSNoir.IMGUI
             return Mathf.Clamp(style.CalcHeight(new GUIContent(node.Subtitle), cardWidth - 24f), 18f, 88f);
         }
 
-        private static float ClocksBlock(float clocksHeight)
-            => clocksHeight > 0f ? clocksHeight + GapAfterClocks : ContentPad;
-
         // 地点牌不套 MinCardHeight：那个下限是给「里面有东西要操作」的卡定的，
         // 地名牌整张就是一个点击目标，按 MinTouchSize 兜底就够。
         public static float MeasureLocationHeight(GameNode node, float cardWidth, float clocksHeight)
         {
-            return Mathf.Max(MinLocationHeight, ClocksBlock(clocksHeight) + LocationRowH + ContentPad);
+            return MeasurePlateHeight(clocksHeight);
         }
 
+        // 普通 Container 与地点牌同一形态：一行牌子。它是「进去看」的入口，不是读物，
+        // 副标题不上牌（网格里一排入口各顶着一段说明，就又变回一叠卡了）。
         public static float MeasureCommonHeight(GameNode node, float cardWidth, float clocksHeight)
         {
-            float subtitleH = MeasureSubtitleHeight(node, cardWidth);
-            return Mathf.Max(CardDrawer.MinCardHeight, ClocksBlock(clocksHeight)
-                + TitleH + (subtitleH > 0f ? 6f + subtitleH : 0f)
-                + ContentPad);
+            return MeasurePlateHeight(clocksHeight);
         }
 
         public static float MeasureCharacterHeight(GameNode node, float cardWidth, float clocksHeight)
@@ -111,124 +172,11 @@ namespace SSNoir.IMGUI
         public static void DrawFloating(Rect rect, GameNode node, bool isLocation, bool hover, bool disabled, float clocksBottomY)
         {
             // 阴影加重一档：Ink 与场景蓝太接近，无边卡靠更明确的硬投影才不「融」。
-            IMGUIStyles.DrawShadow(rect, new Vector2(7f, 9f), 0.58f);
-            IMGUIStyles.SetColor(IMGUIStyles.Ink);
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            IMGUIStyles.ResetColor();
+            DrawPlateBase(rect);
 
-            Color line = disabled ? Paper35 : (hover ? IMGUIStyles.Paper : Paper85);
+            Color line = PlateLineColor(disabled, hover);
 
-            if (isLocation)
-                DrawLocationBody(rect, node, line, clocksBottomY);
-            else
-                DrawCommonBody(rect, node, line, clocksBottomY);
-        }
-
-        // 地点：一行读完——存在同名节点图时左边显示图标，右边地名（左对齐）。
-        //
-        // 图标只是节点的识别标记，不是插画，所以尺寸不跟卡宽走；地名才是要读的东西，
-        // 占掉这一行剩下的全部宽度。
-        // 时钟徽章会先把内容起点往下推，所以这一行按「让开徽章后还剩多少」(availH) 落位，
-        // 空间不够时先收窄符号、再由 Clip 兜底，绝不画到卡外面。
-        private static void DrawLocationBody(Rect rect, GameNode node, Color line, float clocksBottomY)
-        {
-            bool hasClocks = clocksBottomY > rect.y;
-            float contentTop = hasClocks ? clocksBottomY + GapAfterClocks : rect.y + ContentPad;
-            // 与 MeasureLocationHeight 同一份流量：内容区下面还留一个 ContentPad。
-            float availH = rect.yMax - ContentPad - contentTop;
-            // 徽章占掉太多、按流量已经没地方了：挤到卡底也要把地名画出来，不能什么都不画。
-            if (availH < LocationRowH)
-                availH = Mathf.Min(LocationRowH, rect.yMax - contentTop);
-            if (availH <= 0f)
-                return;
-
-            float rowH = Mathf.Min(LocationRowH, availH);
-            float rowY = contentTop + (availH - rowH) * 0.5f;
-
-            var titleStyle = new GUIStyle(IMGUIStyles.CardTitle)
-            {
-                alignment = TextAnchor.MiddleLeft,
-                clipping = TextClipping.Clip,
-                normal = { textColor = line }
-            };
-
-            float nameX = rect.x + LocationPadX;
-            var icon = NodeIcon(node);
-            if (icon != null)
-            {
-                float iconH = Mathf.Min(LocationIconSize, rowH);
-                var iconArea = new Rect(
-                    nameX,
-                    rowY + (rowH - iconH) * 0.5f,
-                    iconH,
-                    iconH);
-                IMGUIStyles.SetColor(line);
-                GUI.DrawTexture(iconArea, icon, ScaleMode.ScaleToFit, true);
-                IMGUIStyles.ResetColor();
-                nameX = iconArea.xMax + GapIconToName;
-            }
-
-            IMGUIStyles.DrawLabel(
-                new Rect(nameX, rowY, Mathf.Max(0f, rect.xMax - LocationPadX - nameX), rowH),
-                node.Name, titleStyle);
-        }
-
-        // 普通：可选的同名节点图 + 标题（+副标题）整体居中。标题跟随悬停变亮。
-        private static void DrawCommonBody(Rect rect, GameNode node, Color line, float clocksBottomY)
-        {
-            float subtitleH = MeasureSubtitleHeight(node, rect.width);
-            float contentH = TitleH + (subtitleH > 0f ? 6f + subtitleH : 0f);
-            float startY = rect.y + (rect.height - contentH) / 2f;
-            if (clocksBottomY > rect.y)
-                startY = Mathf.Max(startY, clocksBottomY + GapAfterClocks);
-            // 徽章占用空间过多时，标题起点不能无限下压探出卡底：最多退到刚好留出一行标题的
-            // 位置，宁可这行标题贴近甚至压住徽章区，也不让文字画到卡外面。副标题在空间不够
-            // 时会被下面的 Mathf.Max(0f, …) 自然挤成 0 高度，等同于隐藏。
-            startY = Mathf.Min(startY, rect.yMax - TitleH - 6f);
-
-            var titleStyle = new GUIStyle(IMGUIStyles.CardTitle)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                clipping = TextClipping.Clip,
-                normal = { textColor = line }
-            };
-
-            var icon = NodeIcon(node);
-            if (icon == null)
-            {
-                IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, startY, rect.width - 20f, TitleH), node.Name, titleStyle);
-            }
-            else
-            {
-                float iconH = Mathf.Min(LocationIconSize, TitleH);
-                float nameW = Mathf.Min(
-                    titleStyle.CalcSize(new GUIContent(node.Name)).x,
-                    Mathf.Max(0f, rect.width - 20f - iconH - GapIconToName));
-                float groupW = iconH + GapIconToName + nameW;
-                float groupX = rect.center.x - groupW * 0.5f;
-                var iconArea = new Rect(groupX, startY + (TitleH - iconH) * 0.5f, iconH, iconH);
-                IMGUIStyles.SetColor(line);
-                GUI.DrawTexture(iconArea, icon, ScaleMode.ScaleToFit, true);
-                IMGUIStyles.ResetColor();
-
-                titleStyle.alignment = TextAnchor.MiddleLeft;
-                IMGUIStyles.DrawLabel(
-                    new Rect(iconArea.xMax + GapIconToName, startY, nameW, TitleH),
-                    node.Name,
-                    titleStyle);
-            }
-
-            if (subtitleH > 0f)
-            {
-                var subStyle = new GUIStyle(IMGUIStyles.CardSubtitle)
-                {
-                    alignment = TextAnchor.MiddleCenter,
-                    wordWrap = true,
-                    clipping = TextClipping.Clip
-                };
-                float subY = startY + TitleH + 6f;
-                IMGUIStyles.DrawLabel(new Rect(rect.x + 12f, subY, rect.width - 24f, Mathf.Min(subtitleH, Mathf.Max(0f, rect.yMax - subY - 6f))), node.Subtitle, subStyle);
-            }
+            DrawPlateRow(rect, node.Name, NodeIcon(node), line, clocksBottomY);
         }
 
         private static Texture2D? NodeIcon(GameNode node)

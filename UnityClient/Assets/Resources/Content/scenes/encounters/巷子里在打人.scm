@@ -145,12 +145,6 @@
     (line "打人的" "第四回合。你他妈数得清吗。")
     (line "世界" "你走进去。戴毡帽的先转过身，另外两个才把目光从地上移开。")))
 
-(define (node-leave)
-  (instant-action "算了，走开"
-    (lambda ()
-      (finish! 'fail "你转身走了"
-        "身后的声音又响了几下，然后停了。第二天没有人提起这件事。"))))
-
 (define-turn-rule "他们会还手"
   (lambda () (not finished?))
   (lambda ()
@@ -172,5 +166,4 @@
       (clock-nodes (eddie-clk 'render-data))
       (if (coat-life 'empty?) '() (list (node-coat)))
       (if (hat-life 'empty?) '() (list (node-hat)))
-      (if (sleeves-life 'empty?) '() (list (node-sleeves)))
-      (list (node-leave)))))
+      (if (sleeves-life 'empty?) '() (list (node-sleeves))))))

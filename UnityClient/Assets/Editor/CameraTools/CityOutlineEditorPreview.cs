@@ -9,17 +9,17 @@ using UnityEngine.SceneManagement;
 namespace SSNoir.Editor
 {
     /// <summary>
-    /// 编辑器取景时看到的是"聚焦地点"的样子：地点细节（标准描线 + 内部）在运行时才由
+    /// 编辑器取景时看到地点近景：地点细节（focus 描线 + 内部）在运行时才由
     /// CityPlaces 从 Resources/City/Places 挂进来，这里在编辑模式下用不保存的临时实例补上，
-    /// 并藏掉远景描线。临时实例带 DontSave，不会进场景文件；进 Play 前全部删掉，由运行时重建。
+    /// 并藏掉 world 描线。临时实例带 DontSave，不会进场景文件；进 Play 前全部删掉，由运行时重建。
     /// 不能为了出参考图而改模型或 Renderer.enabled。
     /// </summary>
     [InitializeOnLoad]
     internal static class CityOutlineEditorPreview
     {
         private const string CityRootName = "City";
-        private const string OutlinePrefix = "描线_";
-        private const string FarSuffix = "_远景";
+        private const string FocusOutlinePrefix = "描线_focus_";
+        private const string WorldOutlinePrefix = "描线_world_";
         private static bool _applying;
 
         static CityOutlineEditorPreview()
@@ -65,10 +65,10 @@ namespace SSNoir.Editor
                     }
                 }
 
-                ForEachOutlineRenderer((renderer, isFar) =>
+                ForEachOutlineRenderer((renderer, visibility) =>
                 {
                     // forceRenderingOff 是非序列化的渲染覆盖；不会制造场景修改或 FBX Prefab override。
-                    renderer.forceRenderingOff = isFar;
+                    renderer.forceRenderingOff = visibility == OutlineVisibility.World;
                 });
             }
             finally
@@ -106,7 +106,9 @@ namespace SSNoir.Editor
             }
         }
 
-        private static void ForEachOutlineRenderer(Action<Renderer, bool> action)
+        private enum OutlineVisibility { Focus, World }
+
+        private static void ForEachOutlineRenderer(Action<Renderer, OutlineVisibility> action)
         {
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
@@ -119,10 +121,10 @@ namespace SSNoir.Editor
                     foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
                     {
                         string name = renderer.gameObject.name;
-                        if (!name.StartsWith(OutlinePrefix, StringComparison.Ordinal))
-                            continue;
-
-                        action(renderer, name.EndsWith(FarSuffix, StringComparison.Ordinal));
+                        if (name.StartsWith(FocusOutlinePrefix, StringComparison.Ordinal))
+                            action(renderer, OutlineVisibility.Focus);
+                        else if (name.StartsWith(WorldOutlinePrefix, StringComparison.Ordinal))
+                            action(renderer, OutlineVisibility.World);
                     }
                 }
             }

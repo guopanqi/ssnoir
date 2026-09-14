@@ -18,8 +18,7 @@
 ;; 在实际游玩里验过之后再抬上去；先把「那一块在不在」做成真的。
 (define 机器进入老街
   (let ()
-    (define 公布-第几天 5)         ; Phase B 第几天公布
-    (define 进场-第几天 8)         ; 三天后
+    (define 等待天数 3)
 
     ;; 未开始 / 已公布 / 今天 / 收场了
     (define 状态 "未开始")
@@ -30,8 +29,7 @@
 
     (define (已公布?) (equal? 状态 "已公布"))
     (define (今天?) (equal? 状态 "今天"))
-    (define (公布日) (+ (第二章 'phase-start-day) 公布-第几天))
-    (define (进场日) (+ (第二章 'phase-start-day) 进场-第几天))
+    (define (进场日) (+ (第二章 'phase-start-day) 等待天数))
 
     ;; ── 三个人各自把什么带进这一场 ───────────────────
     ;; 读的都是人物模块上那一条跨章节事实，不读「第二章某个事件的第几个 flag」。
@@ -40,13 +38,13 @@
     (define (人群稳?) (frank 'at-table?))
 
     ;; ── 日历 ────────────────────────────────────────
+    (define (公布!)
+      (if (and (equal? 状态 "未开始") (equal? (第二章 'phase) "B"))
+          (set! 状态 "已公布")
+          (error "机器进入老街：只能在 Phase B 开始时公布")))
+
     (define (on-day-end!)
       (cond
-        ((and (equal? 状态 "未开始") (equal? (第二章 'phase) "B")
-              (>= world-day (公布日)))
-         (set! 状态 "已公布")
-         (spotlight! "三天后"
-           "公司贴出告示：第一批自动化设备三天后进老码头。谁都知道那天码头上会有人。"))
         ((and (已公布?) (>= world-day (进场日)))
          (set! 状态 "今天")
          (sync-blockers!)
@@ -178,6 +176,8 @@
     ;; ── 天黑 ────────────────────────────────────────
     (define (收场!)
       (set! 状态 "收场了")
+      (追查 'close!)
+      (林的机器 'close!)
       (sync-blockers!)
       (if (and (艾迪在场?) (not 拦下艾迪?))
           (eddie 'on-crushed!)
@@ -196,7 +196,7 @@
               "警察最后还是清了场。"))))
 
     ;; ── 卷宗 ────────────────────────────────────────
-    ;; 锚点不自己往卷宗里投卡：它是主线的一段，由章节那条「他们要夜莺」代言。
+    ;; 锚点不自己往卷宗里投卡；公司公布进场日后，由章节协调器投入同名主线。
 
     (lambda args
       (let ((msg (car args)))
@@ -205,17 +205,19 @@
           ((equal? msg 'arrivals-at) '())
           ((equal? msg 'dossier) '())
           ((equal? msg 'on-day-end!) (on-day-end!))
+          ((equal? msg 'announce!) (公布!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'state) 状态)
           ((equal? msg 'now)
-           (cond ((已公布?) "三天后设备上岸。在那之前把该办的办完")
+           (cond ((已公布?) "第一批设备即将进入老码头。在那之前把该办的办完")
                  ((今天?) (if 到场? "跳板上的事只有今天" "今天。去码头"))
                  ((equal? 状态 "收场了") "机器留在老码头了")
+                 ((equal? (第二章 'phase) "B") "新港计划已公布，公司正在准备部署")
                  (#t "机器还没到")))
           ((equal? msg 'where) (if (今天?) "码头" ""))
           ((equal? msg 'clocks)
            (if (已公布?)
-               (list (日期倒计时 "离机器进场" (进场日) 3 "那天码头上所有人都会在。"))
+               (list (日期倒计时 "离机器进场" (进场日) 等待天数 "那天码头上所有人都会在。"))
                '()))
           ((equal? msg 'save)
            (list (list "state" 状态)

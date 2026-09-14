@@ -10,7 +10,7 @@ namespace SSNoir.IMGUI
     // 动作 / 判定卡的内容绘制。共享卡框架由 CardDrawer.DrawCard 在调用前画好。
     //
     // DESIGN.md「动作 / 判定卡」布局分区固定：
-    //   标题居中 → 左侧类别/风险便签 → 中部判定纵列（属性药丸 → 骰子格）
+    //   卡顶类别/风险书签 → 标题居中 → 中部判定纵列（属性药丸 → 骰子格）
     //   → 右侧骰位（白框标签 + 白底黑字数值格连体）→ 执行按钮（实心金）
     //   → 底部命运六面预览。
     // 掷骰动画与结算结果是卡片下挂附件，不占卡片主体内部空间。
@@ -36,6 +36,7 @@ namespace SSNoir.IMGUI
             CardPresentationResidue? residue,
             float clockBadgesBottom,
             bool spaciousAttachments,
+            bool mustHandle,
             ref CardDrawer.CardInteraction interaction)
         {
             bool disabled = node.Disabled;
@@ -44,7 +45,12 @@ namespace SSNoir.IMGUI
             bool hasRequires = requiredSlotCount > 0 && slotted != null && slotted.Count == requiredSlotCount;
             bool isObserve = node.Resolve!.Type == ResolveType.Observe;
             var actors = gameManager.DisplayedSnapshot.Actors;
-            bool showOdds = isRoll && !disabled && hasRequires && actors != null && localRoll == null && residue == null;
+            // 「已装填」：任一槽位放了东西（或正在执行）。执行按钮和赔率条只在这时才从卡底
+            // 长出一截操作台；空卡只有标题、副标题和骰位——待命按钮是个什么都不能做的按钮，
+            // 不值得每张卡常驻 26 像素。
+            bool armed = hasRequires && (isExecuting || slotted!.Any(sl => sl != null));
+            bool dieSlotted = armed && slotted!.Any(sl => sl != null && sl.Type == "die");
+            bool showOdds = isRoll && !disabled && dieSlotted && actors != null && localRoll == null && residue == null;
             // 伤势修正由 SceneManager 在结算时才挂上，内容层的 DifficultyModifiers 里没有它。
             // 卡面必须自己补一份，否则「脸伤 · 交际 −2」在预览里看不见，赔率条也会按未受伤算——
             // 预览写 4、结算按 2 算的两套账。这是同一份数据的两个读取点，不是两条规则。
@@ -68,11 +74,11 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, titleY, rect.width - 20f, TitleH), node.Name, titleStyle);
             }
 
-            // ── 2. 三列分区的纵向边界 ──
-            // 执行按钮贴底；showOdds 时再往下留出命运六面预览的空间。
-            // 骰位区要先于副标题定下预算，所以 exeY 提到副标题之前算。
-            float exeH = 26f;
-            float exeY = rect.yMax - (showOdds ? 62f : 34f);
+            // ── 2. 纵向边界 ──
+            // 卡底往上：BottomPad，再（已装填时）一截操作台 + 间隙；剩下的才是正文（副标题、骰位）。
+            // 没有需求的卡把按钮直接放在正文底部。
+            float panelH = armed ? ArmedPanelHeight(showOdds) : 0f;
+            float bodyBottom = rect.yMax - BottomPad - (armed ? panelH + ArmedPanelGap : 0f) - (hasRequires ? 0f : ExeH);
 
             // 副标题按 MeasureSubtitleHeight 占它真正需要的高度，卡片高度也是按同一个函数算出来的，
             // 所以正常情况下它不需要跟谁抢空间。下面的 budget 只是兜底：卡被外部钉成更矮的尺寸时，
@@ -86,9 +92,8 @@ namespace SSNoir.IMGUI
                 string subtitle = WrapSubtitle(node.Subtitle, subtitleStyle, subtitleWidth);
                 float subtitleHeight = MeasureSubtitleHeight(subtitle, subtitleStyle, subtitleWidth);
 
-                // 卡高由 RecommendedCardHeight 按同一套流量算出来，正常情况下这里放得下。
-                // 兜底仍然保留：卡被外部钉死成更矮的尺寸时，让位的必须是气氛文本而不是骰位。
-                float subtitleBudget = exeY - (titleY + TitleH + GapTitleToBody) - RequirementSlotsMinNeed(node);
+                float subtitleBudget = bodyBottom - (titleY + TitleH + GapTitleToBody)
+                    - RequirementSlotsMinNeed(node, actors);
                 if (subtitleHeight > subtitleBudget)
                     subtitleHeight = subtitleBudget >= 18f ? subtitleBudget : 0f;
 
@@ -99,8 +104,8 @@ namespace SSNoir.IMGUI
 
             float bodyY = subtitleBottomY + GapTitleToBody;
 
-            // ── 3. 类别 / 风险便签：骑在卡片左边缘外（不遮内容、不占内部空间）。
-            // 左便签只说「这件事」：内容层写的难度修正 + 类别/风险标签。
+            // ── 3. 类别 / 风险书签：从卡顶边探出（不遮内容、不占内部空间）。
+            // 书签只说「这件事」：内容层写的难度修正 + 类别/风险标签。
             // 伤势/旧伤是「这个人」的事，挂在右缘的人物能力片上（尼尔 0 −1）。
             {
                 // 两边的外挂都伸到卡外，所以谁盖谁只由绘制顺序决定；网格里这个顺序会把
@@ -110,26 +115,33 @@ namespace SSNoir.IMGUI
                 var attachNode = node;
                 var mods = node.Resolve!.DifficultyModifiers;
                 bool attachDisabled = disabled;
-                string skill = node.Resolve!.SkillName;
-                var attachActors = isRoll ? actors : null;
-                var attachSnapshot = gameManager.DisplayedSnapshot;
+                bool attachMustHandle = mustHandle;
                 DrawOrDeferEdgeAttachments(() =>
                 {
-                    DrawEdgeTags(attachRect, attachNode, mods, attachDisabled);
-                    // 能力预览与左侧标签同属 card attachment：它描述这张卡，但不该占主体的垂直预算。
-                    if (attachActors != null && attachActors.Count > 0)
-                        DrawActorAbilityRail(attachRect, skill, attachActors, attachSnapshot);
+                    DrawTopTabs(attachRect, attachNode, mods, attachDisabled, attachMustHandle);
                 });
             }
 
             // ── 4. 需求骰位：统一为「方块 Slot」（与手牌骰子/物品同族），居中横排。
             //     骰子 slot = 大字 D/值；物品 slot = 符号 + 数量（强调）+ 下方名称展签。
-            //     判定的核心骰上方挂技能药丸（属性 → 骰子）。
-            DrawRequirementSlots(rect, bodyY, exeY, clockBadgesBottom, node, slotted, disabled, ui, gameManager, ref interaction);
+            //     判定的核心骰左侧贴技能药丸（属性 → 骰子），同一行。
+            DrawRequirementSlots(rect, bodyY, bodyBottom, clockBadgesBottom, node, slotted, disabled, ui, gameManager, ref interaction);
 
             // ── 6. 执行 / 查看按钮（实心金 / 待命 / 不可用 / 执行中）──
-            var exeRect = new Rect(rect.x + (rect.width - 112f) / 2f, exeY, 112f, exeH);
-            bool allFilled = requiredSlotCount == 0 || (slotted != null && slotted.Count == requiredSlotCount && slotted.All(s => s != null));
+            // 有需求的卡：按钮在卡底那截操作台里，装填了才有。无需求的卡：按钮就在正文底。
+            bool allFilled = requiredSlotCount == 0 || (slotted != null && slotted.Count == requiredSlotCount && slotted.All(sl => sl != null));
+            Rect exeRect;
+            if (hasRequires)
+            {
+                if (!armed) return;
+                var panel = new Rect(rect.x + ArmedPanelInset, rect.yMax - BottomPad - panelH, rect.width - ArmedPanelInset * 2f, panelH);
+                DrawArmedPanel(rect, panel, allFilled && !disabled);
+                exeRect = new Rect(panel.center.x - ExeW / 2f, panel.y + ArmedPanelPad, ExeW, ExeH);
+            }
+            else
+            {
+                exeRect = new Rect(rect.center.x - ExeW / 2f, bodyBottom, ExeW, ExeH);
+            }
             if (isExecuting)
             {
                 DrawExecuteProgress(exeRect, executeProgress, executingText);
@@ -151,11 +163,11 @@ namespace SSNoir.IMGUI
                 DrawExecuteButton(exeRect, disabled ? "不可用" : "待 命", ui, false, dead: disabled);
             }
 
-            // ── 7. 命运预览留在主体卡；判定中与结算结果由渲染器在全部卡片之后统一画到
+            // ── 7. 命运预览在操作台里、按钮下方；判定中与结算结果由渲染器在全部卡片之后统一画到
             // attachment overlay，避免被较近的世界卡压住。──
             if (showOdds)
             {
-                TryDrawFatePreview(rect, node, gameManager.DisplayedSnapshot, slotted!, actors!, exeRect.yMax);
+                TryDrawFatePreview(rect, node, gameManager.DisplayedSnapshot, slotted!, actors!, exeRect.yMax + OddsGap);
             }
 
             // ── 8. 卡片级点击（仅无 requires 的非 Instant 类型，如 Observe / Clock）──
@@ -206,41 +218,42 @@ namespace SSNoir.IMGUI
                 draw();
         }
 
-        // ── 边缘便签：类别 / 风险，骑在卡片左边缘外 ────────────────────
+        // ── 卡顶书签：类别 / 风险 / 修正，像档案夹的分类页脚从卡顶边探出 ──────
 
-        // 同族彩纸便签，横贴在卡左边缘外，文字正常横排；自上而下堆叠。
-        // 不占卡内空间，也不遮主要元素——「贴在物件上的彩色便签」隐喻更足。
-        // 纸底一律浅色、字一律同族深色（DESIGN.md 便签色板）：便签压在深色卡与深色场景之上，
-        // 只有浅纸深字这一种关系才在两种底上都读得清。
-        // 空间投影卡的边缘有独立的纵向空间，便签全部逐张展示，不再折叠成「+N」。
-        private const float NotePadding = 10f;
-        private const float NoteMaxWidth = 172f;
-        // 便签压进卡内的宽度，其余露在卡外。这一段是「贴上去」的那一头：胶带画在这儿，
-        // 横跨卡边缘，把便签钉在它自己那张卡上。
-        private const float NoteOverlap = 18f;
-        // 左端是撕口：锯齿的进深与齿高。归属感靠形状说话——右端贴死、左端撕开，
-        // 一张纸只可能是从右边那张卡上撕下来贴住的。
-        private const float NoteTornDepth = 5f;
-        private const float NoteTornTooth = 7f;
-        // 纸上除了字以外必然被占掉的横向宽度：左右内边距 + 撕口进深 + 被胶带压住的那一段。
-        // 量高度和定宽度必须用同一个数，否则又是「盒子长高了、文字没跟上」那类 bug。
-        private const float NoteTextChromeWidth = NotePadding * 2f + NoteTornDepth + NoteOverlap;
-        // 文字区不许窄过这个数：低于两个字宽，中文就开始一行一个字竖着排。
-        private const float NoteMinTextWidth = 44f;
-        private const float NoteScreenPad = 4f;
+        // 一排浅彩纸小签，贴着卡顶边缘、从卡左上角往右排，文字正常横排；底边沉进卡内几像素，
+        // 和卡身连成一体——归属感靠「长在卡上」说话，不再靠伸出卡外的胶带。
+        // 不占卡内空间、不往左伸：卡贴着屏幕左缘时也不会被挤回卡里压住标题。
+        // 纸是 Paper、字是墨，语义靠左侧色条（DESIGN.md 书签色板）。
+        private const float TabPadding = 8f;
+        private const float TabGap = 4f;
+        // 第一张签离卡左角的距离；最后一张签离卡右角至少也留这么多。
+        private const float TabInset = 10f;
+        // 签沉进卡内的深度：盖住卡的顶描边，签和卡之间就没有一条线把它们隔开。
+        private const float TabSink = 3f;
+        private const float TabRowGap = 3f;
 
-        // 便签上是卡面最小的字。窗口不足 1080 高时 GUI.matrix 会整体压到 0.75 / 0.5，固定字号
+        // 书签上是卡面最小的字。窗口不足 1080 高时 GUI.matrix 会整体压到 0.75 / 0.5，固定字号
         // 落到物理屏上就只剩几个像素，中文必糊。这里按 Scale 反推出「物理屏上至少 12px」需要的
-        // 虚拟字号——只有便签敢这么做：它的纸高是从字号推出来的，字变大盒子跟着变大，不会撑爆
-        // 别处那种固定高度的小格子。
-        private static int NoteFontSize()
+        // 虚拟字号——签高是从字号推出来的，字变大签跟着变高，不会撑爆别处固定高度的小格子。
+        private static int TabFontSize()
         {
             int wanted = Mathf.Clamp(Mathf.CeilToInt(12f / Mathf.Max(0.5f, UIScale.Scale)), 15, 24);
             return IMGUIStyles.FontSize(wanted);
         }
 
-        // 卡面看见的修正 = 内容层写的 + 主角当前的伤势 + 身上的旧伤。判定用的是同一份 Injury 数据
-        // （SceneManager 结算时走 Injury.ModifierFor），这里只是把它提前显示出来。
+        private static float TabHeight() => TabFontSize() + 8f;
+
+        // 书签探出卡顶的高度（一排）。网格排版给每张卡在上方预留这么多，否则签会盖住上一张卡的底。
+        public static float TopTabsRise() => TabHeight() - TabSink + TabRowGap;
+
+        public static bool HasTopTabs(GameNode node, bool mustHandle = false)
+        {
+            if (node.Resolve == null) return false;
+            if (mustHandle) return true;
+            if (node.Resolve.DifficultyModifiers.Count > 0) return true;
+            return node.Tags != null && node.Tags.Any(t => !string.IsNullOrWhiteSpace(t));
+        }
+
         private static List<DifficultyModifierInfo> EffectiveModifiers(
             GameNode node, PresentationSnapshot snapshot, string actorRole = "protagonist")
         {
@@ -267,54 +280,67 @@ namespace SSNoir.IMGUI
             return merged;
         }
 
-        private static void DrawEdgeTags(Rect rect, GameNode node, List<DifficultyModifierInfo> effectiveModifiers, bool disabled)
+        private static void DrawTopTabs(Rect rect, GameNode node, List<DifficultyModifierInfo> effectiveModifiers, bool disabled, bool mustHandle = false)
         {
-            int fontSize = NoteFontSize();
-            float y = rect.y + 22f;
-            var noteStyle = new GUIStyle(GUI.skin.label)
+            var tabStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
-                fontSize = fontSize,
+                fontSize = TabFontSize(),
                 alignment = TextAnchor.MiddleCenter,
                 clipping = TextClipping.Clip,
-                wordWrap = true
+                wordWrap = false
             };
-            IMGUIStyles.ApplyStrongFont(noteStyle);
+            IMGUIStyles.ApplyStrongFont(tabStyle);
 
-            var items = new List<(string text, Color bg, Color textColor)>();
-            foreach (var mod in effectiveModifiers)
-            {
-                string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
-                var (modBg, modInk) = disabled
-                    ? NoteMuted
-                    : mod.Value < 0 ? NoteHighRisk : (mod.Value > 0 ? NoteWork : NoteNegotiate);
-                items.Add((modText, modBg, modInk));
-            }
+            var items = new List<(string text, Color stripe)>();
             if (node.Tags != null)
             {
                 foreach (var tag in node.Tags)
                 {
                     if (string.IsNullOrWhiteSpace(tag)) continue;
-                    var (bg, text) = TagColors(tag, disabled);
-                    items.Add((tag, bg, text));
+                    items.Add((tag, TagStripe(tag)));
                 }
             }
+            foreach (var mod in effectiveModifiers)
+            {
+                string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
+                items.Add((modText, ModifierStripe(mod.Value)));
+            }
+            // 「必须处理」不再是卡外另挂的一块牌子，就是一张金色条的签，和类别签排在一起：
+            // 它说的也是「这件事」——这件事在等你。
+            if (mustHandle)
+                items.Add(("必须处理", IMGUIStyles.Gold));
+            if (items.Count == 0) return;
 
-            // 每张便签按实际可用宽度量高度，长中文自动换行；空间投影允许标签向下延展，
-            // 因此不再因为卡片高度而截断或折叠。
+            // 从左上角起横排；一排放不下就往上再起一排——签可以多一排，不可以少一张或裁一半。
+            float tabH = TabHeight();
+            float rowY = rect.y + TabSink - tabH;
+            float x = rect.x + TabInset;
+            float rowRight = rect.xMax - TabInset;
             foreach (var item in items)
             {
-                float noteHeight = MeasureEdgeNoteHeight(rect, item.text, noteStyle);
-                DrawEdgeNote(rect, y, noteHeight, item.text, item.bg, item.textColor, noteStyle);
-                y += noteHeight + 6f;
+                float w = Mathf.Ceil(tabStyle.CalcSize(new GUIContent(item.text)).x) + TabPadding * 2f
+                    + (item.stripe.a > 0f && !disabled ? TabStripeWidth : 0f);
+                w = Mathf.Min(w, rowRight - (rect.x + TabInset));
+                if (x + w > rowRight && x > rect.x + TabInset)
+                {
+                    x = rect.x + TabInset;
+                    rowY -= tabH - TabSink + TabRowGap;
+                }
+                DrawTopTab(new Rect(x, rowY, w, tabH), item.text, disabled ? TabStripeNone : item.stripe, disabled, tabStyle);
+                x += w + TabGap;
             }
         }
 
-        // 一张便签：左端撕口 + 浅彩纸 + 三边描边 + 深色字 + 右端一段胶带横跨卡边缘。
-        // 右端压进卡片，向左伸出。
+        // 一张书签：1px 硬影 + Paper 纸 + 三边描边（上、左、右）+ 墨字 + 左侧一道色条。
+        // 底边不描：那里沉进卡内，一描就成了「搁在卡上的另一张纸」而不是「长在卡上的签」。
         // 整块按物理像素对齐（PixelSnap）：非整数缩放下不对齐会让纸边和字一起发虚。
-        private static void DrawEdgeNote(Rect card, float noteY, float noteHeight, string text, Color bg, Color ink, GUIStyle baseStyle)
+        private const float TabStripeWidth = 4f;
+
+        private static void DrawTopTab(Rect tab, string text, Color stripe, bool disabled, GUIStyle baseStyle)
         {
+            var paper = disabled ? IMGUIStyles.TabMutedPaper : IMGUIStyles.TabPaper;
+            var ink = disabled ? IMGUIStyles.TabMutedInk : IMGUIStyles.TabInk;
             var style = new GUIStyle(baseStyle) { normal = { textColor = ink } };
             style.hover.textColor = ink;
             style.active.textColor = ink;
@@ -324,99 +350,30 @@ namespace SSNoir.IMGUI
             style.onActive.textColor = ink;
             style.onFocused.textColor = ink;
 
-            var span = NoteSpan(card, text, style);
-            var note = UIScale.PixelSnap(new Rect(span.x, noteY, span.y, noteHeight));
+            tab = UIScale.PixelSnap(tab);
+            IMGUIStyles.DrawShadow(tab, new Vector2(2f, 0f), 0.45f);
+            IMGUIStyles.SetColor(paper);
+            GUI.DrawTexture(tab, Texture2D.whiteTexture);
 
-            // 纸身从撕口进深之后才开始；左边那一段由锯齿补齐，于是左端不是切齐的矩形边。
-            var body = new Rect(note.x + NoteTornDepth, note.y,
-                Mathf.Max(1f, note.width - NoteTornDepth), note.height);
+            bool hasStripe = stripe.a > 0f;
+            if (hasStripe)
+            {
+                IMGUIStyles.SetColor(stripe);
+                GUI.DrawTexture(new Rect(tab.x, tab.y, TabStripeWidth, tab.height), Texture2D.whiteTexture);
+            }
 
-            IMGUIStyles.DrawShadow(body, new Vector2(2f, 3f), 0.55f);
-            IMGUIStyles.SetColor(bg);
-            GUI.DrawTexture(body, Texture2D.whiteTexture);
-            IMGUIStyles.ResetColor();
-
-            DrawTornLeftEdge(body, bg);
-
-            // 描边只画三条切齐的边（上、下、右）——左边是撕口，撕口不描边。
-            var edge = new Color(ink.r, ink.g, ink.b, 0.65f);
+            var edge = new Color(ink.r, ink.g, ink.b, 0.5f);
             IMGUIStyles.SetColor(edge);
-            GUI.DrawTexture(new Rect(body.x, body.y, body.width, 1f), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(body.x, body.yMax - 1f, body.width, 1f), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(body.xMax - 1f, body.y, 1f, body.height), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(tab.x, tab.y, tab.width, 1f), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(tab.x, tab.y, 1f, tab.height), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(tab.xMax - 1f, tab.y, 1f, tab.height), Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
 
-            DrawNoteTape(card, body, ink);
-
+            // 字在色条右侧的纸面上居中；只用探出卡外的那一段，沉进卡里的几像素不算——否则字会往下坠。
+            float textX = tab.x + TabPadding + (hasStripe ? TabStripeWidth : 0f);
             IMGUIStyles.DrawLabel(
-                new Rect(body.x + NotePadding, body.y,
-                    Mathf.Max(1f, body.width - NotePadding * 2f - NoteOverlap), body.height),
+                new Rect(textX, tab.y, Mathf.Max(1f, tab.xMax - TabPadding - textX), tab.height - TabSink),
                 text, style);
-        }
-
-        // 撕口：沿左边缘排一列朝左的小三角，用纸的本色画——纸被撕下来的那一侧不是一条直边。
-        // 齿数按纸高算，最后一颗不许探出纸外（探出去就成了「纸下面还有东西」）。
-        private static void DrawTornLeftEdge(Rect body, Color bg)
-        {
-            int teeth = Mathf.Max(2, Mathf.FloorToInt(body.height / NoteTornTooth));
-            float toothH = body.height / teeth;
-            for (int i = 0; i < teeth; i++)
-            {
-                float top = body.y + i * toothH;
-                ShapeDrawer.DrawTriangle(
-                    new Vector2(body.x, top),
-                    new Vector2(body.x, top + toothH),
-                    new Vector2(body.x - NoteTornDepth, top + toothH * 0.5f),
-                    bg);
-            }
-        }
-
-        // 胶带：横跨卡片左边缘的一小段半透明纸白，压在便签和卡片**两边**上。
-        // 归属感就靠它——被粘住的是卡边，那这张纸只可能是这张卡的。
-        private static void DrawNoteTape(Rect card, Rect body, Color ink)
-        {
-            float tapeH = Mathf.Min(14f, body.height * 0.5f);
-            var tape = UIScale.PixelSnap(new Rect(
-                card.x - 10f, body.center.y - tapeH * 0.5f,
-                Mathf.Max(12f, NoteOverlap + 14f), tapeH));
-
-            IMGUIStyles.SetColor(new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.45f));
-            GUI.DrawTexture(tape, Texture2D.whiteTexture);
-            // 两条端线：胶带的边界要看得出来，否则只是一块发白的脏斑。
-            IMGUIStyles.SetColor(new Color(ink.r, ink.g, ink.b, 0.30f));
-            GUI.DrawTexture(new Rect(tape.x, tape.y, 1f, tape.height), Texture2D.whiteTexture);
-            GUI.DrawTexture(new Rect(tape.xMax - 1f, tape.y, 1f, tape.height), Texture2D.whiteTexture);
-            IMGUIStyles.ResetColor();
-        }
-
-        // 便签的左端和宽度。量高和绘制共用这一份，两边各算一遍必然长出「盒子和文字对不上」。
-        //
-        // 关键是**挤窄时挤的是位置，不是文字**：贴屏幕左边的卡（网格首列）左边没地方了，
-        // 就让便签整体往卡内多压一点，而不是把纸压成一条缝、文字一行一个字竖着排下去。
-        // 压进卡内最多到卡宽的一半——再多就不像贴在边上的东西了。
-        private static Vector2 NoteSpan(Rect card, string text, GUIStyle style)
-        {
-            var singleLineStyle = new GUIStyle(style) { wordWrap = false };
-            float width = Mathf.Clamp(
-                NoteTextChromeWidth + singleLineStyle.CalcSize(new GUIContent(text)).x,
-                NoteTextChromeWidth + NoteMinTextWidth,
-                NoteMaxWidth);
-
-            float right = card.x + NoteOverlap;
-            float left = right - width;
-            if (left < NoteScreenPad)
-            {
-                left = NoteScreenPad;
-                right = Mathf.Min(left + width, card.x + card.width * 0.5f);
-            }
-            return new Vector2(left, Mathf.Max(NoteTextChromeWidth, right - left));
-        }
-
-        private static float MeasureEdgeNoteHeight(Rect card, string text, GUIStyle style)
-        {
-            float labelWidth = Mathf.Max(1f, NoteSpan(card, text, style).y - NoteTextChromeWidth);
-            float wrappedHeight = style.CalcHeight(new GUIContent(text), labelWidth);
-            return Mathf.Max(style.fontSize + 12f, wrappedHeight + 6f);
         }
 
         // ── 需求骰位：方块 Slot（与手牌骰子/物品同族）──────────────────
@@ -429,6 +386,7 @@ namespace SSNoir.IMGUI
         private static float ItemSlot => DieSlot + 6f;
         private const float SlotGap = 10f;
         private const float PillH      = 18f;
+        private const float PillW      = 72f;
         private const float PillGap = 5f;
 
         private static readonly Color SlotBlockBg = new Color(0.024f, 0.031f, 0.047f, 1f);
@@ -451,7 +409,7 @@ namespace SSNoir.IMGUI
         private static int SkillPillIndex(GameNode node) =>
             node.Resolve != null && node.Resolve.Type == ResolveType.Roll ? FindCoreDieIndex(node) : -1;
 
-        private static float RequirementSlotsMinNeed(GameNode node)
+        private static float RequirementSlotsMinNeed(GameNode node, IReadOnlyList<ActorSnapshot>? actors)
         {
             var reqs = node.Requires;
             if (reqs == null || reqs.Count == 0) return 0f;
@@ -460,7 +418,10 @@ namespace SSNoir.IMGUI
             for (int j = 1; j < reqs.Count; j++)
                 if (SlotSize(reqs[j]) > SlotSize(biggest)) biggest = reqs[j];
 
-            return SlotMinSize(biggest) + (SkillPillIndex(node) >= 0 ? PillH + PillGap : 0f);
+            float skillColumnH = SkillPillIndex(node) >= 0
+                ? SkillColumnHeight(node.Resolve!.SkillName, actors)
+                : 0f;
+            return Mathf.Max(SlotMinSize(biggest), skillColumnH);
         }
 
         private static void DrawRequirementSlots(
@@ -482,14 +443,17 @@ namespace SSNoir.IMGUI
             float avail = Mathf.Max(0f, exeY - bodyY);
             int pillIndex = SkillPillIndex(node);
             bool showPill = pillIndex >= 0;
-            float aboveH = showPill ? PillH + PillGap : 0f;
+            float skillColumnH = showPill
+                ? SkillColumnHeight(node.Resolve!.SkillName, gameManager.DisplayedSnapshot.Actors)
+                : 0f;
             float belowH = HasItemRequirement(reqs) ? CaptionH + CaptionGap + CaptionBottomPad : 0f;
             float scale = 1f;
-            if (aboveH + maxSize + belowH > avail && maxSize > 0f)
-                scale = Mathf.Clamp((avail - aboveH - belowH) / maxSize, SlotMinSize(biggest) / maxSize, 1f);
+            if (Mathf.Max(maxSize, skillColumnH) + belowH > avail && maxSize > skillColumnH)
+                scale = Mathf.Clamp((avail - belowH) / maxSize, SlotMinSize(biggest) / maxSize, 1f);
 
             float scaledMax = maxSize * scale;
-            float need = aboveH + scaledMax + belowH;
+            float rowCoreH = Mathf.Max(scaledMax, skillColumnH);
+            float need = rowCoreH + belowH;
             float startY = bodyY + Mathf.Max(0f, (avail - need) * 0.5f);
             // 上面这些让位/缩放都只是「尽量好看」，真正的保证在这两行：
             // 骰位与执行按钮都是可交互元素，谁压住谁都是 bug，所以最后无条件把整块（含药丸与
@@ -497,9 +461,9 @@ namespace SSNoir.IMGUI
             // 但不盖住时钟徽章。这样结论不依赖上面任何一档参数调得准不准。
             startY = Mathf.Max(startY, clocksBottomY);
             startY = Mathf.Min(startY, exeY - need);
-            float centerY = startY + aboveH + scaledMax * 0.5f;
+            float centerY = startY + rowCoreH * 0.5f;
 
-            float rowW = 0f;
+            float rowW = showPill ? PillW + PillGap : 0f;
             for (int j = 0; j < n; j++) rowW += SlotSize(reqs[j]) * scale;
             rowW += SlotGap * (n - 1);
 
@@ -508,15 +472,33 @@ namespace SSNoir.IMGUI
             {
                 var req = reqs[j];
                 float size = SlotSize(req) * scale;
+                if (showPill && j == pillIndex)
+                    x += PillW + PillGap;
                 var square = new Rect(x, centerY - size * 0.5f, size, size);
                 if (showPill && j == pillIndex)
-                    DrawSkillPill(square, SkillInfo.DisplayName(node.Resolve!.SkillName));
+                    DrawSkillColumn(square, node.Resolve!.SkillName, gameManager.DisplayedSnapshot.Actors,
+                        gameManager.DisplayedSnapshot, disabled);
 
                 DrawSlotBlock(square, node, j, req, slotted != null ? slotted[j] : null, disabled, ui, gameManager,
                     ref interaction, judged: j == pillIndex);
 
                 x += size + SlotGap;
             }
+        }
+
+        /// <summary>自动行动的飞行骰需要落到和卡内绘制完全一致的位置。</summary>
+        public static Rect AutoActionSlotRect(Rect rect, GameNode node, int slotIndex)
+        {
+            // 卡高按内容算，骰位行紧跟在副标题之后（DrawRequirementSlots 里 avail == need，居中是空操作）。
+            float titleY = TitleTop(rect.y, rect.y);
+            float bodyY = titleY + TitleH + MeasureSubtitleHeight(node, rect.width) + GapTitleToBody;
+            int n = node.Requires.Count;
+            float size = DieSlot;
+            bool pill = SkillPillIndex(node) >= 0;
+            float rowW = (pill ? PillW + PillGap : 0f) + n * size + Mathf.Max(0, n - 1) * SlotGap;
+            float x = rect.center.x - rowW * 0.5f + slotIndex * (size + SlotGap);
+            if (pill && slotIndex >= SkillPillIndex(node)) x += PillW + PillGap;
+            return new Rect(x, bodyY, size, size);
         }
 
         // 卡片纵向流量的唯一定义，绘制（DrawContent）与测量（RecommendedCardHeight）共用同一组常量：
@@ -526,6 +508,29 @@ namespace SSNoir.IMGUI
         private const float GapAfterTopWidgets = 6f;   // 顶部挂件与标题之间
         private const float GapTitleToBody = 6f;       // 标题/副标题与骰位之间
         private const float BottomPad = 8f;
+        private const float ExeH = 26f;
+        private const float ExeW = 112f;
+        // 已装填时卡底长出的操作台：按钮（+ 命运预览）。它在卡的矩形之内——这样排布避让、
+        // 命中判定都不用另算一套；视觉上用一条短金线和自己的底把它画成「挂在卡下面的附件」。
+        private const float ArmedPanelGap = 8f;
+        private const float ArmedPanelPad = 8f;
+        private const float ArmedPanelInset = 8f;
+        private const float OddsGap = 4f;
+        private const float OddsH = 14f + 17f;          // DrawFateStrip：一行算式 + 赔率条
+
+        private static float ArmedPanelHeight(bool showOdds)
+            => ArmedPanelPad + ExeH + (showOdds ? OddsGap + OddsH : 0f) + ArmedPanelPad;
+
+        private static void DrawArmedPanel(Rect card, Rect panel, bool ready)
+        {
+            var line = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.62f);
+            IMGUIStyles.DrawLine(new Vector2(card.center.x, panel.y - ArmedPanelGap), new Vector2(card.center.x, panel.y + 1f), line, 2f);
+            IMGUIStyles.SetColor(new Color(SlotBlockBg.r, SlotBlockBg.g, SlotBlockBg.b, 0.9f));
+            GUI.DrawTexture(panel, Texture2D.whiteTexture);
+            IMGUIStyles.ResetColor();
+            IMGUIStyles.DrawOutline(panel, 1f, ready ? line
+                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f));
+        }
 
         private static float TitleTop(float topWidgetsBottom, float cardTop)
             => topWidgetsBottom > cardTop ? topWidgetsBottom + GapAfterTopWidgets : cardTop + TopPad;
@@ -592,33 +597,36 @@ namespace SSNoir.IMGUI
         }
 
         // 这张动作卡按自身内容该有多高。网格卡与世界投射卡都用它定高——不再有「网格一律 190」
-        // 那种与内容无关的固定值。
+        // 那种与内容无关的固定值，也不套 MinCardHeight：空卡就该矮。
+        // slotted / isExecuting 决定卡底有没有那截操作台，与 DrawContent 里的 armed 同一个定义。
         public static float RecommendedCardHeight(
             GameNode node,
             float cardWidth,
-            IReadOnlyList<ActorSnapshot>? actors)
+            IReadOnlyList<ActorSnapshot>? actors,
+            IReadOnlyList<SlottedResource?>? slotted,
+            bool isExecuting)
         {
             if (node.Resolve == null)
-                return CardDrawer.MinCardHeight;
+                return UIScale.MinTouchSize;
 
             bool isRoll = node.Resolve.Type == ResolveType.Roll;
+            bool hasRequires = node.Requires != null && node.Requires.Count > 0;
             float clockHeight = CardDrawer.MeasureClockBadgesHeight(cardWidth, node.Clocks);
-            float topWidgetsBottom = clockHeight;
-            float titleY = TitleTop(topWidgetsBottom, 0f);
+            float titleY = TitleTop(clockHeight, 0f);
 
-            float subtitleHeight = MeasureSubtitleHeight(node, cardWidth);
+            float bodyBottom = titleY + TitleH + MeasureSubtitleHeight(node, cardWidth) + GapTitleToBody;
+            bodyBottom += hasRequires ? PreferredRequirementSlotsHeight(node, actors) : ExeH;
 
-            float requirementsHeight = PreferredRequirementSlotsHeight(node);
-            float bodyBottom = titleY + TitleH + subtitleHeight;
-            if (requirementsHeight > 0f)
-                bodyBottom += GapTitleToBody + requirementsHeight;
-
-            // 与 DrawContent 的 exeY 反向对齐：按钮高 26，命运条另占 28，其下留 BottomPad。
-            float bottomControls = GapTitleToBody + 26f + (isRoll ? 28f : 0f) + BottomPad;
-            return Mathf.Max(CardDrawer.MinCardHeight, bodyBottom + bottomControls);
+            bool armed = hasRequires && (isExecuting || (slotted != null && slotted.Any(sl => sl != null)));
+            bool dieSlotted = armed && slotted != null && slotted.Any(sl => sl != null && sl.Type == "die");
+            bool showOdds = isRoll && !node.Disabled && dieSlotted && actors != null;
+            float panel = armed ? ArmedPanelGap + ArmedPanelHeight(showOdds) : 0f;
+            return Mathf.Max(UIScale.MinTouchSize, bodyBottom + panel + BottomPad);
         }
 
-        private static float PreferredRequirementSlotsHeight(GameNode node)
+        private static float PreferredRequirementSlotsHeight(
+            GameNode node,
+            IReadOnlyList<ActorSnapshot>? actors)
         {
             var reqs = node.Requires;
             if (reqs == null || reqs.Count == 0)
@@ -627,9 +635,10 @@ namespace SSNoir.IMGUI
             float maxSize = 0f;
             foreach (var req in reqs)
                 maxSize = Mathf.Max(maxSize, SlotSize(req));
-            float above = SkillPillIndex(node) >= 0 ? PillH + PillGap : 0f;
+            if (SkillPillIndex(node) >= 0)
+                maxSize = Mathf.Max(maxSize, SkillColumnHeight(node.Resolve!.SkillName, actors));
             float below = HasItemRequirement(reqs) ? CaptionH + CaptionGap + CaptionBottomPad : 0f;
-            return above + maxSize + below;
+            return maxSize + below;
         }
 
         /// <summary>
@@ -831,11 +840,35 @@ namespace SSNoir.IMGUI
             return false;
         }
 
-        // 技能药丸 + 连线，挂在判定骰方块上方（属性 → 骰子）。
-        private static void DrawSkillPill(Rect square, string skill)
+        // 判定骰左侧的技能列：技能名仍是有底、有框的主标签；人物能力值排在它下面，
+        // 使用更小、更淡、无底的次级文字。两者在同一列，但不会被读成同一种信息。
+        private const float SkillActorGap = 2f;
+        // MiSans 的中文字形在 12px 行高里会被 IMGUI 的基线裁掉下缘；能力值是卡上
+        // 真正要读的内容，给它和其他小字号标签一样的垂直余量。
+        private const float SkillActorH = 16f;
+
+        private static float SkillColumnHeight(string skill, IReadOnlyList<ActorSnapshot>? actors)
         {
-            const float pillW = 54f;
-            var pill = new Rect(square.center.x - pillW * 0.5f, square.y - PillGap - PillH, pillW, PillH);
+            if (actors == null) return PillH;
+
+            int actorCount = 0;
+            foreach (var actor in actors)
+                if (actor.OnStage && actor.Stats.ContainsKey(skill))
+                    actorCount++;
+
+            return PillH + (actorCount > 0 ? SkillActorGap + actorCount * SkillActorH : 0f);
+        }
+
+        private static void DrawSkillColumn(
+            Rect square, string skill, IReadOnlyList<ActorSnapshot>? actors,
+            PresentationSnapshot snapshot, bool disabled)
+        {
+            float columnH = SkillColumnHeight(skill, actors);
+            var pill = new Rect(
+                square.x - PillGap - PillW,
+                square.center.y - columnH * 0.5f,
+                PillW,
+                PillH);
             IMGUIStyles.SetColor(IMGUIStyles.Ink);
             GUI.DrawTexture(pill, Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
@@ -846,9 +879,40 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
-            IMGUIStyles.DrawLabel(pill, skill, s);
-            IMGUIStyles.DrawLine(new Vector2(pill.center.x, pill.yMax), new Vector2(square.center.x, square.y),
+            IMGUIStyles.DrawLabel(pill, SkillInfo.DisplayName(skill), s);
+            IMGUIStyles.DrawLine(new Vector2(pill.xMax, pill.center.y), new Vector2(square.x, square.center.y),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
+
+            if (actors == null) return;
+            int penalty = 0;
+            if (snapshot.InjurySkillPenalty != 0
+                && string.Equals(snapshot.InjurySkillKey, skill, System.StringComparison.OrdinalIgnoreCase))
+                penalty += snapshot.InjurySkillPenalty;
+            if (snapshot.ScarModifiers.TryGetValue(skill, out var scar) && scar != null)
+                penalty += scar.Value;
+
+            var actorStyle = new GUIStyle(GUI.skin.label)
+            {
+                font = IMGUIStyles.ChineseFont,
+                fontSize = IMGUIStyles.FontSize(10),
+                alignment = TextAnchor.MiddleCenter,
+                padding = new RectOffset(0, 0, 0, 0),
+                clipping = TextClipping.Clip,
+                normal = { textColor = disabled
+                    ? IMGUIStyles.TextSecondary
+                    : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.56f) }
+            };
+            float y = pill.yMax + SkillActorGap;
+            foreach (var actor in actors)
+            {
+                if (!actor.OnStage || !actor.Stats.TryGetValue(skill, out int level)) continue;
+                string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
+                string value = level.ToString();
+                if (actor.Role == "protagonist" && penalty != 0)
+                    value += penalty > 0 ? $" +{penalty}" : $" −{Mathf.Abs(penalty)}";
+                IMGUIStyles.DrawLabel(new Rect(pill.x, y, pill.width, SkillActorH), $"{shortName} {value}", actorStyle);
+                y += SkillActorH;
+            }
         }
 
         private static string ItemSymbol(string name)
@@ -975,83 +1039,6 @@ namespace SSNoir.IMGUI
             var progressStyle = new GUIStyle(IMGUIStyles.ExecuteLabel);
             progressStyle.normal.textColor = progress > 0.5f ? IMGUIStyles.GoldOnDark : IMGUIStyles.Paper;
             IMGUIStyles.DrawLabel(rect, label, progressStyle);
-        }
-
-        // ── 右缘能力附件（规范色，无主题色）────────────────────────────
-
-        // 显示当前判定技能下每个在场角色的等级，用 Ink 底 + Paper 描边 + 白字的小芯片。
-        // 不再使用主题色，符合 DESIGN.md「全局唯一主强调色」与「黑底安静块」的规则。
-        private static void DrawActorAbilityRail(
-            Rect rect, string skill, IReadOnlyList<ActorSnapshot> actors, PresentationSnapshot snapshot)
-        {
-            // 人身上的减值和他的技能值长在一起读：0 −1 就是「底子 0，脸伤扣 1」。
-            // 只压主角，同伴出骰不吃这一笔——与 EffectiveModifiers 同一条规则。
-            int penalty = 0;
-            if (snapshot.InjurySkillPenalty != 0
-                && string.Equals(snapshot.InjurySkillKey, skill, System.StringComparison.OrdinalIgnoreCase))
-                penalty += snapshot.InjurySkillPenalty;
-            if (snapshot.ScarModifiers.TryGetValue(skill, out var scar) && scar != null)
-                penalty += scar.Value;
-
-            // 带修正的片子要宽一格：修正必须画在片子里，画到片外就会越过下面那条安全区夹紧。
-            float chipW = penalty != 0 ? 78f : 54f;
-            const float chipH = 20f;
-            // 片子压进卡内多少。12 时它几乎整块悬在卡外，和便签一样会被读成邻居那张卡的；
-            // 往里收到 34 就只剩一小截探出卡边——够看出「挂在这张卡边上」，又不遮卡内内容。
-            const float overlap = 34f;
-            // 右缘附件和左便签一样只压进卡边一点。贴右屏的卡收进安全区，宁可贴着卡内缘，
-            // 也不让能力信息跑出画布。
-            float x = Mathf.Min(rect.xMax - overlap, UIScale.SafeArea.xMax - chipW - 4f);
-            float y = rect.y + 22f;
-            int drawn = 0;
-            foreach (var actor in actors)
-            {
-                // 只画本场登场的人（在队且还站得住）。谁在队里由场景自己决定——
-                // 码头坍塌就是在场内把弗兰克和林请进队，他们的技能从这一刻起挂在每张卡上。
-                if (!actor.OnStage || !actor.Stats.TryGetValue(skill, out int level))
-                    continue;
-
-                var chip = new Rect(x, y + drawn * (chipH + 4f), chipW, chipH);
-                IMGUIStyles.SetColor(IMGUIStyles.Ink);
-                GUI.DrawTexture(chip, Texture2D.whiteTexture);
-                IMGUIStyles.ResetColor();
-                IMGUIStyles.DrawOutline(chip, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f));
-
-                string shortName = actor.Name.Length > 2 ? actor.Name.Substring(0, 2) : actor.Name;
-                var nameStyle = new GUIStyle(GUI.skin.label)
-                {
-                    font = IMGUIStyles.ChineseFont,
-                    fontSize = IMGUIStyles.FontSize(12),
-                    alignment = TextAnchor.MiddleLeft,
-                    normal = { textColor = IMGUIStyles.Paper }
-                };
-                IMGUIStyles.ApplyStrongFont(nameStyle);
-                IMGUIStyles.DrawLabel(new Rect(chip.x + 5f, chip.y, 30f, chipH), shortName, nameStyle);
-
-                var lvlStyle = new GUIStyle(GUI.skin.label)
-                {
-                    fontSize = IMGUIStyles.FontSize(14),
-                    alignment = TextAnchor.MiddleRight,
-                    normal = { textColor = IMGUIStyles.Paper }
-                };
-                // 修正只压主角：同伴出骰不吃这一笔，和 EffectiveModifiers 是同一条规则。
-                bool showPenalty = penalty != 0 && actor.Role == "protagonist";
-                // 底子值靠右收在修正左边，两个数并排读作「0 −1」。
-                float lvlRight = showPenalty ? chip.width - 28f : chip.width - 6f;
-                IMGUIStyles.DrawLabel(new Rect(chip.x, chip.y, lvlRight, chipH), level.ToString(), lvlStyle);
-
-                if (showPenalty)
-                {
-                    var modStyle = new GUIStyle(lvlStyle)
-                    {
-                        fontSize = IMGUIStyles.FontSize(13),
-                        normal = { textColor = penalty < 0 ? IMGUIStyles.OddsFail : IMGUIStyles.OddsSuccess }
-                    };
-                    IMGUIStyles.DrawLabel(new Rect(chip.x, chip.y, chip.width - 6f, chipH),
-                        (penalty > 0 ? "+" : "−") + Mathf.Abs(penalty), modStyle);
-                }
-                drawn++;
-            }
         }
 
         // ── 底部：命运六面预览 ────────────────────────────────────────
@@ -1477,48 +1464,34 @@ namespace SSNoir.IMGUI
             return _rollDetailStyle;
         }
 
-        // ── 标签配色（便签色板，DESIGN.md）──────────────────────────────
+        // ── 书签配色（DESIGN.md 书签色板）──────────────────────────────
 
-        // 纸色一律取 IMGUIStyles 的 Sticky* 令牌（DESIGN.md 便签色板），这里不再自备一份色值：
-        // 之前正是因为各画各的，纸底被压暗成中间调，深色卡上字就糊了。
-        private static (Color bg, Color ink) NoteWork =>
-            (IMGUIStyles.StickyWorkBg, IMGUIStyles.StickyWorkText);
-        private static (Color bg, Color ink) NoteMidRisk =>
-            (IMGUIStyles.StickyMidRiskBg, IMGUIStyles.StickyMidRiskText);
-        private static (Color bg, Color ink) NoteHighRisk =>
-            (IMGUIStyles.StickyHighRiskBg, IMGUIStyles.StickyHighRiskText);
-        private static (Color bg, Color ink) NoteNegotiate =>
-            (IMGUIStyles.StickyNegotiateBg, IMGUIStyles.StickyNegotiateText);
-        private static (Color bg, Color ink) NoteOpportunity =>
-            (IMGUIStyles.StickyOpportunityBg, IMGUIStyles.StickyOpportunityText);
-        private static (Color bg, Color ink) NoteMuted =>
-            (IMGUIStyles.StickyMutedBg, IMGUIStyles.StickyMutedText);
+        // 纸和字一律取 IMGUIStyles 的 Tab* 令牌，这里只决定色条。
+        // 同一语义永远同一道色条：工作 / 低风险=苔绿、中风险=赭黄、高风险 / 交锋 / 非法=陶红、
+        // 机遇=金、交涉等中性类别不带色条。禁用态整张褪灰、也不带色条。
+        private static readonly Color TabStripeNone = Color.clear;
 
-        // 同一语义永远同一张纸：工作/低风险=绿纸、中风险=琥珀纸、高风险/交锋/非法=橙红纸、
-        // 交涉=蓝纸、机遇=紫纸。
-        private static (Color bg, Color text) TagColors(string label, bool disabled = false)
+        private static Color ModifierStripe(int value)
+            => value < 0 ? IMGUIStyles.OddsFail : (value > 0 ? IMGUIStyles.OddsSuccess : TabStripeNone);
+
+        private static Color TagStripe(string label)
         {
-            if (label == "不可休息")
-                return NoteHighRisk;
-
-            if (disabled)
-                return NoteMuted;
-
             switch (label)
             {
                 case "工作":
                 case "低风险":
-                    return NoteWork;
+                    return IMGUIStyles.OddsSuccess;
                 case "中风险":
-                    return NoteMidRisk;
+                    return IMGUIStyles.OddsNeutral;
                 case "交锋":
                 case "高风险":
                 case "非法":
-                    return NoteHighRisk;
+                case "不可休息":
+                    return IMGUIStyles.OddsFail;
                 case "机遇":
-                    return NoteOpportunity;
+                    return IMGUIStyles.Gold;
                 default:
-                    return NoteNegotiate;
+                    return TabStripeNone;
             }
         }
 

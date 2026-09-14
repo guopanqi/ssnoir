@@ -13,21 +13,17 @@ namespace SSNoir.IMGUI
         private const float PanelW = 420f;
 
         // ── 版面常量 ───────────────────────────────────────────────
-        // 每一项设置长成同一个样子：标题 / 说明 / 控件。说明**每项都有、位置固定**，
-        // 于是画布读数不再是一条无主的灰字，它就是「界面尺寸」这一项的说明。
-        // 分节标题（原来的「界面」「画面」）全部去掉：一节只管一行，那个标题不挣钱，
-        // 反而和说明文字撞成同一种灰，让面板出现三种角色、一种长相。
+        // 每一项设置只保留标题和控件。画布读数属于调试信息，不应该出现在玩家设置里；
+        // 其他说明也不参与选择，删掉后面板更紧凑，三项设置仍保持同一套流式布局。
         private const float HeaderH = IMGUIStyles.ModalContentTop;
         private const float BlockTitleH = 20f;
-        private const float BlockCaptionH = 18f;
-        private const float TitleToCaption = 2f;
-        private const float CaptionToControl = 8f;
+        private const float TitleToControl = 8f;
         private const float BlockGap = 22f;
         private const float BottomPad = 24f;
 
         private static float ControlH => UIScale.TouchHeight(30f);
         private static float BlockH =>
-            BlockTitleH + TitleToCaption + BlockCaptionH + CaptionToControl + ControlH;
+            BlockTitleH + TitleToControl + ControlH;
         private static float PanelH => HeaderH + BlockH * 3f + BlockGap * 2f + BottomPad;
 
         private static bool _isOpen = false;
@@ -71,13 +67,11 @@ namespace SSNoir.IMGUI
             float y = panelY + HeaderH;
 
             // ── 界面尺寸 ──
-            // 画布读数从"面板中间一条孤零零的灰字"变成这一项的说明——它本来就是
-            // 选了哪一档的结果，放在别处只会让人猜它在说谁。
             var presets = new[] { UISizePreset.Compact, UISizePreset.Standard, UISizePreset.Large };
             int presetIndex = System.Array.IndexOf(presets, UIScale.SizePreset);
             int pickedPreset = DrawSetting(
                 new Rect(contentX, y, contentW, BlockH),
-                "界面尺寸", UIScale.DescribeCanvas(),
+                "界面尺寸",
                 new[] { "紧凑", "标准", "放大" }, Mathf.Max(0, presetIndex), ui);
             if (pickedPreset >= 0)
                 UIScale.SizePreset = presets[pickedPreset];
@@ -90,7 +84,7 @@ namespace SSNoir.IMGUI
             bool reduceMotion = MotionSettings.ReduceMotion;
             int pickedMotion = DrawSetting(
                 new Rect(contentX, y, contentW, BlockH),
-                "镜头动画", "「减少」后镜头不再推近旋转，改为快速淡入淡出。",
+                "镜头动画",
                 new[] { "正常", "减少" }, reduceMotion ? 1 : 0, ui);
             if (pickedMotion >= 0)
                 MotionSettings.ReduceMotion = pickedMotion == 1;
@@ -101,16 +95,16 @@ namespace SSNoir.IMGUI
             // 于是换一个人坐下来试玩，教程会从头再走一遍——demo 阶段这是最常用的一个动作。
             int pickedTutorial = DrawSetting(
                 new Rect(contentX, y, contentW, BlockH),
-                "教程提示", "第一次遇到时自动弹出。重新打开会让教程从头再来一遍。",
+                "教程提示",
                 new[] { "开", "关" }, TutorialState.Enabled ? 0 : 1, ui);
             if (pickedTutorial >= 0)
                 TutorialState.Enabled = pickedTutorial == 0;
         }
 
-        // 一项设置：标题 / 说明 / 一排分段控件。返回被点中的段序号，没点中返回 -1。
-        // 两项设置共用它，所以它们在版面上长得一模一样——面板里只有一种「设置」的形状。
+        // 一项设置：标题 / 一排分段控件。返回被点中的段序号，没点中返回 -1。
+        // 三项设置共用它，所以它们在版面上长得一模一样。
         private static int DrawSetting(
-            Rect rect, string title, string caption, string[] options, int selected,
+            Rect rect, string title, string[] options, int selected,
             IMGUIInteractionContext ui)
         {
             var titleStyle = new GUIStyle(IMGUIStyles.ModalBody);
@@ -118,19 +112,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLabel(
                 new Rect(rect.x, rect.y, rect.width, BlockTitleH), title, titleStyle);
 
-            var captionStyle = new GUIStyle(IMGUIStyles.SectionLabel)
-            {
-                fontSize = IMGUIStyles.FontSize(13),
-                alignment = TextAnchor.MiddleLeft,
-                // 原来是 PaperTextDisabled：在纸底上只有约 3.4:1，小字号已经不合格。
-                // 说明该淡，淡到读不出来就不是层级，是失误。
-                normal = { textColor = IMGUIStyles.PaperTextSecondary },
-            };
-            IMGUIStyles.DrawLabel(
-                new Rect(rect.x, rect.y + BlockTitleH + TitleToCaption, rect.width, BlockCaptionH),
-                caption, captionStyle);
-
-            float controlY = rect.y + BlockTitleH + TitleToCaption + BlockCaptionH + CaptionToControl;
+            float controlY = rect.y + BlockTitleH + TitleToControl;
             return DrawSegmented(
                 new Rect(rect.x, controlY, rect.width, ControlH), options, selected, ui);
         }

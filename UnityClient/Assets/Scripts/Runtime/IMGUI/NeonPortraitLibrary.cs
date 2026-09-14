@@ -14,6 +14,9 @@ namespace SSNoir.IMGUI
         // 全身招牌里头到腰那一块，给 HUD 上立起来的半身像用。
         // 方画布上人物只占中间一条；换构图不同的立绘时调这里。
         public static readonly Rect BustCrop = new Rect(0.28f, 0.50f, 0.44f, 0.48f);
+        // 半身像再往上取的那一小块：只剩头和肩线，给 banter 气泡里的头像用。
+        // 头像很小，肩以下的东西进来只会糊成一团。
+        public static readonly Rect HeadCrop = new Rect(0.33f, 0.66f, 0.30f, 0.30f);
 
         private static readonly Dictionary<string, Texture2D?> Cache = new();
         private static Texture2D? _radialFalloff;

@@ -122,7 +122,8 @@
     (check!)))
 
 (define (get-render-data)
-  (container "失控的机械"
-    (append
+  (node "失控的机械"
+    :anchor "三号货栈工棚"
+    :children (append
       (clock-nodes (hold-clk 'render-data) (brace-clk 'render-data))
       (list (node-breaker) (node-pull) (node-brace) (node-fix)))))

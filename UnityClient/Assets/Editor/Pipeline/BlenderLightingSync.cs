@@ -58,6 +58,11 @@ namespace SSNoir.Editor
         private static readonly Vector3 SunEuler = new Vector3(36f, 128f, 0f);
         private static readonly Vector3 FillEuler = new Vector3(26f, -58f, 0f);
 
+        // 距离雾 = Blender 的 Mist（city-box/pipeline/config.py 的 MIST_START / MIST_DEPTH，线性衰减）。
+        // Blender 以米计，City 在 Unity 里缩放 0.1，所以除以 10。颜色就是 world 背景色。
+        private const float FogStart = 800f * 0.1f;
+        private const float FogEnd = (800f + 2200f) * 0.1f;
+
         [MenuItem("SSNoir/City/对齐 Blender 光照")]
         private static void Apply()
         {
@@ -85,6 +90,13 @@ namespace SSNoir.Editor
             // 环境改完要刷一次，否则已经烘进去的环境光探针还是旧天空的颜色。
             DynamicGI.UpdateEnvironment();
 
+            // 距离雾：远处往背景色里融。用 Linear 才能和 Blender 的 Mist 起止对上。
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogColor = WorldBackgroundLinear.gamma;
+            RenderSettings.fogStartDistance = FogStart;
+            RenderSettings.fogEndDistance = FogEnd;
+
             var sun = ResolveSun();
             ConfigureLight(sun, SunColorLinear, SunEnergy, SunEuler, LightShadows.Soft);
 
@@ -100,7 +112,8 @@ namespace SSNoir.Editor
 
             Debug.Log(
                 "[SSNoir] 已按 city_greybox.blend 对齐光照：环境改为 Flat 暗蓝、天空盒撤掉、"
-                + "SUN/FILL 两盏冷色平行光、相机背景改为纯色。AgX 的色调映射没有搬"
+                + "SUN/FILL 两盏冷色平行光、线性距离雾、相机背景改为纯色。"
+                + "主光阴影还要 URP Asset 里 Main Light > Cast Shadows 打开才生效。AgX 的色调映射没有搬"
                 + "（URP 无等价物），要补请在 Global Volume 里加 Tonemapping = Neutral。");
         }
 

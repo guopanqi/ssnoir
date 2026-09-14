@@ -56,6 +56,7 @@ namespace SSNoir.Scripting
             bool disabled = false;
             bool isPlace = false;
             string carryItemId = string.Empty;
+            string supportId = string.Empty;
             List<ArrivalBeat> arrivals = new List<ArrivalBeat>();
 
             for (int i = 2; i < nodeExpr.Count; i += 2)
@@ -115,6 +116,12 @@ namespace SSNoir.Scripting
                         throw new InvalidOperationException("Node :carry-item must be a non-empty string.");
                     carryItemId = parsedCarry;
                 }
+                else if (kwStr == ":support")
+                {
+                    if (!(val is string parsedSupport) || string.IsNullOrWhiteSpace(parsedSupport))
+                        throw new InvalidOperationException("Node :support must be a non-empty string.");
+                    supportId = parsedSupport;
+                }
                 else if (kwStr == ":arrivals")
                 {
                     arrivals = ParseArrivals(val, name);
@@ -163,6 +170,7 @@ namespace SSNoir.Scripting
                 Name = name,
                 IsPlace = isPlace,
                 CarryItemId = carryItemId,
+                SupportId = supportId,
                 Arrivals = arrivals,
                 AnchorName = anchorName,
                 Subtitle = subtitle,

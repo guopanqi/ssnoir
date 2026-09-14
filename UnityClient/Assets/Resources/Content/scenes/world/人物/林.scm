@@ -60,8 +60,8 @@
     (define participated? #f)     ; 准备期真投入过
     (define authority? #f)        ; 技术负责人
     (define humane? #f)           ; 人文关怀
-    ;; 第二章起：他愿不愿意把你带进公司试验场。这是跨章节的事实，所以归他自己拥有；
-    ;; 哪一晚、用哪句话换来的，属于那件事的文件。
+    ;; 旧版第二章曾用晚宴谈话开放公司试验场；新版改由第一章技术权威决定港务技术区权限。
+    ;; invited? 暂留给既有晚宴状态与存档，已经不再控制地点开放。
     (define invited? #f)
 
     ;; 造零件：手上这一件 + 已经完成的
@@ -107,7 +107,7 @@
                           "正式测试原定今晚进行。去三号货栈工棚"
                           (string-append "测试之夜在第 " (number->string test-day)
                                          " 天。在那之前把控制器凑齐、把轨道校完"))
-                 :where "工棚"
+                 :where "三号货栈工棚"
                  :clocks (append
                            (list (rail-clk 'render-data))
                            (if (controller-done?)
@@ -120,7 +120,7 @@
                  :kind '人物
                  :status '进行中
                  :now "去码头尽头那间工棚，看看他到底在做什么"
-                 :where "工棚"
+                 :where "三号货栈工棚"
                  :log (journal 'render-data))))
         ((>= stage 3)
          (list (dossier "三号货栈的那台机器"
@@ -131,7 +131,7 @@
                               "正式测试改期了。林在等公司的新排期"
                               "那一夜过去了。")
                           "去工棚看看那一夜之后剩下什么")
-                 :where (if (>= stage 4) "" "工棚")
+                 :where (if (>= stage 4) "" "三号货栈工棚")
                  :log (journal 'render-data))))
         (else '())))
 
@@ -254,7 +254,7 @@
 
     (define (arrivals-at location)
       (cond
-        ((equal? location "工棚")
+        ((equal? location "三号货栈工棚")
          (if (= stage 1) (list (arrival-briefing)) '()))
         ((equal? location "码头")
          (if (and (= stage 0) (zone-open?) (not zone-announced?))
@@ -527,7 +527,7 @@
     ;; 这一拍就是为了让玩家看见：你改变的是林，不是这件事会不会发生。
     (define (node-bulletin)
       (node "他手里那张宣传单"
-        :anchor workshop-test-anchor
+        :anchor workshop-part-anchor          ; 他把它摊在工作台上
         :resolve (instant
           (lambda ()
             (set! stage 4)
@@ -568,7 +568,7 @@
 
     (define (nodes-at location)
       (cond
-        ((equal? location "工棚") (workshop-nodes))
+        ((equal? location "三号货栈工棚") (workshop-nodes))
         ((equal? location "码头") (dock-nodes))
         (else '())))
 
@@ -588,6 +588,18 @@
       (set-global! '林-技术负责人 authority?)
       (set-global! '林-人文关怀 humane?)
       (set-global! '林-测试结果 test-result))
+
+    (define (debug-finish-chapter1! core?)
+      (set! stage 4)
+      (set! zone-announced? #t)
+      (set! test-day 0)
+      (set! test-result (if core? "完整自动通过" ""))
+      (set! manual-used 0)
+      (set! participated? core?)
+      (set! authority? core?)
+      (set! humane? #f)
+      (set! invited? #f)
+      (sync-globals!))
 
     ;; Demo 不再广播“测试之夜”，否则会向玩家许诺一场已隐藏的交锋。
     ;; 当天没去工棚的玩家在回合结束时收到改期消息；没有亲自
@@ -624,6 +636,12 @@
           ((equal? msg 'on-saw-cost!) (set! humane? #t))
           ((equal? msg 'invited?) invited?)
           ((equal? msg 'test-result) test-result)
+          ;; 跳章调试：只构造一份安静、合法的第一章结束态。
+          ;; 不补演机械区事故，也不伪造技术成功或人文关怀。
+          ((equal? msg 'debug-finish-chapter1!)
+           (debug-finish-chapter1! #f))
+          ((equal? msg 'debug-finish-chapter1-core!)
+           (debug-finish-chapter1! #t))
           ((equal? msg 'save)
            (list (list "stage" stage)
                  (list "journal" (journal 'save))

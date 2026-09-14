@@ -264,6 +264,15 @@ namespace SSNoir
         {
             ReleaseCameras();
 
+            // 跨独立舞台时，过场只归还镜头，不再自己飞向新焦点；快照落地后由 Portal
+            // 独占“城市门口 → 舞台门内 → 最终焦点”的整段旅程，避免连续飞两遍。
+            if (_gameManager.IncomingFocusCrossesStagePortal)
+            {
+                _returnCamera = null;
+                EnterPhase(Phase.Return);
+                return;
+            }
+
             if (_returnCamera != null)
             {
                 _gameManager.PromoteFocusCamera(_returnCamera);

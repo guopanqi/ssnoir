@@ -41,8 +41,8 @@
     (list "theater"              theater              '(存档))
     (list "insurance-company"    insurance-company    '(存档))
     (list "board"                board                '(存档))
-    (list "uptown-bar"           uptown-bar           '(存档))
-    (list "company-testbed"      company-testbed      '(存档))
+    (list "grand-hotel"          grand-hotel          '(存档))
+    (list "port-technical-zone"  port-technical-zone  '(存档))
     (list "newsroom"             newsroom             '(存档))))
 
 (define (模块-键 row)  (car row))
@@ -56,8 +56,8 @@
 ;; 地点只拥有自己的常驻生活内容和空间组织；故事的卡片从这里汇总后交给它。
 ;; **新增一件发生在剧院的事，改的是上面那张表，不是剧院。**
 ;;
-;; 地点名用短名（"家" "码头" "酒馆" "居民区" "工棚" "剧院" "警察局" "保险公司"），
-;; 不是 place 的显示名。这是提供者和地点之间的契约：显示名会为了好看改，短名不会。
+;; 地点名就是 place 的正式名称（"家" "码头" "老街酒馆" "码头居民区" "三号货栈工棚"）。
+;; 提供者、卷宗指路和地点节点共用同一个名字，不再维护另一套中文短名。
 ;; 提供者只回它真的有东西的那些地点，其余回 '()。
 ;;
 ;; 答不上这条消息时（多半是新登记的模块忘了实现）当场报清楚，
@@ -84,7 +84,7 @@
 ;; 主锚点可以不给：第二章新开的地方在 Unity 里还没有模型锚点，
 ;; 硬塞一个不存在的锚点会让客户端当场中断。不给锚点的地点，卡片走网格布局——
 ;; 那是「这个动作没有空间落点」时的正常路径，等模型做出来再补上锚点。
-(define (纯投射地点 显示名 短名 . 锚点)
+(define (纯投射地点 正式名 . 锚点)
   (define 主锚点 (if (null? 锚点) "" (car 锚点)))
   (define (fallback-anchor node-data)
     (if (or (equal? 主锚点 "") (member? :anchor node-data))
@@ -94,9 +94,9 @@
     (let ((msg (car args)))
       (cond
         ((equal? msg 'render-data)
-         (list (place 显示名
-                 :children (map fallback-anchor (地点节点 短名))
-                 :arrivals (地点入场 短名))))
+         (list (place 正式名
+                 :children (map fallback-anchor (地点节点 正式名))
+                 :arrivals (地点入场 正式名))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
         (else #f)))))

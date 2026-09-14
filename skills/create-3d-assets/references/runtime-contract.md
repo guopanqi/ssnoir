@@ -22,19 +22,19 @@
 
 CityBox 的 `build/city/report.json` 同时记录填充几何组和逐 Prefab 统计；性能判断以这份构建账本为准，不靠打开某次 FBX 后手工估算。
 
-CityBox 的贴地层由构建在生成源头按 `郊野 0.00m / 城市地面 0.30m / 干道与无基座公园 0.65m / 街区顶面 1.05m` 分层。Unity 中 `City` 整体缩放为 `0.1`，不能恢复为原来的厘米级源间距，否则透视全城镜头下会出现 z-fighting。建筑、窗光、Low/High 描线和语义节点必须通过宿主层级继承相同抬升，禁止在导出器或材质上单独追加深度偏移。
+CityBox 的贴地层由构建在生成源头按 `郊野 0.00m / 城市地面 0.30m / 干道与无基座公园 0.65m / 街区顶面 1.05m` 分层。Unity 中 `City` 整体缩放为 `0.1`，不能恢复为原来的厘米级源间距，否则透视全城镜头下会出现 z-fighting。建筑、窗光、描线和语义节点必须通过宿主层级继承相同抬升，禁止在导出器或材质上单独追加深度偏移。
 
 `CityOutlineState` 在运行时初始化唯一 `City` 根节点时，统一关闭整城子 Renderer 的 Cast Shadows，但不改 Receive Shadows。该规则不再由 ModelImporter 实现；导入的 FBX 上不挂 City 专用运行时脚本。
 
-#### City Low / High 描线
+#### City 描线可见范围
 
-构建从 `city.blend` 单次生成 `city_build.blend`。每个 Prefab 的本体、Anchor、Camera 和 orbit pivot 只有一份，同时生成两个独立描线 Mesh：`描线_<名>_Low` 按全城视野标定，`描线_<名>_High` 按该 Prefab 的聚焦相机标定；参数取自该 Prefab 顶层集合的 custom props。普通填充建筑和基础设施只生成一档细线。聚焦规则：机位所在的顶层 Prefab 整棵子树 High，其余 Low（嵌套 Prefab 各自一对）。
+城市描线只有 `focus`、`world`、`always` 三种可见范围。真实地点模型按所属地点相机标定，生成 `描线_focus_<名>`；手搭的 `outline="proxy"` 替身按世界相机标定，生成可选的 `描线_world_<名>`；填充建筑、屋顶小件和基础设施按世界相机标定，生成 `描线_always_<类>`。`tone = "bright" | "dim"` 只决定视觉层级，不参与显隐。
 
-Prefab 的 Low 默认用**结构勾勒**生成（`pipeline/outline_structure.py`），不是 High 的删减版：先把建筑读成若干个「大面」（墙、屋顶、退台），窗洞和线脚这类贴在墙上的小起伏并进它所属的大面，只画大面之间的交界，再用 Douglas-Peucker 把交界拉直成几笔。所有判据按全城机位的屏幕像素标定。少数资产描述的不是一栋楼而是一片街区（`码头`、`码头居民区`），在集合上标 `low_coarse = True` 用更粗的粒度；这是对象尺度不同，不是逐资产打补丁。`outline_low = "hard_edges"` 作为对照路径保留。
+世界状态显示 world + always；呈现某个顶层地点内的相机时，显示该地点的 focus + always，并关闭该地点的 world 描线。顶层地点 Prefab 是唯一切换单位。Anchor 负责解析 Focus Camera，Camera 所属顶层地点决定描线状态；不根据距离、视锥或屏幕覆盖范围自动切换。
 
-填充建筑的描线按体量筛：只有在全城机位下屏幕高度达到阈值（`pipeline/outline.py` 的 `FILL_MIN_H_PX`）的才生成描线，低矮的那批完全没有线，靠自身明暗和雾读出来 —— 这是有意的，不是漏生成。描线预算属于全城共享：填充侧省下来的直接还给 Prefab 的 Low 档。
+`City.fbx` 保存世界层、world/always 描线和语义对象；`Resources/City/Places/<名>.fbx` 保存每个顶层地点的 focus 描线与内部。`CityPlaces` 在启动时挂接地点细节，`CityOutlineState` 校验命名并执行状态表。
 
-`pipeline/export.py` 校验每个 Prefab 恰好有一个 Low 和一个 High，然后把本体与两档描线一起写入唯一 `City.fbx`。不再发布外置高精描线目录，也不在运行时另行加载描线资源。`CityOutlineState` 一次扫描 City 层级建立聚焦相机到 Low / High Renderer 的对应；常态开 Low 关 High；聚焦时按上述子树规则切换（当前实现仍只切被聚焦的那一个直接子节点，待改）。Low / High 使用同一个 `M_White_Emission_Lines` 材质，不设置独立发光参数；两档只在描线几何密度和线宽上存在差异。
+填充建筑按全城机位下的屏幕高度筛选，低于 `pipeline/outline.py` 中 `FILL_MIN_H_PX` 的建筑不生成 always 描线。背景线以全城共享的视觉和几何预算控制密度。
 
 ### Camera
 
@@ -61,7 +61,7 @@ Prefab 的 Low 默认用**结构勾勒**生成（`pipeline/outline_structure.py`
 - 规范名是 `OrbitPivot_<名>`（与 Anchor_/Camera_/PanBounds_ 同一套，整城唯一，不会被 Blender 加 `.001`）。导入器剥掉数字后缀、去掉空格/下划线/连字符后按“以 `orbitpivot` 开头”识别，所以独立资产里的 `orbit pivot` 也认。
 - 机位类型由同根的对象决定，没有默认分支：有 `OrbitPivot_<名>` → Orbit；有 `PanBounds_<名>` → Pan；都没有 → Static；都有 → 导入失败。CityBox 侧要求相机显式声明 `drag = "orbit" | "pan" | "static"` 并在构建时校验与对象一致。
 - pivot 是稳定的镜头旋转中心，不是交互卡片的位置。它通常放在资产视觉重心附近、略高于地面。
-- 运行时配置自相矛盾时会 assert/throw。Pan 机位可带平移边界：Prefab 里一块贴地的框（`pan_bounds_for = "Camera_<名>"`，`preview_only`），构建时换成同根的 `PanBounds_<名>` Empty（中心 + 半长半宽做 scale）进 FBX；导入器按它的 Transform 算出模型空间 XZ 边界写进 `SSNoirVirtualCameraConfig.panBounds*`，运行时经 `modelRoot` 换算成世界值。
+- 运行时配置自相矛盾时会 assert/throw。Pan 机位可带平移边界：Prefab 里一块贴地的框（`pan_bounds_for = "Camera_<名>"`，`preview_only`），构建时换成同根的 `PanBounds_<名>` Empty 进 FBX，角点是它的两个子 Empty `_min` / `_max`（用位置而不是 scale：FBX 导出把单位换算烘进 Prefab 根的 scale，子物体位置随之缩小、scale 不会）；导入器按角点位置算出模型空间 XZ 边界写进 `SSNoirVirtualCameraConfig.panBounds*`，运行时经 `modelRoot` 换算成世界值。
 
 每个 Prefab 的 `OrbitPivot_<名>` 只配同根的 `Camera_<名>`；相机只在同根直接子级里找 pivot。
 
@@ -85,7 +85,7 @@ Orbit 相机必须满足：
 
 检查与修复用 `scripts/align_camera_to_pivot.py`：默认只报告并以退出码 1 拦截；`--apply` 配合
 `--fix pivot`（默认，把 pivot 滑到相机视轴上、构图不变）或 `--fix camera`（把相机转向 pivot、构图会变），
-`--save` 才写回文件。该脚本复刻了导入器的“子树内最近 pivot”绑定规则，因此报告里的配对与 Unity 实际绑定一致。
+`--save` 才写回文件。该脚本复刻了导入器的“同根（同一父级）最近 pivot”绑定规则，因此报告里的配对与 Unity 实际绑定一致；出厂俯角在默认带外只作提示，不算错误。
 
 ### Anchor
 
@@ -108,7 +108,7 @@ Orbit 相机必须满足：
 
 ### 描边对象与材质
 
-城市描边的唯一生产者是 CityBox 构建：生成 Low/High、校验并写入 `City.fbx`；Prefab 源 `.blend` 不保存描边。
+城市描边的唯一生产者是 CityBox 构建：生成 focus/world/always 描线并分别写入世界层和地点细节资产；Prefab 源 `.blend` 不保存描边。
 
 非城市独立资产不得默认复用城市描边流程。只有找到明确运行时消费者时，才采用该消费者要求的对象名和材质名。例如 `AmbientBoat` 当前仍按材质名区分船体和线条，这只是车辆系统专用契约，不是所有资产的通用规范。
 

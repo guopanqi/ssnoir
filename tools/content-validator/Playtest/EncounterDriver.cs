@@ -174,7 +174,8 @@ namespace SSNoir.Playtest
             if (Scenes.CurrentRootNode != null) Collect(Scenes.CurrentRootNode, found);
             // 随身动作（烟、酒）不在渲染树里——它们不属于这一场，客户端把它们画成从物品
             // 引出去的小卡。但它们是货真价实的可执行节点，驱动照常把它们当牌看。
-            found.AddRange(Scenes.CurrentCarryNodes);
+            // 关系支援卡也在这一份里；用过就灰，灰了就不是牌。
+            found.AddRange(Scenes.CurrentCarryNodes.Where(n => !n.Disabled));
             return found;
         }
 

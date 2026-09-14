@@ -9,47 +9,44 @@ using UnityEngine.Rendering;
 namespace SSNoir
 {
     /// <summary>
-    /// Runtime focus state for the places embedded in City.fbx.
+    /// Applies the shared CityBox/Unity outline visibility contract.
     /// This is deliberately a plain C# object: imported model assets never receive scripts.
     ///
-    /// One place = the top-level City children sharing a name: the shell from City.fbx (with the
-    /// cameras) plus the detail instance CityPlaces attached next to it. Focusing any camera inside
-    /// a place switches the whole place (including nested prefabs) to "focused"; everything else is
-    /// in the world view. Per prefab the CityBox pipeline emits:
-    ///   描线_&lt;名&gt;         standard outline (shared prop lines / figure hulls as children) — focused only
-    ///   描线_&lt;名&gt;_远景    optional hand-built far outline — world view only
-    ///   内部_&lt;名&gt;         optional node holding interior geometry (furniture, props, figures) — focused only
-    /// Nothing else changes between the two states; the split exists purely to keep the world
-    /// view cheap.
+    /// A top-level City prefab is one place. Camera_世界 shows world + always outlines; presenting
+    /// any camera under a place shows that place's focus outlines plus all always outlines.
+    ///   描线_focus_&lt;名&gt;   real-model outline, visible while the place is focused
+    ///   描线_world_&lt;名&gt;   optional proxy outline, visible in world view
+    ///   描线_always_&lt;类&gt;  background city outline, never switched here
+    ///   内部_&lt;名&gt;         focused-place interior
     /// </summary>
     public sealed class CityOutlineState
     {
         private const string CityRootName = "City";
-        private const string OutlinePrefix = "描线_";
-        private const string FarSuffix = "_远景";
+        private const string FocusOutlinePrefix = "描线_focus_";
+        private const string WorldOutlinePrefix = "描线_world_";
         private const string InteriorPrefix = "内部_";
 
         private sealed class PrefabView
         {
-            public PrefabView(string name, Renderer[] standard, Renderer? far, GameObject? interior)
+            public PrefabView(string name, Renderer[] focus, Renderer? world, GameObject? interior)
             {
                 Name = name;
-                Standard = standard;
-                Far = far;
+                Focus = focus;
+                World = world;
                 Interior = interior;
             }
 
             public string Name { get; }
-            public Renderer[] Standard { get; }
-            public Renderer? Far { get; }
+            public Renderer[] Focus { get; }
+            public Renderer? World { get; }
             public GameObject? Interior { get; }
 
             public void SetFocused(bool focused)
             {
-                foreach (var renderer in Standard)
+                foreach (var renderer in Focus)
                     renderer.enabled = focused;
-                if (Far != null)
-                    Far.enabled = !focused;
+                if (World != null)
+                    World.enabled = !focused;
                 if (Interior != null)
                     Interior.SetActive(focused);
             }
@@ -95,26 +92,25 @@ namespace SSNoir
                 var roots = entry.Value;
                 var descendants = roots.SelectMany(r => r.GetComponentsInChildren<Transform>(true)).ToArray();
                 var views = new List<PrefabView>();
-                foreach (var standard in descendants.Where(t =>
-                             t.name.StartsWith(OutlinePrefix, StringComparison.Ordinal) &&
-                             !t.name.EndsWith(FarSuffix, StringComparison.Ordinal)))
+                foreach (var focus in descendants.Where(IsFocusOutlineRoot))
                 {
-                    string prefabName = standard.name.Substring(OutlinePrefix.Length);
-                    if (descendants.Count(t => t.name == standard.name) != 1)
-                        throw ContractError($"City place '{placeName}' has more than one '{standard.name}'.");
-                    if (standard.GetComponent<Renderer>() == null)
-                        throw ContractError($"City outline node '{standard.name}' must contain a Renderer.");
+                    string prefabName = focus.name.Substring(FocusOutlinePrefix.Length);
+                    if (descendants.Count(t => t.name == focus.name) != 1)
+                        throw ContractError($"City place '{placeName}' has more than one '{focus.name}'.");
+                    if (focus.GetComponent<Renderer>() == null)
+                        throw ContractError($"City outline node '{focus.name}' must contain a Renderer.");
 
-                    var farMatches = descendants.Where(t => t.name == standard.name + FarSuffix).ToArray();
-                    if (farMatches.Length > 1)
-                        throw ContractError($"City place '{placeName}' has more than one '{standard.name}{FarSuffix}'.");
-                    Renderer? far = farMatches.Length == 1 ? farMatches[0].GetComponent<Renderer>() : null;
-                    if (farMatches.Length == 1 && far == null)
-                        throw ContractError($"City outline node '{farMatches[0].name}' must contain a Renderer.");
+                    string worldName = WorldOutlinePrefix + prefabName;
+                    var worldMatches = descendants.Where(t => t.name == worldName).ToArray();
+                    if (worldMatches.Length > 1)
+                        throw ContractError($"City place '{placeName}' has more than one '{worldName}'.");
+                    Renderer? world = worldMatches.Length == 1 ? worldMatches[0].GetComponent<Renderer>() : null;
+                    if (worldMatches.Length == 1 && world == null)
+                        throw ContractError($"City outline node '{worldName}' must contain a Renderer.");
 
                     var interior = descendants.FirstOrDefault(t => t.name == InteriorPrefix + prefabName);
 
-                    var view = new PrefabView(prefabName, standard.GetComponentsInChildren<Renderer>(true), far,
+                    var view = new PrefabView(prefabName, focus.GetComponentsInChildren<Renderer>(true), world,
                         interior != null ? interior.gameObject : null);
                     view.SetFocused(false);
                     views.Add(view);
@@ -177,6 +173,14 @@ namespace SSNoir
             _activePlace?.SetFocused(false);
             next?.SetFocused(true);
             _activePlace = next;
+        }
+
+        private static bool IsFocusOutlineRoot(Transform transform)
+        {
+            if (!transform.name.StartsWith(FocusOutlinePrefix, StringComparison.Ordinal))
+                return false;
+            string placeName = transform.name.Substring(FocusOutlinePrefix.Length);
+            return transform.parent != null && string.Equals(transform.parent.name, placeName, StringComparison.Ordinal);
         }
 
         private static InvalidOperationException ContractError(string message)

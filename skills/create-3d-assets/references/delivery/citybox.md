@@ -10,7 +10,7 @@ CityBox 以 Blender 为唯一媒介，**Prefab 是唯一的单位**。约定与�
 - 候选与参考图：`city-box/prefabs/review/`
 - 构建产物：`city-box/build/city/`（`city_build.blend`、`City.fbx`、`places/<名>.fbx`、`report.json`、预览图）
 - Unity 固定发布物：`UnityClient/Assets/Resources/Models/Environment/City.fbx`（世界层）和
-  `UnityClient/Assets/Resources/City/Places/<名>.fbx`（每个顶层 Prefab 的标准描线 + 内部）
+  `UnityClient/Assets/Resources/City/Places/<名>.fbx`（每个顶层 Prefab 的 focus 描线 + 内部）
 
 世界层带全部语义对象和外壳，导航、镜头在任何地点细节没加载时都能工作；细节文件运行时由 `CityPlaces` 按名挂回 City 下。一个顶层 Prefab = 一个文件，嵌套子 Prefab 跟外层走。
 
@@ -24,7 +24,7 @@ CityBox 以 Blender 为唯一媒介，**Prefab 是唯一的单位**。约定与�
 
 ## 描线与外观
 
-源 Prefab 不带材质、不带描线。构建时套统一材质，并生成一套标准描线 `描线_<名>`（硬边 + 共享件的线 + `outline="hull"` 件的反向外壳，都在这个节点下），只在聚焦这个地点时显示；没聚焦时地点不描线、`layer="interior"` 的对象（`内部_<名>` 节点）隐藏。要在世界视角认得出的重要建筑，Prefab 里放 `outline="proxy"` 的手搭替身，构建出成 `描线_<名>_远景`。策略枚举与属性名见 `city-box/README.md`。逐建筑调参 = 改该 Prefab 的属性，重跑 `./build.sh --no-publish --focus <名>`，看 `build/city/focus_<名>.png`。聚焦规则：机位所在的顶层 Prefab 整棵子树聚焦，其余世界视角；嵌套场景的机位下外层建筑的线按外层自己的机位标定，会显得偏粗，这是有意的取舍。
+源 Prefab 不带材质、不带描线。构建将真实模型生成 `描线_focus_<名>`，将 `outline="proxy"` 的手搭替身生成 `描线_world_<名>`，将填充建筑与基础设施生成 `描线_always_<类>`。`tone` 只决定亮暗。世界状态显示 world + always；聚焦状态显示该顶层地点的 focus + always，并显示它的 `内部_<名>`。逐建筑调参后运行 `./build.sh --no-publish --focus <名>` 检查游戏聚焦图；需要从全城机位检查近景线时运行 `./build.sh --no-publish --render game --inspect-outline <名>`。
 
 ## 发布后验证
 

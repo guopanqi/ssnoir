@@ -8,6 +8,24 @@ namespace SSNoir.Scripting
 {
     public static class NativeFunctions
     {
+        /// <summary>同伴技能表：((violence 1) (knowledge 2) ...) 四项齐全，重复报错。</summary>
+        public static Dictionary<string, int> ParseCompanionStats(object raw)
+        {
+            if (!(raw is List<object> rawStats))
+                throw new ArgumentException("companion stats must be an alist");
+            var stats = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (object rawEntry in rawStats)
+            {
+                if (!(rawEntry is List<object> entry) || entry.Count != 2)
+                    throw new ArgumentException("each companion stat entry must contain id and value");
+                string statId = SchemeValue.AsId(entry[0]);
+                if (stats.ContainsKey(statId))
+                    throw new ArgumentException($"duplicate companion stat '{statId}'");
+                stats.Add(statId, SchemeValue.ToInt(entry[1]));
+            }
+            return stats;
+        }
+
         public static void Register(Interpreter interpreter, GameState gameState)
         {
             // --- New Native Bridge APIs ---
@@ -287,24 +305,43 @@ namespace SSNoir.Scripting
                 string actorId = SchemeValue.AsId(args[0]);
                 string name = args[1] as string
                     ?? throw new ArgumentException("companion name must be a string");
-                if (!(args[2] is List<object> rawStats))
-                    throw new ArgumentException("companion stats must be an alist");
-
-                var stats = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-                foreach (object rawEntry in rawStats)
-                {
-                    if (!(rawEntry is List<object> entry) || entry.Count != 2)
-                        throw new ArgumentException("each companion stat entry must contain id and value");
-                    string statId = SchemeValue.AsId(entry[0]);
-                    if (stats.ContainsKey(statId))
-                        throw new ArgumentException($"duplicate companion stat '{statId}'");
-                    stats.Add(statId, SchemeValue.ToInt(entry[1]));
-                }
-
+                var stats = ParseCompanionStats(args[2]);
                 gameState.Team.RecruitCompanion(actorId, name, stats);
                 gameState.NotificationCenter.Push($"{name}加入队伍", NotificationKind.Info);
                 return new None();
             }, "__recruit-companion!"));
+
+            // __summon-helper!（支援叫来的临时帮手）只能在交锋里用，所以注册在 SceneManager 那头。
+
+            // ── 关系支援 ────────────────────────────────────
+            interpreter.DefineGlobal(Symbol.FromString("__grant-support!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("__grant-support! requires a support id");
+                string id = args[0] as string ?? throw new ArgumentException("support id must be a string");
+                gameState.Team.GrantSupport(id);
+                return new None();
+            }, "__grant-support!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__has-support?"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("__has-support? requires a support id");
+                string id = args[0] as string ?? throw new ArgumentException("support id must be a string");
+                return gameState.Team.HasSupport(id);
+            }, "__has-support?"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__set-carried-support!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 1) throw new ArgumentException("__set-carried-support! requires a support id");
+                string id = args[0] as string ?? throw new ArgumentException("support id must be a string");
+                gameState.Team.SetCarriedSupport(id);
+                return new None();
+            }, "__set-carried-support!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__carried-support"), new NativeProcedure(args =>
+            {
+                string id = gameState.Team.CarriedSupport;
+                return id.Length == 0 ? (object)false : id;
+            }, "__carried-support"));
 
             interpreter.DefineGlobal(Symbol.FromString("__dismiss-companion!"), new NativeProcedure(args =>
             {

@@ -115,6 +115,7 @@ namespace SSNoir
         private Cinemachine.CinemachineBlendDefinition _focusArcSavedBlend;
         private float _focusArcStartedAt;
         private float _focusArcDuration;
+        private Vector3 _focusArcStartPosition;
         private Vector3 _focusArcStartInterest;
         private float _focusArcStartYaw;
         private float _focusArcStartPitch;
@@ -125,6 +126,7 @@ namespace SSNoir
         private float _focusArcTargetPitch;
         private float _focusArcTargetRadius;
         private Quaternion _focusArcTargetAim;
+        private Vector3 _focusArcTargetPosition;
         private Quaternion _focusArcTargetRotation;
         private float _focusArcStartFieldOfView;
         private float _focusArcTargetFieldOfView;
@@ -148,6 +150,31 @@ namespace SSNoir
         private float _focusArcDragStartPitchOffset;
         private Vector3 _focusArcPanRight;
         private Vector3 _focusArcPanForward;
+
+        private readonly struct FocusTravelStart
+        {
+            public FocusTravelStart(
+                Vector3 position, Quaternion rotation, Vector3 interest,
+                float fieldOfView, float nearClip, float farClip,
+                float referenceDistance)
+            {
+                Position = position;
+                Rotation = rotation;
+                Interest = interest;
+                FieldOfView = fieldOfView;
+                NearClip = nearClip;
+                FarClip = farClip;
+                ReferenceDistance = referenceDistance;
+            }
+
+            public Vector3 Position { get; }
+            public Quaternion Rotation { get; }
+            public Vector3 Interest { get; }
+            public float FieldOfView { get; }
+            public float NearClip { get; }
+            public float FarClip { get; }
+            public float ReferenceDistance { get; }
+        }
 
         // Reduce motion: the trip is replaced by a cut under a dissolve. The brain must
         // not blend on top of that — a blend and a dissolve running together reads as
@@ -1087,9 +1114,12 @@ namespace SSNoir
                 return true;
             }
 
-            // A genuinely different focus change lands the previous travel in flight —
-            // and gives the brain its real blend back before this one reads it as the
-            // travel time.
+            FocusTravelStart? redirectedStart = _isFocusArcActive
+                ? CaptureAndReleaseActiveFocusTravel()
+                : null;
+
+            // Non-arc transition state (notably a reduced-motion dissolve) still owns
+            // its own cleanup. An active arc was already sampled and released above.
             FinishFocusTravel();
 
             var previousFocus = _lastFocusCamera;
@@ -1116,8 +1146,8 @@ namespace SSNoir
                 ResetStaticOffset(focusCamera);
             Vector3 targetPosition = destinationUsesAuthoredPose ? config!.AuthoredPosition : focusCamera.transform.position;
             Quaternion targetRotation = destinationUsesAuthoredPose ? config!.AuthoredRotation : focusCamera.transform.rotation;
-            Vector3 startPosition = renderedCamera.transform.position;
-            Quaternion startRotation = renderedCamera.transform.rotation;
+            Vector3 startPosition = redirectedStart?.Position ?? renderedCamera.transform.position;
+            Quaternion startRotation = redirectedStart?.Rotation ?? renderedCamera.transform.rotation;
 
             // 换的是相机，不是画面：目的地的取景和此刻屏幕上的一模一样。过场末镜架在下一场的
             // 机位上正是这种情况——两台不同的 vcam，同一个构图。上面那条早退只认「同一台相机」，
@@ -1136,15 +1166,26 @@ namespace SSNoir
             }
 
             float duration = brain.m_DefaultBlend.m_Time;
-            transitionDuration = Mathf.Max(0f, duration);
             if (duration <= 0.01f)
                 return false;
 
-            float startNearClip = renderedCamera.nearClipPlane;
+            if (redirectedStart != null)
+            {
+                const float MinimumRedirectDuration = 0.2f;
+                float remainingDistance = Vector3.Distance(startPosition, targetPosition);
+                float referenceDistance = Mathf.Max(
+                    redirectedStart.Value.ReferenceDistance, SamePoseDistance);
+                duration = Mathf.Clamp(
+                    duration * remainingDistance / referenceDistance,
+                    MinimumRedirectDuration, duration);
+            }
+            transitionDuration = duration;
+
+            float startNearClip = redirectedStart?.NearClip ?? renderedCamera.nearClipPlane;
             float targetNearClip = focusCamera.m_Lens.NearClipPlane;
-            float startFarClip = renderedCamera.farClipPlane;
+            float startFarClip = redirectedStart?.FarClip ?? renderedCamera.farClipPlane;
             float targetFarClip = focusCamera.m_Lens.FarClipPlane;
-            float startFieldOfView = renderedCamera.fieldOfView;
+            float startFieldOfView = redirectedStart?.FieldOfView ?? renderedCamera.fieldOfView;
             float targetFieldOfView = focusCamera.m_Lens.FieldOfView;
 
             // The shot being left only speaks for the view when it is the one actually
@@ -1155,6 +1196,7 @@ namespace SSNoir
             if (!TryResolveInterestPoints(
                     focusCamera, targetPosition, targetRotation,
                     sourceCamera, startPosition, startRotation,
+                    redirectedStart?.Interest,
                     out Vector3 startInterest, out Vector3 targetInterest))
                 return false;
 
@@ -1174,6 +1216,7 @@ namespace SSNoir
             _focusArcBrain = brain;
             _focusArcStartInterest = startInterest;
             _focusArcTargetInterest = targetInterest;
+            _focusArcTargetPosition = targetPosition;
             _focusArcTargetRotation = targetRotation;
             _focusArcStartFieldOfView = startFieldOfView;
             _focusArcTargetFieldOfView = targetFieldOfView;
@@ -1189,6 +1232,7 @@ namespace SSNoir
             _isDraggingFocusArc = false;
             _focusArcStartedAt = Time.unscaledTime;
             _focusArcDuration = duration;
+            _focusArcStartPosition = startPosition;
 
             // The arc *is* the transition, so the brain must not blend on top of it.
             // Cutting is invisible: the camera starts exactly where the rendered view is.
@@ -1408,6 +1452,83 @@ namespace SSNoir
                 Mathf.Lerp(_focusArcStartFarClip, _focusArcTargetFarClip, eased));
         }
 
+        private FocusTravelStart CaptureAndReleaseActiveFocusTravel()
+        {
+            if (_focusArcCamera == null || _focusArcBrain == null)
+                throw new System.InvalidOperationException(
+                    "Active focus travel has no driven camera or Cinemachine brain.");
+
+            float rawProgress = Mathf.Clamp01(
+                (Time.unscaledTime - _focusArcStartedAt) / _focusArcDuration);
+            float eased = rawProgress * rawProgress * (3f - 2f * rawProgress);
+
+            // Sample the mathematical curve rather than Camera.main: Cinemachine copies
+            // the driven VCam in LateUpdate, so the rendered camera can be one frame old
+            // when an OnGUI click redirects travel.
+            ApplyFocusArcPose(eased);
+            var outgoingCamera = _focusArcCamera;
+            Vector3 currentPosition = outgoingCamera.transform.position;
+            Quaternion currentRotation = outgoingCamera.transform.rotation;
+            Vector3 currentInterest = Vector3.Lerp(
+                _focusArcStartInterest, _focusArcTargetInterest, eased);
+            if (_focusArcInputMode != CameraDragMode.Orbit)
+                currentInterest += _focusArcPanOffset;
+            float currentFieldOfView = Mathf.Lerp(
+                _focusArcStartFieldOfView, _focusArcTargetFieldOfView, eased);
+            float currentNearClip = Mathf.Lerp(
+                _focusArcStartNearClip, _focusArcTargetNearClip, eased);
+            float currentFarClip = Mathf.Lerp(
+                _focusArcStartFarClip, _focusArcTargetFarClip, eased);
+            float referenceDistance = Vector3.Distance(
+                _focusArcStartPosition, _focusArcTargetPosition);
+
+            RestoreFocusArcDestination(outgoingCamera);
+            _focusArcBrain.m_DefaultBlend = _focusArcSavedBlend;
+            ClearFocusArcState();
+
+            return new FocusTravelStart(
+                currentPosition, currentRotation, currentInterest,
+                currentFieldOfView, currentNearClip, currentFarClip,
+                referenceDistance);
+        }
+
+        private void RestoreFocusArcDestination(
+            Cinemachine.CinemachineVirtualCamera camera)
+        {
+            ApplyFocusArcPose(1f);
+
+            // With no steering, demand the exact pose captured before the VCam became a
+            // travel carrier. In particular, a Pan camera may translate but must never
+            // retain the temporary travel rotation. With steering, ApplyFocusArcPose(1)
+            // is the intentional adjusted destination.
+            bool hasSteering = _focusArcPanOffset.sqrMagnitude > 0.000001f
+                || Mathf.Abs(_focusArcYawOffset) > 0.0001f
+                || Mathf.Abs(_focusArcPitchOffset) > 0.0001f;
+            if (!hasSteering)
+            {
+                camera.transform.SetPositionAndRotation(
+                    _focusArcTargetPosition, _focusArcTargetRotation);
+                SetLens(
+                    camera, _focusArcTargetFieldOfView,
+                    _focusArcTargetNearClip, _focusArcTargetFarClip);
+            }
+            else if (_focusArcInputMode == CameraDragMode.Pan)
+            {
+                camera.transform.rotation = _focusArcTargetRotation;
+            }
+
+            SynchronizePanBoundsState(camera);
+        }
+
+        private void ClearFocusArcState()
+        {
+            _isFocusArcActive = false;
+            _focusArcCamera = null;
+            _focusArcBrain = null;
+            _focusArcInputConfig = null;
+            _isDraggingFocusArc = false;
+        }
+
         /// <summary>
         /// Ends a running travel at its destination and gives the brain its blend back.
         /// A travel always ends here — on arrival, when a new focus supersedes it, or
@@ -1433,10 +1554,7 @@ namespace SSNoir
 
             var completedCamera = _focusArcCamera;
             if (completedCamera != null)
-            {
-                ApplyFocusArcPose(1f);
-                SynchronizePanBoundsState(completedCamera);
-            }
+                RestoreFocusArcDestination(completedCamera);
 
             if (_focusArcBrain != null)
                 _focusArcBrain.m_DefaultBlend = _focusArcSavedBlend;
@@ -1445,11 +1563,7 @@ namespace SSNoir
                 && _isDraggingFocusArc
                 && (Input.GetMouseButton(0) || Input.GetMouseButton(1));
 
-            _isFocusArcActive = false;
-            _focusArcCamera = null;
-            _focusArcBrain = null;
-            _focusArcInputConfig = null;
-            _isDraggingFocusArc = false;
+            ClearFocusArcState();
 
             if (continueDragging && completedCamera != null)
                 BeginDrag(completedCamera);
@@ -1513,30 +1627,40 @@ namespace SSNoir
             Cinemachine.CinemachineVirtualCamera? source,
             Vector3 sourcePosition,
             Quaternion sourceRotation,
+            Vector3? sourceInterestOverride,
             out Vector3 sourceInterest,
             out Vector3 destinationInterest)
         {
-            sourceInterest = Vector3.zero;
+            sourceInterest = sourceInterestOverride ?? Vector3.zero;
             bool destinationOrbits = TryGetOrbitPivotPoint(destination, out destinationInterest);
-            bool sourceOrbits = source != null && TryGetOrbitPivotPoint(source, out sourceInterest);
+            bool sourceOrbits = sourceInterestOverride == null
+                && source != null
+                && TryGetOrbitPivotPoint(source, out sourceInterest);
 
             float planeHeight = destinationOrbits
                 ? destinationInterest.y
-                : (sourceOrbits ? sourceInterest.y : 0f);
+                : (sourceOrbits || sourceInterestOverride != null ? sourceInterest.y : 0f);
 
-            if (!destinationOrbits
-                && !TryGroundInterest(destinationPosition, destinationRotation * Vector3.forward, planeHeight, out destinationInterest))
-            {
-                if (!sourceOrbits)
-                    return false;
+            bool destinationHasInterest = destinationOrbits || TryGroundInterest(
+                destinationPosition, destinationRotation * Vector3.forward,
+                planeHeight, out destinationInterest);
+            bool sourceHasInterest = sourceInterestOverride != null
+                || sourceOrbits
+                || TryGroundInterest(
+                    sourcePosition, sourceRotation * Vector3.forward,
+                    planeHeight, out sourceInterest);
+
+            // A very high overview camera can hit the ground well beyond the finite
+            // distance we accept as a meaningful subject. Resolve both ends before
+            // deciding: if the close place shot has a valid point, the overview borrows
+            // it in either direction. The old destination-first early return made the
+            // same world/place pair arc on entry but fall back to Cinemachine on exit.
+            if (!destinationHasInterest && !sourceHasInterest)
+                return false;
+            if (!destinationHasInterest)
                 destinationInterest = sourceInterest;
-            }
-
-            if (!sourceOrbits
-                && !TryGroundInterest(sourcePosition, sourceRotation * Vector3.forward, planeHeight, out sourceInterest))
-            {
+            if (!sourceHasInterest)
                 sourceInterest = destinationInterest;
-            }
 
             return true;
         }

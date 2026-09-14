@@ -8,6 +8,11 @@
 ;; 人物关系的核心事实是：**弗兰克认不认你这个人**。
 ;; 它由巷子那晚写入（当街把已经不还手的人往死里打＝不认），
 ;; 继续影响他自己的码头事件，不再折算成首演夜的自动战斗人手。
+;;
+;; 第二章他只有一件事写回这里：《别给他们想要的》那天街上有没有人先动手
+;; （见 第二章/人物事件/别给他们想要的.scm）。调停成功，酒馆后屋从此对你开着
+;; （后屋的生活内容在 老街酒馆.scm），而且机器进老街那天他还坐得下来；
+;; 失败或没去，这条线中断，他更信「跟他们讲道理没用」。
 
 (define frank
   (let ()
@@ -32,8 +37,12 @@
     (define distribution-viewed? #f)
 
     (define paper-seen? #f)         ; 首演之后看见他在看报纸
-    ;; 第二章：机器进老街那天，他还坐不坐得下来。没人劝的话他自己会走到硬的那一边——
-    ;; 所以这是「你有没有给过他第二种做法」，不是「你对他好不好」。
+    ;; 第二章：警察来老街带人那天的调停。未发生 / 等你 / 成功 / 失败 / 缺席。
+    ;; 「等你」和「成功」时他人在酒馆后屋，不在居民区的工会房间。
+    (define mediation "未发生")
+    (define mediation-states (list "未发生" "等你" "成功" "失败" "缺席"))
+    ;; 机器进老街那天，他还坐不坐得下来。没人在他面前做成过一次「不动手也能收场」，
+    ;; 他自己会走到硬的那一边——所以这是「你有没有给过他第二种做法」，不是「你对他好不好」。
     ;; 第三章问的是同一件事：他最后是能代表这条街谈判的人，还是一个暴力头领。
     (define at-table? #f)
 
@@ -79,6 +88,10 @@
           (error "弗兰克存档错误：参与过却记成未介入") #t)
       (if (member? hold-state (list "未发生" "待安排" "待处理" "已结算" "缺席"))
           #t (error "弗兰克存档错误：扣船状态非法"))
+      (if (member? mediation mediation-states)
+          #t (error "弗兰克存档错误：调停状态非法"))
+      (if (and at-table? (not (equal? mediation "成功")))
+          (error "弗兰克存档错误：调停没成功却记着他坐得下来") #t)
       (if (and (number? hold-payment) (>= hold-payment 0) (<= hold-payment 6))
           #t (error "弗兰克存档错误：扣船付款进度非法"))
       (if (and approved? (not alley-settled?))
@@ -211,6 +224,23 @@
             (line "尼尔" "谁定这个顺序？")
             (line "弗兰克" "我。")))))
 
+    ;; ── 第二章：警察来带人那天 ───────────────────────
+    (define (on-mediation-summoned!)
+      (if (equal? mediation "未发生") #t (error "弗兰克：调停只能从未发生开始"))
+      (set! mediation "等你")
+      (meet!))
+
+    (define (on-mediation-result! result)
+      (if (equal? mediation "等你") #t (error "弗兰克：没有等着结算的调停"))
+      (if (member? result (list "成功" "失败" "缺席"))
+          #t (error "弗兰克：调停结果只能是 成功 / 失败 / 缺席"))
+      (set! mediation result)
+      (set! at-table? (equal? result "成功"))
+      (sync-globals!))
+
+    (define (back-room?) (equal? mediation "成功"))
+    (define (in-tavern?) (member? mediation (list "等你" "成功")))
+
     ;; ── 首演之后：他在看报纸 ─────────────────────────
     ;; 这一拍不给任何东西。它只是让玩家看见第二章从哪里开始长出来。
     (define (node-newspaper)
@@ -279,7 +309,8 @@
     (define (residential-nodes)
       ;; 工会房间是居民区东侧回廊的终点，正式会面与分钱都在这里，而不是借码头地点投射。
       ;; 抢修期间他人就在泊位，不能同时把人物卡留在居民区。
-      (if (and met? (not (equal? repair-state "进行中")))
+      ;; 第二章他叫你去酒馆后屋之后，人就在后屋——一个人不能同时在两处。
+      (if (and met? (not (equal? repair-state "进行中")) (not (in-tavern?)))
           (list (node-frank))
           '()))
 
@@ -287,20 +318,27 @@
     (define (nodes-at location)
       (cond
         ((equal? location "码头") (dock-nodes))
-        ((equal? location "居民区") (residential-nodes))
+        ((equal? location "码头居民区") (residential-nodes))
         (else '())))
 
+    ;; 只在他手上有一件具体的、能照着做的事时才进卷宗——见文件开头的说明：
+    ;; 他多数日子没事给你做，那时候码头/居民区自己的标注卡（node-frank-idle）
+    ;; 已经说清他此刻在干什么，卷宗不该再补一条写死"进行中"的人物简介。
     (define (dossier-entry)
-      (if met?
-          (list (dossier "弗兰克"
-                  :kind '人物
-                  :status '进行中
-                  :now (cond
-                         ((equal? repair-state "进行中") "他在码头排货船抢修的班表")
-                         ((equal? hold-state "待处理") "他扣下了船上的关键部件，工人正封着跳板")
-                         (else "码头工头；工会房间和泊位上的事都会报到他那里"))
-                  :where (if (equal? repair-state "进行中") "码头" "码头居民区")))
-          '()))
+      (cond
+        ((equal? repair-state "进行中")
+         (list (dossier "弗兰克"
+                 :kind '人物
+                 :status '进行中
+                 :now "他在码头排货船抢修的班表"
+                 :where "码头")))
+        ((equal? hold-state "待处理")
+         (list (dossier "弗兰克"
+                 :kind '人物
+                 :status '进行中
+                 :now "他扣下了船上的关键部件，工人正封着跳板"
+                 :where "码头居民区")))
+        (else '())))
 
     (define (arrival-repair)
       (arrival "旧货船进水"
@@ -359,11 +397,32 @@
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'approved?) approved?)
-          ((equal? msg 'on-stayed-at-table!) (set! at-table? #t))
-          ((equal? msg 'on-pushed-to-force!) (set! at-table? #f))
+          ((equal? msg 'on-mediation-summoned!) (on-mediation-summoned!))
+          ((equal? msg 'on-mediation-result!) (on-mediation-result! (cadr args)))
+          ((equal? msg 'mediation) mediation)
+          ((equal? msg 'back-room?) (back-room?))
           ((equal? msg 'at-table?) at-table?)
-          ;; 调试用：当作巷子那一晚他认下了你。
-          ((equal? msg 'debug-approve!) (begin (set! met? #t) (set! approved? #t)))
+          ;; 跳章调试：保留「他认下了你」，同时把货船抢修与扣船窗口收口。
+          ;; 这样第一次进码头不会补播第一章的货船入场。
+          ((equal? msg 'debug-finish-chapter1!)
+           (set! met? #t)
+           (set! approved? #t)
+           (set! alley-settled? #t)
+           (set! repair-state "已结束")
+           (set! repair-deadline-day 0)
+           (set! repair-joined? #f)
+           (set! repair-result "未介入")
+           (set! hold-state "缺席")
+           (set! hold-open-day 0)
+           (set! hold-day 0)
+           (set! hold-paid? #f)
+           (set! hold-payment 0)
+           (set! distribution-viewed? #f)
+           (set! paper-seen? #t)
+           (set! mediation "未发生")
+           (set! at-table? #f)
+           (sync-globals!)
+           (validate-state!))
           ((equal? msg 'met?) met?)
           ((equal? msg 'repair-state) repair-state)
           ((equal? msg 'hold-state) hold-state)
@@ -375,6 +434,7 @@
           ((equal? msg 'save)
            (list
              (list "approved?" approved?)
+             (list "mediation" mediation)
              (list "at-table?" at-table?)
              (list "alley-settled?" alley-settled?)
              (list "met?" met?)
@@ -393,7 +453,8 @@
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! approved? (required-field data "approved?"))
-             ;; 第二章新加的字段用宽容读法：第一章存的档里没有它，缺了就是 #f。
+             ;; 第二章新加的字段用宽容读法：第一章存的档里没有它，缺了就是初始值。
+             (set! mediation (assoc-get data "mediation" "未发生"))
              (set! at-table? (assoc-get data "at-table?" #f))
              (set! alley-settled? (required-field data "alley-settled?"))
              (set! met? (required-field data "met?"))

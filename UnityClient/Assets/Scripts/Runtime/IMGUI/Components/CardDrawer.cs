@@ -64,11 +64,13 @@ namespace SSNoir.IMGUI
         // 这张卡按自身内容该有多高。所有摆卡的地方（网格瀑布流、世界投射）都必须问它，
         // 不要再各自写「网格一律 190 / 地点 168」这类与内容无关的常量——那正是标题被时钟徽章
         // 压住、副标题被截掉、按钮贴着骰位的根因：内容变了，盒子不跟着变。
+        // slotted / isExecuting 只对动作卡有意义：装填了的卡底部多出一截操作台。
         public static float MeasureCardHeight(
-            GameNode node, CardKind kind, float cardWidth, IReadOnlyList<ActorSnapshot>? actors)
+            GameNode node, CardKind kind, float cardWidth, IReadOnlyList<ActorSnapshot>? actors,
+            IReadOnlyList<SlottedResource?>? slotted = null, bool isExecuting = false)
         {
             if (kind == CardKind.Action)
-                return ActionNodeDrawer.RecommendedCardHeight(node, cardWidth, actors);
+                return ActionNodeDrawer.RecommendedCardHeight(node, cardWidth, actors, slotted, isExecuting);
 
             float clocksHeight = MeasureClockBadgesHeight(cardWidth, node.Clocks);
             return kind switch
@@ -146,11 +148,15 @@ namespace SSNoir.IMGUI
                     rect, node, slotted, ui, gameManager,
                     isExecuting, executeProgress, executingText,
                     localRoll, localRollPhase, localRollDisplayDieValue, localRollDisplayScale,
-                    residue, clocksBottomY, spaciousAttachments, ref interaction);
+                    residue, clocksBottomY, spaciousAttachments, containsRestBlockerTarget, ref interaction);
             }
 
             // 重要性是卡片最上层的状态标记，必须在动作内容与结果附件之后绘制。
-            DrawRestBlockerMarker(rect, isRestBlockerTarget, containsRestBlockerTarget);
+            // 动作卡的「必须处理」已并进顶部书签（ActionNodeDrawer.DrawTopTabs），这里只剩金光。
+            if (isCharacter)
+                DrawRestBlockerMarker(rect, isRestBlockerTarget, containsRestBlockerTarget);
+            else if (isRestBlockerTarget)
+                IMGUIStyles.DrawGoldPulse(rect, baseAlpha: 0.72f, rings: 3, ringStep: 2.5f, speed: 2.2f);
 
             if (isCharacter && isFocused)
                 GUI.matrix = oldMatrix;
@@ -173,7 +179,8 @@ namespace SSNoir.IMGUI
             const float markerWidth = 84f;
 
             // 处理标签统一放到卡片上方，避免遮住建筑线稿、时钟和标题。
-            float markerX = Mathf.Clamp(rect.x + 10f, 4f, UIScale.VW - markerWidth - 4f);
+            // 靠右角：左上角是类别 / 风险书签的位置（ActionNodeDrawer.DrawTopTabs）。
+            float markerX = Mathf.Clamp(rect.xMax - markerWidth - 10f, 4f, UIScale.VW - markerWidth - 4f);
             float markerY = Mathf.Max(4f, rect.y - markerHeight - markerGap);
             var marker = UIScale.PixelSnap(new Rect(markerX, markerY, markerWidth, markerHeight));
 

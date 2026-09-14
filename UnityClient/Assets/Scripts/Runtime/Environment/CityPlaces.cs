@@ -10,7 +10,7 @@ namespace SSNoir
     /// <summary>
     /// City.fbx is the world layer: base, fill, every place's shell, far outlines and all semantic
     /// nodes (Anchor / Camera / OrbitPivot / PanBounds). Each top-level place's detail — its
-    /// standard outline and interior — ships as its own asset, Resources/City/Places/&lt;名&gt;.fbx,
+    /// focus outline and interior — ships as its own asset, Resources/City/Places/&lt;名&gt;.fbx,
     /// whose root is the same node as the shell root (same name, same transform). This class
     /// instantiates those assets as siblings of their shells under City. Splitting the files is
     /// what lets later places move out of the first package; today everything is local and is

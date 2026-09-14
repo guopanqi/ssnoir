@@ -48,10 +48,10 @@
 ;;   板上常驻三处以上，你才真的在选"先救哪一处"。
 ;;
 ;;   一回合  吊杆冲着她降     倒坠  砸下来 3 · 弄好 0/12  中央
-;;   一回合  烟灌进看台       放血  弄好 0/12            内环
-;;   二回合  半个场子黑着     放血  弄好 0/14            外圈
+;;   一回合  烟灌进看台       放血  弄好 0/12            池座
+;;   二回合  半个场子黑着     放血  弄好 0/14            环廊
 ;;   三回合  顶上那圈灯架松了 倒坠  砸下来 4 · 弄好 0/20  中央
-;;   四回合  人往七号门挤     放血  弄好 0/8             内环
+;;   四回合  人往七号门挤     放血  弄好 0/8             七号门
 ;;           ——次生的：只在烟或黑场那时候还挂在板上才来。
 ;;           前面按住了，它就不发生；前面拖着，它替你把账算清。
 ;;
@@ -233,7 +233,7 @@
 
 ;; 中央那两处永远是你自己的骰子——没有人会去她身边。
 (define mark-crisis
-  (make-crisis "吊杆冲着她降" 'fall "中央" 12 3 0 1
+  (make-crisis "吊杆冲着她降" 'fall "中央台" 12 3 0 1
     3 '() ""
     "" "" 'knowledge
     "刹住吊杆" "侧台那排刹车够得到，一道一道锁住它" 'knowledge
@@ -247,7 +247,7 @@
           (list 12 "吊杆锁死在半空。她还站在原地把那一句唱完了"))))
 
 (define smoke-crisis
-  (make-crisis "烟灌进看台" 'bleed "内环" 12 0
+  (make-crisis "烟灌进看台" 'bleed "池座" 12 0
     (hole-head-start hole-vent 12) (hole-bleed-every hole-vent) 0
     (hole-tags hole-vent "台底你封过" "台底你查过" "台底你没碰过")
     (cond ((>= hole-vent 2) "。你上周封过一层铁皮，烟走得慢了，但没堵死")
@@ -265,7 +265,7 @@
           (list 12 "看台重新看得见人脸。还有人咳，但没有人在跑"))))
 
 (define blackout-crisis
-  (make-crisis "半个场子黑着" 'bleed "外圈" 14 0
+  (make-crisis "半个场子黑着" 'bleed "环廊" 14 0
     (hole-head-start hole-power 14) (hole-bleed-every hole-power) 0
     (hole-tags hole-power "配电箱你换过" "配电箱你查过" "配电箱你没碰过")
     (cond ((>= hole-power 2) "。你换过后廊那只箱子，烧的是旁边那一路，没全丢")
@@ -284,7 +284,7 @@
           (list 14 "场子重新亮起来。台上台下都看得见了"))))
 
 (define rig-crisis
-  (make-crisis "顶上那圈灯架松了" 'fall "中央" 20 4 0 1
+  (make-crisis "顶上那圈灯架松了" 'fall "中央台" 20 4 0 1
     4 '() ""
     "" "" 'violence
     "一根根绞回去" "一根钢索一根钢索地重新吃上力" 'violence
@@ -304,7 +304,7 @@
 ;; 次生的一处：它不是又一场事故，是前面两处没按住的账。
 ;; 烟或黑场到第四回合还挂在板上，人就往七号门挤。
 (define crush-crisis
-  (make-crisis "人往七号门挤" 'bleed "内环" 8 0 0 1
+  (make-crisis "人往七号门挤" 'bleed "七号门" 8 0 0 1
     0 (list "前面拖出来的") "。烟和黑没按住，人就自己找门去了"
     "喊住前几排" "站到栏杆上喊，让前面几排先别动" 'social
     "拉住要倒的" "从人流里挑出快站不住的那个，先把他拽出来" 'sharpness
@@ -510,6 +510,7 @@
 
 (define (crisis-node c)
   (node (c 'id)
+    :anchor (string-append "首演之夜-" (c 'ring))
     :subtitle (string-append (crisis-effect c) " · " (c 'desc) (c 'prep-note))
     :tags (append (crisis-tag c) (c 'prep-tags))
     :clocks (clocks-of c)
@@ -691,10 +692,9 @@
 (define (crisis-nodes) (map crisis-node active))
 
 (define (get-render-data)
-  ;; 首演发生在剧院内；交锋根节点必须占用场所主点，不能因没有
-  ;; Anchor_首演之夜 而退回网格布局。
+  ;; 交锋使用独立的剧院内部 Prefab；世界地图上的“剧院”只代表外观建筑。
   (node "首演之夜"
-    :anchor "剧院"
+    :anchor "首演之夜"
     :children
     (append
       (clock-nodes (show-clk 'render-data)

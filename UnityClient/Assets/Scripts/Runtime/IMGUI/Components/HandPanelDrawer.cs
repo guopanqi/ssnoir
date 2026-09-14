@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using SSNoir.Core;
 
@@ -94,12 +95,41 @@ namespace SSNoir.IMGUI
                 left -= 28f + (itemCount - 1) * TokenSpacing + TokenSize;
             into.Add(new Rect(left, blockTop, right - left, blockH));
 
-            // 休息键上方那几条随身挂件（烟、酒）也要放骰子，世界卡同样得让开。
+            // 休息键上方的随身消费卡也会接收拖放，世界卡必须让开完整卡面。
             if (!gameManager.SceneManager.CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
             {
-                var carry = ActiveCarryNodes(gameManager);
+                var carry = ActiveEncounterActionNodes(gameManager);
                 for (int i = 0; i < carry.Count; i++)
-                    into.Add(CarryStripRect(right - functionW, functionW, blockTop + 4f, i));
+                    into.Add(EncounterActionCardRect(carry, i, right, blockTop + 4f, gameManager));
+            }
+        }
+
+        /// <summary>
+        /// 人物半身像不承载交互，只是布局上的软占位：空间充足时世界卡让开，空间不足时
+        /// 可以覆盖。这里与 DrawCluster 共用同一组几何常量，避免布局器猜头像画在哪里。
+        /// </summary>
+        public static void CollectPortraitBounds(SSNoirGameManager gameManager, List<Rect> into)
+        {
+            float baseline = UIScale.SafeArea.yMax - BottomMargin;
+            float x = UIScale.SafeArea.x + SideMargin;
+            bool leadDrawn = false;
+            foreach (var actor in gameManager.DisplayedSnapshot.Actors)
+            {
+                if (!actor.OnStage) continue;
+                bool isLead = !leadDrawn;
+                var neon = NeonPortraitLibrary.Load(actor.Name);
+                if (neon != null)
+                {
+                    float diceY = baseline - TokenSize;
+                    float composureY = diceY - 4f - VitalRowH - 2f;
+                    float bustHeight = isLead ? BustHeight : BustHeight * 0.86f;
+                    var uv = NeonPortraitLibrary.BustCrop;
+                    float bustWidth = bustHeight * (uv.width / uv.height);
+                    float bustBottom = composureY + BustOverlap;
+                    into.Add(new Rect(x - 6f, bustBottom - bustHeight, bustWidth, bustHeight));
+                }
+                x += ClusterWidth(actor, isLead) + ClusterGap;
+                leadDrawn = true;
             }
         }
 
@@ -163,6 +193,33 @@ namespace SSNoir.IMGUI
             return new Rect(x, baseline - TokenSize - 4f, w - ClusterGap, TokenSize + 4f);
         }
 
+        public static bool TryGetActionDieRect(
+            SSNoirGameManager gameManager, string actorId, int slotId, out Rect rect)
+        {
+            Rect safe = UIScale.SafeArea;
+            float baseline = safe.yMax - BottomMargin;
+            float x = safe.x + SideMargin;
+            bool leadDrawn = false;
+            foreach (var actor in gameManager.DisplayedSnapshot.Actors)
+            {
+                if (!actor.OnStage) continue;
+                if (string.Equals(actor.Id, actorId, StringComparison.OrdinalIgnoreCase))
+                {
+                    rect = new Rect(x + slotId * TokenSpacing, baseline - TokenSize, TokenSize, TokenSize);
+                    return true;
+                }
+                x += ClusterWidth(actor, isLead: !leadDrawn) + ClusterGap;
+                leadDrawn = true;
+            }
+            rect = Rect.zero;
+            return false;
+        }
+
+        public static void DrawMovingDie(Rect rect, int value)
+        {
+            DrawHandBlock(rect, value.ToString(), null, selected: false, hover: false, disabled: false);
+        }
+
         /// <summary>主角骰子上方那两条读数（冷静，带伤时还有伤势）。</summary>
         public static Rect LeadVitalsRect(SSNoirGameManager gameManager)
         {
@@ -202,9 +259,9 @@ namespace SSNoir.IMGUI
         }
 
         // 功能键两边都只有一块：交锋里是「休息」，世界里是「回家」。
-        // 抽烟 / 喝酒已经不在这儿了——它们是随身挂件（见 DrawCarryStrips）。
-        // 宽度就取随身挂件的宽度：休息键与它上方那几条是同一叠东西，右下角只该有一条竖边。
-        private static float FunctionWidth(SSNoirGameManager gameManager) => CarryStripW;
+        // 功能键保持紧凑；随身消费动作已经改成上方的标准卡，不再决定这一列的宽度。
+        private const float FunctionBlockW = 108f;
+        private static float FunctionWidth(SSNoirGameManager gameManager) => FunctionBlockW;
 
         private const float NameRowH   = 20f;   // 只在没有半身像时才占位
         private const float VitalRowH  = 22f;   // 冷静 / 伤势条那一行；字比以前大一号
@@ -221,10 +278,13 @@ namespace SSNoir.IMGUI
 
         // ── 入口 ───────────────────────────────────────────────────────
 
-        public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors = null)
+        public static void Draw(
+            SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors = null,
+            IReadOnlyList<SlottedResource>? pendingAutoActionDice = null)
         {
             float baseline = UIScale.SafeArea.yMax - BottomMargin;   // 行动骰底边
-            DrawCharacters(baseline, gameManager, ui, anchors, drawPortraits: false, drawForeground: true);
+            DrawCharacters(baseline, gameManager, ui, anchors, drawPortraits: false, drawForeground: true,
+                pendingAutoActionDice: pendingAutoActionDice);
             DrawItemsAndFunctions(baseline, gameManager, ui);
         }
 
@@ -235,7 +295,8 @@ namespace SSNoir.IMGUI
         public static void DrawPortraits(SSNoirGameManager gameManager)
         {
             float baseline = UIScale.SafeArea.yMax - BottomMargin;
-            DrawCharacters(baseline, gameManager, default, anchors: null, drawPortraits: true, drawForeground: false);
+            DrawCharacters(baseline, gameManager, default, anchors: null, drawPortraits: true, drawForeground: false,
+                pendingAutoActionDice: null);
         }
 
         // ── 左下：人物簇 ───────────────────────────────────────────────
@@ -246,7 +307,8 @@ namespace SSNoir.IMGUI
             IMGUIInteractionContext ui,
             DialogueAnchors? anchors,
             bool drawPortraits,
-            bool drawForeground)
+            bool drawForeground,
+            IReadOnlyList<SlottedResource>? pendingAutoActionDice)
         {
             var snapshot = gameManager.DisplayedSnapshot;
             float x = UIScale.SafeArea.x + SideMargin;
@@ -275,7 +337,7 @@ namespace SSNoir.IMGUI
 
                 float clusterW = DrawCluster(
                     x, baseline, actor, flatDieOffset, isLead, snapshot, gameManager, ui, anchors,
-                    drawPortraits, drawForeground);
+                    drawPortraits, drawForeground, pendingAutoActionDice);
                 x += clusterW + ClusterGap;
                 flatDieOffset += actor.ActionDice.Count;
             }
@@ -285,7 +347,7 @@ namespace SSNoir.IMGUI
         private static float DrawCluster(
             float x, float baseline, ActorSnapshot actor, int flatDieOffset, bool isLead,
             PresentationSnapshot snapshot, SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors,
-            bool drawPortraits, bool drawForeground)
+            bool drawPortraits, bool drawForeground, IReadOnlyList<SlottedResource>? pendingAutoActionDice)
         {
             int diceCount = actor.ActionDice.Count;
             float clusterW = ClusterWidth(actor, isLead);
@@ -409,7 +471,12 @@ namespace SSNoir.IMGUI
                 if (ContainsActionSlot(actor.ActionDiceSlotIds, slotId))
                     continue;
                 var slotRect = new Rect(x + slotId * TokenSpacing, diceY, TokenSize, TokenSize);
-                if (slotId == injuredSlotId)
+                // 这颗骰子已经被一个还没出场的 auto-action 提前扣走了（见调用方注释）；
+                // 在玩家看见那张卡之前，这一格该看着还在手上，不是已经用掉了。
+                int reservedValue = FindPendingReservedValue(pendingAutoActionDice, actor.Id, slotId);
+                if (reservedValue > 0)
+                    DrawMovingDie(slotRect, reservedValue);
+                else if (slotId == injuredSlotId)
                     DrawDisabledDie(slotRect);
                 else
                     DrawSpentDieSlot(slotRect);
@@ -658,6 +725,25 @@ namespace SSNoir.IMGUI
             return 1f - since / SettleFlash;
         }
 
+        /// <summary>
+        /// 新回合的骰子是否还在滚动或落定回闪。回合开始的自动行动必须等这一段结束，
+        /// 否则玩家会看见骰子一边重掷、一边被动作卡抓走，先后关系就倒了。
+        /// </summary>
+        public static bool HasUnsettledDice(PresentationSnapshot snapshot)
+        {
+            float now = Time.time;
+            foreach (var actor in snapshot.Actors)
+            {
+                for (int index = 0; index < actor.ActionDice.Count; index++)
+                {
+                    if (_dieRolls.TryGetValue(RollKey(actor, index), out var state)
+                        && now < state.StartedAt + index * RollStagger + RollDuration + SettleFlash)
+                        return true;
+                }
+            }
+            return false;
+        }
+
         private static void PruneStaleRolls(float now)
         {
             if (_dieRolls.Count < 64) return;
@@ -784,6 +870,21 @@ namespace SSNoir.IMGUI
                 if (slotIds[i] == slotId)
                     return true;
             return false;
+        }
+
+        // 骰值恰好也是它在骰子上的面数，天然大于 0；用 0 当"没找到"的哨兵不需要另开一个 bool。
+        private static int FindPendingReservedValue(
+            IReadOnlyList<SlottedResource>? pendingAutoActionDice, string actorId, int slotId)
+        {
+            if (pendingAutoActionDice == null)
+                return 0;
+            for (int i = 0; i < pendingAutoActionDice.Count; i++)
+            {
+                var die = pendingAutoActionDice[i];
+                if (die.DieIndex == slotId && string.Equals(die.ActorId, actorId, StringComparison.OrdinalIgnoreCase))
+                    return die.Value;
+            }
+            return 0;
         }
 
         // 用掉了的骰位：一个空框。比骰子暗得多，也不描第二道边、不投影——
@@ -946,10 +1047,8 @@ namespace SSNoir.IMGUI
 
             if (isInEncounter)
             {
-                // 抽烟、喝酒这两格已经删掉。它们现在是随身动作节点
-                //（engine.scm 的 carry-nodes，由 SceneManager 补进每一场交锋的树），
-                // 常驻在休息键上方的小挂件里（见 DrawCarryStrips）：一个标题 + 一个骰位。
-                // 放东西的表现形式必须处处一致——玩家从一个角落按钮上看不出"这里能放骰子"。
+                // 抽烟、喝酒是随身动作节点（engine.scm 的 carry-nodes，由 SceneManager 补进
+                // 每一场交锋），在休息键上方画成带物品槽、行动骰槽和执行钮的标准卡。
                 // 功能区只剩"休息"：它是唯一一个真的不吃任何东西的动作。
                 var restRect = new Rect(functionX, functionY, functionW, functionH);
                 // 休息也是一次真的执行（OnEndTurnClicked 会播一段 "休息" 演出）。
@@ -979,9 +1078,7 @@ namespace SSNoir.IMGUI
             float startX = itemsRightEdge - itemsW;
             IMGUIStyles.DrawLabel(new Rect(startX, labelY, 80f, 18f), "物品", sectionStyle);
 
-            // 带用法的物品（烟、酒）把自己的骰位常驻挂在右下角，见 DrawCarryStrips。
-            // 这里只记下它们的方块位置，好让引线知道从哪儿长出来。
-            var carryItemRects = new Dictionary<string, Rect>(StringComparer.OrdinalIgnoreCase);
+            // 带用法的物品也保持可拖；玩家要把它明确放进随身消费卡的物品槽。
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];
@@ -1001,16 +1098,9 @@ namespace SSNoir.IMGUI
                 else
                 {
                     bool disabled = ui.IsLocked;
-                    var carryNode = FindCarryNode(gameManager, item.Name);
                     DrawItemBlock(itemRect, item.Name, isSelected, hover, remaining, disabled, gainPulse,
                         ItemCapacity(gameManager, item.Name));
-                    if (carryNode != null)
-                    {
-                        // 这件东西自己带着一个用法（烟、酒）。它不用拖也不用点——用法就常驻在
-                        // 右下角那条小挂件上，把骰子放进去就是了。
-                        carryItemRects[item.Name] = itemRect;
-                    }
-                    else if (!disabled && ui.WasClicked(itemRect))
+                    if (!disabled && ui.WasClicked(itemRect))
                     {
                         // 拖拽态显示的是物品栏当前可用的数量；已放入槽位的数量不应又出现在 ghost 上。
                         gameManager.BeginItemDrag(item.Name, remaining, ui.Mouse);
@@ -1020,149 +1110,130 @@ namespace SSNoir.IMGUI
             }
 
             if (isInEncounter)
-                DrawCarryStrips(functionX, functionW, functionY, carryItemRects, gameManager, ui);
+                DrawEncounterActionCards(functionX + functionW, functionY, gameManager, ui);
         }
 
-        // ── 随身动作（右下角的小挂件）─────────────────────────────
-        // 烟、酒这类你自己带进交锋的东西。它们是货真价实的动作节点（engine.scm 的
-        // carry-nodes），但**不是一张卡**：卡是这一场里发生的事，随身的东西不是。
-        // 所以这里不画卡框、不写副标题、也没有执行钮——只有一个标题和一个骰位，
-        // 骰子放进去就立刻用掉。要的是「物品长出来的一小片使用层」，不是第二张卡。
-        //
-        // 它常驻在休息键上方，一根引线指回那件物品。平时压到很淡，只在手里捏着骰子、
-        // 指针停上去、或者骰子已经放进去时才亮起来——它不该跟场上的卡抢注意力。
-        //
-        // 骰位方块本身用的仍是卡里那一个（ActionNodeDrawer.DrawStandaloneSlot），
-        // 尺寸也仍是手牌方块的尺寸：接骰子的坑到哪儿都一样大。
-        // 骰位 50 + 两边 5 的内边距 = 60，剩下的给标题：两个字（16px）刚好，不多留。
+        // ── 随身消费动作（右下角的动作卡）─────────────────────────
+        // 烟、酒复用普通动作卡：物品槽和行动骰槽都是八角消费槽，填满后出现执行按钮。
+        // 唯一特殊之处是摆在随身区，不进入交锋自己的卡片网格。
         // 物品名那一行的高度。方块本身不变，是整簇往上抬了这么多。
         private const float ItemNameRowH = 15f;
 
-        private const float CarryStripW = 108f;
-        private static float CarryStripH => TokenSize + 10f;
-        private const float CarryStripGap = 10f;   // 条与条、最下面那条与休息键之间
-
-        private static GameNode? FindCarryNode(SSNoirGameManager gameManager, string itemName)
-        {
-            foreach (var node in gameManager.DisplayedSnapshot.CarryNodes)
-                if (string.Equals(node.CarryItemId, itemName, StringComparison.OrdinalIgnoreCase))
-                    return node;
-            return null;
-        }
-
-        // 这一场里真的能用的随身动作：手上还有那件东西的才算。
-        private static List<GameNode> ActiveCarryNodes(SSNoirGameManager gameManager)
+        private const float CarryCardW = FunctionBlockW;
+        private const float CompactSlotSize = 44f;
+        private const float CompactCardBaseH = 76f;
+        private const float CompactExecuteH = 30f;
+        private const float CompactExecuteGap = 5f;
+        private const float CarryCardGap = 12f;
+        // 非场景交锋动作共用一列。物品动作只在持有对应物品时出现；关系支援已经由
+        // engine.scm 按当前携带者筛过，用掉后保留禁用卡，让玩家看见本场次数已经耗尽。
+        private static List<GameNode> ActiveEncounterActionNodes(SSNoirGameManager gameManager)
         {
             var list = new List<GameNode>();
             foreach (var node in gameManager.DisplayedSnapshot.CarryNodes)
-                if (gameManager.GetRemainingItemQty(node.CarryItemId) > 0)
+            {
+                if (!string.IsNullOrEmpty(node.SupportId))
                     list.Add(node);
+                // 已经放进这张卡的最后一件物品仍属于玩家，直到按下执行才消费；不能用
+                // GetRemainingItemQty 判断，否则最后一根烟一落槽，整张卡会带着两个槽一起消失。
+                else if (gameManager.DisplayedSnapshot.Inventory.TryGetValue(node.CarryItemId, out var owned)
+                         && owned > 0)
+                    list.Add(node);
+            }
             return list;
         }
 
-        // 自下而上堆在休息键上方，右缘与功能列取齐。
-        private static Rect CarryStripRect(float functionX, float functionW, float functionY, int index)
-            => new Rect(
-                functionX + functionW - CarryStripW,
-                functionY - CarryStripGap - (index + 1) * CarryStripH - index * CarryStripGap,
-                CarryStripW, CarryStripH);
-
-        private static void DrawCarryStrips(
-            float functionX, float functionW, float functionY,
-            Dictionary<string, Rect> itemRects, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        private static Rect EncounterActionCardRect(
+            IReadOnlyList<GameNode> nodes, int index, float right, float bottom,
+            SSNoirGameManager gameManager)
         {
-            var nodes = ActiveCarryNodes(gameManager);
-            for (int i = 0; i < nodes.Count; i++)
-                DrawCarryStrip(nodes[i], CarryStripRect(functionX, functionW, functionY, i), itemRects, gameManager, ui);
+            float y = bottom - CarryCardGap;
+            for (int i = 0; i <= index; i++)
+            {
+                var slots = gameManager.GetSlotsForNode(nodes[i].Name);
+                bool hasRequirements = nodes[i].Requires != null && nodes[i].Requires.Count > 0;
+                bool armed = !hasRequirements || (slots != null && slots.Any(slot => slot != null));
+                float h = CompactCardBaseH + (armed ? CompactExecuteGap + CompactExecuteH : 0f);
+                y -= h;
+                if (i == index)
+                    return new Rect(right - CarryCardW, y, CarryCardW, h);
+                y -= CarryCardGap;
+            }
+            throw new InvalidOperationException("随身消费卡索引越界");
         }
 
-        private static void DrawCarryStrip(
-            GameNode node, Rect rect, Dictionary<string, Rect> itemRects,
+        private static void DrawEncounterActionCards(
+            float right, float bottom, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
+        {
+            var nodes = ActiveEncounterActionNodes(gameManager);
+            for (int i = 0; i < nodes.Count; i++)
+                DrawEncounterActionCard(nodes, i, right, bottom, gameManager, ui);
+        }
+
+        private static void DrawEncounterActionCard(
+            IReadOnlyList<GameNode> nodes, int index, float right, float bottom,
             SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
-            var req = node.Requires != null && node.Requires.Count == 1
-                ? node.Requires[0]
-                : throw new InvalidOperationException(
-                    $"随身动作「{node.Name}」必须正好有一个需求槽（见 engine.scm 的 随身动作）");
-            var slots = gameManager.GetSlotsForNode(node.Name);
-            SlottedResource? res = slots != null && slots.Count > 0 ? slots[0] : null;
+            var node = nodes[index];
+            var rect = EncounterActionCardRect(nodes, index, right, bottom, gameManager);
+            if (!string.IsNullOrEmpty(node.CarryItemId)
+                && (node.Requires == null || node.Requires.Count != 2))
+                throw new InvalidOperationException(
+                    $"随身消费动作「{node.Name}」必须正好有物品和行动骰两个需求槽（见 engine.scm 的 随身动作）");
 
+            var slots = gameManager.GetSlotsForNode(node.Name) ?? new List<SlottedResource?>();
+            var execution = gameManager.GetExecutionState(node.Name);
             bool disabled = ui.IsLocked || node.Disabled;
-            bool filled = res != null;
-            // 「正在弄这一件」：指针停上去，或者骰子已经放进去了。
-            // 手里捏着骰子**不算**——那时候该亮的是能放的槽，不是这条线。引线回答的是
-            // "这东西从哪儿来"，和场上卡的引线同一套语气（见 IMGUIWorldRenderer.TetherWeight）。
-            bool operating = !disabled && (filled || ui.CanHover(rect));
 
-            // 引线先画，挂件压在它头上：线看起来是从物品长上来的，不是横穿挂件。
-            if (itemRects.TryGetValue(node.CarryItemId, out var itemRect))
-            {
-                CardLeaderLineDrawer.Draw(new List<CardLeaderLineDrawer.Tether>
-                {
-                    new CardLeaderLineDrawer.Tether(
-                        new Vector2(itemRect.center.x, itemRect.y),
-                        rect,
-                        operating
-                            ? CardLeaderLineDrawer.Emphasis.Highlighted
-                            : CardLeaderLineDrawer.Emphasis.Normal),
-                });
-            }
-
-            // 底：不浮起来（没有阴影，就贴在角上），但也不能透到跟街景糊在一起——
-            // 认不出边界的东西读不成"可以往里放东西的地方"。底子基本是实的，
-            // 安静靠的是描边淡、标题淡，不是靠透明。
-            bool hot = operating || (!disabled && gameManager.CanPlaceSelectedResource(node, 0));
-            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, hot ? 1f : 0.88f);
+            GUI.color = disabled ? DisabledResourceBg : CardBlockBg;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(rect, 1f, hot ? Paper70 : Paper25);
+            IMGUIStyles.DrawOutline(rect, 1f,
+                !disabled && ui.CanHover(rect) ? IMGUIStyles.Paper : Paper35);
 
-            const float pad = 5f;
-            var slotRect = new Rect(rect.xMax - pad - TokenSize, rect.y + pad, TokenSize, TokenSize);
             var titleStyle = new GUIStyle(IMGUIStyles.SectionLabel)
             {
                 fontSize = IMGUIStyles.FontSize(16),
                 alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = disabled
-                    ? DisabledResourceText
-                    : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, hot ? 0.95f : 0.55f) }
+                normal = { textColor = disabled ? DisabledResourceText : IMGUIStyles.Paper }
             };
             IMGUIStyles.ApplyStrongFont(titleStyle);
-            IMGUIStyles.DrawLabel(
-                new Rect(rect.x + pad, rect.y, slotRect.x - rect.x - pad * 2f, rect.height), node.Name, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 4f, rect.y + 3f, rect.width - 8f, 22f), node.Name, titleStyle);
 
-            var interaction = ActionNodeDrawer.DrawStandaloneSlot(
-                slotRect, node, 0, req, res, disabled, ui, gameManager);
-
-            if (interaction.ClickedSlotIndex != -1)
-                gameManager.OnSlotClicked(node, 0);
-            if (interaction.DroppedSlotIndex != -1 && gameManager.TryPlaceSelectedResource(node, 0))
+            var requirements = node.Requires ?? throw new InvalidOperationException(
+                $"非场景交锋动作「{node.Name}」的需求列表不能为空");
+            int count = requirements.Count;
+            float slotsW = count * CompactSlotSize + Mathf.Max(0, count - 1) * 6f;
+            float slotX = rect.center.x - slotsW * 0.5f;
+            for (int i = 0; i < count; i++)
             {
-                gameManager.MarkResourceDropHandled();
-                // 没有执行钮：这东西只有一个用法，骰子落进去就是"用"。
-                gameManager.ExecuteNodeAction(node);
+                var slotRect = new Rect(slotX + i * (CompactSlotSize + 6f), rect.y + 27f,
+                    CompactSlotSize, CompactSlotSize);
+                var resource = i < slots.Count ? slots[i] : null;
+                var interaction = ActionNodeDrawer.DrawStandaloneSlot(
+                    slotRect, node, i, requirements[i], resource, disabled, ui, gameManager);
+                if (interaction.ClickedSlotIndex != -1)
+                    gameManager.OnSlotClicked(node, i);
+                if (interaction.DroppedSlotIndex != -1 && gameManager.TryPlaceSelectedResource(node, i))
+                    gameManager.MarkResourceDropHandled();
             }
 
-            // 时间流逝。挂件上没有执行钮可以填，所以画在底边上：一条 2px 的金线扫过去。
-            // 不做成"整块填金"——这条挂件本来就该安静，执行一次烟不该比场上的卡还响。
-            var execution = gameManager.GetExecutionState(node.Name);
+            bool allFilled = count == 0 || (slots.Count == count && slots.All(slot => slot != null));
+            bool armed = count == 0 || slots.Any(slot => slot != null) || execution.IsExecuting;
+            if (!armed) return;
+
+            var executeRect = new Rect(rect.x + 5f, rect.yMax - CompactExecuteH - 5f,
+                rect.width - 10f, CompactExecuteH);
             if (execution.IsExecuting)
-            {
-                var track = new Rect(rect.x + 1f, rect.yMax - 2f, rect.width - 2f, 2f);
-                GUI.color = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.22f);
-                GUI.DrawTexture(track, Texture2D.whiteTexture);
-                GUI.color = IMGUIStyles.Gold;
-                GUI.DrawTexture(
-                    new Rect(track.x, track.y, track.width * Mathf.Clamp01(execution.Progress), track.height),
-                    Texture2D.whiteTexture);
-                GUI.color = Color.white;
-            }
+                DrawFunctionProgress(executeRect, execution.Progress, "执行中");
+            else if (DrawFunctionBlock(executeRect, "执 行", ui, disabled || !allFilled))
+                gameManager.ExecuteNodeAction(node);
         }
 
 
-        // 休息键执行中：和卡上的执行钮同一套语言（Ink 底 + 金填充 + 金描边 + 金光呼吸），
-        // 只是标题换成"休息中"。两处长得一样，玩家不用学第二遍。
-        private static void DrawFunctionProgress(Rect rect, float progress)
+        // 休息和紧凑动作的执行中状态共用同一套语言：Ink 底、从左向右的金色填充、稳定描边。
+        // 外扩呼吸框属于聚焦/目标提示，不用于这种固定功能区里的进度反馈。
+        private static void DrawFunctionProgress(Rect rect, float progress, string label = "休息中")
         {
             progress = Mathf.Clamp01(progress);
             GUI.color = IMGUIStyles.Ink;
@@ -1172,14 +1243,13 @@ namespace SSNoir.IMGUI
                 Texture2D.whiteTexture);
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.Gold);
-            IMGUIStyles.DrawGoldPulse(rect);
 
             var style = new GUIStyle(IMGUIStyles.ExecuteLabel)
             {
                 fontSize = IMGUIStyles.FontSize(16),
                 normal = { textColor = progress > 0.5f ? IMGUIStyles.GoldOnDark : IMGUIStyles.Paper },
             };
-            IMGUIStyles.DrawLabel(rect, "休息中", style);
+            IMGUIStyles.DrawLabel(rect, label, style);
         }
 
         private static bool DrawFunctionBlock(Rect rect, string label, IMGUIInteractionContext ui, bool unavailable)
