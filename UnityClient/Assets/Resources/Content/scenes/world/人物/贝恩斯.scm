@@ -42,17 +42,17 @@
     ;; 搞错日期是返工不是失职。
     ;; 只有「办得利落」计进履历:按序归档是交了差,不是办得漂亮。三回之后他才开口。
     (define (node-paperwork)
-      (工作 "整理警察局文书" "无" '低 'knowledge
-        (outcome "办得利落"
-          (lambda ()
+      (工作 "整理警察局文书" '低 'knowledge
+        (outcome (lambda ()
             (add-item! "金钱" 10)
             (let ((was-full? (paperwork-clk 'full?)))
               (paperwork-clk 'tick!)
               (if (and (not was-full?) (paperwork-clk 'full?))
                   (notify! "贝恩斯把你归好的卷宗推到一边，没说话。他记住了这只手。")
                   #f))))
-        (outcome "按序归档" (lambda () (add-item! "金钱" 6)))
-        (outcome "退回重填" (lambda () (spend-composure! 1)))))
+        (outcome (lambda () (add-item! "金钱" 6)))
+        (outcome (lambda () (spend-composure! 1)))
+        :anchor "警察局-卷宗室"))
 
     ;; 贝恩斯是**人物**，不是一张观察卡。
     ;;
@@ -90,6 +90,7 @@
 
     (define (node-self children)
       (node "贝恩斯"
+        :anchor "警察局-值班台"
         :subtitle (self-subtitle)
         :children (if (null? children)
                       (list (node-self-idle))
@@ -101,10 +102,10 @@
 
     (define (node-report-case)
       (node "去报案"
+        :anchor "警察局-值班台"
         :subtitle "去警察局留一笔；他未必会管"
         :resolve (instant
-          (outcome "他给了你一张回执"
-            (lambda ()
+          (outcome (lambda ()
               (set! receipt? #t)
               (play-dialogue!
                 (line "世界" "值班的位子后面坐着一个胖子，眼镜滑到鼻子下面。")
@@ -115,7 +116,7 @@
                 (line "贝恩斯" "有进一步情况再来。")
                 (line "尼尔" "就这样？")
                 (line "贝恩斯" "下一位。"))
-              (result-note! "你拿到一张回执。案子没有立。"))))))
+              (result-supplement! "你拿到一张回执。案子没有立。"))))))
 
     ;; ── 第二拍:《让他们安静》 ─────────────────────────
     ;; 三个刚假释出来的小混混又在老街收钱。商户知道是谁,没人愿意作证,其中一个的
@@ -123,13 +124,14 @@
     ;; 于是他不下委托,只把一张地址推过桌子。
     (define (node-address)
       (node "桌上那张地址"
+        :anchor "警察局-值班台"
         :subtitle "他不说是委托；他说这是你的职业"
         :tags (list "交锋")
         :resolve (instant (lambda ()
           ;; 城里已有的关系决定场内有哪几张牌——不给三个混混各写一套弱点,
-          ;; 玩家能用的是他这些天真认识的人。
-          (set-global! '钥匙-码头 (relation-at-least? "老码头" '相识))
-          (set-global! '钥匙-老街 (relation-at-least? "老码头" '信任))
+          ;; 玩家能用的是他这些天真认识的人：码头＝艾迪，老街＝弗兰克。
+          (set-global! '钥匙-码头 (eddie 'known?))
+          (set-global! '钥匙-老街 (frank 'met?))
           (set-global! '钥匙-赌场 (eddie 'known?))
           (start-encounter "让他们安静" on-quiet-result)))))
 
@@ -153,20 +155,20 @@
 
     (define (node-registration)
       (node "手续已经好了"
+        :anchor "警察局-值班台"
         :subtitle "贝恩斯说手续已经办好了"
         :resolve (instant
-          (outcome "私人调查员登记生效"
-            (lambda ()
+          (outcome (lambda ()
               (play-dialogue!
-                (line "世界" "贝恩斯桌上摆着一张已经盖过章的表。")
-                (line "贝恩斯" "你的名字已经备案了。私人调查员。")
-                (line "尼尔" "手续办完了？")
+                (line "世界" "贝恩斯桌上摆着一张已经盖过章的表，墨还没干透。")
+                (line "尼尔" "这就办好了？")
                 (line "贝恩斯" "章在这儿。")
                 (line "尼尔" "我问过不止一次。每次都说还缺人作保。")
-                (line "贝恩斯" "现在全城都知道你是谁。用不着再找一个人说第二遍。")
-                (line "尼尔" "这就算侦探了？")
-                (line "贝恩斯" "不算。只算出了事，我们知道去哪儿找你。"))
+                (line "尼尔" "以前怎么没这么快。")
+                (line "贝恩斯" "以前没人知道你是谁，我拿什么替你说话。")
+                (line "贝恩斯" "现在全城都知道你是谁。用不着再找一个人说第二遍。"))
               (set! registration "有效")
+              (sync-blockers!)
               (home 'connect-phone!)
               (spotlight! "侦探委托"
                 "你已在警局登记为私人调查员。家里的联络电话已经接通，上城客户的调查委托会直接找上门。"))))))
@@ -195,14 +197,14 @@
                  (line "贝恩斯" "你给我制造了三份伤情报告。")
                  (line "尼尔" "不是一样？")
                  (line "贝恩斯" "医院也归市政府管。"))
-               (result-note! "他欠你一次。这一次记得不太痛快。"))
+               (result-supplement! "他欠你一次。这一次记得不太痛快。"))
               ((equal? route "交易")
                (play-dialogue!
                  (line "贝恩斯" "他们为什么突然这么懂事？")
                  (line "尼尔" "你不是说别问？")
                  (line "贝恩斯" "我没说过。")
                  (line "世界" "他看了你两秒，然后低头继续写。"))
-               (result-note! "他欠你一次。"))
+               (result-supplement! "他欠你一次。"))
               (else
                (play-dialogue!
                  (line "贝恩斯" "有效。")
@@ -211,8 +213,8 @@
                  (line "贝恩斯" "那就不算解决，只算延期。")
                  (line "世界" "他还是把那张地址收进了抽屉。"))
                (set-flag! '老街的三个人还会回来)
-               (result-note! "他欠你一次。那三个人只是走开了。")))
-            (complete-section!))
+               (result-supplement! "他欠你一次。那三个人只是走开了。")))
+            (complete-task! "让他们安静"))
           (begin
             (play-dialogue!
               (line "贝恩斯" "巡警的报告我看了。")
@@ -220,7 +222,9 @@
               (line "贝恩斯" "闹大了我就得走程序。走了程序，我这个星期就没有别的时间了。")
               (line "世界" "他把那张地址收回卷宗底下，没再提。"))
             ;; 失败是终局：办事印象不会被扣回，但这张地址也不会再发一次。
-            (set! quiet-stage 3))))
+            ;; 失败也算经历完，这一节照样结。
+            (set! quiet-stage 3)
+            (complete-task! "让他们安静"))))
 
     ;; ── 第三拍:《五点以后》 ───────────────────────────
     ;; 他没穿制服，桌上有吃的。有人喊他，他连头都不抬——然后那边真掏了刀，
@@ -231,8 +235,7 @@
       (node "靠窗那桌"
         :subtitle "贝恩斯没穿制服，面前摆着吃的"
         :resolve (instant
-          (outcome "他回来接着吃"
-            (lambda ()
+          (outcome (lambda ()
               (set! off-duty-seen? #t)
               (play-dialogue!
                 (line "世界" "他没穿制服外套，眼镜推在额头上，桌上摆着一份还冒气的东西。")
@@ -253,7 +256,25 @@
                 (line "尼尔" "你不是下班了。")
                 (line "贝恩斯" "他掏刀了。")
                 (line "世界" "他坐下来，接着吃。一句抱怨也没有。"))
-              (result-note! "你见过他下班的样子了。"))))))
+              (result-supplement! "你见过他下班的样子了。"))))))
+
+    ;; 第一章一张卡《让他们安静》：他推过来那张地址时立卡，交锋结了就了结。
+    ;; 文书那三回不立卡——那时候玩家还不知道这会通向什么；卡开的时候第一项已经划掉，
+    ;; 读起来就是「原来那几趟文书是为这个」。
+    ;; 第二章「贝恩斯叫你去警局拿那张纸」是演出，玩家不用做什么，不立卡。
+    (define (dossier-entry)
+      (if (>= quiet-stage 1)
+          (list (dossier "让他们安静"
+                  :kind '人物
+                  :status (if (>= quiet-stage 2) '了结 '进行中)
+                  :now (cond
+                         ((= quiet-stage 1) "去警察局，照他桌上那张地址办：让老街那三个人安静下来")
+                         (#t ""))
+                  :where (if (= quiet-stage 1) "警察局" "")
+                  :steps (list (step "替警察局把文书办利落" (reliable?))
+                               (step "他推过来一张地址" (>= quiet-stage 1))
+                               (step "让老街那三个人安静" (>= quiet-stage 2)))))
+          '()))
 
     (define (nodes-at location)
       (cond
@@ -267,14 +288,17 @@
          (append
            (list (node-self
                    (append
+                     (if (等口信?) (list (node-registration-countdown)) '())
                      (if (equal? registration "请来") (list (node-registration)) '())
                      (if (or receipt? (three-letters 'has-flag? '第三封信))
                          '()
                          (list (node-report-case)))
                      (if (= quiet-stage 1) (list (node-address)) '()))))
-           (if (not (reliable?))
-               (list (clock-node "钟：贝恩斯的办事印象" (paperwork-clk 'render-data)))
-               '())
+            (if (not (reliable?))
+                (list (node "钟：贝恩斯的办事印象"
+                        :anchor "警察局-卷宗室"
+                        :resolve (clock (paperwork-clk 'render-data))))
+                '())
            (list (node-paperwork))))
         ;; 酒馆那张只在他下班以后、而且你已经替他办成过那件事之后才在:
         ;; 门是他欠你的那一次——不是一条声誉，是他自己知道欠着。
@@ -291,29 +315,50 @@
         (and (= quiet-stage 0) (reliable?)))
       (lambda () (invite!)))
 
-    ;; 晚宴后隔两天再来口信。不把它做成主线或限时任务：
-    ;; 警局已经办完了手续，尼尔什么时候去拿都是同一张纸。
+    ;; 晚宴后隔一天来口信。它不是任务，不进卷宗（不发成长、没有子项），是一段必经的
+    ;; 演出：晚宴上提过的事，一天里在警局贝恩斯那儿挂着倒计时；口信一到就堵住休息，
+    ;; 直到你去警局把那张纸拿了。曾经既看不见倒计时也不堵人——那张纸接通的是家里的
+    ;; 电话和上城委托，忘了去等于整条委托线悄悄没开。
+    (define 口信间隔 1)
+    (define (等口信?) (and (equal? registration "未开放")
+                           (第二章 'started?)
+                           (equal? (晚宴 'result) "已结束")))
+    (define (口信日) (+ (第二章 'banquet-day) 口信间隔))
+
+    (define (sync-blockers!)
+      (rest-release! "贝恩斯/登记")
+      (if (equal? registration "请来")
+          (rest-block! "贝恩斯/登记" "贝恩斯有张纸要给你" "警察局" "手续已经好了")
+          #f))
+
     (define-turn-rule "贝恩斯叫你去警局"
       (lambda ()
-        (and (equal? registration "未开放")
-             (第二章 'started?)
-             (equal? (晚宴 'result) "已结束")
-             (>= (第二章 'day) 5)))
+        (and (等口信?) (>= world-day (口信日))))
       (lambda ()
         (set! registration "请来")
+        (sync-blockers!)
         (play-remote-dialogue!
           (line "世界" "一个巡警在楼下等你。")
           (line "巡警" "贝恩斯让你去警局一趟。不是问话。他只是有张纸要给你。"))))
 
+    ;; 倒计时挂在他的值班台上，不进卷宗：这一天他在办那份手续，办完会叫你。
+    (define (node-registration-countdown)
+      (node "钟：贝恩斯在办手续"
+        :anchor "警察局-值班台"
+        :resolve (clock (日期倒计时 "手续办好" (口信日) 口信间隔
+                          "晚宴上说起的那份备案。办好了他会叫你来拿。"))))
+
     (lambda args
       (let ((msg (car args)))
         (cond
-          ((equal? msg 'nodes-at) (nodes-at (cadr args)))
-          ((equal? msg 'known?) (or receipt? (reliable?) (> quiet-stage 0)))
+           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
+           ((equal? msg 'dossier) (dossier-entry))
+           ((equal? msg 'known?) (or receipt? (reliable?) (> quiet-stage 0)))
           ((equal? msg 'receipt?) receipt?)
           ((equal? msg 'owed?) owed?)
           ((equal? msg 'registered?) (registered?))
           ((equal? msg 'registration) registration)
+          ((equal? msg 'sync-blockers!) (sync-blockers!))
           ;; 首演那晚用掉他那一次：一次就没了，别让它变成常驻特权。
           ((equal? msg 'spend-favor!) (set! owed? #f))
           ((equal? msg 'route) route)

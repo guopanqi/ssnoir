@@ -22,7 +22,9 @@
     (define (记结果! results)
       (if (not (list? results)) (error "晚宴：交锋结果必须是列表") #t)
       (set-global! '晚宴-薇拉 (member? '薇拉 results))
-      (set-global! '晚宴-货运代理 (member? '货运代理 results))
+      (set-global! '晚宴-沃尔特 (member? '沃尔特 results))
+      ;; 沃尔特：吧台上陪他喝到底，他才记得你。过两天他在酒店大堂找你（见 人物/沃尔特.scm）。
+      (if (member? '沃尔特 results) (walter 'on-banquet-talk!) #f)
       (set-global! '晚宴-贝恩斯 (member? '贝恩斯 results))
       (set-global! '晚宴-记者 (member? '记者 results))
       ;; 林不占玩家的竞争席位：夜莺在第一幕自然把他带进了后续主线。
@@ -30,11 +32,12 @@
       (nightingale 'on-drifted-apart!)
       (set! 结果 "已结束")
       (sync-blockers!)
-      ((第二章 'journal) 'add!
+      (第二章 'log! "格兰德酒店晚宴"
         (cond
           ((null? results) "晚宴散场时，你记住了许多名字，没有一个真正属于你。")
           ((= (length results) 1) "晚宴散场时，至少有一个人答应明天接你的电话。")
           (else "晚宴散场时，你手里多了几张名片，也多了几件以后要还的人情。")))
+      (complete-task! "格兰德酒店晚宴")
       (spotlight! "晚宴散场"
         "最后一支舞停了。夜莺还在厅那头说话；你带走的是自己真正谈成的那些关系。"))
 
@@ -53,7 +56,8 @@
           '()))
 
     (define (node-go)
-      (anchored-instant-action "赴晚宴" "格兰德酒店"
+      (at-anchor "格兰德酒店"
+       (encounter-action "赴晚宴"
         (lambda ()
           (if (equal? 结果 "未开始") #t (error "晚宴：只能进场一次"))
           (set! 结果 "进行中")
@@ -62,7 +66,7 @@
             (line "夜莺" "别站那么直，他们又不查你的票。")
             (line "尼尔" "你紧张。")
             (line "夜莺" "我等了六年才有人请我来这种地方。"))
-          (start-encounter "晚宴" 记结果!))))
+          (start-encounter "晚宴" 记结果!)))))
 
     (define (nodes-at location)
       (if (and (equal? location "格兰德酒店") (今天?) (equal? 结果 "未开始"))
@@ -84,6 +88,8 @@
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'arrivals-at) '())
           ((equal? msg 'dossier) '())
+          ((equal? msg 'done?) (not (还没结?)))
+          ((equal? msg 'steps) (list (step "陪她赴晚宴" (not (还没结?)))))
           ((equal? msg 'on-day-end!) (on-day-end!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'debug-settle!) (set! 结果 "已结束") (sync-blockers!))

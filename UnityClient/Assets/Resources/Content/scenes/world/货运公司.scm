@@ -18,47 +18,19 @@
       (make-clock "投资结算" 3 'countdown
         "归零后返还本金与收益；项目期间不能重复投资。"))
     (define investment-principal 60)
-    (define investment-principal-discount 15) ; 商业圈·信任：代理人给的本金优惠
+    (define investment-principal-discount 15) ; 第一笔结清之后，代理人给的本金优惠
     (define agent-identity "撮合货主、船东与投资项目的货运代理")
 
     (define (investment-principal-due)
-      (if (relation-at-least? "商业圈" '信任)
+      (if (>= agent-stage 3)
           (max 0 (- investment-principal investment-principal-discount))
           investment-principal))
 
-    ;; 商业圈声誉敌视时，联络工作中/坏结果有概率惹出的麻烦；3 天不处理会有代价。
-    (define company-trouble
-      (make-trouble "货运公司麻烦" 3
-        (lambda ()
-          (spend-up-to! "金钱" 12)
-          (spend-composure! 2)
-          (notify! "有人在公司门口泼了漆，清理这笔账只能自己出。"))))
-
-    (define (maybe-notify-company-trouble!)
-      (if (maybe-trigger-trouble! company-trouble "商业圈" trouble-roll-table)
-          (notify! "货运公司这边有人在使绊子，怕是要惹麻烦。")
-          #f))
-
     (define (node-contract-work)
-      (关系工作 "联络货主" "商业圈" '低 'social
-        (outcome "撮合成交"
-          (lambda () (add-item! "金钱" 10)))
-        (outcome "谈成一单"
-          (lambda () (add-item! "金钱" 6) (maybe-notify-company-trouble!)))
-        (outcome "两头落空"
-          (lambda () (spend-composure! 1) (maybe-notify-company-trouble!)))))
-
-    (define (node-handle-trouble)
-      (node "摆平货运麻烦"
-        :anchor "货运公司-门口"
-        :requires (list (req-die))
-        :resolve (roll 'social (lambda () (关系难度修正 "商业圈"))
-          (outcome "没压住"
-            (lambda () #f))
-          (outcome "摆平了"
-            (lambda () (company-trouble 'resolve!)))
-          (outcome "反倒卖了个好"
-            (lambda () (company-trouble 'resolve!))))))
+      (工作 "联络货主" '低 'social
+        (outcome (lambda () (add-item! "金钱" 10)))
+        (outcome (lambda () (add-item! "金钱" 6)))
+        (outcome (lambda () (spend-composure! 1)))))
 
     (define (unlock-agent-project!)
       (if (not (= agent-stage 1))
@@ -79,24 +51,18 @@
         :subtitle agent-identity
         :requires (list (req-die) (req-item "金钱" 10))
         :resolve (roll 'social
-          (outcome "话不投机"
-            (lambda () (spend-composure! 2)))
-          (outcome "谈到生意"
-            (lambda () (finish-agent-dinner!)))
-          (outcome "条件不错"
-            (lambda () (finish-agent-dinner!) (grant-favor-relation! "商业圈"))))))
+          (outcome (lambda () (spend-composure! 2)))
+          (outcome (lambda () (finish-agent-dinner!)))
+          (outcome (lambda () (finish-agent-dinner!))))))
 
     (define (node-review-agent-terms)
       (node "核对代理人的条件"
         :subtitle agent-identity
         :requires (list (req-die))
         :resolve (roll 'sharpness
-          (outcome "没看出问题"
-            (lambda () (spend-composure! 2)))
-          (outcome "看清风险"
-            (lambda () (unlock-agent-project!)))
-          (outcome "抓住缺口"
-            (lambda () (unlock-agent-project!) (grant-favor-relation! "商业圈"))))))
+          (outcome (lambda () (spend-composure! 2)))
+          (outcome (lambda () (unlock-agent-project!)))
+          (outcome (lambda () (unlock-agent-project!))))))
 
     (define (set-assessed-project! quality)
       (if (not (equal? project-state "无"))
@@ -109,27 +75,21 @@
       (action "考察货运项目"
         (list (req-die))
         (roll 'sharpness
-          (outcome "前景不佳"
-            (lambda () (set-assessed-project! 0)))
-          (outcome "条件普通"
-            (lambda () (set-assessed-project! 1)))
-          (outcome "找到缺口"
-            (lambda () (set-assessed-project! 2))))))
+          (outcome (lambda () (set-assessed-project! 0)))
+          (outcome (lambda () (set-assessed-project! 1)))
+          (outcome (lambda () (set-assessed-project! 2))))))
 
     (define (node-negotiate-project)
       (action "谈投资条件"
         (list (req-die))
         (roll 'social
-          (outcome "没谈拢"
-            (lambda () (spend-composure! 2)))
-          (outcome "接受条件"
-            (lambda ()
+          (outcome (lambda () (spend-composure! 2)))
+          (outcome (lambda ()
               (if (not (equal? project-state "已考察"))
                   (error "谈投资条件：项目状态错误")
                   #t)
               (set! project-state "已谈判")))
-          (outcome "争到让步"
-            (lambda ()
+          (outcome (lambda ()
               (if (not (equal? project-state "已考察"))
                   (error "谈投资条件：项目状态错误")
                   #t)
@@ -139,13 +99,12 @@
     (define (node-invest)
       (node "投入货运项目"
         :subtitle (string-append agent-identity
-                    (if (relation-at-least? "商业圈" '信任)
+                    (if (>= agent-stage 3)
                         "；他信得过你，这次本金打了折"
                         ""))
         :requires (list (req-item "金钱" (investment-principal-due)))
         :resolve (instant
-          (outcome "本金入账"
-            (lambda ()
+          (outcome (lambda ()
               (if (and (not (equal? project-state "已考察"))
                        (not (equal? project-state "已谈判")))
                   (error "投入货运项目：项目尚未考察")
@@ -173,15 +132,9 @@
               (if (= agent-stage 2)
                   (begin
                     (set! agent-stage 3)
-                    (complete-section!)
-                    (change-faction-relation! "商业圈" 2)
                     (notify! "第一笔货运投资结清，你真正进入了代理人的生意圈。"))
                   #f))
             #f)))
-
-    (define-turn-rule "货运公司麻烦推进"
-      (lambda () (company-trouble 'active?))
-      (lambda () (company-trouble 'tick!)))
 
     (define (agent-description)
       (cond
@@ -221,7 +174,8 @@
                 (node "货运代理"
                   :subtitle agent-identity
                   :resolve (observe (agent-description))))
-          (if (and (= agent-stage 0) (relation-at-least? "商业圈" '相识))
+          ;; 代理人认的是沃尔特的引荐，不是哪个圈子的名声：这里开门就说明他引荐过了。
+          (if (= agent-stage 0)
               (list (node-entertain-agent))
               '())
           (if (= agent-stage 1) (list (node-review-agent-terms)) '())
@@ -234,8 +188,7 @@
           (if (equal? project-state "已谈判")
               (list (node-invest))
               '())
-          (three-letters 'nodes-at "货运公司")
-          (if (company-trouble 'active?) (list (node-handle-trouble)) '()))))
+          (three-letters 'nodes-at "货运公司"))))
 
     (lambda args
       (let ((msg (car args)))
@@ -243,7 +196,7 @@
           ((equal? msg 'render-data)
            (list (place "货运公司"
                    :children (company-children)
-                   :clocks (append (investment-clocks) (company-trouble 'render-data))
+                   :clocks (investment-clocks)
                    :arrivals (walter-reference-arrivals))))
           ((equal? msg 'save)
            (list
@@ -251,16 +204,14 @@
              (list "walter-reference-seen?" walter-reference-seen?)
              (list "project-state" project-state)
              (list "project-quality" project-quality)
-             (list "investment-days" (investment-clk 'save))
-             (list "company-trouble" (company-trouble 'save))))
+             (list "investment-days" (investment-clk 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! agent-stage (assoc-get data "agent-stage" 0))
              (set! walter-reference-seen? (assoc-get data "walter-reference-seen?" #f))
              (set! project-state (assoc-get data "project-state" "无"))
              (set! project-quality (assoc-get data "project-quality" 0))
-             (investment-clk 'load! (assoc-get data "investment-days" 0))
-             (company-trouble 'load! (assoc-get data "company-trouble" (list #f 0)))))
+             (investment-clk 'load! (assoc-get data "investment-days" 0))))
           ((equal? msg 'debug-finish-section)
            (begin
              (if (= agent-stage 0) (set! agent-stage 1) #f)

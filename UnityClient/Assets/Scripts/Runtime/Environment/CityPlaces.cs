@@ -59,6 +59,7 @@ namespace SSNoir
         {
             var instance = UnityEngine.Object.Instantiate(asset, cityRoot);
             instance.name = placeName;
+            PropMotion.Attach(instance, placeName);
             return instance;
         }
 

@@ -64,13 +64,12 @@ namespace SSNoir.IMGUI
         // 这张卡按自身内容该有多高。所有摆卡的地方（网格瀑布流、世界投射）都必须问它，
         // 不要再各自写「网格一律 190 / 地点 168」这类与内容无关的常量——那正是标题被时钟徽章
         // 压住、副标题被截掉、按钮贴着骰位的根因：内容变了，盒子不跟着变。
-        // slotted / isExecuting 只对动作卡有意义：装填了的卡底部多出一截操作台。
+        // 高度只由内容决定，不随装填 / 执行 / 结算状态变化：那些都是卡片下挂的附件。
         public static float MeasureCardHeight(
-            GameNode node, CardKind kind, float cardWidth, IReadOnlyList<ActorSnapshot>? actors,
-            IReadOnlyList<SlottedResource?>? slotted = null, bool isExecuting = false)
+            GameNode node, CardKind kind, float cardWidth, IReadOnlyList<ActorSnapshot>? actors)
         {
             if (kind == CardKind.Action)
-                return ActionNodeDrawer.RecommendedCardHeight(node, cardWidth, actors, slotted, isExecuting);
+                return ActionNodeDrawer.RecommendedCardHeight(node, cardWidth, actors);
 
             float clocksHeight = MeasureClockBadgesHeight(cardWidth, node.Clocks);
             return kind switch
@@ -86,11 +85,9 @@ namespace SSNoir.IMGUI
             List<SlottedResource?>? slotted, List<GameClock> clocks, string backText,
             IMGUIInteractionContext ui, SSNoirGameManager gameManager,
             bool isExecuting = false, float executeProgress = 0f, string executingText = "执行中",
-            ActionReport? localRoll = null, int localRollPhase = 0, int localRollDisplayDieValue = 1, float localRollDisplayScale = 1f,
-            CardPresentationResidue? residue = null,
+            bool isHappening = false,
             bool isRestBlockerTarget = false,
-            bool containsRestBlockerTarget = false,
-            bool spaciousAttachments = false)
+            bool containsRestBlockerTarget = false)
         {
             var interaction = new CardInteraction { CardClicked = false, ClickedSlotIndex = -1, DroppedSlotIndex = -1, ExecuteClicked = false };
             bool disabled = node.Disabled;
@@ -130,7 +127,8 @@ namespace SSNoir.IMGUI
                 GUIUtility.RotateAroundPivot(rotationDeg, rect.center);
             }
 
-            DrawCardFrame(rect, isHovered, isFocused, disabled, isExecuting || localRoll != null);
+            // 「正在发生」的金光：执行中，或判定动画正挂在这张卡下面（附件由渲染器另画）。
+            DrawCardFrame(rect, isHovered, isFocused, disabled, isExecuting || isHappening);
             DrawClockBadges(rect, clocks);
 
             if (isCharacter)
@@ -147,8 +145,7 @@ namespace SSNoir.IMGUI
                 ActionNodeDrawer.DrawContent(
                     rect, node, slotted, ui, gameManager,
                     isExecuting, executeProgress, executingText,
-                    localRoll, localRollPhase, localRollDisplayDieValue, localRollDisplayScale,
-                    residue, clocksBottomY, spaciousAttachments, containsRestBlockerTarget, ref interaction);
+                    clocksBottomY, containsRestBlockerTarget, ref interaction);
             }
 
             // 重要性是卡片最上层的状态标记，必须在动作内容与结果附件之后绘制。
@@ -380,10 +377,20 @@ namespace SSNoir.IMGUI
 
         private static void DrawNodeClockBadge(Rect rect, GameClock clock, bool compact)
         {
-            Color activeColor = IMGUIStyles.Gold;
+            // 值一变，整枚徽章描边亮成金、外面再浮一圈光，格子/表盘再一格一格地换（见 ClockPulse）。
+            ClockPulse.Note(clock);
+            float glow = ClockPulse.Glow(clock);
+            Color activeColor = Color.Lerp(IMGUIStyles.Gold, Color.white, glow * 0.35f);
             Color inactiveColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
-            Color outline = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f);
+            Color outline = Color.Lerp(
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f),
+                IMGUIStyles.Gold, glow);
 
+            if (glow > 0f)
+            {
+                var halo = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.45f * glow);
+                IMGUIStyles.DrawOutline(new Rect(rect.x - 2f, rect.y - 2f, rect.width + 4f, rect.height + 4f), 2f, halo);
+            }
             IMGUIStyles.SetColor(new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.96f));
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
@@ -457,23 +464,12 @@ namespace SSNoir.IMGUI
                 float dotStartX = valueRect.x;
                 float dotY = rect.y + (rect.height - dot) * 0.5f;
                 int visibleCount = clock.Max;
+                var emptyOutline = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
                 for (int i = 0; i < visibleCount; i++)
                 {
                     var dotRect = new Rect(dotStartX + i * (dot + spacing), dotY, dot, dot);
-                    if (i < clock.Current)
-                    {
-                        IMGUIStyles.SetColor(activeColor);
-                        GUI.DrawTexture(dotRect, Texture2D.whiteTexture);
-                        IMGUIStyles.ResetColor();
-                    }
-                    else
-                    {
-                        IMGUIStyles.SetColor(inactiveColor);
-                        GUI.DrawTexture(dotRect, Texture2D.whiteTexture);
-                        IMGUIStyles.ResetColor();
-                        IMGUIStyles.DrawOutline(dotRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f));
-                    }
-                    IMGUIStyles.ResetColor();
+                    ClockPulse.DrawCell(dotRect, i < clock.Current, activeColor, inactiveColor,
+                        ClockPulse.CellPulse(clock, i), r => IMGUIStyles.DrawOutline(r, 1f, emptyOutline));
                 }
             }
             else // Readout：不触发任何事的当前值，纯文字
@@ -633,10 +629,10 @@ namespace SSNoir.IMGUI
         private static float MeasureEffectRowHeight(
             ActionEffectRecord effect, float areaWidth, float rowHeight, int fontSize)
         {
-            float textWidth = effect.Kind == ActionEffectKind.Note
+            float textWidth = effect.Kind == ActionEffectKind.Supplement
                 ? areaWidth - 16f
                 : areaWidth - 56f;
-            string text = effect.Kind == ActionEffectKind.Note ? effect.Text : effect.Label;
+            string text = effect.Kind == ActionEffectKind.Supplement ? effect.Text : effect.Label;
             var style = new GUIStyle(IMGUIStyles.ModalBody)
             {
                 fontSize = IMGUIStyles.FontSize(fontSize),
@@ -683,7 +679,7 @@ namespace SSNoir.IMGUI
                 normal = { textColor = IMGUIStyles.TextPrimary }
             };
 
-            if (effect.Kind == ActionEffectKind.Note)
+            if (effect.Kind == ActionEffectKind.Supplement)
             {
                 IMGUIStyles.DrawLabel(new Rect(row.x + 8f, row.y, row.width - 16f, row.height), effect.Text, labelStyle);
                 return;

@@ -36,10 +36,11 @@ namespace SSNoir
         {
             if (_audioSource != null)
                 return;
-            _audioSource = gameObject.GetComponent<AudioSource>();
-            if (_audioSource == null)
-                _audioSource = gameObject.AddComponent<AudioSource>();
+            // 自己加一个，不 GetComponent：同一个 GameObject 上还有 AmbientMusic 的两条音轨，
+            // 拿到它们的话语音会被它每帧压到零音量。
+            _audioSource = gameObject.AddComponent<AudioSource>();
             _audioSource.playOnAwake = false;
+            _audioSource.spatialBlend = 0f;
         }
     }
 }

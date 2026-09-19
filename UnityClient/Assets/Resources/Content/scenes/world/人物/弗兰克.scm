@@ -132,7 +132,6 @@
           (else "未介入")))
       (set! hold-state "待安排")
       (set! hold-open-day (+ world-day 1))
-      (if repair-joined? (grant-favor-relation! "老码头") #f)
       (sync-globals!)
       ;; 玩家没有参加，就没有理由在别处收到这条现场结算；后续扣船事件仍按城市
       ;; 自己的时间线发生。参加过的人才会收到自己做过的那班活最终怎样了。
@@ -153,13 +152,11 @@
       (clock-node "钟：货船抢修" (repair-clk 'render-data)))
 
     (define (node-repair)
-      (关系工作 "参加货船抢修" "老码头" '高 'violence
-        (outcome "抢下关键一班"
-          (lambda ()
+      (工作 "参加货船抢修" '高 'violence
+        (outcome (lambda ()
             (add-item! "金钱" 10)
             (join-repair! 2)))
-        (outcome "稳住一段进水"
-          (lambda ()
+        (outcome (lambda ()
             (add-item! "金钱" 6)
             (join-repair! 1)))
         ;; 坏结果扣冷静，不直接写伤势：全城的工作都按这个刻度（见 码头.scm 的
@@ -168,7 +165,7 @@
         ;; 一次坏骰就直接往身上记，等于让一份工作绕过冷静把人送进诊所。
         ;; 真要见血也仍然见得到：冷静见底之后一比一击穿，这 3 点就是 3 点伤——
         ;; 那时候伤的原因是"你已经撑到底了还在干"，而不是一次骰子的运气。
-        (outcome "钢缆扫过跳板" (lambda () (join-repair! 0) (spend-composure! 3)))
+        (outcome (lambda () (join-repair! 0) (spend-composure! 3)))
         (string-append "船主只留三天。还剩 " (number->string (repair-days-left)) " 天")))
 
     ;; ── 船修好了却不开 ───────────────────────────────
@@ -186,10 +183,7 @@
         (set! hold-paid? (equal? verdict 'success))
         (set! hold-payment payment)
         (meet!)
-        (if hold-paid? (change-faction-relation! "老码头" 1) #f)
-        (sync-globals!)
-        ;; 扣船这一场是弗兰克这条线的结算：成败都算经历完，按成长点的规则发一点。
-        (complete-section!)))
+        (sync-globals!)))
 
     (define (node-hold-entry)
       (encounter-action "去看那条不开的船"
@@ -222,7 +216,9 @@
             (line "世界" "到了后半段，一个人站起来说自己不在名单上。弗兰克翻了两页账册，说了一个日期和一个班次。那人坐下来了，没有再说话。")
             (line "世界" "最后一叠没有写进正式账簿。屋里没有人问为什么。")
             (line "尼尔" "谁定这个顺序？")
-            (line "弗兰克" "我。")))))
+            (line "弗兰克" "我。"))
+          ;; 货船这一节到看他分钱为止：扣船成败都算经历完；没到泊位（缺席）不发。
+          (complete-task! "货船"))))
 
     ;; ── 第二章：警察来带人那天 ───────────────────────
     (define (on-mediation-summoned!)
@@ -321,24 +317,36 @@
         ((equal? location "码头居民区") (residential-nodes))
         (else '())))
 
-    ;; 只在他手上有一件具体的、能照着做的事时才进卷宗——见文件开头的说明：
-    ;; 他多数日子没事给你做，那时候码头/居民区自己的标注卡（node-frank-idle）
-    ;; 已经说清他此刻在干什么，卷宗不该再补一条写死"进行中"的人物简介。
+    ;; 第一章一张卡《货船》：抢修 → 船修好了却不开 → 分钱。进水的船拖到泊位那天立卡，
+    ;; 看他分钱那一拍了结；没去泊位（缺席）也了结，只是最后两项就那么留着。
+    ;; 他没事给你做的日子不另立人物简介——码头/居民区的标注卡（node-frank-idle）
+    ;; 已经说清他此刻在干什么。
+    (define (ship-task-done?)
+      (or distribution-viewed? (equal? hold-state "缺席")))
+
     (define (dossier-entry)
-      (cond
-        ((equal? repair-state "进行中")
-         (list (dossier "弗兰克"
-                 :kind '人物
-                 :status '进行中
-                 :now "他在码头排货船抢修的班表"
-                 :where "码头")))
-        ((equal? hold-state "待处理")
-         (list (dossier "弗兰克"
-                 :kind '人物
-                 :status '进行中
-                 :now "他扣下了船上的关键部件，工人正封着跳板"
-                 :where "码头居民区")))
-        (else '())))
+      (if (equal? repair-state "未开放")
+          '()
+          (list (dossier "货船"
+                  :kind '人物
+                  :status (cond
+                            ((ship-task-done?) '了结)
+                            ((equal? hold-state "待安排") '等着别人)
+                            (#t '进行中))
+                  :now (cond
+                         ((ship-task-done?) "")
+                         ((equal? repair-state "进行中") "他在码头排货船抢修的班表；船主只留三天")
+                         ((equal? hold-state "待安排") "船修好了。等代理来验船")
+                         ((equal? hold-state "待处理") "他扣下了船上的关键部件，工人正封着跳板；只有今天")
+                         (#t "去工会房间，看他怎么分那笔钱"))
+                  :where (cond
+                           ((ship-task-done?) "")
+                           ((member? hold-state (list "已结算")) "码头居民区")
+                           (#t "码头"))
+                  :clocks (if (equal? repair-state "进行中") (list (repair-clk 'render-data)) '())
+                  :steps (list (step "货船抢修" (repair-done?))
+                               (step "船修好了却不开" (equal? hold-state "已结算"))
+                               (step "看弗兰克分钱" distribution-viewed?))))))
 
     (define (arrival-repair)
       (arrival "旧货船进水"

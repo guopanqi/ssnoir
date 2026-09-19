@@ -118,9 +118,7 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
 
             // Modal panel
-            var modalRect = UIScale.CenteredModal(
-                380f,
-                CurrentReport?.OutcomePresentation?.HasText == true ? 290f : 260f);
+            var modalRect = UIScale.CenteredModal(380f, 260f);
             float modalW = modalRect.width;
             float modalH = modalRect.height;
             float modalX = modalRect.x;
@@ -184,15 +182,6 @@ namespace SSNoir.IMGUI
                 outcomeStyle.normal.textColor = DisplayOutcomeColor;
                 IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 24), $"判定结果: {DisplayOutcomeText}", outcomeStyle);
                 contentY += 32;
-
-                var presentation = CurrentReport?.OutcomePresentation;
-                if (presentation != null && presentation.HasText)
-                {
-                    var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle);
-                    titleStyle.fontSize = IMGUIStyles.FontSize(15);
-                    titleStyle.alignment = TextAnchor.MiddleCenter;
-                    IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 22), presentation.Title, titleStyle);
-                }
             }
 
             // Acknowledge button

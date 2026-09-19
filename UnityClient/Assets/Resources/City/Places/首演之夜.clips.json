@@ -1,0 +1,41 @@
+{
+ "fps": 30,
+ "clips": [
+  {
+   "name": "大吊灯__Hanging",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "大吊灯__Fallen",
+   "start": 36,
+   "end": 66,
+   "loop": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "大吊灯__Fall",
+   "start": 71,
+   "end": 131,
+   "loop": false,
+   "from": "Hanging",
+   "to": "Fallen"
+  }
+ ],
+ "parts": [
+  {
+   "prop": "大吊灯",
+   "names": [
+    "大吊灯_灯体",
+    "大吊灯_吊索_1",
+    "大吊灯_吊索_2",
+    "大吊灯_吊索_3",
+    "大吊灯_吊索_4"
+   ]
+  }
+ ]
+}

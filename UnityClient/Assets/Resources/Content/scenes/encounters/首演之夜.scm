@@ -405,11 +405,21 @@
     ((equal? (c 'id) "吊杆冲着她降")
      (hurt-her! (landing-damage c (c 'land-base)))
      (spend-actor-composure! 'player 2)
+     ;; 演出：切到台口机位看大吊灯砸下来（无需点击），接一段阻塞对白，对白点完自动回牌面。
+     ;; 灯之后就一直躺在台上——这一场里它不会自己复原。
+     (play-motion! "大吊灯" "Fallen" "首演之夜-吊灯")
      (if (landing-spared? c)
-         (notify! "吊杆擦着她的肩膀砸在台板上，木屑溅起来。她没停。")
+         (play-dialogue!
+           (line "世界" "它擦着她的肩膀砸在台板上，木屑溅起来。短暂的黑，全场寂静。" :light 'blackout)
+           (line "夜莺" "……" :pose "仰头" :light 'relight)
+           (line "世界" "她没停。乐队等了半拍，跟上来了。")
+           (line "夜莺" "——还有一段。" :pose "基础" :light 'surge))
          (begin
            (set! her-hurt? #t)
-           (notify! "那组吊杆整个砸下来。她被压在下面。"))))
+           (play-dialogue!
+             (line "世界" "它整个砸下来。火星溅了半个前排，乐队停了。" :light 'blackout :shake #t)
+             (line "尼尔" "夜莺！" :pose "伸手" :light 'racing)
+             (line "世界" "她被压在下面。")))))
     ((equal? (c 'id) "顶上那圈灯架松了") (rig-land!))
     (#t #f)))
 
@@ -425,7 +435,7 @@
 (define (say-notes! lst)
   (if (null? lst)
       #t
-      (begin (result-note! (car lst)) (say-notes! (cdr lst)))))
+      (begin (result-supplement! (car lst)) (say-notes! (cdr lst)))))
 
 (define (push-crisis! c n)
   (let ((before (c 'current)))
@@ -474,14 +484,13 @@
                              (ability-label (c 'ease-ab)) " · " (c 'ease-desc))
     :requires (list (req-die))
     :resolve (roll (c 'ease-ab)
-      (outcome "没顶住" (lambda () #t))
-      (outcome "顶住了"
-        (lambda () (c 'ease!) (result-note! "这一回合它不扣夜莺")))
-      (outcome "顶住了，还缓了一口气"
-        (lambda ()
+      (outcome (lambda () #t))
+      (outcome
+        ;; 卡面副标题已写明"这一回合它不扣夜莺"，不复述。
+        (lambda () (c 'ease!)))
+      (outcome (lambda ()
           (c 'ease!)
-          (relieve-her! 1)
-          (result-note! "场面松了一口气"))))))
+          (relieve-her! 1))))))
 
 (define (low-node c)
   (node (c 'low-name)
@@ -491,9 +500,9 @@
     :clocks (list ((c 'fix) 'render-data))
     :requires (list (req-die))
     :resolve (roll (c 'low-ab)
-      (outcome "没弄成" (lambda () (spend-composure! 2)))
-      (outcome "好了一点" (lambda () (push-crisis! c 1)))
-      (outcome "好了一截" (lambda () (push-crisis! c 2))))))
+      (outcome (lambda () (spend-composure! 2)))
+      (outcome (lambda () (push-crisis! c 1)))
+      (outcome (lambda () (push-crisis! c 2))))))
 
 (define (high-node c)
   (node (c 'high-name)
@@ -503,10 +512,9 @@
     :clocks (list ((c 'fix) 'render-data))
     :requires (list (req-die))
     :resolve (roll (c 'high-ab)
-      (outcome "弄砸了，她更险"
-        (lambda () (spend-composure! 2) (hurt-her! 1)))
-      (outcome "好了一截" (lambda () (push-crisis! c 2)))
-      (outcome "好了一大截" (lambda () (push-crisis! c 3))))))
+      (outcome (lambda () (spend-composure! 2) (hurt-her! 1)))
+      (outcome (lambda () (push-crisis! c 2)))
+      (outcome (lambda () (push-crisis! c 3))))))
 
 (define (crisis-node c)
   (node (c 'id)

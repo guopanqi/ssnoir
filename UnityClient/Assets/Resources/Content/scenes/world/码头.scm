@@ -58,20 +58,16 @@
 
     ;; ── 常驻日结 ────────────────────────────────────
     (define (node-haul)
-      (工作 "搬运" "老码头" '高 'violence
-        (outcome "扛完一整班"
-          (lambda ()
+      (工作 "搬运" '高 'violence
+        (outcome (lambda ()
             (set! haul-day world-day)
-            (add-item! "金钱" 15)
-            (grant-work-relation! "老码头")))
-        (outcome "勉强做完"
-          (lambda ()
+            (add-item! "金钱" 15)))
+        (outcome (lambda ()
             (set! haul-day world-day)
             (add-item! "金钱" 8)
             (spend-composure! 1)))
         ;; 高风险由更高报酬与力量检定表达；日常失手仍只扣 2 点冷静。
-        (outcome "货箱脱手"
-          (lambda ()
+        (outcome (lambda ()
             (set! haul-day world-day)
             (spend-composure! 2)))
         "扛一班货，挣一晚的钱"
@@ -82,43 +78,18 @@
     ;; 但它不是白拿的：熬过通宵的当晚，睡觉只回 1 点。这一张把"多挣的钱"和
     ;; "少回的冷静"摆在同一个决定里，而不是又给一份更大的报酬。
     (define (node-night-shift)
-      (工作 "夜班卸船" "老码头" '高 'violence
-        (outcome "整夜没停手"
-          (lambda ()
+      (工作 "夜班卸船" '高 'violence
+        (outcome (lambda ()
             (add-item! "金钱" 22)
-            (set! night-shift-today? #t)
-            (grant-work-relation! "老码头")))
-        (outcome "熬到天亮"
-          (lambda ()
+            (set! night-shift-today? #t)))
+        (outcome (lambda ()
             (add-item! "金钱" 12)
             (set! night-shift-today? #t)
             (spend-composure! 1)))
-        (outcome "半夜出了事"
-          (lambda ()
+        (outcome (lambda ()
             (set! night-shift-today? #t)
             (spend-composure! 2)))
         "半夜靠岸的船不等人，钱给得比白天多；熬过这一夜，当晚睡不好"))
-
-    ;; ── 顶班：不结钱，只换人情 ──────────────────────
-    ;; 老码头唯一能爬过「面熟」的路。带薪工作到值 3 就封顶
-    ;; （见 engine.scm 的 grant-work-relation!），要「够朋友」，
-    ;; 就得有几天你在码头待了一整天却一分钱没拿。
-    ;; 认识你之后才有人来求你顶班，所以它挂在「面熟」后面。
-    (define (node-cover-shift)
-      (node "替人顶一班"
-        :anchor "码头-岸口"
-        :tags (list "人情" "低风险")
-        :subtitle "有人今晚走不开。顶下来不结钱，但这条街会记着"
-        :requires (list (req-die))
-        :resolve (roll 'violence
-          (outcome "白站了一夜"
-            (lambda () (spend-composure! 1)))
-          (outcome "替他站到收工"
-            (lambda () (grant-favor-relation! "老码头")))
-          (outcome "顺手把他的账也平了"
-            (lambda ()
-              (grant-favor-relation! "老码头")
-              (restore-actor-composure! 'player 1))))))
 
     ;; ── 组装 ────────────────────────────────────────
     (define (livelihood-nodes)
@@ -126,12 +97,7 @@
         (if (and (equal? (第二章 'phase) "B") (= haul-day world-day))
             '()
             (list (node-haul)))
-        (if (berthed?) (list (node-night-shift)) '())
-        ;; 「替人顶一班」这一版不摆出来：它的全部回报是老码头声誉，而声誉现在还兑现不出
-        ;; 什么（面板也一并收起来了，见 NavigationDrawer.ShowRelationPanel）。一张花掉一颗骰、
-        ;; 一分钱不结、换回来的东西玩家又看不见的卡，只会让人以为自己漏掉了什么。
-        ;; 卡本身留着——声誉真有东西可换的时候，把下面这行换回原来的门槛判断就回来了。
-        '()))
+        (if (berthed?) (list (node-night-shift)) '())))
 
     (define (children)
       (map anchor-at-dock

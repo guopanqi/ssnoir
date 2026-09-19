@@ -26,6 +26,7 @@
 
     ;; 未开始 / 等你 / 成功 / 失败 / 缺席
     (define 状态 "未开始")
+    (define journal (make-journal))
 
     (define (等你?) (equal? 状态 "等你"))
     (define (到期日) (第二章 'day-of (+ 捎话-第几天 窗口天数)))
@@ -40,14 +41,14 @@
         (line "码头工人" "弗兰克让我带句话。他在酒馆后屋，让你过去一趟。")
         (line "尼尔" "什么事？")
         (line "码头工人" "他没说。他只说，让你过去。"))
-      ((第二章 'journal) 'add! "弗兰克让人捎话，让你去酒馆后屋。")
+      (journal 'add! "弗兰克让人捎话，让你去酒馆后屋。")
       (spotlight! "弗兰克叫你"
         "报纸把莱恩和老街写成了一回事。弗兰克让人捎话，让你去老街酒馆的后屋。"))
 
     (define (缺席!)
       (set! 状态 "缺席")
       (frank 'on-mediation-result! "缺席")
-      ((第二章 'journal) 'add! "你没去老街。警察在酒馆门口带人，有人先动了手。第二天头版是那张照片。")
+      (journal 'add! "你没去老街。警察在酒馆门口带人，有人先动了手。第二天头版是那张照片。")
       (spotlight! "老街暴徒袭击警方"
         "你没去。警察在酒馆门口带走一个年轻人，有人扔了东西。第二天报纸上是那张照片。"))
 
@@ -69,7 +70,8 @@
          (frank 'on-mediation-result! "成功")
          ;; 关系支援：从此任何一场交锋都能叫一个老街的人来（见 engine.scm 的 support-frank）。
          (grant-support! "弗兰克")
-         ((第二章 'journal) 'add! "警察来带人那天没人动手。年轻人做完笔录当天回来。弗兰克把后屋的门推开了。")
+         (journal 'add! "警察来带人那天没人动手。年轻人做完笔录当天回来。弗兰克把后屋的门推开了。")
+         (complete-task! "弗兰克叫你")
          (play-remote-dialogue!
            (line "世界" "天黑以后你回到酒馆。后屋的门开着。")
            (line "弗兰克" "他回来了。")
@@ -80,7 +82,9 @@
         ((equal? result 'fail)
          (set! 状态 "失败")
          (frank 'on-mediation-result! "失败")
-         ((第二章 'journal) 'add! "警察来带人那天有人先动了手。年轻人关了一夜，第二天头版是那张照片。")
+         (journal 'add! "警察来带人那天有人先动了手。年轻人关了一夜，第二天头版是那张照片。")
+         ;; 失败也算经历完：他看见了你做不到，这一节照样结。缺席不发。
+         (complete-task! "弗兰克叫你")
          (play-remote-dialogue!
            (line "世界" "第二天的报纸摊在后屋桌上。照片里有人倒在地上，警察的手举在半空。")
            (line "弗兰克" "你看见了。")
@@ -91,6 +95,7 @@
     ;; 第一章所有人盯着你。现在还是有人盯着你，但没人拦。
     (define (node-back-room)
       (node "弗兰克"
+        :anchor "老街酒馆"
         :subtitle "他在后屋等你"
         :children
           (list
@@ -126,11 +131,13 @@
               ((equal? location "码头居民区")
                (list (note-node "标注：老街生人" "找故事的人"
                        "门廊下站着两个不是这儿的人，其中一个拿着本子。有人在骂莱恩，也有人在骂弗兰克。")))
-              ((equal? location "老街酒馆")
-               (list (note-node "标注：酒馆门外" "记者"
-                       "酒馆对面停着一辆车。车里的人在等什么人出来。")))
               (#t '()))
             '())))
+
+    ;; 一张卡：去后屋 → 街上那一场。捎话那天立卡，调停结了（或你缺席）就了结。
+    (define (steps)
+      (list (step "去老街酒馆的后屋见他" (member? 状态 (list "成功" "失败")))
+            (step "别给他们想要的" (member? 状态 (list "成功" "失败")))))
 
     (define (dossier-entry)
       (cond
@@ -140,16 +147,14 @@
                  :now "去老街酒馆的后屋见弗兰克"
                  :where "老街酒馆"
                  :clocks (list (日期倒计时 "他等着" (到期日) 窗口天数
-                                 "街上的事不等你。")))))
-        ((equal? 状态 "成功")
+                                 "街上的事不等你。"))
+                 :steps (steps)
+                 :log (journal 'render-data))))
+        ((member? 状态 (list "成功" "失败" "缺席"))
          (list (dossier "弗兰克叫你" :kind '人物 :status '了结
-                 :now "后屋的门对你开着。" :where "")))
-        ((equal? 状态 "失败")
-         (list (dossier "弗兰克叫你" :kind '人物 :status '了结
-                 :now "他不再相信跟他们讲道理。" :where "")))
-        ((equal? 状态 "缺席")
-         (list (dossier "弗兰克叫你" :kind '人物 :status '了结
-                 :now "你没去。那张照片上了头版。" :where "")))
+                 :now "" :where ""
+                 :steps (steps)
+                 :log (journal 'render-data))))
         (#t '())))
 
     (lambda args
@@ -160,10 +165,11 @@
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'on-day-end!) (on-day-end!))
           ((equal? msg 'state) 状态)
-          ((equal? msg 'save) (list (list "state" 状态)))
+          ((equal? msg 'save) (list (list "state" 状态) (list "journal" (journal 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! 状态 (assoc-get data "state" "未开始"))
+             (journal 'load! (assoc-get data "journal" '()))
              (if (member? 状态 (list "未开始" "等你" "成功" "失败" "缺席"))
                  #t
                  (error "别给他们想要的存档错误：状态非法"))))

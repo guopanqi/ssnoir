@@ -6,21 +6,22 @@
 
 (define newsroom
   (let ()
-    ;; 翻旧报：一个便宜的、随时能做的调查动作。它给的是背景，不是证据。
-    (define (node-archive)
-      (at-anchor "报社-旧报库"
-       (roll-action "翻旧报" (list (req-die)) 'knowledge
-        (outcome "眼睛看花了"
-          (lambda () (spend-actor-composure! 'player 1)))
-        (outcome "翻到几条"
-          (lambda () (result-note! "首演那几天的版面记下来了")))
-        (outcome "看出规律"
-          (lambda ()
-            (result-note! "同一批稿子出自同一个人")
-            (add-item! "情报" 1))))))
+    ;; ── 情报的出口 ──────────────────────────────────
+    ;; 情报只在交锋里拿得到（尾随取件人、废稿间），城里不生产——能刷就不稀缺。
+    ;; 这里是它唯一的去处：卖给编辑部，一份换一笔钱。不占骰：交易不是劳作。
+    ;; 以后它可能不只换钱——攒成一根钟，换一份活或一种过法；先让它有地方花。
+    (define 消息价 25)
+
+    (define (node-sell-tip)
+      (node "卖消息"
+        :anchor "报社-编辑部"
+        :subtitle (string-append "一份情报换 " (number->string 消息价) " 金钱。编辑部不问来处")
+        :requires (list (req-item "情报" 1))
+        :resolve (instant
+          (outcome (lambda () (add-item! "金钱" 消息价))))))
 
     (define (children)
-      (append (list (node-archive)) (地点节点 "报社")))
+      (append (list (node-sell-tip)) (地点节点 "报社")))
 
     (lambda args
       (let ((msg (car args)))

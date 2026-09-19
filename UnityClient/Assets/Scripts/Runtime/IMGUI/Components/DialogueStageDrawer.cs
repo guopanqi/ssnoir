@@ -1,35 +1,47 @@
 #nullable enable
 using System.Collections.Generic;
+using SSNoir.Core;
+using SSNoir.IMGUI.Stage;
 using UnityEngine;
 
 namespace SSNoir.IMGUI
 {
-    // 阻塞式 play-dialogue! 的专用舞台：大幅当前说话人立绘 + 底部对白框。
-    // Banter 仍由 DialogueBubbleDrawer 依附世界锚点绘制，两种表现不再混用。
+    // 阻塞式 play-dialogue! 的舞台：一场基于立绘的人偶戏，不只是一个对话框。
+    //
+    // 分层（都在 IMGUI/Stage/）：
+    //   StageState         模型——台上有谁、每个人的终态、画面状态；只算数，不画；时间由外面注入
+    //   LampPainter        画一盏灯：黑夜里的霓虹 / 纸上的墨，两种介质
+    //   StageScreenPainter 画面层：环境遮罩、负片（世界那幅画交给后处理翻）、色光、闪光
+    //   DialogueBoxDrawer  字的那一层：对白框、名牌、缺图牌
+    // 这里只做编排：接台词、更新模型、按站位排版、依次调各层画笔。
+    //
+    // 舞台指示（DialogueStageCue）改的都是人物或画面的终态——换哪组灯管（姿势）、亮到几档、
+    // 逼近中间还是退开、画面翻不翻；渲染只负责从上一个终态过渡过去，跳过动画也是同一幅画面。
     public static class DialogueStageDrawer
     {
         private const string NarratorSpeaker = "世界";
-        private const string ProtagonistSpeaker = "尼尔";
-        // 对话舞台只接受 Neon 立绘；普通立绘已归档，不能作为运行时回退，避免把错误资源
-        // 误当成人物肖像。
-        // 对白框的三个尺寸参数集中在这里：手机上框往下坐、也矮一档，让出来的全给立绘。
-        // 一句话的对白不需要一个 148 高的框，只需要够读那一句。
-        private const float BoxBottomMargin = 14f;
-        private const float BoxMinHeight = 104f;
-        private const float BoxHeightRatio = 0.26f;
-
-        private const float EnterDuration = 0.20f;
         private const float TypewriterCharactersPerSecond = 30f;
 
-        // 霓虹辉光的染色（灯管本身的颜色来自贴图，这里只染外层光晕与光池）。
-        private static readonly Color NeonGlow = new Color(0.30f, 0.58f, 1f);
+        // 每个人的灯就是他画里的颜色：立绘上点缀色那几根管子的颜色（离线加工时算出的默认值），
+        // 白管人物一律是冷白——尼尔的「灼」就是白炽，侦探的情绪就该是这个颜色。
+        // 剧情可以改标志色（engine.scm 的 set-portrait-accent!，存在全局 "立绘色/<人>"），
+        // 由外面把查询函数接进来；舞台在几秒里把颜色过渡过去。
+        private static readonly Color DefaultGlow = new Color(0.82f, 0.88f, 1f);
+        public static System.Func<string, string?>? AccentOverride { get; set; }
 
-        private static readonly Dictionary<string, Portrait> PortraitCache = new();
+        private static Color AccentTargetOf(StageActor actor)
+        {
+            var hex = AccentOverride?.Invoke(actor.Name);
+            if (hex != null && ColorUtility.TryParseHtmlString(hex, out var overridden))
+                return overridden;
+            var skeleton = actor.Texture != null ? NeonPortraitLibrary.LayersOf(actor.Texture).Skeleton : null;
+            return skeleton?.DefaultAccent ?? DefaultGlow;
+        }
+
+        private static readonly StageState State = new();
         private static readonly HashSet<string> MissingPortraitWarnings = new();
         private static string _visibleLineKey = string.Empty;
-        private static string _visibleSpeaker = string.Empty;
         private static float _lineStartedAt;
-        private static float _portraitStartedAt;
         private static int _currentLineLength;
         private static bool _currentLineCompletedInstantly;
 
@@ -41,11 +53,17 @@ namespace SSNoir.IMGUI
         public static void BeginConversation()
         {
             _visibleLineKey = string.Empty;
-            _visibleSpeaker = string.Empty;
             _lineStartedAt = 0f;
-            _portraitStartedAt = 0f;
             _currentLineLength = 0;
             _currentLineCompletedInstantly = false;
+            State.Reset();
+            StageScreenPainter.Release();
+        }
+
+        // 每帧没有对话时调一次，幂等：把借给舞台的画面状态（世界负片）还回去。
+        public static void EndConversation()
+        {
+            StageScreenPainter.Release();
         }
 
         // 返回 true：普通 play-dialogue! 的说话人此刻不在场，画面仍使用对白舞台，但调用方应报警。
@@ -55,8 +73,10 @@ namespace SSNoir.IMGUI
             string text,
             int lineIndex,
             DialogueAnchors anchors,
-            bool allowsRemoteParticipant)
+            bool allowsRemoteParticipant,
+            DialogueStageCue? stage = null)
         {
+            float now = Time.unscaledTime;
             bool isNarration = speaker == NarratorSpeaker;
             bool usedRemoteFallback = !isNarration
                 && !anchors.TryResolve(speaker, out _)
@@ -64,24 +84,19 @@ namespace SSNoir.IMGUI
 
             // 行号保证连续两句内容完全相同时仍被视为两句，各自触发弹跳和打字机。
             string lineKey = lineIndex + "\n" + speaker + "\n" + text;
+            var cue = stage ?? DialogueStageCue.None;
             if (_visibleLineKey != lineKey)
             {
                 _visibleLineKey = lineKey;
-                _lineStartedAt = Time.unscaledTime;
+                _lineStartedAt = now;
                 _currentLineLength = text.Length;
                 _currentLineCompletedInstantly = false;
+                State.ApplyLine(speaker, isNarration, cue, now,
+                    NeonPortraitLibrary.Load, NeonPortraitLibrary.LoadPose, WarnMissing);
             }
 
-            if (_visibleSpeaker != speaker)
-            {
-                _visibleSpeaker = speaker;
-                _portraitStartedAt = Time.unscaledTime;
-            }
-
-            float lineReveal = Mathf.Clamp01((Time.unscaledTime - _lineStartedAt) / EnterDuration);
+            float lineReveal = Mathf.Clamp01((now - _lineStartedAt) / StageState.EnterDuration);
             float lineEase = 1f - Mathf.Pow(1f - lineReveal, 3f);
-            float portraitReveal = Mathf.Clamp01((Time.unscaledTime - _portraitStartedAt) / EnterDuration);
-            float portraitEase = 1f - Mathf.Pow(1f - portraitReveal, 3f);
             int visibleCharacterCount = _currentLineCompletedInstantly
                 ? text.Length
                 : Mathf.Min(text.Length, VisibleCharacterCount());
@@ -90,12 +105,16 @@ namespace SSNoir.IMGUI
                 : text.Substring(0, visibleCharacterCount);
             bool isTyping = visibleCharacterCount < text.Length;
 
-            var portrait = isNarration ? default : LoadPortrait(speaker);
-            DrawBackdrop();
-            bool portraitOnLeft = speaker == ProtagonistSpeaker;
-            if (!isNarration)
-                DrawPortraitStage(speaker, portrait, portraitOnLeft, portraitEase);
-            DrawDialogueBox(speaker, visibleText, text, isTyping, isNarration, portraitOnLeft, portrait.IsNeon, lineEase);
+            float negative = State.NegativeAmount(now);
+            StageScreenPainter.PaintBackdrop(negative);
+            DrawActors(isNarration ? string.Empty : speaker, negative, now);
+            StageActor? speakerActor = null;
+            bool speakerIsNeon = !isNarration && State.TryGetActor(speaker, out speakerActor) && !speakerActor.Missing;
+            var speakerGlow = speakerIsNeon && speakerActor != null ? speakerActor.CurrentAccent(now) : DefaultGlow;
+            DialogueBoxDrawer.Draw(
+                speaker, visibleText, text, isTyping, isNarration, cue.Inner,
+                speaker == StageState.Protagonist, speakerIsNeon, lineEase, negative, speakerGlow);
+            StageScreenPainter.PaintFlash(State.FlashAlpha(now), negative);
             return usedRemoteFallback;
         }
 
@@ -105,324 +124,95 @@ namespace SSNoir.IMGUI
             return Mathf.CeilToInt(elapsed * TypewriterCharactersPerSecond);
         }
 
-        private static void DrawBackdrop()
+        private static void WarnMissing(string key)
         {
-            // 全局遮罩两种模式一致：把人物那一圈理干净的是 DrawNeonVignette 的暗晕，
-            // 不该由全局遮罩去背这个锅——那样会连远处的场景一起关掉。
-            GUI.color = new Color(0.004f, 0.009f, 0.020f, 0.78f);
-            GUI.DrawTexture(new Rect(0f, 0f, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            if (MissingPortraitWarnings.Add(key))
+                Debug.LogWarning($"[SSNoir] play-dialogue! '{key}' 没有立绘。请添加 Resources/Portraits/Neon/{key}。");
         }
 
-        private static void DrawPortraitStage(string speaker, Portrait portrait, bool onLeft, float reveal)
+        // 排版：立绘从靠上的地方立起来，占满对白框以上的全部空间——对白舞台上人是主角，框只是
+        // 他说的话。上下限按屏高取比例：写死的 360 在手机的画布里既可能顶穿、也可能把人压成一小条。
+        // 霓虹是一整块封闭灯管图形，切半身等于把灯管掐断，因此用整幅招牌的窄长比例。
+        private static Rect PortraitFrame(StageActor actor, float now, out float restingX)
         {
-            float dialogueTop = UIScale.VH - Mathf.Min(230f, UIScale.VH * BoxHeightRatio) - BoxBottomMargin;
-            // 立绘从更靠上的地方立起来，占满对白框以上的全部空间——对白舞台上人是主角，
-            // 框只是他说的话。上下限按屏高取比例：写死的 360 在手机的画布里既可能顶穿、
-            // 也可能把人压成一小条。
+            float dialogueTop = UIScale.VH - Mathf.Min(230f, UIScale.VH * DialogueBoxDrawer.BoxHeightRatio) - DialogueBoxDrawer.BoxBottomMargin;
             const float portraitTop = 28f;
-            float portraitHeight = Mathf.Clamp(
-                dialogueTop + 42f - portraitTop,
-                UIScale.VH * 0.55f,
-                UIScale.VH * 0.92f);
-            // 霓虹是一整块封闭灯管图形，切半身等于把灯管掐断，因此改用整幅招牌的窄长比例。
-            float portraitWidth = portraitHeight * (portrait.IsNeon ? NeonCropWidth / NeonCropHeight : 0.68f);
-            float restingX = onLeft ? 64f : UIScale.VW - portraitWidth - 64f;
+            float height = Mathf.Clamp(dialogueTop + 42f - portraitTop, UIScale.VH * 0.55f, UIScale.VH * 0.92f);
+            float width = height * (LampPainter.CropWidth / LampPainter.CropHeight);
+            restingX = actor.OnLeft ? 64f : UIScale.VW - width - 64f;
+            float towardCenter = actor.OnLeft ? 1f : -1f;
+            float x = restingX + actor.CurrentOffset(now) * towardCenter + StageState.ShakeOffset(actor, now);
+            return new Rect(x, portraitTop, width, height);
+        }
 
-            if (portrait.Texture == null)
+        private static void DrawActors(string speaker, float negative, float now)
+        {
+            float blackout = State.BlackoutLevel(now);
+            // 色光压制：说话人灼起来，听者被压得更暗。
+            float dominance = 0f;
+            if (State.TryGetActor(speaker, out var speakerActor))
+                dominance = Mathf.Clamp01((speakerActor.CurrentGlow(now) - 1f) / (StageState.GlowSurge - 1f));
+            // 先画听者再画说话人：逼近到中间时说话人压在上面。
+            for (int pass = 0; pass < 2; pass++)
             {
-                DrawMissingPortrait(new Rect(restingX, portraitTop, portraitHeight * 0.68f, portraitHeight), speaker, reveal);
-                return;
-            }
-
-            if (portrait.IsNeon)
-            {
-                // 霓虹不做横向滑入，改为「通电点亮」：位置固定，亮度带一次跳闸再稳住。
-                DrawNeonPortrait(new Rect(restingX, portraitTop, portraitWidth, portraitHeight), portrait.Texture, reveal, onLeft);
-                return;
-            }
-
-            float enteringOffset = (1f - reveal) * 28f * (onLeft ? -1f : 1f);
-            var portraitRect = new Rect(restingX + enteringOffset, portraitTop, portraitWidth, portraitHeight);
-            // 用同一张 Alpha 贴图偏移绘制人物轮廓阴影；不能再画矩形卡底或矩形投影。
-            var shadowRect = new Rect(portraitRect.x + (onLeft ? 9f : -9f), portraitRect.y + 12f,
-                portraitRect.width, portraitRect.height);
-            GUI.color = new Color(0f, 0f, 0f, 0.58f * reveal);
-            DrawPortraitTexture(shadowRect, portrait.Texture);
-            GUI.color = new Color(1f, 1f, 1f, reveal);
-            DrawPortraitTexture(portraitRect, portrait.Texture);
-            GUI.color = Color.white;
-        }
-
-        // 霓虹贴图是方形画布；舞台须保留人物的手势和随身物，不能只取躯干中线。
-        // 换新的霓虹立绘若构图不同，只需重调这四个值。
-        private const float NeonCropX = 0.20f;
-        private const float NeonCropY = 0.02f;
-        private const float NeonCropWidth = 0.70f;
-        private const float NeonCropHeight = 0.97f;
-
-        private static void DrawNeonPortrait(Rect rect, Texture2D portrait, float reveal, bool onLeft)
-        {
-            var uv = new Rect(NeonCropX, NeonCropY, NeonCropWidth, NeonCropHeight);
-            // 素材统一面向右：左侧人物保持朝内，右侧人物翻转后同样朝内。
-            if (!onLeft)
-                uv = new Rect(uv.xMax, uv.y, -uv.width, uv.height);
-            float brightness = NeonBrightness(reveal);
-
-            // 人物正后方的暗晕：中心几乎全黑、向外径向散尽。
-            // 霓虹的好看全靠亮度对比，背后必须是黑；而暗晕只罩住人物这一圈，
-            // 远处的城市原样留着，不会把整块画面关掉。
-            DrawNeonVignette(rect);
-
-            // 底部光池：灯管把地面照出一摊光，也把人物和对白框连起来。
-            DrawLightPool(rect, brightness);
-
-            // 外层光晕：同一张图逐层放大、压暗地叠出溢光，代替做不到的加法混合。
-            for (int i = 3; i >= 1; i--)
-            {
-                float spread = i * 9f;
-                var halo = new Rect(rect.x - spread, rect.y - spread, rect.width + spread * 2f, rect.height + spread * 2f);
-                GUI.color = new Color(NeonGlow.r, NeonGlow.g, NeonGlow.b, 0.13f / i * brightness);
-                GUI.DrawTextureWithTexCoords(halo, portrait, uv, true);
-            }
-
-            // 灯管本体：叠两遍让细线的亮度压住背景，不至于被光晕吃掉。
-            GUI.color = new Color(1f, 1f, 1f, brightness);
-            GUI.DrawTextureWithTexCoords(rect, portrait, uv, true);
-            GUI.color = new Color(1f, 1f, 1f, 0.55f * brightness);
-            GUI.DrawTextureWithTexCoords(rect, portrait, uv, true);
-
-            DrawNeonReflection(rect, portrait, uv, brightness);
-            GUI.color = Color.white;
-        }
-
-        // 电流感：低频呼吸 + 偶发跳闸；点亮瞬间先抖两下再稳定。
-        private static float NeonBrightness(float reveal)
-        {
-            float t = Time.unscaledTime;
-            float hum = 0.93f + 0.07f * Mathf.Sin(t * 2.3f) * Mathf.Sin(t * 0.71f + 1.3f);
-
-            float phase = t * 0.31f;
-            float cell = Mathf.Floor(phase);
-            float noise = Mathf.Abs(Mathf.Sin(cell * 127.1f) * 43758.5453f);
-            noise -= Mathf.Floor(noise);
-            float within = phase - cell;
-            if (noise > 0.88f && within < 0.10f)
-                hum *= 0.52f + 0.30f * Mathf.Sin(within * 110f);
-
-            float ignite = reveal < 1f
-                ? (0.18f + 0.82f * reveal) * (reveal < 0.55f && Mathf.Sin(reveal * 52f) < 0f ? 0.32f : 1f)
-                : 1f;
-            return hum * ignite;
-        }
-
-        private static void DrawNeonVignette(Rect rect)
-        {
-            var halo = NeonPortraitLibrary.RadialFalloff();
-            var area = new Rect(
-                rect.center.x - rect.width * 1.75f,
-                rect.center.y - rect.height * 0.95f,
-                rect.width * 3.5f,
-                rect.height * 1.90f);
-            // 叠三遍：最外圈大而淡负责过渡，中圈补浓，内圈保证人物正后方是死黑。
-            GUI.color = new Color(0.004f, 0.007f, 0.016f, 0.88f);
-            GUI.DrawTexture(area, halo);
-            var mid = new Rect(
-                rect.center.x - rect.width * 1.15f,
-                rect.center.y - rect.height * 0.70f,
-                rect.width * 2.3f,
-                rect.height * 1.40f);
-            GUI.color = new Color(0.004f, 0.007f, 0.016f, 0.86f);
-            GUI.DrawTexture(mid, halo);
-            var core = new Rect(
-                rect.center.x - rect.width * 0.80f,
-                rect.center.y - rect.height * 0.54f,
-                rect.width * 1.6f,
-                rect.height * 1.08f);
-            GUI.color = new Color(0.004f, 0.007f, 0.016f, 0.84f);
-            GUI.DrawTexture(core, halo);
-        }
-
-        private static void DrawLightPool(Rect rect, float brightness)
-        {
-            // 脚下一摊光：同一张径向渐变压扁成椭圆，一笔画完，不再有横条阶梯。
-            var pool = new Rect(
-                rect.center.x - rect.width * 1.15f,
-                rect.yMax - rect.height * 0.20f,
-                rect.width * 2.3f,
-                rect.height * 0.44f);
-            GUI.color = new Color(NeonGlow.r, NeonGlow.g, NeonGlow.b, 0.16f * brightness);
-            GUI.DrawTexture(pool, NeonPortraitLibrary.RadialFalloff());
-        }
-
-        // 湿地面上的倒影：整块竖直翻转画一次，再盖一层竖直渐变把它抹进地面。
-        private static void DrawNeonReflection(Rect rect, Texture2D portrait, Rect uv, float brightness)
-        {
-            float reflectHeight = rect.height * 0.16f;
-            float uvHeight = uv.height * (reflectHeight / rect.height);
-            var area = new Rect(rect.x, rect.yMax, rect.width, reflectHeight);
-            var flipped = new Rect(uv.x, uv.y + uvHeight, uv.width, -uvHeight);
-
-            GUI.color = new Color(1f, 1f, 1f, 0.20f * brightness);
-            GUI.DrawTextureWithTexCoords(area, portrait, flipped, true);
-            GUI.color = new Color(0.004f, 0.007f, 0.016f, 1f);
-            GUI.DrawTexture(area, NeonPortraitLibrary.VerticalFade());
-        }
-
-        private static void DrawPortraitTexture(Rect rect, Texture2D portrait)
-        {
-            float sourceAspect = portrait.width / (float)portrait.height;
-            if (sourceAspect <= 1.2f)
-            {
-                GUI.DrawTexture(rect, portrait, ScaleMode.ScaleAndCrop);
-                return;
-            }
-
-            // 当前角色图是横版全身构图。截取画面上部并按立绘框宽高比收窄，形成经典半身像，
-            // 同时不拉伸人物；未来直接提供竖版立绘时会走上面的常规裁切。
-            const float cropBottom = 0.36f;
-            const float cropHeight = 0.60f;
-            float cropWidth = Mathf.Clamp((rect.width / rect.height) * cropHeight / sourceAspect, 0.16f, 1f);
-            var uv = new Rect((1f - cropWidth) * 0.5f, cropBottom, cropWidth, cropHeight);
-            GUI.DrawTextureWithTexCoords(rect, portrait, uv, true);
-        }
-
-        private readonly struct Portrait
-        {
-            public readonly Texture2D? Texture;
-            public readonly bool IsNeon;
-            public Portrait(Texture2D? texture, bool isNeon)
-            {
-                Texture = texture;
-                IsNeon = isNeon;
-            }
-        }
-
-        private static Portrait LoadPortrait(string speaker)
-        {
-            if (PortraitCache.TryGetValue(speaker, out var cached))
-                return cached;
-
-            var neon = NeonPortraitLibrary.Load(speaker);
-            var portrait = new Portrait(neon, neon != null);
-            PortraitCache[speaker] = portrait;
-            if (portrait.Texture == null && MissingPortraitWarnings.Add(speaker))
-            {
-                Debug.LogWarning(
-                    $"[SSNoir] play-dialogue! 说话人 '{speaker}' 尚无立绘。"
-                    + $"请添加 Resources/Portraits/Neon/{speaker}，当前使用缺图人物牌。");
-            }
-            return portrait;
-        }
-
-        private static void DrawMissingPortrait(Rect rect, string speaker, float reveal)
-        {
-            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.94f * reveal);
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            var nameStyle = new GUIStyle(IMGUIStyles.CardTitle)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fontSize = IMGUIStyles.FontSize(34),
-                normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.72f * reveal) }
-            };
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 24f, rect.center.y - 38f, rect.width - 48f, 76f), speaker, nameStyle);
-        }
-
-        private static void DrawDialogueBox(
-            string speaker,
-            string visibleText,
-            string fullText,
-            bool isTyping,
-            bool isNarration,
-            bool portraitOnLeft,
-            bool isNeon,
-            float reveal)
-        {
-            float boxWidth = Mathf.Min(1180f, Mathf.Max(320f, UIScale.SafeArea.width - 80f));
-            var bodyStyle = new GUIStyle(IMGUIStyles.ModalBody)
-            {
-                wordWrap = true,
-                alignment = isNarration ? TextAnchor.MiddleCenter : TextAnchor.UpperLeft,
-                fontSize = IMGUIStyles.FontSize(isNarration ? 20 : 22),
-                normal = { textColor = new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, reveal) }
-            };
-            float textWidth = boxWidth - 72f;
-            float textHeight = bodyStyle.CalcHeight(new GUIContent(fullText), textWidth);
-            float boxHeight = Mathf.Clamp(
-                textHeight + (isNarration ? 62f : 86f),
-                BoxMinHeight,
-                Mathf.Min(230f, UIScale.VH * BoxHeightRatio));
-            // 每句都短促上弹一次以提示文本已更新；人物立绘使用独立计时，不跟着重复淡入。
-            float sentenceBounce = (1f - reveal) * 16f - Mathf.Sin(reveal * Mathf.PI) * 5f;
-            Rect safe = UIScale.SafeArea;
-            float boxY = safe.yMax - boxHeight - BoxBottomMargin + sentenceBounce;
-            var box = new Rect(safe.x + (safe.width - boxWidth) / 2f, boxY, boxWidth, boxHeight);
-
-            IMGUIStyles.DrawShadow(box, new Vector2(8f, 10f), 0.64f * reveal);
-            GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, reveal);
-            GUI.DrawTexture(box, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(box, 1.5f, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.68f * reveal));
-
-            float textY = box.y + (isNarration ? 28f : 48f);
-            IMGUIStyles.DrawLabel(
-                new Rect(box.x + 36f, textY, textWidth, box.yMax - textY - 32f),
-                visibleText,
-                bodyStyle);
-
-            if (!isNarration)
-                DrawSpeakerTab(box, speaker, portraitOnLeft, isNeon, reveal);
-
-            var continueStyle = new GUIStyle(IMGUIStyles.StatusLabel)
-            {
-                alignment = TextAnchor.MiddleRight,
-                fontSize = IMGUIStyles.FontSize(11),
-                normal = { textColor = new Color(IMGUIStyles.PaperTextSecondary.r, IMGUIStyles.PaperTextSecondary.g, IMGUIStyles.PaperTextSecondary.b, 0.72f * reveal) }
-            };
-            IMGUIStyles.DrawLabel(
-                new Rect(box.xMax - 170f, box.yMax - 26f, 138f, 18f),
-                isTyping ? "点击显示全文" : "点击继续",
-                continueStyle);
-        }
-
-        private static void DrawSpeakerTab(Rect box, string speaker, bool onLeft, bool isNeon, float reveal)
-        {
-            const float tabWidth = 210f;
-            const float tabHeight = 42f;
-            float x = onLeft ? box.x + 28f : box.xMax - tabWidth - 28f;
-            var tab = new Rect(x, box.y - 22f, tabWidth, tabHeight);
-
-            IMGUIStyles.DrawShadow(tab, new Vector2(4f, 5f), 0.46f * reveal);
-            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.98f * reveal);
-            GUI.DrawTexture(tab, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            // 霓虹说话人的名牌也当灯管处理：同色描边 + 一圈溢光，和立绘是同一盏灯。
-            var edge = isNeon ? NeonGlow : IMGUIStyles.Gold;
-            if (isNeon)
-            {
-                float brightness = NeonBrightness(reveal);
-                for (int i = 3; i >= 1; i--)
+                bool drawSpeaker = pass == 1;
+                foreach (var actor in State.Actors)
                 {
-                    var ring = new Rect(tab.x - i * 2f, tab.y - i * 2f, tab.width + i * 4f, tab.height + i * 4f);
-                    IMGUIStyles.DrawOutline(ring, 1f, new Color(edge.r, edge.g, edge.b, 0.16f / i * brightness));
-                }
-                IMGUIStyles.DrawOutline(tab, 1.5f, new Color(edge.r, edge.g, edge.b, 0.92f * brightness));
-            }
-            else
-            {
-                IMGUIStyles.DrawOutline(tab, 1.5f, new Color(edge.r, edge.g, edge.b, 0.86f * reveal));
-            }
+                    bool isSpeaker = actor.Name == speaker;
+                    if (isSpeaker != drawSpeaker) continue;
 
-            var nameStyle = new GUIStyle(IMGUIStyles.CardTitle)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fontSize = IMGUIStyles.FontSize(20),
-                normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, reveal) }
-            };
-            IMGUIStyles.DrawLabel(tab, speaker, nameStyle);
+                    var rect = PortraitFrame(actor, now, out float restingX);
+                    float enter = StageState.EaseOut(actor.EnteredAt, StageState.EnterDuration, now);
+                    if (actor.Missing)
+                    {
+                        DialogueBoxDrawer.DrawMissingPortrait(
+                            new Rect(restingX, rect.y, rect.height * 0.68f, rect.height), actor.Name, enter);
+                        continue;
+                    }
+
+                    actor.TargetAccent(AccentTargetOf(actor), now);
+                    float glow = actor.CurrentGlow(now);
+                    float flicker = StageState.FlickerLevel(actor, now);
+                    // 死拍：声音里是整盏灯死掉，画面上是大半管子灭、幸存的几根还亮着——所以整体只压到幸存档。
+                    int deadStep = flicker <= StageState.FlickerDeadLevel ? StageState.FlickerStep(actor, now) : -1;
+                    float lampFlicker = deadStep >= 0 ? StageState.FlickerSurvivorLevel : flicker;
+                    float listener = StageState.ListenerLevel * (1f - StageState.DominanceDim * dominance);
+                    float level = (isSpeaker ? 1f : listener) * glow * lampFlicker * blackout;
+                    var color = actor.CurrentAccent(now);
+
+                    // 灯打到底时，这个人的颜色洗满半个舞台——是他这句话在占着这个空间。听者的灯再亮也洗不出去。
+                    if (isSpeaker)
+                    {
+                        float surge = Mathf.Clamp01((glow - 1f) / (StageState.GlowSurge - 1f)) * flicker;
+                        StageScreenPainter.PaintWash(rect, color, surge, negative);
+                    }
+
+                    var look = new LampLook(enter, level, glow, color, actor.OnLeft, StageState.RelightProgress(actor, now), negative,
+                        actor.CurrentWarmth(now), actor.CurrentCurrent(now), isSpeaker ? actor.SurgePop(now) : 0f, deadStep);
+
+                    // 换姿势＝旧灯管灭、新灯管通电点亮。两组管子短暂同时半亮，像招牌切换时那一下重影。
+                    float swap = actor.PoseSwap(now);
+                    if (actor.PreviousTexture != null)
+                    {
+                        LampPainter.Paint(rect, actor.PreviousTexture, look.Stable().WithLevel(level * (1f - swap)));
+                        look = look.WithReveal(swap);
+                    }
+
+                    // 一震时留两道残影：灯管抖动在视网膜上的重影，比单纯位移更像一声吼。
+                    float ghost = StageState.ShakeGhost(actor, now);
+                    if (ghost > 0f)
+                    {
+                        for (int g = 1; g <= 2; g++)
+                        {
+                            float dx = g * 10f * ghost * (actor.OnLeft ? -1f : 1f);
+                            LampPainter.PaintTubesOnly(
+                                new Rect(rect.x + dx, rect.y, rect.width, rect.height),
+                                actor.Texture!, look.Stable().WithLevel(level * 0.35f * ghost / g));
+                        }
+                    }
+                    LampPainter.Paint(rect, actor.Texture!, look);
+                }
+            }
         }
     }
 }

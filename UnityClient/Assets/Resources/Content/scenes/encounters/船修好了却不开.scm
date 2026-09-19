@@ -96,14 +96,11 @@
                   "见识；记录不完整，但足以证明代理一直知道谁在替这条船干活。只用一次")
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "代理挑出一处空白"
-        (lambda () (set! record-used? #t)))
-      (outcome "班次和签收对上了"
-        (lambda ()
+      (outcome (lambda () (set! record-used? #t)))
+      (outcome (lambda ()
           (set! record-used? #t)
           (payment+ (if (equal? repair-result "按时修好") 2 1))))
-      (outcome "他的签字就在末页"
-        (lambda ()
+      (outcome (lambda ()
           (set! record-used? #t)
           (payment+ (if (equal? repair-result "按时修好") 3 2)))))))
 
@@ -113,9 +110,9 @@
     :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "代理又把承包人念了一遍" (lambda () #f))
-      (outcome "他承认船方验收过抢修" (lambda () (payment+ 1)))
-      (outcome "他肯把一部分写进付款单" (lambda () (payment+ 2))))))
+      (outcome (lambda () #f))
+      (outcome (lambda () (payment+ 1)))
+      (outcome (lambda () (payment+ 2))))))
 
 (define (node-hold-gangway)
   (node "守住跳板"
@@ -123,9 +120,9 @@
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "装卸领班吹响了警哨" (lambda () (guards+ 2)))
-      (outcome "装货的人全停了手" (lambda () (payment+ 1) (guards+ 1)))
-      (outcome "连拖船水手也离开缆桩" (lambda () (payment+ 2) (guards+ 1))))))
+      (outcome (lambda () (guards+ 2)))
+      (outcome (lambda () (payment+ 1) (guards+ 1)))
+      (outcome (lambda () (payment+ 2) (guards+ 1))))))
 
 (define (node-unregistered-cargo)
   (node "指出未登记货物"
@@ -133,12 +130,9 @@
     :tags (list "高风险" "只用一次")
     :requires (list (req-die))
     :resolve (roll 'sharpness
-      (outcome "箱号在阴影里没看全"
-        (lambda () (set! cargo-pointed? #t) (guards+ 2)))
-      (outcome "代理不敢让警卫先查货舱"
-        (lambda () (set! cargo-pointed? #t) (payment+ 2) (guards+ 2)))
-      (outcome "缺掉的舱单页就在他公文包里"
-        (lambda () (set! cargo-pointed? #t) (payment+ 3) (guards+ 2))))))
+      (outcome (lambda () (set! cargo-pointed? #t) (guards+ 2)))
+      (outcome (lambda () (set! cargo-pointed? #t) (payment+ 2) (guards+ 2)))
+      (outcome (lambda () (set! cargo-pointed? #t) (payment+ 3) (guards+ 2))))))
 
 (define (take-cargo! amount)
   (guards+ amount)
@@ -159,9 +153,9 @@
     :tags (list "高风险" "非法")
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "货舱口被船员堵住" (lambda () (guards+ 2)))
-      (outcome "按欠款搬够了" (lambda () (take-cargo! 2)))
-      (outcome "箱子已经进了仓门" (lambda () (take-cargo! 1))))))
+      (outcome (lambda () (guards+ 2)))
+      (outcome (lambda () (take-cargo! 2)))
+      (outcome (lambda () (take-cargo! 1))))))
 
 (define (node-accept-partial)
   (instant-action "接受部分付款"

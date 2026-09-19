@@ -18,7 +18,9 @@
 ;; 在实际游玩里验过之后再抬上去；先把「那一块在不在」做成真的。
 (define 机器进入老街
   (let ()
-    (define 等待天数 3)
+    ;; 公布到进场六天（曾经三天）。艾迪考试在第 3 天、林那边试运行完还要陪老乔
+    ;; 培训、调查线多半也正走到尾随——三天里全挤在一起，六天才排得开。
+    (define 等待天数 6)
 
     ;; 未开始 / 已公布 / 今天 / 收场了
     (define 状态 "未开始")
@@ -91,8 +93,7 @@
     (define (node-stop-eddie)
       (action "拦住艾迪" (list (req-die))
         (instant
-          (outcome "你把他拽了回来"
-            (lambda ()
+          (outcome (lambda ()
               (set! 拦下艾迪? #t)
               (play-dialogue!
                 (line "世界" "艾迪从人群里钻出去，手里攥着一根撬棍，往链条那头去。")
@@ -107,8 +108,7 @@
     (define (node-stop-machine)
       (action "跟林停机" (list (req-die))
         (instant
-          (outcome "他先按了闸"
-            (lambda ()
+          (outcome (lambda ()
               (set! 停了机? #t)
               (play-dialogue!
                 (line "林" "第三节链条的护板还没上。人这么近，不能跑。")
@@ -120,16 +120,11 @@
 
     (define (node-check-machine)
       (roll-action "自己查设备" (list (req-die)) 'knowledge
-        (outcome "什么也没看出来"
-          (lambda ()
-            (spend-actor-composure! 'player 2)
-            (result-note! "没找到问题")))
-        (outcome "看出点不对"
-          (lambda ()
-            (spend-actor-composure! 'player 1)
-            (result-note! "护板没上")))
-        (outcome "让他们停了"
-          (lambda ()
+        (outcome (lambda ()
+            (spend-actor-composure! 'player 2)))
+        (outcome (lambda ()
+            (spend-actor-composure! 'player 1)))
+        (outcome (lambda ()
             (set! 停了机? #t)
             (spotlight! "护板没上"
               "你自己看出第三节链条的护板没装上，喊停了这一趟。林在后面看着你。")))))
@@ -137,16 +132,11 @@
     ;; ── 弗兰克：他没坐下来的话，这一场就得你自己压 ──
     (define (node-hold-crowd)
       (roll-action "劝人群退" (list (req-die)) 'social
-        (outcome "没人听你的"
-          (lambda ()
-            (spend-actor-composure! 'player 2)
-            (result-note! "人群又往前挤了")))
-        (outcome "退了半步"
-          (lambda ()
-            (spend-actor-composure! 'player 1)
-            (result-note! "前排退了半步")))
-        (outcome "他们退开了"
-          (lambda ()
+        (outcome (lambda ()
+            (spend-actor-composure! 'player 2)))
+        (outcome (lambda ()
+            (spend-actor-composure! 'player 1)))
+        (outcome (lambda ()
             (set! 压住人群? #t)
             (spotlight! "人群退开了"
               "你把前排劝开了半条跳板。警察的手从背后放了下来。")))))
@@ -182,7 +172,8 @@
       (if (and (艾迪在场?) (not 拦下艾迪?))
           (eddie 'on-crushed!)
           #f)
-      ((第二章 'journal) 'add! "第一批机器进了老码头。")
+      (第二章 'log! "机器进入老街" "第一批机器进了老码头。")
+      (complete-task! "机器进入老街")
       (spotlight! "机器留下了"
         (string-append
           "设备卸完了，机器留在老码头。"
@@ -208,6 +199,11 @@
           ((equal? msg 'announce!) (公布!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'state) 状态)
+          ((equal? msg 'announced?) (not (equal? 状态 "未开始")))
+          ((equal? msg 'done?) (equal? 状态 "收场了"))
+          ((equal? msg 'steps)
+           (list (step "到跳板去" 到场?)
+                 (step "看着这一天过完" (equal? 状态 "收场了"))))
           ((equal? msg 'now)
            (cond ((已公布?) "第一批设备即将进入老码头。在那之前把该办的办完")
                  ((今天?) (if 到场? "跳板上的事只有今天" "今天。去码头"))

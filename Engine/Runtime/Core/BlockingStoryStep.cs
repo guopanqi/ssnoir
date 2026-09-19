@@ -8,7 +8,10 @@ namespace SSNoir.Core
     // 动作表现固定在结局前,不可重排;剧情表现按 Scheme 调用顺序排队、逐个阻塞播放。
     public enum BlockingStoryStepKind
     {
-        Animation,   // 命名动画(v1 只携带 Tag,前端占位播放;将来接 Timeline)
+        Video,       // 视频过场：tag 认场景里的 CutsceneSequence（机位 + 视频）。昂贵，少用；
+                     // 实时 3D 的场景演出是另一条通道，不走这里
+        Motion,      // 场景演出：切到指定机位，播一件道具的实时动画（道具__状态 clip）到目标状态，播完回来。
+                     // 道具之后就停在那个状态上，不需要额外的游戏状态来记
         Dialogue,    // 阻塞对话:点击推进、锁输入、冻结导航
         Spotlight,   // 聚光弹窗:点击 dismiss
         EnterPlace,  // 采纳动作后的世界快照，并把导航落到指定地点
@@ -20,17 +23,25 @@ namespace SSNoir.Core
     {
         public BlockingStoryStepKind Kind { get; init; }
 
-        public string AnimationTag { get; init; } = string.Empty;   // Kind == Animation
+        public string VideoTag { get; init; } = string.Empty;       // Kind == Video
+        public string MotionProp { get; init; } = string.Empty;     // Kind == Motion：道具名（clip 名前半）
+        public string MotionState { get; init; } = string.Empty;    // Kind == Motion：目标状态（clip 名后半）
+        public string MotionCamera { get; init; } = string.Empty;   // Kind == Motion：机位名（Camera_<名> 的 <名>），空 = 不换机位
         public DialogueSequence? Dialogue { get; init; }            // Kind == Dialogue
         public SpotlightCard? Spotlight { get; init; }              // Kind == Spotlight
         public string PlaceName { get; init; } = string.Empty;      // Kind == EnterPlace
         public GameNode? AutoActionNode { get; init; }               // Kind == AutoAction
         public List<SlottedResource> AutoActionSlots { get; } = new(); // Kind == AutoAction
-        public Action? AutoActionEffect { get; init; }               // Kind == AutoAction
+        public Func<ActionReport>? AutoActionEffect { get; init; }   // Kind == AutoAction：结算并交回这一手的报告
         private bool _autoActionResolved;
 
-        public static BlockingStoryStep ForAnimation(string tag)
-            => new BlockingStoryStep { Kind = BlockingStoryStepKind.Animation, AnimationTag = tag };
+        public static BlockingStoryStep ForVideo(string tag)
+            => new BlockingStoryStep { Kind = BlockingStoryStepKind.Video, VideoTag = tag };
+
+        public static BlockingStoryStep ForMotion(string prop, string state, string camera)
+            => string.IsNullOrWhiteSpace(prop) || string.IsNullOrWhiteSpace(state)
+                ? throw new System.ArgumentException("motion prop and state cannot be empty")
+                : new BlockingStoryStep { Kind = BlockingStoryStepKind.Motion, MotionProp = prop, MotionState = state, MotionCamera = camera ?? string.Empty };
 
         public static BlockingStoryStep ForDialogue(DialogueSequence sequence)
             => new BlockingStoryStep { Kind = BlockingStoryStepKind.Dialogue, Dialogue = sequence };
@@ -44,7 +55,7 @@ namespace SSNoir.Core
                 : new BlockingStoryStep { Kind = BlockingStoryStepKind.EnterPlace, PlaceName = placeName };
 
         public static BlockingStoryStep ForAutoAction(
-            string name, string text, string? anchorName, int slotCount, Action effect)
+            string name, string text, string? anchorName, int slotCount, Func<ActionReport> effect)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(text))
                 throw new System.ArgumentException("auto action name and text cannot be empty");
@@ -66,14 +77,15 @@ namespace SSNoir.Core
             };
         }
 
-        public void ResolveAutoAction()
+        /// <summary>结算这一手，交回它自己的报告（时钟推进行、结果行、banter），表现层据此挂结果条。</summary>
+        public ActionReport ResolveAutoAction()
         {
             if (Kind != BlockingStoryStepKind.AutoAction || AutoActionEffect == null)
                 throw new InvalidOperationException("Only auto-action steps can be resolved this way.");
             if (_autoActionResolved)
                 throw new InvalidOperationException("Auto action has already been resolved.");
             _autoActionResolved = true;
-            AutoActionEffect();
+            return AutoActionEffect();
         }
 
         /// <summary>

@@ -28,13 +28,12 @@
         :anchor "诊所-服务"
         :requires (list (req-item "金钱" 25))
         :resolve (instant
-          (outcome "抓了一份药"
-            (lambda () (add-item! "药品" 1))))))
+          (outcome (lambda () (add-item! "药品" 1))))))
 
-    ;; 正经治疗：一颗骰 + 20 金，压 2 点伤势。重伤不加价：若重伤治疗反而比
-    ;; 药品贵，就会被「25 金、零骰、同样压 2」严格压制。压 2 而不是 3，
+    ;; 正经治疗：一颗骰 + 20 金，压 2 点伤势。重伤不加价。压 2 而不是 3，
     ;; 避免一次治疗永远清空轻伤。
-    ;; 医生比药品省 5 金但花一颗骰；药品省骰、每天只能一份。
+    ;; 药品 25 金、零骰、只压 1、每天一份：纯花钱的那条故意最弱，
+    ;; 伤势要真正下去必须交骰子（医生或养伤），钱只是让那颗骰更值钱。
     ;; 第三条路在住所：养伤 1 骰、0 金、−1（见 home.scm）。三条各自贵在不同的东西上。
     (define treatment-fee 20)
 
@@ -47,8 +46,7 @@
         :disabled (equal? (injury-band) '完好)
         :requires (list (req-die) (req-item "金钱" treatment-fee))
         :resolve (instant
-          (outcome "医生给你处理了伤口"
-            (lambda () (heal-injury! 2))))))
+          (outcome (lambda () (heal-injury! 2))))))
 
     ;; ── 标注（不可操作）─────────────────────────────────────────
     ;; 这两条是标注不是卡：碰不得、点不动，只告诉你这个地方是什么样子。

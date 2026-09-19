@@ -72,12 +72,9 @@
     :subtitle "武力；他会挣，因为他真的还差一点"
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "他挣开了"
-        (lambda () (spend-composure! 2) (check!)))
-      (outcome "你抓住了他的领子"
-        (lambda () (hold-clk 'advance! -1) (check!)))
-      (outcome "你把他拽了出来"
-        (lambda ()
+      (outcome (lambda () (spend-composure! 2) (check!)))
+      (outcome (lambda () (hold-clk 'advance! -1) (check!)))
+      (outcome (lambda ()
           (finish! '拖走 "他被你拖了出来"
             "十几秒之后那条臂塌进轨道里。他站在外面看着，一直没说话。你救了他，他也一直记得他差一点就看明白了。"))))))
 
@@ -87,12 +84,9 @@
     :subtitle "武力；顶住那节支架，让它再跑几秒"
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "支架顶回来了"
-        (lambda () (spend-composure! 2) (hold-clk 'advance! -1) (check!)))
-      (outcome "你顶住了"
-        (lambda () (brace-clk 'tick!) (check-brace!)))
-      (outcome "它稳了一瞬"
-        (lambda () (brace-clk 'tick!) (hold-clk 'tick!) (check-brace!))))))
+      (outcome (lambda () (spend-composure! 2) (hold-clk 'advance! -1) (check!)))
+      (outcome (lambda () (brace-clk 'tick!) (check-brace!)))
+      (outcome (lambda () (brace-clk 'tick!) (hold-clk 'tick!) (check-brace!))))))
 
 (define (check-brace!)
   (if (brace-clk 'full?)
@@ -106,12 +100,9 @@
     :subtitle "见识；断掉那节轨道的供电，让臂停在原位"
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "你找错了线"
-        (lambda () (hold-clk 'advance! -1) (check!)))
-      (outcome "臂慢下来了"
-        (lambda () (hold-clk 'tick!) (check!)))
-      (outcome "它停住了"
-        (lambda ()
+      (outcome (lambda () (hold-clk 'advance! -1) (check!)))
+      (outcome (lambda () (hold-clk 'tick!) (check!)))
+      (outcome (lambda ()
           (finish! '自己修 "它停在原位"
             "臂停在半空，没有塌。林从轨道那头绕出来，先看机器，再看你：你怎么知道是那一节？"))))))
 

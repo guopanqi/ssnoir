@@ -130,18 +130,15 @@
     :subtitle "林说它能处理。你决定信不信"
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "它没有认出他"
-        (lambda () (stability-clk 'advance! -2) (accident!)))
-      (outcome "它绕过去了"
-        (lambda ()
+      (outcome (lambda () (stability-clk 'advance! -2) (accident!)))
+      (outcome (lambda ()
           (shift-clk 'tick!)
           (if (= manual-used 0)
               (finish! '完整自动通过 "它自己跑完了"
                 "臂在离他半米的地方停住，等他直起腰，然后绕过去把柜子放稳。整夜没有一个人碰过它。")
               (finish! '人工辅助完成 "它自己跑完了这一段"
                 "臂在离他半米的地方停住，等他直起腰，然后绕过去。四批货全到了——只是前面那几次，是人扶过来的。"))))
-      (outcome "它停下来等他"
-        (lambda ()
+      (outcome (lambda ()
           (shift-clk 'tick!)
           (if (= manual-used 0)
               (finish! '完整自动通过 "它自己跑完了"
@@ -158,17 +155,14 @@
     :tags (if (fault-heavy? batch) (list "高风险") '())
     :requires (list (req-die))
     :resolve (roll (fault-skill batch)
-      (outcome "越弄越糟"
-        (lambda ()
+      (outcome (lambda ()
           (stability-clk 'advance! (if (fault-heavy? batch) -2 -1))
           (check!)))
-      (outcome "压住了"
-        (lambda ()
+      (outcome (lambda ()
           (if (fault-heavy? batch)
               (begin (stability-clk 'advance! -1) (check!))
               (begin (stability-clk 'advance! -1) (clear-fault!) (check!)))))
-      (outcome "它自己接上了"
-        (lambda () (clear-fault!) (check!))))))
+      (outcome (lambda () (clear-fault!) (check!))))))
 
 ;; 全场最安全的一手，也是唯一会往第三根钟上记账的一手。
 (define (node-manual)
@@ -181,7 +175,8 @@
       (check!))))
 
 (define (on-encounter-enter)
-  (stability-clk 'set! stability-max)
+  ;; 交锋初始盘面不是玩家造成的 Clock 变化，不写入场报告的效果条（同 失控的机械）。
+  (stability-clk 'load! stability-max)
   (play-dialogue!
     (line "世界" "十一点。机械区只留了控制台那一盏灯。")
     (line "林" "四批货。今晚没有人上手。")

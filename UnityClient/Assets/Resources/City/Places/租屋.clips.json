@@ -1,0 +1,52 @@
+{
+ "fps": 30,
+ "clips": [
+  {
+   "name": "唱片机__Stopped",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "唱片机__Playing",
+   "start": 36,
+   "end": 144,
+   "loop": true,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "唱片机__StopToPlay",
+   "start": 149,
+   "end": 188,
+   "loop": false,
+   "from": "Stopped",
+   "to": "Playing"
+  },
+  {
+   "name": "唱片机__PlayToStop",
+   "start": 193,
+   "end": 232,
+   "loop": false,
+   "from": "Playing",
+   "to": "Stopped"
+  }
+ ],
+ "parts": [
+  {
+   "prop": "唱片机",
+   "names": [
+    "唱片机_唱片",
+    "唱片机_唱臂",
+    "唱片机_喇叭",
+    "唱片机_柜身",
+    "唱片机_转盘",
+    "音符1",
+    "音符2",
+    "音符3"
+   ]
+  }
+ ]
+}

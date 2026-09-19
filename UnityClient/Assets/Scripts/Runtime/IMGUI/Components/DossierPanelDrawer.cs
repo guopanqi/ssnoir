@@ -9,13 +9,17 @@ namespace SSNoir.IMGUI
     /// 卷宗：城里所有故事线各自的「现在」。
     ///
     /// 它要回答的只有一句话——隔了三天再打开游戏，我现在在办什么。所以每条线在这里
-    /// 只占三行：名字、那一句「现在」、读数。要看以前发生过什么才展开履历。
+    /// 只占几行：名字、那一句「现在」、子项清单、读数。要看以前发生过什么才展开记录。
+    ///
+    /// 一张卡是一个小节。那一句「现在」说这一节整体要干什么（说不清就空着）；
+    /// 子项清单说走到了哪——做过的划掉，正在做的照常写，后面的不露：卷宗不知道未来。
+    /// 奖励在最后一项划掉时由内容发（complete-task!），卡上不预告。
     ///
     /// 内容由故事模块自己回答（见 engine.scm 的 dossier），这里一句话也不自己拼：
     /// 拼不出来说明内容没写，那是内容的问题，不该由界面遮过去。
     ///
-    /// 地图上常驻的只剩「钉住条」（<see cref="DrawPinStrip"/>）：玩家钉的那条线的
-    /// 读数和那一句。其余全部收进这块面板。
+    /// 地图上常驻的只剩「钉住条」（<see cref="DrawPinStrip"/>）：钉住的每条线一行，
+    /// 线名接着当前那一项，按卷宗顺序叠在左上角。新接的线默认钉上，玩家取消的才收进面板。
     /// </summary>
     public static class DossierPanelDrawer
     {
@@ -44,115 +48,215 @@ namespace SSNoir.IMGUI
         //
         // 压力必须留在地图上。玩家每天那个「这颗骰子拿去挣钱还是拿去踩点」的决定，
         // 是照着交割日和交割款做的——它们藏进面板里就没用了。
-        // 但也只留这一条：两行，一行读数一行「现在」。塞不下第三行，说明那条线的
-        // 「现在」写长了，该改文案，不是加行。
+        // 但地图上只放「现在做什么」这一件事：一条线一行，线名接着当前那一项，
+        // 做完的、还没到的都不上地图（那是面板的事）。有钟就在下一行摆钟。
+        // 不画卡：文字下面垫一块随文字宽窄的黑底，够读就行，别让它跟标注带抢地方。
+        // 钉住的线按卷宗顺序（主要在前，每组内主线 → 委托 → 人物/城市）往下叠，取消过的不画。
 
-        private const float StripW = 300f;
+        private const float StripMaxW = 300f;
+        private const float StripGap = 4f;
+        private const float StripPadX = 8f;
+        private const float StripPadY = 4f;
+        private const float StripTitleGap = 10f;
 
         /// <summary>topY 由调用方给。钉住条先摆，标注带再绕着它排（见 AnnotationDrawer.LayoutSceneBand）。</summary>
         public static Rect StripRect(float topY)
         {
             Rect safe = UIScale.SafeArea;
-            float w = Mathf.Min(StripW, safe.width - 32f);
+            float w = Mathf.Min(StripMaxW, safe.width - 32f);
             return new Rect(safe.x + 16f, topY, w, 0f);
         }
 
+        /// <summary>画所有钉住的线，返回它们叠起来占的那一块（没有就是空矩形）。</summary>
         public static Rect DrawPinStrip(SSNoirGameManager gameManager, float topY)
         {
-            var entry = Pinned(gameManager);
-            if (entry == null) return new Rect(0f, 0f, 0f, 0f);
+            var pinned = PinnedEntries(gameManager);
+            if (pinned.Count == 0) return new Rect(0f, 0f, 0f, 0f);
 
-            Rect frame = StripRect(topY);
-            float padX = 12f;
-            float innerW = frame.width - padX * 2f;
-
-            var titleStyle = new GUIStyle(IMGUIStyles.StatusLabel)
+            Rect union = new Rect(0f, 0f, 0f, 0f);
+            float y = topY;
+            foreach (var entry in pinned)
             {
-                fontSize = IMGUIStyles.FontSize(14),
-                alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = IMGUIStyles.Gold }
-            };
-            var nowStyle = new GUIStyle(IMGUIStyles.StatusLabel)
-            {
-                fontSize = IMGUIStyles.FontSize(13),
-                fontStyle = FontStyle.Normal,
-                alignment = TextAnchor.UpperLeft,
-                wordWrap = true,
-                normal = { textColor = IMGUIStyles.TextPrimary }
-            };
+                var frame = DrawOneStrip(entry, y);
+                union = union.width <= 0f ? frame : Rect.MinMaxRect(
+                    Mathf.Min(union.xMin, frame.xMin), Mathf.Min(union.yMin, frame.yMin),
+                    Mathf.Max(union.xMax, frame.xMax), Mathf.Max(union.yMax, frame.yMax));
+                y = frame.yMax + StripGap;
+            }
+            return union;
+        }
 
-            float nowH = string.IsNullOrEmpty(entry.Now)
-                ? 0f
-                : nowStyle.CalcHeight(new GUIContent(entry.Now), innerW);
-            float clockH = entry.Clocks.Count > 0 ? ClocksHeight(entry.Clocks, innerW) + 6f : 0f;
-            float h = 10f + 20f + nowH + clockH + 10f;
-            frame = UIScale.PixelSnap(new Rect(frame.x, frame.y, frame.width, h));
+        private static GUIStyle StripTitleStyle() => new GUIStyle(IMGUIStyles.StatusLabel)
+        {
+            fontSize = IMGUIStyles.FontSize(13),
+            alignment = TextAnchor.UpperLeft,
+            wordWrap = false,
+            normal = { textColor = IMGUIStyles.Gold }
+        };
+
+        private static GUIStyle StripNowStyle() => new GUIStyle(IMGUIStyles.StatusLabel)
+        {
+            fontSize = IMGUIStyles.FontSize(13),
+            fontStyle = FontStyle.Normal,
+            alignment = TextAnchor.UpperLeft,
+            wordWrap = true,
+            normal = { textColor = IMGUIStyles.TextPrimary }
+        };
+
+        /// <summary>地图上那一句：有清单就是当前那一项，没有就是那句「现在」。</summary>
+        private static string StripLine(DossierEntry entry)
+        {
+            foreach (var step in entry.Steps)
+                if (!step.Done) return step.Text;
+            return entry.Now;
+        }
+
+        private static Rect DrawOneStrip(DossierEntry entry, float topY)
+        {
+            Rect bounds = StripRect(topY);
+            var titleStyle = StripTitleStyle();
+            var nowStyle = StripNowStyle();
+            string line = StripLine(entry);
+
+            float titleW = titleStyle.CalcSize(new GUIContent(entry.Id)).x;
+            float lineH = Mathf.Max(titleStyle.lineHeight, nowStyle.lineHeight);
+            float nowX = titleW + StripTitleGap;
+            float nowMaxW = bounds.width - StripPadX * 2f - nowX;
+            float nowW = 0f, nowH = 0f;
+            if (!string.IsNullOrEmpty(line))
+            {
+                nowW = Mathf.Min(nowStyle.CalcSize(new GUIContent(line)).x, nowMaxW);
+                nowH = nowStyle.CalcHeight(new GUIContent(line), nowW);
+            }
+            float textW = nowW > 0f ? nowX + nowW : titleW;
+            float textH = Mathf.Max(lineH, nowH);
+
+            float clockH = entry.Clocks.Count > 0 ? ClocksHeight(entry.Clocks, bounds.width - StripPadX * 2f) : 0f;
+            float clockW = 0f;
+            if (clockH > 0f)
+            {
+                foreach (var c in entry.Clocks)
+                    clockW += Mathf.Min(CardDrawer.MeasureClockBadge(c), bounds.width - StripPadX * 2f) + ClockGap;
+                clockW = Mathf.Min(clockW - ClockGap, bounds.width - StripPadX * 2f);
+            }
+
+            float w = Mathf.Max(textW, clockW) + StripPadX * 2f;
+            float h = StripPadY * 2f + textH + (clockH > 0f ? 4f + clockH : 0f);
+            Rect frame = UIScale.PixelSnap(new Rect(bounds.x, bounds.y, w, h));
 
             GUI.color = IMGUIStyles.HudBg;
             GUI.DrawTexture(frame, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            IMGUIStyles.DrawOutline(frame, 1f,
-                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.30f));
 
-            float y = frame.y + 8f;
-            IMGUIStyles.DrawLabel(new Rect(frame.x + padX, y, innerW, 20f), entry.Id, titleStyle);
-            y += 20f;
-
-            if (nowH > 0f)
-            {
-                IMGUIStyles.DrawLabel(new Rect(frame.x + padX, y, innerW, nowH), entry.Now, nowStyle);
-                y += nowH;
-            }
-
+            float x = frame.x + StripPadX;
+            float y = frame.y + StripPadY;
+            IMGUIStyles.DrawLabel(new Rect(x, y, titleW, lineH), entry.Id, titleStyle);
+            if (nowW > 0f)
+                IMGUIStyles.DrawLabel(new Rect(x + nowX, y, nowW, nowH), line, nowStyle);
             if (clockH > 0f)
-            {
-                y += 6f;
-                DrawClocks(new Rect(frame.x + padX, y, innerW, clockH - 6f), entry.Clocks);
-            }
+                DrawClocks(new Rect(x, y + textH + 4f, frame.width - StripPadX * 2f, clockH), entry.Clocks);
 
             return frame;
         }
 
-        // 钉住状态有三种，不是两种：
-        //   ""   还没表过态 —— 自动钉第一条还没了结的委托。新玩家不必先发现"钉住"这个
-        //        功能才看得见交割日；地图上那两个数是他每天要照着做决定的东西。
-        //   "无" 他主动取消了 —— 就真的什么也不显示，不许自动弹回来。
-        //   别的  他自己选的那条。
-        // 面板里的钉子画的是**实际生效**的那条（自动选中的也画成实心），否则就会出现
-        // 你看到的那种自相矛盾：条目上是空心的，地图上却挂着它。
-        private const string PinNone = "无";
+        // ── 子项清单 ─────────────────────────────────────────────────────
+        //
+        // 卷宗不知道未来：清单只列到当前那一项为止——做过的划掉，正在做的照常写，
+        // 后面的一行不露。列出来的是「走到哪了」，不是这一节的攻略。
+        // 一行一项，前面一个短横，缩进半格；不打勾也不画圈（那像清单，这是记事）。
+        // 划线只划第一行——文案本来就该一行写完，换了行是文案的问题，不是版面的。
 
-        public static string EffectivePinId(SSNoirGameManager gameManager)
+        private const string StepMark = "–";
+        private const float StepIndent = 14f;
+        private const float StepGap = 2f;
+
+        /// <summary>做过的加当前那一项；后面的还没发生，不给玩家看。</summary>
+        private static List<DossierStep> VisibleSteps(IReadOnlyList<DossierStep> steps)
         {
-            var entry = Pinned(gameManager);
-            return entry == null ? string.Empty : entry.Id;
+            var result = new List<DossierStep>();
+            foreach (var step in steps)
+            {
+                result.Add(step);
+                if (!step.Done) break;
+            }
+            return result;
         }
 
-        /// <summary>钉住的那条线。没表过态就取第一条还没了结的委托；主动取消过就没有。</summary>
-        public static DossierEntry? Pinned(SSNoirGameManager gameManager)
+        private static GUIStyle PanelStepStyle() => new GUIStyle(IMGUIStyles.ModalBody)
         {
-            var dossier = gameManager.DisplayedSnapshot.Dossier;
-            if (dossier.Count == 0) return null;
+            fontSize = IMGUIStyles.FontSize(14),
+            alignment = TextAnchor.UpperLeft,
+            wordWrap = true,
+        };
 
-            string pin = gameManager.GameState.Get<string>(SceneManager.DossierPinKey, string.Empty);
-            if (pin == PinNone) return null;
+        private static float StepsHeight(IReadOnlyList<DossierStep> steps, float width, GUIStyle style)
+        {
+            float h = 0f;
+            float textW = width - StepIndent;
+            foreach (var step in VisibleSteps(steps))
+                h += style.CalcHeight(new GUIContent(step.Text), textW) + StepGap;
+            return h;
+        }
 
-            if (!string.IsNullOrEmpty(pin))
+        private static void DrawSteps(Rect rect, IReadOnlyList<DossierStep> steps, GUIStyle style,
+            Color openColor, Color doneColor)
+        {
+            float textW = rect.width - StepIndent;
+            float y = rect.y;
+            var markStyle = new GUIStyle(style) { wordWrap = false, alignment = TextAnchor.UpperCenter };
+            foreach (var step in VisibleSteps(steps))
             {
-                foreach (var e in dossier)
-                    if (e.Id == pin && !e.IsClosed) return e;
-                // 钉着的那条已经不在卷宗里了，或者自己了结了（不是玩家主动取消）——退回自动。
+                float h = style.CalcHeight(new GUIContent(step.Text), textW);
+                Color color = step.Done ? doneColor : openColor;
+                style.normal.textColor = color;
+                markStyle.normal.textColor = color;
+                IMGUIStyles.DrawLabel(new Rect(rect.x, y, StepIndent, h), StepMark, markStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x + StepIndent, y, textW, h), step.Text, style);
+                if (step.Done)
+                {
+                    float lineH = style.lineHeight > 0f ? style.lineHeight : h;
+                    float w = Mathf.Min(style.CalcSize(new GUIContent(step.Text)).x, textW);
+                    float midY = y + lineH * 0.55f;
+                    IMGUIStyles.DrawLine(new Vector2(rect.x + StepIndent, midY),
+                        new Vector2(rect.x + StepIndent + w, midY), color, 1f);
+                }
+                y += h + StepGap;
             }
+        }
 
-            // 没表过态时的默认：当前这一章的主线优先，其次才是委托、再其次任何还没了结的线。
-            // 主线是玩家「这一章到底在干什么」的那一句，它不该被一条人物线挤下地图。
-            foreach (var e in dossier)
-                if (!e.IsClosed && e.Kind == "主线") return e;
-            foreach (var e in dossier)
-                if (!e.IsClosed && e.Kind == "委托") return e;
-            foreach (var e in dossier)
-                if (!e.IsClosed) return e;
-            return null;
+        // 钉住是默认，取消才需要表态：新接的线不必先被发现"钉住"这个功能就上了地图，
+        // 玩家每天照着做决定的那几个数一开始就在眼前。取消过的记在存档里，不许自动弹回来；
+        // 了结的线自己退下地图，不占取消名额。以前是「只钉一条、默认第一条」——
+        // 于是地图上老挂着一条玩家没选过的线，和面板里的钉子对不上。
+        private static HashSet<string> Unpinned(SSNoirGameManager gameManager)
+        {
+            string raw = gameManager.GameState.Get<string>(SceneManager.DossierUnpinnedKey, string.Empty);
+            var set = new HashSet<string>();
+            foreach (var id in raw.Split('\n'))
+                if (!string.IsNullOrEmpty(id)) set.Add(id);
+            return set;
+        }
+
+        public static bool IsPinned(SSNoirGameManager gameManager, DossierEntry e)
+            => !e.IsClosed && !Unpinned(gameManager).Contains(e.Id);
+
+        /// <summary>钉住的线，按卷宗顺序（主要在前，每组内主线 → 委托 → 人物/城市）。</summary>
+        public static List<DossierEntry> PinnedEntries(SSNoirGameManager gameManager)
+        {
+            var result = new List<DossierEntry>();
+            var unpinned = Unpinned(gameManager);
+            foreach (var e in Ordered(gameManager.DisplayedSnapshot.Dossier))
+                if (!e.IsClosed && !unpinned.Contains(e.Id))
+                    result.Add(e);
+            return result;
+        }
+
+        private static void TogglePin(SSNoirGameManager gameManager, string id)
+        {
+            var unpinned = Unpinned(gameManager);
+            if (!unpinned.Remove(id))
+                unpinned.Add(id);
+            gameManager.SceneManager.SetDossierUnpinned(unpinned);
         }
 
         // ── 面板 ─────────────────────────────────────────────────────────
@@ -190,7 +294,7 @@ namespace SSNoir.IMGUI
             var ordered = Ordered(dossier);
             float contentH = 0f;
             foreach (var e in ordered)
-                contentH += MeasureEntry(e, viewport.width - 16f) + 10f;
+                contentH += MeasureEntry(e, viewport.width - 16f) + 6f;
 
             _scroll = GUI.BeginScrollView(viewport, _scroll,
                 new Rect(0f, 0f, viewport.width - 16f, contentH));
@@ -202,39 +306,47 @@ namespace SSNoir.IMGUI
                 float h = MeasureEntry(e, viewport.width - 16f);
                 var row = new Rect(0f, y, viewport.width - 16f, h);
                 DrawEntry(row, e, gameManager, ui, viewport, ref toggledPin, ref toggledExpand);
-                y += h + 10f;
+                y += h + 6f;
             }
             GUI.EndScrollView();
 
             if (!string.IsNullOrEmpty(toggledPin))
-            {
-                // 点实际生效的那条＝取消钉住（记成「无」，不让它自动弹回来）；否则改钉这条。
-                bool wasEffective = EffectivePinId(gameManager) == toggledPin;
-                gameManager.SceneManager.SetDossierPin(wasEffective ? PinNone : toggledPin);
-            }
+                TogglePin(gameManager, toggledPin);
             if (!string.IsNullOrEmpty(toggledExpand))
                 _expandedId = _expandedId == toggledExpand ? string.Empty : toggledExpand;
         }
 
-        // 主线在最前，委托其次，人物/城市再次，了结的沉到最后。
+        // 主要在前，次要在后，了结的沉到最后。每组内部仍按 kind（主线 → 委托 → 人物/城市）。
         // 玩家不必自己在一串里翻找还在办的事，更不必翻找这一章的主轴。
         private static List<DossierEntry> Ordered(IReadOnlyList<DossierEntry> dossier)
         {
-            var main = new List<DossierEntry>();
-            var open = new List<DossierEntry>();
-            var others = new List<DossierEntry>();
+            var primaryMain = new List<DossierEntry>();
+            var primaryOpen = new List<DossierEntry>();
+            var primaryOthers = new List<DossierEntry>();
+            var secondaryMain = new List<DossierEntry>();
+            var secondaryOpen = new List<DossierEntry>();
+            var secondaryOthers = new List<DossierEntry>();
             var closed = new List<DossierEntry>();
             foreach (var e in dossier)
             {
                 if (e.IsClosed) closed.Add(e);
-                else if (e.Kind == "主线") main.Add(e);
-                else if (e.Kind == "委托") open.Add(e);
-                else others.Add(e);
+                else
+                {
+                    var bucket = e.IsPrimary
+                        ? (e.Kind == "主线" ? primaryMain : e.Kind == "委托" ? primaryOpen : primaryOthers)
+                        : (e.Kind == "主线" ? secondaryMain : e.Kind == "委托" ? secondaryOpen : secondaryOthers);
+                    bucket.Add(e);
+                }
             }
-            main.AddRange(open);
-            main.AddRange(others);
-            main.AddRange(closed);
-            return main;
+            var result = new List<DossierEntry>();
+            result.AddRange(primaryMain);
+            result.AddRange(primaryOpen);
+            result.AddRange(primaryOthers);
+            result.AddRange(secondaryMain);
+            result.AddRange(secondaryOpen);
+            result.AddRange(secondaryOthers);
+            result.AddRange(closed);
+            return result;
         }
 
         private static GUIStyle NameStyle(bool closed) => new GUIStyle(IMGUIStyles.ModalBody)
@@ -259,17 +371,19 @@ namespace SSNoir.IMGUI
         };
 
         private const float PinW = 26f;
-        private const float RowPad = 10f;
+        private const float RowPad = 6f;
 
         private static float MeasureEntry(DossierEntry e, float width)
         {
             float textW = width - PinW - RowPad * 2f;
-            float h = RowPad + 22f;                                   // 名字那一行
+            float h = RowPad + 20f;                                   // 名字那一行
             if (!string.IsNullOrEmpty(e.Now))
-                h += NowStyle(e.IsClosed).CalcHeight(new GUIContent(e.Now), textW) + 4f;
+                h += NowStyle(e.IsClosed).CalcHeight(new GUIContent(e.Now), textW) + 2f;
+            if (e.Steps.Count > 0)
+                h += StepsHeight(e.Steps, textW, PanelStepStyle()) + 2f;
             if (e.Clocks.Count > 0)
                 h += ClocksHeight(e.Clocks, textW) + 6f;
-            if (!string.IsNullOrEmpty(e.Where) || e.Log.Count > 0)
+            if (e.Log.Count > 0)
                 h += 18f;
             if (_expandedId == e.Id && e.Log.Count > 0)
             {
@@ -316,17 +430,17 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLine(new Vector2(row.x, row.yMax), new Vector2(row.xMax, row.yMax),
                 new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.16f), 1f);
 
-            bool isPinned = EffectivePinId(gameManager) == e.Id;
+            bool isPinned = IsPinned(gameManager, e);
 
             float textX = row.x + PinW;
             float textW = row.width - PinW - RowPad;
             float y = row.y + RowPad;
 
-            // 钉子。了结的条目只是履历回顾，钉在地图上没有意义——不画、也不接受点击。
+            // 钉子。已完成的条目只是回顾，钉在地图上没有意义——不画、也不接受点击。
             // 滚动视图里的坐标是本地的，命中测试要换算回屏幕坐标再问 ui。
             if (!e.IsClosed)
             {
-                var pinRect = new Rect(row.x, y, PinW - 4f, 22f);
+                var pinRect = new Rect(row.x, y, PinW - 4f, 20f);
                 var pinScreen = new Rect(pinRect.x + viewport.x - _scroll.x, pinRect.y + viewport.y - _scroll.y,
                     pinRect.width, pinRect.height);
                 var pinStyle = new GUIStyle(IMGUIStyles.ModalBody)
@@ -337,22 +451,36 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawLabel(pinRect, isPinned ? "◆" : "◇", pinStyle);
                 if (ui.WasTapped(pinScreen))
                 {
-                    toggledPin = e.Id;   // 点已经钉住的那条＝取消钉住，见调用处
+                    toggledPin = e.Id;   // 钉住 ↔ 取消
                     Event.current.Use();
                 }
             }
 
-            IMGUIStyles.DrawLabel(new Rect(textX, y, textW - 90f, 22f), e.Id, NameStyle(e.IsClosed));
-            IMGUIStyles.DrawLabel(new Rect(row.xMax - 88f, y, 88f, 22f), e.Status,
+            IMGUIStyles.DrawLabel(new Rect(textX, y, textW - 140f, 20f), e.Id, NameStyle(e.IsClosed));
+            // 「进行中」是常态，不值得写；只有等人和了结才是信息。
+            // 内部状态叫「了结」，给玩家看就写「已完成」。
+            string tierStatus = e.Status == "进行中"
+                ? (e.IsPrimary ? "主要" : "次要")
+                : $"{(e.IsPrimary ? "主要" : "次要")} · {(e.IsClosed ? "已完成" : e.Status)}";
+            IMGUIStyles.DrawLabel(new Rect(row.xMax - 138f, y, 138f, 20f), tierStatus,
                 new GUIStyle(MetaStyle()) { alignment = TextAnchor.MiddleRight });
-            y += 22f;
+            y += 20f;
 
             if (!string.IsNullOrEmpty(e.Now))
             {
                 var nowStyle = NowStyle(e.IsClosed);
                 float h = nowStyle.CalcHeight(new GUIContent(e.Now), textW);
                 IMGUIStyles.DrawLabel(new Rect(textX, y, textW, h), e.Now, nowStyle);
-                y += h + 4f;
+                y += h + 2f;
+            }
+
+            if (e.Steps.Count > 0)
+            {
+                float stepsH = StepsHeight(e.Steps, textW, PanelStepStyle());
+                DrawSteps(new Rect(textX, y, textW, stepsH), e.Steps, PanelStepStyle(),
+                    e.IsClosed ? IMGUIStyles.PaperTextSecondary : IMGUIStyles.PaperTextPrimary,
+                    IMGUIStyles.PaperTextDisabled);
+                y += stepsH + 2f;
             }
 
             if (e.Clocks.Count > 0)
@@ -362,19 +490,16 @@ namespace SSNoir.IMGUI
                 y += clocksH + 6f;
             }
 
-            if (!string.IsNullOrEmpty(e.Where) || e.Log.Count > 0)
+            // 地点不写：钉住条与地图标签已经说了该去哪，这里再写一遍是废字。
+            if (e.Log.Count > 0)
             {
-                string meta = string.IsNullOrEmpty(e.Where) ? string.Empty : e.Where;
-                IMGUIStyles.DrawLabel(new Rect(textX, y, textW - 120f, 18f), meta, MetaStyle());
-
-                if (e.Log.Count > 0)
                 {
                     var moreRect = new Rect(row.xMax - 118f, y, 118f, 18f);
                     var moreScreen = new Rect(moreRect.x + viewport.x - _scroll.x,
                         moreRect.y + viewport.y - _scroll.y, moreRect.width, moreRect.height);
                     bool expanded = _expandedId == e.Id;
                     IMGUIStyles.DrawLabel(moreRect,
-                        expanded ? "收起履历 ▴" : $"履历 {e.Log.Count} 条 ▾",
+                        expanded ? "收起 ▴" : $"记录 {e.Log.Count} 条 ▾",
                         new GUIStyle(MetaStyle()) { alignment = TextAnchor.MiddleRight });
                     if (ui.WasTapped(moreScreen))
                     {

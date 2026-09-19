@@ -94,57 +94,39 @@
 
 (define (跟紧节点)
   (roll-action "跟紧" (list (req-die)) 'sharpness
-    (outcome "被他察觉"
-      (lambda ()
+    (outcome (lambda ()
         (暴露 'advance! 1)
         (spend-actor-composure! 'player 1)
-        (result-note! "没有咬住，暴露增加")
         (检查暴露!)))
-    (outcome "勉强跟上"
-      (lambda ()
+    (outcome (lambda ()
         (咬住踪迹 'advance! 1)
-        (spend-actor-composure! 'player 1)
-        (result-note! "本幕推进 1 格")))
-    (outcome "稳稳跟住"
-      (lambda ()
-        (咬住踪迹 'advance! 2)
-        (result-note! "本幕推进 2 格")))))
+        (spend-actor-composure! 'player 1)))
+    (outcome (lambda ()
+        (咬住踪迹 'advance! 2)))))
 
 (define (低风险跟进节点)
   (roll-action "低风险跟进" (list (req-die)) 'sharpness
-    (outcome "没有跟上"
-      (lambda ()
-        (spend-actor-composure! 'player 1)
-        (result-note! "没有咬住踪迹")))
-    (outcome "勉强吊住"
-      (lambda ()
+    (outcome (lambda ()
+        (spend-actor-composure! 'player 1)))
+    (outcome (lambda ()
         (咬住踪迹 'advance! 1)
-        (spend-actor-composure! 'player 1)
-        (result-note! "本幕推进 1 格")))
-    (outcome "保持距离"
-      (lambda ()
-        (咬住踪迹 'advance! 1)
-        (result-note! "本幕推进 1 格")))))
+        (spend-actor-composure! 'player 1)))
+    (outcome (lambda ()
+        (咬住踪迹 'advance! 1)))))
 
 (define (获取情报节点)
   (roll-action "获取情报" (list (req-die)) 'sharpness
-    (outcome "险些惊动他"
-      (lambda ()
+    (outcome (lambda ()
         (暴露 'advance! 1)
         (spend-actor-composure! 'player 1)
-        (result-note! "没有咬住，暴露增加")
         (检查暴露!)))
-    (outcome "只顾着跟上"
-      (lambda ()
+    (outcome (lambda ()
         (咬住踪迹 'advance! 1)
-        (spend-actor-composure! 'player 1)
-        (result-note! "本幕推进 1 格")))
-    (outcome "看清了细节"
-      (lambda ()
+        (spend-actor-composure! 'player 1)))
+    (outcome (lambda ()
         (咬住踪迹 'advance! 2)
         (add-item! "情报" 1)
-        (set! 本幕拿过情报? #t)
-        (result-note! "本幕推进 2 格")))))
+        (set! 本幕拿过情报? #t)))))
 
 (define (低风险可用?)
   (or (= 路段 0) (= 路段 2) (= 路段 3)))
@@ -189,8 +171,9 @@
 (define (on-encounter-enter)
   (set! 路段 0)
   (set! 已结束? #f)
-  (踪迹 'set! 3)
-  (暴露 'set! 0)
+  ;; 交锋初始盘面不是玩家造成的 Clock 变化，不写入场报告的效果条（同 失控的机械）。
+  (踪迹 'load! 3)
+  (暴露 'load! 0)
   (重置本幕!)
   (play-dialogue!
     (line "世界" "下午四点，剧院后巷。一个瘦男人从门房手里接过信封。")

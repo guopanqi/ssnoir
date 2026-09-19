@@ -37,14 +37,10 @@ namespace SSNoir.Core
         // 决定物品格是画数字还是画容量刻度——不是给每个格子都加一层容量。
         // 内容侧的表在 engine.scm 的 item-capacities。
         public IReadOnlyDictionary<string, int> ItemCapacities { get; init; } = new Dictionary<string, int>();
-        // 圈内声誉（老码头 / 商业圈）的底层整数值。
-        public IReadOnlyDictionary<string, int> Relations { get; init; } = new Dictionary<string, int>();
-        // 内容层配置的声誉档解锁诱饵，键为“圈子:通用档名”（如“老码头:信任”）。
-        public IReadOnlyDictionary<string, string> RelationUnlocks { get; init; } = new Dictionary<string, string>();
-        // 内容层配置的各圈子对正面三档的定制称呼，键同上（如“老码头:信任”→“够朋友”）。
-        public IReadOnlyDictionary<string, string> RelationBandNames { get; init; } = new Dictionary<string, string>();
         // 卷宗：城里所有故事线各自的「现在」。交锋里为空——那时候没有别的线可想。
         public IReadOnlyList<DossierEntry> Dossier { get; init; } = new List<DossierEntry>();
+        // 关系支援：已经拿到的每一条，和这一场带着哪一条。成长面板里选。
+        public IReadOnlyList<SupportEntry> Supports { get; init; } = new List<SupportEntry>();
         public IReadOnlyList<ActorSnapshot> Actors { get; init; } = new List<ActorSnapshot>();
         // 交锋里只有主角行动（同伴不发骰），客户端据此决定是否隐藏同伴的人物簇。
         public bool IsInEncounter { get; init; }

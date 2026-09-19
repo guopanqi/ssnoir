@@ -8,30 +8,24 @@
 (define grand-hotel
   (let ()
     ;; 这里的工作不是搬运，而是替客人把尴尬的事情不动声色地处理掉。
+    ;; 曾经给 45/28/扣冷静：一班抵一期房租，严格压过城里所有别的工，玩家从此只来这儿。
+    ;; 上城的钱不是白拿的：办砸了客人不只不付，还要你赔——挑剔的人翻脸就是账单。
+    ;; 好结果比码头夜班高一点、不伤身；坏结果是全城唯一会倒扣钱的工。
+    (define 赔付 15)
     (define (node-fix-problem)
-      (关系工作 "替客人解围" "商业圈" '低 'social
-        (outcome "没留下痕迹"
-          (lambda () (add-item! "金钱" 45)))
-        (outcome "事情办完了"
-          (lambda () (add-item! "金钱" 28)))
-        (outcome "话传了出去"
-          (lambda () (spend-composure! 2)))
-        "大厅里的委托：找东西、送口信、让人离开"
+      (工作 "替客人解围" '低 'social
+        (outcome (lambda () (add-item! "金钱" 30)))
+        (outcome (lambda () (add-item! "金钱" 18)))
+        (outcome (lambda ()
+            (remove-item! "金钱" (min 赔付 (item-count "金钱")))
+            (spend-composure! 2)))
+        "大厅里的委托：找东西、送口信、让人离开；办砸了要赔"
         :anchor "格兰德酒店-大厅"))
 
-    ;; 留意谁在等谁，是这个地点自己的日常玩法；消费和恢复留给后续的专门地点。
-    (define (node-watch-lobby)
-      (at-anchor "格兰德酒店-大厅"
-       (roll-action "留意大厅" (list (req-die)) 'knowledge
-        (outcome "只看见人来人往"
-          (lambda () (spend-actor-composure! 'player 1)))
-        (outcome "记住了几张脸"
-          (lambda () (result-note! "知道他们常坐哪儿")))
-        (outcome "听懂了一段话"
-          (lambda () (add-item! "情报" 1))))))
-
+    ;; 大堂不产情报：情报只在交锋里拿得到（见 报社.scm 卖消息那一段），
+    ;; 城里能刷的话它就不稀缺了。消费和恢复留给后续的专门地点。
     (define (children)
-      (append (list (node-fix-problem) (node-watch-lobby))
+      (append (list (node-fix-problem))
               (地点节点 "格兰德酒店")))
 
     (lambda args

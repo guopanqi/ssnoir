@@ -94,13 +94,10 @@
     :resolve (roll 'violence
       ;; 打空了不是白打一回：他顺势还你一下。扣的是冷静，不是拨快他的出手钟——
       ;; 代价当场结清，不改变"他还有几回合出手"这个玩家正在算的数。
-      (outcome "被他挡开"
-        (lambda ()
+      (outcome (lambda ()
           (spend-actor-composure! 'player 1)))
-      (outcome "一拳打实"
-        (lambda () (hit-enemy! life 1 down-line)))
-      (outcome "把他打翻"
-        (lambda () (hit-enemy! life 2 down-line))))))
+      (outcome (lambda () (hit-enemy! life 1 down-line)))
+      (outcome (lambda () (hit-enemy! life 2 down-line))))))
 
 (define (node-coat)
   (enemy-node "对付皮夹克" "个子最大，挨打后仍能站住"
@@ -130,15 +127,16 @@
 (define (on-encounter-enter)
   (set! finished? #f)
   (set! round-count 0)
-  (eddie-clk 'set! eddie-rounds)
+  ;; 交锋初始盘面不是玩家造成的 Clock 变化，不写入场报告的效果条（同 失控的机械）。
+  (eddie-clk 'load! eddie-rounds)
   ;; 起手蓄力错开，头两回合各只挨一记轻的；皮夹克那一下落在第三回合末——
   ;; 到那时你已经打了三轮，该决定的事早就该决定了。
-  (coat-life 'set! coat-life-max)
-  (coat-attack 'set! 3)      ; 满蓄力起步：第三回合末才落下
-  (hat-life 'set! hat-life-max)
-  (hat-attack 'set! 1)       ; 下一回合末就啄你一下
-  (sleeves-life 'set! sleeves-life-max)
-  (sleeves-attack 'set! 2)
+  (coat-life 'load! coat-life-max)
+  (coat-attack 'load! 3)      ; 满蓄力起步：第三回合末才落下
+  (hat-life 'load! hat-life-max)
+  (hat-attack 'load! 1)       ; 下一回合末就啄你一下
+  (sleeves-life 'load! sleeves-life-max)
+  (sleeves-attack 'load! 2)
   (play-dialogue!
     (line "世界" "酒馆侧墙那条巷子。三个人围着一个，靠墙那个已经不还手了。")
     (line "打人的" "不是说好第四回合吗。")

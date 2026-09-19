@@ -60,6 +60,16 @@ namespace SSNoir.IMGUI
                 Label = "Phase B（林：核心）",
                 Code = "(debug-enter-chapter2-phase-b-lin-core!)"
             },
+            // 不是跳章：只把一段带舞台指示的对白演一遍，不改任何故事状态。
+            new ChapterJump
+            {
+                Label = "舞台试演：桥廊之后",
+                Code = "(three-letters 'debug-stage-bridge!)"
+            },
+            // 下面三个是审核期临时入口，审完删。
+            new ChapterJump { Label = "舞台试演：开场委托", Code = "(three-letters 'debug-stage-commission!)" },
+            new ChapterJump { Label = "舞台试演：她不取消", Code = "(three-letters 'debug-stage-refusal!)" },
+            new ChapterJump { Label = "舞台试演：尾声", Code = "(three-letters 'debug-stage-closing!)" },
         };
 
         private static void RunChapterJump(SSNoirGameManager gameManager, string code)
@@ -111,6 +121,7 @@ namespace SSNoir.IMGUI
             y += 6f + 22f; // 过场测试标题及列表起点
             y += Mathf.Max(_sequences.Count, 1) * ItemH;
             y += 6f + 22f + ChapterJumps.Length * ItemH; // 章节跳转
+            y += 6f + 22f + ItemH; // 资源调试
             y += 6f + 4f + ItemH * 0.5f; // 场景标题及列表起点
             y += _scenes.Count * ItemH;
             return y + 8f;
@@ -340,6 +351,25 @@ namespace SSNoir.IMGUI
                 }
             }
             cutsceneListY = chapterY + ChapterJumps.Length * itemH;
+
+            // 资源调试
+            float resourceSepY = cutsceneListY + 6f;
+            IMGUIStyles.DrawLine(new Vector2(panelX + 8, resourceSepY), new Vector2(panelX + panelW - 8, resourceSepY),
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8, resourceSepY + 2f, panelW, 18f), "资源调试", mutedStyle);
+
+            float resourceRowY = resourceSepY + 22f;
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8f, resourceRowY + 2f, 120f, 22f),
+                "金钱", cameraLabelStyle);
+            var resourceBorder = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
+            var resourceFill = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
+            if (IMGUIButton.Draw(new Rect(panelX + panelW - 8f - 76f, resourceRowY + 2f, 76f, 22f),
+                    "+100", contentUi, resourceBorder, resourceFill, labelStyle))
+            {
+                gameManager.AddDebugMoney(100);
+            }
+
+            cutsceneListY = resourceRowY + itemH;
 
             // Scene switch section
             sepY = cutsceneListY + 6f;

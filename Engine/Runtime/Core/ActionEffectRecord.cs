@@ -10,7 +10,7 @@ namespace SSNoir.Core
         Relation,
         Growth,
         Clock,
-        Note
+        Supplement   // 内容补的一行说明，不对应任何数值变化
     }
 
     public enum ActionEffectTone

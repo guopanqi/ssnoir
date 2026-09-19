@@ -105,6 +105,27 @@ Orbit 相机必须满足：
 - 语义对象的作用域就是它的父节点（所属 Prefab 的根），不向上爬：Anchor 在同根内优先绑定精确名称 `Camera_<锚点名>_VCam`，找不到时回退到同根的主相机 `Camera_<根名>_VCam`；相机只在同根直接子级里找 orbit pivot。嵌套 Prefab（酒馆里的后巷）因此各用各的相机与 pivot。
 - `SceneDirectory` 以空间锚点名为字典键。重复锚点名会记录错误并 assert/throw，禁止在场景中创建重复 Anchor。
 - 没有下划线或下划线后为空会得到空 NodeName，不会进入有效目录。
+- **Stage 的身份是节点名，不是 `:anchor`**（`SSNoirGameManager.ResolveStageAnchor`）：导航路径里某个节点的
+  `Anchor_<节点名>` 挂着 `StagePortalConfig`（由同名 `PortalIn_<名>` 导入时挂上），站在它里面就是在那个 Stage
+  里，镜头取 `Anchor_<节点名>` 的根机位。`:anchor` 只决定这张门卡挂在城市里的哪儿：家的「租屋」卡挂 `门口`，
+  门后的空间在郊野的 Stage 里，两者不可能同一个锚点。交锋根容器名就是场景名，对交锋这条规则没有新东西。
+
+### 随卡显隐（`随卡_<锚点名>`）
+
+来源：`CityOutlineState.cs`（解析与开关）、`SSNoirGameManager.cs`（每次快照落地喂当前锚点集）、
+`city-box/pipeline/outline.py`（生成）、`city-box/pipeline/export.py`（校验）
+
+买回来的家具这类"游戏状态决定在不在"的物件，不走独立状态通道，借渲染树：
+
+- Blender 里给对象标 `presence = "<锚点名>"`。构建把同一锚点的件收进 `内部_<Prefab>/随卡_<锚点名>`
+  节点，并单独出一份线 `描线_随卡_<Prefab>_<锚点名>` 挂在同一节点下；这些件不并进 `描线_focus_<名>`。
+- 运行时规则只有一条：**当前渲染树里有任何节点的有效锚点（`:anchor`，缺省为节点名）等于
+  `<锚点名>`，节点显示；否则隐藏。** 脚本"买了就多渲染一张挂在那个锚点上的卡"，模型就随之出现；
+  读档天然对齐，存档不多一个字段。
+- `随卡_` 必须直接挂在 `内部_<名>` 下（没聚焦时随内部一起隐藏），锚点必须是同一 Prefab 自己的
+  `Anchor_<锚点名>`；构建校验这两条，Unity 侧再核一次父节点。
+- 是 opt-in：没标 `presence` 的家具照旧常在（吧台没卡也得在）。
+- 范例：`city-box/prefabs/src/租屋.py`（花盆随「看花」、唱片机随唱片那组卡）。
 
 ### 描边对象与材质
 

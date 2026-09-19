@@ -30,7 +30,10 @@
     ;; 顺序＝地图上的先后，别随手调。
     (地点 home)
     (地点 dock)
-    (地点 test-workshop     (lambda () (lin 'workshop-open?)))
+    ;; 工棚在第二章「工棚正在搬空」那一拍的次日才空：入场节拍里就把脚下的地点撤掉，
+    ;; 引擎会当场中断。设备和图纸搬去港务技术区后，由技术区接替它的位置
+    ;; （暂时也落在它的锚点上）。
+    (地点 test-workshop     (lambda () (and (lin 'workshop-open?) (not (林的机器 'workshop-vacated?)))))
     ;; 开场三天刻意是紧的：只有住处、码头、老街酒馆、公园。
     ;; 酒馆开着是因为夜莺在那儿唱歌——委托人必须找得到人；但酒馆内部分两批放开，
     ;; 能凭空变出钱的门路（放贷的）等老街一起开，别让它拆掉勒索款筹集的压力。
@@ -40,7 +43,7 @@
     (地点 park)
     ;; 警察局在经理拿出第二封信后的次日开放。
     (地点 police-station    (lambda () (three-letters 'police-open?)))
-    ;; 货运公司有两个合理入口：首演威胁明确，或更早替沃尔特办完核赔、由他引荐代理。
+    ;; 货运公司有两个合理入口：首演威胁明确，或第二章替沃尔特办完核赔、由他引荐代理。
     ;; **这一条现在是名不副实的，留着是为了不改第一章的行为。**
     ;; freight-open? 读的是第一章第三节那个活动窗口（story-stage=4 且首演未结算），
     ;; 首演一过它就变回假——一个会反悔的条件不该叫「你知道有这么个地方」。
@@ -51,7 +54,6 @@
                                            (walter 'can-arrange-berth?))))
     (地点 residential-district (lambda () (three-letters 'old-street-open?)))
     (地点 theater           (lambda () (three-letters 'theater-open?)))
-    (地点 insurance-company (lambda () (walter 'known?)))
     ;; 布告栏暂时收起来：第一章的钱和活已经够多，它只是又一处要玩家自己去翻的地方。
     ;; 模块仍然加载、仍然存档；第二章它会换个身份回来——家里装了电话之后，
     ;; 委托自己打上门，而不是又一块要玩家去翻的板子。

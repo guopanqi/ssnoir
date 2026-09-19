@@ -149,6 +149,7 @@
     (define (node-alley)
       (node "巷子里在打人"
         :anchor "老街酒馆"
+        :tags (list "交锋")
         :clocks (list (alley-clock))
         :subtitle "酒馆侧墙那条巷子。三个人围着一个，没人打算过去"
         :resolve (instant (lambda () (start-encounter "巷子里在打人" on-alley-result)))))
@@ -282,18 +283,15 @@
         :disabled (> warmup-seen 0)
         :requires (list (req-die))
         :resolve (roll 'sharpness
-          (outcome "你看见的是这个"
-            (lambda ()
+          (outcome (lambda ()
               (set! warmup-seen 1)
-              (result-note! (warmup-text night 1))))
-          (outcome "看出来一点"
-            (lambda ()
+              (result-supplement! (warmup-text night 1))))
+          (outcome (lambda ()
               (set! warmup-seen 2)
-              (result-note! (warmup-text night 2))))
-          (outcome "看得很清楚"
-            (lambda ()
+              (result-supplement! (warmup-text night 2))))
+          (outcome (lambda ()
               (set! warmup-seen 3)
-              (result-note! (warmup-text night 3)))))))
+              (result-supplement! (warmup-text night 3)))))))
 
     (define (node-ringside)
       (node "听场边"
@@ -301,18 +299,15 @@
         :disabled (> ringside-seen 0)
         :requires (list (req-die))
         :resolve (roll 'social
-          (outcome "你听来的是这个"
-            (lambda ()
+          (outcome (lambda ()
               (set! ringside-seen 1)
-              (result-note! (ringside-text night 1))))
-          (outcome "听来半句"
-            (lambda ()
+              (result-supplement! (ringside-text night 1))))
+          (outcome (lambda ()
               (set! ringside-seen 2)
-              (result-note! (ringside-text night 2))))
-          (outcome "有人肯跟你说"
-            (lambda ()
+              (result-supplement! (ringside-text night 2))))
+          (outcome (lambda ()
               (set! ringside-seen 3)
-              (result-note! (ringside-text night 3)))))))
+              (result-supplement! (ringside-text night 3)))))))
 
     ;; 第三夜起他认得你了。不耗行动骰，一晚一次——这是救过他换来的东西。
     ;; 第四夜的内幕也走这一张卡：他在门口等你，本身就是这晚「找他聊聊」的内容，
@@ -321,8 +316,7 @@
       (node (if (= night 4) "艾迪在门口等你" "找艾迪聊聊")
         :subtitle (if (= night 4) "不耗行动骰；他有一件事要先告诉你" "不耗行动骰；他在后面缠手")
         :resolve (instant
-          (outcome (if (= night 4) "他把话说完就进去了" "他跟你说了句实话")
-            (lambda ()
+          (outcome (lambda ()
               (set! talked? #t)
               (cond
                 ((= night 4)
@@ -334,7 +328,7 @@
                    (line "艾迪" "不常有机会。")
                    (line "尼尔" "你为什么告诉我。")
                    (line "艾迪" "你不是缺钱吗。"))
-                 (result-note! "内幕：他会在第四回合倒下。"))
+                 (result-supplement! "内幕：他会在第四回合倒下。"))
                 ((= night 3)
                  (play-dialogue!
                    (line "艾迪" "今天别买我输。")
@@ -366,8 +360,7 @@
         :disabled (big-ticket-refused? amount)
         :requires (list (req-item "金钱" amount))
         :resolve (instant
-          (outcome "票写好了"
-            (lambda ()
+          (outcome (lambda ()
               (set! bet-side side)
               (set! bet-amount amount)
               ;; 赔率写死在票上，从此不再看当天的表。
@@ -379,7 +372,7 @@
                   (rest-block! "拳赛" "你押了今晚的票，总得看完再回去睡"
                                "老街酒馆" "看比赛")
                   #f)
-              (result-note! (string-append "你押了 " (side-name side (card-night))
+              (result-supplement! (string-append "你押了 " (side-name side (card-night))
                                            " " (number->string amount) " 金。")))))))
 
     (define (node-bet-side side)
@@ -402,12 +395,12 @@
           (if (= bet-side (winner night))
               ;; 读票上写死的赔率，不读当天的表：前一天写的票就该按前一天的数赔。
               (let ((take (payout bet-amount bet-odds)))
+                ;; 金额与庄家注意的落行由引擎自动写，不复述"数了 N 金"。
                 (add-item! "金钱" take)
-                (heat-clk 'advance! (+ (bet-heat) 1))
-                (result-note! (string-append "写票的数了 " (number->string take) " 金给你。")))
+                (heat-clk 'advance! (+ (bet-heat) 1)))
               (begin
                 (heat-clk 'advance! (bet-heat))
-                (result-note! "那张票现在是一张废纸。")))))
+                (result-supplement! "那张票现在是一张废纸。")))))
 
     (define (finish-night!)
       (set! watched? #t)
@@ -513,8 +506,7 @@
       (node name
         :subtitle label
         :resolve (instant
-          (outcome "你做了个动作"
-            (lambda ()
+          (outcome (lambda ()
               (set! signal name)
               (after))))))
 
@@ -529,8 +521,7 @@
       (node "看比赛"
         :subtitle "不耗行动骰，也不再花钱"
         :resolve (instant
-          (outcome "开赛"
-            (lambda ()
+          (outcome (lambda ()
               (cond ((= night 1) (fight-1!))
                     ((= night 2) (fight-2!))
                     ((= night 3) (fight-3!))
@@ -662,8 +653,7 @@
         :anchor "码头-货堆"
         :subtitle "不耗行动骰"
         :resolve (instant
-          (outcome "他还在搬货"
-            (lambda ()
+          (outcome (lambda ()
               (set! stage 3)
               (if hand-bad?
                   (play-dialogue!
@@ -685,8 +675,7 @@
                     (line "世界" "他把箱子架回肩上，走了。")))
               ;; 码头重逢是这条线的收束。stage 5（没去巷子 / 窗口过了）不发——
               ;; 那条路上玩家什么也没经历。发点放在对白之后，否则通知被整段对白盖掉。
-              (complete-section!)
-              (result-note! "他还在码头。仅此而已。"))))))
+              (complete-task! "巷子里的人"))))))
 
     (define (reunion-open?)
       (and (= stage 2) (>= world-day (+ shut-day reunion-delay))))
@@ -743,10 +732,17 @@
     ;; 履历只记真正过去的那几夜，不记每天的输赢——那是钱的事，不是故事的事。
     (define journal (make-journal))
 
+    ;; 这条线第一章一张卡：巷子 → 拳场 → 码头重逢。码头重逢划掉那一拍发成长。
+    ;; 没插手（stage 5）就没有这张卡——那条路上玩家什么也没经历。
+    (define (steps)
+      (list (step "插手巷子里那件事" (member? stage (list 1 2 3)))
+            (step "去酒馆后面看一场" (or (> night 0) (>= stage 2)))
+            (step "码头上再见到他" (>= stage 3))))
+
     (define (dossier-entry)
       (cond
         ((= stage 1)
-         (list (dossier "地下拳场"
+         (list (dossier "巷子里的人"
                  :kind '人物
                  :status (if (fight-night?) '进行中 '等着别人)
                  :now (cond
@@ -756,22 +752,25 @@
                                            " 天")))
                  :where "老街酒馆"
                  :clocks (list (heat-clk 'render-data))
+                 :steps (steps)
                  :log (journal 'render-data))))
         ;; 只有撞上了才立卷宗。窗口开着但还没进过酒馆时，玩家根本没听说过这件事——
-        ;; 卷宗里凭空多出一条「地下拳场」，等于替他剧透一个他还没遇到的晚上。
+        ;; 卷宗里凭空多出一条卡，等于替他剧透一个他还没遇到的晚上。
         ((alley-live?)
-         (list (dossier "地下拳场"
+         (list (dossier "巷子里的人"
                  :kind '人物
                  :status '进行中
                  :now "酒馆侧墙今晚有人在挨打；只有今晚"
                  :where "老街酒馆"
+                 :steps (steps)
                  :log (journal 'render-data))))
         ((>= stage 2)
-         (list (dossier "地下拳场"
+         (list (dossier "巷子里的人"
                  :kind '人物
                  :status (if (>= stage 3) '了结 '进行中)
-                 :now (if (>= stage 3) "他走了。" "拳场查封了；过几天码头上还能碰见他")
+                 :now (if (>= stage 3) "" "拳场查封了；过几天码头上还能碰见他")
                  :where (if (>= stage 3) "" "码头")
+                 :steps (steps)
                  :log (journal 'render-data))))
         (else '())))
 

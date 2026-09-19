@@ -31,9 +31,9 @@
   (make-clock "未刊稿与退稿" 6 'gauge
     "市政、警局和港口不愿见报的消息堆在这里。"))
 
-(define (推进! clk n note)
-  (clk 'advance! n)
-  (result-note! note))
+(define (推进! clk n)
+  ;; 钟的落行由引擎自动写（"纸山 +1"这类），这里不再另写一行复述。
+  (clk 'advance! n))
 
 (define (整理动作 name anchor subtitle skill clk)
   (node name
@@ -41,14 +41,10 @@
     :subtitle subtitle
     :requires (list (req-die))
     :resolve (roll skill
-      (outcome "白费工夫"
-        (lambda ()
-          (spend-actor-composure! 'player 1)
-          (result-note! "没有理出头绪")))
-      (outcome "找到顺序"
-        (lambda () (推进! clk 1 "整理推进 1 格")))
-      (outcome "抓住规律"
-        (lambda () (推进! clk 2 "整理推进 2 格"))))))
+      (outcome (lambda ()
+          (spend-actor-composure! 'player 1)))
+      (outcome (lambda () (推进! clk 1)))
+      (outcome (lambda () (推进! clk 2))))))
 
 (define (同步阶段!)
   (cond
@@ -76,7 +72,7 @@
           (line "世界" "一只压扁的牛皮封套夹在剧院照片底下。")
           (line "尼尔" "十一点零七分。夜莺，首演。经格兰德酒店信格，转四号桌。")
           (line "世界" "封套右下角还有同一个稿号：四一七。"))
-        (result-note! "证据：11:07 收件封套"))
+        (result-supplement! "证据：11:07 收件封套"))
       #f))
 
 (define (取得校样!)
@@ -87,7 +83,7 @@
           (line "世界" "四号桌的废稿里压着稿号四一七的第一版校样。")
           (line "尼尔" "十一点三十五分。标题已经写着死亡威胁。")
           (line "尼尔" "上台时间、换装顺序——和下午那封信里一样。"))
-        (result-note! "证据：11:35 第一版校样"))
+        (result-supplement! "证据：11:35 第一版校样"))
       #f))
 
 (define (取得八卦情报!)
@@ -95,7 +91,7 @@
       (begin
         (set! 拿过八卦情报? #t)
         (add-item! "情报" 1)
-        (result-note! "找到一份可卖的名流消息"))
+        (result-supplement! "找到一份可卖的名流消息"))
       #f))
 
 (define (取得退稿情报!)
@@ -103,7 +99,7 @@
       (begin
         (set! 拿过退稿情报? #t)
         (add-item! "情报" 1)
-        (result-note! "找到一份被撤下的消息"))
+        (result-supplement! "找到一份被撤下的消息"))
       #f))
 
 (define-turn-rule "废稿里露出内容"

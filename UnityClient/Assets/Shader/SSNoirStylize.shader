@@ -39,6 +39,9 @@ Shader "SSNoir/Stylize"
             TEXTURE2D(_CrossfadeTexture);
             SAMPLER(sampler_CrossfadeTexture);
             float _CrossfadeAlpha;
+            // 世界负片：对白舞台进入负片时由 SSNoirStylizeMaterial.WorldInvert 推进来。
+            // 放在最后，涂装、冻帧全部合成完再翻——翻的是"屏幕上那幅画"，不是某一层。
+            float _WorldInvert;
 
             float4 Frag(Varyings input) : SV_Target
             {
@@ -57,6 +60,7 @@ Shader "SSNoir/Stylize"
                     _CrossfadeTexture, sampler_CrossfadeTexture, input.texcoord).rgb;
                 float3 frozenDisplay = LinearToSRGB(saturate(frozenLinear));
                 float3 composed = lerp(live, frozenDisplay, saturate(_CrossfadeAlpha));
+                composed = lerp(composed, 1.0 - composed, saturate(_WorldInvert));
 
                 return float4(SRGBToLinear(composed), src.a);
             }

@@ -74,7 +74,8 @@
         (else #f))))
 
 (define (on-encounter-enter)
-  (trouble-clk 'set! trouble-max)
+  ;; 交锋初始盘面不是玩家造成的 Clock 变化，不写入场报告的效果条（同 失控的机械）。
+  (trouble-clk 'load! trouble-max)
   (play-dialogue!
     (line "世界" "地址是老街尽头一间修车棚。三个人坐在门口，其中一个数着零钱。")
     (line "世界" "隔壁杂货铺的卷帘门放下来一半，人还在里面。")
@@ -87,13 +88,10 @@
     :subtitle "武力；当着整条街的面，让他们知道下次是什么代价"
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "他先动的手"
-        (lambda () (heat-clk 'tick!) (spend-composure! 2) (check!)))
-      (outcome "他被按在墙上"
-        (lambda () (set! force-n (+ force-n 1))
+      (outcome (lambda () (heat-clk 'tick!) (spend-composure! 2) (check!)))
+      (outcome (lambda () (set! force-n (+ force-n 1))
                    (trouble-clk 'advance! -1) (heat-clk 'tick!) (check!)))
-      (outcome "另外两个先跑了"
-        (lambda () (set! force-n (+ force-n 1))
+      (outcome (lambda () (set! force-n (+ force-n 1))
                    (trouble-clk 'advance! -1) (check!))))))
 
 (define (node-sit)
@@ -101,12 +99,9 @@
     :subtitle "他们要的是这个月的数，不是这条街"
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "他不信你说得算"
-        (lambda () (heat-clk 'tick!) (check!)))
-      (outcome "他愿意听下去"
-        (lambda () (set! press-n (+ press-n 1)) (trouble-clk 'advance! -1) (check!)))
-      (outcome "他自己说了个数"
-        (lambda () (set! trade-n (+ trade-n 1)) (trouble-clk 'advance! -1) (check!))))))
+      (outcome (lambda () (heat-clk 'tick!) (check!)))
+      (outcome (lambda () (set! press-n (+ press-n 1)) (trouble-clk 'advance! -1) (check!)))
+      (outcome (lambda () (set! trade-n (+ trade-n 1)) (trouble-clk 'advance! -1) (check!))))))
 
 ;; ── 钥匙开出来的三张 ─────────────────────────────
 (define (node-dock)
@@ -114,12 +109,9 @@
     :subtitle "老大的哥哥在码头卸货，那边的话他不敢不听"
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "话没带到"
-        (lambda () (check!)))
-      (outcome "他哥哥当晚就来了"
-        (lambda () (set! press-n (+ press-n 1)) (trouble-clk 'advance! -1) (check!)))
-      (outcome "他被他哥哥拎走了"
-        (lambda () (set! press-n (+ press-n 2))
+      (outcome (lambda () (check!)))
+      (outcome (lambda () (set! press-n (+ press-n 1)) (trouble-clk 'advance! -1) (check!)))
+      (outcome (lambda () (set! press-n (+ press-n 2))
                    (trouble-clk 'advance! -1) (heat-clk 'advance! -1) (check!))))))
 
 (define (node-owner)
@@ -127,12 +119,9 @@
     :subtitle "见识；一家不交，整条街就都不交了"
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "没人敢做第一个"
-        (lambda () (heat-clk 'tick!) (check!)))
-      (outcome "酒馆先不交了"
-        (lambda () (set! press-n (+ press-n 1)) (trouble-clk 'advance! -1) (check!)))
-      (outcome "杂货铺跟着不交了"
-        (lambda () (set! press-n (+ press-n 1)) (trouble-clk 'advance! -1) (check!))))))
+      (outcome (lambda () (heat-clk 'tick!) (check!)))
+      (outcome (lambda () (set! press-n (+ press-n 1)) (trouble-clk 'advance! -1) (check!)))
+      (outcome (lambda () (set! press-n (+ press-n 1)) (trouble-clk 'advance! -1) (check!))))))
 
 ;; 替他们把这个月的账平了。钱是真花的——这条路把代价挪到你自己的口袋里。
 (define (node-debt)
@@ -140,8 +129,7 @@
     :subtitle "他欠场子二十块；写票的认这笔钱，不认他"
     :requires (list (req-item "金钱" 20))
     :resolve (instant
-      (outcome "写票的划掉了他的名字"
-        (lambda ()
+      (outcome (lambda ()
           (set! trade-n (+ trade-n 2))
           (trouble-clk 'advance! -2)
           (check!))))))

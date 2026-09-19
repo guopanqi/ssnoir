@@ -5,7 +5,8 @@
 ;;
 ;; 这条线**不给能力，不给地点权限**。它是这一版的对照组：一个不给你任何回报的人，
 ;; 你还去不去。所以两件事必须成立：
-;;   一 去一趟不贵——凑够次数最多三趟，不必天天陪着；
+;;   一 去一趟不贵——一颗骰一趟；但趟数要凑够（四到五趟，三天里近一半的骰子），
+;;     陪他就是那几天真的少干别的。曾经最多三趟，结果谁都顺手陪了，等于没选；
 ;;   二 窗口会关，而且提前看得见——考试就那一天，过了就是过了。
 ;;
 ;; 它和晚宴是两种不同形状的窗口，故意的：晚宴是**固定日期的一晚**，这一条是
@@ -28,8 +29,9 @@
     (define 状态 "未开始")
     (define 练了 0)
     (define 说过了? #f)          ; 他当面跟你说过这件事（＝你知情）
+    (define journal (make-journal))
 
-    (define (要几趟) (if (eddie 'hand-bad?) 3 2))
+    (define (要几趟) (if (eddie 'hand-bad?) 5 4))
     (define (够了?) (>= 练了 (要几趟)))
     (define (他还在?) (eddie 'known?))
     (define (考试日) (+ (第二章 'phase-start-day) 准备天数))
@@ -66,7 +68,9 @@
     (define (报一声! 标题 正文 履历)
       (if 说过了?
           (begin
-            ((第二章 'journal) 'add! 履历)
+            (journal 'add! 履历)
+            ;; 陪过他才算经历完这一节；知情却一趟没去，考试是他自己的事。
+            (if (> 练了 0) (complete-task! "艾迪的手") #f)
             (spotlight! 标题 正文))
           #f))
 
@@ -94,15 +98,14 @@
       (at-anchor "码头-货堆"
        (action "陪艾迪练手" (list (req-die))
         (instant
-          (outcome "又过了一遍"
-            (lambda ()
+          (outcome (lambda ()
               (set! 练了 (+ 练了 1))
               (if (够了?)
                   (play-banter!
                     (line "艾迪" "这几张我背下来了。真考的时候别慌就行。"))
                   (play-banter!
                     (line "艾迪" "……手抖不是紧张，是使不上劲。")))
-              (result-note! (string-append "练了 " (number->string 练了) " 趟"))))))))
+              (result-supplement! (string-append "练了 " (number->string 练了) " 趟"))))))))
 
     (define (nodes-at location)
       (if (and (equal? location "码头") (进行中?) 说过了?
@@ -112,6 +115,11 @@
 
     ;; ── 卷宗 ────────────────────────────────────────
     ;; 没人告诉过你的事不进卷宗——那张纸是他兜里的，不是你桌上的。
+    (define (steps)
+      (list (step "他跟你说了培训的事" 说过了?)
+            (step (string-append "陪他练 " (number->string (要几趟)) " 趟") (够了?))
+            (step "考试" (member? 状态 (list "通过" "没过")))))
+
     (define (dossier-entry)
       (if (not 说过了?)
           '()
@@ -127,15 +135,15 @@
                                                (number->string (- (要几趟) 练了)) " 趟")))
                      :where (if (还没考?) "码头" "")
                      :clocks (list (日期倒计时 "离考试" (考试日) 准备天数
-                                     "过了那天就没有下一场。")))))
-            ((equal? 状态 "通过")
-             (list (dossier "艾迪的手"
-                     :kind '人物 :status '了结
-                     :now "他拿到了名额。" :where "")))
+                                     "过了那天就没有下一场。"))
+                     :steps (steps)
+                     :log (journal 'render-data))))
             (#t
              (list (dossier "艾迪的手"
                      :kind '人物 :status '了结
-                     :now "名额没了。他还在码头上等零活。" :where ""))))))
+                     :now "" :where ""
+                     :steps (steps)
+                     :log (journal 'render-data)))))))
 
     (define (不能再练?) (and (not (还没考?)) (not (够了?))))
 
@@ -149,10 +157,12 @@
           ((equal? msg 'state) 状态)
           ((equal? msg 'save)
            (list (list "state" 状态) (list "practiced" 练了)
-                 (list "told" (if 说过了? 1 0))))
+                 (list "told" (if 说过了? 1 0))
+                 (list "journal" (journal 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! 状态 (assoc-get data "state" "未开始"))
+             (journal 'load! (assoc-get data "journal" '()))
              (set! 练了 (assoc-get data "practiced" 0))
              (set! 说过了? (= (assoc-get data "told" 0) 1))))
           (else (error "艾迪的培训：收到未知消息")))))))

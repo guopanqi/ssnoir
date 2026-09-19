@@ -48,10 +48,10 @@
       (cond
         ((and (not (foreman?)) (tavern-rank-clk 'full?))
          (set! tavern-rank "领班")
-         (result-note! "升职：领班"))
+         (result-supplement! "升职：领班"))
         ((and (foreman?) (tavern-rank-clk 'empty?))
          (set! tavern-rank "服务员")
-         (result-note! "降职：服务员"))
+         (result-supplement! "降职：服务员"))
         (else #f)))
 
     (define (node-tavern-rank)
@@ -64,7 +64,7 @@
             (set! tavern-trouble-outcome "未了")
             ;; 满格起、往下走：这是一条死线，不是玩家在推进的东西。
             (tavern-trouble-clk 'set! (tavern-trouble-clk 'max))
-            (result-note! (string-append "今晚之内：" tavern-trouble)))
+            (result-supplement! (string-append "今晚之内：" tavern-trouble)))
           #f))
 
     (define (maybe-start-tavern-trouble!)
@@ -102,8 +102,7 @@
         :subtitle "角落里放贷的能立刻拿钱给你周转——借 40，五天后连本带利还 60；逾期利滚利，最好别拖"
         :tags (list "非法" "高利贷")
         :resolve (instant
-          (outcome "拿了这笔钱"
-            (lambda ()
+          (outcome (lambda ()
               (add-item! "金钱" loan-principal)
               (set! loan-owed loan-repay)
               (loan-clk 'set! (loan-clk 'max)))))))
@@ -113,8 +112,7 @@
         :subtitle (string-append "把欠的 " (number->string loan-owed) " 金钱一次结清")
         :requires (list (req-item "金钱" loan-owed))
         :resolve (instant
-          (outcome "还清了这笔债"
-            (lambda ()
+          (outcome (lambda ()
               (set! loan-owed 0)
               (loan-clk 'reset!))))))
 
@@ -146,15 +144,12 @@
     ;; 这才是「低风险」这个标签原来应该意味着的东西——在这以前它是句空话，
     ;; 领班的坏结果和高风险的搬运一样疼。
     (define (node-waiter)
-      (关系工作 "服务员" "老码头" '低 'social
-        (outcome "手脚麻利"
-          (lambda ()
+      (工作 "服务员" '低 'social
+        (outcome (lambda ()
             (add-item! "金钱" 8)
             (change-tavern-rank! 1)))
-        (outcome "普通一班"
-          (lambda () (add-item! "金钱" 5)))
-        (outcome "打翻酒杯"
-          (lambda ()
+        (outcome (lambda () (add-item! "金钱" 5)))
+        (outcome (lambda ()
             (add-item! "金钱" 3)
             (spend-composure! 1)
             (change-tavern-rank! -1)))
@@ -174,17 +169,14 @@
     ;;       只有满骰面(6)那一格仍旧输给搬运和夜班：酒馆是稳的那一头，
     ;;       它买的是地板，不是天花板。
     (define (node-foreman)
-      (关系工作 "领班" "老码头" '低 'social
-        (outcome "里外都稳住"
-          (lambda ()
+      (工作 "领班" '低 'social
+        (outcome (lambda ()
             (add-item! "金钱" 13)
             (change-tavern-rank! 1)))
-        (outcome "带完一班"
-          (lambda ()
+        (outcome (lambda ()
             (add-item! "金钱" 8)
             (maybe-start-tavern-trouble!)))
-        (outcome "场面失控"
-          (lambda ()
+        (outcome (lambda ()
             (add-item! "金钱" 5)
             (spend-composure! 1)
             (change-tavern-rank! -1)
@@ -205,12 +197,9 @@
         :resolve (roll (trouble-skill)
           ;; 没收住只扣 1：真正的代价在打烊那一刻（−2 冷静、考核 −2），
           ;; 而不是在每一次没骰好上。否则一晚上试两次就够掏空满冷静的一半还多。
-          (outcome "没能收住"
-            (lambda () (spend-composure! 1)))
-          (outcome "暂且压下"
-            (lambda () (resolve-tavern-trouble! "压下")))
-          (outcome "处理干净"
-            (lambda () (resolve-tavern-trouble! "干净"))))))
+          (outcome (lambda () (spend-composure! 1)))
+          (outcome (lambda () (resolve-tavern-trouble! "压下")))
+          (outcome (lambda () (resolve-tavern-trouble! "干净"))))))
 
     ;; 这里曾有一张「打一壶酒」：25 金买一壶带走，回住所再喝。它和「点一杯酒」
     ;; 同价、同效果、共用同一次"当天第一杯"，区别只有"在哪儿喝"——而那个区别
@@ -234,8 +223,7 @@
         :disabled (item-full? "香烟")
         :requires (list (req-item "金钱" 15))
         :resolve (instant
-          (outcome "买了烟"
-            (lambda () (add-item! "香烟" 1))))))
+          (outcome (lambda () (add-item! "香烟" 1))))))
 
     ;; 当场点一杯：效果与在家喝自带的酒完全一样，共用同一次“当天第一杯”（home 的 drank-today?）。
     ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
@@ -247,9 +235,7 @@
         :disabled (home 'drank-today?)
         :requires (list (req-item "金钱" 25))
         :resolve (instant
-          (outcome "借酒松神"
-            (lambda () (home 'drink!))
-            'light))))
+          (outcome (lambda () (home 'drink!))))))
 
     ;; ── 赌钱 ──────────────────────────────────────
     ;; 这里曾有一张「去地下酒吧押一把」：花一颗骰 + 20 金，摇一次，0/20/60。
@@ -274,32 +260,28 @@
         :disabled (ate-today?)
         :requires (list (req-item "金钱" 6))
         :resolve (instant
-          (outcome "吃了一顿热的"
-            (lambda ()
+          (outcome (lambda ()
               (set! ate-day world-day)
-              (restore-actor-composure! 'player 2))
-            'light))))
+              (restore-actor-composure! 'player 2))))))
 
+    ;; 后屋的活是关系给的，它给的不该只是又一份工钱：守仓库是一整夜没人来找你的
+    ;; 安静，顺的那一晚连冷静都回来一点——老街上唯一一份**边挣钱边歇着**的工。
     (define (node-watch-warehouse)
-      (关系工作 "看仓库" "老码头" '低 'sharpness
-        (outcome "一夜无事"
-          (lambda () (add-item! "金钱" 10)))
-        (outcome "守完一班"
-          (lambda () (add-item! "金钱" 7)))
-        (outcome "打了个盹"
-          (lambda ()
+      (工作 "看仓库" '低 'sharpness
+        (outcome (lambda ()
+            (add-item! "金钱" 10)
+            (restore-actor-composure! 'player 1)))
+        (outcome (lambda () (add-item! "金钱" 7)))
+        (outcome (lambda ()
             (add-item! "金钱" 4)
             (spend-composure! 1)))
-        "替弗兰克的人守一夜仓库"))
+        "替弗兰克的人守一夜仓库；太平的一夜也是歇着"))
 
     (define (node-run-errand)
-      (关系工作 "替人跑一趟" "老码头" '低 'social
-        (outcome "话带到了"
-          (lambda () (add-item! "金钱" 9)))
-        (outcome "跑了一趟"
-          (lambda () (add-item! "金钱" 6)))
-        (outcome "扑了个空"
-          (lambda ()
+      (工作 "替人跑一趟" '低 'social
+        (outcome (lambda () (add-item! "金钱" 9)))
+        (outcome (lambda () (add-item! "金钱" 6)))
+        (outcome (lambda ()
             (add-item! "金钱" 3)
             (spend-composure! 1)))
         "老街有人要送东西、带句话"))
@@ -312,7 +294,9 @@
             "他在桌子那头对账。有人进来说了句什么，他点了一下头。")))
 
     (define (back-room-container)
-      (container "酒馆后屋"
+      (node "酒馆后屋"
+        :anchor "老街酒馆"
+        :children
         (append
           (list (node-frank-in-back-room) (node-eat))
           (if (equal? (第二章 'phase) "B")

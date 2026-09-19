@@ -19,7 +19,7 @@ namespace SSNoir.Editor
     {
         // Bump this whenever serialized importer output changes so existing model assets
         // are reprocessed instead of keeping stale generated VCams in the import cache.
-        public override uint GetVersion() => 12;
+        public override uint GetVersion() => 14;   // 13：地点文件按 clips.json 切道具 clip
 
         // CityBox 相机一律 50mm、36×24 传感器、按 16:9 标定（pipeline/export.py 强制焦距）。
         // Blender 的 FBX 导出把 FieldOfView 写成**水平**视角（39.6°），Unity 却当**竖直**视角用，
@@ -60,6 +60,52 @@ namespace SSNoir.Editor
             // 地点细节文件只有几何：相机、灯都在 City.fbx 里
             importer.importCameras = false;
             importer.importLights = false;
+            ConfigurePropClips(importer, path);
+        }
+
+        /// <summary>
+        /// 会动的道具（CityBox pipeline/motion.py）：整个地点的动画是一个 take，旁边的
+        /// <c>&lt;名&gt;.clips.json</c> 说哪段帧是哪个 clip（<c>道具__状态</c>）、是否循环。这里按它切成
+        /// Legacy clip，运行时 <see cref="PropMotion"/> 按名字播。没有 sidecar 的地点不导动画。
+        /// </summary>
+        private static void ConfigurePropClips(ModelImporter importer, string path)
+        {
+            string sidecar = Path.ChangeExtension(path, null) + ".clips.json";
+            if (!File.Exists(sidecar))
+            {
+                importer.importAnimation = false;
+                return;
+            }
+            var spec = PropClips.Parse(File.ReadAllText(sidecar));
+            importer.importAnimation = true;
+            importer.animationType = ModelImporterAnimationType.Legacy;
+            importer.animationCompression = ModelImporterAnimationCompression.Off;
+            importer.resampleCurves = true;
+            string take = importer.importedTakeInfos.Length > 0 ? importer.importedTakeInfos[0].name : string.Empty;
+            var clips = spec.clips.Select(c => new ModelImporterClipAnimation
+            {
+                name = c.name,
+                takeName = take,
+                firstFrame = c.start,
+                lastFrame = c.end,
+                loopTime = c.loop,
+                loop = c.loop,
+                wrapMode = c.loop ? WrapMode.Loop : WrapMode.ClampForever,
+            }).ToArray();
+            importer.clipAnimations = clips;
+            var takes = string.Join(", ", importer.importedTakeInfos.Select(t => $"{t.name} {t.startTime * spec.fps:F1}-{t.stopTime * spec.fps:F1}f"));
+            Debug.Log($"[SSNoir] ModelImporter: '{Path.GetFileName(path)}' take[{takes}] 切出 {clips.Length} 个道具 clip：{string.Join(", ", clips.Select(c => $"{c.name}[{c.firstFrame}-{c.lastFrame}{(c.loopTime ? " loop" : string.Empty)}]"))}");
+        }
+
+        private void OnPostprocessAnimation(GameObject root, AnimationClip clip)
+        {
+            if (!assetPath.Replace('\\', '/').Contains("/Resources/" + CityPlaces.ResourcesFolder))
+                return;
+            // 对着 clips.json 核对切出来的长度：帧数对不上就是 take 起点和 Blender 帧号没对齐
+            var bindings = AnimationUtility.GetCurveBindings(clip);
+            var byPath = bindings.GroupBy(b => b.path.Substring(b.path.LastIndexOf('/') + 1))
+                .Select(g => $"{g.Key}[{string.Join(",", g.Select(b => b.propertyName.Replace("m_Local", "")).Distinct())}]");
+            Debug.Log($"[SSNoir] ModelImporter: clip '{clip.name}' length={clip.length * clip.frameRate:F1}f @{clip.frameRate}fps loop={clip.isLooping} curves: {string.Join(" ", byPath)}");
         }
 
         private static void ConfigureEmbeddedMaterials(ModelImporter importer)

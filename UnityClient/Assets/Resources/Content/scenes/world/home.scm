@@ -10,7 +10,9 @@
 ;; 日常投入行动骰的恢复以公园散步为主。睡觉抹不平一天，冷静是跨天的。
 ;; 酒会让下一次城市骰池出现“宿醉”降质。
 ;; 伤势不会自己好（这是它和冷静唯一的分别）。三条路：弹簧床垫解锁养伤（1 骰、压 1）、
-;; 用药（25 金的药，不占骰、压 2、每天一份）、诊所（1 骰 + 诊金、压 2）。
+;; 用药（25 金的药，不占骰、压 1、每天一份）、诊所（1 骰 + 诊金、压 2）。
+;; 钱只能让骰子更值钱，替代不了骰子：纯花钱那条（用药）故意最弱，重伤想快好
+;; 就得把今天的骰子交出去。
 
 (define home
   (let ()
@@ -18,8 +20,8 @@
     (define residence "租的房间")    ; "租的房间" / "公寓"
     (define has-flower? #f)
     (define has-mattress? #f)
-    (define has-typewriter? #f)
     (define has-phone? #f)
+    (define has-gramophone? #f)
     (define drank-today? #f)
     (define flower-today? #f)
     (define medicated-today? #f)
@@ -51,8 +53,8 @@
                          "宽限期内可以补交；归零仍未交上，房东会来锁门。"))))
     (define flower-price 40)
     (define mattress-price 60)
-    (define typewriter-price 80)
     (define apartment-price 200)
+    (define gramophone-price 120)
     (define evicted? #f)
 
     (define (renting?) (equal? residence "租的房间"))
@@ -101,7 +103,7 @@
             (set! apartment-offer-known? #t))))
 
     ;; 收租、补交、宽限用尽，三条路都只在对白里交代。日终规则跑不出结算行
-    ;; （result-note! 只在动作结算内有效），扣钱本身又是静默的——不写进对白，
+    ;; （result-supplement! 只在动作结算内有效），扣钱本身又是静默的——不写进对白，
     ;; 玩家就只看见金钱方块少了一截，不知道是谁拿走的、下次什么时候再来。
     (define (collect-rent!)
       (if (rent-money-ready?)
@@ -186,98 +188,112 @@
     ;; 老街酒馆.scm），「酒」这件物品没有来路了，这张卡只会一直灰在客厅里。
     ;; 效果本身没丢：酒馆那杯走的就是下面这个 apply-drink-effect!。
 
-    ;; 用药：在住所中上药休养，不占用行动骰，压 2 点伤势。
+    ;; 用药：在住所中上药休养，不占用行动骰，压 1 点伤势。
     ;; 它是"花钱买时间"的那条路——不占骰子，但药得先花 25 金从诊所买回来。
-    (define (node-use-medicine)
+    ;; 曾经压 2：那样一份药就抵得上一次看医生，钱一多伤势就不再吃日子，
+    ;; 交锋的代价随之消失。急救只止一格，剩下的还得躺。
+    (define (node-use-medicine anchor)
       (node "用药"
-        :anchor "床边"
+        :anchor anchor
         :subtitle (cond
                     ((equal? (injury-band) '完好) "身上没有需要处理的伤")
                     (medicated-today? "一天上一次药就够了，伤口需要时间")
-                    (#t "不占行动骰，压 2 点伤势；一天只能用一份"))
+                    (#t "不占行动骰，压 1 点伤势；一天只能用一份"))
         :disabled (or medicated-today? (equal? (injury-band) '完好))
         :requires (list (req-item "药品" 1))
         :resolve (instant
-          (outcome "上了药"
-            (lambda ()
+          (outcome (lambda ()
               (set! medicated-today? #t)
-              (heal-injury! 2))))))
+              (heal-injury! 1))))))
 
     ;; 养伤：弹簧床垫解锁的长期恢复通道。
     ;;   养伤   1 骰、0 金、−1
-    ;;   用药   0 骰、25 金、−2（每天一份）
+    ;;   用药   0 骰、25 金、−1（每天一份）
     ;;   看医生 1 骰、20 金、−2
     ;; 床垫不被动治伤：它只让玩家可以把今天的一颗骰换成一点康复。
     ;; 不设每日上限——骰子本身就是上限，多躺一颗骰就是少做一份工。
     (define (node-mend)
       (node "养伤"
-        :anchor "床边"
+        :anchor "租屋-床边"
         :subtitle (if (equal? (injury-band) '完好)
                       "身上没有需要处理的伤"
                       "投入一颗行动骰，压 1 点伤势；不花钱，只花今天")
         :disabled (equal? (injury-band) '完好)
         :requires (list (req-die))
         :resolve (instant
-          (outcome "躺了大半天"
-            (lambda () (heal-injury! 1))))))
+          (outcome (lambda () (heal-injury! 1))))))
 
     ;; 看花**不占行动骰**，每天一次，稳回 1 点。
     ;;
     ;; 它曾经也要投一颗骰。那样它和公园散步就是同一笔交易——一颗骰换恢复——
-    ;; 只是一个稳回 1、一个 0/1/2。期望几乎一样，而散步还顺带推沃尔特那条线，
+    ;; 只是一个稳回 1、一个 0/1/2。期望几乎一样，
     ;; 于是「花 40 金买一盆花」买回来的只有方差变小，读起来就是白花钱。
     ;;
     ;; 散步是把骰子换成冷静，花是把钱换成每天一点不花骰的冷静恢复。
     (define (node-see-flower)
       (node "看花"
-        :anchor "窗台"
+        :anchor "租屋-窗台"
         :subtitle (if flower-today? "今天已经看过了" "不占行动骰，每天一次；坐下来出神片刻，回 1 点冷静")
         :disabled flower-today?
         :resolve (instant
-          (outcome "出神片刻"
-            (lambda ()
+          (outcome (lambda ()
               (set! flower-today? #t)
               (restore-actor-composure! 'player 1))))))
 
     (define (note-mattress)
-      (note-node "标注：弹簧床垫" "弹簧床垫"
-        "躺下来养伤要花掉今天的一颗骰；睡一觉本身不治伤。"))
+      (node "标注：弹簧床垫" :anchor "租屋-床边" :resolve
+        (note "弹簧床垫" "躺下来养伤要花掉今天的一颗骰；睡一觉本身不治伤。")))
 
     (define (rest-tags)
+      ;; 睡觉卡上只说锁的原因，不指去哪：具体去哪处理由边缘信标和卷宗主线指。
+      ;; 事件自己的那句（"机器今天上岸"这类）是写给信标指路的，贴在卡上像谜语。
       (if (rest-blocked?)
-          (append (list "不可休息") (rest-block-reasons))
+          (list "不可休息" "存在还未处理的事件")
           '()))
 
     ;; 睡觉不治伤。弹簧床垫只解锁上面的主动养伤，不再附送被动恢复。
 
+    ;; 连睡锁：睡过一觉，要先出过门才能再睡。手滑连点两下睡觉就是两天没了，
+    ;; 而「出门再回来」是玩家有意识做的事，误触不会碰到它。家里能做的事本来就少，
+    ;; 所以不拿「做过任何别的动作」当解锁条件——那一条还是可能被连点绕过。
+    (define 刚睡过? #f)
+    (define (sleep-tags)
+      (append (rest-tags) (if 刚睡过? (list "先出门走走") '())))
+    (define (sleep-locked?) (or (rest-blocked?) 刚睡过?))
+    (define-enter-place-rule "出门后才能再睡"
+      ;; 退回世界层也算出门：place-name 是 "世界"，本来就不等于 "家"。
+      (lambda (place-name)
+        (if (equal? place-name "家") #f (set! 刚睡过? #f))))
+
     (define (node-sleep)
       (node "睡觉"
         :anchor "床边"
-        :subtitle (if (dock 'night-shift-today?)
-                      "结束今天；恢复 1 点冷静"
-                      "结束今天；恢复 2 点冷静")
-        :disabled (rest-blocked?)
-        :tags (rest-tags)
+        :subtitle (cond
+                    (刚睡过? "刚醒。出门走走再回来睡")
+                    ((dock 'night-shift-today?) "结束今天；恢复 1 点冷静")
+                    (else "结束今天；恢复 2 点冷静"))
+        :disabled (sleep-locked?)
+        :tags (sleep-tags)
         :resolve (instant
-          (outcome
-            (if (dock 'night-shift-today?) "天亮才躺下" "睡了一夜")
-            (lambda ()
+          (outcome (lambda ()
               ;; 睡觉固定回 2 点，租的和买下的没有差别——那两者的差别在房租，
               ;; 不在睡得好不好。2 点远不足以抹平一天（顺的一天大约掉 2，糟的掉 4 以上），
               ;; 冷静因此是一条跨天的轴：交锋掏空之后要在城里养好几天才回得来。
               ;; 熬过码头夜班的那天只回 1：夜班多给的那笔钱，一部分是从这里扣的。
               (restore-actor-composure! 'player (if (dock 'night-shift-today?) 1 2))
+              (set! 刚睡过? #t)
               (end-turn!))))))
 
     (define (node-sleep-at-door)
       (node "蜷缩在门口"
         :anchor "门口"
-        :disabled (rest-blocked?)
-        :tags (rest-tags)
+        :subtitle (if 刚睡过? "刚醒。出门走走再回来" "")
+        :disabled (sleep-locked?)
+        :tags (sleep-tags)
         :resolve (instant
-          (outcome "无处可去"
-            (lambda ()
+          (outcome (lambda ()
               ;; 露宿不回复冷静，但也不再伤身，免得把玩家推向击穿受伤的死亡循环。
+              (set! 刚睡过? #t)
               (end-turn!))))))
 
     ;; ── 交易 / 布置 / 升级 ──────────────────────────
@@ -286,8 +302,7 @@
         :anchor "门口"
         :requires (list (req-item "金钱" rent-amount))
         :resolve (instant
-          (outcome "补上房租"
-            (lambda ()
+          (outcome (lambda ()
               ;; 两种补交是两回事，不能共用一段话：被锁在门外之后交，是把门换回来；
               ;; 宽限期里交，是信用掉一格——晚交的代价不当场说出来，玩家永远不会知道
               ;; 房东下次为什么少等他一天。
@@ -322,47 +337,35 @@
         (list (rent-status-node))
         (if (or overdue? evicted?) (list (node-pay-rent)) '())))
 
-;; 家里现在只有三个锚点：床边 / 窗台 / 门口（模型 City.fbx 里的 Anchor_*）。
-    ;; 添置家具这一支买的东西各自落到它真正会摆的地方——床垫在床边、书桌在窗台、
-    ;; 电话在门口（线从楼道接进来，机子挂在玄关）。买它的那张卡和买回来之后长出来的
-    ;; 那张卡挂同一个锚点：花了钱，画面上就该是那个位置起了变化。
+    ;; 买东西的卡全挂在屋里的书桌上（翻着报纸广告页下单）。**不能挂在买回来的东西自己的
+    ;; 锚点上**：花盆、唱片机按 presence 契约"有卡挂着就出现"，买之前把卡挂过去，东西就提前长出来了。
+    ;; 买回来之后的卡（看花、放唱片、养伤）才各自落到东西真正摆的位置。
     (define (node-buy-flower)
       (node "买一盆花"
-        :anchor "窗台"
+        :anchor "租屋-书桌"
         :subtitle "自己的窗台才摆得下这点闲心；烦闷时可以坐着看一会儿"
         :requires (list (req-item "金钱" flower-price))
         :resolve (instant
-          (outcome "买了一盆花"
-            (lambda () (set! has-flower? #t))))))
+          (outcome (lambda () (set! has-flower? #t))))))
 
     (define (node-buy-mattress)
       (node "买弹簧床垫"
-        :anchor "床边"
+        :anchor "租屋-书桌"
         :subtitle "买回长期养伤的地方：投入一颗骰，压 1 点伤势"
         :requires (list (req-item "金钱" mattress-price))
         :resolve (instant
-          (outcome "换了床垫"
-            (lambda () (set! has-mattress? #t))))))
+          (outcome (lambda () (set! has-mattress? #t))))))
 
-    (define (node-buy-typewriter)
-      (node "买书桌和打字机"
-        :anchor "窗台"
-        :subtitle "在家承接誊清账目和文书的活"
-        :requires (list (req-item "金钱" typewriter-price))
-        :resolve (instant
-          (outcome "安置了书桌"
-            (lambda () (set! has-typewriter? #t))))))
+    ;; 这里曾有「买书桌和打字机」→「誊清账目」：一份在家里就能接的文书活。
+    ;; 删了。零风险、不出门、稳拿钱——它把侦探变成打字员，而且是又一份工作；
+    ;; 工作的差别应当在效果上（码头伤身、酒店翻脸、酒馆管饭），不在多一份。
 
-    (define (node-typing-work)
-      (关系工作 "誊清账目" "商业圈" '低 'knowledge
-        (outcome "账目清楚" (lambda () (add-item! "金钱" 14)))
-        (outcome "按页誊完" (lambda () (add-item! "金钱" 8)))
-        (outcome "数字抄错了" (lambda () (spend-composure! 1)))
-        "坐在自己的书桌前接一份文书活" :anchor "窗台"))
-
+    ;; 电话是侦探职业的明确回报，不藏在「添置家具」里。备案完成时由
+    ;; 贝恩斯那一拍直接接通，不向玩家收取一笔以后会因身份暂停而失去用途的钱。
+    ;; 身份暂停时只撤掉正式侦探委托，电话本身留下，以后仍可承载人物来电和其他工作。
     (define (node-telephone)
       (node "电话"
-        :anchor "门口"
+        :anchor "租屋-门"
         :subtitle (if (baines 'registered?)
                       "富裕客户的调查委托会打到这条线上"
                       "电话还在，警局的背书已经没有了")
@@ -372,99 +375,139 @@
               (list (note-node "标注：没有正式委托" "电话没响"
                       "正式客户不再通过这条线找你。")))))
 
-    ;; 电话是侦探职业的明确回报，不藏在「添置家具」里。备案完成时由
-    ;; 贝恩斯那一拍直接接通，不向玩家收取一笔以后会因身份暂停而失去用途的钱。
-    ;; 身份暂停时只撤掉正式侦探委托，电话本身留下，以后仍可承载人物来电和其他工作。
-    (define (phone-nodes)
-      (if has-phone? (list (node-telephone)) '()))
-
     (define (node-buy-apartment)
       (node "买下公寓"
         :anchor "门口"
         :subtitle "有个自己的家，不再交房租，也能睡得更安稳"
         :requires (list (req-item "金钱" apartment-price))
         :resolve (instant
-          (outcome "签下了公寓"
-            (lambda ()
+          (outcome (lambda ()
               (set! residence "公寓"))))))
 
-    ;; ── 组装子节点 ──────────────────────────────────
-    ;; 被锁在门外时剩下的公共空间：楼下门厅。只提供随身物品的使用，没有你自己的地方。
-    (define (node-entry-hall)
-      (node "楼下门厅" :anchor "门口" :children (list (node-use-medicine))))
+    ;; 唱片机是屋里第一件纯粹为了"好一点"买的东西：不回冷静、不治伤、不省钱。
+    ;; 三张唱片放哪张就是这座城此后的配乐（全局键 音乐，Unity 侧按它换曲；存档随全局键走）。
+    ;; 放唱片的卡都挂在 租屋-唱片机 上，收在「唱片机」容器里；以后加歌只往 records 加一行，不新加锚点。
+    ;; 机器和架子按 presence 契约随容器的锚点出现。
+    (define (node-buy-gramophone)
+      (node "买台唱片机"
+        :anchor "租屋-书桌"
+        :subtitle "带三张唱片。屋里总得有点声音"
+        :requires (list (req-item "金钱" gramophone-price))
+        :resolve (instant
+          (outcome (lambda () (set! has-gramophone? #t))))))
+
+    ;; (clip 名 · 标题 · 一句话)。都挂在 租屋-唱片机 上，锚点写成字面量，发布器才对得上号。
+    (define records
+      (list (list "唱片-1" "《午夜列车》" "慢板钢琴，像雨点落在车窗上")
+            (list "唱片-2" "《码头灯火》" "闷音小号，一段没人接的独白")
+            (list "唱片-3" "《周六舞厅》" "弦乐三拍子，这城里曾经也有人跳舞")))
+
+    (define (record-playing) (get-global '音乐))
+
+    (define (node-play-record rec)
+      (let ((id (car rec)) (title (cadr rec)) (desc (caddr rec)))
+        (node (string-append "放" title)
+          :anchor "租屋-唱片机"
+          :subtitle (if (equal? (record-playing) id) "正在转" desc)
+          :disabled (equal? (record-playing) id)
+          :resolve (instant
+            (outcome (lambda () (set-global! '音乐 id)))))))
+
+    (define (record-nodes) (map node-play-record records))
+
+    (define (node-stop-record)
+      (node "抬起唱针"
+        :anchor "租屋-唱片机"
+        :subtitle "让屋里安静下来"
+        :resolve (instant
+          (outcome (lambda () (set-global! '音乐 #f))))))
+
+    ;; 唱片机是一个容器：三张唱片和「抬起唱针」都收在它下面，点开才聚焦到机器上。
+    ;; 容器本身挂在 租屋-唱片机——机器的模型随这个锚点显隐，容器在树里，机器就在屋里。
+    (define (node-gramophone)
+      (node "唱片机"
+        :anchor "租屋-唱片机"
+        :subtitle (if (record-playing) "正在转" "唱针抬着。架子上三张唱片。")
+        :children
+          (append (record-nodes)
+                  (if (record-playing) (list (node-stop-record)) '()))))
+
+    (define (gramophone-nodes)
+      (if has-gramophone? (list (node-gramophone)) '()))
+
+    ;; ── 组装 ────────────────────────────────────────
+    ;; 家的树只有两层，外层是"每天都要点的"，门里是"自己的东西"：
+    ;;
+    ;;   家（世界层地点，家.blend：锚点 床边 / 窗台 / 门口）
+    ;;   ├ 故事投射卡
+    ;;   ├ 租屋 …………………………… 门卡挂「门口」；点进去穿门，进 Stage 租屋（郊野那排的独立 Prefab）
+    ;;   │  ├ 标注：屋里 …………… 什么都没添时的唯一一条
+    ;;   │  ├ 看花 / 唱片机 / 放唱片 … 买回来才有；花盆和唱片机的模型按 presence 契约随这些卡出现
+    ;;   │  ├ 用药 / 养伤 ……………… 租屋-床边
+    ;;   │  ├ 电话 …………………………… 租屋-门（线从楼道接进来）
+    ;;   │  └ 添置家具 …………………… 租屋-书桌；买的卡都在这儿，不挂到要买的东西头上
+    ;;   ├ 房租标注 / 补交 …………… 家的第一层
+    ;;   ├ 买下公寓 …………………… 家的第一层（门口）
+    ;;   └ 睡觉
+    ;;
+    ;; Stage 的身份是节点名（Anchor_租屋 挂着 Portal），:anchor 只说门卡挂在家的哪儿——
+    ;; 门卡得在门外看得见，门后的空间却在郊野，两者不可能是同一个锚点。交锋根容器名就是场景名，同一条规则。
+    ;; 穿门一次约两秒，所以睡觉、房租这些每天点的留在门外。
+    ;; 被锁在门外时没有 租屋：只剩楼下门厅（用随身的药）、补交房租、蜷缩在门口。
+    ;; 买下公寓后暂时仍走进同一间（公寓自己的 Stage 还没做；做了以后门卡按 residence 换名字）。
 
     ;; 你自己搬进来的东西：租的房间里就摆得下，搬家时当然也跟着走。
     ;; 第一次收租时房东提过公寓以后，玩家才开始考虑往住处添东西——
     ;; 买下公寓不是添家具的前置条件，那是两笔各自成立的钱。
-    (define (portable-furniture-children)
-      (append
-        (list (node-use-medicine))
-        (if has-flower? (list (node-see-flower)) '())
-        (if has-mattress? (list (node-mend) (note-mattress)) '())
-        (if has-typewriter? (list (node-typing-work)) '())))
-
-    (define (node-rented-room)
-      (node "房间"
-        :anchor "床边"
-        :children (portable-furniture-children)))
-
-    ;; 客厅只组织可搬家具；电话作为职业入口，在「家」的顶层单独呈现。
-    (define (living-room-children)
-      (portable-furniture-children))
-
-    (define (node-living-room)
-      (node "客厅" :anchor "窗台" :children (living-room-children)))
-
-    ;; 可搬动家具与公寓报价同时开放；电话不属于这个购置清单。
     (define (order-children)
       (append
         (if has-flower? '() (list (node-buy-flower)))
         (if has-mattress? '() (list (node-buy-mattress)))
-        (if has-typewriter? '() (list (node-buy-typewriter)))))
+        (if has-gramophone? '() (list (node-buy-gramophone)))))
 
     (define (order-nodes)
       (if (or (not apartment-offer-known?) (null? (order-children)))
           '()
-          (list (node "添置家具" :anchor "窗台" :children (order-children)))))
+          (list (node "添置家具" :anchor "租屋-书桌" :children (order-children)))))
+
+    (define (things-nodes)
+      (append (if has-flower? (list (node-see-flower)) '())
+              (gramophone-nodes)))
+
+    (define (room-nodes)
+      (append
+        (if (null? (things-nodes))
+            (list (node "标注：屋里" :anchor "租屋" :resolve
+                    (note "租的房间" "床、桌子、一扇窗。自己的东西还没搬进来几件。")))
+            (things-nodes))
+        (list (node-use-medicine "租屋-床边"))
+        (if has-mattress? (list (node-mend) (note-mattress)) '())
+        (if has-phone? (list (node-telephone)) '())
+        (order-nodes)))
+
+    (define (node-room)
+      (node "租屋" :anchor "门口" :children (room-nodes)))
+
+    ;; 被锁在门外时剩下的公共空间：楼下门厅。库存里的药是随身的，门锁住不该把它一起锁掉。
+    (define (node-entry-hall)
+      (node "楼下门厅" :anchor "门口" :children (list (node-use-medicine "门口"))))
 
     (define (upgrade-nodes)
       (if (and (renting?) apartment-offer-known?)
           (list (node-buy-apartment))
           '()))
 
-    (define (rented-body)
-      (if evicted?
-          (append
-            (地点节点 "家")
-            ;; 被赶出后仍保留大厅：库存里的酒和药是玩家随时可以使用的物品，
-            ;; 房门锁住只应改变住宿方式，不应把公共空间里的物品使用入口一起删掉。
-            (list (node-entry-hall))
-            (rent-nodes)
-            (upgrade-nodes)
-            (list (node-sleep-at-door)))
-          (append
-            (地点节点 "家")
-            (list (node-rented-room))
-            (phone-nodes)
-            (rent-nodes)
-            (order-nodes)
-            (upgrade-nodes)
-            (list (node-sleep)))))
-
-    (define (owned-body)
+    (define (home-body)
       (append
         (地点节点 "家")
-        (list (node-living-room))
-        (phone-nodes)
-        (order-nodes)
+        (if evicted? (list (node-entry-hall)) (list (node-room)))
+        (if (renting?) (rent-nodes) '())
         (upgrade-nodes)
-        (list (node-sleep))))
+        (list (if evicted? (node-sleep-at-door) (node-sleep)))))
 
-    ;; 容器名固定为“家”（导航按名字定位，不能随住所变），住所等级放 subtitle 显示。
+    ;; 容器名固定为"家"（导航按名字定位，不能随住所变），住所等级放 subtitle 显示。
     (define (residence-container)
-      (if (renting?)
-          (place "家" :subtitle residence :children (rented-body))
-          (place "家" :subtitle residence :children (owned-body))))
+      (place "家" :subtitle residence :children (home-body)))
 
     ;; ── Message Passing Interface ─────────────────
     (lambda args
@@ -489,8 +532,8 @@
              (list "residence"      residence)
              (list "has-flower?"    has-flower?)
              (list "has-mattress?"  has-mattress?)
-             (list "has-typewriter?" has-typewriter?)
              (list "has-phone?"     has-phone?)
+             (list "has-gramophone?" has-gramophone?)
              (list "drank-today?" drank-today?)
              (list "flower-today?" flower-today?)
              (list "medicated-today?" medicated-today?)
@@ -499,15 +542,17 @@
              (list "grace"          grace)
              (list "overdue?"       overdue?)
              (list "grace-left"     (grace-clk 'save))
-             (list "evicted?"       evicted?)))
+             (list "evicted?"       evicted?)
+             (list "just-slept?"    刚睡过?)))
 
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! residence      (required-field data "residence"))
              (set! has-flower?    (required-field data "has-flower?"))
              (set! has-mattress?  (required-field data "has-mattress?"))
-             (set! has-typewriter? (required-field data "has-typewriter?"))
              (set! has-phone?     (required-field data "has-phone?"))
+             ;; 旧档没有这一项：当作没买。等旧档不再需要就换回 required-field。
+             (set! has-gramophone? (assoc-get data "has-gramophone?" #f))
              (set! drank-today?   (required-field data "drank-today?"))
              (set! flower-today?  (required-field data "flower-today?"))
              (set! medicated-today? (required-field data "medicated-today?"))
@@ -517,6 +562,8 @@
              (set! overdue?       (required-field data "overdue?"))
              (grace-clk 'load!    (required-field data "grace-left"))
              (set! evicted?       (required-field data "evicted?"))
+             ;; 旧档没有这一项：当作没锁，读档醒来能直接睡。等旧档不再需要就换回 required-field。
+             (set! 刚睡过?        (assoc-get data "just-slept?" #f))
              ;; 一次性改名迁移：起点从「旅馆」改叫「租的房间」（同一个东西，换了说法）。
              ;; 显式写在这儿而不是让 required-field 静默放行；等旧档不再需要就删掉这三行。
              (if (equal? residence "旅馆") (set! residence "租的房间") #f)
@@ -526,8 +573,8 @@
                  #t (error "住所存档错误：房东宽限额度非法"))
              (if (and (boolean-value? has-flower?)
                       (boolean-value? has-mattress?)
-                      (boolean-value? has-typewriter?)
                       (boolean-value? has-phone?)
+                      (boolean-value? has-gramophone?)
                       (boolean-value? drank-today?)
                       (boolean-value? medicated-today?)
                       (boolean-value? apartment-offer-known?)

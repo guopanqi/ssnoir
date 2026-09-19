@@ -11,9 +11,10 @@ namespace SSNoir.IMGUI
     //
     // DESIGN.md「动作 / 判定卡」布局分区固定：
     //   卡顶类别/风险书签 → 标题居中 → 中部判定纵列（属性药丸 → 骰子格）
-    //   → 右侧骰位（白框标签 + 白底黑字数值格连体）→ 执行按钮（实心金）
-    //   → 底部命运六面预览。
-    // 掷骰动画与结算结果是卡片下挂附件，不占卡片主体内部空间。
+    //   → 右侧骰位（白框标签 + 白底黑字数值格连体）。
+    // 有需求的卡，执行按钮与命运预览是卡片下挂的「操作台」附件；掷骰动画与结算结果也是
+    // 下挂附件。三者都不占卡片主体内部空间——放一颗骰子进去，卡片本身一像素都不长，
+    // 排布里的位置也就不会跟着挪。无需求的卡（查看 / 即时）按钮仍在卡身正文底部。
     //
     // 负片规则（DESIGN.md）：骰子/数值格在暗卡上反转为白底黑字——「暗卡上的白纸片」。
     public static class ActionNodeDrawer
@@ -29,32 +30,15 @@ namespace SSNoir.IMGUI
             bool isExecuting,
             float executeProgress,
             string executingText,
-            ActionReport? localRoll,
-            int localRollPhase,
-            int localRollDisplayDieValue,
-            float localRollDisplayScale,
-            CardPresentationResidue? residue,
             float clockBadgesBottom,
-            bool spaciousAttachments,
             bool mustHandle,
             ref CardDrawer.CardInteraction interaction)
         {
             bool disabled = node.Disabled;
-            bool isRoll = node.Resolve!.Type == ResolveType.Roll;
             int requiredSlotCount = node.Requires?.Count ?? 0;
             bool hasRequires = requiredSlotCount > 0 && slotted != null && slotted.Count == requiredSlotCount;
             bool isObserve = node.Resolve!.Type == ResolveType.Observe;
             var actors = gameManager.DisplayedSnapshot.Actors;
-            // 「已装填」：任一槽位放了东西（或正在执行）。执行按钮和赔率条只在这时才从卡底
-            // 长出一截操作台；空卡只有标题、副标题和骰位——待命按钮是个什么都不能做的按钮，
-            // 不值得每张卡常驻 26 像素。
-            bool armed = hasRequires && (isExecuting || slotted!.Any(sl => sl != null));
-            bool dieSlotted = armed && slotted!.Any(sl => sl != null && sl.Type == "die");
-            bool showOdds = isRoll && !disabled && dieSlotted && actors != null && localRoll == null && residue == null;
-            // 伤势修正由 SceneManager 在结算时才挂上，内容层的 DifficultyModifiers 里没有它。
-            // 卡面必须自己补一份，否则「脸伤 · 交际 −2」在预览里看不见，赔率条也会按未受伤算——
-            // 预览写 4、结算按 2 算的两套账。这是同一份数据的两个读取点，不是两条规则。
-            var effectiveModifiers = EffectiveModifiers(node, gameManager.DisplayedSnapshot);
             bool hasClocks = clockBadgesBottom > rect.y;
 
             // ── 1. 标题区（居中）── clockBadgesBottom 是 CardDrawer 量出的时钟徽章实际底部，
@@ -75,10 +59,9 @@ namespace SSNoir.IMGUI
             }
 
             // ── 2. 纵向边界 ──
-            // 卡底往上：BottomPad，再（已装填时）一截操作台 + 间隙；剩下的才是正文（副标题、骰位）。
-            // 没有需求的卡把按钮直接放在正文底部。
-            float panelH = armed ? ArmedPanelHeight(showOdds) : 0f;
-            float bodyBottom = rect.yMax - BottomPad - (armed ? panelH + ArmedPanelGap : 0f) - (hasRequires ? 0f : ExeH);
+            // 卡底往上留 BottomPad，剩下的都是正文（副标题、骰位）。有需求的卡的执行按钮不在
+            // 卡身里（见 DrawConsoleAttachment）；没有需求的卡把按钮直接放在正文底部。
+            float bodyBottom = rect.yMax - BottomPad - (hasRequires ? 0f : ExeH);
 
             // 副标题按 MeasureSubtitleHeight 占它真正需要的高度，卡片高度也是按同一个函数算出来的，
             // 所以正常情况下它不需要跟谁抢空间。下面的 budget 只是兜底：卡被外部钉成更矮的尺寸时，
@@ -127,21 +110,10 @@ namespace SSNoir.IMGUI
             //     判定的核心骰左侧贴技能药丸（属性 → 骰子），同一行。
             DrawRequirementSlots(rect, bodyY, bodyBottom, clockBadgesBottom, node, slotted, disabled, ui, gameManager, ref interaction);
 
-            // ── 6. 执行 / 查看按钮（实心金 / 待命 / 不可用 / 执行中）──
-            // 有需求的卡：按钮在卡底那截操作台里，装填了才有。无需求的卡：按钮就在正文底。
-            bool allFilled = requiredSlotCount == 0 || (slotted != null && slotted.Count == requiredSlotCount && slotted.All(sl => sl != null));
-            Rect exeRect;
-            if (hasRequires)
-            {
-                if (!armed) return;
-                var panel = new Rect(rect.x + ArmedPanelInset, rect.yMax - BottomPad - panelH, rect.width - ArmedPanelInset * 2f, panelH);
-                DrawArmedPanel(rect, panel, allFilled && !disabled);
-                exeRect = new Rect(panel.center.x - ExeW / 2f, panel.y + ArmedPanelPad, ExeW, ExeH);
-            }
-            else
-            {
-                exeRect = new Rect(rect.center.x - ExeW / 2f, bodyBottom, ExeW, ExeH);
-            }
+            // ── 6. 无需求的卡：执行 / 查看按钮就在正文底（实心金 / 不可用 / 执行中）。
+            // 有需求的卡到此为止：它的按钮在卡片下挂的操作台里，由渲染器在附件层画。
+            if (hasRequires) return;
+            var exeRect = new Rect(rect.center.x - ExeW / 2f, bodyBottom, ExeW, ExeH);
             if (isExecuting)
             {
                 DrawExecuteProgress(exeRect, executeProgress, executingText);
@@ -153,25 +125,18 @@ namespace SSNoir.IMGUI
                     interaction.CardClicked = true;
                 }
             }
-            else if (allFilled && !disabled)
+            else if (!disabled)
             {
                 if (DrawExecuteButton(exeRect, "执 行", ui, true))
                     interaction.ExecuteClicked = true;
             }
             else
             {
-                DrawExecuteButton(exeRect, disabled ? "不可用" : "待 命", ui, false, dead: disabled);
+                DrawExecuteButton(exeRect, "不可用", ui, false, dead: true);
             }
 
-            // ── 7. 命运预览在操作台里、按钮下方；判定中与结算结果由渲染器在全部卡片之后统一画到
-            // attachment overlay，避免被较近的世界卡压住。──
-            if (showOdds)
-            {
-                TryDrawFatePreview(rect, node, gameManager.DisplayedSnapshot, slotted!, actors!, exeRect.yMax + OddsGap);
-            }
-
-            // ── 8. 卡片级点击（仅无 requires 的非 Instant 类型，如 Observe / Clock）──
-            if (!disabled && ui.WasTapped(rect) && !hasRequires && node.Resolve!.Type != ResolveType.Instant)
+            // ── 7. 卡片级点击（仅无 requires 的非 Instant 类型，如 Observe / Clock）──
+            if (!disabled && ui.WasTapped(rect) && node.Resolve!.Type != ResolveType.Instant)
             {
                 interaction.CardClicked = true;
                 Event.current.Use();
@@ -502,7 +467,7 @@ namespace SSNoir.IMGUI
         }
 
         // 卡片纵向流量的唯一定义，绘制（DrawContent）与测量（RecommendedCardHeight）共用同一组常量：
-        // 顶部挂件（时钟徽章 / 能力栏）→ 标题 → 副标题 → 骰位 → 执行按钮（+命运条）。
+        // 顶部挂件（时钟徽章 / 能力栏）→ 标题 → 副标题 → 骰位（无需求的卡再加一个执行按钮）。
         private const float TitleH = 26f;
         private const float TopPad = 8f;               // 无顶部挂件时标题距卡顶
         private const float GapAfterTopWidgets = 6f;   // 顶部挂件与标题之间
@@ -510,26 +475,87 @@ namespace SSNoir.IMGUI
         private const float BottomPad = 8f;
         private const float ExeH = 26f;
         private const float ExeW = 112f;
-        // 已装填时卡底长出的操作台：按钮（+ 命运预览）。它在卡的矩形之内——这样排布避让、
-        // 命中判定都不用另算一套；视觉上用一条短金线和自己的底把它画成「挂在卡下面的附件」。
-        private const float ArmedPanelGap = 8f;
-        private const float ArmedPanelPad = 8f;
-        private const float ArmedPanelInset = 8f;
+
+        // ── 操作台附件：执行按钮（+ 命运预览）────────────────────────
+        //
+        // 有需求的卡装填了（任一槽位放了东西，或正在执行）才长出操作台，挂在卡片下方，
+        // 和判定条 / 结果条是同一个位置、同一种「附件」。它不在卡的矩形之内：卡片本身
+        // 不因为放进一颗骰子而变高，排布里的位置也就不会跟着挪。
+        // 空卡只有标题、副标题和骰位——待命按钮是个什么都不能做的按钮，不值得常驻。
+        private const float ConsolePad = 8f;
+        private const float ConsoleInset = 8f;
         private const float OddsGap = 4f;
         private const float OddsH = 14f + 17f;          // DrawFateStrip：一行算式 + 赔率条
 
-        private static float ArmedPanelHeight(bool showOdds)
-            => ArmedPanelPad + ExeH + (showOdds ? OddsGap + OddsH : 0f) + ArmedPanelPad;
-
-        private static void DrawArmedPanel(Rect card, Rect panel, bool ready)
+        public static bool IsConsoleArmed(GameNode node, IReadOnlyList<SlottedResource?>? slotted, bool isExecuting)
         {
+            int required = node.Requires?.Count ?? 0;
+            if (required == 0 || slotted == null || slotted.Count != required)
+                return false;
+            return isExecuting || slotted.Any(sl => sl != null);
+        }
+
+        private static bool ConsoleShowsOdds(GameNode node, IReadOnlyList<SlottedResource?> slotted, IReadOnlyList<ActorSnapshot>? actors)
+            => node.Resolve!.Type == ResolveType.Roll && !node.Disabled && actors != null
+               && slotted.Any(sl => sl != null && sl.Type == "die");
+
+        private static float ConsoleHeight(bool showOdds)
+            => ConsolePad + ExeH + (showOdds ? OddsGap + OddsH : 0f) + ConsolePad;
+
+        public static Rect ConsoleAttachmentRect(Rect cardRect, GameNode node, IReadOnlyList<SlottedResource?> slotted,
+            IReadOnlyList<ActorSnapshot>? actors)
+        {
+            float width = cardRect.width - ConsoleInset * 2f;
+            return KeepAttachmentOnScreen(new Rect(
+                cardRect.center.x - width / 2f,
+                cardRect.yMax + AttachmentGap,
+                width,
+                ConsoleHeight(ConsoleShowsOdds(node, slotted, actors))));
+        }
+
+        /// <summary>操作台里那颗执行按钮的位置；渲染器在物品栏之前用它接点击（见 DrawConsoleAttachment）。</summary>
+        public static Rect ConsoleExecuteRect(Rect consoleRect)
+            => new Rect(consoleRect.center.x - ExeW / 2f, consoleRect.y + ConsolePad, ExeW, ExeH);
+
+        /// <summary>
+        /// 画操作台附件。返回 true 表示这一帧玩家按下了执行。
+        /// 附件层画在物品栏之后，操作台若压在物品栏上，视觉在前而点击会被底下的骰子抢走；
+        /// 所以渲染器在画物品栏之前先用 <see cref="ConsoleExecuteRect"/> 接一次点击，
+        /// 这里的返回值只在那一步没跑时才有机会为 true。
+        /// </summary>
+        public static bool DrawConsoleAttachment(
+            Rect cardRect, GameNode node, List<SlottedResource?> slotted,
+            IMGUIInteractionContext ui, SSNoirGameManager gameManager,
+            bool isExecuting, float executeProgress, string executingText)
+        {
+            var actors = gameManager.DisplayedSnapshot.Actors;
+            bool disabled = node.Disabled;
+            bool allFilled = slotted.All(sl => sl != null);
+            bool ready = allFilled && !disabled;
+            var panel = ConsoleAttachmentRect(cardRect, node, slotted, actors);
+
+            DrawAttachmentConnector(cardRect, panel);
+            ui.CanHover(panel);
             var line = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.62f);
-            IMGUIStyles.DrawLine(new Vector2(card.center.x, panel.y - ArmedPanelGap), new Vector2(card.center.x, panel.y + 1f), line, 2f);
-            IMGUIStyles.SetColor(new Color(SlotBlockBg.r, SlotBlockBg.g, SlotBlockBg.b, 0.9f));
+            IMGUIStyles.DrawShadow(panel, new Vector2(4f, 5f), 0.45f);
+            IMGUIStyles.SetColor(new Color(SlotBlockBg.r, SlotBlockBg.g, SlotBlockBg.b, 0.96f));
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(panel, 1f, ready ? line
                 : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f));
+
+            var exeRect = ConsoleExecuteRect(panel);
+            bool clicked = false;
+            if (isExecuting)
+                DrawExecuteProgress(exeRect, executeProgress, executingText);
+            else if (ready)
+                clicked = DrawExecuteButton(exeRect, "执 行", ui, true);
+            else
+                DrawExecuteButton(exeRect, disabled ? "不可用" : "待 命", ui, false, dead: disabled);
+
+            if (ConsoleShowsOdds(node, slotted, actors))
+                TryDrawFatePreview(panel, node, gameManager.DisplayedSnapshot, slotted, actors!, exeRect.yMax + OddsGap);
+            return clicked;
         }
 
         private static float TitleTop(float topWidgetsBottom, float cardTop)
@@ -598,30 +624,22 @@ namespace SSNoir.IMGUI
 
         // 这张动作卡按自身内容该有多高。网格卡与世界投射卡都用它定高——不再有「网格一律 190」
         // 那种与内容无关的固定值，也不套 MinCardHeight：空卡就该矮。
-        // slotted / isExecuting 决定卡底有没有那截操作台，与 DrawContent 里的 armed 同一个定义。
+        // 高度只看内容，不看装填状态：操作台是下挂附件，不在卡里。
         public static float RecommendedCardHeight(
             GameNode node,
             float cardWidth,
-            IReadOnlyList<ActorSnapshot>? actors,
-            IReadOnlyList<SlottedResource?>? slotted,
-            bool isExecuting)
+            IReadOnlyList<ActorSnapshot>? actors)
         {
             if (node.Resolve == null)
                 return UIScale.MinTouchSize;
 
-            bool isRoll = node.Resolve.Type == ResolveType.Roll;
             bool hasRequires = node.Requires != null && node.Requires.Count > 0;
             float clockHeight = CardDrawer.MeasureClockBadgesHeight(cardWidth, node.Clocks);
             float titleY = TitleTop(clockHeight, 0f);
 
             float bodyBottom = titleY + TitleH + MeasureSubtitleHeight(node, cardWidth) + GapTitleToBody;
             bodyBottom += hasRequires ? PreferredRequirementSlotsHeight(node, actors) : ExeH;
-
-            bool armed = hasRequires && (isExecuting || (slotted != null && slotted.Any(sl => sl != null)));
-            bool dieSlotted = armed && slotted != null && slotted.Any(sl => sl != null && sl.Type == "die");
-            bool showOdds = isRoll && !node.Disabled && dieSlotted && actors != null;
-            float panel = armed ? ArmedPanelGap + ArmedPanelHeight(showOdds) : 0f;
-            return Mathf.Max(UIScale.MinTouchSize, bodyBottom + panel + BottomPad);
+            return Mathf.Max(UIScale.MinTouchSize, bodyBottom + BottomPad);
         }
 
         private static float PreferredRequirementSlotsHeight(
@@ -1195,14 +1213,43 @@ namespace SSNoir.IMGUI
             return AttachmentGap + ResiduePanelHeight(residue, spacious, panelWidth) + AttachmentShadowReserve;
         }
 
-        public static Rect ResidueAttachmentRect(Rect cardRect, CardPresentationResidue residue, bool spacious)
+        public static Rect ResidueAttachmentRect(Rect cardRect, CardPresentationResidue residue, bool spacious, bool above = false)
         {
             float panelWidth = AttachmentWidth(cardRect.width, spacious);
-            return KeepAttachmentOnScreen(new Rect(
+            float panelHeight = ResiduePanelHeight(residue, spacious, panelWidth);
+            return KeepAttachmentOnScreen(AttachmentPanelRect(cardRect, panelWidth, panelHeight, above));
+        }
+
+        // 附件默认挂在卡下；宿主贴着屏幕底边时挂在卡上。
+        private static Rect AttachmentPanelRect(Rect cardRect, float panelWidth, float panelHeight, bool above)
+            => new Rect(
                 cardRect.center.x - panelWidth / 2f,
-                cardRect.yMax + AttachmentGap,
+                above ? cardRect.y - AttachmentGap - panelHeight : cardRect.yMax + AttachmentGap,
                 panelWidth,
-                ResiduePanelHeight(residue, spacious, panelWidth)));
+                panelHeight);
+
+        // 宿主此刻不在屏幕上时的替身：屏幕中央上方一块只写动作名的牌子，附件照常挂在它下面。
+        // 返回它的矩形，供 DrawAttachmentOverlay 当宿主用。
+        public static Rect DrawFloatingHost(string actionName)
+        {
+            bool spacious = UIScale.SafeArea.width >= 700f;
+            float w = spacious ? 300f : 220f;
+            float h = spacious ? 44f : 36f;
+            var rect = new Rect(UIScale.SafeArea.center.x - w / 2f, UIScale.SafeArea.y + UIScale.SafeArea.height * 0.28f, w, h);
+            IMGUIStyles.DrawShadow(rect, new Vector2(4f, 5f), 0.45f);
+            GUI.color = IMGUIStyles.Ink;
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.Paper);
+            var style = new GUIStyle(IMGUIStyles.SectionLabel)
+            {
+                fontSize = IMGUIStyles.FontSize(spacious ? 18 : 16),
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = IMGUIStyles.Paper }
+            };
+            IMGUIStyles.ApplyStrongFont(style);
+            IMGUIStyles.DrawLabel(rect, actionName, style);
+            return rect;
         }
 
         /// <summary>
@@ -1229,8 +1276,8 @@ namespace SSNoir.IMGUI
         }
 
         // Attachment 不属于宿主卡的绘制层：调用者应在世界卡与底部物品栏之后统一绘制它。
-        // 返回 true 表示玩家点了结果残影，调用者负责删除对应 residue。
-        public static bool DrawAttachmentOverlay(
+        // 结果条不接点击：停留的收起由渲染器按倒计时（或任意一次抬手）统一处理。
+        public static void DrawAttachmentOverlay(
             Rect cardRect,
             ActionReport? localRoll,
             int localRollPhase,
@@ -1238,22 +1285,17 @@ namespace SSNoir.IMGUI
             float localRollDisplayScale,
             CardPresentationResidue? residue,
             IMGUIInteractionContext ui,
-            bool spacious)
+            bool spacious,
+            bool above = false)
         {
             if (localRoll != null)
             {
                 DrawLocalRoll(cardRect, localRoll, localRollPhase, localRollDisplayDieValue,
-                    localRollDisplayScale, ui, spacious);
-                return false;
+                    localRollDisplayScale, ui, spacious, above);
+                return;
             }
-            if (residue == null)
-                return false;
-
-            DrawResiduePanel(cardRect, residue, ui, spacious);
-            if (!ui.WasTapped(ResidueAttachmentRect(cardRect, residue, spacious)))
-                return false;
-            Event.current.Use();
-            return true;
+            if (residue != null)
+                DrawResiduePanel(cardRect, residue, ui, spacious, above);
         }
 
         private static float RollHeaderHeight(bool spacious) => spacious ? 76f : 58f;
@@ -1269,15 +1311,12 @@ namespace SSNoir.IMGUI
             int displayDieValue,
             float displayScale,
             IMGUIInteractionContext ui,
-            bool spacious)
+            bool spacious,
+            bool above)
         {
             float panelWidth = AttachmentWidth(rect.width, spacious);
             float headerHeight = RollHeaderHeight(spacious);
-            var panel = KeepAttachmentOnScreen(new Rect(
-                rect.center.x - panelWidth / 2f,
-                rect.yMax + AttachmentGap,
-                panelWidth,
-                headerHeight));
+            var panel = KeepAttachmentOnScreen(AttachmentPanelRect(rect, panelWidth, headerHeight, above));
             DrawAttachmentConnector(rect, panel);
             ui.CanHover(panel);
             DrawResultAttachmentBackground(panel);
@@ -1336,7 +1375,8 @@ namespace SSNoir.IMGUI
             Rect rect,
             CardPresentationResidue residue,
             IMGUIInteractionContext ui,
-            bool spacious)
+            bool spacious,
+            bool above)
         {
             // residue 只有动画落定后才被绘制——首帧即结果该「揭开」的时刻，惰性记录起点。
             if (residue.RevealStartTime <= 0f)
@@ -1344,7 +1384,7 @@ namespace SSNoir.IMGUI
             float reveal = Mathf.Clamp01((Time.unscaledTime - residue.RevealStartTime) / 0.28f);
             float ease = 1f - Mathf.Pow(1f - reveal, 3f);
 
-            var panel = ResidueAttachmentRect(rect, residue, spacious);
+            var panel = ResidueAttachmentRect(rect, residue, spacious, above);
             DrawAttachmentConnector(rect, panel);
             ui.CanHover(panel);
             DrawResultAttachmentBackground(panel);
@@ -1355,8 +1395,9 @@ namespace SSNoir.IMGUI
             Color oc = hasOutcome ? OutcomeColor(outcome) : IMGUIStyles.Gold;
             IMGUIStyles.DrawOutline(header, 1.5f, oc);
 
-            string headerLabel = hasOutcome ? FormatOutcome(outcome)
-                : string.IsNullOrWhiteSpace(residue.Title) ? "行动结果" : residue.Title;
+            // 判定卡的头是档位；即时卡没有档位可写，头就只是一个「已结算」的标记——
+            // 卡就在上面，这里不重复卡名。
+            string headerLabel = hasOutcome ? FormatOutcome(outcome) : "行动结果";
             DrawRollHeaderText(header, headerLabel, hasOutcome ? oc : IMGUIStyles.TextPrimary,
                 residue.FateDieValue.HasValue ? $"准备 {residue.PreparedValue}" : "",
                 spacious);
@@ -1383,6 +1424,25 @@ namespace SSNoir.IMGUI
                     EffectRowGap,
                     spacious ? 12 : 10);
             }
+
+            DrawFuse(panel, residue.FuseRemaining01);
+        }
+
+        // 烧绳子：结果条底边一根金线，从两头向中间烧短；烧完这一停就结束了。
+        // 没在倒计时（对白还在放）时不画，免得玩家以为它随时会走。
+        private static void DrawFuse(Rect panel, float remaining01)
+        {
+            if (remaining01 >= 1f)
+                return;
+            float thickness = 3f;
+            float fullWidth = panel.width - 2f;
+            float width = fullWidth * remaining01;
+            var line = new Rect(panel.center.x - width / 2f, panel.yMax - thickness, width, thickness);
+            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.9f);
+            GUI.DrawTexture(new Rect(panel.x + 1f, panel.yMax - thickness, fullWidth, thickness), Texture2D.whiteTexture);
+            GUI.color = IMGUIStyles.Gold;
+            GUI.DrawTexture(line, Texture2D.whiteTexture);
+            GUI.color = Color.white;
         }
 
         private static void DrawAttachmentConnector(Rect card, Rect attachment)

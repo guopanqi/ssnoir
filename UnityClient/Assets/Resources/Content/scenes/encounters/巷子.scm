@@ -184,18 +184,18 @@
     :subtitle "社会；经理付钱，不等于他替你决定怎么收场"
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "话说得太细" (lambda () (answer-failed! 2)))
-      (outcome "他听懂了区别" (lambda () (answer+ employer-clk 1 '雇主)))
-      (outcome "案子早于经理的人" (lambda () (answer+ employer-clk 2 '雇主))))))
+      (outcome (lambda () (answer-failed! 2)))
+      (outcome (lambda () (answer+ employer-clk 1 '雇主)))
+      (outcome (lambda () (answer+ employer-clk 2 '雇主))))))
 
 (define (node-state-timeline)
   (node "从头讲起"
     :subtitle "见识；接案、查信、走桥廊都早于经理的人"
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "只能证明你跑得快" (lambda () (answer-failed! 2)))
-      (outcome "时间对得上" (lambda () (answer+ employer-clk 1 '雇主)))
-      (outcome "你不是临时找来的" (lambda () (answer+ employer-clk 2 '雇主))))))
+      (outcome (lambda () (answer-failed! 2)))
+      (outcome (lambda () (answer+ employer-clk 1 '雇主)))
+      (outcome (lambda () (answer+ employer-clk 2 '雇主))))))
 
 (define (node-dock-testimony)
   (node "让码头作证"
@@ -203,38 +203,36 @@
     :disabled dock-word-used?
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "没人替你接话" (lambda () (set! dock-word-used? #t) (answer-failed! 2)))
-      (outcome "班表上有你的名字"
-        (lambda () (set! dock-word-used? #t) (answer+ employer-clk 2 '雇主)))
-      (outcome "他肯替你担保"
-        (lambda () (set! dock-word-used? #t) (answer+ employer-clk 3 '雇主))))))
+      (outcome (lambda () (set! dock-word-used? #t) (answer-failed! 2)))
+      (outcome (lambda () (set! dock-word-used? #t) (answer+ employer-clk 2 '雇主)))
+      (outcome (lambda () (set! dock-word-used? #t) (answer+ employer-clk 3 '雇主))))))
 
 (define (node-open-letters)
   (node "把两封信摊开"
     :subtitle "见识；索钱之后是要命，已经不是旧情人的口角"
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "他没有接" (lambda () (answer-failed! 2)))
-      (outcome "他读完第一封" (lambda () (answer+ standing-clk 1 '夜莺)))
-      (outcome "他把两封都读完" (lambda () (answer+ standing-clk 2 '夜莺))))))
+      (outcome (lambda () (answer-failed! 2)))
+      (outcome (lambda () (answer+ standing-clk 1 '夜莺)))
+      (outcome (lambda () (answer+ standing-clk 2 '夜莺))))))
 
 (define (node-count-her-in)
   (node "把她算回来"
     :subtitle "社会；莱恩留下算这里的人，她走出去也不能除名"
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "像拿出身压他" (lambda () (answer-failed! 2)))
-      (outcome "他记起那一层楼" (lambda () (answer+ standing-clk 1 '夜莺)))
-      (outcome "她也有资格讨说法" (lambda () (answer+ standing-clk 2 '夜莺))))))
+      (outcome (lambda () (answer-failed! 2)))
+      (outcome (lambda () (answer+ standing-clk 1 '夜莺)))
+      (outcome (lambda () (answer+ standing-clk 2 '夜莺))))))
 
 (define (node-limit-purpose)
   (node "只拿信和底片"
     :subtitle "社会；把今晚要带走的东西说清楚"
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "像进门前的好听话" (lambda () (answer-failed! 2)))
-      (outcome "目标说清了" (lambda () (answer+ outcome-clk 1 '收场)))
-      (outcome "你要东西，不要人" (lambda () (answer+ outcome-clk 2 '收场))))))
+      (outcome (lambda () (answer-failed! 2)))
+      (outcome (lambda () (answer+ outcome-clk 1 '收场)))
+      (outcome (lambda () (answer+ outcome-clk 2 '收场))))))
 
 (define (node-state-consequence)
   (node "把后果说到底"
@@ -242,9 +240,9 @@
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "他听成了威胁" (lambda () (answer-failed! 2)))
-      (outcome "他知道这是实话" (lambda () (answer+ outcome-clk 1 '收场)))
-      (outcome "你是可控的那个" (lambda () (answer+ outcome-clk 2 '收场))))))
+      (outcome (lambda () (answer-failed! 2)))
+      (outcome (lambda () (answer+ outcome-clk 1 '收场)))
+      (outcome (lambda () (answer+ outcome-clk 2 '收场))))))
 
 (define (make-promise! which trust-n)
   (cond
@@ -262,27 +260,27 @@
     :subtitle "约束自己：第二幕不先动手；武力；少一格耐心"
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "他不信你收得住手" (lambda () (make-promise! '不先动手 1)))
-      (outcome "他暂且记下" (lambda () (make-promise! '不先动手 3)))
-      (outcome "这句话有分量" (lambda () (make-promise! '不先动手 4))))))
+      (outcome (lambda () (make-promise! '不先动手 1)))
+      (outcome (lambda () (make-promise! '不先动手 3)))
+      (outcome (lambda () (make-promise! '不先动手 4))))))
 
 (define (node-promise-no-search)
   (node "保证不搜身"
     :subtitle "约束自己：第二幕不搜身；社会；少一格耐心"
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "像进门前的空话" (lambda () (make-promise! '不搜身 1)))
-      (outcome "他接受这条界线" (lambda () (make-promise! '不搜身 3)))
-      (outcome "东西只能由莱恩交" (lambda () (make-promise! '不搜身 4))))))
+      (outcome (lambda () (make-promise! '不搜身 1)))
+      (outcome (lambda () (make-promise! '不搜身 3)))
+      (outcome (lambda () (make-promise! '不搜身 4))))))
 
 (define (node-promise-no-manager)
   (node "保证不用经理压他"
     :subtitle "约束自己：第二幕不借经理施压；社会；少一格耐心"
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "他听见的还是经理" (lambda () (make-promise! '不用经理 1)))
-      (outcome "今晚只算你的话" (lambda () (make-promise! '不用经理 3)))
-      (outcome "剧院的人不会进来" (lambda () (make-promise! '不用经理 4))))))
+      (outcome (lambda () (make-promise! '不用经理 1)))
+      (outcome (lambda () (make-promise! '不用经理 3)))
+      (outcome (lambda () (make-promise! '不用经理 4))))))
 
 (define (frank-agrees!)
   (play-dialogue!
@@ -341,12 +339,9 @@
     :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "他说不是他写的"
-        (lambda () (spend-composure! 1)))
-      (outcome "他不看那张纸"
-        (lambda () (advance-lyon! 1)))
-      (outcome "他念出了自己写的话"
-        (lambda () (advance-lyon! 2))))))
+      (outcome (lambda () (spend-composure! 1)))
+      (outcome (lambda () (advance-lyon! 1)))
+      (outcome (lambda () (advance-lyon! 2))))))
 
 (define (node-cigs)
   (node "把烟盒扔到桌上"
@@ -357,8 +352,7 @@
     :disabled cigs-used?
     :requires (list (req-item "半包「老金牌」香烟" 1))
     :resolve (instant
-      (outcome "他不说话了"
-        (lambda ()
+      (outcome (lambda ()
           (set! cigs-used? #t)
           (play-banter!
             (line "世界" "压扁的烟盒落在工作台上，旁边搁着生锈的大管钳和钝口的粗铁剪。" "巷子/物证/烟盒/01/世界")
@@ -371,12 +365,9 @@
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "他冲你吼回来"
-        (lambda () (spend-composure! 2) (crowd+ 1)))
-      (outcome "他脸上挂不住"
-        (lambda () (advance-lyon! 2)))
-      (outcome "他自己把话接了下去"
-        (lambda () (advance-lyon! 3))))))
+      (outcome (lambda () (spend-composure! 2) (crowd+ 1)))
+      (outcome (lambda () (advance-lyon! 2)))
+      (outcome (lambda () (advance-lyon! 3))))))
 
 ;; ── 形态二的四张卡 ──────────────────────────────
 (define (node-listen)
@@ -385,12 +376,9 @@
     :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "他自己绕回去了"
-        (lambda () (spend-composure! 1)))
-      (outcome "他往下说了一段"
-        (lambda () (advance-lyon! 1)))
-      (outcome "他说了没打算说的"
-        (lambda () (advance-lyon! 2))))))
+      (outcome (lambda () (spend-composure! 1)))
+      (outcome (lambda () (advance-lyon! 1)))
+      (outcome (lambda () (advance-lyon! 2))))))
 
 (define (node-that-line)
   (node "追问那句话"
@@ -398,12 +386,9 @@
     :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "他反问你信在哪儿"
-        (lambda () (spend-composure! 1)))
-      (outcome "他解释了半句"
-        (lambda () (advance-lyon! 1)))
-      (outcome "他把来龙去脉说了"
-        (lambda () (advance-lyon! 2))))))
+      (outcome (lambda () (spend-composure! 1)))
+      (outcome (lambda () (advance-lyon! 1)))
+      (outcome (lambda () (advance-lyon! 2))))))
 
 (define (node-strip)
   (node "拆穿他的委屈"
@@ -411,12 +396,9 @@
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "他梗着脖子不认"
-        (lambda () (spend-composure! 2) (crowd+ 1)))
-      (outcome "他没话说了"
-        (lambda () (advance-lyon! 2)))
-      (outcome "他自己认了"
-        (lambda () (advance-lyon! 3))))))
+      (outcome (lambda () (spend-composure! 2) (crowd+ 1)))
+      (outcome (lambda () (advance-lyon! 2)))
+      (outcome (lambda () (advance-lyon! 3))))))
 
 (define (node-workbench)
   (node "逼近工作台"
@@ -424,12 +406,9 @@
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "他把你推开"
-        (lambda () (spend-composure! 2) (crowd+ 2)))
-      (outcome "他退了半步"
-        (lambda () (advance-lyon! 2)))
-      (outcome "他不敢再挡"
-        (lambda () (advance-lyon! 3))))))
+      (outcome (lambda () (spend-composure! 2) (crowd+ 2)))
+      (outcome (lambda () (advance-lyon! 2)))
+      (outcome (lambda () (advance-lyon! 3))))))
 
 ;; ── 形态三：逼他自己把铁盒推过来 ──────────────────
 (define (node-leave-him-a-way-out)
@@ -438,9 +417,9 @@
     :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "他又把话咽回去" (lambda () (spend-composure! 1)))
-      (outcome "他松了点手" (lambda () (advance-lyon! 1)))
-      (outcome "他不再拿铁盒当筹码" (lambda () (advance-lyon! 2))))))
+      (outcome (lambda () (spend-composure! 1)))
+      (outcome (lambda () (advance-lyon! 1)))
+      (outcome (lambda () (advance-lyon! 2))))))
 
 (define (node-name-the-price)
   (node "说清该留下什么"
@@ -448,9 +427,9 @@
     :tags (list "低风险")
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "他只听见你要拿走东西" (lambda () (spend-composure! 1)))
-      (outcome "他看着那只铁盒" (lambda () (advance-lyon! 1)))
-      (outcome "他知道你没打算羞辱他" (lambda () (advance-lyon! 2))))))
+      (outcome (lambda () (spend-composure! 1)))
+      (outcome (lambda () (advance-lyon! 1)))
+      (outcome (lambda () (advance-lyon! 2))))))
 
 (define (node-reach-for-the-box)
   (node "伸手拿铁盒"
@@ -458,9 +437,9 @@
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "他按住铁盒不放" (lambda () (spend-composure! 2) (crowd+ 2)))
-      (outcome "他退开了" (lambda () (advance-lyon! 2)))
-      (outcome "他的手先松开" (lambda () (advance-lyon! 3))))))
+      (outcome (lambda () (spend-composure! 2) (crowd+ 2)))
+      (outcome (lambda () (advance-lyon! 2)))
+      (outcome (lambda () (advance-lyon! 3))))))
 
 ;; ── 收场 ────────────────────────────────────────
 ;; 这一节只有一种成功：莱恩自己交出铁盒，答应不再找夜莺。

@@ -98,12 +98,9 @@
     :clocks (list (老街-clk 'render-data))
     :requires (list (req-die))
     :resolve (roll 'social
-      (outcome "说错了话"
-        (lambda () (escalate!)))
-      (outcome "前排听了一半"
-        (lambda () (老街-clk 'tick!) (check!)))
-      (outcome "有人退了一步"
-        (lambda ()
+      (outcome (lambda () (escalate!)))
+      (outcome (lambda () (老街-clk 'tick!) (check!)))
+      (outcome (lambda ()
           (老街-clk 'advance! 2)
           (if (老街-clk 'full?)
               (play-banter! (line "世界" "弗兰克抬了抬手。前排的人往门里退了。"))
@@ -116,12 +113,9 @@
     :clocks (list (警方-clk 'render-data))
     :requires (list (req-die))
     :resolve (roll 'knowledge
-      (outcome "他不想听"
-        (lambda () (escalate!)))
-      (outcome "他没打断你"
-        (lambda () (警方-clk 'tick!) (check!)))
-      (outcome "他松了口"
-        (lambda ()
+      (outcome (lambda () (escalate!)))
+      (outcome (lambda () (警方-clk 'tick!) (check!)))
+      (outcome (lambda ()
           (警方-clk 'advance! 2)
           (if (警方-clk 'full?)
               (play-banter! (line "世界" "警官朝车那边点了点头。架着人的手松了。"))
@@ -135,12 +129,9 @@
     :clocks (list (喊人-clk 'render-data))
     :requires (list (req-die))
     :resolve (roll 'violence
-      (outcome "他甩开了你"
-        (lambda () (escalate!)))
-      (outcome "拉住了一只胳膊"
-        (lambda () (喊人-clk 'tick!) (settle-shouter!)))
-      (outcome "把他拽进了门"
-        (lambda () (喊人-clk 'advance! 2) (settle-shouter!))))))
+      (outcome (lambda () (escalate!)))
+      (outcome (lambda () (喊人-clk 'tick!) (settle-shouter!)))
+      (outcome (lambda () (喊人-clk 'advance! 2) (settle-shouter!))))))
 
 (define (settle-shouter!)
   (if (喊人-clk 'full?)
@@ -156,12 +147,9 @@
     :clocks (list (警棍-clk 'render-data))
     :requires (list (req-die))
     :resolve (roll 'sharpness
-      (outcome "他把你推开"
-        (lambda () (spend-composure! 1) (escalate!)))
-      (outcome "他停了一下"
-        (lambda () (警棍-clk 'tick!) (settle-baton!)))
-      (outcome "他把手放下了"
-        (lambda () (警棍-clk 'advance! 2) (settle-baton!))))))
+      (outcome (lambda () (spend-composure! 1) (escalate!)))
+      (outcome (lambda () (警棍-clk 'tick!) (settle-baton!)))
+      (outcome (lambda () (警棍-clk 'advance! 2) (settle-baton!))))))
 
 (define (settle-baton!)
   (if (警棍-clk 'full?)

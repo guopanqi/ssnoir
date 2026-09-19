@@ -37,7 +37,6 @@ namespace SSNoir.IMGUI
         public Rect Breadcrumb { get; }
         public Rect Day { get; }
         public Rect DossierToggle { get; }
-        public Rect RelationToggle { get; }
         public Rect GrowthToggle { get; }
         public Rect DebugToggle { get; }
         public Rect HelpToggle { get; }
@@ -50,7 +49,7 @@ namespace SSNoir.IMGUI
         public float ContentTop { get; }
 
         private TopHudLayout(Rect bar, Rect back, Rect breadcrumb, Rect day, Rect dossierToggle,
-            Rect relationToggle, Rect growthToggle, Rect debugToggle, Rect helpToggle,
+            Rect growthToggle, Rect debugToggle, Rect helpToggle,
             Rect settingsToggle, float dividerY, float contentTop)
         {
             Bar = bar;
@@ -58,7 +57,6 @@ namespace SSNoir.IMGUI
             Breadcrumb = breadcrumb;
             Day = day;
             DossierToggle = dossierToggle;
-            RelationToggle = relationToggle;
             GrowthToggle = growthToggle;
             DebugToggle = debugToggle;
             HelpToggle = helpToggle;
@@ -88,11 +86,6 @@ namespace SSNoir.IMGUI
             Rect help     = TakeFromRight(ref cursorRight, 54f, rowH, top, gap);
             Rect debug    = TakeFromRight(ref cursorRight, 54f, rowH, top, gap);
             Rect growth   = TakeFromRight(ref cursorRight, 64f, rowH, top, gap);
-            // 声誉这一版整个收起来（见 NavigationDrawer.ShowRelationPanel），
-            // 位置也一起让出去：它不是"有时候不画"，是这一版没有这个东西。
-            Rect relation = NavigationDrawer.ShowRelationPanel
-                ? TakeFromRight(ref cursorRight, 64f, rowH, top, gap)
-                : Rect.zero;
             // 卷宗排在这一组最左：它是这组里唯一每天都要开的，离面包屑最近。
             Rect dossier  = TakeFromRight(ref cursorRight, 64f, rowH, top, gap);
 
@@ -117,7 +110,6 @@ namespace SSNoir.IMGUI
                 breadcrumb,
                 UIScale.PixelSnap(day),
                 UIScale.PixelSnap(dossier),
-                UIScale.PixelSnap(relation),
                 UIScale.PixelSnap(growth),
                 UIScale.PixelSnap(debug),
                 UIScale.PixelSnap(help),

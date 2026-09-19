@@ -21,7 +21,7 @@ description: 为 SSNoir 设计、生成、加工、接入或修复游戏可用�
 
 根据用户目标、资产职责、游戏风格、年代、目标尺寸与城市语境撰写提示词，生成一批适合 image-to-3D 的参考图。先由 Agent 按轮廓、构图、年代、遮挡和可建模性淘汰不合格结果；只把合格候选与明确判断交给用户选择。
 
-读取 [references/visual-definition.md](references/visual-definition.md)。实际生图按用户指定或当前默认选择服务：默认是 `tools/gemini-image-web`（用法看它的 `--help` / README，`--out` 直接落到 `city-box/prefabs/review/<名>/NN-<描述>`）；LibTV 读取 `libtv-image-generate` Skill。不要为了比较服务而加载所有服务。
+读取 [references/visual-definition.md](references/visual-definition.md)。实际生图按用户指定或当前默认选择服务：默认是 `tools/gemini-image-web`（用法看它的 `--help` / README，`--out` 直接落到 `city-box/prefabs/review/<名>/NN-<描述>`）；LibTV 用 `tools/libtv-image-generate`（用法和 session 命名契约在它的 README）。不要为了比较服务而加载所有服务。
 
 ### 2. 网格生成
 

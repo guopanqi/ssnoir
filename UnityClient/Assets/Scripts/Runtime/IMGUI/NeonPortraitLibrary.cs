@@ -7,6 +7,19 @@ namespace SSNoir.IMGUI
     // 霓虹立绘的共享入口：Resources/Portraits/Neon/<人物名>。
     // 贴图是纯黑底、靠 Alpha From Grayscale 拿到 alpha 的发光图，黑等于透明。
     // 对白舞台和左下角人物簇都从这里取，缓存只有一份。
+    public readonly struct PortraitLayers
+    {
+        public readonly Texture2D? Lines;
+        public readonly Texture2D? Accent;
+        public readonly Stage.PortraitSkeleton? Skeleton;
+        public bool HasLayers => Lines != null && Accent != null;
+
+        public PortraitLayers(Texture2D? lines, Texture2D? accent, Stage.PortraitSkeleton? skeleton)
+        {
+            Lines = lines; Accent = accent; Skeleton = skeleton;
+        }
+    }
+
     public static class NeonPortraitLibrary
     {
         private const string ResourceRoot = "Portraits/Neon/";
@@ -30,6 +43,34 @@ namespace SSNoir.IMGUI
             var texture = Resources.Load<Texture2D>(ResourceRoot + characterName);
             Cache[characterName] = texture;
             return texture;
+        }
+
+        // 姿势变体：Resources/Portraits/Neon/<人物>_<姿势>。同一个人的招牌换一组灯管。
+        // 缺图返回 null，由调用方决定退回基础立绘并报警——内容里写了姿势就该有图。
+        public static Texture2D? LoadPose(string characterName, string pose)
+        {
+            return Load(characterName + "_" + pose);
+        }
+
+        // 离线加工出来的分层与骨架（tools/portrait-neon/process.py）：
+        //   <名>_lines   去掉点缀色的线稿，运行时染任意颜色
+        //   <名>_accent  点缀色蒙版，单独上色——人物的标志色可以随剧情变
+        //   <名>.neon    管子骨架折线
+        // 没跑过加工的图这些都是 null，舞台退回整张图直接画。
+        private static readonly Dictionary<Texture2D, PortraitLayers> Layers = new();
+
+        public static PortraitLayers LayersOf(Texture2D portrait)
+        {
+            if (Layers.TryGetValue(portrait, out var cached))
+                return cached;
+            string name = portrait.name;
+            var lines = Load(name + "_lines");
+            var accent = Load(name + "_accent");
+            var json = Resources.Load<TextAsset>(ResourceRoot + name + ".neon");
+            var skeleton = json != null ? Stage.PortraitSkeleton.Parse(json.text) : null;
+            var layers = new PortraitLayers(lines, accent, skeleton);
+            Layers[portrait] = layers;
+            return layers;
         }
 
         // 径向渐变：中心 alpha 1、边缘 0。当作「一笔画完的软圆」用，

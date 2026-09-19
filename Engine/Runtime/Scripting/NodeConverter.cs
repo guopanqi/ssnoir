@@ -430,43 +430,21 @@ namespace SSNoir.Scripting
 
             if (!(list[0] is Symbol header) || header.AsString != "outcome")
             {
-                throw new InvalidOperationException($"Invalid {context}: expected procedure or (outcome title mode effect)");
+                throw new InvalidOperationException($"Invalid {context}: expected procedure or (outcome effect)");
             }
 
-            if (list.Count != 4)
+            if (list.Count != 2)
             {
-                throw new InvalidOperationException($"Invalid {context}: outcome expects exactly 3 values after 'outcome (title mode effect), got {list.Count - 1}");
+                throw new InvalidOperationException($"Invalid {context}: outcome expects exactly one effect after 'outcome, got {list.Count - 1}");
             }
 
-            if (!(list[1] is string title))
-            {
-                throw new InvalidOperationException($"Invalid {context}: outcome title must be a string");
-            }
-
-            if (!(list[2] is Symbol modeSym))
-            {
-                throw new InvalidOperationException($"Invalid {context}: outcome mode must be 'light or 'heavy");
-            }
-
-            var mode = modeSym.AsString.ToLowerInvariant() switch
-            {
-                "light" => OutcomePresentationMode.Light,
-                "heavy" => OutcomePresentationMode.Heavy,
-                _ => throw new InvalidOperationException($"Invalid {context}: unknown outcome mode '{modeSym.AsString}', expected 'light or 'heavy")
-            };
-
-            if (!(list[3] is Procedure effectProc))
+            if (!(list[1] is Procedure effectProc))
             {
                 throw new InvalidOperationException($"Invalid {context}: outcome effect must be a procedure");
             }
 
             return new ActionOutcome
             {
-                Presentation = new OutcomePresentation
-                {
-                    Title = title,
-                    Mode = mode
-                },
                 Effect = () => effectProc.Call(new List<object>())
             };
         }
@@ -559,10 +537,12 @@ namespace SSNoir.Scripting
                 throw new InvalidOperationException("卷宗条目的标识必须是非空字符串。");
 
             string kind = "委托";
+            bool isPrimary = false;
             string status = "进行中";
             string now = string.Empty;
             string where = string.Empty;
             var clocks = new List<GameClock>();
+            var steps = new List<DossierStep>();
             var log = new List<DossierLogEntry>();
 
             for (int i = 2; i < expr.Count; i += 2)
@@ -576,10 +556,16 @@ namespace SSNoir.Scripting
                 switch (kw.AsString.ToLowerInvariant())
                 {
                     case ":kind":   kind = SymbolOrString(val, id, ":kind"); break;
+                    case ":primary":
+                        if (!(val is bool parsedPrimary))
+                            throw new InvalidOperationException($"卷宗条目 '{id}' 的 :primary 必须是布尔量。");
+                        isPrimary = parsedPrimary;
+                        break;
                     case ":status": status = SymbolOrString(val, id, ":status"); break;
                     case ":now":    now = val as string ?? string.Empty; break;
                     case ":where":  where = val as string ?? string.Empty; break;
                     case ":clocks": clocks = ParseClocks(val); break;
+                    case ":steps":  steps = ParseSteps(val, id); break;
                     case ":log":    log = ParseJournal(val, id); break;
                     default:
                         throw new InvalidOperationException($"卷宗条目 '{id}' 收到未知关键字 {kw.AsString}。");
@@ -588,9 +574,28 @@ namespace SSNoir.Scripting
 
             return new DossierEntry
             {
-                Id = id, Kind = kind, Status = status, Now = now, Where = where,
-                Clocks = clocks, Log = log,
+                Id = id, Kind = kind, IsPrimary = isPrimary, Status = status, Now = now, Where = where,
+                Clocks = clocks, Steps = steps, Log = log,
             };
+        }
+
+        private static List<DossierStep> ParseSteps(object val, string id)
+        {
+            var steps = new List<DossierStep>();
+            if (!(val is List<object> list))
+                throw new InvalidOperationException($"卷宗条目 '{id}' 的 :steps 必须是列表。");
+
+            foreach (var item in list)
+            {
+                if (!(item is List<object> expr) || expr.Count != 3
+                    || !(expr[0] is Symbol header) || header.AsString != "step"
+                    || !(expr[1] is string text) || string.IsNullOrWhiteSpace(text)
+                    || !(expr[2] is bool done))
+                    throw new InvalidOperationException(
+                        $"卷宗条目 '{id}' 的子项必须是 (step \"文案\" 已完成?) 的列表。");
+                steps.Add(new DossierStep { Text = text, Done = done });
+            }
+            return steps;
         }
 
         private static string SymbolOrString(object val, string id, string field) =>

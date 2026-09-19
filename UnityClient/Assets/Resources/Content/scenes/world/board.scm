@@ -76,13 +76,10 @@
         (action-with-clocks id
           (list (req-die))
           (roll skill
-            (outcome "没办成"
-              (lambda () (complete-mission! id fail-effect)))
-            (outcome "勉强交差"
-              (lambda ()
+            (outcome (lambda () (complete-mission! id fail-effect)))
+            (outcome (lambda ()
                 (complete-mission! id (lambda () (add-item! "金钱" neutral-pay)))))
-            (outcome "办得漂亮"
-              (lambda ()
+            (outcome (lambda ()
                 (complete-mission! id (lambda () (add-item! "金钱" good-pay))))))
           (mission-clocks entry))))
 
@@ -93,12 +90,10 @@
         :disabled (< (item-count "药品") 1)
         :requires (list (req-item "药品" 1))
         :resolve (instant
-          (outcome "药送到了"
-            (lambda ()
+          (outcome (lambda ()
               (complete-mission! "有人需要药"
                 (lambda ()
-                  (add-item! "金钱" 20)
-                  (change-faction-relation! "老码头" 1))))))))
+                  (add-item! "金钱" 20))))))))
 
     (define (mission-node entry)
       (let ((id (mission-id entry)))

@@ -278,10 +278,15 @@ namespace SSNoir.IMGUI
 
         // ── 入口 ───────────────────────────────────────────────────────
 
+        // 本帧画在手牌区里的动作宿主（休息键、随身卡）的矩形，按动作名记。它们不在卡片层，
+        // 判定条和结果条要挂上去只能从这里找。
+        public static readonly Dictionary<string, Rect> DrawnActionRects = new(StringComparer.OrdinalIgnoreCase);
+
         public static void Draw(
             SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors = null,
             IReadOnlyList<SlottedResource>? pendingAutoActionDice = null)
         {
+            DrawnActionRects.Clear();
             float baseline = UIScale.SafeArea.yMax - BottomMargin;   // 行动骰底边
             DrawCharacters(baseline, gameManager, ui, anchors, drawPortraits: false, drawForeground: true,
                 pendingAutoActionDice: pendingAutoActionDice);
@@ -489,7 +494,7 @@ namespace SSNoir.IMGUI
         // 立在 HUD 里的霓虹半身像。没有边框、没有底板——衬托靠人物背后那团椭圆暗晕，
         // 它没有边界，所以人像是「从暗处走出来」而不是「贴在一块牌子上」。
         // 刻意不做呼吸和闪烁：常驻 HUD 上的动画会一直勾眼睛，那是对白舞台该干的事。
-        private static void DrawNeonBust(Rect rect, Texture2D neon, Rect uv)
+        internal static void DrawNeonBust(Rect rect, Texture2D neon, Rect uv)
         {
             // 背后的暗晕：霓虹靠亮度对比活着，底必须压黑，否则贴在深蓝图纸上会糊。
             var halo = NeonPortraitLibrary.RadialFalloff();
@@ -1051,18 +1056,22 @@ namespace SSNoir.IMGUI
                 // 每一场交锋），在休息键上方画成带物品槽、行动骰槽和执行钮的标准卡。
                 // 功能区只剩"休息"：它是唯一一个真的不吃任何东西的动作。
                 var restRect = new Rect(functionX, functionY, functionW, functionH);
+                DrawnActionRects["休息"] = restRect;
                 // 休息也是一次真的执行（OnEndTurnClicked 会播一段 "休息" 演出）。
                 // 它不是卡、没有执行钮，进度得自己画，否则场上唯一没有时间流逝的动作就是它。
                 var restExecution = gameManager.GetExecutionState("休息");
                 if (restExecution.IsExecuting)
                     DrawFunctionProgress(restRect, restExecution.Progress);
-                else if (DrawFunctionBlock(restRect, "休 息", ui, false))
+                // 结算中和刚结算完的短冷却里都按不下去（CanRest）：连点不会把第二天也睡掉。
+                else if (DrawFunctionBlock(restRect, "休 息", ui, !gameManager.CanRest))
                     gameManager.OnEndTurnClicked();
             }
             else
             {
                 var homeRect = new Rect(functionX, functionY, functionW, functionH);
-                if (DrawFunctionBlock(homeRect, "回 家", ui, false))
+                // 已经在家就不该再点：NavigateToHome 本来就会直接返回，按钮只是把这说出来。
+                bool alreadyAtHome = gameManager.NavigationStack.Any(node => node.Name == "家");
+                if (DrawFunctionBlock(homeRect, "回 家", ui, alreadyAtHome))
                     gameManager.NavigateToHome();
             }
 
@@ -1176,6 +1185,7 @@ namespace SSNoir.IMGUI
         {
             var node = nodes[index];
             var rect = EncounterActionCardRect(nodes, index, right, bottom, gameManager);
+            DrawnActionRects[node.Name] = rect;
             if (!string.IsNullOrEmpty(node.CarryItemId)
                 && (node.Requires == null || node.Requires.Count != 2))
                 throw new InvalidOperationException(

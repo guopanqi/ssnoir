@@ -62,7 +62,13 @@
     (define 阶段 "未开始")        ; 未开始 / A / B
     (define 起始日 0)             ; 第一章结案的次日；0＝还没开始
     (define 阶段起始日 0)
-    (define journal (make-journal))
+    ;; 城市主轴三张卡各自一份履历；写的时候点名（'log! 标题 正文）。
+    (define 主线卡 (list "格兰德酒店晚宴" "封面上的夜莺" "机器进入老街"))
+    (define journals (map (lambda (id) (list id (make-journal))) 主线卡))
+    (define (journal-of id)
+      (let ((found (assoc-get journals id #f)))
+        (if found found (error (string-append "第二章：没有叫「" id "」的主线卡")))))
+    (define (log! id text) ((journal-of id) 'add! text))
 
     (define (开始了?) (not (equal? 阶段 "未开始")))
     ;; 章节第几天：起始那天是第 1 天。
@@ -82,21 +88,21 @@
             (set! 阶段 "B")
             (set! 阶段起始日 world-day)
             (机器进入老街 'announce!)
-            (journal 'add! "新港计划正式通过。第一批设备三天后进入老码头。")
+            (log! "机器进入老街" "新港计划正式通过。第一批设备下周进入老码头。")
             (play-remote-dialogue!
               (line "世界" "天刚亮，报童的喊声从街口一直追到窗下。")
-              (line "报童" "新港计划通过！第一批机器三天后进老码头！")
+              (line "报童" "新港计划通过！第一批机器下周就进老码头！")
               (line "世界" "公告列出了封闭泊位、调岗和培训的日期。")
               (line "尼尔" "以前他们谈的是计划。现在纸上有日子了。"))
-            (spotlight! "三天后"
-              "第一批设备将在三天后进入老码头。城市已经开始为那一天腾地方。"))
+            (spotlight! "六天后"
+              "第一批设备将在六天后进入老码头。城市已经开始为那一天腾地方。"))
           (error "第二章：只能从 A 进入 B")))
 
     (define (进入阶段-A!)
       (set! 阶段 "A")
       (set! 起始日 world-day)
       (set! 阶段起始日 world-day)
-      (journal 'add! "报纸把首演那一晚写成了她的胜利。街上安静下来，钱头一次不那么紧。")
+      (log! "格兰德酒店晚宴" "报纸把首演那一晚写成了她的胜利。街上安静下来，钱头一次不那么紧。")
       (spotlight! "成功以后"
         "案子结了，报酬到手。夜莺突然成了全城都在谈的名字——两天后有一场晚宴，她要你陪她去。"))
 
@@ -117,26 +123,24 @@
       #t)
 
     ;; ── 卷宗 ────────────────────────────────────────
-    ;; 城市轴不是一条等玩家推进的长任务。只有某个必经节点已经被明确预告，
-    ;; 或事件已经发生、正等玩家到场时，才短暂投一条实名主线。事件之间可以没有主线。
+    ;; 城市轴不是一条等玩家推进的长任务。每个必经节点一张短卡：预告了就立，
+    ;; 到场办完就了结、沉到底部当履历。事件之间可以没有开着的主线。
+    ;; 三张卡开的时间互不重叠，所以任何时候最多一条开着的 主线。
     (define (主线卷宗)
       (define (一条 标题 事件)
         (list (dossier 标题
                 :kind '主线
-                :status '进行中
-                :now (事件 'now)
-                :where (事件 'where)
-                :clocks (事件 'clocks)
-                :log (journal 'render-data))))
-      (cond
-        ((and (开始了?) (not (equal? (晚宴 'result) "已结束")))
-         (一条 "格兰德酒店晚宴" 晚宴))
-        ((equal? (封面上的夜莺 'state) "待去")
-         (一条 "封面上的夜莺" 封面上的夜莺))
-        ((or (equal? (机器进入老街 'state) "已公布")
-             (equal? (机器进入老街 'state) "今天"))
-         (一条 "机器进入老街" 机器进入老街))
-        (#t '())))
+                :primary #t
+                :status (if (事件 'done?) '了结 '进行中)
+                :now (if (事件 'done?) "" (事件 'now))
+                :where (if (事件 'done?) "" (事件 'where))
+                :clocks (if (事件 'done?) '() (事件 'clocks))
+                :steps (事件 'steps)
+                :log ((journal-of 标题) 'render-data))))
+      (append
+        (if (开始了?) (一条 "格兰德酒店晚宴" 晚宴) '())
+        (if (封面上的夜莺 'published?) (一条 "封面上的夜莺" 封面上的夜莺) '())
+        (if (机器进入老街 'announced?) (一条 "机器进入老街" 机器进入老街) '())))
 
     (lambda args
       (let ((msg (car args)))
@@ -178,25 +182,27 @@
           ((equal? msg 'sync-blockers!)
            (晚宴 'sync-blockers!)
            (封面上的夜莺 'sync-blockers!)
-           (机器进入老街 'sync-blockers!))
+           (机器进入老街 'sync-blockers!)
+           (baines 'sync-blockers!))
           ((equal? msg 'day) (第几天))
           ((equal? msg 'day-of) (第几天的日子 (cadr args)))
           ((equal? msg 'phase-start-day) 阶段起始日)
           ((equal? msg 'banquet-day) (晚宴日))
-          ((equal? msg 'journal) journal)
+          ((equal? msg 'log!) (log! (cadr args) (caddr args)))
           ((equal? msg 'save)
            (append
              (list (list "phase" 阶段)
                    (list "start-day" 起始日)
                    (list "phase-start-day" 阶段起始日)
-                   (list "journal" (journal 'save)))
+                   (list "journals" (map (lambda (j) (list (car j) ((cadr j) 'save))) journals)))
              (map (lambda (row) (list (car row) ((cadr row) 'save))) (事件表))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! 阶段 (assoc-get data "phase" "未开始"))
              (set! 起始日 (assoc-get data "start-day" 0))
              (set! 阶段起始日 (assoc-get data "phase-start-day" 0))
-             (journal 'load! (assoc-get data "journal" '()))
+             (let ((saved (assoc-get data "journals" '())))
+               (map (lambda (j) ((cadr j) 'load! (assoc-get saved (car j) '()))) journals))
              (map (lambda (row) ((cadr row) 'load! (assoc-get data (car row) '())))
                   (事件表))
              #t))

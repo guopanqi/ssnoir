@@ -41,15 +41,20 @@ namespace SSNoir.Core
         public List<GameClock> CurrentClocks { get; private set; } = new List<GameClock>();
         /// <summary>本帧的卷宗（世界场景才有，交锋里是空的）。</summary>
         public List<DossierEntry> CurrentDossier { get; private set; } = new List<DossierEntry>();
+        public List<SupportEntry> CurrentSupports { get; private set; } = new List<SupportEntry>();
 
         /// <summary>玩家钉在地图上的那条线。是阅读偏好，不是故事状态，所以放在全局里跟着存档走。</summary>
-        public const string DossierPinKey = "dossier-pin";
+        /// <summary>
+        /// 卷宗里被玩家**取消钉住**的那些线的 id，按行分隔。钉住是默认：新接的线自动上地图，
+        /// 玩家取消过的才记下来。存的是取消而不是钉住，新线才不需要任何登记就出现。
+        /// </summary>
+        public const string DossierUnpinnedKey = "dossier-unpinned";
 
         /// <summary>
-        /// 钉住一条线；传空字符串＝取消钉住，退回默认（第一条还没了结的委托）。
         /// 不重建渲染树：这是阅读偏好，不改变世界，客户端下一帧直接读全局即可。
         /// </summary>
-        public void SetDossierPin(string id) => _gameState.Set(DossierPinKey, id ?? string.Empty);
+        public void SetDossierUnpinned(IEnumerable<string> ids)
+            => _gameState.Set(DossierUnpinnedKey, string.Join("\n", ids));
         public PresentationSnapshot LatestSnapshot { get; private set; } = new PresentationSnapshot();
 
         public SchemeInterpreter ActiveInterpreter => _encounterInterpreter ?? _worldInterpreter ?? throw new InvalidOperationException("No active interpreter");
@@ -336,7 +341,7 @@ namespace SSNoir.Core
             }
 
             foreach (var name in _gameState.Team.BeginCityDay())
-                report.AddNote($"{name}缓过来了，今天照旧跟着你。");
+                report.AddSupplement($"{name}缓过来了，今天照旧跟着你。");
 
             // 这是新的一天，不是普通切场景：必须消费宿醉并重新发骰。EndEncounter 在动作中
             // 可能已经挂起过一次“回世界”的场景骰，那次只是过渡，明确取消，避免随后覆盖新日骰池。
@@ -475,8 +480,26 @@ namespace SSNoir.Core
                         if (!CurrentSceneName.Equals(sceneName, StringComparison.OrdinalIgnoreCase))
                             throw new InvalidOperationException(
                                 $"auto-action!: scene changed from '{sceneName}' to '{CurrentSceneName}' before resolution");
-                        effect.Call(new List<object>());
+                        // 结算发生在演出中途、任何动作之外。给它一份自己的报告，效果里推的钟、写的
+                        // 结果行、说的 banter 才有地方落——否则时钟行被静默丢掉，玩家只看见卡消失。
+                        // 自动行动不是剧情步骤的容器：效果里不许再排阻塞对话。
+                        if (_gameState.CurrentActionReport != null)
+                            throw new InvalidOperationException("auto-action!: 结算时不该有正在执行的动作。");
+                        var autoReport = new ActionReport { Type = ActionType.Instant };
+                        _gameState.CurrentActionReport = autoReport;
+                        try
+                        {
+                            effect.Call(new List<object>());
+                        }
+                        finally
+                        {
+                            _gameState.CurrentActionReport = null;
+                        }
+                        if (autoReport.BlockingStorySteps.Count > 0)
+                            throw new InvalidOperationException(
+                                $"auto-action!: '{name}' 的效果里不能排阻塞剧情步骤（对话 / 聚光 / 动画）；要说话用 play-banter!。");
                         RebuildRenderTree();
+                        return autoReport;
                     });
                     foreach (var demand in parsed)
                         _pendingAutoDiceDemands.Add((step, demand.ActorId, demand.Count));
@@ -615,6 +638,35 @@ namespace SSNoir.Core
 
         public void Refresh() => RebuildRenderTree();
 
+        // 支援的文案归内容：每条 id 去问一次 (support-info id)，回 (标题 说明)。
+        // 没登记的 id 由 Scheme 侧报错——发了支援却没写它是什么，是内容的问题。
+        private List<SupportEntry> BuildSupportEntries(SchemeInterpreter active)
+        {
+            var result = new List<SupportEntry>();
+            foreach (string id in _gameState.Team.Supports)
+            {
+                var info = active.Eval($"(support-info \"{id}\")");
+                if (!(info is List<object> pair) || pair.Count != 2
+                    || !(pair[0] is string title) || !(pair[1] is string desc))
+                    throw new InvalidOperationException($"(support-info \"{id}\") 必须返回 (标题 说明) 两个字符串。");
+                result.Add(new SupportEntry
+                {
+                    Id = id, Title = title, Description = desc,
+                    Carried = string.Equals(id, _gameState.Team.CarriedSupport, StringComparison.Ordinal),
+                });
+            }
+            return result;
+        }
+
+        /// <summary>出门前选带哪一条支援。交锋里不许换——那一场带谁进场时就定了。</summary>
+        public void SetCarriedSupport(string id)
+        {
+            if (!IsWorldScene(CurrentSceneName))
+                throw new InvalidOperationException("交锋里不能换支援。");
+            _gameState.Team.SetCarriedSupport(id);
+            RebuildRenderTree();
+        }
+
         public void RebuildRenderTree()
         {
             var active = ActiveInterpreter;
@@ -639,6 +691,7 @@ namespace SSNoir.Core
             CurrentDossier = IsWorldScene(CurrentSceneName)
                 ? NodeConverter.ConvertDossier(active.Eval("(get-dossier)"))
                 : new List<DossierEntry>();
+            CurrentSupports = BuildSupportEntries(active);
 
             LatestSnapshot = BuildPresentationSnapshot(rootNode);
             
@@ -740,22 +793,6 @@ namespace SSNoir.Core
                 inventory[item.Key] = item.Value;
             }
 
-            var relations = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            foreach (string circle in GameState.Circles)
-                relations[circle] = _gameState.Get<int>("relation:" + circle);
-            var relationUnlocks = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var relationBandNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (string faction in relations.Keys)
-            {
-                foreach (string tier in RelationScale.PositiveTiers)
-                {
-                    relationUnlocks[$"{faction}:{tier}"] =
-                        _gameState.Get<string>($"relation-goal:{faction}:{tier}", "当前无新增动作");
-                    relationBandNames[$"{faction}:{tier}"] =
-                        _gameState.Get<string>($"relation-band-name:{faction}:{tier}", tier);
-                }
-            }
-
             bool isInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
             var actors = new List<ActorSnapshot>();
             foreach (var actor in _gameState.Team.Actors)
@@ -799,10 +836,8 @@ namespace SSNoir.Core
                 Location = _gameState.Get<string>("location"),
                 Inventory = inventory,
                 ItemCapacities = ItemCapacities,
-                Relations = relations,
-                RelationUnlocks = relationUnlocks,
-                RelationBandNames = relationBandNames,
                 Dossier = CurrentDossier,
+                Supports = CurrentSupports,
                 Actors = actors,
                 IsInEncounter = isInEncounter,
             };
@@ -897,22 +932,16 @@ namespace SSNoir.Core
             report.TurnEnded = true;
             try
             {
-                int injuryBefore = _gameState.Team.Injury.Severity;
-                int composureBefore = _gameState.Team.FindActor("player")?.Composure ?? 0;
-
                 // 交锋里每结束一个回合扣一点冷静：时间本身就是代价。
                 // 没有它，"这一回合手气不好，什么都不投，等下一轮重摇"是完全免费的，
                 // 最优解就变成只投高点数——玩家不再需要在"现在动手"和"再等等"之间取舍。
                 // 花超的部分由 SpendComposure 自动溢出成伤势，那正是"熬太久要还的"。
-                if (isInEncounter)
-                    _gameState.Team.SpendComposure("player", EncounterTurnComposureCost);
-                int automaticComposureDelta = (_gameState.Team.FindActor("player")?.Composure ?? 0) - composureBefore;
-                int automaticInjuryDelta = _gameState.HasPendingHospitalization
-                    ? Injury.MaxSeverity - injuryBefore
-                    : _gameState.Team.Injury.Severity - injuryBefore;
-
+                // 动作里已经倒下（end-turn! 包在动作里）则照旧跳过：那一手的规则归动作。
+                // 规则先跑，费用后收：这一回合把交锋结算了（散场/失败回到世界），
+                // 时间税就不再收——成功之后不再调用其他。
+                bool wasPendingBeforeAction = _gameState.HasPendingHospitalization;
                 var turnInterpreter = ActiveInterpreter;
-                if (!_gameState.HasPendingHospitalization)
+                if (!wasPendingBeforeAction)
                 {
                     _isResolvingTurnEnd = true;
                     try
@@ -924,6 +953,16 @@ namespace SSNoir.Core
                         _isResolvingTurnEnd = false;
                     }
                 }
+
+                int injuryBefore = _gameState.Team.Injury.Severity;
+                int composureBefore = _gameState.Team.FindActor("player")?.Composure ?? 0;
+                bool stillInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
+                if (isInEncounter && stillInEncounter)
+                    _gameState.Team.SpendComposure("player", EncounterTurnComposureCost);
+                int automaticComposureDelta = (_gameState.Team.FindActor("player")?.Composure ?? 0) - composureBefore;
+                int automaticInjuryDelta = _gameState.HasPendingHospitalization
+                    ? Injury.MaxSeverity - injuryBefore
+                    : _gameState.Team.Injury.Severity - injuryBefore;
 
                 if (_gameState.HasPendingHospitalization)
                 {
@@ -938,7 +977,7 @@ namespace SSNoir.Core
                         ActionEffectKind.Injury, "伤势", automaticInjuryDelta,
                         automaticInjuryDelta > 0 ? ActionEffectTone.Negative : ActionEffectTone.Positive);
                     if (automaticInjuryDelta > 0)
-                        report.AddNote("冷静击穿：你的手在抖，身体先一步承受了代价。");
+                        report.AddSupplement("冷静击穿：你的手在抖，身体先一步承受了代价。");
 
                     RebuildRenderTree();
                     if (ownsReport)
@@ -948,7 +987,7 @@ namespace SSNoir.Core
 
                 // 支援叫来的帮手只待这一回合：回合规则跑完就走，新一手骰子里没有他。
                 foreach (var name in _gameState.Team.DismissTemporaryCompanions())
-                    report.AddNote($"{name}走了。");
+                    report.AddSupplement($"{name}走了。");
 
                 bool stillInSameMode = isInEncounter == !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
                 if (stillInSameMode)
@@ -963,7 +1002,7 @@ namespace SSNoir.Core
                 if (!isInEncounter && stillInSameMode)
                 {
                     foreach (var name in _gameState.Team.BeginCityDay())
-                        report.AddNote($"{name}缓过来了，今天照旧跟着你。");
+                        report.AddSupplement($"{name}缓过来了，今天照旧跟着你。");
                 }
 
                 report.AddEffect(
@@ -976,7 +1015,7 @@ namespace SSNoir.Core
                     automaticInjuryDelta > 0 ? ActionEffectTone.Negative : ActionEffectTone.Positive);
                 if (automaticInjuryDelta > 0)
                 {
-                    report.AddNote("冷静击穿：你的手在抖，身体先一步承受了代价。");
+                    report.AddSupplement("冷静击穿：你的手在抖，身体先一步承受了代价。");
                 }
 
                 RebuildRenderTree();
@@ -1019,9 +1058,28 @@ namespace SSNoir.Core
             if (root == null)
                 return null;
 
-            var place = root.Children.Find(child => child.IsPlace && child.Name == placeName);
-            if (place == null || place.Arrivals.Count == 0)
+            // 退回世界层也算一次到达：世界根自己不是子地点，但「你离开过这里」
+            // 这类规则（家里的睡觉锁）要听见它。根没有入场节拍，只跑钩子并重建。
+            if (root.Name == placeName)
+            {
+                ActiveInterpreter.Eval($"(on-enter-place \"{placeName}\")");
+                RebuildRenderTree();
                 return null;
+            }
+
+            var place = root.Children.Find(child => child.IsPlace && child.Name == placeName);
+            if (place == null)
+                return null;
+
+            // 「你走进了这里」这件事本身先告诉内容（早于入场节拍），树随之重建：
+            // 有些卡的可用性只看你去过哪儿（家里的睡觉锁）。没有节拍也要重建，
+            // 客户端拿到 null 后自己采纳最新快照。
+            ActiveInterpreter.Eval($"(on-enter-place \"{placeName}\")");
+            if (place.Arrivals.Count == 0)
+            {
+                RebuildRenderTree();
+                return null;
+            }
 
             var report = new ActionReport { Type = ActionType.Instant };
             _gameState.CurrentActionReport = report;
@@ -1029,7 +1087,7 @@ namespace SSNoir.Core
             try
             {
                 // 表现走报告而不是即时广播：动作外 __spotlight! 立刻显示而 __play-dialogue!
-                // 进队列，混用则顺序不保；__play-animation! 在无报告时干脆静默丢弃。
+                // 进队列，混用则顺序不保；__play-video! 在无报告时干脆静默丢弃。
                 // 报告同时给出原子性——中途抛错就不交出报告，一句也不播。
                 foreach (var beat in place.Arrivals)
                 {
@@ -1047,7 +1105,7 @@ namespace SSNoir.Core
                 _gameState.CurrentActionReport = null;
             }
 
-            // Arrival 只负责叙事。写进 Effects 的东西（result-note!、加钟、资源增减）
+            // Arrival 只负责叙事。写进 Effects 的东西（result-supplement!、加钟、资源增减）
             // 会让入场长得像一次动作结算——「这件事存在」必须在玩家走进来之前
             // 就由日终规则或某个动作建立好。
             if (report.Effects.Count > 0)
@@ -1272,7 +1330,6 @@ namespace SSNoir.Core
                 {
                     report.Type = ActionType.Instant;
                     node.Resolve.Outcome?.Effect?.Invoke();
-                    ApplyOutcomePresentation(report, node.Resolve.Outcome);
                     consumeResources();
                 }
                 else if (node.Resolve.Type == ResolveType.Roll)
@@ -1319,17 +1376,14 @@ namespace SSNoir.Core
                     if (report.Outcome == RollOutcome.Fail)
                     {
                         node.Resolve.FailOutcome?.Effect?.Invoke();
-                        ApplyOutcomePresentation(report, node.Resolve.FailOutcome);
                     }
                     else if (report.Outcome == RollOutcome.Neutral)
                     {
                         node.Resolve.NeutralOutcome?.Effect?.Invoke();
-                        ApplyOutcomePresentation(report, node.Resolve.NeutralOutcome);
                     }
                     else
                     {
                         node.Resolve.SuccessOutcome?.Effect?.Invoke();
-                        ApplyOutcomePresentation(report, node.Resolve.SuccessOutcome);
                     }
 
                     consumeResources();
@@ -1406,16 +1460,6 @@ namespace SSNoir.Core
             }
 
             report.PresentationHints = hints;
-        }
-
-        private static void ApplyOutcomePresentation(ActionReport report, ActionOutcome? outcome)
-        {
-            if (outcome == null || !outcome.HasText)
-            {
-                return;
-            }
-
-            report.OutcomePresentation = outcome.Presentation;
         }
     }
 }

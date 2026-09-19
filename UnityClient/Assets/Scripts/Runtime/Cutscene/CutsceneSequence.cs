@@ -7,7 +7,7 @@ namespace SSNoir
     /// <summary>
     /// 一场过场：一串有序的镜头。
     ///
-    /// <see cref="SequenceId"/> 就是剧本里 <c>(play-animation! "tag")</c> 的那个 tag——
+    /// <see cref="SequenceId"/> 就是剧本里 <c>(play-video! "tag")</c> 的那个 tag——
     /// 剧本说的是"播开场那场戏"，不是"播第三个机位"，所以 tag 认的是这一层，不是单个镜头。
     ///
     /// 黑边是整场戏的取景框，压下来一次、收起来一次，中间换镜头不重新压。一镜一个画幅的
@@ -19,7 +19,7 @@ namespace SSNoir
     /// </summary>
     public class CutsceneSequence : MonoBehaviour
     {
-        [Tooltip("剧本里 (play-animation! \"...\") 用的 tag。留空就用 GameObject 名。\n"
+        [Tooltip("剧本里 (play-video! \"...\") 用的 tag。留空就用 GameObject 名。\n"
                + "必须全场景唯一。")]
         public string SequenceId = string.Empty;
 

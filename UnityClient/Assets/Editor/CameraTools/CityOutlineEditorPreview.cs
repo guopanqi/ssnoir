@@ -81,15 +81,27 @@ namespace SSNoir.Editor
         {
             foreach (var city in CityRoots())
                 foreach (var instance in PreviewInstances(city).ToArray())
-                    UnityEngine.Object.DestroyImmediate(instance.gameObject);
+                {
+                    if (instance != null && instance.gameObject != null)
+                        UnityEngine.Object.DestroyImmediate(instance.gameObject);
+                }
             ForEachOutlineRenderer((renderer, _) => renderer.forceRenderingOff = false);
         }
 
         private static IEnumerable<Transform> PreviewInstances(Transform city)
         {
+            if (city == null)
+                yield break;
+
             foreach (Transform child in city)
-                if ((child.gameObject.hideFlags & HideFlags.DontSave) == HideFlags.DontSave)
+            {
+                if (child == null)
+                    continue;
+
+                var gameObject = child.gameObject;
+                if (gameObject != null && (gameObject.hideFlags & HideFlags.DontSave) == HideFlags.DontSave)
                     yield return child;
+            }
         }
 
         private static IEnumerable<Transform> CityRoots()
@@ -100,9 +112,19 @@ namespace SSNoir.Editor
                 if (!scene.isLoaded)
                     continue;
                 foreach (var root in scene.GetRootGameObjects())
+                {
+                    if (root == null)
+                        continue;
+
                     foreach (var t in root.GetComponentsInChildren<Transform>(true))
+                    {
+                        if (t == null)
+                            continue;
+
                         if (string.Equals(t.name, CityRootName, StringComparison.Ordinal))
                             yield return t;
+                    }
+                }
             }
         }
 
@@ -118,8 +140,14 @@ namespace SSNoir.Editor
 
                 foreach (var root in scene.GetRootGameObjects())
                 {
+                    if (root == null)
+                        continue;
+
                     foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
                     {
+                        if (renderer == null || renderer.gameObject == null)
+                            continue;
+
                         string name = renderer.gameObject.name;
                         if (name.StartsWith(FocusOutlinePrefix, StringComparison.Ordinal))
                             action(renderer, OutlineVisibility.Focus);

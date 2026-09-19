@@ -12,16 +12,26 @@ namespace SSNoir
 
         // Portal 的手感全在代码里，不挂 Inspector（理由同下面的过夜黑场）。
         //
-        // 门有两端：A 是城市侧的 PortalIn（挂在 StagePortalConfig 上），B 是交锋根机位 Camera_<交锋名>
+        // 门有两端：A 是城市侧的 PortalIn（挂在 StagePortalConfig 上），B 是 Stage 根机位 Camera_<名>
         // （StagePortalConfig 挂在同名 Anchor 上，游戏本来就要解析它的焦点相机）。
-        //   进门：当前机位沿视轴出发 → 最后几米顺着 A 的视线俯冲 → 越过门线时最快，黑
+        //   进门：城市半程走**和城里点地点一样的焦点弧线**（SSNoirCameraManager.BeginFocusTravel）
+        //         从当前机位绕到 A——看着楼推进去，而不是另一套沿视轴的贝塞尔；最后一截边走边黑
         //         → 亮起时在 B 后上方（视轴反向）→ 落进 B 坐稳。
-        //   出门：从 B 沿视轴向后拉到同一点，黑 → 亮起时在 A 门外 → 倒退升回城市机位。
+        //   出门：从 B 沿视轴向后拉，黑 → 亮起时在 A 门外 → 同一条焦点弧线升回城市机位。
+        // 弧线解不出来（两头都找不到兴趣点）才退回旧的贝塞尔俯冲。
         // 用到的空间只有两处：A 前方 PortalPushDistance、B 身后 PortalRevealRatio × |B−Anchor|。
         // 两处净空由 city-box/pipeline/export.py 在有几何的地方 ray_cast 核过，不够直接构建失败，
         // 所以运行时不做任何避障，常量改了要同步那边。
+        //
+        // 减少动画：进出交锋（根节点换了）不听它——那段路在交代"剧院在城里哪儿、你进到了里面"；
+        // 世界里点进一扇门（家 → 租屋，根节点没换）是玩家自己翻页，一局要走很多次，听它：
+        // 和城里点地点一样，硬切盖一层溶解（SSNoirCameraManager 的减少动画分支），不黑场——
+        // 黑场留给"时间过去了 / 进了一场戏"。
         private const float PortalHalfDuration = 0.9f;
-        private const float PortalFlashDuration = 0.12f;
+        // 黑场压在运动上，不是运动停了再黑：外半程最后这一段边冲边暗、抵达门线那一帧正好全黑；
+        // 内半程从黑里边亮边落，亮透时机位还在往前走。切换本身被黑场吃掉，两头都看不见"停"。
+        // 之前是冲到门口停住 → 0.12s 暗 → 换机位 → 0.12s 亮 → 再起步，门前那一顿正是停下来在等黑场。
+        private const float PortalFadeFraction = 0.3f;
         // 黑场之前越过门线的距离。
         private const float PortalPushDistance = 1.5f;
         // 门轴那一头的贝塞尔手柄：最后几米必须顺着门的视线进出，门才像一扇门。
@@ -45,6 +55,8 @@ namespace SSNoir
         private bool _turnDipActive;
 
         public bool IsTransitioning { get; private set; }
+        /// <summary>穿门的城市半程正骑在焦点弧线上：主循环这时要继续 Tick 弧线，而不是把它掐断。</summary>
+        public bool RidesFocusArc { get; private set; }
         public float FadeAlpha { get; private set; }
         public string? CurrentContextId => _currentContextId;
         public bool HasActivePortal => _activePortal != null;
@@ -65,22 +77,26 @@ namespace SSNoir
 
         private void Update()
         {
-            ReconcileContext();
+            // 安全网轮询接到的只可能是玩家自己翻页（点进门、返回）：换根节点的快照一律在
+            // 落地那一刻就已经 Reconcile 过了。
+            ReconcileContext(storyDriven: false);
         }
 
         /// <summary>
         /// 在表现快照落地的确定时点接管 Stage 边界。Update 仍调用它作为安全网，但 Debug
         /// 直载和正式交锋不再依赖“下一帧刚好先轮询、还是焦点系统先动”的执行顺序。
         /// </summary>
-        public void ReconcileContext()
+        /// <param name="storyDriven">这次边界变化是不是剧情带来的（进出交锋，快照换了根节点）。
+        /// 玩家在世界里点进一扇门不落新快照，走的是 Update 的轮询，永远是 false。</param>
+        public void ReconcileContext(bool storyDriven)
         {
             if (_gameManager == null || IsTransitioning) return;
             var newContextId = _gameManager.CurrentStageContextId;
             if (newContextId != _currentContextId)
-                StartCoroutine(TransitionTo(newContextId));
+                StartCoroutine(TransitionTo(newContextId, storyDriven));
         }
 
-        private IEnumerator TransitionTo(string? newContextId)
+        private IEnumerator TransitionTo(string? newContextId, bool storyDriven)
         {
             IsTransitioning = true;
             _gameManager.SetInputLocked(true);
@@ -88,26 +104,24 @@ namespace SSNoir
             string? lookupId = newContextId ?? _currentContextId;
             var portal = ResolvePortal(lookupId);
 
-            // Portal 不听「减少动画」：它走得不勤，而且推进 / 穿过 / 拉出这三段路本身就是
-            // 在告诉玩家"剧院在城里的哪儿、你现在进到了里面"。砍掉它，空间关系就断了。
-            // 减少动画管的是城里逛地点那种高频翻页，见 MotionSettings。
+            bool reduced = !storyDriven && MotionSettings.ReduceMotion;
             if (newContextId != null)
             {
                 if (_activePortal != null)
                 {
-                    yield return PushExit(_activePortal);
+                    yield return reduced ? DissolveThrough() : PushExit(_activePortal);
                     _activePortal = null;
                 }
 
                 if (portal != null)
                 {
-                    yield return PushEnter(portal);
+                    yield return reduced ? DissolveThrough() : PushEnter(portal);
                     _activePortal = portal;
                 }
             }
             else if (_activePortal != null)
             {
-                yield return PushExit(_activePortal);
+                yield return reduced ? DissolveThrough() : PushExit(_activePortal);
                 _activePortal = null;
             }
 
@@ -130,22 +144,30 @@ namespace SSNoir
             // 城市半程由 PortalIn 所属地点提供细节；通常玩家本来就在剧院，Debug
             // 直载则靠这一句补齐与正式入口相同的视觉状态。
             _gameManager.PresentCamera(portal.IntroCam);
+
+            // 外半程：和城里点一张地点卡同一条焦点弧线，绕到门口的 PortalIn；最后一截边走边黑。
+            bool rode = false;
+            yield return RideFocusTravelTo(portal.IntroCam, null, FadeIntoBlack, v => rode = v);
             yield return TakeOverCurrentView();
+            portal.IntroCam.Priority = 5;
 
             ResetFocusCameras();
             if (targetCamera != null)
                 targetCamera.Priority = 20;
 
-            // 外半程：从当前机位沿自己的视轴出发，最后几米顺着门的视线俯冲，越过门线时黑。
-            var from = transitionVCam.transform;
-            Vector3 doorEnd = introCam.position + introCam.forward * PortalPushDistance;
-            yield return SwoopTransitionCamera(
-                from.position, from.position + from.forward * ShotHandle(from.position, doorEnd),
-                introCam.position - introCam.forward * PortalDoorHandle, doorEnd,
-                from.rotation, introCam.rotation, LensOf(portal.IntroCam),
-                PortalHalfDuration, AccelerateIntoBlack);
+            if (!rode)
+            {
+                // 弧线解不出来：退回沿视轴出发、最后几米顺着门的视线俯冲的贝塞尔。
+                var from = transitionVCam.transform;
+                Vector3 doorEnd = introCam.position + introCam.forward * PortalPushDistance;
+                yield return SwoopTransitionCamera(
+                    from.position, from.position + from.forward * ShotHandle(from.position, doorEnd),
+                    introCam.position - introCam.forward * PortalDoorHandle, doorEnd,
+                    from.rotation, introCam.rotation, LensOf(portal.IntroCam),
+                    PortalHalfDuration, AccelerateIntoBlack, FadeIntoBlack);
+            }
+            FadeAlpha = 1f;
 
-            yield return FadeTo(1f, PortalFlashDuration);
             if (targetCamera != null)
             {
                 // 内半程的起点：根机位身后、视轴反向。机位用它此刻的位置，玩家上次 Pan 到哪儿就落回哪儿。
@@ -157,18 +179,18 @@ namespace SSNoir
             }
             yield return null;
 
-            yield return FadeTo(0f, PortalFlashDuration);
             if (targetCamera != null)
             {
-                // 内半程：从远处沿视轴落进机位坐稳，一段直线。
+                // 内半程：从远处沿视轴落进机位坐稳，一段直线；亮起来时已经在动。
                 var to = targetCamera.transform;
                 Vector3 revealStart = transitionVCam.transform.position;
                 yield return SwoopTransitionCamera(
                     revealStart, Vector3.Lerp(revealStart, to.position, 0.35f),
                     Vector3.Lerp(revealStart, to.position, 0.65f), to.position,
                     to.rotation, to.rotation, LensOf(targetCamera),
-                    PortalHalfDuration, DecelerateOutOfBlack);
+                    PortalHalfDuration, DecelerateOutOfBlack, FadeOutOfBlack);
             }
+            FadeAlpha = 0f;
 
             yield return ReleaseTransitionCameraWithCut();
         }
@@ -197,30 +219,102 @@ namespace SSNoir
                 from.position, Vector3.Lerp(from.position, pushEnd, 0.35f),
                 Vector3.Lerp(from.position, pushEnd, 0.65f), pushEnd,
                 from.rotation, from.rotation, transitionVCam.m_Lens,
-                PortalHalfDuration, AccelerateIntoBlack);
+                PortalHalfDuration, AccelerateIntoBlack, FadeIntoBlack);
 
-            yield return FadeTo(1f, PortalFlashDuration);
             // PortalIn 站在门外朝门内看：黑场后从这儿揭幕，正好是"刚退出门、回头还看着门"。
             transitionVCam.transform.SetPositionAndRotation(introCam.position, introCam.rotation);
             transitionVCam.m_Lens = LensOf(portal.IntroCam);
             _gameManager.PresentCamera(portal.IntroCam);
             yield return null;
 
-            yield return FadeTo(0f, PortalFlashDuration);
             if (targetCamera != null)
             {
-                // 外半程：倒退离开门，升回城市机位，沿它的视轴退进去坐稳。
-                var to = targetCamera.transform;
-                yield return SwoopTransitionCamera(
-                    introCam.position, introCam.position - introCam.forward * PortalDoorHandle,
-                    to.position + to.forward * ShotHandle(introCam.position, to.position), to.position,
-                    introCam.rotation, to.rotation, LensOf(targetCamera),
-                    PortalHalfDuration, DecelerateOutOfBlack);
+                // 外半程：黑里切到 PortalIn，再走焦点弧线升回城市机位；亮起来时已经在退。
+                ResetFocusCameras();
+                yield return CutToVirtualCamera(portal.IntroCam, 20);
+                if (transitionVCam != null) transitionVCam.Priority = 0;
+                yield return null;
+                bool rode = false;
+                yield return RideFocusTravelTo(targetCamera, portal.IntroCam, FadeOutOfBlack, v => rode = v);
+                portal.IntroCam.Priority = 5;
+                if (!rode)
+                {
+                    yield return TakeOverCurrentView();
+                    var to = targetCamera.transform;
+                    yield return SwoopTransitionCamera(
+                        introCam.position, introCam.position - introCam.forward * PortalDoorHandle,
+                        to.position + to.forward * ShotHandle(introCam.position, to.position), to.position,
+                        introCam.rotation, to.rotation, LensOf(targetCamera),
+                        PortalHalfDuration, DecelerateOutOfBlack, FadeOutOfBlack);
+                }
+                targetCamera.Priority = 20;
             }
+            FadeAlpha = 0f;
 
             if (targetCamera != null)
                 _gameManager.PresentCamera(targetCamera);
             yield return ReleaseTransitionCameraWithCut();
+        }
+
+        /// <summary>
+        /// 把一段换镜交给焦点运镜（<see cref="SSNoirCameraManager.BeginFocusTravel"/>）：从此刻画面到
+        /// <paramref name="destination"/>，全动画走弧线，减少动画走溶解——和城里点地点一模一样。
+        /// <paramref name="fade"/> 把运镜进度映成黑幕浓度（穿门用），null 就不碰黑幕。
+        /// 起不来（两头都没有兴趣点、已经在目标构图）就报 false，调用方退回贝塞尔。
+        /// 运镜自己驱动 brain（切死 blend、挪目标机位），这期间过渡相机让位，主循环靠
+        /// <see cref="RidesFocusArc"/> 知道要继续 Tick 它。
+        /// </summary>
+        private IEnumerator RideFocusTravelTo(
+            Cinemachine.CinemachineVirtualCamera destination,
+            Cinemachine.CinemachineVirtualCamera? leaving,
+            System.Func<float, float>? fade,
+            System.Action<bool> report,
+            bool respectReduceMotion = false)
+        {
+            var cameras = _gameManager.CameraManager;
+            if (!cameras.BeginFocusTravel(destination, out float duration, respectReduceMotion) || duration <= 0f)
+            {
+                report(false);
+                yield break;
+            }
+            // 运镜要求目的机位当场成为活动相机：其余焦点机位一律让位，PortalIn 不在锚点名单里，得点名让。
+            ResetFocusCameras();
+            if (leaving != null)
+                leaving.Priority = 5;
+            destination.Priority = 20;
+            RidesFocusArc = true;
+            // 溶解的"还在路上"比它报的时长长（抓帧要等一两帧），所以两个条件都听。
+            for (float t = 0f; t < duration || cameras.IsFocusTravelInFlight; t += Time.unscaledDeltaTime)
+            {
+                if (fade != null)
+                    FadeAlpha = fade(Mathf.Clamp01(t / duration));
+                yield return null;
+            }
+            cameras.FinishFocusTravel();
+            RidesFocusArc = false;
+            if (fade != null)
+                FadeAlpha = fade(1f);
+            report(true);
+        }
+
+        /// <summary>
+        /// 减少动画下的穿门：和城里点一张地点卡一样，硬切盖一层溶解，直接落在目的机位上。
+        /// 不黑场、不动镜头。溶解起不来（已经在目标构图）就直接切。
+        /// </summary>
+        private IEnumerator DissolveThrough()
+        {
+            var targetCamera = _gameManager.CurrentFocusCamera;
+            Debug.Assert(targetCamera != null, "[StageTransition] Dissolve target focus camera was not resolved.");
+            if (targetCamera == null) yield break;
+
+            _gameManager.PresentCamera(targetCamera);
+            bool rode = false;
+            yield return RideFocusTravelTo(targetCamera, null, null, v => rode = v, respectReduceMotion: true);
+            if (!rode)
+            {
+                ResetFocusCameras();
+                yield return CutToVirtualCamera(targetCamera, 20);
+            }
         }
 
         /// <summary>
@@ -238,6 +332,14 @@ namespace SSNoir
 
         // 黑场后：从门口带着速度出来，落进机位时归零。
         private static float DecelerateOutOfBlack(float t) => 1f - (1f - t) * (1f - t);
+
+        // 黑场跟着运动走（t 是半程的时间进度）：最后 PortalFadeFraction 暗下去，到头正好全黑；
+        // 开头 PortalFadeFraction 亮起来。线性——黑场底下的画面在动，缓动只会让两头发黏。
+        private static float FadeIntoBlack(float t)
+            => Mathf.Clamp01((t - (1f - PortalFadeFraction)) / PortalFadeFraction);
+
+        private static float FadeOutOfBlack(float t)
+            => 1f - Mathf.Clamp01(t / PortalFadeFraction);
 
         private IEnumerator TakeOverCurrentView()
         {
@@ -275,11 +377,12 @@ namespace SSNoir
         /// <summary>
         /// 沿三次贝塞尔把过渡相机从 p0 送到 p3。按弧长走，速度只由 <paramref name="ease"/> 决定，
         /// 手柄长短只改路的形状不改节奏；姿态沿同一进度球面插值。
+        /// <paramref name="fade"/> 把时间进度映成黑场浓度，让黑场压在运动上而不是接在运动后面。
         /// </summary>
         private IEnumerator SwoopTransitionCamera(
             Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3,
             Quaternion r0, Quaternion r3, Cinemachine.LensSettings lens3,
-            float duration, System.Func<float, float> ease)
+            float duration, System.Func<float, float> ease, System.Func<float, float>? fade = null)
         {
             Debug.Assert(transitionVCam != null, "[StageTransition] transitionVCam not assigned.");
             if (transitionVCam == null) yield break;
@@ -301,12 +404,15 @@ namespace SSNoir
             {
                 transitionVCam.transform.SetPositionAndRotation(p3, r3);
                 SetLens(lens3.FieldOfView, lens3.NearClipPlane, lens3.FarClipPlane);
+                if (fade != null) FadeAlpha = fade(1f);
                 yield break;
             }
 
             for (float t = 0f; t < duration; t += Time.deltaTime)
             {
-                float progress = ease(Mathf.Clamp01(t / duration));
+                float k = Mathf.Clamp01(t / duration);
+                if (fade != null) FadeAlpha = fade(k);
+                float progress = ease(k);
                 float u = ParameterAtArcLength(arc, progress * total);
                 transitionVCam.transform.SetPositionAndRotation(
                     Bezier(p0, p1, p2, p3, u),
@@ -320,6 +426,7 @@ namespace SSNoir
 
             transitionVCam.transform.SetPositionAndRotation(p3, r3);
             SetLens(lens3.FieldOfView, lens3.NearClipPlane, lens3.FarClipPlane);
+            if (fade != null) FadeAlpha = fade(1f);
         }
 
         private static Vector3 Bezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
@@ -343,33 +450,43 @@ namespace SSNoir
             return 1f;
         }
 
-        private IEnumerator CutToVirtualCamera(Cinemachine.CinemachineVirtualCamera camera, int priority)
+        // 改优先级不是立刻生效的：vcam 在它自己的 Update 里才把新优先级报给队列（Cinemachine 2.x
+        // 的 UpdateVcamPoolStatus），brain 在那之后的 LateUpdate 才换镜。协程的 yield null 恰好排在
+        // 全部 Update 之后、LateUpdate 之前——只等一帧，Cut 就在 brain 真正换镜的前一刻被换回了 2 秒
+        // 混合，看上去就是"亮了以后镜头还在门口，再被硬拉过去"。所以按着 Cut 直到 brain 真的换过去。
+        private const int CutSettleFrames = 4;
+
+        private IEnumerator HoldCutUntil(System.Func<bool> switched)
         {
             var originalBlend = _brain != null ? _brain.m_DefaultBlend : default;
             bool hasBrain = _brain != null;
             if (hasBrain)
                 _brain!.m_DefaultBlend = new Cinemachine.CinemachineBlendDefinition(Cinemachine.CinemachineBlendDefinition.Style.Cut, 0f);
 
-            camera.Priority = priority;
+            for (int i = 0; i < CutSettleFrames; i++)
+            {
+                yield return null;
+                if (!hasBrain || switched())
+                    break;
+            }
+            // 换过去的那一帧还在 Cut 里；再让一帧，brain 用 Cut 把这次切换记账完。
             yield return null;
 
             if (hasBrain)
                 _brain!.m_DefaultBlend = originalBlend;
         }
 
+        private IEnumerator CutToVirtualCamera(Cinemachine.CinemachineVirtualCamera camera, int priority)
+        {
+            camera.Priority = priority;
+            yield return HoldCutUntil(() => ReferenceEquals(_brain!.ActiveVirtualCamera, camera));
+        }
+
         private IEnumerator ReleaseTransitionCameraWithCut()
         {
-            var originalBlend = _brain != null ? _brain.m_DefaultBlend : default;
-            bool hasBrain = _brain != null;
-            if (hasBrain)
-                _brain!.m_DefaultBlend = new Cinemachine.CinemachineBlendDefinition(Cinemachine.CinemachineBlendDefinition.Style.Cut, 0f);
-
             if (transitionVCam != null)
                 transitionVCam.Priority = 0;
-            yield return null;
-
-            if (hasBrain)
-                _brain!.m_DefaultBlend = originalBlend;
+            yield return HoldCutUntil(() => !ReferenceEquals(_brain!.ActiveVirtualCamera, transitionVCam));
         }
 
         /// <summary>
@@ -473,17 +590,6 @@ namespace SSNoir
             FadeAlpha = target;
         }
 
-        private IEnumerator FadeTo(float target, float duration)
-        {
-            float start = FadeAlpha;
-            for (float t = 0f; t < duration; t += Time.deltaTime)
-            {
-                FadeAlpha = Mathf.Lerp(start, target, t / duration);
-                yield return null;
-            }
-            FadeAlpha = target;
-        }
-
         private void ResetFocusCameras()
         {
             var dir = _gameManager.SceneDirectory;
@@ -498,8 +604,7 @@ namespace SSNoir
         private StagePortalConfig? ResolvePortal(string? contextId)
         {
             if (contextId == null) return null;
-            var anchor = _gameManager.ResolveAnchor(contextId);
-            return anchor?.GetComponent<StagePortalConfig>();
+            return _gameManager.ResolveStageAnchor(contextId)?.GetComponent<StagePortalConfig>();
         }
     }
 }

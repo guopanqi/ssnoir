@@ -10,10 +10,12 @@ namespace SSNoir
     ///   · 焦点切换：不再走弧线，硬切 + 交叉溶解（见 <see cref="ViewCrossfade"/>）。
     ///   · 灯标导航：平移保留但缩短；绕轴那支改成溶解。
     ///
-    /// **剧情带着镜头走的那些不听它**：Portal 推进 / 穿过 / 拉出、交锋里换场、倒下送医、
+    /// **剧情带着镜头走的那些不听它**：进出交锋的 Portal 推进 / 穿过 / 拉出、交锋里换场、倒下送医、
     /// 过场。它们一局没几次，而且那段路本身在交代空间关系——"剧院在城里哪儿、你进到了
     /// 里面"——砍掉就只剩一次莫名其妙的黑场。代码上对应 <c>BeginFocusTravel</c> 的
     /// <c>respectReduceMotion: false</c> 与 <c>UpdateCameraFocus(storyDriven: true)</c>。
+    /// 世界里点进一扇门的 Portal（家 → 租屋，根节点没换）算玩家自己翻页，听它：和点地点卡一样硬切 + 溶解。
+    /// 两者由 <c>SSNoirGameManager.LastSnapshotChangedRoot</c> 分辨（见 <c>StageTransitionController</c>）。
     /// 过夜黑场本来就不动镜头，两种模式一个节奏。
     ///
     /// 随游戏存档保存；旧存档没有该字段时默认使用减少镜头动画。

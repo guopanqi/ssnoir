@@ -8,6 +8,8 @@
     (define 比信更早-立卷? #f)
     (define 记者已查登记? #f)
     (define 上午材料已证实? #f)
+    ;; 两根都要填：报纸选中哪个版本才证明泄密来自哪条渠道，缺一根就无从对照。
+    ;; 各 6 格（骨架原定）：好结果 +3、中 +2，一根约两到三颗骰，两根共四到六颗。
     (define 剧院消息
       (make-clock "剧院的假消息" 6 'gauge
         "填满后，剧院只会听到她周一去巴尔的摩。"))
@@ -55,9 +57,8 @@
               "两个地方拿到了两个不同的行程。接下来两天不用再做什么；报纸会替泄密的人选出答案。"))
           #f))
 
-    (define (推进消息! clk n text)
+    (define (推进消息! clk n)
       (clk 'advance! n)
-      (result-note! text)
       (开始等报!))
 
     (define (消息节点 name subtitle clk skill)
@@ -66,14 +67,10 @@
         :clocks (list (clk 'render-data))
         :requires (list (req-die))
         :resolve (roll skill
-          (outcome "话没传出去"
-            (lambda ()
-              (spend-actor-composure! 'player 1)
-              (result-note! "这次没人接话")))
-          (outcome "消息传开了"
-            (lambda () (推进消息! clk 2 "假消息推进 2 格")))
-          (outcome "每个人都记住了"
-            (lambda () (推进消息! clk 3 "假消息推进 3 格"))))))
+          (outcome (lambda ()
+              (spend-actor-composure! 'player 1)))
+          (outcome (lambda () (推进消息! clk 2)))
+          (outcome (lambda () (推进消息! clk 3))))))
 
     (define (剧院节点)
       (at-anchor "剧院-后台"
@@ -97,8 +94,10 @@
                 #f))
           #f))
 
+    ;; 早报塞在门缝下面（见 on-day-end! 的 journal 与 spotlight），所以落在家里的门口锚点。
+    ;; 同链其他卡都有锚（剧院-后台 / 礼宾台 / 后巷 / 编辑部 / 报社），这张漏了就会掉进网格。
     (define (看报节点)
-      (instant-action "看早报"
+      (anchored-instant-action "看早报" "门口"
         (lambda ()
           (play-dialogue!
             (line "世界" "社会版写着：夜莺将在周一启程前往巴尔的摩。")
@@ -120,6 +119,7 @@
          (set! 状态 "已解决")
          (set! 比信更早-立卷? #t)
          (journal 'add! "取件人名叫科尔。他替剧院、酒店和报社传递材料；递送簿上还有首演日上午 11:07 的一笔夜莺来件。")
+         (complete-task! "谁把她卖给了报纸")
          (spotlight! "比信更早"
            "泄密渠道已经查清。递送簿上还有一笔首演日上午的夜莺来件，需要回报社核对。"))
         ((or (equal? result '跟丢) (equal? result '暴露))
@@ -128,6 +128,8 @@
            (if (equal? result '跟丢)
                "你跟丢了剧院的取件人。这条泄密渠道没有留下第二次机会。"
                "剧院的取件人发现了尾随。这条泄密渠道就此封死。"))
+         ;; 尾随失败也是经历完；机器进场把没查完的线封掉（封卷!）不发。
+         (complete-task! "谁把她卖给了报纸")
          (spotlight! "线断了"
            (if (equal? result '跟丢)
                "取件人消失在人群里。假消息已经用过，他不会再沿同一条路线出现。"
@@ -135,15 +137,17 @@
         (#t (error "追查：尾随交锋返回了未知结果"))))
 
     (define (尾随节点)
-      (anchored-instant-action "等取件人" "剧院-后巷"
+      (at-anchor "剧院-后巷"
+       (encounter-action "等取件人"
         (lambda ()
-          (start-encounter "尾随取件人" 尾随结果!))))
+          (start-encounter "尾随取件人" 尾随结果!)))))
 
     (define (废稿间结果! result)
       (cond
         ((equal? result '证实提前供稿)
          (set! 上午材料已证实? #t)
          (journal 'add! "11:07 的收件封套与 11:35 的第一版校样互相对应；第三封信直到下午 1:20 才在剧院出现。有人提前准备了报道。")
+         (complete-task! "比信更早的人")
          (spotlight! "材料早于信"
            "报社上午已经拿到死亡威胁与内部演出安排。下一步是查清谁准备了稿号四一七。"))
         ((equal? result '未完成) #f)
@@ -166,9 +170,10 @@
             "登记只能证明文件袋来过。要知道里面写了什么，只能去地下废稿间找。"))))
 
     (define (废稿间节点)
-      (anchored-instant-action "下废稿间" "报社"
+      (at-anchor "报社"
+       (encounter-action "下废稿间"
         (lambda ()
-          (start-encounter "上午十一点零七分" 废稿间结果!))))
+          (start-encounter "上午十一点零七分" 废稿间结果!)))))
 
     (define (节点 location)
       ;; 《谁把她卖给了报纸》结案后，《比信更早的人》仍要继续产出节点。
@@ -230,6 +235,10 @@
             (list (dossier "谁把她卖给了报纸"
                     :kind '委托
                     :status (if (or 已关闭? (终止?)) '了结 '进行中)
+                    :steps (list (step "在剧院放一个行程" (剧院消息 'full?))
+                                 (step "在格兰德酒店放另一个行程" (酒店消息 'full?))
+                                 (step "等早报开口" (member? 状态 (list "待尾随" "已解决" "失败")))
+                                 (step "尾随取件人" (终止?)))
                     :now (cond
                            ((已解决?) "科尔把剧院的材料送进报社；泄密渠道已经查清。")
                            ((失败?) "尾随失败，泄密渠道已经封死。")
@@ -242,7 +251,9 @@
         (if 比信更早-立卷?
             (list (dossier "比信更早的人"
                     :kind '委托
-                    :status (if 已关闭? '了结 '进行中)
+                    :status (if (or 已关闭? 上午材料已证实?) '了结 '进行中)
+                    :steps (list (step "去报社核对十一点零七分的登记" 记者已查登记?)
+                                 (step "在废稿间找到那份材料" 上午材料已证实?))
                     :now (cond
                            (已关闭? "首演日上午那份材料没能继续追下去。")
                            (上午材料已证实? "两件材料证明报道早于第三封信；供稿人仍然不明。")

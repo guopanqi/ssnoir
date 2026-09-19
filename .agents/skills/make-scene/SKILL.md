@@ -12,6 +12,8 @@ description: 为 SSNoir 从零做一个交锋/地点场景的 CityBox Prefab 时
 1. **布局预览图**：把空间感画出来给人看。读 [references/layout-preview.md](references/layout-preview.md)。
 2. **灰盒**：照着图用方块搭 `prefabs/src/<名>.py`，跑单体预览。读 [references/greybox.md](references/greybox.md)。
 3. **道具**：灰盒定了之后，才看哪几件值得精细化。先看复用道具库 `city-box/props/INDEX.md`（人形、车辆…带缩略图），再翻已有场景（`prefabs/src/*.py` 的构件函数、`prefabs/review/*/props/` 的场景内道具），能用的直接用——场景内道具被第二个场景用到的那一刻 `git mv` 进 `props/`；没有的，简单的补成程序化构件，只有手搭不像又决定场景身份的才交给 `create-3d-assets` 生成。读 [references/props.md](references/props.md)。
+   场景里**会动的机关**（唱片机这类有状态、要读档恢复的）另有一套：整件程序化 + `props.json` 的 `clips` +
+   `pipeline/motion.py`，审片用 `preview.py --motion <道具> --gif`。读 [references/motion.md](references/motion.md)。
 4. **锚点与机位**：锚点按分区不按动作；Pan 机位配 `PanBounds_<名>`，四角极限画面都得在场景内。读 [references/anchors-camera.md](references/anchors-camera.md)。
 5. **放进城市、发布**：`city.blend` 加实例 → `./build.sh --no-publish --render --focus <名> --pan <名>` → 用户看整城 → `./build.sh`。规则在 `create-3d-assets/references/delivery/citybox.md` 和 `city-box/README.md`，不在这里重复。发布后清理 `prefabs/review/<名>/`：只留最终布局图、`prompts.md`、每件道具的参考图 / `-geo.fbx` / `-low.fbx` / 预览 / `props.json`，过程产物（否决的图、其他档位、审计 blend、`tmp/` 里的任务目录）直接删。
 
@@ -26,3 +28,5 @@ description: 为 SSNoir 从零做一个交锋/地点场景的 CityBox Prefab 时
 - **晚宴**：`prefabs/src/晚宴.py`、`prefabs/review/晚宴/`（06 号布局图是最终依据，`prompts.md` 记着否决理由）。带生成道具的范例。
 - **巷子里在打人**：`prefabs/src/巷子里在打人.py`，纯灰盒 + 抽象人形，嵌套在酒馆 Prefab 里。
 - **勒索信**：`prefabs/src/勒索信.py`，把一个现成生成模型收进 Prefab 的范例；`码头_嵌套勒索信.py` 是"嵌进宿主并扩占地"的范例。
+- **租屋**：`prefabs/src/租屋.py`，世界层地点（家）门里的 Stage——不是交锋也能穿门，机制只认导航路径；
+  带 `presence` 随卡显隐的家具（花盆、唱片机）。PortalIn 加在手搭的 `家.blend` 里，实例停在郊野那一排。

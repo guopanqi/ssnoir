@@ -94,7 +94,7 @@ namespace SSNoir.Scripting
                     : injury.Severity - before;
                 ReportInjuryChange(gameState, reportedDelta);
                 if (injury.Severity > before)
-                    gameState.CurrentActionReport?.AddNote(
+                    gameState.CurrentActionReport?.AddSupplement(
                         injury.Band == InjuryBand.Severe
                             ? $"{injury.Part}上的伤进了重伤：少一颗行动骰。"
                             : before == 0
@@ -146,32 +146,6 @@ namespace SSNoir.Scripting
                 gameState.ClearRestBlockers();
                 return new None();
             }, "__clear-rest-blockers!"));
-
-            // 声望档位：读 relation:<faction> 的当前整数值，按 RelationScale 折算成档位序号（0..5）。
-            interpreter.DefineGlobal(Symbol.FromString("__relation-band-index"), new NativeProcedure(args =>
-            {
-                if (args.Count < 1) throw new ArgumentException("__relation-band-index requires 1 argument: faction");
-                string faction = SchemeValue.AsId(args[0]);
-                return RelationScale.BandIndex(gameState.Get<int>("relation:" + faction));
-            }, "__relation-band-index"));
-
-            interpreter.DefineGlobal(Symbol.FromString("__change-faction-relation!"), new NativeProcedure(args =>
-            {
-                if (args.Count < 2) throw new ArgumentException("__change-faction-relation! requires 2 arguments: faction and delta");
-                string faction = SchemeValue.AsId(args[0]);
-                if (Array.IndexOf(GameState.Circles, faction) < 0)
-                    throw new ArgumentException($"unknown circle '{faction}'");
-                int requestedDelta = SchemeValue.ToInt(args[1]);
-                string key = "relation:" + faction;
-                int before = gameState.Get<int>(key);
-                int after = Math.Clamp(before + requestedDelta, RelationScale.Min, RelationScale.Max);
-                gameState.Set(key, after);
-                int actualDelta = after - before;
-                gameState.CurrentActionReport?.AddEffect(
-                    ActionEffectKind.Relation, faction + "声誉", actualDelta,
-                    actualDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
-                return new None();
-            }, "__change-faction-relation!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__growth-level"), new NativeProcedure(args =>
             {
@@ -248,14 +222,14 @@ namespace SSNoir.Scripting
                     ? Injury.MaxSeverity - injuryBefore
                     : injuryDelta);
                 if (injuryDelta > 0 || collapsed)
-                    gameState.CurrentActionReport?.AddNote("冷静击穿：你的手在抖，身体先一步承受了代价。");
+                    gameState.CurrentActionReport?.AddSupplement("冷静击穿：你的手在抖，身体先一步承受了代价。");
                 return new None();
             }, "__spend-actor-composure!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__apply-hangover!"), new NativeProcedure(args =>
             {
                 gameState.Team.ApplyHangover();
-                gameState.CurrentActionReport?.AddNote("酒劲会留到下一次城市骰池：一格会带宿醉降质。");
+                gameState.CurrentActionReport?.AddSupplement("酒劲会留到下一次城市骰池：一格会带宿醉降质。");
                 return new None();
             }, "__apply-hangover!"));
 
@@ -421,15 +395,15 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__notify!"));
 
-            interpreter.DefineGlobal(Symbol.FromString("__result-note!"), new NativeProcedure(args =>
+            interpreter.DefineGlobal(Symbol.FromString("__result-supplement!"), new NativeProcedure(args =>
             {
                 if (args.Count < 1 || !(args[0] is string text) || string.IsNullOrWhiteSpace(text))
-                    throw new ArgumentException("__result-note! requires 1 non-empty string");
+                    throw new ArgumentException("__result-supplement! requires 1 non-empty string");
                 if (gameState.CurrentActionReport == null)
-                    throw new InvalidOperationException("result-note! can only be used while executing an action");
-                gameState.CurrentActionReport.AddNote(text);
+                    throw new InvalidOperationException("result-supplement! can only be used while executing an action");
+                gameState.CurrentActionReport.AddSupplement(text);
                 return new None();
-            }, "__result-note!"));
+            }, "__result-supplement!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__record-clock-effect!"), new NativeProcedure(args =>
             {
@@ -511,15 +485,28 @@ namespace SSNoir.Scripting
 
             // 命名动画:v1 仅携带 tag,作为有序阻塞剧情步骤(前端占位播放)。
             // 交锋入场钩子也可调用；Debug 直载没有 ActionReport 时不播放、不报错。
-            interpreter.DefineGlobal(Symbol.FromString("__play-animation!"), new NativeProcedure(args =>
+            interpreter.DefineGlobal(Symbol.FromString("__play-video!"), new NativeProcedure(args =>
             {
                 if (args.Count < 1 || !(args[0] is string tag) || string.IsNullOrWhiteSpace(tag))
-                    throw new ArgumentException("__play-animation! requires 1 argument: a non-empty tag string");
+                    throw new ArgumentException("__play-video! requires 1 argument: a non-empty tag string");
                 if (gameState.CurrentActionReport == null)
                     return new None();
-                gameState.CurrentActionReport.BlockingStorySteps.Add(BlockingStoryStep.ForAnimation(tag));
+                gameState.CurrentActionReport.BlockingStorySteps.Add(BlockingStoryStep.ForVideo(tag));
                 return new None();
-            }, "__play-animation!"));
+            }, "__play-video!"));
+
+            // 场景演出：道具的实时动画作为阻塞步骤（机位 → 播过渡 → 回来）。没有 ActionReport 时不播、不报错。
+            interpreter.DefineGlobal(Symbol.FromString("__play-motion!"), new NativeProcedure(args =>
+            {
+                if (args.Count < 2 || !(args[0] is string prop) || !(args[1] is string state)
+                    || string.IsNullOrWhiteSpace(prop) || string.IsNullOrWhiteSpace(state))
+                    throw new ArgumentException("__play-motion! requires: prop-name state-name [camera-name]");
+                string camera = args.Count >= 3 && args[2] is string c ? c : string.Empty;
+                if (gameState.CurrentActionReport == null)
+                    return new None();
+                gameState.CurrentActionReport.BlockingStorySteps.Add(BlockingStoryStep.ForMotion(prop, state, camera));
+                return new None();
+            }, "__play-motion!"));
 
             // --- Existing Native Procedures ---
             interpreter.DefineGlobal(Symbol.FromString("get-global"), new NativeProcedure(args =>
@@ -652,9 +639,104 @@ namespace SSNoir.Scripting
                 if (dwell < 0f)
                     throw new ArgumentException($"{who}: dwell seconds cannot be negative");
 
-                lines.Add(new DialogueLine { Speaker = speaker, Text = text, VoiceId = voice, DwellSeconds = dwell });
+                var stage = parts.Count > 4 ? ParseStageCue(parts[4], who, speaker == "世界") : DialogueStageCue.None;
+
+                lines.Add(new DialogueLine { Speaker = speaker, Text = text, VoiceId = voice, DwellSeconds = dwell, Stage = stage });
             }
             return new DialogueSequence(lines, allowsRemoteParticipants);
+        }
+
+        // 舞台指示以 (key value key value ...) 的平铺表到达；key 是 :pose 这类符号。
+        // 未知键、非法档位都直接报错——内容里的拼写错误不能变成「没动」。
+        private static readonly HashSet<string> LightStates = new HashSet<string> { "normal", "surge", "faint", "ember" };
+        private static readonly HashSet<string> CurrentStates = new HashSet<string> { "still", "pulse", "racing" };
+        private static readonly HashSet<string> LightEvents = new HashSet<string> { "flicker", "relight", "blackout" };
+        private static readonly HashSet<string> MoveKinds = new HashSet<string> { "in", "back" };
+
+        private static DialogueStageCue ParseStageCue(object raw, string who, bool isNarration)
+        {
+            if (!(raw is List<object> plist))
+                throw new ArgumentException($"{who}: stage cue must be a flat key/value list");
+            if (plist.Count == 0)
+                return DialogueStageCue.None;
+
+            // :other 是个分隔符，不带值：它后面的人物指示落到对方身上。
+            int split = -1;
+            for (int i = 0; i < plist.Count; i++)
+            {
+                if (plist[i] is string) continue;
+                if (SchemeValue.AsId(plist[i]).TrimStart(':') != "other") continue;
+                if (split >= 0) throw new ArgumentException($"{who}: :other can only appear once in a line");
+                if (isNarration) throw new ArgumentException($"{who}: narration has no :other — nobody is speaking");
+                split = i;
+            }
+            if (split < 0)
+                return ParseStageCueWords(plist, 0, plist.Count, who, forOther: false, other: null);
+            var other = ParseStageCueWords(plist, split + 1, plist.Count, who, forOther: true, other: null);
+            return ParseStageCueWords(plist, 0, split, who, forOther: false, other: other);
+        }
+
+        private static DialogueStageCue ParseStageCueWords(
+            List<object> plist, int start, int end, string who, bool forOther, DialogueStageCue? other)
+        {
+            if ((end - start) % 2 != 0)
+                throw new ArgumentException($"{who}: stage cue has a key without a value");
+
+            string? pose = null, move = null, light = null, current = null, screen = null;
+            bool shake = false, flicker = false, relight = false, blackout = false, flash = false, inner = false;
+            for (int i = start; i < end; i += 2)
+            {
+                string key = SchemeValue.AsId(plist[i]).TrimStart(':');
+                object value = plist[i + 1];
+                switch (key)
+                {
+                    case "pose":
+                        pose = value as string;
+                        if (string.IsNullOrWhiteSpace(pose))
+                            throw new ArgumentException($"{who}: :pose must be a non-empty string");
+                        break;
+                    case "move":
+                        move = SchemeValue.AsId(value);
+                        if (!MoveKinds.Contains(move))
+                            throw new ArgumentException($"{who}: :move must be in/back, got '{move}'");
+                        break;
+                    case "light":
+                    {
+                        string word = SchemeValue.AsId(value);
+                        if (LightStates.Contains(word)) light = word;
+                        else if (CurrentStates.Contains(word)) current = word;
+                        else if (word == "flicker") flicker = true;
+                        else if (word == "relight") relight = true;
+                        else if (word == "blackout" && !forOther) blackout = true;
+                        else throw new ArgumentException($"{who}: :light must be normal/surge/faint/ember, still/pulse/racing, or flicker/relight/blackout; got '{word}'");
+                        break;
+                    }
+                    case "shake":
+                        shake = !(value is bool b1) || b1;
+                        break;
+                    case "screen" when !forOther:
+                    {
+                        string word = SchemeValue.AsId(value);
+                        if (word == "normal" || word == "negative") screen = word;
+                        else if (word == "flash") flash = true;
+                        else throw new ArgumentException($"{who}: :screen must be normal/negative/flash, got '{word}'");
+                        break;
+                    }
+                    case "inner" when !forOther:
+                        inner = !(value is bool b3) || b3;
+                        break;
+                    default:
+                        throw new ArgumentException(forOther
+                            ? $"{who}: after :other only pose/move/light/shake apply to the other person; got '{key}'"
+                            : $"{who}: unknown stage cue key '{key}'");
+                }
+            }
+            return new DialogueStageCue
+            {
+                Pose = pose, Move = move, Light = light, Current = current,
+                Flicker = flicker, Relight = relight, Blackout = blackout, Shake = shake,
+                Screen = screen, Flash = flash, Inner = inner, Other = other,
+            };
         }
 
         // 伤势的正负与其他资源相反：刻度涨上去是坏事，所以 tone 反着挂。

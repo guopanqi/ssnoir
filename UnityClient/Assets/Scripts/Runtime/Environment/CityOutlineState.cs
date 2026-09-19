@@ -18,6 +18,8 @@ namespace SSNoir
     ///   描线_world_&lt;名&gt;   optional proxy outline, visible in world view
     ///   描线_always_&lt;类&gt;  background city outline, never switched here
     ///   内部_&lt;名&gt;         focused-place interior
+    ///   随卡_&lt;锚点&gt;       under 内部_: furniture that exists only while some node in the current
+    ///                       render tree hangs on that anchor (bought things). See SetReferencedAnchors.
     /// </summary>
     public sealed class CityOutlineState
     {
@@ -25,6 +27,7 @@ namespace SSNoir
         private const string FocusOutlinePrefix = "描线_focus_";
         private const string WorldOutlinePrefix = "描线_world_";
         private const string InteriorPrefix = "内部_";
+        private const string PresencePrefix = "随卡_";
 
         private sealed class PrefabView
         {
@@ -71,6 +74,7 @@ namespace SSNoir
         }
 
         private readonly Dictionary<CinemachineVirtualCamera, Place> _cameraOwners = new();
+        private readonly Dictionary<string, List<GameObject>> _presenceByAnchor = new(StringComparer.Ordinal);
         private Place? _activePlace;
 
         private CityOutlineState(Transform cityRoot)
@@ -133,6 +137,38 @@ namespace SSNoir
 
             if (viewCount == 0)
                 throw ContractError("City contains no place outlines.");
+
+            foreach (var t in cityRoot.GetComponentsInChildren<Transform>(true))
+            {
+                if (!t.name.StartsWith(PresencePrefix, StringComparison.Ordinal))
+                    continue;
+                if (t.parent == null || !t.parent.name.StartsWith(InteriorPrefix, StringComparison.Ordinal))
+                    throw ContractError($"Presence node '{t.name}' must sit directly under an '{InteriorPrefix}' node.");
+                string anchor = t.name.Substring(PresencePrefix.Length);
+                if (anchor.Length == 0)
+                    throw ContractError($"Presence node '{t.name}' names no anchor.");
+                if (!_presenceByAnchor.TryGetValue(anchor, out var list))
+                    _presenceByAnchor[anchor] = list = new List<GameObject>();
+                list.Add(t.gameObject);
+                t.gameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// 随卡的件只在有卡挂着它的锚点时才在场：传入当前渲染树里全部节点的有效锚点名。
+        /// 买回来的家具靠脚本多渲染一张卡就长出来，不需要另一条状态通道，读档也自然对齐。
+        /// </summary>
+        public void SetReferencedAnchors(ISet<string> anchors)
+        {
+            foreach (var entry in _presenceByAnchor)
+            {
+                bool present = anchors.Contains(entry.Key);
+                foreach (var go in entry.Value)
+                {
+                    if (go.activeSelf != present)
+                        go.SetActive(present);
+                }
+            }
         }
 
         /// <summary>

@@ -35,7 +35,7 @@ generate：新开一个 Images 对话，提交提示词（可带参考图），�
   --session   原图和 manifest 的目录：tmp/gemini-image-web/<session>/<name>/；没有 --out 时必填
   --name      本次候选名，默认按时间戳；同名会覆盖
   --prompt-file -  从 stdin 读提示词
-  --reference 参考图，可重复；首次使用需先在网页上同意“Creating content from images and files”
+  --reference 参考图，可重复；首次使用需先在网页上同意“Creating content from images and files”；上传约需数秒，CLI 会等进度消失后再提交
 通用选项：--output-root DIR --profile DIR --headed --timeout-ms N（默认且最大 90000）
 成功时 stdout 前几行是摘要，最后一行是 manifest 路径；等待期间 stderr 每 30 秒打印一次心跳。
 同一 --profile 同时只能跑一个任务。`;
@@ -276,6 +276,16 @@ async function uploadReferences(page, references) {
   if (uploadState !== "attached" || actual < expected) {
     fail(`参考图上传未完成：期望 ${references.length} 张新增附件，当前检测到 ${Math.max(0, actual - attachmentsBeforeUpload)} 张（文件：${references.join("、")}；当前 URL：${page.url()}）。`);
   }
+  // 缩略图先于上传完成出现：附件 img 已在 DOM 里时，预览容器内还挂着上传进度
+  // 条约 6 秒。此时点 Send，Gemini 会把整页重置回普通 /app 首页，附件与提示词
+  // 一起丢失，且没有任何错误。必须等预览容器里的进度指示消失后再提交。
+  const uploaded = await page.waitForFunction(() => {
+    const container = document.querySelector("uploader-file-preview-container, .file-preview-container");
+    if (!container) return false;
+    if (container.querySelector("mat-progress-spinner, mat-spinner, [role='progressbar']")) return false;
+    return !/uploading|loading/i.test(container.outerHTML);
+  }, null, { timeout: 60_000 }).then(() => true).catch(() => false);
+  if (!uploaded) fail(`参考图上传 60 秒内未完成（预览容器仍显示进度）；当前 URL：${page.url()}。`);
   await page.waitForTimeout(700);
 }
 

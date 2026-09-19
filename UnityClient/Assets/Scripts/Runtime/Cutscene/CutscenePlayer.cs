@@ -67,13 +67,25 @@ namespace SSNoir
         private float _phaseStartedAt;
 
         private CutsceneSequence? _sequence;
+
+        // 实时演出（场景里的道具动画）：和视频过场同一套影幕、运镜、回程，只是"放片子"那一段换成
+        // 「叫道具开始动，等它动完」。一次一镜。
+        private sealed class LiveShot
+        {
+            public CinemachineVirtualCamera? Camera;
+            public Action Start = null!;
+            public Func<bool> IsDone = null!;
+        }
+        private LiveShot? _live;
+        // 道具动画不该比这更长；万一 IsDone 永远不回真（clip 名配错），也不能把玩家关在影幕里。
+        private const float LiveShotTimeout = 8f;
         private readonly List<CutsceneShot> _shots = new List<CutsceneShot>();
         private int _shotIndex;
         private Action? _onComplete;
 
         // 当前占用着高优先级的那一镜，以及它原本的优先级。一次只有一个，切镜头时先还再占。
-        private CutsceneShot? _activeShot;
-        private int _activeShotOriginalPriority;
+        private CinemachineVirtualCamera? _activeCamera;
+        private int _activeCameraOriginalPriority;
 
         private CinemachineVirtualCamera? _returnCamera;
 
@@ -131,6 +143,7 @@ namespace SSNoir
             }
 
             _sequence = sequence;
+            _live = null;
             _onComplete = onComplete;
             _shotIndex = 0;
             _letterboxRaised = false;
@@ -145,6 +158,45 @@ namespace SSNoir
             _gameManager.CameraManager.FinishFocusTravel();
 
             EnterShot(_shots[0]);
+        }
+
+        /// <summary>
+        /// 播一段实时演出：推向 <paramref name="camera"/>（null = 不换机位，原地压影幕）→ 叫
+        /// <paramref name="start"/> → 等 <paramref name="isDone"/> 回真 → 收影幕、回原机位 → <paramref name="onComplete"/>。
+        /// 剧本里的 (play-motion! ...) 落到这里；影幕和运镜和视频过场一模一样，玩家不该分得出这是哪种过场。
+        /// </summary>
+        public void PlayLive(CinemachineVirtualCamera? camera, Action start, Func<bool> isDone, Action? onComplete = null)
+        {
+            if (IsActive)
+            {
+                Debug.LogWarning("[SSNoir] 实时演出被忽略：另一场过场还在播。直接执行，不带镜头。");
+                start();
+                onComplete?.Invoke();
+                return;
+            }
+
+            _sequence = null;
+            _shots.Clear();
+            _live = new LiveShot { Camera = camera, Start = start, IsDone = isDone };
+            _onComplete = onComplete;
+            _shotIndex = 0;
+            _letterboxRaised = false;
+            _letterboxOutStartProgress = 1f;
+            _letterboxOutDuration = DefaultLetterboxDuration;
+
+            _returnCamera = _gameManager.CameraManager.GetActiveCamera();
+            _gameManager.CameraManager.FinishFocusTravel();
+
+            _hasVideo = false; _videoPending = false; _videoFinished = false; _videoStarted = false;
+            if (camera == null)
+            {
+                // 不换机位：影幕照压，压完就开演
+                _letterboxInDuration = DefaultLetterboxDuration;
+                EnterPhase(Phase.Approach);
+                return;
+            }
+            OccupyCamera(camera, null);
+            EnterPhase(Phase.Approach);
         }
 
         /// <summary>
@@ -164,7 +216,7 @@ namespace SSNoir
 
         private void Update()
         {
-            if (_phase == Phase.Idle || _sequence == null)
+            if (_phase == Phase.Idle || (_sequence == null && _live == null))
                 return;
 
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -179,7 +231,7 @@ namespace SSNoir
             {
                 case Phase.Approach:
                     // 超时也放行：卡在这里等于把玩家锁死在一个没有 UI 的世界里。
-                    bool cameraReady = IsSettledOn(_activeShot?.Camera) || elapsed >= MoveTimeout;
+                    bool cameraReady = IsSettledOn(_activeCamera) || elapsed >= MoveTimeout;
                     bool letterboxReady = _letterboxRaised || elapsed >= _letterboxInDuration;
                     if (cameraReady && letterboxReady)
                     {
@@ -191,7 +243,8 @@ namespace SSNoir
                 case Phase.Playing:
                     // 有片子等它放完，没片子就干等一段——影幕和运镜要能脱离视频单独测。
                     // 期限是兜底，正常都走上面那条。
-                    if ((_hasVideo && _videoFinished) || Time.unscaledTime >= _playDeadline)
+                    if ((_hasVideo && _videoFinished) || (_live != null && _live.IsDone())
+                        || Time.unscaledTime >= _playDeadline)
                         AdvanceShot();
                     break;
 
@@ -215,7 +268,7 @@ namespace SSNoir
         {
             _shotIndex++;
 
-            if (_shotIndex >= _shots.Count)
+            if (_live != null || _shotIndex >= _shots.Count)
             {
                 BeginWindDown();
                 return;
@@ -293,13 +346,21 @@ namespace SSNoir
                 return;
             }
 
+            OccupyCamera(camera, shot.FocusAnchor);
+            PrepareVideo(shot);
+            EnterPhase(Phase.Approach);
+        }
+
+        /// <summary>占住一台机位并起运镜过去。视频镜和实时演出共用。</summary>
+        private void OccupyCamera(CinemachineVirtualCamera camera, NodeAnchor? focusAnchor)
+        {
             // 上一镜先把优先级还回去，否则两镜同为最高，谁赢取决于队列顺序。
             ReleaseActiveShot();
 
-            _activeShot = shot;
-            _activeShotOriginalPriority = camera.Priority;
+            _activeCamera = camera;
+            _activeCameraOriginalPriority = camera.Priority;
 
-            _gameManager.PresentCamera(camera, shot.FocusAnchor);
+            _gameManager.PresentCamera(camera, focusAnchor);
 
             // 过场镜头保留完整的焦点运镜，即使玩家在设置里开启了减少动画。
             // 减少动画只服务于玩家操作触发的导航，不应改写导演安排好的镜头语言。
@@ -324,16 +385,19 @@ namespace SSNoir
             // Update 才重排。过场可能是在 OnGUI 的点击里发起的，不立刻通知队列，brain 就会
             // 带着旧排序进入下一帧。
             camera.MoveToTopOfPrioritySubqueue();
-
-            PrepareVideo(shot);
-            EnterPhase(Phase.Approach);
         }
 
         private void BeginPlayback()
         {
             // 走到这儿说明黑边要么已经压完（第一镜），要么一直挂着（后面几镜）。
             _letterboxRaised = true;
-            StartVideo();
+            if (_live != null)
+            {
+                _live.Start();
+                _playDeadline = Time.unscaledTime + LiveShotTimeout;
+            }
+            else
+                StartVideo();
             EnterPhase(Phase.Playing);
         }
 
@@ -343,7 +407,7 @@ namespace SSNoir
         /// </summary>
         public void Draw()
         {
-            if (_sequence == null)
+            if (_sequence == null && _live == null)
                 return;
 
             float vw = UIScale.VW;
@@ -425,7 +489,7 @@ namespace SSNoir
         /// <summary>0 = 没有黑边，1 = 影幕完全就位。</summary>
         private float LetterboxProgress()
         {
-            if (_sequence == null)
+            if (_sequence == null && _live == null)
                 return 0f;
 
             float elapsed = Time.unscaledTime - _phaseStartedAt;
@@ -483,14 +547,11 @@ namespace SSNoir
 
         private void ReleaseActiveShot()
         {
-            if (_activeShot == null)
+            if (_activeCamera == null)
                 return;
 
-            var camera = _activeShot.Camera;
-            if (camera != null)
-                camera.Priority = _activeShotOriginalPriority;
-
-            _activeShot = null;
+            _activeCamera.Priority = _activeCameraOriginalPriority;
+            _activeCamera = null;
         }
 
         /// <summary>
@@ -694,6 +755,7 @@ namespace SSNoir
 
             _phase = Phase.Idle;
             _sequence = null;
+            _live = null;
             _shots.Clear();
             _shotIndex = 0;
             _returnCamera = null;

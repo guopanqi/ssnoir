@@ -97,10 +97,8 @@ namespace SSNoir.Playtest
                     RollOutcome.Neutral => "中",
                     _ => "坏"
                 });
-            if (report.OutcomePresentation != null && !string.IsNullOrEmpty(report.OutcomePresentation.Title))
-                parts.Add(report.OutcomePresentation.Title);
             foreach (var effect in report.Effects)
-                parts.Add(effect.Kind == ActionEffectKind.Note
+                parts.Add(effect.Kind == ActionEffectKind.Supplement
                     ? effect.Text
                     : $"{effect.Label ?? effect.Text} {effect.Delta:+#;-#;0}");
             foreach (var step in report.BlockingStorySteps)

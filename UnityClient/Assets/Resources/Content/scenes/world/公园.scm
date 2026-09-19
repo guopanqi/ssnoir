@@ -17,16 +17,9 @@
         :subtitle "投入一颗行动骰，恢复 0～2 点冷静"
         :requires (list (req-die))
         :resolve (recovery-roll 'sharpness
-          (outcome "心不在焉" ; 坏
-            (lambda () (walter 'on-park-walk!)))
-          (outcome "松了口气" ; 中
-            (lambda ()
-              (restore-actor-composure! 'player 1)
-              (walter 'on-park-walk!)))
-          (outcome "神清气爽" ; 好
-            (lambda ()
-              (restore-actor-composure! 'player 2)
-              (walter 'on-park-walk!))))))
+          (outcome (lambda () #f))                                    ; 坏
+          (outcome (lambda () (restore-actor-composure! 'player 1)))  ; 中
+          (outcome (lambda () (restore-actor-composure! 'player 2)))))) ; 好
 
     (lambda args
       (let ((msg (car args)))

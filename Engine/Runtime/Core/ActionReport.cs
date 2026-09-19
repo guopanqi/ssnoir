@@ -21,7 +21,6 @@ namespace SSNoir.Core
         public ActionType Type { get; set; }
         public RollOutcome Outcome { get; set; }
         public IReadOnlyList<PresentationHint> PresentationHints { get; set; } = new List<PresentationHint>();
-        public OutcomePresentation? OutcomePresentation { get; set; }
         public List<ActionEffectRecord> Effects { get; } = new List<ActionEffectRecord>();
 
         /// <summary>
@@ -45,13 +44,14 @@ namespace SSNoir.Core
             });
         }
 
-        public void AddNote(string text)
+        /// <summary>引擎自动行说不出的补充（"解锁：码头账房"这类）。内容侧的 result-supplement! 落到这里。</summary>
+        public void AddSupplement(string text)
         {
             if (string.IsNullOrWhiteSpace(text))
                 throw new System.ArgumentException("result note cannot be empty");
             Effects.Add(new ActionEffectRecord
             {
-                Kind = ActionEffectKind.Note,
+                Kind = ActionEffectKind.Supplement,
                 Text = text,
                 Tone = ActionEffectTone.Neutral
             });

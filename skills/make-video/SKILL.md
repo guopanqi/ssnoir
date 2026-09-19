@@ -1,12 +1,12 @@
 ---
 name: make-video
-description: 为 SSNoir 做分镜、决定拍什么和怎么拍时使用。覆盖素材与剧情来源、场景图是否合格的判定、提示词写法、迭代节奏与成片验收标准。实际生成交给 libtv-video-generate，本文不讲怎么调用。
+description: 为 SSNoir 做分镜、决定拍什么和怎么拍时使用。覆盖素材与剧情来源、场景图是否合格的判定、提示词写法、迭代节奏与成片验收标准。实际生成交给 tools/libtv-video-generate，本文不讲怎么调用。
 ---
 
 # SSNoir 的视频导演
 
 **这是导演知识，不是调用手册。** 怎么把请求发出去、参数长什么样，全在
-**libtv-video-generate skill**（工具在 `tools/libtv-video-generate/`）。
+工具自己的 README（`tools/libtv-video-generate/README.md`）。
 本文只写那个服务不该知道的事：素材和剧情从哪来、一张场景图合不合格、
 提示词怎么写、成片怎么判。
 
@@ -87,7 +87,7 @@ Seedance 2.0 Mini 读不懂复杂构图。它对**多层级 isometric 透视**�
 ```
 
 **你只需要写空行以下的剧情部分。** 头部那四行——角色绑定、场景绑定、镜头固定、禁 BGM——
-由 `libtv-video-generate` 自动加，请求里的 `characters[].name` 就是角色在剧情里被称呼的名字。
+由 `tools/libtv-video-generate` 自动加，请求里的 `characters[].name` 就是角色在剧情里被称呼的名字。
 证据是镜头04：正文里"围住艾迪"是大白话，没有任何占位符，靠工具加的头部绑定就够了。
 
 ### 禁忌
@@ -107,7 +107,7 @@ Seedance 2.0 Mini 读不懂复杂构图。它对**多层级 isometric 透视**�
 
 ## 4 迭代流程
 
-生成一律走 **libtv-video-generate**，除了提示词、场景图、角色图和时长，
+生成一律走 **tools/libtv-video-generate**，除了提示词、场景图、角色图和时长，
 其余每次完全一样——所以出片变了，就一定是这四样变了，不会是别处飘了。
 下面这条"提示词一字不改"的规矩，只有在其余部分被服务钉死的前提下才成立。
 

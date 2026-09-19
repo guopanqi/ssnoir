@@ -35,6 +35,14 @@ namespace SSNoir.Rendering
         /// 同帧渲染，靠全局开关会把玩家正看着的那一帧也一起摘掉。
         /// </summary>
         public static Camera? CaptureCamera { get; set; }
+
+        /// <summary>
+        /// 世界负片程度，0 原样、1 全翻。Feature 每帧读进材质。
+        /// 只翻世界那幅画：IMGUI 在管线之后画，舞台上的人物和对白框由舞台自己按纸上的规矩画。
+        /// 对白舞台进负片时写 <see cref="StageInvert"/>，对话结束归零。
+        /// </summary>
+        public static float WorldInvert => StageInvert;
+        public static float StageInvert { get; set; }
     }
 
     /// <summary>
@@ -173,7 +181,8 @@ namespace SSNoir.Rendering
             // 每帧更新；不能通过停用整个 Renderer Feature 来省这趟，否则视频会退回另一条路径。
             // 视角切换的冻帧合成也借用场景 Pass，所以溶解期间即使 Intensity 为零仍必须执行。
             if (settings.Intensity <= 0f
-                && global::SSNoir.ViewCrossfade.ActiveFrozenView == null)
+                && global::SSNoir.ViewCrossfade.ActiveFrozenView == null
+                && SSNoirStylizeMaterial.WorldInvert <= 0f)
                 return;
 
             renderer.EnqueuePass(_pass);
@@ -197,6 +206,7 @@ namespace SSNoir.Rendering
             material.SetFloat("_InWhite", Mathf.Max(settings.InWhite, settings.InBlack + 0.02f));
             material.SetFloat("_LumaGamma", settings.LumaGamma);
 
+            material.SetFloat("_WorldInvert", Mathf.Clamp01(SSNoirStylizeMaterial.WorldInvert));
             material.SetFloat("_GuiInputGamma", settings.VideoInputGamma);
             material.SetFloat("_GuiOutputGamma", settings.VideoOutputGamma);
 
@@ -263,6 +273,13 @@ namespace SSNoir.Rendering
                     return;
 
                 var renderer = renderingData.cameraData.renderer;
+                // 涂装 Intensity 为零时这个 pass 以前只在溶解期间跑；世界负片让它常驻之后，
+                // 有的相机走到这里时颜色目标不是一张贴图（直接画到屏幕/后台缓冲的那几台），
+                // 句柄的 rt 是空的，Blitter 拿它当贴图喂进属性块会抛 ArgumentNull。
+                // 没有贴图就没法先拷一份再翻，跳过这一台；主相机带后处理，总有中间贴图。
+                var source = renderer.cameraColorTargetHandle;
+                if (source == null || source.rt == null)
+                    return;
 
                 // renderingData.commandBuffer 在 14.0.12 里是 internal，自己取一条。
                 var cmd = CommandBufferPool.Get();
@@ -271,10 +288,9 @@ namespace SSNoir.Rendering
                 {
                     // 不能原地读写同一张贴图，先原样拷一份出来当输入。
                     CoreUtils.SetRenderTarget(cmd, _copy);
-                    Blitter.BlitTexture(cmd, renderer.cameraColorTargetHandle,
-                        new Vector4(1f, 1f, 0f, 0f), 0f, false);
+                    Blitter.BlitTexture(cmd, source, new Vector4(1f, 1f, 0f, 0f), 0f, false);
 
-                    CoreUtils.SetRenderTarget(cmd, renderer.cameraColorTargetHandle);
+                    CoreUtils.SetRenderTarget(cmd, source);
 
                     Properties.Clear();
                     Properties.SetTexture(BlitTextureId, _copy);

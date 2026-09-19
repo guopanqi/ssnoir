@@ -21,7 +21,6 @@
 (load-file "world/货运公司.scm")
 (load-file "world/居民区.scm")
 (load-file "world/剧院.scm")
-(load-file "world/保险公司.scm")
 (load-file "world/board.scm")
 ;; 第二章开出来的地方
 (load-file "world/格兰德酒店.scm")
@@ -42,30 +41,8 @@
 ;; 每档两项配置由内容定义、客户端据当前声誉显示：
 ;;   relation-band-name:<圈子>:<档>  该圈子对这一档的定制称呼（面板档名与诱饵标题）
 ;;   relation-goal:<圈子>:<档>       这一档解锁的具名诱饵
-;; 每档只写一件确实能在 demo 里做的事。做不到的档位宁可写「尚无进一步关系」，
-;; 也不拿以后的内容诱导玩家投资——空头承诺比少写一档更打消推进的意愿。
-;; 两个圈子不必长得一样：老码头三档都有内容，商业圈第一章只认到座上宾。
-;; 门控仍用通用内部名（相识/信任/核心），见 engine.scm。
-;;
-;; 爬升方式随档位换（见 engine.scm 的 grant-work-relation!/grant-favor-relation!）：
-;; 相识靠带薪工作混脸熟（到值 3 封顶）；信任靠不计报酬的帮忙类动作（到值 5 封顶）；
-;; 核心只认事迹——人物小节/主线段落完成时才给，不封顶，是唯一能到核心的路。
-
-;; 老码头〈生存 · 组织 · 地方保护〉：做工建立面熟，具体事迹换来有边界的人手。
-(set-global! "relation-band-name:老码头:相识" "面熟")
-(set-global! "relation-band-name:老码头:信任" "够朋友")
-(set-global! "relation-band-name:老码头:核心" "自己人")
-(set-global! "relation-goal:老码头:相识" "码头开始把顶班这类零活转介给你")
-(set-global! "relation-goal:老码头:信任" "老街和酒馆老板都认你的脸·去堆场那一夜手上多两把钥匙")
-(set-global! "relation-goal:老码头:核心" "由重大事件获得：弗兰克肯为你组织人手")
-
-;; 商业圈〈欲望 · 资本 · 上流圈层〉：资本、投资与代理人的引荐。
-(set-global! "relation-band-name:商业圈:相识" "有往来")
-(set-global! "relation-band-name:商业圈:信任" "座上宾")
-(set-global! "relation-band-name:商业圈:核心" "合伙人")
-(set-global! "relation-goal:商业圈:相识" "货运代理愿意引荐你")
-(set-global! "relation-goal:商业圈:信任" "投资本金打折·拿得到预付与信用条件")
-(set-global! "relation-goal:商业圈:核心" "尚无进一步关系")
+;; 没有「圈子声誉」这一层：你和一个人的关系就是你和那一片的关系
+;; （艾迪＝码头，弗兰克＝老街，沃尔特＝上城），各写在人物模块里。
 
 ;; 第一章的节拍、到期日与必看事件全部由 three-letters 自己拥有
 ;; （见 world/三封信.scm）。世界只负责日历、地点可见性与存档转发，不解释故事。

@@ -15,10 +15,20 @@
 (define :support ':support)
 (define :arrivals ':arrivals)
 (define :kind ':kind)
+(define :primary ':primary)
 (define :status ':status)
 (define :now ':now)
 (define :where ':where)
 (define :log ':log)
+(define :steps ':steps)
+;; 台词的舞台指示
+(define :pose ':pose)
+(define :move ':move)
+(define :light ':light)
+(define :shake ':shake)
+(define :screen ':screen)
+(define :inner ':inner)
+(define :other ':other)
 
 ;; Helper to extract keyword arguments from a list
 (define (get-kwarg kwargs key default)
@@ -122,10 +132,12 @@
 
 ;; 回合边界上由场景发起的强制行动。demands 是 ((actor-id count) ...)。
 ;; 它不产生新的玩家骰槽；只在内容内部指定谁的时间被占用，并排入一张锁输入的自动行动卡。
-(define (auto-action! name subtitle demands effect . anchor)
-  (if (> (length anchor) 1)
-      (error "auto-action!: expected at most one anchor")
-      (__auto-action! name subtitle (if (null? anchor) #f (car anchor)) demands effect)))
+;; 落点必须显式声明：自动行动卡是空间里的一张卡，没有"先放网格以后再说"——
+;; 漏写锚点会静默掉进网格，而构建与校验都不会拦，只能在这里挡。
+(define (auto-action! name subtitle demands effect anchor)
+  (if (not (string? anchor))
+      (error "auto-action!: 必须显式声明落点锚点；自动行动卡不许掉进网格")
+      (__auto-action! name subtitle anchor demands effect)))
 
 ;; 倒下协议。交锋不写新的送医路线，只声明这场在主角倒下时如何使用已有结算：
 ;;   (collapse-result 原有结果)  调用原有回调，按失败/既有收场推进
@@ -147,22 +159,21 @@
 (define (instant effect)
   (list 'instant effect))
 
-;; Outcome wraps an action effect with optional result presentation metadata.
+;; 一个结算分支＝一个效果，仅此而已：
 ;;
-;; Supported forms:
-;; (outcome title effect)
-;; (outcome title effect 'light)
-;; (outcome title effect 'heavy)
+;;   (outcome (lambda () ...))
 ;;
-(define (outcome title effect . modes)
-  (if (> (length modes) 1)
-      (error "outcome: expected at most one presentation mode")
-      (let ((mode (if (null? modes) 'light (car modes))))
-        (list 'outcome title mode effect))))
+;; 它没有标题、没有文案。结果条上的每一行都由引擎按状态变化自动写（钟 / 物品 / 关系 /
+;; 冷静 / 伤势），不需要、也不接受内容再复述一遍。要说的话走显式的表达：到阈值才说的用
+;; banter / dialogue；引擎自动行说不出的事实（"解锁：码头账房"）才用 result-supplement!。
+(define (outcome effect)
+  (if (procedure? effect)
+      (list 'outcome effect)
+      (error "outcome: 只收一个效果过程 (outcome (lambda () ...))；不写标题、不写描述")))
 
 (define (outcome? value)
   (and (pair? value)
-       (= (length value) 4)
+       (= (length value) 2)
        (equal? (car value) 'outcome)))
 
 (define (require-outcome value who)
@@ -170,16 +181,10 @@
       value
       (error (string-append who ": expected outcome"))))
 
-;; 保留 outcome 的标题/模式，在原效果之后追加一个效果。
+;; 在原效果之后追加一个效果。
 (define (outcome-append-effect value extra-effect who)
-  (let ((checked (require-outcome value who)))
-    (let ((effect (list-ref checked 3)))
-      (list 'outcome
-            (list-ref checked 1)
-            (list-ref checked 2)
-            (lambda ()
-              (effect)
-              (extra-effect))))))
+  (let ((effect (cadr (require-outcome value who))))
+    (outcome (lambda () (effect) (extra-effect)))))
 
 ;; Modifier constructor
 (define (modifier value reason)
@@ -280,23 +285,45 @@
 ;; 一条故事线在卷宗里的样子。拥有故事的模块回一条（或零条），世界只负责收集，
 ;; 和地点可见性一样——世界不解释故事。
 ;;
-;; 每条线只有一句 :now。它不是任务描述，是玩家隔三天回来要读的那一句：
-;; 第二人称，说得出下一步该做什么。写不出这一句，说明那一拍的目标本身没想清楚，
-;; 那是内容的问题，别靠面板多列两行来遮。
+;; :now 是这一小节的整体目标，一句话——不是「下一步做什么」，那是 :steps 的事。
+;; 说不清整体目标就留空字符串，面板不画这一行；别拿当前子项凑一句来重复。
 ;;
 ;; :clocks 直接放故事已经在用的钟（(某某-clk 'render-data)），不为卷宗新建一套——
 ;; 同一根钟在动作卡上和卷宗里必须长得一模一样。
 ;; 主线只有一条：当前这一章的那条必经线。它排在最前，也是钉住条的默认。
 ;; 一个存档里同时出现两条 主线 是内容写错了，不是引擎该兼容的情形。
+;;
+;; 主要 / 次要与 :kind 是两个轴：:kind 说这条线是什么来头，
+;; :primary 说它是不是非走不可的主轴（阻塞性、必须到场，失败也算到过）。
+;; 主轴（城市主轴的短条目、三封信）显式写 :primary #t；追查与人物事件不写，
+;; 缺省就是次要。不要按 :kind 推导——三封信是委托却是主要，追查是委托却是次要。
+;;
+;; 一张卡就是一个小节（Task）。一条人物线或一章主线拆成几张卡，一张一张了结，
+;; 不做一张横跨全章、只换 :now 的长卡——那样玩家看不见小节的边界，
+;; 更看不见边界上发生了什么。
+;;
+;; :steps 是这一小节的子项清单：(step "文案" 已完成?) 的列表，按故事顺序写死，
+;; 做完的划掉。界面只露到第一个没做完的那一项，后面的不给玩家看——卷宗不知道未来；
+;; 所以子项的完成条件必须按顺序单调（前一项没完成，后一项不该先完成）。子项只列这一节**必经**的事；可做可不做的留在地点动作上，
+;; 不然「最后一项划掉即了结」这条约定就站不住。
+;; 最后一项划掉的那一拍，内容调 complete-task! 发放这一节固定的成长，并把卡收成 了结。
+;; 卡上不写「完成后得到什么」——奖励是做完之后自然到手的东西，不是挂在卡上的诱饵。
+;; 小节也可能被世界推着了结（日子到了、失败了）：那时没划掉的子项就那么留着，照样了结。
 (define dossier-kinds  (list '主线 '委托 '人物 '城市))
 (define dossier-states (list '进行中 '等着别人 '了结))
+
+(define (step text done?)
+  (if (and (string? text) (not (equal? text ""))) #t (error "step: 文案必须是非空字符串"))
+  (if (or (equal? done? #t) (equal? done? #f)) #t (error (string-append "step " text "：已完成? 应为 #t / #f")))
+  (list 'step text done?))
 
 (define (dossier id . kwargs)
   (if (and (string? id) (not (equal? id ""))) #t (error "dossier: 标识必须是非空字符串"))
   (let ((kind   (get-kwarg kwargs ':kind '委托))
         (status (get-kwarg kwargs ':status '进行中))
         (now    (get-kwarg kwargs ':now ""))
-        (where  (get-kwarg kwargs ':where "")))
+        (where  (get-kwarg kwargs ':where ""))
+        (primary (get-kwarg kwargs ':primary #f)))
     (if (member? kind dossier-kinds)
         #t
         (error (string-append "dossier " id "：:kind 应为 主线 / 委托 / 人物 / 城市")))
@@ -305,12 +332,22 @@
         (error (string-append "dossier " id "：:status 应为 进行中 / 等着别人 / 了结")))
     (if (string? now) #t (error (string-append "dossier " id "：:now 必须是字符串")))
     (if (string? where) #t (error (string-append "dossier " id "：:where 必须是字符串")))
+    (if (or (equal? primary #t) (equal? primary #f))
+        #t
+        (error (string-append "dossier " id "：:primary 应为 #t / #f")))
     (list 'dossier id
           :kind kind
+          :primary primary
           :status status
           :now now
           :where where
           :clocks (get-kwarg kwargs ':clocks '())
+          :steps (let ((steps (get-kwarg kwargs ':steps '())))
+                   (map (lambda (s)
+                          (if (and (list? s) (= (length s) 3) (equal? (car s) 'step))
+                              s
+                              (error (string-append "dossier " id "：:steps 只接受 (step 文案 已完成?)"))))
+                        steps))
           :log (get-kwarg kwargs ':log '()))))
 
 ;; 一条线的履历。内容自己持有一份，跟自己的存档走。
@@ -394,43 +431,27 @@
           (error "recovery-roll-action: expected 6 args (name requires skill fail neutral success) or 7 args (name requires skill mod-fn fail neutral success)"))))
 
 ;; ── 工作（work）DSL ───────────────────────────────────
-;; (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name])
-;; (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle]
-;;           [:anchor name] [:clocks clocks])
-;; (非法工作 name faction risk skill 好-outcome 中-outcome 坏-outcome [subtitle]
-;;           [:anchor name] [:clocks clocks])
-;;   faction: "老码头"/"商业圈"，不属于任何圈子的活写 "无"。
-;;            普通工作不产声誉；关系工作仅在好结果 +1。
+;; (工作 name risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name] [:clocks clocks])
+;; (非法工作 name risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name] [:clocks clocks])
+;;   工作只换钱，不攒任何圈子的声誉——「势力关系」这层已经拆掉：你和谁的关系，
+;;   就是你和那一片的关系，写在人物模块里（艾迪＝码头，弗兰克＝老街，沃尔特＝上城）。
 ;;   risk:    只有 '低/'高，决定风险标签与结果代价。
 ;;   非法工作是独立维度：额外显示“非法”并固定难度 -2，不再冒充第三种风险档。
-;;   好/中/坏: 每项工作显式传入三个 outcome，标题和描述直接用于轻型结算
+;;   好/中/坏: 每项工作显式传入三个 outcome（各只是一个效果）
 ;;   subtitle: 可选，只写“特别”的一句说明；一般风险由标签表达，不写 subtitle
 ;; 表现约定：每个工作都打“工作”标签（＝能赚钱）+ 一个风险标签，前端给风险标签配色，
-;; 玩家一眼就能判断类型和大致风险。惩罚（钱/冷静/伤势、非法工作失败掉关系）写在各 outcome effect 里。
+;; 玩家一眼就能判断类型和大致风险。惩罚（钱/冷静/伤势）写在各 outcome effect 里。
 (define (工作-风险标签 risk)
   (cond ((equal? risk '低)   "低风险")
         ((equal? risk '高)   "高风险")
         (else (error "工作: 未知风险等级（应为 低/高）"))))
 
-(define (工作-合法势力? faction)
-  (or (equal? faction "老码头") (equal? faction "商业圈") (equal? faction "无")))
-
-;; 圈子敌视时，该圈子地点的判定统一 -1（可见修正，与非法的判定惩罚同构）。
-(define (关系难度修正 faction)
-  (if (and (not (equal? faction "无"))
-           (equal? (relation-band faction) '敌视))
-      (list (modifier -1 "势力敌视"))
-      '()))
-
-(define (工作-难度修正 risk faction illegal?)
+(define (工作-难度修正 risk illegal?)
   (append
     (begin (工作-风险标签 risk) '())
-    (if illegal? (list (modifier -2 "非法")) '())
-    (关系难度修正 faction)))
+    (if illegal? (list (modifier -2 "非法")) '())))
 
-(define (构造工作 name faction 产关系? illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle anchor clocks)
-  (if (工作-合法势力? faction) #t (error "工作: 未知圈子（应为 老码头/商业圈/无）"))
-  (if (and 产关系? (equal? faction "无")) (error "关系工作: 不能挂在「无」上") #t)
+(define (构造工作 name illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle anchor clocks)
   (node name
         :subtitle subtitle
         :anchor anchor
@@ -440,15 +461,10 @@
                   (list "工作" (工作-风险标签 risk)))
         :requires (list (req-die))
         :resolve (roll skill
-                       (lambda () (工作-难度修正 risk faction illegal?))
+                       (lambda () (工作-难度修正 risk illegal?))
                        (require-outcome 坏-outcome "工作 坏")
                        (require-outcome 中-outcome "工作 中")
-                       (if 产关系?
-                           (outcome-append-effect
-                             好-outcome
-                             (lambda () (grant-work-relation! faction))
-                             "关系工作 好")
-                           (require-outcome 好-outcome "工作 好")))))
+                       (require-outcome 好-outcome "工作 好"))))
 
 ;; 工作包装只接受一条可选副标题，以及 :anchor / :clocks 两组明确关键字。
 ;; 未登记参数直接报错，不能静默吞掉锚点或时钟配置。
@@ -471,19 +487,14 @@
               (get-kwarg kwargs :clocks '()))
         (error "工作: 附加参数应为 [subtitle] [:anchor 锚点名] [:clocks 时钟列表]"))))
 
-(define (工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
+(define (工作 name risk skill 好-outcome 中-outcome 坏-outcome . extra)
   (let ((args (工作-附加参数 extra)))
-    (构造工作 name faction #f #f risk skill 好-outcome 中-outcome 坏-outcome
+    (构造工作 name #f risk skill 好-outcome 中-outcome 坏-outcome
               (car args) (cadr args) (caddr args))))
 
-(define (关系工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
+(define (非法工作 name risk skill 好-outcome 中-outcome 坏-outcome . extra)
   (let ((args (工作-附加参数 extra)))
-    (构造工作 name faction #t #f risk skill 好-outcome 中-outcome 坏-outcome
-              (car args) (cadr args) (caddr args))))
-
-(define (非法工作 name faction risk skill 好-outcome 中-outcome 坏-outcome . extra)
-  (let ((args (工作-附加参数 extra)))
-    (构造工作 name faction #f #t risk skill 好-outcome 中-outcome 坏-outcome
+    (构造工作 name #t risk skill 好-outcome 中-outcome 坏-outcome
               (car args) (cadr args) (caddr args))))
 
 ;; ── 随身动作 ─────────────────────────────────────────
@@ -503,8 +514,7 @@
     :carry-item item
     :requires (list (req-item item 1) (req-die))
     :resolve (instant
-      (outcome title
-        (lambda ()
+      (outcome (lambda ()
           (remove-item! item 1)
           (restore-actor-composure! 'player amount)
           (effect))))))
@@ -548,6 +558,24 @@
 (define (summon-helper! actor-id name stats-alist)
   (__summon-helper! actor-id name stats-alist))
 
+;; ── 同伴能力总表 ─────────────────────────────────────
+;; 全游戏同伴与临时帮手的基础能力只在这里定义一处。
+;; recruit / summon 处只许引用 (同伴能力 '夜莺)，不许现写四项。
+;; 交锋是独立解释器，看不到 world/人物 模块；两个解释器都加载本文件，
+;; 所以总表只能落在这里（support-catalog 同理）。
+;; 每人只有一个特长：单峰，其余 0/1。场景要加强某人，用固定骰/修正/自动动作，
+;; 不动这里的底值。
+(define 同伴能力表
+  (list (list '夜莺 (list (list 'violence 0) (list 'knowledge 1)
+                         (list 'sharpness 1) (list 'social 3)))
+        (list '老街帮手 (list (list 'violence 2) (list 'knowledge 0)
+                             (list 'sharpness 1) (list 'social 0)))))
+
+(define (同伴能力 id)
+  (let ((row (assoc-get 同伴能力表 id #f)))
+    (if row row (error (string-append "同伴能力：没有登记的同伴 "
+                                      (symbol->string id))))))
+
 ;; 弗兰克《叫个人来》——「人手」这一形状：那个人的人自己入场，占一个骰位，用他自己的技能。
 ;; 帮手是老街的人：力量有数，交际是零。他那颗骰投在体力动作上准备值高，投在谈判上就是废骰——
 ;; 限制来自他的技能表，不来自规则。同伴的骰投出坏结果扣的是他的冷静，不是你的：
@@ -557,12 +585,19 @@
     :support "弗兰克"
     :disabled (or (support-used?) (has-companion? '老街帮手))
     :resolve (instant
-      (outcome "有人应了一声"
-        (lambda ()
-          (summon-helper! '老街帮手 "老街帮手"
-            (list (list 'violence 2) (list 'knowledge 0) (list 'sharpness 1) (list 'social 0)))
-          (result-note! "帮手入队：本回合一颗骰")
+      (outcome (lambda ()
+          (summon-helper! '老街帮手 "老街帮手" (同伴能力 '老街帮手))
+          (result-supplement! "帮手入队：本回合一颗骰")
           (play-banter! (line "世界" "有人从后面应了一声，走过来站到你身边。")))))))
+
+;; 成长面板上那一行字：这条支援叫什么、是干什么用的。加一条支援时这里和 support-nodes 各登记一次。
+;; (support-info "弗兰克") → ("叫个人来" "叫一个老街的帮手来一回合……")
+(define support-catalog
+  (list (list "弗兰克" (list "叫个人来" "叫一个老街的帮手来一回合：多一颗骰，用他自己的技能。每场一次。"))))
+
+(define (support-info id)
+  (let ((row (assoc-get support-catalog id #f)))
+    (if row row (error (string-append "support-info：没有登记的支援 " id)))))
 
 ;; 引擎在每一场交锋的树旁取一份。带了谁就出谁的卡；没带就是空。
 (define (support-nodes)
@@ -610,6 +645,22 @@
                   #f)))
           (run-rules (cdr list-rules)))))
   (run-rules rules))
+
+;; 玩家真的走进一个地点（点开地点卡 / 回家 / 退回世界层）时触发，早于该地点的入场节拍。
+;; 规则只收地点名，不产生结算：它是给「你离开过这里」这类事实用的（家里的睡觉锁）。
+(define enter-place-rules '())
+
+(define (define-enter-place-rule name action)
+  (set! enter-place-rules (cons (list name action) enter-place-rules)))
+
+(define (on-enter-place place-name)
+  (define (run list-rules)
+    (if (null? list-rules)
+        #t
+        (begin
+          ((cadr (car list-rules)) place-name)
+          (run (cdr list-rules)))))
+  (run enter-place-rules))
 
 ;; 交锋载入完成后的显式入口。交锋脚本可重定义它来安排开场演出；
 ;; 世界动作的 on-action 仍属于世界自己，不能借场景切换的时机去跑交锋规则。
@@ -734,104 +785,6 @@
          (error (string-append "make-clock：" label " 收到未知消息。可用消息："
                                clock-messages)))))))
 
-;; 麻烦追踪器：势力敌视时工作坏/中结果有概率触发一次，持续 max 天未处理则触发 on-expire。
-;; 消息：'active? 'start! 'resolve! 'tick! 'render-data 'save 'load!
-(define (make-trouble label max on-expire)
-  (let ((active? #f) (current 0))
-    (lambda (msg . args)
-      (cond
-        ((equal? msg 'active?) active?)
-        ((equal? msg 'start!)
-         (if active? #t (begin (set! active? #t) (set! current 0))))
-        ((equal? msg 'resolve!) (begin (set! active? #f) (set! current 0)))
-        ((equal? msg 'tick!)
-         (if active?
-             (begin
-               (set! current (+ current 1))
-               (if (>= current max)
-                   (begin (set! active? #f) (set! current 0) (on-expire))
-                   #f))
-             #f))
-        ((equal? msg 'render-data)
-         (if active?
-             ;; 内部 current 是「已经拖了几天」，表盘要的是「还剩几天」，这里翻过来。
-             (list (list 'clock label (- max current) max 'countdown
-                         "势力敌视惹出的麻烦，尽快处理，否则会有代价。"))
-             '()))
-        ((equal? msg 'save) (list active? current))
-        ((equal? msg 'load!)
-         (let ((data (car args)))
-           (set! active? (car data))
-           (set! current (cadr data))))
-        (else #f)))))
-
-;; 20% 概率触发一次麻烦（1/5，参照码头美差的写法）。
-(define trouble-roll-table (list #t #f #f #f #f))
-
-;; 势力敌视、麻烦未激活、且命中概率时触发；返回 #t/#f 供调用方决定是否 notify!。
-(define (maybe-trigger-trouble! tracker faction chance-table)
-  (if (and (equal? (relation-band faction) '敌视)
-           (not (tracker 'active?))
-           (random-choice chance-table))
-      (tracker 'start!)
-      #f))
-
-;; 圈内声誉 API — 两个圈子：老码头 / 商业圈。它记的是「你的名声在哪个圈子里传开了」，
-;; 不是阵营归属：没有成员名单，人物只是走进这个圈子的入口。市政、警署与医院不在此列，
-;; 它们由具名人物状态承担（见 人物/贝恩斯.scm）。
-;; 底层连续整数（工作小步累积），折算成 6 个离散档位。档位阈值与范围以 RelationScale.cs
-;; 为唯一来源（通过 native __relation-band-index 读取），这里只做名字 <-> 序号的映射。
-;; 正面三档（相识/信任/核心）是门控用的通用内部名；各圈子面板上的定制称呼
-;; （面熟/够朋友/有往来 …）在 world.scm 以 relation-band-name:<圈子>:<档> 配置。
-(define (faction-relation faction)
-  (let ((val (get-global (string-append "relation:" faction))))
-    (if val val 0)))
-
-;; 范围 [-10,10]，与 RelationScale.cs 保持一致。
-(define (change-faction-relation! faction delta)
-  (__change-faction-relation! faction delta))
-
-;; 档位名（序号 0..5，与 RelationScale.BandNames 一一对应）。
-(define relation-band-names (list '敌视 '冷淡 '中立 '相识 '信任 '核心))
-
-(define (relation-band faction)
-  (list-ref relation-band-names (__relation-band-index faction)))
-
-(define (band-index name)
-  (cond ((equal? name '敌视) 0)
-        ((equal? name '冷淡) 1)
-        ((equal? name '中立) 2)
-        ((equal? name '相识) 3)
-        ((equal? name '信任) 4)
-        ((equal? name '核心) 5)
-        (else (error "band-index: unknown band"))))
-
-;; 门控：某派关系达到指定档位（含更高）返回 #t。
-(define (relation-at-least? faction band)
-  (>= (__relation-band-index faction) (band-index band)))
-
-;; ── 声望增长来源分档 ──────────────────────────────
-;; 爬升方式随档位换，不是从头到尾刷同一种动作就能通关：
-;;   面熟（相识）：带薪工作的好结果——值 < work-relation-cap 时才生效，见 构造工作；
-;;   够朋友（信任）：不计报酬的帮忙类动作——值 < favor-relation-cap 时才生效，见 grant-favor-relation!；
-;;   自己人/有里子/合伙人（核心）：只认事迹——人物小节、主线段落完成时直接调用
-;;     change-faction-relation!，不设上限，是唯一能越过 favor-relation-cap 的路。
-(define work-relation-cap 3)   ; 带薪工作最多能混到相识刚过一点
-(define favor-relation-cap 5)  ; 帮忙类动作最多能混到信任刚过一点，再往上得靠事迹
-
-;; 封顶时**不再提示**"想更进一步，得接不计报酬的忙"：那句话指的是「替人顶一班」
-;; 那类帮忙卡，而它这一版没有摆出来（见 码头.scm）。指着一张玩家找不到的卡说话，
-;; 比什么也不说更让人摸不着头脑。等帮忙类动作回来，把这条提示一起还回来。
-(define (grant-work-relation! faction)
-  (if (< (faction-relation faction) work-relation-cap)
-      (change-faction-relation! faction 1)
-      #f))
-
-(define (grant-favor-relation! faction)
-  (if (< (faction-relation faction) favor-relation-cap)
-      (change-faction-relation! faction 1)
-      (notify! (string-append faction "那边，光帮忙已经到头了——真要再进一步，得替他们办成一件事。"))))
-
 ;; --- New Team, Item, and Composure wrappers ---
 (define (item-count item-id)
   (__item-count item-id))
@@ -893,11 +846,15 @@
 (define (set-growth-level! n)
   (__set-growth-level! n))
 
-;; 完成一个不可重复的故事小节，获得一点成长。
-;; 小节是否允许完成由拥有该状态的主线/人物状态机负责；这里不做去重兼容。
-(define (complete-section!)
+;; 一张卷宗卡（一个小节）了结：固定一点成长。约定见 dossier 的注释——
+;; 每张卡都这么发，玩家靠重复体验建立预期，不靠卡上写明。
+;; 在卡的最后一个子项划掉、或世界把这一节推到头的那一拍调；
+;; 放在那一拍的对白之后，否则通知会被整段对白盖掉。
+;; 能不能重复了结由拥有这张卡的状态机负责；这里不做去重兼容。
+(define (complete-task! id)
+  (if (and (string? id) (not (equal? id ""))) #t (error "complete-task!: 卡的标识必须是非空字符串"))
   (set-growth-level! (+ (growth-level) 1))
-  (notify! "完成一个故事小节。获得 1 点成长。"))
+  (notify! (string-append "〈" id "〉了结。成长 +1。")))
 
 ;; ── 伤势 ──────────────────────────────────────────────────────────
 ;; 队伍只有一条身体轴：0 完好 / 1–3 轻伤（命中的能力 −1）/ 4–6 重伤（不扣能力，封一颗行动骰）。
@@ -998,9 +955,12 @@
 (define (notify! text)
   (__notify! text))
 
-;; 无法由状态变化自动推导的结算条目，例如“解锁：码头账房”。
-(define (result-note! text)
-  (__result-note! text))
+;; 结算补充行：引擎自动行（钟 / 物品 / 关系 / 冷静 / 伤势）说不出的东西，
+;; 才配写这一行。例如"解锁：码头账房""他欠你一次"——离散状态，无自动行。
+;; 自动行已有的（推进了几格、多少钱、回几点），复述一遍就是噪音，直接删。
+;; 句子、描写、人物的话不进这里：到阈值才说的用 banter / dialogue。
+(define (result-supplement! text)
+  (__result-supplement! text))
 
 ;; 剧情局部整数时钟在动作结果中的统一记录入口。
 ;; 动作外（读档、日终规则）调用时不产生结果行。
@@ -1016,11 +976,44 @@
 ;; 一条台词:(line 说话人 文本) / (line 说话人 文本 语音) / (line 说话人 文本 语音 停留秒)
 ;; 停留秒仅 banter 使用;<=0 表示按文本长度自动估算。
 ;; 绑定语音时,客户端总会至少等到音频播完;显式停留秒只能延长,不能截断语音。
+;;
+;; 位置参数之后可以接舞台指示（只对阻塞对话生效），写成关键字对：
+;;   (line "夜莺" "……" "语音id" :pose "逼近" :move 'in :light 'surge :shake #t)
+;; 谁说话谁亮、听的人压暗、上台通电点亮是默认规则，不用写。
+;; :pose  立绘变体名（资源 Portraits/Neon/<说话人>_<姿势>，"基础" 回招牌姿势）
+;; :move  in（逼近中间）/ back（退回边上）
+;; :light 灯。亮度状态 normal / surge（灼：光晕撑开、颜色洗台）/ faint（弱：只剩细管）/ ember（残烛：暗橙钨丝）
+;;        电流状态 still / pulse（电流沿管子缓慢游走）/ racing（狂飙）——和亮度是两个轴，可以各写一个；
+;;        事件 flicker（颤）/ relight（燃：全灭后从脚到头重新点亮）/ blackout（黑：整台黑半秒）只发生一次
+;; :shake 一震
+;; :screen 整个画面。状态 normal / negative（负片：环境全白、灯管变黑，白热化）保持到下次改变；
+;;        事件 flash（白闪一帧：枪声、闪光灯、耳光）只发生一次
+;; :inner #t：心里话，没说出口；对白框换成没有框的样子，舞台照常认说话人
+;; :other 分隔符，不带值：写在它后面的 :pose/:move/:light/:shake 落到台上另一个人身上
+;;        (line "夜莺" "……" "语音id" :pose "背身" :other :pose "点烟")
+;; 每一项都是终态，没写的保持上一句。
 (define (line speaker text . rest)
-  (let* ((voice (if (null? rest) "" (car rest)))
-         (more  (if (null? rest) '() (cdr rest)))
+  (let* ((split (split-line-args rest))
+         (positional (car split))
+         (stage (cdr split))
+         (voice (if (null? positional) "" (car positional)))
+         (more  (if (null? positional) '() (cdr positional)))
          (dwell (if (null? more) 0 (car more))))
-    (list speaker text voice dwell)))
+    (list speaker text voice dwell stage)))
+
+;; 把 (语音 停留 :pose ...) 切成 (位置参数 . 舞台指示)：遇到第一个关键字符号就切。
+(define 台词舞台关键字 (list :pose :move :light :shake :screen :inner :other))
+(define (split-line-args args)
+  (define (keyword? x)
+    (and (symbol? x)
+         (let loop ((ks 台词舞台关键字))
+           (cond ((null? ks) #f)
+                 ((equal? (car ks) x) #t)
+                 (else (loop (cdr ks)))))))
+  (let loop ((rest args) (positional '()))
+    (cond ((null? rest) (cons (reverse positional) '()))
+          ((keyword? (car rest)) (cons (reverse positional) rest))
+          (else (loop (cdr rest) (cons (car rest) positional))))))
 
 ;; 非阻塞插话/斗嘴:游戏照常进行,气泡在角色处自动计时消失。变参,每个都是 (line ...)。
 (define (play-banter! . lines)
@@ -1036,14 +1029,28 @@
 (define (play-dialogue! . lines)
   (__play-dialogue! lines))
 
+;; 人物的标志色：立绘上点缀色那几根管子的颜色，随剧情变。传 CSS 十六进制色（"#8A5A2B"），
+;; 舞台在几秒里把颜色过渡过去；存档里跟着走。林从原教旨的冷蓝慢慢变暖，就写在他的事件里。
+(define (set-portrait-accent! 人 色)
+  (set-global! (string-append "立绘色/" 人) 色))
+
 ;; 阻塞对话(场外):使用同一立绘舞台,但明确声明说话人不在场。
 ;; 普通 play-dialogue! 找不到锚点时舞台仍会继续显示并警告；明确不在场时用本接口表达意图。
 (define (play-remote-dialogue! . lines)
   (__play-remote-dialogue! lines))
 
-;; 命名动画(占位):目前只能在动作内调用,作为有序阻塞剧情步骤播放。
-(define (play-animation! tag)
-  (__play-animation! tag))
+;; 视频过场：tag 认 Unity 场景里的 CutsceneSequence（机位 + 视频文件）。只能在动作内调用，
+;; 作为有序阻塞剧情步骤播放。视频昂贵，少用；场景里东西自己动（唱片机、吊灯）走实时动画通道，
+;; 不走这里。
+(define (play-video! tag)
+  (__play-video! tag))
+
+;; 场景演出：场景里一件会动的道具（CityBox motion 通道，clip 名 道具__状态）播到目标状态。
+;; 阻塞步骤：机位切到 Camera_<机位>（省略则不换机位）→ 播 当前状态→目标状态 的过渡 → 回原机位，
+;; 全程不需要点击。道具之后就停在目标状态上，这一场里不会自己复原。
+;;   (play-motion! "大吊灯" "Fallen" "首演之夜-吊灯")
+(define (play-motion! 道具 状态 . 机位)
+  (__play-motion! 道具 状态 (if (null? 机位) "" (car 机位))))
 
 (define (advance-chapter!)
   (let ((current (get-global 'chapter)))

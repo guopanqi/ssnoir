@@ -52,6 +52,7 @@ namespace SSNoir
         private CutscenePlayer _cutscenePlayer = null!;
         private TitleScreen _titleScreen = null!;
         private CityOutlineState? _cityOutlines;
+        private AmbientMusic _ambientMusic = null!;
 
         private SSNoirCameraManager _cameraManager = null!;
         private Font? _regularFont;
@@ -62,6 +63,10 @@ namespace SSNoir
         private readonly List<GameNode> _navigationStack = new List<GameNode>();
         private List<GameNode> _visibleNodes = new List<GameNode>();
         private SelectedResource? _selectedResource;
+        // 休息键的两道闸：结算中（硬锁）与结算后的短冷却（软锁，见 CanRest）。
+        private bool _isEndingTurn;
+        private float _restCooldownUntil;
+        private const float RestCooldownSeconds = 2f;
 
         private bool _resourceDragActive;
         private bool _resourceDropHandled;
@@ -133,11 +138,12 @@ namespace SSNoir
         }
 
         // 变坏要硬（一下子过曝），变好要软（松一口气）。两者都得**看得清**：
-        // 第一版 0.25/0.40 在实机上一闪就没，等于没做。
-        private const float VitalPulseLossDuration = 0.45f;
-        private const float VitalPulseGainDuration = 0.60f;
-        private const float VitalPulseStepDelay = 0.14f;   // 一格接一格的间隔
-        private const float VitalPulseRelayDelay = 0.22f;  // 冷静那串走完 → 伤势起闪
+        // 第一版 0.25/0.40 在实机上一闪就没，等于没做；第二版 0.45/0.60/0.14 能看见但
+        // 还是赶——掉三点冷静半秒就走完，眼睛刚从卡上移过来就结束了。再放慢一档。
+        private const float VitalPulseLossDuration = 0.60f;
+        private const float VitalPulseGainDuration = 0.80f;
+        private const float VitalPulseStepDelay = 0.20f;   // 一格接一格的间隔
+        private const float VitalPulseRelayDelay = 0.30f;  // 冷静那串走完 → 伤势起闪
 
         private readonly Dictionary<string, VitalPulseState> _composurePulses =
             new Dictionary<string, VitalPulseState>(StringComparer.OrdinalIgnoreCase);
@@ -246,6 +252,13 @@ namespace SSNoir
         public Cinemachine.CinemachineVirtualCamera? CurrentFocusCamera => ResolveCurrentFocusCamera();
         public bool IncomingFocusCrossesStagePortal => _incomingFocusCrossesStagePortal;
 
+        /// <summary>
+        /// 最近一次落地的快照有没有换根节点（世界 ↔ 交锋）。落地时随 ReconcileContext 传给 Portal，
+        /// 用来分辨"剧情带着镜头走"（进出交锋，不听减少动画）和"玩家自己翻页"（世界里点进一扇门，
+        /// 不落快照、走轮询，听减少动画）。只在落地那一刻有意义，别在别处读它当"现在"。
+        /// </summary>
+        private bool LastSnapshotChangedRoot { get; set; }
+
 
         /// <summary>物品数量最近增加时返回 1→0 的亮起强度；读档和新游戏基线不触发。</summary>
         public float GetItemGainPulse(string itemName)
@@ -339,6 +352,7 @@ namespace SSNoir
                 _sceneDirectory = sdGo.GetComponent<SceneDirectory>();
             }
             _cityOutlines = CityOutlineState.TryCreateFromActiveScene();
+            _ambientMusic = gameObject.AddComponent<AmbientMusic>();
 
             // 5. Get pre-placed StageTransitionController (must exist in scene with Inspector fields assigned),
             //    then spawn IMGUIWorldRenderer dynamically (no Inspector fields needed).
@@ -394,9 +408,9 @@ namespace SSNoir
                 {
                     // Spotlight 已消费 ESC；动作内继续后续表现，全局 Spotlight 直接关闭。
                 }
-                else if (_renderer != null && _renderer.TryConfirmHeavyOutcome())
+                else if (_renderer != null && _renderer.TrySkipOutcomeHold())
                 {
-                    // 重结算结果已消费 ESC，继续后续表现。
+                    // 结果停留已消费 ESC：看完了，采纳快照。
                 }
                 else if (_renderer != null && _renderer.IsAnimationPlaying)
                 {
@@ -426,10 +440,11 @@ namespace SSNoir
             // [CAM] Pan 相机只允许在 XZ 上走。守卫放在这儿而不是 _cameraManager.Update() 里：
             // 那个方法在输入锁定和过场期间不跑，而"高度被改掉"最可能正是在那两段里发生的。
             _cameraManager.CheckPanCameraPose();
-            if (_stageController != null && _stageController.IsTransitioning)
+            if (_stageController != null && _stageController.IsTransitioning && !_stageController.RidesFocusArc)
             {
                 // A stage transition drives the brain itself; the focus arc must not
-                // be holding the brain's blend hostage while it does.
+                // be holding the brain's blend hostage while it does. The exception is the
+                // portal's city half, which is itself a focus arc and needs the ticks.
                 _cameraManager.FinishFocusTravel();
             }
             else
@@ -500,6 +515,7 @@ namespace SSNoir
         /// </summary>
         public void SetFocusedNode(string? nodeName, bool updateCamera = false)
         {
+            ReleaseRestCooldown();
             ClearTransientNodeUiState(clearSlots: false);
             _focusedNodeName = nodeName ?? string.Empty;
 
@@ -613,8 +629,7 @@ namespace SSNoir
             if (currentContextId == null)
                 return false;
 
-            var anchor = ResolveAnchor(currentContextId);
-            return anchor != null && anchor.GetComponent<StagePortalConfig>() != null;
+            return ResolveStageAnchor(currentContextId) != null;
         }
 
         private Cinemachine.CinemachineVirtualCamera? ResolveCurrentFocusCamera()
@@ -632,6 +647,10 @@ namespace SSNoir
             usedWorldFallback = false;
             foreach (var nodeName in focusPath.AsEnumerable().Reverse())
             {
+                // 站在 Stage 门里，镜头是 Stage 的根机位，不是门卡挂着的那个锚点的机位。
+                var stage = ResolveStageAnchor(nodeName);
+                if (stage != null && stage.FocusVirtualCamera != null)
+                    return stage.FocusVirtualCamera;
                 var anchor = ResolveAnchor(nodeName);
                 if (anchor != null && anchor.FocusVirtualCamera != null)
                     return anchor.FocusVirtualCamera;
@@ -679,12 +698,23 @@ namespace SSNoir
         {
             foreach (var nodeName in GetCurrentNavigationPathNames().AsEnumerable().Reverse())
             {
-                var anchor = ResolveAnchor(nodeName);
-                if (anchor != null && anchor.GetComponent<StagePortalConfig>() != null)
+                if (ResolveStageAnchor(nodeName) != null)
                     return nodeName;
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Stage 的身份是**节点名**：`Anchor_<节点名>` 挂着 <see cref="StagePortalConfig"/> 的节点就是一扇门，
+        /// 点进去穿门。`:anchor` 只决定这张门卡挂在城市里的哪个位置（家的门口），与门通向哪儿无关——
+        /// 门卡在门外看得见，门后的空间却在郊野的 Stage 里，两者不可能是同一个锚点。
+        /// 交锋根容器名就是场景名，所以这条规则对交锋不是新东西。
+        /// </summary>
+        public NodeAnchor? ResolveStageAnchor(string nodeName)
+        {
+            var anchor = _sceneDirectory?.GetAnchor(nodeName);
+            return anchor != null && anchor.GetComponent<StagePortalConfig>() != null ? anchor : null;
         }
 
         private GameNode? GetCurrentNavigationNode()
@@ -1006,7 +1036,9 @@ namespace SSNoir
                 if (dippedEarly)
                     StartCoroutine(_stageController.FadeOutForTurn());
 
-                _renderer.PlayPresentation(report, sceneChanged ? string.Empty : node.Name, () =>
+                // 换了场景也照传动作名：结果停留在采纳快照之前就结束，不会漏到新场景的同名卡上；
+                // 宿主卡这时多半已经出镜，结果条会挂在屏幕中央的浮牌下。
+                _renderer.PlayPresentation(report, node.Name, () =>
                 {
                     // 对白、Spotlight、banter 等 UI 表现不会改相机；需要重新聚焦的只有两种：
                     // 场景／阶段根节点变了，或者你所在的那个容器执行完就从树上消失了。
@@ -1086,7 +1118,7 @@ namespace SSNoir
             if (incomingRoot == null)
                 return;
 
-            var anchor = ResolveAnchor(incomingRoot);
+            var anchor = ResolveStageAnchor(incomingRoot.Name) ?? ResolveAnchor(incomingRoot);
             if (anchor != null)
             {
                 _incomingFocusContextCamera = anchor.FocusVirtualCamera;
@@ -1171,10 +1203,21 @@ namespace SSNoir
 
             UpdateVitalPulses(_sceneManager.LatestSnapshot);
 
+            string? previousRoot = _displayedSnapshot.RootNode?.Name;
             _displayedSnapshot = _sceneManager.LatestSnapshot;
+            LastSnapshotChangedRoot = !string.Equals(previousRoot, _displayedSnapshot.RootNode?.Name, StringComparison.Ordinal);
             ClearUnavailableDiceReferences(_displayedSnapshot);
             if (_displayedSnapshot.RootNode != null)
                 ValidateExplicitAnchors(_displayedSnapshot.RootNode);
+            if (_cityOutlines != null)
+            {
+                var referenced = new HashSet<string>(StringComparer.Ordinal);
+                if (_displayedSnapshot.RootNode != null)
+                    CollectEffectiveAnchors(_displayedSnapshot.RootNode, referenced);
+                _cityOutlines.SetReferencedAnchors(referenced);
+            }
+            _ambientMusic.Apply(_gameState.Get<object>("音乐") as string);
+            PropMotion.SyncAll(_gameState);
             var pathBefore = new List<string>();
             foreach (var node in _navigationStack)
                 pathBefore.Add(node.Name);
@@ -1183,7 +1226,7 @@ namespace SSNoir
 
             // 快照是“玩家现在在哪”的唯一事实。Stage Portal 在这里同步接管，Debug 直载、
             // 正式交锋和返回世界因而共用同一条边界，不再等下一帧 Update 猜执行顺序。
-            _stageController?.ReconcileContext();
+            _stageController?.ReconcileContext(storyDriven: LastSnapshotChangedRoot);
 
             if (pathBefore.Count != _navigationStack.Count)
                 return true;
@@ -1195,6 +1238,19 @@ namespace SSNoir
             return false;
         }
 
+        private static void CollectEffectiveAnchors(GameNode node, HashSet<string> into)
+
+        {
+
+            into.Add(node.EffectiveAnchorName);
+
+            foreach (var child in node.Children)
+
+                CollectEffectiveAnchors(child, into);
+
+        }
+
+
         private void ValidateExplicitAnchors(GameNode node)
         {
             if (node.HasExplicitAnchor)
@@ -1202,6 +1258,20 @@ namespace SSNoir
 
             foreach (var child in node.Children)
                 ValidateExplicitAnchors(child);
+        }
+
+        public void SetCarriedSupport(string supportId)
+        {
+            try
+            {
+                _sceneManager.SetCarriedSupport(supportId);
+                AdoptLatestSnapshot();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[SetCarriedSupport] Exception: {ex}");
+                ShowNotification($"换支援异常: {ex.Message}");
+            }
         }
 
         public void UpgradeActorStat(string actorId, string statKey)
@@ -1225,6 +1295,26 @@ namespace SSNoir
             }
         }
 
+        public void AddDebugMoney(int amount)
+        {
+            if (amount <= 0)
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Debug money amount must be positive.");
+
+            try
+            {
+                int current = _gameState.Inventory.GetCount("金钱");
+                _gameState.Inventory.SetCount("金钱", checked(current + amount));
+                _sceneManager.RebuildRenderTree();
+                AdoptLatestSnapshot();
+                ShowNotification($"调试：金钱 +{amount}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[AddDebugMoney] Exception: {ex}");
+                ShowNotification($"加钱失败: {ex.Message}");
+            }
+        }
+
         public void GoBackNavigation()
         {
             ClearTransientNodeUiState(clearSlots: false);
@@ -1240,6 +1330,15 @@ namespace SSNoir
                 _nodeSlots.Clear();
                 _navigationStack.RemoveAt(_navigationStack.Count - 1);
                 ResolveNavigationStack();
+
+                // 退回世界层算一次到达（睡觉锁这类"你离开过"规则要听见它）；
+                // 中间层之间的返回不算，不要在这里调其他名字。
+                if (_navigationStack.Count == 0)
+                {
+                    var root = GetRootNode();
+                    if (root != null)
+                        PlayArrival(root.Name);
+                }
 
                 // Update camera focus priority for navigation parent or global view
                 UpdateCameraFocus();
@@ -1560,6 +1659,7 @@ namespace SSNoir
 
         private void BeginResourceDrag(SelectedResource resource, ResourceDragOriginKind origin)
         {
+            ReleaseRestCooldown();
             _selectedResource = resource;
             _resourceDragActive = true;
             _resourceDropHandled = false;
@@ -1664,50 +1764,97 @@ namespace SSNoir
             innerIndex = -1;
         }
 
+        /// <summary>
+        /// 休息键此刻能不能按。整个回合结算（含黑幕、落地、等骰子落定、随后的 auto-action）
+        /// 期间一律不能；结算完还留一小段冷却，防止手抖连点把第二天也睡过去——冷却在
+        /// 玩家去碰别的东西（聚焦卡片、拿起骰子/物品）时立刻解除，不让人干等。
+        /// </summary>
+        public bool CanRest => !_isEndingTurn && !IsInputLocked && Time.unscaledTime >= _restCooldownUntil;
+
         public void OnEndTurnClicked()
         {
+            if (!CanRest)
+                return;
+            StartCoroutine(EndTurnRoutine());
+        }
+
+        private IEnumerator EndTurnRoutine()
+        {
+            _isEndingTurn = true;
             _selectedResource = null;
             // 一整天都翻篇了，上一次结算的残影没有理由跨过日界线。
             // 这里不写 ?.：本方法下面就无条件用 _renderer 播休息演出，
             // 加问号只会让可空分析认为它可能为 null，反而给那一行凭空造一条警告。
             _renderer.ClearCardResidues();
-            string sceneBefore = _sceneManager.CurrentSceneName;
-            string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
-            var report = _sceneManager.EndTurn();
-            var postTurnSteps = DetachPostTurnBlockingSteps(report);
-            bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
-            bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Name ?? string.Empty, System.StringComparison.Ordinal);
-            bool focusContextChanged = sceneChanged || rootChanged;
-
-            if (focusContextChanged)
-                ResetSceneUiState();
-            if (focusContextChanged)
-                BeginIncomingFocusContext();
+            // 和 ExecuteRoutine 一样锁到整段演出结束。以前这里不锁：黑幕落地之后、骰子
+            // 还在滚、auto-action 还没接管输入的那一两秒里，休息键是活的，再按一下就会在
+            // 上一回合的 auto-action 还挂着的时候再结一次回合，引擎状态从此对不上。
+            _renderer.SetInputLocked(true);
 
             bool done = false;
-            bool dippedEarly = ShouldDipEarly(report);
-            if (dippedEarly)
-                StartCoroutine(_stageController.FadeOutForTurn());
-
-            _renderer.PlayPresentation(report, "休息", () =>
+            try
             {
-                Action land = () =>
+                string sceneBefore = _sceneManager.CurrentSceneName;
+                string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
+                var report = _sceneManager.EndTurn();
+                var postTurnSteps = DetachPostTurnBlockingSteps(report);
+                bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
+                bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Name ?? string.Empty, System.StringComparison.Ordinal);
+                bool focusContextChanged = sceneChanged || rootChanged;
+
+                if (focusContextChanged)
+                    ResetSceneUiState();
+                if (focusContextChanged)
+                    BeginIncomingFocusContext();
+
+                bool dippedEarly = ShouldDipEarly(report);
+                if (dippedEarly)
+                    StartCoroutine(_stageController.FadeOutForTurn());
+
+                _renderer.PlayPresentation(report, "休息", () =>
                 {
-                    EndIncomingFocusContext();
-                    bool navigationCollapsed = AdoptLatestSnapshot();
-                    if (focusContextChanged || navigationCollapsed)
-                        UpdateCameraFocus(storyDriven: true);
-                };
-                StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () =>
-                {
-                    if (postTurnSteps.Count > 0)
-                        StartCoroutine(PlayPostTurnStepsAfterDiceSettle(postTurnSteps, () => done = true));
-                    else
-                        done = true;
-                }));
-            });
-            StartCoroutine(WaitForPresentation(() => done));
+                    Action land = () =>
+                    {
+                        EndIncomingFocusContext();
+                        bool navigationCollapsed = AdoptLatestSnapshot();
+                        if (focusContextChanged || navigationCollapsed)
+                            UpdateCameraFocus(storyDriven: true);
+                    };
+                    StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () =>
+                    {
+                        if (postTurnSteps.Count > 0)
+                            StartCoroutine(PlayPostTurnStepsAfterDiceSettle(postTurnSteps, () => done = true));
+                        else
+                            done = true;
+                    }));
+                });
+            }
+            catch (System.Exception ex)
+            {
+                // 同 ExecuteRoutine 的善后：引擎半途抛出来时演出回调永远不会来，
+                // 黑幕、焦点窗口、锁都得在这里亲手收掉，否则玩家留在一块黑屏里。
+                Debug.LogError($"[EndTurn] Exception during turn end: {ex}");
+                ShowNotification($"休息异常: {ex.Message}");
+                _nodeSlots.Clear();
+                ClearResourceDragState();
+                _stageController.AbortTurnDip();
+                AdoptLatestSnapshot();
+                EndIncomingFocusContext();
+                done = true;
+            }
+
+            while (!done)
+            {
+                yield return null;
+            }
+
+            _renderer.SetInputLocked(false);
+            _restCooldownUntil = Time.unscaledTime + RestCooldownSeconds;
+            _isEndingTurn = false;
         }
+
+        /// <summary>玩家碰了别的东西：休息键的冷却没有继续存在的理由。</summary>
+        private void ReleaseRestCooldown() => _restCooldownUntil = 0f;
 
         // 这里曾有 OnUseEncounterConsumable / HasSelectedDie：烟和酒走引擎旁路的那条。
         // 它们现在是交锋树上的普通动作卡，走 ExecuteNodeAction，不需要专门的入口。
@@ -1720,7 +1867,7 @@ namespace SSNoir
         /// 这一夜过去。唯一的例外是演出里还压着阻塞剧情：对白、告示卡、动画都是要人看的，
         /// 一开场就全黑等于把它们扔了。那种情况仍旧等演完再黑。
         /// </summary>
-        private bool ShouldDipEarly(ActionReport report)
+        public static bool ShouldDipEarly(ActionReport report)
             => report.TurnEnded
                 && report.Type == ActionType.Instant
                 && report.BlockingStorySteps.Count == 0;
@@ -1844,9 +1991,9 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// 玩家真的走进了一个地点。只有这两条路径会走到这里：从世界层点开地点卡，
-        /// 以及主动回家。返回上一层、读档恢复、快照刷新都不算到达，不要在那些地方调。
-        /// 没有入场节拍时引擎返回 null，什么都不发生。
+        /// 玩家真的走进了一个地点。只有三条路径会走到这里：从世界层点开地点卡，
+        /// 主动回家，以及退回世界层。中间层之间的返回、读档恢复、快照刷新都不算到达，
+        /// 不要在那些地方调。没有入场节拍时引擎返回 null，什么都不发生。
         /// </summary>
         private void PlayArrival(string placeName)
         {
@@ -1863,7 +2010,11 @@ namespace SSNoir
             }
 
             if (report == null)
+            {
+                // 没有入场节拍也可能改了树（on-enter-place 规则），把最新快照拿过来。
+                AdoptLatestSnapshot();
                 return;
+            }
 
             StartCoroutine(ArrivalRoutine(report));
         }

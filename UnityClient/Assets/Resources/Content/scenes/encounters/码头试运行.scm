@@ -60,11 +60,10 @@
 (define (检查成功!)
   (if (and (not 已结束?) (全部解决?)) (成功!) #f))
 
-(define (处理结果! clk issue route amount stability-loss note)
+(define (处理结果! clk issue route amount stability-loss)
   (let ((gained (实际推进! clk amount)))
     (记贡献! issue route gained)
     (if (> stability-loss 0) (系统稳定 'advance! (- 0 stability-loss)) #f)
-    (result-note! note)
     (检查成功!)))
 
 (define (异常动作 name subtitle skill clk issue route)
@@ -72,12 +71,9 @@
     :subtitle subtitle
     :requires (list (req-die))
     :resolve (roll skill
-      (outcome "引起连锁震动"
-        (lambda () (处理结果! clk issue route 1 1 "推进 1 格；稳定 -1")))
-      (outcome "暂时压住"
-        (lambda () (处理结果! clk issue route 1 0 "异常推进 1 格")))
-      (outcome "找准症结"
-        (lambda () (处理结果! clk issue route 2 0 "异常推进 2 格"))))))
+      (outcome (lambda () (处理结果! clk issue route 1 1)))
+      (outcome (lambda () (处理结果! clk issue route 1 0)))
+      (outcome (lambda () (处理结果! clk issue route 2 0))))))
 
 (define (已解决节点 name text route-text)
   (note-node (string-append "标注：已解决-" name) name
@@ -132,7 +128,8 @@
   (set! 偏载参数 0) (set! 偏载经验 0)
   (set! 钢索参数 0) (set! 钢索经验 0)
   (set! 混装参数 0) (set! 混装经验 0)
-  (系统稳定 'set! 8)
+  ;; 交锋初始盘面不是玩家造成的 Clock 变化，不写入场报告的效果条（同 失控的机械）。
+  (系统稳定 'load! 8)
   (偏载异常 'set! 0)
   (钢索异常 'set! 0)
   (混装异常 'set! 0)

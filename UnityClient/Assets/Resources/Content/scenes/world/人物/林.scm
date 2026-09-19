@@ -97,12 +97,23 @@
 
     ;; 这条线只在他自己开口以后才进卷宗：机械区那一晚是一次偶遇，
     ;; 偶遇不该占一条线；到他说出"三天后再试一次"，它才成为一件你要不要管的事。
+    ;; 那一夜之后回工棚看尾声，划掉那一拍发成长（改期的 Demo 收口也算）。
+    ;; 轨道和控制器没凑齐也照常进测试，所以它们不是门槛——但它们就是玩家在这几天
+    ;; 做的事，列出来。没去测试的那条路（「没有你他们也跑了」）不发。
+    (define (steps)
+      (list (step "去工棚听他要做什么" (>= stage 2))
+            (step "把旧轨道校完" (rail-clk 'full?))
+            (step "把控制器零件凑齐" (controller-done?))
+            (step "测试之夜" (>= stage 3))
+            (step "那一夜之后，回工棚看看" (>= stage 4))))
+
     (define (dossier-entry)
       (cond
         ((= stage 2)
          (list (dossier "三号货栈的那台机器"
                  :kind '人物
                  :status '进行中
+                 :steps (steps)
                  :now (if (test-due?)
                           "正式测试原定今晚进行。去三号货栈工棚"
                           (string-append "测试之夜在第 " (number->string test-day)
@@ -119,6 +130,7 @@
          (list (dossier "三号货栈的那台机器"
                  :kind '人物
                  :status '进行中
+                 :steps (steps)
                  :now "去码头尽头那间工棚，看看他到底在做什么"
                  :where "三号货栈工棚"
                  :log (journal 'render-data))))
@@ -126,6 +138,7 @@
          (list (dossier "三号货栈的那台机器"
                  :kind '人物
                  :status (if (>= stage 4) '了结 '进行中)
+                 :steps (steps)
                  :now (if (>= stage 4)
                           (if (equal? test-result "")
                               "正式测试改期了。林在等公司的新排期"
@@ -267,13 +280,10 @@
     ;; 报酬不是玩家来的理由，报酬是消掉"我还得挣房租"这个不来的理由。
     ;; 顺带一层这一章不点破的讽刺：你帮这个理想主义者干活，涨的是公司的脸熟。
     (define (node-rail)
-      (关系工作 "校正旧轨道" "商业圈" '低 'sharpness
-        (outcome "量到尽头"
-          (lambda () (add-item! "金钱" 8) (mark-participated!) (rail-clk 'tick!)))
-        (outcome "标了几处"
-          (lambda () (add-item! "金钱" 6) (mark-participated!) (rail-clk 'tick!)))
-        (outcome "白跑一趟"
-          (lambda () (add-item! "金钱" 4) (spend-composure! 1)))
+      (工作 "校正旧轨道" '低 'sharpness
+        (outcome (lambda () (add-item! "金钱" 8) (mark-participated!) (rail-clk 'tick!)))
+        (outcome (lambda () (add-item! "金钱" 6) (mark-participated!) (rail-clk 'tick!)))
+        (outcome (lambda () (add-item! "金钱" 4) (spend-composure! 1)))
         "累计式；每一格都让测试夜的轨道那一处轻一点"
         :anchor workshop-rail-anchor
         :clocks (list (rail-clk 'render-data))))
@@ -292,7 +302,7 @@
     (define (add-flaw! n)
       (part-flaw-clk 'advance! n)
       (set! part-flaw (part-flaw-clk 'current))
-      (result-note! (flaw-text (part-flaw-clk 'current)))
+      (result-supplement! (flaw-text (part-flaw-clk 'current)))
       (settle-part!))
 
     (define (add-int!)
@@ -314,26 +324,25 @@
          (set! part-bonus 1)
          (reset-part!)
          (play-banter! (line "林" "别扔。我知道为什么了。"))
-         (result-note! "这一件报废了；下一件更有把握"))
+         (result-supplement! "这一件报废了；下一件更有把握"))
         ((part-int-clk 'full?)
          (if (> (part-flaw-clk 'current) 0)
              (begin
                (set! parts-fair (+ parts-fair 1))
                (set! last-flaw (flaw-text (part-flaw-clk 'current)))
                (add-item! "金钱" 14)
-               (result-note! "交了一件将就的：能装，带着毛病"))
+               (result-supplement! "交了一件将就的：能装，带着毛病"))
              (begin
                (set! parts-good (+ parts-good 1))
                (add-item! "金钱" 20)
-               (grant-work-relation! "商业圈")
-               (result-note! "交了一件上好的")))
+               (result-supplement! "交了一件上好的")))
          (set! part-bonus 0)
          (reset-part!))
         (else #f)))
 
     ;; 和校正轨道一样是商业圈里的带薪临时活，但结账方式不同：轨道按班算，
     ;; 零件按件算——一件要两次做成才装得起来，钱在 settle-part! 里一次付清，
-    ;; 报废的那件一分没有。也因此不能用 关系工作 包装（它按次给钱，还不接判定修正）。
+    ;; 报废的那件一分没有。也因此不能用 工作 包装（它按次给钱，还不接判定修正）。
     (define (node-part)
       (node "做控制器零件"
         :anchor workshop-part-anchor
@@ -347,14 +356,10 @@
         :requires (list (req-die))
         :resolve (roll 'knowledge
           (lambda ()
-            (append (关系难度修正 "商业圈")
-                    (if (> part-bonus 0) (list (modifier 1 "他弄明白了")) '())))
-          (outcome "毁了一块料"
-            (lambda () (mark-participated!) (add-flaw! 2)))
-          (outcome "装上了，但是凑合"
-            (lambda () (mark-participated!) (add-flaw! 1) (add-int!)))
-          (outcome "严丝合缝"
-            (lambda () (mark-participated!) (add-int!))))))
+            (if (> part-bonus 0) (list (modifier 1 "他弄明白了")) '()))
+          (outcome (lambda () (mark-participated!) (add-flaw! 2)))
+          (outcome (lambda () (mark-participated!) (add-flaw! 1) (add-int!)))
+          (outcome (lambda () (mark-participated!) (add-int!))))))
 
     (define (note-countdown)
       (node "标注：自动化测试"
@@ -421,11 +426,7 @@
       ;; 停机是人文关怀的第二个入口。它会压低技术权威——所以另外两个入口必须留着。
       (if (equal? test-result "提前停机") (set! humane? #t) #f)
       (sync-globals!)
-      (aftermath!)
-      ;; 测试之夜是林这条线的结算：出事故也算经历完。没去的那条路
-      ;; （「没有你他们也跑了」）不发——玩家根本没进过这一段。
-      ;; 发点放在尾声之后，否则通知被 aftermath! 的对白与 spotlight 盖掉。
-      (complete-section!))
+      (aftermath!))
 
     ;; Demo 版在测试日停在这里。结果留空，避免后续内容把
     ;; “没有跑过”误读成成功、失败或人工辅助完成。
@@ -452,8 +453,7 @@
               (line "世界" "他把运行表折好，压在记录本下面。"))
             (spotlight! "等待新排期"
               "机器没有失败，也没有通过。三号货栈的正式测试留到了下一次。")
-            (complete-section!)
-            (result-note! "林的测试留到下一次")))))
+            (complete-task! "三号货栈的那台机器")))))
 
     ;; ── 尾声一：《十二个》 ──────────────────────────
     ;; 那个数字不写死，由这一夜算出来：自动跑完的批次 × 一批原本要几个人。
@@ -518,9 +518,10 @@
               (line "林" "我信这台机器。")
               (line "林" "别的我没算过。")
               (line "世界" "他把记录本合上，夹在腋下。这一晚他没有再打开它。"))
+            ;; 尾声看过，这一节才结。两条尾声先到哪条算哪条，只发一次。
+            (if (and (= stage 3) participated?) (complete-task! "三号货栈的那台机器") #f)
             (set! stage 4)
-            (sync-globals!)
-            (result-note! "他把那个词说出口了，自己也听见了")))))
+            (sync-globals!)))))
 
     ;; ── 尾声二：《我没这么写》 ──────────────────────
     ;; 帮没帮过都会来。帮过，他念的是你那一夜的数字；没帮过，是公司团队那次的。
@@ -530,6 +531,7 @@
         :anchor workshop-part-anchor          ; 他把它摊在工作台上
         :resolve (instant
           (lambda ()
+            (if (and (= stage 3) participated?) (complete-task! "三号货栈的那台机器") #f)
             (set! stage 4)
             (play-dialogue!
               (line "世界" "他把一张公司的宣传单摊在工作台上，边角还卷着。")
@@ -540,8 +542,7 @@
               (line "林" "我报告里没有这句话。")
               (line "尼尔" "他们改了？")
               (line "林" "他们没改。他们只是把它写成了另一件事。"))
-            (sync-globals!)
-            (result-note! "事实还是他的，意思已经不是了")))))
+            (sync-globals!)))))
 
     ;; ── 组装 ────────────────────────────────────────
     (define (workshop-nodes)

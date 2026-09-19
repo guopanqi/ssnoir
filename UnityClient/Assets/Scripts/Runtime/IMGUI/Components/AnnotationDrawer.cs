@@ -284,32 +284,24 @@ namespace SSNoir.IMGUI
 
         private static void DrawReadout(Rect rect, GameClock clock, float pulse)
         {
+            // 整条标注的提亮（pulse）说「这里变了」，格子自己再一格一格换（ClockPulse），
+            // 和卡上的徽章走同一串时间表。
+            ClockPulse.Note(clock);
             Color active = ReadoutColor(pulse);
             string fraction = $"{clock.Current}/{clock.Max}";
 
             if (clock.Style == ClockStyle.Gauge)
             {
                 float dy = rect.y + (rect.height - SegmentSize) * 0.5f;
+                // 空格也得垫一层暗底：没有卡面托着，只画一圈线的话，压到亮窗户上就什么都看不见了。
+                var empty = new Color(0f, 0f, 0f, 0.45f);
+                var emptyOutline = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.42f);
                 for (int i = 0; i < clock.Max; i++)
                 {
                     var pip = UIScale.PixelSnap(
                         new Rect(rect.x + i * (SegmentSize + SegmentGap), dy, SegmentSize, SegmentSize));
-                    if (i < clock.Current)
-                    {
-                        IMGUIStyles.SetColor(active);
-                        GUI.DrawTexture(pip, Texture2D.whiteTexture);
-                    }
-                    else
-                    {
-                        // 空格也得垫一层暗底：没有卡面托着，只画一圈线的话，
-                        // 压到亮窗户上就什么都看不见了。
-                        IMGUIStyles.SetColor(new Color(0f, 0f, 0f, 0.45f));
-                        GUI.DrawTexture(pip, Texture2D.whiteTexture);
-                        IMGUIStyles.ResetColor();
-                        IMGUIStyles.DrawOutline(pip, 1f,
-                            new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.42f));
-                    }
-                    IMGUIStyles.ResetColor();
+                    ClockPulse.DrawCell(pip, i < clock.Current, active, empty,
+                        ClockPulse.CellPulse(clock, i), r => IMGUIStyles.DrawOutline(r, 1f, emptyOutline));
                 }
                 return;
             }

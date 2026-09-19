@@ -34,7 +34,6 @@ namespace SSNoir.Core
         }
 
         /// <summary>城里两个认得你的圈子。声誉键、面板与内容层的合法值都以这里为准。</summary>
-        public static readonly string[] Circles = { "老码头", "商业圈" };
 
         public void ResetForNewGame()
         {
@@ -52,12 +51,6 @@ namespace SSNoir.Core
             // Initial defaults for backwards compatibility and scenes
             Set("location", "world");
             Set("chapter", 0);
-            // 圈内声誉（老码头 / 商业圈）：底层连续整数，效果离散档位，见 engine.scm relation API。
-            // 它记的是「你的名声在哪个圈子里传开了」，不是阵营归属——所以没有成员名单，
-            // 也没有第三条覆盖全城的官方关系（市政与警署由具名人物状态承担）。
-            foreach (string circle in Circles)
-                Set("relation:" + circle, 0);
-
             // Initialize inventory
             Inventory.SetCount("金钱", 15);
             Inventory.SetCount("情报", 0);
@@ -227,32 +220,17 @@ namespace SSNoir.Core
             foreach (var kv in globals)
                 _states[kv.Key] = kv.Value;
             _states["location"] = "world";
-            MigrateLegacyRelations();
+            DropLegacyRelations();
         }
 
-        // 旧档里的三派声望：劳工/富商改名，官僚整条取消（市政与警署改由具名人物状态承担）。
-        // 不留兼容分支——旧键在这里就地换掉或丢掉，别让它们作为孤儿键漂在 globals 里。
-        private static readonly Dictionary<string, string> LegacyRelationKeys = new()
+        // 「圈子声誉」这一层已经拆掉：你和谁的关系就是你和那一片的关系，写在人物模块里。
+        // 旧档里的 relation:* 键在这里就地丢掉，别让它们作为孤儿键漂在 globals 里。
+        private void DropLegacyRelations()
         {
-            ["relation:劳工"] = "relation:老码头",
-            ["relation:富商"] = "relation:商业圈",
-        };
-
-        private void MigrateLegacyRelations()
-        {
-            foreach (var kv in LegacyRelationKeys)
-            {
-                if (!_states.TryGetValue(kv.Key, out var value)) continue;
-                _states.Remove(kv.Key);
-                if (!_states.ContainsKey(kv.Value))
-                    _states[kv.Value] = value;
-            }
-            _states.Remove("relation:官僚");
-            foreach (string circle in Circles)
-            {
-                string key = "relation:" + circle;
-                if (!_states.ContainsKey(key)) _states[key] = 0;
-            }
+            var stale = new List<string>();
+            foreach (var key in _states.Keys)
+                if (key.StartsWith("relation:", StringComparison.Ordinal)) stale.Add(key);
+            foreach (var key in stale) _states.Remove(key);
         }
     }
 }

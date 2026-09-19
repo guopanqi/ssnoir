@@ -9,5 +9,6 @@ namespace SSNoir.Core
         public string Text { get; init; } = string.Empty;
         public string? VoiceId { get; init; }                  // 预留语音;为 null 表示无语音
         public float DwellSeconds { get; init; }               // 仅 Banter 使用;<=0 表示由文本长度估算
+        public DialogueStageCue Stage { get; init; } = DialogueStageCue.None;  // 舞台指示；仅阻塞对话使用
     }
 }

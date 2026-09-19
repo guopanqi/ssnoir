@@ -26,8 +26,8 @@
     (list "eddie"                eddie                '(存档 卷宗 节点 入场))
     (list "frank"                frank                '(存档 卷宗 节点 入场))
     (list "lin"                  lin                  '(存档 卷宗 节点 入场))
-    (list "baines"               baines               '(存档 节点))
-    (list "walter"               walter               '(存档 节点))
+    (list "baines"               baines               '(存档 卷宗 节点))
+    (list "walter"               walter               '(存档 卷宗 节点 入场))
     (list "nightingale"          nightingale          '(存档))
     (list "chapter2"             第二章                '(存档 卷宗 节点 入场))
     (list "home"                 home                 '(存档))
@@ -39,7 +39,6 @@
     (list "freight-company"      freight-company      '(存档))
     (list "residential-district" residential-district '(存档))
     (list "theater"              theater              '(存档))
-    (list "insurance-company"    insurance-company    '(存档))
     (list "board"                board                '(存档))
     (list "grand-hotel"          grand-hotel          '(存档))
     (list "port-technical-zone"  port-technical-zone  '(存档))
@@ -76,7 +75,7 @@
 (define (地点入场 location) (收集内容 (担任 '入场) 'arrivals-at location))
 
 ;; ── 只负责投射的地点 ─────────────────────────────
-;; 剧院、警察局、居民区、保险公司都是同一种东西：它们没有自己的生活内容，
+;; 剧院、警察局、居民区都是同一种东西：它们没有自己的生活内容，
 ;; 只是一个让故事落地的空间。这类地点写成一行，不必各自抄一遍锚点兜底和汇总。
 ;;
 ;; 锚点兜底的意思是：没有显式声明落点的卡收回地点主点，不掉进网格。
@@ -95,6 +94,7 @@
       (cond
         ((equal? msg 'render-data)
          (list (place 正式名
+                 :anchor (if (equal? 主锚点 "") 正式名 主锚点)
                  :children (map fallback-anchor (地点节点 正式名))
                  :arrivals (地点入场 正式名))))
         ((equal? msg 'save) '())

@@ -74,7 +74,7 @@
 
 ;; 开场、幕转和收尾都由勒索信交锋自己拥有；世界只负责进入本交锋。
 (define (on-encounter-enter)
-  (play-animation! "勒索信-投信")
+  (play-video! "勒索信-投信")
   (spotlight! "找出嫌疑人"
     "观察路过的人们的举止，分辨出嫌疑人！"))
 
@@ -146,9 +146,9 @@
                       "抱歉，认错人了。"
                       "……脚步不对。不是他。")))
         (clear! (cand-name c))
+        ;; 排除由版面变化宣告（候选人从名单上消失）＋尼尔这句 banter，不另写备注复述。
         (play-banter!
-          (line "尼尔" text take))
-        (result-note! (string-append "不是他。划掉：" (cand-name c))))))
+          (line "尼尔" text take)))))
 
 ;; 喂某个人那根钟。填满就直接出结论——不必玩家再点一次"下结论"。
 (define (look+ c n)
@@ -185,9 +185,9 @@
     :subtitle (investigation-subtitle c subtitle)
     :requires (list (req-die))
     :resolve (roll skill
-      (outcome bad (lambda () (mark-investigation! c) (spend-composure! 2)))
-      (outcome mid (lambda () (mark-investigation! c) (look+ c 1)))
-      (outcome good (lambda () (mark-investigation! c) (look+ c 2))))))
+      (outcome (lambda () (mark-investigation! c) (spend-composure! 2)))
+      (outcome (lambda () (mark-investigation! c) (look+ c 1)))
+      (outcome (lambda () (mark-investigation! c) (look+ c 2))))))
 
 (define (ways c)
   (let ((n (cand-name c)))
@@ -226,8 +226,7 @@
     :subtitle "沿街的人都认得他"
     :tags (list "不花骰子")
     :resolve (instant
-      (outcome "一眼认出，不是他"
-        (lambda () (look+ c look-target))))))
+      (outcome (lambda () (look+ c look-target))))))
 
 (define (node-candidate c)
   (node (cand-name c)
@@ -258,7 +257,7 @@
       (set! seg n)))
 
 (define (begin-chase!)
-  (play-animation! "勒索信-追上他")
+  (play-video! "勒索信-追上他")
   (set! act 2)
   ;; 从调查动作切进追逐时，刚花掉最后一颗骰。这里换一手，不把它误算成
   ;; 一次追逐回合：人不额外拉开、冷静不额外扣。
@@ -280,27 +279,27 @@
        :subtitle "冒进。够到了他，手没停住"
        :requires (list (req-die))
        :resolve (roll 'violence
-         (outcome "踩翻了一摞碗" (lambda () (spend-composure! 2)))
-         (outcome "扯断了他的邮袋带" (lambda () (catch-clk 'tick!) (drop-money!)))
-         (outcome "落地就在他后轮边上" (lambda () (catch+ 2))))))
+         (outcome (lambda () (spend-composure! 2)))
+         (outcome (lambda () (catch-clk 'tick!) (drop-money!)))
+         (outcome (lambda () (catch+ 2))))))
     ((= seg 1)
      (node "跟进那条黑巷"
        :subtitle "看不见路，但这是最短的一条"
        :tags (list "高风险")
        :requires (list (req-die))
        :resolve (roll 'sharpness
-         (outcome "撞在没看见的货堆上" (lambda () (spend-composure! 2)))
-         (outcome "撕开他手里的纸包一角" (lambda () (catch-clk 'tick!) (drop-money!)))
-         (outcome "从巷子另一头贴上了他" (lambda () (catch+ 2))))))
+         (outcome (lambda () (spend-composure! 2)))
+         (outcome (lambda () (catch-clk 'tick!) (drop-money!)))
+         (outcome (lambda () (catch+ 2))))))
     ((= seg 2)
      (node "扑上去"
        :subtitle "扑得着人，也可能只扑着一件外套"
        :tags (list "高风险")
        :requires (list (req-die))
        :resolve (roll 'violence
-         (outcome "扑空了，肩膀先着地" (lambda () (injure!)))
-         (outcome "扯下他半个口袋" (lambda () (catch-clk 'tick!) (drop-money!)))
-         (outcome "连人带车按在地上" (lambda () (catch+ 2))))))
+         (outcome (lambda () (injure!)))
+         (outcome (lambda () (catch-clk 'tick!) (drop-money!)))
+         (outcome (lambda () (catch+ 2))))))
     (else (error "勒索信：未知追击动作"))))
 
 (define (node-chase-safe)
@@ -311,27 +310,27 @@
        :tags (list "低风险")
        :requires (list (req-die))
        :resolve (roll 'sharpness
-         (outcome "绕远了半条街" (lambda () #f))
-         (outcome "从摊子侧面挤了出去" (lambda () (catch-clk 'tick!)))
-         (outcome "抄近道绕到了他前头" (lambda () (catch+ 2))))))
+         (outcome (lambda () #f))
+         (outcome (lambda () (catch-clk 'tick!)))
+         (outcome (lambda () (catch+ 2))))))
     ((= seg 1)
      (node "贴着货堆推进"
        :subtitle "推开一条道，不快也不丢东西"
        :tags (list "低风险")
        :requires (list (req-die))
        :resolve (roll 'violence
-         (outcome "挤在两摞货中间动不了" (lambda () (spend-composure! 1)))
-         (outcome "硬挤出一条缝" (lambda () (catch-clk 'tick!)))
-         (outcome "一路推到空地，他就在前面" (lambda () (catch+ 2))))))
+         (outcome (lambda () (spend-composure! 1)))
+         (outcome (lambda () (catch-clk 'tick!)))
+         (outcome (lambda () (catch+ 2))))))
     ((= seg 2)
      (node "喊住他"
        :subtitle "整条街都会记得今晚是谁在这儿喊"
        :tags (list "低风险")
        :requires (list (req-die))
        :resolve (roll 'social
-         (outcome "没人回头，他也没有" (lambda () (spend-composure! 1)))
-         (outcome "他的车慢了半步" (lambda () (catch-clk 'tick!)))
-         (outcome "前面有人替你拦了半步" (lambda () (catch+ 2))))))
+         (outcome (lambda () (spend-composure! 1)))
+         (outcome (lambda () (catch-clk 'tick!)))
+         (outcome (lambda () (catch+ 2))))))
     (else (error "勒索信：未知追击动作"))))
 
 ;; 「这一片你熟了」的兑现落在这儿，而且是**你手里多一张别人没有的牌，由你决定打不打**，
@@ -343,9 +342,9 @@
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'sharpness
-      (outcome "那把锁今晚偏偏没坏" (lambda () (spend-composure! 2)))
-      (outcome "边门穿出，在他前面" (lambda () (catch+ 2)))
-      (outcome "你已经站在路当中" (lambda () (catch+ 3))))))
+      (outcome (lambda () (spend-composure! 2)))
+      (outcome (lambda () (catch+ 2)))
+      (outcome (lambda () (catch+ 3))))))
 
 ;; ── 机会：地上那一叠 ────────────────────────────────
 ;; 它不是一个可以规划的副目标，是冒进那一手的残渣：你够到了他，抓下来的不是他。
@@ -357,15 +356,14 @@
   (if money-drop?
       #f
       (begin
-        (set! money-drop? #t)
-        (result-note! "一些钱掉在了地上"))))
+        (set! money-drop? #t))))
 
 (define (take-money! amount)
   (set! money-drop? #f)
   (let ((got (min amount (- money-cap money-taken))))
     (set! money-taken (+ money-taken got))
     (if (> got 0)
-        (result-note! (string-append "拿回 " (number->string got) " 钱"))
+        (result-supplement! (string-append "拿回 " (number->string got) " 钱"))
         #f)))
 
 (define (node-money-drop)
@@ -373,12 +371,9 @@
     :tags (list "机会" "低风险")
     :requires (list (req-die))
     :resolve (roll 'sharpness
-      (outcome "钞票被风卷走了"
-        (lambda () (set! money-drop? #f)))
-      (outcome "抓起了一点"
-        (lambda () (take-money! money-drop-part)))
-      (outcome "一把全捡了起来"
-        (lambda () (take-money! money-drop-full))))))
+      (outcome (lambda () (set! money-drop? #f)))
+      (outcome (lambda () (take-money! money-drop-part)))
+      (outcome (lambda () (take-money! money-drop-full))))))
 
 (define (act2-nodes)
   (append
@@ -406,7 +401,7 @@
         (set! finished? #t)
         ;; 摩托车冲出来是这段追逐的固定收尾：它迫使你闪开，但不等于自动受伤。
         ;; 伤势只由具体行动的 outcome 产生，不能让所有追上路线都暗中追加一格伤势。
-        (play-animation! "勒索信-跟丢了")
+        (play-video! "勒索信-跟丢了")
         (if (> (recovered-money) 0)
             (add-item! "金钱" (recovered-money))
             #f)
