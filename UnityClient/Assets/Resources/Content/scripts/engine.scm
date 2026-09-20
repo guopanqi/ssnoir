@@ -944,7 +944,7 @@
 (define (spend-composure! n)
   (spend-actor-composure! (__current-actor) n))
 
-;; 恢复冷静（clamp 到上限）：睡觉/喝酒/家里仪式/公园散步/香烟。
+;; 恢复冷静（clamp 到上限）：睡觉/喝酒/家里仪式/听歌/香烟。
 (define (restore-actor-composure! actor-id n)
   (set-actor-composure! actor-id (+ (actor-composure actor-id) n)))
 
@@ -1045,10 +1045,11 @@
 (define (play-video! tag)
   (__play-video! tag))
 
-;; 场景演出：场景里一件会动的道具（CityBox motion 通道，clip 名 道具__状态）播到目标状态。
+;; 场景演出：用“地点/道具”稳定 ID 指定一件会动的道具（CityBox motion 通道，clip 名 道具__状态）播到目标状态；
+;; 若目标 clip 标为 once，则每次都完整播放，结束后自动回到它声明的 from 状态。
 ;; 阻塞步骤：机位切到 Camera_<机位>（省略则不换机位）→ 播 当前状态→目标状态 的过渡 → 回原机位，
 ;; 全程不需要点击。道具之后就停在目标状态上，这一场里不会自己复原。
-;;   (play-motion! "大吊灯" "Fallen" "首演之夜-吊灯")
+;;   (play-motion! "首演之夜/大吊灯" "Fallen" "首演之夜-吊灯")
 (define (play-motion! 道具 状态 . 机位)
   (__play-motion! 道具 状态 (if (null? 机位) "" (car 机位))))
 

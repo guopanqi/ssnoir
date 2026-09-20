@@ -19,7 +19,7 @@ namespace SSNoir.Editor
     {
         // Bump this whenever serialized importer output changes so existing model assets
         // are reprocessed instead of keeping stale generated VCams in the import cache.
-        public override uint GetVersion() => 14;   // 13：地点文件按 clips.json 切道具 clip
+        public override uint GetVersion() => 15;   // 13：地点文件按 clips.json 切道具 clip；15：fbx 依赖 sidecar，json 后到也会重导
 
         // CityBox 相机一律 50mm、36×24 传感器、按 16:9 标定（pipeline/export.py 强制焦距）。
         // Blender 的 FBX 导出把 FieldOfView 写成**水平**视角（39.6°），Unity 却当**竖直**视角用，
@@ -68,9 +68,12 @@ namespace SSNoir.Editor
         /// <c>&lt;名&gt;.clips.json</c> 说哪段帧是哪个 clip（<c>道具__状态</c>）、是否循环。这里按它切成
         /// Legacy clip，运行时 <see cref="PropMotion"/> 按名字播。没有 sidecar 的地点不导动画。
         /// </summary>
-        private static void ConfigurePropClips(ModelImporter importer, string path)
+        private void ConfigurePropClips(ModelImporter importer, string path)
         {
             string sidecar = Path.ChangeExtension(path, null) + ".clips.json";
+            // 声明依赖：sidecar 出现、消失或改动都让这个 fbx 重导。不声明的话，发布时 fbx 比 json 先被
+            // Unity 看见，就导成一个没有 Animation 的地点，运行时 play-motion! 找不到道具（码头第一次带船时踩过）。
+            context.DependsOnSourceAsset(sidecar);
             if (!File.Exists(sidecar))
             {
                 importer.importAnimation = false;

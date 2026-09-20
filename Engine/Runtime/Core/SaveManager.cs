@@ -30,7 +30,20 @@ namespace SSNoir.Core
                 ["worldData"] = WriteScheme(data.WorldData, "worldData"),
             };
 
-            File.WriteAllText(filePath, root.ToString(Formatting.Indented));
+            string temporaryPath = filePath + ".tmp";
+            try
+            {
+                File.WriteAllText(temporaryPath, root.ToString(Formatting.Indented));
+                if (File.Exists(filePath))
+                    File.Replace(temporaryPath, filePath, destinationBackupFileName: null);
+                else
+                    File.Move(temporaryPath, filePath);
+            }
+            finally
+            {
+                if (File.Exists(temporaryPath))
+                    File.Delete(temporaryPath);
+            }
         }
 
         public static SaveData Read(string filePath)

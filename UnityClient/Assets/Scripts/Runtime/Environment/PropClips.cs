@@ -6,7 +6,7 @@ namespace SSNoir
 {
     /// <summary>
     /// 地点文件旁边的 <c>&lt;名&gt;.clips.json</c>（CityBox pipeline/motion.py 写）：会动的道具的 clip 表。
-    /// clip 名是 <c>道具__状态</c>；状态 clip 记 loop，过渡 clip 记 from / to。
+    /// clip 名是 <c>道具__状态</c>；状态 clip 记 loop，过渡 clip 记 from / to，短动作 clip 记 once + from。
     /// 导入器按它切 Legacy clip，<see cref="PropMotion"/> 按它在状态之间选过渡。
     /// </summary>
     [Serializable]
@@ -19,6 +19,7 @@ namespace SSNoir
             public int start;
             public int end;
             public bool loop;
+            public bool once;
             public string from = string.Empty;
             public string to = string.Empty;
 
@@ -26,7 +27,7 @@ namespace SSNoir
             public string Prop => name.Substring(0, name.IndexOf("__", StringComparison.Ordinal));
             /// <summary>clip 名后半：状态名或过渡名。</summary>
             public string Tail => name.Substring(name.IndexOf("__", StringComparison.Ordinal) + 2);
-            public bool IsTransition => from.Length > 0;
+            public bool IsTransition => from.Length > 0 && !once;
         }
 
         [Serializable]

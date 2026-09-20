@@ -1,0 +1,33 @@
+{
+ "fps": 30,
+ "clips": [
+  {
+   "name": "车队__空",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "车队__到场",
+   "start": 36,
+   "end": 764,
+   "loop": false,
+   "once": true,
+   "from": "空",
+   "to": ""
+  }
+ ],
+ "parts": [
+  {
+   "prop": "车队",
+   "names": [
+    "车队_一号车",
+    "车队_二号车",
+    "车队_三号车"
+   ]
+  }
+ ]
+}

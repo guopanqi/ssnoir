@@ -2,39 +2,125 @@
  "fps": 30,
  "clips": [
   {
-   "name": "唱片机__Stopped",
+   "name": "龟背竹__苗",
    "start": 1,
-   "end": 31,
+   "end": 109,
+   "loop": true,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "龟背竹__半大",
+   "start": 114,
+   "end": 222,
+   "loop": true,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "龟背竹__成株",
+   "start": 227,
+   "end": 335,
+   "loop": true,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "龟背竹__苗To半大",
+   "start": 340,
+   "end": 400,
    "loop": false,
+   "once": false,
+   "from": "苗",
+   "to": "半大"
+  },
+  {
+   "name": "龟背竹__半大To成株",
+   "start": 405,
+   "end": 465,
+   "loop": false,
+   "once": false,
+   "from": "半大",
+   "to": "成株"
+  },
+  {
+   "name": "浇水壶__隐藏",
+   "start": 470,
+   "end": 500,
+   "loop": false,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "浇水壶__浇水",
+   "start": 505,
+   "end": 586,
+   "loop": false,
+   "once": true,
+   "from": "隐藏",
+   "to": ""
+  },
+  {
+   "name": "唱片机__Stopped",
+   "start": 591,
+   "end": 621,
+   "loop": false,
+   "once": false,
    "from": "",
    "to": ""
   },
   {
    "name": "唱片机__Playing",
-   "start": 36,
-   "end": 144,
+   "start": 626,
+   "end": 734,
    "loop": true,
+   "once": false,
    "from": "",
    "to": ""
   },
   {
    "name": "唱片机__StopToPlay",
-   "start": 149,
-   "end": 188,
+   "start": 739,
+   "end": 778,
    "loop": false,
+   "once": false,
    "from": "Stopped",
    "to": "Playing"
   },
   {
    "name": "唱片机__PlayToStop",
-   "start": 193,
-   "end": 232,
+   "start": 783,
+   "end": 822,
    "loop": false,
+   "once": false,
    "from": "Playing",
    "to": "Stopped"
   }
  ],
  "parts": [
+  {
+   "prop": "龟背竹",
+   "names": [
+    "龟背竹_叶1",
+    "龟背竹_叶2",
+    "龟背竹_叶3",
+    "龟背竹_叶4",
+    "龟背竹_叶5",
+    "龟背竹_叶6",
+    "龟背竹_花盆"
+   ]
+  },
+  {
+   "prop": "浇水壶",
+   "names": [
+    "浇水壶_壶",
+    "浇水壶_水流"
+   ]
+  },
   {
    "prop": "唱片机",
    "names": [

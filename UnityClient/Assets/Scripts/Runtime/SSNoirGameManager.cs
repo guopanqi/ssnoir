@@ -65,6 +65,7 @@ namespace SSNoir
         private SelectedResource? _selectedResource;
         // 休息键的两道闸：结算中（硬锁）与结算后的短冷却（软锁，见 CanRest）。
         private bool _isEndingTurn;
+        private bool _stateTainted;
         private float _restCooldownUntil;
         private const float RestCooldownSeconds = 2f;
 
@@ -251,6 +252,7 @@ namespace SSNoir
         public bool PointerOverUI => _renderer != null && _renderer.PointerOverUI;
         public Cinemachine.CinemachineVirtualCamera? CurrentFocusCamera => ResolveCurrentFocusCamera();
         public bool IncomingFocusCrossesStagePortal => _incomingFocusCrossesStagePortal;
+        public bool IsStateTainted => _stateTainted;
 
         /// <summary>
         /// 最近一次落地的快照有没有换根节点（世界 ↔ 交锋）。落地时随 ReconcileContext 传给 Portal，
@@ -281,8 +283,6 @@ namespace SSNoir
                 return ResolveCurrentStageContextId();
             }
         }
-
-        public void SetInputLocked(bool locked) => _renderer?.SetInputLocked(locked);
 
         /// <summary>某个动作此刻的「执行中」进度，供没有执行钮的控件自己画时间流逝。</summary>
         public (bool IsExecuting, float Progress, string Text) GetExecutionState(string actionName)
@@ -999,6 +999,8 @@ namespace SSNoir
         // --- Execute Actions via Async Coroutine ---
         public void ExecuteNodeAction(GameNode node)
         {
+            if (_stateTainted)
+                return;
             StartCoroutine(ExecuteRoutine(node));
         }
 
@@ -1062,19 +1064,18 @@ namespace SSNoir
             {
                 Debug.LogError($"[ExecuteNodeAction] Exception during execution: {ex}");
                 ShowNotification($"执行异常: {ex.Message}");
-                // 异常是从引擎中途抛出来的：这一手可能已经改了一半状态（场景换了、骰池重掷了），
-                // 而卡槽里还压着刚才那颗骰。留着它，下一次点同一张卡送进去的就是一颗
-                // 已经不存在的骰子，引擎照样抛——第一声异常之后每一声都是它的回声。
-                // 所以这里把这一手的痕迹全部丢掉，回到引擎当前真正的样子重来。
+                // 异常是从引擎中途抛出来的：这一手可能已经改了一半状态（场景换了、骰池重掷了）。
+                // UI 痕迹可以清，游戏状态却不能假装已经恢复；下面会把当前会话标成 tainted，
+                // 只允许玩家从标题页重新开始或读档。
                 _nodeSlots.Clear();
                 ClearResourceDragState();
                 // 早黑是在演出之前起的；演出这头炸了，收尾那一半就永远不会跑，
                 // 不收黑幕玩家会留在一块黑屏里。
                 _stageController.AbortTurnDip();
-                AdoptLatestSnapshot();
                 // 演出没起来的话回调不会来，窗口期得在这里关掉，否则焦点相机会一直答着
                 // 那个再也不会被采纳的新场景镜头。
                 EndIncomingFocusContext();
+                MarkStateTainted("动作结算失败", ex);
                 done = true;
             }
 
@@ -1262,6 +1263,8 @@ namespace SSNoir
 
         public void SetCarriedSupport(string supportId)
         {
+            if (_stateTainted)
+                return;
             try
             {
                 _sceneManager.SetCarriedSupport(supportId);
@@ -1270,12 +1273,14 @@ namespace SSNoir
             catch (Exception ex)
             {
                 Debug.LogError($"[SetCarriedSupport] Exception: {ex}");
-                ShowNotification($"换支援异常: {ex.Message}");
+                MarkStateTainted("更换支援失败", ex);
             }
         }
 
         public void UpgradeActorStat(string actorId, string statKey)
         {
+            if (_stateTainted)
+                return;
             try
             {
                 _gameState.Team.UpgradeActorStat(actorId, statKey);
@@ -1291,12 +1296,14 @@ namespace SSNoir
             catch (System.Exception ex)
             {
                 Debug.LogError($"[UpgradeActorStat] Exception: {ex}");
-                ShowNotification($"升级异常: {ex.Message}");
+                MarkStateTainted("能力升级失败", ex);
             }
         }
 
         public void AddDebugMoney(int amount)
         {
+            if (_stateTainted)
+                return;
             if (amount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(amount), amount, "Debug money amount must be positive.");
 
@@ -1311,7 +1318,7 @@ namespace SSNoir
             catch (Exception ex)
             {
                 Debug.LogError($"[AddDebugMoney] Exception: {ex}");
-                ShowNotification($"加钱失败: {ex.Message}");
+                MarkStateTainted("调试资源修改失败", ex);
             }
         }
 
@@ -1498,18 +1505,20 @@ namespace SSNoir
 
         public void OnSceneButtonClicked(string sc)
         {
+            if (_stateTainted)
+                return;
             _selectedResource = null;
             _navigationStack.Clear();
             _sceneManager.GoToLocation(sc);
         }
 
-        public List<string> LoadAvailableSceneNames()
-        {
-            return _scriptLoader.LoadSceneNames();
-        }
-
         public void SaveGame(string? filePath = null)
         {
+            if (_stateTainted)
+            {
+                Debug.LogError("[SSNoir] Refusing to save because the current game state is tainted.");
+                return;
+            }
             try
             {
                 var path = filePath ?? SaveManager.DefaultSavePath;
@@ -1548,6 +1557,7 @@ namespace SSNoir
                 {
                     MotionSettings.ReduceMotion = true;
                 }
+                _stateTainted = false;
                 // OnSceneLoaded fires inside LoadGame → ResetSceneUiState → ResetUiState
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
             }
@@ -1555,6 +1565,7 @@ namespace SSNoir
             {
                 _gameState.NotificationCenter.Push($"读档失败: {ex.Message}", NotificationKind.Error);
                 Debug.LogError($"[SSNoir] LoadGame failed: {ex}");
+                MarkStateTainted("读档失败", ex);
             }
         }
 
@@ -1563,6 +1574,16 @@ namespace SSNoir
             ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
             MotionSettings.ReduceMotion = true;
+            _stateTainted = false;
+        }
+
+        private void MarkStateTainted(string operation, Exception exception)
+        {
+            _stateTainted = true;
+            Debug.LogError(
+                $"[SSNoir] {operation}; current state is no longer safe to continue or save. " +
+                $"Start a new game or load a save.\n{exception}");
+            _titleScreen.Open();
         }
 
         private void ResetInventoryGainPulseBaseline()
@@ -1773,7 +1794,7 @@ namespace SSNoir
 
         public void OnEndTurnClicked()
         {
-            if (!CanRest)
+            if (_stateTainted || !CanRest)
                 return;
             StartCoroutine(EndTurnRoutine());
         }
@@ -1838,8 +1859,8 @@ namespace SSNoir
                 _nodeSlots.Clear();
                 ClearResourceDragState();
                 _stageController.AbortTurnDip();
-                AdoptLatestSnapshot();
                 EndIncomingFocusContext();
+                MarkStateTainted("回合结算失败", ex);
                 done = true;
             }
 
@@ -1997,6 +2018,8 @@ namespace SSNoir
         /// </summary>
         private void PlayArrival(string placeName)
         {
+            if (_stateTainted)
+                return;
             ActionReport? report;
             try
             {
@@ -2005,7 +2028,7 @@ namespace SSNoir
             catch (System.Exception ex)
             {
                 Debug.LogError($"[EnterPlace] Exception entering '{placeName}': {ex}");
-                ShowNotification($"入场异常: {ex.Message}");
+                MarkStateTainted($"进入地点“{placeName}”失败", ex);
                 return;
             }
 

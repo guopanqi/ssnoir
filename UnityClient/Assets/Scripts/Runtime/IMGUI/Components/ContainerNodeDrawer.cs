@@ -116,8 +116,8 @@ namespace SSNoir.IMGUI
         // 占一样宽。窄卡在屏幕上少占地方，同一栋楼的几张卡也就更容易各自让开。
         //
         // 牌子上挂着的时钟按自己需要的宽度一起参与：地名短不等于这张牌可以窄到把钟裁掉。
-        // 「码头」两个字算出 136 的下限，而「下一班船靠岸 2/2」要 146，标签就被切成
-        // 「下一班船靠」——和 CardDrawer.LayoutClockBadges 注释里说的是同一个错误：
+        // 短标题算出的下限可能小于时钟等动态标签所需宽度，标签就会被截断——
+        // 和 CardDrawer.LayoutClockBadges 注释里说的是同一个错误：
         // 宽度必须由内容说了算，不能由一个猜出来的下限说了算。
         public static float PreferredLocationWidth(GameNode node)
         {

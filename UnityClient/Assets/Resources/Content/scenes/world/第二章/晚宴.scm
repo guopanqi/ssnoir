@@ -62,6 +62,10 @@
           (if (equal? 结果 "未开始") #t (error "晚宴：只能进场一次"))
           (set! 结果 "进行中")
           (sync-blockers!)
+          ;; 门前的车队先到：三辆礼宾轿车依次开到雨棚下停一停再走。一次性演出（once clip），
+          ;; 不记状态、播完车道就空了；接着夜莺那句话，再推门进去（start-encounter 的 Stage Portal）。
+          ;; 机位与编排在 city-box/prefabs/src/格兰德酒店.py 的 motorcade。
+          (play-motion! "格兰德酒店/车队" "到场" "格兰德酒店-车队")
           (play-dialogue!
             (line "夜莺" "别站那么直，他们又不查你的票。")
             (line "尼尔" "你紧张。")

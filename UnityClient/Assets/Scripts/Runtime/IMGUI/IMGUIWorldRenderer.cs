@@ -367,19 +367,16 @@ namespace SSNoir.IMGUI
         private const float AnimationPlaceholderSeconds = 0.8f;
 
         /// <summary>
-        /// 剧本里的 (play-motion! 道具 状态 机位) 落到这里：找到带这件道具的地点实例和 Camera_<机位>_VCam，
+        /// 剧本里的 (play-motion! 地点/道具 状态 机位) 落到这里：找到明确的地点实例和 Camera_<机位>_VCam，
         /// 交给过场播放器走影幕 + 运镜，开演时播过渡、播完收场，再推进下一个阻塞步骤。
-        /// 道具找不到是内容错误（clips.json 里没这件），不卡剧情，报警跳过；机位找不到就原地压影幕演。
+        /// 道具或显式机位找不到都是内容契约错误，立即中断，不能让关键演出静默消失。
         /// </summary>
         private void PlayMotionStep(BlockingStoryStep step)
         {
-            var motion = PropMotion.Find(step.MotionProp);
+            var motion = PropMotion.Find(step.MotionProp, out string prop);
             if (motion == null)
-            {
-                Debug.LogWarning($"[SSNoir] play-motion! 的道具 '{step.MotionProp}' 场上没有（地点没发布 clips 或名字不对），这一步跳过。");
-                AdvanceToBlockingPresentationOrFinish();
-                return;
-            }
+                throw new InvalidOperationException(
+                    $"[SSNoir] play-motion! 的道具 '{step.MotionProp}' 场上不存在；检查地点名、clips.json 与发布产物。");
             Cinemachine.CinemachineVirtualCamera? camera = null;
             if (!string.IsNullOrEmpty(step.MotionCamera))
             {
@@ -393,9 +390,10 @@ namespace SSNoir.IMGUI
                     }
                 }
                 if (camera == null)
-                    Debug.LogWarning($"[SSNoir] play-motion! 的机位 '{wanted}' 场上没有，原机位演。");
+                    throw new InvalidOperationException(
+                        $"[SSNoir] play-motion! 显式要求的机位 '{wanted}' 场上不存在。");
             }
-            string prop = step.MotionProp, state = step.MotionState;
+            string state = step.MotionState;
             _gameManager.Cutscene.PlayLive(
                 camera,
                 () => motion.PlayTransition(prop, state),
@@ -438,7 +436,9 @@ namespace SSNoir.IMGUI
         public bool IsInputLocked => _inputLocked || _activeAutoAction != null
             || _activeActionSpotlight != null
             || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive
-            || _activeVideoTag != null || _gameManager.Cutscene.IsActive || _gameManager.Title.IsActive;
+            || _activeVideoTag != null || _gameManager.Cutscene.IsActive || _gameManager.Title.IsActive
+            || _gameManager.StageController.IsTransitioning || _gameManager.StageController.TurnDipActive
+            || _gameManager.IsStateTainted;
 
         // 与对白舞台上的左键点击共用同一套推进语义：打字中先显示全文，否则进入下一句。
         // 由 SSNoirGameManager 的全局 ESC 输入调用，避免 ESC 在对白期间落入返回导航逻辑。

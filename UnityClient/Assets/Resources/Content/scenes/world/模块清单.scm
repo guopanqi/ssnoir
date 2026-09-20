@@ -34,7 +34,6 @@
     (list "dock"                 dock                 '(存档))
     (list "old-street-tavern"    old-street-tavern    '(存档))
     (list "clinic"               clinic               '(存档))
-    (list "park"                 park                 '(存档))
     (list "police-station"       police-station       '(存档))
     (list "freight-company"      freight-company      '(存档))
     (list "residential-district" residential-district '(存档))

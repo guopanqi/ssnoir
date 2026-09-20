@@ -42,6 +42,11 @@ namespace SSNoir.IMGUI
         {
             new ChapterJump
             {
+                Label = "第一章：大船靠岸（再进码头）",
+                Code = "(debug-prepare-ship-repair!)"
+            },
+            new ChapterJump
+            {
                 Label = "第二章第 1 天（林：外围）",
                 Code = "(debug-enter-chapter2!)"
             },

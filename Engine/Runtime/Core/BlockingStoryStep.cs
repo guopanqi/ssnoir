@@ -10,8 +10,8 @@ namespace SSNoir.Core
     {
         Video,       // 视频过场：tag 认场景里的 CutsceneSequence（机位 + 视频）。昂贵，少用；
                      // 实时 3D 的场景演出是另一条通道，不走这里
-        Motion,      // 场景演出：切到指定机位，播一件道具的实时动画（道具__状态 clip）到目标状态，播完回来。
-                     // 道具之后就停在那个状态上，不需要额外的游戏状态来记
+        Motion,      // 场景演出：切到指定机位，播一件道具的实时动画（道具__状态 clip），播完回来。
+                     // 普通 clip 停在目标状态；once clip 每次重播并自动回到声明的 from 状态
         Dialogue,    // 阻塞对话:点击推进、锁输入、冻结导航
         Spotlight,   // 聚光弹窗:点击 dismiss
         EnterPlace,  // 采纳动作后的世界快照，并把导航落到指定地点
@@ -24,7 +24,7 @@ namespace SSNoir.Core
         public BlockingStoryStepKind Kind { get; init; }
 
         public string VideoTag { get; init; } = string.Empty;       // Kind == Video
-        public string MotionProp { get; init; } = string.Empty;     // Kind == Motion：道具名（clip 名前半）
+        public string MotionProp { get; init; } = string.Empty;     // Kind == Motion：地点/道具；道具部分是 clip 名前半
         public string MotionState { get; init; } = string.Empty;    // Kind == Motion：目标状态（clip 名后半）
         public string MotionCamera { get; init; } = string.Empty;   // Kind == Motion：机位名（Camera_<名> 的 <名>），空 = 不换机位
         public DialogueSequence? Dialogue { get; init; }            // Kind == Dialogue

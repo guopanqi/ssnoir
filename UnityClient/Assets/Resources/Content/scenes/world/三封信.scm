@@ -2637,6 +2637,7 @@
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'sync-globals!) (sync-globals!))
           ((equal? msg 'debug-finish!) (debug-finish!))
+          ((equal? msg 'debug-enable-second-letter!) (set-flag! '第二封信))
           ((equal? msg 'debug-stage-bridge!) (bridge-aftermath-dialogue!))
           ((equal? msg 'debug-stage-commission!) (commission-dialogue!))
           ((equal? msg 'debug-stage-refusal!) (refusal-dialogue!))

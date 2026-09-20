@@ -34,8 +34,10 @@ namespace SSNoir.Editor
         {
             switch (state)
             {
+                // 只在离开编辑模式时清。EnteredPlayMode 是在 Start 之后才到的：那时 City 下带标记的
+                // 已经是运行时自己挂的细节，再清一遍就把 CityOutlineState 手里的对象销毁了
+                //（新游戏一落快照就 MissingReferenceException）。
                 case PlayModeStateChange.ExitingEditMode:
-                case PlayModeStateChange.EnteredPlayMode:
                     ClearPreview();
                     break;
                 case PlayModeStateChange.EnteredEditMode:
@@ -60,8 +62,15 @@ namespace SSNoir.Editor
                         var asset = Resources.Load<GameObject>(CityPlaces.ResourcesFolder + shell.name);
                         if (asset == null)
                             continue;   // 还没发布过的地点：编辑器里就没有细节，不算错
-                        var instance = CityPlaces.Attach(city, shell.name, asset);
-                        instance.hideFlags = HideFlags.DontSave;
+                        try
+                        {
+                            CityPlaces.Attach(city, shell.name, asset, HideFlags.DontSave);
+                        }
+                        catch (System.Exception ex)
+                        {
+                            // 刚发布完、clips.json 还在导入这类瞬时状态：这个地点这次没预览，别拖累别的地点
+                            Debug.LogWarning($"[SSNoir] 编辑器预览跳过地点 '{shell.name}'：{ex.Message}");
+                        }
                     }
                 }
 
@@ -88,21 +97,11 @@ namespace SSNoir.Editor
             ForEachOutlineRenderer((renderer, _) => renderer.forceRenderingOff = false);
         }
 
+        // 预览实例 = 带标记 + DontSave；运行时挂的细节也带标记但不带 DontSave，这里不能碰它们
         private static IEnumerable<Transform> PreviewInstances(Transform city)
-        {
-            if (city == null)
-                yield break;
-
-            foreach (Transform child in city)
-            {
-                if (child == null)
-                    continue;
-
-                var gameObject = child.gameObject;
-                if (gameObject != null && (gameObject.hideFlags & HideFlags.DontSave) == HideFlags.DontSave)
-                    yield return child;
-            }
-        }
+            => city == null
+                ? Enumerable.Empty<Transform>()
+                : CityPlaces.DetailInstances(city).Where(t => (t.gameObject.hideFlags & HideFlags.DontSave) == HideFlags.DontSave);
 
         private static IEnumerable<Transform> CityRoots()
         {

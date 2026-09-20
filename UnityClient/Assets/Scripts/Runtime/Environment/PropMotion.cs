@@ -16,8 +16,8 @@ namespace SSNoir
     ///   状态变了 → 播 from→to 的过渡 clip，接着排上目标状态 clip（循环或定格）。
     /// 真相只有一份：游戏状态。这里不存第二份，读档、离开再进来都走同一条路。
     ///
-    /// 道具 ↔ 游戏状态的对应现在只有一条（唱片机 ↔ 全局键 音乐），写在 <see cref="SyncAll"/> 里；
-    /// 第二个机关出现时再抽成表。
+    /// 道具 ↔ 游戏状态的对应写在 <see cref="SyncAll"/> 里（唱片机 ↔ 全局键 音乐；龟背竹 ↔ 全局键 龟背竹 的浇水次数）；
+    /// 再多就抽成表。
     /// </summary>
     public sealed class PropMotion : MonoBehaviour
     {
@@ -25,6 +25,7 @@ namespace SSNoir
 
         private Animation _animation = null!;
         private PropClips _spec = null!;
+        private string _placeName = string.Empty;
         private readonly Dictionary<string, int> _layerByProp = new(StringComparer.Ordinal);
         private readonly Dictionary<string, string> _stateByProp = new(StringComparer.Ordinal);
         // 每件道具的部件及其静止姿态（实例化那一刻 = FBX 第 1 帧 = 默认状态）。Unity 导入时会丢掉在 clip 范围内
@@ -36,18 +37,23 @@ namespace SSNoir
         public static void Attach(GameObject placeInstance, string placeName)
         {
             var animation = placeInstance.GetComponent<Animation>();
-            if (animation == null)
-                return;
             var text = Resources.Load<TextAsset>(CityPlaces.ResourcesFolder + placeName + ".clips");
+            // 两个文件是一对：只有一边在，就是发布或导入没走完，这里就报，别等到剧本 play-motion! 时才说找不到道具
+            if (animation == null && text == null)
+                return;
             if (text == null)
                 throw new InvalidOperationException(
                     $"[SSNoir] 地点 '{placeName}' 带动画但 Resources/{CityPlaces.ResourcesFolder}{placeName}.clips.json 不存在。重新 build + publish CityBox。");
+            if (animation == null)
+                throw new InvalidOperationException(
+                    $"[SSNoir] 地点 '{placeName}' 有 clips.json 但 fbx 没导出 Animation 组件：Reimport Resources/{CityPlaces.ResourcesFolder}{placeName}.fbx。");
             var motion = placeInstance.AddComponent<PropMotion>();
-            motion.Setup(animation, PropClips.Parse(text.text));
+            motion.Setup(placeName, animation, PropClips.Parse(text.text));
         }
 
-        private void Setup(Animation animation, PropClips spec)
+        private void Setup(string placeName, Animation animation, PropClips spec)
         {
+            _placeName = placeName;
             _animation = animation;
             _spec = spec;
             _animation.playAutomatically = false;
@@ -63,7 +69,7 @@ namespace SSNoir
                 state.layer = layer;                       // 各道具各一层：换一件的 clip 不会停掉另一件的
                 // 过渡必须是 Once：ClampForever 的 state 永远不"完成"，PlayQueued(CompleteOthers) 排在它后面的
                 // 目标状态永远轮不到——表现为落针后唱片不转、音符不出。状态 clip 才定格 / 循环。
-                state.wrapMode = clip.IsTransition ? WrapMode.Once : clip.loop ? WrapMode.Loop : WrapMode.ClampForever;
+                state.wrapMode = clip.IsTransition || clip.once ? WrapMode.Once : clip.loop ? WrapMode.Loop : WrapMode.ClampForever;
             }
             var all = GetComponentsInChildren<Transform>(true);
             foreach (var group in spec.parts)
@@ -124,12 +130,8 @@ namespace SSNoir
             }
             ResetToRest(prop);
             if (transition == null)
-            {
-                // 没做这条过渡就跳变——画面仍然正确，只是少一段演出
-                Debug.LogWarning($"[SSNoir] '{prop}' 没有 {current}→{target} 的过渡 clip，直接跳到 {target}。");
-                _animation.Play(stateClip, PlayMode.StopSameLayer);
-                return;
-            }
+                throw new InvalidOperationException(
+                    $"[SSNoir] '{_placeName}/{prop}' 没有 {current}→{target} 的过渡 clip。");
             _animation.Play(transition.name, PlayMode.StopSameLayer);
             var queued = _animation.PlayQueued(stateClip, QueueMode.CompleteOthers, PlayMode.StopSameLayer);
             if (queued != null)
@@ -140,13 +142,26 @@ namespace SSNoir
             }
         }
 
-        /// <summary>场上哪件地点实例有这件道具（道具名在全城唯一：大吊灯只在剧院里）。</summary>
-        public static PropMotion? Find(string prop)
+        /// <summary>按稳定 ID“地点/道具”找到唯一地点实例，避免不同地点的门、风扇等同名道具互相命中。</summary>
+        public static PropMotion? Find(string motionId, out string prop)
         {
+            int slash = motionId.IndexOf('/');
+            if (slash <= 0 || slash == motionId.Length - 1 || motionId.IndexOf('/', slash + 1) >= 0)
+                throw new ArgumentException(
+                    $"[SSNoir] motion id '{motionId}' 必须是非空的 地点/道具。", nameof(motionId));
+            string place = motionId.Substring(0, slash);
+            prop = motionId.Substring(slash + 1);
+            PropMotion? found = null;
             foreach (var motion in All)
-                if (motion.Has(prop))
-                    return motion;
-            return null;
+            {
+                if (!string.Equals(motion._placeName, place, StringComparison.Ordinal) || !motion.Has(prop))
+                    continue;
+                if (found != null)
+                    throw new InvalidOperationException(
+                        $"[SSNoir] motion id '{motionId}' 命中了多个地点实例。");
+                found = motion;
+            }
+            return found;
         }
 
         /// <summary>
@@ -157,6 +172,21 @@ namespace SSNoir
         /// </summary>
         public void PlayTransition(string prop, string target)
         {
+            string requestedClip = prop + "__" + target;
+            PropClips.Clip? requested = null;
+            foreach (var c in _spec.clips)
+                if (string.Equals(c.name, requestedClip, StringComparison.Ordinal))
+                {
+                    requested = c;
+                    break;
+                }
+            if (requested == null)
+                throw new InvalidOperationException($"[SSNoir] '{name}' 没有 clip '{requestedClip}'。");
+            if (requested.once)
+            {
+                PlayOnce(prop, requested);
+                return;
+            }
             if (!_stateByProp.ContainsKey(prop))
             {
                 foreach (var c in _spec.clips)
@@ -171,11 +201,29 @@ namespace SSNoir
             Apply(prop, target);
         }
 
+        private void PlayOnce(string prop, PropClips.Clip clip)
+        {
+            string returnState = clip.from;
+            string returnClip = prop + "__" + returnState;
+            if (_animation[returnClip] == null)
+                throw new InvalidOperationException(
+                    $"[SSNoir] '{_placeName}/{prop}' 的 once clip '{clip.name}' 要返回不存在的状态 '{returnState}'。");
+            ResetToRest(prop);
+            _animation.Play(clip.name, PlayMode.StopSameLayer);
+            var queued = _animation.PlayQueued(returnClip, QueueMode.CompleteOthers, PlayMode.StopSameLayer);
+            if (queued != null)
+            {
+                queued.layer = _layerByProp[prop];
+                queued.wrapMode = _animation[returnClip].wrapMode;
+            }
+            _stateByProp[prop] = returnState;
+        }
+
         /// <summary>过渡 clip 还在播吗（演出等它播完再收机位）。</summary>
         public bool IsTransitioning(string prop)
         {
             foreach (var c in _spec.clips)
-                if (c.IsTransition && c.Prop == prop && _animation.IsPlaying(c.name))
+                if ((c.IsTransition || c.once) && c.Prop == prop && _animation.IsPlaying(c.name))
                     return true;
             return false;
         }
@@ -184,10 +232,17 @@ namespace SSNoir
         public static void SyncAll(GameState gameState)
         {
             bool playing = gameState.Get<object>("音乐") is string music && music.Length > 0;
+            // 弗兰克那条货船：抢修/扣船期间停在码头航道上，结算或离港之后回到画外。
+            // 进港那一下由入场的 play-motion! 演（演出先播、快照后采纳，这里不会抢在前面）；
+            // 这里保证之后每次快照（含读档、debug 重置）它都在该在的地方——重置回画外之后再进码头，
+            // 入场才有得演。
+            bool berthed = gameState.Get<object>("货船在泊") is bool b && b;
             foreach (var motion in All)
             {
                 if (motion.Has("唱片机"))
                     motion.Apply("唱片机", playing ? "Playing" : "Stopped");
+                if (motion.Has("货船"))
+                    motion.Apply("货船", berthed ? "Berthed" : "Offshore");
             }
         }
     }

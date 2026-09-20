@@ -1,0 +1,52 @@
+{
+ "fps": 30,
+ "clips": [
+  {
+   "name": "货船__Offshore",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "货船__Berthed",
+   "start": 36,
+   "end": 66,
+   "loop": false,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "货船__Arrive",
+   "start": 71,
+   "end": 479,
+   "loop": false,
+   "once": false,
+   "from": "Offshore",
+   "to": "Berthed"
+  },
+  {
+   "name": "货船__Depart",
+   "start": 484,
+   "end": 724,
+   "loop": false,
+   "once": false,
+   "from": "Berthed",
+   "to": "Offshore"
+  }
+ ],
+ "parts": [
+  {
+   "prop": "货船",
+   "names": [
+    "货船_船体",
+    "货船_锚",
+    "货船_前吊杆",
+    "货船_后吊杆"
+   ]
+  }
+ ]
+}

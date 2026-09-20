@@ -96,7 +96,7 @@ namespace SSNoir.IMGUI
             into.Add(new Rect(left, blockTop, right - left, blockH));
 
             // 休息键上方的随身消费卡也会接收拖放，世界卡必须让开完整卡面。
-            if (!gameManager.SceneManager.CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
+            if (gameManager.DisplayedSnapshot.IsInEncounter)
             {
                 var carry = ActiveEncounterActionNodes(gameManager);
                 for (int i = 0; i < carry.Count; i++)
@@ -1032,7 +1032,7 @@ namespace SSNoir.IMGUI
 
         private static void DrawItemsAndFunctions(float baseline, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
-            bool isInEncounter = !gameManager.SceneManager.CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
+            bool isInEncounter = gameManager.DisplayedSnapshot.IsInEncounter;
             float functionW = FunctionWidth(gameManager);
             // 功能键按 64 画在手机上是一块很大的砖；跟手牌方块取齐，一排读起来才是一排。
             float functionH = TokenSize;

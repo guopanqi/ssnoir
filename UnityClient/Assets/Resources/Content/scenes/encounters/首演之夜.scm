@@ -407,7 +407,7 @@
      (spend-actor-composure! 'player 2)
      ;; 演出：切到台口机位看大吊灯砸下来（无需点击），接一段阻塞对白，对白点完自动回牌面。
      ;; 灯之后就一直躺在台上——这一场里它不会自己复原。
-     (play-motion! "大吊灯" "Fallen" "首演之夜-吊灯")
+     (play-motion! "首演之夜/大吊灯" "Fallen" "首演之夜-吊灯")
      (if (landing-spared? c)
          (play-dialogue!
            (line "世界" "它擦着她的肩膀砸在台板上，木屑溅起来。短暂的黑，全场寂静。" :light 'blackout)

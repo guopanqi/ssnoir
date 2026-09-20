@@ -1,7 +1,7 @@
 ;; 弗兰克（Frank Delaney）——码头工头、老街组织者。
 ;;
 ;; 第一章他有一条不进卷宗的码头事件链。一个认为「这里的事由这里的人处理」的人，
-;; 不会站在地图上等你接任务；玩家先正式认识他，之后再进码头才会撞上他组织抢修。
+;; 不会站在地图上等你接任务；第二封信之后再进码头，就会撞上他组织抢修。
 ;;   一、货船抢修、船修好了却不开、分钱——三拍都在表现他如何管这条街。
 ;;   二、巷子那一晚，他挡在你和莱恩中间。那一晚由《三封信》拥有，这里只收结果。
 ;;
@@ -57,8 +57,16 @@
     (define (repair-done?) (equal? repair-state "已结束"))
     (define (hold-settled?) (member? hold-state (list "已结算" "缺席")))
 
+    ;; 货船在泊：那条大船停在码头航道上的日子（抢修中、修好等验船、扣船那天）。
+    ;; 画面由 PropMotion.SyncAll 读这个键摆船；进港那一下是入场里的 play-motion!。
+    ;; debug-reset-ship-repair! 走的也是这里：键回到 #f，船退回画外，再进码头入场才会重演进港。
+    (define (ship-berthed?)
+      (or (equal? repair-state "进行中")
+          (member? hold-state (list "待安排" "待处理"))))
+
     (define (sync-globals!)
-      (set-global! '弗兰克认可 approved?))
+      (set-global! '弗兰克认可 approved?)
+      (set-global! '货船在泊 (ship-berthed?)))
 
     (define (meet!)
       (set! met? #t)
@@ -154,19 +162,14 @@
     (define (node-repair)
       (工作 "参加货船抢修" '高 'violence
         (outcome (lambda ()
-            (add-item! "金钱" 10)
+            (add-item! "金钱" 18)
             (join-repair! 2)))
         (outcome (lambda ()
-            (add-item! "金钱" 6)
+            (add-item! "金钱" 10)
             (join-repair! 1)))
-        ;; 坏结果扣冷静，不直接写伤势：全城的工作都按这个刻度（见 码头.scm 的
-        ;; 「高风险由更高报酬与力量检定表达；日常失手仍只扣 2 点冷静」）。抢修比搬运凶，
-        ;; 所以是 3 不是 2——但它仍然打在垫子上。伤势是那条不会自己好的轴，
-        ;; 一次坏骰就直接往身上记，等于让一份工作绕过冷静把人送进诊所。
-        ;; 真要见血也仍然见得到：冷静见底之后一比一击穿，这 3 点就是 3 点伤——
-        ;; 那时候伤的原因是"你已经撑到底了还在干"，而不是一次骰子的运气。
-        (outcome (lambda () (join-repair! 0) (spend-composure! 3)))
-        (string-append "船主只留三天。还剩 " (number->string (repair-days-left)) " 天")))
+        ;; 坏结果沿用普通高风险工作的刻度：不挣钱、不推进，扣 2 点冷静。
+        (outcome (lambda () (join-repair! 0) (spend-composure! 2)))
+        (string-append "急活加价。还剩 " (number->string (repair-days-left)) " 天")))
 
     ;; ── 船修好了却不开 ───────────────────────────────
     (define (on-hold-result! result)
@@ -355,8 +358,12 @@
           (set! repair-state "进行中")
           (set! repair-deadline-day (+ world-day repair-days))
           (sync-globals!)
+          ;; 演出：切到泊位低机位，看那条船从画外压进来、蹭着停住、锚砸下去、吊杆摆向岸边；
+          ;; 播完回原机位接对白。船之后一直停在航道上，直到扣船了结（见 ship-berthed?）。
+          (play-motion! "码头/货船" "Berthed" "码头-靠岸")
           (play-dialogue!
-            (line "世界" "一艘进水的旧货船被拖到泊位。抽水泵沿着跳板排成一列，舱里的人把湿木板一块块递出来。")
+            (line "世界" "它比这条河上任何一条船都大。锚链放下去的时候，栈桥上没有人说话；然后所有人同时动了起来。")
+            (line "世界" "船是进水拖回来的。抽水泵沿着跳板排成一列，舱里的人把湿木板一块块递出来。")
             (line "世界" "弗兰克站在跳板边写班表。有人从舱里上来报了伤，说了个名字。他没有抬头，在账册里另记了一格。")
             (line "弗兰克" "船主只留三天。四件事，一样也不能少。")
             (line "尼尔" "缺哪一班？")
@@ -367,10 +374,8 @@
 
     (define (arrivals-at location)
       (if (and (equal? location "码头")
-               met?
                (equal? repair-state "未开放")
-               (three-letters 'has-flag? '第二封信)
-               (lin 'known?))
+               (three-letters 'has-flag? '第二封信))
           (list (arrival-repair))
           '()))
 
@@ -429,6 +434,22 @@
            (set! paper-seen? #t)
            (set! mediation "未发生")
            (set! at-table? #f)
+           (sync-globals!)
+           (validate-state!))
+          ;; 大船靠岸调试：只重置这条货船事件链。第二封信门槛由 world 的调试入口准备；
+          ;; 随后仍要正常进入码头，让正式 arrivals-at 路径负责演出和期限。
+          ((equal? msg 'debug-reset-ship-repair!)
+           (set! repair-state "未开放")
+           (set! repair-deadline-day 0)
+           (set! repair-joined? #f)
+           (set! repair-result "未结算")
+           (repair-clk 'set! 0)
+           (set! hold-state "未发生")
+           (set! hold-open-day 0)
+           (set! hold-day 0)
+           (set! hold-paid? #f)
+           (set! hold-payment 0)
+           (set! distribution-viewed? #f)
            (sync-globals!)
            (validate-state!))
           ((equal? msg 'met?) met?)

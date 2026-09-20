@@ -500,7 +500,7 @@ namespace SSNoir.Scripting
             {
                 if (args.Count < 2 || !(args[0] is string prop) || !(args[1] is string state)
                     || string.IsNullOrWhiteSpace(prop) || string.IsNullOrWhiteSpace(state))
-                    throw new ArgumentException("__play-motion! requires: prop-name state-name [camera-name]");
+                    throw new ArgumentException("__play-motion! requires: place/prop state-name [camera-name]");
                 string camera = args.Count >= 3 && args[2] is string c ? c : string.Empty;
                 if (gameState.CurrentActionReport == null)
                     return new None();

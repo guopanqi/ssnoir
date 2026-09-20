@@ -5,6 +5,75 @@
     (define closed-days 0)
     (define closed-days-max 2)
 
+    ;; 每段时期只有一段写死的闲话。随机只决定它在窗口内的哪次喝酒
+    ;; 或工作后出现；它们只恢复 1 点冷静，没有任务或后续，播过一次就永久收起。
+    (define early-talk-seen? #f)
+    (define late-talk-seen? #f)
+    (define chapter2-talk-seen? #f)
+
+    ;; 服务员的浮动不来自工价，而来自今晚碰上的人。小费是好结果的
+    ;; 偶发上浮；醉客砸杯是坏结果偶发留下的小事故。两者都不是关系线。
+    ;; 小费照常给，但只演前三次：第一次让玩家读懂这笔钱，后两次只有双句闲话。
+    (define tip-scenes-seen 0)
+    (define waiter-incident "无")
+    (define tip-roll (list #t #f))
+    (define waiter-incident-roll (list #t #f #f))
+
+    ;; ── 露丝 ─────────────────────────────────────────────
+    ;; 0 还只是给你送普通酒的女招待；1 已推销特选酒；2 十杯已满，知道她叫露丝。
+    ;; 她不是又一个进酒馆就发任务的人。先有酒，再从那杯酒里长出一个人。
+    (define ruth-stage 0)
+    (define ruth-quota
+      (make-clock "十杯份额" 10 'gauge
+        (lambda (current max)
+          (if (home 'drank-today?)
+              "酒与普通的一样；今天再点也不会更放松。"
+              "酒与普通的一样；十杯卖不完，老板会换人。"))))
+    (define special-drink-price 40)
+    (define special-drink-markup 25)
+
+    (define (offer-special-drink!)
+      (set! ruth-stage 1)
+      (play-dialogue!
+        (line "世界" "女招待放下酒，却没立刻走。她像在背一句不熟的台词。")
+        (line "女招待" "本店还有特选酒。四十块一杯。")
+        (line "尼尔" "瓶子不一样？")
+        (line "女招待" "杯子不一样。")
+        (line "女招待" "老板把十杯记在我名下。卖不完，就换个会笑的来。")))
+
+    (define (tell-ruth-story!)
+      (set! ruth-stage 2)
+      ;; 酒馆留下每杯普通酒本来的 15 金；退的是她在十杯上的全部抽成。
+      (add-item! "金钱" (* special-drink-markup (ruth-quota 'max)))
+      (play-dialogue!
+        (line "世界" "她收走第十个空杯，又把一只信封推到你面前。")
+        (line "女招待" "二百五十。十杯酒多出来的那部分。")
+        (line "尼尔" "老板肯？")
+        (line "女招待" "他拿到了酒钱，也记下十杯。这些是我的抽成。")
+        (line "尼尔" "你费这么大劲，又把它还我？")
+        (line "女招待" "你在等一个答案，不是在买我。我叫露丝。")
+        (line "露丝" "五年前，我弟弟拿了我的房钱。我当着满酒馆的人叫他贼。")
+        (line "露丝" "第二天，当铺把母亲的表送了回来。钱是他付的。")
+        (line "露丝" "那晚他跟一条沿岸货船走了。临走告诉酒保，回来就到这里找我。")
+        (line "尼尔" "五年了。")
+        (line "露丝" "水手回城，总有人先来这儿喝一杯。我得站在看得见门的地方。")))
+
+    (define (node-special-drink)
+      (node "点特选酒"
+        :anchor "老街酒馆-购买"
+        :clocks (list (ruth-quota 'render-data))
+        :requires (list (req-item "金钱" special-drink-price))
+        :resolve (instant
+          (outcome (lambda ()
+              ;; 只有当天第一杯有恢复；后续的钱只买到同样的酒。
+              (if (not (home 'drank-today?)) (home 'drink!) #f)
+              (ruth-quota 'advance! 1)
+              (if (ruth-quota 'full?) (tell-ruth-story!) #f))))))
+
+    (define (node-ruth)
+      (note-node "标注：露丝守着门" "露丝"
+        "她在吧台这一头收拾杯子，目光不时越过你，落到门上。"))
+
     ;; ── 酒馆职级 ───────────────────────────────────────
     ;; 职级是离散变量，考核钟只记录离下一次升降职还有多远：
     ;; 服务员时填满即升领班；领班时从满格往下掉，归零即降回服务员。
@@ -85,6 +154,56 @@
         ((equal? tavern-trouble "后门斗殴") 'violence)
         (else (error "老街酒馆：未知的领班麻烦"))))
 
+    (define (atmosphere-period)
+      (cond
+        ((第二章 'started?) 3)
+        ((<= (three-letters 'story-stage) 2) 1)
+        (else 2)))
+
+    (define (atmosphere-seen? period)
+      (cond
+        ((= period 1) early-talk-seen?)
+        ((= period 2) late-talk-seen?)
+        ((= period 3) chapter2-talk-seen?)
+        (else (error "老街酒馆：未知的闲话时期"))))
+
+    (define (mark-atmosphere-seen! period)
+      (cond
+        ((= period 1) (set! early-talk-seen? #t))
+        ((= period 2) (set! late-talk-seen? #t))
+        ((= period 3) (set! chapter2-talk-seen? #t))
+        (else (error "老街酒馆：未知的闲话时期"))))
+
+    (define (play-atmosphere! period)
+      (mark-atmosphere-seen! period)
+      ;; 这些闲话仍以气氛为主，但第一次听见时会让尼尔稍微松口气。
+      (restore-actor-composure! 'player 1)
+      (cond
+        ((= period 1)
+         (play-banter!
+           (line "世界" "靠窗那桌把三块工牌排在杯子旁边。")
+           (line "世界" "“今天只点了两个班。”")
+           (line "世界" "“第三个人呢？”")
+           (line "世界" "“第三个人在这儿喝酒。”")))
+        ((= period 2)
+         (play-banter!
+           (line "世界" "两个剧院杂工在吧台边分一盘冷肉。")
+           (line "世界" "“散场以后，台上比街上还黑。”")
+           (line "世界" "“所以我从不等谢幕。”")))
+        ((= period 3)
+         (play-banter!
+           (line "世界" "一张培训通知在桌上传了半圈。")
+           (line "世界" "“会开机器的留下。”")
+           (line "世界" "“谁教机器认得我们？”")))
+        (else (error "老街酒馆：未知的闲话时期"))))
+
+    (define (maybe-play-atmosphere!)
+      (let ((period (atmosphere-period)))
+        (if (and (not (atmosphere-seen? period))
+                 (random-choice (list #t #f)))
+            (play-atmosphere! period)
+            #f)))
+
     ;; ── 高利贷 ────────────────────────────────────
     ;; 角落里放贷的：缺钱时立刻周转，代价是 1.5 倍连本带利，逾期利滚利。
     ;; 同一时间只能有一笔（loan-owed>0 表示有未清欠款）。
@@ -143,16 +262,84 @@
     ;; 于是骰子有了去处：烂骰面来酒馆保底，好骰面留给搬运和夜班。
     ;; 这才是「低风险」这个标签原来应该意味着的东西——在这以前它是句空话，
     ;; 领班的坏结果和高风险的搬运一样疼。
+    (define (give-tip!)
+      (add-item! "金钱" 3)
+      (cond
+        ((= tip-scenes-seen 0)
+         (set! tip-scenes-seen 1)
+         (play-dialogue!
+           (line "世界" "穿旧西装的男人把两张钞票压在杯底。")
+           (line "尼尔" "你多放了一张。")
+           (line "客人" "我知道。今晚别叫醒我。")))
+        ((= tip-scenes-seen 1)
+         (set! tip-scenes-seen 2)
+         (play-banter!
+           (line "客人" "零钱拿着。")
+           (line "尼尔" "你还没喝完。")))
+        ((= tip-scenes-seen 2)
+         (set! tip-scenes-seen 3)
+         (play-banter!
+           (line "水手" "找的钱归你。")
+           (line "尼尔" "你给得不多。")))
+        (else #f)))
+
+    (define (maybe-give-tip!)
+      (if (random-choice tip-roll)
+          (begin (give-tip!) #t)
+          #f))
+
+    (define (start-waiter-incident!)
+      (if (and (equal? waiter-incident "无")
+               (random-choice waiter-incident-roll))
+          (begin
+            (set! waiter-incident "醉客砸杯")
+            (play-banter!
+              (line "醉客" "一只杯子而已。记在你账上。")
+              (line "世界" "他推开椅子，朝门口走。"))
+            #t)
+          #f))
+
+    (define (resolve-waiter-incident!)
+      (set! waiter-incident "无"))
+
+    (define (node-stop-drunk)
+      (node "拦下醉客"
+        :subtitle "花一颗骰子，让他把杯钱留下"
+        :requires (list (req-die))
+        :resolve (instant
+          (outcome (lambda ()
+              (resolve-waiter-incident!)
+              (play-banter!
+                (line "尼尔" "杯子三块。门还没到。")
+                (line "醉客" "你们这儿的杯子比酒贵。")))))))
+
+    (define (node-pay-for-glass)
+      (node "补上杯钱"
+        :subtitle "自己补三块，把这件事结了"
+        :requires (list (req-item "金钱" 3))
+        :resolve (instant
+          (outcome (lambda () (resolve-waiter-incident!))))))
+
+    (define (node-waiter-incident)
+      (node "醉客砸杯"
+        :anchor "老街酒馆-工作"
+        :subtitle "打烊前不处理，工钱里扣五块"
+        :children (list (node-stop-drunk) (node-pay-for-glass))))
+
     (define (node-waiter)
       (工作 "服务员" '低 'social
         (outcome (lambda ()
             (add-item! "金钱" 8)
-            (change-tavern-rank! 1)))
-        (outcome (lambda () (add-item! "金钱" 5)))
+            (change-tavern-rank! 1)
+            (if (maybe-give-tip!) #f (maybe-play-atmosphere!))))
+        (outcome (lambda ()
+            (add-item! "金钱" 5)
+            (maybe-play-atmosphere!)))
         (outcome (lambda ()
             (add-item! "金钱" 3)
             (spend-composure! 1)
-            (change-tavern-rank! -1)))
+            (change-tavern-rank! -1)
+            (if (start-waiter-incident!) #f (maybe-play-atmosphere!))))
         ;; 副标题保持一行以内：标题只说了"服务员"，得有一句说清干什么、图什么。
         "端盘子跑堂，挣一晚上的钱"
         :anchor "老街酒馆-工作"))
@@ -172,15 +359,18 @@
       (工作 "领班" '低 'social
         (outcome (lambda ()
             (add-item! "金钱" 13)
-            (change-tavern-rank! 1)))
+            (change-tavern-rank! 1)
+            (maybe-play-atmosphere!)))
         (outcome (lambda ()
             (add-item! "金钱" 8)
-            (maybe-start-tavern-trouble!)))
+            (maybe-start-tavern-trouble!)
+            (if (equal? tavern-trouble "无") (maybe-play-atmosphere!) #f)))
         (outcome (lambda ()
             (add-item! "金钱" 5)
             (spend-composure! 1)
             (change-tavern-rank! -1)
-            (maybe-start-tavern-trouble!)))
+            (maybe-start-tavern-trouble!)
+            (if (equal? tavern-trouble "无") (maybe-play-atmosphere!) #f)))
         "带班收钱，但现场麻烦也得由你收拾"
         :anchor "老街酒馆-工作"))
 
@@ -233,9 +423,14 @@
         ;; 只有灰掉的时候才写一句——不写玩家就不知道为什么点不动。
         :subtitle (if (home 'drank-today?) "今天已经喝过了" "")
         :disabled (home 'drank-today?)
-        :requires (list (req-item "金钱" 25))
+        :requires (list (req-item "金钱" 15))
         :resolve (instant
-          (outcome (lambda () (home 'drink!))))))
+          (outcome (lambda ()
+              (let ((ruth-offers-now? (= ruth-stage 0)))
+                (home 'drink!)
+                (if ruth-offers-now? (offer-special-drink!) #f)
+                ;; 露丝第一次推酒已经占了这杯的表现，别再叠一段闲话。
+                (if ruth-offers-now? #f (maybe-play-atmosphere!))))))))
 
     ;; ── 赌钱 ──────────────────────────────────────
     ;; 这里曾有一张「去地下酒吧押一把」：花一颗骰 + 20 金，摇一次，0/20/60。
@@ -344,11 +539,17 @@
             (地点节点 "老街酒馆")
             ;; 麻烦留着时暂停新一班：玩家可以立刻处理，也可以离开、
             ;; 在日终承担后果，但不能无视问题继续刷领班班次。
-            (list (if (equal? tavern-trouble "无")
-                      (if (foreman?) (node-foreman) (node-waiter))
-                      (node-tavern-trouble))
+            (list (cond
+                    ((not (equal? tavern-trouble "无")) (node-tavern-trouble))
+                    ((not (equal? waiter-incident "无")) (node-waiter-incident))
+                    ((foreman?) (node-foreman))
+                    (else (node-waiter)))
                   (node-drink-here)
                   (node-buy-cigarettes))
+            (cond
+              ((= ruth-stage 1) (list (node-special-drink)))
+              ((= ruth-stage 2) (list (node-ruth)))
+              (else '()))
             (if (three-letters 'old-street-open?)
                 (list (loan-shark-container))
                 '())
@@ -386,6 +587,17 @@
                     (resolve-tavern-trouble! "未了"))
                   #f)))))
 
+    ;; 服务员的小事故不是领班麻烦：它不动职级，只扣掉这一班的一部分工钱。
+    ;; 金钱不足时只扣玩家实际拿得出的数，不把日常小事故变成债务系统。
+    (define-turn-rule "服务员杯钱结算"
+      (lambda () (not (equal? waiter-incident "无")))
+      (lambda ()
+        (let ((deduction (min 5 (item-count "金钱"))))
+          (if (> deduction 0) (remove-item! "金钱" deduction) #f)
+          (notify! (string-append "醉客砸的杯子没人付账。打烊时从你的工钱里扣了 "
+                                  (number->string deduction) " 金钱。"))
+          (resolve-waiter-incident!))))
+
     (define-turn-rule "老街酒馆停业倒计时"
       (lambda () (> closed-days 0))
       (lambda () (set! closed-days (- closed-days 1))))
@@ -411,6 +623,13 @@
                  (list "tavern-trouble" tavern-trouble)
                  (list "tavern-trouble-time" (tavern-trouble-clk 'save))
                  (list "tavern-trouble-outcome" tavern-trouble-outcome)
+                 (list "ruth-stage" ruth-stage)
+                 (list "ruth-quota" (ruth-quota 'save))
+                 (list "early-talk-seen?" early-talk-seen?)
+                 (list "late-talk-seen?" late-talk-seen?)
+                 (list "chapter2-talk-seen?" chapter2-talk-seen?)
+                 (list "tip-scenes-seen" tip-scenes-seen)
+                 (list "waiter-incident" waiter-incident)
                  (list "ate-day" ate-day)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
@@ -438,7 +657,27 @@
                (assoc-get data "tavern-trouble-time" 0))
              (set! tavern-trouble-outcome
                (assoc-get data "tavern-trouble-outcome" "未了"))
+             (set! ruth-stage (assoc-get data "ruth-stage" 0))
+             (ruth-quota 'load! (assoc-get data "ruth-quota" 0))
+             (set! early-talk-seen? (assoc-get data "early-talk-seen?" #f))
+             (set! late-talk-seen? (assoc-get data "late-talk-seen?" #f))
+             (set! chapter2-talk-seen? (assoc-get data "chapter2-talk-seen?" #f))
+             (set! tip-scenes-seen (assoc-get data "tip-scenes-seen" 0))
+             (set! waiter-incident (assoc-get data "waiter-incident" "无"))
              (set! ate-day (assoc-get data "ate-day" 0))
+             (if (and (>= tip-scenes-seen 0) (<= tip-scenes-seen 3))
+                 #t
+                 (error "老街酒馆存档错误：小费演出次数非法"))
+             (if (member? waiter-incident (list "无" "醉客砸杯"))
+                 #t
+                 (error "老街酒馆存档错误：服务员事故非法"))
+             (if (member? ruth-stage (list 0 1 2))
+                 #t
+                 (error "老街酒馆存档错误：露丝阶段非法"))
+             (if (or (and (= ruth-stage 2) (ruth-quota 'full?))
+                     (and (< ruth-stage 2) (not (ruth-quota 'full?))))
+                 #t
+                 (error "老街酒馆存档错误：露丝阶段与十杯份额矛盾"))
              (if (member? tavern-trouble-outcome tavern-trouble-outcomes)
                  #t
                  (error "老街酒馆存档错误：领班麻烦收场非法"))

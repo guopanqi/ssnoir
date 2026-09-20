@@ -46,7 +46,9 @@ CityBox 的贴地层由构建在生成源头按 `郊野 0.00m / 城市地面 0.3
   正交相机只允许用于制作预览或整城审阅，不得随 `Camera_<地点>` 进入运行时。地点聚焦会从全局
   透视镜头连续推进到近景，混入正交投影会在运镜首帧造成不可插值的投影跳变。
 - 正式交互地点相机统一使用 `50mm` 镜头（导入 Unity 后垂直 FOV 约 `27°`）。构图大小通过调整
-  相机到 `orbit pivot` 的距离完成，不允许用不同焦距补构图；生产构建对焦距执行 `±0.01mm` 断言。
+  相机到 `orbit pivot` 的距离完成，不允许用不同焦距补构图；生产构建对交互机位与 Portal 焦距执行 `±0.01mm` 断言。
+  `drag=static` 的演出机位不接受玩家拖动，可以为了明确的广角或长焦镜头选择其他焦距；焦距必须由镜头设计决定，
+  不能拿它补普通地点构图。
 - Prefab 相机的 Near/Far 是米（资产单位）。导入器原样复制；`SSNoirVirtualCameraConfig.Awake` 按 `modelRoot.lossyScale` 缩到世界单位（City 实例 0.1）。
 - Orbit 相机的 Far Clip 至少为导入资产空间中“相机到所属 orbit pivot 距离”的 `1.25` 倍，保证目标不会被远裁剪面切掉。运行时若 Far Clip 仍短于实际 pivot 距离，会 assert/throw，而不是显示空背景。
 - Blender/FBX 相机定义的是最终落点镜头的 Near/Far Clip；导入器不把所有镜头强制成同一个 Near Clip。远景可以使用较大的 Near Clip 保住 WebGL 深度精度，近景则可以保留较小值避免裁掉前景。
@@ -126,6 +128,15 @@ Orbit 相机必须满足：
   `Anchor_<锚点名>`；构建校验这两条，Unity 侧再核一次父节点。
 - 是 opt-in：没标 `presence` 的家具照旧常在（吧台没卡也得在）。
 - 范例：`city-box/prefabs/src/租屋.py`（花盆随「看花」、唱片机随唱片那组卡）。
+
+### 会动道具
+
+来源：`city-box/pipeline/motion.py`、`SSNoirModelImporter.cs`、`PropMotion.cs`、`IMGUIWorldRenderer.cs`
+
+- FBX 内的 clip 使用 `<道具>__<状态或过渡>`；同一地点内部以道具名分组。
+- Scheme `play-motion!` 使用 `<地点>/<道具>` 作为稳定 ID。地点精确匹配 `Resources/City/Places/<地点>.fbx` 的实例名，
+  道具精确匹配 clip 名前半；这样不同地点可以各有“门”“风扇”等同名道具。
+- 显式引用的地点/道具、目标状态、所需过渡或机位缺失时，运行时直接中断，不静默跳过或降级。
 
 ### 描边对象与材质
 

@@ -55,6 +55,7 @@ namespace SSNoir
         private bool _turnDipActive;
 
         public bool IsTransitioning { get; private set; }
+        public bool TurnDipActive => _turnDipActive;
         /// <summary>穿门的城市半程正骑在焦点弧线上：主循环这时要继续 Tick 弧线，而不是把它掐断。</summary>
         public bool RidesFocusArc { get; private set; }
         public float FadeAlpha { get; private set; }
@@ -99,35 +100,38 @@ namespace SSNoir
         private IEnumerator TransitionTo(string? newContextId, bool storyDriven)
         {
             IsTransitioning = true;
-            _gameManager.SetInputLocked(true);
-
-            string? lookupId = newContextId ?? _currentContextId;
-            var portal = ResolvePortal(lookupId);
-
-            bool reduced = !storyDriven && MotionSettings.ReduceMotion;
-            if (newContextId != null)
+            try
             {
-                if (_activePortal != null)
+                string? lookupId = newContextId ?? _currentContextId;
+                var portal = ResolvePortal(lookupId);
+
+                bool reduced = !storyDriven && MotionSettings.ReduceMotion;
+                if (newContextId != null)
+                {
+                    if (_activePortal != null)
+                    {
+                        yield return reduced ? DissolveThrough() : PushExit(_activePortal);
+                        _activePortal = null;
+                    }
+
+                    if (portal != null)
+                    {
+                        yield return reduced ? DissolveThrough() : PushEnter(portal);
+                        _activePortal = portal;
+                    }
+                }
+                else if (_activePortal != null)
                 {
                     yield return reduced ? DissolveThrough() : PushExit(_activePortal);
                     _activePortal = null;
                 }
 
-                if (portal != null)
-                {
-                    yield return reduced ? DissolveThrough() : PushEnter(portal);
-                    _activePortal = portal;
-                }
+                _currentContextId = newContextId;
             }
-            else if (_activePortal != null)
+            finally
             {
-                yield return reduced ? DissolveThrough() : PushExit(_activePortal);
-                _activePortal = null;
+                IsTransitioning = false;
             }
-
-            _currentContextId = newContextId;
-            _gameManager.SetInputLocked(false);
-            IsTransitioning = false;
         }
 
         private IEnumerator PushEnter(StagePortalConfig portal)
@@ -525,7 +529,6 @@ namespace SSNoir
                 yield break;
 
             _turnDipActive = true;
-            _gameManager.SetInputLocked(true);
             yield return FadeLinear(1f, TurnDipHalfDuration);
         }
 
@@ -548,7 +551,6 @@ namespace SSNoir
             // 不额外等待：翻页发生在 FadeAlpha == 1 的这一刻，下一步直接进入对称的亮起半程。
             yield return FadeLinear(0f, TurnDipHalfDuration);
             _turnDipActive = false;
-            _gameManager.SetInputLocked(false);
         }
 
         /// <summary>
@@ -561,7 +563,6 @@ namespace SSNoir
                 return;
             _turnDipActive = false;
             FadeAlpha = 0f;
-            _gameManager.SetInputLocked(false);
         }
 
         /// <summary>

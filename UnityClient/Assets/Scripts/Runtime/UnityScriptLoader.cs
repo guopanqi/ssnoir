@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using SSNoir.Core;
 
@@ -15,19 +14,6 @@ namespace SSNoir
 
             throw new System.IO.FileNotFoundException(
                 $"Scheme 脚本不存在或未正确导入: Resources/{resourcePath} ({path})");
-        }
-
-        public List<string> LoadSceneNames()
-        {
-            var sceneNames = new List<string>();
-            foreach (TextAsset sceneAsset in Resources.LoadAll<TextAsset>("Content/scenes"))
-            {
-                string sceneName = sceneAsset.name;
-                if (!sceneNames.Contains(sceneName))
-                    sceneNames.Add(sceneName);
-            }
-            sceneNames.Sort();
-            return sceneNames;
         }
 
         private static string ResourcePath(string scriptPath)
