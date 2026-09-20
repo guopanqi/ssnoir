@@ -461,7 +461,7 @@
      (if (and question-2-open? (not (standing-clk 'full?))) 1 0)
      (if (and question-3-open? (not (outcome-clk 'full?))) 1 0)))
 
-(define-turn-rule "弗兰克继续追问"
+(define-opponent-rule "弗兰克继续追问"
   (lambda () (and (= act 1) (not finished?)))
   (lambda ()
     (trust+ (- 0 (unresolved-question-count)))

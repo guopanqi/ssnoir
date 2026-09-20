@@ -27,6 +27,12 @@ namespace SSNoir
                     return;
                 }
 
+                if (args.Length > 0 && args[0] == "--test-round-transition")
+                {
+                    GameTester.TestRoundTransition();
+                    return;
+                }
+
                 // 交锋试跑：无头跑完一场，打出逐回合流水。
                 if (args.Length > 0 && args[0] == "--playtest")
                 {
@@ -35,7 +41,7 @@ namespace SSNoir
                 }
 
                 Console.Error.WriteLine(
-                    "用法：./run --validate | --test-saveload | --test-odds | " +
+                    "用法：./run --validate | --test-saveload | --test-odds | --test-round-transition | " +
                     "--playtest <入场表达式或场景名> [选项]");
                 Environment.Exit(2);
             }

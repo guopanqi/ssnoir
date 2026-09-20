@@ -45,6 +45,26 @@ namespace SSNoir.IMGUI
             _queue.Enqueue(sequence);
         }
 
+        /// <summary>同一因果批里的轻量 Beat 同时冒泡；只供对方回合的并行表现使用。</summary>
+        public float ShowParallel(IReadOnlyList<DialogueLine> lines)
+        {
+            float longest = 0f;
+            foreach (var line in lines)
+            {
+                float dwell = line.DwellSeconds > 0f
+                    ? line.DwellSeconds
+                    : Mathf.Clamp(1.2f + line.Text.Length * 0.06f, 1.5f, 5f);
+                longest = Mathf.Max(longest, dwell);
+                _visible.Add(new Bubble
+                {
+                    Line = line,
+                    AllowsRemoteParticipants = false,
+                    Remaining = dwell + OverlapSeconds,
+                });
+            }
+            return longest;
+        }
+
         // Conversation 启动:隐藏并冻结当前气泡；当前序列和等待队列都保留。
         public void Suspend()
         {

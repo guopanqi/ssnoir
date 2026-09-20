@@ -116,7 +116,7 @@
     "异常互相拖累，控制器切断了整条线。机器停在旧轨中央，这次试运行失败了。")
   (end-encounter '崩溃))
 
-(define-turn-rule "并发异常侵蚀系统"
+(define-opponent-rule "并发异常侵蚀系统"
   (lambda () (not 已结束?))
   (lambda ()
     (let ((pressure (未解决数)))

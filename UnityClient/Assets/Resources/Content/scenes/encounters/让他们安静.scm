@@ -148,7 +148,7 @@
 ;; 这里曾经在引擎的通用消耗之外，每回合再扣 1 点冷静。额外那层已删；
 ;; 现在只支付引擎统一的每回合 1 点，否则会把倒下线推到打不完的地方。
 ;; 这一场的升压交给 heat 那根钟。
-(define-turn-rule "夜里越拖越难看"
+(define-opponent-rule "夜里越拖越难看"
   (lambda () (not finished?))
   (lambda ()
     (check!)))

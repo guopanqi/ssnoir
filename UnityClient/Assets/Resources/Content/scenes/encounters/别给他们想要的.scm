@@ -174,7 +174,7 @@
   (play-banter!
     (line "世界" "年轻的那个警察把手放到了警棍上。他的眼睛在找人堆里最近的一个。")))
 
-(define-turn-rule "街上越站越紧"
+(define-opponent-rule "街上越站越紧"
   (lambda () (not finished?))
   (lambda ()
     (if 喊人在? (升级-clk 'tick!) #f)

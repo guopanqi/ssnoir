@@ -207,7 +207,7 @@
         (spotlight! "下半场"
           "厅里的人你都认得了。赞助人的薇拉、吧台的沃尔特、警察贝恩斯、明早离城的记者——想深谈就过去，每个人都只有今晚。"))))
 
-(define-turn-rule "舞曲往下走"
+(define-opponent-rule "舞曲往下走"
   (lambda () (not finished?))
   (lambda ()
     (set! turn (+ turn 1))

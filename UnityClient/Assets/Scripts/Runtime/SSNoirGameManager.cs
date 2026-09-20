@@ -29,6 +29,7 @@ namespace SSNoir
     public class SSNoirGameManager : MonoBehaviour
     {
         private const string ReduceMotionSettingKey = "reduceMotion";
+        private const string OpponentTurnSequentialSettingKey = "opponentTurnSequential";
         private const string WorldRootNodeName = "世界";
         // Font files follow: <family>-Regular.ttf / <family>-SemiBold.ttf.
         private const string FontFamily = "SourceHanSerifCN";
@@ -1523,6 +1524,7 @@ namespace SSNoir
             {
                 var path = filePath ?? SaveManager.DefaultSavePath;
                 _sceneManager.Settings[ReduceMotionSettingKey] = MotionSettings.ReduceMotion;
+                _sceneManager.Settings[OpponentTurnSequentialSettingKey] = OpponentTurnSettings.Sequential;
                 _sceneManager.SaveGame(path);
                 _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
             }
@@ -1557,6 +1559,17 @@ namespace SSNoir
                 {
                     MotionSettings.ReduceMotion = true;
                 }
+                if (_sceneManager.Settings.TryGetValue(OpponentTurnSequentialSettingKey, out object savedPacing))
+                {
+                    if (savedPacing is not bool sequential)
+                        throw new System.IO.InvalidDataException(
+                            $"Save setting '{OpponentTurnSequentialSettingKey}' must be a boolean.");
+                    OpponentTurnSettings.Sequential = sequential;
+                }
+                else
+                {
+                    OpponentTurnSettings.Sequential = false;
+                }
                 _stateTainted = false;
                 // OnSceneLoaded fires inside LoadGame → ResetSceneUiState → ResetUiState
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
@@ -1574,6 +1587,7 @@ namespace SSNoir
             ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
             MotionSettings.ReduceMotion = true;
+            OpponentTurnSettings.Sequential = false;
             _stateTainted = false;
         }
 
@@ -1786,7 +1800,7 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// 休息键此刻能不能按。整个回合结算（含黑幕、落地、等骰子落定、随后的 auto-action）
+        /// 结束回合键此刻能不能按。整个回合转换（对方回应、新骰、强制行动）
         /// 期间一律不能；结算完还留一小段冷却，防止手抖连点把第二天也睡过去——冷却在
         /// 玩家去碰别的东西（聚焦卡片、拿起骰子/物品）时立刻解除，不让人干等。
         /// </summary>
@@ -1812,66 +1826,82 @@ namespace SSNoir
             // 上一回合的 auto-action 还挂着的时候再结一次回合，引擎状态从此对不上。
             _renderer.SetInputLocked(true);
 
-            bool done = false;
+            RoundTransitionFrame? frame = null;
+            Exception? failure = null;
             try
             {
-                string sceneBefore = _sceneManager.CurrentSceneName;
-                string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
-                var report = _sceneManager.EndTurn();
-                var postTurnSteps = DetachPostTurnBlockingSteps(report);
-                bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
-                bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Name ?? string.Empty, System.StringComparison.Ordinal);
-                bool focusContextChanged = sceneChanged || rootChanged;
-
-                if (focusContextChanged)
-                    ResetSceneUiState();
-                if (focusContextChanged)
-                    BeginIncomingFocusContext();
-
-                bool dippedEarly = ShouldDipEarly(report);
-                if (dippedEarly)
-                    StartCoroutine(_stageController.FadeOutForTurn());
-
-                _renderer.PlayPresentation(report, "休息", () =>
-                {
-                    Action land = () =>
-                    {
-                        EndIncomingFocusContext();
-                        bool navigationCollapsed = AdoptLatestSnapshot();
-                        if (focusContextChanged || navigationCollapsed)
-                            UpdateCameraFocus(storyDriven: true);
-                    };
-                    StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () =>
-                    {
-                        if (postTurnSteps.Count > 0)
-                            StartCoroutine(PlayPostTurnStepsAfterDiceSettle(postTurnSteps, () => done = true));
-                        else
-                            done = true;
-                    }));
-                });
+                frame = _sceneManager.BeginRoundTransition();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
+            {
+                failure = ex;
+            }
+
+            while (failure == null && frame != null && !frame.IsFinished)
+            {
+                if (frame.Phase == RoundTransitionPhase.NewDice)
+                {
+                    AdoptRoundTransitionFrame();
+                    yield return null;
+                    while (HandPanelDrawer.HasUnsettledDice(_displayedSnapshot))
+                        yield return null;
+                }
+                else
+                {
+                    bool batchDone = false;
+                    try
+                    {
+                        _renderer.PlayPresentation(frame.Report, "结束回合", () => batchDone = true);
+                    }
+                    catch (Exception ex)
+                    {
+                        failure = ex;
+                        break;
+                    }
+                    while (!batchDone)
+                        yield return null;
+                    AdoptRoundTransitionFrame();
+                }
+
+                try
+                {
+                    frame = _sceneManager.AdvanceRoundTransition();
+                }
+                catch (Exception ex)
+                {
+                    failure = ex;
+                }
+            }
+
+            if (failure != null)
             {
                 // 同 ExecuteRoutine 的善后：引擎半途抛出来时演出回调永远不会来，
                 // 黑幕、焦点窗口、锁都得在这里亲手收掉，否则玩家留在一块黑屏里。
-                Debug.LogError($"[EndTurn] Exception during turn end: {ex}");
-                ShowNotification($"休息异常: {ex.Message}");
+                Debug.LogError($"[EndTurn] Exception during turn end: {failure}");
+                ShowNotification($"结束回合异常: {failure.Message}");
                 _nodeSlots.Clear();
                 ClearResourceDragState();
                 _stageController.AbortTurnDip();
                 EndIncomingFocusContext();
-                MarkStateTainted("回合结算失败", ex);
-                done = true;
-            }
-
-            while (!done)
-            {
-                yield return null;
+                MarkStateTainted("回合结算失败", failure);
             }
 
             _renderer.SetInputLocked(false);
             _restCooldownUntil = Time.unscaledTime + RestCooldownSeconds;
             _isEndingTurn = false;
+        }
+
+        private void AdoptRoundTransitionFrame()
+        {
+            string oldRoot = _displayedSnapshot.RootNode?.Name ?? string.Empty;
+            string newRoot = _sceneManager.LatestSnapshot.RootNode?.Name ?? string.Empty;
+            bool contextChanged = _displayedSnapshot.IsInEncounter != _sceneManager.LatestSnapshot.IsInEncounter
+                || !string.Equals(oldRoot, newRoot, StringComparison.Ordinal);
+            if (contextChanged)
+                ResetSceneUiState();
+            bool navigationCollapsed = AdoptLatestSnapshot();
+            if (contextChanged || navigationCollapsed)
+                UpdateCameraFocus(storyDriven: true);
         }
 
         /// <summary>玩家碰了别的东西：休息键的冷却没有继续存在的理由。</summary>

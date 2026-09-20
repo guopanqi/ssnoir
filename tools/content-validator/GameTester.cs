@@ -301,6 +301,7 @@ namespace SSNoir.Testing
                 companion.ActionDice.Clear();
                 companion.ActionDiceSlotIds.Clear();
                 sourceManager.Settings["reduceMotion"] = false;
+                sourceManager.Settings["opponentTurnSequential"] = true;
                 sourceManager.SaveGame(savePath);
 
                 var loaded = new GameState();
@@ -308,6 +309,8 @@ namespace SSNoir.Testing
                 loadedManager.LoadGame(savePath);
 
                 AssertEq("reduce motion setting", false, loadedManager.Settings["reduceMotion"]);
+                AssertEq("opponent turn pacing setting", true,
+                    loadedManager.Settings["opponentTurnSequential"]);
                 AssertEq("pure global", "persisted", loaded.Get<string>("test-global"));
                 AssertEq("inventory", 7, loaded.Inventory.GetCount("测试物品"));
                 AssertEq("injury severity", 2, loaded.Team.Injury.Severity);
@@ -653,6 +656,55 @@ namespace SSNoir.Testing
             AssertThrows(() => FateStrip.Resolve(1, 0, 0, 7), "invalid fate die");
 
             Console.WriteLine("[fate-strip] All contract assertions passed.");
+        }
+
+        public static void TestRoundTransition()
+        {
+            Console.WriteLine("=== Encounter Round Transition Contract Test ===");
+
+            // Beat 的 effect 在引擎批里执行；客户端拿到的只允许是已结算报告。
+            var alleyState = new GameState();
+            var alley = new SceneManager(alleyState, new LocalScriptLoader());
+            alley.LoadScene("encounters/巷子里在打人");
+            var alleyFrame = alley.BeginRoundTransition();
+            AssertEq("alley first phase", RoundTransitionPhase.OpponentRules, alleyFrame.Phase);
+            AssertEq("alley rule exposes four beats", 4,
+                alleyFrame.Report.BlockingStorySteps.Count(step => step.Kind == BlockingStoryStepKind.Beat));
+            AssertEq("beat is already resolved", true,
+                alleyFrame.Report.BlockingStorySteps
+                    .Where(step => step.Kind == BlockingStoryStepKind.Beat)
+                    .All(step => step.ResolvedReport != null));
+            while (!alleyFrame.IsFinished)
+                alleyFrame = alley.AdvanceRoundTransition();
+
+            // 晚宴第二轮登记强制行动：先提交完整新骰池，下一次 Advance 才拿真实骰进卡。
+            var dinnerState = new GameState();
+            var dinner = new SceneManager(dinnerState, new LocalScriptLoader());
+            dinner.LoadScene("encounters/晚宴");
+            var frame = dinner.BeginRoundTransition(); // turn 2，主人敬酒
+            while (!frame.IsFinished && frame.Phase != RoundTransitionPhase.NewDice)
+                frame = dinner.AdvanceRoundTransition();
+            AssertEq("dinner exposes new dice before forced action", RoundTransitionPhase.NewDice, frame.Phase);
+            int fullDice = frame.Snapshot.Actors.Sum(actor => actor.ActionDice.Count);
+
+            frame = dinner.AdvanceRoundTransition();
+            AssertEq("forced action follows new dice", RoundTransitionPhase.ForcedAction, frame.Phase);
+            var auto = frame.Report.BlockingStorySteps.Single(
+                step => step.Kind == BlockingStoryStepKind.AutoAction);
+            AssertEq("forced action carries real dice", 2, auto.AutoActionSlots.Count);
+            AssertEq("forced action is already resolved", true, auto.ResolvedReport != null);
+            int remainingDice = frame.Snapshot.Actors.Sum(actor => actor.ActionDice.Count);
+            AssertEq("forced action consumes the captured dice", fullDice - 2, remainingDice);
+            while (!frame.IsFinished)
+                frame = dinner.AdvanceRoundTransition();
+
+            // 原子门面必须仍能供无界面调用方走完同一状态机，并回到 Idle。
+            var report = dinner.EndTurn();
+            AssertEq("headless facade marks turn end", true, report.TurnEnded);
+            AssertEq("headless facade leaves next round usable", true,
+                dinnerState.Team.FindActor("player")!.ActionDice.Count > 0);
+
+            Console.WriteLine("[round-transition] All contract assertions passed.");
         }
 
         // 只要求「拦下来了」：具体异常类型会被 Scheme 求值层包一层，钉死类型只会让

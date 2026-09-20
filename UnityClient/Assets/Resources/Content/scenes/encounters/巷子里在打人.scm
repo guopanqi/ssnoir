@@ -143,20 +143,30 @@
     (line "打人的" "第四回合。你他妈数得清吗。")
     (line "世界" "你走进去。戴毡帽的先转过身，另外两个才把目光从地上移开。")))
 
-(define-turn-rule "他们会还手"
+(define-opponent-rule "他们会还手"
   (lambda () (not finished?))
   (lambda ()
-    (resolve-attack! coat-life coat-attack 3 "皮夹克迎面一拳，你的半边身子都麻了。")
-    (resolve-attack! hat-life hat-attack 1 "毡帽从侧面撞进来，肘子顶在你的肋下。")
-    (resolve-attack! sleeves-life sleeves-attack 1 "卷袖子趁你回头，一拳砸在你的耳根。")
-    (set! round-count (+ round-count 1))
-    ;; 倒计时要往下走。这里原来写的是 'tick!（+1）——钟起手就在满格，加一被夹回满格，
-    ;; 于是它永远 empty? 不了，「艾迪撑不住了」这条路一次也没跑过。
-    (eddie-clk 'advance! -1)
-    (if (and (not finished?) (eddie-clk 'empty?))
-        (finish! 'fail "艾迪撑不住了"
-          "你还在和面前的人纠缠。后面传来一声闷响，艾迪顺着墙倒下去，没有再动。")
-        #f)))
+    ;; 同一条 opponent rule 是同一个因果批：三个人各自行动，客户端可按表现资源紧凑播放；
+    ;; beat 的 thunk 才是状态变化的唯一真相，钟与冷静的实际 delta 由引擎自动捕获。
+    (beat! "对付皮夹克" "他攥紧拳头，迎面压了上来。"
+      (lambda ()
+        (resolve-attack! coat-life coat-attack 3 "皮夹克迎面一拳，你的半边身子都麻了。")))
+    (beat! "对付毡帽" "他贴着墙根，从侧面逼近。"
+      (lambda ()
+        (resolve-attack! hat-life hat-attack 1 "毡帽从侧面撞进来，肘子顶在你的肋下。")))
+    (beat! "对付卷袖子" "他等你回头，脚下往前蹭了一步。"
+      (lambda ()
+        (resolve-attack! sleeves-life sleeves-attack 1 "卷袖子趁你回头，一拳砸在你的耳根。")))
+    (beat! "世界" "靠墙的人又矮下去一点。"
+      (lambda ()
+        (set! round-count (+ round-count 1))
+        ;; 倒计时要往下走。这里原来写的是 'tick!（+1）——钟起手就在满格，加一被夹回满格，
+        ;; 于是它永远 empty? 不了，「艾迪撑不住了」这条路一次也没跑过。
+        (eddie-clk 'advance! -1)
+        (if (and (not finished?) (eddie-clk 'empty?))
+            (finish! 'fail "艾迪撑不住了"
+              "你还在和面前的人纠缠。后面传来一声闷响，艾迪顺着墙倒下去，没有再动。")
+            #f)))))
 
 (define (get-render-data)
   (container "巷子里在打人"

@@ -24,7 +24,7 @@ namespace SSNoir.IMGUI
         private static float ControlH => UIScale.TouchHeight(30f);
         private static float BlockH =>
             BlockTitleH + TitleToControl + ControlH;
-        private static float PanelH => HeaderH + BlockH * 3f + BlockGap * 2f + BottomPad;
+        private static float PanelH => HeaderH + BlockH * 4f + BlockGap * 3f + BottomPad;
 
         private static bool _isOpen = false;
 
@@ -88,6 +88,15 @@ namespace SSNoir.IMGUI
                 new[] { "正常", "减少" }, reduceMotion ? 1 : 0, ui);
             if (pickedMotion >= 0)
                 MotionSettings.ReduceMotion = pickedMotion == 1;
+            y += BlockH + BlockGap;
+
+            // ── 对方回合 ──
+            int pickedPacing = DrawSetting(
+                new Rect(contentX, y, contentW, BlockH),
+                "对方回合",
+                new[] { "同时", "依次" }, OpponentTurnSettings.Sequential ? 1 : 0, ui);
+            if (pickedPacing >= 0)
+                OpponentTurnSettings.Sequential = pickedPacing == 1;
             y += BlockH + BlockGap;
 
             // ── 教程提示 ──

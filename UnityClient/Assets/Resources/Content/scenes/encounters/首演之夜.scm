@@ -622,7 +622,7 @@
       "一步一步走回舞台正中，把断掉的那一段接了下去。台下第一次安静。"
       "——而那一圈灯架就在她头顶。")))
 
-(define-turn-rule "演出往下走"
+(define-opponent-rule "演出往下走"
   (lambda () (not finished?))
   (lambda ()
     (bleed!)

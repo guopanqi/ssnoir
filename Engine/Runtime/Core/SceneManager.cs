@@ -21,7 +21,11 @@ namespace SSNoir.Core
         private bool _isEnteringPlace;
         private bool _isResolvingTurnEnd;
         private bool _hasPendingSceneDiceRoll;
-        private readonly List<(BlockingStoryStep Step, string ActorId, int Count)> _pendingAutoDiceDemands = new();
+        private readonly List<PendingAutoAction> _pendingAutoActions = new();
+        private RoundTransitionState _roundTransitionState;
+        private RoundTransitionPhase _roundTransitionPhase;
+        private SchemeInterpreter? _roundTransitionInterpreter;
+        private int _nextForcedAction;
         // 出发去交锋前扣下的世界骰池；回到世界时还回去。null = 没有可还的（新开局/读档/新一天）。
         private Dictionary<string, (List<int> Dice, List<int> SlotIds)>? _stashedWorldDice;
         private bool _pendingSceneIsEncounter;
@@ -29,6 +33,18 @@ namespace SSNoir.Core
         private bool _encounterEnded;
         private readonly HashSet<string> _seenWorldPlaces = new HashSet<string>(StringComparer.Ordinal);
         private bool _hasWorldPlaceBaseline;
+
+        private enum RoundTransitionState { Idle, Resolving, Committed, Finishing }
+
+        private sealed class PendingAutoAction
+        {
+            public string Name { get; init; } = string.Empty;
+            public string Text { get; init; } = string.Empty;
+            public string? AnchorName { get; init; }
+            public List<(string ActorId, int Count)> Demands { get; init; } = new();
+            public ICallable Effect { get; init; } = null!;
+            public string SceneName { get; init; } = string.Empty;
+        }
 
         public event Action? OnSceneLoaded;
         public event Action? OnWorldRefreshed;
@@ -77,8 +93,11 @@ namespace SSNoir.Core
             _encounterEnded = false;
             _turnEndedDuringAction = false;
             _hasPendingSceneDiceRoll = false;
-            _pendingAutoDiceDemands.Clear();
+            _pendingAutoActions.Clear();
             _isResolvingTurnEnd = false;
+            _roundTransitionState = RoundTransitionState.Idle;
+            _roundTransitionInterpreter = null;
+            _nextForcedAction = 0;
             _pendingSceneIsEncounter = false;
             _stashedWorldDice = null;
             CurrentRootNode = null;
@@ -437,6 +456,36 @@ namespace SSNoir.Core
             );
 
             interpreter.RawInterpreter.DefineGlobal(
+                Symbol.FromString("__opponent-beat!"),
+                new NativeProcedure(args =>
+                {
+                    if (args.Count != 3 || args[0] is not string anchor || args[1] is not string text
+                        || args[2] is not ICallable effect)
+                        throw new ArgumentException("beat!: expected anchor, text, and thunk");
+                    if (!_isResolvingTurnEnd || _roundTransitionPhase != RoundTransitionPhase.OpponentRules)
+                        throw new InvalidOperationException("beat!: 只能在 define-opponent-rule 的结算中调用。");
+                    var batchReport = _gameState.CurrentActionReport
+                        ?? throw new InvalidOperationException("beat!: 没有正在结算的回应批。");
+                    var beatReport = new ActionReport { Type = ActionType.Instant };
+                    _gameState.CurrentActionReport = beatReport;
+                    try
+                    {
+                        effect.Call(new List<object>());
+                    }
+                    finally
+                    {
+                        _gameState.CurrentActionReport = batchReport;
+                    }
+
+                    var nested = new List<BlockingStoryStep>(beatReport.BlockingStorySteps);
+                    beatReport.BlockingStorySteps.Clear();
+                    batchReport.BlockingStorySteps.Add(BlockingStoryStep.ForBeat(anchor, text, beatReport));
+                    batchReport.BlockingStorySteps.AddRange(nested);
+                    return new None();
+                }, "__opponent-beat!")
+            );
+
+            interpreter.RawInterpreter.DefineGlobal(
                 Symbol.FromString("__auto-action!"),
                 new NativeProcedure(args =>
                 {
@@ -446,8 +495,8 @@ namespace SSNoir.Core
                         throw new InvalidOperationException("auto-action!: 只能在交锋中使用。");
                     if (!_isResolvingTurnEnd)
                         throw new InvalidOperationException("auto-action!: 只能由交锋的回合结算规则调用。");
-                    var report = _gameState.CurrentActionReport
-                        ?? throw new InvalidOperationException("auto-action!: 必须在动作或回合结算中调用。");
+                    _ = _gameState.CurrentActionReport
+                        ?? throw new InvalidOperationException("auto-action!: 必须在回合结算中调用。");
                     string name = args[0] as string
                         ?? throw new ArgumentException("auto-action!: name must be a string");
                     string text = args[1] as string
@@ -462,7 +511,6 @@ namespace SSNoir.Core
 
                     // 回合规则发生在新一手骰子发出之前；这里只登记，EndTurn 发骰后统一校验、扣除。
                     var parsed = new List<(string ActorId, int Count)>();
-                    int totalDice = 0;
                     foreach (object raw in demands)
                     {
                         if (raw is not List<object> entry || entry.Count != 2)
@@ -472,90 +520,50 @@ namespace SSNoir.Core
                         if (count <= 0)
                             throw new ArgumentOutOfRangeException("auto-action!: demand count must be positive");
                         parsed.Add((actorId, count));
-                        totalDice += count;
                     }
-                    string sceneName = CurrentSceneName;
-                    var step = BlockingStoryStep.ForAutoAction(name, text, anchorName, totalDice, () =>
+                    _pendingAutoActions.Add(new PendingAutoAction
                     {
-                        if (!CurrentSceneName.Equals(sceneName, StringComparison.OrdinalIgnoreCase))
-                            throw new InvalidOperationException(
-                                $"auto-action!: scene changed from '{sceneName}' to '{CurrentSceneName}' before resolution");
-                        // 结算发生在演出中途、任何动作之外。给它一份自己的报告，效果里推的钟、写的
-                        // 结果行、说的 banter 才有地方落——否则时钟行被静默丢掉，玩家只看见卡消失。
-                        // 自动行动不是剧情步骤的容器：效果里不许再排阻塞对话。
-                        if (_gameState.CurrentActionReport != null)
-                            throw new InvalidOperationException("auto-action!: 结算时不该有正在执行的动作。");
-                        var autoReport = new ActionReport { Type = ActionType.Instant };
-                        _gameState.CurrentActionReport = autoReport;
-                        try
-                        {
-                            effect.Call(new List<object>());
-                        }
-                        finally
-                        {
-                            _gameState.CurrentActionReport = null;
-                        }
-                        if (autoReport.BlockingStorySteps.Count > 0)
-                            throw new InvalidOperationException(
-                                $"auto-action!: '{name}' 的效果里不能排阻塞剧情步骤（对话 / 聚光 / 动画）；要说话用 play-banter!。");
-                        RebuildRenderTree();
-                        return autoReport;
+                        Name = name,
+                        Text = text,
+                        AnchorName = anchorName,
+                        Demands = parsed,
+                        Effect = effect,
+                        SceneName = CurrentSceneName,
                     });
-                    foreach (var demand in parsed)
-                        _pendingAutoDiceDemands.Add((step, demand.ActorId, demand.Count));
-
-                    report.BlockingStorySteps.Add(step);
                     return new None();
                 }, "__auto-action!")
             );
 
         }
 
-        private void ApplyPendingAutoDiceDemands()
+        private List<SlottedResource> ConsumeAutoActionDice(PendingAutoAction pending)
         {
-            if (_pendingAutoDiceDemands.Count == 0)
-                return;
-
-            // 人物不存在或声明的总需求超过固有骰位，都是内容配置错误；不要用运行时容错掩盖。
-            var totals = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            foreach (var demand in _pendingAutoDiceDemands)
-                totals[demand.ActorId] = totals.TryGetValue(demand.ActorId, out int n) ? n + demand.Count : demand.Count;
-            foreach (var demand in totals)
-            {
-                var actor = _gameState.Team.FindActor(demand.Key)
-                    ?? throw new InvalidOperationException($"auto-action!: actor '{demand.Key}' not found");
-                if (demand.Value > actor.ActionSlotCount)
-                    throw new InvalidOperationException(
-                        $"auto-action!: actor '{demand.Key}' has {actor.ActionSlotCount} action slots, " +
-                        $"but this turn demands {demand.Value}");
-            }
-
-            var affectedSteps = new HashSet<BlockingStoryStep>();
-            foreach (var demand in _pendingAutoDiceDemands)
+            var result = new List<SlottedResource>();
+            foreach (var demand in pending.Demands)
             {
                 var actor = _gameState.Team.FindActor(demand.ActorId)!;
+                if (actor == null)
+                    throw new InvalidOperationException($"auto-action!: actor '{demand.ActorId}' not found");
+                if (demand.Count > actor.ActionSlotCount)
+                    throw new InvalidOperationException(
+                        $"auto-action!: actor '{demand.ActorId}' has {actor.ActionSlotCount} action slots, " +
+                        $"but action '{pending.Name}' demands {demand.Count}");
                 int available = actor.Status == "active" ? actor.ActionDice.Count : 0;
                 int acquired = Math.Min(demand.Count, available);
                 if (acquired > 0)
-                    demand.Step.AutoActionSlots.AddRange(
-                        _gameState.Team.ConsumeAvailableActionDice(demand.ActorId, acquired));
+                    result.AddRange(_gameState.Team.ConsumeAvailableActionDice(demand.ActorId, acquired));
 
                 if (acquired < demand.Count)
                 {
-                    string actionName = demand.Step.AutoActionNode?.Name ?? "<unknown>";
                     string reason = actor.Status != "active"
                         ? $"status is '{actor.Status}'"
                         : $"only {available} action dice are available";
                     OnWarning?.Invoke(
-                        $"[SSNoir] auto-action degraded: scene '{CurrentSceneName}', action '{actionName}', " +
+                        $"[SSNoir] auto-action degraded: scene '{CurrentSceneName}', action '{pending.Name}', " +
                         $"actor '{demand.ActorId}' requested {demand.Count} dice but acquired {acquired}; {reason}.");
                 }
-                affectedSteps.Add(demand.Step);
             }
-
-            foreach (var step in affectedSteps)
-                step.MatchAutoActionRequirementsToSlots();
-            _pendingAutoDiceDemands.Clear();
+            return result;
         }
 
         public void SaveGame() => SaveGame(SaveManager.DefaultSavePath);
@@ -920,9 +928,21 @@ namespace SSNoir.Core
 
         public ActionReport EndTurn()
         {
+            if (!IsWorldScene(CurrentSceneName))
+            {
+                var aggregate = new ActionReport { Type = ActionType.Instant, TurnEnded = true };
+                var frame = BeginRoundTransition();
+                while (true)
+                {
+                    MergeReport(aggregate, frame.Report);
+                    if (frame.IsFinished)
+                        return aggregate;
+                    frame = AdvanceRoundTransition();
+                }
+            }
+
             if (_isExecutingAction)
                 _turnEndedDuringAction = true;
-            bool isInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
             bool ownsReport = _gameState.CurrentActionReport == null;
             var report = _gameState.CurrentActionReport ?? new ActionReport { Type = ActionType.Instant };
             if (ownsReport)
@@ -939,9 +959,8 @@ namespace SSNoir.Core
                 // 动作里已经倒下（end-turn! 包在动作里）则照旧跳过：那一手的规则归动作。
                 // 规则先跑，费用后收：这一回合把交锋结算了（散场/失败回到世界），
                 // 时间税就不再收——成功之后不再调用其他。
-                bool wasPendingBeforeAction = _gameState.HasPendingHospitalization;
                 var turnInterpreter = ActiveInterpreter;
-                if (!wasPendingBeforeAction)
+                if (!_gameState.HasPendingHospitalization)
                 {
                     _isResolvingTurnEnd = true;
                     try
@@ -956,9 +975,6 @@ namespace SSNoir.Core
 
                 int injuryBefore = _gameState.Team.Injury.Severity;
                 int composureBefore = _gameState.Team.FindActor("player")?.Composure ?? 0;
-                bool stillInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
-                if (isInEncounter && stillInEncounter)
-                    _gameState.Team.SpendComposure("player", EncounterTurnComposureCost);
                 int automaticComposureDelta = (_gameState.Team.FindActor("player")?.Composure ?? 0) - composureBefore;
                 int automaticInjuryDelta = _gameState.HasPendingHospitalization
                     ? Injury.MaxSeverity - injuryBefore
@@ -969,7 +985,7 @@ namespace SSNoir.Core
                     _gameState.Team.DismissTemporaryCompanions();
                     // 城市 EndTurn 的世界日历规则固定最先执行；若后续日终规则意外打倒玩家，
                     // 日期已经推进，不能再跑一遍。交锋 EndTurn 则还需要补跑一次世界日终。
-                    ResolvePendingHospitalization(report, turnInterpreter, advanceWorldTurnRules: isInEncounter);
+                    ResolvePendingHospitalization(report, turnInterpreter, advanceWorldTurnRules: false);
                     report.AddEffect(
                         ActionEffectKind.Composure, "冷静", automaticComposureDelta,
                         automaticComposureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
@@ -989,17 +1005,13 @@ namespace SSNoir.Core
                 foreach (var name in _gameState.Team.DismissTemporaryCompanions())
                     report.AddSupplement($"{name}走了。");
 
-                bool stillInSameMode = isInEncounter == !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
+                bool stillInSameMode = IsWorldScene(CurrentSceneName);
                 if (stillInSameMode)
-                {
-                    _gameState.Team.RollActionDice(isInEncounter);
-                    if (isInEncounter)
-                        ApplyPendingAutoDiceDemands();
-                }
+                    _gameState.Team.RollActionDice(isInEncounter: false);
 
                 // 城市里过完一天：同伴的冷静和行动骰一样按天重发（见 TeamState.BeginCityDay）。
                 // 放在 on-turn-end 之后、和重新发骰同一处，因为它们是同一件事——新的一天的份额。
-                if (!isInEncounter && stillInSameMode)
+                if (stillInSameMode)
                 {
                     foreach (var name in _gameState.Team.BeginCityDay())
                         report.AddSupplement($"{name}缓过来了，今天照旧跟着你。");
@@ -1030,6 +1042,206 @@ namespace SSNoir.Core
                 if (ownsReport)
                     _gameState.CurrentActionReport = null;
             }
+        }
+
+        public RoundTransitionFrame BeginRoundTransition()
+        {
+            if (IsWorldScene(CurrentSceneName))
+                throw new InvalidOperationException("交锋回合转换只能在交锋中开始。");
+            if (_roundTransitionState != RoundTransitionState.Idle)
+                throw new InvalidOperationException($"回合转换已经处于 {_roundTransitionState}。");
+            if (_gameState.CurrentActionReport != null)
+                throw new InvalidOperationException("动作结算中不能开始交锋回合转换。");
+
+            _roundTransitionState = RoundTransitionState.Resolving;
+            _roundTransitionPhase = RoundTransitionPhase.OpponentRules;
+            _roundTransitionInterpreter = ActiveInterpreter;
+            _pendingAutoActions.Clear();
+            _nextForcedAction = 0;
+            _roundTransitionInterpreter.Eval("(__begin-opponent-rules!)");
+            return ResolveNextRoundTransitionFrame();
+        }
+
+        public RoundTransitionFrame AdvanceRoundTransition()
+        {
+            if (_roundTransitionState != RoundTransitionState.Committed)
+                throw new InvalidOperationException(
+                    $"只有已提交的回合批可以继续；当前状态是 {_roundTransitionState}。");
+            _roundTransitionState = RoundTransitionState.Resolving;
+            return ResolveNextRoundTransitionFrame();
+        }
+
+        private RoundTransitionFrame ResolveNextRoundTransitionFrame()
+        {
+            while (true)
+            {
+                switch (_roundTransitionPhase)
+                {
+                    case RoundTransitionPhase.OpponentRules:
+                    {
+                        if (RoundTransitionLeftEncounter())
+                            return FinishRoundTransition();
+                        if (_gameState.HasPendingHospitalization)
+                        {
+                            _roundTransitionPhase = RoundTransitionPhase.RoundEndMaintenance;
+                            continue;
+                        }
+                        bool pending = Utils.IsTruthy(
+                            _roundTransitionInterpreter!.Eval("(__opponent-rules-pending?)"));
+                        if (!pending)
+                        {
+                            _roundTransitionPhase = RoundTransitionPhase.RoundEndMaintenance;
+                            continue;
+                        }
+
+                        var report = ResolveWithReport(() =>
+                        {
+                            _isResolvingTurnEnd = true;
+                            try { _roundTransitionInterpreter.Eval("(__run-next-opponent-rule!)"); }
+                            finally { _isResolvingTurnEnd = false; }
+                        });
+                        RebuildRenderTree();
+                        if (HasVisibleResult(report))
+                            return CommitRoundFrame(RoundTransitionPhase.OpponentRules, report);
+                        // 空规则也可能结束交锋或打倒玩家；回到循环顶部先检查终止。
+                        continue;
+                    }
+
+                    case RoundTransitionPhase.RoundEndMaintenance:
+                    {
+                        if (RoundTransitionLeftEncounter())
+                            return FinishRoundTransition();
+                        var report = ResolveWithReport(() =>
+                        {
+                            bool hospitalizationWasPending = _gameState.HasPendingHospitalization;
+                            int injuryBefore = _gameState.Team.Injury.Severity;
+                            int composureBefore = _gameState.Team.FindActor("player")?.Composure ?? 0;
+                            if (!hospitalizationWasPending)
+                                _gameState.Team.SpendComposure("player", EncounterTurnComposureCost);
+                            int composureDelta = hospitalizationWasPending ? 0
+                                : (_gameState.Team.FindActor("player")?.Composure ?? 0) - composureBefore;
+                            int injuryDelta = hospitalizationWasPending ? 0
+                                : _gameState.HasPendingHospitalization
+                                    ? Injury.MaxSeverity - injuryBefore
+                                    : _gameState.Team.Injury.Severity - injuryBefore;
+                            reportEffect(ActionEffectKind.Composure, "冷静", composureDelta,
+                                composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                            reportEffect(ActionEffectKind.Injury, "伤势", injuryDelta,
+                                injuryDelta > 0 ? ActionEffectTone.Negative : ActionEffectTone.Positive);
+                            if (injuryDelta > 0)
+                                _gameState.CurrentActionReport!.AddSupplement(
+                                    "冷静击穿：你的手在抖，身体先一步承受了代价。");
+                            foreach (var name in _gameState.Team.DismissTemporaryCompanions())
+                                _gameState.CurrentActionReport!.AddSupplement($"{name}走了。");
+                            if (_gameState.HasPendingHospitalization)
+                                ResolvePendingHospitalization(
+                                    _gameState.CurrentActionReport!, _roundTransitionInterpreter!,
+                                    advanceWorldTurnRules: true);
+
+                            void reportEffect(ActionEffectKind kind, string label, int delta, ActionEffectTone tone)
+                                => _gameState.CurrentActionReport!.AddEffect(kind, label, delta, tone);
+                        });
+                        RebuildRenderTree();
+                        _roundTransitionPhase = RoundTransitionLeftEncounter()
+                            ? RoundTransitionPhase.Finished
+                            : RoundTransitionPhase.NewDice;
+                        if (HasVisibleResult(report))
+                            return CommitRoundFrame(RoundTransitionPhase.RoundEndMaintenance, report);
+                        continue;
+                    }
+
+                    case RoundTransitionPhase.NewDice:
+                    {
+                        if (RoundTransitionLeftEncounter())
+                            return FinishRoundTransition();
+                        _gameState.Team.RollActionDice(isInEncounter: true);
+                        RebuildRenderTree();
+                        _roundTransitionPhase = RoundTransitionPhase.ForcedAction;
+                        return CommitRoundFrame(RoundTransitionPhase.NewDice,
+                            new ActionReport { Type = ActionType.Instant });
+                    }
+
+                    case RoundTransitionPhase.ForcedAction:
+                    {
+                        if (RoundTransitionLeftEncounter())
+                            return FinishRoundTransition();
+                        if (_nextForcedAction >= _pendingAutoActions.Count)
+                            return FinishRoundTransition();
+                        var pending = _pendingAutoActions[_nextForcedAction++];
+                        if (!CurrentSceneName.Equals(pending.SceneName, StringComparison.OrdinalIgnoreCase))
+                            return FinishRoundTransition();
+                        var slots = ConsumeAutoActionDice(pending);
+                        var autoReport = ResolveWithReport(() => pending.Effect.Call(new List<object>()));
+                        if (autoReport.BlockingStorySteps.Count > 0)
+                            throw new InvalidOperationException(
+                                $"auto-action!: '{pending.Name}' 的效果里不能排阻塞剧情步骤；要说话用 play-banter!。");
+                        var frameReport = new ActionReport { Type = ActionType.Instant };
+                        frameReport.BlockingStorySteps.Add(BlockingStoryStep.ForResolvedAutoAction(
+                            pending.Name, pending.Text, pending.AnchorName, slots, autoReport));
+                        RebuildRenderTree();
+                        return CommitRoundFrame(RoundTransitionPhase.ForcedAction, frameReport);
+                    }
+
+                    case RoundTransitionPhase.Finished:
+                        return FinishRoundTransition();
+                    default:
+                        throw new InvalidOperationException($"未知回合阶段：{_roundTransitionPhase}");
+                }
+            }
+        }
+
+        private ActionReport ResolveWithReport(Action action)
+        {
+            if (_gameState.CurrentActionReport != null)
+                throw new InvalidOperationException("回合批开始时已有未关闭的 ActionReport。");
+            var report = new ActionReport { Type = ActionType.Instant };
+            _gameState.CurrentActionReport = report;
+            try { action(); }
+            finally { _gameState.CurrentActionReport = null; }
+            FillPresentationHints(report);
+            return report;
+        }
+
+        private RoundTransitionFrame CommitRoundFrame(RoundTransitionPhase phase, ActionReport report)
+        {
+            _roundTransitionState = RoundTransitionState.Committed;
+            return new RoundTransitionFrame { Phase = phase, Report = report, Snapshot = LatestSnapshot };
+        }
+
+        private RoundTransitionFrame FinishRoundTransition()
+        {
+            _roundTransitionState = RoundTransitionState.Finishing;
+            _pendingAutoActions.Clear();
+            _nextForcedAction = 0;
+            _roundTransitionInterpreter = null;
+            _roundTransitionPhase = RoundTransitionPhase.Finished;
+            _roundTransitionState = RoundTransitionState.Idle;
+            return new RoundTransitionFrame
+            {
+                Phase = RoundTransitionPhase.Finished,
+                Report = new ActionReport { Type = ActionType.Instant },
+                Snapshot = LatestSnapshot,
+            };
+        }
+
+        private bool RoundTransitionLeftEncounter()
+            => _roundTransitionInterpreter == null
+                || !ReferenceEquals(_roundTransitionInterpreter, _encounterInterpreter)
+                || IsWorldScene(CurrentSceneName);
+
+        private static bool HasVisibleResult(ActionReport report)
+            => report.Effects.Count > 0 || report.BlockingStorySteps.Count > 0
+                || report.Banter.Count > 0 || report.NarrationIds.Count > 0;
+
+        private static void MergeReport(ActionReport target, ActionReport source)
+        {
+            target.Effects.AddRange(source.Effects);
+            target.BlockingStorySteps.AddRange(source.BlockingStorySteps);
+            target.Banter.AddRange(source.Banter);
+            target.NarrationIds.AddRange(source.NarrationIds);
+            foreach (var step in source.BlockingStorySteps)
+                if (step.ResolvedReport != null)
+                    MergeReport(target, step.ResolvedReport);
         }
 
         /// <summary>

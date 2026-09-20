@@ -418,7 +418,7 @@
 ;; ============================================================
 
 ;; 第二幕：每次休息都让他拉开一段距离，并把追逐带到下一段街景。
-(define-turn-rule "取信人拉开距离"
+(define-opponent-rule "取信人拉开距离"
   (lambda () (and (= act 2) (not finished?)))
   (lambda ()
     (if (not (= (escape-clk 'current) seg))

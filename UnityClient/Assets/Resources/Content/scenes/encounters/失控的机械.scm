@@ -106,7 +106,7 @@
           (finish! '自己修 "它停在原位"
             "臂停在半空，没有塌。林从轨道那头绕出来，先看机器，再看你：你怎么知道是那一节？"))))))
 
-(define-turn-rule "轨道还在裂"
+(define-opponent-rule "轨道还在裂"
   (lambda () (not finished?))
   (lambda ()
     (hold-clk 'advance! -1)

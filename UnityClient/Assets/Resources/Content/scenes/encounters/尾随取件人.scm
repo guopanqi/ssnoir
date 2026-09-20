@@ -154,7 +154,7 @@
      (play-dialogue! (line "世界" "他从酒店另一侧出来，手里多了一个文件袋。")))
     (#t (error "尾随取件人：不能进入这个路段"))))
 
-(define-turn-rule "取件人继续赶路"
+(define-opponent-rule "取件人继续赶路"
   (lambda () (not 已结束?))
   (lambda ()
     (if (not (咬住踪迹 'full?))

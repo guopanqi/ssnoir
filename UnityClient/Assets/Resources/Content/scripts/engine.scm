@@ -688,6 +688,34 @@
           (run-rules (cdr list-rules)))))
   (run-rules turn-rules))
 
+;; 交锋回应与世界日终是两套生命周期。每条 opponent rule 是一个因果批，按书写顺序执行；
+;; 后一条可以读取前一条提交后的状态。一条规则内部登记的 beat 属于同一批，不应互相依赖。
+(define opponent-rules '())
+(define opponent-rule-queue '())
+
+(define (define-opponent-rule name condition action)
+  (set! opponent-rules (cons (list name condition action) opponent-rules)))
+
+(define (__begin-opponent-rules!)
+  (set! opponent-rule-queue (reverse opponent-rules)))
+
+(define (__opponent-rules-pending?)
+  (not (null? opponent-rule-queue)))
+
+(define (__run-next-opponent-rule!)
+  (if (null? opponent-rule-queue)
+      (error "__run-next-opponent-rule!: no pending rule")
+      (let ((rule (car opponent-rule-queue)))
+        (set! opponent-rule-queue (cdr opponent-rule-queue))
+        (if ((cadr rule))
+            ((caddr rule))
+            #f))))
+
+;; 一件玩家能够感知的对方行动。thunk 是唯一真相：其中的钟、冷静、伤势和 banter
+;; 由引擎捕获成纯展示步骤，作者不再重复填写 delta。
+(define (beat! anchor text thunk)
+  (__opponent-beat! anchor text thunk))
+
 ;; 由日期算出来的倒计时。它**不持有格数**：格数就是「到期日减今天」，
 ;; 所以永远不会和日历跑偏，读档也不必恢复它——属于上面说的第一类例外
 ;; （渲染别处已有的真相）。有截止日的窗口一律用它，不要另开一根自己每天减一的钟。

@@ -1054,16 +1054,16 @@ namespace SSNoir.IMGUI
             {
                 // 抽烟、喝酒是随身动作节点（engine.scm 的 carry-nodes，由 SceneManager 补进
                 // 每一场交锋），在休息键上方画成带物品槽、行动骰槽和执行钮的标准卡。
-                // 功能区只剩"休息"：它是唯一一个真的不吃任何东西的动作。
+                // 功能区只剩“结束回合”：它交出主动权，不吃任何资源。
                 var restRect = new Rect(functionX, functionY, functionW, functionH);
-                DrawnActionRects["休息"] = restRect;
-                // 休息也是一次真的执行（OnEndTurnClicked 会播一段 "休息" 演出）。
+                DrawnActionRects["结束回合"] = restRect;
+                // 结束回合也是一次真的执行，进度在功能键上显示。
                 // 它不是卡、没有执行钮，进度得自己画，否则场上唯一没有时间流逝的动作就是它。
-                var restExecution = gameManager.GetExecutionState("休息");
+                var restExecution = gameManager.GetExecutionState("结束回合");
                 if (restExecution.IsExecuting)
-                    DrawFunctionProgress(restRect, restExecution.Progress);
+                    DrawFunctionProgress(restRect, restExecution.Progress, "结算中");
                 // 结算中和刚结算完的短冷却里都按不下去（CanRest）：连点不会把第二天也睡掉。
-                else if (DrawFunctionBlock(restRect, "休 息", ui, !gameManager.CanRest))
+                else if (DrawFunctionBlock(restRect, "结束回合", ui, !gameManager.CanRest))
                     gameManager.OnEndTurnClicked();
             }
             else
@@ -1243,7 +1243,7 @@ namespace SSNoir.IMGUI
 
         // 休息和紧凑动作的执行中状态共用同一套语言：Ink 底、从左向右的金色填充、稳定描边。
         // 外扩呼吸框属于聚焦/目标提示，不用于这种固定功能区里的进度反馈。
-        private static void DrawFunctionProgress(Rect rect, float progress, string label = "休息中")
+        private static void DrawFunctionProgress(Rect rect, float progress, string label = "结算中")
         {
             progress = Mathf.Clamp01(progress);
             GUI.color = IMGUIStyles.Ink;

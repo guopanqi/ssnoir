@@ -189,7 +189,7 @@
     (list (node-return-part))))
 
 ;; 弗兰克的人每回合都在收紧封锁；他们不是玩家手里的普通单位。
-(define-turn-rule "弗兰克维持封锁"
+(define-opponent-rule "弗兰克维持封锁"
   (lambda () (not finished?))
   (lambda ()
     (set! rounds (+ rounds 1))

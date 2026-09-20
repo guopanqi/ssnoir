@@ -90,6 +90,9 @@ namespace SSNoir.IMGUI
         private BlockingStoryStep? _activeAutoAction;
         private float _activeAutoActionStartedAt;
         private bool _activeAutoActionResolved;
+        private bool _activeBeat;
+        private float _activeBeatUntil;
+        private const float BeatSeconds = 1.1f;
         private const float AutoActionAppearSeconds = 0.5f;
         private const float AutoActionFlightSeconds = 0.6f;
         private const float AutoActionLandHoldSeconds = 0.35f;
@@ -166,6 +169,7 @@ namespace SSNoir.IMGUI
 
         public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying
             || _activeAutoAction != null
+            || _activeBeat
             || _activeActionSpotlight != null
             || _conversationPlayer.IsActive || _activeVideoTag != null;
 
@@ -246,6 +250,14 @@ namespace SSNoir.IMGUI
                         _activeAutoActionStartedAt = Time.unscaledTime;
                         _activeAutoActionResolved = false;
                         return;
+                    case BlockingStoryStepKind.Beat:
+                        var beats = new List<BlockingStoryStep> { step };
+                        if (!OpponentTurnSettings.Sequential)
+                            while (_pendingBlockingSteps.Count > 0
+                                && _pendingBlockingSteps.Peek().Kind == BlockingStoryStepKind.Beat)
+                                beats.Add(_pendingBlockingSteps.Dequeue());
+                        PlayBeatGroup(beats);
+                        return;
                 }
             }
 
@@ -276,6 +288,37 @@ namespace SSNoir.IMGUI
             }
 
             FinishCompletion(report, done);
+        }
+
+        private void PlayBeatGroup(IReadOnlyList<BlockingStoryStep> beats)
+        {
+            var parallelLines = new List<DialogueLine>();
+            foreach (var step in beats)
+            {
+                if (!string.IsNullOrWhiteSpace(step.BeatText))
+                    parallelLines.Add(new DialogueLine { Speaker = step.BeatAnchor, Text = step.BeatText });
+                if (step.ResolvedReport == null)
+                    continue;
+                if (step.ResolvedReport.Effects.Count > 0)
+                    _cardResidues[step.BeatAnchor] = new CardPresentationResidue
+                    {
+                        HostNodeName = step.BeatAnchor,
+                        Effects = new List<ActionEffectRecord>(step.ResolvedReport.Effects),
+                        FuseStartedAt = Time.unscaledTime,
+                        FuseSeconds = BeatSeconds,
+                    };
+                foreach (var sequence in step.ResolvedReport.Banter)
+                    _banterPlayer.Enqueue(sequence);
+            }
+
+            float dwell = OpponentTurnSettings.Sequential || parallelLines.Count <= 1
+                ? 0f
+                : _banterPlayer.ShowParallel(parallelLines);
+            if (dwell <= 0f)
+                foreach (var line in parallelLines)
+                    _banterPlayer.Enqueue(new DialogueSequence(new[] { line }));
+            _activeBeat = true;
+            _activeBeatUntil = Time.unscaledTime + Mathf.Max(BeatSeconds, dwell);
         }
 
         // 采纳快照会不会把结果从屏幕上抹掉：翻页要黑幕；换了场景或阶段根，旧卡整层都没了。
@@ -430,6 +473,7 @@ namespace SSNoir.IMGUI
 
         public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying
             || _activeAutoAction != null
+            || _activeBeat
             || _activeActionSpotlight != null
             || _conversationPlayer.IsActive || _activeVideoTag != null;
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
@@ -535,6 +579,7 @@ namespace SSNoir.IMGUI
             _holdingDone = null;
             _pendingBlockingSteps.Clear();
             _activeAutoAction = null;
+            _activeBeat = false;
             _activeActionSpotlight = null;
             _activeVideoTag = null;
             _animationTimer = 0f;
@@ -573,11 +618,11 @@ namespace SSNoir.IMGUI
                 float elapsed = Time.unscaledTime - _activeAutoActionStartedAt;
                 if (!_activeAutoActionResolved && elapsed >= AutoActionResolveAt)
                 {
-                    // 执行条走完的那一刻结算：钟真的推了，结果条挂到卡下，卡留在原地给玩家看。
+                    // 状态已由引擎提交；执行条走完时只揭示缓存结果，表现层不再执行规则。
                     _activeAutoActionResolved = true;
                     var node = _activeAutoAction.AutoActionNode!;
-                    var report = _activeAutoAction.ResolveAutoAction();
-                    _gameManager.AdoptLatestSnapshot();
+                    var report = _activeAutoAction.ResolvedReport
+                        ?? throw new InvalidOperationException("AutoAction 缺少引擎提交的结果。");
                     _cardResidues[node.Name] = new CardPresentationResidue
                     {
                         HostNodeName = node.Name,
@@ -595,6 +640,12 @@ namespace SSNoir.IMGUI
                     _activeAutoAction = null;
                     AdvanceToBlockingPresentationOrFinish();
                 }
+            }
+
+            if (_activeBeat && Time.unscaledTime >= _activeBeatUntil)
+            {
+                _activeBeat = false;
+                AdvanceToBlockingPresentationOrFinish();
             }
 
             // 命名动画占位:到点后推进下一个阻塞剧情步骤。

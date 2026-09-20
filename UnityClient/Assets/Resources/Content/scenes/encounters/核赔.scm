@@ -10,7 +10,7 @@
 (define (tick-n! clk n)
   (if (<= n 0) #f (begin (clk 'tick!) (tick-n! clk (- n 1)))))
 
-(define-turn-rule "沃尔特同步核对"
+(define-opponent-rule "沃尔特同步核对"
   (lambda () (not (evidence-clk 'full?)))
   (lambda () (suspicion-clk 'tick!)))
 

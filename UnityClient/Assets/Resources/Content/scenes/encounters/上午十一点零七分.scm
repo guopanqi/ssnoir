@@ -60,7 +60,7 @@
        (line "尼尔" "现在不是找一张纸。是选四堆里该翻哪一堆。")))
     (#t #f)))
 
-(define-turn-rule "废稿逐渐分门别类"
+(define-opponent-rule "废稿逐渐分门别类"
   (lambda () (not 已结束?))
   (lambda () (同步阶段!)))
 
@@ -102,7 +102,7 @@
         (result-supplement! "找到一份被撤下的消息"))
       #f))
 
-(define-turn-rule "废稿里露出内容"
+(define-opponent-rule "废稿里露出内容"
   (lambda () (and (= 阶段 2) (not 已结束?)))
   (lambda ()
     (取得封套!)

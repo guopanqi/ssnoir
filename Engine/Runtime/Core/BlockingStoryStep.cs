@@ -8,6 +8,7 @@ namespace SSNoir.Core
     // 动作表现固定在结局前,不可重排;剧情表现按 Scheme 调用顺序排队、逐个阻塞播放。
     public enum BlockingStoryStepKind
     {
+        Beat,        // 对方回应中的轻量可见节拍：锚点 + 一句话 + 已结算的效果
         Video,       // 视频过场：tag 认场景里的 CutsceneSequence（机位 + 视频）。昂贵，少用；
                      // 实时 3D 的场景演出是另一条通道，不走这里
         Motion,      // 场景演出：切到指定机位，播一件道具的实时动画（道具__状态 clip），播完回来。
@@ -15,7 +16,7 @@ namespace SSNoir.Core
         Dialogue,    // 阻塞对话:点击推进、锁输入、冻结导航
         Spotlight,   // 聚光弹窗:点击 dismiss
         EnterPlace,  // 采纳动作后的世界快照，并把导航落到指定地点
-        AutoAction,  // 非玩家发起的完整动作：占用骰子、执行、结算效果
+        AutoAction,  // 新回合开始时的强制行动；引擎已结算，客户端只播放
     }
 
     // 一个阻塞剧情步骤。按 Kind 只有对应字段有效。
@@ -32,8 +33,20 @@ namespace SSNoir.Core
         public string PlaceName { get; init; } = string.Empty;      // Kind == EnterPlace
         public GameNode? AutoActionNode { get; init; }               // Kind == AutoAction
         public List<SlottedResource> AutoActionSlots { get; } = new(); // Kind == AutoAction
-        public Func<ActionReport>? AutoActionEffect { get; init; }   // Kind == AutoAction：结算并交回这一手的报告
-        private bool _autoActionResolved;
+        public ActionReport? ResolvedReport { get; init; }           // Beat / AutoAction：引擎提交的结果
+        public string BeatAnchor { get; init; } = string.Empty;
+        public string BeatText { get; init; } = string.Empty;
+
+        public static BlockingStoryStep ForBeat(string anchor, string text, ActionReport report)
+            => string.IsNullOrWhiteSpace(anchor)
+                ? throw new ArgumentException("beat anchor cannot be empty", nameof(anchor))
+                : new BlockingStoryStep
+                {
+                    Kind = BlockingStoryStepKind.Beat,
+                    BeatAnchor = anchor,
+                    BeatText = text ?? string.Empty,
+                    ResolvedReport = report ?? throw new ArgumentNullException(nameof(report)),
+                };
 
         public static BlockingStoryStep ForVideo(string tag)
             => new BlockingStoryStep { Kind = BlockingStoryStepKind.Video, VideoTag = tag };
@@ -54,48 +67,30 @@ namespace SSNoir.Core
                 ? throw new System.ArgumentException("place name cannot be empty", nameof(placeName))
                 : new BlockingStoryStep { Kind = BlockingStoryStepKind.EnterPlace, PlaceName = placeName };
 
-        public static BlockingStoryStep ForAutoAction(
-            string name, string text, string? anchorName, int slotCount, Func<ActionReport> effect)
+        public static BlockingStoryStep ForResolvedAutoAction(
+            string name, string text, string? anchorName,
+            IReadOnlyList<SlottedResource> slots, ActionReport report)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(text))
                 throw new System.ArgumentException("auto action name and text cannot be empty");
-            if (slotCount <= 0)
-                throw new System.ArgumentOutOfRangeException(nameof(slotCount));
+            if (slots == null)
+                throw new ArgumentNullException(nameof(slots));
 
-            return new BlockingStoryStep
+            var step = new BlockingStoryStep
             {
                 Kind = BlockingStoryStepKind.AutoAction,
-                AutoActionEffect = effect ?? throw new ArgumentNullException(nameof(effect)),
+                ResolvedReport = report ?? throw new ArgumentNullException(nameof(report)),
                 AutoActionNode = new GameNode
                 {
                     Name = name,
                     Subtitle = text,
                     AnchorName = anchorName,
                     Resolve = new GameResolve { Type = ResolveType.Instant },
-                    Requires = MakeDieRequirements(slotCount),
+                    Requires = MakeDieRequirements(slots.Count),
                 },
             };
-        }
-
-        /// <summary>结算这一手，交回它自己的报告（时钟推进行、结果行、banter），表现层据此挂结果条。</summary>
-        public ActionReport ResolveAutoAction()
-        {
-            if (Kind != BlockingStoryStepKind.AutoAction || AutoActionEffect == null)
-                throw new InvalidOperationException("Only auto-action steps can be resolved this way.");
-            if (_autoActionResolved)
-                throw new InvalidOperationException("Auto action has already been resolved.");
-            _autoActionResolved = true;
-            return AutoActionEffect();
-        }
-
-        /// <summary>
-        /// 自动行动允许因人物离场或当手骰不足而少拿骰；表现层只画实际取得的骰槽。
-        /// </summary>
-        public void MatchAutoActionRequirementsToSlots()
-        {
-            if (Kind != BlockingStoryStepKind.AutoAction || AutoActionNode == null)
-                throw new System.InvalidOperationException("Only auto-action steps have die requirements.");
-            AutoActionNode.Requires = MakeDieRequirements(AutoActionSlots.Count);
+            step.AutoActionSlots.AddRange(slots);
+            return step;
         }
 
         private static List<ActionCost> MakeDieRequirements(int count)
