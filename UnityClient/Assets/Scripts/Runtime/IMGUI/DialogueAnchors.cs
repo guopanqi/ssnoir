@@ -50,7 +50,15 @@ namespace SSNoir.IMGUI
         }
 
         public bool TryResolve(string speaker, out Rect rect)
+            => TryResolve(speaker, preferCard: false, out rect);
+
+        // preferCard：对方回合里一个人在动的时候，他的卡就是他——气泡从卡上冒出来，
+        // 和卡上跳动的钟、挂在卡下的结果是同一件东西。这时不去找世界锚点：巷子里
+        // 那几个锚点投在屏幕顶上，气泡飘到那儿就和卡断了联系。
+        public bool TryResolve(string speaker, bool preferCard, out Rect rect)
         {
+            if (preferCard && _nodeByName.TryGetValue(speaker, out rect))
+                return true;
             return _actorById.TryGetValue(speaker, out rect)
                 || _actorByName.TryGetValue(speaker, out rect)
                 || _worldByName.TryGetValue(speaker, out rect)

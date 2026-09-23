@@ -39,19 +39,19 @@
 ;; 出手是 countdown，因为它真的是时间：你碰不到它，它每回合自己走一格，
 ;; 归零那一下你挨打——「2」就是「他还有两回合出手」。
 (define coat-life
-  (make-clock "皮夹克" coat-life-max 'gauge "他的生命值。个子最大，撑得最久。"))
+  (make-clock "生命" coat-life-max 'gauge "他的生命值。个子最大，撑得最久。"))
 (define coat-attack
-  (make-clock "皮夹克出手" 3 'countdown "归零就出手：这一下最重。"))
+  (make-clock "皮夹克·出手" 3 'countdown "归零就出手：这一下最重。"))
 
 (define hat-life
-  (make-clock "毡帽" hat-life-max 'gauge "他的生命值。归零他就站不住。"))
+  (make-clock "生命" hat-life-max 'gauge "他的生命值。归零他就站不住。"))
 (define hat-attack
-  (make-clock "毡帽出手" 2 'countdown "归零就出手：快，但不重。"))
+  (make-clock "毡帽·出手" 2 'countdown "归零就出手：快，但不重。"))
 
 (define sleeves-life
-  (make-clock "卷袖子" sleeves-life-max 'gauge "他的生命值。最不经打的一个。"))
+  (make-clock "生命" sleeves-life-max 'gauge "他的生命值。最不经打的一个。"))
 (define sleeves-attack
-  (make-clock "卷袖子出手" 3 'countdown "归零就出手：快，但不重。"))
+  (make-clock "卷袖子·出手" 3 'countdown "归零就出手：快，但不重。"))
 
 (define finished? #f)
 (define round-count 0)
@@ -99,30 +99,39 @@
       (outcome (lambda () (hit-enemy! life 1 down-line)))
       (outcome (lambda () (hit-enemy! life 2 down-line))))))
 
+;; 卡就是这个人。标题是他的名字，不是"对付他"——对方回合里说话、出拳、掉血的都是这张卡。
+;; 三个人的生命钟都叫"生命"：钟的身份靠它挂在谁的卡上，不靠标签里再写一遍名字。
 (define (node-coat)
-  (enemy-node "对付皮夹克" "个子最大，挨打后仍能站住"
+  (enemy-node "皮夹克" "个子最大，挨打后仍能站住"
     coat-life coat-attack "皮夹克撞上砖墙，顺着墙根滑了下去。"))
 
 (define (node-hat)
-  (enemy-node "对付毡帽" "出手最快，已经向你走过来"
+  (enemy-node "毡帽" "出手最快，已经向你走过来"
     hat-life hat-attack "毡帽掉在水沟里。他贴着墙，没有再起来。"))
 
 (define (node-sleeves)
-  (enemy-node "对付卷袖子" "脚步快，但他不经打"
+  (enemy-node "卷袖子" "脚步快，但他不经打"
     sleeves-life sleeves-attack "卷袖子捂住鼻子，跌跌撞撞地退到了巷口。"))
 
-(define (resolve-attack! life attack damage attack-line)
-  (if (or finished? (life 'empty?))
-      #f
-      (begin
-        (attack 'advance! -1)
-        (if (attack 'empty?)
-            (begin
-              ;; 出手之后重新拉满：下一次又要等这么久。
-              (attack 'set! (attack 'max))
-              (spend-actor-composure! 'player damage)
-              (play-banter! (line "世界" attack-line)))
-            #f))))
+(define (standing? life) (not (life 'empty?)))
+
+;; 还站着的人把出手倒计时走一格。
+(define (approach! life attack)
+  (if (and (standing? life) (not (attack 'empty?)))
+      (attack 'advance! -1)
+      #f))
+
+;; 一个人出拳，自成一条规则、自成一拍：他开口，拳头落下，你的冷静跟着掉，他的钟重新拉满。
+;; 谁在动不用写——他的出手钟变了、他说了话，客户端就知道亮哪张卡。
+(define (define-strike! name life attack damage say attack-line)
+  (define-opponent-rule (string-append name "出手")
+    (lambda () (and (not finished?) (standing? life) (attack 'empty?)))
+    (lambda ()
+      (play-banter! (line name say))
+      ;; 出手之后重新拉满：下一次又要等这么久。
+      (attack 'set! (attack 'max))
+      (spend-actor-composure! 'player damage)
+      (play-banter! (line "世界" attack-line)))))
 
 (define (on-encounter-enter)
   (set! finished? #f)
@@ -143,30 +152,42 @@
     (line "打人的" "第四回合。你他妈数得清吗。")
     (line "世界" "你走进去。戴毡帽的先转过身，另外两个才把目光从地上移开。")))
 
-(define-opponent-rule "他们会还手"
+;; ── 对方回合 ─────────────────────────────────────
+;; 规则按书写顺序一条一拍：先是三个人一起逼近（钟各走一格），然后倒计时到零的人依次出手
+;; （快的先动，最重的那一下压轴），最后是艾迪那边又撑过去一回合。
+;; 谁先谁后在这里就是因果：毡帽那一拳把你打倒了，后面的人就不再出手。
+
+(define-opponent-rule "他们在逼近"
   (lambda () (not finished?))
   (lambda ()
-    ;; 同一条 opponent rule 是同一个因果批：三个人各自行动，客户端可按表现资源紧凑播放；
-    ;; beat 的 thunk 才是状态变化的唯一真相，钟与冷静的实际 delta 由引擎自动捕获。
-    (beat! "对付皮夹克" "他攥紧拳头，迎面压了上来。"
-      (lambda ()
-        (resolve-attack! coat-life coat-attack 3 "皮夹克迎面一拳，你的半边身子都麻了。")))
-    (beat! "对付毡帽" "他贴着墙根，从侧面逼近。"
-      (lambda ()
-        (resolve-attack! hat-life hat-attack 1 "毡帽从侧面撞进来，肘子顶在你的肋下。")))
-    (beat! "对付卷袖子" "他等你回头，脚下往前蹭了一步。"
-      (lambda ()
-        (resolve-attack! sleeves-life sleeves-attack 1 "卷袖子趁你回头，一拳砸在你的耳根。")))
-    (beat! "世界" "靠墙的人又矮下去一点。"
-      (lambda ()
-        (set! round-count (+ round-count 1))
-        ;; 倒计时要往下走。这里原来写的是 'tick!（+1）——钟起手就在满格，加一被夹回满格，
-        ;; 于是它永远 empty? 不了，「艾迪撑不住了」这条路一次也没跑过。
-        (eddie-clk 'advance! -1)
-        (if (and (not finished?) (eddie-clk 'empty?))
-            (finish! 'fail "艾迪撑不住了"
-              "你还在和面前的人纠缠。后面传来一声闷响，艾迪顺着墙倒下去，没有再动。")
-            #f)))))
+    (approach! hat-life hat-attack)
+    (approach! sleeves-life sleeves-attack)
+    (approach! coat-life coat-attack)))
+
+(define-strike! "毡帽" hat-life hat-attack 1
+  "看哪儿呢。"
+  "毡帽从侧面撞进来，肘子顶在你的肋下。")
+
+(define-strike! "卷袖子" sleeves-life sleeves-attack 1
+  "转过来。"
+  "卷袖子趁你回头，一拳砸在你的耳根。")
+
+(define-strike! "皮夹克" coat-life coat-attack 3
+  "站好了。"
+  "皮夹克迎面一拳，你的半边身子都麻了。")
+
+(define-opponent-rule "艾迪撑不住了"
+  (lambda () (not finished?))
+  (lambda ()
+    (set! round-count (+ round-count 1))
+    ;; 倒计时要往下走。这里原来写的是 'tick!（+1）——钟起手就在满格，加一被夹回满格，
+    ;; 于是它永远 empty? 不了，「艾迪撑不住了」这条路一次也没跑过。
+    (eddie-clk 'advance! -1)
+    (play-banter! (line "世界" "靠墙的人又矮下去一点。"))
+    (if (and (not finished?) (eddie-clk 'empty?))
+        (finish! 'fail "艾迪撑不住了"
+          "你还在和面前的人纠缠。后面传来一声闷响，艾迪顺着墙倒下去，没有再动。")
+        #f)))
 
 (define (get-render-data)
   (container "巷子里在打人"

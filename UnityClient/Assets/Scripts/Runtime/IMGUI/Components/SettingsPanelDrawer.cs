@@ -90,15 +90,6 @@ namespace SSNoir.IMGUI
                 MotionSettings.ReduceMotion = pickedMotion == 1;
             y += BlockH + BlockGap;
 
-            // ── 对方回合 ──
-            int pickedPacing = DrawSetting(
-                new Rect(contentX, y, contentW, BlockH),
-                "对方回合",
-                new[] { "同时", "依次" }, OpponentTurnSettings.Sequential ? 1 : 0, ui);
-            if (pickedPacing >= 0)
-                OpponentTurnSettings.Sequential = pickedPacing == 1;
-            y += BlockH + BlockGap;
-
             // ── 教程提示 ──
             // 「关」之后什么都不会弹（帮助面板照样能翻）。从关切回开会把「看过」的记录清掉，
             // 于是换一个人坐下来试玩，教程会从头再走一遍——demo 阶段这是最常用的一个动作。

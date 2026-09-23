@@ -662,18 +662,39 @@ namespace SSNoir.Testing
         {
             Console.WriteLine("=== Encounter Round Transition Contract Test ===");
 
-            // Beat 的 effect 在引擎批里执行；客户端拿到的只允许是已结算报告。
+            // 世界新日的剧情步骤不能混进睡前报告。客户端只凭这条边界决定：先落黑幕并
+            // 采用新日快照，再显示“今早发生了什么”。
+            var cityState = new GameState();
+            var city = new SceneManager(cityState, new LocalScriptLoader());
+            city.LoadScene("world");
+            city.ActiveInterpreter.Eval(
+                "(define-turn-start-rule \"测试：新日通知\" (lambda () #t) " +
+                "(lambda () (spotlight! \"新日通知\" \"这张卡只能在睡醒以后出现。\")))");
+            var cityTurn = city.EndTurn();
+            AssertEq("turn-start steps stay out of old-day report", 0,
+                cityTurn.BlockingStorySteps.Count(step =>
+                    step.Kind == BlockingStoryStepKind.Spotlight
+                    && step.Spotlight?.Title == "新日通知"));
+            AssertEq("turn-start report exists", true, cityTurn.TurnStartReport != null);
+            AssertEq("turn-start spotlight is deferred", "新日通知",
+                cityTurn.TurnStartReport!.BlockingStorySteps.Single(step =>
+                    step.Kind == BlockingStoryStepKind.Spotlight
+                    && step.Spotlight?.Title == "新日通知").Spotlight!.Title);
+
+            // 回应规则在引擎批里执行；客户端拿到的只允许是已结算报告。
             var alleyState = new GameState();
             var alley = new SceneManager(alleyState, new LocalScriptLoader());
             alley.LoadScene("encounters/巷子里在打人");
             var alleyFrame = alley.BeginRoundTransition();
-            AssertEq("alley first phase", RoundTransitionPhase.OpponentRules, alleyFrame.Phase);
-            AssertEq("alley rule exposes four beats", 4,
-                alleyFrame.Report.BlockingStorySteps.Count(step => step.Kind == BlockingStoryStepKind.Beat));
-            AssertEq("beat is already resolved", true,
-                alleyFrame.Report.BlockingStorySteps
-                    .Where(step => step.Kind == BlockingStoryStepKind.Beat)
-                    .All(step => step.ResolvedReport != null));
+            // 结束回合自己的账（时间税）先结，然后才是场上的人回应。
+            AssertEq("alley first phase", RoundTransitionPhase.TimeTax, alleyFrame.Phase);
+            AssertEq("time tax charges one composure", -1,
+                alleyFrame.Report.Effects.Single(effect => effect.Kind == ActionEffectKind.Composure).Delta);
+            alleyFrame = alley.AdvanceRoundTransition();
+            AssertEq("opponent rules follow the tax", RoundTransitionPhase.OpponentRules, alleyFrame.Phase);
+            // 归属不在报告里：客户端拿这三条钟效果去渲染树里找它们挂在谁的卡上。
+            AssertEq("alley approach reports three clock changes", 3,
+                alleyFrame.Report.Effects.Count(effect => effect.Kind == ActionEffectKind.Clock));
             while (!alleyFrame.IsFinished)
                 alleyFrame = alley.AdvanceRoundTransition();
 
@@ -692,6 +713,8 @@ namespace SSNoir.Testing
             var auto = frame.Report.BlockingStorySteps.Single(
                 step => step.Kind == BlockingStoryStepKind.AutoAction);
             AssertEq("forced action carries real dice", 2, auto.AutoActionSlots.Count);
+            AssertEq("forced action owns its prelude", 2, auto.AutoActionPrelude!.Lines.Count);
+            AssertEq("prelude does not leak into resolved effect", 0, auto.ResolvedReport!.Banter.Count);
             AssertEq("forced action is already resolved", true, auto.ResolvedReport != null);
             int remainingDice = frame.Snapshot.Actors.Sum(actor => actor.ActionDice.Count);
             AssertEq("forced action consumes the captured dice", fullDice - 2, remainingDice);

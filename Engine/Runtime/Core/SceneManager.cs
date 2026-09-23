@@ -42,6 +42,7 @@ namespace SSNoir.Core
             public string Text { get; init; } = string.Empty;
             public string? AnchorName { get; init; }
             public List<(string ActorId, int Count)> Demands { get; init; } = new();
+            public DialogueSequence? Prelude { get; init; }
             public ICallable Effect { get; init; } = null!;
             public string SceneName { get; init; } = string.Empty;
         }
@@ -456,41 +457,11 @@ namespace SSNoir.Core
             );
 
             interpreter.RawInterpreter.DefineGlobal(
-                Symbol.FromString("__opponent-beat!"),
-                new NativeProcedure(args =>
-                {
-                    if (args.Count != 3 || args[0] is not string anchor || args[1] is not string text
-                        || args[2] is not ICallable effect)
-                        throw new ArgumentException("beat!: expected anchor, text, and thunk");
-                    if (!_isResolvingTurnEnd || _roundTransitionPhase != RoundTransitionPhase.OpponentRules)
-                        throw new InvalidOperationException("beat!: 只能在 define-opponent-rule 的结算中调用。");
-                    var batchReport = _gameState.CurrentActionReport
-                        ?? throw new InvalidOperationException("beat!: 没有正在结算的回应批。");
-                    var beatReport = new ActionReport { Type = ActionType.Instant };
-                    _gameState.CurrentActionReport = beatReport;
-                    try
-                    {
-                        effect.Call(new List<object>());
-                    }
-                    finally
-                    {
-                        _gameState.CurrentActionReport = batchReport;
-                    }
-
-                    var nested = new List<BlockingStoryStep>(beatReport.BlockingStorySteps);
-                    beatReport.BlockingStorySteps.Clear();
-                    batchReport.BlockingStorySteps.Add(BlockingStoryStep.ForBeat(anchor, text, beatReport));
-                    batchReport.BlockingStorySteps.AddRange(nested);
-                    return new None();
-                }, "__opponent-beat!")
-            );
-
-            interpreter.RawInterpreter.DefineGlobal(
                 Symbol.FromString("__auto-action!"),
                 new NativeProcedure(args =>
                 {
-                    if (args.Count != 5)
-                        throw new ArgumentException("auto-action!: expected name, subtitle, anchor, actor/count demands, and effect");
+                    if (args.Count != 6)
+                        throw new ArgumentException("auto-action!: expected name, subtitle, anchor, actor/count demands, prelude, and effect");
                     if (CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
                         throw new InvalidOperationException("auto-action!: 只能在交锋中使用。");
                     if (!_isResolvingTurnEnd)
@@ -506,7 +477,13 @@ namespace SSNoir.Core
                         : args[2] as string ?? throw new ArgumentException("auto-action!: anchor must be #f or a string");
                     if (args[3] is not List<object> demands || demands.Count == 0)
                         throw new ArgumentException("auto-action!: demands must be a non-empty list");
-                    if (args[4] is not ICallable effect)
+                    if (args[4] is not List<object> rawPrelude)
+                        throw new ArgumentException("auto-action!: prelude must be (auto-dialogue ...) or (no-dialogue)");
+                    DialogueSequence? prelude = rawPrelude.Count == 0
+                        ? null
+                        : NativeFunctions.ParseDialogueSequence(
+                            new List<object> { rawPrelude }, "auto-action! prelude");
+                    if (args[5] is not ICallable effect)
                         throw new ArgumentException("auto-action!: effect must be a procedure");
 
                     // 回合规则发生在新一手骰子发出之前；这里只登记，EndTurn 发骰后统一校验、扣除。
@@ -527,6 +504,7 @@ namespace SSNoir.Core
                         Text = text,
                         AnchorName = anchorName,
                         Demands = parsed,
+                        Prelude = prelude,
                         Effect = effect,
                         SceneName = CurrentSceneName,
                     });
@@ -1015,6 +993,22 @@ namespace SSNoir.Core
                 {
                     foreach (var name in _gameState.Team.BeginCityDay())
                         report.AddSupplement($"{name}缓过来了，今天照旧跟着你。");
+
+                    // 新日事件必须和旧日动作的表现分开。否则 on-turn-start 里的早报、电话
+                    // 会先作为 BlockingStoryStep 播完，客户端才有机会落下睡眠黑幕。
+                    var turnStartReport = new ActionReport { Type = ActionType.Instant };
+                    var previousReport = _gameState.CurrentActionReport;
+                    _gameState.CurrentActionReport = turnStartReport;
+                    try
+                    {
+                        turnInterpreter.Eval("(on-turn-start)");
+                    }
+                    finally
+                    {
+                        _gameState.CurrentActionReport = previousReport;
+                    }
+                    if (HasVisibleResult(turnStartReport))
+                        report.TurnStartReport = turnStartReport;
                 }
 
                 report.AddEffect(
@@ -1054,7 +1048,7 @@ namespace SSNoir.Core
                 throw new InvalidOperationException("动作结算中不能开始交锋回合转换。");
 
             _roundTransitionState = RoundTransitionState.Resolving;
-            _roundTransitionPhase = RoundTransitionPhase.OpponentRules;
+            _roundTransitionPhase = RoundTransitionPhase.TimeTax;
             _roundTransitionInterpreter = ActiveInterpreter;
             _pendingAutoActions.Clear();
             _nextForcedAction = 0;
@@ -1077,6 +1071,39 @@ namespace SSNoir.Core
             {
                 switch (_roundTransitionPhase)
                 {
+                    case RoundTransitionPhase.TimeTax:
+                    {
+                        // 交锋里每结束一个回合扣一点冷静：时间本身就是代价。它是"结束回合"这个
+                        // 动作自己的账，和按键同一拍结清，然后才轮到场上的人回应。
+                        // 没有它，"这一回合手气不好，什么都不投，等下一轮重摇"是完全免费的。
+                        // 花超的部分由 SpendComposure 自动溢出成伤势；击穿在这儿就倒下的，
+                        // 对方规则一条都不跑（OpponentRules 顶部的 pending 检查）。
+                        var report = ResolveWithReport(() =>
+                        {
+                            if (_gameState.HasPendingHospitalization)
+                                return;
+                            int injuryBefore = _gameState.Team.Injury.Severity;
+                            int composureBefore = _gameState.Team.FindActor("player")?.Composure ?? 0;
+                            _gameState.Team.SpendComposure("player", EncounterTurnComposureCost);
+                            int composureDelta = (_gameState.Team.FindActor("player")?.Composure ?? 0) - composureBefore;
+                            int injuryDelta = _gameState.HasPendingHospitalization
+                                ? Injury.MaxSeverity - injuryBefore
+                                : _gameState.Team.Injury.Severity - injuryBefore;
+                            _gameState.CurrentActionReport!.AddEffect(ActionEffectKind.Composure, "冷静", composureDelta,
+                                composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
+                            _gameState.CurrentActionReport!.AddEffect(ActionEffectKind.Injury, "伤势", injuryDelta,
+                                injuryDelta > 0 ? ActionEffectTone.Negative : ActionEffectTone.Positive);
+                            if (injuryDelta > 0)
+                                _gameState.CurrentActionReport!.AddSupplement(
+                                    "冷静击穿：你的手在抖，身体先一步承受了代价。");
+                        });
+                        RebuildRenderTree();
+                        _roundTransitionPhase = RoundTransitionPhase.OpponentRules;
+                        if (HasVisibleResult(report))
+                            return CommitRoundFrame(RoundTransitionPhase.TimeTax, report);
+                        continue;
+                    }
+
                     case RoundTransitionPhase.OpponentRules:
                     {
                         if (RoundTransitionLeftEncounter())
@@ -1111,35 +1138,15 @@ namespace SSNoir.Core
                     {
                         if (RoundTransitionLeftEncounter())
                             return FinishRoundTransition();
+                        // 回合末的收尾：帮手只待这一回合；击穿/倒下在这儿送医。
                         var report = ResolveWithReport(() =>
                         {
-                            bool hospitalizationWasPending = _gameState.HasPendingHospitalization;
-                            int injuryBefore = _gameState.Team.Injury.Severity;
-                            int composureBefore = _gameState.Team.FindActor("player")?.Composure ?? 0;
-                            if (!hospitalizationWasPending)
-                                _gameState.Team.SpendComposure("player", EncounterTurnComposureCost);
-                            int composureDelta = hospitalizationWasPending ? 0
-                                : (_gameState.Team.FindActor("player")?.Composure ?? 0) - composureBefore;
-                            int injuryDelta = hospitalizationWasPending ? 0
-                                : _gameState.HasPendingHospitalization
-                                    ? Injury.MaxSeverity - injuryBefore
-                                    : _gameState.Team.Injury.Severity - injuryBefore;
-                            reportEffect(ActionEffectKind.Composure, "冷静", composureDelta,
-                                composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
-                            reportEffect(ActionEffectKind.Injury, "伤势", injuryDelta,
-                                injuryDelta > 0 ? ActionEffectTone.Negative : ActionEffectTone.Positive);
-                            if (injuryDelta > 0)
-                                _gameState.CurrentActionReport!.AddSupplement(
-                                    "冷静击穿：你的手在抖，身体先一步承受了代价。");
                             foreach (var name in _gameState.Team.DismissTemporaryCompanions())
                                 _gameState.CurrentActionReport!.AddSupplement($"{name}走了。");
                             if (_gameState.HasPendingHospitalization)
                                 ResolvePendingHospitalization(
                                     _gameState.CurrentActionReport!, _roundTransitionInterpreter!,
                                     advanceWorldTurnRules: true);
-
-                            void reportEffect(ActionEffectKind kind, string label, int delta, ActionEffectTone tone)
-                                => _gameState.CurrentActionReport!.AddEffect(kind, label, delta, tone);
                         });
                         RebuildRenderTree();
                         _roundTransitionPhase = RoundTransitionLeftEncounter()
@@ -1177,7 +1184,7 @@ namespace SSNoir.Core
                                 $"auto-action!: '{pending.Name}' 的效果里不能排阻塞剧情步骤；要说话用 play-banter!。");
                         var frameReport = new ActionReport { Type = ActionType.Instant };
                         frameReport.BlockingStorySteps.Add(BlockingStoryStep.ForResolvedAutoAction(
-                            pending.Name, pending.Text, pending.AnchorName, slots, autoReport));
+                            pending.Name, pending.Text, pending.AnchorName, pending.Prelude, slots, autoReport));
                         RebuildRenderTree();
                         return CommitRoundFrame(RoundTransitionPhase.ForcedAction, frameReport);
                     }

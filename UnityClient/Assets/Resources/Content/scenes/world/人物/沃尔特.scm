@@ -12,6 +12,20 @@
 ;;
 ;; 保险公司不再是地图上的地点：它从头到尾只有一张卡，一栋楼配一张卡就是它单调的根源。
 ;; 他的一切都在酒店大堂发生。
+;;
+;; ── 裙带 ──
+;; 外勤做得越多，他越把你当自己人；他把你当自己人，钱就会从别的名目流到你手里。
+;; 这条线是上城的「关系掩盖能力」：外勤卡本身一个字不动——骰子、三档、钱都照旧——
+;; 好处全是**结算之后**另起的一段：一句他的话，然后一笔别的名目的钱。玩家看得出
+;; 那笔钱不是干活挣的，是关系给的。
+;;
+;; 推进不靠日子，靠一个玩家看不见的交情数：每趟外勤都算，办得好算得多。
+;;   0 用得着你   外勤照常
+;;   1 报销费     办砸了也有钱：他签字，公司报销你的「差旅」
+;;   2 顾问费     办好了另有一笔「外部顾问费」，他自己抽一份
+;;   3 项目       签了协议之后，趟趟都有「项目分配」，怎么骰都一样——能力已经不重要了
+;; 阶段 3 要玩家亲手签：一张单独的入口卡，不签就停在 2，他不催。
+;; 签了之后你们是利益共同体，他的麻烦就是你的麻烦——那些事留给后面长（见 'accomplice?）。
 (define walter
   (let ()
     ;; 0 没谈上 / 1 晚宴谈成，等他找你 / 2 待核赔 / 3 有往来
@@ -24,6 +38,17 @@
         "翻两天账房的记录，或者拿一份情报跟他换。"))
     (define identity "保险公司的理赔调查员")
     (define journal (make-journal))
+    ;; 裙带：交情是隐性的，不画钟；阶段是它的可见形状。
+    (define 交情 0)
+    (define 裙带 0)                ; 0 用得着你 / 1 报销费 / 2 顾问费 / 3 项目
+    (define 报销费 12)
+    (define 顾问费 15)
+    (define 顾问费-他的份 5)
+    (define 项目费 20)
+    (define 项目费-他的份 8)
+    (define 门槛-报销 4)
+    (define 门槛-顾问 10)
+    (define 门槛-项目 16)
     (define 等几天 2)
 
     (define (找你的日子) (+ met-day 等几天))
@@ -129,27 +154,144 @@
     ;; ── 外勤：核赔之后的稳定活 ──────────────────────
     ;; 报酬夹在码头搬运和「替客人解围」之间：比码头高一档，但不是上城的价。
     ;; 坐实那条失手扣冷静；放水那条活轻，失手只是白跑。
+    ;; 三档 outcome 里只有这份活本身；裙带的那一段在 (裙带-之后! 档) 里另起。
     (define (node-fieldwork)
       (if (equal? claim-result "坐实")
           (工作 "替沃尔特跑外勤" '低 'sharpness
-            (outcome (lambda () (add-item! "金钱" 30)))
-            (outcome (lambda () (add-item! "金钱" 20)))
-            (outcome (lambda () (spend-composure! 1)))
+            (outcome (lambda () (add-item! "金钱" 30) (裙带-之后! '好)))
+            (outcome (lambda () (add-item! "金钱" 20) (裙带-之后! '中)))
+            (outcome (lambda () (spend-composure! 1) (裙带-之后! '坏)))
             "他派给你的都是表格太干净的那种"
             :anchor "格兰德酒店-大厅")
           (工作 "替沃尔特跑外勤" '低 'sharpness
-            (outcome (lambda () (add-item! "金钱" 22)))
-            (outcome (lambda () (add-item! "金钱" 15)))
-            (outcome (lambda () #f))
+            (outcome (lambda () (add-item! "金钱" 22) (裙带-之后! '好)))
+            (outcome (lambda () (add-item! "金钱" 15) (裙带-之后! '中)))
+            (outcome (lambda () (裙带-之后! '坏)))
             "他派给你的都是不会出事的那种"
             :anchor "格兰德酒店-大厅")))
+
+    ;; ── 裙带 ────────────────────────────────────────
+    (define (放水?) (equal? claim-result "放水"))
+
+    ;; 过阶只在外勤结算之后发生，且一次只过一阶：阶段 3 不在这里，要玩家签。
+    (define (升到报销费!)
+      (set! 裙带 1)
+      (journal 'add! "沃尔特给了你一张空白的报销单。外勤办砸了，钱也照样有。")
+      (play-dialogue!
+        (line "世界" "他把一张印着公司抬头的单子推过来。金额那一栏是空的。")
+        (line "沃尔特" "差旅报销。外勤总有开销，公司不看细目，只看我的签字。")
+        (line "尼尔" "我今天没花什么。")
+        (line "沃尔特" (if (放水?)
+                           "你知道什么该写、什么不该写。这一栏也一样。"
+                           "那就写你该花的。办事的人不该自己贴钱。"))
+        (line "沃尔特" "填好交给前台就行。别写太整。")))
+
+    (define (升到顾问费!)
+      (set! 裙带 2)
+      (journal 'add! "公司的调查预算里多了一个「外部顾问」。名字是你的，签字是他的。")
+      (play-dialogue!
+        (line "世界" "他这次没推单子，只把一张名片翻过来，背面写着一个数字。")
+        (line "沃尔特" "公司每季有一笔调查预算，批给外部顾问。我有权批。")
+        (line "尼尔" "顾问做什么？")
+        (line "沃尔特" "你已经在做了。区别是从今天起它有个名目。")
+        (line "尼尔" "你自己呢？")
+        (line "沃尔特" (if (放水?)
+                           "批的人当然有一份。你不会把这句话写进报告的。"
+                           "批的人当然有一份。你办事我放心，这话我说过。"))
+        (line "沃尔特" "我们这一行，钱不是挣的，是分的。")))
+
+    (define (签协议!)
+      (set! 裙带 3)
+      (journal 'add! "你在「外部调查顾问服务协议」上签了字。从此每一趟外勤都是项目。")
+      (play-dialogue!
+        (line "世界" "三页纸。第三页最下面有一条空线。")
+        (line "沃尔特" "外部调查顾问服务协议。你不用读，我读过了。")
+        (line "尼尔" "项目是什么？")
+        (line "沃尔特" "公司要查的案子。哪些派给你，我来分配。")
+        (line "沃尔特" "你会发现，分配比查案重要得多。")
+        (line "世界" "他把笔递过来。笔很沉。")
+        (line "沃尔特" "签了以后，我的事就是你的事。反过来也一样。")))
+
+    (define (记交情! grade)
+      (set! 交情 (+ 交情 (if (equal? grade '好) 2 1)))
+      (cond
+        ((and (= 裙带 0) (>= 交情 门槛-报销)) (升到报销费!) #t)
+        ((and (= 裙带 1) (>= 交情 门槛-顾问)) (升到顾问费!) #t)
+        (else #f)))
+
+    ;; 别的名目：每一笔都单独进账，引擎自动行会把它们和外勤本身的钱分开列出来。
+    (define (报销!)
+      (add-item! "金钱" 报销费)
+      (result-supplement! "名目：差旅报销")
+      (play-banter! (line "沃尔特" "单子我签了。事情办没办成，公司不问。")))
+
+    (define (顾问费!)
+      (add-item! "金钱" 顾问费)
+      (remove-item! "金钱" 顾问费-他的份)
+      (result-supplement! "名目：外部顾问费；沃尔特的份已扣")
+      (play-banter! (line "沃尔特" "顾问费到了。我的那份我自己拿了。")))
+
+    (define (项目费!)
+      (add-item! "金钱" 项目费)
+      (remove-item! "金钱" 项目费-他的份)
+      (result-supplement! "名目：项目分配；沃尔特的份已扣"))
+
+    (define (裙带-闲话! grade)
+      (if (random-choice (list #t #f))
+          (play-banter!
+            (line "沃尔特"
+              (cond
+                ((= 裙带 1) "报销单记得交。公司月底结。")
+                ((= 裙带 2) (if (equal? grade '好) "你办事，我批钱。挺好。" "顾问不用趟趟都对。"))
+                (else (if (equal? grade '坏) "项目的事，怎么写都是对的。" "下个项目已经在我桌上了。")))))
+          #f))
+
+    ;; 外勤结算之后另起的一段。先看今天有没有别的名目的钱，再记交情、看过不过阶。
+    ;; 过阶的对白会盖掉闲话，所以过了阶就不再说闲话。
+    (define (裙带-之后! grade)
+      (cond
+        ((= 裙带 0) #f)
+        ((= 裙带 1) (if (equal? grade '坏) (报销!) #f))
+        ((= 裙带 2)
+         (cond ((equal? grade '好) (顾问费!))
+               ((equal? grade '坏) (报销!))
+               (else #f)))
+        (else
+         (项目费!)
+         (if (equal? grade '坏) (报销!) #f)))
+      (if (记交情! grade) #f (if (> 裙带 0) (裙带-闲话! grade) #f)))
+
+    ;; 阶段 3 的门：单独一张入口卡，不吃骰，签了就回不去。
+    (define (node-sign)
+      (node "签沃尔特的协议"
+        :anchor "格兰德酒店-大厅"
+        :subtitle "外部调查顾问服务协议。他说你不用读"
+        :tags (list "不可撤销")
+        :resolve (instant (outcome (lambda () (签协议!))))))
+
+    ;; 他本人是大堂里站着就看得见的人：banter 的气泡要落在他头上，节点名就得是「沃尔特」。
+    (define (node-walter)
+      (at-anchor "格兰德酒店-大厅"
+       (note-node "沃尔特" "沃尔特"
+        (cond
+          ((= 裙带 0) "靠窗的位子。他面前摊着表格，抬头看你的时候先看表。")
+          ((= 裙带 1) "靠窗的位子。他面前多了一叠公司抬头的空白单子。")
+          ((= 裙带 2) "靠窗的位子。侍者不用他叫就把咖啡续上了。")
+          (else "靠窗的位子。他看你的时候不再看表了。")))))
+
+    (define (裙带-nodes)
+      (append
+        (list (node-walter))
+        (if (and (= 裙带 2) (>= 交情 门槛-项目))
+            (list (node-sign))
+            '())))
 
     (define (nodes-at location)
       (cond
         ((equal? location "格兰德酒店")
          (cond
            ((= stage 2) (list (node-claim)))
-           ((= stage 3) (list (node-fieldwork)))
+           ((= stage 3) (append (list (node-fieldwork)) (裙带-nodes)))
            (else '())))
         ((equal? location "码头")
          (manifest-nodes))
@@ -174,10 +316,20 @@
                  :steps (steps)
                  :log (journal 'render-data))))
         ((= stage 3)
-         (list (dossier "核赔" :kind '人物 :status '了结
-                 :now "" :where ""
-                 :steps (steps)
-                 :log (journal 'render-data))))
+         (append
+           (list (dossier "核赔" :kind '人物 :status '了结
+                   :now "" :where ""
+                   :steps (steps)
+                   :log (journal 'render-data)))
+           (if (>= 裙带 1)
+               (list (dossier "沃尔特的账" :kind '人物 :status '进行中
+                       :now ""
+                       :where "格兰德酒店"
+                       :steps (list (step "他签字给你报销" (>= 裙带 1))
+                                    (step "你成了公司的外部顾问" (>= 裙带 2))
+                                    (step "签下协议" (>= 裙带 3)))
+                       :log (journal 'render-data)))
+               '())))
         (else '())))
 
     (lambda args
@@ -190,6 +342,8 @@
           ((equal? msg 'known?) (>= stage 1))
           ((equal? msg 'can-arrange-berth?) (= stage 3))
           ((equal? msg 'claim-result) claim-result)
+          ;; 签了协议：利益共同体。后面长出来的麻烦读这个。
+          ((equal? msg 'accomplice?) (= 裙带 3))
            ;; 调试台 / 试跑：跳过晚宴、大堂与找舱单，直接站到核赔门口进场。
            ((equal? msg 'debug-enter!)
             (if (= stage 0) (begin (set! stage 1) (set! met-day world-day)) #f)
@@ -202,6 +356,8 @@
                   (list "manifest?" (if manifest? 1 0))
                   (list "manifest-progress" (manifest-clk 'save))
                  (list "claim-result" claim-result)
+                 (list "交情" 交情)
+                 (list "裙带" 裙带)
                  (list "journal" (journal 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
@@ -210,5 +366,9 @@
               (set! manifest? (= (assoc-get data "manifest?" 0) 1))
               (manifest-clk 'load! (assoc-get data "manifest-progress" 0))
              (set! claim-result (assoc-get data "claim-result" "无"))
+             (set! 交情 (assoc-get data "交情" 0))
+             (set! 裙带 (assoc-get data "裙带" 0))
+             (if (member? 裙带 (list 0 1 2 3)) #t (error "沃尔特存档错误：裙带阶段非法"))
+             (if (and (>= 裙带 1) (< 交情 门槛-报销)) (error "沃尔特存档错误：交情够不上阶段") #t)
              (journal 'load! (assoc-get data "journal" '()))))
           (else #f))))))

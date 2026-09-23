@@ -52,7 +52,7 @@
       (spotlight! "老街暴徒袭击警方"
         "你没去。警察在酒馆门口带走一个年轻人，有人扔了东西。第二天报纸上是那张照片。"))
 
-    (define (on-day-end!)
+    (define (on-day-start!)
       (cond
         ((and (equal? 状态 "未开始")
               (equal? (第二章 'phase) "A")
@@ -163,7 +163,7 @@
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'arrivals-at) '())
           ((equal? msg 'dossier) (dossier-entry))
-          ((equal? msg 'on-day-end!) (on-day-end!))
+          ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'state) 状态)
           ((equal? msg 'save) (list (list "state" 状态) (list "journal" (journal 'save))))
           ((equal? msg 'load!)

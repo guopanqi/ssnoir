@@ -155,7 +155,7 @@
              (list (培训动作 "陪他核对步骤" "逐行检查模拟操作" 'knowledge)
                    (培训动作 "让他按习惯做" "先做对，再找系统里的对应项" 'social)))))))
 
-    (define (on-day-end!)
+    (define (on-day-start!)
       (if (and (phase-b?) (equal? 试运行状态 "未开放"))
           (begin
             (set! 试运行状态 "待进行")
@@ -239,7 +239,7 @@
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'dossier) (dossier-entry))
-          ((equal? msg 'on-day-end!) (on-day-end!))
+          ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'close!) (close!))
            ((equal? msg 'has-access?) (and 身份已交代? (核心?)))
            ((equal? msg 'workshop-vacated?) (vacated?))

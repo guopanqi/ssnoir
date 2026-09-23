@@ -45,7 +45,7 @@
           (set! 状态 "已公布")
           (error "机器进入老街：只能在 Phase B 开始时公布")))
 
-    (define (on-day-end!)
+    (define (on-day-start!)
       (cond
         ((and (已公布?) (>= world-day (进场日)))
          (set! 状态 "今天")
@@ -195,7 +195,7 @@
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'arrivals-at) '())
           ((equal? msg 'dossier) '())
-          ((equal? msg 'on-day-end!) (on-day-end!))
+          ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'announce!) (公布!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'state) 状态)

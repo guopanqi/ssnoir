@@ -95,6 +95,14 @@ namespace SSNoir.IMGUI
         /// </summary>
         private static float Layout(Rect rect, GameNode node, bool draw, float pulse, bool topRule = true)
         {
+            // 标注上的钟按宿主记脉冲（见 ClockPulse.BeginHost）。
+            ClockPulse.BeginHost(node.Name);
+            try { return LayoutInner(rect, node, draw, pulse, topRule); }
+            finally { ClockPulse.EndHost(); }
+        }
+
+        private static float LayoutInner(Rect rect, GameNode node, bool draw, float pulse, bool topRule)
+        {
             var resolve = node.Resolve;
             if (resolve == null) return 0f;
 

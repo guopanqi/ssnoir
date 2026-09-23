@@ -143,6 +143,14 @@ Clock 的叶节点用 `note-node`（见下文「标注不是卡」），不要�
 
 ## 二、引擎背着你做的事
 
+### 世界回合有结束与开始两侧
+
+`define-turn-rule` 属于旧日结束：期限减少、房租结算、未处理事件到期、临时状态清理写在这里。
+`define-turn-start-rule` 属于新日开始：早报、电话、来信，以及“今天开始”的事件写在这里。
+引擎会先结算日终，再发放新骰与每日额度；睡眠黑幕亮起以后，才播放 turn-start 产生的
+`spotlight!` / `play-dialogue!`。不要把“今早发生了什么”写进 `define-turn-rule`，否则事件语义会
+落在睡前。交锋不执行 `define-turn-start-rule`；交锋回应继续使用 `define-opponent-rule`。
+
 ### 效果条目是自动生成的
 
 动作 lambda 里对库存、伤势、冷静、关系、成长的**实际**修改，会按执行顺序写进 `ActionReport`，

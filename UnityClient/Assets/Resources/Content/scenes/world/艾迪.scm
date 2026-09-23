@@ -63,6 +63,7 @@
     (define hand-bad? #f)
     (define way-out? #f)          ; 第二章：他手上还有没有另一条路
     (define crushed? #f)          ; 第二章高潮：另一只手也压在链条底下了
+    (define shared-drink? #f)     ; 事故后，尼尔有没有在酒馆请他喝过一杯
 
     ;; 这根钟管的是**你还能押多大**，不管艾迪那只手，也不管场子开几天。
     ;; 它以前的去处是决定手废不废，那让"点头还是摇头"的后果取决于你前几晚
@@ -691,6 +692,30 @@
             "在货堆那头搬箱子。右手包着，包得很厚，箱子架在左肩上。他不往这边看。"
             "在货堆那头搬箱子。右手包着，包得不厚。他不往这边看。"))))
 
+    ;; 人物结局在酒馆里留下的投影。它不是一条救济任务：玩家只能请一杯，
+    ;; 和他坐一会儿。不吃骰，免得一次陪伴又变成当晚必须排进计划的工作。
+    (define (node-share-drink-after-crush)
+      (node "请艾迪喝一杯"
+        :anchor "老街酒馆"
+        :subtitle "陪他坐一会儿"
+        :requires (list (req-item "金钱" 15))
+        :resolve (instant
+          (outcome (lambda ()
+              (set! shared-drink? #t)
+              (restore-actor-composure! 'player 1)
+              (play-dialogue!
+                (line "世界" "露丝把酒放在艾迪面前。他看了很久。")
+                (line "艾迪" "喝完了就得再买一杯。")
+                (line "尼尔" "这一杯算我的。")
+                (line "艾迪" "那我慢点喝。")))))))
+
+    (define (node-eddie-after-crush)
+      (if shared-drink?
+          (at-anchor "老街酒馆"
+            (note-node "艾迪·酒馆" "艾迪"
+              "坐在靠墙那桌，杯里的酒一直没有喝完。"))
+          (node-share-drink-after-crush)))
+
     ;; ── 日终 ────────────────────────────────────────
     ;; 日终规则按注册的倒序跑，「世界日历推进」是最后注册的，所以它先走：
     ;; 这条规则跑的时候 world-day 已经是第二天了，下面一律按新的一天算。
@@ -781,6 +806,7 @@
          (cond
            ((alley-live?) (list (node-alley)))
            ((= stage 1) (list (ring-node)))
+           (crushed? (list (node-eddie-after-crush)))
            (else '())))
         ((equal? location "码头")
          ;; stage 5 是这条线断掉的那一支，那时候玩家从没认识过他，码头上也就没有他。
@@ -817,11 +843,13 @@
            (set! bet-amount 0)
            (set! awaiting-signal? #f)
            (set! way-out? #f)
-           (set! crushed? #f))
+           (set! crushed? #f)
+           (set! shared-drink? #f))
           ((equal? msg 'save)
            (list (list "stage" stage)
                  (list "way-out" (if way-out? 1 0))
                  (list "crushed" (if crushed? 1 0))
+                 (list "shared-drink" (if shared-drink? 1 0))
                  (list "journal" (journal 'save))
                  (list "alley-day" alley-day)
                  (list "next-fight-day" next-fight-day)
@@ -845,6 +873,10 @@
              (set! stage (assoc-get data "stage" 0))
              (set! way-out? (= (assoc-get data "way-out" 0) 1))
              (set! crushed? (= (assoc-get data "crushed" 0) 1))
+             (set! shared-drink? (= (assoc-get data "shared-drink" 0) 1))
+             (if (and shared-drink? (not crushed?))
+                 (error "艾迪存档错误：机器事故未发生却已在酒馆请过酒")
+                 #t)
              (journal 'load! (assoc-get data "journal" '()))
              (set! alley-day (assoc-get data "alley-day" 0))
              (set! next-fight-day (assoc-get data "next-fight-day" 0))

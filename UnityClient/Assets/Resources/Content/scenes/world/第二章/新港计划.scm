@@ -31,7 +31,7 @@
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'arrivals-at) '())
           ((equal? msg 'dossier) '())
-          ((equal? msg 'on-day-end!) #f)
+          ((equal? msg 'on-day-start!) #f)
           ((equal? msg 'save) '())
           ((equal? msg 'load!) #t)
           (else (error "新港计划：收到未知消息")))))))

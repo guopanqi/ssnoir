@@ -108,7 +108,9 @@ namespace SSNoir.IMGUI
             if (kind == CardKind.Location || kind == CardKind.Common)
             {
                 ContainerNodeDrawer.DrawFloating(rect, node, kind == CardKind.Location, isHovered && !disabled, disabled, clocksBottomY);
+                ClockPulse.BeginHost(node.Name);
                 DrawClockBadges(rect, clocks);
+                ClockPulse.EndHost();
                 DrawRestBlockerMarker(rect, isRestBlockerTarget, containsRestBlockerTarget);
                 if (!disabled && ui.WasTapped(rect))
                 {
@@ -129,7 +131,9 @@ namespace SSNoir.IMGUI
 
             // 「正在发生」的金光：执行中，或判定动画正挂在这张卡下面（附件由渲染器另画）。
             DrawCardFrame(rect, isHovered, isFocused, disabled, isExecuting || isHappening);
+            ClockPulse.BeginHost(node.Name);
             DrawClockBadges(rect, clocks);
+            ClockPulse.EndHost();
 
             if (isCharacter)
             {
@@ -380,6 +384,11 @@ namespace SSNoir.IMGUI
             // 值一变，整枚徽章描边亮成金、外面再浮一圈光，格子/表盘再一格一格地换（见 ClockPulse）。
             ClockPulse.Note(clock);
             float glow = ClockPulse.Glow(clock);
+            // 值一变徽章整枚弹一下（绕自己中心放大再落回），先抓住眼睛，格子再一格一格换。
+            float pop = ClockPulse.Pop(clock);
+            Matrix4x4 savedMatrix = GUI.matrix;
+            if (pop > 0f)
+                GUIUtility.ScaleAroundPivot(Vector2.one * (1f + pop * 0.16f), rect.center);
             Color activeColor = Color.Lerp(IMGUIStyles.Gold, Color.white, glow * 0.35f);
             Color inactiveColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
             Color outline = Color.Lerp(
@@ -433,8 +442,12 @@ namespace SSNoir.IMGUI
                 // 环和数字必须共用同一个整数 Rect，否则半像素的差在 24px 上就看得出来。
                 var dialRect = UIScale.PixelSnap(
                     new Rect(valueRect.xMax - diameter, rect.center.y - diameter * 0.5f, diameter, diameter));
+                var track = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.22f);
+                // 刚退掉的那一扇先画成白的余像再淡掉：看得见是哪一块走了，不只是中心的数字换了。
+                if (ClockPulse.TryGetFadingLoss(clock, out int previous, out float ghost))
+                    ShapeDrawer.DrawDial(dialRect, previous, clock.Max, new Color(1f, 1f, 1f, ghost), track);
                 ShapeDrawer.DrawDial(dialRect, clock.Current, clock.Max, activeColor,
-                    new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.22f));
+                    ghost > 0f ? Color.clear : track);
 
                 var centerStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
@@ -483,8 +496,10 @@ namespace SSNoir.IMGUI
                 };
                 IMGUIStyles.DrawLabel(valueRect, $"{clock.Current}/{clock.Max}", valueStyle);
             }
+        
+            if (pop > 0f)
+                GUI.matrix = savedMatrix;
         }
-
         private static float MinGaugeWidth(int max)
             => Mathf.Max(0f, max * MinSegmentSize + Mathf.Max(0, max - 1) * MinSegmentSpacing);
 

@@ -16,6 +16,7 @@ namespace SSNoir.IMGUI
             // 普通 play-banter! 锚定失败时，画面会降级为场外卡并发一次内容警告。
             // 状态跟着气泡走，避免 OnGUI 每帧重复推送同一条警告。
             public bool RemoteFallbackWarningIssued;
+            public bool PreferCardAnchor;   // 对方回合的节拍：落在说话人的卡上，不找世界锚点
             public float Remaining;   // 剩余可见时间
         }
 
@@ -45,8 +46,12 @@ namespace SSNoir.IMGUI
             _queue.Enqueue(sequence);
         }
 
-        /// <summary>同一因果批里的轻量 Beat 同时冒泡；只供对方回合的并行表现使用。</summary>
-        public float ShowParallel(IReadOnlyList<DialogueLine> lines)
+        /// <summary>
+        /// 对方回合的节拍台词：不排队、立刻可见、落在说话人的卡上。同一拍里的几句一起冒出来。
+        /// 返回最长的一句要停多久；气泡本身会比这个多留一小段（OverlapSeconds），
+        /// 好让批快照落地时钟和冷静条的脉冲发生在气泡还挂着的时候——话和后果连在一起。
+        /// </summary>
+        public float ShowBeatLines(IReadOnlyList<DialogueLine> lines)
         {
             float longest = 0f;
             foreach (var line in lines)
@@ -59,6 +64,7 @@ namespace SSNoir.IMGUI
                 {
                     Line = line,
                     AllowsRemoteParticipants = false,
+                    PreferCardAnchor = true,
                     Remaining = dwell + OverlapSeconds,
                 });
             }

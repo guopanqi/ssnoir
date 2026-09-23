@@ -8,7 +8,6 @@ namespace SSNoir.Core
     // 动作表现固定在结局前,不可重排;剧情表现按 Scheme 调用顺序排队、逐个阻塞播放。
     public enum BlockingStoryStepKind
     {
-        Beat,        // 对方回应中的轻量可见节拍：锚点 + 一句话 + 已结算的效果
         Video,       // 视频过场：tag 认场景里的 CutsceneSequence（机位 + 视频）。昂贵，少用；
                      // 实时 3D 的场景演出是另一条通道，不走这里
         Motion,      // 场景演出：切到指定机位，播一件道具的实时动画（道具__状态 clip），播完回来。
@@ -32,21 +31,9 @@ namespace SSNoir.Core
         public SpotlightCard? Spotlight { get; init; }              // Kind == Spotlight
         public string PlaceName { get; init; } = string.Empty;      // Kind == EnterPlace
         public GameNode? AutoActionNode { get; init; }               // Kind == AutoAction
+        public DialogueSequence? AutoActionPrelude { get; init; }    // AutoAction：卡出现后、抓骰前的对白
         public List<SlottedResource> AutoActionSlots { get; } = new(); // Kind == AutoAction
-        public ActionReport? ResolvedReport { get; init; }           // Beat / AutoAction：引擎提交的结果
-        public string BeatAnchor { get; init; } = string.Empty;
-        public string BeatText { get; init; } = string.Empty;
-
-        public static BlockingStoryStep ForBeat(string anchor, string text, ActionReport report)
-            => string.IsNullOrWhiteSpace(anchor)
-                ? throw new ArgumentException("beat anchor cannot be empty", nameof(anchor))
-                : new BlockingStoryStep
-                {
-                    Kind = BlockingStoryStepKind.Beat,
-                    BeatAnchor = anchor,
-                    BeatText = text ?? string.Empty,
-                    ResolvedReport = report ?? throw new ArgumentNullException(nameof(report)),
-                };
+        public ActionReport? ResolvedReport { get; init; }           // AutoAction：引擎提交的结果
 
         public static BlockingStoryStep ForVideo(string tag)
             => new BlockingStoryStep { Kind = BlockingStoryStepKind.Video, VideoTag = tag };
@@ -68,7 +55,7 @@ namespace SSNoir.Core
                 : new BlockingStoryStep { Kind = BlockingStoryStepKind.EnterPlace, PlaceName = placeName };
 
         public static BlockingStoryStep ForResolvedAutoAction(
-            string name, string text, string? anchorName,
+            string name, string text, string? anchorName, DialogueSequence? prelude,
             IReadOnlyList<SlottedResource> slots, ActionReport report)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(text))
@@ -79,6 +66,7 @@ namespace SSNoir.Core
             var step = new BlockingStoryStep
             {
                 Kind = BlockingStoryStepKind.AutoAction,
+                AutoActionPrelude = prelude,
                 ResolvedReport = report ?? throw new ArgumentNullException(nameof(report)),
                 AutoActionNode = new GameNode
                 {

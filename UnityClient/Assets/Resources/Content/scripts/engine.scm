@@ -29,6 +29,10 @@
 (define :screen ':screen)
 (define :inner ':inner)
 (define :other ':other)
+;; 常客
+(define :window ':window)
+(define :stay ':stay)
+(define :beats ':beats)
 
 ;; Helper to extract keyword arguments from a list
 (define (get-kwarg kwargs key default)
@@ -130,14 +134,19 @@
 (define (refresh-encounter-dice!)
   (__refresh-encounter-dice!))
 
+;; AutoAction 的前置对白属于这张卡，不属于登记它的对方回应批次。
+;; 没有对白也必须显式写 (no-dialogue)，让内容作者明确决定这张卡直接抓骰。
+(define (auto-dialogue . lines) lines)
+(define (no-dialogue) '())
+
 ;; 回合边界上由场景发起的强制行动。demands 是 ((actor-id count) ...)。
 ;; 它不产生新的玩家骰槽；只在内容内部指定谁的时间被占用，并排入一张锁输入的自动行动卡。
 ;; 落点必须显式声明：自动行动卡是空间里的一张卡，没有"先放网格以后再说"——
 ;; 漏写锚点会静默掉进网格，而构建与校验都不会拦，只能在这里挡。
-(define (auto-action! name subtitle demands effect anchor)
+(define (auto-action! name subtitle demands prelude effect anchor)
   (if (not (string? anchor))
       (error "auto-action!: 必须显式声明落点锚点；自动行动卡不许掉进网格")
-      (__auto-action! name subtitle anchor demands effect)))
+      (__auto-action! name subtitle anchor demands prelude effect)))
 
 ;; 倒下协议。交锋不写新的送医路线，只声明这场在主角倒下时如何使用已有结算：
 ;;   (collapse-result 原有结果)  调用原有回调，按失败/既有收场推进
@@ -688,8 +697,30 @@
           (run-rules (cdr list-rules)))))
   (run-rules turn-rules))
 
+;; 世界新回合钩子。旧日的期限、租金和倒计时留在 define-turn-rule；只有翻页后玩家
+;; 才看见的事情（早报、电话、今天开始的事件）登记在这里。引擎在新骰与每日额度发放后
+;; 调用，并把产生的阻塞表现放到睡眠黑幕之后播放。交锋不执行这组规则。
+(define turn-start-rules '())
+
+(define (define-turn-start-rule name condition action)
+  (set! turn-start-rules (cons (list name condition action) turn-start-rules)))
+
+(define (on-turn-start)
+  (define (run-rules list-rules)
+    (if (or (null? list-rules) (hospitalization-pending?))
+        #t
+        (begin
+          (let ((rule (car list-rules)))
+            (let ((cond-fn (cadr rule))
+                  (act-fn (caddr rule)))
+              (if (cond-fn) (act-fn) #f)))
+          (run-rules (cdr list-rules)))))
+  (run-rules (reverse turn-start-rules)))
+
 ;; 交锋回应与世界日终是两套生命周期。每条 opponent rule 是一个因果批，按书写顺序执行；
-;; 后一条可以读取前一条提交后的状态。一条规则内部登记的 beat 属于同一批，不应互相依赖。
+;; 后一条可以读取前一条提交后的状态。一条规则就是玩家看见的一拍：里面改了哪些钟、谁说了话、
+;; 主角掉了多少，客户端自己从报告和渲染树里读出来（钟画在谁的卡上，谁就在动），
+;; 脚本不声明归属。
 (define opponent-rules '())
 (define opponent-rule-queue '())
 
@@ -711,10 +742,6 @@
             ((caddr rule))
             #f))))
 
-;; 一件玩家能够感知的对方行动。thunk 是唯一真相：其中的钟、冷静、伤势和 banter
-;; 由引擎捕获成纯展示步骤，作者不再重复填写 delta。
-(define (beat! anchor text thunk)
-  (__opponent-beat! anchor text thunk))
 
 ;; 由日期算出来的倒计时。它**不持有格数**：格数就是「到期日减今天」，
 ;; 所以永远不会和日历跑偏，读档也不必恢复它——属于上面说的第一类例外
@@ -812,6 +839,147 @@
         (else
          (error (string-append "make-clock：" label " 收到未知消息。可用消息："
                                clock-messages)))))))
+
+;; ── 世界回声 ──────────────────────────────────────────────
+;; 按世界阶段分桶的无名闲话。地点在一次结果里调 'try!：从当前阶段的桶里随机抽一条，
+;; 播完不放回；桶空了这个阶段就安静了。随机只决定先听见哪一条，不决定听见几条——
+;; 每条都会被听见一次，直到阶段换了、旧桶连同没抽到的一起收起。
+;;
+;;   (make-echo-pool stage-fn (list 键 回声 ...) ...)
+;;     stage-fn  无参，返回当前阶段的键；键用 equal? 比。
+;;     回声      无参 lambda：自己播（play-banter! 等）、自己结算效果。
+;;   (pool 'try!)      抽到并播了返回 #t，桶空或阶段没桶返回 #f
+;;   (pool 'save)      ((键 (已用序号 ...)) ...)
+;;   (pool 'load! x)   读档；序号越界报错
+(define (make-echo-pool stage-fn . buckets)
+  (if (procedure? stage-fn) #t (error "make-echo-pool: 第一个参数是返回阶段键的函数"))
+  (let ((used (map (lambda (b) (list (car b) '())) buckets)))
+    (define (bucket-echoes key)
+      (let loop ((bs buckets))
+        (cond ((null? bs) '())
+              ((equal? (car (car bs)) key) (cdr (car bs)))
+              (else (loop (cdr bs))))))
+    (define (used-of key) (assoc-get used key '()))
+    (define (mark-used! key i)
+      (set! used (map (lambda (u) (if (equal? (car u) key)
+                                      (list key (cons i (cadr u)))
+                                      u))
+                      used)))
+    (define (fresh-indices key)
+      (filter (lambda (i) (not (member? i (used-of key))))
+              (range 0 (length (bucket-echoes key)))))
+    (lambda (msg . args)
+      (cond
+        ((equal? msg 'try!)
+         (let ((key (stage-fn)))
+           (let ((fresh (fresh-indices key)))
+             (if (null? fresh)
+                 #f
+                 (let ((i (random-choice fresh)))
+                   (mark-used! key i)
+                   ((list-ref (bucket-echoes key) i))
+                   #t)))))
+        ((equal? msg 'save) used)
+        ((equal? msg 'load!)
+         (let ((data (car args)))
+           (set! used
+             (map (lambda (b)
+                    (let ((key (car b))
+                          (idx (assoc-get data (car b) '()))
+                          (n (length (cdr b))))
+                      (if (null? (filter (lambda (i) (or (< i 0) (>= i n))) idx))
+                          #t
+                          (error "make-echo-pool 存档错误：回声序号越界"))
+                      (list key idx)))
+                  buckets))))
+        (else (error "make-echo-pool：未知消息" msg))))))
+
+;; ── 常客 ────────────────────────────────────────────────
+;; 在某个窗口里可能出现在地点的人。随机只决定「这次去有没有碰上他来」；他对尼尔的
+;; 态度是拍数，只能被相遇单向推进，所以第 k 次见他永远是第 k 拍——两份存档里同一个人
+;; 的记忆一样。抽到过的人不放回：待完就走，以后不再来。
+;;
+;;   (make-regular 名 :window 谓词 :stay 天数 :beats (list (beat 表现 [效果]) ...))
+;;     :window  无参谓词，窗口开着才可能被抽到；默认永远开着
+;;     :stay    抽到后待几天（含当天），默认 1
+;;     :beats   按顺序播；beat 的表现是无参 lambda，效果可省
+;;   一天最多推一拍（按 全局 '世界日 判断），所以「待三天」= 最多三拍。
+;;   待够天数走人，没讲完的拍就散了——他不是任务，是这座城里的一个人。
+;;
+;;   (meet-regular! 名单 [到场骰面])
+;;     地点在一次结果里调：当场有人在 → 今天没见过就推一拍；
+;;     没人在 → 从「窗口开着且没抽过」的人里骰一次要不要来一个，来了当场见第一拍。
+;;     推了或来了返回 #t，否则 #f。名单顺序即作者想让玩家先认识谁。
+(define all-regulars '())
+
+(define (beat show . effect)
+  (if (procedure? show) #t (error "beat: 表现必须是无参函数"))
+  (list show (if (null? effect) #f (car effect))))
+
+(define (make-regular name . kwargs)
+  (let ((window (get-kwarg kwargs :window (lambda () #t)))
+        (stay (get-kwarg kwargs :stay 1))
+        (beats (get-kwarg kwargs :beats '()))
+        (stage 0) (days-left 0) (met-day 0) (drawn? #f))
+    (if (string? name) #t (error "make-regular: 名字必须是字符串"))
+    (if (and (number? stay) (> stay 0)) #t (error "make-regular: :stay 必须是正整数"))
+    (if (null? beats) (error (string-append "make-regular: " name " 没有一拍")) #t)
+    (define (today) (get-global '世界日))
+    (define (done?) (>= stage (length beats)))
+    (define self
+      (lambda (msg . args)
+        (cond
+          ((equal? msg 'name) name)
+          ((equal? msg 'stage) stage)
+          ((equal? msg 'present?) (> days-left 0))
+          ((equal? msg 'drawable?) (and (not drawn?) (window)))
+          ((equal? msg 'arrive!)
+           (set! drawn? #t)
+           (set! days-left stay))
+          ((equal? msg 'meet!)
+           (if (and (> days-left 0) (not (= met-day (today))) (not (done?)))
+               (let ((b (list-ref beats stage)))
+                 (set! met-day (today))
+                 (set! stage (+ stage 1))
+                 ((car b))
+                 (if (cadr b) ((cadr b)) #f)
+                 #t)
+               #f))
+          ((equal? msg 'new-day!)
+           (if (> days-left 0) (set! days-left (- days-left 1)) #f))
+          ((equal? msg 'save) (list stage days-left met-day drawn?))
+          ((equal? msg 'load!)
+           (let ((d (car args)))
+             (if (and (list? d) (= (length d) 4)
+                      (>= (car d) 0) (<= (car d) (length beats)))
+                 #t
+                 (error (string-append "make-regular 存档错误：" name)))
+             (set! stage (car d))
+             (set! days-left (cadr d))
+             (set! met-day (caddr d))
+             (set! drawn? (cadddr d))))
+          (else (error "make-regular：未知消息" msg)))))
+    (set! all-regulars (cons self all-regulars))
+    self))
+
+(define (meet-regular! regulars . roll)
+  (let ((present (filter (lambda (r) (r 'present?)) regulars)))
+    (if (not (null? present))
+        (let loop ((rs present))
+          (cond ((null? rs) #f)
+                (((car rs) 'meet!) #t)
+                (else (loop (cdr rs)))))
+        (let ((candidates (filter (lambda (r) (r 'drawable?)) regulars)))
+          (if (and (not (null? candidates))
+                   (random-choice (if (null? roll) (list #t #f) (car roll))))
+              (let ((r (random-choice candidates)))
+                (r 'arrive!)
+                (r 'meet!))
+              #f)))))
+
+(define-turn-start-rule "常客翻日"
+  (lambda () (not (null? all-regulars)))
+  (lambda () (map (lambda (r) (r 'new-day!)) all-regulars)))
 
 ;; --- New Team, Item, and Composure wrappers ---
 (define (item-count item-id)

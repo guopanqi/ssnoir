@@ -16,7 +16,7 @@ namespace SSNoir.IMGUI
 
         // 旁白说话人：内容里用「世界」写不属于任何人的叙述句。它没有身体，也就没有锚点，
         // 画成一张不署名的叙述纸条贴在底部，而不是当作一个解析不到的角色报错。
-        private const string NarratorSpeaker = "世界";
+        public const string NarratorSpeaker = "世界";
         private const float NarrationWidth = 680f;
         // 底栏空地窄到这个数以下，就不硬塞了——一行放不下十来个字，折行比抬上去还难读。
         private const float MinGapWidth = 300f;
@@ -53,7 +53,8 @@ namespace SSNoir.IMGUI
                     anchors,
                     gameManager,
                     bubble.AllowsRemoteParticipants,
-                    fallsBackToRemoteParticipant: true);
+                    fallsBackToRemoteParticipant: true,
+                    preferCardAnchor: bubble.PreferCardAnchor);
                 if (usedRemoteFallback && !bubble.RemoteFallbackWarningIssued)
                 {
                     reportRemoteFallback(bubble.Line.Speaker);
@@ -68,7 +69,8 @@ namespace SSNoir.IMGUI
             DialogueAnchors anchors,
             SSNoirGameManager gameManager,
             bool allowsRemoteParticipant = false,
-            bool fallsBackToRemoteParticipant = false)
+            bool fallsBackToRemoteParticipant = false,
+            bool preferCardAnchor = false)
         {
             if (speaker == NarratorSpeaker)
             {
@@ -77,7 +79,7 @@ namespace SSNoir.IMGUI
             }
 
             bool usedRemoteFallback = false;
-            if (!anchors.TryResolve(speaker, out var anchor))
+            if (!anchors.TryResolve(speaker, preferCardAnchor, out var anchor))
             {
                 if (!allowsRemoteParticipant && !fallsBackToRemoteParticipant)
                 {

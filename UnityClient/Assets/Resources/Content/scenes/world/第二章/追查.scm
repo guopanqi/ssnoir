@@ -81,7 +81,7 @@
         (消息节点 "留给酒店" "让礼宾台只听到芝加哥版本" 酒店消息 'sharpness)))
 
     ;; 等待只由世界日推动。两天倒数归零后仍不自动揭晓，玩家要亲手打开早报。
-    (define (on-day-end!)
+    (define (on-day-start!)
       (if (equal? 状态 "等报纸")
           (begin
             (等早报 'advance! -1)
@@ -94,7 +94,7 @@
                 #f))
           #f))
 
-    ;; 早报塞在门缝下面（见 on-day-end! 的 journal 与 spotlight），所以落在家里的门口锚点。
+    ;; 早报在新日开始时塞进门缝（见 on-day-start!），所以落在家里的门口锚点。
     ;; 同链其他卡都有锚（剧院-后台 / 礼宾台 / 后巷 / 编辑部 / 报社），这张漏了就会掉进网格。
     (define (看报节点)
       (anchored-instant-action "看早报" "门口"
@@ -269,7 +269,7 @@
           ((equal? msg 'nodes-at) (节点 (cadr args)))
           ((equal? msg 'arrivals-at) '())
           ((equal? msg 'dossier) (dossier-entries))
-          ((equal? msg 'on-day-end!) (on-day-end!))
+          ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'open!) (开卷!))
           ((equal? msg 'close!) (封卷!))
           ((equal? msg 'pressure) 0)

@@ -614,7 +614,7 @@ namespace SSNoir.Scripting
 
         // 把 Scheme 端 (list (line speaker text [voice] [dwell]) ...) 解析成 DialogueSequence。
         // 内容/配置错误一律直接抛出,尽早暴露。
-        private static DialogueSequence ParseDialogueSequence(
+        internal static DialogueSequence ParseDialogueSequence(
             IList<object> args,
             string who,
             bool allowsRemoteParticipants = false)

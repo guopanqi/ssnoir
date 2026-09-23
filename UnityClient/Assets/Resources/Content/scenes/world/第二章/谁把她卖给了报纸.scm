@@ -31,7 +31,7 @@
           (rest-block! "第二章/报纸" "夜莺让人来叫你" "剧院" "见夜莺")
           #f))
 
-    (define (on-day-end!)
+    (define (on-day-start!)
       (if (and (equal? 状态 "未开始") (第二章 'started?)
                (>= world-day (开门日)))
           (begin
@@ -72,7 +72,7 @@
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'arrivals-at) '())
           ((equal? msg 'dossier) '())
-          ((equal? msg 'on-day-end!) (on-day-end!))
+          ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'state) 状态)
           ;; 文章已经出街——追查那条线从这一刻起才有东西可查。

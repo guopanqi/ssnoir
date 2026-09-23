@@ -29,7 +29,6 @@ namespace SSNoir
     public class SSNoirGameManager : MonoBehaviour
     {
         private const string ReduceMotionSettingKey = "reduceMotion";
-        private const string OpponentTurnSequentialSettingKey = "opponentTurnSequential";
         private const string WorldRootNodeName = "世界";
         // Font files follow: <family>-Regular.ttf / <family>-SemiBold.ttf.
         private const string FontFamily = "SourceHanSerifCN";
@@ -66,6 +65,7 @@ namespace SSNoir
         private SelectedResource? _selectedResource;
         // 休息键的两道闸：结算中（硬锁）与结算后的短冷却（软锁，见 CanRest）。
         private bool _isEndingTurn;
+        private RoundTransitionPhase? _activeRoundTransitionPhase;
         private bool _stateTainted;
         private float _restCooldownUntil;
         private const float RestCooldownSeconds = 2f;
@@ -152,8 +152,39 @@ namespace SSNoir
         private VitalPulseState? _injuryPulse;
         private readonly Dictionary<string, int> _lastComposure =
             new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, float> _latestVitalLossAt =
+            new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
         private int _lastInjurySeverity;
         private bool _vitalPulseBaselineReady;
+
+        // 变化那一下整条读数的"弹"（0→1→0，给调用方缩放用）。眼睛先被条的动吸住，
+        // 再去看格子——格子的脉冲接着说掉了几格。不写数字。
+        private const float VitalPopDuration = 0.55f;
+
+        public float ComposurePop(string actorId)
+            => VitalPop(_composurePulses.TryGetValue(actorId, out var state) ? state : null);
+
+        public float InjuryPop() => VitalPop(_injuryPulse);
+
+        // 半身像只需要知道「刚才是否挨了一下」。具体怎样闪属于表现层，
+        // 这里保留真实状态变化发生的时刻，避免 HUD 再维护一份快照差分。
+        public float VitalLossAge(string actorId)
+        {
+            return _latestVitalLossAt.TryGetValue(actorId, out float startedAt)
+                ? Time.unscaledTime - startedAt
+                : float.PositiveInfinity;
+        }
+
+        private static float VitalPop(VitalPulseState? state)
+        {
+            if (state == null)
+                return 0f;
+            float t = Time.unscaledTime - state.StartTime;
+            if (t < 0f || t >= VitalPopDuration)
+                return 0f;
+            const float attack = 0.10f;
+            return t < attack ? t / attack : 1f - Mathf.Pow((t - attack) / (VitalPopDuration - attack), 0.7f);
+        }
 
         /// <summary>某人冷静条上第 cellIndex 格此刻的脉冲。</summary>
         public VitalPulse GetComposureCellPulse(string actorId, int cellIndex)
@@ -205,6 +236,9 @@ namespace SSNoir
                         Tone = loss ? VitalPulseTone.Loss : VitalPulseTone.Gain,
                     };
                     _composurePulses[actor.Id] = pulse;
+                    // 固定的回合时间税不是人物挨打；数值条照常变化，但半身像不演受击。
+                    if (loss && _activeRoundTransitionPhase != RoundTransitionPhase.TimeTax)
+                        _latestVitalLossAt[actor.Id] = now;
                     if (loss && string.Equals(actor.Id, "player", StringComparison.OrdinalIgnoreCase))
                         leadComposureQueueEnd = pulse.LastCellStartTime;
                 }
@@ -212,6 +246,8 @@ namespace SSNoir
                 if (incoming.InjurySeverity != _lastInjurySeverity)
                 {
                     bool worse = incoming.InjurySeverity > _lastInjurySeverity;
+                    if (worse)
+                        _latestVitalLossAt["player"] = now;
                     // 只有「主角冷静掉了、同时伤势涨了」才是击穿，才排接力；
                     // 枪伤那种直接见血的不等，它本来就不是从缓冲溢出来的。
                     bool relay = worse && !float.IsNegativeInfinity(leadComposureQueueEnd);
@@ -1022,6 +1058,7 @@ namespace SSNoir
                 string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
                 ActionReport report = _sceneManager.ExecuteAction(node, slots);
                 var postTurnSteps = DetachPostTurnBlockingSteps(report);
+                var turnStartReport = report.TurnStartReport;
                 _nodeSlots.Remove(node.Name);
                 _selectedResource = null;
                 bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
@@ -1054,10 +1091,18 @@ namespace SSNoir
                     };
                     StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () =>
                     {
-                        if (postTurnSteps.Count > 0)
-                            StartCoroutine(PlayPostTurnStepsAfterDiceSettle(postTurnSteps, () => done = true));
+                        Action finish = () =>
+                        {
+                            if (postTurnSteps.Count > 0)
+                                StartCoroutine(PlayPostTurnStepsAfterDiceSettle(postTurnSteps, () => done = true));
+                            else
+                                done = true;
+                        };
+                        // 这是醒来后的世界消息：必须等黑幕结束、新日快照已经可见，再出现。
+                        if (turnStartReport != null)
+                            _renderer.PlayPresentation(turnStartReport, string.Empty, finish);
                         else
-                            done = true;
+                            finish();
                     }));
                 });
             }
@@ -1524,7 +1569,6 @@ namespace SSNoir
             {
                 var path = filePath ?? SaveManager.DefaultSavePath;
                 _sceneManager.Settings[ReduceMotionSettingKey] = MotionSettings.ReduceMotion;
-                _sceneManager.Settings[OpponentTurnSequentialSettingKey] = OpponentTurnSettings.Sequential;
                 _sceneManager.SaveGame(path);
                 _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
             }
@@ -1559,17 +1603,6 @@ namespace SSNoir
                 {
                     MotionSettings.ReduceMotion = true;
                 }
-                if (_sceneManager.Settings.TryGetValue(OpponentTurnSequentialSettingKey, out object savedPacing))
-                {
-                    if (savedPacing is not bool sequential)
-                        throw new System.IO.InvalidDataException(
-                            $"Save setting '{OpponentTurnSequentialSettingKey}' must be a boolean.");
-                    OpponentTurnSettings.Sequential = sequential;
-                }
-                else
-                {
-                    OpponentTurnSettings.Sequential = false;
-                }
                 _stateTainted = false;
                 // OnSceneLoaded fires inside LoadGame → ResetSceneUiState → ResetUiState
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
@@ -1587,7 +1620,6 @@ namespace SSNoir
             ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
             MotionSettings.ReduceMotion = true;
-            OpponentTurnSettings.Sequential = false;
             _stateTainted = false;
         }
 
@@ -1608,6 +1640,7 @@ namespace SSNoir
             // 否则开局第一帧整条冷静会莫名其妙闪一下。
             _vitalPulseBaselineReady = false;
             _composurePulses.Clear();
+            _latestVitalLossAt.Clear();
             _injuryPulse = null;
             _lastComposure.Clear();
             _lastInjurySeverity = 0;
@@ -1806,6 +1839,19 @@ namespace SSNoir
         /// </summary>
         public bool CanRest => !_isEndingTurn && !IsInputLocked && Time.unscaledTime >= _restCooldownUntil;
 
+        /// <summary>
+        /// 当前正在演出的回合转换阶段。只给客户端标明“现在是谁在行动”，不参与规则结算。
+        /// </summary>
+        public RoundTransitionPhase? ActiveRoundTransitionPhase => _activeRoundTransitionPhase;
+
+        /// <summary>
+        /// 主动权不在玩家手里的那一段：对方回应 + 回合末的时间税。手牌区在这期间变暗——
+        /// 骰子还在，但不是你的时候。新骰落定之后主动权就回来了，即使还有强制行动要演。
+        /// </summary>
+        public bool IsOpponentActing => _activeRoundTransitionPhase == RoundTransitionPhase.TimeTax
+            || _activeRoundTransitionPhase == RoundTransitionPhase.OpponentRules
+            || _activeRoundTransitionPhase == RoundTransitionPhase.RoundEndMaintenance;
+
         public void OnEndTurnClicked()
         {
             if (_stateTainted || !CanRest)
@@ -1839,7 +1885,17 @@ namespace SSNoir
 
             while (failure == null && frame != null && !frame.IsFinished)
             {
-                if (frame.Phase == RoundTransitionPhase.NewDice)
+                _activeRoundTransitionPhase = frame.Phase;
+                if (frame.Phase == RoundTransitionPhase.TimeTax)
+                {
+                    // 时间税和按下结束回合是同一拍：冷静条当场弹一下、掉一格，画面同时开始变冷。
+                    // 不等、不说话——这是你自己交出去的一手，不是别人做的事。
+                    AdoptRoundTransitionFrame();
+                    float until = Time.unscaledTime + 0.6f;
+                    while (Time.unscaledTime < until)
+                        yield return null;
+                }
+                else if (frame.Phase == RoundTransitionPhase.NewDice)
                 {
                     AdoptRoundTransitionFrame();
                     yield return null;
@@ -1849,9 +1905,21 @@ namespace SSNoir
                 else
                 {
                     bool batchDone = false;
+                    bool landed = false;
                     try
                     {
-                        _renderer.PlayPresentation(frame.Report, "结束回合", () => batchDone = true);
+                        if (frame.Phase == RoundTransitionPhase.ForcedAction)
+                        {
+                            // 自动行动卡自己有出场、吸骰、结算的节奏；播完再落快照。
+                            _renderer.PlayBlockingPresentation(frame.Report.BlockingStorySteps, () => batchDone = true);
+                        }
+                        else
+                        {
+                            // 对方回应与回合末收尾：拍的中段落快照（那一刻就是事情发生的时刻）。
+                            _renderer.PlayRoundBatch(frame.Report, frame.Snapshot,
+                                land: () => { AdoptRoundTransitionFrame(); landed = true; },
+                                done: () => batchDone = true);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -1860,7 +1928,8 @@ namespace SSNoir
                     }
                     while (!batchDone)
                         yield return null;
-                    AdoptRoundTransitionFrame();
+                    if (!landed)
+                        AdoptRoundTransitionFrame();
                 }
 
                 try
@@ -1872,6 +1941,9 @@ namespace SSNoir
                     failure = ex;
                 }
             }
+
+            _activeRoundTransitionPhase = null;
+            _renderer.EndRoundTransitionPresentation();
 
             if (failure != null)
             {
@@ -1887,7 +1959,10 @@ namespace SSNoir
             }
 
             _renderer.SetInputLocked(false);
-            _restCooldownUntil = Time.unscaledTime + RestCooldownSeconds;
+            // 冷却只给城市：睡一觉是一下黑屏就过去的，手抖连点会把第二天也睡掉。
+            // 交锋的回合转换本身要走好几秒、画面一路在变，新骰落定后键就该立刻是你的。
+            if (!_displayedSnapshot.IsInEncounter)
+                _restCooldownUntil = Time.unscaledTime + RestCooldownSeconds;
             _isEndingTurn = false;
         }
 

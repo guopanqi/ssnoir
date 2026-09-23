@@ -4,6 +4,7 @@ namespace SSNoir.Core
 {
     public enum RoundTransitionPhase
     {
+        TimeTax,               // 结束回合本身的代价：这一手熬过去扣的冷静。和按键同一拍
         OpponentRules,
         RoundEndMaintenance,
         NewDice,

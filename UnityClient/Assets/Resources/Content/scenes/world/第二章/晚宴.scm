@@ -77,7 +77,7 @@
           (list (node-go))
           '()))
 
-    (define (on-day-end!)
+    (define (on-day-start!)
       (if (开始了?)
           (begin
             (sync-blockers!)
@@ -94,7 +94,7 @@
           ((equal? msg 'dossier) '())
           ((equal? msg 'done?) (not (还没结?)))
           ((equal? msg 'steps) (list (step "陪她赴晚宴" (not (还没结?)))))
-          ((equal? msg 'on-day-end!) (on-day-end!))
+          ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'debug-settle!) (set! 结果 "已结束") (sync-blockers!))
           ((equal? msg 'now) (now))

@@ -23,7 +23,7 @@
   (let ()
     (define 准备天数 3)
     ;; 考试**当天**就考。所以能陪他练的是那天之前的日子：卡在 world-day < 考试日
-    ;; 时才出现，结算在跨进考试日的那个日终发生。两处用的是同一条边界。
+    ;; 时才出现，结算在跨进考试日的新日开始时发生。两处用的是同一条边界。
 
     ;; 未开始 → 进行中 → 通过 / 没过。整条线由日历推动。
     (define 状态 "未开始")
@@ -39,8 +39,8 @@
     (define (还没考?) (< world-day (考试日)))
 
     ;; ── 日历推着走 ──────────────────────────────────
-    ;; 由章节在日终统一调用（见 第二章.scm）。开门和结算都不问玩家在哪儿。
-    (define (on-day-end!)
+    ;; 由章节在新日开始时统一调用（见 第二章.scm）。开门和结算都不问玩家在哪儿。
+    (define (on-day-start!)
       (cond
         ((and (equal? 状态 "未开始") (equal? (第二章 'phase) "B") (他还在?))
          (set! 状态 "进行中"))
@@ -153,7 +153,7 @@
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'dossier) (dossier-entry))
-          ((equal? msg 'on-day-end!) (on-day-end!))
+          ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'state) 状态)
           ((equal? msg 'save)
            (list (list "state" 状态) (list "practiced" 练了)

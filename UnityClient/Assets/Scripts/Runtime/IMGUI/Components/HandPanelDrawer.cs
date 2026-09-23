@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using SSNoir.Core;
+using SSNoir.IMGUI.Stage;
 
 namespace SSNoir.IMGUI
 {
@@ -19,6 +20,8 @@ namespace SSNoir.IMGUI
     // 多长出队伍伤势（为快照级属性）。
     public static class HandPanelDrawer
     {
+        private enum PortraitCondition { Stable, LowComposure, LightInjury, SevereInjury }
+
         // 手牌方块：骰子与物品共用同一族方块（同尺寸、同底纹、同交互状态），只是内容不同。
         // 卡里的骰位（ActionNodeDrawer.DieSlot）跟着同一个数走——
         // 拖过去的东西和接它的坑必须一样大。
@@ -291,6 +294,24 @@ namespace SSNoir.IMGUI
             DrawCharacters(baseline, gameManager, ui, anchors, drawPortraits: false, drawForeground: true,
                 pendingAutoActionDice: pendingAutoActionDice);
             DrawItemsAndFunctions(baseline, gameManager, ui);
+            DrawOpponentActingVeil(gameManager);
+        }
+
+        // 对方回合：骰子那一排蒙一层暗——它们还在手上，但这一刻不是你的。
+        // 冷静条、名字、伤势不蒙：那正是这段时间里要看的东西（谁打了你、掉了多少）。
+        // 和顶上的阶段横条是同一件事的两面：横条说谁在动，这层暗说你动不了。
+        private static void DrawOpponentActingVeil(SSNoirGameManager gameManager)
+        {
+            if (!gameManager.IsOpponentActing)
+                return;
+            var dice = ActionDiceRect(gameManager);
+            if (dice.width <= 0f)
+                return;
+            var veil = new Rect(dice.x - 6f, dice.y - 6f, dice.width + 12f, dice.height + 10f);
+            var oldColor = GUI.color;
+            GUI.color = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.62f);
+            GUI.DrawTexture(veil, Texture2D.whiteTexture);
+            GUI.color = oldColor;
         }
 
         /// <summary>
@@ -401,7 +422,8 @@ namespace SSNoir.IMGUI
                 float bustBottom = composureY + BustOverlap;
                 var bust = new Rect(x - 6f, bustBottom - bustHeight, bustWidth, bustHeight);
                 if (drawPortraits)
-                    DrawNeonBust(bust, neon, uv);
+                    DrawNeonBust(bust, neon, uv, PortraitConditionOf(actor, isLead, snapshot),
+                        gameManager.VitalLossAge(actor.Id));
                 topY = bust.y;
             }
 
@@ -495,7 +517,23 @@ namespace SSNoir.IMGUI
         // 它没有边界，所以人像是「从暗处走出来」而不是「贴在一块牌子上」。
         // 刻意不做呼吸和闪烁：常驻 HUD 上的动画会一直勾眼睛，那是对白舞台该干的事。
         internal static void DrawNeonBust(Rect rect, Texture2D neon, Rect uv)
+            => DrawNeonBust(rect, neon, uv, PortraitCondition.Stable, float.PositiveInfinity);
+
+        private static void DrawNeonBust(
+            Rect rect, Texture2D neon, Rect uv, PortraitCondition condition = PortraitCondition.Stable,
+            float damageAge = float.PositiveInfinity)
         {
+            float conditionLevel = condition switch
+            {
+                PortraitCondition.LowComposure => 0.82f,
+                PortraitCondition.LightInjury => 0.68f,
+                PortraitCondition.SevereInjury => 0.50f,
+                _ => 1f,
+            };
+            // 常驻状态只改变亮度；只有真实受击后的短窗口才走接触不良节奏。
+            float level = conditionLevel
+                * Mathf.Clamp(StageState.FlickerLevelAt(damageAge), 0.05f, 1.35f);
+
             // 背后的暗晕：霓虹靠亮度对比活着，底必须压黑，否则贴在深蓝图纸上会糊。
             var halo = NeonPortraitLibrary.RadialFalloff();
             var glowArea = new Rect(
@@ -515,12 +553,12 @@ namespace SSNoir.IMGUI
 
             // 溢光一层：贴图本身带辉光，稍微放大压淡地垫一遍就够，不必像舞台那样叠三层。
             var bleed = new Rect(rect.x - 4f, rect.y - 4f, rect.width + 8f, rect.height + 8f);
-            GUI.color = new Color(0.30f, 0.58f, 1f, 0.18f);
+            GUI.color = new Color(0.30f, 0.58f, 1f, 0.18f * level);
             GUI.DrawTextureWithTexCoords(bleed, neon, uv, true);
             // 灯管本体叠两遍，理由同对白舞台：Alpha From Grayscale 下蓝管偏透。
-            GUI.color = Color.white;
+            GUI.color = new Color(1f, 1f, 1f, Mathf.Clamp01(level));
             GUI.DrawTextureWithTexCoords(rect, neon, uv, true);
-            GUI.color = new Color(1f, 1f, 1f, 0.55f);
+            GUI.color = new Color(1f, 1f, 1f, 0.55f * Mathf.Clamp(level, 0f, 1.5f));
             GUI.DrawTextureWithTexCoords(rect, neon, uv, true);
 
             // 腰部是硬切口，用一段竖直渐变把它抹回暗处，不能让灯管断得那么直。
@@ -528,6 +566,18 @@ namespace SSNoir.IMGUI
             GUI.color = new Color(0.004f, 0.007f, 0.016f, 0.96f);
             GUI.DrawTexture(hem, NeonPortraitLibrary.VerticalFade());
             GUI.color = Color.white;
+        }
+
+        private static PortraitCondition PortraitConditionOf(
+            ActorSnapshot actor, bool isLead, PresentationSnapshot snapshot)
+        {
+            if (isLead && snapshot.InjurySeverity >= Injury.SevereThreshold)
+                return PortraitCondition.SevereInjury;
+            if (isLead && snapshot.InjurySeverity > 0)
+                return PortraitCondition.LightInjury;
+            if (actor.MaxComposure > 0 && actor.Composure * 3 <= actor.MaxComposure)
+                return PortraitCondition.LowComposure;
+            return PortraitCondition.Stable;
         }
 
         private static string DescribeSlotStatuses(ActorSnapshot actor)
@@ -591,6 +641,13 @@ namespace SSNoir.IMGUI
             const float cellGap = 2f;
             float cellW = (barW - cellGap * (max - 1)) / max;
 
+            // 值一变整条（格子 + 读数）绕中心弹一下，格子再一格一格过曝。
+            float pop = gameManager.ComposurePop(actor.Id);
+            Matrix4x4 savedMatrix = GUI.matrix;
+            if (pop > 0f)
+                GUIUtility.ScaleAroundPivot(Vector2.one * (1f + pop * 0.14f),
+                    new Vector2(barX + (barW + 42f) * 0.5f, y + VitalRowH * 0.5f));
+
             for (int i = 0; i < max; i++)
             {
                 var cell = new Rect(barX + i * (cellW + cellGap), barY, cellW, barH);
@@ -608,6 +665,8 @@ namespace SSNoir.IMGUI
             // 见底比 "0/2" 说得清楚：再扛一次就进身体。
             IMGUIStyles.DrawLabel(new Rect(barX + barW + 4f, y, 38f, VitalRowH),
                 composure > 0 ? $"{composure}/{max}" : "见底", valStyle);
+            if (pop > 0f)
+                GUI.matrix = savedMatrix;
         }
 
         // 冷静 / 伤势条上的一格。两条轴共用这一个画法——它们的方向相反，但"变好变坏"
@@ -1009,6 +1068,11 @@ namespace SSNoir.IMGUI
             const float cellGap = 2f;
             const float boundaryGap = 6f;   // 重伤线：以留白替代刻度线
             float cellW = (barW - cellGap * (max - 1) - (boundaryGap - cellGap)) / max;
+            float pop = gameManager.InjuryPop();
+            Matrix4x4 savedMatrix = GUI.matrix;
+            if (pop > 0f)
+                GUIUtility.ScaleAroundPivot(Vector2.one * (1f + pop * 0.14f),
+                    new Vector2(barX + (barW + 42f) * 0.5f, y + VitalRowH * 0.5f));
             for (int i = 0; i < max; i++)
             {
                 float offset = i * (cellW + cellGap)
@@ -1026,6 +1090,8 @@ namespace SSNoir.IMGUI
                 normal = { textColor = fill },
             };
             IMGUIStyles.DrawLabel(new Rect(barX + barW + 4f, y, 38f, VitalRowH), $"{severity}/{max}", valStyle);
+            if (pop > 0f)
+                GUI.matrix = savedMatrix;
         }
 
         // ── 右下：物品 + 功能 ──────────────────────────────────────────
@@ -1059,11 +1125,10 @@ namespace SSNoir.IMGUI
                 DrawnActionRects["结束回合"] = restRect;
                 // 结束回合也是一次真的执行，进度在功能键上显示。
                 // 它不是卡、没有执行钮，进度得自己画，否则场上唯一没有时间流逝的动作就是它。
-                var restExecution = gameManager.GetExecutionState("结束回合");
-                if (restExecution.IsExecuting)
-                    DrawFunctionProgress(restRect, restExecution.Progress, "结算中");
+                // 这个键只做一件事：交出主动权。按下去它就灰着，新一手交回手上才亮——
+                // 现在是谁的回合由画面说（世界变冷、在动的卡亮），不由它写字。
                 // 结算中和刚结算完的短冷却里都按不下去（CanRest）：连点不会把第二天也睡掉。
-                else if (DrawFunctionBlock(restRect, "结束回合", ui, !gameManager.CanRest))
+                if (DrawFunctionBlock(restRect, "结束回合", ui, !gameManager.CanRest))
                     gameManager.OnEndTurnClicked();
             }
             else
@@ -1133,6 +1198,9 @@ namespace SSNoir.IMGUI
         private const float CompactCardBaseH = 76f;
         private const float CompactExecuteH = 30f;
         private const float CompactExecuteGap = 5f;
+        // 无需求槽的卡（关系支援）：只有标题 + 执行钮，不留骰位行的空位。
+        // 标题区 3+22、下方留 6 间隙、执行钮 30、底边 5。
+        private const float CompactNoSlotCardH = 3f + 22f + 6f + CompactExecuteH + 5f;
         private const float CarryCardGap = 12f;
         // 非场景交锋动作共用一列。物品动作只在持有对应物品时出现；关系支援已经由
         // engine.scm 按当前携带者筛过，用掉后保留禁用卡，让玩家看见本场次数已经耗尽。
@@ -1159,10 +1227,13 @@ namespace SSNoir.IMGUI
             float y = bottom - CarryCardGap;
             for (int i = 0; i <= index; i++)
             {
+                int requireCount = nodes[i].Requires?.Count ?? 0;
+                bool hasRequirements = requireCount > 0;
                 var slots = gameManager.GetSlotsForNode(nodes[i].Name);
-                bool hasRequirements = nodes[i].Requires != null && nodes[i].Requires.Count > 0;
                 bool armed = !hasRequirements || (slots != null && slots.Any(slot => slot != null));
-                float h = CompactCardBaseH + (armed ? CompactExecuteGap + CompactExecuteH : 0f);
+                float h = hasRequirements
+                    ? CompactCardBaseH + (armed ? CompactExecuteGap + CompactExecuteH : 0f)
+                    : CompactNoSlotCardH;
                 y -= h;
                 if (i == index)
                     return new Rect(right - CarryCardW, y, CarryCardW, h);
@@ -1210,8 +1281,13 @@ namespace SSNoir.IMGUI
             IMGUIStyles.ApplyStrongFont(titleStyle);
             IMGUIStyles.DrawLabel(new Rect(rect.x + 4f, rect.y + 3f, rect.width - 8f, 22f), node.Name, titleStyle);
 
-            var requirements = node.Requires ?? throw new InvalidOperationException(
-                $"非场景交锋动作「{node.Name}」的需求列表不能为空");
+            var requirements = node.Requires ?? new List<SSNoir.Core.ActionCost>();
+            if (!string.IsNullOrEmpty(node.SupportId) && requirements.Count != 0)
+                throw new InvalidOperationException(
+                    $"关系支援「{node.Name}」不应有需求槽（见 engine.scm 的 support-frank），实际有 {requirements.Count} 个。");
+            if (string.IsNullOrEmpty(node.SupportId) && string.IsNullOrEmpty(node.CarryItemId))
+                throw new InvalidOperationException(
+                    $"非场景交锋动作「{node.Name}」必须声明 :carry-item 或 :support。");
             int count = requirements.Count;
             float slotsW = count * CompactSlotSize + Mathf.Max(0, count - 1) * 6f;
             float slotX = rect.center.x - slotsW * 0.5f;

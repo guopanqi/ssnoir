@@ -89,17 +89,36 @@ namespace SSNoir.IMGUI
         // 和玩家自己出手时「执行 → 结果 → 台词」是同一个顺序。
         private BlockingStoryStep? _activeAutoAction;
         private float _activeAutoActionStartedAt;
+        private float _activeAutoActionPreludeUntil;
+        private float _activeAutoActionCaptureStartedAt;
+        private bool _activeAutoActionPreludeStarted;
         private bool _activeAutoActionResolved;
         private bool _activeBeat;
         private float _activeBeatUntil;
-        private const float BeatSeconds = 1.1f;
+        // 对方回合的一拍 = 引擎的一批。节奏固定：
+        //   t=0        在动的卡亮起；这拍里开口的人，气泡从他卡上冒出
+        //   t=落地     快照落地＝事情发生：钟脉冲、"−1" 飘起、冷静条脉冲，同一帧
+        //   t=收尾     金边褪去，下一拍
+        // 谁在动不靠脚本声明：把落地前后的两份快照按卡逐根钟比一遍，钟变了的卡就是在动的人；
+        // 再加上这拍里开口的人。
+        private const float SilentBeatSeconds = 0.9f;
+        private const float SilentBeatLandAt = 0.3f;
+        private const float SpokenBeatSeconds = 1.6f;
+        private const float SpokenBeatLandAt = 0.45f;
+        private const float ActingFadeSeconds = 0.6f;
+        private readonly List<string> _actingNodeNames = new List<string>();
+        private float _actingSince;
+        private float _actingUntil;
+        private float _beatLandAt;
+        private Action? _beatLand;
+        private readonly List<DialogueSequence> _beatNarrations = new List<DialogueSequence>();
+        private readonly List<string> _beatNarrationIds = new List<string>();
         private const float AutoActionAppearSeconds = 0.5f;
         private const float AutoActionFlightSeconds = 0.6f;
         private const float AutoActionLandHoldSeconds = 0.35f;
         private const float AutoActionExecuteSeconds = 0.5f;
         private const float AutoActionResultHoldSeconds = 2.2f;
-        private const float AutoActionLandedAt = AutoActionAppearSeconds + AutoActionFlightSeconds;
-        private const float AutoActionExecuteStart = AutoActionLandedAt + AutoActionLandHoldSeconds;
+        private const float AutoActionExecuteStart = AutoActionFlightSeconds + AutoActionLandHoldSeconds;
         private const float AutoActionResolveAt = AutoActionExecuteStart + AutoActionExecuteSeconds;
         private const float AutoActionDuration = AutoActionResolveAt + AutoActionResultHoldSeconds;
         private readonly Dictionary<string, Rect> _drawnCardRects = new(StringComparer.OrdinalIgnoreCase);
@@ -196,6 +215,112 @@ namespace SSNoir.IMGUI
             });
         }
 
+        /// <summary>
+        /// 回合转换里的一批（对方回应、回合末收尾）。它不是玩家按下的一手，所以不走
+        /// <see cref="PlayPresentation"/> 开头那段"执行中…"进度。
+        /// <paramref name="land"/> 在拍的中段被调（采纳这一批的快照）；批里排在后面的阻塞步骤
+        /// （散场告示、倒下）在落地之后播；全部播完调 <paramref name="done"/>。
+        /// </summary>
+        public void PlayRoundBatch(ActionReport report, PresentationSnapshot landed, Action land, Action done)
+        {
+            _pendingBlockingSteps.Clear();
+            _pendingImmediateDialogues.Clear();
+            foreach (var step in report.BlockingStorySteps)
+                _pendingBlockingSteps.Enqueue(step);
+            _completionReport = null;
+            _completionActionName = string.Empty;
+            _completionDone = done;
+
+            _actingNodeNames.Clear();
+            foreach (var host in HostsOfChangedClocks(_gameManager.DisplayedSnapshot, landed))
+                _actingNodeNames.Add(host);
+
+            var speech = new List<DialogueLine>();
+            _beatNarrations.Clear();
+            _beatNarrationIds.Clear();
+            _beatNarrationIds.AddRange(report.NarrationIds);
+            foreach (var sequence in report.Banter)
+            {
+                // 旁白（"毡帽从侧面撞进来"）是拳头落下那一刻的字幕，等落地再放；
+                // 人说的话是这一拍的开场，立刻从他卡上冒出来。
+                if (sequence.Lines.Count > 0 && sequence.Lines[0].Speaker == DialogueBubbleDrawer.NarratorSpeaker)
+                {
+                    _beatNarrations.Add(sequence);
+                    continue;
+                }
+                foreach (var line in sequence.Lines)
+                {
+                    speech.Add(line);
+                    if (!_actingNodeNames.Contains(line.Speaker))
+                        _actingNodeNames.Add(line.Speaker);
+                }
+            }
+            bool spoken = speech.Count > 0
+                || report.Effects.Any(effect => effect.Kind == ActionEffectKind.Composure || effect.Kind == ActionEffectKind.Injury);
+            float now = Time.unscaledTime;
+            float dwell = speech.Count > 0 ? _banterPlayer.ShowBeatLines(speech) : 0f;
+            _activeBeat = true;
+            _activeBeatUntil = now + Mathf.Max(spoken ? SpokenBeatSeconds : SilentBeatSeconds, dwell);
+            _beatLandAt = now + (spoken ? SpokenBeatLandAt : SilentBeatLandAt);
+            _beatLand = land;
+            _actingSince = now;
+            _actingUntil = _activeBeatUntil + ActingFadeSeconds;
+        }
+
+        // 两份快照按卡名对齐，同名卡上同标签的钟值不同 → 这张卡在动。
+        private static IEnumerable<string> HostsOfChangedClocks(PresentationSnapshot before, PresentationSnapshot after)
+        {
+            var old = new Dictionary<string, GameNode>(StringComparer.Ordinal);
+            foreach (var node in Walk(before.RootNode))
+                old[node.Name] = node;
+            foreach (var node in Walk(after.RootNode))
+            {
+                if (node.Clocks.Count == 0 || !old.TryGetValue(node.Name, out var was))
+                    continue;
+                foreach (var clock in node.Clocks)
+                {
+                    var prior = was.Clocks.FirstOrDefault(c => c.Label == clock.Label);
+                    if (prior != null && prior.Current != clock.Current)
+                    {
+                        yield return node.Name;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static IEnumerable<GameNode> Walk(GameNode? node)
+        {
+            if (node == null) yield break;
+            yield return node;
+            foreach (var child in node.Children)
+                foreach (var n in Walk(child))
+                    yield return n;
+        }
+
+        // 拍的中段：快照落地。钟和冷静条的脉冲、飘字都从这一帧起；旁白字幕也在这时出来。
+        private void LandActiveBeat()
+        {
+            var land = _beatLand;
+            _beatLand = null;
+            land?.Invoke();
+            ReleaseNarrations(_beatNarrationIds);
+            foreach (var sequence in _beatNarrations)
+                _banterPlayer.Enqueue(sequence);
+            _beatNarrations.Clear();
+            _beatNarrationIds.Clear();
+        }
+
+        /// <summary>回合转换整段结束：金边收掉，别拖进玩家自己的回合。</summary>
+        public void EndRoundTransitionPresentation()
+        {
+            _actingNodeNames.Clear();
+            _actingUntil = 0f;
+            _beatLand = null;
+            _beatNarrations.Clear();
+            _beatNarrationIds.Clear();
+        }
+
         public void PlayBlockingPresentation(IReadOnlyList<BlockingStoryStep> steps, Action onDone)
         {
             if (steps.Count == 0)
@@ -248,15 +373,10 @@ namespace SSNoir.IMGUI
                     case BlockingStoryStepKind.AutoAction:
                         _activeAutoAction = step;
                         _activeAutoActionStartedAt = Time.unscaledTime;
+                        _activeAutoActionPreludeUntil = float.PositiveInfinity;
+                        _activeAutoActionCaptureStartedAt = -1f;
+                        _activeAutoActionPreludeStarted = false;
                         _activeAutoActionResolved = false;
-                        return;
-                    case BlockingStoryStepKind.Beat:
-                        var beats = new List<BlockingStoryStep> { step };
-                        if (!OpponentTurnSettings.Sequential)
-                            while (_pendingBlockingSteps.Count > 0
-                                && _pendingBlockingSteps.Peek().Kind == BlockingStoryStepKind.Beat)
-                                beats.Add(_pendingBlockingSteps.Dequeue());
-                        PlayBeatGroup(beats);
                         return;
                 }
             }
@@ -288,37 +408,6 @@ namespace SSNoir.IMGUI
             }
 
             FinishCompletion(report, done);
-        }
-
-        private void PlayBeatGroup(IReadOnlyList<BlockingStoryStep> beats)
-        {
-            var parallelLines = new List<DialogueLine>();
-            foreach (var step in beats)
-            {
-                if (!string.IsNullOrWhiteSpace(step.BeatText))
-                    parallelLines.Add(new DialogueLine { Speaker = step.BeatAnchor, Text = step.BeatText });
-                if (step.ResolvedReport == null)
-                    continue;
-                if (step.ResolvedReport.Effects.Count > 0)
-                    _cardResidues[step.BeatAnchor] = new CardPresentationResidue
-                    {
-                        HostNodeName = step.BeatAnchor,
-                        Effects = new List<ActionEffectRecord>(step.ResolvedReport.Effects),
-                        FuseStartedAt = Time.unscaledTime,
-                        FuseSeconds = BeatSeconds,
-                    };
-                foreach (var sequence in step.ResolvedReport.Banter)
-                    _banterPlayer.Enqueue(sequence);
-            }
-
-            float dwell = OpponentTurnSettings.Sequential || parallelLines.Count <= 1
-                ? 0f
-                : _banterPlayer.ShowParallel(parallelLines);
-            if (dwell <= 0f)
-                foreach (var line in parallelLines)
-                    _banterPlayer.Enqueue(new DialogueSequence(new[] { line }));
-            _activeBeat = true;
-            _activeBeatUntil = Time.unscaledTime + Mathf.Max(BeatSeconds, dwell);
         }
 
         // 采纳快照会不会把结果从屏幕上抹掉：翻页要黑幕；换了场景或阶段根，旧卡整层都没了。
@@ -580,6 +669,7 @@ namespace SSNoir.IMGUI
             _pendingBlockingSteps.Clear();
             _activeAutoAction = null;
             _activeBeat = false;
+            EndRoundTransitionPresentation();
             _activeActionSpotlight = null;
             _activeVideoTag = null;
             _animationTimer = 0f;
@@ -615,7 +705,23 @@ namespace SSNoir.IMGUI
                 _cardResidues.Remove(key);
             if (_activeAutoAction != null)
             {
-                float elapsed = Time.unscaledTime - _activeAutoActionStartedAt;
+                float now = Time.unscaledTime;
+                if (!_activeAutoActionPreludeStarted
+                    && now - _activeAutoActionStartedAt >= AutoActionAppearSeconds)
+                {
+                    _activeAutoActionPreludeStarted = true;
+                    var prelude = _activeAutoAction.AutoActionPrelude;
+                    float dwell = prelude == null ? 0f : _banterPlayer.ShowBeatLines(prelude.Lines);
+                    _activeAutoActionPreludeUntil = now + dwell;
+                }
+                if (_activeAutoActionPreludeStarted
+                    && _activeAutoActionCaptureStartedAt < 0f
+                    && now >= _activeAutoActionPreludeUntil)
+                {
+                    _activeAutoActionCaptureStartedAt = now;
+                }
+
+                float elapsed = AutoActionCaptureElapsed(now);
                 if (!_activeAutoActionResolved && elapsed >= AutoActionResolveAt)
                 {
                     // 状态已由引擎提交；执行条走完时只揭示缓存结果，表现层不再执行规则。
@@ -642,9 +748,13 @@ namespace SSNoir.IMGUI
                 }
             }
 
+            if (_activeBeat && _beatLand != null && Time.unscaledTime >= _beatLandAt)
+                LandActiveBeat();
             if (_activeBeat && Time.unscaledTime >= _activeBeatUntil)
             {
                 _activeBeat = false;
+                if (_beatLand != null)
+                    LandActiveBeat();
                 AdvanceToBlockingPresentationOrFinish();
             }
 
@@ -887,6 +997,9 @@ namespace SSNoir.IMGUI
 
             var worldUi = _windowStack.MakeContext(IMGUIWindowLayer.World, baseLocked);
 
+            // 对方回合：世界先变冷，界面再画上去——所以它在所有 GUI 之前、只压在 3D 世界上。
+            DrawOpponentTurnTint();
+
             // ── Navigation Bar ──
             NavigationDrawer.Draw(_gameManager, worldUi, topHud);
             // 半身像只负责把人物钉在场景里；可读、可点的卡片与附件必须永远压在它上面。
@@ -965,6 +1078,7 @@ namespace SSNoir.IMGUI
             OverlayDrawer.DrawNotifications(_gameManager.GameState.NotificationCenter);
             OverlayDrawer.DrawCursorFollower(_gameManager);
             }
+            DrawActingCardHighlights();
             DrawPresentationOverlay();
             DrawAutoActionDiceFlights();
             DrawBanterOverlay();
@@ -1026,6 +1140,54 @@ namespace SSNoir.IMGUI
             }
 
             IMGUIInteractionContext.FinishPointerEvent(Event.current);
+        }
+
+        // 对方回合的世界：镜头从你身上移开。整层压一层冷蓝，上下两道再压深一点——
+        // 城市的白线暗下去，唯一亮着的是在动的那张卡。没有任何字：谁的回合由颜色说。
+        // 进出各 0.35 秒，从按下结束回合起，到新骰落定止（强制行动属于你的回合，画面已经回来）。
+        private float _opponentTint;
+
+        private void DrawOpponentTurnTint()
+        {
+            float target = _gameManager.IsOpponentActing ? 1f : 0f;
+            _opponentTint = Mathf.MoveTowards(_opponentTint, target, Time.unscaledDeltaTime / 0.35f);
+            if (_opponentTint <= 0.001f)
+                return;
+            var full = new Rect(0f, 0f, UIScale.VW, UIScale.VH);
+            var oldColor = GUI.color;
+            // 冷蓝：比 Ink 更靠青一点，和暖金的卡边拉开。
+            GUI.color = new Color(0.03f, 0.06f, 0.12f, 0.42f * _opponentTint);
+            GUI.DrawTexture(full, Texture2D.whiteTexture);
+            float band = UIScale.VH * 0.18f;
+            GUI.color = new Color(0.01f, 0.02f, 0.05f, 0.30f * _opponentTint);
+            GUI.DrawTexture(new Rect(0f, 0f, UIScale.VW, band), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0f, UIScale.VH - band, UIScale.VW, band), Texture2D.whiteTexture);
+            GUI.color = oldColor;
+        }
+
+        // 对方回合里正在动的那张卡：一圈金边从卡外一点亮起，这一拍结束后慢慢褪掉。
+        // 它回答的是"现在是谁在动"——气泡说的话、卡下挂的后果、卡上跳的钟都归到这一圈里。
+        private void DrawActingCardHighlights()
+        {
+            if (_actingNodeNames.Count == 0 || Time.unscaledTime >= _actingUntil)
+                return;
+            float now = Time.unscaledTime;
+            float rise = Mathf.Clamp01((now - _actingSince) / 0.18f);
+            float fade = Mathf.Clamp01((_actingUntil - now) / ActingFadeSeconds);
+            float alpha = Mathf.Min(rise, fade);
+            if (alpha <= 0.01f)
+                return;
+            var gold = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.92f * alpha);
+            var glow = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.28f * alpha);
+            foreach (var name in _actingNodeNames)
+            {
+                if (!_drawnCardRects.TryGetValue(name, out var rect))
+                    continue;
+                float pad = 4f + 2f * (1f - rise);
+                var outer = UIScale.PixelSnap(new Rect(rect.x - pad, rect.y - pad, rect.width + pad * 2f, rect.height + pad * 2f));
+                IMGUIStyles.DrawOutline(new Rect(outer.x - 2f, outer.y - 2f, outer.width + 4f, outer.height + 4f), 3f, glow);
+                IMGUIStyles.DrawOutline(outer, 1.5f, gold);
+            }
         }
 
         // 失败卡。这一屏是一章的句号，也是玩家在这一局里读到的最后一段字——
@@ -2610,7 +2772,7 @@ namespace SSNoir.IMGUI
             if (_activeAutoAction?.AutoActionNode != null
                 && string.Equals(_activeAutoAction.AutoActionNode.Name, nodeName, StringComparison.OrdinalIgnoreCase))
             {
-                float elapsed = Time.unscaledTime - _activeAutoActionStartedAt;
+                float elapsed = AutoActionCaptureElapsed(Time.unscaledTime);
                 if (elapsed < AutoActionExecuteStart || _activeAutoActionResolved)
                     return (false, 0f, string.Empty);
                 return (true, Mathf.Clamp01((elapsed - AutoActionExecuteStart) / AutoActionExecuteSeconds), "执行中");
@@ -2635,7 +2797,7 @@ namespace SSNoir.IMGUI
             if (_activeAutoAction?.AutoActionNode == node)
             {
                 var result = new List<SlottedResource?>();
-                bool landed = Time.unscaledTime - _activeAutoActionStartedAt >= AutoActionLandedAt;
+                bool landed = AutoActionCaptureElapsed(Time.unscaledTime) >= AutoActionFlightSeconds;
                 for (int i = 0; i < node.Requires.Count; i++)
                     result.Add(landed && i < _activeAutoAction.AutoActionSlots.Count
                         ? _activeAutoAction.AutoActionSlots[i]
@@ -2730,10 +2892,10 @@ namespace SSNoir.IMGUI
             if (step == null || node == null || !_drawnCardRects.TryGetValue(node.Name, out var cardRect))
                 return;
 
-            float elapsed = Time.unscaledTime - _activeAutoActionStartedAt;
-            if (elapsed >= AutoActionLandedAt)
+            float elapsed = AutoActionCaptureElapsed(Time.unscaledTime);
+            if (elapsed < 0f || elapsed >= AutoActionFlightSeconds)
                 return;
-            float raw = Mathf.Clamp01((elapsed - AutoActionAppearSeconds) / AutoActionFlightSeconds);
+            float raw = Mathf.Clamp01(elapsed / AutoActionFlightSeconds);
             float eased = raw * raw * (3f - 2f * raw);
             for (int i = 0; i < step.AutoActionSlots.Count; i++)
             {
@@ -2749,6 +2911,11 @@ namespace SSNoir.IMGUI
                 HandPanelDrawer.DrawMovingDie(moving, die.Value);
             }
         }
+
+        private float AutoActionCaptureElapsed(float now)
+            => _activeAutoActionCaptureStartedAt < 0f
+                ? -1f
+                : now - _activeAutoActionCaptureStartedAt;
 
         private void AddLightResidueIfNeeded(ActionReport report, string actionName)
         {

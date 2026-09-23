@@ -220,21 +220,21 @@
             ;; 主人迎上来敬酒：近端沙龙是主人迎宾的那一圈，他在那儿留住你们。
             (auto-action! "主人过来敬酒" "他留住你们，说起夜莺昨晚的掌声"
               (list (list 'player 1) (list '夜莺 1))
+              (auto-dialogue
+                (line "主人" "昨晚那阵掌声，我隔着两条街都听见了。")
+                (line "夜莺" "那您今晚站得近些。"))
               advance-all-crowds!
               "晚宴-沙龙")
-           (play-banter!
-             (line "主人" "昨晚那阵掌声，我隔着两条街都听见了。")
-             (line "夜莺" "那您今晚站得近些。"))
             (if (familiar-clk 'full?) (enter-act-two!) #f))
            ((= turn 3)
             ;; 她被邀进舞池：人已经在舞池中央，卡就挂在舞池。
             (auto-action! "她接下这支舞" "夜莺自己走进舞池，像是早知道该在什么时候伸手"
               (list (list '夜莺 1))
+              (auto-dialogue
+                (line "舞伴" "夜莺小姐，这一支舞能留给我吗？")
+                (line "夜莺" "您问得正是时候。"))
               advance-all-crowds!
               "晚宴-舞池")
-           (play-banter!
-             (line "舞伴" "夜莺小姐，这一支舞能留给我吗？")
-             (line "夜莺" "您问得正是时候。"))
             (if (familiar-clk 'full?) (enter-act-two!) #f))
           ((> turn 3) (enter-act-two!))
           (else #f))
