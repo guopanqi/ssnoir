@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SSNoir.IMGUI
 {
     // 非阻塞 banter 的世界气泡：解析说话人锚点 → 在其上方画气泡。
-    // 阻塞 play-dialogue! 由 DialogueStageDrawer 使用立绘舞台呈现，不与这里共用外观。
+    // 阻塞 play-dialogue! 由 StoryStageDrawer 使用立绘舞台呈现，不与这里共用外观。
     public static class DialogueBubbleDrawer
     {
         private const float BubbleWidth = 320f;

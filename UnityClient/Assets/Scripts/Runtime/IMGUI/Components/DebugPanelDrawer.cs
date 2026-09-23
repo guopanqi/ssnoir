@@ -42,6 +42,11 @@ namespace SSNoir.IMGUI
         {
             new ChapterJump
             {
+                Label = "舞台试演：大船靠岸",
+                Code = "(frank 'debug-stage-arrival!)"
+            },
+            new ChapterJump
+            {
                 Label = "第一章：大船靠岸（再进码头）",
                 Code = "(debug-prepare-ship-repair!)"
             },

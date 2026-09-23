@@ -1,12 +1,13 @@
 #nullable enable
 using System.Collections.Generic;
+using System.Linq;
 using SSNoir.Core;
 using SSNoir.IMGUI.Stage;
 using UnityEngine;
 
 namespace SSNoir.IMGUI
 {
-    // 阻塞式 play-dialogue! 的舞台：一场基于立绘的人偶戏，不只是一个对话框。
+    // 故事舞台画面层：play-dialogue! 的对白与 play-stage! 的无字动作共用立绘和灯。
     //
     // 分层（都在 IMGUI/Stage/）：
     //   StageState         模型——台上有谁、每个人的终态、画面状态；只算数，不画；时间由外面注入
@@ -17,7 +18,7 @@ namespace SSNoir.IMGUI
     //
     // 舞台指示（DialogueStageCue）改的都是人物或画面的终态——换哪组灯管（姿势）、亮到几档、
     // 逼近中间还是退开、画面翻不翻；渲染只负责从上一个终态过渡过去，跳过动画也是同一幅画面。
-    public static class DialogueStageDrawer
+    public static class StoryStageDrawer
     {
         private const string NarratorSpeaker = "世界";
         private const float TypewriterCharactersPerSecond = 30f;
@@ -58,6 +59,49 @@ namespace SSNoir.IMGUI
             _currentLineCompletedInstantly = false;
             State.Reset();
             StageScreenPainter.Release();
+        }
+
+        public static void StageSpawn(string id, string asset, float x, string layer)
+            => State.Spawn(id, asset, x, layer, Time.unscaledTime, NeonPortraitLibrary.Load);
+
+        public static void StageMove(string id, float x, float seconds)
+            => State.Move(id, x, seconds, Time.unscaledTime);
+
+        public static void StageRemove(string id) => State.Remove(id);
+
+        public static void StagePose(string id, string pose)
+            => State.Pose(id, pose, Time.unscaledTime, NeonPortraitLibrary.LoadPose);
+
+        public static void StageLight(string id, string light)
+            => State.Light(id, light, Time.unscaledTime);
+
+        // 舞台动作可以没有台词。只有 Say 拍才绘制对白框和打字机。
+        public static void DrawStoryStageFrame(DialogueLine? line, int beatIndex)
+        {
+            float now = Time.unscaledTime;
+            string speaker = line?.Speaker ?? string.Empty;
+            string content = line?.Text ?? string.Empty;
+            string key = beatIndex + "\n" + speaker + "\n" + content;
+            if (_visibleLineKey != key)
+            {
+                _visibleLineKey = key;
+                _lineStartedAt = now;
+                _currentLineLength = content.Length;
+                _currentLineCompletedInstantly = false;
+            }
+            float negative = State.NegativeAmount(now);
+            StageScreenPainter.PaintBackdrop(negative);
+            DrawActors(speaker, negative, now);
+            if (line != null)
+            {
+                int count = _currentLineCompletedInstantly ? content.Length : Mathf.Min(content.Length, VisibleCharacterCount());
+                string visible = count >= content.Length ? content : content.Substring(0, count);
+                bool neon = State.TryGetActor(speaker, out var actor) && !actor.Missing;
+                var glow = neon ? actor!.CurrentAccent(now) : DefaultGlow;
+                DialogueBoxDrawer.Draw(speaker, visible, content, count < content.Length, false, false,
+                    speaker == StageState.Protagonist, neon, 1f, negative, glow);
+            }
+            StageScreenPainter.PaintFlash(State.FlashAlpha(now), negative);
         }
 
         // 每帧没有对话时调一次，幂等：把借给舞台的画面状态（世界负片）还回去。
@@ -142,7 +186,10 @@ namespace SSNoir.IMGUI
             restingX = actor.OnLeft ? 64f : UIScale.VW - width - 64f;
             float towardCenter = actor.OnLeft ? 1f : -1f;
             float x = restingX + actor.CurrentOffset(now) * towardCenter + StageState.ShakeOffset(actor, now);
-            return new Rect(x, portraitTop, width, height);
+            if (actor.UsesStageX)
+                x = UIScale.VW * (0.5f + actor.CurrentStageX(now) / 20f) - width / 2f;
+            float layerY = actor.StageLayer == "back" ? -20f : actor.StageLayer == "front" ? 16f : 0f;
+            return new Rect(x, portraitTop + layerY, width, height);
         }
 
         private static void DrawActors(string speaker, float negative, float now)
@@ -156,7 +203,7 @@ namespace SSNoir.IMGUI
             for (int pass = 0; pass < 2; pass++)
             {
                 bool drawSpeaker = pass == 1;
-                foreach (var actor in State.Actors)
+                foreach (var actor in State.Actors.OrderBy(a => a.StageLayer == "back" ? 0 : a.StageLayer == "front" ? 2 : 1))
                 {
                     bool isSpeaker = actor.Name == speaker;
                     if (isSpeaker != drawSpeaker) continue;
@@ -177,7 +224,7 @@ namespace SSNoir.IMGUI
                     int deadStep = flicker <= StageState.FlickerDeadLevel ? StageState.FlickerStep(actor, now) : -1;
                     float lampFlicker = deadStep >= 0 ? StageState.FlickerSurvivorLevel : flicker;
                     float listener = StageState.ListenerLevel * (1f - StageState.DominanceDim * dominance);
-                    float level = (isSpeaker ? 1f : listener) * glow * lampFlicker * blackout;
+                    float level = (speaker.Length == 0 || isSpeaker ? 1f : listener) * glow * lampFlicker * blackout;
                     var color = actor.CurrentAccent(now);
 
                     // 灯打到底时，这个人的颜色洗满半个舞台——是他这句话在占着这个空间。听者的灯再亮也洗不出去。

@@ -1,7 +1,7 @@
 ;; 弗兰克（Frank Delaney）——码头工头、老街组织者。
 ;;
 ;; 第一章他有一条不进卷宗的码头事件链。一个认为「这里的事由这里的人处理」的人，
-;; 不会站在地图上等你接任务；第二封信之后再进码头，就会撞上他组织抢修。
+;; 不会站在地图上等你接任务；第二天旧货船改泊，赶上码头才会看见他组织抢修。
 ;;   一、货船抢修、船修好了却不开、分钱——三拍都在表现他如何管这条街。
 ;;   二、巷子那一晚，他挡在你和莱恩中间。那一晚由《三封信》拥有，这里只收结果。
 ;;
@@ -24,10 +24,11 @@
     (define repair-days 3)
     (define repair-deadline-day 0)
     (define repair-joined? #f)
+    (define repair-arrival-viewed? #f)
     (define repair-result "未结算") ; 未结算 / 按时修好 / 勉强修好 / 未介入
     (define repair-clk
       (make-clock "货船抢修" 4 'gauge
-        "抽水、补板、钢缆和货物固定都排在弗兰克同一张班表上。"))
+        "临时改泊的船进了水。抽水、补板、钢缆和货物固定都在同一张班表上。"))
 
     (define hold-state "未发生")    ; 未发生 / 待安排 / 待处理 / 已结算 / 缺席
     (define hold-open-day 0)
@@ -74,7 +75,7 @@
 
     (define (validate-state!)
       (if (and (boolean? approved?) (boolean? alley-settled?) (boolean? met?)
-               (boolean? repair-joined?) (boolean? hold-paid?)
+               (boolean? repair-joined?) (boolean? repair-arrival-viewed?) (boolean? hold-paid?)
                (boolean? distribution-viewed?)
                (boolean? paper-seen?))
           #t (error "弗兰克存档错误：布尔状态类型非法"))
@@ -144,16 +145,33 @@
       ;; 玩家没有参加，就没有理由在别处收到这条现场结算；后续扣船事件仍按城市
       ;; 自己的时间线发生。参加过的人才会收到自己做过的那班活最终怎样了。
       (if repair-joined?
-          (spotlight! "货船达到离港标准"
-            (if (equal? repair-result "按时修好")
-                "泵压住了进水，补板和钢缆都按班表收尾。你把最后一班抢了下来，代理明天来验船。"
-                "你下过舱，但没赶完。弗兰克带人补到天亮，船勉强达到最低离港标准；班表上仍有你的名字。"))
+          (begin
+            (play-stage!
+              (stage-parallel
+                (stage-spawn "尼尔" "尼尔" -6 'middle)
+                (stage-spawn "弗兰克" "弗兰克" 1 'middle)
+                (stage-spawn "贝恩斯" "贝恩斯" 7 'front))
+              (stage-say "贝恩斯" "岸口的人可以撤了？")
+              (stage-say "弗兰克" "再留十分钟。最后一班还没上来。")
+              (stage-say "贝恩斯" "十分钟。")
+              (stage-move "贝恩斯" 14 0.35)
+              (stage-remove "贝恩斯")
+              (stage-say "弗兰克" "尼尔……你不是我这儿的人。")
+              (stage-say "尼尔" "今天算是。")
+              (stage-say "弗兰克" "今天算。工钱去岸口领。"))
+            (spotlight! "货船达到离港标准"
+              (if (equal? repair-result "按时修好")
+                  "泵压住了进水。你把最后一班抢了下来，代理明天来验船。"
+                  "你下过舱，但没赶完。弗兰克带人补到天亮，船勉强达到离港标准。")))
           #f))
 
     (define (join-repair! n)
       (set! repair-joined? #t)
       (meet!)
       (repair-clk 'advance! n)
+      (if (= n 0)
+          (play-banter! (line "弗兰克" "先放下！那根绳滑了，下面的人怎么办？"))
+          #f)
       (if (repair-clk 'full?) (settle-repair! #t) #f))
 
     (define (node-repair-clock)
@@ -297,7 +315,10 @@
         ;; 挂进人物节点等于说"要先找到这个人才知道码头上出了事"，那不是真的。
         ;; 人物节点收的是**只跟他这个人有关**的事：扣船、分钱、他来找你。
         (if (equal? repair-state "进行中")
-            (list (node-repair-clock) (node-repair))
+            (list
+              (node "弗兰克" :anchor "码头"
+                :resolve (note "弗兰克" "他在跳板边核对班表。"))
+              (node-repair-clock) (node-repair))
             '())
         ;; 船边发生的两件事直接留在泊位；弗兰克本人常驻居民区的工会房间。
         (if (equal? hold-state "待处理") (list (node-hold-entry)) '())
@@ -351,37 +372,84 @@
                                (step "船修好了却不开" (equal? hold-state "已结算"))
                                (step "看弗兰克分钱" distribution-viewed?))))))
 
+    ;; 只属于本场的调度简写。公共舞台提供 spawn/move/remove；三个人影穿场
+    ;; 是这场戏的句法，不是引擎原语。
+    (define (cross-shadows prefix from to with-call?)
+      (list
+        (stage-parallel
+          (stage-spawn (string-append prefix "一") "黑影" from 'back)
+          (stage-spawn (string-append prefix "二") "黑影" (- from 1.5) 'middle)
+          (stage-spawn (string-append prefix "三") "黑影" (- from 3) 'front))
+        (if with-call?
+            (stage-parallel
+              (stage-move (string-append prefix "一") to 0.85)
+              (stage-move (string-append prefix "二") to 1.05)
+              (stage-move (string-append prefix "三") to 1.2)
+              (stage-sound "码头/急活" 7))
+            (stage-parallel
+              (stage-move (string-append prefix "一") to 0.85)
+              (stage-move (string-append prefix "二") to 1.05)
+              (stage-move (string-append prefix "三") to 1.2)))
+        (stage-parallel
+          (stage-remove (string-append prefix "一"))
+          (stage-remove (string-append prefix "二"))
+          (stage-remove (string-append prefix "三")))))
+
+    (define (play-ship-arrival!)
+      (apply play-stage!
+        (append
+          (list
+            (stage-spawn "尼尔" "尼尔" -5 'middle)
+            (stage-say "尼尔" "今天怎么回事？"))
+          (cross-shadows "第一班" -14 14 #t)
+          (cross-shadows "第二班" 14 -14 #f)
+          (list
+            (stage-pose "尼尔" "侧身退")
+            (stage-spawn "弗兰克" "弗兰克" 14 'front)
+            (stage-move "弗兰克" 5 0.3)
+            (stage-light "弗兰克" 'surge)
+            (stage-say "弗兰克" "东边缺两个人！钢缆别堆在跳板上！")
+            (stage-say "弗兰克" "找活的？今天加钱。去那边报名字。")
+            (stage-light "弗兰克" 'normal)
+            (stage-move "弗兰克" 14 0.25)
+            (stage-remove "弗兰克")
+            (stage-move "尼尔" 0 0.3)
+            (stage-say "尼尔" "他是谁？")
+            (stage-spawn "码头工人" "路人男" -14 'middle)
+            (stage-move "码头工人" -5 0.3)
+            (stage-say "码头工人" "进水了，临时拖来的。弗兰克在管，别挡跳板。")
+            (stage-move "码头工人" 14 0.35)
+            (stage-remove "码头工人")))))
+
     (define (arrival-repair)
       (arrival "旧货船进水"
         (lambda ()
-          (meet!)
-          (set! repair-state "进行中")
-          (set! repair-deadline-day (+ world-day repair-days))
-          (sync-globals!)
+          (set! repair-arrival-viewed? #t)
           ;; 演出：切到泊位低机位，看那条船从画外压进来、蹭着停住、锚砸下去、吊杆摆向岸边；
           ;; 播完回原机位接对白。船之后一直停在航道上，直到扣船了结（见 ship-berthed?）。
           (play-motion! "码头/货船" "Berthed" "码头-靠岸")
-          (play-dialogue!
-            (line "世界" "它比这条河上任何一条船都大。锚链放下去的时候，栈桥上没有人说话；然后所有人同时动了起来。")
-            (line "世界" "船是进水拖回来的。抽水泵沿着跳板排成一列，舱里的人把湿木板一块块递出来。")
-            (line "世界" "弗兰克站在跳板边写班表。有人从舱里上来报了伤，说了个名字。他没有抬头，在账册里另记了一格。")
-            (line "弗兰克" "船主只留三天。四件事，一样也不能少。")
-            (line "尼尔" "缺哪一班？")
-            (line "弗兰克" "每一班。名字写这里。")
-            (line "世界" "他把班表推过来，手指停在一行空格上。"))
+          (play-ship-arrival!)
           (spotlight! "货船抢修"
             "船主只留三天。弗兰克把四项抢修排进同一张班表；参加与否由你决定。"))))
 
     (define (arrivals-at location)
       (if (and (equal? location "码头")
-               (equal? repair-state "未开放")
-               (three-letters 'has-flag? '第二封信))
+               (equal? repair-state "进行中")
+               (= world-day (- repair-deadline-day repair-days))
+               (not repair-arrival-viewed?))
           (list (arrival-repair))
           '()))
 
     (define-turn-rule "货船抢修期限"
       (lambda () (and (equal? repair-state "进行中") (>= world-day repair-deadline-day)))
       (lambda () (settle-repair! #f)))
+
+    (define-turn-start-rule "旧货船改泊"
+      (lambda () (and (= world-day 2) (equal? repair-state "未开放")))
+      (lambda ()
+        (set! repair-state "进行中")
+        (set! repair-deadline-day (+ world-day repair-days))
+        (sync-globals!)))
 
     (define-turn-rule "不开的船等待合适白天"
       (lambda () (and (equal? hold-state "待安排")
@@ -424,6 +492,7 @@
            (set! repair-state "已结束")
            (set! repair-deadline-day 0)
            (set! repair-joined? #f)
+           (set! repair-arrival-viewed? #t)
            (set! repair-result "未介入")
            (set! hold-state "缺席")
            (set! hold-open-day 0)
@@ -436,12 +505,12 @@
            (set! at-table? #f)
            (sync-globals!)
            (validate-state!))
-          ;; 大船靠岸调试：只重置这条货船事件链。第二封信门槛由 world 的调试入口准备；
-          ;; 随后仍要正常进入码头，让正式 arrivals-at 路径负责演出和期限。
+          ;; 大船靠岸调试：重置事件链并让船在当前日抵港，随后正常进入码头看演出。
           ((equal? msg 'debug-reset-ship-repair!)
            (set! repair-state "未开放")
            (set! repair-deadline-day 0)
            (set! repair-joined? #f)
+           (set! repair-arrival-viewed? #f)
            (set! repair-result "未结算")
            (repair-clk 'set! 0)
            (set! hold-state "未发生")
@@ -450,8 +519,11 @@
            (set! hold-paid? #f)
            (set! hold-payment 0)
            (set! distribution-viewed? #f)
+           (set! repair-state "进行中")
+           (set! repair-deadline-day (+ world-day repair-days))
            (sync-globals!)
            (validate-state!))
+          ((equal? msg 'debug-stage-arrival!) (play-ship-arrival!))
           ((equal? msg 'met?) met?)
           ((equal? msg 'repair-state) repair-state)
           ((equal? msg 'hold-state) hold-state)
@@ -470,6 +542,7 @@
              (list "repair-state" repair-state)
              (list "repair-deadline-day" repair-deadline-day)
              (list "repair-joined?" repair-joined?)
+             (list "repair-arrival-viewed?" repair-arrival-viewed?)
              (list "repair-result" repair-result)
              (list "repair-progress" (repair-clk 'save))
              (list "hold-state" hold-state)
@@ -490,6 +563,7 @@
              (set! repair-state (required-field data "repair-state"))
              (set! repair-deadline-day (required-field data "repair-deadline-day"))
              (set! repair-joined? (required-field data "repair-joined?"))
+             (set! repair-arrival-viewed? (assoc-get data "repair-arrival-viewed?" #f))
              (set! repair-result (required-field data "repair-result"))
              (repair-clk 'load! (required-field data "repair-progress"))
              (set! hold-state (required-field data "hold-state"))

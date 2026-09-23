@@ -449,6 +449,16 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__play-dialogue!"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__play-stage!"), new NativeProcedure(args =>
+            {
+                var sequence = ParseStoryStage(args);
+                if (gameState.CurrentActionReport != null)
+                    gameState.CurrentActionReport.BlockingStorySteps.Add(BlockingStoryStep.ForStage(sequence));
+                else
+                    gameState.DialogueCenter.RequestStage(sequence);
+                return new None();
+            }, "__play-stage!"));
+
             // 非阻塞插话:动作内延迟到 adopt 之后释放,动作外即时广播。
             interpreter.DefineGlobal(Symbol.FromString("__play-banter!"), new NativeProcedure(args =>
             {
@@ -610,6 +620,97 @@ namespace SSNoir.Scripting
 
                 throw new ArgumentException("random-choice argument must be a list");
             }, "random-choice"));
+        }
+
+        internal static StoryStageSequence ParseStoryStage(IList<object> args)
+        {
+            if (args.Count != 1 || !(args[0] is List<object> rawBeats) || rawBeats.Count == 0)
+                throw new ArgumentException("play-stage!: expected a non-empty list of beats");
+            var actors = new HashSet<string>();
+            var beats = new List<StoryStageBeat>();
+            foreach (var rawBeat in rawBeats)
+            {
+                if (!(rawBeat is List<object> rawCommands) || rawCommands.Count == 0)
+                    throw new ArgumentException("play-stage!: beat must contain commands");
+                var commands = new List<StoryStageCommand>();
+                var writes = new HashSet<string>();
+                bool hasSay = false;
+                foreach (var rawCommand in rawCommands)
+                {
+                    if (!(rawCommand is List<object> p) || p.Count == 0)
+                        throw new ArgumentException("play-stage!: malformed command");
+                    string op = SchemeValue.AsId(p[0]);
+                    string Id(int at) => at < p.Count && p[at] is string s && !string.IsNullOrWhiteSpace(s)
+                        ? s : throw new ArgumentException($"play-stage! {op}: expected non-empty string at {at}");
+                    float Number(int at) => at < p.Count ? Convert.ToSingle(p[at])
+                        : throw new ArgumentException($"play-stage! {op}: missing number at {at}");
+                    StoryStageCommand command;
+                    switch (op)
+                    {
+                        case "spawn":
+                            if (p.Count != 5) throw new ArgumentException("stage-spawn: id asset x layer");
+                            var layer = SchemeValue.AsId(p[4]);
+                            if (layer != "back" && layer != "middle" && layer != "front")
+                                throw new ArgumentException("stage-spawn: layer must be back/middle/front");
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Spawn, Id = Id(1), Asset = Id(2), X = Number(3), Layer = layer };
+                            if (actors.Contains(command.Id)) throw new ArgumentException($"stage-spawn: duplicate id {command.Id}");
+                            if (!writes.Add(command.Id + "|all")) throw new ArgumentException($"stage-spawn: concurrent write to {command.Id}");
+                            actors.Add(command.Id);
+                            break;
+                        case "move":
+                            if (p.Count != 4) throw new ArgumentException("stage-move: id x seconds");
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Move, Id = Id(1), X = Number(2), Seconds = Number(3) };
+                            break;
+                        case "remove":
+                            if (p.Count != 2) throw new ArgumentException("stage-remove: id");
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Remove, Id = Id(1) };
+                            break;
+                        case "pose":
+                            if (p.Count != 3) throw new ArgumentException("stage-pose: id pose");
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Pose, Id = Id(1), Asset = Id(2) };
+                            break;
+                        case "light":
+                            if (p.Count != 3) throw new ArgumentException("stage-light: id state");
+                            var light = SchemeValue.AsId(p[2]);
+                            if (!LightStates.Contains(light)) throw new ArgumentException("stage-light: state must be normal/surge/faint/ember");
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Light, Id = Id(1), Asset = light };
+                            break;
+                        case "sound":
+                            if (p.Count != 3) throw new ArgumentException("stage-sound: resource x");
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Sound, Asset = Id(1), X = Number(2) };
+                            break;
+                        case "say":
+                            if (p.Count != 2) throw new ArgumentException("stage-say: line");
+                            var dialogue = ParseDialogueSequence(new List<object> { new List<object> { p[1] } }, "stage-say");
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Say, Line = dialogue.Lines[0] };
+                            if (hasSay || rawCommands.Count != 1) throw new ArgumentException("stage-say must occupy its own beat");
+                            if (!actors.Contains(command.Line.Speaker)) throw new ArgumentException($"stage-say: speaker is not on stage: {command.Line.Speaker}");
+                            hasSay = true;
+                            break;
+                        case "pause":
+                            if (p.Count != 2) throw new ArgumentException("stage-pause: seconds");
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Pause, Seconds = Number(1) };
+                            break;
+                        default: throw new ArgumentException($"play-stage!: unknown command {op}");
+                    }
+                    if (command.Seconds < 0 || float.IsNaN(command.Seconds) || float.IsInfinity(command.Seconds)
+                        || float.IsNaN(command.X) || float.IsInfinity(command.X) || command.X < -20 || command.X > 20)
+                        throw new ArgumentException($"play-stage! {op}: invalid position or duration");
+                    if (command.Kind == StoryStageCommandKind.Move || command.Kind == StoryStageCommandKind.Pose
+                        || command.Kind == StoryStageCommandKind.Light || command.Kind == StoryStageCommandKind.Remove)
+                    {
+                        if (!actors.Contains(command.Id)) throw new ArgumentException($"play-stage! {op}: unknown actor {command.Id}");
+                        string channel = command.Kind == StoryStageCommandKind.Pose ? "pose" : command.Kind == StoryStageCommandKind.Light ? "light" : command.Kind == StoryStageCommandKind.Move ? "position" : "all";
+                        if (writes.Contains(command.Id + "|all") || (channel == "all" && (writes.Contains(command.Id + "|position") || writes.Contains(command.Id + "|pose") || writes.Contains(command.Id + "|light")))
+                            || !writes.Add(command.Id + "|" + channel))
+                            throw new ArgumentException($"play-stage!: concurrent writes to {command.Id} {channel}");
+                        if (command.Kind == StoryStageCommandKind.Remove) actors.Remove(command.Id);
+                    }
+                    commands.Add(command);
+                }
+                beats.Add(new StoryStageBeat(commands));
+            }
+            return new StoryStageSequence(beats);
         }
 
         // 把 Scheme 端 (list (line speaker text [voice] [dwell]) ...) 解析成 DialogueSequence。

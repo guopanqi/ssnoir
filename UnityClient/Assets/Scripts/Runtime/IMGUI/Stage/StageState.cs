@@ -68,6 +68,40 @@ namespace SSNoir.IMGUI.Stage
         public IEnumerable<StageActor> Actors => _actors.Values;
         public bool TryGetActor(string name, out StageActor actor) => _actors.TryGetValue(name, out actor!);
 
+        public void Spawn(string id, string asset, float x, string layer, float now, System.Func<string, Texture2D?> loadPortrait)
+        {
+            if (_actors.ContainsKey(id)) throw new System.InvalidOperationException("stage actor already exists: " + id);
+            var texture = loadPortrait(asset) ?? throw new System.InvalidOperationException("stage portrait missing: " + asset);
+            var actor = new StageActor(id, x < 0f, now, texture) { AssetName = asset, StageLayer = layer };
+            actor.SetStageX(x, 0f, now);
+            _actors.Add(id, actor);
+        }
+
+        public void Move(string id, float x, float seconds, float now)
+        {
+            if (!_actors.TryGetValue(id, out var actor)) throw new System.InvalidOperationException("stage actor missing: " + id);
+            actor.SetStageX(x, seconds, now);
+        }
+
+        public void Remove(string id)
+        {
+            if (!_actors.Remove(id)) throw new System.InvalidOperationException("stage actor missing: " + id);
+        }
+
+        public void Pose(string id, string pose, float now, System.Func<string, string, Texture2D?> loadPose)
+        {
+            if (!_actors.TryGetValue(id, out var actor)) throw new System.InvalidOperationException("stage actor missing: " + id);
+            var texture = loadPose(actor.AssetName, pose) ?? throw new System.InvalidOperationException("stage pose missing: " + actor.AssetName + "_" + pose);
+            actor.SwitchPose(pose, texture, now);
+        }
+
+        public void Light(string id, string state, float now)
+        {
+            if (!_actors.TryGetValue(id, out var actor)) throw new System.InvalidOperationException("stage actor missing: " + id);
+            actor.SetGlow(state switch { "faint" => GlowFaint, "ember" => GlowEmber, "surge" => GlowSurge, _ => 1f }, now);
+            actor.SetWarmth(state == "ember" ? 1f : 0f, now);
+        }
+
         public void Reset()
         {
             _actors.Clear();
@@ -273,6 +307,9 @@ namespace SSNoir.IMGUI.Stage
     public sealed class StageActor
     {
         public string Name { get; }
+        public string AssetName { get; set; } = string.Empty;
+        public string StageLayer { get; set; } = "middle";
+        public bool UsesStageX { get; private set; }
         public bool OnLeft { get; }
         public bool Missing { get; }         // 连基础立绘都没有：画缺图人物牌
         public float EnteredAt;
@@ -290,6 +327,7 @@ namespace SSNoir.IMGUI.Stage
         private float _accentChangedAt = -10f;
         private bool _accentSet;
         private float _offsetFrom, _offsetTarget, _offsetChangedAt = -10f;
+        private float _stageXFrom, _stageXTarget, _stageXChangedAt = -10f, _stageXDuration;
         public float ShakeAt = -10f;
         public float FlickerAt = -10f;
         public float RelightAt = -10f;
@@ -297,11 +335,24 @@ namespace SSNoir.IMGUI.Stage
         public StageActor(string name, bool onLeft, float now, Texture2D? baseTexture)
         {
             Name = name;
+            AssetName = name;
             OnLeft = onLeft;
             EnteredAt = now;
             Texture = baseTexture;
             Missing = baseTexture == null;
         }
+
+        public void SetStageX(float target, float seconds, float now)
+        {
+            _stageXFrom = UsesStageX ? CurrentStageX(now) : target;
+            _stageXTarget = target;
+            _stageXChangedAt = now;
+            _stageXDuration = seconds;
+            UsesStageX = true;
+        }
+
+        public float CurrentStageX(float now) => _stageXDuration <= 0f ? _stageXTarget
+            : Mathf.Lerp(_stageXFrom, _stageXTarget, StageState.EaseOut(_stageXChangedAt, _stageXDuration, now));
 
         // 刚上台的人传 changedAt = -10：直接以指定姿势点亮，不先闪一下招牌姿势再切过去。
         public void SwitchPose(string pose, Texture2D texture, float changedAt)

@@ -1225,6 +1225,21 @@
 (define (play-dialogue! . lines)
   (__play-dialogue! lines))
 
+;; 一场连续的立绘舞台演出。普通指令各占一拍；(stage-parallel ...) 同时启动，
+;; 等最慢的移动/停顿结束。位置是 -10..10 的舞台横轴，画外可到 -20..20。
+;; 声音只播音效，不生成对白框；stage-say 才等待玩家点击。
+(define (stage-spawn id asset x layer) (list (list 'spawn id asset x layer)))
+(define (stage-move id x seconds) (list (list 'move id x seconds)))
+(define (stage-remove id) (list (list 'remove id)))
+(define (stage-pose id pose) (list (list 'pose id pose)))
+(define (stage-light id state) (list (list 'light id state)))
+(define (stage-sound asset x) (list (list 'sound asset x)))
+(define (stage-say speaker text . voice)
+  (list (list 'say (if (null? voice) (line speaker text) (line speaker text (car voice))))))
+(define (stage-pause seconds) (list (list 'pause seconds)))
+(define (stage-parallel . beats) (apply append beats))
+(define (play-stage! . beats) (__play-stage! beats))
+
 ;; 人物的标志色：立绘上点缀色那几根管子的颜色，随剧情变。传 CSS 十六进制色（"#8A5A2B"），
 ;; 舞台在几秒里把颜色过渡过去；存档里跟着走。林从原教旨的冷蓝慢慢变暖，就写在他的事件里。
 (define (set-portrait-accent! 人 色)

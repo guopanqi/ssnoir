@@ -108,10 +108,9 @@
 (define (debug-enter-chapter2-phase-b!) (debug-enter-chapter2-phase-b-with-lin! #f))
 (define (debug-enter-chapter2-phase-b-lin-core!) (debug-enter-chapter2-phase-b-with-lin! #t))
 
-;; 准备到「第二封信已经读完、货船尚未靠岸」的状态。调试者随后正常进入码头，
+;; 准备到「货船刚靠岸」的状态。调试者随后正常进入码头，
 ;; 让正式入场路径触发靠岸演出，而不是从世界地图上硬播一段地点镜头。
 (define (debug-prepare-ship-repair!)
-  (three-letters 'debug-enable-second-letter!)
   (frank 'debug-reset-ship-repair!))
 
 ;; ── 地点可见性 ───────────────────────────────────

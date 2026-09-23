@@ -73,10 +73,22 @@ namespace SSNoir.Testing
                     AssertNodeAnchorDsl(sceneManager);
                     AssertArrivalDsl(sceneManager);
                     AssertPlaceUnlockNotifications(sceneManager);
+                    AssertStoryStageDsl(sceneManager);
                 }
 
                 Console.WriteLine($"Validated scene '{sceneName}' with root '{sceneManager.CurrentRootNode.Name}'.");
             }
+        }
+
+        private static void AssertStoryStageDsl(SceneManager sceneManager)
+        {
+            sceneManager.ActiveInterpreter.Eval(
+                "(play-stage! " +
+                "(stage-spawn \"尼尔\" \"尼尔\" -5 'middle) " +
+                "(stage-parallel (stage-move \"尼尔\" 0 0.3) (stage-sound \"测试\" 7)) " +
+                "(stage-say \"尼尔\" \"测试\") " +
+                "(stage-remove \"尼尔\"))");
+            Console.WriteLine("[validate] story stage DSL contract passed.");
         }
 
         /// <summary>
