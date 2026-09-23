@@ -31,7 +31,7 @@ namespace SSNoir.IMGUI.Stage
     }
 
     // 画一盏霓虹灯——也就是一张立绘——的全部方法。两种介质：
-    //   黑夜：灯管发光，有光晕、光池、湿地反光；
+    //   黑夜：灯管发光，有光晕；
     //   纸上（负片）：同一张图染墨画在纸白上，不发光，surge 是墨渗开。
     // 贴图是纯黑底、alpha 从灰度取，所以染成什么颜色就是什么颜色的管子。
     public static class LampPainter
@@ -84,11 +84,10 @@ namespace SSNoir.IMGUI.Stage
             var tube = Color.Lerp(Color.white, EmberTube, look.Warmth);
             var accent = Color.Lerp(look.Color, EmberTube, look.Warmth);
 
-            // 燃：光晕、光池都跟着已经点亮的比例走，灯管本体按条带从脚往上亮。
+            // 燃：灯管本体按条带从脚往上亮。
             if (look.Wipe < 1f)
             {
                 DrawVignette(rect);
-                DrawLightPool(rect, brightness * look.Wipe * look.Wipe, look.Color);
                 if (layers.Skeleton != null)
                     DrawTubesRelight(rect, portrait, layers, uv, tube, accent, brightness, look.Wipe, new Color(0.004f, 0.007f, 0.016f, 1f), false);
                 else
@@ -106,8 +105,6 @@ namespace SSNoir.IMGUI.Stage
             // 人物正后方的暗晕：霓虹的好看全靠亮度对比，背后必须是黑；而暗晕只罩住人物这一圈，
             // 远处的城市原样留着，不会把整块画面关掉。
             DrawVignette(rect);
-            // 底部光池：灯管把地面照出一摊光，也把人物和对白框连起来。
-            DrawLightPool(rect, brightness * haloAmount * haloThick, look.Color);
 
             // 外层光晕：同一张图逐层放大、压暗地叠出溢光，代替做不到的加法混合。
             float halo = Brightness(look.Reveal) * look.Level * haloAmount * haloThick;
@@ -120,7 +117,6 @@ namespace SSNoir.IMGUI.Stage
             }
 
             DrawLayeredTubes(rect, portrait, layers, uv, tube, accent, brightness, false);
-            DrawReflection(rect, portrait, uv, brightness * haloAmount);
             if (look.Current > 0.01f && layers.Skeleton != null)
                 DrawCurrent(rect, layers.Skeleton, uv, look.Current, brightness, Color.Lerp(Color.white, accent, 0.5f));
             if (look.DeadStep >= 0 && layers.Skeleton != null)
@@ -286,36 +282,10 @@ namespace SSNoir.IMGUI.Stage
             GUI.DrawTexture(core, halo);
         }
 
-        private static void DrawLightPool(Rect rect, float brightness, Color color)
-        {
-            // 脚下一摊光：同一张径向渐变压扁成椭圆，一笔画完，不再有横条阶梯。
-            var pool = new Rect(
-                rect.center.x - rect.width * 1.15f,
-                rect.yMax - rect.height * 0.20f,
-                rect.width * 2.3f,
-                rect.height * 0.44f);
-            GUI.color = new Color(color.r, color.g, color.b, 0.16f * brightness);
-            GUI.DrawTexture(pool, NeonPortraitLibrary.RadialFalloff());
-        }
-
-        // 湿地面上的倒影：整块竖直翻转画一次，再盖一层竖直渐变把它抹进地面。
-        private static void DrawReflection(Rect rect, Texture2D portrait, Rect uv, float brightness)
-        {
-            float reflectHeight = rect.height * 0.16f;
-            float uvHeight = uv.height * (reflectHeight / rect.height);
-            var area = new Rect(rect.x, rect.yMax, rect.width, reflectHeight);
-            var flipped = new Rect(uv.x, uv.y + uvHeight, uv.width, -uvHeight);
-
-            GUI.color = new Color(1f, 1f, 1f, 0.20f * brightness);
-            GUI.DrawTextureWithTexCoords(area, portrait, flipped, true);
-            GUI.color = new Color(0.004f, 0.007f, 0.016f, 1f);
-            GUI.DrawTexture(area, NeonPortraitLibrary.VerticalFade());
-        }
-
         // ── 纸上 ──
 
         // 灯的语法在纸上换一套物理：surge 不是发光而是墨渗开——线更重、周围一圈灰晕；
-        // faint 是墨淡了；flicker 是线断掉露出纸；blackout 是整页空白。没有光池和反光，纸不反光。
+        // faint 是墨淡了；flicker 是线断掉露出纸；blackout 是整页空白。
         private static void PaintInk(Rect rect, Texture2D portrait, in PortraitLayers layers, Rect uv, in LampLook look)
         {
             var ink = IMGUIStyles.Ink;

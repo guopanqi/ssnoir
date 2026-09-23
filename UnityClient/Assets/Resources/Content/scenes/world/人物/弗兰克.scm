@@ -59,10 +59,12 @@
     (define (hold-settled?) (member? hold-state (list "已结算" "缺席")))
 
     ;; 货船在泊：那条大船停在码头航道上的日子（抢修中、修好等验船、扣船那天）。
-    ;; 画面由 PropMotion.SyncAll 读这个键摆船；进港那一下是入场里的 play-motion!。
-    ;; debug-reset-ship-repair! 走的也是这里：键回到 #f，船退回画外，再进码头入场才会重演进港。
+    ;; 画面由 PropMotion.SyncAll 读这个键摆船；当天尚未看入场时仍留在画外，
+    ;; 让进码头的 play-motion! 真正从 Offshore 播到 Berthed。错过当天后船照常在泊。
     (define (ship-berthed?)
-      (or (equal? repair-state "进行中")
+      (or (and (equal? repair-state "进行中")
+               (or repair-arrival-viewed?
+                   (> world-day (- repair-deadline-day repair-days))))
           (member? hold-state (list "待安排" "待处理"))))
 
     (define (sync-globals!)
@@ -151,14 +153,14 @@
                 (stage-spawn "尼尔" "尼尔" -6 'middle)
                 (stage-spawn "弗兰克" "弗兰克" 1 'middle)
                 (stage-spawn "贝恩斯" "贝恩斯" 7 'front))
-              (stage-say "贝恩斯" "岸口的人可以撤了？")
-              (stage-say "弗兰克" "再留十分钟。最后一班还没上来。")
-              (stage-say "贝恩斯" "十分钟。")
+              (stage-say "贝恩斯" "岸口的人可以撤了？" "货船/码头/收工/01/贝恩斯")
+              (stage-say "弗兰克" "再留十分钟。最后一班还没上来。" "货船/码头/收工/02/弗兰克")
+              (stage-say "贝恩斯" "十分钟。" "货船/码头/收工/03/贝恩斯")
               (stage-move "贝恩斯" 14 0.35)
               (stage-remove "贝恩斯")
-              (stage-say "弗兰克" "尼尔……你不是我这儿的人。")
-              (stage-say "尼尔" "今天算是。")
-              (stage-say "弗兰克" "今天算。工钱去岸口领。"))
+              (stage-say "弗兰克" "尼尔……你不是我这儿的人。" "货船/码头/收工/04/弗兰克")
+              (stage-say "尼尔" "今天算是。" "货船/码头/收工/05/尼尔")
+              (stage-say "弗兰克" "今天算。工钱去岸口领。" "货船/码头/收工/06/弗兰克"))
             (spotlight! "货船达到离港标准"
               (if (equal? repair-result "按时修好")
                   "泵压住了进水。你把最后一班抢了下来，代理明天来验船。"
@@ -170,7 +172,7 @@
       (meet!)
       (repair-clk 'advance! n)
       (if (= n 0)
-          (play-banter! (line "弗兰克" "先放下！那根绳滑了，下面的人怎么办？"))
+          (play-banter! (line "弗兰克" "先放下！那根绳滑了，下面的人怎么办？" "货船/码头/坏结果/01/弗兰克"))
           #f)
       (if (repair-clk 'full?) (settle-repair! #t) #f))
 
@@ -377,9 +379,9 @@
     (define (cross-shadows prefix from to with-call?)
       (list
         (stage-parallel
-          (stage-spawn (string-append prefix "一") "黑影" from 'back)
-          (stage-spawn (string-append prefix "二") "黑影" (- from 1.5) 'middle)
-          (stage-spawn (string-append prefix "三") "黑影" (- from 3) 'front))
+          (stage-spawn (string-append prefix "一") "码头工人_奔跑" from 'back)
+          (stage-spawn (string-append prefix "二") "码头工人_奔跑" (- from 1.5) 'middle)
+          (stage-spawn (string-append prefix "三") "码头工人_奔跑" (- from 3) 'front))
         (if with-call?
             (stage-parallel
               (stage-move (string-append prefix "一") to 0.85)
@@ -400,7 +402,7 @@
         (append
           (list
             (stage-spawn "尼尔" "尼尔" -5 'middle)
-            (stage-say "尼尔" "今天怎么回事？"))
+            (stage-say "尼尔" "今天怎么回事？" "货船/码头/靠岸/01/尼尔"))
           (cross-shadows "第一班" -14 14 #t)
           (cross-shadows "第二班" 14 -14 #f)
           (list
@@ -408,16 +410,16 @@
             (stage-spawn "弗兰克" "弗兰克" 14 'front)
             (stage-move "弗兰克" 5 0.3)
             (stage-light "弗兰克" 'surge)
-            (stage-say "弗兰克" "东边缺两个人！钢缆别堆在跳板上！")
-            (stage-say "弗兰克" "找活的？今天加钱。去那边报名字。")
+            (stage-say "弗兰克" "东边缺两个人！钢缆别堆在跳板上！" "货船/码头/靠岸/02/弗兰克")
+            (stage-say "弗兰克" "找活的？今天加钱。去那边报名字。" "货船/码头/靠岸/03/弗兰克")
             (stage-light "弗兰克" 'normal)
             (stage-move "弗兰克" 14 0.25)
             (stage-remove "弗兰克")
             (stage-move "尼尔" 0 0.3)
-            (stage-say "尼尔" "他是谁？")
-            (stage-spawn "码头工人" "路人男" -14 'middle)
+            (stage-say "尼尔" "他是谁？" "货船/码头/靠岸/04/尼尔")
+            (stage-spawn "码头工人" "码头工人" -14 'middle)
             (stage-move "码头工人" -5 0.3)
-            (stage-say "码头工人" "进水了，临时拖来的。弗兰克在管，别挡跳板。")
+            (stage-say "码头工人" "进水了，临时拖来的。弗兰克在管，别挡跳板。" "货船/码头/靠岸/05/码头工人")
             (stage-move "码头工人" 14 0.35)
             (stage-remove "码头工人")))))
 
@@ -425,12 +427,11 @@
       (arrival "旧货船进水"
         (lambda ()
           (set! repair-arrival-viewed? #t)
+          (sync-globals!)
           ;; 演出：切到泊位低机位，看那条船从画外压进来、蹭着停住、锚砸下去、吊杆摆向岸边；
           ;; 播完回原机位接对白。船之后一直停在航道上，直到扣船了结（见 ship-berthed?）。
           (play-motion! "码头/货船" "Berthed" "码头-靠岸")
-          (play-ship-arrival!)
-          (spotlight! "货船抢修"
-            "船主只留三天。弗兰克把四项抢修排进同一张班表；参加与否由你决定。"))))
+          (play-ship-arrival!))))
 
     (define (arrivals-at location)
       (if (and (equal? location "码头")
@@ -523,7 +524,6 @@
            (set! repair-deadline-day (+ world-day repair-days))
            (sync-globals!)
            (validate-state!))
-          ((equal? msg 'debug-stage-arrival!) (play-ship-arrival!))
           ((equal? msg 'met?) met?)
           ((equal? msg 'repair-state) repair-state)
           ((equal? msg 'hold-state) hold-state)
