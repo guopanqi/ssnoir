@@ -132,6 +132,8 @@
     (define bridge-identified? #f)  ; 已从桥廊住户处问出莱恩
     (define envelope-thin? #f)      ; 投信那夜信封没凑够——他回去数过了
     (define patience-day 0)         ; 上一次经理耐心掉格的世界日
+    (define manager-warning-level 0) ; 0=未提醒，1=四格谈话，2=两格谈话
+    (define manager-phone-given? #f)
     (define report-pending "")      ; 等待向经理汇报："" / "查明" / "巷子失败"
     (define alley-thrown-out? #f)   ; 有一晚在弗兰克门口被送回路口
     (define inquiry-day 0)          ; 经理的人开始找莱恩那天
@@ -162,6 +164,7 @@
       (cond
         ((or (equal? flag '勒索信已结算) (equal? flag "勒索信已结算")) "勒索信已结算")
         ((or (equal? flag '伤后探望) (equal? flag "伤后探望")) "伤后探望")
+        ((or (equal? flag '初到居民区) (equal? flag "初到居民区")) "初到居民区")
         ((or (equal? flag '第二封信来电) (equal? flag "第二封信来电")) "第二封信来电")
         ((or (equal? flag '第二封信) (equal? flag "第二封信")) "第二封信")
         ((or (equal? flag '警察局开放) (equal? flag "警察局开放")) "警察局开放")
@@ -264,6 +267,7 @@
       (set-global! '勒索信结果 delivery-result)
       (set-global! '小节二路线 settle-route)
       (set-global! '莱恩下落 lyon-fate)
+      (set-global! '经理解雇过尼尔 (has-flag? '被经理解雇))
       ;; 首演交锋读两个漏洞各在哪一档。
       (set-global! '漏洞-通风口 hole-vent)
       (set-global! '漏洞-配电箱 hole-power))
@@ -705,17 +709,22 @@
     (define (node-second-letter)
       (instant-action "见剧院的经理"
         (lambda ()
+          (play-remote-dialogue!
+            (line "世界" "经理笑着迎上来，先替你拉开椅子。")
+            (line "经理" "尼尔！夜莺老提起你。全城侦探的明日之星！")
+            (line "经理" "她说你办事利落，连走路都像早知道答案。")
+            (line "经理" "坐，坐。以后进剧院，报我的名字就是。"))
           (if (warren-done?)
               (play-remote-dialogue!
-                (line "经理" "今天排练的时候，前台送来一封给夜莺的信。我相信你知道些什么。" "三封信/第二封信/已查明/01/经理")
+                (line "经理" "她今天又收到一封信。我正想请你来商量。")
                 (line "尼尔" "我知道一个名字。莱恩，从老街桥廊出来的。" "三封信/第二封信/已查明/01/尼尔")
-                (line "经理" "那就别兜圈子了。把你知道的底细全告诉我。" "三封信/第二封信/已查明/02/经理"))
+                (line "经理" "你看，我就知道请你来是对的。慢慢说。"))
               (play-remote-dialogue!
-                (line "经理" "今天排练的时候，前台送来一封给夜莺的信。我相信你比我更清楚是怎么回事。" "三封信/第二封信/主对白/01/经理")
+                (line "经理" "她今天又收到一封信。我正想请你来商量。")
                 (line "尼尔" "我或许知道一点。但对我的委托人，私家侦探有保密的规矩。" "三封信/第二封信/主对白/01/尼尔")
-                (line "经理" "哼，你以为这件事这么简单？夜莺是个好姑娘，是我把她从泥里挖出来的。她是个好歌手，天生的名角。" "三封信/第二封信/主对白/02/经理")
-                (line "经理" "现在有人想毁了她，你明白这意味着什么吗？" "三封信/第二封信/主对白/03/经理")
-                (line "经理" "钱少不了你的，但手脚得快。首演没剩几天了，丑闻绝不能在那之前捅出来。" "三封信/第二封信/主对白/04/经理")))
+                (line "经理" "当然。夜莺信得过你，我也信得过你。")
+                (line "经理" "她是个好歌手，我盼着全城都能听见她唱。")
+                (line "经理" "你尽管查。需要进后台、找人问话，就报我的名字。")))
           (set-flag! '第二封信)
           (patience-clk 'set! (patience-clk 'max))
           (set! patience-day world-day)
@@ -733,7 +742,7 @@
                 (settle-beat2!)
                 (resolve-pending-report!))
               (spotlight! "第二封信"
-                "在经理的耐心耗尽之前，找到那个人。")))))
+                "经理请你查清写信的人。首演之前，他需要一个交代。")))))
 
     ;; ── 小节二·老街探索 ─────────────────────────────
     ;; 四个动作表示玩家当前能抵达的空间前沿。每段走完就被下一段或永久结果取代，
@@ -940,6 +949,26 @@
 
 
     ;; ── 小节二·第一趟：独自去 ───────────────────────
+    ;; 入场只让尼尔看见这里的空间，不提前替玩家宣布「没人肯说」。
+    ;; 任务在来之前已经进卷宗；对白过后玩家亲自从门廊开始打听。
+    (define (first-resident-dialogue!)
+      (play-dialogue!
+        (line "尼尔" "从码头看，这里不过是几栋挤在一起的旧楼。" "三封信/居民区/初到/01/尼尔")
+        (line "尼尔" "走近才看见，楼梯接着桥廊，每扇门后面还有别人的门。" "三封信/居民区/初到/02/尼尔")
+        (line "尼尔" "先找个肯开口的人。烟的事，就从门廊问起。" "三封信/居民区/初到/03/尼尔")))
+
+    (define (arrivals-at location)
+      (if (and (equal? location "码头居民区")
+               (alone-phase?)
+               (not (alone-trip-done?))
+               (not (has-flag? '初到居民区)))
+          (list
+            (arrival "初到码头居民区"
+              (lambda ()
+                (set-flag! '初到居民区)
+                (first-resident-dialogue!))))
+          '()))
+
     ;; 这一趟不产出线索。它只让玩家自己撞出一句话：这栋楼不对外人开口。
     ;; 因此三档结果全部填格——它不是判定「能不能查到」，是判定「你多快明白」。
     ;; 填满即结束，动作随即消失；不留一个永远可以再点一次的空节点。
@@ -1411,16 +1440,18 @@
 
     ;; ── 经理的耐心 ──────────────────────────────────
     (define (patience-clock)
-      (if (patience-running?) (list (patience-clk 'render-data)) '()))
+      (if (and (patience-running?) (> manager-warning-level 0))
+          (list (patience-clk 'render-data)) '()))
 
     (define (patience-note)
       (cond
         ;; 归零后 fail-game! 仍会重建一次世界树，用来承载失败演出。
         ;; 这里不能返回空串，否则经理下面会生成一张完全空的 note，反而截断 Game Over。
         ((patience-clk 'empty?) "他已经找了别人。你不再负责这件委托。")
-        ((<= (patience-clk 'current) 2) "他已经在跟别人打听侦探了。")
-        ((<= (patience-clk 'current) 4) "他开始问你要不要「多一个人手」。")
-        (else "他现在还把你当成他找对了的那个人。")))
+        ((= manager-warning-level 0) "他见到你，总是先笑着招呼。")
+        ((<= (patience-clk 'current) 2) "他仍说信任你，但已经在安排后手。")
+        ((<= (patience-clk 'current) 4) "他开始频繁问起调查进展。")
+        (else "他又像初见时那样热络。")))
 
     ;; 查清身份时经理付调查费；巷子成功后，夜莺在接过底片时亲自结清收尾费。
     ;; 失败线没有收尾费，经理直接解除雇佣。
@@ -1437,8 +1468,17 @@
     ;; 也可能发生在第二封信当天的第一次见面。两种路径共用同一笔调查费和下一段的等待。
     (define (resolve-identity-report!)
       (patience-clk 'advance! patience-report)
+      (if (not manager-phone-given?)
+          (begin
+            (set! manager-phone-given? #t)
+            (home 'connect-phone!)
+            (play-remote-dialogue!
+              (line "经理" "我叫人给你屋里接了电话。往后找你方便。")
+              (line "经理" "别谢我，朋友之间，这算什么。")))
+          #f)
       (play-remote-dialogue!
         (line "尼尔" "写信的人叫莱恩。老街桥廊出来的，夜莺以前认识他。")
+        (line "经理" "我早说过，你会是全城最好的侦探！")
         (line "经理" "名字和住处不是一回事。我让人去找他的门牌。")
         (line "尼尔" "那这一段的钱呢。")
         (line "经理" "查名字的钱现在结。让他不再写信，是下一段。"))
@@ -1459,9 +1499,9 @@
         ((equal? report-pending "巷子失败")
          (play-remote-dialogue!
            (line "尼尔" "东西没拿到。莱恩也没有答应收手。")
-           (line "经理" "那就到这里。我会找别的人。")
+           (line "经理" "我很为难，尼尔。剧院得请别人接手了。")
            (line "尼尔" "你是在解雇我。")
-           (line "经理" "我是把一件没办成的工作交给下一个人。")
+           (line "经理" "这是工作上的决定。我们都是为了夜莺好。")
            (line "夜莺" "首演那晚你还会来吗？")
            (line "尼尔" "你的经理刚让我别再进这扇门。")
            (line "夜莺" "我问的是，你会不会来看我。")
@@ -1506,19 +1546,29 @@
         (if (patience-clk 'empty?)
             (begin
               (play-dialogue!
-                (line "经理" "我找了别人。")
+                (line "经理" "我很为难，尼尔。但这件事我必须交给别人。")
                 (line "尼尔" "我还在查。")
-                (line "经理" "你一直在查。这就是问题。")
-                (line "经理" "我付钱不是为了让人查，是为了让事情结束。"))
+                (line "经理" "我知道。我们都想帮夜莺，这绝不是针对你。")
+                (line "经理" "只是剧院等不起了。我也得对他们有个交代。"))
               (fail-game! "你被换掉了"
                 "剧院经理另请了一位侦探。委托到此为止——你再没有理由走进那扇门，也再没有人会告诉你后来发生了什么。"))
             (begin
               ;; 从 2 格掉到 1 格以后立刻锁住下一次休息；玩家手里若有结果，
               ;; 必须先去剧院汇报，不能让下一次日终抢在可用的补救行动前触发失败。
               (sync-blockers!)
-              (notify! (string-append "经理的耐心还剩 "
-                                      (number->string (patience-clk 'current))
-                                      " 格。" (patience-note)))))))
+              (cond
+                ((and (= manager-warning-level 0) (<= (patience-clk 'current) 4))
+                 (set! manager-warning-level 1)
+                 (play-dialogue!
+                   (line "经理" "尼尔，我们都是为了夜莺好。得一起把事办妥。")
+                   (line "经理" "我知道你在忙，只是首演不会等我们。")))
+                ((and (= manager-warning-level 1) (<= (patience-clk 'current) 2))
+                 (set! manager-warning-level 2)
+                 (play-dialogue!
+                   (line "经理" "这件事要是办不好，连我都未必保得住位置。")
+                   (line "经理" "我不是针对你，也从没怀疑过你的能力。")
+                   (line "经理" "时间紧了。请你务必给我一个结果。")))
+                (else #f))))))
 
     ;; 她第一次不在酒馆。人物节点仍留在老街(见 §1.5)，这只是一次性的事件。
     (define (node-rehearsal)
@@ -1942,13 +1992,23 @@
       (set! visitor-shown (+ visitor-shown 1))
       (cond
         ((= visitor-shown 1)
-         (play-remote-dialogue!
-           (line "世界" "早上敲门的是贝恩斯。他没有脱帽，也没有等你请他坐。" "三封信/敲门的人/贝恩斯/01/世界")
-           (line "贝恩斯" "第三封信归我登记。剧院的人说你已经看过了。" "三封信/敲门的人/贝恩斯/01/贝恩斯")
-           (line "尼尔" "上星期我去找你们，只有一张回执。" "三封信/敲门的人/贝恩斯/01/尼尔")
-           (line "贝恩斯" "上星期是勒索，现在是公共场所的死亡威胁。" "三封信/敲门的人/贝恩斯/02/贝恩斯")
-           (line "尼尔" "所以现在值得写进卷宗了。" "三封信/敲门的人/贝恩斯/02/尼尔")
-           (line "贝恩斯" "现在归我管。你查到什么，给我留一份。" "三封信/敲门的人/贝恩斯/03/贝恩斯")))
+         (if (baines 'receipt?)
+             (play-remote-dialogue!
+               (line "世界" "早上敲门的是贝恩斯。他没有脱帽，也没有等你请他坐。" "三封信/敲门的人/贝恩斯/01/世界")
+               (line "贝恩斯" "第三封信归我登记。剧院的人说你已经看过了。" "三封信/敲门的人/贝恩斯/01/贝恩斯")
+               (line "贝恩斯" "不用问了。经理、报社、市政厅都知道了。")
+               (line "尼尔" "上星期我去找你们，只有一张回执。" "三封信/敲门的人/贝恩斯/01/尼尔")
+               (line "贝恩斯" "上星期是勒索，现在是公共场所的死亡威胁。" "三封信/敲门的人/贝恩斯/02/贝恩斯")
+               (line "尼尔" "所以现在值得写进卷宗了。" "三封信/敲门的人/贝恩斯/02/尼尔")
+               (line "贝恩斯" "现在归我管。你查到什么，给我留一份。" "三封信/敲门的人/贝恩斯/03/贝恩斯"))
+             (play-remote-dialogue!
+               (line "世界" "早上敲门的是贝恩斯。他没有脱帽，也没有等你请他坐。" "三封信/敲门的人/贝恩斯/01/世界")
+               (line "贝恩斯" "第三封信归我登记。剧院的人说你已经看过了。" "三封信/敲门的人/贝恩斯/01/贝恩斯")
+               (line "贝恩斯" "不用问了。经理、报社、市政厅都知道了。")
+               (line "尼尔" "那封勒索信，没有人收。" "三封信/敲门的人/贝恩斯/没报案/01/尼尔")
+               (line "贝恩斯" "勒索不归我跑。死亡威胁归我。" "三封信/敲门的人/贝恩斯/没报案/01/贝恩斯")
+               (line "尼尔" "所以现在值得写进卷宗了。" "三封信/敲门的人/贝恩斯/02/尼尔")
+               (line "贝恩斯" "现在归我管。你查到什么，给我留一份。" "三封信/敲门的人/贝恩斯/03/贝恩斯"))))
         (#t
          (play-remote-dialogue!
            (line "记者" "我手上有个故事，就差你点个头。" "三封信/敲门的人/记者/01/记者")
@@ -2009,7 +2069,7 @@
             (line "世界" "一个满脸是血、浑身酒气的男人被两名警察死死按在地毯上——正是莱恩。" "三封信/首演抓获/02/世界")
             (line "世界" "他眼神发直，手里抓着一把不知从哪捡来的螺丝刀，嘴里含糊地嘟囔着什么。" "三封信/首演抓获/03/世界")
             (line "尼尔" "……他在后台晃荡了多久？" "三封信/首演抓获/01/尼尔")
-            (line "贝恩斯" "配电房外头按住的！抓了个现行，尼尔！结案了！" "三封信/首演抓获/01/贝恩斯")
+            (line "贝恩斯" "人在配电房外抓到。记者让开，现场先留给我。")
             (line "经理" "人已经抓住了！剧院绝不向这种下三滥低头！" "三封信/首演抓获/01/经理"))
           (set-flag! '灯亮起来)
           (sync-globals!)
@@ -2063,11 +2123,11 @@
       (instant-action "散场之后"
         (lambda ()
           (play-remote-dialogue!
-            (line "贝恩斯" "莱恩认不认罪已经不重要了，现场搜出来的东西够他蹲上十年。" "三封信/散场结案/01/贝恩斯")
+            (line "贝恩斯" "他身上有工具，人在配电房外抓到。够我扣人。")
             (line "尼尔" "他浑身都是酒气，连站都站不稳，怎么上的灯桥？" "三封信/散场结案/01/尼尔")
-            (line "贝恩斯" "酒鬼发起疯来力气大得很。别犯职业病了，尼尔。" "三封信/散场结案/02/贝恩斯")
-            (line "贝恩斯" "市长就坐在台下，报社等着印明天的早报。案子破了，姑娘好好的，剧院赚翻了。" "三封信/散场结案/03/贝恩斯")
-            (line "贝恩斯" "拿上你的钱走人，别给自己找不痛快。" "三封信/散场结案/04/贝恩斯"))
+            (line "贝恩斯" "我没说他上过灯桥。那一段还得查。")
+            (line "贝恩斯" "可市长在台下，局长明早要报告。记者连标题都写好了。")
+            (line "贝恩斯" "你若找到能推翻这些证据的，明早带来。今晚别对记者说。"))
           (set-flag! '结案)
           (rest-release! "三封信/结案")
           (sync-globals!)
@@ -2622,6 +2682,7 @@
           ((equal? msg 'world-nodes) (world-nodes))
           ((equal? msg 'world-clocks) (world-clocks))
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
+          ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'story-stage) story-stage)
           ((equal? msg 'days-to-premiere) (days-to-premiere))
@@ -2637,8 +2698,10 @@
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'sync-globals!) (sync-globals!))
           ((equal? msg 'debug-finish!) (debug-finish!))
+          ((equal? msg 'debug-play-visitor!) (play-visitor!))
           ((equal? msg 'debug-enable-second-letter!) (set-flag! '第二封信))
           ((equal? msg 'debug-stage-bridge!) (bridge-aftermath-dialogue!))
+          ((equal? msg 'debug-stage-resident-arrival!) (first-resident-dialogue!))
           ((equal? msg 'debug-stage-commission!) (commission-dialogue!))
           ((equal? msg 'debug-stage-refusal!) (refusal-dialogue!))
           ((equal? msg 'debug-stage-closing!) (closing-dialogue!))
@@ -2669,6 +2732,8 @@
              (list "bridge-identified?" bridge-identified?)
              (list "patience" (patience-clk 'save))
              (list "patience-day" patience-day)
+             (list "manager-warning-level" manager-warning-level)
+             (list "manager-phone-given?" manager-phone-given?)
              (list "report-pending" report-pending)
              (list "inquiry-day" inquiry-day)
              (list "inquiry-told?" inquiry-told?)
@@ -2745,6 +2810,11 @@
              (set! bridge-identified? (assoc-get data "bridge-identified?" #f))
              (patience-clk 'load! (assoc-get data "patience" patience-max))
              (set! patience-day (assoc-get data "patience-day" 0))
+             (set! manager-warning-level (assoc-get data "manager-warning-level" 0))
+             (set! manager-phone-given? (assoc-get data "manager-phone-given?" #f))
+             (if (and (>= manager-warning-level 0) (<= manager-warning-level 2))
+                 #t
+                 (error "三封信存档错误：经理提醒阶段非法"))
              (set! report-pending (assoc-get data "report-pending" ""))
              (if (or (equal? report-pending "")
                      (equal? report-pending "查明")

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSNoir 剧情时间轴（第一章 + 第二章前半）</title>
+<style>
+  :root{
+    --bg:#14110d; --panel:#1e1a14; --line:#3a3227; --text:#e8ddc9; --dim:#a89c83;
+    --done:#4caf7d; --part:#e0a63c; --plan:#8a7f6a;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;margin:0;padding:20px;}
+  h1{font-size:18px;margin:0 0 4px;letter-spacing:1px}
+  .sub{color:var(--dim);font-size:12px;margin-bottom:12px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin-bottom:12px}
+  .legend i{display:inline-block;width:22px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+  .row{display:grid;grid-template-columns:130px 170px repeat(15,minmax(96px,1fr));min-width:1740px;}
+  .cell{border-bottom:1px solid var(--line);border-right:1px solid rgba(255,255,255,.05);padding:7px 8px;font-size:12px;min-height:44px;}
+  .cell.head{position:sticky;z-index:3;display:flex;align-items:center;line-height:1.3}
+  .cell.h1{background:#26211a;font-weight:700;left:0;}
+  .cell.h2{background:#211c15;left:130px;border-right:1px solid var(--line);}
+  .cell.timespan{grid-column:1/span 2;left:0;}
+  .axis{background:#0f0d0a;color:var(--dim);font-size:11px;min-height:30px;display:flex;flex-direction:column;justify-content:flex-end;line-height:1.4}
+  .axis b{color:var(--text)}
+  .chap{font-size:11px;color:#0f0d0a;font-weight:700;border-radius:4px;padding:2px 6px;display:inline-block;margin-bottom:2px;width:fit-content}
+  .c1{background:#d8b46a}.c2a{background:#7db8d8}.c2b{background:#d88a7d}
+  .blk{border-radius:6px;padding:5px 7px;font-size:12px;line-height:1.45;margin:2px 0;cursor:default;border-left:4px solid}
+  .blk small{display:block;font-size:11px;opacity:.75}
+  .done{background:rgba(76,175,125,.14);border-left-color:var(--done)}
+  .fight{border-left-color:#d88a7d !important;background:rgba(216,138,125,.16) !important}
+  .part{background:rgba(224,166,60,.14);border-left-color:var(--part);border-top:1px dashed var(--part);border-bottom:1px dashed var(--part);border-right:1px dashed var(--part)}
+  .plan{background:transparent;border:1px dashed var(--plan);border-left:4px solid var(--plan);color:var(--dim)}
+  .float{outline:1px dashed rgba(255,255,255,.25);outline-offset:-4px}
+  .tag{font-size:10px;border:1px solid currentColor;border-radius:3px;padding:0 4px;margin-left:5px;white-space:nowrap}
+  .seq{display:flex;align-items:stretch;gap:2px}
+  .seq .blk{flex:1 1 0;min-width:0}
+  .seq .arr{align-self:center;color:var(--dim);font-size:11px;flex:none}
+  .rowlabel{color:var(--dim);font-size:11px}
+  .rowlabel b{color:var(--text);font-size:12px;display:block}
+  .keys{font-size:10px;color:#9a8f78;line-height:1.7}
+  .keys a{color:#d8b46a;text-decoration:none;border-bottom:1px dotted #d8b46a}
+  .density{display:flex;align-items:flex-end;gap:3px;height:52px;padding:6px 4px 2px}
+  .density div{flex:1;background:linear-gradient(#e0a63c,#8a5f22);border-radius:2px 2px 0 0;min-height:4px;text-align:center;font-size:10px;color:#14110d;font-weight:700}
+  .note{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.7}
+  .mback{position:fixed;inset:0;background:rgba(10,8,5,.66);display:none;align-items:center;justify-content:center;z-index:50;padding:24px}
+  .mback.open{display:flex}
+  .mpanel{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:640px;width:100%;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 18px 60px rgba(0,0,0,.55)}
+  .mhead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .mhead b{font-size:14px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mx{background:none;border:1px solid var(--line);color:var(--dim);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:15px;line-height:1}
+  .mx:hover{color:var(--text);border-color:var(--dim)}
+  .mbody{padding:14px 16px;overflow-y:auto;font-size:13px;line-height:1.8;color:var(--text)}
+  .mbody p{margin:0 0 10px}
+  .mbody h1,.mbody h2,.mbody h3{font-size:14px;margin:14px 0 8px;color:#d8b46a}
+  .mfoot{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--dim)}
+  .mfoot button{background:none;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px}
+  .mfoot button:hover{border-color:var(--dim)}
+  .mfoot button:disabled{opacity:.35;cursor:default}
+  .mfoot .cnt{flex:1;text-align:center}
+  @media (max-width:700px){body{padding:12px}h1{font-size:16px}}
+</style>
+</head>
+<body>
+<h1>SSNoir 剧情时间轴 <span style="color:#a89c83;font-weight:400">— 第一章 + 第二章前半</span></h1>
+<div class="sub">横轴是世界时间（大致对齐，非精确日历）；第一行是主线，下面每人一行。左侧两列冻结：人物+剧情位置 / 性格关键词。悬停可看一句话说明。</div>
+<div class="legend">
+  <span><i style="background:rgba(76,175,125,.5)"></i>已实现</span>
+  <span><i style="background:rgba(224,166,60,.5)"></i>部分（卡片版有、大版本待做）</span>
+  <span><i style="border:1px dashed #8a7f6a"></i>仅设计</span>
+  <span><i style="background:rgba(216,138,125,.5)"></i>红边=交锋</span>
+  <span><i style="border:1px dashed #fff;background:transparent"></i>虚线描边 = 浮动时间窗口</span>
+</div>
+
+<div class="wrap">
+
+  <!-- 时间轴 -->
+  <div class="row">
+    <div class="cell head h1 timespan">时间 →</div>
+    <div class="cell axis"><span class="chap c1">第一章</span><b>D1–3</b>凑钱踩点</div>
+    <div class="cell axis"><b>投信夜</b>辨认追逐</div>
+    <div class="cell axis">独访老街</div>
+    <div class="cell axis"><b>D7</b>第二封信</div>
+    <div class="cell axis">两天后·带路</div>
+    <div class="cell axis">修车棚·铁盒旧账</div>
+    <div class="cell axis">第三封信后5天</div>
+    <div class="cell axis"><b>★首演夜</b>抓人结案</div>
+    <div class="cell axis"><span class="chap c2a">二章A</span><b>D1–2</b>弗兰克捎话</div>
+    <div class="cell axis"><b>D3 晚宴★</b>必经</div>
+    <div class="cell axis"><b>D4 登报</b>放饵等报</div>
+    <div class="cell axis"><b>D5–8</b>尾随追查</div>
+    <div class="cell axis"><span class="chap c2b">转折</span><b>D9 新港公布</b></div>
+    <div class="cell axis"><b>B 培训</b>试运行</div>
+    <div class="cell axis"><b>机器进老街</b>一日场景</div>
+  </div>
+
+  <!-- 主线 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>★ 主线</b>世界轴·必经链</div></div>
+    <div class="cell head h2"><div class="keys">世界往前走的骨头<br>必经·自动推进为主</div></div>
+    <div class="cell" style="grid-column:3/span 1"><div class="blk done" title="夜莺登门委托：三天凑100块，码头踩点">1 勒索信</div></div>
+    <div class="cell" style="grid-column:4/span 1"><div class="blk done fight" title="投信夜追逐，只留半包老金牌香烟">交锋·投信夜《勒索信》<span class="tag">交锋</span></div></div>
+    <div class="cell" style="grid-column:5/span 1"><div class="blk done" title="尼尔独自打听问不出，结论：得有熟人带路">3 老街居民区</div></div>
+    <div class="cell" style="grid-column:6/span 2"><div class="blk done" title="第二封信→东西线带路→叫出莱恩→汇报→等经理的人查地址">4–5 查出莱恩</div></div>
+    <div class="cell" style="grid-column:8/span 1"><div class="blk done fight" title="修车棚旧账：莱恩交出铁盒→剪底片，结前半报酬">交锋·旧账《巷子》<span class="tag">交锋</span></div></div>
+    <div class="cell" style="grid-column:9/span 1"><div class="blk done" title="死亡威胁+五天疑点调查：找莱恩去向+检查剧院">7 第三封信·调查</div></div>
+    <div class="cell" style="grid-column:10/span 1"><div class="blk done fight" title="保演出→后台抓获莱恩，夜莺指认，全城圆满">交锋·首演夜《首演之夜》<span class="tag">交锋</span></div></div>
+    <div class="cell" style="grid-column:12/span 1"><div class="blk done fight" title="第3天必经：进上流社会，见林的新机器、薇拉第一次开口">10 晚宴★<span class="tag">交锋</span></div></div>
+    <div class="cell" style="grid-column:13/span 1"><div class="blk done" title="D4登报《逃出老街的夜莺》→去剧院见夜莺“谁给他们的”，触发追查线开卷">11 登报·开卷</div></div>
+    <div class="cell" style="grid-column:15/span 1"><div class="blk done" title="第9天自动切换 Phase B：码头/老街/技术区/酒馆出只读标注">13 新港公布★</div></div>
+    <div class="cell" style="grid-column:16/span 2"><div class="blk part" title="培训+试运行已实现；机器进老街一日场景卡片版能玩，大型 Contract 版仅设计">14–15 培训 → 机器进老街<span class="tag">部分</span></div></div>
+  </div>
+
+  <!-- 追查·真相线 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>追查</b>真相线·可选</div></div>
+    <div class="cell head h2"><div class="keys">主线登报触发开卷<br>可做可不做<br>做到头得真相·影响走向<br>失败/机器进场即封卷</div></div>
+    <div class="cell" style="grid-column:13/span 1"><div class="blk done" title="开卷后：剧院/酒店各放一个假行程（0/6双钟），等报纸替泄密人作答">放假消息双钟</div></div>
+    <div class="cell" style="grid-column:14/span 2"><div class="seq"><div class="blk done" title="等两天→回家看早报：采用了只放给剧院的版本，去后巷等取件人">等报·看报</div><span class="arr">→</span><div class="blk done fight" title="跟到报社查出科尔+11:07线索，开第二卷；跟丢/暴露永久终止">交锋《尾随取件人》<span class="tag">交锋</span></div><span class="arr">→</span><div class="blk done" title="第二卷《比信更早的人》：去报社核对11:07登记，厚文件袋送往娱乐版四号桌，旧料进废稿间">核对11:07登记</div><span class="arr">→</span><div class="blk done fight" title="证实11:07材料与11:35校样早于下午1:20的第三封信：有人提前备稿">交锋《上午十一点零七分》<span class="tag">交锋</span></div></div></div>
+    <div class="cell" style="grid-column:17/span 1"><div class="blk done" title="机器进老街时封卷：没查完的线到此断了">封卷</div></div>
+  </div>
+
+  <!-- 夜莺 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>夜莺</b>主线→裂缝<br>缺独立模块</div></div>
+    <div class="cell head h2"><div class="keys">二流嗓子·顶级表演者<br>绝不让人决定命运<br>主线+情感线<br><a href="人物手稿/夜莺.md">手稿 →</a></div></div>
+    <div class="cell" style="grid-column:3/span 1"><div class="blk done" title="登门委托，典当凑钱">登门</div></div>
+    <div class="cell" style="grid-column:7/span 2"><div class="blk done" title="带路过门廊回廊/楼梯桥廊→承认莱恩→剪碎旧照摊牌早就猜到是他">带路 → 摊牌</div></div>
+    <div class="cell" style="grid-column:10/span 1"><div class="blk done" title="首演夜被保住，当众指认“是他”">指认</div></div>
+    <div class="cell" style="grid-column:12/span 2"><div class="blk done" title="晚宴入场+登报后剧院见她立卷“谁给他们的”">晚宴 → 立卷</div></div>
+    <div class="cell" style="grid-column:14/span 3"><div class="blk plan" title="骨架设计：Phase A 关系深化、私人场所、关系支援，全部未实现">关系深化/裂缝<span class="tag">仅设计</span></div></div>
+  </div>
+
+  <!-- 莱恩 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>莱恩</b>第一章专属</div></div>
+    <div class="cell head h2"><div class="keys">窝囊前男友<br>烂泥里的嫉妒·替罪羊<br><a href="人物手稿/莱恩.md">手稿 →</a></div></div>
+    <div class="cell" style="grid-column:4/span 1"><div class="blk done" title="码头取信人，摩托截胡">取信</div></div>
+    <div class="cell" style="grid-column:7/span 2"><div class="blk done" title="桥廊被叫出名字→棚里三层拆穿→认怂交铁盒求保铺子">叫名 → 认怂</div></div>
+    <div class="cell" style="grid-column:9/span 2"><div class="blk done float" title="交出铁盒后人间蒸发（约5天窗口），屋里东西都在；首演后台醉酒被抓">失踪 → 被抓<span class="tag">浮动</span></div></div>
+    <div class="cell" style="grid-column:11/span 6"><div class="blk plan" title="被捕后下落、上层压力线，骨架未展开">下落不明<span class="tag">仅设计</span></div></div>
+  </div>
+
+  <!-- 弗兰克 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>弗兰克</b>实现度最高</div></div>
+    <div class="cell head h2"><div class="keys">工头组织者<br>护短不护下三滥<br>据点+支援<br><a href="人物手稿/弗兰克.md">手稿 →</a></div></div>
+    <div class="cell" style="grid-column:3/span 1"><div class="blk done" title="初登场：第二天旧货船改泊进水，他在码头组织抢修。不进卷宗">大船靠岸 → 抢修</div></div>
+    <div class="cell" style="grid-column:4/span 1"><div class="blk done fight" title="抢修之后：船修好了却不开，之后分钱">交锋《船修好了却不开》<span class="tag">交锋</span></div></div>
+    <div class="cell" style="grid-column:5/span 2"><div class="blk done float" title="由《三封信》拥有：独访之后、带路之前，他挡在你和莱恩中间；当街把不还手的人往死里打=他不认你，写入认不认你这个人">巷子那晚<span class="tag">挡人</span></div></div>
+    <div class="cell" style="grid-column:7/span 1"><div class="blk done" title="带路东线终点：工会房见面，排除“烟是他抽的”">工会房见面</div></div>
+    <div class="cell" style="grid-column:8/span 1"><div class="blk done" title="修车棚前谈放行：老街不护下三滥，让开通往棚屋的过道">谈判放行</div></div>
+    <div class="cell" style="grid-column:11/span 1"><div class="blk done float" title="PhaseA D2捎话：后屋谈话《你不是说他只是想要钱吗》">后屋谈话<span class="tag">4天窗</span></div></div>
+    <div class="cell" style="grid-column:12/span 1"><div class="blk done fight" title="街头调停：成功开后屋据点+支援《叫个人来》">交锋《别给他们想要的》<span class="tag">交锋</span></div></div>
+    <div class="cell" style="grid-column:16/span 2"><div class="blk plan" title="Phase B 被卷入、机器进场日坐不坐得下来、第三章妥协条件">进场日兑现<span class="tag">仅设计</span></div></div>
+  </div>
+
+  <!-- 林 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>林</b>机器线</div></div>
+    <div class="cell head h2"><div class="keys">技术宗教·痴迷<br>盲点是代价<br>城市结局条件<br><a href="人物手稿/林.md">手稿 →</a></div></div>
+    <div class="cell" style="grid-column:3/span 1"><div class="blk done fight" title="林线开头·遭遇零：走进码头就撞上">交锋《失控的机械》<span class="tag">交锋</span></div></div>
+    <div class="cell" style="grid-column:4/span 4"><div class="blk done float" title="第一章旧机械区试验：工棚建设，浮动推进">旧机械区试验<span class="tag">浮动</span></div></div>
+    <div class="cell" style="grid-column:12/span 1"><div class="blk done" title="晚宴重逢：破机器变公司展示品">晚宴重逢</div></div>
+    <div class="cell" style="grid-column:16/span 1"><div class="blk done fight" title="码头试运行定 humane?">交锋《码头试运行》<span class="tag">交锋</span></div><div class="blk done" title="次日 8 格陪老乔培训">陪老乔培训</div><div class="blk plan" title="测试之夜：文件已写好，但暂未接入世界树（见林.scm TODO(DEMO)）">无人班次<span class="tag">未接入</span></div></div>
+    <div class="cell" style="grid-column:17/span 1"><div class="blk plan" title="第三章 Major Payoff：关键故障他先停机换版本">停机换版<span class="tag">仅设计</span></div></div>
+  </div>
+
+  <!-- 艾迪 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>艾迪</b>对照组·无回报</div></div>
+    <div class="cell head h2"><div class="keys">潦倒喜剧·对照组<br>无回报·命运线<br><a href="人物手稿/艾迪.md">手稿 →</a></div></div>
+    <div class="cell" style="grid-column:3/span 1"><div class="blk done fight" title="艾迪线开头：打完才有拳场四夜">交锋《巷子里在打人》<span class="tag">交锋</span></div></div>
+    <div class="cell" style="grid-column:4/span 4"><div class="blk done" title="四夜拳场→查封→码头重逢（手废/违约伤）">地下拳场四夜</div></div>
+    <div class="cell" style="grid-column:16/span 1"><div class="blk done float" title="Phase B 三天窗口陪练4~5趟，通过写 way-out，他不去破坏">培训<span class="tag">3天窗</span></div></div>
+    <div class="cell" style="grid-column:17/span 1"><div class="blk part" title="开关已接线：通过则“艾迪破坏机器”整块不存在；模块本身/第三章结局待做">破坏块在不在<span class="tag">部分</span></div></div>
+  </div>
+
+  <!-- 贝恩斯 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>贝恩斯</b>先官员后警察</div></div>
+    <div class="cell head h2"><div class="keys">口头禅“还有谁知道？”<br>警察只是工作·经验老道<br>私人号码不留记录·先到先处理<br>人多事变味·妥协利弊<br><a href="人物手稿/贝恩斯.md">手稿 →</a></div></div>
+    <div class="cell" style="grid-column:3/span 1"><div class="blk done" title="街面初见（arrival 酒馆门前，一次性入场）：两个酒客打架，酒保打电话，他出面处置、等巡警登记带走；另有靠窗那桌（下班便装，掏刀才起身，纯演出）">酒馆门前初见</div></div>
+    <div class="cell" style="grid-column:6/span 1"><div class="blk done" title="警察局开放后：把勒索信告诉贝恩斯，拿一张来访回执，尚未立案">报案回执</div></div>
+    <div class="cell" style="grid-column:7/span 1"><div class="blk done fight" title="旧案第二拍：老街三个刚放出来的小混混">交锋《让他们安静》<span class="tag">交锋</span></div></div>
+    <div class="cell" style="grid-column:8/span 1"><div class="blk done" title="酒馆下班演出：便装识破一起错案（纯演出）">五点以后</div></div>
+    <div class="cell" style="grid-column:9/span 1"><div class="blk done" title="第三封信敲门登记；货船收工时也见过他">敲门登记</div></div>
+    <div class="cell" style="grid-column:10/span 1"><div class="blk done" title="首演抓获莱恩→散场结案：拿钱走人，别找不痛快">抓获·结案</div></div>
+    <div class="cell" style="grid-column:11/span 3"><div class="blk done" title="晚宴深谈+晚宴次日口信→警局拿纸→家里接电话开上城委托。危险/正式时是官员面：先问还有谁知道，走妥协利弊关系">手续/登记</div></div>
+    <div class="cell" style="grid-column:17/span 1"><div class="blk plan" title="派去机器部署现场、追查线另行出现、支援《他的名字》">部署现场<span class="tag">仅设计</span></div></div>
+  </div>
+
+  <!-- 经理 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>经理</b>喜剧·随风摆</div></div>
+    <div class="cell head h2"><div class="keys">微胖笑脸·口头禅兄弟<br>有价值就亲近·无价值就疏远<br>自认公平合理<br><a href="人物手稿/经理.md">手稿 →</a></div></div>
+    <div class="cell" style="grid-column:6/span 3"><div class="blk done float" title="D7初见：一见如故，夸你是明日之星，装电话表人情；耐心钟只在内部跑：4格谈合作、2格谈位置不保但仍信你，耗尽则无奈翻脸；有进展立刻回弹热络；小恩小惠永远是富余的小东西">初见 → 小惠 → 变脸 → 解雇<span class="tag">隐藏钟</span></div></div>
+    <div class="cell" style="grid-column:9/span 3"><div class="blk plan" title="首演前后无独立戏，只在背景里核座位表、打电话、等见报">背景板</div></div>
+    <div class="cell" style="grid-column:12/span 1"><div class="blk plan" title="第二章宴席重逢：人前亲热介绍“老朋友尼尔”，被问旧事则回“那是工作，朋友”">宴席拥抱<span class="tag">仅设计</span></div></div>
+  </div>
+
+  <!-- 记者 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>记者</b>主要人物</div></div>
+    <div class="cell head h2"><div class="keys">真相偏执·年轻冲动<br>盯报社权限线<br><a href="人物手稿/记者.md">手稿 →</a></div></div>
+    <div class="cell" style="grid-column:12/span 1"><div class="blk done" title="晚宴可深谈：填满深谈钟才算谈成">晚宴深谈</div></div>
+    <div class="cell" style="grid-column:14/span 1"><div class="blk done" title="追查线：核对11:07登记→指引废稿间">核对·指引废稿间</div></div>
+    <div class="cell" style="grid-column:15/span 3"><div class="blk plan" title="报社权限线、“故事被写出来”主题现场均未展开">报社线<span class="tag">仅设计</span></div></div>
+  </div>
+
+  <!-- 沃尔特 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>沃尔特</b>上城赚钱线</div></div>
+    <div class="cell head h2"><div class="keys">掮客·稳定侦探活<br>（暂无散手稿）</div></div>
+    <div class="cell" style="grid-column:12/span 1"><div class="blk done" title="晚宴吧台陪喝">陪喝</div></div>
+    <div class="cell" style="grid-column:13/span 2"><div class="blk done float" title="晚宴两天后托付→码头账房找舱单（0/4钟）">托付 → 找舱单<span class="tag">浮动</span></div></div>
+    <div class="cell" style="grid-column:15/span 1"><div class="blk done fight" title="赚钱线高潮：报告坐实骗保">交锋《核赔》<span class="tag">交锋</span></div></div>
+    <div class="cell" style="grid-column:16/span 1"><div class="blk done" title="了结回报：酒店大堂常驻「替沃尔特跑外勤」，稳定的侦探活">常驻外勤</div></div>
+  </div>
+
+  <!-- 薇拉·科尔 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>薇拉·科尔</b>配角</div></div>
+    <div class="cell head h2"><div class="keys">权势的脸·取件人<br><a href="人物手稿/薇拉.md">薇拉 →</a></div></div>
+    <div class="cell" style="grid-column:12/span 1"><div class="blk done" title="晚宴可深谈：薇拉（填满深谈钟才算谈成）">晚宴深谈</div></div>
+    <div class="cell" style="grid-column:14/span 1"><div class="blk done" title="追查线：科尔现名+递送簿威胁材料">科尔现身</div></div>
+  </div>
+
+  <!-- 密度 -->
+  <div class="row">
+    <div class="cell head h1"><div class="rowlabel"><b>密度</b></div></div>
+    <div class="cell head h2"><div class="keys">同时在线的故事数</div></div>
+    <div class="cell" style="grid-column:3/span 15"><div class="density" title="每列同时活跃的故事线数量示意">
+      <div style="height:30%">2</div><div style="height:40%">3</div><div style="height:30%">2</div><div style="height:45%">3</div><div style="height:70%">5</div><div style="height:100%">7</div><div style="height:55%">4</div><div style="height:70%">5</div><div style="height:40%">3</div><div style="height:100%">7</div><div style="height:85%">6</div><div style="height:70%">5</div><div style="height:25%">2</div><div style="height:70%">5</div><div style="height:65%">5</div>
+    </div></div>
+  </div>
+
+</div>
+
+<p class="note">
+★ = 关键节点（首演夜 / 晚宴 / 新港公布）。<br>
+时间说明（大致）：第一章 D1–3 凑钱 → 投信夜 → 独访 → D7 第二封信 → 两天后带路 → 修车棚/铁盒/旧账 → 第三封信后 5 天 → 首演夜；第二章 Phase A D2 弗兰克捎话（4天窗）→ D3 晚宴 → D4 登报+放饵（等2天）→ D5–8 尾随追查 → D9 新港公布切 Phase B → 培训/试运行（艾迪3天窗）→ 机器进老街。<br>
+密度怎么看：最高两处是“修车棚/铁盒/旧账”（第一章收束，多线交汇）和“D3 晚宴”（全员登场）；最低是“D9 新港公布”（世界自动事件，人物反而少出场）；尾部 Phase B 靠艾迪+林两条线把密度托住。
+</p>
+
+<div class="mback" id="mback">
+  <div class="mpanel" role="dialog" aria-modal="true" aria-label="人物手稿">
+    <div class="mhead"><b id="mtitle">人物手稿</b><button class="mx" id="mclose" aria-label="关闭">×</button></div>
+    <div class="mbody" id="mbody">加载中…</div>
+    <div class="mfoot"><button id="mprev">← 上一篇</button><span class="cnt" id="mcnt"></span><button id="mnext">下一篇 →</button></div>
+  </div>
+</div>
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('a[href$=".md"]'));
+  var back = document.getElementById('mback');
+  var body = document.getElementById('mbody');
+  var title = document.getElementById('mtitle');
+  var cnt = document.getElementById('mcnt');
+  var prev = document.getElementById('mprev');
+  var next = document.getElementById('mnext');
+  var cur = -1;
+
+  function esc(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function md(src){
+    var lines = esc(src).split('\n');
+    var html = '', para = [];
+    function flush(){
+      if(!para.length) return;
+      var t = para.join('<br>');
+      t = t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+      html += '<p>' + t + '</p>';
+      para = [];
+    }
+    lines.forEach(function(ln){
+      var m = ln.match(/^(#{1,3})\s*(.*)$/);
+      if(m){ flush(); html += '<h3>' + m[2] + '</h3>'; return; }
+      if(/^\s*$/.test(ln) || /^---+\s*$/.test(ln)){ flush(); return; }
+      para.push(ln);
+    });
+    flush();
+    return html || '<p>（空文档）</p>';
+  }
+  function nameOf(href){
+    var b = href.split('/').pop().replace(/\.md$/,'');
+    return b + ' · 人物手稿';
+  }
+  function updateNav(){
+    cnt.textContent = links.length ? (cur + 1) + ' / ' + links.length : '';
+    prev.disabled = cur <= 0;
+    next.disabled = cur < 0 || cur >= links.length - 1;
+  }
+  function open(idx){
+    cur = idx;
+    var a = links[cur];
+    title.textContent = nameOf(a.getAttribute('href'));
+    body.innerHTML = '加载中…';
+    body.scrollTop = 0;
+    back.classList.add('open');
+    updateNav();
+    fetch(a.getAttribute('href'), {cache: 'no-store'}).then(function(r){
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function(t){
+      if(cur === idx){ body.innerHTML = md(t); body.scrollTop = 0; }
+    }).catch(function(){
+      if(cur === idx) body.innerHTML = '<p>手稿没能载入：直接双击用 file:// 打开时，浏览器不允许读本地文件。在仓库根目录跑 <strong>./serve-docs</strong>（或 python3 -m http.server 8000），再用 http://localhost:8000/docs/剧情时间轴.html 打开。</p>';
+    });
+  }
+  function close(){ back.classList.remove('open'); cur = -1; }
+  links.forEach(function(a, i){
+    a.addEventListener('click', function(e){
+      if(e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      open(i);
+    });
+  });
+  prev.addEventListener('click', function(){ if(cur > 0) open(cur - 1); });
+  next.addEventListener('click', function(){ if(cur < links.length - 1) open(cur + 1); });
+  document.getElementById('mclose').addEventListener('click', close);
+  back.addEventListener('click', function(e){ if(e.target === back) close(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && back.classList.contains('open')) close(); });
+})();
+</script>
+</body>
+</html>

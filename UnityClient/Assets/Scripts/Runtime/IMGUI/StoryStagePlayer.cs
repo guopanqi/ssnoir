@@ -55,14 +55,10 @@ namespace SSNoir.IMGUI
         public void Advance()
         {
             if (_sequence == null) return;
+            // 无字动作拍自动推进：点击和 ESC 都不跳过，播完由 Update 按 _beatEndsAt 自动进下一拍。
+            // 播动画时点一下就跳到终点，在舞台上是穿帮——Say 拍才等输入（打字机补全→下一句）。
             if (!_waitingForSay)
-            {
-                foreach (var command in _sequence.Beats[_index].Commands)
-                    if (command.Kind == StoryStageCommandKind.Move)
-                        StoryStageDrawer.StageMove(command.Id, command.X, 0f);
-                AdvanceBeat();
                 return;
-            }
             if (!StoryStageDrawer.IsCurrentLineFullyRevealed)
                 StoryStageDrawer.CompleteCurrentLine();
             else
@@ -125,6 +121,7 @@ namespace SSNoir.IMGUI
                     case StoryStageCommandKind.Say:
                         if (command.Line == null) throw new InvalidOperationException("stage say missing line");
                         _waitingForSay = true;
+                        StoryStageDrawer.BeginStageLine(command.Line, _index);
                         _voice.Play(command.Line.VoiceId);
                         break;
                     case StoryStageCommandKind.Pause:

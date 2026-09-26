@@ -25,8 +25,9 @@ namespace SSNoir
         private const float TitleHeight = 152f;
         private const float TitleRuleOffset = 164f;
         private const float MenuTopOffset = 204f;
-        private const float ItemHeight = 44f;
-        private const float ItemSpacing = 4f;
+        private const float ButtonWidth = 320f;
+        private const float ItemHeight = 48f;
+        private const float ItemSpacing = 10f;
 
         private readonly SSNoirGameManager _gameManager;
 
@@ -139,7 +140,7 @@ namespace SSNoir
 
             float itemY = titleY + MenuTopOffset;
 
-            if (DrawItem(new Rect(x, itemY, 300f, ItemHeight), "新游戏", ui, enabled: true))
+            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight), "新游戏", ui, enabled: true))
             {
                 NewGame();
                 return;
@@ -147,8 +148,8 @@ namespace SSNoir
             itemY += ItemHeight + ItemSpacing;
 
             // 没有存档时留着但灰掉：位置固定，玩家才知道自己缺的是什么，而不是以为没这功能。
-            // 存档时间跟在后面——读档读的是最近那一个，得让人知道自己接的是哪一天。
-            if (DrawItem(new Rect(x, itemY, 300f, ItemHeight), "从存档加载", ui,
+            // 存档时间收进按钮右侧——读档读的是最近那一个，得让人知道自己接的是哪一天。
+            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight), "从存档加载", ui,
                     enabled: _latestSlotPath != null, hint: _latestSaveTime))
             {
                 Continue();
@@ -158,7 +159,7 @@ namespace SSNoir
 
             // 浏览器里没有"退出游戏"这回事，Application.Quit() 是个空操作，摆上去只会骗人。
 #if !UNITY_WEBGL || UNITY_EDITOR
-            if (DrawItem(new Rect(x, itemY, 300f, ItemHeight), "退出游戏", ui, enabled: true))
+            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight), "退出游戏", ui, enabled: true))
             {
                 Quit();
                 return;
@@ -167,20 +168,41 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// 一条菜单文字。不画框——标题界面上的按钮框会把画面变成一个设置面板。
-        /// 悬停时左边推出一根金竖条，文字转金。
+        /// 实底描边按钮：HudBg 同色相的半透深底 + 1px 纸白 40% 描边，悬停铺一层淡白 + 左侧一根金签。
+        /// 标题压在全图最密的白线稿上，空心透明底框不住字——线条直接从字心里穿过去。
+        /// 底和右上角功能暗条同一语言（FunctionSlotBg 的色相），只是标题底下更密，给到约 0.75，
+        /// 把线压下去但还留着城市活的影子；文字始终是纸白——金只出在那根签上，和片名下的金发丝呼应。
         /// </summary>
         private static bool DrawItem(
             Rect rect, string label, IMGUIInteractionContext ui, bool enabled, string hint = "")
         {
             bool hovered = enabled && ui.CanHover(rect);
+            var snapped = UIScale.PixelSnap(rect);
+
+            // 常态实底：标题菜单是模式，城市只是背景，可读性优先于通透。
+            // 不用 HudBg 那档 0.92——全实了城市就死了；0.75 压住线稿又留影。
+            IMGUIStyles.SetColor(enabled
+                ? new Color(IMGUIStyles.HudBg.r, IMGUIStyles.HudBg.g, IMGUIStyles.HudBg.b, 0.75f)
+                : new Color(IMGUIStyles.HudBg.r, IMGUIStyles.HudBg.g, IMGUIStyles.HudBg.b, 0.55f));
+            GUI.DrawTexture(snapped, Texture2D.whiteTexture);
+            IMGUIStyles.ResetColor();
 
             if (hovered)
             {
-                GUI.color = IMGUIStyles.Gold;
-                GUI.DrawTexture(new Rect(rect.x - 14f, rect.y + 10f, 3f, rect.height - 20f),
+                IMGUIStyles.SetColor(new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f));
+                GUI.DrawTexture(snapped, Texture2D.whiteTexture);
+                IMGUIStyles.ResetColor();
+            }
+            IMGUIStyles.DrawOutline(snapped, 1f, enabled
+                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, hovered ? 1f : 0.40f)
+                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
+
+            if (hovered)
+            {
+                IMGUIStyles.SetColor(IMGUIStyles.Gold);
+                GUI.DrawTexture(new Rect(rect.x, rect.y + 10f, 3f, rect.height - 20f),
                     Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                IMGUIStyles.ResetColor();
             }
 
             var style = new GUIStyle(GUI.skin.label)
@@ -191,11 +213,11 @@ namespace SSNoir
                 {
                     textColor = !enabled
                         ? IMGUIStyles.TextDisabled
-                        : hovered ? IMGUIStyles.Gold : IMGUIStyles.TextPrimary,
+                        : IMGUIStyles.TextPrimary,
                 },
             };
             IMGUIStyles.ApplyStrongFont(style);
-            IMGUIStyles.DrawLabel(rect, label, style);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 20f, rect.y, rect.width - 40f, rect.height), label, style);
 
             if (!string.IsNullOrEmpty(hint))
             {
@@ -203,10 +225,11 @@ namespace SSNoir
                 {
                     font = IMGUIStyles.ChineseFont,
                     fontSize = IMGUIStyles.FontSize(13),
-                    alignment = TextAnchor.MiddleLeft,
+                    alignment = TextAnchor.MiddleRight,
                     normal = { textColor = IMGUIStyles.TextDisabled },
                 };
-                IMGUIStyles.DrawLabel(new Rect(rect.x + 140f, rect.y, 220f, rect.height), hint, hintStyle);
+                IMGUIStyles.DrawLabel(
+                    new Rect(rect.x + 20f, rect.y, rect.width - 36f, rect.height), hint, hintStyle);
             }
 
             if (!enabled || !ui.WasTapped(rect))

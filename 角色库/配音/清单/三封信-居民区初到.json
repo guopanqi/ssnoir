@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "module": "三封信",
+  "location": "码头居民区",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm",
+  "purpose": "首次独自抵达居民区时，尼尔观察空间并决定从门廊开始打听。",
+  "cues": [
+    {
+      "id": "三封信/居民区/初到/01/尼尔",
+      "speaker": "尼尔",
+      "text": "从码头看，这里不过是几栋挤在一起的旧楼。",
+      "sourcePath": "arrivals-at/初到码头居民区/01"
+    },
+    {
+      "id": "三封信/居民区/初到/02/尼尔",
+      "speaker": "尼尔",
+      "text": "走近才看见，楼梯接着桥廊，每扇门后面还有别人的门。",
+      "sourcePath": "arrivals-at/初到码头居民区/02"
+    },
+    {
+      "id": "三封信/居民区/初到/03/尼尔",
+      "speaker": "尼尔",
+      "text": "先找个肯开口的人。烟的事，就从门廊问起。",
+      "sourcePath": "arrivals-at/初到码头居民区/03"
+    }
+  ]
+}

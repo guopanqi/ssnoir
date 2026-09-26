@@ -94,12 +94,18 @@ namespace SSNoir
             if (_gameManager == null || IsTransitioning) return;
             var newContextId = _gameManager.CurrentStageContextId;
             if (newContextId != _currentContextId)
+            {
+                // 先同步占住过渡权，再启动协程。StartCoroutine 的第一段代码要到
+                // Unity 调度时才执行；如果这里不先置位，落地回调后紧接着的
+                // EnterForcedPlace/UpdateCameraFocus 会误以为没有 Portal 在接管，
+                // 另起一条焦点运镜，随后两条 travel 互相重定向，表现为镜头突然加速。
+                IsTransitioning = true;
                 StartCoroutine(TransitionTo(newContextId, storyDriven));
+            }
         }
 
         private IEnumerator TransitionTo(string? newContextId, bool storyDriven)
         {
-            IsTransitioning = true;
             try
             {
                 string? lookupId = newContextId ?? _currentContextId;
@@ -197,6 +203,8 @@ namespace SSNoir
             FadeAlpha = 0f;
 
             yield return ReleaseTransitionCameraWithCut();
+            if (targetCamera != null)
+                _gameManager.CameraManager.SynchronizeAfterExternalTransition(targetCamera);
         }
 
         private IEnumerator PushExit(StagePortalConfig portal)
@@ -206,15 +214,12 @@ namespace SSNoir
             if (transitionVCam == null || portal.IntroCam == null) yield break;
 
             var introCam = portal.IntroCam.transform;
-            var targetCamera = _gameManager.CurrentFocusCamera;
-            Debug.Assert(targetCamera != null, "[StageTransition] Exit target focus camera was not resolved.");
+            Cinemachine.CinemachineVirtualCamera? targetCamera = null;
 
             FadeAlpha = 0f;
             yield return TakeOverCurrentView();
 
             ResetFocusCameras();
-            if (targetCamera != null)
-                targetCamera.Priority = 20;
 
             // 内半程：从交锋机位沿视轴向后拉，拉到进门时的落点处黑——进门那段的倒放。
             var from = transitionVCam.transform;
@@ -224,6 +229,12 @@ namespace SSNoir
                 Vector3.Lerp(from.position, pushEnd, 0.65f), pushEnd,
                 from.rotation, from.rotation, transitionVCam.m_Lens,
                 PortalHalfDuration, AccelerateIntoBlack, FadeIntoBlack);
+
+            // 退出交锋时，黑场之前世界快照刚落地，送医流程可能还要把导航落到
+            // 诊所。目标机位必须在这段导航完成后再解析，否则会先取到世界根机位，
+            // 下一帧又被诊所机位重定向，表现成一段突然加速的短运镜。
+            targetCamera = _gameManager.CurrentFocusCamera;
+            Debug.Assert(targetCamera != null, "[StageTransition] Exit target focus camera was not resolved.");
 
             // PortalIn 站在门外朝门内看：黑场后从这儿揭幕，正好是"刚退出门、回头还看着门"。
             transitionVCam.transform.SetPositionAndRotation(introCam.position, introCam.rotation);
@@ -258,6 +269,8 @@ namespace SSNoir
             if (targetCamera != null)
                 _gameManager.PresentCamera(targetCamera);
             yield return ReleaseTransitionCameraWithCut();
+            if (targetCamera != null)
+                _gameManager.CameraManager.SynchronizeAfterExternalTransition(targetCamera);
         }
 
         /// <summary>

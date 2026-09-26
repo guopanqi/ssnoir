@@ -684,7 +684,9 @@ namespace SSNoir.Scripting
                             var dialogue = ParseDialogueSequence(new List<object> { new List<object> { p[1] } }, "stage-say");
                             command = new StoryStageCommand { Kind = StoryStageCommandKind.Say, Line = dialogue.Lines[0] };
                             if (hasSay || rawCommands.Count != 1) throw new ArgumentException("stage-say must occupy its own beat");
-                            if (!actors.Contains(command.Line.Speaker)) throw new ArgumentException($"stage-say: speaker is not on stage: {command.Line.Speaker}");
+                            // 「世界」是旁白，不占舞台位、也不要求 stage-spawn（见 StoryStageDrawer.NarratorSpeaker）。
+                            if (command.Line.Speaker != "世界" && !actors.Contains(command.Line.Speaker))
+                                throw new ArgumentException($"stage-say: speaker is not on stage: {command.Line.Speaker}");
                             hasSay = true;
                             break;
                         case "pause":
@@ -693,8 +695,9 @@ namespace SSNoir.Scripting
                             break;
                         default: throw new ArgumentException($"play-stage!: unknown command {op}");
                     }
+                    // 舞台横轴：可见约 ±10，画外摆位可到 ±30（立绘半宽约 3，多人纵队需要纵深）。
                     if (command.Seconds < 0 || float.IsNaN(command.Seconds) || float.IsInfinity(command.Seconds)
-                        || float.IsNaN(command.X) || float.IsInfinity(command.X) || command.X < -20 || command.X > 20)
+                        || float.IsNaN(command.X) || float.IsInfinity(command.X) || command.X < -30 || command.X > 30)
                         throw new ArgumentException($"play-stage! {op}: invalid position or duration");
                     if (command.Kind == StoryStageCommandKind.Move || command.Kind == StoryStageCommandKind.Pose
                         || command.Kind == StoryStageCommandKind.Light || command.Kind == StoryStageCommandKind.Remove)

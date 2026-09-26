@@ -86,6 +86,9 @@ namespace SSNoir.Core
         // 阻塞剧情节拍(Spotlight / Dialogue / Animation),按 Scheme 调用顺序;adopt 之前逐个播放。
         public List<BlockingStoryStep> BlockingStorySteps { get; } = new List<BlockingStoryStep>();
 
+        // end-encounter 回到世界后，世界回调追加的叙事；必须在客户端采纳世界快照后播放。
+        public List<BlockingStoryStep> PostSceneBlockingSteps { get; } = new List<BlockingStoryStep>();
+
         /// <summary>
         /// 世界翻到新一天后产生的表现。它与旧日动作的步骤分开：客户端先完成睡眠黑幕并
         /// 采用新日快照，再播放这里的 Spotlight / Dialogue / banter。

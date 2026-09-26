@@ -37,40 +37,32 @@ namespace SSNoir.IMGUI
         }
 
         /// <summary>
-        /// 顶栏上的面板开关（声誉 / 队伍 / 卷宗 / 设置 / 成长 / Debug / 帮助）。这些是低频、
-        /// 查阅型的入口，故意画得比"返回"轻：常态不铺底，只留一圈淡描边，
-        /// 不在视觉上跟"返回"抢注意力。悬停/展开时才提亮，给出"这里能点"的反馈。
-        /// 打开时描边和字都转金：这是 HUD 上"这个面板开着"的统一说法。
+        /// 顶栏暗条上的文字开关（卷宗 / 成长 / 帮助 / 设置）。和地点牌同一族：
+        /// 常态只是暗条上的次级灰字，不描边、不铺底、不借金；悬停或打开才提到主文字，
+        /// 打开态多一层淡白底。点击仍按完整矩形判定。
         /// </summary>
-        public static bool DrawHudToggle(Rect rect, string label, bool isOpen, IMGUIInteractionContext ui)
+        public static bool DrawTopTextToggle(Rect rect, string label, bool isOpen, IMGUIInteractionContext ui)
         {
-            bool hover = !ui.IsLocked && ui.CanHover(rect);
+            bool interactable = !ui.IsLocked;
+            bool hover = interactable && ui.CanHover(rect);
 
-            // 常态透明、不铺底；悬停给一点提示性的浅底；打开态维持原有的金色浅底。
-            Color bg = isOpen
-                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f)
-                : (hover ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.06f) : Color.clear);
-            if (bg.a > 0f)
+            if (hover || isOpen)
             {
-                IMGUIStyles.SetColor(bg);
+                IMGUIStyles.SetColor(new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b,
+                    isOpen ? 0.12f : 0.08f));
                 GUI.DrawTexture(rect, Texture2D.whiteTexture);
                 IMGUIStyles.ResetColor();
             }
 
-            Color accent = isOpen
-                ? IMGUIStyles.Gold
-                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, hover ? 0.55f : 0.22f);
-            IMGUIStyles.DrawOutline(rect, 1f, accent);
-
             var style = new GUIStyle(IMGUIStyles.StatusLabel)
             {
-                fontSize = IMGUIStyles.FontSize(13),
                 alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = isOpen ? IMGUIStyles.Gold : (hover ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary) },
+                fontSize = IMGUIStyles.FontSize(14),
+                normal = { textColor = (hover || isOpen) ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary },
             };
             IMGUIStyles.DrawLabel(rect, label, style);
 
-            if (!ui.IsLocked && ui.WasTapped(rect))
+            if (interactable && ui.WasTapped(rect))
             {
                 Event.current.Use();
                 return true;
@@ -89,8 +81,8 @@ namespace SSNoir.IMGUI
 
         /// <summary>
         /// 顶栏主动作：返回。是玩家在这块 HUD 上最常点的按钮，
-        /// 所以常态就铺实底——不用等悬停才现身，一眼要比旁边那排低频的
-        /// 查阅型开关（DrawHudToggle，常态透明只描边）扎眼。
+        /// 所以常态就铺实底——不用等悬停才现身，一眼要比旁边暗条上那排低频的
+        /// 查阅型开关（DrawTopTextToggle，常态只是次级灰字）扎眼。
         /// 用纸白实底 + 墨字，不用金——金是留给"需要玩家关注/聚焦"的语义色
         /// （命中/结果/正在发生），这里只是导航动作，不该抢那个位置。
         /// </summary>

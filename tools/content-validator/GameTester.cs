@@ -87,6 +87,7 @@ namespace SSNoir.Testing
                 "(stage-spawn \"尼尔\" \"尼尔\" -5 'middle) " +
                 "(stage-parallel (stage-move \"尼尔\" 0 0.3) (stage-sound \"测试\" 7)) " +
                 "(stage-say \"尼尔\" \"测试\") " +
+                "(stage-say \"世界\" \"旁白不需要上台\") " +
                 "(stage-remove \"尼尔\"))");
             Console.WriteLine("[validate] story stage DSL contract passed.");
         }
@@ -605,12 +606,40 @@ namespace SSNoir.Testing
             AssertEq("collapse pending consumed", false, encounterCollapseState.HasPendingHospitalization);
             AssertEq("collapse wakes with city dice", true,
                 encounterCollapseState.Team.FindActor("player")!.ActionDice.Count > 0);
-            int enterPlaceIndex = hospitalizationReport.BlockingStorySteps.FindIndex(
+            int enterPlaceIndex = hospitalizationReport.PostSceneBlockingSteps.FindIndex(
                 step => step.Kind == BlockingStoryStepKind.EnterPlace && step.PlaceName == "诊所");
-            int collapseSpotlightIndex = hospitalizationReport.BlockingStorySteps.FindIndex(
+            int collapseSpotlightIndex = hospitalizationReport.PostSceneBlockingSteps.FindIndex(
                 step => step.Kind == BlockingStoryStepKind.Spotlight && step.Spotlight?.Title == "你倒下了");
             AssertEq("collapse report enters clinic", true, enterPlaceIndex >= 0);
+            // 调试界面用 GoToLocation 直载交锋。结束过上一场后再直载，也必须能倒下退场。
+            var directLoadState = new GameState();
+            var directLoadManager = new SceneManager(directLoadState, new LocalScriptLoader());
+            directLoadManager.LoadScene("world");
+            directLoadManager.StartEncounter("巷子里在打人");
+            directLoadManager.EndEncounter();
+            directLoadManager.GoToLocation("巷子里在打人");
+            directLoadState.Team.Injure(Injury.MaxSeverity - 1);
+            directLoadState.Team.SpendComposure("player", TeamState.MaxComposure);
+            directLoadManager.EndTurn();
+            AssertEq("directly loaded encounter exits on collapse", "world", directLoadManager.CurrentSceneName);
             AssertEq("collapse spotlight follows clinic", true, collapseSpotlightIndex > enterPlaceIndex);
+
+            // 交锋自己的结局先在旧场景播；世界回调的话要等世界快照采纳后再播。
+            var boundaryState = new GameState();
+            var boundaryManager = new SceneManager(boundaryState, new LocalScriptLoader());
+            boundaryManager.LoadScene("world");
+            boundaryManager.ActiveInterpreter.Eval(
+                "(start-encounter \"巷子里在打人\" " +
+                "(lambda (result) (spotlight! \"世界回调\" \"已经回到世界\")))");
+            var boundaryReport = new ActionReport();
+            boundaryState.CurrentActionReport = boundaryReport;
+            boundaryManager.ActiveInterpreter.Eval(
+                "(spotlight! \"交锋收场\" \"仍在巷子里\") (end-encounter 'success)");
+            boundaryState.CurrentActionReport = null;
+            AssertEq("encounter spotlight stays before scene commit", "交锋收场",
+                boundaryReport.BlockingStorySteps.Single().Spotlight!.Title);
+            AssertEq("world callback waits until after scene commit", "世界回调",
+                boundaryReport.PostSceneBlockingSteps.Single().Spotlight!.Title);
 
             var hangoverState = new GameState();
             hangoverState.Team.ApplyHangover();

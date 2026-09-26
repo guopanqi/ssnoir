@@ -274,7 +274,7 @@ namespace SSNoir.IMGUI
         private static readonly Color CardBlockBg = new Color(0.024f, 0.031f, 0.047f, 1f);
         private static readonly Color DisabledResourceBg = new Color(0.024f, 0.031f, 0.047f, 0.55f);
         private static readonly Color DisabledResourceText = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
-        private static readonly Color Paper70 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.70f);
+        private static readonly Color Paper55 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f);
         private static readonly Color Paper35 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
         private static readonly Color Paper25 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
         private static readonly Color Paper14 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.14f);
@@ -996,7 +996,7 @@ namespace SSNoir.IMGUI
                     ? IMGUIStyles.Gold
                     : hover
                         ? IMGUIStyles.Paper
-                        : Paper70;
+                        : Paper55;
 
             if (!disabled)
                 IMGUIStyles.DrawShadow(drawRect, new Vector2(2f, 2f), 0.45f);
@@ -1005,7 +1005,7 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
             IMGUIStyles.DrawOutline(drawRect, !disabled && (selected || hover) ? 2f : 1f, border);
 
-            Color content = disabled ? DisabledResourceText : selected ? IMGUIStyles.Gold : IMGUIStyles.Paper;
+            Color content = disabled ? DisabledResourceText : selected ? IMGUIStyles.Gold : IMGUIStyles.TextPrimary;
             bool hasGauge = capacitySegments > 0;
             bool hasSmall = hasGauge || !string.IsNullOrEmpty(small);
 
@@ -1033,7 +1033,7 @@ namespace SSNoir.IMGUI
                 {
                     fontSize = IMGUIStyles.FontSize(13),
                     alignment = TextAnchor.MiddleCenter,
-                    normal = { textColor = disabled ? DisabledResourceText : (selected ? IMGUIStyles.Gold : IMGUIStyles.Paper) }
+                    normal = { textColor = disabled ? DisabledResourceText : (selected ? IMGUIStyles.Gold : IMGUIStyles.TextPrimary) }
                 };
                 IMGUIStyles.ApplyStrongFont(smallStyle);
                 // 方块高 50；旧的 y+34 / h18 实际画到方块外 2px，数量会压住底栏标题。
@@ -1104,17 +1104,8 @@ namespace SSNoir.IMGUI
             float functionH = TokenSize;
             float functionX = UIScale.SafeArea.xMax - SideMargin - functionW;
             float functionY = baseline - functionH;
-            // 物品格底下要留一行名字：剪影能说"是一类东西"，说不了"是哪一件"——
-            // 纸条、照片、底片在剪影里都是纸。留白让整簇（方块 + 名字）的底边仍落在
-            // baseline 上，和左边那排行动骰的底边对齐；上面两个小标题也跟着抬到同一高度。
-            float itemY = baseline - TokenSize - ItemNameRowH;
-            float labelY = itemY - 20f;
-            var sectionStyle = new GUIStyle(IMGUIStyles.SectionLabel)
-            {
-                fontSize = IMGUIStyles.FontSize(17),
-                normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.82f) }
-            };
-            IMGUIStyles.ApplyStrongFont(sectionStyle);
+            // 名字在方块上方；物品、回家与左侧行动骰共享同一条底线。
+            float itemY = baseline - TokenSize;
 
             if (isInEncounter)
             {
@@ -1140,7 +1131,7 @@ namespace SSNoir.IMGUI
                     gameManager.NavigateToHome();
             }
 
-            // 物品：黑方块 + 白色符号大字 + 下方小字标签，排在功能键左侧、从右往左贴住。
+            // 物品排在功能键左侧，从右往左贴住。
             var snapshot = gameManager.DisplayedSnapshot;
             var items = new List<(string Name, int Qty)>();
             foreach (var kvp in snapshot.Inventory)
@@ -1150,7 +1141,6 @@ namespace SSNoir.IMGUI
             float itemsW = (items.Count - 1) * TokenSpacing + TokenSize;
             float itemsRightEdge = functionX - 28f;
             float startX = itemsRightEdge - itemsW;
-            IMGUIStyles.DrawLabel(new Rect(startX, labelY, 80f, 18f), "物品", sectionStyle);
 
             // 带用法的物品也保持可拖；玩家要把它明确放进随身消费卡的物品槽。
             for (int i = 0; i < items.Count; i++)
@@ -1190,7 +1180,7 @@ namespace SSNoir.IMGUI
         // ── 随身消费动作（右下角的动作卡）─────────────────────────
         // 烟、酒复用普通动作卡：物品槽和行动骰槽都是八角消费槽，填满后出现执行按钮。
         // 唯一特殊之处是摆在随身区，不进入交锋自己的卡片网格。
-        // 物品名那一行的高度。方块本身不变，是整簇往上抬了这么多。
+        // 物品名在方块上方。
         private const float ItemNameRowH = 15f;
 
         private const float CarryCardW = FunctionBlockW;
@@ -1347,12 +1337,12 @@ namespace SSNoir.IMGUI
             GUI.color = disabled ? DisabledResourceBg : CardBlockBg;
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            Color border = disabled ? Paper35 : (hover ? IMGUIStyles.Paper : Paper70);
+            Color border = disabled ? Paper35 : (hover ? IMGUIStyles.Paper : Paper55);
             IMGUIStyles.DrawOutline(rect, hover ? 2f : 1f, border);
             var style = new GUIStyle(IMGUIStyles.ExecuteLabel)
             {
                 fontSize = IMGUIStyles.FontSize(16),
-                normal = { textColor = disabled ? DisabledResourceText : IMGUIStyles.Paper }
+                normal = { textColor = disabled ? DisabledResourceText : IMGUIStyles.TextPrimary }
             };
             IMGUIStyles.DrawLabel(rect, label, style);
             if (!disabled && ui.WasTapped(rect))
@@ -1434,14 +1424,14 @@ namespace SSNoir.IMGUI
         // 图标只占大字那一格的 8 成：剪影的视觉重量本来就比字重，占满会把方块撑得发闷。
         private const float IconScale = 0.80f;
 
-        // 方块外下方那行名字。长名字在这儿会被收短（见 ItemDisplayName）——收的只是显示，
+        // 方块外上方那行名字。长名字在这儿会被收短（见 ItemDisplayName）——收的只是显示，
         // 内容脚本里的名字一个字都没动。
         private static void DrawItemCaption(Rect itemRect, string name, bool selected, bool disabled)
         {
             var style = new GUIStyle(IMGUIStyles.SlotLabel)
             {
                 fontSize = IMGUIStyles.FontSize(11),
-                alignment = TextAnchor.UpperCenter,
+                alignment = TextAnchor.LowerCenter,
                 normal =
                 {
                     textColor = disabled
@@ -1450,7 +1440,7 @@ namespace SSNoir.IMGUI
                 }
             };
             IMGUIStyles.DrawLabel(
-                new Rect(itemRect.x - 4f, itemRect.yMax + 1f, itemRect.width + 8f, ItemNameRowH),
+                new Rect(itemRect.x - 4f, itemRect.y - ItemNameRowH - 2f, itemRect.width + 8f, ItemNameRowH),
                 ItemDisplayName.Short(name), style);
         }
 

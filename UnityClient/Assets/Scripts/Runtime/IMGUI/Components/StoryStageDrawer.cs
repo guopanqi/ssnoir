@@ -75,6 +75,15 @@ namespace SSNoir.IMGUI
         public static void StageLight(string id, string light)
             => State.Light(id, light, Time.unscaledTime);
 
+        // Say 拍开始时就建立打字机状态；输入可能先于下一次 OnGUI 绘制到达。
+        public static void BeginStageLine(DialogueLine line, int beatIndex)
+        {
+            _visibleLineKey = beatIndex + "\n" + line.Speaker + "\n" + line.Text;
+            _lineStartedAt = Time.unscaledTime;
+            _currentLineLength = line.Text.Length;
+            _currentLineCompletedInstantly = false;
+        }
+
         // 舞台动作可以没有台词。只有 Say 拍才绘制对白框和打字机。
         public static void DrawStoryStageFrame(DialogueLine? line, int beatIndex)
         {

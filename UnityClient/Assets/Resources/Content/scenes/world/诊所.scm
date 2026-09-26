@@ -48,22 +48,12 @@
         :resolve (instant
           (outcome (lambda () (heal-injury! 2))))))
 
-    ;; ── 标注（不可操作）─────────────────────────────────────────
-    ;; 这两条是标注不是卡：碰不得、点不动，只告诉你这个地方是什么样子。
-    ;; 没有锚点的那条升到画面上方，说的是整个诊所；带锚点的那条挂在诊台旁边，
-    ;; 一根线指过去，说的是那一处（服务卡共用 Anchor_诊所-服务）。
-
-    (define (note-waiting-room)
-      (note-node "标注：候诊" ""
-        "夜里只留一盏灯。挂号窗后面那位从不问伤是怎么来的。"))
-
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
            (list (place "诊所"
-                   :children (list (node-buy-medicine) (node-treatment)
-                                   (note-waiting-room)))))
+                   :children (list (node-buy-medicine) (node-treatment)))))
           ((equal? msg 'visible?) (visible?))
           ((equal? msg 'save) (list (list "discovered" (if discovered? 1 0))))
           ((equal? msg 'load!)

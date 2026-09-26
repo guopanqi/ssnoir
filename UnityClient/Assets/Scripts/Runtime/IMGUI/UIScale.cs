@@ -7,7 +7,7 @@ namespace SSNoir.IMGUI
     public enum UISizePreset
     {
         Compact,   // 看得更多
-        Standard,  // 默认，也是发布形态
+        Standard,  // 标准
         Large,     // 看得更清
     }
 
@@ -67,7 +67,7 @@ namespace SSNoir.IMGUI
         public const float MinTouchSize = 40f;
 
         private static float _scale = 1f;
-        private static UISizePreset _sizePreset = UISizePreset.Standard;
+        private static UISizePreset _sizePreset = UISizePreset.Compact;
 
         /// <summary>物理像素 / 虚拟像素。</summary>
         public static float Scale => _scale;

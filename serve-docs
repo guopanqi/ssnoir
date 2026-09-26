@@ -1,0 +1,4 @@
+#!/bin/zsh
+# 本地预览 docs/ 下的页面（如剧情时间轴的手稿浮层需要 http 才能读文件）。
+# 用法：在仓库根目录跑 ./serve-docs，然后打开 http://localhost:8000/docs/剧情时间轴.html
+exec python3 -m http.server 8000

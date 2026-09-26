@@ -1226,7 +1226,7 @@
   (__play-dialogue! lines))
 
 ;; 一场连续的立绘舞台演出。普通指令各占一拍；(stage-parallel ...) 同时启动，
-;; 等最慢的移动/停顿结束。位置是 -10..10 的舞台横轴，画外可到 -20..20。
+;; 等最慢的移动/停顿结束。位置是 -10..10 的舞台横轴，画外可到 -30..30。
 ;; 声音只播音效，不生成对白框；stage-say 才等待玩家点击。
 (define (stage-spawn id asset x layer) (list (list 'spawn id asset x layer)))
 (define (stage-move id x seconds) (list (list 'move id x seconds)))

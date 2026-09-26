@@ -86,10 +86,14 @@ namespace SSNoir.IMGUI
         public static readonly Color Paper      = new Color(0.937f, 0.918f, 0.878f, 1f);     // #EFEAE0 纸白
         public static readonly Color PaperInk   = new Color(0.110f, 0.102f, 0.082f, 1f);     // #1C1A15 纸上墨字
         public static readonly Color HudBg      = new Color(0.039f, 0.047f, 0.071f, 0.92f);  // rgba(10,12,18,.92)
+        // 顶栏暗条底：和用掉的骰位同一套「空槽」语言——无投影、1px 细框，只比场景深一点，
+        // 托住字但不抢注意力。嫌透就加 alpha，嫌实就减，一处调。
+        public static readonly Color FunctionSlotBg = new Color(0.039f, 0.047f, 0.071f, 0.40f);
+        public static readonly Color FunctionSlotLine = new Color(Paper.r, Paper.g, Paper.b, 0.20f);
 
         // ── 文字（暗版/HUD 上）──
-        public static readonly Color TextPrimary   = Paper;                                   // 主文字
-        public static readonly Color TextSecondary = new Color(Paper.r, Paper.g, Paper.b, 0.60f); // 次级
+        public static readonly Color TextPrimary   = new Color(Paper.r, Paper.g, Paper.b, 0.82f); // 主文字，让场景先被看见
+        public static readonly Color TextSecondary = new Color(Paper.r, Paper.g, Paper.b, 0.52f); // 次级
         public static readonly Color TextDisabled  = new Color(Paper.r, Paper.g, Paper.b, 0.35f); // 弱化/禁用
 
         // ── 文字（纸上）──
@@ -126,13 +130,14 @@ namespace SSNoir.IMGUI
         // ── 面板不透明度阶梯 ──
         public const float PanelOpacity  = 0.88f; // 面板 ≥88%
         public const float ModalOpacity  = 0.96f; // 弹窗 ≥96%
-        public const float MaskOpacity   = 0.82f; // 遮罩：60% 在浅色场景里压不住，纸窗背后要暗下去而不是变白
 
         // ── 组合令牌（由基础令牌推导；旧 Blueprint Noir 调色板已全部退役）──
         // 弹窗是"递到面前的一张纸"：Paper 底 @96%（配 ModalTitle/ModalBody 的 PaperInk 字）
         public static readonly Color ModalBg = new Color(Paper.r, Paper.g, Paper.b, ModalOpacity);
-        // 全屏遮罩：深墨 @60%
-        public static readonly Color Blocker = new Color(0.039f, 0.047f, 0.071f, MaskOpacity);
+        // 全屏遮罩：中性黑 @60%。不带蓝——带蓝的深墨一铺满屏，整张图纸就脏了；
+        // 黑 @60% 只压暗不染色，纸窗照样是全场最亮。比顶栏暗条（0.40）实一档，
+        // 明确告诉玩家后面不可点。
+        public static readonly Color Blocker = new Color(0f, 0f, 0f, 0.60f);
         // 判定结果三色（与命运预览同源）
         public static readonly Color OutcomeSuccess = OddsSuccess;
         public static readonly Color OutcomeNeutral = OddsNeutral;

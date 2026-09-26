@@ -161,6 +161,7 @@
               (stage-say "弗兰克" "尼尔……你不是我这儿的人。" "货船/码头/收工/04/弗兰克")
               (stage-say "尼尔" "今天算是。" "货船/码头/收工/05/尼尔")
               (stage-say "弗兰克" "今天算。工钱去岸口领。" "货船/码头/收工/06/弗兰克"))
+            (baines 'note-dock-seen!)
             (spotlight! "货船达到离港标准"
               (if (equal? repair-result "按时修好")
                   "泵压住了进水。你把最后一班抢了下来，代理明天来验船。"
@@ -376,26 +377,42 @@
 
     ;; 只属于本场的调度简写。公共舞台提供 spawn/move/remove；三个人影穿场
     ;; 是这场戏的句法，不是引擎原语。
+    ;; 纵队间距 5：立绘在台上约 5–6 个单位宽，之前 1.5 近乎完全重叠；5 加上
+    ;; 三层前后错开与高低落差，读成跑在一起的一班人。
+    ;; 速度 12 单位/秒：这场节奏着急，跑就是跑，可视区不到两秒穿过；
+    ;; 之前近 30 单位/秒才是闪过去。时长按路程折算，保证三人同速；
+    ;; 走位本身是匀速直线（见 StageState.CurrentStageX），不会越跑越慢，
+    ;; 出框不停留，到位即 remove。
+    ;; 拖尾一律落在行进方向的反侧，第二班（从右往左）之前错摆进了可视区。
     (define (cross-shadows prefix from to with-call?)
-      (list
-        (stage-parallel
-          (stage-spawn (string-append prefix "一") "码头工人_奔跑" from 'back)
-          (stage-spawn (string-append prefix "二") "码头工人_奔跑" (- from 1.5) 'middle)
-          (stage-spawn (string-append prefix "三") "码头工人_奔跑" (- from 3) 'front))
-        (if with-call?
-            (stage-parallel
-              (stage-move (string-append prefix "一") to 0.85)
-              (stage-move (string-append prefix "二") to 1.05)
-              (stage-move (string-append prefix "三") to 1.2)
-              (stage-sound "码头/急活" 7))
-            (stage-parallel
-              (stage-move (string-append prefix "一") to 0.85)
-              (stage-move (string-append prefix "二") to 1.05)
-              (stage-move (string-append prefix "三") to 1.2)))
-        (stage-parallel
-          (stage-remove (string-append prefix "一"))
-          (stage-remove (string-append prefix "二"))
-          (stage-remove (string-append prefix "三")))))
+      (let* ((dir (if (> to from) 1 -1))
+             (gap 5)
+             (speed 12.0)
+             (d1 (abs (- to from)))
+             (d2 (+ d1 gap))
+             (d3 (+ d1 (* 2 gap)))
+             (t1 (/ d1 speed))
+             (t2 (/ d2 speed))
+             (t3 (/ d3 speed)))
+        (list
+          (stage-parallel
+            (stage-spawn (string-append prefix "一") "码头工人_奔跑" from 'back)
+            (stage-spawn (string-append prefix "二") "码头工人_奔跑" (- from (* dir gap)) 'middle)
+            (stage-spawn (string-append prefix "三") "码头工人_奔跑" (- from (* dir 2 gap)) 'front))
+          (if with-call?
+              (stage-parallel
+                (stage-move (string-append prefix "一") to t1)
+                (stage-move (string-append prefix "二") to t2)
+                (stage-move (string-append prefix "三") to t3)
+                (stage-sound "码头/急活" 7))
+              (stage-parallel
+                (stage-move (string-append prefix "一") to t1)
+                (stage-move (string-append prefix "二") to t2)
+                (stage-move (string-append prefix "三") to t3)))
+          (stage-parallel
+            (stage-remove (string-append prefix "一"))
+            (stage-remove (string-append prefix "二"))
+            (stage-remove (string-append prefix "三"))))))
 
     (define (play-ship-arrival!)
       (apply play-stage!
@@ -409,10 +426,8 @@
             (stage-pose "尼尔" "侧身退")
             (stage-spawn "弗兰克" "弗兰克" 14 'front)
             (stage-move "弗兰克" 5 0.3)
-            (stage-light "弗兰克" 'surge)
             (stage-say "弗兰克" "东边缺两个人！钢缆别堆在跳板上！" "货船/码头/靠岸/02/弗兰克")
             (stage-say "弗兰克" "找活的？今天加钱。去那边报名字。" "货船/码头/靠岸/03/弗兰克")
-            (stage-light "弗兰克" 'normal)
             (stage-move "弗兰克" 14 0.25)
             (stage-remove "弗兰克")
             (stage-move "尼尔" 0 0.3)

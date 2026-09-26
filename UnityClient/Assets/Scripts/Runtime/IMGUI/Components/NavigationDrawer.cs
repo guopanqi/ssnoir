@@ -13,8 +13,8 @@ namespace SSNoir.IMGUI
             {
                 var returnRect = topHud.Back;
 
-                // 顶栏最高频的动作，用 DrawPrimary：常态金底金描边，比旁边一排
-                // 查阅型开关（DrawHudToggle）扎眼，不用等悬停才被注意到。
+                // 顶栏最高频的动作，用 DrawPrimary：常态纸白实底，比暗条上那排低频的
+                // 查阅型开关（DrawTopTextToggle，常态只是次级灰字）扎眼，不用等悬停才被注意到。
                 if (IMGUIButton.DrawPrimary(returnRect, "< 返 回", ui))
                 {
                     gameManager.GoBackNavigation();
@@ -45,12 +45,6 @@ namespace SSNoir.IMGUI
             dayStyle.fontSize = IMGUIStyles.FontSize(14);
             dayStyle.alignment = TextAnchor.MiddleCenter;
             IMGUIStyles.DrawLabel(topHud.Day, $"第 {gameManager.DisplayedSnapshot.WorldDay} 天", dayStyle);
-
-            // Divider
-            IMGUIStyles.DrawLine(
-                new Vector2(topHud.Bar.xMin, topHud.DividerY),
-                new Vector2(topHud.Bar.xMax, topHud.DividerY),
-                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
         }
 
         private static string FitTextWithEllipsis(string text, float maxWidth, GUIStyle style)

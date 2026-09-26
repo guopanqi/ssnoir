@@ -19,7 +19,7 @@ namespace SSNoir.Editor
     {
         // Bump this whenever serialized importer output changes so existing model assets
         // are reprocessed instead of keeping stale generated VCams in the import cache.
-        public override uint GetVersion() => 15;   // 13：地点文件按 clips.json 切道具 clip；15：fbx 依赖 sidecar，json 后到也会重导
+        public override uint GetVersion() => 16;   // 13：地点文件按 clips.json 切道具 clip；15：fbx 依赖 sidecar，json 后到也会重导；16：City.fbx 的河面重挂 RiverFlowUV.mat
 
         // CityBox 相机一律 50mm、36×24 传感器、按 16:9 标定（pipeline/export.py 强制焦距）。
         // Blender 的 FBX 导出把 FieldOfView 写成**水平**视角（39.6°），Unity 却当**竖直**视角用，
@@ -43,6 +43,8 @@ namespace SSNoir.Editor
         /// <summary>
         /// CityBox 发布的世界层和地点细节层都使用 FBX 自带的材质描述。
         /// 这样两层遵循同一套色彩转换，不再让 Places 通过同名工程 .mat 得到另一种明暗结果。
+        /// 唯一的例外是河面（见 <see cref="RemapRiverMaterial"/>）：它的波光动画靠
+        /// Assets/Materials/RiverFlowUV.mat + CityBox 写进 FBX 的 UV，非嵌入材质能替代。
         /// </summary>
         private void OnPreprocessModel()
         {
@@ -119,8 +121,53 @@ namespace SSNoir.Editor
             importer.materialSearch = ModelImporterMaterialSearch.Local;
         }
 
+        /// <summary>
+        /// 河面导出契约（CityBox pipeline/export.py + make_city_base.py + materials.py）：
+        /// 网格名 <c>河面</c>、材质槽名 <c>RiverFlowUV</c>、自带 UV（u 横河 0-1、v 顺流弧长/100m）。
+        /// 嵌入导入只会把它变成普通 Lit 材质，所以这里把它重挂到工程里的
+        /// <c>Assets/Materials/RiverFlowUV.mat</c>（Noir/KRZ River Lines UV），对不上就导入失败。
+        /// </summary>
+        private static void RemapRiverMaterial(GameObject root)
+        {
+            var rivers = root.GetComponentsInChildren<Transform>(true)
+                .Where(t => string.Equals(t.name, "河面", StringComparison.Ordinal))
+                .ToArray();
+            if (rivers.Length != 1)
+                throw new InvalidOperationException(
+                    $"[SSNoir] ModelImporter: City.fbx 必须恰好含一个'河面'，实际 {rivers.Length}。先修 CityBox 导出（pipeline/export.py）。");
+
+            var renderer = rivers[0].GetComponent<Renderer>();
+            if (renderer == null)
+                throw new InvalidOperationException(
+                    "[SSNoir] ModelImporter: '河面' 没有 Renderer，接不上 RiverFlowUV.mat。");
+            if (renderer.sharedMaterials.Length != 1)
+                throw new InvalidOperationException(
+                    $"[SSNoir] ModelImporter: '河面' 必须恰好一个材质槽，实际 {renderer.sharedMaterials.Length}。");
+
+            var filter = rivers[0].GetComponent<MeshFilter>();
+            var mesh = filter != null ? filter.sharedMesh : null;
+            if (mesh == null || mesh.uv.Length == 0)
+                throw new InvalidOperationException(
+                    "[SSNoir] ModelImporter: '河面' 没有 UV，RiverFlowUV.mat 靠它推流向。先修 CityBox 导出（UV_KEEP）。");
+
+            var riverMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/RiverFlowUV.mat");
+            if (riverMat == null)
+                throw new InvalidOperationException(
+                    "[SSNoir] ModelImporter: 找不到 'Assets/Materials/RiverFlowUV.mat'，河面无法接波光材质。");
+            if (riverMat.shader == null || riverMat.shader.name != "Noir/KRZ River Lines UV")
+                throw new InvalidOperationException(
+                    $"[SSNoir] ModelImporter: RiverFlowUV.mat 的 shader 必须是 'Noir/KRZ River Lines UV'，实际 '{riverMat.shader?.name}'。");
+
+            renderer.sharedMaterial = riverMat;
+            Debug.Log("[SSNoir] ModelImporter: '河面' 已重挂 RiverFlowUV.mat（Noir/KRZ River Lines UV）。");
+        }
+
         private void OnPostprocessModel(GameObject root)
         {
+            string modelPath = assetPath.Replace('\\', '/');
+            if (modelPath.EndsWith("/Resources/Models/Environment/City.fbx", StringComparison.Ordinal))
+                RemapRiverMaterial(root);
+
             var allTransforms = root.GetComponentsInChildren<Transform>(true);
             var orbitPivots = allTransforms.Where(t => IsOrbitPivotName(t.name)).ToArray();
 

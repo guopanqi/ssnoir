@@ -144,6 +144,14 @@ Orbit 相机必须满足：
 
 非城市独立资产不得默认复用城市描边流程。只有找到明确运行时消费者时，才采用该消费者要求的对象名和材质名。例如 `AmbientBoat` 当前仍按材质名区分船体和线条，这只是车辆系统专用契约，不是所有资产的通用规范。
 
+### 河面材质
+
+来源：`city-box/pipeline/make_city_base.py`（`river_mesh`）、`city-box/pipeline/materials.py`（`Palette.water`）、`city-box/pipeline/export.py`（`UV_KEEP`）、`SSNoirModelImporter.cs`（`RemapRiverMaterial`）、`NoirKRZRiverLines_UV.shader`、`Assets/Materials/RiverFlowUV.mat`
+
+- CityBox 的河面网格名是 `河面`（精确匹配，大小写敏感），材质槽名 `RiverFlowUV`，自带 UV：`u` 横河 0-1，`v` 顺流弧长 / 100m（`RIVER_UV_LENGTH_M`）。导出剥掉其他所有网格的 UV，唯独保留河面；河面缺 UV 直接构建失败。
+- `City.fbx` 其余材质走嵌入描述，但河面在导入后处理中重挂到工程里的 `Assets/Materials/RiverFlowUV.mat`（shader 必须是 `Noir/KRZ River Lines UV`）。网格缺失或不唯一、材质槽数量不对、无 UV、`.mat` 缺失、shader 不对，导入直接失败，不静默退回嵌入材质。
+- `Resources/Models/Environment/Materials/` 下的 `M_水.mat` 是旧管线残留，不再被消费；世界坐标版 `Noir/KRZ River Lines` + `RiverFlow.mat` 不在当前契约内，不要混用。
+
 ## 已实现的专用扩展
 
 来源：`UnityClient/Assets/Scripts/Runtime/Environment/NeonSign/NeonSignFlicker.cs`

@@ -13,7 +13,7 @@ namespace SSNoir.IMGUI
     // 统一语言：悬浮靠阴影（Ink + 硬投影，去描边），操作靠描边（框架由 CardDrawer 画）。
     public static class ContainerNodeDrawer
     {
-        private static readonly Color Paper85 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.85f);
+        private static readonly Color Paper72 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.72f);
         private static readonly Color Paper35 = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.35f);
 
         // ── 纵向流量（测量与绘制共用）─────────────────────────────────
@@ -71,14 +71,20 @@ namespace SSNoir.IMGUI
         // 认不出；融入场景的活只交给标注那一族（雾底 + 描边字，见 AnnotationDrawer）。
         public static void DrawPlateBase(Rect rect)
         {
+            DrawPlateBase(rect, IMGUIStyles.Ink);
+        }
+
+        /// <summary>牌子底的换底色版：顶栏暗条用 HudBg（深蓝、暗、微透），和地点牌区分。</summary>
+        public static void DrawPlateBase(Rect rect, Color bg)
+        {
             IMGUIStyles.DrawShadow(rect, new Vector2(7f, 9f), 0.58f);
-            IMGUIStyles.SetColor(IMGUIStyles.Ink);
+            IMGUIStyles.SetColor(bg);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
         }
 
         public static Color PlateLineColor(bool disabled, bool hover)
-            => disabled ? Paper35 : (hover ? IMGUIStyles.Paper : Paper85);
+            => disabled ? Paper35 : (hover ? IMGUIStyles.Paper : Paper72);
 
         /// <summary>牌子上那一行：让开时钟徽章后，在剩余高度里居中画「可选图标 + 文字」。</summary>
         public static void DrawPlateRow(Rect rect, string text, Texture2D? icon, Color line, float clocksBottomY)

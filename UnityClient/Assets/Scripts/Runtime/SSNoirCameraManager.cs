@@ -624,6 +624,17 @@ namespace SSNoir
             _panDragStartRawPosition = _panRawPosition;
         }
 
+        /// <summary>
+        /// 外部过场把焦点镜头交还给玩家时，内部 Pan 目标必须从最终机位重建。
+        /// 否则下一帧的边界回弹会用上一次拖拽留下的目标覆盖过场落点。
+        /// </summary>
+        public void SynchronizeAfterExternalTransition(
+            Cinemachine.CinemachineVirtualCamera camera)
+        {
+            _inertiaVelocity = Vector2.zero;
+            SynchronizePanBoundsState(camera);
+        }
+
         private void TickPanReturn(Cinemachine.CinemachineVirtualCamera activeCamera)
         {
             if (_isDraggingCam || _isNavigating || _isFocusArcActive

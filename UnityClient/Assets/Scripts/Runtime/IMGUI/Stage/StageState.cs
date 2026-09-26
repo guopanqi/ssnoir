@@ -351,8 +351,10 @@ namespace SSNoir.IMGUI.Stage
             UsesStageX = true;
         }
 
+        // 舞台走位是匀速直线：跑步进出场用 EaseOut 会前冲后爬、越跑越慢。
+        // 灯光、姿势、逼近退位仍走 EaseOut——那些是亮灯和做派，不是赶路。
         public float CurrentStageX(float now) => _stageXDuration <= 0f ? _stageXTarget
-            : Mathf.Lerp(_stageXFrom, _stageXTarget, StageState.EaseOut(_stageXChangedAt, _stageXDuration, now));
+            : Mathf.Lerp(_stageXFrom, _stageXTarget, Mathf.Clamp01((now - _stageXChangedAt) / _stageXDuration));
 
         // 刚上台的人传 changedAt = -10：直接以指定姿势点亮，不先闪一下招牌姿势再切过去。
         public void SwitchPose(string pose, Texture2D texture, float changedAt)

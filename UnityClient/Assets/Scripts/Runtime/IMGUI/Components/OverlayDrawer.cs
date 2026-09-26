@@ -6,7 +6,8 @@ namespace SSNoir.IMGUI
 {
     public static class OverlayDrawer
     {
-        public static void DrawNotifications(NotificationCenter notificationCenter)
+        /// <summary>通知摞在左上角，顶在场景标注带下面——右上角是钉住条的地盘。</summary>
+        public static void DrawNotifications(NotificationCenter notificationCenter, float topY)
         {
             var visibleNotifs = notificationCenter.GetVisible();
             for (int i = 0; i < visibleNotifs.Count; i++)
@@ -21,10 +22,8 @@ namespace SSNoir.IMGUI
 
                 float cardW = 240f;
                 float cardH = 34f;
-                float cardX = UIScale.SafeArea.xMax - cardW - 24f;
-                // 通知贴右上角，落在顶栏下面。
-                float cardTop = UIScale.SafeArea.y + 66f;
-                float cardY = cardTop + i * (cardH + 8f);
+                float cardX = UIScale.SafeArea.x + 24f;
+                float cardY = topY + i * (cardH + 8f);
                 var cardRect = new Rect(cardX, cardY, cardW, cardH);
 
                 // 通知：黑底 HUD 语言。收益/成功=金文字，失败/损失=印章红，警告=赭黄，一般=纸白。

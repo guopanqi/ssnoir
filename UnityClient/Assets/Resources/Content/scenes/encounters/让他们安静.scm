@@ -84,6 +84,7 @@
 ;; ── 常驻的两张：拳头和嘴 ─────────────────────────
 (define (node-drag)
   (node "把他拖出去"
+    :anchor "让他们安静-修车棚门口"
     :tags (list "高风险")
     :subtitle "武力；当着整条街的面，让他们知道下次是什么代价"
     :requires (list (req-die))
@@ -96,6 +97,7 @@
 
 (define (node-sit)
   (node "坐下来谈"
+    :anchor "让他们安静-修车棚门口"
     :subtitle "他们要的是这个月的数，不是这条街"
     :requires (list (req-die))
     :resolve (roll 'social
@@ -106,6 +108,7 @@
 ;; ── 钥匙开出来的三张 ─────────────────────────────
 (define (node-dock)
   (node "让码头带句话"
+    :anchor "让他们安静-街口"
     :subtitle "老大的哥哥在码头卸货，那边的话他不敢不听"
     :requires (list (req-die))
     :resolve (roll 'social
@@ -116,6 +119,7 @@
 
 (define (node-owner)
   (node "让老板拒收"
+    :anchor "让他们安静-杂货铺"
     :subtitle "见识；一家不交，整条街就都不交了"
     :requires (list (req-die))
     :resolve (roll 'knowledge
@@ -126,6 +130,7 @@
 ;; 替他们把这个月的账平了。钱是真花的——这条路把代价挪到你自己的口袋里。
 (define (node-debt)
   (node "替他平了赌账"
+    :anchor "让他们安静-修车棚门口"
     :subtitle "他欠场子二十块；写票的认这笔钱，不认他"
     :requires (list (req-item "金钱" 20))
     :resolve (instant
@@ -135,7 +140,7 @@
           (check!))))))
 
 (define (node-leave)
-  (instant-action "今天到此为止"
+  (anchored-instant-action "今天到此为止" "让他们安静-街口"
     (lambda ()
       (if (< (trouble-clk 'current) trouble-max)
           (finish! 'fail "还差一口气"

@@ -389,7 +389,7 @@ namespace SSNoir.IMGUI
         /// 不整条让到它下面：钉住条只有 300 宽，让整行等于把一条短句右边一千多像素全空掉。
         /// 恒定的是钉住条的位置，不是标注带必须下移。
         /// 绕排后剩的宽度放不下一条标注，这一行才落到它底下——窄画幅于是自动退回堆叠，
-        /// 同一套数字，不分设备。
+        /// 同一套数字，不分设备。钉住条在左就从它右边起排，在右就收到它左边为止。
         /// </summary>
         private static float LayoutSceneBand(IReadOnlyList<GameNode> notes, float topY, Rect reserved, bool draw)
         {
@@ -406,16 +406,30 @@ namespace SSNoir.IMGUI
                 // 行的归属按行首那一条线判断。一行偶尔比钉住条长出去一截无所谓——
                 // 它只是继续用窄一点的宽度，不会压到任何东西。
                 float left = safe.xMin + SceneBandSideMargin;
+                float rowRight = rightEdge;
                 if (hasReserved && y < reserved.yMax)
                 {
-                    float beside = reserved.xMax + SceneNoteGap;
-                    if (rightEdge - beside >= SceneNoteMinWidth)
-                        left = beside;
+                    bool reservedOnLeft =
+                        reserved.xMin - safe.xMin <= safe.xMax - reserved.xMax;
+                    if (reservedOnLeft)
+                    {
+                        float beside = reserved.xMax + SceneNoteGap;
+                        if (rightEdge - beside >= SceneNoteMinWidth)
+                            left = beside;
+                        else
+                            y = reserved.yMax + SceneBandTopPad;   // 挤不下就落到钉住条底下
+                    }
                     else
-                        y = reserved.yMax + SceneBandTopPad;   // 挤不下就落到钉住条底下
+                    {
+                        float capped = reserved.xMin - SceneNoteGap;
+                        if (capped - left >= SceneNoteMinWidth)
+                            rowRight = capped;
+                        else
+                            y = reserved.yMax + SceneBandTopPad;   // 挤不下就落到钉住条底下
+                    }
                 }
 
-                float maxRowW = Mathf.Max(1f, rightEdge - left);
+                float maxRowW = Mathf.Max(1f, rowRight - left);
                 // 两个间隙之外的三等份是单条标注的硬上限。这个值放在布局处计算，
                 // 不能只调 SceneNoteMaxWidth：可用宽度会随画幅和钉住条变化。
                 float threeColumnWidth = Mathf.Max(1f, (maxRowW - SceneNoteGap * 2f) / 3f);

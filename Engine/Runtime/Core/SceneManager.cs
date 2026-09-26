@@ -115,7 +115,11 @@ namespace SSNoir.Core
         public void GoToLocation(string sceneName)
         {
             if (sceneName != CurrentSceneName)
+            {
+                // 调试直切不属于原交锋的收场；不能把它的回调带进目标场景。
+                _encounterCallback = null;
                 LoadScene(sceneName);
+            }
         }
 
         // The world is a single shared interpreter; everything else is an encounter.
@@ -133,6 +137,7 @@ namespace SSNoir.Core
 
             if (IsWorldScene(sceneName))
             {
+                _encounterEnded = true;
                 _encounterInterpreter = null;
                 _encounterSceneName = string.Empty;
                 
@@ -150,6 +155,9 @@ namespace SSNoir.Core
             }
             else
             {
+                // 正式入场和调试直载共用同一条生命周期边界。
+                _encounterEnded = false;
+                SupportUsedThisEncounter = false;
                 string cleanName = sceneName;
                 if (cleanName.StartsWith("encounters/"))
                 {
@@ -247,8 +255,6 @@ namespace SSNoir.Core
 
         public void StartEncounter(string name)
         {
-            _encounterEnded = false;
-            SupportUsedThisEncounter = false;
             LoadScene(name);
         }
 
@@ -267,12 +273,22 @@ namespace SSNoir.Core
 
             var cb = _encounterCallback;
             _encounterCallback = null;
+            var report = _gameState.CurrentActionReport;
+            int oldSceneStepCount = report?.BlockingStorySteps.Count ?? 0;
 
             // 支援叫来的帮手只属于这一场：结算前先送走，回调和城市都不该看见他。
             _gameState.Team.DismissTemporaryCompanions();
 
             if (cb != null)
                 cb.Call(new List<object> { result ?? Symbol.FromString("none") });
+
+            if (report != null && report.BlockingStorySteps.Count > oldSceneStepCount)
+            {
+                int count = report.BlockingStorySteps.Count - oldSceneStepCount;
+                report.PostSceneBlockingSteps.AddRange(
+                    report.BlockingStorySteps.GetRange(oldSceneStepCount, count));
+                report.BlockingStorySteps.RemoveRange(oldSceneStepCount, count);
+            }
 
             LoadScene("world");
         }
@@ -295,8 +311,8 @@ namespace SSNoir.Core
         /// （勒索信 → 三封信的 on-delivery-result），它讲的是那一夜的结局；而倒下是那个结局
         /// 的**原因**。按追加顺序播，玩家先读到"你跟丢了他、钱一分没剩"——听起来像是他没追上，
         /// 然后才被告知自己其实是被撂倒了、已经躺在诊所。因果反过来，那条失败叙述就变成了假话。
-        /// 所以这里记下进入本方法时的步骤位置，把倒下与送医**插进**那个位置，
-        /// 让顺序回到：你倒下了 → 诊所醒来 → 那一夜的结局。
+        /// 因而把送医与倒下展示放在世界回调之前；旧交锋演出结束后先采纳世界快照，
+        /// 再按“诊所醒来 → 你倒下了 → 那一夜的结局”播放。
         /// </summary>
         private void ResolvePendingHospitalization(
             ActionReport report,
@@ -305,9 +321,6 @@ namespace SSNoir.Core
         {
             if (!_gameState.HasPendingHospitalization)
                 return;
-
-            // 退场回调往这张报告里追加的每一步，都排在这个位置之后。
-            int collapseStepIndex = report.BlockingStorySteps.Count;
 
             if (!CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
             {
@@ -345,11 +358,10 @@ namespace SSNoir.Core
 
             var hospitalization = _gameState.ConsumeHospitalization();
 
-            // 医院位置切换发生在原动作演出之后；后续日终来信/对白也都在诊所画面上播放。
-            // 插在 collapseStepIndex：见方法注释——倒下是原因，退场回调讲的是结果。
-            report.BlockingStorySteps.Insert(collapseStepIndex,
+            // 先采纳世界快照并抵达诊所，再讲倒下与退场回调；旧交锋的演出在此前结束。
+            report.PostSceneBlockingSteps.Insert(0,
                 BlockingStoryStep.ForEnterPlace("诊所"));
-            report.BlockingStorySteps.Insert(collapseStepIndex + 1, BlockingStoryStep.ForSpotlight(
+            report.PostSceneBlockingSteps.Insert(1, BlockingStoryStep.ForSpotlight(
                 new SpotlightCard { Title = "你倒下了", Subtitle = hospitalization.Text }));
 
             _stashedWorldDice = null;
@@ -1238,12 +1250,14 @@ namespace SSNoir.Core
 
         private static bool HasVisibleResult(ActionReport report)
             => report.Effects.Count > 0 || report.BlockingStorySteps.Count > 0
+                || report.PostSceneBlockingSteps.Count > 0
                 || report.Banter.Count > 0 || report.NarrationIds.Count > 0;
 
         private static void MergeReport(ActionReport target, ActionReport source)
         {
             target.Effects.AddRange(source.Effects);
             target.BlockingStorySteps.AddRange(source.BlockingStorySteps);
+            target.PostSceneBlockingSteps.AddRange(source.PostSceneBlockingSteps);
             target.Banter.AddRange(source.Banter);
             target.NarrationIds.AddRange(source.NarrationIds);
             foreach (var step in source.BlockingStorySteps)

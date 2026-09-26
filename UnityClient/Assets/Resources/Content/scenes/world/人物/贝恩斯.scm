@@ -1,17 +1,17 @@
 ;; 贝恩斯——辖区警察局的值班警官。
 ;;
-;; 他不认为自己的工作是实现正义,他认为自己的工作是让这座城市每天还能继续运转。
-;; 正义不是无限资源:城里每天几百件事,警局十二个人,预算就那么多。所以他上班的时候
-;; 很认真——程序正确、证据够了就抓人、有人真要杀人他会拔枪——但他拒绝假装每一件
-;; 报上来的事都会有人去查。
+;; 他熟悉辖区的人，也知道怎样迅速处置一场争执；但每次先问「还有谁知道」，
+;; 因为总局、报社和市政厅知道以后，现场就不再只归他处理。
+;; 他能做老练的警察，也会首先作为官僚体系的一员选择哪些事进入正式记录。
 ;;
-;; 他有三拍,分别由不同的东西开门:
-;;   《给你一个回执》 —— 小节二之后,警察局开着,去不去随玩家。四个程序问题读的是
-;;                       玩家这几天真干过的事,所以敷衍的材料是玩家自己提供的。
-;;   《让他们安静》   —— 他认得你办事靠得住就出现。这是贝恩斯自己的交好线，
-;;                       是他自己数出来的：替警察局把文书办利落三回，他才肯把
-;;                       一件程序管不了的事推给你。
-;;   《五点以后》     —— 他欠你一次之后才出现。在酒馆，他已经下班了。
+;; 玩家第一次看懂他，多半是酒馆门前那场：他问谁知道，凭经验动手，却没查清旧账。
+;; 巷子那件事还挂着时不播；处理完或错过之后，下一次进酒馆才播，只播一次。
+;; 错过也不挡警局和后面的故事。码头收工的两句只记「岸口见过」，不算认识。
+;;
+;; 之后三拍,分别由不同的东西开门:
+;;   《给你一个回执》 —— 小节二之后可去报案；他区分来访回执与正式立案。
+;;   《五点以后》     —— 酒馆初见并报案后，可在酒馆看见他下班时仍识破一起错案。
+;;   《让他们安静》   —— 报案之后他认识尼尔，才私下推来一件无法立案的事。
 ;;
 ;; 警署与市政不挂在任何一条圈内声誉上。这里发生的事只改变贝恩斯自己的状态——
 ;; 他认不认得你、觉不觉得你靠得住、欠不欠你一次。城里没有一条叫「官僚」的关系。
@@ -27,29 +27,20 @@
     (define route "")             ; 暴力 / 交易 / 施压——你用什么方式让他们安静的
     (define owed? #f)             ; 他欠你一次（首演那晚用掉）
     (define off-duty-seen? #f)    ; 《五点以后》已经看过
+    (define street-seen? #f)      ; 酒馆门前那场已经看过
+    (define street-day 0)         ; 两场酒馆戏至少隔一天
+    (define dock-seen? #f)        ; 货船收工时见过他。只改称呼，不算认识
+    (define street-armed? #f)     ; 调试：下一次进酒馆强制播，不进存档
     ;; 第二章的职业身份：未开放 / 请来 / 有效 / 暂停。
     ;; 当前只写到「有效」，但状态一次定对，后面追查线可以直接把它改成「暂停」。
     (define registration "未开放")
-    (define paperwork-clk
-      (make-clock "办事印象" 3 'gauge
-        "只有把文书办得利落，才会让贝恩斯把程序管不了的事交给你。"))
-    (define (reliable?) (paperwork-clk 'full?))
     (define identity "辖区警察局的值班警官")
 
     ;; ── 常驻:文书 ────────────────────────────────────
-    ;; 低风险的桌面文书活:一份体面的日结,不属于任何圈子——警察局不是一个会传你名声的圈子,
-    ;; 它只是一个人在数你办砸过几回。坏结果只是返工伤神(冷静 -1),不倒扣任何东西：
-    ;; 搞错日期是返工不是失职。
-    ;; 只有「办得利落」计进履历:按序归档是交了差,不是办得漂亮。三回之后他才开口。
+    ;; 文书仍是一份日结工作，但不再用重复打工次数解锁人物剧情。
     (define (node-paperwork)
       (工作 "整理警察局文书" '低 'knowledge
-        (outcome (lambda ()
-            (add-item! "金钱" 10)
-            (let ((was-full? (paperwork-clk 'full?)))
-              (paperwork-clk 'tick!)
-              (if (and (not was-full?) (paperwork-clk 'full?))
-                  (notify! "贝恩斯把你归好的卷宗推到一边，没说话。他记住了这只手。")
-                  #f))))
+        (outcome (lambda () (add-item! "金钱" 10)))
         (outcome (lambda () (add-item! "金钱" 6)))
         (outcome (lambda () (spend-composure! 1)))
         :anchor "警察局-卷宗室"))
@@ -68,7 +59,9 @@
       (cond
         ((= quiet-stage 2) "他记得你替他办成过那件事，也记得你是用什么方式办的")
         ((= quiet-stage 3) "那张地址收回了卷宗底下；他只按程序处理")
-        (receipt? "眼镜滑到鼻子下面。他不觉得你的案子不重要，是排不上")
+        (receipt? "他知道那封信，但还没有把它当成正式案件")
+        (street-seen? "门前见过他；那场斗殴没有写进正式卷宗")
+        (dock-seen? "岸口见过他；在警局他先问谁已经知道")
         (else identity)))
 
     ;; 他那两张卡都是阶段性的：回执拿过、地址也发过之后，这张卡点进去就是空的。
@@ -84,7 +77,11 @@
           ((= quiet-stage 3)
            "那张地址收回了卷宗底下。事情闹大以后，他只按程序处理，不再提这件事。")
           (receipt?
-           "眼镜滑到鼻子下面，桌上堆着卷宗。他不觉得你的案子不重要，他觉得它现在排不上。")
+           "他认得你，也记得那封信。来访回执还在你手里，正式案卷尚未立起。")
+          (street-seen?
+           "酒馆门前那位警官坐在值班台后。你没在这里看见那场斗殴的案卷。")
+          (dock-seen?
+           "码头抢修那天在岸口撤人的胖子，现在坐在值班台后面。他很少抬头。")
           (#t
            "值班的位子后面坐着一个胖警官。他一整天都在写字，很少抬头。"))))
 
@@ -97,26 +94,37 @@
                       children)))
 
     ;; ── 第一拍:《给你一个回执》 ───────────────────────
-    ;; 尼尔来留一笔，贝恩斯给一张回执就把人打发走。不复述玩家先前的经历；
-    ;; 这一拍只为第三封信之后警察局主动出人的那一刻留下对照。
+    ;; 他先问消息传到了哪里，再把尼尔的来访和正式立案分开。
+    ;; 玩家此时还不知道他是在分配人手，还是在控制辖区留下的记录。
+
+    (define (play-report!)
+      (play-dialogue!
+        (cond
+          (street-seen? (line "世界" "值班台后面是酒馆门前那个人。"))
+          (dock-seen? (line "世界" "值班台后面是码头上那个警官。"))
+          (else (line "世界" "值班的位子后面坐着一个胖子，眼镜滑到鼻子下面。")))
+        (cond
+          (street-seen? (line "尼尔" "门前见过。有人写信勒索我的委托人。"))
+          (dock-seen? (line "尼尔" "岸口见过。有人写信勒索我的委托人。"))
+          (else (line "尼尔" "有人写信勒索我的委托人。")))
+        (line "贝恩斯" "还有谁知道？")
+        (line "尼尔" "夜莺、剧院经理，还有我。")
+        (line "贝恩斯" "信呢？")
+        (line "尼尔" "不在我手上。")
+        (line "贝恩斯" "我记下你来过。信拿来，或者有人再受威胁，我再立案。")
+        (line "世界" "他盖了个章，撕下一张来访回执推过来。")
+        (line "尼尔" "你已经知道有人在勒索她。")
+        (line "贝恩斯" "我知道你这么说。那是两回事。")))
 
     (define (node-report-case)
       (node "去报案"
         :anchor "警察局-值班台"
-        :subtitle "去警察局留一笔；他未必会管"
+        :subtitle "把勒索信告诉贝恩斯，拿一张来访回执"
         :resolve (instant
           (outcome (lambda ()
               (set! receipt? #t)
-              (play-dialogue!
-                (line "世界" "值班的位子后面坐着一个胖子，眼镜滑到鼻子下面。")
-                (line "尼尔" "有人写信勒索我的委托人。")
-                (line "贝恩斯" "信在哪里？")
-                (line "尼尔" "不在我手上。")
-                (line "世界" "他盖了个章，撕下一张纸条推过来。")
-                (line "贝恩斯" "有进一步情况再来。")
-                (line "尼尔" "就这样？")
-                (line "贝恩斯" "下一位。"))
-              (result-supplement! "你拿到一张回执。案子没有立。"))))))
+              (play-report!)
+              (result-supplement! "拿到来访回执；尚未立案"))))))
 
     ;; ── 第二拍:《让他们安静》 ─────────────────────────
     ;; 三个刚假释出来的小混混又在老街收钱。商户知道是谁,没人愿意作证,其中一个的
@@ -138,15 +146,14 @@
     (define (invite!)
       (set! quiet-stage 1)
       (play-dialogue!
-        (line "贝恩斯" "老街那三个，上个月刚放出来。")
-        (line "尼尔" "抓回去。")
-        (line "贝恩斯" "商户不作证。其中一个的监管文件搬档案的时候丢了。")
-        (line "世界" "他从卷宗底下抽出一张纸，写了个地址，推过来。")
-        (line "贝恩斯" "最近去看看他们。")
-        (line "尼尔" "然后呢？")
-        (line "贝恩斯" "让他们安静。")
-        (line "尼尔" "怎么安静？")
-        (line "贝恩斯" "这类事你不是已经在做了吗。")))
+        (line "贝恩斯" "老街那三个，上个月刚放出来。又在向商户收钱。")
+        (line "尼尔" "你知道是谁，为什么不抓？")
+        (line "贝恩斯" "商户不作证。一人的监管文件搬档案时丢了。")
+        (line "贝恩斯" "我知道他们在干什么，眼下却没有能写进报告的证据。")
+        (line "世界" "他从卷宗底下抽出一张地址，推到桌边。")
+        (line "贝恩斯" "这不是警局的委托。你可以不接。")
+        (line "尼尔" "接了之后呢？")
+        (line "贝恩斯" "让这条街安静几天。我会知道有没有用。")))
 
     ;; ── 第二章 Phase A：《手续已经好了》 ───────────────
     ;; 媒体和晚宴先把尼尔叫成侦探，贝恩斯数日后只是把这个既成事实纳入程序。
@@ -170,8 +177,9 @@
               (set! registration "有效")
               (sync-blockers!)
               (home 'connect-phone!)
+              (board 'open-line!)
               (spotlight! "侦探委托"
-                "你已在警局登记为私人调查员。家里的联络电话已经接通，上城客户的调查委托会直接找上门。"))))))
+                "你已在警局登记为私人调查员。正式调查委托现在会打到家里的电话上。"))))))
 
     ;; 三个手段标签不是三条剧情线,它们各自在别处兑现:
     ;;   暴力 —— 三份伤情报告。他要的结果拿到了,但他记得你是怎么办的。
@@ -221,16 +229,14 @@
               (line "尼尔" "事情闹大了。")
               (line "贝恩斯" "闹大了我就得走程序。走了程序，我这个星期就没有别的时间了。")
               (line "世界" "他把那张地址收回卷宗底下，没再提。"))
-            ;; 失败是终局：办事印象不会被扣回，但这张地址也不会再发一次。
+            ;; 失败是终局：这张地址不会再发一次。
             ;; 失败也算经历完，这一节照样结。
             (set! quiet-stage 3)
             (complete-task! "让他们安静"))))
 
     ;; ── 第三拍:《五点以后》 ───────────────────────────
-    ;; 他没穿制服，桌上有吃的。有人喊他，他连头都不抬——然后那边真掏了刀，
-    ;; 他立刻站起来，分开、收刀、叫巡警，回来接着吃已经凉了的东西，一句抱怨都没有。
-    ;; 这一拍玩家不做任何决定，所以它是演出，不是交锋：他真的把警察当工作，
-    ;; 但这不意味着工作是假的——他只是拒绝把整个人格都献给它。
+    ;; 下班后仍熟悉辖区的人：他阻止巡警把错的人写进盗窃案，
+    ;; 但理由里既有办案经验，也有不愿让错案进入自己辖区卷宗的算计。
     (define (node-off-duty)
       (node "靠窗那桌"
         :subtitle "贝恩斯没穿制服，面前摆着吃的"
@@ -238,29 +244,74 @@
           (outcome (lambda ()
               (set! off-duty-seen? #t)
               (play-dialogue!
-                (line "世界" "他没穿制服外套，眼镜推在额头上，桌上摆着一份还冒气的东西。")
-                (line "尼尔" "警官。")
-                (line "贝恩斯" "五点以后不是。")
-                (line "世界" "门口那边两个人开始互相推搡。有人回头喊了一声。")
-                (line "酒客" "警官！")
-                (line "贝恩斯" "打死人再叫我。")
-                (line "尼尔" "你认真的？")
-                (line "贝恩斯" "非常认真。"))
-              (play-dialogue!
-                (line "世界" "然后那边掏了刀。")
-                (line "世界" "他放下叉子，站起来，走过去。")
-                (line "世界" "他把两个人分开，把刀收进口袋，让酒保去街口叫巡逻的。")
-                (line "世界" "他站在那儿等人来，等笔录记完，等两个人被带走。")
-                (line "世界" "回到桌边的时候，那份东西已经凉了。"))
-              (play-dialogue!
-                (line "尼尔" "你不是下班了。")
-                (line "贝恩斯" "他掏刀了。")
-                (line "世界" "他坐下来，接着吃。一句抱怨也没有。"))
-              (result-supplement! "你见过他下班的样子了。"))))))
+                (line "世界" "贝恩斯脱了制服外套，正吃晚饭。一个巡警押着年轻人进来。")
+                (line "巡警" "码头账房丢了钱。我在门口逮到他。")
+                (line "贝恩斯" "放开。钱丢的时候，他在这儿给我倒酒。")
+                (line "巡警" "您确定？")
+                (line "贝恩斯" "那时我刚下班。账房后门那个跑腿，才是你该找的。")
+                (line "世界" "巡警松了手，转身往码头走。贝恩斯接着吃。")
+                (line "尼尔" "你怎么记得这么清楚？")
+                (line "贝恩斯" "我认识这条街。别把错的人写进我的报告。"))
+              (result-supplement! "贝恩斯记得街上的每个人"))))))
+
+    ;; ── 街面初见：酒馆门前 ───────────────────────────
+    ;; 一次性入场。贝恩斯不查清谁先动手，就凭街面经验制住要掏家伙的人。
+    ;; 他防住了下一下，却没有回答两人最初为何打起来；私人号码留到离场才说。
+    (define (play-street!)
+      (play-stage!
+        (stage-parallel
+          (stage-spawn "酒客" "酒客甲_瘫坐" 4 'middle)
+          (stage-spawn "另一酒客" "酒客乙_半躺" 8 'back)
+          (stage-spawn "酒保" "黑影" -8 'middle)
+          (stage-spawn "贝恩斯" "贝恩斯" -15 'front)
+          (stage-pause 0.6))
+        (stage-say "酒客" "他拿了我的工钱！你让他把钱拿出来！")
+        (stage-say "另一酒客" "我没碰你的钱。酒保看见了！")
+        (stage-say "酒保" "我只看见他们砸了我的杯子。")
+        (stage-move "贝恩斯" 0 0.75)
+        (stage-say "贝恩斯" "还有谁知道？")
+        (stage-say "酒保" "只给你打了电话。")
+        (stage-say "酒客" "警官，你听我说，是他先——")
+        (stage-parallel
+          (stage-move "贝恩斯" 3 0.18)
+          (stage-sound "老街酒馆/按住了" 4))
+        (stage-say "世界" "话没说完，贝恩斯一拳打在他脸上。")
+        (stage-say "酒客" "你疯了？我才是来讨钱的！")
+        (stage-say "世界" "他袖口里掉出一只铜指虎。")
+        (stage-say "贝恩斯" "上回砸酒馆，你也说自己是来讨钱的。")
+        (stage-say "另一酒客" "那我的事呢？他刚才说我偷了钱。")
+        (stage-say "贝恩斯" "我没说你没偷。把杯子的钱留下，走。")
+        (stage-say "世界" "贝恩斯把铜指虎揣进口袋，推着挨打的人往街上走。")
+        (stage-move "贝恩斯" -5 0.7)
+        (stage-say "贝恩斯" "酒保，下回还打我那个号码。总机派人来得慢。")
+        (stage-pause 0.5)))
+
+    (define (street-due?)
+      (and (not street-seen?)
+           (or street-armed?
+               (not (eddie 'alley-pending?)))))
+
+    (define (arrival-street)
+      (arrival "酒馆门前"
+        (lambda ()
+          (set! street-armed? #f)
+          (set! street-seen? #t)
+          (set! street-day world-day)
+          (play-street!))))
+
+    (define (debug-arm-street!)
+      (set! street-seen? #f)
+      (set! street-armed? #t))
+
+    (define (note-dock-seen!)
+      (set! dock-seen? #t))
+
+    (define (arrivals-at location)
+      (if (and (equal? location "老街酒馆") (street-due?))
+          (list (arrival-street))
+          '()))
 
     ;; 第一章一张卡《让他们安静》：他推过来那张地址时立卡，交锋结了就了结。
-    ;; 文书那三回不立卡——那时候玩家还不知道这会通向什么；卡开的时候第一项已经划掉，
-    ;; 读起来就是「原来那几趟文书是为这个」。
     ;; 第二章「贝恩斯叫你去警局拿那张纸」是演出，玩家不用做什么，不立卡。
     (define (dossier-entry)
       (if (>= quiet-stage 1)
@@ -271,9 +322,8 @@
                          ((= quiet-stage 1) "去警察局，照他桌上那张地址办：让老街那三个人安静下来")
                          (#t ""))
                   :where (if (= quiet-stage 1) "警察局" "")
-                  :steps (list (step "替警察局把文书办利落" (reliable?))
-                               (step "他推过来一张地址" (>= quiet-stage 1))
-                               (step "让老街那三个人安静" (>= quiet-stage 2)))))
+                  :steps (list (step "他推过来一张地址" (>= quiet-stage 1))
+                               (step "让老街那三个人安静" (= quiet-stage 2)))))
           '()))
 
     (define (nodes-at location)
@@ -283,8 +333,6 @@
          ;; 生计工作留在地点层，和老街酒馆一个样——职级钟和服务员/领班都摆在
          ;; 酒馆上，不塞进哪个人肚子里。文书是这个地方的活，不是贝恩斯的随身物品；
          ;; 埋进人物卡里等于每天赚钱前先点开一个人。
-         ;; 办事印象那根钟跟着工作走，不跟着人走：它记的就是这张卡的战绩，
-         ;; 要摆在你按下去的地方（同 老街酒馆 的「酒馆职级」）。
          (append
            (list (node-self
                    (append
@@ -294,25 +342,18 @@
                          '()
                          (list (node-report-case)))
                      (if (= quiet-stage 1) (list (node-address)) '()))))
-            (if (not (reliable?))
-                (list (node "钟：贝恩斯的办事印象"
-                        :anchor "警察局-卷宗室"
-                        :resolve (clock (paperwork-clk 'render-data))))
-                '())
            (list (node-paperwork))))
-        ;; 酒馆那张只在他下班以后、而且你已经替他办成过那件事之后才在:
-        ;; 门是他欠你的那一次——不是一条声誉，是他自己知道欠着。
+        ;; 报案后回酒馆即可看见他下班的一面，不用先完成另一条支线。
         ((equal? location "老街酒馆")
-         (if (and (not off-duty-seen?) owed?)
+         (if (and (not off-duty-seen?) receipt? street-seen? (> world-day street-day))
              (list (node-off-duty))
              '()))
         (else '())))
 
-    ;; 门槛只是「他认得你办事靠得住」：不要求先报案，也不被第三封信截断。
-    ;; 这是贝恩斯自己的交好线，不是夜莺主线的旁支时限任务。
+    ;; 报案之后他认得尼尔，才私下推来程序处理不了的街面事。
     (define-turn-rule "贝恩斯推过来一张地址"
       (lambda ()
-        (and (= quiet-stage 0) (reliable?)))
+        (and (= quiet-stage 0) receipt?))
       (lambda () (invite!)))
 
     ;; 晚宴后隔一天来口信。它不是任务，不进卷宗（不发成长、没有子项），是一段必经的
@@ -353,7 +394,12 @@
         (cond
            ((equal? msg 'nodes-at) (nodes-at (cadr args)))
            ((equal? msg 'dossier) (dossier-entry))
-           ((equal? msg 'known?) (or receipt? (reliable?) (> quiet-stage 0)))
+           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
+           ((equal? msg 'debug-arm-street!) (debug-arm-street!))
+           ((equal? msg 'note-dock-seen!) (note-dock-seen!))
+           ((equal? msg 'street-seen?) street-seen?)
+           ((equal? msg 'dock-seen?) dock-seen?)
+           ((equal? msg 'known?) (or street-seen? receipt? (> quiet-stage 0)))
           ((equal? msg 'receipt?) receipt?)
           ((equal? msg 'owed?) owed?)
           ((equal? msg 'registered?) (registered?))
@@ -368,8 +414,10 @@
                  (list "route" route)
                  (list "owed" (if owed? 1 0))
                  (list "off-duty-seen" (if off-duty-seen? 1 0))
-                 (list "registration" registration)
-                 (list "paperwork-done" (paperwork-clk 'save))))
+                 (list "street-seen" (if street-seen? 1 0))
+                 (list "street-day" street-day)
+                 (list "dock-seen" (if dock-seen? 1 0))
+                 (list "registration" registration)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! quiet-stage (assoc-get data "quiet-stage" 0))
@@ -377,9 +425,12 @@
              (set! route (assoc-get data "route" ""))
              (set! owed? (= (assoc-get data "owed" 0) 1))
              (set! off-duty-seen? (= (assoc-get data "off-duty-seen" 0) 1))
+             (set! street-seen? (= (assoc-get data "street-seen" 0) 1))
+             (set! street-day (assoc-get data "street-day" 0))
+             (set! dock-seen? (= (assoc-get data "dock-seen" 0) 1))
              (set! registration (assoc-get data "registration" "未开放"))
              (if (member? registration (list "未开放" "请来" "有效" "暂停"))
                  #t
                  (error "贝恩斯存档错误：私人调查员登记状态非法"))
-             (paperwork-clk 'load! (assoc-get data "paperwork-done" 0))))
+             #t))
           (else #f))))))

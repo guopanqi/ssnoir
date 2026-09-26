@@ -367,15 +367,14 @@
     ;; 删了。零风险、不出门、稳拿钱——它把侦探变成打字员，而且是又一份工作；
     ;; 工作的差别应当在效果上（码头伤身、酒店翻脸、酒馆管饭），不在多一份。
 
-    ;; 电话是侦探职业的明确回报，不藏在「添置家具」里。备案完成时由
-    ;; 贝恩斯那一拍直接接通，不向玩家收取一笔以后会因身份暂停而失去用途的钱。
+    ;; 经理在第一次汇报时替尼尔装电话；备案后，正式侦探委托才打到这条线上。
     ;; 身份暂停时只撤掉正式侦探委托，电话本身留下，以后仍可承载人物来电和其他工作。
     (define (node-telephone)
       (node "电话"
         :anchor "租屋-门"
         :subtitle (if (baines 'registered?)
                       "富裕客户的调查委托会打到这条线上"
-                      "电话还在，警局的背书已经没有了")
+                      "电话接通了，正式委托仍需警局备案")
         :children
           (if (baines 'registered?)
               (board 'phone-nodes)
@@ -392,13 +391,15 @@
               (set! residence "公寓"))))))
 
     ;; 唱片机是屋里第一件纯粹为了"好一点"买的东西：不回冷静、不治伤、不省钱。
-    ;; 三张唱片放哪张就是这座城此后的配乐（全局键 音乐，Unity 侧按它换曲；存档随全局键走）。
-    ;; 放唱片的卡都挂在 租屋-唱片机 上，收在「唱片机」容器里；以后加歌只往 records 加一行，不新加锚点。
+    ;; 架子上的唱片放哪张，城里就循环哪张（全局键 音乐，Unity 侧按它换曲；存档随全局键走）。
+    ;; 「随机播放」在五张里一直随机；抬起唱针则回到城市默认声（城市-* 曲库，偶尔才响）。
+    ;; 放唱片的卡都挂在 租屋-唱片机 上，收在「唱片机」容器里；以后加唱片只往 records 加一行，
+    ;; wav 丢进 Resources/Music 同名（唱片-* 上架，城市-* 进默认声），不新加锚点。
     ;; 机器和架子按 presence 契约随容器的锚点出现。
     (define (node-buy-gramophone)
       (node "买台唱片机"
         :anchor "租屋-书桌"
-        :subtitle "带三张唱片。屋里总得有点声音"
+        :subtitle "带五张唱片。屋里总得有点声音"
         :requires (list (req-item "金钱" gramophone-price))
         :resolve (instant
           (outcome (lambda () (set! has-gramophone? #t))))))
@@ -407,7 +408,9 @@
     (define records
       (list (list "唱片-1" "《午夜列车》" "慢板钢琴，像雨点落在车窗上")
             (list "唱片-2" "《码头灯火》" "闷音小号，一段没人接的独白")
-            (list "唱片-3" "《周六舞厅》" "弦乐三拍子，这城里曾经也有人跳舞")))
+            (list "唱片-3" "《周六舞厅》" "弦乐三拍子，这城里曾经也有人跳舞")
+            (list "唱片-4" "《慢雨蓝调》" "小调慢爵士，钢琴只弹二四拍")
+            (list "唱片-5" "《影子脚步》" "低音踱步，秒针在响")))
 
     (define (record-playing) (get-global '音乐))
 
@@ -422,21 +425,34 @@
 
     (define (record-nodes) (map node-play-record records))
 
+    ;; 随机播放不是一张唱片：全局键 音乐 填这个值，Unity 侧在唱片-* 里一直随机，
+    ;; 和城市默认声（城市-*）是两个池子。抬起唱针回到城市默认声。
+    (define shuffle-id "随机播放")
+
+    (define (node-shuffle)
+      (node "随机播放"
+        :anchor "租屋-唱片机"
+        :subtitle (if (equal? (record-playing) shuffle-id) "正在转" "交给架子，五张里随机来")
+        :disabled (equal? (record-playing) shuffle-id)
+        :resolve (instant
+          (outcome (lambda () (set-global! '音乐 shuffle-id))))))
+
     (define (node-stop-record)
       (node "抬起唱针"
         :anchor "租屋-唱片机"
-        :subtitle "让屋里安静下来"
+        :subtitle "让城市自己唱"
         :resolve (instant
           (outcome (lambda () (set-global! '音乐 #f))))))
 
-    ;; 唱片机是一个容器：三张唱片和「抬起唱针」都收在它下面，点开才聚焦到机器上。
+    ;; 唱片机是一个容器：五张唱片、「随机播放」和「抬起唱针」都收在它下面，点开才聚焦到机器上。
     ;; 容器本身挂在 租屋-唱片机——机器的模型随这个锚点显隐，容器在树里，机器就在屋里。
     (define (node-gramophone)
       (node "唱片机"
         :anchor "租屋-唱片机"
-        :subtitle (if (record-playing) "正在转" "唱针抬着。架子上三张唱片。")
+        :subtitle (if (record-playing) "正在转" "唱针抬着。架子上五张唱片。")
         :children
           (append (record-nodes)
+                  (list (node-shuffle))
                   (if (record-playing) (list (node-stop-record)) '()))))
 
     (define (gramophone-nodes)
@@ -526,13 +542,13 @@
           ;; 给其他地点（如老街酒馆的“点一杯酒”）查询/触发同一份每日一杯限制。
           ((equal? msg 'drank-today?) drank-today?)
           ((equal? msg 'drink!) (apply-drink-effect!))
-          ;; 警局备案后接通的职业联络线。重复调用不重置委托池。
+          ;; 经理或警局接通联络线；重复调用不重置委托池。
           ((equal? msg 'connect-phone!)
            (if has-phone?
                #f
                (begin
                  (set! has-phone? #t)
-                 (board 'open-line!))))
+                 (if (baines 'registered?) (board 'open-line!) #f))))
 
           ((equal? msg 'save)
            (list

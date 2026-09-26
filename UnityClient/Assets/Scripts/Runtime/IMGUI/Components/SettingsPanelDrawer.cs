@@ -4,8 +4,7 @@ using UnityEngine;
 namespace SSNoir.IMGUI
 {
     /// <summary>
-    /// 玩家设置面板。目前只有一项「减少动画」，但它是玩家设置而不是调试拨杆，
-    /// 所以有自己的入口，不挂在 Debug 面板下面——那个面板迟早要拿掉。
+    /// 玩家设置面板：界面尺寸、镜头动画、教程提示、音量四项设置。
     /// 跟成长面板同一套「纸物件」形式：居中卡片 + 压暗背景，而不是挂在按钮下面的半透明下拉。
     /// </summary>
     public static class SettingsPanelDrawer
@@ -14,7 +13,7 @@ namespace SSNoir.IMGUI
 
         // ── 版面常量 ───────────────────────────────────────────────
         // 每一项设置只保留标题和控件。画布读数属于调试信息，不应该出现在玩家设置里；
-        // 其他说明也不参与选择，删掉后面板更紧凑，三项设置仍保持同一套流式布局。
+        // 其他说明也不参与选择，删掉后面板更紧凑，四项设置仍保持同一套流式布局。
         private const float HeaderH = IMGUIStyles.ModalContentTop;
         private const float BlockTitleH = 20f;
         private const float TitleToControl = 8f;
@@ -45,8 +44,8 @@ namespace SSNoir.IMGUI
         {
             var (toggleRect, panelRect) = GetRects(topHud);
 
-            // 顶栏开关和声誉 / 队伍 / 卷宗共用同一份实现，四个长得一模一样。
-            if (IMGUIButton.DrawHudToggle(toggleRect, "设 置", _isOpen, ui))
+            // 顶栏开关和卷宗 / 成长 / 帮助 / 调试共用同一份实现，五个长得一模一样。
+            if (IMGUIButton.DrawTopTextToggle(toggleRect, "设置", _isOpen, ui))
                 _isOpen = !_isOpen;
 
             if (!_isOpen) return;
@@ -99,10 +98,20 @@ namespace SSNoir.IMGUI
                 new[] { "开", "关" }, TutorialState.Enabled ? 0 : 1, ui);
             if (pickedTutorial >= 0)
                 TutorialState.Enabled = pickedTutorial == 0;
+            y += BlockH + BlockGap;
+
+            // ── 音量 ──
+            // 音乐音量四档，默认低。值走 MusicVolume，跟着存档，和 reduceMotion 同一套规矩。
+            int pickedVolume = DrawSetting(
+                new Rect(contentX, y, contentW, BlockH),
+                "音量",
+                new[] { "关", "低", "中", "高" }, MusicVolume.LevelIndex, ui);
+            if (pickedVolume >= 0)
+                MusicVolume.SetLevel(pickedVolume);
         }
 
         // 一项设置：标题 / 一排分段控件。返回被点中的段序号，没点中返回 -1。
-        // 三项设置共用它，所以它们在版面上长得一模一样。
+        // 四项设置共用它，所以它们在版面上长得一模一样。
         private static int DrawSetting(
             Rect rect, string title, string[] options, int selected,
             IMGUIInteractionContext ui)

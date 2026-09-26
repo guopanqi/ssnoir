@@ -67,7 +67,7 @@ namespace SSNoir.IMGUI
         {
             var (toggleRect, panel) = GetRects(topHud);
 
-            if (IMGUIButton.DrawHudToggle(toggleRect, "帮 助", _isOpen, ui))
+            if (IMGUIButton.DrawTopTextToggle(toggleRect, "帮助", _isOpen, ui))
             {
                 _isOpen = !_isOpen;
                 if (_isOpen) _page = 0;

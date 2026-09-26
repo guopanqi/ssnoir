@@ -48,27 +48,36 @@ namespace SSNoir.IMGUI
         //
         // 压力必须留在地图上。玩家每天那个「这颗骰子拿去挣钱还是拿去踩点」的决定，
         // 是照着交割日和交割款做的——它们藏进面板里就没用了。
-        // 但地图上只放「现在做什么」这一件事：一条线一行，线名接着当前那一项，
-        // 做完的、还没到的都不上地图（那是面板的事）。有钟就在下一行摆钟。
-        // 不画卡：文字下面垫一块随文字宽窄的黑底，够读就行，别让它跟标注带抢地方。
-        // 钉住的线按卷宗顺序（主要在前，每组内主线 → 委托 → 人物/城市）往下叠，取消过的不画。
+        // 但地图上只放「现在做什么」这一件事：一条线一小叠，线名在上、当前那一项在下，
+        // 做完的、还没到的都不上地图（那是面板的事）。有钟再往下一行摆钟。
+        // 不画卡：跟右上角功能槽同一格微透底（无框、无投影），够读就行；
+        // 线名退到弱化灰（13 常态），当前项留在次级灰（14 半粗）——标题和内容靠亮度分层，
+        // 不靠字号硬撑。金只做三件事，线名不配用金。钉住的线按卷宗顺序往下叠，取消过的不画。
+        // 条子挂在右上角功能槽下面：左上角还给场景和标注带，眼睛只往右上角落一次。
 
         private const float StripMaxW = 300f;
         private const float StripGap = 4f;
         private const float StripPadX = 8f;
-        private const float StripPadY = 4f;
-        private const float StripTitleGap = 10f;
+        private const float StripPadY = 6f;
+        private const float StripTitleGap = 4f;
 
-        /// <summary>topY 由调用方给。钉住条先摆，标注带再绕着它排（见 AnnotationDrawer.LayoutSceneBand）。</summary>
+        /// <summary>topY 由调用方给（功能槽底 + 间隙）。钉住条先摆，标注带再绕着它排（见 AnnotationDrawer.LayoutSceneBand）。</summary>
         public static Rect StripRect(float topY)
         {
             Rect safe = UIScale.SafeArea;
             float w = Mathf.Min(StripMaxW, safe.width - 32f);
-            return new Rect(safe.x + 16f, topY, w, 0f);
+            // 右缘和功能槽对齐：同一列东西，右边缘是一条线。
+            return new Rect(safe.xMax - 16f - w, topY, w, 0f);
         }
 
         /// <summary>画所有钉住的线，返回它们叠起来占的那一块（没有就是空矩形）。</summary>
         public static Rect DrawPinStrip(SSNoirGameManager gameManager, float topY)
+            => LayoutPinStrip(gameManager, topY, draw: true);
+
+        public static Rect MeasurePinStrip(SSNoirGameManager gameManager, float topY)
+            => LayoutPinStrip(gameManager, topY, draw: false);
+
+        private static Rect LayoutPinStrip(SSNoirGameManager gameManager, float topY, bool draw)
         {
             var pinned = PinnedEntries(gameManager);
             if (pinned.Count == 0) return new Rect(0f, 0f, 0f, 0f);
@@ -77,7 +86,7 @@ namespace SSNoir.IMGUI
             float y = topY;
             foreach (var entry in pinned)
             {
-                var frame = DrawOneStrip(entry, y);
+                var frame = LayoutOneStrip(entry, y, draw);
                 union = union.width <= 0f ? frame : Rect.MinMaxRect(
                     Mathf.Min(union.xMin, frame.xMin), Mathf.Min(union.yMin, frame.yMin),
                     Mathf.Max(union.xMax, frame.xMax), Mathf.Max(union.yMax, frame.yMax));
@@ -89,18 +98,18 @@ namespace SSNoir.IMGUI
         private static GUIStyle StripTitleStyle() => new GUIStyle(IMGUIStyles.StatusLabel)
         {
             fontSize = IMGUIStyles.FontSize(13),
-            alignment = TextAnchor.UpperLeft,
+            fontStyle = FontStyle.Normal,
+            alignment = TextAnchor.UpperRight,
             wordWrap = false,
-            normal = { textColor = IMGUIStyles.Gold }
+            normal = { textColor = IMGUIStyles.TextDisabled }
         };
 
         private static GUIStyle StripNowStyle() => new GUIStyle(IMGUIStyles.StatusLabel)
         {
-            fontSize = IMGUIStyles.FontSize(13),
-            fontStyle = FontStyle.Normal,
-            alignment = TextAnchor.UpperLeft,
+            fontSize = IMGUIStyles.FontSize(14),
+            alignment = TextAnchor.UpperRight,
             wordWrap = true,
-            normal = { textColor = IMGUIStyles.TextPrimary }
+            normal = { textColor = IMGUIStyles.TextSecondary }
         };
 
         /// <summary>地图上那一句：有清单就是当前那一项，没有就是那句「现在」。</summary>
@@ -111,50 +120,56 @@ namespace SSNoir.IMGUI
             return entry.Now;
         }
 
-        private static Rect DrawOneStrip(DossierEntry entry, float topY)
+        private static Rect LayoutOneStrip(DossierEntry entry, float topY, bool draw)
         {
             Rect bounds = StripRect(topY);
             var titleStyle = StripTitleStyle();
             var nowStyle = StripNowStyle();
             string line = StripLine(entry);
 
-            float titleW = titleStyle.CalcSize(new GUIContent(entry.Id)).x;
-            float lineH = Mathf.Max(titleStyle.lineHeight, nowStyle.lineHeight);
-            float nowX = titleW + StripTitleGap;
-            float nowMaxW = bounds.width - StripPadX * 2f - nowX;
-            float nowW = 0f, nowH = 0f;
-            if (!string.IsNullOrEmpty(line))
-            {
-                nowW = Mathf.Min(nowStyle.CalcSize(new GUIContent(line)).x, nowMaxW);
-                nowH = nowStyle.CalcHeight(new GUIContent(line), nowW);
-            }
-            float textW = nowW > 0f ? nowX + nowW : titleW;
-            float textH = Mathf.Max(lineH, nowH);
+            // 纵向一小叠：线名在上、当前项在下、钟再下；右对齐收进功能槽同一右缘。
+            float innerW = bounds.width - StripPadX * 2f;
+            float titleW = Mathf.Min(titleStyle.CalcSize(new GUIContent(entry.Id)).x, innerW);
+            float titleH = titleStyle.lineHeight;
+            float nowNatural = string.IsNullOrEmpty(line)
+                ? 0f : nowStyle.CalcSize(new GUIContent(line)).x;
+            float textW = Mathf.Max(titleW, Mathf.Min(nowNatural, innerW));
 
-            float clockH = entry.Clocks.Count > 0 ? ClocksHeight(entry.Clocks, bounds.width - StripPadX * 2f) : 0f;
+            float clockH = entry.Clocks.Count > 0 ? ClocksHeight(entry.Clocks, innerW) : 0f;
             float clockW = 0f;
             if (clockH > 0f)
             {
                 foreach (var c in entry.Clocks)
-                    clockW += Mathf.Min(CardDrawer.MeasureClockBadge(c), bounds.width - StripPadX * 2f) + ClockGap;
-                clockW = Mathf.Min(clockW - ClockGap, bounds.width - StripPadX * 2f);
+                    clockW += Mathf.Min(CardDrawer.MeasureClockBadge(c), innerW) + ClockGap;
+                clockW = Mathf.Min(clockW - ClockGap, innerW);
             }
 
             float w = Mathf.Max(textW, clockW) + StripPadX * 2f;
-            float h = StripPadY * 2f + textH + (clockH > 0f ? 4f + clockH : 0f);
-            Rect frame = UIScale.PixelSnap(new Rect(bounds.x, bounds.y, w, h));
+            float textBoxW = w - StripPadX * 2f;
+            float nowH = string.IsNullOrEmpty(line)
+                ? 0f : nowStyle.CalcHeight(new GUIContent(line), textBoxW);
+            float h = StripPadY * 2f + titleH + (nowH > 0f ? StripTitleGap + nowH : 0f)
+                + (clockH > 0f ? 4f + clockH : 0f);
+            Rect frame = UIScale.PixelSnap(new Rect(bounds.xMax - w, bounds.y, w, h));
 
-            GUI.color = IMGUIStyles.HudBg;
+            if (!draw) return frame;
+
+            IMGUIStyles.SetColor(IMGUIStyles.FunctionSlotBg);
             GUI.DrawTexture(frame, Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            IMGUIStyles.ResetColor();
 
-            float x = frame.x + StripPadX;
             float y = frame.y + StripPadY;
-            IMGUIStyles.DrawLabel(new Rect(x, y, titleW, lineH), entry.Id, titleStyle);
-            if (nowW > 0f)
-                IMGUIStyles.DrawLabel(new Rect(x + nowX, y, nowW, nowH), line, nowStyle);
+            float right = frame.xMax - StripPadX;
+            IMGUIStyles.DrawLabel(new Rect(right - textBoxW, y, textBoxW, titleH), entry.Id, titleStyle);
+            y += titleH;
+            if (nowH > 0f)
+            {
+                y += StripTitleGap;
+                IMGUIStyles.DrawLabel(new Rect(right - textBoxW, y, textBoxW, nowH), line, nowStyle);
+                y += nowH;
+            }
             if (clockH > 0f)
-                DrawClocks(new Rect(x, y + textH + 4f, frame.width - StripPadX * 2f, clockH), entry.Clocks);
+                DrawClocks(new Rect(right - clockW, y + 4f, clockW, clockH), entry.Clocks);
 
             return frame;
         }
@@ -266,7 +281,7 @@ namespace SSNoir.IMGUI
             var (toggleRect, panelRect) = GetRects(topHud);
             var dossier = gameManager.DisplayedSnapshot.Dossier;
 
-            if (IMGUIButton.DrawHudToggle(toggleRect, "卷 宗", _isOpen, ui))
+            if (IMGUIButton.DrawTopTextToggle(toggleRect, "卷宗", _isOpen, ui))
                 _isOpen = !_isOpen;
 
             if (!_isOpen) return;

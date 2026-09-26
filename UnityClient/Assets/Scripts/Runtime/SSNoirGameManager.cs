@@ -29,6 +29,7 @@ namespace SSNoir
     public class SSNoirGameManager : MonoBehaviour
     {
         private const string ReduceMotionSettingKey = "reduceMotion";
+        private const string MusicVolumeSettingKey = "musicVolume";
         private const string WorldRootNodeName = "世界";
         // Font files follow: <family>-Regular.ttf / <family>-SemiBold.ttf.
         private const string FontFamily = "SourceHanSerifCN";
@@ -88,6 +89,7 @@ namespace SSNoir
         // 焦点上下文切换的演出窗口期：数据已切换，卡片还没换脸。见 BeginIncomingFocusContext。
         private bool _incomingFocusContextActive;
         private Cinemachine.CinemachineVirtualCamera? _incomingFocusContextCamera;
+        private Cinemachine.CinemachineVirtualCamera? _outgoingFocusContextCamera;
         private bool _incomingFocusCrossesStagePortal;
         // 回到世界视角时，建筑的 High 不能在相机离开近景前立刻撤掉；否则玩家会看到
         // High -> Low 的替换瞬间。每次新的焦点请求都会使旧的清理请求失效。
@@ -288,6 +290,9 @@ namespace SSNoir
         public bool IsInputLocked => _renderer != null && _renderer.IsInputLocked;
         public bool PointerOverUI => _renderer != null && _renderer.PointerOverUI;
         public Cinemachine.CinemachineVirtualCamera? CurrentFocusCamera => ResolveCurrentFocusCamera();
+        // 过场需要下一场景的回程机位；旧快照的卡片仍须按离场前的镜头排布。
+        public Cinemachine.CinemachineVirtualCamera? DisplayedFocusCamera =>
+            _incomingFocusContextActive ? _outgoingFocusContextCamera : ResolveCurrentFocusCamera();
         public bool IncomingFocusCrossesStagePortal => _incomingFocusCrossesStagePortal;
         public bool IsStateTainted => _stateTainted;
 
@@ -1056,8 +1061,10 @@ namespace SSNoir
             {
                 string sceneBefore = _sceneManager.CurrentSceneName;
                 string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
+                var outgoingFocusCamera = CurrentFocusCamera;
                 ActionReport report = _sceneManager.ExecuteAction(node, slots);
                 var postTurnSteps = DetachPostTurnBlockingSteps(report);
+                var postSceneSteps = report.PostSceneBlockingSteps;
                 var turnStartReport = report.TurnStartReport;
                 _nodeSlots.Remove(node.Name);
                 _selectedResource = null;
@@ -1065,10 +1072,7 @@ namespace SSNoir
                 bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Name ?? string.Empty, System.StringComparison.Ordinal);
                 bool focusContextChanged = sceneChanged || rootChanged;
                 if (focusContextChanged)
-                    ResetSceneUiState();
-
-                if (focusContextChanged)
-                    BeginIncomingFocusContext();
+                    BeginIncomingFocusContext(outgoingFocusCamera);
 
                 // 家里的「睡觉」把 end-turn! 包在动作里，走的就是这条普通动作路径。
                 // 黑幕跟着执行一起起跑，不等演出播完。
@@ -1084,27 +1088,33 @@ namespace SSNoir
                     // 场景／阶段根节点变了，或者你所在的那个容器执行完就从树上消失了。
                     Action land = () =>
                     {
-                        EndIncomingFocusContext();
-                        bool navigationCollapsed = AdoptLatestSnapshot();
-                        if (focusContextChanged || navigationCollapsed)
-                            UpdateCameraFocus(storyDriven: true);
+                        // EnterPlace 阻塞步骤可能已经把快照采纳到最终落点；统一边界入口会
+                        // 识别这个情况，不重复清 UI，也不再启动第二趟镜头。
+                        CommitLatestSnapshotAtPresentationBoundary(focusContextChanged);
                     };
                     StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () =>
                     {
-                        Action finish = () =>
+                        Action finishAfterScene = () =>
                         {
-                            if (postTurnSteps.Count > 0)
-                                StartCoroutine(PlayPostTurnStepsAfterDiceSettle(postTurnSteps, () => done = true));
+                            Action finish = () =>
+                            {
+                                if (postTurnSteps.Count > 0)
+                                    StartCoroutine(PlayPostTurnStepsAfterDiceSettle(postTurnSteps, () => done = true));
+                                else
+                                    done = true;
+                            };
+                            // 睡醒后的消息排在新场景内容之后，均使用已采纳的快照。
+                            if (turnStartReport != null)
+                                _renderer.PlayPresentation(turnStartReport, string.Empty, finish);
                             else
-                                done = true;
+                                finish();
                         };
-                        // 这是醒来后的世界消息：必须等黑幕结束、新日快照已经可见，再出现。
-                        if (turnStartReport != null)
-                            _renderer.PlayPresentation(turnStartReport, string.Empty, finish);
+                        if (postSceneSteps.Count > 0)
+                            _renderer.PlayBlockingPresentation(postSceneSteps, finishAfterScene);
                         else
-                            finish();
+                            finishAfterScene();
                     }));
-                });
+                }, holdBeforeBlocking: focusContextChanged && !dippedEarly);
             }
             catch (System.Exception ex)
             {
@@ -1154,10 +1164,11 @@ namespace SSNoir
         /// 当场把画面blend到交锋镜头上，玩家在片子之前先看见一次多余的运镜。真正的接管点
         /// 在过场的回程（见 CutscenePlayer.BeginReturn）。
         /// </summary>
-        private void BeginIncomingFocusContext()
+        private void BeginIncomingFocusContext(Cinemachine.CinemachineVirtualCamera? outgoingCamera)
         {
             _incomingFocusContextActive = true;
             _incomingFocusContextCamera = null;
+            _outgoingFocusContextCamera = outgoingCamera;
             string? outgoingStage = ResolveCurrentStageContextId();
             string? incomingStage = null;
 
@@ -1171,7 +1182,6 @@ namespace SSNoir
                 _incomingFocusContextCamera = anchor.FocusVirtualCamera;
                 if (anchor.GetComponent<StagePortalConfig>() != null)
                     incomingStage = incomingRoot.Name;
-                PresentCamera(_incomingFocusContextCamera, anchor);
             }
             _incomingFocusCrossesStagePortal = !string.Equals(outgoingStage, incomingStage, System.StringComparison.Ordinal);
         }
@@ -1180,6 +1190,7 @@ namespace SSNoir
         {
             _incomingFocusContextActive = false;
             _incomingFocusContextCamera = null;
+            _outgoingFocusContextCamera = null;
             _incomingFocusCrossesStagePortal = false;
         }
 
@@ -1569,6 +1580,9 @@ namespace SSNoir
             {
                 var path = filePath ?? SaveManager.DefaultSavePath;
                 _sceneManager.Settings[ReduceMotionSettingKey] = MotionSettings.ReduceMotion;
+                // Settings 只认 string/int/long/double/bool（见 SaveManager.WritePrimitive），
+                // 音量存 double，读出来也一定是 double。
+                _sceneManager.Settings[MusicVolumeSettingKey] = (double)MusicVolume.Value;
                 _sceneManager.SaveGame(path);
                 _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
             }
@@ -1603,6 +1617,17 @@ namespace SSNoir
                 {
                     MotionSettings.ReduceMotion = true;
                 }
+                if (_sceneManager.Settings.TryGetValue(MusicVolumeSettingKey, out object savedVolume))
+                {
+                    if (savedVolume is not double volume)
+                        throw new System.IO.InvalidDataException(
+                            $"Save setting '{MusicVolumeSettingKey}' must be a number.");
+                    MusicVolume.Value = UnityEngine.Mathf.Clamp01((float)volume);
+                }
+                else
+                {
+                    MusicVolume.Value = MusicVolume.Default;
+                }
                 _stateTainted = false;
                 // OnSceneLoaded fires inside LoadGame → ResetSceneUiState → ResetUiState
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
@@ -1620,6 +1645,7 @@ namespace SSNoir
             ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
             MotionSettings.ReduceMotion = true;
+            MusicVolume.Value = MusicVolume.Default;
             _stateTainted = false;
         }
 
@@ -1915,9 +1941,19 @@ namespace SSNoir
                         }
                         else
                         {
-                            // 对方回应与回合末收尾：拍的中段落快照（那一刻就是事情发生的时刻）。
+                            // 换场批先播完旧场景的步骤，再采纳新场景；同场景仍在拍的中段落地。
+                            bool changesContext = _displayedSnapshot.IsInEncounter != frame.Snapshot.IsInEncounter
+                                || !string.Equals(_displayedSnapshot.RootNode?.Name,
+                                    frame.Snapshot.RootNode?.Name, StringComparison.Ordinal);
                             _renderer.PlayRoundBatch(frame.Report, frame.Snapshot,
-                                land: () => { AdoptRoundTransitionFrame(); landed = true; },
+                                land: () =>
+                                {
+                                    if (!changesContext)
+                                    {
+                                        AdoptRoundTransitionFrame();
+                                        landed = true;
+                                    }
+                                },
                                 done: () => batchDone = true);
                         }
                     }
@@ -1930,6 +1966,14 @@ namespace SSNoir
                         yield return null;
                     if (!landed)
                         AdoptRoundTransitionFrame();
+                    if (frame.Report.PostSceneBlockingSteps.Count > 0)
+                    {
+                        bool postSceneDone = false;
+                        _renderer.PlayBlockingPresentation(frame.Report.PostSceneBlockingSteps,
+                            () => postSceneDone = true);
+                        while (!postSceneDone)
+                            yield return null;
+                    }
                 }
 
                 try
@@ -1968,15 +2012,41 @@ namespace SSNoir
 
         private void AdoptRoundTransitionFrame()
         {
+            CommitLatestSnapshotAtPresentationBoundary(resetUiOnContextChange: true);
+        }
+
+        /// <summary>
+        /// 所有“表现已经走到落点”的路径都从这里采纳引擎快照。
+        ///
+        /// 采纳快照不是普通刷新：它可能重建导航栈、清掉旧卡片，并触发一次镜头上下文变更。
+        /// 之前玩家动作和回合转换各自复制了一份这段逻辑，导致 EnterPlace 已经落地后，外层
+        /// 回调又把旧 UI 清掉、再启动一次焦点运镜。现在边界只有一个入口，并且把“已经采纳”
+        /// 作为正常的幂等结果处理。
+        /// </summary>
+        private bool CommitLatestSnapshotAtPresentationBoundary(bool resetUiOnContextChange)
+        {
+            if (ReferenceEquals(_displayedSnapshot, _sceneManager.LatestSnapshot))
+            {
+                EndIncomingFocusContext();
+                return false;
+            }
+
             string oldRoot = _displayedSnapshot.RootNode?.Name ?? string.Empty;
             string newRoot = _sceneManager.LatestSnapshot.RootNode?.Name ?? string.Empty;
             bool contextChanged = _displayedSnapshot.IsInEncounter != _sceneManager.LatestSnapshot.IsInEncounter
                 || !string.Equals(oldRoot, newRoot, StringComparison.Ordinal);
-            if (contextChanged)
+
+            if (resetUiOnContextChange && contextChanged)
+            {
                 ResetSceneUiState();
+                _renderer.SetInputLocked(true);
+            }
+
             bool navigationCollapsed = AdoptLatestSnapshot();
+            EndIncomingFocusContext();
             if (contextChanged || navigationCollapsed)
                 UpdateCameraFocus(storyDriven: true);
+            return true;
         }
 
         /// <summary>玩家碰了别的东西：休息键的冷却没有继续存在的理由。</summary>

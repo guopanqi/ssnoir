@@ -71,10 +71,16 @@ namespace SSNoir.IMGUI
                 Label = "舞台试演：桥廊之后",
                 Code = "(three-letters 'debug-stage-bridge!)"
             },
+            new ChapterJump
+            {
+                Label = "对白试演：初到码头居民区",
+                Code = "(three-letters 'debug-stage-resident-arrival!)"
+            },
             // 下面三个是审核期临时入口，审完删。
             new ChapterJump { Label = "舞台试演：开场委托", Code = "(three-letters 'debug-stage-commission!)" },
             new ChapterJump { Label = "舞台试演：她不取消", Code = "(three-letters 'debug-stage-refusal!)" },
             new ChapterJump { Label = "舞台试演：尾声", Code = "(three-letters 'debug-stage-closing!)" },
+            new ChapterJump { Label = "准备：酒馆门前（再进酒馆）", Code = "(baines 'debug-arm-street!)" },
         };
 
         private static void RunChapterJump(SSNoirGameManager gameManager, string code)
@@ -93,6 +99,8 @@ namespace SSNoir.IMGUI
                 sceneManager.Refresh();
                 if (code == "(debug-prepare-ship-repair!)")
                     gameManager.ShowNotification("货船已排在当前日。请重新进入码头看完整入场演出。");
+                if (code == "(baines 'debug-arm-street!)")
+                    gameManager.ShowNotification("酒馆门前已挂上。请重新进入老街酒馆。");
             }
             catch (System.Exception e)
             {
@@ -134,38 +142,44 @@ namespace SSNoir.IMGUI
             return y + 8f;
         }
 
-        public static (Rect ToggleRect, Rect PanelRect) GetRects(TopHudLayout topHud)
+        public static Rect GetPanelRect(TopHudLayout topHud)
         {
-            var toggleRect = topHud.DebugToggle;
+            // 面板挂在调试开关下面，和卷宗 / 帮助各自挂自己开关是同一套规矩。
+            var anchor = topHud.DebugToggle;
 
             float panelW = 260f;
-            float panelX = toggleRect.xMax - panelW;
-            float panelY = toggleRect.yMax + 4f;
+            float panelX = anchor.xMax - panelW;
+            float panelY = anchor.yMax + 4f;
             Rect safe = UIScale.SafeArea;
-            // 手机上内容高度远大于屏幕。面板只占 Debug 按钮下方的安全区，
+            // 手机上内容高度远大于屏幕。面板只占设置开关下方的安全区，
             // 内容由 Draw 里的触摸滚动负责；不再把面板顶到屏幕外。
             float availableHeight = Mathf.Max(ItemH, safe.yMax - panelY);
             float panelH = Mathf.Min(ContentHeight(), availableHeight);
             panelX = Mathf.Clamp(panelX, safe.x, Mathf.Max(safe.x, safe.xMax - panelW));
-            return (toggleRect, new Rect(panelX, panelY, panelW, panelH));
+            return new Rect(panelX, panelY, panelW, panelH);
+        }
+
+        public static void Open(SSNoirGameManager gameManager)
+        {
+            if (!_isOpen)
+            {
+                _isOpen = true;
+                LoadScenes(gameManager);
+                _scrollOffset = 0f;
+            }
         }
 
         public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui, TopHudLayout topHud)
         {
-            var (toggleRect, panelRect) = GetRects(topHud);
-
-            // Toggle button：和卷宗/成长/设置/帮助共用同一份顶栏开关样式。
-            if (IMGUIButton.DrawHudToggle(toggleRect, "Debug ▾", _isOpen, ui))
+            // 开关和卷宗 / 帮助共用同一份实现，五个长得一模一样。
+            if (IMGUIButton.DrawTopTextToggle(topHud.DebugToggle, "调试", _isOpen, ui))
             {
-                _isOpen = !_isOpen;
-                if (_isOpen)
-                {
-                    LoadScenes(gameManager);
-                    _scrollOffset = 0f;
-                }
+                if (_isOpen) Close();
+                else Open(gameManager);
             }
 
             if (!_isOpen) return;
+            Rect panelRect = GetPanelRect(topHud);
 
             var labelStyle = new GUIStyle(GUI.skin.label)
             {
@@ -440,10 +454,10 @@ namespace SSNoir.IMGUI
 
             DrawScrollbar(panelRect, contentHeight, maxScroll);
 
-            // Close when clicking outside
+            // 点面板外面关掉；开关自己不算"外面"，不然开着时点开关会先关再开，永远关不上。
             if (Event.current.type == EventType.MouseDown && Event.current.button == 0 && !ui.IsLocked)
             {
-                if (!panelRect.Contains(ui.Mouse) && !toggleRect.Contains(ui.Mouse))
+                if (!panelRect.Contains(ui.Mouse) && !topHud.DebugToggle.Contains(ui.Mouse))
                 {
                     _isOpen = false;
                     Event.current.Use();

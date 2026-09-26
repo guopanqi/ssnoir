@@ -140,6 +140,11 @@
     (define (alley-live?)
       (and (= stage 4) (> alley-day 0) (= world-day alley-day)))
 
+    ;; 窗口还开着，或撞上的当晚那张卡还在：贝恩斯的门前入场先让开。
+    ;; 打完、没去、或窗口合上之后，下一次进酒馆才轮到他。
+    (define (alley-pending?)
+      (or (alley-armed?) (alley-live?)))
+
     ;; 死线用钟，不用「剩 N 天」这种 tag——tag 是贴在卡上的一个词，它不长在
     ;; 那条时间线上；同一个概念在别处（酒馆那件麻烦）已经是钟了，这里也得是钟。
     ;; 不用 make-clock：这根钟永远是「就今晚」，没有要存档的状态。
@@ -823,6 +828,7 @@
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'stage) stage)
+          ((equal? msg 'alley-pending?) (alley-pending?))
           ((equal? msg 'known?) (and (>= stage 1) (<= stage 3)))
           ((equal? msg 'hand-bad?) hand-bad?)
           ;; 第二章起：他手上还有没有另一条路。机器进老街那天读的就是这一个。
