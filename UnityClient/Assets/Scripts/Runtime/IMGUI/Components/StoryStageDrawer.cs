@@ -123,7 +123,7 @@ namespace SSNoir.IMGUI
                 string visible = count >= content.Length ? content : content.Substring(0, count);
                 bool neon = State.TryGetActor(speaker, out var actor) && !actor.Missing;
                 var glow = neon ? actor!.CurrentAccent(now) : DefaultGlow;
-                DialogueBoxDrawer.Draw(speaker, visible, content, count < content.Length, false, false,
+                DialogueBoxDrawer.Draw(line.DisplaySpeaker, visible, content, count < content.Length, false, false,
                     speaker == StageState.Protagonist, neon, 1f, negative, glow);
             }
             StageScreenPainter.PaintFlash(State.FlashAlpha(now), negative);
@@ -139,6 +139,7 @@ namespace SSNoir.IMGUI
         // 显式 play-remote-dialogue! 允许同一舞台承接场外人物，不视为降级。
         public static bool DrawConversationLine(
             string speaker,
+            string displaySpeaker,
             string text,
             int lineIndex,
             DialogueAnchors anchors,
@@ -181,7 +182,7 @@ namespace SSNoir.IMGUI
             bool speakerIsNeon = !isNarration && State.TryGetActor(speaker, out speakerActor) && !speakerActor.Missing;
             var speakerGlow = speakerIsNeon && speakerActor != null ? speakerActor.CurrentAccent(now) : DefaultGlow;
             DialogueBoxDrawer.Draw(
-                speaker, visibleText, text, isTyping, isNarration, cue.Inner,
+                displaySpeaker, visibleText, text, isTyping, isNarration, cue.Inner,
                 speaker == StageState.Protagonist, speakerIsNeon, lineEase, negative, speakerGlow);
             StageScreenPainter.PaintFlash(State.FlashAlpha(now), negative);
             return usedRemoteFallback;

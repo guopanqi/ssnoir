@@ -4,27 +4,33 @@
   "cues": [
     {
       "time": 0,
-      "text": "码头不欢迎我。"
+      "text": "码头不欢迎我。",
+      "textEn": "The docks didn't welcome me."
     },
     {
       "time": 2.088389423076923,
-      "text": "这地方闻起来像柴油、雨水和坏决定。"
+      "text": "这地方闻起来像柴油、雨水和坏决定。",
+      "textEn": "The place smelled of diesel, rain, and bad decisions."
     },
     {
       "time": 7.065667067307692,
-      "text": "铁轨边堆着几台拆了一半的机器，像几具没人愿意认领的尸体。"
+      "text": "铁轨边堆着几台拆了一半的机器，像几具没人愿意认领的尸体。",
+      "textEn": "Half dismantled machines lay beside the tracks like bodies nobody wanted to claim."
     },
     {
       "time": 14.154302884615387,
-      "text": "酒馆门口有三个工人，他们本来在笑。看见我的西服以后，笑声就像被人掐断了电。"
+      "text": "酒馆门口有三个工人，他们本来在笑。看见我的西服以后，笑声就像被人掐断了电。",
+      "textEn": "Three workers were laughing outside the tavern. One look at my suit, and the laughter died."
     },
     {
       "time": 23.38564772727273,
-      "text": "我冲他们点了点头。没人回应。"
+      "text": "我冲他们点了点头。没人回应。",
+      "textEn": "I nodded to them. Nobody nodded back."
     },
     {
       "time": 27.518581730769235,
-      "text": "很好。至少我知道自己来对地方了。"
+      "text": "很好。至少我知道自己来对地方了。",
+      "textEn": "Good. At least I knew I'd come to the right place."
     }
   ]
 }

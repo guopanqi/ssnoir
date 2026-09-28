@@ -205,7 +205,7 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.ApplyStrongFont(labelStyle);
             IMGUIStyles.DrawLabel(new Rect(face.x - 6f, face.yMax + 6f, face.width + 12f, DieLabelH),
-                SkillInfo.DisplayName(statKey), labelStyle);
+                UiText.SkillName(statKey), labelStyle);
 
             DrawUpgradeButton(new Rect(face.x + 6f, face.yMax + 6f + DieLabelH + 4f, face.width - 12f, DieBtnH),
                 actor, statKey, val, avail, away, gameManager, ui);
@@ -237,7 +237,7 @@ namespace SSNoir.IMGUI
                     normal = { textColor = away ? IMGUIStyles.PaperTextDisabled : IMGUIStyles.PaperTextPrimary },
                 };
                 IMGUIStyles.DrawLabel(new Rect(cx, row.y, cellW, row.height),
-                    $"{SkillInfo.DisplayName(StatKeys[i]).Substring(0, 1)}{val}", v);
+                    $"{UiText.SkillName(StatKeys[i]).Substring(0, 1)}{val}", v);
             }
         }
 

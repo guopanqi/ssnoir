@@ -19,6 +19,8 @@ namespace SSNoir.Core
     public class GameClock
     {
         public string Label { get; set; } = string.Empty;
+        public string DisplayLabel { get; set; } = string.Empty;
+        public string ShownLabel => string.IsNullOrEmpty(DisplayLabel) ? Label : DisplayLabel;
         public string Note { get; set; } = string.Empty;
         public int Current { get; set; }
         public int Max { get; set; }

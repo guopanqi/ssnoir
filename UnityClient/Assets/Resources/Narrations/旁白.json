@@ -4,7 +4,8 @@
   "cues": [
     {
       "time": 0.5410909090909091,
-      "text": "雨从码头那边飘过来。"
+      "text": "雨从码头那边飘过来。",
+      "textEn": "Rain drifted in from the docks."
     }
   ]
 }

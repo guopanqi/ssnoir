@@ -173,7 +173,7 @@ namespace SSNoir.IMGUI
         public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui, TopHudLayout topHud)
         {
             // 开关和卷宗 / 帮助共用同一份实现，五个长得一模一样。
-            if (IMGUIButton.DrawTopTextToggle(topHud.DebugToggle, "调试", _isOpen, ui))
+            if (IMGUIButton.DrawTopTextToggle(topHud.DebugToggle, UiText.Get("调试"), _isOpen, ui))
             {
                 if (_isOpen) Close();
                 else Open(gameManager);

@@ -7,6 +7,8 @@ namespace SSNoir.Core
     public class GameNode
     {
         public string Name { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string DisplayTitle => string.IsNullOrEmpty(Title) ? Name : Title;
         public string? AnchorName { get; set; }
         public string Subtitle { get; set; } = string.Empty;
         public bool Disabled { get; set; }

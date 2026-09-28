@@ -15,7 +15,7 @@ namespace SSNoir.IMGUI
 
                 // 顶栏最高频的动作，用 DrawPrimary：常态纸白实底，比暗条上那排低频的
                 // 查阅型开关（DrawTopTextToggle，常态只是次级灰字）扎眼，不用等悬停才被注意到。
-                if (IMGUIButton.DrawPrimary(returnRect, "< 返 回", ui))
+                if (IMGUIButton.DrawPrimary(returnRect, UiText.Get("< 返 回"), ui))
                 {
                     gameManager.GoBackNavigation();
                 }
@@ -24,14 +24,16 @@ namespace SSNoir.IMGUI
             // Breadcrumb
             // 「当前位置:」是纯损耗——面包屑本身已经说明了它是什么。
             string breadcrumbText = string.Empty;
-            string rootName = gameManager.DisplayedSnapshot.RootNode?.Name ?? "未加载";
+            string rootName = gameManager.DisplayedSnapshot.RootNode?.DisplayTitle
+                ?? UiText.Get("未加载");
             if (gameManager.NavigationStack.Count == 0)
             {
                 breadcrumbText += rootName;
             }
             else
             {
-                breadcrumbText += rootName + " > " + string.Join(" > ", gameManager.NavigationStack.ConvertAll(n => n.Name));
+                breadcrumbText += rootName + " > " + string.Join(" > ",
+                    gameManager.NavigationStack.ConvertAll(n => n.DisplayTitle));
             }
 
             var crumbStyle = new GUIStyle(IMGUIStyles.StatusLabel);
@@ -44,7 +46,8 @@ namespace SSNoir.IMGUI
             dayStyle.normal.textColor = IMGUIStyles.TextPrimary;
             dayStyle.fontSize = IMGUIStyles.FontSize(14);
             dayStyle.alignment = TextAnchor.MiddleCenter;
-            IMGUIStyles.DrawLabel(topHud.Day, $"第 {gameManager.DisplayedSnapshot.WorldDay} 天", dayStyle);
+            IMGUIStyles.DrawLabel(topHud.Day,
+                UiText.Day(gameManager.DisplayedSnapshot.WorldDay), dayStyle);
         }
 
         private static string FitTextWithEllipsis(string text, float maxWidth, GUIStyle style)

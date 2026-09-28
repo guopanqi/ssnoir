@@ -3063,7 +3063,7 @@ namespace SSNoir.IMGUI
         {
             // 和卷宗 / 帮助 / 设置共用同一份顶栏文字开关。原来这里是另写的一份，
             // 用了 ExecuteLabel、也没铺 HUD 底，排在其余三个旁边一眼就看得出不是一伙的。
-            if (IMGUIButton.DrawTopTextToggle(btnRect, "成长", _isGrowthPanelOpen, ui))
+            if (IMGUIButton.DrawTopTextToggle(btnRect, UiText.Get("成长"), _isGrowthPanelOpen, ui))
             {
                 _isGrowthPanelOpen = !_isGrowthPanelOpen;
                 if (_isGrowthPanelOpen)
@@ -3231,7 +3231,8 @@ namespace SSNoir.IMGUI
                         current = Mathf.Clamp(current + effect.Delta.Value, 0, clock.Max);
                 clocks.Add(new GameClock
                 {
-                    Label = clock.Label, Note = clock.Note, Current = current, Max = clock.Max, Style = clock.Style,
+                    Label = clock.Label, DisplayLabel = clock.DisplayLabel, Note = clock.Note,
+                    Current = current, Max = clock.Max, Style = clock.Style,
                 });
             }
             return clocks;
@@ -3359,6 +3360,7 @@ namespace SSNoir.IMGUI
 
             bool usedRemoteFallback = StoryStageDrawer.DrawConversationLine(
                 line.Speaker,
+                line.DisplaySpeaker,
                 line.Text,
                 _conversationPlayer.CurrentLineIndex,
                 _dialogueAnchors,

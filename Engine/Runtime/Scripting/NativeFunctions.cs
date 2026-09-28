@@ -28,6 +28,20 @@ namespace SSNoir.Scripting
 
         public static void Register(Interpreter interpreter, GameState gameState)
         {
+            interpreter.DefineGlobal(Symbol.FromString("tr"), new NativeProcedure(args =>
+            {
+                if (args.Count != 2 || args[0] is not string chinese || args[1] is not string english)
+                    throw new ArgumentException("tr requires exactly two strings: Chinese and English");
+                return GameLanguage.Tr(chinese, english);
+            }, "tr"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__i18n-missing-speaker!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 1 || args[0] is not string speaker || string.IsNullOrWhiteSpace(speaker))
+                    throw new ArgumentException("__i18n-missing-speaker! requires one speaker id");
+                GameLanguage.WarnMissingSpeaker(speaker);
+                return new None();
+            }, "__i18n-missing-speaker!"));
             // --- New Native Bridge APIs ---
             interpreter.DefineGlobal(Symbol.FromString("__item-count"), new NativeProcedure(args =>
             {
@@ -407,10 +421,10 @@ namespace SSNoir.Scripting
 
             interpreter.DefineGlobal(Symbol.FromString("__record-clock-effect!"), new NativeProcedure(args =>
             {
-                if (args.Count < 2 || !(args[0] is string label))
-                    throw new ArgumentException("__record-clock-effect! requires label and delta");
-                int delta = Convert.ToInt32(args[1]);
-                gameState.CurrentActionReport?.AddClockEffect(label, delta);
+                if (args.Count != 3 || args[0] is not string label || args[1] is not string displayLabel)
+                    throw new ArgumentException("__record-clock-effect! requires id, display label, and delta");
+                int delta = Convert.ToInt32(args[2]);
+                gameState.CurrentActionReport?.AddClockEffect(label, displayLabel, delta);
                 return new None();
             }, "__record-clock-effect!"));
 
@@ -784,8 +798,8 @@ namespace SSNoir.Scripting
             var lines = new List<DialogueLine>(rawLines.Count);
             foreach (var entry in rawLines)
             {
-                if (!(entry is List<object> parts) || parts.Count < 2)
-                    throw new ArgumentException($"{who}: each line must be (line speaker text [voice] [dwell])");
+                if (!(entry is List<object> parts) || parts.Count != 6)
+                    throw new ArgumentException($"{who}: each line must come from the line constructor");
                 if (!(parts[0] is string speaker) || string.IsNullOrWhiteSpace(speaker))
                     throw new ArgumentException($"{who}: line speaker must be a non-empty string");
                 if (!(parts[1] is string text))
@@ -798,7 +812,9 @@ namespace SSNoir.Scripting
 
                 var stage = parts.Count > 4 ? ParseStageCue(parts[4], who, speaker == "世界") : DialogueStageCue.None;
 
-                lines.Add(new DialogueLine { Speaker = speaker, Text = text, VoiceId = voice, DwellSeconds = dwell, Stage = stage });
+                if (parts[5] is not string displaySpeaker || string.IsNullOrWhiteSpace(displaySpeaker))
+                    throw new ArgumentException($"{who}: line display speaker must be a non-empty string");
+                lines.Add(new DialogueLine { Speaker = speaker, DisplaySpeaker = displaySpeaker, Text = text, VoiceId = voice, DwellSeconds = dwell, Stage = stage });
             }
             return new DialogueSequence(lines, allowsRemoteParticipants);
         }

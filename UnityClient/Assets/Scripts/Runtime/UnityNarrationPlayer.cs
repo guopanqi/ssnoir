@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using SSNoir.Core;
 
 namespace SSNoir
 {
@@ -143,14 +144,18 @@ namespace SSNoir
         {
             var cues = narration.cues;
             if (cues == null || cues.Count == 0)
-                return narration.id;
+                throw new InvalidOperationException($"Narration '{narration.id}' has no subtitle cues");
 
             string text = string.Empty;
             for (int i = 0; i < cues.Count; i++)
             {
                 if (time < cues[i].time)
                     break;
-                text = cues[i].text;
+                text = GameLanguage.Current == GameLanguage.English
+                    ? !string.IsNullOrWhiteSpace(cues[i].textEn)
+                        ? cues[i].textEn
+                        : throw new InvalidOperationException($"Narration '{narration.id}' cue {i} is missing English text")
+                    : cues[i].text;
             }
             return text;
         }
@@ -179,6 +184,7 @@ namespace SSNoir
         {
             public float time = 0f;
             public string text = string.Empty;
+            public string textEn = string.Empty;
         }
     }
 }

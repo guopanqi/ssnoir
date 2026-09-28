@@ -52,10 +52,16 @@ namespace SSNoir.IMGUI
                 var titleStyle = new GUIStyle(IMGUIStyles.CardTitle)
                 {
                     alignment = TextAnchor.MiddleCenter,
+                    wordWrap = false,
                     clipping = TextClipping.Clip
                 };
+                float titleWidth = rect.width - 20f;
+                int minTitleSize = IMGUIStyles.FontSize(14);
+                while (titleStyle.fontSize > minTitleSize
+                       && titleStyle.CalcSize(new GUIContent(node.DisplayTitle)).x > titleWidth)
+                    titleStyle.fontSize--;
                 if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
-                IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, titleY, rect.width - 20f, TitleH), node.Name, titleStyle);
+                IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, titleY, rect.width - 20f, TitleH), node.DisplayTitle, titleStyle);
             }
 
             // ── 2. 纵向边界 ──
@@ -263,7 +269,14 @@ namespace SSNoir.IMGUI
                 foreach (var tag in node.Tags)
                 {
                     if (string.IsNullOrWhiteSpace(tag)) continue;
-                    items.Add((tag, TagStripe(tag)));
+                    string shownTag = tag switch
+                    {
+                        "高风险" => UiText.Get("高风险"),
+                        "低风险" => UiText.Get("低风险"),
+                        "交锋" => UiText.Get("交锋"),
+                        _ => tag,
+                    };
+                    items.Add((shownTag, TagStripe(tag)));
                 }
             }
             foreach (var mod in effectiveModifiers)
@@ -274,7 +287,7 @@ namespace SSNoir.IMGUI
             // 「必须处理」不再是卡外另挂的一块牌子，就是一张金色条的签，和类别签排在一起：
             // 它说的也是「这件事」——这件事在等你。
             if (mustHandle)
-                items.Add(("必须处理", IMGUIStyles.Gold));
+                items.Add((UiText.Get("必须处理"), IMGUIStyles.Gold));
             if (items.Count == 0) return;
 
             // 从左上角起横排；一排放不下就往上再起一排——签可以多一排，不可以少一张或裁一半。
@@ -576,6 +589,11 @@ namespace SSNoir.IMGUI
         // 让测量与绘制使用完全相同的文本；这也适用于夹在中文里的英文长词。
         private static string WrapSubtitle(string text, GUIStyle style, float width)
         {
+            // Unity can wrap whitespace-delimited words itself. Inserting a line break
+            // at a fixed character width splits English words across lines.
+            if (text.IndexOf(' ') >= 0)
+                return text;
+
             var result = new StringBuilder(text.Length + 8);
             var line = new StringBuilder(text.Length);
 
@@ -897,7 +915,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
-            IMGUIStyles.DrawLabel(pill, SkillInfo.DisplayName(skill), s);
+            IMGUIStyles.DrawLabel(pill, UiText.SkillName(skill), s);
             IMGUIStyles.DrawLine(new Vector2(pill.xMax, pill.center.y), new Vector2(square.x, square.center.y),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
 
@@ -938,8 +956,8 @@ namespace SSNoir.IMGUI
             return name switch
             {
                 "金钱" => "$",
-                "酒" => "酒",
-                "药品" => "药",
+                "酒" => UiText.Get("酒"),
+                "药品" => UiText.Get("药"),
                 _ => string.IsNullOrEmpty(name) ? "?" : name.Substring(0, 1)
             };
         }
@@ -1033,7 +1051,15 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawOutline(rect, 1f, faded);
                 style.normal.textColor = faded;
             }
-            IMGUIStyles.DrawLabel(rect, text, style);
+            string shownText = text switch
+            {
+                "执 行" => UiText.Get("执 行"),
+                "查 看" => UiText.Get("查 看"),
+                "不可用" => UiText.Get("不可用"),
+                "待 命" => UiText.Get("待 命"),
+                _ => text,
+            };
+            IMGUIStyles.DrawLabel(rect, shownText, style);
 
             return isClicked;
         }
@@ -1054,6 +1080,7 @@ namespace SSNoir.IMGUI
 
             string label = string.IsNullOrEmpty(text) ? "执行中" : text;
             if (label.Length > 5) label = "执行中";
+            if (label == "执行中") label = UiText.Get("执行中");
             var progressStyle = new GUIStyle(IMGUIStyles.ExecuteLabel);
             progressStyle.normal.textColor = progress > 0.5f ? IMGUIStyles.GoldOnDark : IMGUIStyles.Paper;
             IMGUIStyles.DrawLabel(rect, label, progressStyle);
@@ -1102,12 +1129,16 @@ namespace SSNoir.IMGUI
         {
             int prepared = dieValue + skillLevel + modSum;
             var text = new System.Text.StringBuilder();
-            text.Append("准备值 ").Append(prepared).Append(" ＝ 骰 ").Append(dieValue);
+            text.Append(UiText.Get("准备值 ")).Append(prepared)
+                .Append(UiText.Get(" ＝ 骰 ")).Append(dieValue);
             if (skillLevel != 0)
                 text.Append(skillLevel > 0 ? " + " : " − ")
-                    .Append(SkillInfo.DisplayName(skill)).Append(' ').Append(Mathf.Abs(skillLevel));
+                    .Append(UiText.SkillName(skill)).Append(' ').Append(Mathf.Abs(skillLevel));
             if (modSum != 0)
-                text.Append(modSum > 0 ? " + 修正 " : " − 修正 ").Append(Mathf.Abs(modSum));
+                text.Append(modSum > 0
+                    ? UiText.Get(" + 修正 ")
+                    : UiText.Get(" − 修正 "))
+                    .Append(Mathf.Abs(modSum));
             return text.ToString();
         }
 
@@ -1327,12 +1358,14 @@ namespace SSNoir.IMGUI
             if (phase < 2)
                 IMGUIStyles.DrawGoldPulse(panel);
 
-            DrawRollHeaderText(panel, settled ? FormatOutcome(report.Outcome) : "判定中",
+            DrawRollHeaderText(panel, settled ? FormatOutcome(report.Outcome)
+                    : UiText.Get("判定中"),
                 settled ? oc : IMGUIStyles.TextPrimary,
                 // 只写准备值：命运骰几点由下面那条带子说（命中格抬起 + 金描边 + 格里写着面数），
                 // 再用文字复述一遍，就是把图形已经说清的事翻译成字。准备值不一样——
                 // 它是这条带子为什么这样分档的原因，面板里没有第二处能看到。
-                settled ? $"准备 {report.PreparedValue}" : "命运骰滚动...",
+                settled ? UiText.Ready(report.PreparedValue)
+                    : UiText.Get("命运骰滚动..."),
                 spacious);
 
             int highlightedFace = phase == 0 ? displayDieValue : report.FateDieValue;
@@ -1397,9 +1430,11 @@ namespace SSNoir.IMGUI
 
             // 判定卡的头是档位；即时卡没有档位可写，头就只是一个「已结算」的标记——
             // 卡就在上面，这里不重复卡名。
-            string headerLabel = hasOutcome ? FormatOutcome(outcome) : "行动结果";
+            string headerLabel = hasOutcome ? FormatOutcome(outcome)
+                : UiText.Get("行动结果");
             DrawRollHeaderText(header, headerLabel, hasOutcome ? oc : IMGUIStyles.TextPrimary,
-                residue.FateDieValue.HasValue ? $"准备 {residue.PreparedValue}" : "",
+                residue.FateDieValue.HasValue
+                    ? UiText.Ready(residue.PreparedValue) : "",
                 spacious);
 
             if (residue.FateDieValue.HasValue)
@@ -1559,10 +1594,10 @@ namespace SSNoir.IMGUI
         {
             return outcome switch
             {
-                RollOutcome.Success => "判定成功",
-                RollOutcome.Neutral => "判定中性",
-                RollOutcome.Fail => "判定失败",
-                _ => "判定结果"
+                RollOutcome.Success => UiText.Get("判定成功"),
+                RollOutcome.Neutral => UiText.Get("判定中性"),
+                RollOutcome.Fail => UiText.Get("判定失败"),
+                _ => UiText.Get("判定结果")
             };
         }
 

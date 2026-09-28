@@ -530,7 +530,10 @@
 
     ;; 容器名固定为"家"（导航按名字定位，不能随住所变），住所等级放 subtitle 显示。
     (define (residence-container)
-      (place "家" :subtitle residence :children (home-body)))
+      (place "家"
+        :title (tr "家" "Home")
+        :subtitle (if (equal? residence "公寓") (tr "公寓" "Apartment") (tr "租的房间" "Rented Room"))
+        :children (home-body)))
 
     ;; ── Message Passing Interface ─────────────────
     (lambda args

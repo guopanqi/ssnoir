@@ -11,11 +11,70 @@ namespace SSNoir.Testing
     {
         // 内容校验只检查所有 Scheme 文件的基础语法，并确保每个顶层场景能加载和渲染。
         // 不固化剧情节点名称、数值平衡或完整游玩流程。
+        private static void AssertEnglishPilotTree(GameNode node, string sceneName)
+        {
+            static void English(string value, string field, string path)
+            {
+                if (value.Any(c => c >= '\u3400' && c <= '\u9fff'))
+                    throw new InvalidDataException($"Untranslated {field} in {path}: {value}");
+            }
+
+            string path = sceneName + "/" + node.Name;
+            if (node.Resolve?.Type == ResolveType.Note)
+            {
+                English(node.Resolve.NoteTitle, "note title", path);
+                English(node.Resolve.NoteText, "note text", path);
+            }
+            else
+            {
+                English(node.DisplayTitle, "title", path);
+                English(node.Subtitle, "subtitle", path);
+            }
+            foreach (var clock in node.Clocks)
+            {
+                English(clock.ShownLabel, "clock title", path);
+                English(clock.Note, "clock note", path);
+            }
+            foreach (var child in node.Children)
+                AssertEnglishPilotTree(child, sceneName);
+        }
+
+        private static void ValidateNarrationTranslations()
+        {
+            var narrationDir = Path.GetFullPath(Path.Combine(ProjectPaths.ContentRoot, "..", "Narrations"));
+            if (!Directory.Exists(narrationDir))
+                throw new DirectoryNotFoundException($"Missing narration directory: {narrationDir}");
+            foreach (var path in Directory.GetFiles(narrationDir, "*.json"))
+            {
+                using var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
+                var cues = json.RootElement.GetProperty("cues");
+                if (cues.ValueKind != System.Text.Json.JsonValueKind.Array)
+                    throw new InvalidDataException($"Narration cues must be an array: {path}");
+                if (cues.GetArrayLength() == 0)
+                    throw new InvalidDataException($"Narration has no subtitle cues: {path}");
+                int index = 0;
+                foreach (var cue in cues.EnumerateArray())
+                {
+                    foreach (var key in new[] { "text", "textEn" })
+                    {
+                        if (!cue.TryGetProperty(key, out var value)
+                            || value.ValueKind != System.Text.Json.JsonValueKind.String
+                            || string.IsNullOrWhiteSpace(value.GetString()))
+                            throw new InvalidDataException($"Narration {path} cue {index} is missing {key}");
+                    }
+                    index++;
+                }
+            }
+            Console.WriteLine("[validate] Narration subtitles: zh-CN and en complete.");
+        }
+
         public static void ValidateContent()
         {
             var scenesDir = Path.Combine(ProjectPaths.ContentRoot, "scenes");
             if (!Directory.Exists(scenesDir))
                 throw new DirectoryNotFoundException($"找不到场景目录：{scenesDir}");
+
+            ValidateNarrationTranslations();
 
             Console.WriteLine("[validate] Phase 1: paren balance...");
             foreach (var scmFile in Directory.GetFiles(scenesDir, "*.scm", SearchOption.AllDirectories))
@@ -67,6 +126,9 @@ namespace SSNoir.Testing
 
                 if (sceneName.StartsWith("encounters/", StringComparison.Ordinal))
                     AssertEncounterCollapsePolicy(sceneManager, sceneName);
+                if (GameLanguage.Current == GameLanguage.English
+                    && (sceneName == "encounters/晚宴" || sceneName == "encounters/核赔"))
+                    AssertEnglishPilotTree(sceneManager.CurrentRootNode, sceneName);
 
                 if (sceneName == "world/world")
                 {

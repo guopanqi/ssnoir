@@ -281,7 +281,7 @@ namespace SSNoir.IMGUI
             var (toggleRect, panelRect) = GetRects(topHud);
             var dossier = gameManager.DisplayedSnapshot.Dossier;
 
-            if (IMGUIButton.DrawTopTextToggle(toggleRect, "卷宗", _isOpen, ui))
+            if (IMGUIButton.DrawTopTextToggle(toggleRect, UiText.Get("卷宗"), _isOpen, ui))
                 _isOpen = !_isOpen;
 
             if (!_isOpen) return;

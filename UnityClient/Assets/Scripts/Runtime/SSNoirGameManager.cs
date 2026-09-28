@@ -361,6 +361,9 @@ namespace SSNoir
 
         private void Start()
         {
+            if (GameLanguage.Warn == null)
+                GameLanguage.Warn = msg => Debug.LogWarning(msg);
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             // 开发测试统一按 60 Hz 观察镜头节奏。vSync 开着时 targetFrameRate 会被忽略，
             // 所以两项必须一起设；Release 构建继续服从平台自己的呈现策略。
@@ -1349,7 +1352,7 @@ namespace SSNoir
                 var actor = _gameState.Team.FindActor(actorId);
                 string actorName = actor?.Name ?? actorId;
                 _gameState.NotificationCenter.Push(
-                    $"{actorName}的{SkillInfo.DisplayName(statKey)}提升到 {actor?.Stats.GetValueOrDefault(statKey) ?? 0}",
+                    UiText.GrowthUpgrade(actorName, statKey, actor?.Stats.GetValueOrDefault(statKey) ?? 0),
                     NotificationKind.Success);
             }
             catch (System.Exception ex)
@@ -1581,6 +1584,7 @@ namespace SSNoir
             try
             {
                 var path = filePath ?? SaveManager.DefaultSavePath;
+                _sceneManager.Settings.Remove("language");
                 _sceneManager.Settings[ReduceMotionSettingKey] = MotionSettings.ReduceMotion;
                 // Settings 只认 string/int/long/double/bool（见 SaveManager.WritePrimitive），
                 // 音量存 double，读出来也一定是 double。
@@ -1588,11 +1592,11 @@ namespace SSNoir
                 _sceneManager.Settings[SfxVolumeSettingKey] = (double)AudioVolumes.Sfx;
                 _sceneManager.Settings[DialogueVolumeSettingKey] = (double)AudioVolumes.Dialogue;
                 _sceneManager.SaveGame(path);
-                _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
+                _gameState.NotificationCenter.Push(UiText.Get("游戏已存档。"), NotificationKind.Success);
             }
             catch (System.Exception ex)
             {
-                _gameState.NotificationCenter.Push($"存档失败: {ex.Message}", NotificationKind.Error);
+                _gameState.NotificationCenter.Push($"{UiText.Get("存档失败")}: {ex.Message}", NotificationKind.Error);
                 Debug.LogError($"[SSNoir] SaveGame failed: {ex}");
             }
         }
@@ -1602,7 +1606,7 @@ namespace SSNoir
             var path = filePath ?? SaveManager.DefaultSavePath;
             if (!System.IO.File.Exists(path))
             {
-                _gameState.NotificationCenter.Push("没有找到存档文件。", NotificationKind.Warning);
+                _gameState.NotificationCenter.Push(UiText.Get("没有找到存档文件。"), NotificationKind.Warning);
                 Debug.LogWarning($"[SSNoir] No save file found at {path}");
                 return;
             }
@@ -1629,11 +1633,11 @@ namespace SSNoir
                     DialogueVolumeSettingKey, AudioVolumes.DialogueDefault);
                 _stateTainted = false;
                 // OnSceneLoaded fires inside LoadGame → ResetSceneUiState → ResetUiState
-                _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
+                _gameState.NotificationCenter.Push(UiText.Get("游戏已读档。"), NotificationKind.Success);
             }
             catch (System.Exception ex)
             {
-                _gameState.NotificationCenter.Push($"读档失败: {ex.Message}", NotificationKind.Error);
+                _gameState.NotificationCenter.Push($"{UiText.Get("读档失败")}: {ex.Message}", NotificationKind.Error);
                 Debug.LogError($"[SSNoir] LoadGame failed: {ex}");
                 MarkStateTainted("读档失败", ex);
             }

@@ -58,8 +58,14 @@ namespace SSNoir.IMGUI
             {
                 alignment = TextAnchor.MiddleCenter,
                 fontSize = IMGUIStyles.FontSize(14),
+                wordWrap = false,
+                clipping = TextClipping.Clip,
                 normal = { textColor = (hover || isOpen) ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary },
             };
+            int minSize = IMGUIStyles.FontSize(10);
+            while (style.fontSize > minSize
+                   && style.CalcSize(new GUIContent(label)).x > rect.width - 4f)
+                style.fontSize--;
             IMGUIStyles.DrawLabel(rect, label, style);
 
             if (interactable && ui.WasTapped(rect))

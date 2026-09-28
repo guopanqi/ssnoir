@@ -206,7 +206,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = isTarget ? new Color(0.16f, 0.13f, 0.03f, 1f) : IMGUIStyles.Gold }
             };
-            IMGUIStyles.DrawLabel(marker, "必须处理", style);
+            IMGUIStyles.DrawLabel(marker, UiText.Get("必须处理"), style);
         }
 
         // ── 共享卡框架 ─────────────────────────────────────────────────
@@ -373,7 +373,7 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.ApplyStrongFont(labelStyle);
 
-            float labelW = labelStyle.CalcSize(new GUIContent(clock.Label)).x;
+            float labelW = labelStyle.CalcSize(new GUIContent(clock.ShownLabel)).x;
             float padX = compact ? CompactClockBadgePadX : ClockBadgePadX;
             float gap = compact ? CompactClockLabelValueGap : ClockLabelValueGap;
             return padX * 2f + labelW + gap + MeasureNodeClockValueWidth(clock, compact);
@@ -424,15 +424,15 @@ namespace SSNoir.IMGUI
             float minValueW = clock.Style == ClockStyle.Gauge
                 ? MinGaugeWidth(clock.Max)
                 : desiredValueW;
-            float gap = desiredValueW > 0f && !string.IsNullOrEmpty(clock.Label) ? labelValueGap : 0f;
-            float labelIdealW = labelStyle.CalcSize(new GUIContent(clock.Label)).x;
+            float gap = desiredValueW > 0f && !string.IsNullOrEmpty(clock.ShownLabel) ? labelValueGap : 0f;
+            float labelIdealW = labelStyle.CalcSize(new GUIContent(clock.ShownLabel)).x;
             // 标签先拿它需要的，但至少给值留下不可压的那一份——宽度紧张时压的是格距，不是字。
             float labelW = Mathf.Clamp(
                 Mathf.Min(labelIdealW, innerW - Mathf.Min(minValueW, innerW) - gap), 0f, innerW);
             float valueW = Mathf.Min(desiredValueW, Mathf.Max(0f, innerW - labelW - gap));
 
             var valueRect = new Rect(rect.xMax - padX - valueW, rect.y, valueW, rect.height);
-            IMGUIStyles.DrawLabel(new Rect(rect.x + padX, rect.y, labelW, rect.height), clock.Label, labelStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + padX, rect.y, labelW, rect.height), clock.ShownLabel, labelStyle);
 
             if (clock.Style == ClockStyle.Countdown)
             {
@@ -544,14 +544,14 @@ namespace SSNoir.IMGUI
             IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(rect, thickness, outline);
 
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + 8, rect.width - 16, 20), node.Name, IMGUIStyles.FlippedTitle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + 8, rect.width - 16, 20), node.DisplayTitle, IMGUIStyles.FlippedTitle);
             IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + 28, rect.width - 16, 16), "— 已解读线索 —", IMGUIStyles.FlippedTip);
 
             var contentRect = new Rect(rect.x + 8, rect.y + 48, rect.width - 16, rect.height - 68);
             string clueText = node.Resolve != null ? node.Resolve.ObserveText : "";
             IMGUIStyles.DrawLabel(contentRect, clueText, IMGUIStyles.FlippedContent);
 
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + rect.height - 18, rect.width - 16, 14), "点击返回", IMGUIStyles.FlippedTip);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + rect.height - 18, rect.width - 16, 14), UiText.Get("点击返回"), IMGUIStyles.FlippedTip);
 
             if (ui.WasTapped(rect))
             {
@@ -647,7 +647,8 @@ namespace SSNoir.IMGUI
             float textWidth = effect.Kind == ActionEffectKind.Supplement
                 ? areaWidth - 16f
                 : areaWidth - 56f;
-            string text = effect.Kind == ActionEffectKind.Supplement ? effect.Text : effect.Label;
+            string text = effect.Kind == ActionEffectKind.Supplement
+                ? effect.Text : effect.DisplayLabel;
             var style = new GUIStyle(IMGUIStyles.ModalBody)
             {
                 fontSize = IMGUIStyles.FontSize(fontSize),
@@ -673,7 +674,7 @@ namespace SSNoir.IMGUI
                 clipping = TextClipping.Clip,
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
-            IMGUIStyles.DrawLabel(new Rect(row.x + 8f, row.y, row.width - 16f, row.height), $"+ 还有 {hiddenCount} 项影响...", style);
+            IMGUIStyles.DrawLabel(new Rect(row.x + 8f, row.y, row.width - 16f, row.height), UiText.MoreEffects(hiddenCount), style);
         }
 
         private static void DrawSingleEffectRow(ActionEffectRecord effect, Rect row, int fontSize)
@@ -700,7 +701,8 @@ namespace SSNoir.IMGUI
                 return;
             }
 
-            IMGUIStyles.DrawLabel(new Rect(row.x + 8f, row.y, row.width - 56f, row.height), effect.Label, labelStyle);
+            IMGUIStyles.DrawLabel(new Rect(row.x + 8f, row.y, row.width - 56f, row.height),
+                effect.DisplayLabel, labelStyle);
 
             string value = effect.Delta.HasValue
                 ? (effect.Delta.Value > 0 ? $"+{effect.Delta.Value}" : effect.Delta.Value.ToString())

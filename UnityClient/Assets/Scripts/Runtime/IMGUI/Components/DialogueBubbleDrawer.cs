@@ -49,6 +49,7 @@ namespace SSNoir.IMGUI
 
                 bool usedRemoteFallback = DrawBubble(
                     bubble.Line.Speaker,
+                    bubble.Line.DisplaySpeaker,
                     bubble.Line.Text,
                     anchors,
                     gameManager,
@@ -65,6 +66,7 @@ namespace SSNoir.IMGUI
 
         private static bool DrawBubble(
             string speaker,
+            string displaySpeaker,
             string text,
             DialogueAnchors anchors,
             SSNoirGameManager gameManager,
@@ -91,7 +93,7 @@ namespace SSNoir.IMGUI
                 }
 
                 usedRemoteFallback = !allowsRemoteParticipant;
-                anchor = DrawRemoteParticipantCard(speaker);
+                anchor = DrawRemoteParticipantCard(speaker, displaySpeaker);
             }
 
             // 对话气泡是"递到面前的一张纸"：Paper 底 + PaperInk 字 + 硬投影
@@ -142,7 +144,8 @@ namespace SSNoir.IMGUI
             nameStyle.normal.textColor = IMGUIStyles.PaperTextSecondary;
             if (avatar != null)
                 DrawAvatar(new Rect(rect.x + 12f, rect.y + 8f, AvatarSize, AvatarSize), avatar);
-            IMGUIStyles.DrawLabel(new Rect(rect.x + columnX, rect.y + 6f, textW, 20f), speaker, nameStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + columnX, rect.y + 6f, textW, 20f),
+                displaySpeaker, nameStyle);
             IMGUIStyles.DrawLabel(new Rect(rect.x + columnX, rect.y + 26f, textW, textH), text, bodyStyle);
             return usedRemoteFallback;
         }
@@ -265,7 +268,7 @@ namespace SSNoir.IMGUI
 
         // 显式场外对话/插话的未在场说话人，以一张临时侧边卡进入画面。
         // 这不是场景节点，不参与交互或导航，只提供清晰的对话锚点。
-        private static Rect DrawRemoteParticipantCard(string speaker)
+        private static Rect DrawRemoteParticipantCard(string speaker, string displaySpeaker)
         {
             const float cardW = 176f;
             const float cardH = 148f;
@@ -310,7 +313,8 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.ApplyStrongFont(titleStyle);
             float nameY = hasPortrait ? card.yMax - 30f : card.y + 42f;
-            IMGUIStyles.DrawLabel(new Rect(card.x + 12f, nameY, card.width - 24f, 42f), speaker, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(card.x + 12f, nameY, card.width - 24f, 42f),
+                displaySpeaker, titleStyle);
 
             return card;
         }

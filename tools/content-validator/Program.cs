@@ -1,5 +1,6 @@
 using System;
 using SSNoir.Testing;
+using SSNoir.Core;
 
 namespace SSNoir
 {
@@ -11,6 +12,9 @@ namespace SSNoir
             {
                 if (args.Length > 0 && args[0] == "--validate")
                 {
+                    if (args.Length > 2 || (args.Length == 2 && args[1] != "en" && args[1] != "zh-CN"))
+                        throw new ArgumentException("Usage: --validate [zh-CN|en]");
+                    GameLanguage.Current = args.Length == 2 ? args[1] : GameLanguage.Chinese;
                     GameTester.ValidateContent();
                     return;
                 }

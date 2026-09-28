@@ -45,7 +45,7 @@ namespace SSNoir.IMGUI
             var (toggleRect, panelRect) = GetRects(topHud);
 
             // 顶栏开关和卷宗 / 成长 / 帮助 / 调试共用同一份实现，五个长得一模一样。
-            if (IMGUIButton.DrawTopTextToggle(toggleRect, "设置", _isOpen, ui))
+            if (IMGUIButton.DrawTopTextToggle(toggleRect, UiText.Get("设置"), _isOpen, ui))
                 _isOpen = !_isOpen;
 
             if (!_isOpen) return;

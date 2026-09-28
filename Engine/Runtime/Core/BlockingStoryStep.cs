@@ -60,7 +60,7 @@ namespace SSNoir.Core
                 : new BlockingStoryStep { Kind = BlockingStoryStepKind.EnterPlace, PlaceName = placeName };
 
         public static BlockingStoryStep ForResolvedAutoAction(
-            string name, string text, string? anchorName, DialogueSequence? prelude,
+            string name, string title, string text, string? anchorName, DialogueSequence? prelude,
             IReadOnlyList<SlottedResource> slots, ActionReport report)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(text))
@@ -76,6 +76,7 @@ namespace SSNoir.Core
                 AutoActionNode = new GameNode
                 {
                     Name = name,
+                    Title = title,
                     Subtitle = text,
                     AnchorName = anchorName,
                     Resolve = new GameResolve { Type = ResolveType.Instant },

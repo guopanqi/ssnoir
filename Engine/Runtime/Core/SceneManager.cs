@@ -39,6 +39,7 @@ namespace SSNoir.Core
         private sealed class PendingAutoAction
         {
             public string Name { get; init; } = string.Empty;
+            public string Title { get; init; } = string.Empty;
             public string Text { get; init; } = string.Empty;
             public string? AnchorName { get; init; }
             public List<(string ActorId, int Count)> Demands { get; init; } = new();
@@ -472,8 +473,8 @@ namespace SSNoir.Core
                 Symbol.FromString("__auto-action!"),
                 new NativeProcedure(args =>
                 {
-                    if (args.Count != 6)
-                        throw new ArgumentException("auto-action!: expected name, subtitle, anchor, actor/count demands, prelude, and effect");
+                    if (args.Count != 7)
+                        throw new ArgumentException("auto-action!: expected name, subtitle, anchor, demands, prelude, effect, and display title");
                     if (CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
                         throw new InvalidOperationException("auto-action!: 只能在交锋中使用。");
                     if (!_isResolvingTurnEnd)
@@ -482,6 +483,10 @@ namespace SSNoir.Core
                         ?? throw new InvalidOperationException("auto-action!: 必须在回合结算中调用。");
                     string name = args[0] as string
                         ?? throw new ArgumentException("auto-action!: name must be a string");
+                    string title = args[6] as string
+                        ?? throw new ArgumentException("auto-action!: display title must be a string");
+                    if (string.IsNullOrWhiteSpace(title))
+                        throw new ArgumentException("auto-action!: display title cannot be empty");
                     string text = args[1] as string
                         ?? throw new ArgumentException("auto-action!: progress text must be a string");
                     string? anchorName = args[2] is bool noAnchor && !noAnchor
@@ -513,6 +518,7 @@ namespace SSNoir.Core
                     _pendingAutoActions.Add(new PendingAutoAction
                     {
                         Name = name,
+                        Title = title,
                         Text = text,
                         AnchorName = anchorName,
                         Demands = parsed,
@@ -586,6 +592,10 @@ namespace SSNoir.Core
             Settings.Clear();
             foreach (var setting in data.Settings)
                 Settings.Add(setting.Key, setting.Value);
+
+            // The title screen chooses the display language before loading. Recreate the
+            // interpreter so any top-level translated values use that language too.
+            _worldInterpreter = null;
 
             // 1. Force exit any active encounter
             _encounterInterpreter = null;
@@ -1196,7 +1206,8 @@ namespace SSNoir.Core
                                 $"auto-action!: '{pending.Name}' 的效果里不能排阻塞剧情步骤；要说话用 play-banter!。");
                         var frameReport = new ActionReport { Type = ActionType.Instant };
                         frameReport.BlockingStorySteps.Add(BlockingStoryStep.ForResolvedAutoAction(
-                            pending.Name, pending.Text, pending.AnchorName, pending.Prelude, slots, autoReport));
+                            pending.Name, pending.Title, pending.Text, pending.AnchorName,
+                            pending.Prelude, slots, autoReport));
                         RebuildRenderTree();
                         return CommitRoundFrame(RoundTransitionPhase.ForcedAction, frameReport);
                     }

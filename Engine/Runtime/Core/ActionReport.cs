@@ -39,6 +39,7 @@ namespace SSNoir.Core
             {
                 Kind = kind,
                 Label = label,
+                DisplayLabel = label,
                 Delta = delta,
                 Tone = tone
             });
@@ -57,18 +58,20 @@ namespace SSNoir.Core
             });
         }
 
-        public void AddClockEffect(string label, int delta)
+        public void AddClockEffect(string label, string displayLabel, int delta)
         {
-            if (string.IsNullOrWhiteSpace(label))
-                throw new System.ArgumentException("clock effect label cannot be empty");
+            if (string.IsNullOrWhiteSpace(label) || string.IsNullOrWhiteSpace(displayLabel))
+                throw new System.ArgumentException("clock effect id and display label cannot be empty");
             if (delta == 0)
                 return;
 
             int existingIndex = Effects.FindIndex(effect =>
-                effect.Kind == ActionEffectKind.Clock && effect.Text == label);
+                effect.Kind == ActionEffectKind.Clock && effect.Label == label);
             int totalDelta = delta;
             if (existingIndex >= 0)
             {
+                if (Effects[existingIndex].DisplayLabel != displayLabel)
+                    throw new System.InvalidOperationException($"Clock {label} changed display label during one action");
                 totalDelta += Effects[existingIndex].Delta ?? 0;
                 Effects.RemoveAt(existingIndex);
             }
@@ -77,6 +80,7 @@ namespace SSNoir.Core
             {
                 Kind = ActionEffectKind.Clock,
                 Label = label,
+                DisplayLabel = displayLabel,
                 Delta = totalDelta,
                 Text = label,
                 Tone = totalDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative

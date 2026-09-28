@@ -627,7 +627,7 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleLeft,
                 normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
             };
-            IMGUIStyles.DrawLabel(new Rect(x, y, VitalLabelW, VitalRowH), "冷静", labelStyle);
+            IMGUIStyles.DrawLabel(new Rect(x, y, VitalLabelW, VitalRowH), UiText.Get("冷静"), labelStyle);
 
             // 阈值随上限走：见底是红的，剩三分之一以内是警告色。
             Color fill = composure <= 0 ? IMGUIStyles.SealRed
@@ -664,7 +664,7 @@ namespace SSNoir.IMGUI
             };
             // 见底比 "0/2" 说得清楚：再扛一次就进身体。
             IMGUIStyles.DrawLabel(new Rect(barX + barW + 4f, y, 38f, VitalRowH),
-                composure > 0 ? $"{composure}/{max}" : "见底", valStyle);
+                composure > 0 ? $"{composure}/{max}" : UiText.Get("见底"), valStyle);
             if (pop > 0f)
                 GUI.matrix = savedMatrix;
         }
@@ -1269,7 +1269,7 @@ namespace SSNoir.IMGUI
                 normal = { textColor = disabled ? DisabledResourceText : IMGUIStyles.Paper }
             };
             IMGUIStyles.ApplyStrongFont(titleStyle);
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 4f, rect.y + 3f, rect.width - 8f, 22f), node.Name, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 4f, rect.y + 3f, rect.width - 8f, 22f), node.DisplayTitle, titleStyle);
 
             var requirements = node.Requires ?? new List<SSNoir.Core.ActionCost>();
             if (!string.IsNullOrEmpty(node.SupportId) && requirements.Count != 0)
@@ -1325,7 +1325,7 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(16),
                 normal = { textColor = progress > 0.5f ? IMGUIStyles.GoldOnDark : IMGUIStyles.Paper },
             };
-            IMGUIStyles.DrawLabel(rect, label, style);
+            IMGUIStyles.DrawLabel(rect, ShownFunctionLabel(label), style);
         }
 
         private static bool DrawFunctionBlock(Rect rect, string label, IMGUIInteractionContext ui, bool unavailable)
@@ -1344,7 +1344,7 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(16),
                 normal = { textColor = disabled ? DisabledResourceText : IMGUIStyles.TextPrimary }
             };
-            IMGUIStyles.DrawLabel(rect, label, style);
+            IMGUIStyles.DrawLabel(rect, ShownFunctionLabel(label), style);
             if (!disabled && ui.WasTapped(rect))
             {
                 Event.current.Use();
@@ -1352,6 +1352,16 @@ namespace SSNoir.IMGUI
             }
             return false;
         }
+
+        private static string ShownFunctionLabel(string label) => label switch
+        {
+            "结束回合" => UiText.Get("结束回合"),
+            "回 家" => UiText.Get("回 家"),
+            "执 行" => UiText.Get("执 行"),
+            "执行中" => UiText.Get("执行中"),
+            "结算中" => UiText.Get("结算中"),
+            _ => label,
+        };
 
         // 这件东西带不带上限。0 = 不带（绝大多数物品）。表在 engine.scm 的 item-capacities。
         private static int ItemCapacity(SSNoirGameManager gameManager, string name)
@@ -1449,9 +1459,9 @@ namespace SSNoir.IMGUI
             return name switch
             {
                 "金钱" => "$",
-                "酒" => "酒",
-                "香烟" => "烟",
-                "药品" => "药",
+                "酒" => UiText.Get("酒"),
+                "香烟" => UiText.Get("烟"),
+                "药品" => UiText.Get("药"),
                 _ => name.Length > 0 ? name.Substring(0, 1) : "?"
             };
         }

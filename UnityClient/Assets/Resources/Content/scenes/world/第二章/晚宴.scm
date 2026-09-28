@@ -14,9 +14,11 @@
       (rest-release! "第二章/晚宴")
       (cond
         ((and (今天?) (equal? 结果 "未开始"))
-         (rest-block! "第二章/晚宴" "今晚的晚宴，她在酒店等你" "格兰德酒店" "赴晚宴"))
+         (rest-block! "第二章/晚宴"
+           (tr "今晚的晚宴，她在酒店等你" "The banquet is tonight. She is waiting at the hotel")
+           "格兰德酒店" "赴晚宴"))
         ((equal? 结果 "进行中")
-         (rest-block! "第二章/晚宴" "你还站在那间厅里"))
+         (rest-block! "第二章/晚宴" (tr "你还站在那间厅里" "You are still in the ballroom")))
         (else #f)))
 
     (define (记结果! results)
@@ -34,31 +36,43 @@
       (sync-blockers!)
       (第二章 'log! "格兰德酒店晚宴"
         (cond
-          ((null? results) "晚宴散场时，你记住了许多名字，没有一个真正属于你。")
-          ((= (length results) 1) "晚宴散场时，至少有一个人答应明天接你的电话。")
-          (else "晚宴散场时，你手里多了几张名片，也多了几件以后要还的人情。")))
+          ((null? results) (tr "晚宴散场时，你记住了许多名字，没有一个真正属于你。"
+                               "By the end of the banquet you knew many names, but none belonged to a friend."))
+          ((= (length results) 1) (tr "晚宴散场时，至少有一个人答应明天接你的电话。"
+                                       "By the end of the banquet, at least one person had agreed to take your call tomorrow."))
+          (else (tr "晚宴散场时，你手里多了几张名片，也多了几件以后要还的人情。"
+                    "You left with a few more cards and a few favors you would someday have to repay."))))
       (complete-task! "格兰德酒店晚宴")
-      (spotlight! "晚宴散场"
-        "最后一支舞停了。夜莺还在厅那头说话；你带走的是自己真正谈成的那些关系。"))
+      (spotlight! (tr "晚宴散场" "The Banquet Ends")
+        (tr "最后一支舞停了。夜莺还在厅那头说话；你带走的是自己真正谈成的那些关系。"
+            "The last dance ended. Nightingale was still talking across the hall. You left with the connections you had made.")))
 
     (define (now)
       (cond
-        ((equal? 结果 "进行中") "晚宴还没有散场")
-        ((今天?) "今晚的晚宴。她在格兰德酒店等你")
-        ((还没结?) (string-append "还有 " (number->string (剩几天)) " 天，晚宴那晚陪她去"))
-        (else "晚宴散场了。她已经开始适应那个地方")))
+        ((equal? 结果 "进行中") (tr "晚宴还没有散场" "The banquet is still going"))
+        ((今天?) (tr "今晚的晚宴。她在格兰德酒店等你" "The banquet is tonight. She is waiting at the Grand Hotel"))
+        ((还没结?) (string-append
+          (tr "还有 " "In ") (number->string (剩几天))
+          (tr " 天，晚宴那晚陪她去" " days, accompany her to the banquet")))
+        (else (tr "晚宴散场了。她已经开始适应那个地方"
+                  "The banquet is over. She is already finding her place there"))))
 
     (define (where) (if (还没结?) "格兰德酒店" ""))
     (define (clocks)
       (if (and (还没结?) (not (今天?)))
-          (list (日期倒计时 "离晚宴" (第二章 'banquet-day) 3
-                  "归零那晚去格兰德酒店，只有那一晚。"))
+          (list (append
+                  (日期倒计时 "离晚宴" (第二章 'banquet-day) 3
+                    (tr "归零那晚去格兰德酒店，只有那一晚。"
+                        "Go to the Grand Hotel when this reaches zero. You have only that night."))
+                  (list (tr "离晚宴" "Until the Banquet"))))
           '()))
 
     (define (node-go)
-      (at-anchor "格兰德酒店"
-       (encounter-action "赴晚宴"
-        (lambda ()
+      (node "赴晚宴"
+        :title (tr "赴晚宴" "Go to the Banquet")
+        :anchor "格兰德酒店"
+        :tags (list "交锋")
+        :resolve (instant (lambda ()
           (if (equal? 结果 "未开始") #t (error "晚宴：只能进场一次"))
           (set! 结果 "进行中")
           (sync-blockers!)
@@ -67,9 +81,11 @@
           ;; 机位与编排在 city-box/prefabs/src/格兰德酒店.py 的 motorcade。
           (play-motion! "格兰德酒店/车队" "到场" "格兰德酒店-车队")
           (play-dialogue!
-            (line "夜莺" "别站那么直，他们又不查你的票。")
-            (line "尼尔" "你紧张。")
-            (line "夜莺" "我等了六年才有人请我来这种地方。"))
+            (line "夜莺" (tr "别站那么直，他们又不查你的票。"
+                            "Do not stand so straight. They are not checking your ticket."))
+            (line "尼尔" (tr "你紧张。" "You are nervous."))
+            (line "夜莺" (tr "我等了六年才有人请我来这种地方。"
+                            "I waited six years for an invitation to a place like this.")))
           (start-encounter "晚宴" 记结果!)))))
 
     (define (nodes-at location)
@@ -82,7 +98,9 @@
           (begin
             (sync-blockers!)
             (if (今天?)
-                (spotlight! "今晚" "晚宴在格兰德酒店。她说过只等你一次。")
+                (spotlight! (tr "今晚" "Tonight")
+                  (tr "晚宴在格兰德酒店。她说过只等你一次。"
+                      "The banquet is at the Grand Hotel. She said she would wait only once."))
                 #f))
           #f))
 

@@ -18,7 +18,6 @@ namespace SSNoir
     /// </summary>
     public class TitleScreen
     {
-        private const string Title = "贝尔维尔的歌谣";
 
         private const float ColumnX = 0.10f;   // 文字栏左边距（屏宽占比）
         private const float TitleY = 0.30f;    // 片名基线（屏高占比）
@@ -129,7 +128,18 @@ namespace SSNoir
                 normal = { textColor = IMGUIStyles.Paper },
             };
             IMGUIStyles.ApplyStrongFont(titleStyle);
-            IMGUIStyles.DrawLabel(new Rect(x, titleY, vw * 0.6f, TitleHeight), Title, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(x, titleY, vw * 0.7f, TitleHeight),
+                UiText.Get("贝尔维尔的歌谣"), titleStyle);
+
+            float languageX = vw - 208f;
+            if (DrawItem(new Rect(languageX, 30f, 88f, 42f),
+                    GameLanguage.Current == GameLanguage.Chinese ? "[中文]" : "中文", ui,
+                    enabled: true, compact: true))
+                GameLanguage.Current = GameLanguage.Chinese;
+            if (DrawItem(new Rect(languageX + 94f, 30f, 102f, 42f),
+                    GameLanguage.Current == GameLanguage.English ? "[English]" : "English", ui,
+                    enabled: true, compact: true))
+                GameLanguage.Current = GameLanguage.English;
 
             // 片名下面一条金发丝，和游戏内各处分隔线同一个手势。
             IMGUIStyles.DrawLine(
@@ -140,7 +150,8 @@ namespace SSNoir
 
             float itemY = titleY + MenuTopOffset;
 
-            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight), "新游戏", ui, enabled: true))
+            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight),
+                    UiText.Get("新游戏"), ui, enabled: true))
             {
                 NewGame();
                 return;
@@ -149,7 +160,8 @@ namespace SSNoir
 
             // 没有存档时留着但灰掉：位置固定，玩家才知道自己缺的是什么，而不是以为没这功能。
             // 存档时间收进按钮右侧——读档读的是最近那一个，得让人知道自己接的是哪一天。
-            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight), "从存档加载", ui,
+            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight),
+                    UiText.Get("从存档加载"), ui,
                     enabled: _latestSlotPath != null, hint: _latestSaveTime))
             {
                 Continue();
@@ -159,7 +171,8 @@ namespace SSNoir
 
             // 浏览器里没有"退出游戏"这回事，Application.Quit() 是个空操作，摆上去只会骗人。
 #if !UNITY_WEBGL || UNITY_EDITOR
-            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight), "退出游戏", ui, enabled: true))
+            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight),
+                    UiText.Get("退出游戏"), ui, enabled: true))
             {
                 Quit();
                 return;
@@ -174,7 +187,8 @@ namespace SSNoir
         /// 把线压下去但还留着城市活的影子；文字始终是纸白——金只出在那根签上，和片名下的金发丝呼应。
         /// </summary>
         private static bool DrawItem(
-            Rect rect, string label, IMGUIInteractionContext ui, bool enabled, string hint = "")
+            Rect rect, string label, IMGUIInteractionContext ui, bool enabled,
+            string hint = "", bool compact = false)
         {
             bool hovered = enabled && ui.CanHover(rect);
             var snapped = UIScale.PixelSnap(rect);
@@ -207,8 +221,10 @@ namespace SSNoir
 
             var style = new GUIStyle(GUI.skin.label)
             {
-                fontSize = IMGUIStyles.FontSize(22),
-                alignment = TextAnchor.MiddleLeft,
+                fontSize = IMGUIStyles.FontSize(compact ? 15 : 22),
+                alignment = compact ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft,
+                wordWrap = false,
+                clipping = TextClipping.Clip,
                 normal =
                 {
                     textColor = !enabled
@@ -217,7 +233,8 @@ namespace SSNoir
                 },
             };
             IMGUIStyles.ApplyStrongFont(style);
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 20f, rect.y, rect.width - 40f, rect.height), label, style);
+            float inset = compact ? 4f : 20f;
+            IMGUIStyles.DrawLabel(new Rect(rect.x + inset, rect.y, rect.width - inset * 2f, rect.height), label, style);
 
             if (!string.IsNullOrEmpty(hint))
             {

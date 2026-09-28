@@ -128,7 +128,7 @@ namespace SSNoir.IMGUI
         public static float PreferredLocationWidth(GameNode node)
         {
             float iconW = NodeIcon(node) != null ? LocationIconSize + GapIconToName : 0f;
-            float need = PlateTextWidth(node.Name) + iconW;
+            float need = PlateTextWidth(node.DisplayTitle) + iconW;
 
             // +24 是 LayoutClockBadges 给徽章行留的左右余量，两边必须用同一个数。
             foreach (var clock in node.Clocks)
@@ -182,7 +182,7 @@ namespace SSNoir.IMGUI
 
             Color line = PlateLineColor(disabled, hover);
 
-            DrawPlateRow(rect, node.Name, NodeIcon(node), line, clocksBottomY);
+            DrawPlateRow(rect, node.DisplayTitle, NodeIcon(node), line, clocksBottomY);
         }
 
         private static Texture2D? NodeIcon(GameNode node)
@@ -230,7 +230,7 @@ namespace SSNoir.IMGUI
                     clipping = TextClipping.Clip,
                     normal = { textColor = disabled ? IMGUIStyles.TextSecondary : IMGUIStyles.Paper }
                 };
-                IMGUIStyles.DrawLabel(plateRect, node.Name, plateStyle);
+                IMGUIStyles.DrawLabel(plateRect, node.DisplayTitle, plateStyle);
                 return;
             }
 
@@ -256,7 +256,7 @@ namespace SSNoir.IMGUI
             float textY = photoRect.yMax + GapPhotoToTitle;
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Clip };
             if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, textY, rect.width - 20f, TitleH), node.Name, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, textY, rect.width - 20f, TitleH), node.DisplayTitle, titleStyle);
 
             if (!string.IsNullOrEmpty(node.Subtitle))
             {

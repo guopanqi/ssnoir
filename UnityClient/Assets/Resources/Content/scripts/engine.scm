@@ -8,6 +8,7 @@
 (define :resolve ':resolve)
 (define :tags ':tags)
 (define :subtitle ':subtitle)
+(define :title ':title)
 (define :disabled ':disabled)
 (define :anchor ':anchor)
 (define :place ':place)
@@ -55,6 +56,7 @@
     (append
       (list 'node
             name
+            :title (get-kwarg kwargs ':title name)
             :subtitle (get-kwarg kwargs ':subtitle "")
             :clocks (get-kwarg kwargs ':clocks '())
             :children (get-kwarg kwargs ':children '())
@@ -143,10 +145,13 @@
 ;; 它不产生新的玩家骰槽；只在内容内部指定谁的时间被占用，并排入一张锁输入的自动行动卡。
 ;; 落点必须显式声明：自动行动卡是空间里的一张卡，没有"先放网格以后再说"——
 ;; 漏写锚点会静默掉进网格，而构建与校验都不会拦，只能在这里挡。
-(define (auto-action! name subtitle demands prelude effect anchor)
+(define (auto-action! name subtitle demands prelude effect anchor . titles)
   (if (not (string? anchor))
       (error "auto-action!: 必须显式声明落点锚点；自动行动卡不许掉进网格")
-      (__auto-action! name subtitle anchor demands prelude effect)))
+      (if (> (length titles) 1)
+          (error "auto-action!: display title takes at most one argument")
+          (__auto-action! name subtitle anchor demands prelude effect
+            (if (null? titles) name (car titles))))))
 
 ;; 倒下协议。交锋不写新的送医路线，只声明这场在主角倒下时如何使用已有结算：
 ;;   (collapse-result 原有结果)  调用原有回调，按失败/既有收场推进
@@ -786,26 +791,29 @@
 (define clock-messages
   "'tick! 'advance! 'set! 'reset! 'current 'max 'full? 'empty? 'remaining 'render-data 'save 'load!")
 
-(define (make-clock label max style . note-args)
+(define (make-clock label max style . options)
   (if (string? label) #t (error "make-clock: 标签必须是字符串"))
   (if (and (number? max) (> max 0)) #t (error "make-clock: 上限必须是正整数"))
   (if (member? style clock-styles)
       #t
       (error "make-clock: 未知样式（应为 'gauge / 'countdown / 'readout）"))
-  (if (> (length note-args) 1)
-      (error "make-clock: 备注最多一个")
+  (if (> (length options) 2)
+      (error "make-clock: 最多接受备注和显示名两个选项")
       #t)
   (let ((current 0)
-        (note (if (null? note-args) "" (car note-args))))
+        (note (if (null? options) "" (car options)))
+        (display-label (if (< (length options) 2) label (cadr options))))
     (if (or (string? note) (procedure? note))
         #t
         (error "make-clock: 备注必须是字符串或 (lambda (current max) → 字符串)"))
+    (if (and (string? display-label) (not (equal? display-label "")))
+        #t (error "make-clock: 显示名必须是非空字符串"))
     ;; 形参 max 遮住了内置的 max 函数，所以下界自己写。
     (define (clamp n) (if (< n 0) 0 (min n max)))
     (define (move-to! n)
       (let ((before current))
         (set! current (clamp n))
-        (__record-clock-effect! label (- current before))))
+        (__record-clock-effect! label display-label (- current before))))
     ;; 参数取一个；没传就用默认值。传多了直接报错，别让手滑悄悄溜过去。
     (define (one-arg args default who)
       (cond
@@ -828,7 +836,7 @@
         ((equal? msg 'remaining)   (- max current))
         ((equal? msg 'render-data)
          (list 'clock label current max style
-               (if (procedure? note) (note current max) note)))
+               (if (procedure? note) (note current max) note) display-label))
         ((equal? msg 'save) current)
         ((equal? msg 'load!)
          (let ((n (one-arg args #f "'load!")))
@@ -1161,7 +1169,7 @@
 ;; 剧情局部整数时钟在动作结果中的统一记录入口。
 ;; 动作外（读档、日终规则）调用时不产生结果行。
 (define (record-clock-progress! label delta)
-  (__record-clock-effect! label delta))
+  (__record-clock-effect! label label delta))
 
 (define (spotlight! title subtitle)
   (__spotlight! title subtitle))
@@ -1188,6 +1196,71 @@
 ;; :other 分隔符，不带值：写在它后面的 :pose/:move/:light/:shake 落到台上另一个人身上
 ;;        (line "夜莺" "……" "语音id" :pose "背身" :other :pose "点烟")
 ;; 每一项都是终态，没写的保持上一句。
+;; 对白里的 speaker 始终是锚点/立绘使用的稳定身份；这里只提供玩家看到的署名。
+;; 表里是已译好的常用角色。未登记不报错：显示中文身份；英文模式下额外打 warning。
+(define speaker-displays
+  (list
+    (list "世界" (tr "世界" "Narrator"))
+    (list "尼尔" (tr "尼尔" "Neil"))
+    (list "夜莺" (tr "夜莺" "Nightingale"))
+    (list "林" (tr "林" "Lin"))
+    (list "弗兰克" (tr "弗兰克" "Frank"))
+    (list "经理" (tr "经理" "Manager"))
+    (list "贝恩斯" (tr "贝恩斯" "Baines"))
+    (list "艾迪" (tr "艾迪" "Eddie"))
+    (list "沃尔特" (tr "沃尔特" "Walter"))
+    (list "房东" (tr "房东" "Landlord"))
+    (list "记者" (tr "记者" "Reporter"))
+    (list "乔" (tr "乔" "Joe"))
+    (list "莫里斯" (tr "莫里斯" "Morris"))
+    (list "科尔" (tr "科尔" "Cole"))
+    (list "薇拉" (tr "薇拉" "Vera"))
+    (list "女招待" (tr "女招待" "Waitress"))
+    (list "货运代理" (tr "货运代理" "Freight Agent"))
+    (list "莱恩" (tr "莱恩" "Ryan"))
+    (list "工人" (tr "工人" "Worker"))
+    (list "老乔" (tr "老乔" "Old Joe"))
+    (list "露丝" (tr "露丝" "Ruth"))
+    (list "帕克" (tr "帕克" "Parker"))
+    (list "巡警" (tr "巡警" "Patrol Officer"))
+    (list "剧院接线员" (tr "剧院接线员" "Theater Operator"))
+    (list "柜台后的人" (tr "柜台后的人" "Clerk"))
+    (list "剧院的跑腿" (tr "剧院的跑腿" "Theater Runner"))
+    (list "工头" (tr "工头" "Foreman"))
+    (list "客人" (tr "客人" "Guest"))
+    (list "打人的" (tr "打人的" "Attacker"))
+    (list "舞伴" (tr "舞伴" "Dance Partner"))
+    (list "工人乙" (tr "工人乙" "Worker B"))
+    (list "工作人员" (tr "工作人员" "Staff Member"))
+    (list "码头工人" (tr "码头工人" "Dockworker"))
+    (list "楼上的女人" (tr "楼上的女人" "Woman Upstairs"))
+    (list "楼梯上的女人" (tr "楼梯上的女人" "Woman on the Stairs"))
+    (list "楼梯口的人" (tr "楼梯口的人" "Person at the Stairs"))
+    (list "门廊里的男人" (tr "门廊里的男人" "Man in the Doorway"))
+    (list "桥廊住户" (tr "桥廊住户" "Bridgewalk Resident"))
+    (list "酒保" (tr "酒保" "Bartender"))
+    (list "水手" (tr "水手" "Sailor"))
+    (list "舞台监督" (tr "舞台监督" "Stage Manager"))
+    (list "赞助人" (tr "赞助人" "Patron"))
+    (list "剧院那桌" (tr "剧院那桌" "Theater Guest"))
+    (list "生意人" (tr "生意人" "Businessman"))
+    (list "主人" (tr "主人" "Host"))
+    (list "工人甲" (tr "工人甲" "Worker A"))
+    (list "编辑" (tr "编辑" "Editor"))
+    (list "报童" (tr "报童" "Newsboy"))
+    (list "毡帽" (tr "毡帽" "Felt Hat"))
+    (list "卷袖子" (tr "卷袖子" "Rolled Sleeves"))
+    (list "皮夹克" (tr "皮夹克" "Leather Jacket"))
+  ))
+
+(define (speaker-display speaker)
+  (let ((name (assoc-get speaker-displays speaker #f)))
+    (if name
+        name
+        (begin
+          (__i18n-missing-speaker! speaker)
+          speaker))))
+
 (define (line speaker text . rest)
   (let* ((split (split-line-args rest))
          (positional (car split))
@@ -1195,7 +1268,7 @@
          (voice (if (null? positional) "" (car positional)))
          (more  (if (null? positional) '() (cdr positional)))
          (dwell (if (null? more) 0 (car more))))
-    (list speaker text voice dwell stage)))
+    (list speaker text voice dwell stage (speaker-display speaker))))
 
 ;; 把 (语音 停留 :pose ...) 切成 (位置参数 . 舞台指示)：遇到第一个关键字符号就切。
 (define 台词舞台关键字 (list :pose :move :light :shake :screen :inner :other))

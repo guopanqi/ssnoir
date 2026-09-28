@@ -53,6 +53,7 @@ namespace SSNoir.Scripting
             GameResolve? resolve = null;
             string? anchorName = null;
             string subtitle = string.Empty;
+            string title = name;
             bool disabled = false;
             bool isPlace = false;
             string carryItemId = string.Empty;
@@ -97,6 +98,12 @@ namespace SSNoir.Scripting
                 else if (kwStr == ":subtitle")
                 {
                     subtitle = val as string ?? string.Empty;
+                }
+                else if (kwStr == ":title")
+                {
+                    title = val as string ?? throw new InvalidOperationException($"Node '{name}' :title must be a string.");
+                    if (string.IsNullOrWhiteSpace(title))
+                        throw new InvalidOperationException($"Node '{name}' :title cannot be empty.");
                 }
                 else if (kwStr == ":anchor")
                 {
@@ -168,6 +175,7 @@ namespace SSNoir.Scripting
             var node = new GameNode
             {
                 Name = name,
+                Title = title,
                 IsPlace = isPlace,
                 CarryItemId = carryItemId,
                 SupportId = supportId,
@@ -398,7 +406,7 @@ namespace SSNoir.Scripting
                 return new GameResolve
                 {
                     Type = ResolveType.Note,
-                    NoteTitle = clock.Label,
+                    NoteTitle = clock.ShownLabel,
                     NoteText = clock.Note,
                     Clock = clock
                 };
@@ -673,7 +681,17 @@ namespace SSNoir.Scripting
                 note = parsedNote;
             }
 
-            return new GameClock { Label = label, Note = note, Current = current, Max = max, Style = style };
+            if (expr.Count > 7)
+                throw new InvalidOperationException($"Clock '{label}' has too many fields.");
+            string displayLabel = label;
+            if (expr.Count == 7)
+            {
+                displayLabel = expr[6] as string ?? throw new InvalidOperationException($"Clock '{label}' display label must be a string.");
+                if (string.IsNullOrWhiteSpace(displayLabel))
+                    throw new InvalidOperationException($"Clock '{label}' display label cannot be empty.");
+            }
+            return new GameClock { Label = label, DisplayLabel = displayLabel, Note = note,
+                Current = current, Max = max, Style = style };
         }
     }
 }
