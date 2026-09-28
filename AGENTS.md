@@ -2,6 +2,12 @@
 
 本文件是所有 AI / 协作者的**统一入口**。下面先是文档导航,再是常驻工程规则。
 
+## Skill 存放约定
+
+项目 Skill 的唯一源目录是 `skills/<skill-name>/`。新增 Skill 时，把 `SKILL.md` 和所有配套文件放在该目录，再在 `.agents/skills/` 建立指向它的同名符号链接，供工具发现。`.agents/skills/` 不存放独立的 Skill 文件或副本；修改 Skill 时只编辑 `skills/` 下的源文件。Skill 中引用项目文件时，以源文件所在位置计算相对路径。
+
+`tools/` 放可执行的 CLI、脚本及其参数说明；`skills/` 放不能从 `--help` 推断的工作流、项目判断标准和验收规则。同一服务可以同时有工具和 Skill，但不要为每个工具入口另建一份只重复命令用法的 Skill。
+
 ## 文档导航
 
 - **架构总览**：[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
@@ -10,6 +16,7 @@
 
 - **写 .scm 内容（世界观口径 + 引擎隐含行为 + 内容作者的判断）**：[skills/write-scheme/SKILL.md](skills/write-scheme/SKILL.md)
 - **制作 3D 资产（参考图、低模、Blender 加工、Unity 命名契约）**：[skills/create-3d-assets/SKILL.md](skills/create-3d-assets/SKILL.md)
+- **制作游戏图片（舞台人物、姿势、2D 道具、3D 参考图）**：[skills/make-images/SKILL.md](skills/make-images/SKILL.md)
 - **要不要验证 / 怎么验证**：[skills/verify/SKILL.md](skills/verify/SKILL.md)
 - **Web Preview、Web Release、TapTap Release 三种构建方式**：[tools/BUILDING.md](tools/BUILDING.md)
 

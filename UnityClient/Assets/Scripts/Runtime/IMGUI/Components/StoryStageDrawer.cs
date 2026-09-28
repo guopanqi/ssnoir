@@ -40,6 +40,8 @@ namespace SSNoir.IMGUI
         }
 
         private static readonly StageState State = new();
+        private static Texture2D? _burstTexture;
+        private static Texture2D? _hitTexture;
         private static readonly HashSet<string> MissingPortraitWarnings = new();
         private static string _visibleLineKey = string.Empty;
         private static float _lineStartedAt;
@@ -61,16 +63,29 @@ namespace SSNoir.IMGUI
             StageScreenPainter.Release();
         }
 
-        public static void StageSpawn(string id, string asset, float x, string layer)
-            => State.Spawn(id, asset, x, layer, Time.unscaledTime, NeonPortraitLibrary.Load);
+        public static void StageSpawn(string id, string asset, float x, float y, string layer)
+            => State.Spawn(id, asset, x, y, layer, Time.unscaledTime, NeonPortraitLibrary.Load);
 
-        public static void StageMove(string id, float x, float seconds)
-            => State.Move(id, x, seconds, Time.unscaledTime);
+        public static void StageProp(string id, string asset, float x, float y, string layer)
+            => State.SpawnProp(id, asset, x, y, layer, Time.unscaledTime);
+
+        public static void StagePropAt(string id, string asset, string anchor, float dx, float dy, string layer)
+            => State.SpawnPropAt(id, asset, anchor, dx, dy, layer, Time.unscaledTime);
+
+        public static void StageMove(string id, float x, float y, float seconds)
+            => State.Move(id, x, y, seconds, Time.unscaledTime);
+
+        public static void StagePath(string id, IReadOnlyList<StagePoint> points, float seconds, bool relative)
+            => State.Path(id, seconds, points, relative, Time.unscaledTime);
+
+        public static void StageEffect(string id, string effect, float dx, float dy)
+            => State.Effect(id, effect, dx, dy, Time.unscaledTime);
 
         public static void StageRemove(string id) => State.Remove(id);
 
         public static void StagePose(string id, string pose)
-            => State.Pose(id, pose, Time.unscaledTime, NeonPortraitLibrary.LoadPose);
+            => State.Pose(id, pose, Time.unscaledTime,
+                (asset, p) => p == StageState.BasePose ? NeonPortraitLibrary.Load(asset) : NeonPortraitLibrary.LoadPose(asset, p));
 
         public static void StageLight(string id, string light)
             => State.Light(id, light, Time.unscaledTime);
@@ -101,6 +116,7 @@ namespace SSNoir.IMGUI
             float negative = State.NegativeAmount(now);
             StageScreenPainter.PaintBackdrop(negative);
             DrawActors(speaker, negative, now);
+            DrawPropsAndEffects(now);
             if (line != null)
             {
                 int count = _currentLineCompletedInstantly ? content.Length : Mathf.Min(content.Length, VisibleCharacterCount());
@@ -198,7 +214,74 @@ namespace SSNoir.IMGUI
             if (actor.UsesStageX)
                 x = UIScale.VW * (0.5f + actor.CurrentStageX(now) / 20f) - width / 2f;
             float layerY = actor.StageLayer == "back" ? -20f : actor.StageLayer == "front" ? 16f : 0f;
-            return new Rect(x, portraitTop + layerY, width, height);
+            return new Rect(x, portraitTop + layerY - actor.CurrentStageY(now) * UIScale.VH / 20f, width, height);
+        }
+
+        private static Vector2 StagePixel(float x, float y)
+        {
+            float dialogueTop = UIScale.VH - Mathf.Min(230f, UIScale.VH * DialogueBoxDrawer.BoxHeightRatio)
+                - DialogueBoxDrawer.BoxBottomMargin;
+            return new Vector2(UIScale.VW * (0.5f + x / 20f), dialogueTop - UIScale.VH * (0.06f + y / 20f));
+        }
+
+        private static void DrawPropsAndEffects(float now)
+        {
+            var oldColor = GUI.color;
+            foreach (var prop in State.Props.OrderBy(p => p.Layer == "back" ? 0 : p.Layer == "front" ? 2 : 1))
+            {
+                var center = StagePixel(prop.X(now), prop.Y(now));
+                float height = UIScale.VH * 0.22f;
+                float width = height * prop.Texture.width / prop.Texture.height;
+                GUI.DrawTexture(new Rect(center.x - width / 2f, center.y - height / 2f, width, height), prop.Texture, ScaleMode.ScaleToFit, true);
+            }
+            foreach (var effect in State.Effects)
+            {
+                float progress = (now - effect.StartedAt) / SSNoir.IMGUI.Stage.StageEffect.Duration;
+                if (progress < 0f || progress >= 1f) continue;
+                var center = StagePixel(effect.X, effect.Y);
+                bool hit = effect.Name == "受击闪光";
+                var texture = hit
+                    ? _hitTexture ??= BuildBurstTexture(true)
+                    : _burstTexture ??= BuildBurstTexture(false);
+                float size = UIScale.VH * (0.13f + progress * 0.05f);
+                GUI.color = hit
+                    ? new Color(1f, 1f, 1f, 1f - progress)
+                    : new Color(1f, 0.9f, 0.72f, 1f - progress);
+                GUI.DrawTexture(new Rect(center.x - size / 2f, center.y - size / 2f, size, size), texture);
+            }
+            GUI.color = oldColor;
+        }
+
+        private static Texture2D BuildBurstTexture(bool hit)
+        {
+            const int side = 128;
+            var texture = new Texture2D(side, side, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp
+            };
+            var pixels = new Color[side * side];
+            for (int y = 0; y < side; y++)
+            for (int x = 0; x < side; x++)
+            {
+                float px = (x + 0.5f - side / 2f) / (side / 2f);
+                float py = (y + 0.5f - side / 2f) / (side / 2f);
+                float radius = Mathf.Sqrt(px * px + py * py);
+                float alpha = hit ? Mathf.Clamp01((0.22f - radius) / 0.14f) : 0f;
+                for (int ray = 0; ray < 8; ray++)
+                {
+                    float angle = ray * Mathf.PI / 4f;
+                    float along = px * Mathf.Cos(angle) + py * Mathf.Sin(angle);
+                    float across = Mathf.Abs(px * Mathf.Sin(angle) - py * Mathf.Cos(angle));
+                    if (along < 0.23f || along > 0.85f) continue;
+                    alpha = Mathf.Max(alpha, Mathf.Clamp01((0.035f - across) / 0.018f)
+                        * Mathf.Clamp01((0.85f - along) / 0.12f));
+                }
+                pixels[y * side + x] = new Color(1f, 1f, 1f, alpha);
+            }
+            texture.SetPixels(pixels);
+            texture.Apply(false, true);
+            return texture;
         }
 
         private static void DrawActors(string speaker, float negative, float now)

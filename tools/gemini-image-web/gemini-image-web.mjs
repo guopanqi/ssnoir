@@ -2,9 +2,11 @@
 
 import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
-import { copyFile, mkdir, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, open, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { basename, dirname, extname, resolve } from "node:path";
 import process from "node:process";
+import { spawn } from "node:child_process";
+import { createConnection, createServer } from "node:net";
 import { chromium } from "playwright";
 
 const REPO_ROOT = resolve(import.meta.dirname, "../..");
@@ -25,20 +27,21 @@ function usage() {
   gemini-image-web.mjs generate --prompt TEXT|--prompt-file FILE|- [--out PATH] [--session NAME] [--name NAME]
                                 [--reference FILE ...]
   gemini-image-web.mjs resume --manifest FILE [--out PATH]
+  gemini-image-web.mjs stop [--profile DIR]
 
-generate：新开一个 Images 对话，提交提示词（可带参考图），等生成完成后下载原图。
+generate：新开一个 Images 对话，提交提示词（可带参考图），等生成完成后保存图片。
   --out       把图另存到制作目录。扩展名由网页实际返回的格式决定（.png/.jpeg/.webp）：
               --out review/人形/03-faceted        → review/人形/03-faceted.png
               --out review/人形/03-faceted.png    → 同上；写错扩展名会被纠正，不报错
               --out review/人形/                  → review/人形/<name>.png
               给了 --out 就不用再给 --session/--name：session 取上一级目录名，name 取文件名。
-  --session   原图和 manifest 的目录：tmp/gemini-image-web/<session>/<name>/；没有 --out 时必填
+  --session   生成图和 manifest 的目录：tmp/gemini-image-web/<session>/<name>/；没有 --out 时必填
   --name      本次候选名，默认按时间戳；同名会覆盖
   --prompt-file -  从 stdin 读提示词
   --reference 参考图，可重复；首次使用需先在网页上同意“Creating content from images and files”；上传约需数秒，CLI 会等进度消失后再提交
 通用选项：--output-root DIR --profile DIR --headed --timeout-ms N（默认且最大 90000）
 成功时 stdout 前几行是摘要，最后一行是 manifest 路径；等待期间 stderr 每 30 秒打印一次心跳。
-同一 --profile 同时只能跑一个任务。`;
+同一 --profile 同时只能跑一个任务；连续 generate 自动复用后台 Chrome（空闲 10 分钟后退出）。`;
 }
 
 export function parseArgs(argv) {
@@ -147,15 +150,25 @@ function safeName(value, flag) {
 async function acquireProfileLock(profile) {
   await mkdir(profile, { recursive: true });
   const lockPath = resolve(profile, ".gemini-image-web.lock");
-  const previous = await readFile(lockPath, "utf8").catch(() => null);
-  if (previous) {
-    const pid = Number(previous.trim());
-    let alive = false;
-    try { process.kill(pid, 0); alive = true; } catch {}
-    if (alive) fail(`另一个 gemini-image-web 进程（pid ${pid}）正在使用同一浏览器 profile；请等它结束后再提交。`);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const file = await open(lockPath, "wx");
+      try { await file.writeFile(`${process.pid}\n`); } finally { await file.close(); }
+      return async () => { await unlink(lockPath).catch(() => {}); };
+    } catch (error) {
+      if (error.code !== "EEXIST") throw error;
+      const previous = await readFile(lockPath, "utf8").catch(() => null);
+      const pid = Number(previous?.trim());
+      if (!Number.isInteger(pid) || pid <= 0) {
+        if (attempt === 0) { await new Promise(resolvePromise => setTimeout(resolvePromise, 100)); continue; }
+        fail(`浏览器 profile 锁文件无效：${lockPath}`);
+      }
+      try { process.kill(pid, 0); fail(`另一个 gemini-image-web 进程（pid ${pid}）正在使用同一浏览器 profile；请等它结束后再提交。`); }
+      catch (processError) { if (processError.code !== "ESRCH") throw processError; }
+      await unlink(lockPath).catch(() => {});
+    }
   }
-  await writeFile(lockPath, `${process.pid}\n`);
-  return async () => { await unlink(lockPath).catch(() => {}); };
+  fail(`无法取得浏览器 profile 锁：${lockPath}`);
 }
 
 function formatElapsed(ms) {
@@ -359,11 +372,10 @@ async function waitForResult(page, timeoutMs, submittedAt) {
   fail(`等待生成完成超时（${timeoutMs} ms）。对话仍保留在网页历史中：${page.url()}`);
 }
 
-async function downloadImage(_page, image, outputDir) {
-  // 下载按钮在 Gemini 的部分账号实验中会打开并立即关闭一个 blob:null target，
-  // Playwright 因此拿到无法 saveAs 的 Download。页面 img 的 blob 本身就是已加载的
-  // 生成图字节；直接读取它，不截图、不重编码，也不依赖临时 target。
-  const result = await image.evaluate(async element => {
+async function downloadImage(page, image, outputDir) {
+  // 优先保存图片源字节：先尝试页面 fetch，再由 Playwright 请求绕过页面 CORS。
+  // 只有源字节不可读时才尝试 canvas 重编码或网页下载按钮。
+  let result = await image.evaluate(async element => {
     const width = element.naturalWidth;
     const height = element.naturalHeight;
     try {
@@ -377,16 +389,55 @@ async function downloadImage(_page, image, outputDir) {
         reader.readAsDataURL(blob);
       });
       return { data_url, mime_type: blob.type || "application/octet-stream", width, height, extraction: "source-blob" };
-    } catch {
-      // 某些 Gemini 实验把 img 指向 blob:null；图片能渲染，但该 URL 不能再 fetch。
-      // canvas 按 natural size 做无损 PNG 编码，保留完整像素而不是截取屏幕显示尺寸。
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      canvas.getContext("2d").drawImage(element, 0, 0);
-      return { data_url: canvas.toDataURL("image/png"), mime_type: "image/png", width, height, extraction: "canvas-png" };
+    } catch { return null; }
+  }).catch(() => null);
+  if (!result) {
+    const source = await image.evaluate(element => ({ src: element.currentSrc || element.src, width: element.naturalWidth, height: element.naturalHeight }));
+    if (/^https?:\/\//.test(source.src)) {
+      const response = await page.context().request.get(source.src).catch(() => null);
+      if (response?.ok()) {
+        const mime_type = response.headers()["content-type"]?.split(";")[0];
+        if (["image/png", "image/jpeg", "image/webp"].includes(mime_type)) {
+          result = {
+            data_url: `data:${mime_type};base64,${(await response.body()).toString("base64")}`,
+            mime_type, width: source.width, height: source.height, extraction: "browser-request",
+          };
+        }
+      }
     }
-  }).catch(error => fail(`读取页面中的生成图失败：${error.message}`));
+    if (!result) {
+      // 只在取不到源文件时才重编码；跨域图片会使 canvas 受污染，此时继续尝试下载按钮。
+      result = await image.evaluate(element => {
+        const canvas = document.createElement("canvas");
+        canvas.width = element.naturalWidth;
+        canvas.height = element.naturalHeight;
+        canvas.getContext("2d").drawImage(element, 0, 0);
+        return {
+          data_url: canvas.toDataURL("image/png"), mime_type: "image/png",
+          width: canvas.width, height: canvas.height, extraction: "canvas-png",
+        };
+      }).catch(() => null);
+    }
+    if (!result) {
+      const downloadButton = page.locator("button[aria-label*='Download'], button[aria-label*='download']").last();
+      if (await downloadButton.count()) {
+        const downloadPromise = page.waitForEvent("download", { timeout: 15_000 });
+        await downloadButton.click();
+        const download = await downloadPromise;
+        const name = download.suggestedFilename().toLowerCase();
+        const mime_type = name.endsWith(".png") ? "image/png" : name.endsWith(".webp") ? "image/webp" : /\.jpe?g$/.test(name) ? "image/jpeg" : null;
+        if (!mime_type) fail(`Gemini 下载了不支持的图片格式：${name}`);
+        const temporary = resolve(outputDir, `download${extname(name)}`);
+        await download.saveAs(temporary);
+        result = {
+          data_url: `data:${mime_type};base64,${(await readFile(temporary)).toString("base64")}`,
+          mime_type, width: source.width, height: source.height, extraction: "download-button",
+        };
+        await unlink(temporary);
+      }
+    }
+    if (!result) fail(`无法读取生成图（图片 URL：${source.src.slice(0, 160)}）。`);
+  }
   const extensions = { "image/jpeg": ".jpeg", "image/png": ".png", "image/webp": ".webp" };
   const extension = extensions[result.mime_type];
   if (!extension) fail(`Gemini 返回了不支持的图片格式：${result.mime_type}`);
@@ -404,7 +455,7 @@ async function downloadImage(_page, image, outputDir) {
   };
 }
 
-async function generate(options) {
+async function generate(options, sharedContext = null) {
   const outputDir = resolve(options.output_root, safeName(options.session, "--session"), safeName(options.name, "--name"));
   await mkdir(outputDir, { recursive: true });
   const manifestPath = resolve(outputDir, "manifest.json");
@@ -422,7 +473,7 @@ async function generate(options) {
   await writeFile(resolve(outputDir, "prompt.txt"), `${options.prompt}\n`);
   await atomicJson(manifestPath, manifest);
 
-  const context = await launch(options);
+  const context = sharedContext || await launch(options);
   let page;
   try {
     page = context.pages()[0] || await context.newPage();
@@ -464,7 +515,7 @@ async function generate(options) {
     await atomicJson(manifestPath, manifest);
     console.log([
       `[gemini-image-web] 完成：${manifest.out || result.path}`,
-      manifest.out ? `  原图：${result.path}` : null,
+      manifest.out ? `  生成图：${result.path}` : null,
       `  sha256=${result.sha256}`,
       `  对话：${manifest.conversation_url}`,
       `  耗时=${formatElapsed(Date.now() - submittedAt)}`,
@@ -482,11 +533,11 @@ async function generate(options) {
     await atomicJson(manifestPath, manifest);
     throw error;
   } finally {
-    await context.close();
+    if (!sharedContext) await context.close();
   }
 }
 
-async function resume(options) {
+async function resume(options, sharedContext = null) {
   const manifest = JSON.parse(await readFile(options.manifest, "utf8"));
   if (manifest.status === "completed") fail(`任务已经完成：${manifest.download?.path || options.manifest}`);
   if (!manifest.conversation_url) fail("manifest 没有 conversation_url，任务可能尚未成功提交，不能 resume。");
@@ -495,11 +546,14 @@ async function resume(options) {
     fail(`manifest 的 conversation_url 不是有效的 Gemini 会话地址：${manifest.conversation_url}`);
   }
   const outputDir = manifest.output_dir || dirname(options.manifest);
-  const context = await launch(options);
+  const context = sharedContext || await launch(options);
   let page;
   try {
-    page = context.pages()[0] || await context.newPage();
-    await page.goto(manifest.conversation_url, { waitUntil: "domcontentloaded" });
+    page = sharedContext && context.pages().find(candidate => candidate.url() === manifest.conversation_url);
+    if (!page) {
+      page = context.pages()[0] || await context.newPage();
+      await page.goto(manifest.conversation_url, { waitUntil: "domcontentloaded" });
+    }
     // Gemini 会先对不存在/未持久化的会话返回页面壳，数秒后才重定向到 /app。
     // 同时观察会话路径和用户回合，不能用固定 sleep 猜 SPA 的重定向时刻。
     const promptPrefix = manifest.prompt?.replaceAll(/\s+/g, " ").trim().slice(0, 80);
@@ -545,7 +599,7 @@ async function resume(options) {
     await atomicJson(options.manifest, manifest);
     throw error;
   } finally {
-    await context.close();
+    if (!sharedContext) await context.close();
   }
 }
 
@@ -564,11 +618,120 @@ async function doctor(options) {
 }
 
 async function login(options) {
-  const context = await chromium.launchPersistentContext(options.profile, { channel: "chrome", headless: false });
-  const page = context.pages()[0] || await context.newPage();
-  await page.goto(IMAGES_URL, { waitUntil: "domcontentloaded" });
-  console.log("浏览器已打开。完成登录后关闭浏览器窗口（Cmd+Q）；会话会保存在：", options.profile);
-  await new Promise(resolvePromise => context.on("close", resolvePromise));
+  const context = await launch({ ...options, headed: true });
+  try {
+    const page = context.pages()[0] || await context.newPage();
+    await page.goto(IMAGES_URL, { waitUntil: "domcontentloaded" });
+    console.log("浏览器已打开。完成登录后关闭浏览器窗口（Cmd+Q）；会话会保存在：", options.profile);
+    await new Promise(resolvePromise => context.on("close", resolvePromise));
+  } finally {
+    await context.close();
+  }
+}
+
+const IDLE_MS = 10 * 60 * 1000;
+const SOCKET_NAME = ".gemini-image-web.sock";
+
+function socketPath(profile) {
+  return resolve(profile, SOCKET_NAME);
+}
+
+function connectDaemon(options) {
+  return new Promise((resolvePromise, reject) => {
+    const socket = createConnection(socketPath(options.profile));
+    let response = "";
+    socket.once("connect", () => socket.write(`${JSON.stringify(options)}\n`));
+    socket.on("data", chunk => { response += chunk; });
+    socket.once("error", reject);
+    socket.once("end", () => {
+      try { resolvePromise(JSON.parse(response)); }
+      catch { reject(new Error("后台浏览器返回了无效响应。")); }
+    });
+  });
+}
+
+async function generateWithDaemon(options) {
+  let result;
+  try {
+    result = await connectDaemon(options);
+  } catch (error) {
+    if (error.code !== "ENOENT" && error.code !== "ECONNREFUSED") throw error;
+    const child = spawn(process.execPath, [import.meta.filename, "serve", "--profile", options.profile], {
+      detached: true, stdio: "ignore", cwd: REPO_ROOT,
+    });
+    child.unref();
+    const deadline = Date.now() + 45_000;
+    while (Date.now() < deadline) {
+      await new Promise(resolvePromise => setTimeout(resolvePromise, 300));
+      try { result = await connectDaemon(options); break; }
+      catch (retryError) {
+        if (retryError.code !== "ENOENT" && retryError.code !== "ECONNREFUSED") throw retryError;
+      }
+    }
+    if (!result) fail("后台 Chrome 未能在 45 秒内启动；运行 doctor --headed 检查登录和浏览器环境。");
+  }
+  for (const line of result.stdout || []) console.log(line);
+  for (const line of result.stderr || []) console.error(line);
+  if (!result.ok) fail(result.error || "后台生成失败。");
+}
+
+async function serve(options) {
+  const context = await launch(options);
+  const path = socketPath(options.profile);
+  await unlink(path).catch(error => { if (error.code !== "ENOENT") throw error; });
+  let queue = Promise.resolve();
+  let idleTimer;
+  const server = createServer(socket => {
+    let request = "";
+    socket.on("data", chunk => {
+      request += chunk;
+      if (!request.includes("\n")) return;
+      const message = request.slice(0, request.indexOf("\n"));
+      socket.removeAllListeners("data");
+      clearTimeout(idleTimer);
+      queue = queue.then(async () => {
+        const stdout = [];
+        const stderr = [];
+        const oldLog = console.log;
+        const oldError = console.error;
+        try {
+          const job = JSON.parse(message);
+          if (job.profile !== options.profile) fail("后台请求无效。");
+          if (job.command === "stop") {
+            socket.end(JSON.stringify({ ok: true, stdout: ["[gemini-image-web] 后台浏览器已停止。"] }));
+            server.close();
+            return;
+          }
+          if (job.command !== "generate" && job.command !== "resume") fail("后台请求无效。");
+          console.log = (...parts) => stdout.push(parts.join(" "));
+          console.error = (...parts) => stderr.push(parts.join(" "));
+          if (job.command === "resume") await resume(job, context);
+          else await generate(job, context);
+          socket.end(JSON.stringify({ ok: true, stdout, stderr }));
+        } catch (error) {
+          socket.end(JSON.stringify({ ok: false, error: error.message, stdout, stderr }));
+        } finally {
+          console.log = oldLog;
+          console.error = oldError;
+          if (server.listening) idleTimer = setTimeout(() => server.close(), IDLE_MS);
+        }
+      });
+    });
+  });
+  try {
+    await new Promise((resolvePromise, reject) => {
+      server.once("error", reject);
+      server.listen(path, () => {
+        server.removeListener("error", reject);
+        resolvePromise();
+      });
+    });
+    idleTimer = setTimeout(() => server.close(), IDLE_MS);
+    await new Promise(resolvePromise => server.on("close", resolvePromise));
+  } finally {
+    await unlink(path).catch(() => {});
+    await context.close();
+  }
 }
 
 export async function main(argv = process.argv.slice(2)) {
@@ -578,10 +741,31 @@ export async function main(argv = process.argv.slice(2)) {
     return;
   }
   const options = await validateOptions(parsed);
+  if (options.command === "serve") return serve(options);
+  if (options.command === "stop") {
+    const result = await connectDaemon(options).catch(error => {
+      if (error.code === "ENOENT" || error.code === "ECONNREFUSED") return { ok: true, stdout: ["[gemini-image-web] 后台浏览器未运行。"] };
+      throw error;
+    });
+    for (const line of result.stdout || []) console.log(line);
+    if (!result.ok) fail(result.error);
+    return;
+  }
   if (options.command === "login") return login(options);
   if (options.command === "doctor") return doctor(options);
-  if (options.command === "generate") return generate(options);
-  if (options.command === "resume") return resume(options);
+  if (options.command === "generate") return options.headed ? generate(options) : generateWithDaemon(options);
+  if (options.command === "resume") {
+    if (options.headed) return resume(options);
+    const result = await connectDaemon(options).catch(error => {
+      if (error.code === "ENOENT" || error.code === "ECONNREFUSED") return null;
+      throw error;
+    });
+    if (!result) return resume(options);
+    for (const line of result.stdout || []) console.log(line);
+    for (const line of result.stderr || []) console.error(line);
+    if (!result.ok) fail(result.error || "后台恢复失败。");
+    return;
+  }
   fail(`未知命令：${options.command}\n\n${usage()}`);
 }
 

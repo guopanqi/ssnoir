@@ -64,7 +64,7 @@
   (let ((gained (实际推进! clk amount)))
     (记贡献! issue route gained)
     (if (> stability-loss 0) (系统稳定 'advance! (- 0 stability-loss)) #f)
-    (检查成功!)))
+    (if (系统稳定 'empty?) (崩溃!) (检查成功!))))
 
 (define (异常动作 name subtitle skill clk issue route)
   (node name

@@ -36,7 +36,7 @@
 
 (define (node-mercy)
   (node "替他放过这一笔"
-    :subtitle "高风险；沃尔特的怀疑越深，越难把报告写圆"
+    :subtitle "高风险；沃尔特的怀疑填满后将接管调查"
     :tags (list "高风险")
     :requires (list (req-die))
     :resolve (roll 'sharpness
@@ -55,6 +55,10 @@
     (append (clock-nodes (evidence-clk 'render-data) (suspicion-clk 'render-data))
       (if (evidence-clk 'full?)
         (if (suspicion-clk 'full?)
-            (list (node-confirm))
-            (list (node-confirm) (node-mercy)))
+            (list
+              (note-node "标注：核赔事实" "核对所得" "伤势有伪装；索赔只够支付医药费。")
+              (node-confirm))
+            (list
+              (note-node "标注：核赔事实" "核对所得" "伤势有伪装；索赔只够支付医药费。")
+              (node-confirm) (node-mercy)))
         (list (node-inspect) (node-listen))))))

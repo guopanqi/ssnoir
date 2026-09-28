@@ -86,6 +86,11 @@ namespace SSNoir.Testing
                 "(play-stage! " +
                 "(stage-spawn \"尼尔\" \"尼尔\" -5 'middle) " +
                 "(stage-parallel (stage-move \"尼尔\" 0 0.3) (stage-sound \"测试\" 7)) " +
+                "(stage-prop-at \"证物\" \"测试牌\" \"尼尔\" 0 1 'front) " +
+                "(stage-path-relative \"证物\" 0.5 (list (stage-point 0 0) (stage-point 1 2) (stage-point 2 -1))) " +
+                "(stage-effect \"证物\" \"线条迸射\" 0 0) " +
+                "(stage-remove \"证物\") " +
+                "(stage-move \"尼尔\" 1 2 0.3) " +
                 "(stage-say \"尼尔\" \"测试\") " +
                 "(stage-say \"世界\" \"旁白不需要上台\") " +
                 "(stage-remove \"尼尔\"))");

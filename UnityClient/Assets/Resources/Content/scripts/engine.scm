@@ -517,14 +517,14 @@
 ;; 要投骰，但不掷骰：骰面完全不参与结算。所以这是全场唯一一处**烂骰子和好骰子等价**
 ;; 的地方，一颗 1 点骰投在这儿换回来的和 6 点一样多。手气差的那一轮，抽根烟不是浪费，
 ;; 是分诊。
-(define (随身动作 name item amount title effect)
+(define (随身动作 name item amount subtitle title effect)
   (node name
+    :subtitle subtitle
     ;; 它属于哪件物品。客户端据此把卡留在随身区，而不是排进场上的卡片区。
     :carry-item item
     :requires (list (req-item item 1) (req-die))
     :resolve (instant
       (outcome (lambda ()
-          (remove-item! item 1)
           (restore-actor-composure! 'player amount)
           (effect))))))
 
@@ -532,12 +532,12 @@
   (append
     ;; 交锋每回合自动流失 1，一根烟买回两个回合——这是它的单位。
     (if (has-item? "香烟" 1)
-        (list (随身动作 "抽烟" "香烟" 2 "抽了一口"
+        (list (随身动作 "抽烟" "香烟" 2 "恢复两点冷静" "抽了一口"
                 (lambda () #f)))
         '())
     ;; 酒回得多，代价推到明天：下一次城市骰池里有一格带宿醉。
     (if (has-item? "酒" 1)
-        (list (随身动作 "喝酒" "酒" 3 "灌了一口"
+        (list (随身动作 "喝酒" "酒" 3 "恢复三点冷静，明日宿醉" "灌了一口"
                 (lambda () (apply-hangover!))))
         '())))
 
@@ -1228,11 +1228,28 @@
 ;; 一场连续的立绘舞台演出。普通指令各占一拍；(stage-parallel ...) 同时启动，
 ;; 等最慢的移动/停顿结束。位置是 -10..10 的舞台横轴，画外可到 -30..30。
 ;; 声音只播音效，不生成对白框；stage-say 才等待玩家点击。
-(define (stage-spawn id asset x layer) (list (list 'spawn id asset x layer)))
-(define (stage-move id x seconds) (list (list 'move id x seconds)))
+(define (stage-spawn id asset x . rest)
+  (if (or (= (length rest) 1) (= (length rest) 2))
+      (list (if (= (length rest) 1)
+                (list 'spawn id asset x (car rest))
+                (list 'spawn id asset x (car rest) (cadr rest))))
+      (error "stage-spawn: expected x layer or x y layer")))
+(define (stage-prop id asset x y layer) (list (list 'prop id asset x y layer)))
+(define (stage-prop-at id asset anchor dx dy layer) (list (list 'prop-at id asset anchor dx dy layer)))
+(define (stage-move id x . rest)
+  (if (or (= (length rest) 1) (= (length rest) 2))
+      (list (if (= (length rest) 1)
+                (list 'move id x (car rest))
+                (list 'move id x (car rest) (cadr rest))))
+      (error "stage-move: expected x seconds or x y seconds")))
+(define (stage-point x y) (list x y))
+;; 轨迹点是 Bézier 控制点；首尾是起终点，中间点控制曲线，不要求等距。
+(define (stage-path id seconds points) (list (list 'path id seconds points)))
+(define (stage-path-relative id seconds points) (list (list 'path-relative id seconds points)))
 (define (stage-remove id) (list (list 'remove id)))
 (define (stage-pose id pose) (list (list 'pose id pose)))
 (define (stage-light id state) (list (list 'light id state)))
+(define (stage-effect id effect dx dy) (list (list 'effect id effect dx dy)))
 (define (stage-sound asset x) (list (list 'sound asset x)))
 (define (stage-say speaker text . voice)
   (list (list 'say (if (null? voice) (line speaker text) (line speaker text (car voice))))))

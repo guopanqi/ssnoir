@@ -57,6 +57,9 @@ namespace SSNoir
 
         private void Update()
         {
+            if (_audioSource != null)
+                _audioSource.volume = AudioVolumes.Dialogue;
+
             if (_activeNarration == null && string.IsNullOrEmpty(_fallbackSubtitle))
                 return;
 
@@ -83,6 +86,7 @@ namespace SSNoir
             {
                 _audioSource.Stop();
                 _audioSource.clip = clip;
+                _audioSource.volume = AudioVolumes.Dialogue;
                 _audioSource.Play();
             }
             else
@@ -102,6 +106,7 @@ namespace SSNoir
 
             _audioSource.Stop();
             _audioSource.clip = clip;
+            _audioSource.volume = AudioVolumes.Dialogue;
             _audioSource.Play();
         }
 

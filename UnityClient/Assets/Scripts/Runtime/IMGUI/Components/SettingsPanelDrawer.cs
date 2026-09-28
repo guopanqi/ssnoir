@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SSNoir.IMGUI
 {
     /// <summary>
-    /// 玩家设置面板：界面尺寸、镜头动画、教程提示、音量四项设置。
+    /// 玩家设置面板：界面尺寸、镜头动画、教程提示、背景音乐、音效、对白六项设置。
     /// 跟成长面板同一套「纸物件」形式：居中卡片 + 压暗背景，而不是挂在按钮下面的半透明下拉。
     /// </summary>
     public static class SettingsPanelDrawer
@@ -13,7 +13,7 @@ namespace SSNoir.IMGUI
 
         // ── 版面常量 ───────────────────────────────────────────────
         // 每一项设置只保留标题和控件。画布读数属于调试信息，不应该出现在玩家设置里；
-        // 其他说明也不参与选择，删掉后面板更紧凑，四项设置仍保持同一套流式布局。
+        // 其他说明也不参与选择，删掉后面板更紧凑，各项设置仍保持同一套流式布局。
         private const float HeaderH = IMGUIStyles.ModalContentTop;
         private const float BlockTitleH = 20f;
         private const float TitleToControl = 8f;
@@ -23,7 +23,7 @@ namespace SSNoir.IMGUI
         private static float ControlH => UIScale.TouchHeight(30f);
         private static float BlockH =>
             BlockTitleH + TitleToControl + ControlH;
-        private static float PanelH => HeaderH + BlockH * 4f + BlockGap * 3f + BottomPad;
+        private static float PanelH => HeaderH + BlockH * 6f + BlockGap * 5f + BottomPad;
 
         private static bool _isOpen = false;
 
@@ -100,18 +100,33 @@ namespace SSNoir.IMGUI
                 TutorialState.Enabled = pickedTutorial == 0;
             y += BlockH + BlockGap;
 
-            // ── 音量 ──
-            // 音乐音量四档，默认低。值走 MusicVolume，跟着存档，和 reduceMotion 同一套规矩。
-            int pickedVolume = DrawSetting(
+            // ── 背景音乐 / 音效 / 对白 ──
+            // 四档分段，值走 AudioVolumes，跟着存档，和 reduceMotion 同一套规矩。
+            // 默认：背景音乐低、音效低、对白关。
+            string[] volumeOptions = { "关", "低", "中", "高" };
+            int pickedMusic = DrawSetting(
                 new Rect(contentX, y, contentW, BlockH),
-                "音量",
-                new[] { "关", "低", "中", "高" }, MusicVolume.LevelIndex, ui);
-            if (pickedVolume >= 0)
-                MusicVolume.SetLevel(pickedVolume);
+                "背景音乐", volumeOptions, AudioVolumes.MusicLevelIndex, ui);
+            if (pickedMusic >= 0)
+                AudioVolumes.SetMusicLevel(pickedMusic);
+            y += BlockH + BlockGap;
+
+            int pickedSfx = DrawSetting(
+                new Rect(contentX, y, contentW, BlockH),
+                "音效", volumeOptions, AudioVolumes.SfxLevelIndex, ui);
+            if (pickedSfx >= 0)
+                AudioVolumes.SetSfxLevel(pickedSfx);
+            y += BlockH + BlockGap;
+
+            int pickedDialogue = DrawSetting(
+                new Rect(contentX, y, contentW, BlockH),
+                "对白", volumeOptions, AudioVolumes.DialogueLevelIndex, ui);
+            if (pickedDialogue >= 0)
+                AudioVolumes.SetDialogueLevel(pickedDialogue);
         }
 
         // 一项设置：标题 / 一排分段控件。返回被点中的段序号，没点中返回 -1。
-        // 四项设置共用它，所以它们在版面上长得一模一样。
+        // 各项设置共用它，所以它们在版面上长得一模一样。
         private static int DrawSetting(
             Rect rect, string title, string[] options, int selected,
             IMGUIInteractionContext ui)

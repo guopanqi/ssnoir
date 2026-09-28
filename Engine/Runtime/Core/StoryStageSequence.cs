@@ -4,16 +4,27 @@ using System.Collections.Generic;
 
 namespace SSNoir.Core
 {
-    public enum StoryStageCommandKind { Spawn, Move, Remove, Pose, Light, Sound, Say, Pause }
+    public enum StoryStageCommandKind { Spawn, Prop, PropAt, Move, Path, Remove, Pose, Light, Effect, Sound, Say, Pause }
+
+    public readonly struct StagePoint
+    {
+        public float X { get; }
+        public float Y { get; }
+        public StagePoint(float x, float y) { X = x; Y = y; }
+    }
 
     public sealed class StoryStageCommand
     {
         public StoryStageCommandKind Kind { get; init; }
         public string Id { get; init; } = string.Empty;
         public string Asset { get; init; } = string.Empty;
+        public string Anchor { get; init; } = string.Empty;
+        public bool Relative { get; init; }
         public string Layer { get; init; } = "middle";
         public float X { get; init; }
+        public float Y { get; init; }
         public float Seconds { get; init; }
+        public IReadOnlyList<StagePoint> Points { get; init; } = Array.Empty<StagePoint>();
         public DialogueLine? Line { get; init; }
     }
 

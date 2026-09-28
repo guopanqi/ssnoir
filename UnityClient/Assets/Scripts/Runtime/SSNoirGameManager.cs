@@ -30,6 +30,8 @@ namespace SSNoir
     {
         private const string ReduceMotionSettingKey = "reduceMotion";
         private const string MusicVolumeSettingKey = "musicVolume";
+        private const string SfxVolumeSettingKey = "sfxVolume";
+        private const string DialogueVolumeSettingKey = "dialogueVolume";
         private const string WorldRootNodeName = "世界";
         // Font files follow: <family>-Regular.ttf / <family>-SemiBold.ttf.
         private const string FontFamily = "SourceHanSerifCN";
@@ -1582,7 +1584,9 @@ namespace SSNoir
                 _sceneManager.Settings[ReduceMotionSettingKey] = MotionSettings.ReduceMotion;
                 // Settings 只认 string/int/long/double/bool（见 SaveManager.WritePrimitive），
                 // 音量存 double，读出来也一定是 double。
-                _sceneManager.Settings[MusicVolumeSettingKey] = (double)MusicVolume.Value;
+                _sceneManager.Settings[MusicVolumeSettingKey] = (double)AudioVolumes.Music;
+                _sceneManager.Settings[SfxVolumeSettingKey] = (double)AudioVolumes.Sfx;
+                _sceneManager.Settings[DialogueVolumeSettingKey] = (double)AudioVolumes.Dialogue;
                 _sceneManager.SaveGame(path);
                 _gameState.NotificationCenter.Push("游戏已存档。", NotificationKind.Success);
             }
@@ -1617,17 +1621,12 @@ namespace SSNoir
                 {
                     MotionSettings.ReduceMotion = true;
                 }
-                if (_sceneManager.Settings.TryGetValue(MusicVolumeSettingKey, out object savedVolume))
-                {
-                    if (savedVolume is not double volume)
-                        throw new System.IO.InvalidDataException(
-                            $"Save setting '{MusicVolumeSettingKey}' must be a number.");
-                    MusicVolume.Value = UnityEngine.Mathf.Clamp01((float)volume);
-                }
-                else
-                {
-                    MusicVolume.Value = MusicVolume.Default;
-                }
+                AudioVolumes.Music = ReadVolumeSetting(
+                    MusicVolumeSettingKey, AudioVolumes.MusicDefault);
+                AudioVolumes.Sfx = ReadVolumeSetting(
+                    SfxVolumeSettingKey, AudioVolumes.SfxDefault);
+                AudioVolumes.Dialogue = ReadVolumeSetting(
+                    DialogueVolumeSettingKey, AudioVolumes.DialogueDefault);
                 _stateTainted = false;
                 // OnSceneLoaded fires inside LoadGame → ResetSceneUiState → ResetUiState
                 _gameState.NotificationCenter.Push("游戏已读档。", NotificationKind.Success);
@@ -1645,8 +1644,18 @@ namespace SSNoir
             ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
             MotionSettings.ReduceMotion = true;
-            MusicVolume.Value = MusicVolume.Default;
+            AudioVolumes.ResetToDefaults();
             _stateTainted = false;
+        }
+
+        private float ReadVolumeSetting(string key, float fallback)
+        {
+            if (!_sceneManager.Settings.TryGetValue(key, out object saved))
+                return fallback;
+            if (saved is not double volume)
+                throw new System.IO.InvalidDataException(
+                    $"Save setting '{key}' must be a number.");
+            return UnityEngine.Mathf.Clamp01((float)volume);
         }
 
         private void MarkStateTainted(string operation, Exception exception)

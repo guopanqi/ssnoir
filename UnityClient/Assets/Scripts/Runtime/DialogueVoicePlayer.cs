@@ -28,8 +28,15 @@ namespace SSNoir
 
             _audioSource.Stop();
             _audioSource.clip = clip;
+            _audioSource.volume = AudioVolumes.Dialogue;
             _audioSource.Play();
             return clip.length;
+        }
+
+        private void Update()
+        {
+            if (_audioSource != null)
+                _audioSource.volume = AudioVolumes.Dialogue;
         }
 
         private void EnsureAudioSource()

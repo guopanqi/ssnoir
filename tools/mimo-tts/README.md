@@ -10,6 +10,8 @@
 
 全模式通用可选参数：`--direction "本句表演与情绪方向"`。
 
+**默认生成习惯（游戏资产）**：逐句一条 wav；把本场此前台词作为对话历史 + 本句短演出方向写入 `--direction` / 清单 `direction`（打包进 API 的 `user`，不会被念出）；`text` 只放干净台词。不要用整场连读 wav 当发布资产；空 direction 对短句尤其差；`(标签)` 可选而非默认。详见 [`skills/mimo-tts/SKILL.md`](../../skills/mimo-tts/SKILL.md)。
+
 工具不会修改 Scheme 内容，也不会把候选音频直接放进 Unity。
 
 ## 角色库与密钥

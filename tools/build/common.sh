@@ -96,14 +96,13 @@ ssnoir_cleanup_web_release_history() {
     while IFS= read -r -d '' candidate; do
         name="${candidate##*/}"
         case "$name" in
-            "$current_stamp"|"$current_stamp-offline"|"$current_stamp.build.log"|\
-            "SSNoir-WebDemo-$current_stamp.zip"|"SSNoir-ItchWeb-$current_stamp.zip")
+            "$current_stamp"|"$current_stamp.build.log"|"SSNoir-ItchWeb-$current_stamp.zip")
                 continue
                 ;;
         esac
 
-        if [[ "$name" =~ ^[0-9]{8}-[0-9]{6}(-offline|\.build\.log)?$ \
-            || "$name" =~ ^(SSNoir-WebDemo|SSNoir-ItchWeb)-[0-9]{8}-[0-9]{6}\.zip$ ]]; then
+        if [[ "$name" =~ ^[0-9]{8}-[0-9]{6}(\.build\.log)?$ \
+            || "$name" =~ ^SSNoir-ItchWeb-[0-9]{8}-[0-9]{6}\.zip$ ]]; then
             echo "[Build] 清理旧 Web Release: $candidate"
             ssnoir_remove_build_path "$candidate"
         fi

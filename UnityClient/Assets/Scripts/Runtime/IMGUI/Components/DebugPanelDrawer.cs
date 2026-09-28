@@ -81,6 +81,7 @@ namespace SSNoir.IMGUI
             new ChapterJump { Label = "舞台试演：她不取消", Code = "(three-letters 'debug-stage-refusal!)" },
             new ChapterJump { Label = "舞台试演：尾声", Code = "(three-letters 'debug-stage-closing!)" },
             new ChapterJump { Label = "准备：酒馆门前（再进酒馆）", Code = "(baines 'debug-arm-street!)" },
+            new ChapterJump { Label = "舞台试演：酒馆门前", Code = "(baines 'debug-play-street!)" },
         };
 
         private static void RunChapterJump(SSNoirGameManager gameManager, string code)

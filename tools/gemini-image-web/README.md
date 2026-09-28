@@ -1,6 +1,6 @@
 # Gemini Image Web CLI
 
-通过已登录的 `gemini.google.com/images` 网页生成参考图，并把原图、提示词、输入哈希和对话地址保存到本地。它是网页适配器，不依赖 Gemini API key。
+通过已登录的 `gemini.google.com/images` 网页生成参考图，并把生成图、提示词、输入哈希和对话地址保存到本地。它是网页适配器，不依赖 Gemini API key。`manifest.json` 的 `download.extraction` 记录提取方式；`canvas-png` 表示页面图片按原像素尺寸重新编码，其他提取方式优先保留网页提供的源文件字节。
 
 首次使用先登录：
 
@@ -36,7 +36,9 @@ node tools/gemini-image-web/gemini-image-web.mjs generate \
   --reference /absolute/path/to/style.jpg
 ```
 
-原图、`prompt.txt` 和 `manifest.json` 始终保留在 `tmp/gemini-image-web/<session>/<name>/`（`--out` 只是多存一份）。同一浏览器 profile 不能并发运行多个任务。上传参考图首次触发 Google 的内容确认时，用 `--headed` 运行并手动同意一次。
+生成图、`prompt.txt` 和 `manifest.json` 始终保留在 `tmp/gemini-image-web/<session>/<name>/`（`--out` 只是多存一份）。同一浏览器 profile 不能由两个进程同时打开。上传参考图首次触发 Google 的内容确认时，用 `--headed` 运行并手动同意一次。
+
+普通 `generate` 首次调用会在后台启动 Chrome，后续调用复用同一个 profile 和页面；任务顺序执行，后台进程空闲 10 分钟后自动退出。首次仍需支付浏览器启动时间，连续出图可省掉每张图的冷启动。运行 `node tools/gemini-image-web/gemini-image-web.mjs stop` 可立即关闭后台浏览器。`--headed` 和 `doctor` 仍单次启动浏览器；运行它们之前先 `stop`，避免争用同一 profile。
 
 生成已经在 Gemini 历史中持久化、但下载或本地保存阶段中断时，可以恢复对应对话：
 
@@ -44,6 +46,8 @@ node tools/gemini-image-web/gemini-image-web.mjs generate \
 node tools/gemini-image-web/gemini-image-web.mjs resume \
   --manifest tmp/gemini-image-web/电影院/正门-a/manifest.json
 ```
+
+后台浏览器仍在运行时，`resume` 优先使用尚未关闭的原会话页面；下载失败后应先恢复，再提交下一张图或运行 `stop`。后台浏览器已退出时才重新打开会话；Gemini 不一定会持久化刚生成的临时会话，因此这种恢复不能保证成功。
 
 图片由 Images 页面当前提供的 Nano Banana 2 生成。CLI 不选择输入框旁的 Flash/Pro：那是 Gemini 对话模型，不是图片模型。网页改版或登录失效时先运行 `doctor --headed`，失败目录中的 manifest 会保留错误和截图路径。
 

@@ -255,36 +255,100 @@
               (result-supplement! "贝恩斯记得街上的每个人"))))))
 
     ;; ── 街面初见：酒馆门前 ───────────────────────────
-    ;; 一次性入场。贝恩斯不查清谁先动手，就凭街面经验制住要掏家伙的人。
-    ;; 他防住了下一下，却没有回答两人最初为何打起来；私人号码留到离场才说。
+    ;; 赌场门前的冲突已打到街上。开场是舞台表达：两人正在打，
+    ;; 画外一声「打，继续打」（stage-sound，无对白框）；两人停住分开，
+    ;; 贝恩斯才入画；两人齐声「警长」（仍走 StageSounds）。之后认出乙，
+    ;; 只踢一脚，藏牌从袖口飞出。尼尔站在画外看，不插话。
     (define (play-street!)
       (play-stage!
         (stage-parallel
-          (stage-spawn "酒客" "酒客甲_瘫坐" 4 'middle)
-          (stage-spawn "另一酒客" "酒客乙_半躺" 8 'back)
-          (stage-spawn "酒保" "黑影" -8 'middle)
-          (stage-spawn "贝恩斯" "贝恩斯" -15 'front)
-          (stage-pause 0.6))
-        (stage-say "酒客" "他拿了我的工钱！你让他把钱拿出来！")
-        (stage-say "另一酒客" "我没碰你的钱。酒保看见了！")
-        (stage-say "酒保" "我只看见他们砸了我的杯子。")
-        (stage-move "贝恩斯" 0 0.75)
-        (stage-say "贝恩斯" "还有谁知道？")
-        (stage-say "酒保" "只给你打了电话。")
-        (stage-say "酒客" "警官，你听我说，是他先——")
+          (stage-spawn "赌徒甲" "路人男" -2.2 0 'middle)
+          (stage-spawn "瘦子" "路人男2" 2.2 0 'middle)
+          (stage-spawn "酒保" "酒保" -8 0 'back)
+          (stage-spawn "贝恩斯" "贝恩斯" -14 0 'front)
+          (stage-sound "老街酒馆/杂声" 0)
+          (stage-pause 0.2))
+        ;; 身位突然挤到一起，又弹开；观众看到冲突，不必数清每一拳。
         (stage-parallel
-          (stage-move "贝恩斯" 3 0.18)
-          (stage-sound "老街酒馆/按住了" 4))
-        (stage-say "世界" "话没说完，贝恩斯一拳打在他脸上。")
-        (stage-say "酒客" "你疯了？我才是来讨钱的！")
-        (stage-say "世界" "他袖口里掉出一只铜指虎。")
-        (stage-say "贝恩斯" "上回砸酒馆，你也说自己是来讨钱的。")
-        (stage-say "另一酒客" "那我的事呢？他刚才说我偷了钱。")
-        (stage-say "贝恩斯" "我没说你没偷。把杯子的钱留下，走。")
-        (stage-say "世界" "贝恩斯把铜指虎揣进口袋，推着挨打的人往街上走。")
-        (stage-move "贝恩斯" -5 0.7)
-        (stage-say "贝恩斯" "酒保，下回还打我那个号码。总机派人来得慢。")
-        (stage-pause 0.5)))
+          (stage-move "赌徒甲" -0.7 0 0.22)
+          (stage-move "瘦子" 0.8 0 0.22)
+          (stage-sound "老街酒馆/拳风" -1))
+        (stage-parallel
+          (stage-effect "瘦子" "线条迸射" -0.9 2.9)
+          (stage-move "赌徒甲" -2.3 0 0.17)
+          (stage-move "瘦子" 2.4 0 0.17)
+          (stage-sound "老街酒馆/拳击" 0))
+        ;; 画外令：SFX 通道，无对白框；pause 盖住 clip 时长（sound 本身不延长拍）。
+        (stage-parallel
+          (stage-sound "老街酒馆/打继续打" -12)
+          (stage-pause 2.9))
+        ;; 两人停住、分开。
+        (stage-parallel
+          (stage-move "赌徒甲" -3.4 0 0.4)
+          (stage-move "瘦子" 3.4 0 0.4))
+        (stage-pause 0.2)
+        ;; 贝恩斯这才入画。
+        (stage-parallel
+          (stage-pose "贝恩斯" "立定")
+          (stage-move "贝恩斯" -4.5 0 0.9)
+          (stage-sound "老街酒馆/脚步" -7))
+        ;; 齐声「警长」：左右各一条 StageSound，仍无对白框。
+        (stage-parallel
+          (stage-sound "老街酒馆/警长甲" -3)
+          (stage-sound "老街酒馆/警长乙" 3)
+          (stage-pause 2.6))
+        (stage-say "贝恩斯" "又是你。")
+        (stage-parallel
+          (stage-move "赌徒甲" -14 0 0.3)
+          (stage-move "贝恩斯" 0 0 0.25))
+        (stage-remove "赌徒甲")
+        ;; 抬脚逼近，碰到人后两人各退半步；藏牌从袖口飞出。
+        (stage-parallel
+          (stage-pose "贝恩斯" "低踢")
+          (stage-move "贝恩斯" 0.65 0 0.18)
+          (stage-sound "老街酒馆/拳风" 1)
+          (stage-pause 0.18))
+        (stage-parallel
+          (stage-effect "瘦子" "受击闪光" -0.7 3.1)
+          (stage-move "瘦子" 4.2 0 0.16)
+          (stage-sound "老街酒馆/闷踢" 4))
+        (stage-parallel
+          (stage-pose "贝恩斯" "立定")
+          (stage-move "贝恩斯" 0 0 0.22)
+          (stage-move "瘦子" 3.1 0 0.22))
+        (stage-prop-at "藏牌" "藏牌A" "瘦子" -0.5 4.7 'front)
+        (stage-path-relative "藏牌" 0.85
+          (list (stage-point 0 0) (stage-point 0.3 3.2)
+                (stage-point 0.9 1.9) (stage-point 1.5 -6.9)))
+        (stage-parallel
+          (stage-effect "藏牌" "线条迸射" 0 0)
+          (stage-sound "老街酒馆/纸牌落地" 8)
+          (stage-sound "老街酒馆/人群哗" 4))
+        (stage-pause 0.45)
+        (stage-say "瘦子" "警官！他先动的手！")
+        (stage-move "贝恩斯" 0.8 0 0.25)
+        (stage-say "贝恩斯" "第几回了？")
+        (stage-say "瘦子" "我没——")
+        (stage-say "贝恩斯" "袖里那张A，是谁的？")
+        ;; 证物抄起，观众已经看见牌面；这句不必加解释性旁白。
+        (stage-parallel
+          (stage-path-relative "藏牌" 0.32
+            (list (stage-point 0 0) (stage-point -0.5 3)
+                  (stage-point -1.6 7.5) (stage-point -2.5 9.2)))
+          (stage-sound "老街酒馆/轻推衣料" 6))
+        (stage-remove "藏牌")
+        (stage-move "贝恩斯" -4.5 0 0.65)
+        (stage-say "贝恩斯" "谁打的电话？")
+        (stage-say "酒保" "我。照您说的，拨您那号。")
+        (stage-say "贝恩斯" "下回还打那个号码。")
+        (stage-move "贝恩斯" 0.8 0 0.65)
+        (stage-say "贝恩斯" "上车。")
+        (stage-parallel
+          (stage-move "贝恩斯" 20 0 1.4)
+          (stage-move "瘦子" 20 0 1.4))
+        (stage-parallel
+          (stage-remove "贝恩斯")
+          (stage-remove "瘦子"))))
 
     (define (street-due?)
       (and (not street-seen?)
@@ -396,6 +460,7 @@
            ((equal? msg 'dossier) (dossier-entry))
            ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
            ((equal? msg 'debug-arm-street!) (debug-arm-street!))
+           ((equal? msg 'debug-play-street!) (play-street!))
            ((equal? msg 'note-dock-seen!) (note-dock-seen!))
            ((equal? msg 'street-seen?) street-seen?)
            ((equal? msg 'dock-seen?) dock-seen?)

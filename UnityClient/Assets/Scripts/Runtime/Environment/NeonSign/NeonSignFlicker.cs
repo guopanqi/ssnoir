@@ -337,7 +337,7 @@ public sealed class NeonSignFlicker : MonoBehaviour
             if (clip != null)
             {
                 buzzSource.pitch = Random.Range(0.88f, 1.14f);
-                buzzSource.PlayOneShot(clip, Mathf.Clamp01(energy));
+                buzzSource.PlayOneShot(clip, Mathf.Clamp01(energy) * SSNoir.AudioVolumes.Sfx);
             }
         }
     }

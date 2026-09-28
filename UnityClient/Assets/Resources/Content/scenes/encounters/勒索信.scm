@@ -181,7 +181,9 @@
 ;; 好的那一档一颗骰子就够得出结论，所以"点数高的骰子放这儿"是有意义的。
 (define (way c name skill subtitle bad mid good)
   ;; 六种手段的短名在本场全局唯一；不再把目标姓名拼进卡片标题，避免动作卡标题截断。
+  ;; :anchor 与候选人同锚——展开后手法卡仍钉在这个人身上，不漂到 UI 网格。
   (node name
+    :anchor (cand-zone c)
     :subtitle (investigation-subtitle c subtitle)
     :requires (list (req-die))
     :resolve (roll skill
@@ -223,13 +225,24 @@
 ;; 不花骰子，一次填满他的辨认钟，再走和其他手段相同的结论流程。
 (define (node-recognize-postman c)
   (node "认出老邮差"
+    :anchor (cand-zone c)
     :subtitle "沿街的人都认得他"
     :tags (list "不花骰子")
     :resolve (instant
       (outcome (lambda () (look+ c look-target))))))
 
+;; 候选人一人一锚（钉在场上对应人形）；父节点与手法/认出卡共用该人锚，
+;; 展开即「点这个人 → 两手动作挂在他身上」。根容器仍在报摊（尼尔蹲守位）。
+(define (cand-zone c)
+  (cond
+    ((equal? (cand-name c) "背邮袋的老头") "勒索信-街沿")
+    ((equal? (cand-name c) "穿制服的年轻人") "勒索信")
+    ((equal? (cand-name c) "门口抽烟的人") "勒索信-货栈门口")
+    (else (error "勒索信：未知的蹲守对象"))))
+
 (define (node-candidate c)
   (node (cand-name c)
+    :anchor (cand-zone c)
     :subtitle (cand-desc c)
     :children (append
       (list (clock-node (string-append "调查进度：" (cand-name c))
@@ -254,7 +267,15 @@
 (define (enter-segment! n)
   (if (or (< n 0) (> n 2))
       (error "勒索信：追逐街景越界")
-      (set! seg n)))
+      (begin
+        (set! seg n)
+        ;; 根节点名 = Camera_勒索信-<段>；spotlight 宣告段名，镜头随根切换。
+        (spotlight! (seg-name n)
+          (cond
+            ((= n 0) "追上他！在他逃走之前")
+            ((= n 1) "货栈区——贴着货堆还能包抄")
+            ((= n 2) "邮局后街——这是最后一段")
+            (else ""))))))
 
 (define (begin-chase!)
   (play-video! "勒索信-追上他")
@@ -262,8 +283,6 @@
   ;; 从调查动作切进追逐时，刚花掉最后一颗骰。这里换一手，不把它误算成
   ;; 一次追逐回合：人不额外拉开、冷静不额外扣。
   (refresh-encounter-dice!)
-  (spotlight! "巷口"
-    "追上他！在他逃走之前")
   (enter-segment! 0))
 
 ;; ── 追击动作：每段两条路，快的伤身、稳的慢 ──────────
@@ -276,6 +295,7 @@
   (cond
     ((= seg 0)
      (node "翻过那辆推车"
+       :anchor (act2-zone)
        :subtitle "冒进。够到了他，手没停住"
        :requires (list (req-die))
        :resolve (roll 'violence
@@ -284,6 +304,7 @@
          (outcome (lambda () (catch+ 2))))))
     ((= seg 1)
      (node "跟进那条黑巷"
+       :anchor (act2-zone)
        :subtitle "看不见路，但这是最短的一条"
        :tags (list "高风险")
        :requires (list (req-die))
@@ -293,6 +314,7 @@
          (outcome (lambda () (catch+ 2))))))
     ((= seg 2)
      (node "扑上去"
+       :anchor (act2-zone)
        :subtitle "扑得着人，也可能只扑着一件外套"
        :tags (list "高风险")
        :requires (list (req-die))
@@ -306,6 +328,7 @@
   (cond
     ((= seg 0)
      (node "绕过去"
+       :anchor (act2-zone)
        :subtitle "慢，但不掉东西"
        :tags (list "低风险")
        :requires (list (req-die))
@@ -315,6 +338,7 @@
          (outcome (lambda () (catch+ 2))))))
     ((= seg 1)
      (node "贴着货堆推进"
+       :anchor (act2-zone)
        :subtitle "推开一条道，不快也不丢东西"
        :tags (list "低风险")
        :requires (list (req-die))
@@ -324,6 +348,7 @@
          (outcome (lambda () (catch+ 2))))))
     ((= seg 2)
      (node "喊住他"
+       :anchor (act2-zone)
        :subtitle "整条街都会记得今晚是谁在这儿喊"
        :tags (list "低风险")
        :requires (list (req-die))
@@ -338,6 +363,7 @@
 ;; 它一手抵得上一整段街景——这就是那两天蹲出来的东西。
 (define (node-side-door)
   (node "从货栈边门包抄"
+    :anchor (act2-zone)
     :subtitle "只有摸熟这一片的人才知道这扇门"
     :tags (list "高风险")
     :requires (list (req-die))
@@ -368,6 +394,7 @@
 
 (define (node-money-drop)
   (node "那叠散钞"
+    :anchor (act2-zone)
     :tags (list "机会" "低风险")
     :requires (list (req-die))
     :resolve (roll 'sharpness
@@ -443,12 +470,21 @@
 ;; 渲染
 ;; ============================================================
 
+;; Act2 三段街景 → Stage「巷子」分区锚点（字面量，publish 静态扫描也能对上）。
+(define (act2-zone)
+  (cond
+    ((= seg 0) "勒索信-巷口")
+    ((= seg 1) "勒索信-货栈区")
+    ((= seg 2) "勒索信-邮局后街")
+    (else (error "勒索信：未知街景锚点"))))
+
 (define (get-render-data)
   (if (= act 1)
       (node "勒索信-报摊"
         :anchor "勒索信-报摊"
         :children (act1-nodes))
-      (node (string-append "勒索信-" (seg-name seg))
-        :anchor (string-append "勒索信-" (seg-name seg))   ; 三段各自的锚点都在 Stage「巷子」里
-        :children (append (apply clock-nodes (act2-clocks))
-                    (act2-nodes)))))
+      (let ((zone (act2-zone)))
+        (node zone
+          :anchor zone
+          :children (append (apply clock-nodes (act2-clocks))
+                      (act2-nodes))))))

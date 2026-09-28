@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "module": "贝恩斯",
+  "location": "老街酒馆",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/人物/贝恩斯.scm",
+  "cues": [
+    {
+      "id": "贝恩斯/酒馆门前/初见/01/赌徒甲",
+      "speaker": "赌徒甲",
+      "text": "把钱放下！",
+      "sourcePath": "贝恩斯.scm/初见/01",
+      "style": "四十多岁的美国赌徒，输了钱正在气头上，嗓门大，话说得又急又冲。",
+      "note": "开场对打喊话已从 stage-say 拿掉；齐声「警长」走 StageSounds/老街酒馆/警长甲|乙"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/02/瘦子",
+      "speaker": "瘦子",
+      "text": "你先撒手！",
+      "sourcePath": "贝恩斯.scm/初见/02",
+      "style": "三十多岁的美国老千，被人拆穿时虚张声势，语速快，尾音发飘。",
+      "note": "开场对打喊话已从 stage-say 拿掉；齐声「警长」走 StageSounds/老街酒馆/警长甲|乙"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/03/贝恩斯",
+      "speaker": "贝恩斯",
+      "text": "打，继续打。",
+      "sourcePath": "贝恩斯.scm/初见/03",
+      "note": "开场画外令：现走 StageSounds/老街酒馆/打继续打（非 Voices / 非 stage-say）"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/04/贝恩斯",
+      "speaker": "贝恩斯",
+      "text": "又是你。",
+      "sourcePath": "贝恩斯.scm/初见/04"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/05/瘦子",
+      "speaker": "瘦子",
+      "text": "警官！他先动的手！",
+      "sourcePath": "贝恩斯.scm/初见/05",
+      "style": "三十多岁的美国老千，被人拆穿时虚张声势，语速快，尾音发飘。"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/06/贝恩斯",
+      "speaker": "贝恩斯",
+      "text": "第几回了？",
+      "sourcePath": "贝恩斯.scm/初见/06"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/07/瘦子",
+      "speaker": "瘦子",
+      "text": "我没——",
+      "sourcePath": "贝恩斯.scm/初见/07",
+      "style": "三十多岁的美国老千，被人拆穿时虚张声势，语速快，尾音发飘。"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/08/贝恩斯",
+      "speaker": "贝恩斯",
+      "text": "袖里那张A，是谁的？",
+      "sourcePath": "贝恩斯.scm/初见/08"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/09/贝恩斯",
+      "speaker": "贝恩斯",
+      "text": "谁打的电话？",
+      "sourcePath": "贝恩斯.scm/初见/09"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/10/酒保",
+      "speaker": "酒保",
+      "text": "我。照您说的，拨您那号。",
+      "sourcePath": "贝恩斯.scm/初见/10",
+      "style": "五十多岁的美国酒保，见惯场面，对警察毕恭毕敬，语气压得低而稳。"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/11/贝恩斯",
+      "speaker": "贝恩斯",
+      "text": "上车。",
+      "sourcePath": "贝恩斯.scm/初见/11"
+    },
+    {
+      "id": "贝恩斯/酒馆门前/初见/12/贝恩斯",
+      "speaker": "贝恩斯",
+      "text": "下回还打那个号码。",
+      "sourcePath": "贝恩斯.scm/初见/12"
+    }
+  ],
+  "voiceBound": false,
+  "note": "play-street! 开场（打继续打 / 齐声警长）走 Resources/StageSounds，无对白框、不绑 DialogueVoice。其后场上对白仍可用 stage-say；暂不强制绑 VoiceId（宁缺勿滥）。旧 01/02/03 清单 ID 仅作历史坐标。"
+}

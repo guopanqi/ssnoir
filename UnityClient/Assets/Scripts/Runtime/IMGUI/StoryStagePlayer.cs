@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using SSNoir.Core;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace SSNoir.IMGUI
     {
         private readonly DialogueVoicePlayer _voice;
         private readonly AudioSource _sound;
+        private readonly List<AudioSource> _soundChannels = new();
         private StoryStageSequence? _sequence;
         private Action? _done;
         private int _index;
@@ -23,6 +25,7 @@ namespace SSNoir.IMGUI
             _sound = sound;
             _sound.playOnAwake = false;
             _sound.spatialBlend = 0f;
+            _soundChannels.Add(_sound);
         }
 
         public bool IsActive => _sequence != null;
@@ -48,6 +51,8 @@ namespace SSNoir.IMGUI
 
         public void Update()
         {
+            foreach (var channel in _soundChannels)
+                channel.volume = AudioVolumes.Sfx;
             if (_sequence != null && !_waitingForSay && Time.unscaledTime >= _beatEndsAt)
                 AdvanceBeat();
         }
@@ -69,7 +74,7 @@ namespace SSNoir.IMGUI
         {
             _sequence = null;
             _done = null;
-            _sound.Stop();
+            foreach (var channel in _soundChannels) channel.Stop();
             StoryStageDrawer.EndConversation();
         }
 
@@ -97,10 +102,20 @@ namespace SSNoir.IMGUI
                 switch (command.Kind)
                 {
                     case StoryStageCommandKind.Spawn:
-                        StoryStageDrawer.StageSpawn(command.Id, command.Asset, command.X, command.Layer);
+                        StoryStageDrawer.StageSpawn(command.Id, command.Asset, command.X, command.Y, command.Layer);
+                        break;
+                    case StoryStageCommandKind.Prop:
+                        StoryStageDrawer.StageProp(command.Id, command.Asset, command.X, command.Y, command.Layer);
+                        break;
+                    case StoryStageCommandKind.PropAt:
+                        StoryStageDrawer.StagePropAt(command.Id, command.Asset, command.Anchor, command.X, command.Y, command.Layer);
                         break;
                     case StoryStageCommandKind.Move:
-                        StoryStageDrawer.StageMove(command.Id, command.X, command.Seconds);
+                        StoryStageDrawer.StageMove(command.Id, command.X, command.Y, command.Seconds);
+                        longest = Mathf.Max(longest, command.Seconds);
+                        break;
+                    case StoryStageCommandKind.Path:
+                        StoryStageDrawer.StagePath(command.Id, command.Points, command.Seconds, command.Relative);
                         longest = Mathf.Max(longest, command.Seconds);
                         break;
                     case StoryStageCommandKind.Remove:
@@ -112,11 +127,13 @@ namespace SSNoir.IMGUI
                     case StoryStageCommandKind.Light:
                         StoryStageDrawer.StageLight(command.Id, command.Asset);
                         break;
+                    case StoryStageCommandKind.Effect:
+                        StoryStageDrawer.StageEffect(command.Id, command.Asset, command.X, command.Y);
+                        break;
                     case StoryStageCommandKind.Sound:
                         var clip = Resources.Load<AudioClip>("StageSounds/" + command.Asset)
                             ?? throw new InvalidOperationException("stage sound missing: " + command.Asset);
-                        _sound.panStereo = Mathf.Clamp(command.X / 10f, -1f, 1f);
-                        _sound.PlayOneShot(clip);
+                        PlaySound(clip, command.X);
                         break;
                     case StoryStageCommandKind.Say:
                         if (command.Line == null) throw new InvalidOperationException("stage say missing line");
@@ -130,6 +147,24 @@ namespace SSNoir.IMGUI
                 }
             }
             _beatEndsAt = Time.unscaledTime + longest;
+        }
+
+        private void PlaySound(AudioClip clip, float x)
+        {
+            AudioSource? channel = null;
+            foreach (var candidate in _soundChannels)
+                if (!candidate.isPlaying) { channel = candidate; break; }
+            if (channel == null)
+            {
+                channel = _sound.gameObject.AddComponent<AudioSource>();
+                channel.playOnAwake = false;
+                channel.spatialBlend = 0f;
+                _soundChannels.Add(channel);
+            }
+            channel.panStereo = Mathf.Clamp(x / 10f, -1f, 1f);
+            channel.volume = AudioVolumes.Sfx;
+            channel.clip = clip;
+            channel.Play();
         }
     }
 }

@@ -7,8 +7,6 @@ source "$SCRIPT_DIR/../common.sh"
 ssnoir_build_init "web-release"
 SOURCE_PROJECT="$SSNOIR_SOURCE_PROJECT"
 OUTPUT_ROOT="$SOURCE_PROJECT/Build/WebRelease"
-OFFLINE_SERVER_SOURCE="$SCRIPT_DIR/offline-server/main.go"
-OFFLINE_LAUNCHER_DIRECTORY="$SCRIPT_DIR/offline-launcher"
 ITCH_TARGET="${ITCH_TARGET:-guopanqi/noir:web}"
 PUBLISH_TO_ITCH=false
 REVIEW_NO_VIDEO=false
@@ -18,7 +16,7 @@ usage() {
 用法: $0 [--itch] [--review-no-video]
 
   --itch  构建完成后上传到 itch.io（默认渠道: ${ITCH_TARGET}）
-  --review-no-video  即使场景引用视频也不放入评审包
+  --review-no-video  即使场景引用视频也不放入 Web Release
 
 可通过 ITCH_TARGET=user/game:channel 覆盖默认 itch 目标。
 EOF
@@ -62,26 +60,9 @@ ssnoir_generate_font_subset "WebRelease"
 ssnoir_require_unity
 VIDEO_MODE="local"
 [[ "$REVIEW_NO_VIDEO" == false ]] || VIDEO_MODE="none"
-[[ -f "$OFFLINE_SERVER_SOURCE" ]] || {
-    echo "找不到离线启动服务源码: $OFFLINE_SERVER_SOURCE" >&2
-    exit 2
-}
-for launcher_file in "START-Mac.command" "START-Windows.bat" "README.txt"; do
-    [[ -f "$OFFLINE_LAUNCHER_DIRECTORY/$launcher_file" ]] || {
-        echo "找不到离线启动器模板: $OFFLINE_LAUNCHER_DIRECTORY/$launcher_file" >&2
-        exit 2
-    }
-done
-command -v go >/dev/null 2>&1 || {
-    echo "找不到 Go。离线评审包需要 Go 编译内置本地服务器。" >&2
-    exit 2
-}
-
 BUILD_STAMP="$(date '+%Y%m%d-%H%M%S')"
 OUTPUT_DIR="$OUTPUT_ROOT/$BUILD_STAMP"
 LOG_PATH="$OUTPUT_ROOT/$BUILD_STAMP.build.log"
-OFFLINE_BUNDLE="$OUTPUT_ROOT/$BUILD_STAMP-offline/SSNoir-WebDemo"
-ARCHIVE_PATH="$OUTPUT_ROOT/SSNoir-WebDemo-$BUILD_STAMP.zip"
 ITCH_ARCHIVE_PATH="$OUTPUT_ROOT/SSNoir-ItchWeb-$BUILD_STAMP.zip"
 mkdir -p "$OUTPUT_DIR"
 
@@ -111,25 +92,6 @@ fi
 }
 remove_macos_metadata "$OUTPUT_DIR"
 
-echo "[WebRelease] 打包无需额外运行时的离线评审版..."
-mkdir -p "$OFFLINE_BUNDLE/game"
-rsync -a "$OUTPUT_DIR/" "$OFFLINE_BUNDLE/game/"
-cp "$OFFLINE_LAUNCHER_DIRECTORY/START-Mac.command" "$OFFLINE_BUNDLE/"
-cp "$OFFLINE_LAUNCHER_DIRECTORY/START-Windows.bat" "$OFFLINE_BUNDLE/"
-cp "$OFFLINE_LAUNCHER_DIRECTORY/README.txt" "$OFFLINE_BUNDLE/"
-chmod +x "$OFFLINE_BUNDLE/START-Mac.command"
-CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o "$OFFLINE_BUNDLE/game/SSNoirDemoServer-mac-arm64" "$OFFLINE_SERVER_SOURCE"
-CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o "$OFFLINE_BUNDLE/game/SSNoirDemoServer-mac-x64" "$OFFLINE_SERVER_SOURCE"
-CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o "$OFFLINE_BUNDLE/game/SSNoirDemoServer-win-x64.exe" "$OFFLINE_SERVER_SOURCE"
-
-rm -f "$ARCHIVE_PATH"
-(
-    cd "$(dirname "$OFFLINE_BUNDLE")"
-    zip -q -r "$ARCHIVE_PATH" "$(basename "$OFFLINE_BUNDLE")" \
-        -x '*/.DS_Store' '*/._*'
-)
-unzip -tq "$ARCHIVE_PATH" >/dev/null
-
 rm -f "$ITCH_ARCHIVE_PATH"
 (
     cd "$OUTPUT_DIR"
@@ -147,7 +109,6 @@ grep -qx 'index.html' <<<"$ITCH_ARCHIVE_ENTRIES" || {
 ssnoir_cleanup_web_release_history "$OUTPUT_ROOT" "$BUILD_STAMP"
 
 echo "[WebRelease] 构建完成: $OUTPUT_DIR"
-echo "[WebRelease] 离线评审包: $ARCHIVE_PATH"
 echo "[WebRelease] itch HTML5 上传包: $ITCH_ARCHIVE_PATH"
 
 if [[ "$PUBLISH_TO_ITCH" == true ]]; then

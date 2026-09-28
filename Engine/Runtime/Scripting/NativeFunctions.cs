@@ -627,6 +627,7 @@ namespace SSNoir.Scripting
             if (args.Count != 1 || !(args[0] is List<object> rawBeats) || rawBeats.Count == 0)
                 throw new ArgumentException("play-stage!: expected a non-empty list of beats");
             var actors = new HashSet<string>();
+            var props = new HashSet<string>();
             var beats = new List<StoryStageBeat>();
             foreach (var rawBeat in rawBeats)
             {
@@ -648,18 +649,50 @@ namespace SSNoir.Scripting
                     switch (op)
                     {
                         case "spawn":
-                            if (p.Count != 5) throw new ArgumentException("stage-spawn: id asset x layer");
-                            var layer = SchemeValue.AsId(p[4]);
+                        case "prop":
+                            if (op == "spawn" ? p.Count != 5 && p.Count != 6 : p.Count != 6)
+                                throw new ArgumentException($"stage-{op}: id asset x [y] layer");
+                            var layer = SchemeValue.AsId(p[p.Count - 1]);
                             if (layer != "back" && layer != "middle" && layer != "front")
                                 throw new ArgumentException("stage-spawn: layer must be back/middle/front");
-                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Spawn, Id = Id(1), Asset = Id(2), X = Number(3), Layer = layer };
-                            if (actors.Contains(command.Id)) throw new ArgumentException($"stage-spawn: duplicate id {command.Id}");
-                            if (!writes.Add(command.Id + "|all")) throw new ArgumentException($"stage-spawn: concurrent write to {command.Id}");
-                            actors.Add(command.Id);
+                            command = new StoryStageCommand { Kind = op == "prop" ? StoryStageCommandKind.Prop : StoryStageCommandKind.Spawn,
+                                Id = Id(1), Asset = Id(2), X = Number(3), Y = p.Count == 6 ? Number(4) : 0f, Layer = layer };
+                            if (actors.Contains(command.Id) || props.Contains(command.Id)) throw new ArgumentException($"stage-{op}: duplicate id {command.Id}");
+                            if (!writes.Add(command.Id + "|all")) throw new ArgumentException($"stage-{op}: concurrent write to {command.Id}");
+                            (op == "prop" ? props : actors).Add(command.Id);
+                            break;
+                        case "prop-at":
+                            if (p.Count != 7) throw new ArgumentException("stage-prop-at: id asset anchor dx dy layer");
+                            var anchor = Id(3);
+                            if (!actors.Contains(anchor) && !props.Contains(anchor))
+                                throw new ArgumentException("stage-prop-at: unknown anchor " + anchor);
+                            var propLayer = SchemeValue.AsId(p[6]);
+                            if (propLayer != "back" && propLayer != "middle" && propLayer != "front")
+                                throw new ArgumentException("stage-prop-at: layer must be back/middle/front");
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.PropAt, Id = Id(1), Asset = Id(2),
+                                Anchor = anchor, X = Number(4), Y = Number(5), Layer = propLayer };
+                            if (actors.Contains(command.Id) || props.Contains(command.Id)) throw new ArgumentException("stage-prop-at: duplicate id " + command.Id);
+                            if (!writes.Add(command.Id + "|all")) throw new ArgumentException("stage-prop-at: concurrent write to " + command.Id);
+                            props.Add(command.Id);
                             break;
                         case "move":
-                            if (p.Count != 4) throw new ArgumentException("stage-move: id x seconds");
-                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Move, Id = Id(1), X = Number(2), Seconds = Number(3) };
+                            if (p.Count != 4 && p.Count != 5) throw new ArgumentException("stage-move: id x [y] seconds");
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Move, Id = Id(1), X = Number(2),
+                                Y = p.Count == 5 ? Number(3) : float.NaN, Seconds = Number(p.Count - 1) };
+                            break;
+                        case "path":
+                        case "path-relative":
+                            if (p.Count != 4 || !(p[3] is List<object> rawPoints) || rawPoints.Count < 2)
+                                throw new ArgumentException("stage-path: id seconds list-of-at-least-two-points");
+                            var points = new List<StagePoint>();
+                            foreach (var rawPoint in rawPoints)
+                            {
+                                if (!(rawPoint is List<object> xy) || xy.Count != 2)
+                                    throw new ArgumentException("stage-path: each point must be (x y)");
+                                points.Add(new StagePoint(Convert.ToSingle(xy[0]), Convert.ToSingle(xy[1])));
+                            }
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Path, Id = Id(1), Seconds = Number(2), Points = points,
+                                Relative = op == "path-relative" };
                             break;
                         case "remove":
                             if (p.Count != 2) throw new ArgumentException("stage-remove: id");
@@ -674,6 +707,12 @@ namespace SSNoir.Scripting
                             var light = SchemeValue.AsId(p[2]);
                             if (!LightStates.Contains(light)) throw new ArgumentException("stage-light: state must be normal/surge/faint/ember");
                             command = new StoryStageCommand { Kind = StoryStageCommandKind.Light, Id = Id(1), Asset = light };
+                            break;
+                        case "effect":
+                            if (p.Count != 5) throw new ArgumentException("stage-effect: id effect dx dy");
+                            var effect = Id(2);
+                            if (effect != "受击闪光" && effect != "线条迸射") throw new ArgumentException("stage-effect: unknown effect " + effect);
+                            command = new StoryStageCommand { Kind = StoryStageCommandKind.Effect, Id = Id(1), Asset = effect, X = Number(3), Y = Number(4) };
                             break;
                         case "sound":
                             if (p.Count != 3) throw new ArgumentException("stage-sound: resource x");
@@ -697,17 +736,31 @@ namespace SSNoir.Scripting
                     }
                     // 舞台横轴：可见约 ±10，画外摆位可到 ±30（立绘半宽约 3，多人纵队需要纵深）。
                     if (command.Seconds < 0 || float.IsNaN(command.Seconds) || float.IsInfinity(command.Seconds)
-                        || float.IsNaN(command.X) || float.IsInfinity(command.X) || command.X < -30 || command.X > 30)
+                        || float.IsNaN(command.X) || float.IsInfinity(command.X) || command.X < -30 || command.X > 30
+                        || (command.Kind != StoryStageCommandKind.Move || p.Count == 5) && (float.IsNaN(command.Y) || float.IsInfinity(command.Y) || command.Y < -30 || command.Y > 30))
                         throw new ArgumentException($"play-stage! {op}: invalid position or duration");
-                    if (command.Kind == StoryStageCommandKind.Move || command.Kind == StoryStageCommandKind.Pose
-                        || command.Kind == StoryStageCommandKind.Light || command.Kind == StoryStageCommandKind.Remove)
+                    if (command.Kind == StoryStageCommandKind.Path)
                     {
-                        if (!actors.Contains(command.Id)) throw new ArgumentException($"play-stage! {op}: unknown actor {command.Id}");
-                        string channel = command.Kind == StoryStageCommandKind.Pose ? "pose" : command.Kind == StoryStageCommandKind.Light ? "light" : command.Kind == StoryStageCommandKind.Move ? "position" : "all";
+                        if (command.Seconds <= 0) throw new ArgumentException("stage-path: duration must be positive");
+                        foreach (var point in command.Points)
+                            if (float.IsNaN(point.X) || float.IsInfinity(point.X) || point.X < -30 || point.X > 30
+                                || float.IsNaN(point.Y) || float.IsInfinity(point.Y) || point.Y < -30 || point.Y > 30)
+                                throw new ArgumentException("stage-path: invalid point");
+                    }
+                    if (command.Kind == StoryStageCommandKind.Move || command.Kind == StoryStageCommandKind.Path
+                        || command.Kind == StoryStageCommandKind.Pose || command.Kind == StoryStageCommandKind.Light
+                        || command.Kind == StoryStageCommandKind.Effect || command.Kind == StoryStageCommandKind.Remove)
+                    {
+                        if (!actors.Contains(command.Id) && !props.Contains(command.Id)) throw new ArgumentException($"play-stage! {op}: unknown entity {command.Id}");
+                        if ((command.Kind == StoryStageCommandKind.Pose || command.Kind == StoryStageCommandKind.Light) && !actors.Contains(command.Id))
+                            throw new ArgumentException($"play-stage! {op}: requires actor {command.Id}");
+                        string channel = command.Kind == StoryStageCommandKind.Pose ? "pose" : command.Kind == StoryStageCommandKind.Light ? "light" :
+                            command.Kind == StoryStageCommandKind.Move || command.Kind == StoryStageCommandKind.Path ? "position" : "all";
+                        if (command.Kind == StoryStageCommandKind.Effect) { commands.Add(command); continue; }
                         if (writes.Contains(command.Id + "|all") || (channel == "all" && (writes.Contains(command.Id + "|position") || writes.Contains(command.Id + "|pose") || writes.Contains(command.Id + "|light")))
                             || !writes.Add(command.Id + "|" + channel))
                             throw new ArgumentException($"play-stage!: concurrent writes to {command.Id} {channel}");
-                        if (command.Kind == StoryStageCommandKind.Remove) actors.Remove(command.Id);
+                        if (command.Kind == StoryStageCommandKind.Remove) { actors.Remove(command.Id); props.Remove(command.Id); }
                     }
                     commands.Add(command);
                 }

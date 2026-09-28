@@ -87,7 +87,9 @@
   (check-victory!))
 
 (define (enemy-node title subtitle life attack down-line)
+  ;; 一人一锚：卡钉在场上对应人形；生命/出手钟挂在这张人卡上，不另漂。
   (node title
+    :anchor title
     :subtitle subtitle
     :clocks (list (life 'render-data) (attack 'render-data))
     :requires (list (req-die))
@@ -189,10 +191,15 @@
           "你还在和面前的人纠缠。后面传来一声闷响，艾迪顺着墙倒下去，没有再动。")
         #f)))
 
+;; 根名 = Camera_巷子里在打人 / Anchor_巷子里在打人，驱动镜头切入。
+;; 三人各钉自己的人形锚；艾迪倒计时钉在靠墙的艾迪身上（clock-nodes 名前缀「钟：」对不上锚，须 at-anchor）。
 (define (get-render-data)
-  (container "巷子里在打人"
-    (append
-      (clock-nodes (eddie-clk 'render-data))
-      (if (coat-life 'empty?) '() (list (node-coat)))
-      (if (hat-life 'empty?) '() (list (node-hat)))
-      (if (sleeves-life 'empty?) '() (list (node-sleeves))))))
+  (node "巷子里在打人"
+    :anchor "巷子里在打人"
+    :children
+      (append
+        (map (lambda (n) (at-anchor "艾迪还撑得住" n))
+             (clock-nodes (eddie-clk 'render-data)))
+        (if (coat-life 'empty?) '() (list (node-coat)))
+        (if (hat-life 'empty?) '() (list (node-hat)))
+        (if (sleeves-life 'empty?) '() (list (node-sleeves))))))

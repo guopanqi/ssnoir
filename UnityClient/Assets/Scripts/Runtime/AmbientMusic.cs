@@ -25,7 +25,7 @@ namespace SSNoir
         private const string CityPrefix = "城市-";
         private const string ShuffleId = "随机播放";
         private const float FadeSeconds = 1.6f;
-        // 音量不归这里管：读 MusicVolume.Value（设置面板四档，跟着存档）。
+        // 音量不归这里管：读 AudioVolumes.Music（设置面板四档，跟着存档）。
 
         // 默认声的时间表：每首播 90–150 秒，静 25–55 秒。播的是整首循环，
         // 不是单遍——单曲 20–40 秒，单遍一切城市就像在切台。
@@ -183,12 +183,12 @@ namespace SSNoir
 
         private void Update()
         {
-            // 音量每帧都写：淡入淡出只管 _fade，面板改 MusicVolume 要当场生效，
+            // 音量每帧都写：淡入淡出只管 _fade，面板改 AudioVolumes.Music 要当场生效，
             // 不能只在淡入那 1.6 秒里写一次。
             _fade = Mathf.Min(1f, _fade + Time.unscaledDeltaTime / FadeSeconds);
             var previous = _current == _a ? _b : _a;
-            _current.volume = _current.clip != null ? MusicVolume.Value * _fade : 0f;
-            previous.volume = MusicVolume.Value * (1f - _fade);
+            _current.volume = _current.clip != null ? AudioVolumes.Music * _fade : 0f;
+            previous.volume = AudioVolumes.Music * (1f - _fade);
             if (_fade >= 1f && previous.isPlaying)
             {
                 previous.Stop();

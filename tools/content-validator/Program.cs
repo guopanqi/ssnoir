@@ -40,9 +40,41 @@ namespace SSNoir
                     return;
                 }
 
+                if (args.Length > 0 && args[0] == "--session")
+                {
+                    SSNoir.Session.SessionRunner.Run(args);
+                    return;
+                }
+
+                if (args.Length == 3 && args[0] == "--stage-export")
+                {
+                    SSNoir.StagePreview.StageExporter.Run(args[1], args[2]);
+                    return;
+                }
+
+                if (args.Length == 2 && args[0] == "--replay")
+                {
+                    SSNoir.Session.SessionRunner.Replay(args[1]);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0] == "--session-baseline")
+                {
+                    SSNoir.Session.SessionRunner.Baseline(args);
+                    return;
+                }
+
+                if (args.Length > 1 && args[0] == "--session-report")
+                {
+                    SSNoir.Session.SessionRunner.Report(args[1..]);
+                    return;
+                }
+
                 Console.Error.WriteLine(
                     "用法：./run --validate | --test-saveload | --test-odds | --test-round-transition | " +
-                    "--playtest <入场表达式或场景名> [选项]");
+                    "--playtest <入场表达式或场景名> [选项] | --session <world|场景名|入场表达式> [选项] " +
+                    "| --session-baseline <交锋入口> --output <记录.json> | --session-report <记录.json> [...] | --replay <记录.json> " +
+                    "| --stage-export <Scheme 表达式> <输出.json>");
                 Environment.Exit(2);
             }
             catch (Exception ex)

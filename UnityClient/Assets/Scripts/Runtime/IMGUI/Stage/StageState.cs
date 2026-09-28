@@ -59,6 +59,8 @@ namespace SSNoir.IMGUI.Stage
         public static readonly float FlickerDuration = SumFlicker();
 
         private readonly Dictionary<string, StageActor> _actors = new();
+        private readonly Dictionary<string, StageProp> _props = new();
+        private readonly List<StageEffect> _effects = new();
         private string _rightActor = string.Empty;
         private float _blackoutAt = -10f;
         private float _flashAt = -10f;
@@ -66,33 +68,91 @@ namespace SSNoir.IMGUI.Stage
         private float _negativeChangedAt = -10f;
 
         public IEnumerable<StageActor> Actors => _actors.Values;
+        public IEnumerable<StageProp> Props => _props.Values;
+        public IEnumerable<StageEffect> Effects => _effects;
         public bool TryGetActor(string name, out StageActor actor) => _actors.TryGetValue(name, out actor!);
 
-        public void Spawn(string id, string asset, float x, string layer, float now, System.Func<string, Texture2D?> loadPortrait)
+        public void Spawn(string id, string asset, float x, float y, string layer, float now, System.Func<string, Texture2D?> loadPortrait)
         {
-            if (_actors.ContainsKey(id)) throw new System.InvalidOperationException("stage actor already exists: " + id);
+            if (_actors.ContainsKey(id) || _props.ContainsKey(id)) throw new System.InvalidOperationException("stage entity already exists: " + id);
             var texture = loadPortrait(asset) ?? throw new System.InvalidOperationException("stage portrait missing: " + asset);
             var actor = new StageActor(id, x < 0f, now, texture) { AssetName = asset, StageLayer = layer };
             actor.SetStageX(x, 0f, now);
+            actor.SetStageY(y, 0f, now);
             _actors.Add(id, actor);
+        }
+
+        public void SpawnProp(string id, string asset, float x, float y, string layer, float now)
+        {
+            if (_actors.ContainsKey(id) || _props.ContainsKey(id)) throw new System.InvalidOperationException("stage entity already exists: " + id);
+            var texture = Resources.Load<Texture2D>("StageProps/" + asset)
+                ?? throw new System.InvalidOperationException("stage prop missing: " + asset);
+            _props.Add(id, new StageProp(id, texture, x, y, layer));
+        }
+
+        public void SpawnPropAt(string id, string asset, string anchor, float dx, float dy, string layer, float now)
+        {
+            var position = EntityPosition(anchor, now);
+            SpawnProp(id, asset, position.X + dx, position.Y + dy, layer, now);
+        }
+
+        private StagePoint EntityPosition(string id, float now)
+        {
+            if (_actors.TryGetValue(id, out var actor)) return new StagePoint(actor.CurrentStageX(now), actor.CurrentStageY(now));
+            if (_props.TryGetValue(id, out var prop)) return new StagePoint(prop.X(now), prop.Y(now));
+            throw new System.InvalidOperationException("stage entity missing: " + id);
         }
 
         public void Move(string id, float x, float seconds, float now)
         {
-            if (!_actors.TryGetValue(id, out var actor)) throw new System.InvalidOperationException("stage actor missing: " + id);
-            actor.SetStageX(x, seconds, now);
+            Move(id, x, float.NaN, seconds, now);
+        }
+
+        public void Move(string id, float x, float y, float seconds, float now)
+        {
+            if (_actors.TryGetValue(id, out var actor))
+            {
+                actor.SetStagePosition(x, float.IsNaN(y) ? actor.CurrentStageY(now) : y, seconds, now);
+            }
+            else if (_props.TryGetValue(id, out var prop)) prop.Move(x, float.IsNaN(y) ? prop.Y(now) : y, seconds, now);
+            else throw new System.InvalidOperationException("stage entity missing: " + id);
+        }
+
+        public void Path(string id, float seconds, IReadOnlyList<StagePoint> points, bool relative, float now)
+        {
+            if (relative)
+            {
+                var origin = EntityPosition(id, now);
+                var absolute = new StagePoint[points.Count];
+                for (int i = 0; i < points.Count; i++)
+                    absolute[i] = new StagePoint(origin.X + points[i].X, origin.Y + points[i].Y);
+                points = absolute;
+            }
+            if (_actors.TryGetValue(id, out var actor)) actor.SetStagePath(points, seconds, now);
+            else if (_props.TryGetValue(id, out var prop)) prop.Path(points, seconds, now);
+            else throw new System.InvalidOperationException("stage entity missing: " + id);
+        }
+
+        public void Effect(string id, string effect, float dx, float dy, float now)
+        {
+            float x, y;
+            if (_actors.TryGetValue(id, out var actor)) { x = actor.CurrentStageX(now); y = actor.CurrentStageY(now); }
+            else if (_props.TryGetValue(id, out var prop)) { x = prop.X(now); y = prop.Y(now); }
+            else throw new System.InvalidOperationException("stage entity missing: " + id);
+            _effects.RemoveAll(e => now - e.StartedAt > StageEffect.Duration);
+            _effects.Add(new StageEffect(effect, x + dx, y + dy, now));
         }
 
         public void Remove(string id)
         {
-            if (!_actors.Remove(id)) throw new System.InvalidOperationException("stage actor missing: " + id);
+            if (!_actors.Remove(id) && !_props.Remove(id)) throw new System.InvalidOperationException("stage entity missing: " + id);
         }
 
         public void Pose(string id, string pose, float now, System.Func<string, string, Texture2D?> loadPose)
         {
             if (!_actors.TryGetValue(id, out var actor)) throw new System.InvalidOperationException("stage actor missing: " + id);
             var texture = loadPose(actor.AssetName, pose) ?? throw new System.InvalidOperationException("stage pose missing: " + actor.AssetName + "_" + pose);
-            actor.SwitchPose(pose, texture, now);
+            actor.SwitchPose(pose, texture, now, 0.12f);
         }
 
         public void Light(string id, string state, float now)
@@ -105,6 +165,8 @@ namespace SSNoir.IMGUI.Stage
         public void Reset()
         {
             _actors.Clear();
+            _props.Clear();
+            _effects.Clear();
             _rightActor = string.Empty;
             _blackoutAt = -10f;
             _flashAt = -10f;
@@ -318,6 +380,7 @@ namespace SSNoir.IMGUI.Stage
         public Texture2D? PreviousTexture { get; private set; }   // 上一姿势，正在灭
         public string Pose { get; private set; } = string.Empty;
         public float PoseChangedAt { get; private set; } = -10f;
+        private float _poseSwapDuration = StageState.PoseSwapDuration;
 
         private float _glowFrom = 1f, _glowTarget = 1f, _glowChangedAt = -10f;
         private float _warmthFrom, _warmthTarget, _warmthChangedAt = -10f;
@@ -327,7 +390,7 @@ namespace SSNoir.IMGUI.Stage
         private float _accentChangedAt = -10f;
         private bool _accentSet;
         private float _offsetFrom, _offsetTarget, _offsetChangedAt = -10f;
-        private float _stageXFrom, _stageXTarget, _stageXChangedAt = -10f, _stageXDuration;
+        private readonly StageMotion _stageMotion = new();
         public float ShakeAt = -10f;
         public float FlickerAt = -10f;
         public float RelightAt = -10f;
@@ -344,25 +407,41 @@ namespace SSNoir.IMGUI.Stage
 
         public void SetStageX(float target, float seconds, float now)
         {
-            _stageXFrom = UsesStageX ? CurrentStageX(now) : target;
-            _stageXTarget = target;
-            _stageXChangedAt = now;
-            _stageXDuration = seconds;
+            _stageMotion.Move(target, _stageMotion.Y(now), seconds, now);
+            UsesStageX = true;
+        }
+
+        public void SetStagePosition(float x, float y, float seconds, float now)
+        {
+            _stageMotion.Move(x, y, seconds, now);
+            UsesStageX = true;
+        }
+
+        public void SetStageY(float target, float seconds, float now)
+        {
+            _stageMotion.Move(_stageMotion.X(now), target, seconds, now);
+            UsesStageX = true;
+        }
+
+        public void SetStagePath(IReadOnlyList<StagePoint> points, float seconds, float now)
+        {
+            _stageMotion.Path(points, seconds, now);
             UsesStageX = true;
         }
 
         // 舞台走位是匀速直线：跑步进出场用 EaseOut 会前冲后爬、越跑越慢。
         // 灯光、姿势、逼近退位仍走 EaseOut——那些是亮灯和做派，不是赶路。
-        public float CurrentStageX(float now) => _stageXDuration <= 0f ? _stageXTarget
-            : Mathf.Lerp(_stageXFrom, _stageXTarget, Mathf.Clamp01((now - _stageXChangedAt) / _stageXDuration));
+        public float CurrentStageX(float now) => _stageMotion.X(now);
+        public float CurrentStageY(float now) => _stageMotion.Y(now);
 
         // 刚上台的人传 changedAt = -10：直接以指定姿势点亮，不先闪一下招牌姿势再切过去。
-        public void SwitchPose(string pose, Texture2D texture, float changedAt)
+        public void SwitchPose(string pose, Texture2D texture, float changedAt, float swapDuration = StageState.PoseSwapDuration)
         {
             PreviousTexture = changedAt < 0f ? null : Texture;
             Texture = texture;
             Pose = pose;
             PoseChangedAt = changedAt;
+            _poseSwapDuration = swapDuration;
         }
 
         // 过渡从当前插值位置起算，连续两句都在动也不会跳。
@@ -437,9 +516,70 @@ namespace SSNoir.IMGUI.Stage
         // 换姿势的进度；到 1 时把旧姿势放掉。
         public float PoseSwap(float now)
         {
-            float swap = StageState.EaseOut(PoseChangedAt, StageState.PoseSwapDuration, now);
+            float swap = StageState.EaseOut(PoseChangedAt, _poseSwapDuration, now);
             if (swap >= 1f) PreviousTexture = null;
             return swap;
         }
+    }
+
+    // 人物和道具共用位置曲线；Bézier 的首尾控制点就是起点与终点。
+    public sealed class StageMotion
+    {
+        private StagePoint[] _points = { new StagePoint(0f, 0f), new StagePoint(0f, 0f) };
+        private float _startedAt;
+        private float _duration;
+
+        public void Move(float x, float y, float seconds, float now)
+            => Path(new[] { new StagePoint(X(now), Y(now)), new StagePoint(x, y) }, seconds, now);
+
+        public void Path(IReadOnlyList<StagePoint> points, float seconds, float now)
+        {
+            _points = new StagePoint[points.Count];
+            for (int i = 0; i < points.Count; i++) _points[i] = points[i];
+            _startedAt = now;
+            _duration = seconds;
+        }
+
+        public float X(float now) => Position(now).X;
+        public float Y(float now) => Position(now).Y;
+
+        private StagePoint Position(float now)
+        {
+            float t = _duration <= 0f ? 1f : Mathf.Clamp01((now - _startedAt) / _duration);
+            var work = (StagePoint[])_points.Clone();
+            for (int remaining = work.Length - 1; remaining > 0; remaining--)
+                for (int i = 0; i < remaining; i++)
+                    work[i] = new StagePoint(Mathf.Lerp(work[i].X, work[i + 1].X, t),
+                        Mathf.Lerp(work[i].Y, work[i + 1].Y, t));
+            return work[0];
+        }
+    }
+
+    public sealed class StageProp
+    {
+        private readonly StageMotion _motion = new();
+        public string Id { get; }
+        public Texture2D Texture { get; }
+        public string Layer { get; }
+        public StageProp(string id, Texture2D texture, float x, float y, string layer)
+        {
+            Id = id; Texture = texture; Layer = layer;
+            _motion.Move(x, y, 0f, 0f);
+        }
+        public float X(float now) => _motion.X(now);
+        public float Y(float now) => _motion.Y(now);
+        public void Move(float x, float y, float seconds, float now) => _motion.Move(x, y, seconds, now);
+        public void Path(IReadOnlyList<StagePoint> points, float seconds, float now) => _motion.Path(points, seconds, now);
+    }
+
+    public sealed class StageEffect
+    {
+        public const float Duration = 0.20f;
+        public string Name { get; }
+        public float X { get; }
+        public float Y { get; }
+        public float StartedAt { get; }
+        public StageEffect(string name, float x, float y, float startedAt)
+        { Name = name; X = x; Y = y; StartedAt = startedAt; }
     }
 }

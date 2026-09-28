@@ -58,7 +58,7 @@ Web Release 和 TapTap Release 成功后会自动删除同一输出目录下旧�
 ```
 
 它构建可部署到普通静态站点的浏览器 WebGL 正式包：关闭 Development Build 和调试符号，启用 Brotli
-压缩与浏览器缓存。产物位于 `UnityClient/Build/WebRelease/<时间戳>/`，同级生成可交付的离线评审 zip。
+压缩与浏览器缓存。产物位于 `UnityClient/Build/WebRelease/<时间戳>/`。
 
 此入口默认采用 `local` 视频模式，因此保留被场景引用的本地过场视频；字体、明确无用的 Resources 和
 未使用视频仍由公共资源层统一处理。它不启动局域网预览服务；部署时，静态服务器必须为 `.br` 资源
@@ -70,7 +70,7 @@ Web Release 和 TapTap Release 成功后会自动删除同一输出目录下旧�
 ./tools/build/web-release/build.sh --review-no-video
 ```
 
-每次完整构建成功后，`WebRelease/` 只保留本次时间戳目录、离线包、itch 包和日志；旧版本会自动删除。
+每次完整构建成功后，`WebRelease/` 只保留本次时间戳目录、itch 包和日志；旧版本会自动删除。
 
 本机或局域网启动该包时，传入本次构建的输出目录：
 
@@ -78,20 +78,6 @@ Web Release 和 TapTap Release 成功后会自动删除同一输出目录下旧�
 ./tools/build/web-release/serve.sh \
   --directory UnityClient/Build/WebRelease/<时间戳>
 ```
-
-离线评审 zip 解压后的目录只露出三样东西，游戏本体和三份本地服务器（Mac Apple Silicon /
-Intel、Windows x64）都收在 `game/` 里：
-
-```
-SSNoir-WebDemo/
-  START-Mac.command
-  START-Windows.bat
-  README.txt
-  game/
-```
-
-评委双击对应平台的 START 脚本即可，无需额外安装 Python、Node 或 Unity。启动器模板在
-`tools/build/web-release/offline-launcher/`。
 
 ## Cloudflare Worker + R2：无域名公开链接
 
@@ -112,7 +98,7 @@ Wrangler 输出，形如 `https://ssnoir-web-demo.<你的子域>.workers.dev/`�
 ## itch.io：推荐的评委在线 Demo
 
 每次 Web Release 会额外生成 `UnityClient/Build/WebRelease/SSNoir-ItchWeb-<时间戳>.zip`。它只有 WebGL
-文件，且 `index.html` 位于 zip 根目录，符合 itch HTML5 上传要求；不要上传离线评审包。
+文件，且 `index.html` 位于 zip 根目录，符合 itch HTML5 上传要求。
 
 当前 itch 页面使用 `web` 渠道，可通过 butler 更新：
 
