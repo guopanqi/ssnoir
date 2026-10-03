@@ -56,6 +56,21 @@ jobs:
       - name: Build lab
         run: npm run build
 
+      - name: Export portable lab
+        uses: actions/upload-artifact@v4
+        with:
+          name: noir-theatre-source
+          retention-days: 7
+          compression-level: 6
+          path: |
+            experiments/noir-theatre-lab/assets
+            experiments/noir-theatre-lab/src
+            experiments/noir-theatre-lab/tools
+            experiments/noir-theatre-lab/package*.json
+            experiments/noir-theatre-lab/index.html
+            experiments/noir-theatre-lab/*.md
+          if-no-files-found: error
+
       - name: Capture fixed benchmarks
         run: npm run capture
 
