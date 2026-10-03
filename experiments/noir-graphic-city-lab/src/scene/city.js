@@ -36,8 +36,8 @@ function addWindowGrid({ parent, facade, countX, countY, width, height, mats, gr
         win.position.set(-parent.geometry.parameters.width / 2 - 0.011, py, px);
         win.rotation.y = -Math.PI / 2;
       }
+      if (!sparse && (x + y) % 3 === 0) win.userData.graphicAccent = true;
       parent.add(win);
-      if (!sparse && (x + y) % 3 === 0) groups.accents.add(win);
     }
   }
 }

@@ -100,8 +100,8 @@ export function createCharacter({
   lapel.position.set(role === 'singer' ? 0.2 : -0.22, 2.75, 0.64);
   lapel.rotation.z = role === 'singer' ? -0.12 : 0.15;
   lapel.userData.noEdge = true;
+  if (role === 'singer') lapel.userData.graphicAccent = true;
   g.add(lapel);
-  if (role === 'singer') groups.accents.add(lapel);
 
   groups.characters.add(g);
 
