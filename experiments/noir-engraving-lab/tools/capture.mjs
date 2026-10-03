@@ -1,9 +1,10 @@
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { createServer } from 'node:http';
+import { readFile, mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = process.cwd();
+const DIST = path.join(ROOT, 'dist');
 const OUT = path.join(ROOT, 'captures', 'latest');
 const PORT = 4173;
 const URL = `http://127.0.0.1:${PORT}/?capture=1`;
@@ -18,60 +19,63 @@ const shots = [
 
 const modes = ['final', 'shape'];
 
-function startServer() {
-  return spawn(
-    process.platform === 'win32' ? 'npm.cmd' : 'npm',
-    ['run', 'preview', '--', '--host', '127.0.0.1', '--port', String(PORT), '--strictPort'],
-    {
-      cwd: ROOT,
-      stdio: ['ignore', 'pipe', 'pipe'],
-      detached: process.platform !== 'win32',
-    },
-  );
+const mime = new Map([
+  ['.html', 'text/html; charset=utf-8'],
+  ['.js', 'text/javascript; charset=utf-8'],
+  ['.css', 'text/css; charset=utf-8'],
+  ['.json', 'application/json; charset=utf-8'],
+  ['.png', 'image/png'],
+  ['.svg', 'image/svg+xml'],
+  ['.woff2', 'font/woff2'],
+]);
+
+function createStaticServer() {
+  return createServer(async (req, res) => {
+    try {
+      const url = new URL(req.url, 'http://127.0.0.1');
+      let pathname = decodeURIComponent(url.pathname);
+      if (pathname === '/') pathname = '/index.html';
+
+      const resolved = path.resolve(DIST, '.' + pathname);
+      if (!resolved.startsWith(DIST + path.sep) && resolved !== path.join(DIST, 'index.html')) {
+        res.writeHead(403).end('Forbidden');
+        return;
+      }
+
+      let body;
+      try {
+        body = await readFile(resolved);
+      } catch {
+        body = await readFile(path.join(DIST, 'index.html'));
+      }
+
+      res.writeHead(200, {
+        'Content-Type': mime.get(path.extname(resolved)) ?? 'application/octet-stream',
+        'Cache-Control': 'no-store',
+      });
+      res.end(body);
+    } catch (error) {
+      res.writeHead(500).end(String(error));
+    }
+  });
 }
 
-async function stopServer(server) {
-  if (server.exitCode !== null) return;
-
-  if (process.platform === 'win32') {
-    server.kill('SIGTERM');
-  } else {
-    try {
-      process.kill(-server.pid, 'SIGTERM');
-    } catch {
-      server.kill('SIGTERM');
-    }
-  }
-
-  await Promise.race([
-    new Promise((resolve) => server.once('exit', resolve)),
-    new Promise((resolve) => setTimeout(resolve, 2000)),
-  ]);
-
-  server.stdout?.destroy();
-  server.stderr?.destroy();
+async function listen(server) {
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(PORT, '127.0.0.1', resolve);
+  });
 }
 
-async function waitForServer(page, attempts = 8) {
-  for (let i = 0; i < attempts; i++) {
-    try {
-      await page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 3000 });
-      await page.waitForFunction(() => window.__noirLab?.ready === true, null, { timeout: 3000 });
-      return;
-    } catch {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-  }
-  throw new Error('Noir Engraving Lab dev server did not become ready.');
+async function closeServer(server) {
+  await new Promise((resolve) => server.close(resolve));
 }
 
 await rm(OUT, { recursive: true, force: true });
 await mkdir(OUT, { recursive: true });
 
-const server = startServer();
-let serverLog = '';
-server.stdout.on('data', (d) => { serverLog += d.toString(); });
-server.stderr.on('data', (d) => { serverLog += d.toString(); });
+const server = createStaticServer();
+await listen(server);
 
 const browser = await chromium.launch({
   headless: true,
@@ -82,22 +86,36 @@ const browser = await chromium.launch({
     '--use-angle=swiftshader',
   ],
 });
-const page = await browser.newPage({ viewport: VIEWPORT, deviceScaleFactor: 1 });
+
+const page = await browser.newPage({
+  viewport: VIEWPORT,
+  deviceScaleFactor: 1,
+});
+
+let browserLog = '';
 page.on('console', (message) => {
   const line = `[browser:${message.type()}] ${message.text()}\n`;
-  serverLog += line;
+  browserLog += line;
   process.stdout.write(line);
 });
 page.on('pageerror', (error) => {
   const line = `[pageerror] ${error.stack ?? error.message}\n`;
-  serverLog += line;
+  browserLog += line;
   process.stderr.write(line);
 });
 
 try {
-  await waitForServer(page);
+  await page.goto(URL, {
+    waitUntil: 'domcontentloaded',
+    timeout: 10000,
+  });
 
-  // UI is useful interactively but not part of the rendered benchmark.
+  await page.waitForFunction(
+    () => window.__noirLab?.ready === true,
+    null,
+    { timeout: 10000 },
+  );
+
   await page.evaluate(() => {
     document.querySelector('.hud-top')?.remove();
     document.querySelector('.hud-bottom')?.remove();
@@ -113,6 +131,7 @@ try {
     for (const [name, index] of shots) {
       await page.evaluate((i) => window.__noirLab.setShot(i), index);
       await page.evaluate(() => window.__noirLab.render());
+
       await page.screenshot({
         path: path.join(dir, `${name}.png`),
         type: 'png',
@@ -133,9 +152,9 @@ try {
     }, null, 2) + '\n',
   );
 } catch (error) {
-  process.stderr.write(serverLog);
+  if (browserLog) process.stderr.write(browserLog);
   throw error;
 } finally {
   await browser.close();
-  await stopServer(server);
+  await closeServer(server);
 }
