@@ -22,8 +22,34 @@ function startServer() {
   return spawn(
     process.platform === 'win32' ? 'npm.cmd' : 'npm',
     ['run', 'preview', '--', '--host', '127.0.0.1', '--port', String(PORT), '--strictPort'],
-    { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] },
+    {
+      cwd: ROOT,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      detached: process.platform !== 'win32',
+    },
   );
+}
+
+async function stopServer(server) {
+  if (server.exitCode !== null) return;
+
+  if (process.platform === 'win32') {
+    server.kill('SIGTERM');
+  } else {
+    try {
+      process.kill(-server.pid, 'SIGTERM');
+    } catch {
+      server.kill('SIGTERM');
+    }
+  }
+
+  await Promise.race([
+    new Promise((resolve) => server.once('exit', resolve)),
+    new Promise((resolve) => setTimeout(resolve, 2000)),
+  ]);
+
+  server.stdout?.destroy();
+  server.stderr?.destroy();
 }
 
 async function waitForServer(page, attempts = 8) {
@@ -111,5 +137,5 @@ try {
   throw error;
 } finally {
   await browser.close();
-  server.kill('SIGTERM');
+  await stopServer(server);
 }
