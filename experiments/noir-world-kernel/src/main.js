@@ -11,8 +11,8 @@ const renderer = new THREE.WebGLRenderer({
   powerPreference: 'high-performance'
 });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.32;
+renderer.toneMapping = THREE.NoToneMapping;
+renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setClearColor(PROFILE.palette.void,1);
@@ -20,7 +20,7 @@ app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(PROFILE.palette.void);
-scene.fog = new THREE.FogExp2(PROFILE.palette.void,0.018);
+scene.fog = new THREE.FogExp2(PROFILE.palette.void,0.012);
 
 const camera = new THREE.PerspectiveCamera(PROFILE.camera.fov,1,PROFILE.camera.near,PROFILE.camera.far);
 
@@ -45,10 +45,10 @@ const world = buildWorld(scene,PROFILE.palette);
 const {composer,resize} = createComposer(renderer,scene,camera);
 
 const shots = {
-  wide: {pos:[25,11.5,32], target:[-2,5.0,-6], fov:32},
-  street: {pos:[15,7.0,21], target:[-2,3.8,-4], fov:36},
-  alley: {pos:[-1,7.5,22], target:[-8,6,-13], fov:32},
-  detail: {pos:[8,4.6,14], target:[-2,3.0,3.8], fov:30}
+  wide: {pos:[23,9.2,31], target:[-5,4.0,-6], fov:34},
+  street: {pos:[15,6.6,21], target:[-3,3.2,-3], fov:36},
+  alley: {pos:[0,6.8,20], target:[-7.5,5.2,-11], fov:33},
+  detail: {pos:[6.5,4.3,12.5], target:[-2.3,2.0,4.8], fov:31}
 };
 
 let shotName='wide';
