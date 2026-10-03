@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { polyline, smoothPolyline, segments, resizeLineMaterials } from '../style/lineArt.js';
 
 const P={
-  void:0x020309, ink:0x010205, deep:0x070a11, wall:0x0b0f17, wall2:0x101520,
+  void:0x020309, ink:0x010205, deep:0x0a0c12, wall:0x12151c, wall2:0x181b22,
   white:0xf2efe6, dim:0x8a9098, gold:0xe2b63d
 };
 
@@ -33,7 +33,28 @@ function haloTexture(){
     g.addColorStop(1,'rgba(255,252,236,0)');
     ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
   },256,256);
+}function washTexture(){
+  return canvasTexture((ctx,w,h)=>{
+    ctx.clearRect(0,0,w,h);
+    let seed=1843;
+    const rnd=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296);
+    ctx.filter='blur(18px)';
+    for(let i=0;i<22;i++){
+      const x=rnd()*w,y=rnd()*h,rx=18+rnd()*75,ry=10+rnd()*55;
+      const a=.025+rnd()*.055;
+      ctx.fillStyle='rgba(220,222,224,'+a+')';
+      ctx.beginPath();ctx.ellipse(x,y,rx,ry,rnd()*Math.PI,0,Math.PI*2);ctx.fill();
+    }
+    ctx.filter='none';
+    for(let i=0;i<26;i++){
+      const x=rnd()*w,y=rnd()*h,len=12+rnd()*70;
+      ctx.strokeStyle='rgba(245,242,232,'+(.018+rnd()*.030)+')';
+      ctx.lineWidth=.5+rnd()*1.3;
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y+(rnd()-.5)*3);ctx.stroke();
+    }
+  },384,384);
 }
+
 function reflectionTexture(){
   return canvasTexture((ctx,w,h)=>{
     ctx.clearRect(0,0,w,h);
@@ -94,6 +115,10 @@ function shapeMesh(parent,shape,z,color=P.ink){
 function addBuilding(fill,lines,{x,z,w,h,d=4,color=P.wall,lit=[]}){
   box(fill,[w,h,d],[x,h/2,z],standard(color));
   const front=z+d/2+.03;
+  const wash=new THREE.Mesh(new THREE.PlaneGeometry(w*.96,h*.94),new THREE.MeshBasicMaterial({
+    map:washTexture(),transparent:true,opacity:.72,depthWrite:false,toneMapped:false
+  }));
+  wash.position.set(x,h*.50,front+.008);wash.renderOrder=3;fill.add(wash);
   // Only three major silhouette strokes; no full CAD rectangle.
   polyline(lines,[
     [x-w/2,0,front],[x-w/2,h,front],[x+w/2,h,front],[x+w/2,.4,front]
@@ -159,8 +184,8 @@ function addFigure(fill,lines,{x,y=0,z,s=1,profile=false,flip=false,gold=false})
   const torso=new THREE.Shape();
   torso.moveTo(sx(-.32),2.32);
   torso.quadraticCurveTo(sx(-.43),2.05,sx(-.39),1.70);
-  torso.lineTo(sx(-.36),.82);
-  torso.quadraticCurveTo(sx(0),.68,sx(.36),.82);
+  torso.lineTo(sx(-.36),.94);
+  torso.quadraticCurveTo(sx(0),.80,sx(.36),.94);
   torso.lineTo(sx(.39),1.70);
   torso.quadraticCurveTo(sx(.43),2.05,sx(.32),2.32);
   torso.quadraticCurveTo(sx(0),2.48,sx(-.32),2.32);
@@ -190,29 +215,29 @@ function addFigure(fill,lines,{x,y=0,z,s=1,profile=false,flip=false,gold=false})
 
   // Legs remain visible below the coat, preventing the silhouette from reading as a robe.
   const legL=new THREE.Shape();
-  legL.moveTo(sx(-.23),.80);legL.lineTo(sx(-.08),.80);
-  legL.lineTo(sx(-.06),.08);legL.lineTo(sx(-.25),.08);legL.closePath();
+  legL.moveTo(sx(-.25),.92);legL.lineTo(sx(-.07),.92);
+  legL.lineTo(sx(-.05),.08);legL.lineTo(sx(-.27),.08);legL.closePath();
   outlinedShape(g,lg,legL,.002,{width:1.8,opacity:.76});
 
   const legR=new THREE.Shape();
-  legR.moveTo(sx(.08),.80);legR.lineTo(sx(.23),.80);
-  legR.lineTo(sx(.26),.08);legR.lineTo(sx(.06),.08);legR.closePath();
+  legR.moveTo(sx(.07),.92);legR.lineTo(sx(.25),.92);
+  legR.lineTo(sx(.28),.08);legR.lineTo(sx(.05),.08);legR.closePath();
   outlinedShape(g,lg,legR,.002,{width:1.8,opacity:.76});
 
     // Head remains a black silhouette; a small nose/chin break makes the profile human.
   const head=new THREE.Shape();
   if(profile){
     head.moveTo(sx(-.16),2.47);
-    head.bezierCurveTo(sx(-.24),2.63,sx(-.23),2.87,sx(-.10),3.00);
-    head.bezierCurveTo(sx(.02),3.11,sx(.19),3.10,sx(.27),3.02);
+    head.bezierCurveTo(sx(-.24),2.63,sx(-.23),2.83,sx(-.10),2.95);
+    head.bezierCurveTo(sx(.02),3.05,sx(.19),3.04,sx(.27),2.98);
     head.lineTo(sx(.38),2.97);
     head.lineTo(sx(.29),2.91);
     head.quadraticCurveTo(sx(.31),2.72,sx(.18),2.58);
     head.quadraticCurveTo(sx(.04),2.45,sx(-.16),2.47);
   }else{
     head.moveTo(sx(-.20),2.48);
-    head.bezierCurveTo(sx(-.28),2.65,sx(-.25),2.91,sx(-.10),3.03);
-    head.bezierCurveTo(sx(.02),3.12,sx(.19),3.08,sx(.25),2.94);
+    head.bezierCurveTo(sx(-.28),2.65,sx(-.25),2.86,sx(-.10),2.98);
+    head.bezierCurveTo(sx(.02),3.06,sx(.19),3.03,sx(.25),2.92);
     head.bezierCurveTo(sx(.31),2.78,sx(.27),2.58,sx(.14),2.49);
     head.quadraticCurveTo(sx(-.04),2.41,sx(-.20),2.48);
   }
@@ -296,6 +321,9 @@ export function buildWorld(scene){
   addFigure(fill,lines,{x:-.6,y:.02,z:4.2,s:1.08,profile:true});
   addFigure(fill,lines,{x:-8.1,y:.02,z:-5.5,s:.66,profile:false});
   addFigure(fill,lines,{x:7.8,y:.02,z:-2.0,s:.62,profile:true,flip:true});
+  addFigure(fill,lines,{x:1.9,y:.02,z:-10.8,s:.36,profile:false});
+  addFigure(fill,lines,{x:3.0,y:.02,z:-10.5,s:.32,profile:true,flip:true});
+  addFigure(fill,lines,{x:-2.6,y:.02,z:-10.9,s:.34,profile:false});
 
   // Large painterly reflection layer.
   const wet=new THREE.Mesh(new THREE.PlaneGeometry(39,39),new THREE.MeshBasicMaterial({
