@@ -1,8 +1,8 @@
 export const SHOTS = Object.freeze([
   Object.freeze({
     name: '01 · THEATER STREET',
-    position: [-43, 6.2, 1.5],
-    target: [-2, 5.6, 13.0],
+    position: [-36, 5.4, 0.8],
+    target: [-2, 6.0, 14.0],
     purpose: '沿主街斜望剧院：主体、街墙缺口、负空间',
   }),
   Object.freeze({
@@ -19,8 +19,8 @@ export const SHOTS = Object.freeze([
   }),
   Object.freeze({
     name: '04 · HIGH CITY',
-    position: [6, 35, 48],
-    target: [-2, 4.0, 1],
+    position: [9, 32, 46],
+    target: [-2, 7.0, 5],
     purpose: '整体体块层级、地标与背景城市轮廓',
   }),
 ]);
