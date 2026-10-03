@@ -1,0 +1,88 @@
+name: Noir Theatre Lab Captures
+
+on:
+  push:
+    branches:
+      - experiment/noir-theatre-lab
+    paths:
+      - 'experiments/noir-theatre-lab/**'
+      - '!experiments/noir-theatre-lab/captures/review/**'
+      - '.github/workflows/noir-theatre-captures.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: noir-theatre-lab-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: experiments/noir-theatre-lab
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Cache lab dependencies
+        id: cache-node
+        uses: actions/cache@v4
+        with:
+          path: experiments/noir-theatre-lab/node_modules
+          key: noir-theatre-node-${{ runner.os }}-${{ hashFiles('experiments/noir-theatre-lab/package.json') }}
+
+      - name: Install dependencies
+        if: steps.cache-node.outputs.cache-hit != 'true'
+        run: npm install --no-audit --no-fund
+
+      - name: Use runner Chrome
+        shell: bash
+        run: |
+          CHROME_PATH="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          test -n "$CHROME_PATH"
+          echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+          "$CHROME_PATH" --version
+
+      - name: Build lab
+        run: npm run build
+
+      - name: Capture fixed benchmarks
+        run: npm run capture
+
+      - name: Publish capture report
+        shell: bash
+        run: cat captures/latest/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload full captures
+        uses: actions/upload-artifact@v4
+        with:
+          name: noir-theatre-captures-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          compression-level: 3
+          path: experiments/noir-theatre-lab/captures/latest
+          if-no-files-found: error
+
+      - name: Commit compact review evidence
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git add experiments/noir-theatre-lab/captures/review/contact-sheet.jpg experiments/noir-theatre-lab/captures/review/metrics.json
+          if git diff --cached --quiet; then
+            echo "Review evidence unchanged."
+            exit 0
+          fi
+          git config user.name "ssnoir-visual-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -m "更新 Noir Theatre Lab 视觉回看图 [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
