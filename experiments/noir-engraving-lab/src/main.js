@@ -9,6 +9,7 @@ import { createAtmosphere } from './systems/atmosphere.js';
 import { createPost } from './post/pipeline.js';
 import { applyShot } from './shots.js';
 import { bindResearchUI } from './ui.js';
+import { installCaptureApi } from './captureApi.js';
 
 const canvas = document.querySelector('#scene');
 
@@ -45,6 +46,11 @@ const atmosphere = createAtmosphere(scene, PROFILE);
 const lighting = createLighting(scene, PROFILE, world.lampPositions);
 const post = createPost(renderer, scene, camera, PROFILE);
 
+function renderFrame() {
+  controls.update();
+  post.composer.render();
+}
+
 const ui = bindResearchUI({
   profile: PROFILE,
   post,
@@ -57,6 +63,18 @@ const ui = bindResearchUI({
 });
 ui.selectShot(0);
 
+installCaptureApi({
+  profile: PROFILE,
+  camera,
+  controls,
+  world,
+  atmosphere,
+  lighting,
+  post,
+  applyShot,
+  render: renderFrame,
+});
+
 function resize() {
   const width = innerWidth;
   const height = innerHeight;
@@ -68,6 +86,7 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
+const captureMode = new URLSearchParams(location.search).has('capture');
 const clock = new THREE.Clock();
 let fpsFrames = 0;
 let fpsTime = 0;
@@ -76,10 +95,11 @@ function animate() {
   requestAnimationFrame(animate);
 
   const dt = Math.min(clock.getDelta(), 0.05);
-  atmosphere.update(dt);
-  controls.update();
-  post.noir.uniforms.uTime.value += dt;
-  post.composer.render();
+  if (!captureMode) {
+    atmosphere.update(dt);
+    post.noir.uniforms.uTime.value += dt;
+  }
+  renderFrame();
 
   fpsFrames += 1;
   fpsTime += dt;
