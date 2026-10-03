@@ -1,0 +1,134 @@
+[
+  {
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "policy": "强推到底",
+    "seed": 601,
+    "growth": 1,
+    "result": "('overheat 6 1 5 (6))",
+    "status": "overheat",
+    "success": false,
+    "progress": 6,
+    "rounds": 1,
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "actions": [
+      {
+        "version": 1,
+        "card": "强推",
+        "die": 6
+      },
+      {
+        "version": 2,
+        "card": "强推",
+        "die": 6
+      },
+      {
+        "version": 3,
+        "card": "强推",
+        "die": 5
+      }
+    ],
+    "revision": "28d74e62f62cbba1df7dbd27df3554dc18616b58825cc5bd6ff4e16544b1f2f7",
+    "record": "轨迹/余热长目标-强推到底-s601-g1.json.gz"
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "等待到期",
+    "seed": 602,
+    "growth": 1,
+    "result": "('timeout 0 3 2 (0))",
+    "status": "timeout",
+    "success": false,
+    "progress": 0,
+    "rounds": 3,
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "actions": [
+      {
+        "version": 1,
+        "card": "end-turn",
+        "die": null
+      },
+      {
+        "version": 2,
+        "card": "end-turn",
+        "die": null
+      },
+      {
+        "version": 3,
+        "card": "end-turn",
+        "die": null
+      }
+    ],
+    "revision": "28d74e62f62cbba1df7dbd27df3554dc18616b58825cc5bd6ff4e16544b1f2f7",
+    "record": "轨迹/余热转用-等待到期-s602-g1.json.gz"
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "等待到期",
+    "seed": 602,
+    "growth": 1,
+    "result": "('timeout 0 3 2 (0))",
+    "status": "timeout",
+    "success": false,
+    "progress": 0,
+    "rounds": 3,
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "actions": [
+      {
+        "version": 1,
+        "card": "end-turn",
+        "die": null
+      },
+      {
+        "version": 2,
+        "card": "end-turn",
+        "die": null
+      },
+      {
+        "version": 3,
+        "card": "end-turn",
+        "die": null
+      }
+    ],
+    "revision": "28d74e62f62cbba1df7dbd27df3554dc18616b58825cc5bd6ff4e16544b1f2f7",
+    "record": "轨迹/分段兑现-等待到期-s602-g1.json.gz"
+  },
+  {
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "policy": "等待到期",
+    "seed": 602,
+    "growth": 1,
+    "result": "('timeout 0 3 2 (False False False))",
+    "status": "timeout",
+    "success": false,
+    "progress": 0,
+    "rounds": 3,
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "actions": [
+      {
+        "version": 1,
+        "card": "end-turn",
+        "die": null
+      },
+      {
+        "version": 2,
+        "card": "end-turn",
+        "die": null
+      },
+      {
+        "version": 3,
+        "card": "end-turn",
+        "die": null
+      }
+    ],
+    "revision": "28d74e62f62cbba1df7dbd27df3554dc18616b58825cc5bd6ff4e16544b1f2f7",
+    "record": "轨迹/情报承诺-等待到期-s602-g1.json.gz"
+  }
+]

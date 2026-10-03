@@ -1,0 +1,39 @@
+{
+  "ContentRevision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+  "date": "2026-10-02",
+  "source_and_model_sha256": {
+    "UnityClient/Assets/Resources/Content/scripts/research/跨回合余力.scm": "538cfbedacd3db6c7057d27762d3702001094adf32cb6ba2e93d0e135e731149",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·留力推进.scm": "79194f2ba75dbdcbde7d1829413bba184b89f00f038eb5f6adca59d6b4f98668",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·充足余力对照.scm": "1c0eb49d1e3200bfb94cb722d147d9da14e7c3605a3252f969446719051f8436",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
+    "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",
+    "tools/content-validator/experiments/mechanism-study.py": "59bd3eaba31f8eaa874bd9a7f11ab9d21d68dc506662070debcd445e7162c41c",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R11-跨回合余力/余力模型.py": "cf28a84d1c5d58c607c8eecc05d0bcbcddf73be0c5e5378b15af51348f9841e1",
+    "docs/实验/机制研究/批次/R11-跨回合余力/正式对照.py": "8f5a8938630156f53c77d6b4a2cc9deca787341a2942d278a3d625dd7ace83df",
+    "docs/实验/机制研究/批次/R11-跨回合余力/边界补核.py": "9f0aeb980163eabcc5f7996232a4d65d9e665bcece4713732a3280c06f52ca12",
+    "docs/实验/机制研究/批次/R11-跨回合余力/研究分析.py": "13ad2146f0be31a657fca3ec3f814c1f4f283dfc8cb3ff64bc531e53840b7e4b",
+    "docs/实验/机制研究/批次/R11-跨回合余力/强参照.py": "7b62d452f801ecf3e0682644f96f7323293b251859a965433163265732b29d87",
+    "docs/实验/机制研究/批次/R11-跨回合余力/可达分析.py": "4edbc8470c4aea80b57ffb5e63524be19af4300c54fd611ae2406f2c741c3528"
+  },
+  "runtime_snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "3f3482b3f1b909ffbf94434d0c6db0c4f438263c0bc87288123fa0e59e6c3d0f",
+    "bytes": 784433,
+    "isolated_replays": [
+      {
+        "path": "求解-2201.json.gz",
+        "passed": true,
+        "output": "重放通过：12 步"
+      },
+      {
+        "path": "边界-倒下.json.gz",
+        "passed": true,
+        "output": "重放通过：11 步"
+      }
+    ],
+    "scope": "本批全Content与原生构建；兼容.NET可独立严格回放；不是完整Unity工程"
+  }
+}

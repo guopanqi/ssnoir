@@ -1,0 +1,51 @@
+{
+  "batch": "R39",
+  "status": "宽区间停止，窄区间基础关系由R40续审",
+  "source_sha256": {
+    "AGENTS.md": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
+    "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/组合模型.py": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/伤势模型.py": "0f76c82045d89de5d6c14b5d6b1f9d270f03ad6999e628fb5d3bf418d704ecc7",
+    "docs/实验/机制研究/批次/R36-资源余量与选择增量/压力模型.py": "de6f2e48474628d85c7dfd2eddec9f803fb7c1684e1aefddc83d7d29c47062b8",
+    "docs/实验/机制研究/批次/R39-目标区间与行动幅度/幅度模型.py": "7516b3b848c9151a7a0546dadc2eb34f7504bc1fc2bf36434d5d9284d774cef1",
+    "docs/实验/机制研究/批次/R39-目标区间与行动幅度/有界研究计划.md": "a22ee28aa890edf8667051e3383f8d4d41066e05aa8fe9df1a06ee4a614a9c76",
+    "docs/实验/机制研究/批次/R39-目标区间与行动幅度/复现.py": "75300888ac6f69c179952713a86273a6ccf4c9eb9bcd915b8086dfa34d01bc0f",
+    "docs/实验/机制研究/批次/R39-目标区间与行动幅度/复核.py": "e017707c72802c876ccef926f6acbacdc3860b0f2f6c8ec7599e54b7cfb23c39"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "2b50811bd6e42219ebd305d36489cafef22ee47d24ca6200daadc96193d1790b",
+    "files": 23,
+    "bytes": 36756,
+    "isolated_verification": {
+      "batch": "R39",
+      "source_hashes_checked": 13,
+      "results": [
+        {
+          "script": "幅度模型.py",
+          "result": "幅度结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "复核.py",
+          "result": "复核.json",
+          "semantic_equal": true
+        }
+      ],
+      "passed": true,
+      "scope": "冻结源码及正式概率输入隔离数学重算；忽略耗时和隔离绝对依赖路径；没有正式会话或真人证据"
+    }
+  },
+  "evidence": {
+    "initial_hand_conditions": 1008,
+    "independent_small_tree_checks": 160,
+    "probability_table_checks": 18,
+    "native_games": 0,
+    "human_games": 0,
+    "independent_complete_initial_optimization": false
+  }
+}

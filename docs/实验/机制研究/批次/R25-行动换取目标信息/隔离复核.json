@@ -1,0 +1,26 @@
+{
+  "isolated_replays": [
+    {
+      "path": "自由-g1-7102.json.gz",
+      "sha256": "943f825c8f239a0b0865ec0986d4a55c298699748c87453f654cc0ec0666bafc",
+      "passed": true
+    },
+    {
+      "path": "自由-g1-7105.json.gz",
+      "sha256": "e1dd595c5d624b05b15b9cd822693284b215815c34b6c97663520e55fd6bd1f6",
+      "passed": true
+    },
+    {
+      "path": "覆盖-7138.json.gz",
+      "sha256": "1cff78fd9061ead0a3d2d0c5a66f70410ec4aefce5c77da058199b6029551556",
+      "passed": true
+    }
+  ],
+  "source_hashes_checked": 16,
+  "isolated_math_recomputed": [
+    "信息投资",
+    "可达选择",
+    "固定真值复核"
+  ],
+  "passed": true
+}

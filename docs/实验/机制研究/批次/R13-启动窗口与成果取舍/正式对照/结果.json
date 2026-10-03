@@ -1,0 +1,1517 @@
+{
+  "results": [
+    {
+      "path": "开窗求解-3101.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 6,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": true,
+      "held_front": true,
+      "switched": false,
+      "policy": "开窗求解",
+      "seed": 3101
+    },
+    {
+      "path": "开窗求解-3102.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 9,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "window-expired",
+        "prep": 3,
+        "payload": 3,
+        "elapsed": 3,
+        "cold": 0
+      },
+      "model_out": true,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": true,
+      "switched": false,
+      "policy": "开窗求解",
+      "seed": 3102
+    },
+    {
+      "path": "开窗求解-3103.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 10,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 2,
+        "cold": 2
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": true,
+      "switched": false,
+      "policy": "开窗求解",
+      "seed": 3103
+    },
+    {
+      "path": "开窗求解-3104.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 6,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 2
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": true,
+      "switched": false,
+      "policy": "开窗求解",
+      "seed": 3104
+    },
+    {
+      "path": "开窗求解-3105.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 8,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 1
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": true,
+      "switched": false,
+      "policy": "开窗求解",
+      "seed": 3105
+    },
+    {
+      "path": "开窗求解-3106.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 6,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": true,
+      "switched": false,
+      "policy": "开窗求解",
+      "seed": 3106
+    },
+    {
+      "path": "开窗求解-3107.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 8,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 2,
+        "cold": 2
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": true,
+      "switched": false,
+      "policy": "开窗求解",
+      "seed": 3107
+    },
+    {
+      "path": "开窗求解-3108.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 9,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 2,
+        "cold": 0
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": true,
+      "switched": false,
+      "policy": "开窗求解",
+      "seed": 3108
+    },
+    {
+      "path": "开窗用完-3101.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "window-expired",
+        "prep": 3,
+        "payload": 0,
+        "elapsed": 1,
+        "cold": 2
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "开窗用完",
+      "seed": 3101
+    },
+    {
+      "path": "开窗用完-3102.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 10,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "window-expired",
+        "prep": 3,
+        "payload": 2,
+        "elapsed": 2,
+        "cold": 0
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "开窗用完",
+      "seed": 3102
+    },
+    {
+      "path": "开窗用完-3103.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "window-expired",
+        "prep": 3,
+        "payload": 0,
+        "elapsed": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "开窗用完",
+      "seed": 3103
+    },
+    {
+      "path": "开窗用完-3104.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 8,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "开窗用完",
+      "seed": 3104
+    },
+    {
+      "path": "开窗用完-3105.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 8,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 1
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "开窗用完",
+      "seed": 3105
+    },
+    {
+      "path": "开窗用完-3106.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "window-expired",
+        "prep": 3,
+        "payload": 0,
+        "elapsed": 1,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "开窗用完",
+      "seed": 3106
+    },
+    {
+      "path": "开窗用完-3107.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "window-expired",
+        "prep": 3,
+        "payload": 2,
+        "elapsed": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "开窗用完",
+      "seed": 3107
+    },
+    {
+      "path": "开窗用完-3108.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "window-expired",
+        "prep": 3,
+        "payload": 1,
+        "elapsed": 1,
+        "cold": 2
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "开窗用完",
+      "seed": 3108
+    },
+    {
+      "path": "无窗口-3109.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": false,
+      "steps": 6,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "无窗口",
+      "seed": 3109
+    },
+    {
+      "path": "无窗口-3110.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": false,
+      "steps": 6,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 2
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "无窗口",
+      "seed": 3110
+    },
+    {
+      "path": "无窗口-3111.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": false,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "无窗口",
+      "seed": 3111
+    },
+    {
+      "path": "无窗口-3112.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": false,
+      "steps": 7,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "无窗口",
+      "seed": 3112
+    },
+    {
+      "path": "成果求解-3201.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 3,
+        "large": 1,
+        "score": 1,
+        "cold": 2
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": true,
+      "policy": "成果求解",
+      "seed": 3201
+    },
+    {
+      "path": "成果求解-3202.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 6,
+        "score": 2,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果求解",
+      "seed": 3202
+    },
+    {
+      "path": "成果求解-3203.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 3,
+        "large": 0,
+        "score": 1,
+        "cold": 2
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": true,
+      "policy": "成果求解",
+      "seed": 3203
+    },
+    {
+      "path": "成果求解-3204.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 6,
+        "score": 2,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果求解",
+      "seed": 3204
+    },
+    {
+      "path": "成果求解-3205.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 3,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 3,
+        "large": 0,
+        "score": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果求解",
+      "seed": 3205
+    },
+    {
+      "path": "成果求解-3206.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 1,
+        "large": 6,
+        "score": 2,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": true,
+      "policy": "成果求解",
+      "seed": 3206
+    },
+    {
+      "path": "成果求解-3207.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 3,
+        "large": 0,
+        "score": 1,
+        "cold": 1
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": true,
+      "policy": "成果求解",
+      "seed": 3207
+    },
+    {
+      "path": "成果求解-3208.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 3,
+        "large": 0,
+        "score": 1,
+        "cold": 1
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果求解",
+      "seed": 3208
+    },
+    {
+      "path": "成果选定-3201.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 3,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 3,
+        "large": 0,
+        "score": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果选定",
+      "seed": 3201
+    },
+    {
+      "path": "成果选定-3202.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 6,
+        "score": 2,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果选定",
+      "seed": 3202
+    },
+    {
+      "path": "成果选定-3203.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 3,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 3,
+        "large": 0,
+        "score": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果选定",
+      "seed": 3203
+    },
+    {
+      "path": "成果选定-3204.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 6,
+        "score": 2,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果选定",
+      "seed": 3204
+    },
+    {
+      "path": "成果选定-3205.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 3,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 3,
+        "large": 0,
+        "score": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果选定",
+      "seed": 3205
+    },
+    {
+      "path": "成果选定-3206.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 6,
+        "score": 2,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果选定",
+      "seed": 3206
+    },
+    {
+      "path": "成果选定-3207.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 3,
+        "large": 0,
+        "score": 1,
+        "cold": 1
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果选定",
+      "seed": 3207
+    },
+    {
+      "path": "成果选定-3208.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 3,
+        "large": 0,
+        "score": 1,
+        "cold": 1
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果选定",
+      "seed": 3208
+    },
+    {
+      "path": "成果固定大-3209.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 6,
+        "score": 2,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Fail",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果固定大",
+      "seed": 3209
+    },
+    {
+      "path": "成果固定大-3210.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 6,
+        "score": 2,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果固定大",
+      "seed": 3210
+    },
+    {
+      "path": "成果固定大-3211.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 6,
+        "score": 2,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果固定大",
+      "seed": 3211
+    },
+    {
+      "path": "成果固定大-3212.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": false,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 3,
+        "score": 0,
+        "cold": 1
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成果固定大",
+      "seed": 3212
+    },
+    {
+      "path": "成长2开窗-3301.json.gz",
+      "kind": "window",
+      "growth": 2,
+      "window": true,
+      "steps": 6,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 1,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": true,
+      "held_front": true,
+      "switched": false,
+      "policy": "成长2开窗",
+      "seed": 3301
+    },
+    {
+      "path": "成长2开窗-3302.json.gz",
+      "kind": "window",
+      "growth": 2,
+      "window": true,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "success",
+        "prep": 3,
+        "payload": 4,
+        "elapsed": 0,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false,
+      "policy": "成长2开窗",
+      "seed": 3302
+    },
+    {
+      "path": "成长2成果-3303.json.gz",
+      "kind": "harvest",
+      "growth": 2,
+      "window": false,
+      "steps": 5,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 6,
+        "score": 2,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成长2成果",
+      "seed": 3303
+    },
+    {
+      "path": "成长2成果-3304.json.gz",
+      "kind": "harvest",
+      "growth": 2,
+      "window": false,
+      "steps": 4,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 6,
+        "score": 2,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [
+        "Success"
+      ],
+      "opened": false,
+      "held_front": false,
+      "switched": false,
+      "policy": "成长2成果",
+      "seed": 3304
+    },
+    {
+      "path": "边界-三轮空过.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 3,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "timeout",
+        "prep": 0,
+        "payload": 0,
+        "elapsed": 3,
+        "cold": 2
+      },
+      "model_out": false,
+      "grades": [],
+      "opened": false,
+      "held_front": false,
+      "switched": false
+    },
+    {
+      "path": "边界-零成果.json.gz",
+      "kind": "harvest",
+      "growth": 1,
+      "window": true,
+      "steps": 1,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "settled",
+        "small": 0,
+        "large": 0,
+        "score": 0,
+        "cold": 4
+      },
+      "model_out": false,
+      "grades": [],
+      "opened": false,
+      "held_front": false,
+      "switched": false
+    },
+    {
+      "path": "边界-窗口关闭.json.gz",
+      "kind": "window",
+      "growth": 1,
+      "window": true,
+      "steps": 3,
+      "revision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+      "result": {
+        "status": "window-expired",
+        "prep": 3,
+        "payload": 0,
+        "elapsed": 1,
+        "cold": 3
+      },
+      "model_out": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "opened": true,
+      "held_front": false,
+      "switched": false
+    }
+  ],
+  "summary": {
+    "开窗求解": {
+      "games": 8,
+      "results": [
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 4
+        },
+        {
+          "status": "window-expired",
+          "prep": 3,
+          "payload": 3,
+          "elapsed": 3,
+          "cold": 0
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 2,
+          "cold": 2
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 2
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 1
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 3
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 2,
+          "cold": 2
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 2,
+          "cold": 0
+        }
+      ]
+    },
+    "开窗用完": {
+      "games": 8,
+      "results": [
+        {
+          "status": "window-expired",
+          "prep": 3,
+          "payload": 0,
+          "elapsed": 1,
+          "cold": 2
+        },
+        {
+          "status": "window-expired",
+          "prep": 3,
+          "payload": 2,
+          "elapsed": 2,
+          "cold": 0
+        },
+        {
+          "status": "window-expired",
+          "prep": 3,
+          "payload": 0,
+          "elapsed": 1,
+          "cold": 3
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 3
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 1
+        },
+        {
+          "status": "window-expired",
+          "prep": 3,
+          "payload": 0,
+          "elapsed": 1,
+          "cold": 4
+        },
+        {
+          "status": "window-expired",
+          "prep": 3,
+          "payload": 2,
+          "elapsed": 1,
+          "cold": 3
+        },
+        {
+          "status": "window-expired",
+          "prep": 3,
+          "payload": 1,
+          "elapsed": 1,
+          "cold": 2
+        }
+      ]
+    },
+    "无窗口": {
+      "games": 4,
+      "results": [
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 4
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 2
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 3
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 3
+        }
+      ]
+    },
+    "成果求解": {
+      "games": 8,
+      "results": [
+        {
+          "status": "settled",
+          "small": 3,
+          "large": 1,
+          "score": 1,
+          "cold": 2
+        },
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 6,
+          "score": 2,
+          "cold": 4
+        },
+        {
+          "status": "settled",
+          "small": 3,
+          "large": 0,
+          "score": 1,
+          "cold": 2
+        },
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 6,
+          "score": 2,
+          "cold": 4
+        },
+        {
+          "status": "settled",
+          "small": 3,
+          "large": 0,
+          "score": 1,
+          "cold": 3
+        },
+        {
+          "status": "settled",
+          "small": 1,
+          "large": 6,
+          "score": 2,
+          "cold": 4
+        },
+        {
+          "status": "settled",
+          "small": 3,
+          "large": 0,
+          "score": 1,
+          "cold": 1
+        },
+        {
+          "status": "settled",
+          "small": 3,
+          "large": 0,
+          "score": 1,
+          "cold": 1
+        }
+      ]
+    },
+    "成果选定": {
+      "games": 8,
+      "results": [
+        {
+          "status": "settled",
+          "small": 3,
+          "large": 0,
+          "score": 1,
+          "cold": 3
+        },
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 6,
+          "score": 2,
+          "cold": 4
+        },
+        {
+          "status": "settled",
+          "small": 3,
+          "large": 0,
+          "score": 1,
+          "cold": 3
+        },
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 6,
+          "score": 2,
+          "cold": 4
+        },
+        {
+          "status": "settled",
+          "small": 3,
+          "large": 0,
+          "score": 1,
+          "cold": 3
+        },
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 6,
+          "score": 2,
+          "cold": 4
+        },
+        {
+          "status": "settled",
+          "small": 3,
+          "large": 0,
+          "score": 1,
+          "cold": 1
+        },
+        {
+          "status": "settled",
+          "small": 3,
+          "large": 0,
+          "score": 1,
+          "cold": 1
+        }
+      ]
+    },
+    "成果固定大": {
+      "games": 4,
+      "results": [
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 6,
+          "score": 2,
+          "cold": 3
+        },
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 6,
+          "score": 2,
+          "cold": 4
+        },
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 6,
+          "score": 2,
+          "cold": 4
+        },
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 3,
+          "score": 0,
+          "cold": 1
+        }
+      ]
+    },
+    "成长2开窗": {
+      "games": 2,
+      "results": [
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 1,
+          "cold": 4
+        },
+        {
+          "status": "success",
+          "prep": 3,
+          "payload": 4,
+          "elapsed": 0,
+          "cold": 4
+        }
+      ]
+    },
+    "成长2成果": {
+      "games": 2,
+      "results": [
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 6,
+          "score": 2,
+          "cold": 3
+        },
+        {
+          "status": "settled",
+          "small": 0,
+          "large": 6,
+          "score": 2,
+          "cold": 4
+        }
+      ]
+    }
+  },
+  "scope": "冻结后有限原生转移核对；种子对照不作为概率排名，边界另列"
+}

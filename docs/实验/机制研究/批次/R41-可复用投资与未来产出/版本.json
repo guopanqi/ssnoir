@@ -1,0 +1,53 @@
+{
+  "batch": "R41",
+  "status": "保留基础投资关系；停止当前单体接入",
+  "source_sha256": {
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
+    "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/组合模型.py": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/伤势模型.py": "0f76c82045d89de5d6c14b5d6b1f9d270f03ad6999e628fb5d3bf418d704ecc7",
+    "docs/实验/机制研究/批次/R41-可复用投资与未来产出/有界研究计划.md": "a40b2b5713b2548187c3c554b2c9d850f0895aef25a2c1d3a06719d452b517f8",
+    "docs/实验/机制研究/批次/R41-可复用投资与未来产出/投资模型.py": "cb819ae5ae93df350ce4e95e605081901b90fe436c180cf3fb406d64e3777084",
+    "docs/实验/机制研究/批次/R41-可复用投资与未来产出/复核.py": "cf1aa6ef6daf7e593869fb9f95fefc814f68838ba10a42a6e8585809e145edb2",
+    "docs/实验/机制研究/批次/R41-可复用投资与未来产出/回本审查.md": "89a9b74ce7c0eb9f14a539e0c4a01d55bb7a5523eaca1a5f2393bc257d66910e",
+    "docs/实验/机制研究/批次/R41-可复用投资与未来产出/复现.py": "efc2bfa09c15090c0ca4f3a4671b5b8d83f3b812431b4bb9e2ce767680db3978",
+    "docs/实验/机制研究/批次/R41-可复用投资与未来产出/研究记录.md": "b90f1ce8bfc6b6e5a95e137f497d9846d28a302491dcdf6ea99e52c046da78b1"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "70dc243f5b3aa6ef4569c6dc1546234bb7236f0567adade7aae4517a27b79426",
+    "files": 18,
+    "bytes": 89304,
+    "isolated_verification": {
+      "batch": "R41",
+      "source_hashes_checked": 13,
+      "results": [
+        {
+          "script": "投资模型.py",
+          "result": "投资结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "复核.py",
+          "result": "复核.json",
+          "semantic_equal": true
+        }
+      ],
+      "passed": true,
+      "scope": "冻结源码及正式概率输入隔离数学重算；忽略耗时和隔离绝对依赖路径；没有正式会话或真人证据"
+    }
+  },
+  "evidence": {
+    "initial_hands": 126,
+    "objectives": 2,
+    "shared_root_components": 1512,
+    "independent_two_die_trees": 336,
+    "independent_end_conditions": 6,
+    "independent_complete_three_round_optimization": false,
+    "native_games": 0,
+    "human_games": 0
+  }
+}

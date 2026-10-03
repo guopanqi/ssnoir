@@ -1,0 +1,1 @@
+{"status": "passed", "conditions": 486, "locked_risk_equal_conditions": 972, "free_vs_initial_lock_gap_count": 30, "free_full_vs_risk_only_gap_count": 0, "advance_steady_beats_risk_count": 110, "first_feedback_equals_free_count": 486, "elapsed_seconds": 1.486978166969493}

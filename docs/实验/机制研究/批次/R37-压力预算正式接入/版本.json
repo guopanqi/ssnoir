@@ -1,0 +1,77 @@
+{
+  "batch": "R37",
+  "status": "执行校准通过，待真人体验",
+  "ContentRevision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+  "source_sha256": {
+    "AGENTS.md": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
+    "Engine/Runtime/Core/SceneManager.cs": "2502e5031ec9c605623e3d9bbdf19278a59b1ddd04242b941159c75d21e0c731",
+    "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·压力预算.scm": "e7e8d31fdb3cfee32182fc86886b982a8af198f7d6ec6cd6e7a92431125bf2ea",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·压力预算.scm.meta": "235f573b7fa07a75293c5c43cfbef3dd09c1dce3640bc1350cf778c320fc9ebf",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·回合加压对照.scm": "1d03be320937f844e8e6dcbc7e4d136e5212e12d35ebf8e7af381c9383321b35",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·回合加压对照.scm.meta": "8d5a0bffe9726703998b056002467d357f54ec582a7af08cc8f5c25dbd5833e3",
+    "UnityClient/Assets/Resources/Content/scripts/engine.scm": "aec630bf0fd9a9f02b2de141faa8fe444a32b969361816309a380b2dd83c9cfc",
+    "UnityClient/Assets/Resources/Content/scripts/research/压力预算.scm": "e688f8476cb771803f7665fbb33c86133cbbe83283de913d46482df241963430",
+    "UnityClient/Assets/Resources/Content/scripts/research/压力预算.scm.meta": "7b55c3de26d249ae373526c52575acb12fac4b4a94df2e11e3094b97f179f8ec",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/组合模型.py": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/伤势模型.py": "0f76c82045d89de5d6c14b5d6b1f9d270f03ad6999e628fb5d3bf418d704ecc7",
+    "docs/实验/机制研究/批次/R36-资源余量与选择增量/压力模型.py": "de6f2e48474628d85c7dfd2eddec9f803fb7c1684e1aefddc83d7d29c47062b8",
+    "docs/实验/机制研究/批次/R36-资源余量与选择增量/可达调整.py": "ca70a617783d80c07442442be9f0908f505ea8c2c1d48f69381e6d1ae6267e84",
+    "docs/实验/机制研究/批次/R36-资源余量与选择增量/复现.py": "e58c86abbae5d8584b6c4f9250c4ae67fc4ce4abb29940cfc30e3e8920b65b62",
+    "docs/实验/机制研究/批次/R36-资源余量与选择增量/有界研究计划.md": "4f577b6b5648cf25140b41b0d31fa3b332dd6df2e1e3034898cf2091815b8fed",
+    "docs/实验/机制研究/批次/R36-资源余量与选择增量/未来一轮独立核对.py": "18a07fa37130dadc32367989a76f78d58ad08046e876d9c83faf786af1c55b89",
+    "docs/实验/机制研究/批次/R37-压力预算正式接入/复现.py": "127a0d661d961906c416b8569d64208dd72a564f6bd68e58a81bd2dd24b9a257",
+    "docs/实验/机制研究/批次/R37-压力预算正式接入/接入计划.md": "208df2845526f4b344e6306af16f98ca401989dc6aa19a20de1e3c42d09556e8",
+    "docs/实验/机制研究/批次/R37-压力预算正式接入/正式核对.py": "8b68ca074c823b2a8055585e5027d3aafd7d7a37626775ef59bee366b68624bf",
+    "tools/content-validator/experiments/mechanism-study.py": "59bd3eaba31f8eaa874bd9a7f11ab9d21d68dc506662070debcd445e7162c41c"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "cab2a79d24b0600e596ff30aec11f49cf4e928e4f5f6fb5cfdb6916e19276956",
+    "files": 301,
+    "bytes": 937589,
+    "scope": "全Content、冻结原生构建、校准源码/输入/18保存轨迹；不打包Unity或用户无关资产",
+    "isolated_verification": {
+      "source_hashes_checked": 25,
+      "isolated_calibration_records": 18,
+      "isolated_calibration_steps": 192,
+      "isolated_replays": [
+        {
+          "path": "early-1-8108.json.gz",
+          "sha256": "722d437f2bb667de5ca7054ed7e192a49dc57a628e238405fc487ff0faabc6d0",
+          "passed": true
+        },
+        {
+          "path": "early-0-8111.json.gz",
+          "sha256": "2c40e203aa4a91dc001caade9d4c23789ca77ca2862b5fe858658257e9923e41",
+          "passed": true
+        },
+        {
+          "path": "覆盖-8131.json.gz",
+          "sha256": "eb11ff883da028f704410e697dae6b8db0cbdcb2adf958750b48acc4001a79c8",
+          "passed": true
+        },
+        {
+          "path": "覆盖-8136.json.gz",
+          "sha256": "323568cc177137812dbccbbe0143eeb87ca49e76b203a5f39210376d3fce7d95",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "scope": "冻结原生构建和全Content隔离复核；四代表包括对照成功、压力失败、倒下、超时；非新会话或真人证据"
+    }
+  },
+  "evidence": {
+    "saved_native_games": 18,
+    "cohort_games": 16,
+    "coverage_search_completed": 6,
+    "checked_steps": 192,
+    "strict_replays": 18,
+    "human_games": 0,
+    "unity_visual_checked": false
+  }
+}

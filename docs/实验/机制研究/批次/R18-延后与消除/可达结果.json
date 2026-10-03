@@ -1,0 +1,35 @@
+{
+  "summary": {
+    "targets": [
+      3,
+      5
+    ],
+    "skill": 1,
+    "policy": "自由",
+    "no_injury_completion": 0.9316685666508354,
+    "cold_on_success": 2.3223464363064994,
+    "states": 25114,
+    "seconds": 0.27204645797610283
+  },
+  "terminal_mass": 1.0000000000000002,
+  "suppression_action_expected_count": 0.003929469593049839,
+  "suppression_with_more_than_one_die_expected_count": 0,
+  "states": [
+    {
+      "state": [
+        2,
+        5,
+        2,
+        2,
+        0,
+        [
+          1
+        ]
+      ],
+      "mass": 0.003929469593049839,
+      "die": 1,
+      "direct_possible_by_capacity": true
+    }
+  ],
+  "scope": "正常起局最优模型路径；期望动作数不是至少一次概率，首次伤后质量归无伤目标失败"
+}

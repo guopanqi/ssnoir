@@ -1,0 +1,16 @@
+{'policy': '自由', 'skill': 1, 'completion': 0.8351670858100902, 'cold_on_success': 4.206350337905271, 'states': 2552, 'seconds': 0.02419754210859537}
+{'policy': '不探查', 'skill': 1, 'completion': 0.7632825002857796, 'cold_on_success': 4.079011935447261, 'states': 1758, 'seconds': 0.015745667042210698}
+{'policy': '直到定位先探查', 'skill': 1, 'completion': 0.804903620827618, 'cold_on_success': 4.227277467973536, 'states': 816, 'seconds': 0.003668582998216152}
+{'policy': '首手探查', 'skill': 1, 'completion': 0.8316454475308644, 'cold_on_success': 4.212385769358804, 'states': 1421, 'seconds': 0.010434333002194762}
+{'policy': '探查最低骰', 'skill': 1, 'completion': 0.8011313300182896, 'cold_on_success': 3.975751211547622, 'states': 2552, 'seconds': 0.021485499804839492}
+{'policy': '探查最高骰', 'skill': 1, 'completion': 0.8331707961819846, 'cold_on_success': 4.199593113368733, 'states': 2552, 'seconds': 0.021497375098988414}
+{'policy': '固定搜索顺序', 'skill': 1, 'completion': 0.8351670858100902, 'cold_on_success': 4.206350337905271, 'states': 1511, 'seconds': 0.010124749969691038}
+{'policy': '开局明示', 'skill': 1, 'completion': 0.9880544124371294, 'cold_on_success': 4.536262798634809, 'states': 1506, 'seconds': 0.008668417111039162}
+{'policy': '自由', 'skill': 2, 'completion': 0.9458849522748063, 'cold_on_success': 4.497614909076372, 'states': 2552, 'seconds': 0.02184362499974668}
+{'policy': '不探查', 'skill': 2, 'completion': 0.8767384926078342, 'cold_on_success': 4.3584077376910235, 'states': 1758, 'seconds': 0.01502258307300508}
+{'policy': '直到定位先探查', 'skill': 2, 'completion': 0.9384180669867404, 'cold_on_success': 4.5032800780620486, 'states': 816, 'seconds': 0.0034891669638454914}
+{'policy': '首手探查', 'skill': 2, 'completion': 0.9458132096860241, 'cold_on_success': 4.498137357162233, 'states': 1421, 'seconds': 0.010046625044196844}
+{'policy': '探查最低骰', 'skill': 2, 'completion': 0.9131369908360008, 'cold_on_success': 4.2940873477842585, 'states': 2552, 'seconds': 0.020590625004842877}
+{'policy': '探查最高骰', 'skill': 2, 'completion': 0.944765053440787, 'cold_on_success': 4.495592032605629, 'states': 2552, 'seconds': 0.020463749999180436}
+{'policy': '固定搜索顺序', 'skill': 2, 'completion': 0.9458849522748063, 'cold_on_success': 4.497614909076372, 'states': 1511, 'seconds': 0.009831083938479424}
+{'policy': '开局明示', 'skill': 2, 'completion': 0.9984282121627813, 'cold_on_success': 4.80445277690318, 'states': 1506, 'seconds': 0.008218083065003157}

@@ -1,0 +1,305 @@
+{
+  "results": [
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        3
+      ],
+      "policy": "全过程调整",
+      "completion": 0.7791638088705994,
+      "cold_on_success": 4.259794482446649,
+      "states": 681,
+      "seconds": 0.005823290906846523
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        3
+      ],
+      "policy": "最优分区",
+      "completion": 0.7609667924096941,
+      "cold_on_success": 4.313864295706547,
+      "states": 681,
+      "seconds": 0.0010907910764217377
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        3
+      ],
+      "policy": "高骰弱项",
+      "completion": 0.7586091106538642,
+      "cold_on_success": 4.321940836872887,
+      "states": 681,
+      "seconds": 0.0001697081606835127
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        3
+      ],
+      "policy": "高骰强项",
+      "completion": 0.4770971460143271,
+      "cold_on_success": 4.284997628971473,
+      "states": 681,
+      "seconds": 0.00016837497241795063
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        1
+      ],
+      "policy": "全过程调整",
+      "completion": 0.5385105881344306,
+      "cold_on_success": 3.880546075085324,
+      "states": 681,
+      "seconds": 0.00582966604270041
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        1
+      ],
+      "policy": "最优分区",
+      "completion": 0.5140764317558298,
+      "cold_on_success": 3.922398607448483,
+      "states": 681,
+      "seconds": 0.0008811249863356352
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        1
+      ],
+      "policy": "高骰弱项",
+      "completion": 0.4430566272290809,
+      "cold_on_success": 4.070254580637359,
+      "states": 681,
+      "seconds": 0.00015504192560911179
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        1
+      ],
+      "policy": "高骰强项",
+      "completion": 0.4430566272290809,
+      "cold_on_success": 4.070254580637359,
+      "states": 681,
+      "seconds": 0.00015070801600813866
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        2
+      ],
+      "policy": "全过程调整",
+      "completion": 0.6969545419905502,
+      "cold_on_success": 4.033471266410164,
+      "states": 681,
+      "seconds": 0.005463041132315993
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        2
+      ],
+      "policy": "最优分区",
+      "completion": 0.6677895423715898,
+      "cold_on_success": 4.07086294054189,
+      "states": 681,
+      "seconds": 0.0009916669223457575
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        2
+      ],
+      "policy": "高骰弱项",
+      "completion": 0.6272850461057768,
+      "cold_on_success": 4.180180676121253,
+      "states": 681,
+      "seconds": 0.0001510418951511383
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        2
+      ],
+      "policy": "高骰强项",
+      "completion": 0.468884554564853,
+      "cold_on_success": 4.204302986746171,
+      "states": 681,
+      "seconds": 0.00014991709031164646
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        4
+      ],
+      "policy": "全过程调整",
+      "completion": 0.8784472165066305,
+      "cold_on_success": 4.428735833174061,
+      "states": 681,
+      "seconds": 0.005762333050370216
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        4
+      ],
+      "policy": "最优分区",
+      "completion": 0.87561442615455,
+      "cold_on_success": 4.434953246626088,
+      "states": 681,
+      "seconds": 0.0009967500809580088
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        4
+      ],
+      "policy": "高骰弱项",
+      "completion": 0.8742569730224057,
+      "cold_on_success": 4.439567533995817,
+      "states": 681,
+      "seconds": 0.0001527918502688408
+    },
+    {
+      "targets": [
+        3,
+        3
+      ],
+      "skills": [
+        1,
+        4
+      ],
+      "policy": "高骰强项",
+      "completion": 0.47847722336534076,
+      "cold_on_success": 4.322607377765168,
+      "states": 681,
+      "seconds": 0.0001557080540806055
+    },
+    {
+      "targets": [
+        2,
+        3
+      ],
+      "skills": [
+        1,
+        3
+      ],
+      "policy": "全过程调整",
+      "completion": 0.9559167095336085,
+      "cold_on_success": 4.625645174651044,
+      "states": 681,
+      "seconds": 0.005768333096057177
+    },
+    {
+      "targets": [
+        2,
+        3
+      ],
+      "skills": [
+        1,
+        3
+      ],
+      "policy": "最优分区",
+      "completion": 0.9345165799801866,
+      "cold_on_success": 4.633252188893044,
+      "states": 681,
+      "seconds": 0.0019098750781267881
+    },
+    {
+      "targets": [
+        2,
+        3
+      ],
+      "skills": [
+        1,
+        3
+      ],
+      "policy": "高骰弱项",
+      "completion": 0.9081629372427988,
+      "cold_on_success": 4.6365014275271825,
+      "states": 681,
+      "seconds": 0.0002787909470498562
+    },
+    {
+      "targets": [
+        2,
+        3
+      ],
+      "skills": [
+        1,
+        3
+      ],
+      "policy": "高骰强项",
+      "completion": 0.7929068310852007,
+      "cold_on_success": 4.316930211393933,
+      "states": 681,
+      "seconds": 0.00026787491515278816
+    }
+  ],
+  "scope": "单回合四骰独立公平d6，冷静5，两个目标都完成；成功平手保留冷静；最优分区内仍根据结果优化，没有未来信息"
+}

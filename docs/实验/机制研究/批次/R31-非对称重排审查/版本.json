@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-02",
+  "source_sha256": {
+    "AGENTS.md": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
+    "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/组合模型.py": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/伤势模型.py": "0f76c82045d89de5d6c14b5d6b1f9d270f03ad6999e628fb5d3bf418d704ecc7",
+    "docs/实验/机制研究/批次/R22-先解除威胁再完成/中间解除.py": "c29a3d9cb678956e5c14634ef29398ae022ba2fd87da0c3a7e41b59399fc9b54",
+    "docs/实验/机制研究/批次/R23-不同施压时点/时点模型.py": "d394e9ba74a8e25b3d1cd3ec2936979a92642c93305861e428d645019dec863c",
+    "docs/实验/机制研究/批次/R30-非对称敌人与重排顺序/复现.py": "bb8603933c80c09836f2ee4431f8d306087934649bb117f9d4fef3b09d8c3035",
+    "docs/实验/机制研究/批次/R30-非对称敌人与重排顺序/有界研究计划.md": "4e396107b1ebe9f5b56780e4f0d964f3d87818ea9b4aad1db50ff465cb1c927b",
+    "docs/实验/机制研究/批次/R30-非对称敌人与重排顺序/研究记录.md": "4566feb8ba6a2abef8d0f91077f3cb99e3c296a47ead6e0f1ee6693c6f4b9024",
+    "docs/实验/机制研究/批次/R30-非对称敌人与重排顺序/非对称模型.py": "291d60b3f447886434a46cd1d62fa8e4a70e1079335756a72de57de6a8409b9c",
+    "docs/实验/机制研究/批次/R30-非对称敌人与重排顺序/非对称结果.json": "e1a86c022b036ea0a19a38e6257c718c101cf46c046585b5bb1c73fb44d232a6",
+    "docs/实验/机制研究/批次/R31-非对称重排审查/复现.py": "cd916c29ec029e740cef69bb3d09739db367c6421749c65be7076b2544b34284",
+    "docs/实验/机制研究/批次/R31-非对称重排审查/小状态主模型对照.py": "0938b9778e305edb186e4c1581544e7c892f43921b169a13a6a1959c30122847",
+    "docs/实验/机制研究/批次/R31-非对称重排审查/末回合独立核查.py": "bc520f7a353a51404843118a2469d7321e052333bc2973ccce81c5f713c4ae38"
+  },
+  "scope": "R30源只读；主结果没有独立完整优化复核，本批仅小状态精确核对；native0真人0",
+  "document_update_during_review": [
+    {
+      "source": "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R30-非对称敌人与重排顺序/研究记录.md",
+      "previous": "b5e49c1af471e506b2efbef8af14566beba459e3fbae69233dd2afd1e94548e6",
+      "current": "4566feb8ba6a2abef8d0f91077f3cb99e3c296a47ead6e0f1ee6693c6f4b9024",
+      "reason": "探索者完成冻结资料及补充纯完成不计更早完成收益的边界；已重读，模型与数值结果未变化"
+    }
+  ],
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "9b2976d73d3b8bf2a5928afe2ac3e7c063cabeb7cd3222554b6d4b5b37441b4f",
+    "files": 24,
+    "bytes": 95228,
+    "contents": "独立小树、主模型比较脚本及冻结依赖与证据；无新原生"
+  }
+}

@@ -1,0 +1,2 @@
+{"interaction_witnesses": 454, "first": {"state": [5, 3, 4, 3, [1, 4]], "primary_choice": ["整顿", "整顿", 4], "control_choice": ["甲", "快做", 4], "primary_mass": 0.008230452674897118, "control_mass": 0.006172839506172839, "primary_loss_using_control_choice": 0.08876117363259395, "control_loss_using_primary_choice": 0.035612390950623296}}
+{"initial_cases": 504, "iterative_states": 272160, "seconds": 2.553894374985248}

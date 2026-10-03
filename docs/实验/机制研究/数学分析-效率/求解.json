@@ -1,0 +1,6886 @@
+[
+  {
+    "family": "余热转用",
+    "variant": "余热转用",
+    "growth": 1,
+    "success": 0.9998905067622073,
+    "end_turns_on_success": 1.028984305455562,
+    "expected_reward": 8.912071165249529,
+    "objective": "效率",
+    "states": 32200,
+    "parameters": {
+      "目标上限": 14,
+      "回合上限": 3,
+      "热转倍率": 1
+    },
+    "witnesses": [
+      {
+        "remaining": 9,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.018518518518518517,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.004629629629629629,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              2
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.19444444444444442,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.18981481481481483,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.037037037037037035,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 8,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.04629629629629629,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.032407407407407406,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              3
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.4614197530864197,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.4567901234567901,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.17129629629629628,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 7,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.027777777777777776,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              2
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.5046296296296295,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.4907407407407407,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.2407407407407407,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 6,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.1111111111111111,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.027777777777777776,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              2
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.6759259259259258,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.6666666666666667,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.37037037037037035,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 5,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.19444444444444442,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.1111111111111111,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              2,
+              3
+            ],
+            "action": "借热",
+            "die": 2,
+            "success": 0.7175925925925926,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.712962962962963,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.3333333333333333,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 4,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.49999999999999994,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.19444444444444442,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              3
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.9374999999999999,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.9344135802469135,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.8796296296296295,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 5,
+        "state": 3,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.5462962962962963,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.4351851851851851,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.1111111111111111,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              4
+            ],
+            "action": "借热",
+            "die": 2,
+            "success": 0.9629629629629628,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.9537037037037037,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.7777777777777777,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 2,
+        "state": 3,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              6
+            ],
+            "action": "强推",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 3,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.7962962962962962,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.7685185185185185,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.5555555555555555,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 2,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              6
+            ],
+            "action": "强推",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 14,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.3045553269318701,
+            "end_turns": 0.3045553269318701,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.18992734053497945,
+                "end_turns": 0.18992734053497945
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.660234414912121,
+            "end_turns": 0.660234414912121,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.6151220422251719,
+                "end_turns": 0.6151220422251719
+              },
+              {
+                "action": "冷却",
+                "success": 0.4610648769983403,
+                "end_turns": 0.4610648769983403
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 13,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.46768586788091243,
+            "end_turns": 0.46768586788091243,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.3184891665714068,
+                "end_turns": 0.3184891665714068
+              },
+              {
+                "action": "冷却",
+                "success": 0.11578896604938273,
+                "end_turns": 0.11578896604938273
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.7714225001869917,
+            "end_turns": 0.7714225001869917,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.7348732124220988,
+                "end_turns": 0.7348732124220988
+              },
+              {
+                "action": "冷却",
+                "success": 0.6038876346339481,
+                "end_turns": 0.6038876346339481
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热无转用",
+    "growth": 1,
+    "success": 0.995757591250371,
+    "end_turns_on_success": 1.208460082918618,
+    "expected_reward": 8.339091191136651,
+    "objective": "效率",
+    "states": 30496,
+    "parameters": {
+      "目标上限": 14,
+      "回合上限": 3,
+      "热转倍率": 0
+    },
+    "witnesses": [
+      {
+        "remaining": 11,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.23989441634278313,
+            "end_turns": 0.23989441634278313,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.1487673372961439,
+                "end_turns": 0.1487673372961439
+              },
+              {
+                "action": "冷却",
+                "success": 0.11578896604938273,
+                "end_turns": 0.11578896604938273
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.5504841665528841,
+            "end_turns": 0.5504841665528841,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.5310344276884099,
+                "end_turns": 0.5310344276884099
+              },
+              {
+                "action": "冷却",
+                "success": 0.4012525283556877,
+                "end_turns": 0.4012525283556877
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 12,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.10129279549611342,
+            "end_turns": 0.10129279549611342,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.05376675382944672,
+                "end_turns": 0.05376675382944672
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.2489010881058528,
+            "end_turns": 0.2489010881058528,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.24890108810585276,
+                "end_turns": 0.24890108810585276
+              },
+              {
+                "action": "冷却",
+                "success": 0.12899763993674745,
+                "end_turns": 0.12899763993674745
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 10,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.4008460862482853,
+            "end_turns": 0.4008460862482853,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.3200017146776406,
+                "end_turns": 0.3200017146776406
+              },
+              {
+                "action": "冷却",
+                "success": 0.2603898748285323,
+                "end_turns": 0.2603898748285323
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.5592377960200428,
+            "end_turns": 0.5592377960200428,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.5592377960200428,
+                "end_turns": 0.5592377960200428
+              },
+              {
+                "action": "冷却",
+                "success": 0.4268174987616217,
+                "end_turns": 0.4268174987616217
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 9,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.5711376886145405,
+            "end_turns": 0.5711376886145405,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.5217040680727024,
+                "end_turns": 0.5217040680727024
+              },
+              {
+                "action": "冷却",
+                "success": 0.42661894147233653,
+                "end_turns": 0.42661894147233653
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.7059881213589563,
+            "end_turns": 0.7059881213589563,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.7059881213589563,
+                "end_turns": 0.7059881213589563
+              },
+              {
+                "action": "冷却",
+                "success": 0.5880001738492608,
+                "end_turns": 0.5880001738492608
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 8,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.7251880787037038,
+            "end_turns": 0.7251880787037038,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.6971935847241275,
+                "end_turns": 0.6971935847241275
+              },
+              {
+                "action": "冷却",
+                "success": 0.6044399434156378,
+                "end_turns": 0.6044399434156378
+              }
+            ]
+          },
+          {
+            "hand": [
+              3
+            ],
+            "action": "强推",
+            "die": 3,
+            "success": 0.7964805646052432,
+            "end_turns": 0.7964805646052432,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.784884461686481,
+                "end_turns": 0.784884461686481
+              },
+              {
+                "action": "冷却",
+                "success": 0.6044399434156378,
+                "end_turns": 0.6044399434156378
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 7,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.8403215377800642,
+            "end_turns": 0.8403215377800642,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.8270084749530054,
+                "end_turns": 0.8270084749530054
+              },
+              {
+                "action": "冷却",
+                "success": 0.7602684184956562,
+                "end_turns": 0.7602684184956562
+              }
+            ]
+          },
+          {
+            "hand": [
+              3
+            ],
+            "action": "强推",
+            "die": 3,
+            "success": 0.8896357857986592,
+            "end_turns": 0.8896357857986592,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.8823903797058377,
+                "end_turns": 0.8823903797058377
+              },
+              {
+                "action": "冷却",
+                "success": 0.7602684184956562,
+                "end_turns": 0.7602684184956562
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 6,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.9180891148135449,
+            "end_turns": 0.9180891148135449,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.9136695530406955,
+                "end_turns": 0.9136695530406955
+              },
+              {
+                "action": "冷却",
+                "success": 0.8614433299039784,
+                "end_turns": 0.8614433299039784
+              }
+            ]
+          },
+          {
+            "hand": [
+              2
+            ],
+            "action": "强推",
+            "die": 2,
+            "success": 0.937285665294925,
+            "end_turns": 0.937285665294925,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.9369253646865318,
+                "end_turns": 0.9369253646865318
+              },
+              {
+                "action": "冷却",
+                "success": 0.8614433299039784,
+                "end_turns": 0.8614433299039784
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 11,
+        "state": 3,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.5310344276884099,
+            "end_turns": 0.5310344276884099,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.5310344276884099,
+                "end_turns": 0.5310344276884099
+              },
+              {
+                "action": "冷却",
+                "success": 0.4012525283556877,
+                "end_turns": 0.4012525283556877
+              }
+            ]
+          },
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.23989441634278313,
+            "end_turns": 0.23989441634278313,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.1487673372961439,
+                "end_turns": 0.1487673372961439
+              },
+              {
+                "action": "冷却",
+                "success": 0.11578896604938273,
+                "end_turns": 0.11578896604938273
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 12,
+        "state": 3,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.10129279549611342,
+            "end_turns": 0.10129279549611342,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.05376675382944672,
+                "end_turns": 0.05376675382944672
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              4
+            ],
+            "action": "强推",
+            "die": 4,
+            "success": 0.21506701531778688,
+            "end_turns": 0.21506701531778688,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.2121895719021491,
+                "end_turns": 0.2121895719021491
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 10,
+        "state": 3,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.4008460862482853,
+            "end_turns": 0.4008460862482853,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.3200017146776406,
+                "end_turns": 0.3200017146776406
+              },
+              {
+                "action": "冷却",
+                "success": 0.2603898748285323,
+                "end_turns": 0.2603898748285323
+              }
+            ]
+          },
+          {
+            "hand": [
+              4
+            ],
+            "action": "强推",
+            "die": 4,
+            "success": 0.5879540323502515,
+            "end_turns": 0.5879540323502515,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.545166276101204,
+                "end_turns": 0.545166276101204
+              },
+              {
+                "action": "冷却",
+                "success": 0.2603898748285323,
+                "end_turns": 0.2603898748285323
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 9,
+        "state": 3,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.5711376886145405,
+            "end_turns": 0.5711376886145405,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.5217040680727024,
+                "end_turns": 0.5217040680727024
+              },
+              {
+                "action": "冷却",
+                "success": 0.42661894147233653,
+                "end_turns": 0.42661894147233653
+              }
+            ]
+          },
+          {
+            "hand": [
+              3
+            ],
+            "action": "强推",
+            "die": 3,
+            "success": 0.660168455170706,
+            "end_turns": 0.660168455170706,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.6527173472984301,
+                "end_turns": 0.6527173472984301
+              },
+              {
+                "action": "冷却",
+                "success": 0.42661894147233653,
+                "end_turns": 0.42661894147233653
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 8,
+        "state": 3,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.7251880787037038,
+            "end_turns": 0.7251880787037038,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.6971935847241275,
+                "end_turns": 0.6971935847241275
+              },
+              {
+                "action": "冷却",
+                "success": 0.6044399434156378,
+                "end_turns": 0.6044399434156378
+              }
+            ]
+          },
+          {
+            "hand": [
+              3
+            ],
+            "action": "强推",
+            "die": 3,
+            "success": 0.7964805646052432,
+            "end_turns": 0.7964805646052432,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.784884461686481,
+                "end_turns": 0.784884461686481
+              },
+              {
+                "action": "冷却",
+                "success": 0.6044399434156378,
+                "end_turns": 0.6044399434156378
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热短目标",
+    "growth": 1,
+    "success": 0.9999834310547744,
+    "end_turns_on_success": 0.7470442144210272,
+    "expected_reward": 9.75870566259822,
+    "objective": "效率",
+    "states": 28810,
+    "parameters": {
+      "目标上限": 12,
+      "回合上限": 3,
+      "热转倍率": 1
+    },
+    "witnesses": [
+      {
+        "remaining": 9,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.018518518518518517,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.004629629629629629,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              2
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.19444444444444442,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.18981481481481483,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.037037037037037035,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 7,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.027777777777777776,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              2
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.5046296296296295,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.4907407407407407,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.2407407407407407,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 8,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.04629629629629629,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.032407407407407406,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              3
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.4614197530864197,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.4567901234567901,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.17129629629629628,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 6,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.1111111111111111,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.027777777777777776,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              2
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.6759259259259258,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.6666666666666667,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.37037037037037035,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 5,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.19444444444444442,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.1111111111111111,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              2,
+              3
+            ],
+            "action": "借热",
+            "die": 2,
+            "success": 0.7175925925925926,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.712962962962963,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.3333333333333333,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 4,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.49999999999999994,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.19444444444444442,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              3
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.9374999999999999,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.9344135802469135,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.8796296296296295,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 3,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.7962962962962962,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.7685185185185185,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.5555555555555555,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 2,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              6
+            ],
+            "action": "强推",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 5,
+        "state": 3,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.5462962962962963,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.4351851851851851,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.1111111111111111,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              4
+            ],
+            "action": "借热",
+            "die": 2,
+            "success": 0.9629629629629628,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.9537037037037037,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.7777777777777777,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 2,
+        "state": 3,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              6
+            ],
+            "action": "强推",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 12,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.6114520620586292,
+            "end_turns": 0.6114520620586292,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.5066337583511152,
+                "end_turns": 0.5066337583511152
+              },
+              {
+                "action": "冷却",
+                "success": 0.2603898748285323,
+                "end_turns": 0.2603898748285323
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.8560165052717518,
+            "end_turns": 0.8560165052717518,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.8217063288407724,
+                "end_turns": 0.8217063288407724
+              },
+              {
+                "action": "冷却",
+                "success": 0.733690848913614,
+                "end_turns": 0.733690848913614
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 11,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.7542210044835644,
+            "end_turns": 0.7542210044835644,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.6122580002413252,
+                "end_turns": 0.6122580002413252
+              },
+              {
+                "action": "冷却",
+                "success": 0.35839441872427985,
+                "end_turns": 0.35839441872427985
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.9171841874042113,
+            "end_turns": 0.9171841874042113,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.892308988306675,
+                "end_turns": 0.892308988306675
+              },
+              {
+                "action": "冷却",
+                "success": 0.8382041887352032,
+                "end_turns": 0.8382041887352032
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "growth": 1,
+    "success": 0.9993991260742744,
+    "end_turns_on_success": 1.0921252094858354,
+    "expected_reward": 8.71838257311981,
+    "objective": "效率",
+    "states": 34729,
+    "parameters": {
+      "目标上限": 16,
+      "回合上限": 3,
+      "热转倍率": 1
+    },
+    "witnesses": [
+      {
+        "remaining": 9,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.018518518518518517,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.004629629629629629,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              2
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.19444444444444442,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.18981481481481483,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.037037037037037035,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 8,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.04629629629629629,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.032407407407407406,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              3
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.4614197530864197,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.4567901234567901,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.17129629629629628,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 7,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.027777777777777776,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              2
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.5046296296296295,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.4907407407407407,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.2407407407407407,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 6,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.1111111111111111,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.027777777777777776,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              2
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.6759259259259258,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.6666666666666667,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.37037037037037035,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 5,
+        "state": 3,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.5462962962962963,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.4351851851851851,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.1111111111111111,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              4
+            ],
+            "action": "借热",
+            "die": 2,
+            "success": 0.9629629629629628,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.9537037037037037,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.7777777777777777,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 5,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.19444444444444442,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.1111111111111111,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              2,
+              3
+            ],
+            "action": "借热",
+            "die": 2,
+            "success": 0.7175925925925926,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.712962962962963,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.3333333333333333,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 4,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.49999999999999994,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.19444444444444442,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              3
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.9374999999999999,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.9344135802469135,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.8796296296296295,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 2,
+        "state": 3,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              6
+            ],
+            "action": "强推",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 3,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.7962962962962962,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.7685185185185185,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.5555555555555555,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 2,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              6
+            ],
+            "action": "强推",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 16,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.05376675382944672,
+            "end_turns": 0.05376675382944672,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.019298161008230452,
+                "end_turns": 0.019298161008230452
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.3855745786426668,
+            "end_turns": 0.3855745786426668,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.3630605701497203,
+                "end_turns": 0.3630605701497203
+              },
+              {
+                "action": "冷却",
+                "success": 0.16318260311351587,
+                "end_turns": 0.16318260311351587
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 15,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "强推",
+            "die": 1,
+            "success": 0.1346254143804298,
+            "end_turns": 0.1346254143804298,
+            "same_die_alternatives": [
+              {
+                "action": "借热",
+                "success": 0.10129279549611342,
+                "end_turns": 0.10129279549611342
+              },
+              {
+                "action": "冷却",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "借热",
+            "die": 1,
+            "success": 0.5239127850034152,
+            "end_turns": 0.5239127850034152,
+            "same_die_alternatives": [
+              {
+                "action": "强推",
+                "success": 0.4837180569624028,
+                "end_turns": 0.4837180569624028
+              },
+              {
+                "action": "冷却",
+                "success": 0.29906147860251653,
+                "end_turns": 0.29906147860251653
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "growth": 1,
+    "success": 0.9960259749989216,
+    "end_turns_on_success": 1.0754123762256869,
+    "expected_reward": 8.73889571831877,
+    "objective": "效率",
+    "states": 26456,
+    "parameters": {
+      "目标上限": 18,
+      "回合上限": 3,
+      "递增兑现": 1,
+      "储备衰减": 2
+    },
+    "witnesses": [
+      {
+        "remaining": 18,
+        "state": 0,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.11108074702789207,
+            "end_turns": 0.11108074702789207,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.37026915675964023,
+                "end_turns": 0.37026915675964023
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 3,
+        "state": 0,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.5555555555555555,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": 1,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.4443229881115683,
+            "end_turns": 0.4443229881115683,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.4929483882030178,
+                "end_turns": 0.4929483882030178
+              },
+              {
+                "action": "兑现",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 15,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.4797763298277702,
+                "end_turns": 0.4797763298277702
+              },
+              {
+                "action": "兑现",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 0.80829784903216,
+            "end_turns": 0.80829784903216,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              },
+              {
+                "action": "兑现",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 16,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.9999999999999999,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 17,
+        "state": 0,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.11108074702789207,
+                "end_turns": 0.11108074702789207
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 2,
+        "state": 0,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              6
+            ],
+            "action": "备料",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 3,
+        "state": 1,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.7222222222222222,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 3,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 12,
+        "state": 4,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 12,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "分段兑现",
+    "variant": "兑现线性",
+    "growth": 1,
+    "success": 0.9932156883427772,
+    "end_turns_on_success": 1.275690031395024,
+    "expected_reward": 8.117482202181243,
+    "objective": "效率",
+    "states": 23988,
+    "parameters": {
+      "目标上限": 18,
+      "回合上限": 3,
+      "递增兑现": 0,
+      "储备衰减": 2
+    },
+    "witnesses": [
+      {
+        "remaining": 8,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              3,
+              3
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 0.861111111111111,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.75,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.8333333333333333,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 4,
+        "state": 0,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.8518518518518517,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": 3,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.4797763298277702,
+            "end_turns": 0.4797763298277702,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.5223533236168268,
+                "end_turns": 0.5223533236168268
+              },
+              {
+                "action": "兑现",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              3
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 0.8288602871132453,
+            "end_turns": 0.8288602871132453,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.7438170391327548,
+                "end_turns": 0.7438170391327548
+              },
+              {
+                "action": "稳进",
+                "success": 0.8193860977747298,
+                "end_turns": 0.8193860977747298
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 10,
+        "state": 3,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              3,
+              3
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 0.861111111111111,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.75,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.8333333333333333,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 10,
+        "state": 4,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 10,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 9,
+        "state": 3,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6759259259259259,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 9,
+        "state": 4,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 2,
+        "state": 0,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 6,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": 4,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.7360753886602653,
+            "end_turns": 0.7360753886602653,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.5861363549763758,
+                "end_turns": 0.5861363549763758
+              },
+              {
+                "action": "兑现",
+                "success": 0.7360753886602653,
+                "end_turns": 0.7360753886602653
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 0.8792045324645638,
+            "end_turns": 0.8792045324645638,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.7360753886602653,
+                "end_turns": 0.7360753886602653
+              },
+              {
+                "action": "兑现",
+                "success": 0.7360753886602653,
+                "end_turns": 0.7360753886602653
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 17,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.12267923144337756,
+            "end_turns": 0.12267923144337756,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.533388550980965,
+                "end_turns": 0.533388550980965
+              },
+              {
+                "action": "兑现",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "分段兑现",
+    "variant": "兑现无衰减",
+    "growth": 1,
+    "success": 0.9992081384857474,
+    "end_turns_on_success": 1.0235675816508196,
+    "expected_reward": 8.922226488201947,
+    "objective": "效率",
+    "states": 34631,
+    "parameters": {
+      "目标上限": 18,
+      "回合上限": 3,
+      "递增兑现": 1,
+      "储备衰减": 0
+    },
+    "witnesses": [
+      {
+        "remaining": 18,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.1111111111111111,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              6,
+              6
+            ],
+            "action": "备料",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 17,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.9999999999999999,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 3,
+        "state": 0,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.5555555555555555,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": 0,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.1624049782807499,
+            "end_turns": 0.1624049782807499,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.5114395195092214,
+                "end_turns": 0.5114395195092214
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 16,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.9999999999999999,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 2,
+        "state": 0,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              6
+            ],
+            "action": "备料",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 3,
+        "state": 1,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.7222222222222222,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 3,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 12,
+        "state": 4,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": 1,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.10264846250571565,
+            "end_turns": 0.10264846250571565,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6158907750342939,
+            "end_turns": 0.6158907750342939,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.47892554012345684,
+                "end_turns": 0.47892554012345684
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 8,
+        "state": 3,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 8,
+        "state": 4,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "分段兑现",
+    "variant": "兑现短目标",
+    "growth": 1,
+    "success": 0.9982171501494749,
+    "end_turns_on_success": 0.3578910652267769,
+    "expected_reward": 10.906846804209799,
+    "objective": "效率",
+    "states": 22968,
+    "parameters": {
+      "目标上限": 15,
+      "回合上限": 3,
+      "递增兑现": 1,
+      "储备衰减": 2
+    },
+    "witnesses": [
+      {
+        "remaining": 15,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 14,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 4,
+        "state": 0,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.25,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.5833333333333333,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 5,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 12,
+        "state": 4,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 12,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 11,
+        "state": 4,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 2,
+        "state": 0,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.16666666666666666,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              6
+            ],
+            "action": "备料",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 13,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 3,
+        "state": 0,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.16666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.5555555555555555,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 14,
+        "state": 0,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.7070145795229386,
+            "end_turns": 0.7070145795229386,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.8792045324645638,
+            "end_turns": 0.8792045324645638,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.8092641413275418,
+                "end_turns": 0.7629678450312455
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 9,
+        "state": 3,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.7314814814814814,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "分段兑现",
+    "variant": "兑现长目标",
+    "growth": 1,
+    "success": 0.9905610667811975,
+    "end_turns_on_success": 1.1518423344710764,
+    "expected_reward": 8.463822286582127,
+    "objective": "效率",
+    "states": 27800,
+    "parameters": {
+      "目标上限": 21,
+      "回合上限": 3,
+      "递增兑现": 1,
+      "储备衰减": 2
+    },
+    "witnesses": [
+      {
+        "remaining": 21,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.4559214725270538,
+            "end_turns": 0.4559214725270538,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.5438838070394927,
+                "end_turns": 0.5438838070394927
+              },
+              {
+                "action": "兑现",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 6,
+        "state": 2,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.6666666666666666,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.7314814814814814,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 15,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 21,
+        "state": 3,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.5288125381039478,
+                "end_turns": 0.5288125381039478
+              },
+              {
+                "action": "兑现",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              2
+            ],
+            "action": "备料",
+            "die": 2,
+            "success": 0.6895873818777629,
+            "end_turns": 0.6895873818777629,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              },
+              {
+                "action": "兑现",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 11,
+        "state": 4,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 11,
+        "state": 5,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 10,
+        "state": 4,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 1,
+        "state": 0,
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.9999999999999999,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 21,
+        "state": 4,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "兑现",
+            "die": 1,
+            "success": 0.7360753886602653,
+            "end_turns": 0.7360753886602653,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.8792045324645638,
+            "end_turns": 0.8792045324645638,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.6430993750952604,
+                "end_turns": 0.6430993750952604
+              },
+              {
+                "action": "兑现",
+                "success": 0.8792045324645638,
+                "end_turns": 0.8792045324645638
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              4
+            ],
+            "action": "备料",
+            "die": 4,
+            "success": 0.9646490626428905,
+            "end_turns": 0.9646490626428905,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.8792045324645638,
+                "end_turns": 0.8792045324645638
+              },
+              {
+                "action": "兑现",
+                "success": 0.8792045324645638,
+                "end_turns": 0.8792045324645638
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 20,
+        "state": 2,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.4797763298277702,
+            "end_turns": 0.4797763298277702,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              },
+              {
+                "action": "兑现",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.4797763298277702,
+                "end_turns": 0.4797763298277702
+              },
+              {
+                "action": "兑现",
+                "success": 0.6664844821673525,
+                "end_turns": 0.6664844821673525
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": 0,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.11108074702789207,
+            "end_turns": 0.11108074702789207,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.37026915675964023,
+                "end_turns": 0.37026915675964023
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 19,
+        "state": 0,
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "备料",
+            "die": 1,
+            "success": 0.1666211205418381,
+            "end_turns": 0.1666211205418381,
+            "same_die_alternatives": [
+              {
+                "action": "稳进",
+                "success": 0.11108074702789207,
+                "end_turns": 0.11108074702789207
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "稳进",
+            "die": 1,
+            "success": 0.6664844821673525,
+            "end_turns": 0.6664844821673525,
+            "same_die_alternatives": [
+              {
+                "action": "备料",
+                "success": 0.38878261459762226,
+                "end_turns": 0.38878261459762226
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "growth": 1,
+    "success": 0.9948322255650509,
+    "end_turns_on_success": 1.5224206269353056,
+    "expected_reward": 7.394327405160041,
+    "objective": "效率",
+    "states": 54039,
+    "parameters": {
+      "目标上限": 16,
+      "回合上限": 3,
+      "信息有效": 1
+    },
+    "witnesses": [
+      {
+        "remaining": 16,
+        "state": [
+          "U",
+          3
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.05196500271490627,
+            "end_turns": 0.05196500271490627,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0032163601680384084,
+                "end_turns": 0.0032163601680384084
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              4
+            ],
+            "action": "探查",
+            "die": 1,
+            "success": 0.2792255127891666,
+            "end_turns": 0.2792255127891666,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.2751711469235296,
+                "end_turns": 0.2751711469235296
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 16,
+        "state": [
+          "U",
+          2
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.05196500271490627,
+            "end_turns": 0.05196500271490627,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0032163601680384084,
+                "end_turns": 0.0032163601680384084
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              4
+            ],
+            "action": "探查",
+            "die": 1,
+            "success": 0.2792255127891666,
+            "end_turns": 0.2792255127891666,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.2751711469235296,
+                "end_turns": 0.2751711469235296
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 16,
+        "state": [
+          "U",
+          1
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.05196500271490627,
+            "end_turns": 0.05196500271490627,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0032163601680384084,
+                "end_turns": 0.0032163601680384084
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              4
+            ],
+            "action": "探查",
+            "die": 1,
+            "success": 0.2792255127891666,
+            "end_turns": 0.2792255127891666,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.2751711469235296,
+                "end_turns": 0.2751711469235296
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 16,
+        "state": [
+          "U",
+          0
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.15013628170124954,
+            "end_turns": 0.15013628170124954,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.10487269775419567,
+                "end_turns": 0.10487269775419567
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              2,
+              4
+            ],
+            "action": "探查",
+            "die": 1,
+            "success": 0.2792255127891666,
+            "end_turns": 0.2792255127891666,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.2751711469235296,
+                "end_turns": 0.2751711469235296
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 16,
+        "state": [
+          "U",
+          4
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.05196500271490627,
+            "end_turns": 0.05196500271490627,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0032163601680384084,
+                "end_turns": 0.0032163601680384084
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              3
+            ],
+            "action": "探查",
+            "die": 3,
+            "success": 0.13469097996208657,
+            "end_turns": 0.13469097996208657,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.09543393731397865,
+                "end_turns": 0.09543393731397865
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "情报承诺",
+    "variant": "情报无信息",
+    "growth": 1,
+    "success": 0.8514983237437546,
+    "end_turns_on_success": 1.5504280762581786,
+    "expected_reward": 6.257419160867775,
+    "objective": "效率",
+    "states": 52440,
+    "parameters": {
+      "目标上限": 16,
+      "回合上限": 3,
+      "信息有效": 0
+    },
+    "witnesses": []
+  },
+  {
+    "family": "情报承诺",
+    "variant": "情报短目标",
+    "growth": 1,
+    "success": 0.9985365035258172,
+    "end_turns_on_success": 1.2332583974311992,
+    "expected_reward": 8.2880774579654,
+    "objective": "效率",
+    "states": 52411,
+    "parameters": {
+      "目标上限": 14,
+      "回合上限": 3,
+      "信息有效": 1
+    },
+    "witnesses": [
+      {
+        "remaining": 14,
+        "state": [
+          "U",
+          3
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.05881344307270234,
+            "end_turns": 0.05881344307270234,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              5
+            ],
+            "action": "探查",
+            "die": 1,
+            "success": 0.2981806555784179,
+            "end_turns": 0.2981806555784179,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.29137596695382234,
+                "end_turns": 0.29137596695382234
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 14,
+        "state": [
+          "U",
+          2
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.05881344307270234,
+            "end_turns": 0.05881344307270234,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              5
+            ],
+            "action": "探查",
+            "die": 1,
+            "success": 0.2981806555784179,
+            "end_turns": 0.2981806555784179,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.29137596695382234,
+                "end_turns": 0.29137596695382234
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 14,
+        "state": [
+          "U",
+          1
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.17830693477292167,
+            "end_turns": 0.17830693477292167,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.12353448645404665,
+                "end_turns": 0.12353448645404665
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              5
+            ],
+            "action": "探查",
+            "die": 1,
+            "success": 0.2981806555784179,
+            "end_turns": 0.2981806555784179,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.29137596695382234,
+                "end_turns": 0.29137596695382234
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 7,
+        "state": [
+          "K",
+          0
+        ],
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.17129629629629628,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.004629629629629629,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              6,
+              6,
+              6
+            ],
+            "action": "探查",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 14,
+        "state": [
+          "U",
+          4
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.05881344307270234,
+            "end_turns": 0.05881344307270234,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              5
+            ],
+            "action": "探查",
+            "die": 5,
+            "success": 0.24518729280978513,
+            "end_turns": 0.24518729280978513,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.13636795884032754,
+                "end_turns": 0.13636795884032754
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 7,
+        "state": [
+          "K",
+          1
+        ],
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.17129629629629628,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.004629629629629629,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              6,
+              6,
+              6
+            ],
+            "action": "探查",
+            "die": 6,
+            "success": 1.0,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.6666666666666666,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 13,
+        "state": [
+          "K",
+          2
+        ],
+        "turns": 3,
+        "choices": [
+          {
+            "hand": [
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.973249179167198,
+            "end_turns": 1.946498358334396,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.9520069326026038,
+                "end_turns": 1.9040138652052077
+              }
+            ]
+          },
+          {
+            "hand": [
+              5
+            ],
+            "action": "探查",
+            "die": 5,
+            "success": 0.9750900213819144,
+            "end_turns": 1.9501800427638287,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.973249179167198,
+                "end_turns": 1.946498358334396
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 6,
+        "state": [
+          "K",
+          0
+        ],
+        "turns": 1,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.027777777777777776,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              1,
+              6,
+              6
+            ],
+            "action": "探查",
+            "die": 1,
+            "success": 0.9999999999999999,
+            "end_turns": -0.0,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 1.0,
+                "end_turns": -0.0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "family": "情报承诺",
+    "variant": "情报长目标",
+    "growth": 1,
+    "success": 0.9804314509106914,
+    "end_turns_on_success": 1.839973316225284,
+    "expected_reward": 6.353274286737163,
+    "objective": "效率",
+    "states": 54997,
+    "parameters": {
+      "目标上限": 18,
+      "回合上限": 3,
+      "信息有效": 1
+    },
+    "witnesses": [
+      {
+        "remaining": 18,
+        "state": [
+          "U",
+          3
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.0016081800840192042,
+            "end_turns": 0.0016081800840192042,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              6,
+              6,
+              6
+            ],
+            "action": "探查",
+            "die": 6,
+            "success": 0.35839441872427985,
+            "end_turns": 0.35839441872427985,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.21520127219554946,
+                "end_turns": 0.21520127219554946
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": [
+          "U",
+          2
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.0016081800840192042,
+            "end_turns": 0.0016081800840192042,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              6,
+              6,
+              6
+            ],
+            "action": "探查",
+            "die": 6,
+            "success": 0.35839441872427985,
+            "end_turns": 0.35839441872427985,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.21520127219554946,
+                "end_turns": 0.21520127219554946
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": [
+          "U",
+          1
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.0016081800840192042,
+            "end_turns": 0.0016081800840192042,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              6,
+              6,
+              6
+            ],
+            "action": "探查",
+            "die": 6,
+            "success": 0.35839441872427985,
+            "end_turns": 0.35839441872427985,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.21520127219554946,
+                "end_turns": 0.21520127219554946
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": [
+          "U",
+          0
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.044311575119286524,
+            "end_turns": 0.044311575119286524,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.007019833700083828,
+                "end_turns": 0.007019833700083828
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              6,
+              6,
+              6
+            ],
+            "action": "探查",
+            "die": 6,
+            "success": 0.35839441872427985,
+            "end_turns": 0.35839441872427985,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.21520127219554946,
+                "end_turns": 0.21520127219554946
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "remaining": 18,
+        "state": [
+          "U",
+          4
+        ],
+        "turns": 2,
+        "choices": [
+          {
+            "hand": [
+              1,
+              1,
+              1
+            ],
+            "action": "押定",
+            "die": 1,
+            "success": 0.0016081800840192042,
+            "end_turns": 0.0016081800840192042,
+            "same_die_alternatives": [
+              {
+                "action": "探查",
+                "success": 0.0,
+                "end_turns": -0.0
+              }
+            ]
+          },
+          {
+            "hand": [
+              1,
+              6,
+              6,
+              6
+            ],
+            "action": "探查",
+            "die": 6,
+            "success": 0.35839441872427985,
+            "end_turns": 0.35839441872427985,
+            "same_die_alternatives": [
+              {
+                "action": "押定",
+                "success": 0.1942368076989026,
+                "end_turns": 0.1942368076989026
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

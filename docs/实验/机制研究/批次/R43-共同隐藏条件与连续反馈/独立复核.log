@@ -1,0 +1,43 @@
+{
+  "status": "通过",
+  "identity": "局部独立最优树＋全初始固定真值执行公开策略；非独立全局优化",
+  "local_optimal_cases": 648,
+  "local_max_remaining_dice": 2,
+  "mirrored_posterior_cases": 648,
+  "equal_posterior_method_ties": 168,
+  "local_free_greedy_different_cases": 0,
+  "posterior_checks": [
+    {
+      "die": 1,
+      "method": "甲",
+      "gain": 0,
+      "probability": "1/3",
+      "posterior_truth0": "3/4"
+    },
+    {
+      "die": 1,
+      "method": "甲",
+      "gain": 1,
+      "probability": "1/2",
+      "posterior_truth0": "1/2"
+    },
+    {
+      "die": 1,
+      "method": "甲",
+      "gain": 2,
+      "probability": "1/6",
+      "posterior_truth0": "0"
+    }
+  ],
+  "fixed_truth_root_family_checks": 630,
+  "conceptual_complete_fate_sequences": 1632960,
+  "visited_public_states_with_truth": 8371,
+  "totals": {
+    "free": "202525/209952",
+    "fixed_method": "112681/124416",
+    "greedy": "202525/209952",
+    "highest": "809449/839808",
+    "best_initial_order": "405025/419904"
+  },
+  "elapsed_seconds": 0.33429408073425293
+}

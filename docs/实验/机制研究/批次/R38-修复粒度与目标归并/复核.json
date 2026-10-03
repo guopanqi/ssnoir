@@ -1,0 +1,187 @@
+{
+  "batch": "R38",
+  "initial_fusion_checks": 252,
+  "initial_fusion_max_error": 0.0,
+  "strong_family_containment_checks": 252,
+  "short_vs_free_six_component_checks": 1512,
+  "short_vs_free_max_error": 0.0,
+  "local_independent_action_checks": [
+    {
+      "die": 1,
+      "route": 1,
+      "action": "稳做",
+      "exact": "81181/559872",
+      "completion": 0.14499921410608138,
+      "max_error": 5.551115123125783e-17
+    },
+    {
+      "die": 1,
+      "route": 1,
+      "action": "快做",
+      "exact": "296353/559872",
+      "completion": 0.5293227737768633,
+      "max_error": 0.0
+    },
+    {
+      "die": 1,
+      "route": 2,
+      "action": "稳做",
+      "exact": "0",
+      "completion": 0.0,
+      "max_error": 0.0
+    },
+    {
+      "die": 1,
+      "route": 2,
+      "action": "快做",
+      "exact": "81181/559872",
+      "completion": 0.14499921410608138,
+      "max_error": 5.551115123125783e-17
+    },
+    {
+      "die": 6,
+      "route": 1,
+      "action": "稳做",
+      "exact": "81181/93312",
+      "completion": 0.8699952846364883,
+      "max_error": 3.3306690738754696e-16
+    },
+    {
+      "die": 6,
+      "route": 1,
+      "action": "快做",
+      "exact": "81181/93312",
+      "completion": 0.8699952846364883,
+      "max_error": 3.3306690738754696e-16
+    },
+    {
+      "die": 6,
+      "route": 2,
+      "action": "稳做",
+      "exact": "0",
+      "completion": 0.0,
+      "max_error": 0.0
+    },
+    {
+      "die": 6,
+      "route": 2,
+      "action": "快做",
+      "exact": "81181/93312",
+      "completion": 0.8699952846364883,
+      "max_error": 3.3306690738754696e-16
+    }
+  ],
+  "independent_ending_checks": [
+    {
+      "remaining": [
+        2,
+        0
+      ],
+      "total": 2,
+      "pressure_after_end": 4,
+      "completion": 0.8699952846364883,
+      "exact": "81181/93312"
+    },
+    {
+      "remaining": [
+        1,
+        1
+      ],
+      "total": 2,
+      "pressure_after_end": 5,
+      "completion": 0.0,
+      "exact": "0"
+    }
+  ],
+  "independent_future_hand_conditions": 182,
+  "independent_future_cases": [
+    [
+      4,
+      3,
+      4,
+      4
+    ],
+    [
+      4,
+      4,
+      4,
+      3
+    ]
+  ],
+  "swap_checks": [
+    {
+      "state": [
+        8,
+        1,
+        2,
+        3,
+        0,
+        2,
+        0,
+        2,
+        [
+          1,
+          6
+        ],
+        -1
+      ],
+      "max_error": 0.0
+    },
+    {
+      "state": [
+        8,
+        1,
+        2,
+        2,
+        0,
+        3,
+        1,
+        2,
+        [
+          1,
+          6
+        ],
+        -1
+      ],
+      "max_error": 0.0
+    },
+    {
+      "state": [
+        6,
+        0,
+        2,
+        2,
+        1,
+        0,
+        0,
+        2,
+        [
+          2,
+          5
+        ],
+        -1
+      ],
+      "max_error": 0.0
+    },
+    {
+      "state": [
+        9,
+        1,
+        2,
+        3,
+        0,
+        4,
+        1,
+        2,
+        [
+          1,
+          4
+        ],
+        -1
+      ],
+      "max_error": 0.0
+    }
+  ],
+  "scope": "初始族融合/包含与换名核对共享主转移；8首动作及2结束状态复用独立Fraction末回合递推，182未来手牌条件；非全三回合独立优化，许可状态不称正常访问；正式0真人0",
+  "passed": true
+}

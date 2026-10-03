@@ -1,0 +1,287 @@
+{
+  "window": {
+    "terminal": {
+      "success": 0.8848770598598115,
+      "first_injury": 0.02941447986013414,
+      "window_expired": 0.07788439591308322,
+      "timeout": 0.00782406436697128
+    },
+    "probability_at_least_one_early_end": 0.9085561724609883,
+    "expected_early_ends": 1.2392806378843793,
+    "opening_mass": 0.9831927496646775,
+    "early_end_examples": [
+      {
+        "prep_remaining": 1,
+        "payload_remaining": 4,
+        "cold": 5,
+        "turns": 3,
+        "hand": [
+          2,
+          3
+        ],
+        "visit_mass": 0.06635802469135801,
+        "end_value": 0.8854397057180093,
+        "best_action_value": 0.5857000101701183,
+        "gap": 0.29973969554789104
+      },
+      {
+        "prep_remaining": 1,
+        "payload_remaining": 4,
+        "cold": 5,
+        "turns": 3,
+        "hand": [
+          1,
+          2,
+          3
+        ],
+        "visit_mass": 0.05092592592592592,
+        "end_value": 0.8854397057180093,
+        "best_action_value": 0.7564579452590098,
+        "gap": 0.12898176045899956
+      },
+      {
+        "prep_remaining": 1,
+        "payload_remaining": 4,
+        "cold": 5,
+        "turns": 3,
+        "hand": [
+          1,
+          2
+        ],
+        "visit_mass": 0.037037037037037035,
+        "end_value": 0.8854397057180093,
+        "best_action_value": 0.728680167481232,
+        "gap": 0.15675953823677735
+      },
+      {
+        "prep_remaining": 1,
+        "payload_remaining": 4,
+        "cold": 5,
+        "turns": 3,
+        "hand": [
+          1,
+          3
+        ],
+        "visit_mass": 0.037037037037037035,
+        "end_value": 0.8854397057180093,
+        "best_action_value": 0.728680167481232,
+        "gap": 0.15675953823677735
+      },
+      {
+        "prep_remaining": 1,
+        "payload_remaining": 4,
+        "cold": 5,
+        "turns": 3,
+        "hand": [
+          3,
+          3
+        ],
+        "visit_mass": 0.03317901234567901,
+        "end_value": 0.8854397057180093,
+        "best_action_value": 0.43812672588378343,
+        "gap": 0.4473129798342259
+      },
+      {
+        "prep_remaining": 1,
+        "payload_remaining": 4,
+        "cold": 5,
+        "turns": 3,
+        "hand": [
+          1,
+          1,
+          2
+        ],
+        "visit_mass": 0.029320987654320986,
+        "end_value": 0.8854397057180093,
+        "best_action_value": 0.7379394267404913,
+        "gap": 0.14750027897751805
+      },
+      {
+        "prep_remaining": 1,
+        "payload_remaining": 4,
+        "cold": 5,
+        "turns": 3,
+        "hand": [
+          1,
+          2,
+          2
+        ],
+        "visit_mass": 0.028806584362139915,
+        "end_value": 0.8854397057180093,
+        "best_action_value": 0.7471986859997505,
+        "gap": 0.13824101971825886
+      },
+      {
+        "prep_remaining": 1,
+        "payload_remaining": 4,
+        "cold": 5,
+        "turns": 3,
+        "hand": [
+          1,
+          1,
+          3
+        ],
+        "visit_mass": 0.02546296296296296,
+        "end_value": 0.8854397057180093,
+        "best_action_value": 0.7425690563701208,
+        "gap": 0.1428706493478885
+      }
+    ],
+    "scope": "无伤模型，首次受伤止；提前结束指仍有骰且前置尚未完成；正常路径概率不是犹豫率"
+  },
+  "harvest": {
+    "score_mass": {
+      "1": 0.3123642546867855,
+      "0": 0.09950607757963721,
+      "2": 0.5881296677335772
+    },
+    "at_least_one_switch": 0.3105066872427982,
+    "expected_switches": 0.3507587448559671,
+    "switch_direction_event_mass": [
+      0.04749657064471878,
+      0.3032621742112483
+    ],
+    "first_route_mass": [
+      0.08564814814814814,
+      0.9143518518518527
+    ],
+    "switch_examples": [
+      {
+        "remaining": [
+          3,
+          5
+        ],
+        "cold": 3,
+        "hand": [
+          5,
+          6
+        ],
+        "previous_route": 1,
+        "chosen_route": 0,
+        "visit_mass": 0.021604938271604937,
+        "chosen_expected_score": 1.0,
+        "continue_previous_expected_score": 0.0,
+        "gap": 1.0
+      },
+      {
+        "remaining": [
+          3,
+          5
+        ],
+        "cold": 3,
+        "hand": [
+          4,
+          6
+        ],
+        "previous_route": 1,
+        "chosen_route": 0,
+        "visit_mass": 0.018518518518518517,
+        "chosen_expected_score": 1.0,
+        "continue_previous_expected_score": 0.0,
+        "gap": 1.0
+      },
+      {
+        "remaining": [
+          3,
+          5
+        ],
+        "cold": 3,
+        "hand": [
+          4,
+          5
+        ],
+        "previous_route": 1,
+        "chosen_route": 0,
+        "visit_mass": 0.013888888888888886,
+        "chosen_expected_score": 0.9444444444444444,
+        "continue_previous_expected_score": 0.0,
+        "gap": 0.9444444444444444
+      },
+      {
+        "remaining": [
+          3,
+          5
+        ],
+        "cold": 3,
+        "hand": [
+          6,
+          6
+        ],
+        "previous_route": 1,
+        "chosen_route": 0,
+        "visit_mass": 0.01131687242798354,
+        "chosen_expected_score": 1.0,
+        "continue_previous_expected_score": 0.0,
+        "gap": 1.0
+      },
+      {
+        "remaining": [
+          3,
+          4
+        ],
+        "cold": 3,
+        "hand": [
+          2,
+          6
+        ],
+        "previous_route": 1,
+        "chosen_route": 0,
+        "visit_mass": 0.011059670781893002,
+        "chosen_expected_score": 0.8333333333333333,
+        "continue_previous_expected_score": 0.6666666666666666,
+        "gap": 0.16666666666666663
+      },
+      {
+        "remaining": [
+          3,
+          5
+        ],
+        "cold": 3,
+        "hand": [
+          5,
+          5
+        ],
+        "previous_route": 1,
+        "chosen_route": 0,
+        "visit_mass": 0.010631001371742112,
+        "chosen_expected_score": 0.9722222222222223,
+        "continue_previous_expected_score": 0.0,
+        "gap": 0.9722222222222223
+      },
+      {
+        "remaining": [
+          2,
+          4
+        ],
+        "cold": 5,
+        "hand": [
+          6,
+          6
+        ],
+        "previous_route": 0,
+        "chosen_route": 1,
+        "visit_mass": 0.010416666666666666,
+        "chosen_expected_score": 2.0,
+        "continue_previous_expected_score": 1.0,
+        "gap": 1.0
+      },
+      {
+        "remaining": [
+          2,
+          2
+        ],
+        "cold": 5,
+        "hand": [
+          6
+        ],
+        "previous_route": 0,
+        "chosen_route": 1,
+        "visit_mass": 0.010416666666666666,
+        "chosen_expected_score": 2.0,
+        "continue_previous_expected_score": 1.0,
+        "gap": 1.0
+      }
+    ],
+    "scope": "正常冷静5单回合无受伤路径；最优政策选择不是玩家体验"
+  }
+}

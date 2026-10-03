@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-03",
+  "results": [
+    {
+      "remaining": 2,
+      "injury": 3,
+      "pressure": 4,
+      "exact_probability": "15209/15552",
+      "probability": 0.9779449588477366,
+      "initial_hands": 126,
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "remaining": 4,
+      "injury": 3,
+      "pressure": 4,
+      "exact_probability": "81181/93312",
+      "probability": 0.8699952846364883,
+      "initial_hands": 126,
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "remaining": 4,
+      "injury": 3,
+      "pressure": 3,
+      "exact_probability": "65653/69984",
+      "probability": 0.9381144261545497,
+      "initial_hands": 126,
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "remaining": 8,
+      "injury": 3,
+      "pressure": 3,
+      "exact_probability": "2401/20736",
+      "probability": 0.11578896604938271,
+      "initial_hands": 126,
+      "max_error": 1.6653345369377348e-16
+    },
+    {
+      "remaining": 6,
+      "injury": 2,
+      "pressure": 4,
+      "exact_probability": "172787/279936",
+      "probability": 0.6172375114311842,
+      "initial_hands": 126,
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "remaining": 4,
+      "injury": 2,
+      "pressure": 4,
+      "exact_probability": "1475899/1679616",
+      "probability": 0.8787121580170706,
+      "initial_hands": 126,
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "remaining": 6,
+      "injury": 2,
+      "pressure": 3,
+      "exact_probability": "39641/62208",
+      "probability": 0.6372331532921811,
+      "initial_hands": 126,
+      "max_error": 1.1102230246251565e-16
+    }
+  ],
+  "checked_future_initial_hands": 882,
+  "max_error": 2.220446049250313e-16,
+  "selected_actual_flip": {
+    "state": [
+      8,
+      2,
+      2,
+      3,
+      0,
+      2,
+      0,
+      2,
+      [
+        6
+      ],
+      -1
+    ],
+    "advance": [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    "repair": [
+      0.0,
+      0.0,
+      0.8699952846364887,
+      1.000000000000001,
+      2.997083261888429,
+      0.0
+    ],
+    "counter_advance": [
+      0.0,
+      0.0,
+      0.9779449588477377,
+      1.000000000000001,
+      3.066434827960674,
+      0.0
+    ],
+    "counter_repair": [
+      0.0,
+      0.0,
+      0.9381144261545502,
+      1.000000000000001,
+      3.36126650377229,
+      0.0
+    ]
+  },
+  "ordinary_pressure_pair": [
+    {
+      "pressure": 3,
+      "state": [
+        6,
+        1,
+        0,
+        3,
+        0,
+        1,
+        0,
+        2,
+        [
+          6
+        ],
+        -1
+      ],
+      "choice": [
+        0,
+        "快做",
+        6
+      ],
+      "completion": 0.878712158017071
+    },
+    {
+      "pressure": 4,
+      "state": [
+        6,
+        1,
+        0,
+        4,
+        0,
+        1,
+        0,
+        2,
+        [
+          6
+        ],
+        -1
+      ],
+      "choice": [
+        1,
+        "稳做",
+        6
+      ],
+      "completion": 0.6172375114311842
+    }
+  ],
+  "scope": "7个已伤非头部许可后续状态×126新四骰，独立Fraction主收益；不是全部三回合初始独立优化，也不是正常访问质量或正式校准"
+}

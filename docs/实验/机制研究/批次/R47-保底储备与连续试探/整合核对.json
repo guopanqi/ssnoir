@@ -1,0 +1,36 @@
+{
+  "batch": "R47",
+  "passed": true,
+  "independent_local_conditions": 1386,
+  "matched_local_values": 8316,
+  "exact_local_policy_decisions": 2772,
+  "independent_initial_strategy_hands": 126,
+  "matched_initial_distribution_components": 756,
+  "probability_components": 36,
+  "selected_normal_policy_paths_equal": true,
+  "single_normal_root": {
+    "hand": [
+      2,
+      2,
+      4,
+      5
+    ],
+    "weight": "1/108",
+    "free": "91/54",
+    "L": "44/27",
+    "guaranteed_G": "13/9",
+    "finite_probability_plan": "91/54",
+    "spare_contribution": {
+      "0": "1/36",
+      "1": "1/6",
+      "2": "13/36",
+      "3": "1/3",
+      "4": "1/9"
+    }
+  },
+  "input_sha256": {
+    "储备结果.json": "027c25d4f4db4edc4cf204a53cb7fe95083646f001c1a9899e807edd81657356",
+    "审查储备结果.json": "a389bf4c556e8dffbc458e0c5624509da0ef81e6199bf230594c1a2128fbb0c0"
+  },
+  "scope": "独立1386局部自由树与126根明确策略执行；非126根独立自由优化。正常2245固定有限计划非全126概率判据。正式0真人0"
+}

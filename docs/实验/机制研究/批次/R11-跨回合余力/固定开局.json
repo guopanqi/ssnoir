@@ -1,0 +1,61 @@
+{
+  "results": [
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "每轮开头冷静≤1，最高骰整顿一次，之后只推进；有保证终点可直接完成",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.8170226397574332,
+      "cold_on_success": 1.5259520925277166,
+      "states": 14113,
+      "seconds": 0.11217770795337856
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "每轮开头冷静≤2，最高骰整顿一次，之后只推进；有保证终点可直接完成",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.8161845517206127,
+      "cold_on_success": 1.8752778470639937,
+      "states": 16545,
+      "seconds": 0.12261116690933704
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "每轮开头冷静≤3，最高骰整顿一次，之后只推进；有保证终点可直接完成",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.8212391498669817,
+      "cold_on_success": 2.3182986367721643,
+      "states": 19759,
+      "seconds": 0.15851016691885889
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "每轮开头冷静≤4，最高骰整顿一次，之后只推进；有保证终点可直接完成",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.8136394228130235,
+      "cold_on_success": 2.544386738402992,
+      "states": 19603,
+      "seconds": 0.13137675006873906
+    }
+  ],
+  "scope": "只在开头整顿一次；其余稳险与骰序仍优化；纯模型"
+}

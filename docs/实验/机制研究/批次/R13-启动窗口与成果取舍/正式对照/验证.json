@@ -1,0 +1,249 @@
+{
+  "native_games": 47,
+  "checked_steps": 246,
+  "strict_replays": [
+    {
+      "path": "开窗求解-3101.json.gz",
+      "sha256": "b7e5f65935896a9c56a8cc1a39b0716ea1e61c2117bb646ba4c1bd46c5477960",
+      "passed": true
+    },
+    {
+      "path": "开窗求解-3102.json.gz",
+      "sha256": "5a8c36c9a0de23b97fc0d3bf0241a77b704469885546557c18ad977b4cbc4047",
+      "passed": true
+    },
+    {
+      "path": "开窗求解-3103.json.gz",
+      "sha256": "c8d196973cd951effc48894500839a216f83e463f8c955f62093eb372824fc0b",
+      "passed": true
+    },
+    {
+      "path": "开窗求解-3104.json.gz",
+      "sha256": "028cdff9ea4e697af769fb483925e8b0c35dd174fbe1f312bb06d6d63cadeca1",
+      "passed": true
+    },
+    {
+      "path": "开窗求解-3105.json.gz",
+      "sha256": "04cf53c5e7433934f838db9d3b71b1126310f665195283052cb0a8a08f9f353b",
+      "passed": true
+    },
+    {
+      "path": "开窗求解-3106.json.gz",
+      "sha256": "8fa4d10c418ff449c6281575425615b4125acc842b6c45af1f8a7180623a0b20",
+      "passed": true
+    },
+    {
+      "path": "开窗求解-3107.json.gz",
+      "sha256": "438b351e6b4c7ab720ba5e42bb24b02c5cdee418c59c8ae68c782d04370f707b",
+      "passed": true
+    },
+    {
+      "path": "开窗求解-3108.json.gz",
+      "sha256": "1515be07b67804976788d875f6bf12117681ff025549c7bf3c805fc57f0f6e65",
+      "passed": true
+    },
+    {
+      "path": "开窗用完-3101.json.gz",
+      "sha256": "0f670e4ef36e9f78d81efb630dd6b679203844da0315e1e70e7b2171b627e4cd",
+      "passed": true
+    },
+    {
+      "path": "开窗用完-3102.json.gz",
+      "sha256": "51d5b45d22c499d9a4112a00be89309ed70b3602cfba493b76b8db9fdacc108b",
+      "passed": true
+    },
+    {
+      "path": "开窗用完-3103.json.gz",
+      "sha256": "31af00f9caa12273ee25c76712819d4dc60ac286161a83e6970ad01f53de1379",
+      "passed": true
+    },
+    {
+      "path": "开窗用完-3104.json.gz",
+      "sha256": "9ae766c1bcdaa5c8152fe4edb44e54a35e93515077867432a5b166c286ac03a4",
+      "passed": true
+    },
+    {
+      "path": "开窗用完-3105.json.gz",
+      "sha256": "6a23828715caa10a7f4cb66019605a12a06a98360486bb40f550015fcc8f36be",
+      "passed": true
+    },
+    {
+      "path": "开窗用完-3106.json.gz",
+      "sha256": "6007b096a56aeb74f082fb84a996f23e7d277e315bb805868323080d312c3aa2",
+      "passed": true
+    },
+    {
+      "path": "开窗用完-3107.json.gz",
+      "sha256": "c7a25f049e0e3ae640defcbc8d686fef9431c597b5ac38e25a93511f22bf47e2",
+      "passed": true
+    },
+    {
+      "path": "开窗用完-3108.json.gz",
+      "sha256": "ffd5f50a68f3a268f2704726cebb69bbeb2490e442bf094fc130233ca68b3a16",
+      "passed": true
+    },
+    {
+      "path": "成果固定大-3209.json.gz",
+      "sha256": "905306cd8b5593c1d7a4075b3d0dfb12290e56e5cf237bbed7cd8aecaded4820",
+      "passed": true
+    },
+    {
+      "path": "成果固定大-3210.json.gz",
+      "sha256": "1a11ebd1c7821f3bb100ac113c90f156364cd855897bc7bd405bc1241ca33437",
+      "passed": true
+    },
+    {
+      "path": "成果固定大-3211.json.gz",
+      "sha256": "8d9ecbf4853d4cb74518d6293aec8032fc4d63d5d7510919003557b5beb5434c",
+      "passed": true
+    },
+    {
+      "path": "成果固定大-3212.json.gz",
+      "sha256": "675443507a70ad7171709002165ab993ed9c86d84e2d109d6bb42613d7f7eac6",
+      "passed": true
+    },
+    {
+      "path": "成果求解-3201.json.gz",
+      "sha256": "76e32fb399d8280cb5eec8b25cabf9d65681fc2364c658af266391dbceb5337c",
+      "passed": true
+    },
+    {
+      "path": "成果求解-3202.json.gz",
+      "sha256": "6cdbf88ee498111bc2021c70b972692f5badddc5109bbfe76b700bbf1dd78ddc",
+      "passed": true
+    },
+    {
+      "path": "成果求解-3203.json.gz",
+      "sha256": "0d6e3bd34e897baed40929f406cfc2ee03104c970ad372af719b2ff473a4aef3",
+      "passed": true
+    },
+    {
+      "path": "成果求解-3204.json.gz",
+      "sha256": "26cbe16bbf4f854b8151bbc666692ada698d6dd31812ef4903921c5462adab3c",
+      "passed": true
+    },
+    {
+      "path": "成果求解-3205.json.gz",
+      "sha256": "34c8cd92c400730f96a32a371c7c578e0c163bc2d5f76f724611bfd27a7a802c",
+      "passed": true
+    },
+    {
+      "path": "成果求解-3206.json.gz",
+      "sha256": "717c95d0e4b75f0463f1d9756bfd098e70809d79721fd2b635463d2981392bd2",
+      "passed": true
+    },
+    {
+      "path": "成果求解-3207.json.gz",
+      "sha256": "34540cae157d8a802778b374b5ce3d4663f87bc53ee428a18046ca8509d53b88",
+      "passed": true
+    },
+    {
+      "path": "成果求解-3208.json.gz",
+      "sha256": "89f15c0aa46ef5a9123b49adfde22662472992854107eb583754ed58cb39a0dc",
+      "passed": true
+    },
+    {
+      "path": "成果选定-3201.json.gz",
+      "sha256": "da266e9808eef6bd2cec9cf64f999d0a31460d2c2e78affadfea8ef9ca8b7ebb",
+      "passed": true
+    },
+    {
+      "path": "成果选定-3202.json.gz",
+      "sha256": "bf79f0b158867579eee6bce194a8692936fb352164cbed891049df18200286be",
+      "passed": true
+    },
+    {
+      "path": "成果选定-3203.json.gz",
+      "sha256": "4d0d4afa3183950728c081ac958a8a68448c85c5810ceed0db46ef4301ec16f7",
+      "passed": true
+    },
+    {
+      "path": "成果选定-3204.json.gz",
+      "sha256": "cebbe3d0365206d8bb467bae6e4866052f025c6c685a9915e2e1184b3f9393c7",
+      "passed": true
+    },
+    {
+      "path": "成果选定-3205.json.gz",
+      "sha256": "34c8cd92c400730f96a32a371c7c578e0c163bc2d5f76f724611bfd27a7a802c",
+      "passed": true
+    },
+    {
+      "path": "成果选定-3206.json.gz",
+      "sha256": "46126bf38ee9a86691fb01ae089f024d3761d9e21e48a149683175046ddf2ac8",
+      "passed": true
+    },
+    {
+      "path": "成果选定-3207.json.gz",
+      "sha256": "2e049cd9b5b360e6009c16ef7957c5cf4660204ce9fe36e185d97c47c66762d1",
+      "passed": true
+    },
+    {
+      "path": "成果选定-3208.json.gz",
+      "sha256": "89f15c0aa46ef5a9123b49adfde22662472992854107eb583754ed58cb39a0dc",
+      "passed": true
+    },
+    {
+      "path": "成长2开窗-3301.json.gz",
+      "sha256": "f14441f065c9ef102bab06a51553ff69428adb93a5838c71b6121eb6b76d654b",
+      "passed": true
+    },
+    {
+      "path": "成长2开窗-3302.json.gz",
+      "sha256": "241815fe09bc590032a7dcc79f8b573b456fad28f0faca4861b52b1d879b61f2",
+      "passed": true
+    },
+    {
+      "path": "成长2成果-3303.json.gz",
+      "sha256": "c3a61534b629d6efd70a664a73755c8f2e3e2f555810d38a622e9310abc7cbdf",
+      "passed": true
+    },
+    {
+      "path": "成长2成果-3304.json.gz",
+      "sha256": "dc7b350c179825b24862ff16e809254384931b5a4a64b848c84ef7030d41a27d",
+      "passed": true
+    },
+    {
+      "path": "无窗口-3109.json.gz",
+      "sha256": "8999a8c38119d8021a239bf88c003a85604b0b651c50cc00108f1806cffd76f9",
+      "passed": true
+    },
+    {
+      "path": "无窗口-3110.json.gz",
+      "sha256": "5b09da14ff80083217bd0b4c5dc8c1b5beecabe11465e421587d794624c2a433",
+      "passed": true
+    },
+    {
+      "path": "无窗口-3111.json.gz",
+      "sha256": "f130a023fa5cdd677d266e22803b0bc123b2d60789570a663475b04fb8eadf9b",
+      "passed": true
+    },
+    {
+      "path": "无窗口-3112.json.gz",
+      "sha256": "851a6b5db706006d7025556b53675028c0432d513bfb22f1822532d004e7c3fe",
+      "passed": true
+    },
+    {
+      "path": "边界-三轮空过.json.gz",
+      "sha256": "a9bb09ad4294029a91735f7287aea18f5527758a02a01d4928598382e52de6b5",
+      "passed": true
+    },
+    {
+      "path": "边界-窗口关闭.json.gz",
+      "sha256": "f988f293f7151a893662b050ea55d302ea8184742e1b327f74697b8e476c327a",
+      "passed": true
+    },
+    {
+      "path": "边界-零成果.json.gz",
+      "sha256": "b01702c43680f1c7ed05bf59de35f73374252badb83aff977d7535c949f1c49c",
+      "passed": true
+    }
+  ],
+  "ContentRevision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+  "human_games": 0,
+  "unity_visual_checked": false,
+  "covered_grades": [
+    "Fail",
+    "Neutral",
+    "Success"
+  ]
+}

@@ -1,0 +1,14 @@
+{'reset': True, 'policy': '自由', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 16952}
+{'reset': True, 'policy': '禁止探查', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 11126}
+{'reset': True, 'policy': '开局先探查', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 15987}
+{'reset': True, 'policy': '每回合首手探查', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 13057}
+{'reset': True, 'policy': '最多探查一次', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 27227}
+{'reset': True, 'policy': '首回合只取信息', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 10892}
+{'reset': True, 'policy': '直到定位先探查', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 5922}
+{'reset': False, 'policy': '自由', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 39100}
+{'reset': False, 'policy': '禁止探查', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 20630}
+{'reset': False, 'policy': '开局先探查', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 36413}
+{'reset': False, 'policy': '每回合首手探查', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 36301}
+{'reset': False, 'policy': '最多探查一次', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 58025}
+{'reset': False, 'policy': '首回合只取信息', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 10892}
+{'reset': False, 'policy': '直到定位先探查', 'initial_hands': 126, 'dimensions': 4, 'max_error': 0.0, 'states': 8050}

@@ -1,0 +1,112 @@
+{
+  "saved_native_games": 18,
+  "checked_steps": 57,
+  "strict_replays": [
+    {
+      "path": "不探查-g1-7111.json.gz",
+      "sha256": "3a8196152f2280f6d0b01b104d3e81ffbfefcd52fa47116a558db882735e04d4",
+      "passed": true
+    },
+    {
+      "path": "不探查-g1-7112.json.gz",
+      "sha256": "b7d5e2e5ed810c6da6149653122326526e416829629378b81dbe6226e3763637",
+      "passed": true
+    },
+    {
+      "path": "不探查-g1-7113.json.gz",
+      "sha256": "5e3759b65d620c8e5ff8485ea6e51479d5ef93103cb3647aec423f5a0a98e2ac",
+      "passed": true
+    },
+    {
+      "path": "不探查-g1-7114.json.gz",
+      "sha256": "993fecae9cfe9749c345ab64acc805fe61b772ee2b86ef753f9dd20d4922ac31",
+      "passed": true
+    },
+    {
+      "path": "自由-g1-7101.json.gz",
+      "sha256": "dd4994597b2e29934b47ac79f4db72ba8ed3740fce1d40697e849ba800c54c5d",
+      "passed": true
+    },
+    {
+      "path": "自由-g1-7102.json.gz",
+      "sha256": "943f825c8f239a0b0865ec0986d4a55c298699748c87453f654cc0ec0666bafc",
+      "passed": true
+    },
+    {
+      "path": "自由-g1-7103.json.gz",
+      "sha256": "4e470dedc5cb202d56abe9ef699b474986c1fa2a0a8e1279e755cf82c08f923e",
+      "passed": true
+    },
+    {
+      "path": "自由-g1-7104.json.gz",
+      "sha256": "2edb3e0d2676acdd913d6c21f46b53112ad911e7fe8a7cca7f6b5f7194ee53e2",
+      "passed": true
+    },
+    {
+      "path": "自由-g1-7105.json.gz",
+      "sha256": "e1dd595c5d624b05b15b9cd822693284b215815c34b6c97663520e55fd6bd1f6",
+      "passed": true
+    },
+    {
+      "path": "自由-g1-7106.json.gz",
+      "sha256": "b980535b92f14ee9284232ff51d471f3d18f97d0e8c0ffa5381b344068c4b948",
+      "passed": true
+    },
+    {
+      "path": "自由-g1-7107.json.gz",
+      "sha256": "2d90fc7406484eb36615f3b2255c35112f733811319c1dd5744ba3fc6cd326e1",
+      "passed": true
+    },
+    {
+      "path": "自由-g1-7108.json.gz",
+      "sha256": "576b53ebc2b4baffa70e908676a580a7e8d46fce08620578ae3fa44886e1ac4b",
+      "passed": true
+    },
+    {
+      "path": "自由-g2-7121.json.gz",
+      "sha256": "30a2e3aed7311d4df1537b56b42ffc08088a2ca7cfa2aa209400d10af55d0ba7",
+      "passed": true
+    },
+    {
+      "path": "自由-g2-7122.json.gz",
+      "sha256": "b73a297879d59707c2bacc81d687d26ea7f341446fd031b347f430e8b905fb98",
+      "passed": true
+    },
+    {
+      "path": "自由-g2-7123.json.gz",
+      "sha256": "69dfd8ec431281afb0b7093d01b0b9c62811c99aebadc7bcb6bf7dba64d00e0e",
+      "passed": true
+    },
+    {
+      "path": "自由-g2-7124.json.gz",
+      "sha256": "2435c16e5a1021bbe86a34df6ab2cc433392a9175b453c40f5986eb82a847996",
+      "passed": true
+    },
+    {
+      "path": "覆盖-7131.json.gz",
+      "sha256": "bfd8b67a7b5557b32f5aa12c9dc57fec2872b6720b68e29700bc017edbf737b4",
+      "passed": true
+    },
+    {
+      "path": "覆盖-7138.json.gz",
+      "sha256": "1cff78fd9061ead0a3d2d0c5a66f70410ec4aefce5c77da058199b6029551556",
+      "passed": true
+    }
+  ],
+  "ContentRevision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+  "covered_grades": [
+    "Fail",
+    "Neutral",
+    "Success"
+  ],
+  "coverage_search_completed": 8,
+  "boundary_counts": {
+    "searched_after_unlocated": 1,
+    "repeated_after_unlocated": 2,
+    "clamped_progress": 8,
+    "empty_location": 4,
+    "probe_located": 10
+  },
+  "human_games": 0,
+  "unity_visual_checked": false
+}

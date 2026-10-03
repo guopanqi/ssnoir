@@ -1,0 +1,20 @@
+{
+  "batch": "R45",
+  "status": "主模型执行完成",
+  "source_sha256": {
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/有界研究计划.md": "711c84ed556675cac5e95c48a32209c8dcab25be33b36eff67a8698b6e93d87a",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/专注模型.py": "a99657b8c2305fe9e5291f597693fe6389b131c559382a272bbcfd969ffeaa28",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c"
+  },
+  "command": "python3 docs/实验/机制研究/批次/R45-公开专注与承诺时点/专注模型.py",
+  "exit_code": 0,
+  "live_session_id": null,
+  "one_feedback_contract": "至多一手结果后专注，或自此永不专注；根可立即专注。",
+  "revision": {
+    "source_sha256": "ee1168f49142211f0139dd762164c684a9e49867dd68a43a14fe8b4bf1e4eec6",
+    "reason": "局部一／两骰独立族将首手从局部起点计；原模型首手固定四骰根。参数化根骰数供对照，正式四骰条件仍4。",
+    "status": "主模型／前向／整合重算完成，四骰根值未变化",
+    "exit_code": 0,
+    "live_session_id": null
+  }
+}

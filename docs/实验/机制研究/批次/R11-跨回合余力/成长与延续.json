@@ -1,0 +1,157 @@
+{
+  "results": [
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "求解",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.8738574829775184,
+      "cold_on_success": 2.353043993383758,
+      "states": 22307,
+      "seconds": 0.21064391708932817
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "只推进",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.740983722544948,
+      "cold_on_success": 0.6813695659494043,
+      "states": 10816,
+      "seconds": 0.07011537486687303
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 2,
+      "policy": "求解",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.9865474392356741,
+      "cold_on_success": 3.4598979140023274,
+      "states": 22307,
+      "seconds": 0.20197825017385185
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 2,
+      "policy": "只推进",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.9506260909784964,
+      "cold_on_success": 1.1324847049344915,
+      "states": 10816,
+      "seconds": 0.07257650000974536
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 3,
+      "policy": "求解",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.9995128292939862,
+      "cold_on_success": 4.217977265038117,
+      "states": 22307,
+      "seconds": 0.19483558391220868
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 3,
+      "policy": "只推进",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.9973860867251617,
+      "cold_on_success": 1.6274934565601078,
+      "states": 10816,
+      "seconds": 0.06526104197837412
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 4,
+      "policy": "求解",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.9999992468315351,
+      "cold_on_success": 4.984936272928194,
+      "states": 20858,
+      "seconds": 0.1725826661568135
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 4,
+      "policy": "只推进",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.9999936812275322,
+      "cold_on_success": 1.947546928167537,
+      "states": 9815,
+      "seconds": 0.05697200004942715
+    }
+  ],
+  "planning_ablation": [
+    {
+      "reset": false,
+      "state": [
+        5,
+        1,
+        2,
+        [
+          1,
+          4,
+          5
+        ]
+      ],
+      "choice": [
+        "整顿",
+        5
+      ],
+      "heal": 0.8576136847152369,
+      "push": 0.845503465165936
+    },
+    {
+      "reset": true,
+      "state": [
+        5,
+        1,
+        2,
+        [
+          1,
+          4,
+          5
+        ]
+      ],
+      "choice": [
+        "整顿",
+        5
+      ],
+      "heal": 0.976372873323427,
+      "push": 0.9647643998522417
+    }
+  ],
+  "scope": "成长不增大目标；reset只作规划消融，正式游戏冷静照常延续"
+}

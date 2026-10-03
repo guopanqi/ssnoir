@@ -1,0 +1,14 @@
+{
+  "initial_hands": 756,
+  "independent_maximum_error": 0.0,
+  "strict_replays": [
+    {
+      "path": "头伤后续-6610.json.gz",
+      "sha256": "0b9a726a889e5682fd242800ad5db27cd00645eeba9eabcea89b0757d89b0a87",
+      "passed": true
+    }
+  ],
+  "calibrated_records": 36,
+  "calibrated_steps": 326,
+  "passed": true
+}

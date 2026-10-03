@@ -1,0 +1,698 @@
+[
+  {
+    "scene": "信封换人",
+    "policy": "全部付款",
+    "seed": 7,
+    "result": "('完成交割 15)",
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "money": 0,
+    "actions": {
+      "递出信封": 3,
+      "end-turn": 3
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "全部付款",
+    "seed": 19,
+    "result": "('完成交割 15)",
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "money": 0,
+    "actions": {
+      "递出信封": 3,
+      "end-turn": 3
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "全部付款",
+    "seed": 31,
+    "result": "('完成交割 15)",
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "money": 0,
+    "actions": {
+      "递出信封": 3,
+      "end-turn": 3
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "近处强抢",
+    "seed": 7,
+    "result": "('抢回人质 10)",
+    "calm": 3,
+    "injury": " 完好 0/7",
+    "money": 5,
+    "actions": {
+      "递出信封": 2,
+      "end-turn": 2,
+      "冲上去抢人": 1
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "近处强抢",
+    "seed": 19,
+    "result": "('抢回人质 10)",
+    "calm": 3,
+    "injury": " 完好 0/7",
+    "money": 5,
+    "actions": {
+      "递出信封": 2,
+      "end-turn": 2,
+      "冲上去抢人": 1
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "近处强抢",
+    "seed": 31,
+    "result": "('抢回人质 10)",
+    "calm": 3,
+    "injury": " 完好 0/7",
+    "money": 5,
+    "actions": {
+      "递出信封": 2,
+      "end-turn": 2,
+      "冲上去抢人": 1
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "远处强抢",
+    "seed": 7,
+    "result": "('抢回人质 0)",
+    "calm": 1,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "冲上去抢人": 3,
+      "end-turn": 2
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "远处强抢",
+    "seed": 19,
+    "result": "('抢回人质 0)",
+    "calm": 1,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "冲上去抢人": 3,
+      "end-turn": 2
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "远处强抢",
+    "seed": 31,
+    "result": "('抢回人质 0)",
+    "calm": 1,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "冲上去抢人": 3,
+      "end-turn": 2
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "等离开",
+    "seed": 7,
+    "result": "('人质被带走 0)",
+    "calm": 1,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 4
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "等离开",
+    "seed": 19,
+    "result": "('人质被带走 0)",
+    "calm": 1,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 4
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "等离开",
+    "seed": 31,
+    "result": "('人质被带走 0)",
+    "calm": 1,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 4
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "放弃",
+    "seed": 7,
+    "result": "('放弃 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "放弃交割": 1
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "放弃",
+    "seed": 19,
+    "result": "('放弃 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "放弃交割": 1
+    }
+  },
+  {
+    "scene": "信封换人",
+    "policy": "放弃",
+    "seed": 31,
+    "result": "('放弃 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "放弃交割": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "直接交稿",
+    "seed": 7,
+    "result": "('证词不足 0 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "直接交稿",
+    "seed": 19,
+    "result": "('证词不足 0 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "直接交稿",
+    "seed": 31,
+    "result": "('证词不足 0 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "两次逼问",
+    "seed": 7,
+    "result": "('误指司机 4 2)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "逼他说名字": 2,
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "两次逼问",
+    "seed": 19,
+    "result": "('误指司机 4 2)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "逼他说名字": 2,
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "两次逼问",
+    "seed": 31,
+    "result": "('误指司机 4 2)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "逼他说名字": 2,
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "两次逼问两次核实",
+    "seed": 7,
+    "result": "('证词不足 2 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "逼他说名字": 2,
+      "核对车牌": 2,
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "两次逼问两次核实",
+    "seed": 19,
+    "result": "('证词不足 2 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "逼他说名字": 2,
+      "核对车牌": 2,
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "两次逼问两次核实",
+    "seed": 31,
+    "result": "('证词不足 2 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "逼他说名字": 2,
+      "核对车牌": 2,
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "全部听完",
+    "seed": 7,
+    "result": "('可信证词 4 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "听他讲完": 2,
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "全部听完",
+    "seed": 19,
+    "result": "('可信证词 4 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "听他讲完": 3,
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "全部听完",
+    "seed": 31,
+    "result": "('可信证词 4 0)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "听他讲完": 2,
+      "交出笔记": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "等警车",
+    "seed": 7,
+    "result": "('证词不足 0 0)",
+    "calm": 4,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "等警车",
+    "seed": 19,
+    "result": "('证词不足 0 0)",
+    "calm": 4,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 1
+    }
+  },
+  {
+    "scene": "证词掺水",
+    "policy": "等警车",
+    "seed": 31,
+    "result": "('证词不足 0 0)",
+    "calm": 4,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 1
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "直接放弃",
+    "seed": 7,
+    "result": "('放弃证人 False)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "独自离开": 1
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "直接放弃",
+    "seed": 19,
+    "result": "('放弃证人 False)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "独自离开": 1
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "直接放弃",
+    "seed": 31,
+    "result": "('放弃证人 False)",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "独自离开": 1
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "封门后放弃",
+    "seed": 7,
+    "result": "('放弃证人 True)",
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "楔死楼梯门": 1,
+      "独自离开": 1
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "封门后放弃",
+    "seed": 19,
+    "result": "('放弃证人 True)",
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "楔死楼梯门": 1,
+      "独自离开": 1
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "封门后放弃",
+    "seed": 31,
+    "result": "('放弃证人 True)",
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "楔死楼梯门": 1,
+      "独自离开": 1
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "不动等追兵",
+    "seed": 7,
+    "result": "('证人被抓 False)",
+    "calm": 3,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 2
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "不动等追兵",
+    "seed": 19,
+    "result": "('证人被抓 False)",
+    "calm": 3,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 2
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "不动等追兵",
+    "seed": 31,
+    "result": "('证人被抓 False)",
+    "calm": 3,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 2
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "封门后跳下",
+    "seed": 7,
+    "result": "('带走证人 True)",
+    "calm": 0,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "楔死楼梯门": 1,
+      "让她相信你": 6,
+      "end-turn": 1,
+      "带她跳下去": 1
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "封门后跳下",
+    "seed": 19,
+    "result": "('带走证人 True)",
+    "calm": 1,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "楔死楼梯门": 1,
+      "让她相信你": 7,
+      "end-turn": 1,
+      "带她跳下去": 1
+    }
+  },
+  {
+    "scene": "封死退路",
+    "policy": "封门后跳下",
+    "seed": 31,
+    "result": "('带走证人 True)",
+    "calm": 1,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "楔死楼梯门": 1,
+      "让她相信你": 5,
+      "end-turn": 1,
+      "带她跳下去": 1
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "抓小鱼",
+    "seed": 7,
+    "result": "'仓库地址",
+    "calm": 4,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "布置伏击": 3,
+      "end-turn": 1,
+      "抓住送货人": 1
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "抓小鱼",
+    "seed": 19,
+    "result": "'仓库地址",
+    "calm": 4,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "布置伏击": 4,
+      "end-turn": 1,
+      "抓住送货人": 1
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "抓小鱼",
+    "seed": 31,
+    "result": "'仓库地址",
+    "calm": 4,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "布置伏击": 3,
+      "end-turn": 1,
+      "抓住送货人": 1
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "等买主",
+    "seed": 7,
+    "result": "'货主账本",
+    "calm": 3,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "布置伏击": 5,
+      "end-turn": 2,
+      "抓住买主": 1
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "等买主",
+    "seed": 19,
+    "result": "'货主账本",
+    "calm": 3,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "布置伏击": 6,
+      "end-turn": 2,
+      "抓住买主": 1
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "等买主",
+    "seed": 31,
+    "result": "'货主账本",
+    "calm": 3,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "布置伏击": 5,
+      "end-turn": 2,
+      "抓住买主": 1
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "不动等离开",
+    "seed": 7,
+    "result": "'全部离开",
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 3
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "不动等离开",
+    "seed": 19,
+    "result": "'全部离开",
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 3
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "不动等离开",
+    "seed": 31,
+    "result": "'全部离开",
+    "calm": 2,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "end-turn": 3
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "撤离",
+    "seed": 7,
+    "result": "'撤离",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "收手离开": 1
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "撤离",
+    "seed": 19,
+    "result": "'撤离",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "收手离开": 1
+    }
+  },
+  {
+    "scene": "等买主现身",
+    "policy": "撤离",
+    "seed": 31,
+    "result": "'撤离",
+    "calm": 5,
+    "injury": " 完好 0/7",
+    "money": 15,
+    "actions": {
+      "收手离开": 1
+    }
+  }
+]

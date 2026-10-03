@@ -1,0 +1,3993 @@
+{
+  "identity": "独立两骰数学枚举；原生0、真人0；非全局四骰重算",
+  "fate_source": "Engine/Runtime/Core/FateStrip.cs",
+  "fate_source_sha256": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+  "script_sha256": "83b93bea56d0ba717a78e67f0375b851bd047a02c045cd7527a4d397b27c50d3",
+  "parameters": {
+    "target": 4,
+    "skill_before_alarm": 1,
+    "skill_after_alarm": 0,
+    "fast_gains": [
+      0,
+      1,
+      2
+    ],
+    "alarm_trigger": "first good, once"
+  },
+  "comparison_count": 168,
+  "enumerated_fate_pairs": 12096,
+  "counts_including_equal_dice": {
+    "alarm=0,remaining=1": {
+      "low_first": 0,
+      "high_first": 0,
+      "tie": 21
+    },
+    "alarm=0,remaining=2": {
+      "low_first": 0,
+      "high_first": 0,
+      "tie": 21
+    },
+    "alarm=0,remaining=3": {
+      "low_first": 11,
+      "high_first": 1,
+      "tie": 9
+    },
+    "alarm=0,remaining=4": {
+      "low_first": 15,
+      "high_first": 0,
+      "tie": 6
+    },
+    "alarm=1,remaining=1": {
+      "low_first": 0,
+      "high_first": 0,
+      "tie": 21
+    },
+    "alarm=1,remaining=2": {
+      "low_first": 0,
+      "high_first": 0,
+      "tie": 21
+    },
+    "alarm=1,remaining=3": {
+      "low_first": 0,
+      "high_first": 0,
+      "tie": 21
+    },
+    "alarm=1,remaining=4": {
+      "low_first": 0,
+      "high_first": 0,
+      "tie": 21
+    }
+  },
+  "comparisons": [
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        1,
+        1
+      ],
+      "low_first": "8/9",
+      "high_first": "8/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        1,
+        2
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        1,
+        3
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        1,
+        4
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        1,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        1,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        2,
+        2
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        2,
+        3
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        2,
+        4
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        2,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        2,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        3,
+        3
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        3,
+        4
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        3,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        3,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        4,
+        4
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        4,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        4,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        5,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        5,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 1,
+      "dice": [
+        6,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        1,
+        1
+      ],
+      "low_first": "5/9",
+      "high_first": "5/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        1,
+        2
+      ],
+      "low_first": "25/36",
+      "high_first": "25/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        1,
+        3
+      ],
+      "low_first": "3/4",
+      "high_first": "3/4",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        1,
+        4
+      ],
+      "low_first": "8/9",
+      "high_first": "8/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        1,
+        5
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        1,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        2,
+        2
+      ],
+      "low_first": "29/36",
+      "high_first": "29/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        2,
+        3
+      ],
+      "low_first": "5/6",
+      "high_first": "5/6",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        2,
+        4
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        2,
+        5
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        2,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        3,
+        3
+      ],
+      "low_first": "31/36",
+      "high_first": "31/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        3,
+        4
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        3,
+        5
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        3,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        4,
+        4
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        4,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        4,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        5,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        5,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 2,
+      "dice": [
+        6,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        1,
+        1
+      ],
+      "low_first": "1/6",
+      "high_first": "1/6",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        1,
+        2
+      ],
+      "low_first": "5/18",
+      "high_first": "1/4",
+      "low_minus_high": "1/36",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        1,
+        3
+      ],
+      "low_first": "7/18",
+      "high_first": "11/36",
+      "low_minus_high": "1/12",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        1,
+        4
+      ],
+      "low_first": "17/36",
+      "high_first": "7/18",
+      "low_minus_high": "1/12",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        1,
+        5
+      ],
+      "low_first": "7/12",
+      "high_first": "4/9",
+      "low_minus_high": "5/36",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        1,
+        6
+      ],
+      "low_first": "2/3",
+      "high_first": "1/2",
+      "low_minus_high": "1/6",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        2,
+        2
+      ],
+      "low_first": "7/18",
+      "high_first": "7/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        2,
+        3
+      ],
+      "low_first": "19/36",
+      "high_first": "4/9",
+      "low_minus_high": "1/12",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        2,
+        4
+      ],
+      "low_first": "11/18",
+      "high_first": "5/9",
+      "low_minus_high": "1/18",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        2,
+        5
+      ],
+      "low_first": "3/4",
+      "high_first": "11/18",
+      "low_minus_high": "5/36",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        2,
+        6
+      ],
+      "low_first": "5/6",
+      "high_first": "2/3",
+      "low_minus_high": "1/6",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        3,
+        3
+      ],
+      "low_first": "7/12",
+      "high_first": "7/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        3,
+        4
+      ],
+      "low_first": "23/36",
+      "high_first": "13/18",
+      "low_minus_high": "-1/12",
+      "preferred": "high_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        3,
+        5
+      ],
+      "low_first": "7/9",
+      "high_first": "7/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        3,
+        6
+      ],
+      "low_first": "5/6",
+      "high_first": "5/6",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        4,
+        4
+      ],
+      "low_first": "7/9",
+      "high_first": "7/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        4,
+        5
+      ],
+      "low_first": "17/18",
+      "high_first": "29/36",
+      "low_minus_high": "5/36",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        4,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "5/6",
+      "low_minus_high": "1/6",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        5,
+        5
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        5,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 3,
+      "dice": [
+        6,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        1,
+        1
+      ],
+      "low_first": "0",
+      "high_first": "0",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        1,
+        2
+      ],
+      "low_first": "1/36",
+      "high_first": "0",
+      "low_minus_high": "1/36",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        1,
+        3
+      ],
+      "low_first": "1/18",
+      "high_first": "0",
+      "low_minus_high": "1/18",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        1,
+        4
+      ],
+      "low_first": "1/12",
+      "high_first": "0",
+      "low_minus_high": "1/12",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        1,
+        5
+      ],
+      "low_first": "1/9",
+      "high_first": "0",
+      "low_minus_high": "1/9",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        1,
+        6
+      ],
+      "low_first": "5/36",
+      "high_first": "0",
+      "low_minus_high": "5/36",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        2,
+        2
+      ],
+      "low_first": "1/18",
+      "high_first": "1/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        2,
+        3
+      ],
+      "low_first": "1/9",
+      "high_first": "1/12",
+      "low_minus_high": "1/36",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        2,
+        4
+      ],
+      "low_first": "1/6",
+      "high_first": "1/9",
+      "low_minus_high": "1/18",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        2,
+        5
+      ],
+      "low_first": "2/9",
+      "high_first": "5/36",
+      "low_minus_high": "1/12",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        2,
+        6
+      ],
+      "low_first": "5/18",
+      "high_first": "1/6",
+      "low_minus_high": "1/9",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        3,
+        3
+      ],
+      "low_first": "1/6",
+      "high_first": "1/6",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        3,
+        4
+      ],
+      "low_first": "1/4",
+      "high_first": "2/9",
+      "low_minus_high": "1/36",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        3,
+        5
+      ],
+      "low_first": "1/3",
+      "high_first": "5/18",
+      "low_minus_high": "1/18",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        3,
+        6
+      ],
+      "low_first": "5/12",
+      "high_first": "1/3",
+      "low_minus_high": "1/12",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        4,
+        4
+      ],
+      "low_first": "1/3",
+      "high_first": "1/3",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        4,
+        5
+      ],
+      "low_first": "4/9",
+      "high_first": "5/12",
+      "low_minus_high": "1/36",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        4,
+        6
+      ],
+      "low_first": "5/9",
+      "high_first": "1/2",
+      "low_minus_high": "1/18",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        5,
+        5
+      ],
+      "low_first": "5/9",
+      "high_first": "5/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        5,
+        6
+      ],
+      "low_first": "25/36",
+      "high_first": "2/3",
+      "low_minus_high": "1/36",
+      "preferred": "low_first"
+    },
+    {
+      "alarm": 0,
+      "remaining": 4,
+      "dice": [
+        6,
+        6
+      ],
+      "low_first": "5/6",
+      "high_first": "5/6",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        1,
+        1
+      ],
+      "low_first": "3/4",
+      "high_first": "3/4",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        1,
+        2
+      ],
+      "low_first": "5/6",
+      "high_first": "5/6",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        1,
+        3
+      ],
+      "low_first": "11/12",
+      "high_first": "11/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        1,
+        4
+      ],
+      "low_first": "11/12",
+      "high_first": "11/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        1,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        1,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        2,
+        2
+      ],
+      "low_first": "8/9",
+      "high_first": "8/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        2,
+        3
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        2,
+        4
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        2,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        2,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        3,
+        3
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        3,
+        4
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        3,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        3,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        4,
+        4
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        4,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        4,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        5,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        5,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 1,
+      "dice": [
+        6,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        1,
+        1
+      ],
+      "low_first": "1/4",
+      "high_first": "1/4",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        1,
+        2
+      ],
+      "low_first": "5/12",
+      "high_first": "5/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        1,
+        3
+      ],
+      "low_first": "7/12",
+      "high_first": "7/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        1,
+        4
+      ],
+      "low_first": "2/3",
+      "high_first": "2/3",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        1,
+        5
+      ],
+      "low_first": "5/6",
+      "high_first": "5/6",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        1,
+        6
+      ],
+      "low_first": "11/12",
+      "high_first": "11/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        2,
+        2
+      ],
+      "low_first": "5/9",
+      "high_first": "5/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        2,
+        3
+      ],
+      "low_first": "25/36",
+      "high_first": "25/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        2,
+        4
+      ],
+      "low_first": "3/4",
+      "high_first": "3/4",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        2,
+        5
+      ],
+      "low_first": "8/9",
+      "high_first": "8/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        2,
+        6
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        3,
+        3
+      ],
+      "low_first": "29/36",
+      "high_first": "29/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        3,
+        4
+      ],
+      "low_first": "5/6",
+      "high_first": "5/6",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        3,
+        5
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        3,
+        6
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        4,
+        4
+      ],
+      "low_first": "31/36",
+      "high_first": "31/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        4,
+        5
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        4,
+        6
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        5,
+        5
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        5,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 2,
+      "dice": [
+        6,
+        6
+      ],
+      "low_first": "1",
+      "high_first": "1",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        1,
+        1
+      ],
+      "low_first": "0",
+      "high_first": "0",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        1,
+        2
+      ],
+      "low_first": "1/12",
+      "high_first": "1/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        1,
+        3
+      ],
+      "low_first": "1/6",
+      "high_first": "1/6",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        1,
+        4
+      ],
+      "low_first": "1/4",
+      "high_first": "1/4",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        1,
+        5
+      ],
+      "low_first": "1/3",
+      "high_first": "1/3",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        1,
+        6
+      ],
+      "low_first": "5/12",
+      "high_first": "5/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        2,
+        2
+      ],
+      "low_first": "7/36",
+      "high_first": "7/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        2,
+        3
+      ],
+      "low_first": "11/36",
+      "high_first": "11/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        2,
+        4
+      ],
+      "low_first": "7/18",
+      "high_first": "7/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        2,
+        5
+      ],
+      "low_first": "1/2",
+      "high_first": "1/2",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        2,
+        6
+      ],
+      "low_first": "7/12",
+      "high_first": "7/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        3,
+        3
+      ],
+      "low_first": "4/9",
+      "high_first": "4/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        3,
+        4
+      ],
+      "low_first": "19/36",
+      "high_first": "19/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        3,
+        5
+      ],
+      "low_first": "2/3",
+      "high_first": "2/3",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        3,
+        6
+      ],
+      "low_first": "3/4",
+      "high_first": "3/4",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        4,
+        4
+      ],
+      "low_first": "7/12",
+      "high_first": "7/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        4,
+        5
+      ],
+      "low_first": "13/18",
+      "high_first": "13/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        4,
+        6
+      ],
+      "low_first": "7/9",
+      "high_first": "7/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        5,
+        5
+      ],
+      "low_first": "8/9",
+      "high_first": "8/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        5,
+        6
+      ],
+      "low_first": "17/18",
+      "high_first": "17/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 3,
+      "dice": [
+        6,
+        6
+      ],
+      "low_first": "35/36",
+      "high_first": "35/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        1,
+        1
+      ],
+      "low_first": "0",
+      "high_first": "0",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        1,
+        2
+      ],
+      "low_first": "0",
+      "high_first": "0",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        1,
+        3
+      ],
+      "low_first": "0",
+      "high_first": "0",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        1,
+        4
+      ],
+      "low_first": "0",
+      "high_first": "0",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        1,
+        5
+      ],
+      "low_first": "0",
+      "high_first": "0",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        1,
+        6
+      ],
+      "low_first": "0",
+      "high_first": "0",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        2,
+        2
+      ],
+      "low_first": "1/36",
+      "high_first": "1/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        2,
+        3
+      ],
+      "low_first": "1/18",
+      "high_first": "1/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        2,
+        4
+      ],
+      "low_first": "1/12",
+      "high_first": "1/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        2,
+        5
+      ],
+      "low_first": "1/9",
+      "high_first": "1/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        2,
+        6
+      ],
+      "low_first": "5/36",
+      "high_first": "5/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        3,
+        3
+      ],
+      "low_first": "1/9",
+      "high_first": "1/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        3,
+        4
+      ],
+      "low_first": "1/6",
+      "high_first": "1/6",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        3,
+        5
+      ],
+      "low_first": "2/9",
+      "high_first": "2/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        3,
+        6
+      ],
+      "low_first": "5/18",
+      "high_first": "5/18",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        4,
+        4
+      ],
+      "low_first": "1/4",
+      "high_first": "1/4",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        4,
+        5
+      ],
+      "low_first": "1/3",
+      "high_first": "1/3",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        4,
+        6
+      ],
+      "low_first": "5/12",
+      "high_first": "5/12",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        5,
+        5
+      ],
+      "low_first": "4/9",
+      "high_first": "4/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        5,
+        6
+      ],
+      "low_first": "5/9",
+      "high_first": "5/9",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    },
+    {
+      "alarm": 1,
+      "remaining": 4,
+      "dice": [
+        6,
+        6
+      ],
+      "low_first": "25/36",
+      "high_first": "25/36",
+      "low_minus_high": "0",
+      "preferred": "tie"
+    }
+  ],
+  "witnesses": [
+    {
+      "remaining": 3,
+      "order": [
+        3,
+        4
+      ],
+      "value": "23/36",
+      "branches": [
+        {
+          "fates": [
+            1,
+            1
+          ],
+          "gains": [
+            0,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            2
+          ],
+          "gains": [
+            0,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            3
+          ],
+          "gains": [
+            0,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            4
+          ],
+          "gains": [
+            0,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            5
+          ],
+          "gains": [
+            0,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            6
+          ],
+          "gains": [
+            0,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            1
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            2
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            3
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            4
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            5
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            6
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            1
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            2
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            3
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            4
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            5
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            6
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            4,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            4
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            4
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            4
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        }
+      ]
+    },
+    {
+      "remaining": 3,
+      "order": [
+        4,
+        3
+      ],
+      "value": "13/18",
+      "branches": [
+        {
+          "fates": [
+            1,
+            1
+          ],
+          "gains": [
+            1,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            2
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            3
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            4
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            5
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            6
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            1
+          ],
+          "gains": [
+            1,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            2
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            3
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            4
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            5
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            6
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            3,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            3,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            3,
+            4
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            3,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            3,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            4
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            4
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            4
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        }
+      ]
+    },
+    {
+      "remaining": 4,
+      "order": [
+        3,
+        4
+      ],
+      "value": "1/4",
+      "branches": [
+        {
+          "fates": [
+            1,
+            1
+          ],
+          "gains": [
+            0,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            2
+          ],
+          "gains": [
+            0,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            3
+          ],
+          "gains": [
+            0,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            4
+          ],
+          "gains": [
+            0,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            5
+          ],
+          "gains": [
+            0,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            6
+          ],
+          "gains": [
+            0,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            1
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            2
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            3
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            4
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            5
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            6
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            1
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            2
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            3
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            4
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            5
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            6
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            4,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            4
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            4
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            4
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        }
+      ]
+    },
+    {
+      "remaining": 4,
+      "order": [
+        4,
+        3
+      ],
+      "value": "2/9",
+      "branches": [
+        {
+          "fates": [
+            1,
+            1
+          ],
+          "gains": [
+            1,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            2
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            3
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            4
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            5
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            1,
+            6
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            1
+          ],
+          "gains": [
+            1,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            2
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            3
+          ],
+          "gains": [
+            1,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            4
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            5
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            2,
+            6
+          ],
+          "gains": [
+            1,
+            2
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": false
+        },
+        {
+          "fates": [
+            3,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            3,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            3,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            3,
+            4
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            3,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            3,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            4
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            4,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            4
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            5,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            1
+          ],
+          "gains": [
+            2,
+            0
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            2
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            3
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            4
+          ],
+          "gains": [
+            2,
+            1
+          ],
+          "success": false,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            5
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        },
+        {
+          "fates": [
+            6,
+            6
+          ],
+          "gains": [
+            2,
+            2
+          ],
+          "success": true,
+          "finish_on_first": false,
+          "alarm_after_first": true
+        }
+      ]
+    }
+  ]
+}

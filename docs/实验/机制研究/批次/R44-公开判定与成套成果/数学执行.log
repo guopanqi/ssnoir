@@ -1,0 +1,11 @@
+{"both_value": 3, "family": "free", "both_actions": false, "value": "578089/279936", "expected": 2.06507558870599, "distribution": ["209/17496", "251687/559872", "100499/186624"], "states": 743}
+{"both_value": 3, "family": "fixed_A", "both_actions": false, "value": "578089/279936", "expected": 2.06507558870599, "distribution": ["209/17496", "251687/559872", "100499/186624"], "states": 421}
+{"both_value": 3, "family": "fixed_B", "both_actions": false, "value": "578089/279936", "expected": 2.06507558870599, "distribution": ["209/17496", "251687/559872", "100499/186624"], "states": 421}
+{"both_value": 3, "family": "shortest", "both_actions": false, "value": "578089/279936", "expected": 2.06507558870599, "distribution": ["209/17496", "251687/559872", "100499/186624"], "states": 631}
+{"both_value": 3, "family": "initial_partition", "value": "1617631/839808", "expected": 1.9261914628105472, "distribution": ["75517/839808", "337621/839808", "213335/419904"], "allocations": 1365}
+{"both_value": 2, "family": "free", "both_actions": false, "value": "854681/559872", "expected": 1.5265650005715592, "distribution": ["209/17496", "251687/559872", "100499/186624"], "states": 743}
+{"both_value": 2, "family": "fixed_A", "both_actions": false, "value": "854681/559872", "expected": 1.5265650005715592, "distribution": ["209/17496", "251687/559872", "100499/186624"], "states": 421}
+{"both_value": 2, "family": "fixed_B", "both_actions": false, "value": "854681/559872", "expected": 1.5265650005715592, "distribution": ["209/17496", "251687/559872", "100499/186624"], "states": 421}
+{"both_value": 2, "family": "shortest", "both_actions": false, "value": "854681/559872", "expected": 1.5265650005715592, "distribution": ["209/17496", "251687/559872", "100499/186624"], "states": 631}
+{"both_value": 2, "family": "initial_partition", "value": "797015/559872", "expected": 1.4235664580475538, "distribution": ["104749/1679616", "758689/1679616", "408089/839808"], "allocations": 1365}
+{"cross": [{"policy_both_value": 3, "scoring_both_value": 3, "value": "578089/279936"}, {"policy_both_value": 3, "scoring_both_value": 2, "value": "854681/559872"}, {"policy_both_value": 2, "scoring_both_value": 3, "value": "578089/279936"}, {"policy_both_value": 2, "scoring_both_value": 2, "value": "854681/559872"}], "disjoint": 0}

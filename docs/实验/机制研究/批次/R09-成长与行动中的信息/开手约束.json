@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "首手只用最低骰；后续完全求解",
+      "completion": 0.8534438824112175,
+      "composure_on_success": 3.9564368122400517,
+      "states": 3734,
+      "seconds": 0.03948995913378894
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "首手只用最高骰；后续完全求解",
+      "completion": 0.8311923677793016,
+      "composure_on_success": 4.357537225553764,
+      "states": 3734,
+      "seconds": 0.03949904185719788
+    }
+  ],
+  "scope": "只限制首颗，后续最优；检验骰序套路"
+}

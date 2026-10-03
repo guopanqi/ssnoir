@@ -1,0 +1,1824 @@
+{
+  "results": [
+    {
+      "path": "求解-2201.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 4,
+          "before": 3,
+          "after": 3,
+          "grade": "Neutral"
+        },
+        {
+          "round": 1,
+          "die": 2,
+          "before": 3,
+          "after": 2,
+          "grade": "Fail"
+        },
+        {
+          "round": 1,
+          "die": 4,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 4,
+          "before": 1,
+          "after": 1,
+          "grade": "Neutral"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2201
+    },
+    {
+      "path": "求解-2202.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 2,
+          "die": 3,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 2,
+          "before": 1,
+          "after": 1,
+          "grade": "Neutral"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2202
+    },
+    {
+      "path": "求解-2203.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 5
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 5,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 6,
+          "before": 1,
+          "after": 3,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 6,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2203
+    },
+    {
+      "path": "求解-2204.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": true,
+      "injury_free_completion": false,
+      "heals": [
+        {
+          "round": 1,
+          "die": 3,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 2,
+          "die": 1,
+          "before": 2,
+          "after": 2,
+          "grade": "Neutral"
+        },
+        {
+          "round": 2,
+          "die": 1,
+          "before": 2,
+          "after": 1,
+          "grade": "Fail"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2204
+    },
+    {
+      "path": "求解-2205.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 2
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 2,
+          "before": 3,
+          "after": 3,
+          "grade": "Neutral"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2205
+    },
+    {
+      "path": "求解-2206.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 2,
+          "before": 3,
+          "after": 3,
+          "grade": "Neutral"
+        },
+        {
+          "round": 2,
+          "die": 6,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2206
+    },
+    {
+      "path": "求解-2207.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 4
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 5,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 3,
+          "before": 2,
+          "after": 2,
+          "grade": "Neutral"
+        },
+        {
+          "round": 3,
+          "die": 3,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 4,
+          "before": 4,
+          "after": 4,
+          "grade": "Neutral"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2207
+    },
+    {
+      "path": "求解-2208.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 13,
+      "result": {
+        "status": "timeout",
+        "progress": 9,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": true,
+      "injury_free_completion": false,
+      "heals": [
+        {
+          "round": 1,
+          "die": 2,
+          "before": 2,
+          "after": 1,
+          "grade": "Fail"
+        },
+        {
+          "round": 1,
+          "die": 6,
+          "before": 1,
+          "after": 3,
+          "grade": "Success"
+        },
+        {
+          "round": 2,
+          "die": 6,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2208
+    },
+    {
+      "path": "求解-2209.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2209
+    },
+    {
+      "path": "求解-2210.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 14,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 2
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 4,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 2,
+          "die": 6,
+          "before": 1,
+          "after": 3,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 1,
+          "before": 1,
+          "after": 0,
+          "grade": "Fail"
+        },
+        {
+          "round": 3,
+          "die": 4,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2210
+    },
+    {
+      "path": "求解-2211.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 14,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 5
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 5,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 2,
+          "die": 4,
+          "before": 1,
+          "after": 3,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 3,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 2,
+          "before": 4,
+          "after": 4,
+          "grade": "Neutral"
+        },
+        {
+          "round": 3,
+          "die": 4,
+          "before": 4,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2211
+    },
+    {
+      "path": "求解-2212.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 4
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 2,
+          "die": 3,
+          "before": 2,
+          "after": 2,
+          "grade": "Neutral"
+        },
+        {
+          "round": 2,
+          "die": 4,
+          "before": 2,
+          "after": 2,
+          "grade": "Neutral"
+        },
+        {
+          "round": 2,
+          "die": 6,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        }
+      ],
+      "policy": "求解",
+      "growth": 1,
+      "seed": 2212
+    },
+    {
+      "path": "只推进-2201.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": true,
+      "injury_free_completion": false,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2201
+    },
+    {
+      "path": "只推进-2202.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2202
+    },
+    {
+      "path": "只推进-2203.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2203
+    },
+    {
+      "path": "只推进-2204.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "timeout",
+        "progress": 5,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": true,
+      "injury_free_completion": false,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2204
+    },
+    {
+      "path": "只推进-2205.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 2
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2205
+    },
+    {
+      "path": "只推进-2206.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2206
+    },
+    {
+      "path": "只推进-2207.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2207
+    },
+    {
+      "path": "只推进-2208.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": true,
+      "injury_free_completion": false,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2208
+    },
+    {
+      "path": "只推进-2209.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2209
+    },
+    {
+      "path": "只推进-2210.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2210
+    },
+    {
+      "path": "只推进-2211.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 2
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2211
+    },
+    {
+      "path": "只推进-2212.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 2
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "只推进",
+      "growth": 1,
+      "seed": 2212
+    },
+    {
+      "path": "滚动-2201.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 13,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 5
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 3,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 1,
+          "die": 4,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 4,
+          "before": 3,
+          "after": 3,
+          "grade": "Neutral"
+        },
+        {
+          "round": 3,
+          "die": 2,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2201
+    },
+    {
+      "path": "滚动-2202.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 4,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 2,
+          "before": 1,
+          "after": 1,
+          "grade": "Neutral"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2202
+    },
+    {
+      "path": "滚动-2203.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 14,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 3
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 4,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 2,
+          "die": 4,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 2,
+          "before": 1,
+          "after": 1,
+          "grade": "Neutral"
+        },
+        {
+          "round": 3,
+          "die": 6,
+          "before": 1,
+          "after": 3,
+          "grade": "Success"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2203
+    },
+    {
+      "path": "滚动-2204.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 3,
+          "before": 3,
+          "after": 3,
+          "grade": "Neutral"
+        },
+        {
+          "round": 1,
+          "die": 4,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2204
+    },
+    {
+      "path": "滚动-2205.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 4
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 2,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2205
+    },
+    {
+      "path": "滚动-2206.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 13,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 2,
+          "before": 3,
+          "after": 3,
+          "grade": "Neutral"
+        },
+        {
+          "round": 1,
+          "die": 3,
+          "before": 3,
+          "after": 3,
+          "grade": "Neutral"
+        },
+        {
+          "round": 1,
+          "die": 5,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2206
+    },
+    {
+      "path": "滚动-2207.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 4
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 3,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 3,
+          "before": 2,
+          "after": 2,
+          "grade": "Neutral"
+        },
+        {
+          "round": 3,
+          "die": 3,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 4,
+          "before": 4,
+          "after": 4,
+          "grade": "Neutral"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2207
+    },
+    {
+      "path": "滚动-2208.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 12,
+      "result": {
+        "status": "timeout",
+        "progress": 9,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": true,
+      "injury_free_completion": false,
+      "heals": [
+        {
+          "round": 1,
+          "die": 2,
+          "before": 3,
+          "after": 2,
+          "grade": "Fail"
+        },
+        {
+          "round": 1,
+          "die": 5,
+          "before": 2,
+          "after": 2,
+          "grade": "Neutral"
+        },
+        {
+          "round": 1,
+          "die": 6,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2208
+    },
+    {
+      "path": "滚动-2209.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 3
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 5,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2209
+    },
+    {
+      "path": "滚动-2210.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 2,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 1,
+          "die": 2,
+          "before": 4,
+          "after": 3,
+          "grade": "Fail"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2210
+    },
+    {
+      "path": "滚动-2211.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 4
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 3,
+          "before": 3,
+          "after": 3,
+          "grade": "Neutral"
+        },
+        {
+          "round": 1,
+          "die": 2,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2211
+    },
+    {
+      "path": "滚动-2212.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 5
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 2,
+          "before": 3,
+          "after": 2,
+          "grade": "Fail"
+        },
+        {
+          "round": 1,
+          "die": 6,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 5,
+          "before": 1,
+          "after": 3,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 3,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "滚动",
+      "growth": 1,
+      "seed": 2212
+    },
+    {
+      "path": "零冷静才整顿-2201.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 2,
+          "die": 4,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        }
+      ],
+      "policy": "零冷静才整顿",
+      "growth": 1,
+      "seed": 2201
+    },
+    {
+      "path": "零冷静才整顿-2202.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "零冷静才整顿",
+      "growth": 1,
+      "seed": 2202
+    },
+    {
+      "path": "零冷静才整顿-2203.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "零冷静才整顿",
+      "growth": 1,
+      "seed": 2203
+    },
+    {
+      "path": "零冷静才整顿-2204.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 10,
+      "result": {
+        "status": "timeout",
+        "progress": 6,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": true,
+      "injury_free_completion": false,
+      "heals": [
+        {
+          "round": 2,
+          "die": 4,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 1,
+          "before": 0,
+          "after": 0,
+          "grade": "Neutral"
+        }
+      ],
+      "policy": "零冷静才整顿",
+      "growth": 1,
+      "seed": 2204
+    },
+    {
+      "path": "零冷静才整顿-2205.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "零冷静才整顿",
+      "growth": 1,
+      "seed": 2205
+    },
+    {
+      "path": "零冷静才整顿-2206.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 11,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 1
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 2,
+          "die": 4,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 5,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        }
+      ],
+      "policy": "零冷静才整顿",
+      "growth": 1,
+      "seed": 2206
+    },
+    {
+      "path": "零冷静才整顿-2207.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 2
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 3,
+          "die": 5,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        }
+      ],
+      "policy": "零冷静才整顿",
+      "growth": 1,
+      "seed": 2207
+    },
+    {
+      "path": "零冷静才整顿-2208.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 11,
+      "result": {
+        "status": "timeout",
+        "progress": 7,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": true,
+      "injury_free_completion": false,
+      "heals": [
+        {
+          "round": 2,
+          "die": 3,
+          "before": 0,
+          "after": 0,
+          "grade": "Neutral"
+        },
+        {
+          "round": 2,
+          "die": 6,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        }
+      ],
+      "policy": "零冷静才整顿",
+      "growth": 1,
+      "seed": 2208
+    },
+    {
+      "path": "充足余力求解-2213.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 4
+      },
+      "initial_cold": 5,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 2,
+          "die": 5,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "充足余力求解",
+      "growth": 1,
+      "seed": 2213
+    },
+    {
+      "path": "充足余力求解-2214.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 4
+      },
+      "initial_cold": 5,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 2,
+          "die": 5,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        }
+      ],
+      "policy": "充足余力求解",
+      "growth": 1,
+      "seed": 2214
+    },
+    {
+      "path": "充足余力求解-2215.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 4
+      },
+      "initial_cold": 5,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 3,
+          "die": 3,
+          "before": 2,
+          "after": 2,
+          "grade": "Neutral"
+        },
+        {
+          "round": 3,
+          "die": 3,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        }
+      ],
+      "policy": "充足余力求解",
+      "growth": 1,
+      "seed": 2215
+    },
+    {
+      "path": "充足余力求解-2216.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 11,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 2
+      },
+      "initial_cold": 5,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 3,
+          "die": 6,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 3,
+          "before": 2,
+          "after": 2,
+          "grade": "Neutral"
+        }
+      ],
+      "policy": "充足余力求解",
+      "growth": 1,
+      "seed": 2216
+    },
+    {
+      "path": "充足余力求解-2217.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 3
+      },
+      "initial_cold": 5,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [],
+      "policy": "充足余力求解",
+      "growth": 1,
+      "seed": 2217
+    },
+    {
+      "path": "充足余力求解-2218.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 12,
+      "result": {
+        "status": "timeout",
+        "progress": 9,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 5,
+      "left_injury_free_model": true,
+      "injury_free_completion": false,
+      "heals": [
+        {
+          "round": 3,
+          "die": 2,
+          "before": 0,
+          "after": 2,
+          "grade": "Success"
+        }
+      ],
+      "policy": "充足余力求解",
+      "growth": 1,
+      "seed": 2218
+    },
+    {
+      "path": "充足余力求解-2219.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 4
+      },
+      "initial_cold": 5,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 2,
+          "die": 6,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        }
+      ],
+      "policy": "充足余力求解",
+      "growth": 1,
+      "seed": 2219
+    },
+    {
+      "path": "充足余力求解-2220.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 5
+      },
+      "initial_cold": 5,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 2,
+          "die": 4,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 2,
+          "die": 4,
+          "before": 4,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "充足余力求解",
+      "growth": 1,
+      "seed": 2220
+    },
+    {
+      "path": "成长2求解-2221.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 5
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 4,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 2,
+          "die": 2,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "成长2求解",
+      "growth": 2,
+      "seed": 2221
+    },
+    {
+      "path": "成长2求解-2222.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 3
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 2,
+          "die": 2,
+          "before": 2,
+          "after": 1,
+          "grade": "Fail"
+        },
+        {
+          "round": 2,
+          "die": 2,
+          "before": 1,
+          "after": 1,
+          "grade": "Neutral"
+        },
+        {
+          "round": 2,
+          "die": 4,
+          "before": 1,
+          "after": 3,
+          "grade": "Success"
+        }
+      ],
+      "policy": "成长2求解",
+      "growth": 2,
+      "seed": 2222
+    },
+    {
+      "path": "成长2求解-2223.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 2,
+        "cold": 5
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 1,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 2,
+          "die": 6,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "成长2求解",
+      "growth": 2,
+      "seed": 2223
+    },
+    {
+      "path": "成长2求解-2224.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 14,
+      "result": {
+        "status": "success",
+        "progress": 10,
+        "round": 3,
+        "cold": 5
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": true,
+      "heals": [
+        {
+          "round": 1,
+          "die": 3,
+          "before": 2,
+          "after": 2,
+          "grade": "Neutral"
+        },
+        {
+          "round": 1,
+          "die": 4,
+          "before": 2,
+          "after": 4,
+          "grade": "Success"
+        },
+        {
+          "round": 2,
+          "die": 3,
+          "before": 1,
+          "after": 3,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 5,
+          "before": 1,
+          "after": 3,
+          "grade": "Success"
+        },
+        {
+          "round": 3,
+          "die": 6,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        }
+      ],
+      "policy": "成长2求解",
+      "growth": 2,
+      "seed": 2224
+    },
+    {
+      "path": "边界-三轮空过.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 3,
+      "result": {
+        "status": "timeout",
+        "progress": 0,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": false,
+      "heals": []
+    },
+    {
+      "path": "边界-上限与延续.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "progress": 0,
+        "round": 3,
+        "cold": 3
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": false,
+      "injury_free_completion": false,
+      "heals": [
+        {
+          "round": 1,
+          "die": 6,
+          "before": 3,
+          "after": 5,
+          "grade": "Success"
+        },
+        {
+          "round": 2,
+          "die": 6,
+          "before": 4,
+          "after": 5,
+          "grade": "Success"
+        }
+      ]
+    },
+    {
+      "path": "边界-倒下.json.gz",
+      "revision": "ea542222151f0fcf14af130ee3e12e345981a499a4125dffae337b2f35d28801",
+      "steps": 11,
+      "result": {
+        "status": "collapse",
+        "progress": 5,
+        "round": 3,
+        "cold": 0
+      },
+      "initial_cold": 3,
+      "left_injury_free_model": true,
+      "injury_free_completion": false,
+      "heals": [],
+      "growth": 0,
+      "seed": 2503
+    }
+  ],
+  "summary": {
+    "求解": {
+      "games": 12,
+      "success": 11,
+      "injury_free_completion": 10,
+      "model_out_games": 2
+    },
+    "只推进": {
+      "games": 12,
+      "success": 11,
+      "injury_free_completion": 9,
+      "model_out_games": 3
+    },
+    "滚动": {
+      "games": 12,
+      "success": 11,
+      "injury_free_completion": 11,
+      "model_out_games": 1
+    },
+    "零冷静才整顿": {
+      "games": 8,
+      "success": 6,
+      "injury_free_completion": 6,
+      "model_out_games": 2
+    },
+    "充足余力求解": {
+      "games": 8,
+      "success": 7,
+      "injury_free_completion": 7,
+      "model_out_games": 1
+    },
+    "成长2求解": {
+      "games": 4,
+      "success": 4,
+      "injury_free_completion": 4,
+      "model_out_games": 0
+    }
+  },
+  "scope": "有限正式轨迹检验；首伤后为模型外公开策略；不得用小样本估计全球完成率"
+}

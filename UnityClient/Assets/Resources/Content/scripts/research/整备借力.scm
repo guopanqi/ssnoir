@@ -1,0 +1,25 @@
+(load-file "scripts/research/common.scm")
+(define 准备 (make-clock "准备" 1 'gauge "铺垫得1进度，并提高下次推进判定；推进后清空。回合末清空。"))
+(define (研究附记) (list (准备 'current)))
+(define (铺垫!)
+  (准备 'set! 1)
+  (研究推进! 1))
+(define (准备修正)
+  (if (准备 'empty?) '() (list (modifier 准备加成 "准备"))))
+(define (借力推进! n)
+  (准备 'reset!)
+  (研究推进! n))
+(define-opponent-rule "准备失效"
+  (lambda () (not 完了?))
+  (lambda () (准备 'reset!) (期限 'advance! 1) (研究检查!)))
+(define (get-render-data)
+  (研究盘面 "铺垫保证推进1，提高下次推进的判定。推进消耗准备；好骰也可直接推进。"
+    (clock-nodes (准备 'render-data))
+    (list
+      (node "铺垫" :subtitle (string-append "一骰：推进1；下次判定加" (number->string 准备加成) "。")
+        :requires (list (req-die)) :resolve (instant 铺垫!))
+      (node "推进" :subtitle "坏0、中2、好4；随后清空准备。" :requires (list (req-die))
+        :resolve (roll 'knowledge 准备修正
+          (outcome (lambda () (借力推进! 0)))
+          (outcome (lambda () (借力推进! 2)))
+          (outcome (lambda () (借力推进! 4))))))))

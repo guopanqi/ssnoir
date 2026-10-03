@@ -11,7 +11,11 @@ namespace SSNoir.Core
         private static string _current = Chinese;
         private static readonly HashSet<string> _warnedMissingSpeakers = new(StringComparer.Ordinal);
 
-        /// <summary>Optional sink for i18n warnings (Unity wires Debug.LogWarning).</summary>
+        /// <summary>
+        /// Display language. Switched only on the title screen, never in-game and never saved.
+        /// Content convention lives in skills/write-scheme/SKILL.md ("中英双语").
+        /// Optional sink for i18n warnings (Unity wires Debug.LogWarning).
+        /// </summary>
         public static Action<string>? Warn { get; set; }
 
         public static string Current

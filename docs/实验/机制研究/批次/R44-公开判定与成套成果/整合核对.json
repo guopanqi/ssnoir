@@ -1,0 +1,15 @@
+{
+  "batch": "R44",
+  "passed": true,
+  "independent_local_conditions": 864,
+  "matched_values": 2592,
+  "independent_partition_matches": 54,
+  "probability_components": 18,
+  "root_strong_family_values": 756,
+  "cross_scoring_compatible": true,
+  "input_sha256": {
+    "数学结果.json": "c72e07b419180565f8727d8fefaf3b29705f033cc12fb17f2fdd23b6e2076a9d",
+    "审查两骰结果.json": "ff178b6a678a75c03a9bec54f7b1de71e89b6acc72ea9e2abbd2761d3fe1f8d7"
+  },
+  "scope": "864独立局部条件与主模型对照；不是独立四骰全局优化。终局效用、族内优化骰序，正式0真人0"
+}

@@ -1,0 +1,422 @@
+[
+  {
+    "variant": "整备借力",
+    "growth": 1,
+    "target": 26,
+    "success": 0.9999590152967213,
+    "success_rounds": 2.7164375964282925,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.9800879031410289,
+        "success_rounds": 2.616530185886867
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.9999224659933671,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.999345381690526,
+        "success_rounds": 2.6808600843295407
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.9800879031410289,
+        "success_rounds": 2.616530185886867
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9991865558997075,
+        "success_rounds": 2.6217341901818028
+      }
+    ]
+  },
+  {
+    "variant": "整备借力",
+    "growth": 1,
+    "target": 28,
+    "success": 0.9991275263325966,
+    "success_rounds": 2.9235257656226237,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.9536687531290727,
+        "success_rounds": 2.797603249262732
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.9970372102966404,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.9953046569810534,
+        "success_rounds": 2.9177249142515778
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.9536687531290727,
+        "success_rounds": 2.797603249262732
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9953383133827141,
+        "success_rounds": 2.897663362219585
+      }
+    ]
+  },
+  {
+    "variant": "整备借力",
+    "growth": 1,
+    "target": 30,
+    "success": 0.990952728320461,
+    "success_rounds": 2.986938994998922,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.9035998115254895,
+        "success_rounds": 2.9229867549577726
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.932825763074251,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.9753532466996268,
+        "success_rounds": 2.981238409498281
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.9035998115254895,
+        "success_rounds": 2.9229867549577726
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9795542358605642,
+        "success_rounds": 2.975827981226125
+      }
+    ]
+  },
+  {
+    "variant": "整备借力",
+    "growth": 1,
+    "target": 32,
+    "success": 0.9547218314997775,
+    "success_rounds": 2.9977711005609136,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.8202446959007722,
+        "success_rounds": 2.9836547743304056
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.0,
+        "success_rounds": null
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.9098090503624381,
+        "success_rounds": 2.9943006264352774
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.8202446959007722,
+        "success_rounds": 2.9836547743304056
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9308388208002483,
+        "success_rounds": 2.9928212871631894
+      }
+    ]
+  },
+  {
+    "variant": "整备借力",
+    "growth": 1,
+    "target": 34,
+    "success": 0.8615783675750064,
+    "success_rounds": 3.0,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.6989359627580095,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.0,
+        "success_rounds": null
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.7686155650348747,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.6989359627580095,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.8183218180038573,
+        "success_rounds": 3.0
+      }
+    ]
+  },
+  {
+    "variant": "整备借力",
+    "growth": 1,
+    "target": 36,
+    "success": 0.691120945081888,
+    "success_rounds": 3.0,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.5457516598934505,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.0,
+        "success_rounds": null
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.5531727898764497,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.5457516598934505,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.6257513375078272,
+        "success_rounds": 3.0
+      }
+    ]
+  },
+  {
+    "variant": "稳险选择",
+    "growth": 1,
+    "target": 26,
+    "success": 0.9955536404717089,
+    "success_rounds": 2.5923583893311637,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.953668753129073,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.9605087565302858,
+        "success_rounds": 2.4274136335618985
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.987939623993212,
+        "success_rounds": 2.4148902478157463
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9894171125450203,
+        "success_rounds": 2.397350775197052
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9918065176452397,
+        "success_rounds": 2.3888994403516715
+      }
+    ]
+  },
+  {
+    "variant": "稳险选择",
+    "growth": 1,
+    "target": 28,
+    "success": 0.9869596096819602,
+    "success_rounds": 2.7477971193273323,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.8202446959007722,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.9297234736610995,
+        "success_rounds": 2.5811076813788523
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.9732981332625138,
+        "success_rounds": 2.5611830242573834
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9759665300600111,
+        "success_rounds": 2.554396380440527
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9802020329672141,
+        "success_rounds": 2.5451032480190046
+      }
+    ]
+  },
+  {
+    "variant": "稳险选择",
+    "growth": 1,
+    "target": 30,
+    "success": 0.9686496072015963,
+    "success_rounds": 2.8589097102937284,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.5457516598934505,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.8948396696585755,
+        "success_rounds": 2.685363996053157
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.9466407457616011,
+        "success_rounds": 2.7034762782280577
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9511847593236756,
+        "success_rounds": 2.6917753772770165
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9575260539475993,
+        "success_rounds": 2.6897043428397573
+      }
+    ]
+  },
+  {
+    "variant": "稳险选择",
+    "growth": 1,
+    "target": 32,
+    "success": 0.9349251104822112,
+    "success_rounds": 2.93203473561885,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.22761387359541982,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.8228395925606248,
+        "success_rounds": 2.765422740157262
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.9026395889544443,
+        "success_rounds": 2.815710305605365
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9092142787970401,
+        "success_rounds": 2.8175135159074163
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9180999766087321,
+        "success_rounds": 2.8141347255314213
+      }
+    ]
+  },
+  {
+    "variant": "稳险选择",
+    "growth": 1,
+    "target": 34,
+    "success": 0.8810990996172411,
+    "success_rounds": 2.9754156074379465,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.042970645999762636,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.7732724218923828,
+        "success_rounds": 2.8835869553262974
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.8372297427462391,
+        "success_rounds": 2.904785471519796
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.8463381212640297,
+        "success_rounds": 2.901662867857607
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.8567363038207395,
+        "success_rounds": 2.9010432594740045
+      }
+    ]
+  },
+  {
+    "variant": "稳险选择",
+    "growth": 1,
+    "target": 36,
+    "success": 0.8039342944499263,
+    "success_rounds": 2.9910741619568046,
+    "model_only": true,
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.0015523924703772685,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.6495516931537882,
+        "success_rounds": 2.892865872818768
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.7482587364840605,
+        "success_rounds": 2.9512757665822313
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.7587417319600095,
+        "success_rounds": 2.954614484742782
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.7706336991258788,
+        "success_rounds": 2.953587847180758
+      }
+    ]
+  }
+]

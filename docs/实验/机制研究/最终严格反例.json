@@ -1,0 +1,422 @@
+[
+  {
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "remaining": 16,
+    "mechanism_state": 0,
+    "turns_left": 2,
+    "hand_size": 3,
+    "choices": [
+      {
+        "hand": [
+          1,
+          1,
+          4
+        ],
+        "action": "强推",
+        "die": 1,
+        "success": 0.503787070422093,
+        "regret": 0.020537040962096575,
+        "alternatives": {
+          "强推": {
+            "success": 0.503787070422093,
+            "die": 1
+          },
+          "借热": {
+            "success": 0.48325002945999646,
+            "die": 1
+          }
+        }
+      },
+      {
+        "hand": [
+          1,
+          6,
+          6
+        ],
+        "action": "借热",
+        "die": 1,
+        "success": 0.8469858586724586,
+        "regret": 0.024157307384544913,
+        "alternatives": {
+          "强推": {
+            "success": 0.8228285512879137,
+            "die": 6
+          },
+          "借热": {
+            "success": 0.8469858586724586,
+            "die": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "remaining": 15,
+    "mechanism_state": 0,
+    "turns_left": 2,
+    "hand_size": 3,
+    "choices": [
+      {
+        "hand": [
+          1,
+          1,
+          2
+        ],
+        "action": "强推",
+        "die": 1,
+        "success": 0.5256336368947824,
+        "regret": 0.020083812366989084,
+        "alternatives": {
+          "强推": {
+            "success": 0.5256336368947824,
+            "die": 1
+          },
+          "借热": {
+            "success": 0.5055498245277933,
+            "die": 1
+          }
+        }
+      },
+      {
+        "hand": [
+          1,
+          1,
+          6
+        ],
+        "action": "借热",
+        "die": 1,
+        "success": 0.7231941705723213,
+        "regret": 0.0249818344722178,
+        "alternatives": {
+          "强推": {
+            "success": 0.6982123361001035,
+            "die": 1
+          },
+          "借热": {
+            "success": 0.7231941705723213,
+            "die": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "remaining": 13,
+    "mechanism_state": 0,
+    "turns_left": 2,
+    "hand_size": 3,
+    "choices": [
+      {
+        "hand": [
+          1,
+          1,
+          1
+        ],
+        "action": "借热",
+        "die": 1,
+        "success": 0.7078420007906568,
+        "regret": 0.02566324297846545,
+        "alternatives": {
+          "强推": {
+            "success": 0.6821787578121914,
+            "die": 1
+          },
+          "借热": {
+            "success": 0.7078420007906568,
+            "die": 1
+          }
+        }
+      },
+      {
+        "hand": [
+          1,
+          1,
+          4
+        ],
+        "action": "强推",
+        "die": 1,
+        "success": 0.8587251160053517,
+        "regret": 0.015780491890210024,
+        "alternatives": {
+          "强推": {
+            "success": 0.8587251160053517,
+            "die": 1
+          },
+          "借热": {
+            "success": 0.8429446241151417,
+            "die": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "remaining": 12,
+    "mechanism_state": 0,
+    "turns_left": 2,
+    "hand_size": 3,
+    "choices": [
+      {
+        "hand": [
+          1,
+          1,
+          1
+        ],
+        "action": "借热",
+        "die": 1,
+        "success": 0.8146902382802137,
+        "regret": 0.03145890467203771,
+        "alternatives": {
+          "强推": {
+            "success": 0.783231333608176,
+            "die": 1
+          },
+          "借热": {
+            "success": 0.8146902382802137,
+            "die": 1
+          }
+        }
+      },
+      {
+        "hand": [
+          1,
+          1,
+          4
+        ],
+        "action": "强推",
+        "die": 1,
+        "success": 0.9249391318103753,
+        "regret": 0.015375642960013591,
+        "alternatives": {
+          "强推": {
+            "success": 0.9249391318103753,
+            "die": 1
+          },
+          "借热": {
+            "success": 0.9095634888503618,
+            "die": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "remaining": 18,
+    "mechanism_state": 0,
+    "turns_left": 2,
+    "hand_size": 3,
+    "choices": [
+      {
+        "hand": [
+          1,
+          1,
+          1
+        ],
+        "action": "稳进",
+        "die": 1,
+        "success": 0.6664844821673525,
+        "regret": 0.2962153254077122,
+        "alternatives": {
+          "备料": {
+            "success": 0.37026915675964023,
+            "die": 1
+          },
+          "稳进": {
+            "success": 0.6664844821673525,
+            "die": 1
+          }
+        }
+      },
+      {
+        "hand": [
+          1,
+          1,
+          6
+        ],
+        "action": "备料",
+        "die": 1,
+        "success": 0.7019378238835543,
+        "regret": 0.03545334171620185,
+        "alternatives": {
+          "备料": {
+            "success": 0.7019378238835543,
+            "die": 1
+          },
+          "稳进": {
+            "success": 0.6664844821673525,
+            "die": 6
+          }
+        }
+      }
+    ]
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "remaining": 18,
+    "mechanism_state": 2,
+    "turns_left": 2,
+    "hand_size": 3,
+    "choices": [
+      {
+        "hand": [
+          1,
+          1,
+          1
+        ],
+        "action": "兑现",
+        "die": 1,
+        "success": 0.7070145795229386,
+        "regret": 0.0405300973555861,
+        "alternatives": {
+          "备料": {
+            "success": 0.5593802392927909,
+            "die": 1
+          },
+          "稳进": {
+            "success": 0.6664844821673525,
+            "die": 1
+          },
+          "兑现": {
+            "success": 0.7070145795229386,
+            "die": 1
+          }
+        }
+      },
+      {
+        "hand": [
+          1,
+          2,
+          4
+        ],
+        "action": "备料",
+        "die": 4,
+        "success": 0.8872545867626893,
+        "regret": 0.024633606729157487,
+        "alternatives": {
+          "备料": {
+            "success": 0.8872545867626894,
+            "die": 2
+          },
+          "稳进": {
+            "success": 0.8626209800335318,
+            "die": 2
+          },
+          "兑现": {
+            "success": 0.8134307683025964,
+            "die": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "remaining": 13,
+    "mechanism_state": 0,
+    "turns_left": 2,
+    "hand_size": 2,
+    "choices": [
+      {
+        "hand": [
+          1,
+          1
+        ],
+        "action": "稳进",
+        "die": 1,
+        "success": 0.7360753886602653,
+        "regret": 0.017516206085200547,
+        "alternatives": {
+          "备料": {
+            "success": 0.7185591825750648,
+            "die": 1
+          },
+          "稳进": {
+            "success": 0.7360753886602653,
+            "die": 1
+          }
+        }
+      },
+      {
+        "hand": [
+          1,
+          2
+        ],
+        "action": "备料",
+        "die": 2,
+        "success": 0.7540125242912668,
+        "regret": 0.01793713563100141,
+        "alternatives": {
+          "备料": {
+            "success": 0.7540125242912668,
+            "die": 2
+          },
+          "稳进": {
+            "success": 0.7360753886602653,
+            "die": 2
+          }
+        }
+      }
+    ]
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "remaining": 12,
+    "mechanism_state": 0,
+    "turns_left": 2,
+    "hand_size": 2,
+    "choices": [
+      {
+        "hand": [
+          1,
+          1
+        ],
+        "action": "稳进",
+        "die": 1,
+        "success": 0.8792045324645638,
+        "regret": 0.11927428650358196,
+        "alternatives": {
+          "备料": {
+            "success": 0.7599302459609818,
+            "die": 1
+          },
+          "稳进": {
+            "success": 0.8792045324645638,
+            "die": 1
+          }
+        }
+      },
+      {
+        "hand": [
+          3,
+          6
+        ],
+        "action": "备料",
+        "die": 3,
+        "success": 0.8963923896890724,
+        "regret": 0.017187857224508662,
+        "alternatives": {
+          "备料": {
+            "success": 0.8963923896890724,
+            "die": 3
+          },
+          "稳进": {
+            "success": 0.8792045324645638,
+            "die": 6
+          }
+        }
+      }
+    ]
+  }
+]

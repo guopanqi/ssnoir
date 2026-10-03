@@ -1,0 +1,13 @@
+[
+  {
+    "scene": "第二轮/信封换人",
+    "authorRecord": "docs/实验/第二轮/信封换人/作者逐步-v2-seed19.json.gz",
+    "regressionRecord": "docs/实验/第二轮/信封换人/当前回归复核.json.gz",
+    "steps": 6,
+    "contentRevision": "bccf7980e35c84b524890f309dff175bbad434bff2586956433873397e1e0c88",
+    "result": "('救出人质 5)",
+    "completeObservationsMatch": true,
+    "eventContentsMatchIgnoringOrder": true,
+    "strictReplayPassed": true
+  }
+]

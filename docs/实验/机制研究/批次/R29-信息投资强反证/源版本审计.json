@@ -1,0 +1,102 @@
+{
+  "source_version": "R25/版本.json",
+  "results": [
+    {
+      "source": "AGENTS.md",
+      "expected": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+      "current": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+      "match": true
+    },
+    {
+      "source": "Engine/Runtime/Core/FateStrip.cs",
+      "expected": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+      "current": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+      "match": true
+    },
+    {
+      "source": "tools/content-validator/experiments/mechanism-study.py",
+      "expected": "59bd3eaba31f8eaa874bd9a7f11ab9d21d68dc506662070debcd445e7162c41c",
+      "current": "59bd3eaba31f8eaa874bd9a7f11ab9d21d68dc506662070debcd445e7162c41c",
+      "match": true
+    },
+    {
+      "source": "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py",
+      "expected": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+      "current": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+      "match": true
+    },
+    {
+      "source": "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py",
+      "expected": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+      "current": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+      "match": true
+    },
+    {
+      "source": "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/组合模型.py",
+      "expected": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+      "current": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+      "match": true
+    },
+    {
+      "source": "docs/实验/机制研究/批次/R25-行动换取目标信息/固定真值复核.py",
+      "expected": "464663debd57c6dafc1d62c35764165a809866a56f5ccad16127309723a24136",
+      "current": "464663debd57c6dafc1d62c35764165a809866a56f5ccad16127309723a24136",
+      "match": true
+    },
+    {
+      "source": "docs/实验/机制研究/批次/R25-行动换取目标信息/正式对照.py",
+      "expected": "7036d9b8d74c6bde14d6eed38737923972ac09fe9a6ba172e98444a8b281f427",
+      "current": "7036d9b8d74c6bde14d6eed38737923972ac09fe9a6ba172e98444a8b281f427",
+      "match": true
+    },
+    {
+      "source": "docs/实验/机制研究/批次/R25-行动换取目标信息/可达选择.py",
+      "expected": "6ca4f5b67ccc24ff1abb75704db9b24a1214765f73fe2ac8bf11e62e1d597a37",
+      "current": "6ca4f5b67ccc24ff1abb75704db9b24a1214765f73fe2ac8bf11e62e1d597a37",
+      "match": true
+    },
+    {
+      "source": "docs/实验/机制研究/批次/R25-行动换取目标信息/信息投资.py",
+      "expected": "1951355cc1ecfbd893b12fcfdebee1d8709ded6ae4018564b78553fbb77c3e74",
+      "current": "1951355cc1ecfbd893b12fcfdebee1d8709ded6ae4018564b78553fbb77c3e74",
+      "match": true
+    },
+    {
+      "source": "UnityClient/Assets/Resources/Content/scripts/research/定位搜索.scm",
+      "expected": "89f74ad755b690476927426be0d6ac0dd3e9c4b547f7187438bbd87ca34f9d38",
+      "current": "89f74ad755b690476927426be0d6ac0dd3e9c4b547f7187438bbd87ca34f9d38",
+      "match": true
+    },
+    {
+      "source": "UnityClient/Assets/Resources/Content/scripts/research/定位搜索.scm.meta",
+      "expected": "9c9ce1b1885cccc7ddd70da86ad825d0a6651d072567374aa44a0ec8e8e7a7bb",
+      "current": "9c9ce1b1885cccc7ddd70da86ad825d0a6651d072567374aa44a0ec8e8e7a7bb",
+      "match": true
+    },
+    {
+      "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm",
+      "expected": "424df171da9663db331fc56d644cd436e5b64225f2d78a68f6c194a23bc8bf95",
+      "current": "424df171da9663db331fc56d644cd436e5b64225f2d78a68f6c194a23bc8bf95",
+      "match": true
+    },
+    {
+      "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm.meta",
+      "expected": "697a6b1846e445ccc0010668e16442073694ac0b724c90df3479e3be1d7e9ccd",
+      "current": "697a6b1846e445ccc0010668e16442073694ac0b724c90df3479e3be1d7e9ccd",
+      "match": true
+    },
+    {
+      "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·直接搜寻对照.scm",
+      "expected": "050f277146c0055963ad0948375d193d2a5cb6bb85d9335beae194318f36517f",
+      "current": "050f277146c0055963ad0948375d193d2a5cb6bb85d9335beae194318f36517f",
+      "match": true
+    },
+    {
+      "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·直接搜寻对照.scm.meta",
+      "expected": "5f3629a62427e66dfe7d7432efd890e3b5d43655ed9f436bf80bba9f8b2bc4a2",
+      "current": "5f3629a62427e66dfe7d7432efd890e3b5d43655ed9f436bf80bba9f8b2bc4a2",
+      "match": true
+    }
+  ],
+  "all_matched": true
+}

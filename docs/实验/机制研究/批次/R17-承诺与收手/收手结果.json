@@ -1,0 +1,5728 @@
+{
+  "results": [
+    {
+      "skill": 1,
+      "policy": "自由",
+      "threshold": null,
+      "expected_score": 4.499289123228166,
+      "exact": "1259513/279936",
+      "states": 330
+    },
+    {
+      "skill": 1,
+      "policy": "高骰动态停止",
+      "threshold": null,
+      "expected_score": 4.499289123228166,
+      "exact": "1259513/279936",
+      "states": 330
+    },
+    {
+      "skill": 1,
+      "policy": "单步",
+      "threshold": null,
+      "expected_score": 4.499289123228166,
+      "exact": "1259513/279936",
+      "states": 330
+    },
+    {
+      "skill": 1,
+      "policy": "用完",
+      "threshold": null,
+      "expected_score": 4.135954884926078,
+      "exact": "27136/6561",
+      "states": 330
+    },
+    {
+      "skill": 1,
+      "policy": "阈值",
+      "threshold": 0,
+      "expected_score": 0.0,
+      "exact": "0",
+      "states": 126
+    },
+    {
+      "skill": 1,
+      "policy": "阈值",
+      "threshold": 1,
+      "expected_score": 1.8635545267489713,
+      "exact": "14491/7776",
+      "states": 238
+    },
+    {
+      "skill": 1,
+      "policy": "阈值",
+      "threshold": 2,
+      "expected_score": 2.019247256515775,
+      "exact": "47105/23328",
+      "states": 280
+    },
+    {
+      "skill": 1,
+      "policy": "阈值",
+      "threshold": 3,
+      "expected_score": 3.417248942615455,
+      "exact": "956611/279936",
+      "states": 313
+    },
+    {
+      "skill": 1,
+      "policy": "阈值",
+      "threshold": 4,
+      "expected_score": 3.6390877438652645,
+      "exact": "3056135/839808",
+      "states": 321
+    },
+    {
+      "skill": 1,
+      "policy": "阈值",
+      "threshold": 5,
+      "expected_score": 4.2254896357262615,
+      "exact": "443575/104976",
+      "states": 328
+    },
+    {
+      "skill": 1,
+      "policy": "阈值",
+      "threshold": 6,
+      "expected_score": 4.169123180536504,
+      "exact": "3501263/839808",
+      "states": 329
+    },
+    {
+      "skill": 1,
+      "policy": "阈值",
+      "threshold": 7,
+      "expected_score": 4.135954884926078,
+      "exact": "27136/6561",
+      "states": 330
+    },
+    {
+      "skill": 1,
+      "policy": "阈值",
+      "threshold": 8,
+      "expected_score": 4.135954884926078,
+      "exact": "27136/6561",
+      "states": 330
+    },
+    {
+      "skill": 2,
+      "policy": "自由",
+      "threshold": null,
+      "expected_score": 5.616140832190215,
+      "exact": "24565/4374",
+      "states": 330
+    },
+    {
+      "skill": 2,
+      "policy": "高骰动态停止",
+      "threshold": null,
+      "expected_score": 5.616140832190215,
+      "exact": "24565/4374",
+      "states": 330
+    },
+    {
+      "skill": 2,
+      "policy": "单步",
+      "threshold": null,
+      "expected_score": 5.616140832190215,
+      "exact": "24565/4374",
+      "states": 330
+    },
+    {
+      "skill": 2,
+      "policy": "用完",
+      "threshold": null,
+      "expected_score": 5.616140832190215,
+      "exact": "24565/4374",
+      "states": 330
+    },
+    {
+      "skill": 2,
+      "policy": "阈值",
+      "threshold": 0,
+      "expected_score": 0.0,
+      "exact": "0",
+      "states": 126
+    },
+    {
+      "skill": 2,
+      "policy": "阈值",
+      "threshold": 1,
+      "expected_score": 1.952417695473251,
+      "exact": "7591/3888",
+      "states": 238
+    },
+    {
+      "skill": 2,
+      "policy": "阈值",
+      "threshold": 2,
+      "expected_score": 2.017511145404664,
+      "exact": "94129/46656",
+      "states": 280
+    },
+    {
+      "skill": 2,
+      "policy": "阈值",
+      "threshold": 3,
+      "expected_score": 3.7403477937814356,
+      "exact": "523529/139968",
+      "states": 313
+    },
+    {
+      "skill": 2,
+      "policy": "阈值",
+      "threshold": 4,
+      "expected_score": 3.9293070558984913,
+      "exact": "733303/186624",
+      "states": 321
+    },
+    {
+      "skill": 2,
+      "policy": "阈值",
+      "threshold": 5,
+      "expected_score": 5.0870270347508,
+      "exact": "712021/139968",
+      "states": 328
+    },
+    {
+      "skill": 2,
+      "policy": "阈值",
+      "threshold": 6,
+      "expected_score": 5.252290404473404,
+      "exact": "8821831/1679616",
+      "states": 329
+    },
+    {
+      "skill": 2,
+      "policy": "阈值",
+      "threshold": 7,
+      "expected_score": 5.616140832190215,
+      "exact": "24565/4374",
+      "states": 330
+    },
+    {
+      "skill": 2,
+      "policy": "阈值",
+      "threshold": 8,
+      "expected_score": 5.616140832190215,
+      "exact": "24565/4374",
+      "states": 330
+    },
+    {
+      "skill": 3,
+      "policy": "自由",
+      "threshold": null,
+      "expected_score": 6.636933680079256,
+      "exact": "2786875/419904",
+      "states": 330
+    },
+    {
+      "skill": 3,
+      "policy": "高骰动态停止",
+      "threshold": null,
+      "expected_score": 6.636933680079256,
+      "exact": "2786875/419904",
+      "states": 330
+    },
+    {
+      "skill": 3,
+      "policy": "单步",
+      "threshold": null,
+      "expected_score": 6.636933680079256,
+      "exact": "2786875/419904",
+      "states": 330
+    },
+    {
+      "skill": 3,
+      "policy": "用完",
+      "threshold": null,
+      "expected_score": 6.636933680079256,
+      "exact": "2786875/419904",
+      "states": 330
+    },
+    {
+      "skill": 3,
+      "policy": "阈值",
+      "threshold": 0,
+      "expected_score": 0.0,
+      "exact": "0",
+      "states": 126
+    },
+    {
+      "skill": 3,
+      "policy": "阈值",
+      "threshold": 1,
+      "expected_score": 1.9872685185185186,
+      "exact": "1717/864",
+      "states": 238
+    },
+    {
+      "skill": 3,
+      "policy": "阈值",
+      "threshold": 2,
+      "expected_score": 2.007866083676269,
+      "exact": "93679/46656",
+      "states": 280
+    },
+    {
+      "skill": 3,
+      "policy": "阈值",
+      "threshold": 3,
+      "expected_score": 3.9106474336991313,
+      "exact": "1094731/279936",
+      "states": 313
+    },
+    {
+      "skill": 3,
+      "policy": "阈值",
+      "threshold": 4,
+      "expected_score": 4.018133311423563,
+      "exact": "6748921/1679616",
+      "states": 321
+    },
+    {
+      "skill": 3,
+      "policy": "阈值",
+      "threshold": 5,
+      "expected_score": 5.617707857033989,
+      "exact": "1179449/209952",
+      "states": 328
+    },
+    {
+      "skill": 3,
+      "policy": "阈值",
+      "threshold": 6,
+      "expected_score": 5.797836529301936,
+      "exact": "9738139/1679616",
+      "states": 329
+    },
+    {
+      "skill": 3,
+      "policy": "阈值",
+      "threshold": 7,
+      "expected_score": 6.636933680079256,
+      "exact": "2786875/419904",
+      "states": 330
+    },
+    {
+      "skill": 3,
+      "policy": "阈值",
+      "threshold": 8,
+      "expected_score": 6.636933680079256,
+      "exact": "2786875/419904",
+      "states": 330
+    },
+    {
+      "skill": 4,
+      "policy": "自由",
+      "threshold": null,
+      "expected_score": 7.666666666666667,
+      "exact": "23/3",
+      "states": 330
+    },
+    {
+      "skill": 4,
+      "policy": "高骰动态停止",
+      "threshold": null,
+      "expected_score": 7.666666666666667,
+      "exact": "23/3",
+      "states": 330
+    },
+    {
+      "skill": 4,
+      "policy": "单步",
+      "threshold": null,
+      "expected_score": 7.666666666666667,
+      "exact": "23/3",
+      "states": 330
+    },
+    {
+      "skill": 4,
+      "policy": "用完",
+      "threshold": null,
+      "expected_score": 7.666666666666667,
+      "exact": "23/3",
+      "states": 330
+    },
+    {
+      "skill": 4,
+      "policy": "阈值",
+      "threshold": 0,
+      "expected_score": 0.0,
+      "exact": "0",
+      "states": 126
+    },
+    {
+      "skill": 4,
+      "policy": "阈值",
+      "threshold": 1,
+      "expected_score": 1.9978137860082306,
+      "exact": "15535/7776",
+      "states": 238
+    },
+    {
+      "skill": 4,
+      "policy": "阈值",
+      "threshold": 2,
+      "expected_score": 2.001693244170096,
+      "exact": "93391/46656",
+      "states": 280
+    },
+    {
+      "skill": 4,
+      "policy": "阈值",
+      "threshold": 3,
+      "expected_score": 3.97743412780064,
+      "exact": "1113427/279936",
+      "states": 313
+    },
+    {
+      "skill": 4,
+      "policy": "阈值",
+      "threshold": 4,
+      "expected_score": 4.016594864540466,
+      "exact": "749593/186624",
+      "states": 321
+    },
+    {
+      "skill": 4,
+      "policy": "阈值",
+      "threshold": 5,
+      "expected_score": 5.897462277091907,
+      "exact": "17197/2916",
+      "states": 328
+    },
+    {
+      "skill": 4,
+      "policy": "阈值",
+      "threshold": 6,
+      "expected_score": 6.067335033721994,
+      "exact": "3396931/559872",
+      "states": 329
+    },
+    {
+      "skill": 4,
+      "policy": "阈值",
+      "threshold": 7,
+      "expected_score": 7.666666666666667,
+      "exact": "23/3",
+      "states": 330
+    },
+    {
+      "skill": 4,
+      "policy": "阈值",
+      "threshold": 8,
+      "expected_score": 7.666666666666667,
+      "exact": "23/3",
+      "states": 330
+    }
+  ],
+  "paths": [
+    {
+      "skill": 1,
+      "score_distribution": {
+        "0": 0.21310347126962353,
+        "3": 0.05966720964791952,
+        "4": 0.11223160531931108,
+        "5": 0.16156073769242493,
+        "6": 0.205761316872428,
+        "7": 0.15241579027587257,
+        "8": 0.09525986892242036
+      },
+      "voluntary_stop_mass": 0.4209462162780064,
+      "voluntary_stop_exact": "58919/139968",
+      "stops": [
+        {
+          "progress": 5,
+          "hand": [
+            1
+          ],
+          "mass": 0.13717421124828533,
+          "best_continue": 4.166666666666667
+        },
+        {
+          "progress": 6,
+          "hand": [
+            1
+          ],
+          "mass": 0.11431184270690443,
+          "best_continue": 4.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1
+          ],
+          "mass": 0.056616512345679014,
+          "best_continue": 3.5
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            1
+          ],
+          "mass": 0.05317644032921811,
+          "best_continue": 3.5
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            1
+          ],
+          "mass": 0.04711076817558299,
+          "best_continue": 2.8333333333333335
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1
+          ],
+          "mass": 0.012556441472336534,
+          "best_continue": 2.8333333333333335
+        }
+      ],
+      "continue_witnesses": [
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.0929355281207133,
+          "stop_score": 4,
+          "continue_score": 4.5
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.07021604938271606,
+          "stop_score": 4,
+          "continue_score": 4.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.07021604938271606,
+          "stop_score": 4,
+          "continue_score": 4.861111111111111
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.06378600823045268,
+          "stop_score": 3,
+          "continue_score": 3.6666666666666665
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.05092592592592592,
+          "stop_score": 2,
+          "continue_score": 3.4722222222222223
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.044838820301783266,
+          "stop_score": 4,
+          "continue_score": 4.722222222222222
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.043810013717421124,
+          "stop_score": 4,
+          "continue_score": 5.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.043810013717421124,
+          "stop_score": 4,
+          "continue_score": 5.888888888888889
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.043810013717421124,
+          "stop_score": 4,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.040123456790123455,
+          "stop_score": 2,
+          "continue_score": 4.222222222222222
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.040123456790123455,
+          "stop_score": 2,
+          "continue_score": 4.388888888888889
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.040123456790123455,
+          "stop_score": 2,
+          "continue_score": 4.62962962962963
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.03420781893004115,
+          "stop_score": 3,
+          "continue_score": 3.8333333333333335
+        },
+        {
+          "progress": 3,
+          "hand": [
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.03420781893004115,
+          "stop_score": 3,
+          "continue_score": 4.166666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.03298611111111111,
+          "stop_score": 4,
+          "continue_score": 5.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.029320987654320986,
+          "stop_score": 2,
+          "continue_score": 2.8333333333333335
+        },
+        {
+          "progress": 3,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.028892318244170098,
+          "stop_score": 3,
+          "continue_score": 4.027777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.02880658436213992,
+          "stop_score": 2,
+          "continue_score": 3.3333333333333335
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.026234567901234566,
+          "stop_score": 2,
+          "continue_score": 4.361111111111111
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.026234567901234566,
+          "stop_score": 2,
+          "continue_score": 4.527777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.026234567901234566,
+          "stop_score": 2,
+          "continue_score": 5.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.026234567901234566,
+          "stop_score": 2,
+          "continue_score": 4.74537037037037
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.026234567901234566,
+          "stop_score": 2,
+          "continue_score": 5.75
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.026234567901234566,
+          "stop_score": 2,
+          "continue_score": 5.916666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.02546296296296296,
+          "stop_score": 2,
+          "continue_score": 3.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.02546296296296296,
+          "stop_score": 2,
+          "continue_score": 3.7037037037037037
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.024691358024691357,
+          "stop_score": 2,
+          "continue_score": 3.611111111111111
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.024691358024691357,
+          "stop_score": 2,
+          "continue_score": 3.8194444444444446
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.020061728395061727,
+          "stop_score": 2,
+          "continue_score": 3.6666666666666665
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.020061728395061727,
+          "stop_score": 2,
+          "continue_score": 4.4907407407407405
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.020061728395061727,
+          "stop_score": 2,
+          "continue_score": 4.768518518518518
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.019675925925925927,
+          "stop_score": 4,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 0.019118655692729768,
+          "stop_score": 4,
+          "continue_score": 5.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.019118655692729768,
+          "stop_score": 4,
+          "continue_score": 6.027777777777778
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.019118655692729768,
+          "stop_score": 4,
+          "continue_score": 6.194444444444445
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.019118655692729768,
+          "stop_score": 4,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.01903292181069959,
+          "stop_score": 2,
+          "continue_score": 5.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.01903292181069959,
+          "stop_score": 2,
+          "continue_score": 5.611111111111111
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.01903292181069959,
+          "stop_score": 2,
+          "continue_score": 5.777777777777778
+        },
+        {
+          "progress": 3,
+          "hand": [
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.015174897119341564,
+          "stop_score": 3,
+          "continue_score": 4.305555555555555
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.013717421124828532,
+          "stop_score": 3,
+          "continue_score": 4.666666666666667
+        },
+        {
+          "progress": 3,
+          "hand": [
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.013717421124828532,
+          "stop_score": 3,
+          "continue_score": 5.055555555555555
+        },
+        {
+          "progress": 3,
+          "hand": [
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.013717421124828532,
+          "stop_score": 3,
+          "continue_score": 5.222222222222222
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013117283950617283,
+          "stop_score": 2,
+          "continue_score": 3.8333333333333335
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013117283950617283,
+          "stop_score": 2,
+          "continue_score": 4.606481481481482
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013117283950617283,
+          "stop_score": 2,
+          "continue_score": 4.8842592592592595
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013117283950617283,
+          "stop_score": 2,
+          "continue_score": 7.166666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.012345679012345678,
+          "stop_score": 1,
+          "continue_score": 2.7777777777777777
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.011831275720164609,
+          "stop_score": 2,
+          "continue_score": 5.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.011831275720164609,
+          "stop_score": 2,
+          "continue_score": 5.888888888888889
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.011831275720164609,
+          "stop_score": 2,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.011831275720164609,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.011059670781893004,
+          "stop_score": 2,
+          "continue_score": 2.8333333333333335
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.010480967078189301,
+          "stop_score": 2,
+          "continue_score": 2.1666666666666665
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.010416666666666666,
+          "stop_score": 2,
+          "continue_score": 2.1666666666666665
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.010030864197530864,
+          "stop_score": 1,
+          "continue_score": 2.0833333333333335
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.009516460905349794,
+          "stop_score": 2,
+          "continue_score": 3.587962962962963
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.009259259259259259,
+          "stop_score": 1,
+          "continue_score": 2.638888888888889
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 4.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 4.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 5.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 5.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 4.861111111111111
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 5.888888888888889
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.027777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.194444444444445
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.008101851851851851,
+          "stop_score": 2,
+          "continue_score": 3.935185185185185
+        },
+        {
+          "progress": 4,
+          "hand": [
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.007737482853223594,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.006172839506172839,
+          "stop_score": 1,
+          "continue_score": 2.2222222222222223
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.006172839506172839,
+          "stop_score": 1,
+          "continue_score": 3.388888888888889
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.006172839506172839,
+          "stop_score": 1,
+          "continue_score": 3.5555555555555554
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.006172839506172839,
+          "stop_score": 1,
+          "continue_score": 3.125
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.006172839506172839,
+          "stop_score": 1,
+          "continue_score": 3.935185185185185
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.006172839506172839,
+          "stop_score": 2,
+          "continue_score": 7.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.00565843621399177,
+          "stop_score": 1,
+          "continue_score": 2.9166666666666665
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.00565843621399177,
+          "stop_score": 1,
+          "continue_score": 3.240740740740741
+        },
+        {
+          "progress": 3,
+          "hand": [
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.005401234567901234,
+          "stop_score": 3,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.004693930041152264,
+          "stop_score": 2,
+          "continue_score": 3.3333333333333335
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 4.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 4.722222222222222
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 5.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.0045010288065843625,
+          "stop_score": 1,
+          "continue_score": 1.5833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.004200960219478738,
+          "stop_score": 2,
+          "continue_score": 3.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.004200960219478738,
+          "stop_score": 2,
+          "continue_score": 3.4722222222222223
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.003729423868312757,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0030864197530864196,
+          "stop_score": 1,
+          "continue_score": 2.7222222222222223
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 6.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0030864197530864196,
+          "stop_score": 1,
+          "continue_score": 3.7962962962962963
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            3,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0030864197530864196,
+          "stop_score": 1,
+          "continue_score": 4.074074074074074
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 6.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.0029578189300411522,
+          "stop_score": 1,
+          "continue_score": 3.009259259259259
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.00257201646090535,
+          "stop_score": 1,
+          "continue_score": 4.333333333333333
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.00257201646090535,
+          "stop_score": 1,
+          "continue_score": 4.777777777777778
+        },
+        {
+          "progress": 1,
+          "hand": [
+            3,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.00257201646090535,
+          "stop_score": 1,
+          "continue_score": 4.944444444444445
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0024005486968449933,
+          "stop_score": 3,
+          "continue_score": 4.833333333333333
+        },
+        {
+          "progress": 3,
+          "hand": [
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0024005486968449933,
+          "stop_score": 3,
+          "continue_score": 5.194444444444445
+        },
+        {
+          "progress": 3,
+          "hand": [
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0024005486968449933,
+          "stop_score": 3,
+          "continue_score": 5.361111111111111
+        },
+        {
+          "progress": 3,
+          "hand": [
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0024005486968449933,
+          "stop_score": 3,
+          "continue_score": 6.5
+        },
+        {
+          "progress": 1,
+          "hand": [
+            3,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.001800411522633745,
+          "stop_score": 1,
+          "continue_score": 3.3564814814814814
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0017575445816186558,
+          "stop_score": 2,
+          "continue_score": 3.611111111111111
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0015432098765432098,
+          "stop_score": 1,
+          "continue_score": 3.5277777777777777
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0015432098765432098,
+          "stop_score": 1,
+          "continue_score": 3.6944444444444446
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0015432098765432098,
+          "stop_score": 1,
+          "continue_score": 4.5
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0015432098765432098,
+          "stop_score": 1,
+          "continue_score": 4.050925925925926
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0015432098765432098,
+          "stop_score": 1,
+          "continue_score": 4.916666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            3,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0015432098765432098,
+          "stop_score": 1,
+          "continue_score": 5.083333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0011145404663923182,
+          "stop_score": 2,
+          "continue_score": 3.6666666666666665
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0011145404663923182,
+          "stop_score": 2,
+          "continue_score": 4.222222222222222
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0011145404663923182,
+          "stop_score": 2,
+          "continue_score": 4.388888888888889
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 2.861111111111111
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 3.912037037037037
+        },
+        {
+          "progress": 1,
+          "hand": [
+            3,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 4.189814814814815
+        },
+        {
+          "progress": 1,
+          "hand": [
+            4,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 6.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            4,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            6,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0007716049382716049,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0007716049382716049,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 3,
+          "hand": [
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0007287379972565158,
+          "stop_score": 3,
+          "continue_score": 6.666666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.00051440329218107,
+          "stop_score": 1,
+          "continue_score": 4.666666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.00051440329218107,
+          "stop_score": 1,
+          "continue_score": 5.055555555555555
+        },
+        {
+          "progress": 1,
+          "hand": [
+            3,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.00051440329218107,
+          "stop_score": 1,
+          "continue_score": 5.222222222222222
+        },
+        {
+          "progress": 1,
+          "hand": [
+            4,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.00051440329218107,
+          "stop_score": 1,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.00038580246913580245,
+          "stop_score": 2,
+          "continue_score": 5.333333333333333
+        },
+        {
+          "progress": 1,
+          "hand": [
+            5,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0001286008230452675,
+          "stop_score": 1,
+          "continue_score": 6.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 8.573388203017832e-05,
+          "stop_score": 2,
+          "continue_score": 3.8333333333333335
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 8.573388203017832e-05,
+          "stop_score": 2,
+          "continue_score": 4.361111111111111
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 8.573388203017832e-05,
+          "stop_score": 2,
+          "continue_score": 4.527777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 8.573388203017832e-05,
+          "stop_score": 2,
+          "continue_score": 5.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 2.143347050754458e-05,
+          "stop_score": 2,
+          "continue_score": 5.666666666666667
+        }
+      ]
+    },
+    {
+      "skill": 2,
+      "score_distribution": {
+        "0": 0.20438004877305288,
+        "4": 0.0024386526444139613,
+        "5": 0.0317024843773815,
+        "6": 0.1545496113397348,
+        "7": 0.33485749123609204,
+        "8": 0.2720717116293248
+      },
+      "voluntary_stop_mass": 0.0,
+      "voluntary_stop_exact": "0",
+      "stops": [],
+      "continue_witnesses": [
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.13040123456790123,
+          "stop_score": 4,
+          "continue_score": 4.861111111111111
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.09319272976680384,
+          "stop_score": 4,
+          "continue_score": 5.888888888888889
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.09319272976680384,
+          "stop_score": 4,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.07827503429355281,
+          "stop_score": 4,
+          "continue_score": 4.722222222222222
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.0623070987654321,
+          "stop_score": 4,
+          "continue_score": 5.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.05864197530864197,
+          "stop_score": 2,
+          "continue_score": 4.62962962962963
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.05461248285322359,
+          "stop_score": 4,
+          "continue_score": 6.027777777777778
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.05461248285322359,
+          "stop_score": 4,
+          "continue_score": 6.194444444444445
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.05461248285322359,
+          "stop_score": 4,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.046553497942386834,
+          "stop_score": 3,
+          "continue_score": 4.166666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.044753086419753084,
+          "stop_score": 2,
+          "continue_score": 4.74537037037037
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.044753086419753084,
+          "stop_score": 2,
+          "continue_score": 5.75
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.044753086419753084,
+          "stop_score": 2,
+          "continue_score": 5.916666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.043338477366255145,
+          "stop_score": 4,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.03815157750342935,
+          "stop_score": 3,
+          "continue_score": 4.027777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.034722222222222224,
+          "stop_score": 2,
+          "continue_score": 3.7037037037037037
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.033950617283950615,
+          "stop_score": 2,
+          "continue_score": 3.8194444444444446
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.029320987654320986,
+          "stop_score": 2,
+          "continue_score": 4.4907407407407405
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.029320987654320986,
+          "stop_score": 2,
+          "continue_score": 4.768518518518518
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.028292181069958847,
+          "stop_score": 2,
+          "continue_score": 5.611111111111111
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.028292181069958847,
+          "stop_score": 2,
+          "continue_score": 5.777777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 4.861111111111111
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 5.888888888888889
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 6.027777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 6.194444444444445
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.024198388203017833,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.022376543209876542,
+          "stop_score": 2,
+          "continue_score": 4.606481481481482
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.022376543209876542,
+          "stop_score": 2,
+          "continue_score": 4.8842592592592595
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.022376543209876542,
+          "stop_score": 2,
+          "continue_score": 7.166666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.02109053497942387,
+          "stop_score": 2,
+          "continue_score": 5.888888888888889
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.02109053497942387,
+          "stop_score": 2,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.02109053497942387,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 3,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.020833333333333332,
+          "stop_score": 3,
+          "continue_score": 4.305555555555555
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.019890260631001373,
+          "stop_score": 3,
+          "continue_score": 5.055555555555555
+        },
+        {
+          "progress": 3,
+          "hand": [
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.019890260631001373,
+          "stop_score": 3,
+          "continue_score": 5.222222222222222
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 4.722222222222222
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 5.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.012602880658436214,
+          "stop_score": 2,
+          "continue_score": 3.587962962962963
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.011188271604938271,
+          "stop_score": 2,
+          "continue_score": 3.935185185185185
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 4.861111111111111
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 5.888888888888889
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.027777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.194444444444445
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.008487654320987654,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 3,
+          "hand": [
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.007973251028806584,
+          "stop_score": 3,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.006815843621399177,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.006172839506172839,
+          "stop_score": 1,
+          "continue_score": 3.125
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.006172839506172839,
+          "stop_score": 1,
+          "continue_score": 3.935185185185185
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.00565843621399177,
+          "stop_score": 1,
+          "continue_score": 3.240740740740741
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.004693930041152264,
+          "stop_score": 2,
+          "continue_score": 3.3333333333333335
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 4.722222222222222
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 5.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.004200960219478738,
+          "stop_score": 2,
+          "continue_score": 3.4722222222222223
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.003943758573388203,
+          "stop_score": 3,
+          "continue_score": 5.194444444444445
+        },
+        {
+          "progress": 3,
+          "hand": [
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.003943758573388203,
+          "stop_score": 3,
+          "continue_score": 5.361111111111111
+        },
+        {
+          "progress": 3,
+          "hand": [
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.003943758573388203,
+          "stop_score": 3,
+          "continue_score": 6.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0038580246913580245,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0030864197530864196,
+          "stop_score": 1,
+          "continue_score": 3.7962962962962963
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0030864197530864196,
+          "stop_score": 1,
+          "continue_score": 4.074074074074074
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.0029578189300411522,
+          "stop_score": 1,
+          "continue_score": 3.009259259259259
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.00257201646090535,
+          "stop_score": 1,
+          "continue_score": 4.777777777777778
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.00257201646090535,
+          "stop_score": 1,
+          "continue_score": 4.944444444444445
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.001800411522633745,
+          "stop_score": 1,
+          "continue_score": 3.3564814814814814
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.0017575445816186558,
+          "stop_score": 2,
+          "continue_score": 3.611111111111111
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0015432098765432098,
+          "stop_score": 1,
+          "continue_score": 4.050925925925926
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0015432098765432098,
+          "stop_score": 1,
+          "continue_score": 4.916666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0015432098765432098,
+          "stop_score": 1,
+          "continue_score": 5.083333333333333
+        },
+        {
+          "progress": 3,
+          "hand": [
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0012431412894375858,
+          "stop_score": 3,
+          "continue_score": 6.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0011145404663923182,
+          "stop_score": 2,
+          "continue_score": 4.222222222222222
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0011145404663923182,
+          "stop_score": 2,
+          "continue_score": 4.388888888888889
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 3.912037037037037
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 4.189814814814815
+        },
+        {
+          "progress": 1,
+          "hand": [
+            3,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 6.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            3,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            6,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0007716049382716049,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0007716049382716049,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.00051440329218107,
+          "stop_score": 1,
+          "continue_score": 5.055555555555555
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.00051440329218107,
+          "stop_score": 1,
+          "continue_score": 5.222222222222222
+        },
+        {
+          "progress": 1,
+          "hand": [
+            3,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.00051440329218107,
+          "stop_score": 1,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.00038580246913580245,
+          "stop_score": 2,
+          "continue_score": 5.333333333333333
+        },
+        {
+          "progress": 1,
+          "hand": [
+            4,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.0001286008230452675,
+          "stop_score": 1,
+          "continue_score": 6.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 8.573388203017832e-05,
+          "stop_score": 2,
+          "continue_score": 4.361111111111111
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 8.573388203017832e-05,
+          "stop_score": 2,
+          "continue_score": 4.527777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 8.573388203017832e-05,
+          "stop_score": 2,
+          "continue_score": 5.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 2.143347050754458e-05,
+          "stop_score": 2,
+          "continue_score": 5.666666666666667
+        }
+      ]
+    },
+    {
+      "skill": 3,
+      "score_distribution": {
+        "0": 0.1065666199893309,
+        "4": 0.00037210886297820453,
+        "5": 0.00893061271147691,
+        "6": 0.08037551440329219,
+        "7": 0.32150205761316875,
+        "8": 0.48225308641975306
+      },
+      "voluntary_stop_mass": 0.0,
+      "voluntary_stop_exact": "0",
+      "stops": [],
+      "continue_witnesses": [
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.16109396433470508,
+          "stop_score": 4,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.10862482853223594,
+          "stop_score": 4,
+          "continue_score": 6.194444444444445
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.10862482853223594,
+          "stop_score": 4,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.10088734567901235,
+          "stop_score": 4,
+          "continue_score": 5.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.07626028806584362,
+          "stop_score": 4,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.06327160493827161,
+          "stop_score": 2,
+          "continue_score": 5.916666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.05864197530864197,
+          "stop_score": 4,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.05864197530864197,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.05864197530864197,
+          "stop_score": 4,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.04991855281207133,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.046296296296296294,
+          "stop_score": 2,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.046296296296296294,
+          "stop_score": 2,
+          "continue_score": 6.194444444444445
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.046296296296296294,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.038580246913580245,
+          "stop_score": 2,
+          "continue_score": 4.768518518518518
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.03755144032921811,
+          "stop_score": 2,
+          "continue_score": 5.777777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.031635802469135804,
+          "stop_score": 2,
+          "continue_score": 4.8842592592592595
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.031635802469135804,
+          "stop_score": 2,
+          "continue_score": 7.166666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.030349794238683128,
+          "stop_score": 2,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.030349794238683128,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 6.194444444444445
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.026491769547325104,
+          "stop_score": 3,
+          "continue_score": 4.305555555555555
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.02606310013717421,
+          "stop_score": 3,
+          "continue_score": 5.222222222222222
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.02546296296296296,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.023148148148148147,
+          "stop_score": 2,
+          "continue_score": 5.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.023148148148148147,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.023148148148148147,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.021604938271604937,
+          "stop_score": 2,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.021604938271604937,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.021604938271604937,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.01427469135802469,
+          "stop_score": 2,
+          "continue_score": 3.935185185185185
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 5.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 7.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 3,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.010545267489711935,
+          "stop_score": 3,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.009902263374485597,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.055555555555555
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.194444444444445
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.008487654320987654,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.006944444444444444,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0054869684499314125,
+          "stop_score": 3,
+          "continue_score": 5.361111111111111
+        },
+        {
+          "progress": 3,
+          "hand": [
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0054869684499314125,
+          "stop_score": 3,
+          "continue_score": 6.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 5.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0038580246913580245,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.0030864197530864196,
+          "stop_score": 1,
+          "continue_score": 4.074074074074074
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.00257201646090535,
+          "stop_score": 1,
+          "continue_score": 4.944444444444445
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.001800411522633745,
+          "stop_score": 1,
+          "continue_score": 3.3564814814814814
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.0017575445816186558,
+          "stop_score": 2,
+          "continue_score": 3.611111111111111
+        },
+        {
+          "progress": 3,
+          "hand": [
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0017575445816186558,
+          "stop_score": 3,
+          "continue_score": 6.666666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0015432098765432098,
+          "stop_score": 1,
+          "continue_score": 5.083333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.0011145404663923182,
+          "stop_score": 2,
+          "continue_score": 4.388888888888889
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 4.189814814814815
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 6.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            6,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0007716049382716049,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0007716049382716049,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.00051440329218107,
+          "stop_score": 1,
+          "continue_score": 5.222222222222222
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.00051440329218107,
+          "stop_score": 1,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.00038580246913580245,
+          "stop_score": 2,
+          "continue_score": 5.333333333333333
+        },
+        {
+          "progress": 1,
+          "hand": [
+            3,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.0001286008230452675,
+          "stop_score": 1,
+          "continue_score": 6.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 8.573388203017832e-05,
+          "stop_score": 2,
+          "continue_score": 4.527777777777778
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 8.573388203017832e-05,
+          "stop_score": 2,
+          "continue_score": 5.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 2.143347050754458e-05,
+          "stop_score": 2,
+          "continue_score": 5.666666666666667
+        }
+      ]
+    },
+    {
+      "skill": 4,
+      "score_distribution": {
+        "0": 0.0,
+        "4": 4.8225308641975306e-05,
+        "5": 0.0021219135802469135,
+        "6": 0.03501157407407408,
+        "7": 0.25675154320987653,
+        "8": 0.7060667438271605
+      },
+      "voluntary_stop_mass": 0.0,
+      "voluntary_stop_exact": "0",
+      "stops": [],
+      "continue_witnesses": [
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.1811556927297668,
+          "stop_score": 4,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.11844135802469136,
+          "stop_score": 4,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.11419753086419752,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.11419753086419752,
+          "stop_score": 4,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.08489797668038408,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.06481481481481481,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.05864197530864197,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.05864197530864197,
+          "stop_score": 4,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.05864197530864197,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.05169753086419753,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.046296296296296294,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.046296296296296294,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.046296296296296294,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.04089506172839506,
+          "stop_score": 2,
+          "continue_score": 7.166666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.03960905349794239,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            3
+          ],
+          "die": 3,
+          "mass": 0.032407407407407406,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            3
+          ],
+          "die": 3,
+          "mass": 0.032407407407407406,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.030864197530864196,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.030864197530864196,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.027777777777777776,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.02546296296296296,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            4
+          ],
+          "die": 4,
+          "mass": 0.023148148148148147,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            4
+          ],
+          "die": 4,
+          "mass": 0.023148148148148147,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            4
+          ],
+          "die": 4,
+          "mass": 0.023148148148148147,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.021604938271604937,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.021604938271604937,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.021604938271604937,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.021604938271604937,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.015432098765432098,
+          "stop_score": 2,
+          "continue_score": 7.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            5
+          ],
+          "die": 5,
+          "mass": 0.013888888888888888,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.013117283950617283,
+          "stop_score": 3,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.012988683127572016,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.012345679012345678,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            3
+          ],
+          "die": 3,
+          "mass": 0.010030864197530864,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.009259259259259259,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.008487654320987654,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 3,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.007030178326474623,
+          "stop_score": 3,
+          "continue_score": 6.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            4
+          ],
+          "die": 4,
+          "mass": 0.006944444444444444,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 7.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.004629629629629629,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            5,
+            5
+          ],
+          "die": 5,
+          "mass": 0.0038580246913580245,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            3,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            4,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 2,
+          "hand": [
+            5,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            1,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 7.666666666666667
+        },
+        {
+          "progress": 4,
+          "hand": [
+            2,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 7.833333333333333
+        },
+        {
+          "progress": 4,
+          "hand": [
+            3,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            4,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            5,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0030864197530864196,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 3,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.0022719478737997256,
+          "stop_score": 3,
+          "continue_score": 6.666666666666667
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 6.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 0.0007716049382716049,
+          "stop_score": 1,
+          "continue_score": 6.166666666666667
+        },
+        {
+          "progress": 2,
+          "hand": [
+            6,
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0007716049382716049,
+          "stop_score": 2,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 4,
+          "hand": [
+            6,
+            6
+          ],
+          "die": 6,
+          "mass": 0.0007716049382716049,
+          "stop_score": 4,
+          "continue_score": 8.0
+        },
+        {
+          "progress": 1,
+          "hand": [
+            1,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.00051440329218107,
+          "stop_score": 1,
+          "continue_score": 6.333333333333333
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            1
+          ],
+          "die": 1,
+          "mass": 0.00038580246913580245,
+          "stop_score": 2,
+          "continue_score": 5.333333333333333
+        },
+        {
+          "progress": 1,
+          "hand": [
+            2,
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 0.0001286008230452675,
+          "stop_score": 1,
+          "continue_score": 6.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            1,
+            2
+          ],
+          "die": 2,
+          "mass": 8.573388203017832e-05,
+          "stop_score": 2,
+          "continue_score": 5.5
+        },
+        {
+          "progress": 2,
+          "hand": [
+            2,
+            2
+          ],
+          "die": 2,
+          "mass": 2.143347050754458e-05,
+          "stop_score": 2,
+          "continue_score": 5.666666666666667
+        }
+      ]
+    }
+  ],
+  "no_loss_controls": [
+    {
+      "skill": 1,
+      "expected_score": 5.888888888888889,
+      "policy": "取消全损；所有骰用完"
+    },
+    {
+      "skill": 2,
+      "expected_score": 6.666666666666667,
+      "policy": "取消全损；所有骰用完"
+    },
+    {
+      "skill": 3,
+      "expected_score": 7.222222222222222,
+      "policy": "取消全损；所有骰用完"
+    },
+    {
+      "skill": 4,
+      "expected_score": 7.666666666666667,
+      "policy": "取消全损；所有骰用完"
+    }
+  ],
+  "scope": "数学筛选；单回合四骰、初始成果0、坏档未兑现成果全损，中+1好+2；无恢复品、无首次受伤；模型不是正式会话或玩家证据",
+  "probability_source_sha256": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c"
+}

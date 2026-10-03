@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-02",
+  "source_sha256": {
+    "docs/实验/机制研究/批次/R25-行动换取目标信息/信息投资.py": "1951355cc1ecfbd893b12fcfdebee1d8709ded6ae4018564b78553fbb77c3e74",
+    "docs/实验/机制研究/批次/R25-行动换取目标信息/固定真值复核.py": "464663debd57c6dafc1d62c35764165a809866a56f5ccad16127309723a24136",
+    "docs/实验/机制研究/批次/R25-行动换取目标信息/正式对照.py": "7036d9b8d74c6bde14d6eed38737923972ac09fe9a6ba172e98444a8b281f427",
+    "docs/实验/机制研究/批次/R25-行动换取目标信息/可达选择.py": "6ca4f5b67ccc24ff1abb75704db9b24a1214765f73fe2ac8bf11e62e1d597a37",
+    "docs/实验/机制研究/批次/R25-行动换取目标信息/正式对照/验证.json": "a07bae44782e5a0e2267e9e522248d4540470ae953e5f1c966e29a9ffdaded53",
+    "docs/实验/机制研究/批次/R26-信息动作的支配条件/研究记录.md": "900b9314b98a674752f5b45a66eddd89149412e3c2198b7cadea775d52ff3738",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/组合模型.py": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R29-信息投资强反证/强控制复核.py": "a9448b181ae1b8c3d08b98d84181c11bff5f31f0f79d176d78557efd404d3723",
+    "AGENTS.md": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "docs/实验/机制研究/批次/R29-信息投资强反证/复现.py": "0385e223efca04429817c54371beb956ebb366b2a8371d12c633d927fc2677dc"
+  },
+  "scope": "来源只读；无Content写入、无新原生会话；R25源路径及hash冻结",
+  "status": "已裁决：保留信息购买基本关系，收窄为一次购买及未定位后分配",
+  "R25_ContentRevision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+  "verification": {
+    "initial_conditions": 1260,
+    "max_error": 1.7763568394002505e-15,
+    "new_native_games": 0,
+    "human_games": 0,
+    "Content_modified": false
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "d236c58cfbaded7f9162f2ec4438feddf71ae302cdfa294797c79d9379f690c1",
+    "bytes": 35596,
+    "files": 20,
+    "contents": "数学复核源码、概率输入、审查记录与模型结果；无本批原生会话"
+  }
+}

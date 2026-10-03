@@ -1,0 +1,77 @@
+{
+  "rows": [
+    {
+      "die": 1,
+      "route": 0,
+      "finish_remaining_one_with_risk": 0.6666666666666666,
+      "finish_remaining_two_with_risk": 0.16666666666666666
+    },
+    {
+      "die": 1,
+      "route": 1,
+      "finish_remaining_one_with_risk": 0.8333333333333333,
+      "finish_remaining_two_with_risk": 0.3333333333333333
+    },
+    {
+      "die": 2,
+      "route": 0,
+      "finish_remaining_one_with_risk": 0.8333333333333333,
+      "finish_remaining_two_with_risk": 0.3333333333333333
+    },
+    {
+      "die": 2,
+      "route": 1,
+      "finish_remaining_one_with_risk": 0.8333333333333333,
+      "finish_remaining_two_with_risk": 0.5
+    },
+    {
+      "die": 3,
+      "route": 0,
+      "finish_remaining_one_with_risk": 0.8333333333333333,
+      "finish_remaining_two_with_risk": 0.5
+    },
+    {
+      "die": 3,
+      "route": 1,
+      "finish_remaining_one_with_risk": 1.0,
+      "finish_remaining_two_with_risk": 0.6666666666666666
+    },
+    {
+      "die": 4,
+      "route": 0,
+      "finish_remaining_one_with_risk": 1.0,
+      "finish_remaining_two_with_risk": 0.6666666666666666
+    },
+    {
+      "die": 4,
+      "route": 1,
+      "finish_remaining_one_with_risk": 1.0,
+      "finish_remaining_two_with_risk": 0.8333333333333334
+    },
+    {
+      "die": 5,
+      "route": 0,
+      "finish_remaining_one_with_risk": 1.0,
+      "finish_remaining_two_with_risk": 0.8333333333333334
+    },
+    {
+      "die": 5,
+      "route": 1,
+      "finish_remaining_one_with_risk": 1.0,
+      "finish_remaining_two_with_risk": 1.0
+    },
+    {
+      "die": 6,
+      "route": 0,
+      "finish_remaining_one_with_risk": 1.0,
+      "finish_remaining_two_with_risk": 1.0
+    },
+    {
+      "die": 6,
+      "route": 1,
+      "finish_remaining_one_with_risk": 1.0,
+      "finish_remaining_two_with_risk": 1.0
+    }
+  ],
+  "scope": "风险动作面对剩1/剩2的完成概率；不代表全局最优动作，其他动作选择需完整求解"
+}

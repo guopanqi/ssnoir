@@ -1,0 +1,130 @@
+{
+  "status": "通过",
+  "identity": "冻结后验贪心公开策略的正常前向；非原生／真人",
+  "fixed_truth_prior": [
+    "1/2",
+    "1/2"
+  ],
+  "policy_ties": "平后验选乙；骰子同值按主脚本的首个最优动作，频率依赖该选定策略",
+  "capacity_stop": "公开剩余需求>2×余骰时停止；不把真实隐藏条件下不可能误作公开停止",
+  "input_sha256": {
+    "数学结果.json": "03c80b3d2ba9ee5a75e5f6fe485bbd625446be1bb956450fc921c852db406a06",
+    "公开策略.json": "eba5fa4e91d6540f74bd7d95cf338ded66c1e036cf3067537131cc693f313256",
+    "后验响应前向.py": "776320c177a84689ecef9ec9579940804d78413fcb3165599d3c8e6d454527f5"
+  },
+  "aggregate": {
+    "at_least_one_method_change": "36473/62208",
+    "expected_method_changes": "391651/559872",
+    "at_least_one_strict_posterior_change": "36473/62208",
+    "success": "202525/209952"
+  },
+  "by_fixed_truth": [
+    {
+      "fixed_truth": 0,
+      "at_least_one_method_change": "8329/23328",
+      "expected_method_changes": "143801/279936",
+      "at_least_one_strict_posterior_change": "8329/23328",
+      "success": "201907/209952",
+      "public_history_states": 1665,
+      "terminal_by_kind_and_actions": [
+        {
+          "kind": "capacity_impossible",
+          "actions": 3,
+          "mass": "643/69984"
+        },
+        {
+          "kind": "exhausted",
+          "actions": 4,
+          "mass": "1529/52488"
+        },
+        {
+          "kind": "success",
+          "actions": 2,
+          "mass": "1009/2916"
+        },
+        {
+          "kind": "success",
+          "actions": 3,
+          "mass": "11051/23328"
+        },
+        {
+          "kind": "success",
+          "actions": 4,
+          "mass": "3725/26244"
+        }
+      ],
+      "method_change_event_expectation_by_action": {
+        "2": "2071/7776",
+        "3": "1387/7776",
+        "4": "19313/279936"
+      }
+    },
+    {
+      "fixed_truth": 1,
+      "at_least_one_method_change": "76103/93312",
+      "expected_method_changes": "123925/139968",
+      "at_least_one_strict_posterior_change": "76103/93312",
+      "success": "203143/209952",
+      "public_history_states": 1600,
+      "terminal_by_kind_and_actions": [
+        {
+          "kind": "capacity_impossible",
+          "actions": 3,
+          "mass": "1019/139968"
+        },
+        {
+          "kind": "exhausted",
+          "actions": 4,
+          "mass": "10561/419904"
+        },
+        {
+          "kind": "success",
+          "actions": 2,
+          "mass": "3317/46656"
+        },
+        {
+          "kind": "success",
+          "actions": 3,
+          "mass": "189935/279936"
+        },
+        {
+          "kind": "success",
+          "actions": 4,
+          "mass": "183061/839808"
+        }
+      ],
+      "method_change_event_expectation_by_action": {
+        "2": "775/1296",
+        "3": "10285/46656",
+        "4": "4685/69984"
+      }
+    }
+  ],
+  "aggregate_terminal": [
+    {
+      "kind": "capacity_impossible",
+      "actions": 3,
+      "mass": "2305/279936"
+    },
+    {
+      "kind": "exhausted",
+      "actions": 4,
+      "mass": "22793/839808"
+    },
+    {
+      "kind": "success",
+      "actions": 2,
+      "mass": "6487/31104"
+    },
+    {
+      "kind": "success",
+      "actions": 3,
+      "mass": "322547/559872"
+    },
+    {
+      "kind": "success",
+      "actions": 4,
+      "mass": "302261/1679616"
+    }
+  ]
+}

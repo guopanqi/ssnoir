@@ -1,0 +1,2952 @@
+{
+  "source_records": 36,
+  "checked_steps": 326,
+  "head_penalty_action_checks": 3,
+  "current_heavy_action_checks": 3,
+  "heavy_next_round_three_dice_checks": 1,
+  "first_injury_site_checks": 6,
+  "collapse_checks": 1,
+  "covered_grades": [
+    "Fail",
+    "Neutral",
+    "Success"
+  ],
+  "results": [
+    {
+      "record": "正式对照/整段自由-6101.json.gz",
+      "step": 0,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6101.json.gz",
+      "step": 1,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6101.json.gz",
+      "step": 2,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6101.json.gz",
+      "step": 3,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6101.json.gz",
+      "step": 4,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6101.json.gz",
+      "step": 5,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6101.json.gz",
+      "step": 6,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6101.json.gz",
+      "step": 7,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6101.json.gz",
+      "step": 8,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6102.json.gz",
+      "step": 9,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6102.json.gz",
+      "step": 10,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6102.json.gz",
+      "step": 11,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6102.json.gz",
+      "step": 12,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6102.json.gz",
+      "step": 13,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6102.json.gz",
+      "step": 14,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6102.json.gz",
+      "step": 15,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6102.json.gz",
+      "step": 16,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6102.json.gz",
+      "step": 17,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 18,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 19,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 20,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 21,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 22,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 23,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 24,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 25,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 26,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 27,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 28,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6103.json.gz",
+      "step": 29,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6104.json.gz",
+      "step": 30,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6104.json.gz",
+      "step": 31,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6104.json.gz",
+      "step": 32,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6104.json.gz",
+      "step": 33,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6104.json.gz",
+      "step": 34,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6104.json.gz",
+      "step": 35,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6104.json.gz",
+      "step": 36,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6104.json.gz",
+      "step": 37,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6104.json.gz",
+      "step": 38,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 39,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 40,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 41,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 42,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 43,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 44,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 45,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 46,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 47,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 48,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 49,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6105.json.gz",
+      "step": 50,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6106.json.gz",
+      "step": 51,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6106.json.gz",
+      "step": 52,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6106.json.gz",
+      "step": 53,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6106.json.gz",
+      "step": 54,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6106.json.gz",
+      "step": 55,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6106.json.gz",
+      "step": 56,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6106.json.gz",
+      "step": 57,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6106.json.gz",
+      "step": 58,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6106.json.gz",
+      "step": 59,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 60,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 61,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 62,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 63,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 64,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 65,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 66,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 67,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 68,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 69,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 70,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6107.json.gz",
+      "step": 71,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6108.json.gz",
+      "step": 72,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6108.json.gz",
+      "step": 73,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6108.json.gz",
+      "step": 74,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6108.json.gz",
+      "step": 75,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6108.json.gz",
+      "step": 76,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6108.json.gz",
+      "step": 77,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6108.json.gz",
+      "step": 78,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6108.json.gz",
+      "step": 79,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6109.json.gz",
+      "step": 80,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6109.json.gz",
+      "step": 81,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6109.json.gz",
+      "step": 82,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6109.json.gz",
+      "step": 83,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6109.json.gz",
+      "step": 84,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6109.json.gz",
+      "step": 85,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6109.json.gz",
+      "step": 86,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6109.json.gz",
+      "step": 87,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6109.json.gz",
+      "step": 88,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6110.json.gz",
+      "step": 89,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6110.json.gz",
+      "step": 90,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6110.json.gz",
+      "step": 91,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6110.json.gz",
+      "step": 92,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6110.json.gz",
+      "step": 93,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6110.json.gz",
+      "step": 94,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6110.json.gz",
+      "step": 95,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6110.json.gz",
+      "step": 96,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6110.json.gz",
+      "step": 97,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6111.json.gz",
+      "step": 98,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6111.json.gz",
+      "step": 99,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6111.json.gz",
+      "step": 100,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6111.json.gz",
+      "step": 101,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6111.json.gz",
+      "step": 102,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6111.json.gz",
+      "step": 103,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6111.json.gz",
+      "step": 104,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6111.json.gz",
+      "step": 105,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6112.json.gz",
+      "step": 106,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6112.json.gz",
+      "step": 107,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6112.json.gz",
+      "step": 108,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6112.json.gz",
+      "step": 109,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6112.json.gz",
+      "step": 110,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6112.json.gz",
+      "step": 111,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6112.json.gz",
+      "step": 112,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6112.json.gz",
+      "step": 113,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6112.json.gz",
+      "step": 114,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/整段自由-6112.json.gz",
+      "step": 115,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 116,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 117,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 118,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 119,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 120,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 121,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 122,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 123,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 124,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 125,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6113.json.gz",
+      "step": 126,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6114.json.gz",
+      "step": 127,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6114.json.gz",
+      "step": 128,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6114.json.gz",
+      "step": 129,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6114.json.gz",
+      "step": 130,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6114.json.gz",
+      "step": 131,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6114.json.gz",
+      "step": 132,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6114.json.gz",
+      "step": 133,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6114.json.gz",
+      "step": 134,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6115.json.gz",
+      "step": 135,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6115.json.gz",
+      "step": 136,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6115.json.gz",
+      "step": 137,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6115.json.gz",
+      "step": 138,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6115.json.gz",
+      "step": 139,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6115.json.gz",
+      "step": 140,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6115.json.gz",
+      "step": 141,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6115.json.gz",
+      "step": 142,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6115.json.gz",
+      "step": 143,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6115.json.gz",
+      "step": 144,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6116.json.gz",
+      "step": 145,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6116.json.gz",
+      "step": 146,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6116.json.gz",
+      "step": 147,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6116.json.gz",
+      "step": 148,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6116.json.gz",
+      "step": 149,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6116.json.gz",
+      "step": 150,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6116.json.gz",
+      "step": 151,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6117.json.gz",
+      "step": 152,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6117.json.gz",
+      "step": 153,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6117.json.gz",
+      "step": 154,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6117.json.gz",
+      "step": 155,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6117.json.gz",
+      "step": 156,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6117.json.gz",
+      "step": 157,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6117.json.gz",
+      "step": 158,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6117.json.gz",
+      "step": 159,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6118.json.gz",
+      "step": 160,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6118.json.gz",
+      "step": 161,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6118.json.gz",
+      "step": 162,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6118.json.gz",
+      "step": 163,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6118.json.gz",
+      "step": 164,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6118.json.gz",
+      "step": 165,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6118.json.gz",
+      "step": 166,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6118.json.gz",
+      "step": 167,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6118.json.gz",
+      "step": 168,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6119.json.gz",
+      "step": 169,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6119.json.gz",
+      "step": 170,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6119.json.gz",
+      "step": 171,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6119.json.gz",
+      "step": 172,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6119.json.gz",
+      "step": 173,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6119.json.gz",
+      "step": 174,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6119.json.gz",
+      "step": 175,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6119.json.gz",
+      "step": 176,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6119.json.gz",
+      "step": 177,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6120.json.gz",
+      "step": 178,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6120.json.gz",
+      "step": 179,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6120.json.gz",
+      "step": 180,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6120.json.gz",
+      "step": 181,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6120.json.gz",
+      "step": 182,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6120.json.gz",
+      "step": 183,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6120.json.gz",
+      "step": 184,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6120.json.gz",
+      "step": 185,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/保留自由-6120.json.gz",
+      "step": 186,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6121.json.gz",
+      "step": 187,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6121.json.gz",
+      "step": 188,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6121.json.gz",
+      "step": 189,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6121.json.gz",
+      "step": 190,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6121.json.gz",
+      "step": 191,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6121.json.gz",
+      "step": 192,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6121.json.gz",
+      "step": 193,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6121.json.gz",
+      "step": 194,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6122.json.gz",
+      "step": 195,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6122.json.gz",
+      "step": 196,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6122.json.gz",
+      "step": 197,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6122.json.gz",
+      "step": 198,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6122.json.gz",
+      "step": 199,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6122.json.gz",
+      "step": 200,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6122.json.gz",
+      "step": 201,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6122.json.gz",
+      "step": 202,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6122.json.gz",
+      "step": 203,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6122.json.gz",
+      "step": 204,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6123.json.gz",
+      "step": 205,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6123.json.gz",
+      "step": 206,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6123.json.gz",
+      "step": 207,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6123.json.gz",
+      "step": 208,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6123.json.gz",
+      "step": 209,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6123.json.gz",
+      "step": 210,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6123.json.gz",
+      "step": 211,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6123.json.gz",
+      "step": 212,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6124.json.gz",
+      "step": 213,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6124.json.gz",
+      "step": 214,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6124.json.gz",
+      "step": 215,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6124.json.gz",
+      "step": 216,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6124.json.gz",
+      "step": 217,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6124.json.gz",
+      "step": 218,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6124.json.gz",
+      "step": 219,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6124.json.gz",
+      "step": 220,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 221,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 222,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 223,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 224,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 225,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 226,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 227,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 228,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 229,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 230,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6125.json.gz",
+      "step": 231,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 232,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 233,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 234,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 235,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 236,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 237,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 238,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 239,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 240,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 241,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6126.json.gz",
+      "step": 242,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 243,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 244,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 245,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 246,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 247,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 248,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 249,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 250,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 251,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 252,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 253,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6127.json.gz",
+      "step": 254,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6128.json.gz",
+      "step": 255,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6128.json.gz",
+      "step": 256,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6128.json.gz",
+      "step": 257,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6128.json.gz",
+      "step": 258,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6128.json.gz",
+      "step": 259,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6128.json.gz",
+      "step": 260,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6128.json.gz",
+      "step": 261,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/每轮先整顿-6128.json.gz",
+      "step": 262,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-空过-True.json.gz",
+      "step": 263,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-空过-True.json.gz",
+      "step": 264,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-空过-True.json.gz",
+      "step": 265,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 266,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 267,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 268,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 269,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 270,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 271,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 272,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 273,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 274,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 275,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-True-6202.json.gz",
+      "step": 276,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-空过-False.json.gz",
+      "step": 277,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-空过-False.json.gz",
+      "step": 278,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-空过-False.json.gz",
+      "step": 279,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-False-6202.json.gz",
+      "step": 280,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-False-6202.json.gz",
+      "step": 281,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-False-6202.json.gz",
+      "step": 282,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-False-6202.json.gz",
+      "step": 283,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-False-6202.json.gz",
+      "step": 284,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-半成品-False-6202.json.gz",
+      "step": 285,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-恢复封顶-6252.json.gz",
+      "step": 286,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-恢复封顶-6252.json.gz",
+      "step": 287,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-恢复封顶-6252.json.gz",
+      "step": 288,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-恢复封顶-6252.json.gz",
+      "step": 289,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-恢复封顶-6252.json.gz",
+      "step": 290,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-恢复封顶-6252.json.gz",
+      "step": 291,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-恢复封顶-6252.json.gz",
+      "step": 292,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-恢复封顶-6252.json.gz",
+      "step": 293,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-恢复封顶-6252.json.gz",
+      "step": 294,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-恢复封顶-6252.json.gz",
+      "step": 295,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 296,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 297,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 298,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 299,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 300,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 2,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 301,
+      "before_injury": 2,
+      "before_head_penalty": 0,
+      "after_injury": 3,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 302,
+      "before_injury": 3,
+      "before_head_penalty": 0,
+      "after_injury": 4,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 303,
+      "before_injury": 4,
+      "before_head_penalty": 0,
+      "after_injury": 5,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 304,
+      "before_injury": 5,
+      "before_head_penalty": 0,
+      "after_injury": 5,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 305,
+      "before_injury": 5,
+      "before_head_penalty": 0,
+      "after_injury": 6,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-倒下-6304.json.gz",
+      "step": 306,
+      "before_injury": 6,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": true,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-带伤成功-6344.json.gz",
+      "step": 307,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-带伤成功-6344.json.gz",
+      "step": 308,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-带伤成功-6344.json.gz",
+      "step": 309,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-带伤成功-6344.json.gz",
+      "step": 310,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-带伤成功-6344.json.gz",
+      "step": 311,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-带伤成功-6344.json.gz",
+      "step": 312,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-带伤成功-6344.json.gz",
+      "step": 313,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-带伤成功-6344.json.gz",
+      "step": 314,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-带伤成功-6344.json.gz",
+      "step": 315,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式对照/边界-带伤成功-6344.json.gz",
+      "step": 316,
+      "before_injury": 1,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式补覆盖/头伤后续-6610.json.gz",
+      "step": 317,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式补覆盖/头伤后续-6610.json.gz",
+      "step": 318,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式补覆盖/头伤后续-6610.json.gz",
+      "step": 319,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式补覆盖/头伤后续-6610.json.gz",
+      "step": 320,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式补覆盖/头伤后续-6610.json.gz",
+      "step": 321,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 0,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式补覆盖/头伤后续-6610.json.gz",
+      "step": 322,
+      "before_injury": 0,
+      "before_head_penalty": 0,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式补覆盖/头伤后续-6610.json.gz",
+      "step": 323,
+      "before_injury": 1,
+      "before_head_penalty": 1,
+      "after_injury": 1,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式补覆盖/头伤后续-6610.json.gz",
+      "step": 324,
+      "before_injury": 1,
+      "before_head_penalty": 1,
+      "after_injury": 2,
+      "collapsed": false,
+      "passed": true
+    },
+    {
+      "record": "正式补覆盖/头伤后续-6610.json.gz",
+      "step": 325,
+      "before_injury": 2,
+      "before_head_penalty": 1,
+      "after_injury": 2,
+      "collapsed": false,
+      "passed": true
+    }
+  ],
+  "scope": "复用R19及预先冻结补覆盖轨迹，校准每步公开判定/溢出伤势/重伤骰数；旧局不重计，补覆盖独立报告，不视为玩家样本，不验证部位概率均匀",
+  "coverage_gaps": []
+}

@@ -1,0 +1,406 @@
+{
+  "evidence_level": "model_only_conditional; no new formal content or native sessions",
+  "odds_source": "docs/实验/机制研究/第二轮/定稿/数学分析/赔率.json",
+  "odds_sha256": "5f7ddfc0f7b2869c7944c3b487cd7bb84f37193c9958ff4edf5063a412df3bba",
+  "source_content_revision": "6b2feb719011f76dfe48fcd0978ddec3bb62675f7441fcf45eea605d3b215fef",
+  "assumptions": [
+    "技能1；沿用已记录公开赔率",
+    "条件题面有3颗剩余骰，冷静5，结束这一轮即超时",
+    "无恢复品；最多消耗4冷静，无伤势溢出；不求整场交锋或可达频率",
+    "目标函数 P(完成)-lambda*E(冷静消耗)；lambda是研究敏感性参数",
+    "冷静消耗统计全部分支；完成即停止；失败回合末消耗1"
+  ],
+  "preparation": {
+    "per_die": [
+      {
+        "die": 1,
+        "ordinary_progress": {
+          "fraction": "5/3",
+          "decimal": 1.6666666666666667
+        },
+        "prepared_progress": {
+          "fraction": "10/3",
+          "decimal": 3.3333333333333335
+        },
+        "marginal_progress_from_preparation": {
+          "fraction": "5/3",
+          "decimal": 1.6666666666666667
+        }
+      },
+      {
+        "die": 2,
+        "ordinary_progress": {
+          "fraction": "7/3",
+          "decimal": 2.3333333333333335
+        },
+        "prepared_progress": {
+          "fraction": "11/3",
+          "decimal": 3.6666666666666665
+        },
+        "marginal_progress_from_preparation": {
+          "fraction": "4/3",
+          "decimal": 1.3333333333333333
+        }
+      },
+      {
+        "die": 3,
+        "ordinary_progress": {
+          "fraction": "8/3",
+          "decimal": 2.6666666666666665
+        },
+        "prepared_progress": {
+          "fraction": "4",
+          "decimal": 4.0
+        },
+        "marginal_progress_from_preparation": {
+          "fraction": "4/3",
+          "decimal": 1.3333333333333333
+        }
+      },
+      {
+        "die": 4,
+        "ordinary_progress": {
+          "fraction": "10/3",
+          "decimal": 3.3333333333333335
+        },
+        "prepared_progress": {
+          "fraction": "4",
+          "decimal": 4.0
+        },
+        "marginal_progress_from_preparation": {
+          "fraction": "2/3",
+          "decimal": 0.6666666666666666
+        }
+      },
+      {
+        "die": 5,
+        "ordinary_progress": {
+          "fraction": "11/3",
+          "decimal": 3.6666666666666665
+        },
+        "prepared_progress": {
+          "fraction": "4",
+          "decimal": 4.0
+        },
+        "marginal_progress_from_preparation": {
+          "fraction": "1/3",
+          "decimal": 0.3333333333333333
+        }
+      },
+      {
+        "die": 6,
+        "ordinary_progress": {
+          "fraction": "4",
+          "decimal": 4.0
+        },
+        "prepared_progress": {
+          "fraction": "4",
+          "decimal": 4.0
+        },
+        "marginal_progress_from_preparation": {
+          "fraction": "0",
+          "decimal": 0.0
+        }
+      }
+    ],
+    "example": {
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "scope": "本轮初始目标距离30，不裁切；平均进度，不是最终完成率",
+      "low_high_pairs": {
+        "fraction": "10",
+        "decimal": 10.0
+      },
+      "direct_high_pair_low": {
+        "fraction": "37/3",
+        "decimal": 12.333333333333334
+      },
+      "all_direct": {
+        "fraction": "35/3",
+        "decimal": 11.666666666666666
+      }
+    }
+  },
+  "canonical_payoffs": {
+    "稳健": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "风险": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        0
+      ]
+    ]
+  },
+  "sensitivity": [
+    {
+      "composure_weight": "0",
+      "conditional_states": 336,
+      "counts": {
+        "steady_strictly_better": 0,
+        "risk_strictly_better": 234,
+        "equal_utility": 102,
+        "end_turn_optimal": 0
+      },
+      "hands_with_strict_action_reversal": 0,
+      "witnesses": []
+    },
+    {
+      "composure_weight": "1/4",
+      "conditional_states": 336,
+      "counts": {
+        "steady_strictly_better": 30,
+        "risk_strictly_better": 209,
+        "equal_utility": 54,
+        "end_turn_optimal": 43
+      },
+      "hands_with_strict_action_reversal": 26,
+      "witnesses": []
+    },
+    {
+      "composure_weight": "1/2",
+      "conditional_states": 336,
+      "counts": {
+        "steady_strictly_better": 34,
+        "risk_strictly_better": 178,
+        "equal_utility": 56,
+        "end_turn_optimal": 68
+      },
+      "hands_with_strict_action_reversal": 30,
+      "witnesses": [
+        {
+          "hand": [
+            1,
+            2,
+            2
+          ],
+          "remaining": 1,
+          "alternatives": [
+            {
+              "action": "稳健",
+              "die": 2,
+              "completion": {
+                "fraction": "26/27",
+                "decimal": 0.9629629629629629
+              },
+              "expected_composure_spent_including_timeout": {
+                "fraction": "20/27",
+                "decimal": 0.7407407407407407
+              },
+              "utility": {
+                "fraction": "16/27",
+                "decimal": 0.5925925925925926
+              }
+            },
+            {
+              "action": "风险",
+              "die": 2,
+              "completion": {
+                "fraction": "107/108",
+                "decimal": 0.9907407407407407
+              },
+              "expected_composure_spent_including_timeout": {
+                "fraction": "175/216",
+                "decimal": 0.8101851851851852
+              },
+              "utility": {
+                "fraction": "253/432",
+                "decimal": 0.5856481481481481
+              }
+            }
+          ],
+          "best": "稳健"
+        },
+        {
+          "hand": [
+            1,
+            2,
+            2
+          ],
+          "remaining": 2,
+          "alternatives": [
+            {
+              "action": "稳健",
+              "die": 2,
+              "completion": {
+                "fraction": "41/54",
+                "decimal": 0.7592592592592593
+              },
+              "expected_composure_spent_including_timeout": {
+                "fraction": "151/108",
+                "decimal": 1.3981481481481481
+              },
+              "utility": {
+                "fraction": "13/216",
+                "decimal": 0.06018518518518518
+              }
+            },
+            {
+              "action": "风险",
+              "die": 2,
+              "completion": {
+                "fraction": "11/12",
+                "decimal": 0.9166666666666666
+              },
+              "expected_composure_spent_including_timeout": {
+                "fraction": "4/3",
+                "decimal": 1.3333333333333333
+              },
+              "utility": {
+                "fraction": "1/4",
+                "decimal": 0.25
+              }
+            }
+          ],
+          "best": "风险"
+        }
+      ]
+    },
+    {
+      "composure_weight": "1",
+      "conditional_states": 336,
+      "counts": {
+        "steady_strictly_better": 38,
+        "risk_strictly_better": 146,
+        "equal_utility": 64,
+        "end_turn_optimal": 88
+      },
+      "hands_with_strict_action_reversal": 30,
+      "witnesses": []
+    },
+    {
+      "composure_weight": "3/2",
+      "conditional_states": 336,
+      "counts": {
+        "steady_strictly_better": 41,
+        "risk_strictly_better": 134,
+        "equal_utility": 56,
+        "end_turn_optimal": 105
+      },
+      "hands_with_strict_action_reversal": 30,
+      "witnesses": []
+    }
+  ],
+  "last_die_remaining_one": [
+    {
+      "die": 1,
+      "remaining": 1,
+      "steady_completion": {
+        "fraction": "1/6",
+        "decimal": 0.16666666666666666
+      },
+      "risk_completion": {
+        "fraction": "2/3",
+        "decimal": 0.6666666666666666
+      },
+      "both_expected_composure_cost": {
+        "fraction": "7/6",
+        "decimal": 1.1666666666666667
+      }
+    },
+    {
+      "die": 2,
+      "remaining": 1,
+      "steady_completion": {
+        "fraction": "1/3",
+        "decimal": 0.3333333333333333
+      },
+      "risk_completion": {
+        "fraction": "5/6",
+        "decimal": 0.8333333333333334
+      },
+      "both_expected_composure_cost": {
+        "fraction": "5/6",
+        "decimal": 0.8333333333333334
+      }
+    },
+    {
+      "die": 3,
+      "remaining": 1,
+      "steady_completion": {
+        "fraction": "1/2",
+        "decimal": 0.5
+      },
+      "risk_completion": {
+        "fraction": "5/6",
+        "decimal": 0.8333333333333334
+      },
+      "both_expected_composure_cost": {
+        "fraction": "2/3",
+        "decimal": 0.6666666666666666
+      }
+    },
+    {
+      "die": 4,
+      "remaining": 1,
+      "steady_completion": {
+        "fraction": "2/3",
+        "decimal": 0.6666666666666666
+      },
+      "risk_completion": {
+        "fraction": "1",
+        "decimal": 1.0
+      },
+      "both_expected_composure_cost": {
+        "fraction": "1/3",
+        "decimal": 0.3333333333333333
+      }
+    },
+    {
+      "die": 5,
+      "remaining": 1,
+      "steady_completion": {
+        "fraction": "5/6",
+        "decimal": 0.8333333333333334
+      },
+      "risk_completion": {
+        "fraction": "1",
+        "decimal": 1.0
+      },
+      "both_expected_composure_cost": {
+        "fraction": "1/6",
+        "decimal": 0.16666666666666666
+      }
+    },
+    {
+      "die": 6,
+      "remaining": 1,
+      "steady_completion": {
+        "fraction": "1",
+        "decimal": 1.0
+      },
+      "risk_completion": {
+        "fraction": "1",
+        "decimal": 1.0
+      },
+      "both_expected_composure_cost": {
+        "fraction": "0",
+        "decimal": 0.0
+      }
+    }
+  ],
+  "analysis_sha256": "12592b4c42c3c640727eff4f84e33f30807d8b2e167418db9270867b53d30d03"
+}

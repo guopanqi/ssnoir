@@ -1,0 +1,54 @@
+[
+  {
+    "prep": 3,
+    "payload": 4,
+    "turns": 3,
+    "growth": 1,
+    "policy": "只在新回合第一手开启，其他选择仍求解",
+    "gate": 4,
+    "window": true,
+    "injury_free_completion": 0.8579665637525041,
+    "cold_on_success": 2.6894019789110315,
+    "states": 7853,
+    "seconds": 0.09318325016647577
+  },
+  {
+    "prep": 3,
+    "payload": 4,
+    "turns": 3,
+    "growth": 2,
+    "policy": "只在新回合第一手开启，其他选择仍求解",
+    "gate": 4,
+    "window": true,
+    "injury_free_completion": 0.9659258777432026,
+    "cold_on_success": 3.1924619932101628,
+    "states": 7853,
+    "seconds": 0.09172887518070638
+  },
+  {
+    "prep": 3,
+    "payload": 4,
+    "turns": 3,
+    "growth": 3,
+    "policy": "只在新回合第一手开启，其他选择仍求解",
+    "gate": 4,
+    "window": true,
+    "injury_free_completion": 0.9959165832343881,
+    "cold_on_success": 3.594512896294172,
+    "states": 7853,
+    "seconds": 0.1088814998511225
+  },
+  {
+    "prep": 3,
+    "payload": 4,
+    "turns": 3,
+    "growth": 4,
+    "policy": "只在新回合第一手开启，其他选择仍求解",
+    "gate": 4,
+    "window": true,
+    "injury_free_completion": 0.999998176321269,
+    "cold_on_success": 3.875320616316728,
+    "states": 4427,
+    "seconds": 0.04575416701845825
+  }
+]

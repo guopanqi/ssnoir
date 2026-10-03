@@ -1,0 +1,130 @@
+[
+  {
+    "scene": "逼他出门",
+    "policy": "稳压2",
+    "seed": 7,
+    "result": "'截获",
+    "injury": " 完好 0/7",
+    "calm": 4
+  },
+  {
+    "scene": "逼他出门",
+    "policy": "稳压2",
+    "seed": 23,
+    "result": "'截获",
+    "injury": " 完好 0/7",
+    "calm": 4
+  },
+  {
+    "scene": "逼他出门",
+    "policy": "过度施压",
+    "seed": 7,
+    "result": "'报警",
+    "injury": " 完好 0/7",
+    "calm": 5
+  },
+  {
+    "scene": "逼他出门",
+    "policy": "过度施压",
+    "seed": 23,
+    "result": "'报警",
+    "injury": " 完好 0/7",
+    "calm": 5
+  },
+  {
+    "scene": "逼他出门",
+    "policy": "不理他",
+    "seed": 7,
+    "result": "'封街",
+    "injury": " 完好 0/7",
+    "calm": 1
+  },
+  {
+    "scene": "逼他出门",
+    "policy": "不理他",
+    "seed": 23,
+    "result": "'封街",
+    "injury": " 完好 0/7",
+    "calm": 1
+  },
+  {
+    "scene": "逼他出门",
+    "policy": "撤离",
+    "seed": 7,
+    "result": "'撤离",
+    "injury": " 完好 0/7",
+    "calm": 5
+  },
+  {
+    "scene": "逼他出门",
+    "policy": "撤离",
+    "seed": 23,
+    "result": "'撤离",
+    "injury": " 完好 0/7",
+    "calm": 5
+  },
+  {
+    "scene": "枪口认路",
+    "policy": "直冲货棚",
+    "seed": 7,
+    "result": "'带底片脱身",
+    "injury": " 完好 0/7",
+    "calm": 1
+  },
+  {
+    "scene": "枪口认路",
+    "policy": "直冲货棚",
+    "seed": 23,
+    "result": "'带底片脱身",
+    "injury": "脸 轻伤 1/7",
+    "calm": 0
+  },
+  {
+    "scene": "枪口认路",
+    "policy": "只走栈桥",
+    "seed": 7,
+    "result": "'弃底片脱身",
+    "injury": " 完好 0/7",
+    "calm": 2
+  },
+  {
+    "scene": "枪口认路",
+    "policy": "只走栈桥",
+    "seed": 23,
+    "result": "'弃底片脱身",
+    "injury": " 完好 0/7",
+    "calm": 2
+  },
+  {
+    "scene": "枪口认路",
+    "policy": "不动",
+    "seed": 7,
+    "result": "'困住",
+    "injury": " 完好 0/7",
+    "calm": 1
+  },
+  {
+    "scene": "枪口认路",
+    "policy": "不动",
+    "seed": 23,
+    "result": "'困住",
+    "injury": " 完好 0/7",
+    "calm": 1
+  },
+  {
+    "scene": "枪口认路",
+    "policy": "投降",
+    "seed": 7,
+    "result": "'投降",
+    "injury": " 完好 0/7",
+    "calm": 5
+  },
+  {
+    "scene": "枪口认路",
+    "policy": "投降",
+    "seed": 23,
+    "result": "'投降",
+    "injury": " 完好 0/7",
+    "calm": 5
+  }
+]

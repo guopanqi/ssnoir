@@ -1,0 +1,119 @@
+{
+  "results": [
+    {
+      "reset": true,
+      "policy": "自由",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 16952
+    },
+    {
+      "reset": true,
+      "policy": "禁止探查",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 11126
+    },
+    {
+      "reset": true,
+      "policy": "开局先探查",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 15987
+    },
+    {
+      "reset": true,
+      "policy": "每回合首手探查",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 13057
+    },
+    {
+      "reset": true,
+      "policy": "最多探查一次",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 27227
+    },
+    {
+      "reset": true,
+      "policy": "首回合只取信息",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 10892
+    },
+    {
+      "reset": true,
+      "policy": "直到定位先探查",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 5922
+    },
+    {
+      "reset": false,
+      "policy": "自由",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 39100
+    },
+    {
+      "reset": false,
+      "policy": "禁止探查",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 20630
+    },
+    {
+      "reset": false,
+      "policy": "开局先探查",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 36413
+    },
+    {
+      "reset": false,
+      "policy": "每回合首手探查",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 36301
+    },
+    {
+      "reset": false,
+      "policy": "最多探查一次",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 58025
+    },
+    {
+      "reset": false,
+      "policy": "首回合只取信息",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 10892
+    },
+    {
+      "reset": false,
+      "policy": "直到定位先探查",
+      "initial_hands": 126,
+      "dimensions": 4,
+      "max_error": 0.0,
+      "states": 8050
+    }
+  ],
+  "initial_hands": 1764,
+  "max_error": 0.0,
+  "scope": "独立float固定两世界后验，概率从正式FateStrip读取；分别实现效果/伤势/清零/策略限制；逐手四维核对，不是正式或真人证据"
+}

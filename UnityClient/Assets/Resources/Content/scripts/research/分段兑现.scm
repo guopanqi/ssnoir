@@ -1,0 +1,26 @@
+(load-file "scripts/research/common.scm")
+(define 储备 (make-clock "储备" 5 'gauge (string-append "备料坏减2、中加1、好加2；兑现清空。回合末减" (number->string 储备衰减) "。")))
+(define (研究附记) (list (储备 'current)))
+(define (备料! n)
+  (储备 'advance! n))
+(define (兑现!)
+  (let ((k (储备 'current)))
+    (储备 'reset!)
+    (研究推进! (if (= 递增兑现 1) (quotient (* k (+ k 1)) 2) (* k 2)))))
+(define-opponent-rule "储备过期"
+  (lambda () (not 完了?))
+  (lambda () (储备 'advance! (- 储备衰减)) (期限 'advance! 1) (研究检查!)))
+(define (get-render-data)
+  (研究盘面 (if (= 递增兑现 1) "储备1至5兑现为1、3、6、10、15进度；坏备料丢2。稳进保证1。"
+      "兑现得到两倍储备进度；坏备料丢2。稳进保证1。")
+    (clock-nodes (储备 'render-data))
+    (append
+      (list (node "备料" :subtitle "坏储备减2；中加1；好加2。" :requires (list (req-die))
+        :resolve (roll 'knowledge (outcome (lambda () (备料! -2)))
+          (outcome (lambda () (备料! 1))) (outcome (lambda () (备料! 2)))))
+        (node "稳进" :subtitle "一骰：目标保证加1。" :requires (list (req-die))
+          :resolve (instant (lambda () (研究推进! 1)))))
+      (if (储备 'empty?) '()
+        (list (node "兑现" :subtitle (string-append "一骰：推进"
+          (number->string (if (= 递增兑现 1) (quotient (* (储备 'current) (+ (储备 'current) 1)) 2) (* (储备 'current) 2))) "，清空储备。") :requires (list (req-die))
+          :resolve (instant 兑现!)))))))

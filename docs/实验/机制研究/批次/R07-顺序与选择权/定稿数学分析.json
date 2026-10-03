@@ -1,0 +1,154 @@
+{
+  "results": [
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "求解",
+      "injury_free_completion": 0.8949903039360334,
+      "composure_on_success": 2.565358414086704,
+      "states": 9355,
+      "seconds": 0.07638708292506635
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先小目标",
+      "injury_free_completion": 0.8220917595572877,
+      "composure_on_success": 2.705914831917336,
+      "states": 4892,
+      "seconds": 0.03025008295662701
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先大目标",
+      "injury_free_completion": 0.8223912018898135,
+      "composure_on_success": 2.7180087460366793,
+      "states": 4836,
+      "seconds": 0.028863624902442098
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先近终点",
+      "injury_free_completion": 0.8220917595572877,
+      "composure_on_success": 2.705914831917336,
+      "states": 4892,
+      "seconds": 0.03031504200771451
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "求解",
+      "injury_free_completion": 0.9384049706802466,
+      "composure_on_success": 2.2938240150475013,
+      "states": 23957,
+      "seconds": 0.2617480419576168
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "先小目标",
+      "injury_free_completion": 0.9345037771362048,
+      "composure_on_success": 2.3169876422500217,
+      "states": 8693,
+      "seconds": 0.057764749974012375
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "先大目标",
+      "injury_free_completion": 0.9332066186659418,
+      "composure_on_success": 2.337551619406923,
+      "states": 8714,
+      "seconds": 0.0634011251386255
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "先近终点",
+      "injury_free_completion": 0.9345037771362048,
+      "composure_on_success": 2.3169876422500217,
+      "states": 8693,
+      "seconds": 0.05899279098957777
+    }
+  ],
+  "conditional_example": {
+    "hand": [
+      1,
+      1,
+      4,
+      5
+    ],
+    "first": [
+      [
+        0.8430551294219987,
+        1.5429336339487825
+      ],
+      [
+        0,
+        "风险",
+        1
+      ]
+    ],
+    "after_fail": [
+      [
+        0.7869747928715278,
+        1.3998779912921897
+      ],
+      [
+        1,
+        "风险",
+        4
+      ]
+    ],
+    "after_neutral": [
+      [
+        0.8399116061184358,
+        1.1694280617315702
+      ],
+      [
+        0,
+        "风险",
+        1
+      ]
+    ],
+    "after_success": [
+      [
+        0.9646463724336289,
+        2.9495616359136054
+      ],
+      [
+        0,
+        "风险",
+        4
+      ]
+    ],
+    "scope": "初始手牌条件；未知下一轮手牌按公平d6积分；无伤完成目标"
+  },
+  "model_file_sha256": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7"
+}

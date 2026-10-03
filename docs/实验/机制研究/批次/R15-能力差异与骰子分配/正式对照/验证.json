@@ -1,0 +1,234 @@
+{
+  "native_games": 44,
+  "checked_steps": 173,
+  "strict_replays": [
+    {
+      "path": "全程调整-4201.json.gz",
+      "sha256": "22b68cd720be59da239b856edd86c0e584b33968587149ae88e0f64f5aaf66a4",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4202.json.gz",
+      "sha256": "709380d08ee0463be13ef60b0bff8ae958bde16d839d9e23777957e7d1ba6a93",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4203.json.gz",
+      "sha256": "638ad0259821e016f5e5b1bf99d30c36038da49ebe24ac9ea857ac4b520ad398",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4204.json.gz",
+      "sha256": "db1f5ebeac1ea8165d96457aa7f30d930cc7c0123ebf493194c4ba756fddd968",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4205.json.gz",
+      "sha256": "e73e98f937a3a93f30cd807bf517b8d080e9c9576ff09fdd4a7f233cc9199585",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4206.json.gz",
+      "sha256": "19e616f33ea1a70b18f8467de8f69cd362e290a54669623afe31ddc12d0bb61b",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4207.json.gz",
+      "sha256": "60b01130f008507c00251ba0c6e265e562cdc0c704e67279b853ac5087e67691",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4208.json.gz",
+      "sha256": "cd8b150742a24c5844556c10bc2d44688d9ce514cf0a930ad943f99d0801d017",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4209.json.gz",
+      "sha256": "d012f4d2bfda9897e0ae13dbe59eff16877c3ebe1a6e6e1f3eb532526ed9c1e2",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4210.json.gz",
+      "sha256": "fee07442dc5b8e829b71029fb3737d84d488776a2f91a7038f78bb28fa310666",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4211.json.gz",
+      "sha256": "7bf2aeafaba762c7c1d8fb1ae0307b667712055573f912c93fb5881f95ccad3e",
+      "passed": true
+    },
+    {
+      "path": "全程调整-4212.json.gz",
+      "sha256": "3d4f1c72b888d9f4de3a1e55d7fbe5d304aaeb6ff7a5f0302d5c7bcaef4f0625",
+      "passed": true
+    },
+    {
+      "path": "同等判定-4213.json.gz",
+      "sha256": "8c15a8b09459c15ceca2a8cb214b4b494db80e67ef6a2d147b41b3655d55e6ca",
+      "passed": true
+    },
+    {
+      "path": "同等判定-4214.json.gz",
+      "sha256": "fd0bc9ace796d323bf7c5e9ed803d3ab4f7ee7f250418d6e791d02a9d68d972a",
+      "passed": true
+    },
+    {
+      "path": "同等判定-4215.json.gz",
+      "sha256": "ef2da7b2e9b46ad91dd39255f519a9bb13f6e6d1b0904f0a433144e6d47f6a50",
+      "passed": true
+    },
+    {
+      "path": "同等判定-4216.json.gz",
+      "sha256": "1461aab00b97b80960fe568e73251bdadaf6c10d59af84cfbe369cdf3ebbd6c9",
+      "passed": true
+    },
+    {
+      "path": "同等判定-4217.json.gz",
+      "sha256": "47a0aee9b7277d0b7afe669a32d5802e43f1e45fa708881d14b2921046e35691",
+      "passed": true
+    },
+    {
+      "path": "同等判定-4218.json.gz",
+      "sha256": "68a4920086c3573f94a6ede41585a6f3d766edfaa55c5f29ff4254cf1b9dabae",
+      "passed": true
+    },
+    {
+      "path": "成长2-4221.json.gz",
+      "sha256": "3d24755d96bcef6fc02599ff2b0a583d9ef3b21c69af1024f0fe06f2df7cfb78",
+      "passed": true
+    },
+    {
+      "path": "成长2-4222.json.gz",
+      "sha256": "2fa3c17bf6e7af847813fab7192c2b1e354656e7724505c4421da9dcdeb8081f",
+      "passed": true
+    },
+    {
+      "path": "成长2-4223.json.gz",
+      "sha256": "99bb167c2fbdd75646db7e278bd10023e2bd32e0a949094c2b99397f19749895",
+      "passed": true
+    },
+    {
+      "path": "成长2-4224.json.gz",
+      "sha256": "36225d6ac14e8650cc5151d877f41f226cc4c2c308bea892e57d0217fd7a8466",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4201.json.gz",
+      "sha256": "b8bd6c4d73ef55a16d3c168b07bab50d40a05abf502dd2aa26e8ba4ba00a35d6",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4202.json.gz",
+      "sha256": "a7d4de4ec2993353d8c62fdf6ac7aeb1bad5a030c85a3ef7a9aff53950d7be29",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4203.json.gz",
+      "sha256": "620eae5db51f13e3a8a93dcaa4829096a7220ace6bb87e537e27dd9100e58ad7",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4204.json.gz",
+      "sha256": "d87d71733c081ad7166df9e6af58b0c456fbdd0897dce0f7ce9f9004e687148a",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4205.json.gz",
+      "sha256": "c81dc97e9b62c58a8111dccd5f9929627977f1e9580ed1547769f47e5bb60493",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4206.json.gz",
+      "sha256": "60d145688856a934f0de2c112ef7ca6deceeada0f614a0bb2d76f5b8266bfca5",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4207.json.gz",
+      "sha256": "fc702efd37b19e5b1c06ddf098565149956fc45d9aebd8faecefecaf38202e0a",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4208.json.gz",
+      "sha256": "f8f3f29b47e77a2e61c18cd73a045ad1a13ed40c50e04bfe653461480208a229",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4209.json.gz",
+      "sha256": "5f95d3f079f29fced39c0543dc55c3a3630ba25f7fe7745a34b5a6997fcd0943",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4210.json.gz",
+      "sha256": "89bbb41e7c1161194a5a13b96b2696b71fede74be3d1d8bba9c079d2ad404f3e",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4211.json.gz",
+      "sha256": "96b3d06ab0e690d642358ee44702e9448a009f768d615cf671c9f81a75a1b79a",
+      "passed": true
+    },
+    {
+      "path": "最优初始分区-4212.json.gz",
+      "sha256": "8ff917b0708928b851fd822729cff377d64853c62f375732b1cec26475b5499c",
+      "passed": true
+    },
+    {
+      "path": "边界-空过-0.json.gz",
+      "sha256": "c35f7c63fe9fe869056328d96e102cc688970e97e9c8b65157bc375207029e3a",
+      "passed": true
+    },
+    {
+      "path": "边界-空过-1.json.gz",
+      "sha256": "e6610b3412d465165fe81bb6207b7673feed1bf123e647d6948513520275ee85",
+      "passed": true
+    },
+    {
+      "path": "高骰弱项-4201.json.gz",
+      "sha256": "0d8ebb2584ecd8b934dd3c898438eb7d55754fa79ed6b40573af3a58cb4f8de4",
+      "passed": true
+    },
+    {
+      "path": "高骰弱项-4202.json.gz",
+      "sha256": "97818f23ac8e882fe542d99af86088b6143349a26d6ea9336c677c89d7eed9af",
+      "passed": true
+    },
+    {
+      "path": "高骰弱项-4203.json.gz",
+      "sha256": "8b9533b2fde98a386baf6113c2913975030d0e2c8a31fc3b3996a07ce33c8c5b",
+      "passed": true
+    },
+    {
+      "path": "高骰弱项-4204.json.gz",
+      "sha256": "89128e07a962faa21f24c05c1cf9e6a886a8cb181d44130ecb116f710caa7744",
+      "passed": true
+    },
+    {
+      "path": "高骰弱项-4205.json.gz",
+      "sha256": "dbe78aacd91ab0aaad9cb58a543cf318f9b2caf43eb5e56b47f86043d4529e10",
+      "passed": true
+    },
+    {
+      "path": "高骰弱项-4206.json.gz",
+      "sha256": "40a5208f82db8a7373c282533c3134e02ae6cd22f59f265d2722e03b90f6c75f",
+      "passed": true
+    },
+    {
+      "path": "高骰弱项-4207.json.gz",
+      "sha256": "c32f44d011bb31fd532b126491bf6ee53ed1e3d5aa324b02a40d1032252795d4",
+      "passed": true
+    },
+    {
+      "path": "高骰弱项-4208.json.gz",
+      "sha256": "f4b28a1599a440d5e46c40e7b6ee09440eb35b4d686e72f60d8edbf04a93990d",
+      "passed": true
+    }
+  ],
+  "ContentRevision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+  "human_games": 0,
+  "unity_visual_checked": false,
+  "covered_grades": [
+    "Fail",
+    "Neutral",
+    "Success"
+  ]
+}

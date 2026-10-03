@@ -1,0 +1,1555 @@
+{
+  "results": [
+    {
+      "path": "求解-1601.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 3,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "求解",
+      "seed": 1601,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "求解-1602.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 1,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "求解",
+      "seed": 1602,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          3,
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "求解-1603.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 4,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "求解",
+      "seed": 1603,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          3,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "求解-1604.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 3,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "求解",
+      "seed": 1604,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          3,
+          6,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "求解-1605.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 4,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "求解",
+      "seed": 1605,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          1,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "求解-1606.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 2,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "求解",
+      "seed": 1606,
+      "switches": 1,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          3,
+          3
+        ]
+      ]
+    },
+    {
+      "path": "求解-1607.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "求解",
+      "seed": 1607,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          4,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "求解-1608.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 4,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "求解",
+      "seed": 1608,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          5,
+          5,
+          5
+        ]
+      ]
+    },
+    {
+      "path": "求解-1609.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "求解",
+      "seed": 1609,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          4,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "求解-1610.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 1,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "求解",
+      "seed": 1610,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          1,
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "求解-1611.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "求解",
+      "seed": 1611,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          3,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "求解-1612.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 2,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "求解",
+      "seed": 1612,
+      "switches": 2,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1601.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "固定A",
+      "seed": 1601,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1602.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 1,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "固定A",
+      "seed": 1602,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          3,
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1603.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "固定A",
+      "seed": 1603,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          3,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1604.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 1,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "固定A",
+      "seed": 1604,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          3,
+          6,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1605.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "固定A",
+      "seed": 1605,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          1,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1606.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 1,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "固定A",
+      "seed": 1606,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          3,
+          3
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1607.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "固定A",
+      "seed": 1607,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          4,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1608.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 4,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "固定A",
+      "seed": 1608,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          5,
+          5,
+          5
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1609.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "固定A",
+      "seed": 1609,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          4,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1610.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 1,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "固定A",
+      "seed": 1610,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          1,
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1611.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "固定A",
+      "seed": 1611,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          3,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "固定A-1612.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 1,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "固定A",
+      "seed": 1612,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1601.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 3,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "遇长必换",
+      "seed": 1601,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1602.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 2,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "遇长必换",
+      "seed": 1602,
+      "switches": 2,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          3,
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1603.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 3,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "遇长必换",
+      "seed": 1603,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          3,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1604.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 4,
+      "status": "success",
+      "disclosures": 2,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "遇长必换",
+      "seed": 1604,
+      "switches": 1,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          3,
+          6,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1605.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 3,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "遇长必换",
+      "seed": 1605,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          1,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1606.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 2,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "遇长必换",
+      "seed": 1606,
+      "switches": 1,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          3,
+          3
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1607.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "遇长必换",
+      "seed": 1607,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          4,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1608.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 2,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "遇长必换",
+      "seed": 1608,
+      "switches": 2,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          5,
+          5,
+          5
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1609.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "遇长必换",
+      "seed": 1609,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          4,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1610.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 1,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "遇长必换",
+      "seed": 1610,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          1,
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1611.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "遇长必换",
+      "seed": 1611,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          3,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "遇长必换-1612.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 2,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "遇长必换",
+      "seed": 1612,
+      "switches": 2,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1601.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "滚动比较",
+      "seed": 1601,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1602.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 2,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "滚动比较",
+      "seed": 1602,
+      "switches": 2,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          3,
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1603.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "滚动比较",
+      "seed": 1603,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          3,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1604.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 4,
+      "status": "success",
+      "disclosures": 2,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "滚动比较",
+      "seed": 1604,
+      "switches": 1,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          3,
+          6,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1605.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "滚动比较",
+      "seed": 1605,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          1,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1606.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 2,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "滚动比较",
+      "seed": 1606,
+      "switches": 1,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          3,
+          3
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1607.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "滚动比较",
+      "seed": 1607,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          4,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1608.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 4,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "滚动比较",
+      "seed": 1608,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          2,
+          5,
+          5,
+          5
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1609.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "滚动比较",
+      "seed": 1609,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          4,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1610.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 1,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "滚动比较",
+      "seed": 1610,
+      "switches": 2,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          1,
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1611.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 1,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "滚动比较",
+      "seed": 1611,
+      "switches": 0,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          3,
+          3,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "滚动比较-1612.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 2,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "滚动比较",
+      "seed": 1612,
+      "switches": 2,
+      "initial": [
+        0,
+        -1,
+        0,
+        -1,
+        5,
+        [
+          1,
+          2,
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "明示求解-1613.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 0,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "明示求解",
+      "seed": 1613,
+      "switches": 0,
+      "initial": [
+        0,
+        3,
+        0,
+        3,
+        5,
+        [
+          1,
+          2,
+          3,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "明示求解-1614.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 0,
+      "lens": [
+        6,
+        3
+      ],
+      "policy": "明示求解",
+      "seed": 1614,
+      "switches": 0,
+      "initial": [
+        0,
+        6,
+        0,
+        3,
+        5,
+        [
+          1,
+          1,
+          6,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "明示求解-1615.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 3,
+      "status": "success",
+      "disclosures": 0,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "明示求解",
+      "seed": 1615,
+      "switches": 0,
+      "initial": [
+        0,
+        3,
+        0,
+        6,
+        5,
+        [
+          2,
+          3,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "明示求解-1616.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 4,
+      "status": "success",
+      "disclosures": 0,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "明示求解",
+      "seed": 1616,
+      "switches": 0,
+      "initial": [
+        0,
+        6,
+        0,
+        6,
+        5,
+        [
+          2,
+          3,
+          5,
+          5
+        ]
+      ]
+    },
+    {
+      "path": "明示求解-1617.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 0,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "明示求解",
+      "seed": 1617,
+      "switches": 0,
+      "initial": [
+        0,
+        3,
+        0,
+        3,
+        5,
+        [
+          1,
+          2,
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "path": "明示求解-1618.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 4,
+      "status": "success",
+      "disclosures": 0,
+      "lens": [
+        3,
+        6
+      ],
+      "policy": "明示求解",
+      "seed": 1618,
+      "switches": 0,
+      "initial": [
+        0,
+        3,
+        0,
+        6,
+        5,
+        [
+          4,
+          5,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "path": "明示求解-1619.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 5,
+      "status": "timeout",
+      "disclosures": 0,
+      "lens": [
+        6,
+        6
+      ],
+      "policy": "明示求解",
+      "seed": 1619,
+      "switches": 0,
+      "initial": [
+        0,
+        6,
+        0,
+        6,
+        5,
+        [
+          1,
+          1,
+          3,
+          3
+        ]
+      ]
+    },
+    {
+      "path": "明示求解-1620.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 2,
+      "status": "success",
+      "disclosures": 0,
+      "lens": [
+        3,
+        3
+      ],
+      "policy": "明示求解",
+      "seed": 1620,
+      "switches": 0,
+      "initial": [
+        0,
+        3,
+        0,
+        3,
+        5,
+        [
+          1,
+          2,
+          3,
+          4
+        ]
+      ]
+    },
+    {
+      "path": "边界-空过.json.gz",
+      "content_revision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+      "steps": 1,
+      "status": "timeout",
+      "disclosures": 0,
+      "lens": [
+        6,
+        3
+      ]
+    }
+  ],
+  "summary": {
+    "求解": {
+      "games": 12,
+      "success": 8,
+      "changed_route_games": 2
+    },
+    "固定A": {
+      "games": 12,
+      "success": 7,
+      "changed_route_games": 0
+    },
+    "遇长必换": {
+      "games": 12,
+      "success": 7,
+      "changed_route_games": 5
+    },
+    "滚动比较": {
+      "games": 12,
+      "success": 8,
+      "changed_route_games": 5
+    },
+    "明示求解": {
+      "games": 8,
+      "success": 7,
+      "changed_route_games": 0
+    }
+  },
+  "scope": "冻结后新种子小样本；用于正式行为核对，不能估计全局策略差距"
+}

@@ -1,0 +1,212 @@
+{
+  "reason": "检查降低信息成本与相邻容量条件；不改变收益、不追加状态",
+  "results": [
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "求解",
+      "completion": 0.8542077474851392,
+      "composure_on_success": 4.167111694723996,
+      "states": 3734,
+      "seconds": 0.03939029201865196,
+      "reachable": {
+        "strict_stay_events": 0.5071266289437587,
+        "strict_switch_events": 0.0952878515089163,
+        "long_strict_stay_events": 0.3543542095336076,
+        "long_strict_switch_events": 0.0952878515089163,
+        "disclosure_events": 1.1326856852994953,
+        "at_least_one_strict_choice": 0.5375371513488796,
+        "scope": "事件指标是每局期望次数；at_least_one是实际可达至少一次概率；严格差>1个百分点"
+      }
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "固定A",
+      "completion": 0.812643782864655,
+      "composure_on_success": 4.410404713210459,
+      "states": 1245,
+      "seconds": 0.008207415929064155
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "遇长必换",
+      "completion": 0.8038678185966317,
+      "composure_on_success": 4.131472680589033,
+      "states": 1763,
+      "seconds": 0.01056733401492238
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "期望剩余最短",
+      "completion": 0.8396590351604175,
+      "composure_on_success": 4.271287110108648,
+      "states": 1653,
+      "seconds": 0.009976750006899238
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "两条固定路线滚动比较",
+      "completion": 0.8412613359244017,
+      "composure_on_success": 4.356678645940964,
+      "states": 835,
+      "seconds": 0.055170249892398715
+    },
+    {
+      "short": 3,
+      "long": 5,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "求解",
+      "completion": 0.9200546434423109,
+      "composure_on_success": 4.327641484373811,
+      "states": 3704,
+      "seconds": 0.03879879182204604,
+      "reachable": {
+        "strict_stay_events": 0.540477109053497,
+        "strict_switch_events": 0.014885545267489716,
+        "long_strict_stay_events": 0.4281389317558303,
+        "long_strict_switch_events": 0.014885545267489716,
+        "disclosure_events": 1.0294620913351598,
+        "at_least_one_strict_choice": 0.541034379286694,
+        "scope": "事件指标是每局期望次数；at_least_one是实际可达至少一次概率；严格差>1个百分点"
+      }
+    },
+    {
+      "short": 3,
+      "long": 5,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "固定A",
+      "completion": 0.9152422339391864,
+      "composure_on_success": 4.351109493509699,
+      "states": 1236,
+      "seconds": 0.007968750083819032
+    },
+    {
+      "short": 3,
+      "long": 5,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "遇长必换",
+      "completion": 0.8594796370122693,
+      "composure_on_success": 4.182913048891979,
+      "states": 1758,
+      "seconds": 0.010830749990418553
+    },
+    {
+      "short": 3,
+      "long": 5,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "期望剩余最短",
+      "completion": 0.9152422339391864,
+      "composure_on_success": 4.351109493509699,
+      "states": 1236,
+      "seconds": 0.007901042001321912
+    },
+    {
+      "short": 3,
+      "long": 5,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "两条固定路线滚动比较",
+      "completion": 0.9192559489788147,
+      "composure_on_success": 4.3390029255238165,
+      "states": 760,
+      "seconds": 0.055339999962598085
+    },
+    {
+      "short": 4,
+      "long": 6,
+      "reveal": 2,
+      "growth": 1,
+      "known": false,
+      "policy": "求解",
+      "completion": 0.7931012207552203,
+      "composure_on_success": 4.315784673210941,
+      "states": 2801,
+      "seconds": 0.02850633393973112,
+      "reachable": {
+        "strict_stay_events": 0.6329428869455872,
+        "strict_switch_events": 0.0,
+        "long_strict_stay_events": 0.4547325102880659,
+        "long_strict_switch_events": 0.0,
+        "disclosure_events": 0.9902799211248271,
+        "at_least_one_strict_choice": 0.6329428869455875,
+        "scope": "事件指标是每局期望次数；at_least_one是实际可达至少一次概率；严格差>1个百分点"
+      }
+    },
+    {
+      "short": 4,
+      "long": 6,
+      "reveal": 2,
+      "growth": 1,
+      "known": false,
+      "policy": "固定A",
+      "completion": 0.7931012207552203,
+      "composure_on_success": 4.315784673210941,
+      "states": 1085,
+      "seconds": 0.007126417011022568
+    },
+    {
+      "short": 4,
+      "long": 6,
+      "reveal": 2,
+      "growth": 1,
+      "known": false,
+      "policy": "遇长必换",
+      "completion": 0.660114573807346,
+      "composure_on_success": 4.362333921689418,
+      "states": 1288,
+      "seconds": 0.008405792061239481
+    },
+    {
+      "short": 4,
+      "long": 6,
+      "reveal": 2,
+      "growth": 1,
+      "known": false,
+      "policy": "期望剩余最短",
+      "completion": 0.7931012207552203,
+      "composure_on_success": 4.315784673210941,
+      "states": 1085,
+      "seconds": 0.007061332929879427
+    },
+    {
+      "short": 4,
+      "long": 6,
+      "reveal": 2,
+      "growth": 1,
+      "known": false,
+      "policy": "两条固定路线滚动比较",
+      "completion": 0.7931012207552203,
+      "composure_on_success": 4.315784673210941,
+      "states": 626,
+      "seconds": 0.046995542012155056
+    }
+  ]
+}

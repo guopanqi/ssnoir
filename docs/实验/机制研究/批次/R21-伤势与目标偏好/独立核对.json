@@ -1,0 +1,55 @@
+{
+  "profiles": [
+    {
+      "reset": true,
+      "cost": 0,
+      "initial_hands": 126,
+      "maximum_error": 4.440892098500626e-16,
+      "passed": true,
+      "seconds": 1.2883965838700533
+    },
+    {
+      "reset": true,
+      "cost": 0.25,
+      "initial_hands": 126,
+      "maximum_error": 8.881784197001252e-16,
+      "passed": true,
+      "seconds": 1.2843899999279529
+    },
+    {
+      "reset": true,
+      "cost": 1,
+      "initial_hands": 126,
+      "maximum_error": 8.881784197001252e-16,
+      "passed": true,
+      "seconds": 1.3014125421177596
+    },
+    {
+      "reset": false,
+      "cost": 0,
+      "initial_hands": 126,
+      "maximum_error": 4.440892098500626e-16,
+      "passed": true,
+      "seconds": 4.845058375038207
+    },
+    {
+      "reset": false,
+      "cost": 0.25,
+      "initial_hands": 126,
+      "maximum_error": 8.881784197001252e-16,
+      "passed": true,
+      "seconds": 4.8667283749673516
+    },
+    {
+      "reset": false,
+      "cost": 1,
+      "initial_hands": 126,
+      "maximum_error": 8.881784197001252e-16,
+      "passed": true,
+      "seconds": 4.921996583929285
+    }
+  ],
+  "initial_states": 756,
+  "iterative_states_per_profile": 907200,
+  "scope": "六个目标/规则条件的756手初始状态，每手核对完成、曾伤、成功加权伤势与冷静四维值；共用概率校准输入，独立语言/健康索引/迭代转移/状态表；数值有限模型，不是随机分布或体验验证"
+}

@@ -1,0 +1,23 @@
+{
+  "ContentRevision": "7d880c11b9e224568b1eb96ffb5b01b9ec977301d29bdf210c2bba93d4c01ea0",
+  "source_sha256": {
+    "UnityClient/Assets/Resources/Content/scripts/research/顺序选择.scm": "e1c870df50f225d1700c5a6d416d8c9767e13099b7c0ad9e312af92189c0e500",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·分段短目标.scm": "c8426c2a9fc757e2fc48b576b9263ec932ea7cf26f3a083a04c0145ad62e0e63",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·分段兑现.scm": "3325f80ea56c62b3045c15a851d432ec325b01d1ce3e0f50d56a812c5be29492",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整段完成.scm": "43a786647b895d379b225f068c46530ef38c3d2388bf35108f0dc29ac59ff9ab",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·分段保留对照.scm": "9f6ff780b63daad10ee8fcfb785ae59a30e2d72ccc85125e66f3cb452480f2c2",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·保留终点.scm": "d1af4da1535761bac39522629e0083d654524165f2cc04c3504b97965c8a082c"
+  },
+  "model_files_sha256": {
+    "筛选.py": "968ec7c09959f6430ca06c2a72ca27b4e80a1348da2425e2312f154e8d53eecd",
+    "分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "正式对照.py": "9b0af20c1dc847000e039e9375f8f85f6fbf158c4843ae6c01180e0dea9531c4",
+    "强基准.py": "d736584f8dada2350d0f23ac2258972c484360012ca0b9b7f37e9fcd7173586a"
+  },
+  "runtime_snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "23871a8f3b436a8e9a7dbb7e910a753911c19a25d1319b53acb947cc24103611",
+    "isolated_replay_passed": true,
+    "scope": "正式Content全部文件、当前校验器构建及依赖、FateStrip源码；需要本机兼容.NET运行时"
+  }
+}

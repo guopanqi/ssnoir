@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-02",
+  "source_hashes_checked": 13,
+  "results": [
+    {
+      "script": "非对称模型.py",
+      "result": "非对称结果.json",
+      "semantic_equal": true
+    }
+  ],
+  "passed": true,
+  "scope": "冻结源码及正式概率输入隔离数学重算；忽略耗时和隔离绝对依赖路径；没有正式会话或真人证据"
+}

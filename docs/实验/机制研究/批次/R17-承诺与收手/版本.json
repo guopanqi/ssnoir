@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-02",
+  "identity": "数学筛选，非正式Content或原生实验",
+  "source_and_result_sha256": {
+    "docs/实验/机制研究/批次/R17-承诺与收手/收手模型.py": "b8c59cd0e1883181f162d0f46780bb71d52015ddedf046439f8455a860493630",
+    "docs/实验/机制研究/批次/R17-承诺与收手/独立核对.py": "696bc8b4843afc169bf7852082690dc2aec383f03a384397cdba15a5654a3306",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "AGENTS.md": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+    "docs/实验/机制研究/批次/R17-承诺与收手/收手结果.json": "c0d1e8e67b7ffe62305b7761f38ba910cc1ef63bb4615a4d2ee8241a8f4421b6",
+    "docs/实验/机制研究/批次/R17-承诺与收手/独立核对.json": "8b6bbe85164b809e5e37b8158432b5677672cddcf960c4bfd9d0a3876b68091d"
+  },
+  "snapshot": {
+    "path": "数学快照.tar.gz",
+    "sha256": "994c7e897b9eac768e04a698cd96f5b0619bf9d0ecbdad4a4573b3af20d19a4e",
+    "bytes": 26992,
+    "scope": "模型、核对、结果、AGENTS与官方概率源/手牌依赖；不包含游戏构建",
+    "isolated_recompute": [
+      {
+        "script": "收手模型.py",
+        "result": "收手结果.json",
+        "byte_identical": true
+      },
+      {
+        "script": "独立核对.py",
+        "result": "独立核对.json",
+        "byte_identical": true
+      }
+    ]
+  },
+  "native_games": 0,
+  "human_games": 0,
+  "unity_visual_checked": false
+}

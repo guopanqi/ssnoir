@@ -1,0 +1,63 @@
+{
+  "batch": "R45",
+  "status": "已裁决，保留公开承诺基本关系／当前不新增Content",
+  "source_sha256": {
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/有界研究计划.md": "711c84ed556675cac5e95c48a32209c8dcab25be33b36eff67a8698b6e93d87a",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/专注模型.py": "ee1168f49142211f0139dd762164c684a9e49867dd68a43a14fe8b4bf1e4eec6",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/审查两骰枚举.py": "8be524ad307758abcbafbef2476f16ceea74ff3bbbd465f115f49861b901a32a",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/承诺前向.py": "376b46780caf6f22cb32677afcc48be490374e4226382310e8aa95e9193264d1",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/整合核对.py": "49b7cae98b5cdd0b04f0a497942367a3aa52cfa6e953b0d1d813a904d13df58c",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/复现.py": "a233598256c309dc058d9ed8cfe2718d97a99fff888c11e8503404c23dd1bae6",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/研究记录.md": "7fef0b350cec36c931c524eaadf3a2abeccf03aaea510724c207d084ade85f3e",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/审查结构.md": "e57f00525bdeb8b2fa02f0a4224816e7eb0795aaa25c1b4276307455021c55fe"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "6bd485bd98110782bcac66c4bb25434a6fdb8d0fc88e3d706bfe74ef36b84ad9",
+    "files": 18,
+    "bytes": 35102,
+    "isolated_verification": {
+      "batch": "R45",
+      "source_hashes_checked": 9,
+      "results": [
+        {
+          "script": "专注模型.py",
+          "result": "数学结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "审查两骰枚举.py",
+          "result": "审查两骰结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "承诺前向.py",
+          "result": "承诺前向结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "整合核对.py",
+          "result": "整合核对.json",
+          "semantic_equal": true
+        }
+      ],
+      "regenerated_input_hashes_checked": 4,
+      "passed": true,
+      "scope": "数学隔离重算，独立优化仅局部；正式0真人0"
+    }
+  },
+  "scope": "数学及独立局部；正常前向共享主模型；正式0真人0",
+  "overview": {
+    "path": "总览快照.tar.gz",
+    "sha256": "f8d60eab632f28f7c7bf19907df5d7babc7ce1a5d877f909625be401f1e7337e",
+    "source_sha256": {
+      "docs/实验/机制研究/研究总览.html": "9e494eca753a049117b6eba8b68617e241a0cc6e93fbf470f22470328e09878a",
+      "docs/实验/机制研究/总览核对/核对.cjs": "f4c7014fdc958f93531361c85fef9cb80adbccec27457cc30ef63dc83b9406ac",
+      "docs/实验/机制研究/总览核对/核对.json": "cc7cd955ea9679eed4dfb860203bf8846a3600fefd60524f67a7d7ea78a20e9a",
+      "docs/实验/机制研究/总览核对/公开专注.png": "26aa00abf874d0948704db3349beed3beec0e74ca808c459f24d962891da4787"
+    },
+    "html_batch": "R45",
+    "scope": "已核对HTML和交互证据单独冻结；不改变数学快照或旧研究版本"
+  }
+}

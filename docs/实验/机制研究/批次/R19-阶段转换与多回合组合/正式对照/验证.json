@@ -1,0 +1,214 @@
+{
+  "native_games": 39,
+  "checked_steps": 352,
+  "ContentRevision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+  "strict_replays": [
+    {
+      "path": "保留自由-6113.json.gz",
+      "sha256": "3be227535c4d00561d3d99832005a2409a13cde35cea69b1879b2e5c15ca649d",
+      "passed": true
+    },
+    {
+      "path": "保留自由-6114.json.gz",
+      "sha256": "a5ada632f2f8a41ddbf548503b06d2df3d586b12d3956bdcce3fb79c95cb0af5",
+      "passed": true
+    },
+    {
+      "path": "保留自由-6115.json.gz",
+      "sha256": "282e6a8cfe83be9be7f6649c8e9fd2107630faed673fbb51c775d4c06cf7d888",
+      "passed": true
+    },
+    {
+      "path": "保留自由-6116.json.gz",
+      "sha256": "c5da9d7eb04e842e32400760ff1e61177da6a19a30103add57a0d15a7583c953",
+      "passed": true
+    },
+    {
+      "path": "保留自由-6117.json.gz",
+      "sha256": "f755004505206ec83bda014456657d3240706b842a633b13dd1a1fec505bf03e",
+      "passed": true
+    },
+    {
+      "path": "保留自由-6118.json.gz",
+      "sha256": "fe2e00c841634ef9aac409b5441a0f17ec52c4d28edf204b56e0a3e13d821a69",
+      "passed": true
+    },
+    {
+      "path": "保留自由-6119.json.gz",
+      "sha256": "49d5f52a14fd3a1d7de899085530e0b638046626775db1c54c5b112e5de9c6a3",
+      "passed": true
+    },
+    {
+      "path": "保留自由-6120.json.gz",
+      "sha256": "3be88769d6bf1da1d2d9809012fedc45bd3b87d11ad7960faefcc82f82487f94",
+      "passed": true
+    },
+    {
+      "path": "成长2-6131.json.gz",
+      "sha256": "e4b33f79ed8e960d952edc43b23fa2e1d521b05180b700df0acdf134b51afea5",
+      "passed": true
+    },
+    {
+      "path": "成长2-6132.json.gz",
+      "sha256": "b218fddc1fbb670487b7ad59658f6e458ef7bb94609afbd51de5ce9ba7f86e5f",
+      "passed": true
+    },
+    {
+      "path": "成长2-6133.json.gz",
+      "sha256": "31bb47ccac710e465b7bce3a8bd56cf2eb8f797e2a3762c08dc1c465a8fa90a0",
+      "passed": true
+    },
+    {
+      "path": "成长2-6134.json.gz",
+      "sha256": "3631047f36f7a505dc82a85de4b95555df4243aaf6dfb94822dcbbf69c1f2690",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6101.json.gz",
+      "sha256": "f6cb1cd3a1497cb467eb5b22ecb92cee260cbdab697f4df99aa0757611b1e9db",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6102.json.gz",
+      "sha256": "f8acc36d37ce75af6f6ee06d0c165d9398c27327db5a597f3f6aa70aeb860dbb",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6103.json.gz",
+      "sha256": "3e4637a395548871fc9558f93a9b04d2c7407dae9072738d4a3709e464c51c52",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6104.json.gz",
+      "sha256": "076f2b6fc5a5b2cff47e2580831cb23ed3183cc6295d0de3b3e57937132c4904",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6105.json.gz",
+      "sha256": "0a3c7ff63d367974c60a35b9f16d2c4dd521276723e4031f47c21e9cb55add4f",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6106.json.gz",
+      "sha256": "3faf1c87566ff685fddee65d7b31e39bdabc33025b86cbd9c5a51bfb65a26015",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6107.json.gz",
+      "sha256": "1b39377daf98977a8b9c408e14d3a2e2e9db7a29923511046e859d6a5b398f24",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6108.json.gz",
+      "sha256": "d633c33bd393cb966218891fdfe5bec6b876c4d320baa8f89431c5bc004d2ca0",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6109.json.gz",
+      "sha256": "7e70f00f6c468679b34bab1fc84bd6884f96c396c0f3e3859eb1cecc47ccb1f9",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6110.json.gz",
+      "sha256": "dccc66c1646c61cba4a26462b92d65a258f50b1dfc3b230f4429e8d2885dfd2b",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6111.json.gz",
+      "sha256": "b729bfa49579371c7beb939239e6c2a22ddb0f78d3e97fa7a7669abba7b11379",
+      "passed": true
+    },
+    {
+      "path": "整段自由-6112.json.gz",
+      "sha256": "e9579d753d645481e9a94e4d58d943de7d6a3a68dd18c76eeae7858b7d59bdfc",
+      "passed": true
+    },
+    {
+      "path": "每轮先整顿-6121.json.gz",
+      "sha256": "f36ee871d4a5f089f1dbc6aac58038895bb0c00f7bbbf19699d24c90e90178b0",
+      "passed": true
+    },
+    {
+      "path": "每轮先整顿-6122.json.gz",
+      "sha256": "39cad058a515661650d32c23854a5113237ea973ba3f8f923c496f63a6f04bc6",
+      "passed": true
+    },
+    {
+      "path": "每轮先整顿-6123.json.gz",
+      "sha256": "750ce9db75e586bd9ec63bd859d56e311b0ea1828eb2dd0c3c0ac4dbb6e0ed82",
+      "passed": true
+    },
+    {
+      "path": "每轮先整顿-6124.json.gz",
+      "sha256": "f30aa6bf1f4ab5023fbfc0476795cf05941b58bad9209733b63a572e87c59a39",
+      "passed": true
+    },
+    {
+      "path": "每轮先整顿-6125.json.gz",
+      "sha256": "b13e0c19efda0a4476839277a9a279f0b46f6520cba824ba51faa2ab5d986475",
+      "passed": true
+    },
+    {
+      "path": "每轮先整顿-6126.json.gz",
+      "sha256": "08081b5c37b6c4213f1551b95086aef26108cf4e19de912d73f3947f57bfe0f9",
+      "passed": true
+    },
+    {
+      "path": "每轮先整顿-6127.json.gz",
+      "sha256": "13a7dee671d8de11c3b8f87be04979504fcb800381c1a587e95295153e74a1e3",
+      "passed": true
+    },
+    {
+      "path": "每轮先整顿-6128.json.gz",
+      "sha256": "413c346936e0281179a8b0c5ba8456944d0771ec8fbfa74c57c852f74f760881",
+      "passed": true
+    },
+    {
+      "path": "边界-半成品-False-6202.json.gz",
+      "sha256": "b25124aedb6d7746b4d1da66f3a5f8db7db392338f71becdc99640fd7271c1cf",
+      "passed": true
+    },
+    {
+      "path": "边界-半成品-True-6202.json.gz",
+      "sha256": "66167d1ad8d78f101d254b1d0b201c93afcd8a6013f1990f6c27b131fe272eb4",
+      "passed": true
+    },
+    {
+      "path": "边界-恢复封顶-6252.json.gz",
+      "sha256": "1f8df6f32ca9e24408371339b82301cf6348a8e605e18b9b563ad2039af642ea",
+      "passed": true
+    },
+    {
+      "path": "边界-空过-False.json.gz",
+      "sha256": "c737b574482a6816e96cbe97f689712f076b0cc5ace0130f10a8c7c09c21ad93",
+      "passed": true
+    },
+    {
+      "path": "边界-空过-True.json.gz",
+      "sha256": "8edf9606f9230eca7263be67001653a62a8ec5a162b8083c5b43c176fdf2d709",
+      "passed": true
+    },
+    {
+      "path": "边界-倒下-6304.json.gz",
+      "sha256": "d8d5a773ec5a003647d000b908548ee1d8ce47f9251c944161c701033e47cfec",
+      "passed": true
+    },
+    {
+      "path": "边界-带伤成功-6344.json.gz",
+      "sha256": "9099f8f7a3022d408c67e6ccf1a71745ab23968bb28072390cf5b7338e7a27aa",
+      "passed": true
+    }
+  ],
+  "covered_grades": [
+    "Fail",
+    "Neutral",
+    "Success"
+  ],
+  "boundary_search_starts": 6,
+  "interaction_visits": 10,
+  "human_games": 0,
+  "unity_visual_checked": false,
+  "collapse_search_completed_games": 4,
+  "scope": "native_games为保存并核验的完整轨迹数；覆盖搜索额外起局单列，不估计胜率",
+  "injured_success_search_completed_games": 4
+}

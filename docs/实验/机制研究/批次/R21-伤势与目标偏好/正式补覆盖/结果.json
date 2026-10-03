@@ -1,0 +1,162 @@
+{
+  "results": [
+    {
+      "path": "头伤后续-6610.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      },
+      "left_injury_free_model": true,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 1,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": []
+    }
+  ],
+  "search_attempts": [
+    {
+      "seed": 6601,
+      "completed": true,
+      "head_penalty_actions": 0,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      }
+    },
+    {
+      "seed": 6602,
+      "completed": true,
+      "head_penalty_actions": 0,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      }
+    },
+    {
+      "seed": 6603,
+      "completed": true,
+      "head_penalty_actions": 0,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      }
+    },
+    {
+      "seed": 6604,
+      "completed": true,
+      "head_penalty_actions": 0,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      }
+    },
+    {
+      "seed": 6605,
+      "completed": true,
+      "head_penalty_actions": 0,
+      "result": {
+        "status": "collapse",
+        "a": 2,
+        "b": 3,
+        "round": 3,
+        "cold": 0
+      }
+    },
+    {
+      "seed": 6606,
+      "completed": true,
+      "head_penalty_actions": 0,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      }
+    },
+    {
+      "seed": 6607,
+      "completed": true,
+      "head_penalty_actions": 0,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      }
+    },
+    {
+      "seed": 6608,
+      "completed": true,
+      "head_penalty_actions": 0,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      }
+    },
+    {
+      "seed": 6609,
+      "completed": true,
+      "head_penalty_actions": 0,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 0
+      }
+    },
+    {
+      "seed": 6610,
+      "completed": true,
+      "head_penalty_actions": 3,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      }
+    }
+  ],
+  "search_starts": 10,
+  "search_completed": 10,
+  "strict_replays": [
+    {
+      "path": "头伤后续-6610.json.gz",
+      "sha256": "0b9a726a889e5682fd242800ad5db27cd00645eeba9eabcea89b0757d89b0a87",
+      "passed": true
+    }
+  ],
+  "scope": "覆盖筛选，仅保存第一条头伤之后实际行动的完整轨迹，不是胜率或概率抽样"
+}

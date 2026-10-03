@@ -1,0 +1,8 @@
+{"target": [3, 4], "policy": "free", "exact_probability": "17287/17496", "probability": 0.9880544124371284, "states": 674, "initial_hands": 126}
+{"target": [3, 4], "policy": "forward", "exact_probability": "17287/17496", "probability": 0.9880544124371284, "states": 434, "initial_hands": 126}
+{"target": [3, 4], "policy": "toward", "exact_probability": "17287/17496", "probability": 0.9880544124371284, "states": 434, "initial_hands": 126}
+{"target": [3, 4], "policy": "highest", "exact_probability": "17287/17496", "probability": 0.9880544124371284, "states": 434, "initial_hands": 126}
+{"target": [3, 3], "policy": "free", "exact_probability": "134911/139968", "probability": 0.963870313214449, "states": 690, "initial_hands": 126}
+{"target": [3, 3], "policy": "forward", "exact_probability": "538255/559872", "probability": 0.9613893890032007, "states": 450, "initial_hands": 126}
+{"target": [3, 3], "policy": "toward", "exact_probability": "134911/139968", "probability": 0.963870313214449, "states": 434, "initial_hands": 126}
+{"target": [3, 3], "policy": "highest", "exact_probability": "9589/10368", "probability": 0.9248649691358025, "states": 434, "initial_hands": 126}

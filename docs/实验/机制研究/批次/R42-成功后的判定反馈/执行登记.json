@@ -1,0 +1,27 @@
+{
+  "batch": "R42",
+  "status": "已裁决",
+  "owner": "协调者；r42_feedback_review只写结构审查及审查开头文件",
+  "source_sha256": {
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "docs/实验/机制研究/批次/R42-成功后的判定反馈/有界研究计划.md": "cc9f40b0d96d38c559ef0e6248d93d5659fc007d85fcbd7168d94bc6e390b37f",
+    "docs/实验/机制研究/批次/R42-成功后的判定反馈/反馈模型.py": "ae3ebd2cdc2d237538291bbac0e7d12d99544107e7695648c7fa87d0cb638310"
+  },
+  "frozen": {
+    "goal": 4,
+    "rounds": 1,
+    "skill": 1,
+    "cold": 5,
+    "alert": "第一次好档后后续技能修正-1，不叠加"
+  },
+  "commands": [
+    "python3 反馈模型.py"
+  ],
+  "live_session_id": null,
+  "recovery": "先查真实句柄、结果与源码哈希；未完成不算证据",
+  "completed": [
+    "主模型与强固定序",
+    "独立两骰结构审查",
+    "全初始族与最优前缀核对"
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "model_games": 404,
+  "model_steps": 4928,
+  "strict_replays": [
+    {
+      "path": "作者回归/借力紧目标-s29.json.gz",
+      "sha256": "b3845da3167bb68ce86efd671c3081a963363b30c6a9f17bd3188ca9eafecbab",
+      "passed": true
+    },
+    {
+      "path": "作者逐步/稳险选择-s39.json.gz",
+      "sha256": "d2dee7887b296964c5aba282284cc2296b0ef551f6598f03c1830f47432a3807",
+      "passed": true
+    },
+    {
+      "path": "技能对照/轨迹/整备借力-当轮规划-s729-g2.json.gz",
+      "sha256": "94b63a45a76f8ea46521c2064f435ca1ef84c815d5b9dff84c6dcf1ccf34a448",
+      "passed": true
+    },
+    {
+      "path": "技能对照/轨迹/整备借力-状态求解-s729-g2.json.gz",
+      "sha256": "24f1416c7875680fff91df278366ea5a9daa365049c0f201d87a71f8c518a24b",
+      "passed": true
+    },
+    {
+      "path": "技能对照/轨迹/稳险选择-当轮规划-s729-g2.json.gz",
+      "sha256": "a1cf3bcd0fe6771ccdc96a7a7d83d4408870a04ae9d8c1a9f895ed21126ec1af",
+      "passed": true
+    },
+    {
+      "path": "技能对照/轨迹/稳险选择-状态求解-s729-g2.json.gz",
+      "sha256": "5758e5a9b483a06bdfcbd382981f53e9c082858d8d84d08b084742efd9fde191",
+      "passed": true
+    },
+    {
+      "path": "旧候选回归/轨迹/余热长目标-状态求解-s739-g1.json.gz",
+      "sha256": "6c0b2c79fa872d32433ee60445108858c05a7ff985008f78f585510648f63583",
+      "passed": true
+    },
+    {
+      "path": "旧候选回归/轨迹/分段兑现-状态求解-s739-g1.json.gz",
+      "sha256": "0d6c3860ac48016c60ffe06c87e97ff4ba7d2c4d7367e6e529caf1e85ea20441",
+      "passed": true
+    },
+    {
+      "path": "正式对照/轨迹/整备借力-固定配对-s701-g1.json.gz",
+      "sha256": "d5f107a6a36816b7c2557ceb8d0445c6b6f82ccc5ff2e7a05ca6e1cc10c2d0e8",
+      "passed": true
+    },
+    {
+      "path": "正式对照/轨迹/整备借力-固定配对-s705-g1.json.gz",
+      "sha256": "7d7a9d4448ac3a37159357f2e3a6c191bf90f3a84971f7d9fe737406d61814d0",
+      "passed": true
+    },
+    {
+      "path": "正式对照/轨迹/整备借力-当轮规划-s701-g1.json.gz",
+      "sha256": "bfe0afc1cc7fb4e3e47e885373a55347f671944b612099e9a68db76f9ba7354c",
+      "passed": true
+    },
+    {
+      "path": "正式对照/轨迹/整备借力-当轮规划-s715-g1.json.gz",
+      "sha256": "8cfb13e023b6457196a169b1713bda5fa16eacf2448081d4165978fd702d2bda",
+      "passed": true
+    },
+    {
+      "path": "正式对照/轨迹/整备借力-状态求解-s701-g1.json.gz",
+      "sha256": "5816361aaa38ca047c8a36dd709ed7481342a6cf189aa7feb0c7f838250749a7",
+      "passed": true
+    },
+    {
+      "path": "正式对照/轨迹/整备借力-状态求解-s713-g1.json.gz",
+      "sha256": "ad58faed01a0aa1e9d9ae96d4c4fa79cb4fa011e3476860c05711e824ffef351",
+      "passed": true
+    },
+    {
+      "path": "正式对照/轨迹/稳险选择-一直冒进-s701-g1.json.gz",
+      "sha256": "c927890ea4ecc0f22ac0fd836a3b60dd381de390c511040b5eb61b5a99a9a1d4",
+      "passed": true
+    },
+    {
+      "path": "正式对照/轨迹/稳险选择-一直冒进-s702-g1.json.gz",
+      "sha256": "a513440ff35c6b1946a382ed1da0b9a353044c92392c3ee11ea527c5a307d72c",
+      "passed": true
+    },
+    {
+      "path": "正式对照/轨迹/稳险选择-当轮规划-s701-g1.json.gz",
+      "sha256": "45a31f5308b1d4896bf64fb5a87664c0f0ed35ba4705ebe880a6b6b3c85e3c9e",
+      "passed": true
+    },
+    {
+      "path": "正式对照/轨迹/稳险选择-状态求解-s701-g1.json.gz",
+      "sha256": "fe8d865a077c10bbe249f77da4749b8776173519363e0693a1c7ef5dea2ece43",
+      "passed": true
+    },
+    {
+      "path": "留出对照/轨迹/稳险选择-当轮规划-s809-g1.json.gz",
+      "sha256": "4afea15ed764da8a9aec814f4af42599e2a9b9c19a853a8f15c356a2219d048f",
+      "passed": true
+    },
+    {
+      "path": "留出对照/轨迹/稳险选择-状态求解-s805-g1.json.gz",
+      "sha256": "d5e326ccc658a0da5fb4980edb824b429bc1fe09986a3af983df61ca309ae33d",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力无准备-当轮规划-s719-g1.json.gz",
+      "sha256": "3b744348d1cb8a3556bf22c03065d3b42b3515a84de983aa28374958c58b4676",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力无准备-当轮规划-s725-g1.json.gz",
+      "sha256": "b4cb39d22b18f2a1ab5074b1c683a22a8e88b629d91eeadafba3f90744950d86",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力无准备-状态求解-s719-g1.json.gz",
+      "sha256": "d11e72744c8a1c76ff681405d0a88e0cc674c76f47bf0727f453c3f8e1bde294",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力无准备-状态求解-s720-g1.json.gz",
+      "sha256": "bcb8b98061ff3422c34ae00cdd715aeec056923b2e9dbc156c865dade3d76ad2",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力短目标-当轮规划-s719-g1.json.gz",
+      "sha256": "533ad8247283c8166733f000fe5008e28eac5baa836f8ad318baed126c50caf1",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力短目标-状态求解-s719-g1.json.gz",
+      "sha256": "5bd45461b587cd6eed6d54e8a8107a59c7ade2a963944c04dfa9f058bbcf65ee",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力紧目标-当轮规划-s719-g1.json.gz",
+      "sha256": "31d6165efa63910054765bca9c1fc5d7968931f507a65d4ba790503a407c8f25",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力紧目标-状态求解-s719-g1.json.gz",
+      "sha256": "1f3db542f89d6de06c756caf1f43e7ce3f63d44c76ba6680d41800f75f15b43f",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力长目标-当轮规划-s719-g1.json.gz",
+      "sha256": "03b5eb4b5ca0878bb5cce54608179b71a178a6ffba01cd990423f5d7ec09d46b",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力长目标-当轮规划-s721-g1.json.gz",
+      "sha256": "c1b5b86e2d07db65caa7e2591e6501b98e85aaf0fca385159219862b1e05db58",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力长目标-状态求解-s719-g1.json.gz",
+      "sha256": "c6f3748a06964a303e79cceac961ee8d8f108450cab53d32299c18ae1ae193e1",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/借力长目标-状态求解-s720-g1.json.gz",
+      "sha256": "8666f078ad746c567d11c3c09064c6156082a365c9c23ac56ac46372103b18d2",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/稳险短目标-当轮规划-s719-g1.json.gz",
+      "sha256": "b21cb9f16da20430b50ad9b6fb961258653c5b3bb4fbd1272a92ff5718d1e426",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/稳险短目标-状态求解-s719-g1.json.gz",
+      "sha256": "01596c58321720bb9dae75675d46c7993488d7595e7c36d13c5673fe51f24b2d",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/稳险长目标-当轮规划-s719-g1.json.gz",
+      "sha256": "c83cfafb57600cfdd07f9fa9bb291f81023cdedfed7627180d44ee4b4cd5b7a4",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/稳险长目标-状态求解-s719-g1.json.gz",
+      "sha256": "5780ce25cb37a74bb1975eb05168c70d1feada650753282205e890eab9e60e10",
+      "passed": true
+    },
+    {
+      "path": "邻域对照/轨迹/稳险长目标-状态求解-s725-g1.json.gz",
+      "sha256": "53fa7ec827c1b2f2ca7e11d2e34d10a356246386c20d947dc8ae85a92ceaebf9",
+      "passed": true
+    }
+  ],
+  "unity_visual_checked": false
+}

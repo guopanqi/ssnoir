@@ -1,0 +1,129 @@
+{
+  "batch": "R41",
+  "passed": true,
+  "shared_root_components": 1512,
+  "shared_root_max_error": 0.0,
+  "low_first_completion_hands": 126,
+  "low_first_primary_max_error": 2.220446049250313e-16,
+  "independent_probability_components": 36,
+  "independent_uncached_two_die_trees": 336,
+  "independent_tail_max_error": 1.1102230246251565e-16,
+  "independent_endings": [
+    {
+      "state": {
+        "left": 1,
+        "factory": 1,
+        "cold": 0,
+        "injury": 6,
+        "head": 0,
+        "t": 2
+      },
+      "fraction": "0",
+      "actual": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "state": {
+        "left": 1,
+        "factory": 1,
+        "cold": 1,
+        "injury": 6,
+        "head": 0,
+        "t": 2
+      },
+      "fraction": "1",
+      "actual": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        6.0,
+        0.0
+      ]
+    },
+    {
+      "state": {
+        "left": 1,
+        "factory": 1,
+        "cold": 0,
+        "injury": 2,
+        "head": 0,
+        "t": 1
+      },
+      "fraction": "0",
+      "actual": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "state": {
+        "left": 3,
+        "factory": 1,
+        "cold": 0,
+        "injury": 2,
+        "head": 0,
+        "t": 2
+      },
+      "fraction": "1672777/1679616",
+      "actual": [
+        0.0,
+        0.0,
+        0.9959282359777483,
+        1.000000000000001,
+        3.163349837105621,
+        0.0
+      ]
+    },
+    {
+      "state": {
+        "left": 3,
+        "factory": 0,
+        "cold": 0,
+        "injury": 2,
+        "head": 0,
+        "t": 2
+      },
+      "fraction": "1647091/1679616",
+      "actual": [
+        0.0,
+        0.0,
+        0.9806354547706146,
+        1.000000000000001,
+        3.372833433356193,
+        0.0
+      ]
+    },
+    {
+      "state": {
+        "left": 2,
+        "factory": 1,
+        "cold": 0,
+        "injury": 3,
+        "head": 1,
+        "t": 2
+      },
+      "fraction": "15497/15552",
+      "actual": [
+        0.0,
+        0.0,
+        0.9964634773662547,
+        0.9999999999999996,
+        4.138953189300411,
+        0.0
+      ]
+    }
+  ],
+  "independent_end_max_error": 9.992007221626409e-16,
+  "scope": "全局族是共享模型；独立字面概率/伤势转移、无缓存两骰末回合树与6结束条件；非独立三回合全优化；正式0真人0"
+}

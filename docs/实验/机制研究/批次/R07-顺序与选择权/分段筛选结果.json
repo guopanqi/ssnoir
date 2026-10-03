@@ -1,0 +1,284 @@
+{
+  "evidence_level": "model_only_injury_free_objective",
+  "results": [
+    {
+      "targets": [
+        3,
+        2
+      ],
+      "reset": true,
+      "policy": "求解",
+      "injury_free_completion": 0.9929193718049749,
+      "composure_on_success": 3.7020410026461517,
+      "states": 7792,
+      "seconds": 0.06490470888093114
+    },
+    {
+      "targets": [
+        3,
+        2
+      ],
+      "reset": true,
+      "policy": "先小目标",
+      "injury_free_completion": 0.990240717502982,
+      "composure_on_success": 3.780166185512943,
+      "states": 4313,
+      "seconds": 0.028192292200401425
+    },
+    {
+      "targets": [
+        3,
+        2
+      ],
+      "reset": true,
+      "policy": "先大目标",
+      "injury_free_completion": 0.9909824749564833,
+      "composure_on_success": 3.6714377430034273,
+      "states": 4572,
+      "seconds": 0.028145124902948737
+    },
+    {
+      "targets": [
+        3,
+        2
+      ],
+      "reset": true,
+      "policy": "先近终点",
+      "injury_free_completion": 0.990240717502982,
+      "composure_on_success": 3.780166185512943,
+      "states": 4313,
+      "seconds": 0.026968416990712285
+    },
+    {
+      "targets": [
+        3,
+        2
+      ],
+      "reset": false,
+      "policy": "求解",
+      "injury_free_completion": 0.9950543731337362,
+      "composure_on_success": 3.701142600674263,
+      "states": 13392,
+      "seconds": 0.13291162508539855
+    },
+    {
+      "targets": [
+        3,
+        2
+      ],
+      "reset": false,
+      "policy": "先小目标",
+      "injury_free_completion": 0.9948197143112455,
+      "composure_on_success": 3.7069447430500047,
+      "states": 6483,
+      "seconds": 0.04183220793493092
+    },
+    {
+      "targets": [
+        3,
+        2
+      ],
+      "reset": false,
+      "policy": "先大目标",
+      "injury_free_completion": 0.9948320042322826,
+      "composure_on_success": 3.695753917384441,
+      "states": 6462,
+      "seconds": 0.04197929217480123
+    },
+    {
+      "targets": [
+        3,
+        2
+      ],
+      "reset": false,
+      "policy": "先近终点",
+      "injury_free_completion": 0.9948197143112455,
+      "composure_on_success": 3.7069447430500047,
+      "states": 6483,
+      "seconds": 0.04223141702823341
+    }
+  ],
+  "witnesses": [
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "initial_hand_probability": 0.0007716049382716049,
+      "best_route": 1,
+      "gap": 0.018678572187752374,
+      "alternatives": {
+        "0": {
+          "value": [
+            0.8873264974895498,
+            1.5068636720139204
+          ],
+          "choice": [
+            0,
+            "稳健",
+            1
+          ]
+        },
+        "1": {
+          "value": [
+            0.9060050696773022,
+            1.658909139549357
+          ],
+          "choice": [
+            1,
+            "风险",
+            1
+          ]
+        }
+      }
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "initial_hand_probability": 0.0030864197530864196,
+      "best_route": 1,
+      "gap": 0.015154874906151417,
+      "alternatives": {
+        "0": {
+          "value": [
+            0.9155784163805347,
+            1.862286818005491
+          ],
+          "choice": [
+            0,
+            "稳健",
+            1
+          ]
+        },
+        "1": {
+          "value": [
+            0.9307332912866861,
+            2.0588490911017754
+          ],
+          "choice": [
+            1,
+            "风险",
+            2
+          ]
+        }
+      }
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "initial_hand_probability": 0.0030864197530864196,
+      "best_route": 1,
+      "gap": 0.011540111100938222,
+      "alternatives": {
+        "0": {
+          "value": [
+            0.9300574800327676,
+            2.1960718143203453
+          ],
+          "choice": [
+            0,
+            "稳健",
+            1
+          ]
+        },
+        "1": {
+          "value": [
+            0.9415975911337058,
+            2.4039260974598426
+          ],
+          "choice": [
+            1,
+            "风险",
+            3
+          ]
+        }
+      }
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "initial_hand_probability": 0.004629629629629629,
+      "best_route": 1,
+      "gap": 0.012568846019889723,
+      "alternatives": {
+        "0": {
+          "value": [
+            0.9356942291909526,
+            2.0169843991236793
+          ],
+          "choice": [
+            0,
+            "稳健",
+            1
+          ]
+        },
+        "1": {
+          "value": [
+            0.9482630752108423,
+            2.2530755045597717
+          ],
+          "choice": [
+            1,
+            "风险",
+            2
+          ]
+        }
+      }
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "initial_hand_probability": 0.009259259259259259,
+      "best_route": 1,
+      "gap": 0.010284672762063352,
+      "alternatives": {
+        "0": {
+          "value": [
+            0.9449867559013494,
+            2.304893199023092
+          ],
+          "choice": [
+            0,
+            "稳健",
+            1
+          ]
+        },
+        "1": {
+          "value": [
+            0.9552714286634127,
+            2.547368176548819
+          ],
+          "choice": [
+            1,
+            "风险",
+            3
+          ]
+        }
+      }
+    }
+  ],
+  "assumptions": [
+    "四骰独立均匀d6；技能1；冷静5；两轮；无恢复品",
+    "首伤事件视为未实现无伤完成，不等于游戏失败；不模拟伤后的判定与骰数变化",
+    "目标3与2；未完成目标回合末清零；完成保留",
+    "先比较无伤完成率，平手保留成功路径上的冷静"
+  ]
+}

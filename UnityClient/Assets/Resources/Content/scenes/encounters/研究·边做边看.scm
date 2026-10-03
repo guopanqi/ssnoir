@@ -1,0 +1,6 @@
+(define 研究名称 "边做边看")
+(define 短路长度 3)
+(define 长路长度 6)
+(define 揭示进度 1)
+(define 开局明示 #f)
+(load-file "scripts/research/行动信息.scm")

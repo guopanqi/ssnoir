@@ -571,14 +571,15 @@
   (list (trust-clk 'render-data) (crowd-clk 'render-data)))
 
 (define (get-render-data)
+  ;; Stage「修理棚」：根名必须命中 PortalIn_修理棚 / Anchor_修理棚 才能穿门；
+  ;; :anchor 只切分区机位（幕一堆场路口 / 幕二工作台）。同 勒索信 Act2「巷子」+ 租屋契约。
   (if (= act 1)
-      ;; 这一节还没有自己的场景，先借码头的三号货栈工棚：堆场路口＝工棚门口的院子，修理棚＝工棚里的工作台
-      (node "堆场路口"
-        :anchor "三号货栈工棚"
+      (node "修理棚"
+        :anchor "堆场路口"
         :children (append (apply clock-nodes (act1-clocks))
           (act1-nodes)))
       (node "修理棚"
-        :anchor "三号货栈工棚-工作台"
+        :anchor "修理棚-工作台"
         :children (append (apply clock-nodes (act2-clocks))
           (act2-nodes)))))
 

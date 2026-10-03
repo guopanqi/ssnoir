@@ -1,0 +1,2355 @@
+[
+  {
+    "variant": "整备借力",
+    "family": "整备借力",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 32,
+      "回合上限": 3,
+      "准备加成": 3
+    },
+    "success": 0.9547218314997775,
+    "success_rounds": 2.9977711005609136,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.8202446959007722,
+        "success_rounds": 2.9836547743304056
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.0,
+        "success_rounds": null
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.9098090503624381,
+        "success_rounds": 2.9943006264352774
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.8202446959007722,
+        "success_rounds": 2.9836547743304056
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9308388208002483,
+        "success_rounds": 2.9928212871631894
+      }
+    ],
+    "occupancy": {
+      "benchmark": "当轮规划",
+      "expected_decisions": 11.730928263997427,
+      "expected_different_choices": 6.566714681367278,
+      "episode_has_probability_regret": {
+        "0.001": 0.5578697849378028,
+        "0.01": 0.3192352624337999,
+        "0.05": 0.0659951812249817
+      },
+      "expected_actions": {
+        "铺垫": 4.0220921729581836,
+        "推进": 7.681282346498243,
+        "end-turn": 0.02755374454093223
+      },
+      "visited_states": 8152,
+      "reachable_reversals": [
+        {
+          "remaining": 26,
+          "mechanism_state": 0,
+          "turns_left": 3,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                3
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.9519728437329202,
+              "visit_mass": 0.05941358024691358,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.9519728437329202,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.871534986823952,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                4,
+                4
+              ],
+              "action": "推进",
+              "die": 4,
+              "success": 0.9808970347932094,
+              "visit_mass": 0.005401234567901234,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.9519728437329202,
+                  "die": 4
+                },
+                "推进": {
+                  "success": 0.9808970347932094,
+                  "die": 4
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 14,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                3
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.9891903863740296,
+              "visit_mass": 0.052933823512981676,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.9891903863740296,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.899811722838237,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                6,
+                6
+              ],
+              "action": "推进",
+              "die": 6,
+              "success": 1.000000000000001,
+              "visit_mass": 0.004994939466469467,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.9891903863740296,
+                  "die": 6
+                },
+                "推进": {
+                  "success": 1.000000000000001,
+                  "die": 6
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 32,
+          "mechanism_state": 0,
+          "turns_left": 3,
+          "hand_size": 4,
+          "choices": [
+            {
+              "hand": [
+                1,
+                1,
+                2,
+                3
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.8658574959028248,
+              "visit_mass": 0.009259259259259259,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.8658574959028248,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.788552961816535,
+                  "die": 2
+                }
+              }
+            },
+            {
+              "hand": [
+                4,
+                4,
+                5,
+                5
+              ],
+              "action": "推进",
+              "die": 5,
+              "success": 0.9908087459984329,
+              "visit_mass": 0.004629629629629629,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.9774314865420903,
+                  "die": 4
+                },
+                "推进": {
+                  "success": 0.990808745998433,
+                  "die": 4
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 17,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                3
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.7048468221307732,
+              "visit_mass": 0.009352703604445272,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.7048468221307732,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.5937554410584858,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                3,
+                3
+              ],
+              "action": "推进",
+              "die": 3,
+              "success": 0.7224341754305752,
+              "visit_mass": 0.0020382501854333307,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.7048468221307732,
+                  "die": 3
+                },
+                "推进": {
+                  "success": 0.7224341754305752,
+                  "die": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 16,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                3
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.8776494151044054,
+              "visit_mass": 0.019930769504369956,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.8776494151044054,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.7135715842192507,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                3,
+                4
+              ],
+              "action": "推进",
+              "die": 4,
+              "success": 0.8910607146712908,
+              "visit_mass": 0.0018421063462523224,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.8776494151044054,
+                  "die": 3
+                },
+                "推进": {
+                  "success": 0.8910607146712908,
+                  "die": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 19,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                3
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.35839441872427985,
+              "visit_mass": 0.0016832257132024058,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.35839441872427985,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.3016435998863234,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                2,
+                3
+              ],
+              "action": "推进",
+              "die": 3,
+              "success": 0.4022925974349694,
+              "visit_mass": 0.0016174782116570793,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.35839441872427985,
+                  "die": 2
+                },
+                "推进": {
+                  "success": 0.4022925974349695,
+                  "die": 2
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "variant": "借力短目标",
+    "family": "整备借力",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 28,
+      "回合上限": 3,
+      "准备加成": 3
+    },
+    "success": 0.9991275263325966,
+    "success_rounds": 2.9235257656226237,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.9536687531290727,
+        "success_rounds": 2.797603249262732
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.9970372102966404,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.9953046569810534,
+        "success_rounds": 2.9177249142515778
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.9536687531290727,
+        "success_rounds": 2.797603249262732
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9953383133827141,
+        "success_rounds": 2.897663362219585
+      }
+    ]
+  },
+  {
+    "variant": "借力长目标",
+    "family": "整备借力",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 36,
+      "回合上限": 3,
+      "准备加成": 3
+    },
+    "success": 0.691120945081888,
+    "success_rounds": 3.0,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.5457516598934505,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.0,
+        "success_rounds": null
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.5531727898764497,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.5457516598934505,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.6257513375078272,
+        "success_rounds": 3.0
+      }
+    ]
+  },
+  {
+    "variant": "借力无准备",
+    "family": "整备借力",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 32,
+      "回合上限": 3,
+      "准备加成": 0
+    },
+    "success": 0.8275802502383356,
+    "success_rounds": 2.983799656099908,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.8202446959007722,
+        "success_rounds": 2.9836547743304056
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.0,
+        "success_rounds": null
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.6322609168516067,
+        "success_rounds": 2.9917987313269307
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.8202446959007722,
+        "success_rounds": 2.9836547743304056
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.8275706822796325,
+        "success_rounds": 2.9837994687996274
+      }
+    ]
+  },
+  {
+    "variant": "稳险选择",
+    "family": "稳险选择",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 28,
+      "回合上限": 3
+    },
+    "success": 0.9869596096819602,
+    "success_rounds": 2.7477971193273323,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.8202446959007722,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.9297234736610995,
+        "success_rounds": 2.5811076813788523
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.9732981332625138,
+        "success_rounds": 2.5611830242573834
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9759665300600111,
+        "success_rounds": 2.554396380440527
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9802020329672141,
+        "success_rounds": 2.5451032480190046
+      }
+    ],
+    "occupancy": {
+      "benchmark": "按骰面收益",
+      "expected_decisions": 9.62523593324204,
+      "expected_different_choices": 5.188551097236968,
+      "episode_has_probability_regret": {
+        "0.001": 0.5485026520598372,
+        "0.01": 0.1560214186545274,
+        "0.05": 0.06856390238952527
+      },
+      "expected_actions": {
+        "稳进": 6.824001315903545,
+        "冒进": 2.7957004733228747,
+        "end-turn": 0.005534144015800249
+      },
+      "visited_states": 8916,
+      "reachable_reversals": [
+        {
+          "remaining": 11,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "稳进",
+              "die": 1,
+              "success": 0.940266803047046,
+              "visit_mass": 0.011530977514922413,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.940266803047046,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.9003936018709044,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                5
+              ],
+              "action": "冒进",
+              "die": 5,
+              "success": 0.9829535441434243,
+              "visit_mass": 0.006165106556122808,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.9714082464880868,
+                  "die": 5
+                },
+                "冒进": {
+                  "success": 0.9829535441434243,
+                  "die": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 13,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "稳进",
+              "die": 1,
+              "success": 0.8318267389689074,
+              "visit_mass": 0.004812177345561901,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.8318267389689074,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.7828665401298075,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                4
+              ],
+              "action": "冒进",
+              "die": 4,
+              "success": 0.9101405718132403,
+              "visit_mass": 0.0013717780217537864,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.885176135497638,
+                  "die": 4
+                },
+                "冒进": {
+                  "success": 0.9101405718132403,
+                  "die": 4
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 17,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                2
+              ],
+              "action": "稳进",
+              "die": 2,
+              "success": 0.6726024976343798,
+              "visit_mass": 0.0006112981176104344,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.6726024976343798,
+                  "die": 2
+                },
+                "冒进": {
+                  "success": 0.6428936733158057,
+                  "die": 2
+                }
+              }
+            },
+            {
+              "hand": [
+                3,
+                3
+              ],
+              "action": "冒进",
+              "die": 3,
+              "success": 0.768492967043261,
+              "visit_mass": 0.0004432880564826078,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.7427614903247728,
+                  "die": 3
+                },
+                "冒进": {
+                  "success": 0.768492967043261,
+                  "die": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 16,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "稳进",
+              "die": 1,
+              "success": 0.5384748656835848,
+              "visit_mass": 0.00038823503512051025,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.5384748656835848,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.5058129358139004,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                3
+              ],
+              "action": "冒进",
+              "die": 3,
+              "success": 0.6408726756591986,
+              "visit_mass": 0.0008723359346957247,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.6032057327389118,
+                  "die": 3
+                },
+                "冒进": {
+                  "success": 0.6408726756591986,
+                  "die": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 26,
+          "mechanism_state": 0,
+          "turns_left": 3,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                2
+              ],
+              "action": "稳进",
+              "die": 2,
+              "success": 0.8795112649346326,
+              "visit_mass": 0.003172153635116598,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.8795112649346327,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.8645881027935018,
+                  "die": 2
+                }
+              }
+            },
+            {
+              "hand": [
+                4,
+                4
+              ],
+              "action": "冒进",
+              "die": 4,
+              "success": 0.9505355598168134,
+              "visit_mass": 0.00038580246913580245,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.9401828802310903,
+                  "die": 4
+                },
+                "冒进": {
+                  "success": 0.9505355598168134,
+                  "die": 4
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 12,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "稳进",
+              "die": 1,
+              "success": 0.8924947726146933,
+              "visit_mass": 0.0071760630362167985,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.8924947726146933,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.8458504801097397,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                5
+              ],
+              "action": "冒进",
+              "die": 5,
+              "success": 0.9661398795915266,
+              "visit_mass": 0.00036235396192764,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.9434593978623689,
+                  "die": 5
+                },
+                "冒进": {
+                  "success": 0.9661398795915266,
+                  "die": 5
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "variant": "稳险短目标",
+    "family": "稳险选择",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 24,
+      "回合上限": 3
+    },
+    "success": 0.9988243414817477,
+    "success_rounds": 2.414561489125947,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.9923675514740932,
+        "success_rounds": 2.986489799430795
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.9785911482431583,
+        "success_rounds": 2.3604939156656624
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.9951190648484965,
+        "success_rounds": 2.2772913036435565
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9958136708262681,
+        "success_rounds": 2.2662153089714265
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9970376358078379,
+        "success_rounds": 2.250845054338635
+      }
+    ]
+  },
+  {
+    "variant": "稳险长目标",
+    "family": "稳险选择",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 32,
+      "回合上限": 3
+    },
+    "success": 0.9349251104822112,
+    "success_rounds": 2.93203473561885,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.22761387359541982,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.8228395925606248,
+        "success_rounds": 2.765422740157262
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.9026395889544443,
+        "success_rounds": 2.815710305605365
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9092142787970401,
+        "success_rounds": 2.8175135159074163
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9180999766087321,
+        "success_rounds": 2.8141347255314213
+      }
+    ]
+  },
+  {
+    "variant": "分段兑现",
+    "family": "分段兑现",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 18,
+      "回合上限": 3,
+      "递增兑现": 1,
+      "储备衰减": 2
+    },
+    "success": 0.9976773647991034,
+    "success_rounds": 2.149260403755889,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "满5",
+        "success": 0.976559117710066,
+        "success_rounds": 2.1332181704919546
+      }
+    ],
+    "occupancy": {
+      "benchmark": "满5",
+      "expected_decisions": 8.604100072883819,
+      "expected_different_choices": 3.1680105045209777,
+      "episode_has_probability_regret": {
+        "0.001": 0.533685180335929,
+        "0.01": 0.17219457672803345,
+        "0.05": 0.037049923265144266
+      },
+      "expected_actions": {
+        "稳进": 1.3312502301667775,
+        "备料": 5.436613671234174,
+        "兑现": 1.8337199977814116,
+        "end-turn": 0.0025161737016695163
+      },
+      "visited_states": 11900,
+      "reachable_reversals": [
+        {
+          "remaining": 18,
+          "mechanism_state": 0,
+          "turns_left": 3,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                2
+              ],
+              "action": "稳进",
+              "die": 2,
+              "success": 0.9654837508036662,
+              "visit_mass": 0.003600823045267489,
+              "alternatives": {
+                "备料": {
+                  "success": 0.9549326951630008,
+                  "die": 2
+                },
+                "稳进": {
+                  "success": 0.9654837508036662,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                1,
+                6
+              ],
+              "action": "备料",
+              "die": 6,
+              "success": 0.9757444679368398,
+              "visit_mass": 0.004715363511659808,
+              "alternatives": {
+                "备料": {
+                  "success": 0.9757444679368398,
+                  "die": 6
+                },
+                "稳进": {
+                  "success": 0.9654837508036662,
+                  "die": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 15,
+          "mechanism_state": 3,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "兑现",
+              "die": 1,
+              "success": 0.8792045324645638,
+              "visit_mass": 0.0007016993498793256,
+              "alternatives": {
+                "备料": {
+                  "success": 0.8497680422191743,
+                  "die": 1
+                },
+                "稳进": {
+                  "success": 0.8659407864654785,
+                  "die": 1
+                },
+                "兑现": {
+                  "success": 0.8792045324645638,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                4
+              ],
+              "action": "备料",
+              "die": 4,
+              "success": 0.9623759240207294,
+              "visit_mass": 0.0004260830749001038,
+              "alternatives": {
+                "备料": {
+                  "success": 0.9623759240207294,
+                  "die": 4
+                },
+                "稳进": {
+                  "success": 0.8659407864654785,
+                  "die": 4
+                },
+                "兑现": {
+                  "success": 0.8792045324645638,
+                  "die": 4
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 14,
+          "mechanism_state": 3,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "兑现",
+              "die": 1,
+              "success": 0.8792045324645638,
+              "visit_mass": 0.00033258722658065514,
+              "alternatives": {
+                "备料": {
+                  "success": 0.8497680422191743,
+                  "die": 1
+                },
+                "稳进": {
+                  "success": 0.8659407864654785,
+                  "die": 1
+                },
+                "兑现": {
+                  "success": 0.8792045324645638,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                2
+              ],
+              "action": "备料",
+              "die": 2,
+              "success": 0.901878762764823,
+              "visit_mass": 8.196731342825447e-05,
+              "alternatives": {
+                "备料": {
+                  "success": 0.901878762764823,
+                  "die": 2
+                },
+                "稳进": {
+                  "success": 0.8659407864654785,
+                  "die": 2
+                },
+                "兑现": {
+                  "success": 0.8792045324645638,
+                  "die": 2
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 16,
+          "mechanism_state": 4,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "兑现",
+              "die": 1,
+              "success": 0.9646490626428906,
+              "visit_mass": 0.0022613747756296872,
+              "alternatives": {
+                "备料": {
+                  "success": 0.6519633058984917,
+                  "die": 1
+                },
+                "稳进": {
+                  "success": 0.9288301611796989,
+                  "die": 1
+                },
+                "兑现": {
+                  "success": 0.9646490626428906,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                4
+              ],
+              "action": "备料",
+              "die": 4,
+              "success": 0.9779449588477376,
+              "visit_mass": 5.8508376282597674e-05,
+              "alternatives": {
+                "备料": {
+                  "success": 0.9779449588477376,
+                  "die": 4
+                },
+                "稳进": {
+                  "success": 0.9288301611796989,
+                  "die": 4
+                },
+                "兑现": {
+                  "success": 0.9646490626428906,
+                  "die": 4
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 11,
+          "mechanism_state": 3,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "兑现",
+              "die": 1,
+              "success": 0.9746870713305908,
+              "visit_mass": 0.0036640607261279536,
+              "alternatives": {
+                "备料": {
+                  "success": 0.8994990521643049,
+                  "die": 1
+                },
+                "稳进": {
+                  "success": 0.9437014174668501,
+                  "die": 1
+                },
+                "兑现": {
+                  "success": 0.9746870713305908,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                4
+              ],
+              "action": "备料",
+              "die": 4,
+              "success": 0.9866540923639701,
+              "visit_mass": 4.3763677435500824e-05,
+              "alternatives": {
+                "备料": {
+                  "success": 0.9866540923639701,
+                  "die": 4
+                },
+                "稳进": {
+                  "success": 0.9437014174668501,
+                  "die": 4
+                },
+                "兑现": {
+                  "success": 0.9746870713305908,
+                  "die": 4
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 12,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                2
+              ],
+              "action": "稳进",
+              "die": 2,
+              "success": 0.8792045324645638,
+              "visit_mass": 0.000386773321066371,
+              "alternatives": {
+                "备料": {
+                  "success": 0.7837851032616981,
+                  "die": 2
+                },
+                "稳进": {
+                  "success": 0.8792045324645638,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                3,
+                6
+              ],
+              "action": "备料",
+              "die": 3,
+              "success": 0.8963923896890724,
+              "visit_mass": 4.2450730360943153e-05,
+              "alternatives": {
+                "备料": {
+                  "success": 0.8963923896890724,
+                  "die": 3
+                },
+                "稳进": {
+                  "success": 0.8792045324645638,
+                  "die": 3
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "variant": "余热长目标",
+    "family": "余热转用",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 16,
+      "回合上限": 3,
+      "热转倍率": 1
+    },
+    "success": 0.9996434604257716,
+    "success_rounds": 2.10930158062658,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "余热前瞻",
+        "success": 0.9984145977899356,
+        "success_rounds": 2.122269820739861
+      }
+    ],
+    "occupancy": {
+      "benchmark": "余热前瞻",
+      "expected_decisions": 6.832351610256017,
+      "expected_different_choices": 1.9394777312836722,
+      "episode_has_probability_regret": {
+        "0.001": 0.06445814365895375,
+        "0.01": 0.007389177928317264,
+        "0.05": 0.00226632813728815
+      },
+      "expected_actions": {
+        "强推": 4.665782164931713,
+        "借热": 2.1665019340490876,
+        "end-turn": 6.751127539339621e-05
+      },
+      "visited_states": 8061,
+      "reachable_reversals": [
+        {
+          "remaining": 3,
+          "mechanism_state": 2,
+          "turns_left": 1,
+          "hand_size": 3,
+          "choices": [
+            {
+              "hand": [
+                1,
+                2,
+                2
+              ],
+              "action": "借热",
+              "die": 2,
+              "success": 0.9212962962962963,
+              "visit_mass": 3.6950131895543976e-05,
+              "alternatives": {
+                "强推": {
+                  "success": 0.9074074074074074,
+                  "die": 2
+                },
+                "借热": {
+                  "success": 0.9212962962962963,
+                  "die": 2
+                }
+              }
+            },
+            {
+              "hand": [
+                1,
+                2,
+                4
+              ],
+              "action": "强推",
+              "die": 2,
+              "success": 1.0,
+              "visit_mass": 6.039157465292907e-05,
+              "alternatives": {
+                "强推": {
+                  "success": 1.0,
+                  "die": 2
+                },
+                "借热": {
+                  "success": 0.9814814814814814,
+                  "die": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "variant": "整备借力",
+    "family": "整备借力",
+    "growth": 2,
+    "parameters": {
+      "目标上限": 32,
+      "回合上限": 3,
+      "准备加成": 3
+    },
+    "success": 0.9975799388053257,
+    "success_rounds": 2.970818517111719,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.9798453658450956,
+        "success_rounds": 2.9244543895912933
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.0,
+        "success_rounds": null
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.9922505738517795,
+        "success_rounds": 2.981259330686468
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.9798453658450956,
+        "success_rounds": 2.9244543895912933
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9925748599594318,
+        "success_rounds": 2.9411728531701895
+      }
+    ],
+    "occupancy": {
+      "benchmark": "当轮规划",
+      "expected_decisions": 11.58207578069724,
+      "expected_different_choices": 7.376357245876714,
+      "episode_has_probability_regret": {
+        "0.001": 0.4209843793268026,
+        "0.01": 0.07234596042538802,
+        "0.05": 0.006050728618059879
+      },
+      "expected_actions": {
+        "铺垫": 4.082935242793783,
+        "推进": 7.482650041732325,
+        "end-turn": 0.01649049617092611
+      },
+      "visited_states": 7172,
+      "reachable_reversals": [
+        {
+          "remaining": 16,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                2
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.9676360549077893,
+              "visit_mass": 0.008650526829706871,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.9676360549077893,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.8916154214878752,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                5,
+                5
+              ],
+              "action": "推进",
+              "die": 5,
+              "success": 0.9999785665294936,
+              "visit_mass": 0.0018609811982597787,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.9676360549077893,
+                  "die": 5
+                },
+                "推进": {
+                  "success": 0.9999785665294936,
+                  "die": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 17,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                2
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.8926331971117213,
+              "visit_mass": 0.0023029789966101596,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.8926331971117213,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.8056301592480404,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                2,
+                3
+              ],
+              "action": "推进",
+              "die": 3,
+              "success": 0.907653991547275,
+              "visit_mass": 0.0007358861625749612,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.8926331971117213,
+                  "die": 2
+                },
+                "推进": {
+                  "success": 0.9076539915472751,
+                  "die": 2
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 28,
+          "mechanism_state": 0,
+          "turns_left": 3,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                2
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.9658808491198428,
+              "visit_mass": 0.007201646090534979,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.9658808491198428,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.927376915566786,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                3,
+                3
+              ],
+              "action": "推进",
+              "die": 3,
+              "success": 0.9853268056153144,
+              "visit_mass": 0.00038580246913580245,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.9658808491198428,
+                  "die": 3
+                },
+                "推进": {
+                  "success": 0.9853268056153144,
+                  "die": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 18,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                2
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.8244015298734956,
+              "visit_mass": 0.0009768744538156504,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.8244015298734956,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.7118934890144205,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                5,
+                5
+              ],
+              "action": "推进",
+              "die": 5,
+              "success": 0.9978923754000926,
+              "visit_mass": 0.00028679578553875216,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.8244015298734956,
+                  "die": 5
+                },
+                "推进": {
+                  "success": 0.9978923754000926,
+                  "die": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 23,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 4,
+          "choices": [
+            {
+              "hand": [
+                1,
+                1,
+                2,
+                3
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.8244015298734956,
+              "visit_mass": 0.0002149300792562109,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.8244015298734956,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.8021862669139193,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                2,
+                3,
+                3,
+                4
+              ],
+              "action": "推进",
+              "die": 4,
+              "success": 0.9464504456544809,
+              "visit_mass": 0.0002149300792562109,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.9352380742582439,
+                  "die": 2
+                },
+                "推进": {
+                  "success": 0.9464504456544809,
+                  "die": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 22,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 4,
+          "choices": [
+            {
+              "hand": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "action": "铺垫",
+              "die": 1,
+              "success": 0.8926331971117213,
+              "visit_mass": 0.0001721954436146251,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.8926331971117213,
+                  "die": 1
+                },
+                "推进": {
+                  "success": 0.8360305740738982,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                2,
+                2,
+                2,
+                3
+              ],
+              "action": "推进",
+              "die": 3,
+              "success": 0.9203746469578121,
+              "visit_mass": 0.00011479696240975008,
+              "alternatives": {
+                "铺垫": {
+                  "success": 0.907653991547275,
+                  "die": 2
+                },
+                "推进": {
+                  "success": 0.9203746469578122,
+                  "die": 2
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "variant": "借力短目标",
+    "family": "整备借力",
+    "growth": 2,
+    "parameters": {
+      "目标上限": 28,
+      "回合上限": 3,
+      "准备加成": 3
+    },
+    "success": 0.999993646608116,
+    "success_rounds": 2.6896407503170217,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.9977210249308459,
+        "success_rounds": 2.500849611443922
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.9999124534724857,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.9999703548142302,
+        "success_rounds": 2.803988273374103
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.9977210249308459,
+        "success_rounds": 2.500849611443922
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9997127506805908,
+        "success_rounds": 2.605320693153212
+      }
+    ]
+  },
+  {
+    "variant": "借力长目标",
+    "family": "整备借力",
+    "growth": 2,
+    "parameters": {
+      "目标上限": 36,
+      "回合上限": 3,
+      "准备加成": 3
+    },
+    "success": 0.9409928919678736,
+    "success_rounds": 3.0,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.8887983301388487,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.0,
+        "success_rounds": null
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.8595408932823181,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.8887983301388487,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9151818730747239,
+        "success_rounds": 3.0
+      }
+    ]
+  },
+  {
+    "variant": "借力无准备",
+    "family": "整备借力",
+    "growth": 2,
+    "parameters": {
+      "目标上限": 32,
+      "回合上限": 3,
+      "准备加成": 0
+    },
+    "success": 0.9811573017972082,
+    "success_rounds": 2.924555403977201,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.9798453658450956,
+        "success_rounds": 2.9244543895912933
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.0,
+        "success_rounds": null
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.8643464666212698,
+        "success_rounds": 2.978486127266292
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.9798453658450956,
+        "success_rounds": 2.9244543895912933
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9811573017972082,
+        "success_rounds": 2.924555403977201
+      }
+    ]
+  },
+  {
+    "variant": "稳险选择",
+    "family": "稳险选择",
+    "growth": 2,
+    "parameters": {
+      "目标上限": 28,
+      "回合上限": 3
+    },
+    "success": 0.9995892235101532,
+    "success_rounds": 2.3858782934205585,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.9798453658450959,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.9950172919323272,
+        "success_rounds": 2.2672034474331486
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.9979555253301309,
+        "success_rounds": 2.2451289666733834
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9984279040948799,
+        "success_rounds": 2.2313706929344326
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9988710897457034,
+        "success_rounds": 2.2213937029642534
+      }
+    ],
+    "occupancy": {
+      "benchmark": "按骰面收益",
+      "expected_decisions": 8.528420661381409,
+      "expected_different_choices": 4.603682596533501,
+      "episode_has_probability_regret": {
+        "0.001": 0.06250426295171585,
+        "0.01": 0.013323404595719934,
+        "0.05": 0.004711071373879144
+      },
+      "expected_actions": {
+        "稳进": 5.364231888165975,
+        "冒进": 3.164045702568637,
+        "end-turn": 0.00014307064700455808
+      },
+      "visited_states": 7917,
+      "reachable_reversals": [
+        {
+          "remaining": 13,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "稳进",
+              "die": 1,
+              "success": 0.9556955280254541,
+              "visit_mass": 0.0005827711070932962,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.9556955280254541,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.9373842989508719,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                4
+              ],
+              "action": "冒进",
+              "die": 4,
+              "success": 0.983322179990348,
+              "visit_mass": 5.5467972937328924e-05,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.9727489299141401,
+                  "die": 4
+                },
+                "冒进": {
+                  "success": 0.983322179990348,
+                  "die": 4
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 18,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                1
+              ],
+              "action": "稳进",
+              "die": 1,
+              "success": 0.8090590514604401,
+              "visit_mass": 2.1841705577350327e-05,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.8090590514604401,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.7874018691044726,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                2,
+                3
+              ],
+              "action": "冒进",
+              "die": 3,
+              "success": 0.8943585253348918,
+              "visit_mass": 2.4604001360086164e-05,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.8838905903359926,
+                  "die": 2
+                },
+                "冒进": {
+                  "success": 0.8943585253348918,
+                  "die": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 16,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "稳进",
+              "die": 1,
+              "success": 0.7957482543629024,
+              "visit_mass": 5.3967080686087904e-05,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.7957482543629024,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.7750399496075295,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                3
+              ],
+              "action": "冒进",
+              "die": 3,
+              "success": 0.8658352067774225,
+              "visit_mass": 1.2324715144244083e-05,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.8407070425621099,
+                  "die": 3
+                },
+                "冒进": {
+                  "success": 0.8658352067774225,
+                  "die": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 19,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 3,
+          "choices": [
+            {
+              "hand": [
+                1,
+                1,
+                2
+              ],
+              "action": "稳进",
+              "die": 1,
+              "success": 0.8919038857911796,
+              "visit_mass": 3.846763421488305e-05,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.8919038857911796,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.8808311195336718,
+                  "die": 2
+                }
+              }
+            },
+            {
+              "hand": [
+                3,
+                3,
+                3
+              ],
+              "action": "冒进",
+              "die": 3,
+              "success": 0.9693605672478232,
+              "visit_mass": 1.0482903881851416e-05,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.9592935616324303,
+                  "die": 3
+                },
+                "冒进": {
+                  "success": 0.9693605672478232,
+                  "die": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 21,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 3,
+          "choices": [
+            {
+              "hand": [
+                1,
+                1,
+                1
+              ],
+              "action": "稳进",
+              "die": 1,
+              "success": 0.7448045526587737,
+              "visit_mass": 5.41778253998719e-06,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.7448045526587737,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.7224431060432861,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                2,
+                2,
+                2
+              ],
+              "action": "冒进",
+              "die": 2,
+              "success": 0.8084872414179682,
+              "visit_mass": 5.113051413515327e-06,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.7955051597772616,
+                  "die": 2
+                },
+                "冒进": {
+                  "success": 0.8084872414179682,
+                  "die": 2
+                }
+              }
+            }
+          ]
+        },
+        {
+          "remaining": 20,
+          "mechanism_state": 0,
+          "turns_left": 2,
+          "hand_size": 2,
+          "choices": [
+            {
+              "hand": [
+                1,
+                1
+              ],
+              "action": "稳进",
+              "die": 1,
+              "success": 0.6484508793808954,
+              "visit_mass": 5.713261988624376e-06,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.6484508793808954,
+                  "die": 1
+                },
+                "冒进": {
+                  "success": 0.613682151819887,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                2,
+                2
+              ],
+              "action": "冒进",
+              "die": 2,
+              "success": 0.7007991707628413,
+              "visit_mass": 4.991312094145915e-06,
+              "alternatives": {
+                "稳进": {
+                  "success": 0.6884120636304172,
+                  "die": 2
+                },
+                "冒进": {
+                  "success": 0.7007991707628413,
+                  "die": 2
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "variant": "稳险短目标",
+    "family": "稳险选择",
+    "growth": 2,
+    "parameters": {
+      "目标上限": 24,
+      "回合上限": 3
+    },
+    "success": 0.9999869931423172,
+    "success_rounds": 2.1094809495021685,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.9998380643794422,
+        "success_rounds": 2.925964994826582
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.9991428520940824,
+        "success_rounds": 2.1085519647583717
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.9997431485455022,
+        "success_rounds": 2.0781424984187438
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9998208727114498,
+        "success_rounds": 2.0684540538796483
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9998937023996558,
+        "success_rounds": 2.0604061155939943
+      }
+    ]
+  },
+  {
+    "variant": "稳险长目标",
+    "family": "稳险选择",
+    "growth": 2,
+    "parameters": {
+      "目标上限": 32,
+      "回合上限": 3
+    },
+    "success": 0.9954215971426771,
+    "success_rounds": 2.71831240731786,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.6249471560324606,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.9785183422366983,
+        "success_rounds": 2.491054162432517
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.9885661722531158,
+        "success_rounds": 2.5239915245347375
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9905135546014895,
+        "success_rounds": 2.5179877953907686
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9922659681818718,
+        "success_rounds": 2.513852030457572
+      }
+    ]
+  },
+  {
+    "variant": "分段兑现",
+    "family": "分段兑现",
+    "growth": 2,
+    "parameters": {
+      "目标上限": 18,
+      "回合上限": 3,
+      "递增兑现": 1,
+      "储备衰减": 2
+    },
+    "success": 0.999937629444263,
+    "success_rounds": 2.030015435685519,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "满5",
+        "success": 0.997712793712944,
+        "success_rounds": 2.0421911012993377
+      }
+    ],
+    "occupancy": {
+      "benchmark": "满5",
+      "expected_decisions": 8.120284747037829,
+      "expected_different_choices": 2.4104010148026496,
+      "episode_has_probability_regret": {
+        "0.001": 0.04550159131494188,
+        "0.01": 0.0042093088401439485,
+        "0.05": 0.0023982358327460686
+      },
+      "expected_actions": {
+        "备料": 5.687742035842893,
+        "稳进": 0.5130431184371096,
+        "兑现": 1.9194317566680754,
+        "end-turn": 6.783608969748615e-05
+      },
+      "visited_states": 9136,
+      "reachable_reversals": [
+        {
+          "remaining": 12,
+          "mechanism_state": 2,
+          "turns_left": 2,
+          "hand_size": 1,
+          "choices": [
+            {
+              "hand": [
+                1
+              ],
+              "action": "兑现",
+              "die": 1,
+              "success": 0.9615412094192967,
+              "visit_mass": 6.029911828334292e-05,
+              "alternatives": {
+                "备料": {
+                  "success": 0.9493479461972267,
+                  "die": 1
+                },
+                "稳进": {
+                  "success": 0.8889960562414272,
+                  "die": 1
+                },
+                "兑现": {
+                  "success": 0.9615412094192967,
+                  "die": 1
+                }
+              }
+            },
+            {
+              "hand": [
+                5
+              ],
+              "action": "备料",
+              "die": 5,
+              "success": 0.9934020633287619,
+              "visit_mass": 9.912183827398836e-07,
+              "alternatives": {
+                "备料": {
+                  "success": 0.9934020633287619,
+                  "die": 5
+                },
+                "稳进": {
+                  "success": 0.8889960562414272,
+                  "die": 5
+                },
+                "兑现": {
+                  "success": 0.9615412094192967,
+                  "die": 5
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "variant": "余热长目标",
+    "family": "余热转用",
+    "growth": 2,
+    "parameters": {
+      "目标上限": 16,
+      "回合上限": 3,
+      "热转倍率": 1
+    },
+    "success": 0.9999974604818237,
+    "success_rounds": 2.014200033341476,
+    "objective": "保守",
+    "fixed": [
+      {
+        "policy": "余热前瞻",
+        "success": 0.9999769224225303,
+        "success_rounds": 2.0199052206272583
+      }
+    ],
+    "occupancy": {
+      "benchmark": "余热前瞻",
+      "expected_decisions": 6.017054897788831,
+      "expected_different_choices": 1.6149318229818088,
+      "episode_has_probability_regret": {
+        "0.001": 0.0004542387679920238,
+        "0.01": 8.765670743372484e-05,
+        "0.05": 2.021658387412169e-05
+      },
+      "expected_actions": {
+        "强推": 4.221369991542971,
+        "借热": 1.7956845275588018,
+        "end-turn": 3.786871197048023e-07
+      },
+      "visited_states": 7641,
+      "reachable_reversals": []
+    }
+  }
+]

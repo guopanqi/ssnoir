@@ -1,0 +1,192 @@
+[
+  {
+    "success": 0.9995328040751889,
+    "success_rounds": 2.073830831278471,
+    "expected_reward": 8.774406223231782,
+    "states": 6662,
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "强推泄热",
+    "growth": 1
+  },
+  {
+    "success": 0.9536687531290727,
+    "success_rounds": 2.797603249262732,
+    "expected_reward": 6.301070889513395,
+    "states": 5324,
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "只借热",
+    "growth": 1
+  },
+  {
+    "success": 0.9994705611958848,
+    "success_rounds": 2.080600388532244,
+    "expected_reward": 8.753561904086178,
+    "states": 6233,
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "固定交替",
+    "growth": 1
+  },
+  {
+    "success": 0.9994833840976894,
+    "success_rounds": 2.077685059981202,
+    "expected_reward": 8.762415676947676,
+    "states": 12965,
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "即时收益",
+    "growth": 1
+  },
+  {
+    "success": 0.9996115358220248,
+    "success_rounds": 2.0467040981017073,
+    "expected_reward": 8.856445956700334,
+    "states": 6700,
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "余热前瞻",
+    "growth": 1
+  },
+  {
+    "success": 0.9981877970021789,
+    "success_rounds": 2.1717370684376682,
+    "expected_reward": 8.469412634997386,
+    "states": 7138,
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "policy": "强推泄热",
+    "growth": 1
+  },
+  {
+    "success": 0.8202446959007722,
+    "success_rounds": 2.9836547743304056,
+    "expected_reward": 4.961689429380991,
+    "states": 5745,
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "policy": "只借热",
+    "growth": 1
+  },
+  {
+    "success": 0.9975474240417587,
+    "success_rounds": 2.208743845631599,
+    "expected_reward": 8.353231159892712,
+    "states": 6709,
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "policy": "固定交替",
+    "growth": 1
+  },
+  {
+    "success": 0.9976252165787395,
+    "success_rounds": 2.1987951599185367,
+    "expected_reward": 8.383657755803048,
+    "states": 14584,
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "policy": "即时收益",
+    "growth": 1
+  },
+  {
+    "success": 0.9984145977899356,
+    "success_rounds": 2.122269820739861,
+    "expected_reward": 8.61950345842191,
+    "states": 7593,
+    "family": "余热转用",
+    "variant": "余热长目标",
+    "policy": "余热前瞻",
+    "growth": 1
+  },
+  {
+    "success": 0.0,
+    "success_rounds": null,
+    "expected_reward": 0.0,
+    "states": 630,
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "稳进到底",
+    "growth": 1
+  },
+  {
+    "success": 0.9152035767754861,
+    "success_rounds": 2.5636201978201525,
+    "expected_reward": 6.689350528015644,
+    "states": 4497,
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "满3",
+    "growth": 1
+  },
+  {
+    "success": 0.9636688138955051,
+    "success_rounds": 2.1994105928415237,
+    "expected_reward": 8.096522016614173,
+    "states": 6758,
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "满4",
+    "growth": 1
+  },
+  {
+    "success": 0.976559117710066,
+    "success_rounds": 2.1332181704919546,
+    "expected_reward": 8.398745802274878,
+    "states": 6704,
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "满5",
+    "growth": 1
+  },
+  {
+    "success": 0.9658246117778031,
+    "success_rounds": 2.3687481893503706,
+    "expected_reward": 7.623983275530959,
+    "states": 6479,
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "手牌兑现",
+    "growth": 1
+  },
+  {
+    "success": 0.8516642847509952,
+    "success_rounds": 2.550515682854611,
+    "expected_reward": 6.258414926911223,
+    "states": 10508,
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "policy": "直接押A",
+    "growth": 1
+  },
+  {
+    "success": 0.8516642847509952,
+    "success_rounds": 2.550515682854611,
+    "expected_reward": 6.258414926911223,
+    "states": 10508,
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "policy": "直接押B",
+    "growth": 1
+  },
+  {
+    "success": 0.9948622891545364,
+    "success_rounds": 2.5224350588324382,
+    "expected_reward": 7.394507786696956,
+    "states": 6894,
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "policy": "高骰探查",
+    "growth": 1
+  },
+  {
+    "success": 0.9659893771005037,
+    "success_rounds": 2.5904522046421814,
+    "expected_reward": 6.982792721794773,
+    "states": 12661,
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "policy": "弱骰探查",
+    "growth": 1
+  }
+]

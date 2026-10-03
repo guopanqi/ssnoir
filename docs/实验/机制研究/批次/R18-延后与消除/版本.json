@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-02",
+  "identity": "数学筛选，非正式会话",
+  "source_and_result_sha256": {
+    "AGENTS.md": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R18-延后与消除/期限模型.py": "97b10f2c1c8dd6315af8365acc30c7b12203f305d6bd78577b6afdd991846115",
+    "docs/实验/机制研究/批次/R18-延后与消除/可达分析.py": "4eca3fe40ff41159504908814f22d10c0795111331168f132c51e91865c49359",
+    "docs/实验/机制研究/批次/R18-延后与消除/期限结果.json": "a3b243eae6cea49212154d0d2957160278b1d79984ea3c98e19dbc72b91ba0fa",
+    "docs/实验/机制研究/批次/R18-延后与消除/可达结果.json": "af9680ecc123f7da023c430f5ea5348233b27705258bd02323606f8d04e3075a"
+  },
+  "snapshot": {
+    "path": "数学快照.tar.gz",
+    "sha256": "d2f61184f9e9e9b134fab51bed6ef3f1172b9f271c9008231bb2661d365893e1",
+    "bytes": 11536,
+    "isolated_recompute": [
+      {
+        "script": "期限模型.py",
+        "semantic_result_identical": true,
+        "ignored_fields": [
+          "seconds"
+        ]
+      },
+      {
+        "script": "可达分析.py",
+        "semantic_result_identical": true,
+        "ignored_fields": [
+          "seconds"
+        ]
+      }
+    ]
+  },
+  "native_games": 0,
+  "human_games": 0
+}

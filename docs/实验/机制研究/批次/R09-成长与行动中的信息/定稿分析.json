@@ -1,0 +1,397 @@
+{
+  "results": [
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "求解",
+      "completion": 0.8542077474851392,
+      "composure_on_success": 4.167111694723996,
+      "states": 3734,
+      "seconds": 0.03980354196392,
+      "reachable": {
+        "strict_stay_events": 0.5071266289437587,
+        "strict_switch_events": 0.0952878515089163,
+        "long_strict_stay_events": 0.3543542095336076,
+        "long_strict_switch_events": 0.0952878515089163,
+        "disclosure_events": 1.1326856852994953,
+        "at_least_one_strict_choice": 0.5375371513488796,
+        "scope": "事件指标是每局期望次数；at_least_one是实际可达至少一次概率；严格差>1个百分点"
+      }
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "固定A",
+      "completion": 0.812643782864655,
+      "composure_on_success": 4.410404713210459,
+      "states": 1245,
+      "seconds": 0.008105708984658122
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "遇长必换",
+      "completion": 0.8038678185966317,
+      "composure_on_success": 4.131472680589033,
+      "states": 1763,
+      "seconds": 0.010817332891747355
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "期望剩余最短",
+      "completion": 0.8396590351604175,
+      "composure_on_success": 4.271287110108648,
+      "states": 1653,
+      "seconds": 0.010431166971102357
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": false,
+      "policy": "两条固定路线滚动比较",
+      "completion": 0.8412613359244017,
+      "composure_on_success": 4.356678645940964,
+      "states": 835,
+      "seconds": 0.05760141578502953
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 1,
+      "known": true,
+      "policy": "求解",
+      "completion": 0.9003490976508883,
+      "composure_on_success": 4.4796934615073924,
+      "states": 6554,
+      "seconds": 0.07277883403003216
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 2,
+      "known": false,
+      "policy": "求解",
+      "completion": 0.9405386409750801,
+      "composure_on_success": 4.495793542465351,
+      "states": 3734,
+      "seconds": 0.03695120895281434,
+      "reachable": {
+        "strict_stay_events": 0.3959887259945137,
+        "strict_switch_events": 0.02629886831275719,
+        "long_strict_stay_events": 0.3469328703703705,
+        "long_strict_switch_events": 0.02629886831275719,
+        "disclosure_events": 1.0507002791114122,
+        "at_least_one_strict_choice": 0.396533493369913,
+        "scope": "事件指标是每局期望次数；at_least_one是实际可达至少一次概率；严格差>1个百分点"
+      }
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 2,
+      "known": false,
+      "policy": "固定A",
+      "completion": 0.9218106995884778,
+      "composure_on_success": 4.646127529245202,
+      "states": 1245,
+      "seconds": 0.008063249988481402
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 2,
+      "known": false,
+      "policy": "遇长必换",
+      "completion": 0.8860945001714676,
+      "composure_on_success": 4.448455568556978,
+      "states": 1763,
+      "seconds": 0.010482999961823225
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 2,
+      "known": false,
+      "policy": "期望剩余最短",
+      "completion": 0.927885004667734,
+      "composure_on_success": 4.6237059192853565,
+      "states": 1653,
+      "seconds": 0.014189749956130981
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 2,
+      "known": false,
+      "policy": "两条固定路线滚动比较",
+      "completion": 0.9294995106024239,
+      "composure_on_success": 4.630830662715223,
+      "states": 712,
+      "seconds": 0.05094470898620784
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 2,
+      "known": true,
+      "policy": "求解",
+      "completion": 0.9601194558756238,
+      "composure_on_success": 4.728664072150421,
+      "states": 6554,
+      "seconds": 0.06805562507361174
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 3,
+      "known": false,
+      "policy": "求解",
+      "completion": 0.9810879391479965,
+      "composure_on_success": 4.7524463680272016,
+      "states": 3734,
+      "seconds": 0.03567274985834956,
+      "reachable": {
+        "strict_stay_events": 0.29648919753086395,
+        "strict_switch_events": 0.0039544753086419755,
+        "long_strict_stay_events": 0.2853330761316871,
+        "long_strict_switch_events": 0.0039544753086419755,
+        "disclosure_events": 1.0147908807727464,
+        "at_least_one_strict_choice": 0.2932616740969365,
+        "scope": "事件指标是每局期望次数；at_least_one是实际可达至少一次概率；严格差>1个百分点"
+      }
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 3,
+      "known": false,
+      "policy": "固定A",
+      "completion": 0.9741289080361233,
+      "composure_on_success": 4.826058536361757,
+      "states": 1245,
+      "seconds": 0.00698983296751976
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 3,
+      "known": false,
+      "policy": "遇长必换",
+      "completion": 0.942903169533989,
+      "composure_on_success": 4.666103644578783,
+      "states": 1763,
+      "seconds": 0.009716625092551112
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 3,
+      "known": false,
+      "policy": "期望剩余最短",
+      "completion": 0.974652390784561,
+      "composure_on_success": 4.824476834509562,
+      "states": 1653,
+      "seconds": 0.009234125027433038
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 3,
+      "known": false,
+      "policy": "两条固定路线滚动比较",
+      "completion": 0.9748999176002141,
+      "composure_on_success": 4.825391804062087,
+      "states": 596,
+      "seconds": 0.04518691613338888
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 3,
+      "known": true,
+      "policy": "求解",
+      "completion": 0.9869778270747542,
+      "composure_on_success": 4.887486229400709,
+      "states": 6554,
+      "seconds": 0.06569487508386374
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 4,
+      "known": false,
+      "policy": "求解",
+      "completion": 0.9989149305555569,
+      "composure_on_success": 4.928009018988326,
+      "states": 3394,
+      "seconds": 0.029554958920925856,
+      "reachable": {
+        "strict_stay_events": 0.2530864197530865,
+        "strict_switch_events": 0.0,
+        "long_strict_stay_events": 0.2530864197530865,
+        "long_strict_switch_events": 0.0,
+        "disclosure_events": 0.9999999999999984,
+        "at_least_one_strict_choice": 0.2530864197530864,
+        "scope": "事件指标是每局期望次数；at_least_one是实际可达至少一次概率；严格差>1个百分点"
+      }
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 4,
+      "known": false,
+      "policy": "固定A",
+      "completion": 0.9989149305555569,
+      "composure_on_success": 4.928009018988326,
+      "states": 1035,
+      "seconds": 0.005500708939507604
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 4,
+      "known": false,
+      "policy": "遇长必换",
+      "completion": 0.9878762467135351,
+      "composure_on_success": 4.819826726217568,
+      "states": 1481,
+      "seconds": 0.007713666884228587
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 4,
+      "known": false,
+      "policy": "期望剩余最短",
+      "completion": 0.9987823109567915,
+      "composure_on_success": 4.928394227188326,
+      "states": 1380,
+      "seconds": 0.0069959580432623625
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 4,
+      "known": false,
+      "policy": "两条固定路线滚动比较",
+      "completion": 0.9989149305555569,
+      "composure_on_success": 4.928009018988326,
+      "states": 351,
+      "seconds": 0.03438724996522069
+    },
+    {
+      "short": 3,
+      "long": 6,
+      "reveal": 1,
+      "growth": 4,
+      "known": true,
+      "policy": "求解",
+      "completion": 0.9994574652777717,
+      "composure_on_success": 4.962518870575724,
+      "states": 5674,
+      "seconds": 0.05071275006048381
+    }
+  ],
+  "independent_checks": [
+    {
+      "policy": "求解",
+      "known": false,
+      "independent": {
+        "completion": 0.8542077474851395,
+        "exact_completion": "478247/559872",
+        "weighted_composure": 3.559579094269166,
+        "nodes": 20048
+      },
+      "passed": true
+    },
+    {
+      "policy": "固定A",
+      "known": false,
+      "independent": {
+        "completion": 0.8126437828646548,
+        "exact_completion": "909953/1119744",
+        "weighted_composure": 3.5840879701074533,
+        "nodes": 18730
+      },
+      "passed": true
+    },
+    {
+      "policy": "遇长必换",
+      "known": false,
+      "independent": {
+        "completion": 0.8038678185966316,
+        "exact_completion": "5400757/6718464",
+        "weighted_composure": 3.3211579313366864,
+        "nodes": 19628
+      },
+      "passed": true
+    },
+    {
+      "policy": "期望剩余最短",
+      "known": false,
+      "independent": {
+        "completion": 0.8396590351604176,
+        "exact_completion": "5641219/6718464",
+        "weighted_composure": 3.586424813766956,
+        "nodes": 18836
+      },
+      "passed": true
+    },
+    {
+      "policy": "两条固定路线滚动比较",
+      "known": false,
+      "independent": {
+        "completion": 0.8412613359244018,
+        "exact_completion": "353249/419904",
+        "weighted_composure": 3.66510529787761,
+        "nodes": 17864
+      },
+      "passed": true
+    },
+    {
+      "policy": "求解",
+      "known": true,
+      "independent": {
+        "completion": 0.9003490976508917,
+        "exact_completion": "672107/746496",
+        "weighted_composure": 4.033287965820759,
+        "nodes": 15416
+      },
+      "passed": true
+    }
+  ],
+  "scope": "四骰一回合，冷静5，正常未受伤局；隐藏长度独立等概率；完成任一路；平手保留冷静"
+}

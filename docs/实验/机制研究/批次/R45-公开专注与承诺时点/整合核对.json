@@ -1,0 +1,61 @@
+{
+  "batch": "R45",
+  "passed": true,
+  "independent_conditions": 486,
+  "matched_values": 2430,
+  "probability_components": 36,
+  "witness": {
+    "hand": [
+      1,
+      1,
+      1,
+      3
+    ],
+    "initial_mass": "1/324",
+    "first_action": [
+      "act",
+      1,
+      1,
+      true
+    ],
+    "branches": [
+      {
+        "grade": 0,
+        "conditional_mass": "1/3",
+        "initial_hand_joint_mass": "1/972",
+        "next_action": [
+          "commit",
+          0
+        ],
+        "value": "11/12"
+      },
+      {
+        "grade": 1,
+        "conditional_mass": "1/2",
+        "initial_hand_joint_mass": "1/648",
+        "next_action": [
+          "commit",
+          0
+        ],
+        "value": "11/12"
+      },
+      {
+        "grade": 2,
+        "conditional_mass": "1/6",
+        "initial_hand_joint_mass": "1/1944",
+        "next_action": [
+          "commit",
+          1
+        ],
+        "value": "37/27"
+      }
+    ]
+  },
+  "forward_matches_root": true,
+  "input_sha256": {
+    "数学结果.json": "499781ff4dd54a2fb21838208598408153ad9d829368689828fa6809277dfc4e",
+    "审查两骰结果.json": "a5100c0ca4ed58dcc7b711489164c2590d2962ba1b0f53f30486bc69395a799f",
+    "承诺前向结果.json": "6b6ef28e9f92ff7ff2e7ed3cb23bfeeddab4dffe9be112b7f076cbfbf16397de"
+  },
+  "scope": "独立仅局部；正常前向共享主模型；保留未锁双动作及即时终止；正式0真人0"
+}

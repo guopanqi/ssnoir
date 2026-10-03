@@ -1,0 +1,288 @@
+{
+  "results": [
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "求解",
+      "injury_free_completion": 0.8949903039360334,
+      "composure_on_success": 2.565358414086704,
+      "states": 9355,
+      "seconds": 0.07502491702325642,
+      "growth": 1,
+      "initial_route_gap_gt_one_pp_mass": [
+        0.6481481481481485,
+        0.18595679012345673
+      ],
+      "small_gap_mass": 0.16589506172839508
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先小目标",
+      "injury_free_completion": 0.8220917595572877,
+      "composure_on_success": 2.705914831917336,
+      "states": 4892,
+      "seconds": 0.02949845907278359,
+      "growth": 1
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先大目标",
+      "injury_free_completion": 0.8223912018898135,
+      "composure_on_success": 2.7180087460366793,
+      "states": 4836,
+      "seconds": 0.027792250039055943,
+      "growth": 1
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "手牌规则",
+      "injury_free_completion": 0.8699518589802686,
+      "composure_on_success": 2.685495390736528,
+      "states": 7701,
+      "seconds": 0.04382695909589529,
+      "growth": 1
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "求解",
+      "injury_free_completion": 0.9384049706802466,
+      "composure_on_success": 2.2938240150475013,
+      "states": 23957,
+      "seconds": 0.25825299997814,
+      "growth": 1
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "求解",
+      "injury_free_completion": 0.9839573171316786,
+      "composure_on_success": 3.1611932919000454,
+      "states": 9355,
+      "seconds": 0.07346854195930064,
+      "growth": 2,
+      "initial_route_gap_gt_one_pp_mass": [
+        0.17901234567901236,
+        0.11574074074074073
+      ],
+      "small_gap_mass": 0.7052469135802475
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先小目标",
+      "injury_free_completion": 0.9510116083380017,
+      "composure_on_success": 3.2625480169417513,
+      "states": 4892,
+      "seconds": 0.029037874890491366,
+      "growth": 2
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先大目标",
+      "injury_free_completion": 0.9511533051010188,
+      "composure_on_success": 3.2711480518626637,
+      "states": 4836,
+      "seconds": 0.031820999924093485,
+      "growth": 2
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "手牌规则",
+      "injury_free_completion": 0.9723063759105901,
+      "composure_on_success": 3.2969553354949652,
+      "states": 7701,
+      "seconds": 0.042944957967847586,
+      "growth": 2
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "求解",
+      "injury_free_completion": 0.9928619368292687,
+      "composure_on_success": 2.8341770169694147,
+      "states": 23957,
+      "seconds": 0.24612066592089832,
+      "growth": 2
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "求解",
+      "injury_free_completion": 0.9986936381974147,
+      "composure_on_success": 3.6589365850822957,
+      "states": 9355,
+      "seconds": 0.0694866250269115,
+      "growth": 3,
+      "initial_route_gap_gt_one_pp_mass": [
+        0.0,
+        0.020833333333333332
+      ],
+      "small_gap_mass": 0.9791666666666679
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先小目标",
+      "injury_free_completion": 0.9892480251149262,
+      "composure_on_success": 3.694926981199278,
+      "states": 4892,
+      "seconds": 0.027719165896996856,
+      "growth": 3
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先大目标",
+      "injury_free_completion": 0.9892589316052841,
+      "composure_on_success": 3.69488624496308,
+      "states": 4836,
+      "seconds": 0.025569957913830876,
+      "growth": 3
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "手牌规则",
+      "injury_free_completion": 0.9951704374235875,
+      "composure_on_success": 3.7583606659642403,
+      "states": 7226,
+      "seconds": 0.03823595913127065,
+      "growth": 3
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "求解",
+      "injury_free_completion": 0.9996034090132249,
+      "composure_on_success": 3.330344035863312,
+      "states": 23957,
+      "seconds": 0.23264991585165262,
+      "growth": 3
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "求解",
+      "injury_free_completion": 0.9999980935450332,
+      "composure_on_success": 3.9443191864524505,
+      "states": 9058,
+      "seconds": 0.06425187503919005,
+      "growth": 4,
+      "initial_route_gap_gt_one_pp_mass": [
+        0.0,
+        0.0
+      ],
+      "small_gap_mass": 1.000000000000001
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先小目标",
+      "injury_free_completion": 0.9999510203956868,
+      "composure_on_success": 3.9396426434942424,
+      "states": 4111,
+      "seconds": 0.021544417133554816,
+      "growth": 4
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先大目标",
+      "injury_free_completion": 0.9999510203956854,
+      "composure_on_success": 3.939642643494246,
+      "states": 4594,
+      "seconds": 0.023544957861304283,
+      "growth": 4
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "手牌规则",
+      "injury_free_completion": 0.9999841752953772,
+      "composure_on_success": 3.9660192823963745,
+      "states": 6086,
+      "seconds": 0.030492124846205115,
+      "growth": 4
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "求解",
+      "injury_free_completion": 0.9999989129501881,
+      "composure_on_success": 3.9879986090587884,
+      "states": 19537,
+      "seconds": 0.17178216692991555,
+      "growth": 4
+    }
+  ],
+  "scope": "无伤完成；2轮、冷静5、目标5/3；模型，不是玩家评价",
+  "dependencies": {
+    "实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7"
+  }
+}

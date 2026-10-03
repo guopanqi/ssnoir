@@ -1,0 +1,64 @@
+{
+  "status": "已裁决",
+  "date": "2026-10-03",
+  "source_sha256": {
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/有界研究计划.md": "58f756e927ab0dfdb7d3d505a7f1ed56659c9ddf5d6ba71dd8e265b165be59fe",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/隐藏反馈模型.py": "34d988ca02584405919e5b287aefd612cc86e0568fdc5d0c237f6f4f3be8eee6",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/独立固定真值复核.py": "96e68d0e0576b704dca487939c8946e00c94c089dcaed1cea7e01345316752f8"
+  },
+  "live_session_id": null,
+  "exit_code": 0,
+  "command": "python3 docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/隐藏反馈模型.py",
+  "frozen": {
+    "dice": 4,
+    "die_distribution": "独立公平d6",
+    "target": 4,
+    "calm": 5,
+    "truth": "开局固定，先验各半；真值0甲技能0乙技能2，真值1交换",
+    "objective": "纯完成概率",
+    "actions": "主值快做弱支配稳做，只保留快做0/1/2"
+  },
+  "evidence": "数学模型；原生0、真人0；没有真值重抽",
+  "command_results": [
+    {
+      "script": "隐藏反馈模型.py",
+      "live_session_id": null,
+      "exit_code": 0
+    },
+    {
+      "script": "独立固定真值复核.py",
+      "live_session_id": null,
+      "exit_code": 0
+    },
+    {
+      "script": "后验响应前向.py",
+      "live_session_id": null,
+      "exit_code": 0
+    }
+  ],
+  "output_sha256": {
+    "数学结果.json": "03c80b3d2ba9ee5a75e5f6fe485bbd625446be1bb956450fc921c852db406a06",
+    "公开策略.json": "eba5fa4e91d6540f74bd7d95cf338ded66c1e036cf3067537131cc693f313256",
+    "独立复核结果.json": "53ff06f48ebdf4ade4d3a88762656098550f15e3d720027474ff2d0e758113e4",
+    "运行.log": "57008dabc92224f6a5d3fd894506e10adaaf64b73e9426a0acc2293b7d010000",
+    "独立复核.log": "650873a9d8219be316a764e5af5b9348521c65926a36eb9719f992e3c12febea",
+    "后验响应前向结果.json": "eb18d89e7002b1debda9c980e4d41de7e0a9baa6de02e2592891d3b8d2651313",
+    "后验响应前向.log": "eb18d89e7002b1debda9c980e4d41de7e0a9baa6de02e2592891d3b8d2651313",
+    "研究记录.md": "ec72422f9d8074b16041703df8615242d7841b1b43e1b62ffb05edfccb695a60"
+  },
+  "forward_appendix": {
+    "source_and_input_sha256": {
+      "数学结果.json": "03c80b3d2ba9ee5a75e5f6fe485bbd625446be1bb956450fc921c852db406a06",
+      "公开策略.json": "eba5fa4e91d6540f74bd7d95cf338ded66c1e036cf3067537131cc693f313256",
+      "后验响应前向.py": "776320c177a84689ecef9ec9579940804d78413fcb3165599d3c8e6d454527f5"
+    },
+    "live_session_id": null,
+    "exit_code": 0
+  },
+  "read_only_adaptation_sources_sha256": {
+    "Engine/Runtime/Core/SceneManager.cs": "2502e5031ec9c605623e3d9bbdf19278a59b1ddd04242b941159c75d21e0c731",
+    "UnityClient/Assets/Scripts/Runtime/IMGUI/Components/ActionNodeDrawer.cs": "7dcca7348e5fc77b4be84a953ccc855fbdd3487dbe4ada2db20a344e11880aa4"
+  },
+  "coordinator": "当前公开赔率不保留隐藏前提；仅数学扩展材料"
+}

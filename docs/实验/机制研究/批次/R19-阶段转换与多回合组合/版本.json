@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-02",
+  "ContentRevision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+  "source_and_model_sha256": {
+    "UnityClient/Assets/Resources/Content/scripts/research/整段留力.scm": "3863cba427102270382b37d5819cebabee8bc8ba0eda6707c726f06bbf1c26f8",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整段留力.scm": "0a09d3e4c5a0795654de086627bebf02c43166e797160eb6653ab0516cb0d404",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·进度保留对照.scm": "17c73594124121255fa6cfbd89f10f4e3a20093ef9a2586ec49093da4b34e413",
+    "UnityClient/Assets/Resources/Content/scripts/research/整段留力.scm.meta": "19da438f4b11db97185d0423b70bcd4b380d76393fb544023a0450744fdb9f98",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整段留力.scm.meta": "a249a91846a48f636fb5fcbb75b11f5bf4d4b9bf75363ea7b275979603dd7b1b",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·进度保留对照.scm.meta": "3746f000536f528802df1c98bb970fc2636edc209cd65d7f0539b75d447a5b02",
+    "AGENTS.md": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/正式对照.py": "7e84e6e76dec6a779ed0edc326c899246191840f4013432d9204414f6e1ed44d",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/倒下覆盖.py": "69593ecb4b2ffa2075e8931040c6bfc20fb3a183389af076a53e49ea23ca3fa3",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/交互与复核.py": "b3cbf9bb127b55b7b96c155535015c1a8d51613d0cc0f41ebeeaac7b16ac947c",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/组合模型.py": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+    "tools/content-validator/experiments/mechanism-study.py": "59bd3eaba31f8eaa874bd9a7f11ab9d21d68dc506662070debcd445e7162c41c",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/带伤完成覆盖.py": "cf4b6e8b362c200df070124036b1af9716792fda251afe904d906d1a2b4e75ea"
+  },
+  "runtime_snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "9e4dc5ae7949a93a4141715abcfbd3e6c0cb00cddae0d0336d09947d25620f6c",
+    "bytes": 838997,
+    "isolated_replays": [
+      {
+        "path": "整段自由-6107.json.gz",
+        "passed": true,
+        "output": "重放通过：12 步"
+      },
+      {
+        "path": "边界-半成品-False-6202.json.gz",
+        "passed": true,
+        "output": "重放通过：6 步"
+      },
+      {
+        "path": "边界-倒下-6304.json.gz",
+        "passed": true,
+        "output": "重放通过：11 步"
+      },
+      {
+        "path": "边界-带伤成功-6344.json.gz",
+        "passed": true,
+        "output": "重放通过：10 步"
+      }
+    ],
+    "scope": "全Content、原生构建、本批五个脚本与数学结果/依赖；非完整Unity工程"
+  }
+}

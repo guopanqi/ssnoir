@@ -15,6 +15,7 @@
 - **Schemy 解释器(库开发)**：[schemy-master/AGENTS.md](schemy-master/AGENTS.md)
 
 - **写 .scm 内容（世界观口径 + 引擎隐含行为 + 内容作者的判断）**：[skills/write-scheme/SKILL.md](skills/write-scheme/SKILL.md)
+- **交锋机制的数学研究与长期续研**：[skills/research-mechanisms/SKILL.md](skills/research-mechanisms/SKILL.md)
 - **制作 3D 资产（参考图、低模、Blender 加工、Unity 命名契约）**：[skills/create-3d-assets/SKILL.md](skills/create-3d-assets/SKILL.md)
 - **制作游戏图片（舞台人物、姿势、2D 道具、3D 参考图）**：[skills/make-images/SKILL.md](skills/make-images/SKILL.md)
 - **要不要验证 / 怎么验证**：[skills/verify/SKILL.md](skills/verify/SKILL.md)

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R34-不可逆压力与预防/局部边界.py", line 14, in <module>
+    cap=m.end(4,2,2,1,3,0,0,2,-1);uncapped=control.end(4,2,2,1,3,0,0,2,-1)
+                                           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R34-不可逆压力与预防/压力模型.py", line 32, in _end
+    children=[(z,self.value(p,a,b,ns,nc,nk,nq,t-1,h,npref)) for h,z in HANDS[3 if nk>=4 else 4]]
+                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R34-不可逆压力与预防/压力模型.py", line 66, in _value
+    assert (p>=3 or a==0) and (p>=6 or b==0) and s>=0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

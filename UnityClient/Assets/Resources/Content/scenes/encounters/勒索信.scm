@@ -71,9 +71,14 @@
 (define money-taken 0)       ; 这一晚一共从地上抓回多少
 (define money-drop? #f)      ; 地上此刻有没有一叠钱；只活到本回合结束
 (define investigation-attempts '())
+;; 进第二幕前 音乐 的值（可能是某张唱片、随机播放，也可能没有）：收场时原样切回去。
+;; 主题优先于一切，播完必须有人还——就是这里。
+(define chase-saved-music #f)
 
 ;; 开场、幕转和收尾都由勒索信交锋自己拥有；世界只负责进入本交锋。
 (define (on-encounter-enter)
+  ;; 进场先收 音乐 的值：第二幕主题盖过去，收场（finish!/倒下）原样还回去。
+  (set! chase-saved-music (get-global '音乐))
   (play-video! "勒索信-投信")
   (spotlight! "找出嫌疑人"
     "观察路过的人们的举止，分辨出嫌疑人！"))
@@ -269,7 +274,8 @@
       (error "勒索信：追逐街景越界")
       (begin
         (set! seg n)
-        ;; 根节点名 = Camera_勒索信-<段>；spotlight 宣告段名，镜头随根切换。
+        ;; Act2 根名固定为「巷子」以走 Portal；根 :anchor 与子卡同落到分区，换段切镜。
+        ;; spotlight 仍宣告段名。
         (spotlight! (seg-name n)
           (cond
             ((= n 0) "追上他！在他逃走之前")
@@ -280,6 +286,8 @@
 (define (begin-chase!)
   (play-video! "勒索信-追上他")
   (set! act 2)
+  ;; 第二幕全程追逐主题，盖过唱片机和城市默认声；进场时收的值，收场时原样还回去。
+  (set-global! '音乐 "主题-追逐")
   ;; 从调查动作切进追逐时，刚花掉最后一颗骰。这里换一手，不把它误算成
   ;; 一次追逐回合：人不额外拉开、冷静不额外扣。
   (refresh-encounter-dice!)
@@ -392,9 +400,18 @@
         (result-supplement! (string-append "拿回 " (number->string got) " 钱"))
         #f)))
 
+;; 散钞必须落在独立世界锚（巷子 Prefab 的 Anchor_勒索信-散钞-*），
+;; 不能与分区锚上的追击卡 / 逃脱·追上他钟抢同一屏位。
+(define (act2-money-zone)
+  (cond
+    ((= seg 0) "勒索信-散钞-巷口")
+    ((= seg 1) "勒索信-散钞-货栈区")
+    ((= seg 2) "勒索信-散钞-邮局后街")
+    (else (error "勒索信：未知散钞锚点"))))
+
 (define (node-money-drop)
   (node "那叠散钞"
-    :anchor (act2-zone)
+    :anchor (act2-money-zone)
     :tags (list "机会" "低风险")
     :requires (list (req-die))
     :resolve (roll 'sharpness
@@ -426,6 +443,8 @@
       #f
       (begin
         (set! finished? #t)
+        ;; 追逐主题只活到这一夜：把进第二幕之前的值还回去（唱片、随机或城市默认声）。
+        (set-global! '音乐 chase-saved-music)
         ;; 摩托车冲出来是这段追逐的固定收尾：它迫使你闪开，但不等于自动受伤。
         ;; 伤势只由具体行动的 outcome 产生，不能让所有追上路线都暗中追加一格伤势。
         (play-video! "勒索信-跟丢了")
@@ -437,7 +456,9 @@
 
 ;; 倒下不是跟丢：你追上了他，然后被撂在巷口。回传自己的收场标签，
 ;; 让三封信那边讲对这一夜发生了什么（见 on-delivery-result）。
+;; 倒下同样走不出追逐主题，不断在这里还——finish! 那条路走不到。
 (define (on-encounter-collapse)
+  (set-global! '音乐 chase-saved-music)
   (collapse-result (list '倒下 0)))
 
 ;; ============================================================
@@ -483,8 +504,15 @@
       (node "勒索信-报摊"
         :anchor "勒索信-报摊"
         :children (act1-nodes))
+      ;; Act2 是独立 Stage「巷子」。根名必须是「巷子」，才会命中
+      ;; PortalIn_巷子 / Anchor_巷子 上的 StagePortalConfig，从码头邮箱一角穿门进入；
+      ;; 若根直接叫「勒索信-巷口」等分区名，Portal 不会触发，镜头会跨城飞到 Stage 停泊位。
+      ;; :anchor = 当前段分区：引擎在 Stage 根上优先用区内机位（Camera_勒索信-*），
+      ;; 换段时随 act2-zone 更新；Camera_巷子 只作 Portal 落地/无 :anchor 时的走廊兜底。
       (let ((zone (act2-zone)))
-        (node zone
+        (node "巷子"
           :anchor zone
-          :children (append (apply clock-nodes (act2-clocks))
-                      (act2-nodes))))))
+          :children (append
+            (map (lambda (n) (at-anchor zone n))
+                 (apply clock-nodes (act2-clocks)))
+            (act2-nodes))))))

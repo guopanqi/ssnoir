@@ -1,0 +1,102 @@
+[
+  {
+    "scene": "橱窗里的脸",
+    "authorRecord": "docs/实验/橱窗里的脸/手动会话-seed19.json.gz",
+    "regressionRecord": "docs/实验/橱窗里的脸/当前回归复核.json.gz",
+    "steps": 20,
+    "contentRevision": "090646442763b0fcbfbe6e6b61189425bfb82508d7650fec7dc5e20297970f77",
+    "result": "('跟到交割 (莫里斯 午夜 蓝火柴))",
+    "completeObservationsAndEventsMatch": true,
+    "strictReplayPassed": true
+  },
+  {
+    "scene": "逼他出门",
+    "authorRecord": "docs/实验/逼他出门/作者逐步-seed19.json.gz",
+    "regressionRecord": "docs/实验/逼他出门/当前回归复核.json.gz",
+    "steps": 5,
+    "contentRevision": "090646442763b0fcbfbe6e6b61189425bfb82508d7650fec7dc5e20297970f77",
+    "result": "'截获",
+    "completeObservationsAndEventsMatch": true,
+    "strictReplayPassed": true
+  },
+  {
+    "scene": "枪口认路",
+    "authorRecord": "docs/实验/枪口认路/作者逐步-seed19.json.gz",
+    "regressionRecord": "docs/实验/枪口认路/当前回归复核.json.gz",
+    "steps": 7,
+    "contentRevision": "090646442763b0fcbfbe6e6b61189425bfb82508d7650fec7dc5e20297970f77",
+    "result": "'带底片脱身",
+    "completeObservationsAndEventsMatch": true,
+    "strictReplayPassed": true
+  },
+  {
+    "scene": "最后一页",
+    "authorRecord": "docs/实验/最后一页/作者逐步-v2-seed31.json.gz",
+    "regressionRecord": "docs/实验/最后一页/当前回归复核.json.gz",
+    "steps": 5,
+    "contentRevision": "090646442763b0fcbfbe6e6b61189425bfb82508d7650fec7dc5e20297970f77",
+    "result": "('交出抄本 6 (艾米 露丝))",
+    "completeObservationsAndEventsMatch": true,
+    "strictReplayPassed": true
+  },
+  {
+    "scene": "赃款会拖脚",
+    "authorRecord": "docs/实验/赃款会拖脚/作者逐步-v2-seed31.json.gz",
+    "regressionRecord": "docs/实验/赃款会拖脚/当前回归复核.json.gz",
+    "steps": 5,
+    "contentRevision": "090646442763b0fcbfbe6e6b61189425bfb82508d7650fec7dc5e20297970f77",
+    "result": "('脱身 3)",
+    "completeObservationsAndEventsMatch": true,
+    "strictReplayPassed": true
+  },
+  {
+    "scene": "只够一条线",
+    "authorRecord": "docs/实验/只够一条线/作者逐步-seed19.json.gz",
+    "regressionRecord": "docs/实验/只够一条线/当前回归复核.json.gz",
+    "steps": 12,
+    "contentRevision": "090646442763b0fcbfbe6e6b61189425bfb82508d7650fec7dc5e20297970f77",
+    "result": "('完整录音 10 False)",
+    "completeObservationsAndEventsMatch": true,
+    "strictReplayPassed": true
+  },
+  {
+    "scene": "信封换人",
+    "authorRecord": "docs/实验/信封换人/作者逐步-seed19.json.gz",
+    "regressionRecord": "docs/实验/信封换人/当前回归复核.json.gz",
+    "steps": 5,
+    "contentRevision": "090646442763b0fcbfbe6e6b61189425bfb82508d7650fec7dc5e20297970f77",
+    "result": "('抢回人质 5)",
+    "completeObservationsAndEventsMatch": true,
+    "strictReplayPassed": true
+  },
+  {
+    "scene": "证词掺水",
+    "authorRecord": "docs/实验/证词掺水/作者逐步-seed19.json.gz",
+    "regressionRecord": "docs/实验/证词掺水/当前回归复核.json.gz",
+    "steps": 5,
+    "contentRevision": "090646442763b0fcbfbe6e6b61189425bfb82508d7650fec7dc5e20297970f77",
+    "result": "('可信证词 4 0)",
+    "completeObservationsAndEventsMatch": true,
+    "strictReplayPassed": true
+  },
+  {
+    "scene": "封死退路",
+    "authorRecord": "docs/实验/封死退路/作者逐步-v3-seed41.json.gz",
+    "regressionRecord": "docs/实验/封死退路/当前回归复核.json.gz",
+    "steps": 13,
+    "contentRevision": "090646442763b0fcbfbe6e6b61189425bfb82508d7650fec7dc5e20297970f77",
+    "result": "('带走证人 True)",
+    "completeObservationsAndEventsMatch": true,
+    "strictReplayPassed": true
+  },
+  {
+    "scene": "等买主现身",
+    "authorRecord": "docs/实验/等买主现身/作者逐步-seed19.json.gz",
+    "regressionRecord": "docs/实验/等买主现身/当前回归复核.json.gz",
+    "steps": 6,
+    "contentRevision": "090646442763b0fcbfbe6e6b61189425bfb82508d7650fec7dc5e20297970f77",
+    "result": "'仓库地址",
+    "completeObservationsAndEventsMatch": true,
+    "strictReplayPassed": true
+  }
+]

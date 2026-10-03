@@ -1,0 +1,1232 @@
+{
+  "results": [
+    {
+      "path": "整段自由-6101.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 5
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 2,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 2,
+      "interaction_visits": [],
+      "policy": "整段自由",
+      "seed": 6101
+    },
+    {
+      "path": "整段自由-6102.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 3
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "整段自由",
+      "seed": 6102
+    },
+    {
+      "path": "整段自由-6103.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 4
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 1,
+      "retained_finished_events": 2,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 2,
+      "interaction_visits": [],
+      "policy": "整段自由",
+      "seed": 6103
+    },
+    {
+      "path": "整段自由-6104.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 1
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "整段自由",
+      "seed": 6104
+    },
+    {
+      "path": "整段自由-6105.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 12,
+      "result": {
+        "status": "timeout",
+        "a": 0,
+        "b": 3,
+        "round": 3,
+        "cold": 1
+      },
+      "left_injury_free_model": true,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 1,
+      "retained_finished_events": 2,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [
+        {
+          "state": [
+            5,
+            1,
+            2,
+            2,
+            [
+              2,
+              2
+            ]
+          ],
+          "card": "乙快做",
+          "die": 2,
+          "reset": true
+        },
+        {
+          "state": [
+            5,
+            0,
+            2,
+            2,
+            [
+              2
+            ]
+          ],
+          "card": "整顿",
+          "die": 2,
+          "reset": true
+        }
+      ],
+      "policy": "整段自由",
+      "seed": 6105
+    },
+    {
+      "path": "整段自由-6106.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 2
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "整段自由",
+      "seed": 6106
+    },
+    {
+      "path": "整段自由-6107.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 5
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [
+        {
+          "state": [
+            5,
+            2,
+            3,
+            2,
+            [
+              2,
+              2,
+              4
+            ]
+          ],
+          "card": "乙快做",
+          "die": 4,
+          "reset": true
+        },
+        {
+          "state": [
+            5,
+            1,
+            2,
+            2,
+            [
+              2,
+              2
+            ]
+          ],
+          "card": "乙快做",
+          "die": 2,
+          "reset": true
+        },
+        {
+          "state": [
+            5,
+            0,
+            2,
+            2,
+            [
+              2
+            ]
+          ],
+          "card": "整顿",
+          "die": 2,
+          "reset": true
+        }
+      ],
+      "policy": "整段自由",
+      "seed": 6107
+    },
+    {
+      "path": "整段自由-6108.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [
+        {
+          "state": [
+            3,
+            0,
+            1,
+            2,
+            [
+              4,
+              5
+            ]
+          ],
+          "card": "甲快做",
+          "die": 4,
+          "reset": true
+        }
+      ],
+      "policy": "整段自由",
+      "seed": 6108
+    },
+    {
+      "path": "整段自由-6109.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 3
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "整段自由",
+      "seed": 6109
+    },
+    {
+      "path": "整段自由-6110.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 5
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 1,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "整段自由",
+      "seed": 6110
+    },
+    {
+      "path": "整段自由-6111.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 3
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "整段自由",
+      "seed": 6111
+    },
+    {
+      "path": "整段自由-6112.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 0
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 2,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 2,
+      "interaction_visits": [],
+      "policy": "整段自由",
+      "seed": 6112
+    },
+    {
+      "path": "保留自由-6113.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": false,
+      "growth": 1,
+      "steps": 11,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 2
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 2,
+      "preserved_partial_events": 1,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [],
+      "policy": "保留自由",
+      "seed": 6113
+    },
+    {
+      "path": "保留自由-6114.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": false,
+      "growth": 1,
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 5
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 0,
+      "preserved_partial_events": 2,
+      "healing_cap_events": 1,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "保留自由",
+      "seed": 6114
+    },
+    {
+      "path": "保留自由-6115.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": false,
+      "growth": 1,
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 0
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 0,
+      "preserved_partial_events": 2,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [],
+      "policy": "保留自由",
+      "seed": 6115
+    },
+    {
+      "path": "保留自由-6116.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": false,
+      "growth": 1,
+      "steps": 7,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 1
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 1,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "保留自由",
+      "seed": 6116
+    },
+    {
+      "path": "保留自由-6117.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": false,
+      "growth": 1,
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 4
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 0,
+      "preserved_partial_events": 2,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "保留自由",
+      "seed": 6117
+    },
+    {
+      "path": "保留自由-6118.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": false,
+      "growth": 1,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 3
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "保留自由",
+      "seed": 6118
+    },
+    {
+      "path": "保留自由-6119.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": false,
+      "growth": 1,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 3
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 0,
+      "preserved_partial_events": 2,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "保留自由",
+      "seed": 6119
+    },
+    {
+      "path": "保留自由-6120.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": false,
+      "growth": 1,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 1
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 2,
+      "preserved_partial_events": 1,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [
+        {
+          "state": [
+            5,
+            0,
+            3,
+            2,
+            [
+              1,
+              1,
+              1,
+              3
+            ]
+          ],
+          "card": "甲快做",
+          "die": 3,
+          "reset": false
+        }
+      ],
+      "policy": "保留自由",
+      "seed": 6120
+    },
+    {
+      "path": "每轮先整顿-6121.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 4
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [],
+      "policy": "每轮先整顿",
+      "seed": 6121
+    },
+    {
+      "path": "每轮先整顿-6122.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 2
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 1,
+      "early_end_events": 1,
+      "interaction_visits": [],
+      "policy": "每轮先整顿",
+      "seed": 6122
+    },
+    {
+      "path": "每轮先整顿-6123.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 5
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "每轮先整顿",
+      "seed": 6123
+    },
+    {
+      "path": "每轮先整顿-6124.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 2
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [
+        {
+          "state": [
+            2,
+            3,
+            1,
+            3,
+            [
+              5
+            ]
+          ],
+          "card": "甲快做",
+          "die": 5,
+          "reset": true
+        }
+      ],
+      "policy": "每轮先整顿",
+      "seed": 6124
+    },
+    {
+      "path": "每轮先整顿-6125.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 11,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 3
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 1,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [],
+      "policy": "每轮先整顿",
+      "seed": 6125
+    },
+    {
+      "path": "每轮先整顿-6126.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 11,
+      "result": {
+        "status": "timeout",
+        "a": 0,
+        "b": 0,
+        "round": 3,
+        "cold": 0
+      },
+      "left_injury_free_model": true,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 2,
+      "retained_finished_events": 0,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 2,
+      "interaction_visits": [],
+      "policy": "每轮先整顿",
+      "seed": 6126
+    },
+    {
+      "path": "每轮先整顿-6127.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 12,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 3
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 1,
+      "retained_finished_events": 2,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 2,
+      "interaction_visits": [],
+      "policy": "每轮先整顿",
+      "seed": 6127
+    },
+    {
+      "path": "每轮先整顿-6128.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 3
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [],
+      "policy": "每轮先整顿",
+      "seed": 6128
+    },
+    {
+      "path": "成长2-6131.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 2,
+      "steps": 10,
+      "result": {
+        "status": "timeout",
+        "a": 5,
+        "b": 0,
+        "round": 3,
+        "cold": 0
+      },
+      "left_injury_free_model": true,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 3,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 3,
+      "interaction_visits": [],
+      "policy": "成长2",
+      "seed": 6131
+    },
+    {
+      "path": "成长2-6132.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 2,
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 4
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [],
+      "policy": "成长2",
+      "seed": 6132
+    },
+    {
+      "path": "成长2-6133.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 2,
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 5
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "成长2",
+      "seed": 6133
+    },
+    {
+      "path": "成长2-6134.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 2,
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 4
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": [],
+      "policy": "成长2",
+      "seed": 6134
+    },
+    {
+      "path": "边界-空过-True.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 3,
+      "result": {
+        "status": "timeout",
+        "a": 0,
+        "b": 0,
+        "round": 3,
+        "cold": 0
+      },
+      "left_injury_free_model": false,
+      "grades": [],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 0,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 3,
+      "interaction_visits": []
+    },
+    {
+      "path": "边界-半成品-True-6202.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 11,
+      "result": {
+        "status": "timeout",
+        "a": 5,
+        "b": 0,
+        "round": 3,
+        "cold": 0
+      },
+      "left_injury_free_model": true,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 2,
+      "retained_finished_events": 2,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 2,
+      "interaction_visits": [
+        {
+          "state": [
+            4,
+            3,
+            1,
+            2,
+            [
+              2,
+              5,
+              6
+            ]
+          ],
+          "card": "甲快做",
+          "die": 5,
+          "reset": true
+        },
+        {
+          "state": [
+            2,
+            3,
+            1,
+            2,
+            [
+              2,
+              6
+            ]
+          ],
+          "card": "甲快做",
+          "die": 6,
+          "reset": true
+        }
+      ]
+    },
+    {
+      "path": "边界-空过-False.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": false,
+      "growth": 1,
+      "steps": 3,
+      "result": {
+        "status": "timeout",
+        "a": 0,
+        "b": 0,
+        "round": 3,
+        "cold": 0
+      },
+      "left_injury_free_model": false,
+      "grades": [],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 0,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 3,
+      "interaction_visits": []
+    },
+    {
+      "path": "边界-半成品-False-6202.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": false,
+      "growth": 1,
+      "steps": 6,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 2,
+        "cold": 0
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 0,
+      "preserved_partial_events": 1,
+      "healing_cap_events": 0,
+      "early_end_events": 1,
+      "interaction_visits": []
+    },
+    {
+      "path": "边界-恢复封顶-6252.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 0
+      },
+      "left_injury_free_model": false,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 0,
+      "retained_finished_events": 1,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 1,
+      "early_end_events": 1,
+      "interaction_visits": []
+    },
+    {
+      "path": "边界-倒下-6304.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 11,
+      "result": {
+        "status": "collapse",
+        "a": 0,
+        "b": 0,
+        "round": 3,
+        "cold": 0
+      },
+      "left_injury_free_model": true,
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 3,
+      "retained_finished_events": 0,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 0,
+      "interaction_visits": [],
+      "policy": "边界-倒下覆盖",
+      "seed": 6304
+    },
+    {
+      "path": "边界-带伤成功-6344.json.gz",
+      "revision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+      "reset": true,
+      "growth": 1,
+      "steps": 10,
+      "result": {
+        "status": "success",
+        "a": 5,
+        "b": 3,
+        "round": 3,
+        "cold": 0
+      },
+      "left_injury_free_model": true,
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "cleared_partial_events": 1,
+      "retained_finished_events": 2,
+      "preserved_partial_events": 0,
+      "healing_cap_events": 0,
+      "early_end_events": 2,
+      "interaction_visits": [],
+      "policy": "边界-带伤成功覆盖",
+      "seed": 6344
+    }
+  ],
+  "summary": {
+    "整段自由": {
+      "games": 12,
+      "actual_success": 11,
+      "left_model": 1
+    },
+    "保留自由": {
+      "games": 8,
+      "actual_success": 8,
+      "left_model": 0
+    },
+    "每轮先整顿": {
+      "games": 8,
+      "actual_success": 7,
+      "left_model": 1
+    },
+    "成长2": {
+      "games": 4,
+      "actual_success": 3,
+      "left_model": 1
+    }
+  },
+  "scope": "有限正式行为样本，不用样本排策略胜率；首伤后启发式，不与无伤模型混算"
+}

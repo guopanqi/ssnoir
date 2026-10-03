@@ -1,0 +1,18 @@
+[
+  {
+    "scene": "枪口认路",
+    "record": "docs/实验/第二轮/枪口认路/当前回归复核.json.gz",
+    "contentRevision": "bccf7980e35c84b524890f309dff175bbad434bff2586956433873397e1e0c88",
+    "steps": 9,
+    "result": "'带底片脱身",
+    "strictReplayPassed": true
+  },
+  {
+    "scene": "信封换人",
+    "record": "docs/实验/第二轮/信封换人/当前回归复核.json.gz",
+    "contentRevision": "bccf7980e35c84b524890f309dff175bbad434bff2586956433873397e1e0c88",
+    "steps": 6,
+    "result": "('救出人质 5)",
+    "strictReplayPassed": true
+  }
+]

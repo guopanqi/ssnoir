@@ -1,0 +1,9876 @@
+{
+  "status": "passed",
+  "scope": "独立字面一/两骰小树，非全初始四骰独立最优",
+  "conditions": 486,
+  "hands": 27,
+  "locked_risk_equal_conditions": 972,
+  "free_vs_initial_lock_gap_count": 30,
+  "delay_witnesses": [
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "10/9",
+      "never": "35/36",
+      "initial_lock": "19/18",
+      "first_feedback": "10/9",
+      "free_risk_only": "10/9",
+      "gap": "1/18"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "19/18",
+      "never": "17/18",
+      "initial_lock": "1/1",
+      "first_feedback": "19/18",
+      "free_risk_only": "19/18",
+      "gap": "1/18"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "10/9",
+      "never": "19/18",
+      "initial_lock": "1/1",
+      "first_feedback": "10/9",
+      "free_risk_only": "10/9",
+      "gap": "1/9"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "7/6",
+      "never": "10/9",
+      "initial_lock": "1/1",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "7/6",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "7/6",
+      "never": "7/6",
+      "initial_lock": "1/1",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "7/6",
+      "never": "7/6",
+      "initial_lock": "1/1",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "43/36",
+      "never": "10/9",
+      "initial_lock": "7/6",
+      "first_feedback": "43/36",
+      "free_risk_only": "43/36",
+      "gap": "1/36"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "3/2",
+      "never": "5/4",
+      "initial_lock": "13/9",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2",
+      "gap": "1/18"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "10/9",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "10/9",
+      "free_risk_only": "10/9",
+      "gap": "1/9"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "5/3",
+      "never": "3/2",
+      "initial_lock": "14/9",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3",
+      "gap": "1/9"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "11/9",
+      "never": "10/9",
+      "initial_lock": "1/1",
+      "first_feedback": "11/9",
+      "free_risk_only": "11/9",
+      "gap": "2/9"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "59/36",
+      "never": "13/9",
+      "initial_lock": "14/9",
+      "first_feedback": "59/36",
+      "free_risk_only": "59/36",
+      "gap": "1/12"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "10/9",
+      "never": "17/18",
+      "initial_lock": "35/36",
+      "first_feedback": "10/9",
+      "free_risk_only": "10/9",
+      "gap": "5/36"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "11/6",
+      "never": "5/3",
+      "initial_lock": "5/3",
+      "first_feedback": "11/6",
+      "free_risk_only": "11/6",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "4/3",
+      "never": "11/9",
+      "initial_lock": "1/1",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3",
+      "gap": "1/3"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "11/6",
+      "never": "59/36",
+      "initial_lock": "5/3",
+      "first_feedback": "11/6",
+      "free_risk_only": "11/6",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "4/3",
+      "never": "10/9",
+      "initial_lock": "1/1",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3",
+      "gap": "1/3"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "11/6",
+      "never": "11/6",
+      "initial_lock": "5/3",
+      "first_feedback": "11/6",
+      "free_risk_only": "11/6",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "4/3",
+      "never": "4/3",
+      "initial_lock": "1/1",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3",
+      "gap": "1/3"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "11/6",
+      "never": "11/6",
+      "initial_lock": "5/3",
+      "first_feedback": "11/6",
+      "free_risk_only": "11/6",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "4/3",
+      "never": "4/3",
+      "initial_lock": "1/1",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3",
+      "gap": "1/3"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "7/6",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "4/3",
+      "never": "7/6",
+      "initial_lock": "10/9",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3",
+      "gap": "2/9"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "5/4",
+      "never": "1/1",
+      "initial_lock": "10/9",
+      "first_feedback": "5/4",
+      "free_risk_only": "5/4",
+      "gap": "5/36"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "3/2",
+      "never": "4/3",
+      "initial_lock": "4/3",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "3/2",
+      "never": "5/4",
+      "initial_lock": "4/3",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "3/2",
+      "never": "3/2",
+      "initial_lock": "4/3",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "3/2",
+      "never": "3/2",
+      "initial_lock": "4/3",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2",
+      "gap": "1/6"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "13/9",
+      "never": "11/9",
+      "initial_lock": "25/18",
+      "first_feedback": "13/9",
+      "free_risk_only": "13/9",
+      "gap": "1/18"
+    }
+  ],
+  "free_full_vs_risk_only_gap_count": 0,
+  "unlocked_mode_witnesses": [],
+  "advance_steady_beats_risk_count": 110,
+  "pointwise_steady_witnesses": [
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "14/9",
+      "risk_action_value": "11/9"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "5/3",
+      "risk_action_value": "14/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "14/9",
+      "risk_action_value": "11/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "13/9",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "5/3",
+      "risk_action_value": "14/9"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "5/3",
+      "risk_action_value": "13/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "11/6",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "4/3",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "17/9",
+      "never": "14/9",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "23/18",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "2/1",
+      "risk_action_value": "11/6"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "5/3",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "17/9",
+      "never": "3/2",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "4/3",
+      "risk_action_value": "23/18"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "11/6",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "11/9",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "14/9",
+      "risk_action_value": "11/9"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "2/1",
+      "risk_action_value": "11/6"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "5/3",
+      "risk_action_value": "11/9"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "5/3",
+      "risk_action_value": "14/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "11/6",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "10/9",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "11/6",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "2/1",
+      "risk_action_value": "11/6"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "5/3",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "2/1",
+      "risk_action_value": "11/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "11/6",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "11/6",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "2/1",
+      "risk_action_value": "11/6"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 6,
+      "steady_action_value": "5/3",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 1,
+      "steady_action_value": "2/1",
+      "risk_action_value": "11/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "35/18",
+      "never": "35/18",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "13/9",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "35/18",
+      "never": "35/18",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "5/3",
+      "risk_action_value": "13/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "5/3",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "4/3",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "17/9",
+      "never": "61/36",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "11/9",
+      "risk_action_value": "19/18"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "2/1",
+      "risk_action_value": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "5/3",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "17/9",
+      "never": "5/3",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "4/3",
+      "risk_action_value": "11/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "5/3",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "11/9",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "13/9",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "2/1",
+      "risk_action_value": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "5/3",
+      "risk_action_value": "11/9"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "5/3",
+      "risk_action_value": "13/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "5/3",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "10/9",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "5/3",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "2/1",
+      "risk_action_value": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "5/3",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "2/1",
+      "risk_action_value": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "5/3",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "5/3",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "2/1",
+      "risk_action_value": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 6,
+      "steady_action_value": "5/3",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 2,
+      "steady_action_value": "2/1",
+      "risk_action_value": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "3/2",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "2/1",
+      "never": "31/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "7/6",
+      "risk_action_value": "19/18"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "2/1",
+      "risk_action_value": "3/2"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "2/1",
+      "never": "31/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "4/3",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "3/2",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "4/3",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "4/3",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "10/9",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "2/1",
+      "risk_action_value": "3/2"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "2/1",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "5/3",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "4/3",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "3/2",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "7/6",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "3/2",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "19/18",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "2/1",
+      "risk_action_value": "3/2"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "2/1",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "2/1",
+      "risk_action_value": "3/2"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "4/3",
+      "risk_action_value": "19/18"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "3/2",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "3/2",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "2/1",
+      "risk_action_value": "3/2"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 6,
+      "steady_action_value": "2/1",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 3,
+      "steady_action_value": "2/1",
+      "risk_action_value": "3/2"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 6,
+      "steady_action_value": "4/3",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "4/3",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "11/9",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "2/1",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "5/3",
+      "risk_action_value": "11/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "4/3",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "7/6",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "4/3",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "10/9",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "2/1",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "2/1",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "2/1",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "5/3",
+      "risk_action_value": "10/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "4/3",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "4/3",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "2/1",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 6,
+      "steady_action_value": "2/1",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 4,
+      "steady_action_value": "2/1",
+      "risk_action_value": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 6,
+      "steady_action_value": "5/3",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "7/6",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "7/6",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "2/1",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "2/1",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "7/6",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "7/6",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "2/1",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 6,
+      "steady_action_value": "2/1",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 5,
+      "steady_action_value": "2/1",
+      "risk_action_value": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 6,
+      "steady_action_value": "2/1",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 6,
+      "steady_action_value": "2/1",
+      "risk_action_value": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1",
+      "target": 0,
+      "die": 6,
+      "steady_action_value": "2/1",
+      "risk_action_value": "1/1"
+    }
+  ],
+  "capacity_permitted_steady_beats_risk_count": 0,
+  "capacity_permitted_delay_count": 24,
+  "first_feedback_equals_free_count": 486,
+  "literal_fate": {
+    "1": {
+      "1": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        2
+      ],
+      "2": [
+        0,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "3": [
+        0,
+        1,
+        1,
+        2,
+        2,
+        2
+      ],
+      "4": [
+        1,
+        1,
+        2,
+        2,
+        2,
+        2
+      ],
+      "5": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "6": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "2": {
+      "1": [
+        0,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "2": [
+        0,
+        1,
+        1,
+        2,
+        2,
+        2
+      ],
+      "3": [
+        1,
+        1,
+        2,
+        2,
+        2,
+        2
+      ],
+      "4": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "5": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "6": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    }
+  },
+  "cases": [
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1
+      ],
+      "free": "5/3",
+      "never": "4/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        1
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        1
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        1
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1
+      ],
+      "free": "5/3",
+      "never": "4/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1
+      ],
+      "free": "2/3",
+      "never": "1/3",
+      "initial_lock": "2/3",
+      "first_feedback": "2/3",
+      "free_risk_only": "2/3"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        1
+      ],
+      "free": "1/3",
+      "never": "1/6",
+      "initial_lock": "1/3",
+      "first_feedback": "1/3",
+      "free_risk_only": "1/3"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        1
+      ],
+      "free": "1/3",
+      "never": "1/6",
+      "initial_lock": "1/3",
+      "first_feedback": "1/3",
+      "free_risk_only": "1/3"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        1
+      ],
+      "free": "1/3",
+      "never": "1/6",
+      "initial_lock": "1/3",
+      "first_feedback": "1/3",
+      "free_risk_only": "1/3"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        1
+      ],
+      "free": "1/3",
+      "never": "1/6",
+      "initial_lock": "1/3",
+      "first_feedback": "1/3",
+      "free_risk_only": "1/3"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        1
+      ],
+      "free": "5/3",
+      "never": "4/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        1
+      ],
+      "free": "2/3",
+      "never": "1/3",
+      "initial_lock": "2/3",
+      "first_feedback": "2/3",
+      "free_risk_only": "2/3"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        1
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        1
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        1
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        1
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2
+      ],
+      "free": "5/3",
+      "never": "5/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        2
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2
+      ],
+      "free": "5/6",
+      "never": "5/6",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        2
+      ],
+      "free": "5/6",
+      "never": "5/6",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        2
+      ],
+      "free": "5/6",
+      "never": "5/6",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        2
+      ],
+      "free": "5/6",
+      "never": "5/6",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2
+      ],
+      "free": "5/3",
+      "never": "5/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        2
+      ],
+      "free": "1/1",
+      "never": "2/3",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        2
+      ],
+      "free": "1/2",
+      "never": "1/3",
+      "initial_lock": "1/2",
+      "first_feedback": "1/2",
+      "free_risk_only": "1/2"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        2
+      ],
+      "free": "1/2",
+      "never": "1/3",
+      "initial_lock": "1/2",
+      "first_feedback": "1/2",
+      "free_risk_only": "1/2"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        2
+      ],
+      "free": "1/2",
+      "never": "1/3",
+      "initial_lock": "1/2",
+      "first_feedback": "1/2",
+      "free_risk_only": "1/2"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        2
+      ],
+      "free": "1/2",
+      "never": "1/3",
+      "initial_lock": "1/2",
+      "first_feedback": "1/2",
+      "free_risk_only": "1/2"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        2
+      ],
+      "free": "5/3",
+      "never": "5/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        2
+      ],
+      "free": "1/1",
+      "never": "2/3",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        2
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        2
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        2
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        2
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3
+      ],
+      "free": "2/1",
+      "never": "5/3",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3
+      ],
+      "free": "4/3",
+      "never": "1/1",
+      "initial_lock": "4/3",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        3
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        3
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        3
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        3
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3
+      ],
+      "free": "2/1",
+      "never": "5/3",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3
+      ],
+      "free": "4/3",
+      "never": "1/1",
+      "initial_lock": "4/3",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        3
+      ],
+      "free": "2/3",
+      "never": "1/2",
+      "initial_lock": "2/3",
+      "first_feedback": "2/3",
+      "free_risk_only": "2/3"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        3
+      ],
+      "free": "2/3",
+      "never": "1/2",
+      "initial_lock": "2/3",
+      "first_feedback": "2/3",
+      "free_risk_only": "2/3"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        3
+      ],
+      "free": "2/3",
+      "never": "1/2",
+      "initial_lock": "2/3",
+      "first_feedback": "2/3",
+      "free_risk_only": "2/3"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        3
+      ],
+      "free": "2/3",
+      "never": "1/2",
+      "initial_lock": "2/3",
+      "first_feedback": "2/3",
+      "free_risk_only": "2/3"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        3
+      ],
+      "free": "2/1",
+      "never": "5/3",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        3
+      ],
+      "free": "4/3",
+      "never": "1/1",
+      "initial_lock": "4/3",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        3
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        3
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        3
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        3
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        4
+      ],
+      "free": "5/3",
+      "never": "4/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        4
+      ],
+      "free": "5/3",
+      "never": "4/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        4
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        4
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        4
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        4
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        4
+      ],
+      "free": "5/3",
+      "never": "4/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        4
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        4
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        4
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        4
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        5
+      ],
+      "free": "2/1",
+      "never": "5/3",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        5
+      ],
+      "free": "2/1",
+      "never": "5/3",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        5
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        5
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        5
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        5
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        5
+      ],
+      "free": "2/1",
+      "never": "5/3",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        5
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        5
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        5
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        5
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        6
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        6
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        6
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        6
+      ],
+      "free": "0/1",
+      "never": "0/1",
+      "initial_lock": "0/1",
+      "first_feedback": "0/1",
+      "free_risk_only": "0/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "29/18",
+      "never": "11/9",
+      "initial_lock": "29/18",
+      "first_feedback": "29/18",
+      "free_risk_only": "29/18"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "35/36",
+      "never": "8/9",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "35/36",
+      "never": "8/9",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "35/36",
+      "never": "8/9",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "35/36",
+      "never": "8/9",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "29/18",
+      "never": "10/9",
+      "initial_lock": "29/18",
+      "first_feedback": "29/18",
+      "free_risk_only": "29/18"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "8/9",
+      "never": "5/9",
+      "initial_lock": "8/9",
+      "first_feedback": "8/9",
+      "free_risk_only": "8/9"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "29/36",
+      "never": "5/9",
+      "initial_lock": "29/36",
+      "first_feedback": "29/36",
+      "free_risk_only": "29/36"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "29/36",
+      "never": "5/9",
+      "initial_lock": "29/36",
+      "first_feedback": "29/36",
+      "free_risk_only": "29/36"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "29/36",
+      "never": "5/9",
+      "initial_lock": "29/36",
+      "first_feedback": "29/36",
+      "free_risk_only": "29/36"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "29/18",
+      "never": "10/9",
+      "initial_lock": "29/18",
+      "first_feedback": "29/18",
+      "free_risk_only": "29/18"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "8/9",
+      "never": "7/18",
+      "initial_lock": "8/9",
+      "first_feedback": "8/9",
+      "free_risk_only": "8/9"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "4/9",
+      "never": "7/36",
+      "initial_lock": "4/9",
+      "first_feedback": "4/9",
+      "free_risk_only": "4/9"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "4/9",
+      "never": "7/36",
+      "initial_lock": "4/9",
+      "first_feedback": "4/9",
+      "free_risk_only": "4/9"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        1,
+        1
+      ],
+      "free": "4/9",
+      "never": "7/36",
+      "initial_lock": "4/9",
+      "first_feedback": "4/9",
+      "free_risk_only": "4/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "5/3",
+      "never": "13/9",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "10/9",
+      "never": "35/36",
+      "initial_lock": "19/18",
+      "first_feedback": "10/9",
+      "free_risk_only": "10/9"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "35/36",
+      "never": "17/18",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "35/36",
+      "never": "17/18",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "35/36",
+      "never": "17/18",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "5/3",
+      "never": "25/18",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "19/18",
+      "never": "13/18",
+      "initial_lock": "19/18",
+      "first_feedback": "19/18",
+      "free_risk_only": "19/18"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "5/6",
+      "never": "25/36",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "5/6",
+      "never": "25/36",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "5/6",
+      "never": "25/36",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "5/3",
+      "never": "25/18",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "19/18",
+      "never": "11/18",
+      "initial_lock": "19/18",
+      "first_feedback": "19/18",
+      "free_risk_only": "19/18"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "19/36",
+      "never": "11/36",
+      "initial_lock": "19/36",
+      "first_feedback": "19/36",
+      "free_risk_only": "19/36"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "19/36",
+      "never": "11/36",
+      "initial_lock": "19/36",
+      "first_feedback": "19/36",
+      "free_risk_only": "19/36"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        1,
+        2
+      ],
+      "free": "19/36",
+      "never": "11/36",
+      "initial_lock": "19/36",
+      "first_feedback": "19/36",
+      "free_risk_only": "19/36"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "17/9",
+      "never": "14/9",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "4/3",
+      "never": "19/18",
+      "initial_lock": "4/3",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "19/18",
+      "never": "17/18",
+      "initial_lock": "1/1",
+      "first_feedback": "19/18",
+      "free_risk_only": "19/18"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "1/1",
+      "never": "17/18",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "1/1",
+      "never": "17/18",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "17/9",
+      "never": "3/2",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "4/3",
+      "never": "17/18",
+      "initial_lock": "4/3",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "17/18",
+      "never": "3/4",
+      "initial_lock": "17/18",
+      "first_feedback": "17/18",
+      "free_risk_only": "17/18"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "17/18",
+      "never": "3/4",
+      "initial_lock": "17/18",
+      "first_feedback": "17/18",
+      "free_risk_only": "17/18"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "17/18",
+      "never": "3/4",
+      "initial_lock": "17/18",
+      "first_feedback": "17/18",
+      "free_risk_only": "17/18"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "17/9",
+      "never": "3/2",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "4/3",
+      "never": "7/9",
+      "initial_lock": "4/3",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "2/3",
+      "never": "7/18",
+      "initial_lock": "2/3",
+      "first_feedback": "2/3",
+      "free_risk_only": "2/3"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "2/3",
+      "never": "7/18",
+      "initial_lock": "2/3",
+      "first_feedback": "2/3",
+      "free_risk_only": "2/3"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        1,
+        3
+      ],
+      "free": "2/3",
+      "never": "7/18",
+      "initial_lock": "2/3",
+      "first_feedback": "2/3",
+      "free_risk_only": "2/3"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "3/2",
+      "never": "4/3",
+      "initial_lock": "3/2",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "10/9",
+      "never": "19/18",
+      "initial_lock": "1/1",
+      "first_feedback": "10/9",
+      "free_risk_only": "10/9"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "3/2",
+      "never": "11/9",
+      "initial_lock": "3/2",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "35/36",
+      "never": "8/9",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "35/36",
+      "never": "8/9",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "35/36",
+      "never": "8/9",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "3/2",
+      "never": "1/1",
+      "initial_lock": "3/2",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "3/4",
+      "never": "1/2",
+      "initial_lock": "3/4",
+      "first_feedback": "3/4",
+      "free_risk_only": "3/4"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "3/4",
+      "never": "1/2",
+      "initial_lock": "3/4",
+      "first_feedback": "3/4",
+      "free_risk_only": "3/4"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        1,
+        4
+      ],
+      "free": "3/4",
+      "never": "1/2",
+      "initial_lock": "3/4",
+      "first_feedback": "3/4",
+      "free_risk_only": "3/4"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "5/3",
+      "never": "3/2",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "7/6",
+      "never": "10/9",
+      "initial_lock": "1/1",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "5/3",
+      "never": "13/9",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "7/6",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "1/1",
+      "never": "17/18",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "1/1",
+      "never": "17/18",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "5/3",
+      "never": "7/6",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "5/6",
+      "never": "7/12",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "5/6",
+      "never": "7/12",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        1,
+        5
+      ],
+      "free": "5/6",
+      "never": "7/12",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "5/3",
+      "never": "5/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "7/6",
+      "never": "7/6",
+      "initial_lock": "1/1",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "5/3",
+      "never": "5/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "7/6",
+      "never": "7/6",
+      "initial_lock": "1/1",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "5/3",
+      "never": "4/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        1,
+        6
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "35/18",
+      "never": "35/18",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "31/18",
+      "never": "59/36",
+      "initial_lock": "31/18",
+      "first_feedback": "31/18",
+      "free_risk_only": "31/18"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "43/36",
+      "never": "10/9",
+      "initial_lock": "7/6",
+      "first_feedback": "43/36",
+      "free_risk_only": "43/36"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "35/36",
+      "never": "35/36",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "35/36",
+      "never": "35/36",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "35/36",
+      "never": "35/36",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "35/18",
+      "never": "35/18",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "31/18",
+      "never": "29/18",
+      "initial_lock": "31/18",
+      "first_feedback": "31/18",
+      "free_risk_only": "31/18"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "7/6",
+      "never": "17/18",
+      "initial_lock": "7/6",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "31/36",
+      "never": "29/36",
+      "initial_lock": "31/36",
+      "first_feedback": "31/36",
+      "free_risk_only": "31/36"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "31/36",
+      "never": "29/36",
+      "initial_lock": "31/36",
+      "first_feedback": "31/36",
+      "free_risk_only": "31/36"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "31/36",
+      "never": "29/36",
+      "initial_lock": "31/36",
+      "first_feedback": "31/36",
+      "free_risk_only": "31/36"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "35/18",
+      "never": "35/18",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "31/18",
+      "never": "29/18",
+      "initial_lock": "31/18",
+      "first_feedback": "31/18",
+      "free_risk_only": "31/18"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "7/6",
+      "never": "8/9",
+      "initial_lock": "7/6",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "7/12",
+      "never": "4/9",
+      "initial_lock": "7/12",
+      "first_feedback": "7/12",
+      "free_risk_only": "7/12"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "7/12",
+      "never": "4/9",
+      "initial_lock": "7/12",
+      "first_feedback": "7/12",
+      "free_risk_only": "7/12"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        2,
+        2
+      ],
+      "free": "7/12",
+      "never": "4/9",
+      "initial_lock": "7/12",
+      "first_feedback": "7/12",
+      "free_risk_only": "7/12"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "17/9",
+      "never": "61/36",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "3/2",
+      "never": "5/4",
+      "initial_lock": "13/9",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "10/9",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "10/9",
+      "free_risk_only": "10/9"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "1/1",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "1/1",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "17/9",
+      "never": "5/3",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "13/9",
+      "never": "41/36",
+      "initial_lock": "13/9",
+      "first_feedback": "13/9",
+      "free_risk_only": "13/9"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "17/18",
+      "never": "5/6",
+      "initial_lock": "17/18",
+      "first_feedback": "17/18",
+      "free_risk_only": "17/18"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "17/18",
+      "never": "5/6",
+      "initial_lock": "17/18",
+      "first_feedback": "17/18",
+      "free_risk_only": "17/18"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "17/18",
+      "never": "5/6",
+      "initial_lock": "17/18",
+      "first_feedback": "17/18",
+      "free_risk_only": "17/18"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "17/9",
+      "never": "5/3",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "13/9",
+      "never": "19/18",
+      "initial_lock": "13/9",
+      "first_feedback": "13/9",
+      "free_risk_only": "13/9"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "13/18",
+      "never": "19/36",
+      "initial_lock": "13/18",
+      "first_feedback": "13/18",
+      "free_risk_only": "13/18"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "13/18",
+      "never": "19/36",
+      "initial_lock": "13/18",
+      "first_feedback": "13/18",
+      "free_risk_only": "13/18"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        2,
+        3
+      ],
+      "free": "13/18",
+      "never": "19/36",
+      "initial_lock": "13/18",
+      "first_feedback": "13/18",
+      "free_risk_only": "13/18"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "5/3",
+      "never": "3/2",
+      "initial_lock": "14/9",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "11/9",
+      "never": "10/9",
+      "initial_lock": "1/1",
+      "first_feedback": "11/9",
+      "free_risk_only": "11/9"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "59/36",
+      "never": "13/9",
+      "initial_lock": "14/9",
+      "first_feedback": "59/36",
+      "free_risk_only": "59/36"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "10/9",
+      "never": "17/18",
+      "initial_lock": "35/36",
+      "first_feedback": "10/9",
+      "free_risk_only": "10/9"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "35/36",
+      "never": "17/18",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "35/36",
+      "never": "17/18",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "35/18",
+      "never": "17/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "14/9",
+      "never": "4/3",
+      "initial_lock": "14/9",
+      "first_feedback": "14/9",
+      "free_risk_only": "14/9"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "5/6",
+      "never": "2/3",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "7/9",
+      "never": "2/3",
+      "initial_lock": "7/9",
+      "first_feedback": "7/9",
+      "free_risk_only": "7/9"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        2,
+        4
+      ],
+      "free": "7/9",
+      "never": "2/3",
+      "initial_lock": "7/9",
+      "first_feedback": "7/9",
+      "free_risk_only": "7/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "11/6",
+      "never": "5/3",
+      "initial_lock": "5/3",
+      "first_feedback": "11/6",
+      "free_risk_only": "11/6"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "4/3",
+      "never": "11/9",
+      "initial_lock": "1/1",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "11/6",
+      "never": "59/36",
+      "initial_lock": "5/3",
+      "first_feedback": "11/6",
+      "free_risk_only": "11/6"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "4/3",
+      "never": "10/9",
+      "initial_lock": "1/1",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "1/1",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "1/1",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "5/3",
+      "never": "3/2",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "1/1",
+      "never": "3/4",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "5/6",
+      "never": "3/4",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        2,
+        5
+      ],
+      "free": "5/6",
+      "never": "3/4",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "11/6",
+      "never": "11/6",
+      "initial_lock": "5/3",
+      "first_feedback": "11/6",
+      "free_risk_only": "11/6"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "4/3",
+      "never": "4/3",
+      "initial_lock": "1/1",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "11/6",
+      "never": "11/6",
+      "initial_lock": "5/3",
+      "first_feedback": "11/6",
+      "free_risk_only": "11/6"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "4/3",
+      "never": "4/3",
+      "initial_lock": "1/1",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "5/3",
+      "never": "5/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "5/6",
+      "never": "5/6",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        2,
+        6
+      ],
+      "free": "5/6",
+      "never": "5/6",
+      "initial_lock": "5/6",
+      "first_feedback": "5/6",
+      "free_risk_only": "5/6"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "2/1",
+      "never": "31/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "16/9",
+      "never": "47/36",
+      "initial_lock": "16/9",
+      "first_feedback": "16/9",
+      "free_risk_only": "16/9"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "7/6",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "7/6",
+      "free_risk_only": "7/6"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "1/1",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "1/1",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "2/1",
+      "never": "31/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "16/9",
+      "never": "5/4",
+      "initial_lock": "16/9",
+      "first_feedback": "16/9",
+      "free_risk_only": "16/9"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "1/1",
+      "never": "31/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "1/1",
+      "never": "31/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "1/1",
+      "never": "31/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "2/1",
+      "never": "31/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "16/9",
+      "never": "7/6",
+      "initial_lock": "16/9",
+      "first_feedback": "16/9",
+      "free_risk_only": "16/9"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "8/9",
+      "never": "7/12",
+      "initial_lock": "8/9",
+      "first_feedback": "8/9",
+      "free_risk_only": "8/9"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "8/9",
+      "never": "7/12",
+      "initial_lock": "8/9",
+      "first_feedback": "8/9",
+      "free_risk_only": "8/9"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        3,
+        3
+      ],
+      "free": "8/9",
+      "never": "7/12",
+      "initial_lock": "8/9",
+      "first_feedback": "8/9",
+      "free_risk_only": "8/9"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "17/9",
+      "never": "29/18",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "4/3",
+      "never": "7/6",
+      "initial_lock": "10/9",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "17/9",
+      "never": "14/9",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "5/4",
+      "never": "1/1",
+      "initial_lock": "10/9",
+      "first_feedback": "5/4",
+      "free_risk_only": "5/4"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "1/1",
+      "never": "17/18",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "1/1",
+      "never": "17/18",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "17/9",
+      "never": "13/9",
+      "initial_lock": "17/9",
+      "first_feedback": "17/9",
+      "free_risk_only": "17/9"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "10/9",
+      "never": "13/18",
+      "initial_lock": "10/9",
+      "first_feedback": "10/9",
+      "free_risk_only": "10/9"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "17/18",
+      "never": "13/18",
+      "initial_lock": "17/18",
+      "first_feedback": "17/18",
+      "free_risk_only": "17/18"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        3,
+        4
+      ],
+      "free": "17/18",
+      "never": "13/18",
+      "initial_lock": "17/18",
+      "first_feedback": "17/18",
+      "free_risk_only": "17/18"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "31/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "3/2",
+      "never": "4/3",
+      "initial_lock": "4/3",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "61/36",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "3/2",
+      "never": "5/4",
+      "initial_lock": "4/3",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "1/1",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "1/1",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "2/1",
+      "never": "14/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "4/3",
+      "never": "5/6",
+      "initial_lock": "4/3",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "1/1",
+      "never": "7/9",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        3,
+        5
+      ],
+      "free": "1/1",
+      "never": "7/9",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "11/6",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "3/2",
+      "never": "3/2",
+      "initial_lock": "4/3",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "11/6",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "3/2",
+      "never": "3/2",
+      "initial_lock": "4/3",
+      "first_feedback": "3/2",
+      "free_risk_only": "3/2"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "2/1",
+      "never": "5/3",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "4/3",
+      "never": "1/1",
+      "initial_lock": "4/3",
+      "first_feedback": "4/3",
+      "free_risk_only": "4/3"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        3,
+        6
+      ],
+      "free": "1/1",
+      "never": "5/6",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "13/9",
+      "never": "11/9",
+      "initial_lock": "25/18",
+      "first_feedback": "13/9",
+      "free_risk_only": "13/9"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "25/18",
+      "never": "10/9",
+      "initial_lock": "25/18",
+      "first_feedback": "25/18",
+      "free_risk_only": "25/18"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "35/18",
+      "never": "16/9",
+      "initial_lock": "35/18",
+      "first_feedback": "35/18",
+      "free_risk_only": "35/18"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "25/18",
+      "never": "8/9",
+      "initial_lock": "25/18",
+      "first_feedback": "25/18",
+      "free_risk_only": "25/18"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "35/36",
+      "never": "8/9",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        4,
+        4
+      ],
+      "free": "35/36",
+      "never": "8/9",
+      "initial_lock": "35/36",
+      "first_feedback": "35/36",
+      "free_risk_only": "35/36"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "5/3",
+      "never": "13/9",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "5/3",
+      "never": "25/18",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "2/1",
+      "never": "17/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "5/3",
+      "never": "10/9",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "1/1",
+      "never": "17/18",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        4,
+        5
+      ],
+      "free": "1/1",
+      "never": "17/18",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "5/3",
+      "never": "5/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "5/3",
+      "never": "5/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "5/3",
+      "never": "4/3",
+      "initial_lock": "5/3",
+      "first_feedback": "5/3",
+      "free_risk_only": "5/3"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        4,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "14/9",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "55/36",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "35/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "2/1",
+      "never": "25/18",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "1/1",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        5,
+        5
+      ],
+      "free": "1/1",
+      "never": "35/36",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "11/6",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "11/6",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "2/1",
+      "never": "5/3",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        5,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        1
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        2
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        3
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        4
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        1,
+        5
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        1,
+        6
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        1
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        2
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        3
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        4
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        2,
+        5
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        2,
+        6
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        1
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        2
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        3
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        4
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "2/1",
+      "never": "2/1",
+      "initial_lock": "2/1",
+      "first_feedback": "2/1",
+      "free_risk_only": "2/1"
+    },
+    {
+      "needs": [
+        3,
+        5
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    },
+    {
+      "needs": [
+        3,
+        6
+      ],
+      "dice": [
+        6,
+        6
+      ],
+      "free": "1/1",
+      "never": "1/1",
+      "initial_lock": "1/1",
+      "first_feedback": "1/1",
+      "free_risk_only": "1/1"
+    }
+  ],
+  "elapsed_seconds": 1.486978166969493,
+  "source_sha256": "8be524ad307758abcbafbef2476f16ceea74ff3bbbd465f115f49861b901a32a"
+}

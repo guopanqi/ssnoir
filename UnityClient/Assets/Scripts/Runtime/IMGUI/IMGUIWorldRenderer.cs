@@ -1473,14 +1473,16 @@ namespace SSNoir.IMGUI
                 {
                     // 地点牌与锚定标注只要求锚点在镜头前方：锚点出了画面，牌子
                     // 仍可能露出一角，玩家可以拖镜头把它带回来。动作卡保留视口筛选。
+                    // 标注已参与避让，所以也走落镜后再排布 / 已有落点可续画，避免运镜途中乱跳。
                     var viewPos = cam.WorldToViewportPoint(anchor.transform.position);
                     float padding = 0.05f;
-                    bool worldFixed = AnnotationDrawer.IsAnnotation(node) || node.IsContainer;
-                    bool cachedAction = !worldFixed && HasActionCenter(node.Name, actionMode);
-                    bool waitForLanding = !worldFixed && !cachedAction
+                    bool softWorldLabel = AnnotationDrawer.IsAnnotation(node) || node.IsContainer;
+                    bool layoutFixed = node.IsContainer;
+                    bool cachedAction = !layoutFixed && HasActionCenter(node.Name, actionMode);
+                    bool waitForLanding = !layoutFixed && !cachedAction
                         && _gameManager.CameraManager.IsFocusTravelInFlight;
                     bool inCameraSight = cachedAction || (viewPos.z >= 0
-                                      && (worldFixed || (viewPos.x >= -padding && viewPos.x <= (1f + padding)
+                                      && (softWorldLabel || (viewPos.x >= -padding && viewPos.x <= (1f + padding)
                                           && viewPos.y >= -padding && viewPos.y <= (1f + padding))));
 
                     if (inCameraSight)
@@ -1628,21 +1630,21 @@ namespace SSNoir.IMGUI
                     isAnnotation));
             }
 
-            // 地点牌和锚定标注直接映射到世界点。动作卡只在首次出现、内容尺寸或
-            // 视角改变时避让一次；Pan 在锚点周围避开卡片与视觉重心后固定世界点，
-            // Orbit 仍固定左右栏的屏幕位置。
-            // 地点牌和锚定标注不参与重排，但它们占据的区域会约束动作卡的首次落点。
+            // 地点牌直接映射到世界点，并作为硬占位约束动作卡与锚定标注。
+            // 动作卡与锚定标注都参与首次避让：同一/邻近锚点上多条标注（如两根钟）
+            // 以前会叠在 TargetCenter 上，必须进 SolvePanActions / SolveProjectedStacks。
+            // Pan 在锚点周围避开卡片、标注与视觉重心后固定世界点；Orbit 仍走左右栏分列。
             var keepOut = BuildCardKeepOut(layouts.Where(layout => layout.IsWorldFixed));
-            var actionLayouts = layouts.Where(layout => !layout.IsWorldFixed).ToList();
-            if (StackContentChanged(actionLayouts))
+            var movableLayouts = layouts.Where(layout => !layout.IsWorldFixed).ToList();
+            if (StackContentChanged(movableLayouts))
             {
                 if (actionMode == CameraDragMode.Pan)
-                    SolvePanActions(actionLayouts, protectedAnchors, keepOut);
+                    SolvePanActions(movableLayouts, protectedAnchors, keepOut);
                 else
-                    SolveProjectedStacks(actionLayouts, keepOut);
+                    SolveProjectedStacks(movableLayouts, keepOut);
                 // 换镜途中只可能有已有落点的卡；新卡在落镜后才进入排布。
                 if (!_gameManager.CameraManager.IsFocusTravelInFlight)
-                    RememberActionCenters(actionLayouts, cam, actionMode);
+                    RememberActionCenters(movableLayouts, cam, actionMode);
             }
             foreach (var layout in layouts)
             {
@@ -3615,9 +3617,10 @@ namespace SSNoir.IMGUI
         private class ProjectedCardLayout
         {
             public GameNode Node { get; }
-            // 地点与锚定标注是固定世界标识；动作卡才参加屏幕空间的避让解算。
+            // 地点牌是固定世界标识；动作卡与锚定标注都参加屏幕空间的避让解算
+            //（同锚多标注会进分列/Pan 搜空，见 DrawCards）。
             public bool IsAnnotation { get; }
-            public bool IsWorldFixed => IsAnnotation || Node.IsContainer;
+            public bool IsWorldFixed => Node.IsContainer;
             public string Key => Node.Name;
             public Vector2 AnchorPos { get; }
             public float Distance { get; }

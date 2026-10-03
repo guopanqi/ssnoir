@@ -1,0 +1,14 @@
+{
+  "batch": "R46",
+  "status": "主模型执行完成",
+  "source_sha256": {
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/有界研究计划.md": "b1070caea3058bf8681f4dcd03b3eaf027e30c5e333abba1e1d58a0cd7497c2d",
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/实时判据.py": "26aad275768f4e004e86f5e430f11d06dc619c8620c6c36de6b5d2bfd1065524",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/专注模型.py": "ee1168f49142211f0139dd762164c684a9e49867dd68a43a14fe8b4bf1e4eec6",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/数学结果.json": "499781ff4dd54a2fb21838208598408153ad9d829368689828fa6809277dfc4e",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c"
+  },
+  "command": "python3 docs/实验/机制研究/批次/R46-承诺选择的实时判据/实时判据.py",
+  "exit_code": 0,
+  "live_session_id": null
+}

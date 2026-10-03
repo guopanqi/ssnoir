@@ -2,6 +2,7 @@
 using UnityEngine;
 using SSNoir.Core;
 using SSNoir.IMGUI;
+using SSNoir.IMGUI.Stage;
 
 namespace SSNoir
 {
@@ -20,10 +21,8 @@ namespace SSNoir
     {
 
         private const float ColumnX = 0.10f;   // 文字栏左边距（屏宽占比）
-        private const float TitleY = 0.30f;    // 片名基线（屏高占比）
-        private const float TitleHeight = 152f;
-        private const float TitleRuleOffset = 164f;
-        private const float MenuTopOffset = 204f;
+        private const float TitleY = 0.15f;    // 片名基线（屏高占比）
+        private const float TitleMenuGap = 36f;
         private const float ButtonWidth = 320f;
         private const float ItemHeight = 48f;
         private const float ItemSpacing = 10f;
@@ -31,6 +30,54 @@ namespace SSNoir
         private readonly SSNoirGameManager _gameManager;
 
         private bool _isActive;
+        private float _openedAt;
+        private bool _leaving;
+        private float _leaveAt;
+        private string? _selectedItem;
+        private float ForegroundAlpha => _leaving ? 1f - Mathf.SmoothStep(0f, 1f,
+            Mathf.Clamp01((Time.unscaledTime - _leaveAt) / 0.55f)) : 1f;
+        private PortraitSkeleton? _wordmark;
+        private PortraitSkeleton? _heading;
+        private static Texture2D? _backdrop;
+
+        // 启动页专属遮光幕：左侧文字区安静，右侧城市保留层次，边缘收暗。
+        // 一张连续渐变避免分段蒙版的边界；不改变世界本身的材质或灯光。
+        private static void DrawBackdrop(float width, float height, float alpha)
+        {
+            if (_backdrop == null)
+            {
+                const int w = 256, h = 128;
+                var pixels = new Color[w * h];
+                for (int y = 0; y < h; y++)
+                    for (int x = 0; x < w; x++)
+                    {
+                        float u = x / (float)(w - 1), v = y / (float)(h - 1);
+                        float fade = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.35f, 0.95f, u));
+                        float shade = Mathf.Lerp(0.89f, 0.52f, fade);
+                        float edge = Mathf.Pow(Mathf.Abs(v * 2f - 1f), 3f) * 0.18f;
+                        shade = shade + (1f - shade) * edge;
+                        pixels[y * w + x] = new Color(0.008f, 0.009f, 0.022f, shade);
+                    }
+                _backdrop = new Texture2D(w, h, TextureFormat.RGBA32, false)
+                { hideFlags = HideFlags.HideAndDontSave, filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+                _backdrop.SetPixels(pixels);
+                _backdrop.Apply(false, true);
+            }
+            var previous = GUI.color;
+            GUI.color = new Color(1f, 1f, 1f, alpha);
+            GUI.DrawTexture(new Rect(0f, 0f, width, height), _backdrop);
+            GUI.color = previous;
+        }
+
+        private static PortraitSkeleton LoadSign(string name)
+        {
+            var asset = Resources.Load<TextAsset>("Title/" + name + ".neon");
+            if (asset == null) throw new System.InvalidOperationException("缺少标题灯管：" + name);
+            var skeleton = PortraitSkeleton.Parse(asset.text);
+            if (skeleton == null || skeleton.TotalLength <= 0f)
+                throw new System.InvalidOperationException("标题灯管骨架为空：" + name);
+            return skeleton;
+        }
 
         // 最近一次存档：读档走的是它，不是 SaveManager.DefaultSavePath。那条路径只是拿来
         // 推导存档目录的（槽位文件名由它的 dirname 拼出来），本身从来没有人往里写过。
@@ -53,6 +100,11 @@ namespace SSNoir
         /// </summary>
         public void Open()
         {
+            _wordmark ??= LoadSign("Belleville");
+            _heading ??= LoadSign("Ballads");
+            _leaving = false;
+            _selectedItem = null;
+            _openedAt = Time.unscaledTime;
             _isActive = true;
             _latestSlotPath = null;
             _latestSaveTime = string.Empty;
@@ -97,6 +149,24 @@ namespace SSNoir
             _gameManager.LoadGame(_latestSlotPath);
         }
 
+        private void BeginLeave(bool newGame, string label)
+        {
+            if (_leaving) return;
+            _leaving = true;
+            _leaveAt = Time.unscaledTime;
+            _selectedItem = label;
+            _gameManager.StartCoroutine(Leave(newGame));
+        }
+
+        private System.Collections.IEnumerator Leave(bool newGame)
+        {
+            // 用非缩放时间，过渡期间标题模式继续占住输入。
+            while (_isActive && Time.unscaledTime - _leaveAt < 0.9f)
+                yield return null;
+            if (!_isActive) yield break;
+            if (newGame) NewGame(); else Continue();
+        }
+
         private static void Quit()
         {
 #if UNITY_EDITOR
@@ -113,65 +183,78 @@ namespace SSNoir
         /// </summary>
         public void Draw(Vector2 mouse)
         {
-            var ui = new IMGUIInteractionContext(mouse, isLocked: false);
+            var ui = new IMGUIInteractionContext(mouse, isLocked: _leaving);
 
             float vw = UIScale.VW;
             float vh = UIScale.VH;
+            DrawBackdrop(vw, vh, _leaving ? 1f - Mathf.SmoothStep(0f, 1f,
+                Mathf.Clamp01((Time.unscaledTime - _leaveAt - 0.15f) / 0.75f)) : 1f);
 
             float x = vw * ColumnX;
+            // 标题组与菜单按内容高度往下排；窄宽高比只收招牌宽度。
             float titleY = vh * TitleY;
 
-            var titleStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize = IMGUIStyles.FontSize(58),
-                alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = IMGUIStyles.Paper },
-            };
-            IMGUIStyles.ApplyStrongFont(titleStyle);
-            IMGUIStyles.DrawLabel(new Rect(x, titleY, vw * 0.7f, TitleHeight),
-                UiText.Get("贝尔维尔的歌谣"), titleStyle);
+            float signWidth = Mathf.Min(720f, vw - x * 2f);
+            float signHeight = signWidth * 0.3f;
+            float age = Time.unscaledTime - _openedAt;
+            var sign = new Rect(x - signWidth * 0.045f, titleY + 26f, signWidth, signHeight);
+            float hue = 0.5f + 0.5f * Mathf.Sin(age * 0.22f);
+            var rose = Color.Lerp(new Color(1f, 0.12f, 0.29f), new Color(0.78f, 0.16f, 1f), hue * 0.65f);
+            var violet = new Color(0.65f, 0.39f, 1f);
+            var look = new LampLook(1f, 0.95f, 1f, rose, true, 1f, 0f, current: 1f);
+            LampPainter.PaintSkeleton(sign, _wordmark!, look, age, ForegroundAlpha);
+            LampPainter.PaintSkeleton(new Rect(x + signWidth * 0.11f, titleY, signWidth * 0.48f, 21f),
+                _heading!, new LampLook(1f, 0.8f, 1f, violet, true, 1f, 0f), Mathf.Max(0f, age - 0.3f), ForegroundAlpha);
 
-            float languageX = vw - 208f;
-            if (DrawItem(new Rect(languageX, 30f, 88f, 42f),
-                    GameLanguage.Current == GameLanguage.Chinese ? "[中文]" : "中文", ui,
-                    enabled: true, compact: true))
+            float textX = x + signWidth * 0.11f;
+            // 字形底部留有空白，小字紧跟实际下划弧线，而不是贴图外框。
+            var caption = new Rect(textX, sign.y + sign.height * 0.93f + 8f, signWidth * 0.8f, 28f);
+            var captionStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = IMGUIStyles.FontSize(16),
+                alignment = TextAnchor.MiddleLeft,
+                normal = { textColor = new Color(0.86f, 0.83f, 0.81f, ForegroundAlpha) }
+            };
+            IMGUIStyles.ApplyStrongFont(captionStyle);
+            IMGUIStyles.DrawLabel(caption,
+                UiText.Get("贝尔维尔的歌谣"), captionStyle);
+
+            float languageX = vw - 180f;
+            if (DrawItem(new Rect(languageX, 30f, 68f, 36f),
+                    "中文", ui,
+                    enabled: true, compact: true, active: GameLanguage.Current == GameLanguage.Chinese))
                 GameLanguage.Current = GameLanguage.Chinese;
-            if (DrawItem(new Rect(languageX + 94f, 30f, 102f, 42f),
-                    GameLanguage.Current == GameLanguage.English ? "[English]" : "English", ui,
-                    enabled: true, compact: true))
+            if (DrawItem(new Rect(languageX + 74f, 30f, 94f, 36f),
+                    "English", ui,
+                    enabled: true, compact: true, active: GameLanguage.Current == GameLanguage.English))
                 GameLanguage.Current = GameLanguage.English;
 
-            // 片名下面一条金发丝，和游戏内各处分隔线同一个手势。
-            IMGUIStyles.DrawLine(
-                new Vector2(x, titleY + TitleRuleOffset),
-                new Vector2(x + 220f, titleY + TitleRuleOffset),
-                new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.75f),
-                1f);
+            float itemY = caption.yMax + TitleMenuGap - 8f;
+            float menuWidth = Mathf.Min(ButtonWidth, vw - textX - x);
+            float menuX = textX;
 
-            float itemY = titleY + MenuTopOffset;
-
-            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight),
+            if (DrawItem(new Rect(menuX, itemY, menuWidth, ItemHeight),
                     UiText.Get("新游戏"), ui, enabled: true))
             {
-                NewGame();
+                BeginLeave(true, UiText.Get("新游戏"));
                 return;
             }
             itemY += ItemHeight + ItemSpacing;
 
             // 没有存档时留着但灰掉：位置固定，玩家才知道自己缺的是什么，而不是以为没这功能。
-            // 存档时间收进按钮右侧——读档读的是最近那一个，得让人知道自己接的是哪一天。
-            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight),
+            // 存档时间收在读档选项右侧，以较小字号形成次级信息。
+            if (DrawItem(new Rect(menuX, itemY, menuWidth, ItemHeight),
                     UiText.Get("从存档加载"), ui,
                     enabled: _latestSlotPath != null, hint: _latestSaveTime))
             {
-                Continue();
+                BeginLeave(false, UiText.Get("从存档加载"));
                 return;
             }
             itemY += ItemHeight + ItemSpacing;
 
             // 浏览器里没有"退出游戏"这回事，Application.Quit() 是个空操作，摆上去只会骗人。
 #if !UNITY_WEBGL || UNITY_EDITOR
-            if (DrawItem(new Rect(x, itemY, ButtonWidth, ItemHeight),
+            if (DrawItem(new Rect(menuX, itemY, menuWidth, ItemHeight),
                     UiText.Get("退出游戏"), ui, enabled: true))
             {
                 Quit();
@@ -180,70 +263,58 @@ namespace SSNoir
 #endif
         }
 
-        /// <summary>
-        /// 实底描边按钮：HudBg 同色相的半透深底 + 1px 纸白 40% 描边，悬停铺一层淡白 + 左侧一根金签。
-        /// 标题压在全图最密的白线稿上，空心透明底框不住字——线条直接从字心里穿过去。
-        /// 底和右上角功能暗条同一语言（FunctionSlotBg 的色相），只是标题底下更密，给到约 0.75，
-        /// 把线压下去但还留着城市活的影子；文字始终是纸白——金只出在那根签上，和片名下的金发丝呼应。
-        /// </summary>
-        private static bool DrawItem(
+        // 半透明底与轻描边建立点击范围，悬停时微亮。
+        private bool DrawItem(
             Rect rect, string label, IMGUIInteractionContext ui, bool enabled,
-            string hint = "", bool compact = false)
+            string hint = "", bool compact = false, bool active = false)
         {
             bool hovered = enabled && ui.CanHover(rect);
-            var snapped = UIScale.PixelSnap(rect);
+            bool selected = _leaving && _selectedItem == label;
+            float alpha = ForegroundAlpha;
+            var textColor = !enabled ? IMGUIStyles.TextDisabled
+                : selected ? new Color(1f, 0.73f, 0.86f)
+                : hovered || active ? new Color(1f, 0.47f, 0.71f)
+                : compact ? new Color(0.65f, 0.63f, 0.68f) : IMGUIStyles.TextPrimary;
+            textColor.a *= alpha;
 
-            // 常态实底：标题菜单是模式，城市只是背景，可读性优先于通透。
-            // 不用 HudBg 那档 0.92——全实了城市就死了；0.75 压住线稿又留影。
-            IMGUIStyles.SetColor(enabled
-                ? new Color(IMGUIStyles.HudBg.r, IMGUIStyles.HudBg.g, IMGUIStyles.HudBg.b, 0.75f)
-                : new Color(IMGUIStyles.HudBg.r, IMGUIStyles.HudBg.g, IMGUIStyles.HudBg.b, 0.55f));
-            GUI.DrawTexture(snapped, Texture2D.whiteTexture);
-            IMGUIStyles.ResetColor();
-
-            if (hovered)
+            if (!compact)
             {
-                IMGUIStyles.SetColor(new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f));
-                GUI.DrawTexture(snapped, Texture2D.whiteTexture);
-                IMGUIStyles.ResetColor();
-            }
-            IMGUIStyles.DrawOutline(snapped, 1f, enabled
-                ? new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, hovered ? 1f : 0.40f)
-                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
-
-            if (hovered)
-            {
-                IMGUIStyles.SetColor(IMGUIStyles.Gold);
-                GUI.DrawTexture(new Rect(rect.x, rect.y + 10f, 3f, rect.height - 20f),
-                    Texture2D.whiteTexture);
-                IMGUIStyles.ResetColor();
+                var previous = GUI.color;
+                GUI.color = new Color(0.015f, 0.02f, 0.04f,
+                    (hovered || selected ? 0.62f : enabled ? 0.48f : 0.28f) * alpha);
+                GUI.DrawTexture(UIScale.PixelSnap(rect), Texture2D.whiteTexture);
+                GUI.color = previous;
+                var border = hovered || selected ? new Color(1f, 0.47f, 0.71f, 0.3f * alpha)
+                    : new Color(0.85f, 0.81f, 0.85f, (enabled ? 0.11f : 0.06f) * alpha);
+                IMGUIStyles.DrawOutline(UIScale.PixelSnap(rect), 1f, border);
             }
 
             var style = new GUIStyle(GUI.skin.label)
             {
-                fontSize = IMGUIStyles.FontSize(compact ? 15 : 22),
+                fontSize = IMGUIStyles.FontSize(compact ? 14 : 22),
                 alignment = compact ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft,
                 wordWrap = false,
                 clipping = TextClipping.Clip,
                 normal =
                 {
-                    textColor = !enabled
-                        ? IMGUIStyles.TextDisabled
-                        : IMGUIStyles.TextPrimary,
+                    textColor = textColor,
                 },
             };
             IMGUIStyles.ApplyStrongFont(style);
-            float inset = compact ? 4f : 20f;
-            IMGUIStyles.DrawLabel(new Rect(rect.x + inset, rect.y, rect.width - inset * 2f, rect.height), label, style);
-
+            float inset = compact ? 4f : (hovered || selected ? 23f : 20f);
+            var labelRect = new Rect(rect.x + inset, rect.y, rect.width - inset * 2f, rect.height);
+            var shadow = new GUIStyle(style);
+            shadow.normal.textColor = new Color(0f, 0f, 0f, 0.3f * alpha);
+            IMGUIStyles.DrawLabel(new Rect(labelRect.x + 0.5f, labelRect.y + 0.75f, labelRect.width, labelRect.height), label, shadow);
+            IMGUIStyles.DrawLabel(labelRect, label, style);
             if (!string.IsNullOrEmpty(hint))
             {
                 var hintStyle = new GUIStyle(GUI.skin.label)
                 {
                     font = IMGUIStyles.ChineseFont,
-                    fontSize = IMGUIStyles.FontSize(13),
+                    fontSize = IMGUIStyles.FontSize(11),
                     alignment = TextAnchor.MiddleRight,
-                    normal = { textColor = IMGUIStyles.TextDisabled },
+                    normal = { textColor = new Color(IMGUIStyles.TextDisabled.r, IMGUIStyles.TextDisabled.g, IMGUIStyles.TextDisabled.b, alpha * 0.65f) },
                 };
                 IMGUIStyles.DrawLabel(
                     new Rect(rect.x + 20f, rect.y, rect.width - 36f, rect.height), hint, hintStyle);

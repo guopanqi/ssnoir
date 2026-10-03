@@ -1,0 +1,317 @@
+{
+  "starts": 12,
+  "observations": [
+    {
+      "growth": 1,
+      "seed": 1701,
+      "operations": [
+        {
+          "DieValue": 3,
+          "Prepared": 4,
+          "Odds": "1 坏 · 2–3 中 · 4–6 好"
+        },
+        {
+          "DieValue": 6,
+          "Prepared": 7,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 5,
+          "Prepared": 6,
+          "Odds": "1 中 · 2–6 好"
+        },
+        {
+          "DieValue": 4,
+          "Prepared": 5,
+          "Odds": "1–2 中 · 3–6 好"
+        }
+      ]
+    },
+    {
+      "growth": 1,
+      "seed": 1702,
+      "operations": [
+        {
+          "DieValue": 6,
+          "Prepared": 7,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 2,
+          "Prepared": 3,
+          "Odds": "1 坏 · 2–4 中 · 5–6 好"
+        },
+        {
+          "DieValue": 3,
+          "Prepared": 4,
+          "Odds": "1 坏 · 2–3 中 · 4–6 好"
+        },
+        {
+          "DieValue": 6,
+          "Prepared": 7,
+          "Odds": "1–6 好"
+        }
+      ]
+    },
+    {
+      "growth": 1,
+      "seed": 1703,
+      "operations": [
+        {
+          "DieValue": 3,
+          "Prepared": 4,
+          "Odds": "1 坏 · 2–3 中 · 4–6 好"
+        },
+        {
+          "DieValue": 4,
+          "Prepared": 5,
+          "Odds": "1–2 中 · 3–6 好"
+        },
+        {
+          "DieValue": 1,
+          "Prepared": 2,
+          "Odds": "1–2 坏 · 3–5 中 · 6 好"
+        },
+        {
+          "DieValue": 1,
+          "Prepared": 2,
+          "Odds": "1–2 坏 · 3–5 中 · 6 好"
+        }
+      ]
+    },
+    {
+      "growth": 2,
+      "seed": 1701,
+      "operations": [
+        {
+          "DieValue": 3,
+          "Prepared": 5,
+          "Odds": "1–2 中 · 3–6 好"
+        },
+        {
+          "DieValue": 6,
+          "Prepared": 8,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 5,
+          "Prepared": 7,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 4,
+          "Prepared": 6,
+          "Odds": "1 中 · 2–6 好"
+        }
+      ]
+    },
+    {
+      "growth": 2,
+      "seed": 1702,
+      "operations": [
+        {
+          "DieValue": 6,
+          "Prepared": 8,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 2,
+          "Prepared": 4,
+          "Odds": "1 坏 · 2–3 中 · 4–6 好"
+        },
+        {
+          "DieValue": 3,
+          "Prepared": 5,
+          "Odds": "1–2 中 · 3–6 好"
+        },
+        {
+          "DieValue": 6,
+          "Prepared": 8,
+          "Odds": "1–6 好"
+        }
+      ]
+    },
+    {
+      "growth": 2,
+      "seed": 1703,
+      "operations": [
+        {
+          "DieValue": 3,
+          "Prepared": 5,
+          "Odds": "1–2 中 · 3–6 好"
+        },
+        {
+          "DieValue": 4,
+          "Prepared": 6,
+          "Odds": "1 中 · 2–6 好"
+        },
+        {
+          "DieValue": 1,
+          "Prepared": 3,
+          "Odds": "1 坏 · 2–4 中 · 5–6 好"
+        },
+        {
+          "DieValue": 1,
+          "Prepared": 3,
+          "Odds": "1 坏 · 2–4 中 · 5–6 好"
+        }
+      ]
+    },
+    {
+      "growth": 3,
+      "seed": 1701,
+      "operations": [
+        {
+          "DieValue": 3,
+          "Prepared": 6,
+          "Odds": "1 中 · 2–6 好"
+        },
+        {
+          "DieValue": 6,
+          "Prepared": 9,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 5,
+          "Prepared": 8,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 4,
+          "Prepared": 7,
+          "Odds": "1–6 好"
+        }
+      ]
+    },
+    {
+      "growth": 3,
+      "seed": 1702,
+      "operations": [
+        {
+          "DieValue": 6,
+          "Prepared": 9,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 2,
+          "Prepared": 5,
+          "Odds": "1–2 中 · 3–6 好"
+        },
+        {
+          "DieValue": 3,
+          "Prepared": 6,
+          "Odds": "1 中 · 2–6 好"
+        },
+        {
+          "DieValue": 6,
+          "Prepared": 9,
+          "Odds": "1–6 好"
+        }
+      ]
+    },
+    {
+      "growth": 3,
+      "seed": 1703,
+      "operations": [
+        {
+          "DieValue": 3,
+          "Prepared": 6,
+          "Odds": "1 中 · 2–6 好"
+        },
+        {
+          "DieValue": 4,
+          "Prepared": 7,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 1,
+          "Prepared": 4,
+          "Odds": "1 坏 · 2–3 中 · 4–6 好"
+        },
+        {
+          "DieValue": 1,
+          "Prepared": 4,
+          "Odds": "1 坏 · 2–3 中 · 4–6 好"
+        }
+      ]
+    },
+    {
+      "growth": 4,
+      "seed": 1701,
+      "operations": [
+        {
+          "DieValue": 3,
+          "Prepared": 7,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 6,
+          "Prepared": 10,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 5,
+          "Prepared": 9,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 4,
+          "Prepared": 8,
+          "Odds": "1–6 好"
+        }
+      ]
+    },
+    {
+      "growth": 4,
+      "seed": 1702,
+      "operations": [
+        {
+          "DieValue": 6,
+          "Prepared": 10,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 2,
+          "Prepared": 6,
+          "Odds": "1 中 · 2–6 好"
+        },
+        {
+          "DieValue": 3,
+          "Prepared": 7,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 6,
+          "Prepared": 10,
+          "Odds": "1–6 好"
+        }
+      ]
+    },
+    {
+      "growth": 4,
+      "seed": 1703,
+      "operations": [
+        {
+          "DieValue": 3,
+          "Prepared": 7,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 4,
+          "Prepared": 8,
+          "Odds": "1–6 好"
+        },
+        {
+          "DieValue": 1,
+          "Prepared": 5,
+          "Odds": "1–2 中 · 3–6 好"
+        },
+        {
+          "DieValue": 1,
+          "Prepared": 5,
+          "Odds": "1–2 中 · 3–6 好"
+        }
+      ]
+    }
+  ]
+}

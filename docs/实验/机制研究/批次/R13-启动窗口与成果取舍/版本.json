@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-02",
+  "ContentRevision": "03d082ef0ac7936b4a023508b52ad09a62964e6e9969f9c29aa50d5a46c489c0",
+  "source_and_model_sha256": {
+    "UnityClient/Assets/Resources/Content/scripts/research/启动窗口.scm": "2bc3ae115e75f052a940353ed69c66742356c831ef675630f5b11cb913744a74",
+    "UnityClient/Assets/Resources/Content/scripts/research/成果取舍.scm": "3fef082241f5770572aa63f0be2494ccd903337b9d83652a686155130406bf3f",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·择时开窗.scm": "7229cbfcc8999c65f522485220979616ec43035164f29692e984bf5183e3653a",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·无窗口对照.scm": "4ff6ea8c6ca3bd87f03802578c2444a6f46dd457c986f3c4d3d0fd083cd858ab",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·成果取舍.scm": "86ef7411a11343d6fcc28c3a924255ae969da03f15c46f7a67a7e059784a8461",
+    "UnityClient/Assets/Resources/Content/scripts/research/启动窗口.scm.meta": "618e4bd4af0290619ca82d13277e0fff2615e62bb7e18b5d18754d8068e25697",
+    "UnityClient/Assets/Resources/Content/scripts/research/成果取舍.scm.meta": "bc7a516df030930f5601e144cc1a3efa72a7ded5ccbe863a81ef0df719a09312",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·择时开窗.scm.meta": "759151c1564ee41a14059b8538b0b6ee6683469d765aff91c021036d26a3553e",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·无窗口对照.scm.meta": "4d571d6009426b2e42ff7940f43a5b906d5c30c544d799433aca9f56b7fbb379",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·成果取舍.scm.meta": "ad8cc1876ef482ee90c95f62b715c57044d08e152d6050bd0e231dc361530947",
+    "docs/实验/机制研究/批次/R13-启动窗口与成果取舍/边界与可达.py": "0e8e20e58aef23cdba38e7e4037b67cf1333e42f5bcc2460aefc7c9b3a8aba1a",
+    "docs/实验/机制研究/批次/R13-启动窗口与成果取舍/数学筛选.py": "dd8b9d03891d6a58e8d3f5c7c817e5102a21fdd27a34c360994a44e3434b5832",
+    "docs/实验/机制研究/批次/R13-启动窗口与成果取舍/正式对照.py": "5fda5a98884c30e38c1676eb9795c92ff217be515dac718c838ab6fdaebe86a5",
+    "docs/实验/机制研究/批次/R13-启动窗口与成果取舍/开窗强参照.py": "6e684772f15696bbdaffc3f646cf7f506b109e1d836e3c8222395209eace104f",
+    "docs/实验/机制研究/批次/R13-启动窗口与成果取舍/邻域与独立核对.py": "ea57862926279a8f0b35c3e4b50ac4da093a2aeeeb08da7a55d10a6b1f71d90e",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
+    "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",
+    "tools/content-validator/experiments/mechanism-study.py": "59bd3eaba31f8eaa874bd9a7f11ab9d21d68dc506662070debcd445e7162c41c",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b"
+  },
+  "runtime_snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "b24589e6a48416684dce25a1a1b28b528b167662bbc44774af3f54a2bf62f4c9",
+    "bytes": 818517,
+    "isolated_replays": [
+      {
+        "path": "边界-窗口关闭.json.gz",
+        "passed": true,
+        "output": "重放通过：3 步"
+      },
+      {
+        "path": "成果求解-3201.json.gz",
+        "passed": true,
+        "output": "重放通过：4 步"
+      },
+      {
+        "path": "无窗口-3110.json.gz",
+        "passed": true,
+        "output": "重放通过：6 步"
+      }
+    ],
+    "scope": "全Content、原生构建与本批Python分析及共同依赖；兼容.NET可隔离严格回放，不是完整Unity工程"
+  }
+}

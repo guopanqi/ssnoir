@@ -1,0 +1,34 @@
+{
+  "ContentRevision": "3f062ee83c5be6039681fcc559c8017d0a099c1c11b644fdd6b81fe32865160b",
+  "date": "2026-10-02",
+  "files_sha256": {
+    "UnityClient/Assets/Resources/Content/scripts/research/行动信息.scm": "27fb7b7ef899fa42e7711c97e800efc9a24bad2e82847f9bf5ecb8d5e3652ed9",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·边做边看.scm": "c25b5fe586cd35b67eb41dcf712a842a25af1e4fe4970f6d01dac5d382ef9b43",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·路线明示对照.scm": "49010d719af0d53bc98652b4e0f1a008c860c893eabde69545d2364307391b4f",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "tools/content-validator/experiments/mechanism-study.py": "59bd3eaba31f8eaa874bd9a7f11ab9d21d68dc506662070debcd445e7162c41c",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/正式对照.py": "141dda215363811a45055bdca795b6604ae5a7307ed892baedf72d73d0bdb63e",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/研究分析.py": "2697d606750b5e2c0b82f26ccba19c2c45ac33c9ef7a4f23451d84921bff9893",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/行动信息.py": "8cc7ac8fbcbfc293dd8ce8f2811676c97ee8f8e8d0857c4e92feaedddc1e424f"
+  },
+  "runtime_snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "994a1082f482ecfbe1d355b62d69572abde5ac4d70562d545ca87bca26585880",
+    "bytes": 783390,
+    "isolated_strict_replays": [
+      {
+        "path": "求解-1601.json.gz",
+        "passed": true,
+        "output": "重放通过：3 步"
+      },
+      {
+        "path": "边界-空过.json.gz",
+        "passed": true,
+        "output": "重放通过：1 步"
+      }
+    ],
+    "scope": "本批全Content与原生校验器构建；兼容.NET运行时可独立回放；不是Unity工程"
+  }
+}

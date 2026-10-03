@@ -1,0 +1,202 @@
+[
+  {
+    "scene": "赃款会拖脚",
+    "policy": "死抱3袋",
+    "seed": 7,
+    "result": "('被追上 0)",
+    "calm": 2,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "死抱3袋",
+    "seed": 11,
+    "result": "('被追上 0)",
+    "calm": 2,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "死抱3袋",
+    "seed": 23,
+    "result": "('被追上 0)",
+    "calm": 1,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "死抱3袋",
+    "seed": 31,
+    "result": "('被追上 0)",
+    "calm": 2,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "死抱3袋",
+    "seed": 41,
+    "result": "('被追上 0)",
+    "calm": 2,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "保2袋",
+    "seed": 7,
+    "result": "('脱身 2)",
+    "calm": 3,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "保2袋",
+    "seed": 11,
+    "result": "('脱身 2)",
+    "calm": 3,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "保2袋",
+    "seed": 23,
+    "result": "('被追上 0)",
+    "calm": 1,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "保2袋",
+    "seed": 31,
+    "result": "('脱身 2)",
+    "calm": 3,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "保2袋",
+    "seed": 41,
+    "result": "('被追上 0)",
+    "calm": 2,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "保1袋",
+    "seed": 7,
+    "result": "('脱身 1)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "保1袋",
+    "seed": 11,
+    "result": "('脱身 1)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "保1袋",
+    "seed": 23,
+    "result": "('脱身 1)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "保1袋",
+    "seed": 31,
+    "result": "('脱身 1)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "保1袋",
+    "seed": 41,
+    "result": "('脱身 1)",
+    "calm": 3,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "全扔",
+    "seed": 7,
+    "result": "('脱身 0)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "全扔",
+    "seed": 11,
+    "result": "('脱身 0)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "全扔",
+    "seed": 23,
+    "result": "('脱身 0)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "全扔",
+    "seed": 31,
+    "result": "('脱身 0)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "全扔",
+    "seed": 41,
+    "result": "('脱身 0)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "末轮求稳",
+    "seed": 7,
+    "result": "('脱身 1)",
+    "calm": 3,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "末轮求稳",
+    "seed": 11,
+    "result": "('脱身 2)",
+    "calm": 3,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "末轮求稳",
+    "seed": 23,
+    "result": "('被追上 0)",
+    "calm": 1,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "末轮求稳",
+    "seed": 31,
+    "result": "('脱身 1)",
+    "calm": 3,
+    "injury": " 完好 0/7"
+  },
+  {
+    "scene": "赃款会拖脚",
+    "policy": "末轮求稳",
+    "seed": 41,
+    "result": "('脱身 0)",
+    "calm": 3,
+    "injury": " 完好 0/7"
+  }
+]

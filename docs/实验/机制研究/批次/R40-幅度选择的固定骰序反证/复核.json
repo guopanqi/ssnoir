@@ -1,0 +1,46 @@
+{
+  "batch": "R40",
+  "independent_ordered_two_die_checks": 144,
+  "independent_reserve_two_die_checks": 84,
+  "strict_branch_initial_hand": [
+    1,
+    1,
+    1,
+    5
+  ],
+  "initial_hand_mass": "1/324",
+  "strict_branches": [
+    {
+      "first_result": "坏",
+      "position": 0,
+      "remaining": [
+        1,
+        1,
+        5
+      ],
+      "next_die": 1,
+      "first_die_1_value": "43/54",
+      "first_die_5_value": "19/27",
+      "normal_model_path_mass": "1/972",
+      "normal_mass": 0.00102880658436214
+    },
+    {
+      "first_result": "中",
+      "position": 1,
+      "remaining": [
+        1,
+        1,
+        5
+      ],
+      "next_die": 5,
+      "first_die_1_value": "67/72",
+      "first_die_5_value": "23/24",
+      "normal_model_path_mass": "1/648",
+      "normal_mass": 0.0015432098765432098
+    }
+  ],
+  "free_exact": "293/324",
+  "best_initial_fixed_exact": "569/648",
+  "scope": "独立无缓存有序144／保留84两骰状态；两严格分支由初始手牌1,1,1,5及选定最优首手直接产生，质量只针对这两个分支，非全局反转概率；非独立四骰最优或真人样本",
+  "passed": true
+}

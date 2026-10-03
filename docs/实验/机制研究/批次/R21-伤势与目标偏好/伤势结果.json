@@ -1,0 +1,71 @@
+{
+  "results": [
+    {
+      "reset": true,
+      "injury_event_cost": 0,
+      "actual_completion": 0.9844417451888807,
+      "ever_injured": 0.27266593583951304,
+      "injury_on_success": 0.5439125908183133,
+      "cold_on_success": 1.7315803476523928,
+      "research_utility": 0.9844417451888807,
+      "states": 85716,
+      "seconds": 3.691716119647026e-05
+    },
+    {
+      "reset": true,
+      "injury_event_cost": 0.25,
+      "actual_completion": 0.9713323242706069,
+      "ever_injured": 0.11103485681932565,
+      "injury_on_success": 0.203429107178563,
+      "cold_on_success": 2.4166386973084437,
+      "research_utility": 0.9435736100657754,
+      "states": 85716,
+      "seconds": 3.487500362098217e-05
+    },
+    {
+      "reset": true,
+      "injury_event_cost": 1,
+      "actual_completion": 0.9212471498015521,
+      "ever_injured": 0.027698552512366387,
+      "injury_on_success": 0.03627782170001446,
+      "cold_on_success": 2.8509502651915595,
+      "research_utility": 0.8935485972891857,
+      "states": 85716,
+      "seconds": 3.358302637934685e-05
+    },
+    {
+      "reset": false,
+      "injury_event_cost": 0,
+      "actual_completion": 0.9987310145662517,
+      "ever_injured": 0.22694678871964946,
+      "injury_on_success": 0.45856754116778037,
+      "cold_on_success": 1.7539220500240738,
+      "research_utility": 0.9987310145662517,
+      "states": 259065,
+      "seconds": 4.100007936358452e-05
+    },
+    {
+      "reset": false,
+      "injury_event_cost": 0.25,
+      "actual_completion": 0.993861219518076,
+      "ever_injured": 0.06922383209562613,
+      "injury_on_success": 0.14696941611016712,
+      "cold_on_success": 2.499044389198261,
+      "research_utility": 0.9765552614941695,
+      "states": 259065,
+      "seconds": 4.3625012040138245e-05
+    },
+    {
+      "reset": false,
+      "injury_event_cost": 1,
+      "actual_completion": 0.962643122844529,
+      "ever_injured": 0.025510277388111416,
+      "injury_on_success": 0.03385144984077945,
+      "cold_on_success": 2.7519827114100224,
+      "research_utility": 0.9371328454564176,
+      "states": 259065,
+      "seconds": 3.3125048503279686e-05
+    }
+  ],
+  "scope": "完整有限伤势模型；公平独立骰与首次伤部位均匀是假设；六组756手已独立迭代核对四维值，效用系数不是游戏奖励或玩家估值"
+}

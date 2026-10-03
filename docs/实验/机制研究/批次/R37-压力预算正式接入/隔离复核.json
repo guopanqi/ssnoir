@@ -1,0 +1,29 @@
+{
+  "source_hashes_checked": 25,
+  "isolated_calibration_records": 18,
+  "isolated_calibration_steps": 192,
+  "isolated_replays": [
+    {
+      "path": "early-1-8108.json.gz",
+      "sha256": "722d437f2bb667de5ca7054ed7e192a49dc57a628e238405fc487ff0faabc6d0",
+      "passed": true
+    },
+    {
+      "path": "early-0-8111.json.gz",
+      "sha256": "2c40e203aa4a91dc001caade9d4c23789ca77ca2862b5fe858658257e9923e41",
+      "passed": true
+    },
+    {
+      "path": "覆盖-8131.json.gz",
+      "sha256": "eb11ff883da028f704410e697dae6b8db0cbdcb2adf958750b48acc4001a79c8",
+      "passed": true
+    },
+    {
+      "path": "覆盖-8136.json.gz",
+      "sha256": "323568cc177137812dbccbbe0143eeb87ca49e76b203a5f39210376d3fce7d95",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "scope": "冻结原生构建和全Content隔离复核；四代表包括对照成功、压力失败、倒下、超时；非新会话或真人证据"
+}

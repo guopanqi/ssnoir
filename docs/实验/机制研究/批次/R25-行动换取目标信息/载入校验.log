@@ -1,0 +1,143 @@
+[validate] Narration subtitles: zh-CN and en complete.
+[validate] Phase 1: paren balance...
+[validate] Phase 1: all files balanced.
+[validate] Phase 1b: state variables called as procedures...
+[validate] Phase 1b: none.
+[validate] world/world
+[validate] node :anchor DSL contract passed.
+[validate] place / arrival DSL contract passed.
+[validate] place unlock notification contract passed.
+[validate] story stage DSL contract passed.
+Validated scene 'world/world' with root '世界'.
+[validate] encounters/研究·进度保留对照
+Validated scene 'encounters/研究·进度保留对照' with root '进度保留对照'.
+[validate] encounters/实验·证词掺水
+Validated scene 'encounters/实验·证词掺水' with root '证词掺水'.
+[validate] encounters/巷子里在打人
+Validated scene 'encounters/巷子里在打人' with root '巷子里在打人'.
+[validate] encounters/研究·借力紧目标
+Validated scene 'encounters/研究·借力紧目标' with root '整备借力'.
+[validate] encounters/实验·逼他出门
+Validated scene 'encounters/实验·逼他出门' with root '逼他出门'.
+[validate] encounters/研究·按需用骰
+Validated scene 'encounters/研究·按需用骰' with root '按需用骰'.
+[validate] encounters/研究·直接搜寻对照
+Validated scene 'encounters/研究·直接搜寻对照' with root '直接搜寻对照'.
+[validate] encounters/研究·分段短目标
+Validated scene 'encounters/研究·分段短目标' with root '分段短目标'.
+[validate] encounters/研究·定位再搜
+Validated scene 'encounters/研究·定位再搜' with root '定位再搜'.
+[validate] encounters/研究·无窗口对照
+Validated scene 'encounters/研究·无窗口对照' with root '无窗口对照'.
+[validate] encounters/无人班次
+Validated scene 'encounters/无人班次' with root '无人班次'.
+[validate] encounters/实验·枪口认路
+Validated scene 'encounters/实验·枪口认路' with root '枪口认路'.
+[validate] encounters/研究·情报承诺
+Validated scene 'encounters/研究·情报承诺' with root '情报承诺'.
+[validate] encounters/研究·分段兑现
+Validated scene 'encounters/研究·分段兑现' with root '分段兑现'.
+[validate] encounters/研究·稳险选择
+Validated scene 'encounters/研究·稳险选择' with root '稳险选择'.
+[validate] encounters/实验·赃款会拖脚
+Validated scene 'encounters/实验·赃款会拖脚' with root '赃款会拖脚'.
+[validate] encounters/首演之夜
+Validated scene 'encounters/首演之夜' with root '首演之夜'.
+[validate] encounters/核赔
+Validated scene 'encounters/核赔' with root '核赔'.
+[validate] encounters/研究·余热长目标
+Validated scene 'encounters/研究·余热长目标' with root '余热转用'.
+[validate] encounters/研究·窗口储备
+Validated scene 'encounters/研究·窗口储备' with root '窗口储备'.
+[validate] encounters/研究·余热无转用
+Validated scene 'encounters/研究·余热无转用' with root '余热转用'.
+[validate] encounters/研究·保留终点
+Validated scene 'encounters/研究·保留终点' with root '保留终点'.
+[validate] encounters/研究·借力无准备
+Validated scene 'encounters/研究·借力无准备' with root '整备借力'.
+[validate] encounters/研究·情报无信息
+Validated scene 'encounters/研究·情报无信息' with root '情报承诺'.
+[validate] encounters/研究·余热短目标
+Validated scene 'encounters/研究·余热短目标' with root '余热转用'.
+[validate] encounters/实验·橱窗里的脸
+Validated scene 'encounters/实验·橱窗里的脸' with root '橱窗里的脸'.
+[validate] encounters/实验·封死退路
+Validated scene 'encounters/实验·封死退路' with root '封死退路'.
+[validate] encounters/研究·情报短目标
+Validated scene 'encounters/研究·情报短目标' with root '情报承诺'.
+[validate] encounters/研究·成果取舍
+Validated scene 'encounters/研究·成果取舍' with root '成果取舍'.
+[validate] encounters/研究·窗口常开
+Validated scene 'encounters/研究·窗口常开' with root '窗口储备'.
+[validate] encounters/研究·情报长目标
+Validated scene 'encounters/研究·情报长目标' with root '情报承诺'.
+[validate] encounters/实验·只够一条线
+Validated scene 'encounters/实验·只够一条线' with root '只够一条线'.
+[validate] encounters/研究·边做边看
+Validated scene 'encounters/研究·边做边看' with root '边做边看'.
+[validate] encounters/巷子
+Validated scene 'encounters/巷子' with root '修理棚'.
+[validate] encounters/研究·整段完成
+Validated scene 'encounters/研究·整段完成' with root '整段完成'.
+[validate] encounters/研究·兑现长目标
+Validated scene 'encounters/研究·兑现长目标' with root '分段兑现'.
+[validate] encounters/船修好了却不开
+Validated scene 'encounters/船修好了却不开' with root '船修好了却不开'.
+[validate] encounters/研究·风险兑现
+Validated scene 'encounters/研究·风险兑现' with root '风险兑现'.
+[validate] encounters/别给他们想要的
+Validated scene 'encounters/别给他们想要的' with root '别给他们想要的'.
+[validate] encounters/研究·兑现短目标
+Validated scene 'encounters/研究·兑现短目标' with root '分段兑现'.
+[validate] encounters/码头试运行
+Validated scene 'encounters/码头试运行' with root '码头试运行'.
+[validate] encounters/研究·整备借力
+Validated scene 'encounters/研究·整备借力' with root '整备借力'.
+[validate] encounters/让他们安静
+Validated scene 'encounters/让他们安静' with root '让他们安静'.
+[validate] encounters/晚宴
+Validated scene 'encounters/晚宴' with root '晚宴'.
+[validate] encounters/研究·留力推进
+Validated scene 'encounters/研究·留力推进' with root '留力推进'.
+[validate] encounters/实验·等买主现身
+Validated scene 'encounters/实验·等买主现身' with root '等买主现身'.
+[validate] encounters/实验·信封换人
+Validated scene 'encounters/实验·信封换人' with root '信封换人'.
+[validate] encounters/上午十一点零七分
+Validated scene 'encounters/上午十一点零七分' with root '上午十一点零七分'.
+[validate] encounters/研究·兑现线性
+Validated scene 'encounters/研究·兑现线性' with root '分段兑现'.
+[validate] encounters/尾随取件人
+Validated scene 'encounters/尾随取件人' with root '剧院后巷'.
+[validate] encounters/研究·承诺分流
+Validated scene 'encounters/研究·承诺分流' with root '承诺分流'.
+[validate] encounters/研究·整段留力
+Validated scene 'encounters/研究·整段留力' with root '整段留力'.
+[validate] encounters/研究·择时开窗
+Validated scene 'encounters/研究·择时开窗' with root '择时开窗'.
+[validate] encounters/研究·兑现无衰减
+Validated scene 'encounters/研究·兑现无衰减' with root '分段兑现'.
+[validate] encounters/研究·分段保留对照
+Validated scene 'encounters/研究·分段保留对照' with root '分段保留对照'.
+[validate] encounters/失控的机械
+Validated scene 'encounters/失控的机械' with root '失控的机械'.
+[validate] encounters/研究·同等判定对照
+Validated scene 'encounters/研究·同等判定对照' with root '同等判定对照'.
+[validate] encounters/研究·充足余力对照
+Validated scene 'encounters/研究·充足余力对照' with root '充足余力对照'.
+[validate] encounters/实验·最后一页
+Validated scene 'encounters/实验·最后一页' with root '最后一页'.
+[validate] encounters/研究·借力长目标
+Validated scene 'encounters/研究·借力长目标' with root '整备借力'.
+[validate] encounters/研究·稳险长目标
+Validated scene 'encounters/研究·稳险长目标' with root '稳险选择'.
+[validate] encounters/研究·余热转用
+Validated scene 'encounters/研究·余热转用' with root '余热转用'.
+[validate] encounters/研究·路线明示对照
+Validated scene 'encounters/研究·路线明示对照' with root '路线明示对照'.
+[validate] encounters/勒索信
+Validated scene 'encounters/勒索信' with root '勒索信-报摊'.
+[validate] encounters/研究·稳险短目标
+Validated scene 'encounters/研究·稳险短目标' with root '稳险选择'.
+[validate] encounters/研究·借力短目标
+Validated scene 'encounters/研究·借力短目标' with root '整备借力'.

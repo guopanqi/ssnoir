@@ -1,0 +1,20 @@
+(load-file "scripts/research/common.scm")
+(define 压力 (make-clock "压力" 6 'gauge "取样坏加2，中好加1；满6全部损失；整理减2并损失1进度。"))
+(define (研究附记) (list (压力 'current)))
+(define (取样! n cost)
+  (压力 'advance! cost)
+  (if (压力 'full?) (研究结束! 'lost "压力满六，成果全部损失。") (研究推进! n)))
+(define-opponent-rule "期限流逝"
+  (lambda () (not 完了?))
+  (lambda () (期限 'advance! 1)
+    (if (期限 'full?) (研究结束! 'banked "期限已到，带走现有成果。") #f)))
+(define (get-render-data)
+  (研究盘面 "目标是带走尽量多成果；压力满6全部损失。可随时收手；整理能减压但损失1成果。"
+    (clock-nodes (压力 'render-data))
+    (list
+      (node "继续取样" :subtitle "坏0压力2；中1压力1；好3压力1。" :requires (list (req-die))
+        :resolve (roll 'knowledge (outcome (lambda () (取样! 0 2)))
+          (outcome (lambda () (取样! 1 1))) (outcome (lambda () (取样! 3 1)))))
+      (node "整理成果" :subtitle "一骰：压力减2，成果减1。" :requires (list (req-die))
+        :resolve (instant (lambda () (压力 'advance! -2) (进度 'advance! -1))))
+      (instant-action "带走成果" (lambda () (研究结束! 'banked "带走现有成果，停止冒险。"))))))

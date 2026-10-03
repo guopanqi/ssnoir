@@ -1,0 +1,2 @@
+{"family": "top2", "value": "158311/93312", "expected": 1.6965770747599451, "distribution": ["73213/559872", "5863/139968", "463207/559872"], "gap_to_free": "16135/1679616", "strict_initial_hands": 37, "versus_one_step_hands": {"better": 6, "worse": 19, "equal": 101}}
+{"family": "all_reserves", "value": "158311/93312", "expected": 1.6965770747599451, "distribution": ["73213/559872", "5863/139968", "463207/559872"], "gap_to_free": "16135/1679616", "strict_initial_hands": 37, "versus_one_step_hands": {"better": 6, "worse": 19, "equal": 101}}

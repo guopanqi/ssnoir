@@ -1,0 +1,401 @@
+{
+  "results": [
+    {
+      "targets": [
+        4,
+        3
+      ],
+      "reset": true,
+      "policy": "求解",
+      "injury_free_completion": 0.9532631878539967,
+      "composure_on_success": 2.949013736310356,
+      "states": 9166,
+      "seconds": 0.07830058294348419
+    },
+    {
+      "targets": [
+        4,
+        3
+      ],
+      "reset": true,
+      "policy": "先小目标",
+      "injury_free_completion": 0.9365264525073121,
+      "composure_on_success": 2.9566029074981937,
+      "states": 4857,
+      "seconds": 0.03092070808634162
+    },
+    {
+      "targets": [
+        4,
+        3
+      ],
+      "reset": true,
+      "policy": "先大目标",
+      "injury_free_completion": 0.9421964926027813,
+      "composure_on_success": 2.986340510852499,
+      "states": 4884,
+      "seconds": 0.030143083073198795
+    },
+    {
+      "targets": [
+        4,
+        3
+      ],
+      "reset": false,
+      "policy": "求解",
+      "injury_free_completion": 0.9696367809809145,
+      "composure_on_success": 2.764706550928024,
+      "states": 21038,
+      "seconds": 0.2308938328642398
+    },
+    {
+      "targets": [
+        4,
+        3
+      ],
+      "reset": false,
+      "policy": "先小目标",
+      "injury_free_completion": 0.9678186802672749,
+      "composure_on_success": 2.7546875444842036,
+      "states": 8133,
+      "seconds": 0.05510929203592241
+    },
+    {
+      "targets": [
+        4,
+        3
+      ],
+      "reset": false,
+      "policy": "先大目标",
+      "injury_free_completion": 0.9671015167697978,
+      "composure_on_success": 2.797390403262863,
+      "states": 8160,
+      "seconds": 0.055175916058942676
+    },
+    {
+      "targets": [
+        4,
+        4
+      ],
+      "reset": true,
+      "policy": "求解",
+      "injury_free_completion": 0.8909870408043302,
+      "composure_on_success": 2.792803631509067,
+      "states": 9593,
+      "seconds": 0.08558470802381635
+    },
+    {
+      "targets": [
+        4,
+        4
+      ],
+      "reset": true,
+      "policy": "先小目标",
+      "injury_free_completion": 0.8909870408043302,
+      "composure_on_success": 2.792803631509067,
+      "states": 5025,
+      "seconds": 0.03153216606006026
+    },
+    {
+      "targets": [
+        4,
+        4
+      ],
+      "reset": true,
+      "policy": "先大目标",
+      "injury_free_completion": 0.8909870408043302,
+      "composure_on_success": 2.792803631509067,
+      "states": 5025,
+      "seconds": 0.0308124169241637
+    },
+    {
+      "targets": [
+        4,
+        4
+      ],
+      "reset": false,
+      "policy": "求解",
+      "injury_free_completion": 0.9394088737502811,
+      "composure_on_success": 2.461454062745289,
+      "states": 25058,
+      "seconds": 0.27999475016258657
+    },
+    {
+      "targets": [
+        4,
+        4
+      ],
+      "reset": false,
+      "policy": "先小目标",
+      "injury_free_completion": 0.9367032981543685,
+      "composure_on_success": 2.483223273956254,
+      "states": 8721,
+      "seconds": 0.05992437503300607
+    },
+    {
+      "targets": [
+        4,
+        4
+      ],
+      "reset": false,
+      "policy": "先大目标",
+      "injury_free_completion": 0.9367032981543685,
+      "composure_on_success": 2.483223273956254,
+      "states": 8721,
+      "seconds": 0.059359584003686905
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "求解",
+      "injury_free_completion": 0.8949903039360334,
+      "composure_on_success": 2.565358414086704,
+      "states": 9355,
+      "seconds": 0.07987216697074473
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先小目标",
+      "injury_free_completion": 0.8220917595572877,
+      "composure_on_success": 2.705914831917336,
+      "states": 4892,
+      "seconds": 0.030731625156477094
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "先大目标",
+      "injury_free_completion": 0.8223912018898135,
+      "composure_on_success": 2.7180087460366793,
+      "states": 4836,
+      "seconds": 0.02899208408780396
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "求解",
+      "injury_free_completion": 0.9384049706802466,
+      "composure_on_success": 2.2938240150475013,
+      "states": 23957,
+      "seconds": 0.26829829113557935
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "先小目标",
+      "injury_free_completion": 0.9345037771362048,
+      "composure_on_success": 2.3169876422500217,
+      "states": 8693,
+      "seconds": 0.05804737494327128
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": false,
+      "policy": "先大目标",
+      "injury_free_completion": 0.9332066186659418,
+      "composure_on_success": 2.337551619406923,
+      "states": 8714,
+      "seconds": 0.05807741708122194
+    }
+  ],
+  "witnesses": [
+    {
+      "targets": [
+        4,
+        3
+      ],
+      "count": {
+        "0": 30,
+        "1": 20
+      },
+      "initial_hand_probability": {
+        "0": 0.2368827160493827,
+        "1": 0.10956790123456789
+      },
+      "examples": {
+        "1": {
+          "hand": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "gap": 0.0733461859550848,
+          "alternatives": {
+            "0": {
+              "value": [
+                0.584286372121682,
+                0.6416239551844654
+              ],
+              "choice": [
+                0,
+                "风险",
+                1
+              ]
+            },
+            "1": {
+              "value": [
+                0.6576325580767668,
+                0.8757546615813772
+              ],
+              "choice": [
+                1,
+                "风险",
+                1
+              ]
+            }
+          }
+        },
+        "0": {
+          "hand": [
+            1,
+            1,
+            5,
+            5
+          ],
+          "gap": 0.011857346310256145,
+          "alternatives": {
+            "0": {
+              "value": [
+                0.951502060516537,
+                2.2896697320498647
+              ],
+              "choice": [
+                0,
+                "风险",
+                1
+              ]
+            },
+            "1": {
+              "value": [
+                0.9396447142062808,
+                2.8753150935160843
+              ],
+              "choice": [
+                1,
+                "风险",
+                5
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "targets": [
+        4,
+        4
+      ],
+      "count": {
+        "0": 0,
+        "1": 0
+      },
+      "initial_hand_probability": {
+        "0": 0.0,
+        "1": 0.0
+      },
+      "examples": {}
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "count": {
+        "0": 73,
+        "1": 30
+      },
+      "initial_hand_probability": {
+        "0": 0.6481481481481485,
+        "1": 0.18595679012345673
+      },
+      "examples": {
+        "1": {
+          "hand": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "gap": 0.14395125631890465,
+          "alternatives": {
+            "0": {
+              "value": [
+                0.36306619588445616,
+                0.4982557769156759
+              ],
+              "choice": [
+                0,
+                "稳健",
+                1
+              ]
+            },
+            "1": {
+              "value": [
+                0.5070174522033608,
+                0.6439113166342783
+              ],
+              "choice": [
+                1,
+                "风险",
+                1
+              ]
+            }
+          }
+        },
+        "0": {
+          "hand": [
+            1,
+            1,
+            4,
+            5
+          ],
+          "gap": 0.015368631694005042,
+          "alternatives": {
+            "0": {
+              "value": [
+                0.8430551294219987,
+                1.5429336339487825
+              ],
+              "choice": [
+                0,
+                "风险",
+                1
+              ]
+            },
+            "1": {
+              "value": [
+                0.8276864977279936,
+                2.1860676730519
+              ],
+              "choice": [
+                1,
+                "风险",
+                4
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

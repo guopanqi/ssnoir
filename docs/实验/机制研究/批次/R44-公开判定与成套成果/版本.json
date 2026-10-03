@@ -1,0 +1,45 @@
+{
+  "batch": "R44",
+  "status": "已裁决，成果组合材料／停止当前接入",
+  "source_sha256": {
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "docs/实验/机制研究/批次/R44-公开判定与成套成果/有界研究计划.md": "e7ea9078cf6c4dcf31206fef359c851ea41293bdf397b55065170696fecffac1",
+    "docs/实验/机制研究/批次/R44-公开判定与成套成果/成套模型.py": "f47e12ddfb26958ee373aceef43810ed06ab0231182beba12cff9f75b50238ab",
+    "docs/实验/机制研究/批次/R44-公开判定与成套成果/审查两骰枚举.py": "ffe119a31fe8935ffd9288d66668280ba88d3ce3283fb8342503446b10c97ed8",
+    "docs/实验/机制研究/批次/R44-公开判定与成套成果/整合核对.py": "1ce2e6a8e4fe23872687928013be94b39d0c6f866e62a102a70143177d92a8e7",
+    "docs/实验/机制研究/批次/R44-公开判定与成套成果/复现.py": "55efeee5c1ed536a0ad1f0c38f9d2b1146f9daf6345133fb5d1b08a1f13d6a12",
+    "docs/实验/机制研究/批次/R44-公开判定与成套成果/研究记录.md": "5206bd2d8260cdb5038a0009565219b69f8e969125dae035b634164148071932",
+    "docs/实验/机制研究/批次/R44-公开判定与成套成果/审查结构.md": "de1564036f997fb596b987ee6c89c41f7c11d48be672da75c376f2a03cbead40"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "d2be48fbe150634a38d268083b787ec3a01ca2c56747079d200453f0e7ce0566",
+    "files": 15,
+    "bytes": 49996,
+    "isolated_verification": {
+      "batch": "R44",
+      "source_hashes_checked": 8,
+      "results": [
+        {
+          "script": "成套模型.py",
+          "result": "数学结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "审查两骰枚举.py",
+          "result": "审查两骰结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "整合核对.py",
+          "result": "整合核对.json",
+          "semantic_equal": true
+        }
+      ],
+      "regenerated_input_hashes_checked": 2,
+      "passed": true,
+      "scope": "数学隔离重算，独立优化仅局部；正式0真人0"
+    }
+  },
+  "scope": "数学及独立局部小树；正式0真人0"
+}

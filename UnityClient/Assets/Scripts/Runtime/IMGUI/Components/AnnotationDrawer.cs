@@ -217,13 +217,11 @@ namespace SSNoir.IMGUI
         }
 
         /// <summary>
-        /// 一根竖线陪着整段字（字顶到字底），锚点从近的那一端接进来；字挂在线的一侧。
-        /// 线不接矩形的角、不拐横线——一拐就成了框的一角，整条标注立刻读成「一个盒子
-        /// 外接一根线」。要的是：线从地上长出来，字长在线旁边。
+        /// 一根竖线陪着整段字（字顶到字底），字挂在线的一侧。连接线只接竖线，
+        /// 不接矩形的角，避免把标注画成一个带框的卡片。
         ///
-        /// 竖线的 x 由字的近侧边退 StemGap 得到，通常正好落在 anchor.x 上（调用方就是
-        /// 这么摆的）。若排布把字整块推偏了，锚点到线脚那一小段斜着走，斜段在字的下方，
-        /// 不压字。
+        /// 竖线的 x 由字的近侧边退 StemGap 得到。排布把字推偏时，先从锚点水平走到
+        /// 竖线所在的 x，再沿竖线接到字旁；锚点与字等高时直接接入竖线。
         /// </summary>
         private static void DrawLeader(Rect rect, Vector2 anchor, float pulse)
         {
@@ -238,17 +236,19 @@ namespace SSNoir.IMGUI
             {
                 bool textOnRight = anchor.x < rect.center.x;
                 float stemX = textOnRight ? rect.xMin - StemGap : rect.xMax + StemGap;
-                // 竖线永远陪完整段字（从字顶到字底），锚点接到离它近的那一端：
-                // 锚点在字下方就从线脚进来，锚点在字上方就从线头进来。线不能在字
-                // 中途停住——那样字的下半截就悬空了，像线只指着标题。
+                // 竖线永远陪完整段字（从字顶到字底）。锚点在字的高度范围内就
+                // 水平接入；在范围外则沿竖线延伸到最近的端点。
                 var head = new Vector2(stemX, rect.y);
                 var foot = new Vector2(stemX, rect.yMax);
-                Vector2 entry = anchor.y >= rect.center.y ? foot : head;
-                Vector2 start = StepOff(anchor, entry, ringClearance);
+                var bend = new Vector2(stemX, anchor.y);
+                var entry = new Vector2(stemX, Mathf.Clamp(anchor.y, rect.y, rect.yMax));
+                Vector2 start = StepOff(anchor, bend, ringClearance);
 
-                IMGUIStyles.DrawLine(start + HaloOffset, entry + HaloOffset, Halo, 3f);
+                IMGUIStyles.DrawLine(start + HaloOffset, bend + HaloOffset, Halo, 3f);
+                IMGUIStyles.DrawLine(bend + HaloOffset, entry + HaloOffset, Halo, 3f);
                 IMGUIStyles.DrawLine(head + HaloOffset, foot + HaloOffset, Halo, 3f);
-                IMGUIStyles.DrawLine(start, entry, color, 1f);
+                IMGUIStyles.DrawLine(start, bend, color, 1f);
+                IMGUIStyles.DrawLine(bend, entry, color, 1f);
                 IMGUIStyles.DrawLine(head, foot, color, 1f);
             }
 

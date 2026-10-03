@@ -1,0 +1,5 @@
+{"family": "free", "risky_only": false, "value": "2865733/1679616", "expected": 1.7061834371665905, "distribution": ["75583/839808", "191167/1679616", "49529/62208"], "states": 2359}
+{"family": "never", "risky_only": false, "value": "625079/419904", "expected": 1.48862359015394, "distribution": ["42223/419904", "130283/419904", "41233/69984"], "states": 804}
+{"family": "initial", "risky_only": false, "value": "158071/93312", "expected": 1.6940050582990398, "distribution": ["78109/559872", "3775/139968", "466663/559872"], "states": 980}
+{"family": "one_feedback", "risky_only": false, "value": "2854591/1679616", "expected": 1.6995497780445055, "distribution": ["93517/839808", "130573/1679616", "454003/559872"], "states": 1866}
+{"family": "free", "risky_only": true, "value": "2865733/1679616", "expected": 1.7061834371665905, "distribution": ["75583/839808", "191167/1679616", "49529/62208"], "states": 2359}

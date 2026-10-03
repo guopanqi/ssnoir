@@ -1,0 +1,4374 @@
+{
+  "cases": 348,
+  "checks": [
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_score": "13/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "expected_score": "173/216",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "expected_score": "179/216",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "expected_score": "589/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "expected_score": "76/81",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "expected_score": "53/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "expected_score": "373/432",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "expected_score": "127/144",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "expected_score": "307/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "expected_score": "1261/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "expected_score": "25/24",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "expected_score": "1163/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "expected_score": "619/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "expected_score": "1309/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "expected_score": "119/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "expected_score": "59/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "expected_score": "43/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "expected_score": "71/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "expected_score": "851/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "expected_score": "155/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "expected_score": "14/9",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "expected_score": "131/144",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "expected_score": "199/216",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "expected_score": "647/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "expected_score": "1385/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "expected_score": "83/72",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "expected_score": "1207/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_score": "343/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "expected_score": "371/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "expected_score": "133/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "expected_score": "65/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "expected_score": "47/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "expected_score": "155/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "expected_score": "1859/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "expected_score": "169/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "expected_score": "61/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "expected_score": "617/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "expected_score": "10/9",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "expected_score": "383/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "expected_score": "139/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "expected_score": "104/81",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "expected_score": "112/81",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "expected_score": "163/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "expected_score": "1951/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "expected_score": "44/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "expected_score": "7/4",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "expected_score": "113/81",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "expected_score": "121/81",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "expected_score": "44/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "expected_score": "527/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "expected_score": "95/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "expected_score": "17/9",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "expected_score": "275/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "expected_score": "197/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "expected_score": "407/432",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "expected_score": "205/216",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "expected_score": "175/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "expected_score": "755/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "expected_score": "91/72",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "expected_score": "433/432",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "expected_score": "251/216",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "expected_score": "203/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "expected_score": "73/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "expected_score": "143/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "expected_score": "931/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "expected_score": "169/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "expected_score": "2023/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "expected_score": "91/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "expected_score": "65/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "expected_score": "17/16",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "expected_score": "401/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "expected_score": "863/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "expected_score": "77/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "expected_score": "457/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "expected_score": "245/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "expected_score": "44/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "expected_score": "1051/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "expected_score": "187/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "expected_score": "11/6",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "expected_score": "251/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "expected_score": "533/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "expected_score": "95/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "expected_score": "1133/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "expected_score": "50/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "expected_score": "2345/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "expected_score": "205/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "expected_score": "71/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "expected_score": "1439/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "expected_score": "209/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "expected_score": "887/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "expected_score": "35/24",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "expected_score": "479/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "expected_score": "113/72",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "expected_score": "181/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "expected_score": "721/432",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "expected_score": "191/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "expected_score": "67/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "expected_score": "263/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "expected_score": "551/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "expected_score": "97/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "expected_score": "1157/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "expected_score": "101/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "expected_score": "2375/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "expected_score": "103/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "expected_score": "71/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "expected_score": "16/9",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "expected_score": "50/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "expected_score": "52/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "expected_score": "103/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "expected_score": "53/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "expected_score": "107/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected_score": "425/216",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "expected_score": "215/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 1,
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/6",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "65/72",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "107/108",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/18",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "2/3",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "41/108",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "7/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "17/27",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 0,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "17/18",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "25/72",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "7/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "157/216",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "95/108",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/108",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "2/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/27",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "5/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/27",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 1,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "5/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/18",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "2/3",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "41/108",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "7/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "133/216",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "17/18",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/108",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "2/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/108",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "2/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/108",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 2,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "2/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/108",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "2/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "55/216",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "2/3",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "55/216",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "2/3",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 1,
+      "prep": 3,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_score": "407/432",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "expected_score": "205/216",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "expected_score": "175/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "expected_score": "755/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "expected_score": "91/72",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "expected_score": "91/72",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "expected_score": "433/432",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "expected_score": "251/216",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "expected_score": "203/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "expected_score": "73/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "expected_score": "73/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "expected_score": "143/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "expected_score": "931/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "expected_score": "169/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "expected_score": "169/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "expected_score": "2023/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "expected_score": "91/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "expected_score": "91/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "expected_score": "65/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "expected_score": "65/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "expected_score": "65/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "expected_score": "17/16",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "expected_score": "401/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "expected_score": "863/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "expected_score": "77/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "expected_score": "77/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "expected_score": "457/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_score": "245/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "expected_score": "44/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "expected_score": "44/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "expected_score": "1051/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "expected_score": "187/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "expected_score": "187/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "expected_score": "11/6",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "expected_score": "11/6",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "expected_score": "11/6",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "expected_score": "251/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "expected_score": "533/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "expected_score": "95/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "expected_score": "95/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "expected_score": "1133/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "expected_score": "50/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "expected_score": "50/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "expected_score": "2345/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "expected_score": "205/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "expected_score": "205/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "expected_score": "71/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "expected_score": "71/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "expected_score": "71/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "expected_score": "1439/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "expected_score": "209/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "expected_score": "887/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "expected_score": "35/24",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "expected_score": "35/24",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "expected_score": "479/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "expected_score": "113/72",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "expected_score": "181/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "expected_score": "181/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "expected_score": "721/432",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "expected_score": "191/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "expected_score": "191/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "expected_score": "67/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "expected_score": "67/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "expected_score": "67/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "expected_score": "263/162",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "expected_score": "551/324",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "expected_score": "97/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "expected_score": "97/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "expected_score": "1157/648",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "expected_score": "101/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "expected_score": "101/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "expected_score": "2375/1296",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "expected_score": "103/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "expected_score": "103/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "expected_score": "71/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "expected_score": "71/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "expected_score": "71/36",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "expected_score": "16/9",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "expected_score": "50/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "expected_score": "52/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "expected_score": "52/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "expected_score": "103/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "expected_score": "53/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "expected_score": "53/27",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "expected_score": "35/18",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "expected_score": "107/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "expected_score": "107/54",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "expected_score": "425/216",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "expected_score": "215/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "expected_score": "215/108",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "harvest",
+      "growth": 2,
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "expected_score": "2",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "1/2",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "5/6",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "2/3",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "11/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/6",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 0,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "35/36",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "11/18",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "11/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "11/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "35/36",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "1",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "1/6",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "5/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "25/36",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 1,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "25/36",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "1/2",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "5/6",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "2/3",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "11/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "5/6",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "35/36",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "1/6",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "5/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "1/6",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "5/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "1/6",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 2,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "5/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "1/6",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 2,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "5/12",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "19/36",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 2,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "7/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "19/36",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "7/9",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 4,
+      "cold": 0,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 4,
+      "cold": 1,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "completion": "0",
+      "passed": true
+    },
+    {
+      "kind": "window_single_round",
+      "growth": 2,
+      "prep": 3,
+      "payload": 4,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6
+      ],
+      "completion": "0",
+      "passed": true
+    }
+  ],
+  "scope": "成果全126初始无序手牌×技能1/2；窗口最后一轮96项状态；独立转移与Fraction，概率输入共用正式表；未独立求解窗口全部多回合"
+}

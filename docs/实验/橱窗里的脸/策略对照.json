@@ -1,0 +1,2810 @@
+[
+  {
+    "policy": "safe",
+    "seed": 7,
+    "result": "('跟到交割 ())",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "safe",
+    "seed": 11,
+    "result": "('跟到交割 ())",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "safe",
+    "seed": 23,
+    "result": "('跟到交割 ())",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "selective",
+    "seed": 7,
+    "result": "('跟到交割 (莫里斯 午夜))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "selective",
+    "seed": 11,
+    "result": "('跟到交割 (莫里斯 午夜))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "selective",
+    "seed": 23,
+    "result": "('跟到交割 (莫里斯 午夜))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "late",
+    "seed": 7,
+    "result": "('跟到交割 (午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 1,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 1,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 5,
+        "distance": 2,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "late",
+    "seed": 11,
+    "result": "('跟到交割 (午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 1,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 1,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 1,
+        "memory": 1,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 1,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 1,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 1,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 5,
+        "distance": 2,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "late",
+    "seed": 23,
+    "result": "('跟到交割 (午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 1,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 1,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 5,
+        "distance": 2,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "greedy",
+    "seed": 7,
+    "result": "('暴露 (莫里斯 午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "greedy",
+    "seed": 11,
+    "result": "('暴露 (莫里斯 午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "greedy",
+    "seed": 23,
+    "result": "('暴露 (莫里斯 午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "planned",
+    "seed": 7,
+    "result": "('跟到交割 (莫里斯 午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 3,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 3,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "planned",
+    "seed": 11,
+    "result": "('跟到交割 (莫里斯 午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 3,
+        "distance": 2,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 3,
+        "distance": 1,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 1,
+        "memory": 2,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 1,
+        "memory": 3,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 1,
+        "memory": 3,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 1,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "planned",
+    "seed": 23,
+    "result": "('跟到交割 (莫里斯 午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 2,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 3,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "避免加速后距离达到5"
+      },
+      {
+        "stage": 3,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 2,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "拉开一步",
+        "reason": "回头前藏开；听完不继续贴身"
+      },
+      {
+        "stage": 4,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 5,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "reckless",
+    "seed": 7,
+    "result": "('暴露 (莫里斯 午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 2,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 2,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "始终贴近，检验贪心打法"
+      },
+      {
+        "stage": 3,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "reckless",
+    "seed": 11,
+    "result": "('暴露 (莫里斯 午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 2,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 2,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "始终贴近，检验贪心打法"
+      },
+      {
+        "stage": 3,
+        "distance": 1,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 3,
+        "memory": 2,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 3,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "reckless",
+    "seed": 23,
+    "result": "('暴露 (莫里斯 午夜 蓝火柴))",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 2,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 0,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 1,
+        "suspicion": 0,
+        "memory": 1,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 1,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 2,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 2,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 2,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "始终贴近，检验贪心打法"
+      },
+      {
+        "stage": 3,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 4,
+        "distance": 2,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "跟近一步",
+        "reason": "靠近本段即将消失的线索"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 2,
+        "card": "贴近偷听",
+        "reason": "把好骰留给唯一一次偷听"
+      },
+      {
+        "stage": 4,
+        "distance": 1,
+        "suspicion": 2,
+        "memory": 3,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "idle",
+    "seed": 7,
+    "result": "('跟丢 ())",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "idle",
+    "seed": 11,
+    "result": "('跟丢 ())",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "idle",
+    "seed": 23,
+    "result": "('跟丢 ())",
+    "trace": [
+      {
+        "stage": 0,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 1,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 2,
+        "distance": 3,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "抽烟",
+        "reason": "冷静不足，为剩余路线留缓冲"
+      },
+      {
+        "stage": 3,
+        "distance": 4,
+        "suspicion": 0,
+        "memory": 0,
+        "card": "end-turn",
+        "reason": "接受当前位置和即将发生的回应"
+      }
+    ],
+    "injury": " 完好 0/7"
+  }
+]

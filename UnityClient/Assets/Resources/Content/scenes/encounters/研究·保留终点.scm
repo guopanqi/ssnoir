@@ -1,0 +1,7 @@
+(define 研究名称 "保留终点")
+(define 研究模式 '收尾)
+(define A上限 2)
+(define B上限 2)
+(define 回合上限 1)
+(define 半成品清零 #f)
+(load-file "scripts/research/顺序选择.scm")

@@ -1,0 +1,25 @@
+(load-file "scripts/research/common.scm")
+(define 余热 (make-clock "余热" 6 'gauge "强推加2；借热消耗3；满6立即失败。回合末减1。"))
+(define (研究附记) (list (余热 'current)))
+(define (强推! n)
+  (余热 'advance! 2)
+  (if (余热 'full?) (研究结束! 'overheat "余热满六，推进中断。") (研究推进! n)))
+(define (借热! n)
+  (let ((bonus (if (= n 0) 0 (* 热转倍率 (quotient (余热 'current) 2)))))
+    (余热 'advance! -3)
+    (研究推进! (+ n bonus))))
+(define-opponent-rule "余热散去"
+  (lambda () (not 完了?))
+  (lambda () (余热 'advance! -1) (期限 'advance! 1) (研究检查!)))
+(define (get-render-data)
+  (研究盘面 "满目标完成。强推留下余热；借热把余热转成进度。余热满六先失败。"
+    (clock-nodes (余热 'render-data))
+    (list
+      (node "强推" :subtitle "坏0、中1、好3；先加2余热。" :requires (list (req-die))
+        :resolve (roll 'knowledge (outcome (lambda () (强推! 0)))
+          (outcome (lambda () (强推! 1))) (outcome (lambda () (强推! 3)))))
+      (node "借热" :subtitle (string-append "坏0、中" (number->string (+ 1 (* 热转倍率 (quotient (余热 'current) 2))))
+          "、好" (number->string (+ 2 (* 热转倍率 (quotient (余热 'current) 2)))) "；余热减3。")
+        :requires (list (req-die)) :resolve (roll 'knowledge
+          (outcome (lambda () (借热! 0))) (outcome (lambda () (借热! 1)))
+          (outcome (lambda () (借热! 2))))))))

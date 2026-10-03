@@ -1,0 +1,14 @@
+[
+  {
+    "record": "docs/实验/第二轮/最终失败复核/对照/枪口认路-货棚直冲-19-g1.json.gz",
+    "strictReplayPassed": true
+  },
+  {
+    "record": "docs/实验/第二轮/最终补充/对照/信封换人-纯谈判-19-g1.json.gz",
+    "strictReplayPassed": true
+  },
+  {
+    "record": "docs/实验/第二轮/最终补充/对照/信封换人-等待到期-19-g1.json.gz",
+    "strictReplayPassed": true
+  }
+]

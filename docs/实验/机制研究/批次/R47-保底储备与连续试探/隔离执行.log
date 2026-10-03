@@ -1,0 +1,1 @@
+{"batch": "R47", "source_hashes_checked": 29, "results": [{"script": "储备判据.py", "result": "储备结果.json", "semantic_equal": true}, {"script": "审查储备枚举.py", "result": "审查储备结果.json", "semantic_equal": true}, {"script": "整合核对.py", "result": "整合核对.json", "semantic_equal": true}], "regenerated_input_hashes_checked": 6, "passed": true, "scope": "数学隔离重算；独立全根仅明确策略执行，自由独立局部；正式0真人0"}

@@ -1,0 +1,402 @@
+[
+  {
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "余热前瞻",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 2.125,
+    "mean_calm": 3.875,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "即时收益",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 2.125,
+    "mean_calm": 3.875,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "只借热",
+    "growth": 1,
+    "n": 8,
+    "wins": 6,
+    "mean_success_rounds": 3.0,
+    "mean_calm": 2.75,
+    "mean_banked": null,
+    "statuses": {
+      "success": 6,
+      "timeout": 2
+    }
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "固定交替",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 2.125,
+    "mean_calm": 3.875,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "余热转用",
+    "variant": "余热转用",
+    "policy": "强推冷却",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 2.5,
+    "mean_calm": 3.5,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "手牌兑现",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 2.375,
+    "mean_calm": 3.625,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "满3",
+    "growth": 1,
+    "n": 8,
+    "wins": 7,
+    "mean_success_rounds": 2.7142857142857144,
+    "mean_calm": 3.125,
+    "mean_banked": null,
+    "statuses": {
+      "success": 7,
+      "timeout": 1
+    }
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "满4",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 2.375,
+    "mean_calm": 3.625,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "满5",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 2.125,
+    "mean_calm": 3.875,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "分段兑现",
+    "variant": "分段兑现",
+    "policy": "稳进到底",
+    "growth": 1,
+    "n": 8,
+    "wins": 0,
+    "mean_success_rounds": null,
+    "mean_calm": 2.0,
+    "mean_banked": null,
+    "statuses": {
+      "timeout": 8
+    }
+  },
+  {
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "policy": "一次探查",
+    "growth": 1,
+    "n": 8,
+    "wins": 7,
+    "mean_success_rounds": 2.5714285714285716,
+    "mean_calm": 3.25,
+    "mean_banked": null,
+    "statuses": {
+      "success": 7,
+      "timeout": 1
+    }
+  },
+  {
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "policy": "弱骰探查",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 2.75,
+    "mean_calm": 3.25,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "policy": "直接押A",
+    "growth": 1,
+    "n": 8,
+    "wins": 6,
+    "mean_success_rounds": 2.3333333333333335,
+    "mean_calm": 3.25,
+    "mean_banked": null,
+    "statuses": {
+      "success": 6,
+      "timeout": 2
+    }
+  },
+  {
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "policy": "直接押B",
+    "growth": 1,
+    "n": 8,
+    "wins": 7,
+    "mean_success_rounds": 2.857142857142857,
+    "mean_calm": 3.0,
+    "mean_banked": null,
+    "statuses": {
+      "success": 7,
+      "timeout": 1
+    }
+  },
+  {
+    "family": "情报承诺",
+    "variant": "情报承诺",
+    "policy": "高骰探查",
+    "growth": 1,
+    "n": 8,
+    "wins": 7,
+    "mean_success_rounds": 2.5714285714285716,
+    "mean_calm": 3.25,
+    "mean_banked": null,
+    "statuses": {
+      "success": 7,
+      "timeout": 1
+    }
+  },
+  {
+    "family": "承诺分流",
+    "variant": "承诺分流",
+    "policy": "一直稳步",
+    "growth": 1,
+    "n": 8,
+    "wins": 6,
+    "mean_success_rounds": 3.0,
+    "mean_calm": 2.75,
+    "mean_banked": null,
+    "statuses": {
+      "success": 6,
+      "timeout": 2
+    }
+  },
+  {
+    "family": "承诺分流",
+    "variant": "承诺分流",
+    "policy": "手牌承诺",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 2.5,
+    "mean_calm": 2.875,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "承诺分流",
+    "variant": "承诺分流",
+    "policy": "末轮快线",
+    "growth": 1,
+    "n": 8,
+    "wins": 6,
+    "mean_success_rounds": 3.0,
+    "mean_calm": 2.75,
+    "mean_banked": null,
+    "statuses": {
+      "success": 6,
+      "timeout": 2
+    }
+  },
+  {
+    "family": "承诺分流",
+    "variant": "承诺分流",
+    "policy": "立即快线",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 2.25,
+    "mean_calm": 2.75,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "窗口储备",
+    "variant": "窗口储备",
+    "policy": "只备料兑现",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 4.0,
+    "mean_calm": 2.0,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "窗口储备",
+    "variant": "窗口储备",
+    "policy": "提前备料",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 3.75,
+    "mean_calm": 2.25,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "窗口储备",
+    "variant": "窗口储备",
+    "policy": "直接到底",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 3.25,
+    "mean_calm": 2.75,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "窗口储备",
+    "variant": "窗口储备",
+    "policy": "窗口自适应",
+    "growth": 1,
+    "n": 8,
+    "wins": 8,
+    "mean_success_rounds": 3.25,
+    "mean_calm": 2.75,
+    "mean_banked": null,
+    "statuses": {
+      "success": 8
+    }
+  },
+  {
+    "family": "风险兑现",
+    "variant": "风险兑现",
+    "policy": "一直冒险",
+    "growth": 1,
+    "n": 8,
+    "wins": 0,
+    "mean_success_rounds": null,
+    "mean_calm": 4.125,
+    "mean_banked": 0.0,
+    "statuses": {
+      "lost": 8
+    }
+  },
+  {
+    "family": "风险兑现",
+    "variant": "风险兑现",
+    "policy": "压力收手3",
+    "growth": 1,
+    "n": 8,
+    "wins": 0,
+    "mean_success_rounds": null,
+    "mean_calm": 5.0,
+    "mean_banked": 6.375,
+    "statuses": {
+      "banked": 8
+    }
+  },
+  {
+    "family": "风险兑现",
+    "variant": "风险兑现",
+    "policy": "压力收手4",
+    "growth": 1,
+    "n": 8,
+    "wins": 0,
+    "mean_success_rounds": null,
+    "mean_calm": 5.0,
+    "mean_banked": 6.875,
+    "statuses": {
+      "banked": 8
+    }
+  },
+  {
+    "family": "风险兑现",
+    "variant": "风险兑现",
+    "policy": "压力收手5",
+    "growth": 1,
+    "n": 8,
+    "wins": 0,
+    "mean_success_rounds": null,
+    "mean_calm": 2.625,
+    "mean_banked": 16.5,
+    "statuses": {
+      "banked": 8
+    }
+  },
+  {
+    "family": "风险兑现",
+    "variant": "风险兑现",
+    "policy": "整理续航",
+    "growth": 1,
+    "n": 8,
+    "wins": 0,
+    "mean_success_rounds": null,
+    "mean_calm": 1.25,
+    "mean_banked": 20.625,
+    "statuses": {
+      "banked": 8
+    }
+  }
+]

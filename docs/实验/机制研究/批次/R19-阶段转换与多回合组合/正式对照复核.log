@@ -1,0 +1,1 @@
+{"games": 37, "steps": 331, "replays": 37, "summary": {"整段自由": {"games": 12, "actual_success": 11, "left_model": 1}, "保留自由": {"games": 8, "actual_success": 8, "left_model": 0}, "每轮先整顿": {"games": 8, "actual_success": 7, "left_model": 1}, "成长2": {"games": 4, "actual_success": 3, "left_model": 1}}, "interaction_visits": 12}

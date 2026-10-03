@@ -1,0 +1,15 @@
+{
+  "batch": "R48",
+  "status": "主模型完成",
+  "source_sha256": {
+    "docs/实验/机制研究/批次/R48-概率储备与有限计划/有界研究计划.md": "224f4d534dc5f88dd864a261fc78a9a2f21aab249604705c1d21d269a97cf75f",
+    "docs/实验/机制研究/批次/R48-概率储备与有限计划/概率判据.py": "9fefd786213b70f6e6e70a40dd0c413d1982d613d3f8cc6bd8e59d53730c49dd",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/版本.json": "eac1c7af404fbfe3a33ba36e0ca12f9f99a9726ef4743a2405c786b9a3aa5395",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/储备判据.py": "a0daf15fe502b8fda2b1fd799a6735441e87975bf4ac7dd0148b0e59e2c35a43",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/储备结果.json": "027c25d4f4db4edc4cf204a53cb7fe95083646f001c1a9899e807edd81657356",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c"
+  },
+  "command": "python3 docs/实验/机制研究/批次/R48-概率储备与有限计划/概率判据.py",
+  "exit_code": 0,
+  "live_session_id": null
+}

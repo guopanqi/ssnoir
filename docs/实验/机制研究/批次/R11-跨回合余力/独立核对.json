@@ -1,0 +1,2262 @@
+{
+  "cases": 192,
+  "checks": [
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "5/12",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "65/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "25/27",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "31/36",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "17/18",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "17/18",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/3",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "4/9",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "65/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "25/27",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "25/36",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "107/108",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "107/108",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "25/36",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "107/108",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "107/108",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 2,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/18",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "25/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "25/54",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "11/36",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "167/216",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "173/216",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "11/36",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "65/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "197/216",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "11/36",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "65/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "197/216",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 3,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/18",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "5/18",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "5/12",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/18",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "41/108",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1/2",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/18",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "17/27",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "149/216",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/18",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "17/27",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "149/216",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 4,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "5/108",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "5/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "19/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "73/216",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "19/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "73/216",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "19/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "73/216",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 5,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "5/108",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "5/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "5/108",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "5/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "5/108",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "5/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "5/108",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "5/72",
+      "passed": true
+    },
+    {
+      "growth": 1,
+      "remaining": 6,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "11/18",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "11/12",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "35/36",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "35/36",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/2",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 2,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "11/18",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "7/9",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "19/36",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "11/12",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "19/36",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "35/36",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "19/36",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "35/36",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 3,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1/2",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "7/9",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "17/18",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "1/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "17/18",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 4,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "2/9",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "19/36",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "19/36",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "19/36",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "2/3",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 5,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "1",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 0,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 0,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 0,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "2/9",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 0,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 1,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 1,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 1,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "2/9",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 1,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 3,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "2/9",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 5,
+      "hand": [
+        1,
+        2
+      ],
+      "exact_completion": "0",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5
+      ],
+      "exact_completion": "1/6",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5
+      ],
+      "exact_completion": "2/9",
+      "passed": true
+    },
+    {
+      "growth": 2,
+      "remaining": 6,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6
+      ],
+      "exact_completion": "5/6",
+      "passed": true
+    }
+  ],
+  "scope": "独立单回合递推与Fraction；输入概率仍使用已校准官方表。不是完整伤后游戏模型。"
+}

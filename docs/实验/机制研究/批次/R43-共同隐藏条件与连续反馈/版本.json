@@ -1,0 +1,65 @@
+{
+  "batch": "R43",
+  "status": "连续反馈数学扩展材料；现有公开判定下不直接接入",
+  "source_sha256": {
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/有界研究计划.md": "58f756e927ab0dfdb7d3d505a7f1ed56659c9ddf5d6ba71dd8e265b165be59fe",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/隐藏反馈模型.py": "34d988ca02584405919e5b287aefd612cc86e0568fdc5d0c237f6f4f3be8eee6",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/独立固定真值复核.py": "96e68d0e0576b704dca487939c8946e00c94c089dcaed1cea7e01345316752f8",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/后验响应前向.py": "776320c177a84689ecef9ec9579940804d78413fcb3165599d3c8e6d454527f5",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/整合核对.py": "ede6c0f10602d559d31c336784a0420e0ef1d9afe440219d6ea45d232d80f152",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/研究记录.md": "ec72422f9d8074b16041703df8615242d7841b1b43e1b62ffb05edfccb695a60",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/判定可见性核对.md": "e1ed4c4d67709ff618d65c19b569ccb8ee8348e1f9e24ad6eb31cce039d8fa0b",
+    "docs/实验/机制研究/批次/R43-共同隐藏条件与连续反馈/复现.py": "4848abed6d479cfca5279839ec2f7939801d01ecf96a62b65636bca75d1e83ac",
+    "Engine/Runtime/Core/SceneManager.cs": "2502e5031ec9c605623e3d9bbdf19278a59b1ddd04242b941159c75d21e0c731",
+    "UnityClient/Assets/Scripts/Runtime/IMGUI/Components/ActionNodeDrawer.cs": "7dcca7348e5fc77b4be84a953ccc855fbdd3487dbe4ada2db20a344e11880aa4",
+    "UnityClient/Assets/Resources/Content/scripts/engine.scm": "aec630bf0fd9a9f02b2de141faa8fe444a32b969361816309a380b2dd83c9cfc"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "4d9e75558ebae05e82dd8826b90788a641aff4114d0f429da18e3aca6c4636ac",
+    "files": 22,
+    "bytes": 171636,
+    "isolated_verification": {
+      "batch": "R43",
+      "source_hashes_checked": 12,
+      "results": [
+        {
+          "script": "隐藏反馈模型.py",
+          "result": "数学结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "独立固定真值复核.py",
+          "result": "独立复核结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "后验响应前向.py",
+          "result": "后验响应前向结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "整合核对.py",
+          "result": "整合核对.json",
+          "semantic_equal": true
+        }
+      ],
+      "public_policy_equal": true,
+      "regenerated_input_hashes_checked": 6,
+      "passed": true,
+      "scope": "忽略耗时及其引起的数学JSON字节指纹变化；实际重算输入指纹逐项核对，公开策略完全一致；独立优化范围仍仅局部，正式0真人0"
+    }
+  },
+  "evidence": {
+    "initial_hands": 126,
+    "unique_initial_orders": 1296,
+    "independent_local_optimal_conditions": 648,
+    "independent_fixed_truth_root_family_executions": 630,
+    "conceptual_complete_fate_sequences": 1632960,
+    "independent_complete_four_die_optimization": false,
+    "native_games": 0,
+    "human_games": 0,
+    "adaptation": "标准roll实际概率预览泄露真值；只读核对，未修改UI或引擎"
+  }
+}

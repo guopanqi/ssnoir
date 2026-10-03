@@ -1,0 +1,12 @@
+{
+  "batch": "R44",
+  "status": "主模型执行完成",
+  "source_sha256": {
+    "docs/实验/机制研究/批次/R44-公开判定与成套成果/有界研究计划.md": "e7ea9078cf6c4dcf31206fef359c851ea41293bdf397b55065170696fecffac1",
+    "docs/实验/机制研究/批次/R44-公开判定与成套成果/成套模型.py": "f47e12ddfb26958ee373aceef43810ed06ab0231182beba12cff9f75b50238ab",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c"
+  },
+  "command": "python3 docs/实验/机制研究/批次/R44-公开判定与成套成果/成套模型.py",
+  "live_session_id": null,
+  "exit_code": 0
+}

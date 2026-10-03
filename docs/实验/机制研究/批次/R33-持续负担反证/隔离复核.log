@@ -1,0 +1,1 @@
+{"date": "2026-10-03", "source_hashes_checked": 18, "results": [{"script": "末回合独立核查.py", "result": "末回合独立核查.json", "semantic_equal": true}, {"script": "小状态主模型对照.py", "result": "小状态主模型对照.json", "semantic_equal": true}], "passed": true, "scope": "R33协调者接手后的冻结小状态隔离核对；非全局独立优化，无原生或真人证据"}

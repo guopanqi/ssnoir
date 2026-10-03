@@ -1,0 +1,87 @@
+;; R37：推进自身产生持续问题；失败的即时压力与回合压力共享不可逆预算。
+(set-actor-composure! 'player 3)
+(define 完成? #f)
+(define 已生甲? #f)
+(define 已生乙? #f)
+(define 主进度 (make-clock "主进度" 12 'gauge "达到12立即完成；经过3、6各产生一个问题。"))
+(define 修复甲 (make-clock "修复甲" 2 'gauge "修满后不再加压；已积累压力保留。"))
+(define 修复乙 (make-clock "修复乙" 2 'gauge "修满后不再加压；已积累压力保留。"))
+(define 压力 (make-clock "压力" 5 'gauge "达到5立即失败，修复不会降低已有压力。"))
+(define 期限 (make-clock "已过回合" 3 'gauge "最多三回合；结束回合另花1冷静。"))
+(define (未修数量)
+  (+ (if (and 已生甲? (not (修复甲 'full?))) 1 0)
+     (if (and 已生乙? (not (修复乙 'full?))) 1 0)))
+(define (压力结果 status)
+  (list status (主进度 'current)
+    (if 已生甲? (- 2 (修复甲 'current)) 0)
+    (if 已生乙? (- 2 (修复乙 'current)) 0)
+    (压力 'current) (期限 'current) (actor-composure 'player)))
+(define (压力结束! status text)
+  (if 完成? (error "压力预算：重复结算") #t)
+  (set! 完成? #t)
+  (spotlight! 研究名称 text)
+  (end-encounter (压力结果 status)))
+(define (压力检查!)
+  (if (or 完成? (hospitalization-pending?)) #f
+    (cond
+      ((压力 'full?) (压力结束! 'pressure "压力达到5，行动失败。"))
+      ((主进度 'full?) (压力结束! 'success "目标完成，行动结束。"))
+      ((期限 'full?) (压力结束! 'timeout "三回合已过，目标未完成。")))))
+(define (压力推进! n)
+  (if (or 完成? (hospitalization-pending?)) #f
+    (begin
+      (主进度 'advance! n)
+      (if (and (not 已生甲?) (>= (主进度 'current) 3))
+        (begin (set! 已生甲? #t) (result-supplement! "新问题：甲")) #f)
+      (if (and (not 已生乙?) (>= (主进度 'current) 6))
+        (begin (set! 已生乙? #t) (result-supplement! "新问题：乙")) #f)
+      (压力检查!))))
+(define (压力修复! clock n)
+  (if (or 完成? (hospitalization-pending?)) #f (clock 'advance! n)))
+(define (压力坏! 推进?)
+  (spend-composure! 1)
+  (if (and 推进? 即时加压? (not (hospitalization-pending?)))
+    (begin (压力 'advance! 1) (压力检查!)) #f))
+(define (压力行动 gain 推进? clock)
+  (if 推进? (压力推进! gain) (压力修复! clock gain)))
+(define (压力风险中! 推进? clock)
+  (spend-composure! 1)
+  (压力行动 1 推进? clock))
+(define (压力动作 前缀 推进? clock)
+  (list
+    (node (string-append 前缀 "稳做")
+      :subtitle (if (and 推进? 即时加压?) "坏：冷静−1、压力+1；中：无；好：进度+1。" "坏：冷静−1；中：无；好：进度+1。")
+      :requires (list (req-die))
+      :resolve (roll 'knowledge
+        (outcome (lambda () (压力坏! 推进?))) (outcome (lambda () #f))
+        (outcome (lambda () (压力行动 1 推进? clock)))))
+    (node (string-append 前缀 "快做")
+      :subtitle "中：冷静−1、进度+1；好：进度+2。坏档同稳做。"
+      :requires (list (req-die))
+      :resolve (roll 'knowledge
+        (outcome (lambda () (压力坏! 推进?)))
+        (outcome (lambda () (压力风险中! 推进? clock)))
+        (outcome (lambda () (压力行动 2 推进? clock)))))))
+(define-opponent-rule "未修问题加压"
+  (lambda () (not 完成?))
+  (lambda ()
+    (压力 'advance! (未修数量))
+    (压力检查!)))
+(define-opponent-rule "回合期限"
+  (lambda () (not 完成?))
+  (lambda () (期限 'advance! 1) (压力检查!)))
+(define (on-encounter-collapse) (collapse-result (压力结果 'collapse)))
+(define (get-render-data)
+  (container 研究名称
+    (append
+      (list
+        (note-node "标注：压力规则" "三回合，完成目标"
+          (if 即时加压? "推进坏档加1压力。经过3、6各出现一个问题，修满2格解决。" "推进坏档不加压力。经过3、6各出现一个问题，修满2格解决。"))
+        (note-node "标注：结束加压" "未修问题每轮加压"
+          (string-append "本轮结束将加" (number->string (未修数量)) "压力。修复只止住后续增长。")))
+      (clock-nodes (主进度 'render-data) (压力 'render-data) (期限 'render-data))
+      (压力动作 "推进" #t 主进度)
+      (if 已生甲? (append (clock-nodes (修复甲 'render-data))
+        (if (修复甲 'full?) '() (压力动作 "甲" #f 修复甲))) '())
+      (if 已生乙? (append (clock-nodes (修复乙 'render-data))
+        (if (修复乙 'full?) '() (压力动作 "乙" #f 修复乙))) '()))))

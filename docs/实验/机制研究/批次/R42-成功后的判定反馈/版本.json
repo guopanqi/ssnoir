@@ -1,0 +1,53 @@
+{
+  "batch": "R42",
+  "status": "保留基础反馈材料，停止当前单体接入",
+  "source_sha256": {
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "docs/实验/机制研究/批次/R42-成功后的判定反馈/有界研究计划.md": "cc9f40b0d96d38c559ef0e6248d93d5659fc007d85fcbd7168d94bc6e390b37f",
+    "docs/实验/机制研究/批次/R42-成功后的判定反馈/反馈模型.py": "ae3ebd2cdc2d237538291bbac0e7d12d99544107e7695648c7fa87d0cb638310",
+    "docs/实验/机制研究/批次/R42-成功后的判定反馈/审查两骰枚举.py": "83b93bea56d0ba717a78e67f0375b851bd047a02c045cd7527a4d397b27c50d3",
+    "docs/实验/机制研究/批次/R42-成功后的判定反馈/结构审查.md": "0c7b1ef4d5fa92623f426fffb0e60751e4cdbf73fdddaab920e4232074655c8a",
+    "docs/实验/机制研究/批次/R42-成功后的判定反馈/复核.py": "9e1debd493c2443b5005b49380fe011667cfdadf0ef3b99e338bd092062e9acb",
+    "docs/实验/机制研究/批次/R42-成功后的判定反馈/复现.py": "7e611834ff7c522336a9c3e47bc4c62d70de145f9976b591a7b2c06bb0f1f4f4",
+    "docs/实验/机制研究/批次/R42-成功后的判定反馈/研究记录.md": "61c266d5070567a93bae69385b5fa298236a5b4bef8f1c2dd12291fdb761a82c"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "e35728608f6c5970a20b99cfe395c9e5b7513092189610f9c899e8f09562d4e4",
+    "files": 14,
+    "bytes": 23712,
+    "isolated_verification": {
+      "batch": "R42",
+      "source_hashes_checked": 8,
+      "results": [
+        {
+          "script": "反馈模型.py",
+          "result": "反馈结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "审查两骰枚举.py",
+          "result": "审查两骰结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "复核.py",
+          "result": "复核.json",
+          "semantic_equal": true
+        }
+      ],
+      "passed": true,
+      "scope": "冻结源码及正式概率输入隔离数学重算；忽略耗时和隔离绝对依赖路径；没有正式会话或真人证据"
+    }
+  },
+  "evidence": {
+    "initial_hands": 126,
+    "initial_unique_sequences": 1296,
+    "independent_two_die_conditions": 168,
+    "independent_fate_pair_branches": 12096,
+    "model_comparisons": 504,
+    "independent_complete_four_die_optimization": false,
+    "native_games": 0,
+    "human_games": 0
+  }
+}

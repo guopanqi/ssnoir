@@ -1,0 +1,9 @@
+{
+  "attempts": 4,
+  "seed": 6344,
+  "search_outcomes": {
+    "success": 4
+  },
+  "record": "边界-带伤成功-6344.json.gz",
+  "scope": "完整覆盖搜索，只保留首个带伤成功，用于证明模型事件与游戏结果不同，不估计概率"
+}

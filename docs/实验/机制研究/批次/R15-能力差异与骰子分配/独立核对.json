@@ -1,0 +1,5676 @@
+{
+  "cases": 378,
+  "checks": [
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "completion": "49/1296",
+      "weighted_harm": "7/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "completion": "43/648",
+      "weighted_harm": "49/432",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "completion": "119/1296",
+      "weighted_harm": "203/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "completion": "13/108",
+      "weighted_harm": "133/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "completion": "7/48",
+      "weighted_harm": "161/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "completion": "37/216",
+      "weighted_harm": "7/24",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "completion": "65/648",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "completion": "175/1296",
+      "weighted_harm": "289/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "completion": "19/108",
+      "weighted_harm": "47/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "completion": "91/432",
+      "weighted_harm": "449/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "completion": "53/216",
+      "weighted_harm": "29/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "completion": "35/216",
+      "weighted_harm": "7/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "completion": "17/81",
+      "weighted_harm": "217/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "completion": "161/648",
+      "weighted_harm": "511/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "completion": "31/108",
+      "weighted_harm": "49/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "completion": "43/162",
+      "weighted_harm": "34/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "completion": "203/648",
+      "weighted_harm": "319/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "completion": "13/36",
+      "weighted_harm": "61/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "completion": "455/1296",
+      "weighted_harm": "175/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "completion": "29/72",
+      "weighted_harm": "133/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "completion": "4/9",
+      "weighted_harm": "2/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "completion": "97/648",
+      "weighted_harm": "13/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "completion": "251/1296",
+      "weighted_harm": "199/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "completion": "1/4",
+      "weighted_harm": "32/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "completion": "127/432",
+      "weighted_harm": "299/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "completion": "73/216",
+      "weighted_harm": "19/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "completion": "49/216",
+      "weighted_harm": "149/432",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "completion": "47/162",
+      "weighted_harm": "71/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "completion": "217/648",
+      "weighted_harm": "647/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "completion": "41/108",
+      "weighted_harm": "121/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "completion": "59/162",
+      "weighted_harm": "44/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "completion": "271/648",
+      "weighted_harm": "199/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "completion": "17/36",
+      "weighted_harm": "37/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "completion": "595/1296",
+      "weighted_harm": "845/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "completion": "37/72",
+      "weighted_harm": "155/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "completion": "5/9",
+      "weighted_harm": "3/4",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "completion": "7/27",
+      "weighted_harm": "161/432",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "completion": "53/162",
+      "weighted_harm": "301/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "completion": "119/324",
+      "weighted_harm": "329/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "completion": "11/27",
+      "weighted_harm": "119/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "completion": "11/27",
+      "weighted_harm": "46/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "completion": "49/108",
+      "weighted_harm": "397/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "completion": "1/2",
+      "weighted_harm": "71/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "completion": "35/72",
+      "weighted_harm": "805/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "completion": "19/36",
+      "weighted_harm": "35/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "completion": "5/9",
+      "weighted_harm": "23/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "completion": "41/81",
+      "weighted_harm": "56/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "completion": "181/324",
+      "weighted_harm": "119/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "completion": "11/18",
+      "weighted_harm": "7/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "completion": "385/648",
+      "weighted_harm": "475/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "completion": "23/36",
+      "weighted_harm": "3/4",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "completion": "2/3",
+      "weighted_harm": "13/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "completion": "805/1296",
+      "weighted_harm": "455/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "completion": "47/72",
+      "weighted_harm": "49/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "completion": "2/3",
+      "weighted_harm": "11/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "completion": "2/3",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "completion": "16/81",
+      "weighted_harm": "8/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "completion": "167/648",
+      "weighted_harm": "31/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "completion": "1/3",
+      "weighted_harm": "40/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "completion": "85/216",
+      "weighted_harm": "47/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "completion": "49/108",
+      "weighted_harm": "2/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "completion": "127/432",
+      "weighted_harm": "89/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "completion": "61/162",
+      "weighted_harm": "85/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "completion": "565/1296",
+      "weighted_harm": "389/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "completion": "107/216",
+      "weighted_harm": "73/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "completion": "38/81",
+      "weighted_harm": "52/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "completion": "175/324",
+      "weighted_harm": "59/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "completion": "11/18",
+      "weighted_harm": "22/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "completion": "755/1296",
+      "weighted_harm": "485/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "completion": "47/72",
+      "weighted_harm": "89/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "completion": "25/36",
+      "weighted_harm": "5/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "completion": "143/432",
+      "weighted_harm": "187/432",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "completion": "271/648",
+      "weighted_harm": "175/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "completion": "305/648",
+      "weighted_harm": "767/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "completion": "113/216",
+      "weighted_harm": "139/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "completion": "14/27",
+      "weighted_harm": "53/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "completion": "125/216",
+      "weighted_harm": "229/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "completion": "23/36",
+      "weighted_harm": "41/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "completion": "265/432",
+      "weighted_harm": "905/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "completion": "2/3",
+      "weighted_harm": "157/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "completion": "25/36",
+      "weighted_harm": "25/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "completion": "52/81",
+      "weighted_harm": "64/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "completion": "115/162",
+      "weighted_harm": "68/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "completion": "7/9",
+      "weighted_harm": "8/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "completion": "485/648",
+      "weighted_harm": "265/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "completion": "29/36",
+      "weighted_harm": "5/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "7/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "completion": "505/648",
+      "weighted_harm": "995/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "completion": "59/72",
+      "weighted_harm": "53/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "23/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "completion": "49/144",
+      "weighted_harm": "7/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "completion": "31/72",
+      "weighted_harm": "35/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "completion": "35/72",
+      "weighted_harm": "77/144",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "completion": "13/24",
+      "weighted_harm": "7/12",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "completion": "43/81",
+      "weighted_harm": "47/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "completion": "385/648",
+      "weighted_harm": "407/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "completion": "71/108",
+      "weighted_harm": "73/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "completion": "805/1296",
+      "weighted_harm": "385/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "completion": "73/108",
+      "weighted_harm": "133/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "completion": "25/36",
+      "weighted_harm": "5/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "completion": "53/81",
+      "weighted_harm": "56/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "completion": "235/324",
+      "weighted_harm": "119/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "completion": "43/54",
+      "weighted_harm": "7/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "completion": "245/324",
+      "weighted_harm": "445/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "completion": "22/27",
+      "weighted_harm": "25/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "11/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "completion": "1015/1296",
+      "weighted_harm": "805/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "completion": "89/108",
+      "weighted_harm": "7/12",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "17/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "completion": "64/81",
+      "weighted_harm": "64/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "completion": "71/81",
+      "weighted_harm": "68/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "completion": "26/27",
+      "weighted_harm": "8/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "completion": "295/324",
+      "weighted_harm": "125/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "completion": "53/54",
+      "weighted_harm": "7/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "2/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "completion": "305/324",
+      "weighted_harm": "445/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "completion": "107/108",
+      "weighted_harm": "23/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "completion": "1225/1296",
+      "weighted_harm": "175/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "completion": "215/216",
+      "weighted_harm": "35/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        1
+      ],
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "0",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "completion": "7/81",
+      "weighted_harm": "5/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "completion": "91/648",
+      "weighted_harm": "97/432",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "completion": "121/648",
+      "weighted_harm": "193/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "completion": "13/54",
+      "weighted_harm": "497/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "completion": "31/108",
+      "weighted_harm": "37/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "completion": "35/108",
+      "weighted_harm": "37/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "completion": "67/324",
+      "weighted_harm": "23/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "completion": "85/324",
+      "weighted_harm": "65/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "completion": "1/3",
+      "weighted_harm": "329/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "completion": "7/18",
+      "weighted_harm": "191/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "completion": "23/54",
+      "weighted_harm": "23/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "completion": "65/216",
+      "weighted_harm": "95/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "completion": "61/162",
+      "weighted_harm": "44/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "completion": "139/324",
+      "weighted_harm": "199/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "completion": "101/216",
+      "weighted_harm": "143/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "completion": "38/81",
+      "weighted_harm": "217/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "completion": "43/81",
+      "weighted_harm": "121/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "completion": "41/72",
+      "weighted_harm": "85/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "completion": "185/324",
+      "weighted_harm": "125/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "completion": "11/18",
+      "weighted_harm": "43/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "completion": "11/18",
+      "weighted_harm": "3/4",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "completion": "13/54",
+      "weighted_harm": "19/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "completion": "419/1296",
+      "weighted_harm": "17/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "completion": "251/648",
+      "weighted_harm": "121/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "completion": "65/144",
+      "weighted_harm": "209/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "completion": "107/216",
+      "weighted_harm": "19/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "completion": "3/8",
+      "weighted_harm": "113/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "completion": "305/648",
+      "weighted_harm": "35/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "completion": "29/54",
+      "weighted_harm": "119/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "completion": "16/27",
+      "weighted_harm": "43/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "completion": "175/324",
+      "weighted_harm": "235/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "completion": "395/648",
+      "weighted_harm": "43/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "completion": "47/72",
+      "weighted_harm": "91/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "completion": "845/1296",
+      "weighted_harm": "175/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "completion": "25/36",
+      "weighted_harm": "89/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "completion": "25/36",
+      "weighted_harm": "7/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "completion": "5/12",
+      "weighted_harm": "59/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "completion": "14/27",
+      "weighted_harm": "2/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "completion": "31/54",
+      "weighted_harm": "58/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "completion": "67/108",
+      "weighted_harm": "3/4",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "completion": "52/81",
+      "weighted_harm": "131/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "completion": "19/27",
+      "weighted_harm": "23/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "completion": "3/4",
+      "weighted_harm": "47/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "completion": "20/27",
+      "weighted_harm": "5/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "completion": "7/9",
+      "weighted_harm": "22/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "completion": "7/9",
+      "weighted_harm": "13/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "completion": "56/81",
+      "weighted_harm": "263/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "completion": "55/72",
+      "weighted_harm": "139/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "completion": "29/36",
+      "weighted_harm": "8/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "completion": "115/144",
+      "weighted_harm": "265/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "7/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "13/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "completion": "175/216",
+      "weighted_harm": "155/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "23/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "completion": "7/27",
+      "weighted_harm": "37/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "completion": "449/1296",
+      "weighted_harm": "593/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "completion": "133/324",
+      "weighted_harm": "43/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "completion": "205/432",
+      "weighted_harm": "263/432",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "completion": "113/216",
+      "weighted_harm": "143/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "completion": "277/648",
+      "weighted_harm": "89/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "completion": "163/324",
+      "weighted_harm": "17/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "completion": "125/216",
+      "weighted_harm": "58/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "completion": "23/36",
+      "weighted_harm": "7/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "completion": "91/162",
+      "weighted_harm": "53/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "completion": "5/8",
+      "weighted_harm": "17/24",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "completion": "2/3",
+      "weighted_harm": "79/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "completion": "95/144",
+      "weighted_harm": "25/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "completion": "25/36",
+      "weighted_harm": "49/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "completion": "25/36",
+      "weighted_harm": "11/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "completion": "53/108",
+      "weighted_harm": "16/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "completion": "133/216",
+      "weighted_harm": "119/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "completion": "25/36",
+      "weighted_harm": "263/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "completion": "41/54",
+      "weighted_harm": "47/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "completion": "37/54",
+      "weighted_harm": "62/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "completion": "245/324",
+      "weighted_harm": "22/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "completion": "29/36",
+      "weighted_harm": "5/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "completion": "515/648",
+      "weighted_harm": "85/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "41/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "2/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "completion": "77/108",
+      "weighted_harm": "58/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "completion": "125/162",
+      "weighted_harm": "469/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "completion": "59/72",
+      "weighted_harm": "13/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "completion": "65/81",
+      "weighted_harm": "865/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "11/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "completion": "175/216",
+      "weighted_harm": "5/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "17/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "completion": "14/27",
+      "weighted_harm": "5/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "completion": "419/648",
+      "weighted_harm": "49/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "completion": "233/324",
+      "weighted_harm": "79/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "completion": "83/108",
+      "weighted_harm": "3/4",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "completion": "43/54",
+      "weighted_harm": "131/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "completion": "71/81",
+      "weighted_harm": "23/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "completion": "25/27",
+      "weighted_harm": "23/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "completion": "295/324",
+      "weighted_harm": "85/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "completion": "17/18",
+      "weighted_harm": "13/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "completion": "17/18",
+      "weighted_harm": "11/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "completion": "91/108",
+      "weighted_harm": "251/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "completion": "301/324",
+      "weighted_harm": "22/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "completion": "53/54",
+      "weighted_harm": "22/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "completion": "625/648",
+      "weighted_harm": "20/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "2/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "5/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "completion": "35/36",
+      "weighted_harm": "65/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "completion": "70/81",
+      "weighted_harm": "55/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "completion": "607/648",
+      "weighted_harm": "49/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "completion": "107/108",
+      "weighted_harm": "71/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "completion": "1255/1296",
+      "weighted_harm": "85/144",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "13/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "completion": "35/36",
+      "weighted_harm": "95/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "completion": "35/36",
+      "weighted_harm": "5/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "0",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "0",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        2
+      ],
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "0",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "completion": "49/432",
+      "weighted_harm": "35/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "completion": "233/1296",
+      "weighted_harm": "329/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "completion": "19/81",
+      "weighted_harm": "427/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "completion": "65/216",
+      "weighted_harm": "91/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "completion": "151/432",
+      "weighted_harm": "35/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "completion": "43/108",
+      "weighted_harm": "119/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "completion": "85/324",
+      "weighted_harm": "115/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "completion": "419/1296",
+      "weighted_harm": "557/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "completion": "11/27",
+      "weighted_harm": "29/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "completion": "197/432",
+      "weighted_harm": "85/144",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "completion": "109/216",
+      "weighted_harm": "139/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "completion": "157/432",
+      "weighted_harm": "49/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "completion": "293/648",
+      "weighted_harm": "359/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "completion": "319/648",
+      "weighted_harm": "749/1296",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "completion": "115/216",
+      "weighted_harm": "65/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "completion": "5/9",
+      "weighted_harm": "2/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "completion": "43/72",
+      "weighted_harm": "49/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "completion": "23/36",
+      "weighted_harm": "25/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "completion": "265/432",
+      "weighted_harm": "35/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "completion": "23/36",
+      "weighted_harm": "5/8",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "completion": "23/36",
+      "weighted_harm": "5/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "completion": "35/108",
+      "weighted_harm": "23/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "completion": "43/108",
+      "weighted_harm": "37/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "completion": "1/2",
+      "weighted_harm": "17/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "completion": "121/216",
+      "weighted_harm": "25/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "completion": "67/108",
+      "weighted_harm": "41/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "completion": "193/432",
+      "weighted_harm": "233/432",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "completion": "5/9",
+      "weighted_harm": "71/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "completion": "29/48",
+      "weighted_harm": "295/432",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "completion": "71/108",
+      "weighted_harm": "157/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "completion": "55/81",
+      "weighted_harm": "62/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "completion": "59/81",
+      "weighted_harm": "125/162",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "completion": "7/9",
+      "weighted_harm": "7/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "completion": "485/648",
+      "weighted_harm": "475/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "completion": "7/9",
+      "weighted_harm": "25/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "completion": "7/9",
+      "weighted_harm": "11/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "completion": "67/144",
+      "weighted_harm": "217/432",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "completion": "187/324",
+      "weighted_harm": "131/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "completion": "809/1296",
+      "weighted_harm": "133/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "completion": "145/216",
+      "weighted_harm": "5/8",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "completion": "115/162",
+      "weighted_harm": "13/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "completion": "491/648",
+      "weighted_harm": "77/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "completion": "29/36",
+      "weighted_harm": "19/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "completion": "505/648",
+      "weighted_harm": "35/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "completion": "29/36",
+      "weighted_harm": "127/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "completion": "29/36",
+      "weighted_harm": "17/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "completion": "20/27",
+      "weighted_harm": "2/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "completion": "85/108",
+      "weighted_harm": "23/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "11/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "completion": "175/216",
+      "weighted_harm": "5/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "17/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "completion": "175/216",
+      "weighted_harm": "5/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "17/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "completion": "5/6",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "completion": "32/81",
+      "weighted_harm": "40/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "completion": "157/324",
+      "weighted_harm": "16/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "completion": "11/18",
+      "weighted_harm": "20/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "completion": "37/54",
+      "weighted_harm": "22/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "completion": "41/54",
+      "weighted_harm": "8/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "completion": "13/24",
+      "weighted_harm": "11/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "completion": "109/162",
+      "weighted_harm": "20/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "completion": "473/648",
+      "weighted_harm": "41/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "completion": "43/54",
+      "weighted_harm": "5/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "completion": "67/81",
+      "weighted_harm": "8/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "completion": "287/324",
+      "weighted_harm": "8/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "completion": "17/18",
+      "weighted_harm": "8/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "completion": "295/324",
+      "weighted_harm": "5/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "completion": "17/18",
+      "weighted_harm": "7/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "completion": "17/18",
+      "weighted_harm": "2/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "completion": "9/16",
+      "weighted_harm": "41/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "completion": "113/162",
+      "weighted_harm": "37/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "completion": "977/1296",
+      "weighted_harm": "149/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "completion": "175/216",
+      "weighted_harm": "25/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "completion": "139/162",
+      "weighted_harm": "22/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "completion": "593/648",
+      "weighted_harm": "43/54",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "completion": "35/36",
+      "weighted_harm": "7/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "completion": "305/324",
+      "weighted_harm": "155/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "completion": "35/36",
+      "weighted_harm": "23/36",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "completion": "35/36",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "completion": "8/9",
+      "weighted_harm": "20/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "completion": "17/18",
+      "weighted_harm": "19/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "2/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "completion": "35/36",
+      "weighted_harm": "65/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "completion": "35/36",
+      "weighted_harm": "65/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "completion": "245/432",
+      "weighted_harm": "35/72",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "completion": "455/648",
+      "weighted_harm": "125/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "completion": "245/324",
+      "weighted_harm": "245/432",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "completion": "175/216",
+      "weighted_harm": "5/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "completion": "70/81",
+      "weighted_harm": "55/81",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "completion": "595/648",
+      "weighted_harm": "415/648",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "completion": "35/36",
+      "weighted_harm": "65/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "completion": "1225/1296",
+      "weighted_harm": "175/324",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "completion": "35/36",
+      "weighted_harm": "95/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "completion": "35/36",
+      "weighted_harm": "5/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "completion": "8/9",
+      "weighted_harm": "16/27",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "completion": "17/18",
+      "weighted_harm": "59/108",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/2",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "completion": "35/36",
+      "weighted_harm": "95/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "completion": "35/36",
+      "weighted_harm": "95/216",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "completion": "8/9",
+      "weighted_harm": "4/9",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "completion": "17/18",
+      "weighted_harm": "7/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/3",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "completion": "35/36",
+      "weighted_harm": "5/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "0",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "completion": "35/36",
+      "weighted_harm": "5/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "0",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "0",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "completion": "35/36",
+      "weighted_harm": "5/18",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "1/6",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "0",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "0",
+      "passed": true
+    },
+    {
+      "skills": [
+        1,
+        3
+      ],
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "completion": "1",
+      "weighted_harm": "0",
+      "passed": true
+    }
+  ],
+  "scope": "3组能力×全部126手牌；独立Fraction全单回合递推，概率输入共用正式表"
+}

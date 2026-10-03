@@ -1,0 +1,774 @@
+{
+  "results": [
+    {
+      "path": "early-1-8101.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 2,
+        "b": 2,
+        "s": 2,
+        "elapsed": 1,
+        "c": 0
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 0,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 1,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8101,
+      "instant": true,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-1-8102.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 2,
+        "b": 2,
+        "s": 3,
+        "elapsed": 1,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 1,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 1,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8102,
+      "instant": true,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-1-8103.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 13,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 0,
+        "b": 2,
+        "s": 4,
+        "elapsed": 2,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 1,
+        "repair": 3,
+        "repair_complete": 1,
+        "end_pressure": 2,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 1,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 4
+      },
+      "seed": 8103,
+      "instant": true,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-1-8104.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 2,
+        "b": 2,
+        "s": 2,
+        "elapsed": 1,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 1,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 1,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8104,
+      "instant": true,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-1-8105.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 13,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 0,
+        "b": 2,
+        "s": 4,
+        "elapsed": 2,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 1,
+        "repair": 3,
+        "repair_complete": 1,
+        "end_pressure": 2,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 3,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 4
+      },
+      "seed": 8105,
+      "instant": true,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-1-8106.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 2,
+        "b": 2,
+        "s": 3,
+        "elapsed": 1,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 1,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 1,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8106,
+      "instant": true,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-1-8107.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 2,
+        "b": 2,
+        "s": 1,
+        "elapsed": 1,
+        "c": 0
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 0,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 1,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8107,
+      "instant": true,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-1-8108.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 10,
+      "result": {
+        "status": "pressure",
+        "p": 11,
+        "a": 2,
+        "b": 2,
+        "s": 5,
+        "elapsed": 1,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 1,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 2,
+        "pressure_failure": 1,
+        "timeout": 0,
+        "success": 0,
+        "collapse": 0,
+        "head_action": 2,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8108,
+      "instant": true,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-0-8111.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 11,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 2,
+        "b": 2,
+        "s": 3,
+        "elapsed": 2,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 0,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 2,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8111,
+      "instant": false,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-0-8112.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 11,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 2,
+        "b": 2,
+        "s": 4,
+        "elapsed": 2,
+        "c": 0
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 0,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 2,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 1,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8112,
+      "instant": false,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-0-8113.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 2,
+        "b": 2,
+        "s": 1,
+        "elapsed": 1,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 0,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 1,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8113,
+      "instant": false,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "early-0-8114.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 2,
+        "b": 2,
+        "s": 2,
+        "elapsed": 1,
+        "c": 0
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 0,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 1,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 1,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8114,
+      "instant": false,
+      "objective": "early",
+      "cohort": true
+    },
+    {
+      "path": "completion-1-8121.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 9,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 0,
+        "b": 2,
+        "s": 0,
+        "elapsed": 1,
+        "c": 0
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 0,
+        "repair": 1,
+        "repair_complete": 1,
+        "end_pressure": 0,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 5
+      },
+      "seed": 8121,
+      "instant": true,
+      "objective": "completion",
+      "cohort": true
+    },
+    {
+      "path": "completion-1-8122.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 14,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 0,
+        "b": 2,
+        "s": 4,
+        "elapsed": 2,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 3,
+        "repair": 2,
+        "repair_complete": 1,
+        "end_pressure": 1,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 2,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 10
+      },
+      "seed": 8122,
+      "instant": true,
+      "objective": "completion",
+      "cohort": true
+    },
+    {
+      "path": "completion-1-8123.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 8,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 2,
+        "b": 2,
+        "s": 1,
+        "elapsed": 1,
+        "c": 0
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 0,
+        "repair": 0,
+        "repair_complete": 0,
+        "end_pressure": 1,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8123,
+      "instant": true,
+      "objective": "completion",
+      "cohort": true
+    },
+    {
+      "path": "completion-1-8124.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 13,
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 1,
+        "b": 2,
+        "s": 4,
+        "elapsed": 2,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 1,
+        "repair": 1,
+        "repair_complete": 0,
+        "end_pressure": 2,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 1,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 0,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 0
+      },
+      "seed": 8124,
+      "instant": true,
+      "objective": "completion",
+      "cohort": true
+    },
+    {
+      "path": "覆盖-8131.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 14,
+      "result": {
+        "status": "collapse",
+        "p": 9,
+        "a": 0,
+        "b": 0,
+        "s": 3,
+        "elapsed": 2,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 1,
+        "repair": 4,
+        "repair_complete": 2,
+        "end_pressure": 2,
+        "pressure_failure": 0,
+        "timeout": 0,
+        "success": 0,
+        "collapse": 1,
+        "head_action": 0,
+        "heavy_next_round": 1,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 9
+      },
+      "seed": 8131,
+      "instant": true,
+      "objective": "覆盖最低骰风险修复优先",
+      "cohort": false
+    },
+    {
+      "path": "覆盖-8136.json.gz",
+      "revision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+      "steps": 14,
+      "result": {
+        "status": "timeout",
+        "p": 11,
+        "a": 0,
+        "b": 0,
+        "s": 3,
+        "elapsed": 3,
+        "c": 0
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counts": {
+        "instant_bad": 1,
+        "repair": 3,
+        "repair_complete": 2,
+        "end_pressure": 2,
+        "pressure_failure": 0,
+        "timeout": 1,
+        "success": 0,
+        "collapse": 0,
+        "head_action": 0,
+        "heavy_next_round": 1,
+        "born_a": 1,
+        "born_b": 1,
+        "repaired_kept": 11
+      },
+      "seed": 8136,
+      "instant": true,
+      "objective": "覆盖最低骰风险修复优先",
+      "cohort": false
+    }
+  ],
+  "coverage_attempts": [
+    {
+      "seed": 8131,
+      "completed": true,
+      "hits": [
+        "collapse"
+      ],
+      "result": {
+        "status": "collapse",
+        "p": 9,
+        "a": 0,
+        "b": 0,
+        "s": 3,
+        "elapsed": 2,
+        "c": 0
+      }
+    },
+    {
+      "seed": 8132,
+      "completed": true,
+      "hits": [],
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 0,
+        "b": 0,
+        "s": 1,
+        "elapsed": 2,
+        "c": 0
+      }
+    },
+    {
+      "seed": 8133,
+      "completed": true,
+      "hits": [],
+      "result": {
+        "status": "collapse",
+        "p": 9,
+        "a": 0,
+        "b": 0,
+        "s": 2,
+        "elapsed": 2,
+        "c": 0
+      }
+    },
+    {
+      "seed": 8134,
+      "completed": true,
+      "hits": [],
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 0,
+        "b": 0,
+        "s": 0,
+        "elapsed": 2,
+        "c": 0
+      }
+    },
+    {
+      "seed": 8135,
+      "completed": true,
+      "hits": [],
+      "result": {
+        "status": "success",
+        "p": 12,
+        "a": 0,
+        "b": 0,
+        "s": 2,
+        "elapsed": 2,
+        "c": 0
+      }
+    },
+    {
+      "seed": 8136,
+      "completed": true,
+      "hits": [
+        "timeout"
+      ],
+      "result": {
+        "status": "timeout",
+        "p": 11,
+        "a": 0,
+        "b": 0,
+        "s": 3,
+        "elapsed": 3,
+        "c": 0
+      }
+    }
+  ],
+  "coverage_gaps": [],
+  "scope": "固定16局公开策略转移校准＋至多18次缺口搜索；原生样本不用于估计策略排名"
+}

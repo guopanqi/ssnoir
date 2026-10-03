@@ -1,0 +1,37 @@
+{
+  "totals": {
+    "free": "202525/209952",
+    "fixed_method": "112681/124416",
+    "greedy": "202525/209952",
+    "highest": "809449/839808",
+    "best_initial_order": "405025/419904"
+  },
+  "gaps": {
+    "fixed_method": {
+      "strict_hands": 121,
+      "strict_hand_mass": "80/81",
+      "average_gap": "198013/3359232",
+      "largest_root_gap": "29/162"
+    },
+    "greedy": {
+      "strict_hands": 0,
+      "strict_hand_mass": "0",
+      "average_gap": "0",
+      "largest_root_gap": "0"
+    },
+    "highest": {
+      "strict_hands": 26,
+      "strict_hand_mass": "113/648",
+      "average_gap": "217/279936",
+      "largest_root_gap": "31/2592"
+    },
+    "best_initial_order": {
+      "strict_hands": 5,
+      "strict_hand_mass": "19/648",
+      "average_gap": "25/419904",
+      "largest_root_gap": "1/432"
+    }
+  },
+  "policy_states": 18466,
+  "elapsed_seconds": 0.18587803840637207
+}

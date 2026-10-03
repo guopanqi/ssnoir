@@ -1,0 +1,20 @@
+{'skill': 1, 'policy': '自由', 'threshold': None, 'expected_score': 4.499289123228166, 'exact': '1259513/279936', 'states': 330}
+{'skill': 1, 'policy': '高骰动态停止', 'threshold': None, 'expected_score': 4.499289123228166, 'exact': '1259513/279936', 'states': 330}
+{'skill': 1, 'policy': '单步', 'threshold': None, 'expected_score': 4.499289123228166, 'exact': '1259513/279936', 'states': 330}
+{'skill': 1, 'policy': '用完', 'threshold': None, 'expected_score': 4.135954884926078, 'exact': '27136/6561', 'states': 330}
+{'skill': 2, 'policy': '自由', 'threshold': None, 'expected_score': 5.616140832190215, 'exact': '24565/4374', 'states': 330}
+{'skill': 2, 'policy': '高骰动态停止', 'threshold': None, 'expected_score': 5.616140832190215, 'exact': '24565/4374', 'states': 330}
+{'skill': 2, 'policy': '单步', 'threshold': None, 'expected_score': 5.616140832190215, 'exact': '24565/4374', 'states': 330}
+{'skill': 2, 'policy': '用完', 'threshold': None, 'expected_score': 5.616140832190215, 'exact': '24565/4374', 'states': 330}
+{'skill': 3, 'policy': '自由', 'threshold': None, 'expected_score': 6.636933680079256, 'exact': '2786875/419904', 'states': 330}
+{'skill': 3, 'policy': '高骰动态停止', 'threshold': None, 'expected_score': 6.636933680079256, 'exact': '2786875/419904', 'states': 330}
+{'skill': 3, 'policy': '单步', 'threshold': None, 'expected_score': 6.636933680079256, 'exact': '2786875/419904', 'states': 330}
+{'skill': 3, 'policy': '用完', 'threshold': None, 'expected_score': 6.636933680079256, 'exact': '2786875/419904', 'states': 330}
+{'skill': 4, 'policy': '自由', 'threshold': None, 'expected_score': 7.666666666666667, 'exact': '23/3', 'states': 330}
+{'skill': 4, 'policy': '高骰动态停止', 'threshold': None, 'expected_score': 7.666666666666667, 'exact': '23/3', 'states': 330}
+{'skill': 4, 'policy': '单步', 'threshold': None, 'expected_score': 7.666666666666667, 'exact': '23/3', 'states': 330}
+{'skill': 4, 'policy': '用完', 'threshold': None, 'expected_score': 7.666666666666667, 'exact': '23/3', 'states': 330}
+{'skill': 1, 'voluntary_stop_mass': 0.4209462162780064, 'top_stop': [{'progress': 5, 'hand': (1,), 'mass': 0.13717421124828533, 'best_continue': 4.166666666666667}]}
+{'skill': 2, 'voluntary_stop_mass': 0.0, 'top_stop': []}
+{'skill': 3, 'voluntary_stop_mass': 0.0, 'top_stop': []}
+{'skill': 4, 'voluntary_stop_mass': 0.0, 'top_stop': []}

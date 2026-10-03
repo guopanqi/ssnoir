@@ -1,0 +1,38 @@
+{
+  "batch": "R41",
+  "status": "已裁决",
+  "owner": "协调者；回本审查子Agent独立纸面",
+  "frozen": {
+    "goal": 16,
+    "rounds": 3,
+    "skill": 1,
+    "cold": 3,
+    "investment_threshold": 1,
+    "payouts": 2,
+    "objective": [
+      "completion",
+      "early"
+    ]
+  },
+  "source_sha256": {
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
+    "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/组合模型.py": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/伤势模型.py": "0f76c82045d89de5d6c14b5d6b1f9d270f03ad6999e628fb5d3bf418d704ecc7",
+    "docs/实验/机制研究/批次/R41-可复用投资与未来产出/有界研究计划.md": "a40b2b5713b2548187c3c554b2c9d850f0895aef25a2c1d3a06719d452b517f8",
+    "docs/实验/机制研究/批次/R41-可复用投资与未来产出/投资模型.py": "cb819ae5ae93df350ce4e95e605081901b90fe436c180cf3fb406d64e3777084"
+  },
+  "command": "python3 投资模型.py > 运行.log",
+  "recovery": "先核对运行句柄、源码哈希和完整投资结果.json；未完成结果不算证据",
+  "live_session_id": null,
+  "completed": [
+    "主模型与强族",
+    "独立局部复核",
+    "纸面审查"
+  ],
+  "first_session_id": 75816,
+  "check_session_id": 1406
+}

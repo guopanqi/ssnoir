@@ -1,0 +1,39 @@
+{
+  "checked_states": 23760,
+  "strict_advance_primary_better": 14842,
+  "max_repair_primary_advantage": 0.0,
+  "passed": true,
+  "scope": "末回合1/2骰、p3..7、所有合法负担剩余值、c0..3、完整k0..6及头伤状态；只比较成功主目标。共享R32转移不算独立求解，B末回合收益=成功率所以同样适用",
+  "static_capacity_counterexample": {
+    "state": [
+      3,
+      2,
+      0,
+      0,
+      3,
+      1,
+      1,
+      [
+        1,
+        1,
+        4
+      ],
+      -1
+    ],
+    "static_capacity": 4,
+    "positive_path_gain": 5,
+    "path_probability": 0.009259259259259259,
+    "path": [
+      "4风险中档→p4/k4，恢复技能",
+      "1风险好档→p6",
+      "1风险好档→p8成功"
+    ],
+    "note": "当前有效技能正概率容量不是完整回合上界；恢复技能的非单调性须单独注明"
+  },
+  "first_round_capacity_bound": {
+    "bound": 0.11578896604938274,
+    "observed": 0.11578896604938273,
+    "passed": true,
+    "reason": "四行动达到8须全部推进风险好档；成功路径无伤，因此公平四骰的最大概率为平均好档概率的四次方=(7/12)^4"
+  }
+}

@@ -1,0 +1,619 @@
+{
+  "results": [
+    {
+      "path": "自由-g1-7101.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 3,
+      "allowed": true,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": false,
+        "clue": 0,
+        "cold": 3
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 0,
+      "probe_located": 0,
+      "seed": 7101,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "自由-g1-7102.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 3,
+      "allowed": true,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 0,
+        "b": 3,
+        "target": "乙",
+        "known": true,
+        "clue": 1,
+        "cold": 4
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 0,
+      "probe_located": 1,
+      "seed": 7102,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "自由-g1-7103.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 3,
+      "allowed": true,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 0,
+        "b": 3,
+        "target": "乙",
+        "known": true,
+        "clue": 1,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 1,
+      "probe_located": 1,
+      "seed": 7103,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "自由-g1-7104.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 3,
+      "allowed": true,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": true,
+        "clue": 1,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 1,
+      "probe_located": 1,
+      "seed": 7104,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "自由-g1-7105.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 4,
+      "allowed": true,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "target": "乙",
+        "known": true,
+        "clue": 0,
+        "cold": 4
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "empty_location": 1,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 1,
+      "probe_located": 0,
+      "seed": 7105,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "自由-g1-7106.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 3,
+      "allowed": true,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": true,
+        "clue": 1,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 1,
+      "probe_located": 1,
+      "seed": 7106,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "自由-g1-7107.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 3,
+      "allowed": true,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 0,
+        "b": 3,
+        "target": "乙",
+        "known": true,
+        "clue": 1,
+        "cold": 4
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 0,
+      "probe_located": 1,
+      "seed": 7107,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "自由-g1-7108.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 3,
+      "allowed": true,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": true,
+        "clue": 1,
+        "cold": 4
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 0,
+      "probe_located": 1,
+      "seed": 7108,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "不探查-g1-7111.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 4,
+      "allowed": false,
+      "growth": 1,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 0,
+        "target": "乙",
+        "known": true,
+        "clue": 0,
+        "cold": 3
+      },
+      "grades": [
+        "Fail",
+        "Success"
+      ],
+      "empty_location": 1,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 1,
+      "probe_located": 0,
+      "seed": 7111,
+      "policy": "不探查",
+      "cohort": true
+    },
+    {
+      "path": "不探查-g1-7112.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 2,
+      "allowed": false,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": false,
+        "clue": 0,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 1,
+      "probe_located": 0,
+      "seed": 7112,
+      "policy": "不探查",
+      "cohort": true
+    },
+    {
+      "path": "不探查-g1-7113.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 4,
+      "allowed": false,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "target": "乙",
+        "known": true,
+        "clue": 0,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "empty_location": 1,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 1,
+      "probe_located": 0,
+      "seed": 7113,
+      "policy": "不探查",
+      "cohort": true
+    },
+    {
+      "path": "不探查-g1-7114.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 2,
+      "allowed": false,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": false,
+        "clue": 0,
+        "cold": 4
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 0,
+      "probe_located": 0,
+      "seed": 7114,
+      "policy": "不探查",
+      "cohort": true
+    },
+    {
+      "path": "自由-g2-7121.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 3,
+      "allowed": true,
+      "growth": 2,
+      "result": {
+        "status": "success",
+        "a": 0,
+        "b": 3,
+        "target": "乙",
+        "known": true,
+        "clue": 1,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 0,
+      "probe_located": 1,
+      "seed": 7121,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "自由-g2-7122.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 2,
+      "allowed": true,
+      "growth": 2,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": false,
+        "clue": 0,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 0,
+      "probe_located": 0,
+      "seed": 7122,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "自由-g2-7123.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 3,
+      "allowed": true,
+      "growth": 2,
+      "result": {
+        "status": "success",
+        "a": 0,
+        "b": 3,
+        "target": "乙",
+        "known": true,
+        "clue": 1,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 0,
+      "probe_located": 1,
+      "seed": 7123,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "自由-g2-7124.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 3,
+      "allowed": true,
+      "growth": 2,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": true,
+        "clue": 1,
+        "cold": 4
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 0,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 0,
+      "probe_located": 1,
+      "seed": 7124,
+      "policy": "自由",
+      "cohort": true
+    },
+    {
+      "path": "覆盖-7131.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 4,
+      "allowed": true,
+      "growth": 1,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": true,
+        "clue": 1,
+        "cold": 5
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "empty_location": 0,
+      "repeated_after_unlocated": 1,
+      "searched_after_unlocated": 0,
+      "clamped_progress": 1,
+      "probe_located": 1,
+      "seed": 7131,
+      "cohort": false
+    },
+    {
+      "path": "覆盖-7138.json.gz",
+      "revision": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+      "steps": 5,
+      "allowed": true,
+      "growth": 1,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 0,
+        "target": "乙",
+        "known": true,
+        "clue": 0,
+        "cold": 2
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "empty_location": 1,
+      "repeated_after_unlocated": 1,
+      "searched_after_unlocated": 1,
+      "clamped_progress": 0,
+      "probe_located": 0,
+      "seed": 7138,
+      "cohort": false
+    }
+  ],
+  "coverage_attempts": [
+    {
+      "seed": 7131,
+      "completed": true,
+      "hits": [
+        "repeated_after_unlocated"
+      ],
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": true,
+        "clue": 1,
+        "cold": 5
+      }
+    },
+    {
+      "seed": 7132,
+      "completed": true,
+      "hits": [],
+      "result": {
+        "status": "success",
+        "a": 0,
+        "b": 3,
+        "target": "乙",
+        "known": true,
+        "clue": 1,
+        "cold": 4
+      }
+    },
+    {
+      "seed": 7133,
+      "completed": true,
+      "hits": [],
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": true,
+        "clue": 1,
+        "cold": 4
+      }
+    },
+    {
+      "seed": 7134,
+      "completed": true,
+      "hits": [],
+      "result": {
+        "status": "success",
+        "a": 0,
+        "b": 3,
+        "target": "乙",
+        "known": true,
+        "clue": 1,
+        "cold": 2
+      }
+    },
+    {
+      "seed": 7135,
+      "completed": true,
+      "hits": [],
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": true,
+        "clue": 1,
+        "cold": 5
+      }
+    },
+    {
+      "seed": 7136,
+      "completed": true,
+      "hits": [],
+      "result": {
+        "status": "success",
+        "a": 0,
+        "b": 3,
+        "target": "乙",
+        "known": true,
+        "clue": 1,
+        "cold": 5
+      }
+    },
+    {
+      "seed": 7137,
+      "completed": true,
+      "hits": [],
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 0,
+        "target": "甲",
+        "known": true,
+        "clue": 1,
+        "cold": 5
+      }
+    },
+    {
+      "seed": 7138,
+      "completed": true,
+      "hits": [
+        "searched_after_unlocated"
+      ],
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 0,
+        "target": "乙",
+        "known": true,
+        "clue": 0,
+        "cold": 2
+      }
+    }
+  ],
+  "scope": "预定16局转移样本加必要缺口覆盖；不按少样本估计策略排名；定向搜索数另报"
+}

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R36-资源余量与选择增量/未来一轮独立核对.py", line 63, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R36-资源余量与选择增量/未来一轮独立核对.py", line 40, in main
+    assert err<1e-12,(left,k,s,err)
+           ^^^^^^^^^
+AssertionError: (2, 3, 4, 0.25)

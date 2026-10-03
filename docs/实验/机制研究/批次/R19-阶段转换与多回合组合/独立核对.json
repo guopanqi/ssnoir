@@ -1,0 +1,6056 @@
+{
+  "initial_cases": 504,
+  "iterative_states": 272160,
+  "tolerance": 1e-10,
+  "results": [
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 1,
+      "cold": 5,
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": false,
+      "skill": 1,
+      "cold": 3,
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    },
+    {
+      "reset": true,
+      "skill": 2,
+      "cold": 3,
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "passed": true
+    }
+  ],
+  "scope": "独立自底向上全三轮递推，共用正式概率输入；不是Fraction精确证明、正式会话或真人测试"
+}

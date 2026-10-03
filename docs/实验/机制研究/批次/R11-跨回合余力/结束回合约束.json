@@ -1,0 +1,33 @@
+{
+  "results": [
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "用完骰子才结束回合：求解",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.8616168728477461,
+      "cold_on_success": 2.424828985285454,
+      "states": 22307,
+      "seconds": 0.2134655830450356
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "用完骰子才结束回合：只推进",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.6362259200903041,
+      "cold_on_success": 0.6761929775705708,
+      "states": 10816,
+      "seconds": 0.07250266708433628
+    }
+  ],
+  "scope": "只限制提前结束；其余行动与骰序优化"
+}

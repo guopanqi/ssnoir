@@ -1,0 +1,8870 @@
+{
+  "status": "通过",
+  "identity": "局部独立最优树＋全初始固定真值执行公开策略；非独立全局优化",
+  "local_optimal_cases": 648,
+  "local_max_remaining_dice": 2,
+  "mirrored_posterior_cases": 648,
+  "equal_posterior_method_ties": 168,
+  "local_free_greedy_different_cases": 0,
+  "posterior_checks": [
+    {
+      "die": 1,
+      "method": "甲",
+      "gain": 0,
+      "probability": "1/3",
+      "posterior_truth0": "3/4"
+    },
+    {
+      "die": 1,
+      "method": "甲",
+      "gain": 1,
+      "probability": "1/2",
+      "posterior_truth0": "1/2"
+    },
+    {
+      "die": 1,
+      "method": "甲",
+      "gain": 2,
+      "probability": "1/6",
+      "posterior_truth0": "0"
+    }
+  ],
+  "fixed_truth_root_family_checks": 630,
+  "conceptual_complete_fate_sequences": 1632960,
+  "visited_public_states_with_truth": 8371,
+  "totals": {
+    "free": "202525/209952",
+    "fixed_method": "112681/124416",
+    "greedy": "202525/209952",
+    "highest": "809449/839808",
+    "best_initial_order": "405025/419904"
+  },
+  "root_checks": [
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        597,
+        877
+      ],
+      "value": "737/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        81,
+        1041
+      ],
+      "value": "187/432"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        877,
+        597
+      ],
+      "value": "737/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        597,
+        877
+      ],
+      "value": "737/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        597,
+        877
+      ],
+      "value": "737/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        711,
+        912
+      ],
+      "value": "541/864"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        189,
+        1074
+      ],
+      "value": "421/864"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        912,
+        711
+      ],
+      "value": "541/864"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        791,
+        810
+      ],
+      "value": "1601/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        711,
+        912
+      ],
+      "value": "541/864"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        903,
+        972
+      ],
+      "value": "625/864"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        297,
+        1170
+      ],
+      "value": "163/288"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        972,
+        903
+      ],
+      "value": "625/864"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        923,
+        930
+      ],
+      "value": "1853/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        3
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        879,
+        992
+      ],
+      "value": "1871/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        996,
+        1001
+      ],
+      "value": "1997/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        378,
+        1203
+      ],
+      "value": "527/864"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1001,
+        996
+      ],
+      "value": "1997/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        952,
+        1023
+      ],
+      "value": "1975/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        966,
+        1027
+      ],
+      "value": "1993/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1116,
+        1070
+      ],
+      "value": "1093/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        486,
+        1236
+      ],
+      "value": "287/432"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1070,
+        1116
+      ],
+      "value": "1093/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1066,
+        1116
+      ],
+      "value": "1091/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1092,
+        1094
+      ],
+      "value": "1093/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1116,
+        1075
+      ],
+      "value": "2191/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        567,
+        1236
+      ],
+      "value": "601/864"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1075,
+        1116
+      ],
+      "value": "2191/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1073,
+        1116
+      ],
+      "value": "2189/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        1,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1104,
+        1087
+      ],
+      "value": "2191/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        810,
+        938
+      ],
+      "value": "437/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        315,
+        1102
+      ],
+      "value": "1417/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        938,
+        810
+      ],
+      "value": "437/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        841,
+        878
+      ],
+      "value": "191/288"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        810,
+        938
+      ],
+      "value": "437/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        996,
+        992
+      ],
+      "value": "497/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        441,
+        1186
+      ],
+      "value": "1627/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        992,
+        996
+      ],
+      "value": "497/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        903,
+        1054
+      ],
+      "value": "1957/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        981,
+        1007
+      ],
+      "value": "497/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1065,
+        1024
+      ],
+      "value": "2089/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        522,
+        1214
+      ],
+      "value": "217/324"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1024,
+        1065
+      ],
+      "value": "2089/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        990,
+        1069
+      ],
+      "value": "2059/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1029,
+        1060
+      ],
+      "value": "2089/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1090,
+        1170
+      ],
+      "value": "565/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        648,
+        1242
+      ],
+      "value": "35/48"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1170,
+        1090
+      ],
+      "value": "565/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1114,
+        1134
+      ],
+      "value": "281/324"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1090,
+        1170
+      ],
+      "value": "565/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1094,
+        1170
+      ],
+      "value": "283/324"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        729,
+        1242
+      ],
+      "value": "73/96"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1170,
+        1094
+      ],
+      "value": "283/324"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1124,
+        1134
+      ],
+      "value": "1129/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        2,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1094,
+        1170
+      ],
+      "value": "283/324"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1146,
+        1074
+      ],
+      "value": "185/216"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        585,
+        1252
+      ],
+      "value": "1837/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1074,
+        1146
+      ],
+      "value": "185/216"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1037,
+        1164
+      ],
+      "value": "2201/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1122,
+        1094
+      ],
+      "value": "277/324"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1203,
+        1100
+      ],
+      "value": "2303/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        666,
+        1268
+      ],
+      "value": "967/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1100,
+        1203
+      ],
+      "value": "2303/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1136,
+        1165
+      ],
+      "value": "767/864"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1158,
+        1145
+      ],
+      "value": "2303/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1260,
+        1196
+      ],
+      "value": "307/324"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        810,
+        1284
+      ],
+      "value": "349/432"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1196,
+        1260
+      ],
+      "value": "307/324"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1196,
+        1260
+      ],
+      "value": "307/324"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1236,
+        1220
+      ],
+      "value": "307/324"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1260,
+        1198
+      ],
+      "value": "1229/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        891,
+        1284
+      ],
+      "value": "725/864"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1198,
+        1260
+      ],
+      "value": "1229/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1198,
+        1260
+      ],
+      "value": "1229/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        3,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1239,
+        1219
+      ],
+      "value": "1229/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1230,
+        1140
+      ],
+      "value": "395/432"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        738,
+        1279
+      ],
+      "value": "2017/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1140,
+        1230
+      ],
+      "value": "395/432"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1150,
+        1216
+      ],
+      "value": "1183/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1194,
+        1176
+      ],
+      "value": "395/432"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1278,
+        1220
+      ],
+      "value": "1249/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        882,
+        1290
+      ],
+      "value": "181/216"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1220,
+        1278
+      ],
+      "value": "1249/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1220,
+        1278
+      ],
+      "value": "1249/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1260,
+        1238
+      ],
+      "value": "1249/1296"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1278,
+        1219
+      ],
+      "value": "2497/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        954,
+        1290
+      ],
+      "value": "187/216"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1219,
+        1278
+      ],
+      "value": "2497/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1219,
+        1278
+      ],
+      "value": "2497/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        4,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1260,
+        1237
+      ],
+      "value": "2497/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1276
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1044,
+        1296
+      ],
+      "value": "65/72"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1296
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1296
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1276
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1280
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1116,
+        1296
+      ],
+      "value": "67/72"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1280,
+        1296
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1280,
+        1296
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1280
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1285
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1179,
+        1296
+      ],
+      "value": "275/288"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1285,
+        1296
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1285,
+        1296
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        1,
+        1,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1285
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        897,
+        959
+      ],
+      "value": "58/81"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        447,
+        1126
+      ],
+      "value": "1573/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        959,
+        897
+      ],
+      "value": "58/81"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        915,
+        921
+      ],
+      "value": "17/24"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        897,
+        959
+      ],
+      "value": "58/81"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1047,
+        1035
+      ],
+      "value": "347/432"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        579,
+        1200
+      ],
+      "value": "593/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1035,
+        1047
+      ],
+      "value": "347/432"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        996,
+        1064
+      ],
+      "value": "515/648"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1047,
+        1029
+      ],
+      "value": "173/216"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1095,
+        1077
+      ],
+      "value": "181/216"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        654,
+        1224
+      ],
+      "value": "313/432"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1077,
+        1095
+      ],
+      "value": "181/216"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1029,
+        1122
+      ],
+      "value": "239/288"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1083,
+        1083
+      ],
+      "value": "361/432"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1170,
+        1148
+      ],
+      "value": "1159/1296"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        786,
+        1248
+      ],
+      "value": "113/144"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1148,
+        1170
+      ],
+      "value": "1159/1296"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1124,
+        1188
+      ],
+      "value": "289/324"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1152,
+        1166
+      ],
+      "value": "1159/1296"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1170,
+        1156
+      ],
+      "value": "1163/1296"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        861,
+        1248
+      ],
+      "value": "703/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1156,
+        1170
+      ],
+      "value": "1163/1296"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1129,
+        1188
+      ],
+      "value": "2317/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        2,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1161,
+        1165
+      ],
+      "value": "1163/1296"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1140,
+        1143
+      ],
+      "value": "761/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        717,
+        1256
+      ],
+      "value": "1973/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1143,
+        1140
+      ],
+      "value": "761/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1118,
+        1162
+      ],
+      "value": "95/108"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1140,
+        1143
+      ],
+      "value": "761/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1153,
+        1202
+      ],
+      "value": "785/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        786,
+        1270
+      ],
+      "value": "257/324"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1202,
+        1153
+      ],
+      "value": "785/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1141,
+        1211
+      ],
+      "value": "49/54"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1153,
+        1202
+      ],
+      "value": "785/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1260,
+        1216
+      ],
+      "value": "619/648"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        924,
+        1284
+      ],
+      "value": "23/27"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1216,
+        1260
+      ],
+      "value": "619/648"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1216,
+        1260
+      ],
+      "value": "619/648"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1236,
+        1240
+      ],
+      "value": "619/648"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1260,
+        1220
+      ],
+      "value": "155/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        993,
+        1284
+      ],
+      "value": "253/288"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1220,
+        1260
+      ],
+      "value": "155/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1220,
+        1260
+      ],
+      "value": "155/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1239,
+        1241
+      ],
+      "value": "155/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1206,
+        1203
+      ],
+      "value": "803/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        846,
+        1280
+      ],
+      "value": "1063/1296"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1203,
+        1206
+      ],
+      "value": "803/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1187,
+        1222
+      ],
+      "value": "803/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1206,
+        1203
+      ],
+      "value": "803/864"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1278,
+        1234
+      ],
+      "value": "157/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        978,
+        1290
+      ],
+      "value": "7/8"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1234,
+        1278
+      ],
+      "value": "157/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1234,
+        1278
+      ],
+      "value": "157/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1260,
+        1252
+      ],
+      "value": "157/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1278,
+        1235
+      ],
+      "value": "2513/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1038,
+        1290
+      ],
+      "value": "97/108"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1235,
+        1278
+      ],
+      "value": "2513/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1235,
+        1278
+      ],
+      "value": "2513/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1260,
+        1253
+      ],
+      "value": "2513/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1276
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1116,
+        1296
+      ],
+      "value": "67/72"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1296
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1296
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1276
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1280
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1170,
+        1296
+      ],
+      "value": "137/144"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1280,
+        1296
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1280,
+        1296
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1280
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1285
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1215,
+        1296
+      ],
+      "value": "31/32"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1285,
+        1296
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1285,
+        1296
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        1,
+        2,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1285
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1200,
+        1244
+      ],
+      "value": "611/648"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        849,
+        1288
+      ],
+      "value": "2137/2592"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1244,
+        1200
+      ],
+      "value": "611/648"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1212,
+        1232
+      ],
+      "value": "611/648"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        3
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1200,
+        1244
+      ],
+      "value": "611/648"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1239,
+        1250
+      ],
+      "value": "2489/2592"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        906,
+        1292
+      ],
+      "value": "1099/1296"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1250,
+        1239
+      ],
+      "value": "2489/2592"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1225,
+        1261
+      ],
+      "value": "1243/1296"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1239,
+        1250
+      ],
+      "value": "2489/2592"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1268
+      ],
+      "value": "641/648"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1038,
+        1296
+      ],
+      "value": "389/432"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1268,
+        1296
+      ],
+      "value": "641/648"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1268,
+        1296
+      ],
+      "value": "641/648"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1268
+      ],
+      "value": "641/648"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1282
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1095,
+        1296
+      ],
+      "value": "797/864"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1282,
+        1284
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1282,
+        1284
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        3,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1282
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1258,
+        1260
+      ],
+      "value": "1259/1296"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        954,
+        1294
+      ],
+      "value": "281/324"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1256,
+        1262
+      ],
+      "value": "1259/1296"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1254,
+        1264
+      ],
+      "value": "1259/1296"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1258,
+        1260
+      ],
+      "value": "1259/1296"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1284
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1074,
+        1296
+      ],
+      "value": "395/432"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1290
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1290
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1284
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1284
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1122,
+        1296
+      ],
+      "value": "403/432"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1290
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1290
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1284
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1188,
+        1296
+      ],
+      "value": "23/24"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1224,
+        1296
+      ],
+      "value": "35/36"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1251,
+        1296
+      ],
+      "value": "283/288"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        3,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1267,
+        1273
+      ],
+      "value": "635/648"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        996,
+        1295
+      ],
+      "value": "2291/2592"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1273,
+        1267
+      ],
+      "value": "635/648"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1267,
+        1273
+      ],
+      "value": "635/648"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1267,
+        1273
+      ],
+      "value": "635/648"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1104,
+        1296
+      ],
+      "value": "25/27"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1146,
+        1296
+      ],
+      "value": "407/432"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        4,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1200,
+        1296
+      ],
+      "value": "26/27"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1230,
+        1296
+      ],
+      "value": "421/432"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1254,
+        1296
+      ],
+      "value": "425/432"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        4,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1272,
+        1296
+      ],
+      "value": "107/108"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1296
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1296
+      ],
+      "value": "431/432"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        5,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1293,
+        1296
+      ],
+      "value": "863/864"
+    },
+    {
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        1,
+        6,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        952,
+        992
+      ],
+      "value": "3/4"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        576,
+        1147
+      ],
+      "value": "1723/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        992,
+        952
+      ],
+      "value": "3/4"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        952,
+        992
+      ],
+      "value": "3/4"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        952,
+        992
+      ],
+      "value": "3/4"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1103,
+        1056
+      ],
+      "value": "2159/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        705,
+        1212
+      ],
+      "value": "71/96"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1062,
+        1097
+      ],
+      "value": "2159/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1044,
+        1106
+      ],
+      "value": "1075/1296"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        3
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1097,
+        1062
+      ],
+      "value": "2159/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1131,
+        1105
+      ],
+      "value": "559/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        771,
+        1233
+      ],
+      "value": "167/216"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1087,
+        1149
+      ],
+      "value": "559/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1064,
+        1162
+      ],
+      "value": "371/432"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1149,
+        1087
+      ],
+      "value": "559/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1216,
+        1150
+      ],
+      "value": "1183/1296"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        900,
+        1254
+      ],
+      "value": "359/432"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1150,
+        1216
+      ],
+      "value": "1183/1296"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1144,
+        1218
+      ],
+      "value": "1181/1296"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1216,
+        1150
+      ],
+      "value": "1183/1296"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1199,
+        1171
+      ],
+      "value": "395/432"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        966,
+        1254
+      ],
+      "value": "185/216"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1171,
+        1199
+      ],
+      "value": "395/432"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1168,
+        1200
+      ],
+      "value": "74/81"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        2,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1199,
+        1171
+      ],
+      "value": "395/432"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1158,
+        1180
+      ],
+      "value": "1169/1296"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        831,
+        1260
+      ],
+      "value": "697/864"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1180,
+        1158
+      ],
+      "value": "1169/1296"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1158,
+        1180
+      ],
+      "value": "1169/1296"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1158,
+        1180
+      ],
+      "value": "1169/1296"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1169,
+        1226
+      ],
+      "value": "2395/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        888,
+        1272
+      ],
+      "value": "5/6"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1226,
+        1169
+      ],
+      "value": "2395/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1169,
+        1226
+      ],
+      "value": "2395/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1169,
+        1226
+      ],
+      "value": "2395/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1272,
+        1224
+      ],
+      "value": "26/27"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1014,
+        1284
+      ],
+      "value": "383/432"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1224,
+        1272
+      ],
+      "value": "26/27"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1224,
+        1272
+      ],
+      "value": "26/27"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1272,
+        1224
+      ],
+      "value": "26/27"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1272,
+        1227
+      ],
+      "value": "833/864"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1071,
+        1284
+      ],
+      "value": "785/864"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1227,
+        1272
+      ],
+      "value": "833/864"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1227,
+        1272
+      ],
+      "value": "833/864"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        3,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1272,
+        1227
+      ],
+      "value": "833/864"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1201,
+        1241
+      ],
+      "value": "407/432"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        937,
+        1281
+      ],
+      "value": "1109/1296"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1241,
+        1201
+      ],
+      "value": "407/432"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1201,
+        1241
+      ],
+      "value": "407/432"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1201,
+        1241
+      ],
+      "value": "407/432"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1240
+      ],
+      "value": "631/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1054,
+        1290
+      ],
+      "value": "293/324"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1240,
+        1284
+      ],
+      "value": "631/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1240,
+        1284
+      ],
+      "value": "631/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1240
+      ],
+      "value": "631/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1241
+      ],
+      "value": "2525/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1103,
+        1290
+      ],
+      "value": "2393/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1241,
+        1284
+      ],
+      "value": "2525/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1241,
+        1284
+      ],
+      "value": "2525/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        4,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1241
+      ],
+      "value": "2525/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1276
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1168,
+        1296
+      ],
+      "value": "77/81"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1296
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1296
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1276
+      ],
+      "value": "643/648"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1280
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1208,
+        1296
+      ],
+      "value": "313/324"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1280,
+        1296
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1280,
+        1296
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1280
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1285
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1240,
+        1296
+      ],
+      "value": "317/324"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1285,
+        1296
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1285,
+        1296
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        2,
+        2,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1285
+      ],
+      "value": "2581/2592"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1234,
+        1236
+      ],
+      "value": "1235/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        945,
+        1288
+      ],
+      "value": "2233/2592"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1236,
+        1234
+      ],
+      "value": "1235/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1222,
+        1248
+      ],
+      "value": "1235/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1234,
+        1236
+      ],
+      "value": "1235/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1250,
+        1254
+      ],
+      "value": "313/324"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        990,
+        1292
+      ],
+      "value": "1141/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1254,
+        1250
+      ],
+      "value": "313/324"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1237,
+        1266
+      ],
+      "value": "2503/2592"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1254,
+        1250
+      ],
+      "value": "313/324"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1268
+      ],
+      "value": "641/648"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1104,
+        1296
+      ],
+      "value": "25/27"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1268,
+        1296
+      ],
+      "value": "641/648"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1268,
+        1296
+      ],
+      "value": "641/648"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1268
+      ],
+      "value": "641/648"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1282
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1149,
+        1296
+      ],
+      "value": "815/864"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1282,
+        1284
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1282,
+        1284
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        3,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1282
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1262,
+        1266
+      ],
+      "value": "79/81"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1028,
+        1294
+      ],
+      "value": "43/48"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1262,
+        1266
+      ],
+      "value": "79/81"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1258,
+        1270
+      ],
+      "value": "79/81"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1266,
+        1262
+      ],
+      "value": "79/81"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1284
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1130,
+        1296
+      ],
+      "value": "1213/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1290
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1290
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1284
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1284
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1168,
+        1296
+      ],
+      "value": "77/81"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1290
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1284,
+        1290
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1284
+      ],
+      "value": "143/144"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1220,
+        1296
+      ],
+      "value": "629/648"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1246,
+        1296
+      ],
+      "value": "1271/1296"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1265,
+        1296
+      ],
+      "value": "2561/2592"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        3,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1270
+      ],
+      "value": "1273/1296"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1061,
+        1295
+      ],
+      "value": "589/648"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1270,
+        1276
+      ],
+      "value": "1273/1296"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1270,
+        1276
+      ],
+      "value": "1273/1296"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1270
+      ],
+      "value": "1273/1296"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1152,
+        1296
+      ],
+      "value": "17/18"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1185,
+        1296
+      ],
+      "value": "827/864"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        4,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1290
+      ],
+      "value": "215/216"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1228,
+        1296
+      ],
+      "value": "631/648"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1250,
+        1296
+      ],
+      "value": "1273/1296"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1267,
+        1296
+      ],
+      "value": "2563/2592"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        4,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1280,
+        1296
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1288,
+        1296
+      ],
+      "value": "323/324"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1292,
+        1296
+      ],
+      "value": "647/648"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        5,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1294,
+        1296
+      ],
+      "value": "1295/1296"
+    },
+    {
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        2,
+        6,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1276
+      ],
+      "value": "319/324"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1041,
+        1296
+      ],
+      "value": "779/864"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1276
+      ],
+      "value": "319/324"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1276
+      ],
+      "value": "319/324"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1276,
+        1276
+      ],
+      "value": "319/324"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1286,
+        1280
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1074,
+        1296
+      ],
+      "value": "395/432"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1280,
+        1286
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1280,
+        1286
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1286,
+        1280
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1170,
+        1296
+      ],
+      "value": "137/144"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1203,
+        1296
+      ],
+      "value": "833/864"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        3,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1288,
+        1288
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1102,
+        1296
+      ],
+      "value": "1199/1296"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1288,
+        1288
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1288,
+        1288
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1288,
+        1288
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1186,
+        1296
+      ],
+      "value": "1241/1296"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1214,
+        1296
+      ],
+      "value": "1255/1296"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        4,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1252,
+        1296
+      ],
+      "value": "637/648"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1268,
+        1296
+      ],
+      "value": "641/648"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1279,
+        1296
+      ],
+      "value": "2575/2592"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        3,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1292,
+        1290
+      ],
+      "value": "1291/1296"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1126,
+        1296
+      ],
+      "value": "1211/1296"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1292
+      ],
+      "value": "1291/1296"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1290,
+        1292
+      ],
+      "value": "1291/1296"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1292,
+        1290
+      ],
+      "value": "1291/1296"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1200,
+        1296
+      ],
+      "value": "26/27"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1224,
+        1296
+      ],
+      "value": "35/36"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        4,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1256,
+        1296
+      ],
+      "value": "319/324"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1270,
+        1296
+      ],
+      "value": "1283/1296"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1280,
+        1296
+      ],
+      "value": "161/162"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        4,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1288,
+        1296
+      ],
+      "value": "323/324"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1292,
+        1296
+      ],
+      "value": "647/648"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1294,
+        1296
+      ],
+      "value": "1295/1296"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        5,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1295,
+        1296
+      ],
+      "value": "2591/2592"
+    },
+    {
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        3,
+        6,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1293,
+        1293
+      ],
+      "value": "431/432"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1147,
+        1296
+      ],
+      "value": "2443/2592"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1293,
+        1293
+      ],
+      "value": "431/432"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1293,
+        1293
+      ],
+      "value": "431/432"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1293,
+        1293
+      ],
+      "value": "431/432"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1212,
+        1296
+      ],
+      "value": "209/216"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1233,
+        1296
+      ],
+      "value": "281/288"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        4,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1260,
+        1296
+      ],
+      "value": "71/72"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1272,
+        1296
+      ],
+      "value": "107/108"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1281,
+        1296
+      ],
+      "value": "859/864"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        4,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1288,
+        1296
+      ],
+      "value": "323/324"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1292,
+        1296
+      ],
+      "value": "647/648"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1294,
+        1296
+      ],
+      "value": "1295/1296"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        5,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1295,
+        1296
+      ],
+      "value": "2591/2592"
+    },
+    {
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        4,
+        6,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        5,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        5,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        5,
+        6,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "family": "free",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "family": "fixed_method",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "family": "greedy",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "family": "highest",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    },
+    {
+      "hand": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "family": "best_initial_order",
+      "success_counts_by_fixed_truth": [
+        1296,
+        1296
+      ],
+      "value": "1"
+    }
+  ],
+  "input_sha256": {
+    "数学结果.json": "03c80b3d2ba9ee5a75e5f6fe485bbd625446be1bb956450fc921c852db406a06",
+    "公开策略.json": "eba5fa4e91d6540f74bd7d95cf338ded66c1e036cf3067537131cc693f313256",
+    "独立固定真值复核.py": "96e68d0e0576b704dca487939c8946e00c94c089dcaed1cea7e01345316752f8"
+  },
+  "elapsed_seconds": 0.33429408073425293
+}

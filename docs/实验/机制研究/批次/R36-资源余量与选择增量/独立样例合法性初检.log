@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R36-资源余量与选择增量/未来一轮独立核对.py", line 63, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R36-资源余量与选择增量/未来一轮独立核对.py", line 38, in main
+    x=exact(left,k,s,h);v=m.value(12-left,0,2,s,0,k,0,1,h,-1)
+                          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R36-资源余量与选择增量/压力模型.py", line 68, in _value
+    assert (p>=3 or a==0) and (p>=6 or b==0) and s>=0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

@@ -1,0 +1,27 @@
+;; 研究原型的显示与结算；不实现骰子、概率或回合结算。
+(define 完了? #f)
+(define 进度 (make-clock "目标" 目标上限 'gauge "达到上限自动完成；期限满则失败。"))
+(define 期限 (make-clock "已过回合" 回合上限 'gauge "回合末加1；每回合另由引擎花1冷静。"))
+(define (研究附记) '())
+(define (研究结果 status)
+  (list status (进度 'current) (min 回合上限 (+ 1 (期限 'current)))
+    (actor-composure 'player) (研究附记)))
+(define (研究结束! status text)
+  (if 完了? (error "研究原型：重复结算") #t)
+  (set! 完了? #t)
+  (spotlight! 研究名称 text)
+  (end-encounter (研究结果 status)))
+(define (研究检查!)
+  (cond ((or 完了? (hospitalization-pending?)) #f)
+        ((进度 'full?) (研究结束! 'success "目标完成，实验结束。"))
+        ((期限 'full?) (研究结束! 'timeout "期限已到，目标未完成。"))))
+(define (研究推进! n)
+  (if (or 完了? (hospitalization-pending?)) #f
+    (begin (进度 'advance! n) (研究检查!))))
+(define (on-encounter-collapse) (collapse-result (研究结果 'collapse)))
+(define (研究盘面 说明 读数 动作)
+  (container 研究名称
+    (append
+      (list (note-node "标注：研究目标" "规则实验" 说明))
+      (clock-nodes (进度 'render-data) (期限 'render-data))
+      读数 动作)))

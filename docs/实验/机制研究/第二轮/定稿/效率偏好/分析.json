@@ -1,0 +1,83 @@
+[
+  {
+    "variant": "整备借力",
+    "family": "整备借力",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 30,
+      "回合上限": 3,
+      "准备加成": 3
+    },
+    "success": 0.9882663080990002,
+    "success_rounds": 2.9348394708610974,
+    "expected_reward": 6.122785715291644,
+    "objective": "效率",
+    "fixed": [
+      {
+        "policy": "直接推进",
+        "success": 0.9035998115254895,
+        "success_rounds": 2.9229867549577726
+      },
+      {
+        "policy": "固定配对",
+        "success": 0.932825763074251,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "按手牌配对",
+        "success": 0.9753532466996268,
+        "success_rounds": 2.981238409498281
+      },
+      {
+        "policy": "逐步收益",
+        "success": 0.9035998115254895,
+        "success_rounds": 2.9229867549577726
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9795542358605642,
+        "success_rounds": 2.975827981226125
+      }
+    ]
+  },
+  {
+    "variant": "稳险选择",
+    "family": "稳险选择",
+    "growth": 1,
+    "parameters": {
+      "目标上限": 28,
+      "回合上限": 3
+    },
+    "success": 0.981550101677661,
+    "success_rounds": 2.477388522901611,
+    "expected_reward": 7.428208655517476,
+    "objective": "效率",
+    "fixed": [
+      {
+        "policy": "一直稳进",
+        "success": 0.8202446959007722,
+        "success_rounds": 3.0
+      },
+      {
+        "policy": "一直冒进",
+        "success": 0.9297234736610995,
+        "success_rounds": 2.5811076813788523
+      },
+      {
+        "policy": "按骰面收益",
+        "success": 0.9732981332625138,
+        "success_rounds": 2.5611830242573834
+      },
+      {
+        "policy": "剩余目标",
+        "success": 0.9759665300600111,
+        "success_rounds": 2.554396380440527
+      },
+      {
+        "policy": "当轮规划",
+        "success": 0.9802020329672141,
+        "success_rounds": 2.5451032480190046
+      }
+    ]
+  }
+]

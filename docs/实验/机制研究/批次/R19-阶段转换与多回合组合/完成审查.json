@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-02",
+  "identity": "R19阶段转换与首试准备审查，不是线程研究目标完成",
+  "current_thread_goal": "继续研究",
+  "thread_goal_remains_active": true,
+  "requirements": [
+    {
+      "requirement": "至少三种判断条件不同的正式基础关系",
+      "passed": true,
+      "evidence": [
+        {
+          "batch": "R07-顺序与选择权",
+          "source": "UnityClient/Assets/Resources/Content/scripts/research/顺序选择.scm",
+          "source_hash_matched": true
+        },
+        {
+          "batch": "R11-跨回合余力",
+          "source": "UnityClient/Assets/Resources/Content/scripts/research/跨回合余力.scm",
+          "source_hash_matched": true
+        },
+        {
+          "batch": "R13-启动窗口与成果取舍",
+          "source": "UnityClient/Assets/Resources/Content/scripts/research/启动窗口.scm",
+          "source_hash_matched": true
+        }
+      ]
+    },
+    {
+      "requirement": "强简单策略和边界反证",
+      "passed": true,
+      "evidence": [
+        "R17-承诺与收手/研究记录.md",
+        "R18-延后与消除/研究记录.md"
+      ]
+    },
+    {
+      "requirement": "有证据的阶段选题调整",
+      "passed": true,
+      "evidence": "研究记录.md：为什么现在转阶段"
+    },
+    {
+      "requirement": "有交互的多回合组合及只改清零的对照",
+      "passed": true,
+      "evidence": {
+        "strict_interaction_states": 454,
+        "healthy_skill1_native_visits": 10,
+        "normalized_wrappers_identical": true
+      }
+    },
+    {
+      "requirement": "正式转移/终止、恢复和后续反馈入口",
+      "passed": true,
+      "evidence": {
+        "native_games": 39,
+        "steps": 352,
+        "strict_replays": 39,
+        "independent_initial_cases": 504,
+        "isolated_replays": 4,
+        "terminal_statuses": [
+          "success",
+          "timeout",
+          "collapse"
+        ],
+        "injured_success_observed": true,
+        "feedback_entry": "README.md"
+      }
+    }
+  ],
+  "stage": "第二阶段：多回合组合与体验裁决",
+  "human_games": 0,
+  "unity_visual_checked": false,
+  "scope": "只证明进入第二阶段及首试可执行；不证明有趣、全部成长适配或研究空间完成"
+}

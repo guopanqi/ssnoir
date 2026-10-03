@@ -1,0 +1,1 @@
+{"status": "passed", "conditions": 486, "poly_direct_checks": 189, "Q_direct_checks": 3024, "rolling_equals_free_count": 486, "lowest_gap_count": 1, "better_probe_omission_count": 1, "maxQ_L_tie_count": 301, "elapsed_seconds": 0.30265558301471174}

@@ -1,0 +1,61 @@
+{
+  "results": [
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "剩骰都≤1且还有下一轮、冷静够时间税就换轮；否则用完",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.714085377823174,
+      "cold_on_success": 0.7122605615217471,
+      "states": 10816,
+      "seconds": 0.07213616697117686
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "剩骰都≤2且还有下一轮、冷静够时间税就换轮；否则用完",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.7325804351160756,
+      "cold_on_success": 0.7134905565830284,
+      "states": 10816,
+      "seconds": 0.07121550012379885
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "剩骰都≤3且还有下一轮、冷静够时间税就换轮；否则用完",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.7313589469424944,
+      "cold_on_success": 0.7012505097249486,
+      "states": 10816,
+      "seconds": 0.07107549998909235
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "剩骰都≤4且还有下一轮、冷静够时间税就换轮；否则用完",
+      "threshold": 2,
+      "reset": false,
+      "recovery": 2,
+      "cold": 3,
+      "completion": 0.6816262538034596,
+      "cold_on_success": 0.707584432091001,
+      "states": 10816,
+      "seconds": 0.07010233402252197
+    }
+  ],
+  "scope": "禁止整顿；阈值外仍优化骰序与稳险，最后一轮不提前超时"
+}

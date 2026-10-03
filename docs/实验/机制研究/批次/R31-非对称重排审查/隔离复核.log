@@ -1,0 +1,1 @@
+{"date": "2026-10-02", "source_hashes_checked": 18, "results": [{"script": "末回合独立核查.py", "result": "末回合独立核查.json", "semantic_equal": true}, {"script": "小状态主模型对照.py", "result": "小状态主模型对照.json", "semantic_equal": true}], "passed": true, "scope": "R31冻结源码隔离小状态复核；非完整三回合独立求解，无原生或真人证据"}

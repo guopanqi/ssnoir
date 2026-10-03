@@ -1,0 +1,2 @@
+{"family": "one_step_all", "value": "2853535/1679616", "expected": 1.6989210629096174, "distribution": ["96877/839808", "118189/1679616", "455891/559872"], "gap_to_free": "2033/279936", "strict_initial_hands": 24}
+{"family": "lowest_B", "value": "2847091/1679616", "expected": 1.695084471688767, "distribution": ["112511/839808", "20699/559872", "1392497/1679616"], "gap_to_free": "3107/279936", "strict_initial_hands": 37}

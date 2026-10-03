@@ -1,0 +1,175 @@
+{
+  "native_games": 99,
+  "checked_steps": 550,
+  "strict_replays": [
+    {
+      "path": "整段完成-求解-s1101.json.gz",
+      "sha256": "9d394a0b2b1b5e3fba68e82b53918117196d72f4413f9b727a3a5736e1a412b0",
+      "passed": true
+    },
+    {
+      "path": "整段完成-求解-s1105.json.gz",
+      "sha256": "0b3de0b5375d2d42ff9153a7b70bc187ec611aa9b425ce3efd3c6ed5a3b62c49",
+      "passed": true
+    },
+    {
+      "path": "整段完成-求解-s1109.json.gz",
+      "sha256": "3df753c712b559e885b84ff2316a3cd299b99455ed6472604b713a8b2690c172",
+      "passed": true
+    },
+    {
+      "path": "整段完成-先小目标-s1101.json.gz",
+      "sha256": "1a730b1f2184519f1e1a1ba4bc7dfc22e877604a6f4ee3c9b237d72610bd9eb5",
+      "passed": true
+    },
+    {
+      "path": "整段完成-先小目标-s1102.json.gz",
+      "sha256": "212bd4b84e2bca0dbe99bfab4f974bbe90490c84dcecc2aa5cbbbd424479b975",
+      "passed": true
+    },
+    {
+      "path": "整段完成-先小目标-s1112.json.gz",
+      "sha256": "fc4869d7cdc3185235da8b8984d844427faccb77daa6af6c6865c4c01ebbb6e9",
+      "passed": true
+    },
+    {
+      "path": "整段完成-先大目标-s1101.json.gz",
+      "sha256": "9afe70ed770a1e98db8e2efe506285e02c76f702d1548b3a34f8e333d9cb9d70",
+      "passed": true
+    },
+    {
+      "path": "整段完成-先大目标-s1105.json.gz",
+      "sha256": "335e55f3ad68de18170647da20b8697ec02388d0f1fa93f29074fc49c6858f5a",
+      "passed": true
+    },
+    {
+      "path": "分段短目标-求解-s1117.json.gz",
+      "sha256": "2a93b89b811a6c851038e8ab1299c56e2fa5afd87e628f845f0592efe4eb63b9",
+      "passed": true
+    },
+    {
+      "path": "分段保留对照-求解-s1117.json.gz",
+      "sha256": "5c641d4d828ce54863d3ec849e0b4da7fdfc83da8dd4bd5e7f80821e2b11c9ab",
+      "passed": true
+    },
+    {
+      "path": "分段保留对照-先小目标-s1117.json.gz",
+      "sha256": "beb25f06fa1b9193b9a239f38498df1b8a2dedc42f47679e9ee6aa4718699964",
+      "passed": true
+    },
+    {
+      "path": "保留终点-求解-s1125.json.gz",
+      "sha256": "9797d9b5c3ad47b870989509cb4cbfada8a716c11e4148be4622e2f07ca66070",
+      "passed": true
+    },
+    {
+      "path": "保留终点-先额外-s1125.json.gz",
+      "sha256": "2e7852c31737a1e5a985442e0dd4705a557cbdc9d1f2582cb9ab6e832d384590",
+      "passed": true
+    },
+    {
+      "path": "保留终点-留够容量-s1125.json.gz",
+      "sha256": "c3c59668024d5191a2851c4d29f0d8d01d9940385c94fc492f1eaf9420f61ba8",
+      "passed": true
+    },
+    {
+      "path": "边界-两轮到期.json.gz",
+      "sha256": "ab5ca8841909d0d1d62ce7146bac3de9a7d99a780d24b45e675fb829ede2f14b",
+      "passed": true
+    },
+    {
+      "path": "边界-成果保留.json.gz",
+      "sha256": "4bfbd89de0c6912f360212a3e9f48b55783fce92b7cffc4a93fb3287451341e1",
+      "passed": true
+    },
+    {
+      "path": "边界-终点关闭.json.gz",
+      "sha256": "7991f813c1c0623ca32d4f3c608213ec576e90fb7809bb86dd31388e35cc002e",
+      "passed": true
+    }
+  ],
+  "unity_visual_checked": false,
+  "summary": [
+    {
+      "variant": "整段完成",
+      "policy": "求解",
+      "games": 16,
+      "success": 13,
+      "injury_free_success": 13,
+      "bonus": 0,
+      "out_of_model": 2
+    },
+    {
+      "variant": "整段完成",
+      "policy": "先小目标",
+      "games": 16,
+      "success": 10,
+      "injury_free_success": 10,
+      "bonus": 0,
+      "out_of_model": 2
+    },
+    {
+      "variant": "整段完成",
+      "policy": "先大目标",
+      "games": 16,
+      "success": 13,
+      "injury_free_success": 13,
+      "bonus": 0,
+      "out_of_model": 0
+    },
+    {
+      "variant": "分段短目标",
+      "policy": "求解",
+      "games": 8,
+      "success": 8,
+      "injury_free_success": 8,
+      "bonus": 0,
+      "out_of_model": 0
+    },
+    {
+      "variant": "分段保留对照",
+      "policy": "求解",
+      "games": 8,
+      "success": 8,
+      "injury_free_success": 8,
+      "bonus": 0,
+      "out_of_model": 0
+    },
+    {
+      "variant": "分段保留对照",
+      "policy": "先小目标",
+      "games": 8,
+      "success": 8,
+      "injury_free_success": 8,
+      "bonus": 0,
+      "out_of_model": 0
+    },
+    {
+      "variant": "保留终点",
+      "policy": "求解",
+      "games": 8,
+      "success": 8,
+      "injury_free_success": 8,
+      "bonus": 8,
+      "out_of_model": 0
+    },
+    {
+      "variant": "保留终点",
+      "policy": "先额外",
+      "games": 8,
+      "success": 8,
+      "injury_free_success": 8,
+      "bonus": 8,
+      "out_of_model": 0
+    },
+    {
+      "variant": "保留终点",
+      "policy": "留够容量",
+      "games": 8,
+      "success": 8,
+      "injury_free_success": 8,
+      "bonus": 8,
+      "out_of_model": 0
+    }
+  ]
+}

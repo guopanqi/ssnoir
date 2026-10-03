@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R38-修复粒度与目标归并/修复目标.py", line 48, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R38-修复粒度与目标归并/修复目标.py", line 42, in main
+    assert a['hand']==b['hand'] and abs(a['probability']-b['probability'])<1e-12
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

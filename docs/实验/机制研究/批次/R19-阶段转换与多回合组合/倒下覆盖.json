@@ -1,0 +1,10 @@
+{
+  "attempts": 4,
+  "seed": 6304,
+  "search_outcomes": {
+    "success": 3,
+    "collapse": 1
+  },
+  "record": "边界-倒下-6304.json.gz",
+  "scope": "搜索只用于终止覆盖；所有尝试终止计入搜索统计，只保留首个倒下轨迹，不估计概率"
+}

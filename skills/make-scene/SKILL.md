@@ -9,7 +9,7 @@ description: 为 SSNoir 从零做一个交锋/地点场景的 CityBox Prefab 时
 
 五步，每步末尾是一个确认门（用户说"下一步"才过）：
 
-1. **布局预览图**：把空间感画出来给人看。读 [references/layout-preview.md](references/layout-preview.md)。
+1. **布局预览图**：先理解故事在这里发生时，空间需要提供哪些可见的信息，再决定怎样用布局表达；预览图既要成立为空间，也要契合具体情景。读 [references/layout-preview.md](references/layout-preview.md)。
 2. **灰盒**：照着图用方块搭 `prefabs/src/<名>.py`，跑单体预览。读 [references/greybox.md](references/greybox.md)。
 3. **道具**：灰盒定了之后，才看哪几件值得精细化。先看复用道具库 `city-box/props/INDEX.md`（人形、车辆…带缩略图），再翻已有场景（`prefabs/src/*.py` 的构件函数、`prefabs/review/*/props/` 的场景内道具），能用的直接用——场景内道具被第二个场景用到的那一刻 `git mv` 进 `props/`；没有的，简单的补成程序化构件，只有手搭不像又决定场景身份的才交给 `create-3d-assets` 生成。读 [references/props.md](references/props.md)。
    场景里**会动的机关**（唱片机这类有状态、要读档恢复的）另有一套：整件程序化 + `props.json` 的 `clips` +

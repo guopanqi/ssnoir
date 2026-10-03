@@ -1,0 +1,1 @@
+{"source_records": 36, "checked_steps": 326, "head_penalty_action_checks": 3, "current_heavy_action_checks": 3, "heavy_next_round_three_dice_checks": 1, "first_injury_site_checks": 6, "collapse_checks": 1, "covered_grades": ["Fail", "Neutral", "Success"], "scope": "复用R19及预先冻结补覆盖轨迹，校准每步公开判定/溢出伤势/重伤骰数；旧局不重计，补覆盖独立报告，不视为玩家样本，不验证部位概率均匀", "coverage_gaps": []}

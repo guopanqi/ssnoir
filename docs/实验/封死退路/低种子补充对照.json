@@ -1,0 +1,86 @@
+[
+  {
+    "policy": "始终不封门",
+    "seed": 0,
+    "result": "('带走证人 False)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "留最后骰保底",
+    "seed": 0,
+    "result": "('带走证人 False)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "始终不封门",
+    "seed": 1,
+    "result": "('带走证人 False)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "留最后骰保底",
+    "seed": 1,
+    "result": "('带走证人 False)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "始终不封门",
+    "seed": 2,
+    "result": "('带走证人 False)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "留最后骰保底",
+    "seed": 2,
+    "result": "('带走证人 False)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "始终不封门",
+    "seed": 3,
+    "result": "('带走证人 False)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "留最后骰保底",
+    "seed": 3,
+    "result": "('带走证人 False)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "始终不封门",
+    "seed": 4,
+    "result": "('带走证人 False)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "留最后骰保底",
+    "seed": 4,
+    "result": "('带走证人 False)",
+    "calm": 4,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "始终不封门",
+    "seed": 5,
+    "result": "('带走证人 False)",
+    "calm": 3,
+    "injury": " 完好 0/7"
+  },
+  {
+    "policy": "留最后骰保底",
+    "seed": 5,
+    "result": "('带走证人 False)",
+    "calm": 3,
+    "injury": " 完好 0/7"
+  }
+]

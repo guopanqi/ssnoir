@@ -1,0 +1,85 @@
+{
+  "batch": "R47",
+  "scope": "R45/R46冻结输入；明确策略126根独立执行，自由独立局部；正式0真人0",
+  "source_sha256": {
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/有界研究计划.md": "711c84ed556675cac5e95c48a32209c8dcab25be33b36eff67a8698b6e93d87a",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/专注模型.py": "ee1168f49142211f0139dd762164c684a9e49867dd68a43a14fe8b4bf1e4eec6",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/审查两骰枚举.py": "8be524ad307758abcbafbef2476f16ceea74ff3bbbd465f115f49861b901a32a",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/承诺前向.py": "376b46780caf6f22cb32677afcc48be490374e4226382310e8aa95e9193264d1",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/整合核对.py": "49b7cae98b5cdd0b04f0a497942367a3aa52cfa6e953b0d1d813a904d13df58c",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/复现.py": "a233598256c309dc058d9ed8cfe2718d97a99fff888c11e8503404c23dd1bae6",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/研究记录.md": "7fef0b350cec36c931c524eaadf3a2abeccf03aaea510724c207d084ade85f3e",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/审查结构.md": "e57f00525bdeb8b2fa02f0a4224816e7eb0795aaa25c1b4276307455021c55fe",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/版本.json": "1d6ac59b7fc475f5dfbf7effa006e53efb454f34c0d0a99e864d90c18b3f9a84",
+    "docs/实验/机制研究/批次/R45-公开专注与承诺时点/数学结果.json": "499781ff4dd54a2fb21838208598408153ad9d829368689828fa6809277dfc4e",
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/有界研究计划.md": "b1070caea3058bf8681f4dcd03b3eaf027e30c5e333abba1e1d58a0cd7497c2d",
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/实时判据.py": "26aad275768f4e004e86f5e430f11d06dc619c8620c6c36de6b5d2bfd1065524",
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/审查两骰枚举.py": "112ae1f3944d598776c400fc737e6c0308ca82ec4722f13f4eef49bb3ba32762",
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/审查结构.md": "bad6ca5834c6f1b54bba2cd5aadb81b76d30ff7e58ed14977029bc03c8d1eb7d",
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/整合核对.py": "7b862251fe462b3e36538d3997363ccceb78c16d06769b5d32b46058114b7697",
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/研究记录.md": "cc206a6c7f4e15a16544ea60bd0e9a4802e1ab0d363459c2a6821ecc1c3a530b",
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/复现.py": "17c70a58c3af7d8e7c518f886ba828718e5ede171fcaf4285db3021cde4ebe2d",
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/版本.json": "df294de111e3a9fd391af2f73f691a651b361441472fc53a7a7477cc8391efc6",
+    "docs/实验/机制研究/批次/R46-承诺选择的实时判据/判据结果.json": "1fe923b06860e70d8d16818432a3a19437795f144caa469c243f766ffc5a857e",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/有界研究计划.md": "90ae6efdd0b73e2ab2b40a9f2c456b86e09ecbdd3eafb82e53913aef930f7efc",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/储备判据.py": "a0daf15fe502b8fda2b1fd799a6735441e87975bf4ac7dd0148b0e59e2c35a43",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/审查方案.md": "fe5f3883fd98324c9834cc84c3d83f1a517b3ba366c20de2752643b451453cff",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/审查储备枚举.py": "f8678ea26c873a4d0a600894cbd2fda43d389112d3add6c76934e8f35f778151",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/审查结构.md": "d7ca83f9bf4cd02376618673950c18dd99ca3fa7dc328498b82ecd8a2d56a7df",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/整合核对.py": "8e3a1fc3af1104d188377561108616cf2aba34e2da2b00d220c325b11638b304",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/研究记录.md": "719dcafdb5aff41f1d8229b3eca131f3cada4a60285433362c4c769ca994dcf2",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/复现.py": "ad654fd8ab7c3dfd4428dbe85819285fb34c25dfd360f2bd5d8705f79b38fe4a",
+    "docs/实验/机制研究/批次/R48-概率储备与有限计划/有界研究计划.md": "224f4d534dc5f88dd864a261fc78a9a2f21aab249604705c1d21d269a97cf75f"
+  },
+  "output_sha256": {
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/储备结果.json": "027c25d4f4db4edc4cf204a53cb7fe95083646f001c1a9899e807edd81657356",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/数学执行.log": "35733bbf9e438c637e35eb070b930cbdddb17d6a9cf27aa5f09de3db86a0ce8b",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/审查储备结果.json": "a389bf4c556e8dffbc458e0c5624509da0ef81e6199bf230594c1a2128fbb0c0",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/审查储备执行.log": "2ae9b49b8ddfdd0dca6012723dbf73df110c4d6f18919aaad94f81c8978410fb",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/整合核对.json": "c0c456f7fb5182fc14660d3f693abe1cd7db4ed59f3052cd501ef688a2bd56ac",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/整合执行.log": "adbbc68f54048cc1d41dc655e69102fd080000fd0f89d5ffbcc4a96448dd906e",
+    "docs/实验/机制研究/批次/R47-保底储备与连续试探/执行登记.json": "a423b9b13593b7d95c76b49f47ba124210acad1f624792bae6cc07061fcb2050"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "daa4220b12cfef1b0ce72e75c74f8faceb6696c96a471db90bcce0499ba35d34",
+    "files": 36,
+    "isolated_verification": {
+      "batch": "R47",
+      "source_hashes_checked": 29,
+      "results": [
+        {
+          "script": "储备判据.py",
+          "result": "储备结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "审查储备枚举.py",
+          "result": "审查储备结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "整合核对.py",
+          "result": "整合核对.json",
+          "semantic_equal": true
+        }
+      ],
+      "regenerated_input_hashes_checked": 6,
+      "passed": true,
+      "scope": "数学隔离重算；独立全根仅明确策略执行，自由独立局部；正式0真人0"
+    }
+  },
+  "overview": {
+    "batch": "R47",
+    "path": "总览快照.tar.gz",
+    "sha256": "a3e6688295c6e19cba714cce3641d0b72a6c5298fae4592569385891dbc209da",
+    "files_sha256": {
+      "docs/实验/机制研究/研究总览.html": "8e416b17917cedb6d5dad2ac9c27568b4fb01d3da20c3073a8225dbe4e24174f",
+      "docs/实验/机制研究/总览核对/核对.cjs": "85d8f9a7ceb49c475af864f2b420242ed6a249b3380c232e6dae67f4492bfd62",
+      "docs/实验/机制研究/总览核对/核对.json": "f07d928b9f58521962ae9f2ad3ac577f2985ef0e794c9d17af4a85605ba02219",
+      "docs/实验/机制研究/总览核对/保底边界.png": "8b10e0448663c5da23c8557e3259a9f0ac4ee92e1b5f50b3c52a03cb3f9c4427"
+    },
+    "scope": "HTML摘要与浏览器QA／窄屏边界截图，非Unity验证"
+  }
+}

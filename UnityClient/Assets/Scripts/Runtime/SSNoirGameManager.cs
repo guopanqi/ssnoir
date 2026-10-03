@@ -694,10 +694,19 @@ namespace SSNoir
             usedWorldFallback = false;
             foreach (var nodeName in focusPath.AsEnumerable().Reverse())
             {
-                // 站在 Stage 门里，镜头是 Stage 的根机位，不是门卡挂着的那个锚点的机位。
+                // Stage 身份是节点名（Portal 挂在 Anchor_<名>）。门卡也叫这个名，但
+                // :anchor 指门外挂点（家的「门口」）——那种情况必须用 Stage 根机位，
+                // 不能跟到门外。交锋根若额外声明了区内 :anchor（巷子 → 勒索信-巷口），
+                // 且该锚点就在 Stage 空间里，则用分区机位，换段才能切走廊镜头。
                 var stage = ResolveStageAnchor(nodeName);
-                if (stage != null && stage.FocusVirtualCamera != null)
-                    return stage.FocusVirtualCamera;
+                if (stage != null)
+                {
+                    var zoneCam = TryResolveInStageZoneCamera(nodeName, stage);
+                    if (zoneCam != null)
+                        return zoneCam;
+                    if (stage.FocusVirtualCamera != null)
+                        return stage.FocusVirtualCamera;
+                }
                 var anchor = ResolveAnchor(nodeName);
                 if (anchor != null && anchor.FocusVirtualCamera != null)
                     return anchor.FocusVirtualCamera;
@@ -750,6 +759,29 @@ namespace SSNoir
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// 交锋根在 Stage 名上另声明了区内 :anchor 时，取该分区机位。
+        /// 门卡那种 :anchor 在城市场地（与 Stage 锚点相距甚远）的，返回 null，继续用 Stage 根机位。
+        /// </summary>
+        private Cinemachine.CinemachineVirtualCamera? TryResolveInStageZoneCamera(string nodeName, NodeAnchor stage)
+            => TryResolveInStageZoneCamera(FindNodeByName(nodeName), stage);
+
+        private Cinemachine.CinemachineVirtualCamera? TryResolveInStageZoneCamera(GameNode? node, NodeAnchor stage)
+        {
+            if (node == null || !node.HasExplicitAnchor)
+                return null;
+            if (string.Equals(node.AnchorName, node.Name, StringComparison.Ordinal))
+                return null;
+            var zone = _sceneDirectory?.GetAnchor(node.AnchorName!);
+            if (zone == null || zone == stage || zone.FocusVirtualCamera == null)
+                return null;
+            // Stage 停在郊野，区内锚点同 Prefab；门卡挂点在城里，通常隔数百米以上。
+            float dist = Vector3.Distance(stage.transform.position, zone.transform.position);
+            if (dist > 200f)
+                return null;
+            return zone.FocusVirtualCamera;
         }
 
         /// <summary>
@@ -1181,11 +1213,15 @@ namespace SSNoir
             if (incomingRoot == null)
                 return;
 
-            var anchor = ResolveStageAnchor(incomingRoot.Name) ?? ResolveAnchor(incomingRoot);
+            var stage = ResolveStageAnchor(incomingRoot.Name);
+            var anchor = stage ?? ResolveAnchor(incomingRoot);
             if (anchor != null)
             {
-                _incomingFocusContextCamera = anchor.FocusVirtualCamera;
-                if (anchor.GetComponent<StagePortalConfig>() != null)
+                // 用 incomingRoot 本身：此时 _displayedSnapshot 还是旧树，FindNodeByName 找不到新根。
+                _incomingFocusContextCamera = stage != null
+                    ? (TryResolveInStageZoneCamera(incomingRoot, stage) ?? stage.FocusVirtualCamera)
+                    : anchor.FocusVirtualCamera;
+                if (stage != null)
                     incomingStage = incomingRoot.Name;
             }
             _incomingFocusCrossesStagePortal = !string.Equals(outgoingStage, incomingStage, System.StringComparison.Ordinal);
@@ -2055,9 +2091,14 @@ namespace SSNoir
                 _renderer.SetInputLocked(true);
             }
 
+            // 采纳前记下当前焦点机位：同根换区内 :anchor（Act2 巷口→货栈）不算
+            // contextChanged，但分区机位必须跟着切，否则卡钉在新锚点上而镜头留在上一段。
+            var focusCamBefore = ResolveCurrentFocusCamera(GetCurrentFocusPathNames(), out _);
             bool navigationCollapsed = AdoptLatestSnapshot();
             EndIncomingFocusContext();
-            if (contextChanged || navigationCollapsed)
+            var focusCamAfter = ResolveCurrentFocusCamera(GetCurrentFocusPathNames(), out _);
+            bool zoneCamChanged = focusCamAfter != null && focusCamAfter != focusCamBefore;
+            if (contextChanged || navigationCollapsed || zoneCamChanged)
                 UpdateCameraFocus(storyDriven: true);
             return true;
         }

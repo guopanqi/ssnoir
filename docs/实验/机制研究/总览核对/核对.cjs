@@ -1,0 +1,65 @@
+const fs=require('node:fs');
+const path=require('node:path');
+const {chromium}=require('/Users/usr/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+(async()=>{
+ const root=process.cwd(),out=path.join(root,'docs/实验/机制研究/总览核对');fs.mkdirSync(out,{recursive:true});
+ const installed=chromium.executablePath();const options={headless:true};
+ if(!fs.existsSync(installed)){
+  const chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+  if(!fs.existsSync(chrome))throw new Error('没有可用浏览器；保留HTML，静态检查已通过');
+  options.executablePath=chrome;
+ }
+ const browser=await chromium.launch(options);
+ try{
+  const page=await browser.newPage({viewport:{width:1280,height:900}});let errors=[];page.on('pageerror',e=>errors.push(String(e)));
+  await page.goto('file://'+path.join(root,'docs/实验/机制研究/研究总览.html'));
+  const assert=(x,msg)=>{if(!x)throw new Error(msg)};
+  assert(await page.locator('.candidate').count()===18,'initial candidate count');
+  await page.getByRole('button',{name:'已有体验反馈',exact:true}).click();assert(await page.locator('.candidate').count()===3,'feedback filter');
+  await page.getByRole('button',{name:'只有数学证据',exact:true}).click();assert(await page.locator('.candidate').count()===8,'math-only filter');
+  await page.getByRole('button',{name:'全部关系',exact:true}).click();
+  await page.getByRole('searchbox',{name:'搜索模式'}).fill('公开专注');assert(await page.locator('.candidate').count()===1,'focus relation search');assert((await page.locator('#candidate-detail').innerText()).includes('94.40%'),'focus strong-family detail');assert((await page.locator('#candidate-detail').innerText()).includes('37手'),'R47 guarantee boundary detail');
+  await page.getByRole('searchbox',{name:'搜索模式'}).fill('成套成果');assert(await page.locator('.candidate').count()===1,'bundle relation search');assert((await page.locator('#candidate-detail').innerText()).includes('交叉按同一效用'),'bundle cross-scoring detail');
+  await page.getByRole('searchbox',{name:'搜索模式'}).fill('成功后的判定反馈');assert(await page.locator('.candidate').count()===1,'feedback relation search');assert((await page.locator('#candidate-detail').innerText()).includes('0.00643'),'feedback relation detail');
+  await page.getByRole('searchbox',{name:'搜索模式'}).fill('连续反馈选方法');assert(await page.locator('.candidate').count()===1,'continuous information search');assert((await page.locator('#candidate-detail').innerText()).includes('泄露隐藏条件'),'visibility boundary detail');
+  await page.getByRole('searchbox',{name:'搜索模式'}).fill('可复用投资');assert(await page.locator('.candidate').count()===1,'investment search');assert((await page.locator('#candidate-detail').innerText()).includes('87.02%'),'investment detail');
+  await page.getByRole('searchbox',{name:'搜索模式'}).fill('定位再搜');assert(await page.locator('.candidate').count()===1,'search');
+  assert((await page.locator('#candidate-detail').innerText()).includes('97.42%'),'detail update');
+  await page.getByRole('searchbox',{name:'搜索模式'}).fill('不存在的关系');assert(await page.locator('.empty').count()===1,'empty search');
+  await page.getByRole('searchbox',{name:'搜索模式'}).fill('');await page.locator('[data-id="pressure"]').click();
+  await page.getByRole('button',{name:'压力 3',exact:true}).click();assert((await page.locator('#recommendation').innerText()).startsWith('修复'),'pressure interaction');
+  await page.getByRole('button',{name:'压力 2',exact:true}).click();assert((await page.locator('#recommendation').innerText()).startsWith('推进'),'pressure revert');
+  await page.getByRole('button',{name:'5 得到好档',exact:true}).click();assert((await page.locator('#amplitude-choice').innerText()).includes('6稳做'),'amplitude good');
+  await page.getByRole('button',{name:'5 得到中档',exact:true}).click();assert((await page.locator('#amplitude-choice').innerText()).includes('6快做'),'amplitude neutral');
+  await page.getByRole('button',{name:'压力 3',exact:true}).click();assert(await page.locator('[data-amplitude="neutral"]').getAttribute('aria-pressed')==='true','independent controls');
+  await page.getByRole('button',{name:'2 得到中档',exact:true}).click();assert((await page.locator('#feedback-choice').innerText()).includes('先用4'),'feedback neutral');
+  assert((await page.locator('#recommendation').innerText()).startsWith('修复'),'pressure unaffected by feedback');assert(await page.locator('[data-amplitude="neutral"]').getAttribute('aria-pressed')==='true','amplitude unaffected by feedback');
+  await page.getByRole('button',{name:'2 得到坏档',exact:true}).click();assert((await page.locator('#feedback-choice').innerText()).includes('先用3'),'feedback bad');
+  await page.getByRole('button',{name:'压力 2',exact:true}).click();
+  await page.getByRole('button',{name:'两件值 2',exact:true}).click();assert((await page.locator('#bundle-value').innerText()).includes('1.526565'),'bundle additive value');assert((await page.locator('#bundle-explanation').innerText()).includes('同一套响应'),'bundle unchanged strategy explanation');assert(await page.locator('[data-feedback=bad]').getAttribute('aria-pressed')==='true','feedback unaffected by bundle');assert(await page.locator('[data-amplitude=neutral]').getAttribute('aria-pressed')==='true','amplitude unaffected by bundle');assert((await page.locator('#recommendation').innerText()).startsWith('推进'),'pressure unaffected by bundle');
+  await page.getByRole('button',{name:'成套值 3',exact:true}).click();assert((await page.locator('#bundle-value').innerText()).includes('2.065076'),'bundle bonus value');
+  await page.getByRole('button',{name:'1 得到好档',exact:true}).click();assert((await page.locator('#focus-choice').innerText()).startsWith('专注乙'),'focus good chooses B');assert((await page.locator('#focus-explanation').innerText()).includes('37/27'),'focus exact B continuation');assert((await page.locator('#bundle-value').innerText()).includes('2.065076'),'bundle unaffected by focus');assert((await page.locator('#feedback-choice').innerText()).includes('先用3'),'feedback unaffected by focus');assert((await page.locator('#recommendation').innerText()).startsWith('推进'),'pressure unaffected by focus');assert(await page.locator('[data-amplitude=neutral]').getAttribute('aria-pressed')==='true','amplitude unaffected by focus');
+  await page.getByRole('button',{name:'1 得到坏／中档',exact:true}).click();assert((await page.locator('#focus-choice').innerText()).startsWith('专注甲'),'focus low chooses A');assert((await page.locator('#focus-explanation').innerText()).includes('11/12'),'focus exact A continuation');
+  await page.getByRole('button',{name:'首2中档',exact:true}).click();assert((await page.locator('#probe-choice').innerText()).includes('继续用第二个2'),'reserve neutral repeats probe');assert((await page.locator('#probe-explanation').innerText()).includes('11/6'),'reserve neutral exact continuation');
+  await page.getByRole('button',{name:'首2好档',exact:true}).click();assert((await page.locator('#probe-choice').innerText()).startsWith('专注乙'),'reserve good commits B');assert((await page.locator('#probe-explanation').innerText()).includes('平手立即专注'),'reserve exact tie stated');
+  assert((await page.locator('#focus-choice').innerText()).startsWith('专注甲'),'focus unaffected by reserve');assert((await page.locator('#bundle-value').innerText()).includes('2.065076'),'bundle unaffected by reserve');assert((await page.locator('#feedback-choice').innerText()).includes('先用3'),'feedback unaffected by reserve');assert((await page.locator('#recommendation').innerText()).startsWith('推进'),'pressure unaffected by reserve');assert(await page.locator('[data-amplitude=neutral]').getAttribute('aria-pressed')==='true','amplitude unaffected by reserve');
+  await page.getByRole('button',{name:'首2坏档',exact:true}).click();assert((await page.locator('#probe-explanation').innerText()).includes('4/3'),'reserve bad exact continuation');
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'wide overflow');
+  await page.evaluate(()=>scrollTo(0,0));await page.waitForTimeout(80);
+  await page.screenshot({path:path.join(out,'宽屏.png'),fullPage:true});
+  await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'narrow overflow');
+  await page.evaluate(()=>scrollTo(0,0));await page.waitForTimeout(80);
+  await page.screenshot({path:path.join(out,'窄屏.png'),fullPage:true});
+  await page.screenshot({path:path.join(out,'窄屏首屏.png'),fullPage:false});
+  await page.locator('section').filter({has:page.getByRole('heading',{name:'此前裁决：投资收益与动态安排分开',exact:true})}).screenshot({path:path.join(out,'投资裁决.png')});
+  await page.locator('section').filter({has:page.getByRole('heading',{name:'连续反馈：响应规则与接入边界',exact:true})}).screenshot({path:path.join(out,'连续反馈边界.png')});
+  await page.locator('section').filter({has:page.getByRole('heading',{name:'此前裁决：局部反转与整体增量分开看',exact:true})}).screenshot({path:path.join(out,'判定反馈.png')});
+  await page.locator('section').filter({has:page.getByRole('heading',{name:'成套成果：奖励变化与策略变化分开',exact:true})}).screenshot({path:path.join(out,'成套裁决.png')});
+  await page.locator('section').filter({has:page.getByRole('heading',{name:'公开专注：何时放弃补救路线',exact:true})}).screenshot({path:path.join(out,'公开专注.png')});
+  await page.locator('section').filter({has:page.getByRole('heading',{name:'保底试探：为什么一手比较会漏判',exact:true})}).screenshot({path:path.join(out,'保底试探.png')});
+  const boundary=page.locator('section').filter({has:page.getByRole('heading',{name:'保底的边界：有机会，不等于有保证',exact:true})});assert((await boundary.innerText()).includes('91/54'),'R47 finite plan exact value');assert((await boundary.innerText()).includes('1.696577'),'R47 root comparison');await boundary.screenshot({path:path.join(out,'保底边界.png')});
+  assert(errors.length===0,'browser runtime errors');
+  const result={artifact_batch:'R47',artifact_sha256:require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(root,'docs/实验/机制研究/研究总览.html'))).digest('hex'),passed:true,catalog_items:18,checks:['R47保证边界与概率计划','R46正常根储备试探与三档切换','六组控件独立','R45专注条目与实际首手换路线','五组控件独立','R44成套条目、交叉评分与结算切换','四组控件独立','R42/R43新条目与可见性边界','判定反馈反转切换','三组控件独立','投资新条目与证据详情','筛选','搜索','空结果','证据详情','压力切换','幅度选择切换','两组控件独立','宽窄页面无横向溢出'],browser_runtime_errors:errors,scope:'研究总览交互与页面核对；不是Unity游戏画面验证'};
+  fs.writeFileSync(path.join(out,'核对.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
+ }finally{await browser.close()}
+})();

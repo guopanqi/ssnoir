@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-02",
+  "status": "已裁决",
+  "ContentRevision": "5a45a91cf9c1d088e0f842644850faf4a8ba3d799b6d0c6db3e202f16b8d1f68",
+  "source_sha256": {
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/简单参照.py": "96f44c492c57a65d1ef57328ba601af7f7667f672f4a1ffffc5d810a32d01d72",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/伤势模型.py": "0f76c82045d89de5d6c14b5d6b1f9d270f03ad6999e628fb5d3bf418d704ecc7",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/独立迭代.cpp": "bd26076259c1d9c2818896e10df432dc4875b8b4993f4563e563196435e10786",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/独立概率输入.txt": "544cbf540d478ffaf8284141c9647f3d20b9a08952882d676c19c1f6f2750c57",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/头伤覆盖.py": "a89dcc427b292d98afc3877f05a7207f2f4d34836fea493a5a1dd79f30392575",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/独立核对.py": "210d1b3c144033587a4d97e4b83a1f135a0ec4d190fddb3c6a5b54f385b6722f",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/偏好可达.py": "b445f3ffe115771764dcd10cce00a2b660291b623e68669b059279eec279e679",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/伤势校准.py": "cd4851a670bded9c8e1cd6fd0753313efabc6f147325ad340da57e2ff9db1cb4",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/复现.py": "6d7e05dc50df79e7e15ce0823e6b7f3851141afd6e01bf18fb94c6b2765a4df5",
+    "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
+    "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",
+    "Engine/Runtime/Core/SceneManager.cs": "2502e5031ec9c605623e3d9bbdf19278a59b1ddd04242b941159c75d21e0c731"
+  },
+  "base_snapshot": {
+    "path": "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/运行快照.tar.gz",
+    "sha256": "9e4dc5ae7949a93a4141715abcfbd3e6c0cb00cddae0d0336d09947d25620f6c"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "172cf717e8468c35a53af34c8416830f9913aa4564b6c907fc0d7a81e697b7ba",
+    "bytes": 1089718,
+    "files": 331,
+    "contents": "R19冻结全Content/原生构建/分析依赖；R21源码/结果/校准；R19原始39条与新增头伤1条；所读健康机制主源",
+    "isolated_reproduction": {
+      "initial_hands": 756,
+      "independent_maximum_error": 0.0,
+      "strict_replays": [
+        {
+          "path": "头伤后续-6610.json.gz",
+          "sha256": "0b9a726a889e5682fd242800ad5db27cd00645eeba9eabcea89b0757d89b0a87",
+          "passed": true
+        }
+      ],
+      "calibrated_records": 36,
+      "calibrated_steps": 326,
+      "passed": true
+    }
+  },
+  "evidence": {
+    "independent_initial_hands": 756,
+    "profiles": 6,
+    "reused_native_records": 35,
+    "reused_native_steps": 317,
+    "new_saved_native_records": 1,
+    "new_saved_native_steps": 9,
+    "new_saved_strict_replays": 1,
+    "coverage_search_completed": 10,
+    "human_games": 0,
+    "unity_visual_checked": false
+  },
+  "scope": "完整伤势有限模型，公平独立骰/首次部位均匀仍是假设；不修改游戏；研究偏好不是玩家估值；版本身份不保证未来工作树"
+}

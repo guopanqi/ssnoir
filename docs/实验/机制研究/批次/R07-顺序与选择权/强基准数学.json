@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "两张高骰先大，否则先小；开工后继续",
+      "injury_free_completion": 0.8699518589802686,
+      "composure_on_success": 2.685495390736528,
+      "states": 7701,
+      "seconds": 0.04576779203489423
+    },
+    {
+      "targets": [
+        5,
+        3
+      ],
+      "reset": true,
+      "policy": "两条固定路线滚动比较",
+      "injury_free_completion": 0.8842848298245214,
+      "composure_on_success": 2.703597201734698,
+      "states": 3985,
+      "seconds": 0.21556895901449025
+    }
+  ],
+  "scope": "纯模型；额外强基准未作正式会话对照；各节点共同优化骰子和行动类型"
+}

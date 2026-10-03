@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-02",
+  "source_hashes_checked": 14,
+  "results": [
+    {
+      "script": "跨回合信息.py",
+      "result": "结果.json",
+      "semantic_equal": true
+    },
+    {
+      "script": "独立后验.py",
+      "result": "独立后验.json",
+      "semantic_equal": true
+    },
+    {
+      "script": "可达投资.py",
+      "result": "可达投资.json",
+      "semantic_equal": true
+    }
+  ],
+  "passed": true,
+  "scope": "冻结源码及正式概率输入隔离数学重算；忽略耗时和隔离绝对依赖路径；没有正式会话或真人证据"
+}

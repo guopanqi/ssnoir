@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-02",
+  "ContentRevision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+  "source_and_model_sha256": {
+    "UnityClient/Assets/Resources/Content/scripts/research/按需用骰.scm": "e86a84e9e60023a8b9488a0b5a7dfa3300e0248498129bf6be31e6f8b2428b06",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·按需用骰.scm": "6fa0a89912038ab3a802f3c4f2d3639dea0fd82a8cc2ac29e963facec437f877",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·同等判定对照.scm": "f7d5710b0936939c839031ef7b62285c048f0261a3ee262c4cbd569011bc5695",
+    "UnityClient/Assets/Resources/Content/scripts/research/按需用骰.scm.meta": "90ca60f107e202899947cb0b8cfbf48dec0e2d568351cb6712271b5bb89dd625",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·按需用骰.scm.meta": "641737051b495eb15ca6b8cab21419fbd4f8a511e55ce04a9c6c2b987b88ccfa",
+    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·同等判定对照.scm.meta": "75551aff89b5f73bc93a7513c83cb19a82aea7f5755750ace23f47f3e198b2d4",
+    "docs/实验/机制研究/批次/R15-能力差异与骰子分配/成长与边际.py": "97725a289847d1777e190afebe674c74c678711b68c70c14983a4dcecc00bf82",
+    "docs/实验/机制研究/批次/R15-能力差异与骰子分配/正式对照.py": "6fd817a2cfab9361b0bca7a9d34f18c4114355f6c110ecf75084afa306f7b01b",
+    "docs/实验/机制研究/批次/R15-能力差异与骰子分配/分配模型.py": "3cc67345de9b3d32c5f81eaf60b1aa97a2789ad1cf97514908a913678c8de0b5",
+    "docs/实验/机制研究/批次/R15-能力差异与骰子分配/可达与独立复核.py": "4322797a5bdb5c2fc8149347e2ce5092400eb20ebf238bbfb6285fc1b7dd2e46",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "tools/content-validator/experiments/mechanism-study.py": "59bd3eaba31f8eaa874bd9a7f11ab9d21d68dc506662070debcd445e7162c41c",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R15-能力差异与骰子分配/交错顺序.py": "c857b9b995ceea816862421c0360864bdb1ec9eff32d014770f91e84cd6ab679"
+  },
+  "runtime_snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "26a37eaf22a1ab61c59ba7afb34a096d3a4d37c7ef8fedf4f9e84ec28c587d8c",
+    "bytes": 804992,
+    "isolated_replays": [
+      {
+        "path": "全程调整-4206.json.gz",
+        "passed": true,
+        "output": "重放通过：4 步"
+      },
+      {
+        "path": "边界-空过-1.json.gz",
+        "passed": true,
+        "output": "重放通过：1 步"
+      }
+    ],
+    "scope": "全Content、原生构建、本批数学与共同依赖；不是完整Unity工程"
+  }
+}

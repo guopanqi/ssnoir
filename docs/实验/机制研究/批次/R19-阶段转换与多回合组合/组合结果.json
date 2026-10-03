@@ -1,0 +1,325 @@
+{
+  "results": [
+    {
+      "reset": true,
+      "policy": "自由",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.911129135937177,
+      "cold_on_success": 2.8664722407805674,
+      "states": 15530,
+      "seconds": 0.13532587490044534
+    },
+    {
+      "reset": true,
+      "policy": "先甲",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.8760256065884432,
+      "cold_on_success": 2.9687483569853996,
+      "states": 8342,
+      "seconds": 0.05962120811454952
+    },
+    {
+      "reset": true,
+      "policy": "先乙",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.8949773038081601,
+      "cold_on_success": 2.666874565899911,
+      "states": 8339,
+      "seconds": 0.060193957993760705
+    },
+    {
+      "reset": true,
+      "policy": "不用整顿",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.7910993941898933,
+      "cold_on_success": 0.9793625876985598,
+      "states": 8271,
+      "seconds": 0.058723249938338995
+    },
+    {
+      "reset": true,
+      "policy": "每轮先整顿",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.820610723612457,
+      "cold_on_success": 2.6179818980680216,
+      "states": 9998,
+      "seconds": 0.059292708057910204
+    },
+    {
+      "reset": true,
+      "policy": "冷静阈值",
+      "threshold": 0,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.8442593643120002,
+      "cold_on_success": 1.1805901611095384,
+      "states": 8136,
+      "seconds": 0.055038582999259233
+    },
+    {
+      "reset": true,
+      "policy": "冷静阈值",
+      "threshold": 1,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.7999467809299862,
+      "cold_on_success": 1.9476292016797119,
+      "states": 8522,
+      "seconds": 0.058496792102232575
+    },
+    {
+      "reset": true,
+      "policy": "冷静阈值",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.7160258713937973,
+      "cold_on_success": 2.944370050735467,
+      "states": 9777,
+      "seconds": 0.05759608279913664
+    },
+    {
+      "reset": true,
+      "policy": "冷静阈值",
+      "threshold": 3,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.6439507538405266,
+      "cold_on_success": 3.951889349385728,
+      "states": 9287,
+      "seconds": 0.05205504200421274
+    },
+    {
+      "reset": true,
+      "policy": "冷静阈值",
+      "threshold": 4,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.4196413572182487,
+      "cold_on_success": 4.55532610992476,
+      "states": 6932,
+      "seconds": 0.03612220799550414
+    },
+    {
+      "reset": true,
+      "policy": "看初始手牌选定目标顺序",
+      "no_injury_completion": 0.9030960907156407,
+      "cold_on_success": 2.7488086967305745
+    },
+    {
+      "reset": false,
+      "policy": "自由",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.9494027619637686,
+      "cold_on_success": 2.8045360217087887,
+      "states": 51811,
+      "seconds": 0.6045052499976009
+    },
+    {
+      "reset": false,
+      "policy": "先甲",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.9464751125453622,
+      "cold_on_success": 2.8641153512786564,
+      "states": 18275,
+      "seconds": 0.14055862510576844
+    },
+    {
+      "reset": false,
+      "policy": "先乙",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.9471555351606185,
+      "cold_on_success": 2.8292922133025495,
+      "states": 18284,
+      "seconds": 0.14185762498527765
+    },
+    {
+      "reset": false,
+      "policy": "不用整顿",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.8731352084977757,
+      "cold_on_success": 0.7940937861390968,
+      "states": 25427,
+      "seconds": 0.2293257499113679
+    },
+    {
+      "reset": false,
+      "policy": "每轮先整顿",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.9318808674374837,
+      "cold_on_success": 2.636967819043016,
+      "states": 48100,
+      "seconds": 0.2969290411565453
+    },
+    {
+      "reset": false,
+      "policy": "冷静阈值",
+      "threshold": 0,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.9254769973782203,
+      "cold_on_success": 1.1556986654645152,
+      "states": 27045,
+      "seconds": 0.22591954213567078
+    },
+    {
+      "reset": false,
+      "policy": "冷静阈值",
+      "threshold": 1,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.9119506213386931,
+      "cold_on_success": 1.592510659889239,
+      "states": 33449,
+      "seconds": 0.21483866684138775
+    },
+    {
+      "reset": false,
+      "policy": "冷静阈值",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.8678344274104576,
+      "cold_on_success": 2.102949385898752,
+      "states": 41990,
+      "seconds": 0.2541975409258157
+    },
+    {
+      "reset": false,
+      "policy": "冷静阈值",
+      "threshold": 3,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.7983172868746061,
+      "cold_on_success": 3.4789602960231574,
+      "states": 42307,
+      "seconds": 0.25118879205547273
+    },
+    {
+      "reset": false,
+      "policy": "冷静阈值",
+      "threshold": 4,
+      "skill": 1,
+      "cold": 3,
+      "no_injury_completion": 0.6711711005508952,
+      "cold_on_success": 4.138775561995566,
+      "states": 39727,
+      "seconds": 0.18764662486501038
+    },
+    {
+      "reset": false,
+      "policy": "看初始手牌选定目标顺序",
+      "no_injury_completion": 0.9474149907590179,
+      "cold_on_success": 2.843688002415801
+    },
+    {
+      "reset": true,
+      "policy": "自由",
+      "threshold": 2,
+      "skill": 2,
+      "cold": 3,
+      "no_injury_completion": 0.9918664069623341,
+      "cold_on_success": 3.884715430704238,
+      "states": 15530,
+      "seconds": 0.13194091618061066
+    },
+    {
+      "reset": true,
+      "policy": "先甲",
+      "threshold": 2,
+      "skill": 2,
+      "cold": 3,
+      "no_injury_completion": 0.9824267135146019,
+      "cold_on_success": 3.9965003523875424,
+      "states": 8342,
+      "seconds": 0.05725291697308421
+    },
+    {
+      "reset": true,
+      "policy": "先乙",
+      "threshold": 2,
+      "skill": 2,
+      "cold": 3,
+      "no_injury_completion": 0.9885381881651314,
+      "cold_on_success": 3.6725884573424254,
+      "states": 8339,
+      "seconds": 0.0799877499230206
+    },
+    {
+      "reset": true,
+      "policy": "每轮先整顿",
+      "threshold": 2,
+      "skill": 2,
+      "cold": 3,
+      "no_injury_completion": 0.9697669637147186,
+      "cold_on_success": 3.4638498660243666,
+      "states": 9998,
+      "seconds": 0.058089207857847214
+    },
+    {
+      "reset": true,
+      "policy": "自由",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 5,
+      "no_injury_completion": 0.9625610031743639,
+      "cold_on_success": 3.4012712517279384,
+      "states": 14969,
+      "seconds": 0.13085275003686547
+    },
+    {
+      "reset": true,
+      "policy": "先甲",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 5,
+      "no_injury_completion": 0.9417008355095727,
+      "cold_on_success": 3.549052873416299,
+      "states": 7938,
+      "seconds": 0.05648212507367134
+    },
+    {
+      "reset": true,
+      "policy": "先乙",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 5,
+      "no_injury_completion": 0.9406608067632106,
+      "cold_on_success": 3.0323526709430495,
+      "states": 8123,
+      "seconds": 0.05747866607271135
+    },
+    {
+      "reset": true,
+      "policy": "每轮先整顿",
+      "threshold": 2,
+      "skill": 1,
+      "cold": 5,
+      "no_injury_completion": 0.923286328174337,
+      "cold_on_success": 3.257148146334095,
+      "states": 10285,
+      "seconds": 0.06337125017307699
+    }
+  ],
+  "scope": "无伤全部完成事件；甲5乙3、三回合、初始冷静3、整顿好+2上限5；不是实际通关率；每组126公平独立手牌"
+}

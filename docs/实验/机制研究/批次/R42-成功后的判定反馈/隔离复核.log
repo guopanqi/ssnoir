@@ -1,0 +1,1 @@
+{"batch": "R42", "source_hashes_checked": 8, "results": [{"script": "反馈模型.py", "result": "反馈结果.json", "semantic_equal": true}, {"script": "审查两骰枚举.py", "result": "审查两骰结果.json", "semantic_equal": true}, {"script": "复核.py", "result": "复核.json", "semantic_equal": true}], "passed": true, "scope": "冻结源码及正式概率输入隔离数学重算；忽略耗时和隔离绝对依赖路径；没有正式会话或真人证据"}

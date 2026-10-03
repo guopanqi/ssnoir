@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-02",
+  "status": "保留数学关系，降级为R25组合边界，不新增独立试玩",
+  "ContentRevision_reference": "9fd0ba6f7c4fdfda229ec4cecac9bc026c518bbec105f55504aab332f723d4dc",
+  "source_sha256": {
+    "AGENTS.md": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
+    "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/组合模型.py": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/伤势模型.py": "0f76c82045d89de5d6c14b5d6b1f9d270f03ad6999e628fb5d3bf418d704ecc7",
+    "docs/实验/机制研究/批次/R25-行动换取目标信息/信息投资.py": "1951355cc1ecfbd893b12fcfdebee1d8709ded6ae4018564b78553fbb77c3e74",
+    "docs/实验/机制研究/批次/R25-行动换取目标信息/固定真值复核.py": "464663debd57c6dafc1d62c35764165a809866a56f5ccad16127309723a24136",
+    "docs/实验/机制研究/批次/R28-定位保留与搜索清零/独立后验.py": "7cade14fe5e61db8e469a905b1cb9229b5e7b7aee5bf93c4a938a2ba1021b677",
+    "docs/实验/机制研究/批次/R28-定位保留与搜索清零/跨回合信息.py": "b41355e28909dc640c04546b2817d064b336178e2dd59125745013704c5a55ae",
+    "docs/实验/机制研究/批次/R28-定位保留与搜索清零/可达投资.py": "b6f0c31492823565efdccffa0931a1ead17283b81d1fcd0584d6af375ba9a0cc",
+    "docs/实验/机制研究/批次/R28-定位保留与搜索清零/复现.py": "cec09712c3f9d6219390634d8b6e07bf1e4d1ed6d38d4aa079661793a1b82442"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "1ac5e76943f566e511bba14301b8dda64471e6ac85f9fa3632cc65885a3bd835",
+    "bytes": 70036,
+    "files": 21,
+    "contents": "本批三个数学脚本/复现脚本/证据及共同概率与伤势依赖；不是原生游戏快照"
+  },
+  "evidence": {
+    "independent_initial_hands": 1764,
+    "dimensions": 4,
+    "independent_max_error": 0,
+    "native_games": 0,
+    "human_games": 0
+  },
+  "scope": "完整伤势有限数学模型；公平独立骰及首次四部位均匀为假设；未经本批正式校准"
+}

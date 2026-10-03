@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R25-行动换取目标信息/正式对照.py", line 98, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R25-行动换取目标信息/正式对照.py", line 74, in main
+    with ThreadPoolExecutor(max_workers=4) as pool:rows=list(pool.map(play,jobs))
+                                                        ~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R25-行动换取目标信息/正式对照.py", line 72, in play
+    finish(s,K['Model'](policy,g));p=OUT/f'{policy}-g{g}-{seed}.json.gz';s.save(p);r=check(p,allowed,g);r.update(seed=seed,policy=policy,cohort=True);return r
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R25-行动换取目标信息/正式对照.py", line 22, in finish
+    st=state(o);m.value(*st);s.act(operation(o,m.decisions[st]),'R25冻结策略：只读搜索进度、公开定位信息、冷静与骰；未定位时不读目标真值。')
+                                   ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/usr/Documents/play/ssnoir/docs/实验/机制研究/批次/R25-行动换取目标信息/正式对照.py", line 16, in operation
+    r,act,d=ch;card='探查' if r=='探查' else r+act
+                                             ~^~~~
+TypeError: can only concatenate str (not "NoneType") to str

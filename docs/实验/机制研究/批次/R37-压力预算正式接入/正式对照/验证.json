@@ -1,0 +1,122 @@
+{
+  "saved_native_games": 18,
+  "cohort_games": 16,
+  "checked_steps": 192,
+  "strict_replays": [
+    {
+      "path": "completion-1-8121.json.gz",
+      "sha256": "4c60c7b8b80ba3fa78a5717c56199da87ba6fcd839e10a316c504800c4739d00",
+      "passed": true
+    },
+    {
+      "path": "completion-1-8122.json.gz",
+      "sha256": "e7b6bcbf73b27196b9ff86ce3c0d1dfc4043453a9906dd28646b481e999f062a",
+      "passed": true
+    },
+    {
+      "path": "completion-1-8123.json.gz",
+      "sha256": "b7a04d6f1d4ecc417263b2e9a4380c0bf460674f7950e757d95d073e74e59080",
+      "passed": true
+    },
+    {
+      "path": "completion-1-8124.json.gz",
+      "sha256": "e378cdd38e1fdb8e00fc1b09bf6a5a5cf1ce43f91481c6bdda0483f929d2c623",
+      "passed": true
+    },
+    {
+      "path": "early-0-8111.json.gz",
+      "sha256": "2c40e203aa4a91dc001caade9d4c23789ca77ca2862b5fe858658257e9923e41",
+      "passed": true
+    },
+    {
+      "path": "early-0-8112.json.gz",
+      "sha256": "0ca40e17450f00f57f9ef1c225db091ee779d8f0ca3124c645913d233c4243aa",
+      "passed": true
+    },
+    {
+      "path": "early-0-8113.json.gz",
+      "sha256": "039e55b1536cb5c7d8fbc8ab6e02c02b2ed509624387a21b272e614602d4c8b8",
+      "passed": true
+    },
+    {
+      "path": "early-0-8114.json.gz",
+      "sha256": "c991b7f2fe196ee47c1be7259cf5eb6b89f503d4bb2b50dc2e321704a8beba03",
+      "passed": true
+    },
+    {
+      "path": "early-1-8101.json.gz",
+      "sha256": "d58d9bb7e00181f99bdf3d5d398373b26f4772e4a95215c66541b83953634d31",
+      "passed": true
+    },
+    {
+      "path": "early-1-8102.json.gz",
+      "sha256": "fc1ccca7a97c7aa8c5f0a707eef353dacbe7e21cc898c971226dbf5779f2fa1b",
+      "passed": true
+    },
+    {
+      "path": "early-1-8103.json.gz",
+      "sha256": "a9f4a08faa2915c704d60e6d1481fec399672eac8870d609c8af8ac52d7d8f6a",
+      "passed": true
+    },
+    {
+      "path": "early-1-8104.json.gz",
+      "sha256": "5c96cac3b6fbf20211beddd624cb143ebb595048f7d40992eb50ab84cdff9e02",
+      "passed": true
+    },
+    {
+      "path": "early-1-8105.json.gz",
+      "sha256": "81a4af65857f53c489b7ec94df5770ee3e8d145001e5f59c09afb8d4076661a3",
+      "passed": true
+    },
+    {
+      "path": "early-1-8106.json.gz",
+      "sha256": "7f2a4712e1cd5d39ae0127d439448906da86dc4763da9a93a38e865bf9779173",
+      "passed": true
+    },
+    {
+      "path": "early-1-8107.json.gz",
+      "sha256": "d78d17a8373ce57b13164f31a18a78f3642bd4f566864114ad121e2631a4e7a3",
+      "passed": true
+    },
+    {
+      "path": "early-1-8108.json.gz",
+      "sha256": "722d437f2bb667de5ca7054ed7e192a49dc57a628e238405fc487ff0faabc6d0",
+      "passed": true
+    },
+    {
+      "path": "覆盖-8131.json.gz",
+      "sha256": "eb11ff883da028f704410e697dae6b8db0cbdcb2adf958750b48acc4001a79c8",
+      "passed": true
+    },
+    {
+      "path": "覆盖-8136.json.gz",
+      "sha256": "323568cc177137812dbccbbe0143eeb87ca49e76b203a5f39210376d3fce7d95",
+      "passed": true
+    }
+  ],
+  "ContentRevision": "f19053ca454a2681c79fee8b4fcf6a743ad4d2f41d8816560275d61e70176a19",
+  "covered_grades": [
+    "Fail",
+    "Neutral",
+    "Success"
+  ],
+  "coverage_search_completed": 6,
+  "coverage_gaps": [],
+  "boundary_counts": {
+    "instant_bad": 12,
+    "repair": 17,
+    "repair_complete": 8,
+    "end_pressure": 25,
+    "pressure_failure": 1,
+    "timeout": 1,
+    "success": 15,
+    "collapse": 1,
+    "head_action": 8,
+    "heavy_next_round": 4,
+    "born_a": 18,
+    "born_b": 18,
+    "repaired_kept": 43
+  },
+  "human_games": 0,
+  "unity_visual_checked": false
+}

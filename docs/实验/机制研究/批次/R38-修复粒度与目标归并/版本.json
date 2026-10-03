@@ -1,0 +1,55 @@
+{
+  "batch": "R38",
+  "status": "收束对象选择维度，短项族与自由相同",
+  "source_sha256": {
+    "AGENTS.md": "d716d2be253573cea1604e138c09a3f4658319fd9656acf1aa7b06099df0149e",
+    "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
+    "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
+    "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",
+    "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",
+    "docs/实验/机制研究/批次/R09-成长与行动中的信息/成长边界.py": "1bf5666a793008ce2dc52aad921719144bea5e80f7e4cde42a9edd527772d65b",
+    "docs/实验/机制研究/批次/R19-阶段转换与多回合组合/组合模型.py": "257845107177e70ca5f511c7395f9e63a3368d98567c9e5986f2ef472a7cd577",
+    "docs/实验/机制研究/批次/R21-伤势与目标偏好/伤势模型.py": "0f76c82045d89de5d6c14b5d6b1f9d270f03ad6999e628fb5d3bf418d704ecc7",
+    "docs/实验/机制研究/批次/R36-资源余量与选择增量/压力模型.py": "de6f2e48474628d85c7dfd2eddec9f803fb7c1684e1aefddc83d7d29c47062b8",
+    "docs/实验/机制研究/批次/R36-资源余量与选择增量/未来一轮独立核对.py": "18a07fa37130dadc32367989a76f78d58ad08046e876d9c83faf786af1c55b89",
+    "docs/实验/机制研究/批次/R36-资源余量与选择增量/压力结果.json": "bc7c3c0abf249a5ce2c6654ffe71138f96054c8068d48250515a941dd2b21791",
+    "docs/实验/机制研究/批次/R38-修复粒度与目标归并/有界研究计划.md": "399e27b08fecdfffe9817a3afdaa04d4802cf73fb49042bafddf53d8a07b04d5",
+    "docs/实验/机制研究/批次/R38-修复粒度与目标归并/复现.py": "d3e16abfb1897fcb7c42f5023f4b41e37613db0b6fa7f1ee6cb9cde3ef33bbdb",
+    "docs/实验/机制研究/批次/R38-修复粒度与目标归并/复核.py": "27e0055b3eccab75fe493dd435f549add7859870ab6915dc9c2689256ec37191",
+    "docs/实验/机制研究/批次/R38-修复粒度与目标归并/修复目标.py": "f34fb0b3c642806336fd74b689bd83d7383854aece56732af857f87481ac764c"
+  },
+  "snapshot": {
+    "path": "运行快照.tar.gz",
+    "sha256": "1e37a43ac34664d2e4cd10115c455305d5cd03e83ad96808462999bf7356edfd",
+    "files": 24,
+    "bytes": 200180,
+    "isolated_verification": {
+      "batch": "R38",
+      "source_hashes_checked": 15,
+      "results": [
+        {
+          "script": "修复目标.py",
+          "result": "修复目标结果.json",
+          "semantic_equal": true
+        },
+        {
+          "script": "复核.py",
+          "result": "复核.json",
+          "semantic_equal": true
+        }
+      ],
+      "passed": true,
+      "scope": "冻结源码及正式概率输入隔离数学重算；忽略耗时和隔离绝对依赖路径；没有正式会话或真人证据"
+    }
+  },
+  "evidence": {
+    "initial_hand_containment_checks": 1008,
+    "root_component_equal_checks": 1512,
+    "independent_local_actions": 8,
+    "independent_endings": 2,
+    "independent_future_hand_conditions": 182,
+    "native_games": 0,
+    "human_games": 0,
+    "independent_complete_initial_optimization": false
+  }
+}

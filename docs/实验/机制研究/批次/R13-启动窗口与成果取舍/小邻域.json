@@ -1,0 +1,374 @@
+[
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      1
+    ],
+    "growth": 1,
+    "policy": "求解",
+    "expected_score": 0.988054412437129,
+    "positive_score_probability": 0.988054412437129,
+    "cold_on_positive": 3.5362627986348105,
+    "states": 1639,
+    "seconds": 0.020816416945308447
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      1
+    ],
+    "growth": 1,
+    "policy": "固定小",
+    "expected_score": 0.988054412437129,
+    "positive_score_probability": 0.988054412437129,
+    "cold_on_positive": 3.5362627986348105,
+    "states": 753,
+    "seconds": 0.005807708017528057
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      1
+    ],
+    "growth": 1,
+    "policy": "固定大",
+    "expected_score": 0.637233153292181,
+    "positive_score_probability": 0.637233153292181,
+    "cold_on_positive": 3.2165546894489143,
+    "states": 822,
+    "seconds": 0.006359167164191604
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      1
+    ],
+    "growth": 1,
+    "policy": "开局选定",
+    "expected_score": 0.988054412437129,
+    "positive_score_probability": 0.988054412437129,
+    "cold_on_positive": 3.5362627986348105,
+    "states": 1449,
+    "seconds": 0.01225987495854497
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      2
+    ],
+    "growth": 1,
+    "policy": "求解",
+    "expected_score": 1.4886235901539397,
+    "positive_score_probability": 0.9004939224203631,
+    "cold_on_positive": 2.8225944869499444,
+    "states": 1639,
+    "seconds": 0.020818707998842
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      2
+    ],
+    "growth": 1,
+    "policy": "固定小",
+    "expected_score": 0.988054412437129,
+    "positive_score_probability": 0.988054412437129,
+    "cold_on_positive": 3.5362627986348105,
+    "states": 753,
+    "seconds": 0.005787624977529049
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      2
+    ],
+    "growth": 1,
+    "policy": "固定大",
+    "expected_score": 1.274466306584362,
+    "positive_score_probability": 0.637233153292181,
+    "cold_on_positive": 3.2165546894489143,
+    "states": 822,
+    "seconds": 0.006323667010292411
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      2
+    ],
+    "growth": 1,
+    "policy": "开局选定",
+    "expected_score": 1.3543274176954734,
+    "positive_score_probability": 0.8171064100365801,
+    "cold_on_positive": 3.213873982184817,
+    "states": 1449,
+    "seconds": 0.012016374850645661
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      3
+    ],
+    "growth": 1,
+    "policy": "求解",
+    "expected_score": 2.1001973070035045,
+    "positive_score_probability": 0.852625242912666,
+    "cold_on_positive": 2.8630009573467463,
+    "states": 1639,
+    "seconds": 0.020955041982233524
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      3
+    ],
+    "growth": 1,
+    "policy": "固定小",
+    "expected_score": 0.988054412437129,
+    "positive_score_probability": 0.988054412437129,
+    "cold_on_positive": 3.5362627986348105,
+    "states": 753,
+    "seconds": 0.006134500028565526
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      3
+    ],
+    "growth": 1,
+    "policy": "固定大",
+    "expected_score": 1.911699459876543,
+    "positive_score_probability": 0.637233153292181,
+    "cold_on_positive": 3.2165546894489143,
+    "states": 822,
+    "seconds": 0.006267499877139926
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      3,
+      6
+    ],
+    "rewards": [
+      1,
+      3
+    ],
+    "growth": 1,
+    "policy": "开局选定",
+    "expected_score": 1.93717313957476,
+    "positive_score_probability": 0.7155296210562416,
+    "cold_on_positive": 3.170962252925782,
+    "states": 1449,
+    "seconds": 0.012142000021412969
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      2,
+      7
+    ],
+    "rewards": [
+      1,
+      2
+    ],
+    "growth": 1,
+    "policy": "求解",
+    "expected_score": 1.3191848613016306,
+    "positive_score_probability": 0.9706301916628567,
+    "cold_on_positive": 2.7836483905277953,
+    "states": 1526,
+    "seconds": 0.018625708064064384
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      2,
+      7
+    ],
+    "rewards": [
+      1,
+      2
+    ],
+    "growth": 1,
+    "policy": "开局选定",
+    "expected_score": 1.0926699912360922,
+    "positive_score_probability": 0.9161766737158974,
+    "cold_on_positive": 3.6949237242701383,
+    "states": 1380,
+    "seconds": 0.010451375041157007
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      4,
+      5
+    ],
+    "rewards": [
+      1,
+      2
+    ],
+    "growth": 1,
+    "policy": "求解",
+    "expected_score": 1.70549756611035,
+    "positive_score_probability": 0.8685943691891485,
+    "cold_on_positive": 3.097715752567849,
+    "states": 1699,
+    "seconds": 0.02120720804668963
+  },
+  {
+    "kind": "harvest",
+    "targets": [
+      4,
+      5
+    ],
+    "rewards": [
+      1,
+      2
+    ],
+    "growth": 1,
+    "policy": "开局选定",
+    "expected_score": 1.6849065500685878,
+    "positive_score_probability": 0.843464220393233,
+    "cold_on_positive": 3.1330723034440675,
+    "states": 1484,
+    "seconds": 0.012669499963521957
+  },
+  {
+    "kind": "window",
+    "prep": 3,
+    "payload": 3,
+    "turns": 3,
+    "growth": 1,
+    "policy": "求解",
+    "gate": 4,
+    "window": true,
+    "injury_free_completion": 0.9644043362431898,
+    "cold_on_success": 3.003410471100356,
+    "states": 7788,
+    "seconds": 0.07714012498036027
+  },
+  {
+    "kind": "window",
+    "prep": 3,
+    "payload": 3,
+    "turns": 3,
+    "growth": 1,
+    "policy": "只在新回合第一手开启，其他仍求解",
+    "gate": 4,
+    "window": true,
+    "injury_free_completion": 0.9510671417966557,
+    "cold_on_success": 2.7842048453760238,
+    "states": 7788,
+    "seconds": 0.09284599986858666
+  },
+  {
+    "kind": "window",
+    "prep": 3,
+    "payload": 4,
+    "turns": 3,
+    "growth": 1,
+    "policy": "求解",
+    "gate": 4,
+    "window": true,
+    "injury_free_completion": 0.884877059859811,
+    "cold_on_success": 2.7660171570872407,
+    "states": 7853,
+    "seconds": 0.07651833305135369
+  },
+  {
+    "kind": "window",
+    "prep": 3,
+    "payload": 4,
+    "turns": 3,
+    "growth": 1,
+    "policy": "只在新回合第一手开启，其他仍求解",
+    "gate": 4,
+    "window": true,
+    "injury_free_completion": 0.8579665637525041,
+    "cold_on_success": 2.6894019789110315,
+    "states": 7853,
+    "seconds": 0.0924639159347862
+  },
+  {
+    "kind": "window",
+    "prep": 3,
+    "payload": 5,
+    "turns": 3,
+    "growth": 1,
+    "policy": "求解",
+    "gate": 4,
+    "window": true,
+    "injury_free_completion": 0.6629999544704881,
+    "cold_on_success": 2.3867764465709342,
+    "states": 7862,
+    "seconds": 0.07684866688214242
+  },
+  {
+    "kind": "window",
+    "prep": 3,
+    "payload": 5,
+    "turns": 3,
+    "growth": 1,
+    "policy": "只在新回合第一手开启，其他仍求解",
+    "gate": 4,
+    "window": true,
+    "injury_free_completion": 0.6629999544704881,
+    "cold_on_success": 2.3867764465709342,
+    "states": 7862,
+    "seconds": 0.09818900004029274
+  }
+]

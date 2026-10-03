@@ -1,0 +1,1 @@
+{"games": 44, "steps": 173, "replays": 44, "summary": {"全程调整": {"games": 12, "success": 6}, "最优初始分区": {"games": 12, "success": 5}, "高骰弱项": {"games": 8, "success": 4}, "同等判定": {"games": 6, "success": 3}, "成长2": {"games": 4, "success": 4}}, "counterstate_visits": 1}

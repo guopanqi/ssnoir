@@ -1,0 +1,109 @@
+{
+  "results": [
+    {
+      "reset": true,
+      "injury_event_cost": 0.0,
+      "actual_completion": 0.9825064089824239,
+      "ever_injured": 0.302584966477582,
+      "injury_on_success": 0.6319220239784388,
+      "cold_on_success": 0.7124104449430758,
+      "research_utility": 0.9825064089824239,
+      "states": 29044,
+      "seconds": 0.34303250000812113,
+      "control": "不整顿",
+      "utility_gap": 0.0019353362064568058
+    },
+    {
+      "reset": true,
+      "injury_event_cost": 0.0,
+      "actual_completion": 0.9681561002615137,
+      "ever_injured": 0.26886028088241626,
+      "injury_on_success": 0.5020797511061095,
+      "cold_on_success": 1.8952095727683376,
+      "research_utility": 0.9681561002615137,
+      "states": 44378,
+      "seconds": 0.5277499170042574,
+      "control": "甲先完成",
+      "utility_gap": 0.01628564492736706
+    },
+    {
+      "reset": true,
+      "injury_event_cost": 0.0,
+      "actual_completion": 0.9680397205165747,
+      "ever_injured": 0.2341484450740575,
+      "injury_on_success": 0.48702540440499337,
+      "cold_on_success": 1.778793787600587,
+      "research_utility": 0.9680397205165747,
+      "states": 45803,
+      "seconds": 0.5560210419353098,
+      "control": "乙先完成",
+      "utility_gap": 0.016402024672306004
+    },
+    {
+      "reset": true,
+      "injury_event_cost": 0.0,
+      "actual_completion": 0.9780960627119759,
+      "ever_injured": 0.2513124312226027,
+      "injury_on_success": 0.5438852556231556,
+      "cold_on_success": 1.3870919000181186,
+      "research_utility": 0.9780960627119759,
+      "states": 82606,
+      "seconds": 0.6662780831102282,
+      "control": "最高骰优先",
+      "utility_gap": 0.006345682476904813
+    },
+    {
+      "reset": true,
+      "injury_event_cost": 1.0,
+      "actual_completion": 0.9684719568263311,
+      "ever_injured": 0.21021283460562354,
+      "injury_on_success": 0.44516932889771593,
+      "cold_on_success": 0.7991133647997095,
+      "research_utility": 0.7582591222207076,
+      "states": 29044,
+      "seconds": 0.34662833297625184,
+      "control": "不整顿",
+      "utility_gap": 0.1352894750684781
+    },
+    {
+      "reset": true,
+      "injury_event_cost": 1.0,
+      "actual_completion": 0.8992078822495879,
+      "ever_injured": 0.03917066428871109,
+      "injury_on_success": 0.060087235002331645,
+      "cold_on_success": 2.8783334158143576,
+      "research_utility": 0.8600372179608768,
+      "states": 44378,
+      "seconds": 0.5496250418946147,
+      "control": "甲先完成",
+      "utility_gap": 0.03351137932830883
+    },
+    {
+      "reset": true,
+      "injury_event_cost": 1.0,
+      "actual_completion": 0.9000318215611013,
+      "ever_injured": 0.025226020433468985,
+      "injury_on_success": 0.03372004321404354,
+      "cold_on_success": 2.732926796806792,
+      "research_utility": 0.8748058011276323,
+      "states": 45803,
+      "seconds": 0.5544325411319733,
+      "control": "乙先完成",
+      "utility_gap": 0.018742796161553388
+    },
+    {
+      "reset": true,
+      "injury_event_cost": 1.0,
+      "actual_completion": 0.9035090732321925,
+      "ever_injured": 0.04241099426551586,
+      "injury_on_success": 0.05292744345763612,
+      "cold_on_success": 2.515378935975202,
+      "research_utility": 0.8610980789666767,
+      "states": 82606,
+      "seconds": 0.6601724170614034,
+      "control": "最高骰优先",
+      "utility_gap": 0.032450518322509
+    }
+  ],
+  "scope": "同一完整伤势模型、仅清零规则，限制目标次序/恢复/用骰；允许控制族内最优稳险与换回合。目标先完成仍可整顿；最高骰优先仍可提前换回合。共享转移，非第二份独立最优核对"
+}

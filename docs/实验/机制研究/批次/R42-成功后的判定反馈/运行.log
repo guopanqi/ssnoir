@@ -1,0 +1,6 @@
+{"policy": "free", "feedback": true, "risky_only": false, "exact": "1572241/1679616", "probability": 0.9360716973403445, "states": 561, "initial_sequences": 0}
+{"policy": "lowest", "feedback": true, "risky_only": false, "exact": "1568003/1679616", "probability": 0.9335485015622619, "states": 554, "initial_sequences": 0}
+{"policy": "highest", "feedback": true, "risky_only": false, "exact": "6113/6912", "probability": 0.8844039351851852, "states": 497, "initial_sequences": 0}
+{"policy": "ordered", "feedback": true, "risky_only": false, "exact": "1572133/1679616", "probability": 0.9360073969288218, "states": 2476, "initial_sequences": 1296}
+{"policy": "free", "feedback": false, "risky_only": false, "exact": "99619/104976", "probability": 0.9489692882182594, "states": 441, "initial_sequences": 0}
+{"policy": "free", "feedback": true, "risky_only": true, "exact": "1572241/1679616", "probability": 0.9360716973403445, "states": 477, "initial_sequences": 0}

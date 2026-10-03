@@ -1,0 +1,199 @@
+{
+  "ContentRevision": "28d74e62f62cbba1df7dbd27df3554dc18616b58825cc5bd6ff4e16544b1f2f7",
+  "strict_replay_count": 38,
+  "strict_replays": [
+    {
+      "record": "作者回归/情报承诺-s7.json.gz",
+      "sha256": "ebbfcc480d6949ce754ca1ed834fbac130ef27937b5ad897a3c301a6584f74c9",
+      "passed": true
+    },
+    {
+      "record": "作者回归/分段兑现-s19.json.gz",
+      "sha256": "5806fdf9e95c37e96e85d87fca8b9e3dd1632e45a8c164466092843bbec7a5ef",
+      "passed": true
+    },
+    {
+      "record": "终止边界/轨迹/余热长目标-强推到底-s601-g1.json.gz",
+      "sha256": "9b3bd02d6bfc6633e56cae3e6e6a9c18e6f102847d8f01213f5348dc55500b9e",
+      "passed": true
+    },
+    {
+      "record": "终止边界/轨迹/情报承诺-等待到期-s602-g1.json.gz",
+      "sha256": "252900c1c521ddb5f66efec06a60f8f0fc1717b6e642366ac73e4bcf4939e3b3",
+      "passed": true
+    },
+    {
+      "record": "终止边界/轨迹/分段兑现-等待到期-s602-g1.json.gz",
+      "sha256": "a636888d3a03e0ad29df41d30ca8566d806597361765f29e62f37f49592c6aa5",
+      "passed": true
+    },
+    {
+      "record": "终止边界/轨迹/余热转用-等待到期-s602-g1.json.gz",
+      "sha256": "2e6fc92a36128f6f53d931b3f007c789b280bcd38023ff01ef7da015cb64f0e5",
+      "passed": true
+    },
+    {
+      "record": "作者逐步/余热长目标-s41.json.gz",
+      "sha256": "c6794fc8db5f0c79ffe29d3daee71dede7b7e8a0ec5c1fa7c1750b376800167e",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/余热转用-强推泄热-s501-g1.json.gz",
+      "sha256": "d1cc204aa4d5210bbe430051d4d8b488be113e4243b7d748b2af8c2c1e64146f",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/余热转用-只借热-s503-g1.json.gz",
+      "sha256": "8e185548d9011899846719af16040987f9ee67c51d1dbcc2d735e7cb78ac0012",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/余热转用-状态求解-s501-g1.json.gz",
+      "sha256": "c8ca8c219ca5f6240026e69f2d2889d4e9f6ec9cfbda1d2ded86a051f38ef24a",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/余热转用-收益求解-s501-g1.json.gz",
+      "sha256": "2deea40a9f39358c1c731a2663408fed71e81f863989ed4188bacf271c72097f",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/余热无转用-强推泄热-s501-g1.json.gz",
+      "sha256": "de51415024c6e912f930fe289db269dd38fff37eb01fa571a5fdef40cf9c2e9a",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/余热无转用-只借热-s503-g1.json.gz",
+      "sha256": "26298d4ffc54ed766389f7879e2ec34b79861f6f3620ee135e912ddb1fbf8ee2",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/余热短目标-强推泄热-s501-g1.json.gz",
+      "sha256": "55f24e4161e3fc2698f6049b470bcab9d75fbf22c29f873eeb0a83273c23d32c",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/余热长目标-强推泄热-s501-g1.json.gz",
+      "sha256": "f4dec2694108e6c251f90cc502f8170b966352a0cfb858dcd9e34da53910a7b6",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/余热长目标-只借热-s503-g1.json.gz",
+      "sha256": "c618efbc6a9317af08e7ec73bef00267c596ee81a265e0ec03ae1efba5a84870",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/分段兑现-稳进到底-s501-g1.json.gz",
+      "sha256": "3dd36b722c7c310e83d93d412bfb1bf2f898293575d1ecdbbccd17efd469c9ef",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/分段兑现-满3-s501-g1.json.gz",
+      "sha256": "25e23c85831fc7557a9e0f452f30f6e28d07e949c10b24153c6bfdaf01224340",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/分段兑现-状态求解-s501-g1.json.gz",
+      "sha256": "41e40960ac41ee3c25d2bb2219cdc471b598be41bb60da4dfdf3d40efe0cca9a",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/分段兑现-收益求解-s501-g1.json.gz",
+      "sha256": "e8025dd9851b3ad83c011b4e6785d060448e3daf85c78d4d5df08febd0b0d63a",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/兑现线性-稳进到底-s501-g1.json.gz",
+      "sha256": "897149ffc871732f64db27b92c9eab8454f8e885ee4235e7f89d668978e70870",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/兑现线性-满3-s501-g1.json.gz",
+      "sha256": "61b425cac6e89bf617b2f4fe72a77e44f578b50d21e95a5853bad03a07a5c4e1",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/兑现无衰减-稳进到底-s501-g1.json.gz",
+      "sha256": "0a4ae88976b692da6d7c9c69356e422e5885fd07e1588c6172244ac99ffbcb67",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/兑现无衰减-满3-s501-g1.json.gz",
+      "sha256": "bc1297a832fd5c268dc61e095001eba7cc1824dd5f8ebab5159b53a63e1bfb1a",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/兑现短目标-稳进到底-s501-g1.json.gz",
+      "sha256": "038382fc3cfd63e5b3dd192460735d15269e1104712304713ae466f1f6beaf29",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/兑现短目标-满3-s501-g1.json.gz",
+      "sha256": "6f54cf47ceeed4e7442433360419984c581db9ba649037a6c0b887c7e4c59513",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/兑现长目标-稳进到底-s501-g1.json.gz",
+      "sha256": "b6b4f7ceaf20159303cb57f0e933b249c2e55d0d09d6508238b6a65117dc6444",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/兑现长目标-满3-s501-g1.json.gz",
+      "sha256": "46ff3ebb3cf6f233a794dafcd116525f4f135c404488738567f266b708682143",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/情报承诺-直接押A-s501-g1.json.gz",
+      "sha256": "96456030957529d5a7a4473c55cfa632d0c5473fa03a252c1feb49c2cc3931fd",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/情报承诺-直接押A-s503-g1.json.gz",
+      "sha256": "c5e4cafde63ed75f5728a1c713bc01587fe63b49b7595023c16e571060b3e191",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/情报承诺-状态求解-s501-g1.json.gz",
+      "sha256": "986a4f8fce2f4df34f9d6f843e9164f68a065cd86f96e19e8c4bbe5aa69fa49a",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/情报承诺-收益求解-s501-g1.json.gz",
+      "sha256": "aa3a4b870db17b7a8941277f40020b4593c57f7213140b4f257a97d1de9e836a",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/情报无信息-直接押A-s501-g1.json.gz",
+      "sha256": "983630601055086d64d06f242f6b39bcae1a3f5b23691b42d09b9ba7640be1dc",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/情报无信息-直接押A-s503-g1.json.gz",
+      "sha256": "650f14e98c0bf4ca1dc554f5f6fb0d3f7e39cd1faf56b2db6e94b6903b46b6d6",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/情报短目标-直接押A-s501-g1.json.gz",
+      "sha256": "2120ff546515f44b46f8dd66f326538e1079936e0f2881020ce2273ce055ac14",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/情报短目标-直接押A-s503-g1.json.gz",
+      "sha256": "f80f455e44b8ac74e6ea49a6fb589ffaa67b510ed8f7d5938a31aef11b7fdd1f",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/情报长目标-直接押A-s501-g1.json.gz",
+      "sha256": "d21d02d64915e51fd9cf0bc5851d746970909568aa4fe92ff5cf8f79ff96a3f2",
+      "passed": true
+    },
+    {
+      "record": "最终对照/轨迹/情报长目标-直接押A-s502-g1.json.gz",
+      "sha256": "821bf3ab93a3b3701ccaf9461244831ffb10e4b0eeee79eab2323db9d423b57f",
+      "passed": true
+    }
+  ],
+  "model_checked_games": 859,
+  "model_checked_steps": 8606,
+  "unity_visual_checked": false
+}

@@ -1,0 +1,895 @@
+{
+  "results": [
+    {
+      "path": "全程调整-4201.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 2,
+        "cold": 2
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4201
+    },
+    {
+      "path": "全程调整-4202.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4202
+    },
+    {
+      "path": "全程调整-4203.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 2,
+        "cold": 2
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4203
+    },
+    {
+      "path": "全程调整-4204.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4204
+    },
+    {
+      "path": "全程调整-4205.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 2,
+        "cold": 2
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4205
+    },
+    {
+      "path": "全程调整-4206.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [
+        {
+          "card": "甲快做",
+          "die": 2,
+          "cold": 4
+        }
+      ],
+      "policy": "全程调整",
+      "seed": 4206
+    },
+    {
+      "path": "全程调整-4207.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 2,
+        "cold": 2
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4207
+    },
+    {
+      "path": "全程调整-4208.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 2,
+        "cold": 1
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4208
+    },
+    {
+      "path": "全程调整-4209.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4209
+    },
+    {
+      "path": "全程调整-4210.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4210
+    },
+    {
+      "path": "全程调整-4211.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 4
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4211
+    },
+    {
+      "path": "全程调整-4212.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 0,
+        "cold": 3
+      },
+      "grades": [
+        "Fail",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "全程调整",
+      "seed": 4212
+    },
+    {
+      "path": "最优初始分区-4201.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 2,
+        "cold": 2
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4201
+    },
+    {
+      "path": "最优初始分区-4202.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4202
+    },
+    {
+      "path": "最优初始分区-4203.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 0,
+        "cold": 3
+      },
+      "grades": [
+        "Fail",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4203
+    },
+    {
+      "path": "最优初始分区-4204.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4204
+    },
+    {
+      "path": "最优初始分区-4205.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 2,
+        "cold": 2
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4205
+    },
+    {
+      "path": "最优初始分区-4206.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 2,
+      "result": {
+        "status": "timeout",
+        "a": 0,
+        "b": 0,
+        "cold": 3
+      },
+      "grades": [
+        "Fail"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4206
+    },
+    {
+      "path": "最优初始分区-4207.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4207
+    },
+    {
+      "path": "最优初始分区-4208.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 2,
+      "result": {
+        "status": "timeout",
+        "a": 0,
+        "b": 0,
+        "cold": 3
+      },
+      "grades": [
+        "Fail"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4208
+    },
+    {
+      "path": "最优初始分区-4209.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4209
+    },
+    {
+      "path": "最优初始分区-4210.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 2,
+        "cold": 2
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4210
+    },
+    {
+      "path": "最优初始分区-4211.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4211
+    },
+    {
+      "path": "最优初始分区-4212.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 0,
+        "cold": 3
+      },
+      "grades": [
+        "Fail",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "最优初始分区",
+      "seed": 4212
+    },
+    {
+      "path": "高骰弱项-4201.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 1,
+        "cold": 2
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "高骰弱项",
+      "seed": 4201
+    },
+    {
+      "path": "高骰弱项-4202.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "高骰弱项",
+      "seed": 4202
+    },
+    {
+      "path": "高骰弱项-4203.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 0,
+        "cold": 3
+      },
+      "grades": [
+        "Fail",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "高骰弱项",
+      "seed": 4203
+    },
+    {
+      "path": "高骰弱项-4204.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "高骰弱项",
+      "seed": 4204
+    },
+    {
+      "path": "高骰弱项-4205.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 2,
+        "cold": 2
+      },
+      "grades": [
+        "Fail",
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "高骰弱项",
+      "seed": 4205
+    },
+    {
+      "path": "高骰弱项-4206.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "高骰弱项",
+      "seed": 4206
+    },
+    {
+      "path": "高骰弱项-4207.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "高骰弱项",
+      "seed": 4207
+    },
+    {
+      "path": "高骰弱项-4208.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 5,
+      "result": {
+        "status": "timeout",
+        "a": 3,
+        "b": 2,
+        "cold": 1
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "高骰弱项",
+      "seed": 4208
+    },
+    {
+      "path": "同等判定-4213.json.gz",
+      "growth": 1,
+      "bonus": 0,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "同等判定",
+      "seed": 4213
+    },
+    {
+      "path": "同等判定-4214.json.gz",
+      "growth": 1,
+      "bonus": 0,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 3,
+      "result": {
+        "status": "timeout",
+        "a": 2,
+        "b": 0,
+        "cold": 3
+      },
+      "grades": [
+        "Fail",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "同等判定",
+      "seed": 4214
+    },
+    {
+      "path": "同等判定-4215.json.gz",
+      "growth": 1,
+      "bonus": 0,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 3,
+      "result": {
+        "status": "timeout",
+        "a": 2,
+        "b": 0,
+        "cold": 2
+      },
+      "grades": [
+        "Neutral"
+      ],
+      "counterstates": [],
+      "policy": "同等判定",
+      "seed": 4215
+    },
+    {
+      "path": "同等判定-4216.json.gz",
+      "growth": 1,
+      "bonus": 0,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "同等判定",
+      "seed": 4216
+    },
+    {
+      "path": "同等判定-4217.json.gz",
+      "growth": 1,
+      "bonus": 0,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 2,
+      "result": {
+        "status": "timeout",
+        "a": 0,
+        "b": 0,
+        "cold": 3
+      },
+      "grades": [
+        "Fail"
+      ],
+      "counterstates": [],
+      "policy": "同等判定",
+      "seed": 4217
+    },
+    {
+      "path": "同等判定-4218.json.gz",
+      "growth": 1,
+      "bonus": 0,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 4
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "同等判定",
+      "seed": 4218
+    },
+    {
+      "path": "成长2-4221.json.gz",
+      "growth": 2,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 4
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "成长2",
+      "seed": 4221
+    },
+    {
+      "path": "成长2-4222.json.gz",
+      "growth": 2,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "成长2",
+      "seed": 4222
+    },
+    {
+      "path": "成长2-4223.json.gz",
+      "growth": 2,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 5
+      },
+      "grades": [
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "成长2",
+      "seed": 4223
+    },
+    {
+      "path": "成长2-4224.json.gz",
+      "growth": 2,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 4,
+      "result": {
+        "status": "success",
+        "a": 3,
+        "b": 3,
+        "cold": 3
+      },
+      "grades": [
+        "Neutral",
+        "Success"
+      ],
+      "counterstates": [],
+      "policy": "成长2",
+      "seed": 4224
+    },
+    {
+      "path": "边界-空过-1.json.gz",
+      "growth": 1,
+      "bonus": 1,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 1,
+      "result": {
+        "status": "timeout",
+        "a": 0,
+        "b": 0,
+        "cold": 4
+      },
+      "grades": [],
+      "counterstates": []
+    },
+    {
+      "path": "边界-空过-0.json.gz",
+      "growth": 1,
+      "bonus": 0,
+      "revision": "f34908478e497d9b492d575b9bb2c462cadaaff41175f69f4a8f255e6d228c30",
+      "steps": 1,
+      "result": {
+        "status": "timeout",
+        "a": 0,
+        "b": 0,
+        "cold": 4
+      },
+      "grades": [],
+      "counterstates": []
+    }
+  ],
+  "summary": {
+    "全程调整": {
+      "games": 12,
+      "success": 6
+    },
+    "最优初始分区": {
+      "games": 12,
+      "success": 5
+    },
+    "高骰弱项": {
+      "games": 8,
+      "success": 4
+    },
+    "同等判定": {
+      "games": 6,
+      "success": 3
+    },
+    "成长2": {
+      "games": 4,
+      "success": 4
+    }
+  },
+  "scope": "有限正式行为样本，不用种子估计策略概率排名；角色均健康，无恢复品"
+}

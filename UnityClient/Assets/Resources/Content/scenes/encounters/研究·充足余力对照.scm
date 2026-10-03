@@ -1,0 +1,5 @@
+(define 研究名称 "充足余力对照")
+(define 初始冷静 5)
+(define 目标上限 10)
+(define 回合上限 3)
+(load-file "scripts/research/跨回合余力.scm")

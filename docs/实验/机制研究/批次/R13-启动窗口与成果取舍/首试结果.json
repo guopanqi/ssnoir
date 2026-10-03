@@ -1,0 +1,192 @@
+{
+  "window": [
+    {
+      "prep": 3,
+      "payload": 4,
+      "turns": 3,
+      "growth": 1,
+      "policy": "求解",
+      "gate": 4,
+      "window": true,
+      "injury_free_completion": 0.884877059859811,
+      "cold_on_success": 2.7660171570872407,
+      "states": 7853,
+      "seconds": 0.11854504095390439
+    },
+    {
+      "prep": 3,
+      "payload": 4,
+      "turns": 3,
+      "growth": 1,
+      "policy": "用完当手",
+      "gate": 4,
+      "window": true,
+      "injury_free_completion": 0.5845843600995891,
+      "cold_on_success": 3.1683823728958567,
+      "states": 7853,
+      "seconds": 0.07604583306238055
+    },
+    {
+      "prep": 3,
+      "payload": 4,
+      "turns": 3,
+      "growth": 1,
+      "policy": "容量门槛",
+      "gate": 4,
+      "window": true,
+      "injury_free_completion": 0.884877059859811,
+      "cold_on_success": 2.7660171570872407,
+      "states": 7712,
+      "seconds": 0.07560316706076264
+    },
+    {
+      "prep": 3,
+      "payload": 4,
+      "turns": 3,
+      "growth": 1,
+      "policy": "质量门槛",
+      "gate": 2,
+      "window": true,
+      "injury_free_completion": 0.883541948583357,
+      "cold_on_success": 2.7675527209718815,
+      "states": 7605,
+      "seconds": 0.07305387500673532
+    },
+    {
+      "prep": 3,
+      "payload": 4,
+      "turns": 3,
+      "growth": 1,
+      "policy": "质量门槛",
+      "gate": 3,
+      "window": true,
+      "injury_free_completion": 0.8707056847118234,
+      "cold_on_success": 2.8072678191292955,
+      "states": 7438,
+      "seconds": 0.06956487498246133
+    },
+    {
+      "prep": 3,
+      "payload": 4,
+      "turns": 3,
+      "growth": 1,
+      "policy": "质量门槛",
+      "gate": 4,
+      "window": true,
+      "injury_free_completion": 0.8251343239516507,
+      "cold_on_success": 2.954063498621148,
+      "states": 7223,
+      "seconds": 0.06495374999940395
+    },
+    {
+      "prep": 3,
+      "payload": 4,
+      "turns": 3,
+      "growth": 1,
+      "policy": "质量门槛",
+      "gate": 5,
+      "window": true,
+      "injury_free_completion": 0.668088521210181,
+      "cold_on_success": 3.145416208957065,
+      "states": 6991,
+      "seconds": 0.05859370809048414
+    },
+    {
+      "prep": 3,
+      "payload": 4,
+      "turns": 3,
+      "growth": 1,
+      "policy": "质量门槛",
+      "gate": 6,
+      "window": true,
+      "injury_free_completion": 0.3069288549216839,
+      "cold_on_success": 3.382033479447863,
+      "states": 6580,
+      "seconds": 0.053110457956790924
+    },
+    {
+      "prep": 3,
+      "payload": 4,
+      "turns": 3,
+      "growth": 1,
+      "policy": "求解",
+      "gate": 4,
+      "window": false,
+      "injury_free_completion": 0.9887816672840083,
+      "cold_on_success": 2.8604050990659133,
+      "states": 14349,
+      "seconds": 0.13583300006575882
+    }
+  ],
+  "harvest": [
+    {
+      "targets": [
+        3,
+        6
+      ],
+      "rewards": [
+        1,
+        2
+      ],
+      "growth": 1,
+      "policy": "求解",
+      "expected_score": 1.4886235901539397,
+      "positive_score_probability": 0.9004939224203631,
+      "cold_on_positive": 2.8225944869499444,
+      "states": 1639,
+      "seconds": 0.02089720801450312
+    },
+    {
+      "targets": [
+        3,
+        6
+      ],
+      "rewards": [
+        1,
+        2
+      ],
+      "growth": 1,
+      "policy": "固定小",
+      "expected_score": 0.988054412437129,
+      "positive_score_probability": 0.988054412437129,
+      "cold_on_positive": 3.5362627986348105,
+      "states": 753,
+      "seconds": 0.005660374881699681
+    },
+    {
+      "targets": [
+        3,
+        6
+      ],
+      "rewards": [
+        1,
+        2
+      ],
+      "growth": 1,
+      "policy": "固定大",
+      "expected_score": 1.274466306584362,
+      "positive_score_probability": 0.637233153292181,
+      "cold_on_positive": 3.2165546894489143,
+      "states": 822,
+      "seconds": 0.006110708927735686
+    },
+    {
+      "targets": [
+        3,
+        6
+      ],
+      "rewards": [
+        1,
+        2
+      ],
+      "growth": 1,
+      "policy": "开局选定",
+      "expected_score": 1.3543274176954734,
+      "positive_score_probability": 0.8171064100365801,
+      "cold_on_positive": 3.213873982184817,
+      "states": 1449,
+      "seconds": 0.012009583879262209
+    }
+  ],
+  "scope": "窗口：健康起局无伤完成，首伤后续局未建模；成果：单回合冷静5不会受伤，最大化声明的研究成果点，平手争取非零成果再保留冷静"
+}

@@ -62,6 +62,103 @@ namespace SSNoir.IMGUI.Stage
             GUI.color = Color.white;
         }
 
+        // 字形等直接编写的灯管骨架，复用人物的通电、电流与光色。
+        public static void PaintSkeleton(Rect rect, PortraitSkeleton skeleton, in LampLook look, float age, float opacity = 1f)
+        {
+            var uv = new Rect(0f, 0f, 1f, 1f);
+            float width = Mathf.Max(1f, rect.height * 0.012f);
+            for (int i = 0; i < skeleton.Paths.Count; i++)
+            {
+                var path = skeleton.Paths[i];
+                float reveal = Mathf.Clamp01((age - i * 0.035f) / 0.65f);
+                float level = Brightness(reveal) * look.Level;
+                // 偶尔只有一根管子接触不良，其余文字继续可读。
+                float cycle = age + i * 0.73f;
+                if (age > 3f && Mathf.Repeat(cycle, 11.7f) < 0.12f) level *= 0.16f;
+                var tube = SkeletonTube(path, rect.height / rect.width);
+                var area = new Rect(rect.x + tube.Uv.x * rect.width, rect.y + tube.Uv.y * rect.height,
+                    tube.Uv.width * rect.width, tube.Uv.height * rect.height);
+                GUI.color = new Color(0.14f, 0.065f, 0.11f, 0.85f * opacity);
+                GUI.DrawTexture(area, tube.Core);
+                GUI.color = new Color(look.Color.r, look.Color.g, look.Color.b, level * 0.65f * opacity);
+                GUI.DrawTexture(area, tube.Glow);
+                var core = Color.Lerp(look.Color, Color.white, 0.72f);
+                core.a = level * opacity;
+                GUI.color = core;
+                GUI.DrawTexture(area, tube.Core);
+            }
+            if (age > 2f)
+                DrawCurrent(rect, skeleton, uv, look.Current, look.Level * 0.5f * opacity, Color.Lerp(look.Color, Color.white, 0.7f), width);
+            GUI.color = Color.white;
+        }
+
+        private sealed class TubeMask
+        {
+            public Rect Uv;
+            public Texture2D Core = null!;
+            public Texture2D Glow = null!;
+        }
+
+        private static readonly System.Collections.Generic.Dictionary<PortraitSkeleton.Path, TubeMask> TubeMasks = new();
+
+        // 从中心线生成连续距离场：线段交接取最短距离，不叠加矩形，也没有接缝亮斑。
+        // 每根管子单独缓存，运行时仍可独立断电和染色。
+        private static TubeMask SkeletonTube(PortraitSkeleton.Path path, float aspect)
+        {
+            if (TubeMasks.TryGetValue(path, out var cached)) return cached;
+            const float scale = 1000f;
+            float height = scale * aspect;
+            float radius = Mathf.Max(1f, height * 0.006f);
+            float reach = radius * 10f;
+            var points = new Vector2[path.Points.Length];
+            Vector2 min = new Vector2(float.MaxValue, float.MaxValue), max = new Vector2(float.MinValue, float.MinValue);
+            for (int i = 0; i < points.Length; i++)
+            {
+                points[i] = new Vector2(path.Points[i].x * scale, (1f - path.Points[i].y) * height);
+                min = Vector2.Min(min, points[i]); max = Vector2.Max(max, points[i]);
+            }
+            min = new Vector2(Mathf.Floor(min.x - reach), Mathf.Floor(min.y - reach));
+            int w = Mathf.CeilToInt(max.x + reach - min.x), h = Mathf.CeilToInt(max.y + reach - min.y);
+            var distance = new float[w * h];
+            for (int i = 0; i < distance.Length; i++) distance[i] = reach;
+            for (int k = 1; k < points.Length; k++)
+            {
+                var a = points[k - 1] - min; var b = points[k] - min; var d = b - a;
+                int x0 = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(a.x, b.x) - reach));
+                int x1 = Mathf.Min(w - 1, Mathf.CeilToInt(Mathf.Max(a.x, b.x) + reach));
+                int y0 = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(a.y, b.y) - reach));
+                int y1 = Mathf.Min(h - 1, Mathf.CeilToInt(Mathf.Max(a.y, b.y) + reach));
+                for (int y = y0; y <= y1; y++)
+                    for (int x = x0; x <= x1; x++)
+                    {
+                        var p = new Vector2(x + 0.5f, y + 0.5f);
+                        float t = d.sqrMagnitude > 0f ? Mathf.Clamp01(Vector2.Dot(p - a, d) / d.sqrMagnitude) : 0f;
+                        int index = (h - 1 - y) * w + x;
+                        distance[index] = Mathf.Min(distance[index], Vector2.Distance(p, a + d * t));
+                    }
+            }
+            Texture2D Mask(bool glow)
+            {
+                var pixels = new Color[w * h];
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    float r = distance[i] / radius;
+                    float alpha = glow ? Mathf.Exp(-r * r / 9f) * 0.65f + Mathf.Exp(-r * r / 32f) * 0.2f
+                        : 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(radius - 0.5f, radius + 0.5f, distance[i]));
+                    alpha *= 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(7f, 10f, r));
+                    pixels[i] = new Color(1f, 1f, 1f, alpha);
+                }
+                var texture = new Texture2D(w, h, TextureFormat.RGBA32, false)
+                { hideFlags = HideFlags.HideAndDontSave, filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+                texture.SetPixels(pixels); texture.Apply(false, true);
+                return texture;
+            }
+            var result = new TubeMask { Uv = new Rect(min.x / scale, min.y / height, w / scale, h / height),
+                Core = Mask(false), Glow = Mask(true) };
+            TubeMasks.Add(path, result);
+            return result;
+        }
+
         // 只画管子本体，用于残影。
         public static void PaintTubesOnly(Rect rect, Texture2D portrait, in LampLook look)
         {
@@ -168,7 +265,7 @@ namespace SSNoir.IMGUI.Stage
         // 电流沿管子游走：几道"彗星"沿骨架巡回往前跑——头是一点亮，尾巴是身后一小段被点亮的管子。
         // 不是小球：亮的是管子本身那一段。pulse 是慢而少的呼吸，racing 是快而多的狂飙；档位之间连续插值。
         // 电流认管子：尾巴只在自己这根管子里，头跑到管口时在电极上炸一下白光，然后从下一根的管口进去。
-        private static void DrawCurrent(Rect rect, PortraitSkeleton skeleton, Rect uv, float current, float brightness, Color color)
+        private static void DrawCurrent(Rect rect, PortraitSkeleton skeleton, Rect uv, float current, float brightness, Color color, float tubeWidth = 0f)
         {
             if (skeleton.TotalLength <= 0f) return;
             float t = Mathf.Clamp01(current - 1f);           // 0 = pulse, 1 = racing
@@ -180,7 +277,7 @@ namespace SSNoir.IMGUI.Stage
             float head = Time.unscaledTime * speed;
             const int TailSamples = 14;
             const float ElectrodeReach = 0.02f;              // 离管口这么近（uv）算到了电极
-            float width = Mathf.Max(2f, rect.width * 0.012f);
+            float width = tubeWidth > 0f ? tubeWidth : Mathf.Max(2f, rect.width * 0.012f);
             var dot = NeonPortraitLibrary.RadialFalloff();
 
             for (int k = 0; k < comets; k++)
@@ -226,8 +323,8 @@ namespace SSNoir.IMGUI.Stage
         // 骨架 uv → 裁切后的画面坐标（右侧人物是翻转的）。裁切框外的点不画。
         private static bool ToScreen(Rect rect, Rect uv, Vector2 p, out Vector2 screen)
         {
-            float u = (p.x - CropX) / CropWidth;
-            float v = (p.y - CropY) / CropHeight;
+            float u = (p.x - (uv.width < 0f ? uv.xMax : uv.x)) / Mathf.Abs(uv.width);
+            float v = (p.y - uv.y) / uv.height;
             screen = default;
             if (u < 0f || u > 1f || v < 0f || v > 1f) return false;
             if (uv.width < 0f) u = 1f - u;

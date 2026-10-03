@@ -1,0 +1,7 @@
+(define 研究名称 "整段完成")
+(define 研究模式 '分段)
+(define A上限 5)
+(define B上限 3)
+(define 回合上限 2)
+(define 半成品清零 #t)
+(load-file "scripts/research/顺序选择.scm")

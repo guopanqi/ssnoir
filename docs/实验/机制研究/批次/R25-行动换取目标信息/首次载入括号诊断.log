@@ -1,0 +1,41 @@
+[validate] Narration subtitles: zh-CN and en complete.
+[validate] Phase 1: paren balance...
+[validate] Phase 1: all files balanced.
+[validate] Phase 1b: state variables called as procedures...
+[validate] Phase 1b: none.
+[validate] world/world
+[validate] node :anchor DSL contract passed.
+[validate] place / arrival DSL contract passed.
+[validate] place unlock notification contract passed.
+[validate] story stage DSL contract passed.
+Validated scene 'world/world' with root '世界'.
+[validate] encounters/研究·进度保留对照
+Validated scene 'encounters/研究·进度保留对照' with root '进度保留对照'.
+[validate] encounters/实验·证词掺水
+Validated scene 'encounters/实验·证词掺水' with root '证词掺水'.
+[validate] encounters/巷子里在打人
+Validated scene 'encounters/巷子里在打人' with root '巷子里在打人'.
+[validate] encounters/研究·借力紧目标
+Validated scene 'encounters/研究·借力紧目标' with root '整备借力'.
+[validate] encounters/实验·逼他出门
+Validated scene 'encounters/实验·逼他出门' with root '逼他出门'.
+[validate] encounters/研究·按需用骰
+Validated scene 'encounters/研究·按需用骰' with root '按需用骰'.
+[validate] encounters/研究·直接搜寻对照
+System.Exception: Error loading Scheme script 'scenes/encounters/研究·直接搜寻对照.scm': Error loading Scheme script 'scripts/research/定位搜索.scm': unexpected )
+ ---> System.Exception: Error loading Scheme script 'scripts/research/定位搜索.scm': unexpected )
+ ---> Schemy.SyntaxError: unexpected )
+   at Schemy.Interpreter.<>c__DisplayClass18_0.<Read>b__0(Object token) in /Users/usr/Documents/play/ssnoir/schemy-master/src/schemy/Schemy.cs:line 181
+   at Schemy.Interpreter.Read(InPort port) in /Users/usr/Documents/play/ssnoir/schemy-master/src/schemy/Schemy.cs:line 193
+   at Schemy.Interpreter.Evaluate(TextReader input) in /Users/usr/Documents/play/ssnoir/schemy-master/src/schemy/Schemy.cs:line 106
+   --- End of inner exception stack trace ---
+   at SSNoir.Scripting.SchemeInterpreter.LoadFile(String relativePath) in /Users/usr/Documents/play/ssnoir/Engine/Runtime/Scripting/SchemeInterpreter.cs:line 67
+   at SSNoir.Scripting.SchemeInterpreter.<.ctor>b__2_0(List`1 args) in /Users/usr/Documents/play/ssnoir/Engine/Runtime/Scripting/SchemeInterpreter.cs:line 49
+   at Schemy.NativeProcedure.Call(List`1 args) in /Users/usr/Documents/play/ssnoir/schemy-master/src/schemy/Procedure.cs:line 85
+   at Schemy.Interpreter.EvaluateExpression(Object expr, Environment env) in /Users/usr/Documents/play/ssnoir/schemy-master/src/schemy/Schemy.cs:line 402
+   at Schemy.Interpreter.Evaluate(TextReader input) in /Users/usr/Documents/play/ssnoir/schemy-master/src/schemy/Schemy.cs:line 109
+   --- End of inner exception stack trace ---
+   at SSNoir.Scripting.SchemeInterpreter.LoadFile(String relativePath) in /Users/usr/Documents/play/ssnoir/Engine/Runtime/Scripting/SchemeInterpreter.cs:line 67
+   at SSNoir.Core.SceneManager.LoadScene(String sceneName) in /Users/usr/Documents/play/ssnoir/Engine/Runtime/Core/SceneManager.cs:line 171
+   at SSNoir.Testing.GameTester.ValidateContent() in /Users/usr/Documents/play/ssnoir/tools/content-validator/GameTester.cs:line 106
+   at SSNoir.Program.Main(String[] args) in /Users/usr/Documents/play/ssnoir/tools/content-validator/Program.cs:line 18

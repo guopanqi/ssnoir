@@ -1,0 +1,101 @@
+{
+  "results": [
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "求解",
+      "threshold": 2,
+      "reset": false,
+      "completion": 0.9396972482202999,
+      "cold_on_success": 2.6066230855887738,
+      "states": 21832,
+      "seconds": 0.7649800409562886
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "只推进",
+      "threshold": 2,
+      "reset": false,
+      "completion": 0.9350287237724847,
+      "cold_on_success": 2.0949011199383354,
+      "states": 17968,
+      "seconds": 0.40571612515486777
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "冷静阈值",
+      "threshold": 0,
+      "reset": false,
+      "completion": 0.9159004224789753,
+      "cold_on_success": 2.24666962725936,
+      "states": 17968,
+      "seconds": 0.5230844579637051
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "冷静阈值",
+      "threshold": 1,
+      "reset": false,
+      "completion": 0.8610246762978077,
+      "cold_on_success": 2.3496392847660728,
+      "states": 17891,
+      "seconds": 0.6010626659262925
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "冷静阈值",
+      "threshold": 2,
+      "reset": false,
+      "completion": 0.7685615676900468,
+      "cold_on_success": 2.6633375996648687,
+      "states": 17662,
+      "seconds": 0.5068744590971619
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "冷静阈值",
+      "threshold": 3,
+      "reset": false,
+      "completion": 0.6173446379279448,
+      "cold_on_success": 3.318899085938531,
+      "states": 18050,
+      "seconds": 0.4134455418679863
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "冷静阈值",
+      "threshold": 4,
+      "reset": false,
+      "completion": 0.4347283410443993,
+      "cold_on_success": 4.185419855689782,
+      "states": 20395,
+      "seconds": 0.30539262504316866
+    },
+    {
+      "target": 10,
+      "turns": 3,
+      "growth": 1,
+      "policy": "低骰整顿",
+      "threshold": 2,
+      "reset": false,
+      "completion": 0.8572568461262425,
+      "cold_on_success": 2.365640136812717,
+      "states": 21252,
+      "seconds": 0.26906033395789564
+    }
+  ],
+  "scope": "纯模型，无伤完成；低冷静受伤后续局未覆盖；公平四d6、正常起局冷静5、无物品"
+}
