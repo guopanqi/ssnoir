@@ -7,7 +7,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 const GenesisComposite = {
   uniforms:{
     tDiffuse:{value:null},
-    uGrain:{value:.009},
+    uGrain:{value:.0055},
     uVignette:{value:.12}
   },
   vertexShader:`
