@@ -33,21 +33,16 @@ function createStaticServer() {
   return createServer(async (req, res) => {
     try {
       const url = new URL(req.url, 'http://127.0.0.1');
-      let pathname = decodeURIComponent(url.pathname);
-      if (pathname === '/') pathname = '/index.html';
+      let relative = decodeURIComponent(url.pathname).replace(/^\\/+/, '');
+      if (!relative) relative = 'index.html';
 
-      const resolved = path.resolve(DIST, '.' + pathname);
-      if (!resolved.startsWith(DIST + path.sep) && resolved !== path.join(DIST, 'index.html')) {
+      if (relative.split('/').includes('..')) {
         res.writeHead(403).end('Forbidden');
         return;
       }
 
-      let body;
-      try {
-        body = await readFile(resolved);
-      } catch {
-        body = await readFile(path.join(DIST, 'index.html'));
-      }
+      const resolved = path.join(DIST, relative);
+      const body = await readFile(resolved);
 
       res.writeHead(200, {
         'Content-Type': mime.get(path.extname(resolved)) ?? 'application/octet-stream',
@@ -55,7 +50,8 @@ function createStaticServer() {
       });
       res.end(body);
     } catch (error) {
-      res.writeHead(500).end(String(error));
+      console.error('[static-server]', req.url, error);
+      res.writeHead(404).end('Not found');
     }
   });
 }
@@ -102,6 +98,18 @@ page.on('pageerror', (error) => {
   const line = `[pageerror] ${error.stack ?? error.message}\n`;
   browserLog += line;
   process.stderr.write(line);
+});
+page.on('requestfailed', (request) => {
+  const line = `[requestfailed] ${request.url()} :: ${request.failure()?.errorText ?? 'unknown'}\n`;
+  browserLog += line;
+  process.stderr.write(line);
+});
+page.on('response', (response) => {
+  if (response.status() >= 400) {
+    const line = `[response:${response.status()}] ${response.url()}\n`;
+    browserLog += line;
+    process.stderr.write(line);
+  }
 });
 
 try {
