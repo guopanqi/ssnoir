@@ -30,7 +30,10 @@ let gitSha=process.env.GITHUB_SHA??null;
 try{gitSha??=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();}catch{}
 
 function startServer(){
-  return spawn(process.execPath,[path.join(ROOT,'node_modules/vite/bin/vite.js'),'--host','127.0.0.1','--port',String(PORT),'--strictPort'],{cwd:ROOT,stdio:['ignore','pipe','pipe']});
+  return spawn(process.execPath,[
+    path.join(ROOT,'node_modules/vite/bin/vite.js'),
+    'preview','--host','127.0.0.1','--port',String(PORT),'--strictPort'
+  ],{cwd:ROOT,stdio:['ignore','pipe','pipe']});
 }
 
 async function waitReady(page){
