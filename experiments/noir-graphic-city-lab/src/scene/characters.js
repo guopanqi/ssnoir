@@ -1,169 +1,320 @@
 import * as THREE from 'three';
 
-function polygon(points) {
-  const s = new THREE.Shape();
-  s.moveTo(points[0][0], points[0][1]);
-  for (let i = 1; i < points.length; i++) s.lineTo(points[i][0], points[i][1]);
-  s.closePath();
-  return s;
+const textureCache = new Map();
+
+function colorStyle(value, fallback) {
+  if (value?.isColor) return '#' + value.getHexString();
+  return fallback;
 }
 
-function rectangle(x, y, w, h) {
-  return polygon([
-    [x - w / 2, y - h / 2],
-    [x + w / 2, y - h / 2],
-    [x + w / 2, y + h / 2],
-    [x - w / 2, y + h / 2],
-  ]);
+function drawPath(ctx, draw, fill, stroke, width) {
+  ctx.beginPath();
+  draw(ctx);
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+  if (stroke && width > 0) {
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = width;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
 }
 
-function ellipse(x, y, rx, ry) {
-  const s = new THREE.Shape();
-  s.absellipse(x, y, rx, ry, 0, Math.PI * 2, false, 0);
-  return s;
+function heroCanvas(fill, stroke, detail) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 1024;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+
+  // Legs are drawn first so the coat can hide their upper joins.
+  drawPath(ctx, (p) => {
+    p.moveTo(222, 718);
+    p.bezierCurveTo(216, 775, 210, 848, 208, 906);
+    p.lineTo(179, 925);
+    p.bezierCurveTo(175, 932, 184, 938, 203, 937);
+    p.lineTo(241, 932);
+    p.bezierCurveTo(247, 869, 249, 795, 250, 722);
+  }, fill, stroke, 5);
+
+  drawPath(ctx, (p) => {
+    p.moveTo(265, 718);
+    p.bezierCurveTo(268, 784, 274, 852, 281, 905);
+    p.lineTo(318, 919);
+    p.bezierCurveTo(326, 925, 319, 934, 300, 934);
+    p.lineTo(263, 930);
+    p.bezierCurveTo(257, 865, 255, 790, 255, 721);
+  }, fill, stroke, 5);
+
+  // Arms behind the coat body.
+  drawPath(ctx, (p) => {
+    p.moveTo(178, 372);
+    p.bezierCurveTo(154, 394, 148, 438, 142, 488);
+    p.bezierCurveTo(135, 554, 126, 616, 118, 672);
+    p.bezierCurveTo(117, 686, 126, 693, 137, 687);
+    p.bezierCurveTo(152, 625, 166, 557, 182, 493);
+    p.bezierCurveTo(193, 448, 199, 405, 196, 383);
+  }, fill, stroke, 5);
+
+  drawPath(ctx, (p) => {
+    p.moveTo(326, 370);
+    p.bezierCurveTo(352, 397, 362, 440, 371, 488);
+    p.bezierCurveTo(382, 547, 393, 603, 405, 655);
+    p.bezierCurveTo(408, 670, 401, 679, 389, 675);
+    p.bezierCurveTo(373, 616, 358, 552, 340, 493);
+    p.bezierCurveTo(328, 448, 318, 408, 307, 383);
+  }, fill, stroke, 5);
+
+  // Long coat. It is intentionally tapered at the waist and asymmetric at
+  // the hem, closer to a drawn noir figure than a geometric cone.
+  drawPath(ctx, (p) => {
+    p.moveTo(205, 350);
+    p.bezierCurveTo(184, 370, 176, 398, 174, 438);
+    p.bezierCurveTo(172, 500, 181, 566, 173, 627);
+    p.lineTo(153, 752);
+    p.bezierCurveTo(182, 769, 212, 776, 244, 775);
+    p.bezierCurveTo(278, 779, 314, 771, 348, 751);
+    p.lineTo(333, 624);
+    p.bezierCurveTo(325, 556, 334, 491, 329, 431);
+    p.bezierCurveTo(326, 393, 316, 369, 294, 349);
+    p.bezierCurveTo(270, 360, 230, 361, 205, 350);
+  }, fill, stroke, 6);
+
+  // Collar/neck.
+  drawPath(ctx, (p) => {
+    p.moveTo(230, 329);
+    p.lineTo(234, 293);
+    p.lineTo(276, 292);
+    p.lineTo(278, 332);
+    p.bezierCurveTo(264, 343, 243, 344, 230, 329);
+  }, fill, stroke, 5);
+
+  // Slight profile head: smaller than before, with a real brow/nose/chin.
+  drawPath(ctx, (p) => {
+    p.moveTo(221, 267);
+    p.bezierCurveTo(214, 248, 217, 218, 229, 198);
+    p.bezierCurveTo(242, 178, 267, 171, 288, 184);
+    p.bezierCurveTo(300, 192, 307, 203, 309, 216);
+    p.lineTo(325, 224);
+    p.lineTo(311, 234);
+    p.bezierCurveTo(308, 253, 298, 270, 281, 282);
+    p.bezierCurveTo(258, 296, 234, 290, 221, 267);
+  }, fill, stroke, 5);
+
+  // Fedora: wide but thin brim, shallow crown.
+  drawPath(ctx, (p) => {
+    p.moveTo(190, 177);
+    p.bezierCurveTo(217, 171, 246, 169, 277, 170);
+    p.bezierCurveTo(307, 170, 331, 174, 348, 181);
+    p.bezierCurveTo(330, 188, 302, 190, 270, 189);
+    p.bezierCurveTo(236, 190, 208, 186, 190, 177);
+  }, fill, stroke, 5);
+
+  drawPath(ctx, (p) => {
+    p.moveTo(225, 169);
+    p.lineTo(231, 118);
+    p.bezierCurveTo(247, 108, 276, 107, 299, 116);
+    p.lineTo(309, 171);
+    p.bezierCurveTo(282, 176, 250, 176, 225, 169);
+  }, fill, stroke, 5);
+
+  // Internal vector marks are deliberately sparse.
+  ctx.strokeStyle = detail;
+  ctx.lineWidth = 4;
+  ctx.globalAlpha = 0.78;
+  ctx.beginPath();
+  ctx.moveTo(229, 366);
+  ctx.lineTo(252, 432);
+  ctx.lineTo(273, 366);
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.48;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(301, 438);
+  ctx.bezierCurveTo(306, 487, 310, 527, 319, 564);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(199, 447);
+  ctx.bezierCurveTo(192, 497, 189, 538, 184, 570);
+  ctx.stroke();
+
+  ctx.globalAlpha = 1;
+  return canvas;
 }
 
-function heroShapes(pose) {
-  const shapes = [];
+function crowdCanvas(variant, pose, fill, stroke, detail) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 384;
+  canvas.height = 768;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
 
-  // Asymmetric three-quarter detective silhouette. The unequal shoulders,
-  // hem and arm spacing keep the figure from reading as a front-facing icon.
-  shapes.push(polygon([
-    [-0.25, 0.82], [-0.46, 0.94], [-0.43, 2.22],
-    [-0.50, 2.63], [-0.39, 2.93], [-0.19, 3.08],
-    [ 0.31, 3.04], [ 0.48, 2.86], [ 0.56, 2.58],
-    [ 0.51, 2.20], [ 0.62, 0.91], [ 0.35, 0.78],
-    [ 0.23, 1.04], [-0.18, 1.05],
-  ]));
+  const tall = variant % 4 === 0;
+  const noHat = variant % 4 === 3;
+  const slim = variant % 3 === 1;
+  const step = pose === 'walk' ? 14 : 3;
+  const gesture = pose === 'gesture' ? 28 : 0;
+  const left = slim ? 124 : 112;
+  const right = slim ? 260 : 272;
+  const shoulderY = tall ? 258 : 278;
+  const hemY = tall ? 610 : 622;
 
-  const leftHandX = pose === 'gesture' ? -0.74 : -0.53;
-  shapes.push(polygon([
-    [-0.39, 2.77], [-0.50, 2.67], [leftHandX - 0.055, 1.30],
-    [leftHandX + 0.075, 1.25], [-0.34, 2.39],
-  ]));
-  shapes.push(polygon([
-    [0.40, 2.76], [0.52, 2.62], [0.75, 1.39],
-    [0.62, 1.31], [0.37, 2.33],
-  ]));
+  // Legs.
+  drawPath(ctx, (p) => {
+    p.moveTo(168, hemY - 8);
+    p.lineTo(185, hemY - 8);
+    p.lineTo(177 - step, 701);
+    p.lineTo(144 - step, 710);
+    p.lineTo(143 - step, 719);
+    p.lineTo(186 - step, 717);
+    p.lineTo(198, hemY - 8);
+  }, fill, stroke, 4);
 
-  shapes.push(polygon([
-    [-0.18, 0.98], [-0.05, 0.98], [-0.10, 0.13],
-    [-0.25, 0.11], [-0.34, 0.04], [-0.08, 0.02],
-    [-0.02, 0.09], [0.00, 0.98],
-  ]));
-  shapes.push(polygon([
-    [0.08, 0.98], [0.21, 0.97], [0.29, 0.16],
-    [0.42, 0.12], [0.46, 0.06], [0.22, 0.03],
-    [0.13, 0.10],
-  ]));
+  drawPath(ctx, (p) => {
+    p.moveTo(201, hemY - 8);
+    p.lineTo(216, hemY - 8);
+    p.lineTo(226 + step, 702);
+    p.lineTo(258 + step, 710);
+    p.lineTo(258 + step, 719);
+    p.lineTo(217 + step, 716);
+    p.lineTo(188, hemY - 8);
+  }, fill, stroke, 4);
 
-  shapes.push(rectangle(0.02, 3.17, 0.17, 0.34));
-  // Profile head with a small brow/nose/chin break, closer to drawn noir
-  // character language than a perfect circle.
-  shapes.push(polygon([
-    [-0.21,3.22],[-0.27,3.36],[-0.25,3.55],[-0.17,3.69],
-    [0.02,3.78],[0.18,3.70],[0.24,3.58],[0.34,3.53],
-    [0.27,3.46],[0.24,3.31],[0.14,3.19],[-0.05,3.14],
-  ]));
-  shapes.push(rectangle(0.08, 3.77, 0.96, 0.062));
-  shapes.push(polygon([
-    [-0.22, 3.77], [-0.16, 4.12], [0.31, 4.12], [0.39, 3.77],
-  ]));
+  // Arms.
+  drawPath(ctx, (p) => {
+    p.moveTo(left + 18, shoulderY + 20);
+    p.lineTo(left - 2, shoulderY + 42);
+    p.lineTo(left - 12 - gesture, 500);
+    p.lineTo(left + 5 - gesture, 505);
+    p.lineTo(left + 36, shoulderY + 92);
+  }, fill, stroke, 4);
 
-  return shapes;
-}
+  drawPath(ctx, (p) => {
+    p.moveTo(right - 18, shoulderY + 20);
+    p.lineTo(right + 2, shoulderY + 42);
+    p.lineTo(right + 12, 500);
+    p.lineTo(right - 5, 505);
+    p.lineTo(right - 36, shoulderY + 92);
+  }, fill, stroke, 4);
 
-function crowdShapes(variant, pose) {
-  const flare = [0.48, 0.56, 0.64][variant % 3];
-  const shoulder = [0.42, 0.48, 0.44][variant % 3];
-  const shapes = [
-    polygon([
-      [-0.25, 0.66], [-flare, 0.76], [-0.45, 2.02],
-      [-shoulder, 2.46], [-0.24, 2.68], [0.24, 2.68],
-      [shoulder, 2.46], [0.45, 2.02], [flare, 0.76], [0.25, 0.66],
-    ]),
-  ];
+  // Body.
+  drawPath(ctx, (p) => {
+    p.moveTo(left + 20, shoulderY);
+    p.bezierCurveTo(left + 4, shoulderY + 48, left + 4, 386, left + 8, 445);
+    p.lineTo(left - (slim ? 2 : 14), hemY);
+    p.bezierCurveTo(153, hemY + 10, 231, hemY + 10, right + (slim ? 2 : 14), hemY);
+    p.lineTo(right - 8, 445);
+    p.bezierCurveTo(right - 4, 386, right - 4, shoulderY + 48, right - 20, shoulderY);
+    p.bezierCurveTo(216, shoulderY - 15, 168, shoulderY - 15, left + 20, shoulderY);
+  }, fill, stroke, 4);
 
-  const step = pose === 'walk' ? 0.08 : 0;
-  shapes.push(polygon([
-    [-0.18, 0.76], [-0.05, 0.76], [-0.08 - step, 0.09],
-    [-0.24 - step, 0.08], [-0.29 - step, 0.03], [-0.05 - step, 0.02],
-  ]));
-  shapes.push(polygon([
-    [0.04, 0.76], [0.17, 0.76], [0.21 + step, 0.10],
-    [0.31 + step, 0.08], [0.34 + step, 0.03], [0.11 + step, 0.02],
-  ]));
+  // Neck/head.
+  drawPath(ctx, (p) => {
+    p.moveTo(178, shoulderY - 7);
+    p.lineTo(180, shoulderY - 40);
+    p.lineTo(208, shoulderY - 40);
+    p.lineTo(210, shoulderY - 7);
+  }, fill, stroke, 4);
 
-  const gesture = pose === 'gesture' ? 0.22 : 0;
-  shapes.push(polygon([
-    [-0.37, 2.38], [-0.48, 2.30], [-0.55 - gesture, 1.24],
-    [-0.43 - gesture, 1.20], [-0.31, 2.12],
-  ]));
-  shapes.push(polygon([
-    [0.37, 2.38], [0.48, 2.30], [0.55, 1.24],
-    [0.43, 1.20], [0.31, 2.12],
-  ]));
+  ctx.beginPath();
+  ctx.ellipse(194, shoulderY - 83, 34, 42, 0, 0, Math.PI * 2);
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 4;
+  ctx.stroke();
 
-  shapes.push(rectangle(0, 2.73, 0.16, 0.25));
-  shapes.push(ellipse(0, 2.94, 0.26, 0.29));
-
-  if (variant % 4 !== 3) {
-    const brim = variant % 3 === 1 ? 0.72 : 0.88;
-    shapes.push(rectangle(0, 3.20, brim, 0.055));
-    const crownW = variant % 3 === 1 ? 0.50 : 0.60;
-    shapes.push(polygon([
-      [-crownW * 0.46, 3.21], [-crownW * 0.38, 3.50],
-      [ crownW * 0.34, 3.50], [ crownW * 0.46, 3.21],
-    ]));
+  if (!noHat) {
+    drawPath(ctx, (p) => {
+      p.moveTo(148, shoulderY - 125);
+      p.bezierCurveTo(173, shoulderY - 132, 217, shoulderY - 132, 241, shoulderY - 125);
+      p.bezierCurveTo(223, shoulderY - 118, 169, shoulderY - 118, 148, shoulderY - 125);
+    }, fill, stroke, 4);
+    drawPath(ctx, (p) => {
+      p.moveTo(171, shoulderY - 130);
+      p.lineTo(176, shoulderY - 168);
+      p.lineTo(216, shoulderY - 168);
+      p.lineTo(221, shoulderY - 130);
+    }, fill, stroke, 4);
   }
 
-  return shapes;
+  ctx.strokeStyle = detail;
+  ctx.globalAlpha = 0.45;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(179, shoulderY + 32);
+  ctx.lineTo(194, shoulderY + 74);
+  ctx.lineTo(208, shoulderY + 32);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  return canvas;
 }
 
-function addHeroDetails(group, material) {
-  const lapelGeometry = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(-0.12, 2.82, 0.014),
-    new THREE.Vector3(-0.02, 2.42, 0.014),
-    new THREE.Vector3( 0.08, 2.73, 0.014),
-  ]);
-  group.add(new THREE.Line(lapelGeometry, material));
+function getTexture(kind, variant, pose, materials) {
+  const fill = colorStyle(materials.character?.color, '#010204');
+  const mainLine = materials.characterLineColor ?? '#e8e5dc';
+  const dimLine = materials.characterDimLineColor ?? '#b8bec8';
+  const stroke = kind === 'hero' ? mainLine : dimLine;
+  const key = [kind, variant, pose, fill, stroke, dimLine].join(':');
+  if (textureCache.has(key)) return textureCache.get(key);
 
-  const sleeveGeometry = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(0.46, 2.22, 0.014),
-    new THREE.Vector3(0.56, 1.60, 0.014),
-  ]);
-  group.add(new THREE.Line(sleeveGeometry, material));
+  const canvas = kind === 'hero'
+    ? heroCanvas(fill, stroke, dimLine)
+    : crowdCanvas(variant, pose, fill, stroke, dimLine);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = true;
+  texture.needsUpdate = true;
+  textureCache.set(key, texture);
+  return texture;
 }
 
 export function createCharacter({
   name,
   position,
-  yaw = 0,
   scale = 1,
   pose = 'neutral',
   kind = 'crowd',
   variant = 0,
   materials,
   parent,
-  outlineTargets,
 }) {
-  const group = new THREE.Group();
-  group.name = name;
-  group.position.fromArray(position);
-  group.rotation.y = yaw;
-  group.scale.setScalar(scale);
+  const texture = getTexture(kind, variant, pose, materials);
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    alphaTest: 0.018,
+    depthTest: true,
+    depthWrite: true,
+    fog: true,
+    toneMapped: false,
+  });
 
-  const shapes = kind === 'hero' ? heroShapes(pose) : crowdShapes(variant, pose);
-  const silhouette = new THREE.Mesh(
-    new THREE.ShapeGeometry(shapes, 18),
-    materials.character,
-  );
-  silhouette.name = `${name} silhouette`;
-  group.add(silhouette);
-  outlineTargets.push(silhouette);
+  const sprite = new THREE.Sprite(material);
+  sprite.name = name;
+  sprite.center.set(0.5, 0.0);
+  sprite.position.fromArray(position);
 
-  if (kind === 'hero') addHeroDetails(group, materials.detailLine);
+  if (kind === 'hero') {
+    sprite.scale.set(2.72 * scale, 5.45 * scale, 1);
+  } else {
+    const height = (variant % 4 === 0 ? 4.55 : 4.25) * scale;
+    sprite.scale.set(height * 0.50, height, 1);
+  }
 
-  parent.add(group);
-  return group;
+  // Tiny z offsets prevent equal-depth crowd sprites from fighting.
+  sprite.position.z += variant * 0.006;
+  parent.add(sprite);
+  return sprite;
 }

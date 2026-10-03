@@ -590,8 +590,8 @@ function addAtmosphere(groups,materials) {
 
 function addCast(groups,materials,outlineTargets) {
   createCharacter({
-    name:'Detective',position:[9.4,0,22.5],yaw:0,scale:1.04,
-    pose:'neutral',kind:'hero',materials,parent:groups.characters,outlineTargets,
+    name:'Detective',position:[9.4,0,22.5],scale:1.04,
+    pose:'neutral',kind:'hero',materials,parent:groups.characters,
   });
 
   const crowd=[
@@ -600,9 +600,9 @@ function addCast(groups,materials,outlineTargets) {
     [1.0,-4.0,.76,0],
   ];
   crowd.forEach(([x,z,s,yaw],i)=>createCharacter({
-    name:`Crowd ${i+1}`,position:[x,0,z],yaw,scale:s,
+    name:`Crowd ${i+1}`,position:[x,0,z],scale:s,
     pose:i%3===0?'gesture':i%2?'walk':'neutral',
-    kind:'crowd',variant:i,materials,parent:groups.characters,outlineTargets,
+    kind:'crowd',variant:i,materials,parent:groups.characters,
   }));
 }
 
@@ -624,6 +624,8 @@ export function buildWorld(scene,profile){
     surfaceMid:surfaceMat(profile.palette.surfaceMid,profile.palette.background,.0075,12,.12),
     ground:surfaceMat(0x202c41,profile.palette.background,.0075,7,.16),
     character:meshMat(0x010204,{side:THREE.DoubleSide}),
+    characterLineColor:'#e8e5dc',
+    characterDimLineColor:'#aeb5c1',
     detailLine:new THREE.LineBasicMaterial({color:profile.palette.lineDim,transparent:true,opacity:.80,depthTest:true}),
     edgePrimary:new THREE.LineBasicMaterial({
       color:profile.palette.line,transparent:true,opacity:.74,fog:true,
