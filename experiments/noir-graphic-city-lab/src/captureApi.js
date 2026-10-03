@@ -1,32 +1,38 @@
-function setTaggedAccentVisible(world, visible) {
+function setFx(world, visible) {
   world.groups.accents.visible = visible;
-  for (const group of [world.groups.city, world.groups.characters]) {
-    group.traverse((object) => {
-      if (object.userData?.graphicAccent) object.visible = visible;
-    });
-  }
+  world.groups.haze.visible = visible;
 }
 
 export function installCaptureApi({ profile, world, post, camera, controls, applyShot, render }) {
+  const bloomStrength = profile.print.bloomStrength;
+
   const modes = {
     shape() {
       world.groups.lines.visible = false;
-      setTaggedAccentVisible(world, false);
+      world.groups.windows.visible = false;
+      setFx(world, false);
+      post.bloom.strength = 0;
       post.graphic.uniforms.uEnabled.value = 0;
     },
     line() {
       world.groups.lines.visible = true;
-      setTaggedAccentVisible(world, false);
+      world.groups.windows.visible = true;
+      setFx(world, false);
+      post.bloom.strength = 0;
       post.graphic.uniforms.uEnabled.value = 0;
     },
     accent() {
       world.groups.lines.visible = true;
-      setTaggedAccentVisible(world, true);
+      world.groups.windows.visible = true;
+      setFx(world, true);
+      post.bloom.strength = bloomStrength;
       post.graphic.uniforms.uEnabled.value = 0;
     },
     final() {
       world.groups.lines.visible = true;
-      setTaggedAccentVisible(world, true);
+      world.groups.windows.visible = true;
+      setFx(world, true);
+      post.bloom.strength = bloomStrength;
       post.graphic.uniforms.uEnabled.value = 1;
     },
   };
@@ -54,7 +60,9 @@ export function installCaptureApi({ profile, world, post, camera, controls, appl
           target: controls.target.toArray(),
         },
         lineVisible: world.groups.lines.visible,
-        accentVisible: world.groups.accents.visible,
+        windowsVisible: world.groups.windows.visible,
+        fxVisible: world.groups.accents.visible,
+        bloom: post.bloom.strength,
         printEnabled: post.graphic.uniforms.uEnabled.value > 0.5,
       };
     },

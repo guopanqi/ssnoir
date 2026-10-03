@@ -1,60 +1,51 @@
 # Design — Noir Graphic City
 
-## 命题
+## 2026-10-03 参考基线重置
 
-不是“低模 + 黑白描边”，而是：
+早期版本把 Genesis Noir 错误地抽象成“极简黑块 + 少量白线 + 金色点缀”，实际截图与用户提供的 Genesis Noir 参考相去甚远。该方向不再作为视觉基线。
 
-> 摄影机主导的 3D 舞台，被压成可玩的 motion-graphic noir。
+用户参考图显示的目标语言更接近：
 
-城市和人物共享同一套层级语言：
-1. Silhouette：大黑形决定识别。
-2. Paper plane：有限亮面决定空间方向。
-3. Selective line：只解释关键结构。
-4. Accent gold：稀缺叙事焦点。
-5. Camera composition：先设计镜头，再允许世界补全。
-6. Transition-ready：未来能够让世界在剧情中压平、展开、抽象，而不是依赖写实连续性。
+> 深蓝黑的实体空间上覆盖高密度、略发光、略不稳定的乳白手绘线；建筑和地面拥有大量中间灰、噪点、擦痕、草叶与结构细线；人物是黑色实心剪影，用细白轮廓从环境切出；局部体积光可以极亮，但画面不是大面积纯黑。
+
+从参考图测得的粗略辅助指标（只用于防止再次走偏，不是像素级复刻目标）：
+- 整体平均亮度约 0.216。
+- 中位亮度约 0.145。
+- 亮度 < 0.08 的面积约 24.5%。
+- 亮度 > 0.70 的面积约 6.9%。
+- 三个参考面板几乎是低饱和冷灰/深蓝体系；金色不是当前阶段核心。
+
+## 核心语言
+
+1. **Ink volume**：暗面不是纯黑洞，深蓝黑表面仍保留体积和纹理。
+2. **Dense drawn space**：线不是“选择性轮廓点缀”，而是建筑、栏杆、窗格、地缝、草、道具共同构成的空间语言。
+3. **Luminous contour**：人物与关键结构使用乳白细线，可有轻微 glow / double-line / hand jitter。
+4. **Silhouette characters**：人物内部保持黑色实心，靠帽檐、长衣、姿态和轮廓线成立。
+5. **Volumetric graphic light**：探照灯、门光、舞台光本身是构图中的巨大白色形状。
+6. **Material noise**：颗粒、擦痕、轻度排线与雾不是后期装饰，而是维持“画出来的世界”的连续介质。
+7. **Camera-led staging**：仍然坚持为镜头和叙事调度 3D，但不能靠大面积纯色平面假装平面设计。
 
 ## 非目标
 
-- 不追求 Genesis Noir 资产复刻。
-- 不做全局 toon outline。
-- 不用霓虹和 Bloom 代替构图。
-- 不追求完整可漫游城市后再找好看的角度。
-- 不把人物细节量等同于角色表现力。
+- 不再追求上一版的极简平面海报感。
+- 不使用纯全局 toon outline 作为唯一风格来源。
+- 不把金色当作当前阶段的主视觉约束。
+- 不把全黑面积本身当作 noir 成功。
+- 不用 Bloom 掩盖低密度场景；线密度、物件密度和中间值必须先成立。
 
-## 工程结构
+## 当前工程层
 
-- `scene/city.js`：舞台城市、建筑 grammar、环境叙事图形。
-- `scene/characters.js`：silhouette-first 人物 grammar。
-- `config/visualProfile.js`：有限 palette 和全局视觉约束。
-- `post/pipeline.js`：最终有限灰阶、纸色和颗粒。
-- `shots.js`：研究镜头。
-- `captureApi.js`：Shape / Line / Accent / Final 分层。
+- `scene/city.js`：暗蓝实体、亮窗、建筑线稿、地面细线、草和街景。
+- `scene/characters.js`：黑色实心角色 + 全轮廓细白线 + silhouette variations。
+- `post/pipeline.js`：连续冷灰映射、细颗粒、轻排线和有限 bloom。
+- `shots.js`：Plaza / Spotlight / Detective / Line City 四类视觉压力测试。
+- `captureApi.js`：Shape / Line+Windows / Light+Haze / Final。
 
-## 第一阶段研究顺序
+## 下一阶段
 
-A. Stage Composition
-四镜头能否仅靠体块形成明确图形。
-
-B. Character Grammar
-三种角色层级：crowd / important / hero。远景 NPC 不因“重要性低”而获得同样线与细节。
-
-C. Selective Line
-建筑只在地标、空间转折和遮挡关系上出现结构线。
-
-D. Accent Semantics
-金色只代表需要玩家注意的叙事信息。先设 2.8% 像素告警预算，之后靠审图修订。
-
-E. Motion / Transition
-静态语言稳定后，再研究人物动作、空间压平、线条浮现和 investigation rendering。
-
-## 迁回 SSNoir 的目标
-
-最终迁移的是：
-- 建筑与人物的视觉重要性 metadata；
-- silhouette / line / accent 三层规则；
-- 固定镜头与构图原则；
-- narrative LOD；
-- 可用于调查和情绪变化的图形 transition。
-
-不是迁移 Three.js 文件本身。
+先证明单张静态城市画面进入参考图的视觉族谱，再研究：
+- 更自然的手绘线抖动；
+- 烟雾/体积光遮挡；
+- 人物动作和衣摆；
+- 室内/舞台空间；
+- 2D 与 3D 混合动画。

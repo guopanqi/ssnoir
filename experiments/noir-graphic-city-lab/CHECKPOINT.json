@@ -1,34 +1,35 @@
 {
   "schemaVersion": 1,
-  "phase": "Stage Composition / Character Grammar 初始实现，等待第一组完整审图",
+  "phase": "Genesis reference reset：旧极简方向已放弃，等待新基线实际审图",
   "acceptedBaseline": null,
   "pendingReviews": [],
   "nextQuestions": [
     {
-      "id": "first-baseline",
-      "question": "四个固定镜头在不依赖全局描边的情况下，是否已经像图形化黑色电影而不是普通低模城市？",
+      "id": "reference-family",
+      "question": "新画面是否已经进入参考图的视觉族谱：高密度发光线、深蓝中间值、实心人物剪影、材质噪声和体积光？",
       "status": "active"
     },
     {
-      "id": "character-silhouette",
-      "question": "Neil / Nightingale / crowd 在中远景中是否仅凭 silhouette 和少量标记可区分？",
+      "id": "line-density",
+      "question": "城市细线密度是否足以形成画出来的空间，而不是低模盒子加描边？",
       "status": "pending"
     },
     {
-      "id": "accent-budget",
-      "question": "金色是否足够稀缺并与叙事对象绑定？",
+      "id": "character-contour",
+      "question": "人物是否更接近参考中的黑色实心剪影 + 细白手绘边，而非几何块面角色？",
       "status": "pending"
     }
   ],
   "knownLimits": [
-    "第一版人物为程序几何 grammar，尚未验证动作序列。",
-    "第一版城市是舞台盒子，不代表生产城市资产复杂度。",
-    "固定镜头优先，尚未验证自由漫游视角。"
+    "当前仍是程序几何，尚未加入外部纹理资产。",
+    "体积光是几何近似，不是真实体积散射。",
+    "线条抖动目前通过双线偏移近似，尚未做屏幕空间手绘 wobble。"
   ],
   "doNotRepeat": [
-    "不要退化成所有物体全描边。",
-    "不要用 Bloom 或霓虹替代构图。",
-    "不要让 crowd 和 hero 拥有相同视觉复杂度。"
+    "不要把 Genesis Noir 再次抽象成大面积纯黑和极少白线。",
+    "不要让金色预算主导这阶段的画面。",
+    "不要用 posterization 把中间灰全部吃掉。",
+    "不要只靠 Bloom 假装手绘线密度。"
   ],
   "protocol": "CONTINUE.md"
 }
