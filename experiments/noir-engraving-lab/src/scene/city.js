@@ -2,21 +2,51 @@ import * as THREE from 'three';
 import { createMaterials } from './materials.js';
 import { addEdges, addWindowStrip, box } from './primitives.js';
 
+const FRONT_Z = 14;
+
+function facadeZ(side, offset = 0.05) {
+  return side * FRONT_Z - side * offset;
+}
+
+function centerZ(side, depth) {
+  return side * (FRONT_Z + depth * 0.5);
+}
+
 function createTheater(outlines, materials) {
   const group = new THREE.Group();
   group.name = 'Theater';
 
-  group.add(addEdges(box(18, 9, 13, materials.landmark, 0, 0, 0), outlines, materials, 'hero'));
-  group.add(addEdges(box(8.2, 13, 7, materials.landmark, 0, 9, -1.4), outlines, materials, 'hero'));
-  group.add(addEdges(box(12, 1.05, 3.2, materials.building, 0, 4.5, 8), outlines, materials, 'hero'));
+  const side = -1;
+  const depth = 13;
+  const z = centerZ(side, depth);
 
-  const sign = box(1.4, 7.5, 0.5, materials.red, -5.8, 7.8, 6.65);
+  // 一个能从纯黑剪影中认出的剧院：低翼 + 高飞塔 + 前突雨棚。
+  group.add(addEdges(
+    box(20, 8.6, depth, materials.landmark, 0, 0, z),
+    outlines, materials, 'hero',
+  ));
+  group.add(addEdges(
+    box(8.6, 14.5, 7.4, materials.landmark, 0, 8.6, z - 1.1),
+    outlines, materials, 'hero',
+  ));
+  group.add(addEdges(
+    box(13.5, 1.0, 3.5, materials.building, 0, 4.2, -12.25),
+    outlines, materials, 'hero',
+  ));
+
+  // 竖向灯牌只作为一个小面积视觉标点，不负责照亮整条街。
+  const sign = box(1.15, 7.2, 0.42, materials.red, -7.2, 6.1, -13.45);
   sign.castShadow = false;
   group.add(sign);
 
   addWindowStrip(group, materials, {
-    x: 0, y: 4.9, z: 6.58,
-    count: 9, spacing: 1.05, warm: true,
+    x: 0,
+    y: 4.7,
+    z: facadeZ(side),
+    count: 9,
+    spacing: 1.15,
+    warm: true,
+    phase: 2,
   });
 
   return group;
@@ -26,67 +56,81 @@ function createWarehouse(outlines, materials) {
   const group = new THREE.Group();
   group.name = 'Warehouse';
 
+  const side = 1;
+  const depth = 15;
+  const x = 30;
+  const z = centerZ(side, depth);
+
   group.add(addEdges(
-    box(20, 6.2, 15, materials.buildingDim, 28, 0, -7),
+    box(21, 6.4, depth, materials.buildingDim, x, 0, z),
     outlines, materials, 'hero',
   ));
 
+  // 低多边形三棱顶，让工业体量靠轮廓而不是纹理被读出来。
   const roof = new THREE.Mesh(
-    new THREE.CylinderGeometry(8.8, 8.8, 20, 3, 1, false, 0, Math.PI),
+    new THREE.CylinderGeometry(8.8, 8.8, 21, 3, 1, false, 0, Math.PI),
     materials.buildingDim,
   );
   roof.rotation.z = Math.PI * 0.5;
   roof.rotation.y = Math.PI * 0.5;
-  roof.position.set(28, 6.2, -7);
+  roof.position.set(x, 6.4, z);
   roof.scale.y = 0.42;
   roof.castShadow = true;
   group.add(addEdges(roof, outlines, materials, 'hero', 22));
 
   addWindowStrip(group, materials, {
-    x: 28, y: 3.7, z: 0.55,
-    count: 8, spacing: 1.8,
+    x,
+    y: 3.6,
+    z: facadeZ(side),
+    count: 8,
+    spacing: 1.85,
+    phase: 4,
   });
 
   return group;
 }
 
-function createStreetRow(outlines, materials, seed, side) {
+function createStreetRow(outlines, materials, {
+  seed,
+  side,
+  xs,
+  heights = [],
+}) {
   const group = new THREE.Group();
-  group.name = side > 0 ? 'NorthRow' : 'SouthRow';
+  group.name = side > 0 ? 'SouthRow' : 'NorthRow';
 
-  for (let i = 0; i < 7; i++) {
-    const width = 7 + ((seed + i * 7) % 5);
-    const depth = 9 + ((seed + i * 11) % 6);
-    const height = 8 + ((seed + i * 13) % 13);
-    const x = -38 + i * 12;
-    const z = side * (17 + ((seed + i) % 3));
+  xs.forEach((x, i) => {
+    const width = 7.5 + ((seed + i * 7) % 4);
+    const depth = 9.5 + ((seed + i * 11) % 4);
+    const height = heights[i] ?? (8.5 + ((seed + i * 13) % 11));
+    const z = centerZ(side, depth);
     const material = i % 3 === 0 ? materials.building : materials.buildingDim;
-    const importance = i === 2 || i === 5 ? 'hero' : 'context';
 
+    // 背景建筑默认只承担 context，不再随机升级成 hero。
     group.add(addEdges(
       box(width, height, depth, material, x, 0, z),
-      outlines, materials, importance,
+      outlines, materials, 'context',
     ));
 
     if (i % 2 === 0) {
       addWindowStrip(group, materials, {
         x,
-        y: 3.4,
-        z: z - side * (depth / 2 + 0.05),
+        y: 3.2,
+        z: facadeZ(side),
         count: Math.max(2, Math.floor(width / 1.8)),
-        spacing: 1.45,
-        warm: i % 4 === 0,
+        spacing: 1.42,
+        warm: (i + seed) % 4 === 0,
         phase: seed + i,
       });
     }
 
-    if (i === 4) {
+    if (i === 1 || i === xs.length - 2) {
       group.add(addEdges(
-        box(1.1, 4.8, 1.1, materials.buildingDim, x + width * 0.28, height, z),
+        box(1.0, 3.8, 1.0, materials.buildingDim, x + width * 0.24, height, z),
         outlines, materials, 'context',
       ));
     }
-  }
+  });
 
   return group;
 }
@@ -96,14 +140,14 @@ function createFireEscape(outlines, materials, x, z) {
   group.name = 'FireEscape';
 
   for (let i = 0; i < 4; i++) {
-    const y = 3.4 + i * 2.6;
+    const y = 3.0 + i * 2.4;
     group.add(addEdges(
-      box(4.5, 0.16, 1.4, materials.buildingDim, x, y, z),
+      box(4.2, 0.14, 1.25, materials.buildingDim, x, y, z),
       outlines, materials, 'context', 5,
     ));
     group.add(
-      box(4.5, 0.08, 0.08, materials.buildingDim, x, y + 0.8, z - 0.6),
-      box(4.5, 0.08, 0.08, materials.buildingDim, x, y + 0.8, z + 0.6),
+      box(4.2, 0.06, 0.06, materials.buildingDim, x, y + 0.72, z - 0.52),
+      box(4.2, 0.06, 0.06, materials.buildingDim, x, y + 0.72, z + 0.52),
     );
   }
 
@@ -114,11 +158,28 @@ function createLampGeometry(materials, x, z) {
   const group = new THREE.Group();
   group.name = 'StreetLamp';
 
-  const pole = box(0.22, 4.4, 0.22, materials.buildingDim, x, 0, z);
-  const head = box(0.75, 0.28, 0.55, materials.warm, x, 4.35, z);
+  const pole = box(0.18, 4.25, 0.18, materials.buildingDim, x, 0, z);
+  const head = box(0.62, 0.22, 0.46, materials.warm, x, 4.18, z);
   pole.castShadow = false;
   head.castShadow = false;
   group.add(pole, head);
+
+  return group;
+}
+
+function createAlleyBack(outlines, materials) {
+  const group = new THREE.Group();
+  group.name = 'AlleyBack';
+
+  // 南侧两栋楼之间留出约 5m 的缝，后墙只给一个小亮点作为纵深终点。
+  group.add(addEdges(
+    box(9, 10, 8, materials.buildingDim, -21.5, 0, 38),
+    outlines, materials, 'context',
+  ));
+
+  const door = box(1.2, 2.2, 0.10, materials.warm, -21.5, 0.05, 33.95);
+  door.castShadow = false;
+  group.add(door);
 
   return group;
 }
@@ -132,43 +193,59 @@ export function buildWorld(scene, profile) {
   outlines.name = 'LineLayer';
   scene.add(world, outlines);
 
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(150, 110), materials.ground);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(165, 100), materials.ground);
   ground.rotation.x = -Math.PI / 2;
   ground.receiveShadow = true;
   world.add(ground);
 
-  for (const z of [-7.8, 7.8]) {
+  for (const z of [-10.4, 10.4]) {
     const sidewalk = new THREE.Mesh(
-      new THREE.BoxGeometry(150, 0.22, 5.5),
+      new THREE.BoxGeometry(165, 0.20, 5.8),
       materials.sidewalk,
     );
-    sidewalk.position.set(0, 0.1, z);
+    sidewalk.position.set(0, 0.10, z);
     sidewalk.receiveShadow = true;
     world.add(sidewalk);
   }
 
-  const wetRoad = new THREE.Mesh(new THREE.PlaneGeometry(150, 12), materials.wetRoad);
+  const wetRoad = new THREE.Mesh(new THREE.PlaneGeometry(165, 15), materials.wetRoad);
   wetRoad.rotation.x = -Math.PI / 2;
-  wetRoad.position.y = 0.015;
+  wetRoad.position.y = 0.012;
   wetRoad.receiveShadow = true;
   world.add(wetRoad);
 
   world.add(createTheater(outlines, materials));
   world.add(createWarehouse(outlines, materials));
-  world.add(createStreetRow(outlines, materials, 3, 1));
-  world.add(createStreetRow(outlines, materials, 9, -1));
-  world.add(createFireEscape(outlines, materials, -21, 11.6));
 
-  world.add(addEdges(
-    box(7, 4.5, 1.1, materials.buildingDim, -28, 0, -22),
-    outlines, materials, 'hero',
-  ));
+  // 北侧给剧院留出真正的“呼吸空间”；南侧给仓库与后巷留缺口。
+  world.add(createStreetRow(outlines, materials, {
+    seed: 3,
+    side: -1,
+    xs: [-55, -42, -29, 28, 41, 54],
+    heights: [12, 17, 10, 13, 19, 11],
+  }));
+  world.add(createStreetRow(outlines, materials, {
+    seed: 9,
+    side: 1,
+    xs: [-55, -42, -29, -14, 0, 14, 52],
+    heights: [10, 15, 17, 13, 9, 18, 12],
+  }));
 
-  const lampPositions = [];
-  for (let x = -42; x <= 42; x += 14) {
-    const position = [x, 4.2, -5.8];
-    lampPositions.push(position);
-    world.add(createLampGeometry(materials, x, -5.8));
+  world.add(createFireEscape(outlines, materials, -42, -13.35));
+  world.add(createAlleyBack(outlines, materials));
+
+  const lampPositions = [
+    [-44, 4.05, -9.0],
+    [-16, 4.05, -9.0],
+    [16, 4.05, -9.0],
+    [44, 4.05, -9.0],
+    [-35, 4.05, 9.0],
+    [2, 4.05, 9.0],
+    [45, 4.05, 9.0],
+  ];
+
+  for (const [x, , z] of lampPositions) {
+    world.add(createLampGeometry(materials, x, z));
   }
 
   return {
