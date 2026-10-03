@@ -11,7 +11,7 @@ export const SHOTS = [
     name: '02-city-landmark',
     label: 'CITY / LANDMARK DEPTH',
     scene: 'city',
-    position: [44, 17, 58],
+    position: [37, 12, 47],
     target: [-5, 8, -8],
     fov: 35,
   },
@@ -19,16 +19,16 @@ export const SHOTS = [
     name: '03-alley-mouth',
     label: 'ALLEY / MOUTH',
     scene: 'alley',
-    position: [13, 7.5, 23],
-    target: [0, 4.2, -4],
+    position: [14.8, 3.2, -38],
+    target: [14.4, 2.6, -21],
     fov: 39,
   },
   {
     name: '04-alley-figure',
     label: 'ALLEY / FIGURE + DOOR',
     scene: 'alley',
-    position: [8.4, 5.1, 7.8],
-    target: [-0.4, 3.5, -5.8],
+    position: [13.0, 2.4, -31.4],
+    target: [15.4, 1.3, -25.8],
     fov: 33,
   },
 ];
@@ -43,3 +43,4 @@ export function applyShot(camera, controls, index, setActiveScene) {
   controls.update();
   return shot;
 }
+

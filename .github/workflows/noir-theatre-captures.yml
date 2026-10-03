@@ -97,7 +97,7 @@ jobs:
             echo "Branch advanced; leave review publication to the newer capture run."
             exit 0
           fi
-          git add experiments/noir-theatre-lab/captures/review/contact-sheet.jpg experiments/noir-theatre-lab/captures/review/metrics.json
+          git add experiments/noir-theatre-lab/captures/review/contact-sheet.jpg experiments/noir-theatre-lab/captures/review/final-board.jpg experiments/noir-theatre-lab/captures/review/metrics.json
           if git diff --cached --quiet; then
             echo "Review evidence unchanged."
             exit 0

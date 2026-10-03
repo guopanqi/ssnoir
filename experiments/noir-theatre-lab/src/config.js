@@ -20,20 +20,21 @@ export const PROFILE = {
     rotationY: -0.20,
   },
   alley: {
-    extent: 30,
+    extent: 90,
     rotationY: Math.PI,
   },
   line: {
-    strength: 0.88,
-    threshold: 0.115,
+    strength: 0.68,
+    threshold: 0.035,
     structuralOpacity: 0.72,
   },
   print: {
     levels: 5,
-    hatchStrength: 0.25,
-    grain: 0.026,
+    hatchStrength: 0.18,
+    grain: 0.006,
     vignette: 0.36,
   },
 };
 
 export const MODES = ['shape', 'light', 'line', 'final'];
+

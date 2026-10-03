@@ -28,6 +28,7 @@ const fragmentShader = /* glsl */`
     vec2 px = 1.0 / uResolution;
     vec3 c = texture2D(tDiffuse, vUv).rgb;
     float y = luma(c);
+    float surfaceMask = smoothstep(.008,.035,y);
     float gx = luma(texture2D(tDiffuse, vUv + vec2(px.x,0.)).rgb) - luma(texture2D(tDiffuse, vUv - vec2(px.x,0.)).rgb);
     float gy = luma(texture2D(tDiffuse, vUv + vec2(0.,px.y)).rgb) - luma(texture2D(tDiffuse, vUv - vec2(0.,px.y)).rgb);
     float edge = smoothstep(uLineThreshold, uLineThreshold * 2.7, length(vec2(gx,gy)));
@@ -39,7 +40,7 @@ const fragmentShader = /* glsl */`
       // Quantize perceptual brightness, then return to the linear output pipeline.
       float perceptual = pow(max(y, 0.0), 1.0 / 2.2);
       float stepped = floor(perceptual * (lev - 1.0) + .5) / (lev - 1.0);
-      y = pow(mix(perceptual, stepped, .72), 2.2);
+      y = pow(mix(perceptual, stepped, .72 * smoothstep(.025,.10,y)), 2.2);
       c *= (0.82 + 0.18 * y);
       c = mix(vec3(y), c, 0.22);
     }
@@ -55,12 +56,12 @@ const fragmentShader = /* glsl */`
       float d2 = abs(fract((p.x - p.y) / 13.0) - .5);
       float hatchA = 1.0 - smoothstep(.035,.12,d1);
       float hatchB = 1.0 - smoothstep(.035,.12,d2);
-      float shadowA = 1.0 - smoothstep(.12,.38,y);
-      float shadowB = 1.0 - smoothstep(.055,.20,y);
-      float hatch = max(hatchA * shadowA, hatchB * shadowB);
+      float shadowA = (1.0 - smoothstep(.06,.22,y)) * smoothstep(.01,.045,y);
+      float shadowB = (1.0 - smoothstep(.025,.10,y)) * smoothstep(.006,.025,y);
+      float hatch = max(hatchA * shadowA, hatchB * shadowB) * surfaceMask;
       c *= 1.0 - hatch * uHatchStrength;
       float grain = (hash21(gl_FragCoord.xy) - .5) * uGrain;
-      c += grain;
+      c += grain * surfaceMask;
       float v = 1.0 - smoothstep(.28,.82,length(vUv-.5));
       c *= mix(1.0-uVignette,1.0,v);
     }
@@ -103,3 +104,4 @@ export function createPost(renderer, scene, camera, profile) {
     setMode(name){ renderPass.overrideMaterial = name==='shape' ? shapeMaterial : null; pass.uniforms.uMode.value = ({shape:0, light:0, line:1, final:3})[name] ?? 3; },
   };
 }
+
