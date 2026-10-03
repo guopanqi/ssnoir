@@ -38,23 +38,34 @@ function haloTexture(){
     ctx.clearRect(0,0,w,h);
     let seed=1843;
     const rnd=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296);
-    ctx.filter='blur(18px)';
-    for(let i=0;i<22;i++){
-      const x=rnd()*w,y=rnd()*h,rx=18+rnd()*75,ry=10+rnd()*55;
-      const a=.025+rnd()*.055;
-      ctx.fillStyle='rgba(220,222,224,'+a+')';
-      ctx.beginPath();ctx.ellipse(x,y,rx,ry,rnd()*Math.PI,0,Math.PI*2);ctx.fill();
+
+    // Broad directional brush bands: intentionally too weak to read as individual shapes.
+    ctx.save();
+    ctx.filter='blur(7px)';
+    for(let i=0;i<34;i++){
+      const x=-40+rnd()*(w+80),y=rnd()*h;
+      const bw=30+rnd()*120,bh=4+rnd()*20;
+      const a=.010+rnd()*.018;
+      ctx.translate(x+bw/2,y+bh/2);
+      ctx.rotate((rnd()-.5)*.28);
+      const g=ctx.createLinearGradient(-bw/2,0,bw/2,0);
+      g.addColorStop(0,'rgba(225,227,229,0)');
+      g.addColorStop(.45,'rgba(225,227,229,'+a+')');
+      g.addColorStop(.55,'rgba(225,227,229,'+(a*.8)+')');
+      g.addColorStop(1,'rgba(225,227,229,0)');
+      ctx.fillStyle=g;ctx.fillRect(-bw/2,-bh/2,bw,bh);
+      ctx.setTransform(1,0,0,1,0,0);
     }
-    ctx.filter='none';
-    for(let i=0;i<26;i++){
-      const x=rnd()*w,y=rnd()*h,len=12+rnd()*70;
-      ctx.strokeStyle='rgba(245,242,232,'+(.018+rnd()*.030)+')';
-      ctx.lineWidth=.5+rnd()*1.3;
-      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y+(rnd()-.5)*3);ctx.stroke();
+    ctx.restore();
+
+    for(let i=0;i<24;i++){
+      const x=rnd()*w,y=rnd()*h,len=20+rnd()*95;
+      ctx.strokeStyle='rgba(245,242,232,'+(.010+rnd()*.018)+')';
+      ctx.lineWidth=.4+rnd()*.8;
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y+(rnd()-.5)*4);ctx.stroke();
     }
   },384,384);
 }
-
 function reflectionTexture(){
   return canvasTexture((ctx,w,h)=>{
     ctx.clearRect(0,0,w,h);
@@ -116,7 +127,7 @@ function addBuilding(fill,lines,{x,z,w,h,d=4,color=P.wall,lit=[]}){
   box(fill,[w,h,d],[x,h/2,z],standard(color));
   const front=z+d/2+.03;
   const wash=new THREE.Mesh(new THREE.PlaneGeometry(w*.96,h*.94),new THREE.MeshBasicMaterial({
-    map:washTexture(),transparent:true,opacity:.72,depthWrite:false,toneMapped:false
+    map:washTexture(),transparent:true,opacity:.34,depthWrite:false,toneMapped:false
   }));
   wash.position.set(x,h*.50,front+.008);wash.renderOrder=3;fill.add(wash);
   // Only three major silhouette strokes; no full CAD rectangle.
