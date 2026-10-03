@@ -165,7 +165,12 @@ try {
   const page = await browser.newPage({ viewport: modes[0].viewport, deviceScaleFactor: 1 });
   const browserErrors = [];
   page.on('pageerror', (error) => browserErrors.push(error.stack ?? String(error)));
-  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(`${message.text()} (${message.location().url})`);
+  });
+  page.on('response', (response) => {
+    if (response.status() >= 400) browserErrors.push(`HTTP ${response.status()} ${response.url()}`);
+  });
   const assertBrowserHealthy = () => {
     if (browserErrors.length) throw new Error(browserErrors.join('\n'));
   };

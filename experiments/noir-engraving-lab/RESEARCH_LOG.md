@@ -249,3 +249,5 @@ SSNoirStylize 可在最终冷色量化之后增加受 mask / chroma gate 控制�
 **循环改进与验证**：本地支持 --shot、--mode、--out、--port 和 --help；16 图完整截图约 14–18 秒，单图运行约 5 秒，省去逐轮 Actions 排队、上传和下载。保留四列诊断、源码 SHA-256、完整 profile 与浏览器版本。临时在 setShot 注入 console error，任务约 5.1 秒失败；恢复后 build 与截图成功。截图成功必须包含实际打开图片检查。
 
 最终证据与阶段比较：`captures/reviews/2026-10-03-local/`。
+
+**CI 补充**：提交后的 runner 完整 Chrome 首次因资源 404 被严格错误检查中断（run 37129033888）。页面新增明确的空 favicon 声明，避免隐式图标请求；HTTP 错误现在记录状态码与 URL，console error 记录来源。保留资源失败即中断的规则，不把 404 一概忽略。
