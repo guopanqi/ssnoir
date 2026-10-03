@@ -26,7 +26,7 @@ function startServer() {
   );
 }
 
-async function waitForServer(page, attempts = 60) {
+async function waitForServer(page, attempts = 8) {
   for (let i = 0; i < attempts; i++) {
     try {
       await page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 3000 });
@@ -47,7 +47,15 @@ let serverLog = '';
 server.stdout.on('data', (d) => { serverLog += d.toString(); });
 server.stderr.on('data', (d) => { serverLog += d.toString(); });
 
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({
+  headless: true,
+  args: [
+    '--enable-webgl',
+    '--ignore-gpu-blocklist',
+    '--enable-unsafe-swiftshader',
+    '--use-angle=swiftshader',
+  ],
+});
 const page = await browser.newPage({ viewport: VIEWPORT, deviceScaleFactor: 1 });
 page.on('console', (message) => {
   const line = `[browser:${message.type()}] ${message.text()}\n`;
