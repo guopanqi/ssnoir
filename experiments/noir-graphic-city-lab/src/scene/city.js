@@ -332,6 +332,65 @@ function makeWetPatchMaterial() {
   });
 }
 
+function makeDinerReflectionMaterial() {
+  const canvas=document.createElement('canvas');
+  canvas.width=640;
+  canvas.height=1024;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  let seed=91;
+  const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646;};
+
+  // Six diner windows become vertical broken reflections toward the camera.
+  const xs=[104,184,264,344,424,504];
+  for(const x of xs){
+    const g=ctx.createLinearGradient(0,80,0,930);
+    g.addColorStop(0,'rgba(242,240,225,0.22)');
+    g.addColorStop(.18,'rgba(225,228,224,0.16)');
+    g.addColorStop(.55,'rgba(190,200,210,0.08)');
+    g.addColorStop(1,'rgba(150,165,185,0)');
+    ctx.fillStyle=g;
+
+    for(let i=0;i<22;i++){
+      const y=90+i*(28+rand()*20);
+      const w=8+rand()*20;
+      const h=3+rand()*8;
+      const jitter=(rand()-.5)*26;
+      ctx.globalAlpha=.45+rand()*.45;
+      ctx.fillRect(x+jitter-w/2,y,w,h);
+    }
+  }
+
+  // One stronger lamp reflection with irregular breakup.
+  const lg=ctx.createLinearGradient(0,120,0,900);
+  lg.addColorStop(0,'rgba(255,251,230,.42)');
+  lg.addColorStop(.22,'rgba(236,236,225,.18)');
+  lg.addColorStop(1,'rgba(190,200,215,0)');
+  ctx.fillStyle=lg;
+  for(let i=0;i<18;i++){
+    const y=150+i*33;
+    const w=24+rand()*54;
+    ctx.globalAlpha=.4+rand()*.5;
+    ctx.fillRect(520-w/2+(rand()-.5)*18,y,w,4+rand()*9);
+  }
+  ctx.globalAlpha=1;
+
+  const tex=new THREE.CanvasTexture(canvas);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.minFilter=THREE.LinearMipmapLinearFilter;
+  tex.magFilter=THREE.LinearFilter;
+
+  return new THREE.MeshBasicMaterial({
+    map:tex,
+    transparent:true,
+    opacity:.86,
+    depthWrite:false,
+    depthTest:true,
+    side:THREE.DoubleSide,
+  });
+}
+
 function makeSoftTexture() {
   const canvas=document.createElement('canvas');
   canvas.width=256;
@@ -463,6 +522,23 @@ function addRightArchitecture(groups,materials) {
   }
   addStroke(groups.strokes,materials.strokePrimary,[[12.93,1.0,1.0],[12.93,9.0,1.0],[12.93,9.0,18.0]]);
 
+  // Front facade facing the primary camera: sparse authored windows and trim
+  // prevent the near building from reading as an empty black blocker.
+  for(const [x,y,w,h] of [
+    [16.0,2.7,1.7,1.0],[19.1,2.7,1.7,1.0],[22.1,2.7,1.5,1.0],
+    [16.2,5.5,1.5,.78],[19.2,5.5,1.9,.78],[22.0,5.5,1.45,.78],
+    [16.5,8.0,1.35,.65],[20.0,8.0,1.6,.65]
+  ]){
+    const panel=new THREE.Mesh(new THREE.PlaneGeometry(w,h),materials.windowDark);
+    panel.position.set(x,y,18.53);
+    groups.solids.add(panel);
+    addStroke(groups.strokes,materials.strokeDim,[
+      [x-w/2,y-h/2,18.55],[x+w/2,y-h/2,18.55],
+      [x+w/2,y+h/2,18.55],[x-w/2,y+h/2,18.55],
+      [x-w/2,y-h/2,18.55]
+    ]);
+  }
+
   // Intentional facade linework and balcony.
   for (let y=1.4;y<13;y+=2.2) {
     addStroke(groups.strokes,materials.strokeDim,[[10.45,y,-19.8],[10.45,y,-10.2]]);
@@ -583,6 +659,14 @@ function addGround(groups,materials) {
   wetWash.position.set(-6.0,.028,20.0);
   groups.atmosphere.add(wetWash);
 
+  const dinerReflection=new THREE.Mesh(
+    new THREE.PlaneGeometry(15.5,24),
+    makeDinerReflectionMaterial(),
+  );
+  dinerReflection.rotation.x=-Math.PI/2;
+  dinerReflection.position.set(-2.5,.041,-3.2);
+  groups.atmosphere.add(dinerReflection);
+
   // Localized grass, kept near curbs.
   const verts=[];
   let seed=37;
@@ -630,13 +714,13 @@ function addStreetFurniture(groups,materials) {
       map:materials.haloTexture,
       color:0xf0eee2,
       transparent:true,
-      opacity:z>10?.12:.16,
+      opacity:z>10?.16:.21,
       depthWrite:false,
       depthTest:true,
       blending:THREE.NormalBlending,
     }));
     halo.position.set(lightX,4.28,z+.03);
-    const haloSize=z>10?4.8:5.8;
+    const haloSize=z>10?5.4:6.6;
     halo.scale.set(haloSize,haloSize,1);
     groups.atmosphere.add(halo);
   }

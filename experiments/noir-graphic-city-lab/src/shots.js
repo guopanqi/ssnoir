@@ -10,9 +10,9 @@ export const SHOTS=Object.freeze([
   Object.freeze({
     id:'02-city-plaza-offset',
     name:'02 · CITY PLAZA OFFSET',
-    position:[16.5,5.8,26],
-    target:[-4.0,4.2,-10],
-    fov:40,
+    position:[-13.5,5.2,33],
+    target:[-2.5,3.7,-12],
+    fov:39,
     purpose:'鲁棒性镜头：同一套资产换一个机位，确认风格来自场景与渲染系统，而不是只为一张截图作弊。',
   }),
 ]);
