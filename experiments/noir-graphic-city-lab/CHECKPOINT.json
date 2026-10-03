@@ -1,35 +1,35 @@
 {
-  "schemaVersion": 1,
-  "phase": "Genesis reference reset：旧极简方向已放弃，等待新基线实际审图",
+  "schemaVersion": 2,
+  "phase": "Full reconstruction v1: awaiting first visual review",
   "acceptedBaseline": null,
   "pendingReviews": [],
   "nextQuestions": [
     {
-      "id": "reference-family",
-      "question": "新画面是否已经进入参考图的视觉族谱：高密度发光线、深蓝中间值、实心人物剪影、材质噪声和体积光？",
+      "id": "family-match",
+      "question": "Does the reconstructed city plaza belong to the same visual family as the supplied Genesis Noir references at first glance?",
       "status": "active"
     },
     {
-      "id": "line-density",
-      "question": "城市细线密度是否足以形成画出来的空间，而不是低模盒子加描边？",
+      "id": "clean-lines",
+      "question": "Do architectural lines feel intentional and clean rather than like wireframe output?",
       "status": "pending"
     },
     {
-      "id": "character-contour",
-      "question": "人物是否更接近参考中的黑色实心剪影 + 细白手绘边，而非几何块面角色？",
+      "id": "silhouette-character",
+      "question": "Does the detective read as a solid graphic silhouette with an external contour rather than low-poly geometry?",
       "status": "pending"
     }
   ],
   "knownLimits": [
-    "当前仍是程序几何，尚未加入外部纹理资产。",
-    "体积光是几何近似，不是真实体积散射。",
-    "线条抖动目前通过双线偏移近似，尚未做屏幕空间手绘 wobble。"
+    "No imported textures yet; surface grain is procedural.",
+    "Spotlight is simple translucent geometry, not raymarched volumetrics.",
+    "The first version proves one plaza tableau before expanding to other SSNoir locations."
   ],
   "doNotRepeat": [
-    "不要把 Genesis Noir 再次抽象成大面积纯黑和极少白线。",
-    "不要让金色预算主导这阶段的画面。",
-    "不要用 posterization 把中间灰全部吃掉。",
-    "不要只靠 Bloom 假装手绘线密度。"
+    "Do not use image histogram targets as aesthetic goals.",
+    "Do not equate more lines with more Genesis Noir.",
+    "Do not use geometry wireframe on characters.",
+    "Do not expand the city before the primary tableau is visually convincing."
   ],
   "protocol": "CONTINUE.md"
 }

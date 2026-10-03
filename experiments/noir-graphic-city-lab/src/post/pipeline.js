@@ -4,106 +4,69 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-const GenesisPrintShader = {
-  uniforms: {
-    tDiffuse: { value: null },
-    uEnabled: { value: 1 },
-    uInBlack: { value: 0.006 },
-    uInWhite: { value: 0.52 },
-    uGamma: { value: 0.88 },
-    uGrain: { value: 0.062 },
-    uHatch: { value: 0.075 },
-    uVignette: { value: 0.16 },
+const FinishShader={
+  uniforms:{
+    tDiffuse:{value:null},
+    uEnabled:{value:1},
+    uGrain:{value:.032},
+    uVignette:{value:.14},
   },
-  vertexShader: `
+  vertexShader:`
     varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
+    void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}
   `,
-  fragmentShader: `
+  fragmentShader:`
     uniform sampler2D tDiffuse;
     uniform float uEnabled;
-    uniform float uInBlack;
-    uniform float uInWhite;
-    uniform float uGamma;
     uniform float uGrain;
-    uniform float uHatch;
     uniform float uVignette;
     varying vec2 vUv;
 
-    float hash(vec2 p) {
-      p = fract(p * vec2(123.34, 456.21));
-      p += dot(p, p + 45.32);
-      return fract(p.x * p.y);
+    float hash(vec2 p){
+      p=fract(p*vec2(123.34,456.21));
+      p+=dot(p,p+45.32);
+      return fract(p.x*p.y);
     }
 
-    void main() {
-      vec3 src = texture2D(tDiffuse, vUv).rgb;
-      if (uEnabled < 0.5) {
-        gl_FragColor = vec4(src, 1.0);
-        return;
-      }
+    void main(){
+      vec3 c=texture2D(tDiffuse,vUv).rgb;
+      if(uEnabled<.5){gl_FragColor=vec4(c,1.0);return;}
 
-      float l = dot(src, vec3(0.2126, 0.7152, 0.0722));
-      l = clamp((l - uInBlack) / max(0.0001, uInWhite - uInBlack), 0.0, 1.0);
-      l = pow(l, uGamma);
+      float n=hash(gl_FragCoord.xy)-.5;
+      float l=dot(c,vec3(.2126,.7152,.0722));
+      float mid=smoothstep(.06,.22,l)*(1.0-smoothstep(.62,.9,l));
+      c += n*uGrain*(.45+.55*mid);
 
-      vec3 ink = vec3(0.026, 0.038, 0.075);
-      vec3 paper = vec3(0.95, 0.945, 0.89);
-      vec3 col = mix(ink, paper, l);
+      vec2 p=vUv-.5;
+      float vig=smoothstep(.82,.18,dot(p,p)*1.9);
+      c*=mix(1.0-uVignette,1.0,vig);
 
-      float n = hash(gl_FragCoord.xy);
-      float grain = (n - 0.5) * uGrain;
-      float midMask = smoothstep(0.10, 0.34, l) * (1.0 - smoothstep(0.72, 0.92, l));
-      float h1 = sin((gl_FragCoord.x + gl_FragCoord.y * 0.72) * 0.34 + n * 2.0);
-      float h2 = sin((gl_FragCoord.x * 0.31 - gl_FragCoord.y * 0.44) * 0.23);
-      float hatch = (step(0.86, h1) + step(0.90, h2)) * uHatch * midMask;
-      float scratchSeed = hash(vec2(floor(gl_FragCoord.x * 0.18), floor(gl_FragCoord.y * 0.012)));
-      float scratch = step(0.985, scratchSeed) * 0.055 * midMask;
-      float speck = (step(0.994, n) - step(n, 0.006)) * 0.085;
-
-      col += grain + scratch + speck;
-      col -= hatch;
-
-      vec2 p = vUv - 0.5;
-      float vig = smoothstep(0.82, 0.22, dot(p, p) * 1.8);
-      col *= mix(1.0 - uVignette, 1.0, vig);
-
-      gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+      // Keep the blue-black base; do not crush intermediate values or posterize.
+      c=pow(max(c,vec3(0.0)),vec3(.94));
+      gl_FragColor=vec4(clamp(c,0.0,1.0),1.0);
     }
   `,
 };
 
-export function createPost(renderer, scene, camera, profile) {
-  const composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
+export function createPost(renderer,scene,camera,profile){
+  const composer=new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene,camera));
 
-  const bloom = new UnrealBloomPass(
-    new THREE.Vector2(1, 1),
-    profile.print.bloomStrength,
-    profile.print.bloomRadius,
-    profile.print.bloomThreshold,
+  const bloom=new UnrealBloomPass(
+    new THREE.Vector2(1,1),
+    profile.atmosphere.bloomStrength,
+    profile.atmosphere.bloomRadius,
+    profile.atmosphere.bloomThreshold,
   );
   composer.addPass(bloom);
 
-  const graphic = new ShaderPass(GenesisPrintShader);
-  graphic.uniforms.uInBlack.value = profile.print.inBlack;
-  graphic.uniforms.uInWhite.value = profile.print.inWhite;
-  graphic.uniforms.uGamma.value = profile.print.gamma;
-  graphic.uniforms.uGrain.value = profile.print.grain;
-  graphic.uniforms.uHatch.value = profile.print.hatch;
-  graphic.uniforms.uVignette.value = profile.print.vignette;
-  composer.addPass(graphic);
+  const finish=new ShaderPass(FinishShader);
+  finish.uniforms.uGrain.value=profile.atmosphere.grain;
+  finish.uniforms.uVignette.value=profile.atmosphere.vignette;
+  composer.addPass(finish);
 
   return {
-    composer,
-    bloom,
-    graphic,
-    resize(width, height) {
-      composer.setSize(width, height);
-      bloom.setSize(width, height);
-    },
+    composer,bloom,finish,
+    resize(w,h){composer.setSize(w,h);bloom.setSize(w,h);},
   };
 }

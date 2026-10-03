@@ -1,25 +1,52 @@
 # Research Log
 
-## 2026-10-03 — 方向性失败：过度极简化
+## 2026-10-04 — Full reconstruction
 
-第一阶段实际截图证明“黑块 + 少量线 + 稀疏金色”虽然能形成图形化 noir，但与用户给出的 Genesis Noir 参考相去甚远。
+User review rejected the previous experiment. The failure was not a missing parameter; the experiment had optimized the wrong abstractions.
 
-观察：
-- 旧版大面积纯黑，参考图拥有大量中间灰和材质噪声。
-- 旧版把线当稀缺信息，参考图把线本身当作世界的连续媒介。
-- 旧版人物依赖几何块面；参考人物更像黑色实心剪影被细白手绘边线切出。
-- 参考里高密度亮窗、栏杆、地缝、草、擦痕和局部强体积光非常关键。
-- “金色预算”在这张参考里不是主要问题。
+### Findings from renewed Genesis Noir research
 
-决定：放弃旧视觉基线，不在原极简语法上继续微调。
+Feral Cat Den explicitly describes Genesis Noir as an attempt to bring motion-graphics sensibility into a game. Their workflow previsualized scenes in Cinema 4D, required precise camera alignment between 2D and 3D elements, and retained large amounts of 2D/vector animation in-engine.
 
-## 2026-10-03 — Genesis reference reset
+This changes the lab model:
+- style is not a post-process;
+- camera composition is part of asset authoring;
+- vector-like linework is authored structure, not merely detected edges;
+- 2D/3D hybridization is a first-class technique;
+- clean graphic hierarchy matters more than matching a histogram.
 
-新假设：
-- 深蓝黑而非纯黑作为暗部介质；
-- 建筑大部分边缘、窗格、栏杆、地缝和植被共同提高线密度；
-- 白线允许轻微 bloom 和 double-line jitter；
-- 人物恢复完整但细的白轮廓，内部保持黑色实心；
-- 体积光作为一个真实可见的巨大白色构图形；
-- 后处理保持连续灰度，不再做 4-level posterization；
-- 第一目标是“进入同一视觉族谱”，之后才谈 SSNoir 自己的变体。
+### Open-source technique survey
+
+Useful:
+- post-process depth/normal edge extraction for selected environment contours;
+- inverted hull for character outer silhouettes;
+- NPR hatching/engraving experiments for localized surface treatment;
+- god-ray / volumetric passes for real light shafts;
+- modern postprocessing frameworks for a controlled compositor.
+
+Not useful as the foundation:
+- full-scene wireframe;
+- full-screen sketch wobble;
+- global crosshatching;
+- aggressive posterization;
+- a stack of effects with no compositional intent.
+
+### Evaluation reset
+
+Removed black-share, midtone-retention and color-budget metrics from aesthetic acceptance.
+
+New evidence set:
+- Structure: geometry + intentional lines, no emissive/atmosphere/post.
+- Clean: complete scene before grain.
+- Final: finished frame.
+- Offset shot: robustness check.
+
+The final decision remains human visual review.
+
+### Reconstruction v1
+
+The old scene implementation is replaced by a single composed city plaza. The first question is deliberately simple:
+
+> Does one still frame finally look like it belongs to the same visual family as the supplied Genesis Noir references?
+
+Nothing else should be optimized until the answer is yes.

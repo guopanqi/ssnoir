@@ -1,41 +1,25 @@
-export const SHOTS = Object.freeze([
+export const SHOTS=Object.freeze([
   Object.freeze({
-    id: '01-plaza-approach',
-    name: '01 · PLAZA APPROACH',
-    position: [10.8, 4.0, 39.5],
-    target: [-3.7, 4.1, -13.5],
-    fov: 43,
-    purpose: '参考 Genesis Noir 城市场景：前景侦探、远处人群、密集亮窗、线稿街景与暗蓝空间同时成立。',
+    id:'01-city-plaza',
+    name:'01 · CITY PLAZA',
+    position:[9.5,4.4,41],
+    target:[-3.7,4.1,-13.2],
+    fov:42,
+    purpose:'第一审核镜头：侦探前景、暗蓝城市、密集亮窗、人群、湿地与探照灯组成一个干净而精致的 Genesis Noir 风格城市舞台。',
   }),
   Object.freeze({
-    id: '02-spotlight-gathering',
-    name: '02 · SPOTLIGHT GATHERING',
-    position: [15, 5.8, 16],
-    target: [-4.0, 5.0, -8],
-    fov: 42,
-    purpose: '测试体积光成为巨大白色图形，但人物和背景仍保留线稿与中间灰，而不是被纯黑吞没。',
-  }),
-  Object.freeze({
-    id: '03-detective-silhouette',
-    name: '03 · DETECTIVE SILHOUETTE',
-    position: [10.4, 3.25, 27.5],
-    target: [3.0, 2.9, 17.2],
-    fov: 34,
-    purpose: '中近景测试黑色实心人物、细白轮廓和少量内部线，避免低模块面感。',
-  }),
-  Object.freeze({
-    id: '04-line-city',
-    name: '04 · LINE CITY',
-    position: [-3.0, 10.5, 46],
-    target: [-5.0, 9.0, -26],
-    fov: 30,
-    purpose: '测试城市是否依靠大量白线、亮窗和中灰体块形成手绘空间，而不是少量描边的盒子城。',
+    id:'02-city-plaza-offset',
+    name:'02 · CITY PLAZA OFFSET',
+    position:[16.5,5.8,26],
+    target:[-4.0,4.2,-10],
+    fov:40,
+    purpose:'鲁棒性镜头：同一套资产换一个机位，确认风格来自场景与渲染系统，而不是只为一张截图作弊。',
   }),
 ]);
 
-export function applyShot(camera, controls, index) {
-  const shot = SHOTS[index];
-  camera.fov = shot.fov;
+export function applyShot(camera,controls,index){
+  const shot=SHOTS[index];
+  camera.fov=shot.fov;
   camera.updateProjectionMatrix();
   camera.position.fromArray(shot.position);
   controls.target.fromArray(shot.target);

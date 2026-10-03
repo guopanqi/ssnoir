@@ -1,73 +1,41 @@
-function setFx(world, visible) {
-  world.groups.accents.visible = visible;
-  world.groups.haze.visible = visible;
-}
-
 export function installCaptureApi({ profile, world, post, camera, controls, applyShot, render }) {
-  const bloomStrength = profile.print.bloomStrength;
+  const bloomStrength=profile.atmosphere.bloomStrength;
 
-  const modes = {
-    shape() {
-      world.groups.lines.visible = false;
-      world.groups.windows.visible = false;
-      setFx(world, false);
-      post.bloom.strength = 0;
-      post.graphic.uniforms.uEnabled.value = 0;
+  const modes={
+    structure(){
+      world.groups.lines.visible=true;
+      world.groups.emissive.visible=false;
+      world.groups.atmosphere.visible=false;
+      world.groups.characters.visible=true;
+      post.bloom.strength=0;
+      post.finish.uniforms.uEnabled.value=0;
     },
-    line() {
-      world.groups.lines.visible = true;
-      world.groups.windows.visible = true;
-      setFx(world, false);
-      post.bloom.strength = 0;
-      post.graphic.uniforms.uEnabled.value = 0;
+    clean(){
+      world.groups.lines.visible=true;
+      world.groups.emissive.visible=true;
+      world.groups.atmosphere.visible=true;
+      world.groups.characters.visible=true;
+      post.bloom.strength=bloomStrength;
+      post.finish.uniforms.uEnabled.value=0;
     },
-    accent() {
-      world.groups.lines.visible = true;
-      world.groups.windows.visible = true;
-      setFx(world, true);
-      post.bloom.strength = bloomStrength;
-      post.graphic.uniforms.uEnabled.value = 0;
-    },
-    final() {
-      world.groups.lines.visible = true;
-      world.groups.windows.visible = true;
-      setFx(world, true);
-      post.bloom.strength = bloomStrength;
-      post.graphic.uniforms.uEnabled.value = 1;
+    final(){
+      world.groups.lines.visible=true;
+      world.groups.emissive.visible=true;
+      world.groups.atmosphere.visible=true;
+      world.groups.characters.visible=true;
+      post.bloom.strength=bloomStrength;
+      post.finish.uniforms.uEnabled.value=1;
     },
   };
 
-  window.__graphicCityLab = {
-    ready: true,
-    setShot(index) {
-      const shot = applyShot(camera, controls, index);
-      world.groups.accents.traverse((object) => {
-        if (object.userData?.spotlightFx) object.visible = index !== 0;
-      });
-      render();
-      return shot;
-    },
-    setMode(name) {
-      const fn = modes[name];
-      if (!fn) throw new Error(`Unknown mode: ${name}`);
-      fn();
-      render();
-      return name;
+  window.__graphicCityLab={
+    ready:true,
+    setShot(index){const shot=applyShot(camera,controls,index);render();return shot;},
+    setMode(name){
+      if(!modes[name]) throw new Error(`Unknown mode: ${name}`);
+      modes[name](); render(); return name;
     },
     render,
-    info() {
-      return {
-        profile,
-        camera: {
-          position: camera.position.toArray(),
-          target: controls.target.toArray(),
-        },
-        lineVisible: world.groups.lines.visible,
-        windowsVisible: world.groups.windows.visible,
-        fxVisible: world.groups.accents.visible,
-        bloom: post.bloom.strength,
-        printEnabled: post.graphic.uniforms.uEnabled.value > 0.5,
-      };
-    },
+    info(){return {profile,camera:{position:camera.position.toArray(),target:controls.target.toArray()}};},
   };
 }

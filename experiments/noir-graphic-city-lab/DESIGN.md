@@ -1,51 +1,84 @@
-# Design — Noir Graphic City
+# Noir Graphic City Lab — Reconstruction v1
 
-## 2026-10-03 参考基线重置
+## Why the previous experiment was discarded
 
-早期版本把 Genesis Noir 错误地抽象成“极简黑块 + 少量白线 + 金色点缀”，实际截图与用户提供的 Genesis Noir 参考相去甚远。该方向不再作为视觉基线。
+The earlier lab optimized proxy statistics (black share, midtone retention, accent share) and repeatedly tuned a weak visual premise. Those numbers were useful for diagnosing rendering regressions, but they were poor aesthetic objectives: a different valid Genesis Noir shot can have radically different luminance distributions.
 
-用户参考图显示的目标语言更接近：
+The reset starts from art direction, not image histograms.
 
-> 深蓝黑的实体空间上覆盖高密度、略发光、略不稳定的乳白手绘线；建筑和地面拥有大量中间灰、噪点、擦痕、草叶与结构细线；人物是黑色实心剪影，用细白轮廓从环境切出；局部体积光可以极亮，但画面不是大面积纯黑。
+## What Genesis Noir is actually doing
 
-从参考图测得的粗略辅助指标（只用于防止再次走偏，不是像素级复刻目标）：
-- 整体平均亮度约 0.216。
-- 中位亮度约 0.145。
-- 亮度 < 0.08 的面积约 24.5%。
-- 亮度 > 0.70 的面积约 6.9%。
-- 三个参考面板几乎是低饱和冷灰/深蓝体系；金色不是当前阶段核心。
+Production notes from Feral Cat Den describe a motion-graphics-first workflow: scenes were designed and prevised in Cinema 4D, 2D and 3D elements had to align precisely to a camera, and a large portion of animation remained 2D/vector work inside the game pipeline.
 
-## 核心语言
+The important consequence for this lab:
 
-1. **Ink volume**：暗面不是纯黑洞，深蓝黑表面仍保留体积和纹理。
-2. **Dense drawn space**：线不是“选择性轮廓点缀”，而是建筑、栏杆、窗格、地缝、草、道具共同构成的空间语言。
-3. **Luminous contour**：人物与关键结构使用乳白细线，可有轻微 glow / double-line / hand jitter。
-4. **Silhouette characters**：人物内部保持黑色实心，靠帽檐、长衣、姿态和轮廓线成立。
-5. **Volumetric graphic light**：探照灯、门光、舞台光本身是构图中的巨大白色形状。
-6. **Material noise**：颗粒、擦痕、轻度排线与雾不是后期装饰，而是维持“画出来的世界”的连续介质。
-7. **Camera-led staging**：仍然坚持为镜头和叙事调度 3D，但不能靠大面积纯色平面假装平面设计。
+> The target is not a universal shader. It is a compositional system that lets clean vector-like drawing, dark 3D masses, silhouettes, light and motion-graphic staging coexist.
 
-## 非目标
+## Visual pillars
 
-- 不再追求上一版的极简平面海报感。
-- 不使用纯全局 toon outline 作为唯一风格来源。
-- 不把金色当作当前阶段的主视觉约束。
-- 不把全黑面积本身当作 noir 成功。
-- 不用 Bloom 掩盖低密度场景；线密度、物件密度和中间值必须先成立。
+1. **Clean vector architecture**
+   - Thin off-white lines.
+   - Lines correspond to windows, rails, roof breaks, facade seams, props and silhouettes.
+   - Avoid indiscriminate wireframe and random wobble.
 
-## 当前工程层
+2. **Rich blue-black surfaces**
+   - Dark surfaces are not empty black.
+   - Keep restrained value separation between facade planes.
+   - Fine grain belongs mostly to surfaces and atmosphere.
 
-- `scene/city.js`：暗蓝实体、亮窗、建筑线稿、地面细线、草和街景。
-- `scene/characters.js`：黑色实心角色 + 全轮廓细白线 + silhouette variations。
-- `post/pipeline.js`：连续冷灰映射、细颗粒、轻排线和有限 bloom。
-- `shots.js`：Plaza / Spotlight / Detective / Line City 四类视觉压力测试。
-- `captureApi.js`：Shape / Line+Windows / Light+Haze / Final。
+3. **Silhouette people**
+   - Solid black bodies.
+   - Outer contour only, using an inverted hull.
+   - Minimal internal marks.
+   - Strong hat/coat/pose variation.
 
-## 下一阶段
+4. **Bright graphic light**
+   - A few white windows, signs, pools and beams can carry the focal structure.
+   - Bloom is narrow and restrained.
 
-先证明单张静态城市画面进入参考图的视觉族谱，再研究：
-- 更自然的手绘线抖动；
-- 烟雾/体积光遮挡；
-- 人物动作和衣摆；
-- 室内/舞台空间；
-- 2D 与 3D 混合动画。
+5. **Camera-authored composition**
+   - The primary benchmark is a composed city tableau, not free-camera coverage.
+   - A second offset camera is kept only as a robustness check.
+
+## Technical references worth borrowing
+
+- Depth/normal outline projects are useful for environment contours and selective edge extraction.
+- Inverted-hull outline is appropriate for character silhouettes because it yields an external contour instead of geometry wireframe.
+- NPR hatch/sketch repositories are useful for surface treatments, but hatching should not be applied globally.
+- Screen-space/raymarched god-ray projects are useful if the simple beam geometry becomes inadequate.
+- pmndrs/postprocessing is a viable future compositor, but a larger effects stack is not a visual goal.
+
+## Evaluation
+
+No single scalar aesthetic score.
+
+The acceptance decision is visual and comparative. Every candidate is reviewed using:
+- beauty frame at full size;
+- thumbnail readability;
+- structure-only frame;
+- clean frame before grain;
+- an offset camera to expose shot-specific cheats.
+
+The reviewer asks:
+- Is it beautiful and deliberate at first glance?
+- Is the focal hierarchy clear?
+- Do lines feel designed rather than generated?
+- Are surfaces rich but not dirty?
+- Does the character read as a graphic silhouette rather than low-poly geometry?
+- Does the scene retain quality when the camera moves modestly?
+
+Numeric data is allowed only for engineering diagnostics: capture failures, clipping bugs, performance, missing resources, or temporal instability. It does not decide whether the art is good.
+
+## First reconstruction scope
+
+One small city plaza:
+- one hero detective;
+- six background figures;
+- one diner/club;
+- one illuminated office tower;
+- one right-side theater block;
+- street lamps, rail/seam detail, wet pavement and restrained grass;
+- one spotlight composition;
+- one primary camera + one offset robustness camera.
+
+Do not expand content until this single tableau reaches the target visual family.
