@@ -18,7 +18,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.NoToneMapping;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(PROFILE.palette.void);
+scene.background = new THREE.Color(PROFILE.palette.background);
 
 const camera = new THREE.PerspectiveCamera(
   PROFILE.camera.fov,
