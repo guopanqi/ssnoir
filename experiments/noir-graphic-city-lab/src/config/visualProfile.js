@@ -16,7 +16,7 @@ export const PROFILE = Object.freeze({
     far: 180,
   }),
   graphic: Object.freeze({
-    lineOpacity: 0.72,
+    lineOpacity: 0.56,
     lineThreshold: 24,
     goldBudget: 0.028,
   }),

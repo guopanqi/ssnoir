@@ -18,10 +18,10 @@ export const SHOTS = Object.freeze([
   Object.freeze({
     id: '03-alley-confrontation',
     name: '03 · ALLEY CONFRONTATION',
-    position: [-4.2, 2.7, 1.4],
-    target: [-5.8, 2.9, 18],
-    fov: 34,
-    purpose: '测试近人物在黑背景前是否靠轮廓和少量结构信息成立，而不是靠脸部细节。',
+    position: [-5.8, 3.1, 20.0],
+    target: [0.0, 2.7, 10.3],
+    fov: 38,
+    purpose: '中近景双人交锋；测试人物是否靠背景明暗切割、帽檐/裙摆和少量实体标记成立，而不是靠全身描边。',
   }),
   Object.freeze({
     id: '04-city-canyon',

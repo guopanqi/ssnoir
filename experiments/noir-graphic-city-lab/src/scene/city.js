@@ -156,8 +156,22 @@ function addStreet({ groups, mats }) {
   ], 3));
   streetWedgeGeometry.setIndex([0, 1, 2, 0, 2, 3]);
   streetWedgeGeometry.computeVertexNormals();
-  const streetWedge = new THREE.Mesh(streetWedgeGeometry, mats.inkLift);
+  const streetWedge = new THREE.Mesh(streetWedgeGeometry, mats.mid);
   groups.city.add(streetWedge);
+
+  const crossingWall = new THREE.Mesh(new THREE.PlaneGeometry(13.5, 6.8), mats.paperDim);
+  crossingWall.position.set(0.3, 3.45, 15.4);
+  groups.city.add(crossingWall);
+
+  const crossingHeader = new THREE.Mesh(new THREE.PlaneGeometry(10.6, 0.46), mats.ink);
+  crossingHeader.position.set(0.3, 5.95, 15.33);
+  groups.city.add(crossingHeader);
+
+  for (let i = 0; i < 4; i++) {
+    const mullion = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 4.6), mats.inkLift);
+    mullion.position.set(-4.2 + i * 2.8, 3.15, 15.30);
+    groups.city.add(mullion);
+  }
 
   [-7.8, 7.8].forEach((x) => {
     for (const z of [-16, 9, 34]) {
@@ -203,9 +217,9 @@ function addCast({ groups, mats }) {
   });
 
   const crowd = [
-    [-4.4, 31, .90, 3.05], [2.8, 34, .82, 3.2], [5.3, 28, 1.02, 2.95],
-    [-1.5, 38, .94, 3.12], [6.4, 42, .86, 3.0], [-6.3, 43, .80, 3.18],
-    [3.4, 20, .78, 3.3], [-6.7, 18, .88, 3.02],
+    [-4.8, 30.5, .92, 3.05], [2.7, 29.2, .84, 3.18], [5.0, 27.0, 1.00, 2.96],
+    [-1.2, 25.7, .96, 3.10], [4.9, 23.6, .88, 3.02], [-4.6, 22.0, .82, 3.18],
+    [2.8, 20.3, .80, 3.28], [-2.3, 18.7, .86, 3.00],
   ];
   crowd.forEach(([x,z,s,yaw], i) => createCharacter({
     name:`Crowd ${i+1}`, position:[x,0,z], yaw, scale:s,

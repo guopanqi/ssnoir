@@ -53,7 +53,6 @@ export function createCharacter({
     bodyMat,
   );
   coat.position.y = 1.55;
-  coat.userData.graphicEdge = true;
   g.add(coat);
 
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.48, 7, 5), mats.ink);
@@ -100,11 +99,19 @@ export function createCharacter({
   g.add(armB);
 
   if (role !== 'crowd') {
-    const lapel = new THREE.Mesh(new THREE.PlaneGeometry(role === 'singer' ? 0.24 : 0.20, 1.34), role === 'singer' ? mats.gold : mats.paperDim);
+    const lapel = new THREE.Mesh(
+      new THREE.PlaneGeometry(role === 'singer' ? 0.24 : 0.20, 1.34),
+      role === 'singer' ? mats.gold : mats.paperDim,
+    );
     lapel.position.set(role === 'singer' ? 0.22 : -0.24, 2.78, 0.64);
     lapel.rotation.z = role === 'singer' ? -0.12 : 0.15;
     if (role === 'singer') lapel.userData.graphicAccent = true;
     g.add(lapel);
+
+    const rim = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 2.15), mats.paperDim);
+    rim.position.set(role === 'singer' ? -0.66 : 0.66, 2.15, 0.61);
+    rim.rotation.z = role === 'singer' ? 0.12 : -0.10;
+    g.add(rim);
   }
 
   groups.characters.add(g);
