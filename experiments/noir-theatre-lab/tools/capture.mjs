@@ -18,7 +18,7 @@ const modes=[
 ];
 
 function server(){return spawn(process.execPath,[path.join(ROOT,'node_modules/vite/bin/vite.js'),'--host','127.0.0.1','--port',String(PORT),'--strictPort'],{cwd:ROOT,stdio:['ignore','pipe','pipe']});}
-async function wait(page){
+async function wait(page,getPageError=()=>null){
   let available=false;
   for(let i=0;i<80;i++){
     try{const r=await fetch(URL,{signal:AbortSignal.timeout(1200)});if(r.ok){available=true;break;}}catch{}
@@ -26,7 +26,14 @@ async function wait(page){
   }
   if(!available) throw new Error('Noir Theatre Lab dev server did not start');
   await page.goto(URL,{waitUntil:'domcontentloaded',timeout:45000});
-  await page.waitForFunction(()=>window.__noirTheatreLab?.ready===true,null,{timeout:45000});
+  const started=Date.now();
+  while(Date.now()-started<45000){
+    const error=getPageError();
+    if(error) throw error;
+    if(await page.evaluate(()=>window.__noirTheatreLab?.ready===true)) return;
+    await new Promise(r=>setTimeout(r,250));
+  }
+  throw new Error('Noir Theatre Lab application did not become ready');
 }
 function percentile(a,p){return a[Math.min(a.length-1,Math.floor((a.length-1)*p))]||0;}
 async function metrics(buffer){
@@ -42,7 +49,10 @@ await rm(OUT,{recursive:true,force:true}); await mkdir(OUT,{recursive:true}); aw
 const s=server(); let log='';s.stdout.on('data',d=>log+=d);s.stderr.on('data',d=>log+=d);let browser;
 try{
   browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||undefined,args:process.env.CI?['--no-sandbox','--disable-dev-shm-usage']:[]});
-  const page=await browser.newPage({viewport:{width:960,height:540}}); page.on('pageerror',e=>process.stderr.write(`[browser] ${e.stack||e}\n`)); await wait(page);
+  const page=await browser.newPage({viewport:{width:960,height:540}});
+  let pageError=null;
+  page.on('pageerror',e=>{pageError=e;process.stderr.write(`[browser] ${e.stack||e}\n`);});
+  await wait(page,()=>pageError);
   await page.evaluate(()=>document.querySelector('#hud')?.remove());
   const all={}; const outputs={};
   for(const mode of modes){
