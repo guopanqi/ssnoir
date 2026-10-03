@@ -159,14 +159,15 @@ function addFigure(root, lines, mats, pos, scale=1, hat=true) {
   ],mats.charcoal,.205,-.102,mats.lineDim);
 
   const face=shapeMesh([
-    [-.22,2.93],[-.29,3.10],[-.27,3.29],[-.18,3.45],
-    [-.03,3.54],[.13,3.49],[.23,3.39],[.31,3.30],
-    [.25,3.22],[.27,3.08],[.16,2.96],[0,2.90]
+    [-.17,2.92],[-.25,3.04],[-.25,3.20],[-.20,3.35],
+    [-.10,3.47],[.04,3.53],[.16,3.48],[.22,3.39],
+    [.24,3.33],[.38,3.28],[.28,3.23],[.29,3.15],
+    [.22,3.06],[.12,2.98],[.02,2.91]
   ],mats.paper,.18,-.09,mats.lineDim);
 
   if(hat){
-    const brim=new THREE.Mesh(new THREE.BoxGeometry(.92,.075,.24),mats.ink);
-    brim.position.set(.02,3.50,0);
+    const brim=new THREE.Mesh(new THREE.BoxGeometry(.98,.075,.24),mats.ink);
+    brim.position.set(.08,3.50,0);
     brim.castShadow=true;
     g.add(brim);
     addEdges(brim,lineRoot,mats.lineBright,28);
@@ -222,6 +223,7 @@ export function buildWorld(scene, palette) {
     ink: toon(palette.ink),
     charcoal: toon(palette.charcoal),
     mid: toon(palette.mid),
+    stone: toon(0x424441),
     paper: toon(palette.paper),
     white: toon(palette.white),
     gold: toon(palette.gold),
@@ -282,7 +284,7 @@ export function buildWorld(scene, palette) {
   }
 
   // Office tower with setbacks: large clean shapes first.
-  box(fill,lines,mats.mid,mats.lineBright,[16,20,13],[17,10,-13],{rotY:3*DEG});
+  box(fill,lines,mats.stone,mats.lineBright,[16,20,13],[17,10,-13],{rotY:3*DEG});
   box(fill,lines,mats.charcoal,mats.lineDim,[12,7,10],[18,23,-14],{rotY:3*DEG});
   box(fill,lines,mats.charcoal,mats.lineDim,[7,6,8],[19,29.5,-14],{rotY:3*DEG});
 

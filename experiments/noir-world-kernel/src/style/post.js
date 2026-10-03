@@ -46,6 +46,18 @@ const NoirCompositeShader = {
       vec3 mono = vec3(l * 1.015, l, l * 0.965);
       c = gold ? c : mix(c, mono, 0.82);
 
+      // Sparse engraved hatching lives only in middle/dark value groups.
+      // It is screen-space on purpose: the geometry stays clean while the
+      // final frame inherits a consistent illustrated medium.
+      float d1 = abs(fract((gl_FragCoord.x + gl_FragCoord.y * 0.92) / 11.0) - 0.5);
+      float d2 = abs(fract((gl_FragCoord.x - gl_FragCoord.y * 0.68) / 16.0) - 0.5);
+      float hatch1 = 1.0 - smoothstep(0.035, 0.095, d1);
+      float hatch2 = 1.0 - smoothstep(0.025, 0.075, d2);
+      float midInk = smoothstep(0.12, 0.23, l) * (1.0 - smoothstep(0.39, 0.54, l));
+      float deepInk = smoothstep(0.045, 0.11, l) * (1.0 - smoothstep(0.22, 0.32, l));
+      float inkMask = gold ? 0.0 : 1.0;
+      c -= vec3((hatch1 * midInk * 0.034 + hatch2 * deepInk * 0.024) * inkMask);
+
       vec2 p = vUv * 2.0 - 1.0;
       float vig = smoothstep(1.35, 0.30, dot(p,p));
       c *= mix(1.0 - uVignette, 1.0, vig);
