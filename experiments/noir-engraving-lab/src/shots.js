@@ -15,9 +15,9 @@ export const SHOTS = Object.freeze([
   }),
   Object.freeze({
     name: '03 · ALLEY MOUTH',
-    position: [-21.0, 2.45, 9.8],
+    position: [-21.0, 2.35, 14.8],
     target: [-21.25, 2.9, 39.0],
-    fov: 36,
+    fov: 38,
     purpose: '真正进入巷口；测试硬质侧光、连桥阴影和近中远三层纵深',
   }),
   Object.freeze({

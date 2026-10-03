@@ -74,8 +74,8 @@ export function createNoirShader(profile) {
       }
 
       vec3 ramp(float x) {
-        vec3 a = vec3(0.020, 0.028, 0.045);
-        vec3 b = vec3(0.070, 0.105, 0.165);
+        vec3 a = vec3(0.004, 0.007, 0.012);
+        vec3 b = vec3(0.050, 0.075, 0.115);
         vec3 c = vec3(0.285, 0.360, 0.500);
         vec3 d = vec3(0.930, 0.955, 1.000);
 

@@ -42,6 +42,15 @@ export function installCaptureApi({
       lighting.setConesVisible(false);
       post.bloom.strength = 0;
     },
+
+    preprint() {
+      post.noir.uniforms.uEnabled.value = 0;
+      world.groups.outlines.visible = true;
+      atmosphere.setEnabled(true);
+      atmosphere.setFogDensity(baseline.fogDensity);
+      lighting.setConesVisible(false);
+      post.bloom.strength = baseline.bloomStrength;
+    },
   };
 
   window.__noirLab = {
