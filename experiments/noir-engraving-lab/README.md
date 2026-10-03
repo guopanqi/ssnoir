@@ -90,3 +90,35 @@ npm run build
 - “某种建筑体块密度最好” → 修改 CityBox 程序生成规则。
 
 实验可以大胆失败，生产工程保持稳定。
+
+
+## 自动视觉循环
+
+实验目录包含固定截图管线。
+
+本地安装 Playwright Chromium 后：
+
+```bash
+npm run capture
+```
+
+会生成：
+
+```
+captures/latest/
+  final/
+    01-theater-street.png
+    02-warehouse-fog.png
+    03-alley-mouth.png
+    04-high-city.png
+  shape/
+    01-theater-street.png
+    ...
+  manifest.json
+```
+
+`final` 是当前完整视觉；`shape` 会关闭描线、雨、雾、光束、Bloom 和最终印刷层，用于单独判断体块与构图。
+
+GitHub Actions 会在实验源码变化后重新生成这组基准图并写回仓库。截图提交只修改 `captures/latest/`，不会再次触发截图工作流，因此不会形成 CI 循环。
+
+这组图是后续视觉讨论的共同观察对象：先看图，再改代码，再自动重拍。
