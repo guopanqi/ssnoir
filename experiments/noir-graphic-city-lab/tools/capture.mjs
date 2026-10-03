@@ -64,7 +64,6 @@ async function imageMetrics(buffer) {
     blackUnder08: black / count,
     mid12to65: mid / count,
     creamOver70: cream / count,
-    goldShare: gold / count,
     lumaBins: bins.map((n) => n / count),
   };
 }
