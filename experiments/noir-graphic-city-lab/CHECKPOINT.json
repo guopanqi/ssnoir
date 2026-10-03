@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "phase": "Stage Composition / Character Grammar 初始实现，等待第一组完整审图",
+  "acceptedBaseline": null,
+  "pendingReviews": [],
+  "nextQuestions": [
+    {
+      "id": "first-baseline",
+      "question": "四个固定镜头在不依赖全局描边的情况下，是否已经像图形化黑色电影而不是普通低模城市？",
+      "status": "active"
+    },
+    {
+      "id": "character-silhouette",
+      "question": "Neil / Nightingale / crowd 在中远景中是否仅凭 silhouette 和少量标记可区分？",
+      "status": "pending"
+    },
+    {
+      "id": "accent-budget",
+      "question": "金色是否足够稀缺并与叙事对象绑定？",
+      "status": "pending"
+    }
+  ],
+  "knownLimits": [
+    "第一版人物为程序几何 grammar，尚未验证动作序列。",
+    "第一版城市是舞台盒子，不代表生产城市资产复杂度。",
+    "固定镜头优先，尚未验证自由漫游视角。"
+  ],
+  "doNotRepeat": [
+    "不要退化成所有物体全描边。",
+    "不要用 Bloom 或霓虹替代构图。",
+    "不要让 crowd 和 hero 拥有相同视觉复杂度。"
+  ],
+  "protocol": "CONTINUE.md"
+}
