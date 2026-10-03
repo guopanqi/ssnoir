@@ -181,7 +181,7 @@ function makeWetPatchMaterial() {
     transparent:true,
     depthWrite:false,
     side:THREE.DoubleSide,
-    uniforms:{uColor:{value:new THREE.Color(0x8b96a8)}},
+    uniforms:{uColor:{value:new THREE.Color(0xb6bec9)}},
     vertexShader:`
       varying vec2 vUv;
       void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}
@@ -199,7 +199,7 @@ function makeWetPatchMaterial() {
         float n=hash(cell);
         float streak=.5+.5*sin(vUv.y*95.0+hash(floor(vUv.xx*19.0))*6.283);
         float edge=smoothstep(0.0,.16,vUv.x)*smoothstep(0.0,.14,1.0-vUv.x)*smoothstep(0.0,.12,vUv.y)*smoothstep(0.0,.12,1.0-vUv.y);
-        float alpha=(.045+.17*smoothstep(.48,.92,n)*(.45+.55*streak))*edge;
+        float alpha=(.07+.23*smoothstep(.48,.92,n)*(.45+.55*streak))*edge;
         gl_FragColor=vec4(uColor,alpha);
       }
     `,
@@ -339,12 +339,19 @@ function addCityDrawingDetails(groups,materials) {
   addStroke(groups.strokes,materials.strokePrimary,ring,true);
   addStroke(groups.strokes,materials.strokeDim,[[cx-.38,8.72,cz],[cx-.38,8.1,cz],[cx+.38,8.1,cz],[cx+.38,8.72,cz]]);
 
-  // Diner interior: counter and stools, visible as drawing rather than geometry clutter.
+  // Diner interior: counter, stools and pendants.
   addStroke(groups.strokes,materials.strokePrimary,[[-7.7,1.72,-15.88],[3.0,1.72,-15.88]]);
   for(const x of [-6.2,-3.8,-1.4,1.0]){
     addStroke(groups.strokes,materials.strokeDim,[[x,.55,-15.87],[x,1.24,-15.87]]);
     addStroke(groups.strokes,materials.strokeDim,[[x-.30,1.24,-15.87],[x+.30,1.24,-15.87]]);
   }
+  for(const x of [-6.2,-2.6,1.0]){
+    addStroke(groups.strokes,materials.strokeDim,[[x,3.48,-15.86],[x,2.78,-15.86]]);
+    const pendant=new THREE.Mesh(new THREE.CircleGeometry(.095,16),materials.white);
+    pendant.position.set(x,2.70,-15.84);
+    groups.emissive.add(pendant);
+  }
+  addStroke(groups.strokes,materials.strokePrimary,[[-8.5,4.34,-15.89],[4.0,4.34,-15.89]]);
 
   // Side-mounted luminous panel on the theater block.
   const sideSign=new THREE.Mesh(new THREE.PlaneGeometry(5.4,1.05),materials.sideSign);
@@ -364,13 +371,14 @@ function addGround(groups,materials) {
   ground.position.set(0,0,8);
   groups.solids.add(ground);
 
-  // Designed perspective seams.
-  for(const x of [-12,-7,-2,3,8,13]){
-    addStroke(groups.strokes,materials.strokeDim,[[x,.025,-28],[x*1.35,.025,50]]);
+  // Sparse pavement boundaries. Avoid a full technical grid.
+  for(const x of [-7,1,9]){
+    addStroke(groups.strokes,materials.strokeDim,[[x,.025,-24],[x*1.25,.025,48]]);
   }
-  for(let z=-25;z<=47;z+=6.5){
-    addStroke(groups.strokes,materials.strokeDim,[[-14,.026,z],[14,.026,z+.22]]);
+  for(const z of [-12,9,30,44]){
+    addStroke(groups.strokes,materials.strokeDim,[[-13.5,.026,z],[13.0,.026,z+.18]]);
   }
+  addStroke(groups.strokes,materials.strokeDim,[[-11,.027,21],[-4,.027,18],[2,.027,19],[8,.027,16]]);
 
   // A foreground curb and rail to frame the shot.
   addStroke(groups.strokes,materials.strokePrimary,[[-14,.15,31],[-12.5,.35,22],[-11.8,.35,12]]);
@@ -416,7 +424,7 @@ function addGround(groups,materials) {
   }
   const geo=new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
-  groups.edges.add(new THREE.LineSegments(geo,materials.edgeSecondary));
+  groups.edges.add(new THREE.LineSegments(geo,materials.foliageLine));
 }
 
 function addStreetFurniture(groups,materials) {
@@ -518,6 +526,9 @@ export function buildWorld(scene,profile){
     }),
     edgeSecondary:new THREE.LineBasicMaterial({
       color:profile.palette.lineDim,transparent:true,opacity:.42,fog:true,
+    }),
+    foliageLine:new THREE.LineBasicMaterial({
+      color:profile.palette.lineDim,transparent:true,opacity:.58,fog:true,
     }),
     strokePrimary:strokeMaterial(profile.palette.line,.92,1.02),
     strokeDim:strokeMaterial(profile.palette.lineDim,.62,.76),

@@ -112,6 +112,21 @@ try{
   }
   await sheet.composite(comps).jpeg({quality:92}).toFile(path.join(OUT,'contact-sheet.jpg'));
 
+  // Full-resolution scrutiny crops for the primary beauty frame.
+  if(outputs.final?.['01-city-plaza']){
+    const detailDir=path.join(OUT,'details');
+    await mkdir(detailDir,{recursive:true});
+    const source=outputs.final['01-city-plaza'];
+    const crops=[
+      ['hero',930,360,430,500],
+      ['diner',430,270,720,390],
+      ['ground',40,470,840,410],
+    ];
+    for(const [name,left,top,width,height] of crops){
+      await sharp(source).extract({left,top,width,height}).png().toFile(path.join(detailDir,`${name}.png`));
+    }
+  }
+
   const report=[
     '# Graphic City capture report','',
     'This report deliberately avoids aesthetic scores. Numeric image statistics are not acceptance criteria for this experiment.',

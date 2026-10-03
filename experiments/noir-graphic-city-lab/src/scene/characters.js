@@ -103,12 +103,18 @@ export function createCharacter({
   if (kind === 'hero') {
     g.add(shapeMesh(heroCoatShape(), body, 0.004));
 
-    const legL = rect(0.15, 1.10, body, -0.18, 0.56, 0.002);
-    legL.rotation.z = 0.035;
+    const legL = rect(0.13, 1.02, body, -0.16, 0.52, 0.002);
+    legL.rotation.z = 0.045;
     g.add(legL);
-    const legR = rect(0.15, 1.10, body, 0.18, 0.56, 0.002);
-    legR.rotation.z = -0.035;
+    const legR = rect(0.13, 1.00, body, 0.17, 0.50, 0.002);
+    legR.rotation.z = -0.075;
     g.add(legR);
+    const shoeL = rect(0.23, 0.075, body, -0.20, 0.055, 0.003);
+    shoeL.rotation.z = -0.035;
+    g.add(shoeL);
+    const shoeR = rect(0.23, 0.075, body, 0.20, 0.055, 0.003);
+    shoeR.rotation.z = 0.035;
+    g.add(shoeR);
 
     const armL = rect(0.16, 1.36, body, -0.57, 2.18, 0.006);
     armL.rotation.z = pose === 'gesture' ? 0.48 : 0.12;
