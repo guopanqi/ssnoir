@@ -24,6 +24,11 @@ export function createMaterials(profile) {
       metalness: 0,
     }),
 
+    alleyFloor: flat(0x121d2b, {
+      roughness: 1.0,
+      metalness: 0,
+    }),
+
     edge: new THREE.LineBasicMaterial({
       color: p.edge,
       transparent: true,

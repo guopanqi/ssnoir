@@ -201,7 +201,7 @@ function createAlley(outlines, materials) {
 
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(5.0, 30),
-    materials.wetRoad,
+    materials.alleyFloor,
   );
   floor.rotation.x = -Math.PI / 2;
   floor.position.set(-21.25, 0.025, 27);

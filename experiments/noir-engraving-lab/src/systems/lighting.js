@@ -55,7 +55,7 @@ export function createLighting(scene, profile, lampPositions) {
 
   // A hard directional source gives architectural, straight-edged shadow shapes.
   // The bridge and platforms become real blockers instead of decorative geometry.
-  const alleyCut = new THREE.DirectionalLight(0x718caf, 2.15);
+  const alleyCut = new THREE.DirectionalLight(0x718caf, 3.55);
   alleyCut.position.set(-12.0, 11.5, 13.0);
   alleyCut.target.position.set(-24.0, 3.0, 29.0);
   alleyCut.layers.set(RENDER_LAYERS.ALLEY);
@@ -69,11 +69,11 @@ export function createLighting(scene, profile, lampPositions) {
   alleyCut.shadow.camera.far = 38;
   group.add(alleyCut, alleyCut.target);
 
-  const alleyAmbient = new THREE.HemisphereLight(0x17243a, 0x010203, 0.10);
+  const alleyAmbient = new THREE.HemisphereLight(0x17243a, 0x010203, 0.19);
   alleyAmbient.layers.set(RENDER_LAYERS.ALLEY);
   group.add(alleyAmbient);
 
-  const alleyDoor = new THREE.PointLight(0xe6c27a, 1.4, 5.0, 2.0);
+  const alleyDoor = new THREE.PointLight(0xe6c27a, 1.0, 4.5, 2.0);
   alleyDoor.position.set(-20.45, 1.8, 37.6);
   alleyDoor.castShadow = false;
   alleyDoor.layers.set(RENDER_LAYERS.ALLEY);
