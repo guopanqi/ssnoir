@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { createMaterials } from './materials.js';
 import { addEdges, addWindowStrip, box } from './primitives.js';
-import { RENDER_LAYERS, enableLayerRecursive, setLayerRecursive } from '../config/layers.js';
 
 const FRONT_Z = 14;
 
@@ -104,7 +103,6 @@ function createWarehouse(outlines, materials) {
     phase: 4,
   });
 
-  enableLayerRecursive(group, RENDER_LAYERS.WAREHOUSE);
   return group;
 }
 
@@ -152,9 +150,6 @@ function createStreetRow(outlines, materials, {
     }
   });
 
-  // Context geometry is visible to the camera and weak fill, but deliberately
-  // excluded from the hero key. Emissive windows remain visible on this layer.
-  setLayerRecursive(group, RENDER_LAYERS.CONTEXT);
   return group;
 }
 
@@ -174,7 +169,6 @@ function createFireEscape(outlines, materials, x, z) {
     );
   }
 
-  setLayerRecursive(group, RENDER_LAYERS.CONTEXT);
   return group;
 }
 
@@ -233,9 +227,8 @@ function createAlley(outlines, materials) {
   door.castShadow = false;
   group.add(door);
 
-  // Alley lighting is intentionally isolated from the city key/fill. This keeps
-  // the alley as a designed black-film set instead of inheriting accidental light.
-  setLayerRecursive(group, RENDER_LAYERS.ALLEY);
+  // Lighting isolation in the Three.js lab is achieved spatially (bounded lights
+  // plus real blockers), not with Object3D visibility layers.
   return group;
 }
 

@@ -160,3 +160,38 @@ Print 在冷色 ramp 之后增加严格的色度门控：只有源画面中确�
 **迁回 Unity**
 
 SSNoirStylize 可在最终冷色量化之后增加受 mask / chroma gate 控制的 narrative ink 通道；不应恢复通用全彩材质。
+
+
+## 2026-10-03 — 放弃 Three.js Layers 作为 Light Linking
+
+**问题**
+
+能否像 Unity Light Layers 一样，用 Three.js Object3D Layers 让全局 Key 不照普通 Context 建筑。
+
+**固定条件**
+
+镜头、材质、Print、灯光强度与方向均保持不变。
+
+**变量**
+
+新增 CONTEXT layer；普通街屋 / skyline 只放入该层；相机、fill 和 ambient 启用 CONTEXT，而 key 不启用。
+
+**观察**
+
+- 01–04 的 Shape / Line / Preprint / Final 视觉结果与上一轮相同。
+- report 中所有主要亮度统计与上一轮相同到当前精度，说明这个改动没有改变物体的实际受光。
+- 因此此前把 WAREHOUSE / ALLEY Object3D Layers 当作“叙事光隔离”的解释也不能继续成立。
+
+**结论**
+
+- 保留：叙事光必须有明确作用域这一视觉原则。
+- 放弃：在 Three.js WebGLRenderer 中把 Object3D Layers 当作 Light Linking / Light Layers。
+- 下一步：实验室用有限距离、有限锥角和真实遮挡实现局部叙事光；迁回 Unity 时再映射到 Rendering Layers / Light Layers。
+
+**原因**
+
+实验结果没有产生任何图像差异，而且 Three.js 的 Layers 公共契约是相机可见性 / 射线过滤，而不是材质受哪盏灯影响。代码层面的“看起来被分组”不能替代实际截图验证。
+
+**迁回 Unity**
+
+这一结论不否定 Unity 的 Light Layers。它只说明 Three.js 实验不能用 Object3D Layers 模拟同一机制；迁移时应使用 Unity 原生灯光分层。

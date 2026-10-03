@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import { RENDER_LAYERS } from '../config/layers.js';
 
 export function createLighting(scene, profile, lampPositions) {
   RectAreaLightUniformsLib.init();
@@ -24,13 +23,10 @@ export function createLighting(scene, profile, lampPositions) {
   key.shadow.camera.bottom = -48;
   key.shadow.camera.near = 1;
   key.shadow.camera.far = 120;
-  // Context buildings do not receive this key, but they may still occlude it.
-  key.shadow.camera.layers.enable(RENDER_LAYERS.CONTEXT);
   group.add(key);
 
   const fill = new THREE.DirectionalLight(cfg.fillColor, cfg.fillIntensity);
   fill.position.fromArray(cfg.fillPosition);
-  fill.layers.enable(RENDER_LAYERS.CONTEXT);
   group.add(fill);
 
   const ambient = new THREE.HemisphereLight(
@@ -38,7 +34,6 @@ export function createLighting(scene, profile, lampPositions) {
     cfg.ambientGround,
     cfg.ambientIntensity,
   );
-  ambient.layers.enable(RENDER_LAYERS.CONTEXT);
   group.add(ambient);
 
   const coneMaterial = new THREE.MeshBasicMaterial({
@@ -55,33 +50,36 @@ export function createLighting(scene, profile, lampPositions) {
   const warehouseWork = new THREE.RectAreaLight(0x91b7e5, 6.2, 8.0, 7.0);
   warehouseWork.position.set(17.0, 7.8, 7.5);
   warehouseWork.lookAt(30.0, 3.2, 19.0);
-  warehouseWork.layers.set(RENDER_LAYERS.WAREHOUSE);
   group.add(warehouseWork);
 
-  // A hard directional source gives architectural, straight-edged shadow shapes.
-  // The bridge and platforms become real blockers instead of decorative geometry.
-  const alleyCut = new THREE.DirectionalLight(0x718caf, 3.55);
-  alleyCut.position.set(-12.0, 11.5, 13.0);
-  alleyCut.target.position.set(-24.0, 3.0, 29.0);
-  alleyCut.layers.set(RENDER_LAYERS.ALLEY);
+  // Three.js Object3D layers control camera visibility, not per-object light
+  // linking. The alley therefore uses a physically bounded spotlight whose cone
+  // is wider than the alley itself; the walls / bridge create the visible cuts.
+  const alleyCut = new THREE.SpotLight(
+    0x718caf,
+    1100,
+    32,
+    0.48,
+    0.02,
+    2.0,
+  );
+  alleyCut.position.set(-14.0, 10.5, 17.0);
+  alleyCut.target.position.set(-23.5, 3.2, 29.5);
   alleyCut.castShadow = true;
   alleyCut.shadow.mapSize.set(1024, 1024);
-  alleyCut.shadow.camera.left = -7;
-  alleyCut.shadow.camera.right = 7;
-  alleyCut.shadow.camera.top = 10;
-  alleyCut.shadow.camera.bottom = -3;
   alleyCut.shadow.camera.near = 1;
-  alleyCut.shadow.camera.far = 38;
+  alleyCut.shadow.camera.far = 32;
   group.add(alleyCut, alleyCut.target);
 
-  const alleyAmbient = new THREE.HemisphereLight(0x17243a, 0x010203, 0.19);
-  alleyAmbient.layers.set(RENDER_LAYERS.ALLEY);
+  // A tiny local lift replaces the former global hemisphere "alley ambient".
+  // Its short distance prevents the alley setup from raising the whole city.
+  const alleyAmbient = new THREE.PointLight(0x17243a, 7.5, 12.0, 2.0);
+  alleyAmbient.position.set(-21.25, 4.2, 27.0);
   group.add(alleyAmbient);
 
   const alleyDoor = new THREE.PointLight(0xe6c27a, 1.0, 4.5, 2.0);
   alleyDoor.position.set(-20.45, 1.8, 37.6);
   alleyDoor.castShadow = false;
-  alleyDoor.layers.set(RENDER_LAYERS.ALLEY);
   group.add(alleyDoor);
 
   // Street lamps are visual punctuation by default, not automatic light emitters.
