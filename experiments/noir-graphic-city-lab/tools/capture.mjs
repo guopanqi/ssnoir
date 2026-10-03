@@ -55,7 +55,7 @@ async function imageMetrics(buffer) {
     sum += l;
     if (l < 0.08) black++;
     if (l > 0.70) cream++;
-    if (r > 0.45 && r > b * 1.8 && g > b * 1.35 && r > g * 1.12) gold++;
+    if (r > 0.45 && (r - b) > 0.30 && (r - g) > 0.10 && (g - b) > 0.08) gold++;
     bins[Math.min(4, Math.floor(l * 5))]++;
   }
   return {

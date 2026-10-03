@@ -54,7 +54,9 @@ const GraphicPrintShader = {
       vec3 paper = vec3(0.91, 0.875, 0.79);
       vec3 mono = mix(ink, paper, l);
 
-      float goldSignal = smoothstep(0.08, 0.24, src.r - src.b) * smoothstep(0.18, 0.48, src.r);
+      float warmGap = src.r - src.b;
+      float redLead = src.r - src.g;
+      float goldSignal = smoothstep(0.30, 0.48, warmGap) * smoothstep(0.10, 0.24, redLead) * smoothstep(0.28, 0.52, src.r);
       vec3 gold = vec3(0.83, 0.56, 0.18) * (0.72 + 0.5 * l);
       vec3 col = mix(mono, gold, goldSignal);
 
