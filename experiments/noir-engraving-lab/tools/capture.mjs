@@ -7,7 +7,7 @@ const ROOT = process.cwd();
 const DIST = path.join(ROOT, 'dist');
 const OUT = path.join(ROOT, 'captures', 'latest');
 const PORT = 4173;
-const URL = `http://127.0.0.1:${PORT}/?capture=1`;
+const PAGE_URL = `http://127.0.0.1:${PORT}/?capture=1`;
 const VIEWPORT = { width: 1600, height: 900 };
 
 const shots = [
@@ -114,7 +114,7 @@ page.on('response', (response) => {
 });
 
 try {
-  await page.goto(URL, {
+  await page.goto(PAGE_URL, {
     waitUntil: 'domcontentloaded',
     timeout: 10000,
   });
