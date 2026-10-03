@@ -102,9 +102,9 @@ export function createNoirShader(profile) {
           return;
         }
 
-        // 和 Unity SSNoirStylize 的原则保持一致：
-        // 最终“印刷”在显示值空间计算，再转回线性值交给 OutputPass。
-        vec3 display = linearToSrgb(clamp(src.rgb, 0.0, 1.0));
+        // OutputPass 已经完成 tone mapping 与 sRGB 输出变换。
+        // 这里直接把输入当作“屏幕显示值”，与 Unity SSNoirStylize 的契约一致。
+        vec3 display = clamp(src.rgb, 0.0, 1.0);
         float l = clamp(
           (luma(display) - uInBlack) / max(0.001, uInWhite - uInBlack),
           0.0,
@@ -126,7 +126,7 @@ export function createNoirShader(profile) {
         ) - 0.5;
         styled = clamp(styled + grain * 0.012, 0.0, 1.0);
 
-        gl_FragColor = vec4(srgbToLinear(styled), src.a);
+        gl_FragColor = vec4(styled, src.a);
       }
     `,
   };

@@ -20,12 +20,13 @@ export function createPost(renderer, scene, camera, profile) {
   );
   composer.addPass(bloom);
 
+  // 先完成 Three.js 的 tone mapping 与输出色彩变换。Noir Print 是一个
+  // display-referred 效果，和 FXAA 一样应当读取已经转换到显示空间的图像。
+  composer.addPass(new OutputPass());
+
+  // Noir Print 是最终屏幕层：不再做第二次 tone mapping / gamma 转换。
   const noir = new ShaderPass(createNoirShader(profile));
   composer.addPass(noir);
-
-  // Output transform 必须最后执行。NoirShader 自己负责
-  // “线性渲染结果 ↔ 显示值”的往返，只让 OutputPass 做最终输出。
-  composer.addPass(new OutputPass());
 
   function resize(width, height) {
     composer.setSize(width, height);
