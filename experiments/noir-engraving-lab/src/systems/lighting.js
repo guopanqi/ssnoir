@@ -43,7 +43,7 @@ export function createLighting(scene, profile, lampPositions) {
   });
 
   // 后巷只用一盏很弱的冷色侧光把一侧墙面从黑里切出来。
-  const alleyRim = new THREE.PointLight(0x6f8fb8, 1.35, 10, 2.2);
+  const alleyRim = new THREE.PointLight(0x6f8fb8, 7.0, 15, 2.0);
   alleyRim.position.set(-26.5, 4.0, 19.0);
   alleyRim.castShadow = false;
   group.add(alleyRim);

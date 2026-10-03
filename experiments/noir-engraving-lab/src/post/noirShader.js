@@ -115,7 +115,12 @@ export function createNoirShader(profile) {
         float scale = max(1.0, uDitherScale * uResolution.y / 720.0);
         vec2 cell = floor(gl_FragCoord.xy / scale);
         float bayer = (bayer4(cell) + 0.5) / 16.0;
-        bayer = mix(0.5, bayer, clamp(uDither, 0.0, 1.25));
+        // 印刷噪声只存在于中间调；深黑和高光保持干净。
+        float midtoneMask =
+          smoothstep(0.055, 0.22, l) *
+          (1.0 - smoothstep(0.78, 0.96, l));
+        float effectiveDither = clamp(uDither, 0.0, 1.0) * midtoneMask;
+        bayer = mix(0.5, bayer, effectiveDither);
 
         float steps = max(2.0, uLevels) - 1.0;
         float q = clamp(floor(l * steps + bayer) / steps, 0.0, 1.0);
@@ -124,7 +129,7 @@ export function createNoirShader(profile) {
         float grain = fract(
           sin(dot(gl_FragCoord.xy + uTime * 17.0, vec2(12.9898, 78.233))) * 43758.5453
         ) - 0.5;
-        styled = clamp(styled + grain * 0.012, 0.0, 1.0);
+        styled = clamp(styled + grain * 0.003 * midtoneMask, 0.0, 1.0);
 
         gl_FragColor = vec4(styled, src.a);
       }

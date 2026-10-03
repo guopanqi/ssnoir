@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import sharp from 'sharp';
 
 const ROOT = process.cwd();
 const OUT = path.join(ROOT, 'captures', 'latest');
@@ -16,7 +17,47 @@ const shots = [
   ['04-high-city', 3],
 ];
 
-const modes = ['final', 'shape'];
+const modes = ['shape', 'line', 'final'];
+
+function percentile(sorted, p) {
+  if (!sorted.length) return 0;
+  return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * p))];
+}
+
+async function imageMetrics(buffer) {
+  const { data, info } = await sharp(buffer)
+    .resize({ width: 400, withoutEnlargement: true })
+    .removeAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const luma = new Array(info.width * info.height);
+  let black = 0;
+  let bright = 0;
+  let sum = 0;
+
+  for (let i = 0, px = 0; i < data.length; i += info.channels, px++) {
+    const r = data[i] / 255;
+    const g = data[i + 1] / 255;
+    const b = data[i + 2] / 255;
+    const y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    luma[px] = y;
+    sum += y;
+    if (y < 0.02) black++;
+    if (y > 0.20) bright++;
+  }
+
+  luma.sort((a, b) => a - b);
+  return {
+    mean: sum / luma.length,
+    p50: percentile(luma, 0.50),
+    p90: percentile(luma, 0.90),
+    p95: percentile(luma, 0.95),
+    p99: percentile(luma, 0.99),
+    blackUnder02: black / luma.length,
+    brightOver20: bright / luma.length,
+  };
+}
 
 function startServer() {
   return spawn(
@@ -68,7 +109,10 @@ try {
     document.querySelector('#panel')?.remove();
   });
 
+  const metrics = {};
+
   for (const mode of modes) {
+    metrics[mode] = {};
     const dir = path.join(OUT, mode);
     await mkdir(dir, { recursive: true });
 
@@ -77,11 +121,12 @@ try {
     for (const [name, index] of shots) {
       await page.evaluate((i) => window.__noirLab.setShot(i), index);
       console.log(`Capturing ${mode}/${name}`);
-      await page.screenshot({
+      const screenshot = await page.screenshot({
         path: path.join(dir, `${name}.png`),
         type: 'png',
         timeout: 120_000,
       });
+      metrics[mode][name] = await imageMetrics(screenshot);
     }
   }
 
@@ -95,6 +140,7 @@ try {
       modes,
       shots: shots.map(([name, index]) => ({ name, index })),
       info,
+      metrics,
     }, null, 2) + '\n',
   );
 } catch (error) {

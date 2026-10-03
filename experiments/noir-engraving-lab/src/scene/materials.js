@@ -18,7 +18,7 @@ export function createMaterials(profile) {
     landmark: flat(p.landmark),
 
     wetRoad: new THREE.MeshPhysicalMaterial({
-      color: 0x060a10,
+      color: 0x0c131e,
       roughness: 0.34,
       metalness: 0.10,
       clearcoat: 0.34,
@@ -39,12 +39,12 @@ export function createMaterials(profile) {
 
     warm: flat(0x151412, {
       emissive: p.warm,
-      emissiveIntensity: 1.45,
+      emissiveIntensity: 1.25,
     }),
 
     cool: flat(0x10151c, {
       emissive: p.cool,
-      emissiveIntensity: 1.05,
+      emissiveIntensity: 0.92,
     }),
 
     red: flat(0x140c0c, {

@@ -4,15 +4,19 @@ export const PROFILE = Object.freeze({
   palette: Object.freeze({
     void: 0x070a10,
     asphalt: 0x090e16,
-    sidewalk: 0x0d1520,
-    building: 0x111b29,
-    buildingDim: 0x0b121c,
-    landmark: 0x172438,
+    sidewalk: 0x141e2b,
+    building: 0x1b293c,
+    buildingDim: 0x101a28,
+    landmark: 0x263a57,
     edge: 0xcbd7e8,
     edgeDim: 0x33445e,
     warm: 0xe6c27a,
     cool: 0x8fbde6,
     red: 0x9b3829,
+  }),
+
+  renderer: Object.freeze({
+    exposure: 1.22,
   }),
 
   camera: Object.freeze({
@@ -22,7 +26,7 @@ export const PROFILE = Object.freeze({
   }),
 
   atmosphere: Object.freeze({
-    fogDensity: 0.016,
+    fogDensity: 0.013,
     rainCount: 1500,
     rainOpacity: 0.32,
     rainSize: 0.045,
@@ -30,14 +34,14 @@ export const PROFILE = Object.freeze({
 
   lighting: Object.freeze({
     keyColor: 0xb8cdf3,
-    keyIntensity: 1.28,
-    keyPosition: [-24, 32, 16],
+    keyIntensity: 3.25,
+    keyPosition: [-38, 24, 28],
     fillColor: 0x5c79a8,
-    fillIntensity: 0.24,
+    fillIntensity: 0.12,
     fillPosition: [34, 14, -28],
     ambientSky: 0x1d2a3c,
     ambientGround: 0x030508,
-    ambientIntensity: 0.34,
+    ambientIntensity: 0.18,
     streetColor: 0xe6c27a,
     streetIntensity: 2.4,
     streetDistance: 6.5,
@@ -45,12 +49,12 @@ export const PROFILE = Object.freeze({
 
   print: Object.freeze({
     levels: 6,
-    dither: 0.22,
+    dither: 0.30,
     ditherScale: 1.0,
-    inBlack: 0.012,
-    inWhite: 0.56,
-    gamma: 0.94,
-    bloomStrength: 0.16,
+    inBlack: 0.006,
+    inWhite: 0.34,
+    gamma: 0.90,
+    bloomStrength: 0.12,
     bloomRadius: 0.34,
     bloomThreshold: 1.20,
   }),
