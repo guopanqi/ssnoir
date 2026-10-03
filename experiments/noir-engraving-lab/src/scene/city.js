@@ -216,7 +216,7 @@ function createAlley(outlines, materials) {
     outlines, materials, 'context',
   ));
 
-  const door = box(1.15, 2.15, 0.10, materials.warm, -20.45, 0.08, 37.52);
+  const door = box(1.15, 2.15, 0.10, materials.warmSoft, -20.45, 0.08, 37.52);
   door.castShadow = false;
   group.add(door);
 

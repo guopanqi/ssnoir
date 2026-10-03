@@ -68,19 +68,6 @@ export function createLighting(scene, profile, lampPositions) {
   alleyRim.castShadow = false;
   group.add(alleyRim, alleyRim.target);
 
-  const alleyDoor = new THREE.SpotLight(
-    0xe6c27a,
-    3.4,
-    12,
-    Math.PI * 0.18,
-    0.12,
-    0.0,
-  );
-  alleyDoor.position.set(-20.45, 2.4, 36.65);
-  alleyDoor.target.position.set(-21.25, 0.0, 29.0);
-  alleyDoor.castShadow = false;
-  group.add(alleyDoor, alleyDoor.target);
-
   for (const position of lampPositions) {
     const light = new THREE.PointLight(
       cfg.streetColor,

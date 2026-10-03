@@ -13,9 +13,9 @@ export const SHOTS = Object.freeze([
   }),
   Object.freeze({
     name: '03 · ALLEY MOUTH',
-    position: [-21.5, 2.8, 4.4],
-    target: [-21.5, 3.0, 34.0],
-    purpose: '正看后巷；测试两侧墙面、负空间和唯一远端亮点',
+    position: [-18.7, 3.15, 5.2],
+    target: [-21.1, 2.8, 35.0],
+    purpose: '偏轴看后巷；测试前景遮挡、墙面切光、负空间和唯一远端亮点',
   }),
   Object.freeze({
     name: '04 · HIGH CITY',

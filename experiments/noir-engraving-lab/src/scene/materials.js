@@ -42,6 +42,11 @@ export function createMaterials(profile) {
       emissiveIntensity: 1.25,
     }),
 
+    warmSoft: flat(0x11100e, {
+      emissive: p.warm,
+      emissiveIntensity: 0.48,
+    }),
+
     cool: flat(0x10151c, {
       emissive: p.cool,
       emissiveIntensity: 0.92,
