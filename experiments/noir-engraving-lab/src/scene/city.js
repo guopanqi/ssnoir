@@ -22,6 +22,29 @@ function createTheater(outlines, materials, x = -2, z = 17) {
     outlines, materials, 'hero',
   ));
 
+  // Stepped stage-house crown: a silhouette feature, not facade detail.
+  // From the high-city shot this is what separates the theater from the
+  // generic rectangular street blocks.
+  group.add(addEdges(
+    box(6.2, 1.8, 5.4, materials.landmark, x + 0.8, 22.0, z + 1.6),
+    outlines, materials, 'hero',
+  ));
+  group.add(addEdges(
+    box(4.4, 1.35, 4.1, materials.landmark, x + 0.8, 23.8, z + 1.6),
+    outlines, materials, 'hero',
+  ));
+  group.add(addEdges(
+    box(0.55, 2.8, 0.55, materials.landmark, x + 0.8, 25.15, z + 1.6),
+    outlines, materials, 'hero',
+  ));
+
+  // A low entrance mass anchors the marquee so the street-level shot reads
+  // "theater entrance" before relying on windows or the red blade sign.
+  group.add(addEdges(
+    box(9.6, 3.0, 1.8, materials.landmark, x, 0, frontZ - 0.55),
+    outlines, materials, 'hero',
+  ));
+
   // The marquee projects toward the street. It should read in silhouette
   // before windows or printed linework do.
   group.add(addEdges(
