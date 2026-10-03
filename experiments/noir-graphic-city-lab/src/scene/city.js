@@ -704,6 +704,22 @@ function addStreetFurniture(groups,materials) {
     const haloSize=z>10?5.4:6.6;
     halo.scale.set(haloSize,haloSize,1);
     groups.atmosphere.add(halo);
+
+    if(z===-6){
+      const atmosphericHalo=new THREE.Sprite(new THREE.SpriteMaterial({
+        map:materials.haloTexture,
+        color:0xdfe2e4,
+        transparent:true,
+        opacity:.16,
+        depthWrite:false,
+        depthTest:false,
+        blending:THREE.NormalBlending,
+      }));
+      atmosphericHalo.position.set(lightX,5.0,z+.4);
+      atmosphericHalo.scale.set(15.5,15.5,1);
+      atmosphericHalo.renderOrder=2;
+      groups.atmosphere.add(atmosphericHalo);
+    }
   }
 
   addBox({
@@ -722,7 +738,7 @@ function addStreetFurniture(groups,materials) {
 function addAtmosphere(groups,materials) {
   const smokeTexture=makeSoftTexture();
   for(const [x,y,z,s,o] of [
-    [-10.5,1.8,9.0,8.4,.28],[-9.5,2.1,-2.0,7.2,.25],[-7.6,3.3,-4.2,5.8,.19],[-1.8,4.7,-17.0,4.8,.11]
+    [-10.5,1.8,9.0,8.4,.34],[-9.5,2.1,-2.0,7.2,.31],[-7.6,3.3,-4.2,5.8,.22],[-1.8,4.7,-17.0,4.8,.11]
   ]){
     const sprite=new THREE.Sprite(new THREE.SpriteMaterial({
       map:smokeTexture,color:0xc5cad2,transparent:true,opacity:o,

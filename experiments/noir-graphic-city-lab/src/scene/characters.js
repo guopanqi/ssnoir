@@ -70,37 +70,37 @@ function drawHeroMask(ctx, color) {
 
   // Neck and head overlap so the silhouette is continuous.
   pathFill(ctx, (p) => {
-    p.moveTo(228, 362);
-    p.lineTo(232, 282);
-    p.lineTo(282, 282);
-    p.lineTo(284, 362);
+    p.moveTo(218, 370);
+    p.lineTo(226, 270);
+    p.lineTo(294, 270);
+    p.lineTo(296, 365);
   }, color);
 
   pathFill(ctx, (p) => {
-    p.moveTo(228, 280);
-    p.bezierCurveTo(219, 247, 223, 219, 235, 201);
-    p.bezierCurveTo(248, 181, 270, 175, 287, 184);
-    p.bezierCurveTo(301, 191, 307, 203, 309, 215);
-    p.lineTo(327, 222);
-    p.lineTo(313, 231);
+    p.moveTo(244, 282);
+    p.bezierCurveTo(232, 253, 235, 222, 247, 202);
+    p.bezierCurveTo(260, 181, 283, 176, 301, 184);
+    p.bezierCurveTo(314, 191, 321, 203, 323, 215);
+    p.lineTo(342, 222);
+    p.lineTo(328, 231);
     p.bezierCurveTo(309, 251, 299, 269, 281, 282);
     p.bezierCurveTo(262, 294, 240, 291, 228, 270);
   }, color);
 
   // Hat brim + crown overlap the head.
   pathFill(ctx, (p) => {
-    p.moveTo(194, 176);
-    p.bezierCurveTo(220, 169, 248, 167, 278, 168);
-    p.bezierCurveTo(308, 168, 334, 172, 352, 179);
-    p.bezierCurveTo(331, 187, 303, 190, 271, 189);
-    p.bezierCurveTo(238, 189, 211, 185, 194, 176);
+    p.moveTo(204, 175);
+    p.bezierCurveTo(231, 168, 261, 166, 292, 168);
+    p.bezierCurveTo(322, 168, 347, 172, 365, 179);
+    p.bezierCurveTo(345, 187, 316, 190, 284, 189);
+    p.bezierCurveTo(250, 189, 221, 185, 204, 175);
   }, color);
 
   pathFill(ctx, (p) => {
-    p.moveTo(224, 172);
-    p.lineTo(230, 119);
-    p.bezierCurveTo(247, 108, 276, 107, 299, 116);
-    p.lineTo(310, 173);
+    p.moveTo(236, 171);
+    p.lineTo(243, 119);
+    p.bezierCurveTo(260, 108, 290, 107, 313, 116);
+    p.lineTo(324, 173);
   }, color);
 }
 
@@ -340,7 +340,7 @@ export function createCharacter({
   sprite.position.fromArray(position);
 
   if (kind === 'hero') {
-    sprite.scale.set(2.44 * scale, 5.42 * scale, 1);
+    sprite.scale.set(2.68 * scale, 6.18 * scale, 1);
   } else {
     const height = (variant % 4 === 0 ? 4.48 : 4.18) * scale;
     sprite.scale.set(height * 0.50, height, 1);
