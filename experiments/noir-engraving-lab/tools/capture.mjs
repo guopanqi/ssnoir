@@ -21,7 +21,7 @@ const modes = ['final', 'shape'];
 function startServer() {
   return spawn(
     process.platform === 'win32' ? 'npm.cmd' : 'npm',
-    ['run', 'dev', '--', '--host', '127.0.0.1', '--port', String(PORT), '--strictPort'],
+    ['run', 'preview', '--', '--host', '127.0.0.1', '--port', String(PORT), '--strictPort'],
     { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] },
   );
 }
@@ -29,8 +29,8 @@ function startServer() {
 async function waitForServer(page, attempts = 60) {
   for (let i = 0; i < attempts; i++) {
     try {
-      await page.goto(URL, { waitUntil: 'networkidle', timeout: 1500 });
-      await page.waitForFunction(() => window.__noirLab?.ready === true, null, { timeout: 1500 });
+      await page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 3000 });
+      await page.waitForFunction(() => window.__noirLab?.ready === true, null, { timeout: 3000 });
       return;
     } catch {
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -49,6 +49,16 @@ server.stderr.on('data', (d) => { serverLog += d.toString(); });
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: VIEWPORT, deviceScaleFactor: 1 });
+page.on('console', (message) => {
+  const line = `[browser:${message.type()}] ${message.text()}\n`;
+  serverLog += line;
+  process.stdout.write(line);
+});
+page.on('pageerror', (error) => {
+  const line = `[pageerror] ${error.stack ?? error.message}\n`;
+  serverLog += line;
+  process.stderr.write(line);
+});
 
 try {
   await waitForServer(page);
