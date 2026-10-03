@@ -64,6 +64,9 @@ export function createAtmosphere(scene, profile) {
       enabled = value;
       group.visible = value;
     },
+    setFogDensity(value) {
+      scene.fog.density = value;
+    },
     get enabled() {
       return enabled;
     },
