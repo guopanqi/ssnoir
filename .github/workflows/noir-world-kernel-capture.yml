@@ -16,8 +16,10 @@ on:
 permissions:
   contents: read
 
+# A capture belongs to one exact source revision. A later push from another
+# experiment must not invalidate or cancel the evidence being rendered here.
 concurrency:
-  group: noir-world-kernel-${{ github.event.pull_request.number || github.ref }}
+  group: noir-world-kernel-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:
