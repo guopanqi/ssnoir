@@ -96,10 +96,8 @@ function animate() {
   requestAnimationFrame(animate);
 
   const dt = Math.min(clock.getDelta(), 0.05);
-  if (!captureMode) {
-    atmosphere.update(dt);
-    post.noir.uniforms.uTime.value += dt;
-  }
+  atmosphere.update(dt);
+  post.noir.uniforms.uTime.value += dt;
   renderFrame();
 
   fpsFrames += 1;
@@ -111,4 +109,10 @@ function animate() {
   }
 }
 
-animate();
+if (captureMode) {
+  // CI uses software WebGL. Do not leave a full post-processing loop running:
+  // benchmark capture explicitly renders only when a shot or mode changes.
+  renderFrame();
+} else {
+  animate();
+}
