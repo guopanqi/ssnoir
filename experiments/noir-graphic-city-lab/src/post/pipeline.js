@@ -8,11 +8,11 @@ const GenesisPrintShader = {
   uniforms: {
     tDiffuse: { value: null },
     uEnabled: { value: 1 },
-    uInBlack: { value: 0.018 },
-    uInWhite: { value: 0.88 },
-    uGamma: { value: 0.94 },
-    uGrain: { value: 0.04 },
-    uHatch: { value: 0.055 },
+    uInBlack: { value: 0.006 },
+    uInWhite: { value: 0.52 },
+    uGamma: { value: 0.88 },
+    uGrain: { value: 0.062 },
+    uHatch: { value: 0.075 },
     uVignette: { value: 0.16 },
   },
   vertexShader: `
@@ -59,9 +59,12 @@ const GenesisPrintShader = {
       float midMask = smoothstep(0.10, 0.34, l) * (1.0 - smoothstep(0.72, 0.92, l));
       float h1 = sin((gl_FragCoord.x + gl_FragCoord.y * 0.72) * 0.34 + n * 2.0);
       float h2 = sin((gl_FragCoord.x * 0.31 - gl_FragCoord.y * 0.44) * 0.23);
-      float hatch = (step(0.87, h1) + step(0.91, h2)) * uHatch * midMask;
+      float hatch = (step(0.86, h1) + step(0.90, h2)) * uHatch * midMask;
+      float scratchSeed = hash(vec2(floor(gl_FragCoord.x * 0.18), floor(gl_FragCoord.y * 0.012)));
+      float scratch = step(0.985, scratchSeed) * 0.055 * midMask;
+      float speck = (step(0.994, n) - step(n, 0.006)) * 0.085;
 
-      col += grain;
+      col += grain + scratch + speck;
       col -= hatch;
 
       vec2 p = vUv - 0.5;

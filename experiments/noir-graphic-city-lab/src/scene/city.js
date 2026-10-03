@@ -111,8 +111,8 @@ function addArchitecture({ groups, mats }) {
   }
 
   addBuilding({ groups, mats, x: 17, z: -19, w: 12, h: 13, d: 10, tone: 'inkLift', seed: 14 });
-  addBuilding({ groups, mats, x: -18, z: -8, w: 10, h: 17, d: 13, tone: 'ink', seed: 15 });
-  addBuilding({ groups, mats, x: 18, z: 5, w: 12, h: 18, d: 16, tone: 'ink', seed: 16 });
+  addBuilding({ groups, mats, x: -18, z: -8, w: 10, h: 17, d: 13, tone: 'ink', windows:{ cols:4, rows:6, face:'right' }, seed: 15 });
+  addBuilding({ groups, mats, x: 18, z: 5, w: 12, h: 18, d: 16, tone: 'inkLift', windows:{ cols:5, rows:7, face:'left' }, seed: 16 });
 
   // Fire escape / rails / street geometry: cheap line density, not mesh detail.
   for (const z of [-10, 8, 25]) {
@@ -247,11 +247,13 @@ export function buildWorld(scene, profile) {
     inkLift: material(profile.palette.inkLift),
     mid: material(profile.palette.mid),
     road: material(profile.palette.inkLift),
-    character: material(profile.palette.ink),
-    characterLift: material(0x0b101d),
+    character: material(0x010205),
+    characterLift: material(0x03050a),
     paperDim: material(profile.palette.paperDim),
     paper: material(profile.palette.paper),
     hot: material(profile.palette.hot),
+    outline: material(profile.palette.paper, { side:THREE.BackSide, transparent:true, opacity:0.94, depthWrite:false }),
+    outlineDim: material(profile.palette.paperDim, { side:THREE.BackSide, transparent:true, opacity:0.66, depthWrite:false }),
     transparent: material(profile.palette.ink, { transparent:true, opacity:0 }),
     window: material(profile.palette.paper, { transparent:true, opacity:profile.graphic.windowOpacity }),
     line: new THREE.LineBasicMaterial({
