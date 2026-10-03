@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { polyline, smoothPolyline, segments, resizeLineMaterials } from '../style/lineArt.js';
+import { addSvgDetective } from './svgFigure.js';
 
 const P={
   void:0x020309, ink:0x010205, deep:0x0a0c12, wall:0x12151c, wall2:0x181b22,
@@ -329,7 +330,7 @@ export function buildWorld(scene){
   addLamp(fill,lines,glow,-6.5,4.3,6.0);
   addLamp(fill,lines,glow,6.9,-4.7,6.4);
 
-  addFigure(fill,lines,{x:-.6,y:.02,z:4.2,s:1.08,profile:true});
+  addSvgDetective(fill,{x:-.6,y:.02,z:4.2,scale:.0104});
   addFigure(fill,lines,{x:-8.1,y:.02,z:-5.5,s:.66,profile:false});
   addFigure(fill,lines,{x:7.8,y:.02,z:-2.0,s:.62,profile:true,flip:true});
   addFigure(fill,lines,{x:1.9,y:.02,z:-10.8,s:.36,profile:false});
