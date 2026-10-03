@@ -40,7 +40,7 @@ function normalize(root, extent, rotationY=0) {
   root.scale.setScalar(scale);
   root.updateMatrixWorld(true);
   const b2 = new THREE.Box3().setFromObject(root);
-  const center = b2.getCenter(new THREEE.Vector3());
+  const center = b2.getCenter(new THREE.Vector3());
   root.position.x -= center.x;
   root.position.z -= center.z;
   root.position.y -= b2.min.y;
