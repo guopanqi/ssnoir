@@ -161,19 +161,27 @@ function addGround(groups, materials) {
 }
 
 function addSpotlight(groups, materials) {
+  const source = new THREE.Vector3(-15, 25, 2);
+  const target = new THREE.Vector3(-4.5, 0.4, -7.5);
+  const direction = target.clone().sub(source);
+  const length = direction.length();
+
   const beam = new THREE.Mesh(
-    new THREE.CylinderGeometry(2.0,6.2,30,32,1,true),
+    new THREE.ConeGeometry(5.0, length, 40, 1, true),
     materials.beam,
   );
-  beam.position.set(-6.5,14,-5);
-  beam.rotation.z = -0.56;
-  beam.rotation.x = 0.05;
+  beam.position.copy(source).add(target).multiplyScalar(0.5);
+  beam.quaternion.setFromUnitVectors(
+    new THREE.Vector3(0, -1, 0),
+    direction.clone().normalize(),
+  );
   groups.atmosphere.add(beam);
 
-  const pool = new THREE.Mesh(new THREE.CircleGeometry(5.4,48),materials.pool);
+  const pool = new THREE.Mesh(new THREE.CircleGeometry(5.2,48),materials.pool);
   pool.rotation.x=-Math.PI/2;
-  pool.scale.set(1.5,.62,1);
-  pool.position.set(-3.8,.035,-9);
+  pool.scale.set(1.45,.62,1);
+  pool.position.copy(target);
+  pool.position.y=0.035;
   groups.atmosphere.add(pool);
 }
 
@@ -225,10 +233,10 @@ export function buildWorld(scene, profile) {
     sign:meshMat(profile.palette.white),
     reflection:meshMat(profile.palette.lineDim,{transparent:true,opacity:.1,depthWrite:false}),
     beam:meshMat(profile.palette.white,{
-      transparent:true,opacity:.085,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,
+      transparent:true,opacity:.045,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,
     }),
     pool:meshMat(profile.palette.white,{
-      transparent:true,opacity:.13,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,
+      transparent:true,opacity:.09,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,
     }),
   };
 

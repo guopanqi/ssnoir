@@ -77,7 +77,7 @@ export function createCharacter({
   armR.position.set(0.66, 2.70, 0); armR.rotation.z = pose === 'walk' ? -0.29 : -0.07;
   g.add(armR); parts.push(armR);
 
-  for (const part of parts) g.add(makeShell(part, outline, kind === 'hero' ? 1.042 : 1.028));
+  for (const part of parts) g.add(makeShell(part, outline, kind === 'hero' ? 1.020 : 1.012));
 
   if (kind === 'hero') {
     const lapel = new THREE.Mesh(new THREE.PlaneGeometry(0.10, 1.10), materials.detail);

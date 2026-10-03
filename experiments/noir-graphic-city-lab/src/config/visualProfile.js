@@ -16,8 +16,8 @@ export const PROFILE = Object.freeze({
   atmosphere: Object.freeze({
     grain: 0.032,
     vignette: 0.14,
-    bloomStrength: 0.24,
-    bloomRadius: 0.22,
+    bloomStrength: 0.16,
+    bloomRadius: 0.16,
     bloomThreshold: 0.72,
   }),
 });
