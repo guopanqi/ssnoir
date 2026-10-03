@@ -19,8 +19,14 @@ const modes=[
 
 function server(){return spawn(process.execPath,[path.join(ROOT,'node_modules/vite/bin/vite.js'),'--host','127.0.0.1','--port',String(PORT),'--strictPort'],{cwd:ROOT,stdio:['ignore','pipe','pipe']});}
 async function wait(page){
-  for(let i=0;i<80;i++){try{const r=await fetch(URL,{signal:AbortSignal.timeout(1200)});if(r.ok){await page.goto(URL,{waitUntil:'domcontentloaded',timeout:45000});await page.waitForFunction(()=>window.__noirTheatreLab?.ready===true,null,{timeout:45000});return;}}catch{} await new Promise(r=>setTimeout(r,400));}
-  throw new Error('Noir Theatre Lab server did not become ready');
+  let available=false;
+  for(let i=0;i<80;i++){
+    try{const r=await fetch(URL,{signal:AbortSignal.timeout(1200)});if(r.ok){available=true;break;}}catch{}
+    await new Promise(r=>setTimeout(r,400));
+  }
+  if(!available) throw new Error('Noir Theatre Lab dev server did not start');
+  await page.goto(URL,{waitUntil:'domcontentloaded',timeout:45000});
+  await page.waitForFunction(()=>window.__noirTheatreLab?.ready===true,null,{timeout:45000});
 }
 function percentile(a,p){return a[Math.min(a.length-1,Math.floor((a.length-1)*p))]||0;}
 async function metrics(buffer){
