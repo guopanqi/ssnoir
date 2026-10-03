@@ -1,120 +1,62 @@
 import * as THREE from 'three';
-import { PROFILE } from './style/profile.js';
 import { createComposer } from './style/post.js';
 import { buildWorld } from './world/buildWorld.js';
 
-const app = document.querySelector('#app');
-
-const renderer = new THREE.WebGLRenderer({
-  antialias: true,
-  alpha: false,
-  powerPreference: 'high-performance'
-});
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.NoToneMapping;
-renderer.toneMappingExposure = 1.0;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setClearColor(PROFILE.palette.void,1);
+const app=document.querySelector('#app');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.NoToneMapping;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.setClearColor(0x030409,1);
 app.appendChild(renderer.domElement);
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(PROFILE.palette.void);
-scene.fog = new THREE.FogExp2(PROFILE.palette.void,0.012);
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x030409);
+scene.fog=new THREE.FogExp2(0x030409,.008);
 
-const camera = new THREE.PerspectiveCamera(PROFILE.camera.fov,1,PROFILE.camera.near,PROFILE.camera.far);
+const camera=new THREE.PerspectiveCamera(35,1,.1,160);
+scene.add(new THREE.HemisphereLight(0x222633,0x000000,.45));
+const key=new THREE.DirectionalLight(0xe9e6dc,.75);
+key.position.set(-10,18,12);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key);
 
-const hemi = new THREE.HemisphereLight(0xe8e3d6,0x020202,PROFILE.light.fill);
-scene.add(hemi);
+const world=buildWorld(scene);
+const {composer,resize}=createComposer(renderer,scene,camera);
 
-const key = new THREE.DirectionalLight(0xfff4d9,PROFILE.light.key);
-key.position.set(-18,28,17);
-key.castShadow = true;
-key.shadow.mapSize.set(2048,2048);
-key.shadow.camera.left=-38; key.shadow.camera.right=38;
-key.shadow.camera.top=38; key.shadow.camera.bottom=-38;
-key.shadow.camera.near=1; key.shadow.camera.far=90;
-key.shadow.bias=-0.00025;
-scene.add(key);
-
-const rim = new THREE.DirectionalLight(0xd7dbe0,PROFILE.light.rim);
-rim.position.set(22,12,-20);
-scene.add(rim);
-
-const world = buildWorld(scene,PROFILE.palette);
-const {composer,resize} = createComposer(renderer,scene,camera);
-
-const shots = {
-  wide: {pos:[23,9.2,31], target:[-5,4.0,-6], fov:34},
-  street: {pos:[15,6.6,21], target:[-3,3.2,-3], fov:36},
-  alley: {pos:[0,6.8,20], target:[-7.5,5.2,-11], fov:33},
-  detail: {pos:[6.5,4.3,12.5], target:[-2.3,2.0,4.8], fov:31}
+const shots={
+  wide:{pos:[18,7.0,27],target:[0,3.2,-11],fov:34},
+  street:{pos:[10,5.2,20],target:[0,2.8,-9],fov:36},
+  alley:{pos:[-10,5.5,17],target:[-5,3.0,-11],fov:34},
+  detail:{pos:[5.5,3.6,13],target:[-1.8,2.1,4.5],fov:30}
 };
+let shotName='wide',mode='final';
 
-let shotName='wide';
-let mode='final';
-
-function applyShot(name=shotName) {
-  const s=shots[name] ?? shots.wide;
-  shotName=name;
-  camera.position.set(...s.pos);
-  camera.fov=s.fov;
-  camera.updateProjectionMatrix();
-  camera.lookAt(...s.target);
+function applyShot(name=shotName){
+  const s=shots[name]||shots.wide;shotName=name;
+  camera.position.set(...s.pos);camera.fov=s.fov;camera.updateProjectionMatrix();camera.lookAt(...s.target);
 }
-
-function setMode(next='final'){
-  mode=next;
-  world.setMode(mode,scene);
-}
-
-function render(){
-  composer.render();
-}
-
+function setMode(next='final'){mode=next;world.setMode(mode);}
+function render(){composer.render();}
 function resizeCanvas(){
-  const w=window.innerWidth,h=window.innerHeight;
-  camera.aspect=w/h;
-  camera.updateProjectionMatrix();
-  resize(w,h,Math.min(window.devicePixelRatio||1,1.5));
-  render();
+  const w=window.innerWidth,h=window.innerHeight,dpr=Math.min(window.devicePixelRatio||1,1.5);
+  camera.aspect=w/h;camera.updateProjectionMatrix();resize(w,h,dpr);world.resize(w*dpr,h*dpr);render();
 }
 
-window.__NOIR_LAB__ = {
+window.__NOIR_LAB__={
   ready:false,
   async prepareCapture({shot='wide',evaluation='final'}={}){
-    applyShot(shot);
-    setMode(evaluation);
-    renderer.setPixelRatio(1);
-    renderer.setSize(1440,900,false);
-    camera.aspect=1440/900;
-    camera.updateProjectionMatrix();
-    composer.setSize(1440,900);
-    render();
-    await new Promise(requestAnimationFrame);
-    render();
+    applyShot(shot);setMode(evaluation);
+    renderer.setPixelRatio(1);renderer.setSize(1440,900,false);
+    camera.aspect=1440/900;camera.updateProjectionMatrix();composer.setSize(1440,900);world.resize(1440,900);
+    render();await new Promise(requestAnimationFrame);render();
   },
-  setShot:applyShot,
-  setMode,
-  info(){
-    return {
-      version:'0.1.0',
-      phase:'A/B',
-      renderer:'WebGLRenderer + toon value grouping + selective geometry lines + noir composite',
-      shot:shotName,
-      evaluation:mode,
-      proceduralOnly:true
-    };
-  }
+  setShot:applyShot,setMode,
+  info(){return {
+    version:'0.2.0',phase:'Genesis Noir spatial-language study',
+    renderer:'black 3D depth skeleton + authored screen-space vector lines + luminous 2D planes',
+    shot:shotName,evaluation:mode,proceduralOnly:true
+  }}
 };
 
-applyShot('wide');
-resizeCanvas();
-window.addEventListener('resize',resizeCanvas);
-window.__NOIR_LAB__.ready=true;
-
-function loop(){
-  render();
-  requestAnimationFrame(loop);
-}
-loop();
+applyShot();resizeCanvas();window.addEventListener('resize',resizeCanvas);window.__NOIR_LAB__.ready=true;
+(function loop(){render();requestAnimationFrame(loop);})();
