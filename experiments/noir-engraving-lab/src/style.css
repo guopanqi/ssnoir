@@ -1,0 +1,91 @@
+:root {
+  color-scheme: dark;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background: #080b12;
+  color: #e9edf4;
+}
+
+* { box-sizing: border-box; }
+html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { background: #080b12; }
+canvas { display: block; width: 100%; height: 100%; }
+
+#app { position: relative; }
+.frame-vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 18vmin rgba(0,0,0,.72);
+  z-index: 2;
+}
+
+.hud, .panel {
+  position: absolute;
+  z-index: 3;
+  text-shadow: 0 2px 12px rgba(0,0,0,.9);
+}
+
+.hud-top {
+  top: 24px;
+  left: 28px;
+  right: 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.eyebrow, .shot-label, .panel-title, .panel-foot, .hud-bottom {
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.eyebrow { font-size: 10px; opacity: .55; }
+h1 { margin: 5px 0 0; font-size: 18px; letter-spacing: .12em; font-weight: 600; }
+.shot-label { font-size: 10px; opacity: .7; margin-top: 4px; }
+
+.panel {
+  top: 92px;
+  right: 28px;
+  width: 258px;
+  padding: 14px 15px 12px;
+  background: rgba(6, 9, 14, .76);
+  border: 1px solid rgba(239, 234, 224, .16);
+  backdrop-filter: blur(8px);
+}
+.panel.is-hidden { display: none; }
+.panel-title { font-size: 11px; margin-bottom: 10px; color: #e8c35a; }
+.panel label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 30px;
+  font-size: 12px;
+  border-top: 1px solid rgba(239, 234, 224, .07);
+}
+.panel label:first-of-type { border-top: 0; }
+.panel input[type="checkbox"] { accent-color: #e8c35a; }
+.panel label.range { grid-template-columns: 76px 1fr 42px; }
+.panel input[type="range"] { width: 100%; accent-color: #e8c35a; }
+.panel output { text-align: right; font-variant-numeric: tabular-nums; opacity: .7; }
+.panel-foot { margin-top: 10px; font-size: 8px; line-height: 1.7; opacity: .42; }
+
+.hud-bottom {
+  left: 28px;
+  right: 28px;
+  bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  font-size: 8px;
+  opacity: .5;
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .hud-top { top: 14px; left: 16px; right: 16px; }
+  .panel { top: 72px; right: 16px; width: 230px; transform: scale(.92); transform-origin: top right; }
+  .hud-bottom { left: 16px; right: 16px; bottom: 12px; }
+  .hud-bottom span:first-child { display: none; }
+}
