@@ -46,6 +46,7 @@ const lighting = createLighting(scene, PROFILE, world.lampPositions);
 const post = createPost(renderer, scene, camera, PROFILE);
 
 const ui = bindResearchUI({
+  profile: PROFILE,
   post,
   world,
   atmosphere,
