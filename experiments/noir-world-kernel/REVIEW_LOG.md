@@ -55,3 +55,94 @@ The next round should concentrate on:
 4. one reusable theatre/street facade grammar.
 
 Only after those four systems survive wide + detail + alley captures should the experiment introduce one AI-generated hero prop through a normalization pipeline.
+
+
+## Genesis Noir pivot — rounds 02–09
+
+The first kernel proved that generic low-poly noir + toon shading + blanket edges was the wrong abstraction. The experiment was therefore reset around a more specific question:
+
+> Can a navigable local 3D space be rendered as an authored graphic illustration, with 3D providing depth/occlusion while vectors, silhouettes, luminous planes and reflections provide most of the visible image?
+
+### Reference observations
+
+Visual references from Genesis Noir repeatedly show:
+- black spatial masses with only selected white structural strokes;
+- very sparse gold used as a symbolic accent rather than a normal material;
+- planar/silhouette characters whose readability comes from contour and pose;
+- large luminous windows and practical-light halos;
+- wet streets described by broken reflected light rather than physically accurate PBR;
+- architecture that is simplified according to the shot rather than exhaustively outlined.
+
+This is materially different from a toon renderer.
+
+### What was implemented
+
+The kernel now contains:
+
+1. **Authored wide-line layer**
+   - `Line2 / LineMaterial` for stable screen-space structural strokes.
+   - Lines are authored by semantic role; automatic `EdgesGeometry` is no longer the primary visual system.
+
+2. **Black 3D spatial skeleton**
+   - Buildings and street volumes still provide perspective, occlusion and a walkable coordinate system.
+   - Their geometry is deliberately under-described visually.
+
+3. **Planar/vector characters**
+   - The procedural puppet study established the silhouette approach.
+   - The hero now uses a real SVG asset loaded through `SVGLoader`, converting SVG fill and stroke into Three.js geometry.
+   - This is the preferred future ingestion point for hand-authored or AI-generated character drawings.
+
+4. **Graphic light and atmosphere**
+   - Street-lamp halos are sprites rather than visible light cones.
+   - Bright windows are planar luminous shapes.
+   - Rain is a sparse vector layer.
+
+5. **Wet-street reflection field**
+   - Reflection is generated as a deterministic painterly texture and projected onto the street.
+   - It is intentionally broken and incomplete instead of physically mirrored.
+
+6. **Object-space surface wash**
+   - Broad directional brush marks live on building faces.
+   - Screen-space block noise was tested, visibly failed, and removed.
+
+### Current evidence
+
+Latest verified SVG-character pass:
+- commit: `7e4bcc443ef5d661e8a8f29974cb77c0f84d4cbd`
+- Actions run: `37145253678`
+- artifact: `noir-world-kernel-37145253678-1`
+
+The current result is substantially closer to the intended Genesis Noir spatial language than the original A/B kernel, but it is still a study rather than a finished art target.
+
+### Remaining visual gap
+
+The largest remaining gap is no longer renderer architecture. It is art-direction quality inside the reusable primitives:
+
+- hero SVG silhouette needs better anatomy, gesture and costume design;
+- facade grammar needs curved/period architecture and better shopfront composition;
+- line width should eventually support more hand-authored variation than one constant width per path;
+- reflected-light masks need per-light/per-window placement instead of a generic field;
+- fixed shots need stronger foreground framing and intentional negative space;
+- the city needs a small library of SVG/vector props (cars, signs, fire escapes, furniture, plants) so black 3D masses are punctuated by designed 2D information.
+
+### Engineering decision
+
+Do not return to “make every 3D mesh pretty.”
+
+The next production architecture should be:
+
+```
+SceneSpec / spatial graph
+    ↓
+3D procedural skeleton
+    ↓
+FacadeGrammar + VectorStroke
+    ↓
+SVG Puppet / SVG Prop layer
+    ↓
+LightGraphic + ReflectionField
+    ↓
+shot-specific visibility / composition rules
+```
+
+AI-generated assets should first enter through **SVG/vector props and character components**, where style consistency can be constrained. AI-generated 3D hero meshes should remain a later experiment.
