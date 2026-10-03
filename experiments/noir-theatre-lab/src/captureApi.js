@@ -14,6 +14,6 @@ export function installCaptureApi({world, post, applyShot, camera, controls, ren
     setMode,
     setShot(index){ shotIndex=index; const s=applyShot(index); render(); return s; },
     render,
-    info(){ return {shotIndex, camera:{position:camera.position.toArray(),target:controls.target.toArray(),fov:camera.fov}}; },
+    info(){ return {shotIndex, modelBounds:world.modelBounds, camera:{position:camera.position.toArray(),target:controls.target.toArray(),fov:camera.fov}}; },
   };
 }

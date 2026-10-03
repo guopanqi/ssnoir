@@ -115,6 +115,7 @@ function setupLightRig(sceneRoot, sceneName, palette) {
 }
 
 export async function buildWorld(scene, profile) {
+  const modelBounds = {};
   const roots = {city:new THREE.Group(), alley:new THREE.Group()};
   roots.city.name='city'; roots.alley.name='alley';
   scene.add(roots.city, roots.alley);
@@ -125,6 +126,12 @@ export async function buildWorld(scene, profile) {
     loader.loadAsync(ALLEY_URL),
   ]);
 
+  for (const [name, model] of Object.entries({city:cityModel,theatre:theatreModel,alley:alleyModel})) {
+    model.updateMatrixWorld(true);
+    const box=new THREE.Box3().setFromObject(model);
+    modelBounds[name]={min:box.min.toArray(),max:box.max.toArray(),size:box.getSize(new THREE.Vector3()).toArray(),meshes:[]};
+    model.traverse(o=>{if(o.isMesh){const b=new THREE.Box3().setFromObject(o);modelBounds[name].meshes.push({name:o.name,size:b.getSize(new THREE.Vector3()).toArray()});}});
+  }
   replaceMaterials(cityModel, profile.palette, 'context');
   normalize(cityModel, profile.city.extent, profile.city.rotationY);
   roots.city.add(cityModel);
@@ -152,7 +159,7 @@ export async function buildWorld(scene, profile) {
   const alleyFloor = boxMesh([34,.4,38],[0,-.25,0],floorMat); roots.alley.add(alleyFloor);
 
   return {
-    roots, lines,
+    roots, lines, modelBounds,
     setActive(name){
       roots.city.visible = name==='city';
       roots.alley.visible = name==='alley';

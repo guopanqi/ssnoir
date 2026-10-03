@@ -36,7 +36,10 @@ const fragmentShader = /* glsl */`
 
     if (uMode > 1.5) {
       float lev = max(2.0, uLevels);
-      y = floor(y * (lev - 1.0) + .5) / (lev - 1.0);
+      // Quantize perceptual brightness, then return to the linear output pipeline.
+      float perceptual = pow(max(y, 0.0), 1.0 / 2.2);
+      float stepped = floor(perceptual * (lev - 1.0) + .5) / (lev - 1.0);
+      y = pow(mix(perceptual, stepped, .72), 2.2);
       c *= (0.82 + 0.18 * y);
       c = mix(vec3(y), c, 0.22);
     }
@@ -68,7 +71,12 @@ const fragmentShader = /* glsl */`
 
 export function createPost(renderer, scene, camera, profile) {
   const composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
+  const renderPass = new RenderPass(scene, camera);
+  composer.addPass(renderPass);
+  const shapeMaterial = new THREE.ShaderMaterial({
+    vertexShader: 'varying vec3 n; void main(){n=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader: 'varying vec3 n; void main(){float v=.12+.48*max(0.,dot(normalize(n),normalize(vec3(.4,.8,1.))));gl_FragColor=vec4(vec3(v),1.);}'
+  });
   const pass = new ShaderPass({
     uniforms: {
       tDiffuse: { value: null },
@@ -92,6 +100,6 @@ export function createPost(renderer, scene, camera, profile) {
     composer,
     pass,
     resize(w,h){ composer.setSize(w,h); pass.uniforms.uResolution.value.set(w,h); },
-    setMode(name){ pass.uniforms.uMode.value = ({shape:0, light:0, line:1, final:3})[name] ?? 3; },
+    setMode(name){ renderPass.overrideMaterial = name==='shape' ? shapeMaterial : null; pass.uniforms.uMode.value = ({shape:0, light:0, line:1, final:3})[name] ?? 3; },
   };
 }
