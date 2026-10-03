@@ -1,0 +1,55 @@
+name: Noir Engraving Captures
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'experiments/noir-engraving-lab/index.html'
+      - 'experiments/noir-engraving-lab/package.json'
+      - 'experiments/noir-engraving-lab/src/**'
+      - 'experiments/noir-engraving-lab/tools/**'
+      - '.github/workflows/noir-engraving-captures.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: noir-engraving-captures
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: experiments/noir-engraving-lab
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: experiments/noir-engraving-lab/package-lock.json
+
+      - run: npm install
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run build
+
+      - run: npm run capture
+
+      - name: Commit latest benchmark captures
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experiments/noir-engraving-lab/captures/latest
+          if git diff --cached --quiet; then
+            echo "No capture changes."
+          else
+            git commit -m "更新 Noir Engraving 基准截图 [skip ci]"
+            git push
+          fi
