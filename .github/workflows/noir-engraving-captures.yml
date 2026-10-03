@@ -61,6 +61,10 @@ jobs:
       - name: Capture benchmarks
         run: npm run capture
 
+      - name: Publish visual report
+        shell: bash
+        run: cat captures/latest/report.md >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload benchmark captures
         uses: actions/upload-artifact@v4
         with:

@@ -47,19 +47,19 @@ export function createLighting(scene, profile, lampPositions) {
 
   // Narrative lights use dedicated layers so they sculpt their subject without
   // accidentally turning nearby roads and buildings into new focal points.
-  const warehouseWork = new THREE.RectAreaLight(0x91b7e5, 8.0, 9.0, 8.0);
+  const warehouseWork = new THREE.RectAreaLight(0x91b7e5, 6.2, 8.0, 7.0);
   warehouseWork.position.set(17.0, 7.8, 7.5);
   warehouseWork.lookAt(30.0, 3.2, 19.0);
   warehouseWork.layers.set(RENDER_LAYERS.WAREHOUSE);
   group.add(warehouseWork);
 
-  const alleyCut = new THREE.RectAreaLight(0x718caf, 9.0, 1.25, 7.0);
+  const alleyCut = new THREE.RectAreaLight(0x718caf, 13.0, 1.35, 7.5);
   alleyCut.position.set(-18.7, 6.2, 21.0);
   alleyCut.lookAt(-23.8, 3.5, 26.5);
   alleyCut.layers.set(RENDER_LAYERS.ALLEY);
   group.add(alleyCut);
 
-  const alleyDoor = new THREE.PointLight(0xe6c27a, 3.0, 6.0, 2.0);
+  const alleyDoor = new THREE.PointLight(0xe6c27a, 2.2, 5.5, 2.0);
   alleyDoor.position.set(-20.45, 1.8, 37.6);
   alleyDoor.castShadow = false;
   alleyDoor.layers.set(RENDER_LAYERS.ALLEY);

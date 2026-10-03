@@ -19,10 +19,10 @@ export function createMaterials(profile) {
 
     wetRoad: new THREE.MeshPhysicalMaterial({
       color: 0x0c131e,
-      roughness: 0.34,
-      metalness: 0.10,
-      clearcoat: 0.34,
-      clearcoatRoughness: 0.28,
+      roughness: 0.64,
+      metalness: 0.02,
+      clearcoat: 0.10,
+      clearcoatRoughness: 0.52,
     }),
 
     edge: new THREE.LineBasicMaterial({

@@ -225,6 +225,17 @@ try {
     report.push(`- ${mode.name}: ${(total / 1000).toFixed(1)}s (${values.map((v) => (v / 1000).toFixed(1)).join(' / ')}s)`);
   }
 
+  report.push('', '## Layer impact', '');
+  report.push('| shot | shape→final mean | shape→final black<2% | shape→final bright>20% |');
+  report.push('|---|---:|---:|---:|');
+  for (const [shotName] of shots) {
+    const shape = metrics.shape[shotName];
+    const final = metrics.final[shotName];
+    report.push(
+      `| ${shotName} | ${(final.mean - shape.mean >= 0 ? '+' : '')}${(final.mean - shape.mean).toFixed(3)} | ${((final.blackUnder02 - shape.blackUnder02) * 100).toFixed(1)}pp | ${((final.brightOver20 - shape.brightOver20) * 100).toFixed(1)}pp |`
+    );
+  }
+
   await writeFile(path.join(OUT, 'report.md'), report.join('\n') + '\n');
 
   await writeFile(
