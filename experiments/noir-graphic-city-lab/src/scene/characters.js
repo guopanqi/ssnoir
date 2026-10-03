@@ -26,46 +26,42 @@ function ellipse(x, y, rx, ry) {
 function heroShapes(pose) {
   const shapes = [];
 
-  // One continuous graphic silhouette assembled into one mesh so the outline
-  // pass sees a single figure, not a collection of low-poly parts.
+  // Asymmetric three-quarter detective silhouette. The unequal shoulders,
+  // hem and arm spacing keep the figure from reading as a front-facing icon.
   shapes.push(polygon([
-    [-0.28, 0.82], [-0.48, 0.94], [-0.48, 2.25],
-    [-0.56, 2.66], [-0.45, 2.96], [-0.26, 3.10],
-    [ 0.26, 3.10], [ 0.45, 2.96], [ 0.56, 2.66],
-    [ 0.48, 2.25], [ 0.48, 0.94], [ 0.28, 0.82],
-    [ 0.22, 1.05], [-0.22, 1.05],
+    [-0.25, 0.82], [-0.46, 0.94], [-0.43, 2.22],
+    [-0.50, 2.63], [-0.39, 2.93], [-0.19, 3.08],
+    [ 0.31, 3.04], [ 0.48, 2.86], [ 0.56, 2.58],
+    [ 0.51, 2.20], [ 0.62, 0.91], [ 0.35, 0.78],
+    [ 0.23, 1.04], [-0.18, 1.05],
   ]));
 
-  // Arms overlap the coat; because all shapes share one mesh the screen-space
-  // outline remains the outer silhouette only.
-  const leftHandX = pose === 'gesture' ? -0.78 : -0.61;
+  const leftHandX = pose === 'gesture' ? -0.74 : -0.53;
   shapes.push(polygon([
-    [-0.42, 2.78], [-0.55, 2.72], [leftHandX - 0.07, 1.30],
-    [leftHandX + 0.07, 1.26], [-0.39, 2.40],
+    [-0.39, 2.77], [-0.50, 2.67], [leftHandX - 0.055, 1.30],
+    [leftHandX + 0.075, 1.25], [-0.34, 2.39],
   ]));
   shapes.push(polygon([
-    [0.42, 2.78], [0.54, 2.70], [0.64, 1.33],
-    [0.50, 1.28], [0.38, 2.40],
+    [0.40, 2.76], [0.52, 2.62], [0.75, 1.39],
+    [0.62, 1.31], [0.37, 2.33],
   ]));
 
-  // Long, slightly asymmetric legs and shoes.
   shapes.push(polygon([
-    [-0.22, 0.98], [-0.07, 0.98], [-0.09, 0.12],
-    [-0.25, 0.12], [-0.33, 0.04], [-0.08, 0.02],
-    [-0.03, 0.09], [0.00, 0.98],
+    [-0.18, 0.98], [-0.05, 0.98], [-0.10, 0.13],
+    [-0.25, 0.11], [-0.34, 0.04], [-0.08, 0.02],
+    [-0.02, 0.09], [0.00, 0.98],
   ]));
   shapes.push(polygon([
-    [0.05, 0.98], [0.20, 0.98], [0.23, 0.14],
-    [0.36, 0.11], [0.39, 0.05], [0.15, 0.03],
-    [0.08, 0.10],
+    [0.08, 0.98], [0.21, 0.97], [0.29, 0.16],
+    [0.42, 0.12], [0.46, 0.06], [0.22, 0.03],
+    [0.13, 0.10],
   ]));
 
-  // Neck/head/hat overlap into one readable graphic unit.
-  shapes.push(rectangle(0, 3.18, 0.20, 0.34));
-  shapes.push(ellipse(0, 3.47, 0.27, 0.32));
-  shapes.push(rectangle(0, 3.76, 0.92, 0.065));
+  shapes.push(rectangle(0.055, 3.17, 0.18, 0.34));
+  shapes.push(ellipse(0.07, 3.47, 0.26, 0.32));
+  shapes.push(rectangle(0.08, 3.76, 0.94, 0.065));
   shapes.push(polygon([
-    [-0.31, 3.77], [-0.25, 4.12], [0.23, 4.12], [0.31, 3.77],
+    [-0.22, 3.77], [-0.16, 4.12], [0.31, 4.12], [0.39, 3.77],
   ]));
 
   return shapes;

@@ -186,7 +186,7 @@ function makeWetPatchMaterial() {
   // Broad, soft puddle masses. Detail comes from a handful of horizontal
   // reflections, not a repeated procedural dash pattern.
   for(const [cx,cy,rx,ry,a] of [
-    [150,132,135,62,.20],[280,112,150,48,.17],[390,150,92,42,.13]
+    [150,132,135,62,.34],[280,112,150,48,.29],[390,150,92,42,.22]
   ]){
     ctx.save();
     ctx.translate(cx,cy);
@@ -204,8 +204,8 @@ function makeWetPatchMaterial() {
 
   ctx.lineCap='round';
   for(const [x,y,w,a] of [
-    [42,104,118,.18],[182,131,170,.15],[252,93,126,.13],
-    [318,164,105,.11],[96,173,92,.09]
+    [42,104,118,.28],[182,131,170,.23],[252,93,126,.20],
+    [318,164,105,.18],[96,173,92,.14]
   ]){
     ctx.strokeStyle=`rgba(225,228,226,${a})`;
     ctx.lineWidth=2;
@@ -257,6 +257,18 @@ function addOfficeTower(groups,materials) {
     off:(x,y)=>((x*7+y*11)%17===0)||((x+y)%19===0),
   });
 
+  // Left foreground tower closes the empty side of the composition and gives
+  // the window rhythm a second depth plane.
+  addBox({
+    parent:groups.solids,lines:groups.edges,materials,
+    x:-31,y:14.5,z:-18,w:12,h:29,d:9,tone:'surface',edge:'secondary',
+  });
+  addWindowGridFront({
+    parent:groups.emissive,x:-31,y:2.5,z:-13.46,
+    cols:6,rows:10,dx:1.45,dy:2.35,w:.48,h:.72,material:materials.windowDim,
+    off:(x,y)=>((x*5+y*9)%11===0),
+  });
+
   // Structural facade drawing.
   for (let i=0;i<=11;i++) {
     const x=-20+(i-5.5)*1.34;
@@ -294,6 +306,17 @@ function addDiner(groups,materials) {
     ]);
   }
   addStroke(groups.strokes,materials.strokePrimary,[[-8.45,3.52,-15.93],[4.55,3.52,-15.93]]);
+  addStroke(groups.strokes,materials.strokePrimary,[[-8.45,1.00,-15.92],[4.55,1.00,-15.92]]);
+  for(const x of [-8.45,4.55]){
+    addStroke(groups.strokes,materials.strokePrimary,[[x,1.00,-15.92],[x,4.30,-15.92]]);
+  }
+
+  const door=new THREE.Mesh(new THREE.PlaneGeometry(1.65,3.15),materials.door);
+  door.position.set(6.1,1.72,-15.95);
+  groups.solids.add(door);
+  addStroke(groups.strokes,materials.strokePrimary,[
+    [5.27,.14,-15.92],[5.27,3.30,-15.92],[6.93,3.30,-15.92],[6.93,.14,-15.92]
+  ]);
 
   const sign=new THREE.Mesh(
     new THREE.PlaneGeometry(8.8,1.28),
@@ -433,6 +456,12 @@ function addGround(groups,materials) {
     groups.atmosphere.add(patch);
   }
 
+  const wetWash=new THREE.Mesh(new THREE.PlaneGeometry(16,28),materials.wetWash);
+  wetWash.rotation.x=-Math.PI/2;
+  wetWash.rotation.z=-.08;
+  wetWash.position.set(-6.0,.028,20.0);
+  groups.atmosphere.add(wetWash);
+
   // Localized grass, kept near curbs.
   const verts=[];
   let seed=37;
@@ -447,6 +476,20 @@ function addGround(groups,materials) {
   const geo=new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
   groups.edges.add(new THREE.LineSegments(geo,materials.foliageLine));
+
+  // A brighter foreground grass bank, inspired by the reference's lit curb
+  // vegetation. It is concentrated, not a full-frame scribble.
+  const foreground=[];
+  for(let i=0;i<95;i++){
+    const x=-12.8+rand()*3.5;
+    const z=12+rand()*22;
+    const h=.45+rand()*1.25;
+    const lean=(rand()-.5)*.38;
+    foreground.push(x,.04,z,x+lean,h,z+(rand()-.5)*.20);
+  }
+  const foregroundGeo=new THREE.BufferGeometry();
+  foregroundGeo.setAttribute('position',new THREE.Float32BufferAttribute(foreground,3));
+  groups.edges.add(new THREE.LineSegments(foregroundGeo,materials.foliageBright));
 }
 
 function addStreetFurniture(groups,materials) {
@@ -553,13 +596,19 @@ export function buildWorld(scene,profile){
     foliageLine:new THREE.LineBasicMaterial({
       color:profile.palette.lineDim,transparent:true,opacity:.58,fog:true,
     }),
+    foliageBright:new THREE.LineBasicMaterial({
+      color:profile.palette.line,transparent:true,opacity:.78,fog:true,
+    }),
     strokePrimary:strokeMaterial(profile.palette.line,.92,1.02),
     strokeDim:strokeMaterial(profile.palette.lineDim,.62,.76),
     white:meshMat(profile.palette.white),
     window:meshMat(profile.palette.white),
-    windowDark:meshMat(0x8390a2),
+    windowDim:meshMat(0xaeb6c2),
+    windowDark:meshMat(0x8f9aab),
+    door:meshMat(0x344157),
     sideSign:meshMat(0x9da4ad),
     reflection:meshMat(profile.palette.lineDim,{transparent:true,opacity:.1,depthWrite:false}),
+    wetWash:meshMat(0x8b96a8,{transparent:true,opacity:.085,depthWrite:false,side:THREE.DoubleSide}),
     hazeDisc:meshMat(0xc5c9d0,{transparent:true,opacity:.31,depthWrite:false,side:THREE.DoubleSide}),
     beam:meshMat(profile.palette.white,{
       transparent:true,opacity:.026,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,
