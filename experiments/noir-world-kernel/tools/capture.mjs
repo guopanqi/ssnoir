@@ -77,7 +77,12 @@ try{
   const errors=[];
   page.on('pageerror',e=>errors.push(e.stack??String(e)));
   page.on('console',m=>{if(m.type()==='error') errors.push(m.text())});
-  page.on('response',r=>{if(r.status()>=400) errors.push(`HTTP ${r.status()} ${r.url()}`)});
+  page.on('response',r=>{
+    if(r.status()<400) return;
+    const u=new URL(r.url());
+    if(u.pathname==='/favicon.ico') return;
+    errors.push(`HTTP ${r.status()} ${r.url()}`);
+  });
 
   await waitReady(page);
   await page.evaluate(()=>document.querySelectorAll('[data-capture-hide]').forEach(el=>el.remove()));
