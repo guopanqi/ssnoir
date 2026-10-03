@@ -14,12 +14,12 @@ export function createLighting(scene, profile, lampPositions) {
   key.position.fromArray(cfg.keyPosition);
   key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
-  key.shadow.camera.left = -55;
-  key.shadow.camera.right = 55;
-  key.shadow.camera.top = 42;
-  key.shadow.camera.bottom = -42;
+  key.shadow.camera.left = -60;
+  key.shadow.camera.right = 60;
+  key.shadow.camera.top = 46;
+  key.shadow.camera.bottom = -46;
   key.shadow.camera.near = 1;
-  key.shadow.camera.far = 95;
+  key.shadow.camera.far = 105;
   group.add(key);
 
   const fill = new THREE.DirectionalLight(cfg.fillColor, cfg.fillIntensity);
@@ -32,10 +32,11 @@ export function createLighting(scene, profile, lampPositions) {
     cfg.ambientIntensity,
   ));
 
+  // 第一阶段只允许光束作为很轻的空气提示，不能成为可见几何体。
   const coneMaterial = new THREE.MeshBasicMaterial({
     color: p.warm,
     transparent: true,
-    opacity: 0.045,
+    opacity: 0.010,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
     side: THREE.DoubleSide,
@@ -46,19 +47,17 @@ export function createLighting(scene, profile, lampPositions) {
       cfg.streetColor,
       cfg.streetIntensity,
       cfg.streetDistance,
-      2.1,
+      2.25,
     );
     light.position.fromArray(position);
     light.castShadow = false;
     group.add(light);
 
-    // ConeGeometry 顶点在 +Y，底面在 -Y；灯头高约 4.4m，
-    // 因此高 4.4m 的锥体中心放 2.2m，正好从灯头落到地面。
     const cone = new THREE.Mesh(
-      new THREE.ConeGeometry(3.4, 4.4, 24, 1, true),
+      new THREE.ConeGeometry(2.8, 4.0, 24, 1, true),
       coneMaterial,
     );
-    cone.position.set(position[0], 2.2, position[2]);
+    cone.position.set(position[0], 2.0, position[2]);
     lightCones.add(cone);
   }
 
