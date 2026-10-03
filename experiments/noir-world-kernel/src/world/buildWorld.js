@@ -1,5 +1,7 @@
 import * as THREE from 'three';
-import { toon, unlit, line } from '../style/materials.js';
+import { toon, unlit, line, wideLine } from '../style/materials.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
 
 const DEG = Math.PI / 180;
 
@@ -13,13 +15,21 @@ function seeded(seed=19) {
 
 function addEdges(mesh, group, material, threshold=32) {
   const edges = new THREE.EdgesGeometry(mesh.geometry, threshold);
-  const lines = new THREE.LineSegments(edges, material);
-  lines.position.copy(mesh.position);
-  lines.rotation.copy(mesh.rotation);
-  lines.scale.copy(mesh.scale);
-  lines.renderOrder = 4;
-  group.add(lines);
-  return lines;
+  let strokes;
+  if(material?.isLineMaterial){
+    const geo=new LineSegmentsGeometry();
+    geo.setPositions(Array.from(edges.attributes.position.array));
+    strokes=new LineSegments2(geo,material);
+    strokes.computeLineDistances();
+  }else{
+    strokes=new THREE.LineSegments(edges,material);
+  }
+  strokes.position.copy(mesh.position);
+  strokes.rotation.copy(mesh.rotation);
+  strokes.scale.copy(mesh.scale);
+  strokes.renderOrder = 4;
+  group.add(strokes);
+  return strokes;
 }
 
 function box(parent, lines, mat, edgeMat, size, pos, {rotY=0, edges=true, threshold=35}={}) {
@@ -125,7 +135,9 @@ function addFigure(root, lines, mats, pos, scale=1, hat=true, rotY=0) {
   lineRoot.rotation.y=rotY;
   lines.add(lineRoot);
 
-  function shapeMesh(points, material, depth=.18, z=-.09, edgeMaterial=mats.lineBright) {
+  const figureLine=hero?mats.lineHero:mats.linePrimary;
+
+  function shapeMesh(points, material, depth=.18, z=-.09, edgeMaterial=figureLine) {
     const shape=new THREE.Shape();
     shape.moveTo(points[0][0],points[0][1]);
     for(let i=1;i<points.length;i++) shape.lineTo(points[i][0],points[i][1]);
@@ -146,10 +158,11 @@ function addFigure(root, lines, mats, pos, scale=1, hat=true, rotY=0) {
   // A thin 2.5D cutout: simple enough to read as drawing, thick enough to belong
   // to a 3D street and receive a real cast shadow.
   shapeMesh([
-    [-.72,.52],[-.60,1.12],[-.52,2.28],[-.43,2.62],
-    [-.24,2.80],[0,2.88],[.27,2.79],[.47,2.58],
-    [.56,2.18],[.68,.52],[.28,.42],[-.30,.42]
-  ],mats.ink,.20,-.10,mats.lineBright);
+    [-.53,.50],[-.49,1.18],[-.43,2.18],[-.57,2.43],
+    [-.39,2.67],[-.20,2.80],[.02,2.84],[.24,2.78],
+    [.43,2.64],[.56,2.43],[.43,2.17],[.49,1.16],
+    [.55,.50],[.22,.43],[-.22,.43]
+  ],mats.ink,.17,-.085,figureLine);
 
   // restrained lapel breaks the coat mass without turning it into costume detail.
   shapeMesh([
@@ -165,11 +178,24 @@ function addFigure(root, lines, mats, pos, scale=1, hat=true, rotY=0) {
     [-.10,3.47],[.04,3.53],[.16,3.48],[.22,3.39],
     [.24,3.33],[.38,3.28],[.28,3.23],[.29,3.15],
     [.22,3.06],[.12,2.98],[.02,2.91]
-  ],mats.face,.18,-.09,mats.lineDim);
+  ],mats.face,.10,-.05,figureLine);
 
   shapeMesh([
     [.10,3.42],[.22,3.38],[.38,3.28],[.24,3.22],[.12,3.27]
-  ],mats.paper,.185,-.092,null);
+  ],mats.paper,.105,-.052,null);
+
+  const gestureGeo=new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-.34,2.48,.02),
+    new THREE.Vector3(-.15,1.72,.02),
+    new THREE.Vector3(.08,1.18,.02)
+  ]);
+  lineRoot.add(new THREE.Line(gestureGeo,mats.lineDim));
+
+  const beltGeo=new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-.37,1.55,.02),
+    new THREE.Vector3(.35,1.55,.02)
+  ]);
+  lineRoot.add(new THREE.Line(beltGeo,mats.lineDim));
 
   if(hat){
     const brim=new THREE.Mesh(new THREE.BoxGeometry(.98,.075,.24),mats.ink);
@@ -235,9 +261,13 @@ export function buildWorld(scene, palette) {
     white: toon(palette.white),
     gold: toon(palette.gold),
     goldDark: toon(palette.goldDark),
-    lineBright: line(palette.paper,.96),
-    lineDim: line(0xaaa69b,.58),
-    lineGold: line(palette.gold,.95),
+    lineHero: wideLine(palette.paper,.96,1.9),
+    linePrimary: wideLine(palette.paper,.90,1.18),
+    lineBright: line(palette.paper,.82),
+    lineDim: line(0xaaa69b,.43),
+    lineGold: wideLine(palette.gold,.94,1.2),
+    wetLine: line(0xc6c0b4,.18),
+    wetGold: line(palette.gold,.20),
     windowOff: unlit(0x101214),
     windowOn: unlit(0xd9d2c0),
     windowGold: unlit(palette.gold),
@@ -271,15 +301,15 @@ export function buildWorld(scene, palette) {
   atmosphere.add(moonDot);
 
   // Theatre block.
-  box(fill,lines,mats.charcoal,mats.lineBright,[15,11,9],[-17,5.7,-8],{rotY:-4*DEG});
+  box(fill,lines,mats.charcoal,mats.linePrimary,[15,11,9],[-17,5.7,-8],{rotY:-4*DEG});
   box(fill,lines,mats.charcoal,mats.lineDim,[13.2,3.2,2.0],[-15.8,4.1,-2.6],{rotY:-4*DEG});
-  box(fill,lines,mats.paper,mats.lineBright,[11.8,.42,2.6],[-15.3,5.9,-1.7],{rotY:-4*DEG});
+  box(fill,lines,mats.paper,mats.linePrimary,[11.8,.42,2.6],[-15.3,5.9,-1.7],{rotY:-4*DEG});
   for(let i=0;i<5;i++){
     const finH = (i===2 ? 9.4 : (i===1 || i===3 ? 8.8 : 8.2));
     box(fill,lines,mats.mid,mats.lineDim,[.48,finH,.42],[-22.8+i*3.05,5.9+finH*.04,-3.25],{rotY:-4*DEG,threshold:48});
   }
 
-  box(fill,lines,mats.ink,mats.lineBright,[7.2,1.0,.8],[-16.0,11.0,-3.55],{rotY:-4*DEG});
+  box(fill,lines,mats.ink,mats.linePrimary,[7.2,1.0,.8],[-16.0,11.0,-3.55],{rotY:-4*DEG});
   box(fill,lines,mats.charcoal,mats.lineDim,[4.8,.8,.65],[-16.0,11.85,-3.62],{rotY:-4*DEG});
   box(fill,lines,mats.ink,mats.lineDim,[2.4,.65,.55],[-16.0,12.55,-3.68],{rotY:-4*DEG});
 
@@ -334,7 +364,7 @@ export function buildWorld(scene, palette) {
   fill.add(blade);
 
   // Office tower with setbacks: large clean shapes first.
-  box(fill,lines,mats.stone,mats.lineBright,[16,20,13],[17,10,-13],{rotY:3*DEG});
+  box(fill,lines,mats.stone,mats.lineDim,[16,20,13],[17,10,-13],{rotY:3*DEG});
   box(fill,lines,mats.charcoal,mats.lineDim,[12,7,10],[18,23,-14],{rotY:3*DEG});
   box(fill,lines,mats.charcoal,mats.lineDim,[7,6,8],[19,29.5,-14],{rotY:3*DEG});
 
@@ -400,7 +430,7 @@ export function buildWorld(scene, palette) {
   const stageWash=new THREE.Mesh(
     new THREE.ShapeGeometry(stageShape),
     new THREE.MeshBasicMaterial({
-      color:0xd8cfb8,transparent:true,opacity:.075,
+      color:0xd8cfb8,transparent:true,opacity:.038,
       depthWrite:false,toneMapped:false,side:THREE.DoubleSide
     })
   );
@@ -442,6 +472,29 @@ export function buildWorld(scene, palette) {
 
   // Foreground framing geometry.
   box(fill,lines,mats.ink,mats.lineBright,[4,15,7],[-29,7.5,13],{rotY:-8*DEG});
+
+  const wetRand=seeded(5107);
+  const wet=[];
+  for(let i=0;i<58;i++){
+    const x=-20+wetRand()*39;
+    const z=-1+wetRand()*23;
+    const len=.35+wetRand()*2.0;
+    wet.push(x,.082,z,x+len,.082,z+(wetRand()-.5)*.16);
+  }
+  const wetGeo=new THREE.BufferGeometry();
+  wetGeo.setAttribute('position',new THREE.Float32BufferAttribute(wet,3));
+  lines.add(new THREE.LineSegments(wetGeo,mats.wetLine));
+
+  const goldWet=[];
+  for(let i=0;i<13;i++){
+    const x=-20+wetRand()*11;
+    const z=1+wetRand()*10;
+    const len=.25+wetRand()*1.15;
+    goldWet.push(x,.084,z,x+len,.084,z+(wetRand()-.5)*.08);
+  }
+  const goldWetGeo=new THREE.BufferGeometry();
+  goldWetGeo.setAttribute('position',new THREE.Float32BufferAttribute(goldWet,3));
+  lines.add(new THREE.LineSegments(goldWetGeo,mats.wetGold));
 
   addRain(atmosphere,mats.rain);
 

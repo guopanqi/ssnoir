@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 function gradientMap() {
   const data = new Uint8Array([18, 92, 176, 255]);
@@ -33,4 +34,21 @@ export function line(color, opacity=1) {
     depthWrite: false,
     toneMapped: false
   });
+}
+
+
+export function wideLine(color, opacity=1, width=1.4) {
+  const material = new LineMaterial({
+    color,
+    linewidth: width,
+    transparent: opacity < 1,
+    opacity,
+    depthWrite: false,
+    toneMapped: false
+  });
+  material.resolution.set(
+    typeof window !== 'undefined' ? window.innerWidth : 1440,
+    typeof window !== 'undefined' ? window.innerHeight : 900
+  );
+  return material;
 }
