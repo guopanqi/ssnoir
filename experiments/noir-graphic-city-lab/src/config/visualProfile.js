@@ -23,9 +23,9 @@ export const PROFILE = Object.freeze({
   print: Object.freeze({
     levels: 4,
     inBlack: 0.01,
-    inWhite: 0.82,
-    gamma: 0.88,
+    inWhite: 0.60,
+    gamma: 0.82,
     grain: 0.020,
-    vignette: 0.23,
+    vignette: 0.18,
   }),
 });

@@ -46,7 +46,7 @@ async function imageMetrics(buffer) {
   const { data, info } = await sharp(buffer)
     .resize({ width: 400, withoutEnlargement: true })
     .removeAlpha().raw().toBuffer({ resolveWithObject: true });
-  let sum = 0, black = 0, cream = 0, gold = 0;
+  let sum = 0, black = 0, mid = 0, cream = 0, gold = 0;
   const bins = [0,0,0,0,0];
   const count = info.width * info.height;
   for (let i = 0; i < data.length; i += info.channels) {
@@ -54,6 +54,7 @@ async function imageMetrics(buffer) {
     const l = 0.2126*r + 0.7152*g + 0.0722*b;
     sum += l;
     if (l < 0.08) black++;
+    if (l >= 0.12 && l < 0.65) mid++;
     if (l > 0.70) cream++;
     if (r > 0.45 && (r - b) > 0.30 && (r - g) > 0.10 && (g - b) > 0.08) gold++;
     bins[Math.min(4, Math.floor(l * 5))]++;
@@ -61,6 +62,7 @@ async function imageMetrics(buffer) {
   return {
     mean: sum / count,
     blackUnder08: black / count,
+    mid12to65: mid / count,
     creamOver70: cream / count,
     goldShare: gold / count,
     lumaBins: bins.map((n) => n / count),
@@ -172,13 +174,25 @@ try {
 
   const report = [
     '# Graphic City capture report','',
-    '| mode | shot | mean | black<8% | cream>70% | gold share |',
-    '|---|---|---:|---:|---:|---:|',
+    '| mode | shot | mean | black<8% | mid 12–65% | cream>70% | gold share |',
+    '|---|---|---:|---:|---:|---:|---:|',
   ];
   for (const mode of order) for (const [shot] of shots) {
     const m = metrics[mode][shot];
-    report.push(`| ${mode} | ${shot} | ${m.mean.toFixed(3)} | ${(m.blackUnder08*100).toFixed(1)}% | ${(m.creamOver70*100).toFixed(1)}% | ${(m.goldShare*100).toFixed(2)}% |`);
+    report.push(`| ${mode} | ${shot} | ${m.mean.toFixed(3)} | ${(m.blackUnder08*100).toFixed(1)}% | ${(m.mid12to65*100).toFixed(1)}% | ${(m.creamOver70*100).toFixed(1)}% | ${(m.goldShare*100).toFixed(2)}% |`);
   }
+  if (metrics.shape && metrics.final) {
+    report.push('', '## Graphic value retention', '');
+    report.push('| shot | shape mid 12–65% | final mid 12–65% | retention |');
+    report.push('|---|---:|---:|---:|');
+    for (const [shot] of shots) {
+      const shapeMid = metrics.shape[shot].mid12to65;
+      const finalMid = metrics.final[shot].mid12to65;
+      const retention = shapeMid > 0 ? finalMid / shapeMid : 0;
+      report.push(`| ${shot} | ${(shapeMid*100).toFixed(1)}% | ${(finalMid*100).toFixed(1)}% | ${(retention*100).toFixed(0)}% |`);
+    }
+  }
+
   report.push('', '## Accent budget', '');
   if (metrics.final) for (const [shot] of shots) {
     const gold = metrics.final[shot].goldShare;
