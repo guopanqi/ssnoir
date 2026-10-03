@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { mkdir, rm, writeFile, copyFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
@@ -52,6 +53,10 @@ try{
   const page=await browser.newPage({viewport:{width:960,height:540}});
   let pageError=null;
   page.on('pageerror',e=>{pageError=e;process.stderr.write(`[browser] ${e.stack||e}\n`);});
+  page.on('console',message=>{
+    if(message.type()==='error') pageError=new Error(`Browser console: ${message.text()}`);
+  });
+  const assertHealthy=()=>{if(pageError) throw pageError;};
   await wait(page,()=>pageError);
   await page.evaluate(()=>document.querySelector('#hud')?.remove());
   const all={}; const outputs={};
@@ -62,6 +67,8 @@ try{
       await page.evaluate(i=>window.__noirTheatreLab.setShot(i),i);
       const ext=mode.type==='png'?'png':'jpg';const file=path.join(dir,`${shots[i]}.${ext}`);
       const buf=await page.screenshot({path:file,type:mode.type,quality:mode.type==='jpeg'?mode.quality:undefined,timeout:45000}); outputs[mode.name][shots[i]]=file; all[mode.name][shots[i]]=await metrics(buf);
+      assertHealthy();
+      process.stdout.write(`${mode.name}/${shots[i]} captured\n`);
     }
   }
   const tw=420,th=236,cols=4,rows=4;
@@ -75,6 +82,7 @@ try{
   const report=['# Noir Theatre capture report','','| mode | shot | mean | p50 | p90 | black<3.5% | bright>55% | edge density |','|---|---|---:|---:|---:|---:|---:|---:|'];
   for(const m of modes)for(const shot of shots){const x=all[m.name][shot];report.push(`| ${m.name} | ${shot} | ${x.mean.toFixed(3)} | ${x.p50.toFixed(3)} | ${x.p90.toFixed(3)} | ${(x.black*100).toFixed(1)}% | ${(x.bright*100).toFixed(1)}% | ${(x.edgeDensity*100).toFixed(1)}% |`)}
   await writeFile(path.join(OUT,'report.md'),report.join('\n')+'\n');
-  const manifest={generatedAt:new Date().toISOString(),gitSha:process.env.GITHUB_SHA||null,metrics:all,info:await page.evaluate(()=>window.__noirTheatreLab.info())};
+  assertHealthy();
+  const manifest={generatedAt:new Date().toISOString(),gitSha:process.env.GITHUB_SHA||execFileSync('git',['rev-parse','HEAD'],{cwd:ROOT,encoding:'utf8'}).trim(),metrics:all,info:await page.evaluate(()=>window.__noirTheatreLab.info())};
   await writeFile(path.join(OUT,'manifest.json'),JSON.stringify(manifest,null,2)+'\n'); await writeFile(path.join(REVIEW,'metrics.json'),JSON.stringify(manifest,null,2)+'\n');
 }catch(e){process.stderr.write(log);throw e;}finally{await browser?.close();s.kill('SIGTERM');}

@@ -21,13 +21,15 @@ scene.background=new THREE.Color(PROFILE.renderer.background);
 scene.fog=new THREE.FogExp2(0x070707,.0048);
 const camera=new THREE.PerspectiveCamera(38,innerWidth/innerHeight,.1,220);
 const controls=new OrbitControls(camera,renderer.domElement);
-controls.enableDamping=true; controls.dampingFactor=.07; controls.maxDistance=120;
+const isCapture=new URLSearchParams(location.search).has('capture');
+controls.enableDamping=!isCapture; controls.dampingFactor=.07; controls.maxDistance=120;
 const post=createPost(renderer,scene,camera,PROFILE);
 const world=await buildWorld(scene,PROFILE);
 let shotIndex=0, modeIndex=3;
 const label=document.querySelector('#shotLabel');
 
-function render(){ controls.update(); post.composer.render(); }
+// change 回调只画图；update 会派发 change，不能从 render 再调用它。
+function render(){ post.composer.render(); }
 function applyShot(index){
   shotIndex=((index%SHOTS.length)+SHOTS.length)%SHOTS.length;
   const s=applyShotDefinition(camera,controls,shotIndex,(name)=>world.setActive(name));
@@ -48,3 +50,6 @@ addEventListener('keydown',(e)=>{
 controls.addEventListener('change',render);
 resize(); applyShot(0); setMode('final');
 installCaptureApi({world,post,applyShot,camera,controls,render});
+if(!isCapture){
+  renderer.setAnimationLoop(()=>controls.update());
+}

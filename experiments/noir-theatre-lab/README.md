@@ -27,9 +27,13 @@ SSNoir 的第二个、完全独立的 Three.js 艺术实验。方向暂称 **Noi
 ## 运行
 
 ```bash
-npm install
+npm ci
 npm run dev
 npm run capture
 ```
 
 截图输出到 `captures/latest/`；CI 同时更新 `captures/review/contact-sheet.jpg` 作为当前可观察基准。
+
+本地截图前运行 `npx playwright install chromium`，或用 `CHROME_PATH` 指定已有 Chrome。提交前先运行 `npm run build` 和 `npm run capture`，实际查看 contact sheet，再写研究记录。浏览器异常和 console error 会使截图失败，每张完成的截图会输出进度。
+
+CI 固定检查触发提交的 SHA，依次构建、生成 16 张截图、上传完整 artifact，再把 contact sheet 和带源提交 SHA 的 metrics 回写实验分支。回写提交带 `[skip ci]`，且 review 目录不触发截图任务。若分支已推进，旧任务只保留 artifact，由新任务回写证据；不要用强制推送覆盖新改动。

@@ -70,3 +70,5 @@ __pycache__/
 # Noir experiment generated output
 /experiments/noir-engraving-lab/captures/
 /experiments/noir-engraving-lab/dist/
+/experiments/noir-theatre-lab/captures/latest/
+/experiments/noir-theatre-lab/dist/

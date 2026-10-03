@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const vertexShader = /* glsl */`
   varying vec2 vUv;
@@ -84,6 +85,8 @@ export function createPost(renderer, scene, camera, profile) {
     fragmentShader,
   });
   composer.addPass(pass);
+  // Composer 的中间缓冲是线性颜色；只在最终输出统一做 tone mapping / sRGB 转换。
+  composer.addPass(new OutputPass());
 
   return {
     composer,
