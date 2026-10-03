@@ -165,7 +165,7 @@ function makeTextTexture(text) {
   ctx.lineWidth=3;
   ctx.strokeRect(5,5,canvas.width-10,canvas.height-10);
   ctx.fillStyle='#e8e5dc';
-  ctx.font='34px Georgia, serif';
+  ctx.font='48px Georgia, serif';
   ctx.textAlign='center';
   ctx.textBaseline='middle';
   ctx.fillText(text,canvas.width/2,canvas.height/2+2);
@@ -177,32 +177,54 @@ function makeTextTexture(text) {
 }
 
 function makeWetPatchMaterial() {
-  return new THREE.ShaderMaterial({
+  const canvas=document.createElement('canvas');
+  canvas.width=512;
+  canvas.height=256;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,512,256);
+
+  // Broad, soft puddle masses. Detail comes from a handful of horizontal
+  // reflections, not a repeated procedural dash pattern.
+  for(const [cx,cy,rx,ry,a] of [
+    [150,132,135,62,.20],[280,112,150,48,.17],[390,150,92,42,.13]
+  ]){
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.scale(rx/ry,1);
+    const g=ctx.createRadialGradient(0,0,0,0,0,ry);
+    g.addColorStop(0,`rgba(198,207,218,${a})`);
+    g.addColorStop(.55,`rgba(164,176,191,${a*.52})`);
+    g.addColorStop(1,'rgba(120,135,154,0)');
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.arc(0,0,ry,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.lineCap='round';
+  for(const [x,y,w,a] of [
+    [42,104,118,.18],[182,131,170,.15],[252,93,126,.13],
+    [318,164,105,.11],[96,173,92,.09]
+  ]){
+    ctx.strokeStyle=`rgba(225,228,226,${a})`;
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.lineTo(x+w,y+1);
+    ctx.stroke();
+  }
+
+  const texture=new THREE.CanvasTexture(canvas);
+  texture.colorSpace=THREE.SRGBColorSpace;
+  texture.minFilter=THREE.LinearMipmapLinearFilter;
+  texture.magFilter=THREE.LinearFilter;
+  return new THREE.MeshBasicMaterial({
+    map:texture,
     transparent:true,
+    opacity:.92,
     depthWrite:false,
     side:THREE.DoubleSide,
-    uniforms:{uColor:{value:new THREE.Color(0xb6bec9)}},
-    vertexShader:`
-      varying vec2 vUv;
-      void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}
-    `,
-    fragmentShader:`
-      uniform vec3 uColor;
-      varying vec2 vUv;
-      float hash(vec2 p){
-        p=fract(p*vec2(127.1,311.7));
-        p+=dot(p,p+34.5);
-        return fract(p.x*p.y);
-      }
-      void main(){
-        vec2 cell=floor(vUv*vec2(72.0,24.0));
-        float n=hash(cell);
-        float streak=.5+.5*sin(vUv.y*95.0+hash(floor(vUv.xx*19.0))*6.283);
-        float edge=smoothstep(0.0,.16,vUv.x)*smoothstep(0.0,.14,1.0-vUv.x)*smoothstep(0.0,.12,vUv.y)*smoothstep(0.0,.12,1.0-vUv.y);
-        float alpha=(.07+.23*smoothstep(.48,.92,n)*(.45+.55*streak))*edge;
-        gl_FragColor=vec4(uColor,alpha);
-      }
-    `,
   });
 }
 
@@ -264,8 +286,8 @@ function addDiner(groups,materials) {
 
   // Window band under the awning.
   for (let i=0;i<6;i++) {
-    const win=new THREE.Mesh(new THREE.PlaneGeometry(1.65,2.35),materials.windowDark);
-    win.position.set(-7.5+i*2.05,2.25,-15.96);
+    const win=new THREE.Mesh(new THREE.PlaneGeometry(1.72,2.45),materials.windowDark);
+    win.position.set(-7.5+i*2.05,2.30,-15.96);
     groups.solids.add(win);
     addStroke(groups.strokes,materials.strokePrimary,[
       [-8.34+i*2.05,1.05,-15.93],[-8.34+i*2.05,3.45,-15.93]
@@ -274,10 +296,10 @@ function addDiner(groups,materials) {
   addStroke(groups.strokes,materials.strokePrimary,[[-8.45,3.52,-15.93],[4.55,3.52,-15.93]]);
 
   const sign=new THREE.Mesh(
-    new THREE.PlaneGeometry(7.2,1.22),
+    new THREE.PlaneGeometry(8.8,1.28),
     new THREE.MeshBasicMaterial({map:makeTextTexture('THE ORIOLE'),transparent:true,depthWrite:false}),
   );
-  sign.position.set(-2.4,6.15,-15.98);
+  sign.position.set(-2.4,6.18,-15.98);
   groups.emissive.add(sign);
 
   // Entry steps and rails.
@@ -485,10 +507,10 @@ function addAtmosphere(groups,materials) {
   groups.atmosphere.add(pool);
 }
 
-function addCast(groups,materials) {
+function addCast(groups,materials,outlineTargets) {
   createCharacter({
     name:'Detective',position:[9.4,0,22.5],yaw:0,scale:1.04,
-    pose:'neutral',kind:'hero',materials,parent:groups.characters,
+    pose:'neutral',kind:'hero',materials,parent:groups.characters,outlineTargets,
   });
 
   const crowd=[
@@ -499,11 +521,12 @@ function addCast(groups,materials) {
   crowd.forEach(([x,z,s,yaw],i)=>createCharacter({
     name:`Crowd ${i+1}`,position:[x,0,z],yaw,scale:s,
     pose:i%3===0?'gesture':i%2?'walk':'neutral',
-    kind:'crowd',variant:i,materials,parent:groups.characters,
+    kind:'crowd',variant:i,materials,parent:groups.characters,outlineTargets,
   }));
 }
 
 export function buildWorld(scene,profile){
+  const outlineTargets=[];
   const groups={
     solids:new THREE.Group(),
     edges:new THREE.Group(),
@@ -520,7 +543,7 @@ export function buildWorld(scene,profile){
     surfaceMid:surfaceMat(profile.palette.surfaceMid,profile.palette.background,.0075,12,.12),
     ground:surfaceMat(0x202c41,profile.palette.background,.0075,7,.16),
     character:meshMat(0x010204,{side:THREE.DoubleSide}),
-    detail:meshMat(profile.palette.lineDim,{side:THREE.DoubleSide}),
+    detailLine:new THREE.LineBasicMaterial({color:profile.palette.lineDim,transparent:true,opacity:.80,depthTest:true}),
     edgePrimary:new THREE.LineBasicMaterial({
       color:profile.palette.line,transparent:true,opacity:.74,fog:true,
     }),
@@ -534,7 +557,7 @@ export function buildWorld(scene,profile){
     strokeDim:strokeMaterial(profile.palette.lineDim,.62,.76),
     white:meshMat(profile.palette.white),
     window:meshMat(profile.palette.white),
-    windowDark:meshMat(0x697587),
+    windowDark:meshMat(0x8390a2),
     sideSign:meshMat(0x9da4ad),
     reflection:meshMat(profile.palette.lineDim,{transparent:true,opacity:.1,depthWrite:false}),
     hazeDisc:meshMat(0xc5c9d0,{transparent:true,opacity:.31,depthWrite:false,side:THREE.DoubleSide}),
@@ -553,7 +576,7 @@ export function buildWorld(scene,profile){
   addCityDrawingDetails(groups,materials);
   addStreetFurniture(groups,materials);
   addAtmosphere(groups,materials);
-  addCast(groups,materials);
+  addCast(groups,materials,outlineTargets);
 
-  return {groups,materials};
+  return {groups,materials,outlineTargets};
 }

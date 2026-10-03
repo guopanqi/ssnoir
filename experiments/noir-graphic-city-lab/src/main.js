@@ -40,7 +40,7 @@ const post = createPost(
   scene,
   camera,
   PROFILE,
-  world.groups.characters.children,
+  world.outlineTargets,
 );
 
 function render() {
