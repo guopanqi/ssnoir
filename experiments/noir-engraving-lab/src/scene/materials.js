@@ -18,38 +18,38 @@ export function createMaterials(profile) {
     landmark: flat(p.landmark),
 
     wetRoad: new THREE.MeshPhysicalMaterial({
-      color: 0x070b11,
-      roughness: 0.22,
-      metalness: 0.2,
-      clearcoat: 0.55,
-      clearcoatRoughness: 0.18,
+      color: 0x060a10,
+      roughness: 0.34,
+      metalness: 0.10,
+      clearcoat: 0.34,
+      clearcoatRoughness: 0.28,
     }),
 
     edge: new THREE.LineBasicMaterial({
       color: p.edge,
       transparent: true,
-      opacity: 0.72,
+      opacity: 0.58,
     }),
 
     edgeDim: new THREE.LineBasicMaterial({
       color: p.edgeDim,
       transparent: true,
-      opacity: 0.36,
+      opacity: 0.16,
     }),
 
-    warm: flat(0x171615, {
+    warm: flat(0x151412, {
       emissive: p.warm,
-      emissiveIntensity: 5.0,
+      emissiveIntensity: 2.4,
     }),
 
-    cool: flat(0x11161d, {
+    cool: flat(0x10151c, {
       emissive: p.cool,
-      emissiveIntensity: 3.6,
+      emissiveIntensity: 1.5,
     }),
 
-    red: flat(0x160d0d, {
+    red: flat(0x140c0c, {
       emissive: p.red,
-      emissiveIntensity: 2.3,
+      emissiveIntensity: 1.25,
     }),
   };
 }
