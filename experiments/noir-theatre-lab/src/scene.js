@@ -45,24 +45,11 @@ function normalize(root, extent, rotationY=0) {
   return new THREE.Box3().setFromObject(root);
 }
 
-function addSelectiveEdges(root, color, opacity=0.55, maxMeshes=90) {
-  const group = new THREE.Group();
-  const candidates=[];
-  root.traverse(o => { if (o.isMesh && o.geometry?.attributes?.position) candidates.push(o); });
-  candidates
-    .sort((a,b)=>(b.geometry.attributes.position.count||0)-(a.geometry.attributes.position.count||0))
-    .slice(0,maxMeshes)
-    .forEach((mesh) => {
-      try {
-        const g = new THREE.EdgesGeometry(mesh.geometry, 32);
-        if (g.attributes.position.count > 12000) return;
-        const l = new THREE.LineSegments(g, new THREE.LineBasicMaterial({color, transparent:true, opacity, depthWrite:false}));
-        l.matrixAutoUpdate=false;
-        l.matrix.copy(mesh.matrixWorld);
-        group.add(l);
-      } catch {}
-    });
-  return group;
+function createLineLayer() {
+  // Imported FBX geometry is intentionally not converted to EdgesGeometry here.
+  // Screen-space selective edges provide the diagnostic line layer without an
+  // expensive CPU topology pass over the full city model.
+  return new THREE.Group();
 }
 
 function boxMesh(size, position, material) {
@@ -151,10 +138,7 @@ export async function buildWorld(scene, profile) {
   roots.alley.add(alleyModel);
   addAlleyStage(roots.alley, profile.palette);
 
-  const lines = {
-    city: addSelectiveEdges(cityModel, 0xbcb9ae, .28, 55),
-    alley: addSelectiveEdges(alleyModel, 0xc8c2b4, .44, 70),
-  };
+  const lines = { city: createLineLayer(), alley: createLineLayer() };
   roots.city.add(lines.city); roots.alley.add(lines.alley);
 
   setupLightRig(roots.city,'city',profile.palette);
