@@ -1,27 +1,27 @@
 export const SHOTS = Object.freeze([
   Object.freeze({
     name: '01 · THEATER STREET',
-    position: [-31, 9.5, 31],
-    target: [-2, 5.0, 2],
-    purpose: '主街纵深、剧院主体、第一阅读层级',
+    position: [-36, 5.4, 0.8],
+    target: [-2, 6.0, 14.0],
+    purpose: '沿主街斜望剧院：主体、街墙缺口、负空间',
   }),
   Object.freeze({
     name: '02 · WAREHOUSE FOG',
-    position: [54, 8.2, 18],
-    target: [25, 4.6, -6],
-    purpose: '工业体量、雾与远近层次',
+    position: [53, 7.2, 4.5],
+    target: [28, 4.8, -15.0],
+    purpose: '工业体量、街道纵深与远近层次',
   }),
   Object.freeze({
     name: '03 · ALLEY MOUTH',
-    position: [-45, 5.4, -3],
-    target: [-24, 3.3, -19],
-    purpose: '狭窄空间、遮挡与黑面积',
+    position: [-26, 3.8, 4.5],
+    target: [-26, 3.0, -30.0],
+    purpose: '从主街正看后巷：狭窄、遮挡与黑面积',
   }),
   Object.freeze({
     name: '04 · HIGH CITY',
-    position: [7, 34, 50],
-    target: [0, 4.0, 0],
-    purpose: '整体信息密度与城市轮廓',
+    position: [9, 32, 46],
+    target: [-2, 7.0, 5],
+    purpose: '整体体块层级、地标与背景城市轮廓',
   }),
 ]);
 
