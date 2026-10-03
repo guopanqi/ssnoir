@@ -12,8 +12,9 @@ function rect(w, h, material, x, y, z = 0) {
   return mesh;
 }
 
-function circle(r, material, x, y, z = 0) {
-  const mesh = new THREE.Mesh(new THREE.CircleGeometry(r, 40), material);
+function ellipse(rx, ry, material, x, y, z = 0) {
+  const mesh = new THREE.Mesh(new THREE.CircleGeometry(1, 48), material);
+  mesh.scale.set(rx, ry, 1);
   mesh.position.set(x, y, z);
   return mesh;
 }
@@ -67,15 +68,16 @@ function hatCrownShape(width = 0.78, height = 0.46) {
 }
 
 function addHeroDetails(g, material) {
-  const lapelL = rect(0.036, 0.50, material, -0.13, 2.58, 0.018);
-  lapelL.rotation.z = 0.23;
-  g.add(lapelL);
-  const lapelR = rect(0.032, 0.34, material, 0.10, 2.63, 0.018);
-  lapelR.rotation.z = -0.20;
-  g.add(lapelR);
+  const lapel = rect(0.034, 0.46, material, -0.12, 2.56, 0.018);
+  lapel.rotation.z = 0.22;
+  g.add(lapel);
 
-  const cuff = rect(0.18, 0.045, material, 0.61, 1.86, 0.018);
-  cuff.rotation.z = -0.12;
+  const sleeve = rect(0.034, 0.52, material, 0.58, 2.02, 0.018);
+  sleeve.rotation.z = -0.08;
+  g.add(sleeve);
+
+  const cuff = rect(0.16, 0.040, material, 0.60, 1.78, 0.019);
+  cuff.rotation.z = -0.10;
   g.add(cuff);
 }
 
@@ -115,10 +117,11 @@ export function createCharacter({
     armR.rotation.z = -0.10;
     g.add(armR);
 
-    g.add(circle(0.32, body, 0, 3.58, 0.010));
-    g.add(rect(1.00, 0.070, body, 0, 3.88, 0.012));
+    g.add(rect(0.24, 0.34, body, 0, 3.14, 0.008));
+    g.add(ellipse(0.29, 0.34, body, 0, 3.46, 0.010));
+    g.add(rect(0.96, 0.065, body, 0, 3.77, 0.012));
     const crown = shapeMesh(hatCrownShape(0.68, 0.37), body, 0.014);
-    crown.position.set(0, 3.87, 0.014);
+    crown.position.set(0, 3.76, 0.014);
     g.add(crown);
     addHeroDetails(g, materials.detail);
   } else {
@@ -140,12 +143,13 @@ export function createCharacter({
     armR.rotation.z = pose === 'walk' ? -0.20 : -0.05;
     g.add(armR);
 
-    g.add(circle(0.35, body, 0, 3.48, 0.010));
+    g.add(rect(0.20, 0.26, body, 0, 3.05, 0.008));
+    g.add(ellipse(0.31, 0.33, body, 0, 3.32, 0.010));
     if (variant % 4 !== 3) {
       const brimWidth = variant % 3 === 1 ? 0.88 : 1.05;
-      g.add(rect(brimWidth, 0.070, body, 0, 3.79, 0.012));
+      g.add(rect(brimWidth, 0.066, body, 0, 3.61, 0.012));
       const crown = shapeMesh(hatCrownShape(variant % 3 === 1 ? 0.64 : 0.74, 0.34), body, 0.014);
-      crown.position.set(0, 3.78, 0.014);
+      crown.position.set(0, 3.60, 0.014);
       g.add(crown);
     }
   }

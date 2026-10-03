@@ -4,6 +4,56 @@ import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { createCharacter } from './characters.js';
 
+function surfaceMat(color, fogColor, fogDensity, noiseScale = 9, noiseAmount = .12) {
+  return new THREE.ShaderMaterial({
+    uniforms:{
+      uColor:{value:new THREE.Color(color)},
+      uFogColor:{value:new THREE.Color(fogColor)},
+      uFogDensity:{value:fogDensity},
+      uNoiseScale:{value:noiseScale},
+      uNoiseAmount:{value:noiseAmount},
+    },
+    vertexShader:`
+      varying vec2 vUv;
+      varying float vDepth;
+      void main(){
+        vUv=uv;
+        vec4 mv=modelViewMatrix*vec4(position,1.0);
+        vDepth=-mv.z;
+        gl_Position=projectionMatrix*mv;
+      }
+    `,
+    fragmentShader:`
+      uniform vec3 uColor;
+      uniform vec3 uFogColor;
+      uniform float uFogDensity;
+      uniform float uNoiseScale;
+      uniform float uNoiseAmount;
+      varying vec2 vUv;
+      varying float vDepth;
+
+      float hash(vec2 p){
+        p=fract(p*vec2(123.34,456.21));
+        p+=dot(p,p+45.32);
+        return fract(p.x*p.y);
+      }
+
+      void main(){
+        vec2 p=vUv*uNoiseScale;
+        float fine=hash(floor(p*42.0));
+        float broad=hash(floor(p*7.0));
+        float scratch=step(.982,hash(vec2(floor(p.x*22.0),floor(p.y*4.0))));
+        float grain=(fine-.5)*.65+(broad-.5)*.35;
+        vec3 c=uColor*(1.0+grain*uNoiseAmount)+vec3(.035)*scratch;
+
+        float fog=1.0-exp(-uFogDensity*uFogDensity*vDepth*vDepth);
+        c=mix(c,uFogColor,clamp(fog,0.0,1.0));
+        gl_FragColor=vec4(c,1.0);
+      }
+    `,
+  });
+}
+
 function meshMat(color, extra = {}) {
   return new THREE.MeshBasicMaterial({ color, ...extra });
 }
@@ -400,7 +450,7 @@ function addAtmosphere(groups,materials) {
 
   const smokeTexture=makeSoftTexture();
   for(const [x,y,z,s,o] of [
-    [-9.5,2.1,-2.0,7.2,.24],[-7.6,3.3,-4.2,5.8,.18],[-1.8,4.7,-17.0,4.8,.10]
+    [-10.5,1.8,9.0,8.4,.28],[-9.5,2.1,-2.0,7.2,.25],[-7.6,3.3,-4.2,5.8,.19],[-1.8,4.7,-17.0,4.8,.11]
   ]){
     const sprite=new THREE.Sprite(new THREE.SpriteMaterial({
       map:smokeTexture,color:0xc5cad2,transparent:true,opacity:o,
@@ -456,16 +506,11 @@ export function buildWorld(scene,profile){
   };
   Object.values(groups).forEach(g=>scene.add(g));
 
-  const surfaceTexture=makeSurfaceTexture(1948);
-  const groundTexture=surfaceTexture.clone();
-  groundTexture.repeat.set(8,18);
-  groundTexture.needsUpdate=true;
-
   const materials={
-    surface:meshMat(profile.palette.surface,{map:surfaceTexture}),
-    surfaceLift:meshMat(profile.palette.surfaceLift,{map:surfaceTexture}),
-    surfaceMid:meshMat(profile.palette.surfaceMid,{map:surfaceTexture}),
-    ground:meshMat(0x202c41,{map:groundTexture}),
+    surface:surfaceMat(profile.palette.surface,profile.palette.background,.0075,8,.18),
+    surfaceLift:surfaceMat(profile.palette.surfaceLift,profile.palette.background,.0075,10,.15),
+    surfaceMid:surfaceMat(profile.palette.surfaceMid,profile.palette.background,.0075,12,.12),
+    ground:surfaceMat(0x202c41,profile.palette.background,.0075,7,.16),
     character:meshMat(0x010204,{side:THREE.DoubleSide}),
     detail:meshMat(profile.palette.lineDim,{side:THREE.DoubleSide}),
     edgePrimary:new THREE.LineBasicMaterial({
