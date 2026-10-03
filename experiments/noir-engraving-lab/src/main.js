@@ -12,11 +12,13 @@ import { bindResearchUI } from './ui.js';
 import { installCaptureApi } from './captureApi.js';
 
 const canvas = document.querySelector('#scene');
+const captureMode = new URLSearchParams(location.search).has('capture');
 
 const renderer = new THREE.WebGLRenderer({
   canvas,
   antialias: true,
   powerPreference: 'high-performance',
+  preserveDrawingBuffer: captureMode,
 });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
 renderer.shadowMap.enabled = true;
@@ -86,7 +88,6 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-const captureMode = new URLSearchParams(location.search).has('capture');
 const clock = new THREE.Clock();
 let fpsFrames = 0;
 let fpsTime = 0;
