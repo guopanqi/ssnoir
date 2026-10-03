@@ -4,88 +4,46 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-const NoirCompositeShader = {
-  uniforms: {
-    tDiffuse: { value: null },
-    uResolution: { value: new THREE.Vector2(1,1) },
-    uGrain: { value: 0.011 },
-    uVignette: { value: 0.18 },
-    uPosterize: { value: 6.0 }
+const GenesisComposite = {
+  uniforms:{
+    tDiffuse:{value:null},
+    uGrain:{value:.009},
+    uVignette:{value:.12}
   },
-  vertexShader: `
+  vertexShader:`
     varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-    }
+    void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}
   `,
-  fragmentShader: `
+  fragmentShader:`
     uniform sampler2D tDiffuse;
-    uniform vec2 uResolution;
     uniform float uGrain;
     uniform float uVignette;
-    uniform float uPosterize;
     varying vec2 vUv;
-
-    float hash(vec2 p) {
-      p = fract(p * vec2(123.34, 456.21));
-      p += dot(p, p + 45.32);
-      return fract(p.x * p.y);
-    }
-
-    void main() {
-      vec3 c = texture2D(tDiffuse, vUv).rgb;
-
-      float mx = max(max(c.r,c.g),c.b);
-      float mn = min(min(c.r,c.g),c.b);
-      float sat = mx - mn;
-      bool gold = c.r > c.b * 1.35 && c.r > c.g * 1.05 && sat > 0.08;
-
-      float l = dot(c, vec3(0.2126,0.7152,0.0722));
-      l = floor(l * uPosterize + 0.5) / uPosterize;
-      vec3 mono = vec3(l * 1.015, l, l * 0.965);
-      c = gold ? c * 1.12 : mix(c, mono, 0.88);
-
-      // Sparse engraved hatching lives only in middle/dark value groups.
-      // It is screen-space on purpose: the geometry stays clean while the
-      // final frame inherits a consistent illustrated medium.
-      float d1 = abs(fract((gl_FragCoord.x + gl_FragCoord.y * 0.92) / 13.0) - 0.5);
-      float d2 = abs(fract((gl_FragCoord.x - gl_FragCoord.y * 0.68) / 19.0) - 0.5);
-      float hatch1 = 1.0 - smoothstep(0.028, 0.070, d1);
-      float hatch2 = 1.0 - smoothstep(0.022, 0.060, d2);
-      float midInk = smoothstep(0.14, 0.24, l) * (1.0 - smoothstep(0.38, 0.49, l));
-      float deepInk = smoothstep(0.055, 0.12, l) * (1.0 - smoothstep(0.20, 0.29, l));
-      float hatchPatch = smoothstep(.28,.72,hash(floor(gl_FragCoord.xy/28.0)));
-      float inkMask = gold ? 0.0 : 1.0;
-      c -= vec3((hatch1 * midInk * 0.014 + hatch2 * deepInk * 0.009) * hatchPatch * inkMask);
-
-      vec2 p = vUv * 2.0 - 1.0;
-      float vig = smoothstep(1.35, 0.30, dot(p,p));
-      c *= mix(1.0 - uVignette, 1.0, vig);
-
-      float paper = hash(gl_FragCoord.xy * 0.41) - 0.5;
-      float scratch = step(0.996, hash(vec2(gl_FragCoord.y * 0.12, floor(gl_FragCoord.x / 3.0))));
-      c += paper * uGrain;
-      c += scratch * 0.025;
-
-      gl_FragColor = vec4(c,1.0);
+    float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+    void main(){
+      vec3 c=texture2D(tDiffuse,vUv).rgb;
+      float mx=max(max(c.r,c.g),c.b),mn=min(min(c.r,c.g),c.b);
+      bool gold=c.r>c.b*1.45 && c.g>c.b*1.12 && (mx-mn)>.08;
+      float l=dot(c,vec3(.2126,.7152,.0722));
+      vec3 mono=vec3(l*1.02,l,l*.97);
+      c=gold?c:mix(c,mono,.92);
+      vec2 p=vUv*2.0-1.0;
+      float vig=smoothstep(1.45,.25,dot(p,p));
+      c*=mix(1.0-uVignette,1.0,vig);
+      c+=(hash(gl_FragCoord.xy*.41)-.5)*uGrain;
+      gl_FragColor=vec4(c,1.0);
     }
   `
 };
 
-export function createComposer(renderer, scene, camera) {
-  const composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
-  const composite = new ShaderPass(NoirCompositeShader);
+export function createComposer(renderer,scene,camera){
+  const composer=new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene,camera));
+  const composite=new ShaderPass(GenesisComposite);
   composer.addPass(composite);
   composer.addPass(new OutputPass());
-
-  function resize(w,h,dpr) {
-    renderer.setPixelRatio(dpr);
-    renderer.setSize(w,h,false);
-    composer.setSize(w,h);
-    composite.uniforms.uResolution.value.set(w*dpr,h*dpr);
+  function resize(w,h,dpr){
+    renderer.setPixelRatio(dpr);renderer.setSize(w,h,false);composer.setSize(w,h);
   }
-
-  return {composer, resize, composite};
+  return {composer,resize,composite};
 }
