@@ -57,16 +57,18 @@ export function createLighting(scene, profile, lampPositions) {
   // is wider than the alley itself; the walls / bridge create the visible cuts.
   const alleyCut = new THREE.SpotLight(
     0x718caf,
-    900,
-    32,
-    0.42,
+    1800,
+    30,
+    0.72,
     0.02,
     2.0,
   );
-  // The source sits just above the right-hand wall, so light enters the slot
-  // rather than originating inside solid geometry.
-  alleyCut.position.set(-17.6, 11.0, 18.0);
-  alleyCut.target.position.set(-23.0, 2.8, 31.0);
+  // This is a cinematography source, not a diegetic lamp: keep it above the
+  // visible alley floor but inside the architectural slot. The cone is wider
+  // than the alley, so geometry — not a circular beam edge — does the cutting.
+  alleyCut.position.set(-19.2, 8.7, 20.0);
+  alleyCut.target.position.set(-22.8, 2.7, 31.5);
+  alleyCut.shadow.bias = -0.00035;
   alleyCut.castShadow = true;
   alleyCut.shadow.mapSize.set(1024, 1024);
   alleyCut.shadow.camera.near = 1;
@@ -75,7 +77,7 @@ export function createLighting(scene, profile, lampPositions) {
 
   // A tiny local lift replaces the former global hemisphere "alley ambient".
   // Its short distance prevents the alley setup from raising the whole city.
-  const alleyAmbient = new THREE.PointLight(0x17243a, 20.0, 12.0, 2.0);
+  const alleyAmbient = new THREE.PointLight(0x17243a, 90.0, 13.0, 2.0);
   alleyAmbient.position.set(-21.25, 4.2, 27.0);
   group.add(alleyAmbient);
 
