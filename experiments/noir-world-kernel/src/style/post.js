@@ -8,9 +8,9 @@ const NoirCompositeShader = {
   uniforms: {
     tDiffuse: { value: null },
     uResolution: { value: new THREE.Vector2(1,1) },
-    uGrain: { value: 0.013 },
-    uVignette: { value: 0.32 },
-    uPosterize: { value: 7.0 }
+    uGrain: { value: 0.011 },
+    uVignette: { value: 0.18 },
+    uPosterize: { value: 6.0 }
   },
   vertexShader: `
     varying vec2 vUv;
@@ -44,7 +44,7 @@ const NoirCompositeShader = {
       float l = dot(c, vec3(0.2126,0.7152,0.0722));
       l = floor(l * uPosterize + 0.5) / uPosterize;
       vec3 mono = vec3(l * 1.015, l, l * 0.965);
-      c = gold ? c : mix(c, mono, 0.82);
+      c = gold ? c * 1.12 : mix(c, mono, 0.88);
 
       // Sparse engraved hatching lives only in middle/dark value groups.
       // It is screen-space on purpose: the geometry stays clean while the
