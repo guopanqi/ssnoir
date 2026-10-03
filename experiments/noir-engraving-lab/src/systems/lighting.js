@@ -1,6 +1,9 @@
 import * as THREE from 'three';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
 
 export function createLighting(scene, profile, lampPositions) {
+  RectAreaLightUniformsLib.init();
+
   const p = profile.palette;
   const cfg = profile.lighting;
 
@@ -14,12 +17,12 @@ export function createLighting(scene, profile, lampPositions) {
   key.position.fromArray(cfg.keyPosition);
   key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
-  key.shadow.camera.left = -60;
-  key.shadow.camera.right = 60;
-  key.shadow.camera.top = 46;
-  key.shadow.camera.bottom = -46;
+  key.shadow.camera.left = -70;
+  key.shadow.camera.right = 70;
+  key.shadow.camera.top = 48;
+  key.shadow.camera.bottom = -48;
   key.shadow.camera.near = 1;
-  key.shadow.camera.far = 105;
+  key.shadow.camera.far = 120;
   group.add(key);
 
   const fill = new THREE.DirectionalLight(cfg.fillColor, cfg.fillIntensity);
@@ -32,7 +35,7 @@ export function createLighting(scene, profile, lampPositions) {
     cfg.ambientIntensity,
   ));
 
-  // 第一阶段只允许光束作为很轻的空气提示，不能成为可见几何体。
+  // 几何光锥只留作交互试验，不进入正式基准。
   const coneMaterial = new THREE.MeshBasicMaterial({
     color: p.warm,
     transparent: true,
@@ -42,31 +45,22 @@ export function createLighting(scene, profile, lampPositions) {
     side: THREE.DoubleSide,
   });
 
-  const warehouseSearch = new THREE.SpotLight(
-    0x91b7e5,
-    260,
-    58,
-    Math.PI * 0.15,
-    0.38,
-    1.35,
-  );
-  warehouseSearch.position.set(11, 13, -4);
-  warehouseSearch.target.position.set(30, 3.0, 18.5);
-  warehouseSearch.castShadow = false;
-  group.add(warehouseSearch, warehouseSearch.target);
+  // 仓库采用面积光而不是圆形 Spot：更像装卸门/工作灯留下的矩形明暗关系。
+  const warehouseWork = new THREE.RectAreaLight(0x91b7e5, 7.5, 8.5, 9.0);
+  warehouseWork.position.set(17.0, 8.5, 7.0);
+  warehouseWork.lookAt(30.0, 3.2, 19.5);
+  group.add(warehouseWork);
 
-  const alleyRim = new THREE.SpotLight(
-    0x6f8fb8,
-    3.2,
-    16,
-    Math.PI * 0.26,
-    0.18,
-    0.0,
-  );
-  alleyRim.position.set(-20.3, 6.4, 17.2);
-  alleyRim.target.position.set(-24.2, 4.0, 27.0);
-  alleyRim.castShadow = false;
-  group.add(alleyRim, alleyRim.target);
+  // 巷道只照出一侧墙和湿地，远端暖门保持唯一高亮点。
+  const alleyCut = new THREE.RectAreaLight(0x718caf, 4.2, 1.2, 6.0);
+  alleyCut.position.set(-18.6, 6.0, 22.0);
+  alleyCut.lookAt(-23.7, 3.8, 26.5);
+  group.add(alleyCut);
+
+  const alleyDoor = new THREE.PointLight(0xe6c27a, 1.6, 5.5, 2.0);
+  alleyDoor.position.set(-20.45, 2.0, 37.7);
+  alleyDoor.castShadow = false;
+  group.add(alleyDoor);
 
   for (const position of lampPositions) {
     const light = new THREE.PointLight(

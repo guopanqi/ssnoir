@@ -8,7 +8,6 @@ const ROOT = process.cwd();
 const OUT = path.join(ROOT, 'captures', 'latest');
 const PORT = 4173;
 const URL = `http://127.0.0.1:${PORT}/?capture=1`;
-const VIEWPORT = { width: 1600, height: 900 };
 
 const shots = [
   ['01-theater-street', 0],
@@ -17,7 +16,11 @@ const shots = [
   ['04-high-city', 3],
 ];
 
-const modes = ['shape', 'line', 'final'];
+const modes = [
+  { name: 'final', type: 'png', viewport: { width: 1600, height: 900 } },
+  { name: 'shape', type: 'jpeg', quality: 84, viewport: { width: 1200, height: 675 } },
+  { name: 'line', type: 'jpeg', quality: 84, viewport: { width: 1200, height: 675 } },
+];
 
 function percentile(sorted, p) {
   if (!sorted.length) return 0;
@@ -77,11 +80,13 @@ async function waitForServer(page, attempts = 60) {
         break;
       }
     } catch {
-      // Vite may still be starting; do not reload a rendering browser page.
+      // Vite may still be starting.
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
+
   if (!available) throw new Error('Noir Engraving Lab dev server did not start.');
+
   await page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 120_000 });
   await page.waitForFunction(() => window.__noirLab?.ready === true, null, { timeout: 120_000 });
 }
@@ -102,11 +107,11 @@ try {
     executablePath: process.env.CHROME_PATH || undefined,
     args: process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : [],
   });
-  const page = await browser.newPage({ viewport: VIEWPORT, deviceScaleFactor: 1 });
+
+  const page = await browser.newPage({ viewport: modes[0].viewport, deviceScaleFactor: 1 });
   page.on('pageerror', (error) => process.stderr.write(`[browser:error] ${error.stack ?? error}\n`));
   await waitForServer(page);
 
-  // UI is useful interactively but not part of the rendered benchmark.
   await page.evaluate(() => {
     document.querySelector('.hud-top')?.remove();
     document.querySelector('.hud-bottom')?.remove();
@@ -114,33 +119,44 @@ try {
   });
 
   const metrics = {};
+  const outputs = {};
 
   for (const mode of modes) {
-    metrics[mode] = {};
-    const dir = path.join(OUT, mode);
-    await mkdir(dir, { recursive: true });
+    metrics[mode.name] = {};
+    outputs[mode.name] = {};
 
-    await page.evaluate((name) => window.__noirLab.setMode(name), mode);
+    await page.setViewportSize(mode.viewport);
+    await page.evaluate((name) => window.__noirLab.setMode(name), mode.name);
+
+    const dir = path.join(OUT, mode.name);
+    await mkdir(dir, { recursive: true });
 
     for (const [name, index] of shots) {
       await page.evaluate((i) => window.__noirLab.setShot(i), index);
-      console.log(`Capturing ${mode}/${name}`);
+      console.log(`Capturing ${mode.name}/${name}`);
+
+      const extension = mode.type === 'jpeg' ? 'jpg' : 'png';
+      const file = path.join(dir, `${name}.${extension}`);
       const screenshot = await page.screenshot({
-        path: path.join(dir, `${name}.png`),
-        type: 'png',
+        path: file,
+        type: mode.type,
+        quality: mode.type === 'jpeg' ? mode.quality : undefined,
         timeout: 120_000,
       });
-      metrics[mode][name] = await imageMetrics(screenshot);
+
+      outputs[mode.name][name] = file;
+      metrics[mode.name][name] = await imageMetrics(screenshot);
     }
   }
 
   const info = await page.evaluate(() => window.__noirLab.info());
 
+  const contactOrder = ['shape', 'line', 'final'];
   const thumbW = 520;
   const thumbH = 292;
   const contact = sharp({
     create: {
-      width: thumbW * modes.length,
+      width: thumbW * contactOrder.length,
       height: thumbH * shots.length,
       channels: 3,
       background: { r: 6, g: 8, b: 12 },
@@ -148,19 +164,19 @@ try {
   });
 
   const composites = [];
-  for (let col = 0; col < modes.length; col++) {
+  for (let col = 0; col < contactOrder.length; col++) {
     for (let row = 0; row < shots.length; row++) {
-      const mode = modes[col];
+      const modeName = contactOrder[col];
       const [shotName] = shots[row];
-      const file = path.join(OUT, mode, `${shotName}.png`);
-      const label = `${mode.toUpperCase()} · ${shotName}`;
+      const label = `${modeName.toUpperCase()} · ${shotName}`;
       const svg = Buffer.from(
         `<svg width="${thumbW}" height="${thumbH}" xmlns="http://www.w3.org/2000/svg">
           <rect x="0" y="0" width="310" height="28" fill="rgba(0,0,0,.78)"/>
           <text x="9" y="19" fill="white" font-size="13" font-family="Arial, sans-serif">${label}</text>
         </svg>`
       );
-      const input = await sharp(file)
+
+      const input = await sharp(outputs[modeName][shotName])
         .resize(thumbW, thumbH, { fit: 'cover' })
         .composite([{ input: svg, top: 0, left: 0 }])
         .jpeg({ quality: 88 })
@@ -173,7 +189,11 @@ try {
       });
     }
   }
-  await contact.composite(composites).jpeg({ quality: 90 }).toFile(path.join(OUT, 'contact-sheet.jpg'));
+
+  await contact
+    .composite(composites)
+    .jpeg({ quality: 90 })
+    .toFile(path.join(OUT, 'contact-sheet.jpg'));
 
   const report = [
     '# Noir Engraving capture report',
@@ -181,14 +201,16 @@ try {
     '| mode | shot | mean | p50 | p90 | p95 | p99 | black<2% | bright>20% |',
     '|---|---|---:|---:|---:|---:|---:|---:|---:|',
   ];
-  for (const mode of modes) {
+
+  for (const modeName of contactOrder) {
     for (const [shotName] of shots) {
-      const m = metrics[mode][shotName];
+      const m = metrics[modeName][shotName];
       report.push(
-        `| ${mode} | ${shotName} | ${m.mean.toFixed(3)} | ${m.p50.toFixed(3)} | ${m.p90.toFixed(3)} | ${m.p95.toFixed(3)} | ${m.p99.toFixed(3)} | ${(m.blackUnder02 * 100).toFixed(1)}% | ${(m.brightOver20 * 100).toFixed(1)}% |`
+        `| ${modeName} | ${shotName} | ${m.mean.toFixed(3)} | ${m.p50.toFixed(3)} | ${m.p90.toFixed(3)} | ${m.p95.toFixed(3)} | ${m.p99.toFixed(3)} | ${(m.blackUnder02 * 100).toFixed(1)}% | ${(m.brightOver20 * 100).toFixed(1)}% |`
       );
     }
   }
+
   await writeFile(path.join(OUT, 'report.md'), report.join('\n') + '\n');
 
   await writeFile(
@@ -196,8 +218,10 @@ try {
     JSON.stringify({
       generatedAt: new Date().toISOString(),
       gitSha: process.env.GITHUB_SHA ?? null,
-      viewport: VIEWPORT,
-      modes,
+      modes: Object.fromEntries(modes.map((m) => [m.name, {
+        type: m.type,
+        viewport: m.viewport,
+      }])),
       shots: shots.map(([name, index]) => ({ name, index })),
       info,
       metrics,

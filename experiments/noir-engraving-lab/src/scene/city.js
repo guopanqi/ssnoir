@@ -189,36 +189,65 @@ function createAlley(outlines, materials) {
   group.name = 'Alley';
 
   group.add(addEdges(
-    box(6.8, 11.5, 20, materials.buildingDim, -27.2, 0, 28.0),
+    box(6.8, 11.5, 26, materials.buildingDim, -27.2, 0, 27.0),
     outlines, materials, 'context',
   ));
   group.add(addEdges(
-    box(6.2, 9.2, 20, materials.building, -15.3, 0, 28.0),
+    box(6.2, 9.2, 26, materials.building, -15.3, 0, 27.0),
     outlines, materials, 'context',
   ));
 
   const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(5.0, 24),
+    new THREE.PlaneGeometry(5.0, 30),
     materials.wetRoad,
   );
   floor.rotation.x = -Math.PI / 2;
-  floor.position.set(-21.25, 0.025, 26);
+  floor.position.set(-21.25, 0.025, 27);
   floor.receiveShadow = true;
   group.add(floor);
 
-  for (const [z, y] of [[19.5, 5.1], [26.0, 6.7]]) {
+  for (const [z, y] of [[18.5, 4.7], [25.2, 6.5], [32.0, 5.6]]) {
     const landing = box(1.55, 0.12, 2.5, materials.buildingDim, -23.75, y, z);
     group.add(addEdges(landing, outlines, materials, 'context', 8));
   }
 
+  // 横跨巷道的小连桥把空间明确切成前 / 中 / 后三段。
   group.add(addEdges(
-    box(8.5, 10.5, 3.2, materials.buildingDim, -21.25, 0, 39.2),
+    box(5.1, 0.52, 1.45, materials.buildingDim, -21.25, 7.05, 28.8),
+    outlines, materials, 'hero', 10,
+  ));
+
+  group.add(addEdges(
+    box(8.5, 10.5, 3.2, materials.buildingDim, -21.25, 0, 40.0),
     outlines, materials, 'context',
   ));
 
-  const door = box(1.15, 2.15, 0.10, materials.warmSoft, -20.45, 0.08, 37.52);
+  const door = box(1.15, 2.15, 0.10, materials.warmSoft, -20.45, 0.08, 38.32);
   door.castShadow = false;
   group.add(door);
+
+  return group;
+}
+
+
+function createSkyline(materials) {
+  const group = new THREE.Group();
+  group.name = 'DistantSkyline';
+
+  const towers = [
+    [-61, 15, 13, 14],
+    [-44, 22, 11, 15],
+    [-25, 17, 14, 13],
+    [19, 25, 12, 15],
+    [40, 19, 15, 14],
+    [61, 28, 11, 13],
+  ];
+
+  for (const [x, height, width, depth] of towers) {
+    const tower = box(width, height, depth, materials.buildingDim, x, 0, -47);
+    tower.castShadow = false;
+    group.add(tower);
+  }
 
   return group;
 }
@@ -253,6 +282,7 @@ export function buildWorld(scene, profile) {
   wetRoad.receiveShadow = true;
   world.add(wetRoad);
 
+  world.add(createSkyline(materials));
   world.add(createTheater(outlines, materials));
   world.add(createWarehouse(outlines, materials));
 

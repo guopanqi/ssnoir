@@ -27,9 +27,9 @@ export const PROFILE = Object.freeze({
 
   atmosphere: Object.freeze({
     fogDensity: 0.011,
-    rainCount: 720,
-    rainOpacity: 0.18,
-    rainLength: 0.72,
+    rainCount: 460,
+    rainOpacity: 0.12,
+    rainLength: 0.90,
   }),
 
   lighting: Object.freeze({
