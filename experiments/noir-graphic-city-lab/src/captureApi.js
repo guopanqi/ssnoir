@@ -41,6 +41,9 @@ export function installCaptureApi({ profile, world, post, camera, controls, appl
     ready: true,
     setShot(index) {
       const shot = applyShot(camera, controls, index);
+      world.groups.accents.traverse((object) => {
+        if (object.userData?.spotlightFx) object.visible = index !== 0;
+      });
       render();
       return shot;
     },

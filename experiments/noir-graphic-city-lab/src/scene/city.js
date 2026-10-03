@@ -243,11 +243,13 @@ function addLightStage({ groups, mats }) {
     new THREE.ConeGeometry(5.6, length, 32, 1, true),
     mats.beam,
   );
+  beam.userData.spotlightFx = true;
   beam.position.copy(source).add(target).multiplyScalar(0.5);
   beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), dir.clone().normalize());
   groups.accents.add(beam);
 
   const pool = new THREE.Mesh(new THREE.CircleGeometry(5.4, 48), mats.pool);
+  pool.userData.spotlightFx = true;
   pool.rotation.x = -Math.PI / 2;
   pool.scale.set(1.55, 0.72, 1);
   pool.position.set(target.x, 0.04, target.z);
@@ -347,10 +349,24 @@ export function buildWorld(scene, profile) {
       color:profile.palette.paperDim, size:0.12, transparent:true,
       opacity:0.065, depthWrite:false, blending:THREE.AdditiveBlending,
     }),
+    fogDisc: material(profile.palette.midBright, {
+      transparent:true, opacity:0.16, depthWrite:false,
+    }),
+    fogDiscInner: material(profile.palette.paperDim, {
+      transparent:true, opacity:0.055, depthWrite:false,
+    }),
   };
 
   addGroundDrawing({ groups, mats });
   addArchitecture({ groups, mats });
+
+  const fogDisc = new THREE.Mesh(new THREE.CircleGeometry(10.5, 64), mats.fogDisc);
+  fogDisc.position.set(-9.5, 10.5, -31.5);
+  groups.backdrop.add(fogDisc);
+
+  const fogDiscInner = new THREE.Mesh(new THREE.CircleGeometry(6.6, 64), mats.fogDiscInner);
+  fogDiscInner.position.set(-8.3, 9.4, -31.35);
+  groups.backdrop.add(fogDiscInner);
   addStreetClutter({ groups, mats });
   addLightStage({ groups, mats });
   addCast({ groups, mats });
