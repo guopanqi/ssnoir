@@ -123,36 +123,75 @@ function addFigure(root, lines, mats, pos, scale=1, hat=true) {
   lineRoot.scale.setScalar(scale);
   lines.add(lineRoot);
 
-  // long coat: broad shoulders, narrow hem gives a readable 1930s silhouette.
-  const coat = new THREE.Mesh(new THREE.ConeGeometry(.72,2.55,7,1,false),mats.ink);
-  coat.position.y = 1.55;
-  coat.rotation.y = Math.PI/7;
-  coat.castShadow = true;
-  g.add(coat);
-  addEdges(coat,lineRoot,mats.lineBright,28);
+  function shapeMesh(points, material, depth=.18, z=-.09, edgeMaterial=mats.lineBright) {
+    const shape=new THREE.Shape();
+    shape.moveTo(points[0][0],points[0][1]);
+    for(let i=1;i<points.length;i++) shape.lineTo(points[i][0],points[i][1]);
+    shape.closePath();
+    const geo=new THREE.ExtrudeGeometry(shape,{
+      depth,
+      bevelEnabled:false,
+      curveSegments:1
+    });
+    geo.translate(0,0,z);
+    const mesh=new THREE.Mesh(geo,material);
+    mesh.castShadow=true;
+    g.add(mesh);
+    addEdges(mesh,lineRoot,edgeMaterial,30);
+    return mesh;
+  }
 
-  const head = new THREE.Mesh(new THREE.IcosahedronGeometry(.34,1),mats.paper);
-  head.position.y = 3.08;
-  head.castShadow = true;
-  g.add(head);
+  // A thin 2.5D cutout: simple enough to read as drawing, thick enough to belong
+  // to a 3D street and receive a real cast shadow.
+  shapeMesh([
+    [-.72,.52],[-.60,1.12],[-.52,2.28],[-.43,2.62],
+    [-.24,2.80],[0,2.88],[.27,2.79],[.47,2.58],
+    [.56,2.18],[.68,.52],[.28,.42],[-.30,.42]
+  ],mats.ink,.20,-.10,mats.lineBright);
 
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(.16,.18,.35,8),mats.ink);
-  neck.position.y = 2.75; g.add(neck);
+  // restrained lapel breaks the coat mass without turning it into costume detail.
+  shapeMesh([
+    [-.24,2.72],[-.03,2.36],[-.10,1.92],[-.34,2.51]
+  ],mats.charcoal,.205,-.102,mats.lineDim);
 
-  for (const side of [-1,1]) {
-    const leg = new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,1.5,7),mats.ink);
-    leg.position.set(side*.22,.32,0);
-    leg.rotation.z = side*3*DEG;
-    leg.castShadow = true;
+  shapeMesh([
+    [.24,2.72],[.03,2.36],[.12,2.00],[.36,2.50]
+  ],mats.charcoal,.205,-.102,mats.lineDim);
+
+  const face=shapeMesh([
+    [-.22,2.93],[-.29,3.10],[-.27,3.29],[-.18,3.45],
+    [-.03,3.54],[.13,3.49],[.23,3.39],[.31,3.30],
+    [.25,3.22],[.27,3.08],[.16,2.96],[0,2.90]
+  ],mats.paper,.18,-.09,mats.lineDim);
+
+  if(hat){
+    const brim=new THREE.Mesh(new THREE.BoxGeometry(.92,.075,.24),mats.ink);
+    brim.position.set(.02,3.50,0);
+    brim.castShadow=true;
+    g.add(brim);
+    addEdges(brim,lineRoot,mats.lineBright,28);
+
+    const crownShape=[
+      [-.30,3.52],[-.25,3.86],[.25,3.86],[.31,3.52]
+    ];
+    shapeMesh(crownShape,mats.ink,.22,-.11,mats.lineBright);
+  }
+
+  for(const side of [-1,1]){
+    const leg=new THREE.Mesh(new THREE.BoxGeometry(.18,.78,.22),mats.ink);
+    leg.position.set(side*.19,.10,0);
+    leg.rotation.z=side*2*DEG;
+    leg.castShadow=true;
     g.add(leg);
+    addEdges(leg,lineRoot,mats.lineDim,30);
+
+    const shoe=new THREE.Mesh(new THREE.BoxGeometry(.34,.13,.40),mats.ink);
+    shoe.position.set(side*.22,-.31,.08);
+    shoe.rotation.y=side*7*DEG;
+    shoe.castShadow=true;
+    g.add(shoe);
   }
 
-  if (hat) {
-    const brim = new THREE.Mesh(new THREE.CylinderGeometry(.58,.58,.08,20),mats.ink);
-    brim.position.y = 3.38; g.add(brim);
-    const crown = new THREE.Mesh(new THREE.CylinderGeometry(.31,.34,.35,10),mats.ink);
-    crown.position.y = 3.58; g.add(crown);
-  }
   return g;
 }
 

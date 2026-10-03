@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const NoirCompositeShader = {
   uniforms: {
@@ -64,6 +65,7 @@ export function createComposer(renderer, scene, camera) {
   composer.addPass(new RenderPass(scene, camera));
   const composite = new ShaderPass(NoirCompositeShader);
   composer.addPass(composite);
+  composer.addPass(new OutputPass());
 
   function resize(w,h,dpr) {
     renderer.setPixelRatio(dpr);
