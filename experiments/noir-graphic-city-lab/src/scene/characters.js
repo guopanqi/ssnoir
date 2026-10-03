@@ -70,14 +70,14 @@ function drawHeroMask(ctx, color) {
 
   // Neck and head overlap so the silhouette is continuous.
   pathFill(ctx, (p) => {
-    p.moveTo(232, 344);
-    p.lineTo(235, 294);
-    p.lineTo(278, 294);
-    p.lineTo(279, 344);
+    p.moveTo(228, 362);
+    p.lineTo(232, 282);
+    p.lineTo(282, 282);
+    p.lineTo(284, 362);
   }, color);
 
   pathFill(ctx, (p) => {
-    p.moveTo(228, 270);
+    p.moveTo(228, 280);
     p.bezierCurveTo(219, 247, 223, 219, 235, 201);
     p.bezierCurveTo(248, 181, 270, 175, 287, 184);
     p.bezierCurveTo(301, 191, 307, 203, 309, 215);

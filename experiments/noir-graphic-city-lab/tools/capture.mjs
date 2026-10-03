@@ -118,7 +118,7 @@ try{
     await mkdir(detailDir,{recursive:true});
     const source=outputs.final['01-city-plaza'];
     const crops=[
-      ['hero',930,360,430,500],
+      ['hero',720,330,430,540],
       ['diner',430,270,720,390],
       ['ground',40,470,840,410],
     ];

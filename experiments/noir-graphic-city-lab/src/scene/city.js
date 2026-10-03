@@ -108,11 +108,11 @@ const WetReflectorShader = {
       vec2 centered = abs(uv - 0.5);
       float edge = 1.0 - smoothstep(0.34, 0.50, max(centered.x, centered.y));
 
-      float broad = valueNoise(uv * vec2(4.0, 8.0));
-      float fine = valueNoise(uv * vec2(15.0, 34.0));
+      float broad = valueNoise(uv * vec2(5.5, 13.0));
+      float fine = valueNoise(uv * vec2(21.0, 48.0));
       float bands = 0.5 + 0.5 * sin(uv.y * 150.0 + fine * 5.0);
-      float puddle = smoothstep(0.52, 0.76, broad * 0.72 + fine * 0.28);
-      puddle *= mix(0.55, 1.0, smoothstep(0.45, 0.72, bands));
+      float puddle = smoothstep(0.64, 0.84, broad * 0.70 + fine * 0.30);
+      puddle *= mix(0.38, 1.0, smoothstep(0.58, 0.82, bands));
       puddle *= edge;
 
       float lum = dot(reflected, vec3(0.2126, 0.7152, 0.0722));
@@ -121,7 +121,7 @@ const WetReflectorShader = {
 
       // Reflections stay graphic: bright windows/lamps survive; dark buildings
       // mostly disappear into the road.
-      float alpha = puddle * (0.028 + smoothstep(0.05, 0.58, lum) * 0.40);
+      float alpha = puddle * (0.012 + smoothstep(0.08, 0.54, lum) * 0.34);
       gl_FragColor = vec4(tinted, alpha);
     }
   `,
@@ -529,7 +529,7 @@ function addRightArchitecture(groups,materials) {
     [16.2,5.5,1.5,.78],[19.2,5.5,1.9,.78],[22.0,5.5,1.45,.78],
     [16.5,8.0,1.35,.65],[20.0,8.0,1.6,.65]
   ]){
-    const panel=new THREE.Mesh(new THREE.PlaneGeometry(w,h),materials.windowDark);
+    const panel=new THREE.Mesh(new THREE.PlaneGeometry(w,h),materials.door);
     panel.position.set(x,y,18.53);
     groups.solids.add(panel);
     addStroke(groups.strokes,materials.strokeDim,[
@@ -639,25 +639,6 @@ function addGround(groups,materials) {
     p.position.set(x,.03,z);
     groups.atmosphere.add(p);
   }
-
-  // Broad, textured wet areas create a readable mid-value plane without flattening the whole road.
-  const wetMaterial=makeWetPatchMaterial();
-  for(const [x,z,w,d,r] of [
-    [-5.8,15.5,12.5,20.0,-.06],
-    [-8.8,31.5,7.5,13.0,.08],
-    [5.4,7.0,5.0,9.0,.04]
-  ]){
-    const patch=new THREE.Mesh(new THREE.PlaneGeometry(w,d),wetMaterial);
-    patch.rotation.set(-Math.PI/2,0,r);
-    patch.position.set(x,.032,z);
-    groups.atmosphere.add(patch);
-  }
-
-  const wetWash=new THREE.Mesh(new THREE.PlaneGeometry(16,28),materials.wetWash);
-  wetWash.rotation.x=-Math.PI/2;
-  wetWash.rotation.z=-.08;
-  wetWash.position.set(-6.0,.028,20.0);
-  groups.atmosphere.add(wetWash);
 
   const dinerReflection=new THREE.Mesh(
     new THREE.PlaneGeometry(15.5,24),
