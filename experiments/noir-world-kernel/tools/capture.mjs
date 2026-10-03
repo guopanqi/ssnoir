@@ -76,7 +76,11 @@ try{
   const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
   const errors=[];
   page.on('pageerror',e=>errors.push(e.stack??String(e)));
-  page.on('console',m=>{\n    if(m.type()!=='error') return;\n    if(m.text().startsWith('Failed to load resource:')) return;\n    errors.push(m.text());\n  });
+  page.on('console',m=>{
+    if(m.type()!=='error') return;
+    if(m.text().startsWith('Failed to load resource:')) return;
+    errors.push(m.text());
+  });
   page.on('response',r=>{
     if(r.status()<400) return;
     const u=new URL(r.url());
