@@ -10,7 +10,7 @@ import { installCaptureApi } from './captureApi.js';
 
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#scene'),
-  antialias: true,
+  antialias: false,
   powerPreference: 'high-performance',
 });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
@@ -19,6 +19,7 @@ renderer.toneMapping = THREE.NoToneMapping;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(PROFILE.palette.background);
+scene.fog = new THREE.FogExp2(PROFILE.palette.background, 0.0075);
 
 const camera = new THREE.PerspectiveCamera(
   PROFILE.camera.fov,
@@ -34,7 +35,13 @@ controls.minDistance = 5;
 controls.maxDistance = 100;
 
 const world = buildWorld(scene, PROFILE);
-const post = createPost(renderer, scene, camera, PROFILE);
+const post = createPost(
+  renderer,
+  scene,
+  camera,
+  PROFILE,
+  world.groups.characters.children,
+);
 
 function render() {
   controls.update();
@@ -63,8 +70,8 @@ installCaptureApi({
   profile: PROFILE, world, post, camera, controls, applyShot, render,
 });
 
-let modeIndex = 3;
-const modeNames = ['shape', 'line', 'accent', 'final'];
+let modeIndex = 2;
+const modeNames = ['structure', 'clean', 'final'];
 addEventListener('keydown', (event) => {
   const index = Number(event.key) - 1;
   if (index >= 0 && index < SHOTS.length) setShot(index);
