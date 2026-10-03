@@ -118,13 +118,18 @@ function addFigure(root, lines, mats, pos, scale=1, hat=true) {
   g.scale.setScalar(scale);
   root.add(g);
 
+  const lineRoot = new THREE.Group();
+  lineRoot.position.set(...pos);
+  lineRoot.scale.setScalar(scale);
+  lines.add(lineRoot);
+
   // long coat: broad shoulders, narrow hem gives a readable 1930s silhouette.
   const coat = new THREE.Mesh(new THREE.ConeGeometry(.72,2.55,7,1,false),mats.ink);
   coat.position.y = 1.55;
   coat.rotation.y = Math.PI/7;
   coat.castShadow = true;
   g.add(coat);
-  addEdges(coat,lines,mats.lineBright,28).position.add(g.position);
+  addEdges(coat,lineRoot,mats.lineBright,28);
 
   const head = new THREE.Mesh(new THREE.IcosahedronGeometry(.34,1),mats.paper);
   head.position.y = 3.08;
@@ -182,9 +187,9 @@ export function buildWorld(scene, palette) {
     white: toon(palette.white),
     gold: toon(palette.gold),
     goldDark: toon(palette.goldDark),
-    lineBright: line(palette.paper,.78),
-    lineDim: line(0x8c8982,.38),
-    lineGold: line(palette.gold,.8),
+    lineBright: line(palette.paper,.96),
+    lineDim: line(0xaaa69b,.58),
+    lineGold: line(palette.gold,.95),
     windowOff: unlit(0x101214),
     windowOn: unlit(0xd9d2c0),
     windowGold: unlit(palette.gold),
@@ -202,16 +207,26 @@ export function buildWorld(scene, palette) {
   box(fill,lines,mats.mid,mats.lineDim,[21,.36,13],[-17,.12,20],{rotY:6*DEG,threshold:42});
 
   // Gold moon / graphic disc anchors the negative space.
-  const moon = discBillboard(atmosphere,unlit(palette.gold),7.8,[-11,16,-28]);
+  const moon = discBillboard(atmosphere,unlit(0xd5a62f),5.8,[-10,15,-30]);
   moon.rotation.y = 0;
 
   // Theatre block.
-  box(fill,lines,mats.ink,mats.lineBright,[15,11,9],[-17,5.7,-8],{rotY:-4*DEG});
+  box(fill,lines,mats.charcoal,mats.lineBright,[15,11,9],[-17,5.7,-8],{rotY:-4*DEG});
   box(fill,lines,mats.charcoal,mats.lineDim,[13.2,3.2,2.0],[-15.8,4.1,-2.6],{rotY:-4*DEG});
   box(fill,lines,mats.paper,mats.lineBright,[11.8,.42,2.6],[-15.3,5.9,-1.7],{rotY:-4*DEG});
   for(let i=0;i<5;i++){
     box(fill,lines,mats.mid,mats.lineDim,[.6,8.2,.45],[-22.8+i*3.05,6.2,-3.25],{rotY:-4*DEG,threshold:48});
   }
+
+  const facadeWash = new THREE.Mesh(
+    new THREE.PlaneGeometry(12.7,4.8),
+    new THREE.MeshBasicMaterial({
+      color:0xd6d0c2,transparent:true,opacity:.11,depthWrite:false,toneMapped:false
+    })
+  );
+  facadeWash.position.set(-15.65,6.25,-2.73);
+  facadeWash.rotation.y=-4*DEG;
+  atmosphere.add(facadeWash);
 
   const signTex = makeSign('NOCTURNE');
   const sign = new THREE.Mesh(new THREE.PlaneGeometry(10.6,2.7),new THREE.MeshBasicMaterial({map:signTex,transparent:true,toneMapped:false}));
@@ -228,12 +243,12 @@ export function buildWorld(scene, palette) {
   }
 
   // Office tower with setbacks: large clean shapes first.
-  box(fill,lines,mats.charcoal,mats.lineBright,[16,20,13],[16,10,-11],{rotY:3*DEG});
-  box(fill,lines,mats.ink,mats.lineDim,[12,7,10],[17,23,-12],{rotY:3*DEG});
-  box(fill,lines,mats.mid,mats.lineDim,[7,6,8],[18,29.5,-12],{rotY:3*DEG});
+  box(fill,lines,mats.mid,mats.lineBright,[16,20,13],[17,10,-13],{rotY:3*DEG});
+  box(fill,lines,mats.charcoal,mats.lineDim,[12,7,10],[18,23,-14],{rotY:3*DEG});
+  box(fill,lines,mats.charcoal,mats.lineDim,[7,6,8],[19,29.5,-14],{rotY:3*DEG});
 
   addWindowGrid(fill,null,mats.windowOn,mats.windowOff,{
-    x0:9.4,y0:2.6,z:-4.18,cols:6,rows:8,dx:2.35,dy:2.05,w:.78,h:1.02,seed:84
+    x0:10.4,y0:2.6,z:-6.14,cols:6,rows:8,dx:2.35,dy:2.05,w:.78,h:1.02,seed:84
   });
 
   // Low storefronts closing the rear street.
@@ -270,7 +285,26 @@ export function buildWorld(scene, palette) {
   addLamp(fill,lines,mats,-5,10,7.1);
   addLamp(fill,lines,mats,8,-2,6.4);
 
-  addFigure(fill,lines,mats,[-2.1,.18,4.6],1.08,true);
+  const lightPool = new THREE.Mesh(
+    new THREE.CircleGeometry(7.4,64),
+    new THREE.MeshBasicMaterial({
+      color:0xd7caa6, transparent:true, opacity:.12,
+      depthWrite:false, toneMapped:false, blending:THREE.AdditiveBlending
+    })
+  );
+  lightPool.rotation.x=-Math.PI/2;
+  lightPool.scale.set(1.55,.58,1);
+  lightPool.position.set(-2.0,.085,5.0);
+  atmosphere.add(lightPool);
+
+  const heroSpot = new THREE.SpotLight(0xffe9ba,52,28,0.46,0.45,1.4);
+  heroSpot.position.set(-10,17,14);
+  heroSpot.target.position.set(-2.3,1.0,4.8);
+  heroSpot.castShadow=true;
+  heroSpot.shadow.mapSize.set(1024,1024);
+  scene.add(heroSpot,heroSpot.target);
+
+  addFigure(fill,lines,mats,[-2.3,.18,4.8],1.28,true);
   addFigure(fill,lines,mats,[-10.2,.18,-6.5],.78,true);
   addFigure(fill,lines,mats,[7.5,.18,10.0],.68,false);
 
@@ -285,7 +319,6 @@ export function buildWorld(scene, palette) {
 
   // Foreground framing geometry.
   box(fill,lines,mats.ink,mats.lineBright,[4,15,7],[-29,7.5,13],{rotY:-8*DEG});
-  box(fill,lines,mats.ink,mats.lineDim,[5,9,8],[27,4.5,18],{rotY:11*DEG});
 
   addRain(atmosphere,mats.rain);
 

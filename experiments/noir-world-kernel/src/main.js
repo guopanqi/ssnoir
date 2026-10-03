@@ -12,7 +12,7 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.32;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setClearColor(PROFILE.palette.void,1);
@@ -45,10 +45,10 @@ const world = buildWorld(scene,PROFILE.palette);
 const {composer,resize} = createComposer(renderer,scene,camera);
 
 const shots = {
-  wide: {pos:[29,17,37], target:[-1,6,-6], fov:34},
-  street: {pos:[17,8.5,23], target:[-1,4,-4], fov:38},
+  wide: {pos:[25,11.5,32], target:[-2,5.0,-6], fov:32},
+  street: {pos:[15,7.0,21], target:[-2,3.8,-4], fov:36},
   alley: {pos:[-1,7.5,22], target:[-8,6,-13], fov:32},
-  detail: {pos:[9,5.4,16], target:[-2,3.2,3.8], fov:28}
+  detail: {pos:[8,4.6,14], target:[-2,3.0,3.8], fov:30}
 };
 
 let shotName='wide';

@@ -22,7 +22,7 @@ export function toon(color, {roughness=1}={}) {
 }
 
 export function unlit(color, options={}) {
-  return new THREE.MeshBasicMaterial({color, ...options});
+  return new THREE.MeshBasicMaterial({color, toneMapped:false, ...options});
 }
 
 export function line(color, opacity=1) {
