@@ -23,7 +23,11 @@ concurrency:
 jobs:
   capture:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --ipc=host
+
     defaults:
       run:
         working-directory: experiments/noir-engraving-lab
@@ -35,18 +39,20 @@ jobs:
         with:
           node-version: 22
 
-      - run: npm install
+      - name: Install JS dependencies
+        run: npm install --no-audit --no-fund
 
-      - run: npx playwright install --with-deps chromium
+      - name: Build lab
+        run: npm run build
 
-      - run: npm run build
-
-      - run: npm run capture
+      - name: Capture benchmarks
+        run: npm run capture
 
       - name: Upload benchmark captures
         uses: actions/upload-artifact@v4
         with:
           name: noir-engraving-captures-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 30
+          compression-level: 3
           path: experiments/noir-engraving-lab/captures/latest
           if-no-files-found: error
