@@ -2,49 +2,42 @@
 
 Independent Three.js visual experiment for SSNoir.
 
-Phase A/B asks one question: **can simple procedural geometry already render as a convincing noir world?**
+The experiment is now explicitly a **Genesis Noir spatial-language study**, not a generic noir/toon-rendering study.
 
-## Scope
+## Working hypothesis
 
-- Procedural primitives only; no imported project assets and no AI-generated meshes yet.
-- Strong value grouping instead of material realism.
-- Selective structural lines rather than full-object outlines.
-- Black / paper-white / restricted gold palette.
-- Fixed cinematographic shots.
-- Deterministic GitHub Actions screenshots for visual review.
-
-## Local
-
-```bash
-npm install
-npm run dev
-npm run build
-npm run capture
-```
-
-Capture output is written to `captures/latest/`.
-
-## Visual review contract
-
-The capture harness exposes five images:
-
-- `final-wide.png`: primary art-direction judgment.
-- `final-detail.png`: close-read quality.
-- `final-alley.png`: second-view generalization.
-- `shape-wide.png`: massing and negative space.
-- `line-wide.png`: line hierarchy.
-
-The histogram values in `manifest.json` are diagnostic only. They never decide whether the image is good.
-
-## Architecture
+Genesis Noir-like local spaces are better approximated by separating spatial structure from visible illustration:
 
 ```
-World geometry
-  -> toon value grouping
-  -> selective geometry lines
-  -> hard directional / practical lights
-  -> restrained monochrome + gold composite
-  -> fixed shot
+3D depth / occlusion skeleton
+  -> mostly black masses
+  -> authored vector strokes that describe only useful structure
+  -> camera-facing / planar character silhouettes
+  -> white luminous planes and sparse gold symbols
+  -> wet-street / rain / mist graphic layers
+  -> restrained monochrome composite
 ```
 
-The next phase should improve the renderer and composition based on actual capture evidence before expanding the city generator or adding AI assets.
+The goal is not to make every mesh readable. The goal is to make a navigable 3D scene read like a composed graphic illustration from each gameplay camera.
+
+## Current rules
+
+- No blanket `EdgesGeometry` as the primary look.
+- No toon shading as the primary look.
+- Characters are graphic cutouts with authored contours, not low-poly dolls.
+- Buildings use black volume for depth and explicit line grammar for readable architecture.
+- White/gold planes are treated as graphic light, not realistic PBR emitters.
+- Fog, rain and wet-road reflection are graphic layers rather than visible volumetric cones.
+- Gold remains sparse and symbolic.
+- AI-generated meshes stay out until the style system can absorb arbitrary geometry without losing the visual language.
+
+## Capture contract
+
+`npm run capture` produces:
+- `final-wide.png`
+- `final-detail.png`
+- `final-alley.png`
+- `shape-wide.png`
+- `line-wide.png`
+
+These images are the evidence for each iteration. Numeric image metrics diagnose broken output only; they are not aesthetic scores.
