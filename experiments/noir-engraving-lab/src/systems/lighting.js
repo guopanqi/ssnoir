@@ -45,45 +45,38 @@ export function createLighting(scene, profile, lampPositions) {
     side: THREE.DoubleSide,
   });
 
-  // Narrative lights use dedicated layers so they sculpt their subject without
-  // accidentally turning nearby roads and buildings into new focal points.
-  const warehouseWork = new THREE.RectAreaLight(0x91b7e5, 6.2, 8.0, 7.0);
-  warehouseWork.position.set(17.0, 7.8, 7.5);
-  warehouseWork.lookAt(30.0, 3.2, 19.0);
+  // Narrative lights are bounded in space; Object3D layers do not link lights.
+  const work = cfg.warehouseWork;
+  const warehouseWork = new THREE.RectAreaLight(work.color, work.intensity, work.width, work.height);
+  warehouseWork.position.fromArray(work.position);
+  warehouseWork.lookAt(...work.target);
   group.add(warehouseWork);
 
-  // Three.js Object3D layers control camera visibility, not per-object light
-  // linking. The alley therefore uses a physically bounded spotlight whose cone
-  // is wider than the alley itself; the walls / bridge create the visible cuts.
+  // A distant cinematography source keeps falloff across the wall restrained.
+  // Its cone covers the slot; the mouth canopy and landings make the hard cuts.
+  // The cone still excludes the neighbouring street roofs, which are checked
+  // in the warehouse and city-compression regression views.
+  const cut = cfg.alleyCut;
   const alleyCut = new THREE.SpotLight(
-    0x718caf,
-    1800,
-    30,
-    0.72,
-    0.02,
-    2.0,
+    cut.color, cut.intensity, cut.distance, cut.angle, cut.penumbra, cut.decay,
   );
-  // This is a cinematography source, not a diegetic lamp: keep it above the
-  // visible alley floor but inside the architectural slot. The cone is wider
-  // than the alley, so geometry — not a circular beam edge — does the cutting.
-  alleyCut.position.set(-19.2, 8.7, 20.0);
-  alleyCut.target.position.set(-22.8, 2.7, 31.5);
+  alleyCut.position.fromArray(cut.position);
+  alleyCut.target.position.fromArray(cut.target);
   alleyCut.shadow.bias = -0.00035;
   alleyCut.castShadow = true;
   alleyCut.shadow.mapSize.set(1024, 1024);
   alleyCut.shadow.camera.near = 1;
-  alleyCut.shadow.camera.far = 32;
+  alleyCut.shadow.camera.far = cut.distance;
   group.add(alleyCut, alleyCut.target);
 
-  // A tiny local lift replaces the former global hemisphere "alley ambient".
-  // Its short distance prevents the alley setup from raising the whole city.
-  const alleyAmbient = new THREE.PointLight(0x17243a, 90.0, 13.0, 2.0);
-  alleyAmbient.position.set(-21.25, 4.2, 27.0);
+  const lift = cfg.alleyLift;
+  const alleyAmbient = new THREE.PointLight(lift.color, lift.intensity, lift.distance, lift.decay);
+  alleyAmbient.position.fromArray(lift.position);
   group.add(alleyAmbient);
 
-  const alleyDoor = new THREE.PointLight(0xe6c27a, 1.0, 4.5, 2.0);
-  alleyDoor.position.set(-20.45, 1.8, 37.6);
-  alleyDoor.castShadow = false;
+  const door = cfg.alleyDoor;
+  const alleyDoor = new THREE.PointLight(door.color, door.intensity, door.distance, door.decay);
+  alleyDoor.position.fromArray(door.position);
   group.add(alleyDoor);
 
   // Street lamps are visual punctuation by default, not automatic light emitters.
@@ -106,3 +99,4 @@ export function createLighting(scene, profile, lampPositions) {
     },
   };
 }
+

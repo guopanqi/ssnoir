@@ -28,8 +28,8 @@ export const PROFILE = Object.freeze({
   atmosphere: Object.freeze({
     fogDensity: 0.011,
     rainCount: 460,
-    rainOpacity: 0.12,
-    rainLength: 0.90,
+    rainOpacity: 0.055,
+    rainLength: 0.65,
   }),
 
   lighting: Object.freeze({
@@ -46,6 +46,23 @@ export const PROFILE = Object.freeze({
     streetColor: 0xe6c27a,
     streetIntensity: 2.4,
     streetDistance: 6.5,
+    warehouseWork: Object.freeze({
+      color: 0x91b7e5, intensity: 6.2, width: 8.0, height: 7.0,
+      position: [17.0, 7.8, 7.5], target: [30.0, 3.2, 19.0],
+    }),
+    alleyCut: Object.freeze({
+      color: 0x718caf, intensity: 234000, distance: 165,
+      angle: 0.095, penumbra: 0.02, decay: 2,
+      position: [47.6, 99.0, 50.0], target: [-23.8, 3.0, 32.0],
+    }),
+    alleyLift: Object.freeze({
+      color: 0x17243a, intensity: 12, distance: 13, decay: 2,
+      position: [-21.25, 4.2, 27.0],
+    }),
+    alleyDoor: Object.freeze({
+      color: 0xe6c27a, intensity: 1, distance: 4.5, decay: 2,
+      position: [-20.45, 1.8, 37.6],
+    }),
   }),
 
   print: Object.freeze({
@@ -61,3 +78,4 @@ export const PROFILE = Object.freeze({
     vignette: 0.20,
   }),
 });
+

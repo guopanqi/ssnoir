@@ -27,7 +27,7 @@ function createTheater(outlines, materials) {
   ));
   group.add(addEdges(
     box(8.6, 14.5, 7.4, materials.landmark, 0, 8.6, z - 1.1),
-    outlines, materials, 'hero',
+    outlines, materials, 'context',
   ));
   group.add(addEdges(
     box(13.5, 1.0, 3.5, materials.building, 0, 4.2, -12.25),
@@ -198,6 +198,10 @@ function createAlley(outlines, materials) {
     outlines, materials, 'context',
   ));
 
+  // A service canopy over the mouth makes the foreground genuinely sheltered.
+  // The roof edge, rather than the spotlight cone, cuts the middle wall light.
+  group.add(box(5.8, 0.28, 10.0, materials.buildingDim, -21.25, 9.0, 19.0));
+
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(5.0, 30),
     materials.alleyFloor,
@@ -326,3 +330,4 @@ export function buildWorld(scene, profile) {
     groups: { world, outlines },
   };
 }
+

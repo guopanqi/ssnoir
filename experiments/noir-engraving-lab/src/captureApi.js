@@ -74,6 +74,7 @@ export function installCaptureApi({
 
     info() {
       return {
+        profile,
         camera: {
           position: camera.position.toArray(),
           target: controls.target.toArray(),
@@ -83,8 +84,9 @@ export function installCaptureApi({
           dither: post.noir.uniforms.uDither.value,
           bloom: post.bloom.strength,
         },
-        fogDensity: camera.parent?.fog?.density ?? null,
+        fogDensity: atmosphere.fogDensity,
       };
     },
   };
 }
+

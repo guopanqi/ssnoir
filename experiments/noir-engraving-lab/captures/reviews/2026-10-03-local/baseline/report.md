@@ -1,0 +1,37 @@
+# Noir Engraving capture report
+
+| mode | shot | mean | p50 | p90 | p95 | p99 | black<2% | bright>20% |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| shape | 01-theater-street | 0.054 | 0.015 | 0.228 | 0.231 | 0.241 | 67.4% | 10.9% |
+| shape | 02-warehouse-fog | 0.059 | 0.015 | 0.171 | 0.208 | 0.255 | 62.1% | 5.7% |
+| shape | 03-alley-mouth | 0.088 | 0.005 | 0.288 | 0.353 | 0.448 | 53.5% | 21.2% |
+| shape | 04-city-compression | 0.058 | 0.004 | 0.215 | 0.249 | 0.306 | 73.7% | 13.3% |
+| line | 01-theater-street | 0.056 | 0.015 | 0.228 | 0.231 | 0.350 | 66.8% | 11.4% |
+| line | 02-warehouse-fog | 0.061 | 0.015 | 0.175 | 0.214 | 0.261 | 61.4% | 6.3% |
+| line | 03-alley-mouth | 0.089 | 0.005 | 0.288 | 0.353 | 0.448 | 53.3% | 21.2% |
+| line | 04-city-compression | 0.061 | 0.006 | 0.219 | 0.255 | 0.316 | 72.5% | 14.0% |
+| preprint | 01-theater-street | 0.049 | 0.015 | 0.200 | 0.207 | 0.328 | 66.0% | 10.0% |
+| preprint | 02-warehouse-fog | 0.055 | 0.015 | 0.145 | 0.173 | 0.232 | 60.8% | 2.3% |
+| preprint | 03-alley-mouth | 0.088 | 0.005 | 0.286 | 0.350 | 0.448 | 53.4% | 20.9% |
+| preprint | 04-city-compression | 0.050 | 0.008 | 0.170 | 0.189 | 0.260 | 71.4% | 3.5% |
+| final | 01-theater-street | 0.054 | 0.007 | 0.293 | 0.308 | 0.370 | 66.4% | 11.6% |
+| final | 02-warehouse-fog | 0.069 | 0.007 | 0.153 | 0.285 | 0.326 | 61.3% | 7.1% |
+| final | 03-alley-mouth | 0.168 | 0.007 | 0.600 | 0.896 | 0.954 | 54.6% | 26.2% |
+| final | 04-city-compression | 0.066 | 0.007 | 0.285 | 0.308 | 0.456 | 71.6% | 14.5% |
+
+## Capture timing
+
+Total capture: 47.4s
+- final: 21.9s (3.3 / 4.9 / 7.2 / 6.4s)
+- shape: 5.8s (1.3 / 1.4 / 1.6 / 1.6s)
+- line: 6.5s (1.9 / 1.3 / 1.6 / 1.5s)
+- preprint: 6.5s (1.9 / 1.3 / 1.6 / 1.6s)
+
+## Layer impact
+
+| shot | shape→line mean | line→preprint mean | preprint→final mean | preprint→final black<2% |
+|---|---:|---:|---:|---:|
+| 01-theater-street | +0.002 | -0.007 | +0.005 | 0.4pp |
+| 02-warehouse-fog | +0.002 | -0.006 | +0.014 | 0.4pp |
+| 03-alley-mouth | +0.000 | -0.001 | +0.081 | 1.2pp |
+| 04-city-compression | +0.003 | -0.011 | +0.017 | 0.2pp |

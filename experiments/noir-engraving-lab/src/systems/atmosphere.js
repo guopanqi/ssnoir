@@ -80,8 +80,12 @@ export function createAtmosphere(scene, profile) {
     setFogDensity(value) {
       scene.fog.density = value;
     },
+    get fogDensity() {
+      return scene.fog.density;
+    },
     get enabled() {
       return enabled;
     },
   };
 }
+

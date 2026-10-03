@@ -1,22 +1,36 @@
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { spawn, execFileSync } from 'node:child_process';
+import { mkdir, rm, writeFile, readFile, readdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { parseArgs } from 'node:util';
 import sharp from 'sharp';
 
 const ROOT = process.cwd();
-const OUT = path.join(ROOT, 'captures', 'latest');
-const PORT = 4173;
+const { values } = parseArgs({ options: {
+  shot: { type: 'string' }, mode: { type: 'string' }, out: { type: 'string' },
+  port: { type: 'string', default: '4173' }, help: { type: 'boolean' },
+} });
+if (values.help) {
+  console.log('capture [--shot 03-alley-mouth] [--mode final] [--out captures/trial-name] [--port 4173]');
+  process.exit(0);
+}
+const OUT = path.resolve(ROOT, values.out ?? 'captures/latest');
+if (!OUT.startsWith(path.join(ROOT, 'captures') + path.sep)) {
+  throw new Error('--out must be inside captures/ (the output directory is replaced).');
+}
+const PORT = Number(values.port);
+if (!Number.isInteger(PORT) || PORT < 1024 || PORT > 65535) throw new Error('Invalid --port');
 const URL = `http://127.0.0.1:${PORT}/?capture=1`;
 
-const shots = [
+const allShots = [
   ['01-theater-street', 0],
   ['02-warehouse-fog', 1],
   ['03-alley-mouth', 2],
   ['04-city-compression', 3],
 ];
 
-const modes = [
+const allModes = [
   { name: 'final', type: 'png', viewport: { width: 1600, height: 900 } },
   { name: 'shape', type: 'jpeg', quality: 84, viewport: { width: 960, height: 540 } },
   // Line returns while the experiment is in the selective-line phase. It is
@@ -24,6 +38,22 @@ const modes = [
   { name: 'line', type: 'jpeg', quality: 84, viewport: { width: 960, height: 540 } },
   { name: 'preprint', type: 'jpeg', quality: 84, viewport: { width: 960, height: 540 } },
 ];
+
+const shots = values.shot ? allShots.filter(([name]) => name === values.shot) : allShots;
+const modes = values.mode ? allModes.filter(({ name }) => name === values.mode) : allModes;
+if (!shots.length || !modes.length) throw new Error('Unknown --shot or --mode');
+async function sourceDigest(directory = path.join(ROOT, 'src'), hash = createHash('sha256')) {
+  const entries = (await readdir(directory, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name));
+  for (const entry of entries) {
+    const file = path.join(directory, entry.name);
+    if (entry.isDirectory()) await sourceDigest(file, hash);
+    else { hash.update(path.relative(ROOT, file)); hash.update(await readFile(file)); }
+  }
+  return hash;
+}
+const sourceSha256 = (await sourceDigest()).digest('hex');
+let gitSha = process.env.GITHUB_SHA ?? null;
+try { gitSha ??= execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch {}
 
 function percentile(sorted, p) {
   if (!sorted.length) return 0;
@@ -133,7 +163,12 @@ try {
   });
 
   const page = await browser.newPage({ viewport: modes[0].viewport, deviceScaleFactor: 1 });
-  page.on('pageerror', (error) => process.stderr.write(`[browser:error] ${error.stack ?? error}\n`));
+  const browserErrors = [];
+  page.on('pageerror', (error) => browserErrors.push(error.stack ?? String(error)));
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  const assertBrowserHealthy = () => {
+    if (browserErrors.length) throw new Error(browserErrors.join('\n'));
+  };
   await waitForServer(page);
 
   await page.evaluate(() => {
@@ -182,6 +217,7 @@ try {
         timeout: 120_000,
       });
 
+      assertBrowserHealthy();
       outputs[mode.name][name] = file;
       metrics[mode.name][name] = await imageMetrics(screenshot);
       timings.modes[mode.name][name] = Math.round(performance.now() - shotStarted);
@@ -191,7 +227,7 @@ try {
   timings.totalMs = Math.round(performance.now() - captureStarted);
   const info = await page.evaluate(() => window.__noirLab.info());
 
-  const contactOrder = ['shape', 'line', 'preprint', 'final'];
+  const contactOrder = ['shape', 'line', 'preprint', 'final'].filter((name) => outputs[name]);
   const thumbW = 520;
   const thumbH = 292;
   const contact = sharp({
@@ -259,26 +295,31 @@ try {
     report.push(`- ${mode.name}: ${(total / 1000).toFixed(1)}s (${values.map((v) => (v / 1000).toFixed(1)).join(' / ')}s)`);
   }
 
-  report.push('', '## Layer impact', '');
-  report.push('| shot | shape→line mean | line→preprint mean | preprint→final mean | preprint→final black<2% |');
-  report.push('|---|---:|---:|---:|---:|');
-  for (const [shotName] of shots) {
-    const shape = metrics.shape[shotName];
-    const line = metrics.line[shotName];
-    const preprint = metrics.preprint[shotName];
-    const final = metrics.final[shotName];
-    report.push(
-      `| ${shotName} | ${(line.mean - shape.mean >= 0 ? '+' : '')}${(line.mean - shape.mean).toFixed(3)} | ${(preprint.mean - line.mean >= 0 ? '+' : '')}${(preprint.mean - line.mean).toFixed(3)} | ${(final.mean - preprint.mean >= 0 ? '+' : '')}${(final.mean - preprint.mean).toFixed(3)} | ${((final.blackUnder02 - preprint.blackUnder02) * 100).toFixed(1)}pp |`
-    );
-  }
+  if (modes.length === allModes.length) {
+    report.push('', '## Layer impact', '');
+    report.push('| shot | shape→line mean | line→preprint mean | preprint→final mean | preprint→final black<2% |');
+    report.push('|---|---:|---:|---:|---:|');
+    for (const [shotName] of shots) {
+      const shape = metrics.shape[shotName];
+      const line = metrics.line[shotName];
+      const preprint = metrics.preprint[shotName];
+      const final = metrics.final[shotName];
+      report.push(
+        `| ${shotName} | ${(line.mean - shape.mean >= 0 ? '+' : '')}${(line.mean - shape.mean).toFixed(3)} | ${(preprint.mean - line.mean >= 0 ? '+' : '')}${(preprint.mean - line.mean).toFixed(3)} | ${(final.mean - preprint.mean >= 0 ? '+' : '')}${(final.mean - preprint.mean).toFixed(3)} | ${((final.blackUnder02 - preprint.blackUnder02) * 100).toFixed(1)}pp |`
+      );
+    }
 
+  }
   await writeFile(path.join(OUT, 'report.md'), report.join('\n') + '\n');
 
   await writeFile(
     path.join(OUT, 'manifest.json'),
     JSON.stringify({
       generatedAt: new Date().toISOString(),
-      gitSha: process.env.GITHUB_SHA ?? null,
+      gitSha,
+      sourceSha256,
+      browser: await browser.version(),
+      profile: info.profile,
       modes: Object.fromEntries(modes.map((m) => [m.name, {
         type: m.type,
         viewport: m.viewport,
@@ -296,3 +337,4 @@ try {
   await browser?.close();
   server.kill('SIGTERM');
 }
+

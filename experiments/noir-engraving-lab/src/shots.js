@@ -22,8 +22,8 @@ export const SHOTS = Object.freeze([
   }),
   Object.freeze({
     name: '04 · CITY COMPRESSION',
-    position: [72, 12.5, 1.5],
-    target: [2, 5.0, -1.0],
+    position: [72, 9.5, 2.5],
+    target: [2, 7.0, -9.0],
     fov: 30,
     purpose: '沿街长焦压缩；测试城市峡谷、前景遮挡、地标和远景层级',
   }),
@@ -38,3 +38,4 @@ export function applyShot(camera, controls, index) {
   controls.update();
   return shot;
 }
+

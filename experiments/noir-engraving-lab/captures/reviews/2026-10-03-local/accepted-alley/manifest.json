@@ -1,0 +1,385 @@
+{
+  "generatedAt": "2026-10-03T14:00:05.086Z",
+  "gitSha": null,
+  "sourceSha256": "6e3526ab38b879f66a3fb39e55749d7995df0ceb69ef6bd3b2b3e8698cb1e4a4",
+  "browser": "140.0.7339.16",
+  "profile": {
+    "seed": 1947,
+    "palette": {
+      "void": 461328,
+      "asphalt": 593430,
+      "sidewalk": 1318443,
+      "building": 1780028,
+      "buildingDim": 1055272,
+      "landmark": 2505303,
+      "edge": 13359080,
+      "edgeDim": 3359838,
+      "warm": 15123066,
+      "cool": 9420262,
+      "red": 10172457
+    },
+    "renderer": {
+      "exposure": 1.22
+    },
+    "camera": {
+      "fov": 42,
+      "near": 0.1,
+      "far": 220
+    },
+    "atmosphere": {
+      "fogDensity": 0.011,
+      "rainCount": 460,
+      "rainOpacity": 0.12,
+      "rainLength": 0.9
+    },
+    "lighting": {
+      "keyColor": 12111347,
+      "keyIntensity": 3.45,
+      "keyPosition": [
+        -44,
+        17,
+        -30
+      ],
+      "fillColor": 6060456,
+      "fillIntensity": 0.1,
+      "fillPosition": [
+        38,
+        13,
+        24
+      ],
+      "ambientSky": 1911356,
+      "ambientGround": 197896,
+      "ambientIntensity": 0.14,
+      "streetColor": 15123066,
+      "streetIntensity": 2.4,
+      "streetDistance": 6.5
+    },
+    "print": {
+      "levels": 6,
+      "dither": 0.18,
+      "ditherScale": 1,
+      "inBlack": 0.006,
+      "inWhite": 0.34,
+      "gamma": 0.9,
+      "bloomStrength": 0.12,
+      "bloomRadius": 0.34,
+      "bloomThreshold": 1.2,
+      "vignette": 0.2
+    }
+  },
+  "modes": {
+    "final": {
+      "type": "png",
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      }
+    },
+    "shape": {
+      "type": "jpeg",
+      "viewport": {
+        "width": 960,
+        "height": 540
+      }
+    },
+    "line": {
+      "type": "jpeg",
+      "viewport": {
+        "width": 960,
+        "height": 540
+      }
+    },
+    "preprint": {
+      "type": "jpeg",
+      "viewport": {
+        "width": 960,
+        "height": 540
+      }
+    }
+  },
+  "shots": [
+    {
+      "name": "01-theater-street",
+      "index": 0
+    },
+    {
+      "name": "02-warehouse-fog",
+      "index": 1
+    },
+    {
+      "name": "03-alley-mouth",
+      "index": 2
+    },
+    {
+      "name": "04-city-compression",
+      "index": 3
+    }
+  ],
+  "info": {
+    "profile": {
+      "seed": 1947,
+      "palette": {
+        "void": 461328,
+        "asphalt": 593430,
+        "sidewalk": 1318443,
+        "building": 1780028,
+        "buildingDim": 1055272,
+        "landmark": 2505303,
+        "edge": 13359080,
+        "edgeDim": 3359838,
+        "warm": 15123066,
+        "cool": 9420262,
+        "red": 10172457
+      },
+      "renderer": {
+        "exposure": 1.22
+      },
+      "camera": {
+        "fov": 42,
+        "near": 0.1,
+        "far": 220
+      },
+      "atmosphere": {
+        "fogDensity": 0.011,
+        "rainCount": 460,
+        "rainOpacity": 0.12,
+        "rainLength": 0.9
+      },
+      "lighting": {
+        "keyColor": 12111347,
+        "keyIntensity": 3.45,
+        "keyPosition": [
+          -44,
+          17,
+          -30
+        ],
+        "fillColor": 6060456,
+        "fillIntensity": 0.1,
+        "fillPosition": [
+          38,
+          13,
+          24
+        ],
+        "ambientSky": 1911356,
+        "ambientGround": 197896,
+        "ambientIntensity": 0.14,
+        "streetColor": 15123066,
+        "streetIntensity": 2.4,
+        "streetDistance": 6.5
+      },
+      "print": {
+        "levels": 6,
+        "dither": 0.18,
+        "ditherScale": 1,
+        "inBlack": 0.006,
+        "inWhite": 0.34,
+        "gamma": 0.9,
+        "bloomStrength": 0.12,
+        "bloomRadius": 0.34,
+        "bloomThreshold": 1.2,
+        "vignette": 0.2
+      }
+    },
+    "camera": {
+      "position": [
+        72,
+        12.499999999999993,
+        1.4999999999999927
+      ],
+      "target": [
+        1.9999999999999996,
+        5,
+        -0.9999999999999998
+      ]
+    },
+    "print": {
+      "levels": 6,
+      "dither": 0.18,
+      "bloom": 0.12
+    },
+    "fogDensity": 0.011
+  },
+  "metrics": {
+    "final": {
+      "01-theater-street": {
+        "mean": 0.05353706517643173,
+        "p50": 0.007292549019607843,
+        "p90": 0.29264313725490193,
+        "p95": 0.30832941176470585,
+        "p99": 0.36959137254901964,
+        "blackUnder02": 0.6636666666666666,
+        "brightOver20": 0.11555555555555555
+      },
+      "02-warehouse-fog": {
+        "mean": 0.06868610575158289,
+        "p50": 0.007292549019607843,
+        "p90": 0.15333882352941175,
+        "p95": 0.28506745098039216,
+        "p99": 0.326438431372549,
+        "blackUnder02": 0.6124,
+        "brightOver20": 0.07121111111111111
+      },
+      "03-alley-mouth": {
+        "mean": 0.031869553490148306,
+        "p50": 0.007292549019607843,
+        "p90": 0.14632941176470587,
+        "p95": 0.15333882352941175,
+        "p99": 0.31253411764705874,
+        "blackUnder02": 0.8556444444444444,
+        "brightOver20": 0.03465555555555556
+      },
+      "04-city-compression": {
+        "mean": 0.06622030026140507,
+        "p50": 0.007292549019607843,
+        "p90": 0.28506745098039216,
+        "p95": 0.30832941176470585,
+        "p99": 0.4561647058823529,
+        "blackUnder02": 0.7156444444444444,
+        "brightOver20": 0.1446
+      }
+    },
+    "shape": {
+      "01-theater-street": {
+        "mean": 0.05404198827014699,
+        "p50": 0.014600784313725489,
+        "p90": 0.22806666666666664,
+        "p95": 0.2314219607843137,
+        "p99": 0.24126745098039215,
+        "blackUnder02": 0.6736555555555556,
+        "brightOver20": 0.10863333333333333
+      },
+      "02-warehouse-fog": {
+        "mean": 0.05915086000870756,
+        "p50": 0.014600784313725489,
+        "p90": 0.17101176470588236,
+        "p95": 0.20792627450980392,
+        "p99": 0.2550164705882353,
+        "blackUnder02": 0.6208555555555556,
+        "brightOver20": 0.05694444444444444
+      },
+      "03-alley-mouth": {
+        "mean": 0.021318790283226,
+        "p50": 0,
+        "p90": 0.10860156862745098,
+        "p95": 0.14306196078431374,
+        "p99": 0.2178392156862745,
+        "blackUnder02": 0.8561,
+        "brightOver20": 0.015633333333333332
+      },
+      "04-city-compression": {
+        "mean": 0.05810969644443698,
+        "p50": 0.004204705882352941,
+        "p90": 0.21501882352941176,
+        "p95": 0.24942745098039215,
+        "p99": 0.30601254901960784,
+        "blackUnder02": 0.7371444444444445,
+        "brightOver20": 0.13322222222222221
+      }
+    },
+    "line": {
+      "01-theater-street": {
+        "mean": 0.05591019375163097,
+        "p50": 0.014600784313725489,
+        "p90": 0.22806666666666664,
+        "p95": 0.2314219607843137,
+        "p99": 0.3501388235294117,
+        "blackUnder02": 0.6681222222222222,
+        "brightOver20": 0.11377777777777778
+      },
+      "02-warehouse-fog": {
+        "mean": 0.06082511659258424,
+        "p50": 0.014600784313725489,
+        "p90": 0.1752164705882353,
+        "p95": 0.2135670588235294,
+        "p99": 0.2612909803921568,
+        "blackUnder02": 0.6143111111111111,
+        "brightOver20": 0.06272222222222222
+      },
+      "03-alley-mouth": {
+        "mean": 0.021506499119827324,
+        "p50": 0,
+        "p90": 0.10886901960784313,
+        "p95": 0.14306196078431374,
+        "p99": 0.21844156862745098,
+        "blackUnder02": 0.8536222222222222,
+        "brightOver20": 0.0156
+      },
+      "04-city-compression": {
+        "mean": 0.06062980623092851,
+        "p50": 0.0061756862745098035,
+        "p90": 0.2196078431372549,
+        "p95": 0.25453333333333333,
+        "p99": 0.31579529411764706,
+        "blackUnder02": 0.7246444444444444,
+        "brightOver20": 0.14027777777777778
+      }
+    },
+    "preprint": {
+      "01-theater-street": {
+        "mean": 0.04870069715902903,
+        "p50": 0.014600784313725489,
+        "p90": 0.2002964705882353,
+        "p95": 0.20675529411764704,
+        "p99": 0.32827686274509804,
+        "blackUnder02": 0.6597222222222222,
+        "brightOver20": 0.10024444444444444
+      },
+      "02-warehouse-fog": {
+        "mean": 0.055065758013060684,
+        "p50": 0.014600784313725489,
+        "p90": 0.14524392156862742,
+        "p95": 0.17271529411764705,
+        "p99": 0.23215215686274507,
+        "blackUnder02": 0.6083,
+        "brightOver20": 0.0226
+      },
+      "03-alley-mouth": {
+        "mean": 0.021219899721134628,
+        "p50": 0,
+        "p90": 0.10604862745098038,
+        "p95": 0.14306196078431374,
+        "p99": 0.21254901960784314,
+        "blackUnder02": 0.8535222222222222,
+        "brightOver20": 0.013833333333333333
+      },
+      "04-city-compression": {
+        "mean": 0.04960941270587375,
+        "p50": 0.008425098039215685,
+        "p90": 0.17044549019607844,
+        "p95": 0.18925098039215685,
+        "p99": 0.2595560784313725,
+        "blackUnder02": 0.7135333333333334,
+        "brightOver20": 0.03481111111111111
+      }
+    }
+  },
+  "timings": {
+    "totalMs": 17963,
+    "modes": {
+      "final": {
+        "01-theater-street": 1123,
+        "02-warehouse-fog": 1222,
+        "03-alley-mouth": 1299,
+        "04-city-compression": 1441
+      },
+      "shape": {
+        "01-theater-street": 884,
+        "02-warehouse-fog": 694,
+        "03-alley-mouth": 610,
+        "04-city-compression": 867
+      },
+      "line": {
+        "01-theater-street": 1037,
+        "02-warehouse-fog": 900,
+        "03-alley-mouth": 726,
+        "04-city-compression": 666
+      },
+      "preprint": {
+        "01-theater-street": 535,
+        "02-warehouse-fog": 1381,
+        "03-alley-mouth": 835,
+        "04-city-compression": 960
+      }
+    }
+  }
+}
