@@ -15,17 +15,17 @@ export const SHOTS = Object.freeze([
   }),
   Object.freeze({
     name: '03 · ALLEY MOUTH',
-    position: [-20.7, 2.55, 6.8],
+    position: [-21.0, 2.45, 9.8],
     target: [-21.25, 2.9, 39.0],
-    fov: 38,
-    purpose: '进入巷口但不过度贴墙；测试墙面切光、连桥遮挡和三层纵深',
+    fov: 36,
+    purpose: '真正进入巷口；测试硬质侧光、连桥阴影和近中远三层纵深',
   }),
   Object.freeze({
-    name: '04 · HIGH CITY',
-    position: [50, 17.5, 48],
-    target: [0, 5.0, -4],
-    fov: 34,
-    purpose: '较低高位长焦压缩城市；测试前景遮挡、地标与远景天际线层级',
+    name: '04 · CITY COMPRESSION',
+    position: [72, 12.5, 1.5],
+    target: [2, 5.0, -1.0],
+    fov: 30,
+    purpose: '沿街长焦压缩；测试城市峡谷、前景遮挡、地标和远景层级',
   }),
 ]);
 

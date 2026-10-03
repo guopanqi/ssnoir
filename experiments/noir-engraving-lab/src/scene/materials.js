@@ -17,12 +17,11 @@ export function createMaterials(profile) {
     buildingDim: flat(p.buildingDim),
     landmark: flat(p.landmark),
 
-    wetRoad: new THREE.MeshPhysicalMaterial({
-      color: 0x0c131e,
-      roughness: 0.64,
-      metalness: 0.02,
-      clearcoat: 0.10,
-      clearcoatRoughness: 0.52,
+    // Do not let generic PBR specular decide the composition. Wet reflection
+    // accents will be introduced later as deliberate narrative shapes.
+    wetRoad: flat(0x0b121c, {
+      roughness: 1.0,
+      metalness: 0,
     }),
 
     edge: new THREE.LineBasicMaterial({

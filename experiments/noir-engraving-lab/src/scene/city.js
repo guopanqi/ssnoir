@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createMaterials } from './materials.js';
 import { addEdges, addWindowStrip, box } from './primitives.js';
-import { RENDER_LAYERS, enableLayerRecursive } from '../config/layers.js';
+import { RENDER_LAYERS, enableLayerRecursive, setLayerRecursive } from '../config/layers.js';
 
 const FRONT_Z = 14;
 
@@ -228,7 +228,9 @@ function createAlley(outlines, materials) {
   door.castShadow = false;
   group.add(door);
 
-  enableLayerRecursive(group, RENDER_LAYERS.ALLEY);
+  // Alley lighting is intentionally isolated from the city key/fill. This keeps
+  // the alley as a designed black-film set instead of inheriting accidental light.
+  setLayerRecursive(group, RENDER_LAYERS.ALLEY);
   return group;
 }
 

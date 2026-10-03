@@ -10,3 +10,10 @@ export function enableLayerRecursive(root, layer) {
   });
   return root;
 }
+
+export function setLayerRecursive(root, layer) {
+  root.traverse((object) => {
+    object.layers.set(layer);
+  });
+  return root;
+}

@@ -18,8 +18,8 @@ const shots = [
 
 const modes = [
   { name: 'final', type: 'png', viewport: { width: 1600, height: 900 } },
-  { name: 'shape', type: 'jpeg', quality: 84, viewport: { width: 1200, height: 675 } },
-  { name: 'line', type: 'jpeg', quality: 84, viewport: { width: 1200, height: 675 } },
+  { name: 'shape', type: 'jpeg', quality: 84, viewport: { width: 960, height: 540 } },
+  { name: 'line', type: 'jpeg', quality: 84, viewport: { width: 960, height: 540 } },
 ];
 
 function percentile(sorted, p) {
