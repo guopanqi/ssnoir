@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import { RENDER_LAYERS } from '../config/layers.js';
 
 export function createLighting(scene, profile, lampPositions) {
   RectAreaLightUniformsLib.init();
@@ -35,7 +36,6 @@ export function createLighting(scene, profile, lampPositions) {
     cfg.ambientIntensity,
   ));
 
-  // 几何光锥只留作交互试验，不进入正式基准。
   const coneMaterial = new THREE.MeshBasicMaterial({
     color: p.warm,
     transparent: true,
@@ -45,21 +45,24 @@ export function createLighting(scene, profile, lampPositions) {
     side: THREE.DoubleSide,
   });
 
-  // 仓库采用面积光而不是圆形 Spot：更像装卸门/工作灯留下的矩形明暗关系。
-  const warehouseWork = new THREE.RectAreaLight(0x91b7e5, 7.5, 8.5, 9.0);
-  warehouseWork.position.set(17.0, 8.5, 7.0);
-  warehouseWork.lookAt(30.0, 3.2, 19.5);
+  // Narrative lights use dedicated layers so they sculpt their subject without
+  // accidentally turning nearby roads and buildings into new focal points.
+  const warehouseWork = new THREE.RectAreaLight(0x91b7e5, 8.0, 9.0, 8.0);
+  warehouseWork.position.set(17.0, 7.8, 7.5);
+  warehouseWork.lookAt(30.0, 3.2, 19.0);
+  warehouseWork.layers.set(RENDER_LAYERS.WAREHOUSE);
   group.add(warehouseWork);
 
-  // 巷道只照出一侧墙和湿地，远端暖门保持唯一高亮点。
-  const alleyCut = new THREE.RectAreaLight(0x718caf, 4.2, 1.2, 6.0);
-  alleyCut.position.set(-18.6, 6.0, 22.0);
-  alleyCut.lookAt(-23.7, 3.8, 26.5);
+  const alleyCut = new THREE.RectAreaLight(0x718caf, 9.0, 1.25, 7.0);
+  alleyCut.position.set(-18.7, 6.2, 21.0);
+  alleyCut.lookAt(-23.8, 3.5, 26.5);
+  alleyCut.layers.set(RENDER_LAYERS.ALLEY);
   group.add(alleyCut);
 
-  const alleyDoor = new THREE.PointLight(0xe6c27a, 1.6, 5.5, 2.0);
-  alleyDoor.position.set(-20.45, 2.0, 37.7);
+  const alleyDoor = new THREE.PointLight(0xe6c27a, 3.0, 6.0, 2.0);
+  alleyDoor.position.set(-20.45, 1.8, 37.6);
   alleyDoor.castShadow = false;
+  alleyDoor.layers.set(RENDER_LAYERS.ALLEY);
   group.add(alleyDoor);
 
   for (const position of lampPositions) {

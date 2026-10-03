@@ -120,10 +120,13 @@ try {
 
   const metrics = {};
   const outputs = {};
+  const timings = { totalMs: 0, modes: {} };
+  const captureStarted = performance.now();
 
   for (const mode of modes) {
     metrics[mode.name] = {};
     outputs[mode.name] = {};
+    timings.modes[mode.name] = {};
 
     await page.setViewportSize(mode.viewport);
     await page.evaluate((name) => window.__noirLab.setMode(name), mode.name);
@@ -135,6 +138,7 @@ try {
       await page.evaluate((i) => window.__noirLab.setShot(i), index);
       console.log(`Capturing ${mode.name}/${name}`);
 
+      const shotStarted = performance.now();
       const extension = mode.type === 'jpeg' ? 'jpg' : 'png';
       const file = path.join(dir, `${name}.${extension}`);
       const screenshot = await page.screenshot({
@@ -146,9 +150,11 @@ try {
 
       outputs[mode.name][name] = file;
       metrics[mode.name][name] = await imageMetrics(screenshot);
+      timings.modes[mode.name][name] = Math.round(performance.now() - shotStarted);
     }
   }
 
+  timings.totalMs = Math.round(performance.now() - captureStarted);
   const info = await page.evaluate(() => window.__noirLab.info());
 
   const contactOrder = ['shape', 'line', 'final'];
@@ -211,6 +217,14 @@ try {
     }
   }
 
+  report.push('', '## Capture timing', '');
+  report.push(`Total capture: ${(timings.totalMs / 1000).toFixed(1)}s`);
+  for (const mode of modes) {
+    const values = Object.values(timings.modes[mode.name]);
+    const total = values.reduce((sum, value) => sum + value, 0);
+    report.push(`- ${mode.name}: ${(total / 1000).toFixed(1)}s (${values.map((v) => (v / 1000).toFixed(1)).join(' / ')}s)`);
+  }
+
   await writeFile(path.join(OUT, 'report.md'), report.join('\n') + '\n');
 
   await writeFile(
@@ -225,6 +239,7 @@ try {
       shots: shots.map(([name, index]) => ({ name, index })),
       info,
       metrics,
+      timings,
     }, null, 2) + '\n',
   );
 } catch (error) {

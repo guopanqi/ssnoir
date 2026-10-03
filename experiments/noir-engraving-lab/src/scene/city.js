@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { createMaterials } from './materials.js';
 import { addEdges, addWindowStrip, box } from './primitives.js';
+import { RENDER_LAYERS, enableLayerRecursive } from '../config/layers.js';
 
 const FRONT_Z = 14;
 
@@ -103,6 +104,7 @@ function createWarehouse(outlines, materials) {
     phase: 4,
   });
 
+  enableLayerRecursive(group, RENDER_LAYERS.WAREHOUSE);
   return group;
 }
 
@@ -226,6 +228,7 @@ function createAlley(outlines, materials) {
   door.castShadow = false;
   group.add(door);
 
+  enableLayerRecursive(group, RENDER_LAYERS.ALLEY);
   return group;
 }
 

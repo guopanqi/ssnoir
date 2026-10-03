@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import './style.css';
 
 import { PROFILE } from './config/visualProfile.js';
+import { RENDER_LAYERS } from './config/layers.js';
 import { buildWorld } from './scene/city.js';
 import { createLighting } from './systems/lighting.js';
 import { createAtmosphere } from './systems/atmosphere.js';
@@ -33,6 +34,9 @@ const camera = new THREE.PerspectiveCamera(
   PROFILE.camera.near,
   PROFILE.camera.far,
 );
+
+camera.layers.enable(RENDER_LAYERS.WAREHOUSE);
+camera.layers.enable(RENDER_LAYERS.ALLEY);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
