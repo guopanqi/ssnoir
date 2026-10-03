@@ -42,17 +42,17 @@ function reflectionTexture(){
 
     // First paint broad vertical light memories, as if windows and lamps are reflected.
     const columns=[
-      [150,170,54,'255,252,238',.13],
-      [330,105,76,'255,252,238',.10],
-      [530,130,92,'255,252,238',.14],
-      [710,180,66,'255,252,238',.09],
-      [850,120,82,'226,182,61',.07]
+      [150,210,26,'255,252,238',.075],
+      [330,165,34,'255,252,238',.060],
+      [530,190,42,'255,252,238',.078],
+      [710,235,30,'255,252,238',.052],
+      [850,185,34,'226,182,61',.050]
     ];
     for(const [x,y,width,color,alpha] of columns){
       ctx.save();
       ctx.fillStyle='rgba('+color+','+alpha+')';
       ctx.shadowColor='rgba('+color+','+(alpha*.75)+')';
-      ctx.shadowBlur=38;
+      ctx.shadowBlur=26;
       ctx.fillRect(x,y,width,700-y);
       ctx.restore();
     }
@@ -63,7 +63,7 @@ function reflectionTexture(){
     for(let i=0;i<115;i++){
       const y=100+rnd()*850,x=rnd()*900;
       const len=45+rnd()*330;
-      ctx.fillStyle='rgba(0,0,0,'+(.28+rnd()*.52)+')';
+      ctx.fillStyle='rgba(0,0,0,'+(.52+rnd()*.40)+')';
       ctx.fillRect(x,y,len,2+rnd()*10);
     }
     ctx.restore();
@@ -74,7 +74,7 @@ function reflectionTexture(){
       const x=rnd()*950,y=120+rnd()*820,len=12+rnd()*120;
       const gold=i%11===0;
       ctx.strokeStyle=gold?'rgba(226,182,61,.22)':'rgba(245,242,232,.14)';
-      ctx.lineWidth=.8+rnd()*3.5;
+      ctx.lineWidth=.7+rnd()*2.2;
       ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y+(rnd()-.5)*5);ctx.stroke();
     }
   },1024,1024);
@@ -97,7 +97,7 @@ function addBuilding(fill,lines,{x,z,w,h,d=4,color=P.wall,lit=[]}){
   // Only three major silhouette strokes; no full CAD rectangle.
   polyline(lines,[
     [x-w/2,0,front],[x-w/2,h,front],[x+w/2,h,front],[x+w/2,.4,front]
-  ],{color:P.white,width:1.65,opacity:.48});
+  ],{color:P.white,width:1.30,opacity:.32});
 
   const cols=Math.max(3,Math.round(w/2.1));
   const rows=Math.max(3,Math.round(h/2.4));
@@ -159,8 +159,8 @@ function addFigure(fill,lines,{x,y=0,z,s=1,profile=false,flip=false,gold=false})
   const torso=new THREE.Shape();
   torso.moveTo(sx(-.32),2.32);
   torso.quadraticCurveTo(sx(-.43),2.05,sx(-.39),1.70);
-  torso.lineTo(sx(-.34),.24);
-  torso.quadraticCurveTo(sx(0),.10,sx(.34),.24);
+  torso.lineTo(sx(-.36),.82);
+  torso.quadraticCurveTo(sx(0),.68,sx(.36),.82);
   torso.lineTo(sx(.39),1.70);
   torso.quadraticCurveTo(sx(.43),2.05,sx(.32),2.32);
   torso.quadraticCurveTo(sx(0),2.48,sx(-.32),2.32);
@@ -188,7 +188,18 @@ function addFigure(fill,lines,{x,y=0,z,s=1,profile=false,flip=false,gold=false})
   armR.closePath();
   outlinedShape(g,lg,armR,.006,{width:2.1,opacity:.78});
 
-  // Head remains a black silhouette; a small nose/chin break makes the profile human.
+  // Legs remain visible below the coat, preventing the silhouette from reading as a robe.
+  const legL=new THREE.Shape();
+  legL.moveTo(sx(-.23),.80);legL.lineTo(sx(-.08),.80);
+  legL.lineTo(sx(-.06),.08);legL.lineTo(sx(-.25),.08);legL.closePath();
+  outlinedShape(g,lg,legL,.002,{width:1.8,opacity:.76});
+
+  const legR=new THREE.Shape();
+  legR.moveTo(sx(.08),.80);legR.lineTo(sx(.23),.80);
+  legR.lineTo(sx(.26),.08);legR.lineTo(sx(.06),.08);legR.closePath();
+  outlinedShape(g,lg,legR,.002,{width:1.8,opacity:.76});
+
+    // Head remains a black silhouette; a small nose/chin break makes the profile human.
   const head=new THREE.Shape();
   if(profile){
     head.moveTo(sx(-.16),2.47);
@@ -262,7 +273,8 @@ export function buildWorld(scene){
     for(let col=0;col<8;col++){
       if((row*3+col*5)%7===0 || (row+col)%5===0) continue;
       const px=-5.1+col*1.9,py=3.0+row*1.85;
-      panel(fill,[.72,.82],[px,py,farZ],P.white,.90);
+      const ww=.62+((row+col)%3)*.07,hh=.72+((row*2+col)%2)*.08;
+      panel(fill,[ww,hh],[px,py,farZ],P.white,.88);
     }
   }
 
@@ -287,7 +299,7 @@ export function buildWorld(scene){
 
   // Large painterly reflection layer.
   const wet=new THREE.Mesh(new THREE.PlaneGeometry(39,39),new THREE.MeshBasicMaterial({
-    map:reflectionTexture(),transparent:true,opacity:.96,depthWrite:false,toneMapped:false
+    map:reflectionTexture(),transparent:true,opacity:.62,depthWrite:false,toneMapped:false
   }));
   wet.rotation.x=-Math.PI/2;wet.position.set(0,.015,1);glow.add(wet);
 
