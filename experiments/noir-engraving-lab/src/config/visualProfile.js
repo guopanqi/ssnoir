@@ -35,7 +35,8 @@ export const PROFILE = Object.freeze({
   lighting: Object.freeze({
     keyColor: 0xb8cdf3,
     keyIntensity: 3.45,
-    keyPosition: [-42, 30, -28],
+    // 更低的侧后方掠射角：优先读垂直面，避免水平道路抢走亮面积。
+    keyPosition: [-44, 17, -30],
     fillColor: 0x5c79a8,
     fillIntensity: 0.10,
     fillPosition: [38, 13, 24],
