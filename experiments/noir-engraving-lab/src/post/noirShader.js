@@ -38,12 +38,34 @@ export function createNoirShader(profile) {
       uniform float uTime;
       varying vec2 vUv;
 
-      const float BAYER4[16] = float[16](
-        0.0, 8.0, 2.0, 10.0,
-        12.0, 4.0, 14.0, 6.0,
-        3.0, 11.0, 1.0, 9.0,
-        15.0, 7.0, 13.0, 5.0
-      );
+      float bayer4(vec2 cell) {
+        float x = mod(cell.x, 4.0);
+        float y = mod(cell.y, 4.0);
+
+        if (y < 1.0) {
+          if (x < 1.0) return 0.0;
+          if (x < 2.0) return 8.0;
+          if (x < 3.0) return 2.0;
+          return 10.0;
+        }
+        if (y < 2.0) {
+          if (x < 1.0) return 12.0;
+          if (x < 2.0) return 4.0;
+          if (x < 3.0) return 14.0;
+          return 6.0;
+        }
+        if (y < 3.0) {
+          if (x < 1.0) return 3.0;
+          if (x < 2.0) return 11.0;
+          if (x < 3.0) return 1.0;
+          return 9.0;
+        }
+
+        if (x < 1.0) return 15.0;
+        if (x < 2.0) return 7.0;
+        if (x < 3.0) return 13.0;
+        return 5.0;
+      }
 
       float luma(vec3 c) {
         return dot(c, vec3(0.2126, 0.7152, 0.0722));
@@ -91,9 +113,8 @@ export function createNoirShader(profile) {
         l = pow(l, uGamma);
 
         float scale = max(1.0, uDitherScale * uResolution.y / 720.0);
-        ivec2 cell = ivec2(floor(gl_FragCoord.xy / scale));
-        int idx = (cell.y & 3) * 4 + (cell.x & 3);
-        float bayer = (BAYER4[idx] + 0.5) / 16.0;
+        vec2 cell = floor(gl_FragCoord.xy / scale);
+        float bayer = (bayer4(cell) + 0.5) / 16.0;
         bayer = mix(0.5, bayer, clamp(uDither, 0.0, 1.25));
 
         float steps = max(2.0, uLevels) - 1.0;
