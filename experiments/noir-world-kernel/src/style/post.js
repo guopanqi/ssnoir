@@ -20,6 +20,15 @@ const GenesisComposite = {
     uniform float uVignette;
     varying vec2 vUv;
     float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+    float valueNoise(vec2 p){
+      vec2 i=floor(p),f=fract(p);
+      f=f*f*(3.0-2.0*f);
+      float a=hash(i);
+      float b=hash(i+vec2(1.0,0.0));
+      float c=hash(i+vec2(0.0,1.0));
+      float d=hash(i+vec2(1.0,1.0));
+      return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);
+    }
     void main(){
       vec3 c=texture2D(tDiffuse,vUv).rgb;
       float mx=max(max(c.r,c.g),c.b),mn=min(min(c.r,c.g),c.b);
@@ -30,10 +39,10 @@ const GenesisComposite = {
       vec2 p=vUv*2.0-1.0;
       float vig=smoothstep(1.45,.25,dot(p,p));
       c*=mix(1.0-uVignette,1.0,vig);
-      float paperLarge=hash(floor(gl_FragCoord.xy/48.0))-.5;
-      float paperFine=hash(floor(gl_FragCoord.xy/17.0))-.5;
+      float paperLarge=valueNoise(gl_FragCoord.xy/96.0)-.5;
+      float paperFine=valueNoise(gl_FragCoord.xy/34.0)-.5;
       float darkMask=1.0-smoothstep(.12,.46,l);
-      c+=vec3((paperLarge*.018+paperFine*.007)*darkMask);
+      c+=vec3((paperLarge*.012+paperFine*.004)*darkMask);
       c+=(hash(gl_FragCoord.xy*.41)-.5)*uGrain;
       gl_FragColor=vec4(c,1.0);
     }
