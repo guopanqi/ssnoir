@@ -215,7 +215,7 @@ function createAlley(outlines, materials) {
   // 横跨巷道的小连桥把空间明确切成前 / 中 / 后三段。
   group.add(addEdges(
     box(5.1, 0.52, 1.45, materials.buildingDim, -21.25, 7.05, 28.8),
-    outlines, materials, 'hero', 10,
+    outlines, materials, 'context', 10,
   ));
 
   group.add(addEdges(

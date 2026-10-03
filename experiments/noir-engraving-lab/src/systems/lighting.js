@@ -57,14 +57,16 @@ export function createLighting(scene, profile, lampPositions) {
   // is wider than the alley itself; the walls / bridge create the visible cuts.
   const alleyCut = new THREE.SpotLight(
     0x718caf,
-    1100,
+    900,
     32,
-    0.48,
+    0.42,
     0.02,
     2.0,
   );
-  alleyCut.position.set(-14.0, 10.5, 17.0);
-  alleyCut.target.position.set(-23.5, 3.2, 29.5);
+  // The source sits just above the right-hand wall, so light enters the slot
+  // rather than originating inside solid geometry.
+  alleyCut.position.set(-17.6, 11.0, 18.0);
+  alleyCut.target.position.set(-23.0, 2.8, 31.0);
   alleyCut.castShadow = true;
   alleyCut.shadow.mapSize.set(1024, 1024);
   alleyCut.shadow.camera.near = 1;
@@ -73,7 +75,7 @@ export function createLighting(scene, profile, lampPositions) {
 
   // A tiny local lift replaces the former global hemisphere "alley ambient".
   // Its short distance prevents the alley setup from raising the whole city.
-  const alleyAmbient = new THREE.PointLight(0x17243a, 7.5, 12.0, 2.0);
+  const alleyAmbient = new THREE.PointLight(0x17243a, 20.0, 12.0, 2.0);
   alleyAmbient.position.set(-21.25, 4.2, 27.0);
   group.add(alleyAmbient);
 
