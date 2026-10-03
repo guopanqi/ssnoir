@@ -37,26 +37,45 @@ function haloTexture(){
 function reflectionTexture(){
   return canvasTexture((ctx,w,h)=>{
     ctx.clearRect(0,0,w,h);
-    const streak=(x,y,len,width,alpha,color='255,252,240')=>{
+    let seed=7331;
+    const rnd=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296);
+
+    // First paint broad vertical light memories, as if windows and lamps are reflected.
+    const columns=[
+      [150,170,54,'255,252,238',.13],
+      [330,105,76,'255,252,238',.10],
+      [530,130,92,'255,252,238',.14],
+      [710,180,66,'255,252,238',.09],
+      [850,120,82,'226,182,61',.07]
+    ];
+    for(const [x,y,width,color,alpha] of columns){
       ctx.save();
-      ctx.strokeStyle='rgba('+color+','+alpha+')';
-      ctx.lineWidth=width;
-      ctx.lineCap='round';
-      ctx.shadowColor='rgba('+color+','+(alpha*.55)+')';
-      ctx.shadowBlur=width*2.5;
-      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y+len*.03);ctx.stroke();ctx.restore();
-    };
+      ctx.fillStyle='rgba('+color+','+alpha+')';
+      ctx.shadowColor='rgba('+color+','+(alpha*.75)+')';
+      ctx.shadowBlur=38;
+      ctx.fillRect(x,y,width,700-y);
+      ctx.restore();
+    }
+
+    // Water breaks the vertical reflections into irregular horizontal fragments.
+    ctx.save();
+    ctx.globalCompositeOperation='destination-out';
+    for(let i=0;i<115;i++){
+      const y=100+rnd()*850,x=rnd()*900;
+      const len=45+rnd()*330;
+      ctx.fillStyle='rgba(0,0,0,'+(.28+rnd()*.52)+')';
+      ctx.fillRect(x,y,len,2+rnd()*10);
+    }
+    ctx.restore();
+
+    // A few sharp surface glints sit above the soft reflected masses.
+    ctx.lineCap='round';
     for(let i=0;i<70;i++){
-      const x=(i*137)%w,y=90+((i*83)%760),len=18+((i*61)%95);
-      streak(x,y,len,1+((i*17)%4),.05+((i%5)*.012));
-    }
-    for(let i=0;i<18;i++){
-      const x=80+((i*211)%850),y=180+((i*149)%650);
-      streak(x,y,38+((i*47)%150),5+((i*13)%12),.10);
-    }
-    for(let i=0;i<9;i++){
-      const x=100+((i*271)%800),y=250+((i*193)%550);
-      streak(x,y,32+((i*41)%90),3+((i*7)%8),.12,'226,182,61');
+      const x=rnd()*950,y=120+rnd()*820,len=12+rnd()*120;
+      const gold=i%11===0;
+      ctx.strokeStyle=gold?'rgba(226,182,61,.22)':'rgba(245,242,232,.14)';
+      ctx.lineWidth=.8+rnd()*3.5;
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y+(rnd()-.5)*5);ctx.stroke();
     }
   },1024,1024);
 }
@@ -78,7 +97,7 @@ function addBuilding(fill,lines,{x,z,w,h,d=4,color=P.wall,lit=[]}){
   // Only three major silhouette strokes; no full CAD rectangle.
   polyline(lines,[
     [x-w/2,0,front],[x-w/2,h,front],[x+w/2,h,front],[x+w/2,.4,front]
-  ],{color:P.white,width:2.25,opacity:.72});
+  ],{color:P.white,width:1.65,opacity:.48});
 
   const cols=Math.max(3,Math.round(w/2.1));
   const rows=Math.max(3,Math.round(h/2.4));
@@ -125,55 +144,83 @@ function roundedDiner(fill,lines,glow){
   halo.position.set(0,2.6,-12.6);halo.scale.set(13,6.5,1);glow.add(halo);
 }
 
-function makePersonShape(profile=false,flip=false){
-  const s=new THREE.Shape();
-  const sx=v=>flip?-v:v;
-  if(profile){
-    s.moveTo(sx(-.48),.08);
-    s.bezierCurveTo(sx(-.50),.9,sx(-.45),1.7,sx(-.37),2.12);
-    s.bezierCurveTo(sx(-.54),2.28,sx(-.42),2.48,sx(-.25),2.60);
-    s.bezierCurveTo(sx(-.18),2.68,sx(-.12),2.76,sx(-.08),2.88);
-    s.bezierCurveTo(sx(.02),3.08,sx(.26),3.13,sx(.38),3.02);
-    s.bezierCurveTo(sx(.48),2.93,sx(.42),2.82,sx(.30),2.76);
-    s.bezierCurveTo(sx(.51),2.56,sx(.58),2.31,sx(.43),2.08);
-    s.bezierCurveTo(sx(.48),1.54,sx(.52),.84,sx(.50),.08);
-  }else{
-    s.moveTo(sx(-.54),.08);
-    s.bezierCurveTo(sx(-.57),.9,sx(-.49),1.75,sx(-.40),2.08);
-    s.bezierCurveTo(sx(-.57),2.25,sx(-.44),2.47,sx(-.28),2.60);
-    s.bezierCurveTo(sx(-.16),2.72,sx(-.10),2.79,sx(0),2.82);
-    s.bezierCurveTo(sx(.10),2.79,sx(.16),2.72,sx(.28),2.60);
-    s.bezierCurveTo(sx(.44),2.47,sx(.57),2.25,sx(.40),2.08);
-    s.bezierCurveTo(sx(.49),1.75,sx(.57),.9,sx(.54),.08);
-  }
-  s.closePath();return s;
+function outlinedShape(fillGroup,lineGroup,shape,z=0,{width=2.4,opacity=.95}={}){
+  shapeMesh(fillGroup,shape,z,P.ink);
+  const pts=shape.getPoints(56).map(p=>[p.x,p.y,z+.025]);
+  polyline(lineGroup,pts,{color:P.white,width,opacity,closed:true});
 }
 
 function addFigure(fill,lines,{x,y=0,z,s=1,profile=false,flip=false,gold=false}){
   const g=new THREE.Group();g.position.set(x,y,z);g.scale.setScalar(s);fill.add(g);
   const lg=new THREE.Group();lg.position.copy(g.position);lg.scale.copy(g.scale);lines.add(lg);
-  const shape=makePersonShape(profile,flip);
-  shapeMesh(g,shape,0,P.ink);
-  const pts=shape.getPoints(72).map(p=>[p.x,p.y,.018]);
-  polyline(lg,pts,{color:gold?P.gold:P.white,width:3.0,opacity:.98,closed:true});
+  const sx=v=>flip?-v:v;
 
-  // Hat is similarly planar and curved.
-  const hs=new THREE.Shape();
-  hs.moveTo(-.31,2.80);hs.quadraticCurveTo(-.28,3.09,-.16,3.12);
-  hs.lineTo(.20,3.12);hs.quadraticCurveTo(.29,3.03,.31,2.80);hs.closePath();
-  shapeMesh(g,hs,.004,P.ink);
-  const hp=hs.getPoints(24).map(p=>[p.x,p.y,.024]);
-  polyline(lg,hp,{color:P.white,width:2.5,opacity:.95,closed:true});
-  segments(lg,[[-.48,2.79,.025,.48,2.79,.025]],{color:P.white,width:3.0,opacity:.96});
+  // Long coat torso: narrower waist, clear shoulder line, gentle flare at the hem.
+  const torso=new THREE.Shape();
+  torso.moveTo(sx(-.32),2.32);
+  torso.quadraticCurveTo(sx(-.43),2.05,sx(-.39),1.70);
+  torso.lineTo(sx(-.34),.24);
+  torso.quadraticCurveTo(sx(0),.10,sx(.34),.24);
+  torso.lineTo(sx(.39),1.70);
+  torso.quadraticCurveTo(sx(.43),2.05,sx(.32),2.32);
+  torso.quadraticCurveTo(sx(0),2.48,sx(-.32),2.32);
+  torso.closePath();
+  outlinedShape(g,lg,torso,0,{width:2.7,opacity:.98});
 
+  // Arms are separate planar puppet pieces, which is closer to the source game's 2D/3D mix.
+  const armL=new THREE.Shape();
+  armL.moveTo(sx(-.30),2.24);
+  armL.quadraticCurveTo(sx(-.58),2.02,sx(-.58),1.66);
+  armL.lineTo(sx(-.52),.62);
+  armL.quadraticCurveTo(sx(-.48),.49,sx(-.39),.58);
+  armL.lineTo(sx(-.25),1.72);
+  armL.quadraticCurveTo(sx(-.20),2.05,sx(-.30),2.24);
+  armL.closePath();
+  outlinedShape(g,lg,armL,.003,{width:2.2,opacity:.82});
+
+  const armR=new THREE.Shape();
+  armR.moveTo(sx(.30),2.24);
+  armR.quadraticCurveTo(sx(.55),1.98,sx(.53),1.61);
+  armR.lineTo(sx(.47),.57);
+  armR.quadraticCurveTo(sx(.43),.47,sx(.35),.56);
+  armR.lineTo(sx(.24),1.72);
+  armR.quadraticCurveTo(sx(.20),2.05,sx(.30),2.24);
+  armR.closePath();
+  outlinedShape(g,lg,armR,.006,{width:2.1,opacity:.78});
+
+  // Head remains a black silhouette; a small nose/chin break makes the profile human.
+  const head=new THREE.Shape();
   if(profile){
-    const k=flip?-1:1;
-    smoothPolyline(lg,[[.07*k,2.95,.03],[.22*k,2.95,.03],[.35*k,2.88,.03]],{
-      color:P.white,width:1.35,opacity:.60,segments:18
-    });
+    head.moveTo(sx(-.16),2.47);
+    head.bezierCurveTo(sx(-.24),2.63,sx(-.23),2.87,sx(-.10),3.00);
+    head.bezierCurveTo(sx(.02),3.11,sx(.19),3.10,sx(.27),3.02);
+    head.lineTo(sx(.38),2.97);
+    head.lineTo(sx(.29),2.91);
+    head.quadraticCurveTo(sx(.31),2.72,sx(.18),2.58);
+    head.quadraticCurveTo(sx(.04),2.45,sx(-.16),2.47);
+  }else{
+    head.moveTo(sx(-.20),2.48);
+    head.bezierCurveTo(sx(-.28),2.65,sx(-.25),2.91,sx(-.10),3.03);
+    head.bezierCurveTo(sx(.02),3.12,sx(.19),3.08,sx(.25),2.94);
+    head.bezierCurveTo(sx(.31),2.78,sx(.27),2.58,sx(.14),2.49);
+    head.quadraticCurveTo(sx(-.04),2.41,sx(-.20),2.48);
   }
-}
+  head.closePath();
+  outlinedShape(g,lg,head,.010,{width:2.5,opacity:.96});
 
+  // Fedora has a long horizontal brim and a slightly asymmetric crown.
+  const hat=new THREE.Shape();
+  hat.moveTo(sx(-.30),2.98);
+  hat.quadraticCurveTo(sx(-.28),3.25,sx(-.16),3.28);
+  hat.lineTo(sx(.21),3.28);
+  hat.quadraticCurveTo(sx(.30),3.17,sx(.30),2.98);
+  hat.closePath();
+  outlinedShape(g,lg,hat,.014,{width:2.35,opacity:.95});
+  segments(lg,[[sx(-.48),2.97,.04,sx(.48),2.97,.04]],{color:P.white,width:3.0,opacity:.97});
+
+  // One internal coat seam is enough to imply construction without becoming a wireframe.
+  segments(lg,[[sx(0),.24,.04,sx(0),1.05,.04]],{color:P.white,width:1.15,opacity:.32});
+}
 function addLamp(fill,lines,glow,x,z,h=6.2){
   segments(lines,[[x,0,z,x,h,z],[x,h,z,x+.72,h,z]],{color:P.white,width:2.1,opacity:.68});
   panel(fill,[.24,.11],[x+.72,h-.03,z+.02],P.white,1);
@@ -208,6 +255,17 @@ export function buildWorld(scene){
   addBuilding(fill,lines,{x:13.8,z:-4,w:8.3,h:9.5,d:5,color:P.deep,
     lit:[0,5]});
 
+  // Far office wall: a field of luminous windows builds the city more effectively than contour lines.
+  box(fill,[17,18,4],[1.5,9,-27],standard(0x070a12));
+  const farZ=-24.96;
+  for(let row=0;row<7;row++){
+    for(let col=0;col<8;col++){
+      if((row*3+col*5)%7===0 || (row+col)%5===0) continue;
+      const px=-5.1+col*1.9,py=3.0+row*1.85;
+      panel(fill,[.72,.82],[px,py,farZ],P.white,.90);
+    }
+  }
+
   roundedDiner(fill,lines,glow);
 
   // Sparse perspective lines: enough to establish a walkable space, not a wireframe floor.
@@ -223,13 +281,13 @@ export function buildWorld(scene){
   addLamp(fill,lines,glow,-6.5,4.3,6.0);
   addLamp(fill,lines,glow,6.9,-4.7,6.4);
 
-  addFigure(fill,lines,{x:0,y:.02,z:4.0,s:1.12,profile:true});
-  addFigure(fill,lines,{x:-8.0,y:.02,z:-5.5,s:.78,profile:false});
-  addFigure(fill,lines,{x:7.8,y:.02,z:-2.0,s:.70,profile:true,flip:true});
+  addFigure(fill,lines,{x:-.6,y:.02,z:4.2,s:1.08,profile:true});
+  addFigure(fill,lines,{x:-8.1,y:.02,z:-5.5,s:.66,profile:false});
+  addFigure(fill,lines,{x:7.8,y:.02,z:-2.0,s:.62,profile:true,flip:true});
 
   // Large painterly reflection layer.
   const wet=new THREE.Mesh(new THREE.PlaneGeometry(39,39),new THREE.MeshBasicMaterial({
-    map:reflectionTexture(),transparent:true,opacity:.78,depthWrite:false,toneMapped:false
+    map:reflectionTexture(),transparent:true,opacity:.96,depthWrite:false,toneMapped:false
   }));
   wet.rotation.x=-Math.PI/2;wet.position.set(0,.015,1);glow.add(wet);
 
