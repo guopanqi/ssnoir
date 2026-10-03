@@ -1,4 +1,4 @@
-export function bindResearchUI({ post, world, atmosphere, lighting, onShot }) {
+export function bindResearchUI({ profile, post, world, atmosphere, lighting, onShot }) {
   const ui = {
     panel: document.querySelector('#panel'),
     shotLabel: document.querySelector('#shotLabel'),
@@ -16,6 +16,15 @@ export function bindResearchUI({ post, world, atmosphere, lighting, onShot }) {
     bloomValue: document.querySelector('#bloomValue'),
     fps: document.querySelector('#fps'),
   };
+
+  ui.levels.value = profile.print.levels;
+  ui.levelsValue.value = profile.print.levels;
+  ui.dither.value = profile.print.dither;
+  ui.ditherValue.value = profile.print.dither.toFixed(2);
+  ui.fog.value = profile.atmosphere.fogDensity;
+  ui.fogValue.value = profile.atmosphere.fogDensity.toFixed(3);
+  ui.bloom.value = profile.print.bloomStrength;
+  ui.bloomValue.value = profile.print.bloomStrength.toFixed(2);
 
   ui.stylize.addEventListener('change', () => {
     post.noir.uniforms.uEnabled.value = ui.stylize.checked ? 1 : 0;
@@ -44,7 +53,7 @@ export function bindResearchUI({ post, world, atmosphere, lighting, onShot }) {
   });
 
   ui.fog.addEventListener('input', () => {
-    atmosphere.group.parent.fog.density = +ui.fog.value;
+    atmosphere.setFogDensity(+ui.fog.value);
     ui.fogValue.value = (+ui.fog.value).toFixed(3);
   });
 
