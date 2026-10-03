@@ -57,6 +57,19 @@ export function rect(parent,x,y,z,w,h,options={}) {
   ],{...options,closed:true});
 }
 
+export function smoothPolyline(parent, points, {
+  color=0xffffff,width=2,opacity=1,closed=false,segments=48,renderOrder=8
+}={}) {
+  const curve=new THREE.CatmullRomCurve3(
+    points.map(p=>new THREE.Vector3(...p)),
+    closed,
+    'catmullrom',
+    0.18
+  );
+  const sampled=curve.getPoints(segments).map(v=>[v.x,v.y,v.z]);
+  return polyline(parent,sampled,{color,width,opacity,closed:false,renderOrder});
+}
+
 export function resizeLineMaterials(w,h) {
   for(const m of lineMaterials) m.resolution.set(w,h);
 }
