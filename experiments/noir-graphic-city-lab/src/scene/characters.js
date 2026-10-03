@@ -31,6 +31,7 @@ export function createCharacter({
   scale = 1,
   pose = 'neutral',
   role = 'crowd',
+  variant = 0,
   mats,
   groups,
 }) {
@@ -48,8 +49,9 @@ export function createCharacter({
   torso.position.y = 2.55;
   g.add(torso);
 
+  const crowdFlare = role === 'crowd' && variant % 3 === 2 ? 1.20 : 1.02;
   const coat = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.72, role === 'singer' ? 1.18 : 1.02, 1.85, 5),
+    new THREE.CylinderGeometry(0.72, role === 'singer' ? 1.18 : crowdFlare, 1.85, 5),
     bodyMat,
   );
   coat.position.y = 1.55;
@@ -60,16 +62,18 @@ export function createCharacter({
   head.position.y = 4.12;
   g.add(head);
 
-  if (role !== 'singer') {
-    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.78, 0.78, 0.08, 10), mats.ink);
+  if (role !== 'singer' && !(role === 'crowd' && variant % 3 === 2)) {
+    const brimRadius = role === 'crowd' && variant % 3 === 1 ? 0.58 : 0.78;
+    const crownHeight = role === 'crowd' && variant % 3 === 1 ? 0.34 : 0.52;
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(brimRadius, brimRadius, 0.08, 10), mats.ink);
     brim.position.y = 4.52;
-    brim.userData.graphicEdge = true;
+    brim.userData.graphicEdge = role !== 'crowd';
     g.add(brim);
-    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.43, 0.48, 0.52, 8), mats.ink);
-    crown.position.y = 4.76;
-    crown.userData.graphicEdge = true;
+    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.43, 0.48, crownHeight, 8), mats.ink);
+    crown.position.y = 4.70 + crownHeight * 0.12;
+    crown.userData.graphicEdge = role !== 'crowd';
     g.add(crown);
-  } else {
+  } else if (role === 'singer') {
     const hair = new THREE.Mesh(new THREE.SphereGeometry(0.54, 7, 5, 0, Math.PI * 2, 0, Math.PI * 0.62), mats.ink);
     hair.position.set(0, 4.28, -0.03);
     hair.rotation.x = Math.PI;

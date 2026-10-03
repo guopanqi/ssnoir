@@ -106,10 +106,22 @@ function addTenements({ groups, mats }) {
     const b = addBuilding({ groups,mats,x,z,w,h,d,facadeIndex:1,line:i===2 });
     addWindowGrid({ parent:b, facade:'-x', countX:3, countY:4, width:0.8, height:1.1, mats, groups, sparse:true });
     if (i === 1) {
-      const poster = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 4.2), mats.paperDim);
-      poster.position.set(-w / 2 - 0.02, 4.7, 1.0);
-      poster.rotation.y = -Math.PI / 2;
-      b.add(poster);
+      const storefront = new THREE.Mesh(new THREE.PlaneGeometry(d * 0.78, 6.2), mats.paperDim);
+      storefront.position.set(-w / 2 - 0.025, 3.55, 0.2);
+      storefront.rotation.y = -Math.PI / 2;
+      b.add(storefront);
+
+      const header = new THREE.Mesh(new THREE.PlaneGeometry(d * 0.67, 0.52), mats.ink);
+      header.position.set(-w / 2 - 0.035, 5.85, 0.2);
+      header.rotation.y = -Math.PI / 2;
+      b.add(header);
+
+      for (let j = 0; j < 3; j++) {
+        const mullion = new THREE.Mesh(new THREE.PlaneGeometry(0.20, 4.5), mats.inkLift);
+        mullion.position.set(-w / 2 - 0.038, 3.25, -3.0 + j * 3.0);
+        mullion.rotation.y = -Math.PI / 2;
+        b.add(mullion);
+      }
     }
   });
 
@@ -159,20 +171,6 @@ function addStreet({ groups, mats }) {
   const streetWedge = new THREE.Mesh(streetWedgeGeometry, mats.mid);
   groups.city.add(streetWedge);
 
-  const crossingWall = new THREE.Mesh(new THREE.PlaneGeometry(13.5, 6.8), mats.paperDim);
-  crossingWall.position.set(0.3, 3.45, 15.4);
-  groups.city.add(crossingWall);
-
-  const crossingHeader = new THREE.Mesh(new THREE.PlaneGeometry(10.6, 0.46), mats.ink);
-  crossingHeader.position.set(0.3, 5.95, 15.33);
-  groups.city.add(crossingHeader);
-
-  for (let i = 0; i < 4; i++) {
-    const mullion = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 4.6), mats.inkLift);
-    mullion.position.set(-4.2 + i * 2.8, 3.15, 15.30);
-    groups.city.add(mullion);
-  }
-
   [-7.8, 7.8].forEach((x) => {
     for (const z of [-16, 9, 34]) {
       const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 4.7, 6), mats.ink);
@@ -217,13 +215,13 @@ function addCast({ groups, mats }) {
   });
 
   const crowd = [
-    [-4.8, 30.5, .92, 3.05], [2.7, 29.2, .84, 3.18], [5.0, 27.0, 1.00, 2.96],
-    [-1.2, 25.7, .96, 3.10], [4.9, 23.6, .88, 3.02], [-4.6, 22.0, .82, 3.18],
-    [2.8, 20.3, .80, 3.28], [-2.3, 18.7, .86, 3.00],
+    [-2.8, 29.2, .88, 3.05], [1.0, 27.6, .82, 3.18], [4.4, 26.0, 1.00, 2.96],
+    [6.5, 23.9, .94, 3.10], [3.2, 22.3, .86, 3.02], [6.8, 20.5, .82, 3.18],
+    [1.8, 19.2, .78, 3.28], [5.0, 17.8, .84, 3.00],
   ];
   crowd.forEach(([x,z,s,yaw], i) => createCharacter({
     name:`Crowd ${i+1}`, position:[x,0,z], yaw, scale:s,
-    pose:i%2 ? 'walking':'neutral', role:'crowd', mats, groups,
+    pose:i%2 ? 'walking':'neutral', role:'crowd', variant:i, mats, groups,
   }));
 
   createCharacter({

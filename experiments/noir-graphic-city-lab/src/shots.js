@@ -10,9 +10,9 @@ export const SHOTS = Object.freeze([
   Object.freeze({
     id: '02-crowd-crossing',
     name: '02 · CROWD CROSSING',
-    position: [-5.6, 3.5, 35],
-    target: [1.2, 2.8, 18],
-    fov: 42,
+    position: [-7.2, 3.5, 33.5],
+    target: [5.2, 3.0, 18.0],
+    fov: 40,
     purpose: '测试远近人物轮廓、帽檐/大衣比例和 crowd 的 Narrative LOD。',
   }),
   Object.freeze({
