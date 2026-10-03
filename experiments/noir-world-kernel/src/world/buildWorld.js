@@ -1,232 +1,246 @@
 import * as THREE from 'three';
-import { polyline, segments, rect, resizeLineMaterials } from '../style/lineArt.js';
+import { polyline, smoothPolyline, segments, resizeLineMaterials } from '../style/lineArt.js';
 
 const P={
-  void:0x030409, ink:0x010205, deep:0x080b12, wall:0x0d1119, wall2:0x121722,
-  white:0xf2efe6, dim:0x8b919a, gold:0xe1b53d
+  void:0x020309, ink:0x010205, deep:0x070a11, wall:0x0b0f17, wall2:0x101520,
+  white:0xf2efe6, dim:0x8a9098, gold:0xe2b63d
 };
 
 const basic=(color,opts={})=>new THREE.MeshBasicMaterial({color,toneMapped:false,...opts});
-const standard=(color,opts={})=>new THREE.MeshStandardMaterial({
-  color,roughness:.88,metalness:.02,...opts
-});
+const standard=(color,opts={})=>new THREE.MeshStandardMaterial({color,roughness:.95,metalness:0,...opts});
 
 function box(parent,size,pos,mat,rotY=0){
   const m=new THREE.Mesh(new THREE.BoxGeometry(...size),mat);
-  m.position.set(...pos);m.rotation.y=rotY;
-  m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;
+  m.position.set(...pos);m.rotation.y=rotY;m.receiveShadow=true;parent.add(m);return m;
 }
-
 function panel(parent,size,pos,color=P.white,opacity=1){
   const m=new THREE.Mesh(new THREE.PlaneGeometry(...size),basic(color,{
     transparent:opacity<1,opacity,side:THREE.DoubleSide,depthWrite:opacity===1
   }));
   m.position.set(...pos);m.renderOrder=6;parent.add(m);return m;
 }
-
-function canvasTexture(draw,w=512,h=128){
+function canvasTexture(draw,w=512,h=256){
   const c=document.createElement('canvas');c.width=w;c.height=h;
   const ctx=c.getContext('2d');draw(ctx,w,h);
   const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
 }
-
 function haloTexture(){
   return canvasTexture((ctx,w,h)=>{
     const g=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);
-    g.addColorStop(0,'rgba(255,250,230,.92)');
-    g.addColorStop(.08,'rgba(255,250,230,.50)');
-    g.addColorStop(.32,'rgba(255,250,230,.15)');
-    g.addColorStop(1,'rgba(255,250,230,0)');
+    g.addColorStop(0,'rgba(255,252,236,.95)');
+    g.addColorStop(.07,'rgba(255,252,236,.52)');
+    g.addColorStop(.30,'rgba(255,252,236,.16)');
+    g.addColorStop(1,'rgba(255,252,236,0)');
     ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
   },256,256);
 }
-
-function mistTexture(){
+function reflectionTexture(){
   return canvasTexture((ctx,w,h)=>{
-    const g=ctx.createRadialGradient(w*.5,h*.5,5,w*.5,h*.5,w*.5);
-    g.addColorStop(0,'rgba(235,238,242,.13)');
-    g.addColorStop(.55,'rgba(210,215,222,.05)');
-    g.addColorStop(1,'rgba(200,205,215,0)');
-    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-  },512,256);
+    ctx.clearRect(0,0,w,h);
+    const streak=(x,y,len,width,alpha,color='255,252,240')=>{
+      ctx.save();
+      ctx.strokeStyle='rgba('+color+','+alpha+')';
+      ctx.lineWidth=width;
+      ctx.lineCap='round';
+      ctx.shadowColor='rgba('+color+','+(alpha*.55)+')';
+      ctx.shadowBlur=width*2.5;
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y+len*.03);ctx.stroke();ctx.restore();
+    };
+    for(let i=0;i<70;i++){
+      const x=(i*137)%w,y=90+((i*83)%760),len=18+((i*61)%95);
+      streak(x,y,len,1+((i*17)%4),.05+((i%5)*.012));
+    }
+    for(let i=0;i<18;i++){
+      const x=80+((i*211)%850),y=180+((i*149)%650);
+      streak(x,y,38+((i*47)%150),5+((i*13)%12),.10);
+    }
+    for(let i=0;i<9;i++){
+      const x=100+((i*271)%800),y=250+((i*193)%550);
+      streak(x,y,32+((i*41)%90),3+((i*7)%8),.12,'226,182,61');
+    }
+  },1024,1024);
 }
-
-function textPanel(parent,text,size,pos,{color=P.white,font='600 42px Georgia'}={}){
-  const tex=canvasTexture((ctx,w,h)=>{
-    ctx.clearRect(0,0,w,h);ctx.fillStyle='#f4f0e6';ctx.font=font;
+function textTexture(text){
+  return canvasTexture((ctx,w,h)=>{
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#f2efe6';ctx.font='600 42px Georgia,serif';
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,w/2,h/2);
-  });
-  const m=new THREE.Mesh(new THREE.PlaneGeometry(...size),new THREE.MeshBasicMaterial({
-    map:tex,transparent:true,toneMapped:false,depthWrite:false
-  }));
-  m.position.set(...pos);m.renderOrder=9;parent.add(m);return m;
+  },512,96);
+}
+function shapeMesh(parent,shape,z,color=P.ink){
+  const m=new THREE.Mesh(new THREE.ShapeGeometry(shape,32),basic(color,{side:THREE.DoubleSide}));
+  m.position.z=z;parent.add(m);return m;
 }
 
-function addFacade(fill,lines,{x,y=0,z,w,h,d=3.5,bays=4,floors=4,color=P.wall,lit=[]}){
-  box(fill,[w,h,d],[x,y+h/2,z],standard(color));
-  const front=z+d/2+.025;
-  rect(lines,x,y+h/2,front,w,h,{color:P.white,width:2.2,opacity:.72});
-  segments(lines,[
-    [x-w/2,y+h*.90,front+.01,x+w/2,y+h*.90,front+.01],
-    [x-w/2,y+.22,front+.01,x+w/2,y+.22,front+.01]
-  ],{color:P.white,width:2.7,opacity:.75});
-  const dx=w/(bays+1),dy=h/(floors+1);
-  const minor=[];
-  for(let f=0;f<floors;f++){
-    for(let b=0;b<bays;b++){
-      const wx=x-w/2+dx*(b+1),wy=y+dy*(f+1),idx=f*bays+b;
-      if(lit.includes(idx)){
-        panel(fill,[dx*.46,dy*.42],[wx,wy,front+.02],P.white,.96);
-      }else{
-        rect(lines,wx,wy,front+.015,dx*.42,dy*.36,{color:P.white,width:1.0,opacity:.30});
-      }
+function addBuilding(fill,lines,{x,z,w,h,d=4,color=P.wall,lit=[]}){
+  box(fill,[w,h,d],[x,h/2,z],standard(color));
+  const front=z+d/2+.03;
+  // Only three major silhouette strokes; no full CAD rectangle.
+  polyline(lines,[
+    [x-w/2,0,front],[x-w/2,h,front],[x+w/2,h,front],[x+w/2,.4,front]
+  ],{color:P.white,width:2.25,opacity:.72});
+
+  const cols=Math.max(3,Math.round(w/2.1));
+  const rows=Math.max(3,Math.round(h/2.4));
+  const dx=w/(cols+1),dy=h/(rows+1);
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const idx=r*cols+c;
+      if(!lit.includes(idx)) continue;
+      const px=x-w/2+dx*(c+1),py=dy*(r+1);
+      panel(fill,[dx*.44,dy*.38],[px,py,front+.02],P.white,.98);
     }
   }
-  for(let f=1;f<floors;f++){
-    const yy=y+h*f/floors;
-    minor.push([x-w/2,yy,front,x+w/2,yy,front]);
-  }
-  segments(lines,minor,{color:P.dim,width:.8,opacity:.16});
 }
 
-function addCafe(fill,lines,glow){
-  box(fill,[12,4.6,5.4],[0,2.3,-16],standard(P.deep));
-  const z=-13.27;
-  rect(lines,0,2.3,z,12,4.6,{color:P.white,width:2.8,opacity:.95});
-  panel(fill,[9.2,.92],[0,3.58,z+.02],P.white,.98);
-  panel(fill,[2.2,2.0],[-3.4,1.55,z+.025],P.white,.82);
-  panel(fill,[2.7,1.72],[2.8,1.62,z+.025],P.white,.90);
-  rect(lines,-3.4,1.55,z+.04,2.2,2.0,{color:P.white,width:1.8,opacity:.72});
-  rect(lines,2.8,1.62,z+.04,2.7,1.72,{color:P.white,width:1.8,opacity:.72});
-  textPanel(fill,'NIGHT CAFE',[4.2,.72],[0,4.72,z+.06],{font:'600 38px Georgia'});
-  const halo=new THREE.Sprite(new THREE.SpriteMaterial({
-    map:haloTexture(),color:P.white,transparent:true,opacity:.17,depthWrite:false,
-    blending:THREE.AdditiveBlending
+function roundedDiner(fill,lines,glow){
+  const shape=new THREE.Shape();
+  shape.moveTo(-6,-2.2);shape.lineTo(4.7,-2.2);
+  shape.quadraticCurveTo(6,-2.2,6,-.9);
+  shape.lineTo(6,1.0);shape.quadraticCurveTo(6,2.2,4.7,2.2);
+  shape.lineTo(-6,2.2);shape.closePath();
+  const front=shapeMesh(fill,shape,-12.95,P.deep);
+  front.position.y=2.25;
+
+  const pts=shape.getPoints(48).map(p=>[p.x,p.y+2.25,-12.92]);
+  smoothPolyline(lines,pts,{color:P.white,width:2.9,opacity:.96,closed:true,segments:90});
+
+  // Horizontal art-deco bands.
+  segments(lines,[
+    [-5.8,3.78,-12.89,5.65,3.78,-12.89],
+    [-5.8,.70,-12.89,5.45,.70,-12.89]
+  ],{color:P.white,width:4.2,opacity:.96});
+
+  panel(fill,[3.0,1.55],[-3.05,2.12,-12.88],P.white,.84);
+  panel(fill,[3.3,1.55],[2.25,2.12,-12.88],P.white,.92);
+
+  const sign=new THREE.Mesh(new THREE.PlaneGeometry(4.2,.7),new THREE.MeshBasicMaterial({
+    map:textTexture('NIGHT CAFE'),transparent:true,toneMapped:false,depthWrite:false
   }));
-  halo.position.set(0,3.0,-12.9);halo.scale.set(13,7,1);glow.add(halo);
+  sign.position.set(-.4,4.0,-12.86);fill.add(sign);
+
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:haloTexture(),transparent:true,opacity:.18,depthWrite:false,blending:THREE.AdditiveBlending
+  }));
+  halo.position.set(0,2.6,-12.6);halo.scale.set(13,6.5,1);glow.add(halo);
 }
 
-function figureShape(profile=false){
-  return profile
-    ? [[-.50,.16],[-.46,1.28],[-.38,2.02],[-.50,2.36],[-.31,2.62],[-.15,2.75],[-.10,2.90],[.08,3.07],[.27,3.08],[.40,2.98],[.39,2.87],[.29,2.78],[.43,2.61],[.56,2.30],[.44,2.02],[.47,1.25],[.52,.16]]
-    : [[-.60,.16],[-.54,1.25],[-.44,2.05],[-.56,2.34],[-.35,2.61],[-.18,2.76],[.18,2.76],[.35,2.61],[.56,2.34],[.44,2.05],[.54,1.25],[.60,.16]];
+function makePersonShape(profile=false,flip=false){
+  const s=new THREE.Shape();
+  const sx=v=>flip?-v:v;
+  if(profile){
+    s.moveTo(sx(-.48),.08);
+    s.bezierCurveTo(sx(-.50),.9,sx(-.45),1.7,sx(-.37),2.12);
+    s.bezierCurveTo(sx(-.54),2.28,sx(-.42),2.48,sx(-.25),2.60);
+    s.bezierCurveTo(sx(-.18),2.68,sx(-.12),2.76,sx(-.08),2.88);
+    s.bezierCurveTo(sx(.02),3.08,sx(.26),3.13,sx(.38),3.02);
+    s.bezierCurveTo(sx(.48),2.93,sx(.42),2.82,sx(.30),2.76);
+    s.bezierCurveTo(sx(.51),2.56,sx(.58),2.31,sx(.43),2.08);
+    s.bezierCurveTo(sx(.48),1.54,sx(.52),.84,sx(.50),.08);
+  }else{
+    s.moveTo(sx(-.54),.08);
+    s.bezierCurveTo(sx(-.57),.9,sx(-.49),1.75,sx(-.40),2.08);
+    s.bezierCurveTo(sx(-.57),2.25,sx(-.44),2.47,sx(-.28),2.60);
+    s.bezierCurveTo(sx(-.16),2.72,sx(-.10),2.79,sx(0),2.82);
+    s.bezierCurveTo(sx(.10),2.79,sx(.16),2.72,sx(.28),2.60);
+    s.bezierCurveTo(sx(.44),2.47,sx(.57),2.25,sx(.40),2.08);
+    s.bezierCurveTo(sx(.49),1.75,sx(.57),.9,sx(.54),.08);
+  }
+  s.closePath();return s;
 }
 
-function addFigure(fill,lines,{x=0,y=0,z=0,s=1,profile=false,gold=false,flip=false}={}){
-  const pts=figureShape(profile).map(([a,b])=>[flip?-a:a,b]);
+function addFigure(fill,lines,{x,y=0,z,s=1,profile=false,flip=false,gold=false}){
   const g=new THREE.Group();g.position.set(x,y,z);g.scale.setScalar(s);fill.add(g);
   const lg=new THREE.Group();lg.position.copy(g.position);lg.scale.copy(g.scale);lines.add(lg);
-  const shape=new THREE.Shape();shape.moveTo(...pts[0]);
-  pts.slice(1).forEach(p=>shape.lineTo(...p));shape.closePath();
-  const body=new THREE.Mesh(new THREE.ShapeGeometry(shape),basic(P.ink,{side:THREE.DoubleSide}));
-  g.add(body);
-  polyline(lg,pts.map(([a,b])=>[a,b,.018]),{
-    color:gold?P.gold:P.white,width:3.1,opacity:.98,closed:true
-  });
-  segments(lg,[[-.46,2.78,.025,.46,2.78,.025]],{color:P.white,width:3.2,opacity:.96});
-  polyline(lg,[[-.27,2.80,.025],[-.22,3.08,.025],[.20,3.08,.025],[.28,2.80,.025]],{
-    color:P.white,width:2.5,opacity:.94,closed:true
-  });
+  const shape=makePersonShape(profile,flip);
+  shapeMesh(g,shape,0,P.ink);
+  const pts=shape.getPoints(72).map(p=>[p.x,p.y,.018]);
+  polyline(lg,pts,{color:gold?P.gold:P.white,width:3.0,opacity:.98,closed:true});
+
+  // Hat is similarly planar and curved.
+  const hs=new THREE.Shape();
+  hs.moveTo(-.31,2.80);hs.quadraticCurveTo(-.28,3.09,-.16,3.12);
+  hs.lineTo(.20,3.12);hs.quadraticCurveTo(.29,3.03,.31,2.80);hs.closePath();
+  shapeMesh(g,hs,.004,P.ink);
+  const hp=hs.getPoints(24).map(p=>[p.x,p.y,.024]);
+  polyline(lg,hp,{color:P.white,width:2.5,opacity:.95,closed:true});
+  segments(lg,[[-.48,2.79,.025,.48,2.79,.025]],{color:P.white,width:3.0,opacity:.96});
+
   if(profile){
-    const sign=flip?-1:1;
-    polyline(lg,[[.10*sign,2.91,.03],[.28*sign,2.91,.03],[.37*sign,2.85,.03]],{
-      color:P.white,width:1.5,opacity:.66
+    const k=flip?-1:1;
+    smoothPolyline(lg,[[.07*k,2.95,.03],[.22*k,2.95,.03],[.35*k,2.88,.03]],{
+      color:P.white,width:1.35,opacity:.60,segments:18
     });
   }
-  segments(lg,[[0,.16,.02,0,.74,.02]],{color:P.white,width:1.4,opacity:.42});
 }
 
-function addLamp(fill,lines,glow,x,z,h=6.4){
-  segments(lines,[
-    [x,0,z,x,h,z],[x,h,z,x+.78,h,z]
-  ],{color:P.white,width:2.2,opacity:.72});
-  panel(fill,[.30,.13],[x+.78,h-.03,z+.02],P.white,1);
+function addLamp(fill,lines,glow,x,z,h=6.2){
+  segments(lines,[[x,0,z,x,h,z],[x,h,z,x+.72,h,z]],{color:P.white,width:2.1,opacity:.68});
+  panel(fill,[.24,.11],[x+.72,h-.03,z+.02],P.white,1);
   const halo=new THREE.Sprite(new THREE.SpriteMaterial({
-    map:haloTexture(),color:P.white,transparent:true,opacity:.55,depthWrite:false,
-    blending:THREE.AdditiveBlending
+    map:haloTexture(),transparent:true,opacity:.58,depthWrite:false,blending:THREE.AdditiveBlending
   }));
-  halo.position.set(x+.78,h-.04,z+.2);halo.scale.set(3.5,3.5,1);glow.add(halo);
-}
-
-function addWetStreet(lines){
-  let seed=39281;
-  const rnd=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296);
-  const white=[],gold=[];
-  for(let i=0;i<120;i++){
-    const x=-17+rnd()*34,z=-1+rnd()*23,len=.25+rnd()*1.65;
-    white.push([x,.035,z,x+len,.035,z+(rnd()-.5)*.10]);
-  }
-  for(let i=0;i<22;i++){
-    const x=-8+rnd()*16,z=0+rnd()*16,len=.18+rnd()*1.0;
-    gold.push([x,.04,z,x+len,.04,z+(rnd()-.5)*.07]);
-  }
-  segments(lines,white,{color:P.white,width:.75,opacity:.16});
-  segments(lines,gold,{color:P.gold,width:1.0,opacity:.25});
+  halo.position.set(x+.72,h-.03,z+.2);halo.scale.set(4.5,4.5,1);glow.add(halo);
 }
 
 function addRain(lines){
-  let seed=1187;
-  const rnd=()=>((seed=Math.imul(seed,1103515245)+12345>>>0)/4294967296);
+  let seed=4481;const rnd=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296);
   const rain=[];
-  for(let i=0;i<170;i++){
-    const x=-19+rnd()*38,y=.5+rnd()*14,z=-24+rnd()*38,l=.25+rnd()*.72;
-    rain.push([x,y,z,x-.14,y-l,z+.04]);
+  for(let i=0;i<120;i++){
+    const x=-20+rnd()*40,y=1+rnd()*14,z=-24+rnd()*40,l=.2+rnd()*.55;
+    rain.push([x,y,z,x-.11,y-l,z+.02]);
   }
-  segments(lines,rain,{color:P.white,width:.75,opacity:.12});
+  segments(lines,rain,{color:P.white,width:.65,opacity:.09});
 }
 
 export function buildWorld(scene){
   const fill=new THREE.Group(),lines=new THREE.Group(),glow=new THREE.Group();
   scene.add(fill,lines,glow);
+  box(fill,[44,.12,48],[0,-.09,-7],standard(P.ink));
 
-  const ground=box(fill,[42,.14,46],[0,-.10,-7],standard(P.ink));
-  ground.receiveShadow=true;
+  // Background tower: bright window rhythm is more important than its box edges.
+  addBuilding(fill,lines,{x:12.2,z:-18,w:10.5,h:15,d:5,color:P.wall2,
+    lit:[0,1,2,3,5,6,7,8,10,11,12,13,15,16,17,18]});
+  addBuilding(fill,lines,{x:-12.4,z:-16,w:9.0,h:11.5,d:5,color:P.wall,
+    lit:[1,5,8]});
+  addBuilding(fill,lines,{x:-13.8,z:-2.5,w:8.0,h:8.5,d:5,color:P.deep,
+    lit:[3]});
+  addBuilding(fill,lines,{x:13.8,z:-4,w:8.3,h:9.5,d:5,color:P.deep,
+    lit:[0,5]});
 
-  // Left and right street walls provide actual depth, but stay visually black.
-  addFacade(fill,lines,{x:-12.0,z:-15,w:9,h:11,d:5,bays:3,floors:4,color:P.wall,lit:[1,7]});
-  addFacade(fill,lines,{x:12.4,z:-18,w:10,h:14,d:5,bays:4,floors:5,color:P.wall2,lit:[2,13]});
-  addFacade(fill,lines,{x:-13.5,z:-2,w:8,h:8,d:5,bays:3,floors:3,color:P.deep,lit:[4]});
-  addFacade(fill,lines,{x:13.8,z:-4,w:8,h:9,d:5,bays:3,floors:3,color:P.deep,lit:[1,7]});
-  addCafe(fill,lines,glow);
+  roundedDiner(fill,lines,glow);
 
-  // Perspective rails / curb lines intentionally define the stage-like street.
+  // Sparse perspective lines: enough to establish a walkable space, not a wireframe floor.
   segments(lines,[
-    [-7.8,.03,12,-6.2,.03,-11],
-    [7.8,.03,12,6.0,.03,-11],
-    [-12,.04,-10,12,.04,-10]
-  ],{color:P.white,width:1.7,opacity:.38});
+    [-7.7,.025,12,-6.2,.025,-10.5],
+    [7.7,.025,12,6.0,.025,-10.5]
+  ],{color:P.white,width:1.4,opacity:.30});
 
-  // Crosswalk is only a few graphic strokes.
   const cross=[];
-  for(let i=-3;i<=3;i++) cross.push([i*1.25-.5,.045,3.0,i*1.25+.35,.045,3.0]);
-  segments(lines,cross,{color:P.white,width:3.0,opacity:.62});
+  for(let i=-3;i<=3;i++) cross.push([i*1.2-.42,.035,3.1,i*1.2+.40,.035,3.1]);
+  segments(lines,cross,{color:P.gold,width:3.2,opacity:.72});
 
-  addLamp(fill,lines,glow,-6.7,4.0,6.1);
-  addLamp(fill,lines,glow,7.0,-4.5,6.5);
+  addLamp(fill,lines,glow,-6.5,4.3,6.0);
+  addLamp(fill,lines,glow,6.9,-4.7,6.4);
 
-  addFigure(fill,lines,{x:-1.8,y:.02,z:4.5,s:1.42,profile:true});
-  addFigure(fill,lines,{x:-8.2,y:.02,z:-5.6,s:.83,profile:false,flip:true});
-  addFigure(fill,lines,{x:7.7,y:.02,z:-1.5,s:.72,profile:true,flip:true});
+  addFigure(fill,lines,{x:0,y:.02,z:4.0,s:1.12,profile:true});
+  addFigure(fill,lines,{x:-8.0,y:.02,z:-5.5,s:.78,profile:false});
+  addFigure(fill,lines,{x:7.8,y:.02,z:-2.0,s:.70,profile:true,flip:true});
 
-  // Gold is a sparse symbolic language, not a general material.
-  const ring=new THREE.Mesh(new THREE.RingGeometry(3.7,3.88,96),basic(P.gold,{
-    side:THREE.DoubleSide,transparent:true,opacity:.95
+  // Large painterly reflection layer.
+  const wet=new THREE.Mesh(new THREE.PlaneGeometry(39,39),new THREE.MeshBasicMaterial({
+    map:reflectionTexture(),transparent:true,opacity:.78,depthWrite:false,toneMapped:false
   }));
-  ring.position.set(-9.6,13.5,-30);fill.add(ring);
-  const dot=new THREE.Mesh(new THREE.CircleGeometry(.34,32),basic(P.gold));
-  dot.position.set(-5.9,10.7,-29.9);fill.add(dot);
+  wet.rotation.x=-Math.PI/2;wet.position.set(0,.015,1);glow.add(wet);
 
-  // Thin gold trace on a taxi-like silhouette.
-  box(fill,[4.1,1.0,1.8],[7.0,.58,5.3],basic(P.ink),-.22);
-  rect(lines,7.0,1.05,6.22,4.0,1.1,{color:P.gold,width:2.4,opacity:.86});
-
-  addWetStreet(lines);addRain(lines);
-
-  // Localized fog/mist is sprite-based, never a solid cone.
-  const mist=new THREE.Sprite(new THREE.SpriteMaterial({
-    map:mistTexture(),transparent:true,opacity:.32,depthWrite:false
+  const ring=new THREE.Mesh(new THREE.RingGeometry(2.7,2.84,96),basic(P.gold,{
+    transparent:true,opacity:.92,side:THREE.DoubleSide
   }));
-  mist.position.set(0,1.0,1.5);mist.scale.set(22,8,1);glow.add(mist);
+  ring.position.set(-8.5,12.2,-29);fill.add(ring);
+  const dot=new THREE.Mesh(new THREE.CircleGeometry(.25,24),basic(P.gold));
+  dot.position.set(-5.85,10.1,-28.9);fill.add(dot);
+
+  addRain(lines);
 
   return {
     fill,lines,glow,
