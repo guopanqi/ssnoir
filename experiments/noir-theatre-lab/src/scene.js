@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 
 const loader = new FBXLoader();
+const CITY_URL = new URL('../assets/models/city.fbx', import.meta.url).href;
+const THEATRE_URL = new URL('../assets/models/theatre.fbx', import.meta.url).href;
+const ALLEY_URL = new URL('../assets/models/alley.fbx', import.meta.url).href;
 
 function makeMat(color, emissive = 0x000000) {
   return new THREE.MeshStandardMaterial({
@@ -37,7 +40,7 @@ function normalize(root, extent, rotationY=0) {
   root.scale.setScalar(scale);
   root.updateMatrixWorld(true);
   const b2 = new THREE.Box3().setFromObject(root);
-  const center = b2.getCenter(new THREE.Vector3());
+  const center = b2.getCenter(new THREEE.Vector3());
   root.position.x -= center.x;
   root.position.z -= center.z;
   root.position.y -= b2.min.y;
@@ -117,9 +120,9 @@ export async function buildWorld(scene, profile) {
   scene.add(roots.city, roots.alley);
 
   const [cityModel, theatreModel, alleyModel] = await Promise.all([
-    loader.loadAsync('/assets/models/city.fbx'),
-    loader.loadAsync('/assets/models/theatre.fbx'),
-    loader.loadAsync('/assets/models/alley.fbx'),
+    loader.loadAsync(CITY_URL),
+    loader.loadAsync(THEATRE_URL),
+    loader.loadAsync(ALLEY_URL),
   ]);
 
   replaceMaterials(cityModel, profile.palette, 'context');

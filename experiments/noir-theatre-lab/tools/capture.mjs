@@ -19,7 +19,7 @@ const modes=[
 
 function server(){return spawn(process.execPath,[path.join(ROOT,'node_modules/vite/bin/vite.js'),'--host','127.0.0.1','--port',String(PORT),'--strictPort'],{cwd:ROOT,stdio:['ignore','pipe','pipe']});}
 async function wait(page){
-  for(let i=0;i<80;i++){try{const r=await fetch(URL,{signal:AbortSignal.timeout(1200)});if(r.ok){await page.goto(URL,{waitUntil:'domcontentloaded',timeout:120000});await page.waitForFunction(()=>window.__noirTheatreLab?.ready===true,null,{timeout:120000});return;}}catch{} await new Promise(r=>setTimeout(r,400));}
+  for(let i=0;i<80;i++){try{const r=await fetch(URL,{signal:AbortSignal.timeout(1200)});if(r.ok){await page.goto(URL,{waitUntil:'domcontentloaded',timeout:45000});await page.waitForFunction(()=>window.__noirTheatreLab?.ready===true,null,{timeout:45000});return;}}catch{} await new Promise(r=>setTimeout(r,400));}
   throw new Error('Noir Theatre Lab server did not become ready');
 }
 function percentile(a,p){return a[Math.min(a.length-1,Math.floor((a.length-1)*p))]||0;}
@@ -45,7 +45,7 @@ try{
     for(let i=0;i<shots.length;i++){
       await page.evaluate(i=>window.__noirTheatreLab.setShot(i),i);
       const ext=mode.type==='png'?'png':'jpg';const file=path.join(dir,`${shots[i]}.${ext}`);
-      const buf=await page.screenshot({path:file,type:mode.type,quality:mode.type==='jpeg'?mode.quality:undefined,timeout:120000}); outputs[mode.name][shots[i]]=file; all[mode.name][shots[i]]=await metrics(buf);
+      const buf=await page.screenshot({path:file,type:mode.type,quality:mode.type==='jpeg'?mode.quality:undefined,timeout:45000}); outputs[mode.name][shots[i]]=file; all[mode.name][shots[i]]=await metrics(buf);
     }
   }
   const tw=420,th=236,cols=4,rows=4;
