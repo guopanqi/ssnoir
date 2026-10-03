@@ -8,7 +8,7 @@ const NoirCompositeShader = {
   uniforms: {
     tDiffuse: { value: null },
     uResolution: { value: new THREE.Vector2(1,1) },
-    uGrain: { value: 0.018 },
+    uGrain: { value: 0.013 },
     uVignette: { value: 0.32 },
     uPosterize: { value: 7.0 }
   },
@@ -49,14 +49,15 @@ const NoirCompositeShader = {
       // Sparse engraved hatching lives only in middle/dark value groups.
       // It is screen-space on purpose: the geometry stays clean while the
       // final frame inherits a consistent illustrated medium.
-      float d1 = abs(fract((gl_FragCoord.x + gl_FragCoord.y * 0.92) / 11.0) - 0.5);
-      float d2 = abs(fract((gl_FragCoord.x - gl_FragCoord.y * 0.68) / 16.0) - 0.5);
-      float hatch1 = 1.0 - smoothstep(0.035, 0.095, d1);
-      float hatch2 = 1.0 - smoothstep(0.025, 0.075, d2);
-      float midInk = smoothstep(0.12, 0.23, l) * (1.0 - smoothstep(0.39, 0.54, l));
-      float deepInk = smoothstep(0.045, 0.11, l) * (1.0 - smoothstep(0.22, 0.32, l));
+      float d1 = abs(fract((gl_FragCoord.x + gl_FragCoord.y * 0.92) / 13.0) - 0.5);
+      float d2 = abs(fract((gl_FragCoord.x - gl_FragCoord.y * 0.68) / 19.0) - 0.5);
+      float hatch1 = 1.0 - smoothstep(0.028, 0.070, d1);
+      float hatch2 = 1.0 - smoothstep(0.022, 0.060, d2);
+      float midInk = smoothstep(0.14, 0.24, l) * (1.0 - smoothstep(0.38, 0.49, l));
+      float deepInk = smoothstep(0.055, 0.12, l) * (1.0 - smoothstep(0.20, 0.29, l));
+      float patch = smoothstep(.28,.72,hash(floor(gl_FragCoord.xy/28.0)));
       float inkMask = gold ? 0.0 : 1.0;
-      c -= vec3((hatch1 * midInk * 0.034 + hatch2 * deepInk * 0.024) * inkMask);
+      c -= vec3((hatch1 * midInk * 0.014 + hatch2 * deepInk * 0.009) * patch * inkMask);
 
       vec2 p = vUv * 2.0 - 1.0;
       float vig = smoothstep(1.35, 0.30, dot(p,p));

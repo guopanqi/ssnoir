@@ -79,7 +79,7 @@ function addWindowGrid(parent, wall, matOn, matOff, {x0,y0,z,cols,rows,dx,dy,w=.
   const rand = seeded(seed);
   for (let y=0;y<rows;y++) {
     for (let x=0;x<cols;x++) {
-      const on = rand() > 0.46;
+      const on = rand() > 0.62;
       const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), on ? matOn : matOff);
       m.position.set(x0 + x*dx, y0 + y*dy, z);
       m.renderOrder = 3;
@@ -88,7 +88,7 @@ function addWindowGrid(parent, wall, matOn, matOff, {x0,y0,z,cols,rows,dx,dy,w=.
   }
 }
 
-function addLamp(root, lines, mats, x,z, height=6.8) {
+function addLamp(root, lines, mats, x,z, height=6.8, fx=root) {
   cylinder(root,lines,mats.ink,mats.lineDim,.11,height,[x,height/2,z],8);
   const arm = box(root,lines,mats.ink,mats.lineDim,[1.35,.12,.12],[x+.55,height-.18,z],{edges:true});
   arm.rotation.z = -5*DEG;
@@ -109,7 +109,7 @@ function addLamp(root, lines, mats, x,z, height=6.8) {
   );
   cone.position.set(x+1.08,height-4.4,z);
   cone.rotation.x = Math.PI;
-  root.add(cone);
+  fx.add(cone);
 }
 
 function addFigure(root, lines, mats, pos, scale=1, hat=true) {
@@ -137,7 +137,7 @@ function addFigure(root, lines, mats, pos, scale=1, hat=true) {
     const mesh=new THREE.Mesh(geo,material);
     mesh.castShadow=true;
     g.add(mesh);
-    addEdges(mesh,lineRoot,edgeMaterial,30);
+    if(edgeMaterial) addEdges(mesh,lineRoot,edgeMaterial,30);
     return mesh;
   }
 
@@ -152,18 +152,22 @@ function addFigure(root, lines, mats, pos, scale=1, hat=true) {
   // restrained lapel breaks the coat mass without turning it into costume detail.
   shapeMesh([
     [-.24,2.72],[-.03,2.36],[-.10,1.92],[-.34,2.51]
-  ],mats.charcoal,.205,-.102,mats.lineDim);
+  ],mats.ink,.205,-.102,mats.lineDim);
 
   shapeMesh([
     [.24,2.72],[.03,2.36],[.12,2.00],[.36,2.50]
-  ],mats.charcoal,.205,-.102,mats.lineDim);
+  ],mats.ink,.205,-.102,mats.lineDim);
 
   const face=shapeMesh([
     [-.17,2.92],[-.25,3.04],[-.25,3.20],[-.20,3.35],
     [-.10,3.47],[.04,3.53],[.16,3.48],[.22,3.39],
     [.24,3.33],[.38,3.28],[.28,3.23],[.29,3.15],
     [.22,3.06],[.12,2.98],[.02,2.91]
-  ],mats.paper,.18,-.09,mats.lineDim);
+  ],mats.face,.18,-.09,mats.lineDim);
+
+  shapeMesh([
+    [.10,3.42],[.22,3.38],[.38,3.28],[.24,3.22],[.12,3.27]
+  ],mats.paper,.185,-.092,null);
 
   if(hat){
     const brim=new THREE.Mesh(new THREE.BoxGeometry(.98,.075,.24),mats.ink);
@@ -223,7 +227,8 @@ export function buildWorld(scene, palette) {
     ink: toon(palette.ink),
     charcoal: toon(palette.charcoal),
     mid: toon(palette.mid),
-    stone: toon(0x424441),
+    stone: toon(0x383a38),
+    face: toon(0x77736b),
     paper: toon(palette.paper),
     white: toon(palette.white),
     gold: toon(palette.gold),
@@ -234,7 +239,8 @@ export function buildWorld(scene, palette) {
     windowOff: unlit(0x101214),
     windowOn: unlit(0xd9d2c0),
     windowGold: unlit(palette.gold),
-    rain: line(0xc8c5bd,.13)
+    roadMark: unlit(0xb7b2a7),
+    rain: line(0xc8c5bd,.105)
   };
 
   // Ground and streets: a tilted intersection, not a sterile grid.
@@ -247,17 +253,33 @@ export function buildWorld(scene, palette) {
   box(fill,lines,mats.mid,mats.lineDim,[22,.36,36],[16,.12,-6],{rotY:6*DEG,threshold:42});
   box(fill,lines,mats.mid,mats.lineDim,[21,.36,13],[-17,.12,20],{rotY:6*DEG,threshold:42});
 
-  // Gold moon / graphic disc anchors the negative space.
-  const moon = discBillboard(atmosphere,unlit(0xd5a62f),5.8,[-10,15,-30]);
-  moon.rotation.y = 0;
+  // A thin gold celestial ring: a motif, not the focal mass.
+  const moon = new THREE.Mesh(
+    new THREE.RingGeometry(4.0,4.34,80),
+    unlit(0xd8a72c,{side:THREE.DoubleSide})
+  );
+  moon.position.set(-9.0,18.2,-34);
+  atmosphere.add(moon);
+
+  const moonDot = new THREE.Mesh(
+    new THREE.CircleGeometry(.42,32),
+    unlit(0xd8a72c)
+  );
+  moonDot.position.set(-5.6,15.3,-33.9);
+  atmosphere.add(moonDot);
 
   // Theatre block.
   box(fill,lines,mats.charcoal,mats.lineBright,[15,11,9],[-17,5.7,-8],{rotY:-4*DEG});
   box(fill,lines,mats.charcoal,mats.lineDim,[13.2,3.2,2.0],[-15.8,4.1,-2.6],{rotY:-4*DEG});
   box(fill,lines,mats.paper,mats.lineBright,[11.8,.42,2.6],[-15.3,5.9,-1.7],{rotY:-4*DEG});
   for(let i=0;i<5;i++){
-    box(fill,lines,mats.mid,mats.lineDim,[.6,8.2,.45],[-22.8+i*3.05,6.2,-3.25],{rotY:-4*DEG,threshold:48});
+    const finH = (i===2 ? 9.4 : (i===1 || i===3 ? 8.8 : 8.2));
+    box(fill,lines,mats.mid,mats.lineDim,[.48,finH,.42],[-22.8+i*3.05,5.9+finH*.04,-3.25],{rotY:-4*DEG,threshold:48});
   }
+
+  box(fill,lines,mats.ink,mats.lineBright,[7.2,1.0,.8],[-16.0,11.0,-3.55],{rotY:-4*DEG});
+  box(fill,lines,mats.charcoal,mats.lineDim,[4.8,.8,.65],[-16.0,11.85,-3.62],{rotY:-4*DEG});
+  box(fill,lines,mats.ink,mats.lineDim,[2.4,.65,.55],[-16.0,12.55,-3.68],{rotY:-4*DEG});
 
   const facadeWash = new THREE.Mesh(
     new THREE.PlaneGeometry(12.7,4.8),
@@ -275,13 +297,39 @@ export function buildWorld(scene, palette) {
   sign.rotation.y = -4*DEG;
   fill.add(sign);
 
-  // Theatre lit doors.
+  // Theatre doors: mostly black glass with thin illuminated frames.
   for(let i=0;i<4;i++){
-    const door=new THREE.Mesh(new THREE.PlaneGeometry(1.55,2.9), i===1 ? mats.windowGold : mats.windowOn);
-    door.position.set(-19.7+i*2.6,2.0,-2.52);
+    const x=-19.7+i*2.6;
+    const door=new THREE.Mesh(new THREE.PlaneGeometry(1.52,2.85),mats.windowOff);
+    door.position.set(x,2.0,-2.52);
     door.rotation.y=-4*DEG;
     fill.add(door);
+    addEdges(door,lines,i===1?mats.lineGold:mats.lineBright,22);
+
+    const slit=new THREE.Mesh(
+      new THREE.PlaneGeometry(i===1?.22:.10,2.22),
+      i===1?mats.windowGold:mats.windowOn
+    );
+    slit.position.set(x+.03,2.0,-2.50);
+    slit.rotation.y=-4*DEG;
+    fill.add(slit);
   }
+
+  // Small marquee bulbs create a theatre rhythm without neon bloom.
+  for(let i=0;i<8;i++){
+    const bulb=new THREE.Mesh(new THREE.SphereGeometry(.075,8,6),mats.windowGold);
+    bulb.position.set(-20.0+i*1.34,5.63,-.34);
+    fill.add(bulb);
+  }
+
+  const bladeTex=makeSign('N','#d8a72c');
+  const blade=new THREE.Mesh(
+    new THREE.PlaneGeometry(1.25,3.25),
+    new THREE.MeshBasicMaterial({map:bladeTex,transparent:true,toneMapped:false})
+  );
+  blade.position.set(-23.75,7.65,-2.72);
+  blade.rotation.y=-4*DEG;
+  fill.add(blade);
 
   // Office tower with setbacks: large clean shapes first.
   box(fill,lines,mats.stone,mats.lineBright,[16,20,13],[17,10,-13],{rotY:3*DEG});
@@ -289,7 +337,7 @@ export function buildWorld(scene, palette) {
   box(fill,lines,mats.charcoal,mats.lineDim,[7,6,8],[19,29.5,-14],{rotY:3*DEG});
 
   addWindowGrid(fill,null,mats.windowOn,mats.windowOff,{
-    x0:10.4,y0:2.6,z:-6.14,cols:6,rows:8,dx:2.35,dy:2.05,w:.78,h:1.02,seed:84
+    x0:10.7,y0:2.7,z:-6.14,cols:6,rows:8,dx:2.25,dy:2.05,w:.48,h:.82,seed:84
   });
 
   // Low storefronts closing the rear street.
@@ -300,6 +348,21 @@ export function buildWorld(scene, palette) {
     const window=new THREE.Mesh(new THREE.PlaneGeometry(3.8,1.5),i===2?mats.windowGold:mats.windowOff);
     window.position.set(x,2.0,-17.45+i*.7);
     fill.add(window);
+  }
+
+  // Water tower: a small period silhouette visible against negative sky.
+  cylinder(fill,lines,mats.ink,mats.lineDim,1.18,1.65,[-3.8,9.0,-23.6],10);
+  const waterRoof=new THREE.Mesh(new THREE.ConeGeometry(1.34,.72,10),mats.ink);
+  waterRoof.position.set(-3.8,10.18,-23.6);
+  waterRoof.castShadow=true;
+  fill.add(waterRoof);
+  addEdges(waterRoof,lines,mats.lineDim,24);
+  for(const sx of [-.72,.72]){
+    for(const sz of [-.62,.62]){
+      const leg=new THREE.Mesh(new THREE.BoxGeometry(.09,2.7,.09),mats.ink);
+      leg.position.set(-3.8+sx,7.15,-23.6+sz);
+      fill.add(leg);
+    }
   }
 
   // Fire escape / structural drawing in the alley.
@@ -314,17 +377,34 @@ export function buildWorld(scene, palette) {
     }
   }
 
-  // Crosswalk: bright graphic rhythm.
-  for(let i=-3;i<=3;i++){
-    const stripe=new THREE.Mesh(new THREE.PlaneGeometry(1.0,6.4),mats.paper);
+  // Crosswalk: a broken rhythm, subordinate to the theatre light.
+  for(let i=-2;i<=2;i++){
+    const stripe=new THREE.Mesh(new THREE.PlaneGeometry(.72,5.15),mats.roadMark);
     stripe.rotation.x=-Math.PI/2;
     stripe.rotation.z=8*DEG;
-    stripe.position.set(-2+i*1.75,.065,7.3+i*.18);
+    stripe.position.set(-2+i*1.62,.065,7.25+i*.18);
     fill.add(stripe);
   }
 
-  addLamp(fill,lines,mats,-5,10,7.1);
-  addLamp(fill,lines,mats,8,-2,6.4);
+  addLamp(fill,lines,mats,-5,10,7.1,atmosphere);
+  addLamp(fill,lines,mats,8,-2,6.4,atmosphere);
+
+  const stageShape=new THREE.Shape();
+  stageShape.moveTo(-20.5,-1.1);
+  stageShape.lineTo(-10.8,-1.1);
+  stageShape.lineTo(5.0,15.0);
+  stageShape.lineTo(-9.0,17.5);
+  stageShape.closePath();
+  const stageWash=new THREE.Mesh(
+    new THREE.ShapeGeometry(stageShape),
+    new THREE.MeshBasicMaterial({
+      color:0xd8cfb8,transparent:true,opacity:.075,
+      depthWrite:false,toneMapped:false,side:THREE.DoubleSide
+    })
+  );
+  stageWash.rotation.x=-Math.PI/2;
+  stageWash.position.y=.078;
+  atmosphere.add(stageWash);
 
   const lightPool = new THREE.Mesh(
     new THREE.CircleGeometry(7.4,64),
