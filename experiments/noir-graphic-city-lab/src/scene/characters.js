@@ -57,9 +57,15 @@ function heroShapes(pose) {
     [0.13, 0.10],
   ]));
 
-  shapes.push(rectangle(0.055, 3.17, 0.18, 0.34));
-  shapes.push(ellipse(0.07, 3.47, 0.26, 0.32));
-  shapes.push(rectangle(0.08, 3.76, 0.94, 0.065));
+  shapes.push(rectangle(0.02, 3.17, 0.17, 0.34));
+  // Profile head with a small brow/nose/chin break, closer to drawn noir
+  // character language than a perfect circle.
+  shapes.push(polygon([
+    [-0.21,3.22],[-0.27,3.36],[-0.25,3.55],[-0.17,3.69],
+    [0.02,3.78],[0.18,3.70],[0.24,3.58],[0.34,3.53],
+    [0.27,3.46],[0.24,3.31],[0.14,3.19],[-0.05,3.14],
+  ]));
+  shapes.push(rectangle(0.08, 3.77, 0.96, 0.062));
   shapes.push(polygon([
     [-0.22, 3.77], [-0.16, 4.12], [0.31, 4.12], [0.39, 3.77],
   ]));

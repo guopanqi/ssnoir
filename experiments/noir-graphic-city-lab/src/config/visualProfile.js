@@ -1,9 +1,9 @@
 export const PROFILE = Object.freeze({
   palette: Object.freeze({
     background: 0x0a1020,
-    surface: 0x1e2a40,
-    surfaceLift: 0x2d3b55,
-    surfaceMid: 0x45556f,
+    surface: 0x26344b,
+    surfaceLift: 0x35455f,
+    surfaceMid: 0x50617a,
     line: 0xe8e5dc,
     lineDim: 0xb8bec8,
     white: 0xf8f6eb,

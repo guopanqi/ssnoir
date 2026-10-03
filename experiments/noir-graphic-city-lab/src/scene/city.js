@@ -153,6 +153,21 @@ function makeSurfaceTexture(seed = 1337) {
   return texture;
 }
 
+function addWindowGridSide({ parent, x, y, z, cols, rows, dz, dy, w, h, material, face = 'left', off=()=>false }) {
+  const group=new THREE.Group();
+  for(let iy=0;iy<rows;iy++){
+    for(let iz=0;iz<cols;iz++){
+      if(off(iz,iy)) continue;
+      const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),material);
+      m.position.set(x,y+iy*dy,z+(iz-(cols-1)/2)*dz);
+      m.rotation.y=face==='left'?-Math.PI/2:Math.PI/2;
+      group.add(m);
+    }
+  }
+  parent.add(group);
+  return group;
+}
+
 function makeTextTexture(text) {
   const canvas=document.createElement('canvas');
   canvas.width=768;
@@ -268,6 +283,11 @@ function addOfficeTower(groups,materials) {
     cols:6,rows:10,dx:1.45,dy:2.35,w:.48,h:.72,material:materials.windowDim,
     off:(x,y)=>((x*5+y*9)%11===0),
   });
+  addWindowGridSide({
+    parent:groups.emissive,x:-24.96,y:2.5,z:-18,
+    cols:4,rows:10,dz:1.65,dy:2.35,w:.48,h:.72,material:materials.windowDim,
+    face:'right',off:(x,y)=>((x*3+y*7)%9===0),
+  });
 
   // Structural facade drawing.
   for (let i=0;i<=11;i++) {
@@ -343,6 +363,16 @@ function addRightArchitecture(groups,materials) {
     parent:groups.solids,lines:groups.edges,materials,
     x:19,y:5,z:10,w:12,h:10,d:17,tone:'surfaceLift',edge:'primary',
   });
+
+  // Bright horizontal windows on the left-facing wall break the large dark
+  // mass into a recognisable urban facade.
+  for(const [y,z,w] of [[3.2,4.0,4.6],[5.6,9.0,5.4],[7.7,14.2,4.0]]){
+    const win=new THREE.Mesh(new THREE.PlaneGeometry(w,.62),materials.windowBand);
+    win.position.set(12.97,y,z);
+    win.rotation.y=-Math.PI/2;
+    groups.emissive.add(win);
+  }
+  addStroke(groups.strokes,materials.strokePrimary,[[12.93,1.0,1.0],[12.93,9.0,1.0],[12.93,9.0,18.0]]);
 
   // Intentional facade linework and balcony.
   for (let y=1.4;y<13;y+=2.2) {
@@ -427,7 +457,7 @@ function addGround(groups,materials) {
 
   // A foreground curb and rail to frame the shot.
   addStroke(groups.strokes,materials.strokePrimary,[[-14,.15,31],[-12.5,.35,22],[-11.8,.35,12]]);
-  for(let z=13;z<30;z+=3.4){
+  for(let z=13;z<30;z+=5.6){
     addStroke(groups.strokes,materials.strokeDim,[[-12.2,.2,z],[-12.2,1.6,z]]);
   }
   addStroke(groups.strokes,materials.strokePrimary,[[-12.2,1.6,12],[-12.2,1.6,30]]);
@@ -477,15 +507,17 @@ function addGround(groups,materials) {
   geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
   groups.edges.add(new THREE.LineSegments(geo,materials.foliageLine));
 
-  // A brighter foreground grass bank, inspired by the reference's lit curb
-  // vegetation. It is concentrated, not a full-frame scribble.
+  // Brighter foreground grass in three clumps rather than an even fence.
   const foreground=[];
-  for(let i=0;i<95;i++){
-    const x=-12.8+rand()*3.5;
-    const z=12+rand()*22;
-    const h=.45+rand()*1.25;
-    const lean=(rand()-.5)*.38;
-    foreground.push(x,.04,z,x+lean,h,z+(rand()-.5)*.20);
+  const clumps=[[-12.2,15.5],[-11.3,22.0],[-12.4,28.5]];
+  for(const [cx,cz] of clumps){
+    for(let i=0;i<34;i++){
+      const x=cx+(rand()-.5)*1.8;
+      const z=cz+(rand()-.5)*3.4;
+      const h=.38+rand()*1.28;
+      const lean=(rand()-.5)*.62;
+      foreground.push(x,.04,z,x+lean,h,z+(rand()-.5)*.28);
+    }
   }
   const foregroundGeo=new THREE.BufferGeometry();
   foregroundGeo.setAttribute('position',new THREE.Float32BufferAttribute(foreground,3));
@@ -548,6 +580,12 @@ function addAtmosphere(groups,materials) {
   pool.scale.set(1.45,.62,1);
   pool.position.set(target.x,.04,target.z);
   groups.atmosphere.add(pool);
+
+  const streetGlow=new THREE.Mesh(new THREE.CircleGeometry(8.0,64),materials.streetGlow);
+  streetGlow.rotation.x=-Math.PI/2;
+  streetGlow.scale.set(1.55,.72,1);
+  streetGlow.position.set(-4.8,.029,15.5);
+  groups.atmosphere.add(streetGlow);
 }
 
 function addCast(groups,materials,outlineTargets) {
@@ -603,18 +641,22 @@ export function buildWorld(scene,profile){
     strokeDim:strokeMaterial(profile.palette.lineDim,.62,.76),
     white:meshMat(profile.palette.white),
     window:meshMat(profile.palette.white),
-    windowDim:meshMat(0xaeb6c2),
+    windowDim:meshMat(0xb8c0cb),
+    windowBand:meshMat(0xd4d5d0),
     windowDark:meshMat(0x8f9aab),
     door:meshMat(0x344157),
     sideSign:meshMat(0x9da4ad),
     reflection:meshMat(profile.palette.lineDim,{transparent:true,opacity:.1,depthWrite:false}),
-    wetWash:meshMat(0x8b96a8,{transparent:true,opacity:.085,depthWrite:false,side:THREE.DoubleSide}),
+    wetWash:meshMat(0x99a5b5,{transparent:true,opacity:.12,depthWrite:false,side:THREE.DoubleSide}),
     hazeDisc:meshMat(0xc5c9d0,{transparent:true,opacity:.31,depthWrite:false,side:THREE.DoubleSide}),
     beam:meshMat(profile.palette.white,{
       transparent:true,opacity:.026,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,
     }),
     pool:meshMat(profile.palette.white,{
       transparent:true,opacity:.075,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,
+    }),
+    streetGlow:meshMat(0xaeb7c4,{
+      transparent:true,opacity:.075,side:THREE.DoubleSide,depthWrite:false,
     }),
   };
 
