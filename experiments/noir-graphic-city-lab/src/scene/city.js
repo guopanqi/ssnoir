@@ -106,12 +106,12 @@ function addTenements({ groups, mats }) {
     const b = addBuilding({ groups,mats,x,z,w,h,d,facadeIndex:1,line:i===2 });
     addWindowGrid({ parent:b, facade:'-x', countX:3, countY:4, width:0.8, height:1.1, mats, groups, sparse:true });
     if (i === 1) {
-      const storefront = new THREE.Mesh(new THREE.PlaneGeometry(d * 0.78, 6.2), mats.paperDim);
-      storefront.position.set(-w / 2 - 0.025, 3.55, 0.2);
+      const storefront = new THREE.Mesh(new THREE.PlaneGeometry(d * 0.94, 7.2), mats.paperDim);
+      storefront.position.set(-w / 2 - 0.025, 3.75, 0.2);
       storefront.rotation.y = -Math.PI / 2;
       b.add(storefront);
 
-      const header = new THREE.Mesh(new THREE.PlaneGeometry(d * 0.67, 0.52), mats.ink);
+      const header = new THREE.Mesh(new THREE.PlaneGeometry(d * 0.82, 0.52), mats.ink);
       header.position.set(-w / 2 - 0.035, 5.85, 0.2);
       header.rotation.y = -Math.PI / 2;
       b.add(header);
@@ -214,10 +214,11 @@ function addCast({ groups, mats }) {
     name:'Dock bruiser', position:[-5.8,0,25], yaw:Math.PI*0.94, scale:1.16, pose:'walking', role:'crowd', mats, groups,
   });
 
+  // Arranged along the camera-to-shopfront sightline so silhouettes read as one graphic procession.
   const crowd = [
-    [-2.8, 29.2, .88, 3.05], [1.0, 27.6, .82, 3.18], [4.4, 26.0, 1.00, 2.96],
-    [6.5, 23.9, .94, 3.10], [3.2, 22.3, .86, 3.02], [6.8, 20.5, .82, 3.18],
-    [1.8, 19.2, .78, 3.28], [5.0, 17.8, .84, 3.00],
+    [-4.2, 30.0, .90, 3.05], [-2.3, 27.7, .84, 3.18], [-0.2, 25.6, 1.00, 2.96],
+    [1.0, 23.6, .94, 3.10], [3.0, 21.8, .88, 3.02], [4.1, 20.1, .82, 3.18],
+    [5.6, 18.8, .80, 3.28], [4.7, 17.5, .86, 3.00],
   ];
   crowd.forEach(([x,z,s,yaw], i) => createCharacter({
     name:`Crowd ${i+1}`, position:[x,0,z], yaw, scale:s,

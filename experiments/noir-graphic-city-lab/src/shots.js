@@ -18,9 +18,9 @@ export const SHOTS = Object.freeze([
   Object.freeze({
     id: '03-alley-confrontation',
     name: '03 · ALLEY CONFRONTATION',
-    position: [-5.8, 3.1, 20.0],
-    target: [0.0, 2.7, 10.3],
-    fov: 38,
+    position: [0.0, 3.35, 23.5],
+    target: [0.0, 2.85, 10.6],
+    fov: 31,
     purpose: '中近景双人交锋；测试人物是否靠背景明暗切割、帽檐/裙摆和少量实体标记成立，而不是靠全身描边。',
   }),
   Object.freeze({
