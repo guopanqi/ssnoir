@@ -51,3 +51,7 @@
 - 四个固定镜头。
 
 这仍是“基线”，不是经过验证的最终画风。下一阶段先研究 Shape，不继续叠加新效果。
+
+## Iteration 01 — Shape baseline review
+
+状态：等待自动 benchmark 截图。第一轮只根据实际 `shape` / `final` 固定镜头判断，不预设改法。
