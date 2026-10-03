@@ -252,7 +252,6 @@ function createSkyline(materials) {
     group.add(tower);
   }
 
-  setLayerRecursive(group, RENDER_LAYERS.CONTEXT);
   return group;
 }
 

@@ -90,8 +90,29 @@ async function waitForServer(page, attempts = 60) {
 
   if (!available) throw new Error('Noir Engraving Lab dev server did not start.');
 
+  let startupError = null;
+  const rememberStartupError = (error) => { startupError = error; };
+  page.on('pageerror', rememberStartupError);
+
   await page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 120_000 });
-  await page.waitForFunction(() => window.__noirLab?.ready === true, null, { timeout: 120_000 });
+
+  for (let i = 0; i < 240; i++) {
+    if (startupError) {
+      page.off('pageerror', rememberStartupError);
+      throw startupError;
+    }
+
+    const ready = await page.evaluate(() => window.__noirLab?.ready === true).catch(() => false);
+    if (ready) {
+      page.off('pageerror', rememberStartupError);
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  page.off('pageerror', rememberStartupError);
+  throw new Error('Noir Engraving Lab page did not become ready.');
 }
 
 await rm(OUT, { recursive: true, force: true });
