@@ -90,3 +90,25 @@
 **预期**
 
 Shot 01 应第一眼读到剧院；Shot 03 应能从街道看进一个被两侧建筑夹住的黑暗缺口；Shot 04 应出现明确的 landmark hierarchy。
+
+
+### 2026-10-03 — Iteration 01B / Landmark silhouette
+
+**01A 实际结果**
+
+- Shot 01：相比基线，剧院竖牌与主街纵深已可读，前景不再完全堵死；但剧院本体仍像普通矩形体块。
+- Shot 02：仓库成为明确的工业地标，街墙关系明显优于基线。
+- Shot 03：后巷现在是一个真实、清楚的黑暗缺口，Shape 层目标基本成立。
+- Shot 04：整体街区层级改善，但剧院高体量仍与 generic block 过于相似。
+- Shape 黑像素比例从旧基线约 90%+ 改善为：Shot01 83%、Shot02 74%、Shot03 68%、Shot04 52%。构图信息已经明显增加，不需要靠 Print 才能读空间。
+
+**01B 变量**
+
+仍只修改 Shape / Camera：
+
+- 给剧院 stage house 增加三层递减的 Art-Deco 式 crown 与顶端 finial；
+- 增加低矮 entrance mass，让 marquee 在几何上有支撑；
+- Shot 01 更靠近剧院，减少“远处一个红牌”的感觉；
+- Shot 04 稍降低并重新瞄准剧院，使 skyline identity 成为测试重点。
+
+不修改灯光强度、Bloom、雾、Dither、描线算法。
