@@ -1,5 +1,6 @@
 export const RENDER_LAYERS = Object.freeze({
   DEFAULT: 0,
+  CONTEXT: 1,
   WAREHOUSE: 2,
   ALLEY: 3,
 });

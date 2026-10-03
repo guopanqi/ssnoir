@@ -24,17 +24,22 @@ export function createLighting(scene, profile, lampPositions) {
   key.shadow.camera.bottom = -48;
   key.shadow.camera.near = 1;
   key.shadow.camera.far = 120;
+  // Context buildings do not receive this key, but they may still occlude it.
+  key.shadow.camera.layers.enable(RENDER_LAYERS.CONTEXT);
   group.add(key);
 
   const fill = new THREE.DirectionalLight(cfg.fillColor, cfg.fillIntensity);
   fill.position.fromArray(cfg.fillPosition);
+  fill.layers.enable(RENDER_LAYERS.CONTEXT);
   group.add(fill);
 
-  group.add(new THREE.HemisphereLight(
+  const ambient = new THREE.HemisphereLight(
     cfg.ambientSky,
     cfg.ambientGround,
     cfg.ambientIntensity,
-  ));
+  );
+  ambient.layers.enable(RENDER_LAYERS.CONTEXT);
+  group.add(ambient);
 
   const coneMaterial = new THREE.MeshBasicMaterial({
     color: p.warm,

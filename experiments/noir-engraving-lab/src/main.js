@@ -35,6 +35,7 @@ const camera = new THREE.PerspectiveCamera(
   PROFILE.camera.far,
 );
 
+camera.layers.enable(RENDER_LAYERS.CONTEXT);
 camera.layers.enable(RENDER_LAYERS.WAREHOUSE);
 camera.layers.enable(RENDER_LAYERS.ALLEY);
 

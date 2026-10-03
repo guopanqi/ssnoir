@@ -152,6 +152,9 @@ function createStreetRow(outlines, materials, {
     }
   });
 
+  // Context geometry is visible to the camera and weak fill, but deliberately
+  // excluded from the hero key. Emissive windows remain visible on this layer.
+  setLayerRecursive(group, RENDER_LAYERS.CONTEXT);
   return group;
 }
 
@@ -171,6 +174,7 @@ function createFireEscape(outlines, materials, x, z) {
     );
   }
 
+  setLayerRecursive(group, RENDER_LAYERS.CONTEXT);
   return group;
 }
 
@@ -255,6 +259,7 @@ function createSkyline(materials) {
     group.add(tower);
   }
 
+  setLayerRecursive(group, RENDER_LAYERS.CONTEXT);
   return group;
 }
 
