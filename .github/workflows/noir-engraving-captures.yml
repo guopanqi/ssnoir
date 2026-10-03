@@ -1,13 +1,15 @@
 name: Noir Engraving Captures
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'experiments/noir-engraving-lab/**'
+      - '.github/workflows/noir-engraving-captures.yml'
   push:
     branches: [main]
     paths:
-      - 'experiments/noir-engraving-lab/index.html'
-      - 'experiments/noir-engraving-lab/package.json'
-      - 'experiments/noir-engraving-lab/src/**'
-      - 'experiments/noir-engraving-lab/tools/**'
+      - 'experiments/noir-engraving-lab/**'
       - '.github/workflows/noir-engraving-captures.yml'
 
 permissions:
@@ -39,7 +41,15 @@ jobs:
 
       - run: npm run capture
 
+      - name: Upload benchmark captures
+        uses: actions/upload-artifact@v4
+        with:
+          name: noir-engraving-captures
+          path: experiments/noir-engraving-lab/captures/latest
+          if-no-files-found: error
+
       - name: Commit latest benchmark captures
+        if: github.event_name == 'push'
         working-directory: .
         run: |
           git config user.name "github-actions[bot]"
