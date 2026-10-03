@@ -97,7 +97,11 @@ server.stderr.on('data', (d) => { serverLog += d.toString(); });
 let browser;
 
 try {
-  browser = await chromium.launch({ headless: true });
+  browser = await chromium.launch({
+    headless: true,
+    executablePath: process.env.CHROME_PATH || undefined,
+    args: process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : [],
+  });
   const page = await browser.newPage({ viewport: VIEWPORT, deviceScaleFactor: 1 });
   page.on('pageerror', (error) => process.stderr.write(`[browser:error] ${error.stack ?? error}\n`));
   await waitForServer(page);
@@ -131,6 +135,62 @@ try {
   }
 
   const info = await page.evaluate(() => window.__noirLab.info());
+
+  const thumbW = 520;
+  const thumbH = 292;
+  const contact = sharp({
+    create: {
+      width: thumbW * modes.length,
+      height: thumbH * shots.length,
+      channels: 3,
+      background: { r: 6, g: 8, b: 12 },
+    },
+  });
+
+  const composites = [];
+  for (let col = 0; col < modes.length; col++) {
+    for (let row = 0; row < shots.length; row++) {
+      const mode = modes[col];
+      const [shotName] = shots[row];
+      const file = path.join(OUT, mode, `${shotName}.png`);
+      const label = `${mode.toUpperCase()} · ${shotName}`;
+      const svg = Buffer.from(
+        `<svg width="${thumbW}" height="${thumbH}" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="310" height="28" fill="rgba(0,0,0,.78)"/>
+          <text x="9" y="19" fill="white" font-size="13" font-family="Arial, sans-serif">${label}</text>
+        </svg>`
+      );
+      const input = await sharp(file)
+        .resize(thumbW, thumbH, { fit: 'cover' })
+        .composite([{ input: svg, top: 0, left: 0 }])
+        .jpeg({ quality: 88 })
+        .toBuffer();
+
+      composites.push({
+        input,
+        left: col * thumbW,
+        top: row * thumbH,
+      });
+    }
+  }
+  await contact.composite(composites).jpeg({ quality: 90 }).toFile(path.join(OUT, 'contact-sheet.jpg'));
+
+  const report = [
+    '# Noir Engraving capture report',
+    '',
+    '| mode | shot | mean | p50 | p90 | p95 | p99 | black<2% | bright>20% |',
+    '|---|---|---:|---:|---:|---:|---:|---:|---:|',
+  ];
+  for (const mode of modes) {
+    for (const [shotName] of shots) {
+      const m = metrics[mode][shotName];
+      report.push(
+        `| ${mode} | ${shotName} | ${m.mean.toFixed(3)} | ${m.p50.toFixed(3)} | ${m.p90.toFixed(3)} | ${m.p95.toFixed(3)} | ${m.p99.toFixed(3)} | ${(m.blackUnder02 * 100).toFixed(1)}% | ${(m.brightOver20 * 100).toFixed(1)}% |`
+      );
+    }
+  }
+  await writeFile(path.join(OUT, 'report.md'), report.join('\n') + '\n');
+
   await writeFile(
     path.join(OUT, 'manifest.json'),
     JSON.stringify({

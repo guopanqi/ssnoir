@@ -12,24 +12,35 @@ export function createAtmosphere(scene, profile) {
   group.name = 'Atmosphere';
   scene.add(group);
 
-  const positions = new Float32Array(cfg.rainCount * 3);
+  const positions = new Float32Array(cfg.rainCount * 6);
   const speeds = new Float32Array(cfg.rainCount);
 
-  for (let i = 0; i < cfg.rainCount; i++) {
-    positions[i * 3] = (random() - 0.5) * 125;
-    positions[i * 3 + 1] = 3 + random() * 34;
-    positions[i * 3 + 2] = (random() - 0.5) * 75;
+  function resetDrop(i, initial = false) {
+    const x = (random() - 0.5) * 125;
+    const y = initial ? 2 + random() * 35 : 27 + random() * 12;
+    const z = (random() - 0.5) * 75;
+    const length = cfg.rainLength * (0.55 + random() * 0.75);
+    const base = i * 6;
+
+    positions[base] = x;
+    positions[base + 1] = y;
+    positions[base + 2] = z;
+    positions[base + 3] = x - length * 0.20;
+    positions[base + 4] = y - length;
+    positions[base + 5] = z + length * 0.05;
+
     speeds[i] = 12 + random() * 16;
   }
+
+  for (let i = 0; i < cfg.rainCount; i++) resetDrop(i, true);
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-  const rain = new THREE.Points(
+  const rain = new THREE.LineSegments(
     geometry,
-    new THREE.PointsMaterial({
-      color: 0xb9cce0,
-      size: cfg.rainSize,
+    new THREE.LineBasicMaterial({
+      color: 0xaabbd0,
       transparent: true,
       opacity: cfg.rainOpacity,
       depthWrite: false,
@@ -44,14 +55,16 @@ export function createAtmosphere(scene, profile) {
 
     const p = geometry.attributes.position.array;
     for (let i = 0; i < cfg.rainCount; i++) {
-      p[i * 3 + 1] -= speeds[i] * dt;
-      p[i * 3] -= 2.8 * dt;
+      const base = i * 6;
+      const fall = speeds[i] * dt;
+      const drift = fall * 0.20;
 
-      if (p[i * 3 + 1] < 0.15) {
-        p[i * 3 + 1] = 25 + random() * 15;
-        p[i * 3] = (random() - 0.5) * 125;
-        p[i * 3 + 2] = (random() - 0.5) * 75;
-      }
+      p[base] -= drift;
+      p[base + 1] -= fall;
+      p[base + 3] -= drift;
+      p[base + 4] -= fall;
+
+      if (p[base + 4] < 0.15) resetDrop(i, false);
     }
 
     geometry.attributes.position.needsUpdate = true;

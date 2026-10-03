@@ -26,10 +26,10 @@ export const PROFILE = Object.freeze({
   }),
 
   atmosphere: Object.freeze({
-    fogDensity: 0.013,
-    rainCount: 1500,
-    rainOpacity: 0.32,
-    rainSize: 0.045,
+    fogDensity: 0.011,
+    rainCount: 720,
+    rainOpacity: 0.18,
+    rainLength: 0.72,
   }),
 
   lighting: Object.freeze({
@@ -49,7 +49,7 @@ export const PROFILE = Object.freeze({
 
   print: Object.freeze({
     levels: 6,
-    dither: 0.30,
+    dither: 0.18,
     ditherScale: 1.0,
     inBlack: 0.006,
     inWhite: 0.34,

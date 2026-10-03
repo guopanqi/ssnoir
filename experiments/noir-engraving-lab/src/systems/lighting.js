@@ -42,11 +42,28 @@ export function createLighting(scene, profile, lampPositions) {
     side: THREE.DoubleSide,
   });
 
-  // 后巷只用一盏很弱的冷色侧光把一侧墙面从黑里切出来。
-  const alleyRim = new THREE.PointLight(0x6f8fb8, 7.0, 15, 2.0);
-  alleyRim.position.set(-26.5, 4.0, 19.0);
+  const warehouseSearch = new THREE.SpotLight(
+    0x91b7e5,
+    260,
+    58,
+    Math.PI * 0.15,
+    0.38,
+    1.35,
+  );
+  warehouseSearch.position.set(11, 13, -4);
+  warehouseSearch.target.position.set(30, 3.0, 18.5);
+  warehouseSearch.castShadow = false;
+  group.add(warehouseSearch, warehouseSearch.target);
+
+  const alleyRim = new THREE.PointLight(0x6f8fb8, 28, 14, 1.55);
+  alleyRim.position.set(-24.8, 5.2, 21.5);
   alleyRim.castShadow = false;
   group.add(alleyRim);
+
+  const alleyDoor = new THREE.PointLight(0xe6c27a, 22, 8.5, 1.45);
+  alleyDoor.position.set(-20.45, 2.1, 36.7);
+  alleyDoor.castShadow = false;
+  group.add(alleyDoor);
 
   for (const position of lampPositions) {
     const light = new THREE.PointLight(

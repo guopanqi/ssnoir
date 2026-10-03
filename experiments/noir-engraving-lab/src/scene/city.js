@@ -39,13 +39,23 @@ function createTheater(outlines, materials) {
   sign.castShadow = false;
   group.add(sign);
 
+  const entrance = box(9.6, 3.1, 0.30, materials.ground, 0, 0.15, -13.78);
+  entrance.castShadow = false;
+  group.add(entrance);
+
+  for (const x of [-2.7, 0, 2.7]) {
+    const door = box(0.72, 2.25, 0.12, materials.warm, x, 0.25, -13.58);
+    door.castShadow = false;
+    group.add(door);
+  }
+
   addWindowStrip(group, materials, {
     x: 0,
-    y: 4.7,
+    y: 5.8,
     z: facadeZ(side),
-    count: 9,
-    spacing: 1.15,
-    warm: true,
+    count: 5,
+    spacing: 1.55,
+    warm: false,
     phase: 2,
   });
 
@@ -78,12 +88,18 @@ function createWarehouse(outlines, materials) {
   roof.castShadow = true;
   group.add(addEdges(roof, outlines, materials, 'hero', 22));
 
+  for (const dx of [-5.4, 0, 5.4]) {
+    const bay = box(3.6, 3.7, 0.18, materials.ground, x + dx, 0.2, facadeZ(side, 0.08));
+    bay.castShadow = false;
+    group.add(bay);
+  }
+
   addWindowStrip(group, materials, {
     x,
-    y: 3.6,
+    y: 4.8,
     z: facadeZ(side),
-    count: 8,
-    spacing: 1.85,
+    count: 6,
+    spacing: 2.15,
     phase: 4,
   });
 
@@ -168,17 +184,39 @@ function createLampGeometry(materials, x, z) {
   return group;
 }
 
-function createAlleyBack(outlines, materials) {
+function createAlley(outlines, materials) {
   const group = new THREE.Group();
-  group.name = 'AlleyBack';
+  group.name = 'Alley';
 
-  // 南侧两栋楼之间留出约 5m 的缝，后墙只给一个小亮点作为纵深终点。
   group.add(addEdges(
-    box(9, 10, 8, materials.buildingDim, -21.5, 0, 38),
+    box(6.8, 11.5, 20, materials.buildingDim, -27.2, 0, 28.0),
+    outlines, materials, 'context',
+  ));
+  group.add(addEdges(
+    box(6.2, 9.2, 20, materials.building, -15.3, 0, 28.0),
     outlines, materials, 'context',
   ));
 
-  const door = box(1.2, 2.2, 0.10, materials.warm, -21.5, 0.05, 33.95);
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(5.0, 24),
+    materials.wetRoad,
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(-21.25, 0.025, 26);
+  floor.receiveShadow = true;
+  group.add(floor);
+
+  for (const [z, y] of [[19.5, 5.1], [26.0, 6.7]]) {
+    const landing = box(1.55, 0.12, 2.5, materials.buildingDim, -23.75, y, z);
+    group.add(addEdges(landing, outlines, materials, 'context', 8));
+  }
+
+  group.add(addEdges(
+    box(8.5, 10.5, 3.2, materials.buildingDim, -21.25, 0, 39.2),
+    outlines, materials, 'context',
+  ));
+
+  const door = box(1.15, 2.15, 0.10, materials.warm, -20.45, 0.08, 37.52);
   door.castShadow = false;
   group.add(door);
 
@@ -234,7 +272,7 @@ export function buildWorld(scene, profile) {
   }));
 
   world.add(createFireEscape(outlines, materials, -42, -13.35));
-  world.add(createAlleyBack(outlines, materials));
+  world.add(createAlley(outlines, materials));
 
   const lampPositions = [
     [-25, 4.05, -9.0],
