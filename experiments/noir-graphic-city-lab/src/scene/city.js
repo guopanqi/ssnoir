@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
 import { createCharacter } from './characters.js';
 
 function surfaceMat(color, fogColor, fogDensity, noiseScale = 9, noiseAmount = .12) {
@@ -56,6 +57,97 @@ function surfaceMat(color, fogColor, fogDensity, noiseScale = 9, noiseAmount = .
 
 function meshMat(color, extra = {}) {
   return new THREE.MeshBasicMaterial({ color, ...extra });
+}
+
+
+const WetReflectorShader = {
+  name: 'GraphicWetReflector',
+  uniforms: {
+    color: { value: null },
+    tDiffuse: { value: null },
+    textureMatrix: { value: null },
+  },
+  vertexShader: `
+    uniform mat4 textureMatrix;
+    varying vec4 vReflectUv;
+    varying vec2 vLocalUv;
+
+    void main() {
+      vLocalUv = uv;
+      vReflectUv = textureMatrix * vec4(position, 1.0);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform vec3 color;
+    uniform sampler2D tDiffuse;
+    varying vec4 vReflectUv;
+    varying vec2 vLocalUv;
+
+    float hash(vec2 p) {
+      p = fract(p * vec2(123.34, 456.21));
+      p += dot(p, p + 45.32);
+      return fract(p.x * p.y);
+    }
+
+    float valueNoise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      float a = hash(i);
+      float b = hash(i + vec2(1.0, 0.0));
+      float c = hash(i + vec2(0.0, 1.0));
+      float d = hash(i + vec2(1.0, 1.0));
+      return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+    }
+
+    void main() {
+      vec3 reflected = texture2DProj(tDiffuse, vReflectUv).rgb;
+
+      vec2 uv = vLocalUv;
+      vec2 centered = abs(uv - 0.5);
+      float edge = 1.0 - smoothstep(0.34, 0.50, max(centered.x, centered.y));
+
+      float broad = valueNoise(uv * vec2(4.0, 8.0));
+      float fine = valueNoise(uv * vec2(15.0, 34.0));
+      float bands = 0.5 + 0.5 * sin(uv.y * 150.0 + fine * 5.0);
+      float puddle = smoothstep(0.52, 0.76, broad * 0.72 + fine * 0.28);
+      puddle *= mix(0.55, 1.0, smoothstep(0.45, 0.72, bands));
+      puddle *= edge;
+
+      float lum = dot(reflected, vec3(0.2126, 0.7152, 0.0722));
+      vec3 tinted = mix(reflected, color, 0.54);
+      tinted = mix(tinted, reflected, smoothstep(0.20, 0.78, lum));
+
+      // Reflections stay graphic: bright windows/lamps survive; dark buildings
+      // mostly disappear into the road.
+      float alpha = puddle * (0.035 + smoothstep(0.03, 0.64, lum) * 0.32);
+      gl_FragColor = vec4(tinted, alpha);
+    }
+  `,
+};
+
+function addPlanarWetReflection(groups) {
+  const reflector = new Reflector(
+    new THREE.PlaneGeometry(23.5, 67),
+    {
+      clipBias: 0.0025,
+      textureWidth: 768,
+      textureHeight: 432,
+      color: 0x718096,
+      multisample: 2,
+      shader: WetReflectorShader,
+    },
+  );
+  reflector.name = 'Graphic planar wet reflection';
+  reflector.rotation.x = -Math.PI / 2;
+  reflector.position.set(-1.2, 0.018, 8.5);
+  reflector.material.transparent = true;
+  reflector.material.depthWrite = false;
+  reflector.material.depthTest = true;
+  reflector.renderOrder = 1;
+  groups.atmosphere.add(reflector);
+  return reflector;
 }
 
 function addEdges(mesh, group, material, threshold = 26) {
@@ -462,7 +554,9 @@ function addGround(groups,materials) {
   }
   addStroke(groups.strokes,materials.strokePrimary,[[-12.2,1.6,12],[-12.2,1.6,30]]);
 
-  // Wet reflections as restrained long shapes.
+  addPlanarWetReflection(groups);
+
+  // Stylized highlight streaks sit over the real planar reflection.
   for(const [x,z,w,d,o] of [
     [-5,2,6.8,.9,.12],[2,8,4.7,.65,.10],[-1,16,8.4,1.0,.105],[6,26,4.6,.75,.08],[-7,34,4.0,.6,.07]
   ]){
