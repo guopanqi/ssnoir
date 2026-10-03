@@ -125,10 +125,11 @@ function createStreetRow(outlines, materials, {
     const z = centerZ(side, depth);
     const material = i % 3 === 0 ? materials.building : materials.buildingDim;
 
-    // 背景建筑默认只承担 context，不再随机升级成 hero。
+    // 普通街屋主要靠 silhouette、明暗面和窗光参与空间阅读。
+    // 它们不需要自动描边；把“没有线”明确作为 Silence 层。
     group.add(addEdges(
       box(width, height, depth, material, x, 0, z),
-      outlines, materials, 'context',
+      outlines, materials, 'silence',
     ));
 
     if (i % 2 === 0 && !windowSkip.includes(i)) {

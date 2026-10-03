@@ -9,8 +9,19 @@ export function box(w, h, d, material, x, y, z) {
 }
 
 export function addEdges(mesh, outlineGroup, materials, importance = 'context', threshold = 32) {
+  // Line is an information layer, not a universal geometry filter.
+  // "silence" is a first-class tier: the object remains fully renderable but
+  // contributes no structural line at all.
+  if (importance === 'silence') return mesh;
+
+  const materialByImportance = {
+    hero: materials.edge,
+    context: materials.edgeDim,
+  };
+  const material = materialByImportance[importance];
+  if (!material) throw new Error(`Unknown line importance: ${importance}`);
+
   const geometry = new THREE.EdgesGeometry(mesh.geometry, threshold);
-  const material = importance === 'hero' ? materials.edge : materials.edgeDim;
   const line = new THREE.LineSegments(geometry, material);
   line.position.copy(mesh.position);
   line.rotation.copy(mesh.rotation);

@@ -13,12 +13,15 @@ const shots = [
   ['01-theater-street', 0],
   ['02-warehouse-fog', 1],
   ['03-alley-mouth', 2],
-  ['04-high-city', 3],
+  ['04-city-compression', 3],
 ];
 
 const modes = [
   { name: 'final', type: 'png', viewport: { width: 1600, height: 900 } },
   { name: 'shape', type: 'jpeg', quality: 84, viewport: { width: 960, height: 540 } },
+  // Line returns while the experiment is in the selective-line phase. It is
+  // intentionally lightweight and can be removed from daily regression later.
+  { name: 'line', type: 'jpeg', quality: 84, viewport: { width: 960, height: 540 } },
   { name: 'preprint', type: 'jpeg', quality: 84, viewport: { width: 960, height: 540 } },
 ];
 
@@ -167,7 +170,7 @@ try {
   timings.totalMs = Math.round(performance.now() - captureStarted);
   const info = await page.evaluate(() => window.__noirLab.info());
 
-  const contactOrder = ['shape', 'preprint', 'final'];
+  const contactOrder = ['shape', 'line', 'preprint', 'final'];
   const thumbW = 520;
   const thumbH = 292;
   const contact = sharp({
@@ -236,14 +239,15 @@ try {
   }
 
   report.push('', '## Layer impact', '');
-  report.push('| shot | shape→preprint mean | preprint→final mean | preprint→final black<2% |');
-  report.push('|---|---:|---:|---:|');
+  report.push('| shot | shape→line mean | line→preprint mean | preprint→final mean | preprint→final black<2% |');
+  report.push('|---|---:|---:|---:|---:|');
   for (const [shotName] of shots) {
     const shape = metrics.shape[shotName];
+    const line = metrics.line[shotName];
     const preprint = metrics.preprint[shotName];
     const final = metrics.final[shotName];
     report.push(
-      `| ${shotName} | ${(preprint.mean - shape.mean >= 0 ? '+' : '')}${(preprint.mean - shape.mean).toFixed(3)} | ${(final.mean - preprint.mean >= 0 ? '+' : '')}${(final.mean - preprint.mean).toFixed(3)} | ${((final.blackUnder02 - preprint.blackUnder02) * 100).toFixed(1)}pp |`
+      `| ${shotName} | ${(line.mean - shape.mean >= 0 ? '+' : '')}${(line.mean - shape.mean).toFixed(3)} | ${(preprint.mean - line.mean >= 0 ? '+' : '')}${(preprint.mean - line.mean).toFixed(3)} | ${(final.mean - preprint.mean >= 0 ? '+' : '')}${(final.mean - preprint.mean).toFixed(3)} | ${((final.blackUnder02 - preprint.blackUnder02) * 100).toFixed(1)}pp |`
     );
   }
 
