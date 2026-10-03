@@ -27,16 +27,22 @@ function startServer() {
 }
 
 async function waitForServer(page, attempts = 60) {
+  let available = false;
   for (let i = 0; i < attempts; i++) {
     try {
-      await page.goto(URL, { waitUntil: 'networkidle', timeout: 1500 });
-      await page.waitForFunction(() => window.__noirLab?.ready === true, null, { timeout: 1500 });
-      return;
+      const response = await fetch(URL, { signal: AbortSignal.timeout(1500) });
+      if (response.ok) {
+        available = true;
+        break;
+      }
     } catch {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Vite may still be starting; do not reload a rendering browser page.
     }
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  throw new Error('Noir Engraving Lab dev server did not become ready.');
+  if (!available) throw new Error('Noir Engraving Lab dev server did not start.');
+  await page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 120_000 });
+  await page.waitForFunction(() => window.__noirLab?.ready === true, null, { timeout: 120_000 });
 }
 
 await rm(OUT, { recursive: true, force: true });
