@@ -2,6 +2,11 @@ import * as THREE from 'three';
 
 export function createNoirShader(profile) {
   const p = profile.print;
+  const displayColor = (hex) => new THREE.Vector3(
+    ((hex >> 16) & 0xff) / 255,
+    ((hex >> 8) & 0xff) / 255,
+    (hex & 0xff) / 255,
+  );
 
   return {
     uniforms: {
@@ -16,6 +21,8 @@ export function createNoirShader(profile) {
       uVignette: { value: p.vignette },
       uResolution: { value: new THREE.Vector2(1280, 720) },
       uTime: { value: 0 },
+      uWarmInk: { value: displayColor(profile.palette.warm) },
+      uRedInk: { value: displayColor(profile.palette.red) },
     },
 
     vertexShader: /* glsl */`
@@ -38,6 +45,8 @@ export function createNoirShader(profile) {
       uniform float uVignette;
       uniform vec2 uResolution;
       uniform float uTime;
+      uniform vec3 uWarmInk;
+      uniform vec3 uRedInk;
       varying vec2 vUv;
 
       float bayer4(vec2 cell) {
@@ -115,6 +124,26 @@ export function createNoirShader(profile) {
         float steps = max(2.0, uLevels) - 1.0;
         float q = clamp(floor(l * steps + bayer) / steps, 0.0, 1.0);
         vec3 styled = ramp(q);
+
+        // Print remains overwhelmingly cold, but very sparse narrative inks may
+        // survive when the source pixel is genuinely chromatic. This is a gate,
+        // not a return to full colour.
+        float channelMax = max(display.r, max(display.g, display.b));
+        float channelMin = min(display.r, min(display.g, display.b));
+        float chroma = channelMax - channelMin;
+        float redBias = max(0.0, display.r - max(display.g, display.b));
+        float warmBias = max(0.0, min(display.r, display.g) - display.b);
+        float chromaGate = smoothstep(0.035, 0.14, chroma);
+        float toneGate = smoothstep(0.16, 0.58, l);
+        float redMask = chromaGate * toneGate * smoothstep(0.025, 0.14, redBias);
+        float warmMask =
+          chromaGate *
+          toneGate *
+          smoothstep(0.025, 0.13, warmBias) *
+          (1.0 - redMask);
+        float inkTone = mix(0.52, 1.0, q);
+        styled = mix(styled, uWarmInk * inkTone, warmMask * 0.74);
+        styled = mix(styled, uRedInk * inkTone, redMask * 0.86);
 
         float grain = fract(
           sin(dot(gl_FragCoord.xy + uTime * 17.0, vec2(12.9898, 78.233))) * 43758.5453
