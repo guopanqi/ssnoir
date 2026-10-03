@@ -56,16 +56,16 @@ function drawHeroMask(ctx, color) {
 
   // Coat.
   pathFill(ctx, (p) => {
-    p.moveTo(205, 346);
-    p.bezierCurveTo(187, 362, 181, 389, 180, 425);
+    p.moveTo(213, 346);
+    p.bezierCurveTo(191, 360, 181, 388, 179, 425);
     p.bezierCurveTo(177, 491, 183, 548, 178, 608);
     p.lineTo(157, 750);
-    p.bezierCurveTo(185, 768, 218, 776, 251, 776);
-    p.bezierCurveTo(284, 777, 317, 768, 346, 748);
+    p.bezierCurveTo(184, 770, 219, 782, 252, 779);
+    p.bezierCurveTo(287, 778, 319, 764, 345, 744);
     p.lineTo(329, 608);
     p.bezierCurveTo(324, 548, 330, 489, 327, 424);
     p.bezierCurveTo(325, 389, 317, 361, 299, 345);
-    p.bezierCurveTo(273, 355, 231, 356, 205, 346);
+    p.bezierCurveTo(277, 355, 238, 356, 213, 346);
   }, color);
 
   // Neck and head overlap so the silhouette is continuous.
@@ -77,23 +77,23 @@ function drawHeroMask(ctx, color) {
   }, color);
 
   pathFill(ctx, (p) => {
-    p.moveTo(221, 269);
-    p.bezierCurveTo(214, 247, 217, 219, 229, 199);
-    p.bezierCurveTo(242, 179, 267, 172, 287, 183);
+    p.moveTo(228, 270);
+    p.bezierCurveTo(219, 247, 223, 219, 235, 201);
+    p.bezierCurveTo(248, 181, 270, 175, 287, 184);
     p.bezierCurveTo(301, 191, 307, 203, 309, 215);
-    p.lineTo(325, 223);
-    p.lineTo(311, 233);
+    p.lineTo(327, 222);
+    p.lineTo(313, 231);
     p.bezierCurveTo(309, 251, 299, 269, 281, 282);
-    p.bezierCurveTo(259, 296, 235, 291, 221, 269);
+    p.bezierCurveTo(262, 294, 240, 291, 228, 270);
   }, color);
 
   // Hat brim + crown overlap the head.
   pathFill(ctx, (p) => {
-    p.moveTo(188, 177);
-    p.bezierCurveTo(216, 170, 246, 168, 277, 169);
-    p.bezierCurveTo(308, 169, 334, 173, 351, 180);
-    p.bezierCurveTo(330, 188, 302, 191, 269, 190);
-    p.bezierCurveTo(235, 190, 206, 186, 188, 177);
+    p.moveTo(194, 176);
+    p.bezierCurveTo(220, 169, 248, 167, 278, 168);
+    p.bezierCurveTo(308, 168, 334, 172, 352, 179);
+    p.bezierCurveTo(331, 187, 303, 190, 271, 189);
+    p.bezierCurveTo(238, 189, 211, 185, 194, 176);
   }, color);
 
   pathFill(ctx, (p) => {
@@ -340,7 +340,7 @@ export function createCharacter({
   sprite.position.fromArray(position);
 
   if (kind === 'hero') {
-    sprite.scale.set(2.50 * scale, 5.18 * scale, 1);
+    sprite.scale.set(2.44 * scale, 5.42 * scale, 1);
   } else {
     const height = (variant % 4 === 0 ? 4.48 : 4.18) * scale;
     sprite.scale.set(height * 0.50, height, 1);

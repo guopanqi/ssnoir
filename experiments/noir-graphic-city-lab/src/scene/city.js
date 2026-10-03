@@ -121,7 +121,7 @@ const WetReflectorShader = {
 
       // Reflections stay graphic: bright windows/lamps survive; dark buildings
       // mostly disappear into the road.
-      float alpha = puddle * (0.035 + smoothstep(0.03, 0.64, lum) * 0.32);
+      float alpha = puddle * (0.028 + smoothstep(0.05, 0.58, lum) * 0.40);
       gl_FragColor = vec4(tinted, alpha);
     }
   `,
@@ -266,13 +266,10 @@ function makeTextTexture(text) {
   canvas.height=128;
   const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle='rgba(9,13,24,0.96)';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.strokeStyle='rgba(232,229,220,0.85)';
-  ctx.lineWidth=3;
-  ctx.strokeRect(5,5,canvas.width-10,canvas.height-10);
-  ctx.fillStyle='#e8e5dc';
-  ctx.font='48px Georgia, serif';
+  ctx.fillStyle='#eee9dc';
+  ctx.shadowColor='rgba(238,233,220,0.26)';
+  ctx.shadowBlur=8;
+  ctx.font='600 58px Georgia, serif';
   ctx.textAlign='center';
   ctx.textBaseline='middle';
   ctx.fillText(text,canvas.width/2,canvas.height/2+2);
@@ -431,7 +428,7 @@ function addDiner(groups,materials) {
   ]);
 
   const sign=new THREE.Mesh(
-    new THREE.PlaneGeometry(8.8,1.28),
+    new THREE.PlaneGeometry(9.6,1.45),
     new THREE.MeshBasicMaterial({map:makeTextTexture('THE ORIOLE'),transparent:true,depthWrite:false}),
   );
   sign.position.set(-2.4,6.18,-15.98);
@@ -624,9 +621,24 @@ function addStreetFurniture(groups,materials) {
     post.position.set(x,2.2,z);
     groups.solids.add(post);
     addStroke(groups.strokes,materials.strokeDim,[[x,.08,z],[x,4.32,z],[x+(x<0?.82:-.82),4.32,z]]);
+    const lightX=x+(x<0?.85:-.85);
     const bulb=new THREE.Mesh(new THREE.SphereGeometry(.11,12,8),materials.white);
-    bulb.position.set(x+(x<0?.85:-.85),4.28,z);
+    bulb.position.set(lightX,4.28,z);
     groups.emissive.add(bulb);
+
+    const halo=new THREE.Sprite(new THREE.SpriteMaterial({
+      map:materials.haloTexture,
+      color:0xf0eee2,
+      transparent:true,
+      opacity:z>10?.12:.16,
+      depthWrite:false,
+      depthTest:true,
+      blending:THREE.NormalBlending,
+    }));
+    halo.position.set(lightX,4.28,z+.03);
+    const haloSize=z>10?4.8:5.8;
+    halo.scale.set(haloSize,haloSize,1);
+    groups.atmosphere.add(halo);
   }
 
   addBox({
@@ -643,10 +655,6 @@ function addStreetFurniture(groups,materials) {
 }
 
 function addAtmosphere(groups,materials) {
-  const moon=new THREE.Mesh(new THREE.CircleGeometry(5.4,64),materials.hazeDisc);
-  moon.position.set(-8.2,9.0,-26.0);
-  groups.atmosphere.add(moon);
-
   const smokeTexture=makeSoftTexture();
   for(const [x,y,z,s,o] of [
     [-10.5,1.8,9.0,8.4,.28],[-9.5,2.1,-2.0,7.2,.25],[-7.6,3.3,-4.2,5.8,.19],[-1.8,4.7,-17.0,4.8,.11]
@@ -684,7 +692,7 @@ function addAtmosphere(groups,materials) {
 
 function addCast(groups,materials,outlineTargets) {
   createCharacter({
-    name:'Detective',position:[9.4,0,22.5],scale:1.04,
+    name:'Detective',position:[5.8,0,21.5],scale:1.06,
     pose:'neutral',kind:'hero',materials,parent:groups.characters,
   });
 
@@ -751,6 +759,7 @@ export function buildWorld(scene,profile){
     pool:meshMat(profile.palette.white,{
       transparent:true,opacity:.075,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,
     }),
+    haloTexture:makeSoftTexture(),
     streetGlow:meshMat(0xaeb7c4,{
       transparent:true,opacity:.075,side:THREE.DoubleSide,depthWrite:false,
     }),
