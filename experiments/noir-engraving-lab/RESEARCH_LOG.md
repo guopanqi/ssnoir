@@ -251,3 +251,7 @@ SSNoirStylize 可在最终冷色量化之后增加受 mask / chroma gate 控制�
 最终证据与阶段比较：`captures/reviews/2026-10-03-local/`。
 
 **CI 补充**：提交后的 runner 完整 Chrome 首次因资源 404 被严格错误检查中断（run 37129033888）。页面新增明确的空 favicon 声明，避免隐式图标请求；HTTP 错误现在记录状态码与 URL，console error 记录来源。保留资源失败即中断的规则，不把 404 一概忽略。
+
+**独立复核与可持续接续**：修订后 run 37129184713 成功；artifact 11276256998 已下载并打开 contact sheet。CI Chrome 154 和本地 headless shell Chrome 140 的 src 指纹一致，四镜头亮度占比在报告精度内一致；CI 截图阶段 45.9 秒，本地约 17 秒。
+新增 CONTINUE.md、CHECKPOINT.json 和 npm run status，将已接受证据、待审图、失败方法、下一问题和流程改进规则保存到工程，接续不再依赖聊天 compact。状态检查与截图共用 src 指纹实现。
+状态工具已实际验证三个分支：正常基线匹配并退出 0；临时修改 src 后识别旧图并退出 2；临时指向不存在的证据目录时返回失败。测试后恢复文件，单镜头 capture 继续成功。

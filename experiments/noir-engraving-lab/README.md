@@ -2,6 +2,12 @@
 
 SSNoir 的独立 Three.js 长期视觉研究工程。只把经过验证的视觉结论迁回 Unity / CityBox。
 
+## 新会话接续
+
+读取 [AGENTS.md](AGENTS.md) → [CONTINUE.md](CONTINUE.md) → [CHECKPOINT.json](CHECKPOINT.json)，再运行 `npm run status` 并打开基线图片。
+状态命令检查源码指纹、四镜头四层证据和当前待办；返回 2 表示源码与旧图不匹配，需要新截图。
+实验目标、失败结论、审图标准、下一问题和流程改进方法都保存在工程内，无需依赖聊天 compact。
+
 ## 当前视觉基线
 
 简单几何 → 选择性结构线 → 局部叙事光 → 空气 → 有限色阶 Print。

@@ -7,7 +7,8 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "capture": "node tools/capture.mjs"
+    "capture": "node tools/capture.mjs",
+    "status": "node tools/status.mjs"
   },
   "dependencies": {
     "three": "0.186.1"

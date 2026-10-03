@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "phase": "Line / Light 已建立阶段基线；下一步 Atmosphere",
+  "acceptedBaseline": {
+    "visualCodeCommit": "1120fd879371096eb733f6a802dcd771c8709b98",
+    "reviewDirectory": "captures/reviews/2026-10-03-local",
+    "sourceSha256": "5ef1808625f09936d9fb10c8859e367274d2116b875e84a81479cf0081f2369a",
+    "visuallyReviewed": true,
+    "ci": {
+      "runId": 37129184713,
+      "artifactId": 11276256998,
+      "status": "success",
+      "visuallyReviewed": true,
+      "evidenceDirectory": "captures/reviews/2026-10-03-local/ci"
+    }
+  },
+  "pendingReviews": [],
+  "nextQuestions": [
+    {
+      "id": "rain-visibility",
+      "question": "雨是否应随深度、遮挡与受光变化，而不是在所有黑底上等权出现？",
+      "status": "pending"
+    },
+    {
+      "id": "air-depth",
+      "question": "能否在不抬灰近景和不增加模型细节的前提下改善远近空气层次？",
+      "status": "pending"
+    }
+  ],
+  "knownLimits": [
+    "建筑仍是研究体块，未完成生产资产验证。",
+    "自由机位和动画时段没有与固定镜头同等的审阅覆盖。",
+    "雨在遮蔽区内的生成、近处雨滴和结构线 aliasing 仍需研究。"
+  ],
+  "doNotRepeat": [
+    "Object3D Layers 不能当作 Light Linking。",
+    "不能恢复旧后巷全局 DirectionalLight。",
+    "近墙强 Spot 容易形成弧形高光；Print 不能补救坏构图。"
+  ],
+  "protocol": "CONTINUE.md"
+}

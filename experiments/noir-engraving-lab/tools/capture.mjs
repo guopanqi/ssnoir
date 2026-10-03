@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import { spawn, execFileSync } from 'node:child_process';
-import { mkdir, rm, writeFile, readFile, readdir } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { sourceFingerprint } from './source-fingerprint.mjs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import sharp from 'sharp';
@@ -42,16 +42,7 @@ const allModes = [
 const shots = values.shot ? allShots.filter(([name]) => name === values.shot) : allShots;
 const modes = values.mode ? allModes.filter(({ name }) => name === values.mode) : allModes;
 if (!shots.length || !modes.length) throw new Error('Unknown --shot or --mode');
-async function sourceDigest(directory = path.join(ROOT, 'src'), hash = createHash('sha256')) {
-  const entries = (await readdir(directory, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name));
-  for (const entry of entries) {
-    const file = path.join(directory, entry.name);
-    if (entry.isDirectory()) await sourceDigest(file, hash);
-    else { hash.update(path.relative(ROOT, file)); hash.update(await readFile(file)); }
-  }
-  return hash;
-}
-const sourceSha256 = (await sourceDigest()).digest('hex');
+const sourceSha256 = await sourceFingerprint(ROOT);
 let gitSha = process.env.GITHUB_SHA ?? null;
 try { gitSha ??= execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch {}
 
