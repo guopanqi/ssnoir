@@ -26,9 +26,9 @@ export const SHOTS = Object.freeze([
   Object.freeze({
     id: '04-city-canyon',
     name: '04 · CITY CANYON',
-    position: [6.8, 10.0, 52],
-    target: [-2.5, 7.5, -22],
-    fov: 28,
+    position: [-4.8, 8.2, 43],
+    target: [3.0, 6.7, -18],
+    fov: 24,
     purpose: '测试长焦压缩后，黑白图形关系能否形成一张平面设计而不是普通低模城市。',
   }),
 ]);

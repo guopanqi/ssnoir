@@ -95,10 +95,22 @@ function addTenements({ groups, mats }) {
   left.forEach(([x,z,w,h,d], i) => {
     const b = addBuilding({ groups,mats,x,z,w,h,d,facadeIndex:0,line:i===1 });
     addWindowGrid({ parent:b, facade:'+x', countX:3, countY:3, width:0.8, height:1.15, mats, groups, sparse:true });
+    if (i === 0) {
+      const poster = new THREE.Mesh(new THREE.PlaneGeometry(3.1, 5.0), mats.mid);
+      poster.position.set(w / 2 + 0.02, 5.0, -1.4);
+      poster.rotation.y = Math.PI / 2;
+      b.add(poster);
+    }
   });
   right.forEach(([x,z,w,h,d], i) => {
     const b = addBuilding({ groups,mats,x,z,w,h,d,facadeIndex:1,line:i===2 });
     addWindowGrid({ parent:b, facade:'-x', countX:3, countY:4, width:0.8, height:1.1, mats, groups, sparse:true });
+    if (i === 1) {
+      const poster = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 4.2), mats.paperDim);
+      poster.position.set(-w / 2 - 0.02, 4.7, 1.0);
+      poster.rotation.y = -Math.PI / 2;
+      b.add(poster);
+    }
   });
 
   const bridge = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.45, 2.5), mats.inkLift);
@@ -125,6 +137,27 @@ function addStreet({ groups, mats }) {
     dash.position.set(0, 0.012, z);
     groups.city.add(dash);
   }
+
+  // A graphic crossing is deliberately a flat value shape, not a physically lit road.
+  // It gives moving silhouettes something to cut against in medium shots.
+  for (let i = 0; i < 5; i++) {
+    const stripe = new THREE.Mesh(new THREE.PlaneGeometry(11.5, 0.72), mats.mid);
+    stripe.rotation.x = -Math.PI / 2;
+    stripe.position.set(0, 0.018, 24 + i * 1.35);
+    groups.city.add(stripe);
+  }
+
+  const streetWedgeGeometry = new THREE.BufferGeometry();
+  streetWedgeGeometry.setAttribute('position', new THREE.Float32BufferAttribute([
+    -7.2, 0.021, 7.0,
+     5.4, 0.021, 7.0,
+     2.4, 0.021, 18.5,
+    -4.0, 0.021, 18.5,
+  ], 3));
+  streetWedgeGeometry.setIndex([0, 1, 2, 0, 2, 3]);
+  streetWedgeGeometry.computeVertexNormals();
+  const streetWedge = new THREE.Mesh(streetWedgeGeometry, mats.inkLift);
+  groups.city.add(streetWedge);
 
   [-7.8, 7.8].forEach((x) => {
     for (const z of [-16, 9, 34]) {
