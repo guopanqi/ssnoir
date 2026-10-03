@@ -2,9 +2,9 @@ export const SHOTS=Object.freeze([
   Object.freeze({
     id:'01-city-plaza',
     name:'01 · CITY PLAZA',
-    position:[9.5,4.4,41],
-    target:[-3.7,4.1,-13.2],
-    fov:42,
+    position:[9.5,4.2,41],
+    target:[-5.0,3.8,-13.2],
+    fov:40,
     purpose:'第一审核镜头：侦探前景、暗蓝城市、密集亮窗、人群、湿地与探照灯组成一个干净而精致的 Genesis Noir 风格城市舞台。',
   }),
   Object.freeze({

@@ -87,6 +87,36 @@ function makeTextTexture(text) {
   return tex;
 }
 
+function makeWetPatchMaterial() {
+  return new THREE.ShaderMaterial({
+    transparent:true,
+    depthWrite:false,
+    side:THREE.DoubleSide,
+    uniforms:{uColor:{value:new THREE.Color(0x8b96a8)}},
+    vertexShader:`
+      varying vec2 vUv;
+      void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}
+    `,
+    fragmentShader:`
+      uniform vec3 uColor;
+      varying vec2 vUv;
+      float hash(vec2 p){
+        p=fract(p*vec2(127.1,311.7));
+        p+=dot(p,p+34.5);
+        return fract(p.x*p.y);
+      }
+      void main(){
+        vec2 cell=floor(vUv*vec2(72.0,24.0));
+        float n=hash(cell);
+        float streak=.5+.5*sin(vUv.y*95.0+hash(floor(vUv.xx*19.0))*6.283);
+        float edge=smoothstep(0.0,.16,vUv.x)*smoothstep(0.0,.14,1.0-vUv.x)*smoothstep(0.0,.12,vUv.y)*smoothstep(0.0,.12,1.0-vUv.y);
+        float alpha=(.045+.17*smoothstep(.48,.92,n)*(.45+.55*streak))*edge;
+        gl_FragColor=vec4(uColor,alpha);
+      }
+    `,
+  });
+}
+
 function makeSoftTexture() {
   const canvas=document.createElement('canvas');
   canvas.width=256;
@@ -233,6 +263,19 @@ function addGround(groups,materials) {
     groups.atmosphere.add(p);
   }
 
+  // Broad, textured wet areas create a readable mid-value plane without flattening the whole road.
+  const wetMaterial=makeWetPatchMaterial();
+  for(const [x,z,w,d,r] of [
+    [-5.8,15.5,12.5,20.0,-.06],
+    [-8.8,31.5,7.5,13.0,.08],
+    [5.4,7.0,5.0,9.0,.04]
+  ]){
+    const patch=new THREE.Mesh(new THREE.PlaneGeometry(w,d),wetMaterial);
+    patch.rotation.set(-Math.PI/2,0,r);
+    patch.position.set(x,.032,z);
+    groups.atmosphere.add(patch);
+  }
+
   // Localized grass, kept near curbs.
   const verts=[];
   let seed=37;
@@ -280,7 +323,7 @@ function addAtmosphere(groups,materials) {
 
   const smokeTexture=makeSoftTexture();
   for(const [x,y,z,s,o] of [
-    [-9.5,2.1,-2.0,6.6,.15],[-7.6,3.3,-4.2,5.2,.12],[-1.8,4.7,-17.0,4.2,.07]
+    [-9.5,2.1,-2.0,7.2,.24],[-7.6,3.3,-4.2,5.8,.18],[-1.8,4.7,-17.0,4.8,.10]
   ]){
     const sprite=new THREE.Sprite(new THREE.SpriteMaterial({
       map:smokeTexture,color:0xc5cad2,transparent:true,opacity:o,
@@ -309,7 +352,7 @@ function addAtmosphere(groups,materials) {
 
 function addCast(groups,materials) {
   createCharacter({
-    name:'Detective',position:[6.0,0,22.5],yaw:0,scale:1.34,
+    name:'Detective',position:[9.4,0,22.5],yaw:0,scale:1.04,
     pose:'neutral',kind:'hero',materials,parent:groups.characters,
   });
 
@@ -340,22 +383,22 @@ export function buildWorld(scene,profile){
     surface:meshMat(profile.palette.surface),
     surfaceLift:meshMat(profile.palette.surfaceLift),
     surfaceMid:meshMat(profile.palette.surfaceMid),
-    ground:meshMat(0x111827),
+    ground:meshMat(0x1a2435),
     character:meshMat(0x010204,{side:THREE.DoubleSide}),
     detail:meshMat(profile.palette.lineDim,{side:THREE.DoubleSide}),
     edgePrimary:new THREE.LineBasicMaterial({
-      color:profile.palette.line,transparent:true,opacity:.62,fog:true,
+      color:profile.palette.line,transparent:true,opacity:.74,fog:true,
     }),
     edgeSecondary:new THREE.LineBasicMaterial({
-      color:profile.palette.lineDim,transparent:true,opacity:.30,fog:true,
+      color:profile.palette.lineDim,transparent:true,opacity:.42,fog:true,
     }),
-    strokePrimary:strokeMaterial(profile.palette.line,.86,1.05),
-    strokeDim:strokeMaterial(profile.palette.lineDim,.48,.72),
+    strokePrimary:strokeMaterial(profile.palette.line,.92,1.02),
+    strokeDim:strokeMaterial(profile.palette.lineDim,.62,.76),
     white:meshMat(profile.palette.white),
     window:meshMat(profile.palette.white),
-    windowDark:meshMat(0x202b3c),
+    windowDark:meshMat(0x596476),
     reflection:meshMat(profile.palette.lineDim,{transparent:true,opacity:.1,depthWrite:false}),
-    hazeDisc:meshMat(0xb6bac3,{transparent:true,opacity:.18,depthWrite:false,side:THREE.DoubleSide}),
+    hazeDisc:meshMat(0xc0c4cc,{transparent:true,opacity:.27,depthWrite:false,side:THREE.DoubleSide}),
     beam:meshMat(profile.palette.white,{
       transparent:true,opacity:.026,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,
     }),
