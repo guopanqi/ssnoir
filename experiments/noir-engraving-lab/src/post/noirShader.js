@@ -13,6 +13,7 @@ export function createNoirShader(profile) {
       uInBlack: { value: p.inBlack },
       uInWhite: { value: p.inWhite },
       uGamma: { value: p.gamma },
+      uVignette: { value: p.vignette },
       uResolution: { value: new THREE.Vector2(1280, 720) },
       uTime: { value: 0 },
     },
@@ -34,6 +35,7 @@ export function createNoirShader(profile) {
       uniform float uInBlack;
       uniform float uInWhite;
       uniform float uGamma;
+      uniform float uVignette;
       uniform vec2 uResolution;
       uniform float uTime;
       varying vec2 vUv;
@@ -69,18 +71,6 @@ export function createNoirShader(profile) {
 
       float luma(vec3 c) {
         return dot(c, vec3(0.2126, 0.7152, 0.0722));
-      }
-
-      vec3 linearToSrgb(vec3 c) {
-        vec3 lo = c * 12.92;
-        vec3 hi = 1.055 * pow(max(c, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
-        return mix(lo, hi, step(vec3(0.0031308), c));
-      }
-
-      vec3 srgbToLinear(vec3 c) {
-        vec3 lo = c / 12.92;
-        vec3 hi = pow(max((c + 0.055) / 1.055, vec3(0.0)), vec3(2.4));
-        return mix(lo, hi, step(vec3(0.04045), c));
       }
 
       vec3 ramp(float x) {
@@ -130,6 +120,11 @@ export function createNoirShader(profile) {
           sin(dot(gl_FragCoord.xy + uTime * 17.0, vec2(12.9898, 78.233))) * 43758.5453
         ) - 0.5;
         styled = clamp(styled + grain * 0.003 * midtoneMask, 0.0, 1.0);
+
+        // 暗角属于最终媒介，而不是场景本身；因此只存在于 Print 层。
+        vec2 centered = vUv * 2.0 - 1.0;
+        float edge = smoothstep(0.45, 1.45, dot(centered, centered));
+        styled *= 1.0 - edge * uVignette;
 
         gl_FragColor = vec4(styled, src.a);
       }

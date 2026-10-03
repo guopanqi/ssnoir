@@ -55,15 +55,31 @@ export function createLighting(scene, profile, lampPositions) {
   warehouseSearch.castShadow = false;
   group.add(warehouseSearch, warehouseSearch.target);
 
-  const alleyRim = new THREE.PointLight(0x6f8fb8, 28, 14, 1.55);
-  alleyRim.position.set(-24.8, 5.2, 21.5);
+  const alleyRim = new THREE.SpotLight(
+    0x6f8fb8,
+    3.2,
+    16,
+    Math.PI * 0.26,
+    0.18,
+    0.0,
+  );
+  alleyRim.position.set(-20.3, 6.4, 17.2);
+  alleyRim.target.position.set(-24.2, 4.0, 27.0);
   alleyRim.castShadow = false;
-  group.add(alleyRim);
+  group.add(alleyRim, alleyRim.target);
 
-  const alleyDoor = new THREE.PointLight(0xe6c27a, 22, 8.5, 1.45);
-  alleyDoor.position.set(-20.45, 2.1, 36.7);
+  const alleyDoor = new THREE.SpotLight(
+    0xe6c27a,
+    3.4,
+    12,
+    Math.PI * 0.18,
+    0.12,
+    0.0,
+  );
+  alleyDoor.position.set(-20.45, 2.4, 36.65);
+  alleyDoor.target.position.set(-21.25, 0.0, 29.0);
   alleyDoor.castShadow = false;
-  group.add(alleyDoor);
+  group.add(alleyDoor, alleyDoor.target);
 
   for (const position of lampPositions) {
     const light = new THREE.PointLight(

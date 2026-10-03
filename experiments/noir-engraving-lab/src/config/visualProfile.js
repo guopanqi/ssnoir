@@ -57,5 +57,6 @@ export const PROFILE = Object.freeze({
     bloomStrength: 0.12,
     bloomRadius: 0.34,
     bloomThreshold: 1.20,
+    vignette: 0.20,
   }),
 });
