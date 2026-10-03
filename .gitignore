@@ -66,3 +66,7 @@ __pycache__/
 
 # 过场视频规范化前的原始下载件（本地留存，不入库）
 **/UnityClient/CutsceneSource~/
+
+# Noir experiment generated output
+/experiments/noir-engraving-lab/captures/
+/experiments/noir-engraving-lab/dist/

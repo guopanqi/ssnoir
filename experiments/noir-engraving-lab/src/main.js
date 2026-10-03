@@ -95,10 +95,8 @@ function animate() {
   requestAnimationFrame(animate);
 
   const dt = Math.min(clock.getDelta(), 0.05);
-  if (!captureMode) {
-    atmosphere.update(dt);
-    post.noir.uniforms.uTime.value += dt;
-  }
+  atmosphere.update(dt);
+  post.noir.uniforms.uTime.value += dt;
   renderFrame();
 
   fpsFrames += 1;
@@ -110,4 +108,8 @@ function animate() {
   }
 }
 
-animate();
+if (captureMode) {
+  renderFrame();
+} else {
+  animate();
+}

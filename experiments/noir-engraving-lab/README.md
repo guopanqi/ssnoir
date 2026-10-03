@@ -96,9 +96,10 @@ npm run build
 
 实验目录包含固定截图管线。
 
-本地安装 Playwright Chromium 后：
+首次使用先安装 Playwright Chromium，然后截图：
 
 ```bash
+npx playwright install chromium
 npm run capture
 ```
 
@@ -119,6 +120,10 @@ captures/latest/
 
 `final` 是当前完整视觉；`shape` 会关闭描线、雨、雾、光束、Bloom 和最终印刷层，用于单独判断体块与构图。
 
-GitHub Actions 会在实验源码变化后重新生成这组基准图并写回仓库。截图提交只修改 `captures/latest/`，不会再次触发截图工作流，因此不会形成 CI 循环。
+GitHub Actions 在 PR 更新或 main 推送后生成基准图，并上传为 artifact，不自动提交到 Git。各个 PR 和 main 的任务独立，互不取消。也可以在 Actions 页面通过 Run workflow 手动运行。
+
+查看 CI 截图：打开 [Noir Engraving Captures](https://github.com/guopanqi/ssnoir/actions/workflows/noir-engraving-captures.yml)，选择对应提交的成功运行，在 Artifacts 下载 `noir-engraving-captures-<run_id>-<run_attempt>`。压缩包包含 `final/`、`shape/` 和记录提交 SHA 的 `manifest.json`，保留 30 天。需要长期保存的研究证据请在过期前下载。
+
+`captures/latest/` 是本地运行截图命令后的输出目录，已被 Git 忽略；拉取仓库不会包含截图。
 
 这组图是后续视觉讨论的共同观察对象：先看图，再改代码，再自动重拍。

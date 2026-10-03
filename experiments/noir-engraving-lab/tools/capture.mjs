@@ -47,10 +47,12 @@ let serverLog = '';
 server.stdout.on('data', (d) => { serverLog += d.toString(); });
 server.stderr.on('data', (d) => { serverLog += d.toString(); });
 
-const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: VIEWPORT, deviceScaleFactor: 1 });
+let browser;
 
 try {
+  browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage({ viewport: VIEWPORT, deviceScaleFactor: 1 });
+  page.on('pageerror', (error) => process.stderr.write(`[browser:error] ${error.stack ?? error}\n`));
   await waitForServer(page);
 
   // UI is useful interactively but not part of the rendered benchmark.
@@ -68,10 +70,11 @@ try {
 
     for (const [name, index] of shots) {
       await page.evaluate((i) => window.__noirLab.setShot(i), index);
-      await page.evaluate(() => window.__noirLab.render());
+      console.log(`Capturing ${mode}/${name}`);
       await page.screenshot({
         path: path.join(dir, `${name}.png`),
         type: 'png',
+        timeout: 120_000,
       });
     }
   }
@@ -92,6 +95,6 @@ try {
   process.stderr.write(serverLog);
   throw error;
 } finally {
-  await browser.close();
+  await browser?.close();
   server.kill('SIGTERM');
 }
