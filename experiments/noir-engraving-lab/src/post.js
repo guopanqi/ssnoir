@@ -3,6 +3,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const NoirShader = {
   uniforms: {
@@ -88,6 +89,11 @@ export function createPost(renderer, scene, camera) {
 
   const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.65, 0.72, 0.86);
   composer.addPass(bloom);
+
+  // 先把 Three.js 的 HDR/线性画面做 tone mapping + output transform，
+  // 再进入 NoirShader。这样版画层看到的是“屏幕上的画”，和 SSNoir Unity
+  // 里 post-processing 之后再做 Stylize 的思路一致。
+  composer.addPass(new OutputPass());
 
   const noir = new ShaderPass(NoirShader);
   composer.addPass(noir);
