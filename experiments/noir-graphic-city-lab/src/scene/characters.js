@@ -38,20 +38,20 @@ function drawHeroMask(ctx, color) {
   // Arms, tucked slightly behind the torso.
   pathFill(ctx, (p) => {
     p.moveTo(191, 360);
-    p.bezierCurveTo(167, 377, 155, 411, 149, 454);
-    p.bezierCurveTo(142, 511, 133, 574, 124, 635);
-    p.bezierCurveTo(122, 650, 130, 659, 142, 654);
-    p.bezierCurveTo(158, 592, 170, 532, 183, 476);
-    p.bezierCurveTo(193, 430, 200, 393, 203, 369);
+    p.bezierCurveTo(174, 379, 166, 414, 163, 456);
+    p.bezierCurveTo(160, 510, 157, 563, 154, 616);
+    p.bezierCurveTo(153, 632, 161, 640, 172, 634);
+    p.bezierCurveTo(181, 574, 187, 518, 192, 469);
+    p.bezierCurveTo(197, 426, 202, 392, 206, 369);
   }, color);
 
   pathFill(ctx, (p) => {
     p.moveTo(312, 360);
-    p.bezierCurveTo(337, 381, 349, 414, 358, 455);
-    p.bezierCurveTo(368, 508, 379, 565, 391, 621);
-    p.bezierCurveTo(394, 637, 387, 647, 375, 643);
-    p.bezierCurveTo(359, 585, 344, 529, 329, 476);
-    p.bezierCurveTo(318, 433, 311, 394, 302, 369);
+    p.bezierCurveTo(338, 383, 351, 418, 362, 461);
+    p.bezierCurveTo(375, 516, 389, 574, 404, 631);
+    p.bezierCurveTo(408, 646, 400, 657, 388, 651);
+    p.bezierCurveTo(369, 590, 351, 532, 333, 478);
+    p.bezierCurveTo(320, 433, 312, 394, 302, 369);
   }, color);
 
   // Coat.
@@ -70,11 +70,14 @@ function drawHeroMask(ctx, color) {
 
   // Neck and head overlap so the silhouette is continuous.
   pathFill(ctx, (p) => {
-    p.moveTo(218, 370);
-    p.lineTo(226, 270);
-    p.lineTo(294, 270);
-    p.lineTo(296, 365);
+    p.moveTo(230, 366);
+    p.lineTo(234, 326);
+    p.lineTo(286, 326);
+    p.lineTo(290, 366);
   }, color);
+
+  ctx.save();
+  ctx.translate(0, 44);
 
   pathFill(ctx, (p) => {
     p.moveTo(244, 282);
@@ -102,6 +105,8 @@ function drawHeroMask(ctx, color) {
     p.bezierCurveTo(260, 108, 290, 107, 313, 116);
     p.lineTo(324, 173);
   }, color);
+
+  ctx.restore();
 }
 
 function drawCrowdMask(ctx, color, variant, pose) {
