@@ -33,7 +33,8 @@ function createStaticServer() {
   return createServer(async (req, res) => {
     try {
       const url = new URL(req.url, 'http://127.0.0.1');
-      let relative = decodeURIComponent(url.pathname).replace(/^\\/+/, '');
+      let relative = decodeURIComponent(url.pathname);
+      while (relative.startsWith('/')) relative = relative.slice(1);
       if (!relative) relative = 'index.html';
 
       if (relative.split('/').includes('..')) {
