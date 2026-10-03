@@ -23,10 +23,10 @@ if (!Number.isInteger(PORT) || PORT < 1024 || PORT > 65535) throw new Error('Inv
 const URL = `http://127.0.0.1:${PORT}/?capture=1`;
 
 const allShots = [
-  ['01-theater-tableau', 0],
-  ['02-crowd-crossing', 1],
-  ['03-alley-confrontation', 2],
-  ['04-city-canyon', 3],
+  ['01-plaza-approach', 0],
+  ['02-spotlight-gathering', 1],
+  ['03-detective-silhouette', 2],
+  ['04-line-city', 3],
 ];
 const allModes = [
   { name: 'shape', type: 'jpeg', quality: 86, viewport: { width: 960, height: 540 } },
@@ -46,7 +46,7 @@ async function imageMetrics(buffer) {
   const { data, info } = await sharp(buffer)
     .resize({ width: 400, withoutEnlargement: true })
     .removeAlpha().raw().toBuffer({ resolveWithObject: true });
-  let sum = 0, black = 0, mid = 0, cream = 0, gold = 0;
+  let sum = 0, black = 0, mid = 0, cream = 0;
   const bins = [0,0,0,0,0];
   const count = info.width * info.height;
   for (let i = 0; i < data.length; i += info.channels) {
@@ -174,12 +174,12 @@ try {
 
   const report = [
     '# Graphic City capture report','',
-    '| mode | shot | mean | black<8% | mid 12–65% | cream>70% | gold share |',
-    '|---|---|---:|---:|---:|---:|---:|',
+    '| mode | shot | mean | black<8% | mid 12–65% | bright>70% |',
+    '|---|---|---:|---:|---:|---:|',
   ];
   for (const mode of order) for (const [shot] of shots) {
     const m = metrics[mode][shot];
-    report.push(`| ${mode} | ${shot} | ${m.mean.toFixed(3)} | ${(m.blackUnder08*100).toFixed(1)}% | ${(m.mid12to65*100).toFixed(1)}% | ${(m.creamOver70*100).toFixed(1)}% | ${(m.goldShare*100).toFixed(2)}% |`);
+    report.push(`| ${mode} | ${shot} | ${m.mean.toFixed(3)} | ${(m.blackUnder08*100).toFixed(1)}% | ${(m.mid12to65*100).toFixed(1)}% | ${(m.creamOver70*100).toFixed(1)}% |`);
   }
   if (metrics.shape && metrics.final) {
     report.push('', '## Graphic value retention', '');
@@ -193,10 +193,16 @@ try {
     }
   }
 
-  report.push('', '## Accent budget', '');
-  if (metrics.final) for (const [shot] of shots) {
-    const gold = metrics.final[shot].goldShare;
-    report.push(`- ${shot}: ${(gold*100).toFixed(2)}% ${gold > 0.028 ? '⚠ above provisional 2.8% budget' : ''}`);
+  if (metrics.final) {
+    const target = { mean:0.216, blackUnder08:0.245, mid12to65:0.521, creamOver70:0.069 };
+    report.push('', '## Genesis reference diagnostics', '');
+    report.push('Reference-image bands are directional diagnostics only, not an optimization score.');
+    report.push('| shot | mean Δ | dark Δ | mid Δ | bright Δ |');
+    report.push('|---|---:|---:|---:|---:|');
+    for (const [shot] of shots) {
+      const m = metrics.final[shot];
+      report.push(`| ${shot} | ${(m.mean-target.mean).toFixed(3)} | ${((m.blackUnder08-target.blackUnder08)*100).toFixed(1)}pp | ${((m.mid12to65-target.mid12to65)*100).toFixed(1)}pp | ${((m.creamOver70-target.creamOver70)*100).toFixed(1)}pp |`);
+    }
   }
   report.push('', `Total capture: ${((performance.now()-started)/1000).toFixed(1)}s`);
   await writeFile(path.join(OUT,'report.md'), report.join('\n') + '\n');

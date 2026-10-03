@@ -29,8 +29,8 @@ export const PROFILE = Object.freeze({
     grain: 0.062,
     hatch: 0.075,
     vignette: 0.16,
-    bloomStrength: 0.46,
-    bloomRadius: 0.28,
+    bloomStrength: 0.36,
+    bloomRadius: 0.22,
     bloomThreshold: 0.56,
   }),
 });

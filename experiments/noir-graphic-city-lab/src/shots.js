@@ -2,8 +2,8 @@ export const SHOTS = Object.freeze([
   Object.freeze({
     id: '01-plaza-approach',
     name: '01 · PLAZA APPROACH',
-    position: [8.8, 4.1, 39],
-    target: [-4.0, 4.4, -14],
+    position: [10.8, 4.0, 39.5],
+    target: [-3.7, 4.1, -13.5],
     fov: 43,
     purpose: '参考 Genesis Noir 城市场景：前景侦探、远处人群、密集亮窗、线稿街景与暗蓝空间同时成立。',
   }),

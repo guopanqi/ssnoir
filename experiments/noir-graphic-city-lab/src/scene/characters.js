@@ -37,7 +37,7 @@ export function createCharacter({
 
   const silhouette = role === 'hero' ? mats.characterLift : mats.character;
   const outlineMat = role === 'crowd' ? mats.outlineDim : mats.outline;
-  const shellAmount = role === 'hero' ? 1.045 : 1.035;
+  const shellAmount = role === 'hero' ? 1.026 : 1.018;
   const outlined = [];
 
   const coatBottom = role === 'hero' ? 1.20 : (variant % 3 === 2 ? 1.04 : 0.90);

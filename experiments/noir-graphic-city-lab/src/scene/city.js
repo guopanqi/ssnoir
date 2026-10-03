@@ -171,6 +171,69 @@ function addGroundDrawing({ groups, mats }) {
   }
 }
 
+function addStreetClutter({ groups, mats }) {
+  // Overhead utility / tram wires: long imperfect arcs are a major part of the drawn-city silhouette.
+  const wireSpecs = [
+    [[-19, 10, 32], [-8, 11.2, 10], [4, 9.8, -12], [17, 11.5, -31]],
+    [[-16, 13, 27], [-3, 12.1, 8], [9, 13.3, -15]],
+    [[-10, 8.5, 40], [1, 9.4, 16], [12, 8.8, -8]],
+  ];
+  for (const spec of wireSpecs) {
+    const curve = new THREE.CatmullRomCurve3(spec.map(v => new THREE.Vector3(...v)));
+    const pts = curve.getPoints(34);
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    groups.lines.add(new THREE.Line(geo, mats.lineDim));
+  }
+
+  // Low railings and stairs create the dense horizontal/vertical line rhythm visible in the reference.
+  for (const side of [-1, 1]) {
+    const x = side * 8.1;
+    const verts = [];
+    for (let z = -18; z <= 28; z += 4.2) {
+      verts.push(x,0.2,z, x,1.25,z);
+      verts.push(x,1.25,z, x,1.25,z+4.2);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    groups.lines.add(new THREE.LineSegments(geo, mats.lineDim));
+  }
+
+  // Street sign rings / circular motifs echo Genesis Noir's graphic signage without copying its assets.
+  for (const [x,y,z,r] of [[8.6,4.0,-13,0.55],[-8.5,4.7,7,0.42],[7.8,5.1,22,0.35]]) {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(r, 0.025, 6, 28), mats.paperDim);
+    ring.position.set(x,y,z);
+    ring.rotation.y = Math.PI/2;
+    groups.windows.add(ring);
+  }
+
+  // Steam / haze clumps.
+  for (let cloud = 0; cloud < 3; cloud++) {
+    const pts = [];
+    for (let i = 0; i < 150; i++) {
+      const baseX = -10 + cloud * 7;
+      const baseZ = 13 - cloud * 11;
+      const t = hash01(i*7.3 + cloud*31);
+      pts.push(
+        baseX + (hash01(i*3.1+cloud)-0.5) * (1.0 + t*2.2),
+        0.5 + t*5.5,
+        baseZ + (hash01(i*5.9+cloud)-0.5) * (1.0 + t*2.0)
+      );
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    groups.haze.add(new THREE.Points(geo, mats.steam));
+  }
+
+  // Benches / bins as simple outlined props.
+  for (const [x,z] of [[-6.4,14.0],[6.1,-2.0],[-6.7,-14.0]]) {
+    addLineBox({ groups,mats,x,y:0.55,z,w:2.1,h:0.75,d:0.65,bright:false });
+    const bin = new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.38,1.0,10), mats.ink);
+    bin.position.set(x+1.5,0.5,z+0.3);
+    groups.city.add(bin);
+    addEdgeCopies(bin, groups.lines, mats.lineDim, 16, true);
+  }
+}
+
 function addLightStage({ groups, mats }) {
   const source = new THREE.Vector3(-14, 28, -6);
   const target = new THREE.Vector3(-4, 0.2, -11);
@@ -209,7 +272,7 @@ function addLightStage({ groups, mats }) {
 
 function addCast({ groups, mats }) {
   createCharacter({
-    name:'Neil', position:[3.5,0,20.0], yaw:3.35, scale:1.15,
+    name:'Neil', position:[5.2,0,20.0], yaw:3.35, scale:1.15,
     pose:'neutral', role:'hero', mats, groups,
   });
 
@@ -252,8 +315,8 @@ export function buildWorld(scene, profile) {
     paperDim: material(profile.palette.paperDim),
     paper: material(profile.palette.paper),
     hot: material(profile.palette.hot),
-    outline: material(profile.palette.paper, { side:THREE.BackSide, transparent:true, opacity:0.94, depthWrite:false }),
-    outlineDim: material(profile.palette.paperDim, { side:THREE.BackSide, transparent:true, opacity:0.66, depthWrite:false }),
+    outline: material(profile.palette.paper, { side:THREE.BackSide, transparent:true, opacity:0.82, depthWrite:false }),
+    outlineDim: material(profile.palette.paperDim, { side:THREE.BackSide, transparent:true, opacity:0.52, depthWrite:false }),
     transparent: material(profile.palette.ink, { transparent:true, opacity:0 }),
     window: material(profile.palette.paper, { transparent:true, opacity:profile.graphic.windowOpacity }),
     line: new THREE.LineBasicMaterial({
@@ -280,10 +343,15 @@ export function buildWorld(scene, profile) {
       opacity:profile.graphic.hazeOpacity, depthWrite:false,
       blending:THREE.AdditiveBlending,
     }),
+    steam: new THREE.PointsMaterial({
+      color:profile.palette.paperDim, size:0.12, transparent:true,
+      opacity:0.065, depthWrite:false, blending:THREE.AdditiveBlending,
+    }),
   };
 
   addGroundDrawing({ groups, mats });
   addArchitecture({ groups, mats });
+  addStreetClutter({ groups, mats });
   addLightStage({ groups, mats });
   addCast({ groups, mats });
 
