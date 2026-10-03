@@ -1,0 +1,71 @@
+name: Noir World Kernel Capture
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'experiments/noir-world-kernel/**'
+      - '.github/workflows/noir-world-kernel-capture.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'experiments/noir-world-kernel/**'
+      - '.github/workflows/noir-world-kernel-capture.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: noir-world-kernel-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: experiments/noir-world-kernel
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Detect Chrome
+        shell: bash
+        run: |
+          CHROME_PATH="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          test -n "$CHROME_PATH"
+          echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+          "$CHROME_PATH" --version
+
+      - name: Build
+        run: npm run build
+
+      - name: Capture
+        run: npm run capture
+
+      - name: Publish report
+        shell: bash
+        run: |
+          if [ -f captures/latest/report.md ]; then
+            cat captures/latest/report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: noir-world-kernel-${{ github.run_id }}-${{ github.run_attempt }}
+          path: experiments/noir-world-kernel/captures/latest
+          retention-days: 30
+          compression-level: 3
+          if-no-files-found: error
