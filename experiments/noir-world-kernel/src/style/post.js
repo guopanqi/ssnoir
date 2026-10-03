@@ -55,9 +55,9 @@ const NoirCompositeShader = {
       float hatch2 = 1.0 - smoothstep(0.022, 0.060, d2);
       float midInk = smoothstep(0.14, 0.24, l) * (1.0 - smoothstep(0.38, 0.49, l));
       float deepInk = smoothstep(0.055, 0.12, l) * (1.0 - smoothstep(0.20, 0.29, l));
-      float patch = smoothstep(.28,.72,hash(floor(gl_FragCoord.xy/28.0)));
+      float hatchPatch = smoothstep(.28,.72,hash(floor(gl_FragCoord.xy/28.0)));
       float inkMask = gold ? 0.0 : 1.0;
-      c -= vec3((hatch1 * midInk * 0.014 + hatch2 * deepInk * 0.009) * patch * inkMask);
+      c -= vec3((hatch1 * midInk * 0.014 + hatch2 * deepInk * 0.009) * hatchPatch * inkMask);
 
       vec2 p = vUv * 2.0 - 1.0;
       float vig = smoothstep(1.35, 0.30, dot(p,p));
