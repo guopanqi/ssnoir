@@ -79,17 +79,10 @@ export function createLighting(scene, profile, lampPositions) {
   alleyDoor.layers.set(RENDER_LAYERS.ALLEY);
   group.add(alleyDoor);
 
+  // Street lamps are visual punctuation by default, not automatic light emitters.
+  // This avoids soft circular pools competing with narrative lighting. The optional
+  // cone geometry remains available for explicit future experiments.
   for (const position of lampPositions) {
-    const light = new THREE.PointLight(
-      cfg.streetColor,
-      cfg.streetIntensity,
-      cfg.streetDistance,
-      2.25,
-    );
-    light.position.fromArray(position);
-    light.castShadow = false;
-    group.add(light);
-
     const cone = new THREE.Mesh(
       new THREE.ConeGeometry(2.8, 4.0, 24, 1, true),
       coneMaterial,
