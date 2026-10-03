@@ -64,6 +64,45 @@ function addWindowGridFront({ parent, x, y, z, cols, rows, dx, dy, w, h, materia
   return group;
 }
 
+function makeSurfaceTexture(seed = 1337) {
+  const canvas=document.createElement('canvas');
+  canvas.width=160;
+  canvas.height=160;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='rgb(236,236,236)';
+  ctx.fillRect(0,0,160,160);
+
+  let state=seed;
+  const rand=()=>{state=(state*16807)%2147483647;return(state-1)/2147483646;};
+
+  for(let i=0;i<3400;i++){
+    const v=Math.floor(188+rand()*62);
+    const a=.10+rand()*.24;
+    ctx.fillStyle=`rgba(${v},${v},${v},${a})`;
+    const size=rand()>.94?2:1;
+    ctx.fillRect(Math.floor(rand()*160),Math.floor(rand()*160),size,size);
+  }
+
+  ctx.lineWidth=1;
+  for(let i=0;i<32;i++){
+    const v=Math.floor(205+rand()*32);
+    ctx.strokeStyle=`rgba(${v},${v},${v},${.10+rand()*.10})`;
+    const y=rand()*160;
+    ctx.beginPath();
+    ctx.moveTo(rand()*40,y);
+    ctx.lineTo(75+rand()*85,y+(rand()-.5)*2);
+    ctx.stroke();
+  }
+
+  const texture=new THREE.CanvasTexture(canvas);
+  texture.wrapS=THREE.RepeatWrapping;
+  texture.wrapT=THREE.RepeatWrapping;
+  texture.repeat.set(4,4);
+  texture.minFilter=THREE.LinearMipmapLinearFilter;
+  texture.magFilter=THREE.LinearFilter;
+  return texture;
+}
+
 function makeTextTexture(text) {
   const canvas=document.createElement('canvas');
   canvas.width=768;
@@ -231,6 +270,44 @@ function addRightArchitecture(groups,materials) {
   addStroke(groups.strokes,materials.strokePrimary,[[12.0,.2,7.5],[16.5,4.7,7.5]]);
 }
 
+function addCityDrawingDetails(groups,materials) {
+  // Overhead utility lines create long, clean gestures across otherwise empty sky.
+  addStroke(groups.strokes,materials.strokeDim,[
+    [-30,16.2,-22],[-18,17.4,-18],[-5,17.0,-12],[9,16.1,-6],[25,15.5,-1]
+  ]);
+  addStroke(groups.strokes,materials.strokeDim,[
+    [-28,15.5,-18],[-13,16.0,-13],[2,15.3,-8],[18,14.8,-3]
+  ]);
+
+  // Rooftop circular sign.
+  const ring=[];
+  const cx=6.3,cy=9.4,cz=-19.3,r=.72;
+  for(let i=0;i<28;i++){
+    const a=i/28*Math.PI*2;
+    ring.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r,cz]);
+  }
+  addStroke(groups.strokes,materials.strokePrimary,ring,true);
+  addStroke(groups.strokes,materials.strokeDim,[[cx-.38,8.72,cz],[cx-.38,8.1,cz],[cx+.38,8.1,cz],[cx+.38,8.72,cz]]);
+
+  // Diner interior: counter and stools, visible as drawing rather than geometry clutter.
+  addStroke(groups.strokes,materials.strokePrimary,[[-7.7,1.72,-15.88],[3.0,1.72,-15.88]]);
+  for(const x of [-6.2,-3.8,-1.4,1.0]){
+    addStroke(groups.strokes,materials.strokeDim,[[x,.55,-15.87],[x,1.24,-15.87]]);
+    addStroke(groups.strokes,materials.strokeDim,[[x-.30,1.24,-15.87],[x+.30,1.24,-15.87]]);
+  }
+
+  // Side-mounted luminous panel on the theater block.
+  const sideSign=new THREE.Mesh(new THREE.PlaneGeometry(5.4,1.05),materials.sideSign);
+  sideSign.position.set(10.42,5.1,-15.0);
+  sideSign.rotation.y=-Math.PI/2;
+  groups.emissive.add(sideSign);
+  addStroke(groups.strokes,materials.strokePrimary,[[10.40,4.55,-17.7],[10.40,5.65,-17.7],[10.40,5.65,-12.3],[10.40,4.55,-12.3],[10.40,4.55,-17.7]]);
+
+  // Antennas and roof machinery.
+  addStroke(groups.strokes,materials.strokeDim,[[-7.8,24,-40.4],[-7.8,28.5,-40.4]]);
+  addStroke(groups.strokes,materials.strokeDim,[[-8.6,27.1,-40.4],[-7.8,28.5,-40.4],[-7.0,27.1,-40.4]]);
+}
+
 function addGround(groups,materials) {
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(48,112),materials.ground);
   ground.rotation.x=-Math.PI/2;
@@ -379,11 +456,16 @@ export function buildWorld(scene,profile){
   };
   Object.values(groups).forEach(g=>scene.add(g));
 
+  const surfaceTexture=makeSurfaceTexture(1948);
+  const groundTexture=surfaceTexture.clone();
+  groundTexture.repeat.set(8,18);
+  groundTexture.needsUpdate=true;
+
   const materials={
-    surface:meshMat(profile.palette.surface),
-    surfaceLift:meshMat(profile.palette.surfaceLift),
-    surfaceMid:meshMat(profile.palette.surfaceMid),
-    ground:meshMat(0x1a2435),
+    surface:meshMat(profile.palette.surface,{map:surfaceTexture}),
+    surfaceLift:meshMat(profile.palette.surfaceLift,{map:surfaceTexture}),
+    surfaceMid:meshMat(profile.palette.surfaceMid,{map:surfaceTexture}),
+    ground:meshMat(0x202c41,{map:groundTexture}),
     character:meshMat(0x010204,{side:THREE.DoubleSide}),
     detail:meshMat(profile.palette.lineDim,{side:THREE.DoubleSide}),
     edgePrimary:new THREE.LineBasicMaterial({
@@ -396,9 +478,10 @@ export function buildWorld(scene,profile){
     strokeDim:strokeMaterial(profile.palette.lineDim,.62,.76),
     white:meshMat(profile.palette.white),
     window:meshMat(profile.palette.white),
-    windowDark:meshMat(0x596476),
+    windowDark:meshMat(0x697587),
+    sideSign:meshMat(0x9da4ad),
     reflection:meshMat(profile.palette.lineDim,{transparent:true,opacity:.1,depthWrite:false}),
-    hazeDisc:meshMat(0xc0c4cc,{transparent:true,opacity:.27,depthWrite:false,side:THREE.DoubleSide}),
+    hazeDisc:meshMat(0xc5c9d0,{transparent:true,opacity:.31,depthWrite:false,side:THREE.DoubleSide}),
     beam:meshMat(profile.palette.white,{
       transparent:true,opacity:.026,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,
     }),
@@ -411,6 +494,7 @@ export function buildWorld(scene,profile){
   addOfficeTower(groups,materials);
   addDiner(groups,materials);
   addRightArchitecture(groups,materials);
+  addCityDrawingDetails(groups,materials);
   addStreetFurniture(groups,materials);
   addAtmosphere(groups,materials);
   addCast(groups,materials);

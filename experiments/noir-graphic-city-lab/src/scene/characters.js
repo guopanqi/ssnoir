@@ -67,10 +67,10 @@ function hatCrownShape(width = 0.78, height = 0.46) {
 }
 
 function addHeroDetails(g, material) {
-  const lapelL = rect(0.042, 0.72, material, -0.15, 2.58, 0.018);
+  const lapelL = rect(0.036, 0.50, material, -0.13, 2.58, 0.018);
   lapelL.rotation.z = 0.23;
   g.add(lapelL);
-  const lapelR = rect(0.040, 0.54, material, 0.12, 2.63, 0.018);
+  const lapelR = rect(0.032, 0.34, material, 0.10, 2.63, 0.018);
   lapelR.rotation.z = -0.20;
   g.add(lapelR);
 

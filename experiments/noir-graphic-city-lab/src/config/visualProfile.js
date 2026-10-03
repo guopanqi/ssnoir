@@ -1,9 +1,9 @@
 export const PROFILE = Object.freeze({
   palette: Object.freeze({
     background: 0x0a1020,
-    surface: 0x182236,
-    surfaceLift: 0x253249,
-    surfaceMid: 0x39475e,
+    surface: 0x1e2a40,
+    surfaceLift: 0x2d3b55,
+    surfaceMid: 0x45556f,
     line: 0xe8e5dc,
     lineDim: 0xb8bec8,
     white: 0xf8f6eb,
@@ -16,8 +16,8 @@ export const PROFILE = Object.freeze({
   atmosphere: Object.freeze({
     grain: 0.040,
     vignette: 0.14,
-    bloomStrength: 0.18,
-    bloomRadius: 0.16,
-    bloomThreshold: 0.72,
+    bloomStrength: 0.22,
+    bloomRadius: 0.18,
+    bloomThreshold: 0.64,
   }),
 });
