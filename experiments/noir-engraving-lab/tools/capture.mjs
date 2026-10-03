@@ -141,10 +141,15 @@ try {
       await page.evaluate((i) => window.__noirLab.setShot(i), index);
       await page.evaluate(() => window.__noirLab.render());
 
-      await page.screenshot({
-        path: path.join(dir, `${name}.png`),
-        type: 'png',
+      const dataUrl = await page.evaluate(() => {
+        const canvas = document.querySelector('#scene');
+        return canvas.toDataURL('image/png');
       });
+      const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
+      await writeFile(
+        path.join(dir, `${name}.png`),
+        Buffer.from(base64, 'base64'),
+      );
     }
   }
 
