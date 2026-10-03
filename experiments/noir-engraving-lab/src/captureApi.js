@@ -20,7 +20,8 @@ export function installCaptureApi({
       world.groups.outlines.visible = true;
       atmosphere.setEnabled(true);
       atmosphere.setFogDensity(baseline.fogDensity);
-      lighting.setConesVisible(true);
+      // 现阶段的几何光锥只保留作交互实验，不进入正式视觉基准。
+      lighting.setConesVisible(false);
       post.bloom.strength = baseline.bloomStrength;
     },
 

@@ -28,28 +28,28 @@ export function createMaterials(profile) {
     edge: new THREE.LineBasicMaterial({
       color: p.edge,
       transparent: true,
-      opacity: 0.58,
+      opacity: 0.68,
     }),
 
     edgeDim: new THREE.LineBasicMaterial({
       color: p.edgeDim,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.11,
     }),
 
     warm: flat(0x151412, {
       emissive: p.warm,
-      emissiveIntensity: 2.4,
+      emissiveIntensity: 1.45,
     }),
 
     cool: flat(0x10151c, {
       emissive: p.cool,
-      emissiveIntensity: 1.5,
+      emissiveIntensity: 1.05,
     }),
 
     red: flat(0x140c0c, {
       emissive: p.red,
-      emissiveIntensity: 1.25,
+      emissiveIntensity: 0.95,
     }),
   };
 }

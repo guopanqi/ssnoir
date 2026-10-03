@@ -95,6 +95,7 @@ function createStreetRow(outlines, materials, {
   side,
   xs,
   heights = [],
+  windowSkip = [],
 }) {
   const group = new THREE.Group();
   group.name = side > 0 ? 'SouthRow' : 'NorthRow';
@@ -112,7 +113,7 @@ function createStreetRow(outlines, materials, {
       outlines, materials, 'context',
     ));
 
-    if (i % 2 === 0) {
+    if (i % 2 === 0 && !windowSkip.includes(i)) {
       addWindowStrip(group, materials, {
         x,
         y: 3.2,
@@ -221,27 +222,27 @@ export function buildWorld(scene, profile) {
   world.add(createStreetRow(outlines, materials, {
     seed: 3,
     side: -1,
-    xs: [-55, -42, -29, 28, 41, 54],
-    heights: [12, 17, 10, 13, 19, 11],
+    xs: [-56, -44, 30, 43, 56],
+    heights: [12, 17, 13, 19, 11],
   }));
   world.add(createStreetRow(outlines, materials, {
     seed: 9,
     side: 1,
     xs: [-55, -42, -29, -14, 0, 14, 52],
     heights: [10, 15, 17, 13, 9, 18, 12],
+    windowSkip: [2, 3],
   }));
 
   world.add(createFireEscape(outlines, materials, -42, -13.35));
   world.add(createAlleyBack(outlines, materials));
 
   const lampPositions = [
-    [-44, 4.05, -9.0],
-    [-16, 4.05, -9.0],
-    [16, 4.05, -9.0],
-    [44, 4.05, -9.0],
-    [-35, 4.05, 9.0],
-    [2, 4.05, 9.0],
-    [45, 4.05, 9.0],
+    [-25, 4.05, -9.0],
+    [20, 4.05, -9.0],
+    [48, 4.05, -9.0],
+    [-50, 4.05, 9.0],
+    [5, 4.05, 9.0],
+    [48, 4.05, 9.0],
   ];
 
   for (const [x, , z] of lampPositions) {
