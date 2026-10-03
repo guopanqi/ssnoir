@@ -30,6 +30,10 @@ const GenesisComposite = {
       vec2 p=vUv*2.0-1.0;
       float vig=smoothstep(1.45,.25,dot(p,p));
       c*=mix(1.0-uVignette,1.0,vig);
+      float paperLarge=hash(floor(gl_FragCoord.xy/48.0))-.5;
+      float paperFine=hash(floor(gl_FragCoord.xy/17.0))-.5;
+      float darkMask=1.0-smoothstep(.12,.46,l);
+      c+=vec3((paperLarge*.018+paperFine*.007)*darkMask);
       c+=(hash(gl_FragCoord.xy*.41)-.5)*uGrain;
       gl_FragColor=vec4(c,1.0);
     }
