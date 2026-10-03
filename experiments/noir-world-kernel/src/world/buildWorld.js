@@ -92,12 +92,12 @@ function addLamp(root, lines, mats, x,z, height=6.8, fx=root) {
   cylinder(root,lines,mats.ink,mats.lineDim,.11,height,[x,height/2,z],8);
   const arm = box(root,lines,mats.ink,mats.lineDim,[1.35,.12,.12],[x+.55,height-.18,z],{edges:true});
   arm.rotation.z = -5*DEG;
-  const shade = new THREE.Mesh(new THREE.ConeGeometry(.48,.42,12,1,true),mats.paper);
+  const shade = new THREE.Mesh(new THREE.ConeGeometry(.36,.34,12,1,true),mats.gold);
   shade.position.set(x+1.08,height-.5,z);
   shade.rotation.z = Math.PI;
   root.add(shade);
 
-  const bulb = new THREE.PointLight(0xf3d89b,6.5,17,1.9);
+  const bulb = new THREE.PointLight(0xf3d89b,4.6,16,1.9);
   bulb.position.set(x+1.08,height-.75,z);
   bulb.castShadow = true;
   bulb.shadow.mapSize.set(512,512);
@@ -112,15 +112,17 @@ function addLamp(root, lines, mats, x,z, height=6.8, fx=root) {
   fx.add(cone);
 }
 
-function addFigure(root, lines, mats, pos, scale=1, hat=true) {
+function addFigure(root, lines, mats, pos, scale=1, hat=true, rotY=0) {
   const g = new THREE.Group();
   g.position.set(...pos);
   g.scale.setScalar(scale);
+  g.rotation.y=rotY;
   root.add(g);
 
   const lineRoot = new THREE.Group();
   lineRoot.position.set(...pos);
   lineRoot.scale.setScalar(scale);
+  lineRoot.rotation.y=rotY;
   lines.add(lineRoot);
 
   function shapeMesh(points, material, depth=.18, z=-.09, edgeMaterial=mats.lineBright) {
@@ -228,7 +230,7 @@ export function buildWorld(scene, palette) {
     charcoal: toon(palette.charcoal),
     mid: toon(palette.mid),
     stone: toon(0x383a38),
-    face: toon(0x77736b),
+    face: unlit(0x8e897f),
     paper: toon(palette.paper),
     white: toon(palette.white),
     gold: toon(palette.gold),
@@ -284,7 +286,7 @@ export function buildWorld(scene, palette) {
   const facadeWash = new THREE.Mesh(
     new THREE.PlaneGeometry(12.7,4.8),
     new THREE.MeshBasicMaterial({
-      color:0xd6d0c2,transparent:true,opacity:.11,depthWrite:false,toneMapped:false
+      color:0xefe8d8,transparent:true,opacity:.17,depthWrite:false,toneMapped:false
     })
   );
   facadeWash.position.set(-15.65,6.25,-2.73);
@@ -409,7 +411,7 @@ export function buildWorld(scene, palette) {
   const lightPool = new THREE.Mesh(
     new THREE.CircleGeometry(7.4,64),
     new THREE.MeshBasicMaterial({
-      color:0xd7caa6, transparent:true, opacity:.12,
+      color:0xd7caa6, transparent:true, opacity:.18,
       depthWrite:false, toneMapped:false, blending:THREE.AdditiveBlending
     })
   );
@@ -425,9 +427,9 @@ export function buildWorld(scene, palette) {
   heroSpot.shadow.mapSize.set(1024,1024);
   scene.add(heroSpot,heroSpot.target);
 
-  addFigure(fill,lines,mats,[-2.3,.18,4.8],1.28,true);
-  addFigure(fill,lines,mats,[-10.2,.18,-6.5],.78,true);
-  addFigure(fill,lines,mats,[7.5,.18,10.0],.68,false);
+  addFigure(fill,lines,mats,[-2.3,.18,4.8],1.44,true,-14*DEG);
+  addFigure(fill,lines,mats,[-10.2,.18,-6.5],.78,true,10*DEG);
+  addFigure(fill,lines,mats,[7.5,.18,10.0],.68,false,-8*DEG);
 
   // A taxi-like procedural prop, kept as a graphic wedge.
   box(fill,lines,mats.ink,mats.lineBright,[4.5,1.2,2.0],[8.2,.8,5.8],{rotY:-20*DEG});
