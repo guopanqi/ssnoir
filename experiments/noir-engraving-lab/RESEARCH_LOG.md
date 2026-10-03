@@ -55,3 +55,38 @@
 ## Iteration 01 — Shape baseline review
 
 状态：等待自动 benchmark 截图。第一轮只根据实际 `shape` / `final` 固定镜头判断，不预设改法。
+
+
+### 2026-10-03 — Iteration 01A / Baseline shape review
+
+**问题**
+
+当前小街区的构图和体块本身是否已经能承担黑色电影画面，而不依赖描线和最终 shader？
+
+**固定条件**
+
+保持材质、灯光参数、Atmosphere、Print 和描线算法不变。使用 1600×900、固定 seed 的四个 benchmark shots。
+
+**基线观察**
+
+- Shot 01：镜头被近处街屋大面积遮挡，剧院几乎不可见；这是空间布局/机位问题，不是“黑面积有力量”。
+- Shot 02：四个镜头中体块关系最清楚，仓库具有可识别轮廓，但仓库仍侵入道路。
+- Shot 03：机位正对近距离 emissive / street light；完整效果严重过曝，无法用于判断后巷。
+- Shot 04：城市可读，但普通街屋、地标和背景体块的权重过平均。
+- 亮度诊断：Shape 01 / 02 中约 90% 以上像素低于 luma 0.03；Final 03 约一半画面高于 luma 0.5。两端都说明当前镜头不能作为稳定 benchmark。
+
+**Iteration 01A 变量**
+
+只修改空间与构图：
+
+- 剧院进入北侧街墙，并取代一块 generic building；
+- 仓库移到南侧街墙并取代两块 generic building；
+- 后巷成为南侧街墙的真实缺口；
+- 路灯从均匀 7 盏缩成稀疏 4 盏；
+- 重设四个 benchmark camera。
+
+不修改 Line / Light 参数 / Atmosphere / Print。
+
+**预期**
+
+Shot 01 应第一眼读到剧院；Shot 03 应能从街道看进一个被两侧建筑夹住的黑暗缺口；Shot 04 应出现明确的 landmark hierarchy。
