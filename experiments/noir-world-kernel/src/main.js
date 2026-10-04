@@ -13,21 +13,21 @@ app.appendChild(renderer.domElement);
 
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x020309);
-scene.fog=new THREE.FogExp2(0x020309,.008);
+scene.fog=new THREE.FogExp2(0x020309,.007);
 
 const camera=new THREE.PerspectiveCamera(35,1,.1,160);
-scene.add(new THREE.HemisphereLight(0x222633,0x000000,.42));
-const key=new THREE.DirectionalLight(0xe9e6dc,.70);
-key.position.set(-10,18,12);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key);
+scene.add(new THREE.HemisphereLight(0x20232d,0x000000,.38));
+const key=new THREE.DirectionalLight(0xe9e6dc,.62);
+key.position.set(-10,18,12);scene.add(key);
 
 const world=buildWorld(scene);
 const {composer,resize}=createComposer(renderer,scene,camera);
 
 const shots={
-  wide:{pos:[15,4.8,25],target:[0,2.7,-10.5],fov:34},
-  street:{pos:[8.5,3.7,18],target:[0,2.35,-8.5],fov:35},
-  alley:{pos:[-9,4.2,16],target:[-4.5,2.7,-10],fov:34},
-  detail:{pos:[4.7,3.1,11.5],target:[-.3,1.85,4.0],fov:30}
+  wide:{pos:[-10.5,4.4,22.5],target:[0,2.55,-10.0],fov:35},
+  street:{pos:[-6.0,3.7,17.2],target:[0,2.25,-8.5],fov:35},
+  alley:{pos:[9.0,4.2,16.0],target:[2.5,2.55,-9.5],fov:34},
+  detail:{pos:[7.0,3.0,11.3],target:[2.2,1.8,4.9],fov:29}
 };
 
 let shotName='wide',mode='final';
@@ -56,11 +56,10 @@ window.__NOIR_LAB__={
   },
   setShot:applyShot,setMode,
   info(){return {
-    version:'0.4.0',
-    phase:'Genesis Noir reusable world systems',
-    renderer:'3D spatial skeleton + VectorStroke + FacadeGrammar + SVG Puppet/Prop + source-driven ReflectionField',
-    shot:shotName,evaluation:mode,
-    proceduralPlusVectorAssets:true
+    version:'0.5.0',
+    phase:'reference-driven Genesis Noir local street',
+    renderer:'3D spatial skeleton + authored vector/SVG illustration layers + source-driven wet reflections',
+    shot:shotName,evaluation:mode,proceduralPlusVectorAssets:true
   };}
 };
 
