@@ -39,7 +39,7 @@ const shots={
   terminal:{
     wide:{pos:[-9.0,4.15,21.0],target:[0,2.35,-9.0],fov:35},
     street:{pos:[-5.3,3.55,16.0],target:[.4,2.15,-7.3],fov:35},
-    detail:{pos:[6.6,3.0,11.6],target:[1.6,1.8,5.8],fov:30}
+    detail:{pos:[7.4,3.0,12.2],target:[3.1,1.8,5.8],fov:30}
   }
 };
 
@@ -86,7 +86,7 @@ window.__NOIR_LAB__={
   },
   setScene:setWorld,setShot:applyShot,setMode,
   info(){return {
-    version:'0.6.0',
+    version:'0.6.1',
     phase:'Genesis Noir vector-kit generalization',
     renderer:'shared 3D skeleton + FacadeGrammar + VectorAssetCatalog + SVG Puppet/Prop + source-driven ReflectionField',
     scene:worldName,shot:shotName,evaluation:mode,

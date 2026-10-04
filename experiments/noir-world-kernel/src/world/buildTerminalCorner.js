@@ -43,6 +43,26 @@ function lamp(fill,strokes,glow,x,z,h=5.8){
   return {x:x+.58,z,width:.24,intensity:.55,color:'white'};
 }
 
+function archPortal(fill,strokes,x,z,{width=2.45,height=2.85,baseY=.65}={}){
+  panel(fill,[width,height*.58],[x,baseY+height*.29,z-.015],0xd8d6ce,.10);
+  const points=[[x-width/2,baseY,z],[x-width/2,baseY+height*.55,z]];
+  for(let i=0;i<=18;i++){
+    const angle=Math.PI-(Math.PI*i/18);
+    points.push([
+      x+Math.cos(angle)*(width/2),
+      baseY+height*.55+Math.sin(angle)*(height*.45),
+      z
+    ]);
+  }
+  points.push([x+width/2,baseY,z]);
+  strokePath(strokes,points,{color:P.white,width:1.15,opacity:.44});
+  strokeSegments(strokes,[
+    [x-width*.18,baseY,z+.01,x-width*.18,baseY+height*.55,z+.01],
+    [x+width*.18,baseY,z+.01,x+width*.18,baseY+height*.55,z+.01]
+  ],{color:P.white,width:.65,opacity:.22});
+  return {x,z,width:width*.55,intensity:.20,color:'white'};
+}
+
 export function buildTerminalCorner(scene){
   const root=new THREE.Group(),fill=new THREE.Group(),strokes=new THREE.Group(),glow=new THREE.Group();
   root.add(fill,strokes,glow);scene.add(root);
@@ -58,27 +78,30 @@ export function buildTerminalCorner(scene){
     litDensity:.32,seed:42,windowCols:6,windowRows:6,windowScale:[.28,.30],edgeOpacity:.17
   }).reflectionSources);
 
-  // Low terminal volume with a long glowing horizontal band.
-  box(fill,[13,4.2,4.2],[0,2.1,-13.4],P.deep);
-  panel(fill,[10.2,.48],[0,3.45,-11.27],P.white,.42);
+  // Low terminal volume uses three arched bays instead of the cafe's rounded storefront.
+  box(fill,[13,4.4,4.2],[0,2.2,-13.4],P.deep);
   strokeSegments(strokes,[
-    [-6.5,.12,-11.25,-6.5,4.2,-11.25],
-    [-6.5,4.2,-11.25,6.5,4.2,-11.25],
-    [6.5,4.2,-11.25,6.5,.2,-11.25]
-  ],{color:P.white,width:1.55,opacity:.48});
-  sources.push({x:0,z:-11.27,width:4.3,intensity:.55,color:'white'});
+    [-6.5,.12,-11.25,-6.5,4.4,-11.25],
+    [-6.5,4.4,-11.25,6.5,4.4,-11.25],
+    [6.5,4.4,-11.25,6.5,.2,-11.25],
+    [-5.2,3.78,-11.22,5.2,3.78,-11.22]
+  ],{color:P.white,width:1.35,opacity:.42});
 
-  addVectorProp(fill,'street.awning',{position:[-1.0,2.7,-11.20],scale:.018,strokeScale:.82});
+  sources.push(archPortal(fill,strokes,-3.45,-11.21,{width:2.55,height:2.85}));
+  sources.push(archPortal(fill,strokes,0,-11.21,{width:2.55,height:2.85}));
+  sources.push(archPortal(fill,strokes,3.45,-11.21,{width:2.55,height:2.85}));
+
+  addVectorProp(fill,'street.awning',{position:[-3.45,3.02,-11.17],scale:.0104,strokeScale:.76});
   addVectorProp(fill,'street.phone-booth',{position:[-5.2,.02,-8.4],scale:.0108,strokeScale:.86});
-  addVectorProp(fill,'street.bench',{position:[3.8,.02,-8.6],scale:.0115,strokeScale:.84});
+  addVectorProp(fill,'street.bench',{position:[4.2,.02,-8.6],scale:.0115,strokeScale:.84});
   addVectorProp(fill,'street.trash-can',{position:[6.2,.02,-8.3],scale:.0090,strokeScale:.80});
   addVectorProp(fill,'street.sign',{position:[-7.8,.02,-5.1],scale:.0104,strokeScale:.86});
-  addVectorProp(fill,'nature.tree-column',{position:[7.5,.02,-4.7],scale:.0102,strokeScale:.74});
+  addVectorProp(fill,'nature.tree-column',{position:[7.3,.02,-4.9],scale:.0106,strokeScale:.72});
 
-  addVectorProp(fill,'vehicle.sedan',{position:[5.7,.02,4.2],scale:.0105,rotationY:-.10,strokeScale:.78});
-  sources.push({x:5.7,z:4.2,width:.48,intensity:.18,color:'gold'});
+  addVectorProp(fill,'vehicle.sedan',{position:[-5.2,.02,4.5],scale:.0102,rotationY:.08,strokeScale:.76});
+  sources.push({x:-5.2,z:4.5,width:.46,intensity:.18,color:'gold'});
 
-  addPuppetCharacter(fill,{kind:'detective-walk',position:[1.6,.02,5.8],scale:.0113,strokeScale:.84});
+  addPuppetCharacter(fill,{kind:'detective-walk',position:[3.1,.02,5.8],scale:.0115,strokeScale:.82});
   addPuppetCharacter(fill,{kind:'worker',position:[-3.6,.02,-6.8],scale:.0060,strokeScale:.82});
   addPuppetCharacter(fill,{kind:'dress',position:[2.4,.02,-7.2],scale:.0057,mirror:true,strokeScale:.82});
   addPuppetCharacter(fill,{kind:'shortcoat',position:[5.0,.02,-9.6],scale:.0042,strokeScale:.78});
