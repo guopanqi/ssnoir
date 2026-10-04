@@ -83,8 +83,8 @@ function addDiner(fill,strokes,glow){
   ],{color:P.white,width:2.35,opacity:.88});
 
   const winZ=-12.91;
-  panel(fill,[3.15,1.48],[-2.75,2.10,winZ],0xd8d6ce,.28);
-  panel(fill,[3.25,1.48],[2.05,2.10,winZ],0xd8d6ce,.32);
+  panel(fill,[3.15,1.48],[-2.75,2.10,winZ],0xd8d6ce,.20);
+  panel(fill,[3.25,1.48],[2.05,2.10,winZ],0xd8d6ce,.23);
 
   // Window borders and mullions do more work than the luminous fill.
   strokeSegments(strokes,[
@@ -119,6 +119,35 @@ function addDiner(fill,strokes,glow){
     {x:2.05,z:winZ,width:1.05,intensity:.58,color:'white'},
     {x:-.25,z:-12.89,width:.7,intensity:.32,color:'white'}
   ];
+}
+
+function addTreeSilhouette(fill,strokes,x,z,scale=1){
+  const group=new THREE.Group();
+  group.position.set(x,0,z);group.scale.setScalar(scale);fill.add(group);
+
+  box(group,[.22,2.8,.16],[0,1.4,0],standard(0x05070b));
+
+  const crown=new THREE.Shape();
+  crown.moveTo(-.90,2.25);
+  crown.bezierCurveTo(-1.30,2.55,-1.18,3.12,-.72,3.28);
+  crown.bezierCurveTo(-.92,3.72,-.48,4.05,-.08,3.92);
+  crown.bezierCurveTo(.12,4.35,.72,4.26,.84,3.84);
+  crown.bezierCurveTo(1.25,3.78,1.38,3.20,1.02,2.94);
+  crown.bezierCurveTo(1.25,2.55,.78,2.18,.42,2.30);
+  crown.bezierCurveTo(.06,2.08,-.45,2.05,-.90,2.25);
+  crown.closePath();
+  const mesh=shapeMesh(group,crown,.03,0x0a0c10);mesh.renderOrder=5;
+
+  const lineGroup=new THREE.Group();
+  lineGroup.position.copy(group.position);lineGroup.scale.copy(group.scale);strokes.add(lineGroup);
+  const outline=crown.getSpacedPoints(72).map(point=>[point.x,point.y,.05]);
+  strokePath(lineGroup,outline,{color:P.white,width:1.05,opacity:.18,closed:true});
+
+  strokeSegments(lineGroup,[
+    [0,2.15,.05,-.35,2.85,.05],
+    [0,2.20,.05,.42,3.02,.05],
+    [-.05,2.55,.05,.55,3.52,.05]
+  ],{color:P.white,width:.65,opacity:.12});
 }
 
 function addLamp(fill,strokes,glow,x,z,h=6.2){
@@ -216,7 +245,7 @@ export function buildWorld(scene){
   reflectionSources.push(addLamp(fill,strokes,glow,-6.5,4.4,6.0));
   reflectionSources.push(addLamp(fill,strokes,glow,6.7,-4.8,6.3));
 
-  addPuppetCharacter(fill,{kind:'detective',position:[2.2,.02,4.9],strokeScale:.88});
+  addPuppetCharacter(fill,{kind:'detective',position:[4.2,.02,7.5],scale:.0108,strokeScale:.86});
   addPuppetCharacter(fill,{kind:'pedestrian',position:[-8.0,.02,-5.8],scale:.0062,mirror:true,strokeScale:.86});
   addPuppetCharacter(fill,{kind:'pedestrian',position:[7.6,.02,-2.3],scale:.0058,strokeScale:.86});
   addPuppetCharacter(fill,{kind:'pedestrian',position:[1.8,.02,-10.7],scale:.0034,mirror:true,strokeScale:.82});
@@ -227,6 +256,8 @@ export function buildWorld(scene){
     position:[-5.7,.03,3.9],scale:.0108,pivot:[150,110],rotationY:.10,strokeScale:.78
   });
   reflectionSources.push({x:-5.7,z:3.9,width:.60,intensity:.22,color:'gold'});
+
+  addTreeSilhouette(fill,strokes,.6,-10.0,1.05);
 
   addReflectionField(glow,{
     sources:reflectionSources,
