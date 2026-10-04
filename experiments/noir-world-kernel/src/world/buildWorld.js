@@ -114,6 +114,24 @@ function addDiner(fill,strokes,glow){
     [1.10,1.40,-12.87,1.10,1.12,-12.87],[2.25,1.40,-12.87,2.25,1.10,-12.87]
   ],{color:P.white,width:.85,opacity:.45});
 
+  // A restrained arched doorway gives the storefront one non-rectilinear architectural cue.
+  const arch=[];
+  arch.push([3.88,.76,-12.88],[3.88,2.20,-12.88]);
+  for(let i=0;i<=12;i++){
+    const angle=Math.PI-(Math.PI*i/12);
+    arch.push([4.42+Math.cos(angle)*.54,2.20+Math.sin(angle)*.54,-12.88]);
+  }
+  arch.push([4.96,.76,-12.88]);
+  strokePath(strokes,arch,{color:P.white,width:1.10,opacity:.48});
+
+  // Two tiny dark occupants prevent the luminous windows from reading as empty UI panels.
+  panel(fill,[.11,.62],[-3.05,2.02,-12.865],P.ink,1);
+  panel(fill,[.13,.68],[1.58,2.02,-12.865],P.ink,1);
+  const headA=new THREE.Mesh(new THREE.CircleGeometry(.10,18),basic(P.ink));
+  headA.position.set(-3.05,2.42,-12.86);fill.add(headA);
+  const headB=new THREE.Mesh(new THREE.CircleGeometry(.11,18),basic(P.ink));
+  headB.position.set(1.58,2.46,-12.86);fill.add(headB);
+
   const sign=new THREE.Mesh(new THREE.PlaneGeometry(3.7,.58),new THREE.MeshBasicMaterial({
     map:textTexture('NIGHT CAFE'),transparent:true,toneMapped:false,depthWrite:false
   }));
@@ -170,6 +188,24 @@ function addLamp(fill,strokes,glow,x,z,h=6.2){
   }));
   halo.position.set(x+.72,h-.03,z+.2);halo.scale.set(3.6,3.6,1);glow.add(halo);
   return {x:x+.72,z,width:.26,intensity:.72,color:'white'};
+}
+
+function addFireEscape(strokes,x,z,{levels=3,width=2.7,startY=3.6,dy=2.45}={}){
+  const lines=[];
+  for(let level=0;level<levels;level++){
+    const y=startY+level*dy;
+    lines.push([x-width/2,y,z,x+width/2,y,z]);
+    lines.push([x-width/2,y+.55,z,x+width/2,y+.55,z]);
+    for(let i=0;i<=4;i++){
+      const px=x-width/2+(width*i/4);
+      lines.push([px,y,z,px,y+.55,z]);
+    }
+    if(level<levels-1){
+      lines.push([x+width*.35,y+.55,z,x-width*.30,y+dy,z]);
+      lines.push([x+width*.20,y+.55,z,x-width*.45,y+dy,z]);
+    }
+  }
+  strokeSegments(strokes,lines,{color:P.white,width:.70,opacity:.26});
 }
 
 function addGrassPatch(strokes,x,z,{count=18,scale=1,seed=1}={}){
@@ -232,6 +268,8 @@ export function buildWorld(scene){
     litDensity:.18,seed:18,windowCols:5,windowRows:5,windowScale:[.28,.30],edgeOpacity:.14
   }).reflectionSources);
 
+  addFireEscape(strokes,-12.2,-13.47,{levels:3,width:2.8,startY:3.2,dy:2.35});
+
   box(fill,[17,18,4],[1.5,9,-27],standard(0x06080d));
   const farZ=-24.96;
   for(let row=0;row<8;row++){
@@ -281,10 +319,11 @@ export function buildWorld(scene){
   addGrassPatch(strokes,-8.2,5.5,{count:25,scale:1.2,seed:11});
   addGrassPatch(strokes,-4.4,-11.2,{count:18,scale:.8,seed:27});
 
-  const ring=new THREE.Mesh(new THREE.RingGeometry(2.45,2.56,96),basic(P.gold,{
-    transparent:true,opacity:.80,side:THREE.DoubleSide
-  }));
-  ring.position.set(-8.5,12.0,-29);fill.add(ring);
+  const ring=new THREE.Mesh(
+    new THREE.RingGeometry(1.75,1.86,72,1,.28,Math.PI*1.42),
+    basic(P.gold,{transparent:true,opacity:.78,side:THREE.DoubleSide})
+  );
+  ring.position.set(-3.8,13.4,-29);fill.add(ring);
 
   addForegroundFrame(fill,strokes);
   addRain(strokes);
