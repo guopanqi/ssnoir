@@ -76,11 +76,29 @@ namespace SSNoir
         private readonly Dictionary<CinemachineVirtualCamera, Place> _cameraOwners = new();
         private readonly Dictionary<string, List<GameObject>> _presenceByAnchor = new(StringComparer.Ordinal);
         private Place? _activePlace;
+        private readonly CityWorldVisuals _visuals;
 
         private CityOutlineState(Transform cityRoot)
         {
+            _visuals = new CityWorldVisuals(cityRoot);
+            _visuals.SetFocused(null);
             foreach (var renderer in cityRoot.GetComponentsInChildren<Renderer>(true))
-                renderer.shadowCastingMode = ShadowCastingMode.Off;
+            {
+                bool outline = false;
+                for (var node = renderer.transform; node != null && node != cityRoot; node = node.parent)
+                {
+                    if (node.name.StartsWith("描线_", StringComparison.Ordinal)
+                        || node.name.StartsWith("线_", StringComparison.Ordinal)
+                        || node.name.StartsWith("壳_", StringComparison.Ordinal))
+                    {
+                        outline = true;
+                        break;
+                    }
+                }
+                // 实体投影建立空间；描线不投影，避免细线把表面弄脏。
+                renderer.shadowCastingMode = outline ? ShadowCastingMode.Off : ShadowCastingMode.On;
+                renderer.receiveShadows = !outline;
+            }
 
             int viewCount = 0;
             var byName = new Dictionary<string, List<Transform>>();
@@ -209,6 +227,7 @@ namespace SSNoir
             _activePlace?.SetFocused(false);
             next?.SetFocused(true);
             _activePlace = next;
+            _visuals.SetFocused(next?.Name);
         }
 
         private static bool IsFocusOutlineRoot(Transform transform)

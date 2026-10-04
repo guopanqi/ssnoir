@@ -61,6 +61,7 @@ namespace SSNoir
             return new RenderTexture(w, h, 24, RenderTextureFormat.ARGB32)
             {
                 name = "SSNoir.CinematicCapture",
+                antiAliasing = Mathf.Max(1, (UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.msaaSampleCount ?? QualitySettings.antiAliasing),
             };
         }
 

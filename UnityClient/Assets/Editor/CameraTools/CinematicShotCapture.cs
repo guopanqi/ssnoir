@@ -24,6 +24,7 @@ namespace SSNoir.Editor
     {
         public static void CaptureFromVirtualCamera(CinemachineVirtualCamera vcam, int height)
         {
+            using var lighting = CityOutlineEditorPreview.BeginLightingPreview(vcam.transform);
             var target = CinematicCapture.CreateTarget(height);
             var go = new GameObject("~SSNoirShotCaptureCamera")
             {
@@ -62,8 +63,9 @@ namespace SSNoir.Editor
                 capture.fieldOfView = vcam.m_Lens.FieldOfView;
                 capture.orthographic = vcam.m_Lens.Orthographic;
                 capture.orthographicSize = vcam.m_Lens.OrthographicSize;
-                capture.nearClipPlane = vcam.m_Lens.NearClipPlane;
-                capture.farClipPlane = vcam.m_Lens.FarClipPlane;
+                float clipScale = !Application.isPlaying ? (vcam.GetComponent<SSNoirVirtualCameraConfig>()?.modelRoot?.lossyScale.x ?? 1) : 1;
+                capture.nearClipPlane = vcam.m_Lens.NearClipPlane * clipScale;
+                capture.farClipPlane = vcam.m_Lens.FarClipPlane * clipScale;
 
                 capture.targetTexture = target;
                 // aspect 要在 targetTexture 之后设，接上贴图会把画幅重置成贴图的比例。

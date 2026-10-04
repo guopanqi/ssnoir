@@ -85,6 +85,7 @@ namespace SSNoir.Editor
                 EnsureResources();
                 if (_previewCamera != null && _previewTexture != null)
                 {
+                    using var lighting = CityOutlineEditorPreview.BeginLightingPreview(targetVcam.transform);
                     // 渲染设置每帧从主相机搬一次。预览是用来定构图的，它和运行时画面不一致就
                     // 没有参考价值——清除方式、剔除、后处理都得是同一套。搬完再把预览专属的
                     // 那几项按回去：CopyFrom 会连 cameraType 和 targetTexture 一起覆盖，而
@@ -103,8 +104,9 @@ namespace SSNoir.Editor
                     _previewCamera.transform.rotation = targetVcam.transform.rotation;
 
                     _previewCamera.fieldOfView = targetVcam.m_Lens.FieldOfView;
-                    _previewCamera.nearClipPlane = targetVcam.m_Lens.NearClipPlane;
-                    _previewCamera.farClipPlane = targetVcam.m_Lens.FarClipPlane;
+                    float clipScale = !Application.isPlaying ? (targetVcam.GetComponent<SSNoirVirtualCameraConfig>()?.modelRoot?.lossyScale.x ?? 1) : 1;
+                    _previewCamera.nearClipPlane = targetVcam.m_Lens.NearClipPlane * clipScale;
+                    _previewCamera.farClipPlane = targetVcam.m_Lens.FarClipPlane * clipScale;
                     _previewCamera.orthographic = targetVcam.m_Lens.Orthographic;
                     _previewCamera.orthographicSize = targetVcam.m_Lens.OrthographicSize;
 
@@ -268,6 +270,7 @@ namespace SSNoir.Editor
             {
                 _previewTexture = new RenderTexture(
                     textureWidth, textureHeight, 24, RenderTextureFormat.ARGB32);
+                _previewTexture.antiAliasing = Mathf.Max(1, (UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset)?.msaaSampleCount ?? QualitySettings.antiAliasing);
                 _previewTexture.filterMode = FilterMode.Bilinear;
                 _previewTexture.hideFlags = HideFlags.HideAndDontSave;
             }

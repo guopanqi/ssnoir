@@ -1,0 +1,1212 @@
+{
+  "version": 1,
+  "scale": 0.1,
+  "materials": [
+    {
+      "name": "M_White_Emission_Lines",
+      "baseLinear": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 1.0
+      },
+      "emissionLinear": {
+        "r": 1.3799999952316284,
+        "g": 1.4399999380111694,
+        "b": 1.5,
+        "a": 1.0
+      },
+      "roughness": 1.0,
+      "metallic": 0.0,
+      "unlit": true
+    },
+    {
+      "name": "M_描线_填充",
+      "baseLinear": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 1.0
+      },
+      "emissionLinear": {
+        "r": 0.12999999523162842,
+        "g": 0.16500000655651093,
+        "b": 0.23000000417232513,
+        "a": 1.0
+      },
+      "roughness": 1.0,
+      "metallic": 0.0,
+      "unlit": true
+    },
+    {
+      "name": "M_描线_壳",
+      "baseLinear": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 1.0
+      },
+      "emissionLinear": {
+        "r": 1.3799999952316284,
+        "g": 1.4399999380111694,
+        "b": 1.5,
+        "a": 1.0
+      },
+      "roughness": 1.0,
+      "metallic": 0.0,
+      "unlit": true
+    },
+    {
+      "name": "Study_lamp",
+      "baseLinear": {
+        "r": 0.9200000166893005,
+        "g": 0.9599999785423279,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "emissionLinear": {
+        "r": 2.759999990463257,
+        "g": 2.879999876022339,
+        "b": 3.0,
+        "a": 1.0
+      },
+      "roughness": 0.8799999952316284,
+      "metallic": 0.0,
+      "unlit": false
+    },
+    {
+      "name": "Study_shared_body",
+      "baseLinear": {
+        "r": 0.00800000037997961,
+        "g": 0.012000000104308128,
+        "b": 0.019999999552965164,
+        "a": 1.0
+      },
+      "emissionLinear": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 1.0
+      },
+      "roughness": 0.8799999952316284,
+      "metallic": 0.0,
+      "unlit": false
+    },
+    {
+      "name": "Study_shared_ground",
+      "baseLinear": {
+        "r": 0.01600000075995922,
+        "g": 0.023000000044703484,
+        "b": 0.03400000184774399,
+        "a": 1.0
+      },
+      "emissionLinear": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 1.0
+      },
+      "roughness": 0.6200000047683716,
+      "metallic": 0.0,
+      "unlit": false
+    }
+  ],
+  "lights": [
+    {
+      "name": "掠射轮廓光",
+      "type": "AREA",
+      "position": {
+        "x": 6.0,
+        "y": 13.0,
+        "z": 4.0
+      },
+      "direction": {
+        "x": -0.41015172004699707,
+        "y": -0.8886616826057434,
+        "z": -0.2050757110118866
+      },
+      "up": {
+        "x": -0.7948432564735413,
+        "y": 0.45856350660324097,
+        "z": -0.3974214494228363
+      },
+      "colorLinear": {
+        "r": 0.8600000143051147,
+        "g": 0.9300000071525574,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "energy": 1300.0,
+      "size": 3.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "shadows": true
+    },
+    {
+      "name": "对峙人物光",
+      "type": "AREA",
+      "position": {
+        "x": -2.0,
+        "y": 8.0,
+        "z": -3.0
+      },
+      "direction": {
+        "x": 0.10540925711393356,
+        "y": -0.8432741165161133,
+        "z": 0.5270463228225708
+      },
+      "up": {
+        "x": 0.1653796285390854,
+        "y": 0.5374838709831238,
+        "z": 0.8268982172012329
+      },
+      "colorLinear": {
+        "r": 0.8999999761581421,
+        "g": 0.949999988079071,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "energy": 650.0,
+      "size": 4.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "shadows": true
+    },
+    {
+      "name": "路灯光_0",
+      "type": "SPOT",
+      "position": {
+        "x": 8.0,
+        "y": 5.099999904632568,
+        "z": -3.0
+      },
+      "direction": {
+        "x": -0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "up": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "colorLinear": {
+        "r": 0.8600000143051147,
+        "g": 0.9300000071525574,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "energy": 500.0,
+      "size": 0,
+      "spotAngle": 54.43098985440929,
+      "spotBlend": 0.3499999940395355,
+      "shadows": true
+    },
+    {
+      "name": "路灯光_1",
+      "type": "SPOT",
+      "position": {
+        "x": -6.0,
+        "y": 5.099999904632568,
+        "z": 5.0
+      },
+      "direction": {
+        "x": -0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "up": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "colorLinear": {
+        "r": 0.8600000143051147,
+        "g": 0.9300000071525574,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "energy": 500.0,
+      "size": 0,
+      "spotAngle": 54.43098985440929,
+      "spotBlend": 0.3499999940395355,
+      "shadows": true
+    },
+    {
+      "name": "酒馆入口光",
+      "type": "AREA",
+      "position": {
+        "x": 8.600000381469727,
+        "y": 2.4000000953674316,
+        "z": -2.0
+      },
+      "direction": {
+        "x": -0.919081449508667,
+        "y": -0.33966052532196045,
+        "z": 0.1998003125190735
+      },
+      "up": {
+        "x": -0.3319082260131836,
+        "y": 0.9405481219291687,
+        "z": 0.07215380668640137
+      },
+      "colorLinear": {
+        "r": 0.8600000143051147,
+        "g": 0.9300000071525574,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "energy": 350.0,
+      "size": 2.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "shadows": true
+    }
+  ],
+  "cameras": [
+    {
+      "name": "Camera_别给他们想要的",
+      "position": {
+        "x": 0.30000001192092896,
+        "y": 13.5,
+        "z": -19.5
+      },
+      "direction": {
+        "x": -0.0039385040290653706,
+        "y": -0.492313027381897,
+        "z": 0.8704093098640442
+      },
+      "up": {
+        "x": -0.0022276383824646473,
+        "y": 0.8704181909561157,
+        "z": 0.49230802059173584
+      },
+      "verticalFov": 22.89519252737121
+    }
+  ],
+  "renderers": [
+    {
+      "name": "街面",
+      "materials": [
+        "Study_shared_ground"
+      ]
+    },
+    {
+      "name": "人行道_远",
+      "materials": [
+        "Study_shared_ground"
+      ]
+    },
+    {
+      "name": "人行道_左",
+      "materials": [
+        "Study_shared_ground"
+      ]
+    },
+    {
+      "name": "公寓_远左",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "公寓_远中",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "公寓_远右",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "暗巷_地",
+      "materials": [
+        "Study_shared_ground"
+      ]
+    },
+    {
+      "name": "暗巷_天桥",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "暗巷_天桥_栏",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "暗巷_天桥_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "酒馆",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "酒馆_雨棚",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "公寓_左北",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "公寓_左南_剖切",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "公寓_右北",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "公寓_右南",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "窄口_地",
+      "materials": [
+        "Study_shared_ground"
+      ]
+    },
+    {
+      "name": "公寓_右南_剖切",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "记者门阶_台",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "记者门阶_栏杆",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "记者门阶_栏杆_-1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "近墙_剖切_-1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "记者门阶_栏杆_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "近墙_剖切_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "电线_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "电线_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "电线_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "晾衣绳_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "晾衣绳_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "晾衣绳_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "晾衣绳_4",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "电杆_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "电杆_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "电杆_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "消防栓",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "垃圾桶_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "垃圾桶_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "垃圾桶_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "垃圾桶_4",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "垃圾桶_5",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "垃圾桶_6",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "木箱堆_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "木箱堆_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "木箱堆_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "木箱堆_4",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "木箱堆_5",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "木桶_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "木桶_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "木桶_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "木桶_4",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "手推车_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "手推车_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "长凳",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "煤堆_篷布",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "广告牌",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "警车_前",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "警车_后",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "弗兰克的人_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "弗兰克的人_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "弗兰克的人_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "弗兰克的人_4",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "弗兰克的人_5",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "弗兰克的人_6",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "弗兰克的人_7",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "喊的人",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "老街的人_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "老街的人_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "老街的人_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "老街的人_4",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "老街的人_5",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "老街的人_6",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "老街的人_7",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "老街的人_8",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "老警官",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "年轻警察",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "押送警察_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "小码头工",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "押送警察_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "守车警察",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "家属_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "家属_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "家属_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "家属_4",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "家属_5",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "邻居_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "邻居_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "邻居_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "尼尔",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_2",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_3",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_4",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_5",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_6",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_7",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_8",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_9",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_10",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "围观_11",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "摄影师",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "记者",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "三脚架相机",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "实验路灯_0",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "实验灯头_0",
+      "materials": [
+        "Study_lamp"
+      ]
+    },
+    {
+      "name": "实验路灯_1",
+      "materials": [
+        "Study_shared_body"
+      ]
+    },
+    {
+      "name": "实验灯头_1",
+      "materials": [
+        "Study_lamp"
+      ]
+    },
+    {
+      "name": "描线_focus_别给他们想要的",
+      "materials": [
+        "M_White_Emission_Lines"
+      ]
+    },
+    {
+      "name": "描线_focus_别给他们想要的_暗",
+      "materials": [
+        "M_描线_填充"
+      ]
+    },
+    {
+      "name": "线_警车_前",
+      "materials": [
+        "M_White_Emission_Lines"
+      ]
+    },
+    {
+      "name": "线_警车_后",
+      "materials": [
+        "M_White_Emission_Lines"
+      ]
+    },
+    {
+      "name": "壳_弗兰克的人_1",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_弗兰克的人_2",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_弗兰克的人_3",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_弗兰克的人_4",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_弗兰克的人_5",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_弗兰克的人_6",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_弗兰克的人_7",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_喊的人",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_老街的人_1",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_老街的人_2",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_老街的人_3",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_老街的人_4",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_老街的人_5",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_老街的人_6",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_老街的人_7",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_老街的人_8",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_年轻警察",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_押送警察_1",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_小码头工",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_押送警察_2",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_守车警察",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_家属_1",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_家属_2",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_家属_3",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_家属_4",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_家属_5",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_邻居_1",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_邻居_2",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_邻居_3",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_1",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_2",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_3",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_4",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_5",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_6",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_7",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_8",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_9",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_10",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_围观_11",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_摄影师",
+      "materials": [
+        "M_描线_壳"
+      ]
+    },
+    {
+      "name": "壳_记者",
+      "materials": [
+        "M_描线_壳"
+      ]
+    }
+  ],
+  "worldLinear": {
+    "r": 0.012000000104308128,
+    "g": 0.017999999225139618,
+    "b": 0.03200000151991844,
+    "a": 1.0
+  },
+  "fog": false,
+  "fogStart": 800.0,
+  "fogEnd": 3000.0,
+  "width": 1600,
+  "height": 900
+}

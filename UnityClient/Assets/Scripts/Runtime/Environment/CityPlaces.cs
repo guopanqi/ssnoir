@@ -88,6 +88,7 @@ namespace SSNoir
             try
             {
                 PropMotion.Attach(instance, placeName);
+                CityWorldVisuals.ApplyLightmaps(instance, placeName);
             }
             catch
             {

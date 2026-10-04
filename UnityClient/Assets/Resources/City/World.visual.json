@@ -1,0 +1,358 @@
+{
+  "version": 1,
+  "lights": [
+    {
+      "name": "掠射轮廓光",
+      "profile": "别给他们想要的",
+      "type": "AREA",
+      "energy": 1300.0,
+      "size": 3.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "对峙人物光",
+      "profile": "别给他们想要的",
+      "type": "AREA",
+      "energy": 650.0,
+      "size": 4.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "路灯光_0",
+      "profile": "别给他们想要的",
+      "type": "SPOT",
+      "energy": 500.0,
+      "size": 0,
+      "spotAngle": 54.43098985440929,
+      "spotBlend": 0.3499999940395355,
+      "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "路灯光_1",
+      "profile": "别给他们想要的",
+      "type": "SPOT",
+      "energy": 500.0,
+      "size": 0,
+      "spotAngle": 54.43098985440929,
+      "spotBlend": 0.3499999940395355,
+      "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "酒馆入口光",
+      "profile": "别给他们想要的",
+      "type": "AREA",
+      "energy": 350.0,
+      "size": 2.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "码头冷日光",
+      "profile": "码头",
+      "type": "SUN",
+      "energy": 2.5999999046325684,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "岸边局部补光",
+      "profile": "码头",
+      "type": "AREA",
+      "energy": 850.0,
+      "size": 10.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "作业面光",
+      "profile": "码头",
+      "type": "AREA",
+      "energy": 1600.0,
+      "size": 8.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "街区冷主光",
+      "profile": "老街酒馆",
+      "type": "SUN",
+      "energy": 1.600000023841858,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "酒馆立面补光",
+      "profile": "老街酒馆",
+      "type": "AREA",
+      "energy": 1100.0,
+      "size": 8.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "酒馆入口暖光",
+      "profile": "老街酒馆",
+      "type": "AREA",
+      "energy": 950.0,
+      "size": 5.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "琥珀",
+      "mode": "realtime"
+    },
+    {
+      "name": "酒馆侧向灯",
+      "profile": "老街酒馆",
+      "type": "AREA",
+      "energy": 700.0,
+      "size": 3.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "琥珀",
+      "mode": "realtime"
+    },
+    {
+      "name": "开放侧柔光",
+      "profile": "晚宴",
+      "type": "AREA",
+      "energy": 750.0,
+      "size": 8.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "baked"
+    },
+    {
+      "name": "乐池主光",
+      "profile": "晚宴",
+      "type": "AREA",
+      "energy": 700.0,
+      "size": 3.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "baked"
+    },
+    {
+      "name": "吧台光",
+      "profile": "晚宴",
+      "type": "AREA",
+      "energy": 650.0,
+      "size": 2.5,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "baked"
+    },
+    {
+      "name": "露台冷光",
+      "profile": "晚宴",
+      "type": "AREA",
+      "energy": 500.0,
+      "size": 6.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷边",
+      "mode": "baked"
+    },
+    {
+      "name": "吊灯照明_0",
+      "profile": "晚宴",
+      "type": "AREA",
+      "energy": 950.0,
+      "size": 2.799999952316284,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "baked"
+    },
+    {
+      "name": "吊灯照明_1",
+      "profile": "晚宴",
+      "type": "AREA",
+      "energy": 950.0,
+      "size": 2.799999952316284,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "baked"
+    },
+    {
+      "name": "吊灯照明_2",
+      "profile": "晚宴",
+      "type": "AREA",
+      "energy": 950.0,
+      "size": 2.799999952316284,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "baked"
+    }
+  ],
+  "profiles": [
+    {
+      "name": "别给他们想要的",
+      "worldLinear": {
+        "r": 0.012000000104308128,
+        "g": 0.017999999225139618,
+        "b": 0.03200000151991844,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "码头",
+      "worldLinear": {
+        "r": 0.012000000104308128,
+        "g": 0.017999999225139618,
+        "b": 0.03200000151991844,
+        "a": 1.0
+      },
+      "fog": true,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "老街酒馆",
+      "worldLinear": {
+        "r": 0.012000000104308128,
+        "g": 0.017999999225139618,
+        "b": 0.03200000151991844,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "晚宴",
+      "worldLinear": {
+        "r": 0.012000000104308128,
+        "g": 0.017999999225139618,
+        "b": 0.03200000151991844,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    }
+  ],
+  "placeHashes": [
+    {
+      "name": "上午十一点零七分",
+      "hash": "54e7b465cfb05634cfb9cbad040928133f2e620e4771be65caef49a2a12325d0"
+    },
+    {
+      "name": "修理棚",
+      "hash": "673fe42855ebaf553c24789a1dee423ab2743908753a9b13f3387242ebc8f976"
+    },
+    {
+      "name": "公园",
+      "hash": "d90a05a471cea5f9637e38d6942591fb63abb177c7d640194120ea8ace6768cf"
+    },
+    {
+      "name": "别给他们想要的",
+      "hash": "3d398edc4c49f9902abef435a49a6bd9a9190a1271dc71a1818fc9f94f034900"
+    },
+    {
+      "name": "剧院",
+      "hash": "415095aa32697208448352690c936f430d03b648b47e09974b2efe19435671e5"
+    },
+    {
+      "name": "家",
+      "hash": "cc6a2bc2b171d4c4f9942027302b81e90abf0fab94e7e9fcaf2ed1d719560aad"
+    },
+    {
+      "name": "尾随取件人",
+      "hash": "4abdfe881529143558eff89707c5d4f72669b522278642cac7b997e6771765c5"
+    },
+    {
+      "name": "巷子",
+      "hash": "ae88d5c798b56ec7faf0abe3b9937f2ca04a352ea77e16dbf2453b45dcf1c41e"
+    },
+    {
+      "name": "巷子里在打人",
+      "hash": "03fcaaa124d0cefae52a8ce7388d8fb02d4f52506ba89d05a4b7a76fcf5b8463"
+    },
+    {
+      "name": "布告栏",
+      "hash": "1827da5b5d35ee67b6615a17a0a38861eccb438f37ff55994b066bf3da1d1fc6"
+    },
+    {
+      "name": "报社",
+      "hash": "80803673066b58c06b1a7d75ef67bcd4c1527184c8ff6a12f89e92ad1208b2d8"
+    },
+    {
+      "name": "晚宴",
+      "hash": "9bdd10b05887b976ceb3148f94e8110c6b8ccb03ec1a28e41175ce1078db9f4d"
+    },
+    {
+      "name": "格兰德酒店",
+      "hash": "b5ffbceee6593d2c2b9f1f0f977e4169701fb8d16d30441ca3b34e812a5daa7e"
+    },
+    {
+      "name": "码头",
+      "hash": "a8812c1d20ac443eb845ca8ee4bdfdaef7bbbbea20e11a0008148bc5c7bdc3fc"
+    },
+    {
+      "name": "码头居民区",
+      "hash": "1a2f96c5543a00f33d55543bceda0f58982cc9c4d2eb5ebc0cf53a5506a2bd8e"
+    },
+    {
+      "name": "租屋",
+      "hash": "6f9fb6c9487dd9b998e323c1732cd3eef15717e46013f449005df16afc80c1fe"
+    },
+    {
+      "name": "老街酒馆",
+      "hash": "a0b6cbc2c150a8669338cef917394906e588d3a2aa666e429642cefbfa9a59f4"
+    },
+    {
+      "name": "警察局",
+      "hash": "0f7d02612aac26efbecdec495169ea3b5cf24957b7bfd2f414728052e3171f76"
+    },
+    {
+      "name": "让他们安静",
+      "hash": "ff2dc01833bc36bf1bfd1ebff232fc8a181b19889d5c7c03af6e4b81720b430a"
+    },
+    {
+      "name": "诊所",
+      "hash": "a374b7193119d27a6fe748aa5b12d4a81c1ca41d0d677c6d7e774a4c3aa584d4"
+    },
+    {
+      "name": "货运公司",
+      "hash": "94c8d3ae5165d2417133b36477f05ef7c61efa09443f321be553d3e3d8b6cc74"
+    },
+    {
+      "name": "雕像",
+      "hash": "8bbe93e94e748105f1b5453cfbf2bc92b13a966bf830b4096d3f473f9dbded3b"
+    },
+    {
+      "name": "首演之夜",
+      "hash": "311961dde911a7fb18350fd9fb1c81a7be9fa57d8bfb2d4d48a336fb7c9d5876"
+    }
+  ]
+}

@@ -86,6 +86,19 @@ namespace SSNoir.Editor
             }
         }
 
+        /// <summary>取景临时使用同一套地点灯光；结束后还原，不能写进场景覆盖。</summary>
+        internal static IDisposable? BeginLightingPreview(Transform camera)
+        {
+            if (EditorApplication.isPlaying) return null;
+            var city = CityRoots().SingleOrDefault(root => camera.IsChildOf(root));
+            if (city == null) return null;
+            var owner = camera;
+            while (owner.parent != city) owner = owner.parent;
+            var visuals = new CityWorldVisuals(city);
+            visuals.SetFocused(owner.name);
+            return visuals;
+        }
+
         private static void ClearPreview()
         {
             foreach (var city in CityRoots())
