@@ -1,14 +1,16 @@
 {
   "name": "ssnoir-noir-world-kernel",
   "private": true,
-  "version": "0.5.3",
+  "version": "0.7.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
     "capture": "node tools/capture.mjs",
-    "validate:assets": "node tools/validate-vector-assets.mjs"
+    "validate:assets": "node tools/validate-vector-assets.mjs",
+    "generate:vector": "node tools/generate-vector-asset.mjs",
+    "test:ai-pipeline": "node tools/test-ai-pipeline.mjs"
   },
   "dependencies": {
     "three": "^0.180.0"

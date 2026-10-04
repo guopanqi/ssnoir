@@ -53,6 +53,9 @@ jobs:
       - name: Validate vector assets
         run: npm run validate:assets
 
+      - name: Test AI vector pipeline
+        run: npm run test:ai-pipeline
+
       - name: Build
         run: npm run build
 

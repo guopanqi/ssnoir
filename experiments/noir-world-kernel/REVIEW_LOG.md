@@ -183,3 +183,59 @@ Build a small **vector asset pack** first:
 - 2–3 plant/tree silhouettes.
 
 Then test whether the same FacadeGrammar + ReflectionField can compose three distinct street corners without changing the renderer.
+
+
+## Vector-kit generalization milestone — v0.6.x
+
+Evidence:
+- commit: `9c336f53ad6e44854412f6a71d02ddfcb2292ac0`
+- Actions run: `37170912090`
+- artifact: `noir-world-kernel-37170912090-1`
+
+### What the second corner proves
+
+The shared renderer and world primitives now support two visibly distinct local spaces without changing the post-processing stack.
+
+The cafe corner uses:
+- rounded low storefront;
+- taxi, grass and tree foreground;
+- dense office windows;
+- cafe interior detail and fire escape.
+
+The terminal corner uses:
+- three large arched bays;
+- phone booth, bench, trash can and narrow awning;
+- a different sedan;
+- worker / dress / short-coat pedestrians;
+- walking and turning detective poses.
+
+The terminal does not read as a mere reskin of the cafe. That is the important engineering result.
+
+### What still does not meet the target
+
+The limiting factor is now vector-asset authorship rather than scene architecture.
+
+The refined walking detective has a better head/body ratio than the first version, but close shots still reveal:
+- mechanically even contour weight;
+- simplified shoulder / elbow construction;
+- limited gesture;
+- little variation in coat shape and hat profile.
+
+This is exactly the class of work that should move out of hand-written SVG strings and into an external vector-authoring loop.
+
+### Next step
+
+The experiment now adds a live AI vector ingress with a strict boundary:
+
+```
+AssetRequest
+  -> Recraft vector-only endpoint
+  -> Base64 SVG
+  -> normalizeGeneratedSvg
+  -> generated manifest
+  -> VectorAssetCatalog
+  -> existing validation
+  -> fixed-shot review
+```
+
+Provider success is never equivalent to visual acceptance.

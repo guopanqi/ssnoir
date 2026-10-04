@@ -1,3 +1,4 @@
+import { GENERATED_VECTOR_ASSETS } from './GeneratedVectorCatalog.js';
 import detectiveStand from '../assets/detective-study.svg?raw';
 import detectiveWalk from '../assets/detective-walk.svg?raw';
 import detectiveTurn from '../assets/detective-turn.svg?raw';
@@ -14,7 +15,7 @@ import awning from '../assets/awning.svg?raw';
 import streetSign from '../assets/street-sign.svg?raw';
 import treeColumn from '../assets/tree-column.svg?raw';
 
-export const VECTOR_ASSETS=Object.freeze({
+const STATIC_VECTOR_ASSETS=Object.freeze({
   'character.detective.stand':{svg:detectiveStand,type:'puppet',pivot:[60,310],scale:.0104,tags:['detective','coat','fedora','stand']},
   'character.detective.walk':{svg:detectiveWalk,type:'puppet',pivot:[60,310],scale:.0104,tags:['detective','coat','fedora','walk']},
   'character.detective.turn':{svg:detectiveTurn,type:'puppet',pivot:[60,310],scale:.0104,tags:['detective','coat','fedora','turn']},
@@ -30,6 +31,11 @@ export const VECTOR_ASSETS=Object.freeze({
   'street.awning':{svg:awning,type:'prop',pivot:[130,78],scale:.0120,tags:['street','awning','gold']},
   'street.sign':{svg:streetSign,type:'prop',pivot:[60,270],scale:.0100,tags:['street','sign','gold']},
   'nature.tree-column':{svg:treeColumn,type:'prop',pivot:[90,311],scale:.0105,tags:['nature','tree']}
+});
+
+export const VECTOR_ASSETS=Object.freeze({
+  ...STATIC_VECTOR_ASSETS,
+  ...GENERATED_VECTOR_ASSETS
 });
 
 export function vectorAsset(id){

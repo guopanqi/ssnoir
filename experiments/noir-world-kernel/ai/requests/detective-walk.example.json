@@ -1,0 +1,16 @@
+{
+  "id": "generated.character.detective.walk-01",
+  "type": "puppet",
+  "subject": "a lanky 1940s private detective wearing a long dark overcoat and a narrow fedora",
+  "view": "full-body three-quarter side view, isolated, feet fully visible",
+  "action": "walking with a restrained forward stride, shoulders slightly hunched, alert but understated",
+  "constraints": [
+    "small head relative to the long body",
+    "coat hem around the knee, slim separate trouser legs",
+    "no facial detail except one tiny profile indication",
+    "no text, no props, no background"
+  ],
+  "targetHeight": 3.15,
+  "seed": 41017,
+  "model": "recraftv4_1_vector"
+}

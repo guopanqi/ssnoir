@@ -31,6 +31,9 @@ restrained monochrome composite
 - `world/SVGProp.js` — generic SVG fill/stroke → Three.js geometry ingestion.
 - `world/PuppetCharacter.js` — character presets built on the SVG ingestion layer.
 - `world/ReflectionField.js` — wet-street reflection generated from actual windows, signs and lamps rather than an unrelated random texture.
+- `world/VectorAssetCatalog.js` — one catalog for hand-authored and generated SVG assets.
+- `world/buildTerminalCorner.js` — second-location proof that the visual language is reusable rather than tuned to one screenshot.
+- `src/ai/*` + `tools/generate-vector-asset.mjs` — Recraft vector generation ingress, normalization and provenance.
 
 The current taxi and characters intentionally use the same SVG path that future AI-authored vector assets can use.
 
@@ -53,7 +56,16 @@ The current taxi and characters intentionally use the same SVG path that future 
 - `final-street.png`
 - `final-detail.png`
 - `final-alley.png`
+- `terminal-wide.png`
+- `terminal-street.png`
+- `terminal-detail.png`
 - `shape-wide.png`
 - `line-wide.png`
 
 The street shot is intentionally gameplay-height. Numeric metrics remain diagnostics only and never decide aesthetic quality.
+
+## AI asset ingress
+
+Live generation is optional and requires `RECRAFT_API_TOKEN`. The normal CI path never calls a paid API; it runs a mock provider-output normalization test instead.
+
+See `AI_ASSET_PIPELINE.md` and `ASSET_CONTRACT.md` before adding generated assets.
