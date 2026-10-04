@@ -70,7 +70,7 @@ function addDiner(fill,strokes,glow){
   const shape=new THREE.Shape();
   shape.moveTo(-5.6,-2.05);shape.lineTo(4.35,-2.05);
   shape.quadraticCurveTo(5.55,-2.05,5.55,-.80);
-  shape.lineTo(.85);shape.quadraticCurveTo(5.55,2.05,4.35,2.05);
+  shape.lineTo(5.55,.85);shape.quadraticCurveTo(5.55,2.05,4.35,2.05);
   shape.lineTo(-5.6,2.05);shape.closePath();
   const front=shapeMesh(fill,shape,-12.98,P.deep);front.position.y=2.25;
 
@@ -210,7 +210,7 @@ export function buildWorld(scene){
   // A real graphic crosswalk, closer to the source game's bold shape language.
   for(let i=-3;i<=3;i++){
     const gold=i%2===0;
-    groundPanel(fill,[.52,3.6],[i*1.12,.025,.65],gold?P.gold:P.white,gold?.60:.34,-.03);
+    groundPanel(fill,[.50,3.45],[i*1.12,.025,.30],gold?P.gold:P.white,gold?.48:.25,-.03);
   }
 
   reflectionSources.push(addLamp(fill,strokes,glow,-6.5,4.4,6.0));
