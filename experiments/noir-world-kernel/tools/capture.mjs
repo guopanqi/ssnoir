@@ -92,22 +92,25 @@ try{
   await page.evaluate(()=>document.querySelectorAll('[data-capture-hide]').forEach(el=>el.remove()));
 
   const captures=[
-    ['final-wide','wide','final'],
-    ['final-street','street','final'],
-    ['final-detail','detail','final'],
-    ['final-alley','alley','final'],
-    ['shape-wide','wide','shape'],
-    ['line-wide','wide','line']
+    ['final-wide','cafe','wide','final'],
+    ['final-street','cafe','street','final'],
+    ['final-detail','cafe','detail','final'],
+    ['final-alley','cafe','alley','final'],
+    ['terminal-wide','terminal','wide','final'],
+    ['terminal-street','terminal','street','final'],
+    ['terminal-detail','terminal','detail','final'],
+    ['shape-wide','cafe','wide','shape'],
+    ['line-wide','cafe','wide','line']
   ];
 
   const evidence=[];
-  for(const [name,shot,evaluation] of captures){
-    await page.evaluate(async ({shot,evaluation})=>{
-      await window.__NOIR_LAB__.prepareCapture({shot,evaluation});
-    },{shot,evaluation});
+  for(const [name,scene,shot,evaluation] of captures){
+    await page.evaluate(async ({scene,shot,evaluation})=>{
+      await window.__NOIR_LAB__.prepareCapture({scene,shot,evaluation});
+    },{scene,shot,evaluation});
     const file=path.join(OUT,`${name}.png`);
     await page.screenshot({path:file,type:'png',fullPage:false,timeout:120000});
-    evidence.push({name,shot,evaluation,file:`${name}.png`,metrics:await metrics(file)});
+    evidence.push({name,scene,shot,evaluation,file:`${name}.png`,metrics:await metrics(file)});
   }
 
   if(errors.length) throw new Error(errors.join('\n'));
@@ -133,7 +136,7 @@ try{
     '',
     '## Visual evidence',
     '',
-    ...evidence.map(x=>`- ${x.file} — ${x.shot} / ${x.evaluation}; mean luma ${x.metrics.meanLuma}, dark ${x.metrics.darkFraction}, bright ${x.metrics.brightFraction}`),
+    ...evidence.map(x=>`- ${x.file} — ${x.scene} / ${x.shot} / ${x.evaluation}; mean luma ${x.metrics.meanLuma}, dark ${x.metrics.darkFraction}, bright ${x.metrics.brightFraction}`),
     '',
     'Metrics are diagnostics only, not an aesthetic score.',
     '',
@@ -142,9 +145,12 @@ try{
     '1. final-wide.png — composition, value hierarchy, focal point.',
     '2. final-street.png — whether the world reads from a gameplay-height camera.',
     '3. final-detail.png — whether vector characters and props survive closer inspection.',
-    '4. final-alley.png — whether the language generalizes to a second view.',
-    '5. shape-wide.png — silhouette and massing only.',
-    '6. line-wide.png — line density and hierarchy only.',
+    '4. final-alley.png — whether the cafe corner survives a reverse view.',
+    '5. terminal-wide.png — whether the same systems create a second location rather than a reskin.',
+    '6. terminal-street.png — gameplay-height readability in the second location.',
+    '7. terminal-detail.png — vector-kit quality under closer inspection.',
+    '8. shape-wide.png — silhouette and massing only.',
+    '9. line-wide.png — line density and hierarchy only.',
     '',
     errors.length?`Runtime errors: ${errors.length}`:'No browser runtime errors detected.'
   ];

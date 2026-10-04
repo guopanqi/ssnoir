@@ -3,8 +3,7 @@ import { strokePath, strokeSegments, resizeVectorStrokes } from '../style/Vector
 import { addFacade } from './FacadeGrammar.js';
 import { addReflectionField } from './ReflectionField.js';
 import { addPuppetCharacter } from './PuppetCharacter.js';
-import { addSvgProp } from './SVGProp.js';
-import taxiSvg from '../assets/taxi-study.svg?raw';
+import { addVectorProp } from './StreetProps.js';
 
 const P={
   void:0x020309,ink:0x010205,deep:0x090b10,wall:0x10131a,wall2:0x151921,
@@ -243,7 +242,6 @@ export function buildWorld(scene){
   const fill=new THREE.Group();
   const strokes=new THREE.Group();
   const glow=new THREE.Group();
-  scene.add(fill,strokes,glow);
 
   box(fill,[44,.12,48],[0,-.09,-7],standard(P.ink));
   const reflectionSources=[];
@@ -300,8 +298,8 @@ export function buildWorld(scene){
   addPuppetCharacter(fill,{kind:'pedestrian',position:[3.0,.02,-10.5],scale:.0031,strokeScale:.82});
   addPuppetCharacter(fill,{kind:'pedestrian',position:[-2.6,.02,-10.9],scale:.0033,mirror:true,strokeScale:.82});
 
-  addSvgProp(fill,taxiSvg,{
-    position:[-5.7,.03,3.9],scale:.0108,pivot:[150,110],rotationY:.10,strokeScale:.78
+  addVectorProp(fill,'vehicle.taxi',{
+    position:[-5.7,.03,3.9],scale:.0108,rotationY:.10,strokeScale:.78
   });
   reflectionSources.push({x:-5.7,z:3.9,width:.60,intensity:.22,color:'gold'});
 
@@ -328,8 +326,14 @@ export function buildWorld(scene){
   addForegroundFrame(fill,strokes);
   addRain(strokes);
 
+  const root=new THREE.Group();
+  // Existing groups are already attached to scene; root is a visibility facade for compatibility.
+  root.add(fill);root.add(strokes);root.add(glow);
+  scene.add(root);
+
   return {
-    fill,strokes,glow,
+    root,fill,strokes,glow,
+    setVisible(visible){root.visible=visible;},
     setMode(mode){
       fill.visible=true;strokes.visible=true;glow.visible=true;
       if(mode==='shape'){strokes.visible=false;glow.visible=false;}
