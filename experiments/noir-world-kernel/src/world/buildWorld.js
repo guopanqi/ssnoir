@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { strokeSmooth, strokeSegments, resizeVectorStrokes } from '../style/VectorStroke.js';
+import { strokePath, strokeSegments, resizeVectorStrokes } from '../style/VectorStroke.js';
 import { addFacade } from './FacadeGrammar.js';
 import { addReflectionField } from './ReflectionField.js';
 import { addPuppetCharacter } from './PuppetCharacter.js';
@@ -74,8 +74,8 @@ function addDiner(fill,strokes,glow){
   shape.lineTo(-5.6,2.05);shape.closePath();
   const front=shapeMesh(fill,shape,-12.98,P.deep);front.position.y=2.25;
 
-  const outline=shape.getPoints(52).map(point=>[point.x,point.y+2.25,-12.95]);
-  strokeSmooth(strokes,outline,{color:P.white,width:2.15,opacity:.88,closed:true,samples:92});
+  const outline=shape.getSpacedPoints(84).map(point=>[point.x,point.y+2.25,-12.95]);
+  strokePath(strokes,outline,{color:P.white,width:2.05,opacity:.86,closed:true});
 
   strokeSegments(strokes,[
     [-5.35,3.72,-12.93,5.15,3.72,-12.93],
@@ -210,7 +210,7 @@ export function buildWorld(scene){
   // A real graphic crosswalk, closer to the source game's bold shape language.
   for(let i=-3;i<=3;i++){
     const gold=i%2===0;
-    groundPanel(fill,[.58,4.3],[i*1.18,.025,3.2],gold?P.gold:P.white,gold?.78:.46,-.03);
+    groundPanel(fill,[.52,3.6],[i*1.12,.025,.65],gold?P.gold:P.white,gold?.60:.34,-.03);
   }
 
   reflectionSources.push(addLamp(fill,strokes,glow,-6.5,4.4,6.0));
@@ -224,9 +224,9 @@ export function buildWorld(scene){
   addPuppetCharacter(fill,{kind:'pedestrian',position:[-2.6,.02,-10.9],scale:.0033,mirror:true,strokeScale:.82});
 
   addSvgProp(fill,taxiSvg,{
-    position:[-5.4,.03,5.2],scale:.0122,pivot:[150,110],rotationY:.12,strokeScale:.82
+    position:[-5.7,.03,3.9],scale:.0108,pivot:[150,110],rotationY:.10,strokeScale:.78
   });
-  reflectionSources.push({x:-5.4,z:5.2,width:.75,intensity:.28,color:'gold'});
+  reflectionSources.push({x:-5.7,z:3.9,width:.60,intensity:.22,color:'gold'});
 
   addReflectionField(glow,{
     sources:reflectionSources,
