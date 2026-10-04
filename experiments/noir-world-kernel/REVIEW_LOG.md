@@ -239,3 +239,26 @@ AssetRequest
 ```
 
 Provider success is never equivalent to visual acceptance.
+
+
+## AI-ingress hardening — v0.7.1
+
+The Recraft ingress introduced in v0.7.0 is structurally sound, but review found an important gap: the old validator only read SVG files directly under `src/assets`, while generated assets live under `src/assets/generated`. A generated asset could therefore be normalized and catalogued without passing the final repository-wide SVG validator.
+
+v0.7.1 fixes this by:
+
+- recursively validating every SVG under `src/assets/**`;
+- validating generated-manifest IDs, file uniqueness, type, pivot and scale;
+- rejecting orphan generated SVGs and manifest entries whose file is missing;
+- applying the restricted palette to both explicit attributes and inline style attributes;
+- validating normalized provider output before it is written to the generated catalog;
+- marking live generations as `candidate`;
+- adding a neutral `audition` scene;
+- automatically capturing every generated candidate as `generated-<catalog-id>.png`.
+
+The experiment therefore has two distinct visual gates now:
+
+1. **asset gate** — neutral close inspection;
+2. **world gate** — fixed shots inside cafe / terminal scenes.
+
+No live paid Recraft request is required by CI. CI exercises normalization with mock provider output and validates all checked-in generated assets. Live generation remains opt-in through `RECRAFT_API_TOKEN`.

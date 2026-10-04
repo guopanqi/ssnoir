@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { createComposer } from './style/post.js';
 import { buildWorld } from './world/buildWorld.js';
 import { buildTerminalCorner } from './world/buildTerminalCorner.js';
+import { buildAssetAudition } from './world/buildAssetAudition.js';
 
 const app=document.querySelector('#app');
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
@@ -23,9 +24,11 @@ key.position.set(-10,18,12);scene.add(key);
 
 const worlds={
   cafe:buildWorld(scene),
-  terminal:buildTerminalCorner(scene)
+  terminal:buildTerminalCorner(scene),
+  audition:buildAssetAudition(scene)
 };
 worlds.terminal.setVisible(false);
+worlds.audition.setVisible(false);
 
 const {composer,resize}=createComposer(renderer,scene,camera);
 
@@ -52,13 +55,24 @@ function setWorld(name='cafe'){
   worlds[worldName].setMode(mode);
 }
 
+function applyCamera(spec){
+  camera.position.set(...spec.pos);
+  camera.fov=spec.fov;
+  camera.updateProjectionMatrix();
+  camera.lookAt(...spec.target);
+}
+
 function applyShot(name=shotName,nextWorld=worldName){
   if(nextWorld!==worldName) setWorld(nextWorld);
+  if(worldName==='audition'){
+    applyCamera(worlds.audition.cameraSpec());
+    shotName='asset';
+    return;
+  }
   const table=shots[worldName];
   const shot=table[name]??table.wide;
   shotName=table[name]?name:'wide';
-  camera.position.set(...shot.pos);camera.fov=shot.fov;camera.updateProjectionMatrix();
-  camera.lookAt(...shot.target);
+  applyCamera(shot);
 }
 
 function setMode(next='final'){
@@ -76,8 +90,20 @@ function resizeCanvas(){
 
 window.__NOIR_LAB__={
   ready:false,
-  async prepareCapture({scene:sceneName='cafe',shot='wide',evaluation='final'}={}){
-    setWorld(sceneName);setMode(evaluation);applyShot(shot,sceneName);
+  async prepareCapture({
+    scene:sceneName='cafe',
+    shot='wide',
+    evaluation='final',
+    assetId=null
+  }={}){
+    setWorld(sceneName);
+    if(sceneName==='audition'){
+      if(!assetId) throw new Error('audition capture requires assetId');
+      worlds.audition.setAsset(assetId);
+    }
+    setMode(evaluation);
+    applyShot(shot,sceneName);
+
     renderer.setPixelRatio(1);renderer.setSize(1440,900,false);
     camera.aspect=1440/900;camera.updateProjectionMatrix();
     composer.setSize(1440,900);
@@ -85,12 +111,18 @@ window.__NOIR_LAB__={
     render();await new Promise(requestAnimationFrame);render();
   },
   setScene:setWorld,setShot:applyShot,setMode,
+  setAuditionAsset(id){
+    setWorld('audition');
+    worlds.audition.setAsset(id);
+    applyShot('asset','audition');
+  },
   info(){return {
-    version:'0.6.1',
-    phase:'Genesis Noir vector-kit generalization',
+    version:'0.7.1',
+    phase:'AI vector ingress + automatic asset audition',
     renderer:'shared 3D skeleton + FacadeGrammar + VectorAssetCatalog + SVG Puppet/Prop + source-driven ReflectionField',
     scene:worldName,shot:shotName,evaluation:mode,
-    worlds:Object.keys(worlds)
+    worlds:Object.keys(worlds),
+    audition:worlds.audition.info()
   };}
 };
 

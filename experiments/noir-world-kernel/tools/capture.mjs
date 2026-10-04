@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 import { spawn, execFileSync } from 'node:child_process';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 import { sourceFingerprint } from './source-fingerprint.mjs';
@@ -91,26 +91,44 @@ try{
   await waitReady(page);
   await page.evaluate(()=>document.querySelectorAll('[data-capture-hide]').forEach(el=>el.remove()));
 
+  let generatedManifest=[];
+  try{
+    generatedManifest=JSON.parse(await readFile(path.join(ROOT,'src/assets/generated/manifest.generated.json'),'utf8'));
+  }catch{}
+
   const captures=[
-    ['final-wide','cafe','wide','final'],
-    ['final-street','cafe','street','final'],
-    ['final-detail','cafe','detail','final'],
-    ['final-alley','cafe','alley','final'],
-    ['terminal-wide','terminal','wide','final'],
-    ['terminal-street','terminal','street','final'],
-    ['terminal-detail','terminal','detail','final'],
-    ['shape-wide','cafe','wide','shape'],
-    ['line-wide','cafe','wide','line']
+    {name:'final-wide',scene:'cafe',shot:'wide',evaluation:'final'},
+    {name:'final-street',scene:'cafe',shot:'street',evaluation:'final'},
+    {name:'final-detail',scene:'cafe',shot:'detail',evaluation:'final'},
+    {name:'final-alley',scene:'cafe',shot:'alley',evaluation:'final'},
+    {name:'terminal-wide',scene:'terminal',shot:'wide',evaluation:'final'},
+    {name:'terminal-street',scene:'terminal',shot:'street',evaluation:'final'},
+    {name:'terminal-detail',scene:'terminal',shot:'detail',evaluation:'final'},
+    {name:'audition-detective-walk',scene:'audition',shot:'asset',evaluation:'final',assetId:'character.detective.walk'},
+    {name:'shape-wide',scene:'cafe',shot:'wide',evaluation:'shape'},
+    {name:'line-wide',scene:'cafe',shot:'wide',evaluation:'line'},
+    ...generatedManifest.map(entry=>({
+      name:`generated-${String(entry.id).replace(/[^a-z0-9._-]+/gi,'-').toLowerCase()}`,
+      scene:'audition',
+      shot:'asset',
+      evaluation:'final',
+      assetId:entry.id,
+      generatedStatus:entry.status??'candidate'
+    }))
   ];
 
   const evidence=[];
-  for(const [name,scene,shot,evaluation] of captures){
-    await page.evaluate(async ({scene,shot,evaluation})=>{
-      await window.__NOIR_LAB__.prepareCapture({scene,shot,evaluation});
-    },{scene,shot,evaluation});
-    const file=path.join(OUT,`${name}.png`);
+  for(const item of captures){
+    await page.evaluate(async args=>{
+      await window.__NOIR_LAB__.prepareCapture(args);
+    },item);
+    const file=path.join(OUT,`${item.name}.png`);
     await page.screenshot({path:file,type:'png',fullPage:false,timeout:120000});
-    evidence.push({name,scene,shot,evaluation,file:`${name}.png`,metrics:await metrics(file)});
+    evidence.push({
+      ...item,
+      file:`${item.name}.png`,
+      metrics:await metrics(file)
+    });
   }
 
   if(errors.length) throw new Error(errors.join('\n'));
@@ -136,7 +154,7 @@ try{
     '',
     '## Visual evidence',
     '',
-    ...evidence.map(x=>`- ${x.file} — ${x.scene} / ${x.shot} / ${x.evaluation}; mean luma ${x.metrics.meanLuma}, dark ${x.metrics.darkFraction}, bright ${x.metrics.brightFraction}`),
+    ...evidence.map(x=>`- ${x.file} — ${x.scene} / ${x.shot} / ${x.evaluation}${x.assetId?` / ${x.assetId}`:''}; mean luma ${x.metrics.meanLuma}, dark ${x.metrics.darkFraction}, bright ${x.metrics.brightFraction}`),
     '',
     'Metrics are diagnostics only, not an aesthetic score.',
     '',
@@ -149,8 +167,10 @@ try{
     '5. terminal-wide.png — whether the same systems create a second location rather than a reskin.',
     '6. terminal-street.png — gameplay-height readability in the second location.',
     '7. terminal-detail.png — vector-kit quality under closer inspection.',
-    '8. shape-wide.png — silhouette and massing only.',
-    '9. line-wide.png — line density and hierarchy only.',
+    '8. audition-detective-walk.png — neutral-stage close inspection of a known-good SVG asset.',
+    '9. generated-*.png — every generated candidate is automatically auditioned before scene use.',
+    '10. shape-wide.png — silhouette and massing only.',
+    '11. line-wide.png — line density and hierarchy only.',
     '',
     errors.length?`Runtime errors: ${errors.length}`:'No browser runtime errors detected.'
   ];

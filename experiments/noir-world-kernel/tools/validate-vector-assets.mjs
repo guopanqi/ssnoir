@@ -1,48 +1,60 @@
-import { readdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { validateSvgTree } from './vector-validation.mjs';
 
 const ROOT=path.resolve('src/assets');
-const ALLOWED_COLORS=new Set(['#010205','#f2efe6','#e2b63d','none']);
-const FORBIDDEN=[
-  /<script\b/i,
-  /<foreignObject\b/i,
-  /<image\b/i,
-  /\bhref\s*=/i,
-  /url\s*\(/i,
-  /javascript\s*:/i
-];
+const GENERATED=path.join(ROOT,'generated');
+const MANIFEST=path.join(GENERATED,'manifest.generated.json');
 
-const files=(await readdir(ROOT)).filter(name=>name.endsWith('.svg')).sort();
-const errors=[];
+const result=await validateSvgTree(ROOT);
+const errors=[...result.errors];
 
-for(const file of files){
-  const full=path.join(ROOT,file);
-  const svg=await readFile(full,'utf8');
+let manifest=[];
+try{
+  manifest=JSON.parse(await readFile(MANIFEST,'utf8'));
+  if(!Array.isArray(manifest)) errors.push('generated/manifest.generated.json: root must be an array');
+}catch(error){
+  errors.push(`generated/manifest.generated.json: ${error.message}`);
+}
 
-  if(!/<svg\b[^>]*\bviewBox\s*=\s*["'][^"']+["']/i.test(svg)){
-    errors.push(`${file}: missing viewBox`);
+const ids=new Set();
+const files=new Set();
+for(const [index,entry] of manifest.entries()){
+  const prefix=`generated manifest[${index}]`;
+  if(!entry||typeof entry!=='object'){
+    errors.push(`${prefix}: must be an object`);
+    continue;
   }
+  if(!/^[a-z0-9][a-z0-9._-]+$/i.test(String(entry.id??''))) errors.push(`${prefix}: invalid id`);
+  if(ids.has(entry.id)) errors.push(`${prefix}: duplicate id ${entry.id}`);
+  ids.add(entry.id);
 
-  for(const pattern of FORBIDDEN){
-    if(pattern.test(svg)) errors.push(`${file}: forbidden SVG feature ${pattern}`);
+  if(!['puppet','prop'].includes(entry.type)) errors.push(`${prefix}: unsupported type ${entry.type}`);
+  if(typeof entry.file!=='string'||!entry.file.endsWith('.svg')) errors.push(`${prefix}: invalid file`);
+  if(files.has(entry.file)) errors.push(`${prefix}: duplicate file ${entry.file}`);
+  files.add(entry.file);
+
+  if(!Array.isArray(entry.pivot)||entry.pivot.length!==2||entry.pivot.some(v=>!Number.isFinite(Number(v)))){
+    errors.push(`${prefix}: pivot must be [x,y]`);
   }
-
-  for(const match of svg.matchAll(/(?:fill|stroke)\s*=\s*["']([^"']+)["']/gi)){
-    const value=match[1].trim().toLowerCase();
-    if(value.startsWith('#') && !ALLOWED_COLORS.has(value)){
-      errors.push(`${file}: disallowed palette color ${value}`);
-    }
-  }
-
-  for(const match of svg.matchAll(/stroke-width\s*=\s*["']([^"']+)["']/gi)){
-    const width=Number.parseFloat(match[1]);
-    if(!Number.isFinite(width) || width<0.4 || width>3.0){
-      errors.push(`${file}: stroke-width ${match[1]} outside 0.4–3.0 source-unit range`);
-    }
+  if(!Number.isFinite(Number(entry.scale))||Number(entry.scale)<=0){
+    errors.push(`${prefix}: scale must be > 0`);
   }
 }
 
-if(!files.length) errors.push('No SVG assets found in src/assets.');
+const generatedFiles=result.records
+  .map(record=>record.file)
+  .filter(file=>file.startsWith('generated/')&&file!=='generated/manifest.generated.json')
+  .map(file=>file.slice('generated/'.length));
+
+for(const file of files){
+  if(!generatedFiles.includes(file)) errors.push(`generated manifest: missing SVG file ${file}`);
+}
+for(const file of generatedFiles){
+  if(!files.has(file)) errors.push(`generated/${file}: not registered in manifest.generated.json`);
+}
+
+if(!result.files.length) errors.push('No SVG assets found in src/assets.');
 
 if(errors.length){
   console.error('Vector asset validation failed:');
@@ -50,4 +62,4 @@ if(errors.length){
   process.exit(1);
 }
 
-console.log(`Validated ${files.length} SVG assets: ${files.join(', ')}`);
+console.log(`Validated ${result.files.length} SVG assets recursively; generated catalog entries: ${manifest.length}.`);

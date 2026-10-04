@@ -73,3 +73,60 @@ Only the first four stages are automated.
 Do not immediately create a style reference from Genesis Noir screenshots.
 
 First build and approve a small internal vector kit. Once 5–10 assets actually fit SSNoir, those owned/curated assets can become the reference material for a reusable vector style. The Recraft adapter already accepts optional `styleId` and `styleMatch` fields for that later step.
+
+
+## Automatic audition and recursive validation
+
+Generated assets are now reviewed as first-class evidence rather than merely appearing in the runtime catalog.
+
+`npm run capture` always produces a neutral-stage audition of one known-good authored asset:
+
+```
+audition-detective-walk.png
+```
+
+For every entry in `src/assets/generated/manifest.generated.json`, capture also emits:
+
+```
+generated-<catalog-id>.png
+```
+
+The audition scene uses the asset's catalog pivot / scale and shows it against a restrained neutral stage. This is deliberately separate from city composition: an asset must first survive close inspection on its own before it earns a place in a street scene.
+
+The validator now walks `src/assets/**` recursively, so generated SVGs cannot bypass the technical gate by living under `src/assets/generated/`. It also checks that generated manifest IDs/files are unique and that every generated SVG is represented exactly once by the manifest.
+
+### Candidate status
+
+Live generation writes new assets with:
+
+```json
+{
+  "status": "candidate"
+}
+```
+
+This is intentional. Generation + normalization means **technically admissible**, not art-approved.
+
+The intended acceptance loop is:
+
+```
+request
+  -> provider
+  -> normalize
+  -> recursive technical validation
+  -> neutral audition screenshot
+  -> art-direction review
+  -> only then place in a real scene
+```
+
+### Provider-contract check
+
+The Recraft adapter was checked against the current official API documentation:
+
+- `/images/generations/vector` is the vector-only generation endpoint;
+- vector models use names ending in `_vector`, including `recraftv4_1_vector`;
+- `response_format: b64_json` returns Base64 image bytes;
+- vector output is always SVG;
+- V4 / V4.1 style matching uses `flexible` or `precise`; `regular` is for V2 / V3.
+
+The request normalizer enforces the model-sensitive `styleMatch` rule before a paid API request is sent.

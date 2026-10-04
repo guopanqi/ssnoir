@@ -3,6 +3,7 @@ import path from 'node:path';
 import { normalizeAssetRequest } from '../src/ai/AssetRequest.js';
 import { normalizeGeneratedSvg } from '../src/ai/normalizeSvg.js';
 import { RecraftVectorProvider } from '../src/ai/providers/RecraftVectorProvider.js';
+import { validateSvgText } from './vector-validation.mjs';
 
 const ROOT=process.cwd();
 const requestPath=process.argv[2];
@@ -20,6 +21,11 @@ const normalized=normalizeGeneratedSvg(result.svg,{
   targetHeight:request.targetHeight
 });
 
+const technical=validateSvgText(normalized.svg,`${request.id}.svg`);
+if(technical.errors.length){
+  throw new Error(`Normalized provider output still fails the asset contract:\n${technical.errors.join('\n')}`);
+}
+
 const generatedDir=path.join(ROOT,'src/assets/generated');
 const runDir=path.join(ROOT,'ai/runs');
 await mkdir(generatedDir,{recursive:true});
@@ -32,16 +38,19 @@ await writeFile(path.join(generatedDir,file),normalized.svg+'\n');
 const manifestPath=path.join(generatedDir,'manifest.generated.json');
 let manifest=[];
 try{manifest=JSON.parse(await readFile(manifestPath,'utf8'));}catch{}
+if(!Array.isArray(manifest)) throw new Error('Generated manifest is not an array.');
+
 const entry={
   id:request.id,
   type:request.type,
   file,
   pivot:normalized.meta.pivot,
   scale:normalized.meta.defaultScale,
-  tags:['generated','recraft'],
+  tags:['generated','recraft','candidate'],
   provider:'recraft',
   model:result.model,
-  seed:result.seed
+  seed:result.seed,
+  status:'candidate'
 };
 manifest=manifest.filter(item=>item.id!==entry.id);
 manifest.push(entry);
@@ -56,9 +65,23 @@ const provenance={
   seed:result.seed,
   credits:result.credits,
   styleId:result.styleId,
+  status:'candidate',
   normalized:normalized.meta,
+  technicalValidation:{
+    shapeCount:technical.shapeCount,
+    bytes:technical.bytes
+  },
   prompt:result.prompt
 };
 await writeFile(path.join(runDir,`${slug}.json`),JSON.stringify(provenance,null,2)+'\n');
 
-console.log(JSON.stringify({asset:entry,provenance:`ai/runs/${slug}.json`},null,2));
+console.log(JSON.stringify({
+  asset:entry,
+  provenance:`ai/runs/${slug}.json`,
+  next:[
+    'npm run validate:assets',
+    'npm run build',
+    'npm run capture',
+    `review captures/latest/generated-${slug}.png`
+  ]
+},null,2));

@@ -20,7 +20,8 @@ export const GENERATED_VECTOR_ASSETS=Object.freeze(Object.fromEntries(
       provenance:{
         provider:entry.provider??null,
         model:entry.model??null,
-        seed:entry.seed??null
+        seed:entry.seed??null,
+        status:entry.status??'candidate'
       }
     }];
   })
