@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace SSNoir.Rendering
 {
-    /// <summary>世界夜景的独立 HDR 链。地点退出时不改变原有渲染与视频涂装。</summary>
+    /// <summary>城市与地点共用调色、颗粒和辉光；世界雾与地点雾分别渐变。</summary>
     public sealed class CityNightFeature : ScriptableRendererFeature
     {
         [SerializeField] private Shader shader = null!;
@@ -51,10 +51,13 @@ namespace SSNoir.Rendering
                 var source = data.cameraData.renderer.cameraColorTargetHandle;
                 if (source.rt == null) throw new InvalidOperationException("夜城后处理需要中间颜色缓冲");
                 _material.SetVector("_Fog",new Vector4(settings.FogDensity,settings.FogFalloff,settings.Haze,settings.Mist));
+                _material.SetFloat("_WorldFogWeight", CityWorldOverview.WorldWeight);
+                _material.SetVector("_LocationFog", CityWorldOverview.LocationFog);
+                _material.SetColor("_LocationFogColor", CityWorldOverview.LocationFogColor.linear);
                 // Image-to-video source frames exclude screen grain; review screenshots retain it.
                 float grain=ReferenceEquals(SSNoirStylizeMaterial.CaptureCamera,data.cameraData.camera)?0:settings.Grain;
                 _material.SetVector("_Grade",new Vector4(settings.Contrast,settings.Saturation,settings.Vignette,grain));
-                _material.SetVector("_Bloom",new Vector4(settings.Bloom,settings.BloomThreshold,settings.Exposure,settings.BloomScatter));
+                _material.SetVector("_Bloom",new Vector4(settings.Bloom * CityWorldOverview.BloomMultiplier,settings.BloomThreshold,settings.Exposure,settings.BloomScatter));
                 _material.SetColor("_FogLow",settings.FogLow.linear); _material.SetColor("_FogHigh",settings.FogHigh.linear);
                 _material.SetVector("_NightSourceTexel",new Vector4(1f/_copy!.rt.width,1f/_copy.rt.height,0,0));
                 var cmd = CommandBufferPool.Get("City night HDR");

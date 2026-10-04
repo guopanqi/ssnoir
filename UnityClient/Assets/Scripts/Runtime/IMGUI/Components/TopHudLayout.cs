@@ -79,7 +79,7 @@ namespace SSNoir.IMGUI
         // 整块约 370，面包屑相应收窄。
         private const float EntryW = 52f;
         private const float DayW = 76f;
-        private const float EntryGap = 2f;
+        private const float EntryGap = 6f;
         private const float DayGap = 10f;
         private const float PlatePadX = 8f;
         private const float PlatePadY = 4f;

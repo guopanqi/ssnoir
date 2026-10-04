@@ -43,7 +43,37 @@ namespace SSNoir
         private readonly Camera? _camera;
         private readonly Spec _spec;
         private readonly CityWorldPalette _palette;
-        private readonly CityWorldOverview _overview;
+        private CityWorldOverview _overview;
+        private readonly Transform _city;
+        private string? _focusedName;
+        private readonly CityEnvironmentTransition _transition;
+        private readonly float[] _cityIntensity, _sceneIntensity;
+        private bool _hasFocused;
+#if UNITY_EDITOR
+        private static readonly System.Collections.Generic.HashSet<CityWorldVisuals> EditorInstances = new();
+        // 调色工具重新应用正式配光，不创建另一套预览材质或场景。
+        public static void CompleteEditorTransitions()
+        {
+            foreach (var instance in EditorInstances) instance._transition.Complete();
+        }
+        public static int RefreshEditorPalette()
+        {
+            foreach (var instance in EditorInstances)
+            {
+                instance._palette.Validate();
+                instance._transition.Cancel();
+                instance._overview.Dispose();
+                foreach (var row in instance._spec.lights)
+                    Configure(instance._cityLights.Single(l => l.name == row.name), row, instance._palette, instance._scale);
+                for (int i = 0; i < instance._cityLights.Length; i++)
+                    instance._cityIntensity[i] = instance._cityLights[i].intensity;
+                instance._overview = new CityWorldOverview(instance._city, instance._palette);
+                instance._hasFocused = false;
+                instance.SetFocused(instance._focusedName);
+            }
+            return EditorInstances.Count;
+        }
+#endif
         private readonly Light[] _sceneLights;
         private readonly bool[] _sceneEnabled;
         private readonly Color _ambient, _fogColor;
@@ -52,6 +82,7 @@ namespace SSNoir
 
         public CityWorldVisuals(Transform city)
         {
+            _city = city;
             _scale = city.lossyScale.x;
             if (_scale <= 0 || !Mathf.Approximately(_scale,city.lossyScale.y) || !Mathf.Approximately(_scale,city.lossyScale.z))
                 throw new InvalidOperationException("City 必须采用正值统一缩放");
@@ -73,6 +104,9 @@ namespace SSNoir
                 .Where(l => !l.transform.IsChildOf(city) && l.type == LightType.Directional).ToArray();
             _sceneEnabled = _sceneLights.Select(l => l.enabled).ToArray();
             _overview = new CityWorldOverview(city, _palette);
+            var transitionObject = new GameObject("~城市视觉过渡") { hideFlags = HideFlags.DontSave };
+            transitionObject.transform.SetParent(city, false);
+            _transition = transitionObject.AddComponent<CityEnvironmentTransition>();
             _ambient = RenderSettings.ambientLight;
             _fog = RenderSettings.fog; _fogColor = RenderSettings.fogColor;
             _fogStart = RenderSettings.fogStartDistance; _fogEnd = RenderSettings.fogEndDistance;
@@ -82,6 +116,11 @@ namespace SSNoir
                 Configure(light,row,_palette,_scale);
                 light.enabled = false;
             }
+            _cityIntensity = _cityLights.Select(l => l.intensity).ToArray();
+            _sceneIntensity = _sceneLights.Select(l => l.intensity).ToArray();
+#if UNITY_EDITOR
+            EditorInstances.Add(this);
+#endif
         }
         public static void Configure(Light light, LightSpec row, CityWorldPalette palette, float scale = 1)
         {
@@ -93,19 +132,27 @@ namespace SSNoir
             if (row.mode == "baked")
             {
                 if (row.type != "AREA") throw new InvalidOperationException("静态柔光声明仅接受 AREA");
-                light.type = LightType.Area;light.lightmapBakeType = LightmapBakeType.Baked;
+                light.type = LightType.Area;
+#if UNITY_EDITOR
+                // 面光尺寸和烘焙模式仅用于 Editor，Player 使用 CityLightmapData。
+                light.lightmapBakeType = LightmapBakeType.Baked;
                 light.areaSize = Vector2.one * row.size * scale;
+#endif
                 light.intensity = palette.BakedAreaScale * row.energy / (Mathf.PI * row.size * row.size);
             }
             else if (row.type == "SUN")
             {
+#if UNITY_EDITOR
                 light.lightmapBakeType = LightmapBakeType.Realtime;
+#endif
                 light.type = LightType.Directional;
                 light.intensity = row.energy / Mathf.PI;
             }
             else
             {
+#if UNITY_EDITOR
                 light.lightmapBakeType = LightmapBakeType.Realtime;
+#endif
                 light.type = row.type == "POINT" ? LightType.Point : LightType.Spot;
                 light.intensity = row.energy * scale * scale / (row.type == "AREA" ? Mathf.PI*Mathf.PI : 4*Mathf.PI*Mathf.PI);
                 light.spotAngle = row.spotAngle;
@@ -123,14 +170,50 @@ namespace SSNoir
         }
         public void SetFocused(string? name)
         {
-            bool overview = name == null || name == CityPlaces.WorldBaseName;
-            _overview.SetActive(false);
+            _focusedName = name;
+            bool world = name == null || name == CityPlaces.WorldBaseName;
             var profile = _spec.profiles.SingleOrDefault(p => p.name == name);
-            foreach (var row in _spec.lights)
-                _cityLights.Single(l => l.name == row.name).enabled = row.profile == profile?.name;
-            for (int i = 0; i < _sceneLights.Length; i++) _sceneLights[i].enabled = !overview && profile == null && _sceneEnabled[i];
-            ApplyEnvironment(profile);
-            _overview.SetActive(overview);
+            Color targetAmbient = world ? _palette.Overview.Ambient : profile?.worldLinear.gamma ?? _ambient;
+            if (!world) { targetAmbient *= _palette.Focus.AmbientMultiplier; targetAmbient.a = 1; }
+            Color targetBackground = world ? _palette.Overview.Atmosphere : profile?.worldLinear.gamma ?? _cameraColor;
+            bool localFog = !world && (profile?.fog ?? _fog);
+            float fogStart = profile == null ? _fogStart : profile.fogStart * _scale;
+            float fogEnd = profile == null ? _fogEnd : profile.fogEnd * _scale;
+            if (localFog && fogEnd <= fogStart) throw new InvalidOperationException("地点雾距离无效：" + name);
+            Color targetFogColor = profile?.worldLinear.gamma ?? _fogColor;
+            var targetFog = new Vector4(localFog ? _palette.Focus.LocalFogStrength : 0, fogStart, fogEnd, 0);
+            var lights = _cityLights.Concat(_sceneLights).ToArray();
+            var fromLights = lights.Select(l => l.enabled ? l.intensity : 0).ToArray();
+            var targetLights = new float[lights.Length];
+            for (int i = 0; i < _cityLights.Length; i++)
+                targetLights[i] = _spec.lights.Any(row => row.name == _cityLights[i].name && row.profile == profile?.name)
+                    ? _cityIntensity[i] * _palette.Focus.LightMultiplier : 0;
+            for (int i = 0; i < _sceneLights.Length; i++)
+                targetLights[_cityLights.Length + i] = !world && profile == null && _sceneEnabled[i] ? _sceneIntensity[i] * _palette.Focus.LightMultiplier : 0;
+            Color fromAmbient = RenderSettings.ambientLight;
+            Color fromBackground = _camera != null ? _camera.backgroundColor : _cameraColor;
+            Color fromFogColor = CityWorldOverview.LocationFogColor;
+            Vector4 fromFog = CityWorldOverview.LocationFog;
+            // 雾出现/退出只渐变强度；距离从0插值会造成一帧近处白墙。
+            if (fromFog.x == 0) { fromFog.y = targetFog.y; fromFog.z = targetFog.z; }
+            if (targetFog.x == 0) { targetFog.y = fromFog.y; targetFog.z = fromFog.z; }
+            float fromWeight = CityWorldOverview.WorldWeight;
+            bool immediate = !_hasFocused;
+            _hasFocused = true;
+            _transition.Begin(immediate ? 0 : _palette.Focus.TransitionSeconds, t => {
+                RenderSettings.ambientMode = AmbientMode.Flat;
+                RenderSettings.reflectionIntensity = 0;
+                RenderSettings.ambientLight = Color.Lerp(fromAmbient, targetAmbient, t);
+                RenderSettings.fog = false; // 两种雾均在共用 HDR 链中施加一次。
+                if (_camera != null) _camera.backgroundColor = Color.Lerp(fromBackground, targetBackground, t);
+                CityWorldOverview.LocationFog = Vector4.Lerp(fromFog, targetFog, t);
+                CityWorldOverview.LocationFogColor = Color.Lerp(fromFogColor, targetFogColor, t);
+                _overview.SetWeight(Mathf.Lerp(fromWeight, world ? 1 : 0, t), world);
+                for (int i = 0; i < lights.Length; i++) {
+                    lights[i].intensity = Mathf.Lerp(fromLights[i], targetLights[i], t);
+                    lights[i].enabled = lights[i].intensity > 0;
+                }
+            });
         }
         private void ApplyEnvironment(Profile? profile)
         {
@@ -146,14 +229,20 @@ namespace SSNoir
         }
         public void Dispose()
         {
-            _overview.SetActive(false);
+#if UNITY_EDITOR
+            EditorInstances.Remove(this);
+#endif
+            if (_transition != null) {
+                _transition.Cancel();
+                UnityEngine.Object.DestroyImmediate(_transition.gameObject);
+            }
             ApplyEnvironment(null);
             _overview.Dispose();
             QualitySettings.renderPipeline = _previousPipeline;
             for (int i = 0; i < _sceneLights.Length; i++)
-                if (_sceneLights[i] != null) _sceneLights[i].enabled = _sceneEnabled[i];
+                if (_sceneLights[i] != null) { _sceneLights[i].enabled = _sceneEnabled[i]; _sceneLights[i].intensity = _sceneIntensity[i]; }
             for (int i = 0; i < _cityLights.Length; i++)
-                if (_cityLights[i] != null) _cityLights[i].enabled = _cityEnabled[i];
+                if (_cityLights[i] != null) { _cityLights[i].enabled = _cityEnabled[i]; _cityLights[i].intensity = _cityIntensity[i]; }
         }
     }
 }

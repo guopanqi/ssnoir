@@ -32,6 +32,15 @@ namespace SSNoir
         public LightColor[] LightColors = Array.Empty<LightColor>();
         public CityWorldOverview.Settings Overview = new();
         public CityWorldOverview.NightSettings Night = new();
+        [Serializable] public sealed class FocusSettings
+        {
+            public float TransitionSeconds = 0.9f;
+            public float BloomMultiplier = 0.45f;
+            public float LocalFogStrength = 0.55f;
+            public float AmbientMultiplier = 1;
+            public float LightMultiplier = 1;
+        }
+        public FocusSettings Focus = new();
         public Shader NightGlowShader = null!;
         public float BakedAreaScale = 0.35f;
         public float FloorHighlight = 0.12f;
@@ -40,6 +49,13 @@ namespace SSNoir
         public bool IsLine(Material material) => material == WorldLandmarkLine || Lines.Any(role => role.Material == material);
         public void Validate()
         {
+            if (!float.IsFinite(Focus.TransitionSeconds) || Focus.TransitionSeconds < 0
+                || !float.IsFinite(Focus.BloomMultiplier) || Focus.BloomMultiplier < 0 || Focus.BloomMultiplier > 1
+                || !float.IsFinite(Focus.LocalFogStrength) || Focus.LocalFogStrength < 0 || Focus.LocalFogStrength > 1)
+                throw new InvalidOperationException("地点视觉过渡、辉光或雾强度无效");
+            if (!float.IsFinite(Focus.AmbientMultiplier) || Focus.AmbientMultiplier < 0
+                || !float.IsFinite(Focus.LightMultiplier) || Focus.LightMultiplier < 0)
+                throw new InvalidOperationException("地点环境光或配光倍率无效");
             if (Pipeline == null) throw new InvalidOperationException("世界视觉基准缺少渲染管线");
             if (WorldLandmarkLine == null || Materials.Any(role => role.Material == WorldLandmarkLine))
                 throw new InvalidOperationException("地标远景线必须使用独立共享材质");

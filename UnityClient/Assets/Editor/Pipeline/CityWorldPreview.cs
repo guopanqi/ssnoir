@@ -111,6 +111,8 @@ namespace SSNoir.Editor
             if(Application.isPlaying)
                 UnityEngine.Object.FindObjectOfType<SSNoirGameManager>().PresentCamera(camera);
             else _editorState!.SetFocusedCamera(camera);
+            // 固定预览检查过渡的终点；实际游戏仍按色盘时间平滑过渡。
+            CityWorldVisuals.CompleteEditorTransitions();
             var city=camera.transform;
             while(city.name!="City")city=city.parent ?? throw new InvalidOperationException("机位不属于 City");
             // 静态编辑器预览使用非序列化覆盖；CLI 的状态已经由正式代码控制，清除旧覆盖。
@@ -134,6 +136,10 @@ namespace SSNoir.Editor
                 finally {UnityEngine.Object.DestroyImmediate(png);}
                 var state=new CaptureState {
                     nightEffects=CityWorldOverview.ActiveNight!=null,
+                    worldEffectsWeight=CityWorldOverview.WorldWeight,
+                    bloomMultiplier=CityWorldOverview.BloomMultiplier,
+                    locationFog=CityWorldOverview.LocationFog,
+                    locationFogColor=CityWorldOverview.LocationFogColor,
                     scene=name,mode=mode,position=capture.transform.position,rotation=capture.transform.rotation,
                     fov=capture.fieldOfView,near=capture.nearClipPlane,far=capture.farClipPlane,
                     pipeline=AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(CityWorldPalette.Load().Pipeline)),
@@ -172,6 +178,7 @@ namespace SSNoir.Editor
         {
             public string scene="",mode="",pipeline="";public Vector3 position;public Quaternion rotation;
             public float fov,near,far,fogStart,fogEnd,shadowDistance;public bool fog,nightEffects;public Color ambient;
+            public float worldEffectsWeight,bloomMultiplier;public Vector4 locationFog;public Color locationFogColor;
             public LightState[] lights=Array.Empty<LightState>();public string[] materials=Array.Empty<string>();
             public string[] visible=Array.Empty<string>(),decorations=Array.Empty<string>();
         }

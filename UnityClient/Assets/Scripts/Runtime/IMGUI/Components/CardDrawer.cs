@@ -211,15 +211,12 @@ namespace SSNoir.IMGUI
 
         // ── 共享卡框架 ─────────────────────────────────────────────────
 
-        // 无边悬浮：Ink 填充 + 硬投影，与地点/普通浮卡一致。去掉默认白边框与内双线，
-        // 只保留「金框=选中/当前」「金光=正在发生」两个信号。存在感靠阴影，不靠线。
+        // 动作与人物卡沿用城市牌子的底与细边，选中和执行仍用金色强调。
         private static void DrawCardFrame(Rect rect, bool isHovered, bool isFocused, bool disabled, bool isHappening)
         {
-            IMGUIStyles.DrawShadow(rect, new Vector2(7f, 9f), 0.58f);
-
-            IMGUIStyles.SetColor(IMGUIStyles.Ink);
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            IMGUIStyles.ResetColor();
+            ContainerNodeDrawer.DrawPlateBase(rect);
+            if (isHovered && !disabled)
+                IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.TextSecondary);
 
             if (disabled)
             {

@@ -82,6 +82,10 @@ namespace SSNoir.IMGUI
 
         // ── 基底 ──
         public static readonly Color Ink        = new Color(0.051f, 0.071f, 0.125f, 0.96f); // #0D1220 @96% 暗版节点填充
+        // 城市覆盖层：微透蓝黑底，暖灰细边，与建筑描线保持同一视觉层级。
+        public static readonly Color CityPlateBg = new Color(0.025f, 0.033f, 0.047f, 0.82f);
+        public static readonly Color CityPlateLine = new Color(0.64f, 0.63f, 0.58f, 0.38f);
+
         public static readonly Color PhotoBlack = new Color(0.047f, 0.047f, 0.055f, 1f);     // #0C0C0E 照片块专用黑
         public static readonly Color Paper      = new Color(0.937f, 0.918f, 0.878f, 1f);     // #EFEAE0 纸白
         public static readonly Color PaperInk   = new Color(0.110f, 0.102f, 0.082f, 1f);     // #1C1A15 纸上墨字

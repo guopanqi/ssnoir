@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: "\u91d1\u8272\u7ec6\u9970"
+  m_Name: "\u91D1\u8272\u7EC6\u9970"
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -115,10 +115,10 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.5271128, g: 0.42358282, b: 0.23479503, a: 1}
-    - _Color: {r: 0.5271127, g: 0.4235828, b: 0.234795, a: 1}
+    - _BaseColor: {r: 0.5271127, g: 0.4235828, b: 0.234795, a: 1}
+    - _Color: {r: 0.5271126, g: 0.42358276, b: 0.23479497, a: 1}
     - _EmissionColor: {r: 0.096, g: 0.060000002, b: 0.018000001, a: 1}
-    - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _SpecColor: {r: 0.19999993, g: 0.19999993, b: 0.19999993, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &172875312513921359
 MonoBehaviour:
@@ -130,6 +130,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 金色镶边
+  m_Name: "\u91D1\u8272\u9576\u8FB9"
   m_EditorClassIdentifier: 
   version: 7

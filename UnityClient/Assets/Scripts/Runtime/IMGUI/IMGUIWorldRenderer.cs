@@ -1612,10 +1612,12 @@ namespace SSNoir.IMGUI
                 }
                 else
                 {
-                    // 牌子下沿落在锚点上方固定的世界高度，再投影到屏幕。
-                    // 因而镜头俯仰只改变透视，不会改变牌子在场景中的悬浮高度。
+                    // 高度仍跟随世界点；牌子偏到建筑侧面，给地标和引线留出空白。
+                    // 方向由稳定的内容序号决定，拖镜头时不会因跨过屏幕中线而翻边。
                     var labelPoint = UIScale.WorldPointToVirtual(item.labelScreenPos);
-                    targetCenter = new Vector2(labelPoint.x, labelPoint.y - cardHeight / 2f);
+                    float side = item.order % 2 == 0 ? -1f : 1f;
+                    targetCenter = new Vector2(labelPoint.x + side * (cardWidth / 2f + 28f),
+                        labelPoint.y - cardHeight / 2f);
                 }
 
                 layouts.Add(new ProjectedCardLayout(

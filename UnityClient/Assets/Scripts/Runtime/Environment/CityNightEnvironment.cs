@@ -137,21 +137,25 @@ namespace SSNoir
                 var body=palette.FindMaterial("M_建筑_oldtown")!;var window=palette.FindMaterial("M_窗光_white")!;
                 Box(go.transform,boat?new Vector3(7,2,22):new Vector3(3.8f,1.4f,1.7f),Vector3.zero,body);
                 Box(go.transform,boat?new Vector3(4,3,8):new Vector3(2.1f,.6f,1.45f),Vector3.up*(boat?2:1),body);
-                Box(go.transform,boat?new Vector3(3,.5f,1):new Vector3(.4f,.3f,1.25f),boat?new Vector3(0,2.8f,4.1f):new Vector3(1.95f,.1f,0),window);
+                if(boat)Box(go.transform,new Vector3(3,.5f,1),new Vector3(0,2.8f,4.1f),window);
+                else {
+                    Box(go.transform,new Vector3(.15f,.25f,.3f),new Vector3(1.95f,.1f,-.55f),window);
+                    Box(go.transform,new Vector3(.15f,.25f,.3f),new Vector3(1.95f,.1f,.55f),window);
+                }
                 _moving.Add(new Moving { Body=go.transform,Path=route,Start=(float)rnd.NextDouble()*route.Length,
-                    Direction=rnd.NextDouble()<.5?1:-1,Speed=boat?6+(float)rnd.NextDouble()*3:9+(float)rnd.NextDouble()*10,Length=boat?40:Settings.TrailLength,Boat=boat });
+                    Direction=rnd.NextDouble()<.5?1:-1,Speed=boat?6+(float)rnd.NextDouble()*3:9+(float)rnd.NextDouble()*10,Length=boat?40:Settings.HeadlightRange,Boat=boat });
             }
             _trailVertices=new Vector3[_moving.Count*24];var colors=new Color[_trailVertices.Length];var triangles=new List<int>();
             for(int m=0;m<_moving.Count;m++) {
-                var motion=_moving[m];var color=ColorOf(motion.Boat?"#718f9c":"#eadbc4",1).linear;
+                var motion=_moving[m];var color=ColorOf(motion.Boat?"#718f9c":"#e6ebee",1).linear;
                 for(int i=0;i<12;i++) {
-                    color.a=(motion.Boat?Settings.WakeGain*.2f:Settings.TrailGain*.55f)*(1-i/11f);
+                    color.a=(motion.Boat?Settings.WakeGain*.2f:Settings.HeadlightGain*.35f)*(1-i/11f);
                     colors[m*24+i*2]=colors[m*24+i*2+1]=color;
                     if(i<11) {int k=m*24+i*2;triangles.AddRange(new[]{k,k+1,k+2,k+1,k+3,k+2});}
                 }
             }
-            _trails=Own(new Mesh {name="车流与尾波",hideFlags=HideFlags.DontSave});_trails.vertices=_trailVertices;_trails.colors=colors;_trails.SetTriangles(triangles,0);
-            var trails=new GameObject("车流与尾波");trails.transform.SetParent(transform,false);trails.AddComponent<MeshFilter>().sharedMesh=_trails;
+            _trails=Own(new Mesh {name="汽车头灯与船尾波",hideFlags=HideFlags.DontSave});_trails.vertices=_trailVertices;_trails.colors=colors;_trails.SetTriangles(triangles,0);
+            var trails=new GameObject("汽车头灯与船尾波");trails.transform.SetParent(transform,false);trails.AddComponent<MeshFilter>().sharedMesh=_trails;
             var trailRenderer=trails.AddComponent<MeshRenderer>();trailRenderer.sharedMaterial=_ribbon;trailRenderer.shadowCastingMode=ShadowCastingMode.Off;trailRenderer.receiveShadows=false;
             UpdateMotion(0);
         }
@@ -174,8 +178,18 @@ namespace SSNoir
                 if(ahead.sqrMagnitude>.001f) m.Body.localRotation=Quaternion.LookRotation(ahead,Vector3.up)*(m.Boat?Quaternion.identity:Quaternion.Euler(0,-90,0));
                 p.y=m.Boat?-.6f:1.5f;m.Body.localPosition=p;
                 for(int i=0;i<12;i++) {
-                    float at=d-direction*(m.Length*i/11);var q=m.Path.Sample(at);q.y=m.Boat?-1.7f:1.05f;
-                    var tangent=m.Path.Sample(at+1)-m.Path.Sample(at-1);var side=Vector3.Cross(tangent.normalized,Vector3.up)*(m.Boat?1.25f:.425f);
+                    Vector3 q,side;
+                    if(m.Boat) {
+                        float at=d-direction*(m.Length*i/11);q=m.Path.Sample(at);q.y=-1.7f;
+                        var tangent=m.Path.Sample(at+1)-m.Path.Sample(at-1);
+                        side=Vector3.Cross(tangent.normalized,Vector3.up)*1.25f;
+                    } else {
+                        // 头灯照向车头前方，不沿走过的道路留下拖尾。
+                        float progress=i/11f;
+                        var forward=m.Body.localRotation*Vector3.right;
+                        q=p+forward*(2.1f+m.Length*progress);q.y=1.05f;
+                        side=Vector3.Cross(forward,Vector3.up)*Mathf.Lerp(.7f,1.8f,progress);
+                    }
                     _trailVertices[index*24+i*2]=q-side;_trailVertices[index*24+i*2+1]=q+side;
                 }
             }

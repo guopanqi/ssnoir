@@ -19,6 +19,7 @@ namespace SSNoir
             public float KeyIntensity = 0.85f;
             public Color KeyColor = new Color(.83f,.86f,.91f,1);
             public float FillIntensity = 0.14f;
+            public float ShadowStrength = 0.8f;
             public Vector3 KeyDirection = new Vector3(48, -42, 0);
             public Vector3 FillDirection = new Vector3(65, 135, 0);
         }
@@ -34,9 +35,14 @@ namespace SSNoir
             public float FogDensity=.0005f, FogFalloff=.02f, Haze=.00012f, Mist=.3f;
             public Color FogLow=new Color(.063f,.09f,.149f,1), FogHigh=new Color(.043f,.063f,.11f,1);
             public int Cars=40, Boats=4;
-            public float CarSpeed=1, BoatSpeed=1, TrailLength=12, TrailGain=.65f, WakeGain=.3f;
+            public float CarSpeed=1, BoatSpeed=1, HeadlightRange=6, HeadlightGain=.65f, WakeGain=.3f;
         }
         public static NightSettings? ActiveNight { get; private set; }
+        public static float WorldWeight { get; private set; }
+        public static float BloomMultiplier { get; private set; } = 1;
+        public static Vector4 LocationFog { get; set; }
+        public static Color LocationFogColor { get; set; }
+        private readonly CityWorldPalette.FocusSettings _focus;
         private readonly CityNightEnvironment _night;
         private readonly GameObject _rig;
         private readonly Light _key, _fill;
@@ -49,6 +55,7 @@ namespace SSNoir
         public CityWorldOverview(Transform city, CityWorldPalette palette)
         {
             _settings = palette.Overview;
+            _focus = palette.Focus;
             _scale = city.lossyScale.x;
             _pipeline = palette.Pipeline as UniversalRenderPipelineAsset
                 ?? throw new InvalidOperationException("世界视角需要正式 URP 配置");
@@ -79,37 +86,31 @@ namespace SSNoir
             light.color = color;
             light.intensity = intensity;
             light.shadows = shadows;
-            light.shadowStrength = 0.8f;
+            light.shadowStrength = _settings.ShadowStrength;
             light.shadowBias = 0.02f;
             light.shadowNormalBias = 0.05f;
             light.enabled = false;
             return light;
         }
 
-        public void SetActive(bool active)
+        public void SetWeight(float weight, bool worldTarget)
         {
-            ActiveNight = active ? _night.Settings : null;
-            // Scene teardown may destroy the child rig before the game manager disposes its state.
-            if (_night != null) _night.gameObject.SetActive(active);
-            if (_key != null) _key.enabled = active;
-            if (_fill != null) _fill.enabled = active;
-            QualitySettings.renderPipeline = active ? _worldPipeline : _pipeline;
-            if (!active) return;
-            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = _settings.Ambient;
-            RenderSettings.reflectionIntensity = 0;
-            RenderSettings.fog = false; // Height fog is integrated once by CityNightFeature.
-            RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogColor = _settings.Atmosphere;
-            RenderSettings.fogStartDistance = _settings.FogStart * _scale;
-            RenderSettings.fogEndDistance = _settings.FogEnd * _scale;
-            if (Camera.main != null) Camera.main.backgroundColor = _settings.Atmosphere;
+            WorldWeight = Mathf.Clamp01(weight);
+            ActiveNight = _night.Settings;
+            BloomMultiplier = Mathf.Lerp(_focus.BloomMultiplier, 1, WorldWeight);
+            _night.gameObject.SetActive(worldTarget);
+            _key.enabled = WorldWeight > 0;
+            _fill.enabled = WorldWeight > 0;
+            _key.intensity = _settings.KeyIntensity * WorldWeight;
+            _fill.intensity = _settings.FillIntensity * WorldWeight;
+            QualitySettings.renderPipeline = WorldWeight > 0 ? _worldPipeline : _pipeline;
         }
 
         public void Dispose()
         {
             if (_disposed) return;
             ActiveNight = null;
+            WorldWeight = 0; LocationFog = Vector4.zero;
             _disposed = true;
             if (QualitySettings.renderPipeline == _worldPipeline) QualitySettings.renderPipeline = _pipeline;
             if (_rig != null) UnityEngine.Object.DestroyImmediate(_rig);

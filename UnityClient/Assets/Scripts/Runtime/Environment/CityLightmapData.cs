@@ -35,7 +35,10 @@ namespace SSNoir
             {
                 var target = detail.transform.Find(binding.Path) ?? throw new InvalidOperationException("光照绑定对象缺失："+binding.Path);
                 var renderer = target.GetComponent<MeshRenderer>() ?? throw new InvalidOperationException("光照绑定没有 MeshRenderer："+binding.Path);
+#if UNITY_EDITOR
+                // receiveGI 是烘焙设置；Player 通过索引和 UV 绑定已烘焙光照。
                 renderer.receiveGI = ReceiveGI.Lightmaps;
+#endif
                 renderer.lightmapIndex = indices[binding.Index];renderer.lightmapScaleOffset = binding.ScaleOffset;
             }
             if (FloorHighlight != null)

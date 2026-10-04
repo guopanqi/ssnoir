@@ -19,4 +19,4 @@ python3 tools/citybox-unity-preview/preview.py --verify-play
 
 Blender 个性化探索仍保留在 `city-box/prefabs/review/`，可用于发现新的视觉元素。旧的 Unity/Blender 对齐转换器、独立试用场景、复制材质和试用 URP 已移除；它们不能代表正式游戏。
 
-夜城预览沿用 HDR 截图目标，Bloom 与调色完成后才转成 sRGB PNG。`nightEffects` 同时记录世界专用效果是否启用；世界为 true、聚焦地点为 false。批处理使用两个 Job worker，并在资源清理后等待正常编辑器帧再退出，避免当前 macOS/Unity 的关闭卡住。
+夜城预览沿用 HDR 截图目标，Bloom 与调色完成后才转成 sRGB PNG。`nightEffects` 记录共用 HDR 调色链是否启用，世界与聚焦地点均为 true。`worldEffectsWeight` 区分世界雾／配光权重，`bloomMultiplier` 记录近景辉光比例，`locationFog` 记录地点距离雾；固定预览完成视觉过渡后再出图，实际游戏按色盘中的过渡时间执行。批处理使用两个 Job worker，并在资源清理后等待正常编辑器帧再退出，避免当前 macOS/Unity 的关闭卡住。

@@ -38,9 +38,6 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _FarLineStrength: 0.12
-    - _LineFadeStart: 600
-    - _LineFadeEnd: 1300
     - _Amplitude: 0.24
     - _CoordinateScale: 1
     - _CrossingAmplitude: 0.18
@@ -50,22 +47,25 @@ Material:
     - _CrossingWidth: 0.025
     - _DriftSpeed: 0.3
     - _FadeSpeed: 0.34
+    - _FarLineStrength: .5
     - _Frequency: 0.42
     - _LengthScale: 14
     - _LineAngle: 0
+    - _LineFadeEnd: 1600
+    - _LineFadeStart: 650
     - _LineJitter: 0.12
-    - _LineSpacing: 1.35
-    - _LineStrength: 0.48
-    - _LineWidth: 0.035
+    - _LineSpacing: .65
+    - _LineStrength: .3
+    - _LineWidth: .018
     - _MinimumVisibility: 0.08
     - _SecondaryAmplitude: 0.09
     - _SecondaryFrequency: 0.18
-    - _SegmentCutoff: 0.725
-    - _SegmentLength: 7.8
+    - _SegmentCutoff: .64
+    - _SegmentLength: 5.8
     - _SegmentSoftness: 0.136
     - _SwaySpeed: 0.16
     - _WidthScale: 4
     m_Colors:
-    - _BaseColor: {r: 0.085, g: 0.11, b: 0.15, a: 1}
-    - _LineColor: {r: 0.2, g: 0.25, b: 0.3, a: 1}
+    - _BaseColor: {r: 0.08499997, g: 0.10999996, b: 0.14999998, a: 1}
+    - _LineColor: {r: 0.45, g: 0.5, b: 0.55, a: 1}
   m_BuildTextureStacks: []

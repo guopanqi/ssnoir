@@ -65,22 +65,18 @@ namespace SSNoir.IMGUI
         public static float MeasurePlateHeight(float clocksHeight)
             => Mathf.Max(MinLocationHeight, (clocksHeight > 0f ? clocksHeight + GapAfterClocks : PlatePadY) + LocationRowH + PlatePadY);
 
-        /// <summary>牌子的底：Ink + 硬投影，无描边（存在靠阴影）。</summary>
-        // 试过把牌子换成「场景底色 + 描线框、无投影」的线稿牌，想让它更像长在图纸上。
-        // 结论：不要。卡是能拿起来的器物，实墨底 + 硬投影正是「可以碰」的信号，换掉就脏且
-        // 认不出；融入场景的活只交给标注那一族（雾底 + 描边字，见 AnnotationDrawer）。
+        /// <summary>城市牌子共用微透暗底与细边。</summary>
         public static void DrawPlateBase(Rect rect)
-        {
-            DrawPlateBase(rect, IMGUIStyles.Ink);
-        }
+            => DrawPlateBase(rect, IMGUIStyles.CityPlateBg);
 
-        /// <summary>牌子底的换底色版：顶栏暗条用 HudBg（深蓝、暗、微透），和地点牌区分。</summary>
         public static void DrawPlateBase(Rect rect, Color bg)
         {
-            IMGUIStyles.DrawShadow(rect, new Vector2(7f, 9f), 0.58f);
+            rect = UIScale.PixelSnap(rect);
+            IMGUIStyles.DrawShadow(rect, new Vector2(2f, 3f), 0.24f);
             IMGUIStyles.SetColor(bg);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
+            IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.CityPlateLine);
         }
 
         public static Color PlateLineColor(bool disabled, bool hover)
@@ -177,7 +173,7 @@ namespace SSNoir.IMGUI
         // 不然徽章一多、换了行，标题/图标就会被压在下面。
         public static void DrawFloating(Rect rect, GameNode node, bool isLocation, bool hover, bool disabled, float clocksBottomY)
         {
-            // 阴影加重一档：Ink 与场景蓝太接近，无边卡靠更明确的硬投影才不「融」。
+            // 微透底保留城市纹理，细边托住可点击区域。
             DrawPlateBase(rect);
 
             Color line = PlateLineColor(disabled, hover);

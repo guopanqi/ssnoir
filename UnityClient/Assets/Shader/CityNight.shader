@@ -11,6 +11,8 @@ Shader "SSNoir/CityNight"
         TEXTURE2D_X(_NightBloomTexture);
         TEXTURE2D_X(_NightWideBloomTexture);
         float4 _Fog, _Grade, _Bloom, _FogLow, _FogHigh, _NightBlurDirection, _NightSourceTexel;
+        float _WorldFogWeight;
+        float4 _LocationFog, _LocationFogColor;
         float hash(float2 p) { return frac(sin(dot(p,float2(127.1,311.7)))*43758.5453); }
         float noise(float2 p) {
             float2 i=floor(p), f=frac(p); f=f*f*(3-2*f);
@@ -53,8 +55,10 @@ Shader "SSNoir/CityNight"
             float f1=abs(ry)<.0001 ? _Fog.x*a*dist : (_Fog.x/_Fog.y)*(a-b)/ry;
             float n=.65*noise(world.xz*.0026+_Time.y*float2(.018,.007))+.35*noise(world.xz*.009-float2(_Time.y*.03,0));
             float mist=smoothstep(.52,.95,n)*_Fog.w*exp(-max(world.y-3,0)*.11)*(1-exp(-dist*.0011));
-            float fog=saturate(saturate(f1)*.9+(1-exp(-dist*_Fog.z))*.75+mist);
+            float fog=saturate(saturate(f1)*.9+(1-exp(-dist*_Fog.z))*.75+mist)*_WorldFogWeight;
             c=lerp(c,lerp(_FogLow.rgb,_FogHigh.rgb,saturate(world.y/90)),fog);
+            float locationFog=saturate((dist-_LocationFog.y)/max(_LocationFog.z-_LocationFog.y,.001))*_LocationFog.x;
+            c=lerp(c,_LocationFogColor.rgb,locationFog);
             c=clamp((c-.02)*_Grade.x+.02,0,8);
             float l=dot(c,float3(.2126,.7152,.0722));
             c=lerp(l.xxx,c,_Grade.y)+float3(0,.0008,.0022)*(1-smoothstep(0,.25,l));

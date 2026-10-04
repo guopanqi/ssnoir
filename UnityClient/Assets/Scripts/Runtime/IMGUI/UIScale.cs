@@ -54,9 +54,9 @@ namespace SSNoir.IMGUI
 
         private static float DesignHeight => _sizePreset switch
         {
-            UISizePreset.Compact => BaseDesignHeight * 1.15f,   // 690
-            UISizePreset.Large   => BaseDesignHeight * 0.86f,   // 516
-            _                    => BaseDesignHeight,
+            UISizePreset.Compact => BaseDesignHeight * 1.50f,   // 900：城市优先，默认紧凑
+            UISizePreset.Large   => BaseDesignHeight,           // 600：原标准尺寸
+            _                    => BaseDesignHeight * 1.25f,   // 750：紧凑与放大之间
         };
 
         /// <summary>

@@ -121,9 +121,11 @@ namespace SSNoir.IMGUI
                 return;
 
             var attach = AttachPoint(card, anchor);
+            // 斜段绕开建筑焦点，末端用短直段接入牌子；不沿地标拉一条长竖线。
+            const float stub = 18f;
             Vector2 elbow = attach.OnVerticalEdge
-                ? new Vector2(anchor.x, attach.Point.y)
-                : new Vector2(attach.Point.x, anchor.y);
+                ? attach.Point + Vector2.right * (anchor.x < card.center.x ? -stub : stub)
+                : attach.Point + Vector2.up * (anchor.y < card.center.y ? -stub : stub);
 
             Vector2 start = StepOffRing(anchor, elbow);
             Color color = LineColor(tether.Weight);
@@ -131,9 +133,9 @@ namespace SSNoir.IMGUI
 
             // 城市是黑墙配亮黄窗户，单一颜色的细线飘到窗户上就没了。先描一道暗边，
             // 线不管压在什么上头都能读出来。
-            Color halo = new Color(0f, 0f, 0f, color.a * 0.55f);
-            IMGUIStyles.DrawLine(start, elbow, halo, thickness + 2f);
-            IMGUIStyles.DrawLine(elbow, attach.Point, halo, thickness + 2f);
+            Color halo = new Color(0f, 0f, 0f, color.a * 0.30f);
+            IMGUIStyles.DrawLine(start, elbow, halo, thickness + 1f);
+            IMGUIStyles.DrawLine(elbow, attach.Point, halo, thickness + 1f);
             IMGUIStyles.DrawLine(start, elbow, color, thickness);
             IMGUIStyles.DrawLine(elbow, attach.Point, color, thickness);
         }
@@ -186,7 +188,7 @@ namespace SSNoir.IMGUI
         {
             Emphasis.Highlighted => IMGUIStyles.Gold,
             Emphasis.Muted => new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.22f),
-            _ => new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.62f),
+            _ => new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.42f),
         };
 
         private static Color RingColor(Emphasis weight) => weight switch
@@ -197,14 +199,14 @@ namespace SSNoir.IMGUI
         };
 
         private static float LineThickness(Emphasis weight) =>
-            weight == Emphasis.Highlighted ? 2f : 1.5f;
+            weight == Emphasis.Highlighted ? 1.5f : 1f;
 
         private static void DrawRing(Vector2 center, Color color)
         {
             var rect = new Rect(center.x - RingSize / 2f, center.y - RingSize / 2f, RingSize, RingSize);
             var oldColor = GUI.color;
             // 环本身也要能压在亮窗户上，先垫一圈暗底。
-            IMGUIStyles.SetColor(new Color(0f, 0f, 0f, color.a * 0.55f));
+            IMGUIStyles.SetColor(new Color(0f, 0f, 0f, color.a * 0.30f));
             GUI.DrawTexture(new Rect(rect.x - 1f, rect.y - 1f, rect.width + 2f, rect.height + 2f),
                 IMGUIStyles.AnchorRingTexture);
             IMGUIStyles.SetColor(color);
