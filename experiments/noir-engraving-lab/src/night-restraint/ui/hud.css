@@ -1,0 +1,106 @@
+    #hud {
+      position: fixed; z-index: 6; pointer-events: none;
+      font-family: "Songti SC", "STSong", serif; color: var(--ink);
+      user-select: none;
+      /* 案卷（默认）：档案纸语言 */
+      --ink: #d5d2c8;
+      --ink-dim: #939da3;
+      --line: rgba(148, 157, 161, .45);
+      --panel: rgba(7, 9, 14, .88);
+      --gold: #a1a59c;
+      --accent: #cdb98d;
+      --hover-line: rgba(205, 185, 141, .7);
+      --notch: rgba(148, 157, 161, .7);
+    }
+#hud .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 2px 24px rgba(0, 0, 0, .5);
+      position: relative;
+    }
+#hud .card::before {  /* 打孔刻痕：左上角的两道小杠（案卷专属） */
+      content: ''; position: absolute; left: -1px; top: -1px;
+      width: 12px; height: 3px; background: var(--notch);
+    }
+    #hud .card::after {
+      content: ''; position: absolute; left: -1px; top: -1px;
+      width: 3px; height: 12px; background: var(--notch);
+    }
+    #hud button { pointer-events: auto; cursor: pointer; }
+
+    /* 左上：导航 + 任务 */
+    .hud-tl { position: absolute; left: 18px; top: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .hud-back {
+      align-self: flex-start;
+      font: 600 14px/1 "Songti SC", serif; letter-spacing: .18em;
+      color: var(--ink); background: var(--panel);
+      border: 1px solid var(--line); padding: 9px 14px 8px;
+      transition: color .18s, border-color .18s;
+    }
+.hud-back:hover { color: var(--accent); border-color: var(--hover-line); }
+    .hud-back.hidden { display: none; }
+    .hud-case { padding: 10px 16px 12px 18px; min-width: 216px; }
+    .hud-case-no { font: 500 11px/1 Menlo, monospace; letter-spacing: .3em; color: var(--gold); }
+.hud-case-title {
+      font: 600 17px/1.4 "Songti SC", serif; letter-spacing: .3em;
+      margin: 4px 0 8px; padding-bottom: 7px;
+      border-bottom: 1px solid var(--line);
+    }
+    .task { font: 400 13px/2 "Songti SC", serif; letter-spacing: .1em; color: var(--ink-dim); display: flex; align-items: center; gap: 8px; }
+    .task.current { color: var(--ink); }
+    .tbox { width: 9px; height: 9px; border: 1px solid #6a7080; flex: none; }
+    .task.current .tbox { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 25%, transparent); }
+    .hud-log { min-height: 20px; }
+    .hud-log-line {
+      font: 500 12px/1.9 Menlo, monospace; letter-spacing: .12em; color: var(--accent);
+      text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
+      opacity: 1; transition: opacity 1.2s;
+    }
+    .hud-log-line.fade { opacity: 0; }
+
+    /* 右上：功能菜单 */
+    .hud-tr { position: absolute; right: 18px; top: 16px; display: flex; gap: 8px; }
+    .hud-menu {
+      width: 42px; height: 42px;
+      font: 600 17px/1 "Songti SC", serif; color: var(--ink-dim);
+      background: var(--panel); border: 1px solid var(--line);
+      transition: color .18s, border-color .18s;
+    }
+.hud-menu:hover { color: var(--accent); border-color: var(--hover-line); }
+
+    /* 左下：人物 + 骰子 */
+    .hud-bl { position: absolute; left: 18px; bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .hud-label { font: 500 10px/1 Menlo, monospace; letter-spacing: .42em; color: var(--gold); padding-left: 2px; }
+    .hud-chars { display: flex; gap: 10px; }
+    .hud-char { width: 128px; padding-bottom: 9px; }
+    .hud-bust { display: block; width: 126px; height: 105px; border-bottom: 1px solid var(--line); }
+.hud-char-name { padding: 6px 10px 7px; }
+.hud-char-name span { font: 600 14px/1.2 "Songti SC", serif; letter-spacing: .22em; display: block; }
+    .hud-char-name i { font: 400 10px/1.6 Menlo, monospace; font-style: normal; letter-spacing: .08em; color: var(--ink-dim); }
+    .hud-dice { display: flex; gap: 7px; padding: 0 10px; }
+    .hud-die {
+      pointer-events: auto; cursor: grab;
+      width: 33px; height: 33px; position: relative;
+      border: 1px solid rgba(160, 150, 125, .7); background: rgba(12, 15, 22, .9);
+      transition: opacity .25s, border-color .18s;
+    }
+.hud-die i { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--ink); }
+    .hud-die:hover { border-color: var(--hover-line); }
+    .hud-die.spent { opacity: .28; }
+    .hud-die.dragging { opacity: .35; }
+    .hud-ghost { position: fixed; z-index: 60; pointer-events: none; cursor: grabbing; opacity: .95; }
+
+    /* 右下：物品（与骰子同尺寸） */
+    .hud-br { position: absolute; right: 18px; bottom: 16px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+    .hud-items { display: flex; gap: 7px; }
+    .hud-item {
+      pointer-events: auto; cursor: grab;
+      width: 33px; height: 33px; display: flex; align-items: center; justify-content: center;
+      transition: border-color .18s;
+    }
+    .hud-item svg { width: 20px; height: 20px; stroke: var(--ink); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .hud-item:hover { border-color: var(--hover-line); }
+    .hud-item:hover svg { stroke: var(--accent); }
+    .hud-item.gone { display: none; }
+  
+.night-hud-frame{position:fixed;pointer-events:none;overflow:hidden;z-index:6}#hud{position:absolute;left:0;top:0;height:720px;transform-origin:0 0}#hud .hud-tr{right:18px}#hud .hud-br{right:18px}#hud .selected{border-color:var(--accent);background:#433b2d}#hud button:disabled{opacity:.45;cursor:default}#hud [role=button]{cursor:pointer}#hud button:focus-visible,#hud [role=button]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.hud-popup{position:absolute;right:86px;top:72px;width:200px;padding:12px;background:var(--panel);border:1px solid var(--line);pointer-events:auto}.hud-popup button{display:block;width:100%;background:transparent;color:var(--ink);border:0;border-bottom:1px solid var(--line);padding:8px;text-align:left;font:inherit}.hud-popup p{margin:0;line-height:1.8}.hud-popup[hidden]{display:none}.tuning{top:82px;right:16px;z-index:10}.tuning:not([open]){display:none}

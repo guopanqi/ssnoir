@@ -41,8 +41,8 @@ namespace SSNoir.Editor
         }
 
         /// <summary>
-        /// CityBox 发布的世界层和地点细节层都使用 FBX 自带的材质描述。
-        /// 这样两层遵循同一套色彩转换，不再让 Places 通过同名工程 .mat 得到另一种明暗结果。
+        /// CityBox 先按 FBX 材质描述导入，再由 CitySharedMaterialImporter 绑定 Unity 共享材质。
+        /// 世界层与地点细节层引用同一套共享资产；CityBox 重建不覆盖 Unity 材质参数。
         /// 唯一的例外是河面（见 <see cref="RemapRiverMaterial"/>）：它的波光动画靠
         /// Assets/Materials/RiverFlowUV.mat + CityBox 写进 FBX 的 UV，非嵌入材质能替代。
         /// </summary>

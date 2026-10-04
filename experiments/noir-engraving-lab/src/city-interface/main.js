@@ -1,0 +1,20 @@
+import * as T from 'three';
+import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
+import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
+import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
+import {createBridgePrint} from '../post/bridgePrint.js';
+import {buildDistrict} from '../district-study/scene.js';
+import {lineHierarchy} from '../district-study/lines.js';
+import {lightDistrict} from '../district-study/lighting.js';
+import {profile} from '../district-study/profile.js';
+import {cityCamera} from './camera.js';
+import {buildUI} from './ui.js';
+import './style.css';
+const renderer=new T.WebGLRenderer({canvas:document.querySelector('#world'),antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.toneMapping=T.AgXToneMapping;renderer.toneMappingExposure=profile.exposure;
+const scene=new T.Scene();scene.background=new T.Color(profile.background);const world=buildDistrict(scene);lightDistrict(scene,world.key);const updateLines=lineHierarchy(scene);
+const camera=new T.PerspectiveCamera(42,1,.1,650),navigation=cityCamera(camera);
+const composer=new EffectComposer(renderer,new T.WebGLRenderTarget(innerWidth,innerHeight,{samples:4}));composer.addPass(new RenderPass(scene,camera));composer.addPass(new OutputPass());const print=createBridgePrint();composer.addPass(print);
+const ui=buildUI({focus:location=>{navigation.go(location);ui.showLocation(location);},back:()=>{navigation.go(null);ui.showLocation(null);},isMoving:()=>navigation.moving});
+function resize(){camera.aspect=innerWidth/innerHeight;camera.fov=T.MathUtils.radToDeg(2*Math.atan(Math.tan(T.MathUtils.degToRad(21))*Math.max(1,(16/9)/camera.aspect)));camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);print.uniforms.uResolution.value.set(innerWidth,innerHeight);}
+resize();window.addEventListener('resize',resize);
+function loop(now){requestAnimationFrame(loop);navigation.update(now);updateLines(camera,innerHeight,true,true);composer.render();ui.update(camera,innerWidth,innerHeight);}requestAnimationFrame(loop);

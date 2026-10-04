@@ -58,7 +58,7 @@ namespace SSNoir
             int w = h * 16 / 9;
 
             // 深度位必须给够，接这张图的相机要正经渲一遍世界，不是拷贝一张现成的图。
-            return new RenderTexture(w, h, 24, RenderTextureFormat.ARGB32)
+            return new RenderTexture(w, h, 24, RenderTextureFormat.ARGBHalf)
             {
                 name = "SSNoir.CinematicCapture",
                 antiAliasing = Mathf.Max(1, (UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.msaaSampleCount ?? QualitySettings.antiAliasing),
@@ -83,6 +83,17 @@ namespace SSNoir
             captureData.antialiasingQuality = sourceData.antialiasingQuality;
             captureData.volumeLayerMask = sourceData.volumeLayerMask;
             captureData.renderShadows = sourceData.renderShadows;
+        }
+
+        /// <summary>正式虚拟机位的唯一镜头换算，编辑器与 CLI 共用。</summary>
+        public static void ApplyVirtualCamera(Camera capture, Cinemachine.CinemachineVirtualCamera camera)
+        {
+            capture.transform.SetPositionAndRotation(camera.transform.position,camera.transform.rotation);
+            var lens=camera.m_Lens;
+            capture.fieldOfView=lens.FieldOfView;capture.orthographic=lens.Orthographic;
+            capture.orthographicSize=lens.OrthographicSize;
+            float scale=!Application.isPlaying ? (camera.GetComponent<SSNoirVirtualCameraConfig>()?.modelRoot?.lossyScale.x ?? 1) : 1;
+            capture.nearClipPlane=lens.NearClipPlane*scale;capture.farClipPlane=lens.FarClipPlane*scale;
         }
 
         private static IEnumerator CaptureRoutine(Camera source, int height)
@@ -127,20 +138,32 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// 把渲染目标读回来存成 PNG，返回落盘路径；失败时返回 null 并已经报过错。
-        /// 只读不销毁，<paramref name="target"/> 归调用方处理。
+        /// 将完成调色的 HDR 画面转换为 sRGB 像素；调用方负责销毁返回的图片。
         /// </summary>
+        public static Texture2D ReadTarget(RenderTexture target)
+        {
+            // HDR preserves luminous rims until the night pass has applied bloom and tone mapping.
+            // Encode only the finished image into an sRGB LDR target before reading PNG bytes.
+            var encoded=RenderTexture.GetTemporary(target.width,target.height,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB);
+            var active=RenderTexture.active;bool previousWrite=GL.sRGBWrite;
+            try
+            {
+                GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;
+                Graphics.Blit(target,encoded);
+                RenderTexture.active=encoded;
+                var image=new Texture2D(target.width,target.height,TextureFormat.RGB24,false);
+                image.ReadPixels(new Rect(0,0,target.width,target.height),0,0);image.Apply();return image;
+            }
+            finally {GL.sRGBWrite=previousWrite;RenderTexture.active=active;RenderTexture.ReleaseTemporary(encoded);}
+        }
+
+        /// <summary>保存 PNG；只读不销毁渲染目标，失败时返回 null 并报错。</summary>
         public static string? SaveTarget(RenderTexture target, string label)
         {
             int w = target.width;
             int h = target.height;
 
-            var previousActive = RenderTexture.active;
-            RenderTexture.active = target;
-            var image = new Texture2D(w, h, TextureFormat.RGB24, mipChain: false);
-            image.ReadPixels(new Rect(0, 0, w, h), 0, 0);
-            image.Apply();
-            RenderTexture.active = previousActive;
+            var image = ReadTarget(target);
 
             byte[] png = image.EncodeToPNG();
 

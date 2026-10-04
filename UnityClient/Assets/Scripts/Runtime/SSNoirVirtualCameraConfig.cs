@@ -58,8 +58,8 @@ namespace SSNoir
 
         // The pose this camera was authored with in the scene. Dragging and focus
         // transitions both move the transform at runtime, so the designed framing is
-        // remembered once, before anything can touch it, and stays the destination
-        // every time focus returns to this building.
+        // remembered once, before anything can touch it. AuthoredArc uses it as the
+        // destination; DirectApproach uses its distance/pitch while keeping the incoming side.
         private Vector3 _authoredPosition;
         private Quaternion _authoredRotation;
         private bool _authoredPoseCaptured;

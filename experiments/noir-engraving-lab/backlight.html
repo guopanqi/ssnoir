@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>SSNoir · 逆光（城市视角）</title><style>
+html,body{margin:0;height:100%;background:#04060a;color:#93a6bd;font:12px/1.5 system-ui,"PingFang SC";overflow:hidden}
+canvas{display:block;width:100vw;height:100vh}
+.hud{position:fixed;left:18px;top:14px;pointer-events:none;text-shadow:0 1px 6px #000}
+.hud-title{font-size:22px;letter-spacing:.34em;color:#e7eefb;font-weight:300}
+.hud-title span{font-size:10px;letter-spacing:.32em;color:#6d7f96;margin-left:.6em}
+.hud-sub{margin-top:2px;font-size:11px;letter-spacing:.16em;color:#64768c}
+.hud-perf{margin-top:4px;font-size:10px;letter-spacing:.12em;color:#55697f;font-variant-numeric:tabular-nums}
+.hud-free{margin-top:3px;font-size:10px;letter-spacing:.14em;color:#c79a58}
+.hud-free:empty{display:none}
+.bar{position:fixed;left:18px;bottom:14px;max-width:calc(100vw - 64px);display:flex;flex-direction:column;gap:6px}
+.bar-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.bar a,.bar button{font:inherit;font-size:11px;letter-spacing:.1em;background:rgba(10,16,24,.72);color:#8ea2ba;border:1px solid rgba(120,150,190,.22);border-radius:2px;padding:4px 9px;cursor:pointer;text-decoration:none}
+.bar a:hover,.bar button:hover{border-color:rgba(150,185,230,.5);color:#cfe0f5}
+.bar button.on{background:rgba(200,150,70,.16);border-color:rgba(226,170,90,.6);color:#f0cf9a}
+.bar-note{font-size:10px;letter-spacing:.14em;color:#4e637a}
+#note{font-size:10px;letter-spacing:.1em;color:#7d93ad}
+.boot{position:fixed;inset:0;display:grid;place-items:center;background:#04060a;color:#7d8ea3;letter-spacing:.3em;font-size:12px;transition:opacity .6s;z-index:9}
+.boot.done{opacity:0;pointer-events:none}
+body[data-capture] .hud,body[data-capture] .bar,body[data-capture] .boot{display:none}
+body.hide-hud .hud,body.hide-hud .bar{display:none}
+</style></head>
+<body>
+<canvas id="view"></canvas>
+
+<div class="hud">
+  <div class="hud-title">逆光 <span>BACKLIGHT</span></div>
+  <div class="hud-sub">SSNoir 城市视角 · 发光地平线与一座被仰射的塔 — by opencode</div>
+  <div class="hud-perf" id="perf">—</div>
+  <div class="hud-free" id="free"></div>
+</div>
+
+<div class="bar">
+  <div class="bar-row" id="shots"></div>
+  <div class="bar-row" id="modes"></div>
+  <div class="bar-row">
+    <a href="./index.html">← 实验室</a>
+    <span id="note"></span>
+    <span class="bar-note">1–5 机位 · Q/E 切阶段 · 空格暂停 · H 隐藏 · R 复位</span>
+  </div>
+</div>
+
+<div class="boot" id="boot">载入城市快照…</div>
+<script type="module" src="/src/backlight/main.js"></script>
+</body></html>

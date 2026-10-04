@@ -21,6 +21,7 @@ namespace SSNoir.Editor
         private const string FocusOutlinePrefix = "描线_focus_";
         private const string WorldOutlinePrefix = "描线_world_";
         private static bool _applying;
+        internal static bool AutomaticPreview = true;
 
         static CityOutlineEditorPreview()
         {
@@ -48,7 +49,7 @@ namespace SSNoir.Editor
 
         private static void ApplyFocusedPreview()
         {
-            if (_applying || EditorApplication.isPlayingOrWillChangePlaymode)
+            if (!AutomaticPreview || _applying || EditorApplication.isPlayingOrWillChangePlaymode)
                 return;
             _applying = true;
             try
@@ -96,7 +97,42 @@ namespace SSNoir.Editor
             while (owner.parent != city) owner = owner.parent;
             var visuals = new CityWorldVisuals(city);
             visuals.SetFocused(owner.name);
-            return visuals;
+            var overrides = new List<(Renderer renderer, bool previous)>();
+            foreach (var renderer in city.GetComponentsInChildren<Renderer>(true))
+            {
+                var place = renderer.transform;
+                while (place.parent != city) place = place.parent;
+                bool focused = place.name == owner.name;
+                bool hidden = false;
+                for (var node = renderer.transform; node != city; node = node.parent)
+                {
+                    if (node.name.StartsWith(FocusOutlinePrefix, StringComparison.Ordinal)
+                        || node.name.StartsWith("内部_", StringComparison.Ordinal))
+                        hidden |= !focused;
+                    if (node.name.StartsWith(WorldOutlinePrefix, StringComparison.Ordinal))
+                        hidden |= focused;
+                }
+                overrides.Add((renderer, renderer.forceRenderingOff));
+                renderer.forceRenderingOff = hidden;
+            }
+            return new PreviewScope(visuals, overrides);
+        }
+
+        private sealed class PreviewScope : IDisposable
+        {
+            private readonly CityWorldVisuals _visuals;
+            private readonly List<(Renderer renderer, bool previous)> _overrides;
+            public PreviewScope(CityWorldVisuals visuals, List<(Renderer renderer, bool previous)> overrides)
+            {
+                _visuals = visuals;
+                _overrides = overrides;
+            }
+            public void Dispose()
+            {
+                foreach (var (renderer, previous) in _overrides)
+                    if (renderer != null) renderer.forceRenderingOff = previous;
+                _visuals.Dispose();
+            }
         }
 
         private static void ClearPreview()

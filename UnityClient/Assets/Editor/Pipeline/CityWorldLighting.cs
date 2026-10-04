@@ -19,7 +19,8 @@ namespace SSNoir.Editor
             if (!Application.isBatchMode) throw new InvalidOperationException("烘焙请在独立验证工程执行，避免替换正在编辑的场景");
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
             var city = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("Models/Environment/City"));
-            city.name="City";city.transform.localScale=Vector3.one*.1f;
+            city.name="City";
+            float scale=city.transform.lossyScale.x;
             foreach (Transform child in city.transform.Cast<Transform>().ToArray())
                 if(child.name != name) UnityEngine.Object.DestroyImmediate(child.gameObject);
             var detail = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("City/Places/"+name),city.transform);
@@ -33,12 +34,12 @@ namespace SSNoir.Editor
             RenderSettings.fog=false;
             foreach(var light in city.GetComponentsInChildren<Light>(true))
             {
-                CityWorldVisuals.Configure(light,spec.lights.Single(l=>l.name==light.name),palette);
+                CityWorldVisuals.Configure(light,spec.lights.Single(l=>l.name==light.name),palette,scale);
                 light.enabled=true;
             }
             foreach(var renderer in detail.GetComponentsInChildren<MeshRenderer>(true))
             {
-                bool line=renderer.sharedMaterials.All(m=>m.shader.name=="Universal Render Pipeline/Unlit");
+                bool line=renderer.sharedMaterials.All(palette.IsLine);
                 renderer.shadowCastingMode=line?ShadowCastingMode.Off:ShadowCastingMode.On;
                 renderer.receiveShadows=!line;
                 var extent=renderer.bounds.size;
@@ -53,7 +54,7 @@ namespace SSNoir.Editor
             const string folder="Assets/CityLightingData/晚宴";
             Directory.CreateDirectory(folder);Directory.CreateDirectory("Assets/Resources/City/Lighting");
             var lighting=new LightingSettings {bakedGI=true,realtimeGI=false,
-                lightmapper=LightingSettings.Lightmapper.ProgressiveGPU,lightmapResolution=160,lightmapMaxSize=2048,
+                lightmapper=LightingSettings.Lightmapper.ProgressiveGPU,lightmapResolution=16/scale,lightmapMaxSize=2048,
                 directSampleCount=512,indirectSampleCount=128,environmentSampleCount=32,maxBounces=2};
             var settings=new SerializedObject(lighting);
             settings.FindProperty("m_IndirectOutputScale").floatValue=0;
@@ -84,7 +85,7 @@ namespace SSNoir.Editor
             {
                 var row=areas[i];var light=city.GetComponentsInChildren<Light>(true).Single(l=>l.name==row.name);
                 var p=light.transform.position;var n=light.transform.forward;
-                highlight.SetVector("_AreaPosition"+i,new Vector4(p.x,p.y,p.z,row.size*.1f*.5f));
+                highlight.SetVector("_AreaPosition"+i,new Vector4(p.x,p.y,p.z,row.size*scale*.5f));
                 highlight.SetVector("_AreaNormal"+i,new Vector4(n.x,n.y,n.z,0));
                 highlight.SetVector("_AreaRadiance"+i,palette.FindLightColor(row.palette)*(4*row.energy/(Mathf.PI*Mathf.PI*row.size*row.size)));
             }

@@ -29,22 +29,10 @@ ssnoir_prepare_staging() {
     local label="$1"
     mkdir -p "$SSNOIR_PROFILE_CACHE_ROOT"
 
-    if [[ ! -d "$SSNOIR_STAGING_PROJECT" ]]; then
-        echo "[$label] 首次创建独立 APFS staging 快照..."
-        cp -cR "$SSNOIR_SOURCE_PROJECT" "$SSNOIR_STAGING_PROJECT"
-    fi
-
     echo "[$label] 同步 Unity 主工程到独立 staging..."
-    rsync -a --delete \
-        --exclude '/Library/' \
-        --exclude '/Temp/' \
-        --exclude '/Logs/' \
-        --exclude '/Build/' \
-        --exclude '/Builds/' \
-        --exclude '/UserSettings/' \
-        --exclude '/Screenshots/' \
-        --exclude '/CutsceneSource~/' \
-        "$SSNOIR_SOURCE_PROJECT/" "$SSNOIR_STAGING_PROJECT/"
+    python3 "$SSNOIR_REPO_ROOT/tools/unity/staging.py" \
+        --source "$SSNOIR_SOURCE_PROJECT" \
+        --target "$SSNOIR_STAGING_PROJECT"
 
     rm -rf \
         "$SSNOIR_STAGING_PROJECT/Build" \

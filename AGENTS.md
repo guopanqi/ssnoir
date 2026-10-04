@@ -18,7 +18,7 @@
 - **交锋机制的数学研究与长期续研**：[skills/research-mechanisms/SKILL.md](skills/research-mechanisms/SKILL.md)
 - **制作 3D 资产（参考图、低模、Blender 加工、Unity 命名契约）**：[skills/create-3d-assets/SKILL.md](skills/create-3d-assets/SKILL.md)
 - **制作游戏图片（舞台人物、姿势、2D 道具、3D 参考图）**：[skills/make-images/SKILL.md](skills/make-images/SKILL.md)
-- **要不要验证 / 怎么验证**：[skills/verify/SKILL.md](skills/verify/SKILL.md)
+- **要不要验证 / 怎么验证**：[tools/VERIFYING.md](tools/VERIFYING.md)
 - **Web Preview、Web Release、TapTap Release 三种构建方式**：[tools/BUILDING.md](tools/BUILDING.md)
 
 文档分两种身份：
@@ -70,8 +70,13 @@
 - 禁止用伪造输入状态的 hack 来禁用 UI，例如把鼠标坐标改成屏幕外、篡改事件坐标、吞掉不相关输入等。需要禁用交互时，必须使用明确的交互状态/上下文（如 `IsLocked`、`CanInteract`、`UiInteractionContext`），并让控件显式进入 disabled 视觉和行为状态。
 
 # 测试验证
-选择覆盖本次主要风险的最小充分验证；静态审阅足够时可以不运行命令。**要不要验证、验证到什么程度，以及往
-`GameTester` 加测试之前**，看 [skills/verify/SKILL.md](skills/verify/SKILL.md)。
+
+- 选择覆盖本次主要风险的最小充分验证；静态审阅足够时可以不运行命令。验证放在一次改动的整合点，不要每改几行就重复构建。
+- 用户明确要求的验证应执行；环境不支持时说明限制，不用不等价的检查替代。
+- 编译通过、内容加载通过和实际交互正确是不同的证据。`error` / `throw` 只有在相关路径被加载或执行时才有价值，不能把“下次运行会暴露”当成已经验证。
+- 如实报告运行过的检查及其结果；未运行就写“未运行”，静态审阅不称为“已验证”。失败时区分本次改动导致的问题与已有问题。
+
+需要选择具体检查、确认覆盖范围或修改 `GameTester` 时，按相关章节查阅 [项目验证指南](tools/VERIFYING.md)，不要求每次改动通读。
 
 # Content 资源规则
 - `UnityClient/Assets/Resources/Content` 是可执行 Scheme 内容的唯一来源；直接修改其中的 `.scm`，不存在同步副本。

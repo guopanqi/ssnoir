@@ -359,6 +359,11 @@ namespace SSNoir
                 : _sceneDirectory?.GetAnchor(nodeName);
         }
 
+        private void OnDestroy()
+        {
+            _cityOutlines?.Dispose();
+        }
+
         private void Start()
         {
             if (GameLanguage.Warn == null)
@@ -607,13 +612,15 @@ namespace SSNoir
                     PresentCamera(focusCamera);
                 }
 
-                // An orbit building keeps its authored shot as the destination; only the
-                // path there is taken over, so the camera arcs around the building
-                // instead of blending straight through it.
+                // 玩家探索可从当前一侧直接靠近 orbit 地点，返回世界也使用相同路径。
+                // pan 地点和剧情镜头仍抵达预设机位，沿用原弧线。
                 bool travelStarted = false;
                 if (_stageController == null || !_stageController.IsTransitioning)
                     travelStarted = _cameraManager.BeginFocusTravel(
-                        focusCamera, respectReduceMotion: !storyDriven);
+                        focusCamera, respectReduceMotion: !storyDriven,
+                        path: !storyDriven && (focusPath.LastOrDefault() == WorldRootNodeName
+                            || focusCamera.GetComponent<SSNoirVirtualCameraConfig>()?.dragMode == CameraDragMode.Orbit)
+                            ? _cameraManager.ExplorationPath : FocusTravelPath.AuthoredArc);
 
                 ResetFocusCameraPriorities();
                 focusCamera.Priority = 20;

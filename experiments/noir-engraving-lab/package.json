@@ -7,7 +7,18 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "capture": "node tools/capture.mjs"
+    "capture": "node tools/capture.mjs",
+    "build:skyline-noir-glm": "vite build -c vite.skyline-noir-glm.config.js",
+    "capture:skyline-noir-glm": "node tools/capture-skyline-noir-glm.mjs",
+    "build:heishui": "vite build --config vite.heishui.config.js",
+    "build:lantern-spark": "vite build -c vite.lantern-spark.config.js",
+    "capture:lantern-spark": "node tools/capture-lantern-spark.mjs",
+    "build:backlight": "vite build -c vite.backlight.config.js",
+    "capture:backlight": "node tools/capture-backlight.mjs",
+    "export:backlight": "blender -b ../../city-box/build/city/city_build.blend --python tools/export-backlight.py",
+    "capture:heishui": "node tools/heishui-capture.mjs",
+    "perf:heishui": "node tools/heishui-perf.mjs",
+    "export:heishui": "blender -b ../../city-box/build/city/city_build.blend --python tools/heishui-export.py"
   },
   "dependencies": {
     "three": "0.186.1"

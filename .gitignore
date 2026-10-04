@@ -70,3 +70,14 @@ __pycache__/
 # Noir experiment generated output
 /experiments/noir-engraving-lab/captures/
 /experiments/noir-engraving-lab/dist/
+
+/experiments/noir-engraving-lab/dist-bridge/
+
+/experiments/noir-engraving-lab/dist-residence/
+
+/experiments/noir-engraving-lab/dist-heishui/
+
+# 黑水的城市几何快照（13 MB）：由 tools/heishui-export.py 从 CityBox 构建产物重烘
+/experiments/noir-engraving-lab/public/heishui/city.bin
+
+/experiments/noir-engraving-lab/dist-district/

@@ -233,7 +233,7 @@ namespace SSNoir
             }
 
             // 深度位必须给够，这台相机要正经渲一遍世界，不是拷贝一张图。
-            _frozenView = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32)
+            _frozenView = new RenderTexture(width, height, 24, RenderTextureFormat.ARGBHalf)
             {
                 name = "SSNoir.ViewCrossfade",
             };

@@ -100,15 +100,7 @@ namespace SSNoir.Editor
                     _previewCamera.enabled = false;
 
                     // Sync preview camera transform and lens properties
-                    _previewCamera.transform.position = targetVcam.transform.position;
-                    _previewCamera.transform.rotation = targetVcam.transform.rotation;
-
-                    _previewCamera.fieldOfView = targetVcam.m_Lens.FieldOfView;
-                    float clipScale = !Application.isPlaying ? (targetVcam.GetComponent<SSNoirVirtualCameraConfig>()?.modelRoot?.lossyScale.x ?? 1) : 1;
-                    _previewCamera.nearClipPlane = targetVcam.m_Lens.NearClipPlane * clipScale;
-                    _previewCamera.farClipPlane = targetVcam.m_Lens.FarClipPlane * clipScale;
-                    _previewCamera.orthographic = targetVcam.m_Lens.Orthographic;
-                    _previewCamera.orthographicSize = targetVcam.m_Lens.OrthographicSize;
+                    CinematicCapture.ApplyVirtualCamera(_previewCamera,targetVcam);
 
                     // Render viewport to texture
                     _previewCamera.targetTexture = _previewTexture;

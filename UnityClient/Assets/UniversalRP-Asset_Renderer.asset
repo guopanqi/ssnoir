@@ -17,7 +17,8 @@ MonoBehaviour:
     hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
   m_RendererFeatures:
   - {fileID: 2167145438457359655}
-  m_RendererFeatureMap: 27eddb534b3f131e
+  - {fileID: 114920000}
+  m_RendererFeatureMap: 27eddb534b3f131e408ad90600000000
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -58,7 +59,7 @@ MonoBehaviour:
   m_DepthPrimingMode: 0
   m_CopyDepthMode: 1
   m_AccurateGbufferNormals: 0
-  m_IntermediateTextureMode: 0
+  m_IntermediateTextureMode: 1
 --- !u!114 &2167145438457359655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,3 +91,18 @@ MonoBehaviour:
     VideoInputGamma: 1
     VideoOutputGamma: 1
     AffectSceneView: 1
+
+--- !u!114 &114920000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8cc496350434bc8b22e1419fd7ec41a, type: 3}
+  m_Name: CityNightFeature
+  m_EditorClassIdentifier:
+  m_Active: 1
+  shader: {fileID: 4800000, guid: 45bd19cfce6e4db396e6b58cb9f2a9d1, type: 3}

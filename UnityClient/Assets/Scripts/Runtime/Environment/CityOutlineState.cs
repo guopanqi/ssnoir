@@ -21,7 +21,7 @@ namespace SSNoir
     ///   随卡_&lt;锚点&gt;       under 内部_: furniture that exists only while some node in the current
     ///                       render tree hangs on that anchor (bought things). See SetReferencedAnchors.
     /// </summary>
-    public sealed class CityOutlineState
+    public sealed class CityOutlineState : IDisposable
     {
         private const string CityRootName = "City";
         private const string FocusOutlinePrefix = "描线_focus_";
@@ -229,6 +229,8 @@ namespace SSNoir
             _activePlace = next;
             _visuals.SetFocused(next?.Name);
         }
+
+        public void Dispose() => _visuals.Dispose();
 
         private static bool IsFocusOutlineRoot(Transform transform)
         {

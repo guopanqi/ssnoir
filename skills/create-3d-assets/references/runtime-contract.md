@@ -22,7 +22,7 @@
 
 CityBox 的 `build/city/report.json` 同时记录填充几何组和逐 Prefab 统计；性能判断以这份构建账本为准，不靠打开某次 FBX 后手工估算。
 
-CityBox 的贴地层由构建在生成源头按 `郊野 0.00m / 城市地面 0.30m / 干道与无基座公园 0.65m / 街区顶面 1.05m` 分层。Unity 中 `City` 整体缩放为 `0.1`，不能恢复为原来的厘米级源间距，否则透视全城镜头下会出现 z-fighting。建筑、窗光、描线和语义节点必须通过宿主层级继承相同抬升，禁止在导出器或材质上单独追加深度偏移。
+CityBox 的贴地层由构建在生成源头按 `郊野 0.00m / 城市地面 0.30m / 干道与无基座公园 0.65m / 街区顶面 1.05m` 分层。正式 Main 中 `City` 整体缩放为 `1`，不能恢复为原来的厘米级源间距，否则透视全城镜头下会出现 z-fighting。建筑、窗光、描线和语义节点必须通过宿主层级继承相同抬升，禁止在导出器或材质上单独追加深度偏移。
 
 `CityOutlineState` 在运行时初始化唯一 `City` 根节点时，统一关闭整城子 Renderer 的 Cast Shadows，但不改 Receive Shadows。该规则不再由 ModelImporter 实现；导入的 FBX 上不挂 City 专用运行时脚本。
 
@@ -49,7 +49,7 @@ CityBox 的贴地层由构建在生成源头按 `郊野 0.00m / 城市地面 0.3
   相机到 `orbit pivot` 的距离完成，不允许用不同焦距补构图；生产构建对交互机位与 Portal 焦距执行 `±0.01mm` 断言。
   `drag=static` 的演出机位不接受玩家拖动，可以为了明确的广角或长焦镜头选择其他焦距；焦距必须由镜头设计决定，
   不能拿它补普通地点构图。
-- Prefab 相机的 Near/Far 是米（资产单位）。导入器原样复制；`SSNoirVirtualCameraConfig.Awake` 按 `modelRoot.lossyScale` 缩到世界单位（City 实例 0.1）。
+- Prefab 相机的 Near/Far 是米（资产单位）。导入器原样复制；`SSNoirVirtualCameraConfig.Awake` 按 `modelRoot.lossyScale` 缩到世界单位（正式 Main 的 City 实例为 1）。
 - Orbit 相机的 Far Clip 至少为导入资产空间中“相机到所属 orbit pivot 距离”的 `1.25` 倍，保证目标不会被远裁剪面切掉。运行时若 Far Clip 仍短于实际 pivot 距离，会 assert/throw，而不是显示空背景。
 - Blender/FBX 相机定义的是最终落点镜头的 Near/Far Clip；导入器不把所有镜头强制成同一个 Near Clip。远景可以使用较大的 Near Clip 保住 WebGL 深度精度，近景则可以保留较小值避免裁掉前景。
 - 地点聚焦过程会暂时把目标 VCam 移到当前渲染镜头的位置，因此把 Near/Far Clip 作为完整范围，从当前渲染值一起平滑过渡到资产定义的目标值，并在抵达或中断时一起恢复；不得在远景位置提前套用近景裁剪范围。
@@ -144,13 +144,28 @@ Orbit 相机必须满足：
 
 非城市独立资产不得默认复用城市描边流程。只有找到明确运行时消费者时，才采用该消费者要求的对象名和材质名。例如 `AmbientBoat` 当前仍按材质名区分船体和线条，这只是车辆系统专用契约，不是所有资产的通用规范。
 
+### 世界视觉基准
+
+作者选项及现有组合限制见 `city-box/docs/视觉参数.md`，不要从材质文件名推断参数含义。
+
+来源：`city-box/pipeline/world_style.{json,py}`、`CitySharedMaterialImporter.cs`、`CityWorldPalette.cs`、`CityWorldVisuals.cs`、`CityLightmapData.cs`。
+
+- Prefab 网格的 `surface` 声明材质角色（主体、地面、抛光地面、象牙饰面、金色金属等）；`tone=bright|dim` 声明主次描线，`line_palette` 可选择金色结构线、象牙装饰线、金色镶边线。没有 `surface` 的实体使用主体。
+- 源材质名 `M_世界_<角色>` 与已有城市材质名由 `Resources/City/WorldPalette.asset` 映射到唯一共享 `.mat`。WorldPalette 同时引用正式 URP 配置，地点呈现与编辑器取景都显式使用它，避免试用场景遗留的质量级覆盖。Unity 材质是最终表现的权威；CityBox 发布不写这些 `.mat`。导入器缺少角色实现直接失败，不退回嵌入材质。河面保留下节的专用实现。
+- 地点的视觉声明发布为 `Resources/City/World.visual.json`：环境、雾、灯光用途/颜色角色、强度和模式。灯的位置/方向来自正式 City.fbx；`light_palette` 只能选择世界基准已有的冷白、冷边、暖白、琥珀。颜色的 Unity 实现保存在 WorldPalette。
+- CityBox 的声明使用源资产单位；`CityWorldVisuals` 按 City 根的正值统一缩放换算灯光范围、面光尺寸和雾距离，不沿用独立试用场景的 0.1 缩放。点光/聚光强度按缩放平方换算，方向光强度保持不变。
+- `CityOutlineState` 随呈现的地点切换灯光和环境。全城机位使用 `WorldPalette.Overview` 的试验配光：共享冷白/冷边光色、侧向主光、环境光和远景雾，由 `CityWorldOverview` 实现。全城阴影距离使用正式 URP 的运行时派生实例；离开全城恢复正式 URP，不修改共享管线资产。局部地点继续使用自己的配光。实体投影、描线不投影。编辑器取景临时使用同一套配置，结束后恢复，不保存 City 子对象覆盖。
+- 晚宴的静态面光使用 `Resources/City/Lighting/晚宴.asset`，绑定正式 Places 模型的 Renderer 路径与 lightmap。数据记录 FBX 内容哈希；几何重新发布而光照未更新时直接报错。`CityWorldLighting.BakeBanquet` 在独立验证工程烘焙，共享材质不变。
+- 晚宴地面高光是有限的圆盘面光近似，不计算反射遮挡；与静态光照一起发布。Unity Preview 与正式游戏引用同一套材质、Shader、光照数据和 URP 配置；Blender Preview 只提供自身对视觉语言的近似实现。
+
 ### 河面材质
 
 来源：`city-box/pipeline/make_city_base.py`（`river_mesh`）、`city-box/pipeline/materials.py`（`Palette.water`）、`city-box/pipeline/export.py`（`UV_KEEP`）、`SSNoirModelImporter.cs`（`RemapRiverMaterial`）、`NoirKRZRiverLines_UV.shader`、`Assets/Materials/RiverFlowUV.mat`
 
 - CityBox 的河面网格名是 `河面`（精确匹配，大小写敏感），材质槽名 `RiverFlowUV`，自带 UV：`u` 横河 0-1，`v` 顺流弧长 / 100m（`RIVER_UV_LENGTH_M`）。导出剥掉其他所有网格的 UV，唯独保留河面；河面缺 UV 直接构建失败。
-- `City.fbx` 其余材质走嵌入描述，但河面在导入后处理中重挂到工程里的 `Assets/Materials/RiverFlowUV.mat`（shader 必须是 `Noir/KRZ River Lines UV`）。网格缺失或不唯一、材质槽数量不对、无 UV、`.mat` 缺失、shader 不对，导入直接失败，不静默退回嵌入材质。
+- `City.fbx` 与 Places 的实体和描线引用 `Resources/City/Style/` 中的共享材质，由 `WorldPalette.asset` 映射源材质名；河面在导入后处理中重挂到工程里的 `Assets/Materials/RiverFlowUV.mat`（shader 必须是 `Noir/KRZ River Lines UV`）。网格缺失或不唯一、材质槽数量不对、无 UV、`.mat` 缺失、shader 不对，导入直接失败，不静默退回嵌入材质。
 - `Resources/Models/Environment/Materials/` 下的 `M_水.mat` 是旧管线残留，不再被消费；世界坐标版 `Noir/KRZ River Lines` + `RiverFlow.mat` 不在当前契约内，不要混用。
+- 河面 Shader 接受当前环境雾，并按相机距离降低远处水纹强度；`RiverFlowUV.mat` 的 `_LineFadeStart`、`_LineFadeEnd` 与 `_FarLineStrength` 控制衰减。近景保留水纹，世界机位中水纹退为次要细节；不另设一套河面颜色。
 
 ## 已实现的专用扩展
 

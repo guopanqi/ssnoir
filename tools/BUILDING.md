@@ -5,8 +5,10 @@
 Web Preview 当作 TapTap 发布包，也不要默认把开发工程中的资源直接移走。
 
 三个入口都只从 `UnityClient/` 建立隔离 staging；Scheme、字体和视频已经属于 Unity 工程，不再从仓库
-根目录同步第二份 `Content`。三个 staging 彼此独立，避免平台设置和导入缓存相互污染。公共资源层统一
-执行字体子集、[resource-plan.json](build/resource-plan.json) 排除项和未使用视频裁剪；资源修改只发生在
+根目录同步第二份 `Content`。三个 staging 彼此独立，避免平台设置和导入缓存相互污染。
+工程同步共用 `tools/unity/staging.py`，正式场景截图 CLI 也使用这一层；截图缓存仍独立，
+不执行发布资源裁剪。源工程关闭时，首次准备可用 APFS 快照复用 Library；源工程正在运行时
+不复制其导入数据库，目标保留自己的缓存。公共资源层统一执行字体子集、[resource-plan.json](build/resource-plan.json) 排除项和未使用视频裁剪；资源修改只发生在
 staging，主工程始终保持完整。
 
 视频交付只有三种明确模式：`local` 把清单内视频放进 Web 包；`none` 即 `review-no-video`，即使被引用

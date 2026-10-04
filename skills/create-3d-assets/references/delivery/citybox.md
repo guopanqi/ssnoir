@@ -24,7 +24,9 @@ CityBox 以 Blender 为唯一媒介，**Prefab 是唯一的单位**。约定与�
 
 ## 描线与外观
 
-源 Prefab 不带材质、不带描线。构建将真实模型生成 `描线_focus_<名>`，将 `outline="proxy"` 的手搭替身生成 `描线_world_<名>`，将填充建筑与基础设施生成 `描线_always_<类>`。`tone` 只决定亮暗。世界状态显示 world + always；聚焦状态显示该顶层地点的 focus + always，并显示它的 `内部_<名>`。逐建筑调参后运行 `./build.sh --no-publish --focus <名>` 检查游戏聚焦图；需要从全城机位检查近景线时运行 `./build.sh --no-publish --render game --inspect-outline <名>`。
+作者参数与组合约束的权威说明是 `city-box/docs/视觉参数.md`。先选表面预设、描线生成方式、阅读层级与装饰色，再调整地点光照、环境和机位；后端 BSDF/Shader 数值不放进每个物件的作者选项。只读检查用 CityBox `tools/visual_check.py`。
+
+源 Prefab 声明 `surface` 材质角色、`tone` 描线主次和可选的 `line_palette`；Blender 材质供自身预览使用，不转换为 Unity 材质。源不保存描线。构建将真实模型生成 `描线_focus_<名>`，将 `outline="proxy"` 的手搭替身生成 `描线_world_<名>`，将填充建筑与基础设施生成 `描线_always_<类>`。`tone` 只决定亮暗。世界状态显示 world + always；聚焦状态显示该顶层地点的 focus + always，并显示它的 `内部_<名>`。逐建筑调参后运行 `./build.sh --no-publish --focus <名>` 检查游戏聚焦图；需要从全城机位检查近景线时运行 `./build.sh --no-publish --render game --inspect-outline <名>`。
 
 ## 发布后验证
 
@@ -33,4 +35,6 @@ CityBox 以 Blender 为唯一媒介，**Prefab 是唯一的单位**。约定与�
 3. Unity 重导入无契约错误；进入全城和受影响地点确认相机、主体和描线属于同一子树，世界视角下内部已隐藏。
 4. `Main.unity` 的 City 实例只保留根节点变换，不对子对象保存覆盖。
 
-坐标换算：Unity(x, y, z) = (−Bx, Bz, By) × 0.1。
+坐标方向：Unity(x, y, z) = (−Bx, Bz, By)，实际世界单位乘 City 根的统一缩放；正式 Main 当前为 1。不要沿用旧试用工程的 0.1。
+
+正式 Unity 截图使用 `python3 tools/citybox-unity-preview/preview.py --verify-play`；说明见工具 README。它读取正式 Main 与共享渲染资产，不读取 review 候选。Blender 个性化实验可保留，不要求两种渲染器像素一致。

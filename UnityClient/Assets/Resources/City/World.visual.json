@@ -1,5 +1,30 @@
 {
   "version": 1,
+  "surfaceRoles": [
+    "主体",
+    "地面",
+    "抛光地面",
+    "象牙饰面",
+    "亮金装饰",
+    "暗金饰面",
+    "金色细饰",
+    "暖白发光表面",
+    "冷白发光表面",
+    "水面短线"
+  ],
+  "lineRoles": [
+    "主线",
+    "次线",
+    "金色结构线",
+    "象牙装饰线",
+    "金色镶边线"
+  ],
+  "lightPalettes": [
+    "冷白",
+    "冷边",
+    "暖白",
+    "琥珀"
+  ],
   "lights": [
     {
       "name": "掠射轮廓光",
@@ -264,95 +289,95 @@
   "placeHashes": [
     {
       "name": "上午十一点零七分",
-      "hash": "54e7b465cfb05634cfb9cbad040928133f2e620e4771be65caef49a2a12325d0"
+      "hash": "3eecfe1519705c6d793f1a2b39d01507629a06c73566fe60125869bf47b1a1e3"
     },
     {
       "name": "修理棚",
-      "hash": "673fe42855ebaf553c24789a1dee423ab2743908753a9b13f3387242ebc8f976"
+      "hash": "2a6d4f971f5f11d0cf6d1c7ee78f7120bdf3f9da03b3351f6a57ebaa697d9d9f"
     },
     {
       "name": "公园",
-      "hash": "d90a05a471cea5f9637e38d6942591fb63abb177c7d640194120ea8ace6768cf"
+      "hash": "783d1f0a52d69fc4d7fc6e87556246e1c46ed2302ce09b938555c55ccc75dee8"
     },
     {
       "name": "别给他们想要的",
-      "hash": "3d398edc4c49f9902abef435a49a6bd9a9190a1271dc71a1818fc9f94f034900"
+      "hash": "96704275cc004f19f3a3a9af87ecd021d9baee3cdefaa2605260d9056254e48b"
     },
     {
       "name": "剧院",
-      "hash": "415095aa32697208448352690c936f430d03b648b47e09974b2efe19435671e5"
+      "hash": "b2a0dcd1e64ae7890a18fabd838fa44fa3a859d974858e294a7aa259a0e5672f"
     },
     {
       "name": "家",
-      "hash": "cc6a2bc2b171d4c4f9942027302b81e90abf0fab94e7e9fcaf2ed1d719560aad"
+      "hash": "44a204548ec25b639a5d47a7702568daa897f56f6b1d6fa53d22b4f11610c198"
     },
     {
       "name": "尾随取件人",
-      "hash": "4abdfe881529143558eff89707c5d4f72669b522278642cac7b997e6771765c5"
+      "hash": "983b4130e460affcf3291a9863a5eab8519de15a3ef82f74771f96249aaafa78"
     },
     {
       "name": "巷子",
-      "hash": "ae88d5c798b56ec7faf0abe3b9937f2ca04a352ea77e16dbf2453b45dcf1c41e"
+      "hash": "ba98ab1fc2803c340c7a97af5fb36fa3cc85d882fdc98c15cd7219679e8f44d7"
     },
     {
       "name": "巷子里在打人",
-      "hash": "03fcaaa124d0cefae52a8ce7388d8fb02d4f52506ba89d05a4b7a76fcf5b8463"
+      "hash": "a855bed35da19c4a89e1a4280ae50f132053b850c829134dd805831af0d1cd09"
     },
     {
       "name": "布告栏",
-      "hash": "1827da5b5d35ee67b6615a17a0a38861eccb438f37ff55994b066bf3da1d1fc6"
+      "hash": "f6e90907898adb37e7de8f178b18857a97bb280ee7fca03c26c7982ce936e7f0"
     },
     {
       "name": "报社",
-      "hash": "80803673066b58c06b1a7d75ef67bcd4c1527184c8ff6a12f89e92ad1208b2d8"
+      "hash": "738134316362a11f91fc9cd85b041815789d4f3bb3f4550e81b93e41ac2f3d28"
     },
     {
       "name": "晚宴",
-      "hash": "9bdd10b05887b976ceb3148f94e8110c6b8ccb03ec1a28e41175ce1078db9f4d"
+      "hash": "95969043e4c822bfbcf06401efc6f4aba38f27286265a52a7dd7de4b5cc3507c"
     },
     {
       "name": "格兰德酒店",
-      "hash": "b5ffbceee6593d2c2b9f1f0f977e4169701fb8d16d30441ca3b34e812a5daa7e"
+      "hash": "bc98227137164bf0b3f43ee90a14a0adc5c4cc865f4bc5f19bfda85bc49052ac"
     },
     {
       "name": "码头",
-      "hash": "a8812c1d20ac443eb845ca8ee4bdfdaef7bbbbea20e11a0008148bc5c7bdc3fc"
+      "hash": "58ff0bbf67f366928cc49aae8de4325d8e90bda2bc2428627e568602e6a37b80"
     },
     {
       "name": "码头居民区",
-      "hash": "1a2f96c5543a00f33d55543bceda0f58982cc9c4d2eb5ebc0cf53a5506a2bd8e"
+      "hash": "891c8b32eb0b26c4dfeabfce3f93d905e6516bfdc29e1a95acf347e381c2e4cc"
     },
     {
       "name": "租屋",
-      "hash": "6f9fb6c9487dd9b998e323c1732cd3eef15717e46013f449005df16afc80c1fe"
+      "hash": "128f57c3d4f3cad4d7fcc70377266d2f7732af7053f70aba0bc7e17dbf4e510d"
     },
     {
       "name": "老街酒馆",
-      "hash": "a0b6cbc2c150a8669338cef917394906e588d3a2aa666e429642cefbfa9a59f4"
+      "hash": "f3746b999fc56ccf2045443c6033c55b61f43fe5574a013d30ee7cd290c4c07b"
     },
     {
       "name": "警察局",
-      "hash": "0f7d02612aac26efbecdec495169ea3b5cf24957b7bfd2f414728052e3171f76"
+      "hash": "b276a0f085641aefad743e09c3af609eaddf58472b26fad133e333f61b7d0668"
     },
     {
       "name": "让他们安静",
-      "hash": "ff2dc01833bc36bf1bfd1ebff232fc8a181b19889d5c7c03af6e4b81720b430a"
+      "hash": "40a49d7e2e5da68d8d459e65bd14ea3549962514a3010c516889666a2e3c7320"
     },
     {
       "name": "诊所",
-      "hash": "a374b7193119d27a6fe748aa5b12d4a81c1ca41d0d677c6d7e774a4c3aa584d4"
+      "hash": "8216f3c0e9963e15fdbabbdf4afea374842918957bbbd03511a2a6d278cb3963"
     },
     {
       "name": "货运公司",
-      "hash": "94c8d3ae5165d2417133b36477f05ef7c61efa09443f321be553d3e3d8b6cc74"
+      "hash": "efb15a1032a04c905a1e2434ab12609855351d2134f9e9346b1211d87ac4129c"
     },
     {
       "name": "雕像",
-      "hash": "8bbe93e94e748105f1b5453cfbf2bc92b13a966bf830b4096d3f473f9dbded3b"
+      "hash": "9c6f370e735db82d9b0c4363dd2eca96f9084bfd2882cbc682c0c658843697fb"
     },
     {
       "name": "首演之夜",
-      "hash": "311961dde911a7fb18350fd9fb1c81a7be9fa57d8bfb2d4d48a336fb7c9d5876"
+      "hash": "4dbe2d047ffdcbf0a3c65ea190997a142a7237ad94f3d9cc9d5454171ba6084a"
     }
   ]
 }

@@ -25,10 +25,15 @@ namespace SSNoir
         [Serializable] public sealed class Spec
         {
             public int version;
+            public string[] surfaceRoles = Array.Empty<string>();
+            public string[] lineRoles = Array.Empty<string>();
+            public string[] lightPalettes = Array.Empty<string>();
             public LightSpec[] lights = Array.Empty<LightSpec>();
             public Profile[] profiles = Array.Empty<Profile>();
             public PlaceHash[] placeHashes = Array.Empty<PlaceHash>();
         }
+        private readonly RenderPipelineAsset? _previousPipeline;
+        private readonly float _scale;
         private readonly Light[] _cityLights;
         private readonly bool[] _cityEnabled;
         private readonly AmbientMode _ambientMode;
@@ -38,6 +43,7 @@ namespace SSNoir
         private readonly Camera? _camera;
         private readonly Spec _spec;
         private readonly CityWorldPalette _palette;
+        private readonly CityWorldOverview _overview;
         private readonly Light[] _sceneLights;
         private readonly bool[] _sceneEnabled;
         private readonly Color _ambient, _fogColor;
@@ -46,6 +52,9 @@ namespace SSNoir
 
         public CityWorldVisuals(Transform city)
         {
+            _scale = city.lossyScale.x;
+            if (_scale <= 0 || !Mathf.Approximately(_scale,city.lossyScale.y) || !Mathf.Approximately(_scale,city.lossyScale.z))
+                throw new InvalidOperationException("City 必须采用正值统一缩放");
             _cityLights = city.GetComponentsInChildren<Light>(true);
             _cityEnabled = _cityLights.Select(l => l.enabled).ToArray();
             _ambientMode = RenderSettings.ambientMode; _fogMode = RenderSettings.fogMode;
@@ -56,31 +65,36 @@ namespace SSNoir
             _spec = JsonUtility.FromJson<Spec>(data.text);
             if (_spec.version != 1) throw new InvalidOperationException("不支持的世界视觉声明版本");
             _palette = CityWorldPalette.Load();
+            _palette.ValidateSpec(_spec);
+            _previousPipeline = QualitySettings.renderPipeline;
+            QualitySettings.renderPipeline = _palette.Pipeline
+                ?? throw new InvalidOperationException("世界视觉基准缺少正式渲染配置");
             _sceneLights = UnityEngine.Object.FindObjectsOfType<Light>(true)
                 .Where(l => !l.transform.IsChildOf(city) && l.type == LightType.Directional).ToArray();
             _sceneEnabled = _sceneLights.Select(l => l.enabled).ToArray();
+            _overview = new CityWorldOverview(city, _palette);
             _ambient = RenderSettings.ambientLight;
             _fog = RenderSettings.fog; _fogColor = RenderSettings.fogColor;
             _fogStart = RenderSettings.fogStartDistance; _fogEnd = RenderSettings.fogEndDistance;
             foreach (var row in _spec.lights)
             {
                 var light = _cityLights.Single(l => l.name == row.name);
-                Configure(light,row,_palette);
+                Configure(light,row,_palette,_scale);
                 light.enabled = false;
             }
         }
-        public static void Configure(Light light, LightSpec row, CityWorldPalette palette)
+        public static void Configure(Light light, LightSpec row, CityWorldPalette palette, float scale = 1)
         {
             light.color = palette.FindLightColor(row.palette).gamma;
             light.shadows = LightShadows.Soft;
             light.shadowBias = 0.02f; light.shadowNormalBias = 0.05f;
             light.renderMode = LightRenderMode.ForcePixel;
-            light.range = 10;
+            light.range = 100 * scale;
             if (row.mode == "baked")
             {
                 if (row.type != "AREA") throw new InvalidOperationException("静态柔光声明仅接受 AREA");
                 light.type = LightType.Area;light.lightmapBakeType = LightmapBakeType.Baked;
-                light.areaSize = Vector2.one * row.size * .1f;
+                light.areaSize = Vector2.one * row.size * scale;
                 light.intensity = palette.BakedAreaScale * row.energy / (Mathf.PI * row.size * row.size);
             }
             else if (row.type == "SUN")
@@ -93,7 +107,7 @@ namespace SSNoir
             {
                 light.lightmapBakeType = LightmapBakeType.Realtime;
                 light.type = row.type == "POINT" ? LightType.Point : LightType.Spot;
-                light.intensity = row.energy * 0.01f / (row.type == "AREA" ? Mathf.PI*Mathf.PI : 4*Mathf.PI*Mathf.PI);
+                light.intensity = row.energy * scale * scale / (row.type == "AREA" ? Mathf.PI*Mathf.PI : 4*Mathf.PI*Mathf.PI);
                 light.spotAngle = row.spotAngle;
                 light.innerSpotAngle = row.spotAngle * (1-row.spotBlend);
             }
@@ -109,23 +123,35 @@ namespace SSNoir
         }
         public void SetFocused(string? name)
         {
+            bool overview = name == null || name == CityPlaces.WorldBaseName;
+            _overview.SetActive(false);
             var profile = _spec.profiles.SingleOrDefault(p => p.name == name);
             foreach (var row in _spec.lights)
                 _cityLights.Single(l => l.name == row.name).enabled = row.profile == profile?.name;
-            for (int i = 0; i < _sceneLights.Length; i++) _sceneLights[i].enabled = profile == null && _sceneEnabled[i];
+            for (int i = 0; i < _sceneLights.Length; i++) _sceneLights[i].enabled = !overview && profile == null && _sceneEnabled[i];
+            ApplyEnvironment(profile);
+            _overview.SetActive(overview);
+        }
+        private void ApplyEnvironment(Profile? profile)
+        {
             RenderSettings.ambientMode = profile == null ? _ambientMode : AmbientMode.Flat;
             RenderSettings.reflectionIntensity = profile == null ? _reflection : 0;
             RenderSettings.ambientLight = profile == null ? _ambient : profile.worldLinear.gamma;
             RenderSettings.fog = profile?.fog ?? _fog;
             RenderSettings.fogMode = profile == null ? _fogMode : FogMode.Linear;
             RenderSettings.fogColor = profile == null ? _fogColor : profile.worldLinear.gamma;
-            RenderSettings.fogStartDistance = profile == null ? _fogStart : profile.fogStart * 0.1f;
-            RenderSettings.fogEndDistance = profile == null ? _fogEnd : profile.fogEnd * 0.1f;
+            RenderSettings.fogStartDistance = profile == null ? _fogStart : profile.fogStart * _scale;
+            RenderSettings.fogEndDistance = profile == null ? _fogEnd : profile.fogEnd * _scale;
             if (_camera != null) _camera.backgroundColor = profile == null ? _cameraColor : profile.worldLinear.gamma;
         }
         public void Dispose()
         {
-            SetFocused(null);
+            _overview.SetActive(false);
+            ApplyEnvironment(null);
+            _overview.Dispose();
+            QualitySettings.renderPipeline = _previousPipeline;
+            for (int i = 0; i < _sceneLights.Length; i++)
+                if (_sceneLights[i] != null) _sceneLights[i].enabled = _sceneEnabled[i];
             for (int i = 0; i < _cityLights.Length; i++)
                 if (_cityLights[i] != null) _cityLights[i].enabled = _cityEnabled[i];
         }

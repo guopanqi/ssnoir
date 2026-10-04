@@ -7,6 +7,11 @@ Shader "Noir/KRZ River Lines UV"
         [HDR] _LineColor ("Wave Line Color", Color) = (0.58, 0.64, 0.72, 1)
         _LineStrength ("Overall Line Strength", Range(0, 2)) = 0.78
 
+        [Header(Distance Readability)]
+        _FarLineStrength ("Distant Line Multiplier", Range(0, 1)) = 0.3
+        _LineFadeStart ("Line Fade Start", Float) = 600
+        _LineFadeEnd ("Line Fade End", Float) = 1300
+
         [Header(River UV Coordinates)]
         _LengthScale ("Pattern Scale Along River", Range(0.1, 60)) = 14
         _WidthScale ("Pattern Scale Across River", Range(0.1, 30)) = 4
@@ -60,6 +65,7 @@ Shader "Noir/KRZ River Lines UV"
             #pragma target 3.0
             #pragma vertex Vert
             #pragma fragment Frag
+            #pragma multi_compile_fog
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
@@ -73,12 +79,15 @@ Shader "Noir/KRZ River Lines UV"
             {
                 float4 positionHCS : SV_POSITION;
                 float2 uv          : TEXCOORD0;
+                float3 positionWS : TEXCOORD1;
+                half fogFactor : TEXCOORD2;
             };
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
                 half4 _LineColor;
                 float _LineStrength;
+                float _FarLineStrength, _LineFadeStart, _LineFadeEnd;
 
                 float _LengthScale;
                 float _WidthScale;
@@ -116,6 +125,8 @@ Shader "Noir/KRZ River Lines UV"
                 float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 output.positionHCS = TransformWorldToHClip(positionWS);
                 output.uv = input.uv;
+                output.positionWS = positionWS;
+                output.fogFactor = ComputeFogFactor(output.positionHCS.z);
                 return output;
             }
 
@@ -381,13 +392,17 @@ Shader "Noir/KRZ River Lines UV"
                     crossingLines * _CrossingStrength
                 );
 
+                // 同一材质在近景保留水面笔触，全城远景减少亮线争夺注意力。
+                float fade = smoothstep(_LineFadeStart, max(_LineFadeEnd, _LineFadeStart + 1),
+                    distance(GetCameraPositionWS(), input.positionWS));
+                float lineStrength = _LineStrength * lerp(1.0, _FarLineStrength, fade);
                 half3 finalColor = lerp(
                     _BaseColor.rgb,
                     _LineColor.rgb,
-                    saturate(waveMask * _LineStrength)
+                    saturate(waveMask * lineStrength)
                 );
 
-                return half4(finalColor, 1.0);
+                return half4(MixFog(finalColor, input.fogFactor), 1.0);
             }
 
             ENDHLSL

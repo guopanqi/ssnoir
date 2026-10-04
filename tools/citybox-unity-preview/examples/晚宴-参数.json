@@ -1,8 +1,0 @@
-{
-  "materials": {
-    "Banquet_ivory": {
-      "baseLinear": {"r": 0.62, "g": 0.72, "b": 0.82, "a": 1.0}
-    },
-    "Banquet_gold": {"roughness": 0.32}
-  }
-}

@@ -58,14 +58,7 @@ namespace SSNoir.Editor
                 capture.cameraType = CameraType.Preview;
 
                 // 镜头和机位来自虚拟相机，覆盖掉刚从主相机搬过来的那一份。
-                capture.transform.SetPositionAndRotation(
-                    vcam.transform.position, vcam.transform.rotation);
-                capture.fieldOfView = vcam.m_Lens.FieldOfView;
-                capture.orthographic = vcam.m_Lens.Orthographic;
-                capture.orthographicSize = vcam.m_Lens.OrthographicSize;
-                float clipScale = !Application.isPlaying ? (vcam.GetComponent<SSNoirVirtualCameraConfig>()?.modelRoot?.lossyScale.x ?? 1) : 1;
-                capture.nearClipPlane = vcam.m_Lens.NearClipPlane * clipScale;
-                capture.farClipPlane = vcam.m_Lens.FarClipPlane * clipScale;
+                CinematicCapture.ApplyVirtualCamera(capture,vcam);
 
                 capture.targetTexture = target;
                 // aspect 要在 targetTexture 之后设，接上贴图会把画幅重置成贴图的比例。

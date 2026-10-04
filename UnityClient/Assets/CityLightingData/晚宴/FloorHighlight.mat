@@ -36,13 +36,13 @@ Material:
     - _AreaNormal5: {r: 0, g: -0.99999994, b: 0.000000059604645, a: 0}
     - _AreaNormal6: {r: 0, g: -0.99999994, b: 0.000000059604645, a: 0}
     - _AreaNormal7: {r: 0, g: -1, b: 0, a: 0}
-    - _AreaPosition0: {r: -30.2, g: 1.2, b: -94.4, a: 0.4}
-    - _AreaPosition1: {r: -31, g: 0.8999998, b: -95.9, a: 0.15}
-    - _AreaPosition2: {r: -31.4, g: 0.49999982, b: -95.6, a: 0.125}
-    - _AreaPosition3: {r: -29.800001, g: 0.8, b: -94.200005, a: 0.3}
-    - _AreaPosition4: {r: -31, g: 0.5700001, b: -94.3, a: 0.14}
-    - _AreaPosition5: {r: -31, g: 0.5699999, b: -95.200005, a: 0.14}
-    - _AreaPosition6: {r: -31, g: 0.5699999, b: -96, a: 0.14}
+    - _AreaPosition0: {r: -302, g: 12, b: -944, a: 4}
+    - _AreaPosition1: {r: -310, g: 8.999998, b: -959, a: 1.5}
+    - _AreaPosition2: {r: -314, g: 4.999998, b: -956, a: 1.25}
+    - _AreaPosition3: {r: -298, g: 8, b: -942, a: 3}
+    - _AreaPosition4: {r: -310, g: 5.700001, b: -943, a: 1.4}
+    - _AreaPosition5: {r: -310, g: 5.699999, b: -952, a: 1.4}
+    - _AreaPosition6: {r: -310, g: 5.6999984, b: -960, a: 1.4}
     - _AreaPosition7: {r: 0, g: 0, b: 0, a: 0}
     - _AreaRadiance0: {r: 4.274487, g: 4.5119586, b: 4.74943, a: 4.74943}
     - _AreaRadiance1: {r: 31.522144, g: 29.630816, b: 26.16338, a: 31.522144}

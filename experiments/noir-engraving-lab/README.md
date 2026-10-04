@@ -16,6 +16,28 @@ SSNoir 的独立 Three.js 长期视觉研究工程。只把经过验证的视觉
 最新经过实际审阅的证据：[2026-10-03 本地研究记录](captures/reviews/2026-10-03-local/README.md)。
 长期设计见 [DESIGN.md](DESIGN.md)，结论与失败实验见 [RESEARCH_LOG.md](RESEARCH_LOG.md)。
 
+## 独立子实验
+
+主实验研究的是**近景**（一条街、一个房间）。尺度不同的研究各自独立入口，
+共用这个 Vite 服务与 `node_modules`，各有自己的 HTML、构建配置和研究记录。
+入口在主页 `/` 的「视觉变量」面板底部，也可以直接访问：
+
+| 实验 | 入口 | 记录 | 独立构建 |
+|---|---|---|---|
+| 桥头 | `/bridge.html` | [BRIDGE-STUDY.md](BRIDGE-STUDY.md) | `dist-bridge/` |
+| 住所 | `/residence.html` | [RESIDENCE-STUDY.md](RESIDENCE-STUDY.md) | `dist-residence/` |
+| 黑水 · 城市视角 | `/heishui.html` | [HEISHUI-STUDY.md](HEISHUI-STUDY.md) | `dist-heishui/` |
+| 灯岸 · 城市视角 — by Spark | `/lantern-spark.html` | [LANTERN-STUDY.md](LANTERN-STUDY.md) | `dist-lantern-spark/` |
+| 剪影夜城 · 城市视角 — by GLM | `/skyline-noir-glm.html` | [SKYLINE-NOIR-GLM-STUDY.md](SKYLINE-NOIR-GLM-STUDY.md) | `dist-skyline-noir-glm/` |
+| 逆光 · 城市视角 — by opencode | `/backlight.html` | [BACKLIGHT-STUDY.md](BACKLIGHT-STUDY.md) | `dist-backlight/` |
+
+黑水、灯岸与逆光**消费外部几何**：各自把 CityBox 构建产物一次性烘焙成
+`public/<实验>/city.{json,bin}` 快照（逆光是自己的一份，见 `tools/export-backlight.py`），
+运行时不再接触 CityBox。
+它有自己的七格城市机位（`1`–`7`）与四个分层阶段，同时支持拖动自由观察
+（左键环视 / 滚轮推拉 / 右键平移 / `R` 复位回当前机位）。
+调研笔记见 [HEISHUI-RESEARCH.md](HEISHUI-RESEARCH.md)。
+
 ## 运行
 
 ```bash

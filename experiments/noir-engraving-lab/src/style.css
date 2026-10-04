@@ -63,6 +63,13 @@ h1 { margin: 5px 0 0; font-size: 18px; letter-spacing: .12em; font-weight: 600; 
 .panel output { text-align: right; font-variant-numeric: tabular-nums; opacity: .7; }
 .panel-foot { margin-top: 10px; font-size: 8px; line-height: 1.7; opacity: .42; }
 
+.panel-links { margin-top: 12px; padding-top: 10px; border-top: 1px solid #ffffff14; display: flex; flex-wrap: wrap; gap: 6px; }
+.panel-links a {
+  font-size: 10px; letter-spacing: .1em; text-decoration: none;
+  color: #b9c6d4; border: 1px solid #ffffff26; padding: 5px 9px;
+}
+.panel-links a:hover { color: #12161d; background: #d7dee6; border-color: #d7dee6; }
+
 .hud-bottom {
   left: 28px;
   right: 28px;

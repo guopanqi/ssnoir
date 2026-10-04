@@ -4,8 +4,14 @@ using System.Linq;
 
 namespace SSNoir
 {
+    public enum FocusTravelPath { AuthoredArc, DirectApproach }
+
     public class SSNoirCameraManager
     {
+        // 实验选择入口：旧路径保留；只由玩家探索调用方选择，剧情调用默认走 AuthoredArc。
+        public FocusTravelPath ExplorationPath { get; set; } = FocusTravelPath.DirectApproach;
+        private FocusTravelPath _activeFocusPath;
+
         private const float NavigationDuration = 0.42f;
 
         // How far the pointer must travel before a press counts as taking the camera.
@@ -1096,9 +1102,10 @@ namespace SSNoir
         /// </summary>
         public bool BeginFocusTravel(
             Cinemachine.CinemachineVirtualCamera focusCamera,
-            bool respectReduceMotion = true)
+            bool respectReduceMotion = true,
+            FocusTravelPath path = FocusTravelPath.AuthoredArc)
         {
-            return BeginFocusTravel(focusCamera, out _, respectReduceMotion);
+            return BeginFocusTravel(focusCamera, out _, respectReduceMotion, path);
         }
 
         /// <summary>
@@ -1111,7 +1118,8 @@ namespace SSNoir
         public bool BeginFocusTravel(
             Cinemachine.CinemachineVirtualCamera focusCamera,
             out float transitionDuration,
-            bool respectReduceMotion = true)
+            bool respectReduceMotion = true,
+            FocusTravelPath path = FocusTravelPath.AuthoredArc)
         {
             transitionDuration = 0f;
 
@@ -1210,6 +1218,37 @@ namespace SSNoir
                     redirectedStart?.Interest,
                     out Vector3 startInterest, out Vector3 targetInterest))
                 return false;
+
+            if (path == FocusTravelPath.DirectApproach)
+            {
+                if (config == null || config.dragMode == CameraDragMode.Static)
+                    throw new System.InvalidOperationException("直接靠近路径只接受 orbit 地点或世界返回机位。");
+                if (config.dragMode == CameraDragMode.Orbit)
+                {
+                    // 预设机位决定取景距离和俯角，不决定必须从哪一侧观看。
+                    ToPolar(targetPosition - targetInterest, out _, out float pitch, out float radius);
+                    Vector3 incoming = startPosition - targetInterest;
+                    float yaw = incoming.x * incoming.x + incoming.z * incoming.z < 0.0001f
+                        ? Mathf.Atan2(-(startRotation * Vector3.forward).x, -(startRotation * Vector3.forward).z) * Mathf.Rad2Deg
+                        : Mathf.Atan2(incoming.x, incoming.z) * Mathf.Rad2Deg;
+                    pitch = Mathf.Clamp(pitch, config.minPitch, config.maxPitch);
+                    targetPosition = targetInterest + FromPolar(yaw, pitch, radius);
+                    targetRotation = Quaternion.LookRotation(targetInterest - targetPosition, Vector3.up);
+                }
+                // 世界远镜的地面注视点可能超过旧路径的 500 米限制。
+                // 直接路径需要真实起点视线，不能把它借成目的地中心，否则起飞时会先转头。
+                if (redirectedStart == null)
+                {
+                    var plane = new Plane(Vector3.up, new Vector3(0, targetInterest.y, 0));
+                    Vector3 forward = startRotation * Vector3.forward;
+                    if (plane.Raycast(new Ray(startPosition, forward), out float distance))
+                        startInterest = startPosition + forward * distance;
+                }
+                float scale = config.modelRoot != null ? config.modelRoot.lossyScale.x : 1;
+                duration = Mathf.Clamp(Vector3.Distance(startPosition, targetPosition) / scale * 0.0012f, 0.9f, 1.5f);
+                transitionDuration = duration;
+            }
+            _activeFocusPath = path;
 
             if ((targetPosition - targetInterest).sqrMagnitude < 0.0001f
                 || (startPosition - startInterest).sqrMagnitude < 0.0001f)
@@ -1404,14 +1443,18 @@ namespace SSNoir
                 return;
             }
 
-            ApplyFocusArcPose(t * t * (3f - 2f * t));
+            ApplyFocusArcPose(EaseFocusTravel(t));
         }
 
         private float FocusArcEasedProgress()
         {
             float t = Mathf.Clamp01((Time.unscaledTime - _focusArcStartedAt) / _focusArcDuration);
-            return t * t * (3f - 2f * t);
+            return EaseFocusTravel(t);
         }
+
+        private float EaseFocusTravel(float t) => _activeFocusPath == FocusTravelPath.DirectApproach
+            ? t * t * t * (t * (t * 6f - 15f) + 10f)
+            : t * t * (3f - 2f * t);
 
         private void ApplyFocusArcPose(float eased)
         {
@@ -1441,6 +1484,18 @@ namespace SSNoir
             }
 
             Vector3 position = interest + FromPolar(yaw, pitch, radius);
+            if (_activeFocusPath == FocusTravelPath.DirectApproach)
+            {
+                // 线性推进 + 少量抬升，不绕建筑扫过；同样保留途中手势偏移。
+                Vector3 direct = Vector3.Lerp(_focusArcStartPosition, _focusArcTargetPosition, eased);
+                direct.y += Mathf.Sin(Mathf.PI * eased) * Vector3.Distance(_focusArcStartPosition, _focusArcTargetPosition) * .04f;
+                if (_focusArcInputMode == CameraDragMode.Orbit)
+                {
+                    ToPolar(direct - interest, out float directYaw, out float directPitch, out float directRadius);
+                    position = interest + FromPolar(directYaw + _focusArcYawOffset, directPitch + _focusArcPitchOffset, directRadius);
+                }
+                else position = direct + _focusArcPanOffset;
+            }
 
             if (_focusArcInputMode == CameraDragMode.Static && _focusArcInputConfig != null)
                 position += GetStaticOffset(_focusArcInputConfig);
@@ -1471,7 +1526,7 @@ namespace SSNoir
 
             float rawProgress = Mathf.Clamp01(
                 (Time.unscaledTime - _focusArcStartedAt) / _focusArcDuration);
-            float eased = rawProgress * rawProgress * (3f - 2f * rawProgress);
+            float eased = EaseFocusTravel(rawProgress);
 
             // Sample the mathematical curve rather than Camera.main: Cinemachine copies
             // the driven VCam in LateUpdate, so the rendered camera can be one frame old
