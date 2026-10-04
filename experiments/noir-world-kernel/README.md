@@ -2,42 +2,58 @@
 
 Independent Three.js visual experiment for SSNoir.
 
-The experiment is now explicitly a **Genesis Noir spatial-language study**, not a generic noir/toon-rendering study.
+This experiment studies how to construct a **Genesis Noir-like local 3D world**, rather than applying a generic noir/toon shader to ordinary meshes.
 
-## Working hypothesis
-
-Genesis Noir-like local spaces are better approximated by separating spatial structure from visible illustration:
+## Current architecture
 
 ```
-3D depth / occlusion skeleton
-  -> mostly black masses
-  -> authored vector strokes that describe only useful structure
-  -> camera-facing / planar character silhouettes
-  -> white luminous planes and sparse gold symbols
-  -> wet-street / rain / mist graphic layers
-  -> restrained monochrome composite
+Scene / spatial layout
+    ↓
+3D black depth skeleton
+    ↓
+FacadeGrammar
+    ├─ sparse structural VectorStroke
+    └─ luminous window planes
+    ↓
+PuppetCharacter + SVGProp
+    ↓
+source-driven ReflectionField
+    ↓
+rain / halo / sparse gold symbolism
+    ↓
+restrained monochrome composite
 ```
 
-The goal is not to make every mesh readable. The goal is to make a navigable 3D scene read like a composed graphic illustration from each gameplay camera.
+### Reusable systems
 
-## Current rules
+- `style/VectorStroke.js` — screen-space line hierarchy based on `Line2 / LineMaterial`.
+- `world/FacadeGrammar.js` — black building masses, selective structural strokes, window rhythm and reflection-source output.
+- `world/SVGProp.js` — generic SVG fill/stroke → Three.js geometry ingestion.
+- `world/PuppetCharacter.js` — character presets built on the SVG ingestion layer.
+- `world/ReflectionField.js` — wet-street reflection generated from actual windows, signs and lamps rather than an unrelated random texture.
 
-- No blanket `EdgesGeometry` as the primary look.
-- No toon shading as the primary look.
-- Characters are graphic cutouts with authored contours, not low-poly dolls.
-- Buildings use black volume for depth and explicit line grammar for readable architecture.
-- White/gold planes are treated as graphic light, not realistic PBR emitters.
-- Fog, rain and wet-road reflection are graphic layers rather than visible volumetric cones.
-- Gold remains sparse and symbolic.
-- AI-generated meshes stay out until the style system can absorb arbitrary geometry without losing the visual language.
+The current taxi and characters intentionally use the same SVG path that future AI-authored vector assets can use.
+
+## Art-direction rules
+
+- 3D establishes space, perspective and occlusion; it does not need to explain every surface.
+- Do not return to blanket `EdgesGeometry`.
+- Do not make toon shading the primary look.
+- Characters and selected props may be planar/vector assets living inside a real 3D scene.
+- Bright windows, lamps and signs are graphic shapes first and realistic emitters second.
+- Reflections must remember their source lights.
+- Gold is rare and symbolic.
+- Any generated texture must disappear into the image; if the viewer sees “the noise algorithm,” it has failed.
 
 ## Capture contract
 
-`npm run capture` produces:
+`npm run capture` now produces:
+
 - `final-wide.png`
+- `final-street.png`
 - `final-detail.png`
 - `final-alley.png`
 - `shape-wide.png`
 - `line-wide.png`
 
-These images are the evidence for each iteration. Numeric image metrics diagnose broken output only; they are not aesthetic scores.
+The street shot is intentionally gameplay-height. Numeric metrics remain diagnostics only and never decide aesthetic quality.

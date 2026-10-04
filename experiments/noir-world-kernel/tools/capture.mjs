@@ -93,6 +93,7 @@ try{
 
   const captures=[
     ['final-wide','wide','final'],
+    ['final-street','street','final'],
     ['final-detail','detail','final'],
     ['final-alley','alley','final'],
     ['shape-wide','wide','shape'],
@@ -139,10 +140,11 @@ try{
     '## Review order',
     '',
     '1. final-wide.png — composition, value hierarchy, focal point.',
-    '2. final-detail.png — whether procedural primitives survive closer inspection.',
-    '3. final-alley.png — whether the language generalizes to a second view.',
-    '4. shape-wide.png — silhouette and massing only.',
-    '5. line-wide.png — line density and hierarchy only.',
+    '2. final-street.png — whether the world reads from a gameplay-height camera.',
+    '3. final-detail.png — whether vector characters and props survive closer inspection.',
+    '4. final-alley.png — whether the language generalizes to a second view.',
+    '5. shape-wide.png — silhouette and massing only.',
+    '6. line-wide.png — line density and hierarchy only.',
     '',
     errors.length?`Runtime errors: ${errors.length}`:'No browser runtime errors detected.'
   ];
