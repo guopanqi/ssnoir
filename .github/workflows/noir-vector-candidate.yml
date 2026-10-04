@@ -1,0 +1,94 @@
+name: Noir Vector Candidate Generation
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_path:
+        description: 'Path under experiments/noir-world-kernel/ai/requests/'
+        required: true
+        default: 'ai/requests/detective-walk-v2.json'
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: noir-vector-candidate-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: experiments/noir-world-kernel
+    env:
+      RECRAFT_API_TOKEN: ${{ secrets.RECRAFT_API_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Require Recraft token
+        shell: bash
+        run: |
+          if [ -z "$RECRAFT_API_TOKEN" ]; then
+            echo "::error::Repository secret RECRAFT_API_TOKEN is not configured."
+            exit 1
+          fi
+
+      - name: Detect Chrome
+        shell: bash
+        run: |
+          CHROME_PATH="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          test -n "$CHROME_PATH"
+          echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+          "$CHROME_PATH" --version
+
+      - name: Generate candidate
+        run: npm run generate:vector -- "${{ inputs.request_path }}"
+
+      - name: Validate candidate
+        run: |
+          npm run validate:assets
+          npm run test:ai-pipeline
+
+      - name: Build with candidate catalog
+        run: npm run build
+
+      - name: Capture world and candidate audition
+        run: npm run capture
+
+      - name: Publish candidate report
+        shell: bash
+        run: |
+          {
+            echo "## Vector candidate"
+            echo ""
+            echo "Request: `${{ inputs.request_path }}`"
+            echo ""
+            echo "The generated asset is a candidate only. This workflow never commits it."
+            echo ""
+            cat captures/latest/report.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload candidate package
+        uses: actions/upload-artifact@v4
+        with:
+          name: noir-vector-candidate-${{ github.run_id }}
+          path: |
+            experiments/noir-world-kernel/src/assets/generated
+            experiments/noir-world-kernel/ai/runs
+            experiments/noir-world-kernel/captures/latest
+          retention-days: 14
+          compression-level: 3
+          if-no-files-found: error

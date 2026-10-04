@@ -1,0 +1,18 @@
+{
+  "id": "generated.character.pedestrian.dress-v2",
+  "type": "puppet",
+  "subject": "a 1940s city woman in a modest calf-length dress and short fitted coat, simple period shoes, understated hat",
+  "view": "full-body three-quarter side view, isolated, feet visible",
+  "action": "waiting at a curb with weight shifted to one hip and one forearm held lightly across the body",
+  "constraints": [
+    "slender period silhouette, not fashion illustration glamour",
+    "small restrained hat and simple hairstyle",
+    "clear separation of arms from torso",
+    "no handbag unless it remains a single simple silhouette",
+    "no facial features beyond one tiny profile mark",
+    "no text or background"
+  ],
+  "targetHeight": 3.05,
+  "seed": 52014,
+  "model": "recraftv4_1_vector"
+}

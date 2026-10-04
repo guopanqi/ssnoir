@@ -130,3 +130,37 @@ The Recraft adapter was checked against the current official API documentation:
 - V4 / V4.1 style matching uses `flexible` or `precise`; `regular` is for V2 / V3.
 
 The request normalizer enforces the model-sensitive `styleMatch` rule before a paid API request is sent.
+
+
+## Manual GitHub candidate generation
+
+A dedicated workflow now exists at:
+
+```
+.github/workflows/noir-vector-candidate.yml
+```
+
+It is intentionally `workflow_dispatch` only.
+
+The workflow:
+
+1. checks out the exact source revision;
+2. requires the repository secret `RECRAFT_API_TOKEN`;
+3. generates exactly one request selected by `request_path`;
+4. normalizes and recursively validates the SVG;
+5. builds the runtime with the candidate in `GeneratedVectorCatalog`;
+6. captures both world evidence and the candidate's neutral audition image;
+7. uploads generated SVG + provenance + captures as an artifact;
+8. never commits or pushes the candidate.
+
+This preserves the central rule: external generation may propose assets, but only review can promote them into the repository.
+
+Initial curated requests:
+
+- `ai/requests/detective-walk-v2.json`
+- `ai/requests/detective-stand-v2.json`
+- `ai/requests/pedestrian-dress-v2.json`
+- `ai/requests/pedestrian-worker-v2.json`
+- `ai/requests/taxi-v2.json`
+
+These requests deliberately specify silhouette, anatomy, period proportion and negative-space requirements rather than naming a copyrighted visual style.

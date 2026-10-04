@@ -1,0 +1,18 @@
+{
+  "id": "generated.vehicle.taxi-v2",
+  "type": "prop",
+  "subject": "a late-1940s American four-door city taxi with rounded fenders, long hood, compact roof sign and simple steel wheels",
+  "view": "clean three-quarter side elevation, isolated, entire car visible",
+  "action": "",
+  "constraints": [
+    "long low period proportions, not a modern sedan",
+    "body is primarily one black silhouette",
+    "windows are black negative shapes bounded by sparse ivory lines",
+    "use one thin muted-gold belt line and a small gold roof sign only",
+    "no lettering, license plate text, checker pattern, driver or background",
+    "keep wheel and body paths economical"
+  ],
+  "targetHeight": 1.45,
+  "seed": 63011,
+  "model": "recraftv4_1_vector"
+}

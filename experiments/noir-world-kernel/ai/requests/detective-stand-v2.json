@@ -1,0 +1,18 @@
+{
+  "id": "generated.character.detective.stand-v2",
+  "type": "puppet",
+  "subject": "a lanky 1940s private detective wearing a long black overcoat and a narrow fedora",
+  "view": "full-body three-quarter view, isolated, entire figure visible",
+  "action": "standing still with weight on one leg, head slightly turned as if listening across a dark street, hands relaxed near coat pockets",
+  "constraints": [
+    "small head and long legs",
+    "coat silhouette is narrow through the torso and slightly wider at the hem",
+    "one shoulder sits subtly higher than the other",
+    "minimal face with no eyes or mouth detail",
+    "no props, text, scenery or background",
+    "avoid symmetrical mannequin posture"
+  ],
+  "targetHeight": 3.15,
+  "seed": 41028,
+  "model": "recraftv4_1_vector"
+}
