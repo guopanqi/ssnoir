@@ -50,6 +50,9 @@ jobs:
           echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
           "$CHROME_PATH" --version
 
+      - name: Validate vector assets
+        run: npm run validate:assets
+
       - name: Build
         run: npm run build
 

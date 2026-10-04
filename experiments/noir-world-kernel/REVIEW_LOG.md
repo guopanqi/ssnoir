@@ -146,3 +146,40 @@ shot-specific visibility / composition rules
 ```
 
 AI-generated assets should first enter through **SVG/vector props and character components**, where style consistency can be constrained. AI-generated 3D hero meshes should remain a later experiment.
+
+
+## Componentized local-street milestone — v0.5.x
+
+Latest visually reviewed baseline before the asset-contract commit:
+- commit: `560bd97f1e19233d80827870dd5856deb89309f2`
+- Actions run: `37170038123`
+- artifact: `noir-world-kernel-37170038123-1`
+
+### What is now working
+
+- The scene reads as layered illustration rather than a lit greybox.
+- The main spatial composition now uses a foreground detective, midground taxi / vegetation / cafe, and dense background window fields.
+- The cafe contains interior line detail, an arched doorway and dark occupants rather than two empty luminous rectangles.
+- A procedural fire escape adds period-city line density without blanket mesh outlines.
+- Wet-road graphics are source-driven and considerably less slab-like than the earlier generic reflection field.
+- SVG characters and SVG props run through reusable ingestion code rather than bespoke geometry.
+
+### What is still visibly weak
+
+- The detective SVG is still a study: pose, anatomy, coat construction and facial drawing are substantially less refined than the target reference.
+- The cafe and surrounding façades remain too geometrically clean; the next gains should come from better vector asset design, not more post-processing.
+- Close shots expose uniform line quality. Future SVGs should carry more authored line rhythm and shape asymmetry.
+- The world currently has only a tiny prop/character library, so repetition becomes obvious quickly.
+
+### Next visual experiment
+
+Do not enlarge the city yet.
+
+Build a small **vector asset pack** first:
+- 3 detective poses / angles;
+- 4–6 pedestrian silhouettes;
+- 2 cars;
+- fire escape, phone booth, awning, sign, bench, trash can;
+- 2–3 plant/tree silhouettes.
+
+Then test whether the same FacadeGrammar + ReflectionField can compose three distinct street corners without changing the renderer.
