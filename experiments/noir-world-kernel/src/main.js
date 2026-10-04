@@ -24,10 +24,10 @@ const world=buildWorld(scene);
 const {composer,resize}=createComposer(renderer,scene,camera);
 
 const shots={
-  wide:{pos:[-9.5,4.1,21.5],target:[0,2.45,-9.5],fov:35},
-  street:{pos:[-5.5,3.55,16.6],target:[.5,2.20,-8.0],fov:35},
+  wide:{pos:[-10.3,4.35,22.2],target:[.3,2.45,-9.6],fov:35},
+  street:{pos:[-6.0,3.7,17.2],target:[.4,2.20,-8.3],fov:35},
   alley:{pos:[9.0,4.2,16.0],target:[2.5,2.55,-9.5],fov:34},
-  detail:{pos:[8.2,3.1,13.2],target:[4.2,1.8,7.5],fov:30}
+  detail:{pos:[7.0,3.0,12.0],target:[2.8,1.8,5.8],fov:30}
 };
 
 let shotName='wide',mode='final';
@@ -56,7 +56,7 @@ window.__NOIR_LAB__={
   },
   setShot:applyShot,setMode,
   info(){return {
-    version:'0.5.2',
+    version:'0.5.3',
     phase:'reference-driven Genesis Noir local street',
     renderer:'3D spatial skeleton + authored vector/SVG illustration layers + source-driven wet reflections',
     shot:shotName,evaluation:mode,proceduralPlusVectorAssets:true

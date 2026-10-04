@@ -51,6 +51,16 @@ function haloTexture(){
   },256,256);
 }
 
+function addGroundGlow(parent,x,z,{width=6,depth=3,opacity=.10}={}){
+  const material=new THREE.MeshBasicMaterial({
+    map:haloTexture(),transparent:true,opacity,depthWrite:false,toneMapped:false,
+    blending:THREE.AdditiveBlending,side:THREE.DoubleSide
+  });
+  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(width,depth),material);
+  mesh.rotation.x=-Math.PI/2;mesh.position.set(x,.018,z);mesh.renderOrder=3;parent.add(mesh);
+  return mesh;
+}
+
 function textTexture(text){
   return canvasTexture((ctx,w,h)=>{
     ctx.clearRect(0,0,w,h);ctx.fillStyle='#f2efe6';
@@ -245,7 +255,7 @@ export function buildWorld(scene){
   reflectionSources.push(addLamp(fill,strokes,glow,-6.5,4.4,6.0));
   reflectionSources.push(addLamp(fill,strokes,glow,6.7,-4.8,6.3));
 
-  addPuppetCharacter(fill,{kind:'detective',position:[4.2,.02,7.5],scale:.0108,strokeScale:.86});
+  addPuppetCharacter(fill,{kind:'detective',position:[2.8,.02,5.8],scale:.0118,strokeScale:.84});
   addPuppetCharacter(fill,{kind:'pedestrian',position:[-8.0,.02,-5.8],scale:.0062,mirror:true,strokeScale:.86});
   addPuppetCharacter(fill,{kind:'pedestrian',position:[7.6,.02,-2.3],scale:.0058,strokeScale:.86});
   addPuppetCharacter(fill,{kind:'pedestrian',position:[1.8,.02,-10.7],scale:.0034,mirror:true,strokeScale:.82});
@@ -257,7 +267,10 @@ export function buildWorld(scene){
   });
   reflectionSources.push({x:-5.7,z:3.9,width:.60,intensity:.22,color:'gold'});
 
-  addTreeSilhouette(fill,strokes,.6,-10.0,1.05);
+  addTreeSilhouette(fill,strokes,1.7,-10.0,.96);
+
+  addGroundGlow(glow,-5.4,4.0,{width:7.4,depth:3.2,opacity:.075});
+  addGroundGlow(glow,.5,-5.5,{width:8.5,depth:3.8,opacity:.045});
 
   addReflectionField(glow,{
     sources:reflectionSources,
