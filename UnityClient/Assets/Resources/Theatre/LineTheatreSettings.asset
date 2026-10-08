@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f488dd689da91476d8f917e63c3fe84d, type: 3}
   m_Name: LineTheatreSettings
   m_EditorClassIdentifier: 
-  StageScale: 1
-  BackgroundBlur: 1
-  Vignette: 1
+  ContentScale: 1
+  FocusStrength: 0.45
+  DimStrength: 1
+  Vignette: 0.25
   Dither: 1.5
+  EnterSeconds: 0.6
+  ExitSeconds: 0.5

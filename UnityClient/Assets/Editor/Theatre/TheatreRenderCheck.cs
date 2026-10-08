@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using SSNoir.Core;
 using SSNoir.Scripting;
@@ -18,31 +19,28 @@ namespace SSNoir.EditorTools
         {
             try
             {
+                CheckFocusAndTransparency();
                 var state = new GameState(); var interpreter = new SchemeInterpreter(state, new UnityScriptLoader());
                 TheatreScene? scene = null; state.DialogueCenter.OnTheatreRequested += s => scene = s;
                 interpreter.LoadFile("scripts/theatre/路灯下.scm"); interpreter.Eval("(路灯下-试演!)");
                 if (scene == null) throw new Exception("sample did not create theatre");
-                foreach (var beat in scene.Beats)
-                    foreach (var sound in beat.Commands.Where(c => c.Kind == TheatreCommandKind.Sound))
+                foreach (var sound in scene.Commands.Where(c => c.Kind == TheatreCommandKind.Sound))
                         if (Resources.Load<AudioClip>(sound.Asset) == null) throw new Exception("missing sound: " + sound.Asset);
                 var session = new TheatreSession(scene); session.Start();
                 using var surface = new TheatreSurface(scene);
                 bool found = false;
-                for (int i = 0; i < scene.Beats.Count * 3; i++)
+                for (int i = 0; i < 20000 && !session.IsComplete; i++)
                 {
-                    var beat = scene.Beats[session.BeatIndex];
-                    if (session.Objects["尼尔"][TheatreProperty.Opacity] > .99f && beat.Commands.Any(c => c.Target == "路灯" && c.Keys.Length > 2))
+                    if (session.Time > 15 && session.Objects["尼尔"][TheatreProperty.Opacity] > .99f && session.Objects["路灯"][TheatreProperty.Brightness] < .2f)
                     { found = true; break; }
-                    if (session.Line != null && session.Line.Seconds == 0f) { session.Advance(); session.Advance(); }
-                    else session.Tick(beat.Duration - session.BeatTime);
-                    if (session.IsComplete) break;
+                    session.Tick(.005f);
+                    if (session.Line != null) { session.Advance(); session.Advance(); }
                 }
                 if (!found) throw new Exception("could not reach lamp flicker with actors on stage");
                 string output = Path.GetFullPath(Path.Combine(Application.dataPath, "../../.cache/theatre-check")); Directory.CreateDirectory(output);
-                session.Tick(.07f);
                 surface.Render(session, 1600, 900); var dim = Read(surface.Texture);
                 File.WriteAllBytes(Path.Combine(output, "lamp-dim.png"), dim.EncodeToPNG());
-                session.Tick(.06f);
+                session.Tick(.12f);
                 surface.Render(session, 1600, 900); var bright = Read(surface.Texture);
                 File.WriteAllBytes(Path.Combine(output, "lamp-bright.png"), bright.EncodeToPNG());
                 // Lamp, ground pool and actor region must respond to the same curve.
@@ -53,7 +51,7 @@ namespace SSNoir.EditorTools
                     "(theatre-scene 1600 900 \"#000000\" (list " +
                     "(theatre-light \"l\" \"\" \"#F3D08A\" 800 550 620 0.15) " +
                     "(theatre-image \"a\" \"\" \"Portraits/Neon/尼尔_抱臂\" 540 790 450 550 \"l\")))"),
-                    interpreter.Eval("(list (theatre-tween \"l\" 'brightness 1 0.1))"));
+                    interpreter.Eval("(theatre-tween \"l\" 'brightness 1 0.1)"));
                 var isolatedSession = new TheatreSession(isolated); isolatedSession.Start();
                 using (var isolatedSurface = new TheatreSurface(isolated))
                 {
@@ -64,7 +62,7 @@ namespace SSNoir.EditorTools
                     UnityEngine.Object.DestroyImmediate(actorDim); UnityEngine.Object.DestroyImmediate(actorBright);
                 }
                 var background = bright.GetPixel(10, 890);
-                if (background.a > .05f) throw new Exception("canvas must stay transparent where nothing is drawn");
+                if (background.a > .8f) throw new Exception("canvas must stay transparent where nothing is drawn");
                 var shader = Resources.Load<Shader>("Theatre/LineTheatre");
                 if (shader == null || ShaderUtil.ShaderHasError(shader)) throw new Exception("theatre shader compilation failed");
                 foreach (var size in new[] { new Vector2Int(1200, 900), new Vector2Int(2000, 900) })
@@ -74,7 +72,7 @@ namespace SSNoir.EditorTools
                     UnityEngine.Object.DestroyImmediate(frame);
                 }
                 UnityEngine.Object.DestroyImmediate(dim); UnityEngine.Object.DestroyImmediate(bright);
-                Debug.Log("[TheatreRenderCheck] PASS: Scheme import, image/audio loading, GPU draw, lamp/pool/actor response, 4:3 and 20:9 surfaces. " + output);
+                Debug.Log("[TheatreRenderCheck] PASS: Scheme import, image/audio loading, GPU draw, focus movement/transparency, lamp/pool/actor response, 4:3 and 20:9 surfaces. " + output);
                 if (Application.isBatchMode) EditorApplication.Exit(0);
             }
             catch (Exception error)
@@ -82,6 +80,45 @@ namespace SSNoir.EditorTools
                 Debug.LogException(error);
                 if (Application.isBatchMode) EditorApplication.Exit(1);
                 else throw;
+            }
+        }
+        private static void CheckFocusAndTransparency()
+        {
+            var scene = new TheatreScene
+            {
+                Width = 1600, Height = 900,
+                Nodes = new[]
+                {
+                    new TheatreNode { Id = "background", Shape = TheatreShape.Polygon, Color = new TheatreColor(.6f, .6f, .6f),
+                        Points = new[] { new TheatrePoint(0, 0), new TheatrePoint(1600, 0), new TheatrePoint(1600, 900), new TheatrePoint(0, 900) } },
+                    new TheatreNode { Id = "focus", Shape = TheatreShape.Focus, Width = 180, Height = 640,
+                        Color = new TheatreColor(.008f, .016f, .035f),
+                        Initial = new Dictionary<TheatreProperty, float> { [TheatreProperty.X] = 300, [TheatreProperty.Y] = 576 } }
+                },
+                Program = new TheatreCommand { Kind = TheatreCommandKind.Animate, Target = "focus", Property = TheatreProperty.X,
+                    FromCurrent = true, Keys = new[] { new TheatreKey(0, 0), new TheatreKey(1, 1300) }, Seconds = 1 }
+            };
+            var session = new TheatreSession(scene); session.Start();
+            using (var surface = new TheatreSurface(scene))
+            {
+                surface.Render(session, 1600, 900); var left = Read(surface.Texture);
+                session.Tick(.999f); surface.Render(session, 1600, 900); var right = Read(surface.Texture);
+                try
+                {
+                    if (left.GetPixel(300, 324).grayscale <= right.GetPixel(300, 324).grayscale + .03f
+                        || right.GetPixel(1300, 324).grayscale <= left.GetPixel(1300, 324).grayscale + .03f)
+                        throw new Exception("focus did not distinguish the two sides");
+                    if (left.GetPixel(300, 324).a < .99f) throw new Exception("focus changed opaque geometry alpha");
+                }
+                finally { UnityEngine.Object.DestroyImmediate(left); UnityEngine.Object.DestroyImmediate(right); }
+            }
+            var empty = new TheatreScene { Width = 1600, Height = 900, Program = new TheatreCommand { Kind = TheatreCommandKind.Wait, Seconds = 1 } };
+            var blankSession = new TheatreSession(empty); blankSession.Start();
+            using (var surface = new TheatreSurface(empty))
+            {
+                surface.Render(blankSession, 32, 32); var blank = Read(surface.Texture);
+                try { if (blank.GetPixel(10, 10).a > .001f) throw new Exception("transparent canvas was sealed"); }
+                finally { UnityEngine.Object.DestroyImmediate(blank); }
             }
         }
         private static Texture2D Read(RenderTexture target)

@@ -35,13 +35,11 @@
         (theatre-with (theatre-glow "灯泡光晕" "路灯" "#F3D08A" 0 -284 92 92) 'opacity .4)
         (theatre-glow "灯芯" "路灯" "#FFE6A8" 0 -286 30 30)
         (theatre-with (theatre-glow "路灯柔光" "路灯" "#F3D08A" 0 10 660 924) 'opacity .22)
-        (theatre-focus "焦点" 800 576 .30 .60)
-        (theatre-group "说话光" "" 800 560)
-        (theatre-with (theatre-glow "说话柔光" "说话光" "#9DB0E0" 0 0 330 462) 'opacity 0)
         (theatre-with (theatre-image "尼尔" "" "Portraits/Neon/尼尔_抱臂" -140 地面 252 308 "路灯") 'opacity 0)
         (theatre-with
           (theatre-with (theatre-image "夜莺" "" "Portraits/Neon/夜莺_低头" 1740 地面 252 308 "路灯") 'scale-x -1)
-          'opacity 0)))))
+          'opacity 0)
+        (theatre-focus "焦点" 800 576 180 640)))))
 
 ;; 原型 CSS easing 采样成归一化关键帧；演出运行时只有一个播放器时钟。
 (define 路灯下-ease '((0.000000 0.000000) (0.041667 0.025556) (0.083333 0.070806) (0.125000 0.136888) (0.166667 0.220674) (0.208333 0.314292) (0.250000 0.408511) (0.291667 0.496716) (0.333333 0.575862) (0.375000 0.645321) (0.416667 0.705611) (0.458333 0.757648) (0.500000 0.802403) (0.541667 0.840773) (0.583333 0.873539) (0.625000 0.901368) (0.666667 0.924824) (0.708333 0.944386) (0.750000 0.960459) (0.791667 0.973389) (0.833333 0.983474) (0.875000 0.990969) (0.916667 0.996096) (0.958333 0.999050) (1.000000 1.000000)))
@@ -52,12 +50,10 @@
       (map (lambda (pair) (list (+ delay (* seconds (car pair)))
         (+ from (* (- to from) (cadr pair))))) curve))))
 (define (路灯下-说 who x text seconds)
-  (theatre-parallel
+  (theatre-during
     (theatre-caption-for who text seconds
       (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
-    (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1)
-    (theatre-tween "说话光" 'x x 1.2)
-    (theatre-tween "说话柔光" 'opacity .13 1.2)))
+    (theatre-tween "焦点" 'x x 1.2 'smooth)))
 (define (路灯下-闪烁)
   (theatre-parallel
     (theatre-animate "路灯" 'brightness
@@ -67,12 +63,12 @@
 (define (路灯下-搭建)
   (define (刻线 i)
     (if (= i 8) '()
-      (append
+      (cons
         (路灯下-变化 (string-append "路面/" (number->string i)) 'reveal 0 1 2.2
           (+ .6 (/ (abs (- (+ 60 (* i 190)) 800)) 700.0)) 路灯下-ease)
         (刻线 (+ i 1)))))
   (apply theatre-parallel
-    (list
+    (append (list
       (路灯下-变化 "布景" 'opacity 0 1 1.5 0 路灯下-ease)
       (路灯下-变化 "地面" 'reveal 0 1 2.2 0 路灯下-ease)
       (路灯下-变化 "路沿" 'reveal 0 1 2.2 .4 路灯下-ease)
@@ -81,13 +77,12 @@
       (路灯下-变化 "灯座" 'reveal 0 1 2.2 1.2 路灯下-ease)
       (路灯下-变化 "灯罩" 'reveal 0 1 2.2 1.6 路灯下-ease)
       (路灯下-变化 "灯顶" 'reveal 0 1 2.2 1.8 路灯下-ease)
-      (刻线 0)
       (theatre-animate "路灯" 'brightness
         '((0 0) (3.3 0) (3.301 .15) (3.41 .15) (3.411 1) (3.52 1)
           (3.521 .3) (3.63 .3) (3.631 .9) (3.74 .9) (3.741 .5)
           (3.85 .5) (3.851 1) (4.86 1)))
       (theatre-sound-after "电流" "Theatre/路灯电流" #f .28 0 3.3)
-      (theatre-wait 4.86))))
+      (theatre-wait 4.86)) (刻线 0))))
 (define (路灯下-试演!)
   (play-theatre! (路灯下-布景)
     (路灯下-搭建)
@@ -151,5 +146,4 @@
     (theatre-parallel
       (theatre-tween "路灯" 'brightness .6 .2)
       (theatre-tween "布景" 'opacity 0 .9)
-      (theatre-tween "说话柔光" 'opacity 0 .9)
       (theatre-tween "焦点" 'opacity 0 .9))))

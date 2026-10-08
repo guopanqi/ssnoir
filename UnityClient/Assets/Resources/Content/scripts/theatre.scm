@@ -26,18 +26,25 @@
     (list (cons (list property value)
       (filter (lambda (pair) (not (eq? (car pair) property))) (list-ref object 7))))))
 (define (theatre-scene width height color objects) (list width height color objects))
-(define (theatre-animate id property keys) (list (list 'animate id property keys)))
-;; tween 从该拍开始时的当前值插值到目标；animate 使用作者指定的完整关键帧。
-(define (theatre-tween id property value seconds) (list (list 'tween id property (list seconds value))))
-(define (theatre-image-to id asset) (list (list 'image id asset)))
-(define (theatre-wait seconds) (list (list 'wait seconds)))
-(define (theatre-say speaker text) (list (list 'say speaker text)))
-(define (theatre-sound id asset loop volume pan) (list (list 'sound id asset loop volume pan)))
-(define (theatre-stop-sound id) (list (list 'stop-sound id)))
-(define (theatre-parallel . commands) (apply append commands))
-(define (play-theatre! scene . beats) (__play-theatre! scene beats))
+(define (theatre-animate id property keys) (list 'animate id property keys))
+;; tween 从动作开始时的当前值插值到目标；animate 使用作者指定的完整关键帧。
+(define (theatre-tween id property value seconds . easing)
+  (if (> (length easing) 1) (error "theatre-tween: at most one easing"))
+  (list 'tween id property (list seconds value (if (null? easing) 'linear (car easing)))))
+(define (theatre-image-to id asset) (list 'image id asset))
+(define (theatre-wait seconds) (list 'wait seconds))
+(define (theatre-say speaker text) (list 'say speaker text))
+(define (theatre-sound id asset loop volume pan) (list 'sound id asset loop volume pan))
+(define (theatre-stop-sound id) (list 'stop-sound id))
+(define (theatre-sequence . commands) (cons 'sequence commands))
+(define (theatre-parallel . commands) (cons 'parallel commands))
+(define (theatre-during main . backgrounds) (cons 'during (cons main backgrounds)))
+(define (theatre-repeat count command) (list 'repeat count command))
+(define (theatre-loop command) (list 'loop command))
+(define (theatre-volume id value seconds) (list 'volume id value seconds))
+(define (play-theatre! scene . commands) (__play-theatre! scene (apply theatre-sequence commands)))
 
-;; Bézier 在内容求值时采样一次，两个播放器拿到相同折线；运行时不解析 SVG 字符串。
+;; Bézier 在内容求值时采样一次，播放器拿到确定的折线；运行时不解析 SVG 字符串。
 (define (theatre-cubic a b c d samples)
   (if (or (< samples 2) (> samples 128) (not (= samples (quotient samples 1)))) (error "theatre-cubic: samples must be 2..128"))
   (define (coordinate index t)
@@ -60,14 +67,14 @@
       (cdr (theatre-cubic (list (- x rx) y) (list (- x rx) (- y ky)) (list (- x kx) (- y ry)) (list x (- y ry)) 12))
       (cdr (theatre-cubic (list x (- y ry)) (list (+ x kx) (- y ry)) (list (+ x rx) (- y ky)) (list (+ x rx) y) 12)))))
 
-;; 焦点是图层合成节点：画在需要变暗/模糊的背景之后，清晰人物之前。
+;; 焦点是柔和渐暗层：画在人物之后、字幕之前。半径使用舞台坐标，不依赖屏幕角落。
 (define (theatre-focus id x y inner outer)
   (theatre-object id "" 'focus (list inner outer) "#020409" "" ""
     (list (list 'x x) (list 'y y))))
 ;; 定时字幕用于忠实移植自动播放原型；普通 say 仍然等待玩家。
 (define (theatre-caption-for speaker text seconds color)
-  (list (list 'caption-for speaker text seconds color)))
-(define (theatre-clear-caption) (list (list 'clear-caption)))
+  (list 'caption-for speaker text seconds color))
+(define (theatre-clear-caption) (list 'clear-caption))
 
 (define (theatre-sound-after id asset loop volume pan seconds)
-  (list (list 'sound-after id asset loop volume pan seconds)))
+  (theatre-sequence (theatre-wait seconds) (theatre-sound id asset loop volume pan)))

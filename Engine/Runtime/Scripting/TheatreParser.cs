@@ -9,7 +9,7 @@ namespace SSNoir.Scripting
     // The only Scheme -> theatre boundary. Positional wire format stays private to scripts/theatre.scm.
     public static class TheatreParser
     {
-        public static TheatreScene Parse(object rawScene, object rawBeats)
+        public static TheatreScene Parse(object rawScene, object rawProgram)
         {
             var scene = List(rawScene, 4, "scene");
             float width = Positive(scene[0]), height = Positive(scene[1]);
@@ -39,7 +39,7 @@ namespace SSNoir.Scripting
                 {
                     if (geometry.Count != 2) Fail("glow/image requires width and height");
                     w = Positive(geometry[0]); h = Positive(geometry[1]);
-                    if (shape == TheatreShape.Focus && (w >= h || h >= 1f)) Fail("focus radii must satisfy 0 < inner < outer < 1");
+                    if (shape == TheatreShape.Focus && w >= h) Fail("focus radii must satisfy 0 < inner < outer in scene units");
                 }
                 else if (shape == TheatreShape.Light)
                 {
@@ -71,96 +71,135 @@ namespace SSNoir.Scripting
                 if (node.Light != "" && (!byId.TryGetValue(node.Light, out var light) || light.Shape != TheatreShape.Light))
                     Fail("image light must reference a light object: " + node.Id);
 
-            var beats = new List<TheatreBeat>();
-            var looping = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var rawBeat in List(rawBeats))
+            int cueCount = 0;
+            TheatreCommand ParseCue(object raw, bool background, int depth)
             {
-                var commands = new List<TheatreCommand>();
-                var writes = new HashSet<string>(StringComparer.Ordinal);
-                float duration = 0f;
-                int say = 0;
-                foreach (var raw in List(rawBeat))
+                if (depth > 32 || ++cueCount > 10000) Fail("timeline exceeds nesting or size limit");
+                var c = List(raw); if (c.Count == 0) Fail("empty cue");
+                string op = Id(c[0]);
+                if (op == "sequence" || op == "parallel" || op == "during" || op == "repeat" || op == "loop")
                 {
-                    var c = List(raw);
-                    if (c.Count == 0) Fail("empty command");
-                    string op = Id(c[0]);
-                    TheatreCommand command;
-                    if (op == "animate" || op == "tween")
+                    int first = op == "repeat" ? 2 : 1;
+                    if (c.Count <= first) Fail("empty time structure: " + op);
+                    int count = 1;
+                    if (op == "repeat") { float n = Positive(c[1]); if (n != (int)n || n > 10000) Fail("repeat requires an integer 1..10000"); count = (int)n; Count(c, 3, op); }
+                    if (op == "loop") { if (!background) Fail("unbounded loop must be inside a during background"); count = 0; Count(c, 2, op); }
+                    if (op == "during" && c.Count < 3) Fail("during needs a main action and background actions");
+                    var children = new List<TheatreCommand>();
+                    for (int i = first; i < c.Count; i++) children.Add(ParseCue(c[i], background || (op == "during" && i > 1), depth + 1));
+                    if (op == "repeat" || op == "loop")
+                        if (MinimumDuration(children[0]) <= 0) Fail("repeat body must consume positive time and cannot wait for input");
+                    if (op == "parallel" || op == "during")
                     {
-                        Count(c, 4, op);
-                        string id = Id(c[1]); var property = Property(Id(c[2]));
-                        if (!byId.ContainsKey(id)) Fail("unknown animation target: " + id);
-                        if (byId[id].Shape == TheatreShape.Focus && property != TheatreProperty.X && property != TheatreProperty.Y && property != TheatreProperty.Opacity) Fail("focus only supports x/y/opacity");
-                        if (property == TheatreProperty.Reveal && byId[id].Shape != TheatreShape.Line)
-                            Fail("reveal only applies to lines: " + id);
-                        if (!writes.Add(id + "/" + property)) Fail("parallel property conflict: " + id + "/" + property);
-                        TheatreKey[] keys;
-                        if (op == "tween")
-                        {
-                            var target = List(c[3], 2, "tween target");
-                            keys = new[] { new TheatreKey(0f, 0f), new TheatreKey(Positive(target[0]), Value(property, target[1])) };
-                        }
-                        else
-                        {
-                            var k = List(c[3]);
-                            if (k.Count < 2) Fail("animation requires at least two keys");
-                            keys = new TheatreKey[k.Count];
-                            for (int i = 0; i < k.Count; i++)
-                            {
-                                var pair = List(k[i], 2, "keyframe");
-                                float time = Number(pair[0]);
-                                if ((i == 0 && time != 0f) || (i > 0 && time <= keys[i - 1].Time)) Fail("key times must start at zero and strictly increase");
-                                keys[i] = new TheatreKey(time, Value(property, pair[1]));
-                            }
-                        }
-                        command = new TheatreCommand { Kind = TheatreCommandKind.Animate, Target = id, Property = property,
-                            Keys = keys, FromCurrent = op == "tween", Seconds = keys[keys.Length - 1].Time };
+                        var combined = new HashSet<string>(StringComparer.Ordinal);
+                        foreach (var child in children)
+                            foreach (var write in Writes(child)) if (!combined.Add(write)) Fail("concurrent property conflict: " + write);
                     }
-                    else if (op == "image")
-                    {
-                        Count(c, 3, op); string id = Id(c[1]); string asset = Id(c[2]); Asset(asset);
-                        if (!byId.TryGetValue(id, out var image) || image.Shape != TheatreShape.Image) Fail("image command requires an image object: " + id);
-                        if (!writes.Add(id + "/asset")) Fail("parallel image conflict: " + id);
-                        command = new TheatreCommand { Kind = TheatreCommandKind.Image, Target = id, Asset = asset };
-                    }
-                    else if (op == "wait") { Count(c, 2, op); command = new TheatreCommand { Kind = TheatreCommandKind.Wait, Seconds = Positive(c[1]) }; }
-                    else if (op == "clear-caption") { Count(c, 1, op); if (!writes.Add("caption")) Fail("parallel caption conflict"); command = new TheatreCommand { Kind = TheatreCommandKind.ClearCaption }; }
-                    else if (op == "say" || op == "caption-for")
-                    {
-                        Count(c, op == "say" ? 3 : 5, op); say++;
-                        if (!writes.Add("caption")) Fail("parallel caption conflict");
-                        command = new TheatreCommand { Kind = TheatreCommandKind.Say, Target = Id(c[1]), Text = Id(c[2]),
-                            Seconds = op == "say" ? 0f : Positive(c[3]),
-                            CaptionColor = op == "say" ? new TheatreColor(.94f, .81f, .54f) : Color(Text(c[4])) };
-                    }
-                    else if (op == "sound" || op == "sound-after")
-                    {
-                        Count(c, op == "sound" ? 6 : 7, op); string id = Id(c[1]); string asset = Id(c[2]); Asset(asset);
-                        if (c[3] is not bool loop) throw new ArgumentException("theatre: sound loop must be boolean");
-                        if (!writes.Add("sound/" + id)) Fail("parallel sound conflict: " + id);
-                        if (loop && !looping.Add(id)) Fail("loop is already playing: " + id);
-                        if (!loop && looping.Contains(id)) Fail("one-shot cannot replace a loop: " + id);
-                        float volume = Number(c[4]), pan = Number(c[5]);
-                        if (volume < 0 || volume > 1 || pan < -1 || pan > 1) Fail("sound volume/pan out of range");
-                        command = new TheatreCommand { Kind = TheatreCommandKind.Sound, Target = id, Asset = asset, Loop = loop, Volume = volume, Pan = pan,
-                            Delay = op == "sound" ? 0f : Positive(c[6]), Seconds = op == "sound" ? 0f : Positive(c[6]) };
-                    }
-                    else if (op == "stop-sound")
-                    {
-                        Count(c, 2, op); string id = Id(c[1]);
-                        if (!writes.Add("sound/" + id) || !looping.Remove(id)) Fail("stop-sound requires an active, unmodified loop: " + id);
-                        command = new TheatreCommand { Kind = TheatreCommandKind.StopSound, Target = id };
-                    }
-                    else throw new ArgumentException("theatre: unknown command " + op);
-                    if (command.Seconds > 120f) Fail("one beat cannot exceed 120 seconds");
-                    duration = Math.Max(duration, command.Seconds); commands.Add(command);
+                    return new TheatreCommand { Kind = op == "sequence" ? TheatreCommandKind.Sequence : op == "parallel" ? TheatreCommandKind.Parallel
+                        : op == "during" ? TheatreCommandKind.During : TheatreCommandKind.Repeat, Children = children, RepeatCount = count };
                 }
-                if (commands.Count == 0) Fail("empty beat");
-                if (say > 1) Fail("parallel beat can only contain one caption");
-                beats.Add(new TheatreBeat { Commands = commands, Duration = duration });
+                TheatreCommand command;
+                if (op == "animate" || op == "tween")
+                {
+                    Count(c, 4, op);
+                    string id = Id(c[1]); var property = Property(Id(c[2]));
+                    if (!byId.ContainsKey(id)) Fail("unknown animation target: " + id);
+                    if (byId[id].Shape == TheatreShape.Focus && property != TheatreProperty.X && property != TheatreProperty.Y && property != TheatreProperty.Opacity) Fail("focus only supports x/y/opacity");
+                    if (property == TheatreProperty.Reveal && byId[id].Shape != TheatreShape.Line)
+                        Fail("reveal only applies to lines: " + id);
+                    TheatreKey[] keys; bool smooth = false;
+                    if (op == "tween")
+                    {
+                        var target = List(c[3], 3, "tween target");
+                        string easing = Id(target[2]);
+                        if (easing != "linear" && easing != "smooth") Fail("easing must be linear or smooth");
+                        smooth = easing == "smooth";
+                        keys = new[] { new TheatreKey(0f, 0f), new TheatreKey(Positive(target[0]), Value(property, target[1])) };
+                    }
+                    else
+                    {
+                        var k = List(c[3]);
+                        if (k.Count < 2) Fail("animation requires at least two keys");
+                        keys = new TheatreKey[k.Count];
+                        for (int i = 0; i < k.Count; i++)
+                        {
+                            var pair = List(k[i], 2, "keyframe");
+                            float time = Number(pair[0]);
+                            if ((i == 0 && time != 0f) || (i > 0 && time <= keys[i - 1].Time)) Fail("key times must start at zero and strictly increase");
+                            keys[i] = new TheatreKey(time, Value(property, pair[1]));
+                        }
+                    }
+                    command = new TheatreCommand { Kind = TheatreCommandKind.Animate, Target = id, Property = property,
+                        Keys = keys, FromCurrent = op == "tween", Smooth = smooth, Seconds = keys[keys.Length - 1].Time };
+                }
+                else if (op == "volume")
+                {
+                    Count(c, 4, op); string id = Id(c[1]); float value = Number(c[2]), seconds = Positive(c[3]);
+                    if (value < 0 || value > 1) Fail("volume must be 0..1");
+                    command = new TheatreCommand { Kind = TheatreCommandKind.SoundVolume, Target = id, FromCurrent = true, Seconds = seconds,
+                        Keys = new[] { new TheatreKey(0, 0), new TheatreKey(seconds, value) } };
+                }
+                else if (op == "image")
+                {
+                    Count(c, 3, op); string id = Id(c[1]); string asset = Id(c[2]); Asset(asset);
+                    if (!byId.TryGetValue(id, out var image) || image.Shape != TheatreShape.Image) Fail("image command requires an image object: " + id);
+                    command = new TheatreCommand { Kind = TheatreCommandKind.Image, Target = id, Asset = asset };
+                }
+                else if (op == "wait") { Count(c, 2, op); command = new TheatreCommand { Kind = TheatreCommandKind.Wait, Seconds = Positive(c[1]) }; }
+                else if (op == "clear-caption") { Count(c, 1, op); command = new TheatreCommand { Kind = TheatreCommandKind.ClearCaption }; }
+                else if (op == "say" || op == "caption-for")
+                {
+                    Count(c, op == "say" ? 3 : 5, op);
+                    command = new TheatreCommand { Kind = TheatreCommandKind.Say, Target = Id(c[1]), Text = Id(c[2]),
+                        Seconds = op == "say" ? 0f : Positive(c[3]),
+                        CaptionColor = op == "say" ? new TheatreColor(.94f, .81f, .54f) : Color(Text(c[4])) };
+                }
+                else if (op == "sound")
+                {
+                    Count(c, 6, op); string id = Id(c[1]); string asset = Id(c[2]); Asset(asset);
+                    if (c[3] is not bool loop) throw new ArgumentException("theatre: sound loop must be boolean");
+
+                    float volume = Number(c[4]), pan = Number(c[5]);
+                    if (volume < 0 || volume > 1 || pan < -1 || pan > 1) Fail("sound volume/pan out of range");
+                    command = new TheatreCommand { Kind = TheatreCommandKind.Sound, Target = id, Asset = asset, Loop = loop, Volume = volume, Pan = pan };
+                }
+                else if (op == "stop-sound")
+                {
+                    Count(c, 2, op); string id = Id(c[1]);
+                    command = new TheatreCommand { Kind = TheatreCommandKind.StopSound, Target = id };
+                }
+                else throw new ArgumentException("theatre: unknown command " + op);
+                if (background && (command.Kind == TheatreCommandKind.Say || command.Kind == TheatreCommandKind.ClearCaption)) Fail("background cannot own subtitles");
+                if (command.Seconds > 120f) Fail("one action cannot exceed 120 seconds");
+                return command;
             }
-            if (beats.Count == 0) Fail("scene must contain beats");
-            return new TheatreScene { Width = width, Height = height, Background = Color(Text(scene[2])), Nodes = nodes, Beats = beats };
+            var program = ParseCue(rawProgram, false, 0);
+            return new TheatreScene { Width = width, Height = height, Background = Color(Text(scene[2])), Nodes = nodes, Program = program };
+        }
+        private static HashSet<string> Writes(TheatreCommand cue)
+        {
+            var writes = new HashSet<string>(StringComparer.Ordinal);
+            if (cue.Kind == TheatreCommandKind.Animate) writes.Add("object/" + cue.Target + "/" + cue.Property);
+            if (cue.Kind == TheatreCommandKind.Image) writes.Add("object/" + cue.Target + "/asset");
+            if (cue.Kind == TheatreCommandKind.Say || cue.Kind == TheatreCommandKind.ClearCaption) writes.Add("caption");
+            if (cue.Kind == TheatreCommandKind.Sound || cue.Kind == TheatreCommandKind.StopSound) writes.Add("sound/" + cue.Target);
+            if (cue.Kind == TheatreCommandKind.SoundVolume) writes.Add("sound/" + cue.Target);
+            foreach (var child in cue.Children) writes.UnionWith(Writes(child));
+            return writes;
+        }
+        private static float MinimumDuration(TheatreCommand cue)
+        {
+            if (cue.Kind == TheatreCommandKind.Say && cue.Seconds == 0) return float.NegativeInfinity;
+            if (cue.Children.Count == 0) return cue.Seconds;
+            float value = 0;
+            foreach (var child in cue.Children)
+            {
+                float duration = MinimumDuration(child);
+                if (float.IsNegativeInfinity(duration)) return duration;
+                value = cue.Kind == TheatreCommandKind.Sequence ? value + duration : Math.Max(value, duration);
+                if (cue.Kind == TheatreCommandKind.During) break;
+            }
+            return value;
         }
         public static TheatreProperty Property(string name) => name switch {
             "x" => TheatreProperty.X, "y" => TheatreProperty.Y, "scale-x" => TheatreProperty.ScaleX,

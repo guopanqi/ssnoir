@@ -18,9 +18,9 @@ namespace SSNoir.UnityTheatre
         private readonly Material _material;
         private readonly CommandBuffer _commands = new() { name = "Line Theatre" };
         private readonly MaterialPropertyBlock _properties = new();
-        private RenderTexture? _target;
+        private RenderTexture? _target, _display;
         private bool _disposed;
-        public RenderTexture Texture => _target ?? throw new InvalidOperationException("surface has not rendered");
+        public RenderTexture Texture => _display ?? throw new InvalidOperationException("surface has not rendered");
         public TheatreSurface(TheatreScene scene)
         {
             _scene = scene;
@@ -34,8 +34,7 @@ namespace SSNoir.UnityTheatre
                         LoadImage(node.Asset);
                     if (node.Shape != TheatreShape.Group && node.Shape != TheatreShape.Light) _meshes.Add(node.Id, TheatreMesh.Build(node));
                 }
-                foreach (var beat in scene.Beats)
-                    foreach (var command in beat.Commands)
+                foreach (var command in scene.Commands)
                         if (command.Kind == TheatreCommandKind.Image) LoadImage(command.Asset);
             }
             catch { Dispose(); throw; }
@@ -45,15 +44,18 @@ namespace SSNoir.UnityTheatre
             if (!_images.ContainsKey(asset))
                 _images.Add(asset, Resources.Load<Texture2D>(asset) ?? throw new InvalidOperationException("theatre image missing: " + asset));
         }
-        public void Render(TheatreSession session, int width, int height, float contentScale = 1f, float blurScale = 1f, float dither = 1.5f / 255f)
+        public void Render(TheatreSession session, int width, int height, float contentScale = 1f, float focusStrength = .45f, float dither = 1.5f / 255f)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(TheatreSurface));
             width = Math.Max(1, width); height = Math.Max(1, height);
             if (_target == null || _target.width != width || _target.height != height)
             {
                 if (_target != null) { _target.Release(); Release(_target); }
-                _target = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32) { name = "Line Theatre", filterMode = FilterMode.Bilinear };
+                if (_display != null) { _display.Release(); Release(_display); }
+                _target = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear) { name = "Line Theatre", filterMode = FilterMode.Bilinear };
                 _target.Create();
+                _display = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32) { name = "Line Theatre Display", filterMode = FilterMode.Bilinear };
+                _display.Create();
             }
             _matrices.Clear(); _opacity.Clear(); _brightness.Clear();
             foreach (var node in _scene.Nodes)
@@ -73,10 +75,9 @@ namespace SSNoir.UnityTheatre
             var projection = GL.GetGPUProjectionMatrix(
                 Matrix4x4.Ortho(left, left + viewWidth, top + viewHeight, top, -1, 1), true);
             _commands.Clear(); _commands.SetRenderTarget(_target);
-            // Transparent canvas: empty areas stay transparent so the city can show through.
-            // The dim veil alone cannot do this; it only darkens what is underneath.
-            var background = ColorOf(_scene.Background); background.a = 0f;
-            _commands.ClearRenderTarget(false, true, background);
+            // Artistic 2D composition uses display-space colors, matching SVG/CSS.
+            // Resolve premultiplied alpha and convert to the Unity project color space once.
+            _commands.ClearRenderTarget(false, true, Color.clear);
             // Shader uses explicit scene coordinates; no camera matrices or SRP globals are changed.
             foreach (var node in _scene.Nodes)
             {
@@ -105,25 +106,17 @@ namespace SSNoir.UnityTheatre
                 }
                 if (node.Shape == TheatreShape.Focus)
                 {
-                    // Capture only preceding layers. Characters and captions remain crisp above the focus.
-                    int copy = Shader.PropertyToID("_TheatreFocusBackground");
-                    _commands.GetTemporaryRT(copy, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32);
-                    _commands.Blit(_target, copy);
-                    _commands.SetRenderTarget(_target);
-                    _commands.SetGlobalTexture("_FocusBackground", copy);
+                    // The focus is a transparent lighting veil, not a copy of the preceding framebuffer.
                     _properties.SetMatrix("_SceneTransform", Matrix4x4.TRS(new Vector3(left + viewWidth / 2f, top + viewHeight / 2f, 0), Quaternion.identity, new Vector3(viewWidth / 2f, viewHeight / 2f, 1)));
                     var center = _matrices[node.Id].MultiplyPoint3x4(Vector3.zero);
-                    float farX = Mathf.Max(Mathf.Abs(center.x - left), Mathf.Abs(left + viewWidth - center.x));
-                    float farY = Mathf.Max(Mathf.Abs(center.y - top), Mathf.Abs(top + viewHeight - center.y));
-                    _properties.SetVector("_Focus", new Vector4(center.x, center.y, Mathf.Sqrt(farX * farX + farY * farY), _opacity[node.Id]));
+                    _properties.SetVector("_Focus", new Vector4(center.x, center.y, focusStrength, _opacity[node.Id]));
                     _properties.SetVector("_FocusRadii", new Vector4(node.Width, node.Height, 0, 0));
-                    _properties.SetVector("_BackgroundSize", new Vector4(3f * height / 540f / width * blurScale, 3f / 540f * blurScale, 0, 0));
                     _commands.DrawMesh(mesh, Matrix4x4.identity, _material, 0, 0, _properties);
-                    _commands.ReleaseTemporaryRT(copy);
                     continue;
                 }
                 _commands.DrawMesh(mesh, Matrix4x4.identity, _material, 0, 0, _properties);
             }
+            _commands.Blit(_target, _display, _material, 1);
             Graphics.ExecuteCommandBuffer(_commands);
         }
         public void Dispose()
@@ -135,6 +128,7 @@ namespace SSNoir.UnityTheatre
             _meshes.Clear();
             Release(_material);
             if (_target != null) { _target.Release(); Release(_target); _target = null; }
+            if (_display != null) { _display.Release(); Release(_display); _display = null; }
         }
         private static void Release(UnityEngine.Object asset)
         {
@@ -144,7 +138,7 @@ namespace SSNoir.UnityTheatre
         private static Color ColorOf(TheatreColor c)
         {
             var color = new Color(c.R, c.G, c.B, c.A);
-            return QualitySettings.activeColorSpace == ColorSpace.Linear ? color.linear : color;
+            return color;
         }
     }
 }
