@@ -1,0 +1,74 @@
+name: Noir Graphic City Captures
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'experiments/noir-graphic-city-lab/**'
+      - '.github/workflows/noir-graphic-city-captures.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'experiments/noir-graphic-city-lab/**'
+      - '.github/workflows/noir-graphic-city-captures.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: noir-graphic-city-captures-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: experiments/noir-graphic-city-lab
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Cache lab dependencies
+        id: cache-node
+        uses: actions/cache@v4
+        with:
+          path: experiments/noir-graphic-city-lab/node_modules
+          key: graphic-city-node-${{ runner.os }}-${{ hashFiles('experiments/noir-graphic-city-lab/package.json') }}
+
+      - name: Install JS dependencies
+        if: steps.cache-node.outputs.cache-hit != 'true'
+        run: npm install --no-audit --no-fund
+
+      - name: Use runner Chrome
+        shell: bash
+        run: |
+          CHROME_PATH="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          test -n "$CHROME_PATH"
+          echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+          "$CHROME_PATH" --version
+
+      - name: Build lab
+        run: npm run build
+
+      - name: Capture benchmarks
+        run: npm run capture
+
+      - name: Publish visual report
+        shell: bash
+        run: cat captures/latest/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload benchmark captures
+        uses: actions/upload-artifact@v4
+        with:
+          name: noir-graphic-city-captures-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          compression-level: 3
+          path: experiments/noir-graphic-city-lab/captures/latest
+          if-no-files-found: error

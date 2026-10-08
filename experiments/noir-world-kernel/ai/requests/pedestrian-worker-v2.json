@@ -1,0 +1,18 @@
+{
+  "id": "generated.character.pedestrian.worker-v2",
+  "type": "puppet",
+  "subject": "a tired 1940s night-shift city worker wearing a work jacket, loose straight trousers, heavy shoes and a soft work cap",
+  "view": "full-body three-quarter view, isolated",
+  "action": "standing with a slight forward stoop, one foot turned outward, arms hanging with uneven relaxed weight",
+  "constraints": [
+    "compact sturdy body distinct from the detective silhouette",
+    "cap stays small and low",
+    "jacket ends near the hip and does not resemble a long coat",
+    "simple believable elbows and knees",
+    "no tools, text or background",
+    "minimal interior lines"
+  ],
+  "targetHeight": 2.95,
+  "seed": 52015,
+  "model": "recraftv4_1_vector"
+}

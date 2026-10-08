@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "phase": "Full reconstruction v1: awaiting first visual review",
+  "acceptedBaseline": null,
+  "pendingReviews": [],
+  "nextQuestions": [
+    {
+      "id": "family-match",
+      "question": "Does the reconstructed city plaza belong to the same visual family as the supplied Genesis Noir references at first glance?",
+      "status": "active"
+    },
+    {
+      "id": "clean-lines",
+      "question": "Do architectural lines feel intentional and clean rather than like wireframe output?",
+      "status": "pending"
+    },
+    {
+      "id": "silhouette-character",
+      "question": "Does the detective read as a solid graphic silhouette with an external contour rather than low-poly geometry?",
+      "status": "pending"
+    }
+  ],
+  "knownLimits": [
+    "No imported textures yet; surface grain is procedural.",
+    "Spotlight is simple translucent geometry, not raymarched volumetrics.",
+    "The first version proves one plaza tableau before expanding to other SSNoir locations."
+  ],
+  "doNotRepeat": [
+    "Do not use image histogram targets as aesthetic goals.",
+    "Do not equate more lines with more Genesis Noir.",
+    "Do not use geometry wireframe on characters.",
+    "Do not expand the city before the primary tableau is visually convincing."
+  ],
+  "protocol": "CONTINUE.md"
+}

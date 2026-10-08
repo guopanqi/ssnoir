@@ -21,7 +21,8 @@
     "export:heishui": "blender -b ../../city-box/build/city/city_build.blend --python tools/heishui-export.py",
     "build:fog-neon": "vite build -c vite.fog-neon.config.js",
     "export:fog-neon": "blender -b ../../city-box/build/city/city_build.blend --python tools/fog-neon-export.py",
-    "export:fog-neon-roads": "blender -b ../../city-box/prefabs/世界.blend --python tools/fog-neon-roads.py"
+    "export:fog-neon-roads": "blender -b ../../city-box/prefabs/世界.blend --python tools/fog-neon-roads.py",
+    "status": "node tools/status.mjs"
   },
   "dependencies": {
     "three": "0.186.1"

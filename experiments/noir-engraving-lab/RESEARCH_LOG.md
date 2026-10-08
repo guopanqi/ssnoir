@@ -410,3 +410,6 @@ CityBox 冻结快照 `public/backlight/city.{json,bin}`（导出 stats：外壳�
 - 验证：独立 night-restraint Vite 构建通过；截图期间没有 pageerror，返回按钮在聚焦状态启用。最终间距调整由同一视图复查。未做深入交互测试。
 - 判断：保留以细线关联场景、动作有薄底/标注无容器的层级；其他地点的遮挡关系留待用户体验后调整。
 - 迁回 Unity：共享设计画布，使用真实 NodeAnchor 投影，动作卡与 note 保持相同锚点契约；note 只读，实际行动交给既有游戏规则。
+**独立复核与可持续接续**：修订后 run 37129184713 成功；artifact 11276256998 已下载并打开 contact sheet。CI Chrome 154 和本地 headless shell Chrome 140 的 src 指纹一致，四镜头亮度占比在报告精度内一致；CI 截图阶段 45.9 秒，本地约 17 秒。
+新增 CONTINUE.md、CHECKPOINT.json 和 npm run status，将已接受证据、待审图、失败方法、下一问题和流程改进规则保存到工程，接续不再依赖聊天 compact。状态检查与截图共用 src 指纹实现。
+状态工具已实际验证三个分支：正常基线匹配并退出 0；临时修改 src 后识别旧图并退出 2；临时指向不存在的证据目录时返回失败。测试后恢复文件，单镜头 capture 继续成功。
