@@ -1,0 +1,20 @@
+{
+  "name": "ssnoir-noir-theatre-lab",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "capture": "node tools/capture.mjs"
+  },
+  "dependencies": {
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "playwright": "1.55.0",
+    "sharp": "0.34.4",
+    "vite": "8.3.2"
+  }
+}
