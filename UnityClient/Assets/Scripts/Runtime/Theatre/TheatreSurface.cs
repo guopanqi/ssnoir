@@ -13,6 +13,7 @@ namespace SSNoir.UnityTheatre
         private readonly TheatreScene _scene;
         private readonly Dictionary<string, Mesh> _meshes = new(StringComparer.Ordinal);
         private readonly Dictionary<string, Texture2D> _images = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, Texture2D> _silhouettes = new(StringComparer.Ordinal);
         private readonly Dictionary<string, Matrix4x4> _matrices = new(StringComparer.Ordinal);
         private readonly Dictionary<string, float> _opacity = new(StringComparer.Ordinal), _brightness = new(StringComparer.Ordinal);
         private readonly Material _material;
@@ -41,8 +42,11 @@ namespace SSNoir.UnityTheatre
         }
         private void LoadImage(string asset)
         {
-            if (!_images.ContainsKey(asset))
-                _images.Add(asset, Resources.Load<Texture2D>(asset) ?? throw new InvalidOperationException("theatre image missing: " + asset));
+            if (_images.ContainsKey(asset)) return;
+            _images.Add(asset, Resources.Load<Texture2D>(asset) ?? throw new InvalidOperationException("theatre image missing: " + asset));
+            if (asset.StartsWith("Portraits/Neon/", StringComparison.Ordinal))
+                _silhouettes.Add(asset, Resources.Load<Texture2D>(asset + "_silhouette")
+                    ?? throw new InvalidOperationException("theatre portrait silhouette missing: " + asset));
         }
         public void Render(TheatreSession session, int width, int height, float contentScale = 1f, float focusStrength = .5f, float dither = 1.5f / 255f)
         {
@@ -120,6 +124,18 @@ namespace SSNoir.UnityTheatre
                     _commands.Blit(_focusTarget, _target);
                     _commands.SetRenderTarget(_target);
                     continue;
+                }
+                // Same mesh, transform and inherited opacity as the current pose. The backing
+                // occludes earlier scenery but never receives lamp tint or brightness animation.
+                if (node.Shape == TheatreShape.Image && _silhouettes.TryGetValue(session.Objects[node.Id].Asset, out var silhouette))
+                {
+                    _properties.SetTexture("_MainTex", silhouette);
+                    _properties.SetColor("_Tint", new Color(7f / 255f, 11f / 255f, 18f / 255f, _opacity[node.Id]));
+                    _properties.SetFloat("_Lit", 0);
+                    _commands.DrawMesh(mesh, Matrix4x4.identity, _material, 0, 0, _properties);
+                    _properties.SetTexture("_MainTex", _images[session.Objects[node.Id].Asset]);
+                    _properties.SetColor("_Tint", tint);
+                    _properties.SetFloat("_Lit", node.Light.Length == 0 ? 0 : 1);
                 }
                 _commands.DrawMesh(mesh, Matrix4x4.identity, _material, 0, 0, _properties);
             }

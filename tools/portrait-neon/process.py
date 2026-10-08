@@ -44,7 +44,7 @@ def is_source(filename):
     if not filename.endswith(".png"):
         return False
     stem = filename[:-4]
-    return not (stem.endswith("_lines") or stem.endswith("_accent"))
+    return not (stem.endswith("_lines") or stem.endswith("_accent") or stem.endswith("_silhouette"))
 
 
 def split_layers(img):

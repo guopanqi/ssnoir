@@ -51,6 +51,8 @@ def prepare_project(project, scene):
             walk(child)
 
     walk(scene["Program"])
+    required.update((asset + "_silhouette", ".png") for asset, extension in list(required)
+                    if extension == ".png" and asset.startswith("Portraits/Neon/"))
     for asset, extension in required:
         relative = Path(asset + extension)
         for suffix in ("", ".meta"):
