@@ -45,7 +45,7 @@ namespace SSNoir.UnityTheatre
             if (!_images.ContainsKey(asset))
                 _images.Add(asset, Resources.Load<Texture2D>(asset) ?? throw new InvalidOperationException("theatre image missing: " + asset));
         }
-        public void Render(TheatreSession session, int width, int height)
+        public void Render(TheatreSession session, int width, int height, float contentScale = 1f, float blurScale = 1f, float dither = 1.5f / 255f)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(TheatreSurface));
             width = Math.Max(1, width); height = Math.Max(1, height);
@@ -66,12 +66,17 @@ namespace SSNoir.UnityTheatre
                 _opacity[node.Id] = state[TheatreProperty.Opacity] * (root ? 1f : _opacity[node.Parent]);
                 _brightness[node.Id] = state[TheatreProperty.Brightness] * (root ? 1f : _brightness[node.Parent]);
             }
-            float viewWidth = _scene.Height * width / height;
-            float left = (_scene.Width - viewWidth) * 0.5f;
+            float viewHeight = _scene.Height / Math.Max(0.01f, contentScale);
+            float viewWidth = viewHeight * width / height;
+            float centerX = _scene.Width * 0.5f, centerY = _scene.Height * 0.5f;
+            float left = centerX - viewWidth * 0.5f, top = centerY - viewHeight * 0.5f;
             var projection = GL.GetGPUProjectionMatrix(
-                Matrix4x4.Ortho(left, left + viewWidth, _scene.Height, 0, -1, 1), true);
+                Matrix4x4.Ortho(left, left + viewWidth, top + viewHeight, top, -1, 1), true);
             _commands.Clear(); _commands.SetRenderTarget(_target);
-            _commands.ClearRenderTarget(false, true, ColorOf(_scene.Background));
+            // Transparent canvas: empty areas stay transparent so the city can show through.
+            // The dim veil alone cannot do this; it only darkens what is underneath.
+            var background = ColorOf(_scene.Background); background.a = 0f;
+            _commands.ClearRenderTarget(false, true, background);
             // Shader uses explicit scene coordinates; no camera matrices or SRP globals are changed.
             foreach (var node in _scene.Nodes)
             {
@@ -84,7 +89,8 @@ namespace SSNoir.UnityTheatre
                 if (node.Shape == TheatreShape.Glow || (node.Shape == TheatreShape.Polygon && node.Color.A < 1f)) tint.a *= Mathf.Clamp01(brightness);
                 tint.r *= brightness; tint.g *= brightness; tint.b *= brightness;
                 _properties.SetColor("_Tint", tint);
-                _properties.SetFloat("_Mode", node.Shape == TheatreShape.Line ? 0 : node.Shape == TheatreShape.Polygon ? 1 : node.Shape == TheatreShape.Glow ? 2 : 3);
+                _properties.SetFloat("_Mode", node.Shape == TheatreShape.Focus ? 4 : node.Shape == TheatreShape.Line ? 0 : node.Shape == TheatreShape.Polygon ? 1 : node.Shape == TheatreShape.Glow ? 2 : 3);
+                _properties.SetFloat("_Dither", dither);
                 _properties.SetFloat("_Reveal", session.Objects[node.Id][TheatreProperty.Reveal]);
                 _properties.SetFloat("_Lit", node.Light.Length == 0 ? 0 : 1);
                 if (node.Shape == TheatreShape.Image) _properties.SetTexture("_MainTex", _images[session.Objects[node.Id].Asset]);
@@ -96,6 +102,25 @@ namespace SSNoir.UnityTheatre
                     _properties.SetMatrix("_SceneToLight", transform.inverse);
                     _properties.SetVector("_Lamp", new Vector4(0, 0, lamp.Width, _brightness[lamp.Id] * _opacity[lamp.Id]));
                     _properties.SetColor("_LightColor", ColorOf(lamp.Color));
+                }
+                if (node.Shape == TheatreShape.Focus)
+                {
+                    // Capture only preceding layers. Characters and captions remain crisp above the focus.
+                    int copy = Shader.PropertyToID("_TheatreFocusBackground");
+                    _commands.GetTemporaryRT(copy, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32);
+                    _commands.Blit(_target, copy);
+                    _commands.SetRenderTarget(_target);
+                    _commands.SetGlobalTexture("_FocusBackground", copy);
+                    _properties.SetMatrix("_SceneTransform", Matrix4x4.TRS(new Vector3(left + viewWidth / 2f, top + viewHeight / 2f, 0), Quaternion.identity, new Vector3(viewWidth / 2f, viewHeight / 2f, 1)));
+                    var center = _matrices[node.Id].MultiplyPoint3x4(Vector3.zero);
+                    float farX = Mathf.Max(Mathf.Abs(center.x - left), Mathf.Abs(left + viewWidth - center.x));
+                    float farY = Mathf.Max(Mathf.Abs(center.y - top), Mathf.Abs(top + viewHeight - center.y));
+                    _properties.SetVector("_Focus", new Vector4(center.x, center.y, Mathf.Sqrt(farX * farX + farY * farY), _opacity[node.Id]));
+                    _properties.SetVector("_FocusRadii", new Vector4(node.Width, node.Height, 0, 0));
+                    _properties.SetVector("_BackgroundSize", new Vector4(3f * height / 540f / width * blurScale, 3f / 540f * blurScale, 0, 0));
+                    _commands.DrawMesh(mesh, Matrix4x4.identity, _material, 0, 0, _properties);
+                    _commands.ReleaseTemporaryRT(copy);
+                    continue;
                 }
                 _commands.DrawMesh(mesh, Matrix4x4.identity, _material, 0, 0, _properties);
             }

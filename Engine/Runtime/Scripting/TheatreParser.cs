@@ -20,6 +20,7 @@ namespace SSNoir.Scripting
                 var n = List(raw, 8, "object");
                 string id = Id(n[0]), parent = Text(n[1]);
                 var shape = Shape(Id(n[2]));
+                if (shape == TheatreShape.Focus && parent != "") Fail("focus is a root composite node");
                 if (byId.ContainsKey(id)) Fail("duplicate object: " + id);
                 if (parent != "" && (!byId.TryGetValue(parent, out var p) || (p.Shape != TheatreShape.Group && p.Shape != TheatreShape.Light)))
                     Fail("parent must be an earlier group/light: " + parent);
@@ -34,10 +35,11 @@ namespace SSNoir.Scripting
                         if (DistanceSquared(points[i], points[i - 1]) < 0.0001f) Fail("line contains zero-length segment: " + id);
                 }
                 else if (shape == TheatreShape.Polygon) { points = Points(n[3], 3); ValidateConvex(points, id); }
-                else if (shape == TheatreShape.Glow || shape == TheatreShape.Image)
+                else if (shape == TheatreShape.Glow || shape == TheatreShape.Image || shape == TheatreShape.Focus)
                 {
                     if (geometry.Count != 2) Fail("glow/image requires width and height");
                     w = Positive(geometry[0]); h = Positive(geometry[1]);
+                    if (shape == TheatreShape.Focus && (w >= h || h >= 1f)) Fail("focus radii must satisfy 0 < inner < outer < 1");
                 }
                 else if (shape == TheatreShape.Light)
                 {
@@ -55,6 +57,7 @@ namespace SSNoir.Scripting
                     var pair = List(rawProperty, 2, "property");
                     var property = Property(Id(pair[0]));
                     var value = Value(property, pair[1]);
+                    if (shape == TheatreShape.Focus && property != TheatreProperty.X && property != TheatreProperty.Y && property != TheatreProperty.Opacity) Fail("focus only supports x/y/opacity");
                     if (property == TheatreProperty.Reveal && shape != TheatreShape.Line) Fail("initial reveal only applies to lines: " + id);
                     if (initial.ContainsKey(property)) Fail("duplicate initial property: " + id);
                     initial.Add(property, value);
@@ -75,7 +78,7 @@ namespace SSNoir.Scripting
                 var commands = new List<TheatreCommand>();
                 var writes = new HashSet<string>(StringComparer.Ordinal);
                 float duration = 0f;
-                bool say = false;
+                int say = 0;
                 foreach (var raw in List(rawBeat))
                 {
                     var c = List(raw);
@@ -87,6 +90,7 @@ namespace SSNoir.Scripting
                         Count(c, 4, op);
                         string id = Id(c[1]); var property = Property(Id(c[2]));
                         if (!byId.ContainsKey(id)) Fail("unknown animation target: " + id);
+                        if (byId[id].Shape == TheatreShape.Focus && property != TheatreProperty.X && property != TheatreProperty.Y && property != TheatreProperty.Opacity) Fail("focus only supports x/y/opacity");
                         if (property == TheatreProperty.Reveal && byId[id].Shape != TheatreShape.Line)
                             Fail("reveal only applies to lines: " + id);
                         if (!writes.Add(id + "/" + property)) Fail("parallel property conflict: " + id + "/" + property);
@@ -120,21 +124,26 @@ namespace SSNoir.Scripting
                         command = new TheatreCommand { Kind = TheatreCommandKind.Image, Target = id, Asset = asset };
                     }
                     else if (op == "wait") { Count(c, 2, op); command = new TheatreCommand { Kind = TheatreCommandKind.Wait, Seconds = Positive(c[1]) }; }
-                    else if (op == "say")
+                    else if (op == "clear-caption") { Count(c, 1, op); if (!writes.Add("caption")) Fail("parallel caption conflict"); command = new TheatreCommand { Kind = TheatreCommandKind.ClearCaption }; }
+                    else if (op == "say" || op == "caption-for")
                     {
-                        Count(c, 3, op); say = true;
-                        command = new TheatreCommand { Kind = TheatreCommandKind.Say, Target = Id(c[1]), Text = Id(c[2]) };
+                        Count(c, op == "say" ? 3 : 5, op); say++;
+                        if (!writes.Add("caption")) Fail("parallel caption conflict");
+                        command = new TheatreCommand { Kind = TheatreCommandKind.Say, Target = Id(c[1]), Text = Id(c[2]),
+                            Seconds = op == "say" ? 0f : Positive(c[3]),
+                            CaptionColor = op == "say" ? new TheatreColor(.94f, .81f, .54f) : Color(Text(c[4])) };
                     }
-                    else if (op == "sound")
+                    else if (op == "sound" || op == "sound-after")
                     {
-                        Count(c, 6, op); string id = Id(c[1]); string asset = Id(c[2]); Asset(asset);
+                        Count(c, op == "sound" ? 6 : 7, op); string id = Id(c[1]); string asset = Id(c[2]); Asset(asset);
                         if (c[3] is not bool loop) throw new ArgumentException("theatre: sound loop must be boolean");
                         if (!writes.Add("sound/" + id)) Fail("parallel sound conflict: " + id);
                         if (loop && !looping.Add(id)) Fail("loop is already playing: " + id);
                         if (!loop && looping.Contains(id)) Fail("one-shot cannot replace a loop: " + id);
                         float volume = Number(c[4]), pan = Number(c[5]);
                         if (volume < 0 || volume > 1 || pan < -1 || pan > 1) Fail("sound volume/pan out of range");
-                        command = new TheatreCommand { Kind = TheatreCommandKind.Sound, Target = id, Asset = asset, Loop = loop, Volume = volume, Pan = pan };
+                        command = new TheatreCommand { Kind = TheatreCommandKind.Sound, Target = id, Asset = asset, Loop = loop, Volume = volume, Pan = pan,
+                            Delay = op == "sound" ? 0f : Positive(c[6]), Seconds = op == "sound" ? 0f : Positive(c[6]) };
                     }
                     else if (op == "stop-sound")
                     {
@@ -147,7 +156,7 @@ namespace SSNoir.Scripting
                     duration = Math.Max(duration, command.Seconds); commands.Add(command);
                 }
                 if (commands.Count == 0) Fail("empty beat");
-                if (say && commands.Count != 1) Fail("say must occupy its own beat; use timed actions before/after dialogue");
+                if (say > 1) Fail("parallel beat can only contain one caption");
                 beats.Add(new TheatreBeat { Commands = commands, Duration = duration });
             }
             if (beats.Count == 0) Fail("scene must contain beats");
@@ -160,7 +169,7 @@ namespace SSNoir.Scripting
             _ => throw new ArgumentException("theatre: unknown property " + name) };
         private static TheatreShape Shape(string name) => name switch {
             "group" => TheatreShape.Group, "line" => TheatreShape.Line, "polygon" => TheatreShape.Polygon,
-            "glow" => TheatreShape.Glow, "image" => TheatreShape.Image, "light" => TheatreShape.Light,
+            "glow" => TheatreShape.Glow, "image" => TheatreShape.Image, "light" => TheatreShape.Light, "focus" => TheatreShape.Focus,
             _ => throw new ArgumentException("theatre: unknown shape " + name) };
         private static float Value(TheatreProperty property, object raw)
         {

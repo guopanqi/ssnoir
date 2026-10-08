@@ -33,7 +33,7 @@ namespace SSNoir.EditorTools
                     var beat = scene.Beats[session.BeatIndex];
                     if (session.Objects["尼尔"][TheatreProperty.Opacity] > .99f && beat.Commands.Any(c => c.Target == "路灯" && c.Keys.Length > 2))
                     { found = true; break; }
-                    if (session.Line != null) { session.Advance(); session.Advance(); }
+                    if (session.Line != null && session.Line.Seconds == 0f) { session.Advance(); session.Advance(); }
                     else session.Tick(beat.Duration - session.BeatTime);
                     if (session.IsComplete) break;
                 }
@@ -64,7 +64,7 @@ namespace SSNoir.EditorTools
                     UnityEngine.Object.DestroyImmediate(actorDim); UnityEngine.Object.DestroyImmediate(actorBright);
                 }
                 var background = bright.GetPixel(10, 890);
-                if (background.a < .99f || background.r > .06f) throw new Exception("background alpha/color space incorrect");
+                if (background.a > .05f) throw new Exception("canvas must stay transparent where nothing is drawn");
                 var shader = Resources.Load<Shader>("Theatre/LineTheatre");
                 if (shader == null || ShaderUtil.ShaderHasError(shader)) throw new Exception("theatre shader compilation failed");
                 foreach (var size in new[] { new Vector2Int(1200, 900), new Vector2Int(2000, 900) })

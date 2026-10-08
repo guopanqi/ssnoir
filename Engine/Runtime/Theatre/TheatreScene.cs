@@ -5,9 +5,9 @@ using System.Collections.Generic;
 namespace SSNoir.Theatre
 {
     // Pure presentation data. No Unity objects, Scheme procedures or game state enter this module.
-    public enum TheatreShape { Group, Line, Polygon, Glow, Image, Light }
+    public enum TheatreShape { Group, Line, Polygon, Glow, Image, Light, Focus }
     public enum TheatreProperty { X, Y, ScaleX, ScaleY, Rotation, Opacity, Reveal, Brightness }
-    public enum TheatreCommandKind { Animate, Image, Wait, Say, Sound, StopSound }
+    public enum TheatreCommandKind { Animate, Image, Wait, Say, Sound, StopSound, ClearCaption }
     public readonly struct TheatrePoint
     {
         public readonly float X, Y;
@@ -44,8 +44,10 @@ namespace SSNoir.Theatre
         public TheatreProperty Property { get; init; }
         public TheatreKey[] Keys { get; init; } = Array.Empty<TheatreKey>();
         public bool FromCurrent { get; init; }
+        public float Delay { get; init; }
         public float Seconds { get; init; }
         public string Text { get; init; } = "";
+        public TheatreColor CaptionColor { get; init; } = new TheatreColor(0.94f, 0.81f, 0.54f);
         public string Asset { get; init; } = "";
         public bool Loop { get; init; }
         public float Volume { get; init; } = 1f;

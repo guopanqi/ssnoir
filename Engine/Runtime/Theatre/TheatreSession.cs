@@ -23,8 +23,9 @@ namespace SSNoir.Theatre
         private readonly TheatreScene _scene;
         private readonly Dictionary<string, TheatreObjectState> _objects = new(StringComparer.Ordinal);
         private readonly Dictionary<TheatreCommand, float> _starts = new();
+        private readonly HashSet<TheatreCommand> _firedSounds = new();
         private int _beat;
-        private float _elapsed;
+        private float _elapsed, _captionStarted;
         private bool _revealed, _started;
         public IReadOnlyDictionary<string, TheatreObjectState> Objects => _objects;
         public bool IsComplete { get; private set; }
@@ -33,7 +34,10 @@ namespace SSNoir.Theatre
         public float BeatTime => _elapsed;
         public int BeatIndex => _beat;
         public TheatreCommand? Line { get; private set; }
-        public int VisibleCharacters => Line == null ? 0 : _revealed ? Line.Text.Length : Math.Min(Line.Text.Length, (int)(_elapsed / 0.048f));
+        public TheatreCommand? Caption { get; private set; }
+        public bool CaptionIsRevealed => _revealed;
+        public float CaptionTime => Time - _captionStarted;
+        public int VisibleCharacters => Caption == null ? 0 : _revealed ? Caption.Text.Length : Math.Min(Caption.Text.Length, 1 + (int)(CaptionTime / 0.048f));
         public event Action<TheatreCommand>? SoundRequested;
 
         public TheatreSession(TheatreScene scene)
@@ -59,43 +63,49 @@ namespace SSNoir.Theatre
             while (!IsComplete)
             {
                 var beat = _scene.Beats[_beat];
-                float step = Line != null ? remaining : Math.Min(remaining, Math.Max(0f, beat.Duration - _elapsed));
+                bool waiting = Line != null && Line.Seconds == 0f;
+                float step = waiting ? remaining : Math.Min(remaining, Math.Max(0f, beat.Duration - _elapsed));
                 _elapsed += step; Time += step; remaining -= step;
                 ApplyAnimations();
-                if (Line != null || _elapsed < beat.Duration) break;
+                if (waiting || _elapsed < beat.Duration) break;
                 NextBeat();
                 if (remaining <= 0f && !IsComplete && _scene.Beats[_beat].Duration > 0f) break;
             }
         }
         public void Advance()
         {
-            if (IsComplete || IsPaused || Line == null) return;
+            if (IsComplete || IsPaused || Line == null || Line.Seconds > 0f) return;
             if (VisibleCharacters < Line.Text.Length) { _revealed = true; return; }
+            if (_elapsed < _scene.Beats[_beat].Duration) return;
             NextBeat();
             Tick(0f);
         }
         private void NextBeat()
         {
             _beat++;
-            if (_beat == _scene.Beats.Count) { IsComplete = true; Line = null; return; }
+            if (_beat == _scene.Beats.Count) { IsComplete = true; Line = null; Caption = null; return; }
             BeginBeat();
         }
         private void BeginBeat()
         {
-            _elapsed = 0f; _revealed = false; Line = null; _starts.Clear();
+            _elapsed = 0f; Line = null; _starts.Clear(); _firedSounds.Clear();
             foreach (var command in _scene.Beats[_beat].Commands)
             {
                 if (command.Kind == TheatreCommandKind.Animate)
                     _starts.Add(command, _objects[command.Target][command.Property]);
                 else if (command.Kind == TheatreCommandKind.Image) _objects[command.Target].Asset = command.Asset;
-                else if (command.Kind == TheatreCommandKind.Say) Line = command;
-                else if (command.Kind == TheatreCommandKind.Sound || command.Kind == TheatreCommandKind.StopSound)
-                    SoundRequested?.Invoke(command);
+                else if (command.Kind == TheatreCommandKind.Say)
+                { Line = command; Caption = command; _captionStarted = Time; _revealed = false; }
+                else if (command.Kind == TheatreCommandKind.ClearCaption) Caption = null;
+
             }
             ApplyAnimations();
         }
         private void ApplyAnimations()
         {
+            foreach (var command in _scene.Beats[_beat].Commands)
+                if ((command.Kind == TheatreCommandKind.Sound || command.Kind == TheatreCommandKind.StopSound) && _elapsed >= command.Delay && _firedSounds.Add(command))
+                    SoundRequested?.Invoke(command);
             foreach (var pair in _starts)
             {
                 var command = pair.Key;

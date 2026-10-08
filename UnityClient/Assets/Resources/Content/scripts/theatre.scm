@@ -59,3 +59,15 @@
       (cdr (theatre-cubic (list x (+ y ry)) (list (- x kx) (+ y ry)) (list (- x rx) (+ y ky)) (list (- x rx) y) 12))
       (cdr (theatre-cubic (list (- x rx) y) (list (- x rx) (- y ky)) (list (- x kx) (- y ry)) (list x (- y ry)) 12))
       (cdr (theatre-cubic (list x (- y ry)) (list (+ x kx) (- y ry)) (list (+ x rx) (- y ky)) (list (+ x rx) y) 12)))))
+
+;; 焦点是图层合成节点：画在需要变暗/模糊的背景之后，清晰人物之前。
+(define (theatre-focus id x y inner outer)
+  (theatre-object id "" 'focus (list inner outer) "#020409" "" ""
+    (list (list 'x x) (list 'y y))))
+;; 定时字幕用于忠实移植自动播放原型；普通 say 仍然等待玩家。
+(define (theatre-caption-for speaker text seconds color)
+  (list (list 'caption-for speaker text seconds color)))
+(define (theatre-clear-caption) (list (list 'clear-caption)))
+
+(define (theatre-sound-after id asset loop volume pan seconds)
+  (list (list 'sound-after id asset loop volume pan seconds)))
