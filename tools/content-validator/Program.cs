@@ -56,6 +56,12 @@ namespace SSNoir
                     return;
                 }
 
+                if (args.Length == 3 && args[0] == "--theatre-export")
+                {
+                    TheatreExporter.Run(args[1], args[2]);
+                    return;
+                }
+
                 if (args.Length == 3 && args[0] == "--stage-export")
                 {
                     SSNoir.StagePreview.StageExporter.Run(args[1], args[2]);
@@ -84,7 +90,7 @@ namespace SSNoir
                     "用法：./run --validate | --test-saveload | --test-odds | --test-round-transition | --test-theatre | " +
                     "--playtest <入场表达式或场景名> [选项] | --session <world|场景名|入场表达式> [选项] " +
                     "| --session-baseline <交锋入口> --output <记录.json> | --session-report <记录.json> [...] | --replay <记录.json> " +
-                    "| --stage-export <Scheme 表达式> <输出.json>");
+                    "| --theatre-export <Scheme 表达式> <输出.json> | --stage-export <Scheme 表达式> <输出.json>");
                 Environment.Exit(2);
             }
             catch (Exception ex)

@@ -122,7 +122,9 @@ the same project"。先 `pgrep -lf "Unity.app/Contents/MacOS/Unity"` 看一眼�
 ## 线绘舞台
 
 新增图形、属性动画或音频生命周期时，执行 `dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-theatre`。
-它实际加载并执行路灯样板，检查解析和时间语义；Unity 侧仍需客户端编译结果。
+它实际加载并执行路灯与雨夜来访样板，检查解析和时间语义；Unity 侧仍需客户端编译结果。
+调整线绘演出的构图和节奏时，用 [Unity 舞台预览工具](theatre/README.md) 导出并审阅完整 GIF、对白索引及可疑时刻原图。
+这是独立工程中的真实 GPU 绘制，不要求关闭主工程；不替代字幕 UI、实际声音和玩家点击验收。
 离屏 GPU 检查、范围与限制见 [线绘舞台](../docs/线绘舞台.md#试演与验证)。
 
 ## GameTester
