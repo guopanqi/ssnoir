@@ -1,0 +1,19 @@
+{
+  "task_id": "3f590bb5-2e95-480e-9af6-b93c7f327060",
+  "status": "success",
+  "source": null,
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "prompt": "ONE full-body Nightingale, adult 30-year-old jazz singer in 1930s American noir. LEFT-facing three-quarter standing, one hand at collarbone, other arm hanging, slender long neck, S-shaped silhouette, shoulder-length voluminous curls and prominent S forehead wave, sleeveless long evening gown, low heels. Entire body and feet inside frame. FLAT hand-drawn monochrome pen-and-ink sprite, opaque filled figure, bold black masses, off-white skin, no painterly gradients or 3D volume. Mature guarded face, long nose, restrained tired eyes. Background ONLY vivid solid chroma green #00ee00; no green in body. No scenery, shadow, text, props, hat, coat, neon, photograph, watercolor, gouache, anime. Borrow Signet City monochrome ink-drawing methods, retain ORIGINAL Nightingale identity and historical setting. Thick imperfect brush-pen contours and large solid black shadow shapes. Flat ivory face and arms, black dress with only two ivory fold strokes. Hair is ONE black mass with three broad white curling cuts. Extremely economical graphic drawing, no hatching, no dots, no tonal modelling."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/signet-styles/29-signet-ink/3f590bb5-2e95-480e-9af6-b93c7f327060/image.png",
+    "bytes": 964553,
+    "sha256": "c67013cb77b2ad4f08fc5c34f449bfda9b0d9cedbe3ca1f7c1ee317e2501f029"
+  }
+}
