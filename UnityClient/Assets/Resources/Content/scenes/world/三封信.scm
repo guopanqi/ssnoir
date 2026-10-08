@@ -420,7 +420,7 @@
       (anchored-instant-action "有人敲门" "门口"
         (lambda ()
           ;; 楼下电铃求助先演，开门后再进入现有室内接案对白。
-          (rainy-door-dialogue!)
+          (rainy-door-theatre!)
           (commission-dialogue!)
           (add-item! "金钱" prepayment)
           (set! delivery-day (+ world-day letter-deadline))
@@ -1123,36 +1123,10 @@
     ;; 桥廊调查完成时已经叫出了名字。夜莺的身世不在同一拍倾倒，
     ;; 等玩家离开老街、结束这一天后再用一段短对白收束。
     ;; 这样无论先查到名字还是先收到第二封信，身份揭晓都只发生一次。
-    ;; 雨夜楼下：尼尔只有电铃中的声音；无字动作只用于进场、等待和入门。
-    (define (rainy-door-dialogue!)
-      (play-stage!
-        (stage-parallel
-          (stage-prop "入户电铃" "公寓电铃" 5 2 'back)
-          (stage-spawn "夜莺" "夜莺" -14 'middle)
-          (stage-sound "雨夜求助/雨" 0))
-        (stage-pose "夜莺" "抱臂")
-        (stage-move "夜莺" 0 0 0.7)
-        ;; 按键由电铃声表达，不新增只用于按铃的一张姿势图。
-        (stage-parallel
-          (stage-sound "雨夜求助/电铃" 5)
-          (stage-pause 0.8))
-        (stage-remote-say "尼尔" (tr "是，哪位？" "Yes? Who is it?"))
-        (stage-say "夜莺" (tr "尼尔先生？" "Mr. Morse?"))
-        (stage-say "夜莺" (tr "朋友介绍我来的。我遇到些麻烦，想请你帮忙。" "A friend told me about you. I'm in trouble. I need your help."))
-        (stage-remote-say "尼尔" (tr "现在很晚了，而且……" "It's late, and…"))
-        (stage-say "夜莺" (tr "只耽误几分钟。事情有些急，我怕明天就晚了。" "Just a few minutes. It's urgent. Tomorrow might be too late."))
-        (stage-pause 1.0)
-        (stage-pose "夜莺" "低头")
-        (stage-say "夜莺" (tr "可以吗？" "Please?"))
-        (stage-parallel
-          (stage-sound "雨夜求助/门锁" 5)
-          (stage-pause 0.4))
-        (stage-remote-say "尼尔" (tr "进来吧。" "Come in."))
-        (stage-pose "夜莺" "仰头")
-        (stage-say "夜莺" (tr "谢谢。" "Thank you."))
-        (stage-move "夜莺" 14 0 0.8)
-        (stage-remove "夜莺")
-        (stage-remove "入户电铃")))
+    ;; 正式开场和调试试演共用同一场线绘剧场；室内委托仍由下一步对白接续。
+    (define (rainy-door-theatre!)
+      (load-file "scripts/theatre/雨夜来访.scm")
+      (雨夜来访-演出))
 
     ;; 开场委托（Debug 可单独试演）
     ;; 舞台：他靠墙想着穷日子（心里话）；她进来抱着自己、灯弱，一直保持到他伸手接下这桩事；
@@ -2687,7 +2661,7 @@
           ((equal? msg 'debug-enable-second-letter!) (set-flag! '第二封信))
           ((equal? msg 'debug-stage-bridge!) (bridge-aftermath-dialogue!))
           ((equal? msg 'debug-stage-resident-arrival!) (first-resident-dialogue!))
-          ((equal? msg 'debug-stage-rainy-door!) (rainy-door-dialogue!))
+          ((equal? msg 'debug-theatre-rainy-door!) (rainy-door-theatre!))
           ((equal? msg 'debug-stage-commission!) (commission-dialogue!))
           ((equal? msg 'debug-stage-refusal!) (refusal-dialogue!))
           ((equal? msg 'debug-stage-closing!) (closing-dialogue!))
