@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace SSNoir.Theatre
 {
     // Pure presentation data. No Unity objects, Scheme procedures or game state enter this module.
-    public enum TheatreShape { Group, Line, Polygon, Glow, Image, Light, Focus, Spotlight }
+    public enum TheatreShape { Group, Line, Polygon, Glow, Image, Light, Focus }
     public enum TheatreProperty { X, Y, ScaleX, ScaleY, Rotation, Opacity, Reveal, Brightness }
     public enum TheatreCommandKind { Animate, Image, Wait, Say, Sound, StopSound, ClearCaption, SoundVolume, Sequence, Parallel, During, Repeat }
     public readonly struct TheatrePoint

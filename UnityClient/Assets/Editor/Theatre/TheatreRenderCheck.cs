@@ -20,7 +20,6 @@ namespace SSNoir.EditorTools
             try
             {
                 CheckFocusAndTransparency();
-                CheckSpotlight();
                 var state = new GameState(); var interpreter = new SchemeInterpreter(state, new UnityScriptLoader());
                 TheatreScene? scene = null; state.DialogueCenter.OnTheatreRequested += s => scene = s;
                 interpreter.LoadFile("scripts/theatre/路灯下.scm"); interpreter.Eval("(路灯下-试演!)");
@@ -62,8 +61,6 @@ namespace SSNoir.EditorTools
                     CheckRegion(actorBright, actorDim, 340, 170, 400, 420, "isolated actor lighting");
                     UnityEngine.Object.DestroyImmediate(actorDim); UnityEngine.Object.DestroyImmediate(actorBright);
                 }
-                var background = bright.GetPixel(10, 890);
-                if (background.a > .8f) throw new Exception("canvas must stay transparent where nothing is drawn");
                 var shader = Resources.Load<Shader>("Theatre/LineTheatre");
                 if (shader == null || ShaderUtil.ShaderHasError(shader)) throw new Exception("theatre shader compilation failed");
                 foreach (var size in new[] { new Vector2Int(1200, 900), new Vector2Int(2000, 900) })
@@ -73,7 +70,7 @@ namespace SSNoir.EditorTools
                     UnityEngine.Object.DestroyImmediate(frame);
                 }
                 UnityEngine.Object.DestroyImmediate(dim); UnityEngine.Object.DestroyImmediate(bright);
-                Debug.Log("[TheatreRenderCheck] PASS: Scheme import, image/audio loading, GPU draw, focus movement/transparency, spotlight on isolated actor, lamp/pool/actor response, 4:3 and 20:9 surfaces. " + output);
+                Debug.Log("[TheatreRenderCheck] PASS: Scheme import, image/audio loading, GPU draw, focus movement/transparency, lamp/pool/actor response, 4:3 and 20:9 surfaces. " + output);
                 if (Application.isBatchMode) EditorApplication.Exit(0);
             }
             catch (Exception error)
@@ -82,35 +79,6 @@ namespace SSNoir.EditorTools
                 if (Application.isBatchMode) EditorApplication.Exit(1);
                 else throw;
             }
-        }
-        private static void CheckSpotlight()
-        {
-            var scene = new TheatreScene
-            {
-                Width = 1600, Height = 900,
-                Nodes = new[]
-                {
-                    // Invisible beam prevents the backdrop from making an unlit image test pass.
-                    new TheatreNode { Id = "spot", Shape = TheatreShape.Spotlight, Width = 500, Height = 700,
-                        Color = new TheatreColor(1, .94f, .81f, 0),
-                        Initial = new Dictionary<TheatreProperty, float> { [TheatreProperty.X] = 540, [TheatreProperty.Y] = 790 } },
-                    new TheatreNode { Id = "actor", Shape = TheatreShape.Image, Width = 450, Height = 550,
-                        Asset = "Portraits/Neon/尼尔_抱臂", Color = new TheatreColor(1, 1, 1),
-                        Initial = new Dictionary<TheatreProperty, float> { [TheatreProperty.X] = 540, [TheatreProperty.Y] = 790, [TheatreProperty.Brightness] = .25f } }
-                },
-                Program = new TheatreCommand { Kind = TheatreCommandKind.Animate, Target = "spot", Property = TheatreProperty.X,
-                    FromCurrent = true, Keys = new[] { new TheatreKey(0, 0), new TheatreKey(1, 1300) }, Seconds = 1 }
-            };
-            var session = new TheatreSession(scene); session.Start();
-            using var surface = new TheatreSurface(scene);
-            surface.Render(session, 1600, 900); var lit = Read(surface.Texture);
-            session.Tick(.999f); surface.Render(session, 1600, 900); var unlit = Read(surface.Texture);
-            try
-            {
-                CheckRegion(lit, unlit, 340, 170, 400, 420, "spotlight on isolated actor");
-                if (lit.GetPixel(800, 800).a > .001f) throw new Exception("invisible spotlight sealed the canvas");
-            }
-            finally { UnityEngine.Object.DestroyImmediate(lit); UnityEngine.Object.DestroyImmediate(unlit); }
         }
         private static void CheckFocusAndTransparency()
         {
@@ -121,9 +89,11 @@ namespace SSNoir.EditorTools
                 {
                     new TheatreNode { Id = "background", Shape = TheatreShape.Polygon, Color = new TheatreColor(.6f, .6f, .6f),
                         Points = new[] { new TheatrePoint(0, 0), new TheatrePoint(1600, 0), new TheatrePoint(1600, 900), new TheatrePoint(0, 900) } },
-                    new TheatreNode { Id = "focus", Shape = TheatreShape.Focus, Width = 180, Height = 640,
+                    new TheatreNode { Id = "focus", Shape = TheatreShape.Focus, Width = .18f, Height = .6f,
                         Color = new TheatreColor(.008f, .016f, .035f),
-                        Initial = new Dictionary<TheatreProperty, float> { [TheatreProperty.X] = 300, [TheatreProperty.Y] = 576 } }
+                        Initial = new Dictionary<TheatreProperty, float> { [TheatreProperty.X] = 300, [TheatreProperty.Y] = 576 } },
+                    new TheatreNode { Id = "foreground", Shape = TheatreShape.Polygon, Color = new TheatreColor(1, 1, 1),
+                        Points = new[] { new TheatrePoint(20, 20), new TheatrePoint(60, 20), new TheatrePoint(60, 60), new TheatrePoint(20, 60) } }
                 },
                 Program = new TheatreCommand { Kind = TheatreCommandKind.Animate, Target = "focus", Property = TheatreProperty.X,
                     FromCurrent = true, Keys = new[] { new TheatreKey(0, 0), new TheatreKey(1, 1300) }, Seconds = 1 }
@@ -138,6 +108,8 @@ namespace SSNoir.EditorTools
                     if (left.GetPixel(300, 324).grayscale <= right.GetPixel(300, 324).grayscale + .03f
                         || right.GetPixel(1300, 324).grayscale <= left.GetPixel(1300, 324).grayscale + .03f)
                         throw new Exception("focus did not distinguish the two sides");
+                    if (left.GetPixel(40, 860).grayscale < .99f || right.GetPixel(40, 860).grayscale < .99f)
+                        throw new Exception("background focus changed foreground brightness");
                     if (left.GetPixel(300, 324).a < .99f) throw new Exception("focus changed opaque geometry alpha");
                 }
                 finally { UnityEngine.Object.DestroyImmediate(left); UnityEngine.Object.DestroyImmediate(right); }

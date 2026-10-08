@@ -39,6 +39,7 @@ namespace SSNoir.UnityTheatre
                         _clips.Add(command.Asset, Resources.Load<AudioClip>(command.Asset) ?? throw new InvalidOperationException("theatre sound missing: " + command.Asset));
                 if (scene.Width <= 0f || scene.Height <= 0f) throw new InvalidOperationException("theatre scene has no size");
                 _background = new Color(scene.Background.R, scene.Background.G, scene.Background.B, scene.Background.A);
+                if (QualitySettings.activeColorSpace == ColorSpace.Linear) _background = _background.linear;
                 _surface = new TheatreSurface(scene);
                 _audio = new GameObject("Line Theatre Audio"); _audio.transform.SetParent(_owner, false);
                 var settings = TheatreSettings.Active();

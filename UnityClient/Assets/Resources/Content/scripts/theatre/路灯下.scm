@@ -1,8 +1,8 @@
-;; 独立线绘舞台样板：移植 experiments/立绘剧场 · 线绘世界 · Claude Sonnet 5.5.html 的路灯片段。
+;; 独立线绘舞台样板：移植 experiments/portrait-theatre-story-claude-sonnet-5-5.html 的路灯片段。
 ;; 布景、表演和本场组合函数各有边界；不读写剧情状态，不替换正式剧情。
 (define (路灯下-布景)
   ;; 地面高度是全场唯一的纵向基准：地面线、路沿、路面刻线、灯杆灯座底部、
-  ;; 人物脚底、光池中心全部由此派生；聚光灯与脚边光池使用同一地面基准。
+  ;; 人物脚底、光池中心全部由此派生；焦点 Y 保持原型的 64% 高度不动。
   (define 地面 790)
   (define (描线 id color width points)
     (theatre-with (theatre-line id "线框" color width points) 'reveal 0))
@@ -34,10 +34,9 @@
         (theatre-line "光池内圈" "路灯" "#D9B86A44" 1.5 (theatre-ellipse-points 0 240 165 15))
         (theatre-with (theatre-glow "灯泡光晕" "路灯" "#F3D08A" 0 -284 92 92) 'opacity .4)
         (theatre-glow "灯芯" "路灯" "#FFE6A8" 0 -286 30 30)
+        (theatre-focus "焦点" 800 576 .34 .62)
+        (theatre-with (theatre-glow "说话柔光" "" "#9DB0E0" 800 560 440 560) 'opacity 0)
         (theatre-with (theatre-glow "路灯柔光" "路灯" "#F3D08A" 0 10 660 924) 'opacity .22)
-        (theatre-with (theatre-group "聚光位置" "" 800 地面) 'opacity 0)
-        (theatre-glow "聚光脚边" "聚光位置" "#FFF1CF70" 0 0 340 54)
-        (theatre-with (theatre-spotlight "聚光" "#FFF1CF" 800 地面 340 640) 'opacity 0)
         (theatre-with (theatre-image "尼尔" "" "Portraits/Neon/尼尔_抱臂" -140 地面 252 308 "路灯") 'opacity 0)
         (theatre-with
           (theatre-with (theatre-image "夜莺" "" "Portraits/Neon/夜莺_低头" 1740 地面 252 308 "路灯") 'scale-x -1)
@@ -56,10 +55,9 @@
     (theatre-caption-for who text seconds
       (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
     (theatre-parallel
-      (theatre-tween "聚光" 'x x .6 'smooth)
-      (theatre-tween "聚光位置" 'x x .6 'smooth)
-      (theatre-tween "聚光" 'opacity 1 .35 'smooth)
-      (theatre-tween "聚光位置" 'opacity 1 .35 'smooth))))
+      (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)
+      (theatre-tween "说话柔光" 'x x 1.2 'smooth)
+      (theatre-tween "说话柔光" 'opacity .13 1.2 'smooth))))
 (define (路灯下-闪烁)
   (theatre-parallel
     (theatre-animate "路灯" 'brightness
@@ -152,5 +150,5 @@
     (theatre-parallel
       (theatre-tween "路灯" 'brightness .6 .2)
       (theatre-tween "布景" 'opacity 0 .9)
-      (theatre-tween "聚光" 'opacity 0 .9)
-      (theatre-tween "聚光位置" 'opacity 0 .9))))
+      (theatre-tween "焦点" 'opacity 0 .9)
+      (theatre-tween "说话柔光" 'opacity 0 .9))))

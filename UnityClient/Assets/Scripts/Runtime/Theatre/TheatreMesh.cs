@@ -33,12 +33,12 @@ namespace SSNoir.UnityTheatre
                 foreach (var point in node.Points) { vertices.Add(P(point)); uv.Add(Vector2.zero); }
                 for (int i = 1; i < vertices.Count - 1; i++) { triangles.Add(0); triangles.Add(i); triangles.Add(i + 1); }
             }
-            else if (node.Shape == TheatreShape.Glow || node.Shape == TheatreShape.Image || node.Shape == TheatreShape.Focus || node.Shape == TheatreShape.Spotlight)
+            else if (node.Shape == TheatreShape.Glow || node.Shape == TheatreShape.Image || node.Shape == TheatreShape.Focus)
             {
                 float width = node.Shape == TheatreShape.Focus ? 2f : node.Width;
                 float height = node.Shape == TheatreShape.Focus ? 2f : node.Height;
-                float top = (node.Shape == TheatreShape.Image || node.Shape == TheatreShape.Spotlight) ? -height : -height * 0.5f;
-                float bottom = (node.Shape == TheatreShape.Image || node.Shape == TheatreShape.Spotlight) ? 0 : height * 0.5f;
+                float top = node.Shape == TheatreShape.Image ? -height : -height * 0.5f;
+                float bottom = node.Shape == TheatreShape.Image ? 0 : height * 0.5f;
                 vertices.Add(new Vector3(-width * 0.5f, top)); vertices.Add(new Vector3(width * 0.5f, top));
                 vertices.Add(new Vector3(width * 0.5f, bottom)); vertices.Add(new Vector3(-width * 0.5f, bottom));
                 uv.Add(new Vector2(0, 1)); uv.Add(new Vector2(1, 1)); uv.Add(new Vector2(1, 0)); uv.Add(new Vector2(0, 0));

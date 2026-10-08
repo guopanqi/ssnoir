@@ -67,7 +67,8 @@
       (cdr (theatre-cubic (list (- x rx) y) (list (- x rx) (- y ky)) (list (- x kx) (- y ry)) (list x (- y ry)) 12))
       (cdr (theatre-cubic (list x (- y ry)) (list (+ x kx) (- y ry)) (list (+ x rx) (- y ky)) (list (+ x rx) y) 12)))))
 
-;; 焦点是柔和渐暗层：画在人物之后、字幕之前。半径使用舞台坐标，不依赖屏幕角落。
+;; 焦点只合成此前绘制的背景：外围轻微虚化并渐暗，后续人物保持清楚。
+;; 半径是到最远场景角的距离比例，与 CSS circle farthest-corner 一致。
 (define (theatre-focus id x y inner outer)
   (theatre-object id "" 'focus (list inner outer) "#020409" "" ""
     (list (list 'x x) (list 'y y))))
@@ -78,9 +79,3 @@
 
 (define (theatre-sound-after id asset loop volume pan seconds)
   (theatre-sequence (theatre-wait seconds) (theatre-sound id asset loop volume pan)))
-
-;; 聚光灯：脚底中心 x/y，脚边光束宽度 width，上方灯源到脚底的高度 height。
-;; 通用灯照亮场内图片；光束自身柔和可见，地面光池由作者另用 glow 组合。
-(define (theatre-spotlight id color x y width height)
-  (theatre-object id "" 'spotlight (list width height) color "" ""
-    (list (list 'x x) (list 'y y))))

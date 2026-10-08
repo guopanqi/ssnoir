@@ -18,9 +18,8 @@ namespace SSNoir.UnityTheatre
         private readonly Material _material;
         private readonly CommandBuffer _commands = new() { name = "Line Theatre" };
         private readonly MaterialPropertyBlock _properties = new();
-        private RenderTexture? _target, _display;
+        private RenderTexture? _target, _focusTarget, _display;
         private bool _disposed;
-        private readonly Vector4[] _spots = new Vector4[8], _spotColors = new Vector4[8];
         public RenderTexture Texture => _display ?? throw new InvalidOperationException("surface has not rendered");
         public TheatreSurface(TheatreScene scene)
         {
@@ -45,7 +44,7 @@ namespace SSNoir.UnityTheatre
             if (!_images.ContainsKey(asset))
                 _images.Add(asset, Resources.Load<Texture2D>(asset) ?? throw new InvalidOperationException("theatre image missing: " + asset));
         }
-        public void Render(TheatreSession session, int width, int height, float contentScale = 1f, float focusStrength = .45f, float dither = 1.5f / 255f)
+        public void Render(TheatreSession session, int width, int height, float contentScale = 1f, float focusStrength = .5f, float dither = 1.5f / 255f)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(TheatreSurface));
             width = Math.Max(1, width); height = Math.Max(1, height);
@@ -53,8 +52,11 @@ namespace SSNoir.UnityTheatre
             {
                 if (_target != null) { _target.Release(); Release(_target); }
                 if (_display != null) { _display.Release(); Release(_display); }
+                if (_focusTarget != null) { _focusTarget.Release(); Release(_focusTarget); }
                 _target = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear) { name = "Line Theatre", filterMode = FilterMode.Bilinear };
                 _target.Create();
+                _focusTarget = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear) { name = "Line Theatre Focus", filterMode = FilterMode.Bilinear };
+                _focusTarget.Create();
                 _display = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32) { name = "Line Theatre Display", filterMode = FilterMode.Bilinear };
                 _display.Create();
             }
@@ -68,16 +70,6 @@ namespace SSNoir.UnityTheatre
                 _matrices[node.Id] = root ? local : _matrices[node.Parent] * local;
                 _opacity[node.Id] = state[TheatreProperty.Opacity] * (root ? 1f : _opacity[node.Parent]);
                 _brightness[node.Id] = state[TheatreProperty.Brightness] * (root ? 1f : _brightness[node.Parent]);
-            }
-            int spotCount = 0;
-            foreach (var node in _scene.Nodes)
-            {
-                if (node.Shape != TheatreShape.Spotlight) continue;
-                if (spotCount == _spots.Length) throw new InvalidOperationException("theatre supports at most 8 spotlights");
-                var center = _matrices[node.Id].MultiplyPoint3x4(Vector3.zero);
-                _spots[spotCount] = new Vector4(center.x, center.y, node.Width, node.Height);
-                _spotColors[spotCount] = new Vector4(node.Color.R, node.Color.G, node.Color.B, _brightness[node.Id] * _opacity[node.Id]);
-                spotCount++;
             }
             float viewHeight = _scene.Height / Math.Max(0.01f, contentScale);
             float viewWidth = viewHeight * width / height;
@@ -98,14 +90,10 @@ namespace SSNoir.UnityTheatre
                 _properties.SetMatrix("_SceneToClip", projection);
                 float brightness = _brightness[node.Id];
                 var tint = ColorOf(node.Color); tint.a *= _opacity[node.Id];
-                if (node.Shape == TheatreShape.Glow || node.Shape == TheatreShape.Spotlight || (node.Shape == TheatreShape.Polygon && node.Color.A < 1f)) tint.a *= Mathf.Clamp01(brightness);
+                if (node.Shape == TheatreShape.Glow || (node.Shape == TheatreShape.Polygon && node.Color.A < 1f)) tint.a *= Mathf.Clamp01(brightness);
                 tint.r *= brightness; tint.g *= brightness; tint.b *= brightness;
                 _properties.SetColor("_Tint", tint);
-                _properties.SetFloat("_Mode", node.Shape == TheatreShape.Spotlight ? 5 : node.Shape == TheatreShape.Focus ? 4 : node.Shape == TheatreShape.Line ? 0 : node.Shape == TheatreShape.Polygon ? 1 : node.Shape == TheatreShape.Glow ? 2 : 3);
-                _properties.SetFloat("_Dither", dither);
-                _properties.SetInt("_SpotCount", spotCount);
-                _properties.SetVectorArray("_Spots", _spots);
-                _properties.SetVectorArray("_SpotColors", _spotColors);
+                _properties.SetFloat("_Mode", node.Shape == TheatreShape.Focus ? 4 : node.Shape == TheatreShape.Line ? 0 : node.Shape == TheatreShape.Polygon ? 1 : node.Shape == TheatreShape.Glow ? 2 : 3);
                 _properties.SetFloat("_Reveal", session.Objects[node.Id][TheatreProperty.Reveal]);
                 _properties.SetFloat("_Lit", node.Light.Length == 0 ? 0 : 1);
                 if (node.Shape == TheatreShape.Image) _properties.SetTexture("_MainTex", _images[session.Objects[node.Id].Asset]);
@@ -120,12 +108,17 @@ namespace SSNoir.UnityTheatre
                 }
                 if (node.Shape == TheatreShape.Focus)
                 {
-                    // The focus is a transparent lighting veil, not a copy of the preceding framebuffer.
-                    _properties.SetMatrix("_SceneTransform", Matrix4x4.TRS(new Vector3(left + viewWidth / 2f, top + viewHeight / 2f, 0), Quaternion.identity, new Vector3(viewWidth / 2f, viewHeight / 2f, 1)));
+                    // Composite only the preceding backdrop, then resume drawing the sharp foreground.
                     var center = _matrices[node.Id].MultiplyPoint3x4(Vector3.zero);
-                    _properties.SetVector("_Focus", new Vector4(center.x, center.y, focusStrength, _opacity[node.Id]));
-                    _properties.SetVector("_FocusRadii", new Vector4(node.Width, node.Height, 0, 0));
-                    _commands.DrawMesh(mesh, Matrix4x4.identity, _material, 0, 0, _properties);
+                    float radius = Mathf.Sqrt(Mathf.Pow(Mathf.Max(center.x, _scene.Width - center.x), 2)
+                        + Mathf.Pow(Mathf.Max(center.y, _scene.Height - center.y), 2));
+                    _commands.SetGlobalVector("_TheatreFocus", new Vector4(center.x, center.y, focusStrength / .5f, _opacity[node.Id]));
+                    _commands.SetGlobalVector("_TheatreFocusRadii", new Vector4(node.Width * radius, node.Height * radius, .94f * radius, radius));
+                    _commands.SetGlobalVector("_TheatreFocusView", new Vector4(left, top, viewWidth, viewHeight));
+                    _commands.SetGlobalFloat("_TheatreFocusDither", dither);
+                    _commands.Blit(_target, _focusTarget, _material, 2);
+                    _commands.Blit(_focusTarget, _target);
+                    _commands.SetRenderTarget(_target);
                     continue;
                 }
                 _commands.DrawMesh(mesh, Matrix4x4.identity, _material, 0, 0, _properties);
@@ -143,6 +136,7 @@ namespace SSNoir.UnityTheatre
             Release(_material);
             if (_target != null) { _target.Release(); Release(_target); _target = null; }
             if (_display != null) { _display.Release(); Release(_display); _display = null; }
+            if (_focusTarget != null) { _focusTarget.Release(); Release(_focusTarget); _focusTarget = null; }
         }
         private static void Release(UnityEngine.Object asset)
         {

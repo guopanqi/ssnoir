@@ -10,8 +10,8 @@ namespace SSNoir.UnityTheatre
     {
         [Range(0.5f, 1.5f), Tooltip("内容缩放：1 当前大小，调小内容缩小（画布始终全屏，没有框）")]
         public float ContentScale = 1f;
-        [Range(0f, .8f), Tooltip("焦点外围渐暗强度：保持环境可见，不影响字幕")]
-        public float FocusStrength = .45f;
+        [Range(0f, .8f), Tooltip("背景焦点渐暗强度：0.5 对应 Claude 原型；人物与字幕不受影响")]
+        public float FocusStrength = .5f;
         [Range(0f, 1f), Tooltip("画布压暗：1 纯黑画布，调小透出后面的城市（舞台空白处本身透明）")]
         public float DimStrength = 1f;
         [Range(0f, 1f), Tooltip("四角暗角强度")]

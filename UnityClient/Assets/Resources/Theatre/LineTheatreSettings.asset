@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: LineTheatreSettings
   m_EditorClassIdentifier: 
   ContentScale: 1
-  FocusStrength: 0.45
+  FocusStrength: 0.5
   DimStrength: 1
-  Vignette: 0.25
+  Vignette: 1
   Dither: 1.5
   EnterSeconds: 0.6
   ExitSeconds: 0.5
