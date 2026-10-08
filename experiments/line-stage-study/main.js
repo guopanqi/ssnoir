@@ -1,6 +1,6 @@
 import {scenery} from './scenery.js';
 import {story,performanceAt,starts} from './story.js';
-import {castStyles,sprite} from './cast.js?v=signet-2';
+import {castStyles,sprite} from './cast.js?v=original-cast-1';
 import {StoryPlayer} from './player.js';
 import {StageSound} from './sound.js';
 import {defaultInk,flatTreatments,mountInkEditor,applyInk} from './editor.js?v=flat-study-1';
@@ -19,10 +19,10 @@ function syncStage(stage,bg=state.bg,style=state.style,preset=false){
  if(stage.dataset.scenery!==key){const prefix=stage.dataset.svgPrefix??`s${++svgSequence}`;stage.dataset.svgPrefix=prefix;stage.dataset.scenery=key;stage.querySelector('.set').innerHTML=scenery(state.scene).replace(/id="([^"]+)"/g,(_,id)=>`id="${prefix}-${id}"`).replace(/url\(#([^)]*)\)/g,(_,id)=>`url(#${prefix}-${id})`)}
  stage.querySelector('.scene-label').textContent=(state.scene==='warehouse'?'码头 · 仓库檐下':'老街之外 · 路灯下')+' / '+cue.label;
  for(const actor of ['neil','night']){
-  const el=stage.querySelector('.'+actor),pose=state.acting==='neutral'?'neutral':acting[actor+'Pose'],url=sprite(actor==='neil'?'curlCoat':style,actor,pose);
+  const el=stage.querySelector('.'+actor),pose=state.acting==='neutral'?'neutral':acting[actor+'Pose'],url=sprite(actor==='neil'&&!castStyles.find(s=>s.id===style).both?'curlCoat':style,actor,pose);
   if(!el.querySelector('img').getAttribute('src')||el.querySelector('img').getAttribute('src')!==url)el.querySelector('img').src=url;
   const x=acting[actor+'X'];el.style.left=`${x-8.5}%`;el.style.setProperty('--move-ms',`${acting.moveMs/state.speed}ms`);el.style.setProperty('--actor-url',`url("${url}")`);
-  const flip=actor==='night'?((style==='original')!==(acting.nightFacing==='right')):false;
+  const flip=actor==='night'?((style==='original'||style==='originalNeon')!==(acting.nightFacing==='right')):false;
   el.style.setProperty('--flip',flip?-1:1);
   stage.querySelector('.'+actor+'-shadow').style.transform=`translate(${x*16}px,0)`;
   el.dataset.speaking=String(cue.speaker===(actor==='neil'?'尼尔':'夜莺'));
@@ -35,12 +35,12 @@ function render(){
  for(const key of ['scene','bg','person','style','acting'])document.querySelectorAll(`button[data-${key}]`).forEach(button=>button.setAttribute('aria-pressed',String(button.dataset[key]===state[key])));
  for(const key of ['blur','opacity','lines']){$('#'+key).value=state[key];$('#'+key+'-value').textContent=state[key]+(key==='blur'?'':'%')}
  $('#blur').disabled=$('#opacity').disabled=state.bg==='absent';
- $('#note').textContent='尼尔固定为 C1，仅替换夜莺。'+castStyles.find(s=>s.id===state.style).note;
+ $('#note').textContent=(castStyles.find(s=>s.id===state.style).both?'两人同时使用原版。':'尼尔固定为 C1，仅替换夜莺。')+castStyles.find(s=>s.id===state.style).note;
  $('#cast-compare').setAttribute('aria-pressed',String(state.comparison==='cast'));$('#bg-compare').setAttribute('aria-pressed',String(state.comparison==='bg'));
  $('#flat-compare').setAttribute('aria-pressed',String(state.comparison==='flat'));
  $('#comparison').hidden=!state.comparison;
  if(state.comparison){
-  $('#comparison-note').textContent=state.comparison==='flat'?'上排 N2，下排 C1；每排依次为原图、限色与三档色阶、加细描边。仅处理夜莺，尼尔、布景和拍点相同；固定预设不随主画面编辑器变化。':state.comparison==='cast'?'尼尔固定 C1，夜莺同一姿势、同一拍点比较。新画稿保持夜莺礼服身份与基本站姿，C1 保留外套基线。原画栏不加额外线，C1 描线栏使用固定推荐值；编辑器调整主画面。':'人物和布景完全一致，远景使用三个固定预设。';
+  $('#comparison-note').textContent=state.comparison==='flat'?'上排 N2，下排 C1；每排依次为原图、限色与三档色阶、加细描边。仅处理夜莺，尼尔、布景和拍点相同；固定预设不随主画面编辑器变化。':state.comparison==='cast'?'原版两栏同时替换两人；其余栏尼尔固定 C1。所有栏同一拍点比较。新画稿保持夜莺礼服身份与基本站姿，C1 保留外套基线。原画栏不加额外线，C1 描线栏使用固定推荐值；编辑器调整主画面。':'人物和布景完全一致，远景使用三个固定预设。';
   const grid=$('#comparison-grid');
   if(grid.dataset.mode!==state.comparison){grid.replaceChildren();grid.dataset.mode=state.comparison;const options=state.comparison==='flat'?flatOptions:state.comparison==='cast'?[...castStyles.map(s=>({id:s.id,title:s.name})),{id:'curlCoatEdge',title:'C1 · 后处理对照'}]:Object.entries(modes).map(([id,m])=>({id,title:m.title}));for(const option of options){const card=document.createElement('article');card.dataset.option=option.id;const title=document.createElement('h3');title.textContent=option.title;const clone=$('#stage').cloneNode(true);clone.removeAttribute('id');delete clone.dataset.svgPrefix;delete clone.dataset.scenery;clone.classList.add('comparison-stage');card.append(title,clone);grid.append(card)}}
   for(const card of grid.children)syncStage(card.querySelector('.stage'),state.comparison==='bg'?card.dataset.option:state.bg,state.comparison==='flat'?flatOptions.find(o=>o.id===card.dataset.option).style:state.comparison==='cast'?(card.dataset.option==='curlCoatEdge'?'curlCoat':card.dataset.option):state.style,state.comparison==='bg');
