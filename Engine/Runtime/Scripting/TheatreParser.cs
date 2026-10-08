@@ -20,7 +20,7 @@ namespace SSNoir.Scripting
                 var n = List(raw, 8, "object");
                 string id = Id(n[0]), parent = Text(n[1]);
                 var shape = Shape(Id(n[2]));
-                if (shape == TheatreShape.Focus && parent != "") Fail("focus is a root composite node");
+                if ((shape == TheatreShape.Focus || shape == TheatreShape.Spotlight) && parent != "") Fail("focus/spotlight must be root nodes");
                 if (byId.ContainsKey(id)) Fail("duplicate object: " + id);
                 if (parent != "" && (!byId.TryGetValue(parent, out var p) || (p.Shape != TheatreShape.Group && p.Shape != TheatreShape.Light)))
                     Fail("parent must be an earlier group/light: " + parent);
@@ -35,7 +35,7 @@ namespace SSNoir.Scripting
                         if (DistanceSquared(points[i], points[i - 1]) < 0.0001f) Fail("line contains zero-length segment: " + id);
                 }
                 else if (shape == TheatreShape.Polygon) { points = Points(n[3], 3); ValidateConvex(points, id); }
-                else if (shape == TheatreShape.Glow || shape == TheatreShape.Image || shape == TheatreShape.Focus)
+                else if (shape == TheatreShape.Glow || shape == TheatreShape.Image || shape == TheatreShape.Focus || shape == TheatreShape.Spotlight)
                 {
                     if (geometry.Count != 2) Fail("glow/image requires width and height");
                     w = Positive(geometry[0]); h = Positive(geometry[1]);
@@ -62,10 +62,14 @@ namespace SSNoir.Scripting
                     if (initial.ContainsKey(property)) Fail("duplicate initial property: " + id);
                     initial.Add(property, value);
                 }
+                if (shape == TheatreShape.Spotlight)
+                    foreach (var property in initial.Keys)
+                        if (property != TheatreProperty.X && property != TheatreProperty.Y && property != TheatreProperty.Opacity && property != TheatreProperty.Brightness) Fail("spotlight only supports x/y/opacity/brightness");
                 var node = new TheatreNode { Id = id, Parent = parent, Shape = shape, Width = w, Height = h,
                     Points = points, Color = Color(Text(n[4])), Asset = asset, Light = light, Initial = initial };
                 nodes.Add(node); byId.Add(id, node);
             }
+            if (nodes.FindAll(n => n.Shape == TheatreShape.Spotlight).Count > 8) Fail("scene supports at most 8 spotlights");
             if (nodes.Count == 0) Fail("scene must contain objects");
             foreach (var node in nodes)
                 if (node.Light != "" && (!byId.TryGetValue(node.Light, out var light) || light.Shape != TheatreShape.Light))
@@ -104,6 +108,7 @@ namespace SSNoir.Scripting
                     Count(c, 4, op);
                     string id = Id(c[1]); var property = Property(Id(c[2]));
                     if (!byId.ContainsKey(id)) Fail("unknown animation target: " + id);
+                    if (byId[id].Shape == TheatreShape.Spotlight && property != TheatreProperty.X && property != TheatreProperty.Y && property != TheatreProperty.Opacity && property != TheatreProperty.Brightness) Fail("spotlight only supports x/y/opacity/brightness");
                     if (byId[id].Shape == TheatreShape.Focus && property != TheatreProperty.X && property != TheatreProperty.Y && property != TheatreProperty.Opacity) Fail("focus only supports x/y/opacity");
                     if (property == TheatreProperty.Reveal && byId[id].Shape != TheatreShape.Line)
                         Fail("reveal only applies to lines: " + id);
@@ -208,7 +213,7 @@ namespace SSNoir.Scripting
             _ => throw new ArgumentException("theatre: unknown property " + name) };
         private static TheatreShape Shape(string name) => name switch {
             "group" => TheatreShape.Group, "line" => TheatreShape.Line, "polygon" => TheatreShape.Polygon,
-            "glow" => TheatreShape.Glow, "image" => TheatreShape.Image, "light" => TheatreShape.Light, "focus" => TheatreShape.Focus,
+            "glow" => TheatreShape.Glow, "image" => TheatreShape.Image, "light" => TheatreShape.Light, "focus" => TheatreShape.Focus, "spotlight" => TheatreShape.Spotlight,
             _ => throw new ArgumentException("theatre: unknown shape " + name) };
         private static float Value(TheatreProperty property, object raw)
         {

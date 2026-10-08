@@ -20,6 +20,7 @@ namespace SSNoir.UnityTheatre
         private readonly MaterialPropertyBlock _properties = new();
         private RenderTexture? _target, _display;
         private bool _disposed;
+        private readonly Vector4[] _spots = new Vector4[8], _spotColors = new Vector4[8];
         public RenderTexture Texture => _display ?? throw new InvalidOperationException("surface has not rendered");
         public TheatreSurface(TheatreScene scene)
         {
@@ -68,6 +69,16 @@ namespace SSNoir.UnityTheatre
                 _opacity[node.Id] = state[TheatreProperty.Opacity] * (root ? 1f : _opacity[node.Parent]);
                 _brightness[node.Id] = state[TheatreProperty.Brightness] * (root ? 1f : _brightness[node.Parent]);
             }
+            int spotCount = 0;
+            foreach (var node in _scene.Nodes)
+            {
+                if (node.Shape != TheatreShape.Spotlight) continue;
+                if (spotCount == _spots.Length) throw new InvalidOperationException("theatre supports at most 8 spotlights");
+                var center = _matrices[node.Id].MultiplyPoint3x4(Vector3.zero);
+                _spots[spotCount] = new Vector4(center.x, center.y, node.Width, node.Height);
+                _spotColors[spotCount] = new Vector4(node.Color.R, node.Color.G, node.Color.B, _brightness[node.Id] * _opacity[node.Id]);
+                spotCount++;
+            }
             float viewHeight = _scene.Height / Math.Max(0.01f, contentScale);
             float viewWidth = viewHeight * width / height;
             float centerX = _scene.Width * 0.5f, centerY = _scene.Height * 0.5f;
@@ -87,11 +98,14 @@ namespace SSNoir.UnityTheatre
                 _properties.SetMatrix("_SceneToClip", projection);
                 float brightness = _brightness[node.Id];
                 var tint = ColorOf(node.Color); tint.a *= _opacity[node.Id];
-                if (node.Shape == TheatreShape.Glow || (node.Shape == TheatreShape.Polygon && node.Color.A < 1f)) tint.a *= Mathf.Clamp01(brightness);
+                if (node.Shape == TheatreShape.Glow || node.Shape == TheatreShape.Spotlight || (node.Shape == TheatreShape.Polygon && node.Color.A < 1f)) tint.a *= Mathf.Clamp01(brightness);
                 tint.r *= brightness; tint.g *= brightness; tint.b *= brightness;
                 _properties.SetColor("_Tint", tint);
-                _properties.SetFloat("_Mode", node.Shape == TheatreShape.Focus ? 4 : node.Shape == TheatreShape.Line ? 0 : node.Shape == TheatreShape.Polygon ? 1 : node.Shape == TheatreShape.Glow ? 2 : 3);
+                _properties.SetFloat("_Mode", node.Shape == TheatreShape.Spotlight ? 5 : node.Shape == TheatreShape.Focus ? 4 : node.Shape == TheatreShape.Line ? 0 : node.Shape == TheatreShape.Polygon ? 1 : node.Shape == TheatreShape.Glow ? 2 : 3);
                 _properties.SetFloat("_Dither", dither);
+                _properties.SetInt("_SpotCount", spotCount);
+                _properties.SetVectorArray("_Spots", _spots);
+                _properties.SetVectorArray("_SpotColors", _spotColors);
                 _properties.SetFloat("_Reveal", session.Objects[node.Id][TheatreProperty.Reveal]);
                 _properties.SetFloat("_Lit", node.Light.Length == 0 ? 0 : 1);
                 if (node.Shape == TheatreShape.Image) _properties.SetTexture("_MainTex", _images[session.Objects[node.Id].Asset]);

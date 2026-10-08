@@ -2,7 +2,7 @@
 ;; 布景、表演和本场组合函数各有边界；不读写剧情状态，不替换正式剧情。
 (define (路灯下-布景)
   ;; 地面高度是全场唯一的纵向基准：地面线、路沿、路面刻线、灯杆灯座底部、
-  ;; 人物脚底、光池中心全部由此派生；焦点 Y 保持原型的 64% 高度不动。
+  ;; 人物脚底、光池中心全部由此派生；聚光灯与脚边光池使用同一地面基准。
   (define 地面 790)
   (define (描线 id color width points)
     (theatre-with (theatre-line id "线框" color width points) 'reveal 0))
@@ -35,11 +35,13 @@
         (theatre-with (theatre-glow "灯泡光晕" "路灯" "#F3D08A" 0 -284 92 92) 'opacity .4)
         (theatre-glow "灯芯" "路灯" "#FFE6A8" 0 -286 30 30)
         (theatre-with (theatre-glow "路灯柔光" "路灯" "#F3D08A" 0 10 660 924) 'opacity .22)
+        (theatre-with (theatre-group "聚光位置" "" 800 地面) 'opacity 0)
+        (theatre-glow "聚光脚边" "聚光位置" "#FFF1CF70" 0 0 340 54)
+        (theatre-with (theatre-spotlight "聚光" "#FFF1CF" 800 地面 340 640) 'opacity 0)
         (theatre-with (theatre-image "尼尔" "" "Portraits/Neon/尼尔_抱臂" -140 地面 252 308 "路灯") 'opacity 0)
         (theatre-with
           (theatre-with (theatre-image "夜莺" "" "Portraits/Neon/夜莺_低头" 1740 地面 252 308 "路灯") 'scale-x -1)
-          'opacity 0)
-        (theatre-focus "焦点" 800 576 180 640)))))
+          'opacity 0)))))
 
 ;; 原型 CSS easing 采样成归一化关键帧；演出运行时只有一个播放器时钟。
 (define 路灯下-ease '((0.000000 0.000000) (0.041667 0.025556) (0.083333 0.070806) (0.125000 0.136888) (0.166667 0.220674) (0.208333 0.314292) (0.250000 0.408511) (0.291667 0.496716) (0.333333 0.575862) (0.375000 0.645321) (0.416667 0.705611) (0.458333 0.757648) (0.500000 0.802403) (0.541667 0.840773) (0.583333 0.873539) (0.625000 0.901368) (0.666667 0.924824) (0.708333 0.944386) (0.750000 0.960459) (0.791667 0.973389) (0.833333 0.983474) (0.875000 0.990969) (0.916667 0.996096) (0.958333 0.999050) (1.000000 1.000000)))
@@ -53,7 +55,11 @@
   (theatre-during
     (theatre-caption-for who text seconds
       (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
-    (theatre-tween "焦点" 'x x 1.2 'smooth)))
+    (theatre-parallel
+      (theatre-tween "聚光" 'x x .6 'smooth)
+      (theatre-tween "聚光位置" 'x x .6 'smooth)
+      (theatre-tween "聚光" 'opacity 1 .35 'smooth)
+      (theatre-tween "聚光位置" 'opacity 1 .35 'smooth))))
 (define (路灯下-闪烁)
   (theatre-parallel
     (theatre-animate "路灯" 'brightness
@@ -146,4 +152,5 @@
     (theatre-parallel
       (theatre-tween "路灯" 'brightness .6 .2)
       (theatre-tween "布景" 'opacity 0 .9)
-      (theatre-tween "焦点" 'opacity 0 .9))))
+      (theatre-tween "聚光" 'opacity 0 .9)
+      (theatre-tween "聚光位置" 'opacity 0 .9))))

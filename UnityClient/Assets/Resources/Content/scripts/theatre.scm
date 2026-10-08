@@ -78,3 +78,9 @@
 
 (define (theatre-sound-after id asset loop volume pan seconds)
   (theatre-sequence (theatre-wait seconds) (theatre-sound id asset loop volume pan)))
+
+;; 聚光灯：脚底中心 x/y，脚边光束宽度 width，上方灯源到脚底的高度 height。
+;; 通用灯照亮场内图片；光束自身柔和可见，地面光池由作者另用 glow 组合。
+(define (theatre-spotlight id color x y width height)
+  (theatre-object id "" 'spotlight (list width height) color "" ""
+    (list (list 'x x) (list 'y y))))
