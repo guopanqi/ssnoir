@@ -1,0 +1,20 @@
+{
+  "task_id": "77350909-6c5c-4843-9b8f-df490325e969",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/night-n2-style-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/night-n2-style-reference.png",
+    "prompt": "Redraw the reference as a distinctive hand-drawn character for a narrative game. SINGLE full-body adult woman, identical LEFT-facing standing pose, one hand lightly at collarbone, other arm relaxed down; preserve complete heels, slender normal adult proportions, asymmetric long sleeveless evening dress, voluminous shoulder-length dark curls and the large forehead wave. Nightingale is a poised 1930s American jazz singer with a thoughtful, slightly guarded expression, recognizable long nose and elegant neck. This is a new illustration, not a filter. Smooth economical flowing curves, opaque filled body and hair, only essential facial marks and dress folds. Limited muted palette. No realism, 3D, gradients, glow, neon, tiny hatching, decorative frames, text, extra characters, props or ground shadow. Solid vivid chroma green #00ee00 BACKGROUND ONLY; absolutely no green in the character. Original minimalist narrative-game illustration: graphite dark ink and dusty pale blue-grey ONLY, no other colors. Large opaque dark dress and dark flowing curled hair, light solid face and arms. A few confident variable-width continuous ink arcs describe cheek, eyebrow, forehead wave and shoulder. Face expressive with a long profile and small downturned mouth; calm dignified guarded jazz singer. Dress one dark filled shape with ONE pale sweeping fold. Deliberately simpler than the reference while preserving personality, beautiful economical long curves, hand-inked rather than geometric vector."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/story-game-styles/23-story-two-tone/77350909-6c5c-4843-9b8f-df490325e969/image.png",
+    "bytes": 980740,
+    "sha256": "a92065464b63b209e6a4978b9e473fa0b428399a956d2f7c1f342de1fe66af15"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "task_id": "ca1fed40-aa23-4201-bfbc-88b99bd90b51",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/night-n2-style-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/night-n2-style-reference.png",
+    "prompt": "Redraw the reference as a distinctive hand-drawn character for a narrative game. SINGLE full-body adult woman, identical LEFT-facing standing pose, one hand lightly at collarbone, other arm relaxed down; preserve complete heels, slender normal adult proportions, asymmetric long sleeveless evening dress, voluminous shoulder-length dark curls and the large forehead wave. Nightingale is a poised 1930s American jazz singer with a thoughtful, slightly guarded expression, recognizable long nose and elegant neck. This is a new illustration, not a filter. Smooth economical flowing curves, opaque filled body and hair, only essential facial marks and dress folds. Limited muted palette. No realism, 3D, gradients, glow, neon, tiny hatching, decorative frames, text, extra characters, props or ground shadow. Solid vivid chroma green #00ee00 BACKGROUND ONLY; absolutely no green in the character. Borrow the organic hand-illustrated economy of Mutazione, without copying characters. Very long simple organic curves, soft rounded imperfect silhouette, matte filled blue-grey dress, stone-grey skin, charcoal hair. Almost no internal outlines, only a short dark eyebrow, tiny eye and long nose profile. Hair is one broad flowing mass with two curved notches. Two broad tone planes only. Quiet melancholic personality, relaxed human warmth, flat game sprite, not vector corporate art."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/story-game-styles/22-story-organic/ca1fed40-aa23-4201-bfbc-88b99bd90b51/image.png",
+    "bytes": 1031804,
+    "sha256": "b9694f5380620ed6ed886c989a79ffee2537bff64eace80e16883b9af46a9b14"
+  }
+}

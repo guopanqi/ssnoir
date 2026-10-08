@@ -1,0 +1,20 @@
+{
+  "task_id": "3303673a-b627-4118-960a-86b6ac217dc2",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/night-n2-style-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/night-n2-style-reference.png",
+    "prompt": "Redraw the reference as a distinctive hand-drawn character for a narrative game. SINGLE full-body adult woman, identical LEFT-facing standing pose, one hand lightly at collarbone, other arm relaxed down; preserve complete heels, slender normal adult proportions, asymmetric long sleeveless evening dress, voluminous shoulder-length dark curls and the large forehead wave. Nightingale is a poised 1930s American jazz singer with a thoughtful, slightly guarded expression, recognizable long nose and elegant neck. This is a new illustration, not a filter. Smooth economical flowing curves, opaque filled body and hair, only essential facial marks and dress folds. Limited muted palette. No realism, 3D, gradients, glow, neon, tiny hatching, decorative frames, text, extra characters, props or ground shadow. Solid vivid chroma green #00ee00 BACKGROUND ONLY; absolutely no green in the character. Borrow the confident character readability of Overboard!, without copying any character. Retro 1930s illustrated mystery: bold fluid dark outline with tapered curves, emphatic hooked nose and long almond eye, elegant sculpted forehead wave and a small dark muted brick lipstick mark. Flat pale grey face, deep slate dress, nearly black hair. Crisp strong silhouette, only two shadow shapes, lively expressive face, restrained vintage caricature while keeping normal adult proportions."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/story-game-styles/21-story-retro/3303673a-b627-4118-960a-86b6ac217dc2/image.png",
+    "bytes": 939412,
+    "sha256": "22d1c328eed7bf333e96bfb4f7ba6759f802ce580b0e684d98ce848fa53557f7"
+  }
+}

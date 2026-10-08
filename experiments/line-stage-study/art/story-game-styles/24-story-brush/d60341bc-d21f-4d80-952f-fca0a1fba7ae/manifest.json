@@ -1,0 +1,19 @@
+{
+  "task_id": "d60341bc-d21f-4d80-952f-fca0a1fba7ae",
+  "status": "success",
+  "source": null,
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "prompt": "Single full-body adult female jazz singer character sprite for a 1930s noir narrative game. LEFT-facing three-quarter profile, normal slim adult proportions, one hand at collarbone and other arm hanging, long asymmetric sleeveless blue-grey evening gown, complete low heels. Her defining identity: enormous flowing shoulder-length black curled hair with one proud sweeping forehead wave, long elegant nose and neck, guarded intelligent small eye, slightly tired quiet mouth. Draw her as an expressive European hand-inked narrative comic character: extremely spare lively brush curves with strongly variable width, a few open broken dark strokes at the silhouette, three broad SOLID OPAQUE matte fills (charcoal hair, slate-blue dress, warm stone-grey skin), whimsical organically curved hair mass, minimal detail. Make the face angular and individual, not generic glamour, Disney, anime or fashion. Silhouette long elegant S-curve; soft imperfect ink and flat colors, no realism, 3D shading, gradients, glowing outlines, hatching or texture. NO microphone, props, frame, text, second figure or ground shadow. Solid vivid #00ee00 chroma green backdrop only, no green in any body or clothes. Whole figure centered with margin above hair and below heels."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/story-game-styles/24-story-brush/d60341bc-d21f-4d80-952f-fca0a1fba7ae/image.png",
+    "bytes": 994218,
+    "sha256": "60ec7921a44040b823526619950e1c42613fa160b49f16de8e7f4055c1c454fa"
+  }
+}
