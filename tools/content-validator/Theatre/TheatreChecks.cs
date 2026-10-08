@@ -23,6 +23,23 @@ public static class TheatreChecks
         for (int i = 0; i < 1000 && !session.IsComplete; i++) { session.Tick(.3f); if (session.Line != null) { session.Advance(); session.Advance(); } }
         Check(session.IsComplete && sounds > 2, "sample executes to completion");
         System.IO.Directory.CreateDirectory(".cache/theatre-check"); System.IO.File.WriteAllText(".cache/theatre-check/scene.json", Newtonsoft.Json.JsonConvert.SerializeObject(sample));
+        captured = null;
+        interpreter.LoadFile("scripts/theatre/雨夜来访.scm"); interpreter.Eval("(雨夜来访-演出)");
+        var rainy = captured ?? throw new Exception("rainy visit did not request theatre");
+        var rainSession = new TheatreSession(rainy); rainSession.Start();
+        var rainCaptions = new HashSet<TheatreCommand>();
+        for (int i = 0; i < 4000 && !rainSession.IsComplete; i++)
+        {
+            rainSession.Tick(.05f);
+            if (rainSession.Caption != null) rainCaptions.Add(rainSession.Caption);
+        }
+        Check(rainSession.IsComplete && rainSession.Playbacks.Count == 0, "rainy visit finishes and releases every sound");
+        Check(rainCaptions.Count == rainy.Commands.Count(c => c.Kind == TheatreCommandKind.Say), "rainy visit executes every subtitle");
+        foreach (string asset in rainy.Nodes.Where(n => n.Shape == TheatreShape.Image).Select(n => n.Asset)
+            .Concat(rainy.Commands.Where(c => c.Kind == TheatreCommandKind.Image || c.Kind == TheatreCommandKind.Sound).Select(c => c.Asset)).Distinct())
+            Check(System.IO.File.Exists("UnityClient/Assets/Resources/" + asset + ".png") || System.IO.File.Exists("UnityClient/Assets/Resources/" + asset + ".wav"), "rainy visit asset exists: " + asset);
+        System.IO.File.WriteAllText(".cache/theatre-check/rain-scene.json", Newtonsoft.Json.JsonConvert.SerializeObject(rainy));
+        Console.WriteLine($"[theatre] rainy visit: {rainy.Nodes.Count} objects, {rainCaptions.Count} captions, score completed in {rainSession.Time:F2}s.");
         const string sceneExpression = "(theatre-scene 1600 900 \"#08090F\" (list (theatre-group \"g\" \"\" 0 0)))";
         TheatreScene Build(string program) => TheatreParser.Parse(interpreter.Eval(sceneExpression), interpreter.Eval(program));
         TheatreSession Start(string program, float enter = 0, float exit = 0) { var s = new TheatreSession(Build(program), enter, exit); s.Start(); return s; }
