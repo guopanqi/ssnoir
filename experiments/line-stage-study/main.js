@@ -3,10 +3,11 @@ import {story,performanceAt,starts} from './story.js';
 import {castStyles,sprite} from './cast.js';
 import {StoryPlayer} from './player.js';
 import {StageSound} from './sound.js';
-import {defaultInk,mountInkEditor,applyInk} from './editor.js';
+import {defaultInk,flatTreatments,mountInkEditor,applyInk} from './editor.js?v=flat-study-1';
 const $=s=>document.querySelector(s);
 const state={scene:'lamp',bg:'absent',person:'raw',style:'neonEdge',acting:'neutral',blur:28,opacity:24,lines:65,comparison:null,speed:1,ink:{...defaultInk},mask:true,reaction:true};
 const modes={absent:{blur:28,opacity:0,title:'完全退场'},fog:{blur:28,opacity:24,title:'重度失焦'},trace:{blur:5,opacity:30,title:'3D 轮廓残影'}};
+const flatOptions=['neonEdge','noirPaint2'].flatMap(style=>flatTreatments.map(t=>({id:style+'-'+t.id,style,treatment:t,title:(style==='neonEdge'?'N2':'P2')+' · '+t.name})));
 const sound=new StageSound();
 let svgSequence=0,currentFrame={index:0,position:0,total:0,playing:false},lastCue=-1,lastPlaying=false,pausedMotion=[];
 function syncStage(stage,bg=state.bg,style=state.style,preset=false){
@@ -36,12 +37,13 @@ function render(){
  $('#blur').disabled=$('#opacity').disabled=state.bg==='absent';
  $('#note').textContent='尼尔固定为 C1，仅替换夜莺。'+castStyles.find(s=>s.id===state.style).note;
  $('#cast-compare').setAttribute('aria-pressed',String(state.comparison==='cast'));$('#bg-compare').setAttribute('aria-pressed',String(state.comparison==='bg'));
+ $('#flat-compare').setAttribute('aria-pressed',String(state.comparison==='flat'));
  $('#comparison').hidden=!state.comparison;
  if(state.comparison){
-  $('#comparison-note').textContent=state.comparison==='cast'?'尼尔固定 C1，夜莺同一姿势、同一拍点比较。新画稿均由 N2 礼服原画衍生，C1 保留外套基线。原画栏不加额外线，C1 描线栏使用固定推荐值；编辑器调整主画面。':'人物和布景完全一致，远景使用三个固定预设。';
+  $('#comparison-note').textContent=state.comparison==='flat'?'上排 N2，下排 P2；每排依次为原图、限色与三档色阶、加细描边。仅处理夜莺，尼尔、布景和拍点相同；固定预设不随主画面编辑器变化。':state.comparison==='cast'?'尼尔固定 C1，夜莺同一姿势、同一拍点比较。新画稿均由 N2 礼服原画衍生，C1 保留外套基线。原画栏不加额外线，C1 描线栏使用固定推荐值；编辑器调整主画面。':'人物和布景完全一致，远景使用三个固定预设。';
   const grid=$('#comparison-grid');
-  if(grid.dataset.mode!==state.comparison){grid.replaceChildren();grid.dataset.mode=state.comparison;const options=state.comparison==='cast'?[...castStyles.map(s=>({id:s.id,title:s.name})),{id:'curlCoatEdge',title:'C1 · 后处理对照'}]:Object.entries(modes).map(([id,m])=>({id,title:m.title}));for(const option of options){const card=document.createElement('article');card.dataset.option=option.id;const title=document.createElement('h3');title.textContent=option.title;const clone=$('#stage').cloneNode(true);clone.removeAttribute('id');delete clone.dataset.svgPrefix;delete clone.dataset.scenery;clone.classList.add('comparison-stage');card.append(title,clone);grid.append(card)}}
-  for(const card of grid.children)syncStage(card.querySelector('.stage'),state.comparison==='bg'?card.dataset.option:state.bg,state.comparison==='cast'?(card.dataset.option==='curlCoatEdge'?'curlCoat':card.dataset.option):state.style,state.comparison==='bg');
+  if(grid.dataset.mode!==state.comparison){grid.replaceChildren();grid.dataset.mode=state.comparison;const options=state.comparison==='flat'?flatOptions:state.comparison==='cast'?[...castStyles.map(s=>({id:s.id,title:s.name})),{id:'curlCoatEdge',title:'C1 · 后处理对照'}]:Object.entries(modes).map(([id,m])=>({id,title:m.title}));for(const option of options){const card=document.createElement('article');card.dataset.option=option.id;const title=document.createElement('h3');title.textContent=option.title;const clone=$('#stage').cloneNode(true);clone.removeAttribute('id');delete clone.dataset.svgPrefix;delete clone.dataset.scenery;clone.classList.add('comparison-stage');card.append(title,clone);grid.append(card)}}
+  for(const card of grid.children)syncStage(card.querySelector('.stage'),state.comparison==='bg'?card.dataset.option:state.bg,state.comparison==='flat'?flatOptions.find(o=>o.id===card.dataset.option).style:state.comparison==='cast'?(card.dataset.option==='curlCoatEdge'?'curlCoat':card.dataset.option):state.style,state.comparison==='bg');
  }
  syncPerformance();
 }
@@ -52,7 +54,7 @@ const player=new StoryPlayer(story,onFrame);
 for(const key of ['scene','bg','person','style','acting'])document.querySelectorAll(`button[data-${key}]`).forEach(button=>button.addEventListener('click',()=>{state[key]=button.dataset[key];if(key==='bg'){state.blur=modes[state.bg].blur;state.opacity=modes[state.bg].opacity}render()}));
 for(const key of ['blur','opacity','lines'])$('#'+key).addEventListener('input',e=>{state[key]=Number(e.target.value);render()});
 $('#play').addEventListener('click',()=>{sound.unlock(player.position);player.toggle()});$('#restart').addEventListener('click',()=>{sound.unlock(0);player.restart()});$('#prev').addEventListener('click',()=>{sound.seek(starts[Math.max(0,player.index-1)]);player.step(-1)});$('#next').addEventListener('click',()=>{sound.seek(starts[Math.min(story.length-1,player.index+1)]);player.step(1)});$('#speed').addEventListener('change',e=>{state.speed=player.speed=Number(e.target.value);render()});$('#progress').addEventListener('input',e=>{const position=Number(e.target.value)/100*player.total;sound.seek(position);player.seek(position)});
-for(const [id,mode] of [['cast-compare','cast'],['bg-compare','bg']])$('#'+id).addEventListener('click',()=>{state.comparison=state.comparison===mode?null:mode;render()});
+for(const [id,mode] of [['flat-compare','flat'],['cast-compare','cast'],['bg-compare','bg']])$('#'+id).addEventListener('click',()=>{state.comparison=state.comparison===mode?null:mode;render()});
 const inkEditor=mountInkEditor(ink=>{state.ink=ink;render()},()=>({style:state.style,scene:state.scene,background:state.bg,blur:state.blur,opacity:state.opacity,lines:state.lines,cue:currentFrame.index}));
 new ResizeObserver(()=>document.querySelectorAll('.stage').forEach(stage=>applyInk(stage,inkFor(stage)))).observe($('#stage'));
 // Warm the image cache so style changes do not interrupt dialogue.
@@ -77,4 +79,4 @@ for(const [id,key] of [['mask','mask'],['reaction','reaction']])$('#'+id).addEve
 $('#style-treatment').addEventListener('click',()=>inkEditor.set({...defaultInk,enabled:state.style==='curlCoat',target:'night',detail:100,width:1.5}));
 syncPerformance();
 
-function inkFor(stage){const option=stage.closest('article')?.dataset.option;if(state.comparison==='cast'&&option)return option==='curlCoatEdge'?{...defaultInk,enabled:true,target:'night',detail:100,width:1.5}:defaultInk;return state.ink}
+function inkFor(stage){const option=stage.closest('article')?.dataset.option;if(state.comparison==='flat'&&option)return flatOptions.find(o=>o.id===option).treatment.value;if(state.comparison==='cast'&&option)return option==='curlCoatEdge'?{...defaultInk,enabled:true,target:'night',detail:100,width:1.5}:defaultInk;return state.ink}
