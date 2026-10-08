@@ -5,7 +5,7 @@ import {StoryPlayer} from './player.js';
 import {StageSound} from './sound.js';
 import {defaultInk,flatTreatments,mountInkEditor,applyInk} from './editor.js?v=flat-study-1';
 const $=s=>document.querySelector(s);
-const state={scene:'lamp',bg:'absent',person:'raw',style:'signet1',acting:'neutral',blur:28,opacity:24,lines:65,comparison:null,speed:1,ink:{...defaultInk},mask:true,reaction:true};
+const state={scene:'lamp',bg:'absent',person:'raw',style:'originalNeon',acting:'neutral',blur:28,opacity:24,lines:65,comparison:null,speed:1,ink:{...defaultInk},mask:true,reaction:true};
 const modes={absent:{blur:28,opacity:0,title:'完全退场'},fog:{blur:28,opacity:24,title:'重度失焦'},trace:{blur:5,opacity:30,title:'3D 轮廓残影'}};
 const flatOptions=['neonEdge','curlCoat'].flatMap(style=>flatTreatments.map(t=>({id:style+'-'+t.id,style,treatment:t,title:(style==='neonEdge'?'N2':'C1')+' · '+t.name})));
 const sound=new StageSound();
