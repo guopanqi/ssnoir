@@ -1,0 +1,61 @@
+(define (theatre-prefix xs n)
+  (if (= n 0) '() (cons (car xs) (theatre-prefix (cdr xs) (- n 1)))))
+;; 线绘舞台的创作接口。只构造数据，不持有时钟、不操作 Unity、不修改游戏状态。
+;; 线绘坐标采用左上原点、Y 向下；场景高度固定，宽高比只改变横向可见范围。
+(define (theatre-point x y) (list x y))
+(define (theatre-object id parent kind geometry color asset light properties)
+  (list id parent kind geometry color asset light properties))
+(define (theatre-group id parent x y)
+  (theatre-object id parent 'group '() "#FFFFFF" "" "" (list (list 'x x) (list 'y y))))
+(define (theatre-line id parent color width points)
+  (theatre-object id parent 'line (list width points) color "" "" '()))
+(define (theatre-polygon id parent color points)
+  (theatre-object id parent 'polygon points color "" "" '()))
+;; glow 的 width/height 是直径；位置是中心。image 的位置是脚底中心。
+(define (theatre-glow id parent color x y width height)
+  (theatre-object id parent 'glow (list width height) color "" "" (list (list 'x x) (list 'y y))))
+(define (theatre-image id parent asset x y width height light)
+  (theatre-object id parent 'image (list width height) "#FFFFFF" asset light (list (list 'x x) (list 'y y))))
+;; light 是不可见的分组：子图形共享 brightness；绑定它的图片按距离接受照明。
+(define (theatre-light id parent color x y radius brightness)
+  (theatre-object id parent 'light (list radius) color "" ""
+    (list (list 'x x) (list 'y y) (list 'brightness brightness))))
+;; 覆盖初始属性；重复调用同属性是明确替换，不把重复键传入数据包。
+(define (theatre-with object property value)
+  (append (theatre-prefix object 7)
+    (list (cons (list property value)
+      (filter (lambda (pair) (not (eq? (car pair) property))) (list-ref object 7))))))
+(define (theatre-scene width height color objects) (list width height color objects))
+(define (theatre-animate id property keys) (list (list 'animate id property keys)))
+;; tween 从该拍开始时的当前值插值到目标；animate 使用作者指定的完整关键帧。
+(define (theatre-tween id property value seconds) (list (list 'tween id property (list seconds value))))
+(define (theatre-image-to id asset) (list (list 'image id asset)))
+(define (theatre-wait seconds) (list (list 'wait seconds)))
+(define (theatre-say speaker text) (list (list 'say speaker text)))
+(define (theatre-sound id asset loop volume pan) (list (list 'sound id asset loop volume pan)))
+(define (theatre-stop-sound id) (list (list 'stop-sound id)))
+(define (theatre-parallel . commands) (apply append commands))
+(define (play-theatre! scene . beats) (__play-theatre! scene beats))
+
+;; Bézier 在内容求值时采样一次，两个播放器拿到相同折线；运行时不解析 SVG 字符串。
+(define (theatre-cubic a b c d samples)
+  (if (or (< samples 2) (> samples 128) (not (= samples (quotient samples 1)))) (error "theatre-cubic: samples must be 2..128"))
+  (define (coordinate index t)
+    (let ((u (- 1 t)))
+      (+ (* u u u (list-ref a index))
+         (* 3 u u t (list-ref b index))
+         (* 3 u t t (list-ref c index))
+         (* t t t (list-ref d index)))))
+  (define (sample i)
+    (if (> i samples) '()
+      (let ((t (/ i (* samples 1.0))))
+        (cons (theatre-point (coordinate 0 t) (coordinate 1 t)) (sample (+ i 1))))))
+  (sample 0))
+
+(define (theatre-ellipse-points x y rx ry)
+  (let ((kx (* rx 0.55228475)) (ky (* ry 0.55228475)))
+    (append
+      (theatre-cubic (list (+ x rx) y) (list (+ x rx) (+ y ky)) (list (+ x kx) (+ y ry)) (list x (+ y ry)) 12)
+      (cdr (theatre-cubic (list x (+ y ry)) (list (- x kx) (+ y ry)) (list (- x rx) (+ y ky)) (list (- x rx) y) 12))
+      (cdr (theatre-cubic (list (- x rx) y) (list (- x rx) (- y ky)) (list (- x kx) (- y ry)) (list x (- y ry)) 12))
+      (cdr (theatre-cubic (list x (- y ry)) (list (+ x kx) (- y ry)) (list (+ x rx) (- y ky)) (list (+ x rx) y) 12)))))

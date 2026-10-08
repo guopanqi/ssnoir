@@ -1333,6 +1333,8 @@
 (define (stage-parallel . beats) (apply append beats))
 (define (play-stage! . beats) (__play-stage! beats))
 
+(load-file "scripts/theatre.scm")
+
 ;; 人物的标志色：立绘上点缀色那几根管子的颜色，随剧情变。传 CSS 十六进制色（"#8A5A2B"），
 ;; 舞台在几秒里把颜色过渡过去；存档里跟着走。林从原教旨的冷蓝慢慢变暖，就写在他的事件里。
 (define (set-portrait-accent! 人 色)

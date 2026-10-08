@@ -17,6 +17,7 @@ namespace SSNoir.IMGUI
         private BanterPlayer _banterPlayer = null!;
         private ConversationPlayer _conversationPlayer = null!;
         private StoryStagePlayer _storyStagePlayer = null!;
+        private SSNoir.UnityTheatre.TheatrePlayer _theatrePlayer = null!;
         private readonly DialogueAnchors _dialogueAnchors = new DialogueAnchors();
         private bool _warnedAboutCurrentDialogueRemoteFallback;
         private string? _activeVideoTag;
@@ -151,27 +152,32 @@ namespace SSNoir.IMGUI
             _banterPlayer = new BanterPlayer(_voicePlayer);
             _conversationPlayer = new ConversationPlayer(_voicePlayer);
             _storyStagePlayer = new StoryStagePlayer(_voicePlayer, gameObject.AddComponent<AudioSource>());
+            _theatrePlayer = new SSNoir.UnityTheatre.TheatrePlayer(transform);
             _animator.OnAcknowledged = () => _presentationPlayer.OnRollAcknowledged();
             _gameManager.GameState.NarrationCenter.OnNarrationRequested += ShowNarration;
             _gameManager.GameState.DialogueCenter.OnBanterRequested += _banterPlayer.Enqueue;
             _gameManager.GameState.DialogueCenter.OnDialogueRequested += StartImmediateDialogue;
             _gameManager.GameState.DialogueCenter.OnStageRequested += StartImmediateStage;
+            _gameManager.GameState.DialogueCenter.OnTheatreRequested += StartImmediateTheatre;
         }
 
         private void OnDestroy()
         {
+            _theatrePlayer?.Dispose();
             if (_gameManager != null)
             {
                 _gameManager.GameState.NarrationCenter.OnNarrationRequested -= ShowNarration;
                 _gameManager.GameState.DialogueCenter.OnBanterRequested -= _banterPlayer.Enqueue;
                 _gameManager.GameState.DialogueCenter.OnDialogueRequested -= StartImmediateDialogue;
                 _gameManager.GameState.DialogueCenter.OnStageRequested -= StartImmediateStage;
+                _gameManager.GameState.DialogueCenter.OnTheatreRequested -= StartImmediateTheatre;
             }
         }
 
         // 动作外即时触发的阻塞对话:暂停 banter,演完恢复(不接入动作表现流程)。
         private void StartImmediateDialogue(SSNoir.Core.DialogueSequence sequence)
         {
+            if (_theatrePlayer.IsActive) throw new InvalidOperationException("对白不能覆盖线绘舞台");
             if (_conversationPlayer.IsActive)
             {
                 _pendingImmediateDialogues.Enqueue(sequence);
@@ -182,9 +188,18 @@ namespace SSNoir.IMGUI
             StartNextImmediateDialogue(sequence);
         }
 
+        private void StartImmediateTheatre(SSNoir.Theatre.TheatreScene scene)
+        {
+            if (_theatrePlayer.IsActive || _storyStagePlayer.IsActive || _conversationPlayer.IsActive)
+                throw new InvalidOperationException("线绘舞台与其他对白不能重叠");
+            _banterPlayer.Suspend();
+            try { _theatrePlayer.Start(scene, () => _banterPlayer.Resume()); }
+            catch { _banterPlayer.Resume(); throw; }
+        }
+
         private void StartImmediateStage(StoryStageSequence sequence)
         {
-            if (_storyStagePlayer.IsActive || _conversationPlayer.IsActive)
+            if (_storyStagePlayer.IsActive || _theatrePlayer.IsActive || _conversationPlayer.IsActive)
                 throw new InvalidOperationException("舞台演出与对白不能重叠");
             _banterPlayer.Suspend();
             _storyStagePlayer.Start(sequence, () => _banterPlayer.Resume());
@@ -210,7 +225,7 @@ namespace SSNoir.IMGUI
             || _activeAutoAction != null
             || _activeBeat
             || _activeActionSpotlight != null
-            || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _activeVideoTag != null;
+            || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive || _activeVideoTag != null;
 
         public void PlayPresentation(ActionReport report, string actionName, Action onDone,
             bool holdBeforeBlocking = false)
@@ -387,6 +402,14 @@ namespace SSNoir.IMGUI
                         // 显式 remote 则直接允许场外说话人且不报警。
                         StoryStageDrawer.BeginConversation();
                         _conversationPlayer.Start(step.Dialogue!, () =>
+                        {
+                            _banterPlayer.Resume();
+                            AdvanceToBlockingPresentationOrFinish();
+                        });
+                        return;
+                    case BlockingStoryStepKind.Theatre:
+                        _banterPlayer.Suspend();
+                        _theatrePlayer.Start(step.Theatre!, () =>
                         {
                             _banterPlayer.Resume();
                             AdvanceToBlockingPresentationOrFinish();
@@ -615,11 +638,11 @@ namespace SSNoir.IMGUI
             || _activeAutoAction != null
             || _activeBeat
             || _activeActionSpotlight != null
-            || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _activeVideoTag != null;
+            || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive || _activeVideoTag != null;
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
         public bool IsInputLocked => _inputLocked || _activeAutoAction != null
             || _activeActionSpotlight != null
-            || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _storyStagePlayer.IsActive
+            || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive
             || _activeVideoTag != null || _gameManager.Cutscene.IsActive || _gameManager.Title.IsActive
             || _gameManager.StageController.IsTransitioning || _gameManager.StageController.TurnDipActive
             || _gameManager.IsStateTainted;
@@ -628,6 +651,7 @@ namespace SSNoir.IMGUI
         // 由 SSNoirGameManager 的全局 ESC 输入调用，避免 ESC 在对白期间落入返回导航逻辑。
         public bool TryAdvanceConversation()
         {
+            if (_theatrePlayer.IsActive) { _theatrePlayer.Advance(); return true; }
             if (_storyStagePlayer.IsActive)
             {
                 _storyStagePlayer.Advance();
@@ -742,6 +766,7 @@ namespace SSNoir.IMGUI
             _banterPlayer.Reset();
             _conversationPlayer.Reset();
             _storyStagePlayer.Reset();
+            _theatrePlayer.Reset();
             StoryStageDrawer.BeginConversation();
             _warnedAboutCurrentDialogueRemoteFallback = false;
             _completionReport = null;
@@ -763,6 +788,7 @@ namespace SSNoir.IMGUI
         private void Update()
         {
             _storyStagePlayer.Update();
+            _theatrePlayer.Update(Time.unscaledDeltaTime);
             _gameManager.GameState.NotificationCenter.Update(Time.deltaTime);
             _presentationPlayer.Update(Time.deltaTime);
             _banterPlayer.Update(Time.deltaTime);
@@ -1044,7 +1070,7 @@ namespace SSNoir.IMGUI
             }
 
             // 阻塞对话:全屏 blocker 锁住下层(表现上不画遮罩),点击由顶层 overlay 消费来推进。
-            if (_conversationPlayer.IsActive || _storyStagePlayer.IsActive)
+            if (_conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive)
             {
                 _windowStack.Register(new IMGUIWindowBlocker
                 {
@@ -1064,7 +1090,7 @@ namespace SSNoir.IMGUI
             // 阻塞对白期间世界的界面整个收起来：标签、动作卡、卷宗、顶栏都不画——舞台上只留城市和人。
             // 锚点表故意不清：对白是阻塞的，导航和相机都冻着，上一帧登记的「谁在场」在整段对白里
             // 都作数，舞台照旧用它判断说话人在不在场。
-            bool worldUiHidden = _conversationPlayer.IsActive || _storyStagePlayer.IsActive;
+            bool worldUiHidden = _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive;
             var panelUi = _windowStack.MakeContext(IMGUIWindowLayer.Panel, baseLocked);
             if (!worldUiHidden)
             {
@@ -3386,6 +3412,17 @@ namespace SSNoir.IMGUI
         // 阻塞：立绘舞台覆盖世界；Say 拍全屏左键推进（打字中补全，否则下一句），无字动作拍吞掉点击自动播完，后方控件由 IsInputLocked 显式禁用。
         private void DrawConversationOverlay()
         {
+            if (_theatrePlayer.IsActive)
+            {
+                _theatrePlayer.Draw();
+                if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                {
+                    TryAdvanceConversation();
+                    Event.current.Use();
+                }
+                else UsePointerEventForModal();
+                return;
+            }
             if (_storyStagePlayer.IsActive)
             {
                 StoryStageDrawer.DrawStoryStageFrame(_storyStagePlayer.CurrentLine, _storyStagePlayer.BeatIndex);

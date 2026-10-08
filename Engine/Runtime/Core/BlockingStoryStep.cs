@@ -13,6 +13,7 @@ namespace SSNoir.Core
         Motion,      // 场景演出：切到指定机位，播一件道具的实时动画（道具__状态 clip），播完回来。
                      // 普通 clip 停在目标状态；once clip 每次重播并自动回到声明的 from 状态
         Dialogue,    // 阻塞对话:点击推进、锁输入、冻结导航
+        Theatre,     // 独立线绘舞台：布景、属性动画、灯光和声音
         Stage,       // 立绘、音效与对白共同编排的舞台演出
         Spotlight,   // 聚光弹窗:点击 dismiss
         EnterPlace,  // 采纳动作后的世界快照，并把导航落到指定地点
@@ -29,6 +30,7 @@ namespace SSNoir.Core
         public string MotionState { get; init; } = string.Empty;    // Kind == Motion：目标状态（clip 名后半）
         public string MotionCamera { get; init; } = string.Empty;   // Kind == Motion：机位名（Camera_<名> 的 <名>），空 = 不换机位
         public DialogueSequence? Dialogue { get; init; }            // Kind == Dialogue
+        public SSNoir.Theatre.TheatreScene? Theatre { get; init; }
         public StoryStageSequence? Stage { get; init; }              // Kind == Stage
         public SpotlightCard? Spotlight { get; init; }              // Kind == Spotlight
         public string PlaceName { get; init; } = string.Empty;      // Kind == EnterPlace
@@ -47,6 +49,9 @@ namespace SSNoir.Core
 
         public static BlockingStoryStep ForDialogue(DialogueSequence sequence)
             => new BlockingStoryStep { Kind = BlockingStoryStepKind.Dialogue, Dialogue = sequence };
+
+        public static BlockingStoryStep ForTheatre(SSNoir.Theatre.TheatreScene scene)
+            => new BlockingStoryStep { Kind = BlockingStoryStepKind.Theatre, Theatre = scene };
 
         public static BlockingStoryStep ForStage(StoryStageSequence sequence)
             => new BlockingStoryStep { Kind = BlockingStoryStepKind.Stage, Stage = sequence };

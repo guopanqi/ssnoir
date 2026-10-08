@@ -106,7 +106,14 @@ Unity 和校验工具读取。`Resources/Content` 中的 `.scm` 由项目 import
 
 ---
 
-## 5. 关键设计决策
+## 5. 独立线绘舞台
+
+`play-theatre!` 将布景和演出转换为 `TheatreScene`，经阻塞表现队列或即时广播进入客户端。
+`Engine/Runtime/Theatre` 只持有类型化数据和注入时间的播放状态；Unity 的 `Runtime/Theatre`
+在独立 RenderTexture 上绘制并管理声音。它不使用旧 `StoryStageDrawer`，不修改城市相机或灯光。
+创作接口、JS 移植边界和验证入口见 [线绘舞台](线绘舞台.md)。
+
+## 6. 关键设计决策
 
 | 决策 | 选择 | 原因 |
 |---|---|---|

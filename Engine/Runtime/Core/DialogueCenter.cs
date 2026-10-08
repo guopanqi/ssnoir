@@ -10,6 +10,7 @@ namespace SSNoir.Core
         public event Action<DialogueSequence>? OnBanterRequested;
         public event Action<DialogueSequence>? OnDialogueRequested;
         public event Action<StoryStageSequence>? OnStageRequested;
+        public event Action<SSNoir.Theatre.TheatreScene>? OnTheatreRequested;
 
         public void RequestBanter(DialogueSequence sequence)
         {
@@ -21,6 +22,12 @@ namespace SSNoir.Core
         {
             if (sequence == null) throw new ArgumentException("dialogue sequence cannot be null");
             OnDialogueRequested?.Invoke(sequence);
+        }
+
+        public void RequestTheatre(SSNoir.Theatre.TheatreScene scene)
+        {
+            if (scene == null) throw new ArgumentNullException(nameof(scene));
+            OnTheatreRequested?.Invoke(scene);
         }
 
         public void RequestStage(StoryStageSequence sequence)

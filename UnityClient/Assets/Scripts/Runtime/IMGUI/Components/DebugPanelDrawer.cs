@@ -40,6 +40,7 @@ namespace SSNoir.IMGUI
 
         private static readonly ChapterJump[] ChapterJumps =
         {
+            new ChapterJump { Label = "线绘舞台试演：路灯下", Code = "(begin (load-file \"scripts/theatre/路灯下.scm\") (路灯下-试演!))" },
             new ChapterJump
             {
                 Label = "第一章：大船靠岸（再进码头）",

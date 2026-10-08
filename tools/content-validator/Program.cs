@@ -19,6 +19,12 @@ namespace SSNoir
                     return;
                 }
 
+                if (args.Length == 1 && args[0] == "--test-theatre")
+                {
+                    TheatreChecks.Run();
+                    return;
+                }
+
                 if (args.Length > 0 && args[0] == "--test-saveload")
                 {
                     GameTester.TestSaveLoad();
@@ -75,7 +81,7 @@ namespace SSNoir
                 }
 
                 Console.Error.WriteLine(
-                    "用法：./run --validate | --test-saveload | --test-odds | --test-round-transition | " +
+                    "用法：./run --validate | --test-saveload | --test-odds | --test-round-transition | --test-theatre | " +
                     "--playtest <入场表达式或场景名> [选项] | --session <world|场景名|入场表达式> [选项] " +
                     "| --session-baseline <交锋入口> --output <记录.json> | --session-report <记录.json> [...] | --replay <记录.json> " +
                     "| --stage-export <Scheme 表达式> <输出.json>");

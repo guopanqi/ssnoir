@@ -463,6 +463,17 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__play-dialogue!"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__play-theatre!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 2) throw new ArgumentException("__play-theatre! requires scene and beats");
+                var scene = TheatreParser.Parse(args[0], args[1]);
+                if (gameState.CurrentActionReport != null)
+                    gameState.CurrentActionReport.BlockingStorySteps.Add(BlockingStoryStep.ForTheatre(scene));
+                else
+                    gameState.DialogueCenter.RequestTheatre(scene);
+                return new None();
+            }, "__play-theatre!"));
+
             interpreter.DefineGlobal(Symbol.FromString("__play-stage!"), new NativeProcedure(args =>
             {
                 var sequence = ParseStoryStage(args);

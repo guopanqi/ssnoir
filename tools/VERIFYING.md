@@ -119,6 +119,12 @@ the same project"。先 `pgrep -lf "Unity.app/Contents/MacOS/Unity"` 看一眼�
 - 只有用户明确要求 Codex 使用 Unity 做实际交互验证时，才尝试用 `computer-use` 控制编辑器；操作前先保护未保存的场景和当前 Play Mode 状态。
 - 编译结果按上一节取；那几条路都不必操作编辑器。编译通过不等于画面和手感对，那一头始终由用户在 Play Mode 里确认。
 
+## 线绘舞台
+
+新增图形、属性动画或音频生命周期时，执行 `dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-theatre`。
+它实际加载并执行路灯样板，检查解析和时间语义；Unity 侧仍需客户端编译结果。
+离屏 GPU 检查、范围与限制见 [线绘舞台](../docs/线绘舞台.md#试演与验证)。
+
 ## GameTester
 
 `GameTester` 一般用来测试：**稳定的底层引擎 / DSL 契约**、**高风险且容易静默损坏的基础功能**、
