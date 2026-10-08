@@ -1,0 +1,19 @@
+{
+  "task_id": "ccd65cbc-16c5-4eff-991f-dd196e08c836",
+  "status": "success",
+  "source": null,
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "prompt": "ONE full-body Nightingale, human adult jazz singer age 30, 1930s American noir. LEFT-facing three-quarter standing pose: one hand near collarbone, other arm hanging, feet close, low heels complete. Normal slender adult anatomy, long neck and elegant long nose, guarded slightly tired eyes, no smile. Distinct voluminous shoulder-length dark curls with a large S-shaped forehead wave; asymmetric long sleeveless dark blue evening gown. OPAQUE painted body with large volume and shadow masses, not hollow or outlined in light. Whole figure within frame, margins above hair and below feet. Flat vivid chroma green #00ee00 BACKGROUND ONLY, never green inside figure. No scenery, lettering, frame, ground shadow, props, extra figures, 3D render, photo, anime, fashion glamour, uniform vector outlines. Mature painted cinematic comic portrait. Dramatic coherent side light from upper LEFT: one broad pale warm-grey plane on forehead, nose, shoulder and upper hand, other HALF of face and body in connected deep charcoal shadow. Face is expressive, weary and dignified; no exaggerated angry grimace. Muted slate-blue dress in three large planes, charcoal curls with just one broad highlight wave. Sculptural graphic lighting and selected thick dark brush edges, minimal folds; limited palette, no neon, no edge glow. Learn noir storytelling through occlusion and silhouette, not copying any game character."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/noir-paint-styles/26-noir-half-shadow/ccd65cbc-16c5-4eff-991f-dd196e08c836/image.png",
+    "bytes": 1036685,
+    "sha256": "9ed9b21f4b841ed75fafbab6aac68535c3d3e2dd0c737ad41b15c191e5af7d20"
+  }
+}
