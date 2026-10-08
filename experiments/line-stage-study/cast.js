@@ -6,9 +6,9 @@ export const castStyles=[
  {id:'storyOrganic',name:'G3 有机平涂',note:'借鉴 Mutazione 的有机造型：长曲线、大块哑光填充，减少发丝与衣褶，用侧脸传递情绪。',folder:'22-story-organic',neilFolder:'09-neil-c1-neon'},
  {id:'storyDuo',name:'G4 双色长弧',note:'原创双色叙事造型：深色实心礼服与浅色皮肤，少量粗细变化的长弧，检查进一步简化后的辨识度。',folder:'23-story-two-tone',neilFolder:'09-neil-c1-neon'},
  {id:'storyBrush',name:'G5 松笔漫画',note:'不以 N2 图像锁定造型，按夜莺身份重新设计：更蓬松的卷发、瘦长侧脸和不均匀墨线，姿势仍是一手靠近锁骨。',folder:'24-story-brush',neilFolder:'09-neil-c1-neon'},
- {id:"signet1",name:"I1 粗墨块",note:"黑白实心大墨块、长弧发浪与极少衣褶；不加排线。",folder:"29-signet-ink",neilFolder:'09-neil-c1-neon'},
- {id:"signet2",name:"I2 疏排线",note:"手绘墨线与局部疏排线，礼服和卷发保持实黑。",folder:"30-signet-hatch",neilFolder:'09-neil-c1-neon'},
- {id:"signet3",name:"I3 局部网点",note:"黑白色面与局部网点暗面，保留成熟侧脸和卷发。",folder:"31-signet-screen",neilFolder:'09-neil-c1-neon'},
+ {id:"signet1",name:"I1 粗墨块",note:"黑白实心大墨块、长弧发浪与极少衣褶；不加排线。",folder:"29-signet-ink-v2",neilFolder:'09-neil-c1-neon'},
+ {id:"signet2",name:"I2 疏排线",note:"年轻简洁侧颜、手绘墨线与局部疏排线，礼服和卷发保持实黑。",folder:"30-signet-hatch-v2",neilFolder:'09-neil-c1-neon'},
+ {id:"signet3",name:"I3 局部网点",note:"黑白色面与局部网点暗面，保留年轻侧颜和卷发。",folder:"31-signet-screen-v2",neilFolder:'09-neil-c1-neon'},
 ];
 export function sprite(styleId,actor,pose){
  const style=castStyles.find(s=>s.id===styleId);if(!style)throw Error(`Unknown cast style: ${styleId}`);

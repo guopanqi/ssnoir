@@ -1,0 +1,20 @@
+{
+  "task_id": "d52d6a5f-0fb1-4adc-a34b-dd0582ac48e7",
+  "status": "success",
+  "source": "experiments/line-stage-study/assets/05-neon-selective-edge/night-neutral.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/assets/05-neon-selective-edge/night-neutral.png",
+    "prompt": "Restyle this ORIGINAL Nightingale reference into a flat black-and-ivory pen-and-ink game sprite. Preserve her youthful elegant face, smooth cheek, alert clear eye, delicate nose and chin, prominent forehead wave, voluminous curls, slender S silhouette, long sleeveless gown, same LEFT-facing pose with hand near collarbone and other arm hanging. Preserve the reference facial proportions and apparent youth. Full body and shoes inside frame. No age number, no fatigue, no eye bags, no wrinkles, no cheek creases, no sagging face, no harsh facial hatching. Face uses smooth flat ivory fill and very few clean features. Opaque filled body, no neon, no gradients, no painterly volume. Background ONLY solid chroma green #00ee00, never green inside body. No text, props or scenery. Thick imperfect brush-pen contours and large solid black shadow shapes. Flat ivory face and arms, black dress with only two ivory fold strokes. Hair is ONE black mass with three broad white curling cuts. Extremely economical graphic drawing, no hatching, no dots, no tonal modelling."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/signet-styles/29-signet-ink-v2/d52d6a5f-0fb1-4adc-a34b-dd0582ac48e7/image.png",
+    "bytes": 937633,
+    "sha256": "55eb11a41a3f575149089ce79224e58b0cc234bb5c9366a6ac8191846a018be6"
+  }
+}

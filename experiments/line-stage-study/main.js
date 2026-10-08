@@ -1,6 +1,6 @@
 import {scenery} from './scenery.js';
 import {story,performanceAt,starts} from './story.js';
-import {castStyles,sprite} from './cast.js?v=signet-1';
+import {castStyles,sprite} from './cast.js?v=signet-2';
 import {StoryPlayer} from './player.js';
 import {StageSound} from './sound.js';
 import {defaultInk,flatTreatments,mountInkEditor,applyInk} from './editor.js?v=flat-study-1';
