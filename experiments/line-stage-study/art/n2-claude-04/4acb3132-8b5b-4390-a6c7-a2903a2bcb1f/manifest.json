@@ -1,0 +1,20 @@
+{
+  "task_id": "4acb3132-8b5b-4390-a6c7-a2903a2bcb1f",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/night-n2-style-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/night-n2-style-reference.png",
+    "prompt": "Redraw the referenced N2 Nightingale woman as ONE complete full body figure. Preserve the exact LEFT-facing pose: one hand softly at collarbone, other arm resting down, same crossed relaxed legs. Preserve her sleeveless long dark charcoal asymmetrical dress and black heels. NO coat, NO hat, NO handbag, NO new props. Identity must remain unmistakable: large elegant forehead wave, voluminous flowing shoulder curls, long slender nose neck and S-shaped waist and body silhouette. Adult dignified woman, SAME proportions as reference. Complete head and both shoes, blank margins. Flat bright chroma green #00ee00 background. No scenery or shadow, no letters. Keep all dark body and hair areas OPAQUE filled, not hollow or transparent green. Maintain the restrained N2 grey-blue noir palette unless thin gold or ivory lines are specifically requested. Only reinterpret the drawing treatment as follows: The body and coat volume described only by evenly spaced contour lines, like a topographic map or a cross-section wireframe, wrapping around the waist and skirt. Pale blue lines on near-black, density of lines increases in shadow. Hair as flowing parallel lines. No fill shading. Ignore any requested background or ground reflection: green background, no floor. Negative prompt: photorealistic skin, anime face, cartoon proportions, chibi, thick outlines of uniform marker weight, background scenery, gradient background, multiple people, cropped limbs, extra fingers, text, logo, lingerie, cleavage, glamour pose"
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/n2-claude-04/4acb3132-8b5b-4390-a6c7-a2903a2bcb1f/image.png",
+    "bytes": 1381064,
+    "sha256": "0291e722cebd6daeff70f18174947ce23298a02a4b39459f9e287ab14bcdcb59"
+  }
+}

@@ -120,7 +120,6 @@
     (define (found-cigarettes?) (> (item-count cigs-item) 0))
     (define delivery-shortfall -1)  ; -1=尚未装包;0=玩家备足;正数=夜莺补上的差额
     (define condition-level 0)      ; 夜莺处境 0=稳定 1=不安 2=受伤
-    (define song-day 0)             ; 最近一次请她唱歌的世界日
     ;; 她答应跟你回老街的日子。0＝还没开口；否则＝她说的那两天到期的世界日。
     ;; 不做成「去酒馆请她」的动作：那一趟跑腿不改变玩家要做的事，只是让他再读一次
     ;; 目标、再点一次对话。碰壁的那一刻她就在场，让她当场把话说完。
@@ -420,19 +419,8 @@
     (define (node-answer-door)
       (anchored-instant-action "有人敲门" "门口"
         (lambda ()
-          ;; 这一场整场由过场影片演：她敲门、开口、摘下胸针放在桌上，全在片子里。
-          ;; 这里曾经在片子之后又用对白把同样的话讲了一遍——第一次见她就先看一遍、
-          ;; 再读一遍，是把开场最有力的那一下拆成两半。tag 对上场景里那条 CutsceneSequence；
-          ;; 没配镜头时会退回一段占位时长，剧本先行、镜头后补是常态。
-          ;;
-          ;; 片子要立的三件事和原来一样，一件也不能省（见上面的注释）：她的害怕是真的、
-          ;; 她要的是保密、预付款是从身上摘下来的东西。改镜头的时候照着这三条改。
-          (play-video! "来访")
-          ;; 片子把她的害怕演完就停在那儿，可她走进这扇门要的是一个答复。
-          ;; 这几句只做一件事：让尼尔当着她的面把这桩委托接下来——从这里往后，
-          ;; 凑钱、踩点、投信都是他自己许下的，不是玩家被塞了一个任务。
-          ;; 舞台：引子是他的画外音，一个人在台上；她进来时低着头、灯是弱的——
-          ;; 钱是从身上摘下来的东西。他接下这桩事那句往前一步，她才抬起头。
+          ;; 楼下电铃求助先演，开门后再进入现有室内接案对白。
+          (rainy-door-dialogue!)
           (commission-dialogue!)
           (add-item! "金钱" prepayment)
           (set! delivery-day (+ world-day letter-deadline))
@@ -1135,6 +1123,37 @@
     ;; 桥廊调查完成时已经叫出了名字。夜莺的身世不在同一拍倾倒，
     ;; 等玩家离开老街、结束这一天后再用一段短对白收束。
     ;; 这样无论先查到名字还是先收到第二封信，身份揭晓都只发生一次。
+    ;; 雨夜楼下：尼尔只有电铃中的声音；无字动作只用于进场、等待和入门。
+    (define (rainy-door-dialogue!)
+      (play-stage!
+        (stage-parallel
+          (stage-prop "入户电铃" "公寓电铃" 5 2 'back)
+          (stage-spawn "夜莺" "夜莺" -14 'middle)
+          (stage-sound "雨夜求助/雨" 0))
+        (stage-pose "夜莺" "抱臂")
+        (stage-move "夜莺" 0 0 0.7)
+        ;; 按键由电铃声表达，不新增只用于按铃的一张姿势图。
+        (stage-parallel
+          (stage-sound "雨夜求助/电铃" 5)
+          (stage-pause 0.8))
+        (stage-remote-say "尼尔" (tr "是，哪位？" "Yes? Who is it?"))
+        (stage-say "夜莺" (tr "尼尔先生？" "Mr. Morse?"))
+        (stage-say "夜莺" (tr "朋友介绍我来的。我遇到些麻烦，想请你帮忙。" "A friend told me about you. I'm in trouble. I need your help."))
+        (stage-remote-say "尼尔" (tr "现在很晚了，而且……" "It's late, and…"))
+        (stage-say "夜莺" (tr "只耽误几分钟。事情有些急，我怕明天就晚了。" "Just a few minutes. It's urgent. Tomorrow might be too late."))
+        (stage-pause 1.0)
+        (stage-pose "夜莺" "低头")
+        (stage-say "夜莺" (tr "可以吗？" "Please?"))
+        (stage-parallel
+          (stage-sound "雨夜求助/门锁" 5)
+          (stage-pause 0.4))
+        (stage-remote-say "尼尔" (tr "进来吧。" "Come in."))
+        (stage-pose "夜莺" "仰头")
+        (stage-say "夜莺" (tr "谢谢。" "Thank you."))
+        (stage-move "夜莺" 14 0 0.8)
+        (stage-remove "夜莺")
+        (stage-remove "入户电铃")))
+
     ;; 开场委托（Debug 可单独试演）
     ;; 舞台：他靠墙想着穷日子（心里话）；她进来抱着自己、灯弱，一直保持到他伸手接下这桩事；
     ;; 她抬头，灯回来。中间几句不动。
@@ -2473,42 +2492,14 @@
     (define (render-data) '())
 
     ;; ── 夜莺本人 ────────────────────────────────────
-    ;; 人物卡整个第一章常驻酒馆。
-    (define (song-text)
-      (cond
-        ((= story-stage 1)
-         "她没有问你想听什么，转身跟钢琴手点了点头。那支慢歌唱到一半，门被风推开一条缝；她看了一眼，声音没有停。")
-        ((= story-stage 2)
-         "她把声音放得很低，像是只唱给吧台后面那盏灯听。最后一句落下时，酒馆里有几秒钟没人碰杯子。")
-        ((= story-stage 3)
-         "她挑了一支很久没人点过的慢歌。唱到最高的地方时，酒馆里原本说话的人都安静了下来。")
-        ((= story-stage 4)
-         "首演的海报已经贴到门外。她没唱剧院安排的曲子，而是挑了一支在这里唱过很多年的旧歌；今晚没人叫她换。")
-        (else (error "三封信点歌：夜莺当前不在酒馆驻唱"))))
-
-    (define (node-request-song)
-      (node (if (singer-at-theater?) "听她排一遍" "请夜莺唱一首歌")
-        :subtitle (if (= song-day world-day)
-                      "今天已经听过了"
-                      "投入一枚行动骰；恢复 1 点冷静，每天一次")
-        :disabled (= song-day world-day)
-        :requires (list (req-die))
-        :resolve (instant
-          (outcome (lambda ()
-              (set! song-day world-day)
-              ;; 无判定、每天必得的恢复只给 1 点：满额回复留给会失败的（散步）
-              ;; 和真正花钱的（酒、烟）。
-              (restore-actor-composure! 'player 1))))))
-
+    ;; 只在剧院、且有话要说时出现（给负评 / 谈取消）；无事时整卡省略。
     (define (nightingale-anchor-name location)
       (cond
         ((equal? location "老街酒馆") "夜莺@酒馆")
         ((equal? location "剧院") "夜莺@剧院")
         (else (error "夜莺：人物节点所在地点没有登记空间锚点"))))
 
-    ;; 这里曾经有一张「她今晚的样子」：进她这张卡先读一段她今晚什么状态。
-    ;; 删了——那是站在她面前就看得见的东西，不是查了才知道的。她今晚什么样，
-    ;; 该由请她唱歌那一段、由她自己的台词说，不该做成一张要点开的卡。
+    ;; 「她今晚的样子」不做成卡：站在她面前就看得见的东西，不是查了才知道的。
     (define (nightingale-node location extra-children)
       (node "夜莺"
         :anchor (nightingale-anchor-name location)
@@ -2546,12 +2537,7 @@
                (list (dock-lyon-investigation))
                '())))
         ((equal? location "老街酒馆")
-         (append
-           (if (and (singer-present?) (equal? (singer-location) "老街酒馆"))
-               (list (nightingale-node "老街酒馆"
-                       (list (node-request-song))))
-               '())
-           (if (beat2-open?) (list (node-lyon-talk)) '())))
+         (if (beat2-open?) (list (node-lyon-talk)) '()))
         ;; 老街节点全部平铺在居民区下；探索过程消失后，只留下有后续玩法的人物与地点。
         ((equal? location "码头居民区")
          (append
@@ -2594,21 +2580,20 @@
         ((equal? location "剧院")
          (append
              (list (node-manager))
-             ;; 排练开始以后她本人就在这儿：点歌换成听她排一遍，恢复手段不断档。
              (if (and (singer-present?) (equal? (singer-location) "剧院"))
-                 (list
-                   (nightingale-node "剧院"
-                     (append
-                       (if (and lesson-done? (not (equal? lesson-route "失败"))
-                                (not (has-flag? '她问了你)))
-                           (list (node-give-negatives))
-                           '())
-                       ;; 第三封信后的谈话一次谈完登台与她的原则。
-                       ;; 谢幕是正式演出固定的一部分，不在城市阶段提供取消分支。
-                       (if (beat3-open?)
-                           (if (has-flag? '她不取消) '() (list (node-she-refuses)))
-                           '())
-                       (list (node-request-song)))))
+                 (let ((kids (append
+                              (if (and lesson-done? (not (equal? lesson-route "失败"))
+                                        (not (has-flag? '她问了你)))
+                                  (list (node-give-negatives))
+                                  '())
+                              ;; 第三封信后的谈话一次谈完登台与她的原则。
+                              ;; 谢幕是正式演出固定的一部分，不在城市阶段提供取消分支。
+                              (if (beat3-open?)
+                                  (if (has-flag? '她不取消) '() (list (node-she-refuses)))
+                                  '()))))
+                   (if (null? kids)
+                       '()
+                       (list (nightingale-node "剧院" kids))))
                  '())
              (if premiere-pending? (list (node-premiere-entry)) '())
              (if (and (= story-stage 5) (not (has-flag? '灯亮起来)))
@@ -2702,6 +2687,7 @@
           ((equal? msg 'debug-enable-second-letter!) (set-flag! '第二封信))
           ((equal? msg 'debug-stage-bridge!) (bridge-aftermath-dialogue!))
           ((equal? msg 'debug-stage-resident-arrival!) (first-resident-dialogue!))
+          ((equal? msg 'debug-stage-rainy-door!) (rainy-door-dialogue!))
           ((equal? msg 'debug-stage-commission!) (commission-dialogue!))
           ((equal? msg 'debug-stage-refusal!) (refusal-dialogue!))
           ((equal? msg 'debug-stage-closing!) (closing-dialogue!))
@@ -2717,7 +2703,6 @@
              (list "delivery-shortfall" delivery-shortfall)
              (list "mail-routine" (mail-clock 'save))
              (list "condition-level" condition-level)
-             (list "song-day" song-day)
              (list "alley-thrown-out?" alley-thrown-out?)
              (list "warren-alone" (warren-alone-clk 'save))
              (list "singer-guiding-day" singer-guiding-day)
@@ -2795,7 +2780,6 @@
              (if (or (< condition-level 0) (> condition-level 2))
                  (error "三封信存档错误：夜莺处境等级非法")
                  #t)
-             (set! song-day (assoc-get data "song-day" 0))
              (set! alley-thrown-out? (assoc-get data "alley-thrown-out?" #f))
              (warren-alone-clk 'load! (assoc-get data "warren-alone" 0))
              (set! singer-guiding-day (assoc-get data "singer-guiding-day" 0))

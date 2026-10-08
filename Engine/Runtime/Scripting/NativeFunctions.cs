@@ -733,12 +733,13 @@ namespace SSNoir.Scripting
                             command = new StoryStageCommand { Kind = StoryStageCommandKind.Sound, Asset = Id(1), X = Number(2) };
                             break;
                         case "say":
+                        case "remote-say":
                             if (p.Count != 2) throw new ArgumentException("stage-say: line");
                             var dialogue = ParseDialogueSequence(new List<object> { new List<object> { p[1] } }, "stage-say");
                             command = new StoryStageCommand { Kind = StoryStageCommandKind.Say, Line = dialogue.Lines[0] };
                             if (hasSay || rawCommands.Count != 1) throw new ArgumentException("stage-say must occupy its own beat");
                             // 「世界」是旁白，不占舞台位、也不要求 stage-spawn（见 StoryStageDrawer.NarratorSpeaker）。
-                            if (command.Line.Speaker != "世界" && !actors.Contains(command.Line.Speaker))
+                            if (op == "say" && command.Line.Speaker != "世界" && !actors.Contains(command.Line.Speaker))
                                 throw new ArgumentException($"stage-say: speaker is not on stage: {command.Line.Speaker}");
                             hasSay = true;
                             break;

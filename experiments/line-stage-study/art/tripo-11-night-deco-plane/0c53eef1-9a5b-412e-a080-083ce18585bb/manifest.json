@@ -1,0 +1,20 @@
+{
+  "task_id": "0c53eef1-9a5b-412e-a080-083ce18585bb",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/night-single-style-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/night-single-style-reference.png",
+    "prompt": "Redraw this SAME Nightingale woman as ONE complete full-body figure centered on perfectly flat bright chroma green #00ee00 background. Preserve exact LEFT-facing pose: one hand raised at collarbone, other hand down holding handbag, crossed relaxed legs, same ankle heels; same long fitted blue-grey coat ending below knees, small tilted hat, handbag. Preserve identity: sculptural forehead wave, voluminous shoulder curls, slender long nose and neck, adult elegant S silhouette. Keep composition and body proportion, complete hat and feet with margins. Only change art style. No objects besides hat and handbag, no words, no ground shadows, no second person. Restrained noir palette, opaque solid filled body, never hollow neon. Use 1930s Art Deco poster stylization: tall elegant proportions still matching reference, sculptural curls reduced to interlocking sweeping arcs, flowing geometry in coat, precisely cut broad opaque dark slate and pale ivory planes. No surface texture. Facial profile described by only nose brow and lip strokes. Restrained pale ivory outer edge in selected places. Sophisticated noir graphic shape design with strong silhouette."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/tripo-11-night-deco-plane/0c53eef1-9a5b-412e-a080-083ce18585bb/image.png",
+    "bytes": 950212,
+    "sha256": "c192972e52d576e282610260e4b63632d2f9598b1934f4d8992f1963c42d53d8"
+  }
+}

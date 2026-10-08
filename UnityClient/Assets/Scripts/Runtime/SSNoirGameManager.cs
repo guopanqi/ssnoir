@@ -42,6 +42,20 @@ namespace SSNoir
         private const string SemiboldFontAssetPath = "Assets/Resources/Fonts/" + FontFamily + "-SemiBold.ttf";
 #endif
 
+        [Header("标题灯牌配色")]
+        [Tooltip("灯管中心颜色；标题页逐帧读取，可在 Play Mode 实时试色。")]
+        [SerializeField] private Color titleSignCore = new Color(1f, 0.945f, 0.827f); // #FFF1D3
+        [Tooltip("Belleville 主招牌的外部光晕颜色。")]
+        [SerializeField] private Color titleSignGlow = new Color(0.788f, 0.608f, 0.408f); // #C99B68
+        [Tooltip("THE BALLADS OF 小标题的光晕颜色。")]
+        [SerializeField] private Color titleHeadingGlow = new Color(0.643f, 0.694f, 0.718f); // #A4B1B7
+        [Tooltip("标题灯牌光晕强度：0 关闭光晕，1 为默认；不影响灯芯亮度。Play Mode 实时生效。")]
+        [Range(0f, 2f)] [SerializeField] private float titleSignGlowStrength = 1f;
+        public float TitleSignGlowStrength => titleSignGlowStrength;
+        public Color TitleSignCore => titleSignCore;
+        public Color TitleSignGlow => titleSignGlow;
+        public Color TitleHeadingGlow => titleHeadingGlow;
+
         [Header("Camera Drag Settings")]
         [Tooltip("Pan 拖拽：1 = 拖一像素地面走一像素（按视线落点距离换算），大于 1 更快。")]
         [SerializeField] private float panSpeedMultiplier = 1f;
@@ -92,10 +106,10 @@ namespace SSNoir
         private bool _incomingFocusContextActive;
         private Cinemachine.CinemachineVirtualCamera? _incomingFocusContextCamera;
         private Cinemachine.CinemachineVirtualCamera? _outgoingFocusContextCamera;
+        private int _cityOutlineClearRequest;
         private bool _incomingFocusCrossesStagePortal;
         // 回到世界视角时，建筑的 High 不能在相机离开近景前立刻撤掉；否则玩家会看到
         // High -> Low 的替换瞬间。每次新的焦点请求都会使旧的清理请求失效。
-        private int _cityOutlineClearRequest;
 
 
         // ── 冷静 / 伤势的变化脉冲 ────────────────────────────────────────
@@ -612,15 +626,13 @@ namespace SSNoir
                     PresentCamera(focusCamera);
                 }
 
-                // 玩家探索可从当前一侧直接靠近 orbit 地点，返回世界也使用相同路径。
-                // pan 地点和剧情镜头仍抵达预设机位，沿用原弧线。
+                // 探索只声明意图；路径由镜头管理器根据进出两端选择。
+                // 剧情仍明确使用编排弧线，不受探索设置影响。
                 bool travelStarted = false;
                 if (_stageController == null || !_stageController.IsTransitioning)
                     travelStarted = _cameraManager.BeginFocusTravel(
                         focusCamera, respectReduceMotion: !storyDriven,
-                        path: !storyDriven && (focusPath.LastOrDefault() == WorldRootNodeName
-                            || focusCamera.GetComponent<SSNoirVirtualCameraConfig>()?.dragMode == CameraDragMode.Orbit)
-                            ? _cameraManager.ExplorationPath : FocusTravelPath.AuthoredArc);
+                        path: storyDriven ? FocusTravelPath.AuthoredArc : FocusTravelPath.Exploration);
 
                 ResetFocusCameraPriorities();
                 focusCamera.Priority = 20;
@@ -1405,6 +1417,35 @@ namespace SSNoir
             }
         }
 
+        public void EnterDemoEncounter(string scene, string entryExpression)
+        {
+            if (_stateTainted) return;
+            if (string.IsNullOrWhiteSpace(entryExpression))
+            {
+                OnSceneButtonClicked(scene);
+                return;
+            }
+
+            // 演示演出节点由城市内容提供，走普通动作报告与表现流程。
+            OnSceneButtonClicked("world");
+            SetFocusedNode(null, updateCamera: true);
+            var interpreter = _sceneManager.ActiveInterpreter;
+            var node = SSNoir.Scripting.NodeConverter.ConvertSingle(
+                interpreter.Eval(entryExpression), interpreter.RawInterpreter);
+            ExecuteNodeAction(node);
+        }
+
+        public void UnlockDemoLocations()
+        {
+            if (_stateTainted) return;
+            if (_sceneManager.CurrentSceneName != "world")
+                throw new InvalidOperationException("演示地点解锁必须在世界中执行。");
+            _gameState.Set("演示地点全开", true);
+            _sceneManager.Refresh();
+            CommitLatestSnapshotAtPresentationBoundary(resetUiOnContextChange: false);
+            ShowNotification("演示：全部地点已开放。");
+        }
+
         public void AddDebugMoney(int amount)
         {
             if (_stateTainted)
@@ -1666,7 +1707,7 @@ namespace SSNoir
                 }
                 else
                 {
-                    MotionSettings.ReduceMotion = true;
+                    MotionSettings.ReduceMotion = false;
                 }
                 AudioVolumes.Music = ReadVolumeSetting(
                     MusicVolumeSettingKey, AudioVolumes.MusicDefault);
@@ -1690,7 +1731,7 @@ namespace SSNoir
         {
             ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
-            MotionSettings.ReduceMotion = true;
+            MotionSettings.ReduceMotion = false;
             AudioVolumes.ResetToDefaults();
             _stateTainted = false;
         }
@@ -1750,6 +1791,19 @@ namespace SSNoir
                 return;
             }
 
+            StartCoroutine(PlayOpeningAtPlace(node));
+        }
+
+        private IEnumerator PlayOpeningAtPlace(GameNode node)
+        {
+            // 开场先到动作所属地点；地点由内容树决定，不写死章节或住所名。
+            var path = FindPathToNode(node.Name);
+            if (path.Count >= 3)
+            {
+                EnterForcedPlace(path[path.Count - 2]);
+                while (_cameraManager.IsFocusTravelInFlight || _stageController.IsTransitioning)
+                    yield return null;
+            }
             ExecuteNodeAction(node);
         }
 

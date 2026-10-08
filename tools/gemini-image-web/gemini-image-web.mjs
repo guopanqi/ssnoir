@@ -8,6 +8,7 @@ import process from "node:process";
 import { spawn } from "node:child_process";
 import { createConnection, createServer } from "node:net";
 import { chromium } from "playwright";
+import { classifyResponse, responseError } from "./response-state.mjs";
 
 const REPO_ROOT = resolve(import.meta.dirname, "../..");
 const DEFAULT_OUTPUT_ROOT = resolve(REPO_ROOT, "tmp/gemini-image-web");
@@ -325,7 +326,6 @@ async function submitPrompt(page, prompt, referenceCount) {
       fail(`第 ${attempt} 次提交前未找到提示词输入框（当前 URL：${page.url()}）。`);
     });
     if ((await editor.innerText().catch(() => "")).trim() !== prompt) {
-      await editor.click();
       await editor.fill(prompt);
     }
     const send = page.locator("button[aria-label='Send message']").first();
@@ -350,15 +350,31 @@ async function submitPrompt(page, prompt, referenceCount) {
   fail(`三次点击 Send message 后仍未出现用户回合或会话 ID，任务没有提交（当前 URL：${page.url()}）。`);
 }
 
-async function waitForResult(page, timeoutMs, submittedAt) {
+export async function waitForResult(page, timeoutMs, submittedAt) {
+  let retried = false;
   const started = Date.now();
   let lastBeat = started;
+  let lastResponseText = "";
   while (Date.now() - started < timeoutMs) {
-    const body = await page.locator("body").innerText();
-    if (/Something went wrong|出了点问题|can't create images|couldn't generate|unable to create/i.test(body)) {
-      fail(`Gemini 报告生成失败：${body.match(/.{0,120}(went wrong|create images|generate).{0,120}/i)?.[0] || ""}`);
+    // 用户提示词、侧栏和旧回复可能含错误词，只检查当前模型回复。
+    const response = page.locator("model-response").last();
+    const text = await response.innerText({ timeout: 1_000 }).catch(() => "");
+    if (text.trim()) lastResponseText = text.trim();
+    const state = classifyResponse(text);
+    if (state.kind !== "pending") {
+      const redo = response.getByRole("button", { name: "Redo", exact: true });
+      if (state.kind === "transient-error" && !retried &&
+          timeoutMs - (Date.now() - started) >= 15_000 && await redo.isVisible().catch(() => false)) {
+        retried = true;
+        lastResponseText = "";
+        console.error("[gemini-image-web] 当前回复报告临时服务错误，点击 Redo 重试一次（仍使用原 90 秒总预算）。");
+        await redo.click();
+        await page.waitForTimeout(2_000);
+        continue;
+      }
+      throw responseError(`Gemini ${state.kind === "transient-error" ? "服务临时失败" : "报告生成失败"}${retried ? "（Redo 重试后仍失败）" : ""}。`, state.message, state.kind, page.url());
     }
-    const image = page.locator("img[alt*='AI generated']").last();
+    const image = response.locator("img[alt*='AI generated']").last();
     if (await image.count()) {
       const ready = await image.evaluate(element => element.complete && element.naturalWidth > 200).catch(() => false);
       if (ready) return image;
@@ -369,7 +385,7 @@ async function waitForResult(page, timeoutMs, submittedAt) {
     }
     await page.waitForTimeout(2_000);
   }
-  fail(`等待生成完成超时（${timeoutMs} ms）。对话仍保留在网页历史中：${page.url()}`);
+  throw responseError(`等待生成完成超时（${timeoutMs} ms）。`, lastResponseText, "timeout", page.url());
 }
 
 async function downloadImage(page, image, outputDir) {
@@ -481,7 +497,7 @@ async function generate(options, sharedContext = null) {
     await assertImagesPage(page);
     await uploadReferences(page, options.reference);
     const editor = promptEditor(page);
-    await editor.click();
+    // fill 会直接聚焦可编辑文本框；Images 欢迎卡有时覆盖鼠标点击区域。
     await editor.fill(options.prompt);
     await page.waitForTimeout(300);
     const submittedAt = Date.now();
@@ -511,6 +527,9 @@ async function generate(options, sharedContext = null) {
     manifest.download = result;
     await saveOut(options, result, manifest);
     delete manifest.error;
+    delete manifest.response_text;
+    delete manifest.response_kind;
+    delete manifest.response_file;
     delete manifest.failure_screenshot;
     await atomicJson(manifestPath, manifest);
     console.log([
@@ -524,6 +543,13 @@ async function generate(options, sharedContext = null) {
   } catch (error) {
     manifest.status = "interrupted";
     manifest.error = error.message;
+    if (typeof error.response_text === "string") {
+      manifest.response_text = error.response_text;
+      manifest.response_kind = error.response_kind;
+      manifest.conversation_url = error.conversation_url;
+      manifest.response_file = resolve(manifest.output_dir, "response.txt");
+      await writeFile(manifest.response_file, error.response_text, "utf8");
+    }
     manifest.updated_at = new Date().toISOString();
     if (page) {
       const screenshot = resolve(outputDir, "failure.png");
@@ -584,12 +610,22 @@ async function resume(options, sharedContext = null) {
     options.name = options.name || manifest.name;    // --out 是目录时文件名取自 manifest
     await saveOut(options, result, manifest);
     delete manifest.error;
+    delete manifest.response_text;
+    delete manifest.response_kind;
+    delete manifest.response_file;
     delete manifest.failure_screenshot;
     await atomicJson(options.manifest, manifest);
     console.log(`[gemini-image-web] 已恢复并保存：${result.path}\n  ${result.width}x${result.height}; ${result.mime_type}; ${result.extraction}\n${options.manifest}`);
   } catch (error) {
     manifest.status = "interrupted";
     manifest.error = error.message;
+    if (typeof error.response_text === "string") {
+      manifest.response_text = error.response_text;
+      manifest.response_kind = error.response_kind;
+      manifest.conversation_url = error.conversation_url;
+      manifest.response_file = resolve(manifest.output_dir, "response.txt");
+      await writeFile(manifest.response_file, error.response_text, "utf8");
+    }
     manifest.updated_at = new Date().toISOString();
     if (page) {
       const screenshot = resolve(outputDir, "failure.png");

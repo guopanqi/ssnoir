@@ -1,0 +1,27 @@
+{
+  "file": "contact.png",
+  "info": {
+    "format": "raw",
+    "width": 557,
+    "height": 1024,
+    "channels": 4,
+    "depth": "uchar",
+    "premultiplied": false,
+    "size": 2281472
+  },
+  "parts": [
+    {
+      "x0": 11,
+      "x1": 536,
+      "y0": 31,
+      "y1": 1005
+    }
+  ],
+  "top": 26,
+  "bottom": 1011,
+  "width": 538,
+  "names": [
+    "contact"
+  ],
+  "flipped": []
+}

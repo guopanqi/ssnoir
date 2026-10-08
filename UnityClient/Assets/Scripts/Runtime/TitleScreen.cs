@@ -22,7 +22,7 @@ namespace SSNoir
 
         private const float ColumnX = 0.10f;   // 文字栏左边距（屏宽占比）
         private const float TitleY = 0.15f;    // 片名基线（屏高占比）
-        private const float TitleMenuGap = 36f;
+        private const float TitleMenuGap = 64f;   // 标题组与操作组之间明确留白
         private const float ButtonWidth = 320f;
         private const float ItemHeight = 48f;
         private const float ItemSpacing = 10f;
@@ -198,13 +198,13 @@ namespace SSNoir
             float signHeight = signWidth * 0.3f;
             float age = Time.unscaledTime - _openedAt;
             var sign = new Rect(x - signWidth * 0.045f, titleY + 26f, signWidth, signHeight);
-            float hue = 0.5f + 0.5f * Mathf.Sin(age * 0.22f);
-            var rose = Color.Lerp(new Color(1f, 0.12f, 0.29f), new Color(0.78f, 0.16f, 1f), hue * 0.65f);
-            var violet = new Color(0.65f, 0.39f, 1f);
-            var look = new LampLook(1f, 0.95f, 1f, rose, true, 1f, 0f, current: 1f);
-            LampPainter.PaintSkeleton(sign, _wordmark!, look, age, ForegroundAlpha);
+            var look = new LampLook(1f, 0.95f, 1f, _gameManager.TitleSignGlow,
+                true, 1f, 0f, current: 1f);
+            LampPainter.PaintSkeleton(sign, _wordmark!, look, age,
+                ForegroundAlpha, _gameManager.TitleSignCore, _gameManager.TitleSignGlowStrength);
             LampPainter.PaintSkeleton(new Rect(x + signWidth * 0.11f, titleY, signWidth * 0.48f, 21f),
-                _heading!, new LampLook(1f, 0.8f, 1f, violet, true, 1f, 0f), Mathf.Max(0f, age - 0.3f), ForegroundAlpha);
+                _heading!, new LampLook(1f, 0.8f, 1f, _gameManager.TitleHeadingGlow, true, 1f, 0f),
+                Mathf.Max(0f, age - 0.3f), ForegroundAlpha, _gameManager.TitleSignCore, _gameManager.TitleSignGlowStrength);
 
             float textX = x + signWidth * 0.11f;
             // 字形底部留有空白，小字紧跟实际下划弧线，而不是贴图外框。
@@ -229,7 +229,7 @@ namespace SSNoir
                     enabled: true, compact: true, active: GameLanguage.Current == GameLanguage.English))
                 GameLanguage.Current = GameLanguage.English;
 
-            float itemY = caption.yMax + TitleMenuGap - 8f;
+            float itemY = caption.yMax + TitleMenuGap;
             float menuWidth = Mathf.Min(ButtonWidth, vw - textX - x);
             float menuX = textX;
 

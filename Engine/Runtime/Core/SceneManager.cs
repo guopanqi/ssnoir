@@ -178,7 +178,17 @@ namespace SSNoir.Core
                 // 交锋自己的入场演出属于刚载入的交锋，而不是发起它的世界动作。
                 // 若本次载入来自一个动作，这些步骤会写进该动作仍持有的 ActionReport；
                 // Debug 直载时则由表现函数安全地忽略。
+                var entryReport = _gameState.CurrentActionReport;
+                int entryStepStart = entryReport?.BlockingStorySteps.Count ?? 0;
                 _encounterInterpreter.Eval("(on-encounter-enter)");
+                // 交锋开场在进入新空间后播放；城市动作先前排入的演出仍留在进门之前。
+                if (entryReport != null && entryReport.BlockingStorySteps.Count > entryStepStart)
+                {
+                    int count = entryReport.BlockingStorySteps.Count - entryStepStart;
+                    entryReport.PostSceneBlockingSteps.AddRange(
+                        entryReport.BlockingStorySteps.GetRange(entryStepStart, count));
+                    entryReport.BlockingStorySteps.RemoveRange(entryStepStart, count);
+                }
             }
 
             RollSceneDice(!IsWorldScene(sceneName));

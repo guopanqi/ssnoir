@@ -78,15 +78,16 @@ const PIPS = {
 export function mountHUD(host, opts) {
   host.innerHTML = `
     <div class="hud-tl">
-      <button id="hud-back" class="hud-back hidden">‹&nbsp;返回城市</button>
-      <div class="hud-case card">
-        <div class="hud-case-no">案卷 · 第七号</div>
-        <div class="hud-case-title" id="hud-location">城市</div>
-        <div class="hud-tasks">
-          <div class="task"><span class="tbox"></span>跟踪码头运出的卡车</div>
-          <div class="task current"><span class="tbox on"></span>查明夜莺的下落</div>
-          <div class="task"><span class="tbox"></span>弄清勒索信的来历</div>
-        </div>
+      <div class="hud-nav">
+        <button id="hud-back" class="hud-back" disabled>‹ 返回</button>
+        <div class="hud-breadcrumb"><span>世界</span><span class="hud-separator">/</span><strong id="hud-location">城市</strong></div>
+      </div>
+      <button class="hud-mission" id="hud-mission" aria-expanded="false" aria-controls="hud-mission-detail">
+        <span class="hud-mission-mark"></span><span>码头疑云</span><span class="hud-mission-progress">1 / 3</span><span class="hud-mission-chevron">⌄</span>
+      </button>
+      <div class="hud-mission-detail" id="hud-mission-detail" hidden>
+        <strong>查清夜间货物的去向</strong><p>去老街酒馆，找夜班的司机。</p>
+        <span>下一步 · 调查码头货单</span>
       </div>
       <div class="hud-log" id="hud-log"></div>
     </div>
@@ -106,6 +107,9 @@ export function mountHUD(host, opts) {
 
   const log = host.querySelector('#hud-log');
   const backBtn = host.querySelector('#hud-back');
+  const mission=host.querySelector('#hud-mission');
+  const missionDetail=host.querySelector('#hud-mission-detail');
+  mission.addEventListener('click',()=>{missionDetail.hidden=!missionDetail.hidden;mission.setAttribute('aria-expanded',String(!missionDetail.hidden));});
 
   function toast(text) {
     const line = document.createElement('div');
@@ -173,8 +177,9 @@ export function mountHUD(host, opts) {
 
   return {
     setView(mode,name) {
-      backBtn.classList.toggle('hidden', mode === 'world');
       backBtn.disabled=mode!=='focused';
+      backBtn.title=mode==='world'?'已在城市视角':'返回城市';
+      missionDetail.hidden=true;mission.setAttribute('aria-expanded','false');
       host.querySelector('#hud-location').textContent=mode==='world'?'城市':name;
     },
     toast,

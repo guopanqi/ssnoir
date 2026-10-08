@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>立绘剧场 · Portrait Theatre — GLM</title>
+<style>
+:root{ --gold:#c8a25a; --ink:#e8e2d6; }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:#0b0b10;color:var(--ink);
+  font-family:"Noto Serif SC","Songti SC",STSong,Georgia,serif;
+  display:flex;align-items:center;justify-content:center}
+#app{width:min(1180px,96vw)}
+header{display:flex;justify-content:space-between;align-items:baseline;padding:12px 6px 8px}
+.brand{font-size:20px;letter-spacing:3px}
+.brand span{color:var(--gold);font-size:12px;letter-spacing:4px;margin-left:10px}
+.meta{color:#6f6a60;font-size:12px;letter-spacing:2px}
+#err{display:none;position:fixed;top:0;left:0;right:0;z-index:99;background:#5a1420;color:#ffd9d9;
+  padding:8px 14px;font-size:13px;font-family:Consolas,monospace}
+#stage-wrap{position:relative;border:1px solid #26241f;border-radius:6px;overflow:hidden;
+  background:#000;box-shadow:0 24px 70px rgba(0,0,0,.65);cursor:pointer;user-select:none}
+#stage-wrap.shaking{animation:shake .5s}
+@keyframes shake{0%{transform:translate(0,0)}18%{transform:translate(-8px,4px)}
+ 38%{transform:translate(7px,-5px)}58%{transform:translate(-5px,3px)}
+ 78%{transform:translate(4px,-2px)}100%{transform:translate(0,0)}}
+#stage{display:block;width:100%;height:auto}
+#stage-wrap.paused #stage *{animation-play-state:paused!important}
+#stage-wrap.paused #stage{filter:brightness(.85)}
+#blackout{position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .55s;text-align:center}
+#blackout.on{opacity:1}
+#card .no{color:var(--gold);font-size:13px;letter-spacing:6px;display:block;margin-bottom:12px}
+#card h2{font-size:34px;letter-spacing:10px;margin:0 0 12px;font-weight:600}
+#card p{color:#8d877c;font-size:14px;letter-spacing:3px;margin:0}
+#poster{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .3s;pointer-events:none}
+#poster.off{opacity:0}
+#poster h1{font-size:46px;letter-spacing:16px;margin:0;text-shadow:0 4px 30px #000}
+#poster .en{letter-spacing:7px;color:var(--gold);font-size:15px;margin-top:10px}
+#poster .tip{margin-top:32px;color:#9a9488;font-size:13px;letter-spacing:4px}
+#subtitle{position:absolute;left:50%;transform:translateX(-50%);bottom:4%;width:86%;text-align:center;pointer-events:none}
+#subtitle .line{background:linear-gradient(transparent,rgba(0,0,0,.6));padding:18px 12px 8px;
+  font-size:clamp(14px,2.2vw,21px);letter-spacing:1px;min-height:1.7em;text-shadow:0 2px 8px #000}
+#subSpeaker{font-weight:700;margin-right:12px}
+#subSpeaker:empty{display:none}
+#subtitle.aside #subText{font-style:italic;color:#a59f93}
+footer{display:flex;gap:8px;align-items:center;padding:12px 4px;flex-wrap:wrap}
+button{background:#17161a;border:1px solid #34302a;color:#d8d2c4;padding:8px 16px;border-radius:4px;
+  cursor:pointer;font-size:13px;letter-spacing:2px;font-family:inherit;transition:.2s}
+button:hover{border-color:var(--gold);color:var(--gold)}
+#playBtn{min-width:120px}
+#playBtn.pulse{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{border-color:#34302a}50%{border-color:var(--gold);color:var(--gold)}}
+.chip{padding:6px 11px;font-size:12px}
+.chip.cur{border-color:var(--gold);color:var(--gold);background:#1d1a14}
+.sp{flex:1}
+#stat{color:#7a756a;font-size:12px;letter-spacing:1px}
+.headg{transform-box:fill-box;transform-origin:50% 88%}
+.bobber{transform-box:fill-box;transform-origin:50% 100%}
+.actor{transition:opacity .7s}
+.actor.talking .headg{animation:headtalk .8s ease-in-out infinite alternate}
+@keyframes headtalk{from{transform:rotate(-1.4deg)}to{transform:rotate(1.8deg)}}
+.actor.walking .bobber{animation:bob .46s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0) rotate(.5deg)}to{transform:translateY(-6px) rotate(-.5deg)}}
+.actor .mo{opacity:0}
+.actor .mc{opacity:1}
+.actor.talking .mo{animation:chomp .34s ease-in-out infinite alternate}
+.actor.talking .mc{animation:chompC .34s ease-in-out infinite alternate}
+@keyframes chomp{from{opacity:0}to{opacity:1}}
+@keyframes chompC{from{opacity:1}to{opacity:0}}
+.tear{animation:tear 1.6s ease-in infinite}
+@keyframes tear{0%{transform:translate(0,-2px);opacity:0}12%{opacity:1}75%{opacity:.9}100%{transform:translate(4px,54px);opacity:0}}
+.spot{transition:opacity .8s}
+#s1-winin,#s1-sil{transition:opacity .45s}
+#s1-leaf,#s6-leaf{transform-box:fill-box;transform-origin:0% 50%;transition:transform .5s ease-in}
+#s1-hall,#s6-hall{transition:opacity .5s}
+#s1-btn.flash{fill:#e05548;filter:drop-shadow(0 0 7px #e05548)}
+#s4-case,#s4-hat,#s4-umb{transition:opacity .45s}
+#prop-box{transition:opacity .6s}
+#prop-box-in{transition:transform .65s ease-out;transform-box:fill-box;transform-origin:50% 50%}
+#dim{transition:opacity 1s}
+#fx-rain{transition:opacity 1.2s}
+@keyframes rainfall{from{transform:translateY(0)}to{transform:translateY(860px)}}
+</style>
+</head>
+<body>
+<div id="err"></div>
+<script>
+/* 错误监视：任何脚本错误都会显示在页面顶部红条里 */
+window.addEventListener('error',function(e){
+  var b=document.getElementById('err');
+  if(b){b.style.display='block';
+    b.textContent='⚠ 脚本错误：'+(e.message||e.type)+(e.lineno?('（第 '+e.lineno+' 行）'):'')+' —— 请确认文件保存完整后刷新';}
+});
+window.addEventListener('unhandledrejection',function(e){
+  if(e.reason&&typeof e.reason==='symbol')return;
+  var b=document.getElementById('err');
+  if(b){b.style.display='block';
+    b.textContent='⚠ 运行错误：'+(e.reason&&e.reason.message?e.reason.message:e.reason);}
+});
+</script>
+
+<div id="app">
+  <header>
+    <div class="brand">立绘剧场<span>PORTRAIT THEATRE</span></div>
+    <div class="meta">GLM · 一出六幕的立绘小戏</div>
+  </header>
+
+  <div id="stage-wrap">
+    <svg id="stage" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="sg"><stop offset="0" stop-color="#ffedc8" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#ffedc8" stop-opacity="0"/></radialGradient>
+        <radialGradient id="hg"><stop offset="0" stop-color="#e8c87a" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#e8c87a" stop-opacity="0"/></radialGradient>
+        <radialGradient id="vig" cx=".5" cy=".45" r=".78">
+          <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+          <stop offset="1" stop-color="#000" stop-opacity=".5"/></radialGradient>
+      </defs>
+
+      <rect id="bg" width="1280" height="720" fill="#0a0a0f"/>
+
+      <!-- 一：公寓楼下 -->
+      <g id="s1" style="display:none">
+        <rect x="908" y="270" width="184" height="10" fill="#20283a"/>
+        <text x="1000" y="256" text-anchor="middle" font-size="22" letter-spacing="8" fill="#c9aa58">301</text>
+        <rect x="920" y="278" width="160" height="367" fill="#161d2b"/>
+        <rect id="s1-hall" x="958" y="288" width="124" height="357" fill="#6a5838" opacity="0"/>
+        <g id="s1-leaf">
+          <rect x="958" y="288" width="124" height="357" fill="#26304a" stroke="#414c68" stroke-width="3"/>
+          <rect x="972" y="306" width="96" height="150" fill="none" stroke="#414c68" stroke-width="2" opacity=".7"/>
+          <rect x="972" y="478" width="96" height="150" fill="none" stroke="#414c68" stroke-width="2" opacity=".7"/>
+          <circle cx="1066" cy="488" r="4" fill="#7a86a2"/>
+        </g>
+        <circle id="s1-btn" cx="922" cy="470" r="7" fill="#432a36" stroke="#6a4a5a" stroke-width="2"/>
+        <rect x="972" y="176" width="96" height="72" fill="#0f1524" stroke="#20283a" stroke-width="6"/>
+        <rect id="s1-winin" x="978" y="182" width="84" height="60" fill="#eec57e" opacity="0"/>
+        <g id="s1-sil" opacity="0">
+          <path d="M1002,242 L1002,226 C1002,214 1014,208 1020,208 C1032,208 1038,216 1038,228 L1038,242 Z" fill="#0a0a0e"/>
+          <ellipse cx="1020" cy="216" rx="17" ry="5" fill="#0a0a0e"/>
+        </g>
+        <line x1="1020" y1="182" x2="1020" y2="242" stroke="#0f1524" stroke-width="5"/>
+      </g>
+
+      <!-- 二：室内桌椅 -->
+      <g id="s2" style="display:none">
+        <rect x="700" y="472" width="240" height="14" fill="#4e3e2e"/>
+        <rect x="714" y="486" width="12" height="159" fill="#3a2d22"/>
+        <rect x="914" y="486" width="12" height="159" fill="#3a2d22"/>
+        <rect x="756" y="450" width="17" height="22" rx="2" fill="#76653f"/>
+        <rect x="636" y="416" width="9" height="58" fill="#3a2d22"/>
+        <rect x="630" y="470" width="56" height="10" fill="#3a2d22"/>
+        <rect x="634" y="480" width="7" height="165" fill="#3a2d22"/>
+      </g>
+
+      <!-- 三：路灯 -->
+      <g id="s3" style="display:none">
+        <ellipse cx="302" cy="352" rx="150" ry="130" fill="url(#hg)" opacity=".2"/>
+        <rect x="246" y="318" width="8" height="327" fill="#232a35"/>
+        <path d="M250,322 h52 v7 h-52 z" fill="#232a35"/>
+        <path d="M288,329 L318,329 L309,346 L297,346 Z" fill="#2b3342" stroke="#414c5e" stroke-width="1.5"/>
+        <circle cx="303" cy="348" r="8" fill="#f0cf80"/>
+        <ellipse cx="302" cy="642" rx="190" ry="30" fill="#e8c87a" opacity=".1"/>
+      </g>
+
+      <!-- 四：尼尔房间 -->
+      <g id="s4" style="display:none">
+        <ellipse cx="980" cy="368" rx="90" ry="74" fill="url(#hg)" opacity=".24"/>
+        <rect x="940" y="460" width="220" height="14" fill="#52402f"/>
+        <rect x="954" y="474" width="12" height="171" fill="#3e2f22"/>
+        <rect x="1134" y="474" width="12" height="171" fill="#3e2f22"/>
+        <ellipse cx="980" cy="458" rx="26" ry="6" fill="#31271d"/>
+        <line x1="980" y1="458" x2="980" y2="400" stroke="#31271d" stroke-width="6"/>
+        <path d="M952,400 L1008,400 L992,366 L968,366 Z" fill="#764f2c" stroke="#8a6740" stroke-width="1.5"/>
+        <g id="s4-case">
+          <rect x="352" y="596" width="64" height="46" rx="3" fill="#66492e" stroke="#7f5f3e" stroke-width="2"/>
+          <line x1="352" y1="612" x2="416" y2="612" stroke="#7f5f3e" stroke-width="2"/>
+          <path d="M370,596 Q384,580 398,596" stroke="#7f5f3e" stroke-width="4" fill="none"/>
+        </g>
+        <g id="s4-umb">
+          <line x1="430" y1="596" x2="444" y2="470" stroke="#46293a" stroke-width="5"/>
+          <path d="M441,478 C450,492 450,528 442,542 C434,528 434,492 441,478 Z" fill="#583349" stroke="#7a5068" stroke-width="1.5"/>
+          <path d="M444,470 C452,468 452,478 446,478" stroke="#46293a" stroke-width="4" fill="none"/>
+        </g>
+        <g id="s4-hat">
+          <ellipse cx="384" cy="590" rx="30" ry="7" fill="#2b1b22" stroke="#7a5560" stroke-width="1.5"/>
+          <path d="M363,589 C365,573 403,573 405,589 Z" fill="#33202a" stroke="#7a5560" stroke-width="1.5"/>
+          <path d="M367,583 Q384,577 401,583" stroke="#cc4f60" stroke-width="2.5" fill="none"/>
+        </g>
+      </g>
+
+      <!-- 五：公寓与电话 -->
+      <g id="s5" style="display:none">
+        <rect x="560" y="470" width="260" height="14" fill="#52402f"/>
+        <rect x="574" y="484" width="12" height="161" fill="#3e2f22"/>
+        <rect x="794" y="484" width="12" height="161" fill="#3e2f22"/>
+        <path d="M700,470 L820,470 L810,508 L710,508 Z" fill="#1f1f25"/>
+        <rect x="692" y="452" width="136" height="18" rx="9" fill="#161619"/>
+        <rect x="748" y="442" width="24" height="12" fill="#2b2b32"/>
+        <circle cx="760" cy="488" r="14" fill="#35353d"/>
+        <path d="M812,506 C856,542 842,602 900,644" stroke="#171720" stroke-width="3" fill="none"/>
+        <line x1="952" y1="644" x2="1002" y2="470" stroke="#564430" stroke-width="5"/>
+        <line x1="1092" y1="644" x2="1042" y2="470" stroke="#564430" stroke-width="5"/>
+        <line x1="968" y1="592" x2="1078" y2="592" stroke="#564430" stroke-width="4"/>
+        <line x1="976" y1="552" x2="1070" y2="552" stroke="#564430" stroke-width="4"/>
+        <line x1="984" y1="512" x2="1062" y2="512" stroke="#564430" stroke-width="4"/>
+      </g>
+
+      <!-- 六：剧院大门 -->
+      <g id="s6" style="display:none">
+        <rect x="0" y="0" width="30" height="720" fill="#2a1318"/>
+        <rect x="1250" y="0" width="30" height="720" fill="#2a1318"/>
+        <rect x="980" y="150" width="220" height="54" fill="#20151a" stroke="#7a572f" stroke-width="2"/>
+        <text x="1090" y="189" text-anchor="middle" font-size="30" letter-spacing="16" fill="#d4ad60">剧院</text>
+        <rect x="1012" y="214" width="164" height="431" fill="#2a1f24"/>
+        <rect id="s6-hall" x="1020" y="222" width="148" height="423" fill="#5a4230" opacity="0"/>
+        <g id="s6-leaf">
+          <rect x="1020" y="222" width="148" height="423" fill="#332429" stroke="#5c414b" stroke-width="3"/>
+          <rect x="1038" y="244" width="112" height="160" fill="none" stroke="#5c414b" stroke-width="2" opacity=".7"/>
+          <rect x="1038" y="440" width="112" height="180" fill="none" stroke="#5c414b" stroke-width="2" opacity=".7"/>
+          <circle cx="1150" cy="436" r="5" fill="#9a8a66"/>
+        </g>
+      </g>
+
+      <line x1="0" y1="645" x2="1280" y2="645" stroke="#ffffff" stroke-opacity=".12" stroke-width="1.5"/>
+
+      <g id="spots">
+        <g id="sp-worker" class="spot" opacity=".45">
+          <ellipse cx="0" cy="0" rx="150" ry="30" fill="url(#sg)"/><ellipse cx="0" cy="-150" rx="130" ry="205" fill="url(#sg)"/></g>
+        <g id="sp-neil" class="spot" opacity=".45">
+          <ellipse cx="0" cy="0" rx="150" ry="30" fill="url(#sg)"/><ellipse cx="0" cy="-150" rx="130" ry="205" fill="url(#sg)"/></g>
+        <g id="sp-nightingale" class="spot" opacity=".45">
+          <ellipse cx="0" cy="0" rx="150" ry="30" fill="url(#sg)"/><ellipse cx="0" cy="-150" rx="130" ry="205" fill="url(#sg)"/></g>
+        <g id="sp-manager" class="spot" opacity=".45">
+          <ellipse cx="0" cy="0" rx="150" ry="30" fill="url(#sg)"/><ellipse cx="0" cy="-150" rx="130" ry="205" fill="url(#sg)"/></g>
+      </g>
+
+      <!-- 工人 -->
+      <g id="a-worker" class="actor" style="opacity:0">
+        <ellipse class="shadow" cx="0" cy="-2" rx="80" ry="12" fill="#000" opacity=".45"/>
+        <g class="flipper"><g class="bobber">
+          <path class="armL" d="M -16,-172 C -26,-140 -28,-110 -24,-86" fill="none" stroke="#3a4049" stroke-width="9" stroke-linecap="round"/>
+          <circle class="handL" cx="-24" cy="-86" r="5" fill="#dcb289"/>
+          <path d="M -20,-176 C -28,-120 -30,-60 -28,-2 L -9,-2 L -6,-76 L 8,-76 L 10,-2 L 30,-2 C 32,-60 30,-120 22,-176 C 10,-184 -10,-184 -20,-176 Z" fill="#444a53"/>
+          <line x1="1" y1="-180" x2="1" y2="-2" stroke="#383e46" stroke-width="2"/>
+          <g class="headg">
+            <circle cx="0" cy="-206" r="20" fill="#dcb289"/>
+            <path d="M -18,-212 C -18,-228 18,-228 18,-212 Z" fill="#33383f"/>
+            <line x1="-20" y1="-212" x2="20" y2="-212" stroke="#282d34" stroke-width="4"/>
+            <g class="eo"><circle cx="-6" cy="-208" r="2" fill="#241a16"/><circle cx="6" cy="-208" r="2" fill="#241a16"/></g>
+            <g class="ec" style="display:none"><path d="M -9,-208 Q -6,-205 -3,-208 M 3,-208 Q 6,-205 9,-208" stroke="#241a16" stroke-width="1.8" fill="none"/></g>
+            <path class="mc" d="M -3,-198 L 7,-198" stroke="#84493d" stroke-width="2" fill="none"/>
+            <ellipse class="mo" cx="2" cy="-197" rx="3" ry="3.6" fill="#733636" style="opacity:0"/>
+          </g>
+          <g class="hamId"><line x1="24" y1="-86" x2="50" y2="-108" stroke="#5f5947" stroke-width="5"/><rect x="44" y="-122" width="20" height="16" rx="2" fill="#78715f"/></g>
+          <g class="hamUp" style="display:none"><line x1="54" y1="-196" x2="78" y2="-216" stroke="#5f5947" stroke-width="5"/><rect x="72" y="-230" width="20" height="16" rx="2" fill="#78715f"/></g>
+          <path class="armR" d="M 16,-172 C 26,-140 28,-110 24,-86" fill="none" stroke="#3a4049" stroke-width="9" stroke-linecap="round"/>
+          <circle class="handR" cx="24" cy="-86" r="5" fill="#dcb289"/>
+        </g></g>
+      </g>
+
+      <!-- 尼尔 -->
+      <g id="a-neil" class="actor" style="opacity:0">
+        <ellipse class="shadow" cx="0" cy="-2" rx="92" ry="13" fill="#000" opacity=".5"/>
+        <g class="flipper"><g class="bobber">
+          <path class="armL" d="M -20,-190 C -30,-156 -34,-126 -30,-102" fill="none" stroke="#46413a" stroke-width="9" stroke-linecap="round"/>
+          <circle class="handL" cx="-30" cy="-102" r="5.5" fill="#e6c19a"/>
+          <path d="M -14,-92 L -16,-2 L -3,-2 L -3,-92 Z" fill="#34302a"/>
+          <path d="M 3,-92 L 3,-2 L 16,-2 L 14,-92 Z" fill="#34302a"/>
+          <ellipse cx="-9" cy="-2" rx="10" ry="4" fill="#221f1b"/><ellipse cx="10" cy="-2" rx="10" ry="4" fill="#221f1b"/>
+          <path d="M -22,-198 C -30,-150 -32,-100 -35,-56 L -21,-56 L -19,-88 L 19,-88 L 21,-56 L 35,-56 C 32,-100 30,-150 22,-198 C 10,-207 -10,-207 -22,-198 Z" fill="#4e4840" stroke="#6e6558" stroke-width="2"/>
+          <path d="M -8,-197 L 0,-180 L 8,-197 Z" fill="#e2dccb"/>
+          <path d="M -2,-193 L 2,-193 L 4,-162 L 0,-154 L -4,-162 Z" fill="#843430"/>
+          <path d="M -13,-199 L -3,-183 L -13,-180 Z" fill="#3b3731"/>
+          <path d="M 13,-199 L 3,-183 L 13,-180 Z" fill="#3b3731"/>
+          <rect x="-25" y="-138" width="50" height="6" rx="2" fill="#3a352e"/>
+          <circle cx="0" cy="-135" r="2.5" fill="#9a8a60"/>
+          <g class="headg">
+            <circle cx="2" cy="-234" r="23" fill="#e6c19a"/>
+            <path d="M -19,-240 C -22,-258 -4,-267 10,-263 C 23,-259 26,-249 24,-241 C 17,-251 3,-255 -8,-251 C -13,-249 -17,-245 -19,-240 Z" fill="#2d231b"/>
+            <rect x="-21" y="-244" width="5" height="12" rx="2" fill="#2d231b"/>
+            <circle cx="-20" cy="-233" r="3.5" fill="#d6b086"/>
+            <g class="eo">
+              <path d="M 7,-236 L 14,-236 M -4,-236 L 3,-236" stroke="#1c1610" stroke-width="2.4" fill="none"/>
+              <path d="M 5,-245 L 15,-243 M -6,-245 L 3,-243" stroke="#1c1610" stroke-width="2" fill="none"/>
+            </g>
+            <g class="ec" style="display:none">
+              <path d="M 6,-235 Q 10,-232 14,-235 M -5,-235 Q -1,-232 3,-235" stroke="#1c1610" stroke-width="2" fill="none"/>
+              <path d="M 16,-248 L 6,-245 M 4,-248 L -6,-245" stroke="#1c1610" stroke-width="2" fill="none"/>
+            </g>
+            <path class="mc" d="M 6,-222 L 15,-222" stroke="#84493d" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse class="mo" cx="10" cy="-221" rx="3.6" ry="4.2" fill="#733636" style="opacity:0"/>
+          </g>
+          <g class="box-h" style="display:none" transform="translate(46,-162)">
+            <rect x="-9" y="-14" width="18" height="27" rx="2" fill="#b53640" stroke="#e29a7c" stroke-width="1.5"/>
+            <rect x="-9" y="-5" width="18" height="7" fill="#e0b255"/>
+          </g>
+          <path class="armR" d="M 20,-190 C 32,-156 36,-126 32,-102" fill="none" stroke="#46413a" stroke-width="9" stroke-linecap="round"/>
+          <circle class="handR" cx="32" cy="-102" r="5.5" fill="#e6c19a"/>
+        </g></g>
+      </g>
+
+      <!-- 夜莺 -->
+      <g id="a-nightingale" class="actor" style="opacity:0">
+        <ellipse class="shadow" cx="0" cy="-2" rx="88" ry="13" fill="#000" opacity=".5"/>
+        <g class="flipper"><g class="bobber">
+          <path class="armL" d="M -16,-196 C -30,-158 -34,-126 -30,-98" fill="none" stroke="#6e2536" stroke-width="9" stroke-linecap="round"/>
+          <circle class="handL" cx="-30" cy="-98" r="5.5" fill="#f0cda7"/>
+          <path d="M -17,-206 C -30,-140 -40,-60 -46,-2 L 46,-2 C 40,-60 30,-140 17,-206 C 8,-212 -8,-212 -17,-206 Z" fill="#7d2840" stroke="#a65c6a" stroke-width="2"/>
+          <path d="M -20,-204 C -8,-212 8,-212 20,-204 L 27,-176 C 10,-187 -10,-187 -27,-176 Z" fill="#33202a"/>
+          <path d="M -8,-199 L 0,-184 L 8,-199" fill="none" stroke="#e2b694" stroke-width="2" opacity=".85"/>
+          <rect x="-17" y="-152" width="34" height="7" rx="3" fill="#521a2c"/>
+          <circle cx="0" cy="-148" r="3" fill="#d4ad60"/>
+          <g class="headg">
+            <circle cx="3" cy="-240" r="24" fill="#f0cda7"/>
+            <path d="M 4,-266 C -16,-266 -27,-250 -25,-228 C -24,-214 -17,-205 -7,-203 L -4,-211 C -13,-217 -17,-233 -12,-247 C -7,-259 8,-263 20,-258 L 24,-263 C 18,-266 12,-266 4,-266 Z" fill="#422a24"/>
+            <circle cx="-15" cy="-215" r="8" fill="#422a24"/>
+            <path d="M 22,-259 C 27,-252 28,-244 26,-239 C 21,-245 15,-249 9,-251 C 14,-254 18,-256 22,-259 Z" fill="#422a24"/>
+            <g class="eo">
+              <circle cx="13" cy="-243" r="2.3" fill="#241a16"/><circle cx="2" cy="-243" r="2.3" fill="#241a16"/>
+              <path d="M 9,-252 L 16,-250 M 6,-252 L -1,-250" stroke="#241a16" stroke-width="1.6" fill="none"/>
+            </g>
+            <g class="ec" style="display:none">
+              <path d="M 10,-242 Q 13,-239 16,-242 M -1,-242 Q 2,-239 5,-242" stroke="#241a16" stroke-width="1.8" fill="none"/>
+              <path d="M 16,-254 L 9,-251 M 6,-254 L -1,-251" stroke="#241a16" stroke-width="1.6" fill="none"/>
+            </g>
+            <ellipse cx="14" cy="-234" rx="3" ry="1.8" fill="#e89a8e" opacity=".35"/>
+            <path class="mc" d="M 6,-227 L 15,-227" stroke="#944d47" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path class="msad" d="M 6,-225 Q 10,-228 14,-225" stroke="#944d47" stroke-width="2" fill="none" style="display:none"/>
+            <ellipse class="mo" cx="10" cy="-226" rx="3.2" ry="4" fill="#823636" style="opacity:0"/>
+            <circle class="tear" cx="15" cy="-236" r="2.6" fill="#d6e8ff" style="display:none"/>
+          </g>
+          <g class="hatOn" style="display:none">
+            <ellipse cx="3" cy="-258" rx="31" ry="7" fill="#2b1b22" stroke="#7a5560" stroke-width="1.5"/>
+            <path d="M -18,-259 C -16,-273 22,-273 24,-259 Z" fill="#33202a" stroke="#7a5560" stroke-width="1.5"/>
+            <path d="M -14,-262 C -4,-268 14,-268 22,-262" stroke="#cc4f60" stroke-width="2.5" fill="none"/>
+          </g>
+          <path class="armR" d="M 16,-196 C 30,-158 36,-126 32,-98" fill="none" stroke="#6e2536" stroke-width="9" stroke-linecap="round"/>
+          <circle class="handR" cx="32" cy="-98" r="5.5" fill="#f0cda7"/>
+          <g class="umb-c" style="display:none">
+            <line x1="-30" y1="-192" x2="-28" y2="-46" stroke="#30202b" stroke-width="4.5"/>
+            <path d="M -29,-104 C -39,-88 -39,-56 -30,-42 C -21,-56 -21,-88 -29,-104 Z" fill="#583349" stroke="#7a5068" stroke-width="1.5"/>
+            <path d="M -30,-192 C -38,-192 -40,-184 -33,-183" stroke="#30202b" stroke-width="4" fill="none"/>
+          </g>
+          <g class="umb-c2" style="display:none">
+            <line x1="28" y1="-192" x2="30" y2="-46" stroke="#30202b" stroke-width="4.5"/>
+            <path d="M 29,-104 C 39,-88 39,-56 30,-42 C 21,-56 21,-88 29,-104 Z" fill="#583349" stroke="#7a5068" stroke-width="1.5"/>
+            <path d="M 28,-192 C 36,-192 38,-184 31,-183" stroke="#30202b" stroke-width="4" fill="none"/>
+          </g>
+          <g class="umb-o" style="display:none">
+            <path d="M -66,-300 Q 14,-368 94,-300 Q 74,-311 56,-300 Q 35,-312 14,-300 Q -7,-312 -28,-300 Q -46,-311 -66,-300 Z" fill="#583349" stroke="#7a5068" stroke-width="2"/>
+            <line x1="14" y1="-306" x2="14" y2="-317" stroke="#30202b" stroke-width="4"/>
+            <line x1="14" y1="-304" x2="28" y2="-114" stroke="#30202b" stroke-width="4.5"/>
+            <path d="M -66,-300 Q -20,-288 14,-300 Q 48,-288 94,-300" fill="none" stroke="#7a5068" stroke-width="1.5" opacity=".6"/>
+          </g>
+          <g class="caseH" style="display:none">
+            <rect x="-50" y="-80" width="44" height="34" rx="3" fill="#66492e" stroke="#7f5f3e" stroke-width="2"/>
+            <path d="M -38,-80 Q -28,-93 -18,-80" stroke="#7f5f3e" stroke-width="3.5" fill="none"/>
+          </g>
+        </g></g>
+      </g>
+
+      <!-- 经理 -->
+      <g id="a-manager" class="actor" style="opacity:0">
+        <ellipse class="shadow" cx="0" cy="-2" rx="96" ry="14" fill="#000" opacity=".5"/>
+        <g class="flipper"><g class="bobber">
+          <path class="armL" d="M -28,-182 C -42,-152 -46,-124 -42,-102" fill="none" stroke="#463826" stroke-width="10" stroke-linecap="round"/>
+          <circle class="handL" cx="-42" cy="-102" r="6" fill="#eac49a"/>
+          <path d="M -20,-90 L -22,-2 L -6,-2 L -4,-90 Z" fill="#31271e"/>
+          <path d="M 4,-90 L 6,-2 L 22,-2 L 20,-90 Z" fill="#31271e"/>
+          <ellipse cx="-14" cy="-2" rx="12" ry="4" fill="#1f1914"/><ellipse cx="14" cy="-2" rx="12" ry="4" fill="#1f1914"/>
+          <path d="M -34,-186 C -47,-140 -49,-96 -41,-62 L -30,-62 L -28,-84 L 28,-84 L 30,-62 L 41,-62 C 49,-96 47,-140 34,-186 C 18,-197 -18,-197 -34,-186 Z" fill="#56422d" stroke="#6f5a3e" stroke-width="2"/>
+          <path d="M -19,-184 C -23,-142 -23,-104 -19,-72 L 19,-72 C 23,-104 23,-142 19,-184 C 8,-191 -8,-191 -19,-184 Z" fill="#9a7a3e"/>
+          <circle cx="0" cy="-150" r="2" fill="#54401e"/><circle cx="0" cy="-136" r="2" fill="#54401e"/><circle cx="0" cy="-122" r="2" fill="#54401e"/>
+          <path d="M -9,-186 L 0,-172 L 9,-186 Z" fill="#eee8d8"/>
+          <path d="M -8,-184 L -1,-181 L -8,-178 Z" fill="#301e16"/><path d="M 8,-184 L 1,-181 L 8,-178 Z" fill="#301e16"/><rect x="-2" y="-183" width="4" height="5" fill="#301e16"/>
+          <path d="M -22,-190 L -10,-176 L -22,-172 Z" fill="#463826"/><path d="M 22,-190 L 10,-176 L 22,-172 Z" fill="#463826"/>
+          <g class="headg">
+            <circle cx="2" cy="-226" r="26" fill="#eac49a"/>
+            <path d="M -13,-204 Q 2,-197 17,-204" stroke="#d09e74" stroke-width="2" fill="none"/>
+            <path d="M -22,-240 C -25,-228 -22,-216 -15,-210 L -12,-217 C -17,-223 -20,-231 -19,-241 Z" fill="#52402d"/>
+            <path d="M 26,-240 C 29,-228 26,-216 19,-210 L 16,-217 C 21,-223 24,-231 23,-241 Z" fill="#52402d"/>
+            <circle cx="14" cy="-224" r="3.2" fill="#e2b488"/>
+            <g class="eo">
+              <circle cx="2" cy="-230" r="2.4" fill="#241a16"/><circle cx="13" cy="-230" r="2.4" fill="#241a16"/>
+              <path d="M -2,-239 Q 2,-242 6,-239 M 9,-239 Q 13,-242 17,-239" stroke="#241a16" stroke-width="1.8" fill="none"/>
+            </g>
+            <g class="eh" style="display:none">
+              <path d="M -1,-230 Q 2,-234 5,-230 M 10,-230 Q 13,-234 16,-230" stroke="#241a16" stroke-width="2.2" fill="none"/>
+            </g>
+            <g class="ec" style="display:none">
+              <path d="M -1,-229 Q 2,-226 5,-229 M 10,-229 Q 13,-226 16,-229" stroke="#241a16" stroke-width="2" fill="none"/>
+            </g>
+            <path class="mc" d="M 3,-212 Q 10,-206 17,-211" stroke="#84493d" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse class="mo" cx="10" cy="-211" rx="4" ry="4.4" fill="#733636" style="opacity:0"/>
+          </g>
+          <path class="armR" d="M 28,-182 C 42,-152 46,-124 42,-102" fill="none" stroke="#463826" stroke-width="10" stroke-linecap="round"/>
+          <circle class="handR" cx="42" cy="-102" r="6" fill="#eac49a"/>
+        </g></g>
+      </g>
+
+      <!-- 烟盒特写 -->
+      <g id="prop-box" style="opacity:0">
+        <ellipse cx="640" cy="292" rx="250" ry="210" fill="url(#sg)"/>
+        <ellipse cx="640" cy="420" rx="150" ry="22" fill="#000" opacity=".4"/>
+        <g transform="translate(640,272) rotate(-8)">
+          <g id="prop-box-in" style="transform:scale(.7)">
+            <path d="M-52,-72 C -34,-64 -16,-70 2,-66 C 24,-62 40,-70 50,-60 L 54,64 C 36,74 14,66 -8,70 C -28,74 -44,66 -52,58 Z" fill="#b53640" stroke="#e29a7c" stroke-width="3"/>
+            <path d="M-40,-58 C -30,-10 -32,22 -42,52" stroke="#8a262b" stroke-width="2" fill="none" opacity=".85"/>
+            <path d="M42,-52 C 34,-8 36,26 44,54" stroke="#8a262b" stroke-width="2" fill="none" opacity=".85"/>
+            <rect x="-50" y="-16" width="100" height="30" fill="#e0b255"/>
+            <path d="M-12,-28 L-6,-36 L0,-29 L6,-36 L12,-28 Z" fill="#f6e096"/>
+            <text x="1" y="6" text-anchor="middle" font-size="26" fill="#8a2226" font-weight="bold" letter-spacing="6">金牌</text>
+            <text x="1" y="42" text-anchor="middle" font-size="11" fill="#f0d2a6" letter-spacing="3">GOLD MEDAL</text>
+          </g>
+        </g>
+      </g>
+
+      <g id="fx-rain" opacity="0"></g>
+      <rect id="dim" width="1280" height="720" fill="#000" opacity=".12"/>
+      <rect width="1280" height="720" fill="url(#vig)" pointer-events="none"/>
+    </svg>
+
+    <div id="poster">
+      <h1>立绘剧场</h1>
+      <div class="en">PORTRAIT THEATRE</div>
+      <div class="tip">几副立绘，几件道具，一出六幕的小戏 —— 点击「开始演出」</div>
+    </div>
+
+    <div id="blackout"><div id="card">
+      <span class="no" id="cardNo"></span>
+      <h2 id="cardT"></h2>
+      <p id="cardS"></p>
+    </div></div>
+
+    <div id="subtitle"><div class="line"><span id="subSpeaker"></span><span id="subText"></span></div></div>
+  </div>
+
+  <footer>
+    <button id="playBtn">▶ 开始演出</button>
+    <button id="replayBtn">↺ 重播</button>
+    <span id="chips" style="display:flex;gap:6px"></span>
+    <span class="sp"></span>
+    <span id="stat">正在初始化…</span>
+  </footer>
+</div>
+
+<script>
+'use strict';
+(function(){
+const $=function(s){return document.querySelector(s);};
+const NS='http://www.w3.org/2000/svg';
+const STOP=Symbol('stop');
+const player={gen:0,paused:false,started:false,cur:0};
+
+/* ===== 开机自检 ===== */
+const NEED=['stage','poster','blackout','subtitle','playBtn','replayBtn','chips','stat',
+ 'fx-rain','prop-box','prop-box-in','dim','bg','s1','s2','s3','s4','s5','s6','s1-leaf','s1-hall',
+ 's1-winin','s1-sil','s1-btn','s6-leaf','s6-hall','s4-case','s4-hat','s4-umb',
+ 'a-neil','a-nightingale','a-manager','a-worker',
+ 'sp-neil','sp-nightingale','sp-manager','sp-worker'];
+for(const id of NEED){ if(!document.getElementById(id)) throw new Error('初始化失败：缺少元素 #'+id); }
+
+/* ===== 音频（全部即时合成，失败不影响演出） ===== */
+let AC=null,master=null,rainG=null,noiseBuf=null;
+function initAudio(){
+  try{
+    if(AC){ if(AC.state==='suspended')AC.resume(); return; }
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    if(!Ctx)return;
+    AC=new Ctx();
+    master=AC.createGain(); master.gain.value=.9; master.connect(AC.destination);
+    noiseBuf=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);
+    const d=noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    const dg=AC.createGain(); dg.gain.value=.045; dg.connect(master);
+    [[55,.5],[82.5,.3],[110.3,.16]].forEach(function(p){
+      const o=AC.createOscillator(); o.type='sine'; o.frequency.value=p[0];
+      const g=AC.createGain(); g.gain.value=p[1]; o.connect(g); g.connect(dg); o.start();
+    });
+    const src=AC.createBufferSource(); src.buffer=noiseBuf; src.loop=true;
+    const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1500; lp.Q.value=.4;
+    rainG=AC.createGain(); rainG.gain.value=0;
+    src.connect(lp); lp.connect(rainG); rainG.connect(master); src.start();
+  }catch(e){ AC=null; }
+}
+function blip(o){
+  if(!AC)return;
+  const os=AC.createOscillator(),gn=AC.createGain(),t0=AC.currentTime+(o.t||0),dur=o.dur||.3;
+  os.type=o.type||'sine'; os.frequency.setValueAtTime(o.f||440,t0);
+  if(o.f2)os.frequency.exponentialRampToValueAtTime(o.f2,t0+dur);
+  gn.gain.setValueAtTime(0,t0); gn.gain.linearRampToValueAtTime(o.g||.2,t0+.02);
+  gn.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+  os.connect(gn); gn.connect(master); os.start(t0); os.stop(t0+dur+.05);
+}
+function burst(o){
+  if(!AC)return;
+  const s=AC.createBufferSource(); s.buffer=noiseBuf;
+  const fl=AC.createBiquadFilter(); fl.type=o.type||'lowpass'; fl.frequency.value=o.f||800;
+  const gn=AC.createGain(),t0=AC.currentTime+(o.t||0),dur=o.dur||.08;
+  gn.gain.setValueAtTime(o.g||.2,t0); gn.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+  s.connect(fl); fl.connect(gn); gn.connect(master); s.start(t0); s.stop(t0+dur+.1);
+}
+const sfx={
+  bell:function(){ blip({f:659,dur:.5,g:.2}); blip({f:523,t:.35,dur:.7,g:.2}); blip({f:1319,dur:.4,g:.04}); },
+  unlock:function(){ burst({dur:.05,g:.3,f:2400,type:'highpass'}); burst({t:.14,dur:.05,g:.3,f:2000,type:'highpass'}); blip({f:140,t:.1,dur:.12,g:.22,type:'square'}); },
+  slam:function(){ burst({dur:.3,g:.9,f:300}); blip({f:70,f2:38,dur:.4,g:.8}); },
+  step:function(){ burst({dur:.05,g:.07+Math.random()*.03,f:220+Math.random()*80}); },
+  tap:function(){ burst({dur:.04,g:.18,f:700}); },
+  ring:function(){ for(let i=0;i<2;i++){ blip({t:i*.5,f:440,dur:.38,g:.1,type:'square'}); blip({t:i*.5,f:480,dur:.38,g:.1,type:'square'}); } },
+  knock:function(){ blip({f:110,dur:.09,g:.28,type:'square'}); blip({t:.16,f:100,dur:.09,g:.28,type:'square'}); },
+};
+function rainTo(v,sec){
+  document.getElementById('fx-rain').style.opacity=v;
+  if(AC&&rainG){ try{
+    rainG.gain.cancelScheduledValues(AC.currentTime);
+    rainG.gain.setValueAtTime(rainG.gain.value,AC.currentTime);
+    rainG.gain.linearRampToValueAtTime(v*.15,AC.currentTime+(sec||1.4));
+  }catch(e){} }
+}
+
+/* ===== 姿势库 ===== */
+function A_(sx,sy,c1x,c1y,c2x,c2y,hx,hy){ return {d:'M '+sx+','+sy+' C '+c1x+','+c1y+', '+c2x+','+c2y+', '+hx+','+hy, h:[hx,hy]}; }
+const ARMS={
+ nightingale:{R:{
+   down:A_(16,-196,30,-158,36,-126,32,-98), raise:A_(16,-196,32,-190,46,-176,54,-162),
+   fold:A_(16,-196,30,-172,18,-152,2,-148),
+   hat:A_(16,-196,24,-230,20,-256,12,-260), umb:A_(16,-196,30,-166,34,-140,28,-116),
+   umbR:A_(16,-196,30,-166,34,-140,28,-116)},
+  L:{
+   down:A_(-16,-196,-30,-158,-34,-126,-30,-98), fold:A_(-16,-196,-26,-176,-12,-152,4,-150),
+   'case':A_(-16,-196,-30,-160,-32,-120,-28,-88), hat:A_(-16,-196,-22,-228,-16,-252,-8,-258)}},
+ neil:{R:{
+   down:A_(20,-190,32,-156,36,-126,32,-102), pocket:A_(20,-190,34,-162,38,-142,34,-124),
+   box:A_(20,-190,32,-178,42,-168,46,-162), out:A_(20,-190,38,-180,54,-172,64,-168),
+   up:A_(20,-190,34,-188,44,-198,50,-208)},
+  L:{
+   down:A_(-20,-190,-30,-156,-34,-126,-30,-102), behind:A_(-20,-190,-32,-164,-24,-142,-10,-134),
+   fist:A_(-20,-190,-30,-156,-34,-126,-30,-102)}},
+ manager:{R:{
+   down:A_(28,-182,42,-152,46,-124,42,-102), open:A_(28,-182,54,-192,68,-208,76,-224),
+   shoulder:A_(28,-182,58,-182,88,-184,106,-190), point:A_(28,-182,48,-176,64,-170,78,-168),
+   chest:A_(28,-182,30,-178,16,-170,8,-166), offer:A_(28,-182,46,-178,62,-174,74,-172)},
+  L:{
+   down:A_(-28,-182,-42,-152,-46,-124,-42,-102), open2:A_(-28,-182,-54,-192,-66,-206,-74,-222),
+   akimbo:A_(-28,-182,-46,-168,-40,-146,-18,-142)}},
+ worker:{R:{
+   down:A_(16,-172,26,-140,28,-110,24,-86), up:A_(16,-172,30,-190,44,-202,54,-196)},
+  L:{ down:A_(-16,-172,-26,-140,-28,-110,-24,-86) }},
+};
+ARMS.neil.R.pocket.hide=1;
+const POSES={
+ nightingale:{
+  idle:{R:'down',L:'down',head:0,face:'open'}, nervous:{R:'fold',L:'fold',head:6},
+  plead:{R:'raise',L:'fold',head:-4}, sad:{R:'down',L:'down',head:9,face:'sad'},
+  grief:{R:'fold',L:'fold',head:8,face:'sad'}, calm:{R:'down',L:'down',head:0,face:'open'},
+  watch:{R:'fold',L:'fold',head:-4}, carry:{R:'down',L:'case',head:5},
+  hat:{R:'hat',L:'hat',head:0}, both:{R:'umbR',L:'case',head:4},
+  still:{R:'umbR',L:'case',head:7,face:'sad'}, bothSad:{R:'umbR',L:'case',head:8,face:'cry'},
+  umb:{R:'umb',L:'down',head:0}},
+ neil:{
+  idle:{R:'down',L:'down'}, weary:{R:'pocket',L:'behind',head:4},
+  frustrated:{R:'up',L:'fist',head:-3}, boxTalk:{R:'box',L:'behind',head:0},
+  explain:{R:'up',L:'behind',head:0}, admit:{R:'out',L:'down',head:-2},
+  confront:{R:'up',L:'fist',head:-4}, low:{R:'down',L:'down',head:8,face:'closed'}},
+ manager:{
+  idle:{R:'down',L:'down',head:0}, warm:{R:'down',L:'down',head:2,face:'happy'},
+  greet:{R:'open',L:'open2',head:-3,face:'happy'}, shoulder:{R:'shoulder',L:'akimbo',head:3,face:'happy'},
+  command:{R:'point',L:'akimbo',head:0,face:'happy'}, chest:{R:'chest',L:'akimbo',head:2,face:'happy'},
+  offer:{R:'offer',L:'akimbo',head:-2}, low:{R:'down',L:'down',head:9,face:'closed'}},
+ worker:{ idle:{R:'down',L:'down'} },
+};
+
+/* ===== 角色控制 ===== */
+const A={};
+function reg(k,scale){
+  const root=document.getElementById('a-'+k);
+  function q(s){return root.querySelector(s);}
+  A[k]={k:k,root:root,flip:q('.flipper'),scale:scale,x:-200,arms:ARMS[k],poses:POSES[k],
+    g:{armR:q('.armR'),armL:q('.armL'),handR:q('.handR'),handL:q('.handL'),head:q('.headg'),
+       eo:q('.eo'),ec:q('.ec'),eh:q('.eh'),mc:q('.mc'),mo:q('.mo'),msad:q('.msad'),tear:q('.tear'),
+       hatOn:q('.hatOn'),umbO:q('.umb-o'),umbC:q('.umb-c'),umbC2:q('.umb-c2'),
+       caseH:q('.caseH'),boxH:q('.box-h'),hamUp:q('.hamUp'),hamId:q('.hamId')},
+    spot:document.getElementById('sp-'+k)};
+}
+reg('worker',.95); reg('neil',1.1); reg('nightingale',1.1); reg('manager',1.16);
+
+function setArm(k,side,name){
+  const g=A[k].g, v=A[k].arms[side][name];
+  if(!v)throw new Error('缺少姿势 '+k+' '+side+' '+name);
+  (side==='R'?g.armR:g.armL).setAttribute('d',v.d);
+  const h=side==='R'?g.handR:g.handL;
+  h.setAttribute('cx',v.h[0]); h.setAttribute('cy',v.h[1]);
+  h.setAttribute('opacity',v.hide?0:1);
+}
+function head(k,deg){ const h=A[k].g.head; if(h)h.style.transform='rotate('+deg+'deg)'; }
+function face(k,mode){
+  const g=A[k].g;
+  if(g.eo)g.eo.style.display=(mode==='open')?'':'none';
+  if(g.ec)g.ec.style.display=(mode==='closed'||mode==='sad'||mode==='cry')?'':'none';
+  if(g.eh)g.eh.style.display=(mode==='happy')?'':'none';
+  if(g.msad)g.msad.style.display=(mode==='sad'||mode==='cry')?'':'none';
+  if(g.tear)g.tear.style.display=(mode==='cry')?'':'none';
+}
+function setPose(k,name){
+  const p=A[k].poses[name];
+  if(!p)throw new Error('缺少姿势组合 '+k+' '+name);
+  setArm(k,'R',p.R); setArm(k,'L',p.L);
+  head(k,p.head||0); if(p.face)face(k,p.face);
+}
+function place(k,x){ const a=A[k]; a.x=x; a.root.style.transform='translate('+x+'px,645px) scale('+a.scale+')'; }
+function faceDir(k,f){ A[k].flip.setAttribute('transform', f===1?'scale(1,1)':'scale(-1,1)'); }
+function show(k,on){ A[k].root.style.opacity=on?1:0; }
+function talking(k,on){ if(k&&A[k])A[k].root.classList.toggle('talking',!!on); }
+function umb(k,st){
+  const g=A[k].g;
+  if(g.umbO)g.umbO.style.display=(st==='open')?'':'none';
+  if(g.umbC)g.umbC.style.display=(st==='closed')?'':'none';
+  if(g.umbC2)g.umbC2.style.display=(st==='closedR')?'':'none';
+}
+function wait(ms){
+  const g=player.gen;
+  return new Promise(function(res,rej){
+    let left=ms;
+    const id=setInterval(function(){
+      if(g!==player.gen){ clearInterval(id); rej(STOP); return; }
+      if(player.paused)return;
+      left-=30;
+      if(left<=0){ clearInterval(id); res(); }
+    },30);
+  });
+}
+function walk(k,x,dur){
+  const a=A[k], g=player.gen, x0=a.x;
+  a.root.classList.add('walking');
+  return new Promise(function(res,rej){
+    let t=0,acc=999,last=performance.now();
+    function fr(now){
+      if(g!==player.gen){ a.root.classList.remove('walking'); rej(STOP); return; }
+      const dt=now-last; last=now;
+      if(!player.paused){
+        t+=dt; acc+=dt;
+        if(acc>380){ acc=0; sfx.step(); }
+        const r=Math.min(1,t/dur), cx=x0+(x-x0)*r;
+        a.x=cx; a.root.style.transform='translate('+cx+'px,645px) scale('+a.scale+')';
+        if(r>=1){ a.root.classList.remove('walking'); res(); return; }
+      }
+      requestAnimationFrame(fr);
+    }
+    requestAnimationFrame(fr);
+  });
+}
+async function enter(k,x,opts){
+  const o=opts||{};
+  place(k,o.from===undefined?-140:o.from); faceDir(k,1); setPose(k,o.pose||'idle');
+  if(o.umbState)umb(k,o.umbState);
+  show(k,true); await wait(80); await walk(k,x,o.dur||1800);
+}
+function stand(k,x,f,pose){ place(k,x); faceDir(k,f); setPose(k,pose||'idle'); show(k,true); }
+function focus(k){
+  for(const key in A){
+    const r=A[key].root, s=A[key].spot;
+    if(k==='box'){ r.style.filter='brightness(.55)'; s.style.opacity=.08; }
+    else if(!k||k==='win'){ r.style.filter='brightness(.95)'; s.style.opacity=.45; }
+    else { r.style.filter=(key===k)?'brightness(1)':'brightness(.68)'; s.style.opacity=(key===k)?.7:.12; }
+  }
+}
+
+/* ===== 布景动作 ===== */
+function win(v){ document.getElementById('s1-winin').style.opacity=v;
+  document.getElementById('s1-sil').style.opacity=(v>0)?.85:0; }
+function btnFlash(on){ document.getElementById('s1-btn').classList.toggle('flash',on); }
+function s1Door(open){ document.getElementById('s1-leaf').style.transform=open?'scaleX(.22)':'scaleX(1)';
+  document.getElementById('s1-hall').style.opacity=open?.85:0; }
+function s6Door(open){ document.getElementById('s6-leaf').style.transform=open?'scaleX(.25)':'scaleX(1)';
+  document.getElementById('s6-hall').style.opacity=open?.5:0; }
+function shake(){ const w=document.getElementById('stage-wrap');
+  w.classList.add('shaking'); setTimeout(function(){w.classList.remove('shaking');},520); }
+async function boxShot(on){
+  const p=document.getElementById('prop-box'), inn=document.getElementById('prop-box-in');
+  if(on){ focus('box'); p.style.opacity=1; inn.style.transform='scale(1)'; }
+  else { p.style.opacity=0; inn.style.transform='scale(.7)'; focus(null); }
+  await wait(650);
+}
+async function pat(k,n){
+  const arm=A[k].g.armR;
+  const sh='M 28,-182 C 58,-182, 88,-184, 106,-190', pd='M 28,-182 C 58,-179, 88,-178, 106,-179';
+  for(let i=0;i<n;i++){ arm.setAttribute('d',pd); sfx.tap(); await wait(140);
+    arm.setAttribute('d',sh); await wait(200); }
+}
+async function hammer(n){
+  for(let i=0;i<n;i++){
+    setArm('worker','R','up'); A.worker.g.hamId.style.display='none'; A.worker.g.hamUp.style.display='';
+    await wait(170);
+    setArm('worker','R','down'); A.worker.g.hamUp.style.display='none'; A.worker.g.hamId.style.display='';
+    sfx.tap(); await wait(260);
+  }
+}
+
+/* ===== 字幕 ===== */
+const NAMES={nightingale:'夜莺',neil:'尼尔',manager:'经理'};
+const COLORS={nightingale:'#e0899a',neil:'#9db8d2',manager:'#dcb26a'};
+async function say(k,text,name){
+  const sp=document.getElementById('subSpeaker');
+  sp.textContent=name||NAMES[k]||''; sp.style.color=COLORS[k]||'#ccc';
+  const t=document.getElementById('subText'); t.textContent='';
+  talking(k,true); focus(k);
+  for(const ch of text){ t.textContent+=ch; await wait(46); }
+  talking(k,false);
+  await wait(560);
+}
+async function aside(text){
+  document.getElementById('subtitle').classList.add('aside');
+  document.getElementById('subSpeaker').textContent='';
+  const t=document.getElementById('subText'); t.textContent='';
+  for(const ch of text){ t.textContent+=ch; await wait(42); }
+  await wait(720);
+  document.getElementById('subtitle').classList.remove('aside');
+}
+function clearSub(){ document.getElementById('subSpeaker').textContent='';
+  document.getElementById('subText').textContent=''; }
+
+/* ===== 场景 ===== */
+const SCENES=[
+ {title:'',sub:'',bg:'#0a0a0f'},
+ {title:'雨夜求助',sub:'公寓楼下 · 雨夜',bg:'#0d1524',rain:1},
+ {title:'看见烟盒',sub:'尼尔与夜莺见面。尼尔刚追丢了收取勒索款的人。',bg:'#1a150f'},
+ {title:'隐瞒莱恩后的争执',sub:'离开老街后，两人终于能够单独谈话。',bg:'#0a1018'},
+ {title:'准备离开，被叫住',sub:'尼尔的房间。第一次求助的谈话接近结束。',bg:'#1c130a',rain:.35},
+ {title:'经理安装电话',sub:'尼尔回到公寓，发现经理和安装电话的工人在等他。',bg:'#161209'},
+ {title:'经理解雇尼尔',sub:'剧院。经理找尼尔谈调查进展。',bg:'#1a0e12'},
+];
+const CN=['零','一','二','三','四','五','六'];
+function setupScene(i){
+  for(let s=1;s<=6;s++) document.getElementById('s'+s).style.display=(s===i)?'':'none';
+  document.getElementById('bg').setAttribute('fill',SCENES[i].bg);
+  document.getElementById('dim').style.opacity=.12;
+  rainTo(SCENES[i].rain||0);
+  for(const k in A){
+    const a=A[k];
+    show(k,false); place(k,-200); faceDir(k,1);
+    a.root.classList.remove('talking','walking');
+    setPose(k,'idle'); a.root.style.filter=''; a.spot.style.opacity=.45;
+  }
+  document.getElementById('prop-box').style.opacity=0;
+  document.getElementById('prop-box-in').style.transform='scale(.7)';
+  s1Door(false); win(0); btnFlash(false);
+  ['s4-case','s4-hat','s4-umb'].forEach(function(id){document.getElementById(id).style.opacity=1;});
+  umb('nightingale','none');
+  A.nightingale.g.hatOn.style.display='none'; A.nightingale.g.caseH.style.display='none';
+  A.neil.g.boxH.style.display='none';
+  s6Door(false);
+  clearSub();
+}
+async function card(i){
+  const b=document.getElementById('blackout');
+  document.getElementById('cardNo').textContent=i===0?'':'— 第 '+CN[i]+' 幕 —';
+  document.getElementById('cardT').textContent=SCENES[i].title;
+  document.getElementById('cardS').textContent=SCENES[i].sub||'';
+  b.classList.add('on'); await wait(550);
+  setupScene(i); await wait(1100);
+  b.classList.remove('on'); await wait(450);
+}
+
+/* ===== 六幕演出 ===== */
+async function run1(){
+  await enter('nightingale',430,{pose:'umb',dur:2400,umbState:'open'});
+  await wait(300);
+  umb('nightingale','closed'); setPose('nightingale','idle'); await wait(400);
+  await aside('夜莺来到公寓楼下，按下301的电铃。');
+  await walk('nightingale',880,1400);
+  setPose('nightingale','plead'); btnFlash(true); sfx.bell(); await wait(1100); btnFlash(false);
+  await say('nightingale','尼尔先生？');
+  win(1); await say('neil','是，你是？','尼尔（楼上）'); win(.35);
+  await say('nightingale','我听朋友说起过你，我遇到了一些麻烦，我想请你帮忙。');
+  win(1); await say('neil','现在很晚了，而且……','尼尔（楼上）'); win(.3);
+  await walk('nightingale',905,700);
+  await say('nightingale','就几分钟，先生，而且这事有点急，我怕明天就太晚了。');
+  await aside('尼尔没有立即回答。');
+  win(1);await wait(320);win(.4);await wait(360);win(1);await wait(320);win(.35);await wait(500);
+  setPose('nightingale','nervous');
+  await say('nightingale','可以吗？');
+  await wait(500); sfx.unlock(); await wait(300);
+  await aside('电铃传来开锁声，公寓楼下的门开了。夜莺获准进入。');
+  s1Door(true); await wait(1200);
+  await walk('nightingale',1030,1700); show('nightingale',false);
+  sfx.knock(); rainTo(.4); await wait(800);
+}
+async function run2(){
+  stand('neil',960,-1,'weary'); stand('nightingale',470,1,'nervous');
+  await wait(600);
+  setPose('neil','frustrated');
+  await say('neil','我没追到他，该死，在路口的时候突然窜出一辆摩托，我把它跟丢了。');
+  setPose('nightingale','idle');
+  await say('nightingale','你人没事儿就好。');
+  setPose('neil','boxTalk'); A.neil.g.boxH.style.display='';
+  await say('neil','我拿到了这个。');
+  await boxShot(true);
+  setPose('nightingale','watch');
+  await aside('尼尔拿出烟盒，夜莺看了一会儿。');
+  await wait(1400);
+  await boxShot(false);
+  await say('nightingale','这是……他的？');
+  await walk('nightingale',420,700);
+  await say('neil','追的时候从他身上掉下来的，"金牌"香烟。');
+  setPose('neil','explain');
+  await say('neil','烟盒经常塞在口袋里，都被挤变形了，一定是经常进行大幅度的活动。');
+  setPose('nightingale','nervous');
+  await say('nightingale','然后呢？大侦探？还有什么？');
+  setPose('neil','admit'); A.neil.g.boxH.style.display='none';
+  await say('neil','没了，我没什么能想到的。他从街道的桥上跳下去，应该对这一带很熟，我准备去问问。');
+  setPose('nightingale','watch');
+  await say('nightingale','老街？');
+  await say('neil','对。');
+  await walk('nightingale',385,700);
+  setPose('nightingale','sad');
+  await say('nightingale','我可不回去。');
+  setPose('neil','idle');
+  await say('neil','我没说要带上你……你不喜欢那里？');
+  setPose('nightingale','grief');
+  await say('nightingale','我花了很久才从里面走出来，我不回去。');
+  await wait(400);
+}
+async function run3(){
+  stand('neil',830,-1,'weary'); stand('nightingale',560,1,'sad');
+  await wait(600);
+  await say('neil','现在可以说了？');
+  setPose('nightingale','nervous');
+  await say('nightingale','莱恩是我……之前的男朋友。');
+  await say('neil','继续。');
+  setPose('nightingale','grief');
+  await say('nightingale','他不会做出这样的事情来，他，他怎么会这样？');
+  setPose('neil','confront');
+  await say('neil','第一次的时候我就问过你，你为什么没有告诉我？');
+  setPose('nightingale','plead');
+  await say('nightingale','我不能确定，而且我觉得你会不愿意管，一个没钱的女孩，一个以前的男人，如果我真的告诉你，你还会帮我吗？');
+  await aside('尼尔没有立即回答。');
+  await wait(1300);
+  setPose('neil','low');
+  await say('neil','也许会，也许不会，我不知道。');
+  setPose('nightingale','idle');
+  await say('nightingale','分手之后，他找过我，我总是甩掉他。后来我离开老街之后，他到剧院找我，但都被保安拦住了，我们没有再见过面了。');
+  await walk('neil',800,600); setPose('neil','confront');
+  await say('neil','你还有什么是瞒着我的？');
+  await walk('nightingale',600,700); setPose('nightingale','plead');
+  await say('nightingale','没有了，尼尔，我知道的就这些了，真的。');
+  await aside('尼尔沉默。');
+  setPose('neil','low'); await wait(1800);
+  setPose('nightingale','calm');
+  await say('nightingale','我知道他住的地方，我们去看看吧。');
+  await aside('夜莺准备继续带路。尼尔停顿了一会儿，随后跟上。');
+  await walk('nightingale',-120,2400); show('nightingale',false);
+  await wait(1200);
+  await walk('neil',-40,2400); show('neil',false);
+}
+async function run4(){
+  stand('neil',900,-1,'weary'); stand('nightingale',560,1,'idle');
+  await wait(600);
+  await say('neil','那我的报酬呢？你准备怎么付我的报酬？');
+  setPose('nightingale','plead');
+  await say('nightingale','演出之后可以吗？经理说过些天会有一场大型的演出，应该会有些钱。虽然之前很多次小一些的演出，他也没给过我什么钱。');
+  setPose('nightingale','nervous');
+  await say('nightingale','当时他说会有些钱的，但是也没给。');
+  await say('nightingale','这次机会很重要，我不愿意错过。');
+  await aside('尼尔没有回答。夜莺不愿让他看见自己的眼泪。');
+  faceDir('nightingale',-1); setPose('nightingale','sad'); await wait(800);
+  await say('nightingale','我明白，确实太麻烦你了。');
+  await aside('她收起东西，戴好帽子，准备拿伞离开。');
+  await walk('nightingale',400,1100);
+  setPose('nightingale','carry'); document.getElementById('s4-case').style.opacity=0;
+  A.nightingale.g.caseH.style.display=''; await wait(800);
+  setPose('nightingale','hat'); document.getElementById('s4-hat').style.opacity=0;
+  A.nightingale.g.hatOn.style.display=''; await wait(900);
+  setPose('nightingale','both'); document.getElementById('s4-umb').style.opacity=0;
+  umb('nightingale','closedR'); await wait(800);
+  await say('nightingale','谢谢你，尼尔先生。');
+  await walk('nightingale',300,1500);
+  await wait(400);
+  await say('neil','演出还有多久？');
+  await wait(600);
+  setPose('nightingale','still');
+  await say('nightingale','就这两周了。');
+  await wait(400);
+  setPose('neil','idle');
+  await say('neil','我们得先想办法凑够赎金，只要他来拿钱，我有办法弄明白他是谁。');
+  await aside('夜莺意识到，他答应了。眼泪流了下来。');
+  faceDir('nightingale',1); setPose('nightingale','bothSad'); focus('nightingale'); rainTo(.9);
+  await wait(2400); rainTo(.5);
+}
+async function run5(){
+  stand('worker',1020,-1,'idle'); stand('manager',880,-1,'warm');
+  await wait(400);
+  await enter('neil',400,{pose:'idle',dur:2000});
+  await aside('尼尔回家，发现有人在等着。');
+  await wait(300);
+  setPose('manager','greet');
+  await say('manager','尼尔！');
+  await aside('经理迎上来，拍尼尔的肩膀，熟络地搭住他的肩。');
+  await walk('manager',526,1300);
+  setPose('manager','shoulder');
+  await pat('manager',2);
+  await say('neil','这是干嘛？');
+  await say('manager','电话！以后出了事情，还让人通过门房留言吗？');
+  await say('manager','大侦探得有个电话。');
+  await say('neil','我还……');
+  await pat('manager',1);
+  await say('manager','早晚的事。');
+  await aside('经理转向工人。');
+  setPose('manager','idle'); faceDir('manager',1);
+  await walk('manager',620,900); setPose('manager','command');
+  await say('manager','给他装好的！最好的线！');
+  await hammer(2);
+  sfx.ring(); await wait(1600);
+}
+async function run6(){
+  stand('manager',460,1,'warm'); stand('neil',780,-1,'idle');
+  await wait(700);
+  await say('manager','尼尔，我们必须得好好谈谈了。');
+  await aside('尼尔沉默。');
+  setPose('neil','low'); await wait(1500);
+  await say('manager','到目前为止已经有几天了，事情有什么重要的进展吗？');
+  await aside('尼尔没有回答。');
+  await wait(1500);
+  setPose('manager','chest');
+  await say('manager','我只针对事情，不针对人。这是一份工作，我们每个人都在自己的岗位上，为这件事出一份力。');
+  setPose('manager','greet');
+  await say('manager','就拿我来说，我每天都在为赞助和演出奔走，如果我没能做得很好，我自己就不配呆在这个岗位上，我就要开除我自己。');
+  await aside('尼尔沉默。');
+  setPose('manager','warm'); await wait(1600);
+  await say('manager','如果我们不能为这件事情的解决作出贡献，那我们在这儿不是浪费时间吗？');
+  await aside('尼尔仍没有回应。');
+  setPose('neil','low'); await wait(1600);
+  setPose('manager','offer');
+  await say('manager','尼尔，我其实很不情愿，但是这件事情你可以先放一放了，我可能会找一个更老练的侦探。但也别那么绝情，别断了联系。');
+  setPose('manager','idle');
+  await wait(600);
+  await aside('尼尔交接已知信息，具体内容略过。他离开剧院，身后的大门砰地关上。');
+  await wait(1800);
+  faceDir('neil',1);
+  await walk('neil',1105,2300);
+  s6Door(true); await wait(500);
+  show('neil',false); await wait(450);
+  sfx.slam(); s6Door(false); shake();
+  document.getElementById('dim').style.opacity=.5;
+  setPose('manager','low'); face('manager','closed');
+  await wait(2800);
+}
+const RUN=[null,run1,run2,run3,run4,run5,run6];
+
+/* ===== 总控 ===== */
+function updBtn(){
+  const b=document.getElementById('playBtn');
+  b.textContent=!player.started?'▶ 开始演出':(player.paused?'▶ 继续':'⏸ 暂停');
+  b.classList.toggle('pulse',!player.started);
+  document.getElementById('stage-wrap').classList.toggle('paused',player.paused&&player.started);
+  const chips=document.querySelectorAll('.chip');
+  for(const c of chips)c.classList.toggle('cur',+c.getAttribute('data-i')===player.cur);
+}
+async function playFrom(i){
+  initAudio();
+  player.gen++; const g=player.gen;
+  player.paused=false; player.started=true; updBtn();
+  document.getElementById('poster').classList.add('off');
+  try{
+    for(let s=i;s<=6;s++){
+      player.cur=s; updBtn();
+      await card(s); if(g!==player.gen)throw STOP;
+      await RUN[s](); if(g!==player.gen)throw STOP;
+      await wait(400);
+    }
+    document.getElementById('cardNo').textContent='';
+    document.getElementById('cardT').textContent='剧 终';
+    document.getElementById('cardS').textContent='Portrait Theatre · 谢幕';
+    document.getElementById('blackout').classList.add('on'); clearSub();
+    await wait(3000);
+    player.cur=0; posterTableau();
+    document.getElementById('poster').classList.remove('off');
+    document.getElementById('blackout').classList.remove('on');
+    player.started=false; updBtn();
+  }catch(e){ if(e!==STOP)throw e; }
+}
+function toggle(){
+  if(!player.started){ playFrom(1); return; }
+  player.paused=!player.paused; updBtn();
+}
+document.getElementById('playBtn').addEventListener('click',function(e){e.stopPropagation();toggle();});
+document.getElementById('replayBtn').addEventListener('click',function(e){e.stopPropagation();playFrom(1);});
+document.getElementById('stage-wrap').addEventListener('click',toggle);
+window.addEventListener('keydown',function(e){
+  if(e.code==='Space'){
+    if(e.target&&e.target.closest&&e.target.closest('button'))return;
+    e.preventDefault(); toggle();
+  }
+});
+const chipBox=document.getElementById('chips');
+for(let i=1;i<=6;i++){
+  const b=document.createElement('button');
+  b.className='chip'; b.setAttribute('data-i',i);
+  b.textContent=CN[i]; b.title='直接跳到第'+CN[i]+'幕';
+  (function(n){ b.addEventListener('click',function(e){ e.stopPropagation(); playFrom(n); }); })(i);
+  chipBox.appendChild(b);
+}
+
+/* ===== 雨幕 ===== */
+  const g=document.getElementById('fx-rain');
+  for(let i=0;i<46;i++){
+    const l=document.createElementNS(NS,'line');
+    const x=Math.random()*1500-100;
+    l.setAttribute('x1',x); l.setAttribute('y1',-60);
+    l.setAttribute('x2',x-14); l.setAttribute('y2',-22);
+    l.setAttribute('stroke','rgba(190,214,255,.32)'); l.setAttribute('stroke-width','1.5');
+    l.style.animation='rainfall '+(700+Math.random()*500)+'ms linear '+(Math.random()*1400)+'ms infinite';
+    g.appendChild(l);
+  }
+
+/* ===== 初始群像（修复：原稿中这段落在 IIFE 之外，调用不到内部函数） ===== */
+function posterTableau(){
+  setupScene(0);
+  stand('nightingale',470,1,'idle'); umb('nightingale','closed');
+  stand('neil',640,1,'weary'); stand('manager',830,1,'greet');
+  focus(null); updBtn();
+}
+posterTableau();
+document.getElementById('stat').textContent='✓ 剧场已就绪 · 点击舞台或按钮开始 · 空格暂停';
+})();
+</script>
+</body>
+</html>

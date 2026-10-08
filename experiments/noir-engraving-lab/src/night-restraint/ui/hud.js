@@ -1,9 +1,11 @@
 import {mountHUD as mountReferenceHUD} from './referenceHUD.js';
 import './hud.css';
+import {mountSceneCards} from './sceneCards.js';
 export function mountHUD({onBack,onFocus,landmarks}){
  const frame=document.createElement('div');frame.className='night-hud-frame';
  const host=document.createElement('div');host.id='hud';frame.append(host);document.body.append(frame);
- mountReferenceHUD(host,{onBack,onMenu});
+ const ui=mountReferenceHUD(host,{onBack,onMenu});
+ const sceneCards=mountSceneCards(host,landmarks);
  const popup=document.createElement('aside');popup.className='hud-popup';popup.hidden=true;host.append(popup);
  let mode='world';
  function onMenu(key){
@@ -16,7 +18,8 @@ export function mountHUD({onBack,onFocus,landmarks}){
   for(const rig of landmarks){const b=document.createElement('button');b.textContent=rig.name;b.disabled=mode!=='world';b.addEventListener('click',()=>{popup.hidden=true;onFocus(rig);});popup.append(b);}
  }
  return {
- resize(rect){const scale=rect.height/720;Object.assign(frame.style,{left:`${rect.left}px`,top:`${rect.top}px`,width:`${rect.width}px`,height:`${rect.height}px`});host.style.width=`${rect.width/scale}px`;host.style.transform=`scale(${scale})`;},
- setView(next,name){mode=next;ui.setView(next,name);popup.hidden=true;}
+ resize(rect){const scale=rect.height/720;Object.assign(frame.style,{left:`${rect.left}px`,top:`${rect.top}px`,width:`${rect.width}px`,height:`${rect.height}px`});host.style.width=`${rect.width/scale}px`;host.style.transform=`scale(${scale})`;sceneCards.resize(rect.width/scale);},
+ setView(next,name){mode=next;ui.setView(next,name);sceneCards.setView(next,name);popup.hidden=true;},
+ tick(camera){sceneCards.tick(camera);}
  };
 }

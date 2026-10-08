@@ -1,0 +1,20 @@
+{
+  "task_id": "da25e9f9-29a1-419e-85ae-d88a600370b0",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/night-single-style-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/night-single-style-reference.png",
+    "prompt": "Redraw the referenced Nightingale woman as ONE full body figure. Preserve her exact LEFT-facing pose, one hand at collarbone, other down holding handbag, crossed relaxed legs. Same fitted blue-grey period coat, small tilted hat, ankle heels, prominent forehead wave and shoulder curls, slender nose neck and waist. Same character proportions and clothing. Entire figure head to shoes visible with blank margins. Perfectly flat chroma green #00ee00 background, no scenery, no text, no shadow. All dark areas in the figure must be opaque filled, not background green. Only change drawing style as follows: Calligraphic ink contour with strong thick-to-thin variation, thick on the shadow side and the hem, hairline thin on the lit side and the face. Brush-pen quality, confident single strokes, flowing hair drawn in rhythmic long strokes. Light line on dark ground. Ignore any requested background or ground reflection: green background, no floor. Negative prompt: photorealistic skin, anime face, cartoon proportions, chibi, thick outlines of uniform marker weight, background scenery, gradient background, multiple people, cropped limbs, extra fingers, text, logo, lingerie, cleavage, glamour pose"
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/claude-03/da25e9f9-29a1-419e-85ae-d88a600370b0/image.png",
+    "bytes": 1035490,
+    "sha256": "4a6d9bb594ad9571681a028bf8758813a750010c99f119139dff2f7e8be7345d"
+  }
+}

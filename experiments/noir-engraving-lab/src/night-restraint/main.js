@@ -80,7 +80,7 @@ async function main(){
  const clock=new THREE.Clock(),rnd=mulberry32(9);
  renderer.setAnimationLoop(()=>{
   const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
-  controls.update();movement.tick(dt);landmarks.tick(camera,dt,viewport);
+  controls.update();movement.tick(dt);landmarks.tick(camera,dt,viewport);hud.tick(camera);
   renderer.toneMappingExposure=P.exposure*(1-.16*landmarks.focusFx);
   for(const sign of neon.signs){const flicker=P.neonFlicker&&rnd()<.012?.25:1;sign.mat.color.copy(sign.base).multiplyScalar((.9+.1*Math.sin(time*6+sign.phase))*flicker);}
   post.beforeRender(camera);post.renderScene(camera);

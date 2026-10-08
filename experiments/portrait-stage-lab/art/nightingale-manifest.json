@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "art",
+  "name": "nightingale-poses",
+  "status": "completed",
+  "prompt": "Draw two separate full body views of the same 1940s American woman on a flat vivid green background. Angular cut-paper illustration, ivory face and hands, dark waved bob hair, cream fedora, blue belted raincoat, brown handbag, cream skirt and dark shoes. Left figure: facing right, standing still, arms down, holding handbag. Right figure: exactly the same woman and outfit, facing right, head lowered slightly, both hands holding handbag in front. Feet on same baseline, equal sizes, separated widely, full body head to shoes. No microphone, no singing, no walking, no text, no scenery. Landscape image with two equal columns.",
+  "references": [],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/art/nightingale-poses",
+  "created_at": "2026-10-07T14:47:01.427Z",
+  "submitted_at": "2026-10-07T14:47:05.045Z",
+  "conversation_url": "https://gemini.google.com/app/7a7a481aa5e34347",
+  "completed_at": "2026-10-07T14:47:25.735Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/art/nightingale-poses/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 572,
+    "extraction": "canvas-png",
+    "sha256": "f3d7a7bd7ca686543087e8903192406f2ecfdb57391bbb376962e41a98e7634e"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/experiments/portrait-stage-lab/art/nightingale-poses.png"
+}

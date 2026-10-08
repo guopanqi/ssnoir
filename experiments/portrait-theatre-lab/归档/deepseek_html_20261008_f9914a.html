@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portrait Theatre · 雨夜与烟盒 — Claude</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#04060a;
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased}
+
+  /* ============ 舞台 ============ */
+  #stage{
+    position:fixed;left:50%;top:47%;width:1100px;height:650px;
+    transform:translate(-50%,-50%) scale(var(--k,1));
+    transform-origin:center center;
+    background:#0a0e1c;overflow:hidden;border-radius:6px;
+    box-shadow:0 0 120px rgba(0,0,0,.95), 0 0 0 1px rgba(120,150,200,.08);
+  }
+  .sky{position:absolute;inset:0;background:#0a0e1c;transition:background 2.2s ease}
+  .ground{position:absolute;left:0;right:0;bottom:0;height:130px;background:#0d1120;transition:background 2.2s ease}
+  .ground::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(140,175,235,.35),transparent)}
+
+  /* ============ 雨 ============ */
+  #rain{position:absolute;inset:-12% -25%;transform:rotate(7deg);transition:opacity 2.4s ease}
+  #rain.off{opacity:0}
+  .drop{position:absolute;top:-160px;width:1px;border-radius:1px;
+    background:linear-gradient(to bottom,rgba(160,195,255,0),rgba(160,195,255,.85));
+    animation:fall linear infinite}
+  @keyframes fall{from{transform:translateY(0)}to{transform:translateY(900px)}}
+  body.paused .drop{animation-play-state:paused}
+
+  /* ============ 门 / 门铃 ============ */
+  #door{position:absolute;left:720px;bottom:130px;width:232px;height:420px;
+    background:#131a2a;border:1px solid rgba(150,180,230,.14);border-radius:3px;
+    transition:background 1s,box-shadow 1.2s,opacity 1.2s,border-color 1s}
+  #door .glow{position:absolute;inset:0;opacity:0;transition:opacity .9s;
+    background:radial-gradient(ellipse at 50% 72%,rgba(255,196,120,.55),rgba(255,170,90,.12) 45%,transparent 72%)}
+  #door.open{background:#2b3550;border-color:rgba(255,200,140,.3);
+    box-shadow:0 0 90px 18px rgba(255,190,120,.22)}
+  #door.open .glow{opacity:1}
+  #door.gone{opacity:0;pointer-events:none}
+
+  #buzzer{position:absolute;left:660px;bottom:300px;width:46px;height:96px;
+    background:#141a28;border:1px solid rgba(150,180,230,.2);border-radius:7px;
+    display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+    padding:9px 0;transition:opacity 1.2s,border-color .4s}
+  #buzzer.gone{opacity:0}
+  #buzzer .label{font-size:13px;letter-spacing:1px;color:#8ba0c4;font-family:ui-monospace,monospace;transition:color .3s}
+  #buzzer .btn{width:22px;height:22px;border-radius:50%;background:#28324a;
+    border:1px solid rgba(150,180,230,.28);transition:all .12s}
+  #buzzer .btn.on{background:#ffd27a;border-color:#ffe6b5;
+    box-shadow:0 0 20px 5px rgba(255,205,120,.65)}
+  #buzzer.voice{border-color:rgba(140,210,255,.5)}
+  #buzzer.voice .label{color:#8fd8ff}
+
+  /* ============ 路灯 ============ */
+  #lamp{position:absolute;left:898px;bottom:130px;width:8px;height:430px;
+    background:linear-gradient(#232c40,#161c2a);opacity:0;transition:opacity 1.8s}
+  #lamp::after{content:"";position:absolute;top:-12px;left:-27px;width:62px;height:14px;
+    border-radius:9px;background:#2b3549}
+  #lamp.on{opacity:1}
+  #lampLight{position:absolute;left:640px;bottom:130px;width:520px;height:520px;
+    opacity:0;transition:opacity 2.2s;pointer-events:none;
+    background:radial-gradient(ellipse at 52% 4%,rgba(255,214,150,.17),rgba(255,200,130,.05) 40%,transparent 68%)}
+  #lampLight.on{opacity:1}
+
+  /* ============ 人物 ============ */
+  .actor{position:absolute;width:100px;height:296px;bottom:130px;
+    transition:transform 1.1s cubic-bezier(.2,.8,.3,1),opacity .7s ease;
+    will-change:transform,opacity}
+  .actor.hidden{opacity:0}
+  .actor.enter-left{transform:translateX(-320px)}
+  .actor.enter-right{transform:translateX(340px)}
+
+  #nightingale{left:480px;
+    --skin:#ecd0bd;--hair:#241f2e;--coat:#3d4b6e;--pants:#1e2536;
+    filter:drop-shadow(2px 0 10px rgba(120,160,255,.18))}
+  #neil{left:740px;
+    --skin:#d9b18b;--hair:#17161c;--coat:#54483a;--pants:#2c2a26;
+    filter:drop-shadow(-2px 0 10px rgba(255,190,130,.14))}
+
+  .actor .leg{position:absolute;bottom:0;width:20px;height:134px;
+    background:var(--pants);border-radius:9px 9px 7px 7px}
+  .actor .leg.l{left:27px}
+  .actor .leg.r{left:53px}
+
+  .actor .torso{position:absolute;left:19px;bottom:125px;width:62px;height:108px;
+    background:var(--coat);border-radius:24px 24px 12px 12px;
+    box-shadow:inset -9px 0 16px rgba(0,0,0,.3),inset 7px 0 12px rgba(255,255,255,.05)}
+
+  .actor .arm{position:absolute;bottom:140px;width:15px;height:93px;
+    background:var(--coat);border-radius:8px;transform-origin:50% 0%;
+    transition:transform .55s cubic-bezier(.34,1.3,.5,1);
+    box-shadow:inset -4px 0 7px rgba(0,0,0,.28)}
+  .actor .arm.l{left:9px;transform:rotate(4deg)}
+  .actor .arm.r{left:76px;transform:rotate(-4deg)}
+
+  .actor .neck{position:absolute;left:42px;bottom:224px;width:16px;height:20px;
+    background:var(--skin);filter:brightness(.82)}
+
+  .actor .head{position:absolute;left:26px;bottom:232px;width:48px;height:56px;
+    background:var(--skin);border-radius:48% 48% 42% 42%;
+    transform-origin:50% 100%;transition:transform .6s ease}
+  .actor .hair{position:absolute;left:-5px;top:-8px;width:58px;height:36px;
+    background:var(--hair);border-radius:50% 50% 34% 34%}
+  #nightingale .hair::before,#nightingale .hair::after{
+    content:"";position:absolute;top:24px;width:12px;height:46px;
+    background:var(--hair);border-radius:0 0 9px 9px}
+  #nightingale .hair::before{left:1px}
+  #nightingale .hair::after{right:1px}
+
+  .actor .eye{position:absolute;top:32px;width:6px;height:8px;background:#0d1016;
+    border-radius:50%;transition:transform .5s ease,opacity .4s}
+  .actor .eye.l{left:12px}
+  .actor .eye.r{right:12px}
+
+  /* 夜莺姿态 */
+  #nightingale[data-pose="ring"] .arm.r{transform:rotate(-82deg)}
+  #nightingale[data-pose="ring"] .head{transform:rotate(3deg)}
+  #nightingale[data-pose="small"] .arm.l{transform:rotate(-9deg)}
+  #nightingale[data-pose="small"] .arm.r{transform:rotate(9deg)}
+  #nightingale[data-pose="small"] .head{transform:rotate(-5deg) translateY(3px)}
+  #nightingale[data-pose="guard"] .arm.l{transform:rotate(-42deg)}
+  #nightingale[data-pose="guard"] .arm.r{transform:rotate(30deg)}
+  #nightingale[data-pose="guard"] .head{transform:rotate(3deg)}
+  #nightingale[data-pose="notice"] .head{transform:rotate(6deg)}
+  #nightingale[data-pose="notice"] .eye{transform:translateX(4px)}
+  #nightingale[data-pose="freeze"] .head{transform:translateY(-3px)}
+  #nightingale[data-pose="freeze"] .eye{transform:scaleY(1.7) scaleX(1.15)}
+  #nightingale[data-pose="lookaway"] .head{transform:rotate(-9deg) translateY(2px)}
+  #nightingale[data-pose="lookaway"] .eye{transform:translateX(-5px)}
+  #nightingale[data-pose="lookaway"] .arm.l{transform:rotate(-38deg)}
+  #nightingale[data-pose="lookaway"] .arm.r{transform:rotate(26deg)}
+
+  /* 尼尔姿态 */
+  #neil[data-pose="raise"] .arm.l{transform:rotate(-58deg)}
+  #neil[data-pose="raise"] .arm.r{transform:rotate(14deg)}
+  #neil[data-pose="raise"] .head{transform:translateY(5px) rotate(5deg)}
+
+  /* ============ 道具：金牌香烟 ============ */
+  #cig{position:absolute;left:813px;bottom:280px;width:38px;height:54px;
+    background:linear-gradient(150deg,#d02b33,#8f1a21);
+    clip-path:polygon(0 7%,100% 0,100% 94%,0 100%);
+    opacity:0;transform:scale(.55) rotate(-14deg);
+    transition:opacity .45s ease,transform .45s cubic-bezier(.34,1.5,.5,1);
+    filter:drop-shadow(0 0 6px rgba(255,80,80,.35));z-index:6}
+  #cig.show{opacity:1;transform:scale(1) rotate(-9deg)}
+  #cig::before{content:"";position:absolute;left:5px;right:5px;top:12px;height:2px;
+    background:rgba(255,235,200,.55)}
+  #cig::after{content:"";position:absolute;left:4px;right:4px;top:26px;height:1px;
+    background:rgba(0,0,0,.35);box-shadow:0 10px 0 rgba(0,0,0,.3)}
+
+  /* 夜莺心中的那个影像 */
+  #thought{position:absolute;left:380px;bottom:386px;width:62px;height:86px;
+    background:linear-gradient(150deg,rgba(215,45,55,.72),rgba(140,20,30,.55));
+    border:1px solid rgba(255,130,130,.65);border-radius:4px;
+    clip-path:polygon(0 6%,100% 0,100% 94%,0 100%);
+    opacity:0;transform:scale(.35) rotate(-16deg);
+    transition:opacity 1s ease,transform 1s cubic-bezier(.3,1.2,.5,1);
+    filter:blur(1.2px);pointer-events:none;z-index:7}
+  #thought.on{opacity:.8;transform:scale(1) rotate(-12deg)}
+
+  /* ============ 光 / 幕 ============ */
+  #spot{position:absolute;left:130px;bottom:130px;width:460px;height:560px;opacity:0;
+    transition:opacity 2.2s;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 34%,rgba(255,240,215,.16),transparent 62%)}
+  #spot.on{opacity:1}
+
+  .vignette{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 45%,transparent 42%,rgba(0,0,0,.7) 100%)}
+
+  #curtain{position:absolute;inset:0;background:#04060a;opacity:0;
+    transition:opacity .75s ease;pointer-events:none;z-index:50}
+  #curtain.on{opacity:1}
+
+  /* ============ 字幕 ============ */
+  #caption{position:absolute;left:0;right:0;bottom:38px;text-align:center;
+    font-size:26px;line-height:1.5;color:#e9effb;letter-spacing:.6px;opacity:0;
+    transition:opacity .38s ease;text-shadow:0 2px 16px rgba(0,0,0,.95);
+    padding:0 60px;z-index:20}
+  #caption.on{opacity:1}
+  #caption .who{color:#6fd0ff;font-size:19px;letter-spacing:4px;margin-right:16px;
+    vertical-align:2px}
+  #caption .who.far{color:#93a4c2}
+
+  #sceneLabel{position:absolute;left:42px;top:34px;font-size:13px;letter-spacing:5px;
+    color:rgba(150,180,225,.42);transition:opacity .8s;z-index:20}
+
+  /* ============ 结束卡 ============ */
+  #endcard{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity 1.6s;z-index:55}
+  #endcard.on{opacity:1}
+  #endcard span{font-size:22px;letter-spacing:22px;color:rgba(200,220,255,.7);
+    text-indent:22px}
+
+  /* ============ 控制条 ============ */
+  #controls{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);
+    display:flex;align-items:center;gap:14px;z-index:200}
+  button{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.16);
+    color:#dbe5f6;padding:9px 22px;border-radius:24px;font-size:14px;cursor:pointer;
+    font-family:inherit;letter-spacing:2px;transition:.2s;backdrop-filter:blur(10px)}
+  button:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.3)}
+  button:active{transform:scale(.96)}
+  #track{width:260px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+  #bar{height:100%;width:0;background:linear-gradient(90deg,#4ea6d8,#8fd8ff);
+    border-radius:2px;transition:width .12s linear}
+</style>
+</head>
+<body data-scene="1">
+
+<div id="stage">
+  <div class="sky"></div>
+  <div id="rain"></div>
+  <div class="ground"></div>
+
+  <div id="lamp"></div>
+  <div id="lampLight"></div>
+
+  <div id="door"><div class="glow"></div></div>
+  <div id="buzzer">
+    <div class="label">301</div>
+    <div class="btn"></div>
+  </div>
+
+  <div id="spot"></div>
+
+  <div class="actor hidden enter-left" id="nightingale">
+    <div class="leg l"></div>
+    <div class="leg r"></div>
+    <div class="torso"></div>
+    <div class="arm l"></div>
+    <div class="arm r"></div>
+    <div class="neck"></div>
+    <div class="head">
+      <div class="hair"></div>
+      <div class="eye l"></div>
+      <div class="eye r"></div>
+    </div>
+  </div>
+
+  <div class="actor hidden enter-right" id="neil">
+    <div class="leg l"></div>
+    <div class="leg r"></div>
+    <div class="torso"></div>
+    <div class="arm l"></div>
+    <div class="arm r"></div>
+    <div class="neck"></div>
+    <div class="head">
+      <div class="hair"></div>
+      <div class="eye l"></div>
+      <div class="eye r"></div>
+    </div>
+  </div>
+
+  <div id="cig"></div>
+  <div id="thought"></div>
+
+  <div class="vignette"></div>
+
+  <div id="sceneLabel">片段一 · 雨夜求助</div>
+  <div id="caption"></div>
+
+  <div id="curtain"></div>
+  <div id="endcard"><span>剧 终</span></div>
+</div>
+
+<div id="controls">
+  <button id="playBtn">▶ 播放</button>
+  <button id="replayBtn">↻ 重播</button>
+  <div id="track"><div id="bar"></div></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ==================== 缩放适配 ==================== */
+function fit(){
+  var k = Math.min((window.innerWidth - 40)/1100, (window.innerHeight - 150)/650);
+  document.documentElement.style.setProperty('--k', Math.max(.34, k).toFixed(4));
+}
+window.addEventListener('resize', fit);
+fit();
+
+/* ==================== 雨 ==================== */
+(function buildRain(){
+  var rain = document.getElementById('rain');
+  for(var i=0;i<130;i++){
+    var d = document.createElement('div');
+    d.className = 'drop';
+    d.style.left = (Math.random()*130 - 15) + '%';
+    var h = 26 + Math.random()*78;
+    d.style.height = h + 'px';
+    d.style.animationDuration = (0.42 + Math.random()*0.42) + 's';
+    d.style.animationDelay = (-Math.random()*3) + 's';
+    d.style.opacity = (0.12 + Math.random()*0.5).toFixed(2);
+    rain.appendChild(d);
+  }
+})();
+
+/* ==================== DOM ==================== */
+var stage   = document.getElementById('stage');
+var N       = document.getElementById('nightingale');
+var NE      = document.getElementById('neil');
+var cap     = document.getElementById('caption');
+var cig     = document.getElementById('cig');
+var thought = document.getElementById('thought');
+var door    = document.getElementById('door');
+var buzzer  = document.getElementById('buzzer');
+var bzBtn   = buzzer.querySelector('.btn');
+var rainEl  = document.getElementById('rain');
+var lamp    = document.getElementById('lamp');
+var lampL   = document.getElementById('lampLight');
+var spot    = document.getElementById('spot');
+var curtain = document.getElementById('curtain');
+var endcard = document.getElementById('endcard');
+var label   = document.getElementById('sceneLabel');
+var bar     = document.getElementById('bar');
+var playBtn = document.getElementById('playBtn');
+var replayBtn = document.getElementById('replayBtn');
+
+/* ==================== 音频引擎 ==================== */
+var actx = null, master = null, rainSrc = null, rainGain = null;
+
+function initAudio(){
+  if(actx) return;
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if(!AC) return;
+  actx = new AC();
+  master = actx.createGain();
+  master.gain.value = 0;
+  master.connect(actx.destination);
+}
+
+function noiseBuffer(sec, decay){
+  var len = Math.floor(actx.sampleRate * sec);
+  var buf = actx.createBuffer(1, len, actx.sampleRate);
+  var d = buf.getChannelData(0);
+  for(var i=0;i<len;i++){
+    var env = decay ? Math.exp(-i/(actx.sampleRate*decay)) : 1;
+    d[i] = (Math.random()*2-1) * env;
+  }
+  return buf;
+}
+
+function startRain(){
+  if(!actx || rainSrc) return;
+  var src = actx.createBufferSource();
+  src.buffer = noiseBuffer(3, 0);
+  src.loop = true;
+  var hp = actx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=620;
+  var lp = actx.createBiquadFilter(); lp.type='lowpass';  lp.frequency.value=7200;
+  var g  = actx.createGain(); g.gain.value = 0;
+  src.connect(hp); hp.connect(lp); lp.connect(g); g.connect(master);
+  src.start();
+  rainSrc = src; rainGain = g;
+  g.gain.setTargetAtTime(0.085, actx.currentTime, 1.0);
+}
+function fadeRain(v, t){
+  if(rainGain) rainGain.gain.setTargetAtTime(v, actx.currentTime, t || 1.2);
+}
+
+function chime(){
+  if(!actx) return;
+  var t = actx.currentTime;
+  [880, 660].forEach(function(f, i){
+    var o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    var s = t + i*0.19;
+    g.gain.setValueAtTime(0, s);
+    g.gain.linearRampToValueAtTime(0.17, s+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0008, s+0.42);
+    o.connect(g); g.connect(master);
+    o.start(s); o.stop(s+0.45);
+  });
+}
+
+function buzz(){
+  if(!actx) return;
+  var t = actx.currentTime;
+  var o = actx.createOscillator(), g = actx.createGain(),
+      lp = actx.createBiquadFilter();
+  o.type='square'; o.frequency.value = 138;
+  lp.type='lowpass'; lp.frequency.value = 780;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.075, t+0.02);
+  g.gain.setValueAtTime(0.075, t+0.52);
+  g.gain.exponentialRampToValueAtTime(0.0008, t+0.78);
+  o.connect(lp); lp.connect(g); g.connect(master);
+  o.start(t); o.stop(t+0.82);
+}
+
+function click(){
+  if(!actx) return;
+  var t = actx.currentTime;
+  var s = actx.createBufferSource();
+  s.buffer = noiseBuffer(0.09, 0.013);
+  var bp = actx.createBiquadFilter();
+  bp.type='bandpass'; bp.frequency.value=2100; bp.Q.value=1.1;
+  var g = actx.createGain(); g.gain.value = 0.3;
+  s.connect(bp); bp.connect(g); g.connect(master);
+  s.start(t);
+}
+
+function thump(freq, vol, dur){
+  if(!actx) return;
+  var t = actx.currentTime;
+  var o = actx.createOscillator(), g = actx.createGain();
+  o.type='sine';
+  o.frequency.setValueAtTime(freq*1.7, t);
+  o.frequency.exponentialRampToValueAtTime(freq, t+0.16);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0008, t+dur);
+  o.connect(g); g.connect(master);
+  o.start(t); o.stop(t+dur+0.06);
+}
+
+function masterTo(v){
+  if(master) master.gain.setTargetAtTime(v, actx.currentTime, 0.05);
+}
+
+/* ==================== 台词 ==================== */
+function say(who, text, far){
+  cap.innerHTML = '<span class="who' + (far ? ' far' : '') + '">' + who + '</span>' + text;
+  cap.classList.add('on');
+}
+function clearSay(){ cap.classList.remove('on'); }
+
+/* ==================== 时间轴 ==================== */
+var cues = [];
+function at(t, fn){ cues.push({t:t, fn:fn}); }
+
+var TOTAL = 60.5;
+
+/* ---------- 片段一 · 雨夜求助 ---------- */
+at(0.3, function(){ startRain(); });
+
+at(1.0, function(){
+  N.classList.remove('hidden');
+  N.classList.remove('enter-left');
+});
+
+at(3.2, function(){ N.dataset.pose = 'ring'; });
+at(3.8, function(){
+  bzBtn.classList.add('on');
+  chime();
+});
+at(4.7, function(){
+  bzBtn.classList.remove('on');
+  N.removeAttribute('data-pose');
+});
+
+at(5.2, function(){ say('夜莺','尼尔先生？'); });
+at(7.4, function(){
+  buzzer.classList.add('voice');
+  say('尼尔','是，你是？', true);
+});
+at(9.8, function(){ say('夜莺','我听朋友说起过你，我遇到了一些麻烦，我想请你帮忙。'); });
+at(15.0, function(){ say('尼尔','现在很晚了，而且……', true); });
+at(18.2, function(){ say('夜莺','就几分钟，先生，而且这事有点急，我怕明天就太晚了。'); });
+
+at(24.4, function(){
+  clearSay();
+  buzzer.classList.remove('voice');
+  N.dataset.pose = 'small';
+  fadeRain(0.11, 1.5);
+});
+
+at(26.4, function(){ say('夜莺','可以吗？'); });
+at(28.6, function(){ clearSay(); N.removeAttribute('data-pose'); });
+
+at(31.0, function(){
+  buzz();
+  door.classList.add('open');
+  click();
+});
+
+at(32.0, function(){
+  N.style.transition = 'transform 2.3s cubic-bezier(.4,0,.2,1), opacity .9s ease';
+  N.style.transform = 'translateX(170px)';
+});
+
+at(34.4, function(){ N.style.opacity = 0; });
+
+at(35.4, function(){
+  door.classList.remove('open');
+  door.classList.add('gone');
+  buzzer.classList.add('gone');
+  fadeRain(0, 1.0);
+  rainEl.classList.add('off');
+});
+
+/* ---------- 换场 ---------- */
+at(36.0, function(){ curtain.classList.add('on'); });
+
+at(37.2, function(){
+  document.body.dataset.scene = '2';
+  label.textContent = '片段二 · 看见烟盒';
+
+  /* 夜莺复位到舞台左侧，换成戒备姿态 */
+  N.style.transition = 'none';
+  N.style.transform = 'translateX(0)';
+  N.style.left = '280px';
+  N.style.opacity = 0;
+  N.dataset.pose = 'guard';
+
+  /* 尼尔复位到右外侧 */
+  NE.classList.add('hidden');
+  NE.classList.add('enter-right');
+
+  /* 场景灯光 */
+  lamp.classList.add('on');
+  lampL.classList.add('on');
+
+  void N.offsetWidth;           /* 强制重排，清掉 transition:none 的遗留 */
+
+  curtain.classList.remove('on');
+});
+
+at(38.6, function(){
+  N.style.transition = 'opacity 1.2s ease';
+  N.style.opacity = 1;
+});
+
+at(39.8, function(){
+  NE.classList.remove('hidden');
+  NE.classList.remove('enter-right');
+});
+
+/* ---------- 片段二 · 看见烟盒 ---------- */
+at(41.6, function(){
+  say('尼尔','我没追到他，该死，在路口的时候突然窜出一辆摩托，我把它跟丢了。');
+});
+
+at(44.2, function(){ NE.dataset.pose = 'raise'; });
+at(44.9, function(){ cig.classList.add('show'); });
+
+at(45.8, function(){ N.dataset.pose = 'notice'; });
+
+at(47.1, function(){
+  N.dataset.pose = 'freeze';
+  thump(48, 0.24, 0.65);
+});
+
+at(48.8, function(){ clearSay(); });
+
+at(49.6, function(){ N.dataset.pose = 'lookaway'; });
+
+at(50.8, function(){
+  N.removeAttribute('data-pose');
+  N.dataset.pose = 'guard';
+  N.style.transition = 'transform 1.4s ease, opacity 1s ease';
+  N.style.transform = 'translateX(-26px)';
+});
+
+at(52.0, function(){
+  thought.classList.add('on');
+  thump(40, 0.19, 1.1);
+});
+
+at(54.4, function(){ thought.classList.remove('on'); });
+
+at(56.0, function(){ spot.classList.add('on'); });
+
+at(58.8, function(){
+  curtain.classList.add('on');
+});
+
+/* ==================== 播放控制 ==================== */
+var clock = 0, cursor = 0, playing = false, rafId = null, lastTs = 0, finished = false;
+
+function loop(ts){
+  if(!playing) return;
+  if(!lastTs) lastTs = ts;
+  var dt = (ts - lastTs) / 1000;
+  lastTs = ts;
+  if(dt > 0.25) dt = 0.25;
+
+  clock += dt;
+  while(cursor < cues.length && cues[cursor].t <= clock){
+    try { cues[cursor].fn(); } catch(e){ /* 静默 */ }
+    cursor++;
+  }
+  bar.style.width = Math.min(100, clock/TOTAL*100).toFixed(2) + '%';
+
+  if(clock >= TOTAL){ finish(); return; }
+  rafId = requestAnimationFrame(loop);
+}
+
+function play(){
+  if(playing) return;
+  initAudio();
+  if(actx && actx.state === 'suspended') actx.resume();
+  playing = true;
+  lastTs = 0;
+  document.body.classList.remove('paused');
+  masterTo(0.9);
+  playBtn.textContent = '❚❚ 暂停';
+  rafId = requestAnimationFrame(loop);
+}
+
+function pause(){
+  if(!playing) return;
+  playing = false;
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+  masterTo(0);
+  document.body.classList.add('paused');
+  playBtn.textContent = '▶ 继续';
+}
+
+function finish(){
+  playing = false;
+  finished = true;
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+  masterTo(0);
+  document.body.classList.add('paused');
+  endcard.classList.add('on');
+  playBtn.textContent = '↻ 重播';
+  bar.style.width = '100%';
+}
+
+function resetAll(){
+  clock = 0; cursor = 0; lastTs = 0; finished = false;
+
+  endcard.classList.remove('on');
+  curtain.classList.remove('on');
+  spot.classList.remove('on');
+  lamp.classList.remove('on');
+  lampL.classList.remove('on');
+  rainEl.classList.remove('off');
+  document.body.dataset.scene = '1';
+  label.textContent = '片段一 · 雨夜求助';
+
+  clearSay();
+  cap.innerHTML = '';
+
+  /* 夜莺 */
+  N.style.cssText = '';
+  N.className = 'actor hidden enter-left';
+  N.removeAttribute('data-pose');
+
+  /* 尼尔 */
+  NE.style.cssText = '';
+  NE.className = 'actor hidden enter-right';
+  NE.removeAttribute('data-pose');
+
+  /* 道具与场景 */
+  cig.classList.remove('show');
+  thought.classList.remove('on');
+  door.classList.remove('open','gone');
+  buzzer.classList.remove('gone','voice');
+  bzBtn.classList.remove('on');
+
+  bar.style.width = '0%';
+
+  if(rainGain) rainGain.gain.setTargetAtTime(0, actx.currentTime, 0.05);
+}
+
+function replay(){
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+  playing = false;
+  resetAll();
+  play();
+}
+
+playBtn.addEventListener('click', function(){
+  if(finished){ replay(); return; }
+  if(playing) pause(); else play();
+});
+replayBtn.addEventListener('click', replay);
+
+/* 空格键控制 */
+window.addEventListener('keydown', function(e){
+  if(e.code === 'Space'){
+    e.preventDefault();
+    if(finished) replay();
+    else if(playing) pause(); else play();
+  }
+});
+
+})();
+</script>
+</body>
+</html>

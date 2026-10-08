@@ -1,0 +1,48 @@
+{
+  "file": "design.png",
+  "info": {
+    "format": "raw",
+    "width": 1024,
+    "height": 572,
+    "channels": 4,
+    "depth": "uchar",
+    "premultiplied": false,
+    "size": 2342912
+  },
+  "parts": [
+    {
+      "x0": 31,
+      "x1": 198,
+      "y0": 21,
+      "y1": 565
+    },
+    {
+      "x0": 249,
+      "x1": 381,
+      "y0": 39,
+      "y1": 562
+    },
+    {
+      "x0": 443,
+      "x1": 579,
+      "y0": 42,
+      "y1": 561
+    },
+    {
+      "x0": 616,
+      "x1": 905,
+      "y0": 40,
+      "y1": 565
+    }
+  ],
+  "top": 16,
+  "bottom": 571,
+  "width": 302,
+  "names": [
+    "neil-study",
+    "nightingale-bare",
+    "nightingale-study",
+    "manager"
+  ],
+  "flipped": []
+}

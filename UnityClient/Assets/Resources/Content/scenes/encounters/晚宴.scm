@@ -44,6 +44,13 @@
 (define (on-encounter-enter)
   (recruit-companion! '夜莺 "夜莺" (同伴能力 '夜莺))
   (set-actor-die-profile! '夜莺 2 0 "")
+
+  (play-dialogue!
+    (line "夜莺" (tr "别站那么直，他们又不查你的票。"
+                    "Do not stand so straight. They are not checking your ticket."))
+    (line "尼尔" (tr "你紧张。" "You are nervous."))
+    (line "夜莺" (tr "我等了六年才有人请我来这种地方。"
+                    "I waited six years for an invitation to a place like this.")))
   (play-dialogue!
     (line "世界" (tr "厅里没有空地，只有一圈一圈正在说话的人。" "There was no empty space in the hall, only circles of people talking."))
     (line "夜莺" (tr "先别找谁。我们得先学会怎么站在这里。" "Do not look for anyone yet. First we learn how to stand in this room."))

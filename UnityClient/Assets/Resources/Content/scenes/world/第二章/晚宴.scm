@@ -67,6 +67,19 @@
                   (list (tr "离晚宴" "Until the Banquet"))))
           '()))
 
+    ;; 正式入场与演示共用演出顺序；日期门槛和城市结算仍归正式动作。
+    (define (入场演出! 收场!)
+          ;; 门前的车队先到：三辆礼宾轿车依次开到雨棚下停一停再走。一次性演出（once clip），
+          ;; 不记状态、播完车道就空了；随后直接推门进去（start-encounter 的 Stage Portal）。
+          ;; 机位与编排在 city-box/prefabs/src/格兰德酒店.py 的 motorcade。
+          (play-motion! "格兰德酒店/车队" "到场" "格兰德酒店-车队")
+          (start-encounter "晚宴" 收场!))
+
+    (define (演示入场节点)
+      (node "演示赴晚宴"
+        :anchor "格兰德酒店"
+        :resolve (instant (lambda () (入场演出! (lambda (results) #t))))))
+
     (define (node-go)
       (node "赴晚宴"
         :title (tr "赴晚宴" "Go to the Banquet")
@@ -76,17 +89,7 @@
           (if (equal? 结果 "未开始") #t (error "晚宴：只能进场一次"))
           (set! 结果 "进行中")
           (sync-blockers!)
-          ;; 门前的车队先到：三辆礼宾轿车依次开到雨棚下停一停再走。一次性演出（once clip），
-          ;; 不记状态、播完车道就空了；接着夜莺那句话，再推门进去（start-encounter 的 Stage Portal）。
-          ;; 机位与编排在 city-box/prefabs/src/格兰德酒店.py 的 motorcade。
-          (play-motion! "格兰德酒店/车队" "到场" "格兰德酒店-车队")
-          (play-dialogue!
-            (line "夜莺" (tr "别站那么直，他们又不查你的票。"
-                            "Do not stand so straight. They are not checking your ticket."))
-            (line "尼尔" (tr "你紧张。" "You are nervous."))
-            (line "夜莺" (tr "我等了六年才有人请我来这种地方。"
-                            "I waited six years for an invitation to a place like this.")))
-          (start-encounter "晚宴" 记结果!)))))
+          (入场演出! 记结果!)))))
 
     (define (nodes-at location)
       (if (and (equal? location "格兰德酒店") (今天?) (equal? 结果 "未开始"))
@@ -114,6 +117,7 @@
           ((equal? msg 'steps) (list (step "陪她赴晚宴" (not (还没结?)))))
           ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
+          ((equal? msg 'demo-entry) (演示入场节点))
           ((equal? msg 'debug-settle!) (set! 结果 "已结束") (sync-blockers!))
           ((equal? msg 'now) (now))
           ((equal? msg 'where) (where))

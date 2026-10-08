@@ -40,6 +40,7 @@ namespace SSNoir.IMGUI
             ["行动结果"] = "Action Result",
             ["设置"] = "Settings",
             ["调试"] = "Debug",
+            ["演示"] = "Demo",
             ["贝尔维尔的歌谣"] = "Ballad of Belleville",
             ["退出游戏"] = "Quit",
             ["高风险"] = "High Risk",

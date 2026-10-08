@@ -52,3 +52,5 @@ node tools/gemini-image-web/gemini-image-web.mjs resume \
 图片由 Images 页面当前提供的 Nano Banana 2 生成。CLI 不选择输入框旁的 Flash/Pro：那是 Gemini 对话模型，不是图片模型。网页改版或登录失效时先运行 `doctor --headed`，失败目录中的 manifest 会保留错误和截图路径。
 
 等待生成默认且最多 90 秒（`--timeout-ms` 只能缩短）：正常生成通常在 30 秒内完成，90 秒仍无结果就中止。这个上限覆盖提交后的路由与生成等待，不会在两段等待中重复计算。Gemini 有时会在浏览器关闭时取消仍在生成的临时会话；这种会话之后会从 `/app/<id>` 重定向到 `/app`，无法 `resume`，只能重新生成。`resume` 会先验证目标会话和 manifest 中的用户提示词，拒绝在普通首页或错误会话中盲等、下载。点击 Send 后只以匹配的用户回合或带 ID 的会话 URL 作为提交成功判据；若网页只从 `/images` 切到普通 `/app`，CLI 会恢复 Images 模式、确认参考图仍在、重填并重试，最多三次。参考图一旦丢失会立即报错，不会静默降级成无参考生成。
+
+结果等待只检查当前模型回复，避免用户提示词、侧栏或旧回复中的错误词触发误报。当前回复报告 “Something went wrong” 且显示 Redo 按钮时，自动点击一次重试；重试仍使用原有最多 90 秒总预算，不重新计算超时。生成能力拒绝不自动重试，第二次服务错误直接失败。失败时 CLI 返回完整的当前回复原文与对话地址；manifest 的 `response_text`、`response_kind`、`response_file` 保存相同信息，原文另存为 `response.txt`。超时也附带本次读到的最后一段模型回复，以便未识别的新错误句式仍可诊断。网页理由原样返回，不自动推断为违反某条政策。

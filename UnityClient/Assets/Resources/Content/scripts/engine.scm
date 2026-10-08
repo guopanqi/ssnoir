@@ -1326,6 +1326,9 @@
 (define (stage-sound asset x) (list (list 'sound asset x)))
 (define (stage-say speaker text . voice)
   (list (list 'say (if (null? voice) (line speaker text) (line speaker text (car voice))))))
+;; 明确的画外对白：显示名牌和对白框，但不要求说话人在舞台上。
+(define (stage-remote-say speaker text . voice)
+  (list (list 'remote-say (if (null? voice) (line speaker text) (line speaker text (car voice))))))
 (define (stage-pause seconds) (list (list 'pause seconds)))
 (define (stage-parallel . beats) (apply append beats))
 (define (play-stage! . beats) (__play-stage! beats))

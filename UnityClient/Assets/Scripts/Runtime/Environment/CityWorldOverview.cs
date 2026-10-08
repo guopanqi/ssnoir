@@ -69,7 +69,7 @@ namespace SSNoir
             _worldPipeline.shadowDistance = _settings.ShadowDistance * _scale;
             _rig = new GameObject("~世界光照") { hideFlags = HideFlags.DontSave };
             _rig.transform.SetParent(city, false);
-            _night = CityNightEnvironment.Create(_rig.transform, palette);
+            _night = CityNightEnvironment.Create(_rig.transform, palette, city);
             _key = CreateLight("世界主光", _settings.KeyDirection,
                 _settings.KeyColor, _settings.KeyIntensity, LightShadows.Soft);
             _fill = CreateLight("世界补光", _settings.FillDirection,

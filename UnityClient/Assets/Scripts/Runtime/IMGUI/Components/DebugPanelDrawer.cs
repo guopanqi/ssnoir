@@ -77,6 +77,7 @@ namespace SSNoir.IMGUI
                 Code = "(three-letters 'debug-stage-resident-arrival!)"
             },
             // 下面三个是审核期临时入口，审完删。
+            new ChapterJump { Label = "舞台试演：雨夜求助", Code = "(three-letters 'debug-stage-rainy-door!)" },
             new ChapterJump { Label = "舞台试演：开场委托", Code = "(three-letters 'debug-stage-commission!)" },
             new ChapterJump { Label = "舞台试演：她不取消", Code = "(three-letters 'debug-stage-refusal!)" },
             new ChapterJump { Label = "舞台试演：尾声", Code = "(three-letters 'debug-stage-closing!)" },

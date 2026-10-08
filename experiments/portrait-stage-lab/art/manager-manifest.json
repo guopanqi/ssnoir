@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "art",
+  "name": "manager",
+  "status": "completed",
+  "prompt": "Draw one full body 1940s American theatre manager, a cheerful stocky middle-aged man with slick dark hair, a round expressive face, a small moustache and an open welcoming smile. Wearing a warm charcoal three-piece suit, cream shirt, muted burgundy tie and brown shoes. One arm extends sideways in a friendly welcoming gesture, the other hand rests near his waist. Three-quarter view facing left. Angular cut-paper illustration, subtle printed paper grain, ivory highlights and bold charcoal shapes. Isolated on a flat vivid green background, full body head to shoes, no text, no scenery, no microphone.",
+  "references": [],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/art/manager",
+  "created_at": "2026-10-08T00:32:28.794Z",
+  "submitted_at": "2026-10-08T00:32:34.373Z",
+  "conversation_url": "https://gemini.google.com/app/858c93882fdd522e",
+  "completed_at": "2026-10-08T00:32:49.014Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/art/manager/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 559,
+    "extraction": "canvas-png",
+    "sha256": "08a2f556554cb04a48cdbdb77567bd589d8eed8667883b0989ec650e84d98c1f"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/experiments/portrait-stage-lab/art/manager.png"
+}

@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portrait Theatre (立绘剧场) — Gemini-2.5-Pro</title>
+  <style>
+    :root {
+      --bg-void: #0a0b0e;
+      --bg-stage: #101217;
+      --text-main: #e8eaed;
+      --text-muted: #8a909e;
+      --accent-gold: #d4af37;
+      --accent-crimson: #a62b2b;
+      --accent-cyan: #4a9eff;
+      --spot-color: rgba(255, 248, 220, 0.08);
+      --font-serif: "Songti SC", "Noto Serif CJK SC", "SimSun", serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-void);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      padding: 16px;
+    }
+
+    /* 顶栏控制与信息 */
+    header {
+      width: 100%;
+      max-width: 1040px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      background: rgba(20, 23, 30, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .brand-title h1 {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      letter-spacing: 2px;
+      color: #f0f2f5;
+    }
+
+    .model-badge {
+      font-size: 0.75rem;
+      padding: 2px 7px;
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: var(--accent-gold);
+      border-radius: 4px;
+      letter-spacing: 1px;
+    }
+
+    /* 片段选幕器 */
+    .scene-nav {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .nav-btn.active {
+      background: var(--accent-gold);
+      color: #0b0c10;
+      font-weight: 600;
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    /* 戏剧舞台视窗 */
+    #theatre-container {
+      width: 100%;
+      max-width: 1040px;
+      background: var(--bg-stage);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .stage-viewport {
+      width: 100%;
+      height: 480px;
+      background-color: #0d0f14;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    /* 纯色舞台光束与戏剧氛围层（无写实环境背景） */
+    .stage-lighting {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 30%, var(--spot-color) 0%, transparent 70%);
+      transition: background 1.2s ease, opacity 0.8s ease;
+    }
+
+    .stage-ground-line {
+      position: absolute;
+      bottom: 60px;
+      width: 85%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15) 30%, rgba(255, 255, 255, 0.15) 70%, transparent);
+      z-index: 2;
+    }
+
+    /* 天气与微特效层 */
+    .rain-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      background: repeating-linear-gradient(105deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 18px);
+      transition: opacity 1s ease;
+      z-index: 5;
+    }
+    .rain-active {
+      opacity: 0.65;
+      animation: rainMotion 0.4s linear infinite;
+    }
+    @keyframes rainMotion {
+      0% { transform: translateY(-30px); }
+      100% { transform: translateY(30px); }
+    }
+
+    /* 角色立绘槽位 */
+    .actor-slot {
+      position: absolute;
+      bottom: 60px;
+      height: 380px;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.6s ease, filter 0.6s ease;
+      z-index: 10;
+    }
+
+    .actor-shadow {
+      position: absolute;
+      bottom: -6px;
+      width: 140px;
+      height: 14px;
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 50%;
+      filter: blur(5px);
+      z-index: -1;
+    }
+
+    .actor-svg-wrap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      transform-origin: bottom center;
+      transition: transform 0.4s ease;
+    }
+
+    /* 角色特定站位与状态动画 */
+    #actor-nightingale {
+      left: 180px;
+    }
+    #actor-neil {
+      right: 180px;
+    }
+    #actor-manager {
+      left: 320px;
+    }
+    #actor-worker {
+      right: 90px;
+    }
+
+    /* 戏剧心理状态样式 */
+    .dimmed {
+      filter: brightness(0.4) contrast(0.9);
+      opacity: 0.55;
+    }
+    .highlighted {
+      filter: brightness(1.1) drop-shadow(0 0 12px rgba(255, 255, 255, 0.15));
+      opacity: 1;
+    }
+    .hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(30px) scale(0.96) !important;
+    }
+    .speaking .actor-svg-wrap {
+      animation: subtleBreathe 2.4s ease-in-out infinite alternate;
+    }
+    @keyframes subtleBreathe {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-3px) scale(1.008); }
+    }
+
+    /* 舞台关键极简道具槽位 */
+    .prop-slot {
+      position: absolute;
+      z-index: 8;
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+
+    /* 门铃道具（片段一） */
+    #prop-intercom {
+      right: 220px;
+      bottom: 210px;
+      width: 50px;
+      height: 90px;
+      opacity: 0;
+    }
+
+    /* 压扁香烟盒道具（片段二特写） */
+    #prop-cigarette-box {
+      left: 50%;
+      top: 48%;
+      transform: translate(-50%, -50%) scale(0.85);
+      width: 160px;
+      height: 220px;
+      opacity: 0;
+      z-index: 25;
+      filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.8));
+    }
+
+    /* 电话机道具（片段五） */
+    #prop-wall-phone {
+      left: 200px;
+      bottom: 200px;
+      width: 70px;
+      height: 120px;
+      opacity: 0;
+      z-index: 9;
+    }
+
+    /* 剧院巨门开闭阴影（片段六） */
+    .stage-door-shutter {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 30;
+      transition: opacity 0.18s ease-in;
+    }
+
+    /* 剧本与台词对白框 */
+    .dialogue-section {
+      background: #12141a;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 24px 32px 18px 32px;
+      min-height: 175px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .director-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .speaker-tag {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .speaker-tag::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      background: var(--accent-gold);
+      display: inline-block;
+      border-radius: 2px;
+    }
+
+    .director-stage-note {
+      font-size: 0.8rem;
+      color: var(--accent-gold);
+      background: rgba(212, 175, 55, 0.1);
+      padding: 3px 10px;
+      border-radius: 12px;
+      letter-spacing: 0.5px;
+      font-style: italic;
+    }
+
+    .line-content-box {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+    }
+
+    .dialogue-text {
+      font-family: var(--font-serif);
+      font-size: 1.22rem;
+      line-height: 1.7;
+      color: #f7f7f9;
+      letter-spacing: 0.5px;
+      transition: opacity 0.25s ease;
+    }
+
+    .action-direction {
+      font-family: var(--font-sans);
+      font-size: 0.96rem;
+      color: #9da4b3;
+      font-style: italic;
+    }
+
+    /* 底部控制栏 */
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .playback-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ctrl-btn {
+      background: #1c202a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #d1d5db;
+      padding: 7px 15px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: #282e3d;
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .ctrl-btn:active {
+      transform: scale(0.98);
+    }
+
+    .ctrl-btn.primary {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: rgba(212, 175, 55, 0.4);
+      color: #f3df9b;
+    }
+    .ctrl-btn.primary:hover {
+      background: rgba(212, 175, 55, 0.35);
+      color: #fff;
+    }
+
+    .progress-counter {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .speed-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .toggle-checkbox {
+      cursor: pointer;
+    }
+
+    /* 剧本说明悬浮说明 */
+    .theatre-synopsis {
+      width: 100%;
+      max-width: 1040px;
+      margin-top: 14px;
+      padding: 12px 18px;
+      background: rgba(16, 18, 23, 0.5);
+      border: 1px dashed rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      color: #7b8190;
+      line-height: 1.6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-title">
+      <h1>PORTRAIT THEATRE</h1>
+      <span class="model-badge">Gemini-2.5-Pro</span>
+    </div>
+    <nav class="scene-nav" id="scene-nav">
+      <button class="nav-btn active" data-scene="0">片段一：雨夜求助</button>
+      <button class="nav-btn" data-scene="1">片段二：看见烟盒</button>
+      <button class="nav-btn" data-scene="2">片段三：隐瞒与争执</button>
+      <button class="nav-btn" data-scene="3">片段四：准备离开</button>
+      <button class="nav-btn" data-scene="4">片段五：安装电话</button>
+      <button class="nav-btn" data-scene="5">片段六：经理解雇</button>
+    </nav>
+  </header>
+
+  <main id="theatre-container">
+    <!-- 舞台核心视窗 -->
+    <div class="stage-viewport" id="stage">
+      <div class="stage-lighting" id="stage-light"></div>
+      <div class="rain-overlay" id="rain-layer"></div>
+      <div class="stage-ground-line"></div>
+      <div class="stage-door-shutter" id="door-shutter"></div>
+
+      <!-- 道具槽位 -->
+      <!-- 1. 门铃道具 -->
+      <div class="prop-slot" id="prop-intercom">
+        <svg viewBox="0 0 60 100" width="100%" height="100%">
+          <rect x="5" y="5" width="50" height="90" rx="6" fill="#1b1e26" stroke="#505766" stroke-width="2"/>
+          <rect x="12" y="15" width="36" height="24" rx="2" fill="#111317" stroke="#373d4a"/>
+          <circle id="intercom-mic" cx="30" cy="27" r="5" fill="#2d323d"/>
+          <circle id="intercom-light" cx="30" cy="62" r="8" fill="#5c4314" stroke="#d4af37" stroke-width="1.5"/>
+          <text x="30" y="86" font-size="9" fill="#8d94a5" text-anchor="middle" font-family="sans-serif">301</text>
+        </svg>
+      </div>
+
+      <!-- 2. 红色变形“金牌”香烟盒道具 -->
+      <div class="prop-slot" id="prop-cigarette-box">
+        <svg viewBox="0 0 160 220" width="100%" height="100%">
+          <!-- 变形被压扁的外盒折角 -->
+          <defs>
+            <linearGradient id="cigRed" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#b82626"/>
+              <stop offset="60%" stop-color="#8a1818"/>
+              <stop offset="100%" stop-color="#5a0f0f"/>
+            </linearGradient>
+            <filter id="creaseShadow" x="-10%" y="-10%" width="120%" height="120%">
+              <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.7"/>
+            </filter>
+          </defs>
+          <g filter="url(#creaseShadow)">
+            <!-- 扭曲挤压的多边形盒体 -->
+            <polygon points="25,20 135,12 148,185 125,208 18,198 12,38" fill="url(#cigRed)" stroke="#450b0b" stroke-width="2"/>
+            <!-- 凹陷压痕 -->
+            <path d="M 25,20 L 78,95 L 148,80" fill="none" stroke="#4a0d0d" stroke-width="3" opacity="0.75"/>
+            <path d="M 18,110 L 85,130 L 135,200" fill="none" stroke="#ff8282" stroke-width="1" opacity="0.35"/>
+            <!-- 金色徽章：“金牌” -->
+            <ellipse cx="80" cy="105" rx="36" ry="32" fill="none" stroke="#d4af37" stroke-width="3" stroke-dasharray="4,2"/>
+            <circle cx="80" cy="105" r="24" fill="#661212" stroke="#d4af37" stroke-width="1.5"/>
+            <text x="80" y="103" font-size="11" fill="#f5d77f" text-anchor="middle" font-family="serif" font-weight="bold">GOLD</text>
+            <text x="80" y="116" font-size="9" fill="#f5d77f" text-anchor="middle" font-family="serif">MEDAL</text>
+            <!-- 变形露出的白烟嘴褶皱 -->
+            <polygon points="35,20 50,4 62,6 48,22" fill="#d9d0b8"/>
+            <polygon points="52,18 68,2 78,5 64,21" fill="#c4baa0"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- 3. 老式壁挂电话道具 -->
+      <div class="prop-slot" id="prop-wall-phone">
+        <svg viewBox="0 0 80 140" width="100%" height="100%">
+          <rect x="15" y="15" width="50" height="90" rx="8" fill="#1e222b" stroke="#3b4252" stroke-width="2"/>
+          <circle cx="40" cy="55" r="18" fill="#13161c" stroke="#d4af37" stroke-width="1.5"/>
+          <circle cx="40" cy="55" r="6" fill="#2e3440"/>
+          <path d="M 10,25 C 2,50 8,85 22,105" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+          <rect x="5" y="15" width="12" height="35" rx="4" fill="#282c37"/>
+          <path d="M 40,105 Q 40,135 55,135" fill="none" stroke="#d4af37" stroke-width="2" stroke-dasharray="2,3"/>
+        </svg>
+      </div>
+
+      <!-- 角色 1：夜莺 (Nightingale) -->
+      <div class="actor-slot" id="actor-nightingale">
+        <div class="actor-shadow"></div>
+        <div class="actor-svg-wrap">
+          <svg viewBox="0 0 180 340" width="100%" height="100%">
+            <defs>
+              <linearGradient id="nightingaleCoat" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1e322a"/>
+                <stop offset="60%" stop-color="#14211c"/>
+                <stop offset="100%" stop-color="#0c1411"/>
+              </linearGradient>
+            </defs>
+            <!-- 雨伞手持组件 -->
+            <g id="act-ng-umbrella" style="transition: transform 0.6s ease; transform-origin: 90px 140px;">
+              <path d="M 30,120 Q 90,60 150,120 Z" fill="#17191e" stroke="#2c303a" stroke-width="2"/>
+              <line x1="90" y1="60" x2="90" y2="240" stroke="#4b382a" stroke-width="3"/>
+              <path d="M 90,240 C 90,250 80,250 80,244" fill="none" stroke="#4b382a" stroke-width="3"/>
+            </g>
+            <!-- 身体/风衣 -->
+            <path id="act-ng-body" d="M 65,120 C 50,160 40,250 35,310 L 145,310 C 140,250 130,160 115,120 Z" fill="url(#nightingaleCoat)"/>
+            <!-- 红色围巾 -->
+            <path d="M 68,115 Q 90,135 112,115 Q 120,155 105,175 Q 90,140 75,170 Z" fill="#691a24"/>
+            <!-- 头部与面部 -->
+            <g id="act-ng-head" style="transition: transform 0.4s ease; transform-origin: 90px 80px;">
+              <circle cx="90" cy="80" r="26" fill="#e8cbb5"/>
+              <!-- 优雅发型 -->
+              <path d="M 64,80 C 64,55 80,48 100,50 C 118,52 120,70 116,88 C 112,74 105,65 90,65 C 75,65 68,72 64,80 Z" fill="#1c1617"/>
+              <!-- 五官（敛眉、泪痣、垂眸） -->
+              <ellipse id="act-ng-eye-l" cx="82" cy="80" rx="3" ry="1.5" fill="#3a251e"/>
+              <ellipse id="act-ng-eye-r" cx="98" cy="80" rx="3" ry="1.5" fill="#3a251e"/>
+              <!-- 泪滴 (默认透明) -->
+              <circle id="act-ng-tear" cx="99" cy="86" r="1.8" fill="#7ac5ff" opacity="0" style="transition: opacity 0.5s ease;"/>
+              <path d="M 87,93 Q 90,95 93,93" fill="none" stroke="#a35454" stroke-width="1.2"/>
+              <!-- 呢绒软帽 -->
+              <path id="act-ng-hat" d="M 60,68 C 65,48 115,48 120,68 C 130,70 120,76 60,74 Z" fill="#202422" stroke="#353b38"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 角色 2：尼尔 (Neil) -->
+      <div class="actor-slot" id="actor-neil">
+        <div class="actor-shadow"></div>
+        <div class="actor-svg-wrap">
+          <svg viewBox="0 0 190 350" width="100%" height="100%">
+            <defs>
+              <linearGradient id="neilCoat" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b3732"/>
+                <stop offset="60%" stop-color="#242220"/>
+                <stop offset="100%" stop-color="#141312"/>
+              </linearGradient>
+            </defs>
+            <!-- 双排扣风衣躯干 -->
+            <path id="act-nl-body" d="M 55,115 C 42,165 35,260 30,320 L 160,320 C 155,260 148,165 135,115 Z" fill="url(#neilCoat)"/>
+            <!-- 领口与斜领带 -->
+            <polygon points="95,115 82,145 95,170 108,145" fill="#4d2c20"/>
+            <polygon points="90,115 95,108 100,115 96,155 94,155" fill="#1b1c20"/>
+            <!-- 手部姿态（插兜 / 抬手递烟盒） -->
+            <g id="act-nl-arm-right" style="transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1); transform-origin: 135px 125px;">
+              <path d="M 135,125 Q 155,180 135,215" fill="none" stroke="#2c2925" stroke-width="14" stroke-linecap="round"/>
+            </g>
+            <!-- 头部 -->
+            <g id="act-nl-head" style="transition: transform 0.4s ease; transform-origin: 95px 75px;">
+              <circle cx="95" cy="75" r="28" fill="#d9beab"/>
+              <!-- 冷峻短发与阴影 -->
+              <path d="M 65,75 C 65,45 85,40 105,42 C 125,44 128,62 125,82 C 115,62 100,55 85,58 C 75,60 68,68 65,75 Z" fill="#201e22"/>
+              <!-- 坚毅面部轮廓 -->
+              <line x1="84" y1="74" x2="94" y2="74" stroke="#28221e" stroke-width="2"/>
+              <line x1="104" y1="74" x2="114" y2="74" stroke="#28221e" stroke-width="2"/>
+              <path d="M 94,92 L 105,92" stroke="#634a3f" stroke-width="1.8"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 角色 3：剧院经理 (Manager) -->
+      <div class="actor-slot hidden" id="actor-manager">
+        <div class="actor-shadow"></div>
+        <div class="actor-svg-wrap">
+          <svg viewBox="0 0 210 350" width="100%" height="100%">
+            <defs>
+              <linearGradient id="mgrSuit" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2d2238"/>
+                <stop offset="70%" stop-color="#1a1421"/>
+                <stop offset="100%" stop-color="#0c0910"/>
+              </linearGradient>
+            </defs>
+            <!-- 饱满体态西服 -->
+            <path d="M 50,115 C 38,160 30,250 25,320 L 185,320 C 180,250 172,160 160,115 Z" fill="url(#mgrSuit)"/>
+            <!-- 华丽领结与马甲 -->
+            <polygon points="105,115 85,155 105,190 125,155" fill="#c49a37"/>
+            <circle cx="105" cy="120" r="5" fill="#801c1c"/>
+            <!-- 动态手臂：搭肩/拍肩动作 (伸向右侧尼尔) -->
+            <g id="act-mgr-pat-arm" style="transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: 155px 125px;">
+              <path id="mgr-arm-path" d="M 155,125 Q 185,145 190,185" fill="none" stroke="#2d2238" stroke-width="16" stroke-linecap="round"/>
+              <circle id="mgr-hand" cx="190" cy="185" r="9" fill="#e0c2ab"/>
+            </g>
+            <!-- 头部：背头、油滑神态 -->
+            <g id="act-mgr-head" style="transform-origin: 105px 75px;">
+              <circle cx="105" cy="75" r="30" fill="#e0c2ab"/>
+              <!-- 大背头 -->
+              <path d="M 75,70 C 75,40 100,35 125,38 C 142,42 140,65 135,80 C 125,55 105,50 85,55 Z" fill="#171213"/>
+              <!-- 狡黠眉眼胡子 -->
+              <path d="M 90,72 Q 98,68 105,73" fill="none" stroke="#2b201a" stroke-width="2"/>
+              <path d="M 112,73 Q 118,68 126,72" fill="none" stroke="#2b201a" stroke-width="2"/>
+              <path d="M 97,92 Q 107,85 117,92" fill="none" stroke="#3d2a1f" stroke-width="2.5"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 角色 4：工人剪影 (Worker Silhouette) -->
+      <div class="actor-slot hidden" id="actor-worker">
+        <div class="actor-shadow"></div>
+        <div class="actor-svg-wrap">
+          <svg viewBox="0 0 140 320" width="100%" height="100%">
+            <!-- 极简暗影剪影 -->
+            <path d="M 35,110 C 25,160 20,240 15,300 L 125,300 C 120,240 115,160 105,110 Z" fill="#171a22"/>
+            <circle cx="70" cy="70" r="22" fill="#171a22"/>
+            <polygon points="50,65 95,55 90,70 48,72" fill="#111318"/>
+            <line x1="85" y1="120" x2="115" y2="85" stroke="#171a22" stroke-width="8" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 剧本台词与舞台说明呈现 -->
+    <div class="dialogue-section">
+      <div class="director-meta">
+        <div class="speaker-tag" id="ui-speaker">夜莺</div>
+        <div class="director-stage-note" id="ui-note">夜雨·初次登门</div>
+      </div>
+      <div class="line-content-box">
+        <div class="dialogue-text" id="ui-dialogue">……</div>
+      </div>
+      <div class="controls-bar">
+        <div class="playback-buttons">
+          <button class="ctrl-btn primary" id="btn-play-toggle">
+            <span id="play-icon">▶</span> <span id="play-text">演出</span>
+          </button>
+          <button class="ctrl-btn" id="btn-prev">❮ 上一句</button>
+          <button class="ctrl-btn" id="btn-next">下一句 ❯</button>
+          <button class="ctrl-btn" id="btn-restart">↺ 重播</button>
+          <span class="progress-counter" id="ui-progress">01 / 07</span>
+        </div>
+        <div class="speed-toggle">
+          <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            <input type="checkbox" id="auto-speed" class="toggle-checkbox" checked> 自动推进
+          </label>
+          <button class="ctrl-btn" id="btn-audio-toggle" style="padding: 4px 10px; font-size: 0.75rem;">
+            🔊 剧场音效
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="theatre-synopsis">
+    <span>舞台纯色极简主义实验：以立绘姿态、距离、光斑与核心道具还原戏剧张力</span>
+    <span>剧本忠实度：100% 基准复现（无篡改台词与行为）</span>
+  </footer>
+
+  <script>
+    /**
+     * Web Audio API 原生音效合成引擎 (无外部素材依赖，随时随地即开即用)
+     */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+        this.rainGain = null;
+        this.rainSource = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      // 雨夜环境音效持续循环
+      startRain() {
+        if (!this.enabled) return;
+        this.init();
+        if (this.rainSource) return;
+
+        const bufferSize = this.ctx.sampleRate * 2;
+        const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+
+        const whiteNoise = this.ctx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+        whiteNoise.loop = true;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 850;
+
+        this.rainGain = this.ctx.createGain();
+        this.rainGain.gain.setValueAtTime(0.01, this.ctx.currentTime);
+        this.rainGain.gain.exponentialRampToValueAtTime(0.12, this.ctx.currentTime + 1.5);
+
+        whiteNoise.connect(filter);
+        filter.connect(this.rainGain);
+        this.rainGain.connect(this.ctx.destination);
+
+        whiteNoise.start();
+        this.rainSource = whiteNoise;
+      }
+
+      stopRain() {
+        if (this.rainGain && this.ctx) {
+          this.rainGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.8);
+          setTimeout(() => {
+            if (this.rainSource) {
+              this.rainSource.stop();
+              this.rainSource.disconnect();
+              this.rainSource = null;
+            }
+          }, 850);
+        }
+      }
+
+      // 门铃蜂鸣
+      playBuzzer() {
+        if (!this.enabled) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 450;
+
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.45);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.5);
+      }
+
+      // 门锁喀哒声
+      playUnlock() {
+        if (!this.enabled) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(220, this.ctx.currentTime + 0.08);
+
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+      }
+
+      // 经理拍肩声（厚实的钝响）
+      playPat() {
+        if (!this.enabled) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.15);
+
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.2);
+      }
+
+      // 剧院大门轰然关闭
+      playDoorSlam() {
+        if (!this.enabled) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(90, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(25, this.ctx.currentTime + 0.6);
+
+        gain.gain.setValueAtTime(0.7, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.9);
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 220;
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.95);
+      }
+
+      // 心理紧张低鸣
+      playTensionTone() {
+        if (!this.enabled) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(85, this.ctx.currentTime);
+
+        gain.gain.setValueAtTime(0.01, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.12, this.ctx.currentTime + 0.6);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.8);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 1.9);
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    /**
+     * 舞台与剧本数据系统
+     * 严格遵守原剧本全部对白、顺序、事件以及人物反应
+     */
+    const DRAMA_SCRIPT = [
+      // ==========================================
+      // 片段一：雨夜求助
+      // ==========================================
+      {
+        sceneId: 0,
+        title: "片段一：雨夜求助",
+        environment: { rain: true, light: "radial-gradient(circle at 30% 60%, rgba(74, 158, 255, 0.12) 0%, transparent 65%)" },
+        beats: [
+          {
+            speaker: "（舞台指示）",
+            text: "夜晚，公寓楼下，外面下着雨。夜莺来到公寓楼下，按下301的电铃。",
+            note: "初次登门 · 努力保持体面",
+            action: (stage) => {
+              stage.setActor('nightingale', { show: true, pos: 'left-center', pose: 'anxious', active: true });
+              stage.setActor('neil', { show: false });
+              stage.setActor('manager', { show: false });
+              stage.setActor('worker', { show: false });
+              stage.setProp('intercom', { show: true, glow: false });
+              stage.setProp('cig', { show: false });
+              stage.setProp('phone', { show: false });
+              sound.startRain();
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "尼尔先生？",
+            note: "小心翼翼的试探",
+            action: (stage) => {
+              stage.setProp('intercom', { show: true, glow: true });
+              sound.playBuzzer();
+              stage.setActor('nightingale', { pose: 'talking' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "是，你是？",
+            note: "通过入户电铃传出 · 防备与陌生",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'listen' });
+              stage.pulseIntercom();
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "我听朋友说起过你，我遇到了一些麻烦，我想请你帮忙。",
+            note: "克制着恐慌，维持礼貌",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'talking' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "现在很晚了，而且……",
+            note: "正要回绝",
+            action: (stage) => {
+              stage.pulseIntercom();
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "就几分钟，先生，而且这事有点急，我怕明天就太晚了。",
+            note: "急迫而不失礼节的恳求",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'pleading', shiftX: 20 });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔没有立即回答。）",
+            note: "寂静雨夜中的犹疑",
+            action: (stage) => {
+              stage.setProp('intercom', { glow: false });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "可以吗？",
+            note: "悬在半空的心",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'anxious' });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（电铃传来开锁声，公寓楼下的门开了。夜莺获准进入。）",
+            note: "门锁启开 · 片段结束",
+            action: (stage) => {
+              sound.playUnlock();
+              stage.setLight("radial-gradient(circle at 60% 50%, rgba(255, 230, 160, 0.22) 0%, transparent 70%)");
+              stage.setActor('nightingale', { pose: 'walk-in', shiftX: 90 });
+            }
+          }
+        ]
+      },
+
+      // ==========================================
+      // 片段二：看见烟盒
+      // ==========================================
+      {
+        sceneId: 1,
+        title: "片段二：看见烟盒",
+        environment: { rain: false, light: "radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.08) 0%, transparent 60%)" },
+        beats: [
+          {
+            speaker: "尼尔",
+            text: "我没追到他，该死，在路口的时候突然窜出一辆摩托，我把它跟丢了。",
+            note: "刚追丢嫌犯 · 气喘与懊恼",
+            action: (stage) => {
+              sound.stopRain();
+              stage.setActor('nightingale', { show: true, pos: 'left', pose: 'stand', active: false });
+              stage.setActor('neil', { show: true, pos: 'right', pose: 'puffed', active: true });
+              stage.setProp('intercom', { show: false });
+              stage.setProp('phone', { show: false });
+              stage.setProp('cig', { show: false });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "你人没事儿就好。",
+            note: "本能的关切",
+            action: (stage) => {
+              stage.setActor('nightingale', { active: true, pose: 'caring' });
+              stage.setActor('neil', { active: false });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "我拿到了这个。",
+            note: "关键物证递出",
+            action: (stage) => {
+              stage.setActor('neil', { active: true, pose: 'show-item', shiftX: -30 });
+              stage.setProp('cig', { show: true });
+              sound.playTensionTone();
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔拿出烟盒，夜莺看了一会儿。）",
+            note: "联想到前男友莱恩 · 震惊但隐匿不发",
+            action: (stage) => {
+              stage.setActor('nightingale', { active: true, pose: 'stunned', shiftX: 20 });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "这是……他的？",
+            note: "视线凝固 · 语气微滞",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'talking' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "追的时候从他身上掉下来的，“金牌”香烟。",
+            note: "仔细分析烟盒细节",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'explaining' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "烟盒经常塞在口袋里，都被挤变形了，一定是经常进行大幅度的活动。",
+            note: "侦探的推断",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'pointing' });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "然后呢？大侦探？还有什么？",
+            note: "掩盖内心的波澜，试探尼尔知晓多少",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'probing' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "没了，我没什么能想到的。他从街道的桥上跳下去，应该对这一带很熟，我准备去问问。",
+            note: "毫无头绪下的直觉",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'stand' });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "老街？",
+            note: "被触碰痛处的紧绷",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'defensive', shiftX: -10 });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "对。",
+            note: "理所当然的目标",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'nod' });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "我可不回去。",
+            note: "坚决斩钉截铁",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'reject' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "我没说要带上你……你不喜欢那里？",
+            note: "察觉到过激反应",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'curious' });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "我花了很久才从里面走出来，我不回去。",
+            note: "真实而深刻的抗拒 · 片段结束",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'hurt-turn', shiftX: -25 });
+            }
+          }
+        ]
+      },
+
+      // ==========================================
+      // 片段三：隐瞒莱恩后的争执
+      // ==========================================
+      {
+        sceneId: 2,
+        title: "片段三：隐瞒莱恩后的争执",
+        environment: { rain: false, light: "radial-gradient(circle at 45% 40%, rgba(166, 43, 43, 0.08) 0%, transparent 65%)" },
+        beats: [
+          {
+            speaker: "尼尔",
+            text: "现在可以说了？",
+            note: "刚意识到被隐瞒 · 压抑的质问",
+            action: (stage) => {
+              stage.setProp('cig', { show: false });
+              stage.setActor('neil', { show: true, pos: 'right', pose: 'arms-crossed', active: true });
+              stage.setActor('nightingale', { show: true, pos: 'left', pose: 'guilty', active: false });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "莱恩是我……之前的男朋友。",
+            note: "难堪的承认",
+            action: (stage) => {
+              stage.setActor('nightingale', { active: true, pose: 'confessing' });
+              stage.setActor('neil', { active: false });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "继续。",
+            note: "冷峻不退让",
+            action: (stage) => {
+              stage.setActor('neil', { active: true, pose: 'cold' });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "他不会做出这样的事情来，他，他怎么会这样？",
+            note: "混乱、自我怀疑与惶惑",
+            action: (stage) => {
+              stage.setActor('nightingale', { active: true, pose: 'shaken' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "第一次的时候我就问过你，你为什么没有告诉我？",
+            note: "信任裂痕",
+            action: (stage) => {
+              stage.setActor('neil', { active: true, pose: 'demanding', shiftX: -20 });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "我不能确定，而且我觉得你会不愿意管，一个没钱的女孩，一个以前的男人，如果我真的告诉你，你还会帮我吗？",
+            note: "悲哀而尖锐的防卫与自剖",
+            action: (stage) => {
+              stage.setActor('nightingale', { active: true, pose: 'emotional', shiftX: 15 });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔没有立即回答。）",
+            note: "空气停滞的审视",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'silence' });
+              stage.setActor('nightingale', { pose: 'waiting' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "也许会，也许不会，我不知道。",
+            note: "诚实而冰冷的回应",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'shrug' });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "分手之后，他找过我，我总是甩掉他。后来我离开老街之后，他到剧院找我，但都被保安拦住了，我们没有再见过面了。",
+            note: "全盘吐露实情",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'explaining-all' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "你还有什么是瞒着我的？",
+            note: "依然存有不信任",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'suspicious' });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "没有了，尼尔，我知道的就这些了，真的。",
+            note: "竭尽真诚的注视",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'pleading-truth' });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔沉默。）",
+            note: "权衡与考量",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'thinking' });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "我知道他住的地方，我们去看看吧。",
+            note: "主动迈出一步打破僵局",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'turn-to-lead', shiftX: 40 });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（夜莺准备继续带路。尼尔停顿了一会儿，随后跟上。）",
+            note: "调查继续 · 片段结束",
+            action: (stage) => {
+              setTimeout(() => {
+                stage.setActor('neil', { shiftX: -80, pose: 'follow' });
+              }, 400);
+            }
+          }
+        ]
+      },
+
+      // ==========================================
+      // 片段四：准备离开，被叫住
+      // ==========================================
+      {
+        sceneId: 3,
+        title: "片段四：准备离开，被叫住",
+        environment: { rain: false, light: "radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 65%)" },
+        beats: [
+          {
+            speaker: "尼尔",
+            text: "那我的报酬呢？你准备怎么付我的报酬？",
+            note: "侦探务实的现实拷问",
+            action: (stage) => {
+              stage.setActor('neil', { show: true, pos: 'right', pose: 'arms-crossed', active: true });
+              stage.setActor('nightingale', { show: true, pos: 'left-center', pose: 'embarrassed', active: false });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "演出之后可以吗？经理说过些天会有一场大型的演出，应该会有些钱。虽然之前很多次小一些的演出，他也没给过我什么钱。",
+            note: "毫无底气的许诺与窘迫",
+            action: (stage) => {
+              stage.setActor('nightingale', { active: true, pose: 'hesitant' });
+              stage.setActor('neil', { active: false });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "当时他说会有些钱的，但是也没给。",
+            note: "声音低了下去",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'downcast' });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "这次机会很重要，我不愿意错过。",
+            note: "那是她仅有的微光",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'sincere' });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔没有回答。夜莺不愿让他看见自己的眼泪。）",
+            note: "自尊心 · 强忍眼泪",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'silent-look' });
+              stage.setActor('nightingale', { pose: 'turning-away', tear: false });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "我明白，确实太麻烦你了。",
+            note: "断定求助失败，保持最后体面",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'pack-up' });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（她收起东西，戴好帽子，准备拿伞离开。）",
+            note: "整理随身雨伞帽子，决意离去",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'holding-umbrella-leaving', shiftX: -50 });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "谢谢你，尼尔先生。",
+            note: "最后的道谢，背身迈步",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'leaving' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "演出还有多久？",
+            note: "出声留人",
+            action: (stage) => {
+              stage.setActor('neil', { active: true, pose: 'calling-out' });
+              stage.setActor('nightingale', { active: false, pose: 'frozen-stop' });
+            }
+          },
+          {
+            speaker: "夜莺",
+            text: "就这两周了。",
+            note: "停在门前，茫然回首",
+            action: (stage) => {
+              stage.setActor('nightingale', { active: true, pose: 'turn-head' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "我们得先想办法凑够赎金，只要他来拿钱，我有办法弄明白他是谁。",
+            note: "接下了这桩不划算的委托",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'committed' });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（夜莺意识到，他答应了。眼泪流了下来。）",
+            note: "悬心落地 · 泪水滑落 · 片段结束",
+            action: (stage) => {
+              stage.setActor('nightingale', { pose: 'crying-relief', tear: true });
+              stage.setLight("radial-gradient(circle at 40% 50%, rgba(212, 175, 55, 0.2) 0%, transparent 70%)");
+            }
+          }
+        ]
+      },
+
+      // ==========================================
+      // 片段五：经理安装电话
+      // ==========================================
+      {
+        sceneId: 4,
+        title: "片段五：经理安装电话",
+        environment: { rain: false, light: "radial-gradient(circle at 60% 40%, rgba(255, 235, 170, 0.12) 0%, transparent 65%)" },
+        beats: [
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔回家，发现有人在等着。）",
+            note: "擅自登门的不速之客",
+            action: (stage) => {
+              stage.setActor('nightingale', { show: false });
+              stage.setActor('neil', { show: true, pos: 'right-center', pose: 'surprised', active: false });
+              stage.setActor('manager', { show: true, pos: 'left-center', pose: 'boisterous', active: true });
+              stage.setActor('worker', { show: true, pos: 'far-right', pose: 'working' });
+              stage.setProp('phone', { show: true });
+            }
+          },
+          {
+            speaker: "经理",
+            text: "尼尔！",
+            note: "高调熟络的招呼",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'approaching', shiftX: 40 });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（经理迎上来，拍尼尔的肩膀，熟络地搭住他的肩。）",
+            note: "夸张的身体界限入侵",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'arm-on-shoulder', shiftX: 90 });
+              stage.setActor('neil', { pose: 'enduring-pat', shiftX: 10 });
+              sound.playPat();
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "这是干嘛？",
+            note: "错愕与戒备",
+            action: (stage) => {
+              stage.setActor('neil', { active: true, pose: 'baffled' });
+            }
+          },
+          {
+            speaker: "经理",
+            text: "电话！以后出了事情，还让人通过门房留言吗？",
+            note: "张扬他的施惠与交情",
+            action: (stage) => {
+              stage.setActor('manager', { active: true, pose: 'pointing-phone' });
+            }
+          },
+          {
+            speaker: "经理",
+            text: "大侦探得有个电话。",
+            note: "不由分说的自作主张",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'broad-smile' });
+            }
+          },
+          {
+            speaker: "尼尔",
+            text: "我还……",
+            note: "来不及同意或拒绝",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'interrupting' });
+            }
+          },
+          {
+            speaker: "经理",
+            text: "早晚的事。",
+            note: "蛮横的社交主导",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'dismissive-wave' });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（经理转向工人。）",
+            note: "转向使唤下人",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'turn-to-worker' });
+            }
+          },
+          {
+            speaker: "经理",
+            text: "给他装好的！最好的线！",
+            note: "做足派头 · 片段结束",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'commanding' });
+            }
+          }
+        ]
+      },
+
+      // ==========================================
+      // 片段六：经理解雇尼尔
+      // ==========================================
+      {
+        sceneId: 5,
+        title: "片段六：经理解雇尼尔",
+        environment: { rain: false, light: "radial-gradient(circle at 35% 45%, rgba(130, 140, 160, 0.1) 0%, transparent 60%)" },
+        beats: [
+          {
+            speaker: "经理",
+            text: "尼尔，我们必须得好好谈谈了。",
+            note: "剧院谈判 · 职业化的虚伪客气",
+            action: (stage) => {
+              stage.setProp('phone', { show: false });
+              stage.setActor('nightingale', { show: false });
+              stage.setActor('worker', { show: false });
+              stage.setActor('manager', { show: true, pos: 'left-center', pose: 'serious', active: true });
+              stage.setActor('neil', { show: true, pos: 'right-center', pose: 'still', active: false });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔沉默。）",
+            note: "沉默承受羞辱与否定",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'cold-silence' });
+            }
+          },
+          {
+            speaker: "经理",
+            text: "到目前为止已经有几天了，事情有什么重要的进展吗？",
+            note: "居高临下的诘问",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'inquisitive' });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔没有回答。）",
+            note: "无声对抗",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'suppressed' });
+            }
+          },
+          {
+            speaker: "经理",
+            text: "我只针对事情，不针对人。这是一份工作，我们每个人都在自己的岗位上，为这件事出一份力。",
+            note: "冠冕堂皇的职场辞令",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'preaching' });
+            }
+          },
+          {
+            speaker: "经理",
+            text: "就拿我来说，我每天都在为赞助和演出奔走，如果我没能做得很好，我自己就不配呆在这个岗位上，我就要开除我自己。",
+            note: "伪善的自我标榜",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'self-praise' });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔沉默。）",
+            note: "毫无还嘴余地的冰冷",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'rigid' });
+            }
+          },
+          {
+            speaker: "经理",
+            text: "如果我们不能为这件事情的解决作出贡献，那我们在这儿不是浪费时间吗？",
+            note: "图穷匕见",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'harsh' });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔仍没有回应。）",
+            note: "将屈辱压在心底",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'frozen' });
+            }
+          },
+          {
+            speaker: "经理",
+            text: "尼尔，我其实很不情愿，但是这件事情你可以先放一放了，我可能会找一个更老练的侦探。但也别那么绝情，别断了联系。",
+            note: "解雇却依然摆出交情姿态",
+            action: (stage) => {
+              stage.setActor('manager', { pose: 'dismissing' });
+            }
+          },
+          {
+            speaker: "（舞台指示）",
+            text: "（尼尔交接已知信息，具体内容略过。他离开剧院，身后的大门砰地关上。）",
+            note: "大门轰然关闭 · 割裂关系 · 全剧终",
+            action: (stage) => {
+              stage.setActor('neil', { pose: 'leaving', shiftX: 140 });
+              setTimeout(() => {
+                sound.playDoorSlam();
+                stage.slamDoor();
+              }, 600);
+            }
+          }
+        ]
+      }
+    ];
+
+    /**
+     * 舞台视效驱动器 (Stage Controller)
+     */
+    class TheatreStage {
+      constructor() {
+        this.dom = {
+          light: document.getElementById('stage-light'),
+          rain: document.getElementById('rain-layer'),
+          shutter: document.getElementById('door-shutter'),
+          intercom: document.getElementById('prop-intercom'),
+          intercomLight: document.getElementById('intercom-light'),
+          cigBox: document.getElementById('prop-cigarette-box'),
+          wallPhone: document.getElementById('prop-wall-phone'),
+          actors: {
+            nightingale: document.getElementById('actor-nightingale'),
+            neil: document.getElementById('actor-neil'),
+            manager: document.getElementById('actor-manager'),
+            worker: document.getElementById('actor-worker')
+          },
+          actorArms: {
+            mgrArm: document.getElementById('act-mgr-pat-arm'),
+            nlArm: document.getElementById('act-nl-arm-right'),
+            ngUmbrella: document.getElementById('act-ng-umbrella'),
+            ngTear: document.getElementById('act-ng-tear'),
+            ngHead: document.getElementById('act-ng-head')
+          }
+        };
+      }
+
+      setLight(gradient) {
+        this.dom.light.style.background = gradient;
+      }
+
+      setRain(active) {
+        if (active) this.dom.rain.classList.add('rain-active');
+        else this.dom.rain.classList.remove('rain-active');
+      }
+
+      pulseIntercom() {
+        this.dom.intercomLight.setAttribute('fill', '#ffe27a');
+        setTimeout(() => {
+          this.dom.intercomLight.setAttribute('fill', '#5c4314');
+        }, 350);
+      }
+
+      slamDoor() {
+        this.dom.shutter.style.opacity = '0.96';
+        setTimeout(() => {
+          this.dom.shutter.style.opacity = '0.4';
+        }, 1200);
+      }
+
+      resetDoor() {
+        this.dom.shutter.style.opacity = '0';
+      }
+
+      setProp(propName, { show, glow }) {
+        let el = null;
+        if (propName === 'intercom') el = this.dom.intercom;
+        if (propName === 'cig') el = this.dom.cigBox;
+        if (propName === 'phone') el = this.dom.wallPhone;
+
+        if (!el) return;
+        if (show) {
+          el.style.opacity = '1';
+          el.style.transform = propName === 'cig' ? 'translate(-50%, -50%) scale(1)' : 'translateY(0)';
+          if (glow && propName === 'intercom') {
+            this.dom.intercomLight.setAttribute('fill', '#ffe066');
+          }
+        } else {
+          el.style.opacity = '0';
+          if (propName === 'cig') {
+            el.style.transform = 'translate(-50%, -50%) scale(0.7)';
+          }
+        }
+      }
+
+      setActor(name, config) {
+        const actor = this.dom.actors[name];
+        if (!actor) return;
+
+        // 显隐
+        if (config.show === false) {
+          actor.classList.add('hidden');
+          return;
+        } else if (config.show === true) {
+          actor.classList.remove('hidden');
+        }
+
+        // 聚焦 / 说话高亮
+        if (config.active) {
+          actor.classList.add('highlighted', 'speaking');
+          actor.classList.remove('dimmed');
+        } else if (config.active === false) {
+          actor.classList.remove('highlighted', 'speaking');
+          actor.classList.add('dimmed');
+        }
+
+        // 基础站位 (使用 CSS class / inline transform)
+        let baseTransform = '';
+        if (config.pos === 'left') actor.style.left = '160px';
+        if (config.pos === 'left-center') actor.style.left = '250px';
+        if (config.pos === 'right-center') actor.style.right = '250px';
+        if (config.pos === 'right') actor.style.right = '160px';
+        if (config.pos === 'far-right') actor.style.right = '70px';
+
+        // 微位移动画
+        if (config.shiftX) {
+          baseTransform += ` translateX(${config.shiftX}px)`;
+        }
+
+        // 姿态特化
+        if (config.pose === 'arm-on-shoulder') {
+          // 经理手搭在尼尔肩头
+          this.dom.actorArms.mgrArm.style.transform = 'rotate(-38deg) translate(28px, -18px) scale(1.15)';
+        } else {
+          this.dom.actorArms.mgrArm.style.transform = 'none';
+        }
+
+        // 尼尔拿烟盒姿态
+        if (config.pose === 'show-item') {
+          this.dom.actorArms.nlArm.style.transform = 'rotate(-65deg) translate(-22px, -15px)';
+        } else {
+          this.dom.actorArms.nlArm.style.transform = 'none';
+        }
+
+        // 夜莺持伞动作
+        if (config.pose === 'holding-umbrella-leaving' || config.pose === 'leaving') {
+          this.dom.actorArms.ngUmbrella.style.transform = 'rotate(35deg) translate(15px, 20px)';
+        } else {
+          this.dom.actorArms.ngUmbrella.style.transform = 'none';
+        }
+
+        // 夜莺眼泪
+        if (config.tear) {
+          this.dom.actorArms.ngTear.style.opacity = '1';
+        } else {
+          this.dom.actorArms.ngTear.style.opacity = '0';
+        }
+
+        // 夜莺低头/昂首
+        if (config.pose === 'downcast' || config.pose === 'anxious') {
+          this.dom.actorArms.ngHead.style.transform = 'rotate(8deg) translateY(4px)';
+        } else if (config.pose === 'crying-relief') {
+          this.dom.actorArms.ngHead.style.transform = 'rotate(-5deg) translateY(-2px)';
+        } else {
+          this.dom.actorArms.ngHead.style.transform = 'none';
+        }
+
+        actor.style.transform = baseTransform;
+      }
+    }
+
+    /**
+     * 戏剧总导演控制器 (Director Engine)
+     */
+    class TheatreDirector {
+      constructor() {
+        this.stage = new TheatreStage();
+        this.currentSceneIdx = 0;
+        this.currentBeatIdx = 0;
+        this.isPlaying = false;
+        this.timer = null;
+        this.autoPlayDelay = 4200; // 每句对白阅读沉浸停顿时间
+
+        this.dom = {
+          speaker: document.getElementById('ui-speaker'),
+          dialogue: document.getElementById('ui-dialogue'),
+          note: document.getElementById('ui-note'),
+          progress: document.getElementById('ui-progress'),
+          btnPlay: document.getElementById('btn-play-toggle'),
+          playIcon: document.getElementById('play-icon'),
+          playText: document.getElementById('play-text'),
+          btnPrev: document.getElementById('btn-prev'),
+          btnNext: document.getElementById('btn-next'),
+          btnRestart: document.getElementById('btn-restart'),
+          navBtns: document.querySelectorAll('.nav-btn'),
+          autoCheck: document.getElementById('auto-speed'),
+          btnAudio: document.getElementById('btn-audio-toggle')
+        };
+
+        this.bindEvents();
+        this.loadScene(0);
+      }
+
+      bindEvents() {
+        this.dom.btnPlay.addEventListener('click', () => this.togglePlay());
+        this.dom.btnNext.addEventListener('click', () => { this.pause(); this.stepBeat(1); });
+        this.dom.btnPrev.addEventListener('click', () => { this.pause(); this.stepBeat(-1); });
+        this.dom.btnRestart.addEventListener('click', () => this.restartScene());
+
+        this.dom.navBtns.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.target.dataset.scene, 10);
+            this.switchScene(idx);
+          });
+        });
+
+        this.dom.btnAudio.addEventListener('click', () => {
+          sound.enabled = !sound.enabled;
+          this.dom.btnAudio.innerText = sound.enabled ? '🔊 剧场音效' : '🔇 音效已静音';
+          if (!sound.enabled) sound.stopRain();
+        });
+
+        // 键盘快键支持（空格播放/暂停，左右键步进）
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space') {
+            e.preventDefault();
+            this.togglePlay();
+          } else if (e.code === 'ArrowRight') {
+            this.pause();
+            this.stepBeat(1);
+          } else if (e.code === 'ArrowLeft') {
+            this.pause();
+            this.stepBeat(-1);
+          }
+        });
+      }
+
+      switchScene(sceneIdx) {
+        this.pause();
+        this.currentSceneIdx = sceneIdx;
+        this.currentBeatIdx = 0;
+        this.updateNavUi();
+        this.loadScene(sceneIdx);
+      }
+
+      updateNavUi() {
+        this.dom.navBtns.forEach((b, i) => {
+          if (i === this.currentSceneIdx) b.classList.add('active');
+          else b.classList.remove('active');
+        });
+      }
+
+      loadScene(sceneIdx) {
+        this.stage.resetDoor();
+        const scene = DRAMA_SCRIPT[sceneIdx];
+        this.stage.setLight(scene.environment.light);
+        this.stage.setRain(scene.environment.rain);
+        if (!scene.environment.rain) sound.stopRain();
+
+        this.applyBeat(this.currentBeatIdx);
+      }
+
+      applyBeat(beatIdx) {
+        const scene = DRAMA_SCRIPT[this.currentSceneIdx];
+        const beat = scene.beats[beatIdx];
+
+        // 文本与指示牌
+        this.dom.speaker.innerText = beat.speaker;
+        this.dom.note.innerText = beat.note;
+
+        // 如果是舞台动作指示则以斜体弱化表现，台词则以加重字体表现
+        if (beat.speaker === '（舞台指示）') {
+          this.dom.dialogue.innerHTML = `<span class="action-direction">${beat.text}</span>`;
+        } else {
+          this.dom.dialogue.innerText = beat.text;
+        }
+
+        // 进度计数
+        const currentNum = String(beatIdx + 1).padStart(2, '0');
+        const totalNum = String(scene.beats.length).padStart(2, '0');
+        this.dom.progress.innerText = `${currentNum} / ${totalNum}`;
+
+        // 驱动立绘、视效与音效
+        if (beat.action) {
+          beat.action(this.stage);
+        }
+      }
+
+      togglePlay() {
+        sound.init(); // 触发音频上下文解锁
+        if (this.isPlaying) {
+          this.pause();
+        } else {
+          this.play();
+        }
+      }
+
+      play() {
+        this.isPlaying = true;
+        this.dom.playIcon.innerText = '⏸';
+        this.dom.playText.innerText = '暂停';
+        this.dom.btnPlay.classList.add('primary');
+        this.scheduleNext();
+      }
+
+      pause() {
+        this.isPlaying = false;
+        this.dom.playIcon.innerText = '▶';
+        this.dom.playText.innerText = '演出';
+        if (this.timer) {
+          clearTimeout(this.timer);
+          this.timer = null;
+        }
+      }
+
+      scheduleNext() {
+        if (!this.isPlaying) return;
+        if (!this.dom.autoCheck.checked) return;
+
+        this.timer = setTimeout(() => {
+          const scene = DRAMA_SCRIPT[this.currentSceneIdx];
+          if (this.currentBeatIdx < scene.beats.length - 1) {
+            this.stepBeat(1);
+            this.scheduleNext();
+          } else {
+            // 片段结束：若有下一幕则平滑过渡，若全剧终则暂停
+            if (this.currentSceneIdx < DRAMA_SCRIPT.length - 1) {
+              setTimeout(() => {
+                this.switchScene(this.currentSceneIdx + 1);
+                this.play();
+              }, 1800);
+            } else {
+              this.pause();
+            }
+          }
+        }, this.autoPlayDelay);
+      }
+
+      stepBeat(direction) {
+        const scene = DRAMA_SCRIPT[this.currentSceneIdx];
+        const nextIdx = this.currentBeatIdx + direction;
+        if (nextIdx >= 0 && nextIdx < scene.beats.length) {
+          this.currentBeatIdx = nextIdx;
+          this.applyBeat(this.currentBeatIdx);
+        }
+      }
+
+      restartScene() {
+        this.pause();
+        this.currentBeatIdx = 0;
+        this.loadScene(this.currentSceneIdx);
+      }
+    }
+
+    // 页面装载初始化剧场
+    window.addEventListener('DOMContentLoaded', () => {
+      window.theatre = new TheatreDirector();
+    });
+  </script>
+</body>
+</html>

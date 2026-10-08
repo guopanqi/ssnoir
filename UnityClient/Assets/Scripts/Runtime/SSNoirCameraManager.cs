@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SSNoir
 {
-    public enum FocusTravelPath { AuthoredArc, DirectApproach }
+    public enum FocusTravelPath { AuthoredArc, DirectApproach, Exploration }
 
     public class SSNoirCameraManager
     {
@@ -133,6 +133,7 @@ namespace SSNoir
         private float _focusArcTargetRadius;
         private Quaternion _focusArcTargetAim;
         private Vector3 _focusArcTargetPosition;
+        private Quaternion _focusArcStartRotation;
         private Quaternion _focusArcTargetRotation;
         private float _focusArcStartFieldOfView;
         private float _focusArcTargetFieldOfView;
@@ -1212,6 +1213,10 @@ namespace SSNoir
             // is stale and the rendered view has to speak for itself.
             var sourceCamera = ReferenceEquals(brain.ActiveVirtualCamera, previousFocus) ? previousFocus : null;
 
+            if (path == FocusTravelPath.Exploration)
+                path = ResolveExplorationPath(sourceCamera, focusCamera);
+
+
             if (!TryResolveInterestPoints(
                     focusCamera, targetPosition, targetRotation,
                     sourceCamera, startPosition, startRotation,
@@ -1244,8 +1249,22 @@ namespace SSNoir
                     if (plane.Raycast(new Ray(startPosition, forward), out float distance))
                         startInterest = startPosition + forward * distance;
                 }
+                // 返回 Pan 世界远景时也使用目的地真正的注视点。
+                // 编排弧线的距离上限会借用近景主体；直接运镜需要让注视点与位置共同移动。
+                if (config.dragMode == CameraDragMode.Pan)
+                {
+                    var plane = new Plane(Vector3.up, new Vector3(0, targetInterest.y, 0));
+                    Vector3 forward = targetRotation * Vector3.forward;
+                    if (plane.Raycast(new Ray(targetPosition, forward), out float distance))
+                        targetInterest = targetPosition + forward * distance;
+                }
                 float scale = config.modelRoot != null ? config.modelRoot.lossyScale.x : 1;
-                duration = Mathf.Clamp(Vector3.Distance(startPosition, targetPosition) / scale * 0.0012f, 0.9f, 1.5f);
+                float distanceDuration = Mathf.Clamp(
+                    Vector3.Distance(startPosition, targetPosition) / scale * 0.0012f, 0.9f, 1.5f);
+                // 大角度转向需要更长的时间，尤其是从码头返回城市远景。
+                // 五次缓动的峰值速度为平均值的 1.875 倍，按峰值 90 度/秒安排时长。
+                float rotationDuration = Quaternion.Angle(startRotation, targetRotation) * 1.875f / 90f;
+                duration = Mathf.Max(distanceDuration, rotationDuration);
                 transitionDuration = duration;
             }
             _activeFocusPath = path;
@@ -1283,6 +1302,7 @@ namespace SSNoir
             _focusArcStartedAt = Time.unscaledTime;
             _focusArcDuration = duration;
             _focusArcStartPosition = startPosition;
+            _focusArcStartRotation = startRotation;
 
             // The arc *is* the transition, so the brain must not blend on top of it.
             // Cutting is invisible: the camera starts exactly where the rendered view is.
@@ -1506,8 +1526,10 @@ namespace SSNoir
             // the frame for the whole sweep instead of drifting out and swinging back in.
             Quaternion aim = Quaternion.Slerp(_focusArcStartAim, _focusArcTargetAim, eased);
             Vector3 toInterest = interest - position;
+            // 位置与注视点共同推进，每一帧都看向移动的主体（与 fog-neon 相同）。
+            // AimOffset 保留两端原有构图；仅在注视点与机位重合时插值端点朝向。
             Quaternion rotation = toInterest.sqrMagnitude < 0.0001f
-                ? Quaternion.Slerp(_focusArcCamera.transform.rotation, _focusArcTargetRotation, eased)
+                ? Quaternion.Slerp(_focusArcStartRotation, _focusArcTargetRotation, eased)
                 : Quaternion.LookRotation(toInterest, Vector3.up) * aim;
 
             _focusArcCamera.transform.SetPositionAndRotation(position, rotation);
@@ -1676,6 +1698,22 @@ namespace SSNoir
             lens.NearClipPlane = nearClipPlane;
             lens.FarClipPlane = farClipPlane;
             camera.m_Lens = lens;
+        }
+
+        // 同一对探索机位交换方向时得到同一种路径。
+        // Pan ↔ Pan 保留编排弧线；有 Orbit 的一端才允许从当前一侧直接靠近。
+        // Static 有自己的编排构图，不借用直接靠近策略。
+        private FocusTravelPath ResolveExplorationPath(
+            Cinemachine.CinemachineVirtualCamera? source,
+            Cinemachine.CinemachineVirtualCamera destination)
+        {
+            var from = source != null ? source.GetComponent<SSNoirVirtualCameraConfig>() : null;
+            var to = destination.GetComponent<SSNoirVirtualCameraConfig>();
+            if (from == null || to == null
+                || from.dragMode == CameraDragMode.Static || to.dragMode == CameraDragMode.Static)
+                return FocusTravelPath.AuthoredArc;
+            return from.dragMode == CameraDragMode.Orbit || to.dragMode == CameraDragMode.Orbit
+                ? ExplorationPath : FocusTravelPath.AuthoredArc;
         }
 
         /// <summary>

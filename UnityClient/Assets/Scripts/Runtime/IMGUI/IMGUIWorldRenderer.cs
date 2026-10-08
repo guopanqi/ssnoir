@@ -40,6 +40,7 @@ namespace SSNoir.IMGUI
         private CameraDragMode _actionLayoutMode;
         private Rect _actionLayoutSafeArea;
         private bool _hasActionLayoutContext;
+        private bool _actionLayoutWasTravelling;
         // 结果停留：结算演完、新快照采纳前，结果条挂在宿主卡下面的那几秒。键是动作名。
         // 采纳快照时一起清掉，不留到下一手——旧快照的卡、新快照的钟，只在这段时间里同台。
         private readonly Dictionary<string, CardPresentationResidue> _cardResidues = new Dictionary<string, CardPresentationResidue>();
@@ -673,6 +674,12 @@ namespace SSNoir.IMGUI
                 return true;
             }
 
+            if (DemoPanelDrawer.IsOpen)
+            {
+                DemoPanelDrawer.Close();
+                return true;
+            }
+
             if (DebugPanelDrawer.IsOpen)
             {
                 DebugPanelDrawer.Close();
@@ -741,6 +748,7 @@ namespace SSNoir.IMGUI
             _completionActionName = string.Empty;
             _completionDone = null;
             DebugPanelDrawer.Reset();
+            DemoPanelDrawer.Reset();
             SettingsPanelDrawer.Reset();
             HelpPanelDrawer.Reset();
             TutorialDirector.Reset();
@@ -847,6 +855,7 @@ namespace SSNoir.IMGUI
                 && !IsAnimationPlaying
                 && !_isGrowthPanelOpen
                 && !DebugPanelDrawer.IsOpen
+                && !DemoPanelDrawer.IsOpen
                 && !_inputLocked
                 // 影幕期间没有任何 UI 反馈，右键把选中的资源清掉，玩家出来才发现，等于静默丢状态。
                 && !_gameManager.Cutscene.IsActive)
@@ -981,6 +990,18 @@ namespace SSNoir.IMGUI
                     Bounds = new Rect(0, 0, UIScale.VW, UIScale.VH),
                     Layer = IMGUIWindowLayer.Modal,
                     BlockMode = IMGUIBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
+
+            if (DemoPanelDrawer.IsOpen && !_isGrowthPanelOpen)
+            {
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.DemoPanel,
+                    Bounds = DemoPanelDrawer.GetPanelRect(topHud),
+                    Layer = IMGUIWindowLayer.Panel,
+                    BlockMode = IMGUIBlockMode.Bounds,
                     CloseOnClickedOutside = false,
                 });
             }
@@ -1128,6 +1149,7 @@ namespace SSNoir.IMGUI
                 {
                     SettingsPanelDrawer.Close();
                     DebugPanelDrawer.Close();
+                    DemoPanelDrawer.Close();
                 }
             }
             else
@@ -1140,19 +1162,27 @@ namespace SSNoir.IMGUI
             bool settingsWasOpen = SettingsPanelDrawer.IsOpen;
             SettingsPanelDrawer.Draw(settingsUi, topHud);
             if (!settingsWasOpen && SettingsPanelDrawer.IsOpen)
+            {
                 DebugPanelDrawer.Close();
+                DemoPanelDrawer.Close();
+            }
 
             var helpUi = (_isGrowthPanelOpen || DossierPanelDrawer.IsOpen || SettingsPanelDrawer.IsOpen)
                 ? lockedPanelUi : panelUi;
             bool helpWasOpen = HelpPanelDrawer.IsOpen;
             HelpPanelDrawer.Draw(helpUi, topHud);
             if (!helpWasOpen && HelpPanelDrawer.IsOpen)
+            {
                 DebugPanelDrawer.Close();
+                DemoPanelDrawer.Close();
+            }
 
             var debugUi = (_isGrowthPanelOpen || SettingsPanelDrawer.IsOpen || DossierPanelDrawer.IsOpen
                     || HelpPanelDrawer.IsOpen)
                 ? lockedPanelUi : panelUi;
             DebugPanelDrawer.Draw(_gameManager, debugUi, topHud);
+            if (DebugPanelDrawer.IsOpen) DemoPanelDrawer.Close();
+            DemoPanelDrawer.Draw(_gameManager, debugUi, topHud);
 
             // ── Overlays ──
             // 通知摞在左上、标注带之下（上一帧的带子位置，带子很少动，差一帧无妨）。
@@ -1410,7 +1440,13 @@ namespace SSNoir.IMGUI
                 ? _gameManager.DisplayedFocusCamera.GetComponent<SSNoirVirtualCameraConfig>()
                 : null;
             CameraDragMode actionMode = actionCamera != null ? actionCamera.dragMode : CameraDragMode.Static;
-            EnsureActionLayoutContext(actionCamera, actionMode);
+            // 穿门内半程由 Stage 的过渡相机驱动，不属于焦点弧线。
+            // 两种运镜以及 brain 的混合都结束后，主相机投影才可作为布局依据。
+            var brain = cam.GetComponent<Cinemachine.CinemachineBrain>();
+            bool layoutTravelling = _gameManager.StageController.IsTransitioning
+                || _gameManager.CameraManager.IsFocusTravelInFlight
+                || (brain != null && brain.IsBlending);
+            EnsureActionLayoutContext(actionCamera, actionMode, layoutTravelling);
 
             var nodes = new List<GameNode>(_gameManager.VisibleNodes);
             if (_activeAutoAction?.AutoActionNode != null)
@@ -1480,7 +1516,7 @@ namespace SSNoir.IMGUI
                     bool layoutFixed = node.IsContainer;
                     bool cachedAction = !layoutFixed && HasActionCenter(node.Name, actionMode);
                     bool waitForLanding = !layoutFixed && !cachedAction
-                        && _gameManager.CameraManager.IsFocusTravelInFlight;
+                        && layoutTravelling;
                     bool inCameraSight = cachedAction || (viewPos.z >= 0
                                       && (softWorldLabel || (viewPos.x >= -padding && viewPos.x <= (1f + padding)
                                           && viewPos.y >= -padding && viewPos.y <= (1f + padding))));
@@ -1616,7 +1652,7 @@ namespace SSNoir.IMGUI
                     // 方向由稳定的内容序号决定，拖镜头时不会因跨过屏幕中线而翻边。
                     var labelPoint = UIScale.WorldPointToVirtual(item.labelScreenPos);
                     float side = item.order % 2 == 0 ? -1f : 1f;
-                    targetCenter = new Vector2(labelPoint.x + side * (cardWidth / 2f + 28f),
+                    targetCenter = new Vector2(labelPoint.x + side * (cardWidth / 2f + 64f),
                         labelPoint.y - cardHeight / 2f);
                 }
 
@@ -1645,7 +1681,7 @@ namespace SSNoir.IMGUI
                 else
                     SolveProjectedStacks(movableLayouts, keepOut);
                 // 换镜途中只可能有已有落点的卡；新卡在落镜后才进入排布。
-                if (!_gameManager.CameraManager.IsFocusTravelInFlight)
+                if (!layoutTravelling)
                     RememberActionCenters(movableLayouts, cam, actionMode);
             }
             foreach (var layout in layouts)
@@ -2003,10 +2039,16 @@ namespace SSNoir.IMGUI
         }
 
         private const float LocationLabelWorldHeight = 1f;
-        private void EnsureActionLayoutContext(SSNoirVirtualCameraConfig? camera, CameraDragMode mode)
+        private void EnsureActionLayoutContext(
+            SSNoirVirtualCameraConfig? camera, CameraDragMode mode, bool travelling)
         {
+            // 相机对象在一次转场里可以不变，实际输出却来自临时过渡机位。
+            // 落镜后整组重新避让，不能沿用途中或上一趟留下的世界坐标。
+            bool landed = _actionLayoutWasTravelling && !travelling;
+            _actionLayoutWasTravelling = travelling;
             if (_hasActionLayoutContext && _actionLayoutCamera == camera
-                && _actionLayoutMode == mode && _actionLayoutSafeArea.Equals(UIScale.SafeArea))
+                && _actionLayoutMode == mode && _actionLayoutSafeArea.Equals(UIScale.SafeArea)
+                && !landed)
                 return;
 
             _actionLayoutCamera = camera;
@@ -3075,6 +3117,7 @@ namespace SSNoir.IMGUI
                     // 成长面板打开时不留一个悬在背后的下拉——避免两个 Panel 层弹窗抢点击。
                     SettingsPanelDrawer.Close();
                     DebugPanelDrawer.Close();
+                    DemoPanelDrawer.Close();
                 }
             }
 
@@ -3595,6 +3638,7 @@ namespace SSNoir.IMGUI
                 new(_topHud.HelpToggle, KeepOutPriority.Hard),
                 new(_topHud.SettingsToggle, KeepOutPriority.Hard),
                 new(_topHud.DebugToggle, KeepOutPriority.Hard),
+                new(_topHud.DemoToggle, KeepOutPriority.Hard),
                 new(_pinStripRect, KeepOutPriority.Hard),
                 new(_sceneBandRect, KeepOutPriority.Hard),
             };

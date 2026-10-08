@@ -44,9 +44,9 @@ namespace SSNoir
             public Transform Body=null!; public Path Path=null!;
             public float Start,Speed,Length; public int Direction; public bool Boat;
         }
-        public static CityNightEnvironment Create(Transform parent,CityWorldPalette palette) {
+        public static CityNightEnvironment Create(Transform parent,CityWorldPalette palette,Transform cityRoot) {
             var go=new GameObject("夜城环境") { hideFlags=HideFlags.DontSave };go.SetActive(false);go.transform.SetParent(parent,false);
-            var instance=go.AddComponent<CityNightEnvironment>();instance.Initialize(palette);return instance;
+            var instance=go.AddComponent<CityNightEnvironment>();instance.Initialize(palette,cityRoot);return instance;
         }
         private T Own<T>(T obj) where T:UnityEngine.Object { _owned.Add(obj);return obj; }
         private static Vector3 Convert(Vector3 p) {
@@ -83,8 +83,24 @@ namespace SSNoir
             }
             return selected;
         }
-        private void Initialize(CityWorldPalette palette) {
+        private float _riverHeight;
+        private const float BoatWaterlineOffset = .25f;
+        private void ReadRiverHeight(Transform cityRoot)
+        {
+            var surfaces = cityRoot.GetComponentsInChildren<MeshFilter>(true)
+                .Where(mesh => mesh.name == "河面").ToArray();
+            if (surfaces.Length != 1 || surfaces[0].sharedMesh == null)
+                throw new InvalidOperationException($"夜城船只要求 City 下唯一的正式河面网格，找到 {surfaces.Length} 个");
+            var mesh = surfaces[0];
+            var renderer = mesh.GetComponent<Renderer>();
+            if (renderer == null || renderer.bounds.size.y > .01f)
+                throw new InvalidOperationException("夜城船只要求水平河面");
+            _riverHeight = transform.InverseTransformPoint(
+                mesh.transform.TransformPoint(mesh.sharedMesh.bounds.center)).y;
+        }
+        private void Initialize(CityWorldPalette palette,Transform cityRoot) {
             Settings=palette.Night;
+            ReadRiverHeight(cityRoot);
             if(palette.NightGlowShader==null) throw new InvalidOperationException("夜城缺少灯晕 Shader");
             var text=Resources.Load<TextAsset>("City/World.environment") ?? throw new InvalidOperationException("请通过 CityBox 发布 World.environment.json");
             var spec=JsonUtility.FromJson<Spec>(text.text);
@@ -119,7 +135,6 @@ namespace SSNoir
             }
             var principal=SpacedLights(developed,Settings.DevelopedAccentLights,rnd)
                 .Concat(SpacedLights(poorShore,Settings.PoorAccentLights,rnd)).ToArray();
-            Debug.Log($"[夜城] 主灯分布：发达岸 {principal.Count(p=>RiverBank(new Vector3(-p.x,-p.z,0),spec.river).developed)} / 总计 {principal.Length}；贫穷岸仅沿河。");
             foreach(var p in principal) {
                 // Only principal street lights have a broad pool. Road and building depth still occlude it.
                 pools.Add(p+Vector3.up*.14f,Settings.AccentPoolSize,ColorOf("#eec18e",Settings.AccentPoolGain*Settings.LampPool),false);
@@ -129,15 +144,15 @@ namespace SSNoir
             }
             Batch("沿街灯晕",halo,_halo);Batch("路面光池",pools,_pool);
             var roads=spec.roads.Select(r=>new Path(r.points.Select(Convert).ToArray())).ToArray();
-            var river=new Path(spec.river.Select(p=>{var v=Convert(p);v.y=-.6f;return v;}).ToArray());
+            var river=new Path(spec.river.Select(p=>{var v=Convert(p);v.y=_riverHeight;return v;}).ToArray());
             rnd=new System.Random(7311);
             for(int i=0;i<Settings.Cars+Settings.Boats;i++) {
                 bool boat=i>=Settings.Cars;var route=boat?river:roads[rnd.Next(roads.Length)];
                 var go=new GameObject((boat?"船_":"车_")+i);go.transform.SetParent(transform,false);
                 var body=palette.FindMaterial("M_建筑_oldtown")!;var window=palette.FindMaterial("M_窗光_white")!;
-                Box(go.transform,boat?new Vector3(7,2,22):new Vector3(3.8f,1.4f,1.7f),Vector3.zero,body);
-                Box(go.transform,boat?new Vector3(4,3,8):new Vector3(2.1f,.6f,1.45f),Vector3.up*(boat?2:1),body);
-                if(boat)Box(go.transform,new Vector3(3,.5f,1),new Vector3(0,2.8f,4.1f),window);
+                Box(go.transform,boat?new Vector3(7,.8f,22):new Vector3(3.8f,1.4f,1.7f),Vector3.zero,body);
+                Box(go.transform,boat?new Vector3(4,1.2f,8):new Vector3(2.1f,.6f,1.45f),Vector3.up*(boat?.65f:1),body);
+                if(boat)Box(go.transform,new Vector3(3,.3f,1),new Vector3(0,.9f,4.1f),window);
                 else {
                     Box(go.transform,new Vector3(.15f,.25f,.3f),new Vector3(1.95f,.1f,-.55f),window);
                     Box(go.transform,new Vector3(.15f,.25f,.3f),new Vector3(1.95f,.1f,.55f),window);
@@ -176,11 +191,11 @@ namespace SSNoir
                 float phase=Mathf.Repeat(travel,m.Path.Length*2);int direction=(phase<=m.Path.Length?1:-1)*m.Direction;
                 float d=Mathf.PingPong(travel,m.Path.Length);var p=m.Path.Sample(d);var ahead=m.Path.Sample(d+direction*2)-m.Path.Sample(d-direction*2);
                 if(ahead.sqrMagnitude>.001f) m.Body.localRotation=Quaternion.LookRotation(ahead,Vector3.up)*(m.Boat?Quaternion.identity:Quaternion.Euler(0,-90,0));
-                p.y=m.Boat?-.6f:1.5f;m.Body.localPosition=p;
+                p.y=m.Boat?_riverHeight+BoatWaterlineOffset:1.5f;m.Body.localPosition=p;
                 for(int i=0;i<12;i++) {
                     Vector3 q,side;
                     if(m.Boat) {
-                        float at=d-direction*(m.Length*i/11);q=m.Path.Sample(at);q.y=-1.7f;
+                        float at=d-direction*(m.Length*i/11);q=m.Path.Sample(at);q.y=_riverHeight+.03f;
                         var tangent=m.Path.Sample(at+1)-m.Path.Sample(at-1);
                         side=Vector3.Cross(tangent.normalized,Vector3.up)*1.25f;
                     } else {

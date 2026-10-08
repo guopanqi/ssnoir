@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>SSNoir · 雾与霓虹（城市视角）</title><style>
+html,body{margin:0;height:100%;background:#020306;overflow:hidden}
+#stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+canvas{display:block;box-shadow:0 0 80px rgba(0,0,0,.9)}
+#veil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#020306;color:#8a92a6;font:14px/1.6 Georgia,"Songti SC",serif;letter-spacing:.35em;transition:opacity 1.2s ease;z-index:10}
+#veil.gone{opacity:0;pointer-events:none}
+#note{position:absolute;left:14px;bottom:12px;color:#4a5468;font:11px/1.5 "SF Mono",Menlo,monospace;letter-spacing:.08em;z-index:5;user-select:none}
+#hud{position:fixed;z-index:6;pointer-events:none;font-family:"Songti SC","STSong",serif;color:var(--ink);user-select:none;
+  --ink:#cfc8b6;--ink-dim:#8f96a8;--line:rgba(122,116,100,.55);--panel:rgba(7,9,14,.88);--gold:#8a7440;--accent:#ffb35c;--hover-line:rgba(255,179,92,.7)}
+#hud-scale{position:absolute;left:0;top:0;width:1720px;height:968px;transform-origin:0 0}
+#hud .card{background:var(--panel);border:1px solid var(--line);box-shadow:0 2px 24px rgba(0,0,0,.5);position:relative}
+#hud button{pointer-events:auto;cursor:pointer}
+
+/* 左上：裸文字导航（返回 + 面包屑 + 单行目标），零遮挡 */
+.hud-tl{position:absolute;left:22px;top:20px;display:flex;flex-direction:column;gap:9px;align-items:flex-start}
+.hud-nav{display:flex;align-items:baseline;gap:14px}
+.hud-back{font:600 15px/1 "Songti SC",serif;letter-spacing:.2em;color:var(--ink);background:transparent;border:none;padding:2px 2px;transition:color .18s}
+.hud-back:hover{color:var(--accent)}
+.hud-back.hidden{display:none}
+.hud-crumb{font:500 13px/1 "Songti SC",serif;letter-spacing:.22em;color:var(--ink-dim)}
+.hud-crumb b{color:var(--ink);font-weight:600}
+.hud-crumb .sep{color:#5a6272;margin:0 2px}
+.hud-objective{display:flex;align-items:center;gap:9px;font:400 13px/1 "Songti SC",serif;letter-spacing:.14em;color:var(--ink-dim)}
+.hud-objective::before{content:'';width:22px;height:1px;background:var(--gold);opacity:.8}
+.hud-objective b{color:var(--gold);font-weight:500;letter-spacing:.24em;font-size:11px}
+.hud-objective em{font-style:normal;color:var(--ink)}
+.hud-log{min-height:20px}
+.hud-log-line{font:500 12px/1.9 Menlo,monospace;letter-spacing:.12em;color:var(--accent);text-shadow:0 0 12px color-mix(in srgb,var(--accent) 40%,transparent);opacity:1;transition:opacity 1.2s}
+.hud-log-line.fade{opacity:0}
+
+/* 右上：功能菜单 */
+.hud-tr{position:absolute;right:22px;top:20px;display:flex;gap:8px}
+.hud-menu{width:42px;height:42px;font:600 17px/1 "Songti SC",serif;color:var(--ink-dim);background:var(--panel);border:1px solid var(--line);transition:color .18s,border-color .18s}
+.hud-menu:hover{color:var(--accent);border-color:var(--hover-line)}
+
+/* 左下：人物（半身像 + 骰子 + 一条状态线） */
+.hud-bl{position:absolute;left:22px;bottom:18px;display:flex;flex-direction:column;gap:6px}
+.hud-label{font:500 10px/1 Menlo,monospace;letter-spacing:.42em;color:var(--gold);padding-left:2px}
+.hud-chars{display:flex;gap:10px}
+.hud-char{width:132px;padding-bottom:10px}
+.hud-bust{display:block;width:130px;height:106px;border-bottom:1px solid var(--line)}
+.hud-char-name{padding:7px 10px 4px;display:flex;align-items:baseline;justify-content:space-between}
+.hud-char-name span{font:600 14px/1.2 "Songti SC",serif;letter-spacing:.22em}
+.hud-char-name i{font:400 10px/1.6 Menlo,monospace;font-style:normal;letter-spacing:.08em;color:var(--ink-dim)}
+.hud-status{display:flex;align-items:center;gap:7px;padding:0 10px 7px;font:400 9px/1 Menlo,monospace;letter-spacing:.18em;color:var(--ink-dim)}
+.hud-status .segs{display:flex;gap:2px;flex:1}
+.hud-status .segs s{height:3px;flex:1;background:var(--line)}
+.hud-status .segs s.on{background:var(--accent)}
+.hud-dice{display:flex;gap:7px;padding:0 10px}
+.hud-die{pointer-events:auto;cursor:grab;width:33px;height:33px;position:relative;border:1px solid rgba(160,150,125,.7);background:rgba(12,15,22,.9);transition:opacity .25s,border-color .18s}
+.hud-die i{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--ink)}
+.hud-die:hover{border-color:var(--hover-line)}
+.hud-die.spent{opacity:.28}
+.hud-die.dragging{opacity:.35}
+.hud-ghost{position:fixed;z-index:60;pointer-events:none;cursor:grabbing;opacity:.95}
+
+/* 右下：物品（与骰子同尺寸） */
+.hud-br{position:absolute;right:22px;bottom:18px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.hud-items{display:flex;gap:7px}
+.hud-item{pointer-events:auto;cursor:grab;width:33px;height:33px;display:flex;align-items:center;justify-content:center;transition:border-color .18s}
+.hud-item svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.hud-item:hover{border-color:var(--hover-line)}
+.hud-item:hover svg{stroke:var(--accent)}
+.hud-item.gone{display:none}
+
+/* 动作卡：从建筑垂挂下来的工作单（细绳 + 深卡 + 骰位） */
+#hud-leader{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+#hud-leader polyline{fill:none;stroke:var(--ink);stroke-width:1;opacity:.5}
+#hud-leader circle{fill:var(--ink);opacity:.8}
+#hud-action{position:absolute;width:238px;padding:11px 14px 12px;pointer-events:auto}
+#hud-action.hidden{display:none}
+.hud-action-tags{display:flex;gap:6px;margin-bottom:8px}
+.hud-action-tags span{font:500 10px/1 "Songti SC",serif;letter-spacing:.18em;color:var(--ink-dim);border:1px solid var(--line);padding:3px 7px 2px}
+.hud-action-tags span.risk{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.hud-action-title{font:600 19px/1.3 "Songti SC",serif;letter-spacing:.24em;color:var(--ink)}
+.hud-action-desc{font:400 12px/1.7 "Songti SC",serif;letter-spacing:.1em;color:var(--ink-dim);margin:4px 34px 10px 0}
+.hud-slotrow{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding-top:10px}
+.hud-slot-label{font:500 10px/1 Menlo,monospace;letter-spacing:.28em;color:var(--gold)}
+.hud-slot{width:38px;height:38px;border:1px dashed rgba(160,150,125,.6);display:flex;align-items:center;justify-content:center;font:600 16px/1 "Songti SC",serif;color:var(--ink);transition:border-color .18s,background .18s}
+#hud-action .hud-slot.hot{border-color:var(--accent);border-style:solid;background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.hud-slot.filled{border-style:solid;border-color:var(--accent);color:var(--accent);text-shadow:0 0 10px color-mix(in srgb,var(--accent) 50%,transparent)}
+</style></head>
+<body>
+<div id="stage"></div>
+<div id="hud"><div id="hud-scale">
+  <svg id="hud-leader"></svg>
+  <div class="hud-tl">
+    <div class="hud-nav">
+      <button id="hud-back" class="hud-back hidden">‹ 返回 世界</button>
+      <span class="hud-crumb" id="hud-crumb">世界</span>
+    </div>
+    <div class="hud-objective"><b>目标</b><em>查明夜莺的下落</em></div>
+    <div class="hud-log" id="hud-log"></div>
+  </div>
+  <div class="hud-tr">
+    <button class="hud-menu card" title="档案">档</button><button class="hud-menu card" title="地图">图</button><button class="hud-menu card" title="证物">证</button><button class="hud-menu card" title="设置">设</button>
+  </div>
+  <div class="hud-bl">
+    <div class="hud-label">在场人物</div>
+    <div class="hud-chars" id="hud-chars"></div>
+  </div>
+  <div class="hud-br">
+    <div class="hud-label">随身物品</div>
+    <div class="hud-items" id="hud-items"></div>
+  </div>
+  <div id="hud-action" class="card hidden">
+    <div class="hud-action-tags" id="hud-action-tags"></div>
+    <div class="hud-action-title" id="hud-action-title"></div>
+    <div class="hud-action-desc" id="hud-action-desc"></div>
+    <div class="hud-slotrow"><span class="hud-slot-label">行动力</span><div id="hud-slot" class="hud-slot" title="拖动骰子到此"></div></div>
+  </div>
+</div></div>
+<div id="veil">雾 与 霓 虹</div>
+<div id="note">拖动旋转 · 滚轮缩放 · 右键平移 · 点标签聚焦 · 骰子可拖到动作卡上 · H 调参</div>
+<script>
+window.__errors=[];
+window.onerror=function(msg,src,line,col){window.__errors.push(msg+' @ '+String(src).split('/').pop()+':'+line+':'+col);};
+window.addEventListener('unhandledrejection',function(e){window.__errors.push('rej: '+String(e.reason).slice(0,300));});
+</script>
+<script type="module" src="/src/fog-neon/main.js"></script>
+</body></html>

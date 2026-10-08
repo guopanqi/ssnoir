@@ -1,0 +1,20 @@
+{
+  "task_id": "3f83fb66-79ef-4167-9957-416ba9b921fa",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/night-n2-style-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/night-n2-style-reference.png",
+    "prompt": "Redraw the referenced N2 Nightingale woman as ONE complete full body figure. Preserve the exact LEFT-facing pose: one hand softly at collarbone, other arm resting down, same crossed relaxed legs. Preserve her sleeveless long dark charcoal asymmetrical dress and black heels. NO coat, NO hat, NO handbag, NO new props. Identity must remain unmistakable: large elegant forehead wave, voluminous flowing shoulder curls, long slender nose neck and S-shaped waist and body silhouette. Adult dignified woman, SAME proportions as reference. Complete head and both shoes, blank margins. Flat bright chroma green #00ee00 background. No scenery or shadow, no letters. Keep all dark body and hair areas OPAQUE filled, not hollow or transparent green. Maintain the restrained N2 grey-blue noir palette unless thin gold or ivory lines are specifically requested. Only reinterpret the drawing treatment as follows: Rendered as precise fine contour lines of uniform thin weight in pale blue-white (#cfe0ff) over a near-black fill (#04060c). No shading, no gradients, no colour except the line. Clean flowing continuous curves, hair drawn as a few long sweeping strands, coat folds suggested with only three or four lines. Ignore any requested background or ground reflection: green background, no floor. Negative prompt: photorealistic skin, anime face, cartoon proportions, chibi, thick outlines of uniform marker weight, background scenery, gradient background, multiple people, cropped limbs, extra fingers, text, logo, lingerie, cleavage, glamour pose"
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/n2-claude-01/3f83fb66-79ef-4167-9957-416ba9b921fa/image.png",
+    "bytes": 979192,
+    "sha256": "38fa86ccb776beb55faa54644a7c7d92936c51a9808cf3df7b6e23fd19497131"
+  }
+}

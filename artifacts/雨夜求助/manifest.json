@@ -1,0 +1,406 @@
+[
+  {
+    "file": "001-beat-01-开始.png",
+    "beat": 1,
+    "phase": "开始",
+    "time": 0.0,
+    "duration": 0.0,
+    "sounds": [
+      "雨夜求助/雨"
+    ],
+    "line": null
+  },
+  {
+    "file": "002-beat-02-开始.png",
+    "beat": 2,
+    "phase": "开始",
+    "time": 0.0,
+    "duration": 0.0,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "003-beat-03-开始.png",
+    "beat": 3,
+    "phase": "开始",
+    "time": 0.0,
+    "duration": 0.7,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "004-beat-03-中途.png",
+    "beat": 3,
+    "phase": "中途",
+    "time": 0.35,
+    "duration": 0.7,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "005-beat-03-结束.png",
+    "beat": 3,
+    "phase": "结束",
+    "time": 0.7,
+    "duration": 0.7,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "006-beat-04-开始.png",
+    "beat": 4,
+    "phase": "开始",
+    "time": 0.7,
+    "duration": 0.8,
+    "sounds": [
+      "雨夜求助/电铃"
+    ],
+    "line": null
+  },
+  {
+    "file": "007-beat-04-结束.png",
+    "beat": 4,
+    "phase": "结束",
+    "time": 1.5,
+    "duration": 0.8,
+    "sounds": [
+      "雨夜求助/电铃"
+    ],
+    "line": null
+  },
+  {
+    "file": "008-beat-05-开始.png",
+    "beat": 5,
+    "phase": "开始",
+    "time": 1.5,
+    "duration": 0.567,
+    "sounds": [],
+    "line": {
+      "Speaker": "尼尔",
+      "DisplaySpeaker": "尼尔",
+      "Text": "是，哪位？",
+      "VoiceId": null,
+      "DwellSeconds": 0.0,
+      "Stage": {
+        "Pose": null,
+        "Move": null,
+        "Light": null,
+        "Current": null,
+        "Flicker": false,
+        "Relight": false,
+        "Blackout": false,
+        "Shake": false,
+        "Screen": null,
+        "Flash": false,
+        "Inner": false,
+        "Other": null
+      }
+    }
+  },
+  {
+    "file": "009-beat-06-开始.png",
+    "beat": 6,
+    "phase": "开始",
+    "time": 2.067,
+    "duration": 0.567,
+    "sounds": [],
+    "line": {
+      "Speaker": "夜莺",
+      "DisplaySpeaker": "夜莺",
+      "Text": "尼尔先生？",
+      "VoiceId": null,
+      "DwellSeconds": 0.0,
+      "Stage": {
+        "Pose": null,
+        "Move": null,
+        "Light": null,
+        "Current": null,
+        "Flicker": false,
+        "Relight": false,
+        "Blackout": false,
+        "Shake": false,
+        "Screen": null,
+        "Flash": false,
+        "Inner": false,
+        "Other": null
+      }
+    }
+  },
+  {
+    "file": "010-beat-07-开始.png",
+    "beat": 7,
+    "phase": "开始",
+    "time": 2.633,
+    "duration": 1.1,
+    "sounds": [],
+    "line": {
+      "Speaker": "夜莺",
+      "DisplaySpeaker": "夜莺",
+      "Text": "朋友介绍我来的。我遇到些麻烦，想请你帮忙。",
+      "VoiceId": null,
+      "DwellSeconds": 0.0,
+      "Stage": {
+        "Pose": null,
+        "Move": null,
+        "Light": null,
+        "Current": null,
+        "Flicker": false,
+        "Relight": false,
+        "Blackout": false,
+        "Shake": false,
+        "Screen": null,
+        "Flash": false,
+        "Inner": false,
+        "Other": null
+      }
+    }
+  },
+  {
+    "file": "011-beat-08-开始.png",
+    "beat": 8,
+    "phase": "开始",
+    "time": 3.733,
+    "duration": 0.733,
+    "sounds": [],
+    "line": {
+      "Speaker": "尼尔",
+      "DisplaySpeaker": "尼尔",
+      "Text": "现在很晚了，而且……",
+      "VoiceId": null,
+      "DwellSeconds": 0.0,
+      "Stage": {
+        "Pose": null,
+        "Move": null,
+        "Light": null,
+        "Current": null,
+        "Flicker": false,
+        "Relight": false,
+        "Blackout": false,
+        "Shake": false,
+        "Screen": null,
+        "Flash": false,
+        "Inner": false,
+        "Other": null
+      }
+    }
+  },
+  {
+    "file": "012-beat-09-开始.png",
+    "beat": 9,
+    "phase": "开始",
+    "time": 4.467,
+    "duration": 1.1,
+    "sounds": [],
+    "line": {
+      "Speaker": "夜莺",
+      "DisplaySpeaker": "夜莺",
+      "Text": "只耽误几分钟。事情有些急，我怕明天就晚了。",
+      "VoiceId": null,
+      "DwellSeconds": 0.0,
+      "Stage": {
+        "Pose": null,
+        "Move": null,
+        "Light": null,
+        "Current": null,
+        "Flicker": false,
+        "Relight": false,
+        "Blackout": false,
+        "Shake": false,
+        "Screen": null,
+        "Flash": false,
+        "Inner": false,
+        "Other": null
+      }
+    }
+  },
+  {
+    "file": "013-beat-10-开始.png",
+    "beat": 10,
+    "phase": "开始",
+    "time": 5.567,
+    "duration": 1.0,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "014-beat-10-结束.png",
+    "beat": 10,
+    "phase": "结束",
+    "time": 6.567,
+    "duration": 1.0,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "015-beat-11-开始.png",
+    "beat": 11,
+    "phase": "开始",
+    "time": 6.567,
+    "duration": 0.0,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "016-beat-12-开始.png",
+    "beat": 12,
+    "phase": "开始",
+    "time": 6.567,
+    "duration": 0.533,
+    "sounds": [],
+    "line": {
+      "Speaker": "夜莺",
+      "DisplaySpeaker": "夜莺",
+      "Text": "可以吗？",
+      "VoiceId": null,
+      "DwellSeconds": 0.0,
+      "Stage": {
+        "Pose": null,
+        "Move": null,
+        "Light": null,
+        "Current": null,
+        "Flicker": false,
+        "Relight": false,
+        "Blackout": false,
+        "Shake": false,
+        "Screen": null,
+        "Flash": false,
+        "Inner": false,
+        "Other": null
+      }
+    }
+  },
+  {
+    "file": "017-beat-13-开始.png",
+    "beat": 13,
+    "phase": "开始",
+    "time": 7.1,
+    "duration": 0.4,
+    "sounds": [
+      "雨夜求助/门锁"
+    ],
+    "line": null
+  },
+  {
+    "file": "018-beat-13-结束.png",
+    "beat": 13,
+    "phase": "结束",
+    "time": 7.5,
+    "duration": 0.4,
+    "sounds": [
+      "雨夜求助/门锁"
+    ],
+    "line": null
+  },
+  {
+    "file": "019-beat-14-开始.png",
+    "beat": 14,
+    "phase": "开始",
+    "time": 7.5,
+    "duration": 0.533,
+    "sounds": [],
+    "line": {
+      "Speaker": "尼尔",
+      "DisplaySpeaker": "尼尔",
+      "Text": "进来吧。",
+      "VoiceId": null,
+      "DwellSeconds": 0.0,
+      "Stage": {
+        "Pose": null,
+        "Move": null,
+        "Light": null,
+        "Current": null,
+        "Flicker": false,
+        "Relight": false,
+        "Blackout": false,
+        "Shake": false,
+        "Screen": null,
+        "Flash": false,
+        "Inner": false,
+        "Other": null
+      }
+    }
+  },
+  {
+    "file": "020-beat-15-开始.png",
+    "beat": 15,
+    "phase": "开始",
+    "time": 8.033,
+    "duration": 0.0,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "021-beat-16-开始.png",
+    "beat": 16,
+    "phase": "开始",
+    "time": 8.033,
+    "duration": 0.5,
+    "sounds": [],
+    "line": {
+      "Speaker": "夜莺",
+      "DisplaySpeaker": "夜莺",
+      "Text": "谢谢。",
+      "VoiceId": null,
+      "DwellSeconds": 0.0,
+      "Stage": {
+        "Pose": null,
+        "Move": null,
+        "Light": null,
+        "Current": null,
+        "Flicker": false,
+        "Relight": false,
+        "Blackout": false,
+        "Shake": false,
+        "Screen": null,
+        "Flash": false,
+        "Inner": false,
+        "Other": null
+      }
+    }
+  },
+  {
+    "file": "022-beat-17-开始.png",
+    "beat": 17,
+    "phase": "开始",
+    "time": 8.533,
+    "duration": 0.8,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "023-beat-17-中途.png",
+    "beat": 17,
+    "phase": "中途",
+    "time": 8.933,
+    "duration": 0.8,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "024-beat-17-结束.png",
+    "beat": 17,
+    "phase": "结束",
+    "time": 9.333,
+    "duration": 0.8,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "025-beat-18-开始.png",
+    "beat": 18,
+    "phase": "开始",
+    "time": 9.333,
+    "duration": 0.0,
+    "sounds": [],
+    "line": null
+  },
+  {
+    "file": "026-beat-19-开始.png",
+    "beat": 19,
+    "phase": "开始",
+    "time": 9.333,
+    "duration": 0.0,
+    "sounds": [],
+    "line": null
+  }
+]

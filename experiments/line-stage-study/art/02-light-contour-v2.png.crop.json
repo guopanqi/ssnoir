@@ -1,0 +1,51 @@
+{
+  "info": {
+    "format": "raw",
+    "width": 1024,
+    "height": 572,
+    "channels": 4,
+    "depth": "uchar",
+    "premultiplied": false,
+    "size": 2342912
+  },
+  "parts": [
+    {
+      "left": 47,
+      "right": 210,
+      "top": 22,
+      "bottom": 556,
+      "footCenter": 140
+    },
+    {
+      "left": 303,
+      "right": 521,
+      "top": 24,
+      "bottom": 557,
+      "footCenter": 397
+    },
+    {
+      "left": 562,
+      "right": 694,
+      "top": 30,
+      "bottom": 557,
+      "footCenter": 630.5
+    },
+    {
+      "left": 815,
+      "right": 962,
+      "top": 52,
+      "bottom": 557,
+      "footCenter": 891.5
+    }
+  ],
+  "flips": [
+    "2",
+    "3"
+  ],
+  "names": [
+    "neil-neutral",
+    "neil-question",
+    "night-neutral",
+    "night-vulnerable"
+  ]
+}

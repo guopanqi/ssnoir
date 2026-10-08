@@ -1,0 +1,37 @@
+{
+  "file": "nightingale-poses.png",
+  "info": {
+    "format": "raw",
+    "width": 557,
+    "height": 1024,
+    "channels": 4,
+    "depth": "uchar",
+    "premultiplied": false,
+    "size": 2281472
+  },
+  "parts": [
+    {
+      "x0": 30,
+      "x1": 254,
+      "y0": 69,
+      "y1": 985
+    },
+    {
+      "x0": 303,
+      "x1": 538,
+      "y0": 85,
+      "y1": 991
+    }
+  ],
+  "top": 64,
+  "bottom": 997,
+  "width": 248,
+  "names": [
+    "nightingale-wait",
+    "nightingale-down"
+  ],
+  "flipped": [
+    "nightingale-wait",
+    "nightingale-down"
+  ]
+}

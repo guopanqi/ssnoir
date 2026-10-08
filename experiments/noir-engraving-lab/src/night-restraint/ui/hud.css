@@ -104,3 +104,17 @@
     .hud-item.gone { display: none; }
   
 .night-hud-frame{position:fixed;pointer-events:none;overflow:hidden;z-index:6}#hud{position:absolute;left:0;top:0;height:720px;transform-origin:0 0}#hud .hud-tr{right:18px}#hud .hud-br{right:18px}#hud .selected{border-color:var(--accent);background:#433b2d}#hud button:disabled{opacity:.45;cursor:default}#hud [role=button]{cursor:pointer}#hud button:focus-visible,#hud [role=button]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.hud-popup{position:absolute;right:86px;top:72px;width:200px;padding:12px;background:var(--panel);border:1px solid var(--line);pointer-events:auto}.hud-popup button{display:block;width:100%;background:transparent;color:var(--ink);border:0;border-bottom:1px solid var(--line);padding:8px;text-align:left;font:inherit}.hud-popup p{margin:0;line-height:1.8}.hud-popup[hidden]{display:none}.tuning{top:82px;right:16px;z-index:10}.tuning:not([open]){display:none}
+
+/* 紧凑导航和任务：让场景信息占据视线中心。 */
+.hud-nav{display:flex;align-items:center;gap:14px;pointer-events:auto}
+.hud-back{padding:8px 11px;font-size:13px;letter-spacing:.1em;white-space:nowrap}
+#hud .hud-back:disabled{opacity:.42}
+.hud-breadcrumb{display:flex;align-items:center;gap:10px;font-size:14px;letter-spacing:.12em;text-shadow:0 1px 7px #000;color:var(--ink-dim)}
+.hud-breadcrumb strong{color:var(--ink);font-weight:500}.hud-separator{opacity:.4;font:12px Menlo,monospace}
+.hud-mission{display:flex;align-items:center;gap:10px;align-self:flex-start;border:0;border-left:1px solid var(--line);padding:5px 9px;background:rgba(7,9,14,.5);color:var(--ink-dim);font:12px/1.4 "Songti SC",serif;letter-spacing:.08em}
+.hud-mission-mark{width:4px;height:4px;border:1px solid var(--accent);transform:rotate(45deg)}
+.hud-mission-progress{padding-left:17px;font:10px Menlo,monospace;color:var(--gold)}
+.hud-mission-chevron{color:var(--ink-dim)}
+.hud-mission-detail{width:220px;border-left:1px solid var(--line);padding:10px 12px;background:var(--panel);font:12px/1.7 "Songti SC",serif;pointer-events:auto}
+.hud-mission-detail strong{font-weight:500;color:var(--ink)}.hud-mission-detail p{margin:5px 0 9px;color:var(--ink-dim)}.hud-mission-detail span{font-size:10px;color:var(--gold)}
+.hud-mission-detail[hidden]{display:none}

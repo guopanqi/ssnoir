@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portrait Theatre 立绘剧场 · mimo-v2.6-flash-free</title>
+<link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <h1>Portrait Theatre<span>立绘剧场</span></h1>
+    <p class="meta">纯色舞台 · 霓虹立绘 · 六段基准剧本 · 模型后缀 mimo-v2.6-flash-free</p>
+  </div>
+  <nav class="scenes" id="scenes" aria-label="片段选择"></nav>
+</header>
+
+<main>
+  <div class="stage-wrap" id="stageWrap">
+    <div class="stage" id="stage" title="点击推进对白"></div>
+    <div class="curtain" id="curtain">
+      <div class="panel left"></div>
+      <div class="panel right"></div>
+      <div class="curtain-card" id="curtainCard"></div>
+    </div>
+  </div>
+
+  <div class="controls" id="controls">
+    <button data-act="toggle">继续 (P)</button>
+    <button data-act="replay">重播 (R)</button>
+    <button data-act="prev">上一拍 (←)</button>
+    <button data-act="next">下一拍 (→)</button>
+    <button data-act="mute">声音：开</button>
+    <span class="progress" id="progress">六段 · 可暂停 · 可重播</span>
+  </div>
+
+  <section class="info" id="info" aria-label="片段说明"></section>
+
+  <footer class="notes">
+    <p><b>看什么：</b>立绘、少量姿势变化和几件道具，能表达多少细节、情绪与人物关系。
+    对白、事件顺序与人物知情程度按基准剧本保留，构图、走位、姿势、灯光与节奏为本实验独立编排。</p>
+    <p><b>怎么用：</b>点击舞台或按空格 / 回车推进，P 暂停，R 重播，← → 换拍，数字键 1–6 直接跳片段。
+    雨声、电铃、开锁、脚步、拍肩与门响全部由 Web Audio 现场合成，没有配音；声音开关在控制条。</p>
+    <p><b>边界：</b>舞台背景为纯色，无背景图与环境布景；地点只靠必要的道具建立。
+    人物立绘取自 <code>角色库</code> 的霓虹姿势图，新增的持伞、按铃、离场、搭肩、指点与工人姿势保存在 <code>art/</code>。</p>
+  </footer>
+</main>
+
+<script>var PT = {};</script>
+<script src="src/cast.js"></script>
+<script src="src/script.js"></script>
+<script src="src/stage.js"></script>
+<script src="src/audio.js"></script>
+<script src="src/player.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "task_id": "02891f00-9182-495a-b609-71443329e3e5",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/night-single-style-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/night-single-style-reference.png",
+    "prompt": "Redraw this SAME Nightingale woman as ONE complete full-body figure centered on perfectly flat bright chroma green #00ee00 background. Preserve exact LEFT-facing pose: one hand raised at collarbone, other hand down holding handbag, crossed relaxed legs, same ankle heels; same long fitted blue-grey coat ending below knees, small tilted hat, handbag. Preserve identity: sculptural forehead wave, voluminous shoulder curls, slender long nose and neck, adult elegant S silhouette. Keep composition and body proportion, complete hat and feet with margins. Only change art style. No objects besides hat and handbag, no words, no ground shadows, no second person. Restrained noir palette, opaque solid filled body, never hollow neon. Use a matte noir charcoal/chalk drawing style with dark ink-blue opaque coat and dark filled hair masses, broad blocked planes. Selective broken silvery chalk curves along cheek neck sleeves and hem, light dry-stroke variation only on existing contours. Fine contour structure, minimal interior line work, no crosshatching or realistic shading. Readable subdued ash grey face and hands. Dark expressive silhouette suitable for sparse architectural line scene."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/tripo-12-night-chalk-dark/02891f00-9182-495a-b609-71443329e3e5/image.png",
+    "bytes": 995015,
+    "sha256": "a1163564fb4d6fee871ab3f4800a294808b3401f8c1eb63a0d70d3978344f235"
+  }
+}

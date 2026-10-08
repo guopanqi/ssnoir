@@ -1,0 +1,21 @@
+/* 720 高的同一设计画布。动作有容器，note 只有文字与引线。 */
+.scene-annotations{position:absolute;inset:0;pointer-events:none;transition:opacity .2s}
+.scene-annotations[hidden]{display:none}.scene-annotations.offscreen{opacity:0;visibility:hidden}
+.scene-leaders{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.scene-leaders path{stroke:rgba(181,190,191,.48);stroke-width:1;fill:none}
+.scene-leaders circle{stroke:#b9c3c3;stroke-width:1;fill:#10171d}
+.scene-actions,.scene-note{position:absolute;left:0;top:0}
+.scene-actions{width:216px;display:flex;flex-direction:column;gap:10px}
+.scene-action{position:relative;padding:13px 15px 12px;background:linear-gradient(120deg,rgba(21,28,34,.94),rgba(10,15,20,.9));border:1px solid rgba(157,175,181,.42);box-shadow:0 8px 22px rgba(0,0,0,.14);pointer-events:auto}
+.scene-action::before{content:'';position:absolute;left:-1px;top:-1px;width:18px;height:2px;background:#c8c9bb}
+.scene-action-kind{font:10px/1.2 Menlo,monospace;letter-spacing:.18em;color:#94a4a9}
+.scene-action h2{margin:6px 0;font:600 22px/1.25 "Songti SC","STSong",serif;letter-spacing:.12em;color:#dfdfd3}
+.scene-action p{margin:0 0 12px;font:13px/1.65 "Songti SC","STSong",serif;color:#a7b4b8}
+.scene-action-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid rgba(149,166,172,.22);font:12px/1.4 "Songti SC",serif;color:#bcc6c5}
+.scene-die-slot{display:flex;align-items:center;gap:8px;border:1px solid rgba(167,184,187,.5);background:transparent;padding:4px 8px 4px 4px;color:#abbabc;font:10px/1.4 "Songti SC",serif}
+.scene-die-slot .slot-cross{width:27px;height:27px;display:grid;place-items:center;border:1px dashed rgba(155,175,181,.5);font:18px/1 Menlo,monospace}
+.scene-die-slot:hover,.scene-die-slot[aria-pressed=true]{color:#e0d5b6;border-color:#cdb98d;background:rgba(205,185,141,.08)}
+.scene-action-secondary h2{font-size:17px}.scene-action-secondary p{margin-bottom:7px;font-size:12px}.scene-action-secondary{padding-top:10px}.scene-action-secondary .scene-action-kind{display:none}
+.scene-note{width:220px;padding:0 0 0 12px;border-left:1px solid rgba(186,197,197,.58);text-shadow:0 1px 5px #05090d,0 0 14px #05090d}
+.scene-note h3{font:600 16px/1.3 "Songti SC","STSong",serif;letter-spacing:.12em;color:#d4d9d1;margin:0 0 7px}
+.scene-note p{font:13px/1.8 "Songti SC","STSong",serif;letter-spacing:.04em;color:#b0bfc0;margin:0}

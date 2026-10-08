@@ -228,12 +228,12 @@ MonoBehaviour:
     HeadlightRange: 6
     HeadlightGain: 0.65
     WakeGain: 0.3
-  NightGlowShader: {fileID: 4800000, guid: ad4c2f8e2a9446e39aa88178a1f62111, type: 3}
-  BakedAreaScale: 0.35
-  FloorHighlight: 0.12
   Focus:
     TransitionSeconds: 0.9
     BloomMultiplier: 0.45
     LocalFogStrength: 0.55
     AmbientMultiplier: 1
     LightMultiplier: 1
+  NightGlowShader: {fileID: 4800000, guid: ad4c2f8e2a9446e39aa88178a1f62111, type: 3}
+  BakedAreaScale: 0.35
+  FloorHighlight: 0.12

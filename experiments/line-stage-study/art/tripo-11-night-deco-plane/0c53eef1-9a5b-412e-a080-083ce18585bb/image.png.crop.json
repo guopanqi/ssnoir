@@ -1,0 +1,26 @@
+{
+  "info": {
+    "format": "raw",
+    "width": 896,
+    "height": 1200,
+    "channels": 4,
+    "depth": "uchar",
+    "premultiplied": false,
+    "size": 4300800
+  },
+  "parts": [
+    {
+      "left": 282,
+      "right": 602,
+      "top": 38,
+      "bottom": 1189,
+      "footCenter": 430
+    }
+  ],
+  "flips": [
+    "--single-night"
+  ],
+  "names": [
+    "night-neutral"
+  ]
+}

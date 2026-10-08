@@ -1,0 +1,20 @@
+{
+  "task_id": "8b52d9eb-71e7-438d-8e3c-bd884f461cd3",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/neil-n2-neon-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/neil-n2-neon-reference.png",
+    "prompt": "Only one full body Neil detective on solid flat chroma green background #00ee00. LEFT is the identity reference: retain his distinctly low rounded FLAT CAP (not fedora), long sharp nose and angular chin side profile, lean neck, long smooth curved shoulder and coat silhouette. RIGHT woman is STYLE reference only, do not output her. Translate LEFT man into the RIGHT woman style: opaque dark charcoal blue-grey body masses, selective restrained fine light blue-grey contours, flowing long simple curves, 2 broad flat shadow planes, no gradients, no realism, no neon glow, no hollow fill. New neutral pose: standing facing RIGHT in three-quarter profile, both arms resting straight down, no cigarette or smoke. Short collared detective coat ending upper thighs as identity reference, dark trousers, leather shoes; adult normal proportions. Extend complete legs and shoes beyond cropped reference. Hat and shoes entirely inside with generous blank margins. No other people, no text, no ground shadow, one single male figure."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/tripo-neil-n2-neon/8b52d9eb-71e7-438d-8e3c-bd884f461cd3/image.png",
+    "bytes": 962912,
+    "sha256": "9acfbf5be6828a0bcdd11ded37f7ad99e282a97393575cabd2f933d58e1301f2"
+  }
+}

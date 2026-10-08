@@ -30,6 +30,7 @@ SSNoir 的独立 Three.js 长期视觉研究工程。只把经过验证的视觉
 | 灯岸 · 城市视角 — by Spark | `/lantern-spark.html` | [LANTERN-STUDY.md](LANTERN-STUDY.md) | `dist-lantern-spark/` |
 | 剪影夜城 · 城市视角 — by GLM | `/skyline-noir-glm.html` | [SKYLINE-NOIR-GLM-STUDY.md](SKYLINE-NOIR-GLM-STUDY.md) | `dist-skyline-noir-glm/` |
 | 逆光 · 城市视角 — by opencode | `/backlight.html` | [BACKLIGHT-STUDY.md](BACKLIGHT-STUDY.md) | `dist-backlight/` |
+| 雾与霓虹 · 城市视角 — 交互 UI | `/fog-neon.html` | [FOG-NEON-STUDY.md](FOG-NEON-STUDY.md) | `dist-fog-neon/` |
 
 黑水、灯岸与逆光**消费外部几何**：各自把 CityBox 构建产物一次性烘焙成
 `public/<实验>/city.{json,bin}` 快照（逆光是自己的一份，见 `tools/export-backlight.py`），

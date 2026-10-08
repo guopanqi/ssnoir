@@ -1,0 +1,17 @@
+{
+  "name": "portrait-theatre-mimo-v2.6-flash-free",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Portrait Theatre 立绘剧场网页实验（模型后缀 mimo-v2.6-flash-free）",
+  "type": "commonjs",
+  "scripts": {
+    "prepare-cast": "node tools/prepare-cast.mjs",
+    "check": "node --check src/script.js && node --check src/stage.js && node --check src/audio.js && node --check src/player.js && node --check src/main.js && node --check src/cast.js && node tools/check-script.mjs",
+    "check-page": "node tools/check-page.mjs",
+    "serve": "python3 -m http.server 8137"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.55.0",
+    "sharp": "^0.33.5"
+  }
+}

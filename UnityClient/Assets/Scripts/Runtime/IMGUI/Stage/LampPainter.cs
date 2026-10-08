@@ -63,7 +63,7 @@ namespace SSNoir.IMGUI.Stage
         }
 
         // 字形等直接编写的灯管骨架，复用人物的通电、电流与光色。
-        public static void PaintSkeleton(Rect rect, PortraitSkeleton skeleton, in LampLook look, float age, float opacity = 1f)
+        public static void PaintSkeleton(Rect rect, PortraitSkeleton skeleton, in LampLook look, float age, float opacity = 1f, Color? coreColor = null, float glowStrength = 1f)
         {
             var uv = new Rect(0f, 0f, 1f, 1f);
             float width = Mathf.Max(1f, rect.height * 0.012f);
@@ -80,15 +80,15 @@ namespace SSNoir.IMGUI.Stage
                     tube.Uv.width * rect.width, tube.Uv.height * rect.height);
                 GUI.color = new Color(0.14f, 0.065f, 0.11f, 0.85f * opacity);
                 GUI.DrawTexture(area, tube.Core);
-                GUI.color = new Color(look.Color.r, look.Color.g, look.Color.b, level * 0.65f * opacity);
+                GUI.color = new Color(look.Color.r, look.Color.g, look.Color.b, Mathf.Clamp01(level * 0.65f * glowStrength) * opacity);
                 GUI.DrawTexture(area, tube.Glow);
-                var core = Color.Lerp(look.Color, Color.white, 0.72f);
+                var core = coreColor ?? Color.Lerp(look.Color, Color.white, 0.72f);
                 core.a = level * opacity;
                 GUI.color = core;
                 GUI.DrawTexture(area, tube.Core);
             }
             if (age > 2f)
-                DrawCurrent(rect, skeleton, uv, look.Current, look.Level * 0.5f * opacity, Color.Lerp(look.Color, Color.white, 0.7f), width);
+                DrawCurrent(rect, skeleton, uv, look.Current, look.Level * 0.5f * opacity, coreColor ?? Color.Lerp(look.Color, Color.white, 0.7f), width);
             GUI.color = Color.white;
         }
 

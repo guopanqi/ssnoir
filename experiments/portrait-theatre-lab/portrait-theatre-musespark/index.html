@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portrait Theatre · musespark — 六幕短戏</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div id="wrap">
+  <header>
+    <h1>Portrait Theatre · musespark 立绘剧场</h1>
+    <p>纯色舞台 · 少量道具 · 六个片段可播/暂停/重播。模型：Muse Spark 1.3 Free。</p>
+  </header>
+  <div id="controls">
+    <button data-act="0">片段一</button>
+    <button data-act="1">片段二</button>
+    <button data-act="2">片段三</button>
+    <button data-act="3">片段四</button>
+    <button data-act="4">片段五</button>
+    <button data-act="5">片段六</button>
+    <span class="sep"></span>
+    <button id="bPlay">暂停</button>
+    <button id="bReplay">重播</button>
+    <button id="bPrev">上拍</button>
+    <button id="bNext">下拍</button>
+    <span class="sep"></span>
+    <button id="bSound">声音：关</button>
+  </div>
+  <div id="actnote"></div>
+  <div id="stage">
+    <div id="floor"></div>
+    <div id="doorlight"></div>
+    <div id="rain"></div>
+    <div id="props">
+      <div class="prop" id="bell"><i></i><b>301</b></div>
+      <div class="prop" id="door"><div class="slit"></div></div>
+      <div class="prop" id="pack"><span>金牌<br>香烟</span></div>
+      <div class="prop" id="things">随身东西 · 帽子 · 雨伞</div>
+      <div class="prop" id="hatum">帽子 · 雨伞（已带好）</div>
+      <div class="prop" id="phone">
+        <svg viewBox="0 0 120 64" width="120" height="64"><rect x="14" y="34" width="92" height="22" rx="4" fill="#0c0c10" stroke="#555" stroke-width="2"/><rect x="30" y="10" width="60" height="16" rx="8" fill="#0c0c10" stroke="#777" stroke-width="2"/><path id="wire" d="M60 56 C 60 90, 20 70, 10 60" stroke="#8a744f" fill="none" stroke-width="2"/></svg>
+      </div>
+      <div class="prop" id="bigdoor"></div>
+    </div>
+    <div id="actors"></div>
+    <div id="spot"></div>
+    <div id="biglight"></div>
+  </div>
+  <div id="caption" title="点击推进">
+    <div id="who"></div>
+    <div id="text"></div>
+    <div id="dir"></div>
+  </div>
+  <div id="progress"><span id="cnt">1/1</span><div id="bar"><i></i></div><span>P 暂停 · R 重播 · 点击舞台推进</span></div>
+  <footer>对白与事件顺序取自基准剧本，未改含义。舞台为纯色+最少道具：门/电铃、烟盒、伞帽、电话、大门。人物为内联 SVG 剪影，姿势仅常态/低头/转开/靠近/缩小。声音为 Web Audio 合成，可开关。</footer>
+</div>
+<script src="./play.js"></script>
+<script src="./stage.js"></script>
+</body>
+</html>

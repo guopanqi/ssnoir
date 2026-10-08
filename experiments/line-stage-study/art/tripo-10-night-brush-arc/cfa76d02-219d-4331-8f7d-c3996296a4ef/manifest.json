@@ -1,0 +1,20 @@
+{
+  "task_id": "cfa76d02-219d-4331-8f7d-c3996296a4ef",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/night-single-style-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/night-single-style-reference.png",
+    "prompt": "Redraw this SAME Nightingale woman as ONE complete full-body figure centered on perfectly flat bright chroma green #00ee00 background. Preserve exact LEFT-facing pose: one hand raised at collarbone, other hand down holding handbag, crossed relaxed legs, same ankle heels; same long fitted blue-grey coat ending below knees, small tilted hat, handbag. Preserve identity: sculptural forehead wave, voluminous shoulder curls, slender long nose and neck, adult elegant S silhouette. Keep composition and body proportion, complete hat and feet with margins. Only change art style. No objects besides hat and handbag, no words, no ground shadows, no second person. Restrained noir palette, opaque solid filled body, never hollow neon. Use elegant expressive ink-brush contours with tapering thick-to-thin swooping strokes. Silhouette defined by just a handful of confident flowing black arcs, broad matte slate fill, one stone grey shadow plane, subtle warm pale face; hair grouped into three bold curly lobes. Simplify coat structure severely. Visibly calligraphic and lyrical, not generic cartoon, not realistic."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/tripo-10-night-brush-arc/cfa76d02-219d-4331-8f7d-c3996296a4ef/image.png",
+    "bytes": 964871,
+    "sha256": "05d99ed2af77e8f73f9fbfc1f0a071166e71df53b6ca69bae8780d78eba0eb1a"
+  }
+}

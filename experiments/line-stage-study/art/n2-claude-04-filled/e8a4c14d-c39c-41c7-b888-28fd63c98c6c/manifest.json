@@ -1,0 +1,20 @@
+{
+  "task_id": "e8a4c14d-c39c-41c7-b888-28fd63c98c6c",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/n2-claude-04/4acb3132-8b5b-4390-a6c7-a2903a2bcb1f/image.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/n2-claude-04/4acb3132-8b5b-4390-a6c7-a2903a2bcb1f/image.png",
+    "prompt": "Keep exact figure, face profile, curls, dress, pose and fine topographic contour lines. Critical repair only: ALL green inside the FACE, NECK, SHOULDERS, BOTH ARMS, HANDS, LEGS and FEET must become solid opaque dark blue-black #0b1320 fill behind the white lines, exactly like the opaque dark dress and hair. The green background OUTSIDE the body silhouette and in the open gap between arm and waist must remain flat green #00ee00. No hollow or see-through body regions. No changes to drawing, curves, wardrobe or proportions, no second figure. Preserve white contour lines on top of the new opaque fill. Full body."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/n2-claude-04-filled/e8a4c14d-c39c-41c7-b888-28fd63c98c6c/image.png",
+    "bytes": 1444338,
+    "sha256": "6b6ff2ac072da5f0a123697ad512fb7273f180d90a7eadced54279b13e95a5f1"
+  }
+}

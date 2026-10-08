@@ -23,7 +23,8 @@
 
 (define (地点-本体 entry) (car entry))
 (define (地点-进得去? entry)
-  (and ((cadr entry)) ((caddr entry)) ((cadddr entry))))
+  (or (and (get-global '演示地点全开) (not (eq? (地点-本体 entry) board)))
+      (and ((cadr entry)) ((caddr entry)) ((cadddr entry)))))
 
 (define (地图)
   (list

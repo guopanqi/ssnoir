@@ -1,0 +1,20 @@
+{
+  "task_id": "8355628c-ad0c-4aaf-a067-a648cc727d37",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/night-single-style-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/night-single-style-reference.png",
+    "prompt": "Redraw this SAME Nightingale woman as ONE complete full-body figure centered on perfectly flat bright chroma green #00ee00 background. Preserve exact LEFT-facing pose: one hand raised at collarbone, other hand down holding handbag, crossed relaxed legs, same ankle heels; same long fitted blue-grey coat ending below knees, small tilted hat, handbag. Preserve identity: sculptural forehead wave, voluminous shoulder curls, slender long nose and neck, adult elegant S silhouette. Keep composition and body proportion, complete hat and feet with margins. Only change art style. No objects besides hat and handbag, no words, no ground shadows, no second person. Restrained noir palette, opaque solid filled body, never hollow neon. Use ultra-reduced flowing-line graphic illustration. Opaque smooth charcoal and muted blue-grey silhouette with only 7 to 12 long graceful ivory curves for hair forehead wave, profile, collar, sleeve and hem. No all-around uniform outline, no short hatch marks. Face has a confident long nose and single eye dash, body only 2 flat tones. Preserve identifiable curls and S figure but strip away every nonessential detail. Quiet restrained minimalist noir."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/tripo-13-night-sparse-curve/8355628c-ad0c-4aaf-a067-a648cc727d37/image.png",
+    "bytes": 954545,
+    "sha256": "a5800862b52c3613ff5a49a1d441e25369d522515dc77cdf1e368359f1a38628"
+  }
+}

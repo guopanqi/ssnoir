@@ -1,0 +1,212 @@
+{
+  "cast": {
+    "n-lean": {
+      "id": "n-lean",
+      "role": "夜莺",
+      "file": "assets/cast/n-lean.png",
+      "w": 347,
+      "h": 720,
+      "src": "角色库/夜莺/形象/姿势/01-逼近.png"
+    },
+    "n-fist": {
+      "id": "n-fist",
+      "role": "夜莺",
+      "file": "assets/cast/n-fist.png",
+      "w": 597,
+      "h": 720,
+      "src": "角色库/夜莺/形象/姿势/01-逼近-v2-握拳.png"
+    },
+    "n-back": {
+      "id": "n-back",
+      "role": "夜莺",
+      "file": "assets/cast/n-back.png",
+      "w": 281,
+      "h": 720,
+      "src": "角色库/夜莺/形象/姿势/02-背身.png"
+    },
+    "n-bow": {
+      "id": "n-bow",
+      "role": "夜莺",
+      "file": "assets/cast/n-bow.png",
+      "w": 282,
+      "h": 720,
+      "src": "角色库/夜莺/形象/姿势/03-低头.png"
+    },
+    "n-chin": {
+      "id": "n-chin",
+      "role": "夜莺",
+      "file": "assets/cast/n-chin.png",
+      "w": 383,
+      "h": 720,
+      "src": "角色库/夜莺/形象/姿势/04-仰头.png"
+    },
+    "n-plead": {
+      "id": "n-plead",
+      "role": "夜莺",
+      "file": "assets/cast/n-plead.png",
+      "w": 292,
+      "h": 720,
+      "src": "角色库/夜莺/形象/姿势/05-恳求.png"
+    },
+    "n-arms": {
+      "id": "n-arms",
+      "role": "夜莺",
+      "file": "assets/cast/n-arms.png",
+      "w": 280,
+      "h": 720,
+      "src": "角色库/夜莺/形象/姿势/06-抱臂.png"
+    },
+    "n-cover": {
+      "id": "n-cover",
+      "role": "夜莺",
+      "file": "assets/cast/n-cover.png",
+      "w": 281,
+      "h": 720,
+      "src": "角色库/夜莺/形象/姿势/07-掩面.png"
+    },
+    "n-glance": {
+      "id": "n-glance",
+      "role": "夜莺",
+      "file": "assets/cast/n-glance.png",
+      "w": 308,
+      "h": 720,
+      "src": "角色库/夜莺/形象/姿势/08-回眸.png"
+    },
+    "n-sit": {
+      "id": "n-sit",
+      "role": "夜莺",
+      "file": "assets/cast/n-sit.png",
+      "w": 356,
+      "h": 720,
+      "src": "角色库/夜莺/形象/姿势/09-坐.png"
+    },
+    "n-umbrella": {
+      "id": "n-umbrella",
+      "role": "夜莺",
+      "file": "assets/cast/n-umbrella.png",
+      "w": 348,
+      "h": 720,
+      "src": "art/gen/nightingale-umbrella.png"
+    },
+    "n-ring": {
+      "id": "n-ring",
+      "role": "夜莺",
+      "file": "assets/cast/n-ring.png",
+      "w": 353,
+      "h": 720,
+      "src": "art/gen/nightingale-ring.png"
+    },
+    "n-leave": {
+      "id": "n-leave",
+      "role": "夜莺",
+      "file": "assets/cast/n-leave.png",
+      "w": 300,
+      "h": 720,
+      "src": "art/gen/nightingale-leaving.png"
+    },
+    "e-accuse": {
+      "id": "e-accuse",
+      "role": "尼尔",
+      "file": "assets/cast/e-accuse.png",
+      "w": 426,
+      "h": 720,
+      "src": "角色库/尼尔/形象/姿势/01-逼近.png"
+    },
+    "e-stand": {
+      "id": "e-stand",
+      "role": "尼尔",
+      "file": "assets/cast/e-stand.png",
+      "w": 274,
+      "h": 720,
+      "src": "角色库/尼尔/形象/姿势/02-侧身退.png"
+    },
+    "e-light": {
+      "id": "e-light",
+      "role": "尼尔",
+      "file": "assets/cast/e-light.png",
+      "w": 295,
+      "h": 720,
+      "src": "角色库/尼尔/形象/姿势/03-低头点烟.png"
+    },
+    "e-hatoff": {
+      "id": "e-hatoff",
+      "role": "尼尔",
+      "file": "assets/cast/e-hatoff.png",
+      "w": 303,
+      "h": 720,
+      "src": "角色库/尼尔/形象/姿势/04-摘帽.png"
+    },
+    "e-arms": {
+      "id": "e-arms",
+      "role": "尼尔",
+      "file": "assets/cast/e-arms.png",
+      "w": 253,
+      "h": 720,
+      "src": "角色库/尼尔/形象/姿势/05-抱臂.png"
+    },
+    "e-back": {
+      "id": "e-back",
+      "role": "尼尔",
+      "file": "assets/cast/e-back.png",
+      "w": 287,
+      "h": 720,
+      "src": "角色库/尼尔/形象/姿势/06-背身.png"
+    },
+    "e-reach": {
+      "id": "e-reach",
+      "role": "尼尔",
+      "file": "assets/cast/e-reach.png",
+      "w": 402,
+      "h": 720,
+      "src": "角色库/尼尔/形象/姿势/07-伸手.png"
+    },
+    "e-fist": {
+      "id": "e-fist",
+      "role": "尼尔",
+      "file": "assets/cast/e-fist.png",
+      "w": 311,
+      "h": 720,
+      "src": "角色库/尼尔/形象/姿势/08-攥拳.png"
+    },
+    "e-listen": {
+      "id": "e-listen",
+      "role": "尼尔",
+      "file": "assets/cast/e-listen.png",
+      "w": 341,
+      "h": 720,
+      "src": "角色库/尼尔/形象/姿势/09-靠墙.png"
+    },
+    "m-stand": {
+      "id": "m-stand",
+      "role": "经理",
+      "file": "assets/cast/m-stand.png",
+      "w": 432,
+      "h": 720,
+      "src": "角色库/经理/形象/经理_neon.png"
+    },
+    "m-shoulder": {
+      "id": "m-shoulder",
+      "role": "经理",
+      "file": "assets/cast/m-shoulder.png",
+      "w": 529,
+      "h": 720,
+      "src": "art/gen/manager-shoulder.png"
+    },
+    "m-point": {
+      "id": "m-point",
+      "role": "经理",
+      "file": "assets/cast/m-point.png",
+      "w": 524,
+      "h": 720,
+      "src": "art/gen/manager-point.png"
+    },
+    "w-kneel": {
+      "id": "w-kneel",
+      "role": "工人",
+      "file": "assets/cast/w-kneel.png",
+      "w": 664,
+      "h": 720,
+      "src": "art/gen/worker-kneel.png"
+    }
+  }
+}

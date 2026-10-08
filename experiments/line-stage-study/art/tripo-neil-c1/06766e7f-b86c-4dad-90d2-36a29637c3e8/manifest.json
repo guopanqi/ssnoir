@@ -1,0 +1,20 @@
+{
+  "task_id": "06766e7f-b86c-4dad-90d2-36a29637c3e8",
+  "status": "success",
+  "source": "experiments/line-stage-study/art/neil-c1-reference.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "3:4",
+    "output_format": "png",
+    "input": "experiments/line-stage-study/art/neil-c1-reference.png",
+    "prompt": "Output only ONE full body male Neil detective, the MAN on the LEFT. Remove the woman; use her as DRAWING STYLE reference only. Preserve male pose exactly: arms relaxed down, three-quarter view facing RIGHT, mature lean adult, fedora dark band, long trenchcoat, shirt and dark tie, trousers shoes. Match the RIGHT illustration: simple flowing long curved outlines, sparse confident facial profile nose and jaw, black outer contours with selective warm pale edge, opaque slate-grey coat flat fill with just two broad shadow planes, restrained pale skin. No realistic rendering, no texture, no complex folds, no gradients, no neon glow. Keep recognizably male angular long nose chin and fedora rather than feminine curls. Whole hat and shoes visible with generous margins, one centered figure, perfectly uniform bright green #00ee00 background, no shadows, no lettering, no second person."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/tripo-neil-c1/06766e7f-b86c-4dad-90d2-36a29637c3e8/image.png",
+    "bytes": 973070,
+    "sha256": "69855815665f28b0d14face57de3bdb0000d185b86e1dc1c4bdf156c39ee797c"
+  }
+}

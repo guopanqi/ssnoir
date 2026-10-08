@@ -25,6 +25,7 @@ namespace SSNoir.IMGUI
         HelpPanel,
         Tutorial,
         DebugPanel,
+        DemoPanel,
         GrowthPanel,
         Spotlight,
         Conversation,
