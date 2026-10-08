@@ -1,7 +1,7 @@
 // Timing and dialogue transcribed from Claude's lamp.run, including its waits.
 const say=(label,speaker,text,acting={})=>({label,speaker,text,acting,duration:450+text.length*105});
 const wait=(label,duration,acting={},flicker=false)=>({label,speaker:'',text:'',acting,duration,flicker});
-export const story=[
+const lampStory=[
  wait('灯还没有亮',600,{neilX:-9,nightX:109,lamp:0}),
  wait('灯管骤闪',660,{lamp:1},true),
  wait('灯光稳定',900,{lamp:1}),
@@ -35,18 +35,49 @@ export const story=[
  wait('只剩下灯光',2200,{lamp:1}),
  wait('灯渐暗',1000,{lamp:.6})
 ];
-export const starts=story.map((_,i)=>story.slice(0,i).reduce((n,c)=>n+c.duration,0));
-export function actingAt(index){const state={neilX:-9,nightX:109,neilPose:'neutral',nightPose:'neutral',nightFacing:'left',lamp:1,quiet:false,halo:.4,moveMs:0};for(let i=0;i<=index;i++)Object.assign(state,story[i].acting);return state}
+export let story=lampStory;
+export let starts=story.map((_,i)=>story.slice(0,i).reduce((n,c)=>n+c.duration,0));
+export function actingAt(index){const state={neilX:-9,nightX:109,neilPose:'neutral',nightPose:'neutral',nightFacing:'left',lamp:1,quiet:false,halo:.4,moveMs:0,neilVisible:true,rain:0,door:0};for(let i=0;i<=index;i++)Object.assign(state,story[i].acting);return state}
 export function performanceAt(index,elapsed){
  const state=actingAt(index),position=starts[index]+elapsed;
  for(const actor of ['neil','night']){let from=actor==='neil'?-9:109,to=from,start=0,duration=0;
   for(let i=0;i<=index;i++)if(actor+'X' in story[i].acting){const a=story[i].acting;const fraction=duration?Math.min(1,(starts[i]-start)/duration):1;from=from+(to-from)*fraction;to=a[actor+'X'];start=starts[i];duration=a[actor+'Move']??0}
   const t=duration?Math.max(0,Math.min(1,(position-start)/duration)):1;state[actor+'X']=from+(to-from)*t;state[actor+'Walking']=duration>0&&t<1;
  }
+ let fade=-1;for(let i=0;i<=index;i++)if(story[i].acting.nightFade)fade=i;state.nightOpacity=fade<0?1:Math.max(0,1-(position-starts[fade])/story[fade].acting.nightFade);
  if(story[index].flicker)state.lamp=[.15,1,.3,.9,.5,1][Math.min(5,Math.floor(elapsed/110))];
  return state;
 }
-export const soundEvents=story.flatMap((cue,i)=>[
+export let soundEvents=story.flatMap((cue,i)=>[
  ...(cue.flicker?Array.from({length:6},(_,j)=>({time:starts[i]+j*110,type:'zap'})):[]),
  ...['neil','night'].flatMap(actor=>cue.acting[actor+'Move']>=1400?Array.from({length:Math.ceil(cue.acting[actor+'Move']/430)},(_,j)=>({time:starts[i]+j*430,type:'step'})):[])
 ]).sort((a,b)=>a.time-b.time);
+
+const rainStory=[
+ wait('门前雨声',1500,{neilX:-20,nightX:-15,neilVisible:false,rain:1,lamp:1,door:0}),
+ wait('夜莺走到对讲机前',3600,{nightX:58,nightMove:3400}),
+ wait('她伸手按铃',900),
+ {...wait('门铃响起',1300),sound:'bell'},
+ wait('等候回应',700),
+ say('夜莺试探着开口','夜莺','尼尔先生？'),
+ wait('对讲机的停顿',400),
+ say('室内传来回答','尼尔','是，你是？'),
+ say('说明来意','夜莺','我听朋友说起过你，我遇到了一些麻烦，我想请你帮忙。'),
+ say('尼尔犹豫','尼尔','现在很晚了，而且……'),
+ say('请求几分钟','夜莺','就几分钟，先生，而且这事有点急，我怕明天就太晚了。'),
+ wait('雨声填满沉默',3000,{quiet:true,rain:1.45}),
+ say('最后一次请求','夜莺','可以吗？',{quiet:false,rain:1}),
+ wait('等待门锁',900),
+ {...wait('门锁蜂鸣',900),sound:'buzz'},
+ wait('门内暖光亮起',1400,{door:1}),
+ wait('她转向门口',700,{nightFacing:'right'}),
+ wait('夜莺走进门内',2800,{nightX:50,nightMove:2600,nightFade:2600}),
+ wait('门重新合上',1600,{door:0}),
+ wait('雨夜归于安静',800,{rain:.3})
+];
+export const stories={lamp:{title:'路灯下，未说出的名字',scene:'lamp',cues:lampStory},rain:{title:'雨夜求助',scene:'hotel',cues:rainStory}};
+export function selectStory(id){
+ const selected=stories[id];if(!selected)throw Error('Unknown story: '+id);
+ story=selected.cues;starts=story.map((_,i)=>story.slice(0,i).reduce((n,c)=>n+c.duration,0));
+ soundEvents=story.flatMap((c,i)=>[...(c.sound?[{time:starts[i],type:c.sound}]:[]),...(c.flicker?Array.from({length:6},(_,j)=>({time:starts[i]+j*110,type:'zap'})):[]),...['neil','night'].flatMap(a=>c.acting[a+'Move']>=1400?Array.from({length:Math.ceil(c.acting[a+'Move']/430)},(_,j)=>({time:starts[i]+j*430,type:'step'})):[])]).sort((a,b)=>a.time-b.time);
+}

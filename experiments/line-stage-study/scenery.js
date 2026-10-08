@@ -3,7 +3,13 @@ const path=(d,stroke='#8397ad',w=1.5,extra='')=>`<path d="${d}" fill="none" stro
 const defs=`<defs><linearGradient id="cone" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#edcb8b" stop-opacity=".13"/><stop offset="1" stop-color="#edcb8b" stop-opacity=".015"/></linearGradient><radialGradient id="pool"><stop stop-color="#d0b680" stop-opacity=".12"/><stop offset="1" stop-color="#d0b680" stop-opacity="0"/></radialGradient><filter id="halo"><feGaussianBlur stdDeviation="8"/></filter><linearGradient id="edge"><stop stop-color="#8094b1" stop-opacity="0"/><stop offset=".22" stop-color="#8094b1" stop-opacity=".7"/><stop offset=".78" stop-color="#8094b1" stop-opacity=".7"/><stop offset="1" stop-color="#8094b1" stop-opacity="0"/></linearGradient></defs>`;
 export function scenery(scene){
  let architecture='',light='';
- if(scene==='warehouse'){
+ if(scene==='hotel'){
+  architecture=path('M0 739H1600 M300 739V400H1300V739 M340 400V150H1260V400 M580 150V100H1020V150 M700 100V70H900V100 M280 400H1320','#7188af',2);
+  for(let r=0;r<3;r++)for(let c=0;c<8;c++)architecture+=path(`M${380+c*108} ${175+r*70}h54v52h-54Z`,'#61799f');
+  architecture+=path('M670 739V420H930V739 M735 739V445H865V739 M900 505h44v92h-44Z M908 520H936 M908 528H936','#b6c3d5',2);
+  architecture+='<text x="800" y="137" text-anchor="middle" fill="#b8a276" font-size="26" letter-spacing="8">GRAND HOTEL</text>';
+  light='<g class="hotel-door-light"><rect x="735" y="445" width="130" height="294" fill="#eac67d" opacity=".45"/><path d="M735 739L570 880H1040L865 739Z" fill="#d9b977" opacity=".15"/></g>';
+ }else if(scene==='warehouse'){
   architecture+=path('M155 737V186L565 96L1345 195V738','#70849c',2)+path('M155 186L915 277L1345 195 M915 277V737','#a4b4c7',2);
   architecture+=`<g transform="translate(0 -115)">${path('M116 335L915 410L1400 327 M116 335L127 362L915 438L1400 354L1400 327 M915 410V438','#c1c9ca',2.2)}</g>`;
   architecture+=path('M179 250V737 M1330 250V737','#7a8fa3',3);

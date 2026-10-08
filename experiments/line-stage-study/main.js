@@ -1,13 +1,14 @@
-import {scenery} from './scenery.js';
-import {story,performanceAt,starts} from './story.js';
+import {scenery} from './scenery.js?v=rain-story-1';
+import {story,performanceAt,starts,stories,selectStory} from './story.js?v=rain-story-1';
 import {castStyles,sprite} from './cast.js?v=no-mic-1';
 import {StoryPlayer} from './player.js';
-import {StageSound} from './sound.js';
+import {StageSound} from './sound.js?v=rain-story-1';
 import {defaultInk,flatTreatments,mountInkEditor,applyInk} from './editor.js?v=flat-study-1';
 const $=s=>document.querySelector(s);
 const state={scene:'lamp',bg:'absent',person:'raw',style:'originalNeon',acting:'neutral',blur:28,opacity:24,lines:65,comparison:null,speed:1,ink:{...defaultInk},mask:true,reaction:true};
 const modes={absent:{blur:28,opacity:0,title:'完全退场'},fog:{blur:28,opacity:24,title:'重度失焦'},trace:{blur:5,opacity:30,title:'3D 轮廓残影'}};
 const flatOptions=['neonEdge','curlCoat'].flatMap(style=>flatTreatments.map(t=>({id:style+'-'+t.id,style,treatment:t,title:(style==='neonEdge'?'N2':'C1')+' · '+t.name})));
+selectStory('rain');state.scene='hotel';
 const sound=new StageSound();
 let svgSequence=0,currentFrame={index:0,position:0,total:0,playing:false},lastCue=-1,lastPlaying=false,pausedMotion=[];
 function syncStage(stage,bg=state.bg,style=state.style,preset=false){
@@ -17,7 +18,7 @@ function syncStage(stage,bg=state.bg,style=state.style,preset=false){
  stage.style.setProperty('--blur',`${mode.blur/16}cqw`);stage.style.setProperty('--world',mode.opacity/100);stage.style.setProperty('--line-alpha',state.lines/100);stage.style.setProperty('--lamp',acting.lamp);stage.style.setProperty('--move-ms',`${acting.moveMs/state.speed}ms`);
  const key=`${state.scene}`;
  if(stage.dataset.scenery!==key){const prefix=stage.dataset.svgPrefix??`s${++svgSequence}`;stage.dataset.svgPrefix=prefix;stage.dataset.scenery=key;stage.querySelector('.set').innerHTML=scenery(state.scene).replace(/id="([^"]+)"/g,(_,id)=>`id="${prefix}-${id}"`).replace(/url\(#([^)]*)\)/g,(_,id)=>`url(#${prefix}-${id})`)}
- stage.querySelector('.scene-label').textContent=(state.scene==='warehouse'?'码头 · 仓库檐下':'老街之外 · 路灯下')+' / '+cue.label;
+ stage.querySelector('.scene-label').textContent=(state.scene==='hotel'?'格兰德酒店门前':state.scene==='warehouse'?'码头 · 仓库檐下':'老街之外 · 路灯下')+' / '+cue.label;
  for(const actor of ['neil','night']){
   const el=stage.querySelector('.'+actor),pose=state.acting==='neutral'?'neutral':acting[actor+'Pose'],url=sprite(actor==='neil'&&!castStyles.find(s=>s.id===style).both?'curlCoat':style,actor,pose);
   if(!el.querySelector('img').getAttribute('src')||el.querySelector('img').getAttribute('src')!==url)el.querySelector('img').src=url;
@@ -45,12 +46,14 @@ function render(){
   if(grid.dataset.mode!==state.comparison){grid.replaceChildren();grid.dataset.mode=state.comparison;const options=state.comparison==='flat'?flatOptions:state.comparison==='cast'?[...castStyles.map(s=>({id:s.id,title:s.name})),{id:'curlCoatEdge',title:'C1 · 后处理对照'}]:Object.entries(modes).map(([id,m])=>({id,title:m.title}));for(const option of options){const card=document.createElement('article');card.dataset.option=option.id;const title=document.createElement('h3');title.textContent=option.title;const clone=$('#stage').cloneNode(true);clone.removeAttribute('id');delete clone.dataset.svgPrefix;delete clone.dataset.scenery;clone.classList.add('comparison-stage');card.append(title,clone);grid.append(card)}}
   for(const card of grid.children)syncStage(card.querySelector('.stage'),state.comparison==='bg'?card.dataset.option:state.bg,state.comparison==='flat'?flatOptions.find(o=>o.id===card.dataset.option).style:state.comparison==='cast'?(card.dataset.option==='curlCoatEdge'?'curlCoat':card.dataset.option):state.style,state.comparison==='bg');
  }
+ $('header h1').textContent=stories[$('#story-select').value].title;
  syncPerformance();
 }
 function time(ms){const seconds=Math.floor(ms/1000);return `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`}
 function onFrame(frame){if(frame.playing!==lastPlaying){if(frame.playing){pausedMotion.forEach(a=>a.play());pausedMotion=[]}else{pausedMotion=[...document.querySelectorAll('.actor,.neil-shadow,.night-shadow')].flatMap(el=>el.getAnimations()).filter(a=>a.playState==='running');pausedMotion.forEach(a=>a.pause())}lastPlaying=frame.playing}currentFrame=frame;$('#play').textContent=frame.playing?'暂停演出':frame.position>=frame.total&&frame.total?'故事结束 · 再播放':'播放完整故事';$('#progress').value=frame.total?frame.position/frame.total*100:0;$('#time').textContent=`${time(frame.position)} / ${time(frame.total)}`;$('#cue-label').textContent=`${frame.index+1}/${story.length} · ${story[frame.index].label}`;if(frame.index!==lastCue){lastCue=frame.index;render()}syncPerformance();sound.sync(frame)}
 for(const style of castStyles){const button=document.createElement('button');button.dataset.style=style.id;const thumb=document.createElement('img');thumb.className='cast-thumb';thumb.src=sprite(style.id,'night','neutral');thumb.alt='';const name=document.createElement('span');name.textContent=style.name;button.append(thumb,name);$('#cast-options').append(button)}
 const player=new StoryPlayer(story,onFrame);
+$('#story-select').addEventListener('change',e=>{selectStory(e.target.value);state.scene=stories[e.target.value].scene;player.playing=false;player.story=story;lastCue=-1;sound.seek(0);player.seek(0);render()});
 for(const key of ['scene','bg','person','style','acting'])document.querySelectorAll(`button[data-${key}]`).forEach(button=>button.addEventListener('click',()=>{state[key]=button.dataset[key];if(key==='bg'){state.blur=modes[state.bg].blur;state.opacity=modes[state.bg].opacity}render()}));
 for(const key of ['blur','opacity','lines'])$('#'+key).addEventListener('input',e=>{state[key]=Number(e.target.value);render()});
 $('#play').addEventListener('click',()=>{sound.unlock(player.position);player.toggle()});$('#restart').addEventListener('click',()=>{sound.unlock(0);player.restart()});$('#prev').addEventListener('click',()=>{sound.seek(starts[Math.max(0,player.index-1)]);player.step(-1)});$('#next').addEventListener('click',()=>{sound.seek(starts[Math.min(story.length-1,player.index+1)]);player.step(1)});$('#speed').addEventListener('change',e=>{state.speed=player.speed=Number(e.target.value);render()});$('#progress').addEventListener('input',e=>{const position=Number(e.target.value)/100*player.total;sound.seek(position);player.seek(position)});
@@ -64,6 +67,8 @@ render();
 function syncPerformance(){
  const cue=story[currentFrame.index],elapsed=currentFrame.elapsed??0,a=performanceAt(currentFrame.index,elapsed);
  for(const stage of document.querySelectorAll('.stage')){
+  stage.style.setProperty('--door',a.door);renderRain(stage,currentFrame.position,a.rain);
+  stage.querySelector('.neil').style.opacity=a.neilVisible?1:0;stage.querySelector('.neil-shadow').style.opacity=a.neilVisible?1:0;stage.querySelector('.night').style.opacity=a.nightOpacity;
   stage.style.setProperty('--lamp',a.lamp);stage.style.setProperty('--halo',a.halo);stage.style.setProperty('--react',state.reaction&&a.quiet?.38:1);stage.dataset.mask=String(state.mask);
   stage.style.setProperty('--focus',`${50+((cue.speaker==='尼尔'?a.neilX:cue.speaker==='夜莺'?a.nightX:50)-50)*.5}%`);
   stage.style.setProperty('--grain-x',`${Math.floor(currentFrame.position/125)%4*.6}%`);
@@ -80,3 +85,10 @@ $('#style-treatment').addEventListener('click',()=>inkEditor.set({...defaultInk,
 syncPerformance();
 
 function inkFor(stage){const option=stage.closest('article')?.dataset.option;if(state.comparison==='flat'&&option)return flatOptions.find(o=>o.id===option).treatment.value;if(state.comparison==='cast'&&option)return option==='curlCoatEdge'?{...defaultInk,enabled:true,target:'night',detail:100,width:1.5}:defaultInk;return state.ink}
+
+function renderRain(stage,time,intensity){
+ let svg=stage.querySelector('.rain-lines');if(!svg){svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('rain-lines');svg.setAttribute('viewBox','0 0 1600 900');svg.setAttribute('aria-hidden','true');stage.append(svg)}
+ svg.style.opacity=String(intensity?1:0);if(!intensity)return;
+ let lines='';for(let i=0;i<Math.floor(180*Math.min(1,intensity));i++){const y=((i*137+time*.35)%940)-20,x=((i*293-time*.025)%1640+1640)%1640;lines+=`M${x} ${y}l-4 ${18+i%13}`}
+ svg.innerHTML=`<path d="${lines}" fill="none" stroke="#96b9eb" stroke-opacity=".35" stroke-width="1"/>`;
+}
