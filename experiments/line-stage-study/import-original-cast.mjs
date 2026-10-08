@@ -2,7 +2,7 @@ import sharp from '../portrait-stage-lab/node_modules/sharp/lib/index.js';
 import fs from 'node:fs/promises';
 for(const [actor,name] of [['neil','尼尔'],['night','夜莺']]){
  const folder='experiments/line-stage-study/assets/original-neon';await fs.mkdir(folder,{recursive:true});
- const source=`UnityClient/Assets/Resources/Portraits/Neon/${name}.png`;
+ const source=actor==='night'?'experiments/line-stage-study/art/night-neon-no-microphone/35b508da-500c-407c-a53f-8120aa5ad885/image.png':`UnityClient/Assets/Resources/Portraits/Neon/${name}.png`;
  const {data,info}=await sharp(source).ensureAlpha().raw().toBuffer({resolveWithObject:true});
  let left=info.width,right=0,top=info.height,bottom=0;
  for(let y=0;y<info.height;y++)for(let x=0;x<info.width;x++){

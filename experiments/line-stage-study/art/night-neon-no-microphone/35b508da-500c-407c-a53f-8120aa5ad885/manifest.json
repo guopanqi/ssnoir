@@ -1,0 +1,20 @@
+{
+  "task_id": "35b508da-500c-407c-a53f-8120aa5ad885",
+  "status": "success",
+  "source": "UnityClient/Assets/Resources/Portraits/Neon/夜莺.png",
+  "request": {
+    "model": "banana2",
+    "size": "0.5K",
+    "aspect_ratio": "1:1",
+    "output_format": "png",
+    "input": "UnityClient/Assets/Resources/Portraits/Neon/夜莺.png",
+    "prompt": "Remove ONLY the microphone and its entire vertical stand on the right, replace their pixels with pure black background. Preserve Nightingale exactly: identical face, hair, pose, dress, proportions, white and blue neon tubes, original framing and cropped lower legs. Do not redraw the woman, do not add objects or change colors. Pure black background."
+  },
+  "progress": 100,
+  "credits_consumed": 10.0,
+  "image": {
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/line-stage-study/art/night-neon-no-microphone/35b508da-500c-407c-a53f-8120aa5ad885/image.png",
+    "bytes": 969463,
+    "sha256": "42ad47c0221951d56c96e4d42a6635bafa7828964c48dafa955f8586e14ed44e"
+  }
+}
