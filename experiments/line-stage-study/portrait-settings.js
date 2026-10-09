@@ -1,11 +1,11 @@
-export const defaultInk={silhouette:false,silhouetteTarget:'night',silhouetteColor:'#070b12',silhouetteOpacity:100,silhouetteSoftness:.6,enabled:false,brightness:100,target:'night',fill:'#32424d',detail:100,line:'#d3d7cd',width:0,lineOpacity:0,internal:0,threshold:55,glow:0,side:'all',fade:0,grain:0,shift:0,levels:0,pattern:'none',patternOpacity:25,accent:0,accentColor:'#d1ac6b'};
+export const defaultInk={silhouette:false,silhouetteTarget:'night',silhouetteColor:'#070b12',silhouetteOpacity:100,silhouetteSoftness:.6,brightnessEnabled:false,colorEnabled:false,edgesEnabled:false,textureEnabled:false,brightness:100,target:'night',fill:'#32424d',detail:100,paletteLight:'#d3d7cd',patternColor:'#d3d7cd',line:'#d3d7cd',width:0,lineOpacity:0,internal:0,threshold:55,glow:0,side:'all',fade:0,grain:0,shift:0,levels:0,pattern:'none',patternOpacity:25,accent:0,accentColor:'#d1ac6b'};
 export const flatTreatments=[
  {id:'raw',name:'原图',value:{...defaultInk}},
- {id:'palette',name:'限色＋三档色阶',value:{...defaultInk,enabled:true,detail:100,fill:'#17232e',line:'#b9beb1',levels:3,width:0,lineOpacity:0}},
- {id:'edge',name:'限色＋三档色阶＋细描边',value:{...defaultInk,enabled:true,detail:100,fill:'#17232e',line:'#b9beb1',levels:3,width:1.2,lineOpacity:65}}
+ {id:'palette',name:'限色＋三档色阶',value:{...defaultInk,detail:100,fill:'#17232e',paletteLight:'#b9beb1',levels:3,width:0,lineOpacity:0}},
+ {id:'edge',name:'限色＋三档色阶＋细描边',value:{...defaultInk,detail:100,fill:'#17232e',line:'#b9beb1',levels:3,width:1.2,lineOpacity:65}}
 ];
 export const inkPresets=[
- {name:'只提亮原图',value:{...defaultInk,enabled:true,brightness:140}},
+ {name:'只提亮原图',value:{...defaultInk,brightness:140}},
  ...flatTreatments.slice(1),
  {name:'原画',value:{...defaultInk}},
  {name:'暗填充与亮区提取',value:{fill:'#04060c',detail:0,line:'#cfe0ff',internal:90,width:1,lineOpacity:85}},
@@ -22,3 +22,22 @@ export const inkPresets=[
 ];
 
 export const silhouetteKeys=['silhouette','silhouetteTarget','silhouetteColor','silhouetteOpacity','silhouetteSoftness'];
+
+export const adjustmentModules={
+ brightness:{flag:'brightnessEnabled',keys:['brightness']},
+ color:{flag:'colorEnabled',keys:['fill','detail','paletteLight','levels','accent','accentColor']},
+ edges:{flag:'edgesEnabled',keys:['line','width','lineOpacity','internal','threshold','glow','side','shift']},
+ texture:{flag:'textureEnabled',keys:['patternColor','pattern','patternOpacity','grain','fade']}
+};
+// A preset explicitly enables only the modules it uses; raw presets enable none.
+for(const preset of [...flatTreatments,...inkPresets]){
+ const v=preset.value;
+ if(v.levels>=2&&v.paletteLight===defaultInk.paletteLight)v.paletteLight=v.line;
+ if(v.pattern&&v.pattern!=='none')v.patternColor=v.line||defaultInk.patternColor;
+ for(const {flag,keys} of Object.values(adjustmentModules))v[flag]=keys.some(k=>k in v&&v[k]!==defaultInk[k]);
+}
+export function effectiveAdjustments(settings){
+ const s={...defaultInk,...settings};
+ for(const {flag,keys} of Object.values(adjustmentModules))if(!s[flag])for(const k of keys)s[k]=defaultInk[k];
+ return s;
+}

@@ -4,7 +4,7 @@ import {castStyles,sprite} from './cast.js?v=no-mic-1';
 import {StoryPlayer} from './player.js';
 import {StageSound} from './sound.js?v=rain-story-1';
 import {defaultInk,flatTreatments} from './portrait-settings.js';
-import {mountInkEditor} from './editor.js?v=organized-1';
+import {mountInkEditor} from './editor.js?v=modules-2';
 import {applyInk} from './portrait-renderer.js';
 const $=s=>document.querySelector(s);
 const state={scene:'lamp',bg:'absent',person:'raw',style:'originalNeon',acting:'neutral',blur:28,opacity:24,lines:65,comparison:null,speed:1,ink:{...defaultInk},mask:true,reaction:true};
@@ -83,10 +83,10 @@ function syncPerformance(){
 }
 $('#sound').addEventListener('click',()=>{$('#sound').textContent=sound.toggle()?'声音 开':'声音 关';sound.unlock(player.position)});
 for(const [id,key] of [['mask','mask'],['reaction','reaction']])$('#'+id).addEventListener('click',()=>{state[key]=!state[key];$('#'+id).textContent=(key==='mask'?'光孔遮罩 ':'背景反应 ')+(state[key]?'开':'关');syncPerformance()});
-$('#style-treatment').addEventListener('click',()=>inkEditor.set({...defaultInk,enabled:state.style==='curlCoat',target:'night',detail:100,width:1.5}));
+$('#style-treatment').addEventListener('click',()=>inkEditor.set({...defaultInk,edgesEnabled:state.style==='curlCoat',target:'night',detail:100,width:1.5}));
 syncPerformance();
 
-function inkFor(stage){const option=stage.closest('article')?.dataset.option;if(state.comparison==='flat'&&option)return flatOptions.find(o=>o.id===option).treatment.value;if(state.comparison==='cast'&&option)return option==='curlCoatEdge'?{...defaultInk,enabled:true,target:'night',detail:100,width:1.5}:defaultInk;return state.ink}
+function inkFor(stage){const option=stage.closest('article')?.dataset.option;if(state.comparison==='flat'&&option)return flatOptions.find(o=>o.id===option).treatment.value;if(state.comparison==='cast'&&option)return option==='curlCoatEdge'?{...defaultInk,edgesEnabled:true,target:'night',detail:100,width:1.5}:defaultInk;return state.ink}
 
 function renderRain(stage,time,intensity){
  let svg=stage.querySelector('.rain-lines');if(!svg){svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('rain-lines');svg.setAttribute('viewBox','0 0 1600 900');svg.setAttribute('aria-hidden','true');stage.append(svg)}
