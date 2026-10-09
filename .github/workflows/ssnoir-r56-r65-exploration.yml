@@ -1,0 +1,35 @@
+name: SSNoir Ten Autonomous Mechanism Rounds
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r56-r65-exploration.yml'
+      - 'tools/content-validator/experiments/r56_r65_autonomous_search.py'
+permissions:
+  contents: read
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ten exact math rounds and strong counterexamples
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r56_r65_autonomous_search.py /tmp/r56-r65.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/r56-r65.json',encoding='utf8'))
+          assert len(j["results"])==10
+          assert [row["id"] for row in j["results"]]==[f"R{i}" for i in range(56,66)]
+          assert all(row["free"]>=row["strong"]-0.000002 for row in j["results"])
+          for r in j["results"]:print(r["id"],r["name"],"gain",r["gain"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-r56-r65-exact-records
+          path: /tmp/r56-r65.json
