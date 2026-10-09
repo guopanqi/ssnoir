@@ -1,0 +1,36 @@
+name: SSNoir R54 Capacity Ablation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/ssnoir-r54-capacity.yml'
+      - 'tools/content-validator/experiments/r54_capacity_ablation.py'
+      - 'tools/content-validator/experiments/r50_recent_action.py'
+permissions:
+  contents: read
+jobs:
+  exact-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compare four and five dice under identical R54 rules
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r54_capacity_ablation.py --output /tmp/r54-capacity.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r54-capacity.json',encoding='utf-8'))
+          for c in d['comparison']:
+              print('dice',c['dice'],'utility',c['expected_reward'])
+              print('paths',{k:v['decimal'] for k,v in c['optimal_policy_path_masses'].items()})
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r54-capacity-exact-results
+          path: /tmp/r54-capacity.json
+          retention-days: 30
