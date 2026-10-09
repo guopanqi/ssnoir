@@ -29,9 +29,8 @@ const createOffscreenCanvas = (w: number, h: number) => {
 const offscreen = createOffscreenCanvas(2, 2);
 const ctx = offscreen.getContext("2d");
 if (!ctx) throw new Error("WeChat offscreen 2D context unavailable");
-const gl = canvas.getContext("webgl2", { stencil: true, antialias: true }) ||
-  canvas.getContext("webgl", { stencil: true, antialias: true });
-if (!gl) throw new Error("WeChat WebGL is unavailable");
+const gl = canvas.getContext("webgl2", { stencil: true, antialias: true });
+if (!gl) throw new Error("WeChat WebGL2 is required for PixiJS 8");
 
 g.window ||= g;
 g.navigator ||= { userAgent: "SSNoir WeChat Mini Game", platform: device.platform || "wechat" };
@@ -63,7 +62,7 @@ g.cancelAnimationFrame ||= (handle: number) => canvas.cancelAnimationFrame(handl
 
 export const wechatHost = {
   canvas: canvas as HTMLCanvasElement,
-  context: gl as WebGLRenderingContext | WebGL2RenderingContext,
+  context: gl as WebGL2RenderingContext,
   width,
   height,
   createOffscreenCanvas,

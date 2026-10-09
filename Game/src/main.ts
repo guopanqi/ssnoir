@@ -1,8 +1,12 @@
 import { mountFoundation } from "./foundation/render";
 
-const canvas = document.querySelector<HTMLCanvasElement>("#game");
-const errorLabel = document.querySelector<HTMLElement>("#error");
-if (!canvas || !errorLabel) throw new Error("Missing Web canvas / diagnostics element.");
+function requireElement<T extends Element>(selector: string): T {
+  const value = document.querySelector<T>(selector);
+  if (!value) throw new Error("Required Web element missing: " + selector);
+  return value;
+}
+const canvas = requireElement<HTMLCanvasElement>("#game");
+const errorLabel = requireElement<HTMLElement>("#error");
 
 async function start(): Promise<void> {
   const session = await mountFoundation({

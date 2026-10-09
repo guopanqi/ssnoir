@@ -28,7 +28,7 @@ mountFoundation({
   cancelAnimationFrame: wechatHost.cancelAnimationFrame
 }).then(session => {
   wechatHost.onTouchEnd((x, y) => {
-    try { (session as typeof session & { activateAt(x: number, y: number): boolean }).activateAt(x, y); }
+    try { session.activateAt(x, y); }
     catch (error) { wechatHost.showFailure(error); }
   });
   console.log("[SSNoir] Three/Pixi/Scheme shared foundation mounted; initial count " + session.getCount());

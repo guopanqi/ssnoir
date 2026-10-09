@@ -6,13 +6,14 @@ export interface FoundationOptions {
   canvas: HTMLCanvasElement;
   width: number;
   height: number;
-  context?: WebGLRenderingContext | WebGL2RenderingContext;
+  context?: WebGL2RenderingContext;
   animationFrame: (callback: FrameRequestCallback) => number;
   cancelAnimationFrame: (handle: number) => void;
 }
 
 export interface FoundationSession {
   increment(): void;
+  activateAt(x: number, y: number): boolean;
   getCount(): number;
   resize(width: number, height: number): void;
   dispose(): void;
@@ -57,9 +58,14 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   lamp.position.set(-3, 9, 4);
   scene.add(lamp);
 
+  const sharedContext = three.getContext();
+  if (typeof WebGL2RenderingContext !== "undefined" &&
+      !(sharedContext instanceof WebGL2RenderingContext)) {
+    throw new Error("PixiJS 8 shared rendering requires WebGL2");
+  }
   const pixi = new PixiRenderer();
   await pixi.init({
-    context: three.getContext(),
+    context: sharedContext as WebGL2RenderingContext,
     width: options.width,
     height: options.height,
     clearBeforeRender: false,
@@ -157,6 +163,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
 
   return {
     increment,
+    activateAt,
     getCount: () => count,
     resize,
     dispose() {
@@ -168,7 +175,6 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       });
       blocks.dispose();
       three.dispose();
-    },
-    ...{ activateAt }
+    }
   };
 }
