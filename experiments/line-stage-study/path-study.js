@@ -15,16 +15,19 @@ world.forEach((p,i)=>makePath($('#world'),line(p),i<4?'#61738b':'#3e526c',1.5,i*
 const outline=document.createElementNS(NS,'path');outline.setAttribute('d',data.outline.map(p=>line(p)+' Z').join(' '));outline.style.fill='#070b12';outline.setAttribute('fill-rule','evenodd');$('#backing').append(outline);
 // All character strokes share one clock, just as a set of backdrop lines can draw in parallel.
 for(const p of data.paths)makePath($('#actor'),line(p.points),p.color,3,4,2.5);
+const original=document.createElementNS(NS,'image');original.setAttribute('href','./assets/path-study/night-original.png');original.setAttribute('width',1024);original.setAttribute('height',1024);$('#original').append(original);
 let time=0,playing=true,last=performance.now();
 function render(){
  // Reverse the exact construction clock; each stroke retracts toward its own starting point.
- const construction=time<=14?Math.min(time,6.5):Math.max(0,6.5-(time-14)*6.5/8);
+ const construction=time>=22?0:time<=14.8?Math.min(time,6.5):Math.max(0,6.5-(time-14.8)*6.5/7.2);
  let visible=0,actorLength=0;
  for(const t of tracks){let k=Math.max(0,Math.min(1,(construction-t.start)/t.duration));t.el.style.strokeDashoffset=t.length*(1-k);t.el.style.visibility=k>0?'visible':'hidden';if(t.start>=4){visible+=k*t.length;actorLength+=t.length}}
+ const imageMix=$('#use-original').checked?Math.max(0,Math.min(1,(time-6.5)/.8,(14.8-time)/.8)):0;
+ $('#original').style.opacity=imageMix;$('#actor').style.opacity=1-imageMix;
  outline.style.opacity=$('#mask').checked?Math.min(1,visible/actorLength*5):0;
  $('#actor').style.filter=$('#glow-toggle').checked?'drop-shadow(0 0 2px #7186ff)':'none';
- $('#phase').textContent=time<4?'布景 · 描出':time<6.5?'夜莺 · 并行描出':time<14?'定场':time<17.08?'夜莺 · 并行收线':time<22?'布景 · 原路收线':'退场完成';
+ $('#phase').textContent=time<4?'布景 · 描出':time<6.5?'夜莺 · 并行描出':time<7.3?'路径 → 原图':time<14?($('#use-original').checked?'原图 · 定场':'路径 · 定场'):time<14.8?'原图 → 路径':time<17.57?'夜莺 · 并行收线':time<22?'布景 · 原路收线':'退场完成';
  $('#readout').textContent=`${time.toFixed(1)} / 22 秒`;$('#time').value=time;$('#play').textContent=playing?'暂停':'播放';
 }
-$('#play').onclick=()=>{if(time>=22)time=0;playing=!playing;render()};$('#restart').onclick=()=>{time=0;playing=true;render()};$('#time').oninput=e=>{time=Number(e.target.value);playing=false;render()};$('#mask').onchange=render;$('#glow-toggle').onchange=render;
+$('#play').onclick=()=>{if(time>=22)time=0;playing=!playing;render()};$('#restart').onclick=()=>{time=0;playing=true;render()};$('#time').oninput=e=>{time=Number(e.target.value);playing=false;render()};$('#use-original').onchange=render;$('#mask').onchange=render;$('#glow-toggle').onchange=render;
 function tick(now){if(playing){time=Math.min(22,time+(now-last)/1000*Number($('#speed').value));if(time>=22)playing=false}last=now;render();requestAnimationFrame(tick)}requestAnimationFrame(tick);

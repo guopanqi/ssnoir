@@ -28,3 +28,12 @@ while edges:
 out=root/'experiments/line-stage-study/assets/path-study/night.json'
 out.write_text(json.dumps({'paths':paths,'outline':loops},separators=(',',':')))
 print(len(paths),'paths',len(loops),'outlines')
+
+# 黑底 Neon 转成透明光层，保持源图颜色与完整画幅，不生成或重画人物。
+rgba = rgb.convert('RGBA')
+pixels = []
+for r,g,b in rgb.getdata():
+ a = max(r,g,b)
+ pixels.append((round(r*255/a) if a else 0, round(g*255/a) if a else 0, round(b*255/a) if a else 0, a))
+rgba.putdata(pixels)
+rgba.save(out.with_name('night-original.png'))

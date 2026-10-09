@@ -5,3 +5,7 @@
 `python3 experiments/line-stage-study/prepare-path-study.py` 重建试验 JSON。点缀色通过原图沿骨架采样决定，未人工整理五官、头发与碎线，当前是技术可行性小样。只接入实验页，尚未迁移 Unity 的正式剧场。
 
 浏览器检查：初版验证入场/退场对称；并行版验证 5 秒时人物 35 条线均为 40% 描出（dash offset 为各条长度的 60%）；22 秒所有路径隐藏、轮廓 opacity 为 0。完整定场视觉审阅及浏览器无 error/warn；支持播放、重播、拖动进度，遮挡和辉光可切换。初版记录 `screenshots/path-study.png`，并行版记录 `screenshots/path-study-parallel.png`。
+
+## 原图定场版
+
+默认在 6.5–7.3 秒将完整路径渐变到同姿势原图，14–14.8 秒反向渐变，再收线。原图仅将黑底转换成透明光层，保留完整画幅与源图细节，与路径共用相同变换；可关闭「定场使用原图」比较骨架。浏览器检查定场 original=1、actor=0，入退场渐变中点均各占 .5；视觉确认位置对齐，原图恢复柔光与线宽。记录 `screenshots/path-study-original.png`。
