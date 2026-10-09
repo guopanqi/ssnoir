@@ -77,8 +77,26 @@ def one(seed: int, growth: int, directory: Path) -> dict:
 
 def main():
     with tempfile.TemporaryDirectory(prefix='r49-native-') as temp:
-        results = [one(seed, growth, Path(temp)) for growth in (1, 2) for seed in (7, 19, 41)]
-    print(json.dumps({'native_sessions': len(results), 'results': results}, ensure_ascii=False, indent=2))
+        directory = Path(temp)
+        results = [one(seed, growth, directory) for growth in (1, 2) for seed in (7, 19, 41)]
+
+        def revealed(row):
+            options = [name for name in ('甲', '乙', '丙') if "'" + name in row['result']]
+            assert len(options) == 1, f"无法区分指定目标: {row['result']}"
+            return options[0]
+
+        seen = {revealed(row) for row in results}
+        for seed in range(1, 33):
+            if seen == {'甲', '乙', '丙'}:
+                break
+            if seed in (7, 19, 41):
+                continue
+            row = one(seed, 1, directory)
+            results.append(row)
+            seen.add(revealed(row))
+        assert seen == {'甲', '乙', '丙'}, f'种子1..32未覆盖所有指定目标: {sorted(seen)}'
+    print(json.dumps({'native_sessions': len(results), 'revealed_targets': sorted(seen),
+                      'results': results}, ensure_ascii=False, indent=2))
 
 
 if __name__ == '__main__':
