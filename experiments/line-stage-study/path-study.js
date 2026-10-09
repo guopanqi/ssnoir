@@ -13,18 +13,17 @@ world.push([[680,790],[680,478],[940,478],[940,790]],[[1020,570],[1080,570],[108
 world.forEach((p,i)=>makePath($('#world'),line(p),i<4?'#61738b':'#3e526c',1.5,i*.12,.8));
 // One compound contour preserves holes. Its opacity follows the actor's total visible path length.
 const outline=document.createElementNS(NS,'path');outline.setAttribute('d',data.outline.map(p=>line(p)+' Z').join(' '));outline.style.fill='#070b12';outline.setAttribute('fill-rule','evenodd');$('#backing').append(outline);
-const total=data.paths.reduce((sum,p)=>sum+p.points.slice(1).reduce((n,pt,i)=>n+Math.hypot(pt[0]-p.points[i][0],pt[1]-p.points[i][1]),0),0);
-let cursor=4;
-for(const p of data.paths){const length=p.points.slice(1).reduce((n,pt,i)=>n+Math.hypot(pt[0]-p.points[i][0],pt[1]-p.points[i][1]),0),duration=length/total*6;makePath($('#actor'),line(p.points),p.color,3,cursor,duration);cursor+=duration}
+// All character strokes share one clock, just as a set of backdrop lines can draw in parallel.
+for(const p of data.paths)makePath($('#actor'),line(p.points),p.color,3,4,2.5);
 let time=0,playing=true,last=performance.now();
 function render(){
  // Reverse the exact construction clock; each stroke retracts toward its own starting point.
- const construction=time<=14?Math.min(time,10):Math.max(0,10-(time-14)*1.25);
+ const construction=time<=14?Math.min(time,6.5):Math.max(0,6.5-(time-14)*6.5/8);
  let visible=0,actorLength=0;
  for(const t of tracks){let k=Math.max(0,Math.min(1,(construction-t.start)/t.duration));t.el.style.strokeDashoffset=t.length*(1-k);t.el.style.visibility=k>0?'visible':'hidden';if(t.start>=4){visible+=k*t.length;actorLength+=t.length}}
  outline.style.opacity=$('#mask').checked?Math.min(1,visible/actorLength*5):0;
  $('#actor').style.filter=$('#glow-toggle').checked?'drop-shadow(0 0 2px #7186ff)':'none';
- $('#phase').textContent=time<4?'布景 · 描出':time<10?'夜莺 · 路径入场':time<14?'定场':time<18.8?'夜莺 · 原路收线':time<22?'布景 · 原路收线':'退场完成';
+ $('#phase').textContent=time<4?'布景 · 描出':time<6.5?'夜莺 · 并行描出':time<14?'定场':time<17.08?'夜莺 · 并行收线':time<22?'布景 · 原路收线':'退场完成';
  $('#readout').textContent=`${time.toFixed(1)} / 22 秒`;$('#time').value=time;$('#play').textContent=playing?'暂停':'播放';
 }
 $('#play').onclick=()=>{if(time>=22)time=0;playing=!playing;render()};$('#restart').onclick=()=>{time=0;playing=true;render()};$('#time').oninput=e=>{time=Number(e.target.value);playing=false;render()};$('#mask').onchange=render;$('#glow-toggle').onchange=render;
