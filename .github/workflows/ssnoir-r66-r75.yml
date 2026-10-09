@@ -28,6 +28,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/r67_r75_structural_probe.py /tmp/r67-r75.json
+          cat /tmp/r67-r75.json
           python3 - <<'PY'
           import json
           a=json.load(open('/tmp/r66.json',encoding='utf-8'))
