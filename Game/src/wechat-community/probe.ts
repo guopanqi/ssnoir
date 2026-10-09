@@ -6,6 +6,7 @@
  */
 import "@minisheep/mini-program-polyfill-core/wechat-polyfill";
 import "@minisheep/three-platform-adapter/wechat-game";
+import "./lips-mini-dom";
 import { game } from "@minisheep/three-platform-adapter";
 import "pixi.js/unsafe-eval";
 import { DOMAdapter } from "pixi.js";
