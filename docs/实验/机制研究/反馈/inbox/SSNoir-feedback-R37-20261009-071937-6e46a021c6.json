@@ -1,0 +1,23 @@
+{
+  "schema": "ssnoir.mechanism-feedback/v1",
+  "studyId": "R37",
+  "studyTitle": "压力预算",
+  "createdAt": "2026-10-09T07:19:37.963Z",
+  "environment": "official-runtime",
+  "source": {
+    "studyConfigVersion": 1,
+    "atlasVersion": 1,
+    "officialEntry": "encounters/研究·压力预算"
+  },
+  "responses": {
+    "understanding": "",
+    "replayInterest": "",
+    "decisiveMoment": "",
+    "decisionChange": "",
+    "mechanicalFeeling": "这个其实有点像Citizen Sleeper2里面，就是当你在船上搜集东西，然后他的做法是，你的动作失败会触发增加压力，压力增加到某个阈值可能触发问题。\n\n你的当前做法是，搜集进度的增加可能会触发问题，这也是一种模式。我认为这种两种模式其实都还挺有趣的，因为在过程中改变了我原本的计划，包括也可能因为我的骰子的质量的不同，我质量好的时候可能就直接去奔着目标去了，质量不好的时候可能就先去修补那些漏洞。",
+    "friction": "",
+    "ideas": ""
+  },
+  "runs": [],
+  "notes": []
+}
