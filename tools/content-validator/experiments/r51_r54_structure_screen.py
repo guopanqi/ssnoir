@@ -98,7 +98,7 @@ def r52(skill: int, reward_die: bool) -> dict:
             for di, die in enumerate(dice):
                 rest = distribute(dice, di)
                 value = F(0)
-                for gain, probability in enumerate(odds(die, skill)):
+                for gain, probability in enumerate(odds(die, skill, 0)):
                     na = min(2, a + (gain if goal == 0 else 0))
                     nb = min(5, b + (gain if goal == 1 else 0))
                     tail = (tuple(g for g in plan[1:] if g == 0 and na < 2 or g == 1 and nb < 5)
@@ -201,7 +201,7 @@ def r54(skill: int, opponent: str = "reactive", hit: int = 2) -> dict:
             for i, die in enumerate(hand):
                 rest = distribute(hand, i)
                 expectation = F(0)
-                for gain, probability in enumerate(odds(die, skill)):
+                for gain, probability in enumerate(odds(die, skill, 0)):
                     na = min(3, a + (gain if goal == 0 else 0))
                     nb = min(5, b + (gain if goal == 1 else 0))
                     if na < 3 and nb < 5 and turns in (1, 3):
