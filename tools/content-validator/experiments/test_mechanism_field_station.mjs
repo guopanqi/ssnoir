@@ -100,7 +100,9 @@ try{
  await waitSync(page);
  assert.equal(await row(page,"R54").count(),1);
  assert.equal(await page.locator("#featured-tasks .experiment-row").count(),11);
- // Existing R54 reply is derived from committed public inbox even without PAT.
+ // R50 is now the default, first-priority human playtest; inspect the prior R54
+ // reply explicitly instead of assuming a reviewed experiment is initially active.
+ await choose(page,"R54");
  await page.waitForFunction(()=>document.querySelector("#selected-state").textContent.includes("回复"));
  assert.match(await page.locator("#research-reply").innerText(),/开局取舍成立/);
  assert.match(await page.locator("#research-reply").innerText(),/不等于机制失败/);
