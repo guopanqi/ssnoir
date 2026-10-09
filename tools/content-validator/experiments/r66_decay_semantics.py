@@ -28,17 +28,17 @@ def solve(banked):
     @lru_cache(None)
     def opt(s,hand):
         if not hand or (banked and s==(2,3)):return F(s[0]>=2)+2*F(s[1]>=3)
-        return max(q(s,hand,g,i,opt) for g in range(2) if s[g]<MAX[g] or not banked
+        return max(q(s,hand,g,i,opt) for g in range(2) if s[g]<MAX[g]
                    for i in range(len(hand)))
     @lru_cache(None)
     def fixed(s,hand,g):
         if not hand or (banked and s==(2,3)):return F(s[0]>=2)+2*F(s[1]>=3)
-        if banked and s[g]==MAX[g]:return F(s[0]>=2)+2*F(s[1]>=3)
+        if s[g]==MAX[g]:g=1-g
         return max(q(s,hand,g,i,lambda next_s,next_hand:fixed(next_s,next_hand,g)) for i in range(len(hand)))
     @lru_cache(None)
     def priority(s,hand,first):
         if not hand or (banked and s==(2,3)):return F(s[0]>=2)+2*F(s[1]>=3)
-        g=first if not banked or s[first]<MAX[first] else 1-first
+        g=first if s[first]<MAX[first] else 1-first
         return max(q(s,hand,g,i,lambda next_s,next_hand:priority(next_s,next_hand,first))
                    for i in range(len(hand)))
     def q(s,hand,g,i,fn):
@@ -48,13 +48,13 @@ def solve(banked):
     def path(s,hand,prev):
         if not hand or (banked and s==(2,3)):
             return (F(0),F(0),F(0),F(s==(2,3)))
-        choices=[(q(s,hand,g,i,opt),g,i) for g in range(2) if s[g]<MAX[g] or not banked
+        choices=[(q(s,hand,g,i,opt),g,i) for g in range(2) if s[g]<MAX[g]
                  for i in range(len(hand))]
         best=max(v for v,_,_ in choices)
         v,g,i=next((v,g,i) for v,g,i in choices if v==best)
         # Strictly better to switch than *any* allowed action continuing prev.
         stay=max((q(s,hand,prev,j,opt) for j in range(len(hand))),
-                 default=F(-1)) if prev>=0 and (not banked or s[prev]<MAX[prev]) else F(-1)
+                 default=F(-1)) if prev>=0 and s[prev]<MAX[prev] else F(-1)
         changed=int(prev>=0 and g!=prev)
         strict=int(changed and best>stay)
         result=[F(changed),F(strict),F(1 if changed and len(hand)==2 and strict else 0),F(0)]
@@ -100,7 +100,7 @@ def main():
     # Legacy check: the exact R61 expected value is in the old 10-round record.
     legacy=evaluate("R61","decay")
     volatile=solve(False)
-    assert abs(volatile["expected_optimal"]-legacy["free"])<1e-6
+    assert abs(volatile["expected_optimal"]-legacy["free"])<1e-6,(volatile["expected_optimal"],legacy["free"])
     result={"id":"R66","purpose":"Distinguish real mid-course redirection from revocable completion accounting",
             "legacy_model":legacy,"invariant":invariant(),
             "ablation":[volatile,solve(True)],
