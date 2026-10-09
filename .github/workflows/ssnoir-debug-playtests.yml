@@ -11,6 +11,8 @@ on:
       - 'UnityClient/Assets/Scripts/Runtime/IMGUI/Components/DebugPanelDrawer.cs'
       - 'UnityClient/Assets/Scripts/Runtime/IMGUI/Components/SceneDropdownDrawer.cs'
       - 'tools/content-validator/experiments/validate_debug_playtests.py'
+      - 'tools/content-validator/experiments/validate_mechanism_portfolio.py'
+      - 'docs/实验/机制研究/结构候选20.json'
 permissions:
   contents: read
 jobs:
@@ -22,4 +24,6 @@ jobs:
         with:
           python-version: '3.11'
       - name: Assert both scene menus are fail-closed explicit allowlists
-        run: python3 tools/content-validator/experiments/validate_debug_playtests.py
+        run: |
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
