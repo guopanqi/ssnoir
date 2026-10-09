@@ -70,11 +70,36 @@ function map(){
   p.links.forEach(l=>{const a=make(links,"a",null,l.label+" ↗");a.href=external(l.href);a.target="_blank";a.rel="noopener noreferrer";});
  }
 }
+function journal(){
+ $("field-journal-date").textContent="资料更新 "+tasks.updated;
+ const events=$("field-journal-events");events.replaceChildren();
+ tasks.current.forEach((entry,i)=>{
+  const card=make(events,"article","field-journal-event");
+  make(card,"span","field-journal-event-number",String(i+1).padStart(2,"0"));
+  const copy=make(card,"div");
+  make(copy,"small",null,"研究进展 / "+tasks.updated);
+  make(copy,"p",null,entry);
+ });
+ const questions=$("field-journal-open");questions.replaceChildren();
+ atlas.nextQuestions.forEach((q,i)=>{
+  const line=make(questions,"div","field-journal-open-item");
+  make(line,"i",null,String(i+1).padStart(2,"0"));
+  make(line,"span",null,q);
+ });
+ const boundaries=$("field-journal-boundaries");boundaries.replaceChildren();
+ tasks.nonPromoted.forEach((entry)=>{
+  const item=make(boundaries,"article","field-journal-boundary");
+  make(item,"strong",null,entry.id+" · "+entry.title);
+  make(item,"p",null,entry.summary);
+ });
+ $("field-letter-question").textContent=atlas.nextQuestions[0]||atlas.summary;
+}
 function route(){
  const value=decodeURIComponent(location.hash||"#overview");
  const match=/^#study-(R\d+)$/.exec(value);
- const page=match||value==="#experiments"||value==="#research-log"?"experiments":value==="#map"||value==="#research-findings"?"map":"overview";
- ["overview","experiments","map"].forEach(id=>$(id).classList.toggle("hidden",id!==page));
+ const page=match||value==="#experiments"||value==="#research-log"?"experiments":value==="#map"||value==="#research-findings"?"map":value==="#journal"?"journal":"overview";
+ ["overview","experiments","map","journal"].forEach(id=>$(id).classList.toggle("hidden",id!==page));
+ $("field-breadcrumb").textContent=({overview:"研究概览",experiments:"实验室",map:"研究地图",journal:"研究日志"})[page];
  document.querySelectorAll(".desk-nav a").forEach(a=>a.setAttribute("aria-current",a.getAttribute("href")==="#"+page?"page":"false"));
  if(match)app.selectStudy(match[1]);
  window.scrollTo(0,0);
@@ -82,5 +107,5 @@ function route(){
 document.querySelectorAll(".wb-filter").forEach(b=>b.addEventListener("click",()=>{patternFilter=b.dataset.filter;map();}));
 window.addEventListener("ssnoir:feedback-progress",e=>{progress=e.detail.progress||null;error=e.detail.error||"";attention();focusCard();});
 window.addEventListener("hashchange",route);
-home();map();attention();route();
+home();map();journal();attention();route();
 })();

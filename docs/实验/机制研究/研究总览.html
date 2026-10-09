@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f2eb"><title>SSNoir · 玩法研究所</title><meta name="description" content="SSNoir 玩法研究工作台：研究简报、试玩、反馈与可追溯研究档案。"><style>/* Research Desk · visual baseline v3 · 2026-10-09
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f6f5f0"><title>OPEN FIELD · SSNoir 自主玩法研究工作台</title><meta name="description" content="SSNoir 玩法研究工作台：研究简报、试玩、反馈与可追溯研究档案。"><style>/* Research Desk · visual baseline v3 · 2026-10-09
    Independent visual language: editorial, paper, ink, terracotta, evidence. */
 :root{
   --bg:#f5f2eb;--paper:#fffdfa;--ink:#202b30;--sub:#5d6a6c;--line:#d9d8d0;
@@ -229,23 +229,235 @@ p{overflow-wrap:anywhere}
  .detail-top{flex-direction:column}
  .wb-focus{min-height:290px}
 }
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}</style></head>
-<body><header class="desk-header"><div class="wrap desk-header-inner">
-<a href="#overview" class="desk-brand" aria-label="SSNoir 玩法研究所"><span class="brand-mark">S</span><span>SSNOIR <span class="brand-sub">/ 玩法研究所</span></span></a>
-<span class="desk-header-status">A LIVING RESEARCH NOTEBOOK</span>
-<nav class="desk-nav" aria-label="主导航"><a href="#overview" aria-current="page">研究简报</a><a href="#experiments">实验室</a><a href="#map">研究地图</a></nav>
-</div></header>
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* OPEN FIELD — integrated product language, 2026-10-09.
+   Human-facing styling only; experiment semantics and feedback transport remain unchanged. */
+:root{--bg:#f6f5f0;--paper:#fffefa;--ink:#222624;--sub:#6d726d;--line:#dadbd3;--deep:#222624;--forest:#3157e7;--soft:#ecece5;--ochre:#3157e7;--accent:#3157e7;--accent-soft:#e9edff;--mint:#e9edff;--shadow:0 14px 42px rgba(35,43,37,.055);--field-serif:"Iowan Old Style","Baskerville","Songti SC","STSong",Georgia,serif;--field-sans:Inter,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+html{scroll-padding-top:24px}
+body{background:var(--bg);font:14px/1.75 var(--field-sans);color:var(--ink)}
+a{color:var(--accent)}a:hover{color:#223eaf}
+:is(a,button,input,textarea,select,summary):focus-visible{outline:3px solid #9bb0ff;outline-offset:3px}
+h1,h2,h3,h4{color:var(--ink)}
+h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
+.field-shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+.field-main{min-width:0}.field-side{position:sticky;top:0;height:100vh;padding:34px 21px 24px;display:flex;flex-direction:column;background:#efeee7;border-right:1px solid var(--line);z-index:20}
+.field-brand{display:flex;align-items:center;gap:12px;padding:0 9px 53px;color:var(--ink);text-decoration:none}
+.field-brand:hover{color:var(--ink)}.field-brand strong{display:block;font-size:17px;font-weight:840;letter-spacing:-.055em;line-height:1.1}
+.field-brand small{display:block;margin-top:6px;font-size:9px;letter-spacing:.14em;font-weight:700;color:var(--sub)}
+.field-blue{color:var(--accent)}
+.field-mark{height:34px;width:34px;min-width:34px;position:relative;display:grid;grid-template-columns:1fr 1fr;gap:3px;transform:rotate(-9deg)}
+.field-mark i{border:2px solid var(--ink);display:block}.field-mark i:nth-child(2){background:var(--accent);border-color:var(--accent)}.field-mark i:nth-child(3){grid-column:span 2;height:10px}
+.field-side-caption,.field-kicker{font-size:10px;letter-spacing:.15em;font-weight:750;color:#8a8f89;text-transform:uppercase}
+.field-side-caption{padding:0 14px;margin-bottom:14px}
+.field-side .desk-nav{display:flex;flex-direction:column;gap:4px;margin:0;align-items:stretch;align-self:stretch}
+.field-side .desk-nav a{height:auto;min-height:46px;display:flex;gap:12px;align-items:center;color:#555d57;border-radius:9px;text-decoration:none;padding:10px 14px;font-size:13px;font-weight:540;white-space:nowrap;line-height:1.5;transition:background .16s}
+.field-side .desk-nav a:hover{background:#e5e5df;color:var(--ink)}
+.field-side .desk-nav a[aria-current=page]{background:var(--ink);color:#fff;box-shadow:0 4px 8px #24272212;font-weight:670}
+.field-side .desk-nav a[aria-current=page]:after{display:none}
+.field-side .desk-nav .nav-ico{font:18px var(--field-serif);min-width:19px;text-align:center}
+.field-side .desk-nav small{margin-left:auto;font-size:10px;color:inherit;opacity:.58}
+.field-side-bottom{margin-top:auto;border-top:1px solid var(--line);padding:22px 9px 0}
+.field-side-bottom .field-side-caption{padding:0;margin:0}
+.field-side-bottom strong{font:500 20px/1.55 var(--field-serif);display:block;letter-spacing:-.04em;margin:9px 0}
+.field-side-bottom p{font-size:11px;color:var(--sub);margin:0;line-height:1.85}
+.field-status-dot{display:inline-block;height:7px;width:7px;border-radius:50%;background:#86a49a;margin-right:5px}
+.field-topbar{height:83px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);padding:0 clamp(24px,5vw,78px)}
+.field-crumb{font-size:11px;color:var(--sub);white-space:nowrap}.field-crumb strong{font-weight:750;color:var(--ink)}.field-crumb span{margin:0 11px;color:#a1a6a0}
+.field-top-actions{display:flex;align-items:center;gap:20px;font-size:11px}.field-top-actions a{font-weight:720;text-decoration:none}.field-live-label{color:var(--sub);white-space:nowrap}
+.wb-root.wrap,.foot.wrap{width:100%;max-width:1420px;margin:auto;padding-inline:clamp(24px,5vw,78px)}
+.wb-root{padding-top:53px;padding-bottom:86px}
+.wb-page{animation:field-fade .22s ease both}@keyframes field-fade{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:none}}
+.section-label{font-family:var(--field-sans);font-size:11px;letter-spacing:.17em;color:var(--accent);font-weight:780}
+.section-label:before{background:var(--accent)}
+.wb-kicker{font-family:var(--field-sans);color:var(--accent);letter-spacing:.10em;font-size:10px;font-weight:750}
+.button,.wb-cta{background:var(--ink);border-color:var(--ink);border-radius:7px;color:#fff;min-height:44px;padding:10px 19px;font-size:12px;letter-spacing:0}
+.button:hover,.wb-cta:hover{background:#454c45;border-color:#454c45;color:#fff}
+.button.ghost,.wb-cta.alt{background:transparent;border-color:var(--line);color:var(--ink)}
+.button.ghost:hover,.wb-cta.alt:hover{background:#f2f2ed;color:var(--ink)}
+.wb-linkline{color:var(--accent);font-weight:750;border-color:currentColor}
+.wb-hero{grid-template-columns:minmax(0,1.08fr) minmax(310px,.92fr);align-items:center;gap:clamp(25px,4.7vw,80px);padding:10px 0 45px}
+.wb-hero-copy{padding:7px 0}.wb-hero h1{font:500 clamp(40px,5vw,72px)/1.24 var(--field-serif);letter-spacing:-.045em;margin:25px 0}
+.wb-hero h1 em{font-style:normal;color:var(--ink);position:relative;white-space:nowrap;background:linear-gradient(transparent 84%,#c4d1ff 84%,#c4d1ff 97%,transparent 97%)}
+.wb-hero-copy .lede{font-size:15px;line-height:2.0;color:#555e58}
+.wb-updated{font-size:11px;color:#8a9089}
+.field-art{height:385px;position:relative;overflow:hidden;border:1px solid var(--line);border-radius:4px;background:#ecece4;display:flex;flex-direction:column}
+.field-art:before{content:"";position:absolute;inset:0;background-image:linear-gradient(to right,#d5d7cd77 1px,transparent 1px),linear-gradient(to bottom,#d5d7cd77 1px,transparent 1px);background-size:41px 41px;opacity:.4}
+.field-art-top,.field-art-bottom{position:relative;z-index:1;display:flex;justify-content:space-between;gap:12px;color:#646e65;font-size:10px;letter-spacing:.13em}
+.field-art-top{padding:24px 26px;font-weight:770}.field-art-bottom{border-top:1px solid var(--line);padding-top:12px;margin:0 26px 21px;font-size:11px;letter-spacing:0}
+.field-art svg{position:relative;z-index:1;display:block;width:100%;max-height:265px;max-width:470px;margin:auto}
+.field-feature-row{display:grid;grid-template-columns:minmax(0,1.13fr) minmax(290px,.87fr);gap:20px;margin:0 0 50px}
+.wb-focus{background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:28px 31px;min-height:282px;border-radius:5px;box-shadow:var(--shadow)}
+.wb-focus:before,.wb-focus:after{display:none}.wb-focus .wb-kicker{color:var(--accent)}
+.wb-focus h2{font:500 clamp(24px,2.7vw,35px)/1.3 var(--field-serif);color:var(--ink);margin:29px 0 14px}
+.wb-focus p{font-size:13px;color:var(--sub);max-width:550px;line-height:1.85}
+.wb-focus-bottom{border-top:1px solid var(--line);padding-top:18px;color:var(--sub);gap:12px}
+.wb-focus-bottom a{color:var(--accent);font-size:12px}
+.field-letter{border:1px solid var(--line);background:var(--paper);padding:27px 28px;display:flex;flex-direction:column;border-radius:5px}
+.field-letter-top,.field-letter-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.field-letter-top>span:last-child{font-size:22px;color:#aab3a9}
+.field-letter blockquote{font:500 clamp(21px,2.2vw,29px)/1.55 var(--field-serif);letter-spacing:-.025em;margin:23px 0 18px}
+.field-letter-bottom{margin-top:auto;color:var(--sub);font-size:10px}
+.field-letter-bottom a{color:var(--accent);font-size:11px;font-weight:740;white-space:nowrap;text-decoration:none}
+.wb-overview-grid{grid-template-columns:minmax(0,1.07fr) minmax(0,.93fr);gap:clamp(28px,5vw,70px);margin-top:26px}
+.wb-section-head{border-top:1px solid var(--line);border-bottom:0;padding-top:16px;padding-bottom:15px}
+.wb-section-head h2{font:500 clamp(25px,2.5vw,34px)/1.35 var(--field-serif)}
+.wb-attention-item{border-bottom:1px solid var(--line);grid-template-columns:43px minmax(0,1fr) auto;padding:20px 7px}
+.wb-attention-item:hover{background:#eceee9}.wb-num{color:var(--accent)}
+.wb-attention-item strong{font-size:13px}.wb-attention-item small{color:var(--sub)}
+.wb-pill,.flag,.detail-state{background:var(--accent-soft);border:1px solid #d7dfff;color:var(--accent);border-radius:5px;font-size:10px;font-weight:750}
+.wb-note{padding:17px 0}.wb-note .wb-kicker{color:var(--sub)}
+.wb-note p{color:var(--sub)}.wb-principles{border-top:1px solid var(--line);margin-top:67px;gap:26px}
+.wb-principles .mono{color:var(--accent)}.wb-principles h3{font-size:16px}
+.wb-exp-heading,.wb-map-head{max-width:875px;margin-bottom:36px}
+.wb-exp-heading h1,.wb-map-head h1{font:500 clamp(36px,4.4vw,62px)/1.3 var(--field-serif);letter-spacing:-.05em}
+.wb-exp-heading p,.wb-map-head p{color:var(--sub)}
+.wb-lab-layout{grid-template-columns:245px minmax(0,1fr);gap:22px}
+.experiment-sidebar{top:20px;max-height:calc(100vh - 40px);background:#eeeee8;border:1px solid var(--line);border-radius:5px;padding:17px}
+.sidebar-head h2{font:500 24px var(--field-serif)}
+.sidebar-head p,.sidebar-count,.sidebar-caption{color:var(--sub)}
+.sidebar-filters{grid-template-columns:1fr}.sidebar-filters input{grid-column:1}
+.sidebar-filters input,.sidebar-filters select{font-size:12px;border:1px solid var(--line);border-radius:5px;background:var(--paper);padding:9px 11px}
+.experiment-list{gap:4px}.experiment-row{border-radius:6px;border:1px solid transparent;border-left:3px solid transparent;padding:12px}
+.experiment-row:hover{background:#e4e5dd}.experiment-row.active{background:var(--paper);border:1px solid #d7dfff;border-left:3px solid var(--accent);box-shadow:none}
+.study-row-top .mono{color:var(--accent)}.study-row-status.wait{color:#a07836}.study-row-status.done{color:#64756b}
+.study-row-name{font-size:13px}.attention-dot.high{background:var(--accent)}.attention-dot.medium{background:#b0a071}
+.workspace{background:transparent;border:0;box-shadow:none;padding:0;scroll-margin-top:18px}
+.detail-top{padding:7px 0 23px}.detail-top h2{font:500 clamp(31px,3.5vw,48px)/1.23 var(--field-serif)}
+.detail-intro{background:#eceee8;border-left:3px solid var(--accent);border-radius:2px;padding:17px 21px;grid-template-columns:minmax(0,1fr) 190px}
+.detail-intro p,.detail-intro .aside{color:#636e65}
+.workspace-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.panel{background:var(--paper);border:1px solid var(--line);padding:23px;border-radius:5px;box-shadow:var(--shadow)}
+.panel h3{font-family:var(--field-serif);font-size:23px;font-weight:500}
+.game-surface{background:#eeefe9;border:1px solid var(--line);border-radius:4px;padding:16px}
+.goal{background:var(--paper);border:1px solid #d3d7d2;border-radius:5px}.goal.active{border:2px solid var(--accent);background:var(--accent-soft)}
+.bar-tick{background:#d9ddd9}.bar-tick.filled{background:var(--accent)}
+.die{border-color:#ced4cb;background:var(--paper);color:var(--ink);border-radius:5px}.die.active{background:var(--accent-soft);border:2px solid var(--accent);color:var(--accent)}
+.preview{background:var(--accent-soft);color:#334c9c;border-radius:4px}
+.study-tip{background:#edeee8;border-left:2px solid #afb9a8;color:var(--sub)}
+.callout{background:#eeefe9;color:var(--sub);border-radius:4px}
+.official-code{background:var(--ink);color:#f6f5f0;border-radius:4px}
+.quiet-details summary,.wb-records summary{color:var(--accent)}
+.field input,.field textarea,.field select{background:var(--paper);border:1px solid #d1d5ce;border-radius:5px;color:var(--ink)}
+.field textarea:focus,.field input:focus{border-color:var(--accent)}
+.record-active{border-color:var(--line)}.review-section{border-color:var(--line)}
+.review-heading h3{font:500 27px var(--field-serif)}
+.review-paper{background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--accent);padding:24px;border-radius:4px}
+.review-current{color:#426b59}.review-stale{color:#a0763e}
+.review-question{background:#f0f0e9;border-left:3px solid #b9a477}
+.wb-records{border-color:var(--line);border-radius:5px}.upload-next{background:#f2f2eb;border-color:var(--line)}
+.wb-questions{grid-template-columns:200px 1fr;background:#ecede7;border-color:var(--line);padding:24px;border-radius:4px}
+.wb-questions h2{font:500 27px var(--field-serif)}
+.wb-question{background:var(--paper);border-color:var(--line);border-radius:4px}
+.wb-filter{background:transparent;border:1px solid #cfd3cc;border-radius:5px;color:var(--sub)}
+.wb-filter[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.wb-pattern{background:var(--paper);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:5px;box-shadow:var(--shadow);gap:14px;padding:25px}
+.wb-pattern h3{font:500 27px var(--field-serif)}
+.wb-pattern .wb-next{background:#eef0eb;color:#566759;border-left:2px solid var(--accent)}
+.wb-pattern summary{color:var(--accent)}
+.wb-stop-list article{background:#ecece5;border-left:2px solid #b1a18b;border-radius:3px}
+.wb-evidence-explainer{color:var(--sub)}
+.foot{font-size:11px;color:var(--sub);border-color:var(--line)}
+.toast{background:var(--ink);border-radius:6px}
+.field-journal-heading{max-width:800px;margin-bottom:45px}
+.field-journal-heading h1{font:500 clamp(39px,4.7vw,66px)/1.25 var(--field-serif);margin:24px 0}
+.field-journal-heading h1 em{font-style:normal;background:linear-gradient(transparent 83%,#c4d1ff 83%,#c4d1ff 96%,transparent 96%)}
+.field-journal-heading p{font-size:15px;line-height:1.9;color:var(--sub);max-width:680px}
+.field-journal-layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(270px,.7fr);gap:clamp(35px,5vw,80px)}
+.field-journal-sub{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:16px 0 18px;border-top:1px solid var(--line);font-size:11px;color:var(--sub)}
+.field-journal-sub .field-kicker{color:var(--accent)}
+.field-journal-event{display:grid;grid-template-columns:50px minmax(0,1fr);gap:17px;padding:20px 0;border-bottom:1px solid var(--line)}
+.field-journal-event-number{font:500 20px var(--field-serif);color:#a0a59b}
+.field-journal-event p{font-size:14px;line-height:1.9;color:#525e56;margin:0}.field-journal-event small{font-size:11px;color:var(--sub)}
+.field-journal-aside{background:#eaece4;padding:30px;border-radius:4px;align-self:start}
+.field-journal-aside h2{font:500 28px var(--field-serif);margin:15px 0}
+.field-journal-aside p{font-size:13px;color:var(--sub)}
+.field-journal-open-item{display:flex;gap:12px;align-items:flex-start;border-top:1px solid #d5d9d1;padding:15px 0;color:#505d54;font-size:12px}
+.field-journal-open-item i{font-style:normal;font:500 18px var(--field-serif);color:var(--accent)}
+.field-journal-links{display:grid;gap:8px;margin-top:24px}.field-journal-links a{font-size:12px;font-weight:740;text-decoration:none}
+.field-journal-archive{margin-top:65px}.field-journal-boundary{border-bottom:1px solid var(--line);padding:18px 4px}
+.field-journal-boundary strong{font-size:14px}.field-journal-boundary p{font-size:12px;color:var(--sub);margin:5px 0}
+@media(max-width:1200px){
+ .field-shell{grid-template-columns:215px minmax(0,1fr)}
+ .field-side{padding-inline:15px}.field-brand{padding-inline:6px}
+ .wb-lab-layout{grid-template-columns:210px minmax(0,1fr)}
+ .workspace-grid{grid-template-columns:1fr}
+}
+@media(max-width:850px){
+ .field-shell{display:block}.field-side{position:sticky;top:0;height:auto;padding:10px 19px 8px;border-right:0;border-bottom:1px solid var(--line);display:flex;flex-direction:row;gap:12px;align-items:center;flex-wrap:wrap;background:#f4f2ed}
+ .field-brand{padding:0;margin-right:auto}.field-brand strong{font-size:14px}.field-brand small{font-size:8px;margin-top:1px}.field-mark{width:25px;min-width:25px;height:25px;gap:2px}.field-mark i{border-width:1.5px}.field-mark i:nth-child(3){height:7px}
+ .field-side-caption,.field-side-bottom{display:none}.field-side .desk-nav{flex-direction:row;justify-content:space-between;width:100%;gap:3px}
+ .field-side .desk-nav a{min-height:34px;justify-content:center;flex:1;font-size:12px;padding:7px 6px;gap:6px}
+ .field-side .desk-nav .nav-ico{font-size:15px;min-width:0}.field-side .desk-nav small{display:none}
+ .field-topbar{display:none}.wb-root.wrap{padding-top:25px;padding-inline:clamp(18px,5vw,35px)}
+ .wb-hero,.field-feature-row,.wb-overview-grid,.field-journal-layout{grid-template-columns:1fr;gap:18px}
+ .wb-hero{padding-bottom:22px}.field-art{height:300px}.field-feature-row{margin-bottom:45px}
+ .wb-focus{min-height:260px}.field-letter{min-height:245px}
+ .wb-principles{grid-template-columns:1fr;gap:7px}
+ .wb-lab-layout{display:block}.experiment-sidebar{position:relative;max-height:none;top:auto;margin-bottom:18px}
+ .experiment-list{max-height:300px}.workspace-grid{grid-template-columns:1fr}
+ .wb-questions{grid-template-columns:1fr}.wb-questions-body{grid-template-columns:1fr}
+ .wb-map-grid,.wb-stop-list{grid-template-columns:1fr}
+ .detail-intro{grid-template-columns:1fr}
+ .foot{flex-direction:column}
+}
+@media(max-width:480px){
+ .field-side{padding:9px 12px 7px}
+ .field-side .desk-nav a{font-size:11px;gap:2px}.field-side .desk-nav .nav-ico{font-size:13px}
+ .wb-hero h1{font-size:41px}.field-art{height:275px}
+ .field-art-top{font-size:8px;padding:18px}.field-art-bottom{margin:0 18px 17px;font-size:10px}
+ .field-letter-bottom{flex-wrap:wrap}
+ .wb-focus,.field-letter{padding:22px}
+ .wb-attention-item{grid-template-columns:37px 1fr}.wb-attention-item .wb-pill{grid-column:2;justify-self:start}
+ .panel{padding:16px}.field-pair{grid-template-columns:1fr}.detail-top{flex-direction:column}
+ .wb-map-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.wb-page{animation:none}}
+</style></head>
+<body><div class="field-shell"><aside class="field-side" aria-label="主导航">
+  <a href="#overview" class="field-brand" aria-label="OPEN FIELD · SSNoir 研究工作台">
+    <span class="field-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span><strong>OPEN FIELD<span class="field-blue">.</span></strong><small>PLAY RESEARCH STUDIO</small></span>
+  </a>
+  <div class="field-side-caption">THE WORKSPACE / 研究空间</div>
+  <nav class="desk-nav" aria-label="研究工作台页面">
+    <a href="#overview" aria-current="page"><span class="nav-ico" aria-hidden="true">◫</span><span>研究概览</span><small>01</small></a>
+    <a href="#experiments"><span class="nav-ico" aria-hidden="true">▧</span><span>实验室</span><small>02</small></a>
+    <a href="#map"><span class="nav-ico" aria-hidden="true">◇</span><span>研究地图</span><small>03</small></a>
+    <a href="#journal"><span class="nav-ico" aria-hidden="true">≡</span><span>研究日志</span><small>04</small></a>
+  </nav>
+  <div class="field-side-bottom">
+    <span class="field-side-caption"><i class="field-status-dot" aria-hidden="true"></i> A RESEARCH PRINCIPLE</span>
+    <strong>让问题带路。<br>让证据说话。</strong>
+    <p>Agent 自主探索，人类提供体验。<br>每一项判断都允许被新证据修订。</p>
+  </div>
+</aside><div class="field-main">
+<header class="field-topbar"><div class="field-crumb">SSNOIR / RESEARCH <span aria-hidden="true">／</span> <strong id="field-breadcrumb">研究概览</strong></div>
+  <div class="field-top-actions"><span class="field-live-label">版本化的研究记录 · 非实时 Agent</span>
+  <a href="https://github.com/guopanqi/ssnoir/tree/main/docs/%E5%AE%9E%E9%AA%8C/%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6" target="_blank" rel="noopener noreferrer">研究源码 ↗</a></div>
+</header>
 <main class="wrap wb-root">
 <section class="wb-page" id="overview"><div class="wb-hero">
-<div class="wb-hero-copy"><span class="section-label">RESEARCH LETTER · 研究简报</span><h1>让每一次选择，<br><em>都值得思考。</em></h1>
+<div class="wb-hero-copy"><span class="section-label">RESEARCH LETTER · 研究简报</span><h1>好的玩法，<br>从一个<em>好问题</em>开始。</h1>
 <p class="lede">Agent 自主探索简洁的玩法规则，寻找值得玩家真正思考的决策关系。这里不是运行日志的堆积，而是研究进展、尚未解决的疑问，以及值得人亲自体验的实验。</p>
 <div class="wb-actions"><a href="#experiments" class="wb-cta">参与实验 ↗</a><a href="#map" class="wb-cta alt">查看研究认识 →</a></div>
 <p id="wb-updated" class="wb-updated"></p></div>
-<aside class="wb-focus"><span class="wb-kicker">CURRENT INVITATION / 参与研究</span><h2 id="wb-focus-title"></h2><p id="wb-focus-description"></p>
-<div class="wb-focus-bottom"><span id="wb-focus-meta"></span><a id="wb-focus-link" href="#experiments">进入实验 ↗</a></div></aside></div>
+<div class="field-art" aria-label="玩法研究中关于承诺、压力和转向的抽象示意">
+  <div class="field-art-top"><span>FIGURE 01 — DECISION SPACE</span><span>RESEARCH / OPEN</span></div>
+  <svg viewBox="0 0 460 260" role="img" aria-label="承诺经过压力，出现保持或改变计划的不同路径">
+    <g fill="none" stroke="#a6afa7" stroke-width="1"><ellipse cx="230" cy="133" rx="160" ry="98" stroke-dasharray="3 7"/>
+    <path d="M90 162 Q170 55 245 118 T375 77" stroke="#3157e7" stroke-width="2.3"/>
+    <path d="M90 162 Q180 218 245 118 T375 77" stroke-dasharray="4 6"/><path d="M90 162 L245 118 L375 77" stroke-dasharray="1 6"/></g>
+    <g font-size="10" font-family="sans-serif" fill="#58665d"><text x="42" y="192">COMMIT</text><text x="213" y="156">PRESSURE</text><text x="352" y="111">REVISE</text><text x="172" y="29" fill="#3157e7">a hypothesis in motion</text></g>
+    <circle cx="90" cy="162" r="15" fill="#fffefa" stroke="#333a35" stroke-width="1.5"/><circle cx="90" cy="162" r="5" fill="#333a35"/>
+    <circle cx="245" cy="118" r="19" fill="#3157e7"/><path d="M238 118h14 M245 111v14" stroke="#fff" stroke-width="1.7"/>
+    <circle cx="375" cy="77" r="14" fill="#fffefa" stroke="#3157e7" stroke-width="2"/><circle cx="375" cy="77" r="4" fill="#3157e7"/>
+  </svg><div class="field-art-bottom"><span>一个选择怎样改变下一个选择？</span><span>01 / ∞</span></div>
+</div></div><div class="field-feature-row"><aside class="wb-focus"><span class="wb-kicker">CURRENT INVITATION / 参与研究</span><h2 id="wb-focus-title"></h2><p id="wb-focus-description"></p>
+<div class="wb-focus-bottom"><span id="wb-focus-meta"></span><a id="wb-focus-link" href="#experiments">进入实验 ↗</a></div></aside><article class="field-letter"><div class="field-letter-top"><span class="field-kicker">THE QUESTION / 待研究</span><span aria-hidden="true">✳</span></div><blockquote id="field-letter-question"></blockquote><div class="field-letter-bottom"><span>来自真实研究记录 · 未解决的问题</span><a href="#map">查看研究依据 ↗</a></div></article></div>
 <div class="wb-divider"></div><div class="wb-overview-grid">
 <section><div class="wb-section-head"><div><span class="wb-kicker">01 / YOUR ATTENTION</span><h2>需要你的参与</h2></div><p id="wb-attention-status"></p></div><div id="wb-attention"></div><a class="wb-linkline" href="#experiments">查看完整实验目录 →</a></section>
-<section><div class="wb-section-head"><div><span class="wb-kicker">02 / RESEARCH DISPATCHES</span><h2>研究进展</h2></div><p>来自研究记录</p></div><p id="wb-summary" class="wb-hint"></p><div id="wb-notes"></div><a href="#map" class="wb-linkline">查看依据与反例 →</a></section>
+<section><div class="wb-section-head"><div><span class="wb-kicker">02 / RESEARCH DISPATCHES</span><h2>研究进展</h2></div><p>来自研究记录</p></div><p id="wb-summary" class="wb-hint"></p><div id="wb-notes"></div><a href="#journal" class="wb-linkline">阅读完整研究简报 →</a></section>
 </div><section class="wb-principles">
 <article><span class="mono">01 / EXPLORE</span><h3>Agent 独立研究</h3><p>提出可反驳假说，验证数学和正式规则，不把模型收益当成人类乐趣。</p></article>
 <article><span class="mono">02 / EXPERIENCE</span><h3>人类报告体验</h3><p>犹豫、困惑和不同意见，比简单的好坏评分有价值。</p></article>
@@ -277,15 +489,27 @@ p{overflow-wrap:anywhere}
 <section class="review-section" id="research-response"><div class="review-heading"><div><span class="wb-kicker">03 / RESEARCH DIALOGUE</span><h3>研究者的回应</h3></div><span class="minor">按反馈版本回复 · 非实时 AI</span></div>
 <div id="research-reply" class="review-paper"></div><details class="wb-records" id="github-feedback"><summary>历史反馈 · 继续编辑</summary><div id="gh-list"></div></details></section>
 </section></div></div></section>
-<section class="wb-page hidden" id="map"><div class="wb-map-head"><span class="section-label">RESEARCH ATLAS / 研究地图</span><h1>把发现连成一张地图。</h1><p>通过问题而不是实验编号来认识研究。每个候选都保留它的价值、反例、适用边界以及下一步。数学上有改进，不代表玩家一定会喜欢。</p></div>
+<section class="wb-page hidden" id="map"><div class="wb-map-head"><span class="section-label">RESEARCH ATLAS / 研究地图</span><h1>一张不断改写的地图。</h1><p>通过问题而不是实验编号来认识研究。每个候选都保留它的价值、反例、适用边界以及下一步。数学上有改进，不代表玩家一定会喜欢。</p></div>
 <section class="wb-questions"><div><span class="wb-kicker">OPEN QUESTIONS</span><h2>尚未解决</h2><p class="minor">研究为什么继续向前</p></div><div id="wb-question-list" class="wb-questions-body"></div></section>
 <section class="wb-map-section"><div class="wb-map-top"><div><span class="wb-kicker">EVIDENCE & HYPOTHESES</span><h2>值得保留的决策结构</h2><p id="wb-map-count" class="minor"></p></div>
 <div class="wb-map-filters"><button class="wb-filter" data-filter="all" aria-pressed="true">全部候选</button><button class="wb-filter" data-filter="human" aria-pressed="false">有真人证据</button><button class="wb-filter" data-filter="untried" aria-pressed="false">待真人体验</button></div></div><div id="wb-map-grid" class="wb-map-grid"></div></section>
 <section class="wb-stops"><span class="wb-kicker">FALSIFICATION / BOUNDARIES</span><h2>暂缓的方向，也是研究成果</h2><p class="minor">暂停的是特定假说，不意味着整个机制类型没有价值。</p><div id="wb-stop-list" class="wb-stop-list"></div></section>
 <p class="wb-evidence-explainer">数学或纸面反证、正式 C# + Scheme 运行、人类的主观体验，是不同的证据身份。研究者的回复绑定具体的反馈版本。 <a href="https://github.com/guopanqi/ssnoir/blob/main/docs/实验/机制研究/研究定位与评价.md" target="_blank" rel="noopener noreferrer">研究定位与评价原则 ↗</a></p>
 </section>
+<section class="wb-page hidden" id="journal">
+  <div class="field-journal-heading"><span class="section-label">RESEARCH DISPATCHES / 研究日志</span><h1>研究是一场<br><em>持续修订的对话。</em></h1>
+  <p>这里只提炼已记录的研究进展、待解问题与被暂缓的方向，不把每次运行或提交当成新的发现。下方是当前资料快照，而非 Agent 实时活动。</p></div>
+  <div class="field-journal-layout">
+    <section class="field-journal-stream"><div class="field-journal-sub"><span class="field-kicker">LATEST RESEARCH SNAPSHOT</span><span id="field-journal-date"></span></div><div id="field-journal-events"></div></section>
+    <aside class="field-journal-aside"><span class="field-kicker">THE EVIDENCE TRAIL</span><h2>为什么仍要继续？</h2><p>一个数学反例可以否定某种解释，却不能代替人的体验。研究者应公开证据身份，也保留失败尝试。</p>
+    <div id="field-journal-open"></div><div class="field-journal-links">
+      <a href="https://github.com/guopanqi/ssnoir/blob/main/docs/%E5%AE%9E%E9%AA%8C/%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/%E5%BD%93%E5%89%8D%E7%8A%B6%E6%80%81.md" target="_blank" rel="noopener noreferrer">研究状态原文 ↗</a>
+      <a href="https://github.com/guopanqi/ssnoir/commits/main/docs/%E5%AE%9E%E9%AA%8C/%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6" target="_blank" rel="noopener noreferrer">GitHub 提交历史 ↗</a>
+    </div></aside>
+  </div><section class="field-journal-archive"><div class="field-journal-sub"><span class="field-kicker">BOUNDARIES / 暂不晋升</span><span>研究中的停止与收窄同样有价值</span></div><div id="field-journal-boundaries"></div></section>
+</section>
 <div class="hidden" aria-hidden="true"><div id="patterns"></div><div id="not-promoted"></div><ul id="now-research"></ul><a id="research-root"></a></div>
-</main><footer class="wrap foot"><span>SSNOIR / HUMAN–AGENT RESEARCH</span><span>资料更新 <span id="updated"></span> · 反馈有版本，结论可修订</span></footer><div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+</main><footer class="wrap foot"><span>SSNOIR / HUMAN–AGENT RESEARCH</span><span>资料更新 <span id="updated"></span> · 反馈有版本，结论可修订</span></footer></div></div><div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 <script type="application/json" id="atlas-data">{"version":1,"updated":"2026-10-09","title":"SSNoir · 抽象玩法结构研究","subtitle":"研究少量规则如何让玩家重新分配资源、改变优先级与调整计划；情景和人物意义由设计者另行创作。","summary":"六种精选抽象决策关系；已有 R54 四骰5局人类反馈及原有研究者回复。根据反馈完成精确4/5骰容量消融：增加行动容量提升高价值乙目标成功机会，但并未在最优模型中提高第三手换路比例。仍需体验判断。R50当前最需要首轮真人反馈。","principles":["观察玩家为什么改变主意，而不是数进度条。","先找可解释的强策略与退化边界，再计算完整最优。","数学、正式规则运行、真人体验各说各的话。","一个模式的价值来自它能支持怎样的思考，复杂度不是成绩。"],"evidenceLegend":{"math":"精确模型或纸面反证","native":"C# + 正式 Scheme 会话或严格回放","human":"记录到的真人体验反馈"},"patterns":[{"id":"risk","name":"稳险选择","family":"基础原语","theme":"收益与风险","focus":"基础已认可","decision":"现在选择更可靠的一小步，还是用较高波动争取一次大推进？","principle":"同一结果分布作用在两种收益表上；安全行动低波动，冒险行动好档收益高、中档可能有代价。","steps":["公开每种动作的坏／中／好收益","相同骰面投入稳做或险做","剩余目标与冷静改变两者的价值"],"dynamic":"临近终点、剩余骰质量、冷静余量变化会改变安全与冒险的相对价值。","why":"容易学会，却能贯穿许多场面；不是独立长交锋深度的保证。","counter":"若好档已保证、失败代价可忽略或一种行动处处支配另一种，玩家会形成固定选择。","boundary":"已有反馈认可基本模式，未证明所有数值版本都有乐趣。早期大数字原型不能直接代表游戏内小收益口径。","next":"用正式惯用收益在具体目标余量中测何时发生可理解的稳险切换。","metric":null,"evidence":{"math":true,"native":true,"human":true},"evidenceNote":"R06设计者认可稳险基本模式；数学与正式原型在旧批次保存。不是受控盲测。","potential":"可复用基础；表现简单，独立作为整场机制的上限有限。","links":[{"label":"R06 试玩反馈与收益口径","href":"批次/R06-试玩反馈与收益口径/研究记录.md"},{"label":"现有原型入口","href":"../../../UnityClient/Assets/Resources/Content/scenes/encounters/研究·稳险选择.scm"}]},{"id":"pressure","name":"推进制造待处理问题","family":"复合关系","theme":"进度与负担","focus":"体验验证优先","decision":"是继续快速完成原目标，还是暂停推进、先消除自己造成的持续负担？","principle":"推进主目标跨过阈值时出现新问题；未解决问题在回合末增加不可逆压力；失败也可能立即加压。","steps":["主目标A推进","达到阈值产生问题B、C","不修理则每回合增加压力","根据剩余资源重新决定修理还是继续推进"],"dynamic":"同一行动在不同压力余量和目标剩余量下会改变优先级；必须区分新的动态选择与仅仅提高难度。","why":"一个清晰的因果关系把完成目标与处理副作用联系起来，容易组合到不同玩法。","counter":"容量富余时只推进即可近乎最优；修复对象对称时固定先修短项能解释选择。","boundary":"R36校准到目标12后早完成效用才出现明显策略差异；R38收窄了对象选择价值。真人对重复感尚未裁决。","next":"对 R37 正式入口进行盲试玩，记录真正改计划的一两手，以及两个修复对象是否冗余。","metric":{"value":"1.422 vs 1.346","unit":"早完成期望效用","explanation":"R36 自由策略与「每回合先选固定修/推偏好」强参照；差约5.34%完整效用，不等于乐趣增加5.34%。"},"evidence":{"math":true,"native":true,"human":false},"evidenceNote":"R37 18条正式轨迹 / 192步、18次严格回放；无该批真人反馈。","potential":"当前更值得测试的复合结构，动态调整相对清晰，但学习与重复感待判。","links":[{"label":"R36 容量校准和对照","href":"批次/R36-资源余量与选择增量/研究记录.md"},{"label":"R37 正式试玩规则","href":"批次/R37-压力预算正式接入/README.md"}]},{"id":"reveal","name":"边做边看","family":"信息关系","theme":"信息与承诺","focus":"基础已认可","decision":"先对某条路线投入多少，知道新信息后还要不要继续？","principle":"行动既产生可保留的进度，又会揭示路线长度；放弃已投入部分是否值得，随余骰与公开结果改变。","steps":["路线长度未知","用一次正常推进获得信息和进度","揭示路线长短","继续投入或转向另一条"],"dynamic":"发现路线较长而剩余行动有限时，可能从继续投入变为换路线。","why":"信息不是纯粹的菜单选项，而由正常行动自然产生；容易形成继续/放弃的思考。","counter":"低骰先试并在揭示后照固定口诀做，可能解释大部分收益；没有剩余行动时信息不值钱。","boundary":"R10真人反馈认可有思考与重玩意愿，但也指出体验偏猜测，尚未证明它足以支撑完整交锋。","next":"改善信息表达，比较玩家是否能解释转向原因，而不只是猜长度。","metric":null,"evidence":{"math":true,"native":true,"human":true},"evidenceNote":"R09正式候选与R10设计者试玩反馈；具体条件并非受控样本。","potential":"非常适合复用的信息结构，但需防止「只是瞎猜」和开手流程化。","links":[{"label":"R09 机制与成长边界","href":"批次/R09-成长与行动中的信息/研究记录.md"},{"label":"R10 真人反馈","href":"批次/R10-试玩裁决与交锋方向/研究记录.md"}]},{"id":"scarce","name":"容量不足下的成果取舍","family":"基础结构","theme":"目标与收益","focus":"值得试玩","decision":"有限行动只够获得部分成果：先争容易兑现的小目标，还是冒险抢更高价值的大目标？","principle":"多个成果的完成价值不同；半成品为零；同一骰池不足以保证全部拿到，允许中途转向。","steps":["甲目标短、收益低；乙目标长、收益高","观察同一组骰子","在剩余容量和实际判定后选择继续或改投","结算仅奖励完整成果"],"dynamic":"上一手没有达到预期进度后，剩余容量可能让大目标不再值得投入。","why":"用很少的规则建立明确的机会成本，容易与时间或信息模式组合。","counter":"两个目标同收益时固定选短；成长过高时固定选大；只比较无脑固定一项会夸大动态优势。","boundary":"R13数学及正式对照通过；约31.05%是选定最优模型路径的转向质量，不是玩家频率。","next":"用无提示的可玩原型检查玩家是否真能理解不同成果的兑现规则。","metric":{"value":"1.489 vs 1.354","unit":"期望成果效用","explanation":"R13自由分配与开局固定目标参照，不是胜率；成长1局部参数。"},"evidence":{"math":true,"native":true,"human":false},"evidenceNote":"R13正式入场配置、数学与局部决策轨迹；真人待补。","potential":"规则经济、适合组合；对效用差异及成长水平敏感。","links":[{"label":"R13 成果取舍研究","href":"批次/R13-启动窗口与成果取舍/研究记录.md"},{"label":"R13 试玩入口","href":"批次/R13-启动窗口与成果取舍/README.md"}]},{"id":"reactive","name":"对手追击领先目标","family":"对手响应","theme":"诱敌与动态分诊","focus":"已有真人反馈 · 容量对照可选","decision":"是尽快兑现一条目标，还是让它暂时领先，吸引对手攻击，从而保护另一条高价值目标？","principle":"甲达到3立即得到成果1，乙达到5立即得到成果2；四骰，每两次行动后对手扣除当前进度较高目标的2格，平手扣甲。任何目标完成立即结算。","steps":["甲短、乙长，两项目进度公开","两次行动后对手攻击领先项目","可以分散推进以引导攻击","再决定赶短目标还是保留长目标"],"dynamic":"每次判定改变两目标的相对进度和下一次被攻击的位置；玩家可能故意保持一项领先，让另一项免于受损。","why":"对手不需要复杂AI；一条公开的反应规则，就可能使「进度较高」同时成为优势和风险。数学前向轨迹也出现了真正改变后续价值的引导攻击。","counter":"数学最优路径的诱敌比例不能推断真人一定会诱敌。首轮5局反馈显示，开局行动和余骰容量可能使后续换目标很难；另有固定攻击乙的消融也有自由策略增量。下一轮应分别比较开局与过程取舍。","boundary":"成长1的期望效用自由1.259075、最强开局固定目标序1.103106；数学前向审计在指定最优策略及并列策略裁决下，22.17%路径有甲替有进度的乙挨打、20.21%路径该攻击位置具有严格反事实正价值。不是人类频率，且同值策略影响比例。 同规则数学容量对照（成长1）：4→5骰时自由期望效用1.259→1.469，乙完成概率40.19%→58.05%；严格值得在第3手切目标的所选最优策略路径反而42.95%→41.26%，不能声称容量自动改善过程决策。","next":"现有四骰5局反馈已审阅；可选独立五骰浏览器对照，区分高收益目标更易兑现与是否真正产生中途转向。R50目前更缺真人反馈。","metric":{"value":"1.259 vs 1.103","unit":"期望成果效用","explanation":"R54成长1，完整逐手决策与开局最优固定目标顺序（仍逐步择骰）；成果效用最大2，不是成功率。"},"evidence":{"math":true,"native":true,"human":true},"evidenceNote":"R54 数学与15局原生回放证据不变。2026-10-09 收到1份浏览器示意版人类反馈，共5局（甲1、乙1、超时3），报告按骰子质量选择短/长目标，过程中因余量不足较少改计划。这是主观体验而非代表性频率。研究者已按具体反馈版本回复，修改后须重新审阅。 GitHub Actions run 37896433811 的精确 Fraction 4/5骰对照成功；五骰尚无正式C#或真人反馈。","potential":"两种决策价值可能同时存在：开局比较较易达成的甲与较高回报的乙，过程可通过领先进度影响对手。首轮试玩感受到了前者，尚未明显体验后者；因此维持潜力判断并分开测试，不下好/坏结论。","links":[{"label":"R51–R54 研究记录","href":"批次/R51-R54-结构广度探索/研究记录.md"},{"label":"R54 正式原型","href":"../../../UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm"},{"label":"完整 R54 数学与正式 CI 证据","href":"https://github.com/guopanqi/ssnoir/actions/runs/37887824281"},{"label":"R54 首份真人反馈与研究回复","href":"反馈/reviews/SSNoir-feedback-R54-20261009-062528-43765ce6ee.json"},{"label":"R54 四/五骰容量对照记录","href":"批次/R54-真人反馈容量对照/研究记录.md"}]},{"id":"echo","name":"动作回声","family":"行动交互","theme":"次序与反馈","focus":"优先试玩候选","decision":"继续同一目标会使下一手变难，切换目标反而更容易；什么时候值得坚持、什么时候换手？","principle":"上一手选择甲或乙后，下一手同目标准备值−1，换目标+1；可逆且公开，首手无修正。","steps":["玩家选择甲或乙","结果给当前目标0/1/2格","更新下一手各目标的公开赔率","比较继续与切换的价值"],"dynamic":"每次实际结果都改变剩余需求，固定轮换未必最优；若接近完成，承受连续投入惩罚仍可能值得。","why":"只记上一手就能创造跨行动的选择关联，不依赖新增危险钟或隐藏规则。","counter":"对四骰逐手优化骰子后，最强的固定交替、固定专注、临近终点坚持等口诀族仅1.482275，对自由1.601626；成长2/3差距缩小。下一步反证玩家实际会不会理解和响应，而非继续发明阈值。","boundary":"R50成长1自由1.601626，最强固定目标序1.479843，最佳可解释口诀族1.482275；无回声控制组自由1.733284。绝不能把完成效用下降当玩法质量上升。技能3时口诀差仅0.018424。","next":"做无提示试玩：玩家能否预判同/异目标判定变化，并有意识地因前一手结果切换或继续？","metric":{"value":"1.602 vs 1.480","unit":"期望成果效用","explanation":"R50成长1：完整逐手响应 vs 开局固定目标序且逐手择骰；最强可解释口诀族为1.482。效用上限2。"},"evidence":{"math":true,"native":true,"human":false},"evidenceNote":"数学精确反证及最佳可解释策略族在 run 37886008062 通过；原生 Scheme/C# 正式验证12局严格回放通过（run 37885651004），真人反馈仍为0。","potential":"成长1下，强可解释口诀族仍不能解释0.11935效用的动态增量；可认真进入真人试玩，但尚无乐趣证据。","links":[{"label":"R50 研究记录","href":"批次/R50-动作回声/研究记录.md"},{"label":"R50 数学脚本","href":"../../../tools/content-validator/experiments/r50_recent_action.py"}]}],"workflow":[{"label":"明确一个决策关系","detail":"冻结最小规则和可观察的触发条件"},{"label":"寻找最强简化解释","detail":"固定顺序、贪心、容量和支配反证"},{"label":"模型与原生分层验证","detail":"数学/正式C#会话/真人不混用"},{"label":"将结论交给设计者","detail":"模式、价值、局限和后续应用由人判断"}],"nextQuestions":["R54：原生C#回放是否真正覆盖攻击甲／乙？无提示试玩能否让人理解「诱敌」？","R50：正式原型已通过回放；需要少量真人试玩判断行动回声是否自然，而非强制轮流。","R37：真人能否预测压力预算并因新问题改变原计划？","R49作为基础关系保留；R51–R53的低增量或固定路线结果避免重复救题扫参。"],"references":[{"label":"研究定位与评价","href":"研究定位与评价.md"},{"label":"研究队列","href":"研究队列.md"},{"label":"更宽的关系索引（包括失败）","href":"关系索引.md"},{"label":"当前接续状态","href":"当前状态.md"}]}</script>
 <script type="application/json" id="tasks-data">{
   "version": 1,
@@ -1443,11 +1667,36 @@ function map(){
   p.links.forEach(l=>{const a=make(links,"a",null,l.label+" ↗");a.href=external(l.href);a.target="_blank";a.rel="noopener noreferrer";});
  }
 }
+function journal(){
+ $("field-journal-date").textContent="资料更新 "+tasks.updated;
+ const events=$("field-journal-events");events.replaceChildren();
+ tasks.current.forEach((entry,i)=>{
+  const card=make(events,"article","field-journal-event");
+  make(card,"span","field-journal-event-number",String(i+1).padStart(2,"0"));
+  const copy=make(card,"div");
+  make(copy,"small",null,"研究进展 / "+tasks.updated);
+  make(copy,"p",null,entry);
+ });
+ const questions=$("field-journal-open");questions.replaceChildren();
+ atlas.nextQuestions.forEach((q,i)=>{
+  const line=make(questions,"div","field-journal-open-item");
+  make(line,"i",null,String(i+1).padStart(2,"0"));
+  make(line,"span",null,q);
+ });
+ const boundaries=$("field-journal-boundaries");boundaries.replaceChildren();
+ tasks.nonPromoted.forEach((entry)=>{
+  const item=make(boundaries,"article","field-journal-boundary");
+  make(item,"strong",null,entry.id+" · "+entry.title);
+  make(item,"p",null,entry.summary);
+ });
+ $("field-letter-question").textContent=atlas.nextQuestions[0]||atlas.summary;
+}
 function route(){
  const value=decodeURIComponent(location.hash||"#overview");
  const match=/^#study-(R\d+)$/.exec(value);
- const page=match||value==="#experiments"||value==="#research-log"?"experiments":value==="#map"||value==="#research-findings"?"map":"overview";
- ["overview","experiments","map"].forEach(id=>$(id).classList.toggle("hidden",id!==page));
+ const page=match||value==="#experiments"||value==="#research-log"?"experiments":value==="#map"||value==="#research-findings"?"map":value==="#journal"?"journal":"overview";
+ ["overview","experiments","map","journal"].forEach(id=>$(id).classList.toggle("hidden",id!==page));
+ $("field-breadcrumb").textContent=({overview:"研究概览",experiments:"实验室",map:"研究地图",journal:"研究日志"})[page];
  document.querySelectorAll(".desk-nav a").forEach(a=>a.setAttribute("aria-current",a.getAttribute("href")==="#"+page?"page":"false"));
  if(match)app.selectStudy(match[1]);
  window.scrollTo(0,0);
@@ -1455,7 +1704,7 @@ function route(){
 document.querySelectorAll(".wb-filter").forEach(b=>b.addEventListener("click",()=>{patternFilter=b.dataset.filter;map();}));
 window.addEventListener("ssnoir:feedback-progress",e=>{progress=e.detail.progress||null;error=e.detail.error||"";attention();focusCard();});
 window.addEventListener("hashchange",route);
-home();map();attention();route();
+home();map();journal();attention();route();
 })();
 </script>
 </body>

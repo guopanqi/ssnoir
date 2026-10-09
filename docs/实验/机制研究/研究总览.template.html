@@ -1,21 +1,49 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f2eb"><title>SSNoir · 玩法研究所</title><meta name="description" content="SSNoir 玩法研究工作台：研究简报、试玩、反馈与可追溯研究档案。"><style>/*WORKBENCH_CSS*/</style></head>
-<body><header class="desk-header"><div class="wrap desk-header-inner">
-<a href="#overview" class="desk-brand" aria-label="SSNoir 玩法研究所"><span class="brand-mark">S</span><span>SSNOIR <span class="brand-sub">/ 玩法研究所</span></span></a>
-<span class="desk-header-status">A LIVING RESEARCH NOTEBOOK</span>
-<nav class="desk-nav" aria-label="主导航"><a href="#overview" aria-current="page">研究简报</a><a href="#experiments">实验室</a><a href="#map">研究地图</a></nav>
-</div></header>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f6f5f0"><title>OPEN FIELD · SSNoir 自主玩法研究工作台</title><meta name="description" content="SSNoir 玩法研究工作台：研究简报、试玩、反馈与可追溯研究档案。"><style>/*WORKBENCH_CSS*/</style></head>
+<body><div class="field-shell"><aside class="field-side" aria-label="主导航">
+  <a href="#overview" class="field-brand" aria-label="OPEN FIELD · SSNoir 研究工作台">
+    <span class="field-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span><strong>OPEN FIELD<span class="field-blue">.</span></strong><small>PLAY RESEARCH STUDIO</small></span>
+  </a>
+  <div class="field-side-caption">THE WORKSPACE / 研究空间</div>
+  <nav class="desk-nav" aria-label="研究工作台页面">
+    <a href="#overview" aria-current="page"><span class="nav-ico" aria-hidden="true">◫</span><span>研究概览</span><small>01</small></a>
+    <a href="#experiments"><span class="nav-ico" aria-hidden="true">▧</span><span>实验室</span><small>02</small></a>
+    <a href="#map"><span class="nav-ico" aria-hidden="true">◇</span><span>研究地图</span><small>03</small></a>
+    <a href="#journal"><span class="nav-ico" aria-hidden="true">≡</span><span>研究日志</span><small>04</small></a>
+  </nav>
+  <div class="field-side-bottom">
+    <span class="field-side-caption"><i class="field-status-dot" aria-hidden="true"></i> A RESEARCH PRINCIPLE</span>
+    <strong>让问题带路。<br>让证据说话。</strong>
+    <p>Agent 自主探索，人类提供体验。<br>每一项判断都允许被新证据修订。</p>
+  </div>
+</aside><div class="field-main">
+<header class="field-topbar"><div class="field-crumb">SSNOIR / RESEARCH <span aria-hidden="true">／</span> <strong id="field-breadcrumb">研究概览</strong></div>
+  <div class="field-top-actions"><span class="field-live-label">版本化的研究记录 · 非实时 Agent</span>
+  <a href="https://github.com/guopanqi/ssnoir/tree/main/docs/%E5%AE%9E%E9%AA%8C/%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6" target="_blank" rel="noopener noreferrer">研究源码 ↗</a></div>
+</header>
 <main class="wrap wb-root">
 <section class="wb-page" id="overview"><div class="wb-hero">
-<div class="wb-hero-copy"><span class="section-label">RESEARCH LETTER · 研究简报</span><h1>让每一次选择，<br><em>都值得思考。</em></h1>
+<div class="wb-hero-copy"><span class="section-label">RESEARCH LETTER · 研究简报</span><h1>好的玩法，<br>从一个<em>好问题</em>开始。</h1>
 <p class="lede">Agent 自主探索简洁的玩法规则，寻找值得玩家真正思考的决策关系。这里不是运行日志的堆积，而是研究进展、尚未解决的疑问，以及值得人亲自体验的实验。</p>
 <div class="wb-actions"><a href="#experiments" class="wb-cta">参与实验 ↗</a><a href="#map" class="wb-cta alt">查看研究认识 →</a></div>
 <p id="wb-updated" class="wb-updated"></p></div>
-<aside class="wb-focus"><span class="wb-kicker">CURRENT INVITATION / 参与研究</span><h2 id="wb-focus-title"></h2><p id="wb-focus-description"></p>
-<div class="wb-focus-bottom"><span id="wb-focus-meta"></span><a id="wb-focus-link" href="#experiments">进入实验 ↗</a></div></aside></div>
+<div class="field-art" aria-label="玩法研究中关于承诺、压力和转向的抽象示意">
+  <div class="field-art-top"><span>FIGURE 01 — DECISION SPACE</span><span>RESEARCH / OPEN</span></div>
+  <svg viewBox="0 0 460 260" role="img" aria-label="承诺经过压力，出现保持或改变计划的不同路径">
+    <g fill="none" stroke="#a6afa7" stroke-width="1"><ellipse cx="230" cy="133" rx="160" ry="98" stroke-dasharray="3 7"/>
+    <path d="M90 162 Q170 55 245 118 T375 77" stroke="#3157e7" stroke-width="2.3"/>
+    <path d="M90 162 Q180 218 245 118 T375 77" stroke-dasharray="4 6"/><path d="M90 162 L245 118 L375 77" stroke-dasharray="1 6"/></g>
+    <g font-size="10" font-family="sans-serif" fill="#58665d"><text x="42" y="192">COMMIT</text><text x="213" y="156">PRESSURE</text><text x="352" y="111">REVISE</text><text x="172" y="29" fill="#3157e7">a hypothesis in motion</text></g>
+    <circle cx="90" cy="162" r="15" fill="#fffefa" stroke="#333a35" stroke-width="1.5"/><circle cx="90" cy="162" r="5" fill="#333a35"/>
+    <circle cx="245" cy="118" r="19" fill="#3157e7"/><path d="M238 118h14 M245 111v14" stroke="#fff" stroke-width="1.7"/>
+    <circle cx="375" cy="77" r="14" fill="#fffefa" stroke="#3157e7" stroke-width="2"/><circle cx="375" cy="77" r="4" fill="#3157e7"/>
+  </svg><div class="field-art-bottom"><span>一个选择怎样改变下一个选择？</span><span>01 / ∞</span></div>
+</div></div><div class="field-feature-row"><aside class="wb-focus"><span class="wb-kicker">CURRENT INVITATION / 参与研究</span><h2 id="wb-focus-title"></h2><p id="wb-focus-description"></p>
+<div class="wb-focus-bottom"><span id="wb-focus-meta"></span><a id="wb-focus-link" href="#experiments">进入实验 ↗</a></div></aside><article class="field-letter"><div class="field-letter-top"><span class="field-kicker">THE QUESTION / 待研究</span><span aria-hidden="true">✳</span></div><blockquote id="field-letter-question"></blockquote><div class="field-letter-bottom"><span>来自真实研究记录 · 未解决的问题</span><a href="#map">查看研究依据 ↗</a></div></article></div>
 <div class="wb-divider"></div><div class="wb-overview-grid">
 <section><div class="wb-section-head"><div><span class="wb-kicker">01 / YOUR ATTENTION</span><h2>需要你的参与</h2></div><p id="wb-attention-status"></p></div><div id="wb-attention"></div><a class="wb-linkline" href="#experiments">查看完整实验目录 →</a></section>
-<section><div class="wb-section-head"><div><span class="wb-kicker">02 / RESEARCH DISPATCHES</span><h2>研究进展</h2></div><p>来自研究记录</p></div><p id="wb-summary" class="wb-hint"></p><div id="wb-notes"></div><a href="#map" class="wb-linkline">查看依据与反例 →</a></section>
+<section><div class="wb-section-head"><div><span class="wb-kicker">02 / RESEARCH DISPATCHES</span><h2>研究进展</h2></div><p>来自研究记录</p></div><p id="wb-summary" class="wb-hint"></p><div id="wb-notes"></div><a href="#journal" class="wb-linkline">阅读完整研究简报 →</a></section>
 </div><section class="wb-principles">
 <article><span class="mono">01 / EXPLORE</span><h3>Agent 独立研究</h3><p>提出可反驳假说，验证数学和正式规则，不把模型收益当成人类乐趣。</p></article>
 <article><span class="mono">02 / EXPERIENCE</span><h3>人类报告体验</h3><p>犹豫、困惑和不同意见，比简单的好坏评分有价值。</p></article>
@@ -47,15 +75,27 @@
 <section class="review-section" id="research-response"><div class="review-heading"><div><span class="wb-kicker">03 / RESEARCH DIALOGUE</span><h3>研究者的回应</h3></div><span class="minor">按反馈版本回复 · 非实时 AI</span></div>
 <div id="research-reply" class="review-paper"></div><details class="wb-records" id="github-feedback"><summary>历史反馈 · 继续编辑</summary><div id="gh-list"></div></details></section>
 </section></div></div></section>
-<section class="wb-page hidden" id="map"><div class="wb-map-head"><span class="section-label">RESEARCH ATLAS / 研究地图</span><h1>把发现连成一张地图。</h1><p>通过问题而不是实验编号来认识研究。每个候选都保留它的价值、反例、适用边界以及下一步。数学上有改进，不代表玩家一定会喜欢。</p></div>
+<section class="wb-page hidden" id="map"><div class="wb-map-head"><span class="section-label">RESEARCH ATLAS / 研究地图</span><h1>一张不断改写的地图。</h1><p>通过问题而不是实验编号来认识研究。每个候选都保留它的价值、反例、适用边界以及下一步。数学上有改进，不代表玩家一定会喜欢。</p></div>
 <section class="wb-questions"><div><span class="wb-kicker">OPEN QUESTIONS</span><h2>尚未解决</h2><p class="minor">研究为什么继续向前</p></div><div id="wb-question-list" class="wb-questions-body"></div></section>
 <section class="wb-map-section"><div class="wb-map-top"><div><span class="wb-kicker">EVIDENCE & HYPOTHESES</span><h2>值得保留的决策结构</h2><p id="wb-map-count" class="minor"></p></div>
 <div class="wb-map-filters"><button class="wb-filter" data-filter="all" aria-pressed="true">全部候选</button><button class="wb-filter" data-filter="human" aria-pressed="false">有真人证据</button><button class="wb-filter" data-filter="untried" aria-pressed="false">待真人体验</button></div></div><div id="wb-map-grid" class="wb-map-grid"></div></section>
 <section class="wb-stops"><span class="wb-kicker">FALSIFICATION / BOUNDARIES</span><h2>暂缓的方向，也是研究成果</h2><p class="minor">暂停的是特定假说，不意味着整个机制类型没有价值。</p><div id="wb-stop-list" class="wb-stop-list"></div></section>
 <p class="wb-evidence-explainer">数学或纸面反证、正式 C# + Scheme 运行、人类的主观体验，是不同的证据身份。研究者的回复绑定具体的反馈版本。 <a href="https://github.com/guopanqi/ssnoir/blob/main/docs/实验/机制研究/研究定位与评价.md" target="_blank" rel="noopener noreferrer">研究定位与评价原则 ↗</a></p>
 </section>
+<section class="wb-page hidden" id="journal">
+  <div class="field-journal-heading"><span class="section-label">RESEARCH DISPATCHES / 研究日志</span><h1>研究是一场<br><em>持续修订的对话。</em></h1>
+  <p>这里只提炼已记录的研究进展、待解问题与被暂缓的方向，不把每次运行或提交当成新的发现。下方是当前资料快照，而非 Agent 实时活动。</p></div>
+  <div class="field-journal-layout">
+    <section class="field-journal-stream"><div class="field-journal-sub"><span class="field-kicker">LATEST RESEARCH SNAPSHOT</span><span id="field-journal-date"></span></div><div id="field-journal-events"></div></section>
+    <aside class="field-journal-aside"><span class="field-kicker">THE EVIDENCE TRAIL</span><h2>为什么仍要继续？</h2><p>一个数学反例可以否定某种解释，却不能代替人的体验。研究者应公开证据身份，也保留失败尝试。</p>
+    <div id="field-journal-open"></div><div class="field-journal-links">
+      <a href="https://github.com/guopanqi/ssnoir/blob/main/docs/%E5%AE%9E%E9%AA%8C/%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/%E5%BD%93%E5%89%8D%E7%8A%B6%E6%80%81.md" target="_blank" rel="noopener noreferrer">研究状态原文 ↗</a>
+      <a href="https://github.com/guopanqi/ssnoir/commits/main/docs/%E5%AE%9E%E9%AA%8C/%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6" target="_blank" rel="noopener noreferrer">GitHub 提交历史 ↗</a>
+    </div></aside>
+  </div><section class="field-journal-archive"><div class="field-journal-sub"><span class="field-kicker">BOUNDARIES / 暂不晋升</span><span>研究中的停止与收窄同样有价值</span></div><div id="field-journal-boundaries"></div></section>
+</section>
 <div class="hidden" aria-hidden="true"><div id="patterns"></div><div id="not-promoted"></div><ul id="now-research"></ul><a id="research-root"></a></div>
-</main><footer class="wrap foot"><span>SSNOIR / HUMAN–AGENT RESEARCH</span><span>资料更新 <span id="updated"></span> · 反馈有版本，结论可修订</span></footer><div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+</main><footer class="wrap foot"><span>SSNOIR / HUMAN–AGENT RESEARCH</span><span>资料更新 <span id="updated"></span> · 反馈有版本，结论可修订</span></footer></div></div><div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 <script type="application/json" id="atlas-data">/*ATLAS_DATA*/</script>
 <script type="application/json" id="tasks-data">/*TASK_DATA*/</script>
 <script>
