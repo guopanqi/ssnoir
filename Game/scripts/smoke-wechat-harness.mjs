@@ -47,6 +47,9 @@ try {
       getWindowInfo: () => ({ windowWidth: 1024, windowHeight: 576, screenWidth: 1024, screenHeight: 576, pixelRatio: 1 }),
       onWindowResize: () => {},
       offWindowResize: () => {},
+      onTouchStart: () => {},
+      onTouchMove: () => {},
+      onTouchCancel: () => {},
       onTouchEnd: callback => { window.__wxTouchEnd = callback; },
       showModal: detail => { throw new Error("wx.showModal: " + detail.content); }
     };

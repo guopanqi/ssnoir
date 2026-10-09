@@ -49,8 +49,8 @@ try {
 
   mountFoundation({
     canvas, context: gl, width, height,
-    animationFrame: cb => canvas.requestAnimationFrame(cb),
-    cancelAnimationFrame: id => canvas.cancelAnimationFrame(id),
+    animationFrame: cb => (canvas as any).requestAnimationFrame(cb),
+    cancelAnimationFrame: id => (canvas as any).cancelAnimationFrame(id),
     onError: error => console.error("[SSNoir community adapter]", error)
   }).then(session => {
     const notifyTouch = (event: any) => {
