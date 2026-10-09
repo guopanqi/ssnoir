@@ -116,6 +116,7 @@ try{
 
  // Import without modifying the original research conclusions.
  await page.locator("#import-file").setInputFiles(file);
+ await page.waitForFunction(()=>document.querySelector("#selected-title").textContent.includes("追击领先目标"));
  assert.match(await page.locator("#selected-title").innerText(),/追击领先目标/);
  assert.match(await page.locator("#fb-decisiveMoment").inputValue(),/第二手之后/);
 
