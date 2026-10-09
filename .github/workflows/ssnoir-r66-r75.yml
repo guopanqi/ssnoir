@@ -7,6 +7,7 @@ on:
       - '.github/workflows/ssnoir-r66-r75.yml'
       - 'tools/content-validator/experiments/r66_decay_semantics.py'
       - 'tools/content-validator/experiments/r67_r75_structural_probe.py'
+      - 'tools/content-validator/experiments/r71_transfer_audit.py'
       - 'tools/content-validator/experiments/r56_r65_autonomous_search.py'
 permissions:
   contents: read
@@ -37,6 +38,10 @@ jobs:
               assert row['adaptive']+1e-8>=row['best_per_root_baseline']
               print(row['id'],row['name'],'gap',row['gap'],'strict roots',row['strict_root_hands'])
           PY
+      - name: R71 voluntary conversion option-value audit
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r71_transfer_audit.py | tee /tmp/r71.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -44,4 +49,5 @@ jobs:
           path: |
             /tmp/r66.json
             /tmp/r67-r75.json
+            /tmp/r71.json
           retention-days: 90
