@@ -1,8 +1,22 @@
 # SSNoir 抽象玩法研究：人类试玩反馈协议 v1
 
-此目录是**人类和 Agent 的双向接口**：玩家在独立 HTML 研究工作台中选择优先实验、试玩或使用正式原型、填写感受、导出 JSON，并上传到 \`反馈/inbox/\`。研究者下一次续研必须**先阅读新反馈，再决定是否继续发展、弱化、暂停或重构模式**。
+## 在线提交 / 已提交反馈 / 原文件续写（当前推荐）
+
+打开 [GitHub Pages 研究工作台](https://guopanqi.github.io/ssnoir/)。仓库管理员首次需在 [Settings → Pages](https://github.com/guopanqi/ssnoir/settings/pages) 中选择 GitHub Actions 作为来源，具体见 [在线部署说明](../在线Pages部署.md)。
+
+在在线工作台里只需首次提供 Fine-grained GitHub PAT（只选 ssnoir、Contents: Read and write），页面可记住当前浏览器的 Token。完成试玩或填写感受，点击 **提交到 GitHub** 即可新建反馈；下方 **已提交** 列表可从仓库读取旧文件，点击 **继续编辑** 即可再试玩、修改文字并更新原文件。Token 不提交到仓库，GitHub API 保存时需要原文件 SHA 来防止意外覆盖。
+
+**重要**：仓库现在是公开的，反馈 JSON 也是公开的；勿填写个人敏感信息。Token 保存在当前浏览器 localStorage，同一 github.io 来源的其他 Pages 项目可能读取该 Token；慎用权限，配置到期时间。安全顾虑可选用下面的「导出 JSON → 手动上传」路线。
+
+原始玩家反馈在后续研究中必须保持；修改记录的每次提交都有 Git 历史版本。Agent 接续时先核查本目录新提交。
+
+
+
+此目录是**人类和 Agent 的双向接口**：玩家在在线 Pages 或离线 HTML 研究工作台中选择优先实验、试玩或使用正式原型、填写感受、导出 JSON，并上传到 \`反馈/inbox/\`。研究者下一次续研必须**先阅读新反馈，再决定是否继续发展、弱化、暂停或重构模式**。
 
 ## 玩家提交路径
+
+以下是**无需保存 Token 的备用方法**：
 
 1. 获取 GitHub Actions 生成的 \`ssnoir-abstract-pattern-atlas\` Artifact，将 \`研究总览.html\` 下载到电脑后用浏览器打开。也可用静态服务器打开仓库中的同名文件。
 2. 进入「先试玩」：浏览器内置 R54 / R50 的最小**交互示意版**，无需 Unity；R37 / R49 只有正式 C# / Scheme 或 Unity 调试入口。**浏览器版和正式引擎是两个不同执行环境**，其反馈必须分开解释。
