@@ -6,11 +6,14 @@
  */
 import { communityRuntime as runtime } from "./prelude";
 import "pixi.js/unsafe-eval";
-import { DOMAdapter } from "pixi.js";
+import { DOMAdapter, DOMPipe, extensions } from "pixi.js";
 import { mountFoundation } from "../foundation/render";
 
 declare const wx: any;
 const g = globalThis as any;
+// Mini Games have no HTML elements, and SSNoir does not use DOMContainer.
+// Disable Pixi's optional DOM render pipe instead of fabricating div/appendChild.
+extensions.remove(DOMPipe);
 try {
   const canvas = runtime.canvas as HTMLCanvasElement;
   const system = wx.getSystemInfoSync();
