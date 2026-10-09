@@ -10,6 +10,7 @@ on:
       - 'tools/content-validator/experiments/build_mechanism_atlas.py'
       - 'tools/content-validator/experiments/test_mechanism_field_station.mjs'
       - 'docs/实验/机制研究/试玩任务.json'
+      - 'tools/content-validator/experiments/mechanism_cloud_feedback.js'
 permissions:
   contents: read
 jobs:
