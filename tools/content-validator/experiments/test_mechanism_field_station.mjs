@@ -76,7 +76,7 @@ async function play(page,goalFn){
   await page.locator("#game .die:not([disabled])").first().click();
   await page.locator("#game .goal").nth(goalFn(n)).click();
   await page.getByRole("button",{name:"执行这一手 →"}).click();
-  if(++n>4)throw Error("play more than four dice");
+  if(++n>5)throw Error("play more than five dice");
  }
  return n;
 }
@@ -125,6 +125,20 @@ try{
  const saved=await download(page);
  assert.equal(saved.data.studyId,"R54");
  assert.equal(saved.data.runs.length,1);
+ assert.equal(saved.data.runs[0].handSize,4);
+ // Capacity ablation browser path: fifth die exists, recorded separately; old
+ // four-die feedback files and GitHub researcher replies stay compatible.
+ await page.locator("#capacity").selectOption("5");
+ await page.getByRole("button",{name:/再玩一局/}).click();
+ assert.equal(await page.locator("#game .die").count(),5);
+ assert.match(await page.locator("#game .game-header").innerText(),/0 \/ 5/);
+ await play(page,i=>i%2);
+ const compared=await download(page);
+ assert.equal(compared.data.studyId,"R54");
+ assert.equal(compared.data.runs.length,2);
+ assert.equal(compared.data.runs[0].handSize,4);
+ assert.equal(compared.data.runs[1].handSize,5);
+ assert.equal(compared.data.runs[1].initialDice.length,5);
  // R50: same/alternate dynamic feedback remains correctly implemented.
  await choose(page,"R50");
  await start(page);
@@ -202,5 +216,5 @@ try{
  assert.equal(mobileErrors.length,0,mobileErrors.join("\n"));
  await mp.screenshot({path:path.join(artifact,"mobile.png"),fullPage:true});
  await mobile.close();
- console.log("PASS: 11-item status list; R54 human reply and edit invalidation; R50/R54 play; feedback SHA updates; reload and mobile");
+ console.log("PASS: 11-item status list; R54 human reply and edit invalidation; R50/R54 4-v-5 play; feedback SHA updates; reload and mobile");
 }catch(e){console.error(e);process.exitCode=1}finally{await browser.close();}
