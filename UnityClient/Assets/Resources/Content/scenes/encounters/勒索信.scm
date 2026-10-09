@@ -500,7 +500,11 @@
   (if (= act 1)
       (node "勒索信-报摊"
         :anchor "勒索信-报摊"
-        :children (act1-nodes))
+        :children (cons
+          (at-anchor "勒索信-报摊"
+            (note-node "标注：尼尔在报摊蹲守" ""
+              "尼尔拿报纸挡着脸，目光却悄悄跟着邮箱旁的人。"))
+          (act1-nodes)))
       ;; Act2 是独立 Stage「巷子」。根名必须是「巷子」，才会命中
       ;; PortalIn_巷子 / Anchor_巷子 上的 StagePortalConfig，从码头邮箱一角穿门进入；
       ;; 若根直接叫「勒索信-巷口」等分区名，Portal 不会触发，镜头会跨城飞到 Stage 停泊位。
