@@ -4,6 +4,7 @@
  * All adaptations live in bootstrap / Pixi DOMAdapter.
  */
 import { wechatHost } from "./bootstrap";
+import "pixi.js/unsafe-eval";
 import { DOMAdapter } from "pixi.js";
 import { mountFoundation } from "../foundation/render";
 

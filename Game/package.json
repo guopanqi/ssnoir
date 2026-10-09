@@ -12,7 +12,8 @@
     "build:wechat": "vite build --config vite.wechat.config.ts && node scripts/package-wechat.mjs",
     "start:desktop": "electron .",
     "verify": "npm run typecheck && npm test && npm run build:web && npm run build:wechat",
-    "capture": "node scripts/capture.mjs"
+    "capture": "node scripts/capture.mjs",
+    "smoke:desktop": "node scripts/smoke-desktop.mjs"
   },
   "dependencies": {
     "biwascheme": "0.8.3",

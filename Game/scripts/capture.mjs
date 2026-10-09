@@ -7,42 +7,49 @@ const server = await createServer({
   server: { host: "127.0.0.1", port: 4173, strictPort: true }
 });
 let browser;
-let page;
 try {
   await server.listen();
   browser = await chromium.launch({
     headless: true,
-    args: [
-      "--no-sandbox",
-      "--enable-webgl",
-      "--enable-unsafe-swiftshader",
-      "--use-gl=angle",
-      "--use-angle=swiftshader"
-    ]
+    args: ["--no-sandbox", "--enable-webgl", "--enable-unsafe-swiftshader", "--use-gl=angle", "--use-angle=swiftshader"]
   });
-  page = await browser.newPage({ viewport: { width: 1024, height: 576 }, deviceScaleFactor: 1 });
-  const errors = [];
-  page.on("pageerror", error => errors.push(String(error)));
-  await page.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
-  await page.waitForFunction(
-    () => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 1,
-    null, { timeout: 20000 }
-  );
-  await page.mouse.click(160, 483);
-  await page.waitForFunction(
-    () => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 2,
-    null, { timeout: 10000 }
-  );
-  if (errors.length) throw new Error(errors.join("\n"));
-  mkdirSync("artifacts", { recursive: true });
-  await page.screenshot({ path: "artifacts/foundation-web.png", fullPage: true });
-  console.log("PASS: WebGL, Pixi pointertap and Scheme evaluation; screenshot saved.");
-} catch (error) {
-  if (page) {
-    mkdirSync("artifacts", { recursive: true });
-    await page.screenshot({ path: "artifacts/foundation-web-failed.png", fullPage: true }).catch(() => {});
+
+  for (const scenario of [
+    { name: "desktop", width: 1024, height: 576, touch: false },
+    { name: "mobile-landscape", width: 812, height: 375, touch: true }
+  ]) {
+    const context = await browser.newContext({
+      viewport: { width: scenario.width, height: scenario.height },
+      deviceScaleFactor: 1,
+      hasTouch: scenario.touch,
+      isMobile: scenario.touch
+    });
+    const page = await context.newPage();
+    const errors = [];
+    page.on("pageerror", error => errors.push(String(error)));
+    try {
+      await page.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
+      await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 1, null, { timeout: 20000 });
+
+      const scale = Math.min(scenario.width / 1024, scenario.height / 576);
+      const x = (scenario.width - 1024 * scale) / 2 + 160 * scale;
+      const y = (scenario.height - 576 * scale) / 2 + 483 * scale;
+      if (scenario.touch) await page.touchscreen.tap(x, y);
+      else await page.mouse.click(x, y);
+
+      await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 2, null, { timeout: 10000 });
+      if (errors.length) throw new Error(errors.join("\n"));
+      mkdirSync("artifacts", { recursive: true });
+      await page.screenshot({ path: "artifacts/foundation-" + scenario.name + ".png", fullPage: true });
+      console.log("PASS: " + scenario.name + " shared Three/Pixi context + Scheme + user input");
+    } catch (error) {
+      mkdirSync("artifacts", { recursive: true });
+      await page.screenshot({ path: "artifacts/foundation-" + scenario.name + "-failed.png", fullPage: true }).catch(() => {});
+      throw error;
+    } finally {
+      await context.close();
+    }
   }
-  throw error;
 } finally {
   if (browser) await browser.close();
   await server.close();

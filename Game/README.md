@@ -16,10 +16,11 @@ This is the planned **only** game project. Legacy C#/Unity code is retained duri
 npm install
 npm run verify             # TypeScript, real stdlib / Scheme tests, browser build, WeChat bundle
 npx playwright install chromium
-npm run capture            # headless Chromium actually renders and clicks, uploads PNG in CI
+npm run capture            # headless Chromium desktop click + mobile landscape touch screenshots
 npm run dev                # browser interactive preview
 npm run build:web
 npm run start:desktop      # Electron requires a graphical desktop
+npm run smoke:desktop      # Electron graphical smoke; use xvfb-run on headless Linux
 npm run build:wechat       # import dist/wechat in WeChat DevTools as Mini Game
 \`\`\`
 
@@ -29,8 +30,8 @@ npm run build:wechat       # import dist/wechat in WeChat DevTools as Mini Game
 |---|---|---|
 | Scheme syntax/semantics | Yes, tests using *real stdlib.scm* | GitHub Actions pass |
 | Browser 3D + 2D same GL context | Yes | Playwright click succeeds, screenshot reviewed |
-| Browser resized/mobile touch | Basic layout | Playwright additional viewport / touch tests |
-| Electron window | Browser bundle reused | Desktop graphical smoke still needed |
+| Browser resized/mobile touch | Mobile landscape test | Playwright 812x375 tap + screenshot |
+| Electron window | Browser bundle reused | CI runs Electron on Xvfb; native Windows/macOS manual check still pending |
 | WeChat Three + Pixi shared GL | Code and packaging in place | **WeChat DevTools + Android and iOS real devices pending** |
 | WeChat font/touch/lifecycle | Touch manually routed by WX event | Real devices pending |
 | Full \`engine.scm\` / \`world.scm\` | Not yet | Stage 2 after platform decision |

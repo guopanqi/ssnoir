@@ -25,8 +25,6 @@ jobs:
         with:
           node-version: '22'
       - name: Install dependencies
-        env:
-          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
         run: npm install --no-audit --no-fund
       - name: Verify foundation
         run: npm run verify
@@ -34,6 +32,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Browser smoke and capture
         run: npm run capture
+      - name: Electron smoke (virtual display)
+        run: xvfb-run -a npm run smoke:desktop
       - name: Publish commit validation status
         if: always()
         env:
