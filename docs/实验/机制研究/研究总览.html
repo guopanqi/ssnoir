@@ -426,8 +426,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 .plain-log{max-width:850px;border-top:1px solid var(--line)}.plain-log-day{font-size:12px;color:#3157e7;font-weight:760;padding:20px 0 5px}.plain-log article{display:grid;grid-template-columns:43px 1fr;gap:12px;padding:17px 0;border-bottom:1px solid var(--line)}.plain-log article .log-number{font:500 19px "Iowan Old Style","Songti SC",serif;color:#a8ada6}.plain-log article p{margin:0;font-size:13px;line-height:1.95;color:#48544c}.plain-log-source{display:flex;flex-wrap:wrap;gap:20px;margin-top:27px;font-size:12px;font-weight:720}
 @media(max-width:1250px){.field-shell{grid-template-columns:165px minmax(0,1fr)}.wb-lab-layout{grid-template-columns:200px minmax(0,1fr)}.workspace-grid{grid-template-columns:1fr}.research-network{grid-template-columns:minmax(0,1fr) minmax(245px,.8fr)}}
 @media(max-width:850px){.field-shell{display:block}.overview-primary{grid-template-columns:1fr}.overview-updates-list{grid-template-columns:1fr}.overview-updates-list .wb-note,.overview-updates-list .wb-note+.wb-note{padding:11px 0;border-left:0}.wb-lab-layout{display:block}.experiment-sidebar{position:relative;top:0;max-height:none;margin-bottom:16px}.experiment-list{max-height:240px;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid{grid-template-columns:1fr}.research-network{grid-template-columns:1fr}.research-network-detail{position:relative;top:0}.simple-heading{align-items:start}.research-network-tree{padding:19px}}
-@media(max-width:480px){.experiment-list{grid-template-columns:1fr;max-height:190px}.research-network-tree{padding:13px}.network-branches{padding-left:20px}.network-branch{grid-template-columns:1fr;gap:5px;padding:10px 0}.network-branch:before{left:-7px;width:7px}.network-branches:before{left:13px}.network-branch-nodes{padding-left:0}.network-branch-nodes:before,.network-branch-nodes:after{display:none}.overview-lead,.overview-attention{padding:22px}.detail-intro{display:block}.detail-intro strong{display:block;margin-bottom:4px}.simple-heading{display:block}}
-</style></head>
+@media(max-width:480px){.experiment-list{grid-template-columns:1fr;max-height:190px}.research-network-tree{padding:13px}.network-branches{padding-left:20px}.network-branch{grid-template-columns:1fr;gap:5px;padding:10px 0}.network-branch:before{left:-7px;width:7px}.network-branches:before{left:13px}.network-branch-nodes{padding-left:0}.network-branch-nodes:before,.network-branch-nodes:after{display:none}.overview-lead,.overview-attention{padding:22px}.detail-intro{display:block}.detail-intro strong{display:block;margin-bottom:4px}.simple-heading{display:block}}</style></head>
 <body><div class="field-shell"><aside class="field-side" aria-label="主导航">
   <a href="#overview" class="field-brand" aria-label="OPEN FIELD · SSNoir 研究工作台">
     <span class="field-mark" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -465,7 +464,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 </aside>
 <div class="experiment-content"><section class="workspace" id="workshop">
 <div class="detail-top"><div><span class="eyebrow" id="selected-study"></span><h2 id="selected-title"></h2><p id="selected-description"></p></div><span class="detail-state" id="selected-state"></span></div>
-<div class="detail-intro"><div><strong>研究希望观察</strong><p id="selected-observe"></p></div></div>
+<div class="detail-intro"><div><strong>研究希望观察</strong><p id="selected-observe"></p><div id="study-lineage" class="inline"></div></div></div>
 <div class="workspace-grid"><div class="panel play-panel"><div class="panel-head"><div><h3>试玩</h3><p class="desc" id="play-label"></p></div><span class="flag" id="engine-label"></span></div>
 <div id="game"></div><details class="quiet-details"><summary>正式 Unity / C# + Scheme 原型和证据</summary><div id="official"></div></details></div>
 <div class="panel feedback-panel"><div class="panel-head"><div><h3>反馈</h3><p class="desc">不需要正式报告，写下重要的时刻。</p></div><span class="flag" id="cloud-status">读取中</span></div>
@@ -478,7 +477,13 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 <div id="cloud-connected" class="hidden"><div class="inline"><span class="minor" id="gh-user"></span><button class="button ghost tiny" id="gh-refresh">刷新反馈</button><button class="button ghost tiny" id="gh-disconnect">清除 Token</button></div></div>
 </details></div></div>
 <section class="review-section" id="research-response"><div class="review-heading"><div><h3>研究回复</h3></div><span class="minor">按反馈版本回复 · 非实时 AI</span></div>
-<div id="research-reply" class="review-paper"></div><details class="wb-records" id="github-feedback"><summary>历史反馈 · 继续编辑</summary><div id="gh-list"></div></details></section>
+<div id="research-reply" class="review-paper"></div>
+<div class="callout" id="reply-composer">
+<strong>回复研究者 · 不修改原反馈</strong><p class="minor" id="reply-context">旧反馈与研究者回复将保留为研究记录。</p>
+<textarea id="research-reply-text" rows="3" style="width:100%;padding:10px;margin:8px 0" placeholder="我不同意哪一点？新的试玩感受是什么？下一步应该怎样研究？"></textarea>
+<div class="inline"><button id="gh-reply" class="button">提交独立回帖 ↗</button><span id="reply-status" class="minor" role="status"></span></div>
+</div><div id="thread-history" aria-live="polite"></div>
+<details class="wb-records" id="github-feedback"><summary>历史反馈 · 继续编辑</summary><div id="gh-list"></div></details></section>
 </section></div></div></section>
 <section class="wb-page hidden" id="map">
 <div class="simple-heading"><div><span class="section-label">RESEARCH MAP / 探索路径</span><h1>我们探索了哪些方向？</h1><p class="simple-subtitle">沿着分支查看已研究的机制。点击任一节点，阅读实际证据、局限和后续问题。</p></div><span class="simple-count" id="wb-map-count"></span></div>
@@ -493,18 +498,345 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 </section>
 <div class="hidden" aria-hidden="true"><div id="patterns"></div><div id="not-promoted"></div><ul id="now-research"></ul><a id="research-root"></a></div>
 </main><footer class="wrap foot"><span>SSNOIR / HUMAN–AGENT RESEARCH</span><span>资料更新 <span id="updated"></span> · 反馈有版本，结论可修订</span></footer></div></div><div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
-<script type="application/json" id="atlas-data">{"version":1,"updated":"2026-10-09","title":"SSNoir · 抽象玩法结构研究","subtitle":"研究少量规则如何让玩家重新分配资源、改变优先级与调整计划；情景和人物意义由设计者另行创作。","summary":"六种保留的抽象决策关系；R54已收到5局网页试玩，R50新收到1局网页体验，R37收到1份正式环境文字评价。R50修正值有可感知的作用，但此前目标与结算交代不清；目前优先采用规则固定、随机种子可配对的清晰目标呈现对照。R37反馈肯定推进产生问题和失败压力两种结构，但对触发源尚无公平比较。数学、正式引擎和真人反馈继续分开。","principles":["观察玩家为什么改变主意，而不是数进度条。","先找可解释的强策略与退化边界，再计算完整最优。","数学、正式规则运行、真人体验各说各的话。","一个模式的价值来自它能支持怎样的思考，复杂度不是成绩。"],"evidenceLegend":{"math":"精确模型或纸面反证","native":"C# + 正式 Scheme 会话或严格回放","human":"记录到的真人体验反馈"},"patterns":[{"id":"risk","name":"稳险选择","family":"基础原语","theme":"收益与风险","focus":"基础已认可","decision":"现在选择更可靠的一小步，还是用较高波动争取一次大推进？","principle":"同一结果分布作用在两种收益表上；安全行动低波动，冒险行动好档收益高、中档可能有代价。","steps":["公开每种动作的坏／中／好收益","相同骰面投入稳做或险做","剩余目标与冷静改变两者的价值"],"dynamic":"临近终点、剩余骰质量、冷静余量变化会改变安全与冒险的相对价值。","why":"容易学会，却能贯穿许多场面；不是独立长交锋深度的保证。","counter":"若好档已保证、失败代价可忽略或一种行动处处支配另一种，玩家会形成固定选择。","boundary":"已有反馈认可基本模式，未证明所有数值版本都有乐趣。早期大数字原型不能直接代表游戏内小收益口径。","next":"用正式惯用收益在具体目标余量中测何时发生可理解的稳险切换。","metric":null,"evidence":{"math":true,"native":true,"human":true},"evidenceNote":"R06设计者认可稳险基本模式；数学与正式原型在旧批次保存。不是受控盲测。","potential":"可复用基础；表现简单，独立作为整场机制的上限有限。","links":[{"label":"R06 试玩反馈与收益口径","href":"批次/R06-试玩反馈与收益口径/研究记录.md"},{"label":"现有原型入口","href":"../../../UnityClient/Assets/Resources/Content/scenes/encounters/研究·稳险选择.scm"}]},{"id":"pressure","name":"推进制造待处理问题","family":"复合关系","theme":"进度与负担","focus":"人类反馈认可基础 · 等待触发源公平对照","decision":"是继续快速完成原目标，还是暂停推进、先消除自己造成的持续负担？","principle":"推进主目标跨过阈值时出现新问题；未解决问题在回合末增加不可逆压力；失败也可能立即加压。","steps":["主目标A推进","达到阈值产生问题B、C","不修理则每回合增加压力","根据剩余资源重新决定修理还是继续推进"],"dynamic":"同一行动在不同压力余量和目标剩余量下会改变优先级；必须区分新的动态选择与仅仅提高难度。","why":"一个清晰的因果关系把完成目标与处理副作用联系起来，容易组合到不同玩法。","counter":"容量富余时只推进即可近乎最优；修复对象对称时固定先修短项能解释选择。","boundary":"R36校准到目标12后早完成效用才出现明显策略差异；R38收窄了对象选择价值。真人对重复感尚未裁决。 现有人类反馈认可这类重排任务优先级的关系，但两种触发来源尚未在控制出现频率与成本后公平对照。","next":"先设计「推进成功跨阈值产生问题」与「失败累积压力到阈值产生问题」的等负担触发源对照，观察可预测性/主动承担与概率性补救的差别；不要只把失败组设得更难。","metric":{"value":"1.422 vs 1.346","unit":"早完成期望效用","explanation":"R36 自由策略与「每回合先选固定修/推偏好」强参照；差约5.34%完整效用，不等于乐趣增加5.34%。"},"evidence":{"math":true,"native":true,"human":true},"evidenceNote":"R37 18条正式模拟轨迹／192步与严格回放不变；2026-10-09收到1份标注正式环境的文字反馈，玩家认可「推进生问题」和「失败推高压力」两种关系并描述好骰优先推进、差骰优先修补。反馈未附实际行动日志，非严格回放证明。","potential":"得到一份具体的人类正向反应，玩家能描述骰面质量改变优先目标；仍需多个配置与具体逐手路径检验。不同问题触发源可能是独立可复用关系，未定论。","links":[{"label":"R36 容量校准和对照","href":"批次/R36-资源余量与选择增量/研究记录.md"},{"label":"R37 正式试玩规则","href":"批次/R37-压力预算正式接入/README.md"},{"label":"R37 首份人类反馈与触发源假设","href":"批次/R37-真人反馈与触发源对照/研究记录.md"}]},{"id":"reveal","name":"边做边看","family":"信息关系","theme":"信息与承诺","focus":"基础已认可","decision":"先对某条路线投入多少，知道新信息后还要不要继续？","principle":"行动既产生可保留的进度，又会揭示路线长度；放弃已投入部分是否值得，随余骰与公开结果改变。","steps":["路线长度未知","用一次正常推进获得信息和进度","揭示路线长短","继续投入或转向另一条"],"dynamic":"发现路线较长而剩余行动有限时，可能从继续投入变为换路线。","why":"信息不是纯粹的菜单选项，而由正常行动自然产生；容易形成继续/放弃的思考。","counter":"低骰先试并在揭示后照固定口诀做，可能解释大部分收益；没有剩余行动时信息不值钱。","boundary":"R10真人反馈认可有思考与重玩意愿，但也指出体验偏猜测，尚未证明它足以支撑完整交锋。","next":"改善信息表达，比较玩家是否能解释转向原因，而不只是猜长度。","metric":null,"evidence":{"math":true,"native":true,"human":true},"evidenceNote":"R09正式候选与R10设计者试玩反馈；具体条件并非受控样本。","potential":"非常适合复用的信息结构，但需防止「只是瞎猜」和开手流程化。","links":[{"label":"R09 机制与成长边界","href":"批次/R09-成长与行动中的信息/研究记录.md"},{"label":"R10 真人反馈","href":"批次/R10-试玩裁决与交锋方向/研究记录.md"}]},{"id":"scarce","name":"容量不足下的成果取舍","family":"基础结构","theme":"目标与收益","focus":"值得试玩","decision":"有限行动只够获得部分成果：先争容易兑现的小目标，还是冒险抢更高价值的大目标？","principle":"多个成果的完成价值不同；半成品为零；同一骰池不足以保证全部拿到，允许中途转向。","steps":["甲目标短、收益低；乙目标长、收益高","观察同一组骰子","在剩余容量和实际判定后选择继续或改投","结算仅奖励完整成果"],"dynamic":"上一手没有达到预期进度后，剩余容量可能让大目标不再值得投入。","why":"用很少的规则建立明确的机会成本，容易与时间或信息模式组合。","counter":"两个目标同收益时固定选短；成长过高时固定选大；只比较无脑固定一项会夸大动态优势。","boundary":"R13数学及正式对照通过；约31.05%是选定最优模型路径的转向质量，不是玩家频率。","next":"用无提示的可玩原型检查玩家是否真能理解不同成果的兑现规则。","metric":{"value":"1.489 vs 1.354","unit":"期望成果效用","explanation":"R13自由分配与开局固定目标参照，不是胜率；成长1局部参数。"},"evidence":{"math":true,"native":true,"human":false},"evidenceNote":"R13正式入场配置、数学与局部决策轨迹；真人待补。","potential":"规则经济、适合组合；对效用差异及成长水平敏感。","links":[{"label":"R13 成果取舍研究","href":"批次/R13-启动窗口与成果取舍/研究记录.md"},{"label":"R13 试玩入口","href":"批次/R13-启动窗口与成果取舍/README.md"}]},{"id":"reactive","name":"对手追击领先目标","family":"对手响应","theme":"诱敌与动态分诊","focus":"已有真人反馈 · 容量对照可选","decision":"是尽快兑现一条目标，还是让它暂时领先，吸引对手攻击，从而保护另一条高价值目标？","principle":"甲达到3立即得到成果1，乙达到5立即得到成果2；四骰，每两次行动后对手扣除当前进度较高目标的2格，平手扣甲。任何目标完成立即结算。","steps":["甲短、乙长，两项目进度公开","两次行动后对手攻击领先项目","可以分散推进以引导攻击","再决定赶短目标还是保留长目标"],"dynamic":"每次判定改变两目标的相对进度和下一次被攻击的位置；玩家可能故意保持一项领先，让另一项免于受损。","why":"对手不需要复杂AI；一条公开的反应规则，就可能使「进度较高」同时成为优势和风险。数学前向轨迹也出现了真正改变后续价值的引导攻击。","counter":"数学最优路径的诱敌比例不能推断真人一定会诱敌。首轮5局反馈显示，开局行动和余骰容量可能使后续换目标很难；另有固定攻击乙的消融也有自由策略增量。下一轮应分别比较开局与过程取舍。","boundary":"成长1的期望效用自由1.259075、最强开局固定目标序1.103106；数学前向审计在指定最优策略及并列策略裁决下，22.17%路径有甲替有进度的乙挨打、20.21%路径该攻击位置具有严格反事实正价值。不是人类频率，且同值策略影响比例。 同规则数学容量对照（成长1）：4→5骰时自由期望效用1.259→1.469，乙完成概率40.19%→58.05%；严格值得在第3手切目标的所选最优策略路径反而42.95%→41.26%，不能声称容量自动改善过程决策。","next":"现有四骰5局反馈已审阅；可选独立五骰浏览器对照，区分高收益目标更易兑现与是否真正产生中途转向。R50目前更缺真人反馈。","metric":{"value":"1.259 vs 1.103","unit":"期望成果效用","explanation":"R54成长1，完整逐手决策与开局最优固定目标顺序（仍逐步择骰）；成果效用最大2，不是成功率。"},"evidence":{"math":true,"native":true,"human":true},"evidenceNote":"R54 数学与15局原生回放证据不变。2026-10-09 收到1份浏览器示意版人类反馈，共5局（甲1、乙1、超时3），报告按骰子质量选择短/长目标，过程中因余量不足较少改计划。这是主观体验而非代表性频率。研究者已按具体反馈版本回复，修改后须重新审阅。 GitHub Actions run 37896433811 的精确 Fraction 4/5骰对照成功；五骰尚无正式C#或真人反馈。","potential":"两种决策价值可能同时存在：开局比较较易达成的甲与较高回报的乙，过程可通过领先进度影响对手。首轮试玩感受到了前者，尚未明显体验后者；因此维持潜力判断并分开测试，不下好/坏结论。","links":[{"label":"R51–R54 研究记录","href":"批次/R51-R54-结构广度探索/研究记录.md"},{"label":"R54 正式原型","href":"../../../UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm"},{"label":"完整 R54 数学与正式 CI 证据","href":"https://github.com/guopanqi/ssnoir/actions/runs/37887824281"},{"label":"R54 首份真人反馈与研究回复","href":"反馈/reviews/SSNoir-feedback-R54-20261009-062528-43765ce6ee.json"},{"label":"R54 四/五骰容量对照记录","href":"批次/R54-真人反馈容量对照/研究记录.md"}]},{"id":"echo","name":"动作回声","family":"行动交互","theme":"次序与反馈","focus":"已有人类反馈 · 呈现对照","decision":"继续同一目标会使下一手变难，切换目标反而更容易；什么时候值得坚持、什么时候换手？","principle":"上一手选择甲或乙后，下一手同目标准备值−1，换目标+1；可逆且公开，首手无修正。","steps":["玩家选择甲或乙","结果给当前目标0/1/2格","更新下一手各目标的公开赔率","比较继续与切换的价值"],"dynamic":"每次实际结果都改变剩余需求，固定轮换未必最优；若接近完成，承受连续投入惩罚仍可能值得。","why":"只记上一手就能创造跨行动的选择关联，不依赖新增危险钟或隐藏规则。","counter":"对四骰逐手优化骰子后，最强的固定交替、固定专注、临近终点坚持等口诀族仅1.482275，对自由1.601626；成长2/3差距缩小。下一步反证玩家实际会不会理解和响应，而非继续发明阈值。","boundary":"R50成长1自由1.601626，最强固定目标序1.479843，最佳可解释口诀族1.482275；无回声控制组自由1.733284。绝不能把完成效用下降当玩法质量上升。技能3时口诀差仅0.018424。 本轮已收到1份网页4骰体验：玩家感受到修正值影响下一手，但没有明确理解一局的最终目的，不能把这个呈现问题算作规则本身的无效或有效。","next":"尝试网页同规则双呈现对照：先用明确目标的「四手内甲3值1/乙5值2，否则0且无伤势」，再用同随机种子的旧简略说明。记录是否因此更理解目标，还是仍觉得缺乏回合压力和后果。","metric":{"value":"1.602 vs 1.480","unit":"期望成果效用","explanation":"R50成长1：完整逐手响应 vs 开局固定目标序且逐手择骰；最强可解释口诀族为1.482。效用上限2。"},"evidence":{"math":true,"native":true,"human":true},"evidenceNote":"R50 数学与12局原生严格回放保持不变。2026-10-09新增1份网页示意版真人文字反馈+1局实际行动路径；确认感受到行动间修正，但不知道该追求更高收益或避免伤势。研究者SHA绑定回复已归档；未验证哪种呈现更好。","potential":"规则修正有1位玩家可感知，数学抗固定口诀的证据保留；目前目标和结果缺乏清晰意义。优先修实验表达、收集后续体验，不将其晋升为成熟玩法。","links":[{"label":"R50 研究记录","href":"批次/R50-动作回声/研究记录.md"},{"label":"R50 数学脚本","href":"../../../tools/content-validator/experiments/r50_recent_action.py"},{"label":"R50 玩家反馈与同规则呈现对照","href":"批次/R50-人类反馈与呈现对照/研究记录.md"}]}],"workflow":[{"label":"明确一个决策关系","detail":"冻结最小规则和可观察的触发条件"},{"label":"寻找最强简化解释","detail":"固定顺序、贪心、容量和支配反证"},{"label":"模型与原生分层验证","detail":"数学/正式C#会话/真人不混用"},{"label":"将结论交给设计者","detail":"模式、价值、局限和后续应用由人判断"}],"nextQuestions":["R50：目标明确说明是否改善玩家对策略目的的理解？与原简略说明做同种子对照，别提前加伤势或回合。","R37：推进成功生成问题与失败阈值生成问题是否产生不同的决策感觉？先匹配出现负担和修理成本。","R54：保留既有开局收益判断与可选4/5骰容量对照；不再为提高数学换线率盲目扫参。","新机制研究：待真人反馈稳定后再启动新结构，避免只增加计算表而忽略体验来源。"],"references":[{"label":"研究定位与评价","href":"研究定位与评价.md"},{"label":"研究队列","href":"研究队列.md"},{"label":"更宽的关系索引（包括失败）","href":"关系索引.md"},{"label":"当前接续状态","href":"当前状态.md"}]}</script>
+<script type="application/json" id="atlas-data">{
+  "version": 1,
+  "updated": "2026-10-09",
+  "title": "SSNoir · 抽象玩法结构研究",
+  "subtitle": "研究少量规则如何让玩家重新分配资源、改变优先级与调整计划；情景和人物意义由设计者另行创作。",
+  "summary": "完成R66–R75新一批十轮Agent自主研究：R66发现旧R61完成可被撤销，成果保留后动态优势缩至0.00269；R71相对简明脚本虽有0.04834优势，实际搬移动作消融增益仅0.00048，暂不晋升。其余R67–R75按强简单策略与同构关系反证。研究记忆保留20轮，下一批R76空间位置/R77延迟信息/R78撤回权，无需等待玩家反馈。",
+  "principles": [
+    "观察玩家为什么改变主意，而不是数进度条。",
+    "先找可解释的强策略与退化边界，再计算完整最优。",
+    "数学、正式规则运行、真人体验各说各的话。",
+    "一个模式的价值来自它能支持怎样的思考，复杂度不是成绩。"
+  ],
+  "evidenceLegend": {
+    "math": "精确模型或纸面反证",
+    "native": "C# + 正式 Scheme 会话或严格回放",
+    "human": "记录到的真人体验反馈"
+  },
+  "patterns": [
+    {
+      "id": "risk",
+      "name": "稳险选择",
+      "family": "基础原语",
+      "theme": "收益与风险",
+      "focus": "基础已认可",
+      "decision": "现在选择更可靠的一小步，还是用较高波动争取一次大推进？",
+      "principle": "同一结果分布作用在两种收益表上；安全行动低波动，冒险行动好档收益高、中档可能有代价。",
+      "steps": [
+        "公开每种动作的坏／中／好收益",
+        "相同骰面投入稳做或险做",
+        "剩余目标与冷静改变两者的价值"
+      ],
+      "dynamic": "临近终点、剩余骰质量、冷静余量变化会改变安全与冒险的相对价值。",
+      "why": "容易学会，却能贯穿许多场面；不是独立长交锋深度的保证。",
+      "counter": "若好档已保证、失败代价可忽略或一种行动处处支配另一种，玩家会形成固定选择。",
+      "boundary": "已有反馈认可基本模式，未证明所有数值版本都有乐趣。早期大数字原型不能直接代表游戏内小收益口径。",
+      "next": "用正式惯用收益在具体目标余量中测何时发生可理解的稳险切换。",
+      "metric": null,
+      "evidence": {
+        "math": true,
+        "native": true,
+        "human": true
+      },
+      "evidenceNote": "R06设计者认可稳险基本模式；数学与正式原型在旧批次保存。不是受控盲测。",
+      "potential": "可复用基础；表现简单，独立作为整场机制的上限有限。",
+      "links": [
+        {
+          "label": "R06 试玩反馈与收益口径",
+          "href": "批次/R06-试玩反馈与收益口径/研究记录.md"
+        },
+        {
+          "label": "现有原型入口",
+          "href": "../../../UnityClient/Assets/Resources/Content/scenes/encounters/研究·稳险选择.scm"
+        }
+      ]
+    },
+    {
+      "id": "pressure",
+      "name": "推进制造待处理问题",
+      "family": "复合关系",
+      "theme": "进度与负担",
+      "focus": "人类反馈认可基础 · 等待触发源公平对照",
+      "decision": "是继续快速完成原目标，还是暂停推进、先消除自己造成的持续负担？",
+      "principle": "推进主目标跨过阈值时出现新问题；未解决问题在回合末增加不可逆压力；失败也可能立即加压。",
+      "steps": [
+        "主目标A推进",
+        "达到阈值产生问题B、C",
+        "不修理则每回合增加压力",
+        "根据剩余资源重新决定修理还是继续推进"
+      ],
+      "dynamic": "同一行动在不同压力余量和目标剩余量下会改变优先级；必须区分新的动态选择与仅仅提高难度。",
+      "why": "一个清晰的因果关系把完成目标与处理副作用联系起来，容易组合到不同玩法。",
+      "counter": "容量富余时只推进即可近乎最优；修复对象对称时固定先修短项能解释选择。",
+      "boundary": "R36校准到目标12后早完成效用才出现明显策略差异；R38收窄了对象选择价值。真人对重复感尚未裁决。 现有人类反馈认可这类重排任务优先级的关系，但两种触发来源尚未在控制出现频率与成本后公平对照。",
+      "next": "先设计「推进成功跨阈值产生问题」与「失败累积压力到阈值产生问题」的等负担触发源对照，观察可预测性/主动承担与概率性补救的差别；不要只把失败组设得更难。",
+      "metric": {
+        "value": "1.422 vs 1.346",
+        "unit": "早完成期望效用",
+        "explanation": "R36 自由策略与「每回合先选固定修/推偏好」强参照；差约5.34%完整效用，不等于乐趣增加5.34%。"
+      },
+      "evidence": {
+        "math": true,
+        "native": true,
+        "human": true
+      },
+      "evidenceNote": "R37 18条正式模拟轨迹／192步与严格回放不变；2026-10-09收到1份标注正式环境的文字反馈，玩家认可「推进生问题」和「失败推高压力」两种关系并描述好骰优先推进、差骰优先修补。反馈未附实际行动日志，非严格回放证明。",
+      "potential": "得到一份具体的人类正向反应，玩家能描述骰面质量改变优先目标；仍需多个配置与具体逐手路径检验。不同问题触发源可能是独立可复用关系，未定论。",
+      "links": [
+        {
+          "label": "R36 容量校准和对照",
+          "href": "批次/R36-资源余量与选择增量/研究记录.md"
+        },
+        {
+          "label": "R37 正式试玩规则",
+          "href": "批次/R37-压力预算正式接入/README.md"
+        },
+        {
+          "label": "R37 首份人类反馈与触发源假设",
+          "href": "批次/R37-真人反馈与触发源对照/研究记录.md"
+        }
+      ]
+    },
+    {
+      "id": "reveal",
+      "name": "边做边看",
+      "family": "信息关系",
+      "theme": "信息与承诺",
+      "focus": "基础已认可",
+      "decision": "先对某条路线投入多少，知道新信息后还要不要继续？",
+      "principle": "行动既产生可保留的进度，又会揭示路线长度；放弃已投入部分是否值得，随余骰与公开结果改变。",
+      "steps": [
+        "路线长度未知",
+        "用一次正常推进获得信息和进度",
+        "揭示路线长短",
+        "继续投入或转向另一条"
+      ],
+      "dynamic": "发现路线较长而剩余行动有限时，可能从继续投入变为换路线。",
+      "why": "信息不是纯粹的菜单选项，而由正常行动自然产生；容易形成继续/放弃的思考。",
+      "counter": "低骰先试并在揭示后照固定口诀做，可能解释大部分收益；没有剩余行动时信息不值钱。",
+      "boundary": "R10真人反馈认可有思考与重玩意愿，但也指出体验偏猜测，尚未证明它足以支撑完整交锋。",
+      "next": "改善信息表达，比较玩家是否能解释转向原因，而不只是猜长度。",
+      "metric": null,
+      "evidence": {
+        "math": true,
+        "native": true,
+        "human": true
+      },
+      "evidenceNote": "R09正式候选与R10设计者试玩反馈；具体条件并非受控样本。",
+      "potential": "非常适合复用的信息结构，但需防止「只是瞎猜」和开手流程化。",
+      "links": [
+        {
+          "label": "R09 机制与成长边界",
+          "href": "批次/R09-成长与行动中的信息/研究记录.md"
+        },
+        {
+          "label": "R10 真人反馈",
+          "href": "批次/R10-试玩裁决与交锋方向/研究记录.md"
+        }
+      ]
+    },
+    {
+      "id": "scarce",
+      "name": "容量不足下的成果取舍",
+      "family": "基础结构",
+      "theme": "目标与收益",
+      "focus": "值得试玩",
+      "decision": "有限行动只够获得部分成果：先争容易兑现的小目标，还是冒险抢更高价值的大目标？",
+      "principle": "多个成果的完成价值不同；半成品为零；同一骰池不足以保证全部拿到，允许中途转向。",
+      "steps": [
+        "甲目标短、收益低；乙目标长、收益高",
+        "观察同一组骰子",
+        "在剩余容量和实际判定后选择继续或改投",
+        "结算仅奖励完整成果"
+      ],
+      "dynamic": "上一手没有达到预期进度后，剩余容量可能让大目标不再值得投入。",
+      "why": "用很少的规则建立明确的机会成本，容易与时间或信息模式组合。",
+      "counter": "两个目标同收益时固定选短；成长过高时固定选大；只比较无脑固定一项会夸大动态优势。",
+      "boundary": "R13数学及正式对照通过；约31.05%是选定最优模型路径的转向质量，不是玩家频率。",
+      "next": "用无提示的可玩原型检查玩家是否真能理解不同成果的兑现规则。",
+      "metric": {
+        "value": "1.489 vs 1.354",
+        "unit": "期望成果效用",
+        "explanation": "R13自由分配与开局固定目标参照，不是胜率；成长1局部参数。"
+      },
+      "evidence": {
+        "math": true,
+        "native": true,
+        "human": false
+      },
+      "evidenceNote": "R13正式入场配置、数学与局部决策轨迹；真人待补。",
+      "potential": "规则经济、适合组合；对效用差异及成长水平敏感。",
+      "links": [
+        {
+          "label": "R13 成果取舍研究",
+          "href": "批次/R13-启动窗口与成果取舍/研究记录.md"
+        },
+        {
+          "label": "R13 试玩入口",
+          "href": "批次/R13-启动窗口与成果取舍/README.md"
+        }
+      ]
+    },
+    {
+      "id": "reactive",
+      "name": "对手追击领先目标",
+      "family": "对手响应",
+      "theme": "诱敌与动态分诊",
+      "focus": "已有真人反馈 · 容量对照可选",
+      "decision": "是尽快兑现一条目标，还是让它暂时领先，吸引对手攻击，从而保护另一条高价值目标？",
+      "principle": "甲达到3立即得到成果1，乙达到5立即得到成果2；四骰，每两次行动后对手扣除当前进度较高目标的2格，平手扣甲。任何目标完成立即结算。",
+      "steps": [
+        "甲短、乙长，两项目进度公开",
+        "两次行动后对手攻击领先项目",
+        "可以分散推进以引导攻击",
+        "再决定赶短目标还是保留长目标"
+      ],
+      "dynamic": "每次判定改变两目标的相对进度和下一次被攻击的位置；玩家可能故意保持一项领先，让另一项免于受损。",
+      "why": "对手不需要复杂AI；一条公开的反应规则，就可能使「进度较高」同时成为优势和风险。数学前向轨迹也出现了真正改变后续价值的引导攻击。",
+      "counter": "数学最优路径的诱敌比例不能推断真人一定会诱敌。首轮5局反馈显示，开局行动和余骰容量可能使后续换目标很难；另有固定攻击乙的消融也有自由策略增量。下一轮应分别比较开局与过程取舍。",
+      "boundary": "成长1的期望效用自由1.259075、最强开局固定目标序1.103106；数学前向审计在指定最优策略及并列策略裁决下，22.17%路径有甲替有进度的乙挨打、20.21%路径该攻击位置具有严格反事实正价值。不是人类频率，且同值策略影响比例。 同规则数学容量对照（成长1）：4→5骰时自由期望效用1.259→1.469，乙完成概率40.19%→58.05%；严格值得在第3手切目标的所选最优策略路径反而42.95%→41.26%，不能声称容量自动改善过程决策。",
+      "next": "现有四骰5局反馈已审阅；可选独立五骰浏览器对照，区分高收益目标更易兑现与是否真正产生中途转向。R50目前更缺真人反馈。",
+      "metric": {
+        "value": "1.259 vs 1.103",
+        "unit": "期望成果效用",
+        "explanation": "R54成长1，完整逐手决策与开局最优固定目标顺序（仍逐步择骰）；成果效用最大2，不是成功率。"
+      },
+      "evidence": {
+        "math": true,
+        "native": true,
+        "human": true
+      },
+      "evidenceNote": "R54 数学与15局原生回放证据不变。2026-10-09 收到1份浏览器示意版人类反馈，共5局（甲1、乙1、超时3），报告按骰子质量选择短/长目标，过程中因余量不足较少改计划。这是主观体验而非代表性频率。研究者已按具体反馈版本回复，修改后须重新审阅。 GitHub Actions run 37896433811 的精确 Fraction 4/5骰对照成功；五骰尚无正式C#或真人反馈。",
+      "potential": "两种决策价值可能同时存在：开局比较较易达成的甲与较高回报的乙，过程可通过领先进度影响对手。首轮试玩感受到了前者，尚未明显体验后者；因此维持潜力判断并分开测试，不下好/坏结论。",
+      "links": [
+        {
+          "label": "R51–R54 研究记录",
+          "href": "批次/R51-R54-结构广度探索/研究记录.md"
+        },
+        {
+          "label": "R54 正式原型",
+          "href": "../../../UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm"
+        },
+        {
+          "label": "完整 R54 数学与正式 CI 证据",
+          "href": "https://github.com/guopanqi/ssnoir/actions/runs/37887824281"
+        },
+        {
+          "label": "R54 首份真人反馈与研究回复",
+          "href": "反馈/reviews/SSNoir-feedback-R54-20261009-062528-43765ce6ee.json"
+        },
+        {
+          "label": "R54 四/五骰容量对照记录",
+          "href": "批次/R54-真人反馈容量对照/研究记录.md"
+        }
+      ]
+    },
+    {
+      "id": "echo",
+      "name": "动作回声",
+      "family": "行动交互",
+      "theme": "次序与反馈",
+      "focus": "已有人类反馈 · 呈现对照",
+      "decision": "继续同一目标会使下一手变难，切换目标反而更容易；什么时候值得坚持、什么时候换手？",
+      "principle": "上一手选择甲或乙后，下一手同目标准备值−1，换目标+1；可逆且公开，首手无修正。",
+      "steps": [
+        "玩家选择甲或乙",
+        "结果给当前目标0/1/2格",
+        "更新下一手各目标的公开赔率",
+        "比较继续与切换的价值"
+      ],
+      "dynamic": "每次实际结果都改变剩余需求，固定轮换未必最优；若接近完成，承受连续投入惩罚仍可能值得。",
+      "why": "只记上一手就能创造跨行动的选择关联，不依赖新增危险钟或隐藏规则。",
+      "counter": "对四骰逐手优化骰子后，最强的固定交替、固定专注、临近终点坚持等口诀族仅1.482275，对自由1.601626；成长2/3差距缩小。下一步反证玩家实际会不会理解和响应，而非继续发明阈值。",
+      "boundary": "R50成长1自由1.601626，最强固定目标序1.479843，最佳可解释口诀族1.482275；无回声控制组自由1.733284。绝不能把完成效用下降当玩法质量上升。技能3时口诀差仅0.018424。 本轮已收到1份网页4骰体验：玩家感受到修正值影响下一手，但没有明确理解一局的最终目的，不能把这个呈现问题算作规则本身的无效或有效。 最新用户在研究讨论中明确指出：四骰互斥完成导致先投入后难转向；仅更改说明文字无助于结构本身，这一意见优先于研究者此前只做呈现对照的计划。",
+      "next": "R50旧实验和一局用户反馈保留为历史基线；新的R55「双成果改道」独立更改完成条件与五骰行动容量，优先观察中途是否真的能换目标，否则可能退化为固定先甲后乙。",
+      "metric": {
+        "value": "1.602 vs 1.480",
+        "unit": "期望成果效用",
+        "explanation": "R50成长1：完整逐手响应 vs 开局固定目标序且逐手择骰；最强可解释口诀族为1.482。效用上限2。"
+      },
+      "evidence": {
+        "math": true,
+        "native": true,
+        "human": true
+      },
+      "evidenceNote": "R50 数学与12局原生严格回放保持不变。2026-10-09新增1份网页示意版真人文字反馈+1局实际行动路径；确认感受到行动间修正，但不知道该追求更高收益或避免伤势。研究者SHA绑定回复已归档；未验证哪种呈现更好。",
+      "potential": "规则修正有1位玩家可感知，数学抗固定口诀的证据保留；目前目标和结果缺乏清晰意义。优先修实验表达、收集后续体验，不将其晋升为成熟玩法。",
+      "links": [
+        {
+          "label": "R50 研究记录",
+          "href": "批次/R50-动作回声/研究记录.md"
+        },
+        {
+          "label": "R50 数学脚本",
+          "href": "../../../tools/content-validator/experiments/r50_recent_action.py"
+        },
+        {
+          "label": "R50 玩家反馈与同规则呈现对照",
+          "href": "批次/R50-人类反馈与呈现对照/研究记录.md"
+        },
+        {
+          "label": "R55 独立改版研究",
+          "href": "批次/R55-双成果改道/研究记录.md"
+        }
+      ]
+    }
+  ],
+  "workflow": [
+    {
+      "label": "明确一个决策关系",
+      "detail": "冻结最小规则和可观察的触发条件"
+    },
+    {
+      "label": "寻找最强简化解释",
+      "detail": "固定顺序、贪心、容量和支配反证"
+    },
+    {
+      "label": "模型与原生分层验证",
+      "detail": "数学/正式C#会话/真人不混用"
+    },
+    {
+      "label": "将结论交给设计者",
+      "detail": "模式、价值、局限和后续应用由人判断"
+    }
+  ],
+  "nextQuestions": [
+    "R76：探索空间位置与换位机会成本；不仅再做两个目标的进度竞争",
+    "R77：延迟揭示信息必须在真实玩家可观测信念层面建模，不能让模型偷看未来",
+    "R78：一笔可撤回的承诺是否具有超越简单到期退出阈值的决策价值",
+    "十轮R66–R75中未晋升新试玩候选；R61/R71因果消融否定了看似亮眼的策略差。R55仍可异步试玩。"
+  ],
+  "references": [
+    {
+      "label": "研究定位与评价",
+      "href": "研究定位与评价.md"
+    },
+    {
+      "label": "研究队列",
+      "href": "研究队列.md"
+    },
+    {
+      "label": "更宽的关系索引（包括失败）",
+      "href": "关系索引.md"
+    },
+    {
+      "label": "当前接续状态",
+      "href": "当前状态.md"
+    }
+  ]
+}</script>
 <script type="application/json" id="tasks-data">{
   "version": 1,
   "updated": "2026-10-09",
   "headline": "哪几种决策关系值得继续验证？",
   "intro": "每种实验的贡献可能是开局承诺、过程调整、目标权衡或信息判断。人类反馈用于发现实际决策和表达问题，不用于给模式直接打好坏分。",
   "current": [
-    "R50收到1份实际浏览器体验：行动回声的修正会影响下一手，但原版实验没有把四手内甲值1、乙值2、到期值0且无伤势说清；已有版本绑定研究者回复",
-    "R50网页现有两种仅信息呈现不同的条件，支持同随机种子配对，不改变正式概率与目标；优先看澄清是否解决体验疑问",
-    "R37收到1份标记正式环境的正向文字评价：骰面好时继续推进、差时先修补；未附逐手轨迹；已有研究者回复",
-    "R37进度阈值触发问题 vs 失败压力触发问题的比较将匹配负担出现与修理成本，防止把不同机制与不同难度混淆",
-    "R54已有五局及容量消融，保留低优先可选反馈；未收到的新修改不推定已发生"
+    "Agent已独立完成R66–R75十轮并归档，共连续20轮；对旧候选补充完成语义不变量、最强简单策略及关闭新机制的直接消融，不将模型结果冒充真人体验",
+    "R66：旧R61两路无法同时完成；成果保留对照下自由比强先后优先级只高0.00269，第三手严格自愿切线约0.63%；旧机制不晋升",
+    "R71：强简单策略差0.04834，但禁用实际搬移只降低期望0.000479；原本看似丰富的策略差不来自新增机制本身",
+    "下一批R76位置成本、R77延迟信息、R78可撤回权由Agent自主推进；本批没有足够独特的新模式，不要求额外人类试玩。R55/R50旧体验入口保持不变"
   ],
   "nonPromoted": [
     {
@@ -525,12 +857,44 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
   ],
   "tasks": [
     {
+      "id": "R55",
+      "derivedFrom": "R50",
+      "patternId": null,
+      "rank": 1,
+      "title": "动作回声 · 双成果改道",
+      "badge": "R50 改进实验",
+      "stage": "新建独立版本 · 人类未试玩",
+      "mode": "browser-demo",
+      "browserVariant": "echo-dual",
+      "browserOnly": true,
+      "estimatedMinutes": "约 3–5 分钟",
+      "intro": "R50后续独立实验：五颗行动骰，甲需3格收益1、乙需4格收益2。两个成果可以分别兑现，完成一个后继续争取另一个；所有进度保留。改变目标不必抹掉前面成果。",
+      "experiment": "browser-experiment/R55-dual-outcome",
+      "official": "tools/content-validator/experiments/r55_dual_completion.py",
+      "record": "批次/R55-双成果改道/研究记录.md",
+      "sourceRun": "https://github.com/guopanqi/ssnoir/actions/runs/37905046884",
+      "askBefore": "这是新实验，不是在原R50反馈上加局数。先看五颗骰子，你可以为了甲/乙完成顺序重新计划；两个成果互不排斥。无需阅读数学结果。",
+      "observe": [
+        "开局有没有先押注一条路？实际掷出结果之后，是否在未完成之前自愿换目标？",
+        "若某目标完成，你是否值得把剩余骰子投往另一目标；是否真的有多条合理路线？",
+        "这版是否解决了原R50『前面已经投入了、后面无法转向』的问题？若没有，哪一步仍被锁死？"
+      ],
+      "askAfter": [
+        "和R50独占成果、四次行动相比，新版双成果是否真的让你有在途中调整计划的余地？",
+        "你是否始终固定『先甲后乙』，只是多了一个完成阶段？",
+        "它依然缺乏故事/压力/时间意义，还是已出现真实的过程抉择？"
+      ],
+      "purpose": "直接检验用户指出的结构性沉没成本：改为甲乙两项可以独立累计成果、五次行动、不再完成任一项立刻结束。测试中途改路是否成为有价值的选择，而不是仅修改说明文字。",
+      "officialNote": "R55仅为新建网页玩法研究，并无正式Unity/C# + Scheme场景。数学脚本也不是正式运行；这个实验改变了成果关系和行动容量，不能把R55反馈并入R50旧轨迹。",
+      "relatedFeedback": "反馈/inbox/SSNoir-feedback-R50-20261009-074241-223ce357fc.json"
+    },
+    {
       "id": "R50",
       "patternId": "echo",
-      "rank": 1,
+      "rank": 2,
       "title": "动作回声",
-      "badge": "真人反馈已到 · 目标说明对照",
-      "stage": "1份网页反馈已审阅 · 明确目标 vs 旧说明待验证",
+      "badge": "历史原版 · 保留反馈",
+      "stage": "结构性批评已确认 · R55另建实验",
       "mode": "browser-demo",
       "browserVariant": "echo",
       "estimatedMinutes": "约 3–5 分钟",
@@ -539,7 +903,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·动作回声.scm",
       "record": "批次/R50-动作回声/研究记录.md",
       "sourceRun": "https://github.com/guopanqi/ssnoir/actions/runs/37885651004",
-      "askBefore": "优先试「目标明确」：四手内甲3得1、乙5得2，未达成得0且无伤势。可以再选「原版简略说明」并勾选复用同随机种子，比较你对策略目的的感受。",
+      "askBefore": "这是R50历史原版。你之前指出四颗骰、目标一旦投入便不容易改；无需在这里重测。下一版已另建为R55「双成果改道」。",
       "observe": [
         "目标明确之后，你是否知道每一手到底为了获得什么：尽快兑付甲的1份成果，还是争取乙的2份成果？",
         "你认为上一手同目标−1、切换+1的修正，真的帮助你作决定，还是仍仅像数字游戏？",
@@ -550,13 +914,13 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "在复用同一组随机种子之后，两种说明让你作出了什么不同判断？（选择可以相同）",
         "你觉得规则的关键缺陷在目标表达，还是玩法真的缺少值得承担的后果？"
       ],
-      "purpose": "用同规则、尽可能配对骰面/随机序列的两种信息呈现，判别玩家感觉缺少目标是否是表达问题。已有1份反馈提示修正可感知，但目前无法评价机制是否足够有趣。",
+      "purpose": "保留R50的规则和原始反馈作比较基线。用户最新指出目标一旦投入后难以改变，纯文字呈现对照不足以解决；现在通过R55改变实验结构，独立接收反馈。",
       "officialNote": "本页是独立4骰示意版，没有伤势或额外回合；两种呈现只改变文字和结算提示。正式 C# + Scheme 没有新增规则。每局presentation会分别标注，旧反馈无此字段仍有效。"
     },
     {
       "id": "R37",
       "patternId": "pressure",
-      "rank": 2,
+      "rank": 3,
       "title": "压力预算",
       "badge": "触发源比较 · 已有人类反馈",
       "stage": "1份正式环境文字反馈已审阅（无逐手日志）",
@@ -583,7 +947,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "R54",
       "patternId": "reactive",
-      "rank": 3,
+      "rank": 4,
       "title": "对手追击领先目标",
       "badge": "五骰容量对照 · 可选",
       "stage": "五局四骰反馈已审阅 · 网页开放4/5骰对照",
@@ -612,7 +976,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "R49",
       "patternId": null,
-      "rank": 4,
+      "rank": 5,
       "title": "迟到的目标",
       "badge": "低优先 / 对照",
       "stage": "原生可运行 · 动态增益较弱",
@@ -638,7 +1002,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "R06",
       "patternId": null,
-      "rank": 5,
+      "rank": 6,
       "title": "稳险选择",
       "badge": "历史原型",
       "stage": "正式规则可查询 · 可选体验",
@@ -664,7 +1028,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "R09",
       "patternId": null,
-      "rank": 6,
+      "rank": 7,
       "title": "边做边看",
       "badge": "历史原型",
       "stage": "正式规则可查询 · 可选体验",
@@ -690,7 +1054,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "R11",
       "patternId": null,
-      "rank": 7,
+      "rank": 8,
       "title": "留力推进",
       "badge": "历史原型",
       "stage": "正式规则可查询 · 可选体验",
@@ -716,7 +1080,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "R13",
       "patternId": null,
-      "rank": 8,
+      "rank": 9,
       "title": "成果取舍",
       "badge": "历史原型",
       "stage": "正式规则可查询 · 可选体验",
@@ -742,7 +1106,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "R15",
       "patternId": null,
-      "rank": 9,
+      "rank": 10,
       "title": "按需用骰",
       "badge": "历史原型",
       "stage": "正式规则可查询 · 可选体验",
@@ -768,7 +1132,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "R19",
       "patternId": null,
-      "rank": 10,
+      "rank": 11,
       "title": "整段留力",
       "badge": "历史原型",
       "stage": "正式规则可查询 · 可选体验",
@@ -794,7 +1158,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "R25",
       "patternId": null,
-      "rank": 11,
+      "rank": 12,
       "title": "定位再搜",
       "badge": "历史原型",
       "stage": "正式规则可查询 · 可选体验",
@@ -938,6 +1302,12 @@ function renderSelection(){
  $("selected-title").textContent=t.title;
  $("selected-description").textContent=t.intro+" "+t.purpose;
  $("selected-observe").textContent=t.observe[0];
+ var lineage=$("study-lineage");lineage.replaceChildren();
+ var relatedId=t.derivedFrom||(t.id==="R50"?"R55":null);
+ if(relatedId&&getTask(relatedId)){
+  lineage.appendChild(button(t.derivedFrom?"查看原版 "+relatedId+" ↗":"进入独立改版 "+relatedId+" →","button ghost tiny",function(){choose(relatedId)}));
+  child(lineage,"span","minor",t.derivedFrom?"这是独立实验，不修改原版数据。":"旧反馈不必修改，新版单独试玩和提交。");
+ }
  $("play-label").textContent=t.mode==="browser-demo"?"本页可直接试玩。其规则由正式实验抽象而来，但不调用C#引擎。":"只有正式运行入口，当前没有伪造的网页演示。";
  $("engine-label").textContent=t.mode==="browser-demo"?"独立网页示意版":"正式引擎入口";
  renderGame();renderOfficial();renderFeedback();
@@ -953,7 +1323,7 @@ function odds(die,skill,mod){var n=die+skill+mod;var failures,middle;
  if(n<=1){failures=3;middle=3}else{var map={2:[2,3],3:[1,3],4:[1,2],5:[0,2],6:[0,1]};var a=map[n]||[0,0];failures=a[0];middle=a[1]}
  return [failures,middle,6-failures-middle]
 }
-function modifier(s,target){return s.variant==="echo"&&s.previous!==null?(target===s.previous?-1:1):0}
+function modifier(s,target){return (s.variant==="echo"||s.variant==="echo-dual")&&s.previous!==null?(target===s.previous?-1:1):0}
 function selectDraftRun(){var d=draft(selectedId);return d.live||null}
 var choice={dieId:null,target:null};
 function start(){
@@ -961,7 +1331,7 @@ function start(){
  if(d.live&&!d.live.result&&!window.confirm("当前这一局还没有结束。确定要放弃它并重新开始吗？"))return;
  if(d.runs.length>=20){toast("每份反馈最多记录 20 局，请先导出 JSON 再开始新一份。");return}
  var skill=Number($("difficulty")?$("difficulty").value:1);
- var size=t.browserVariant==="reactive"?Number($("capacity")?$("capacity").value:4):4;
+ var size=t.browserVariant==="echo-dual"?5:(t.browserVariant==="reactive"?Number($("capacity")?$("capacity").value:4):4);
  if(size!==4&&size!==5)size=4;
  var previous=(t.browserVariant==="echo"&&d.runs.length)?d.runs[d.runs.length-1]:null;
  var repeat=previous&&$("r50-repeat-seed")?.checked&&previous.variant==="echo";
@@ -979,13 +1349,14 @@ function apply(){
  if(!die){toast("所选骰子不可用。");return}
  var before=s.progress.slice(),mod=modifier(s,choice.target),distribution=odds(die.value,s.skill,mod);
  var rolled=d6(s),outcome=rolled<=distribution[0]?0:(rolled<=distribution[0]+distribution[1]?1:2);
- var ix=choice.target==="A"?0:1,threshold=ix===0?3:5;
+ var ix=choice.target==="A"?0:1,threshold=ix===0?3:(s.variant==="echo-dual"?4:5);
  s.progress[ix]=Math.min(threshold,s.progress[ix]+outcome);
  die.used=true;
  s.previous=choice.target;
  var attacked=null;
- if(s.progress[0]>=3)s.result="A";
- else if(s.progress[1]>=5)s.result="B";
+ if(s.variant==="echo-dual"&&s.progress[0]>=3&&s.progress[1]>=4)s.result="both";
+ else if(s.variant!=="echo-dual"&&s.progress[0]>=3)s.result="A";
+ else if(s.variant!=="echo-dual"&&s.progress[1]>=5)s.result="B";
  else if(s.variant==="reactive"&&((s.actions.length+1)%2===0)){
   attacked=s.progress[0]>=s.progress[1]?"A":"B";
   var hit=attacked==="A"?0:1;s.progress[hit]=Math.max(0,s.progress[hit]-2);
@@ -996,7 +1367,9 @@ function apply(){
  s.actions.push(step);
  s.markHesitate=false;
  s.stepNote="";
- if(s.actions.length===s.dice.length&&!s.result)s.result="timeout";
+ if(s.actions.length===s.dice.length&&!s.result){
+  s.result=s.variant==="echo-dual"?(s.progress[0]>=3?"A":s.progress[1]>=4?"B":"timeout"):"timeout";
+ }
  if(s.result){
   s.completedAt=new Date().toISOString();d.runs.push({...s});d.live=null;toast("本局结束，行动记录已经附在本次反馈中。")
  }
@@ -1023,8 +1396,8 @@ function renderGame(){
  var d=draft(selectedId),s=d.live;
  var box=child(root,"div","game-surface");
  if(!s){
-  var heading=child(box,"h3","",t.browserVariant==="reactive"?"甲 3 格 / 乙 5 格":"连续行动与换线奖励");
-  child(box,"p","minor",t.browserVariant==="reactive"?"默认四颗骰；第2和第4手结束后，若尚未完成，对手扣除领先目标最多2格（平手甲）。可选第五颗骰子进行容量对照；这不是正式引擎规则。甲收益1，乙收益2。":"四颗骰；上一手选过的目标，本手判定−1；切换目标，本手判定+1。甲完成收益1，乙完成收益2。");
+  var heading=child(box,"h3","",t.browserVariant==="reactive"?"甲 3 格 / 乙 5 格":t.browserVariant==="echo-dual"?"双成果改道 · 独立新实验":"连续行动与换线奖励");
+  child(box,"p","minor",t.browserVariant==="reactive"?"默认四颗骰；第2和第4手结束后，若尚未完成，对手扣除领先目标最多2格（平手甲）。可选第五颗骰子进行容量对照；这不是正式引擎规则。甲收益1，乙收益2。":t.browserVariant==="echo-dual"?"五颗骰；甲3格得1、乙4格得2，两项成果可以分别兑现、累加至3。完成一项后继续争取另一项。继续同目标−1，切换+1；没有伤势或额外回合。":"四颗骰；上一手选过的目标，本手判定−1；切换目标，本手判定+1。甲完成收益1，乙完成收益2。");
   if(d.runs.length)child(box,"p","minor","已完成 "+d.runs.length+" 局，结果已包含在反馈草稿。");
   var controls=child(box,"div","inline");child(controls,"label","minor","成长值（首轮建议 1）");
   var sel=child(controls,"select");sel.id="difficulty";[1,2].forEach(function(n){var o=child(sel,"option","",String(n));o.value=String(n)});
@@ -1064,7 +1437,7 @@ function renderGame(){
     count.addEventListener("change",function(){d.comparisonCapacity=Number(count.value);persist()});
     child(box,"p","minor","唯一改变：多一颗行动骰；甲/乙目标、收益、判定概率、对手的第2/4手反击规则均不变。");
   }
-  box.appendChild(button(d.runs.length?"再玩一局 →":"开始四骰实验 →","button",start));
+  box.appendChild(button(d.runs.length?"再玩一局 →":t.browserVariant==="echo-dual"?"开始 R55 新版实验 →":"开始四骰实验 →","button",start));
   child(root,"p","study-tip",t.officialNote);
   if(d.runs.length)renderRecentRuns(root,d);
   return
@@ -1077,11 +1450,17 @@ function renderGame(){
  }
  var rem=t.browserVariant==="reactive"?(s.actions.length>=4?"第2/4手反击已执行；可用剩余骰行动":"第 "+(s.actions.length<2?"2":"4")+" 手后敌方打击领先目标"):"上一手目标："+(s.previous==="A"?"甲":s.previous==="B"?"乙":"尚无");
  child(box,"p","round-brief",rem);
- var names=[["A","甲",3,1],["B","乙",5,2]];
+ if(s.variant==="echo-dual"){
+ var achieved=(s.progress[0]>=3?1:0)+(s.progress[1]>=4?2:0);
+ var promise=child(box,"div","callout");
+ child(promise,"strong","","已兑现成果 "+achieved+" / 3 · 剩余 "+(s.dice.length-s.actions.length)+" 手");
+ child(promise,"p","","甲、乙都可以完成，进度保留。你并非在两项互斥结局间下注。");
+ }
+ var names=s.variant==="echo-dual"?[["A","甲",3,1],["B","乙",4,2]]:[["A","甲",3,1],["B","乙",5,2]];
  names.forEach(function(item,i){
   var g=child(box,"button","goal"+(choice.target===item[0]?" active":""));
-  g.type="button";var top=child(g,"div","goal-top");child(top,"strong","",item[1]+" / "+s.progress[i]+" of "+item[2]);child(top,"span","","完成收益 "+item[3]);progressBar(g,s.progress[i],item[2]);
-  g.addEventListener("click",function(){choice.target=item[0];renderGame()});
+  g.type="button";g.disabled=s.variant==="echo-dual"&&s.progress[i]>=item[2];var top=child(g,"div","goal-top");child(top,"strong","",item[1]+" / "+s.progress[i]+" of "+item[2]);child(top,"span","","完成收益 "+item[3]);progressBar(g,s.progress[i],item[2]);
+  g.addEventListener("click",function(){if(!g.disabled){choice.target=item[0];renderGame()}});
  });
  child(box,"div","minor","选择这次使用的骰子");
  var dice=child(box,"div","die-row");s.dice.forEach(function(die){
@@ -1109,7 +1488,7 @@ function renderRecentRuns(root,d){
  var last=d.runs[d.runs.length-1];
  if(!last)return;
  var p=child(root,"div","callout");
- child(p,"strong","","上一局："+(last.result==="A"?"完成甲，收益1":last.result==="B"?"完成乙，收益2":"到期未达成，收益0")); 
+ child(p,"strong","","上一局："+(last.result==="both"?"完成甲乙，收益3":last.result==="A"?"完成甲，收益1":last.result==="B"?"完成乙，收益2":"到期未达成，收益0")); 
  if(last.variant==="echo"){
    child(p,"p","minor","展示条件："+(last.presentation==="goal-explicit"?"目标明确":"原版简略说明")+"。所有判定与目标阈值相同；无论哪种展示，这一网页局都没有伤势。");
  }
@@ -1122,6 +1501,12 @@ function renderFeedbackSummary(){
 function renderOfficial(){
  var t=getTask(selectedId),root=$("official");root.replaceChildren();
  child(root,"p","minor",t.officialNote);
+ if(t.browserOnly){
+  var info=child(root,"div","callout");child(info,"strong","","此项尚无正式 C# / Scheme 场景");
+  child(info,"p","","R55为独立网页假设，不应与原R50正式原型混同。");
+  var source=anch("查看R55精确数学模型 ↗",link("../../../"+t.official));source.target="_blank";source.rel="noopener noreferrer";info.appendChild(source);
+  return;
+ }
  var code=child(root,"pre","official-code","./run --session "+t.experiment+" --seed 19 --growth 1");
  var links=child(root,"div","inline");
  var a=anch("正式 Scheme 规则 ↗",link("../../../"+t.official));a.target="_blank";a.rel="noopener noreferrer";links.appendChild(a);
@@ -1253,8 +1638,12 @@ const REVIEWS = "docs/实验/机制研究/反馈/reviews";
 const API = "https://api.github.com";
 const TOKEN_KEY = "ssnoir/github-feedback-token/v1";
 const ACTIVE_KEY = "ssnoir/github-feedback-active/v1";
+const REPLY_DRAFT_KEY = "ssnoir/research-reply-drafts/v1";
 const MAX_BYTES = 204800;
-let token = "", user = "", active = null, records = [], reviews = new Map(), saving = false;
+let token = "", user = "", active = null, records = [], reviews = new Map(), saving = false, replying = false;
+let replyTarget = null, replyStudy = null;
+let replyDrafts = {};
+try { replyDrafts=JSON.parse(localStorage.getItem(REPLY_DRAFT_KEY)||"{}"); } catch (_) { replyDrafts={}; }
 const $ = id => document.getElementById(id);
 const LOCAL = {
   get(k) { try { return localStorage.getItem(k) || ""; } catch (_) { return ""; } },
@@ -1323,7 +1712,7 @@ function renderActive() {
   if(active && active.studyId===current){
     e.appendChild(document.createTextNode("正在编辑已提交的反馈 · "+fileLabel(active.path)));
   } else {
-    const found=records.find(x=>x.path.startsWith(DIR+"/SSNoir-feedback-"+current+"-"));
+    const found=records.find(x=>x.path.startsWith(DIR+"/SSNoir-feedback-"+current+"-")&&x.feedbackKind!=="reply")||records.find(x=>x.path.startsWith(DIR+"/SSNoir-feedback-"+current+"-"));
     if(found){
       e.appendChild(document.createTextNode("GitHub 已有这项实验的反馈。"));
       const b=document.createElement("button");b.type="button";b.className="button ghost tiny";
@@ -1354,13 +1743,59 @@ function progress(){
  renderActive();
  renderReply();
 }
+function renderThread(){
+ const box=$("thread-history");if(!box)return;
+ box.replaceChildren();
+ const files=records.filter(x=>x.name.startsWith("SSNoir-feedback-"+app.currentStudy()+"-"))
+  .sort((a,b)=>(a.createdAt||a.updatedAt||"").localeCompare(b.createdAt||b.updatedAt||""));
+ if(!files.length)return;
+ const title=document.createElement("h4");title.textContent="该实验的研究对话 · "+files.length+" 条玩家记录";box.appendChild(title);
+ for(const f of files){
+   const entry=document.createElement("div");entry.className="feedback-file";
+   const content=document.createElement("div");
+   const heading=document.createElement("strong");
+   heading.textContent=f.feedbackKind==="reply"?"你对研究者的补充":"玩家的实验反馈";
+   const desc=document.createElement("p");desc.className="minor";
+   const txt=f.comment||"仅有试玩轨迹";
+   desc.textContent=txt.length>600?txt.slice(0,600)+"…":txt;
+   content.append(heading,desc);
+   const review=reviewerFor(f);
+   if(review){
+     const answer=document.createElement("p");answer.className="minor";
+     answer.textContent="研究者回复："+(review.headline||"已审阅")+
+       (review.feedbackSha!==f.sha?"（回复属于上一版）":"");
+     content.appendChild(answer);
+   }else if(f.feedbackKind==="reply"){
+     const pending=document.createElement("p");pending.className="minor";
+     pending.textContent="已提交给研究队列；下次研究会话审阅。不会即时生成 AI 回复。";
+     content.appendChild(pending);
+   }
+   const action=document.createElement("button");action.className="button ghost tiny";
+   action.textContent="打开记录";action.addEventListener("click",()=>openRecord(f));
+   entry.append(content,action);box.appendChild(entry);
+ }
+}
 function renderReply(){
  const root=$("research-reply");
  if(!root)return;
  root.replaceChildren();
  const id=app.currentStudy(),files=records.filter(x=>x.name.startsWith("SSNoir-feedback-"+id+"-"));
- const relevant=active&&active.studyId===id?records.find(x=>x.path===active.path):files[0];
+ const activeFile=active&&active.studyId===id?records.find(x=>x.path===active.path):null;
+ const relevant=(activeFile&&reviewerFor(activeFile)?activeFile:null)||
+   files.find(x=>reviewerFor(x))||activeFile||files[0];
  const data=reviewerFor(relevant);
+ replyTarget=data&&relevant?{file:relevant,review:data}:null;
+ const composer=$("reply-composer");
+ if(composer)composer.classList.toggle("hidden",!replyTarget);
+ if(replyStudy!==id){
+   replyStudy=id;
+   if($("research-reply-text"))$("research-reply-text").value=replyDrafts[id]||"";
+   if($("reply-status"))$("reply-status").textContent="";
+ }
+ if($("reply-context"))$("reply-context").textContent=replyTarget?
+   "正在回复："+data.headline+"。将新建独立回帖，不改变先前试玩或文字。":
+   "当前尚无可回复的研究者评论；可以先直接提交自己的试玩意见。";
+ renderThread();
  if(!data){
    root.textContent=files.length?
      "已收到你的反馈，正在等待研究者研读并回复。你可以继续编辑；一次体验不等于玩法好坏的裁决。":
@@ -1403,7 +1838,7 @@ function renderRecords() {
     const info = document.createElement("div");
     const title = document.createElement("h4");
     const study = /SSNoir-feedback-(R\d+)-/.exec(file.name);
-    title.textContent = (study ? study[1] + " · " : "") + "已提交体验";
+    title.textContent = (study ? study[1] + " · " : "") + (file.feedbackKind==="reply"?"回复研究者":"已提交体验");
     const sub = document.createElement("div");
     sub.className = "minor";
     sub.textContent = (file.updatedAt?file.updatedAt.slice(0,16).replace("T"," ")+" · ":"")+file.name+" · main";
@@ -1431,6 +1866,10 @@ async function refresh() {
         const feedback=JSON.parse(decoded(remote.content||""));
         f.updatedAt=feedback.updatedAt||feedback.createdAt||"";
         f.runCount=Array.isArray(feedback.runs)?feedback.runs.length:0;
+        f.feedbackKind=feedback.feedbackKind||"observation";
+        f.comment=feedback.responses?.mechanicalFeeling||feedback.notes?.join(" · ")||"";
+        f.createdAt=feedback.createdAt||"";
+        f.inReplyTo=feedback.inReplyTo||null;
       }catch(err){f.updatedAt="";console.warn("Feedback timestamp unavailable",f.name,err.message);}
     }));
     records.sort((a,b)=>(b.updatedAt||"").localeCompare(a.updatedAt||"")||b.name.localeCompare(a.name,"en"));
@@ -1586,6 +2025,53 @@ async function save() {
     else msg("保存失败："+err.message);
   } finally { saving=false; $("gh-save").disabled=false; }
 }
+async function sendResearchReply(){
+ if(replying)return;
+ const textValue=$("research-reply-text")?.value.trim();
+ if(!textValue){$("reply-status").textContent="先写一句你要回复的内容。";return;}
+ if(!replyTarget){$("reply-status").textContent="当前实验尚无研究者回复。请使用普通反馈入口。";return;}
+ if(!token||!user){
+   const connection=$("cloud-connect")?.closest("details");if(connection)connection.open=true;
+   $("reply-status").textContent="先在上方连接 GitHub Token；只需首次连接。";
+   return;
+ }
+ const current=app.currentStudy();
+ const target=replyTarget;
+ if(!target.file.name.startsWith("SSNoir-feedback-"+current+"-")){
+   $("reply-status").textContent="选择的实验已变化，请重试。";return;
+ }
+ replying=true;$("gh-reply").disabled=true;
+ try {
+   // A reply is an entirely new JSON record. Never attach previous play logs,
+   // re-save the original human feedback, or silently mutate its reviewed SHA.
+   const draft=app.currentFeedback();
+   const payload={
+     schema:"ssnoir.mechanism-feedback/v1",studyId:current,studyTitle:draft.studyTitle,
+     createdAt:new Date().toISOString(),environment:draft.environment,
+     source:draft.source,
+     feedbackKind:"reply",
+     inReplyTo:{feedbackPath:target.file.path,feedbackSha:target.review.feedbackSha,
+       headline:target.review.headline||""},
+     responses:{understanding:"",replayInterest:"",decisiveMoment:"",
+       decisionChange:"",mechanicalFeeling:textValue,friction:"",ideas:""},
+     runs:[],notes:[]
+   };
+   validateFeedback(payload);
+   const filePath=makeFileName(current);
+   $("reply-status").textContent="正在提交独立回帖……";
+   const result=await request("PUT","/repos/"+REPO+"/contents/"+endpoint(filePath),
+     {message:"feedback: reply to "+current+" researcher review",
+       content:encoded(safeJson(payload)),branch:"main"});
+   if(!result.content?.sha)throw Error("GitHub 未确认回帖版本");
+   delete replyDrafts[current];
+   LOCAL.set(REPLY_DRAFT_KEY,JSON.stringify(replyDrafts));
+   $("research-reply-text").value="";
+   await refresh();
+   $("reply-status").textContent="已提交新回帖。原始反馈完全保留；下次研究者继续时会读取并回复。";
+ } catch(err){
+   $("reply-status").textContent="提交失败："+err.message+"（文字仍保存在本机）。";
+ } finally {replying=false;$("gh-reply").disabled=false;}
+}
 async function restore() {
   const stored = LOCAL.get(TOKEN_KEY);
   const rawActive = LOCAL.get(ACTIVE_KEY);
@@ -1606,6 +2092,11 @@ $("gh-token").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefaul
 $("gh-refresh").addEventListener("click",refresh);
 $("gh-disconnect").addEventListener("click",disconnect);
 $("gh-save").addEventListener("click",save);
+$("gh-reply").addEventListener("click",sendResearchReply);
+$("research-reply-text").addEventListener("input",()=>{
+ replyDrafts[app.currentStudy()]=$("research-reply-text").value;
+ LOCAL.set(REPLY_DRAFT_KEY,JSON.stringify(replyDrafts));
+});
 $("gh-new").addEventListener("click",newFeedback);
 window.addEventListener("ssnoir:study-change",e=>{
   if (active && e.detail.studyId !== active.studyId) {
@@ -1617,8 +2108,7 @@ window.addEventListener("ssnoir:study-change",e=>{
 });
 restore();
 })();</script>
-<script>
-/* Research information view. All factual content is read from versioned research JSON. */
+<script>/* Research information view. All factual content is read from versioned research JSON. */
 (function(){
 "use strict";
 const app=window.SSNoirFieldStation;if(!app)throw Error("Research app not initialized");
@@ -1706,7 +2196,6 @@ function route(){
 window.addEventListener("ssnoir:feedback-progress",e=>{progress=e.detail.progress||null;syncError=e.detail.error||"";attention();});
 window.addEventListener("hashchange",route);
 home();map();journal();attention();route();
-})();
-</script>
+})();</script>
 </body>
 </html>
