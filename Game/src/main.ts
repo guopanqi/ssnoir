@@ -16,6 +16,14 @@ async function start(): Promise<void> {
     animationFrame: callback => requestAnimationFrame(callback),
     cancelAnimationFrame: handle => cancelAnimationFrame(handle)
   });
+  // Browser and WX both normalize their native input to the same virtual-canvas hit test.
+  // Do not assume Pixi's own DOM event system owns the Three.js WebGL canvas.
+  canvas.addEventListener("pointerup", event => {
+    const rect = canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) * canvas.width / rect.width;
+    const y = (event.clientY - rect.top) * canvas.height / rect.height;
+    session.activateAt(x, y);
+  });
   Object.assign(window, {
     __SSNOIR_FOUNDATION__: { getSchemeValue: session.getCount }
   });

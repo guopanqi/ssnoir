@@ -26,7 +26,10 @@ try {
     });
     const page = await context.newPage();
     const errors = [];
-    page.on("pageerror", error => errors.push(String(error)));
+    page.on("pageerror", error => errors.push("pageerror: " + String(error)));
+    page.on("console", msg => {
+      if (msg.type() === "error") errors.push("console: " + msg.text());
+    });
     try {
       await page.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
       await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 1, null, { timeout: 20000 });
@@ -45,6 +48,12 @@ try {
     } catch (error) {
       mkdirSync("artifacts", { recursive: true });
       await page.screenshot({ path: "artifacts/foundation-" + scenario.name + "-failed.png", fullPage: true }).catch(() => {});
+      const details = await page.evaluate(() => ({
+        diagnostics: document.querySelector("#error")?.textContent || "",
+        scheme: window.__SSNOIR_FOUNDATION__?.getSchemeValue(),
+        canvasSize: [document.querySelector("canvas")?.width, document.querySelector("canvas")?.height]
+      })).catch(e => ({ diagnostics: String(e) }));
+      console.error("Capture failed for", scenario.name, JSON.stringify(details), "console/page errors", errors);
       throw error;
     } finally {
       await context.close();

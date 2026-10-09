@@ -66,6 +66,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   const pixi = new PixiRenderer();
   await pixi.init({
     context: sharedContext as WebGL2RenderingContext,
+    canvas: options.canvas,
     width: options.width,
     height: options.height,
     clearBeforeRender: false
@@ -93,8 +94,8 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     .roundRect(BUTTON.x, BUTTON.y, BUTTON.width, BUTTON.height, 8)
     .fill(0xe8d6ae)
     .stroke({ color: 0xfff5d8, width: 1 });
-  button.eventMode = "static";
-  button.cursor = "pointer";
+  // UI input is normalized by each host and dispatched through activateAt().
+  button.eventMode = "none";
   stage.addChild(button);
   const label = new Text({
     text: "执行 Scheme 计数",
@@ -113,7 +114,6 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     count = value;
     counterText.text = "Scheme 计算结果：" + count;
   }
-  button.on("pointertap", increment);
   increment();
 
   let size = { width: options.width, height: options.height, scale: 1, left: 0, top: 0 };
