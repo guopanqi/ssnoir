@@ -1,0 +1,26 @@
+name: SSNoir R55 Dual Outcome Math
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r55.yml'
+      - 'tools/content-validator/experiments/r55_dual_completion.py'
+      - 'tools/content-validator/experiments/r50_recent_action.py'
+permissions:
+  contents: read
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact dynamic-versus-strong-priority check
+        run: python3 tools/content-validator/experiments/r55_dual_completion.py | tee /tmp/r55-math.json
+      - name: Store exact evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-r55-dual-outcome-math
+          path: /tmp/r55-math.json
