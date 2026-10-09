@@ -140,13 +140,24 @@ namespace SSNoir.IMGUI
             _dropdownItems.Clear();
             _dropdownItems.Add(new DropdownItem { Name = "--- WORLD ---", IsHeader = true });
             _dropdownItems.Add(new DropdownItem { Name = "world", SceneName = "world" });
-            
-            _dropdownItems.Add(new DropdownItem { Name = "--- OTHERS ---", IsHeader = true });
 
-            foreach (var asset in Resources.LoadAll<TextAsset>("Content/scenes/encounters"))
+            // Use the same explicit author-playtest allowlist as DebugPanelDrawer.
+            // Research files stay available for automated sessions, not UI browsing.
+            bool storyHeader = false;
+            bool researchHeader = false;
+            foreach (var scene in DebugEncounterCatalog.Load())
             {
-                string name = asset.name;
-                _dropdownItems.Add(new DropdownItem { Name = name, SceneName = name });
+                if (scene.Research && !researchHeader)
+                {
+                    _dropdownItems.Add(new DropdownItem { Name = "--- SELECTED RESEARCH ---", IsHeader = true });
+                    researchHeader = true;
+                }
+                else if (!scene.Research && !storyHeader)
+                {
+                    _dropdownItems.Add(new DropdownItem { Name = "--- STORY ENCOUNTERS ---", IsHeader = true });
+                    storyHeader = true;
+                }
+                _dropdownItems.Add(new DropdownItem { Name = scene.Label, SceneName = scene.Scene });
             }
         }
     }

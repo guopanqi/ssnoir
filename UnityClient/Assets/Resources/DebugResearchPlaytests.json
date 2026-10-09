@@ -1,0 +1,21 @@
+{
+  "schema": "ssnoir.debug-curated-research/v1",
+  "policy": "Only explicit human-playtest-approved native scenes; research content and scripts remain loadable outside Debug",
+  "encounters": [
+    {
+      "label": "研究 R09｜边做边看",
+      "scene": "研究·边做边看",
+      "reason": "R09/R10 first human acknowledged information while working, official encounter"
+    },
+    {
+      "label": "研究 R37｜压力预算",
+      "scene": "研究·压力预算",
+      "reason": "Human narrative feedback recognized progress-generated problems and pressure management, native encounter"
+    },
+    {
+      "label": "研究 R54｜追击领先目标",
+      "scene": "研究·追击领先目标",
+      "reason": "Five human browser-trial reactions to R54; native four-die scene available for follow-up"
+    }
+  ]
+}

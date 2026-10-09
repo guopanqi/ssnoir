@@ -548,12 +548,25 @@ namespace SSNoir.IMGUI
             _scenes.Clear();
             _scenes.Add(new SceneItem { Name = "--- 世界 ---", IsHeader = true });
             _scenes.Add(new SceneItem { Name = "world", SceneName = "world" });
-            _scenes.Add(new SceneItem { Name = "--- 交锋 ---", IsHeader = true });
 
-            foreach (var asset in Resources.LoadAll<TextAsset>("Content/scenes/encounters"))
+            // Listing all Resources scenes used to expose EVERY failed mathematical
+            // experiment as a manual playtest. Only explicit approvals belong here.
+            var allowed = DebugEncounterCatalog.Load();
+            bool storyHeader = false;
+            bool researchHeader = false;
+            foreach (var scene in allowed)
             {
-                string name = asset.name;
-                _scenes.Add(new SceneItem { Name = name, SceneName = name });
+                if (scene.Research && !researchHeader)
+                {
+                    _scenes.Add(new SceneItem { Name = "--- 精选机制试玩 ---", IsHeader = true });
+                    researchHeader = true;
+                }
+                else if (!scene.Research && !storyHeader)
+                {
+                    _scenes.Add(new SceneItem { Name = "--- 剧情交锋 ---", IsHeader = true });
+                    storyHeader = true;
+                }
+                _scenes.Add(new SceneItem { Name = scene.Label, SceneName = scene.Scene });
             }
         }
     }
