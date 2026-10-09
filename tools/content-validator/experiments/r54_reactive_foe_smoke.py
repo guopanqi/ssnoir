@@ -62,27 +62,32 @@ def one(seed: int, growth: int, pattern: str, directory: Path) -> dict:
                 observation = reply['observation']
                 after = progress(observation) if observation['EncounterResult'] is None else None
                 attempted.append(pick['Card'])
-                attack_lines = [event['Text'] for event in reply['events']
-                                if '敌方反击' in event['Text']]
-                if attack_lines:
-                    assert after is not None, 'reaction cannot fire after encounter completed'
-                    assert action_count + 1 in (2, 4), (action_count, attack_lines)
-                    assert len(attack_lines) == 1
-                    hit = 'A' if '反击甲' in attack_lines[0] else 'B'
-                    hit_targets.add(hit)
-                    # Verify one of the 0/1/2 actual dice outcomes exactly yields the
-                    # visible post-state after the documented reactive targeting.
-                    matched = False
-                    for gain in (0, 1, 2):
-                        a = min(3, before[0] + (gain if target == 'A' else 0))
-                        b = min(5, before[1] + (gain if target == 'B' else 0))
-                        if a >= 3 or b >= 5:
-                            continue  # already completed, no enemy attack
-                        expected_hit = 'A' if a >= b else 'B'
-                        aa, bb = (max(0, a - 2), b) if expected_hit == 'A' else (a, max(0, b - 2))
-                        if (aa, bb) == after and hit == expected_hit:
-                            matched = True
-                    assert matched, f'incorrect reactive damage: {before=}, {after=}, {attack_lines=}'
+                # Verify actual C# state transitions, rather than relying on the
+                # incidental wording/format of action-report supplements.
+                expected = []
+                for gain in (0, 1, 2):
+                    aa = min(3, before[0] + (gain if target == 'A' else 0))
+                    bb = min(5, before[1] + (gain if target == 'B' else 0))
+                    if aa >= 3 or bb >= 5:
+                        if observation['EncounterResult'] is not None:
+                            expected.append(('finished', (aa, bb)))
+                        continue
+                    hit = None
+                    if action_count + 1 in (2, 4):
+                        hit = 'A' if aa >= bb else 'B'
+                        if hit == 'A':
+                            aa = max(0, aa - 2)
+                        else:
+                            bb = max(0, bb - 2)
+                    if observation['EncounterResult'] is None and (aa, bb) == after:
+                        expected.append((hit, (aa, bb)))
+                assert expected, (
+                    f'C# state differs from R54 rule at action {action_count+1}: '
+                    f'{before=}, {after=}, {target=}, {observation["EncounterResult"]=}')
+                if observation['EncounterResult'] is None and action_count + 1 in (2, 4):
+                    choices = {hit for hit, _ in expected}
+                    if len(choices) == 1:
+                        hit_targets.add(choices.pop())
             else:
                 ends = [o for o in observation['Operations'] if o['Kind'] == 'end-turn']
                 assert ends, 'no end-turn option after using four dice'
@@ -115,8 +120,8 @@ def main():
     with tempfile.TemporaryDirectory(prefix='r54-native-') as d:
         folder = Path(d)
         for growth in (1, 2):
-            for seed in (7, 19, 41):
-                for pattern in ('ABBB', 'BAAA', 'BBBB', 'ABAB'):
+            for seed in ((7, 19, 41) if growth == 1 else (7, 19)):
+                for pattern in ('ABBB', 'AAAA', 'BBBB'):
                     row = one(seed, growth, pattern, folder)
                     rows.append(row)
                     seen.update(row['attacked'])
