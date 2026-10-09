@@ -1,8 +1,10 @@
 import { readFileSync, mkdirSync } from "node:fs";
 import { chromium } from "playwright";
 
-const target = process.env.SSNOIR_MINIGAME_TARGET === "taptap" ? "taptap" : "wechat";
-const sourceFile = target === "taptap" ? "dist/taptap/game/game.js" : "dist/wechat/game.js";
+const target = process.env.SSNOIR_MINIGAME_TARGET === "community" ? "community" :
+  process.env.SSNOIR_MINIGAME_TARGET === "taptap" ? "taptap" : "wechat";
+const sourceFile = target === "community" ? "dist/wechat-community/game.js" :
+  target === "taptap" ? "dist/taptap/game/game.js" : "dist/wechat/game.js";
 const source = readFileSync(sourceFile, "utf8");
 const canvasMode = process.env.SSNOIR_WX_CANVAS_MODE || "offscreen";
 if (!["offscreen", "missing", "throws"].includes(canvasMode)) throw new Error("Unknown canvas mode: " + canvasMode);

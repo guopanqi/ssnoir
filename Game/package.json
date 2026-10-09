@@ -19,12 +19,16 @@
     "smoke:taptap-harness": "node scripts/smoke-taptap-harness.mjs",
     "smoke:wechat-no-offscreen": "SSNOIR_WX_CANVAS_MODE=missing npm run smoke:wechat-harness",
     "smoke:wechat-offscreen-throws": "SSNOIR_WX_CANVAS_MODE=throws npm run smoke:wechat-harness",
-    "smoke:taptap-no-offscreen": "SSNOIR_WX_CANVAS_MODE=missing npm run smoke:taptap-harness"
+    "smoke:taptap-no-offscreen": "SSNOIR_WX_CANVAS_MODE=missing npm run smoke:taptap-harness",
+    "build:wechat-community": "vite build --config vite.wechat-community.config.ts && node --check dist/wechat-community/game.js && node scripts/package-wechat-community.mjs",
+    "smoke:wechat-community": "SSNOIR_MINIGAME_TARGET=community npm run smoke:wechat-harness"
   },
   "dependencies": {
     "biwascheme": "0.8.3",
     "pixi.js": "8.20.1",
-    "three": "0.186.0"
+    "three": "0.186.0",
+    "@minisheep/mini-program-polyfill-core": "1.1.4",
+    "@minisheep/three-platform-adapter": "2.0.4"
   },
   "devDependencies": {
     "@types/three": "0.186.0",

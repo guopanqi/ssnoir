@@ -1,0 +1,40 @@
+name: SSNoir Community WeChat Adapter Evaluation
+on:
+  workflow_dispatch:
+  push:
+    branches: ['experiment/wechat-community-adapter']
+    paths:
+      - 'Game/**'
+      - '.github/workflows/ssnoir-community-adapter.yml'
+permissions:
+  contents: read
+jobs:
+  community-adapter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Game
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned foundation and community adapter
+        run: npm install --no-audit --no-fund
+      - name: Build community adapter against actual SSNoir foundation
+        run: npm run build:wechat-community
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Smoke community adapter shared renderer, Pixi text and Scheme touch
+        run: npm run smoke:wechat-community
+      - name: Smoke community adapter without createOffscreenCanvas
+        run: SSNOIR_WX_CANVAS_MODE=missing npm run smoke:wechat-community
+      - name: Archive experimental output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-wechat-community-adapter
+          path: |
+            Game/dist/wechat-community
+            Game/artifacts/community*.png
+          retention-days: 7
