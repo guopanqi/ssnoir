@@ -100,6 +100,12 @@ body{background:#f5f6f1;color:#26352f}
 @media(max-width:740px){.wb-root{padding-top:26px}.wb-hero,.wb-below,.wb-questions{display:block}.wb-focus{margin-top:26px}.wb-below>section+section{margin-top:38px}#experiments.desk-layout{display:block}#experiments .experiment-sidebar{position:static;max-height:none;margin-bottom:14px}#experiments .experiment-list{max-height:240px}.wb-questions-body{margin-top:16px}.wb-map-grid,.wb-stop-list{grid-template-columns:1fr}.desk-header-inner{min-height:64px;flex-wrap:wrap;padding-top:9px;padding-bottom:8px}.desk-header-status{display:none}.desk-nav{width:100%;justify-content:space-between;gap:4px}.desk-nav a{padding:5px 10px}.wb-attention-item{grid-template-columns:34px 1fr}.wb-attention-item .wb-pill{grid-column:2;justify-self:start}}
 @media(max-width:430px){.wb-hero h1{font-size:39px}.wb-focus{padding:20px}.desk-brand{font-size:13px}.wb-pattern{padding:18px}}
 
+/* Avoid legacy main-section spacing inside the new three-view layout. */
+.wb-root > .wb-page,.wb-root .wb-below > section,.wb-root #map > section{padding:0;border-bottom:0}
+.wb-root .wb-questions{padding:22px 0;border-bottom:1px solid #dde4da}
+.wb-root .wb-stops{padding-top:28px;border-top:1px solid #d9e1d8}
+#workshop{scroll-margin-top:90px}
+
 </style>
 </head>
 <body>

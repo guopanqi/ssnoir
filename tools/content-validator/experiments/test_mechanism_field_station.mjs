@@ -97,6 +97,14 @@ try{
  page.on("console",m=>{if(m.type()==="error")errors.push(m.text())});
  await routeGitHub(page);
  await page.goto(pathToFileURL(html).href,{waitUntil:"load"});
+ assert.equal(await page.locator("#overview:not(.hidden)").count(),1,"overview opens first");
+ assert.equal(await page.locator("#wb-focus-title").textContent()!=="",true);
+ await page.locator('.desk-nav a[href="#map"]').click();
+ assert.equal(await page.locator("#map:not(.hidden) .wb-pattern").count(),6);
+ await page.locator('.wb-filter[data-filter="untried"]').click();
+ assert.equal(await page.locator("#map:not(.hidden) .wb-pattern").count(),3);
+ await page.locator('.desk-nav a[href="#experiments"]').click();
+ assert.equal(await page.locator("#experiments:not(.hidden)").count(),1);
  await waitSync(page);
  assert.equal(await row(page,"R54").count(),1);
  assert.equal(await page.locator("#featured-tasks .experiment-row").count(),11);
@@ -182,6 +190,7 @@ try{
  assert.equal(await row(page,"R54").count(),1);
  // Refresh and re-open without a second token entry.
  await page.reload({waitUntil:"load"});
+ await page.locator('.desk-nav a[href="#experiments"]').click();
  await waitSync(page);
  await page.waitForFunction(()=>document.querySelector("#gh-user").textContent.includes("research-test-user"));
  await page.locator("#study-filter").selectOption("all");
@@ -208,7 +217,10 @@ try{
  const mobile=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  const mp=await mobile.newPage(),mobileErrors=[];mp.on("pageerror",e=>mobileErrors.push(e.message));
  await routeGitHub(mp);
- await mp.goto(pathToFileURL(html).href,{waitUntil:"load"});await waitSync(mp);
+ await mp.goto(pathToFileURL(html).href,{waitUntil:"load"});
+ assert.equal(await mp.locator("#overview:not(.hidden)").count(),1);
+ await mp.locator('.desk-nav a[href="#experiments"]').click();
+ await waitSync(mp);
  await choose(mp,"R50");await start(mp);
  await mp.locator("#game .die:not([disabled])").first().click();
  await mp.locator("#game .goal").first().click();
@@ -218,5 +230,5 @@ try{
  assert.equal(mobileErrors.length,0,mobileErrors.join("\n"));
  await mp.screenshot({path:path.join(artifact,"mobile.png"),fullPage:true});
  await mobile.close();
- console.log("PASS: 11-item status list; R54 human reply and edit invalidation; R50/R54 4-v-5 play; feedback SHA updates; reload and mobile");
+ console.log("PASS: overview, evidence map, 11-item status list; R54 human reply and edit invalidation; R50/R54 4-v-5 play; feedback SHA updates; reload and mobile");
 }catch(e){console.error(e);process.exitCode=1}finally{await browser.close();}

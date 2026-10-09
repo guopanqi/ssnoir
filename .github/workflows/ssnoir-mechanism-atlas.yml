@@ -11,6 +11,8 @@ on:
       - 'tools/content-validator/experiments/test_mechanism_field_station.mjs'
       - 'docs/实验/机制研究/试玩任务.json'
       - 'tools/content-validator/experiments/mechanism_cloud_feedback.js'
+      - 'tools/content-validator/experiments/mechanism_workbench.css'
+      - 'tools/content-validator/experiments/mechanism_workbench.js'
 permissions:
   contents: read
 jobs:
