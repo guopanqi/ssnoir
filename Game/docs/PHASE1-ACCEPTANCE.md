@@ -37,3 +37,7 @@ Browser emulation **cannot** establish that the actual WeChat runtime exposes th
 2. Fix failures against actual logs, save screenshots, and keep the **entire run red** until all required automated checks pass.
 3. If simulated wx tests pass, proceed to real WeChat developer tool / device acceptance without claiming mobile compatibility early.
 4. After platform compatibility approval, start phase two (Scheme native API and C# logic parity tests) in this same `Game/` project.
+
+## Added target: TapTap Mini Game
+
+WeChat build -> official TapTap WeixinGameConverter 2.0.5 -> `game.zip`; see [TAPTAP-ACCEPTANCE.md](TAPTAP-ACCEPTANCE.md). CI conversion/package/mock tests are distinct from still-pending TapTap native runtime tests.

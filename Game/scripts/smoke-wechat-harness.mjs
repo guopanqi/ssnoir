@@ -1,7 +1,9 @@
 import { readFileSync, mkdirSync } from "node:fs";
 import { chromium } from "playwright";
 
-const source = readFileSync("dist/wechat/game.js", "utf8");
+const target = process.env.SSNOIR_MINIGAME_TARGET === "taptap" ? "taptap" : "wechat";
+const sourceFile = target === "taptap" ? "dist/taptap/game/game.js" : "dist/wechat/game.js";
+const source = readFileSync(sourceFile, "utf8");
 const browser = await chromium.launch({
   headless: true,
   args: ["--no-sandbox", "--enable-webgl", "--enable-unsafe-swiftshader", "--use-gl=angle", "--use-angle=swiftshader"]
@@ -21,6 +23,9 @@ try {
     canvas.style.height = "576px";
     canvas.requestAnimationFrame = callback => requestAnimationFrame(callback);
     canvas.cancelAnimationFrame = id => cancelAnimationFrame(id);
+    // Official converter prepends GameGlobal.fetch = undefined; a TapTap
+    // compatibility host exposes GameGlobal and can route wx APIs.
+    window.GameGlobal = window;
     window.wx = {
       createCanvas: () => canvas,
       createOffscreenCanvas: ({ width, height }) => {
@@ -45,18 +50,18 @@ try {
   );
   if (errors.length) throw new Error(errors.join("\n"));
   mkdirSync("artifacts", { recursive: true });
-  await page.screenshot({ path: "artifacts/wechat-harness.png" });
-  console.log("PASS: bundled WeChat IIFE with mocked wx host, shared WebGL2/Pixi and touch Scheme action");
+  await page.screenshot({ path: "artifacts/" + target + "-harness.png" });
+  console.log("PASS:", target, "bundled IIFE with mocked wx/compatibility host, shared WebGL2/Pixi and touch Scheme action");
 } catch (error) {
   mkdirSync("artifacts", { recursive: true });
-  await page.screenshot({ path: "artifacts/wechat-harness-failed.png" }).catch(() => {});
+  await page.screenshot({ path: "artifacts/" + target + "-harness-failed.png" }).catch(() => {});
   const diagnosis = await page.evaluate(() => ({
     wxPresent: typeof wx !== "undefined",
     ready: !!window.__SSNOIR_WECHAT_FOUNDATION__,
     counter: window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue(),
     canvas: [document.getElementById("mini")?.width, document.getElementById("mini")?.height]
   })).catch(e => ({ evaluateError: String(e) }));
-  console.error("WeChat harness error", JSON.stringify(diagnosis), "browser errors:", JSON.stringify(errors));
+  console.error(target + " harness error", JSON.stringify(diagnosis), "browser errors:", JSON.stringify(errors));
   throw error;
 } finally {
   await browser.close();

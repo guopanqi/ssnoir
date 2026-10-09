@@ -61,3 +61,7 @@ CI workflow: `.github/workflows/ssnoir-game-foundation.yml`. Each run uploads br
 ## Phase-one acceptance record
 
 See [docs/PHASE1-ACCEPTANCE.md](docs/PHASE1-ACCEPTANCE.md) for exact automated gates, platform-specific manual sign-off, known interpretation limits, and next-agent handoff. A green CI does not claim real WeChat device approval.
+
+## TapTap as fourth target
+
+`npm run build:taptap` uses the verified user-supplied TapTap conversion tool version 2.0.5 to transform the existing WeChat Mini Game into `dist/taptap/game.zip`. `npm run smoke:taptap-harness` exercises the converted script and shared Scheme interaction in Chromium's mocked compatibility host. See [TapTap acceptance](docs/TAPTAP-ACCEPTANCE.md) for actual-client testing and limitations.

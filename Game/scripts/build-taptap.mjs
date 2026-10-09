@@ -1,0 +1,46 @@
+import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { resolve, join, delimiter } from "node:path";
+import { gunzipSync } from "node:zlib";
+
+/**
+ * Runs exactly the submitted TapTap wx_converter.py v2.0.5.
+ * The vendor's original Python source is stored losslessly gzip-compressed
+ * (and hash-verified) to avoid committing the supplied node_modules.
+ */
+const vendor = resolve("vendor/taptap-converter");
+const root = resolve("dist/taptap");
+const tools = resolve("dist/.taptap-converter-tool");
+const source = resolve("dist/wechat");
+const archive = join(vendor, "wx_converter.py.gz");
+const expected = "19020e1b26ce360d156da07676326885957a4b98a4624457e328518b97974354";
+const code = gunzipSync(readFileSync(archive));
+const sha = createHash("sha256").update(code).digest("hex");
+if (sha !== expected) throw new Error("TapTap converter source hash mismatch: " + sha);
+mkdirSync(tools, { recursive: true });
+mkdirSync(join(tools, "wx_unity_converter"), { recursive: true });
+writeFileSync(join(tools, "wx_converter.py"), code);
+for (const filename of [".babelrc","wx_unity_converter/wx_unity.js","wx_unity_converter/check-version.js"]) {
+  copyFileSync(join(vendor, filename), join(tools, filename));
+}
+if (!readFileSync(join(source,"game.js"),"utf8").includes("SSNoirWeChatFoundation"))
+  throw new Error("Expected packaged SSNoir WeChat IIFE as converter input");
+rmSync(root, { recursive: true, force: true });
+const bins = resolve("node_modules/.bin");
+const env = { ...process.env, PATH: bins + delimiter + (process.env.PATH || "") };
+const run = spawnSync("python3", [join(tools,"wx_converter.py"),
+  "-s", source, "-t", root, "-y"], { cwd: tools, env, stdio: "inherit", timeout: 120_000 });
+if (run.error) throw run.error;
+if (run.status !== 0) throw new Error("TapTap vendor converter failed with exit " + run.status);
+
+const validation = spawnSync("python3", ["scripts/validate-taptap.py", root],
+  { cwd: resolve("."), stdio: "inherit" });
+if (validation.error) throw validation.error;
+if (validation.status !== 0) throw new Error("TapTap package validation failed");
+
+const syntax = spawnSync(process.execPath, ["--check", join(root,"game","game.js")],
+  { stdio: "inherit" });
+if (syntax.error) throw syntax.error;
+if (syntax.status !== 0) throw new Error("TapTap converted game.js is not parseable");
+console.log("TapTap 2.0.5 converter integration passed. Runtime device acceptance still required.");

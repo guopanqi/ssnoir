@@ -14,7 +14,9 @@
     "verify": "npm run typecheck && npm test && npm run build:web && npm run build:wechat",
     "capture": "node scripts/capture.mjs",
     "smoke:desktop": "node scripts/smoke-desktop.mjs",
-    "smoke:wechat-harness": "node scripts/smoke-wechat-harness.mjs"
+    "smoke:wechat-harness": "node scripts/smoke-wechat-harness.mjs",
+    "build:taptap": "npm run build:wechat && node scripts/build-taptap.mjs",
+    "smoke:taptap-harness": "node scripts/smoke-taptap-harness.mjs"
   },
   "dependencies": {
     "biwascheme": "0.8.3",
@@ -27,6 +29,10 @@
     "typescript": "5.9.3",
     "vite": "8.0.0",
     "playwright": "1.55.0",
-    "lips": "1.0.0-beta.23.1"
+    "lips": "1.0.0-beta.23.1",
+    "@babel/cli": "7.28.3",
+    "@babel/core": "7.28.5",
+    "@babel/preset-env": "7.28.5",
+    "terser": "5.44.1"
   }
 }
