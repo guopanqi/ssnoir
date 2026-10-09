@@ -67,7 +67,20 @@ def check(path:Path, tasks:dict)->dict:
             assert study=="R50" and type(run["pairedWithSeed"]) is int
             assert 0<=run["pairedWithSeed"]<=4294967295
             assert run["seed"]==run["pairedWithSeed"], "Replay must reuse exact seed"
-    notes=data.get("notes",[])
+    kind=data.get("feedbackKind","observation")
+    assert kind in ("observation","reply"),f"Unknown feedback kind: {path}"
+    if kind=="reply":
+        assert not runs, "Research-reply messages must not re-upload play traces"
+        target=data.get("inReplyTo")
+        assert isinstance(target,dict), "Reply must link specific review source"
+        parent=target.get("feedbackPath","")
+        assert parent.startswith("docs/实验/机制研究/反馈/inbox/SSNoir-feedback-"+study+"-")
+        assert parent.endswith(".json") and ".." not in parent
+        assert isinstance(target.get("feedbackSha"),str) and len(target["feedbackSha"])==40
+        assert all(c in "0123456789abcdef" for c in target["feedbackSha"].lower())
+        assert isinstance(target.get("headline",""),str) and len(target["headline"])<1000
+        assert isinstance(responses.get("mechanicalFeeling"),str) and bool(responses["mechanicalFeeling"].strip())
+        notes=data.get("notes",[])
     assert isinstance(notes,list) and len(notes)<=50
     assert all(isinstance(n,str) and len(n)<12000 for n in notes)
     assert runs or notes or any(responses.get(k,"").strip() for k in RESPONSE_KEYS), (
