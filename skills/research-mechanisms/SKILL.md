@@ -9,6 +9,17 @@ description: 在 SSNoir 现有交锋规则下研究简洁的数学机制与策�
 
 目标是在现有规则下找到少量、简洁、值得玩家尝试的设计模式。多个目标争夺行动力只是一个分支，不能限定整个搜索空间。
 
+## 新的研究与试玩准入层级
+
+Unity两个菜单共用DebugEncounterCatalog。剧情清单DemoEncounters.json，研究手动试玩单独DebugResearchPlaytests.json。禁止再次通过Resources.LoadAll扫描全研究目录作为菜单。
+
+20项结构候选见 docs/实验/机制研究/结构候选20.json 与同名Markdown，只是可以解释并反证的独立决策关系。不得把20项候选当20项人类认可的可玩场景，候选新增/改动不得自动改变Debug白名单。
+
+新增Debug研究项必须有独立的人工试玩审阅、实际原生Scheme入口和可追溯依据。验证：python3 tools/content-validator/experiments/validate_debug_playtests.py 及 validate_mechanism_portfolio.py。
+
+自主循环仍需语义不变量、简单策略反证、新增规则关闭消融、正常路径严格决策、原生逐手证据；人类意见异步输入。价值低的候选可以从20项中替换，不许掩盖失败。
+
+
 ## 接手
 
 从本 Skill 源目录解析以下路径。每次续研先读：
