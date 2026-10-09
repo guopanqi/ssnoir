@@ -68,8 +68,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     context: sharedContext as WebGL2RenderingContext,
     width: options.width,
     height: options.height,
-    clearBeforeRender: false,
-    preference: "webgl"
+    clearBeforeRender: false
   });
   const stage = new Container();
   stage.addChild(new Graphics().roundRect(30, 350, 370, 190, 12)
