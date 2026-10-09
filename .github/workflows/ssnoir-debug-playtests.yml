@@ -1,0 +1,25 @@
+name: SSNoir Curated Debug Encounters
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-debug-playtests.yml'
+      - 'UnityClient/Assets/Resources/DemoEncounters.json'
+      - 'UnityClient/Assets/Resources/DebugResearchPlaytests.json'
+      - 'UnityClient/Assets/Scripts/Runtime/IMGUI/Components/DebugEncounterCatalog.cs'
+      - 'UnityClient/Assets/Scripts/Runtime/IMGUI/Components/DebugPanelDrawer.cs'
+      - 'UnityClient/Assets/Scripts/Runtime/IMGUI/Components/SceneDropdownDrawer.cs'
+      - 'tools/content-validator/experiments/validate_debug_playtests.py'
+permissions:
+  contents: read
+jobs:
+  approve-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Assert both scene menus are fail-closed explicit allowlists
+        run: python3 tools/content-validator/experiments/validate_debug_playtests.py
