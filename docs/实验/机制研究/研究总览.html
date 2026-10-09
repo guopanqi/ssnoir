@@ -545,7 +545,7 @@ function renderPatterns(){
   parts.forEach(function(a){child(details,"strong","",a[0]);child(details,"p","",a[1])});
   var ls=child(details,"div","links");p.links.forEach(function(l){var a=anch(l.label+" ↗",link(l.href));a.target="_blank";a.rel="noopener noreferrer";ls.appendChild(a)})
  });
- $("pattern-count").textContent=library.patterns.length;
+ if($("pattern-count"))$("pattern-count").textContent=library.patterns.length;
 }
 function choose(id){
  if(!getTask(id))return;
