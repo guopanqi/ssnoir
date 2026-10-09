@@ -1,6 +1,6 @@
 export const castStyles=[
  {id:'original',name:'原版立绘 · 两人',note:'夜莺和尼尔使用实验原版填色立绘，夜莺为外套与手包。',both:true,files:{neil:'assets/neil.png',night:'assets/nightingale.png'}},
- {id:'originalNeon',name:'原版 Neon · 两人',note:'两人均使用 Unity 原版 Neon 图；尼尔保留香烟，夜莺去掉麦克风，夜莺源图下端本就截断，未补画。',both:true,folder:'original-neon',neilFolder:'original-neon'},
+ {id:'originalNeon',name:'原版 Neon · 两人',note:'两人使用已统一尺度的 Unity 基础 Neon 全身图；尼尔保留香烟，夜莺去掉麦克风并补齐双鞋，画布与脚底基线一致。',both:true,folder:'original-neon',neilFolder:'original-neon'},
  {id:'neonEdge',name:'N2 断线暗面',note:'来自原 Neon：深色实体与局部浅色长弧，卷发与肩颈形成辨识；夜莺保留礼服，尼尔提炼原 Neon 的低圆帽与侧脸。人物统一中性姿势，自带描线无需额外加线。',folder:'05-neon-selective-edge',neilFolder:'08-neil-n2-neon'},
  {id:'curlCoat',name:'C1 卷发外套',note:'在 C 上恢复额前发浪、卷发和细长侧脸；保留户外外套与手包，尼尔提炼原 Neon 轮廓。人物统一中性姿势，可点击推荐描线补浅色外缘。',folder:'06-c-curl-coat',neilFolder:'09-neil-c1-neon'},
  {id:'storySoft',name:'G1 柔软手绘',note:'借鉴 Florence 的手绘叙事表达：柔软墨线、石灰肤色与少量平涂，保留夜莺的卷发和谨慎神情。',folder:'20-story-soft-ink',neilFolder:'09-neil-c1-neon'},
@@ -15,5 +15,5 @@ export const castStyles=[
 export function sprite(styleId,actor,pose){
  const style=castStyles.find(s=>s.id===styleId);if(!style)throw Error(`Unknown cast style: ${styleId}`);
  if(style.files)return style.files[actor];
- return `assets/${actor==='neil'?style.neilFolder:style.folder}/${actor}-neutral.png${styleId==='originalNeon'&&actor==='night'?'?v=no-mic-1':''}`;
+ return `assets/${actor==='neil'?style.neilFolder:style.folder}/${actor}-neutral.png${styleId==='originalNeon'?'?v=full-body-20261009':''}`;
 }
