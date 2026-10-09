@@ -22,7 +22,7 @@ def main():
     assert len(groups)==len(set(groups)), "A second title for the same abstract relation should not count twice"
     approved_names=set()
     for r in items:
-        assert r["status"]=="structural-candidate",r["id"]
+        assert r["state"]=="structural-candidate",r["id"]
         for key in ("name","family","decision","reversalHypothesis","knownCounterexample","source"):
             assert r[key] and len(r[key])>=4,(r["id"],key)
         assert (ROOT/r["source"]).is_file(),(r["id"],r["source"])
