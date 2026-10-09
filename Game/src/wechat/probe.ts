@@ -32,5 +32,6 @@ mountFoundation({
     try { session.activateAt(x, y); }
     catch (error) { wechatHost.showFailure(error); }
   });
+  Object.assign(globalThis, { __SSNOIR_WECHAT_FOUNDATION__: { getSchemeValue: session.getCount } });
   console.log("[SSNoir] Three/Pixi/Scheme shared foundation mounted; initial count " + session.getCount());
 }).catch(wechatHost.showFailure);

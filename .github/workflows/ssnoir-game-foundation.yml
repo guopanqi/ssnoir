@@ -32,6 +32,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Browser smoke and capture
         run: npm run capture
+      - name: WeChat compiled bundle on mocked wx browser host
+        run: npm run smoke:wechat-harness
       - name: Electron smoke (virtual display)
         run: xvfb-run -a npm run smoke:desktop
       - name: Publish commit validation status
@@ -71,5 +73,5 @@ jobs:
           path: |
             Game/dist/web
             Game/dist/wechat
-            Game/artifacts/foundation-web*.png
+            Game/artifacts/*.png
           retention-days: 7

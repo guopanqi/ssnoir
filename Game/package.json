@@ -13,7 +13,8 @@
     "start:desktop": "electron .",
     "verify": "npm run typecheck && npm test && npm run build:web && npm run build:wechat",
     "capture": "node scripts/capture.mjs",
-    "smoke:desktop": "node scripts/smoke-desktop.mjs"
+    "smoke:desktop": "node scripts/smoke-desktop.mjs",
+    "smoke:wechat-harness": "node scripts/smoke-wechat-harness.mjs"
   },
   "dependencies": {
     "biwascheme": "0.8.3",

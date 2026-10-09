@@ -21,6 +21,7 @@ npm run dev                # browser interactive preview
 npm run build:web
 npm run start:desktop      # Electron requires a graphical desktop
 npm run smoke:desktop      # Electron graphical smoke; use xvfb-run on headless Linux
+npm run smoke:wechat-harness  # run built WeChat IIFE against a browser wx-API mock
 npm run build:wechat       # import dist/wechat in WeChat DevTools as Mini Game
 \`\`\`
 
@@ -32,7 +33,7 @@ npm run build:wechat       # import dist/wechat in WeChat DevTools as Mini Game
 | Browser 3D + 2D same GL context | Yes | Playwright click succeeds, screenshot reviewed |
 | Browser resized/mobile touch | Mobile landscape test | Playwright 812x375 tap + screenshot |
 | Electron window | Browser bundle reused | CI runs Electron on Xvfb; native Windows/macOS manual check still pending |
-| WeChat Three + Pixi shared GL | Code and packaging in place | **WeChat DevTools + Android and iOS real devices pending** |
+| WeChat Three + Pixi shared GL | Real shared implementation + mocked wx browser smoke | **WeChat DevTools + Android and iOS real devices pending** |
 | WeChat font/touch/lifecycle | Touch manually routed by WX event | Real devices pending |
 | Full \`engine.scm\` / \`world.scm\` | Not yet | Stage 2 after platform decision |
 | Game state, saves, cutscenes | Not yet | Stage 2+ |
@@ -44,6 +45,8 @@ npm run build:wechat       # import dist/wechat in WeChat DevTools as Mini Game
 3. Confirm 3D block city **and** the 2D Pixi card are visible in **the same image**, then tap the cream card: counter should rise from 1 to 2.
 4. Check console for \`[SSNoir] Three/Pixi/Scheme shared foundation mounted\`; any error must be recorded, never silently work around it.
 5. Repeat on Android and iOS. A successful bundle and browser screenshot are **not** proof of actual WeChat support.
+
+The mocked-wx smoke executes the **actual bundled game.js** but still has Chromium browser APIs available. It cannot establish compatibility with the actual WeChat JavaScript engine, GPU, fonts or lifecycle.
 
 The WeChat environment adapter intentionally throws for missing offscreen-canvas, remote asset fetch or XML parsing. Fix unsupported essentials deliberately after collecting device logs; do not claim that untested APIs are supported.
 
