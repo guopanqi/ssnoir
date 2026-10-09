@@ -35,6 +35,7 @@ jobs:
           python-version: '3.11'
       - name: Build and validate research webpage
         run: |
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py
           python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
           mkdir -p pages-dist
           cp docs/实验/机制研究/研究总览.html pages-dist/index.html

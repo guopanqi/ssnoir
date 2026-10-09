@@ -24,7 +24,9 @@ jobs:
         with:
           python-version: '3.11'
       - name: Validate curated patterns, source references and HTML parity
-        run: python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+        run: |
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
