@@ -283,6 +283,8 @@
             (else ""))))))
 
 (define (begin-chase!)
+  (load-file "scripts/theatre/勒索追逐.scm")
+  (勒索追逐-演出)
   (set! act 2)
   ;; 第二幕全程追逐主题，盖过唱片机和城市默认声；进场时收的值，收场时原样还回去。
   (set-global! '音乐 "主题-追逐")
