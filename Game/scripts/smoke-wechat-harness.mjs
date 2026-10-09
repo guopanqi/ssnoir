@@ -69,6 +69,16 @@ try {
     }
     window.wx = wxMock;
   }, canvasMode);
+  // In the actual Mini Game JSCore runtime there is no HTMLElement.
+  // The community package's browser detection otherwise patches THREEGlobals
+  // once for "browser", then once for WeChat and throws on the second patch.
+  if (target === "community") {
+    const nativeBrowserDetected = await page.evaluate(() => {
+      delete window.HTMLElement;
+      return "HTMLElement" in window;
+    });
+    if (nativeBrowserDetected) throw new Error("Mock cannot disable browser-only HTMLElement detection");
+  }
   await page.addScriptTag({ content: source }).catch(error => { errors.push("addScriptTag: " + (error.stack || String(error))); });
   await page.waitForFunction(
     () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 1, null, { timeout: 20000 }
