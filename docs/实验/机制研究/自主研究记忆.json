@@ -1,173 +1,355 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-09",
-  "batch": "R56-R65",
+  "batch": "R66-R75",
   "rounds": 10,
-  "objective": "独立、自我驱动的抽象决策关系搜索；人类体验是异步证据而不是前置任务",
+  "totalArchivedRounds": 20,
+  "objective": "Agent自主、精确、可反证的抽象关系研究；真人体验异步输入，非前置条件",
   "method": {
-    "source": "tools/content-validator/experiments/r56_r65_autonomous_search.py",
-    "run": "https://github.com/guopanqi/ssnoir/actions/runs/37906608081",
-    "horizon": 4,
-    "skill": 1,
-    "handCounts": 126,
-    "mathematics": "精确Fraction状态动态规划；结果基于全部126种无序四骰及组合权重",
-    "baseline": "每手牌单独选择最强：(a)预先确定四手行动序但逐手根据结果选骰；(b)若干公开可解释的响应式优先级/阈值规则，内部仍逐手选骰",
-    "scope": "10个隔离小模型。不是正式C# / Unity，也没有真人验证，不称好玩"
+    "source": [
+      "tools/content-validator/experiments/r66_decay_semantics.py",
+      "tools/content-validator/experiments/r67_r75_structural_probe.py",
+      "tools/content-validator/experiments/r71_transfer_audit.py"
+    ],
+    "run": "https://github.com/guopanqi/ssnoir/actions/runs/37914031896",
+    "math": "R66语义/策略审计 + R67因果去重 + 八个四骰精确Fraction DP，各自完整126种加权初始无序手牌",
+    "baseline": "开局手牌已知的最强冻结动作脚本（后续仍适应择骰），对照4条明确的响应式简洁策略；关键候选额外做禁用新动作/改变完成会否撤销的因果消融",
+    "human": "未新增任何真人或原生C#证据，本批不推动无需验证的候选试玩",
+    "crossModelComparability": "不同模式的效用定义不同，不可跨模式直接比较绝对收益"
   },
   "results": [
     {
-      "id": "R56",
-      "title": "接力奖励",
-      "status": "暂缓",
-      "hypothesis": "R55之后尝试让完成动作产生下一手切线动力",
-      "free": 2.908768,
-      "baseline": 2.903521,
-      "gap": 0.005248,
-      "initialHandsWithStrictGain": 49,
-      "limitation": "固定行动脚本已解释绝大多数收益，奖励易变成一次性流程",
-      "nextHypothesis": "因为接力太接近开局固定计划，尝试进展本身创造无法忽略的维护负担"
-    },
-    {
-      "id": "R57",
-      "title": "进展引发维护债",
-      "status": "保留组合材料",
-      "hypothesis": "推进到阈值时产生独立可修复问题",
-      "free": 2.281705,
-      "baseline": 2.249791,
-      "gap": 0.031914,
-      "initialHandsWithStrictGain": 76,
-      "limitation": "与强固定脚本仍有可测差距，但与既有R37同属进展副作用，创新性不能重复计算",
-      "nextHypothesis": "把任务成本换成信息成本，检验是否真正出现不同的关系"
-    },
-    {
-      "id": "R58",
-      "title": "付费获知真实优先级",
-      "status": "基础关系，不晋升",
-      "hypothesis": "可以耗一行动揭示高价值目标是哪一个",
-      "free": 2.907011,
-      "baseline": 2.907011,
-      "gap": 0,
-      "initialHandsWithStrictGain": 0,
-      "limitation": "相对冻结序列的优势很大，但简单的先探查再追揭示目标完全达到自由最优；不是新的高阶动态玩法",
-      "nextHypothesis": "因此排除只用前置条件决定流程的R59"
-    },
-    {
-      "id": "R59",
-      "title": "前置解锁",
-      "status": "排除",
-      "hypothesis": "必须先推进甲才能开启乙",
-      "free": 2.655203,
-      "baseline": 2.655203,
-      "gap": 0,
-      "initialHandsWithStrictGain": 0,
-      "limitation": "强基线与自由完全相等：顺序被规则写死，没有新的条件性选择",
-      "nextHypothesis": "转向可自由决定时点的储备投资"
-    },
-    {
-      "id": "R60",
-      "title": "临时储备",
-      "status": "小幅保留",
-      "hypothesis": "消耗当前行动储备一次性未来推进",
-      "free": 2.550605,
-      "baseline": 2.524722,
-      "gap": 0.025883,
-      "initialHandsWithStrictGain": 75,
-      "limitation": "相对强参照存在小差距，但局部数值会引导固定先存后花；暂不独立制作正式场景",
-      "nextHypothesis": "投资仍偏阶段化，改查行动会干扰已有别处进度的持续取舍"
-    },
-    {
-      "id": "R61",
-      "title": "异线进度衰减",
-      "status": "优先继续反证",
-      "hypothesis": "推进甲减少乙1进度，反之亦然；成果分别计算",
-      "free": 1.899686,
-      "baseline": 1.823635,
-      "gap": 0.076051,
-      "initialHandsWithStrictGain": 75,
-      "limitation": "十轮中对强开局脚本/简单优先级的剩余差距最大，但衰减可能让玩家只敢专注一路；需审查正常最优路径的改道发生率",
-      "nextHypothesis": "检验减损是否真的产生逆转，而不是被更聪明的一条专注口诀解释"
-    },
-    {
-      "id": "R62",
-      "title": "失败防护",
-      "status": "暂缓",
-      "hypothesis": "用一次准备行动吸收接下来坏档损失",
-      "free": 2.609843,
-      "baseline": 2.603918,
-      "gap": 0.005924,
-      "initialHandsWithStrictGain": 60,
-      "limitation": "绝大部分收益被强基线解释，准备很可能变成可计算的开局动作",
-      "nextHypothesis": "试无额外准备动作时可见的机会位置动态反馈"
-    },
-    {
-      "id": "R63",
-      "title": "机会反馈",
-      "status": "排除",
-      "hypothesis": "每手结果让下一手特定目标获得可见加成",
-      "free": 2.99427,
-      "baseline": 2.994209,
-      "gap": 0.000061,
-      "initialHandsWithStrictGain": 7,
-      "limitation": "几乎到收益上限，最强固定序已接近完整效用；变化虽多、选择意义却极少",
-      "nextHypothesis": "尝试把选择改成精确匹配而非提供更多奖励"
-    },
-    {
-      "id": "R64",
-      "title": "精确收尾",
-      "status": "排除",
-      "hypothesis": "超过目标值会使积累归零",
-      "free": 1.634847,
-      "baseline": 1.634702,
-      "gap": 0.000145,
-      "initialHandsWithStrictGain": 4,
-      "limitation": "动态收益近乎零，主要是计算当前进度与所需幅度；不用以复杂度自证新模式",
-      "nextHypothesis": "改探玩家自愿终止的机会成本"
-    },
-    {
-      "id": "R65",
-      "title": "收益止损",
-      "status": "基础关系，不晋升",
-      "hypothesis": "随时可放弃剩余机会入袋收益，坏档会丢掉未存成果",
-      "free": 4.757302,
-      "baseline": 4.757302,
-      "gap": 0,
-      "initialHandsWithStrictGain": 0,
-      "limitation": "自适应阈值策略完全复制最优，没有独立于简单止损规则的剩余新结构",
-      "nextHypothesis": "下一批不应再将已能用单阈值概括的结构包装成新发现"
-    }
-  ],
-  "crossRoundMemory": [
-    "超过目标收益上限时，固定简单策略很容易接近天花板；若动态差异微小，不因事件和进度条多而继续调参（R56/R63/R64）。",
-    "只与完全预先固定的动作序比较会制造假阳性：R58对固定序差约0.677，却被『先探查后追目标』响应式口诀完全解释，必须测试可解释策略。",
-    "硬性解锁常常只是规定的顺序，并不能带来玩家需要权衡的计划选择（R59）。",
-    "资源准备可能只引出一个开头必做/不做的阈值（R60/R62）；不要把准备本身当新的玩法。",
-    "进度副作用R57与既有R37有重复，应优先学习它的边界而不是反复用新名字晋升。",
-    "R61跨线损耗是本批待反证候选：必须先证明最优局势中真有因结果而改道；数学0.076不能直接声称好玩。",
-    "任何新玩法的版本变化须建独立 Rxx 和独立反馈；研究者回复下可以新增非覆盖回帖。",
-    "Agent在没收到人类反馈时仍按自定下一个可证伪假设，实验失败同样记录并推动下轮。"
-  ],
-  "frontier": [
-    {
       "id": "R66",
-      "question": "R61在正常最优策略路径中，是否真实出现因结果而中途切线，还是一种更强的剩余进度/骰面门槛口诀就足够？",
-      "priority": 1,
-      "method": "沿策略前向展开，测试最强可解释状态启发式与无衰减对照",
-      "humanGate": false
+      "title": "衰减关系的完成语义审查",
+      "category": "formal-audit",
+      "status": "原R61表达淘汰；保留挥发进度作为不同机制",
+      "hypothesis": "强数学动态收益是否来自真实改路，还是结算撤销",
+      "evidence": {
+        "legacyExpected": 1.899686,
+        "legacySimultaneousCompletionProbability": 0,
+        "bankedExpected": 2.807315482,
+        "bankedStrongPriority": 2.804624986,
+        "bankedGap": 0.002690496,
+        "bankedStrictSwitchAtThird": 0.006258573,
+        "bankedBothFinishProbability": 0.828516161
+      },
+      "counter": "原R61永远无法同时完成两项目标；保留完成成果后自适应相对顺序优先仅+0.00269，第三手严格自愿换路路径约0.63%",
+      "lesson": "完成判定、成绩结算与进度条状态必须首先证明语义一致，再计算策略差"
     },
     {
       "id": "R67",
-      "question": "R57的推进产生修理问题与原R37相比真正增加什么关系，是否只是参数版本？",
-      "priority": 2,
-      "method": "统一决策语义，再进行支配/等价审查",
-      "humanGate": false
+      "title": "维护债的旧模式同构检查",
+      "category": "causal-equivalence",
+      "status": "并入R37已有结构",
+      "hypothesis": "R57进度生成维护债是否构成独立新关系",
+      "counter": "与R37同属跨进度阈值→产生额外处理义务；R57即时结算债务，R37在回合末累积不可逆压力，具体时序不同但抽象因果相同",
+      "lesson": "机制新名字和不同时间参数不等于新的抽象决策关系"
     },
     {
       "id": "R68",
-      "question": "有没有不借助两个相互争骰目标的基本模式，如信息可信度、可逆承诺与保留退出机会？",
+      "title": "付费验证",
+      "category": "information",
+      "status": "强固定脚本已解释，不晋升",
+      "hypothesis": "牺牲一手核实信息是否可产生结果依赖的补救决策",
+      "evidence": {
+        "optimal": 1.9161475,
+        "strong": 1.9161475,
+        "gap": 0,
+        "strictRoots": 0
+      },
+      "counter": "看完整骰面后预选验证/推进的固定序，在此模型里已达完整最优",
+      "lesson": "只改变之后动作收益的验证常退化为前置投资"
+    },
+    {
+      "id": "R69",
+      "title": "可撤销承诺",
+      "category": "commitment",
+      "status": "响应式优先级已最优，不晋升",
+      "hypothesis": "专注奖励与改签损失是否形成不易口诀化的途中抉择",
+      "evidence": {
+        "optimal": 2.950523215,
+        "strong": 2.950523215,
+        "gap": 0,
+        "strictRoots": 0
+      },
+      "counter": "本批简单局面响应式优先级达最优，分数接近3的上界",
+      "lesson": "成本和惩罚增加未必创造额外可解释选择"
+    },
+    {
+      "id": "R70",
+      "title": "公开机会时窗",
+      "category": "timing",
+      "status": "保留公开节奏基本关系，当前单体暂缓",
+      "hypothesis": "前后不同优势窗口是否要求重新安排先后次序",
+      "evidence": {
+        "optimal": 2.965262893,
+        "strong": 2.95797849,
+        "gap": 0.007284403,
+        "strictRoots": 47
+      },
+      "counter": "强固定/响应式策略已保留绝大部分价值，效用接近满分；尚不能断定正常玩家会因结果改路",
+      "lesson": "公开时窗首先是可预测排程，不能因窗口变动就称动态策略丰富"
+    },
+    {
+      "id": "R71",
+      "title": "消耗行动搬移进度",
+      "category": "resource-reallocation",
+      "status": "机制消融否定晋升，保留反证材料",
+      "hypothesis": "已有A进度能以一次行动损失一格A换一格B，是否真实让途中改路有价值",
+      "evidence": {
+        "optimal": 2.807794162,
+        "strong": 2.759453947,
+        "gap": 0.048340216,
+        "withoutTransfer": 2.807315482,
+        "featureValue": 0.00047868,
+        "strictTransferPathMass": 0.091349451,
+        "strictRootHandsWithFeatureGain": 5
+      },
+      "counter": "强基线差0.04834并不等于搬移贡献；禁用搬移后只减少0.000479期望，126初始手牌仅5手根值有严格改善",
+      "lesson": "必须在策略对照以外做直接关闭新增机制的因果消融与正常路径使用审计"
+    },
+    {
+      "id": "R72",
+      "title": "推进与事故清理",
+      "category": "risk-repair",
+      "status": "与R37同族且增量很小，暂缓",
+      "hypothesis": "快推留下事故、主动清理是否出现新优先级",
+      "evidence": {
+        "optimal": 1.990770113,
+        "strong": 1.986273251,
+        "gap": 0.004496861,
+        "strictRoots": 35
+      },
+      "counter": "四骰配置临近完成上限；概念上仍是推进产生问题与维护负担",
+      "lesson": "同类关系不因事件名/代价不同重复晋升"
+    },
+    {
+      "id": "R73",
+      "title": "失败外溢",
+      "category": "risk-externality",
+      "status": "暂缓",
+      "hypothesis": "在甲失败使乙未完成进度变坏，能否迫使有意义的重排",
+      "evidence": {
+        "optimal": 2.807315482,
+        "strong": 2.804624986,
+        "gap": 0.002690496,
+        "strictRoots": 45
+      },
+      "counter": "理性先做完目标的强简单策略几乎解释完整价值",
+      "lesson": "负面联动不等于策略自由；已完成成果保留通常降低表面动态差"
+    },
+    {
+      "id": "R74",
+      "title": "可选兑现时点",
+      "category": "stop-option",
+      "status": "重复R65止损原语，不晋升",
+      "hypothesis": "失败可能归零，玩家自定退出窗口",
+      "evidence": {
+        "optimal": 4.757301669,
+        "strong": 4.757301669,
+        "gap": 0,
+        "strictRoots": 0
+      },
+      "counter": "响应式止损阈值完全达到自由最优；重新命名与R65无新结构区别",
+      "lesson": "遇到旧模式同构负例应即时去重而非在同一概念扫新参数"
+    },
+    {
+      "id": "R75",
+      "title": "一次确定行动",
+      "category": "action-insurance",
+      "status": "直觉策略已最优，不晋升",
+      "hypothesis": "小额确定收益与高波动行动竞争骰子，是否需要中途保留选择权",
+      "evidence": {
+        "optimal": 1.949623009,
+        "strong": 1.949623009,
+        "gap": 0,
+        "strictRoots": 0
+      },
+      "counter": "当前4骰封闭局面下所测简单应对策略已经达到最优",
+      "lesson": "一次性保底通常可被简单收尾规则解释，不等于可持续决策"
+    }
+  ],
+  "crossRoundMemory": [
+    "R66：最终完成是否可撤销决定原机制语义。旧R61两路无法同时达成，新完成保留版本动态增量仅0.00269。必须先做可达状态和价值结算不变量。",
+    "R66：计算切换时排除目标已经完成、玩家被迫使用另一个目标的情况；第三手严格自主切线在保留完成对照中仅0.00626。",
+    "R67：维护债的进度触发关系与R37同因果家族。可作为节奏变体，不重复晋升。",
+    "R68/R69/R74/R75：前置核查、改签、止损、保底被可解释脚本或阈值解释，继续增加数字状态无益。",
+    "R71：最强简单策略差0.04834，但实际启用搬移动作的增量只有0.00047868。以后必须把因果消融和有严格价值的正常路径选用作为独立晋升门槛。",
+    "R70：公开窗口在此短局下接近得分上限，未经人类验证不能称实际灵活。",
+    "R72/R73：新名字未脱离压力预算或跨目标惩罚的旧关系；先做家族去重再开发新场景。",
+    "十轮无独立成熟模式也算完成高质量研究；失败记忆要驱动远离双进度条的小模型空间，而非为凑数量修改参数。"
+  ],
+  "history": [
+    {
+      "batch": "R56-R65",
+      "rounds": 10,
+      "method": {
+        "source": "tools/content-validator/experiments/r56_r65_autonomous_search.py",
+        "run": "https://github.com/guopanqi/ssnoir/actions/runs/37906608081",
+        "horizon": 4,
+        "skill": 1,
+        "handCounts": 126,
+        "mathematics": "精确Fraction状态动态规划；结果基于全部126种无序四骰及组合权重",
+        "baseline": "每手牌单独选择最强：(a)预先确定四手行动序但逐手根据结果选骰；(b)若干公开可解释的响应式优先级/阈值规则，内部仍逐手选骰",
+        "scope": "10个隔离小模型。不是正式C# / Unity，也没有真人验证，不称好玩"
+      },
+      "results": [
+        {
+          "id": "R56",
+          "title": "接力奖励",
+          "status": "暂缓",
+          "hypothesis": "R55之后尝试让完成动作产生下一手切线动力",
+          "free": 2.908768,
+          "baseline": 2.903521,
+          "gap": 0.005248,
+          "initialHandsWithStrictGain": 49,
+          "limitation": "固定行动脚本已解释绝大多数收益，奖励易变成一次性流程",
+          "nextHypothesis": "因为接力太接近开局固定计划，尝试进展本身创造无法忽略的维护负担"
+        },
+        {
+          "id": "R57",
+          "title": "进展引发维护债",
+          "status": "保留组合材料",
+          "hypothesis": "推进到阈值时产生独立可修复问题",
+          "free": 2.281705,
+          "baseline": 2.249791,
+          "gap": 0.031914,
+          "initialHandsWithStrictGain": 76,
+          "limitation": "与强固定脚本仍有可测差距，但与既有R37同属进展副作用，创新性不能重复计算",
+          "nextHypothesis": "把任务成本换成信息成本，检验是否真正出现不同的关系"
+        },
+        {
+          "id": "R58",
+          "title": "付费获知真实优先级",
+          "status": "基础关系，不晋升",
+          "hypothesis": "可以耗一行动揭示高价值目标是哪一个",
+          "free": 2.907011,
+          "baseline": 2.907011,
+          "gap": 0,
+          "initialHandsWithStrictGain": 0,
+          "limitation": "相对冻结序列的优势很大，但简单的先探查再追揭示目标完全达到自由最优；不是新的高阶动态玩法",
+          "nextHypothesis": "因此排除只用前置条件决定流程的R59"
+        },
+        {
+          "id": "R59",
+          "title": "前置解锁",
+          "status": "排除",
+          "hypothesis": "必须先推进甲才能开启乙",
+          "free": 2.655203,
+          "baseline": 2.655203,
+          "gap": 0,
+          "initialHandsWithStrictGain": 0,
+          "limitation": "强基线与自由完全相等：顺序被规则写死，没有新的条件性选择",
+          "nextHypothesis": "转向可自由决定时点的储备投资"
+        },
+        {
+          "id": "R60",
+          "title": "临时储备",
+          "status": "小幅保留",
+          "hypothesis": "消耗当前行动储备一次性未来推进",
+          "free": 2.550605,
+          "baseline": 2.524722,
+          "gap": 0.025883,
+          "initialHandsWithStrictGain": 75,
+          "limitation": "相对强参照存在小差距，但局部数值会引导固定先存后花；暂不独立制作正式场景",
+          "nextHypothesis": "投资仍偏阶段化，改查行动会干扰已有别处进度的持续取舍"
+        },
+        {
+          "id": "R61",
+          "title": "异线进度衰减",
+          "status": "优先继续反证",
+          "hypothesis": "推进甲减少乙1进度，反之亦然；成果分别计算",
+          "free": 1.899686,
+          "baseline": 1.823635,
+          "gap": 0.076051,
+          "initialHandsWithStrictGain": 75,
+          "limitation": "十轮中对强开局脚本/简单优先级的剩余差距最大，但衰减可能让玩家只敢专注一路；需审查正常最优路径的改道发生率",
+          "nextHypothesis": "检验减损是否真的产生逆转，而不是被更聪明的一条专注口诀解释"
+        },
+        {
+          "id": "R62",
+          "title": "失败防护",
+          "status": "暂缓",
+          "hypothesis": "用一次准备行动吸收接下来坏档损失",
+          "free": 2.609843,
+          "baseline": 2.603918,
+          "gap": 0.005924,
+          "initialHandsWithStrictGain": 60,
+          "limitation": "绝大部分收益被强基线解释，准备很可能变成可计算的开局动作",
+          "nextHypothesis": "试无额外准备动作时可见的机会位置动态反馈"
+        },
+        {
+          "id": "R63",
+          "title": "机会反馈",
+          "status": "排除",
+          "hypothesis": "每手结果让下一手特定目标获得可见加成",
+          "free": 2.99427,
+          "baseline": 2.994209,
+          "gap": 0.000061,
+          "initialHandsWithStrictGain": 7,
+          "limitation": "几乎到收益上限，最强固定序已接近完整效用；变化虽多、选择意义却极少",
+          "nextHypothesis": "尝试把选择改成精确匹配而非提供更多奖励"
+        },
+        {
+          "id": "R64",
+          "title": "精确收尾",
+          "status": "排除",
+          "hypothesis": "超过目标值会使积累归零",
+          "free": 1.634847,
+          "baseline": 1.634702,
+          "gap": 0.000145,
+          "initialHandsWithStrictGain": 4,
+          "limitation": "动态收益近乎零，主要是计算当前进度与所需幅度；不用以复杂度自证新模式",
+          "nextHypothesis": "改探玩家自愿终止的机会成本"
+        },
+        {
+          "id": "R65",
+          "title": "收益止损",
+          "status": "基础关系，不晋升",
+          "hypothesis": "随时可放弃剩余机会入袋收益，坏档会丢掉未存成果",
+          "free": 4.757302,
+          "baseline": 4.757302,
+          "gap": 0,
+          "initialHandsWithStrictGain": 0,
+          "limitation": "自适应阈值策略完全复制最优，没有独立于简单止损规则的剩余新结构",
+          "nextHypothesis": "下一批不应再将已能用单阈值概括的结构包装成新发现"
+        }
+      ],
+      "crossRoundMemory": [
+        "超过目标收益上限时，固定简单策略很容易接近天花板；若动态差异微小，不因事件和进度条多而继续调参（R56/R63/R64）。",
+        "只与完全预先固定的动作序比较会制造假阳性：R58对固定序差约0.677，却被『先探查后追目标』响应式口诀完全解释，必须测试可解释策略。",
+        "硬性解锁常常只是规定的顺序，并不能带来玩家需要权衡的计划选择（R59）。",
+        "资源准备可能只引出一个开头必做/不做的阈值（R60/R62）；不要把准备本身当新的玩法。",
+        "进度副作用R57与既有R37有重复，应优先学习它的边界而不是反复用新名字晋升。",
+        "R61跨线损耗是本批待反证候选：必须先证明最优局势中真有因结果而改道；数学0.076不能直接声称好玩。",
+        "任何新玩法的版本变化须建独立 Rxx 和独立反馈；研究者回复下可以新增非覆盖回帖。",
+        "Agent在没收到人类反馈时仍按自定下一个可证伪假设，实验失败同样记录并推动下轮。"
+      ],
+      "record": "docs/实验/机制研究/批次/R56-R65-自主十轮/研究记录.md"
+    }
+  ],
+  "frontier": [
+    {
+      "id": "R76",
+      "priority": 1,
+      "question": "空间位置/换位成本在单一成功目标下能否产生可理解、结果依赖的路线选择？",
+      "method": "建立有限地图节点+移动行动消耗，比较固定路径、最短路反应式及完整DP，并直接关闭位置成本做消融",
+      "humanGate": false
+    },
+    {
+      "id": "R77",
+      "priority": 2,
+      "question": "延迟揭示动作结果是否产生信息与行动的特殊互动而不是仅把流程变难？",
+      "method": "建立玩家可观测信念状态而非偷看隐藏进度；与即刻揭示和固定计划对照",
+      "humanGate": false
+    },
+    {
+      "id": "R78",
       "priority": 3,
-      "method": "提出异类三套最小状态机与最便宜反证，不先调数值",
+      "question": "可撤销承诺/保留退出权的价值能否超越简单等待到最后的口诀？",
+      "method": "明确一次性权利的放弃成本与兑现时点，强阈值族反证，再做权利移除消融",
       "humanGate": false
     }
   ],
-  "policy": "后续 Agent 首先读此记忆，再依据前沿+新证据选问题；每一轮必须产出独立失败原因和明确下轮假设，最多保留少数精选，不等待人工反馈"
+  "policy": "未来Agent自主推进、原生权威分层；一轮需：设计语义不变量→强解释性简单策略→关闭新增机制的因果消融→正常路径严格主动决策→保留或排除→下一假设。人的反馈异步但优先审阅。"
 }
