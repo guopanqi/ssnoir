@@ -194,8 +194,8 @@ function renderSelection(){
 }
 function rng(state){state.rngState=(state.rngState+0x6D2B79F5)>>>0;var t=state.rngState;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}
 function d6(s){return Math.floor(rng(s)*6)+1}
-function fresh(t,skill,handSize){
- var seed=(Math.floor(Math.random()*4294967295)>>>0);
+function fresh(t,skill,handSize,pairedSeed){
+ var seed=Number.isInteger(pairedSeed)?pairedSeed:(Math.floor(Math.random()*4294967295)>>>0);
  var s={variant:t.browserVariant,seed:seed,rngState:seed,skill:skill,handSize:handSize,initialDice:[],dice:[],progress:[0,0],previous:null,actions:[],result:null,startedAt:new Date().toISOString(),hesitations:[]};
  for(var i=0;i<handSize;i++){var v=d6(s);s.initialDice.push(v);s.dice.push({id:i,value:v,used:false})}return s
 }
@@ -213,7 +213,11 @@ function start(){
  var skill=Number($("difficulty")?$("difficulty").value:1);
  var size=t.browserVariant==="reactive"?Number($("capacity")?$("capacity").value:4):4;
  if(size!==4&&size!==5)size=4;
- d.live=fresh(t,skill,size);
+ var previous=(t.browserVariant==="echo"&&d.runs.length)?d.runs[d.runs.length-1]:null;
+ var repeat=previous&&$("r50-repeat-seed")?.checked&&previous.variant==="echo";
+ if(repeat)skill=previous.skill;
+ d.live=fresh(t,skill,size,repeat?previous.seed:undefined);
+ if(repeat)d.live.pairedWithSeed=previous.seed;
  if(t.browserVariant==="echo")d.live.presentation=($("r50-presentation")?.value==="legacy-abstract"?"legacy-abstract":"goal-explicit");
  d.environment="browser-sketch";choice={dieId:null,target:null};commitDraft();renderGame()
 }
@@ -292,6 +296,12 @@ function renderGame(){
       child(goals,"p","","行动间关系：连续推进同目标，下一手判定修正−1；转投另一目标，下一手修正+1。判定越好越容易推进。");
     }
     child(box,"p","minor","这两个选项只改变解释与结算提示，完全不改变骰子、目标、概率和胜负规则。观察明确目标能否改善你的决策体验。");
+    if(d.runs.length){
+      var sameRow=child(box,"div","inline");
+      var same=child(sameRow,"input");same.type="checkbox";same.id="r50-repeat-seed";same.checked=true;
+      var sameLabel=child(sameRow,"label","minor","复用上一局随机种子和成长值（便于比较同一局面下的两种说明）");sameLabel.htmlFor="r50-repeat-seed";
+      child(box,"p","minor","配对实验只控制初始骰面与底层随机数：如果你改变行动或骰子顺序，最终结果仍可能不同。");
+    }
   }
   if(t.browserVariant==="reactive"){
     var cap=child(box,"div","inline");
@@ -411,7 +421,7 @@ function outputFeedback(){
  var t=getTask(selectedId),d=draft(selectedId),responses={};["understanding","replayInterest"].forEach(function(k){responses[k]=d.responses[k]||""});
  config.feedbackFields.forEach(function(f){responses[f.id]=d.responses[f.id]||""});
  var runs=d.environment==="browser-sketch"?d.runs.map(function(s){return {
-  variant:s.variant,seed:s.seed,skill:s.skill,handSize:s.handSize||4,presentation:s.presentation||undefined,initialDice:s.initialDice,startedAt:s.startedAt,completedAt:s.completedAt,
+  variant:s.variant,seed:s.seed,skill:s.skill,handSize:s.handSize||4,presentation:s.presentation||undefined,pairedWithSeed:s.pairedWithSeed,initialDice:s.initialDice,startedAt:s.startedAt,completedAt:s.completedAt,
   actions:s.actions,result:s.result
  }}):[];
  var feedback={schema:"ssnoir.mechanism-feedback/v1",studyId:t.id,studyTitle:t.title,createdAt:new Date().toISOString(),

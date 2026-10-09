@@ -62,6 +62,10 @@ def check(path:Path, tasks:dict)->dict:
         if "presentation" in run:
             assert study=="R50" and run.get("variant")=="echo"
             assert run["presentation"] in ("goal-explicit","legacy-abstract")
+        if "pairedWithSeed" in run:
+            assert study=="R50" and type(run["pairedWithSeed"]) is int
+            assert 0<=run["pairedWithSeed"]<=4294967295
+            assert run["seed"]==run["pairedWithSeed"], "Replay must reuse exact seed"
     notes=data.get("notes",[])
     assert isinstance(notes,list) and len(notes)<=50
     assert all(isinstance(n,str) and len(n)<12000 for n in notes)

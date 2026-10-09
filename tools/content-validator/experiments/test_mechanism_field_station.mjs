@@ -175,6 +175,7 @@ try{
  assert.equal(r50.data.runs[0].presentation,"goal-explicit");
  // Control condition: explanation only, without an additional game mechanic.
  await page.locator("#r50-presentation").selectOption("legacy-abstract");
+ assert.equal(await page.locator("#r50-repeat-seed").isChecked(),true);
  assert.doesNotMatch(await page.locator("#game").innerText(),/四次行动内兑现任意一项成果/);
  await start(page);
  await play(page,i=>i%2);
@@ -182,6 +183,10 @@ try{
  assert.equal(r50Control.data.runs.length,2);
  assert.equal(r50Control.data.runs[0].presentation,"goal-explicit");
  assert.equal(r50Control.data.runs[1].presentation,"legacy-abstract");
+ assert.equal(r50Control.data.runs[0].seed,r50Control.data.runs[1].seed);
+ assert.deepEqual(r50Control.data.runs[0].initialDice,r50Control.data.runs[1].initialDice);
+ assert.equal(r50Control.data.runs[1].pairedWithSeed,r50Control.data.runs[0].seed);
+ assert.equal(r50Control.data.runs[0].actions[0].rolled,r50Control.data.runs[1].actions[0].rolled);
  await choose(page,"R37");
  assert.match(await page.locator("#game").innerText(),/C#/);
  assert.equal(await page.getByRole("button",{name:/开始四骰实验/}).count(),0);
