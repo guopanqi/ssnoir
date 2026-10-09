@@ -43,6 +43,20 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/r71_transfer_audit.py | tee /tmp/r71.json
+      - name: Guard against mechanic-credit and forced-switch false positives
+        run: |
+          python3 - <<'PY'
+          import json
+          r66=json.load(open('/tmp/r66.json',encoding='utf8'))
+          r71=json.load(open('/tmp/r71.json',encoding='utf8'))
+          assert r66["invariant"]["R61_both_completed_impossible"] is True
+          banked=r66["ablation"][1]
+          assert banked["advantage_over_priority"]<0.01
+          assert banked["strict_switch_on_third_move_probability"]<0.02
+          assert 0<r71["expected_option_value"]<0.001
+          assert r71["transfer_allowed"]["roots_where_transfer_is_useful"]==5
+          print("PASS: completion semantics, voluntary switch filter, and feature-vs-disabled ablation")
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
