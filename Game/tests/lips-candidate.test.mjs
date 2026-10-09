@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { Interpreter } from "lips";
 
 function make(name) {
@@ -39,6 +40,10 @@ test("LIPS candidate: standard Scheme truth and macro", async () => {
 
 test("LIPS candidate: real SSNoir stdlib unmodified", async () => {
   const vm = make("SSNoir-stdlib");
+  // LIPS documents that its Scheme stdlib must be bootstrapped explicitly.
+  // Load from the installed NPM package, not from a network URL.
+  const standardLibrary = resolve("node_modules/lips/dist/std.xcb").replaceAll("\\", "/");
+  await vm.exec(`(let-env lips.env.__parent__ (load "${standardLibrary}"))`);
   const source = readFileSync("../UnityClient/Assets/Resources/Content/scripts/stdlib.scm", "utf8");
   await vm.exec(source);
   assert.equal(String(await value(vm, '(assoc-get (list (list "day" 14)) "day" -1)')), "14");

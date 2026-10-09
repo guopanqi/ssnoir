@@ -27,3 +27,5 @@ If LIPS fails a requirement, record the failure and investigate another mature l
 
 
 Follow-up LIPS checks: load the actual unmodified SSNoir `scripts/stdlib.scm` and confirm native Scheme `set!` remains isolated between world and encounter environments after both are initialized. This validates more than simply using different symbol names.
+
+The first direct stdlib evaluation failed with `Unbound variable equal?` because the LIPS bare `Interpreter` API does not automatically load its Scheme standard library. The candidate test now explicitly bootstraps LIPS's installed `dist/std.xcb` before evaluating the unmodified SSNoir script, following LIPS's documented initialization contract. If this bootstrap fails in CI, treat that as a candidate integration issue, not a reason to change SSNoir content.
