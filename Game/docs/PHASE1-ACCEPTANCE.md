@@ -51,3 +51,5 @@ Reported on macOS Developer Tools mg 2.02.2608080, base library 3.17.4: `wx.crea
 ## Open-source adapter baseline
 
 WeChat now uses a selective vendored MIT [finscn/weapp-adapter](../vendor/weapp-adapter/README-SSNOIR.md) Canvas/HTMLElement/EventTarget base, with the SSNoir-specific Pixi 8, Three r186 and Scheme integration confined to `src/wechat/bootstrap.ts`. The upstream repository and license are pinned and unmodified. Platform compatibility remains subject to CI and actual WeChat/TapTap device testing; the upstream's 2019 vintage is a known limitation.
+
+**Device test handoff:** [WECHAT-DEVICE-ACCEPTANCE.md](WECHAT-DEVICE-ACCEPTANCE.md) defines the macOS DevTools, iOS, Android and TapTap acceptance steps and the `getDiagnostics()` runtime probe. Do not mark native compatibility complete without device evidence.

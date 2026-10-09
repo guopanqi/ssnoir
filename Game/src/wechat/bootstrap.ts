@@ -52,7 +52,7 @@ const createOffscreenCanvas = (w: number, h: number): HTMLCanvasElement => {
   if (typeof wx.createOffscreenCanvas === "function") {
     try {
       const result = prepare(wx.createOffscreenCanvas({ type: "2d", width: w, height: h }), "wx.createOffscreenCanvas");
-      if (!canvasBackend) {
+      if (canvasBackend !== "offscreen-2d") {
         canvasBackend = "offscreen-2d";
         console.log("[SSNoir MiniGame] Pixi 2D canvas backend: wx.createOffscreenCanvas");
       }
@@ -67,9 +67,9 @@ const createOffscreenCanvas = (w: number, h: number): HTMLCanvasElement => {
   try {
     if (typeof wx.createCanvas !== "function") throw new Error("wx.createCanvas unavailable");
     const result = prepare(new UpstreamCanvas(), "secondary wx.createCanvas");
-    if (!canvasBackend) {
+    if (canvasBackend !== "secondary-canvas") {
       canvasBackend = "secondary-canvas";
-      console.log("[SSNoir MiniGame] Pixi 2D canvas backend: secondary wx.createCanvas");
+      console.warn("[SSNoir MiniGame] Pixi 2D canvas fallback: secondary wx.createCanvas", errors.join("; "));
     }
     return result;
   } catch (error) {
@@ -141,6 +141,15 @@ export const wechatHost = {
   getGLConstructor: () => g.WebGLRenderingContext as typeof WebGLRenderingContext,
   getNavigator: () => g.navigator,
   getBaseUrl: () => g.location.href as string,
+  getDiagnostics: () => ({
+    adapter: "finscn/weapp-adapter + SSNoir",
+    platform: String(device.platform ?? "unknown"),
+    window: [width, height],
+    canvas2D: canvasBackend,
+    hasOffscreenAPI: typeof wx.createOffscreenCanvas === "function",
+    webgl2: Boolean(gl),
+    webglVersion: String(gl.getParameter(gl.VERSION) ?? "unknown")
+  }),
   animationFrame: (callback: FrameRequestCallback) => raf(callback) as number,
   cancelAnimationFrame: (handle: number) => caf(handle),
   onTouchEnd: (callback: (x: number, y: number) => void) => {

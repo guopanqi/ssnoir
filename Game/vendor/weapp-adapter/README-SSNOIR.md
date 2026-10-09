@@ -14,3 +14,5 @@ SSNoir's delta is kept *outside* upstream files:
 Why not import upstream `index.js` wholesale? It mutates `GameGlobal/window`, assumes 2018-era wx APIs/graphics, and indiscriminately polyfills unrelated capabilities. Our single-purpose game host uses its reusable primitives instead, retaining upstream source/license for review. This is a **selective derivative**, not a promise that upstream supports modern Pixi 8 or Three r186 without integration work.
 
 Never silently edit the original vendored source. Place changes in `src/wechat/` or explicitly document any upstream patches and re-run web/WeChat/TapTap CI and native device acceptance. The original repository was last pushed in 2019, so upstream updates cannot be assumed.
+
+All original copies are pinned to their upstream Git blob SHA-1s by `Game/tests/weapp-adapter.test.mjs`. These checks fail CI if any vendored byte changes unintentionally.
