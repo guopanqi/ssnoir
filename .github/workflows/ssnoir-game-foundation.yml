@@ -24,6 +24,32 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Mark foundation validation pending
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_SHA: ${{ github.sha }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          REPO: ${{ github.repository }}
+        run: |
+          node --input-type=module - <<'NODE'
+          const res = await fetch(
+            `https://api.github.com/repos/${process.env.REPO}/statuses/${process.env.COMMIT_SHA}`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${process.env.GH_TOKEN}`,
+                Accept: "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28"
+              },
+              body: JSON.stringify({
+                state: "pending",
+                context: "ssnoir/game-foundation",
+                description: "Foundation CI running",
+                target_url: process.env.RUN_URL
+              })
+            }
+          );
+          if (!res.ok) throw new Error(`Cannot post pending status: ${res.status} ${await res.text()}`);
+          NODE
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Verify foundation
