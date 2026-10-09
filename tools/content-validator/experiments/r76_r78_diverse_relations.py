@@ -53,19 +53,30 @@ def r76():
         if act!="advance":return value(update(s,act,0),rest,allow_move)
         return sum(p*value(update(s,act,k),rest,allow_move)
                    for k,p in enumerate(odds(hand[i])) if p)
-    optimal=baseline=F(0);diffs=0
+    optimal=baseline=simple=F(0);diffs=adaptive_strict=0
     for hand in HANDS:
-        v=value((0,0,0,1),hand,True)
-        w=value((0,0,0,1),hand,False)
+        origin=(0,0,0,1)
+        v=value(origin,hand,True)
+        w=value(origin,hand,False)
+        # Best fixed opening decision can already see the entire hand:
+        # enter fast lane immediately or remain on quiet lane forever.
+        move_first=max(choice(origin,hand,"move",i,False)
+                       for i in range(len(hand)))
+        clear_plan=max(w,move_first)
+        assert v>=clear_plan>=w
         weight=hand_weight(hand)
-        optimal+=weight*v;baseline+=weight*w
+        optimal+=weight*v;baseline+=weight*w;simple+=weight*clear_plan
         diffs+=v>w
+        adaptive_strict+=v>clear_plan
     return {"id":"R76","relation":"costly spatial lane switch vs fixed starting route",
             "expected_with_change":round(float(optimal),9),
             "expected_without_change":round(float(baseline),9),
+            "best_choose_route_at_start":round(float(simple),9),
             "direct_option_gain":round(float(optimal-baseline),9),
+            "dynamic_gain_beyond_early_route_choice":round(float(optimal-simple),9),
             "strict_starting_hands":diffs,
-            "boundary":"Simplified two-lane spatial abstraction; not a full map or engine encounter"}
+            "strict_roots_beyond_opening_plan":adaptive_strict,
+            "boundary":"Two-lane spatial model. Higher route availability need not produce mid-course route changes."}
 
 def signal_branches(p,accuracy):
     # Belief update: truthful signal has accuracy, hidden type A has prior p.
@@ -97,20 +108,28 @@ def r77():
         return sum(pr*val(min(3,a+k) if g==0 else a,
                           min(3,b+k) if g==1 else b,p,remaining,look)
                    for k,pr in enumerate(odds(hand[i])) if pr)
-    total_yes=total_no=F(0);strict=0
+    total_yes=total_no=total_simple=F(0);strict=adaptive=0
     for hand in HANDS:
         y=val(0,0,F(1,2),hand,True)
         n=val(0,0,F(1,2),hand,False)
-        assert y>=n
+        inspect_first=max(q(0,0,F(1,2),hand,2,i,True)
+                          for i in range(len(hand)))
+        simple=max(n,inspect_first)
+        assert y>=simple>=n
         total_yes+=hand_weight(hand)*y
         total_no+=hand_weight(hand)*n
+        total_simple+=hand_weight(hand)*simple
         strict+=y>n
+        adaptive+=y>simple
     return {"id":"R77","relation":"paid imperfect information with correctly updated posterior belief",
         "expected_with_inquiry":round(float(total_yes),9),
         "expected_without_inquiry":round(float(total_no),9),
+        "best_inspect_at_opening_or_never":round(float(total_simple),9),
         "direct_option_gain":round(float(total_yes-total_no),9),
+        "dynamic_gain_beyond_opening_plan":round(float(total_yes-total_simple),9),
         "strict_starting_hands":strict,
-        "boundary":"Inspection outcome is public, truth remains hidden; independent completion rewards only match hidden type"}
+        "strict_roots_beyond_opening_plan":adaptive,
+        "boundary":"Truth is hidden and posterior correct; inquiry may be valuable while inquiry timing stays routine."}
 
 def r78():
     # The public clue arrives after the first action; before the first action
