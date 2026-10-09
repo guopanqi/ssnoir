@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "贝恩斯",
+  "name": "回身-重制",
+  "status": "completed",
+  "prompt": "Edit the supplied standardized game character image. Change ONLY the body pose: standing, turn head and shoulders back toward the left while holding a cigarette.\nPreserve identity, age, face, body build, outfit, head size, white neon outline style and existing restrained accent colors EXACTLY. Keep the same square 1024x1024 pure black canvas. Preserve the character's physical drawing scale: same head dimensions and torso/limb lengths as the reference. Both legs and shoes must be complete, no cropping. Standing poses keep shoe sole ground near y=1000 and the reference crown height; sitting or running may naturally lower the head but NEVER stretch or enlarge the figure to fill the canvas. Keep the large empty black area above and around the character. Do not zoom in or crop tightly. Do not turn this into a bust portrait. No background, text or watermark. One character only, retain full visible gesture and shoes. The reference canvas scale is mandatory so this pose can replace the reference image without any runtime scaling compensation.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Resources/Portraits/Neon/贝恩斯.png",
+      "sha256": "6ad79b171feadc02ff343a57b94c689375088fad5653710569a993f8a04815ee"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/贝恩斯/回身-重制",
+  "created_at": "2026-10-09T11:00:03.803Z",
+  "submitted_at": "2026-10-09T11:00:09.340Z",
+  "conversation_url": "https://gemini.google.com/app/2665c58ccf145a01",
+  "completed_at": "2026-10-09T11:00:18.509Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/贝恩斯/回身-重制/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "161f7cc594fe1deba62bbea62facc60a4464f7cd98cfcdfd1cf0058c30c06187"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/姿势重制/贝恩斯/回身-重制.png"
+}

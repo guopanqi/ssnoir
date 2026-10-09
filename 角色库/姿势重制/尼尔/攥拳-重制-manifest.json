@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "尼尔",
+  "name": "攥拳-重制",
+  "status": "completed",
+  "prompt": "Edit the supplied standardized game character image. Change ONLY the body pose: clench one fist near waist, controlled tension.\nPreserve identity, age, face, body build, outfit, head size, white neon outline style and existing restrained accent colors EXACTLY. Keep the same square 1024x1024 pure black canvas. Preserve the character's physical drawing scale: same head dimensions and torso/limb lengths as the reference. Both legs and shoes must be complete, no cropping. Standing poses keep shoe sole ground near y=1000 and the reference crown height; sitting or running may naturally lower the head but NEVER stretch or enlarge the figure to fill the canvas. Keep the large empty black area above and around the character. Do not zoom in or crop tightly. Do not turn this into a bust portrait. No background, text or watermark. One character only, retain full visible gesture and shoes. The reference canvas scale is mandatory so this pose can replace the reference image without any runtime scaling compensation.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Resources/Portraits/Neon/尼尔.png",
+      "sha256": "b912fb533f3e15388ff1495dea60e8f3b1f552581fa0f8e56f617cce4fb7d8b4"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/尼尔/攥拳-重制",
+  "created_at": "2026-10-09T11:04:19.120Z",
+  "submitted_at": "2026-10-09T11:04:25.324Z",
+  "conversation_url": "https://gemini.google.com/app/3197c250fc1538d1",
+  "completed_at": "2026-10-09T11:04:34.430Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/尼尔/攥拳-重制/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "2c93dd34b1368a008228b60a2997e3f25434512a9b6e6fdba82118e23e682e10"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/姿势重制/尼尔/攥拳-重制.png"
+}

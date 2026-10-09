@@ -1,0 +1,344 @@
+{
+  "canvas": 1024,
+  "scale": "与正式基础立绘相同的人体绘制尺度，非轮廓等高",
+  "poses": [
+    {
+      "asset": "夜莺_仰头",
+      "reference": "夜莺",
+      "source": "角色库/姿势重制/夜莺/仰头-重制.png",
+      "ground": 999,
+      "bounds": [
+        319,
+        196,
+        689,
+        999
+      ],
+      "sha256": "08bd5562c6f7e1831ac31a2ed391e9b7a9353dcb6a92fc26e4a7bf39054897b5"
+    },
+    {
+      "asset": "夜莺_低头",
+      "reference": "夜莺",
+      "source": "角色库/姿势重制/夜莺/低头-重制.png",
+      "ground": 999,
+      "bounds": [
+        391,
+        207,
+        612,
+        999
+      ],
+      "sha256": "95c5ba27acb109643d4a0aab9ca69a961c804931ab823a3f27c36aff30a48e92"
+    },
+    {
+      "asset": "夜莺_回眸",
+      "reference": "夜莺",
+      "source": "角色库/姿势重制/夜莺/回眸-重制.png",
+      "ground": 985,
+      "bounds": [
+        386,
+        209,
+        599,
+        985
+      ],
+      "sha256": "87672e5fcc0f20f4bd0252bfcbb20ca732d14a94ea69c2e65e81e66f33f63807"
+    },
+    {
+      "asset": "夜莺_坐",
+      "reference": "夜莺",
+      "source": "角色库/姿势重制/夜莺/坐-重制.png",
+      "ground": 985,
+      "bounds": [
+        311,
+        260,
+        659,
+        985
+      ],
+      "sha256": "37d68098471ac2d3ad36b11a0fc8ba13824ec50e1be7e54a7904468b7252ca16"
+    },
+    {
+      "asset": "夜莺_恳求",
+      "reference": "夜莺",
+      "source": "角色库/姿势重制/夜莺/恳求-重制.png",
+      "ground": 999,
+      "bounds": [
+        391,
+        168,
+        601,
+        999
+      ],
+      "sha256": "831a76a06581373c2000759fb80d971d0e4460fb5d7b537ff85bc2e8377c63d3"
+    },
+    {
+      "asset": "夜莺_抱臂",
+      "reference": "夜莺",
+      "source": "角色库/姿势重制/夜莺/抱臂-重制.png",
+      "ground": 999,
+      "bounds": [
+        384,
+        215,
+        607,
+        999
+      ],
+      "sha256": "c299a8b6488d7cfdc2882ca6d66215b76c82a84b6a81b7fe21d0e33c3eed92a4"
+    },
+    {
+      "asset": "夜莺_掩面",
+      "reference": "夜莺",
+      "source": "角色库/姿势重制/夜莺/掩面-重制.png",
+      "ground": 999,
+      "bounds": [
+        378,
+        209,
+        599,
+        999
+      ],
+      "sha256": "2792cd245228397625c0cba13a0f5f3d30cf77ad936abc341e7a0b4a7b37be53"
+    },
+    {
+      "asset": "夜莺_背身",
+      "reference": "夜莺",
+      "source": "角色库/姿势重制/夜莺/背身-重制.png",
+      "ground": 991,
+      "bounds": [
+        411,
+        210,
+        614,
+        991
+      ],
+      "sha256": "f96d4820f561987374324ebe1ee8bd918cbd28da0704f7efdf982f036b316a8b"
+    },
+    {
+      "asset": "夜莺_逼近",
+      "reference": "夜莺",
+      "source": "角色库/姿势重制/夜莺/逼近-重制.png",
+      "ground": 999,
+      "bounds": [
+        326,
+        236,
+        720,
+        999
+      ],
+      "sha256": "dfb7b0e27bf13b365dea4ad973eda6eb16cf99793e69f016144445887c840015"
+    },
+    {
+      "asset": "尼尔_伸手",
+      "reference": "尼尔",
+      "source": "角色库/姿势重制/尼尔/伸手-重制.png",
+      "ground": 1000,
+      "bounds": [
+        400,
+        177,
+        751,
+        1000
+      ],
+      "sha256": "bbabdd206ce66cc186dc66a738aa79509c24c6b9add37fcb321fec356dd0cf5b"
+    },
+    {
+      "asset": "尼尔_侧身退",
+      "reference": "尼尔",
+      "source": "角色库/姿势重制/尼尔/侧身退-重制.png",
+      "ground": 980,
+      "bounds": [
+        358,
+        177,
+        623,
+        980
+      ],
+      "sha256": "96c7ddf802cda37c73af2a2f200b325d39fbfca3a8e1c704305f0ed8514808e9"
+    },
+    {
+      "asset": "尼尔_抱臂",
+      "reference": "尼尔",
+      "source": "角色库/姿势重制/尼尔/抱臂-重制.png",
+      "ground": 1000,
+      "bounds": [
+        400,
+        177,
+        623,
+        1000
+      ],
+      "sha256": "39ce6fab8b978090ab46f429f213317a7582575bc94a8691a5f59eec0c41a314"
+    },
+    {
+      "asset": "尼尔_摘帽",
+      "reference": "尼尔",
+      "source": "角色库/姿势重制/尼尔/摘帽-重制.png",
+      "ground": 1000,
+      "bounds": [
+        389,
+        177,
+        668,
+        1000
+      ],
+      "sha256": "5c0f3d559b5b8d8f3adaf45fe4b3106eca456bce3178f27e78e885615e773461"
+    },
+    {
+      "asset": "尼尔_攥拳",
+      "reference": "尼尔",
+      "source": "角色库/姿势重制/尼尔/攥拳-重制.png",
+      "ground": 1000,
+      "bounds": [
+        389,
+        177,
+        623,
+        1000
+      ],
+      "sha256": "2c93dd34b1368a008228b60a2997e3f25434512a9b6e6fdba82118e23e682e10"
+    },
+    {
+      "asset": "尼尔_点烟",
+      "reference": "尼尔",
+      "source": "角色库/姿势重制/尼尔/点烟-重制.png",
+      "ground": 1000,
+      "bounds": [
+        401,
+        177,
+        623,
+        1000
+      ],
+      "sha256": "8271d65a6e4460d1f6da27d4fb93d93e29de0de8f49ea9f3c61bc5de23e196ff"
+    },
+    {
+      "asset": "尼尔_背身",
+      "reference": "尼尔",
+      "source": "角色库/姿势重制/尼尔/背身-重制.png",
+      "ground": 992,
+      "bounds": [
+        392,
+        177,
+        637,
+        992
+      ],
+      "sha256": "a3ae010777445830e383fc9960ff6f95af30356abc5f72200f1028dfaf45f121"
+    },
+    {
+      "asset": "尼尔_逼近",
+      "reference": "尼尔",
+      "source": "角色库/姿势重制/尼尔/逼近-重制.png",
+      "ground": 995,
+      "bounds": [
+        278,
+        239,
+        775,
+        995
+      ],
+      "sha256": "f101d9d2babd61c50effe2b494e0a28b91c75a46a603c136d6ecb6b33471d5c7"
+    },
+    {
+      "asset": "尼尔_靠墙",
+      "reference": "尼尔",
+      "source": "角色库/姿势重制/尼尔/靠墙-重制.png",
+      "ground": 1000,
+      "bounds": [
+        389,
+        177,
+        668,
+        1000
+      ],
+      "sha256": "fd4019c59500e868c1434bf8a537f247b085002d3187f0480ffa77ab78854419"
+    },
+    {
+      "asset": "码头工人_奔跑",
+      "reference": "码头工人",
+      "source": "角色库/姿势重制/码头工人/奔跑-重制.png",
+      "ground": 983,
+      "bounds": [
+        167,
+        233,
+        789,
+        983
+      ],
+      "sha256": "20f445bbfbbe032c0a8611ce401001a40dade4723f06281be45b07a6e7584630"
+    },
+    {
+      "asset": "贝恩斯_低踢",
+      "reference": "贝恩斯",
+      "source": "角色库/姿势重制/贝恩斯/低踢-重制.png",
+      "ground": 979,
+      "bounds": [
+        416,
+        251,
+        801,
+        979
+      ],
+      "sha256": "6795253d0378aea5b98e3fff8d8f34971c977eea5f19ff6332d9546de51cad8e"
+    },
+    {
+      "asset": "贝恩斯_出脚",
+      "reference": "贝恩斯",
+      "source": "角色库/姿势重制/贝恩斯/出脚-重制.png",
+      "ground": 995,
+      "bounds": [
+        268,
+        215,
+        872,
+        995
+      ],
+      "sha256": "065c6e83a4c56779663c500ca16d3251192a572e4366ba38889c0803ec12b1f4"
+    },
+    {
+      "asset": "贝恩斯_回身",
+      "reference": "贝恩斯",
+      "source": "角色库/姿势重制/贝恩斯/回身-重制.png",
+      "ground": 1001,
+      "bounds": [
+        320,
+        217,
+        622,
+        1001
+      ],
+      "sha256": "161f7cc594fe1deba62bbea62facc60a4464f7cd98cfcdfd1cf0058c30c06187"
+    },
+    {
+      "asset": "贝恩斯_朝右",
+      "reference": "贝恩斯",
+      "source": "角色库/姿势重制/贝恩斯/朝右-重制.png",
+      "ground": 1000,
+      "bounds": [
+        347,
+        216,
+        686,
+        1000
+      ],
+      "sha256": "97792ed91ea4d5361a936afde1182f191f700282733d045e29b7dbfd9ceba6e9"
+    },
+    {
+      "asset": "酒客乙_半躺",
+      "reference": "酒客乙",
+      "source": "角色库/姿势重制/酒客乙/半躺-重制.png",
+      "ground": 853,
+      "bounds": [
+        81,
+        441,
+        924,
+        853
+      ],
+      "sha256": "488ba5d6709a2297a791a9b2800172ede65032d7a3f6f06e379e69a52248186e"
+    },
+    {
+      "asset": "酒客甲_瘫坐",
+      "reference": "酒客甲",
+      "source": "角色库/姿势重制/酒客甲/瘫坐-重制.png",
+      "ground": 864,
+      "bounds": [
+        140,
+        336,
+        919,
+        864
+      ],
+      "sha256": "3481cd37304c53ce07e4d96c1a03a90f9f3b996128f676752f1784fbe5e7afba"
+    },
+    {
+      "asset": "贝恩斯_立定",
+      "reference": "贝恩斯",
+      "source": "角色库/姿势重制/贝恩斯/立定-02.png",
+      "ground": 1000,
+      "bounds": [
+        347,
+        216,
+        686,
+        1000
+      ],
+      "sha256": "893d50ef4bcdc50688851ee9210844f2f79986f38da03962dd918686f5af8bab"
+    }
+  ]
+}

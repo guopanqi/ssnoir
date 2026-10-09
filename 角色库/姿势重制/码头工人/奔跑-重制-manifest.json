@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "码头工人",
+  "name": "奔跑-重制",
+  "status": "completed",
+  "prompt": "Edit the supplied standardized game character image. Change ONLY the body pose: run to the right, one leg lifted backward and one leg extends downward toward the ground, arms counter-swing, keep the same blue cap and overalls; head and torso remain same size.\nPreserve identity, age, face, body build, outfit, head size, white neon outline style and existing restrained accent colors EXACTLY. Keep the same square 1024x1024 pure black canvas. Preserve the character's physical drawing scale: same head dimensions and torso/limb lengths as the reference. Both legs and shoes must be complete, no cropping. Standing poses keep shoe sole ground near y=1000 and the reference crown height; sitting or running may naturally lower the head but NEVER stretch or enlarge the figure to fill the canvas. Keep the large empty black area above and around the character. Do not zoom in or crop tightly. Do not turn this into a bust portrait. No background, text or watermark. One character only, retain full visible gesture and shoes. The reference canvas scale is mandatory so this pose can replace the reference image without any runtime scaling compensation.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Resources/Portraits/Neon/码头工人.png",
+      "sha256": "40d4a4b8760f652f44d8fb89c335effa59a4f013b2573ef8f87e2b00553c7a61"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/码头工人/奔跑-重制",
+  "created_at": "2026-10-09T11:05:47.577Z",
+  "submitted_at": "2026-10-09T11:05:56.683Z",
+  "conversation_url": "https://gemini.google.com/app/30097268e7109276",
+  "completed_at": "2026-10-09T11:06:07.758Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/码头工人/奔跑-重制/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "20f445bbfbbe032c0a8611ce401001a40dade4723f06281be45b07a6e7584630"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/姿势重制/码头工人/奔跑-重制.png"
+}

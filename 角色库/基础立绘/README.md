@@ -8,7 +8,7 @@
 
 加工命令：`node tools/portrait-neon/normalize-base.mjs`。复用已安装的 `experiments/portrait-stage/portrait-stage-lab/node_modules/sharp`，只负责等比缩放、画布定位；缺失身体必须先补画并审阅，命令拒绝触底截断的源图。审阅成品后复制同名 PNG 到 `UnityClient/Assets/Resources/Portraits/Neon`，再执行 `tools/portrait-neon/process.py` 和 `silhouette.py` 更新派生资源。
 
-基础图的 `.neon.json` 同时记录 `ground=1000/1024`，线绘剧场按此将实际鞋底对齐传入的 y。尚未重制的姿势图使用原有画布底边；换图时接地点随当前图片更新。剧本中的同地面人物使用相同 308 × 308 画布，身高差留在资产内部。
+基础图的 `.neon.json` 同时记录 `ground=1000/1024`，线绘剧场按此将实际鞋底对齐传入的 y。26 张正式姿势已按基础图重制，接地点与制作记录见[姿势重制](../姿势重制/README.md)；换图时接地点随当前图片更新。剧本中的同地面人物使用相同 308 × 308 画布，身高差留在资产内部。
 
 并排审阅入口：`experiments/portrait-stage/line-stage-study/base-cast.html`。它只展示当前成品，没有重新设计人物，也不证明游戏交互或音频正确。
 

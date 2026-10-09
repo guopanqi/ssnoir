@@ -369,12 +369,23 @@ def process(name, force=False):
         "skeleton_size": SKELETON_SIZE,
         "paths": paths,
     }
-    # 基础立绘的接地点位于统一画布内部；姿势图暂沿用原来的画布底边。
+    # 基础图与已重制姿势使用制作阶段确认的接地点；不从画布大小推断人体尺度。
     base_manifest = os.path.join(ROOT, "角色库", "基础立绘", "制作基准.json")
     with open(base_manifest, encoding="utf-8") as f:
         base = json.load(f)
     if name in {actor["name"] for actor in base["characters"]}:
         data["ground"] = base["ground"] / base["canvas"]
+    pose_manifest = os.path.join(ROOT, "角色库", "姿势重制", "制作基准.json")
+    if os.path.exists(pose_manifest):
+        with open(pose_manifest, encoding="utf-8") as f:
+            poses = json.load(f)["poses"]
+        matched = [pose for pose in poses if pose["asset"] == name]
+        if len(matched) > 1:
+            raise ValueError(f"{name}: 姿势制作基准重复")
+        if matched:
+            if img.size != (base["canvas"], base["canvas"]):
+                raise ValueError(f"{name}: 重制姿势必须使用统一画布")
+            data["ground"] = matched[0]["ground"] / base["canvas"]
     with open(outputs[2], "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
     total = sum(path_length(p) for p in paths)
