@@ -20,6 +20,8 @@ ATLAS=BASE/"模式库.json"
 TASKS=BASE/"试玩任务.json"
 TEMPLATE=BASE/"研究总览.template.html"
 CLOUD=ROOT/"tools/content-validator/experiments/mechanism_cloud_feedback.js"
+WORKBENCH_CSS=ROOT/"tools/content-validator/experiments/mechanism_workbench.css"
+WORKBENCH_JS=ROOT/"tools/content-validator/experiments/mechanism_workbench.js"
 OUTPUT=BASE/"研究总览.html"
 
 
@@ -92,12 +94,19 @@ def build()->str:
     assert template.count("/*ATLAS_DATA*/")==1
     assert template.count("/*TASK_DATA*/")==1
     assert template.count("/*CLOUD_FEEDBACK_SCRIPT*/")==1
+    assert template.count("/*WORKBENCH_CSS*/")==1
+    assert template.count("/*WORKBENCH_JS*/")==1
     cloud=CLOUD.read_text(encoding="utf-8")
+    wb_css=WORKBENCH_CSS.read_text(encoding="utf-8")
+    wb_js=WORKBENCH_JS.read_text(encoding="utf-8")
     assert "</script" not in atlas.lower() and "</script" not in tasks.lower()
     assert "</script" not in cloud.lower(), "Embedded cloud code must not close its script"
+    assert "</script" not in wb_js.lower() and "</style" not in wb_css.lower()
     return (template.replace("/*ATLAS_DATA*/",atlas)
                     .replace("/*TASK_DATA*/",tasks)
-                    .replace("/*CLOUD_FEEDBACK_SCRIPT*/",cloud))
+                    .replace("/*CLOUD_FEEDBACK_SCRIPT*/",cloud)
+                    .replace("/*WORKBENCH_CSS*/",wb_css)
+                    .replace("/*WORKBENCH_JS*/",wb_js))
 
 
 def main()->None:

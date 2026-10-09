@@ -42,17 +42,45 @@ body{background:#f3f5f1}.hero,.index{display:none}.desk-header{background:#16252
 @media(max-width:1000px){.desk-layout{grid-template-columns:225px minmax(0,1fr);gap:14px}.workspace-grid{grid-template-columns:1fr}.detail-intro{grid-template-columns:1fr}.desk-header-status{display:none}}
 @media(max-width:680px){.desk-layout{display:block;padding-top:14px}.experiment-sidebar{position:static;max-height:none;margin-bottom:14px;min-height:unset}.experiment-list{max-height:220px}.workspace{padding:17px}.desk-nav{gap:10px}.desk-nav a{font-size:11px}.detail-top{display:block}.detail-state{display:inline-block;margin-top:12px}.desk-layout>.experiment-content{min-width:0}}
 
+/*WORKBENCH_CSS*/
 </style>
 </head>
 <body>
-<header class="desk-header">
-  <div class="wrap desk-header-inner">
-    <a href="#today" class="desk-brand">SSNOIR <span>/ 机制研究</span></a>
-    <span class="desk-header-status">持续实验 · 真人观察 · 研究回复</span>
-    <nav class="desk-nav"><a href="#today">实验</a><a href="#library">研究结论</a><a href="#research-log">当前方向</a></nav>
+<header class="desk-header"><div class="wrap desk-header-inner">
+  <a href="#overview" class="desk-brand">SSNOIR <span>/ 玩法研究所</span></a>
+  <span class="desk-header-status">自主探索 · 真人观察 · 可修订的研究判断</span>
+  <nav class="desk-nav" aria-label="工作台导航"><a href="#overview" aria-current="page">研究概览</a><a href="#experiments">实验室</a><a href="#map">研究地图</a></nav>
+</div></header>
+<main class="wrap wb-root">
+
+<section id="overview" class="wb-page" aria-labelledby="wb-hero-title">
+ <div class="wb-hero">
+  <div><div class="wb-kicker">SSNOIR / RESEARCH WORKBENCH</div>
+   <h1 id="wb-hero-title">从规则出发，研究选择如何发生。</h1>
+   <p>Agent 独立探索抽象玩法结构；这里呈现它正在追问的问题、已经获得的证据，以及需要人亲自体验的部分。玩家反馈是一种观察，不是给玩法宣判好坏。</p>
+   <div class="wb-actions"><a class="wb-cta" href="#experiments">进入实验室 →</a><a class="wb-cta alt" href="#map">查看研究地图</a></div>
+   <p id="wb-updated" class="wb-hint"></p>
   </div>
-</header>
-<main class="wrap desk-layout">
+  <aside class="wb-focus" aria-label="当前优先实验">
+   <div class="wb-kicker">CURRENT FOCUS / 当前优先</div>
+   <h2 id="wb-focus-title"></h2><p id="wb-focus-description"></p>
+   <div class="wb-focus-bottom"><span id="wb-focus-meta"></span><a id="wb-focus-link" href="#experiments">查看实验 →</a></div>
+  </aside>
+ </div>
+ <div class="wb-below">
+  <section aria-labelledby="wb-attention-title">
+   <div class="wb-section-head"><div class="wb-kicker">YOUR ATTENTION</div><h2 id="wb-attention-title">需要你参与</h2><p id="wb-attention-status"></p></div>
+   <div id="wb-attention"></div>
+  </section>
+  <section aria-labelledby="wb-notes-title">
+   <div class="wb-section-head"><div class="wb-kicker">RESEARCH BRIEF</div><h2 id="wb-notes-title">最近的研究认识</h2><p id="wb-summary"></p></div>
+   <div id="wb-notes"></div>
+   <p class="wb-hint">这里是已记录的研究摘要和下一步，不是实时生成的 Agent 操作日志。<a href="#map">查看依据与局限 →</a></p>
+  </section>
+ </div>
+</section>
+<div id="experiments" class="desk-layout wb-page hidden">
+<div class="wb-exp-heading" style="grid-column:1/-1"><div class="wb-kicker">PLAYTEST LAB / 体验与讨论</div><h1>实验室</h1><p>选取实验、试玩、记录观察，或修改之前的反馈。已有回复会保留对应版本。</p></div>
   <aside id="today" class="experiment-sidebar" aria-label="实验列表">
     <div class="sidebar-head"><div class="eyebrow">RESEARCH INDEX</div><h1>实验</h1><p>点击查看规则、试玩、反馈和研究者的回复。</p></div>
     <div class="sidebar-filters">
@@ -107,13 +135,35 @@ body{background:#f3f5f1}.hero,.index{display:none}.desk-header{background:#16252
         <div class="eyebrow">RESEARCHER RESPONSE</div>
         <div id="research-reply" class="review-paper">尚未选择反馈。研究者的回复会显示在这里，并注明对应的是哪一次提交。</div>
       </section>
-      <div id="github-feedback" class="hidden"><div id="gh-list"></div></div>
+      <details id="github-feedback" class="wb-records"><summary>本实验已提交的反馈 · 继续编辑</summary><div id="gh-list"></div></details>
     </section>
     <details id="library" class="research-expander"><summary><span><span class="eyebrow">RESEARCH FINDINGS</span><strong>目前积累的决策模式</strong><small>六种精选结构；不同证据层级，不等于六个已证明好玩的玩法。</small></span><span>展开 ↘</span></summary><div id="patterns" class="library-grid"></div></details>
     <details id="research-log" class="research-expander"><summary><span><span class="eyebrow">CURRENT RESEARCH</span><strong>正在推进的方向与研究结论</strong><small id="now-line">综合数学、正式游戏验证和人类反馈持续更新。</small></span><span>展开 ↘</span></summary>
       <div class="research-log"><div><h3>正在追踪</h3><ul id="now-research"></ul><h3>已停止的方向</h3><div id="not-promoted"></div></div><div><h3>研究者如何判断</h3><p>好的开局选择也有价值；中途不切换可能反映容量约束，而不是玩法失败。每份反馈都作为新的证据，修改后重新审阅，不自动给出“好/坏”裁决。</p><a id="research-root">查看研究原则和证据 ↗</a></div></div>
     </details>
   </div>
+</div>
+
+<section id="map" class="wb-page hidden" aria-labelledby="wb-map-title">
+ <div class="wb-map-head"><div class="wb-kicker">RESEARCH MAP / 可追溯的认识</div><h1 id="wb-map-title">我们正在理解什么？</h1>
+ <p>按照设计问题查看假说和结论，而非按照实验编号排列。每个候选都保留反证、适用边界、证据来源及下一步，不会把数学差异直接当作玩法乐趣。</p></div>
+ <div class="wb-questions"><div><div class="wb-kicker">OPEN QUESTIONS</div><h2>尚在追问</h2></div><div id="wb-question-list" class="wb-questions-body"></div></div>
+ <section class="wb-map-section">
+  <div class="wb-map-top"><div><div class="wb-kicker">PATTERN LIBRARY</div><h2>决策结构与证据</h2><p class="wb-hint" id="wb-map-count"></p></div>
+   <div class="wb-map-filters" role="group" aria-label="研究结构筛选">
+    <button class="wb-filter" type="button" data-filter="all" aria-pressed="true">全部候选</button>
+    <button class="wb-filter" type="button" data-filter="human" aria-pressed="false">有真人反馈</button>
+    <button class="wb-filter" type="button" data-filter="untried" aria-pressed="false">待真人体验</button>
+   </div>
+  </div>
+  <div class="wb-map-grid" id="wb-map-grid"></div>
+ </section>
+ <section class="wb-stops"><div class="wb-kicker">NOT PROMOTED / 停止边界</div><h2>暂缓的方向，也是研究成果</h2>
+  <p class="wb-hint">停止的是特定假说与参数，不意味着整个机制类型没有价值。</p><div id="wb-stop-list" class="wb-stop-list"></div>
+ </section>
+ <p class="wb-evidence-explainer">数学模型、C# + Scheme 正式运行和真人体验是不同的证据层级，不能相互替代。研究者的回复关联具体反馈版本；玩家修改反馈后，该版本必须重新审阅。
+ <a target="_blank" rel="noopener noreferrer" href="https://github.com/guopanqi/ssnoir/blob/main/docs/实验/机制研究/研究定位与评价.md">研究定位与证据规则 ↗</a></p>
+</section>
 </main>
 <footer class="wrap foot"><span>SSNoir / Mechanism Research · <span id="updated"></span></span><span>研究回复按反馈版本发布 · 你的修改会重新开启问题</span></footer>
 <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
@@ -463,6 +513,7 @@ window.SSNoirFieldStation={
   document.getElementById("workshop").scrollIntoView({behavior:"smooth"});
  },
  getTask:getTask,
+ selectStudy:choose,
  tasks:function(){return config.tasks;},
  updateStudyProgress:function(next){studyProgress=next||{};renderTasks();},
  showResearchReply:function(render){const root=document.getElementById('research-reply');root.replaceChildren();if(typeof render==='function')render(root);else root.textContent='这项实验尚无研究者回复；反馈并不会自动得到 AI 回复，研究者将在下一轮审阅后提交。';}
@@ -471,5 +522,6 @@ init();
 })();
 </script>
 <script>/*CLOUD_FEEDBACK_SCRIPT*/</script>
+<script>/*WORKBENCH_JS*/</script>
 </body>
 </html>

@@ -110,6 +110,7 @@ function progress(){
   status[t.id]=p;
  }
  app.updateStudyProgress(status);
+ window.dispatchEvent(new CustomEvent('ssnoir:feedback-progress',{detail:{progress:status}}));
  renderActive();
  renderReply();
 }
@@ -149,14 +150,14 @@ function renderReply(){
 function renderRecords() {
   const root = $("gh-list");
   root.replaceChildren();
-  if (!records.length) {
+  if (!records.some(f=>f.name.startsWith('SSNoir-feedback-'+app.currentStudy()+'-'))) {
     const empty = document.createElement("div");
     empty.className = "feedback-empty";
     empty.textContent = "尚无已提交的反馈。完成试玩或写下一句感受后，可以直接提交。";
     root.appendChild(empty);
     return;
   }
-  for (const file of records) {
+  for (const file of records.filter(f=>f.name.startsWith('SSNoir-feedback-'+app.currentStudy()+'-'))) {
     const box = document.createElement("div");
     box.className = "feedback-file" + (active?.path === file.path ? " current" : "");
     const info = document.createElement("div");
@@ -210,7 +211,7 @@ async function refresh() {
     }catch(err){if(err.status!==404)console.warn("Review index unavailable",err.message);}
     renderRecords();progress();
     msg("已同步 "+records.length+" 份反馈、"+reviews.size+" 条研究回复。");
-  } catch (err) { msg("读取研究反馈失败："+err.message); }
+  } catch (err) { msg("读取研究反馈失败："+err.message); window.dispatchEvent(new CustomEvent("ssnoir:feedback-progress",{detail:{error:err.message}})); }
 }
 async function connect(raw, persist) {
   const next = raw.trim();
@@ -365,6 +366,7 @@ window.addEventListener("ssnoir:study-change",e=>{
     setActive(null);
   } else renderActive();
   renderReply();
+  renderRecords();
 });
 restore();
 })();
