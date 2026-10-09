@@ -1,0 +1,47 @@
+name: SSNoir Mechanism Research Pages
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-mechanism-pages.yml'
+      - 'docs/实验/机制研究/模式库.json'
+      - 'docs/实验/机制研究/试玩任务.json'
+      - 'docs/实验/机制研究/研究总览.template.html'
+      - 'docs/实验/机制研究/研究总览.html'
+      - 'tools/content-validator/experiments/build_mechanism_atlas.py'
+      - 'tools/content-validator/experiments/mechanism_cloud_feedback.js'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: ssnoir-mechanism-pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build and validate research webpage
+        run: |
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+          mkdir -p pages-dist
+          cp docs/实验/机制研究/研究总览.html pages-dist/index.html
+          touch pages-dist/.nojekyll
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload only the research webpage
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: pages-dist
+      - name: Deploy research webpage
+        uses: actions/deploy-pages@v4
+        id: deployment
