@@ -45,6 +45,7 @@ try {
       createImage: () => new Image(),
       getSystemInfoSync: () => ({ windowWidth: 1024, windowHeight: 576, platform: "chromium-wx-mock", pixelRatio: 1 }),
       getWindowInfo: () => ({ windowWidth: 1024, windowHeight: 576, screenWidth: 1024, screenHeight: 576, pixelRatio: 1 }),
+      getPerformance: () => performance,
       onWindowResize: () => {},
       offWindowResize: () => {},
       onTouchStart: () => {},
