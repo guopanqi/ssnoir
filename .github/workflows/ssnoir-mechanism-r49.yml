@@ -7,6 +7,7 @@ on:
       - 'tools/content-validator/experiments/r49_delayed_target_*'
       - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·迟到的目标.scm'
       - 'tools/content-validator/experiments/r50_recent_action.py'
+      - 'tools/content-validator/experiments/r50_heuristic_audit.py'
 permissions:
   contents: read
 jobs:
@@ -24,6 +25,8 @@ jobs:
         run: python3 tools/content-validator/experiments/r49_delayed_target_model.py --output /tmp/r49-screening.json
       - name: Screen R50 reversible prior-action effects
         run: python3 tools/content-validator/experiments/r50_recent_action.py > /tmp/r50-screening.json
+      - name: R50 interpretable heuristic audit
+        run: python3 tools/content-validator/experiments/r50_heuristic_audit.py --output /tmp/r50-heuristics.json
       - name: Build official headless engine
         run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
       - name: Validate the one official Content tree
@@ -40,5 +43,6 @@ jobs:
           path: |
             /tmp/r49-screening.json
             /tmp/r50-screening.json
+            /tmp/r50-heuristics.json
             /tmp/r49-native.json
           retention-days: 14
