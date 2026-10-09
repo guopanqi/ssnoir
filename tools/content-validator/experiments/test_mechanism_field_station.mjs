@@ -103,8 +103,10 @@ try{
  await page.waitForFunction(()=>!document.querySelector("#map").classList.contains("hidden"));
  assert.equal(await page.locator("#map .wb-pattern").count(),6);
  await page.locator('.wb-filter[data-filter="untried"]').click();
- await page.waitForFunction(()=>document.querySelectorAll("#map .wb-pattern").length===3);
- assert.equal(await page.locator("#map .wb-pattern").count(),3);
+ const curated=JSON.parse(fs.readFileSync(path.join(root,"docs/实验/机制研究/模式库.json"),"utf8"));
+ const untriedCount=curated.patterns.filter(p=>!p.evidence.human).length;
+ await page.waitForFunction(n=>document.querySelectorAll("#map .wb-pattern").length===n,untriedCount);
+ assert.equal(await page.locator("#map .wb-pattern").count(),untriedCount);
  await page.locator('.desk-nav a[href="#experiments"]').click();
  await page.waitForFunction(()=>!document.querySelector("#experiments").classList.contains("hidden"));
  assert.equal(await page.locator("#experiments:not(.hidden)").count(),1);
