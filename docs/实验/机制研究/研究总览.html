@@ -914,7 +914,7 @@ function progress(){
  const status={};
  for(const t of app.tasks()){
   const matching=records.filter(x=>x.name.startsWith("SSNoir-feedback-"+t.id+"-"));
-  let p={status:"todo",count:matching.length,updatedAt:matching[0]?.name||""};
+  let p={status:"todo",count:matching.length,updatedAt:matching[0]?.updatedAt||matching[0]?.name||""};
   if(matching.length){
    p.status=matching.some(f=>reviewerFor(f)?.feedbackSha!==f.sha)?"pending":"reviewed";
   }
@@ -976,7 +976,7 @@ function renderRecords() {
     title.textContent = (study ? study[1] + " · " : "") + "已提交体验";
     const sub = document.createElement("div");
     sub.className = "minor";
-    sub.textContent = file.name + " · main";
+    sub.textContent = (file.updatedAt?file.updatedAt.slice(0,16).replace("T"," ")+" · ":"")+file.name+" · main";
     info.append(title, sub);
     const b = document.createElement("button");
     b.className = "button ghost tiny";
@@ -992,8 +992,18 @@ async function refresh() {
     msg("正在同步仓库的已提交反馈与研究回复……");
     const list = await request("GET", "/repos/"+REPO+"/contents/"+endpoint(DIR)+"?ref=main");
     if (!Array.isArray(list)) throw new Error("GitHub 未返回反馈目录");
-    records = list.filter(f => f.type === "file" && inInbox(f.path))
-      .sort((a,b) => b.name.localeCompare(a.name,"en"));
+    records = list.filter(f => f.type === "file" && inInbox(f.path));
+    // GitHub directory listings have no modification timestamp. Read each small
+    // human feedback file to sort by its last submitted revision, not its filename.
+    await Promise.all(records.slice(0,80).map(async f=>{
+      try{
+        const remote=await request("GET","/repos/"+REPO+"/contents/"+endpoint(f.path)+"?ref=main");
+        const feedback=JSON.parse(decoded(remote.content||""));
+        f.updatedAt=feedback.updatedAt||feedback.createdAt||"";
+        f.runCount=Array.isArray(feedback.runs)?feedback.runs.length:0;
+      }catch(err){f.updatedAt="";console.warn("Feedback timestamp unavailable",f.name,err.message);}
+    }));
+    records.sort((a,b)=>(b.updatedAt||"").localeCompare(a.updatedAt||"")||b.name.localeCompare(a.name,"en"));
     reviews = new Map();
     try {
       const reviewFiles=await request("GET","/repos/"+REPO+"/contents/"+endpoint(REVIEWS)+"?ref=main");
