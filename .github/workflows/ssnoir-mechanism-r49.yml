@@ -27,7 +27,9 @@ jobs:
       - name: Validate the one official Content tree
         run: dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --validate
       - name: Real C# session, reveal, settlement and strict replay
-        run: python3 tools/content-validator/experiments/r49_delayed_target_smoke.py | tee /tmp/r49-native.json
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r49_delayed_target_smoke.py | tee /tmp/r49-native.json
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4

@@ -31,7 +31,7 @@
     ./run --session encounters/研究·迟到的目标 --seed 19 --growth 1
     python3 tools/content-validator/experiments/r49_delayed_target_smoke.py
 
-新增 GitHub Actions 自动构建内容校验器、载入内容、执行独立数学筛选，并实际通过 C# Session 走至少六局「准备→揭示→执行／超时→严格回放」。首次 CI 状态必须实际核对，不能把提交或脚本存在称为已运行通过。
+新增 GitHub Actions 自动构建内容校验器、载入内容、执行独立数学筛选，并实际通过 C# Session 走至少六局「准备→揭示→执行／超时→严格回放」。首轮 GitHub Actions run 37884374824 在真实原生执行中发现 symbol->string 未实现；此外 tee 管道掩盖了非零退出码。已更换为显式名称映射、开启 pipefail 并重新运行。首轮 workflow 的绿色状态不是原生通过证据；以修正后 runner 的真实输出为准。
 
 ## 下一轮（新问题而不是给当前参数硬加难度）
 

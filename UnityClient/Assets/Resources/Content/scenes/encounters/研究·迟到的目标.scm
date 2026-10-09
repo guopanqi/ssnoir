@@ -12,6 +12,9 @@
 (define (目标钟 id)
   (cond ((eq? id '甲) 甲钟) ((eq? id '乙) 乙钟) ((eq? id '丙) 丙钟)
         (else (error "迟到的目标：非法目标"))))
+(define (目标名 id)
+  (cond ((eq? id '甲) "甲") ((eq? id '乙) "乙") ((eq? id '丙) "丙")
+        (else (error "迟到的目标：非法名称"))))
 (define (结束! status text)
   (if 结束? (error "迟到的目标：重复结算") #t)
   (set! 结束? #t)
@@ -24,7 +27,7 @@
   (if (= 准备数 2)
       (begin
         (set! 真目标 (random-choice (list '甲 '甲 '乙 '丙)))
-        (spotlight! "目标揭示" (string-append "唯一有效目标：" (symbol->string 真目标)))
+        (spotlight! "目标揭示" (string-append "唯一有效目标：" (目标名 真目标)))
         (检查完成!)) #f))
 (define (准备结算! clk gain)
   (if (or 真目标 结束?) (error "迟到的目标：准备阶段已经结束") #t)
@@ -67,9 +70,9 @@
     (append
       (list (note-node "标注：规则" "目标：揭示后完成唯一目标"
         (if 真目标
-            (string-append "唯一有效目标是" (symbol->string 真目标) "；达到4格立即成功。")
+            (string-append "唯一有效目标是" (目标名 真目标) "；达到4格立即成功。")
             "先分配两次准备：甲概率1/2，乙丙各1/4；随后揭示，达4格成功。")))
       (clock-nodes (准备钟 'render-data) (甲钟 'render-data) (乙钟 'render-data) (丙钟 'render-data))
       (if 真目标
-          (list (推进卡 (symbol->string 真目标) (目标钟 真目标)))
+          (list (推进卡 (目标名 真目标) (目标钟 真目标)))
           (list (准备卡 "甲" 甲钟) (准备卡 "乙" 乙钟) (准备卡 "丙" 丙钟))))))
