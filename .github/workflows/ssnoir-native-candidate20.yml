@@ -1,0 +1,35 @@
+name: SSNoir 20 Candidate Native Entrances
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-native-candidate20.yml'
+      - 'docs/实验/机制研究/结构候选20.json'
+      - 'tools/content-validator/experiments/smoke_candidate20_native.py'
+permissions:
+  contents: read
+jobs:
+  native-admission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build official C# Scheme runner
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: Validate official content tree
+        run: dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --validate
+      - name: Enter all twenty source-backed research candidates
+        run: python3 tools/content-validator/experiments/smoke_candidate20_native.py /tmp/candidate20-native.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-20-native-candidate-openings
+          path: /tmp/candidate20-native.json
+          retention-days: 60
