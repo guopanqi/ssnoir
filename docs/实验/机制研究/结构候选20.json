@@ -23,8 +23,8 @@
       "knownCounterexample": "高额收益始终支配稳健行动",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P02",
@@ -36,8 +36,8 @@
       "knownCounterexample": "全部目标都能完成时取舍消失",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P03",
@@ -49,8 +49,8 @@
       "knownCounterexample": "首手总能完全定位时退化",
       "state": "structural-candidate",
       "playtestApproval": true,
-      "isHumanValidated": true,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": true
     },
     {
       "id": "P04",
@@ -62,8 +62,8 @@
       "knownCounterexample": "永远最高骰推进主目标",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P05",
@@ -75,8 +75,8 @@
       "knownCounterexample": "固定最后一轮冲刺",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P06",
@@ -88,8 +88,8 @@
       "knownCounterexample": "永远首手休息或永远不休息",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P07",
@@ -101,8 +101,8 @@
       "knownCounterexample": "窗口充裕时立刻开启固定最优",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P08",
@@ -114,8 +114,8 @@
       "knownCounterexample": "第一手固定定位接近最优",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P09",
@@ -127,21 +127,21 @@
       "knownCounterexample": "简单阈值覆盖全部最优",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P10",
-      "name": "分段兑现",
-      "family": "阶段成果保留",
+      "name": "储备衰减与非线性兑现",
+      "family": "储备转换",
       "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·分段兑现.scm",
-      "decision": "锁住已做成果还是继续追下一段",
-      "reversalHypothesis": "到期之前剩余可能收益翻转选择",
-      "knownCounterexample": "每次到段落就固定兑现",
+      "decision": "现在兑现储备还是再投入一手追求非线性收益",
+      "reversalHypothesis": "储备临界与期限衰减改变备料和兑现的价值",
+      "knownCounterexample": "固定先备料两次后兑现",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P11",
@@ -153,21 +153,21 @@
       "knownCounterexample": "一味赶工或者固定先修",
       "state": "structural-candidate",
       "playtestApproval": true,
-      "isHumanValidated": true,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": true
     },
     {
       "id": "P12",
-      "name": "保留终点",
-      "family": "中途里程碑",
+      "name": "完成主目标关闭副目标",
+      "family": "完成关闭机会",
       "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·保留终点.scm",
-      "decision": "先确保较低阶段成果还是冲最终成果",
-      "reversalHypothesis": "首段完成时剩余骰价值改变",
-      "knownCounterexample": "固定先冲短目标",
+      "decision": "现在完成必需目标结束交锋还是先争副目标",
+      "reversalHypothesis": "必需目标距离与副目标可达性影响优先",
+      "knownCounterexample": "副目标始终不值得做",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P13",
@@ -179,34 +179,34 @@
       "knownCounterexample": "弱骰首手固定整备即最优",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P14",
-      "name": "情报承诺",
-      "family": "情报有效期",
+      "name": "探查后不可逆押注",
+      "family": "情报与承诺",
       "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·情报承诺.scm",
-      "decision": "现在依据线索承诺还是保留调查机会",
-      "reversalHypothesis": "信息窗口与逾期损失改变判断",
-      "knownCounterexample": "信息恒定或无额外补偿",
+      "decision": "耗行动查条件还是凭先验直接押定方案",
+      "reversalHypothesis": "余下行动与信息价值改变探查意义",
+      "knownCounterexample": "永远第一手探查",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P15",
-      "name": "承诺分流",
-      "family": "不可逆删选项",
+      "name": "永久切换高风险动作",
+      "family": "承诺式动作替代",
       "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·承诺分流.scm",
-      "decision": "关掉一条退路换目前额外收益吗",
-      "reversalHypothesis": "其他路线的风险改变承诺收益",
-      "knownCounterexample": "承诺无补偿被不承诺支配",
+      "decision": "稳步继续还是耗一手开启不可退的强推",
+      "reversalHypothesis": "目标距离和剩余冷静改变开快线时机",
+      "knownCounterexample": "第一手固定开快线",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P16",
@@ -218,8 +218,8 @@
       "knownCounterexample": "玩家一次下注后没有空间调整",
       "state": "structural-candidate",
       "playtestApproval": true,
-      "isHumanValidated": true,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": true
     },
     {
       "id": "P17",
@@ -231,8 +231,8 @@
       "knownCounterexample": "清洗总是最后固定一手",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P18",
@@ -244,8 +244,8 @@
       "knownCounterexample": "最快路线无风险或枪口无视选择",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P19",
@@ -257,8 +257,8 @@
       "knownCounterexample": "后续机会根本不可达",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     },
     {
       "id": "P20",
@@ -270,8 +270,8 @@
       "knownCounterexample": "第一回合直接脱身使封门无用",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "isHumanValidated": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单"
+      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "humanFeedbackRelated": false
     }
   ]
 }
