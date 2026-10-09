@@ -93,7 +93,7 @@ async function waitSync(page){await page.waitForFunction(()=>document.querySelec
 try{
  const context=await browser.newContext({viewport:{width:1370,height:940},acceptDownloads:true});
  const page=await context.newPage(),errors=[];
- page.on("pageerror",e=>errors.push(e.message));
+ page.on("pageerror",e=>errors.push(e.stack||e.message));
  page.on("console",m=>{if(m.type()==="error")errors.push(m.text())});
  await routeGitHub(page);
  await page.goto(pathToFileURL(html).href,{waitUntil:"load"});
