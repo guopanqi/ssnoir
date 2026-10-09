@@ -8,9 +8,10 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1024, height: 576 } });
 const errors = [];
-page.on("pageerror", error => errors.push(String(error)));
+page.on("pageerror", error => errors.push("pageerror: " + String(error)));
 page.on("console", msg => {
-  if (msg.type() === "error") errors.push(msg.text());
+  if (msg.type() === "error") errors.push("console: " + msg.text());
+  if (msg.type() === "log" && msg.text().includes("[SSNoir]")) console.log("browser:", msg.text());
 });
 try {
   await page.setContent('<canvas id="mini" width="1024" height="576"></canvas>');
@@ -49,6 +50,13 @@ try {
 } catch (error) {
   mkdirSync("artifacts", { recursive: true });
   await page.screenshot({ path: "artifacts/wechat-harness-failed.png" }).catch(() => {});
+  const diagnosis = await page.evaluate(() => ({
+    wxPresent: typeof wx !== "undefined",
+    ready: !!window.__SSNOIR_WECHAT_FOUNDATION__,
+    counter: window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue(),
+    canvas: [document.getElementById("mini")?.width, document.getElementById("mini")?.height]
+  })).catch(e => ({ evaluateError: String(e) }));
+  console.error("WeChat harness error", JSON.stringify(diagnosis), "browser errors:", JSON.stringify(errors));
   throw error;
 } finally {
   await browser.close();
