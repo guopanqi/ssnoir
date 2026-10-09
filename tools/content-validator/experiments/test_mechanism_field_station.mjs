@@ -152,9 +152,12 @@ try{
  assert.equal(compared.data.runs[0].handSize,4);
  assert.equal(compared.data.runs[1].handSize,5);
  assert.equal(compared.data.runs[1].initialDice.length,5);
- // R50: same/alternate dynamic feedback remains correctly implemented.
+ // R50: same rule under explicit-goal presentation; odds remain identical.
  await choose(page,"R50");
+ assert.equal(await page.locator("#r50-presentation").inputValue(),"goal-explicit");
+ assert.match(await page.locator("#game").innerText(),/四次行动内兑现任意一项成果/);
  await start(page);
+ assert.match(await page.locator("#game").innerText(),/没有伤势/);
  await page.locator("#game .die:not([disabled])").first().click();
  await page.locator("#game .goal").nth(1).click();
  assert.match(await page.locator("#game .preview").innerText(),/修正 0/);
@@ -169,6 +172,16 @@ try{
  await page.locator("#fb-mechanicalFeeling").fill("继续与换线之间有不同的判定收益。");
  const r50=await download(page);
  assert.equal(r50.data.studyId,"R50");assert.equal(r50.data.runs.length,1);
+ assert.equal(r50.data.runs[0].presentation,"goal-explicit");
+ // Control condition: explanation only, without an additional game mechanic.
+ await page.locator("#r50-presentation").selectOption("legacy-abstract");
+ assert.doesNotMatch(await page.locator("#game").innerText(),/四次行动内兑现任意一项成果/);
+ await start(page);
+ await play(page,i=>i%2);
+ const r50Control=await download(page);
+ assert.equal(r50Control.data.runs.length,2);
+ assert.equal(r50Control.data.runs[0].presentation,"goal-explicit");
+ assert.equal(r50Control.data.runs[1].presentation,"legacy-abstract");
  await choose(page,"R37");
  assert.match(await page.locator("#game").innerText(),/C#/);
  assert.equal(await page.getByRole("button",{name:/开始四骰实验/}).count(),0);

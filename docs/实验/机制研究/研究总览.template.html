@@ -213,7 +213,9 @@ function start(){
  var skill=Number($("difficulty")?$("difficulty").value:1);
  var size=t.browserVariant==="reactive"?Number($("capacity")?$("capacity").value:4):4;
  if(size!==4&&size!==5)size=4;
- d.live=fresh(t,skill,size);d.environment="browser-sketch";choice={dieId:null,target:null};commitDraft();renderGame()
+ d.live=fresh(t,skill,size);
+ if(t.browserVariant==="echo")d.live.presentation=($("r50-presentation")?.value==="legacy-abstract"?"legacy-abstract":"goal-explicit");
+ d.environment="browser-sketch";choice={dieId:null,target:null};commitDraft();renderGame()
 }
 function apply(){
  var d=draft(selectedId),s=d.live;
@@ -272,6 +274,25 @@ function renderGame(){
   if(d.runs.length)child(box,"p","minor","已完成 "+d.runs.length+" 局，结果已包含在反馈草稿。");
   var controls=child(box,"div","inline");child(controls,"label","minor","成长值（首轮建议 1）");
   var sel=child(controls,"select");sel.id="difficulty";[1,2].forEach(function(n){var o=child(sel,"option","",String(n));o.value=String(n)});
+  if(t.browserVariant==="echo"){
+    var modeRow=child(box,"div","inline");
+    var modeLabel=child(modeRow,"label","minor","信息呈现对照：");modeLabel.htmlFor="r50-presentation";
+    var mode=child(modeRow,"select");mode.id="r50-presentation";
+    [["goal-explicit","目标明确（建议先体验）"],["legacy-abstract","原版简略说明（对照）"]].forEach(function(pair){
+      var option=child(mode,"option","",pair[1]);option.value=pair[0];
+    });
+    mode.value=d.echoPresentation==="legacy-abstract"?"legacy-abstract":"goal-explicit";
+    mode.addEventListener("change",function(){
+      d.echoPresentation=mode.value;persist();renderGame();
+    });
+    if(mode.value==="goal-explicit"){
+      var goals=child(box,"div","callout");
+      child(goals,"strong","","这局的目标：四次行动内兑现任意一项成果。");
+      child(goals,"p","","完成甲（3格）立刻得到1份成果；完成乙（5格）立刻得到2份成果。只能选择一个结局；四颗骰子都用完仍未完成，得到0份成果。这一页没有伤势或额外回合。");
+      child(goals,"p","","行动间关系：连续推进同目标，下一手判定修正−1；转投另一目标，下一手修正+1。判定越好越容易推进。");
+    }
+    child(box,"p","minor","这两个选项只改变解释与结算提示，完全不改变骰子、目标、概率和胜负规则。观察明确目标能否改善你的决策体验。");
+  }
   if(t.browserVariant==="reactive"){
     var cap=child(box,"div","inline");
     var caplabel=child(cap,"label","minor","行动容量：");caplabel.htmlFor="capacity";
@@ -289,6 +310,11 @@ function renderGame(){
   return
  }
  var h=child(box,"div","game-header");child(h,"span","mono","SEED "+s.seed+" / SKILL "+s.skill);child(h,"span","","已行动 "+s.actions.length+" / "+s.dice.length);
+ if(s.variant==="echo"&&s.presentation==="goal-explicit"){
+    var brief=child(box,"div","callout");
+    child(brief,"strong","","四手截止 · 剩余 "+(s.dice.length-s.actions.length)+" 手");
+    child(brief,"p","","甲还需 "+Math.max(0,3-s.progress[0])+" 格（收益1），乙还需 "+Math.max(0,5-s.progress[1])+" 格（收益2）。完成任意一项立即结算；到期未完成为0，本实验没有伤势。");
+ }
  var rem=t.browserVariant==="reactive"?(s.actions.length>=4?"第2/4手反击已执行；可用剩余骰行动":"第 "+(s.actions.length<2?"2":"4")+" 手后敌方打击领先目标"):"上一手目标："+(s.previous==="A"?"甲":s.previous==="B"?"乙":"尚无");
  child(box,"p","round-brief",rem);
  var names=[["A","甲",3,1],["B","乙",5,2]];
@@ -323,7 +349,10 @@ function renderRecentRuns(root,d){
  var last=d.runs[d.runs.length-1];
  if(!last)return;
  var p=child(root,"div","callout");
- child(p,"strong","","上一局："+(last.result==="A"?"完成甲，收益1":last.result==="B"?"完成乙，收益2":"到期未达成"));
+ child(p,"strong","","上一局："+(last.result==="A"?"完成甲，收益1":last.result==="B"?"完成乙，收益2":"到期未达成，收益0")); 
+ if(last.variant==="echo"){
+   child(p,"p","minor","展示条件："+(last.presentation==="goal-explicit"?"目标明确":"原版简略说明")+"。所有判定与目标阈值相同；无论哪种展示，这一网页局都没有伤势。");
+ }
  child(p,"p","",(last.handSize||4)+"骰配置，共 "+last.actions.length+" 手；含 "+last.actions.filter(function(a){return a.hesitated}).length+" 次你标记的犹豫。可继续试玩对比，也可直接写反馈。");
 }
 function renderFeedbackSummary(){
@@ -382,7 +411,7 @@ function outputFeedback(){
  var t=getTask(selectedId),d=draft(selectedId),responses={};["understanding","replayInterest"].forEach(function(k){responses[k]=d.responses[k]||""});
  config.feedbackFields.forEach(function(f){responses[f.id]=d.responses[f.id]||""});
  var runs=d.environment==="browser-sketch"?d.runs.map(function(s){return {
-  variant:s.variant,seed:s.seed,skill:s.skill,handSize:s.handSize||4,initialDice:s.initialDice,startedAt:s.startedAt,completedAt:s.completedAt,
+  variant:s.variant,seed:s.seed,skill:s.skill,handSize:s.handSize||4,presentation:s.presentation||undefined,initialDice:s.initialDice,startedAt:s.startedAt,completedAt:s.completedAt,
   actions:s.actions,result:s.result
  }}):[];
  var feedback={schema:"ssnoir.mechanism-feedback/v1",studyId:t.id,studyTitle:t.title,createdAt:new Date().toISOString(),

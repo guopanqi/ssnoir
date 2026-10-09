@@ -59,6 +59,9 @@ def check(path:Path, tasks:dict)->dict:
         assert all(isinstance(a,dict) and a.get("target") in ("A","B") and
                    type(a.get("die"))==int and 1<=a["die"]<=6 for a in actions)
         assert run.get("result") in ("A","B","timeout",None)
+        if "presentation" in run:
+            assert study=="R50" and run.get("variant")=="echo"
+            assert run["presentation"] in ("goal-explicit","legacy-abstract")
     notes=data.get("notes",[])
     assert isinstance(notes,list) and len(notes)<=50
     assert all(isinstance(n,str) and len(n)<12000 for n in notes)
