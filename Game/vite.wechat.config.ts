@@ -5,18 +5,17 @@ export default defineConfig({
     target: "es2020",
     outDir: "dist/wechat",
     emptyOutDir: true,
-    minify: false,
-    sourcemap: true,
+    minify: true,
+    sourcemap: false,
     rollupOptions: {
       plugins: [{
         name: "patch-lips-iife-doc-metadata",
-        generateBundle(_options, bundle) {
-          for (const output of Object.values(bundle)) {
-            if (output.type !== "chunk" || !output.fileName.endsWith(".js")) continue;
-            const needle = 'return e.split("\\n").map((e) => {';
-            if (!output.code.includes(needle)) throw new Error("LIPS diagnostic site moved");
-            output.code = output.code.replace(needle, 'if (typeof e !== "string") return e; ' + needle);
-          }
+        renderChunk(code) {
+          // Guard a LIPS documentation-only helper before the IIFE minifier runs.
+          // Fail closed if the upstream function changes; never silently patch unknown code.
+          const needle = 'return e.split("\\n").map((e) => {';
+          if (!code.includes(needle)) throw new Error("LIPS IIFE doc metadata patch site moved");
+          return { code: code.replace(needle, 'if (typeof e !== "string") return e; ' + needle), map: null };
         }
       }]
     },

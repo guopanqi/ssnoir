@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
     "build:web": "vite build --outDir dist/web",
-    "build:wechat": "vite build --config vite.wechat.config.ts && node scripts/package-wechat.mjs",
+    "build:wechat": "vite build --config vite.wechat.config.ts && node --check dist/wechat/game.js && node scripts/package-wechat.mjs",
     "start:desktop": "electron .",
     "verify": "npm run typecheck && npm test && npm run build:web && npm run build:wechat",
     "capture": "node scripts/capture.mjs",

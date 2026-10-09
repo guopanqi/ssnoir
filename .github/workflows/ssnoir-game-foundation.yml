@@ -54,6 +54,11 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Verify foundation
         run: npm run verify
+      - name: Cache Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-1.55.0-${{ runner.os }}-${{ runner.arch }}
       - name: Install headless Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser smoke and capture

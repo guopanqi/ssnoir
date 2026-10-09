@@ -57,3 +57,7 @@ The WeChat environment adapter intentionally throws for missing offscreen-canvas
 CI workflow: `.github/workflows/ssnoir-game-foundation.yml`. Each run uploads browser screenshots and all build outputs as `ssnoir-game-foundation`; it publishes the `ssnoir/game-foundation` commit status with a link to its run. This makes the test/inspect/fix cycle retrievable across agents.
 
 **Do not remove Unity or claim Phase 1 passed until actual desktop and WeChat target-runtime evidence is present.**
+
+## Phase-one acceptance record
+
+See [docs/PHASE1-ACCEPTANCE.md](docs/PHASE1-ACCEPTANCE.md) for exact automated gates, platform-specific manual sign-off, known interpretation limits, and next-agent handoff. A green CI does not claim real WeChat device approval.

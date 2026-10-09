@@ -29,3 +29,9 @@ If LIPS fails a requirement, record the failure and investigate another mature l
 Follow-up LIPS checks: load the actual unmodified SSNoir `scripts/stdlib.scm` and confirm native Scheme `set!` remains isolated between world and encounter environments after both are initialized. This validates more than simply using different symbol names.
 
 The first direct stdlib evaluation failed with `Unbound variable equal?` because the LIPS bare `Interpreter` API does not automatically load its Scheme standard library. The candidate test now explicitly bootstraps LIPS's installed `dist/std.xcb` before evaluating the unmodified SSNoir script, following LIPS's documented initialization contract. If this bootstrap fails in CI, treat that as a candidate integration issue, not a reason to change SSNoir content.
+
+## Stage-one runtime integration (October 9, 2026)
+
+LIPS's persistent, isolated VMs now execute in the *same render path* used by browser, Electron, and the simulated WeChat Mini Game host. The imported content is the existing `stdlib.scm`, not a copy. Browser, simulated WeChat, and Electron were all observed passing in [run 37884049278](https://github.com/guopanqi/ssnoir/actions/runs/37884049278), with an unminified WeChat IIFE for diagnosis.
+
+**Bundling compatibility finding:** Rolldown's IIFE output surfaced a LIPS documentation metadata normalizer calling `trim_lines` with a Function rather than a string; the resulting `.split` threw *before* the game could start. A narrow, assertive build-time guard makes that documentation-only helper return a non-string unchanged. This does **not** change Scheme evaluation. The compatibility guard must be revisited when updating LIPS or Vite, and still requires true WeChat engine validation. The latest CI also tests the production minified build.
