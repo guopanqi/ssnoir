@@ -50,7 +50,7 @@ def value(mode,s):
  a,b,x=s
  if mode=="R68":return F(2*(a>=4))
  if mode=="R72":return F(2*(a>=4))-F(b,3)
- if mode=="R74":return F(b) if x==1 else F(a)
+ if mode=="R74":return F(b) if x==1 else F(0)
  if mode=="R75":return F(2*(a>=4))
  return F(a>=2)+F(2*(b>=3))
 def apply(mode,s,action,gain,t):
