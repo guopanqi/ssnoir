@@ -5,10 +5,10 @@ export default defineConfig({
     target: "es2020",
     outDir: "dist/wechat",
     emptyOutDir: true,
-    minify: false,
+    minify: true,
     lib: {
       entry: "src/wechat/probe.ts",
-      name: "SSNoirWeChatProbe",
+      name: "SSNoirWeChatFoundation",
       formats: ["iife"],
       fileName: () => "game.js"
     }

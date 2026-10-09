@@ -1,34 +1,35 @@
-import { evaluateScheme } from "../scheme/evaluate";
-
 /**
- * WeChat HOST PROBE, not yet the full Three.js/PixiJS port.
- * Uses neither window nor document. Build success is NOT device compatibility.
+ * Actual shared Three.js + PixiJS + BiwaScheme render path in WeChat,
+ * not the earlier independent Canvas2D placeholder.
+ * All adaptations live in bootstrap / Pixi DOMAdapter.
  */
-declare const wx: {
-  createCanvas(): {
-    width: number;
-    height: number;
-    getContext(kind: "2d"): {
-      fillStyle: string;
-      font: string;
-      fillRect(x: number, y: number, w: number, h: number): void;
-      fillText(text: string, x: number, y: number): void;
-    } | null;
-  };
-  getSystemInfoSync(): { windowWidth: number; windowHeight: number };
-};
+import { wechatHost } from "./bootstrap";
+import { DOMAdapter } from "pixi.js";
+import { mountFoundation } from "../foundation/render";
 
-const canvas = wx.createCanvas();
-const info = wx.getSystemInfoSync();
-canvas.width = info.windowWidth;
-canvas.height = info.windowHeight;
-const ctx = canvas.getContext("2d");
-if (!ctx) throw new Error("WeChat canvas 2D context unavailable");
-ctx.fillStyle = "#111217";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-ctx.font = "18px sans-serif";
-ctx.fillStyle = "#f0dec2";
-ctx.fillText("SSNoir · WeChat host probe", 24, 55);
-const value = evaluateScheme("(+ 19 23)");
-ctx.fillText("Scheme result: " + String(value), 24, 96);
-if (value !== 42) throw new Error("Scheme runtime incompatible in WeChat host");
+DOMAdapter.set({
+  createCanvas: (width = 2, height = 2) => wechatHost.createOffscreenCanvas(width, height),
+  createImage: () => wechatHost.createImage(),
+  getCanvasRenderingContext2D: () => wechatHost.getCanvas2DConstructor(),
+  getWebGLRenderingContext: () => wechatHost.getGLConstructor(),
+  getNavigator: () => wechatHost.getNavigator(),
+  getBaseUrl: () => wechatHost.getBaseUrl(),
+  getFontFaceSet: () => null,
+  fetch: async () => { throw new Error("Remote assets not supported in foundation probe"); },
+  parseXML: () => { throw new Error("XML not supported in foundation probe"); }
+} as Parameters<typeof DOMAdapter.set>[0]);
+
+mountFoundation({
+  canvas: wechatHost.canvas,
+  context: wechatHost.context,
+  width: wechatHost.width,
+  height: wechatHost.height,
+  animationFrame: wechatHost.animationFrame,
+  cancelAnimationFrame: wechatHost.cancelAnimationFrame
+}).then(session => {
+  wechatHost.onTouchEnd((x, y) => {
+    try { (session as typeof session & { activateAt(x: number, y: number): boolean }).activateAt(x, y); }
+    catch (error) { wechatHost.showFailure(error); }
+  });
+  console.log("[SSNoir] Three/Pixi/Scheme shared foundation mounted; initial count " + session.getCount());
+}).catch(wechatHost.showFailure);

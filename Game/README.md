@@ -1,48 +1,53 @@
-# SSNoir — Game foundation (Stage 1)
+# SSNoir / Game — Phase 1 foundation
 
-This is the future **single game project**, not a second permanent client. During migration, `Engine/` and `UnityClient/` are preserved only as behavioral baselines. The original Scheme content still lives solely in `UnityClient/Assets/Resources/Content`.
+This is the planned **only** game project. Legacy C#/Unity code is retained during migration as a reference, not as a second long-term client.
 
-## What is implemented
+## Shared architecture (real prototype)
 
-- Browser: Three.js geometry, PixiJS cards and touch/click interaction on **one WebGL context**, with a BiwaScheme expression executing on click.
-- Node: smoke tests of BiwaScheme semantics and the **actual unchanged** `scripts/stdlib.scm`.
-- Steam/Desktop: minimal Electron shell loading the exact same browser bundle. Steamworks is not integrated.
-- WeChat: a distinct **2D host probe** bundling BiwaScheme and calling `wx.createCanvas`. It is intentionally **not** a working Three.js/PixiJS game. It must be validated in WeChat DevTools and on Android/iOS before this stack is approved.
+- Browser: \`src/main.ts\` provides HTML Canvas and pointer events.
+- WeChat: \`src/wechat/bootstrap.ts\` exposes a deliberately *minimal* WX Canvas/browser compatibility surface; \`src/wechat/probe.ts\` installs a Pixi \`DOMAdapter\`.
+- **Both hosts execute the same \`src/foundation/render.ts\`** using Three.js, PixiJS, a single WebGL context, and a persistent BiwaScheme VM.
+- Desktop/Electron opens the exact same browser bundle via \`desktop/main.cjs\`.
+- Scheme is currently a compatibility probe only. The existing \`.scm\` content remains in \`UnityClient/Assets/Resources/Content\`, without a second copy. Game rules/native functions are not yet migrated.
 
-## Commands
+## Test commands (from Game/)
 
-Use Node 22 (Vite 8 requires current Node 20/22+). Run from `Game/`.
-
-```bash
+\`\`\`bash
 npm install
-npm run verify          # typecheck, Node Scheme tests, web build, WeChat host probe bundle
-npm run capture         # Playwright browser interaction + screenshot (install Chromium first)
-npm run dev             # http://localhost:5173
+npm run verify             # TypeScript, real stdlib / Scheme tests, browser build, WeChat bundle
+npx playwright install chromium
+npm run capture            # headless Chromium actually renders and clicks, uploads PNG in CI
+npm run dev                # browser interactive preview
 npm run build:web
-npm run start:desktop   # run build:web first; requires Electron installed
-npm run build:wechat    # import Game/dist/wechat in WeChat developer tools as Mini Game
-```
+npm run start:desktop      # Electron requires a graphical desktop
+npm run build:wechat       # import dist/wechat in WeChat DevTools as Mini Game
+\`\`\`
 
-`npm run capture` uses Playwright Chromium. Install once with `npx playwright install chromium`; its screenshot is saved in `artifacts/foundation-web.png`. The CI uploads the capture with the build products. It also writes a commit status `ssnoir/game-foundation` with a link to the exact Actions run, so subsequent agents can inspect its outcome and logs without confusing a successful Git push with a passing build. A passing interaction smoke test is not a visual-quality review.
+## Automated / manual acceptance (never conflate them)
 
-`npm run verify` checks *buildability*; **it does not prove** browser rendering, desktop GPU rendering, touch behavior, or WeChat runtime compatibility. For the browser, open the preview, click the cream card and verify the Scheme count increments while a 3D city is visible. For desktop, run the Electron shell after `build:web`. For WeChat, replace the tourist AppID as needed and run the generated host probe in developer tools and on both target phone OSes. Confirm that canvas renders and prints `Scheme result: 42`.
+| Gate | Implemented | Evidence required |
+|---|---|---|
+| Scheme syntax/semantics | Yes, tests using *real stdlib.scm* | GitHub Actions pass |
+| Browser 3D + 2D same GL context | Yes | Playwright click succeeds, screenshot reviewed |
+| Browser resized/mobile touch | Basic layout | Playwright additional viewport / touch tests |
+| Electron window | Browser bundle reused | Desktop graphical smoke still needed |
+| WeChat Three + Pixi shared GL | Code and packaging in place | **WeChat DevTools + Android and iOS real devices pending** |
+| WeChat font/touch/lifecycle | Touch manually routed by WX event | Real devices pending |
+| Full \`engine.scm\` / \`world.scm\` | Not yet | Stage 2 after platform decision |
+| Game state, saves, cutscenes | Not yet | Stage 2+ |
 
-## Stage 1 acceptance (tracked separately)
+### WeChat steps
 
-| Gate | Automation | Current scope |
-| --- | --- | --- |
-| JS/TS compilation | GitHub Actions | Typecheck, Scheme smoke tests, Vite builds |
-| Real content semantic compatibility | Partial | Only real `stdlib.scm` is checked; `engine.scm` and `world.scm` are NOT ported |
-| Three + Pixi browser rendering | GitHub Actions + visual review | Playwright opens the web game, clicks the Pixi card, confirms Scheme result, captures screenshot |
-| Electron runtime | Manual | Same Web bundle, no Steam API yet |
-| WeChat host runtime | Manual | wx Canvas 2D + Scheme; not Three/Pixi |
-| WeChat Three + Pixi | **Not started** | Platform go/no-go gate before migrating UI |
-| Save system and game state | **Not started** | To be migrated from C# after platform go/no-go |
+1. \`npm run build:wechat\`; open \`Game/dist/wechat\` as a **Mini Game** project (not Mini Program).
+2. Replace tourist AppID with your own before real-device tests. SDK interface support depends on the device and WeChat base library version.
+3. Confirm 3D block city **and** the 2D Pixi card are visible in **the same image**, then tap the cream card: counter should rise from 1 to 2.
+4. Check console for \`[SSNoir] Three/Pixi/Scheme shared foundation mounted\`; any error must be recorded, never silently work around it.
+5. Repeat on Android and iOS. A successful bundle and browser screenshot are **not** proof of actual WeChat support.
 
-## Boundary decisions
+The WeChat environment adapter intentionally throws for missing offscreen-canvas, remote asset fetch or XML parsing. Fix unsupported essentials deliberately after collecting device logs; do not claim that untested APIs are supported.
 
-- `Game/src/scheme/evaluate.ts` is a synchronous **probe** which starts a fresh interpreter per evaluation. It is **not** yet the proper long-lived World/Encounter interpreter and must not be used to run actual game content.
-- No scheme files are copied from Unity; tests read the single source from the existing repository.
-- No production UI layout, level art, save system, or platform API is created in this technical experiment.
-- Error states are raised explicitly. No silent fallback from a missing WebGL context.
-- WeChat project emits an independent IIFE as a compatibility probe. No claim of a working DOM polyfill or Three.js binding is made.
+## Continuation
+
+CI workflow: \`.github/workflows/ssnoir-game-foundation.yml\`. Each run uploads browser screenshots and all build outputs as \`ssnoir-game-foundation\`; it publishes the \`ssnoir/game-foundation\` commit status with a link to its run. This makes the test/inspect/fix cycle retrievable across agents.
+
+**Do not remove Unity or claim Phase 1 passed until actual desktop and WeChat target-runtime evidence is present.**
