@@ -19,6 +19,7 @@ BASE=ROOT/"docs/实验/机制研究"
 ATLAS=BASE/"模式库.json"
 TASKS=BASE/"试玩任务.json"
 TEMPLATE=BASE/"研究总览.template.html"
+CLOUD=ROOT/"tools/content-validator/experiments/mechanism_cloud_feedback.js"
 OUTPUT=BASE/"研究总览.html"
 
 
@@ -90,9 +91,13 @@ def build()->str:
     template=TEMPLATE.read_text(encoding="utf-8")
     assert template.count("/*ATLAS_DATA*/")==1
     assert template.count("/*TASK_DATA*/")==1
+    assert template.count("/*CLOUD_FEEDBACK_SCRIPT*/")==1
+    cloud=CLOUD.read_text(encoding="utf-8")
     assert "</script" not in atlas.lower() and "</script" not in tasks.lower()
+    assert "</script" not in cloud.lower(), "Embedded cloud code must not close its script"
     return (template.replace("/*ATLAS_DATA*/",atlas)
-                    .replace("/*TASK_DATA*/",tasks))
+                    .replace("/*TASK_DATA*/",tasks)
+                    .replace("/*CLOUD_FEEDBACK_SCRIPT*/",cloud))
 
 
 def main()->None:
@@ -104,7 +109,7 @@ def main()->None:
         assert OUTPUT.exists() and OUTPUT.read_text(encoding="utf-8")==expected, (
             "Human field station not synchronized. Run "
             "python3 tools/content-validator/experiments/build_mechanism_atlas.py")
-        print("PASS: human field station, 2 sources, evidence links, tasks and HTML parity")
+        print("PASS: human field station, two JSON sources, cloud sync code, references and HTML parity")
     else:
         OUTPUT.write_text(expected,encoding="utf-8")
         print("Generated human field station:",OUTPUT)

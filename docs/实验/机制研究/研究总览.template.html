@@ -55,10 +55,10 @@ main section{padding:62px 0;border-bottom:1px solid var(--line)}.section-top{dis
 <div id="github-feedback" class="panel" style="margin-top:17px">
  <div class="panel-head"><div><div class="eyebrow">GITHUB SYNC / YOUR NOTEBOOK</div><h3>已提交的反馈 · 继续写</h3><p class="desc">一次连接，记住此浏览器；可以打开仓库中的旧反馈，追加新感受，保存为同一个文件。</p></div><span class="flag" id="cloud-status">未连接</span></div>
  <div id="cloud-connect"><div class="field-pair">
-  <label class="field"><span>GitHub Fine-grained Token（仅首次输入）</span><input id="gh-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></label>
-  <div class="callout"><strong>仅本机保存</strong><p>使用当前浏览器 localStorage 保存。Token 不写入 HTML、仓库和反馈文件。建议仅授权 ssnoir 的 Contents：Read and write，设置到期时间。失窃的 Token 仍有仓库写入风险，请勿用于公共设备。</p></div>
+  <label class="field"><span>GitHub Fine-grained Token（首次验证后本机记住）</span><input id="gh-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></label>
+  <div class="callout"><strong>仅本机保存</strong><p>使用当前浏览器 localStorage 持久保存，直到你手动清除或 Token 失效。只授权 ssnoir 的 Contents: Read and write，设置到期时间。Token 不会提交到仓库，但同一网站来源的其他脚本可能读取本地存储。本站和提交的反馈均公开可见，请勿填写敏感内容，也不要在公共设备使用。</p></div>
  </div><div class="inline"><button class="button" id="gh-connect">验证并保存到此浏览器</button><span class="minor" id="gh-connect-error" role="alert"></span></div></div>
- <div id="cloud-connected" class="hidden"><div class="inline" style="justify-content:space-between;margin:15px 0"><div><strong id="gh-user"></strong><div class="minor">已连接私有仓库 ssnoir · 当前设备保存凭据</div></div><div class="inline"><button class="button ghost tiny" id="gh-refresh">刷新已提交</button><button class="button ghost tiny" id="gh-disconnect">清除此设备 Token</button></div></div>
+ <div id="cloud-connected" class="hidden"><div class="inline" style="justify-content:space-between;margin:15px 0"><div><strong id="gh-user"></strong><div class="minor">已连接 GitHub 仓库 ssnoir · 此站点公开、反馈内容公开</div></div><div class="inline"><button class="button ghost tiny" id="gh-refresh">刷新已提交</button><button class="button ghost tiny" id="gh-disconnect">清除此设备 Token</button></div></div>
   <div class="field-pair" style="margin-bottom:16px">
    <div><div class="eyebrow" style="margin-bottom:9px">本次编辑</div><div id="gh-active" class="callout">新反馈：当前实验。提交后可以从下方重新打开编辑。</div>
     <button class="button" id="gh-save" style="margin-top:12px">提交到 GitHub</button><button class="button ghost" id="gh-new" style="margin-top:12px">另存为一份新反馈</button>
