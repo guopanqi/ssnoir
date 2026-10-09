@@ -4,10 +4,7 @@
  * Reuses the exact same SSNoir Three + Pixi + LIPS foundation as production.
  * Reference: github.com/minisheeep/threejs-miniprogram-template (wechat-game-ts).
  */
-import "@minisheep/mini-program-polyfill-core/wechat-polyfill";
-import "@minisheep/three-platform-adapter/wechat-game";
-import "./lips-mini-dom";
-import { game } from "@minisheep/three-platform-adapter";
+import { communityRuntime as runtime } from "./prelude";
 import "pixi.js/unsafe-eval";
 import { DOMAdapter } from "pixi.js";
 import { mountFoundation } from "../foundation/render";
@@ -15,7 +12,6 @@ import { mountFoundation } from "../foundation/render";
 declare const wx: any;
 const g = globalThis as any;
 try {
-  const runtime = game.useCanvas();
   const canvas = runtime.canvas as HTMLCanvasElement;
   const system = wx.getSystemInfoSync();
   const width = Math.max(1, system.windowWidth);
