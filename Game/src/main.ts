@@ -84,6 +84,8 @@ async function start(): Promise<void> {
     count = value;
     report.text = `Scheme 计算结果：${count}`;
   }
+  // Read-only browser hook for deterministic Playwright interaction tests.
+  Object.assign(window, { __SSNOIR_FOUNDATION__: { getSchemeValue: () => count } });
   button.on("pointertap", () => {
     try { execute(); } catch (error) { errorLabel.textContent = String(error); }
   });
