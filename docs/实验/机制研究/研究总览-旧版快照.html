@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SSNoir · 机制研究总览</title>
+<style>
+:root{--bg:#f4f2ed;--paper:#fffefa;--ink:#222c2c;--muted:#697571;--line:#d9dfd8;--green:#215c4b;--soft:#e5eee7;--amber:#925917;--warm:#f7eedc;--red:#875c55;--grey:#eceee9;--blue:#496376}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button,input{font:inherit}button{cursor:pointer}a{color:var(--green);text-underline-offset:4px}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #477a91;outline-offset:3px}main{max-width:1320px;margin:auto;padding:32px 34px 48px}.top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--line);padding-bottom:18px}.brand{font-size:13px;letter-spacing:.12em;font-weight:700}.meta{color:var(--muted);font-size:12px}.pill{display:inline-flex;align-items:center;gap:7px;border-radius:20px;padding:4px 12px;background:var(--soft);font-size:12px;color:var(--green);white-space:nowrap}.dot{width:6px;height:6px;background:currentColor;border-radius:50%}.hero{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr);gap:30px;padding:36px 0}h1{font-size:clamp(27px,3vw,40px);line-height:1.35;letter-spacing:-.035em;margin:10px 0 16px}h2{font-size:20px;line-height:1.4;margin:0}h3{font-size:17px;margin:0}.kicker{font-size:12px;color:var(--muted);letter-spacing:.12em}.lede{max-width:630px;color:var(--muted);margin:0}.next{background:var(--ink);color:#fbfcf9;border-radius:13px;padding:22px 24px;display:flex;flex-direction:column;justify-content:center}.next .kicker{color:#afc9bd}.next p{margin:10px 0 0;font-size:14px;color:#d2ded7}.next a{color:#cde6d3}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:32px}.stat{padding:16px 18px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}.stat strong{font-size:25px;font-weight:600;display:block}.stat span{font-size:12px;color:var(--muted)}section{margin-top:32px}.sectionhead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.sectionhead p{color:var(--muted);font-size:13px;margin:5px 0 0}.map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.path{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px}.path .n{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.1em}.path h3{margin:5px 0 8px}.path p{font-size:13px;color:var(--muted);margin:0 0 12px}.tags{display:flex;gap:5px;flex-wrap:wrap}.tag{font-size:11px;background:var(--grey);color:var(--muted);border-radius:4px;padding:3px 7px}.tag.good{background:var(--soft);color:var(--green)}.tag.new{background:var(--warm);color:var(--amber)}.toolrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.filter{border:1px solid var(--line);background:transparent;color:var(--muted);padding:7px 13px;border-radius:6px;font-size:13px}.filter[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:white}.search{margin-left:auto;min-width:190px;flex:0 1 235px;border:1px solid var(--line);background:var(--paper);padding:8px 12px;border-radius:6px}.catalog{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px}.list{display:flex;flex-direction:column;gap:7px}.candidate{display:block;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:13px 16px;color:var(--ink);width:100%}.candidate[aria-pressed="true"]{border-color:var(--green);box-shadow:inset 3px 0 var(--green)}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.candidate .sub{font-size:12px;color:var(--muted);margin-top:5px}.badge{font-size:11px;border-radius:4px;padding:3px 8px;white-space:nowrap;background:var(--grey);color:var(--muted)}.badge.play{background:var(--soft);color:var(--green)}.badge.human{background:var(--warm);color:var(--amber)}.detail{position:sticky;top:20px;align-self:start;border:1px solid var(--line);border-radius:12px;background:var(--paper);padding:24px}.detail h3{font-size:23px;margin:8px 0 12px}.detail p{font-size:14px;margin:0 0 16px;color:var(--muted)}.detail dl{margin:18px 0}.detail dt{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;margin:15px 0 4px}.detail dd{font-size:13px;margin:0}.evidence{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.ev{border:1px solid var(--line);border-radius:7px;padding:8px;text-align:center;font-size:11px;color:var(--muted)}.ev b{display:block;font-size:13px;color:var(--ink);margin-bottom:2px}.ev.on{background:var(--soft);border-color:#bdd0c1}.ev.wait{background:var(--warm)}.ev.off{opacity:.65}.detail a{font-size:13px}.trace{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.step{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:17px}.step .num{font-size:12px;color:var(--muted)}.step strong{font-size:14px;display:block;margin:5px 0}.step p{font-size:12px;color:var(--muted);margin:0}.step.current{border-color:var(--green);background:var(--soft)}.comparison{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px}.experiment{padding:22px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}.choices{display:flex;gap:8px;margin:12px 0 18px}.statebtn{flex:1;padding:10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink)}.statebtn[aria-pressed="true"]{background:var(--soft);border-color:var(--green)}.scenario{font-size:13px;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:12px}.pressurebar{display:flex;gap:6px;margin:15px 0}.cell{flex:1;height:12px;border-radius:3px;background:var(--grey)}.cell.filled{background:var(--amber)}.rec{font-size:20px;font-weight:600;color:var(--green);margin-bottom:6px}.explain{font-size:13px;color:var(--muted);min-height:65px;margin:0}.chartrow{margin:14px 0}.chartlabel{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}.bar{height:10px;background:var(--grey);border-radius:4px;overflow:hidden}.bar i{height:100%;display:block;background:var(--green)}.bar i.control{background:#9fab9f}.note{font-size:12px;color:var(--muted);line-height:1.65;margin:16px 0 0}.caption{color:var(--muted);font-size:12px;margin:10px 0}.plan{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.planarticle{padding:19px 21px;border-top:3px solid var(--line);background:var(--paper);border-radius:6px}.planarticle p{font-size:13px;color:var(--muted);margin:10px 0}.footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;border-top:1px solid var(--line);margin-top:36px;padding-top:18px;font-size:12px;color:var(--muted)}.empty{color:var(--muted);padding:25px;border:1px dashed var(--line);border-radius:8px}@media(max-width:850px){main{padding:22px 18px 35px}.hero,.catalog,.comparison{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.map,.trace,.plan{grid-template-columns:repeat(2,minmax(0,1fr))}.detail{position:static}.search{flex:1 1 190px}.hero{padding:26px 0;gap:18px}}@media(max-width:480px){.map,.trace,.plan{grid-template-columns:1fr}.sectionhead{align-items:start}.meta{font-size:11px}.detail{padding:18px}.filter{padding:6px 9px}.row{align-items:start}.candidate .badge{font-size:10px}}
+.path.future,.path.wide{grid-column:1/-1}@media(max-width:480px){.path.future,.path.wide{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<main id="research-overview">
+<section aria-label="新增抽象模式研究" style="margin:0 0 28px;padding:20px 22px;border:1px solid var(--line);background:var(--paper);border-radius:10px">
+<h2>新增研究分支 · 2026-10-09</h2>
+<p class="lede" style="margin:9px 0 15px">下面两批研究探索抽象决策关系，不引入剧情包装。原有 R01–R48 的历史保留；下方交互图表仍是上一批的局部分析，不代表 R49/R50 已获真人认可。</p>
+<div class="map" style="grid-template-columns:repeat(auto-fit,minmax(245px,1fr))">
+<article class="path"><div class="n">R49 / 原生逻辑已验证</div><h3>迟到的目标</h3><p>目标尚未确定时先分配行动；揭示后只有一个目标有效。研究集中准备、分散准备、逐步调整之间的差异。</p><div class="tags"><span class="tag good">10 局 C# 严格回放通过</span><span class="tag">真人待评</span></div><p><a href="批次/R49-迟到的目标/README.md">查看规则、数学对照与 GitHub CI →</a></p></article>
+<article class="path"><div class="n">R50 / 仅数学筛选</div><h3>动作回声</h3><p>前一手动作可逆地改变下一手的判定价值，比较动态换目标与预先固定目标顺序。</p><div class="tags"><span class="tag new">基础候选 · 待正式原型</span><span class="tag">成长退化已比较</span></div><p><a href="批次/R50-动作回声/研究记录.md">查看强策略反证与边界 →</a></p></article>
+</div></section>
+
+<div class="top"><div class="brand">SSNOIR / MECHANISM RESEARCH</div><div class="meta">旧图表 R45 · 新增 R49/R50 入口 <span class="pill"><span class="dot"></span>研究继续</span></div></div>
+<div class="hero"><div><div class="kicker">现有交锋规则下的设计空间</div><h1>寻找值得思考的选择，<br>也记录为什么放弃。</h1><p class="lede">目标是少量简洁、可理解、值得再玩的模式。数学筛选、正式执行和真人体验是不同证据；多个问题争夺行动力只是设计空间的一条路径。</p></div><aside class="next"><div class="kicker">最新可试玩 / 多回合组合</div><h2>压力预算</h2><p>继续赶工，还是用一颗骰止住后续压力？<br>推进的坏结果可能改变下一手选择。</p><p><a href="批次/R37-压力预算正式接入/README.md">查看试玩说明 →</a></p></aside></div>
+<div class="stats"><div class="stat"><strong>10 条</strong><span>已探索的判断路径 · 不穷尽空间</span></div><div class="stat"><strong>3 层</strong><span>数学 / 正式执行 / 真人体验</span></div><div class="stat"><strong>18 / 192</strong><span>R37 保存轨迹 / 核对步骤</span></div><div class="stat"><strong>待试玩</strong><span>R37 乐趣与表达尚待裁决</span></div></div>
+<section><div class="sectionhead"><div><h2>我们正在探索什么</h2><p>按玩家需要判断的事情整理。路径可以独立，也可以组合。</p></div></div><div class="map">
+<article class="path"><div class="n">01 / 资源分配</div><h3>这颗骰给哪里</h3><p>目标需求与判定能力不同，结果改变之后的骰子归属。</p><div class="tags"><span class="tag good">R15 按需用骰</span><span class="tag">固定顺序可能足够</span></div></article>
+<article class="path"><div class="n">02 / 成果取舍</div><h3>哪项成果值得争取</h3><p>容量不足同时兑现所有目标，半成品与完成成果价值不同。</p><div class="tags"><span class="tag good">R13 成果取舍</span><span class="tag">高成长可能退化</span><span class="tag">R44 成套：组合材料</span></div></article>
+<article class="path"><div class="n">03 / 时间结构</div><h3>何时启动，何时换回合</h3><p>完成节点、进度保留与限时窗口改变当前行动价值。</p><div class="tags"><span class="tag good">整段完成 / 择时开窗</span><span class="tag">流程化边界</span></div></article>
+<article class="path"><div class="n">04 / 信息结构</div><h3>先了解，还是直接做</h3><p>探查花骰，推进也可能揭示信息；知道以后再选路线。</p><div class="tags"><span class="tag good">R25 定位再搜</span><span class="tag">一次购买近乎足够</span><span class="tag">R43 连续反馈：数学扩展边界</span></div></article>
+<article class="path"><div class="n">05 / 跨回合余力</div><h3>现在补给，还是继续推进</h3><p>冷静与伤势延续，花骰恢复会挤占当前进展。</p><div class="tags"><span class="tag good">R11 / R19 留力</span><span class="tag">价值依赖健康偏好</span></div></article>
+<article class="path"><div class="n">06 / 未来成本</div><h3>赶工，还是消除后续负担</h3><p>自己的推进生成问题，失败与未修问题共用压力预算。</p><div class="tags"><span class="tag new">R37 压力预算 · 新</span><span class="tag">目标8余量过大</span></div></article>
+<article class="path"><div class="n">07 / 终点几何</div><h3>移动多少，留什么来调整</h3><p>目标是位置或区间。保留能匹配多种距离的骰，按结果选幅度。</p><div class="tags"><span class="tag">R39 / R40 数学基础材料</span><span class="tag">固定初始骰序近乎足够</span></div></article>
+<article class="path"><div class="n">08 / 未来产出</div><h3>当前推进，还是投资下一轮</h3><p>先算可兑现次数。投资有收益，低骰开局已解释当前版本的大部分选择。</p><div class="tags"><span class="tag">R41 数学基础材料</span><span class="tag">纯完成低骰首投已达自由</span></div></article>
+<article class="path"><div class="n">09 / 判定环境反馈</div><h3>成功改变下一颗骰的价值</h3><p>第一次好档后判定变难。余下需求能使3／4骰严格换序，但初始固定序已近最优。</p><div class="tags"><span class="tag">R42 数学基础材料</span><span class="tag">动态骰序仅增0.00643个百分点</span></div></article>
+<article class="path wide"><div class="n">10 / 选择权的补偿</div><h3>何时放弃补救路线，换取判定优势</h3><p>专注免费关闭另一路线，之后准备+1。结果改变专注对象；开局看手专注已保留94.40%收益增益，保留基本关系。</p><div class="tags"><span class="tag">R45 数学基本关系</span><span class="tag">41.74%模型路径延迟专注</span></div></article>
+<article class="path future"><div class="n">下一问题 / R46 待研究</div><h3>能否用一手实时比较解释选择</h3><p>复用公开专注版本，不增加规则。比较现在专注的值L与试一手再专注的值Q，再按实际结果重新判断；尚无本批结果。</p><div class="tags"><span class="tag new">方法深化 · 待研究</span><span class="tag">不把简单响应称固定流程</span></div></article>
+</div><p class="caption">共同基础：稳险选择已获基本模式认可。稳做：坏−1冷静、中0、好+1；快做：坏−1冷静、中−1冷静并+1、好+2。整备借力因低骰铺垫／高骰推进过于流程化而降级。新研究沿用可学习的行动口径。</p></section>
+<section><div class="sectionhead"><div><h2>候选与裁决</h2><p>点击查看每个模式的证据与边界。这里是精选关系，不按批次数统计“成果”。</p></div><div class="meta" id="visible-count" aria-live="polite"></div></div>
+<div class="toolrow" role="group" aria-label="筛选候选"><button class="filter" data-filter="all" aria-pressed="true">全部关系</button><button class="filter" data-filter="play" aria-pressed="false">可试玩</button><button class="filter" data-filter="human" aria-pressed="false">已有体验反馈</button><button class="filter" data-filter="math_only" aria-pressed="false">只有数学证据</button><button class="filter" data-filter="stop" aria-pressed="false">停止 / 收窄</button><input class="search" id="candidate-search" type="search" aria-label="搜索模式" placeholder="搜索模式或批次"></div>
+<div class="catalog"><div class="list" id="candidate-list"></div><aside class="detail" id="candidate-detail" aria-live="polite"></aside></div></section>
+<section><div class="sectionhead"><div><h2>最新研究为什么走到这里</h2><p>一个失败结果决定下一步研究问题，而不是继续添加规则。</p></div></div><div class="trace">
+
+
+<article class="step"><div class="num">R42 / 局部与整体分开</div><strong>严格反转仍可能增量很小</strong><p>3／4骰按剩余需求换序；强初始序93.6007%、自由93.6072%，停止当前接入。</p></article>
+<article class="step"><div class="num">R43 / 响应与可见性边界</div><strong>方法响应成立，需保留契约边界</strong><p>后验方法达自由96.46%，模型58.63%换方法；但现有赔率直接公开条件，不直接接入。</p></article>
+<article class="step"><div class="num">R44 / 交叉按同效用评分</div><strong>加成没有增加自由分配判断</strong><p>成套3与加和2的最优策略兼容；固定完成序仍动态选骰，逐126手达自由，保留组合材料。</p></article>
+<article class="step current"><div class="num">R45 / 选择权与补偿分开</div><strong>保留基本关系，下一步解释判断</strong><p>延迟专注41.74%，专注对象不同首推11.10%；开局仍保留94.40%增益，下一题不加规则。</p></article>
+</div></section>
+<section><div class="sectionhead"><div><h2>压力如何改变下一手</h2><p>一个模型中实际可达的局面。切换压力，看同一颗6如何改用。</p></div><span class="pill">模型见证 · 不是玩家测试</span></div><div class="comparison">
+<article class="experiment"><div class="scenario">第2回合 · 主进度8 / 12 · 甲乙各剩2 · 只余一颗6<br>冷静0 · 非头部伤势2 · 技能1 · 仅剩第3回合机会</div><div class="choices" role="group" aria-label="切换压力"><button class="statebtn" data-pressure="2" aria-pressed="true">压力 2</button><button class="statebtn" data-pressure="3" aria-pressed="false">压力 3</button></div><div class="pressurebar" id="pressure-bar" aria-label="压力2，上限5"></div><div class="rec" id="recommendation"></div><p class="explain" id="scenario-explanation"></p><p class="note">仅改变上一步坏档造成的1压力，其余状态保持相同。当前骰6保证好档；后续概率由独立的未来一轮精确模型核对。这个局面在早完成策略中的访问质量约0.566%。</p></article>
+<article class="experiment"><div class="kicker">R36 / 早完成目标 · 两种决策方式</div><h3 style="margin:8px 0 18px">回合内重新判断有多少价值</h3><div class="chartrow"><div class="chartlabel"><span>每手自由选择</span><strong id="free-score">1.422371</strong></div><div class="bar"><i style="width:94.8247%"></i></div></div><div class="chartrow"><div class="chartlabel"><span>每回合选定一种偏好</span><strong id="fixed-score">1.346475</strong></div><div class="bar"><i class="control" style="width:89.7650%"></i></div></div><p class="note">研究收益：第1 / 2 / 3回合完成分别记3 / 2 / 1，失败0。两策略都优化骰子、稳险和结束时机；固定族只限制回合内修／推偏好。固定族损失完整收益约5.34%，不等于玩家感受到5.34%的乐趣。</p><p class="note">纯完成目标的差距只有0.891个百分点。优化目标不同，结论不能混用。早完成最优路径约9.86%至少一次出现即时压力改变下一手方向；这是模型路径质量，非真人频率。</p><a href="批次/R36-资源余量与选择增量/研究记录.md">查看数学证据与限制 →</a></article>
+</div></section>
+<section><div class="sectionhead"><div><h2>新基础关系：保留幅度工具</h2><p>目标位置3，目前0，剩5／6。切换5的结果，看下一颗6为什么改用稳或快。</p></div><span class="pill">R39 / R40 · 仅数学，未接入</span></div><div class="comparison">
+<article class="experiment"><div class="scenario">技能1 · 5的判定：中档1/6，好档5/6，无坏档<br>先用5快做，保留保证好档的6作为调整工具</div><div class="choices" role="group" aria-label="切换5的结果"><button class="statebtn" data-amplitude="neutral" aria-pressed="true">5 得到中档</button><button class="statebtn" data-amplitude="good" aria-pressed="false">5 得到好档</button></div><div class="rec" id="amplitude-choice"></div><p class="explain" id="amplitude-explanation"></p><p class="note">两种结果都能完成，条件完成率100%；此局面先用6，最优只有83.33%。它被选定起局策略实际访问，质量约5.41%，不是四骰初始发成两骰或真人测试。</p></article>
+<article class="experiment"><div class="kicker">强参照之后的裁决</div><h3 style="margin:8px 0 14px">先安排工具，再选动作幅度</h3><p class="note">恰好3的自由完成96.39%，最高骰先用92.49%；但开局选最佳固定骰序已经96.26%。主要价值可以由预先安排工具与按位置选稳险解释，不把高骰优先的差距全算成动态规划价值。</p><p class="note">方向规则可以保持“朝目标走”。更多移动可能过头，带来学习成本；因此当前保留基础关系，停止独立试玩接入。方向和幅度的游戏呈现尚未验证。</p><a href="批次/R40-幅度选择的固定骰序反证/研究记录.md">查看强反证与严格分支 →</a></article>
+</div></section>
+<section><div class="sectionhead"><div><h2>公开专注：何时放弃补救路线</h2><p>关闭另一项，换所选项之后准备+1。即时结果确会改变专注对象，整体增量另作比较。</p></div><span class="pill">R45 · 基本关系，当前未接入</span></div><div class="comparison">
+<article class="experiment"><div class="scenario">甲3值1／乙6值2，任一完成就离开。
+<br>初始骰1／1／1／3，冷静5；选定最优策略先用1快做乙，切换首手结果。</div><div class="choices" role="group" aria-label="切换专注首手反馈"><button class="statebtn" data-focus="low" aria-pressed="true">1 得到坏／中档</button><button class="statebtn" data-focus="good" aria-pressed="false">1 得到好档</button></div><div class="rec" id="focus-choice"></div><p class="explain" id="focus-explanation"></p><p class="note">此手质量1/324：坏／中／好前缀联合质量1/972、1/648、1/1944，非全局反转率。公开准备+1不改变默认0／1／2行动收益；没有隐藏赔率。</p><a href="批次/R45-公开专注与承诺时点/研究记录.md">查看正常前缀与独立局部证据 →</a></article>
+<article class="experiment"><div class="kicker">终局效用 / 条形长度按最大兑现2</div><h3 style="margin:8px 0 18px">延迟的价值与判定补偿分开</h3><div class="chartrow"><div class="chartlabel"><span>全程自由决定</span><strong>1.706183</strong></div><div class="bar"><i style="width:85.3092%"></i></div></div><div class="chartrow"><div class="chartlabel"><span>开局看手就专注</span><strong>1.694005</strong></div><div class="bar"><i class="control" style="width:84.7003%"></i></div></div><div class="chartrow"><div class="chartlabel"><span>最多一手反馈后决定</span><strong>1.699550</strong></div><div class="bar"><i class="control" style="width:84.9775%"></i></div></div><p class="note">不专注1.488624；开局族保留94.40%的专注增益，骰序仍由求解器安排。正常模型41.74%延迟专注，11.10%锁定对象不同首推；不是玩家频率或好玩证明。</p><p class="note">486独立局部／2430对照值、36概率分量、9源快照与隔离通过。基本关系保留，当前不新增单体；下一R46检查能否用实时一手判据解释。</p></article>
+</div></section>
+<section><div class="sectionhead"><div><h2>成套成果：奖励变化与策略变化分开</h2><p>两项各需3，单件值1。切换结算规则，看收益改变后是否需要换策略。</p></div><span class="pill">R44 · 组合材料，未接入</span></div><div class="comparison">
+<article class="experiment"><div class="scenario">一回合四骰，技能1，冷静5；半成品0。
+<br>两种效用分别优化，再交叉按同一规则评分。</div><div class="choices" role="group" aria-label="切换成套结算"><button class="statebtn" data-bundle="3" aria-pressed="true">成套值 3</button><button class="statebtn" data-bundle="2" aria-pressed="false">两件值 2</button></div><div class="rec" id="bundle-value"></div><p class="explain" id="bundle-explanation"></p><p class="note">两套自由策略交叉评分均仍达最优。先完成一项再做另一项、每手补短项，也逐126手达自由；这些族仍按结果选骰，不能叫固定玩家脚本。</p><a href="批次/R44-公开判定与成套成果/研究记录.md">查看交叉评分与裁决 →</a></article>
+<article class="experiment"><div class="kicker">同一最优终局分布 / 数学，非真人</div><h3 style="margin:8px 0 14px">收齐与保底并未换计划</h3><div class="chartrow"><div class="chartlabel"><span>两项完成</span><strong>53.8511%</strong></div><div class="bar"><i style="width:53.8511%"></i></div></div><div class="chartrow"><div class="chartlabel"><span>一项完成</span><strong>44.9544%</strong></div><div class="bar"><i class="control" style="width:44.9544%"></i></div></div><p class="note">零成果1.1946%。固定骰归属的期望分别1.926191／1.423566，低于同评分自由值；互补能改变受限分区，但结果后转让骰子的价值本来就存在。</p><p class="note">864独立一／两骰条件、2592对照值、8源冻结和隔离重算通过；非独立四骰全局优化。保留成果组合材料，停止当前单体晋升。</p></article>
+</div></section>
+<section><div class="sectionhead"><div><h2>连续反馈：响应规则与接入边界</h2><p>简单规则仍可以要求玩家根据证据调整。数学未知条件与当前界面的公开信息分别检查。</p></div><span class="pill">R43 · 数学扩展，当前不直接接入</span></div><div class="comparison">
+<article class="experiment"><div class="kicker">开局固定隐藏条件 / 公平先验</div><h3 style="margin:8px 0 18px">按证据调整方法有实际增量</h3><div class="chartrow"><div class="chartlabel"><span>选择后验更可能有效的方法</span><strong>96.4625%</strong></div><div class="bar"><i style="width:96.4625%"></i></div></div><div class="chartrow"><div class="chartlabel"><span>开局固定一种方法</span><strong>90.5679%</strong></div><div class="bar"><i class="control" style="width:90.5679%"></i></div></div><p class="note">后验贪心逐126初始手达到自由主值；骰子仍由求解器安排。选定策略58.63%正常模型路径至少换一次方法，次数期望0.6995。这是随反馈响应，不能叫固定流程。</p><p class="note">最佳初始固定骰序96.4566%，方法仍随反馈自由；额外动态骰序仅增0.00595个百分点。独立648局部最优、630固定真值策略执行与隔离通过，非独立全局优化。</p><a href="批次/R43-共同隐藏条件与连续反馈/研究记录.md">查看固定真值与正常响应证据 →</a></article>
+<article class="experiment"><div class="kicker">局部后验示例 / 不是正式概率条</div><h3 style="margin:8px 0 14px">先验各半，甲投一颗1</h3><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;border-bottom:1px solid var(--line);padding:8px 4px">反馈</th><th style="text-align:left;border-bottom:1px solid var(--line);padding:8px 4px">甲较有效的概率</th><th style="text-align:left;border-bottom:1px solid var(--line);padding:8px 4px">目前判断</th></tr></thead><tbody><tr><td style="padding:8px 4px">坏</td><td style="padding:8px 4px">25%</td><td style="padding:8px 4px">乙更可能有效</td></tr><tr><td style="padding:8px 4px">中</td><td style="padding:8px 4px">50%</td><td style="padding:8px 4px">还不能区分</td></tr><tr><td style="padding:8px 4px">好</td><td style="padding:8px 4px">100%</td><td style="padding:8px 4px">确定甲有效</td></tr></tbody></table><p class="note">这要求玩家只从执行后的反馈获知条件。当前标准roll却在放骰时显示真实概率，隐藏技能0／2会立即泄露。</p><p class="note">因此保留数学扩展材料，当前不晋升试玩候选。没有隐藏真实概率、伪造准备值或修改引擎。数学成立、正式可表达、真人觉得有趣需要分别证据。</p><a href="批次/R43-共同隐藏条件与连续反馈/判定可见性核对.md">查看现有信息契约的只读核对 →</a></article>
+</div></section>
+<section><div class="sectionhead"><div><h2>此前裁决：局部反转与整体增量分开看</h2><p>当前结果确实改变下一骰，但强简单策略能解释多少，仍需单独比较。</p></div><span class="pill">R42 · 仅数学，未接入</span></div><div class="comparison">
+<article class="experiment"><div class="scenario">初始1／2／3／4，目标4；选定全快做最优策略<br>首1坏后用2；切换2的结果。冷静均为3，警戒均为0，余骰3／4。</div><div class="choices" role="group" aria-label="切换2的结果"><button class="statebtn" data-feedback="bad" aria-pressed="true">2 得到坏档</button><button class="statebtn" data-feedback="neutral" aria-pressed="false">2 得到中档</button></div><div class="rec" id="feedback-choice"></div><p class="explain" id="feedback-explanation"></p><p class="note">两指定前缀属于选定最优策略，联合质量分别1/972、1/324；仅计这手牌与前缀，非全局反转频率。好档才改变后续判定；中档仍按惯用规则进度+1、冷静−1。</p></article>
+<article class="experiment"><div class="kicker">强参照 / 四骰纯完成目标</div><h3 style="margin:8px 0 18px">初始最佳固定序已近自由</h3><div class="chartrow"><div class="chartlabel"><span>每步自由安排</span><strong>93.6072%</strong></div><div class="bar"><i style="width:93.6072%"></i></div></div><div class="chartrow"><div class="chartlabel"><span>开局择最佳固定骰序</span><strong>93.6007%</strong></div><div class="bar"><i class="control" style="width:93.6007%"></i></div></div><p class="note">最高骰先用只有88.44%，但不能把这5.17个百分点全算成动态规划价值。与最佳初始序的差距仅0.00643个百分点，因此保留基础反馈材料，停止当前单体接入。</p><p class="note">冷静5隔离伤势，纯完成可删除稳做维度；不推广到冷静次目标。168独立两骰条件／12096分支、504对照值和冻结隔离通过，无正式或真人证据。</p><a href="批次/R42-成功后的判定反馈/研究记录.md">查看支配、局部反转与整体裁决 →</a></article>
+</div></section>
+<section><div class="sectionhead"><div><h2>此前裁决：投资收益与动态安排分开</h2><p>三回合只兑现两次产出。纸面排除回不了本的范围，再优化剩下的首回合选择。</p></div><span class="pill">R41 · 仅数学，未接入</span></div><div class="comparison">
+<article class="experiment"><div class="kicker">纯完成目标 / 同目标16与完整伤势</div><h3 style="margin:8px 0 18px">低骰开局已经达到同等完成率</h3><div class="chartrow"><div class="chartlabel"><span>自由选择投资</span><strong>80.5551%</strong></div><div class="bar"><i style="width:80.5551%"></i></div></div><div class="chartrow"><div class="chartlabel"><span>首手最低骰投资，随后自由</span><strong>80.5551%</strong></div><div class="bar"><i class="control" style="width:80.5551%"></i></div></div><div class="chartrow"><div class="chartlabel"><span>无投资</span><strong>74.5618%</strong></div><div class="bar"><i class="control" style="width:74.5618%"></i></div></div><p class="note">投资本身提高约5.99个百分点；这不是动态投资安排的价值。126初始手的完成主值逐手相同，健康与未优化的完成时点分量不因此全部相同。</p></article>
+<article class="experiment"><div class="kicker">时间目标 / 短期机会与未来收益</div><h3 style="margin:8px 0 14px">先投资，会放弃第二轮完成</h3><p class="note">目标16，前两轮最多8颗骰×2进度。建成投资至少占一骰，加一次产出，主进度最多7×2+1=15。</p><p class="note">偏好早完成时，自由研究收益0.812490，最低骰首投0.805551。低骰族保留87.02%的投资增量，只损失完整收益约0.854%；当前保留基础关系，停止单体接入。</p><p class="note">完成记3／2／1是研究偏好。336独立末回合小树、6结束条件及冻结隔离重算通过；没有新正式或真人证据。子Agent独立纸面审查与共享模型核对分别记录。</p><a href="批次/R41-可复用投资与未来产出/研究记录.md">查看回本边界与裁决 →</a></article>
+</div></section>
+<section><div class="sectionhead"><div><h2>接下来怎么推进</h2><p>反馈待补时仍能继续研究；每个问题都有冻结范围和停止点。</p></div></div><div class="plan">
+<article class="planarticle"><div class="kicker">真人体验 / 待补</div><h3>先裁决压力预算</h3><p>能否预测结束压力？坏结果后会不会改计划？修复甲乙是否重复？一两手的理由比多跑模拟更有用。</p><a href="批次/R37-压力预算正式接入/README.md">试玩入口与规则 →</a></article>
+<article class="planarticle"><div class="kicker">下一数学问题 / R46 待研究</div><h3>承诺选择的实时判据</h3><p>复用R45，比较现在专注值L与试一手后专注值Q；完整一步滚动、最低骰试乙两个族。先核对解释，不增加新规则，尚未执行。</p><a href="批次/R46-承诺选择的实时判据/有界研究计划.md">有界研究计划 →</a></article>
+<article class="planarticle"><div class="kicker">方法与接手 / 已建立</div><h3>保存判断依据，允许换方向</h3><p>当前状态 → 队列 → 冻结证据。先试简单反证、容量／回本上界；缓存共同后缀评价1296种骰序。必要时精确求解，再执行与体验。R45求解与独立审查已汇合、隔离通过。不同价值目标完成即退出时，先核对动作支配和可达容量；强族的历史起点明确，局部独立起点另记。隐藏模型先检查实际赔率是否泄露真值；简单响应达最优也不自动淘汰。</p><a href="研究约定.md">研究流程与证据规则 →</a></article>
+</div></section>
+<div class="footer"><span>摘要对应 R45 公开专注收尾；后续批次同步更新。无自动后台研究或定时调度。</span><span><a href="当前状态.md">当前状态</a> · <a href="研究队列.md">完整队列</a> · <a href="关系索引.md">关系索引</a></span></div>
+</main>
+<script id="research-memory" type="application/json">{"batch":"R45","next_batch":"R46","authoritative_memory_sha256":{"当前状态.md":"13faf5622ec60f3aaf9bcdf7935284ee2248d86524efc1ef10b637365c0ecca3","研究队列.md":"399612460c19fdb1621fec9a67b50b107ca54790ad5d129efc89c359614cb960","关系索引.md":"eef5f199af9b4ad022d2d0d97fc7cd955159d304ce097bad1fdecb6f8b505987","研究约定.md":"7cf3f764ea147df554379c49db299dbc5ca486833642d8c2f26398731f3ee855"},"scope":"交锋研究摘要，数学/正式/真人分开；不调度后台任务"}</script>
+<script id="research-data" type="application/json">
+[
+  {
+    "id": "pressure",
+    "name": "压力预算",
+    "batch": "R36 / R37",
+    "group": "未来成本 · 多回合组合",
+    "status": "新交付 · 待体验",
+    "play": true,
+    "human": false,
+    "stop": false,
+    "rule": "目标12、三回合；经过3／6各产生一个修复2的问题。推进坏档与未修回合压力共用5格失败预算。",
+    "finding": "早完成收益自由1.422371、强族1.346475；正常最优路径中存在即时压力改变下一步修／推的严格反转。",
+    "boundary": "R38在两目标下修短族已达自由值；不宣称复杂对象选择。修／推时机仍有增量，真人待补。",
+    "math": "保留组合",
+    "native": "18条 / 192步",
+    "humanText": "尚无反馈",
+    "link": "批次/R37-压力预算正式接入/README.md",
+    "entry": "研究·压力预算 / 研究·回合加压对照",
+    "math_only": false
+  },
+  {
+    "id": "focus",
+    "name": "公开专注",
+    "batch": "R45",
+    "group": "选择权与补偿 · 数学基本关系",
+    "status": "基本关系 · 当前未接入",
+    "play": false,
+    "human": false,
+    "stop": true,
+    "rule": "甲3值1／乙6值2，四骰／冷静5；任一完成即退出。免费专注关闭另一项，所选项以后公开准备+1。",
+    "finding": "自由1.706183、开局专注1.694005；正常41.74%延迟、11.10%专注对象不同首推。开局族保留94.40%增益，骰仍自由。",
+    "boundary": "不以响应简单宣布无趣；当前增量有限，保留基本关系。486独立局部非四骰全局优化；不同价值即时退出先核可达容量，未锁稳险不通用支配。",
+    "math": "保留基本关系",
+    "native": "尚未接入",
+    "humanText": "尚无反馈",
+    "link": "批次/R45-公开专注与承诺时点/研究记录.md",
+    "entry": "无本批新试玩入口；R46实时判据待研究",
+    "math_only": true
+  },
+  {
+    "id": "bundle",
+    "name": "成套成果",
+    "batch": "R44",
+    "group": "成果取舍 · 数学组合材料",
+    "status": "组合材料 · 停止当前接入",
+    "play": false,
+    "human": false,
+    "stop": true,
+    "rule": "甲乙各3、四骰／冷静5；单件值1、成套3；消融两件值2，惯用稳险收益。",
+    "finding": "两效用自由策略交叉按同一效用评分仍最优；固定完成序／补短逐126手达自由。成套3期望2.065076，初始分区1.926191。",
+    "boundary": "互补改变受限分区，但没有新增自由动态分配。固定完成序仍随结果选骰，不推广逐路径支配；864独立局部不是四骰全局独立优化。",
+    "math": "组合材料",
+    "native": "尚未接入",
+    "humanText": "尚无反馈",
+    "link": "批次/R44-公开判定与成套成果/研究记录.md",
+    "entry": "无本批新试玩入口",
+    "math_only": true
+  },
+  {
+    "id": "continuous_information",
+    "name": "连续反馈选方法",
+    "batch": "R43",
+    "group": "信息结构 · 受现有契约限制的数学扩展",
+    "status": "数学扩展 · 当前不接入",
+    "play": false,
+    "human": false,
+    "stop": true,
+    "rule": "假设甲乙隐藏技能0／2交换且开局固定，共同推进目标4。每次坏／中／好更新后验，四骰、冷静5。",
+    "finding": "后验选较可能有效的方法达自由96.4625%，固定方法90.5679%；选定模型策略58.63%至少按证据换一次方法。",
+    "boundary": "标准roll投骰前实际概率条泄露隐藏条件，当前规则不能原样保留未知前提。骰序维度近乎被初始固定序解释；不把响应贪心称固定流程。",
+    "math": "数学响应成立",
+    "native": "未接入；可见性前提不符",
+    "humanText": "尚无反馈",
+    "link": "批次/R43-共同隐藏条件与连续反馈/研究记录.md",
+    "entry": "仅数学扩展；无新正式入口",
+    "math_only": true
+  },
+  {
+    "id": "feedback",
+    "name": "成功后的判定反馈",
+    "batch": "R42",
+    "group": "判定环境 · 数学基础材料",
+    "status": "基础材料 · 停止当前接入",
+    "play": false,
+    "human": false,
+    "stop": true,
+    "rule": "四骰目标4、冷静5；第一次好档使后续判定技能−1，不叠加，无复位。惯用稳险收益不变。",
+    "finding": "余下3／4骰按需求4／3严格改变较优次序，但自由93.6072%、最佳初始固定序93.6007%，额外仅0.00643个百分点。",
+    "boundary": "纯完成快做支配、警戒后贡献可交换；只在3种初始手有严格固定序差距。局部最优前缀质量不是全局反转频率，不推广到资源次目标。",
+    "math": "保留基础材料",
+    "native": "尚未接入",
+    "humanText": "尚无反馈",
+    "link": "批次/R42-成功后的判定反馈/研究记录.md",
+    "entry": "无本批新试玩入口",
+    "math_only": true
+  },
+  {
+    "id": "amplitude",
+    "name": "幅度工具匹配",
+    "batch": "R39 / R40",
+    "group": "终点几何 · 数学基础材料",
+    "status": "数学收束 · 未接入",
+    "play": false,
+    "human": false,
+    "stop": true,
+    "rule": "稳／险移动幅度0／0／1与0／1／2，目标是恰好停在3；可反向校正，四骰单回合。",
+    "finding": "自由96.39%、高骰优先92.49%；更强的初始最佳固定骰序已到96.26%，收窄为安排工具与按位置选稳险。",
+    "boundary": "宽区间3..4反向无价值；好档走更多可能过头，学习成本未验证。严格动态分支存在，但平均增量仅0.125个百分点。",
+    "math": "保留基础关系",
+    "native": "尚未接入",
+    "humanText": "尚无反馈",
+    "link": "批次/R40-幅度选择的固定骰序反证/研究记录.md",
+    "entry": "无本批新试玩入口",
+    "math_only": true
+  },
+  {
+    "id": "investment",
+    "name": "可复用投资",
+    "batch": "R41",
+    "group": "未来产出 · 数学基础材料",
+    "status": "基础关系 · 停止当前接入",
+    "play": false,
+    "human": false,
+    "stop": true,
+    "rule": "投资1建成产能，进入第二／三回合各产主进度1；目标16、三回合、初始冷静3，惯用稳险与完整伤势。",
+    "finding": "纯完成自由与最低骰首投同为80.5551%；早收益自由0.812490、最低骰首投0.805551，低骰族保留87.02%投资增量。",
+    "boundary": "投资2及晚投资被直接推进同结果弱支配；投资占一骰使前两轮容量最多15，早完成有小幅取舍。当前不增加设施救题。",
+    "math": "保留基础关系",
+    "native": "尚未接入",
+    "humanText": "尚无反馈",
+    "link": "批次/R41-可复用投资与未来产出/研究记录.md",
+    "entry": "无本批新试玩入口",
+    "math_only": true
+  },
+  {
+    "id": "information",
+    "name": "定位再搜",
+    "batch": "R25 / R29",
+    "group": "信息结构 · 一回合基本模式",
+    "status": "可试玩 · 主张收窄",
+    "play": true,
+    "human": false,
+    "stop": true,
+    "rule": "两处各3，仅一处有目标。探查花骰提前定位，普通搜索到终点才揭晓；搜空也提供信息。",
+    "finding": "自由83.52%、不探查76.33%；最多一次探查保留97.42%信息增量，2268初始条件独立核对。",
+    "boundary": "价值主要在一次购买与未定位后的余骰分配；不能靠重复探查的尾部反例宣称复杂深度。成长2更流程化。",
+    "math": "基本模式",
+    "native": "18条 / 57步",
+    "humanText": "尚无反馈",
+    "link": "批次/R25-行动换取目标信息/README.md",
+    "entry": "研究·定位再搜 / 研究·直接搜寻对照",
+    "math_only": false
+  },
+  {
+    "id": "blockenergy",
+    "name": "整段留力",
+    "batch": "R19 / R21",
+    "group": "时间结构 × 跨回合余力",
+    "status": "可试玩 · 偏好有界",
+    "play": true,
+    "human": false,
+    "stop": true,
+    "rule": "甲5／乙3、三回合；未完成进度清零、完成保留。冷静延续，可花骰恢复。",
+    "finding": "成段与余力有交互；完整伤势核对后，纯完成取消整顿只损失约0.19个百分点。",
+    "boundary": "整顿价值依赖健康偏好，不能把无伤模型优势泛化成实际通关优势。",
+    "math": "组合有界",
+    "native": "39条 / 352步",
+    "humanText": "尚无本批反馈",
+    "link": "批次/R19-阶段转换与多回合组合/README.md",
+    "entry": "研究·整段留力 / 研究·进度保留对照",
+    "math_only": false
+  },
+  {
+    "id": "dice",
+    "name": "按需用骰",
+    "batch": "R15",
+    "group": "资源分配 · 一回合基本模式",
+    "status": "可试玩 · 基础关系",
+    "play": true,
+    "human": false,
+    "stop": false,
+    "rule": "两目标各3共享四骰，乙判定+1，仍用惯用稳险收益。",
+    "finding": "自由69.70%、最优初始分区66.78%；固定交错次序加动态用骰也能最优。",
+    "boundary": "主要是骰子归属随结果改变，不是复杂的目标顺序规划；大能力差距／高成长退化。",
+    "math": "保留基本模式",
+    "native": "正式核对通过",
+    "humanText": "尚无反馈",
+    "link": "批次/R15-能力差异与骰子分配/README.md",
+    "entry": "研究·按需用骰 / 研究·同等判定对照",
+    "math_only": false
+  },
+  {
+    "id": "value",
+    "name": "成果取舍",
+    "batch": "R13",
+    "group": "成果取舍 · 一回合基本模式",
+    "status": "可试玩 · 待体验",
+    "play": true,
+    "human": false,
+    "stop": false,
+    "rule": "两个成果目标3／6、价值1／2；半成品0，容量不足同时全拿。",
+    "finding": "自由期望1.4886、开局选定1.3543；模型约31.05%路径转向。",
+    "boundary": "相同成果价值可能固定选小；高技能可固定选大。结算价值是研究偏好。",
+    "math": "保留基本模式",
+    "native": "正式核对通过",
+    "humanText": "尚无反馈",
+    "link": "批次/R13-启动窗口与成果取舍/README.md",
+    "entry": "研究·成果取舍",
+    "math_only": false
+  },
+  {
+    "id": "window",
+    "name": "择时开窗",
+    "batch": "R13",
+    "group": "时间结构 · 多回合基本模式",
+    "status": "可试玩 · 待体验",
+    "play": true,
+    "human": false,
+    "stop": false,
+    "rule": "前置3保留，完成立即开启本回合后续4；三回合。",
+    "finding": "无伤完成88.49%，只在回合第一手开窗的强参照85.80%。",
+    "boundary": "这是无伤完成事件；窗口可能变固定流程，后续需求再加1会强制更早开。",
+    "math": "保留时机关系",
+    "native": "正式核对通过",
+    "humanText": "尚无反馈",
+    "link": "批次/R13-启动窗口与成果取舍/README.md",
+    "entry": "研究·择时开窗 / 研究·无窗口对照",
+    "math_only": false
+  },
+  {
+    "id": "energy",
+    "name": "留力推进",
+    "batch": "R11",
+    "group": "跨回合余力 · 多回合基本模式",
+    "status": "可试玩 · 待体验",
+    "play": true,
+    "human": false,
+    "stop": false,
+    "rule": "目标10、三回合；花骰推进或恢复2冷静，进度与余力延续。",
+    "finding": "储备不足、技能1时存在补给／推进取舍；数学和正式实现已核对。",
+    "boundary": "强滚动策略接近全局，不能宣称复杂长线规划；真实伤势偏好影响价值。",
+    "math": "保留基本关系",
+    "native": "正式核对通过",
+    "humanText": "尚无反馈",
+    "link": "批次/R11-跨回合余力/README.md",
+    "entry": "研究·留力推进 / 研究·充足余力对照",
+    "math_only": false
+  },
+  {
+    "id": "seeing",
+    "name": "边做边看",
+    "batch": "R09 / R10",
+    "group": "信息结构 · 一回合基本模式",
+    "status": "真人认可基本模式",
+    "play": true,
+    "human": true,
+    "stop": false,
+    "rule": "推进后揭示路线长度，保留投入，可以继续或换路。",
+    "finding": "设计者反馈：有考虑、主要是猜测、愿意再玩；基本模式可保留。",
+    "boundary": "呈现待改善，单回合不替代完整交锋；不是受控盲测或长期体验结论。",
+    "math": "保留基本模式",
+    "native": "正式核对通过",
+    "humanText": "基础关系认可",
+    "link": "批次/R09-成长与行动中的信息/README.md",
+    "entry": "研究·边做边看 / 研究·路线明示对照",
+    "math_only": false
+  },
+  {
+    "id": "block",
+    "name": "整段完成",
+    "batch": "R07 / R10",
+    "group": "时间结构 · 两回合基本模式",
+    "status": "真人认可基本模式",
+    "play": true,
+    "human": true,
+    "stop": false,
+    "rule": "甲5／乙3；半成品回合末清零、完成保留，选择本轮做哪段。",
+    "finding": "设计者认可作为基本模式合格。单回合最大容量不足同时完成两项。",
+    "boundary": "两回合可能全完成；技能3／4固定路线近必胜。尚无完整交锋的体验评价。",
+    "math": "保留基本模式",
+    "native": "正式核对通过",
+    "humanText": "基础关系认可",
+    "link": "批次/R07-顺序与选择权/README.md",
+    "entry": "研究·整段完成",
+    "math_only": false
+  },
+  {
+    "id": "setup",
+    "name": "整备借力",
+    "batch": "首轮 / R06",
+    "group": "行动间关系 · 基础材料",
+    "status": "停止单体深化",
+    "play": false,
+    "human": true,
+    "stop": true,
+    "rule": "一颗骰铺垫，改善下一颗骰的判定。",
+    "finding": "设计者指出低骰铺垫、高骰推进大多成为明显最优流程。",
+    "boundary": "数学例外不足以支持优雅体验。原入口仍存在，当前优先级降低。",
+    "math": "降为基础关系",
+    "native": "历史执行证据",
+    "humanText": "流程化问题",
+    "link": "批次/R06-试玩反馈与收益口径/研究记录.md",
+    "entry": "不推荐本轮优先试玩",
+    "math_only": false
+  },
+  {
+    "id": "asymmetry",
+    "name": "非对称敌人重排",
+    "batch": "R30 / R31",
+    "group": "未来成本 · 纯完成首试",
+    "status": "停止这个参数版本",
+    "play": false,
+    "human": false,
+    "stop": true,
+    "rule": "三敌耐久、伤害、出手时点不同，允许回合内换目标。",
+    "finding": "完整98.0891%、开局择固定顺序98.0338%；四个末回合独立小树审查通过。",
+    "boundary": "只回答纯完成。固定顺序族内部仍优化骰／稳险，非一个简单玩家脚本；不排除其他敌人设计。",
+    "math": "停止单体接入",
+    "native": "尚未接入",
+    "humanText": "尚无反馈",
+    "link": "批次/R30-非对称敌人与重排顺序/研究记录.md",
+    "entry": "无本批新试玩入口",
+    "math_only": true
+  },
+  {
+    "id": "commit",
+    "name": "免费承诺 / 收手保留",
+    "batch": "R17",
+    "group": "选择权与风险暴露 · 边界",
+    "status": "纸面排除 / 数学收窄",
+    "play": false,
+    "human": false,
+    "stop": true,
+    "rule": "免费锁定仅删除选项；另一试验中已有成果可收手兑现，继续坏档全损。",
+    "finding": "免费承诺被策略集合包含排除；收手在首试被高骰优先加一步比较完整解释。",
+    "boundary": "不排除有补偿的承诺、多回合押注或其他停止关系；没有新增入口。",
+    "math": "边界裁决",
+    "native": "尚未接入",
+    "humanText": "尚无反馈",
+    "link": "批次/R17-承诺与收手/研究记录.md",
+    "entry": "无本批新试玩入口",
+    "math_only": true
+  }
+]
+</script>
+<script>
+(()=>{
+'use strict';
+const root=document.getElementById('research-overview');
+const data=JSON.parse(document.getElementById('research-data').textContent);
+const list=root.querySelector('#candidate-list'),detail=root.querySelector('#candidate-detail'),search=root.querySelector('#candidate-search');
+let filter='all',selected='pressure';
+const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function render(){
+const q=search.value.trim().toLowerCase();
+const visible=data.filter(d=>(filter==='all'||d[filter])&&[d.name,d.batch,d.group,d.rule].join(' ').toLowerCase().includes(q));
+if(!visible.some(d=>d.id===selected))selected=visible[0]?.id??null;
+root.querySelector('#visible-count').textContent=`显示 ${visible.length} / ${data.length} 个精选关系`;
+list.innerHTML=visible.length?visible.map(d=>`<button class="candidate" data-id="${escape(d.id)}" aria-pressed="${d.id===selected}"><div class="row"><strong>${escape(d.name)}</strong><span class="badge ${d.human?'human':d.play?'play':''}">${escape(d.status)}</span></div><div class="sub">${escape(d.batch)} · ${escape(d.group)}</div></button>`).join(''):'<div class="empty">没有匹配的关系。可以清空搜索或切换筛选。</div>';
+const d=data.find(d=>d.id===selected);if(!d){detail.innerHTML='<h3>暂无选择</h3><p>筛选不删除历史证据。</p>';return}
+detail.innerHTML=`<div class="kicker">${escape(d.batch)} · ${escape(d.group)}</div><h3>${escape(d.name)}</h3><p>${escape(d.rule)}</p><div class="evidence"><div class="ev on"><b>数学</b>${escape(d.math)}</div><div class="ev ${d.play?'on':'off'}"><b>正式执行</b>${escape(d.native)}</div><div class="ev ${d.human?'on':'wait'}"><b>真人体验</b>${escape(d.humanText)}</div></div><dl><dt>当前判断</dt><dd>${escape(d.finding)}</dd><dt>边界 / 停止理由</dt><dd>${escape(d.boundary)}</dd><dt>${d.play?'正式试玩入口':'交付状态'}</dt><dd>${escape(d.entry)}</dd></dl><a href="${escape(d.link)}">${d.play?'查看试玩说明或对应记录':'查看研究记录'} →</a>`;
+}
+list.addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(b){selected=b.dataset.id;render()}});
+root.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;root.querySelectorAll('.filter').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));render()}));
+search.addEventListener('input',render);render();
+function pressure(p){
+root.querySelectorAll('[data-pressure]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.pressure)===p)));
+const bar=root.querySelector('#pressure-bar');bar.setAttribute('aria-label',`压力${p}，上限5`);bar.innerHTML=Array.from({length:5},(_,i)=>`<span class="cell ${i<p?'filled':''}"></span>`).join('');
+root.querySelector('#recommendation').textContent=p===2?'推进：争取更早完成':'修复：保住下一回合';
+root.querySelector('#scenario-explanation').textContent=p===2?'推进快做后到10，结束时压力4；最后一轮只差2，后续完成机会97.79%。修复则仍差4，后续93.81%。':'推进快做后到10，但两项未修使结束压力到5，立即失败。修好一项后结束压力4，可进入第三回合；后续完成机会87.00%。';
+}
+root.querySelectorAll('[data-pressure]').forEach(b=>b.addEventListener('click',()=>pressure(Number(b.dataset.pressure))));pressure(2);
+function amplitude(result){
+root.querySelectorAll('[data-amplitude]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.amplitude===result)));
+root.querySelector('#amplitude-choice').textContent=result==='neutral'?'位置1：6快做，移动2到3':'位置2：6稳做，移动1到3';
+root.querySelector('#amplitude-explanation').textContent=result==='neutral'?'5的中档移动1，还差2。保留的6保证好档，快做移动2，正好完成。':'5的好档移动2，还差1。保留的6保证好档，稳做移动1，正好完成；快做会越过目标。';
+}
+root.querySelectorAll('[data-amplitude]').forEach(b=>b.addEventListener('click',()=>amplitude(b.dataset.amplitude)));amplitude('neutral');
+
+function feedback(result){
+root.querySelectorAll('[data-feedback]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.feedback===result)));
+root.querySelector('#feedback-choice').textContent=result==='bad'?'仍需4：先用3，再用4':'还差3：先用4，再用3';
+root.querySelector('#feedback-explanation').textContent=result==='bad'?'进度仍为0。两骰必须都得好档，先3完成25.00%，先4只有22.22%；把高骰留到警戒后。':'中档推进1，余下需要3。先4完成72.22%，先3只有63.89%；当前较大的进度机会更值得争取。';
+}
+root.querySelectorAll('[data-feedback]').forEach(b=>b.addEventListener('click',()=>feedback(b.dataset.feedback)));feedback('bad');
+
+function bundle(value){
+root.querySelectorAll('[data-bundle]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.bundle)===value)));
+root.querySelector('#bundle-value').textContent=value===3?'自由期望 2.065076':'自由期望 1.526565';
+root.querySelector('#bundle-explanation').textContent=value===3?'两件额外加1：53.8511%的双完成概率增加同量期望。并未要求改变自由最优策略。':'取消成套额外收益：同一套响应仍达到最优，一件／两件完成分布相同。收益单位不是胜率。';
+}
+root.querySelectorAll('[data-bundle]').forEach(b=>b.addEventListener('click',()=>bundle(Number(b.dataset.bundle))));bundle(3);
+
+function focus(result){
+root.querySelectorAll('[data-focus]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.focus===result)));
+root.querySelector('#focus-choice').textContent=result==='good'?'专注乙：争取较大的成果':'专注甲：保留较小的成果';
+root.querySelector('#focus-explanation').textContent=result==='good'?'乙推进2，还差4，余骰1／1／3；专注乙续局效用37/27，优于专注甲11/12。好档后冷静仍5。':'乙坏档未推进／中档推进1，还差6／5；专注甲续局效用11/12。准备+1帮助完成小项；此时冷静4，不触发伤势。';
+}
+root.querySelectorAll('[data-focus]').forEach(b=>b.addEventListener('click',()=>focus(b.dataset.focus)));focus('low');
+
+})();
+</script>
+</body></html>

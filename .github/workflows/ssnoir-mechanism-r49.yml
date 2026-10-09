@@ -10,6 +10,10 @@ on:
       - 'tools/content-validator/experiments/r50_heuristic_audit.py'
       - 'tools/content-validator/experiments/r50_native_smoke.py'
       - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·动作回声.scm'
+      - 'docs/实验/机制研究/模式库.json'
+      - 'docs/实验/机制研究/研究总览.template.html'
+      - 'docs/实验/机制研究/研究总览.html'
+      - 'tools/content-validator/experiments/build_mechanism_atlas.py'
 permissions:
   contents: read
 jobs:
@@ -23,6 +27,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Verify human-facing research atlas against pattern library
+        run: python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
       - name: Exact structural screening
         run: python3 tools/content-validator/experiments/r49_delayed_target_model.py --output /tmp/r49-screening.json
       - name: Screen R50 reversible prior-action effects
@@ -52,4 +58,6 @@ jobs:
             /tmp/r50-heuristics.json
             /tmp/r49-native.json
             /tmp/r50-native.json
+            docs/实验/机制研究/研究总览.html
+            docs/实验/机制研究/模式库.json
           retention-days: 14
