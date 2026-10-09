@@ -903,6 +903,12 @@ function renderActive() {
     }else e.textContent="新反馈 · "+current+"；填写或试玩后保存。";
   }
 }
+function setActive(value){
+ active=value;
+ if(value)LOCAL.set(ACTIVE_KEY,JSON.stringify(value));
+ else LOCAL.del(ACTIVE_KEY);
+ renderActive();renderRecords();renderReply();
+}
 function reviewerFor(file){return file?reviews.get(file.path)||null:null}
 function progress(){
  const status={};
