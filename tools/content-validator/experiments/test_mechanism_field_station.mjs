@@ -69,7 +69,7 @@ async function openExtra(page){
  const x=page.locator(".feedback-panel > details.quiet-details");
  if(!(await x.evaluate(e=>e.open)))await x.locator("summary").click();
 }
-async function start(page){await page.getByRole("button",{name:/开始四骰实验/}).click()}
+async function start(page){await page.getByRole("button",{name:/开始四骰实验|再玩一局/}).click()}
 async function play(page,goalFn){
  let n=0;
  while(await page.getByRole("button",{name:"执行这一手 →"}).count()){
