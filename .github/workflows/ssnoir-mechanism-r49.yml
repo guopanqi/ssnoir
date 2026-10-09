@@ -8,6 +8,8 @@ on:
       - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·迟到的目标.scm'
       - 'tools/content-validator/experiments/r50_recent_action.py'
       - 'tools/content-validator/experiments/r50_heuristic_audit.py'
+      - 'tools/content-validator/experiments/r50_native_smoke.py'
+      - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·动作回声.scm'
 permissions:
   contents: read
 jobs:
@@ -35,6 +37,10 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/r49_delayed_target_smoke.py | tee /tmp/r49-native.json
+      - name: Real R50 reversible modifier native sessions and strict replay
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r50_native_smoke.py | tee /tmp/r50-native.json
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
@@ -45,4 +51,5 @@ jobs:
             /tmp/r50-screening.json
             /tmp/r50-heuristics.json
             /tmp/r49-native.json
+            /tmp/r50-native.json
           retention-days: 14
