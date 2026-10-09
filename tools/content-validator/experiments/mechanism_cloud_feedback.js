@@ -12,8 +12,12 @@ const REVIEWS = "docs/实验/机制研究/反馈/reviews";
 const API = "https://api.github.com";
 const TOKEN_KEY = "ssnoir/github-feedback-token/v1";
 const ACTIVE_KEY = "ssnoir/github-feedback-active/v1";
+const REPLY_DRAFT_KEY = "ssnoir/research-reply-drafts/v1";
 const MAX_BYTES = 204800;
-let token = "", user = "", active = null, records = [], reviews = new Map(), saving = false;
+let token = "", user = "", active = null, records = [], reviews = new Map(), saving = false, replying = false;
+let replyTarget = null, replyStudy = null;
+let replyDrafts = {};
+try { replyDrafts=JSON.parse(localStorage.getItem(REPLY_DRAFT_KEY)||"{}"); } catch (_) { replyDrafts={}; }
 const $ = id => document.getElementById(id);
 const LOCAL = {
   get(k) { try { return localStorage.getItem(k) || ""; } catch (_) { return ""; } },
@@ -113,13 +117,59 @@ function progress(){
  renderActive();
  renderReply();
 }
+function renderThread(){
+ const box=$("thread-history");if(!box)return;
+ box.replaceChildren();
+ const files=records.filter(x=>x.name.startsWith("SSNoir-feedback-"+app.currentStudy()+"-"))
+  .sort((a,b)=>(a.createdAt||a.updatedAt||"").localeCompare(b.createdAt||b.updatedAt||""));
+ if(!files.length)return;
+ const title=document.createElement("h4");title.textContent="该实验的研究对话 · "+files.length+" 条玩家记录";box.appendChild(title);
+ for(const f of files){
+   const entry=document.createElement("div");entry.className="feedback-file";
+   const content=document.createElement("div");
+   const heading=document.createElement("strong");
+   heading.textContent=f.feedbackKind==="reply"?"你对研究者的补充":"玩家的实验反馈";
+   const desc=document.createElement("p");desc.className="minor";
+   const txt=f.comment||"仅有试玩轨迹";
+   desc.textContent=txt.length>600?txt.slice(0,600)+"…":txt;
+   content.append(heading,desc);
+   const review=reviewerFor(f);
+   if(review){
+     const answer=document.createElement("p");answer.className="minor";
+     answer.textContent="研究者回复："+(review.headline||"已审阅")+
+       (review.feedbackSha!==f.sha?"（回复属于上一版）":"");
+     content.appendChild(answer);
+   }else if(f.feedbackKind==="reply"){
+     const pending=document.createElement("p");pending.className="minor";
+     pending.textContent="已提交给研究队列；下次研究会话审阅。不会即时生成 AI 回复。";
+     content.appendChild(pending);
+   }
+   const action=document.createElement("button");action.className="button ghost tiny";
+   action.textContent="打开记录";action.addEventListener("click",()=>openRecord(f));
+   entry.append(content,action);box.appendChild(entry);
+ }
+}
 function renderReply(){
  const root=$("research-reply");
  if(!root)return;
  root.replaceChildren();
  const id=app.currentStudy(),files=records.filter(x=>x.name.startsWith("SSNoir-feedback-"+id+"-"));
- const relevant=active&&active.studyId===id?records.find(x=>x.path===active.path):files[0];
+ const activeFile=active&&active.studyId===id?records.find(x=>x.path===active.path):null;
+ const relevant=(activeFile&&reviewerFor(activeFile)?activeFile:null)||
+   files.find(x=>reviewerFor(x))||activeFile||files[0];
  const data=reviewerFor(relevant);
+ replyTarget=data&&relevant?{file:relevant,review:data}:null;
+ const composer=$("reply-composer");
+ if(composer)composer.classList.toggle("hidden",!replyTarget);
+ if(replyStudy!==id){
+   replyStudy=id;
+   if($("research-reply-text"))$("research-reply-text").value=replyDrafts[id]||"";
+   if($("reply-status"))$("reply-status").textContent="";
+ }
+ if($("reply-context"))$("reply-context").textContent=replyTarget?
+   "正在回复："+data.headline+"。将新建独立回帖，不改变先前试玩或文字。":
+   "当前尚无可回复的研究者评论；可以先直接提交自己的试玩意见。";
+ renderThread();
  if(!data){
    root.textContent=files.length?
      "已收到你的反馈，正在等待研究者研读并回复。你可以继续编辑；一次体验不等于玩法好坏的裁决。":
@@ -162,7 +212,7 @@ function renderRecords() {
     const info = document.createElement("div");
     const title = document.createElement("h4");
     const study = /SSNoir-feedback-(R\d+)-/.exec(file.name);
-    title.textContent = (study ? study[1] + " · " : "") + "已提交体验";
+    title.textContent = (study ? study[1] + " · " : "") + (file.feedbackKind==="reply"?"回复研究者":"已提交体验");
     const sub = document.createElement("div");
     sub.className = "minor";
     sub.textContent = (file.updatedAt?file.updatedAt.slice(0,16).replace("T"," ")+" · ":"")+file.name+" · main";
@@ -190,6 +240,10 @@ async function refresh() {
         const feedback=JSON.parse(decoded(remote.content||""));
         f.updatedAt=feedback.updatedAt||feedback.createdAt||"";
         f.runCount=Array.isArray(feedback.runs)?feedback.runs.length:0;
+        f.feedbackKind=feedback.feedbackKind||"observation";
+        f.comment=feedback.responses?.mechanicalFeeling||feedback.notes?.join(" · ")||"";
+        f.createdAt=feedback.createdAt||"";
+        f.inReplyTo=feedback.inReplyTo||null;
       }catch(err){f.updatedAt="";console.warn("Feedback timestamp unavailable",f.name,err.message);}
     }));
     records.sort((a,b)=>(b.updatedAt||"").localeCompare(a.updatedAt||"")||b.name.localeCompare(a.name,"en"));
@@ -345,6 +399,53 @@ async function save() {
     else msg("保存失败："+err.message);
   } finally { saving=false; $("gh-save").disabled=false; }
 }
+async function sendResearchReply(){
+ if(replying)return;
+ const textValue=$("research-reply-text")?.value.trim();
+ if(!textValue){$("reply-status").textContent="先写一句你要回复的内容。";return;}
+ if(!replyTarget){$("reply-status").textContent="当前实验尚无研究者回复。请使用普通反馈入口。";return;}
+ if(!token||!user){
+   const connection=$("cloud-connect")?.closest("details");if(connection)connection.open=true;
+   $("reply-status").textContent="先在上方连接 GitHub Token；只需首次连接。";
+   return;
+ }
+ const current=app.currentStudy();
+ const target=replyTarget;
+ if(!target.file.name.startsWith("SSNoir-feedback-"+current+"-")){
+   $("reply-status").textContent="选择的实验已变化，请重试。";return;
+ }
+ replying=true;$("gh-reply").disabled=true;
+ try {
+   // A reply is an entirely new JSON record. Never attach previous play logs,
+   // re-save the original human feedback, or silently mutate its reviewed SHA.
+   const draft=app.currentFeedback();
+   const payload={
+     schema:"ssnoir.mechanism-feedback/v1",studyId:current,studyTitle:draft.studyTitle,
+     createdAt:new Date().toISOString(),environment:draft.environment,
+     source:draft.source,
+     feedbackKind:"reply",
+     inReplyTo:{feedbackPath:target.file.path,feedbackSha:target.review.feedbackSha,
+       headline:target.review.headline||""},
+     responses:{understanding:"",replayInterest:"",decisiveMoment:"",
+       decisionChange:"",mechanicalFeeling:textValue,friction:"",ideas:""},
+     runs:[],notes:[]
+   };
+   validateFeedback(payload);
+   const filePath=makeFileName(current);
+   $("reply-status").textContent="正在提交独立回帖……";
+   const result=await request("PUT","/repos/"+REPO+"/contents/"+endpoint(filePath),
+     {message:"feedback: reply to "+current+" researcher review",
+       content:encoded(safeJson(payload)),branch:"main"});
+   if(!result.content?.sha)throw Error("GitHub 未确认回帖版本");
+   delete replyDrafts[current];
+   LOCAL.set(REPLY_DRAFT_KEY,JSON.stringify(replyDrafts));
+   $("research-reply-text").value="";
+   await refresh();
+   $("reply-status").textContent="已提交新回帖。原始反馈完全保留；下次研究者继续时会读取并回复。";
+ } catch(err){
+   $("reply-status").textContent="提交失败："+err.message+"（文字仍保存在本机）。";
+ } finally {replying=false;$("gh-reply").disabled=false;}
+}
 async function restore() {
   const stored = LOCAL.get(TOKEN_KEY);
   const rawActive = LOCAL.get(ACTIVE_KEY);
@@ -365,6 +466,11 @@ $("gh-token").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefaul
 $("gh-refresh").addEventListener("click",refresh);
 $("gh-disconnect").addEventListener("click",disconnect);
 $("gh-save").addEventListener("click",save);
+$("gh-reply").addEventListener("click",sendResearchReply);
+$("research-reply-text").addEventListener("input",()=>{
+ replyDrafts[app.currentStudy()]=$("research-reply-text").value;
+ LOCAL.set(REPLY_DRAFT_KEY,JSON.stringify(replyDrafts));
+});
 $("gh-new").addEventListener("click",newFeedback);
 window.addEventListener("ssnoir:study-change",e=>{
   if (active && e.detail.studyId !== active.studyId) {
