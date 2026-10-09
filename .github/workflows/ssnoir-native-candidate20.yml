@@ -7,6 +7,7 @@ on:
       - '.github/workflows/ssnoir-native-candidate20.yml'
       - 'docs/实验/机制研究/结构候选20.json'
       - 'tools/content-validator/experiments/smoke_candidate20_native.py'
+      - 'tools/content-validator/experiments/probe_four_scenario_causality.py'
 permissions:
   contents: read
 jobs:
@@ -27,6 +28,8 @@ jobs:
         run: dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --validate
       - name: Enter all twenty source-backed research candidates
         run: python3 tools/content-validator/experiments/smoke_candidate20_native.py /tmp/candidate20-native.json
+      - name: Verify authored scenarios produce their intended causal consequences
+        run: python3 tools/content-validator/experiments/probe_four_scenario_causality.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
