@@ -41,3 +41,9 @@ Browser emulation **cannot** establish that the actual WeChat runtime exposes th
 ## Added target: TapTap Mini Game
 
 WeChat build -> official TapTap WeixinGameConverter 2.0.5 -> `game.zip`; see [TAPTAP-ACCEPTANCE.md](TAPTAP-ACCEPTANCE.md). CI conversion/package/mock tests are distinct from still-pending TapTap native runtime tests.
+
+## WeChat Developer Tools real-world regression (October 9, 2026)
+
+Reported on macOS Developer Tools mg 2.02.2608080, base library 3.17.4: `wx.createOffscreenCanvas` was undefined during Pixi text adapter initialization. The HarmonyOS 3.7.0 message preceding it is unrelated informational text.
+
+`src/wechat/bootstrap.ts` now prefers `wx.createOffscreenCanvas({type:'2d'})` and, when unavailable or unable to create a 2D context, uses **a subsequent `wx.createCanvas()`**, which the Mini Game Canvas contract defines as off-screen after the first on-screen allocation. It validates the 2D context and never aliases the screen canvas. CI tests both the missing API and a throwing API, including a converted TapTap bundle. This is a mitigation candidate; the original reporter must retry Developer Tools to establish actual target compatibility. The next possible runtime gate is whether `getContext('webgl2')` is supported in their environment.

@@ -16,7 +16,10 @@
     "smoke:desktop": "node scripts/smoke-desktop.mjs",
     "smoke:wechat-harness": "node scripts/smoke-wechat-harness.mjs",
     "build:taptap": "npm run build:wechat && node scripts/build-taptap.mjs",
-    "smoke:taptap-harness": "node scripts/smoke-taptap-harness.mjs"
+    "smoke:taptap-harness": "node scripts/smoke-taptap-harness.mjs",
+    "smoke:wechat-no-offscreen": "SSNOIR_WX_CANVAS_MODE=missing npm run smoke:wechat-harness",
+    "smoke:wechat-offscreen-throws": "SSNOIR_WX_CANVAS_MODE=throws npm run smoke:wechat-harness",
+    "smoke:taptap-no-offscreen": "SSNOIR_WX_CANVAS_MODE=missing npm run smoke:taptap-harness"
   },
   "dependencies": {
     "biwascheme": "0.8.3",

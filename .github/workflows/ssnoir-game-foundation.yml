@@ -67,8 +67,14 @@ jobs:
         run: npm run capture
       - name: WeChat compiled bundle on mocked wx browser host
         run: npm run smoke:wechat-harness
+      - name: WeChat no-offscreen Canvas fallback (DevTools regression)
+        run: npm run smoke:wechat-no-offscreen
+      - name: WeChat offscreen API failure fallback
+        run: npm run smoke:wechat-offscreen-throws
       - name: TapTap converted bundle on mocked host
         run: npm run smoke:taptap-harness
+      - name: TapTap no-offscreen Canvas fallback
+        run: npm run smoke:taptap-no-offscreen
       - name: Electron smoke (virtual display)
         run: xvfb-run -a npm run smoke:desktop
       - name: Publish commit validation status

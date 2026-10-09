@@ -42,3 +42,5 @@ TapTap official docs describe platform-specific adapters for JavaScript engines 
 
 - https://developer.taptap.cn/minigameapidoc/dev/engine/Cocos-Laya-Egret/
 - https://developer.taptap.cn/minigameapidoc/tap-operation/operation-standards/review-standards/
+
+The WeChat Canvas compatibility adapter now supports environments without `wx.createOffscreenCanvas`. CI checks this fallback against the converted TapTap output too, but native TapTap Canvas availability still requires device confirmation.

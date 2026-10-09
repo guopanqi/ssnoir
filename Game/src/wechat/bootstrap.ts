@@ -16,15 +16,56 @@ canvas.addEventListener ||= () => {};
 canvas.removeEventListener ||= () => {};
 canvas.getBoundingClientRect ||= () => ({ x: 0, y: 0, left: 0, top: 0, width: canvas.width, height: canvas.height });
 
-const createOffscreenCanvas = (w: number, h: number) => {
-  if (typeof wx.createOffscreenCanvas !== "function") {
-    throw new Error("wx.createOffscreenCanvas is required by Pixi text rendering");
+// WeChat Mini Game Canvas contract: the FIRST wx.createCanvas() is on-screen;
+// every subsequent wx.createCanvas() is off-screen. Some DevTools builds omit
+// createOffscreenCanvas despite supporting secondary 2D canvases.
+let canvasBackend: "offscreen-2d" | "secondary-canvas" | undefined;
+const createOffscreenCanvas = (w: number, h: number): HTMLCanvasElement => {
+  const errors: string[] = [];
+  const prepare = (candidate: any, method: string): HTMLCanvasElement => {
+    if (!candidate || candidate === canvas || typeof candidate.getContext !== "function") {
+      throw new Error(method + " returned an invalid or on-screen canvas");
+    }
+    candidate.width = w;
+    candidate.height = h;
+    if (!candidate.getContext("2d")) {
+      throw new Error(method + " did not provide a 2D rendering context");
+    }
+    candidate.style ||= {};
+    candidate.addEventListener ||= () => {};
+    candidate.removeEventListener ||= () => {};
+    candidate.getBoundingClientRect ||= () => ({
+      x: 0, y: 0, left: 0, top: 0, width: candidate.width, height: candidate.height
+    });
+    return candidate as HTMLCanvasElement;
+  };
+  if (typeof wx.createOffscreenCanvas === "function") {
+    try {
+      const result = prepare(wx.createOffscreenCanvas({ type: "2d", width: w, height: h }), "wx.createOffscreenCanvas");
+      if (!canvasBackend) {
+        canvasBackend = "offscreen-2d";
+        console.log("[SSNoir MiniGame] Pixi 2D canvas backend: wx.createOffscreenCanvas");
+      }
+      return result;
+    } catch (error) {
+      errors.push("createOffscreenCanvas: " + String(error));
+    }
+  } else {
+    errors.push("createOffscreenCanvas: unavailable");
   }
-  const result = wx.createOffscreenCanvas({ type: "2d", width: w, height: h });
-  result.style ||= {};
-  result.addEventListener ||= () => {};
-  result.removeEventListener ||= () => {};
-  return result;
+  // Do NOT create the on-screen canvas here: it must have been allocated above.
+  try {
+    if (typeof wx.createCanvas !== "function") throw new Error("wx.createCanvas unavailable");
+    const result = prepare(wx.createCanvas(), "secondary wx.createCanvas");
+    if (!canvasBackend) {
+      canvasBackend = "secondary-canvas";
+      console.log("[SSNoir MiniGame] Pixi 2D canvas backend: secondary wx.createCanvas");
+    }
+    return result;
+  } catch (error) {
+    errors.push("secondary createCanvas: " + String(error));
+  }
+  throw new Error("WeChat cannot create an off-screen 2D canvas for Pixi text. " + errors.join("; "));
 };
 const offscreen = createOffscreenCanvas(2, 2);
 const ctx = offscreen.getContext("2d");
