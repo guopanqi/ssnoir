@@ -1,0 +1,149 @@
+{
+  "schema": "ssnoir.mechanism-feedback/v1",
+  "studyId": "R50",
+  "studyTitle": "动作回声",
+  "createdAt": "2026-10-09T07:42:41.916Z",
+  "environment": "browser-sketch",
+  "source": {
+    "studyConfigVersion": 1,
+    "atlasVersion": 1,
+    "officialEntry": "encounters/研究·动作回声"
+  },
+  "responses": {
+    "understanding": "",
+    "replayInterest": "",
+    "decisiveMoment": "",
+    "decisionChange": "",
+    "mechanicalFeeling": "我觉得当执行一次之后，它自己有一个修正值，好像的确改变了我下一手的选择。但是就这个实验而言，感觉也没有什么时间，也没有什么目标，也只有一个回合，就是感觉这个策略好像没出来什么效果，而且令人感觉很奇怪，不知道我最终的目标是什么，是获得总的更高的收益呢？还是尽快完成来避免受伤呢？就是我觉得这个想法是有意思的，但是这个关卡设计好像没有很好的体现这个想法。",
+    "friction": "",
+    "ideas": ""
+  },
+  "runs": [
+    {
+      "variant": "echo",
+      "seed": 2193909770,
+      "skill": 1,
+      "handSize": 4,
+      "initialDice": [
+        4,
+        1,
+        4,
+        1
+      ],
+      "startedAt": "2026-10-09T06:37:54.432Z",
+      "completedAt": "2026-10-09T07:41:57.832Z",
+      "actions": [
+        {
+          "index": 1,
+          "target": "A",
+          "die": 4,
+          "dieId": 0,
+          "prepared": 5,
+          "modifier": 0,
+          "odds": [
+            0,
+            2,
+            4
+          ],
+          "rolled": 5,
+          "outcome": "good",
+          "gain": 2,
+          "before": [
+            0,
+            0
+          ],
+          "after": [
+            2,
+            0
+          ],
+          "attacked": null,
+          "hesitated": false,
+          "note": ""
+        },
+        {
+          "index": 2,
+          "target": "B",
+          "die": 4,
+          "dieId": 2,
+          "prepared": 6,
+          "modifier": 1,
+          "odds": [
+            0,
+            1,
+            5
+          ],
+          "rolled": 1,
+          "outcome": "neutral",
+          "gain": 1,
+          "before": [
+            2,
+            0
+          ],
+          "after": [
+            2,
+            1
+          ],
+          "attacked": null,
+          "hesitated": false,
+          "note": ""
+        },
+        {
+          "index": 3,
+          "target": "B",
+          "die": 1,
+          "dieId": 1,
+          "prepared": 1,
+          "modifier": -1,
+          "odds": [
+            3,
+            3,
+            0
+          ],
+          "rolled": 4,
+          "outcome": "neutral",
+          "gain": 1,
+          "before": [
+            2,
+            1
+          ],
+          "after": [
+            2,
+            2
+          ],
+          "attacked": null,
+          "hesitated": false,
+          "note": ""
+        },
+        {
+          "index": 4,
+          "target": "B",
+          "die": 1,
+          "dieId": 3,
+          "prepared": 1,
+          "modifier": -1,
+          "odds": [
+            3,
+            3,
+            0
+          ],
+          "rolled": 5,
+          "outcome": "neutral",
+          "gain": 1,
+          "before": [
+            2,
+            2
+          ],
+          "after": [
+            2,
+            3
+          ],
+          "attacked": null,
+          "hesitated": false,
+          "note": ""
+        }
+      ],
+      "result": "timeout"
+    }
+  ],
+  "notes": []
+}
