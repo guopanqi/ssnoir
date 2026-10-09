@@ -7,6 +7,20 @@ export default defineConfig({
     emptyOutDir: true,
     minify: false,
     sourcemap: true,
+    rollupOptions: {
+      plugins: [{
+        name: "diagnose-lips-doc-overload",
+        generateBundle(_options, bundle) {
+          for (const output of Object.values(bundle)) {
+            if (output.type !== "chunk" || !output.fileName.endsWith(".js")) continue;
+            const needle = 'return e.split("\\n").map((e) => {';
+            if (!output.code.includes(needle)) throw new Error("LIPS diagnostic site moved");
+            output.code = output.code.replace(needle,
+              'if (typeof e !== "string") { console.error("[LIPS doc diagnostic]", typeof e, String(e), new Error().stack); } ' + needle);
+          }
+        }
+      }]
+    },
     lib: {
       entry: "src/wechat/probe.ts",
       name: "SSNoirWeChatFoundation",
