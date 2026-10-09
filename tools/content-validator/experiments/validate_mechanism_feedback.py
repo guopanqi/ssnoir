@@ -59,7 +59,7 @@ def check(path:Path, tasks:dict)->dict:
         assert isinstance(actions,list) and len(actions)<=hand_size
         assert all(isinstance(a,dict) and a.get("target") in ("A","B") and
                    type(a.get("die"))==int and 1<=a["die"]<=6 for a in actions)
-        assert run.get("result") in ("A","B","timeout",None)
+        assert run.get("result") in (("A","B","both","timeout",None) if study=="R55" else ("A","B","timeout",None))
         if "presentation" in run:
             assert study=="R50" and run.get("variant")=="echo"
             assert run["presentation"] in ("goal-explicit","legacy-abstract")
