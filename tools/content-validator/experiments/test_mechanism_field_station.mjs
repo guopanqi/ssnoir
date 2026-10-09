@@ -35,6 +35,15 @@ async function playOne(page,chooseGoal){
 async function expectNoErrors(errors){
   assert.equal(errors.length,0,"Console/browser errors: "+errors.join("\n"));
 }
+async function validatedDownload(download){
+  // Playwright's sandbox path lacks the original .json suffix.
+  // Restore the suggested filename before passing it to the real inbox validator.
+  const original=await download.path();
+  const named=path.join(artifacts,download.suggestedFilename());
+  fs.copyFileSync(original,named);
+  execFileSync("python3",["tools/content-validator/experiments/validate_mechanism_feedback.py",named],{cwd:root});
+  return {file:named,data:JSON.parse(fs.readFileSync(named,"utf8"))};
+}
 try{
  const context=await browser.newContext({viewport:{width:1280,height:920},acceptDownloads:true});
  const page=await context.newPage();
@@ -61,9 +70,9 @@ try{
  let downloadEvent=page.waitForEvent("download");
  await page.locator("#export").click();
  let download=await downloadEvent;
- let file=await download.path();
- const feedback1=JSON.parse(fs.readFileSync(file,"utf8"));
- execFileSync("python3",["tools/content-validator/experiments/validate_mechanism_feedback.py",file],{cwd:root});
+ let exported=await validatedDownload(download);
+ let file=exported.file;
+ const feedback1=exported.data;
  assert.equal(feedback1.schema,"ssnoir.mechanism-feedback/v1");
  assert.equal(feedback1.studyId,"R54");
  assert.equal(feedback1.environment,"browser-sketch");
@@ -92,9 +101,7 @@ try{
  assert.match(await page.locator("#run-summary").innerText(),/1 局/);
  downloadEvent=page.waitForEvent("download");await page.locator("#export").click();
  download=await downloadEvent;
- const feedbackFile2=await download.path();
- execFileSync("python3",["tools/content-validator/experiments/validate_mechanism_feedback.py",feedbackFile2],{cwd:root});
- const feedback2=JSON.parse(fs.readFileSync(feedbackFile2,"utf8"));
+ const feedback2=(await validatedDownload(download)).data;
  assert.equal(feedback2.studyId,"R50");
  assert.equal(feedback2.runs.length,1);
  assert(feedback2.runs[0].actions.some(a=>a.hesitated));
@@ -107,9 +114,7 @@ try{
  await page.locator("#fb-ideas").fill("压力预算：仍然想尝试多人情况");
  downloadEvent=page.waitForEvent("download");await page.locator("#export").click();
  download=await downloadEvent;
- const feedbackFile3=await download.path();
- execFileSync("python3",["tools/content-validator/experiments/validate_mechanism_feedback.py",feedbackFile3],{cwd:root});
- const feedback3=JSON.parse(fs.readFileSync(feedbackFile3,"utf8"));
+ const feedback3=(await validatedDownload(download)).data;
  assert.equal(feedback3.studyId,"R37");
  assert.equal(feedback3.environment,"official-runtime");
  assert.equal(feedback3.runs.length,0);
