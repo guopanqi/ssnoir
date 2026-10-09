@@ -29,6 +29,6 @@ with zipfile.ZipFile(zip_path) as archive:
         raise RuntimeError("ZIP entry differs from converted disk file")
     if b"GameGlobal.fetch" not in code:
         raise RuntimeError("Original converter runtime injection missing")
-    if b"SSNoirWeChatFoundation" not in code:
+    if b"__SSNOIR_WECHAT_FOUNDATION__" not in code:
         raise RuntimeError("SSNoir entry point missing after Babel")
     print(f"PASS: official TapTap 2.0.5 ZIP validated ({zip_path.stat().st_size} bytes, {len(names)} files)")

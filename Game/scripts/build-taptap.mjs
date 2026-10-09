@@ -24,7 +24,7 @@ writeFileSync(join(tools, "wx_converter.py"), code);
 for (const filename of [".babelrc","wx_unity_converter/wx_unity.js","wx_unity_converter/check-version.js"]) {
   copyFileSync(join(vendor, filename), join(tools, filename));
 }
-if (!readFileSync(join(source,"game.js"),"utf8").includes("SSNoirWeChatFoundation"))
+if (!readFileSync(join(source,"game.js"),"utf8").includes("__SSNOIR_WECHAT_FOUNDATION__"))
   throw new Error("Expected packaged SSNoir WeChat IIFE as converter input");
 rmSync(root, { recursive: true, force: true });
 const bins = resolve("node_modules/.bin");
