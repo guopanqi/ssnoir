@@ -1,0 +1,37 @@
+name: SSNoir Game Foundation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'Game/**'
+      - 'UnityClient/Assets/Resources/Content/scripts/stdlib.scm'
+      - '.github/workflows/ssnoir-game-foundation.yml'
+  pull_request:
+    paths:
+      - 'Game/**'
+      - '.github/workflows/ssnoir-game-foundation.yml'
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Game
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+        run: npm install --no-audit --no-fund
+      - name: Verify foundation
+        run: npm run verify
+      - name: Upload build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-game-foundation
+          path: |
+            Game/dist/web
+            Game/dist/wechat
+          retention-days: 7

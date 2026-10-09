@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#101014">
+  <title>SSNoir · Web Foundation</title>
+  <style>
+    html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#101014; }
+    canvas { display:block; width:100%; height:100%; touch-action:none; }
+    #error { position:fixed; bottom:8px; left:8px; right:8px; color:#ffddaa; font:14px sans-serif; white-space:pre-wrap; pointer-events:none; }
+  </style>
+</head>
+<body>
+  <canvas id="game" aria-label="SSNoir 技术验证场景"></canvas>
+  <div id="error" role="status"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

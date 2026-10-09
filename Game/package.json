@@ -1,0 +1,27 @@
+{
+  "name": "ssnoir-game",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs",
+    "build:web": "vite build --outDir dist/web",
+    "build:wechat": "vite build --config vite.wechat.config.ts && node scripts/package-wechat.mjs",
+    "start:desktop": "electron .",
+    "verify": "npm run typecheck && npm test && npm run build:web && npm run build:wechat"
+  },
+  "dependencies": {
+    "biwascheme": "0.8.3",
+    "pixi.js": "8.20.1",
+    "three": "0.186.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.186.0",
+    "electron": "39.0.0",
+    "typescript": "5.9.3",
+    "vite": "8.0.0"
+  }
+}
