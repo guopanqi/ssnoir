@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>基础立绘 · 全身与尺度验收</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070b12;color:#ccd3dc;font:16px Georgia,serif}main{padding:24px}h1{font-size:24px;font-weight:400}p{color:#8b9aaa;line-height:1.6}a{color:#ccb878}.cast{display:grid;grid-template-columns:repeat(auto-fit,240px);gap:24px}.frame{position:relative;width:240px;height:240px;background:#000}.frame img{width:240px;height:240px;display:block}.ground{position:absolute;top:97.65625%;left:0;right:0;border-top:1px solid #8f7952}.center{position:absolute;left:50%;top:0;bottom:0;border-left:1px dashed #273441;pointer-events:none}figure{margin:0}figcaption{padding:8px 0;line-height:1.5;font-size:14px}small{color:#8b9aaa}
+</style><main><a href="./">返回剧场</a><h1>基础立绘 · 全身与尺度验收</h1><p>所有图片以同一画布尺寸显示；金线是统一鞋底基线，虚线是站立落点。相对身高是本轮制作基准，不是角色的厘米身高。这里只检查基础形象，未重绘姿势图。</p><div class="cast" id="cast"></div></main>
+<script type="module">
+const response=await fetch('assets/base-cast/加工记录.json');if(!response.ok)throw Error('基础立绘加工记录缺失');
+for(const actor of await response.json()){
+ const figure=document.createElement('figure');const frame=document.createElement('div');frame.className='frame';
+ const image=new Image();image.src=`assets/base-cast/${encodeURIComponent(actor.name)}.png`;image.alt=actor.name;frame.append(image);
+ for(const cls of ['ground','center']){const line=document.createElement('div');line.className=cls;frame.append(line)}
+ const caption=document.createElement('figcaption');caption.textContent=`${actor.name} · 相对身高 ${(actor.bodyPixels/800).toFixed(2)}`;
+ figure.append(frame,caption);document.querySelector('#cast').append(figure);
+}
+</script></html>

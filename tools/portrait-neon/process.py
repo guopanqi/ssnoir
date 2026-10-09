@@ -369,6 +369,12 @@ def process(name, force=False):
         "skeleton_size": SKELETON_SIZE,
         "paths": paths,
     }
+    # 基础立绘的接地点位于统一画布内部；姿势图暂沿用原来的画布底边。
+    base_manifest = os.path.join(ROOT, "角色库", "基础立绘", "制作基准.json")
+    with open(base_manifest, encoding="utf-8") as f:
+        base = json.load(f)
+    if name in {actor["name"] for actor in base["characters"]}:
+        data["ground"] = base["ground"] / base["canvas"]
     with open(outputs[2], "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
     total = sum(path_length(p) for p in paths)

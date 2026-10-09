@@ -1,0 +1,150 @@
+{
+  "canvas": 1024,
+  "ground": 1000,
+  "center": 512,
+  "referenceBodyPixels": 800,
+  "reference": "尼尔",
+  "description": "相对站立身高的制作基准，并非剧情中的厘米身高；crownInset 为从轮廓顶点到估计头顶的源像素距离，排除帽子和蓬松头发；源图与成品保留用于复核。",
+  "characters": [
+    {
+      "name": "夜莺",
+      "source": "角色库/基础立绘/源图/夜莺.png",
+      "relativeHeight": 0.94,
+      "crownInset": 62,
+      "footCenter": null
+    },
+    {
+      "name": "尼尔",
+      "source": "角色库/基础立绘/源图/尼尔.png",
+      "relativeHeight": 1,
+      "crownInset": 32,
+      "footCenter": null
+    },
+    {
+      "name": "弗兰克",
+      "source": "角色库/基础立绘/源图/弗兰克.png",
+      "relativeHeight": 1.04,
+      "crownInset": 41,
+      "footCenter": null
+    },
+    {
+      "name": "林",
+      "source": "角色库/基础立绘/源图/林.png",
+      "relativeHeight": 1.01,
+      "crownInset": 17,
+      "footCenter": null
+    },
+    {
+      "name": "沃尔特",
+      "source": "角色库/基础立绘/源图/沃尔特.png",
+      "relativeHeight": 0.98,
+      "crownInset": 18,
+      "footCenter": null
+    },
+    {
+      "name": "码头工人",
+      "source": "角色库/基础立绘/源图/码头工人.png",
+      "relativeHeight": 1,
+      "crownInset": 38,
+      "footCenter": null
+    },
+    {
+      "name": "经理",
+      "source": "角色库/基础立绘/源图/经理.png",
+      "relativeHeight": 0.96,
+      "crownInset": 9,
+      "footCenter": null
+    },
+    {
+      "name": "艾迪",
+      "source": "角色库/基础立绘/源图/艾迪.png",
+      "relativeHeight": 1.05,
+      "crownInset": 9,
+      "footCenter": null
+    },
+    {
+      "name": "莱恩",
+      "source": "角色库/基础立绘/源图/莱恩.png",
+      "relativeHeight": 1.01,
+      "crownInset": 70,
+      "footCenter": null
+    },
+    {
+      "name": "薇拉",
+      "source": "角色库/基础立绘/源图/薇拉.png",
+      "relativeHeight": 0.98,
+      "crownInset": 64,
+      "footCenter": null
+    },
+    {
+      "name": "贝恩斯",
+      "source": "角色库/基础立绘/源图/贝恩斯.png",
+      "relativeHeight": 0.97,
+      "crownInset": 12,
+      "footCenter": null
+    },
+    {
+      "name": "路人女",
+      "source": "角色库/基础立绘/源图/路人女.png",
+      "relativeHeight": 0.94,
+      "crownInset": 17,
+      "footCenter": null
+    },
+    {
+      "name": "路人女2",
+      "source": "角色库/基础立绘/源图/路人女2.png",
+      "relativeHeight": 0.95,
+      "crownInset": 13,
+      "footCenter": null
+    },
+    {
+      "name": "路人男",
+      "source": "角色库/基础立绘/源图/路人男.png",
+      "relativeHeight": 1,
+      "crownInset": 0,
+      "footCenter": null
+    },
+    {
+      "name": "路人男2",
+      "source": "角色库/基础立绘/源图/路人男2.png",
+      "relativeHeight": 1.02,
+      "crownInset": 0,
+      "footCenter": null
+    },
+    {
+      "name": "送酒工",
+      "source": "角色库/基础立绘/源图/送酒工.png",
+      "relativeHeight": 0.98,
+      "crownInset": 30,
+      "footCenter": null
+    },
+    {
+      "name": "酒保",
+      "source": "角色库/基础立绘/源图/酒保.png",
+      "relativeHeight": 0.99,
+      "crownInset": 7,
+      "footCenter": null
+    },
+    {
+      "name": "酒客乙",
+      "source": "角色库/基础立绘/源图/酒客乙.png",
+      "relativeHeight": 1,
+      "crownInset": 30,
+      "footCenter": null
+    },
+    {
+      "name": "酒客甲",
+      "source": "角色库/基础立绘/源图/酒客甲.png",
+      "relativeHeight": 1.02,
+      "crownInset": 7,
+      "footCenter": null
+    },
+    {
+      "name": "黑影",
+      "source": "角色库/基础立绘/源图/黑影.png",
+      "relativeHeight": 1,
+      "crownInset": 0,
+      "footCenter": null
+    }
+  ]
+}

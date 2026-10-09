@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using SSNoir.Theatre;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -14,6 +15,7 @@ namespace SSNoir.UnityTheatre
         private readonly Dictionary<string, Mesh> _meshes = new(StringComparer.Ordinal);
         private readonly Dictionary<string, Texture2D> _images = new(StringComparer.Ordinal);
         private readonly Dictionary<string, Texture2D> _silhouettes = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, float> _footOffsets = new(StringComparer.Ordinal);
         private readonly Dictionary<string, Matrix4x4> _matrices = new(StringComparer.Ordinal);
         private readonly Dictionary<string, float> _opacity = new(StringComparer.Ordinal), _brightness = new(StringComparer.Ordinal);
         private readonly Material _material;
@@ -45,8 +47,17 @@ namespace SSNoir.UnityTheatre
             if (_images.ContainsKey(asset)) return;
             _images.Add(asset, Resources.Load<Texture2D>(asset) ?? throw new InvalidOperationException("theatre image missing: " + asset));
             if (asset.StartsWith("Portraits/Neon/", StringComparison.Ordinal))
+            {
                 _silhouettes.Add(asset, Resources.Load<Texture2D>(asset + "_silhouette")
                     ?? throw new InvalidOperationException("theatre portrait silhouette missing: " + asset));
+                var metadata = Resources.Load<TextAsset>(asset + ".neon")
+                    ?? throw new InvalidOperationException("theatre portrait metadata missing: " + asset);
+                var anchor = JObject.Parse(metadata.text);
+                float ground = anchor.TryGetValue("ground", out var value) ? value.Value<float>() : 1f;
+                if (float.IsNaN(ground) || float.IsInfinity(ground) || ground <= 0f || ground > 1f)
+                    throw new InvalidOperationException("theatre portrait ground invalid: " + asset);
+                _footOffsets.Add(asset, 1f - ground);
+            }
         }
         public void Render(TheatreSession session, int width, int height, float contentScale = 1f, float focusStrength = .5f, float dither = 1.5f / 255f)
         {
@@ -90,7 +101,10 @@ namespace SSNoir.UnityTheatre
             {
                 if (!_meshes.TryGetValue(node.Id, out var mesh)) continue;
                 _properties.Clear();
-                _properties.SetMatrix("_SceneTransform", _matrices[node.Id]);
+                var imageTransform = _matrices[node.Id];
+                if (node.Shape == TheatreShape.Image && _footOffsets.TryGetValue(session.Objects[node.Id].Asset, out float footOffset))
+                    imageTransform *= Matrix4x4.Translate(new Vector3(0f, node.Height * footOffset, 0f));
+                _properties.SetMatrix("_SceneTransform", imageTransform);
                 _properties.SetMatrix("_SceneToClip", projection);
                 float brightness = _brightness[node.Id];
                 var tint = ColorOf(node.Color); tint.a *= _opacity[node.Id];

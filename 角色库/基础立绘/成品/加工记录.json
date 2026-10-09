@@ -1,0 +1,382 @@
+[
+  {
+    "name": "夜莺",
+    "source": "角色库/基础立绘/源图/夜莺.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      443,
+      74,
+      768,
+      1211
+    ],
+    "crown": 136,
+    "footCenter": 640.5,
+    "scale": 0.6995348837209302,
+    "ground": 1000,
+    "bodyPixels": 752
+  },
+  {
+    "name": "尼尔",
+    "source": "角色库/基础立绘/源图/尼尔.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      480,
+      52,
+      865,
+      1190
+    ],
+    "crown": 84,
+    "footCenter": 649.5,
+    "scale": 0.7233273056057866,
+    "ground": 1000,
+    "bodyPixels": 800
+  },
+  {
+    "name": "弗兰克",
+    "source": "角色库/基础立绘/源图/弗兰克.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      372,
+      42,
+      887,
+      1200
+    ],
+    "crown": 83,
+    "footCenter": 627,
+    "scale": 0.7448522829006267,
+    "ground": 1000,
+    "bodyPixels": 832
+  },
+  {
+    "name": "林",
+    "source": "角色库/基础立绘/源图/林.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      452,
+      50,
+      915,
+      1199
+    ],
+    "crown": 67,
+    "footCenter": 642,
+    "scale": 0.7137809187279152,
+    "ground": 1000,
+    "bodyPixels": 808
+  },
+  {
+    "name": "沃尔特",
+    "source": "角色库/基础立绘/源图/沃尔特.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      269,
+      57,
+      744,
+      961
+    ],
+    "crown": 75,
+    "footCenter": 540,
+    "scale": 0.8848758465011287,
+    "ground": 1000,
+    "bodyPixels": 784
+  },
+  {
+    "name": "码头工人",
+    "source": "角色库/基础立绘/源图/码头工人.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      399,
+      82,
+      820,
+      1171
+    ],
+    "crown": 120,
+    "footCenter": 630,
+    "scale": 0.7611798287345385,
+    "ground": 1000,
+    "bodyPixels": 800
+  },
+  {
+    "name": "经理",
+    "source": "角色库/基础立绘/源图/经理.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      267,
+      68,
+      782,
+      955
+    ],
+    "crown": 77,
+    "footCenter": 491,
+    "scale": 0.8747152619589977,
+    "ground": 1000,
+    "bodyPixels": 768
+  },
+  {
+    "name": "艾迪",
+    "source": "角色库/基础立绘/源图/艾迪.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      405,
+      42,
+      836,
+      1193
+    ],
+    "crown": 51,
+    "footCenter": 626,
+    "scale": 0.7355516637478109,
+    "ground": 1000,
+    "bodyPixels": 840
+  },
+  {
+    "name": "莱恩",
+    "source": "角色库/基础立绘/源图/莱恩.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      418,
+      34,
+      885,
+      1202
+    ],
+    "crown": 104,
+    "footCenter": 639.5,
+    "scale": 0.7358834244080146,
+    "ground": 1000,
+    "bodyPixels": 808
+  },
+  {
+    "name": "薇拉",
+    "source": "角色库/基础立绘/源图/薇拉.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      478,
+      47,
+      786,
+      1201
+    ],
+    "crown": 111,
+    "footCenter": 639,
+    "scale": 0.7192660550458716,
+    "ground": 1000,
+    "bodyPixels": 784
+  },
+  {
+    "name": "贝恩斯",
+    "source": "角色库/基础立绘/源图/贝恩斯.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      392,
+      52,
+      890,
+      1204
+    ],
+    "crown": 64,
+    "footCenter": 634.5,
+    "scale": 0.6807017543859649,
+    "ground": 1000,
+    "bodyPixels": 776
+  },
+  {
+    "name": "路人女",
+    "source": "角色库/基础立绘/源图/路人女.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      455,
+      64,
+      795,
+      1193
+    ],
+    "crown": 81,
+    "footCenter": 625,
+    "scale": 0.6762589928057554,
+    "ground": 1000,
+    "bodyPixels": 752
+  },
+  {
+    "name": "路人女2",
+    "source": "角色库/基础立绘/源图/路人女2.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      377,
+      78,
+      647,
+      945
+    ],
+    "crown": 91,
+    "footCenter": 475.5,
+    "scale": 0.8899297423887588,
+    "ground": 1000,
+    "bodyPixels": 760
+  },
+  {
+    "name": "路人男",
+    "source": "角色库/基础立绘/源图/路人男.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      350,
+      78,
+      673,
+      945
+    ],
+    "crown": 78,
+    "footCenter": 511,
+    "scale": 0.922722029988466,
+    "ground": 1000,
+    "bodyPixels": 800
+  },
+  {
+    "name": "路人男2",
+    "source": "角色库/基础立绘/源图/路人男2.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      363,
+      63,
+      660,
+      960
+    ],
+    "crown": 63,
+    "footCenter": 512,
+    "scale": 0.9096989966555183,
+    "ground": 1000,
+    "bodyPixels": 816
+  },
+  {
+    "name": "送酒工",
+    "source": "角色库/基础立绘/源图/送酒工.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      347,
+      79,
+      673,
+      945
+    ],
+    "crown": 109,
+    "footCenter": 499.5,
+    "scale": 0.937799043062201,
+    "ground": 1000,
+    "bodyPixels": 784
+  },
+  {
+    "name": "酒保",
+    "source": "角色库/基础立绘/源图/酒保.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      340,
+      79,
+      683,
+      944
+    ],
+    "crown": 86,
+    "footCenter": 514,
+    "scale": 0.9230769230769231,
+    "ground": 1000,
+    "bodyPixels": 792
+  },
+  {
+    "name": "酒客乙",
+    "source": "角色库/基础立绘/源图/酒客乙.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      346,
+      76,
+      818,
+      945
+    ],
+    "crown": 106,
+    "footCenter": 511.5,
+    "scale": 0.9535160905840286,
+    "ground": 1000,
+    "bodyPixels": 800
+  },
+  {
+    "name": "酒客甲",
+    "source": "角色库/基础立绘/源图/酒客甲.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      275,
+      79,
+      803,
+      945
+    ],
+    "crown": 86,
+    "footCenter": 518.5,
+    "scale": 0.9499417927823051,
+    "ground": 1000,
+    "bodyPixels": 816
+  },
+  {
+    "name": "黑影",
+    "source": "角色库/基础立绘/源图/黑影.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      350,
+      78,
+      673,
+      945
+    ],
+    "crown": 78,
+    "footCenter": 511,
+    "scale": 0.922722029988466,
+    "ground": 1000,
+    "bodyPixels": 800
+  }
+]
