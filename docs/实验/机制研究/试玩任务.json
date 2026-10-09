@@ -1,12 +1,12 @@
 {
   "version": 1,
   "updated": "2026-10-09",
-  "headline": "决定下一轮研究方向，需要哪些真人证据？",
-  "intro": "我们研究的是抽象决策关系：玩家为什么改变目标、顺序和分配，而非故事、美术或最大化胜率。真人的犹豫、理解和重复感不能被求解器替代。",
+  "headline": "哪几种决策关系值得继续验证？",
+  "intro": "每种实验的贡献可能是开局承诺、过程调整、目标权衡或信息判断。人类反馈用于发现实际决策和表达问题，不用于给模式直接打好坏分。",
   "current": [
-    "54个编号研究批次（R01–R54；R48未执行）",
-    "六种精选模式，非六个已证实好玩的系统",
-    "R54通过15局正式C#会话，R50通过12局正式C#会话"
+    "R54 首轮人类反馈：五局网页试玩，识别出开局成果选择的价值及中途换线的容量限制",
+    "R54 已有研究者回复；反馈更新后需要重新审阅",
+    "R50 与 R37 当前仍缺真人观察，数学和正式运行记录独立保留"
   ],
   "nonPromoted": [
     {
@@ -31,8 +31,8 @@
       "patternId": "reactive",
       "rank": 1,
       "title": "对手追击领先目标",
-      "badge": "最希望先试玩",
-      "stage": "正式规则已验证 · 真人未评",
+      "badge": "已有首轮研究回复",
+      "stage": "已收到首轮人类反馈 · 可继续补充",
       "mode": "browser-demo",
       "browserVariant": "reactive",
       "estimatedMinutes": "约 3–5 分钟",
@@ -41,18 +41,18 @@
       "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm",
       "record": "批次/R51-R54-结构广度探索/研究记录.md",
       "sourceRun": "https://github.com/guopanqi/ssnoir/actions/runs/37887824281",
-      "askBefore": "先按你自己的理解行动，不必追求最高收益；第一局尽量别看研究者求解结论。",
+      "askBefore": "无需刻意追求中途换目标。如果你的策略是在开局看骰面选择甲或乙，也请记录为什么。",
       "observe": [
-        "你能不能自然预测对手下一次攻击哪项？",
-        "你是否因为预计遭到攻击而改变了推进顺序？",
-        "如果发现某条简单口诀，你愿不愿继续玩？"
+        "开局看完四颗骰，你在甲短收益低和乙长收益高之间怎样取舍？",
+        "第2手后你是否有过换目标的念头？当时剩余资源能否支持？",
+        "对手按领先进度攻击，是你的思考来源还是只是阻碍？"
       ],
       "askAfter": [
-        "第一次真正改变原计划发生在哪里？",
-        "对手的反应能帮助你思考，还是增加机械算计？",
-        "你觉得这套规则下一局还会出现新判断吗？"
+        "开局选择和中途调整，哪一个更有意思？",
+        "如果行动容量更多，中途转向会更值得尝试吗？",
+        "你认为这个结构最该保留的是什么？"
       ],
-      "purpose": "寻找有意引导攻击的决策，而不是证明模型期望效用高。",
+      "purpose": "分别考察开局收益—可达性取舍，与过程中由对手响应引发的调整；任何一项成立都有研究价值。",
       "officialNote": "浏览器为规则一致性目标的简化实现，并非调用正式 Scheme；若在Unity或本地C#中试玩，请在反馈中选择「正式规则」。"
     },
     {
@@ -137,6 +137,188 @@
       ],
       "purpose": "识别该基础结构是否值得在未来与其他机制组合。",
       "officialNote": "仅开放正式 Unity / C# 入口；没有为此重复制作一个浏览器引擎。"
+    },
+    {
+      "id": "R06",
+      "patternId": null,
+      "rank": 5,
+      "title": "稳险选择",
+      "badge": "历史原型",
+      "stage": "正式规则可查询 · 可选体验",
+      "mode": "official-only",
+      "estimatedMinutes": "约 5–10 分钟",
+      "intro": "比较安全的低波动行动与冒险的高收益行动。",
+      "experiment": "encounters/研究·稳险选择",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·稳险选择.scm",
+      "record": "批次/R06-试玩反馈与收益口径/研究记录.md",
+      "sourceRun": "",
+      "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
+      "observe": [
+        "什么情况下你会改变开局选择？",
+        "是否存在明显的固定口诀，或者真正需要重新判断？"
+      ],
+      "askAfter": [
+        "最值得保留的决策是哪一种？",
+        "你觉得它适合独立成玩法，还是更适合与其他结构组合？"
+      ],
+      "purpose": "补充历史抽象关系的真实体验证据，不预设好坏。",
+      "officialNote": "目前只有正式 Unity/C# + Scheme 入口。请不要把数学报告当真人试玩。"
+    },
+    {
+      "id": "R09",
+      "patternId": null,
+      "rank": 6,
+      "title": "边做边看",
+      "badge": "历史原型",
+      "stage": "正式规则可查询 · 可选体验",
+      "mode": "official-only",
+      "estimatedMinutes": "约 5–10 分钟",
+      "intro": "推进路线同时揭示信息，判断是否继续投入。",
+      "experiment": "encounters/研究·边做边看",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·边做边看.scm",
+      "record": "批次/R09-成长与行动中的信息/研究记录.md",
+      "sourceRun": "",
+      "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
+      "observe": [
+        "什么情况下你会改变开局选择？",
+        "是否存在明显的固定口诀，或者真正需要重新判断？"
+      ],
+      "askAfter": [
+        "最值得保留的决策是哪一种？",
+        "你觉得它适合独立成玩法，还是更适合与其他结构组合？"
+      ],
+      "purpose": "补充历史抽象关系的真实体验证据，不预设好坏。",
+      "officialNote": "目前只有正式 Unity/C# + Scheme 入口。请不要把数学报告当真人试玩。"
+    },
+    {
+      "id": "R11",
+      "patternId": null,
+      "rank": 7,
+      "title": "留力推进",
+      "badge": "历史原型",
+      "stage": "正式规则可查询 · 可选体验",
+      "mode": "official-only",
+      "estimatedMinutes": "约 5–10 分钟",
+      "intro": "有限冷静和持续目标之间的行动分配。",
+      "experiment": "encounters/研究·留力推进",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·留力推进.scm",
+      "record": "批次/R11-跨回合余力/研究记录.md",
+      "sourceRun": "",
+      "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
+      "observe": [
+        "什么情况下你会改变开局选择？",
+        "是否存在明显的固定口诀，或者真正需要重新判断？"
+      ],
+      "askAfter": [
+        "最值得保留的决策是哪一种？",
+        "你觉得它适合独立成玩法，还是更适合与其他结构组合？"
+      ],
+      "purpose": "补充历史抽象关系的真实体验证据，不预设好坏。",
+      "officialNote": "目前只有正式 Unity/C# + Scheme 入口。请不要把数学报告当真人试玩。"
+    },
+    {
+      "id": "R13",
+      "patternId": null,
+      "rank": 8,
+      "title": "成果取舍",
+      "badge": "历史原型",
+      "stage": "正式规则可查询 · 可选体验",
+      "mode": "official-only",
+      "estimatedMinutes": "约 5–10 分钟",
+      "intro": "有限行动只能兑现部分成果，比较小目标和大目标。",
+      "experiment": "encounters/研究·成果取舍",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·成果取舍.scm",
+      "record": "批次/R13-启动窗口与成果取舍/研究记录.md",
+      "sourceRun": "",
+      "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
+      "observe": [
+        "什么情况下你会改变开局选择？",
+        "是否存在明显的固定口诀，或者真正需要重新判断？"
+      ],
+      "askAfter": [
+        "最值得保留的决策是哪一种？",
+        "你觉得它适合独立成玩法，还是更适合与其他结构组合？"
+      ],
+      "purpose": "补充历史抽象关系的真实体验证据，不预设好坏。",
+      "officialNote": "目前只有正式 Unity/C# + Scheme 入口。请不要把数学报告当真人试玩。"
+    },
+    {
+      "id": "R15",
+      "patternId": null,
+      "rank": 9,
+      "title": "按需用骰",
+      "badge": "历史原型",
+      "stage": "正式规则可查询 · 可选体验",
+      "mode": "official-only",
+      "estimatedMinutes": "约 5–10 分钟",
+      "intro": "两项目判定不同，在同一骰池中重新分配。",
+      "experiment": "encounters/研究·按需用骰",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·按需用骰.scm",
+      "record": "批次/R15-能力差异与骰子分配/README.md",
+      "sourceRun": "",
+      "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
+      "observe": [
+        "什么情况下你会改变开局选择？",
+        "是否存在明显的固定口诀，或者真正需要重新判断？"
+      ],
+      "askAfter": [
+        "最值得保留的决策是哪一种？",
+        "你觉得它适合独立成玩法，还是更适合与其他结构组合？"
+      ],
+      "purpose": "补充历史抽象关系的真实体验证据，不预设好坏。",
+      "officialNote": "目前只有正式 Unity/C# + Scheme 入口。请不要把数学报告当真人试玩。"
+    },
+    {
+      "id": "R19",
+      "patternId": null,
+      "rank": 10,
+      "title": "整段留力",
+      "badge": "历史原型",
+      "stage": "正式规则可查询 · 可选体验",
+      "mode": "official-only",
+      "estimatedMinutes": "约 5–10 分钟",
+      "intro": "跨回合累积与整段完成的规划。",
+      "experiment": "encounters/研究·整段留力",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整段留力.scm",
+      "record": "批次/R19-阶段转换与多回合组合/研究记录.md",
+      "sourceRun": "",
+      "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
+      "observe": [
+        "什么情况下你会改变开局选择？",
+        "是否存在明显的固定口诀，或者真正需要重新判断？"
+      ],
+      "askAfter": [
+        "最值得保留的决策是哪一种？",
+        "你觉得它适合独立成玩法，还是更适合与其他结构组合？"
+      ],
+      "purpose": "补充历史抽象关系的真实体验证据，不预设好坏。",
+      "officialNote": "目前只有正式 Unity/C# + Scheme 入口。请不要把数学报告当真人试玩。"
+    },
+    {
+      "id": "R25",
+      "patternId": null,
+      "rank": 11,
+      "title": "定位再搜",
+      "badge": "历史原型",
+      "stage": "正式规则可查询 · 可选体验",
+      "mode": "official-only",
+      "estimatedMinutes": "约 5–10 分钟",
+      "intro": "是否花行动定位目标，再集中搜索。",
+      "experiment": "encounters/研究·定位再搜",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm",
+      "record": "批次/R25-行动换取目标信息/研究记录.md",
+      "sourceRun": "",
+      "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
+      "observe": [
+        "什么情况下你会改变开局选择？",
+        "是否存在明显的固定口诀，或者真正需要重新判断？"
+      ],
+      "askAfter": [
+        "最值得保留的决策是哪一种？",
+        "你觉得它适合独立成玩法，还是更适合与其他结构组合？"
+      ],
+      "purpose": "补充历史抽象关系的真实体验证据，不预设好坏。",
+      "officialNote": "目前只有正式 Unity/C# + Scheme 入口。请不要把数学报告当真人试玩。"
     }
   ],
   "feedbackFields": [

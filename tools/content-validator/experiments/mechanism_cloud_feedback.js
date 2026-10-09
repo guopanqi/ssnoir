@@ -24,7 +24,7 @@ const msg = text => { $("gh-operation").textContent = text; };
 const endpoint = path => path.split("/").map(encodeURIComponent).join("/");
 const inInbox = path => typeof path === "string" &&
   path.startsWith(DIR + "/") &&
-  /^SSNoir-feedback-(R37|R49|R50|R54)-[a-zA-Z0-9._-]+\.json$/.test(path.slice(DIR.length + 1));
+  /^SSNoir-feedback-R\d{2}-[a-zA-Z0-9._-]+\.json$/.test(path.slice(DIR.length + 1));
 const fileLabel = path => path.slice(DIR.length + 1);
 const safeJson = object => {
   const text = JSON.stringify(object, null, 2) + "\n";
