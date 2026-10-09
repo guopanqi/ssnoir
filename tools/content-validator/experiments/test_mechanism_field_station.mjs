@@ -100,10 +100,13 @@ try{
  assert.equal(await page.locator("#overview:not(.hidden)").count(),1,"overview opens first");
  assert.equal(await page.locator("#wb-focus-title").textContent()!=="",true);
  await page.locator('.desk-nav a[href="#map"]').click();
- assert.equal(await page.locator("#map:not(.hidden) .wb-pattern").count(),6);
+ await page.waitForFunction(()=>!document.querySelector("#map").classList.contains("hidden"));
+ assert.equal(await page.locator("#map .wb-pattern").count(),6);
  await page.locator('.wb-filter[data-filter="untried"]').click();
- assert.equal(await page.locator("#map:not(.hidden) .wb-pattern").count(),3);
+ await page.waitForFunction(()=>document.querySelectorAll("#map .wb-pattern").length===3);
+ assert.equal(await page.locator("#map .wb-pattern").count(),3);
  await page.locator('.desk-nav a[href="#experiments"]').click();
+ await page.waitForFunction(()=>!document.querySelector("#experiments").classList.contains("hidden"));
  assert.equal(await page.locator("#experiments:not(.hidden)").count(),1);
  await waitSync(page);
  assert.equal(await row(page,"R54").count(),1);
