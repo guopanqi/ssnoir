@@ -13,6 +13,7 @@ on:
       - 'tools/content-validator/experiments/mechanism_cloud_feedback.js'
       - 'tools/content-validator/experiments/mechanism_workbench.css'
       - 'tools/content-validator/experiments/mechanism_workbench.js'
+      - 'experiments/research-workbench-gpt6/**'
 permissions:
   contents: read
   pages: write
@@ -37,6 +38,8 @@ jobs:
           python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
           mkdir -p pages-dist
           cp docs/实验/机制研究/研究总览.html pages-dist/index.html
+          mkdir -p pages-dist/open-field
+          cp experiments/research-workbench-gpt6/index.html pages-dist/open-field/index.html
           touch pages-dist/.nojekyll
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
