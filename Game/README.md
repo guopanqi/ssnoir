@@ -8,7 +8,7 @@ This is the planned **only** game project. Legacy C#/Unity code is retained duri
 - WeChat: \`src/wechat/bootstrap.ts\` exposes a deliberately *minimal* WX Canvas/browser compatibility surface; \`src/wechat/probe.ts\` installs a Pixi \`DOMAdapter\`.
 - **Both hosts execute the same \`src/foundation/render.ts\`** using Three.js, PixiJS, a single WebGL context, and a persistent BiwaScheme VM.
 - Desktop/Electron opens the exact same browser bundle via \`desktop/main.cjs\`.
-- Scheme is currently a compatibility probe only. The existing \`.scm\` content remains in \`UnityClient/Assets/Resources/Content\`, without a second copy. Game rules/native functions are not yet migrated.
+- Scheme is currently a compatibility probe only. **BiwaScheme 0.8.3 fails isolation across Interpreter instances**; see `docs/SCHEME-CANDIDATES.md`. LIPS is being tested as a separate candidate. The existing \`.scm\` content remains in \`UnityClient/Assets/Resources/Content\`, without a second copy. Game rules/native functions are not yet migrated.
 
 ## Test commands (from Game/)
 
