@@ -35,6 +35,19 @@ jobs:
         run: python3 tools/content-validator/experiments/r50_recent_action.py > /tmp/r50-screening.json
       - name: R50 interpretable heuristic audit
         run: python3 tools/content-validator/experiments/r50_heuristic_audit.py --output /tmp/r50-heuristics.json
+      - name: Print R50 heuristic policy differences
+        run: |
+          python3 - <<'PY'
+          import json
+          data=json.load(open("/tmp/r50-heuristics.json",encoding="utf-8"))
+          for row in data["results"]:
+              print(json.dumps({"skill":row["skill"],
+                                "free":row["expectation"]["free"],
+                                "fixed":row["expectation"]["fixed"],
+                                "rule":row["expectation"]["understandable"],
+                                "unexplained_rule_gap":row["remaining_gap_vs_rules"]},
+                               ensure_ascii=False))
+          PY
       - name: Build official headless engine
         run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
       - name: Validate the one official Content tree
