@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/ssnoir-mechanism-feedback.yml'
       - 'docs/实验/机制研究/反馈/inbox/**'
+      - 'docs/实验/机制研究/反馈/reviews/**'
+      - 'tools/content-validator/experiments/validate_mechanism_reviews.py'
       - 'docs/实验/机制研究/试玩任务.json'
       - 'tools/content-validator/experiments/validate_mechanism_feedback.py'
 permissions:
@@ -18,4 +20,6 @@ jobs:
         with:
           python-version: '3.11'
       - name: Validate player-supplied JSON without changing it
-        run: python3 tools/content-validator/experiments/validate_mechanism_feedback.py
+        run: |
+          python3 tools/content-validator/experiments/validate_mechanism_feedback.py
+          python3 tools/content-validator/experiments/validate_mechanism_reviews.py
