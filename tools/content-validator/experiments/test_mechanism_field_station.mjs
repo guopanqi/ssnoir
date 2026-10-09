@@ -69,7 +69,7 @@ async function openExtra(page){
  const x=page.locator(".feedback-panel > details.quiet-details");
  if(!(await x.evaluate(e=>e.open)))await x.locator("summary").click();
 }
-async function start(page){await page.getByRole("button",{name:/开始四骰实验|再玩一局/}).click()}
+async function start(page){await page.getByRole("button",{name:/开始四骰实验|开始 R55 新版实验|再玩一局/}).click()}
 async function play(page,goalFn){
  let n=0;
  while(await page.getByRole("button",{name:"执行这一手 →"}).count()){
@@ -89,7 +89,7 @@ async function download(page){
  execFileSync("python3",["tools/content-validator/experiments/validate_mechanism_feedback.py",filepath],{cwd:root});
  return {filepath,data:JSON.parse(fs.readFileSync(filepath,"utf8"))};
 }
-async function waitSync(page){await page.waitForFunction(()=>document.querySelector("#list-count")?.textContent.includes("11 / 11"));}
+async function waitSync(page){await page.waitForFunction(()=>document.querySelector("#list-count")?.textContent.includes("12 / 12"));}
 try{
  const context=await browser.newContext({viewport:{width:1370,height:940},acceptDownloads:true});
  const page=await context.newPage(),errors=[];
@@ -112,7 +112,7 @@ try{
  assert.equal(await page.locator("#experiments:not(.hidden)").count(),1);
  await waitSync(page);
  assert.equal(await row(page,"R54").count(),1);
- assert.equal(await page.locator("#featured-tasks .experiment-row").count(),11);
+ assert.equal(await page.locator("#featured-tasks .experiment-row").count(),12);
  // R50 is now the default, first-priority human playtest; inspect the prior R54
  // reply explicitly instead of assuming a reviewed experiment is initially active.
  await choose(page,"R54");
@@ -120,7 +120,7 @@ try{
  assert.match(await page.locator("#research-reply").innerText(),/开局取舍成立/);
  assert.match(await page.locator("#research-reply").innerText(),/不等于机制失败/);
  const first=await page.locator("#featured-tasks .experiment-row").first().getAttribute("aria-label");
- assert(first.startsWith("R50 "), "already-reviewed R54 must not top the needs-attention list");
+ assert(first.startsWith("R55 "), "independent untried R55 should precede previously reviewed modes");
  await page.locator("#study-filter").selectOption("reviewed");
  assert.equal(await page.locator("#featured-tasks .experiment-row").count(),1);
  assert.equal(await row(page,"R54").count(),1);
@@ -154,6 +154,24 @@ try{
  assert.equal(compared.data.runs[0].handSize,4);
  assert.equal(compared.data.runs[1].handSize,5);
  assert.equal(compared.data.runs[1].initialDice.length,5);
+ // R55 must be independent, have two collectible outcomes and a five-die run.
+ await choose(page,"R55");
+ assert.match(await page.locator("#game").innerText(),/两个|两项成果/);
+ assert.match(await page.locator("#study-lineage").innerText(),/R50/);
+ await start(page);
+ assert.equal(await page.locator("#game .die").count(),5);
+ assert.match(await page.locator("#game").innerText(),/已兑现成果/);
+ for(let turn=0;turn<5&&await page.getByRole("button",{name:"执行这一手 →"}).count();turn++){
+  await page.locator("#game .die:not([disabled])").first().click();
+  await page.locator("#game .goal:not([disabled])").first().click();
+  await page.getByRole("button",{name:"执行这一手 →"}).click();
+ }
+ await page.locator("#fb-mechanicalFeeling").fill("R55新版和R50的目标是独立分开的");
+ const r55=await download(page);
+ assert.equal(r55.data.studyId,"R55");
+ assert.equal(r55.data.runs[0].variant,"echo-dual");
+ assert.equal(r55.data.runs[0].initialDice.length,5);
+ assert(["A","B","both","timeout"].includes(r55.data.runs[0].result));
  // R50: same rule under explicit-goal presentation; odds remain identical.
  await choose(page,"R50");
  assert.equal(await page.locator("#r50-presentation").inputValue(),"goal-explicit");
@@ -197,14 +215,31 @@ try{
  await page.locator("#gh-token").fill("github_pat_research_test");
  await page.locator("#gh-connect").click();
  await page.waitForFunction(()=>document.querySelector("#gh-user").textContent.includes("research-test-user"));
+ // Reply to the reviewed R54 as a *new* GitHub feedback record; original untouched.
  await choose(page,"R54");
+ await page.waitForFunction(()=>!document.querySelector("#reply-composer").classList.contains("hidden"));
+ await page.locator("#research-reply-text").fill("研究者的容量结论有启发，但我更关心开局做出的决定。");
+ await page.locator("#gh-reply").click();
+ await page.waitForFunction(()=>document.querySelector("#reply-status").textContent.includes("已提交新回帖"));
+ assert.equal(remote.size,2,"reply must be independent of the original observation");
+ const replyEntries=[...remote.entries()].filter(([filename])=>filename!==full);
+ assert.equal(replyEntries.length,1);
+ const reply=JSON.parse(replyEntries[0][1].body);
+ assert.equal(reply.feedbackKind,"reply");
+ assert.equal(reply.studyId,"R54");
+ assert.equal(reply.runs.length,0);
+ assert.equal(reply.inReplyTo.feedbackPath,full);
+ assert.equal(reply.inReplyTo.feedbackSha,JSON.parse(reviewSeed).feedbackSha);
+ assert.equal(remote.get(full).body,fbSeed,"original feedback cannot change when replying");
+ assert.match(await page.locator("#thread-history").innerText(),/研究者的容量结论/);
+ // Existing feedback editing remains a separate, explicitly selected operation.
  await page.locator("#gh-active button").click();
  await page.waitForFunction(()=>document.querySelector("#fb-mechanicalFeeling").value.includes("骰子的"));
  await page.locator("#fb-mechanicalFeeling").fill("开局甲/乙都有意义。我想补充：有些局行动容量不足。");
  await page.locator("#gh-save").click();
  await page.waitForFunction(()=>document.querySelector("#gh-operation").textContent.includes("已提交："),null,{timeout:7000}).catch(async err=>{throw new Error("Saving existing R54 failed: "+(await page.locator("#gh-operation").innerText())+"; remote mutations="+sequence+"; original="+err.message)});
- assert.equal(remote.size,1,"same review must update same feedback JSON");
- assert.equal(sequence,1);
+ assert.equal(remote.size,2,"same review must update same feedback JSON, and preserve independent reply");
+ assert.equal(sequence,2);
  assert.match(JSON.parse(remote.get(full).body).responses.mechanicalFeeling,/容量不足/);
  // The old researcher reply remains visible, marked stale against new blob SHA.
  await page.waitForFunction(()=>document.querySelector("#selected-state").textContent.includes("待研究"));
@@ -226,8 +261,8 @@ try{
  remote.set(full,{...remote.get(full),sha:"modified-other-device"});
  await page.locator("#gh-save").click();
  await page.waitForFunction(()=>document.querySelector("#gh-operation").textContent.includes("保存冲突"));
- assert.equal(sequence,1);
- assert.equal(currentSha,"new-feedback-sha-1");
+ assert.equal(sequence,2);
+ assert.equal(currentSha,"new-feedback-sha-2");
  // Expected 409/Conflict console request is not an application crash.
  assert(!errors.some(x=>!x.includes("409")),errors.join("\n"));
  errors.length=0;
@@ -253,5 +288,5 @@ try{
  assert.equal(mobileErrors.length,0,mobileErrors.join("\n"));
  await mp.screenshot({path:path.join(artifact,"mobile.png"),fullPage:true});
  await mobile.close();
- console.log("PASS: overview, evidence map, 11-item status list; R54 human reply and edit invalidation; R50/R54 4-v-5 play; feedback SHA updates; reload and mobile");
+ console.log("PASS: overview, evidence map, 12-item research queue and SHA-threaded replies; R54 human reply and edit invalidation; R50/R54 4-v-5 play; feedback SHA updates; reload and mobile");
 }catch(e){console.error(e);process.exitCode=1}finally{await browser.close();}
