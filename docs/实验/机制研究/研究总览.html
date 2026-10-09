@@ -426,7 +426,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 .plain-log{max-width:850px;border-top:1px solid var(--line)}.plain-log-day{font-size:12px;color:#3157e7;font-weight:760;padding:20px 0 5px}.plain-log article{display:grid;grid-template-columns:43px 1fr;gap:12px;padding:17px 0;border-bottom:1px solid var(--line)}.plain-log article .log-number{font:500 19px "Iowan Old Style","Songti SC",serif;color:#a8ada6}.plain-log article p{margin:0;font-size:13px;line-height:1.95;color:#48544c}.plain-log-source{display:flex;flex-wrap:wrap;gap:20px;margin-top:27px;font-size:12px;font-weight:720}
 @media(max-width:1250px){.field-shell{grid-template-columns:165px minmax(0,1fr)}.wb-lab-layout{grid-template-columns:200px minmax(0,1fr)}.workspace-grid{grid-template-columns:1fr}.research-network{grid-template-columns:minmax(0,1fr) minmax(245px,.8fr)}}
 @media(max-width:850px){.field-shell{display:block}.overview-primary{grid-template-columns:1fr}.overview-updates-list{grid-template-columns:1fr}.overview-updates-list .wb-note,.overview-updates-list .wb-note+.wb-note{padding:11px 0;border-left:0}.wb-lab-layout{display:block}.experiment-sidebar{position:relative;top:0;max-height:none;margin-bottom:16px}.experiment-list{max-height:240px;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid{grid-template-columns:1fr}.research-network{grid-template-columns:1fr}.research-network-detail{position:relative;top:0}.simple-heading{align-items:start}.research-network-tree{padding:19px}}
-@media(max-width:480px){.experiment-list{grid-template-columns:1fr;max-height:190px}.research-network-tree{padding:13px}.network-branches{padding-left:20px}.network-branch{grid-template-columns:1fr;gap:5px;padding:10px 0}.network-branch:before{left:-7px;width:7px}.network-branches:before{left:13px}.network-branch-nodes{padding-left:0}.network-branch-nodes:before,.network-branch-nodes:after{display:none}.overview-lead,.overview-attention{padding:22px}.detail-intro{display:block}.detail-intro strong{display:block;margin-bottom:4px}.simple-heading{display:block}}</style></head>
+@media(max-width:480px){.experiment-list{grid-template-columns:1fr;max-height:190px}.research-network-tree{padding:13px}.network-branches{padding-left:20px}.network-branch{grid-template-columns:1fr;gap:5px;padding:10px 0}.network-branch:before{left:-7px;width:7px}.network-branches:before{left:13px}.network-branch-nodes{padding-left:0}.network-branch-nodes:before,.network-branch-nodes:after{display:none}.overview-lead,.overview-attention{padding:22px}.detail-intro{display:block}.detail-intro strong{display:block;margin-bottom:4px}.simple-heading{display:block}}
+</style></head>
 <body><div class="field-shell"><aside class="field-side" aria-label="主导航">
   <a href="#overview" class="field-brand" aria-label="OPEN FIELD · SSNoir 研究工作台">
     <span class="field-mark" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -2108,7 +2109,8 @@ window.addEventListener("ssnoir:study-change",e=>{
 });
 restore();
 })();</script>
-<script>/* Research information view. All factual content is read from versioned research JSON. */
+<script>
+/* Research information view. All factual content is read from versioned research JSON. */
 (function(){
 "use strict";
 const app=window.SSNoirFieldStation;if(!app)throw Error("Research app not initialized");
@@ -2196,6 +2198,7 @@ function route(){
 window.addEventListener("ssnoir:feedback-progress",e=>{progress=e.detail.progress||null;syncError=e.detail.error||"";attention();});
 window.addEventListener("hashchange",route);
 home();map();journal();attention();route();
-})();</script>
+})();
+</script>
 </body>
 </html>
