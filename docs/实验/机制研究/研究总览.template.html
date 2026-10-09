@@ -450,6 +450,7 @@ window.SSNoirFieldStation={
   document.getElementById("workshop").scrollIntoView({behavior:"smooth"});
  },
  getTask:getTask,
+ tasks:function(){return config.tasks;},
  updateStudyProgress:function(next){studyProgress=next||{};renderTasks();},
  showResearchReply:function(render){const root=document.getElementById('research-reply');root.replaceChildren();if(typeof render==='function')render(root);else root.textContent='这项实验尚无研究者回复；反馈并不会自动得到 AI 回复，研究者将在下一轮审阅后提交。';}
 };
