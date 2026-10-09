@@ -47,3 +47,7 @@ WeChat build -> official TapTap WeixinGameConverter 2.0.5 -> `game.zip`; see [TA
 Reported on macOS Developer Tools mg 2.02.2608080, base library 3.17.4: `wx.createOffscreenCanvas` was undefined during Pixi text adapter initialization. The HarmonyOS 3.7.0 message preceding it is unrelated informational text.
 
 `src/wechat/bootstrap.ts` now prefers `wx.createOffscreenCanvas({type:'2d'})` and, when unavailable or unable to create a 2D context, uses **a subsequent `wx.createCanvas()`**, which the Mini Game Canvas contract defines as off-screen after the first on-screen allocation. It validates the 2D context and never aliases the screen canvas. CI tests both the missing API and a throwing API, including a converted TapTap bundle. This is a mitigation candidate; the original reporter must retry Developer Tools to establish actual target compatibility. The next possible runtime gate is whether `getContext('webgl2')` is supported in their environment.
+
+## Open-source adapter baseline
+
+WeChat now uses a selective vendored MIT [finscn/weapp-adapter](../vendor/weapp-adapter/README-SSNOIR.md) Canvas/HTMLElement/EventTarget base, with the SSNoir-specific Pixi 8, Three r186 and Scheme integration confined to `src/wechat/bootstrap.ts`. The upstream repository and license are pinned and unmodified. Platform compatibility remains subject to CI and actual WeChat/TapTap device testing; the upstream's 2019 vintage is a known limitation.

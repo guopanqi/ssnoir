@@ -1,12 +1,22 @@
 /**
- * WeChat Mini Game does not provide standard browser globals. Supply only the
- * small canvas/event subset required by the shared Three + Pixi probe.
- * Missing capabilities must fail visibly; this is NOT a generic DOM emulator.
+ * WeChat host built on open-source finscn/weapp-adapter (MIT).
+ * See Game/vendor/weapp-adapter/README-SSNOIR.md for frozen upstream provenance.
+ * Upstream supplies Canvas, DOM element and EventTarget implementations.
+ * Only SSNoir's Three r186 / Pixi 8 and LIPS integration is local.
  */
+// @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
+import UpstreamCanvas from "../../vendor/weapp-adapter/src/Canvas.js";
+// @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
+import UpstreamHTMLElement from "../../vendor/weapp-adapter/src/HTMLElement.js";
+// @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
+import UpstreamEventTarget from "../../vendor/weapp-adapter/src/EventTarget.js";
 declare const wx: any;
 const g = globalThis as any;
-const canvas = wx.createCanvas();
+// FIRST wx.createCanvas() must be reserved for the visible stage.
+const canvas = new UpstreamCanvas();
 const device = wx.getSystemInfoSync();
+console.log("[SSNoir] Mini Game adapter=finscn/weapp-adapter+SSNoir; platform=" +
+  String(device.platform) + "; wxOffscreen=" + String(typeof wx.createOffscreenCanvas));
 const width = Math.max(1, device.windowWidth);
 const height = Math.max(1, device.windowHeight);
 canvas.width = width;
@@ -56,7 +66,7 @@ const createOffscreenCanvas = (w: number, h: number): HTMLCanvasElement => {
   // Do NOT create the on-screen canvas here: it must have been allocated above.
   try {
     if (typeof wx.createCanvas !== "function") throw new Error("wx.createCanvas unavailable");
-    const result = prepare(wx.createCanvas(), "secondary wx.createCanvas");
+    const result = prepare(new UpstreamCanvas(), "secondary wx.createCanvas");
     if (!canvasBackend) {
       canvasBackend = "secondary-canvas";
       console.log("[SSNoir MiniGame] Pixi 2D canvas backend: secondary wx.createCanvas");
@@ -81,18 +91,30 @@ g.innerHeight ||= height;
 g.location ||= { href: "https://ssnoir.invalid/game", origin: "https://ssnoir.invalid" };
 g.addEventListener ||= () => {};
 g.removeEventListener ||= () => {};
-g.document ||= {
+// Upstream EventTarget/HTMLElement handle DOM-like event and element semantics.
+// Only the Mini Game document factory and LIPS's HTML script scan are specialized.
+const miniDocument = Object.assign(new UpstreamEventTarget(), {
   baseURI: "https://ssnoir.invalid/game",
-  createElement(name: string) {
-    if (name === "canvas") return createOffscreenCanvas(2, 2);
-    if (name === "img") return wx.createImage();
-    throw new Error("Unsupported document.createElement: " + name);
+  readyState: "complete",
+  scripts: [] as unknown[],
+  head: new UpstreamHTMLElement("head"),
+  body: new UpstreamHTMLElement("body"),
+  createElement(name: string): any {
+    if (name.toLowerCase() === "canvas") return createOffscreenCanvas(2, 2);
+    if (name.toLowerCase() === "img") return wx.createImage();
+    return new UpstreamHTMLElement(name);
   },
-  createElementNS(_ns: string, name: string) {
-    if (name === "canvas") return createOffscreenCanvas(2, 2);
-    throw new Error("Unsupported document.createElementNS: " + name);
-  }
-};
+  createElementNS(_ns: string, name: string): any { return this.createElement(name); },
+  querySelectorAll(name: string): any[] {
+    if (name === "script") return []; // No HTML script tags in a Mini Game
+    if (name === "head") return [this.head];
+    if (name === "body") return [this.body];
+    return [];
+  },
+  getElementsByTagName(name: string): any[] { return this.querySelectorAll(name); }
+});
+g.document ||= miniDocument;
+g.HTMLElement ||= UpstreamHTMLElement;
 g.Image ||= wx.createImage().constructor;
 g.HTMLCanvasElement ||= canvas.constructor;
 g.CanvasRenderingContext2D ||= ctx.constructor;
@@ -100,8 +122,13 @@ g.CanvasRenderingContext2D ||= ctx.constructor;
 // type to choose native vertex-array support vs. the WebGL1 VAO extension.
 g.WebGLRenderingContext ||= class UnavailableWebGL1Context {};
 g.WebGL2RenderingContext ||= gl.constructor;
-g.requestAnimationFrame ||= (callback: FrameRequestCallback) => canvas.requestAnimationFrame(callback);
-g.cancelAnimationFrame ||= (handle: number) => canvas.cancelAnimationFrame(handle);
+const raf = typeof canvas.requestAnimationFrame === "function"
+  ? canvas.requestAnimationFrame.bind(canvas) : g.requestAnimationFrame?.bind(g);
+const caf = typeof canvas.cancelAnimationFrame === "function"
+  ? canvas.cancelAnimationFrame.bind(canvas) : g.cancelAnimationFrame?.bind(g);
+if (!raf || !caf) throw new Error("Mini Game requestAnimationFrame/cancelAnimationFrame unavailable");
+g.requestAnimationFrame ||= raf;
+g.cancelAnimationFrame ||= caf;
 
 export const wechatHost = {
   canvas: canvas as HTMLCanvasElement,
@@ -114,8 +141,8 @@ export const wechatHost = {
   getGLConstructor: () => g.WebGLRenderingContext as typeof WebGLRenderingContext,
   getNavigator: () => g.navigator,
   getBaseUrl: () => g.location.href as string,
-  animationFrame: (callback: FrameRequestCallback) => canvas.requestAnimationFrame(callback) as number,
-  cancelAnimationFrame: (handle: number) => canvas.cancelAnimationFrame(handle),
+  animationFrame: (callback: FrameRequestCallback) => raf(callback) as number,
+  cancelAnimationFrame: (handle: number) => caf(handle),
   onTouchEnd: (callback: (x: number, y: number) => void) => {
     wx.onTouchEnd((event: { changedTouches?: Array<{ clientX: number; clientY: number }> }) => {
       const touch = event.changedTouches?.[0];

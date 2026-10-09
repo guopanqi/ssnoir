@@ -41,7 +41,7 @@ try {
         return document.createElement("canvas");
       },
       createImage: () => new Image(),
-      getSystemInfoSync: () => ({ windowWidth: 1024, windowHeight: 576, platform: "chromium-wx-mock", pixelRatio: 1 }),
+      getSystemInfoSync: () => ({ windowWidth: 1024, windowHeight: 576, screenWidth: 1024, screenHeight: 576, platform: "chromium-wx-mock", pixelRatio: 1, devicePixelRatio: 1 }),
       onTouchEnd: callback => { window.__wxTouchEnd = callback; },
       showModal: detail => { throw new Error("wx.showModal: " + detail.content); }
     };
