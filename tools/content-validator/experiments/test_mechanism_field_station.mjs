@@ -10,6 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium } from "../../../Game/node_modules/playwright/index.mjs";
+import { execFileSync } from "node:child_process";
 
 const root=path.resolve(import.meta.dirname,"../../..");
 const htmlPath=path.join(root,"docs/实验/机制研究/研究总览.html");
@@ -62,6 +63,7 @@ try{
  let download=await downloadEvent;
  let file=await download.path();
  const feedback1=JSON.parse(fs.readFileSync(file,"utf8"));
+ execFileSync("python3",["tools/content-validator/experiments/validate_mechanism_feedback.py",file],{cwd:root});
  assert.equal(feedback1.schema,"ssnoir.mechanism-feedback/v1");
  assert.equal(feedback1.studyId,"R54");
  assert.equal(feedback1.environment,"browser-sketch");
@@ -90,7 +92,9 @@ try{
  assert.match(await page.locator("#run-summary").innerText(),/1 局/);
  downloadEvent=page.waitForEvent("download");await page.locator("#export").click();
  download=await downloadEvent;
- const feedback2=JSON.parse(fs.readFileSync(await download.path(),"utf8"));
+ const feedbackFile2=await download.path();
+ execFileSync("python3",["tools/content-validator/experiments/validate_mechanism_feedback.py",feedbackFile2],{cwd:root});
+ const feedback2=JSON.parse(fs.readFileSync(feedbackFile2,"utf8"));
  assert.equal(feedback2.studyId,"R50");
  assert.equal(feedback2.runs.length,1);
  assert(feedback2.runs[0].actions.some(a=>a.hesitated));
@@ -103,7 +107,9 @@ try{
  await page.locator("#fb-ideas").fill("压力预算：仍然想尝试多人情况");
  downloadEvent=page.waitForEvent("download");await page.locator("#export").click();
  download=await downloadEvent;
- const feedback3=JSON.parse(fs.readFileSync(await download.path(),"utf8"));
+ const feedbackFile3=await download.path();
+ execFileSync("python3",["tools/content-validator/experiments/validate_mechanism_feedback.py",feedbackFile3],{cwd:root});
+ const feedback3=JSON.parse(fs.readFileSync(feedbackFile3,"utf8"));
  assert.equal(feedback3.studyId,"R37");
  assert.equal(feedback3.environment,"official-runtime");
  assert.equal(feedback3.runs.length,0);
