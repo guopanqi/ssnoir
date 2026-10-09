@@ -16,21 +16,39 @@ function attention(){
  const box=$("wb-attention");box.replaceChildren();
  if(!progress){$("wb-attention-status").textContent=error?"同步失败":"正在同步";make(box,"p","wb-empty",error?"远端反馈状态不可用；仍可进行本地试玩并保留草稿。":"正在读取已提交反馈与研究回复…");return;}
  $("wb-attention-status").textContent="依据 GitHub 反馈记录";
- const queue=tasks.tasks.map(t=>Object.assign({},t,progress[t.id]||{status:"todo"})).filter(t=>t.status!=="reviewed").sort((a,b)=>(a.status==="pending"?0:1)-(b.status==="pending"?0:1)||a.rank-b.rank);
- if(!queue.length){make(box,"p","wb-empty","目前没有等待审阅或体验的实验。你仍可继续补充旧反馈。");return;}
+ const queue=tasks.tasks.map(t=>Object.assign({},t,progress[t.id]||{status:"todo"})).filter(t=>t.status==="todo").sort((a,b)=>a.rank-b.rank);
+ if(!queue.length){make(box,"p","wb-empty","当前优先实验已提交反馈，暂无必须完成的试玩。你可以继续补充旧反馈，研究者会在下一轮研读。");return;}
  queue.slice(0,4).forEach(t=>{
   const a=make(box,"a","wb-attention-item");a.href=studyLink(t.id);
   make(a,"span","wb-num",t.id);const copy=make(a,"span");
-  make(copy,"strong",null,t.title);make(copy,"small",null,t.status==="pending"?"已有反馈，等待研究者对本版审阅":t.purpose);
-  make(a,"span","wb-pill"+(t.status==="pending"?" pending":""),t.status==="pending"?"待研究回复":t.mode==="browser-demo"?"可在线试玩":"正式原型");
+  make(copy,"strong",null,t.title);make(copy,"small",null,t.purpose);
+  make(a,"span","wb-pill",t.mode==="browser-demo"?"可在线试玩":"正式原型");
  });
+}
+function focusCard(){
+ const focus=progress?tasks.tasks.find(t=>(progress[t.id]||{status:"todo"}).status==="todo"):null;
+ if(!progress){
+  $("wb-focus-title").textContent="正在核对你的研究记录";
+  $("wb-focus-description").textContent="读取 GitHub 已提交反馈后，显示真正需要你参与的实验，不会重复催促已完成的试玩。";
+  $("wb-focus-meta").textContent="反馈记录同步中";
+  $("wb-focus-link").href="#experiments";$("wb-focus-link").textContent="浏览实验室 ↗";return;
+ }
+ if(!focus){
+  $("wb-focus-title").textContent="下一步等待研究判断";
+  $("wb-focus-description").textContent="优先试玩均已有反馈；现在可以回看研究者的回复，或自由补充新的观察。";
+  $("wb-focus-meta").textContent="暂无强制试玩";
+  $("wb-focus-link").href="#experiments";$("wb-focus-link").textContent="回到实验室 ↗";return;
+ }
+ $("wb-focus-title").textContent=focus.title;
+ $("wb-focus-description").textContent=focus.purpose;
+ $("wb-focus-meta").textContent=focus.id+" · "+focus.estimatedMinutes;
+ $("wb-focus-link").href=studyLink(focus.id);
+ $("wb-focus-link").textContent="进入实验 ↗";
 }
 function home(){
  $("wb-updated").textContent="资料更新 "+atlas.updated+" · 不代表 Agent 实时运行";
  $("wb-summary").textContent=atlas.summary;
- const focus=tasks.tasks[0];
- $("wb-focus-title").textContent=focus.title;$("wb-focus-description").textContent=focus.purpose;
- $("wb-focus-meta").textContent=focus.id+" · "+focus.estimatedMinutes;$("wb-focus-link").href=studyLink(focus.id);
+ focusCard();
  tasks.current.slice(0,4).forEach((s,i)=>{const c=make($("wb-notes"),"article","wb-note");make(c,"span","wb-kicker","进展 / "+String(i+1).padStart(2,"0"));make(c,"p",null,s);});
  atlas.nextQuestions.forEach((s,i)=>{const c=make($("wb-question-list"),"div","wb-question");make(c,"span","wb-kicker","QUESTION "+String(i+1).padStart(2,"0"));make(c,"div",null,s);});
  tasks.nonPromoted.forEach(x=>{const c=make($("wb-stop-list"),"article");make(c,"h3",null,x.id+" · "+x.title);make(c,"p",null,x.summary);});
@@ -55,14 +73,14 @@ function map(){
 function route(){
  const value=decodeURIComponent(location.hash||"#overview");
  const match=/^#study-(R\d+)$/.exec(value);
- const page=match||value==="#experiments"?"experiments":value==="#map"?"map":"overview";
+ const page=match||value==="#experiments"||value==="#research-log"?"experiments":value==="#map"||value==="#research-findings"?"map":"overview";
  ["overview","experiments","map"].forEach(id=>$(id).classList.toggle("hidden",id!==page));
  document.querySelectorAll(".desk-nav a").forEach(a=>a.setAttribute("aria-current",a.getAttribute("href")==="#"+page?"page":"false"));
  if(match)app.selectStudy(match[1]);
  window.scrollTo(0,0);
 }
 document.querySelectorAll(".wb-filter").forEach(b=>b.addEventListener("click",()=>{patternFilter=b.dataset.filter;map();}));
-window.addEventListener("ssnoir:feedback-progress",e=>{progress=e.detail.progress||null;error=e.detail.error||"";attention();});
+window.addEventListener("ssnoir:feedback-progress",e=>{progress=e.detail.progress||null;error=e.detail.error||"";attention();focusCard();});
 window.addEventListener("hashchange",route);
 home();map();attention();route();
 })();

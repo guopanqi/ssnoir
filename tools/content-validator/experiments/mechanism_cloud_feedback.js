@@ -71,8 +71,7 @@ function showConnection() {
   $("cloud-connected").classList.toggle("hidden", !connected);
   $("cloud-status").textContent = connected ? "已连接 · " + user : token ? "验证连接中" : "未连接";
   $("gh-user").textContent = connected ? "@" + user : "";
-  $("gh-save").disabled = !connected;
-  $("gh-save").title = connected ? "提交到 GitHub，更新现有文件时保留版本" : "请先展开 GitHub 连接设置并保存 Token";
+  $("gh-save").title = connected ? "提交到 GitHub，更新现有文件时保留版本" : "点击后展开 GitHub 连接设置；Token 只需首次设置";
   renderActive();
 }
 function renderActive() {
@@ -313,7 +312,14 @@ function buildSubmission() {
   return data;
 }
 async function save() {
-  if (saving || !token || !user) return;
+  if (saving) return;
+  if (!token || !user) {
+    const connection = $("cloud-connect").closest("details");
+    if (connection) connection.open = true;
+    $("gh-token").focus();
+    msg("首次提交需要连接 GitHub。请粘贴 Fine-grained Token 并验证；此后保存在当前浏览器。");
+    return;
+  }
   saving = true;
   $("gh-save").disabled = true;
   try {
