@@ -8,11 +8,12 @@ const app = window.SSNoirFieldStation;
 if (!app) throw new Error("SSNoir field station bridge missing");
 const REPO = "guopanqi/ssnoir";
 const DIR = "docs/实验/机制研究/反馈/inbox";
+const REVIEWS = "docs/实验/机制研究/反馈/reviews";
 const API = "https://api.github.com";
 const TOKEN_KEY = "ssnoir/github-feedback-token/v1";
 const ACTIVE_KEY = "ssnoir/github-feedback-active/v1";
 const MAX_BYTES = 204800;
-let token = "", user = "", active = null, records = [], saving = false;
+let token = "", user = "", active = null, records = [], reviews = new Map(), saving = false;
 const $ = id => document.getElementById(id);
 const LOCAL = {
   get(k) { try { return localStorage.getItem(k) || ""; } catch (_) { return ""; } },
@@ -49,7 +50,7 @@ async function request(method, route, body, overrideToken) {
     method,
     headers: {
       Accept: "application/vnd.github+json",
-      Authorization: "Bearer " + auth,
+      ...(auth ? {Authorization: "Bearer " + auth} : {}),
       "X-GitHub-Api-Version": "2022-11-28",
       ...(body ? {"Content-Type":"application/json"} : {})
     },
@@ -70,21 +71,74 @@ function showConnection() {
   $("cloud-connected").classList.toggle("hidden", !connected);
   $("cloud-status").textContent = connected ? "已连接 · " + user : token ? "验证连接中" : "未连接";
   $("gh-user").textContent = connected ? "@" + user : "";
+  $("gh-save").disabled = !connected;
+  $("gh-save").title = connected ? "提交到 GitHub，更新现有文件时保留版本" : "请先展开 GitHub 连接设置并保存 Token";
   renderActive();
 }
 function renderActive() {
   const e = $("gh-active");
   if (!e) return;
-  e.textContent = active
-    ? "正在编辑 " + fileLabel(active.path) + "；再次提交会更新同一份文件。"
-    : "新反馈 · " + app.currentStudy() + "。提交后会列在下面，可以随时重新打开修改。";
+  e.replaceChildren();
+  const current=app.currentStudy();
+  if(active && active.studyId===current){
+    e.appendChild(document.createTextNode("正在编辑已提交的反馈 · "+fileLabel(active.path)));
+  } else {
+    const found=records.find(x=>x.path.startsWith(DIR+"/SSNoir-feedback-"+current+"-"));
+    if(found){
+      e.appendChild(document.createTextNode("GitHub 已有这项实验的反馈。"));
+      const b=document.createElement("button");b.type="button";b.className="button ghost tiny";
+      b.style.marginLeft="8px";b.textContent="打开旧反馈继续编辑";
+      b.addEventListener("click",()=>openRecord(found));e.appendChild(b);
+    }else e.textContent="新反馈 · "+current+"；填写或试玩后保存。";
+  }
 }
-function setActive(value) {
-  active = value;
-  if (value) LOCAL.set(ACTIVE_KEY, JSON.stringify(value));
-  else LOCAL.del(ACTIVE_KEY);
-  renderActive();
-  renderRecords();
+function reviewerFor(file){return file?reviews.get(file.path)||null:null}
+function progress(){
+ const status={};
+ for(const t of app.tasks()){
+  const matching=records.filter(x=>x.name.startsWith("SSNoir-feedback-"+t.id+"-"));
+  let p={status:"todo",count:matching.length,updatedAt:matching[0]?.name||""};
+  if(matching.length){
+   p.status=matching.some(f=>reviewerFor(f)?.feedbackSha!==f.sha)?"pending":"reviewed";
+  }
+  status[t.id]=p;
+ }
+ app.updateStudyProgress(status);
+ renderActive();
+ renderReply();
+}
+function renderReply(){
+ const root=$("research-reply");
+ if(!root)return;
+ root.replaceChildren();
+ const id=app.currentStudy(),files=records.filter(x=>x.name.startsWith("SSNoir-feedback-"+id+"-"));
+ const relevant=active&&active.studyId===id?records.find(x=>x.path===active.path):files[0];
+ const data=reviewerFor(relevant);
+ if(!data){
+   root.textContent=files.length?
+     "已收到你的反馈，正在等待研究者研读并回复。你可以继续编辑；一次体验不等于玩法好坏的裁决。":
+     "尚无这项实验的人类反馈。试玩或记录想法后提交；研究者会在继续研究时回复，而不是由网页即时生成虚假的 AI 回复。";
+   return;
+ }
+ const synced=relevant.sha===data.feedbackSha;
+ const status=document.createElement("p");status.className=synced?"review-current":"review-stale";
+ status.textContent=synced?"已审阅当前反馈版本 · "+(data.updatedAt||""):
+  "这条回复针对上一版反馈。你已经修改了体验记录，研究者需要重新审阅；原有回复保留供对照。";
+ root.appendChild(status);
+ const title=document.createElement("h3");title.textContent=data.headline;root.appendChild(title);
+ for(const key of ["acknowledgment","interpretation"]){
+   if(data[key]){const p=document.createElement("p");p.textContent=data[key];root.appendChild(p);}
+ }
+ if(Array.isArray(data.observations)&&data.observations.length){
+   const list=document.createElement("ul");data.observations.forEach(line=>{
+    const li=document.createElement("li");li.textContent=line;list.appendChild(li);});root.appendChild(list);
+ }
+ if(data.question){
+  const q=document.createElement("div");q.className="review-question";
+  const label=document.createElement("strong");label.textContent="研究者想继续问你";q.appendChild(label);
+  const p=document.createElement("p");p.textContent=data.question;q.appendChild(p);root.appendChild(q);
+ }
+ if(data.next){const note=document.createElement("p");note.className="minor";note.textContent="研究下一步："+data.next;root.appendChild(note);}
 }
 function renderRecords() {
   const root = $("gh-list");
@@ -117,16 +171,30 @@ function renderRecords() {
   }
 }
 async function refresh() {
-  if (!token || !user) return;
   try {
-    msg("正在读取 GitHub 上的反馈……");
+    msg("正在同步仓库的已提交反馈与研究回复……");
     const list = await request("GET", "/repos/"+REPO+"/contents/"+endpoint(DIR)+"?ref=main");
     if (!Array.isArray(list)) throw new Error("GitHub 未返回反馈目录");
     records = list.filter(f => f.type === "file" && inInbox(f.path))
-      .sort((a,b) => a.name.localeCompare(b.name, "en") * -1);
-    renderRecords();
-    msg("已读取 "+records.length+" 份反馈。点击「继续编辑」可以修改原文件。");
-  } catch (err) { msg("读取已提交记录失败："+err.message); }
+      .sort((a,b) => b.name.localeCompare(a.name,"en"));
+    reviews = new Map();
+    try {
+      const reviewFiles=await request("GET","/repos/"+REPO+"/contents/"+endpoint(REVIEWS)+"?ref=main");
+      if(Array.isArray(reviewFiles)){
+        await Promise.all(reviewFiles.filter(f=>f.name.endsWith(".json")).slice(0,80).map(async f=>{
+          try {
+            const remote=await request("GET","/repos/"+REPO+"/contents/"+endpoint(f.path)+"?ref=main");
+            const data=JSON.parse(decoded(remote.content||""));
+            if(data.schema==="ssnoir.mechanism-review/v1"&&
+               data.sourcePath?.startsWith(DIR+"/")&&
+               typeof data.feedbackSha==="string")reviews.set(data.sourcePath,data);
+          }catch(err){console.warn("Review unavailable",f.name,err.message);}
+        }));
+      }
+    }catch(err){if(err.status!==404)console.warn("Review index unavailable",err.message);}
+    renderRecords();progress();
+    msg("已同步 "+records.length+" 份反馈、"+reviews.size+" 条研究回复。");
+  } catch (err) { msg("读取研究反馈失败："+err.message); }
 }
 async function connect(raw, persist) {
   const next = raw.trim();
@@ -191,6 +259,7 @@ async function openRecord(file) {
       createdAt:data.createdAt,source:data.source});
     $("gh-add-note").value = "";
     msg("已载入 "+file.name+"。可以继续试玩或修改文字，再提交更新。");
+    renderReply();
   } catch (err) { msg("无法打开反馈："+err.message); }
 }
 function newFeedback() {
@@ -198,6 +267,7 @@ function newFeedback() {
   $("gh-add-note").value = "";
   // Existing local draft remains, by design. It is a new file, not a destructive reset.
   msg("已切换为新反馈；当前本地试玩和文字仍保留。提交将创建另一份文件。");
+  renderReply();
 }
 function makeFileName(study) {
   const stamp = new Date().toISOString().replace(/[-:]/g,"").replace(/\..+$/,"").replace("T","-");
@@ -265,7 +335,7 @@ async function restore() {
   if (stored) {
     $("cloud-status").textContent = "正在恢复连接";
     await connect(stored,false);
-  }
+  } else await refresh();
 }
 $("gh-connect").addEventListener("click",()=>connect($("gh-token").value,true));
 $("gh-token").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();connect(e.currentTarget.value,true);}});
@@ -278,6 +348,7 @@ window.addEventListener("ssnoir:study-change",e=>{
     // Selection changes should never rewrite an unrelated remote file.
     setActive(null);
   } else renderActive();
+  renderReply();
 });
 restore();
 })();
