@@ -1,0 +1,39 @@
+name: SSNoir R49 Abstract Mechanism
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/ssnoir-mechanism-r49.yml'
+      - 'tools/content-validator/experiments/r49_delayed_target_*'
+      - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·迟到的目标.scm'
+      - 'docs/实验/机制研究/批次/R49-迟到的目标/**'
+permissions:
+  contents: read
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact structural screening
+        run: python3 tools/content-validator/experiments/r49_delayed_target_model.py --output /tmp/r49-screening.json
+      - name: Build official headless engine
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: Validate the one official Content tree
+        run: dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --validate
+      - name: Real C# session, reveal, settlement and strict replay
+        run: python3 tools/content-validator/experiments/r49_delayed_target_smoke.py | tee /tmp/r49-native.json
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r49-abstract-mechanism-evidence
+          path: |
+            /tmp/r49-screening.json
+            /tmp/r49-native.json
+          retention-days: 14
