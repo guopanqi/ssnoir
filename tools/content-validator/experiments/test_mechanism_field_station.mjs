@@ -155,7 +155,7 @@ try{
  await page.waitForFunction(()=>document.querySelector("#fb-mechanicalFeeling").value.includes("骰子的"));
  await page.locator("#fb-mechanicalFeeling").fill("开局甲/乙都有意义。我想补充：有些局行动容量不足。");
  await page.locator("#gh-save").click();
- await page.waitForFunction(()=>document.querySelector("#gh-operation").textContent.includes("已提交："));
+ await page.waitForFunction(()=>document.querySelector("#gh-operation").textContent.includes("已提交："),null,{timeout:7000}).catch(async err=>{throw new Error("Saving existing R54 failed: "+(await page.locator("#gh-operation").innerText())+"; remote mutations="+sequence+"; original="+err.message)});
  assert.equal(remote.size,1,"same review must update same feedback JSON");
  assert.equal(sequence,1);
  assert.match(JSON.parse(remote.get(full).body).responses.mechanicalFeeling,/容量不足/);
