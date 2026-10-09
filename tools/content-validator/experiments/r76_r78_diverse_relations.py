@@ -113,41 +113,53 @@ def r77():
         "boundary":"Inspection outcome is public, truth remains hidden; independent completion rewards only match hidden type"}
 
 def r78():
-    # Commit on move 1; after it the player observes a noisy public clue
-    # with posterior 4/5 or 1/5. A full 1-die switch drops old work to zero.
+    # The public clue arrives after the first action; before the first action
+    # the player can commit OR consume a die waiting for the clue. Without this
+    # wait option, the value of "revoke" is likely exaggerated by a forced
+    # early commitment. Audit both conditions independently.
     @lru_cache(None)
-    def value(a,b,commit,p,hand,can_revoke):
+    def value(a,b,commit,p,hand,can_revoke,allow_wait):
         if not hand:
             return 3*(p*F(a>=2)+(1-p)*F(b>=2))
         t=N-len(hand)
         acts=[0,1] if commit<0 else [commit]
+        if commit<0 and t==0 and allow_wait:acts.append(3)
         if commit>=0 and can_revoke and t>=1:acts.append(2)
-        return max(q(a,b,commit,p,hand,g,i,can_revoke,t)
+        return max(q(a,b,commit,p,hand,g,i,can_revoke,allow_wait,t)
                    for g in acts for i in range(len(hand)))
-    def q(a,b,commit,p,hand,g,i,can_revoke,t):
+    def q(a,b,commit,p,hand,g,i,can_revoke,allow_wait,t):
         rem=hand[:i]+hand[i+1:]
         if g==2:
-            return value(0,0,1-commit,p,rem,False)
+            return value(0,0,1-commit,p,rem,False,allow_wait)
+        if g==3:
+            return F(1,2)*value(a,b,-1,F(4,5),rem,can_revoke,allow_wait)+F(1,2)*value(a,b,-1,F(1,5),rem,can_revoke,allow_wait)
         def rec(new_a,new_b):
             if t==0:
-                return F(1,2)*value(new_a,new_b,g,F(4,5),rem,can_revoke)+F(1,2)*value(new_a,new_b,g,F(1,5),rem,can_revoke)
-            return value(new_a,new_b,g,p,rem,can_revoke)
+                return (F(1,2)*value(new_a,new_b,g,F(4,5),rem,can_revoke,allow_wait)
+                        +F(1,2)*value(new_a,new_b,g,F(1,5),rem,can_revoke,allow_wait))
+            return value(new_a,new_b,g,p,rem,can_revoke,allow_wait)
         return sum(pr*rec(min(2,a+k) if g==0 else a,
                           min(2,b+k) if g==1 else b)
                    for k,pr in enumerate(odds(hand[i])) if pr)
-    y=n=F(0);strict=0
+    totals=[F(0)]*4; strict=0
     for hand in HANDS:
-        v=value(0,0,-1,F(1,2),hand,True)
-        base=value(0,0,-1,F(1,2),hand,False)
-        assert v>=base
-        y+=hand_weight(hand)*v;n+=hand_weight(hand)*base
-        strict+=v>base
-    return {"id":"R78","relation":"one-time costly rescind option after uncertain evidence",
-            "expected_reversible":round(float(y),9),
-            "expected_irreversible":round(float(n),9),
-            "direct_option_gain":round(float(y-n),9),
+        # 0 forced early+revocation, 1 forced early+no revoke,
+        # 2 opt to wait+revocation, 3 opt to wait+no revoke.
+        outcomes=[value(0,0,-1,F(1,2),hand,r,w)
+                  for r,w in ((True,False),(False,False),(True,True),(False,True))]
+        assert outcomes[0]>=outcomes[1] and outcomes[2]>=outcomes[3]
+        assert outcomes[2]>=outcomes[0]
+        strict+=outcomes[2]>outcomes[3]
+        for i,v in enumerate(outcomes):totals[i]+=hand_weight(hand)*v
+    return {"id":"R78","relation":"one-time costly rescind option vs delaying commitment until public evidence",
+            "expected_reversible_forced_early":round(float(totals[0]),9),
+            "expected_irreversible_forced_early":round(float(totals[1]),9),
+            "expected_reversible_with_wait":round(float(totals[2]),9),
+            "expected_irreversible_with_wait":round(float(totals[3]),9),
+            "forced_early_option_gain":round(float(totals[0]-totals[1]),9),
+            "direct_option_gain":round(float(totals[2]-totals[3]),9),
             "strict_starting_hands":strict,
-            "boundary":"Signal after first action; simple belief update; no engine/native/human evidence"}
+            "boundary":"Wait consumes an action and can avoid premature commitment; same reveal and remaining dice, no native or human evidence"}
 
 def main():
     results=[r76(),r77(),r78()]
