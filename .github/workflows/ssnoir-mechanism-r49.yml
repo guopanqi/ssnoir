@@ -10,9 +10,6 @@ on:
       - 'tools/content-validator/experiments/r50_heuristic_audit.py'
       - 'tools/content-validator/experiments/r50_native_smoke.py'
       - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·动作回声.scm'
-      - 'docs/实验/机制研究/模式库.json'
-      - 'docs/实验/机制研究/研究总览.template.html'
-      - 'docs/实验/机制研究/研究总览.html'
       - 'tools/content-validator/experiments/build_mechanism_atlas.py'
 permissions:
   contents: read
