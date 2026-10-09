@@ -19,6 +19,7 @@ jobs:
       - name: Exact option-value ablations for three non-clock decision forms
         run: |
           python3 tools/content-validator/experiments/r76_r78_diverse_relations.py /tmp/r76-r78.json
+          cat /tmp/r76-r78.json
           python3 - <<'PY'
           import json
           d=json.load(open('/tmp/r76-r78.json'))
