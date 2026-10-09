@@ -44,11 +44,18 @@ def check(path:Path, tasks:dict)->dict:
     for run in runs:
         assert isinstance(run,dict)
         assert run.get("variant")==tasks[study].get("browserVariant")
-        assert isinstance(run.get("initialDice"),list) and len(run["initialDice"])==4
+        # Existing R54 feedback (2026-10-09) does not contain handSize.
+        # Its documented four-die semantics remain unchanged.
+        hand_size=run.get("handSize",4)
+        assert type(hand_size) is int and hand_size in (4,5)
+        if hand_size==5:
+            assert study=="R54" and run["variant"]=="reactive", (
+                "Only R54 browser capacity control permits five dice")
+        assert isinstance(run.get("initialDice"),list) and len(run["initialDice"])==hand_size
         assert all(type(d)==int and 1<=d<=6 for d in run["initialDice"])
         assert run.get("skill") in (1,2)
         actions=run.get("actions",[])
-        assert isinstance(actions,list) and len(actions)<=4
+        assert isinstance(actions,list) and len(actions)<=hand_size
         assert all(isinstance(a,dict) and a.get("target") in ("A","B") and
                    type(a.get("die"))==int and 1<=a["die"]<=6 for a in actions)
         assert run.get("result") in ("A","B","timeout",None)
