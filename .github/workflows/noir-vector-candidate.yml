@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       request_path:
-        description: 'Path under experiments/noir-world-kernel/ai/requests/'
+        description: 'Path under experiments/noir-city/noir-world-kernel/ai/requests/'
         required: true
         default: 'ai/requests/detective-walk-v2.json'
         type: string
@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: experiments/noir-world-kernel
+        working-directory: experiments/noir-city/noir-world-kernel
     env:
       RECRAFT_API_TOKEN: ${{ secrets.RECRAFT_API_TOKEN }}
 
@@ -86,9 +86,9 @@ jobs:
         with:
           name: noir-vector-candidate-${{ github.run_id }}
           path: |
-            experiments/noir-world-kernel/src/assets/generated
-            experiments/noir-world-kernel/ai/runs
-            experiments/noir-world-kernel/captures/latest
+            experiments/noir-city/noir-world-kernel/src/assets/generated
+            experiments/noir-city/noir-world-kernel/ai/runs
+            experiments/noir-city/noir-world-kernel/captures/latest
           retention-days: 14
           compression-level: 3
           if-no-files-found: error

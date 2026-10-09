@@ -5,8 +5,8 @@ on:
     branches:
       - experiment/noir-theatre-lab
     paths:
-      - 'experiments/noir-theatre-lab/**'
-      - '!experiments/noir-theatre-lab/captures/review/**'
+      - 'experiments/noir-city/noir-theatre-lab/**'
+      - '!experiments/noir-city/noir-theatre-lab/captures/review/**'
       - '.github/workflows/noir-theatre-captures.yml'
   workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: experiments/noir-theatre-lab
+        working-directory: experiments/noir-city/noir-theatre-lab
 
     steps:
       - uses: actions/checkout@v4
@@ -38,8 +38,8 @@ jobs:
         id: cache-node
         uses: actions/cache@v4
         with:
-          path: experiments/noir-theatre-lab/node_modules
-          key: noir-theatre-node-${{ runner.os }}-${{ hashFiles('experiments/noir-theatre-lab/package-lock.json') }}
+          path: experiments/noir-city/noir-theatre-lab/node_modules
+          key: noir-theatre-node-${{ runner.os }}-${{ hashFiles('experiments/noir-city/noir-theatre-lab/package-lock.json') }}
 
       - name: Install dependencies
         if: steps.cache-node.outputs.cache-hit != 'true'
@@ -63,12 +63,12 @@ jobs:
           retention-days: 7
           compression-level: 6
           path: |
-            experiments/noir-theatre-lab/assets
-            experiments/noir-theatre-lab/src
-            experiments/noir-theatre-lab/tools
-            experiments/noir-theatre-lab/package*.json
-            experiments/noir-theatre-lab/index.html
-            experiments/noir-theatre-lab/*.md
+            experiments/noir-city/noir-theatre-lab/assets
+            experiments/noir-city/noir-theatre-lab/src
+            experiments/noir-city/noir-theatre-lab/tools
+            experiments/noir-city/noir-theatre-lab/package*.json
+            experiments/noir-city/noir-theatre-lab/index.html
+            experiments/noir-city/noir-theatre-lab/*.md
           if-no-files-found: error
 
       - name: Capture fixed benchmarks
@@ -84,7 +84,7 @@ jobs:
           name: noir-theatre-captures-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 30
           compression-level: 3
-          path: experiments/noir-theatre-lab/captures/latest
+          path: experiments/noir-city/noir-theatre-lab/captures/latest
           if-no-files-found: error
 
       - name: Commit compact review evidence
@@ -97,7 +97,7 @@ jobs:
             echo "Branch advanced; leave review publication to the newer capture run."
             exit 0
           fi
-          git add experiments/noir-theatre-lab/captures/review/contact-sheet.jpg experiments/noir-theatre-lab/captures/review/final-board.jpg experiments/noir-theatre-lab/captures/review/metrics.json
+          git add experiments/noir-city/noir-theatre-lab/captures/review/contact-sheet.jpg experiments/noir-city/noir-theatre-lab/captures/review/final-board.jpg experiments/noir-city/noir-theatre-lab/captures/review/metrics.json
           if git diff --cached --quiet; then
             echo "Review evidence unchanged."
             exit 0

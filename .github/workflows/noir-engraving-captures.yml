@@ -5,12 +5,12 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'experiments/noir-engraving-lab/**'
+      - 'experiments/noir-city/noir-engraving-lab/**'
       - '.github/workflows/noir-engraving-captures.yml'
   push:
     branches: [main]
     paths:
-      - 'experiments/noir-engraving-lab/**'
+      - 'experiments/noir-city/noir-engraving-lab/**'
       - '.github/workflows/noir-engraving-captures.yml'
 
 permissions:
@@ -27,7 +27,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: experiments/noir-engraving-lab
+        working-directory: experiments/noir-city/noir-engraving-lab
 
     steps:
       - uses: actions/checkout@v4
@@ -40,8 +40,8 @@ jobs:
         id: cache-node
         uses: actions/cache@v4
         with:
-          path: experiments/noir-engraving-lab/node_modules
-          key: noir-lab-node-${{ runner.os }}-${{ hashFiles('experiments/noir-engraving-lab/package.json') }}
+          path: experiments/noir-city/noir-engraving-lab/node_modules
+          key: noir-lab-node-${{ runner.os }}-${{ hashFiles('experiments/noir-city/noir-engraving-lab/package.json') }}
 
       - name: Install JS dependencies
         if: steps.cache-node.outputs.cache-hit != 'true'
@@ -71,5 +71,5 @@ jobs:
           name: noir-engraving-captures-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 30
           compression-level: 3
-          path: experiments/noir-engraving-lab/captures/latest
+          path: experiments/noir-city/noir-engraving-lab/captures/latest
           if-no-files-found: error

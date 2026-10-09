@@ -5,12 +5,12 @@ on:
   push:
     branches: [main]
     paths:
-      - 'experiments/noir-world-kernel/**'
+      - 'experiments/noir-city/noir-world-kernel/**'
       - '.github/workflows/noir-world-kernel-capture.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'experiments/noir-world-kernel/**'
+      - 'experiments/noir-city/noir-world-kernel/**'
       - '.github/workflows/noir-world-kernel-capture.yml'
 
 permissions:
@@ -28,7 +28,7 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: experiments/noir-world-kernel
+        working-directory: experiments/noir-city/noir-world-kernel
 
     steps:
       - name: Checkout
@@ -73,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: noir-world-kernel-${{ github.run_id }}-${{ github.run_attempt }}
-          path: experiments/noir-world-kernel/captures/latest
+          path: experiments/noir-city/noir-world-kernel/captures/latest
           retention-days: 30
           compression-level: 3
           if-no-files-found: error

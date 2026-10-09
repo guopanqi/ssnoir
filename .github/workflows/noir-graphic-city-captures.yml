@@ -5,12 +5,12 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'experiments/noir-graphic-city-lab/**'
+      - 'experiments/noir-city/noir-graphic-city-lab/**'
       - '.github/workflows/noir-graphic-city-captures.yml'
   push:
     branches: [main]
     paths:
-      - 'experiments/noir-graphic-city-lab/**'
+      - 'experiments/noir-city/noir-graphic-city-lab/**'
       - '.github/workflows/noir-graphic-city-captures.yml'
 
 permissions:
@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 8
     defaults:
       run:
-        working-directory: experiments/noir-graphic-city-lab
+        working-directory: experiments/noir-city/noir-graphic-city-lab
 
     steps:
       - uses: actions/checkout@v4
@@ -39,8 +39,8 @@ jobs:
         id: cache-node
         uses: actions/cache@v4
         with:
-          path: experiments/noir-graphic-city-lab/node_modules
-          key: graphic-city-node-${{ runner.os }}-${{ hashFiles('experiments/noir-graphic-city-lab/package.json') }}
+          path: experiments/noir-city/noir-graphic-city-lab/node_modules
+          key: graphic-city-node-${{ runner.os }}-${{ hashFiles('experiments/noir-city/noir-graphic-city-lab/package.json') }}
 
       - name: Install JS dependencies
         if: steps.cache-node.outputs.cache-hit != 'true'
@@ -70,5 +70,5 @@ jobs:
           name: noir-graphic-city-captures-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 30
           compression-level: 3
-          path: experiments/noir-graphic-city-lab/captures/latest
+          path: experiments/noir-city/noir-graphic-city-lab/captures/latest
           if-no-files-found: error
