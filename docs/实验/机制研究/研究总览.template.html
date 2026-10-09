@@ -215,10 +215,10 @@ function renderSelection(){
 }
 function rng(state){state.rngState=(state.rngState+0x6D2B79F5)>>>0;var t=state.rngState;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}
 function d6(s){return Math.floor(rng(s)*6)+1}
-function fresh(t,skill){
+function fresh(t,skill,handSize){
  var seed=(Math.floor(Math.random()*4294967295)>>>0);
- var s={variant:t.browserVariant,seed:seed,rngState:seed,skill:skill,initialDice:[],dice:[],progress:[0,0],previous:null,actions:[],result:null,startedAt:new Date().toISOString(),hesitations:[]};
- for(var i=0;i<4;i++){var v=d6(s);s.initialDice.push(v);s.dice.push({id:i,value:v,used:false})}return s
+ var s={variant:t.browserVariant,seed:seed,rngState:seed,skill:skill,handSize:handSize,initialDice:[],dice:[],progress:[0,0],previous:null,actions:[],result:null,startedAt:new Date().toISOString(),hesitations:[]};
+ for(var i=0;i<handSize;i++){var v=d6(s);s.initialDice.push(v);s.dice.push({id:i,value:v,used:false})}return s
 }
 function odds(die,skill,mod){var n=die+skill+mod;var failures,middle;
  if(n<=1){failures=3;middle=3}else{var map={2:[2,3],3:[1,3],4:[1,2],5:[0,2],6:[0,1]};var a=map[n]||[0,0];failures=a[0];middle=a[1]}
@@ -232,7 +232,9 @@ function start(){
  if(d.live&&!d.live.result&&!window.confirm("当前这一局还没有结束。确定要放弃它并重新开始吗？"))return;
  if(d.runs.length>=20){toast("每份反馈最多记录 20 局，请先导出 JSON 再开始新一份。");return}
  var skill=Number($("difficulty")?$("difficulty").value:1);
- d.live=fresh(t,skill);d.environment="browser-sketch";choice={dieId:null,target:null};commitDraft();renderGame()
+ var size=t.browserVariant==="reactive"?Number($("capacity")?$("capacity").value:4):4;
+ if(size!==4&&size!==5)size=4;
+ d.live=fresh(t,skill,size);d.environment="browser-sketch";choice={dieId:null,target:null};commitDraft();renderGame()
 }
 function apply(){
  var d=draft(selectedId),s=d.live;
@@ -259,7 +261,7 @@ function apply(){
  s.actions.push(step);
  s.markHesitate=false;
  s.stepNote="";
- if(s.actions.length===4&&!s.result)s.result="timeout";
+ if(s.actions.length===s.dice.length&&!s.result)s.result="timeout";
  if(s.result){
   s.completedAt=new Date().toISOString();d.runs.push({...s});d.live=null;toast("本局结束，行动记录已经附在本次反馈中。")
  }
@@ -287,17 +289,28 @@ function renderGame(){
  var box=child(root,"div","game-surface");
  if(!s){
   var heading=child(box,"h3","",t.browserVariant==="reactive"?"甲 3 格 / 乙 5 格":"连续行动与换线奖励");
-  child(box,"p","minor",t.browserVariant==="reactive"?"四颗骰；第2和第4手结束后，若尚未达成目标，对手攻击领先的项目并扣最多2格（平手攻击甲）。甲完成收益1，乙完成收益2。":"四颗骰；上一手选过的目标，本手判定−1；切换目标，本手判定+1。甲完成收益1，乙完成收益2。");
+  child(box,"p","minor",t.browserVariant==="reactive"?"默认四颗骰；第2和第4手结束后，若尚未完成，对手扣除领先目标最多2格（平手甲）。可选第五颗骰子进行容量对照；这不是正式引擎规则。甲收益1，乙收益2。":"四颗骰；上一手选过的目标，本手判定−1；切换目标，本手判定+1。甲完成收益1，乙完成收益2。");
   if(d.runs.length)child(box,"p","minor","已完成 "+d.runs.length+" 局，结果已包含在反馈草稿。");
   var controls=child(box,"div","inline");child(controls,"label","minor","成长值（首轮建议 1）");
   var sel=child(controls,"select");sel.id="difficulty";[1,2].forEach(function(n){var o=child(sel,"option","",String(n));o.value=String(n)});
+  if(t.browserVariant==="reactive"){
+    var cap=child(box,"div","inline");
+    var caplabel=child(cap,"label","minor","行动容量：");caplabel.htmlFor="capacity";
+    var count=child(cap,"select");count.id="capacity";
+    [[4,"4 颗骰（原实验）"],[5,"5 颗骰（容量对照）"]].forEach(function(option){
+      var o=child(count,"option","",option[1]);o.value=String(option[0]);
+    });
+    if(d.comparisonCapacity===5)count.value="5";
+    count.addEventListener("change",function(){d.comparisonCapacity=Number(count.value);persist()});
+    child(box,"p","minor","唯一改变：多一颗行动骰；甲/乙目标、收益、判定概率、对手的第2/4手反击规则均不变。");
+  }
   box.appendChild(button(d.runs.length?"再玩一局 →":"开始四骰实验 →","button",start));
   child(root,"p","study-tip",t.officialNote);
   if(d.runs.length)renderRecentRuns(root,d);
   return
  }
- var h=child(box,"div","game-header");child(h,"span","mono","SEED "+s.seed+" / SKILL "+s.skill);child(h,"span","","已行动 "+s.actions.length+" / 4");
- var rem=t.browserVariant==="reactive"?"第 "+(s.actions.length<2?"2":"4")+" 手后敌方打击领先目标":"上一手目标："+(s.previous==="A"?"甲":s.previous==="B"?"乙":"尚无");
+ var h=child(box,"div","game-header");child(h,"span","mono","SEED "+s.seed+" / SKILL "+s.skill);child(h,"span","","已行动 "+s.actions.length+" / "+s.dice.length);
+ var rem=t.browserVariant==="reactive"?(s.actions.length>=4?"第2/4手反击已执行；可用剩余骰行动":"第 "+(s.actions.length<2?"2":"4")+" 手后敌方打击领先目标"):"上一手目标："+(s.previous==="A"?"甲":s.previous==="B"?"乙":"尚无");
  child(box,"p","round-brief",rem);
  var names=[["A","甲",3,1],["B","乙",5,2]];
  names.forEach(function(item,i){
@@ -332,7 +345,7 @@ function renderRecentRuns(root,d){
  if(!last)return;
  var p=child(root,"div","callout");
  child(p,"strong","","上一局："+(last.result==="A"?"完成甲，收益1":last.result==="B"?"完成乙，收益2":"到期未达成"));
- child(p,"p","","共 "+last.actions.length+" 手；含 "+last.actions.filter(function(a){return a.hesitated}).length+" 次你标记的犹豫。可继续试玩对比，也可直接写反馈。");
+ child(p,"p","",(last.handSize||4)+"骰配置，共 "+last.actions.length+" 手；含 "+last.actions.filter(function(a){return a.hesitated}).length+" 次你标记的犹豫。可继续试玩对比，也可直接写反馈。");
 }
 function renderFeedbackSummary(){
  var d=draft(selectedId);
@@ -390,7 +403,7 @@ function outputFeedback(){
  var t=getTask(selectedId),d=draft(selectedId),responses={};["understanding","replayInterest"].forEach(function(k){responses[k]=d.responses[k]||""});
  config.feedbackFields.forEach(function(f){responses[f.id]=d.responses[f.id]||""});
  var runs=d.environment==="browser-sketch"?d.runs.map(function(s){return {
-  variant:s.variant,seed:s.seed,skill:s.skill,initialDice:s.initialDice,startedAt:s.startedAt,completedAt:s.completedAt,
+  variant:s.variant,seed:s.seed,skill:s.skill,handSize:s.handSize||4,initialDice:s.initialDice,startedAt:s.startedAt,completedAt:s.completedAt,
   actions:s.actions,result:s.result
  }}):[];
  var feedback={schema:"ssnoir.mechanism-feedback/v1",studyId:t.id,studyTitle:t.title,createdAt:new Date().toISOString(),
