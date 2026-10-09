@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r79-r81.yml'
       - 'tools/content-validator/experiments/r79_r81_adversarial_rounds.py'
+      - 'tools/content-validator/experiments/r82_pursuit_cost_ablation.py'
       - 'tools/content-validator/experiments/r56_r65_autonomous_search.py'
 permissions:
   contents: read
@@ -29,9 +30,15 @@ jobs:
           for row in d['cases']:
               print(json.dumps(row,ensure_ascii=False))
           PY
+      - name: R82 enemy response consequence ablation
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r82_pursuit_cost_ablation.py | tee /tmp/r82.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: r79-r81-autonomous-ablation
-          path: /tmp/r79-r81.json
+          path: |
+            /tmp/r79-r81.json
+            /tmp/r82.json
           retention-days: 60
