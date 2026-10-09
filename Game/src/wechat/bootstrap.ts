@@ -55,7 +55,9 @@ g.document ||= {
 g.Image ||= wx.createImage().constructor;
 g.HTMLCanvasElement ||= canvas.constructor;
 g.CanvasRenderingContext2D ||= ctx.constructor;
-g.WebGLRenderingContext ||= gl.constructor;
+// Do NOT alias WebGL1 and WebGL2 constructors. Pixi checks the context
+// type to choose native vertex-array support vs. the WebGL1 VAO extension.
+g.WebGLRenderingContext ||= class UnavailableWebGL1Context {};
 g.WebGL2RenderingContext ||= gl.constructor;
 g.requestAnimationFrame ||= (callback: FrameRequestCallback) => canvas.requestAnimationFrame(callback);
 g.cancelAnimationFrame ||= (handle: number) => canvas.cancelAnimationFrame(handle);

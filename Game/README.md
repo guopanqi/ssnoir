@@ -48,6 +48,8 @@ npm run build:wechat       # import dist/wechat in WeChat DevTools as Mini Game
 
 The mocked-wx smoke executes the **actual bundled game.js** but still has Chromium browser APIs available. It cannot establish compatibility with the actual WeChat JavaScript engine, GPU, fonts or lifecycle.
 
+Important: do not alias WebGLRenderingContext to a WebGL2 constructor. PixiJS chooses a WebGL1 VAO extension path when context types are misidentified, which fails even when the same GPU supports native WebGL2 VAOs.
+
 The WeChat environment adapter intentionally throws for missing offscreen-canvas, remote asset fetch or XML parsing. Fix unsupported essentials deliberately after collecting device logs; do not claim that untested APIs are supported.
 
 ## Continuation
