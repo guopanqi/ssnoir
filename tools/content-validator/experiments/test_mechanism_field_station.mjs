@@ -169,7 +169,10 @@ try{
  await waitSync(page);
  await page.waitForFunction(()=>document.querySelector("#gh-user").textContent.includes("research-test-user"));
  await page.locator("#study-filter").selectOption("all");
- await choose(page,"R54");await page.locator("#gh-active button").click();
+ await choose(page,"R54");
+ // On the same browser origin, the active file is restored automatically. Only
+ // open the old file if the user had explicitly switched to a new draft.
+ if(await page.locator("#gh-active button").count())await page.locator("#gh-active button").click();
  await page.waitForFunction(()=>document.querySelector("#fb-mechanicalFeeling").value.includes("容量不足"));
  const currentSha=remote.get(full).sha;
  remote.set(full,{...remote.get(full),sha:"modified-other-device"});
