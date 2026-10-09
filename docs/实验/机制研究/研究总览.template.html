@@ -43,7 +43,9 @@
 const data=JSON.parse(document.getElementById("atlas-data").textContent);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function href(link){return '<a href="'+esc(link.href)+'">'+esc(link.label)+' ↗</a>';}
+const REPO_SOURCE="https://github.com/guopanqi/ssnoir/blob/main/docs/实验/机制研究/";
+function stableSource(h){return /^(?:https?:|#)/.test(h) ? h : new URL(h,REPO_SOURCE).href;}
+function href(link){return '<a href="'+esc(stableSource(link.href))+'">'+esc(link.label)+' ↗</a>';}
 $("lead").textContent=data.subtitle;
 $("summary").textContent=data.summary;
 $("updated").textContent=data.updated;
@@ -85,6 +87,12 @@ active=b.dataset.filter;document.querySelectorAll(".filter").forEach(x=>x.setAtt
 }));
 $("search").addEventListener("input",render);
 render();
+// Standalone Actions artifacts contain HTML + JSON only. Route source links to
+// canonical repository files, not nonexistent sibling .md paths after unzip.
+document.querySelectorAll('a[href]').forEach(a=>{
+ const h=a.getAttribute('href');
+ if(h && !/^(?:https?:|#)/.test(h))a.href=stableSource(h);
+});
 })();
 </script>
 </body></html>
