@@ -7,6 +7,7 @@ on:
       - '.github/workflows/ssnoir-r79-r81.yml'
       - 'tools/content-validator/experiments/r79_r81_adversarial_rounds.py'
       - 'tools/content-validator/experiments/r82_pursuit_cost_ablation.py'
+      - 'tools/content-validator/experiments/audit_p17_integrity_option.py'
       - 'tools/content-validator/experiments/r56_r65_autonomous_search.py'
 permissions:
   contents: read
@@ -34,6 +35,10 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/r82_pursuit_cost_ablation.py | tee /tmp/r82.json
+      - name: P17 independent option value and strong-script audit
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/audit_p17_integrity_option.py | tee /tmp/p17-option.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -41,4 +46,5 @@ jobs:
           path: |
             /tmp/r79-r81.json
             /tmp/r82.json
+            /tmp/p17-option.json
           retention-days: 60
