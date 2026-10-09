@@ -32,11 +32,12 @@ jobs:
       - name: Browser smoke and capture
         run: npm run capture
       - name: Upload build outputs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ssnoir-game-foundation
           path: |
             Game/dist/web
             Game/dist/wechat
-            Game/artifacts/foundation-web.png
+            Game/artifacts/foundation-web*.png
           retention-days: 7

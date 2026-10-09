@@ -7,6 +7,7 @@ const server = await createServer({
   server: { host: "127.0.0.1", port: 4173, strictPort: true }
 });
 let browser;
+let page;
 try {
   await server.listen();
   browser = await chromium.launch({
@@ -19,7 +20,7 @@ try {
       "--use-angle=swiftshader"
     ]
   });
-  const page = await browser.newPage({ viewport: { width: 1024, height: 576 }, deviceScaleFactor: 1 });
+  page = await browser.newPage({ viewport: { width: 1024, height: 576 }, deviceScaleFactor: 1 });
   const errors = [];
   page.on("pageerror", error => errors.push(String(error)));
   await page.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
@@ -36,6 +37,12 @@ try {
   mkdirSync("artifacts", { recursive: true });
   await page.screenshot({ path: "artifacts/foundation-web.png", fullPage: true });
   console.log("PASS: WebGL, Pixi pointertap and Scheme evaluation; screenshot saved.");
+} catch (error) {
+  if (page) {
+    mkdirSync("artifacts", { recursive: true });
+    await page.screenshot({ path: "artifacts/foundation-web-failed.png", fullPage: true }).catch(() => {});
+  }
+  throw error;
 } finally {
   if (browser) await browser.close();
   await server.close();
