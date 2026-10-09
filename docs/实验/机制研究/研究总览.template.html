@@ -159,6 +159,7 @@ function apply(){
  var ix=choice.target==="A"?0:1,threshold=ix===0?3:5;
  s.progress[ix]=Math.min(threshold,s.progress[ix]+outcome);
  die.used=true;
+ s.previous=choice.target;
  var attacked=null;
  if(s.progress[0]>=3)s.result="A";
  else if(s.progress[1]>=5)s.result="B";
@@ -170,6 +171,8 @@ function apply(){
  var note=$("step-note")?$("step-note").value.trim():"";
  var step={index:s.actions.length+1,target:choice.target,die:die.value,dieId:die.id,prepared:die.value+s.skill+mod,modifier:mod,odds:distribution,rolled:rolled,outcome:["bad","neutral","good"][outcome],gain:outcome,before:before,after:s.progress.slice(),attacked:attacked,hesitated:!!hesitate,note:note};
  s.actions.push(step);
+ s.markHesitate=false;
+ s.stepNote="";
  if(s.actions.length===4&&!s.result)s.result="timeout";
  if(s.result){
   s.completedAt=new Date().toISOString();d.runs.push({...s});d.live=null;toast("本局结束，行动记录已经附在本次反馈中。")
@@ -208,7 +211,7 @@ function renderGame(){
   return
  }
  var h=child(box,"div","game-header");child(h,"span","mono","SEED "+s.seed+" / SKILL "+s.skill);child(h,"span","","已行动 "+s.actions.length+" / 4");
- var rem=t.browserVariant==="reactive"?"第 "+(s.actions.length<2?"2":"4")+" 手后敌方打击领先目标":"上一步目标："+(s.previous||"尚无");
+ var rem=t.browserVariant==="reactive"?"第 "+(s.actions.length<2?"2":"4")+" 手后敌方打击领先目标":"上一手目标："+(s.previous==="A"?"甲":s.previous==="B"?"乙":"尚无");
  child(box,"p","round-brief",rem);
  var names=[["A","甲",3,1],["B","乙",5,2]];
  names.forEach(function(item,i){
