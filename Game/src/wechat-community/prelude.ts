@@ -8,12 +8,18 @@ import "@minisheep/three-platform-adapter/wechat-game";
 import { game } from "@minisheep/three-platform-adapter";
 
 export const communityRuntime = game.useCanvas();
-const doc = (globalThis as any).document;
-if (!doc) throw new Error("Community WeChat adapter did not provide document");
-if (typeof doc.querySelectorAll !== "function") {
-  // LIPS looks for HTML <script> tags, which do not exist in Mini Games.
-  doc.querySelectorAll = (selector: string) => {
-    if (selector === "script") return [];
-    throw new Error("Unsupported Mini Game HTML selector: " + selector);
-  };
+// The Three plugin rewrites dependency globals to THREEGlobals.document,
+// which may be a different object from globalThis.document.
+const globals = globalThis as any;
+const documents = [globals.document, globals.THREEGlobals?.document]
+  .filter((value, index, items) => value && items.indexOf(value) === index);
+if (!documents.length) throw new Error("Community WeChat adapter did not provide document");
+for (const doc of documents) {
+  if (typeof doc.querySelectorAll !== "function") {
+    // LIPS looks for HTML <script> tags, which do not exist in Mini Games.
+    doc.querySelectorAll = (selector: string) => {
+      if (selector === "script") return [];
+      throw new Error("Unsupported Mini Game HTML selector: " + selector);
+    };
+  }
 }
