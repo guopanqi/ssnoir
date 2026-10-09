@@ -86,7 +86,7 @@ function renderActive() {
   if(active && active.studyId===current){
     e.appendChild(document.createTextNode("正在编辑已提交的反馈 · "+fileLabel(active.path)));
   } else {
-    const found=records.find(x=>x.path.startsWith(DIR+"/SSNoir-feedback-"+current+"-"));
+    const found=records.find(x=>x.path.startsWith(DIR+"/SSNoir-feedback-"+current+"-")&&x.feedbackKind!=="reply")||records.find(x=>x.path.startsWith(DIR+"/SSNoir-feedback-"+current+"-"));
     if(found){
       e.appendChild(document.createTextNode("GitHub 已有这项实验的反馈。"));
       const b=document.createElement("button");b.type="button";b.className="button ghost tiny";
