@@ -196,6 +196,8 @@ try{
  await page.waitForFunction(()=>document.querySelector("#gh-operation").textContent.includes("保存冲突"));
  assert.equal(mutations,2,"conflict must not silently overwrite newer remote");
  assert(!remote.get(remoteFile).body.includes("版本冲突"));
+ assert(errors.every(e=>e.includes("409 (Conflict)")),"unexpected page error: "+errors.join("\n"));
+ errors.length=0; // mock 409 is an intentionally handled API conflict
  await page.locator("#gh-disconnect").click();
  assert.equal(await page.locator("#cloud-connected").isVisible(),false);
  assert.equal(await page.evaluate(()=>localStorage.getItem("ssnoir/github-feedback-token/v1")),null);
