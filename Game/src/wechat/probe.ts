@@ -1,5 +1,5 @@
 /**
- * Actual shared Three.js + PixiJS + BiwaScheme render path in WeChat,
+ * Actual shared Three.js + PixiJS + LIPS render path in WeChat,
  * not the earlier independent Canvas2D placeholder.
  * All adaptations live in bootstrap / Pixi DOMAdapter.
  */
@@ -26,7 +26,8 @@ mountFoundation({
   width: wechatHost.width,
   height: wechatHost.height,
   animationFrame: wechatHost.animationFrame,
-  cancelAnimationFrame: wechatHost.cancelAnimationFrame
+  cancelAnimationFrame: wechatHost.cancelAnimationFrame,
+  onError: wechatHost.showFailure
 }).then(session => {
   wechatHost.onTouchEnd((x, y) => {
     try { session.activateAt(x, y); }

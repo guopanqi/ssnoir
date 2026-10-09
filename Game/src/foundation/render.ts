@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { Container, Graphics, Text, WebGLRenderer as PixiRenderer } from "pixi.js";
-import { SchemeSession } from "../scheme/evaluate";
+import { LipsSession } from "../scheme/lips-session";
+import ssnoirStdlib from "../../../UnityClient/Assets/Resources/Content/scripts/stdlib.scm?raw";
 
 export interface FoundationOptions {
   canvas: HTMLCanvasElement;
@@ -9,10 +10,11 @@ export interface FoundationOptions {
   context?: WebGL2RenderingContext;
   animationFrame: (callback: FrameRequestCallback) => number;
   cancelAnimationFrame: (handle: number) => void;
+  onError?: (error: unknown) => void;
 }
 
 export interface FoundationSession {
-  increment(): void;
+  increment(): Promise<void>;
   activateAt(x: number, y: number): boolean;
   getCount(): number;
   resize(width: number, height: number): void;
@@ -104,17 +106,35 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   label.position.set(65, 472);
   stage.addChild(label);
 
-  const scheme = new SchemeSession();
-  scheme.evaluate("(define foundation-count 0)");
-  scheme.evaluate("(define (foundation-next!) (set! foundation-count (+ foundation-count 1)) foundation-count)");
-  let count = 0;
-  function increment(): void {
-    const value = scheme.evaluate("(foundation-next!)");
-    if (typeof value !== "number") throw new Error("Unexpected Scheme result: " + String(value));
-    count = value;
-    counterText.text = "Scheme 计算结果：" + count;
+  // This is the real LIPS runtime candidate, not an unrelated BiwaScheme probe.
+  // Confirm isolated namespaces before any user action, in both Web and WeChat.
+  const world = new LipsSession("SSNoir-foundation-world");
+  const encounter = new LipsSession("SSNoir-foundation-encounter");
+  await world.evaluate("(define foundation-local 17)");
+  await encounter.evaluate("(define foundation-local 2)");
+  if (await world.evaluateNumber("foundation-local") !== 17 ||
+      await encounter.evaluateNumber("foundation-local") !== 2) {
+    throw new Error("Scheme world/encounter interpreter isolation failed");
   }
-  increment();
+  // Import the original Scheme source at build time; no second editable copy.
+  // This is not the full game engine's native-function bridge yet.
+  await world.evaluate(ssnoirStdlib);
+  if (await world.evaluateNumber("(length (filter (lambda (x) (> x 2)) '(1 2 3 4)))") !== 2) {
+    throw new Error("Original SSNoir stdlib.scm compatibility failed");
+  }
+  await world.evaluate("(define foundation-count 0)");
+  await world.evaluate("(define (foundation-next!) (set! foundation-count (+ foundation-count 1)) foundation-count)");
+  let count = 0;
+  let actionQueue = Promise.resolve();
+  function increment(): Promise<void> {
+    actionQueue = actionQueue.then(async () => {
+      const next = await world.evaluateNumber("(foundation-next!)");
+      count = next;
+      counterText.text = "Scheme 计算结果：" + count;
+    });
+    return actionQueue;
+  }
+  await increment();
 
   let size = { width: options.width, height: options.height, scale: 1, left: 0, top: 0 };
   function resize(width: number, height: number): void {
@@ -142,7 +162,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     const yy = (y - size.top) / size.scale;
     if (xx >= BUTTON.x && xx <= BUTTON.x + BUTTON.width &&
         yy >= BUTTON.y && yy <= BUTTON.y + BUTTON.height) {
-      increment();
+      void increment().catch(error => options.onError?.(error));
       return true;
     }
     return false;

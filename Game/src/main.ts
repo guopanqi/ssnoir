@@ -14,7 +14,8 @@ async function start(): Promise<void> {
     width: window.innerWidth,
     height: window.innerHeight,
     animationFrame: callback => requestAnimationFrame(callback),
-    cancelAnimationFrame: handle => cancelAnimationFrame(handle)
+    cancelAnimationFrame: handle => cancelAnimationFrame(handle),
+    onError: error => { errorLabel.textContent = "Scheme action failed: " + String(error); }
   });
   // Browser and WX both normalize their native input to the same virtual-canvas hit test.
   // Do not assume Pixi's own DOM event system owns the Three.js WebGL canvas.
