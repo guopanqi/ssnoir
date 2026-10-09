@@ -56,7 +56,7 @@ def solve(banked):
         stay=max((q(s,hand,prev,j,opt) for j in range(len(hand))),
                  default=F(-1)) if prev>=0 and s[prev]<MAX[prev] else F(-1)
         changed=int(prev>=0 and g!=prev)
-        strict=int(changed and best>stay)
+        strict=int(changed and prev>=0 and s[prev]<MAX[prev] and best>stay)
         result=[F(changed),F(strict),F(1 if changed and len(hand)==2 and strict else 0),F(0)]
         rest=hand[:i]+hand[i+1:]
         for k,p in enumerate(odds(hand[i])):
