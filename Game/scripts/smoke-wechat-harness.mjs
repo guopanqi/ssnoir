@@ -8,7 +8,7 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1024, height: 576 } });
 const errors = [];
-page.on("pageerror", error => errors.push("pageerror: " + String(error)));
+page.on("pageerror", error => errors.push("pageerror: " + (error.stack || String(error))));
 page.on("console", msg => {
   if (msg.type() === "error") errors.push("console: " + msg.text());
   if (msg.type() === "log" && msg.text().includes("[SSNoir]")) console.log("browser:", msg.text());
@@ -35,7 +35,7 @@ try {
       showModal: detail => { throw new Error("wx.showModal: " + detail.content); }
     };
   });
-  await page.addScriptTag({ content: source });
+  await page.addScriptTag({ content: source }).catch(error => { errors.push("addScriptTag: " + (error.stack || String(error))); });
   await page.waitForFunction(
     () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 1, null, { timeout: 20000 }
   );
