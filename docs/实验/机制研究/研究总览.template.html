@@ -37,7 +37,7 @@
 </aside>
 <div class="experiment-content"><section class="workspace" id="workshop">
 <div class="detail-top"><div><span class="eyebrow" id="selected-study"></span><h2 id="selected-title"></h2><p id="selected-description"></p></div><span class="detail-state" id="selected-state"></span></div>
-<div class="detail-intro"><div><strong>研究希望观察</strong><p id="selected-observe"></p></div></div>
+<div class="detail-intro"><div><strong>研究希望观察</strong><p id="selected-observe"></p><div id="study-lineage" class="inline"></div></div></div>
 <div class="workspace-grid"><div class="panel play-panel"><div class="panel-head"><div><h3>试玩</h3><p class="desc" id="play-label"></p></div><span class="flag" id="engine-label"></span></div>
 <div id="game"></div><details class="quiet-details"><summary>正式 Unity / C# + Scheme 原型和证据</summary><div id="official"></div></details></div>
 <div class="panel feedback-panel"><div class="panel-head"><div><h3>反馈</h3><p class="desc">不需要正式报告，写下重要的时刻。</p></div><span class="flag" id="cloud-status">读取中</span></div>
@@ -50,7 +50,13 @@
 <div id="cloud-connected" class="hidden"><div class="inline"><span class="minor" id="gh-user"></span><button class="button ghost tiny" id="gh-refresh">刷新反馈</button><button class="button ghost tiny" id="gh-disconnect">清除 Token</button></div></div>
 </details></div></div>
 <section class="review-section" id="research-response"><div class="review-heading"><div><h3>研究回复</h3></div><span class="minor">按反馈版本回复 · 非实时 AI</span></div>
-<div id="research-reply" class="review-paper"></div><details class="wb-records" id="github-feedback"><summary>历史反馈 · 继续编辑</summary><div id="gh-list"></div></details></section>
+<div id="research-reply" class="review-paper"></div>
+<div class="callout" id="reply-composer">
+<strong>回复研究者 · 不修改原反馈</strong><p class="minor" id="reply-context">旧反馈与研究者回复将保留为研究记录。</p>
+<textarea id="research-reply-text" rows="3" style="width:100%;padding:10px;margin:8px 0" placeholder="我不同意哪一点？新的试玩感受是什么？下一步应该怎样研究？"></textarea>
+<div class="inline"><button id="gh-reply" class="button">提交独立回帖 ↗</button><span id="reply-status" class="minor" role="status"></span></div>
+</div><div id="thread-history" aria-live="polite"></div>
+<details class="wb-records" id="github-feedback"><summary>历史反馈 · 继续编辑</summary><div id="gh-list"></div></details></section>
 </section></div></div></section>
 <section class="wb-page hidden" id="map">
 <div class="simple-heading"><div><span class="section-label">RESEARCH MAP / 探索路径</span><h1>我们探索了哪些方向？</h1><p class="simple-subtitle">沿着分支查看已研究的机制。点击任一节点，阅读实际证据、局限和后续问题。</p></div><span class="simple-count" id="wb-map-count"></span></div>
@@ -157,6 +163,12 @@ function renderSelection(){
  $("selected-title").textContent=t.title;
  $("selected-description").textContent=t.intro+" "+t.purpose;
  $("selected-observe").textContent=t.observe[0];
+ var lineage=$("study-lineage");lineage.replaceChildren();
+ var relatedId=t.derivedFrom||(t.id==="R50"?"R55":null);
+ if(relatedId&&getTask(relatedId)){
+  lineage.appendChild(button(t.derivedFrom?"查看原版 "+relatedId+" ↗":"进入独立改版 "+relatedId+" →","button ghost tiny",function(){choose(relatedId)}));
+  child(lineage,"span","minor",t.derivedFrom?"这是独立实验，不修改原版数据。":"旧反馈不必修改，新版单独试玩和提交。");
+ }
  $("play-label").textContent=t.mode==="browser-demo"?"本页可直接试玩。其规则由正式实验抽象而来，但不调用C#引擎。":"只有正式运行入口，当前没有伪造的网页演示。";
  $("engine-label").textContent=t.mode==="browser-demo"?"独立网页示意版":"正式引擎入口";
  renderGame();renderOfficial();renderFeedback();
@@ -172,7 +184,7 @@ function odds(die,skill,mod){var n=die+skill+mod;var failures,middle;
  if(n<=1){failures=3;middle=3}else{var map={2:[2,3],3:[1,3],4:[1,2],5:[0,2],6:[0,1]};var a=map[n]||[0,0];failures=a[0];middle=a[1]}
  return [failures,middle,6-failures-middle]
 }
-function modifier(s,target){return s.variant==="echo"&&s.previous!==null?(target===s.previous?-1:1):0}
+function modifier(s,target){return (s.variant==="echo"||s.variant==="echo-dual")&&s.previous!==null?(target===s.previous?-1:1):0}
 function selectDraftRun(){var d=draft(selectedId);return d.live||null}
 var choice={dieId:null,target:null};
 function start(){
@@ -180,7 +192,7 @@ function start(){
  if(d.live&&!d.live.result&&!window.confirm("当前这一局还没有结束。确定要放弃它并重新开始吗？"))return;
  if(d.runs.length>=20){toast("每份反馈最多记录 20 局，请先导出 JSON 再开始新一份。");return}
  var skill=Number($("difficulty")?$("difficulty").value:1);
- var size=t.browserVariant==="reactive"?Number($("capacity")?$("capacity").value:4):4;
+ var size=t.browserVariant==="echo-dual"?5:(t.browserVariant==="reactive"?Number($("capacity")?$("capacity").value:4):4);
  if(size!==4&&size!==5)size=4;
  var previous=(t.browserVariant==="echo"&&d.runs.length)?d.runs[d.runs.length-1]:null;
  var repeat=previous&&$("r50-repeat-seed")?.checked&&previous.variant==="echo";
@@ -198,13 +210,14 @@ function apply(){
  if(!die){toast("所选骰子不可用。");return}
  var before=s.progress.slice(),mod=modifier(s,choice.target),distribution=odds(die.value,s.skill,mod);
  var rolled=d6(s),outcome=rolled<=distribution[0]?0:(rolled<=distribution[0]+distribution[1]?1:2);
- var ix=choice.target==="A"?0:1,threshold=ix===0?3:5;
+ var ix=choice.target==="A"?0:1,threshold=ix===0?3:(s.variant==="echo-dual"?4:5);
  s.progress[ix]=Math.min(threshold,s.progress[ix]+outcome);
  die.used=true;
  s.previous=choice.target;
  var attacked=null;
- if(s.progress[0]>=3)s.result="A";
- else if(s.progress[1]>=5)s.result="B";
+ if(s.variant==="echo-dual"&&s.progress[0]>=3&&s.progress[1]>=4)s.result="both";
+ else if(s.variant!=="echo-dual"&&s.progress[0]>=3)s.result="A";
+ else if(s.variant!=="echo-dual"&&s.progress[1]>=5)s.result="B";
  else if(s.variant==="reactive"&&((s.actions.length+1)%2===0)){
   attacked=s.progress[0]>=s.progress[1]?"A":"B";
   var hit=attacked==="A"?0:1;s.progress[hit]=Math.max(0,s.progress[hit]-2);
@@ -215,7 +228,9 @@ function apply(){
  s.actions.push(step);
  s.markHesitate=false;
  s.stepNote="";
- if(s.actions.length===s.dice.length&&!s.result)s.result="timeout";
+ if(s.actions.length===s.dice.length&&!s.result){
+  s.result=s.variant==="echo-dual"?(s.progress[0]>=3?"A":s.progress[1]>=4?"B":"timeout"):"timeout";
+ }
  if(s.result){
   s.completedAt=new Date().toISOString();d.runs.push({...s});d.live=null;toast("本局结束，行动记录已经附在本次反馈中。")
  }
@@ -242,8 +257,8 @@ function renderGame(){
  var d=draft(selectedId),s=d.live;
  var box=child(root,"div","game-surface");
  if(!s){
-  var heading=child(box,"h3","",t.browserVariant==="reactive"?"甲 3 格 / 乙 5 格":"连续行动与换线奖励");
-  child(box,"p","minor",t.browserVariant==="reactive"?"默认四颗骰；第2和第4手结束后，若尚未完成，对手扣除领先目标最多2格（平手甲）。可选第五颗骰子进行容量对照；这不是正式引擎规则。甲收益1，乙收益2。":"四颗骰；上一手选过的目标，本手判定−1；切换目标，本手判定+1。甲完成收益1，乙完成收益2。");
+  var heading=child(box,"h3","",t.browserVariant==="reactive"?"甲 3 格 / 乙 5 格":t.browserVariant==="echo-dual"?"双成果改道 · 独立新实验":"连续行动与换线奖励");
+  child(box,"p","minor",t.browserVariant==="reactive"?"默认四颗骰；第2和第4手结束后，若尚未完成，对手扣除领先目标最多2格（平手甲）。可选第五颗骰子进行容量对照；这不是正式引擎规则。甲收益1，乙收益2。":t.browserVariant==="echo-dual"?"五颗骰；甲3格得1、乙4格得2，两项成果可以分别兑现、累加至3。完成一项后继续争取另一项。继续同目标−1，切换+1；没有伤势或额外回合。":"四颗骰；上一手选过的目标，本手判定−1；切换目标，本手判定+1。甲完成收益1，乙完成收益2。");
   if(d.runs.length)child(box,"p","minor","已完成 "+d.runs.length+" 局，结果已包含在反馈草稿。");
   var controls=child(box,"div","inline");child(controls,"label","minor","成长值（首轮建议 1）");
   var sel=child(controls,"select");sel.id="difficulty";[1,2].forEach(function(n){var o=child(sel,"option","",String(n));o.value=String(n)});
@@ -283,7 +298,7 @@ function renderGame(){
     count.addEventListener("change",function(){d.comparisonCapacity=Number(count.value);persist()});
     child(box,"p","minor","唯一改变：多一颗行动骰；甲/乙目标、收益、判定概率、对手的第2/4手反击规则均不变。");
   }
-  box.appendChild(button(d.runs.length?"再玩一局 →":"开始四骰实验 →","button",start));
+  box.appendChild(button(d.runs.length?"再玩一局 →":t.browserVariant==="echo-dual"?"开始 R55 新版实验 →":"开始四骰实验 →","button",start));
   child(root,"p","study-tip",t.officialNote);
   if(d.runs.length)renderRecentRuns(root,d);
   return
@@ -296,11 +311,17 @@ function renderGame(){
  }
  var rem=t.browserVariant==="reactive"?(s.actions.length>=4?"第2/4手反击已执行；可用剩余骰行动":"第 "+(s.actions.length<2?"2":"4")+" 手后敌方打击领先目标"):"上一手目标："+(s.previous==="A"?"甲":s.previous==="B"?"乙":"尚无");
  child(box,"p","round-brief",rem);
- var names=[["A","甲",3,1],["B","乙",5,2]];
+ if(s.variant==="echo-dual"){
+ var achieved=(s.progress[0]>=3?1:0)+(s.progress[1]>=4?2:0);
+ var promise=child(box,"div","callout");
+ child(promise,"strong","","已兑现成果 "+achieved+" / 3 · 剩余 "+(s.dice.length-s.actions.length)+" 手");
+ child(promise,"p","","甲、乙都可以完成，进度保留。你并非在两项互斥结局间下注。");
+ }
+ var names=s.variant==="echo-dual"?[["A","甲",3,1],["B","乙",4,2]]:[["A","甲",3,1],["B","乙",5,2]];
  names.forEach(function(item,i){
   var g=child(box,"button","goal"+(choice.target===item[0]?" active":""));
-  g.type="button";var top=child(g,"div","goal-top");child(top,"strong","",item[1]+" / "+s.progress[i]+" of "+item[2]);child(top,"span","","完成收益 "+item[3]);progressBar(g,s.progress[i],item[2]);
-  g.addEventListener("click",function(){choice.target=item[0];renderGame()});
+  g.type="button";g.disabled=s.variant==="echo-dual"&&s.progress[i]>=item[2];var top=child(g,"div","goal-top");child(top,"strong","",item[1]+" / "+s.progress[i]+" of "+item[2]);child(top,"span","","完成收益 "+item[3]);progressBar(g,s.progress[i],item[2]);
+  g.addEventListener("click",function(){if(!g.disabled){choice.target=item[0];renderGame()}});
  });
  child(box,"div","minor","选择这次使用的骰子");
  var dice=child(box,"div","die-row");s.dice.forEach(function(die){
@@ -328,7 +349,7 @@ function renderRecentRuns(root,d){
  var last=d.runs[d.runs.length-1];
  if(!last)return;
  var p=child(root,"div","callout");
- child(p,"strong","","上一局："+(last.result==="A"?"完成甲，收益1":last.result==="B"?"完成乙，收益2":"到期未达成，收益0")); 
+ child(p,"strong","","上一局："+(last.result==="both"?"完成甲乙，收益3":last.result==="A"?"完成甲，收益1":last.result==="B"?"完成乙，收益2":"到期未达成，收益0")); 
  if(last.variant==="echo"){
    child(p,"p","minor","展示条件："+(last.presentation==="goal-explicit"?"目标明确":"原版简略说明")+"。所有判定与目标阈值相同；无论哪种展示，这一网页局都没有伤势。");
  }
@@ -341,6 +362,12 @@ function renderFeedbackSummary(){
 function renderOfficial(){
  var t=getTask(selectedId),root=$("official");root.replaceChildren();
  child(root,"p","minor",t.officialNote);
+ if(t.browserOnly){
+  var info=child(root,"div","callout");child(info,"strong","","此项尚无正式 C# / Scheme 场景");
+  child(info,"p","","R55为独立网页假设，不应与原R50正式原型混同。");
+  var source=anch("查看R55精确数学模型 ↗",link("../../../"+t.official));source.target="_blank";source.rel="noopener noreferrer";info.appendChild(source);
+  return;
+ }
  var code=child(root,"pre","official-code","./run --session "+t.experiment+" --seed 19 --growth 1");
  var links=child(root,"div","inline");
  var a=anch("正式 Scheme 规则 ↗",link("../../../"+t.official));a.target="_blank";a.rel="noopener noreferrer";links.appendChild(a);

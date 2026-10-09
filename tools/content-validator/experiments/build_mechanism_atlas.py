@@ -71,7 +71,7 @@ def validate_tasks(data:dict,library:dict)->None:
         assert (ROOT/t["official"]).is_file(),t["official"]
         assert local_href_exists(t["record"]),t["record"]
         if t["mode"]=="browser-demo":
-            assert t["browserVariant"] in ("echo","reactive")
+            assert t["browserVariant"] in ("echo","reactive","echo-dual")
         assert isinstance(t["observe"],list) and len(t["observe"])>=2
         assert isinstance(t["askAfter"],list) and len(t["askAfter"])>=2
     ids=[t["id"] for t in data["feedbackFields"]]

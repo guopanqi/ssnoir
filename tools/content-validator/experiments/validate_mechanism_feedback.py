@@ -49,8 +49,9 @@ def check(path:Path, tasks:dict)->dict:
         hand_size=run.get("handSize",4)
         assert type(hand_size) is int and hand_size in (4,5)
         if hand_size==5:
-            assert study=="R54" and run["variant"]=="reactive", (
-                "Only R54 browser capacity control permits five dice")
+            assert ((study=="R54" and run["variant"]=="reactive") or
+                    (study=="R55" and run["variant"]=="echo-dual")), (
+                "Five dice only for R54 capacity or R55 new prototype")
         assert isinstance(run.get("initialDice"),list) and len(run["initialDice"])==hand_size
         assert all(type(d)==int and 1<=d<=6 for d in run["initialDice"])
         assert run.get("skill") in (1,2)
