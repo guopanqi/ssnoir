@@ -80,7 +80,7 @@ def check(path:Path, tasks:dict)->dict:
         assert all(c in "0123456789abcdef" for c in target["feedbackSha"].lower())
         assert isinstance(target.get("headline",""),str) and len(target["headline"])<1000
         assert isinstance(responses.get("mechanicalFeeling"),str) and bool(responses["mechanicalFeeling"].strip())
-        notes=data.get("notes",[])
+    notes=data.get("notes",[])
     assert isinstance(notes,list) and len(notes)<=50
     assert all(isinstance(n,str) and len(n)<12000 for n in notes)
     assert runs or notes or any(responses.get(k,"").strip() for k in RESPONSE_KEYS), (
