@@ -100,7 +100,7 @@
   (加入 (theatre-with (theatre-glow "按钮光" "立面" "#FFBF55" 924 590 24 24) 'opacity 0))
   (加入 (theatre-with (theatre-glow "电铃信号" "立面" "#FFBF55" 922 563 64 64) 'opacity 0))
   (加入 (theatre-focus "焦点" 800 576 .20 .52))
-  (加入 (theatre-with (theatre-glow "说话柔光" "" "#8FB4E8" 860 560 600 840) 'opacity .16))
+  (加入 (theatre-with (theatre-glow "说话柔光" "" "#8FB4E8" 860 560 600 840) 'opacity 0))
   (加入 (theatre-with (theatre-glow "门前柔光" "门光" "#F4CF80" 0 -80 600 840) 'opacity .26))
   (加入 (theatre-glow "门前光池" "门光" "#F4CF8055" 0 150 400 50))
   (加入 (theatre-with (theatre-group "夜莺位置" "" -200 790) 'opacity 0))
