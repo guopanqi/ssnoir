@@ -24,3 +24,6 @@ An isolated-instance smoke suite is added in Game/tests/lips-candidate.test.mjs.
 If LIPS fails a requirement, record the failure and investigate another mature library or a narrowly scoped isolate/namespace patch. Do not silently modify existing .scm syntax just to make a candidate pass.
 
 **Decision status:** undecided. A green rendering smoke test does not certify game runtime semantics.
+
+
+Follow-up LIPS checks: load the actual unmodified SSNoir `scripts/stdlib.scm` and confirm native Scheme `set!` remains isolated between world and encounter environments after both are initialized. This validates more than simply using different symbol names.

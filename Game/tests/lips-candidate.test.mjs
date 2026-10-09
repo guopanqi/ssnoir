@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { Interpreter } from "lips";
 
 function make(name) {
@@ -33,4 +34,23 @@ test("LIPS candidate: standard Scheme truth and macro", async () => {
   await vm.exec("(define x 0)");
   await vm.exec("(define-macro (inc!) '(set! x (+ x 1)))");
   assert.equal(String(await value(vm, "(begin (inc!) x)")), "1");
+});
+
+
+test("LIPS candidate: real SSNoir stdlib unmodified", async () => {
+  const vm = make("SSNoir-stdlib");
+  const source = readFileSync("../UnityClient/Assets/Resources/Content/scripts/stdlib.scm", "utf8");
+  await vm.exec(source);
+  assert.equal(String(await value(vm, '(assoc-get (list (list "day" 14)) "day" -1)')), "14");
+  assert.equal(String(await value(vm, "(length (filter (lambda (x) (> x 2)) '(1 2 3 4)))")), "2");
+});
+
+test("LIPS candidate: world and encounter share native state but not bindings", async () => {
+  const world = make("SSNoir-world-isolation-2");
+  const encounter = make("SSNoir-encounter-isolation-2");
+  await world.exec("(define event-stage 11)");
+  await encounter.exec("(define event-stage 7)");
+  await world.exec("(set! event-stage 12)");
+  assert.equal(String(await value(world, "event-stage")), "12");
+  assert.equal(String(await value(encounter, "event-stage")), "7");
 });
