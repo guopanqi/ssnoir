@@ -1,0 +1,21 @@
+name: SSNoir Mechanism Human Feedback
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/ssnoir-mechanism-feedback.yml'
+      - 'docs/实验/机制研究/反馈/inbox/**'
+      - 'docs/实验/机制研究/试玩任务.json'
+      - 'tools/content-validator/experiments/validate_mechanism_feedback.py'
+permissions:
+  contents: read
+jobs:
+  validate-feedback:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate player-supplied JSON without changing it
+        run: python3 tools/content-validator/experiments/validate_mechanism_feedback.py

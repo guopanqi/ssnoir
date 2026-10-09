@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "updated": "2026-10-09",
+  "headline": "决定下一轮研究方向，需要哪些真人证据？",
+  "intro": "我们研究的是抽象决策关系：玩家为什么改变目标、顺序和分配，而非故事、美术或最大化胜率。真人的犹豫、理解和重复感不能被求解器替代。",
+  "current": [
+    "54个编号研究批次（R01–R54；R48未执行）",
+    "六种精选模式，非六个已证实好玩的系统",
+    "R54通过15局正式C#会话，R50通过12局正式C#会话"
+  ],
+  "nonPromoted": [
+    {
+      "id": "R51",
+      "title": "机会窗口",
+      "summary": "每手随机给某目标判定优势，但强固定目标顺序已经解释大部分效用；单体暂缓。"
+    },
+    {
+      "id": "R52",
+      "title": "完成短目标返还骰子",
+      "summary": "在冻结规则下「先完成短目标」恰好是最优，额外规则没有带来新取舍。"
+    },
+    {
+      "id": "R53",
+      "title": "风险热度与冷却",
+      "summary": "最简单的轮换方式几乎解释完整策略；保留边界，不继续为单体扫参。"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "R54",
+      "patternId": "reactive",
+      "rank": 1,
+      "title": "对手追击领先目标",
+      "badge": "最希望先试玩",
+      "stage": "正式规则已验证 · 真人未评",
+      "mode": "browser-demo",
+      "browserVariant": "reactive",
+      "estimatedMinutes": "约 3–5 分钟",
+      "intro": "两项替代目标，达成任一项便结算。每两手对手打击当前进度较高的一条。",
+      "experiment": "encounters/研究·追击领先目标",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm",
+      "record": "批次/R51-R54-结构广度探索/研究记录.md",
+      "sourceRun": "https://github.com/guopanqi/ssnoir/actions/runs/37887824281",
+      "askBefore": "先按你自己的理解行动，不必追求最高收益；第一局尽量别看研究者求解结论。",
+      "observe": [
+        "你能不能自然预测对手下一次攻击哪项？",
+        "你是否因为预计遭到攻击而改变了推进顺序？",
+        "如果发现某条简单口诀，你愿不愿继续玩？"
+      ],
+      "askAfter": [
+        "第一次真正改变原计划发生在哪里？",
+        "对手的反应能帮助你思考，还是增加机械算计？",
+        "你觉得这套规则下一局还会出现新判断吗？"
+      ],
+      "purpose": "寻找有意引导攻击的决策，而不是证明模型期望效用高。",
+      "officialNote": "浏览器为规则一致性目标的简化实现，并非调用正式 Scheme；若在Unity或本地C#中试玩，请在反馈中选择「正式规则」。"
+    },
+    {
+      "id": "R50",
+      "patternId": "echo",
+      "rank": 2,
+      "title": "动作回声",
+      "badge": "第二优先",
+      "stage": "正式规则已验证 · 真人未评",
+      "mode": "browser-demo",
+      "browserVariant": "echo",
+      "estimatedMinutes": "约 3–5 分钟",
+      "intro": "同一目标连续投入，下一次判定会变难；切换目标则变容易。",
+      "experiment": "encounters/研究·动作回声",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·动作回声.scm",
+      "record": "批次/R50-动作回声/研究记录.md",
+      "sourceRun": "https://github.com/guopanqi/ssnoir/actions/runs/37885651004",
+      "askBefore": "先尝试两局。观察自己是否真的根据当前进度而换目标，不必追求最优。",
+      "observe": [
+        "你是否看懂了「延续 −1 / 切换 +1」的实际影响？",
+        "是否总觉得应当轮流操作两个目标？",
+        "快到终点时，你会为了兑现而放弃切换奖励吗？"
+      ],
+      "askAfter": [
+        "是规则本身让你愿意思考，还是纯粹在优化赔率？",
+        "你会给第一次玩的玩家怎么解释这套规则？",
+        "第二局的决策与第一局有什么不同？"
+      ],
+      "purpose": "判断行动间联系能否构成自然的持续决策，而非强制轮流。",
+      "officialNote": "浏览器只重现这一轮抽象规则，不执行C#的背包、伤势和其他整局机制。"
+    },
+    {
+      "id": "R37",
+      "patternId": "pressure",
+      "rank": 3,
+      "title": "压力预算",
+      "badge": "多回合对照",
+      "stage": "正式交锋已验证 · 真人未评",
+      "mode": "official-only",
+      "estimatedMinutes": "约 10–15 分钟",
+      "intro": "推进主目标时生成问题，若放着不处理，压力会在后续回合恶化。",
+      "experiment": "encounters/研究·压力预算",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·压力预算.scm",
+      "record": "批次/R37-压力预算正式接入/README.md",
+      "sourceRun": "",
+      "askBefore": "优先使用正式游戏里的交锋调试入口，尝试两种不同的推进方式。",
+      "observe": [
+        "哪一次你主动暂停主目标去处理新增问题？",
+        "如果所有问题都能按固定顺序修理，这个结构还值得保留吗？",
+        "多回合压力是清晰的抉择还是繁重的记账？"
+      ],
+      "askAfter": [
+        "你能预判什么行为会产生新的问题吗？",
+        "哪一手的优先级改变对你最明显？",
+        "是否能想出不依赖熟悉规则的不同打法？"
+      ],
+      "purpose": "这是较成熟的复合结构，需要人类检查可读性和重复感。",
+      "officialNote": "目前没有网页等价版本。请用Unity调试面板「交锋测试（直接进入）」或本地 C# 会话。"
+    },
+    {
+      "id": "R49",
+      "patternId": null,
+      "rank": 4,
+      "title": "迟到的目标",
+      "badge": "低优先 / 对照",
+      "stage": "原生可运行 · 动态增益较弱",
+      "mode": "official-only",
+      "estimatedMinutes": "约 5 分钟",
+      "intro": "两次准备后才会指定真正有效的目标，比较集中准备与分散投入。",
+      "experiment": "encounters/研究·迟到的目标",
+      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·迟到的目标.scm",
+      "record": "批次/R49-迟到的目标/README.md",
+      "sourceRun": "https://github.com/guopanqi/ssnoir/actions/runs/37884657667",
+      "askBefore": "这是次要参考：有兴趣再测，重点看是否在揭示前就形成固定准备口诀。",
+      "observe": [
+        "你是在押注、分散风险，还是完全依赖骰面？",
+        "第一次准备完成后，你的第二次选择有没有真正改变？"
+      ],
+      "askAfter": [
+        "它能让你犹豫，还是大部分时间开局就知道准备哪项？"
+      ],
+      "purpose": "识别该基础结构是否值得在未来与其他机制组合。",
+      "officialNote": "仅开放正式 Unity / C# 入口；没有为此重复制作一个浏览器引擎。"
+    }
+  ],
+  "feedbackFields": [
+    {
+      "id": "decisiveMoment",
+      "label": "哪一手或哪个结果让你停下来想了一下？",
+      "placeholder": "例如：第二手结果出来以后，我本来想继续乙，但……"
+    },
+    {
+      "id": "decisionChange",
+      "label": "有没有改变计划？为什么？",
+      "placeholder": "可以写没有改变；如果有，最初计划是什么、后来考虑了什么？"
+    },
+    {
+      "id": "mechanicalFeeling",
+      "label": "这套规则带来的感觉是什么？",
+      "placeholder": "比如：不断重新判断、像执行口诀、被规则强迫轮流、自然、有压力、难以理解……"
+    },
+    {
+      "id": "friction",
+      "label": "哪里难懂、重复或不想继续？",
+      "placeholder": "包括规则表达、界面、随机结果、操作方式，以及你认为不必要的规则。"
+    },
+    {
+      "id": "ideas",
+      "label": "其他想法（可留空）",
+      "placeholder": "自由评论，或者建议研究什么新的抽象结构。"
+    }
+  ],
+  "inboxPath": "docs/实验/机制研究/反馈/inbox/",
+  "protocol": "docs/实验/机制研究/反馈/README.md"
+}
