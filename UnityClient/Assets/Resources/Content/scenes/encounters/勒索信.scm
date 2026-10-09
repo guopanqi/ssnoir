@@ -75,11 +75,10 @@
 ;; 主题优先于一切，播完必须有人还——就是这里。
 (define chase-saved-music #f)
 
-;; 开场、幕转和收尾都由勒索信交锋自己拥有；世界只负责进入本交锋。
+;; 城市侧剧场负责相见与投信；交锋负责蹲守提示、幕转和收尾。
 (define (on-encounter-enter)
   ;; 进场先收 音乐 的值：第二幕主题盖过去，收场（finish!/倒下）原样还回去。
   (set! chase-saved-music (get-global '音乐))
-  (play-video! "勒索信-投信")
   (spotlight! "找出嫌疑人"
     "观察路过的人们的举止，分辨出嫌疑人！"))
 
@@ -284,7 +283,6 @@
             (else ""))))))
 
 (define (begin-chase!)
-  (play-video! "勒索信-追上他")
   (set! act 2)
   ;; 第二幕全程追逐主题，盖过唱片机和城市默认声；进场时收的值，收场时原样还回去。
   (set-global! '音乐 "主题-追逐")
@@ -447,7 +445,6 @@
         (set-global! '音乐 chase-saved-music)
         ;; 摩托车冲出来是这段追逐的固定收尾：它迫使你闪开，但不等于自动受伤。
         ;; 伤势只由具体行动的 outcome 产生，不能让所有追上路线都暗中追加一格伤势。
-        (play-video! "勒索信-跟丢了")
         (if (> (recovered-money) 0)
             (add-item! "金钱" (recovered-money))
             #f)
