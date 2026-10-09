@@ -70,7 +70,7 @@ export const wechatHost = {
   createOffscreenCanvas,
   createImage: () => wx.createImage(),
   getCanvas2DConstructor: () => ctx.constructor as typeof CanvasRenderingContext2D,
-  getGLConstructor: () => gl.constructor as typeof WebGLRenderingContext,
+  getGLConstructor: () => g.WebGLRenderingContext as typeof WebGLRenderingContext,
   getNavigator: () => g.navigator,
   getBaseUrl: () => g.location.href as string,
   animationFrame: (callback: FrameRequestCallback) => canvas.requestAnimationFrame(callback) as number,
