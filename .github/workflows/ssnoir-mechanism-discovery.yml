@@ -1,0 +1,50 @@
+name: SSNoir Mechanism Discovery R51-R54
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/ssnoir-mechanism-discovery.yml'
+      - 'tools/content-validator/experiments/r51_r54_structure_screen.py'
+      - 'tools/content-validator/experiments/r54_reactive_foe_smoke.py'
+      - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm'
+permissions:
+  contents: read
+jobs:
+  abstract-discovery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact structural comparisons and strong-policy falsification
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r51_r54_structure_screen.py --output /tmp/r51-r54-screen.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open("/tmp/r51-r54-screen.json",encoding="utf-8"))
+          for key in ("R51_external_window","R52_completion_rebate","R53_reversible_heat","R54_reactive_opponent"):
+              for row in d[key]:
+                  print(key, "skill",row["skill"], "gap",row["gap_over_strong_fixed"]["decimal"])
+          PY
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Build official headless C# and Scheme runner
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: Validate official Content
+        run: dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --validate
+      - name: Native reactive-target session and strict replay
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r54_reactive_foe_smoke.py | tee /tmp/r54-native.json
+      - name: Upload discovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-r51-r54-abstract-discovery
+          path: |
+            /tmp/r51-r54-screen.json
+            /tmp/r54-native.json
+          retention-days: 21
