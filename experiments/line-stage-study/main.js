@@ -3,7 +3,9 @@ import {story,performanceAt,starts,stories,selectStory} from './story.js?v=rain-
 import {castStyles,sprite} from './cast.js?v=no-mic-1';
 import {StoryPlayer} from './player.js';
 import {StageSound} from './sound.js?v=rain-story-1';
-import {defaultInk,flatTreatments,mountInkEditor,applyInk} from './editor.js?v=neutral-ink-1';
+import {defaultInk,flatTreatments} from './portrait-settings.js';
+import {mountInkEditor} from './editor.js?v=organized-1';
+import {applyInk} from './portrait-renderer.js';
 const $=s=>document.querySelector(s);
 const state={scene:'lamp',bg:'absent',person:'raw',style:'originalNeon',acting:'neutral',blur:28,opacity:24,lines:65,comparison:null,speed:1,ink:{...defaultInk},mask:true,reaction:true};
 const modes={absent:{blur:28,opacity:0,title:'完全退场'},fog:{blur:28,opacity:24,title:'重度失焦'},trace:{blur:5,opacity:30,title:'3D 轮廓残影'}};
