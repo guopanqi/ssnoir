@@ -23,7 +23,7 @@ npm run start:desktop   # run build:web first; requires Electron installed
 npm run build:wechat    # import Game/dist/wechat in WeChat developer tools as Mini Game
 ```
 
-`npm run capture` uses Playwright Chromium. Install once with `npx playwright install chromium`; its screenshot is saved in `artifacts/foundation-web.png`. The CI uploads the capture with the build products. A passing interaction smoke test is not a visual-quality review.
+`npm run capture` uses Playwright Chromium. Install once with `npx playwright install chromium`; its screenshot is saved in `artifacts/foundation-web.png`. The CI uploads the capture with the build products. It also writes a commit status `ssnoir/game-foundation` with a link to the exact Actions run, so subsequent agents can inspect its outcome and logs without confusing a successful Git push with a passing build. A passing interaction smoke test is not a visual-quality review.
 
 `npm run verify` checks *buildability*; **it does not prove** browser rendering, desktop GPU rendering, touch behavior, or WeChat runtime compatibility. For the browser, open the preview, click the cream card and verify the Scheme count increments while a 3D city is visible. For desktop, run the Electron shell after `build:web`. For WeChat, replace the tourist AppID as needed and run the generated host probe in developer tools and on both target phone OSes. Confirm that canvas renders and prints `Scheme result: 42`.
 

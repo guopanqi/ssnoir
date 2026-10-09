@@ -26,12 +26,12 @@ try {
   await page.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
   await page.waitForFunction(
     () => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 1,
-    { timeout: 20000 }
+    null, { timeout: 20000 }
   );
   await page.mouse.click(160, 483);
   await page.waitForFunction(
     () => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 2,
-    { timeout: 10000 }
+    null, { timeout: 10000 }
   );
   if (errors.length) throw new Error(errors.join("\n"));
   mkdirSync("artifacts", { recursive: true });
