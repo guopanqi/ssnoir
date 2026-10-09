@@ -90,7 +90,8 @@
     "R81：有移动策略收益，不代表追击反馈真的影响行为；该版追击开关的动作价值差完全为0。",
     "R82：若真实追击会导致回合末被射击而需选择换位或躲避，则追击开关对期望值影响约−0.01166，证明独立因果非零，不证明愉悦感。",
     "20独立结构候选与3个手动批准Debug入口维持隔离；20候选已过原生起手烟测，其中4个有作者控制的因果动作，只有3个有独立真人反馈来源。质量分层不允许合并计算。",
-    "下一批优先从情景可读性/正常路径行动决策反证，不靠堆状态和重新命名冲20高质量。"
+    "下一批优先从情景可读性/正常路径行动决策反证，不靠堆状态和重新命名冲20高质量。",
+    "P17专用精确因果消融：允许逼问+污染再核实，相对只倾听可信完成概率绝对提高0.01359，但未计冷静/住院，证据仅为数学纸面；保留作为正式逐手反证目标，不自动准入Debug。"
   ],
   "history": [
     {
@@ -500,5 +501,19 @@
       "humanGate": false
     }
   ],
-  "policy": "自主继续，先分析语义/信息可见性及便宜反证，再对照最强简单策略和新增规则直接关闭；验证结果与人类乐趣分层，Debug绝不自动晋升。"
+  "policy": "自主继续，先分析语义/信息可见性及便宜反证，再对照最强简单策略和新增规则直接关闭；验证结果与人类乐趣分层，Debug绝不自动晋升。",
+  "focusedAudits": [
+    {
+      "id": "P17",
+      "name": "诚信优先：进度污染清理是否真实值得做",
+      "date": "2026-10-09",
+      "evidence": "https://github.com/guopanqi/ssnoir/actions/runs/37946997677",
+      "scope": "4-die exact paper R17-like original action transitions, no stamina, hospitalization or formal round end",
+      "probabilityWith": 0.962559299,
+      "probabilityWithout": 0.948969288,
+      "absoluteGain": 0.013590011,
+      "strictHandRoots": 75,
+      "lesson": "First demonstrate actual feature contribution, then validate countervailing pressure costs in official C# and real player paths before promotion."
+    }
+  ]
 }

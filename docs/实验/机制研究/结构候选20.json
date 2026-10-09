@@ -263,10 +263,20 @@
       "knownCounterexample": "清洗总是最后固定一手",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "validation": "原生受控行动确实展示先制造假话再以进度换可信度。补充四骰数学消融：逼问+清理选项改善可信完成概率约1.36个百分点，但完整冷静、住院与提交条件未建模。仍需真实决策路径与人类评价。",
       "humanFeedbackRelated": false,
       "nativeStartsAndShowsActions": true,
-      "nativeCausalActionWitness": true
+      "nativeCausalActionWitness": true,
+      "paperFeatureAudit": {
+        "scope": "exact Fraction toy abstraction of Scheme, 4 dice, composure and health excluded; not native proof",
+        "withForcedQuestioning": 0.962559299,
+        "withoutForcedQuestioning": 0.948969288,
+        "absoluteOptionGain": 0.013590011,
+        "bestFixedScript": 0.951212658,
+        "strictRootsWithFeatureGain": 75,
+        "strictRootsOverBestScript": 63,
+        "run": "https://github.com/guopanqi/ssnoir/actions/runs/37946997677"
+      }
     },
     {
       "id": "P18",
