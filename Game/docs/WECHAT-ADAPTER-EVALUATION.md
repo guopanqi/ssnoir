@@ -26,3 +26,23 @@ SSNOIR_WX_CANVAS_MODE=missing npm run smoke:wechat-community
 ```
 
 Automatic tests do not establish actual WeChat or TapTap device support.
+
+## Actual evaluation result (2026-10-09)
+
+**Status: Candidate builds, but fails runtime smoke; DO NOT merge to main yet.**
+
+- Registry `https://npm.minisheep.cn` was reachable from a clean GitHub-hosted Linux runner. The community adapter plugin lacked a resolvable `@rollup/pluginutils` dependency; pinned `@rollup/pluginutils@5.2.0` was explicitly added for this experiment.
+- Real SSNoir shared scene bundles through the community Vite plugin at about **1.42 MB uncompressed** (under 4 MiB), preserving the original shared `mountFoundation` and stdlib.
+- The existing production WeChat + TapTap foundation still passes in the branch once TypeScript issues were corrected (e.g. [foundation run 37887556046](https://github.com/guopanqi/ssnoir/actions/runs/37887556046)).
+- The first community run failed because the original Chromium mock lacked modern `wx.getWindowInfo` / `wx.getPerformance`. These calls are legitimate host requirements rather than proof of target incompatibility.
+- The package's browser detection cannot run unmodified in a conventional Chrome `window` containing `HTMLElement`: it patches `THREEGlobals` twice. The test mock now reflects the Mini Game's DOM-less environment.
+- The community polyfill does not implement `THREEGlobals.document.querySelectorAll('script')`, which the **LIPS Scheme interpreter** calls while scanning for browser script tags. A limited empty-script-list shim in `src/wechat-community/prelude.ts` lets the experiment advance without implementing generic HTML DOM.
+- The current gate fails in **PixiJS 8.20.1** initialization: Pixi's optional `DOMPipe` tries to access `THREEGlobals.document.createElement('div').style.position`, but the community adapter's pseudo-element has no `style`. This extension is unnecessary for SSNoir's pure Graphics/Text UI. Calling `extensions.remove(DOMPipe)` in the game entry did not prevent the extension from loading, likely due renderer auto imports. See [community run 37888762711](https://github.com/guopanqi/ssnoir/actions/runs/37888762711). **Full scene/touch smoke has not passed.**
+
+### Decision and next steps
+
+**Do not replace the main branch's working platform bootstrap yet.** This is an actual compatibility failure in the browser-based mocked host, not evidence of failure on a real WeChat phone; however it is enough to withhold automatic adoption.
+
+The next useful investigation is PixiJS 8's [documented custom extension import mode](https://pixijs.download/v8.19.0/docs/migrations.html): explicitly register the WebGL/Graphics/Text pipelines while keeping the optional HTML `DOMPipe` disabled. Alternatively test renderer initialization on the actual WeChat DevTools, where the host's native global availability can be observed. Both paths must retain the same shared SSNoir scene and test against the missing `wx.createOffscreenCanvas` behavior.
+
+The remaining acceptance steps (Pixi Text + Three + Scheme + touch; missing offscreen Canvas; then official TapTap conversion and a converted-bundle smoke) are **still red/pending**. No production game code or TapTap converter was changed by this experiment. Last complete green production smoke from before the experiment: [37886760118](https://github.com/guopanqi/ssnoir/actions/runs/37886760118).
