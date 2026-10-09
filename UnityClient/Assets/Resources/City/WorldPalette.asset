@@ -30,19 +30,19 @@ MonoBehaviour:
   - Name: "\u8C61\u7259\u9970\u9762"
     ImportNames: []
     Material: {fileID: 2100000, guid: 473f17bc7b8e444b6a8d5064ad2eb8d7, type: 2}
-  - Name: "\u4EAE\u91D1\u88C5\u9970"
+  - Name: "\u91D1\u8272\u91D1\u5C5E"
     ImportNames: []
     Material: {fileID: 2100000, guid: b8268a791c8214dfebc5459865336514, type: 2}
   - Name: "\u6697\u91D1\u9970\u9762"
     ImportNames: []
     Material: {fileID: 2100000, guid: 55234421c781849ada5551bd4ed5518b, type: 2}
-  - Name: "\u91D1\u8272\u7EC6\u9970"
+  - Name: "\u91D1\u8272\u9576\u8FB9"
     ImportNames: []
     Material: {fileID: 2100000, guid: 860f88072c20f4334ad911371c381cab, type: 2}
-  - Name: "\u6696\u767D\u53D1\u5149\u8868\u9762"
+  - Name: "\u6696\u767D\u706F\u9970"
     ImportNames: []
     Material: {fileID: 2100000, guid: 9de0e8b9f38c04398b1f65f2a1f4cd58, type: 2}
-  - Name: "\u51B7\u767D\u53D1\u5149\u8868\u9762"
+  - Name: "\u51B7\u767D\u706F\u9970"
     ImportNames: []
     Material: {fileID: 2100000, guid: c48026b54747e45c2b8b79ddfa6b937e, type: 2}
   - Name: "\u6C34\u9762\u77ED\u7EBF"
