@@ -6,6 +6,7 @@ on:
       - '.github/workflows/ssnoir-mechanism-discovery.yml'
       - 'tools/content-validator/experiments/r51_r54_structure_screen.py'
       - 'tools/content-validator/experiments/r54_reactive_foe_smoke.py'
+      - 'tools/content-validator/experiments/r54_bait_audit.py'
       - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm'
 permissions:
   contents: read
@@ -28,6 +29,16 @@ jobs:
               for row in d[key]:
                   print(key, "skill",row["skill"], "gap",row["gap_over_strong_fixed"]["decimal"])
           PY
+      - name: Audit optimal-policy diversion and counterfactual benefit
+        run: |
+          python3 tools/content-validator/experiments/r54_bait_audit.py --output /tmp/r54-bait-audit.json
+          python3 - <<'PY'
+          import json
+          data=json.load(open("/tmp/r54-bait-audit.json"))
+          for row in data["results"]:
+              print("skill",row["skill"], "policy_mass", {
+                  k: v["decimal"] for k,v in row["probability_masses"].items()})
+          PY
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
@@ -46,5 +57,6 @@ jobs:
           name: ssnoir-r51-r54-abstract-discovery
           path: |
             /tmp/r51-r54-screen.json
+            /tmp/r54-bait-audit.json
             /tmp/r54-native.json
           retention-days: 21
