@@ -1,4 +1,4 @@
-name: SSNoir R49 Abstract Mechanism
+name: SSNoir Abstract Mechanism Research
 on:
   workflow_dispatch:
   push:
@@ -6,7 +6,7 @@ on:
       - '.github/workflows/ssnoir-mechanism-r49.yml'
       - 'tools/content-validator/experiments/r49_delayed_target_*'
       - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·迟到的目标.scm'
-      - 'docs/实验/机制研究/批次/R49-迟到的目标/**'
+      - 'tools/content-validator/experiments/r50_recent_action.py'
 permissions:
   contents: read
 jobs:
@@ -22,6 +22,8 @@ jobs:
           python-version: '3.11'
       - name: Exact structural screening
         run: python3 tools/content-validator/experiments/r49_delayed_target_model.py --output /tmp/r49-screening.json
+      - name: Screen R50 reversible prior-action effects
+        run: python3 tools/content-validator/experiments/r50_recent_action.py > /tmp/r50-screening.json
       - name: Build official headless engine
         run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
       - name: Validate the one official Content tree
@@ -37,5 +39,6 @@ jobs:
           name: r49-abstract-mechanism-evidence
           path: |
             /tmp/r49-screening.json
+            /tmp/r50-screening.json
             /tmp/r49-native.json
           retention-days: 14
