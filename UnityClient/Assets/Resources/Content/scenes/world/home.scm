@@ -223,23 +223,27 @@
     ;; 浇水投入一颗行动骰，每天一次，暂时没有数值收益。它是在家里花掉一点时间，
     ;; 换来的只有植物一天天长大；以后如果要加收益，也从这张卡扩展，不另开一条照料系统。
     ;;
-    ;; 花是一株龟背竹。浇水的次数记在全局键 龟背竹 里（存档随全局键走），Unity 侧按它定屋里那盆的档：
-    ;; 苗 → 半大（5 次）→ 成株（15 次），叶子一片片从茎上长出来（PropMotion.SyncAll 里的阈值和这里的
-    ;; monstera-stage 必须一致）。长大不改任何数值——它和唱片机一样，是屋里"纯粹为了好一点"的东西，
-    ;; 你只是看着它一天天变成一株像样的植物。
+    ;; 每三次浇水长一档，18 次成为巨株；次数仍只存全局键 龟背竹。
+    ;; 阶段顺序与租屋 Prefab 的 growth 数据及 PropMotion.SyncAll 保持一致。
     (define (water-count) (or (get-global '龟背竹) 0))
     (define (monstera-stage)
+      (list-ref '("苗" "初展" "舒展" "繁茂" "成株" "硕大" "巨株")
+        (min 6 (quotient (water-count) 3))))
+    (define (monstera-clocks)
       (let ((n (water-count)))
-        (cond ((>= n 15) "成株") ((>= n 5) "半大") (else "苗"))))
+        (if (>= n 18) '()
+          (let ((progress (modulo n 3)))
+            (list (list 'clock "下一次生长" progress 3 'gauge
+              (string-append "再浇 " (number->string (- 3 progress)) " 次长大")))))))
 
     (define (node-water-plant)
       (node "浇水"
         :anchor "租屋-龟背竹"
+        :clocks (monstera-clocks)
         :subtitle (cond
                     (flower-today? "今天已经浇过了")
-                    ((equal? (monstera-stage) "成株") "投入一颗骰；叶子已经遮住半扇窗")
-                    ((equal? (monstera-stage) "半大") "投入一颗骰；裂叶正往窗边舒展")
-                    (else "投入一颗骰；两片小叶还没裂口"))
+                    ((equal? (monstera-stage) "巨株") "投入一颗骰；大叶子已经撑满这一角")
+                    (else "投入一颗骰；每浇三次长大一档"))
         :disabled flower-today?
         :requires (list (req-die))
         :resolve (instant

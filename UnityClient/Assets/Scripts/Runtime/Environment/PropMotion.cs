@@ -231,6 +231,10 @@ namespace SSNoir
         /// <summary>每次快照落地时由 GameManager 调一次：从游戏状态推出每件道具的状态。</summary>
         public static void SyncAll(GameState gameState)
         {
+            int watering = gameState.Get<int>("龟背竹");
+            if (watering < 0) throw new InvalidOperationException("龟背竹浇水次数不能为负数。");
+            string[] growth = { "苗", "初展", "舒展", "繁茂", "成株", "硕大", "巨株" };
+            string plantState = growth[Math.Min(watering / 3, growth.Length - 1)];
             bool playing = gameState.Get<object>("音乐") is string music && music.Length > 0;
             // 弗兰克那条货船：抢修/扣船期间停在码头航道上，结算或离港之后回到画外。
             // 进港那一下由入场的 play-motion! 演（演出先播、快照后采纳，这里不会抢在前面）；
@@ -239,6 +243,8 @@ namespace SSNoir
             bool berthed = gameState.Get<object>("货船在泊") is bool b && b;
             foreach (var motion in All)
             {
+                if (motion.Has("龟背竹"))
+                    motion.Apply("龟背竹", plantState);
                 if (motion.Has("唱片机"))
                     motion.Apply("唱片机", playing ? "Playing" : "Stopped");
                 if (motion.Has("货船"))

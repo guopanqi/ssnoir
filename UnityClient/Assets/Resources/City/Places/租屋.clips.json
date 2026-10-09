@@ -11,7 +11,7 @@
    "to": ""
   },
   {
-   "name": "龟背竹__半大",
+   "name": "龟背竹__初展",
    "start": 114,
    "end": 222,
    "loop": true,
@@ -20,7 +20,7 @@
    "to": ""
   },
   {
-   "name": "龟背竹__成株",
+   "name": "龟背竹__舒展",
    "start": 227,
    "end": 335,
    "loop": true,
@@ -29,27 +29,423 @@
    "to": ""
   },
   {
-   "name": "龟背竹__苗To半大",
+   "name": "龟背竹__繁茂",
    "start": 340,
-   "end": 400,
+   "end": 448,
+   "loop": true,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "龟背竹__成株",
+   "start": 453,
+   "end": 561,
+   "loop": true,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "龟背竹__硕大",
+   "start": 566,
+   "end": 674,
+   "loop": true,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "龟背竹__巨株",
+   "start": 679,
+   "end": 787,
+   "loop": true,
+   "once": false,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "龟背竹__苗To初展",
+   "start": 792,
+   "end": 834,
    "loop": false,
    "once": false,
    "from": "苗",
-   "to": "半大"
+   "to": "初展"
   },
   {
-   "name": "龟背竹__半大To成株",
-   "start": 405,
-   "end": 465,
+   "name": "龟背竹__苗To舒展",
+   "start": 839,
+   "end": 881,
    "loop": false,
    "once": false,
-   "from": "半大",
+   "from": "苗",
+   "to": "舒展"
+  },
+  {
+   "name": "龟背竹__苗To繁茂",
+   "start": 886,
+   "end": 928,
+   "loop": false,
+   "once": false,
+   "from": "苗",
+   "to": "繁茂"
+  },
+  {
+   "name": "龟背竹__苗To成株",
+   "start": 933,
+   "end": 975,
+   "loop": false,
+   "once": false,
+   "from": "苗",
    "to": "成株"
   },
   {
+   "name": "龟背竹__苗To硕大",
+   "start": 980,
+   "end": 1022,
+   "loop": false,
+   "once": false,
+   "from": "苗",
+   "to": "硕大"
+  },
+  {
+   "name": "龟背竹__苗To巨株",
+   "start": 1027,
+   "end": 1069,
+   "loop": false,
+   "once": false,
+   "from": "苗",
+   "to": "巨株"
+  },
+  {
+   "name": "龟背竹__初展To苗",
+   "start": 1074,
+   "end": 1116,
+   "loop": false,
+   "once": false,
+   "from": "初展",
+   "to": "苗"
+  },
+  {
+   "name": "龟背竹__初展To舒展",
+   "start": 1121,
+   "end": 1163,
+   "loop": false,
+   "once": false,
+   "from": "初展",
+   "to": "舒展"
+  },
+  {
+   "name": "龟背竹__初展To繁茂",
+   "start": 1168,
+   "end": 1210,
+   "loop": false,
+   "once": false,
+   "from": "初展",
+   "to": "繁茂"
+  },
+  {
+   "name": "龟背竹__初展To成株",
+   "start": 1215,
+   "end": 1257,
+   "loop": false,
+   "once": false,
+   "from": "初展",
+   "to": "成株"
+  },
+  {
+   "name": "龟背竹__初展To硕大",
+   "start": 1262,
+   "end": 1304,
+   "loop": false,
+   "once": false,
+   "from": "初展",
+   "to": "硕大"
+  },
+  {
+   "name": "龟背竹__初展To巨株",
+   "start": 1309,
+   "end": 1351,
+   "loop": false,
+   "once": false,
+   "from": "初展",
+   "to": "巨株"
+  },
+  {
+   "name": "龟背竹__舒展To苗",
+   "start": 1356,
+   "end": 1398,
+   "loop": false,
+   "once": false,
+   "from": "舒展",
+   "to": "苗"
+  },
+  {
+   "name": "龟背竹__舒展To初展",
+   "start": 1403,
+   "end": 1445,
+   "loop": false,
+   "once": false,
+   "from": "舒展",
+   "to": "初展"
+  },
+  {
+   "name": "龟背竹__舒展To繁茂",
+   "start": 1450,
+   "end": 1492,
+   "loop": false,
+   "once": false,
+   "from": "舒展",
+   "to": "繁茂"
+  },
+  {
+   "name": "龟背竹__舒展To成株",
+   "start": 1497,
+   "end": 1539,
+   "loop": false,
+   "once": false,
+   "from": "舒展",
+   "to": "成株"
+  },
+  {
+   "name": "龟背竹__舒展To硕大",
+   "start": 1544,
+   "end": 1586,
+   "loop": false,
+   "once": false,
+   "from": "舒展",
+   "to": "硕大"
+  },
+  {
+   "name": "龟背竹__舒展To巨株",
+   "start": 1591,
+   "end": 1633,
+   "loop": false,
+   "once": false,
+   "from": "舒展",
+   "to": "巨株"
+  },
+  {
+   "name": "龟背竹__繁茂To苗",
+   "start": 1638,
+   "end": 1680,
+   "loop": false,
+   "once": false,
+   "from": "繁茂",
+   "to": "苗"
+  },
+  {
+   "name": "龟背竹__繁茂To初展",
+   "start": 1685,
+   "end": 1727,
+   "loop": false,
+   "once": false,
+   "from": "繁茂",
+   "to": "初展"
+  },
+  {
+   "name": "龟背竹__繁茂To舒展",
+   "start": 1732,
+   "end": 1774,
+   "loop": false,
+   "once": false,
+   "from": "繁茂",
+   "to": "舒展"
+  },
+  {
+   "name": "龟背竹__繁茂To成株",
+   "start": 1779,
+   "end": 1821,
+   "loop": false,
+   "once": false,
+   "from": "繁茂",
+   "to": "成株"
+  },
+  {
+   "name": "龟背竹__繁茂To硕大",
+   "start": 1826,
+   "end": 1868,
+   "loop": false,
+   "once": false,
+   "from": "繁茂",
+   "to": "硕大"
+  },
+  {
+   "name": "龟背竹__繁茂To巨株",
+   "start": 1873,
+   "end": 1915,
+   "loop": false,
+   "once": false,
+   "from": "繁茂",
+   "to": "巨株"
+  },
+  {
+   "name": "龟背竹__成株To苗",
+   "start": 1920,
+   "end": 1962,
+   "loop": false,
+   "once": false,
+   "from": "成株",
+   "to": "苗"
+  },
+  {
+   "name": "龟背竹__成株To初展",
+   "start": 1967,
+   "end": 2009,
+   "loop": false,
+   "once": false,
+   "from": "成株",
+   "to": "初展"
+  },
+  {
+   "name": "龟背竹__成株To舒展",
+   "start": 2014,
+   "end": 2056,
+   "loop": false,
+   "once": false,
+   "from": "成株",
+   "to": "舒展"
+  },
+  {
+   "name": "龟背竹__成株To繁茂",
+   "start": 2061,
+   "end": 2103,
+   "loop": false,
+   "once": false,
+   "from": "成株",
+   "to": "繁茂"
+  },
+  {
+   "name": "龟背竹__成株To硕大",
+   "start": 2108,
+   "end": 2150,
+   "loop": false,
+   "once": false,
+   "from": "成株",
+   "to": "硕大"
+  },
+  {
+   "name": "龟背竹__成株To巨株",
+   "start": 2155,
+   "end": 2197,
+   "loop": false,
+   "once": false,
+   "from": "成株",
+   "to": "巨株"
+  },
+  {
+   "name": "龟背竹__硕大To苗",
+   "start": 2202,
+   "end": 2244,
+   "loop": false,
+   "once": false,
+   "from": "硕大",
+   "to": "苗"
+  },
+  {
+   "name": "龟背竹__硕大To初展",
+   "start": 2249,
+   "end": 2291,
+   "loop": false,
+   "once": false,
+   "from": "硕大",
+   "to": "初展"
+  },
+  {
+   "name": "龟背竹__硕大To舒展",
+   "start": 2296,
+   "end": 2338,
+   "loop": false,
+   "once": false,
+   "from": "硕大",
+   "to": "舒展"
+  },
+  {
+   "name": "龟背竹__硕大To繁茂",
+   "start": 2343,
+   "end": 2385,
+   "loop": false,
+   "once": false,
+   "from": "硕大",
+   "to": "繁茂"
+  },
+  {
+   "name": "龟背竹__硕大To成株",
+   "start": 2390,
+   "end": 2432,
+   "loop": false,
+   "once": false,
+   "from": "硕大",
+   "to": "成株"
+  },
+  {
+   "name": "龟背竹__硕大To巨株",
+   "start": 2437,
+   "end": 2479,
+   "loop": false,
+   "once": false,
+   "from": "硕大",
+   "to": "巨株"
+  },
+  {
+   "name": "龟背竹__巨株To苗",
+   "start": 2484,
+   "end": 2526,
+   "loop": false,
+   "once": false,
+   "from": "巨株",
+   "to": "苗"
+  },
+  {
+   "name": "龟背竹__巨株To初展",
+   "start": 2531,
+   "end": 2573,
+   "loop": false,
+   "once": false,
+   "from": "巨株",
+   "to": "初展"
+  },
+  {
+   "name": "龟背竹__巨株To舒展",
+   "start": 2578,
+   "end": 2620,
+   "loop": false,
+   "once": false,
+   "from": "巨株",
+   "to": "舒展"
+  },
+  {
+   "name": "龟背竹__巨株To繁茂",
+   "start": 2625,
+   "end": 2667,
+   "loop": false,
+   "once": false,
+   "from": "巨株",
+   "to": "繁茂"
+  },
+  {
+   "name": "龟背竹__巨株To成株",
+   "start": 2672,
+   "end": 2714,
+   "loop": false,
+   "once": false,
+   "from": "巨株",
+   "to": "成株"
+  },
+  {
+   "name": "龟背竹__巨株To硕大",
+   "start": 2719,
+   "end": 2761,
+   "loop": false,
+   "once": false,
+   "from": "巨株",
+   "to": "硕大"
+  },
+  {
    "name": "浇水壶__隐藏",
-   "start": 470,
-   "end": 500,
+   "start": 2766,
+   "end": 2796,
    "loop": false,
    "once": false,
    "from": "",
@@ -57,8 +453,8 @@
   },
   {
    "name": "浇水壶__浇水",
-   "start": 505,
-   "end": 586,
+   "start": 2801,
+   "end": 2882,
    "loop": false,
    "once": true,
    "from": "隐藏",
@@ -66,8 +462,8 @@
   },
   {
    "name": "唱片机__Stopped",
-   "start": 591,
-   "end": 621,
+   "start": 2887,
+   "end": 2917,
    "loop": false,
    "once": false,
    "from": "",
@@ -75,8 +471,8 @@
   },
   {
    "name": "唱片机__Playing",
-   "start": 626,
-   "end": 734,
+   "start": 2922,
+   "end": 3030,
    "loop": true,
    "once": false,
    "from": "",
@@ -84,8 +480,8 @@
   },
   {
    "name": "唱片机__StopToPlay",
-   "start": 739,
-   "end": 778,
+   "start": 3035,
+   "end": 3074,
    "loop": false,
    "once": false,
    "from": "Stopped",
@@ -93,8 +489,8 @@
   },
   {
    "name": "唱片机__PlayToStop",
-   "start": 783,
-   "end": 822,
+   "start": 3079,
+   "end": 3118,
    "loop": false,
    "once": false,
    "from": "Playing",
