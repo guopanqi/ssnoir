@@ -60,11 +60,12 @@ def one(seed: int, growth: int, pattern: str, directory: Path) -> dict:
                 reply = request({'command': 'act', 'version': observation['Version'],
                                  'operationId': pick['Id'], 'reason': 'R54核对规则与回击'})
                 observation = reply['observation']
-                after = progress(observation)
+                after = progress(observation) if observation['EncounterResult'] is None else None
                 attempted.append(pick['Card'])
                 attack_lines = [event['Text'] for event in reply['events']
                                 if '敌方反击' in event['Text']]
                 if attack_lines:
+                    assert after is not None, 'reaction cannot fire after encounter completed'
                     assert action_count + 1 in (2, 4), (action_count, attack_lines)
                     assert len(attack_lines) == 1
                     hit = 'A' if '反击甲' in attack_lines[0] else 'B'
