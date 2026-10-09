@@ -5,17 +5,24 @@
     {
       "label": "研究 R09｜边做边看",
       "scene": "研究·边做边看",
-      "reason": "R09/R10 first human acknowledged information while working, official encounter"
+      "reason": "R09/R10 first human acknowledged information while working, official encounter",
+      "evidence": "docs/实验/机制研究/批次/R10-试玩裁决与交锋方向/玩家反馈.md",
+      "approval": "human-playtest-requested"
     },
     {
       "label": "研究 R37｜压力预算",
       "scene": "研究·压力预算",
-      "reason": "Human narrative feedback recognized progress-generated problems and pressure management, native encounter"
+      "reason": "Human narrative feedback recognized progress-generated problems and pressure management, native encounter",
+      "evidence": "docs/实验/机制研究/反馈/inbox/SSNoir-feedback-R37-20261009-071937-6e46a021c6.json",
+      "approval": "human-playtest-requested"
     },
     {
       "label": "研究 R54｜追击领先目标",
       "scene": "研究·追击领先目标",
-      "reason": "Five human browser-trial reactions to R54; native four-die scene available for follow-up"
+      "reason": "Five human browser-trial reactions to R54; native four-die scene available for follow-up",
+      "evidence": "docs/实验/机制研究/反馈/inbox/SSNoir-feedback-R54-20261009-062528-43765ce6ee.json",
+      "approval": "human-playtest-requested"
     }
-  ]
+  ],
+  "approvalRule": "Explicit manual-playtest invitation with existing native scene and traceable evidence; do not automatically promote any Rxx from mathematics"
 }
