@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "仪态修订",
+  "name": "尼尔_背身-修订",
+  "status": "completed",
+  "prompt": "Edit this supplied standardized game character reference. Change ONLY the pose: Turn away so we see the back of the SAME short jacket in the reference, same trouser silhouette, same hat, same shirt collar. Stand straight with arms relaxed. Do NOT turn his short jacket into a long trenchcoat. No visible face, no bright blue hat, no changed outfit or added decorations.\nKeep identity, face age, hairstyle, attire and the current white-neon line art with restrained existing accent colors. Do not redesign the art style. Keep a pure black square 1024x1024 canvas. EXACT same human drawing scale as the reference: same head size, torso and limb lengths. Standing positions retain the same crown height and shoe sole baseline near y=1000. Show FULL head, both legs and both shoes. Preserve generous black margins above and around the character; do not crop tightly or enlarge to fill the canvas. Seated or leaning poses naturally have lower heads, never normalize visible height. No background, text or watermark. Ordinary reusable conversational gesture, not a dramatic action snapshot.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Resources/Portraits/Neon/尼尔.png",
+      "sha256": "b912fb533f3e15388ff1495dea60e8f3b1f552581fa0f8e56f617cce4fb7d8b4"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/仪态修订/尼尔_背身-修订",
+  "created_at": "2026-10-09T11:14:27.114Z",
+  "submitted_at": "2026-10-09T11:14:33.399Z",
+  "conversation_url": "https://gemini.google.com/app/e1db81e54ccf5c47",
+  "completed_at": "2026-10-09T11:14:42.545Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/仪态修订/尼尔_背身-修订/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "eff214d5b76f097df450bf05b1bf2e2db11ab6ff46e6f0a726bbe9a02be4e6ae"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/姿势重制/仪态修订/尼尔_背身-修订.png"
+}

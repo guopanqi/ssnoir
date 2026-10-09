@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "仪态修订",
+  "name": "夜莺_坐-修订",
+  "status": "completed",
+  "prompt": "Edit this supplied standardized game character reference. Change ONLY the pose: Sit upright on a simple slender stool with both knees together, legs angled slightly to one side, both shoes completely visible and grounded near y=1000. Hands rest lightly together on lap. Elegant natural seated posture, calm conversational use. No deep forward hunch, no spread legs, no exaggerated hips or arched back. Keep SAME head size and limb lengths as standing reference; seated head naturally lower, never enlarge the seated character to fill canvas.\nKeep identity, face age, hairstyle, attire and the current white-neon line art with restrained existing accent colors. Do not redesign the art style. Keep a pure black square 1024x1024 canvas. EXACT same human drawing scale as the reference: same head size, torso and limb lengths. Standing positions retain the same crown height and shoe sole baseline near y=1000. Show FULL head, both legs and both shoes. Preserve generous black margins above and around the character; do not crop tightly or enlarge to fill the canvas. Seated or leaning poses naturally have lower heads, never normalize visible height. No background, text or watermark. Ordinary reusable conversational gesture, not a dramatic action snapshot.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Resources/Portraits/Neon/夜莺.png",
+      "sha256": "0c09a02ca6bc3d68058aa676c271e68593de8d82ff83ab25bf9a81efbabbd8e9"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/仪态修订/夜莺_坐-修订",
+  "created_at": "2026-10-09T11:13:22.163Z",
+  "submitted_at": "2026-10-09T11:13:28.042Z",
+  "conversation_url": "https://gemini.google.com/app/9370e65958ef8b48",
+  "completed_at": "2026-10-09T11:13:39.267Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/仪态修订/夜莺_坐-修订/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "2e5ae7fc3897fa93ba2ca3491f42530071115a73db2c4274fed531e84dadd864"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/姿势重制/仪态修订/夜莺_坐-修订.png"
+}
