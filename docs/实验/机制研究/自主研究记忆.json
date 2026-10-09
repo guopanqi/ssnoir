@@ -1,91 +1,96 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-09",
-  "batch": "R76-R78",
-  "rounds": 3,
-  "totalArchivedRounds": 23,
-  "objective": "Continue independently beyond target of 20 source-backed patterns; cause-specific ablations, strong baseline, and human experience kept separate",
+  "batch": "R79-R82",
+  "rounds": 4,
+  "totalArchivedRounds": 27,
+  "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
-    "source": "tools/content-validator/experiments/r76_r78_diverse_relations.py",
-    "run": "https://github.com/guopanqi/ssnoir/actions/runs/37918433181",
-    "scope": "Four d6 skill1, 126 weighted initial hands, exact Fraction; different utilities cannot be compared across experiments",
-    "comparison": "Disabled mechanic, best simple opening policy, rational outside option; native/human evidence absent for new R76-R78"
+    "sources": [
+      "tools/content-validator/experiments/r79_r81_adversarial_rounds.py",
+      "tools/content-validator/experiments/r82_pursuit_cost_ablation.py"
+    ],
+    "run": "https://github.com/guopanqi/ssnoir/actions/runs/37946292752",
+    "scope": "Four mathematically independent 4-die exact paper tests with 126 weighted hands, no new native or human proof",
+    "counterfactual": "R79 explicitly wait penalty; R80 automatic evidence vs paid inquiry; R81 chase on/off; R82 real shot/hide/move consequence vs stationary aim"
   },
   "results": [
     {
-      "id": "R76",
-      "name": "空间路线切换成本",
-      "status": "探索材料：较小但非零的自主路线调整",
-      "expectedFull": 1.6961877,
-      "withoutPositionSwitch": 1.684860111,
-      "bestOpeningRoutePlan": 1.685206619,
-      "featureGain": 0.011327589,
-      "beyondOpening": 0.010981081,
-      "strictRootHandsBeyondOpening": 35,
-      "interpretation": "两条路快慢和证物取舍在简化模型中存在一定条件性路线价值；与P18枪口追踪相关但不等价，尚不生成正式场景。"
-    },
-    {
-      "id": "R77",
-      "name": "付费信息的后验价值",
-      "status": "有效信息基础原语；信息时点大多固定",
-      "expectedFull": 2.579205381,
-      "withoutInquiry": 2.289847501,
-      "bestInspectAtStartOrNever": 2.578581801,
-      "featureGain": 0.28935788,
-      "beyondOpening": 0.00062358,
-      "strictRootHandsBeyondOpening": 8,
-      "interpretation": "信息本身显著改变期望效用，但自由地选何时探查只比开局决定探/不探高0.000624；下一阶段应探索行动自然带出新证据。"
-    },
-    {
-      "id": "R78",
-      "name": "可撤销承诺的替代方案反证",
-      "status": "淘汰本配置的独立撤销权",
-      "revokeForcedEarly": 2.376148834,
-      "irreversibleForcedEarly": 1.497256516,
-      "apparentFeatureGain": 0.878892318,
-      "revokeWithWait": 2.387611454,
-      "irreversibleWithWait": 2.387611454,
-      "featureGainAfterAllowingWait": 0,
-      "strictRootHands": 0,
-      "interpretation": "先前的0.879是由禁止玩家等待公开线索的虚假设计约束制造；一旦允许花一手等待再承诺，单独撤销权零增量。"
-    }
-  ],
-  "crossRoundMemory": [
-    "R76：空间与时间的不可逆移动成本可以产生与双目标竞速不同的关系，但两车道模型只余微小可解释价值，不足以声称成品。",
-    "R77：必须分别衡量『信息有无』和『探查时点是否需要策略』；前者增益0.28936，后者仅0.00062，不能归因为高阶动态。",
-    "R78：模型设置不得禁止玩家显而易见的等待方案。与被强迫提前承诺对照会高估撤销权0.87889，合理可等待基线使增益归零。",
-    "20个可理解结构候选与人工试玩白名单是不同准入层级；官方C# 20项均可启动，但只有四个场景经过作者固定脚本下的实际因果检查，非人类认可。",
-    "探索继续以否定证据更新解释、删除不必要机制，不为凑数自动把R76-R78晋升至20个精选之中。"
-  ],
-  "frontier": [
-    {
       "id": "R79",
-      "priority": 1,
-      "question": "让延迟承诺本身损失真实外部机会后，撤回权才可能有独立价值；但会不会只是把窗口数值调窄？",
-      "method": "公平比较等待、立刻押定、有偿撤销三策略以及场景人能感受到的权利代价",
-      "humanGate": false
+      "name": "等待信息的真实机会成本",
+      "status": "有边界的有效关系；保留为可组合基础",
+      "method": "固定4骰、公开迟到线索、选择提前押注、等线索或付行动撤销押注。对等待附加真实损失0/0.5/1，保持掷骰一致",
+      "results": {
+        "waitPenalty0": {
+          "revokeGainWithWaiting": 0,
+          "waitingGainOverForcedEarly": 0.890354938
+        },
+        "waitPenalty05": {
+          "revokeGainWithWaiting": 0.485956433,
+          "waitingGainOverForcedEarly": 0.392935885
+        },
+        "waitPenalty1": {
+          "revokeGainWithWaiting": 0.878892318,
+          "waitingGainOverForcedEarly": 0
+        }
+      },
+      "lesson": "有撤回权不代表它有价值：必须比较等待的机会成本。撤回效用随公开代价而改变，但不证明玩家实际会撤回或足以做成独立玩法",
+      "next": "把等待成本表达为会关闭的实际事件窗口，而不只是终局扣分；做窗口状态可达性证明"
     },
     {
       "id": "R80",
-      "priority": 2,
-      "question": "将情报自然揭示嵌入目标推进之后，是否会改变何时转向而非固定开局探查？",
-      "method": "先找P03/R09过去反馈与原生轨迹，再设计最小信息与行动交织反证",
-      "humanGate": false
+      "name": "信息来自普通行动",
+      "status": "保留组合研究：显著的信息来源替代性",
+      "method": "隐藏真值仅通过正确的信念后验暴露；首个工作行动自然给准确率3/4的线索，独立付费探查每局最多一次",
+      "results": {
+        "none": 2.289847501,
+        "paidOnly": 2.579205381,
+        "automaticOnly": 2.605423427,
+        "automaticWithOptionalPaid": 2.665201823,
+        "paidValueWithoutAutomatic": 0.28935788,
+        "paidValueWithAutomatic": 0.059778396,
+        "strictRootHandsExtraPaidWithAutomatic": 69
+      },
+      "lesson": "信息由正常工作自然生成后，专门购买信息的价值大幅减小但并未归零；分清信息来源和信息时点，不要禁用显而易见的正常工作来夸大探查",
+      "next": "试提高普通行动的成本，检查付费探查剩余严格收益路径，避免使用额外信息动作污染原始场景"
     },
     {
       "id": "R81",
-      "priority": 3,
-      "question": "场景P18枪口追逐如何超越两条安全/快速抽象车道，产生真正的对手预测与位置条件决策？",
-      "method": "比固定路线/交替路线/响应式追踪计划，先逐手试玩现有原生实验",
-      "humanGate": false
+      "name": "对手追踪路线初版",
+      "status": "失败，冻结原结果并记录无效因果",
+      "method": "4骰、每两行动根据玩家所在位置刷新追踪，带移动动作的直接消融",
+      "results": {
+        "movementGainUnderTracking": 0.226258859,
+        "movementGainUnderStationary": 0.226258859,
+        "trackingSpecificGain": 0
+      },
+      "lesson": "移动收益与追击反馈完全无关：只是地图有两个车道、移动有用，不能证明对手追踪模式有用",
+      "next": "R82给追踪状态设置真实且公开的回合末伤害后果，其他功能保持单独对照"
     },
     {
       "id": "R82",
-      "priority": 4,
-      "question": "P17–P20是否能从作者验证升到可独立邀请人类试玩的少量候选？",
-      "method": "审查正常难度下两条有现实可兑现的路线，原生人类可读目标及结果，禁用机制消融后再单独批准Debug",
-      "humanGate": false
+      "name": "追踪改变下一回合的危险位置",
+      "status": "有小幅独立反应效应；暂缓原生晋升",
+      "method": "4骰，两回合，每回合末敌人攻击此前盯的路径，然后更新下一回合瞄准；隐藏/换位/推进共享骰，对照固定瞄准",
+      "results": {
+        "tracking": 1.835305213,
+        "stationary": 1.846968593,
+        "movementValueTracking": 0.042995542,
+        "movementValueStationary": 0.054658922,
+        "opponentEffect": -0.01166338,
+        "strictRootHandsAffected": 35
+      },
+      "lesson": "只有把对手反应连接到真实的可达性/伤害结果，才能证实机制因果；本版有独立但很小的追踪效应，不足以断言好玩",
+      "next": "在P18正式Scheme既有原型中控制同一路线和追兵位置，观察‘下回合改盯’改变实际行动选择而不是只改文案"
     }
+  ],
+  "crossRoundMemory": [
+    "R79：撤回权的价值取决于等待的真实代价。等待免费时撤回严格零增量；等待扣0.5时撤回重新有0.486的期望作用。成本不能靠虚假禁用『等待』创造。",
+    "R80：一线行动自然生成有用线索，会部分支配专门付费探查。独立探查的额外价值0.28936→0.05978；后者仍可用但不应夸大。",
+    "R81：有移动策略收益，不代表追击反馈真的影响行为；该版追击开关的动作价值差完全为0。",
+    "R82：若真实追击会导致回合末被射击而需选择换位或躲避，则追击开关对期望值影响约−0.01166，证明独立因果非零，不证明愉悦感。",
+    "20独立结构候选与3个手动批准Debug入口维持隔离；20候选已过原生起手烟测，其中4个有作者控制的因果动作，只有3个有独立真人反馈来源。质量分层不允许合并计算。",
+    "下一批优先从情景可读性/正常路径行动决策反证，不靠堆状态和重新命名冲20高质量。"
   ],
   "history": [
     {
@@ -413,7 +418,87 @@
         "十轮无独立成熟模式也算完成高质量研究；失败记忆要驱动远离双进度条的小模型空间，而非为凑数量修改参数。"
       ],
       "record": "docs/实验/机制研究/批次/R66-R75-下一批自主研究/研究记录.md"
+    },
+    {
+      "batch": "R76-R78",
+      "rounds": 3,
+      "method": {
+        "source": "tools/content-validator/experiments/r76_r78_diverse_relations.py",
+        "run": "https://github.com/guopanqi/ssnoir/actions/runs/37918433181",
+        "scope": "Four d6 skill1, 126 weighted initial hands, exact Fraction; different utilities cannot be compared across experiments",
+        "comparison": "Disabled mechanic, best simple opening policy, rational outside option; native/human evidence absent for new R76-R78"
+      },
+      "results": [
+        {
+          "id": "R76",
+          "name": "空间路线切换成本",
+          "status": "探索材料：较小但非零的自主路线调整",
+          "expectedFull": 1.6961877,
+          "withoutPositionSwitch": 1.684860111,
+          "bestOpeningRoutePlan": 1.685206619,
+          "featureGain": 0.011327589,
+          "beyondOpening": 0.010981081,
+          "strictRootHandsBeyondOpening": 35,
+          "interpretation": "两条路快慢和证物取舍在简化模型中存在一定条件性路线价值；与P18枪口追踪相关但不等价，尚不生成正式场景。"
+        },
+        {
+          "id": "R77",
+          "name": "付费信息的后验价值",
+          "status": "有效信息基础原语；信息时点大多固定",
+          "expectedFull": 2.579205381,
+          "withoutInquiry": 2.289847501,
+          "bestInspectAtStartOrNever": 2.578581801,
+          "featureGain": 0.28935788,
+          "beyondOpening": 0.00062358,
+          "strictRootHandsBeyondOpening": 8,
+          "interpretation": "信息本身显著改变期望效用，但自由地选何时探查只比开局决定探/不探高0.000624；下一阶段应探索行动自然带出新证据。"
+        },
+        {
+          "id": "R78",
+          "name": "可撤销承诺的替代方案反证",
+          "status": "淘汰本配置的独立撤销权",
+          "revokeForcedEarly": 2.376148834,
+          "irreversibleForcedEarly": 1.497256516,
+          "apparentFeatureGain": 0.878892318,
+          "revokeWithWait": 2.387611454,
+          "irreversibleWithWait": 2.387611454,
+          "featureGainAfterAllowingWait": 0,
+          "strictRootHands": 0,
+          "interpretation": "先前的0.879是由禁止玩家等待公开线索的虚假设计约束制造；一旦允许花一手等待再承诺，单独撤销权零增量。"
+        }
+      ],
+      "crossRoundMemory": [
+        "R76：空间与时间的不可逆移动成本可以产生与双目标竞速不同的关系，但两车道模型只余微小可解释价值，不足以声称成品。",
+        "R77：必须分别衡量『信息有无』和『探查时点是否需要策略』；前者增益0.28936，后者仅0.00062，不能归因为高阶动态。",
+        "R78：模型设置不得禁止玩家显而易见的等待方案。与被强迫提前承诺对照会高估撤销权0.87889，合理可等待基线使增益归零。",
+        "20个可理解结构候选与人工试玩白名单是不同准入层级；官方C# 20项均可启动，但只有四个场景经过作者固定脚本下的实际因果检查，非人类认可。",
+        "探索继续以否定证据更新解释、删除不必要机制，不为凑数自动把R76-R78晋升至20个精选之中。"
+      ],
+      "record": "docs/实验/机制研究/批次/R76-R78-多维关系/研究记录.md"
     }
   ],
-  "policy": "autonomous exploration continues without human input; experiment admission never auto-creates Unity Debug entries; require semantics, baseline, mechanic ablation, normal policy voluntary value and eventual lived playtest."
+  "frontier": [
+    {
+      "id": "R83",
+      "priority": 1,
+      "question": "如果等待实际关闭一次可错失的机会，能否在公开局面中出现可解释的早承诺和先等等两类主动选择？",
+      "method": "两阶段可达性审查；冻结出现频率和窗口时间，不用纯终局罚取巧",
+      "humanGate": false
+    },
+    {
+      "id": "R84",
+      "priority": 2,
+      "question": "免费自然线索与一次专门探查是否构成独立的信息组合，哪种强简单策略就能解释？",
+      "method": "正常行动生成的线索显式呈现，比较先探/从不探/遇到矛盾再探；直接禁用付费查询",
+      "humanGate": false
+    },
+    {
+      "id": "R85",
+      "priority": 3,
+      "question": "正式P18枪口认路追击本身是否令同一个可见状态下玩家愿意换路，不只是敌人改变瞄准图标？",
+      "method": "原生Session+同骰反事实，玩家计划证据与测试预设分开",
+      "humanGate": false
+    }
+  ],
+  "policy": "自主继续，先分析语义/信息可见性及便宜反证，再对照最强简单策略和新增规则直接关闭；验证结果与人类乐趣分层，Debug绝不自动晋升。"
 }
