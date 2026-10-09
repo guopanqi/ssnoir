@@ -8,6 +8,8 @@ on:
       - 'docs/实验/机制研究/研究总览.template.html'
       - 'docs/实验/机制研究/研究总览.html'
       - 'tools/content-validator/experiments/build_mechanism_atlas.py'
+      - 'tools/content-validator/experiments/test_mechanism_field_station.mjs'
+      - 'docs/实验/机制研究/试玩任务.json'
 permissions:
   contents: read
 jobs:
@@ -20,6 +22,15 @@ jobs:
           python-version: '3.11'
       - name: Validate curated patterns, source references and HTML parity
         run: python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install existing Game Playwright test dependency
+        run: npm --prefix Game install --no-audit --no-fund --ignore-scripts
+      - name: Ensure headless Chromium is installed
+        run: cd Game && npx playwright install --with-deps chromium
+      - name: Browser test human play, feedback JSON, import and mobile UI
+        run: node tools/content-validator/experiments/test_mechanism_field_station.mjs
       - name: Upload offline research artifact
         if: success()
         uses: actions/upload-artifact@v4
@@ -28,4 +39,6 @@ jobs:
           path: |
             docs/实验/机制研究/研究总览.html
             docs/实验/机制研究/模式库.json
+            docs/实验/机制研究/试玩任务.json
+            artifacts/research-field-station/*.png
           retention-days: 30
