@@ -1,0 +1,47 @@
+name: SSNoir Autonomous Research R66-R75
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r66-r75.yml'
+      - 'tools/content-validator/experiments/r66_decay_semantics.py'
+      - 'tools/content-validator/experiments/r67_r75_structural_probe.py'
+      - 'tools/content-validator/experiments/r56_r65_autonomous_search.py'
+permissions:
+  contents: read
+jobs:
+  exact-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: R66 semantics, policy switches, banked-completion counterfactual
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r66_decay_semantics.py | tee /tmp/r66.json
+      - name: R67 causal audit and R68-R75 eight exact tests
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r67_r75_structural_probe.py /tmp/r67-r75.json
+          python3 - <<'PY'
+          import json
+          a=json.load(open('/tmp/r66.json',encoding='utf-8'))
+          b=json.load(open('/tmp/r67-r75.json',encoding='utf-8'))
+          assert a['id']=='R66'
+          assert [r['id'] for r in b['results']]==[f'R{x}' for x in range(67,76)]
+          for row in b['results'][1:]:
+              assert row['adaptive']+1e-8>=row['best_per_root_baseline']
+              print(row['id'],row['name'],'gap',row['gap'],'strict roots',row['strict_root_hands'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r66-r75-exact-audit
+          path: |
+            /tmp/r66.json
+            /tmp/r67-r75.json
+          retention-days: 90
