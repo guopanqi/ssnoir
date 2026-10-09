@@ -15,9 +15,7 @@ export default defineConfig({
             if (output.type !== "chunk" || !output.fileName.endsWith(".js")) continue;
             const needle = 'return e.split("\\n").map((e) => {';
             if (!output.code.includes(needle)) throw new Error("LIPS diagnostic site moved");
-            output.code = output.code.replace(needle,
-              '// A LIPS metadata normalizer may receive a function value in the Rolldown IIFE.\\n' +
-              'if (typeof e !== "string") return e;\\n' + needle);
+            output.code = output.code.replace(needle, 'if (typeof e !== "string") return e; ' + needle);
           }
         }
       }]
