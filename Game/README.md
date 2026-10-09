@@ -32,7 +32,7 @@ npm run build:wechat       # import dist/wechat in WeChat DevTools as Mini Game
 | Scheme syntax/semantics | Yes, tests using *real stdlib.scm* | GitHub Actions pass |
 | Browser 3D + 2D same GL context | Yes | Playwright click succeeds, screenshot reviewed |
 | Browser resized/mobile touch | Mobile landscape test | Playwright 812x375 tap + screenshot |
-| Electron window | Browser bundle reused | CI runs Electron on Xvfb; native Windows/macOS manual check still pending |
+| Electron window | Browser bundle reused | CI runs Electron on Xvfb with `--no-sandbox` **only for this hosted CI process**; native Windows/macOS release smoke still pending |
 | WeChat Three + Pixi shared GL | Real shared implementation + mocked wx browser smoke | **WeChat DevTools + Android and iOS real devices pending** |
 | WeChat font/touch/lifecycle | Touch manually routed by WX event | Real devices pending |
 | Full \`engine.scm\` / \`world.scm\` | Not yet | Stage 2 after platform decision |
