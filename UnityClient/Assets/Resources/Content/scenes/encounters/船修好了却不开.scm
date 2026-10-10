@@ -44,6 +44,15 @@
         (spotlight! title text)
         (end-encounter (list result (payment-clk 'current))))))
 
+;; 离港演出：进港那一下是世界层入场播的（见弗兰克 arrival-repair），离港这一
+;; 下在这里播——对白里答应放船，镜头就切到泊位看它起锚、把吊杆收回去、滑进
+;; 雾里。播完才发结算告示卡，顺序不能反：告示卡之后就是 end-encounter。
+;; 道具之后停在 Offshore，交锋结算写回的 货船在泊 #f 再经 SyncAll 只是原地确认。
+;; 缺席（世界层 turn-rule 的 spotlight）和倒下（collapse）走不到这里，
+;; 那两条路由 SyncAll 静默摆回画外兜底。
+(define (ship-departs!)
+  (play-motion! "码头/货船" "Offshore" "码头-靠岸"))
+
 (define (on-encounter-collapse)
   (collapse-result (list 'fail (payment-clk 'current))))
 
@@ -52,6 +61,7 @@
     (line "货运代理" "钱会从办事处送来。今天。每一个在名单上的人。")
     (line "弗兰克" "名单上还有伤了的、临时顶班的。照我这本付。")
     (line "世界" "代理盯着那本油污账册，最后在付款单上补了两行。"))
+  (ship-departs!)
   (finish! 'success "全额到账"
     "运钞员把钱箱送上码头。弗兰克让人把关键部件装回去，船在下午离港。"))
 
@@ -60,6 +70,7 @@
     (line "世界" "公司的卡车横到跳板前。警卫从车斗下来，棍子夹在腋下。")
     (line "弗兰克" "拿到手的先送走。其余人退到仓门里面。")
     (line "货运代理" "现在把部件交出来。"))
+  (ship-departs!)
   (finish! 'fail "警卫进场"
     (string-append
       "封锁被强行清开。此前已经到账的 "
@@ -144,6 +155,7 @@
           (line "货运代理" "那是盗窃。")
           (line "弗兰克" "那就把欠款写成工资。你挑一个名字。"))
         (set-global! '扣船-以货抵债 #t)
+        (ship-departs!)
         (finish! 'success "以货抵债"
           "工人把足够抵偿欠款的货搬进仓门。公司把它记作盗窃，船仍在当天离港。"))))
 
@@ -164,6 +176,7 @@
         (line "尼尔" "先把已经答应的数当场付清。船今天走。")
         (line "弗兰克" "出过班的人能拿到。伤着没来的、临时顶过的，还是没有。")
         (line "弗兰克" "我会记得这是你选的数。"))
+      (ship-departs!)
       (finish! 'success "部分到账"
         "代理支付了出勤名单上的一部分工资。弗兰克交回部件，船在警卫到场前离港。"))))
 
@@ -174,6 +187,7 @@
         (line "尼尔" "把部件装回去。到这里。")
         (line "弗兰克" "船开了，他们就只剩一张找不到人的欠条。")
         (line "世界" "他看了你一会儿，还是把油布包交给机工。"))
+      (ship-departs!)
       (finish! 'fail "放船离开"
         "关键部件装了回去。没有发生冲撞，工钱继续拖欠。"))))
 

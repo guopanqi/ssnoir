@@ -22,12 +22,7 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: "M_\u4E16\u754C_\u4EAE\u91D1\u88C5\u9970"
-    second: {fileID: 2100000, guid: b8268a791c8214dfebc5459865336514, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: "M_\u4E16\u754C_\u51B7\u767D\u53D1\u5149\u8868\u9762"
+      name: "M_\u4E16\u754C_\u51B7\u767D\u706F\u9970"
     second: {fileID: 2100000, guid: c48026b54747e45c2b8b79ddfa6b937e, type: 2}
   - first:
       type: UnityEngine:Material
@@ -42,7 +37,7 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: "M_\u4E16\u754C_\u6696\u767D\u53D1\u5149\u8868\u9762"
+      name: "M_\u4E16\u754C_\u6696\u767D\u706F\u9970"
     second: {fileID: 2100000, guid: 9de0e8b9f38c04398b1f65f2a1f4cd58, type: 2}
   - first:
       type: UnityEngine:Material
@@ -62,7 +57,12 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: "M_\u4E16\u754C_\u91D1\u8272\u7EC6\u9970"
+      name: "M_\u4E16\u754C_\u91D1\u8272\u91D1\u5C5E"
+    second: {fileID: 2100000, guid: b8268a791c8214dfebc5459865336514, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "M_\u4E16\u754C_\u91D1\u8272\u9576\u8FB9"
     second: {fileID: 2100000, guid: 860f88072c20f4334ad911371c381cab, type: 2}
   - first:
       type: UnityEngine:Material

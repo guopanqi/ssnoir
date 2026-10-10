@@ -47,15 +47,37 @@ namespace SSNoir.IMGUI
                 if (bubble.Line.Speaker == NarratorSpeaker && i != newestNarration)
                     continue;
 
-                bool usedRemoteFallback = DrawBubble(
-                    bubble.Line.Speaker,
-                    bubble.Line.DisplaySpeaker,
-                    bubble.Line.Text,
-                    anchors,
-                    gameManager,
-                    bubble.AllowsRemoteParticipants,
-                    fallsBackToRemoteParticipant: true,
-                    preferCardAnchor: bubble.PreferCardAnchor);
+                bool usedRemoteFallback;
+                // 行级锚点（line 的 :at）：身份和位置分开，气泡落在锚点上、署说话人的名。
+                // 锚点写错必须当场暴露：若再按说话人解析，气泡会悄悄落到错的地方。
+                if (!string.IsNullOrEmpty(bubble.Line.Anchor))
+                {
+                    if (!anchors.TryResolve(bubble.Line.Anchor, out var anchorRect))
+                    {
+                        throw new System.InvalidOperationException(
+                            $"banter 行级锚点无法解析: anchor='{bubble.Line.Anchor}' speaker='{bubble.Line.Speaker}'"
+                            + "（锚点名须与场景中的 NodeAnchor 一致）");
+                    }
+                    usedRemoteFallback = false;  // 行级锚点已明确落点，不存在降级
+                    DrawBubbleAt(
+                        bubble.Line.Speaker,
+                        bubble.Line.DisplaySpeaker,
+                        bubble.Line.Text,
+                        anchorRect);
+                    bubble.RemoteFallbackWarningIssued = true;  // 已有明确落点，不再报降级警告
+                }
+                else
+                {
+                    usedRemoteFallback = DrawBubble(
+                        bubble.Line.Speaker,
+                        bubble.Line.DisplaySpeaker,
+                        bubble.Line.Text,
+                        anchors,
+                        gameManager,
+                        bubble.AllowsRemoteParticipants,
+                        fallsBackToRemoteParticipant: true,
+                        preferCardAnchor: bubble.PreferCardAnchor);
+                }
                 if (usedRemoteFallback && !bubble.RemoteFallbackWarningIssued)
                 {
                     reportRemoteFallback(bubble.Line.Speaker);
@@ -96,6 +118,18 @@ namespace SSNoir.IMGUI
                 anchor = DrawRemoteParticipantCard(speaker, displaySpeaker);
             }
 
+            DrawBubbleAt(speaker, displaySpeaker, text, anchor);
+            return usedRemoteFallback;
+        }
+
+        // 气泡绘制本体：落点已定，只管画。行级锚点（line 的 :at）直接走这里，
+        // 不经过说话人解析——身份和位置在调用方已经分开。
+        private static void DrawBubbleAt(
+            string speaker,
+            string displaySpeaker,
+            string text,
+            Rect anchor)
+        {
             // 对话气泡是"递到面前的一张纸"：Paper 底 + PaperInk 字 + 硬投影
             var bodyStyle = new GUIStyle(IMGUIStyles.ModalBody)
             {
@@ -147,7 +181,6 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLabel(new Rect(rect.x + columnX, rect.y + 6f, textW, 20f),
                 displaySpeaker, nameStyle);
             IMGUIStyles.DrawLabel(new Rect(rect.x + columnX, rect.y + 26f, textW, textH), text, bodyStyle);
-            return usedRemoteFallback;
         }
 
         // 霓虹图黑等于透明，直接铺在纸上就只剩一团淡蓝；先垫一块照片黑，头才立得起来。

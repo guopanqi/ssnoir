@@ -147,49 +147,6 @@
       "speaker": "尼尔",
       "text": "……脚步不对。不是他。",
       "sourcePath": "reveal!/非目标/2"
-    },
-    {
-      "id": "三封信/家/伤后探望/01/夜莺",
-      "speaker": "夜莺",
-      "text": "你受伤了？",
-      "sourcePath": "node-her-visit/共用/1"
-    },
-    {
-      "id": "三封信/家/伤后探望/无烟/02/尼尔",
-      "speaker": "尼尔",
-      "text": "不要紧。如果我没记错的话，他往码头居民区去了。",
-      "sourcePath": "node-her-visit/无烟/2"
-    },
-    {
-      "id": "三封信/家/伤后探望/无烟/02/夜莺",
-      "speaker": "夜莺",
-      "text": "你要去吗？那里外人恐怕不好进去，他们不怎么认陌生人。",
-      "sourcePath": "node-her-visit/无烟/3"
-    },
-    {
-      "id": "三封信/家/伤后探望/无烟/03/尼尔",
-      "speaker": "尼尔",
-      "text": "我要去码头居民区一趟。",
-      "sourcePath": "node-her-visit/无烟/4"
-    },
-    {
-      "id": "三封信/家/伤后探望/04/尼尔",
-      "speaker": "尼尔",
-      "text": "那你跟我去。",
-      "sourcePath": "node-her-visit/共用/6"
-    },
-    {
-      "id": "三封信/家/伤后探望/04/夜莺",
-      "speaker": "夜莺",
-      "text": "不，我不。",
-      "direction": "立刻回绝，不留余地。",
-      "sourcePath": "node-her-visit/共用/7"
-    },
-    {
-      "id": "三封信/家/伤后探望/收尾/02/世界",
-      "speaker": "世界",
-      "text": "我知道那地方外人进不去，但那时候，我已经没有别的路可选了。",
-      "sourcePath": "node-her-visit/无烟/8"
     }
   ]
 }

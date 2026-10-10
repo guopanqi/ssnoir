@@ -1565,6 +1565,10 @@ namespace SSNoir.IMGUI
                         // 「站在这儿的人大概多高」，不是某个模型量出来的数。
                         var headScreen = cam.WorldToScreenPoint(anchor.transform.position + Vector3.up * BanterHeadHeight);
                         _dialogueAnchors.RegisterWorldPoint(node.Name, UIScale.WorldPointToVirtual(headScreen));
+                        // 行级锚点（line 的 :at）按锚点名解析：同一个锚点可以轮流几个人说话，
+                        // 署名仍是说话人。锚点名全局唯一，与节点名不会撞车；同值重复登记无害。
+                        if (anchor.ResolvedNodeName != node.Name)
+                            _dialogueAnchors.RegisterWorldPoint(anchor.ResolvedNodeName, UIScale.WorldPointToVirtual(headScreen));
                     }
                     else if (containedBlocker != null)
                     {

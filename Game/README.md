@@ -1,5 +1,9 @@
 # SSNoir / Game — Phase 1 foundation
 
+他本质上是一个移植尝试，底层首先需要建立threejs - wechat - taptap 的适配，才能在顶层进行尝试
+在顶层改造之后，也许会有新的能力
+但是我们的时间有限，我不认为这是这个项目应该去做的事儿
+
 This is the planned **only** game project. Legacy C#/Unity code is retained during migration as a reference, not as a second long-term client.
 
 ## Shared architecture (real prototype)

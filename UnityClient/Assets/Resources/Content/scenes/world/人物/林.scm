@@ -31,6 +31,10 @@
 
 (define lin
   (let ()
+    ;; 第一章暂隐：林这条线（码头机械区事故、三号货栈工棚）先不出来。
+    ;; 入场、地点节点、卷宗三处统一收口；状态机、存档与第二章读取原样保留，
+    ;; 第二章（林的机器）照常读初始态。恢复时改回 #t。
+    (define line-open? #f)
     ;; ── 常量 ────────────────────────────────────────
     (define prep-days 3)          ; 他说三天后
     (define rail-max 3)
@@ -108,45 +112,47 @@
             (step "那一夜之后，回工棚看看" (>= stage 4))))
 
     (define (dossier-entry)
-      (cond
-        ((= stage 2)
-         (list (dossier "三号货栈的那台机器"
-                 :kind '人物
-                 :status '进行中
-                 :steps (steps)
-                 :now (if (test-due?)
-                          "正式测试原定今晚进行。去三号货栈工棚"
-                          (string-append "测试之夜在第 " (number->string test-day)
-                                         " 天。在那之前把控制器凑齐、把轨道校完"))
-                 :where "三号货栈工棚"
-                 :clocks (append
-                           (list (rail-clk 'render-data))
-                           (if (controller-done?)
-                               '()
-                               (list (part-int-clk 'render-data)
-                                     (part-flaw-clk 'render-data))))
-                 :log (journal 'render-data))))
-        ((= stage 1)
-         (list (dossier "三号货栈的那台机器"
-                 :kind '人物
-                 :status '进行中
-                 :steps (steps)
-                 :now "去码头尽头那间工棚，看看他到底在做什么"
-                 :where "三号货栈工棚"
-                 :log (journal 'render-data))))
-        ((>= stage 3)
-         (list (dossier "三号货栈的那台机器"
-                 :kind '人物
-                 :status (if (>= stage 4) '了结 '进行中)
-                 :steps (steps)
-                 :now (if (>= stage 4)
-                          (if (equal? test-result "")
-                              "正式测试改期了。林在等公司的新排期"
-                              "那一夜过去了。")
-                          "去工棚看看那一夜之后剩下什么")
-                 :where (if (>= stage 4) "" "三号货栈工棚")
-                 :log (journal 'render-data))))
-        (else '())))
+      (if (not line-open?)
+          '()
+          (cond
+            ((= stage 2)
+             (list (dossier "三号货栈的那台机器"
+                     :kind '人物
+                     :status '进行中
+                     :steps (steps)
+                     :now (if (test-due?)
+                              "正式测试原定今晚进行。去三号货栈工棚"
+                              (string-append "测试之夜在第 " (number->string test-day)
+                                             " 天。在那之前把控制器凑齐、把轨道校完"))
+                     :where "三号货栈工棚"
+                     :clocks (append
+                               (list (rail-clk 'render-data))
+                               (if (controller-done?)
+                                   '()
+                                   (list (part-int-clk 'render-data)
+                                         (part-flaw-clk 'render-data))))
+                     :log (journal 'render-data))))
+            ((= stage 1)
+             (list (dossier "三号货栈的那台机器"
+                     :kind '人物
+                     :status '进行中
+                     :steps (steps)
+                     :now "去码头尽头那间工棚，看看他到底在做什么"
+                     :where "三号货栈工棚"
+                     :log (journal 'render-data))))
+            ((>= stage 3)
+             (list (dossier "三号货栈的那台机器"
+                     :kind '人物
+                     :status (if (>= stage 4) '了结 '进行中)
+                     :steps (steps)
+                     :now (if (>= stage 4)
+                              (if (equal? test-result "")
+                                  "正式测试改期了。林在等公司的新排期"
+                                  "那一夜过去了。")
+                              "去工棚看看那一夜之后剩下什么")
+                     :where (if (>= stage 4) "" "三号货栈工棚")
+                     :log (journal 'render-data))))
+            (else '()))))
 
     ;; ── 判定 ────────────────────────────────────────
     (define (zone-open?) (>= (three-letters 'story-stage) 2))
@@ -266,14 +272,16 @@
             (string-append "还有 " (number->string (days-left)) " 天。那一夜在三号货栈，只有那一夜。")))))
 
     (define (arrivals-at location)
-      (cond
-        ((equal? location "三号货栈工棚")
-         (if (= stage 1) (list (arrival-briefing)) '()))
-        ((equal? location "码头")
-         (if (and (= stage 0) (zone-open?) (not zone-announced?))
-             (list (arrival-runaway))
-             '()))
-        (else '())))
+      (if (not line-open?)
+          '()
+          (cond
+            ((equal? location "三号货栈工棚")
+             (if (= stage 1) (list (arrival-briefing)) '()))
+            ((equal? location "码头")
+             (if (and (= stage 0) (zone-open?) (not zone-announced?))
+                 (list (arrival-runaway))
+                 '()))
+            (else '()))))
 
     ;; ── 第二拍：准备期 ──────────────────────────────
     ;; 三样都是商业圈里的带薪临时活：林拿的是公司经费，他签得下来。
@@ -568,10 +576,12 @@
       '())
 
     (define (nodes-at location)
-      (cond
-        ((equal? location "三号货栈工棚") (workshop-nodes))
-        ((equal? location "码头") (dock-nodes))
-        (else '())))
+      (if (not line-open?)
+          '()
+          (cond
+            ((equal? location "三号货栈工棚") (workshop-nodes))
+            ((equal? location "码头") (dock-nodes))
+            (else '()))))
 
     (define (symbol->string-safe v)
       (cond

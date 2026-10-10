@@ -2,7 +2,8 @@
 ;;
 ;; 第一章他有一条不进卷宗的码头事件链。一个认为「这里的事由这里的人处理」的人，
 ;; 不会站在地图上等你接任务；第二天旧货船改泊，赶上码头才会看见他组织抢修。
-;;   一、货船抢修、船修好了却不开、分钱——三拍都在表现他如何管这条街。
+;;   一、货船抢修——他在码头排班修船，修好船即离港。
+;;   扣船、分钱两拍暂隐（见 hold-open?），恢复时整条链再连回去。
 ;;   二、巷子那一晚，他挡在你和莱恩中间。那一晚由《三封信》拥有，这里只收结果。
 ;;
 ;; 人物关系的核心事实是：**弗兰克认不认你这个人**。
@@ -36,6 +37,10 @@
     (define hold-paid? #f)          ; 这条街当天拿到了东西
     (define hold-payment 0)
     (define distribution-viewed? #f)
+    ;; 扣船暂隐：船修好了却不开、分钱两拍先不出来，修好即离港。
+    ;; 入口、排期与缺席 spotlight 一律不向玩家露面；旧档残留的待安排/待处理
+    ;; 由下面的收口规则静默记 缺席。恢复整条链时改回 #t（兼改 settle-repair!）。
+    (define hold-open? #f)
 
     (define paper-seen? #f)         ; 首演之后看见他在看报纸
     ;; 第二章：警察来老街带人那天的调停。未发生 / 等你 / 成功 / 失败 / 缺席。
@@ -58,9 +63,9 @@
     (define (repair-done?) (equal? repair-state "已结束"))
     (define (hold-settled?) (member? hold-state (list "已结算" "缺席")))
 
-    ;; 货船在泊：那条大船停在码头航道上的日子（抢修中、修好等验船、扣船那天）。
-    ;; 画面由 PropMotion.SyncAll 读这个键摆船；当天尚未看入场时仍留在画外，
-    ;; 让进码头的 play-motion! 真正从 Offshore 播到 Berthed。错过当天后船照常在泊。
+    ;; 货船在泊：抢修进行中、且看过入场（或错过了入场当天）的日子。
+    ;; 修好即离港——扣船暂隐（见 hold-open?），hold-state 只会落在 缺席，
+    ;; 不再有等验船、扣船的日子。
     (define (ship-berthed?)
       (or (and (equal? repair-state "进行中")
                (or repair-arrival-viewed?
@@ -141,11 +146,15 @@
           (completed-by-player? "按时修好")
           (repair-joined? "勉强修好")
           (else "未介入")))
-      (set! hold-state "待安排")
-      (set! hold-open-day (+ world-day 1))
-      (sync-globals!)
-      ;; 玩家没有参加，就没有理由在别处收到这条现场结算；后续扣船事件仍按城市
-      ;; 自己的时间线发生。参加过的人才会收到自己做过的那班活最终怎样了。
+      ;; 扣船暂隐（见 hold-open?）：修好即离港，不再排期扣船。hold-state 直接记
+      ;; 缺席（船走了，泊位没去成），卷宗按缺席了结，不弹任何扣船 spotlight。
+      ;; 恢复整条链时改回：hold-state 待安排 + hold-open-day。
+      (set! hold-state "缺席")
+      (set! hold-open-day 0)
+      (set! hold-day 0)
+      (sync-globals!)  ;; 货船在泊 -> #f，船静默离港（见 PropMotion.SyncAll）
+      ;; 玩家没有参加，就没有理由在别处收到这条现场结算；
+      ;; 参加过的人才会收到自己做过的那班活最终怎样了。
       (if repair-joined?
           (begin
             (play-stage!
@@ -164,7 +173,7 @@
             (baines 'note-dock-seen!)
             (spotlight! "货船达到离港标准"
               (if (equal? repair-result "按时修好")
-                  "泵压住了进水。你把最后一班抢了下来，代理明天来验船。"
+                  "泵压住了进水。你把最后一班抢了下来，船达到了离港标准。"
                   "你下过舱，但没赶完。弗兰克带人补到天亮，船勉强达到离港标准。")))
           #f))
 
@@ -324,7 +333,7 @@
               (node-repair-clock) (node-repair))
             '())
         ;; 船边发生的两件事直接留在泊位；弗兰克本人常驻居民区的工会房间。
-        (if (equal? hold-state "待处理") (list (node-hold-entry)) '())
+        (if (and hold-open? (equal? hold-state "待处理")) (list (node-hold-entry)) '())
         (if (and (not paper-seen?) (>= (three-letters 'story-stage) 5))
             (list (node-newspaper))
             '())))
@@ -344,8 +353,8 @@
         ((equal? location "码头居民区") (residential-nodes))
         (else '())))
 
-    ;; 第一章一张卡《货船》：抢修 → 船修好了却不开 → 分钱。进水的船拖到泊位那天立卡，
-    ;; 看他分钱那一拍了结；没去泊位（缺席）也了结，只是最后两项就那么留着。
+    ;; 第一章一张卡《货船》：抢修，修好船即离港。扣船、分钱暂隐（见 hold-open?），
+    ;; 卡在抢修结束那一拍了结；后两项就那么留着，恢复时再连回去。
     ;; 他没事给你做的日子不另立人物简介——码头/居民区的标注卡（node-frank-idle）
     ;; 已经说清他此刻在干什么。
     (define (ship-task-done?)
@@ -444,7 +453,7 @@
           (set! repair-arrival-viewed? #t)
           (sync-globals!)
           ;; 演出：切到泊位低机位，看那条船从画外压进来、蹭着停住、锚砸下去、吊杆摆向岸边；
-          ;; 播完回原机位接对白。船之后一直停在航道上，直到扣船了结（见 ship-berthed?）。
+          ;; 播完回原机位接对白。船之后一直停在航道上，直到抢修结束离港（见 ship-berthed?）。
           (play-motion! "码头/货船" "Berthed" "码头-靠岸")
           (play-ship-arrival!))))
 
@@ -468,7 +477,8 @@
         (sync-globals!)))
 
     (define-turn-rule "不开的船等待合适白天"
-      (lambda () (and (equal? hold-state "待安排")
+      (lambda () (and hold-open?
+                      (equal? hold-state "待安排")
                       (>= world-day hold-open-day)
                       (not (rest-blocked?))))
       (lambda ()
@@ -479,12 +489,24 @@
           "代理拒绝付工钱——承包人跑了。弗兰克扣下一件关键部件，让工人封住跳板；只有今天。")))
 
     (define-turn-rule "不开的船缺席结算"
-      (lambda () (and (equal? hold-state "待处理") (> world-day hold-day)))
+      (lambda () (and hold-open?
+                      (equal? hold-state "待处理") (> world-day hold-day)))
       (lambda ()
         (set! hold-state "缺席")
         (sync-globals!)
         (spotlight! "不开的船离港了"
           "你没有去泊位。弗兰克让跳板封了一整天，最后逼到一部分现金；代理带走了船。")))
+
+    ;; 扣船暂隐收口：旧档里残留的待安排/待处理静默记 缺席，不弹 spotlight、
+    ;; 不留入口。后注册先运行，抢在上面的缺席结算之前落地。
+    (define-turn-rule "扣船暂隐收口"
+      (lambda () (and (not hold-open?)
+                      (member? hold-state (list "待安排" "待处理"))))
+      (lambda ()
+        (set! hold-state "缺席")
+        (set! hold-open-day 0)
+        (set! hold-day 0)
+        (sync-globals!)))
 
     (sync-globals!)
     (lambda args

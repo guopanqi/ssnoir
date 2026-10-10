@@ -6,7 +6,9 @@ using UnityEngine;
 
 namespace SSNoir
 {
-    /// <summary>地点静态光照资源。与正式地点 FBX 同源烘焙，不改变共享材质。</summary>
+    /// <summary>地点静态光照资源。与正式地点 FBX 同源烘焙，不改变共享材质。
+    /// 几何变化后未重烘只告警、不阻断：仍按旧绑定应用（光照可能错位），
+    /// 真正找不到绑定对象时再由下方的精确报错指出。</summary>
     public sealed class CityLightmapData : ScriptableObject
     {
         [Serializable] public sealed class Binding
@@ -22,7 +24,9 @@ namespace SSNoir
 
         public void Apply(GameObject detail, string expectedHash)
         {
-            if (SourceHash != expectedHash) throw new InvalidOperationException("地点几何已变，请重新烘焙：" + detail.name);
+            if (SourceHash != expectedHash)
+                Debug.LogWarning($"[SSNoir] 地点 '{detail.name}' 几何已变但光照未重烘，"
+                    + $"仍应用旧烘焙（光照可能错位）：{SourceHash} -> {expectedHash}。");
             var maps = new List<LightmapData>(LightmapSettings.lightmaps ?? Array.Empty<LightmapData>());
             var indices = Lightmaps.Select(texture => {
                 int index = maps.FindIndex(m => m.lightmapColor == texture);

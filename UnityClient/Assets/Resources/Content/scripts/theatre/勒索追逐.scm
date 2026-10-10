@@ -1,8 +1,8 @@
 ;; 改编网页第四场“追逐”：取信、报纸落下、向左追赶、先后入巷。
-;; 空间与声音沿用参考；删掉漫长等待和浮字，跑步为两张立绘交替。
+;; 保留 Claude 第四场的等待、加减速及擦身时序；跑者用单帧冲刺定姿 + 脚步 + 扬尘。
 (load-file "scripts/theatre/勒索街角.scm")
 (define (勒索追逐-演出)
-  (define 图形 (勒索街角-布景))
+  (define 图形 (append (勒索街角-布景) (勒索街角-人群 "取信路人/" 7 1)))
   (define (加入 o) (set! 图形 (append 图形 (list o))))
   (define (线 id parent color width points) (加入 (theatre-line id parent color width points)))
   (define (框 id parent x y w h color)
@@ -38,17 +38,61 @@
             (加入 (theatre-glow (string-append "灯芯/" tag) "中街" "#FFE6A8" x 300 18 18))))
         (剪影 (string-append "路人/" tag) "中街" (+ x 50) 790)
         (街景 (+ i 1)))))
-  (define (卷层 id seconds)
+  (define (卷动)
+    (theatre-parallel
+      (theatre-animate "远街" 'x '(
+        (0.00000 0.0000) (0.14000 3.4844) (0.28000 10.4533) (0.42000 20.9067) (0.56000 34.8444)
+        (0.70000 52.2667) (0.84000 73.1733) (0.98000 97.5644) (1.12000 125.4400) (1.26000 156.8000)
+        (1.40000 191.6444) (1.58000 239.0044) (1.76000 288.9244) (1.94000 341.4044) (2.12000 396.4444)
+        (2.30000 454.0444) (2.48000 514.2044) (2.66000 576.9244) (2.84000 642.2044) (3.02000 710.0444)
+        (3.20000 780.4444) (3.70000 976.0000) (3.80000 1016.5333) (3.90000 1058.4889) (4.00000 1101.8667)
+        (4.10000 1146.6667) (4.20000 1192.8889) (4.30000 1240.5333) (4.40000 1289.6000) (4.50000 1340.0889)
+        (4.60000 1392.0000) (4.70000 1445.3333) (4.98999 1600.0000) (4.99000 0.0000) (7.30000 1232.0000)
+        (7.58000 1366.4996) (7.86000 1486.1653) (8.14000 1590.9973) (8.16800 1600.0000) (8.16801 0.0000)
+        (8.42000 80.9956) (8.70000 156.1600) (8.98000 216.4907) (9.26000 261.9876) (9.54000 292.6507)
+        (9.82000 308.4800) (10.10000 309.4756) (17.60000 336.1422)))
+      (theatre-animate "中街" 'x '(
+        (0.00000 0.0000) (0.14000 8.2526) (0.28000 24.7579) (0.42000 49.5158) (0.56000 82.5263)
+        (0.70000 123.7895) (0.84000 173.3053) (0.98000 231.0737) (1.12000 297.0947) (1.26000 371.3684)
+        (1.40000 453.8947) (1.58000 566.0632) (1.76000 684.2947) (1.94000 808.5895) (2.12000 938.9474)
+        (2.30000 1075.3684) (2.48000 1217.8526) (2.66000 1366.4000) (2.84000 1521.0105) (2.92848 1600.0000)
+        (2.92849 0.0000) (3.02000 81.6842) (3.20000 248.4211) (3.70000 711.5789) (3.80000 807.5789)
+        (3.90000 906.9474) (4.00000 1009.6842) (4.10000 1115.7895) (4.20000 1225.2632) (4.30000 1338.1053)
+        (4.40000 1454.3158) (4.50000 1573.8947) (4.52122 1600.0000) (4.52123 0.0000) (4.60000 96.8421)
+        (4.70000 223.1579) (5.78999 1600.0000) (5.79000 0.0000) (7.05666 1600.0000) (7.05667 0.0000)
+        (7.30000 307.3684) (7.58000 625.9200) (7.86000 909.3389) (8.14000 1157.6253) (8.42000 1370.7789)
+        (8.70000 1548.8000) (8.80032 1600.0000) (8.80033 0.0000) (8.98000 91.6884) (9.26000 199.4442)
+        (9.54000 272.0674) (9.82000 309.5579) (10.10000 311.9158) (17.60000 375.0737)))
+      (theatre-animate "路面" 'x '(
+        (0.00000 0.0000) (0.14000 17.4222) (0.28000 52.2667) (0.42000 104.5333) (0.56000 174.2222)
+        (0.70000 261.3333) (0.84000 365.8667) (0.98000 487.8222) (1.12000 627.2000) (1.26000 784.0000)
+        (1.40000 958.2222) (1.58000 1195.0222) (1.76000 1444.6222) (1.86658 1600.0000) (1.86659 0.0000)
+        (1.94000 107.0222) (2.12000 382.2222) (2.30000 670.2222) (2.48000 971.0222) (2.66000 1284.6222)
+        (2.83391 1600.0000) (2.83392 0.0000) (2.84000 11.0222) (3.02000 350.2222) (3.20000 702.2222)
+        (3.65908 1600.0000) (3.65909 0.0000) (3.70000 80.0000) (3.80000 282.6667) (3.90000 492.4444)
+        (4.00000 709.3333) (4.10000 933.3333) (4.20000 1164.4444) (4.30000 1402.6667) (4.38042 1600.0000)
+        (4.38043 0.0000) (4.40000 48.0000) (4.50000 300.4444) (4.60000 560.0000) (4.70000 826.6667)
+        (4.98999 1600.0000) (4.99000 0.0000) (5.58999 1600.0000) (5.59000 0.0000) (6.18999 1600.0000)
+        (6.19000 0.0000) (6.78999 1600.0000) (6.79000 0.0000) (7.30000 1360.0000) (7.39992 1600.0000)
+        (7.39993 0.0000) (7.58000 432.4978) (7.86000 1030.8267) (8.14000 1554.9867) (8.16800 1600.0000)
+        (8.16801 0.0000) (8.42000 404.9778) (8.70000 780.8000) (8.98000 1082.4533) (9.26000 1309.9378)
+        (9.54000 1463.2533) (9.82000 1542.4000) (10.10000 1547.3778) (13.05999 1600.0000) (13.06000 0.0000)
+        (17.60000 80.7111)))))
+  ;; 单帧冲刺：姿势定住一张最舒展的蹬地帧，不切图、不晃位置。
+  ;; 速度感由背景卷动、擦身黑影、脚步声和脚后扬尘给。
+  (define (脚步 id)
     (theatre-loop (theatre-sequence
-      (theatre-tween id 'x 1600 seconds)
-      (theatre-tween id 'x 0 .001))))
-  (define (跑 id actor)
-    (theatre-loop (theatre-sequence
-      (theatre-image-to id (string-append "Portraits/Chase/" actor "_跑步甲"))
       (theatre-sound (string-append id "/脚步") "StageSounds/勒索信/脚步" #f .75 0)
-      (theatre-wait .12)
-      (theatre-image-to id (string-append "Portraits/Chase/" actor "_跑步乙"))
-      (theatre-wait .12))))
+      (theatre-wait .24))))
+  ;; 扬尘挂在跑者脚下组里跟着人走：现形 → 往身后飘 → 散掉，0.48 秒一轮。
+  (define (尘 id)
+    (theatre-loop (theatre-sequence
+      (theatre-tween id 'opacity 0 .001)
+      (theatre-tween id 'x 16 .001)
+      (theatre-tween id 'opacity .3 .1)
+      (theatre-parallel
+        (theatre-tween id 'x 96 .38)
+        (theatre-tween id 'opacity 0 .38)))))
   (define (擦身 id from to seconds)
     (theatre-sequence
       (theatre-tween id 'x from .001)
@@ -79,10 +123,13 @@
   (线 "右楼落水管" "巷口" "#536A91" 2 '((510 80) (510 740) (530 765)))
   (框 "巷窗左" "巷口" 170 260 70 90 "#6F86B8")
   (框 "巷窗右" "巷口" 560 260 70 90 "#6F86B8")
-  (加入 (theatre-with (theatre-group "取信人位置" "" 640 790) 'brightness 2.4))
+  (加入 (theatre-with (theatre-group "取信人位置" "" -150 790) 'brightness 1))
   (加入 (theatre-image "取信人" "取信人位置" "Portraits/Neon/黑影" 0 0 308 308 ""))
-  (加入 (theatre-with (theatre-group "尼尔位置" "" 1070 790) 'brightness 1.3))
+  (加入 (theatre-with (theatre-group "尼尔位置" "" 1070 830) 'brightness 1.3))
   (加入 (theatre-with (theatre-image "尼尔" "尼尔位置" "Portraits/Neon/尼尔_靠墙" 0 0 308 308 "") 'scale-x -1))
+  ;; 脚后扬尘：挂在各自脚下组里，跟着跑，初始不可见。
+  (加入 (theatre-with (theatre-glow "尼尔尘" "尼尔位置" "#8A93A8" 16 -8 34 22) 'opacity 0))
+  (加入 (theatre-with (theatre-glow "取信尘" "取信人位置" "#8A93A8" 16 -8 34 22) 'opacity 0))
   (set! 图形 (append 图形 (勒索街角-报纸)))
   (加入 (theatre-group "信封" "" 700 596))
   (加入 (theatre-polygon "信封纸" "信封" "#E8E2D2" '((-15 -10) (15 -10) (15 10) (-15 10))))
@@ -91,63 +138,79 @@
   (剪影 "近影乙" "" 1900 830)
 
   (play-theatre! (theatre-scene 1600 900 "#07090E" 图形)
+    (theatre-during
+      (theatre-sequence
+    (theatre-tween "取信人位置" 'opacity 0 .001)
+    (theatre-tween "信封" 'opacity 0 .001)
     (theatre-tween "报纸" 'opacity 1 .001)
+    (theatre-wait .4)
+    (theatre-wait 1.2)
     (theatre-parallel
-      (theatre-tween "信封" 'x 660 .24)
-      (theatre-tween "信封" 'y 650 .24)
+      (theatre-tween "取信人位置" 'opacity 1 .001)
+      (theatre-tween "取信人位置" 'x 600 2.0 'smooth)
+      (theatre-wait 2.2))
+    (theatre-wait .4)
+    (theatre-during (theatre-wait .5)
+      (theatre-tween "信封" 'opacity 1 .001)
       (theatre-sound "取信" "StageSounds/勒索信/纸响" #f .7 -.15))
-    (theatre-parallel
-      (theatre-tween "报纸" 'y 830 .18)
-      (theatre-tween "报纸" 'opacity 0 .18)
-      (theatre-tween "信封" 'opacity 0 .18)
-      (theatre-sound "起身" "StageSounds/勒索信/起身" #f .6 .4))
+    (theatre-wait .5)
+    (theatre-during (theatre-wait .5)
+      (theatre-parallel
+        (theatre-tween "报纸" 'y 818 .7)
+        (theatre-tween "报纸" 'opacity 0 .4)
+        (theatre-tween "尼尔位置" 'y 790 .5)
+        (theatre-sound "起身" "StageSounds/勒索信/起身" #f .6 .4)))
+    (theatre-tween "信封" 'opacity 0 .001)
+    (theatre-wait .3)
+    ;; 两张跑图都朝左；清除旧站姿的水平翻转。姿势定在蹬地甲帧，此后不再切图。
+    (theatre-tween "尼尔" 'scale-x 1 .001)
     (theatre-image-to "尼尔" "Portraits/Chase/尼尔_跑步甲")
     (theatre-image-to "取信人" "Portraits/Chase/取信人_跑步甲")
-    ;; 快速进入卷轴：尼尔从第一拍就存在，跑步不靠倾斜站姿冒充。
     (theatre-during
-      (theatre-parallel
-        (theatre-tween "布景" 'x 1900 .55 'smooth)
-        (theatre-tween "卷轴" 'opacity 1 .3)
-        (theatre-tween "取信人位置" 'x 520 .6)
-        (theatre-tween "尼尔位置" 'x 900 .6))
-      (跑 "尼尔" "尼尔") (跑 "取信人" "取信人"))
-    (theatre-during
-      (theatre-parallel
-        ;; 对手略拉开，尼尔一度被擦身的人影逼退再追回，距离变化就是这一段的戏。
-        (theatre-tween "取信人位置" 'x 490 4.2)
-        (theatre-animate "尼尔位置" 'x '((0 900) (1.2 800) (1.48 875) (2.2 790) (4.2 740)))
-        (theatre-sequence
-          (擦身 "近影甲" -300 1900 .5)
-          (theatre-wait .6)
-          (擦身 "近影乙" 1900 -300 .45)
-          (theatre-wait .75)
-          (擦身 "近影甲" -300 1900 .4)))
-      (卷层 "远街" 6.5) (卷层 "中街" 2.8) (卷层 "路面" 1.1)
-      (跑 "尼尔" "尼尔")
-      (theatre-sequence (theatre-wait .06) (跑 "取信人" "取信人")))
-    ;; 巷口迅速滑入；双方仍跑着，不先停一大段再让人入巷。
-    (theatre-during
-      (theatre-parallel
-        (theatre-tween "巷口" 'opacity 1 .1)
-        (theatre-tween "巷口" 'x 0 .65 'smooth)
-        (theatre-tween "卷轴" 'opacity 0 .65)
-        (theatre-tween "取信人位置" 'x 400 .65)
-        (theatre-tween "尼尔位置" 'x 620 .65))
-      (跑 "尼尔" "尼尔") (跑 "取信人" "取信人"))
-    (theatre-parallel
-      (theatre-tween "取信人位置" 'y 590 .32)
-      (theatre-tween "取信人位置" 'scale-x .56 .32)
-      (theatre-tween "取信人位置" 'scale-y .56 .32)
-      (theatre-tween "取信人位置" 'opacity 0 .32)
-      (theatre-tween "尼尔位置" 'x 590 .4 'smooth))
-    (theatre-image-to "尼尔" "Portraits/Neon/尼尔_抱臂")
-    (theatre-wait .3)
-    (theatre-image-to "尼尔" "Portraits/Neon/尼尔_背身")
-    (theatre-parallel
-      (theatre-tween "尼尔位置" 'x 400 .45 'smooth)
-      (theatre-sound "跟入脚步" "StageSounds/勒索信/脚步" #f .65 -.3))
-    (theatre-parallel
-      (theatre-tween "尼尔位置" 'y 590 .3)
-      (theatre-tween "尼尔位置" 'scale-x .56 .3)
-      (theatre-tween "尼尔位置" 'scale-y .56 .3)
-      (theatre-tween "尼尔位置" 'opacity 0 .3))))
+      (theatre-sequence
+        (theatre-during (theatre-wait 6.5)
+          (脚步 "尼尔") (尘 "尼尔尘")
+          (脚步 "取信人") (尘 "取信尘")
+          (theatre-tween "布景" 'x 1900 1.7 'smooth)
+          (theatre-tween "卷轴" 'opacity 1 .4)
+          (theatre-animate "取信人位置" 'x '((0 600) (.7 560) (1.4 560) (3.8 520) (6.5 500)))
+          (theatre-animate "尼尔位置" 'x
+            '((0 1070) (.9 1000) (1.4 1000) (3.2 865) (3.46 880) (3.7 880) (5.1 760) (6.5 740)))
+          (theatre-sequence
+            (theatre-wait 1.0) (擦身 "近影甲" -300 1900 .55)
+            (theatre-wait .8) (擦身 "近影乙" 1900 -300 .5)
+            (theatre-wait .8) (擦身 "近影甲" -300 1900 .45)))
+        (theatre-during
+          (theatre-tween "取信人位置" 'x 400 .7)
+          (脚步 "尼尔") (尘 "尼尔尘") (脚步 "取信人") (尘 "取信尘"))
+        (theatre-during
+          (theatre-parallel
+            (theatre-tween "取信人位置" 'y 590 .9)
+            (theatre-tween "取信人位置" 'scale-x .56 .9)
+            (theatre-tween "取信人位置" 'scale-y .56 .9)
+            (theatre-tween "取信人位置" 'opacity 0 .9)
+            (theatre-tween "尼尔位置" 'x 640 1.2)
+            (theatre-wait .85))
+          (脚步 "尼尔") (尘 "尼尔尘"))
+        (theatre-image-to "尼尔" "Portraits/Neon/尼尔_抱臂")
+        (theatre-tween "尼尔" 'scale-x -1 .001)
+        (theatre-wait .8)
+        (theatre-image-to "尼尔" "Portraits/Neon/尼尔_背身")
+        (theatre-parallel
+          (theatre-tween "尼尔位置" 'x 400 1.0 'smooth)
+          (theatre-sequence
+            (theatre-wait .5)
+            (theatre-parallel
+              (theatre-tween "尼尔位置" 'y 590 .6)
+              (theatre-tween "尼尔位置" 'scale-x .6 .6)
+              (theatre-tween "尼尔位置" 'scale-y .6 .6)
+              (theatre-tween "尼尔位置" 'opacity 0 .6))
+            (theatre-wait .7))))
+      (卷动)
+      (theatre-sequence
+        (theatre-wait 4.6)
+        (theatre-parallel
+          (theatre-tween "巷口" 'opacity 1 .3)
+          (theatre-tween "巷口" 'x 0 2 'smooth)))))
+      (勒索街角-描绘)
+      (theatre-sequence (theatre-wait .5) (勒索街角-人群经过 "取信路人/" 7 1)))))

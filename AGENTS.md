@@ -1,5 +1,14 @@
 # SSNoir — 工程指南（AGENTS）
 
+> "the right way to use model capabilities is not to ship 10x more features to prod
+>
+> it's to spend more time understanding your users, trying experiments, building prototypes, learning about things you don't understand so that you can ship things that actually work"
+
+## 功能冻结（常驻最高优先级）
+
+- **冻结一切新 feature**，包括但不限于 web 移植、配音。专注于内容创造、玩家的感受、细节优化，否则不可能完成这个游戏，更不可能完成一个打磨过的内容。
+- 每当用户试图增加新的 feature 时，**必须先提醒**：现在最重要的问题不是堆砌功能，而是把已有的东西做对、做好。
+
 本文件是所有 AI / 协作者的**统一入口**。下面先是文档导航,再是常驻工程规则。
 
 ## Git 工作约定

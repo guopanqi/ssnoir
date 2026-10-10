@@ -1262,13 +1262,29 @@
           speaker))))
 
 (define (line speaker text . rest)
-  (let* ((split (split-line-args rest))
+  ;; 行级锚点：(line 人 话 [语音 [停留]] :at 锚点名)。只决定 banter 气泡落在哪，
+  ;; 署名仍是说话人；同一个锚点可以轮流几个人说话。锚点名须是场景中的 NodeAnchor
+  ;; 名，解析不到由客户端直接报错（不降级，避免气泡落到错的地方）。
+  (let* ((at-split (line-anchor-args rest))
+         (anchor (car at-split))
+         (split (split-line-args (cadr at-split)))
          (positional (car split))
          (stage (cdr split))
          (voice (if (null? positional) "" (car positional)))
          (more  (if (null? positional) '() (cdr positional)))
          (dwell (if (null? more) 0 (car more))))
-    (list speaker text voice dwell stage (speaker-display speaker))))
+    (list speaker text voice dwell stage (speaker-display speaker) anchor)))
+
+(define (line-anchor-args args)
+  (let loop ((rest args) (before '()) (anchor ""))
+    (cond ((null? rest) (list anchor (reverse before)))
+          ((equal? (car rest) :at)
+           (if (or (null? (cdr rest)) (not (string? (cadr rest))))
+               (error "line: :at 后面必须跟锚点名字符串")
+               (if (not (equal? anchor ""))
+                   (error "line: :at 只能出现一次")
+                   (loop (cddr rest) before (cadr rest)))))
+          (else (loop (cdr rest) (cons (car rest) before) anchor)))))
 
 ;; 把 (语音 停留 :pose ...) 切成 (位置参数 . 舞台指示)：遇到第一个关键字符号就切。
 (define 台词舞台关键字 (list :pose :move :light :shake :screen :inner :other))

@@ -37,9 +37,9 @@
         (theatre-focus "焦点" 800 576 .34 .62)
         (theatre-with (theatre-glow "说话柔光" "" "#9DB0E0" 800 560 440 560) 'opacity 0)
         (theatre-with (theatre-glow "路灯柔光" "路灯" "#F3D08A" 0 10 660 924) 'opacity .22)
-        (theatre-with (theatre-image "尼尔" "" "Portraits/Neon/尼尔_抱臂" -140 地面 252 308 "路灯") 'opacity 0)
+        (theatre-with (theatre-image "尼尔" "" "Portraits/Neon/尼尔_抱臂" -140 地面 308 308 "路灯") 'opacity 0)
         (theatre-with
-          (theatre-with (theatre-image "夜莺" "" "Portraits/Neon/夜莺_低头" 1740 地面 252 308 "路灯") 'scale-x -1)
+          (theatre-with (theatre-image "夜莺" "" "Portraits/Neon/夜莺_低头" 1740 地面 308 308 "路灯") 'scale-x -1)
           'opacity 0)))))
 
 ;; 原型 CSS easing 采样成归一化关键帧；演出运行时只有一个播放器时钟。

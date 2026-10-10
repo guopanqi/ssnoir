@@ -380,7 +380,14 @@ namespace SSNoir.Core
             {
                 var world = _worldInterpreter
                     ?? throw new InvalidOperationException("Hospitalization requires the world interpreter.");
+                // 送医强制结束当天，但日终事件要等诊所醒来与交锋结算播完。
+                // 只搬移这次日终新增的步骤，保留旧交锋在切场景前的演出。
+                int firstWorldStep = report.BlockingStorySteps.Count;
                 world.Eval("(on-turn-end)");
+                int worldStepCount = report.BlockingStorySteps.Count - firstWorldStep;
+                report.PostSceneBlockingSteps.AddRange(
+                    report.BlockingStorySteps.GetRange(firstWorldStep, worldStepCount));
+                report.BlockingStorySteps.RemoveRange(firstWorldStep, worldStepCount);
             }
 
             foreach (var name in _gameState.Team.BeginCityDay())
@@ -970,6 +977,7 @@ namespace SSNoir.Core
                 // 规则先跑，费用后收：这一回合把交锋结算了（散场/失败回到世界），
                 // 时间税就不再收——成功之后不再调用其他。
                 var turnInterpreter = ActiveInterpreter;
+                int firstTurnStep = report.BlockingStorySteps.Count;
                 if (!_gameState.HasPendingHospitalization)
                 {
                     _isResolvingTurnEnd = true;
@@ -992,6 +1000,11 @@ namespace SSNoir.Core
 
                 if (_gameState.HasPendingHospitalization)
                 {
+                    // 城市日终本身导致倒下时，也先在诊所结算，再讲本轮日终事件。
+                    int turnStepCount = report.BlockingStorySteps.Count - firstTurnStep;
+                    report.PostSceneBlockingSteps.AddRange(
+                        report.BlockingStorySteps.GetRange(firstTurnStep, turnStepCount));
+                    report.BlockingStorySteps.RemoveRange(firstTurnStep, turnStepCount);
                     _gameState.Team.DismissTemporaryCompanions();
                     // 城市 EndTurn 的世界日历规则固定最先执行；若后续日终规则意外打倒玩家，
                     // 日期已经推进，不能再跑一遍。交锋 EndTurn 则还需要补跑一次世界日终。

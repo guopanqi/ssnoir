@@ -16,6 +16,8 @@ namespace SSNoir.IMGUI
         }
 
         private static bool _isOpen = false;
+        private static bool _theatreExpanded = false;
+        private static bool _researchExpanded = false;
         private static readonly List<SceneItem> _scenes = new List<SceneItem>();
         private static readonly List<CutsceneSequence> _sequences = new List<CutsceneSequence>();
         private static float _scrollOffset;
@@ -42,6 +44,21 @@ namespace SSNoir.IMGUI
         {
             new ChapterJump { Label = "线绘舞台试演：雨夜来访", Code = "(three-letters 'debug-theatre-rainy-door!)" },
             new ChapterJump { Label = "线绘舞台试演：路灯下", Code = "(begin (load-file \"scripts/theatre/路灯下.scm\") (路灯下-试演!))" },
+            new ChapterJump { Label = "线绘舞台试演：室内求助", Code = "(begin (load-file \"scripts/theatre/室内求助.scm\") (室内求助-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：第二天", Code = "(begin (load-file \"scripts/theatre/第二天.scm\") (第二天-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：平静", Code = "(begin (load-file \"scripts/theatre/平静.scm\") (平静-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：烟盒", Code = "(begin (load-file \"scripts/theatre/烟盒.scm\") (烟盒-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：弗兰克的桌子", Code = "(begin (load-file \"scripts/theatre/弗兰克的桌子.scm\") (弗兰克的桌子-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：独闯老街", Code = "(begin (load-file \"scripts/theatre/独闯老街.scm\") (独闯老街-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：巷口", Code = "(begin (load-file \"scripts/theatre/巷口.scm\") (巷口-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：贝恩斯", Code = "(begin (load-file \"scripts/theatre/贝恩斯.scm\") (贝恩斯-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：老街被介入", Code = "(begin (load-file \"scripts/theatre/老街被介入.scm\") (老街被介入-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：经理电话", Code = "(begin (load-file \"scripts/theatre/经理电话.scm\") (经理电话-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：解雇", Code = "(begin (load-file \"scripts/theatre/解雇.scm\") (解雇-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：剧院来信", Code = "(begin (load-file \"scripts/theatre/剧院来信.scm\") (剧院来信-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：莱恩的家", Code = "(begin (load-file \"scripts/theatre/莱恩的家.scm\") (莱恩的家-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：剧院安全", Code = "(begin (load-file \"scripts/theatre/剧院安全.scm\") (剧院安全-演出))" },
+            new ChapterJump { Label = "线绘舞台试演：彩排", Code = "(begin (load-file \"scripts/theatre/彩排.scm\") (彩排-演出))" },
             new ChapterJump
             {
                 Label = "第一章：大船靠岸（再进码头）",
@@ -138,11 +155,46 @@ namespace SSNoir.IMGUI
             y += ItemH; // 过场截图行
             y += 6f + 22f; // 过场测试标题及列表起点
             y += Mathf.Max(_sequences.Count, 1) * ItemH;
-            y += 6f + 22f + ChapterJumps.Length * ItemH; // 章节跳转
+            y += 6f + 22f + ChapterRowCount() * ItemH; // 章节跳转（剧场试演折叠）
             y += 6f + 22f + ItemH; // 资源调试
             y += 6f + 4f + ItemH * 0.5f; // 场景标题及列表起点
-            y += _scenes.Count * ItemH;
+            y += SceneRowCount() * ItemH;
             return y + 8f;
+        }
+
+        // “线绘舞台试演”开头的跳转收进二级菜单，按前缀自动归组，加新试演不用改这里。
+        private static bool IsTheatreJump(string label) => label.StartsWith("线绘舞台试演");
+
+        private static int TheatreJumpCount()
+        {
+            int n = 0;
+            foreach (var jump in ChapterJumps)
+                if (IsTheatreJump(jump.Label)) n++;
+            return n;
+        }
+
+        private static int ChapterRowCount()
+        {
+            int normal = ChapterJumps.Length - TheatreJumpCount();
+            return normal + 1 + (_theatreExpanded ? TheatreJumpCount() : 0);
+        }
+
+        // 交锋列表里“研究”开头的 encounter 收进二级菜单。
+        private static bool IsResearchScene(SceneItem item) => !item.IsHeader && item.SceneName.StartsWith("研究");
+
+        private static int ResearchSceneCount()
+        {
+            int n = 0;
+            foreach (var item in _scenes)
+                if (IsResearchScene(item)) n++;
+            return n;
+        }
+
+        private static int SceneRowCount()
+        {
+            int research = ResearchSceneCount();
+            if (research == 0) return _scenes.Count;
+            return _scenes.Count - research + 1 + (_researchExpanded ? research : 0);
         }
 
         public static Rect GetPanelRect(TopHudLayout topHud)
@@ -169,6 +221,8 @@ namespace SSNoir.IMGUI
                 _isOpen = true;
                 LoadScenes(gameManager);
                 _scrollOffset = 0f;
+                _theatreExpanded = false;
+                _researchExpanded = false;
             }
         }
 
@@ -363,18 +417,48 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLabel(new Rect(panelX + 8, chapterSepY + 2f, panelW, 18f), "章节跳转（调试）", mutedStyle);
 
             float chapterY = chapterSepY + 22f;
-            for (int i = 0; i < ChapterJumps.Length; i++)
+            foreach (var jump in ChapterJumps)
             {
-                var jumpRect = new Rect(panelX + 4f, chapterY + i * itemH, panelW - 8f, itemH - 2f);
-                if (DrawTapRow(contentUi, jumpRect, ChapterJumps[i].Label, labelStyle))
+                if (IsTheatreJump(jump.Label)) continue;
+                var jumpRect = new Rect(panelX + 4f, chapterY, panelW - 8f, itemH - 2f);
+                if (DrawTapRow(contentUi, jumpRect, jump.Label, labelStyle))
                 {
-                    RunChapterJump(gameManager, ChapterJumps[i].Code);
+                    RunChapterJump(gameManager, jump.Code);
                     _isOpen = false;
                     Event.current.Use();
                     return;
                 }
+                chapterY += itemH;
             }
-            cutsceneListY = chapterY + ChapterJumps.Length * itemH;
+            {
+                // 线绘试演二级菜单：点一下展开/收起，子项缩进。
+                int theatreCount = TheatreJumpCount();
+                var groupRect = new Rect(panelX + 4f, chapterY, panelW - 8f, itemH - 2f);
+                if (DrawTapRow(contentUi, groupRect,
+                        $"线绘舞台试演（{theatreCount}）" + (_theatreExpanded ? " ▾" : " ▸"), labelStyle))
+                {
+                    _theatreExpanded = !_theatreExpanded;
+                    Event.current.Use();
+                }
+                chapterY += itemH;
+                if (_theatreExpanded)
+                {
+                    foreach (var jump in ChapterJumps)
+                    {
+                        if (!IsTheatreJump(jump.Label)) continue;
+                        var subRect = new Rect(panelX + 16f, chapterY, panelW - 20f, itemH - 2f);
+                        if (DrawTapRow(contentUi, subRect, jump.Label, labelStyle))
+                        {
+                            RunChapterJump(gameManager, jump.Code);
+                            _isOpen = false;
+                            Event.current.Use();
+                            return;
+                        }
+                        chapterY += itemH;
+                    }
+                }
+            }
+            cutsceneListY = chapterY;
 
             // 资源调试
             float resourceSepY = cutsceneListY + 6f;
@@ -405,20 +489,49 @@ namespace SSNoir.IMGUI
             float listY = sepY + 4f + itemH * 0.5f;
             string currentScene = gameManager.SceneManager.CurrentSceneName;
 
-            for (int i = 0; i < _scenes.Count; i++)
+            // 研究类 encounter 收进二级菜单：先画组行，展开才画子项（缩进）。
+            int researchTotal = ResearchSceneCount();
+            bool researchGroupDrawn = false;
+            foreach (var item in _scenes)
             {
-                var item = _scenes[i];
-                var itemRect = new Rect(panelX + 4f, listY + i * itemH, panelW - 8f, itemH - 2f);
+                if (IsResearchScene(item))
+                {
+                    if (!researchGroupDrawn)
+                    {
+                        researchGroupDrawn = true;
+                        var groupRect = new Rect(panelX + 4f, listY, panelW - 8f, itemH - 2f);
+                        if (DrawTapRow(contentUi, groupRect,
+                                $"研究（{researchTotal}）" + (_researchExpanded ? " ▾" : " ▸"), labelStyle))
+                        {
+                            _researchExpanded = !_researchExpanded;
+                            Event.current.Use();
+                        }
+                        listY += itemH;
+                    }
+                    if (!_researchExpanded) continue;
+                    DrawSceneRow(item, panelX + 16f, panelW - 20f);
+                    listY += itemH;
+                    if (!_isOpen) return;
+                    continue;
+                }
+                DrawSceneRow(item, panelX + 4f, panelW - 8f);
+                listY += itemH;
+                if (!_isOpen) return;
+            }
 
-                if (item.IsHeader)
+            void DrawSceneRow(SceneItem row, float rowX, float rowW)
+            {
+                var itemRect = new Rect(rowX, listY, rowW, itemH - 2f);
+
+                if (row.IsHeader)
                 {
                     IMGUIStyles.DrawLabel(new Rect(itemRect.x + 6, itemRect.y + 4, itemRect.width, itemRect.height),
-                        item.Name, mutedStyle);
-                    continue;
+                        row.Name, mutedStyle);
+                    return;
                 }
 
                 bool isHovered = contentUi.CanHover(itemRect);
-                bool isCurrent = item.SceneName == currentScene;
+                bool isCurrent = row.SceneName == currentScene;
 
                 if (isHovered)
                 {
@@ -438,11 +551,11 @@ namespace SSNoir.IMGUI
                 {
                     normal = { textColor = isCurrent ? IMGUIStyles.Gold : (isHovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary) }
                 };
-                IMGUIStyles.DrawLabel(new Rect(itemRect.x + 10, itemRect.y + 4, itemRect.width, itemRect.height), item.Name, itemStyle);
+                IMGUIStyles.DrawLabel(new Rect(itemRect.x + 10, itemRect.y + 4, itemRect.width, itemRect.height), row.Name, itemStyle);
 
                 if (contentUi.WasTapped(itemRect))
                 {
-                    gameManager.OnSceneButtonClicked(item.SceneName);
+                    gameManager.OnSceneButtonClicked(row.SceneName);
                     _isOpen = false;
                     Event.current.Use();
                     return;

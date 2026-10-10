@@ -28,6 +28,10 @@ namespace SSNoir.Scripting
 
         public static void Register(Interpreter interpreter, GameState gameState)
         {
+            // 行级锚点关键字：求值为自身符号，与 :pose 等舞台关键字同等待遇。
+            // 内容里 (line ... :at "锚点名") 的 :at 必须能求值，否则连 line 构造都进不去。
+            interpreter.DefineGlobal(Symbol.FromString(":at"), Symbol.FromString(":at"));
+
             interpreter.DefineGlobal(Symbol.FromString("tr"), new NativeProcedure(args =>
             {
                 if (args.Count != 2 || args[0] is not string chinese || args[1] is not string english)
@@ -810,7 +814,7 @@ namespace SSNoir.Scripting
             var lines = new List<DialogueLine>(rawLines.Count);
             foreach (var entry in rawLines)
             {
-                if (!(entry is List<object> parts) || parts.Count != 6)
+                if (!(entry is List<object> parts) || (parts.Count != 6 && parts.Count != 7))
                     throw new ArgumentException($"{who}: each line must come from the line constructor");
                 if (!(parts[0] is string speaker) || string.IsNullOrWhiteSpace(speaker))
                     throw new ArgumentException($"{who}: line speaker must be a non-empty string");
@@ -826,7 +830,8 @@ namespace SSNoir.Scripting
 
                 if (parts[5] is not string displaySpeaker || string.IsNullOrWhiteSpace(displaySpeaker))
                     throw new ArgumentException($"{who}: line display speaker must be a non-empty string");
-                lines.Add(new DialogueLine { Speaker = speaker, DisplaySpeaker = displaySpeaker, Text = text, VoiceId = voice, DwellSeconds = dwell, Stage = stage });
+                string anchor = parts.Count > 6 && parts[6] is string a ? a : string.Empty;
+                lines.Add(new DialogueLine { Speaker = speaker, DisplaySpeaker = displaySpeaker, Text = text, VoiceId = voice, DwellSeconds = dwell, Stage = stage, Anchor = anchor });
             }
             return new DialogueSequence(lines, allowsRemoteParticipants);
         }

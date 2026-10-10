@@ -1,8 +1,7 @@
 # 勒索追逐跑步立绘
 
-选用 `跑步双帧.png`；单帧候选未接入。生成提示词在同目录。
-来源：Gemini Images / Nano Banana 2，[生成对话](https://gemini.google.com/app/e7fe21d4577a506f)。
+当前选用 `跑步双帧-openai.png`，来源为内置 OpenAI 生图服务，透明底双帧；提示词在同目录 `跑步双帧-openai-prompt.txt`。此前 Gemini 候选未接入。
 
-两帧分别表现伸展与收腿，保持同图画风和人体尺度。用 `tools/theatre/prepare-chase-portraits.py` 按固定面板拆分，清除图外标签和分隔线，派生透明背景并对齐鞋底；不逐帧裁紧或放大人物。资源在 `Portraits/Chase/`，统一 308×308 显示，尼尔原图朝右，在剧场中整体镜像朝左；取信人保持无内部细节的匿名剪影。
+两帧表现接地与收腿，均朝左。用 `tools/theatre/prepare-chase-portraits.py` 按等宽面板拆分，保留源 alpha、统一画布尺度并对齐鞋底，不逐帧裁紧或放大。资源在 `Portraits/Chase/`，统一 308×308 显示。尼尔保留鸭舌帽与短夹克，取信人使用无内部细节的匿名剪影。
 
-实际演出每 0.12 秒交替一次；最终需在 Unity Play Mode 验收声音与转场。
+每 0.115 秒交替一帧，脚步间隔 0.23 秒，沿用 Claude 第四场。完整舞台预览覆盖两帧交替与入巷；声音及游戏交锋衔接仍需 Unity Play Mode 验收。

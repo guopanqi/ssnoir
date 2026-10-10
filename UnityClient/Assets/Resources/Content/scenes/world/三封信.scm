@@ -914,9 +914,9 @@
 
     ;; ── 小节二·第一趟：独自去 ───────────────────────
     ;; 入场只让尼尔看见这里的空间，不提前替玩家宣布「没人肯说」。
-    ;; 任务在来之前已经进卷宗；对白过后玩家亲自从门廊开始打听。
-    (define (first-resident-dialogue!)
-      (play-dialogue!
+    ;; 任务在来之前已经进卷宗；三句感受走人物气泡，不锁输入，玩家直接从门廊开始打听。
+    (define (first-resident-banter!)
+      (play-banter!
         (line "尼尔" "从码头看，这里不过是几栋挤在一起的旧楼。" "三封信/居民区/初到/01/尼尔")
         (line "尼尔" "走近才看见，楼梯接着桥廊，每扇门后面还有别人的门。" "三封信/居民区/初到/02/尼尔")
         (line "尼尔" "先找个肯开口的人。烟的事，就从门廊问起。" "三封信/居民区/初到/03/尼尔")))
@@ -930,7 +930,7 @@
             (arrival "初到码头居民区"
               (lambda ()
                 (set-flag! '初到居民区)
-                (first-resident-dialogue!))))
+                (first-resident-banter!))))
           '()))
 
     ;; 这一趟不产出线索。它只让玩家自己撞出一句话：这栋楼不对外人开口。
@@ -945,7 +945,8 @@
         ((= milestone 2)
          (play-banter!
            (line "尼尔" "这里有谁抽「老金牌」香烟？" "三封信/居民区/独自打听/碰壁01/尼尔")
-           (line "门廊里的男人" "我们可抽不起这种烟。" "三封信/居民区/独自打听/碰壁01/门廊里的男人")))
+           (line "门廊里的男人" "我们可抽不起这种烟。" "三封信/居民区/独自打听/碰壁01/门廊里的男人"
+             :at "码头居民区-东侧门廊")))
         ((= milestone 4)
          (play-banter!
            (line "世界" "有个女人刚想接话，旁边的人不动声色地用手肘撞了她一下。" "三封信/居民区/独自打听/碰壁02/世界/01")
@@ -962,11 +963,7 @@
               (begin
                 (set! singer-guiding-day (+ world-day singer-wait-days))
                 (sync-globals!)
-                (play-remote-dialogue!
-                  (line "尼尔" "我转了一整圈，没人肯理我。得有个他们认得的面孔带路。" "三封信/居民区/独自打听/收场/01/尼尔")
-                  (line "夜莺" "我不愿意回去……我就是从那里出来的。" "三封信/居民区/独自打听/收场/01/夜莺")
-                  (line "尼尔" "那也只能是你带我进去。" "三封信/居民区/独自打听/收场/02/尼尔")
-                  (line "夜莺" "等我两天，就两天。" "三封信/居民区/独自打听/收场/02/夜莺"))
+                (第二天-theatre!)
                 (spotlight! "两天以后"
                   "她会在巷口等你。"))
               (sync-globals!)))))
@@ -998,9 +995,11 @@
         :resolve (instant
           (outcome (lambda ()
               (play-banter!
-                (line "柜台后的人" "这牌子我们不进。里头工会休息室那个弗兰克，倒常抽。" "三封信/居民区/东侧门廊/烟盒指路/01/柜台后的人/01")
+                (line "柜台后的人" "这牌子我们不进。里头工会休息室那个弗兰克，倒常抽。" "三封信/居民区/东侧门廊/烟盒指路/01/柜台后的人/01"
+                  :at "码头居民区-东侧门廊")
                 (line "尼尔" "他在里面？" "三封信/居民区/东侧门廊/烟盒指路/01/尼尔")
-                (line "柜台后的人" "回廊走到底。" "三封信/居民区/东侧门廊/烟盒指路/01/柜台后的人/02"))
+                (line "柜台后的人" "回廊走到底。" "三封信/居民区/东侧门廊/烟盒指路/01/柜台后的人/02"
+                  :at "码头居民区-东侧门廊"))
               (advance-east-gallery! 2 #f))))))
 
     ;; 东侧的收束：走到工会休息室，弗兰克本人确实抽「老金牌」香烟，但不是写信的人。
@@ -1104,22 +1103,40 @@
       (load-file "scripts/theatre/雨夜来访.scm")
       (雨夜来访-演出))
 
+    ;; 独自打听满格收场：她带路的约定走线绘剧场（面对面，她当时就在场）。
+    (define (第二天-theatre!)
+      (load-file "scripts/theatre/第二天.scm")
+      (第二天-演出))
+
+    ;; 身份汇报里的装电话两句走线绘剧场（经理带着工人当面装机）。
+    (define (经理电话-theatre!)
+      (load-file "scripts/theatre/经理电话.scm")
+      (经理电话-演出))
+
+    ;; 开场室内委托走线绘剧场（照片、当票、赎金钓鱼完整版）。
+    (define (室内求助-theatre!)
+      (load-file "scripts/theatre/室内求助.scm")
+      (室内求助-演出))
+
+    ;; 桥廊之后离街对白走线绘剧场（路灯下完整版）。
+    (define (路灯下-theatre!)
+      (load-file "scripts/theatre/路灯下.scm")
+      (路灯下-试演!))
+
+    ;; 巷子失败后的经理解雇走线绘剧场。
+    (define (解雇-theatre!)
+      (load-file "scripts/theatre/解雇.scm")
+      (解雇-演出))
+
+    ;; 中央台看排练走线绘剧场。
+    (define (彩排-theatre!)
+      (load-file "scripts/theatre/彩排.scm")
+      (彩排-演出))
+
     ;; 开场委托（Debug 可单独试演）
-    ;; 舞台：他靠墙想着穷日子（心里话）；她进来抱着自己、灯弱，一直保持到他伸手接下这桩事；
-    ;; 她抬头，灯回来。中间几句不动。
+    ;; 走线绘剧场完整版：照片、当票首饰、赎金钓鱼，见 scripts/theatre/室内求助.scm。
     (define (commission-dialogue!)
-      (play-dialogue!
-        (line "尼尔" "敲门声响起来的时候，我正就着冷水咽下最后半块硬面包。那时候我很穷，没有名声，没有人找我来做什么，靠零工度日。我知道我需要一个机会，就在那时候……" "三封信/开场/引子/01/世界"
-              :inner #t :pose "靠墙" :light 'ember)
-        (line "夜莺" "这点钱连定金都不够，还要你垫着，我真不知道该怎么……" "三封信/开场/委托/01/夜莺"
-              :pose "抱臂" :light 'faint :other :pose "基础" :light 'normal)
-        (line "尼尔" "钱的事我来想办法。他拿不走这笔钱。" "三封信/开场/委托/01/尼尔")
-        (line "尼尔" "尝到了甜头，就还会有下一次。我们得想个办法" "三封信/开场/委托/02/尼尔")
-        (line "夜莺" "那我能做什么？" "三封信/开场/委托/02/夜莺")
-        (line "尼尔" "照信里说的办。那天码头碰面，你把信封放进箱子里就走，我会在那儿看着。" "三封信/开场/委托/03/尼尔"
-              :pose "伸手" :move 'in)
-        (line "夜莺" "我都听你的。" "三封信/开场/委托/03/夜莺"
-              :pose "仰头" :light 'normal)))
+      (室内求助-theatre!))
 
     ;; 她不取消（Debug 可单独试演）
     ;; 舞台：他抱臂问，她迎上去，站着说完那三句；他逼上去翻负片，她一震；她掩面求他留在后台，
@@ -1172,36 +1189,9 @@
 
     ;; 桥廊之后那段对白单独拎出来：Debug 面板可以不动任何状态就把它演一遍，
     ;; 舞台指示改了随时看效果，不用真把小节二玩到头。
-    ;; 舞台：黑场开门。她躲（低头、弱）；他逼上去翻负片；她炸、灼、一震；他攥拳退开；
-    ;; 她背过身讲往事、他点烟听着，翻回黑夜——她背着身把往事讲完，灯慢慢残烛；
-    ;; "不想再记起"那句掩面、灯颤；他伸手走近，她灯燃回来；收尾是他的心里话。
+    ;; 走线绘剧场完整版（路灯下），见 scripts/theatre/路灯下.scm。
     (define (bridge-aftermath-dialogue!)
-      (play-dialogue!
-        (line "世界" "走出那条桥廊，过道里的旧门在身后合上，只剩我们两个人。" "三封信/居民区/桥廊之后/01/世界"
-              :light 'blackout)
-        (line "尼尔" "那个莱恩到底是谁？" "三封信/居民区/桥廊之后/01/尼尔"
-              :pose "抱臂")
-        (line "夜莺" "我从前的男人……我想过很多可能，但真没料到会是他。" "三封信/居民区/桥廊之后/01/夜莺"
-              :pose "低头" :light 'faint)
-        (line "尼尔" "你从来没提过他。你还有多少事情是没料到的？" "三封信/居民区/桥廊之后/02/尼尔"
-              :pose "逼近" :move 'in :screen 'flash :screen 'negative)
-        (line "夜莺" "那都是五六年前的事了！难道我小时候挨过的饿、跟过谁，都得向你报备吗？" "三封信/居民区/桥廊之后/02/夜莺"
-              :pose "逼近" :move 'in :light 'surge :shake #t)
-        (line "尼尔" "说吧，他是个什么样的人？" "三封信/居民区/桥廊之后/03/尼尔"
-              :pose "攥拳" :move 'back)
-        (line "夜莺" "一个窝囊废。开个破修车铺，整天灌廉价烈酒，清醒时发誓带我进上城区，喝醉了就在走廊砸酒瓶骂街。" "三封信/居民区/桥廊之后/03/夜莺"
-              :pose "背身" :move 'back :light 'normal :screen 'normal :other :pose "点烟")
-        (line "夜莺" "我那时候太小，以为跟着个男人就能不受欺负。后来才明白，他除了把身上的霉运传染给我，什么用都没有。" "三封信/居民区/桥廊之后/04/夜莺"
-              :light 'ember)
-        (line "尼尔" "所以你扔下他跑了。" "三封信/居民区/桥廊之后/04/尼尔")
-        (line "夜莺" "他恨我，是因为我站到了有聚光灯的舞台上，而他只能烂死在这条桥廊里。" "三封信/居民区/桥廊之后/05/夜莺")
-        (line "尼尔" "所以勒索信是他寄的，对吗？" "三封信/居民区/桥廊之后/05/尼尔")
-        (line "夜莺" "我不知道……他喝多了什么话都敢吹。尼尔，我不是有意瞒你，我只是……不想再记起那些事。" "三封信/居民区/桥廊之后/06/夜莺"
-              :pose "掩面" :light 'faint :light 'flicker)
-        (line "尼尔" "别慌。至少现在我们知道他是谁了。" "三封信/居民区/桥廊之后/06/尼尔"
-              :pose "伸手" :move 'in :other :light 'relight :light 'normal)
-        (line "尼尔" "老街的雾气在过道里弥漫开来。我知道那个名字已经成了一枚钉子，正扎在所有人的神经上。" "三封信/居民区/桥廊之后/收尾/01/世界"
-              :inner #t)))
+      (路灯下-theatre!))
 
     (define (close-warren-with-her!)
       (if (has-companion? '夜莺)
@@ -1441,9 +1431,7 @@
           (begin
             (set! manager-phone-given? #t)
             (home 'connect-phone!)
-            (play-remote-dialogue!
-              (line "经理" "我叫人给你屋里接了电话。往后找你方便。")
-              (line "经理" "别谢我，朋友之间，这算什么。")))
+            (经理电话-theatre!))
           #f)
       (play-remote-dialogue!
         (line "尼尔" "写信的人叫莱恩。老街桥廊出来的，夜莺以前认识他。")
@@ -1466,15 +1454,7 @@
         ((equal? report-pending "查明")
          (resolve-identity-report!))
         ((equal? report-pending "巷子失败")
-         (play-remote-dialogue!
-           (line "尼尔" "东西没拿到。莱恩也没有答应收手。")
-           (line "经理" "我很为难，尼尔。剧院得请别人接手了。")
-           (line "尼尔" "你是在解雇我。")
-           (line "经理" "这是工作上的决定。我们都是为了夜莺好。")
-           (line "夜莺" "首演那晚你还会来吗？")
-           (line "尼尔" "你的经理刚让我别再进这扇门。")
-           (line "夜莺" "我问的是，你会不会来看我。")
-           (line "尼尔" "我会。"))
+         (解雇-theatre!)
          (set-flag! '被经理解雇)
          (set-flag! '受邀看首演)
          (log! "莱恩" "经理因巷子里的失败解雇了你。夜莺仍邀请你来看她的首演。")
@@ -1543,13 +1523,7 @@
     (define (node-rehearsal)
       (anchored-instant-action "去看她排练" "剧院-中央台"
         (lambda ()
-          (play-dialogue!
-            (line "夜莺" "你来了。他们让我从台底下升上来——像变戏法一样。")
-            (line "尼尔" "习惯吗。")
-            (line "夜莺" "底下黑得很，什么也看不见，只能听着乐队数拍子。")
-            (line "夜莺" "数到第四拍我就得笑着上来。")
-            (line "夜莺" "在酒馆唱了六年，从来没有人要求我笑着出场。")
-            (line "世界" "她说完自己笑了一下，转身回到那个圆台中间去。"))
+          (彩排-theatre!)
           (set-flag! '看彩排)
           (sync-globals!))))
 
@@ -2636,7 +2610,7 @@
           ((equal? msg 'debug-play-visitor!) (play-visitor!))
           ((equal? msg 'debug-enable-second-letter!) (set-flag! '第二封信))
           ((equal? msg 'debug-stage-bridge!) (bridge-aftermath-dialogue!))
-          ((equal? msg 'debug-stage-resident-arrival!) (first-resident-dialogue!))
+          ((equal? msg 'debug-stage-resident-arrival!) (first-resident-banter!))
           ((equal? msg 'debug-theatre-rainy-door!) (rainy-door-theatre!))
           ((equal? msg 'debug-stage-commission!) (commission-dialogue!))
           ((equal? msg 'debug-stage-refusal!) (refusal-dialogue!))

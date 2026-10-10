@@ -662,6 +662,9 @@ namespace SSNoir.Testing
             encounterCollapseState.Inventory.SetCount("金钱", GameState.CollapseTreatmentFee);
             var encounterCollapseManager = new SceneManager(encounterCollapseState, new LocalScriptLoader());
             encounterCollapseManager.LoadScene("world");
+            encounterCollapseManager.ActiveInterpreter.Eval(
+                "(define-turn-rule \"送医顺序测试\" (lambda () #t) " +
+                "(lambda () (spotlight! \"日终事件测试\" \"应在医院结算之后\")))");
             encounterCollapseManager.LoadScene("核赔");
             encounterCollapseState.Team.Injure(Injury.MaxSeverity - 1);
             encounterCollapseState.Team.SpendComposure("player", TeamState.MaxComposure);
@@ -678,6 +681,12 @@ namespace SSNoir.Testing
             int collapseSpotlightIndex = hospitalizationReport.PostSceneBlockingSteps.FindIndex(
                 step => step.Kind == BlockingStoryStepKind.Spotlight && step.Spotlight?.Title == "你倒下了");
             AssertEq("collapse report enters clinic", true, enterPlaceIndex >= 0);
+            AssertEq("collapse day-end event waits for clinic", false,
+                hospitalizationReport.BlockingStorySteps.Any(
+                    step => step.Spotlight?.Title == "日终事件测试"));
+            AssertEq("collapse day-end event follows hospitalization", true,
+                hospitalizationReport.PostSceneBlockingSteps.FindIndex(
+                    step => step.Spotlight?.Title == "日终事件测试") > collapseSpotlightIndex);
             // 调试界面用 GoToLocation 直载交锋。结束过上一场后再直载，也必须能倒下退场。
             var directLoadState = new GameState();
             var directLoadManager = new SceneManager(directLoadState, new LocalScriptLoader());
