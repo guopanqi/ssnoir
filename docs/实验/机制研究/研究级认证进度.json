@@ -1,0 +1,24 @@
+{
+  "schema": "ssnoir.research-grade-mechanism-certification/v1",
+  "date": "2026-10-10",
+  "target": 20,
+  "sourceCandidates": "docs/实验/机制研究/结构候选20.json",
+  "sourceCount": 20,
+  "documentedFullPassCount": 0,
+  "certifiedIds": [],
+  "meaning": "No candidate has yet documented ALL required gates. This is not a claim that the existing 20 are uninteresting or that 0 are human-proven fun.",
+  "gates": [
+    "legible choice with explicit tradeoff",
+    "two normally reachable, conditionally preferable legal actions",
+    "same-conditions direct ablation of the added rule",
+    "strongest reasonable simple strategy comparison",
+    "at least one reproducible official C# + Scheme causal action path",
+    "explicit degeneracy boundary"
+  ],
+  "recentAudit": {
+    "id": "R83",
+    "record": "docs/实验/机制研究/批次/R83-公开机会窗口/研究记录.md",
+    "result": "Not certified: strict first-action reversal exists, but strong simple signal-priority family exactly matches full optimum on 126/126 hand types; no native action witness."
+  },
+  "debugMenuPolicy": "Independent manual approval only. This file and the 20 structural candidates never populate DebugResearchPlaytests.json."
+}

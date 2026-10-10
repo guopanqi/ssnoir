@@ -1,0 +1,47 @@
+{
+  "id": "R83",
+  "date": "2026-10-10",
+  "tier": "exact-paper-only",
+  "params": {
+    "dice": 4,
+    "priorA": "1/4",
+    "signalAccuracy": "3/4",
+    "closeAIfBFirst": "1/2",
+    "goalEach": 3,
+    "reward": 3
+  },
+  "withWindow": 2.602721247,
+  "withoutWindow": 2.627005369,
+  "windowConstraintLoss": 0.024284122,
+  "alwaysAFirst": 2.592861516,
+  "alwaysBFirst": 2.425063899,
+  "strongSignalPriority": 2.602721247,
+  "beyondStrong": 0,
+  "strictAFirstRoots": 105,
+  "strictBFirstRoots": 21,
+  "weightedBFirstMass": 0.099537037,
+  "closureInducedAFirstRoots": 105,
+  "witnessA": {
+    "hand": [
+      1,
+      1,
+      2,
+      6
+    ],
+    "AminusBWith": "7/192",
+    "AminusBWithout": "-1/18"
+  },
+  "witnessB": {
+    "hand": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "BminusA": "143/384"
+  },
+  "native": false,
+  "human": false,
+  "debugApproval": false,
+  "decision": "basic timing relation, not promoted; wait dominated, strong simple covers all roots"
+}
