@@ -1,0 +1,42 @@
+name: SSNoir Autonomous R88-R90 Decisions
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r88-r90.yml'
+      - 'tools/content-validator/experiments/r88_r90_native_semantic_checks.py'
+      - 'tools/content-validator/experiments/r89_intermediate_integrity_check.py'
+      - 'tools/content-validator/experiments/probe_four_scenario_causality.py'
+permissions:
+  contents: read
+jobs:
+  semantic-and-quantitative:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build official native research runner
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: Verify actual P20 sealed and unsealed outcomes and P18 route reaction
+        run: |
+          python3 tools/content-validator/experiments/r88_r90_native_semantic_checks.py /tmp/r88-r90-native.json
+          cat /tmp/r88-r90-native.json
+      - name: R89 exact counterfactual decision policy and inspection timing
+        run: |
+          python3 tools/content-validator/experiments/r89_intermediate_integrity_check.py /tmp/r89-approx.json
+          cat /tmp/r89-approx.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r88-r90-causal-evidence
+          path: |
+            /tmp/r88-r90-native.json
+            /tmp/r89-approx.json
+          retention-days: 90
