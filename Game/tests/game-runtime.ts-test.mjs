@@ -19,7 +19,7 @@ test("stage 2 boots exact unedited engine.scm, its theatre library and stdlib.sc
   assert.equal(await session.evaluateNumber("(item-count \"金钱\")"), 15);
   assert.equal(await session.evaluateNumber("(item-count \"香烟\")"), 2);
   assert.equal(String(await session.evaluate("(get-global 'chapter)")), "0");
-  assert.equal(await session.evaluateNumber('(length (theatre-scene 1600 900 "#000" (list)))'), 4);
+  assert.equal(await session.evaluateNumber('(length (theatre-scene 1600 900 "black" (list)))'), 4);
   assert.equal(String(await session.evaluate('(cadr (node "码头"))')), "码头");
 });
 
