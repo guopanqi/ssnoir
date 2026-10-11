@@ -30,7 +30,7 @@ jobs:
               assert len(case['repertoires'])==5
               prev=0
               for row in case['repertoires']:
-                  print('K',row['k'],'score',row['exact'],'gap',row['gap_to_40'])
+                  print('K',row['k'],'score',row['exact'],'gap',row['gap_to_40'],'chosen',row['policies'])
                   assert row['exact']>=prev-1e-12
                   assert row['exact']<=case['envelope_40']+1e-12
                   prev=row['exact']
