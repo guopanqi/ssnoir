@@ -1,56 +1,31 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-11",
-  "batch": "R93-R95",
-  "rounds": 3,
-  "totalArchivedRounds": 40,
+  "batch": "R98",
+  "rounds": 1,
+  "totalArchivedRounds": 41,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
     "sourceScripts": [
-      "tools/content-validator/experiments/r93_r95_compact_audit.py"
+      "tools/content-validator/experiments/r98_threshold_audit.py"
     ],
-    "scope": "R93/R95 exact four-die two-round paper models; R94 static P20 Scheme review; not native or human",
-    "run": null,
-    "human": "No new human feedback; Debug unchanged"
+    "scope": "P10-inspired R95 reduced two-round/4-die exact Fraction benchmark; 40 reactive threshold policies can choose dice adaptively and policy per starting hand",
+    "human": "No new humans or native code; Debug unchanged"
   },
   "results": [
     {
-      "id": "R93",
-      "name": "第三手检查的强固定策略反证",
-      "status": "暂缓：额外自适应收益下降",
+      "id": "R98",
+      "name": "超线性兑现组合的阈值口诀覆盖",
+      "status": "降低R95复杂规划主张；作为简单条件时机关系材料",
       "evidence": {
-        "baselineAdaptiveGain": 0.011232329,
-        "checkpointAdaptiveGain": 0.005051155,
-        "baselineOptimum": 0.960306999,
-        "checkpointOptimum": 0.954125824,
-        "checkpointStrongFixed": 0.949074669
+        "nonlinearDecay2Optimal": 0.719453732,
+        "nonlinearDecay2Threshold": 0.719453732,
+        "nonlinearDecay2Global": 0.708962048,
+        "nonlinearDecay2PerHandRemainingGain": 0,
+        "linearDecay2RemainingGain": 0.041302298,
+        "thresholdFamilySize": 40
       },
-      "lesson": "阶段强制提前清污和对固定口诀的新价值不是一回事"
-    },
-    {
-      "id": "R94",
-      "name": "封门后追兵截止压力静态审查",
-      "status": "待改版反证；未运行新原生会话",
-      "evidence": {
-        "pursuitConditional": "not 门封?",
-        "remainingRisk": "说服失败减冷静；修梯2骰、跳下减3冷静"
-      },
-      "lesson": "封门暂停追兵不等于无风险，但缺失替代回合期限"
-    },
-    {
-      "id": "R95",
-      "name": "储备兑现时点双向严格选择",
-      "status": "值得在真实P10三回合继续验证",
-      "evidence": {
-        "goal6NonlinearDecay2Optimal": 0.719453732,
-        "goal6NonlinearDecay2Fixed": 0.688282322,
-        "adaptiveGain": 0.031171411,
-        "action2StrictCash": 0.350308642,
-        "action2StrictPrepare": 0.417952675,
-        "withoutDecayAction2StrictCash": 0,
-        "linearDecay2Action2StrictPrepare": 0
-      },
-      "lesson": "在独立两回合四骰模型里非线性+衰减组合形成正常路径时机分歧；不是正式P10胜率"
+      "lesson": "初始固定动作序不是足够强的玩家参照。R95严格中途二选一未必需要复杂策略，当前40条阈值族可逐开局解释所有最优策略价值，但单条口诀仍有小缺口。"
     }
   ],
   "crossRoundMemory": [
@@ -64,7 +39,8 @@
     "未批准新的 Unity Debug 试玩入口；继续把 20 项当候选质量筛选池，而不是 20 个经过验证的好玩法。",
     "R93公开第三手查验虽迫使部分最优路径提前清污，超过最强固定动作顺序的额外收益却从0.011232329降至0.005051155；不得因为增加期限就晋升。",
     "R94静态审阅原生封门永久阻止追兵逐轮推进，坏判定损冷静仍存在；需独立替代期限，不改原版。",
-    "R95精确压缩模型中，非线性+衰减2使第二手既有正常路径严格提现0.350309，也有严格继续备料0.417953。下一步实际三回合/阈值口诀反证。"
+    "R95精确压缩模型中，非线性+衰减2使第二手既有正常路径严格提现0.350309，也有严格继续备料0.417953。下一步实际三回合/阈值口诀反证。",
+    "R98强响应式阈值族40条在R95非线性且衰减2压缩模型中逐初始手牌择最优可完全达到自由DP（额外0）；单一全局阈值仍落后0.010491684。不得把R95相对固定动作脚本的0.03117增量冒充新颖复杂决策。"
   ],
   "history": [
     {
@@ -723,28 +699,56 @@
         }
       ],
       "record": "docs/实验/机制研究/批次/R93-R95-强基线与兑现时机/研究记录.md"
+    },
+    {
+      "batch": "R98",
+      "rounds": 1,
+      "method": {
+        "sourceScripts": [
+          "tools/content-validator/experiments/r98_threshold_audit.py"
+        ],
+        "scope": "P10-inspired R95 reduced two-round/4-die exact Fraction benchmark; 40 reactive threshold policies can choose dice adaptively and policy per starting hand",
+        "human": "No new humans or native code; Debug unchanged"
+      },
+      "results": [
+        {
+          "id": "R98",
+          "name": "超线性兑现组合的阈值口诀覆盖",
+          "status": "降低R95复杂规划主张；作为简单条件时机关系材料",
+          "evidence": {
+            "nonlinearDecay2Optimal": 0.719453732,
+            "nonlinearDecay2Threshold": 0.719453732,
+            "nonlinearDecay2Global": 0.708962048,
+            "nonlinearDecay2PerHandRemainingGain": 0,
+            "linearDecay2RemainingGain": 0.041302298,
+            "thresholdFamilySize": 40
+          },
+          "lesson": "初始固定动作序不是足够强的玩家参照。R95严格中途二选一未必需要复杂策略，当前40条阈值族可逐开局解释所有最优策略价值，但单条口诀仍有小缺口。"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R98-储备阈值口诀反证/研究记录.md"
     }
   ],
   "frontier": [
     {
       "id": "R96",
       "priority": 1,
-      "question": "R95双向兑现时机在P10真实三回合/四骰每回合是否可复现？",
-      "method": "原生逐手配对+正式规则概率/伤害审计",
+      "question": "P10真实三回合4骰每回合的储备阈值关系是否仍可简单解释？",
+      "method": "完整原生决策语义与配对玩法，必要时精确有界测试",
       "humanGate": false
     },
     {
       "id": "R97",
       "priority": 2,
-      "question": "封门后能否出现新的可见且有意义的替代期限？",
-      "method": "独立规则变体+强简单策略/同骰对照",
+      "question": "P20封门后的替代期限是否能构成两种自愿且可读的状态选择？",
+      "method": "原本规则留存+隔离新变体同骰反证",
       "humanGate": false
     },
     {
-      "id": "R98",
+      "id": "R99",
       "priority": 3,
-      "question": "储备时点反转是否被衰减前兑现等阈值口诀解释？",
-      "method": "单状态与路径最强响应口诀反证",
+      "question": "全局单一阈值落后1.05个百分点，是否有更直观且足以保留该价值的少量公开状态口诀？",
+      "method": "状态压缩/容量控制/强基线，低成本排除后再考虑人类试玩",
       "humanGate": false
     }
   ],

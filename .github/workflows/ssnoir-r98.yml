@@ -1,0 +1,41 @@
+name: SSNoir Autonomous R98 Threshold Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r98.yml'
+      - 'tools/content-validator/experiments/r98_threshold_audit.py'
+permissions:
+  contents: read
+jobs:
+  exact-strong-threshold:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact 40-heuristic per-hand falsification
+        run: python3 tools/content-validator/experiments/r98_threshold_audit.py /tmp/r98.json
+      - name: Assert falsification and counterexamples
+        run: |
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r98.json'))
+          rows={(a['nonlinear'],a['decay']):a for a in x['cases']}
+          n0=rows[(True,0)];n2=rows[(True,2)];l2=rows[(False,2)]
+          assert n0['remaining_gain']==0 and n2['remaining_gain']==0
+          assert n2['deficit_hands']==0
+          assert n2['optimal']>n2['global_threshold']
+          assert l2['remaining_gain']>0.04
+          assert all(a['tested_rules']==40 for a in x['cases'])
+          print('PASS: R98 strong threshold falsification')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r98-threshold-evidence
+          path: /tmp/r98.json
+          retention-days: 90
