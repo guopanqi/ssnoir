@@ -9,6 +9,9 @@ import {StoryPlaybackQueue} from "../runtime/story-player";
 import {parseTheatre} from "../runtime/theatre-contract";
 import {TheatrePlayback} from "../runtime/theatre-playback";
 import {TheatreVectorView} from "./theatre-view";
+import {StageVectorView} from "./stage-view";
+import {StagePlayback} from "../runtime/stage-playback";
+import {parseStage} from "../runtime/stage-contract";
 import { createFrameLoop } from "./frame-loop";
 import ssnoirStdlib from "../../../UnityClient/Assets/Resources/Content/scripts/stdlib.scm?raw";
 
@@ -437,11 +440,35 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   stage.addChild(storyOverlay);
   const theatreView=new TheatreVectorView();
   stage.addChildAt(theatreView.root,stage.getChildIndex(storyOverlay));
+  const stageView=new StageVectorView();
+  stage.addChildAt(stageView.root,stage.getChildIndex(storyOverlay));
+  let activeStage:StagePlayback|null=null;
+  let stageFrame:ReturnType<typeof playback.advance>|null=null;
   let activeTheatre:TheatrePlayback|null=null;
   let theatreFrame:ReturnType<typeof playback.advance>|null=null;
   let theatreTime=Date.now();
   const updateStory=()=>{
     const frame=playback.current;
+    if(frame?.kind==="stage"){
+      if(stageFrame!==frame){
+        activeStage=new StagePlayback(parseStage(frame.commands));
+        stageFrame=frame;
+        stageView.mount();
+        activeStage.start();
+        stageView.sync(activeStage);
+        const missing=stageView.missingAssets();
+        if(missing.length)console.warn("[SSNoir] stage assets pending:",missing);
+      }
+      if(activeTheatre){activeTheatre=null;theatreFrame=null;theatreView.reset();}
+      storyOverlay.visible=Boolean(activeStage?.caption);
+      if(activeStage?.caption){
+        storySpeaker.text=activeStage.caption.speaker;
+        storyBody.text=activeStage.caption.text.slice(0,activeStage.visibleCharacters);
+        storyHelp.text=activeStage.requiresInput?"轻触继续":"自动播放";
+      }
+      return;
+    }
+    if(activeStage){activeStage=null;stageFrame=null;stageView.reset();}
     if(frame?.kind==="theatre"){
       if(theatreFrame!==frame){
         const program=parseTheatre(frame.commands);
@@ -540,6 +567,10 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     const xx = (x - size.left) / size.scale;
     const yy = (y - size.top) / size.scale;
     if(playback.blocked){
+      if(activeStage&&!activeStage.complete){
+        activeStage.advance();updateStory();
+        return true;
+      }
       if(activeTheatre&&!activeTheatre.complete){
         activeTheatre.advance();updateStory();
         return true;
@@ -606,6 +637,16 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   const loop = createFrameLoop(() => {
     const now=Date.now(),seconds=Math.max(0,Math.min(.1,(now-theatreTime)/1000));
     theatreTime=now;
+    if(activeStage&&!activeStage.complete){
+      activeStage.tick(seconds);
+      stageView.sync(activeStage);
+      if(activeStage.complete){playback.advance();updateStory();}
+      else if(activeStage.caption){
+        storyOverlay.visible=true;
+        storySpeaker.text=activeStage.caption.speaker;
+        storyBody.text=activeStage.caption.text.slice(0,activeStage.visibleCharacters);
+      }
+    }
     if(activeTheatre&&!activeTheatre.complete){
       activeTheatre.tick(seconds);
       theatreView.sync(activeTheatre);
@@ -649,6 +690,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     dispose() {
       loop.dispose();
       theatreView.destroy();
+      stageView.destroy();
       pixi.destroy();
       scene.traverse(obj => {
         if (obj instanceof THREE.Mesh) obj.geometry.dispose();
