@@ -4,6 +4,7 @@ import { LipsSession } from "../scheme/lips-session";
 import { createHostScriptRuntime } from "../runtime/host-session";
 import { createWorldHostRuntime, type WorldHost } from "../runtime/world-host";
 import type { RuntimeNode } from "../runtime/node-converter";
+import type {DossierEntry} from "../runtime/dossier-converter";
 import {StoryPlaybackQueue} from "../runtime/story-player";
 import { createFrameLoop } from "./frame-loop";
 import ssnoirStdlib from "../../../UnityClient/Assets/Resources/Content/scripts/stdlib.scm?raw";
@@ -168,6 +169,10 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   let authoredWorld:WorldHost|null=null;
   let restoredGames=0;
   let selectedPlace="";
+  let dossierMode:"index"|"detail"|null=null;
+  let dossierEntries:DossierEntry[]=[];
+  let selectedDossier:DossierEntry|null=null;
+  let dossierRowDetails:string[]=[];
   let currentContainer:RuntimeNode|null=null;
   let pendingRoll:RuntimeNode|null=null;
   const navigationStack:string[]=[];
@@ -179,9 +184,13 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     const visible=displayedNames.slice(listPage*7,(listPage+1)*7);
     for(let i=0;i<visible.length;i++){
       const name=visible[i],x=wx+18,y=wy+92+i*42,width=panelWidth-36,height=35;
+      const shownName=name==="__dossier"?"卷宗 · 委托 / 进度":
+        name.startsWith("__dossier-entry:")?"◆ "+name.slice("__dossier-entry:".length):
+        name.startsWith("__dossier-row:")?dossierRowDetails[Number(name.slice("__dossier-row:".length))]??name:name;
       worldRows.addChild(new Graphics().roundRect(x,y,width,height,5)
         .fill({color:0x292f37}).stroke({color:0x565b64,width:1}));
-      const row=new Text({text:name,style:{fontFamily:"sans-serif",fontSize:16,fill:0xf0e8dc}});
+      const row=new Text({text:shownName,style:{fontFamily:"sans-serif",fontSize:16,fill:0xf0e8dc,
+      wordWrap:false}});
       row.position.set(x+10,y+7);worldRows.addChild(row);
       worldButtons.push({name,x,y,width,height});
     }
@@ -219,7 +228,26 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       (activeClock?" · "+activeClock.displayLabel+" "+activeClock.current+"/"+activeClock.max:"");
     // Story nodes at world root are not places; hiding them would make
     // first-chapter authored objectives impossible to reach from the map.
-    renderPlaces(authoredWorld.root.children.filter(n=>!n.disabled).map(n=>n.name));
+    renderPlaces([...authoredWorld.root.children.filter(n=>!n.disabled).map(n=>n.name),"__dossier"]);
+  };
+  const showDossierIndex=()=>{
+    dossierMode="index";selectedDossier=null;dossierRowDetails=[];
+    worldHeading.text="卷宗 / 委托";
+    worldStatus.text="原版世界中的故事线："+dossierEntries.length;
+    renderPlaces(dossierEntries.map(entry=>"__dossier-entry:"+entry.id),true);
+  };
+  const showDossierDetail=(entry:DossierEntry)=>{
+    dossierMode="detail";selectedDossier=entry;
+    worldHeading.text="卷宗 / "+entry.id;
+    worldStatus.text=entry.status+(entry.where?" · "+entry.where:"");
+    const rows=[
+      entry.now?"当前："+entry.now:"",
+      ...entry.clocks.map(c=>c.displayLabel+" "+c.current+"/"+c.max+" · "+c.style),
+      ...entry.steps.map(step=>(step.done?"✓ ":"○ ")+step.text),
+      ...entry.log.map(entry=>"第"+entry.day+"日 · "+entry.text)
+    ].filter(Boolean);
+    dossierRowDetails=rows;
+    renderPlaces(rows.map((_,i)=>"__dossier-row:"+i),true);
   };
   const showContainer=(node:RuntimeNode)=>{
     currentContainer=node;
@@ -289,6 +317,11 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
         drawRows();return;
       }
       if(name==="__back"){
+        if(dossierMode){
+          if(dossierMode==="detail"){showDossierIndex();}
+          else {dossierMode=null;selectedDossier=null;showRoot();}
+          return;
+        }
         if(pendingRoll){pendingRoll=null;chosenDice=[];redrawCurrent();return;}
         if(navigationStack.length){
           const previous=navigationStack.pop()!;
@@ -300,6 +333,30 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
         }
         if(authoredWorld.mode==="encounter"){redrawCurrent();return;}
         showRoot();return;
+      }
+      if(dossierMode){
+        if(dossierMode==="index"&&name.startsWith("__dossier-entry:")){
+          const id=name.slice("__dossier-entry:".length);
+          const entry=dossierEntries.find(x=>x.id===id);
+          if(!entry)throw new Error("Dossier entry not found: "+id);
+          showDossierDetail(entry);return;
+        }
+        if(dossierMode==="detail"&&name.startsWith("__dossier-row:")){
+          const index=Number(name.slice("__dossier-row:".length));
+          const detail=dossierRowDetails[index];
+          if(detail){
+            playback.push([{kind:"spotlight",args:[selectedDossier?.id??"卷宗",detail],
+              blocking:true,immediate:true}]);
+            updateStory();
+          }
+          return;
+        }
+        throw new Error("Unavailable dossier navigation "+name);
+      }
+      if(name==="__dossier"){
+        if(authoredWorld.mode!=="world")throw new Error("Dossier requires world mode");
+        dossierEntries=await authoredWorld.getDossier();
+        showDossierIndex();return;
       }
       if(pendingRoll&&name.startsWith("__die:")){
         const match=/^__die:([^:]+):(\\d+)$/.exec(name);
@@ -468,6 +525,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
           if(!data){worldStatus.text="没有可读取的存档";return;}
           await authoredWorld.load(data);
           restoredGames++;
+          dossierMode=null;selectedDossier=null;dossierEntries=[];
           pendingRoll=null;chosenDice=[];
           playback=new StoryPlaybackQueue();
           showRoot();
