@@ -44,6 +44,25 @@ with a modal. A platform rejection before `game.js` executes cannot display
 this modal. The ZIP now contains five files; the shared renderer bundle is
 still generated from the same WeChat source and converted by the vendor tool.
 
+### Startup blocked on iOS: isolation probe
+
+On 2026-10-11 the user reported TapTap iOS App 5.34.2 still showing only
+“当前小程序不可用” after the AppID fix and startup-error entry. There is no
+evidence yet that `game.js` executed; absence of a modal alone does not prove
+a platform rejection. The local macOS Console showed no connected iPhone.
+
+Run `node scripts/build-taptap.mjs --host-probe` to generate the separate
+`dist/taptap-host-probe/game.zip` (1,873 bytes at this checkpoint). It retains
+the same app/manifest/converter but contains only ES5 host API calls: display
+a startup modal and draw text on a 2D canvas. It loads no renderer, Scheme,
+adapter or asset. Converted script execution with mocked `wx` and `tap` both
+produced the modal and canvas text; device execution remains pending.
+
+For a failure before the game menu is accessible, the official iOS diagnostic
+path is USB connection to macOS Console, select the iPhone, start streaming,
+and filter subsystem `com.taptap.instantGame` while reproducing the scan:
+https://developer.taptap.cn/minigameapidoc/dev/dev-support/debugging/
+
 `build:taptap` runs the submitted converter source (SHA-256 verified) with the actual WeChat bundle, then validates syntax, ZIP structure, version, orientation, presence of original runtime injection, and a 20MB ZIP budget. `smoke:taptap-harness` executes the **converted game.js** under Chromium with a mocked `wx` / `GameGlobal` host and checks the shared LIPS/Three/Pixi touch action. Both are included in GitHub Actions, with `game.zip` uploaded as an artifact.
 
 ### True target-runtime gates (still pending)

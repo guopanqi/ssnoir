@@ -5,6 +5,7 @@ import zipfile
 from pathlib import Path
 
 root = Path(sys.argv[1]).resolve()
+probe = "--host-probe" in sys.argv[2:]
 zip_path = root / "game.zip"
 if not zip_path.is_file():
     raise RuntimeError("Converter did not produce game.zip")
@@ -16,6 +17,8 @@ with zipfile.ZipFile(zip_path) as archive:
         raise RuntimeError("Corrupt ZIP entry")
     names = set(archive.namelist())
     required = {"game.js", "foundation.js", "game.json", "check-version.js", "project.config.json"}
+    if probe:
+        required.remove("foundation.js")
     if names != required:
         raise RuntimeError(f"Unexpected converted files: missing={required - names}, extra={names - required}")
     shared_config = json.loads(Path("platforms/taptap/project.config.json").read_text())
@@ -35,8 +38,10 @@ with zipfile.ZipFile(zip_path) as archive:
         raise RuntimeError("ZIP entry differs from converted disk file")
     if b"GameGlobal.fetch" not in code:
         raise RuntimeError("Original converter runtime injection missing")
-    if b"require('./foundation.js')" not in code and b'require("./foundation.js")' not in code:
+    if not probe and b"require('./foundation.js')" not in code and b'require("./foundation.js")' not in code:
         raise RuntimeError("TapTap startup loader missing")
-    if b"__SSNOIR_WECHAT_FOUNDATION__" not in archive.read("foundation.js"):
+    if not probe and b"__SSNOIR_WECHAT_FOUNDATION__" not in archive.read("foundation.js"):
         raise RuntimeError("SSNoir entry point missing after Babel")
+    if probe and b"SSNoir TapTap host probe v1" not in code:
+        raise RuntimeError("Host probe entry missing")
     print(f"PASS: official TapTap 2.0.5 ZIP validated ({zip_path.stat().st_size} bytes, {len(names)} files)")

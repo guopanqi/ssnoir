@@ -10,10 +10,11 @@ import { gunzipSync } from "node:zlib";
  * (and hash-verified) to avoid committing the supplied node_modules.
  */
 const vendor = resolve("vendor/taptap-converter");
-const root = resolve("dist/taptap");
+const probe = process.argv.includes("--host-probe");
+const root = resolve(probe ? "dist/taptap-host-probe" : "dist/taptap");
 const tools = resolve("dist/.taptap-converter-tool");
 const wechat = resolve("dist/wechat");
-const source = resolve("dist/.taptap-converter-input");
+const source = resolve(probe ? "dist/.taptap-probe-input" : "dist/.taptap-converter-input");
 const archive = join(vendor, "wx_converter.py.gz");
 const expected = "19020e1b26ce360d156da07676326885957a4b98a4624457e328518b97974354";
 const code = gunzipSync(readFileSync(archive));
@@ -25,14 +26,14 @@ writeFileSync(join(tools, "wx_converter.py"), code);
 for (const filename of [".babelrc","wx_unity_converter/wx_unity.js","wx_unity_converter/check-version.js"]) {
   copyFileSync(join(vendor, filename), join(tools, filename));
 }
-if (!readFileSync(join(wechat,"game.js"),"utf8").includes("__SSNOIR_WECHAT_FOUNDATION__"))
+if (!probe && !readFileSync(join(wechat,"game.js"),"utf8").includes("__SSNOIR_WECHAT_FOUNDATION__"))
   throw new Error("Expected packaged SSNoir WeChat IIFE as converter input");
 // The imported DevTools directory contains personal AppID/private settings.
 // Build a clean converter input from the runtime and shared source manifests.
 rmSync(source, { recursive: true, force: true });
 mkdirSync(source, { recursive: true });
-copyFileSync(join(wechat, "game.js"), join(source, "foundation.js"));
-copyFileSync(resolve("platforms/taptap/game.js"), join(source, "game.js"));
+if (!probe) copyFileSync(join(wechat, "game.js"), join(source, "foundation.js"));
+copyFileSync(resolve(probe ? "platforms/taptap/host-probe.js" : "platforms/taptap/game.js"), join(source, "game.js"));
 copyFileSync(resolve("platforms/wechat/game.json"), join(source, "game.json"));
 // As in the working Laya release, supply the TapTap AppID before conversion.
 // The vendor converter preserves project.config.json unchanged.
@@ -48,7 +49,7 @@ const run = spawnSync("python3", [join(tools,"wx_converter.py"),
 if (run.error) throw run.error;
 if (run.status !== 0) throw new Error("TapTap vendor converter failed with exit " + run.status);
 
-const validation = spawnSync("python3", ["scripts/validate-taptap.py", root],
+const validation = spawnSync("python3", ["scripts/validate-taptap.py", root, ...(probe ? ["--host-probe"] : [])],
   { cwd: resolve("."), stdio: "inherit" });
 if (validation.error) throw validation.error;
 if (validation.status !== 0) throw new Error("TapTap package validation failed");
