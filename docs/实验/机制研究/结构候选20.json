@@ -157,7 +157,7 @@
       "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·分段兑现.scm",
       "decision": "现在兑现储备还是再投入一手追求非线性收益",
       "reversalHypothesis": "储备临界与期限衰减改变备料和兑现的价值",
-      "knownCounterexample": "固定先备料两次后兑现",
+      "knownCounterexample": "正式12骰3回合里，脚本只按储备阈值3/4兑现，在12个固定seed都能完成；若多数正常公开状态并无严格早兑价值，原结构就可能退化为固定积累-兑现。数学R99四骰容量不可直接外推。",
       "state": "structural-candidate",
       "playtestApproval": false,
       "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
@@ -165,7 +165,32 @@
       "nativeStartsAndShowsActions": true,
       "nativeCausalActionWitness": true,
       "nativeEvidenceRun": "https://github.com/guopanqi/ssnoir/actions/runs/38121764465",
-      "evidenceScope": "Native paired same-seed action consequences confirmed, not strategic quality or human validation"
+      "evidenceScope": "Native paired same-seed action consequences confirmed, not strategic quality or human validation",
+      "latestResearch": {
+        "R99": {
+          "tier": "toy-exact-fraction",
+          "all40RulesCoveredBy": [
+            "储备≥2",
+            "储备≥3"
+          ],
+          "toyOptimal": 0.719453732
+        },
+        "R101": {
+          "tier": "official-native-script",
+          "runs": 6
+        },
+        "R102native": {
+          "tier": "official-native-script",
+          "runs": 36,
+          "seeds": 12,
+          "thresholdSuccess": {
+            "2": 5,
+            "3": 12,
+            "4": 12
+          }
+        },
+        "boundary": "Same integer seed with different actions is not the same consumed RNG. Do not claim paired intervention, general win rate or human enjoyment."
+      }
     },
     {
       "id": "P11",
@@ -195,7 +220,16 @@
       "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
       "humanFeedbackRelated": false,
       "nativeStartsAndShowsActions": true,
-      "nativeCausalActionWitness": false
+      "nativeCausalActionWitness": false,
+      "latestResearch": {
+        "R100": {
+          "tier": "toy-exact-fraction",
+          "bonus1Free": 1.9088756,
+          "strongSimple": 1.90792657,
+          "extra": 0.00094903
+        },
+        "boundary": "Closure is narratively relevant, but most 4-die decision value is explained by an opening-hand-selected phased sequence."
+      }
     },
     {
       "id": "P13",
