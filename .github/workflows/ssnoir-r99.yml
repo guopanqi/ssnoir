@@ -1,0 +1,43 @@
+name: SSNoir R99 Policy Compression
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r99.yml'
+      - 'tools/content-validator/experiments/r99_policy_compression.py'
+      - 'tools/content-validator/experiments/r98_threshold_audit.py'
+permissions:
+  contents: read
+jobs:
+  compression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Reproduce exact R99 finite-repertoire comparison
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r99_policy_compression.py /tmp/r99.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r99.json',encoding='utf-8'))
+          for case in d['cases']:
+              print('nonlinear',case['nonlinear'],'envelope',case['envelope_40'])
+              assert len(case['repertoires'])==5
+              prev=0
+              for row in case['repertoires']:
+                  print('K',row['k'],'score',row['exact'],'gap',row['gap_to_40'])
+                  assert row['exact']>=prev-1e-12
+                  assert row['exact']<=case['envelope_40']+1e-12
+                  prev=row['exact']
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r99-policy-compression
+          path: /tmp/r99.json
+          retention-days: 90
