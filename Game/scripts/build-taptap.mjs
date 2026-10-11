@@ -41,6 +41,10 @@ const tapConfig = JSON.parse(readFileSync(resolve("platforms/taptap/project.conf
 if (!/^tap[a-z0-9]+$/.test(tapConfig.appid ?? ""))
   throw new Error("TapTap packaging requires a valid TapTap AppID");
 writeFileSync(join(source, "project.config.json"), JSON.stringify(tapConfig, null, 2) + "\n");
+// The VS Code debugger reads game.json.appId, not project.config.json.appid.
+const gameConfig = JSON.parse(readFileSync(join(source, "game.json"), "utf8"));
+gameConfig.appId = tapConfig.appid;
+writeFileSync(join(source, "game.json"), JSON.stringify(gameConfig, null, 2) + "\n");
 rmSync(root, { recursive: true, force: true });
 const bins = resolve("node_modules/.bin");
 const env = { ...process.env, PATH: bins + delimiter + (process.env.PATH || "") };

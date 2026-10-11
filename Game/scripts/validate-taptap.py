@@ -28,6 +28,8 @@ with zipfile.ZipFile(zip_path) as archive:
     if not str(config.get("appid", "")).startswith("tap"):
         raise RuntimeError("TapTap package contains a WeChat or tourist AppID")
     manifest = json.loads(archive.read("game.json"))
+    if manifest.get("appId") != config.get("appid"):
+        raise RuntimeError("VS Code debug AppID and package AppID differ")
     if manifest.get("convertScriptVersion") != "2.0.5":
         raise RuntimeError("Unexpected converter version")
     if manifest.get("deviceOrientation") != "landscape":

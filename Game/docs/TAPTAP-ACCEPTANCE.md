@@ -27,7 +27,8 @@ npm run smoke:taptap-harness
 ```
 
 The converter input uses `platforms/taptap/project.config.json`, whose AppID is
-the existing SSNoir TapTap ID from `UnityClient/Assets/TapTapMiniGame/Editor/MiniGameConfig.asset`.
+the user's current VS Code debug target (observed 2026-10-11). The previous
+Unity project's AppID is a different target and is not used by this package.
 It never uses the WeChat tourist or local test-account AppID. This matches the
 working Laya project at `/Users/usr/Documents/laya_projects/flood`: its release
 script switches to the TapTap AppID before calling the same converter. The
@@ -62,6 +63,15 @@ For a failure before the game menu is accessible, the official iOS diagnostic
 path is USB connection to macOS Console, select the iPhone, start streaming,
 and filter subsystem `com.taptap.instantGame` while reproducing the scan:
 https://developer.taptap.cn/minigameapidoc/dev/dev-support/debugging/
+
+The user subsequently clarified that every scan used the VS Code debugger's
+QR code, not a developer-backend uploaded version. The visible debugger served
+`dist/taptap/game`, so the separate probe was never exercised. Its plugin log
+contained repeated repacks but **no download request** at inspection time.
+The next gate is phone-to-Mac access to the displayed `/download` address.
+The plugin reads `game.json.appId` (camel-case); builds now write it from the
+same TapTap configuration and validate both IDs match, preventing rebuilds
+from erasing the debugger target and requiring another manual ID entry.
 
 `build:taptap` runs the submitted converter source (SHA-256 verified) with the actual WeChat bundle, then validates syntax, ZIP structure, version, orientation, presence of original runtime injection, and a 20MB ZIP budget. `smoke:taptap-harness` executes the **converted game.js** under Chromium with a mocked `wx` / `GameGlobal` host and checks the shared LIPS/Three/Pixi touch action. Both are included in GitHub Actions, with `game.zip` uploaded as an artifact.
 
