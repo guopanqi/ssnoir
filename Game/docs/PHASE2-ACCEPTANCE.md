@@ -59,3 +59,9 @@ Only `main` branch; coordinate with concurrently running research agents via exp
 ## C# presentation metadata parity increment
 
 The original C# `NodeConverter` semantic clocks (`gauge`, `countdown`, `readout`, title, note, display label), note-node and clock-node semantics, and carry-item/support IDs are now converted into explicit typed runtime fields rather than discarded. The original `get-dossier` is converted into complete typed `DossierEntry` records (story metadata, clocks, completion steps, journal) through `world-host.getDossier()`, with validation of duplicate dossier IDs and malformed content. The world pane displays root countdown and note readout metadata; a fully designed dossier screen with browsing, arrival and stage presentation is still needed. This does not close the visual parity gate.
+
+## Original `play-stage!` runtime (in progress)
+
+The original C# `StoryStagePlayer` beat semantics have been ported into `src/runtime/stage-playback.ts`: simultaneous commands, input-only dialogue, no skipping of moving actors, linear movement, relative/multi-point Bézier paths, prop anchors, poses, light and effect events. The **same** Pixi canvas now hosts `StageVectorView` in addition to `TheatreVectorView`. The source of `play-stage!` remains the existing Unity Scheme scripts and the host's typed story queue.
+
+`tests/authored-stage.ts-test.mjs` extracts and executes the actual unmodified Frank ship-settlement stage expression from `scenes/world/人物/弗兰克.scm` and advances it to the final beat; this is not just a synthetic animation example. **Stage art is not yet at asset parity**: when a portrait/prop is not provided by the host resolver, an explicit missing-resource graphic is displayed. This does not close narrative presentation Gate 7. Actual voice/audio, motion/video backends and Pixi visuals still require verification.
