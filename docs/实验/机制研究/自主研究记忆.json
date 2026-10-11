@@ -1,99 +1,56 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-11",
-  "batch": "R88-R92",
-  "rounds": 5,
-  "totalArchivedRounds": 37,
+  "batch": "R93-R95",
+  "rounds": 3,
+  "totalArchivedRounds": 40,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
     "sourceScripts": [
-      "tools/content-validator/experiments/r88_r90_native_semantic_checks.py",
-      "tools/content-validator/experiments/r89_intermediate_integrity_check.py",
-      "tools/content-validator/experiments/r91_r92_native_counterfactuals.py"
+      "tools/content-validator/experiments/r93_r95_compact_audit.py"
     ],
-    "run": "38121764465",
-    "scope": "R88/R90/R91/R92 official seeded native C# Scheme branch comparisons; R89 independent exact Fraction 4-die alternative checkpoint model, not new native rules",
-    "human": "No new human feedback, Debug allowlist unchanged"
+    "scope": "R93/R95 exact four-die two-round paper models; R94 static P20 Scheme review; not native or human",
+    "run": null,
+    "human": "No new human feedback; Debug unchanged"
   },
   "results": [
     {
-      "id": "R88",
-      "name": "封门消除压力，但也可能消除时间挑战",
-      "status": "原生因果成立，未证明两种选项均值得选",
+      "id": "R93",
+      "name": "第三手检查的强固定策略反证",
+      "status": "暂缓：额外自适应收益下降",
       "evidence": {
-        "unsealedPursuitBeforeTerminal": [
-          0,
-          1
-        ],
-        "unsealedFinal": "证人被抓",
-        "sealedPursuitAfterTwoTurns": [
-          0,
-          0
-        ],
-        "sealedAlternativeExit": "修梯/消耗3冷静跳下"
+        "baselineAdaptiveGain": 0.011232329,
+        "checkpointAdaptiveGain": 0.005051155,
+        "baselineOptimum": 0.960306999,
+        "checkpointOptimum": 0.954125824,
+        "checkpointStrongFixed": 0.949074669
       },
-      "lesson": "因果生效与有成本的玩家取舍分层；消灭一个威胁不能顺便消灭全部时间压力"
+      "lesson": "阶段强制提前清污和对固定口诀的新价值不是一回事"
     },
     {
-      "id": "R89",
-      "name": "证词质量的公开中途查验",
-      "status": "独立规则变奏值得下一次最强口诀反证；尚无原生场景",
+      "id": "R94",
+      "name": "封门后追兵截止压力静态审查",
+      "status": "待改版反证；未运行新原生会话",
       "evidence": {
-        "baselineCredible": 0.960306999,
-        "checkAfter2StrictEarlyCleanup": 0,
-        "checkAfter3StrictEarlyCleanup": 0.285751029,
-        "checkAfter3Credible": 0.954125824
+        "pursuitConditional": "not 门封?",
+        "remainingRisk": "说服失败减冷静；修梯2骰、跳下减3冷静"
       },
-      "lesson": "真正需要探索的不是多一个清污动作，而是「公开查验何时到来」如何改变动作顺序；必须证明非固定口诀"
+      "lesson": "封门暂停追兵不等于无风险，但缺失替代回合期限"
     },
     {
-      "id": "R90",
-      "name": "枪口回应最近路线",
-      "status": "原生转向生效，但数学增量仍接近0，P18保持需修订",
+      "id": "R95",
+      "name": "储备兑现时点双向严格选择",
+      "status": "值得在真实P10三回合继续验证",
       "evidence": {
-        "nativeAimSwitches": true,
-        "pierLosesEvidence": true,
-        "priorR85TrackingDifference": -0.000371513
+        "goal6NonlinearDecay2Optimal": 0.719453732,
+        "goal6NonlinearDecay2Fixed": 0.688282322,
+        "adaptiveGain": 0.031171411,
+        "action2StrictCash": 0.350308642,
+        "action2StrictPrepare": 0.417952675,
+        "withoutDecayAction2StrictCash": 0,
+        "linearDecay2Action2StrictPrepare": 0
       },
-      "lesson": "敌人姿态变化与下一次行动结果差是两件事；存在两个路线不等于追踪规则贡献决策"
-    },
-    {
-      "id": "R91",
-      "name": "未完成分段跨回合清零",
-      "status": "正式一条件原生消融通过，仅证明独立状态效果",
-      "evidence": {
-        "seed": 19,
-        "initialAProgress": 2,
-        "resetSceneAfterEnd": 0,
-        "retainControlAfterEnd": 2
-      },
-      "lesson": "阶段清零可审计，但需要比较完整局面是否存在自愿跨回合投入与放弃的反转"
-    },
-    {
-      "id": "R92",
-      "name": "非线性储备兑付的跨阈值收益",
-      "status": "三个可达原生收益区域全部找到，下一步检验兑现时机",
-      "evidence": {
-        "low": {
-          "seed": 9,
-          "reserve": 2,
-          "nonlinear": 3,
-          "linear": 4
-        },
-        "equal": {
-          "seed": 19,
-          "reserve": 3,
-          "nonlinear": 6,
-          "linear": 6
-        },
-        "high": {
-          "seed": 2,
-          "reserve": 4,
-          "nonlinear": 10,
-          "linear": 8
-        }
-      },
-      "lesson": "曲线交叉说明同一储备收益公式会导致变化，不代表同一规则下玩家已在『现在兑现/继续准备』之间反转"
+      "lesson": "在独立两回合四骰模型里非线性+衰减组合形成正常路径时机分歧；不是正式P10胜率"
     }
   ],
   "crossRoundMemory": [
@@ -104,7 +61,10 @@
     "R91原生同骰对照 +2未完成进度：重置组回合末0，保留组仍为2；机制有效不等于选项有趣。",
     "R92原生低/中/高储备区域2/3/4，对应非线性兑现3/6/10与线性4/6/8：三个功能区成立，但并不能自动证明单一版本里玩家有理由选择何时兑现。",
     "研究证据必须保留三层区分：设计语义/原生技术效果、受控反事实策略价值、真实用户可理解而愿意重玩的决策。只有最后一层获得人类证据才可进一步认定成熟。",
-    "未批准新的 Unity Debug 试玩入口；继续把 20 项当候选质量筛选池，而不是 20 个经过验证的好玩法。"
+    "未批准新的 Unity Debug 试玩入口；继续把 20 项当候选质量筛选池，而不是 20 个经过验证的好玩法。",
+    "R93公开第三手查验虽迫使部分最优路径提前清污，超过最强固定动作顺序的额外收益却从0.011232329降至0.005051155；不得因为增加期限就晋升。",
+    "R94静态审阅原生封门永久阻止追兵逐轮推进，坏判定损冷静仍存在；需独立替代期限，不改原版。",
+    "R95精确压缩模型中，非线性+衰减2使第二手既有正常路径严格提现0.350309，也有严格继续备料0.417953。下一步实际三回合/阈值口诀反证。"
   ],
   "history": [
     {
@@ -710,28 +670,81 @@
         "20种结构仍不等于20个好玩模式；Debug仍必须明示人工批准，除R09/R37/R54之外不自动加入。"
       ],
       "record": "docs/实验/机制研究/批次/R83-R87-机会信息与情景价值/研究记录.md"
+    },
+    {
+      "batch": "R93-R95",
+      "rounds": 3,
+      "method": {
+        "sourceScripts": [
+          "tools/content-validator/experiments/r93_r95_compact_audit.py"
+        ],
+        "scope": "R93/R95 exact four-die two-round paper models; R94 static P20 Scheme review; not native or human",
+        "run": null,
+        "human": "No new human feedback; Debug unchanged"
+      },
+      "results": [
+        {
+          "id": "R93",
+          "name": "第三手检查的强固定策略反证",
+          "status": "暂缓：额外自适应收益下降",
+          "evidence": {
+            "baselineAdaptiveGain": 0.011232329,
+            "checkpointAdaptiveGain": 0.005051155,
+            "baselineOptimum": 0.960306999,
+            "checkpointOptimum": 0.954125824,
+            "checkpointStrongFixed": 0.949074669
+          },
+          "lesson": "阶段强制提前清污和对固定口诀的新价值不是一回事"
+        },
+        {
+          "id": "R94",
+          "name": "封门后追兵截止压力静态审查",
+          "status": "待改版反证；未运行新原生会话",
+          "evidence": {
+            "pursuitConditional": "not 门封?",
+            "remainingRisk": "说服失败减冷静；修梯2骰、跳下减3冷静"
+          },
+          "lesson": "封门暂停追兵不等于无风险，但缺失替代回合期限"
+        },
+        {
+          "id": "R95",
+          "name": "储备兑现时点双向严格选择",
+          "status": "值得在真实P10三回合继续验证",
+          "evidence": {
+            "goal6NonlinearDecay2Optimal": 0.719453732,
+            "goal6NonlinearDecay2Fixed": 0.688282322,
+            "adaptiveGain": 0.031171411,
+            "action2StrictCash": 0.350308642,
+            "action2StrictPrepare": 0.417952675,
+            "withoutDecayAction2StrictCash": 0,
+            "linearDecay2Action2StrictPrepare": 0
+          },
+          "lesson": "在独立两回合四骰模型里非线性+衰减组合形成正常路径时机分歧；不是正式P10胜率"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R93-R95-强基线与兑现时机/研究记录.md"
     }
   ],
   "frontier": [
     {
-      "id": "R93",
+      "id": "R96",
       "priority": 1,
-      "question": "R89第三手公开查验的有利提前清污，是否只是一条固定『先逼问再清理』口诀？",
-      "method": "同一初始手牌比较所有固定动作序和公开检查时点反应式策略；直接禁用查验，比较时机对正常策略的独立贡献",
+      "question": "R95双向兑现时机在P10真实三回合/四骰每回合是否可复现？",
+      "method": "原生逐手配对+正式规则概率/伤害审计",
       "humanGate": false
     },
     {
-      "id": "R94",
+      "id": "R97",
       "priority": 2,
-      "question": "P20封门后没有期限，是不是总以停止威胁换来自动可行的慢修梯？",
-      "method": "先做威胁与伤势的可达性不变量，再在相同骰面比较有限封门后替代压力和无限耐心两种情景；确认至少两个公开状态决策反转",
+      "question": "封门后能否出现新的可见且有意义的替代期限？",
+      "method": "独立规则变体+强简单策略/同骰对照",
       "humanGate": false
     },
     {
-      "id": "R95",
+      "id": "R98",
       "priority": 3,
-      "question": "P10储备超过3时非线性收益更高，是否真的会令玩家在可预见期限前自愿等待再兑现？",
-      "method": "保留储备的坏档损失与回合末衰减，用精确DP对照固定先备料次数；关掉非线性和衰减分别消融",
+      "question": "储备时点反转是否被衰减前兑现等阈值口诀解释？",
+      "method": "单状态与路径最强响应口诀反证",
       "humanGate": false
     }
   ],

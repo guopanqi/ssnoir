@@ -1,0 +1,45 @@
+name: SSNoir Autonomous R93-R95
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r93-r95.yml'
+      - 'tools/content-validator/experiments/r93_r95_compact_audit.py'
+permissions:
+  contents: read
+jobs:
+  exact-paper-counterfactuals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Calculate exact models
+        run: python3 tools/content-validator/experiments/r93_r95_compact_audit.py /tmp/r93-r95.json
+      - name: Assert key falsifications and normal-path decisions
+        run: |
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r93-r95.json'))
+          a=x['R93']['without'];b=x['R93']['public_inspection_after_third']
+          assert a['adaptive_gain']>b['adaptive_gain']>0
+          assert a['fixed']==b['fixed']
+          rows={(r['goal'],r['nonlinear'],r['decay']):r for r in x['R95']}
+          assert all(r['adaptive_gain']==0 for r in x['R95'] if r['goal']==4)
+          no=rows[(6,True,0)];full=rows[(6,True,2)];linear=rows[(6,False,2)]
+          assert full['adaptive_gain']>linear['adaptive_gain']>0
+          assert no['normal_path_by_action'][1]['strict_cash']==0
+          assert full['normal_path_by_action'][1]['strict_cash']>0.3
+          assert full['normal_path_by_action'][1]['strict_prepare']>0.4
+          assert linear['normal_path_by_action'][1]['strict_prepare']==0
+          print('R93-R95 exact model regression passed')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r93-r95-exact-paper-evidence
+          path: /tmp/r93-r95.json
+          retention-days: 90
