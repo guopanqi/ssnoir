@@ -1,0 +1,30 @@
+name: SSNoir R87 Buyer Window
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r87.yml'
+      - 'tools/content-validator/experiments/r87_buyer_window_reachability.py'
+      - 'tools/content-validator/experiments/r56_r65_autonomous_search.py'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Strictly compare reachable courier and buyer opportunity states
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r87_buyer_window_reachability.py /tmp/r87.json
+          cat /tmp/r87.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-r87-window-options
+          path: /tmp/r87.json
+          retention-days: 60
