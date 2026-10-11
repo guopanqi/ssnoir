@@ -102,7 +102,7 @@ namespace SSNoir.IMGUI
 
             // ── 背景音乐 / 音效 / 对白 ──
             // 四档分段，值走 AudioVolumes，跟着存档，和 reduceMotion 同一套规矩。
-            // 默认：背景音乐低、音效低、对白关。
+            // 默认：背景音乐低、音效低、对白低。
             string[] volumeOptions = { "关", "低", "中", "高" };
             int pickedMusic = DrawSetting(
                 new Rect(contentX, y, contentW, BlockH),

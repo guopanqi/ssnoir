@@ -408,38 +408,24 @@ namespace SSNoir.IMGUI
                 yield return FilmFade(false, 1f, .7f);
                 foreach (var page in step.IntertitlePages)
                 {
-                    _filmText = page;
-                    yield return FilmFade(true, 1f, .6f);
-                    float until = Time.unscaledTime + Mathf.Max(2f, page.Length * .095f);
+                    _filmText = page.Text;
+                    yield return FilmFade(true, 1f, .25f);
+                    float voiceSeconds = string.IsNullOrEmpty(page.AudioId) ? 0f : _narrationPlayer.PlayIntertitleAudio(page.AudioId);
+                    float until = Time.unscaledTime + Mathf.Max(voiceSeconds, Mathf.Max(2f, page.Text.Length * .095f));
                     while (Time.unscaledTime < until) yield return null;
-                    yield return FilmFade(true, 0f, .6f);
-                    yield return null;
+                    yield return FilmFade(true, 0f, .25f);
                 }
                 if (!step.HoldBlack) yield return FilmFade(false, 0f, .7f);
             }
             finally
             {
+                _narrationPlayer.Stop();
                 _filmText = string.Empty;
                 _filmTextAlpha = 0f;
                 _intertitleActive = false;
                 _banterPlayer.Resume();
             }
             AdvanceToBlockingPresentationOrFinish();
-        }
-
-        private void DrawCityRain()
-        {
-            if (_gameManager.DisplayedSnapshot.Weather != "雨" || _gameManager.StageController.HasActivePortal) return;
-            var color = GUI.color;
-            GUI.color = new Color(.66f, .75f, .85f, .18f);
-            float time = Time.unscaledTime;
-            for (int i = 0; i < 90; i++)
-            {
-                float x = Mathf.Repeat(i * 137.1f - time * 38f, UIScale.VW);
-                float y = Mathf.Repeat(i * 83.7f + time * (360f + i % 7 * 18f), UIScale.VH);
-                GUI.DrawTexture(new Rect(x, y, 1f, 15f + i % 4 * 4f), Texture2D.whiteTexture);
-            }
-            GUI.color = color;
         }
 
         private void DrawFilmOverlay()
@@ -1062,7 +1048,6 @@ namespace SSNoir.IMGUI
                 IMGUIInteractionContext.FinishPointerEvent(Event.current);
                 return;
             }
-            DrawCityRain();
             SyncNavigationScrollState();
 
             Vector2 mouse = Event.current.mousePosition;

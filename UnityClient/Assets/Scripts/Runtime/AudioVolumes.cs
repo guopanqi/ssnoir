@@ -7,7 +7,7 @@ namespace SSNoir
     /// （_sceneManager.Settings 里 musicVolume / sfxVolume / dialogueVolume，double 存取，
     /// 读出来不是 double 就当存档坏了直接中断，和 reduceMotion 同一套规矩）。
     /// 面板上是 关/低/中/高 四档分段控件。
-    /// 默认：背景音乐低、音效低、对白关。
+    /// 默认：背景音乐低、音效低、对白低。
     /// </summary>
     public static class AudioVolumes
     {
@@ -15,7 +15,7 @@ namespace SSNoir
 
         public const int MusicDefaultLevel = 1;
         public const int SfxDefaultLevel = 1;
-        public const int DialogueDefaultLevel = 0;
+        public const int DialogueDefaultLevel = 1;
 
         public static float MusicDefault => Levels[MusicDefaultLevel];
         public static float SfxDefault => Levels[SfxDefaultLevel];
