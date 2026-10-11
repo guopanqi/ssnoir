@@ -3,6 +3,7 @@ import { Container, Graphics, Text, WebGLRenderer as PixiRenderer } from "pixi.j
 import { LipsSession } from "../scheme/lips-session";
 import { createHostScriptRuntime } from "../runtime/host-session";
 import { createWorldHostRuntime, type WorldHost } from "../runtime/world-host";
+import type { RuntimeNode } from "../runtime/node-converter";
 import { createFrameLoop } from "./frame-loop";
 import ssnoirStdlib from "../../../UnityClient/Assets/Resources/Content/scripts/stdlib.scm?raw";
 
@@ -130,6 +131,9 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   const worldRows=new Container();worldPanel.addChild(worldRows);stage.addChild(worldPanel);
   let authoredWorld:WorldHost|null=null;
   let selectedPlace="";
+  let currentContainer:RuntimeNode|null=null;
+  let pendingRoll:RuntimeNode|null=null;
+  const navigationStack:string[]=[];
   const renderPlaces=(names:string[],atPlace=false)=>{
     worldRows.removeChildren().forEach(child=>child.destroy());
     worldButtons.length=0;
@@ -150,11 +154,17 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   };
   const showRoot=()=>{
     if(!authoredWorld)return;
-    selectedPlace="";
+    selectedPlace="";currentContainer=null;pendingRoll=null;navigationStack.length=0;
     worldHeading.text="贝尔维尔 / 城市";
     worldStatus.text="世界日："+String(authoredWorld.state.getGlobal("世界日"))+
       " · 地点："+authoredWorld.getPlaces().length;
     renderPlaces(authoredWorld.getPlaces().map(n=>n.name));
+  };
+  const showContainer=(node:RuntimeNode)=>{
+    currentContainer=node;
+    worldHeading.text="地点 / "+node.name;
+    worldStatus.text=node.subtitle||"查看行动，或返回上一级";
+    renderPlaces(node.children.map(n=>n.name),true);
   };
   // Keep foundation startup independent of a content load failure.
   void createWorldHostRuntime().then(worldHost=>{
@@ -169,17 +179,70 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   const visitWorld=(name:string)=>{
     worldQueue=worldQueue.then(async()=>{
       if(!authoredWorld)return;
-      if(name==="__back"){showRoot();return;}
+      if(name==="__back"){
+        pendingRoll=null;
+        if(navigationStack.length){
+          const previous=navigationStack.pop()!;
+          const lookup=(node:RuntimeNode):RuntimeNode|undefined=>
+            node.name===previous?node:
+            node.children.map(lookup).find(Boolean) as RuntimeNode|undefined;
+          const container=lookup(authoredWorld.root);
+          if(container){showContainer(container);return;}
+        }
+        showRoot();return;
+      }
+      if(pendingRoll&&name.startsWith("__die:")){
+        const dieId=Number(name.slice(6)),action=pendingRoll;
+        pendingRoll=null;
+        const result=await authoredWorld.runner.perform(action.name,dieId);
+        await authoredWorld.refresh();
+        const events=authoredWorld.state.takeStoryEvents();
+        worldStatus.text="判定："+String(result.outcome??"完成")+
+          " · 金钱："+authoredWorld.state.getItemCount("金钱")+
+          (events.length?" · 剧情步骤："+events.length:"");
+        const container=authoredWorld.root.children.find(x=>x.name===selectedPlace);
+        if(container)renderPlaces(container.children.map(x=>x.name),true);
+        return;
+      }
       if(!selectedPlace){
         const entered=await authoredWorld.enterPlace(name);
-        selectedPlace=name;
-        worldHeading.text="地点 / "+entered.name;
-        worldStatus.text=entered.subtitle||"原版世界节点";
-        // Show actual child names. Nested containers are still traversed by
-        // the action runner; full roll/action UI remains a separate Phase 2 gate.
-        renderPlaces(entered.children.map(n=>n.title),true);
+        selectedPlace=name;navigationStack.length=0;
+        showContainer(entered);return;
       }
-    }).catch(error=>{console.error("[SSNoir] world navigation",error);options.onError?.(error);});
+      if(!currentContainer)return;
+      const target=currentContainer.children.find(x=>x.name===name);
+      if(!target||target.disabled)throw new Error("unavailable node "+name);
+      if(target.children.length){
+        navigationStack.push(currentContainer.name);
+        showContainer(target);return;
+      }
+      if(!target.resolve)return;
+      if(target.resolve.kind==="observe"||target.resolve.kind==="note"){
+        worldStatus.text=target.resolve.text||target.resolve.noteText||target.title;
+        return;
+      }
+      if(target.requires.some(x=>x.type==="die")){
+        pendingRoll=target;
+        const dice=authoredWorld.runner.turn.available();
+        worldStatus.text=target.title+" / 选择行动骰";
+        renderPlaces(dice.map(x=>"__die:"+x.slotId+" · "+x.value),true);
+        // Keep machine-readable button keys separate from visual labels.
+        for(const b of worldButtons)if(b.name.startsWith("__die:"))
+          b.name=b.name.slice(0,b.name.indexOf(" · "));
+        return;
+      }
+      const result=await authoredWorld.runner.perform(target.name);
+      await authoredWorld.refresh();
+      const events=authoredWorld.state.takeStoryEvents();
+      worldStatus.text="行动："+result.name+" · 金钱："+authoredWorld.state.getItemCount("金钱")+
+        (events.length?" · 剧情步骤："+events.length:"");
+      const container=authoredWorld.root.children.find(x=>x.name===selectedPlace);
+      if(container)renderPlaces(container.children.map(x=>x.name),true);
+    }).catch(error=>{
+      pendingRoll=null;
+      worldStatus.text="行动失败："+String(error).slice(0,42);
+      console.error("[SSNoir] world navigation/action",error);options.onError?.(error);
+    });
   };
 
   // This is the real LIPS runtime candidate, not an unrelated BiwaScheme probe.
