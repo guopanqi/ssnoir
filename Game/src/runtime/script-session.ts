@@ -75,7 +75,7 @@ export class GameScriptSession {
       // Execute literal, column-zero top-level loads in order from JS instead.
       // Contents stay unchanged on disk, and nonliteral runtime load-file calls
       // still use the registered native entry.
-      const topLevelLoad = /^\\(load-file\\s+"([^"\\r\\n]+)"\\)\\s*(?:;[^\\r\\n]*)?$/gm;
+      const topLevelLoad = /^\(load-file\s+"([^"\r\n]+)"\)\s*(?:;[^\r\n]*)?$/gm;
       let start = 0;
       let result: unknown;
       for (const match of source.matchAll(topLevelLoad)) {
