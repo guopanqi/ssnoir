@@ -16,11 +16,14 @@ def r88():
         obs=act(p,obs,end=True)
         mid=clock(obs,"楼梯追兵")
         obs=act(p,obs,end=True)
-        last=clock(obs,"楼梯追兵")
         result=obs.get("EncounterResult")
-        assert (first,mid,last)==(0,1,2),(first,mid,last)
+        # The official runner drops the clock list after terminal end-encounter.
+        # Do not infer a nonexistent "Current" field from that final response.
+        assert (first,mid)==(0,1),(first,mid)
         assert result is not None,"Unsealed deadline should really close encounter"
-        unsealed={"pursuit":[first,mid,last],"ended":True}
+        assert "证人被抓" in json.dumps(result,ensure_ascii=False),result
+        unsealed={"observed_preterminal_pursuit":[first,mid],
+                  "final":result,"ended":True}
     finally:finish(p)
     # Branch B: sealing costs a die, prevents future pursuit, and makes
     # the cheap staircase unavailable; ladder repair becomes mandatory
