@@ -11,12 +11,17 @@ export interface ScriptSources { [canonicalPath: string]: string }
  * This deliberately does NOT start the entire world/encounter SceneManager yet.
  */
 export class GameScriptSession {
-  private constructor(
-    readonly name: string,
-    readonly state: GameRuntimeState,
-    private readonly vm: LipsSession,
-    private readonly sources: ScriptSources
-  ) {}
+  readonly name: string;
+  readonly state: GameRuntimeState;
+  private readonly vm: LipsSession;
+  private readonly sources: ScriptSources;
+
+  private constructor(name: string, state: GameRuntimeState, vm: LipsSession, sources: ScriptSources) {
+    this.name = name;
+    this.state = state;
+    this.vm = vm;
+    this.sources = sources;
+  }
 
   static async create(name: string, state: GameRuntimeState, sources: ScriptSources): Promise<GameScriptSession> {
     let session: GameScriptSession;
