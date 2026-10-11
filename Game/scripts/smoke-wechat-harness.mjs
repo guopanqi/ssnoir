@@ -120,6 +120,10 @@ try {
   await page.waitForFunction(
     () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 1, null, { timeout: 20000 }
   );
+  const renderIdentity = await page.evaluate(() => window.__SSNOIR_WECHAT_FOUNDATION__.getRenderDiagnostics());
+  if (Object.values(renderIdentity).some(value => value !== true)) {
+    throw new Error("Shared Canvas/context identity mismatch: " + JSON.stringify(renderIdentity));
+  }
   await page.evaluate(() => window.__wxTouchEnd({ changedTouches: [{ clientX: 160, clientY: 483 }] }));
   await page.waitForFunction(
     () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 2, null, { timeout: 10000 }

@@ -18,6 +18,7 @@ export interface FoundationSession {
   increment(): Promise<void>;
   activateAt(x: number, y: number): boolean;
   getCount(): number;
+  getRenderDiagnostics(): Record<string, boolean>;
   resize(width: number, height: number): void;
   pause(): void;
   resume(): void;
@@ -183,6 +184,13 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     increment,
     activateAt,
     getCount: () => count,
+    getRenderDiagnostics: () => ({
+      threeUsesHostCanvas: three.domElement === options.canvas,
+      pixiViewUsesHostCanvas: pixi.canvas === options.canvas,
+      pixiContextUsesHostCanvas: pixi.context.canvas === options.canvas,
+      pixiTargetUsesHostCanvas: pixi.view.texture.source.resource === options.canvas,
+      sharedWebGLContext: pixi.gl === three.getContext()
+    }),
     resize,
     pause: loop.pause,
     resume: loop.resume,

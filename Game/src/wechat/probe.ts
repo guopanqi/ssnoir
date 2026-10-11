@@ -29,9 +29,11 @@ mountFoundation({
   Object.assign(globalThis, {
     __SSNOIR_WECHAT_FOUNDATION__: {
       getSchemeValue: session.getCount,
-      getDiagnostics: wechatHost.getDiagnostics
+      getDiagnostics: wechatHost.getDiagnostics,
+      getRenderDiagnostics: session.getRenderDiagnostics
     }
   });
+  console.log("[SSNoir] Canvas identity " + JSON.stringify(session.getRenderDiagnostics()));
   console.log("[SSNoir] Mini Game runtime " + JSON.stringify(wechatHost.getDiagnostics()));
   console.log("[SSNoir] Three/Pixi/Scheme shared foundation mounted; initial count " + session.getCount());
 }).catch(wechatHost.showFailure);
