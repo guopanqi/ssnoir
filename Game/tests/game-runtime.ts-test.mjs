@@ -19,8 +19,8 @@ test("stage 2 boots exact unedited engine.scm, its theatre library and stdlib.sc
   assert.equal(await session.evaluateNumber("(item-count \"金钱\")"), 15);
   assert.equal(await session.evaluateNumber("(item-count \"香烟\")"), 2);
   assert.equal(String(await session.evaluate("(get-global 'chapter)")), "0");
-  assert.equal(String(await session.evaluate("(procedure? theatre-scene)")), "#t");
-  assert.equal(String(await session.evaluate("(procedure? node)")), "#t");
+  assert.equal(await session.evaluateNumber('(length (theatre-scene 1600 900 "#000" (list)))'), 4);
+  assert.equal(String(await session.evaluate('(cadr (node "码头"))')), "码头");
 });
 
 test("stage 2 runs actual item helper contracts, including smoking cap, transaction rollback", async () => {
@@ -48,7 +48,7 @@ test("world/encounter VMs keep Scheme bindings isolated while sharing typed nati
   assert.equal(await world.evaluateNumber('stage-local'), 17);
   assert.equal(await encounter.evaluateNumber('stage-local'), 2);
   await world.evaluate('(begin (set-global! \'线索已看  #t) (add-item! "情报" 1))');
-  assert.equal(String(await encounter.evaluate("(get-global '线索已看)")), "#t");
+  assert.equal(await encounter.evaluate("(get-global '线索已看)"), true);
   assert.equal(await encounter.evaluateNumber('(item-count "情报")'), 1);
 });
 
