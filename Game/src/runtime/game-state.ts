@@ -120,7 +120,7 @@ export class GameRuntimeState {
     else this.storyReady.push(item);
   }
   takeStoryEvents():StoryEvent[] {
-    const result=this.storyReady.map(e=>({...e,args:structuredClone(e.args)}));
+    const result=this.storyReady.map(e=>({...e,args:JSON.parse(JSON.stringify(e.args))}));
     this.storyReady=[];return result;
   }
   isActionReporting():boolean {return this.clockEffects!==null;}
