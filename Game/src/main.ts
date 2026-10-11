@@ -29,6 +29,9 @@ async function start(): Promise<void> {
     __SSNOIR_FOUNDATION__: { getSchemeValue: session.getCount }
   });
   window.addEventListener("resize", () => session.resize(window.innerWidth, window.innerHeight));
+  const updateVisibility = () => document.hidden ? session.pause() : session.resume();
+  document.addEventListener("visibilitychange", updateVisibility);
+  updateVisibility();
   window.addEventListener("beforeunload", () => session.dispose(), { once: true });
 }
 start().catch(error => {

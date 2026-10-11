@@ -29,6 +29,10 @@ mountFoundation({
   cancelAnimationFrame: wechatHost.cancelAnimationFrame,
   onError: wechatHost.showFailure
 }).then(session => {
+  wechatHost.onVisibilityChange(visible => {
+    if (visible) session.resume(); else session.pause();
+    console.log("[SSNoir] Mini Game visibility=" + String(visible));
+  });
   wechatHost.onTouchEnd((x, y) => {
     try { session.activateAt(x, y); }
     catch (error) { wechatHost.showFailure(error); }

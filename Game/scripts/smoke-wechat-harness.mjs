@@ -23,8 +23,19 @@ try {
     const canvas = document.getElementById("mini");
     canvas.style.width = "1024px";
     canvas.style.height = "576px";
-    canvas.requestAnimationFrame = callback => requestAnimationFrame(callback);
-    canvas.cancelAnimationFrame = id => cancelAnimationFrame(id);
+    window.__wxFrames = new Set();
+    canvas.requestAnimationFrame = callback => {
+      const id = requestAnimationFrame(time => {
+        window.__wxFrames.delete(id);
+        callback(time);
+      });
+      window.__wxFrames.add(id);
+      return id;
+    };
+    canvas.cancelAnimationFrame = id => {
+      window.__wxFrames.delete(id);
+      cancelAnimationFrame(id);
+    };
     // Official converter prepends GameGlobal.fetch = undefined; a TapTap
     // compatibility host exposes GameGlobal and can route wx APIs.
     window.GameGlobal = window;
@@ -43,6 +54,8 @@ try {
       createImage: () => new Image(),
       getSystemInfoSync: () => ({ windowWidth: 1024, windowHeight: 576, screenWidth: 1024, screenHeight: 576, platform: "chromium-wx-mock", pixelRatio: 1, devicePixelRatio: 1 }),
       onTouchEnd: callback => { window.__wxTouchEnd = callback; },
+      onHide: callback => { window.__wxHide = callback; },
+      onShow: callback => { window.__wxShow = callback; },
       showModal: detail => { throw new Error("wx.showModal: " + detail.content); }
     };
     if (canvasMode === "offscreen") {
@@ -69,6 +82,22 @@ try {
   await page.waitForFunction(
     () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 2, null, { timeout: 10000 }
   );
+  await page.evaluate(() => { window.__wxHide(); window.__wxHide(); });
+  if (await page.evaluate(() => window.__wxFrames.size) !== 0) {
+    throw new Error("Hidden WeChat runtime still has a pending render frame");
+  }
+  if (await page.evaluate(() => window.__SSNOIR_WECHAT_FOUNDATION__.getDiagnostics().visible)) {
+    throw new Error("WeChat hide state was not applied");
+  }
+  await page.evaluate(() => { window.__wxShow(); window.__wxShow(); });
+  if (await page.evaluate(() => window.__wxFrames.size) !== 1) {
+    throw new Error("WeChat resume must schedule exactly one render frame");
+  }
+  await page.evaluate(() => window.__wxTouchEnd({ changedTouches: [{ clientX: 160, clientY: 483 }] }));
+  await page.waitForFunction(() => window.__SSNOIR_WECHAT_FOUNDATION__.getSchemeValue() === 3);
+  if (!await page.evaluate(() => window.__SSNOIR_WECHAT_FOUNDATION__.getDiagnostics().visible)) {
+    throw new Error("WeChat show state was not applied");
+  }
   if (errors.length) throw new Error(errors.join("\n"));
   const canvasUsage = await page.evaluate(() => window.__wxCanvasUsage);
   if (canvasUsage.screen !== 1) throw new Error("Expected exactly one on-screen canvas: " + JSON.stringify(canvasUsage));

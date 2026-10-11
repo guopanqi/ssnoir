@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { Container, Graphics, Text, WebGLRenderer as PixiRenderer } from "pixi.js";
 import { LipsSession } from "../scheme/lips-session";
+import { createFrameLoop } from "./frame-loop";
 import ssnoirStdlib from "../../../UnityClient/Assets/Resources/Content/scripts/stdlib.scm?raw";
 
 export interface FoundationOptions {
@@ -18,6 +19,8 @@ export interface FoundationSession {
   activateAt(x: number, y: number): boolean;
   getCount(): number;
   resize(width: number, height: number): void;
+  pause(): void;
+  resume(): void;
   dispose(): void;
 }
 
@@ -168,31 +171,29 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     return false;
   }
 
-  let frame = 0;
-  let disposed = false;
-  function tick(): void {
-    if (disposed) return;
+  const loop = createFrameLoop(() => {
     three.resetState();
     three.render(scene, camera);
     pixi.resetState();
     pixi.render({ container: stage, clear: false });
-    frame = options.animationFrame(tick);
-  }
-  tick();
+  }, options.animationFrame, options.cancelAnimationFrame);
+  loop.resume();
 
   return {
     increment,
     activateAt,
     getCount: () => count,
     resize,
+    pause: loop.pause,
+    resume: loop.resume,
     dispose() {
-      disposed = true;
-      options.cancelAnimationFrame(frame);
+      loop.dispose();
       pixi.destroy();
       scene.traverse(obj => {
         if (obj instanceof THREE.Mesh) obj.geometry.dispose();
       });
       blocks.dispose();
+      street.material.dispose();
       three.dispose();
     }
   };

@@ -130,6 +130,13 @@ if (!raf || !caf) throw new Error("Mini Game requestAnimationFrame/cancelAnimati
 g.requestAnimationFrame ||= raf;
 g.cancelAnimationFrame ||= caf;
 
+// Register before asynchronous Scheme/Pixi initialization so an early hide
+// cannot be lost. Subscribers receive the current state immediately.
+let visible = true;
+let visibilityListener: ((visible: boolean) => void) | undefined;
+wx.onHide(() => { visible = false; visibilityListener?.(visible); });
+wx.onShow(() => { visible = true; visibilityListener?.(visible); });
+
 export const wechatHost = {
   canvas: canvas as HTMLCanvasElement,
   context: gl as WebGL2RenderingContext,
@@ -148,10 +155,15 @@ export const wechatHost = {
     canvas2D: canvasBackend,
     hasOffscreenAPI: typeof wx.createOffscreenCanvas === "function",
     webgl2: Boolean(gl),
+    visible,
     webglVersion: String(gl.getParameter(gl.VERSION) ?? "unknown")
   }),
   animationFrame: (callback: FrameRequestCallback) => raf(callback) as number,
   cancelAnimationFrame: (handle: number) => caf(handle),
+  onVisibilityChange: (callback: (visible: boolean) => void) => {
+    visibilityListener = callback;
+    callback(visible);
+  },
   onTouchEnd: (callback: (x: number, y: number) => void) => {
     wx.onTouchEnd((event: { changedTouches?: Array<{ clientX: number; clientY: number }> }) => {
       const touch = event.changedTouches?.[0];

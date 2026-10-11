@@ -57,3 +57,11 @@ Reported on macOS Developer Tools mg 2.02.2608080, base library 3.17.4: `wx.crea
 WeChat now uses a selective vendored MIT [finscn/weapp-adapter](../vendor/weapp-adapter/README-SSNOIR.md) Canvas/HTMLElement/EventTarget base, with the SSNoir-specific Pixi 8, Three r186 and Scheme integration confined to `src/wechat/bootstrap.ts`. The upstream repository and license are pinned and unmodified. Platform compatibility remains subject to CI and actual WeChat/TapTap device testing; the upstream's 2019 vintage is a known limitation.
 
 **Device test handoff:** [WECHAT-DEVICE-ACCEPTANCE.md](WECHAT-DEVICE-ACCEPTANCE.md) defines the macOS DevTools, iOS, Android and TapTap acceptance steps and the `getDiagnostics()` runtime probe. Do not mark native compatibility complete without device evidence.
+
+## 2026-10-11 前后台帧循环整合
+
+共享渲染层现在显式提供 pause/resume，微信在异步初始化前注册 onHide/onShow 并保留当前可见状态；浏览器使用 visibilitychange。重复 show 不增加帧循环，取消后的旧回调即使迟到也不会重新调度；销毁后不能恢复。街道材质随场景销毁。
+
+本次 `npm run verify` 的 17 项测试、三个浏览器尺寸/触摸/resize capture、微信三种 Canvas 模式、TapTap 两种模式全部通过。模拟宿主实际检查 hide 后待执行帧为 0、连续 show 后为 1、恢复点击计数为 3。TapTap 官方转换后 ZIP 为 425,977 字节、四个文件。这些证明共享循环和适配绑定的自动检查，不代替实际后台事件验收。
+
+微信开发者工具已执行新包并显示 visibility=true 与 shared foundation mounted。工具同时报告 `worker path empty`，堆栈位于 app.asar；目前来源和复现条件未确定，不通过添加虚假 worker 配置掩盖。实际 hide/show 回调及返回后输入仍待观察。自动窗口操作多次返回 noWindowsAvailable 或用户切换窗口，因此已请求用户在工具中完成该步骤。
