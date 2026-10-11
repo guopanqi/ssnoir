@@ -134,7 +134,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   // Controls operate on the same original Scheme game state, not the legacy
   // foundation counter. End-day uses on-turn-end/on-turn-start from world.scm.
   const previewControls=[
-    {id:"day",label:"结束一天",x:wx+18},
+    {id:"day",label:"结束回合 / 天",x:wx+18},
     {id:"save",label:"保存",x:wx+137},
     {id:"load",label:"读档",x:wx+256}
   ];
@@ -466,6 +466,18 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
           showRoot();
           receiveStory();
           worldStatus.text="游戏已恢复 · 世界日 "+String(authoredWorld.state.getGlobal("世界日"));
+        }else if(authoredWorld.mode==="encounter"){
+          // Use the original opponent rules, forced responses and composure tax.
+          // This control advances the encounter, never the city calendar.
+          const phases=await authoredWorld.director.endRound();
+          await authoredWorld.refresh();
+          pendingRoll=null;chosenDice=[];
+          playback.push([
+            ...phases.flatMap(phase=>phase.events),
+            ...authoredWorld.state.takeStoryEvents()
+          ]);
+          updateStory();redrawCurrent();
+          worldStatus.text="交锋回合结算 · "+phases.map(p=>p.phase).join(" → ");
         }else{
           const day=await authoredWorld.endDay();
           pendingRoll=null;chosenDice=[];
