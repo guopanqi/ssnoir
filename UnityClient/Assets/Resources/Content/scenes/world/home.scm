@@ -41,7 +41,8 @@
           (string-append (if (<= current 1) "就是明晚。" (string-append "还剩 " (number->string current) " 天。"))
                          "本次到期交 "
                          (number->string rent-amount) " 金。此后每四天收租。"))))
-    (rent-clk 'set! 2)
+    ;; 开场当夜正常换日，次晨显示还剩两天。
+    (rent-clk 'set! 3)
     (define grace-max 2)
     (define grace grace-max)        ; 房东还愿意等你几天（信用）
     (define overdue? #f)            ; 已经到期没交，正在用宽限

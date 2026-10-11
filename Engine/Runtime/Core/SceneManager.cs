@@ -844,6 +844,7 @@ namespace SSNoir.Core
 
             return new PresentationSnapshot
             {
+                Weather = isInEncounter ? string.Empty : _gameState.Get<string>("天气", string.Empty),
                 RootNode = rootNode,
                 CarryNodes = CurrentCarryNodes,
                 InjurySeverity = _gameState.Team.Injury.Severity,

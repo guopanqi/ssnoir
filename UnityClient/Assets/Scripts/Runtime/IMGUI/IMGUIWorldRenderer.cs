@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -224,7 +225,7 @@ namespace SSNoir.IMGUI
             });
         }
 
-        public bool IsPresentationActive => _presentationPlayer.IsPlaying || _animator.IsPlaying
+        public bool IsPresentationActive => _intertitleActive || _storyCameraActive || _presentationPlayer.IsPlaying || _animator.IsPlaying
             || _activeAutoAction != null
             || _activeBeat
             || _activeActionSpotlight != null
@@ -371,6 +372,95 @@ namespace SSNoir.IMGUI
             _beatNarrationIds.Clear();
         }
 
+        private bool _storyCameraActive;
+        private bool _intertitleActive;
+        private float _filmBlackAlpha;
+        private float _filmTextAlpha;
+        private string _filmText = string.Empty;
+
+        private IEnumerator PlayCameraStep(BlockingStoryStep step)
+        {
+            _storyCameraActive = true;
+            try { yield return _gameManager.PlayStoryCamera(step.CameraAnchor, step.CameraHoldSeconds, step.PlaceName); }
+            finally { _storyCameraActive = false; }
+            AdvanceToBlockingPresentationOrFinish();
+        }
+
+        private IEnumerator FilmFade(bool text, float target, float duration)
+        {
+            float from = text ? _filmTextAlpha : _filmBlackAlpha;
+            float start = Time.unscaledTime;
+            while (Time.unscaledTime - start < duration)
+            {
+                float alpha = Mathf.Lerp(from, target, (Time.unscaledTime - start) / duration);
+                if (text) _filmTextAlpha = alpha; else _filmBlackAlpha = alpha;
+                yield return null;
+            }
+            if (text) _filmTextAlpha = target; else _filmBlackAlpha = target;
+        }
+
+        private IEnumerator PlayIntertitleStep(BlockingStoryStep step)
+        {
+            _intertitleActive = true;
+            _banterPlayer.Suspend();
+            try
+            {
+                yield return FilmFade(false, 1f, .7f);
+                foreach (var page in step.IntertitlePages)
+                {
+                    _filmText = page;
+                    yield return FilmFade(true, 1f, .6f);
+                    float until = Time.unscaledTime + Mathf.Max(2f, page.Length * .095f);
+                    while (Time.unscaledTime < until) yield return null;
+                    yield return FilmFade(true, 0f, .6f);
+                    yield return null;
+                }
+                if (!step.HoldBlack) yield return FilmFade(false, 0f, .7f);
+            }
+            finally
+            {
+                _filmText = string.Empty;
+                _filmTextAlpha = 0f;
+                _intertitleActive = false;
+                _banterPlayer.Resume();
+            }
+            AdvanceToBlockingPresentationOrFinish();
+        }
+
+        private void DrawCityRain()
+        {
+            if (_gameManager.DisplayedSnapshot.Weather != "雨" || _gameManager.StageController.HasActivePortal) return;
+            var color = GUI.color;
+            GUI.color = new Color(.66f, .75f, .85f, .18f);
+            float time = Time.unscaledTime;
+            for (int i = 0; i < 90; i++)
+            {
+                float x = Mathf.Repeat(i * 137.1f - time * 38f, UIScale.VW);
+                float y = Mathf.Repeat(i * 83.7f + time * (360f + i % 7 * 18f), UIScale.VH);
+                GUI.DrawTexture(new Rect(x, y, 1f, 15f + i % 4 * 4f), Texture2D.whiteTexture);
+            }
+            GUI.color = color;
+        }
+
+        private void DrawFilmOverlay()
+        {
+            var color = GUI.color;
+            GUI.color = new Color(0, 0, 0, _filmBlackAlpha);
+            GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
+            GUI.color = new Color(1, 1, 1, _filmTextAlpha);
+            var style = new GUIStyle(IMGUIStyles.ModalBody)
+            {
+                alignment = TextAnchor.MiddleCenter, wordWrap = true,
+                fontSize = IMGUIStyles.FontSize(34), padding = new RectOffset(),
+            };
+            style.normal.textColor = new Color(.94f, .92f, .87f);
+            GUI.Label(new Rect(UIScale.VW * .14f, UIScale.VH * .2f, UIScale.VW * .72f, UIScale.VH * .6f), _filmText, style);
+            GUI.color = color;
+        }
+
+        // 电影黑幕保持到换日，换日的渐亮接管同一层视觉，避免先亮一下再黑。
+        public void ReleaseFilmBlackForTurn() => _filmBlackAlpha = 0f;
+
         public void PlayBlockingPresentation(IReadOnlyList<BlockingStoryStep> steps, Action onDone)
         {
             if (steps.Count == 0)
@@ -396,6 +486,12 @@ namespace SSNoir.IMGUI
                 var step = _pendingBlockingSteps.Dequeue();
                 switch (step.Kind)
                 {
+                    case BlockingStoryStepKind.Intertitle:
+                        StartCoroutine(PlayIntertitleStep(step));
+                        return;
+                    case BlockingStoryStepKind.Camera:
+                        StartCoroutine(PlayCameraStep(step));
+                        return;
                     case BlockingStoryStepKind.Spotlight:
                         _activeActionSpotlight = step.Spotlight;
                         return;
@@ -411,6 +507,7 @@ namespace SSNoir.IMGUI
                         });
                         return;
                     case BlockingStoryStepKind.Theatre:
+                        ReleaseFilmBlackForTurn();
                         _banterPlayer.Suspend();
                         _theatrePlayer.Start(step.Theatre!, () =>
                         {
@@ -637,7 +734,7 @@ namespace SSNoir.IMGUI
             _gameManager.GameState.NotificationCenter.Push(message, NotificationKind.Info);
         }
 
-        public bool IsAnimationPlaying => _animator.IsPlaying || _presentationPlayer.IsPlaying
+        public bool IsAnimationPlaying => _intertitleActive || _storyCameraActive || _animator.IsPlaying || _presentationPlayer.IsPlaying
             || _activeAutoAction != null
             || _activeBeat
             || _activeActionSpotlight != null
@@ -766,6 +863,12 @@ namespace SSNoir.IMGUI
             _activeVideoTag = null;
             _animationTimer = 0f;
             _videoOwnedByCutscene = false;
+            StopAllCoroutines();
+            _storyCameraActive = false;
+            _intertitleActive = false;
+            _filmBlackAlpha = 0f;
+            _filmTextAlpha = 0f;
+            _filmText = string.Empty;
             _banterPlayer.Reset();
             _labelPlacements.Clear();
             _banterPlacements.Clear();
@@ -958,6 +1061,7 @@ namespace SSNoir.IMGUI
                 IMGUIInteractionContext.FinishPointerEvent(Event.current);
                 return;
             }
+            DrawCityRain();
             SyncNavigationScrollState();
 
             Vector2 mouse = Event.current.mousePosition;
@@ -1097,7 +1201,7 @@ namespace SSNoir.IMGUI
             // 阻塞对白期间世界的界面整个收起来：标签、动作卡、卷宗、顶栏都不画——舞台上只留城市和人。
             // 锚点表故意不清：对白是阻塞的，导航和相机都冻着，上一帧登记的「谁在场」在整段对白里
             // 都作数，舞台照旧用它判断说话人在不在场。
-            bool worldUiHidden = _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive;
+            bool worldUiHidden = _intertitleActive || _storyCameraActive || _filmBlackAlpha > 0f || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive;
             var panelUi = _windowStack.MakeContext(IMGUIWindowLayer.Panel, baseLocked);
             if (!worldUiHidden)
             {
@@ -1271,6 +1375,8 @@ namespace SSNoir.IMGUI
                 GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
                 GUI.color = oldColor;
             }
+
+            if (_filmBlackAlpha > 0f) DrawFilmOverlay();
 
             // Persist whether the pointer is over any UI this pass, so the camera
             // manager (which polls raw Input in Update, one step ahead of OnGUI)

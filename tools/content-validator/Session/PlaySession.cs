@@ -352,6 +352,12 @@ public sealed class PlaySession
                     foreach (var command in beat.Commands)
                         if (command.Line != null)
                             events.Add(new SessionEvent(phase, $"{command.Line.Speaker}：{command.Line.Text}"));
+            if (step.Kind == BlockingStoryStepKind.Intertitle)
+                foreach (var page in step.IntertitlePages)
+                    events.Add(new SessionEvent(phase, $"电影黑幕：{page}"));
+            if (step.Kind == BlockingStoryStepKind.Camera)
+                events.Add(new SessionEvent(phase, $"运镜：{step.CameraAnchor}" +
+                    (string.IsNullOrEmpty(step.PlaceName) ? string.Empty : $"；进入地点：{step.PlaceName}")));
             if (step.Kind == BlockingStoryStepKind.Video)
                 events.Add(new SessionEvent(phase, $"视频：{step.VideoTag}"));
             if (step.Kind == BlockingStoryStepKind.Motion)

@@ -422,9 +422,11 @@
       (if (not (= story-stage 0)) (error "夜莺来访：委托已经开始") #t)
       (begin
           ;; 楼下电铃求助先演，开门后再进入现有室内接案对白。
-          (play-dialogue!
-            (line "尼尔" "那天夜里，雨下得很大，我的鞋子湿了，和袜子黏在一起。")
-            (line "尼尔" "我对那天记得很清楚，那是我的命运发生转折的地方，但当时我对此一无所知。"))
+          (play-intertitle! #t
+            (tr "那晚，我正准备睡觉。雨下得很大，我的鞋子湿了，和袜子黏在一起。"
+                "That night, I was about to turn in. It was pouring. My shoes were soaked, my socks stuck to my feet.")
+            (tr "我对那天记得很清楚，那是我的命运发生转折的地方，但当时我对此一无所知。"
+                "I remember that night clearly. My life took a turn there, though I had no idea at the time."))
           (rainy-door-theatre!)
           (commission-dialogue!)
           (add-item! "金钱" prepayment)
@@ -447,26 +449,34 @@
         (lambda ()
           (set! opening-heard? #t)
           (apply-drunk!)
-          (play-dialogue!
-            (line "世界" "尼尔刚从酒馆出来。步履不稳，酒还没有醒。")
-            (line "房东" "尼尔，两天后交房租。四十块。明早别说你不记得。")))))
+          ;; 城市既有机位依次穿行，最后落到酒馆。
+          (play-camera! "格兰德酒店" .8 "")
+          (play-camera! "剧院" .8 "")
+          (play-camera! "老街酒馆" .4 "老街酒馆")
+          (load-file "scripts/theatre/序章开场.scm")
+          (序章-酒馆出门)
+          (play-camera! "门口" .2 "家")
+          (序章-房东催租))))
 
     (define (drunk?) (and opening-heard? (= world-day 1)))
 
     (define (opening-sleep!)
       (if (drunk?)
-          (play-dialogue!
-            (line "尼尔" "这里的一切都让人觉得新鲜，高耸的建筑，闪着光的招牌，迷人的女人。")
-            (line "尼尔" "贝尔维尔，梦一样的城市，美丽的地方。")) #f))
+          (play-intertitle! #t
+            (tr "这里的一切都让人觉得新鲜，高耸的建筑，闪着光的招牌，迷人的女人。"
+                "Everything here felt new. Tall buildings, glowing signs, beautiful women.")
+            (tr "贝尔维尔，梦一样的城市，美丽的地方。"
+                "Belleville. A city out of a dream. A beautiful place.")) #f))
 
     (define-turn-start-rule "序章醒来"
       (lambda () (and opening-heard? (= world-day 2) (= story-stage 0)))
       (lambda ()
-        (play-dialogue!
-          (line "世界" "天亮了。贝尔维尔在下雨。")
-          (line "尼尔" "但这些美丽和我无关。我在这里已经一年多了，大多数时候只能通过打零工度日。")
-          (line "尼尔" "偶尔有几件委托，但像婚外情、替小道报纸偷拍这样的三流委托，也是几个月之前的事情了。")
-          (line "尼尔" "除此之外，没有任何的真相需要我去发现。醒醒，是时候去挣房租了。"))))
+        (set-global! '天气 "雨")
+        (play-narration! "序章清晨")))
+
+    (define-turn-start-rule "序章雨停"
+      (lambda () (= world-day 3))
+      (lambda () (set-global! '天气 "")))
 
     ;; ── 小节一：筹钱与两项准备 ──────────────────────
     ;; 工作与一次性失物委托提供收入；准备直接改变交付现场。

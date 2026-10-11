@@ -5,6 +5,7 @@ namespace SSNoir.Core
 {
     public sealed class PresentationSnapshot
     {
+        public string Weather { get; init; } = string.Empty;
         public GameNode? RootNode { get; init; }
         // 随身动作（烟、酒）：玩家自己带进这一场的东西，不在渲染树里。
         // 客户端把它们画成从对应物品引出去的小卡，而不是排进场上的卡片区。

@@ -8,6 +8,8 @@ namespace SSNoir.Core
     // 动作表现固定在结局前,不可重排;剧情表现按 Scheme 调用顺序排队、逐个阻塞播放。
     public enum BlockingStoryStepKind
     {
+        Intertitle,   // 电影黑幕大字，按页淡入淡出；可保持黑幕直到换日。
+        Camera,      // 剧情运镜到已有城市锚点，可在落点进入地点。
         Video,       // 视频过场：tag 认场景里的 CutsceneSequence（机位 + 视频）。昂贵，少用；
                      // 实时 3D 的场景演出是另一条通道，不走这里
         Motion,      // 场景演出：切到指定机位，播一件道具的实时动画（道具__状态 clip），播完回来。
@@ -25,6 +27,11 @@ namespace SSNoir.Core
     {
         public BlockingStoryStepKind Kind { get; init; }
 
+        public IReadOnlyList<string> IntertitlePages { get; init; } = Array.Empty<string>();
+        public bool HoldBlack { get; init; }
+        public string CameraAnchor { get; init; } = string.Empty;
+        public float CameraHoldSeconds { get; init; }
+
         public string VideoTag { get; init; } = string.Empty;       // Kind == Video
         public string MotionProp { get; init; } = string.Empty;     // Kind == Motion：地点/道具；道具部分是 clip 名前半
         public string MotionState { get; init; } = string.Empty;    // Kind == Motion：目标状态（clip 名后半）
@@ -38,6 +45,21 @@ namespace SSNoir.Core
         public DialogueSequence? AutoActionPrelude { get; init; }    // AutoAction：卡出现后、抓骰前的对白
         public List<SlottedResource> AutoActionSlots { get; } = new(); // Kind == AutoAction
         public ActionReport? ResolvedReport { get; init; }           // AutoAction：引擎提交的结果
+
+        public static BlockingStoryStep ForIntertitle(IReadOnlyList<string> pages, bool holdBlack)
+        {
+            if (pages == null || pages.Count == 0) throw new ArgumentException("intertitle requires pages");
+            foreach (var page in pages)
+                if (string.IsNullOrWhiteSpace(page)) throw new ArgumentException("intertitle page cannot be empty");
+            return new BlockingStoryStep { Kind = BlockingStoryStepKind.Intertitle, IntertitlePages = pages, HoldBlack = holdBlack };
+        }
+
+        public static BlockingStoryStep ForCamera(string anchor, float holdSeconds, string place)
+        {
+            if (string.IsNullOrWhiteSpace(anchor) || float.IsNaN(holdSeconds) || float.IsInfinity(holdSeconds) || holdSeconds < 0)
+                throw new ArgumentException("camera requires anchor and nonnegative hold time");
+            return new BlockingStoryStep { Kind = BlockingStoryStepKind.Camera, CameraAnchor = anchor, CameraHoldSeconds = holdSeconds, PlaceName = place };
+        }
 
         public static BlockingStoryStep ForVideo(string tag)
             => new BlockingStoryStep { Kind = BlockingStoryStepKind.Video, VideoTag = tag };

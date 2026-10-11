@@ -441,6 +441,26 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__record-clock-effect!"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__play-intertitle!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 2 || args[0] is not bool hold || args[1] is not List<object> raw)
+                    throw new ArgumentException("__play-intertitle! requires hold-black and page list");
+                var report = gameState.CurrentActionReport ?? throw new InvalidOperationException("intertitle requires an action");
+                var pages = new List<string>();
+                foreach (var page in raw) pages.Add(page as string ?? throw new ArgumentException("intertitle page must be text"));
+                report.BlockingStorySteps.Add(BlockingStoryStep.ForIntertitle(pages, hold));
+                return new None();
+            }, "__play-intertitle!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__play-camera!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 3 || args[0] is not string anchor || args[2] is not string place)
+                    throw new ArgumentException("__play-camera! requires anchor, hold seconds, and destination place");
+                var report = gameState.CurrentActionReport ?? throw new InvalidOperationException("camera requires an action");
+                report.BlockingStorySteps.Add(BlockingStoryStep.ForCamera(anchor, Convert.ToSingle(args[1]), place));
+                return new None();
+            }, "__play-camera!"));
+
             interpreter.DefineGlobal(Symbol.FromString("__play-narration!"), new NativeProcedure(args =>
             {
                 if (args.Count < 1) throw new ArgumentException("__play-narration! requires 1 argument: id");

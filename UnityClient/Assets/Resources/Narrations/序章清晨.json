@@ -1,0 +1,21 @@
+{
+  "id": "序章清晨",
+  "audio": "",
+  "cues": [
+    {
+      "time": 0,
+      "text": "但这些美丽和我无关。我在这里已经一年多了，大多数时候只能通过打零工度日。",
+      "textEn": "But none of that beauty had anything to do with me. I had been here over a year, mostly scraping by on odd jobs."
+    },
+    {
+      "time": 8,
+      "text": "偶尔有几件委托，但像婚外情、替小道报纸偷拍这样的三流委托，也是几个月之前的事情了。",
+      "textEn": "I got a case now and then. Affairs, taking pictures for scandal sheets. Even those lousy jobs were months ago."
+    },
+    {
+      "time": 17,
+      "text": "除此之外，没有任何的真相需要我去发现。醒醒，是时候去挣房租了。",
+      "textEn": "Otherwise, there was no truth waiting for me to uncover. Wake up. Time to earn the rent."
+    }
+  ]
+}

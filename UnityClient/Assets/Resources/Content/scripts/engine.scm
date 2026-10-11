@@ -1177,6 +1177,10 @@
 (define (spotlight! title subtitle)
   (__spotlight! title subtitle))
 
+(define (play-intertitle! hold-black . pages) (__play-intertitle! hold-black pages))
+;; place 为空只运镜；非空在运镜结束后进入地点。
+(define (play-camera! anchor hold-seconds place) (__play-camera! anchor hold-seconds place))
+
 (define (play-narration! id)
   (__play-narration! id))
 

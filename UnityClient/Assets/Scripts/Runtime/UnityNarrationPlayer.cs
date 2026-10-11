@@ -39,13 +39,13 @@ namespace SSNoir
             EnsureAudioSource();
 
             var jsonAsset = Resources.Load<TextAsset>($"Narrations/{id}");
-            var clip = Resources.Load<AudioClip>($"Narrations/{id}");
             if (jsonAsset != null)
             {
-                PlayJsonNarration(id, jsonAsset, clip);
+                PlayJsonNarration(id, jsonAsset);
                 return;
             }
 
+            var clip = Resources.Load<AudioClip>($"Narrations/{id}");
             if (clip != null)
             {
                 PlayAudioOnly(id, clip);
@@ -69,7 +69,7 @@ namespace SSNoir
                 Stop();
         }
 
-        private void PlayJsonNarration(string id, TextAsset jsonAsset, AudioClip? clip)
+        private void PlayJsonNarration(string id, TextAsset jsonAsset)
         {
             var narration = JsonUtility.FromJson<NarrationJson>(jsonAsset.text);
             if (narration == null)
@@ -78,6 +78,8 @@ namespace SSNoir
             if (string.IsNullOrWhiteSpace(narration.id))
                 narration.id = id;
 
+            // 空 audio 明确表示纯字幕 narration，不查找或播放旧配音。
+            var clip = string.IsNullOrWhiteSpace(narration.audio) ? null : Resources.Load<AudioClip>($"Narrations/{narration.audio}");
             _activeNarration = narration;
             _fallbackSubtitle = string.Empty;
             _elapsed = 0f;
@@ -92,7 +94,8 @@ namespace SSNoir
             }
             else
             {
-                Debug.LogWarning($"[SSNoir] Narration audio not found: Resources/Narrations/{id}");
+                if (!string.IsNullOrWhiteSpace(narration.audio))
+                    throw new InvalidOperationException($"Narration audio not found: Resources/Narrations/{narration.audio}");
                 _audioSource.Stop();
                 _audioSource.clip = null;
             }
@@ -136,7 +139,7 @@ namespace SSNoir
         {
             float duration = clip != null ? clip.length : 0f;
             if (narration.cues != null && narration.cues.Count > 0)
-                duration = Mathf.Max(duration, narration.cues[narration.cues.Count - 1].time + 3f);
+                duration = Mathf.Max(duration, narration.cues[narration.cues.Count - 1].time + Mathf.Max(3f, narration.cues[narration.cues.Count - 1].text.Length * .16f));
             return Mathf.Max(duration, FallbackDuration);
         }
 

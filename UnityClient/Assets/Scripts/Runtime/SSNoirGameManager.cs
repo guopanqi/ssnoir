@@ -592,6 +592,24 @@ namespace SSNoir
                 UpdateCameraFocus();
         }
 
+        /// <summary>按内容指定的已有城市锚点运镜；地点落点与镜头目标分别声明。</summary>
+        public IEnumerator PlayStoryCamera(string anchorName, float holdSeconds, string placeName)
+        {
+            if (!string.IsNullOrEmpty(placeName)) EnterForcedPlace(placeName, updateCamera: false);
+            var directory = _sceneDirectory ?? throw new InvalidOperationException("城市场景目录尚未初始化");
+            var anchor = directory.GetAnchor(anchorName)
+                ?? throw new InvalidOperationException($"剧情运镜锚点不存在: {anchorName}");
+            var camera = anchor.FocusVirtualCamera
+                ?? throw new InvalidOperationException($"剧情运镜锚点缺少机位: {anchorName}");
+            _cameraManager.BeginFocusTravel(camera, respectReduceMotion: false, path: FocusTravelPath.AuthoredArc);
+            PromoteFocusCamera(camera);
+            yield return null;
+            var brain = Camera.main != null ? Camera.main.GetComponent<Cinemachine.CinemachineBrain>() : null;
+            while (_cameraManager.IsFocusTravelInFlight || (brain != null && brain.IsBlending)) yield return null;
+            float until = Time.unscaledTime + holdSeconds;
+            while (Time.unscaledTime < until) yield return null;
+        }
+
         /// <summary>
         /// 重新对准当前导航路径的焦点镜头。
         ///
@@ -1797,19 +1815,7 @@ namespace SSNoir
                 return;
             }
 
-            StartCoroutine(PlayOpeningAtPlace(node));
-        }
-
-        private IEnumerator PlayOpeningAtPlace(GameNode node)
-        {
-            // 开场先到动作所属地点；地点由内容树决定，不写死章节或住所名。
-            var path = FindPathToNode(node.Name);
-            if (path.Count >= 3)
-            {
-                EnterForcedPlace(path[path.Count - 2]);
-                while (_cameraManager.IsFocusTravelInFlight || _stageController.IsTransitioning)
-                    yield return null;
-            }
+            // 开场的运镜与落点由 Scheme 演出队列声明，不先跳到酒馆再倒回城市。
             ExecuteNodeAction(node);
         }
 
@@ -2225,7 +2231,13 @@ namespace SSNoir
                 yield break;
             }
 
-            yield return _stageController.PlayTurnDip(land);
+            if (report.BlockingStorySteps.Exists(step => step.Kind == BlockingStoryStepKind.Intertitle && step.HoldBlack))
+            {
+                yield return _stageController.FadeOutForTurn();
+                _renderer.ReleaseFilmBlackForTurn();
+                yield return _stageController.FinishTurnDip(land);
+            }
+            else yield return _stageController.PlayTurnDip(land);
             onDone();
         }
 
@@ -2282,10 +2294,10 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// 动作演出中的强制落点（目前只用于倒下送医）。采纳引擎已经准备好的世界快照，
+        /// 动作演出中的强制落点（送医、序章回家）。采纳引擎已经准备好的世界快照，
         /// 直接把导航栈落到地点；不触发普通 arrival，也不重置正在播放的阻塞演出队列。
         /// </summary>
-        public void EnterForcedPlace(string placeName)
+        public void EnterForcedPlace(string placeName, bool updateCamera = true)
         {
             AdoptLatestSnapshot();
             var path = FindPathToNode(placeName);
@@ -2304,7 +2316,7 @@ namespace SSNoir
                 _navigationStack.Add(node);
             }
             ResolveNavigationStack();
-            UpdateCameraFocus(storyDriven: true);
+            if (updateCamera) UpdateCameraFocus(storyDriven: true);
         }
 
         /// <summary>
