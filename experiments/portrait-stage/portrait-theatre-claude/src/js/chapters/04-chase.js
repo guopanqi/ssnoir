@@ -9,7 +9,7 @@ const cs=[...$('#crw').children].map(el=>({el,tp:el.firstElementChild,x:+el.data
 let spd=0,tgt=0,rms=1,last=performance.now(),sk=0,raf=0,going=true;
 /* 立绘姿势表：每个姿势是一张整体立绘（肢体角度、脸、身体前倾的固定组合），换姿势时整张切换；
    位移（走位、镜头、背景滚动）仍然是连续流畅的。以后生成真正的立绘图时，用图片替换这张表即可。 */
-const POSE={
+const POSE=POSES;Object.assign(POSE,{
  walk:{ll:-12,lr:10,ar:9,al:-11,b:2},
  run:{ll:-40,lr:34,ar:-62,al:58,b:16,h:-6},
  shove:{ll:-28,lr:36,ar:-80,al:-84,b:21,h:-7},
@@ -18,10 +18,7 @@ const POSE={
  stagger:{ll:-18,lr:30,ar:-100,al:62,b:23,h:12},
  corner:{ll:-56,lr:42,ar:-28,al:72,b:27,h:-10},
  brake:{ll:-48,lr:-20,ar:-46,al:-36,b:-13,h:6},
- pant:{ll:-6,lr:5,ar:14,al:18,b:8,h:9}};
-const pose=(id,name,o={})=>{G[id].classList.add('snap');P(id,{ll:0,lr:0,al:0,ar:0,b:0,h:0,look:0,d:0,...POSE[name],...o})};
-const bob=(id,on)=>G[id].classList.toggle('bnc',on);
-const mv=(id,x,y,ms,ease='linear',s)=>{G[id].style.transitionTimingFunction=ease;P(id,{x,y,d:ms,...(s?{s}:{})})};
+ pant:{ll:-6,lr:5,ar:14,al:18,b:8,h:9}});
 const ramp=(v,ms)=>{tgt=v;rms=ms};
 const shake=()=>{stg.classList.remove('shk');void stg.offsetWidth;stg.classList.add('shk');setTimeout(()=>stg.classList.remove('shk'),420)};
 const flash=()=>{fxf('brightness(1.9)',30);setTimeout(()=>fxf('none',160),90)};

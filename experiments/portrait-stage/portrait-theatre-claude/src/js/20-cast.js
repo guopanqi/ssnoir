@@ -55,6 +55,9 @@ hf:'<path d="M-32 -470 Q-34 -508 0 -510 Q34 -508 32 -470 Q16 -490 0 -488 Q-16 -4
 CH.bn={w:52,coat:'#2b3750',cf:'#cfcabd',pants:'#1b2230',hair:'#777',skin:'#d1ad8f',lip:'#5a3a30',bd:CH.nl.bd,
 dc:'<path d="M-24 -396 L0 -330 L24 -396Z" fill="#cfcabd"/><rect x="-60" y="-262" width="120" height="10" fill="#1a2234"/><circle cx="-24" cy="-340" r="6" fill="#d8b252"/><path d="M-4 -396V-250" stroke="#d8b252" stroke-width="2"/>',hb:'',
 hf:'<path d="M-38 -490 Q-36 -534 0 -534 Q36 -534 38 -490Z" fill="#1f2b44"/><path d="M-44 -490H44L50 -480H-50Z" fill="#12182a"/><circle cx="0" cy="-508" r="5" fill="#d8b252"/><path d="M-30 -484 Q0 -470 30 -484 L30 -472 Q0 -462 -30 -472Z" fill="#000" opacity=".3"/>',ex:''};
+CH.ld={w:66,coat:'#4c4237',cf:'#d9d2bf',pants:'#2a2622',hair:'#8d8a84',skin:'#d4ae90',lip:'#6a3a30',bd:CH.mg.bd,
+dc:'<path d="M-26 -396 L0 -322 L26 -396Z" fill="#d9d2bf"/><path d="M-30 -396 L-4 -312 L-56 -296 L-66 -376Z" fill="#3a3229"/><path d="M30 -396 L4 -312 L56 -296 L66 -376Z" fill="#3a3229"/><circle cx="0" cy="-340" r="5" fill="#2a241c"/><circle cx="0" cy="-306" r="5" fill="#2a241c"/>',hb:'',
+hf:'<path d="M-32 -480 Q-34 -508 0 -510 Q34 -508 32 -480 Q20 -492 0 -490 Q-20 -492 -32 -480Z" fill="#8d8a84"/><path d="M-14 -444 Q0 -450 14 -444 Q0 -438 -14 -444Z" fill="#6d6a64"/>',ex:''};
 const VC='<path d="M-34 -480 Q-30 -518 8 -518 Q40 -516 36 -482Z" fill="#4a4a50"/><path d="M10 -484 L60 -484 Q50 -473 10 -476Z" fill="#4a4a50"/>';
-for(const[id,c]of[['fr',CH.fr],['bn',CH.bn],['bn2',{...CH.bn,coat:'#323f55'}],['v1',{...CH.wk,coat:'#3a3730',pants:'#25231f',hf:VC}],['v2',{...CH.wk,coat:'#6a5a3a',pants:'#2a221b',hf:VC}]]){$('#chs').insertAdjacentHTML('beforeend',mk(id,c));const g=$(`#${id}`);g.st={x:-400,y:790,s:1};G[id]=g}
+for(const[id,c]of[['fr',CH.fr],['bn',CH.bn],['bn2',{...CH.bn,coat:'#323f55'}],['ld',CH.ld],['v1',{...CH.wk,coat:'#3a3730',pants:'#25231f',hf:VC}],['v2',{...CH.wk,coat:'#6a5a3a',pants:'#2a221b',hf:VC}]]){$('#chs').insertAdjacentHTML('beforeend',mk(id,c));const g=$(`#${id}`);g.st={x:-400,y:790,s:1};G[id]=g}
 
