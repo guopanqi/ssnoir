@@ -33,10 +33,10 @@ namespace SSNoir.IMGUI
         private readonly Dictionary<string, Vector2> _cardCenters = new Dictionary<string, Vector2>();
         // 见 DrawCards 里 RegisterWorldPoint 的注释。
         private const float BanterHeadHeight = 1.6f;
-        // 动作卡首次避让后的落点：Pan 存世界坐标，Orbit / Static 存屏幕坐标。
-        private readonly Dictionary<string, Vector3> _panActionWorldCenters = new Dictionary<string, Vector3>();
-        private readonly Dictionary<string, Vector2> _screenActionCenters = new Dictionary<string, Vector2>();
-        private readonly Dictionary<string, Vector2> _stackFootprints = new Dictionary<string, Vector2>();
+        // One cache: each label's offset from its CURRENT projected anchor.
+        private readonly Dictionary<string, Vector2> _labelOffsets = new();
+        private WorldLabelLayout.Space? _worldLabelSpace;
+        private readonly HashSet<string> _reportedLabelOverflow = new();
         private SSNoirVirtualCameraConfig? _actionLayoutCamera;
         private CameraDragMode _actionLayoutMode;
         private Rect _actionLayoutSafeArea;
@@ -61,6 +61,7 @@ namespace SSNoir.IMGUI
         // 本帧场景标注带占了多大。卡片排布与网格视口都要按它往下让，所以它必须在
         // 任何卡片定位之前量好；没有场景标注时是一个零高度的空矩形。
         private Rect _sceneBandRect;
+        private List<Rect> _sceneBandOccupiedRects = new();
         // 触控拖拽滚动的状态：手机没有滚轮，卡片网格只能靠手指推。
         private bool _gridDragActive;
         private float _gridDragLastY;
@@ -1115,7 +1116,7 @@ namespace SSNoir.IMGUI
             bool pointerOnFixedHud = topHud.Bar.Contains(worldUi.Mouse)
                 || topHud.FunctionPlate(!_gameManager.DisplayedSnapshot.IsInEncounter).Contains(worldUi.Mouse)
                 || _pinStripRect.Contains(worldUi.Mouse)
-                || _sceneBandRect.Contains(worldUi.Mouse);
+                || _sceneBandOccupiedRects.Any(rect => rect.Contains(worldUi.Mouse));
             var cardOverlayUi = pointerOnFixedHud ? worldUi.Occluded() : worldUi;
             foreach (var kv in _cardCenters)
                 _dialogueAnchors.RegisterNode(kv.Key, new Rect(kv.Value.x - 60f, kv.Value.y - 80f, 120f, 160f));
@@ -1478,8 +1479,7 @@ namespace SSNoir.IMGUI
             if (_activeAutoAction?.AutoActionNode != null)
                 nodes.Add(_activeAutoAction.AutoActionNode);
             var focusedName = _gameManager.FocusedNodeName;
-            // Container 牌子贴着锚点上浮；Pan 动作卡在锚点附近寻找空位，
-            // 其他视角的动作卡退到左右栏。见 CardGutterLayout。
+            // All projected labels use one anchor-local layout, independent of camera mode.
             // 世界投射层跟着换镜一起显形：新那一镜露出多少，这一层就画多浓（见下面
             // BeginLayer 那一段）。低动画换镜之外恒为 1，什么都不变。
             float viewReveal = _gameManager.CameraManager.ReducedViewReveal;
@@ -1540,18 +1540,18 @@ namespace SSNoir.IMGUI
                     float padding = 0.05f;
                     bool softWorldLabel = AnnotationDrawer.IsAnnotation(node) || node.IsContainer;
                     bool layoutFixed = node.IsContainer;
-                    bool cachedAction = !layoutFixed && HasActionCenter(node.Name, actionMode);
+                    bool cachedAction = !layoutFixed && _labelOffsets.ContainsKey(node.Name);
                     bool waitForLanding = !layoutFixed && !cachedAction
                         && layoutTravelling;
-                    bool inCameraSight = cachedAction || (viewPos.z >= 0
-                                      && (softWorldLabel || (viewPos.x >= -padding && viewPos.x <= (1f + padding)
-                                          && viewPos.y >= -padding && viewPos.y <= (1f + padding))));
+                    bool inCameraSight = viewPos.z >= 0
+                        && (softWorldLabel || (viewPos.x >= -padding && viewPos.x <= 1f + padding
+                            && viewPos.y >= -padding && viewPos.y <= 1f + padding));
 
                     if (inCameraSight)
                     {
                         var screenPos = cam.WorldToScreenPoint(anchor.transform.position);
                         // screenPos is actual screen pixels; order 是内容里的声明序号，
-                        // 只在锚点投影几乎重合时用来定先后（见 SolveProjectedStacks）。
+                        // 锚点投影与内容序号用于确定稳定顺序。
                         // 地点牌的悬浮高度属于世界空间；固定屏幕像素会随镜头俯仰改变
                         // 它看起来离建筑的高度。
                         var labelScreenPos = cam.WorldToScreenPoint(anchor.transform.position + Vector3.up * LocationLabelWorldHeight);
@@ -1615,6 +1615,9 @@ namespace SSNoir.IMGUI
                 : new Rect(
                     UIScale.SafeArea.xMin, bandTop, UIScale.SafeArea.width,
                     AnnotationDrawer.MeasureSceneBandHeight(sceneNotes, bandTop, _pinStripRect));
+            _sceneBandOccupiedRects = sceneNotes.Count == 0
+                ? new List<Rect>()
+                : AnnotationDrawer.MeasureSceneBandRects(sceneNotes, bandTop, _pinStripRect);
 
             // 结果条不参与排布：宿主卡还在旧快照里就挂在它下面（见 AddAttachmentForNode），
             // 宿主此刻没画出来（换了场景、镜头走了、宿主是随身卡）就由 DrawFloatingAttachments 兜底。
@@ -1625,6 +1628,7 @@ namespace SSNoir.IMGUI
             foreach (var key in keysToRemove)
             {
                 _cardCenters.Remove(key);
+                _labelOffsets.Remove(key);
             }
 
             // Create layout records for projected cards
@@ -1662,11 +1666,12 @@ namespace SSNoir.IMGUI
                 Vector2 targetCenter;
                 if (isAction)
                 {
-                    targetCenter = TryGetActionCenter(item.node.Name, cam, actionMode, out var settledCenter)
-                        ? settledCenter
-                        : actionMode == CameraDragMode.Pan
-                            ? new Vector2(anchorX, anchorY - cardHeight / 2f - 16f)
-                            : CardGutterLayout.TargetCenter(item.anchorKey, new Vector2(anchorX, anchorY), cardWidth, ActionCardDesignWidth);
+                    // Both Pan and Orbit use the same anchor-local space solver.
+                    targetCenter = actionMode == CameraDragMode.Pan
+                        ? new Vector2(anchorX, anchorY - cardHeight / 2f - 18f)
+                        : new Vector2(
+                            anchorX + (anchorX < UIScale.SafeArea.center.x ? -1f : 1f) * (cardWidth / 2f + 20f),
+                            anchorY);
                 }
                 else if (isAnnotation)
                 {
@@ -1698,30 +1703,29 @@ namespace SSNoir.IMGUI
                     isAnnotation));
             }
 
-            // 地点牌直接映射到世界点，并作为硬占位约束动作卡与锚定标注。
-            // 动作卡与锚定标注都参与首次避让：同一/邻近锚点上多条标注（如两根钟）
-            // 以前会叠在 TargetCenter 上，必须进 SolvePanActions / SolveProjectedStacks。
-            // Pan 在锚点周围避开卡片、标注与视觉重心后固定世界点；Orbit 仍走左右栏分列。
-            var keepOut = BuildCardKeepOut(layouts.Where(layout => layout.IsWorldFixed));
-            var movableLayouts = layouts.Where(layout => !layout.IsWorldFixed).ToList();
-            if (StackContentChanged(movableLayouts))
+            // One occupied space for places, actions, annotations and later dialogue.
+            var keepOut = BuildWorldLabelSpace(protectedAnchors);
+            _worldLabelSpace = keepOut;
+            foreach (var layout in layouts
+                .OrderBy(l => l.Node.IsContainer ? 0 : l.IsAnnotation ? 2 : 1)
+                .ThenBy(l => l.DeclarationOrder))
             {
-                if (actionMode == CameraDragMode.Pan)
-                    SolvePanActions(movableLayouts, protectedAnchors, keepOut);
-                else
-                    SolveProjectedStacks(movableLayouts, keepOut);
-                // 换镜途中只可能有已有落点的卡；新卡在落镜后才进入排布。
-                if (!layoutTravelling)
-                    RememberActionCenters(movableLayouts, cam, actionMode);
-            }
-            foreach (var layout in layouts)
-            {
-                layout.CurrentCenter = layout.IsWorldFixed
-                    ? layout.TargetCenter
-                    : (TryGetActionCenter(layout.Key, cam, actionMode, out var settledCenter)
-                        ? settledCenter : layout.SolvedCenter);
+                Vector2? previous = _labelOffsets.TryGetValue(layout.Key, out var offset)
+                    ? layout.AnchorPos + offset
+                    : (Vector2?)null;
+                var kind = layout.IsAnnotation ? WorldLabelLayout.Kind.Annotation
+                    : layout.Node.IsContainer ? WorldLabelLayout.Kind.Location
+                    : WorldLabelLayout.Kind.Action;
+                Rect placed = keepOut.Place(
+                    layout.Key, kind, layout.AnchorPos, layout.TargetCenter, previous,
+                    new Vector2(layout.Width, layout.Height));
+                layout.CurrentCenter = placed.center;
+                _labelOffsets[layout.Key] = placed.center - layout.AnchorPos;
                 _cardCenters[layout.Key] = layout.CurrentCenter;
             }
+            foreach (var key in keepOut.Overflow)
+                if (_reportedLabelOverflow.Add(key))
+                    Debug.LogWarning("[SSNoir] World label placement constrained: " + key);
 
             // Draw projected cards (sorted by distance, far to near)。List.Sort 不稳定，
             // 同深度时再落回排序键，免得压叠关系和命中归属逐帧抖。
@@ -1731,7 +1735,9 @@ namespace SSNoir.IMGUI
                 int byActive = IsActiveLayout(a).CompareTo(IsActiveLayout(b));
                 if (byActive != 0) return byActive;
                 int byDistance = b.Distance.CompareTo(a.Distance);
-                return byDistance != 0 ? byDistance : CompareStackRank(a, b);
+                if (byDistance != 0) return byDistance;
+                int byOrder = a.DeclarationOrder.CompareTo(b.DeclarationOrder);
+                return byOrder != 0 ? byOrder : string.CompareOrdinal(a.Key, b.Key);
             });
 
             // ── 世界投射层：跟着换镜一起显形 ──
@@ -2072,8 +2078,6 @@ namespace SSNoir.IMGUI
         private void EnsureActionLayoutContext(
             SSNoirVirtualCameraConfig? camera, CameraDragMode mode, bool travelling)
         {
-            // 相机对象在一次转场里可以不变，实际输出却来自临时过渡机位。
-            // 落镜后整组重新避让，不能沿用途中或上一趟留下的世界坐标。
             bool landed = _actionLayoutWasTravelling && !travelling;
             _actionLayoutWasTravelling = travelling;
             if (_hasActionLayoutContext && _actionLayoutCamera == camera
@@ -2085,544 +2089,7 @@ namespace SSNoir.IMGUI
             _actionLayoutMode = mode;
             _actionLayoutSafeArea = UIScale.SafeArea;
             _hasActionLayoutContext = true;
-            _panActionWorldCenters.Clear();
-            _screenActionCenters.Clear();
-            _stackFootprints.Clear();
-        }
-
-        private bool HasActionCenter(string key, CameraDragMode mode) => mode == CameraDragMode.Pan
-            ? _panActionWorldCenters.ContainsKey(key)
-            : _screenActionCenters.ContainsKey(key);
-
-        private bool TryGetActionCenter(string key, Camera cam, CameraDragMode mode, out Vector2 center)
-        {
-            if (mode == CameraDragMode.Pan)
-            {
-                if (_panActionWorldCenters.TryGetValue(key, out var worldPoint))
-                {
-                    center = UIScale.WorldPointToVirtual(cam.WorldToScreenPoint(worldPoint));
-                    return true;
-                }
-            }
-            else if (_screenActionCenters.TryGetValue(key, out center))
-            {
-                return true;
-            }
-            center = default;
-            return false;
-        }
-
-        // 只有成员或本体尺寸变化才重排；镜头运动不在条件里。
-        private bool StackContentChanged(List<ProjectedCardLayout> layouts)
-        {
-            if (layouts.Count != _stackFootprints.Count)
-                return true;
-            foreach (var layout in layouts)
-            {
-                if (!_stackFootprints.TryGetValue(layout.Key, out var footprint)
-                    || !Mathf.Approximately(footprint.x, layout.Width)
-                    || !Mathf.Approximately(footprint.y, layout.Height))
-                    return true;
-            }
-            return false;
-        }
-
-        private void RememberActionCenters(List<ProjectedCardLayout> layouts, Camera cam, CameraDragMode mode)
-        {
-            _panActionWorldCenters.Clear();
-            _screenActionCenters.Clear();
-            _stackFootprints.Clear();
-            foreach (var layout in layouts)
-            {
-                if (mode == CameraDragMode.Pan)
-                {
-                    var screen = new Vector3(layout.SolvedCenter.x * UIScale.Scale,
-                        Screen.height - layout.SolvedCenter.y * UIScale.Scale, layout.Distance);
-                    _panActionWorldCenters[layout.Key] = cam.ScreenToWorldPoint(screen);
-                }
-                else
-                    _screenActionCenters[layout.Key] = layout.SolvedCenter;
-                _stackFootprints[layout.Key] = new Vector2(layout.Width, layout.Height);
-            }
-        }
-
-        // 同一列里两张卡之间留出的呼吸缝。
-        private const float CardStackGap = 12f;
-        // 一列放不下、并排分成几摞时，两摞之间的横向缝。
-        private const float CardLaneGap = 14f;
-        // 两个锚点的投影差在这个范围内视作一样高/一样偏，先后交给下一级键。
-        private const float AnchorTieBand = 6f;
-
-        // Pan 只在卡片集合/尺寸或机位改变时求解。按稳定顺序逐张找离锚点最近的空位；
-        // 卡片和固定 UI 是硬约束，视觉锚点是次一级约束，拥挤时才允许侵入其保护半径。
-        private static void SolvePanActions(
-            List<ProjectedCardLayout> layouts, List<Vector2> anchors, in CardKeepOut keepOut)
-        {
-            const float anchorRadius = 64f;
-            const float gridStep = 12f;
-            const float cardGap = 10f;
-            var ranked = new List<ProjectedCardLayout>(layouts);
-            ranked.Sort(CompareStackRank);
-            var placed = new List<Rect>();
-            Rect safe = UIScale.SafeArea;
-
-            foreach (var card in ranked)
-            {
-                float minX = safe.xMin + card.Width / 2f + 6f;
-                float maxX = safe.xMax - card.Width / 2f - 6f;
-                float minY = safe.yMin + card.Height / 2f + 6f;
-                float maxY = safe.yMax - card.Height / 2f - 6f;
-                float bestScore = float.PositiveInfinity;
-                Vector2 bestCenter = default;
-
-                for (float x = minX; x <= maxX; x += gridStep)
-                for (float y = minY; y <= maxY; y += gridStep)
-                {
-                    var center = new Vector2(x, y);
-                    var rect = new Rect(x - card.Width / 2f, y - card.Height / 2f,
-                        card.Width, card.Height);
-                    if (keepOut.IsHardBlocked(rect)) continue;
-                    var spaced = new Rect(rect.xMin - cardGap / 2f, rect.yMin - cardGap / 2f,
-                        rect.width + cardGap, rect.height + cardGap);
-                    if (placed.Any(other => spaced.Overlaps(other))) continue;
-
-                    int coveredAnchors = 0;
-                    foreach (var anchor in anchors)
-                    {
-                        float nearestX = Mathf.Clamp(anchor.x, rect.xMin, rect.xMax);
-                        float nearestY = Mathf.Clamp(anchor.y, rect.yMin, rect.yMax);
-                        if ((anchor - new Vector2(nearestX, nearestY)).sqrMagnitude < anchorRadius * anchorRadius)
-                            coveredAnchors++;
-                    }
-                    // 肖像是软占位：有其他空位就让开，所有空位都紧张时仍可借用。
-                    float score = coveredAnchors * 1000000f
-                        + keepOut.SoftOverlapArea(rect) * 1000f
-                        + (center - card.TargetCenter).sqrMagnitude;
-                    if (score < bestScore)
-                    {
-                        bestScore = score;
-                        bestCenter = center;
-                    }
-                }
-
-                if (bestScore < float.PositiveInfinity)
-                {
-                    card.SolvedCenter = bestCenter;
-                    placed.Add(new Rect(card.SolvedCenter.x - card.Width / 2f,
-                        card.SolvedCenter.y - card.Height / 2f, card.Width, card.Height));
-                }
-                else
-                {
-                    // 局部搜索塞不下全部卡时，交还给现有的分列堆叠解算；
-                    // 再整体移动拥挤的列，尽量保住锚点保护区。
-                    SolveProjectedStacks(layouts, keepOut);
-                    ImproveDensePanColumns(layouts, anchors, keepOut, anchorRadius, gridStep);
-                    return;
-                }
-            }
-        }
-
-        // 分列回退不能丢掉 Pan 的锚点约束。整列平移保留原有卡片间距，
-        // 逐列寻找锚点遮挡更少的位置；空间确实不足时保持可读的原布局。
-        private static void ImproveDensePanColumns(
-            List<ProjectedCardLayout> layouts, List<Vector2> anchors,
-            in CardKeepOut keepOut, float anchorRadius, float gridStep)
-        {
-            var columns = layouts
-                .GroupBy(card => Mathf.RoundToInt(card.SolvedCenter.x / 2f))
-                .Select(group => group.ToList())
-                .OrderByDescending(group => PanColumnAnchorOverlap(group, anchors, anchorRadius))
-                .ToList();
-            Rect safe = UIScale.SafeArea;
-
-            foreach (var column in columns)
-            {
-                var members = new HashSet<ProjectedCardLayout>(column);
-                var others = layouts.Where(card => !members.Contains(card)).Select(card =>
-                    new Rect(card.SolvedCenter.x - card.Width / 2f,
-                        card.SolvedCenter.y - card.Height / 2f, card.Width, card.Height)).ToList();
-                Vector2 bestOffset = Vector2.zero;
-                float bestScore = PanColumnScore(column, Vector2.zero, anchors, keepOut, anchorRadius);
-
-                for (float dx = -safe.width; dx <= safe.width; dx += gridStep)
-                for (float dy = -safe.height; dy <= safe.height; dy += gridStep)
-                {
-                    var offset = new Vector2(dx, dy);
-                    bool fits = true;
-                    foreach (var card in column)
-                    {
-                        var rect = new Rect(card.SolvedCenter.x + dx - card.Width / 2f,
-                            card.SolvedCenter.y + dy - card.Height / 2f, card.Width, card.Height);
-                        if (rect.xMin < safe.xMin + 6f || rect.xMax > safe.xMax - 6f
-                            || rect.yMin < safe.yMin + 6f || rect.yMax > safe.yMax - 6f
-                            || keepOut.IsHardBlocked(rect)
-                            || others.Any(other => new Rect(rect.xMin - 5f, rect.yMin - 5f,
-                                rect.width + 10f, rect.height + 10f).Overlaps(other)))
-                        {
-                            fits = false;
-                            break;
-                        }
-                    }
-                    if (!fits) continue;
-                    float score = PanColumnScore(column, offset, anchors, keepOut, anchorRadius);
-                    if (score < bestScore)
-                    {
-                        bestScore = score;
-                        bestOffset = offset;
-                    }
-                }
-
-                foreach (var card in column)
-                    card.SolvedCenter += bestOffset;
-            }
-        }
-
-        private static int PanColumnAnchorOverlap(
-            List<ProjectedCardLayout> column, List<Vector2> anchors, float anchorRadius)
-        {
-            int count = 0;
-            foreach (var card in column)
-            {
-                var rect = new Rect(card.SolvedCenter.x - card.Width / 2f,
-                    card.SolvedCenter.y - card.Height / 2f, card.Width, card.Height);
-                count += CoveredPanAnchors(rect, anchors, anchorRadius);
-            }
-            return count;
-        }
-
-        private static float PanColumnScore(
-            List<ProjectedCardLayout> column, Vector2 offset, List<Vector2> anchors,
-            in CardKeepOut keepOut, float anchorRadius)
-        {
-            float score = 0f;
-            foreach (var card in column)
-            {
-                var center = card.SolvedCenter + offset;
-                var rect = new Rect(center.x - card.Width / 2f,
-                    center.y - card.Height / 2f, card.Width, card.Height);
-                score += CoveredPanAnchors(rect, anchors, anchorRadius) * 1000000f
-                    + keepOut.SoftOverlapArea(rect) * 1000f
-                    + (center - card.TargetCenter).sqrMagnitude;
-            }
-            return score;
-        }
-
-        private static int CoveredPanAnchors(Rect rect, List<Vector2> anchors, float radius)
-        {
-            int covered = 0;
-            foreach (var anchor in anchors)
-            {
-                float nearestX = Mathf.Clamp(anchor.x, rect.xMin, rect.xMax);
-                float nearestY = Mathf.Clamp(anchor.y, rect.yMin, rect.yMax);
-                if ((anchor - new Vector2(nearestX, nearestY)).sqrMagnitude < radius * radius)
-                    covered++;
-            }
-            return covered;
-        }
-
-        // 世界投射卡的排布：先定出唯一的上下顺序，再在每一列里做一次一维消重叠，
-        // 得到唯一的 SolvedCenter。
-        //
-        // 不能像原来那样「看谁此刻偏上就把谁往上推」——那让顺序取决于卡片这一瞬间飘到
-        // 了哪里。同一栋楼的几个锚点投影得很近，卡片开局几乎重合，谁上谁下就由浮点噪声
-        // 决定：同样的镜头推进，这次埃迪在上，下次它在下。
-        //
-        // 排序键是锚点自己的投影位置：屏幕上锚点在上的，卡也在上。这既是玩家眼里唯一
-        // 说得通的顺序（楼上的房间卡如果排到楼下那张的下面，引线就是拧着的），也已经
-        // 足够稳定——它只跟镜头有关，同一个机位每次都算出同一份排布。锚点投影几乎重合
-        // 时才落到声明顺序和名字，避免在毫厘之差上分先后。
-        //
-        // 注：曾经试过用锚点的世界高度当主键，图上更「客观」，但读起来是反的——家在
-        // 世界里比码头高，屏幕上却是码头的锚点更靠上，卡片于是和它指的东西上下颠倒。
-        private static void SolveProjectedStacks(List<ProjectedCardLayout> layouts, in CardKeepOut keepOut)
-        {
-            if (layouts.Count == 0)
-                return;
-
-            var ranked = new List<ProjectedCardLayout>(layouts);
-            ranked.Sort(CompareStackRank);
-
-            // 只有横向真压在一起的卡才需要争上下；彼此错开的卡各排各的，
-            // 否则屏幕两头毫不相干的两张卡会被硬拉进同一列。
-            foreach (var column in GroupIntoColumns(ranked))
-                SolveColumn(column, keepOut);
-        }
-
-        private static int CompareStackRank(ProjectedCardLayout a, ProjectedCardLayout b)
-        {
-            // 卡片先占位，标注填剩下的。卡是要点的，位置稳到能形成肌肉记忆比"离锚点最近"
-            // 重要；标注被挤下去一点不影响读。同一条边距里两者争位置时，这一行就是裁决。
-            if (a.IsAnnotation != b.IsAnnotation)
-                return a.IsAnnotation ? 1 : -1;
-
-            // GUI 坐标 Y 向下：锚点投影得越靠上，排得越靠前。分档而不是直接比大小——
-            // 「差不多齐平」要判成平级，而分档是可传递的，直接比差值会得到 a<b、b<c 却
-            // a==c 的比较器，List.Sort 会当场抛。
-            int ya = Mathf.RoundToInt(a.AnchorPos.y / AnchorTieBand);
-            int yb = Mathf.RoundToInt(b.AnchorPos.y / AnchorTieBand);
-            if (ya != yb)
-                return ya.CompareTo(yb);
-            int xa = Mathf.RoundToInt(a.AnchorPos.x / AnchorTieBand);
-            int xb = Mathf.RoundToInt(b.AnchorPos.x / AnchorTieBand);
-            if (xa != xb)
-                return xa.CompareTo(xb);
-            if (a.DeclarationOrder != b.DeclarationOrder)
-                return a.DeclarationOrder.CompareTo(b.DeclarationOrder);
-            return string.CompareOrdinal(a.Key, b.Key);
-        }
-
-        // 按目标横向跨度扫一遍，把彼此搭上的卡归进同一列；列内保持稳定的上下顺序。
-        private static List<List<ProjectedCardLayout>> GroupIntoColumns(List<ProjectedCardLayout> ranked)
-        {
-            var order = new List<int>();
-            for (int i = 0; i < ranked.Count; i++)
-                order.Add(i);
-            order.Sort((x, y) =>
-            {
-                float lx = ranked[x].TargetCenter.x - ranked[x].FootprintWidth / 2f;
-                float ly = ranked[y].TargetCenter.x - ranked[y].FootprintWidth / 2f;
-                return !Mathf.Approximately(lx, ly) ? lx.CompareTo(ly) : x.CompareTo(y);
-            });
-
-            var columns = new List<List<ProjectedCardLayout>>();
-            var current = new List<int>();
-            float reach = float.NegativeInfinity;
-            foreach (int i in order)
-            {
-                float left = ranked[i].TargetCenter.x - ranked[i].FootprintWidth / 2f;
-                float right = ranked[i].TargetCenter.x + ranked[i].FootprintWidth / 2f;
-                if (current.Count > 0 && left >= reach)
-                {
-                    columns.Add(TakeColumn(ranked, current));
-                    current = new List<int>();
-                    reach = float.NegativeInfinity;
-                }
-                current.Add(i);
-                reach = Mathf.Max(reach, right);
-            }
-            if (current.Count > 0)
-                columns.Add(TakeColumn(ranked, current));
-            return columns;
-        }
-
-        private static List<ProjectedCardLayout> TakeColumn(List<ProjectedCardLayout> ranked, List<int> indices)
-        {
-            indices.Sort();   // 回到 rank 顺序
-            var column = new List<ProjectedCardLayout>(indices.Count);
-            foreach (int i in indices)
-                column.Add(ranked[i]);
-            return column;
-        }
-
-        // 一列卡的排布。
-        //
-        // 竖着放得下就竖着放（一维消重叠）；一列真的塞不下，就**并排分成几摞**，
-        // 而不是硬挤成一叠。以前是后者：解算完再一张张按边界夹回来，超出去的部分被压平，
-        // 于是一间挂了四五个动作的酒馆总是叠成一摞——这正是「怎么还是重叠」的根因，
-        // 光把上下边界放宽是治不了的。
-        //
-        // 边界按整列的横向跨度算一次，全列共用：每张卡各按自己的跨度算的话，
-        // 同一列的卡会得到不一样的上下限，解算出来的间距又会在夹取时被破坏。
-        private static void SolveColumn(List<ProjectedCardLayout> column, in CardKeepOut keepOut)
-        {
-            float left = float.PositiveInfinity, right = float.NegativeInfinity;
-            foreach (var card in column)
-            {
-                left = Mathf.Min(left, card.TargetCenter.x - card.Width / 2f);
-                right = Mathf.Max(right, card.TargetCenter.x + card.Width / 2f);
-            }
-
-            float required = StackHeight(column);
-            var band = keepOut.BandFor(left, right, required);
-
-            if (required > band.Bottom - band.Top)
-            {
-                FanOutColumn(column, keepOut, band.Bottom - band.Top);
-                return;
-            }
-
-            StackInPlace(column);
-            FitStackIntoBand(column, band, required);
-        }
-
-        // 这一摞卡竖着摆需要多高（各自的上下伸展 + 卡间缝）。
-        private static float StackHeight(List<ProjectedCardLayout> stack)
-        {
-            float total = CardStackGap * (stack.Count - 1);
-            foreach (var card in stack)
-                total += card.TopExtent + card.BottomExtent;
-            return total;
-        }
-
-        // 解算完的一摞整体平移进可用区间。分块解算给出的间距可能大于最小值（几块之间本来
-        // 就该有空隙），整摞比区间还长时就退回「贴紧排一遍」——宁可失去那点呼吸感，
-        // 也不让卡片被逐张夹回来后又叠在一起。
-        private static void FitStackIntoBand(List<ProjectedCardLayout> stack, (float Top, float Bottom) band, float required)
-        {
-            float spanTop = float.PositiveInfinity, spanBottom = float.NegativeInfinity;
-            foreach (var card in stack)
-            {
-                spanTop = Mathf.Min(spanTop, card.SolvedCenter.y - card.TopExtent);
-                spanBottom = Mathf.Max(spanBottom, card.SolvedCenter.y + card.BottomExtent);
-            }
-
-            if (spanBottom - spanTop > band.Bottom - band.Top)
-            {
-                StackTight(stack, Mathf.Clamp(MeanTargetY(stack) - required / 2f, band.Top, band.Bottom - required));
-                return;
-            }
-
-            float shift = Mathf.Max(0f, band.Top - spanTop) - Mathf.Max(0f, spanBottom - band.Bottom);
-            if (Mathf.Approximately(shift, 0f))
-                return;
-            foreach (var card in stack)
-                card.SolvedCenter = new Vector2(card.SolvedCenter.x, card.SolvedCenter.y + shift);
-        }
-
-        // 从 top 起贴着最小间距排一遍。横向位置保持不变（由调用方先定好）。
-        private static void StackTight(List<ProjectedCardLayout> stack, float top)
-        {
-            float y = top;
-            foreach (var card in stack)
-            {
-                card.SolvedCenter = new Vector2(card.SolvedCenter.x, y + card.TopExtent);
-                y += card.TopExtent + card.BottomExtent + CardStackGap;
-            }
-        }
-
-        private static float MeanTargetY(List<ProjectedCardLayout> stack)
-        {
-            float sum = 0f;
-            foreach (var card in stack)
-                sum += card.TargetCenter.y;
-            return sum / stack.Count;
-        }
-
-        // 一列放不下：拆成并排的几摞，整体居中在原来那一列的位置上。
-        //
-        // 顺序仍然是「先上后下、再左到右」——第一摞装最靠上的几张，装满换下一摞。引线会
-        // 说明每张卡指的是哪儿，所以横向散开不会让人跟丢；叠在一起才会。
-        // 散开后的总宽可能压到旁边一列的卡上（那一列本来横向错开、没被并进来）；
-        // 同一栋楼的卡挤在一处时这种情况很少见，让它按画家算法压过去即可。
-        private static void FanOutColumn(List<ProjectedCardLayout> column, in CardKeepOut keepOut, float available)
-        {
-            var lanes = SplitIntoLanes(column, Mathf.Clamp(
-                Mathf.CeilToInt(StackHeight(column) / Mathf.Max(1f, available)), 2, column.Count));
-
-            float totalWidth = -CardLaneGap;
-            foreach (var lane in lanes)
-                totalWidth += LaneWidth(lane) + CardLaneGap;
-
-            float center = 0f;
-            foreach (var card in column)
-                center += card.TargetCenter.x;
-            center /= column.Count;
-
-            Rect safe = UIScale.SafeArea;
-            float minX = safe.x + 12f;
-            float x = Mathf.Clamp(center - totalWidth / 2f, minX, Mathf.Max(minX, safe.xMax - 12f - totalWidth));
-
-            foreach (var lane in lanes)
-            {
-                float width = LaneWidth(lane);
-                float laneCenter = x + width / 2f;
-                foreach (var card in lane)
-                    card.SolvedCenter = new Vector2(laneCenter, card.SolvedCenter.y);
-
-                // 每摞按自己所在的横向位置重新问一次边界：靠边那摞可能正压在按钮上下。
-                float required = StackHeight(lane);
-                var band = keepOut.BandFor(x, x + width, required);
-                StackTight(lane, Mathf.Clamp(
-                    MeanTargetY(lane) - required / 2f,
-                    band.Top,
-                    Mathf.Max(band.Top, band.Bottom - required)));
-
-                x += width + CardLaneGap;
-            }
-        }
-
-        // 按累计高度切分，保持原有的上下顺序。切到只剩一摞时全部塞进去——
-        // 摞数是个上限，不是必须凑够的数。
-        private static List<List<ProjectedCardLayout>> SplitIntoLanes(List<ProjectedCardLayout> column, int laneCount)
-        {
-            float perLane = StackHeight(column) / laneCount;
-            var lanes = new List<List<ProjectedCardLayout>>();
-            var current = new List<ProjectedCardLayout>();
-            float filled = 0f;
-
-            foreach (var card in column)
-            {
-                float need = card.TopExtent + card.BottomExtent + CardStackGap;
-                // 过半才换摞：一张卡跨在分界上时，按它落在哪一边多一点来归属。
-                if (current.Count > 0 && lanes.Count < laneCount - 1 && filled + need * 0.5f > perLane)
-                {
-                    lanes.Add(current);
-                    current = new List<ProjectedCardLayout>();
-                    filled = 0f;
-                }
-                current.Add(card);
-                filled += need;
-            }
-            lanes.Add(current);
-            return lanes;
-        }
-
-        private static float LaneWidth(List<ProjectedCardLayout> lane)
-        {
-            float width = 0f;
-            foreach (var card in lane)
-                width = Mathf.Max(width, card.Width);
-            return width;
-        }
-
-        // 一维消重叠：顺序已经定死，只需让挤在一起的卡各自让开。互相挤住的连成一「块」，
-        // 整块停在成员们期望位置的平均处——所以卡群仍然贴着锚点，不会整体往下漂。
-        private static void StackInPlace(List<ProjectedCardLayout> column)
-        {
-            int n = column.Count;
-
-            // cum[i]：第 i 张卡的中心相对本块块首至少要偏开多远（相邻最小间距的前缀和）。
-            var cum = new float[n];
-            for (int i = 1; i < n; i++)
-                cum[i] = cum[i - 1] + column[i - 1].BottomExtent + column[i].TopExtent + CardStackGap;
-
-            var blockHead = new List<int>();
-            var blockCount = new List<int>();
-            var blockSum = new List<float>();   // Σ(期望中心 − 相对块首的固定偏移)
-            for (int i = 0; i < n; i++)
-            {
-                blockHead.Add(i);
-                blockCount.Add(1);
-                blockSum.Add(column[i].TargetCenter.y);
-
-                while (blockHead.Count >= 2)
-                {
-                    int last = blockHead.Count - 1;
-                    int prev = last - 1;
-                    float span = cum[blockHead[last]] - cum[blockHead[prev]];
-                    if (blockSum[last] / blockCount[last] >= blockSum[prev] / blockCount[prev] + span)
-                        break;
-
-                    blockSum[prev] += blockSum[last] - blockCount[last] * span;
-                    blockCount[prev] += blockCount[last];
-                    blockHead.RemoveAt(last);
-                    blockCount.RemoveAt(last);
-                    blockSum.RemoveAt(last);
-                }
-            }
-
-            for (int b = 0; b < blockHead.Count; b++)
-            {
-                int head = blockHead[b];
-                int end = b + 1 < blockHead.Count ? blockHead[b + 1] : n;
-                float headY = blockSum[b] / blockCount[b];
-                for (int i = head; i < end; i++)
-                {
-                    column[i].SolvedCenter = new Vector2(
-                        column[i].TargetCenter.x,
-                        headY + cum[i] - cum[head]);
-                }
-            }
+            _labelOffsets.Clear();
         }
 
         private static Vector2 ViewportDirection(Vector3 viewportPosition)
@@ -3410,7 +2877,8 @@ namespace SSNoir.IMGUI
                 _banterPlayer,
                 _dialogueAnchors,
                 _gameManager,
-                speaker => ReportRemoteFallback("play-bubble!", speaker));
+                speaker => ReportRemoteFallback("play-bubble!", speaker),
+                _worldLabelSpace);
         }
 
         // 阻塞：立绘舞台覆盖世界；Say 拍全屏左键推进（打字中补全，否则下一句），无字动作拍吞掉点击自动播完，后方控件由 IsInputLocked 显式禁用。
@@ -3529,200 +2997,52 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLabel(new Rect(160f, rect.y + 18f, UIScale.VW - 320f, bandH - 36f), text, style);
         }
 
-        // 世界投射卡的活动范围。
-        //
-        // 以前是上下各缩进一条的横带：上边界是整条顶栏的底边，下边界给骰子那一排让路。
-        // 两条线都横贯全屏，可它们挡住的东西并不横贯全屏——顶栏中段只有「你在哪、第几天」
-        // 这类读的字，底栏中段干脆是空的。卡片被两条并不存在的墙夹在中间，四百来像素里
-        // 放不下两张带骰位的动作卡，一间挂了四五个动作的酒馆必然叠成一摞。
-        //
-        // 现在按「这块地有多重要」算：交互控件永远避让；顶栏和人物头像在空间充足时也避让，
-        // 放不下时按优先级逐层释放。避让仍按横向跨度计算，所以屏幕另一侧的控件不会无端
-        // 挤压这张卡。顶部空白和人物画面因此是可借用的空间，不再是假墙，也不是完全不存在。
-        //
-        // 这不只是好看：卡片能不能各自让开、不叠成一摞，差的就是这上下多出来的一百多像素。
-        private enum KeepOutPriority
+        // Modals occlude the world; opening a panel never shuffles its card layout.
+        private WorldLabelLayout.Space BuildWorldLabelSpace(List<Vector2> protectedAnchors)
         {
-            Portrait = 10,
-            Hud = 20,
-            WorldLabel = 90,
-            Hard = 100,
-            // 纯排布区：只参与 IsHardBlocked / BandFor，不参与 IsUiBlocked。
-            // 顶栏整条 Bar 就是这种——它占满宽度是为了把动作卡压到顶栏下面，
-            // 但里面真正要点的只有返回键和右上功能组（面包屑是读的）。如果把它
-            // 也算成交互遮挡，飘到顶栏高度的地点牌上半截就永远点不到了。
-            Layout = 110,
-        }
+            var space = new WorldLabelLayout.Space(UIScale.SafeArea);
+            void Hard(Rect rect, bool blocksInput = true)
+                => space.Reserve(rect, WorldLabelLayout.ZoneKind.Hard, blocksInput);
 
-        private readonly struct KeepOutZone
-        {
-            public Rect Rect { get; }
-            public KeepOutPriority Priority { get; }
-
-            public KeepOutZone(Rect rect, KeepOutPriority priority)
-            {
-                Rect = rect;
-                Priority = priority;
-            }
-        }
-
-        private readonly struct CardKeepOut
-        {
-            // 卡片离安全区边缘、离控件各留一点缝，别贴着画。
-            private const float EdgeInset = 6f;
-            private const float BlockerGap = 8f;
-
-            private readonly Rect _safe;
-            private readonly List<KeepOutZone> _zones;
-
-            public CardKeepOut(Rect safe, List<KeepOutZone> zones)
-            {
-                _safe = safe;
-                _zones = zones;
-            }
-
-            public bool IsHardBlocked(Rect rect)
-            {
-                foreach (var zone in _zones)
-                {
-                    if ((zone.Priority == KeepOutPriority.Hard
-                            || zone.Priority == KeepOutPriority.WorldLabel
-                            || zone.Priority == KeepOutPriority.Layout)
-                        && rect.Overlaps(zone.Rect))
-                        return true;
-                }
-                return false;
-            }
-
-            public bool IsUiBlocked(Rect rect)
-            {
-                foreach (var zone in _zones)
-                    if (zone.Priority == KeepOutPriority.Hard && rect.Overlaps(zone.Rect))
-                        return true;
-                return false;
-            }
-
-            public float SoftOverlapArea(Rect rect)
-            {
-                float area = 0f;
-                foreach (var zone in _zones)
-                {
-                    if (zone.Priority != KeepOutPriority.Portrait) continue;
-                    var blocker = zone.Rect;
-                    float width = Mathf.Max(0f, Mathf.Min(rect.xMax, blocker.xMax) - Mathf.Max(rect.xMin, blocker.xMin));
-                    float height = Mathf.Max(0f, Mathf.Min(rect.yMax, blocker.yMax) - Mathf.Max(rect.yMin, blocker.yMin));
-                    area += width * height;
-                }
-                return area;
-            }
-
-            /// <summary>
-            /// 给定横向跨度和所需高度，返回纵向区间。硬区永远保留；软区从高优先级开始
-            /// 尝试加入，只有仍放得下时才生效，因此空间不足时人物头像最先被侵占。
-            /// </summary>
-            public (float Top, float Bottom) BandFor(
-                float left, float right, float requiredHeight, bool includeSoft = true)
-            {
-                float top = _safe.y + EdgeInset;
-                float bottom = _safe.yMax - EdgeInset;
-                ApplyPriority(KeepOutPriority.Hard, left, right, ref top, ref bottom);
-                ApplyPriority(KeepOutPriority.WorldLabel, left, right, ref top, ref bottom);
-                ApplyPriority(KeepOutPriority.Layout, left, right, ref top, ref bottom);
-                if (!includeSoft)
-                    return (top, Mathf.Max(top, bottom));
-
-                var priorities = new[] { KeepOutPriority.Hud, KeepOutPriority.Portrait };
-                foreach (var priority in priorities)
-                {
-                    float candidateTop = top;
-                    float candidateBottom = bottom;
-                    ApplyPriority(priority, left, right, ref candidateTop, ref candidateBottom);
-                    if (candidateBottom - candidateTop >= requiredHeight)
-                    {
-                        top = candidateTop;
-                        bottom = candidateBottom;
-                    }
-                }
-                return (top, Mathf.Max(top, bottom));
-            }
-
-            private void ApplyPriority(
-                KeepOutPriority priority, float left, float right, ref float top, ref float bottom)
-            {
-                float middle = _safe.center.y;
-                foreach (var zone in _zones)
-                {
-                    if (zone.Priority != priority) continue;
-                    Rect blocker = zone.Rect;
-                    if (blocker.width <= 0f || blocker.height <= 0f) continue;
-                    if (blocker.xMax <= left || blocker.x >= right) continue;
-                    if (blocker.center.y < middle)
-                        top = Mathf.Max(top, blocker.yMax + BlockerGap);
-                    else
-                        bottom = Mathf.Min(bottom, blocker.y - BlockerGap);
-                }
-            }
-        }
-
-        // 本帧要避开的控件。顶栏按钮**恒定预留**（返回键有时不画，但位置照让）：
-        // 让位只在某些情况下发生的话，排布就会跟着状态跳来跳去。
-        private CardKeepOut BuildCardKeepOut(IEnumerable<ProjectedCardLayout> worldFixedLayouts)
-        {
-            var zones = new List<KeepOutZone>
-            {
-                // Bar 占满宽度只是为了排布（见 Layout），交互遮挡只看下面这些真正的控件。
-                new(_topHud.Bar, KeepOutPriority.Layout),
-                new(_topHud.FunctionPlate(!_gameManager.DisplayedSnapshot.IsInEncounter), KeepOutPriority.Hard),
-                new(_topHud.Back, KeepOutPriority.Hard),
-                new(_topHud.GrowthToggle, KeepOutPriority.Hard),
-                new(_topHud.DossierToggle, KeepOutPriority.Hard),
-                new(_topHud.HelpToggle, KeepOutPriority.Hard),
-                new(_topHud.SettingsToggle, KeepOutPriority.Hard),
-                new(_topHud.DebugToggle, KeepOutPriority.Hard),
-                new(_topHud.DemoToggle, KeepOutPriority.Hard),
-                new(_pinStripRect, KeepOutPriority.Hard),
-                new(_sceneBandRect, KeepOutPriority.Hard),
-            };
-            var hardRects = new List<Rect>();
-            HandPanelDrawer.CollectTouchBlockers(_gameManager, hardRects);
-            foreach (var rect in hardRects)
-                zones.Add(new KeepOutZone(rect, KeepOutPriority.Hard));
+            Hard(_topHud.Bar, false);
+            Hard(_topHud.FunctionPlate(!_gameManager.DisplayedSnapshot.IsInEncounter));
+            Hard(_topHud.Back);
+            Hard(_topHud.GrowthToggle);
+            Hard(_topHud.DossierToggle);
+            Hard(_topHud.HelpToggle);
+            Hard(_topHud.SettingsToggle);
+            Hard(_topHud.DebugToggle);
+            Hard(_topHud.DemoToggle);
+            Hard(_pinStripRect);
+            foreach (var rect in _sceneBandOccupiedRects) Hard(rect);
+            var touch = new List<Rect>();
+            HandPanelDrawer.CollectTouchBlockers(_gameManager, touch);
+            foreach (var rect in touch) Hard(rect);
             var portraits = new List<Rect>();
             HandPanelDrawer.CollectPortraitBounds(_gameManager, portraits);
             foreach (var rect in portraits)
-                zones.Add(new KeepOutZone(rect, KeepOutPriority.Portrait));
-            foreach (var layout in worldFixedLayouts)
-            {
-                var center = layout.TargetCenter;
-                zones.Add(new KeepOutZone(
-                    new Rect(center.x - layout.Width / 2f, center.y - layout.Height / 2f,
-                        layout.Width, layout.Height), KeepOutPriority.WorldLabel));
-            }
-            return new CardKeepOut(UIScale.SafeArea, zones);
+                space.Reserve(rect, WorldLabelLayout.ZoneKind.Soft);
+            foreach (var anchor in protectedAnchors)
+                space.Reserve(new Rect(anchor.x - 42f, anchor.y - 42f, 84f, 84f),
+                    WorldLabelLayout.ZoneKind.Soft);
+            return space;
         }
 
         private class ProjectedCardLayout
         {
             public GameNode Node { get; }
-            // 地点牌是固定世界标识；动作卡与锚定标注都参加屏幕空间的避让解算
-            //（同锚多标注会进分列/Pan 搜空，见 DrawCards）。
+            // All projected labels, including locations, take part in one placement pass.
             public bool IsAnnotation { get; }
-            public bool IsWorldFixed => Node.IsContainer;
             public string Key => Node.Name;
             public Vector2 AnchorPos { get; }
             public float Distance { get; }
-            // 锚点投影几乎重合时的兜底排序键，见 SolveProjectedStacks。
+            // 内容声明顺序保留为稳定排序键。
             public int DeclarationOrder { get; }
             public Vector2 TargetCenter { get; }
-            public Vector2 SolvedCenter { get; set; }
             public Vector2 CurrentCenter { get; set; }
             public float Width { get; }
             public float Height { get; }
-            // 布局只认卡本体。判定条、结果条与标签等 card attachments 是视觉延伸，
-            // 可以覆盖邻卡，却绝不能因出现或消失带动整摞卡重排。
-            public float FootprintWidth => Width;
-            public float TopExtent => Height / 2f;
-            public float BottomExtent => Height / 2f;
+            // Attachments remain visual extensions; only the card body occupies layout space.
             public Rect Rect => new Rect(CurrentCenter.x - Width / 2f, CurrentCenter.y - Height / 2f, Width, Height);
 
             public ProjectedCardLayout(
@@ -3742,7 +3062,6 @@ namespace SSNoir.IMGUI
                 Distance = distance;
                 DeclarationOrder = declarationOrder;
                 TargetCenter = targetCenter;
-                SolvedCenter = targetCenter;
                 CurrentCenter = currentCenter;
                 Width = width;
                 Height = height;

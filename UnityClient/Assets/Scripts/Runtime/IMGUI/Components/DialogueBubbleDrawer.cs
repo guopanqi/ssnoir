@@ -30,7 +30,8 @@ namespace SSNoir.IMGUI
             BanterPlayer banter,
             DialogueAnchors anchors,
             SSNoirGameManager gameManager,
-            System.Action<string> reportRemoteFallback)
+            System.Action<string> reportRemoteFallback,
+            WorldLabelLayout.Space? space)
         {
             // BanterPlayer 故意让上一句多留 0.6 秒（OverlapSeconds），好让"你一句我一句"
             // 看得到来回——那对人物气泡成立，因为它们各自挂在各自的锚点上。旁白不成立：
@@ -63,7 +64,7 @@ namespace SSNoir.IMGUI
                         bubble.Line.Speaker,
                         bubble.Line.DisplaySpeaker,
                         bubble.Line.Text,
-                        anchorRect);
+                        anchorRect, space, "banter:" + i);
                     bubble.RemoteFallbackWarningIssued = true;  // 已有明确落点，不再报降级警告
                 }
                 else
@@ -76,7 +77,9 @@ namespace SSNoir.IMGUI
                         gameManager,
                         bubble.AllowsRemoteParticipants,
                         fallsBackToRemoteParticipant: true,
-                        preferCardAnchor: bubble.PreferCardAnchor);
+                        preferCardAnchor: bubble.PreferCardAnchor,
+                        space: space,
+                        bubbleKey: "banter:" + i);
                 }
                 if (usedRemoteFallback && !bubble.RemoteFallbackWarningIssued)
                 {
@@ -94,7 +97,9 @@ namespace SSNoir.IMGUI
             SSNoirGameManager gameManager,
             bool allowsRemoteParticipant = false,
             bool fallsBackToRemoteParticipant = false,
-            bool preferCardAnchor = false)
+            bool preferCardAnchor = false,
+            WorldLabelLayout.Space? space = null,
+            string bubbleKey = "")
         {
             if (speaker == NarratorSpeaker)
             {
@@ -116,9 +121,10 @@ namespace SSNoir.IMGUI
 
                 usedRemoteFallback = !allowsRemoteParticipant;
                 anchor = DrawRemoteParticipantCard(speaker, displaySpeaker);
+                space?.Reserve(anchor, WorldLabelLayout.ZoneKind.Soft);
             }
 
-            DrawBubbleAt(speaker, displaySpeaker, text, anchor);
+            DrawBubbleAt(speaker, displaySpeaker, text, anchor, space, bubbleKey);
             return usedRemoteFallback;
         }
 
@@ -128,7 +134,9 @@ namespace SSNoir.IMGUI
             string speaker,
             string displaySpeaker,
             string text,
-            Rect anchor)
+            Rect anchor,
+            WorldLabelLayout.Space? space,
+            string bubbleKey)
         {
             // 对话气泡是"递到面前的一张纸"：Paper 底 + PaperInk 字 + 硬投影
             var bodyStyle = new GUIStyle(IMGUIStyles.ModalBody)
@@ -150,6 +158,9 @@ namespace SSNoir.IMGUI
             if (y < 8f)
                 y = anchor.yMax + 10f;   // 上方没空间就画到锚点下方
             var rect = new Rect(x, y, BubbleWidth, h);
+            if (space != null)
+                rect = space.Place(bubbleKey, WorldLabelLayout.Kind.Bubble,
+                    anchor.center, rect.center, null, new Vector2(BubbleWidth, h));
 
             // 尾巴不钉在气泡正中，而是指向说话者矩形与气泡之间最近的一对边界点。
             // 人物卡偏到气泡一侧、或气泡因顶边空间不足翻到人物下方时，它仍然准确地"说"自谁。

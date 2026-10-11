@@ -381,6 +381,13 @@ namespace SSNoir.IMGUI
         public static void DrawSceneBand(IReadOnlyList<GameNode> notes, float topY, Rect reserved)
             => LayoutSceneBand(notes, topY, reserved, draw: true);
 
+        public static List<Rect> MeasureSceneBandRects(IReadOnlyList<GameNode> notes, float topY, Rect reserved)
+        {
+            var occupied = new List<Rect>();
+            LayoutSceneBand(notes, topY, reserved, draw: false, occupied: occupied);
+            return occupied;
+        }
+
         /// <summary>
         /// 各条按自己需要多宽排，塞不下就换行。信息带的首要职责是总览：不论正文多长，
         /// 一行都必须留得出三个节点的位置；长正文向下换行，而不是横向挤走别的节点。
@@ -391,7 +398,7 @@ namespace SSNoir.IMGUI
         /// 绕排后剩的宽度放不下一条标注，这一行才落到它底下——窄画幅于是自动退回堆叠，
         /// 同一套数字，不分设备。钉住条在左就从它右边起排，在右就收到它左边为止。
         /// </summary>
-        private static float LayoutSceneBand(IReadOnlyList<GameNode> notes, float topY, Rect reserved, bool draw)
+        private static float LayoutSceneBand(IReadOnlyList<GameNode> notes, float topY, Rect reserved, bool draw, List<Rect>? occupied = null)
         {
             if (notes == null || notes.Count == 0) return 0f;
 
@@ -454,6 +461,7 @@ namespace SSNoir.IMGUI
                     float h = draw
                         ? Layout(rect, notes[i + j], draw: true, pulse: Pulse(notes[i + j]))
                         : MeasureHeight(notes[i + j], widths[j]);
+                    occupied?.Add(new Rect(x, y, widths[j], h));
                     rowHeight = Mathf.Max(rowHeight, h);
                     x += widths[j] + SceneNoteGap;
                 }
