@@ -27,6 +27,7 @@ export class StagePlayback {
   private motions:Motion[]=[];
   private waiting=false;
   private revealed=false;
+  private captionElapsed=0;
 
   constructor(beats:StageBeat[]){
     if(!beats.length)throw Error("stage: missing beats");
@@ -41,7 +42,7 @@ export class StagePlayback {
   get visibleCharacters():number {
     if(!this.caption)return 0;
     return this.revealed?this.caption.text.length:
-      Math.min(this.caption.text.length,Math.max(0,1+Math.floor(this.elapsed/0.048)));
+      Math.min(this.caption.text.length,Math.max(0,1+Math.floor(this.captionElapsed/0.048)));
   }
   advance():void {
     if(!this.waiting||this.complete)return; // Unity doesn't skip animation beats.
@@ -78,10 +79,12 @@ export class StagePlayback {
       this.advanceBeat();
       if(budget===0&&this.remaining>0)break;
     }
-    if(this.waiting&&this.caption&&seconds>0)this.elapsed+=seconds;
-    this.effects.splice(0,this.effects.findIndex(e=>this.elapsed-e.at<=.2) < 0 ?
-      this.effects.filter(e=>this.elapsed-e.at>.2).length :
-      this.effects.findIndex(e=>this.elapsed-e.at<=.2));
+    if(this.waiting&&this.caption&&budget>0){
+      // Spend only the remainder of this frame on newly entered dialogue,
+      // not the entire frame already consumed by the preceding animation.
+      this.captionElapsed+=budget;
+      this.elapsed+=budget;
+    }
   }
   private require(id:string):StageEntity {
     const value=this.entities.get(id);
@@ -117,7 +120,7 @@ export class StagePlayback {
       if(command.seconds===0){entity.x=to[0];entity.y=to[1];}
     }else if(kind==="say"||kind==="remote-say"){
       this.caption={speaker:command.speaker,text:command.text,remote:kind==="remote-say"};
-      this.waiting=true;this.revealed=false;this.elapsed=0;
+      this.waiting=true;this.revealed=false;this.captionElapsed=0;
     }else if(kind==="sound"||kind==="effect"){
       const origin=kind==="effect"?this.require(id):null;
       this.effects.push({kind,id,asset:command.asset,x:(origin?.x??0)+command.x,
