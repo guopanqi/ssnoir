@@ -1,48 +1,37 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-11",
-  "batch": "R97 / R102-paper",
-  "rounds": 2,
-  "totalArchivedRounds": 43,
+  "batch": "R97b",
+  "rounds": 1,
+  "totalArchivedRounds": 44,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
     "sourceScripts": [
-      "tools/content-validator/experiments/r97_late_seal_paper.py",
-      "tools/content-validator/experiments/r102_p10_single_round.py"
+      "tools/content-validator/experiments/r97b_delayed_seal_simple_rule.py"
     ],
-    "run": "38135763686",
-    "scope": "two bounded Fraction maths studies: R97 optional post-seal deadline and R102-paper P10 single-round progress; NOT original P20/P10 native completion",
-    "human": "No new human feedback. Official R101/R102 native scripts were authored concurrently and must be interpreted separately."
+    "run": "38136045724",
+    "scope": "Exact Fraction strong comprehensible threshold action rule vs full optimal; fifteen reduced public deadline cases; NOT native P20 or human play",
+    "human": "No new feedback or Debug candidates"
   },
   "results": [
     {
-      "id": "R97",
-      "name": "第二回合有需要才封门的承诺转换",
-      "status": "基础关系材料，暂不晋升正式试玩；已过数学强无封门/开局封门对照",
+      "id": "R97b",
+      "name": "解释性晚封门规则的最强反证",
+      "status": "保留可学的条件性改路为基础关系，复杂规划优势被反证为0",
       "evidence": {
-        "goal": 10,
-        "initialComposure": 4,
-        "neverSeal": 0.711698388,
-        "forcedFirstSeal": 0.636338306,
-        "optionalSeal": 0.740504973,
-        "strictSealOnOptimalPaths": 0.096879287,
-        "sealChangesInRound": 2
+        "goalRange": [
+          8,
+          12
+        ],
+        "composureRange": [
+          3,
+          5
+        ],
+        "totalScenarios": 15,
+        "allAdaptiveAboveSimpleGaps": 0,
+        "baseGoal10Composure4": 0.740504973
       },
-      "lesson": "多给一个回合不是机制本身；真正有用的是延后不可逆改出口，普通路线在前一阶段仍合理。独立纸面而非原生P20场景"
-    },
-    {
-      "id": "R102-paper",
-      "name": "P10同一回合四骰的储备阈值压缩",
-      "status": "降低对单回合复杂策略的研究优先级；不涉及三回合赢法",
-      "evidence": {
-        "nonlinearOptimalProgress": 12.542352538,
-        "nonlinearBestThresholdProgress": 12.540973651,
-        "nonlinearRelativeGapPercent": 0.010993,
-        "strictRootHands": 9,
-        "linearOptimalProgress": 8.877446988,
-        "linearBestPerHandProgress": 8.876846851
-      },
-      "lesson": "初始0储备、单回合四行动且只计算当回合进度时，最优几乎由储备到5或最后一手兑现解释；R99两回合压缩和并行R102原生三回合是不同证据身份"
+      "lesson": "在第二回合最后一手，若进度余量不超过第三回合最多两次说服可得的4且冷静≥2就封门；其他时刻说服，封后留两行动修梯。在所测十五条件全部达到自由最优，不能把R97路径转向解释成数学复杂性。"
     }
   ],
   "crossRoundMemory": [
@@ -59,7 +48,8 @@
     "R95精确压缩模型中，非线性+衰减2使第二手既有正常路径严格提现0.350309，也有严格继续备料0.417953。下一步实际三回合/阈值口诀反证。",
     "R98强响应式阈值族40条在R95非线性且衰减2压缩模型中逐初始手牌择最优可完全达到自由DP（额外0）；单一全局阈值仍落后0.010491684。不得把R95相对固定动作脚本的0.03117增量冒充新颖复杂决策。",
     "R97 exact paper: goal10 initial composure4, two rounds open vs three with seal at cost1+ladder2; no seal0.711698, forced opening seal0.636338, optional seal0.740505. 9.6879% optimal path probability strictly seals, all round2. The value is delayed irrevocable commitment, not extra state/automatic window.",
-    "R102-paper single-round four dice: nonlinear expected progress opt12.54235 vs one fixed-threshold12.54097, 0.011% relative difference; do not generalize to 3-turn native P10 completion. Parallel contributor's R102_native_threshold_sweep.py targets distinct native three-round evidence; retain suffix '-paper' to prevent collision."
+    "R102-paper single-round four dice: nonlinear expected progress opt12.54235 vs one fixed-threshold12.54097, 0.011% relative difference; do not generalize to 3-turn native P10 completion. Parallel contributor's R102_native_threshold_sweep.py targets distinct native three-round evidence; retain suffix '-paper' to prevent collision.",
+    "R97b strong base: one explainable second-round-last-action seal rule reaches exact free DP in 15 goal8-12 / initial composure3-5 cases. Genuine 9.6879% strictly beneficial switch does NOT imply algorithmic complexity; it can be learned as a public deadline threshold. Need UX/native semantics separately."
   ],
   "history": [
     {
@@ -792,15 +782,50 @@
       ],
       "record": "docs/实验/机制研究/批次/R97-R102-延后封门与单回合边界/研究记录.md",
       "note": "R99/R100/R101/other R102 were published concurrently; pending independent cross-batch summary, not part of this archived round count."
+    },
+    {
+      "batch": "R97b",
+      "rounds": 1,
+      "method": {
+        "sourceScripts": [
+          "tools/content-validator/experiments/r97b_delayed_seal_simple_rule.py"
+        ],
+        "run": "38136045724",
+        "scope": "Exact Fraction strong comprehensible threshold action rule vs full optimal; fifteen reduced public deadline cases; NOT native P20 or human play",
+        "human": "No new feedback or Debug candidates"
+      },
+      "results": [
+        {
+          "id": "R97b",
+          "name": "解释性晚封门规则的最强反证",
+          "status": "保留可学的条件性改路为基础关系，复杂规划优势被反证为0",
+          "evidence": {
+            "goalRange": [
+              8,
+              12
+            ],
+            "composureRange": [
+              3,
+              5
+            ],
+            "totalScenarios": 15,
+            "allAdaptiveAboveSimpleGaps": 0,
+            "baseGoal10Composure4": 0.740504973
+          },
+          "lesson": "在第二回合最后一手，若进度余量不超过第三回合最多两次说服可得的4且冷静≥2就封门；其他时刻说服，封后留两行动修梯。在所测十五条件全部达到自由最优，不能把R97路径转向解释成数学复杂性。"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R97-R102-延后封门与单回合边界/研究记录.md",
+      "note": "Supplement to R97; its strict second-round switches require no extra DP beyond one human-legible conditional rule."
     }
   ],
   "frontier": [
     {
-      "id": "R97-native-variant",
+      "id": "R97-communication",
       "priority": 1,
-      "question": "可延后封门的有限逃生窗口是否能在独立原生版本中出现两种严格合理的公开状态？",
-      "method": "先与'永不封门'和'固定第二回合封门'可解释规则做条件性反证，不改变P20原场景",
-      "humanGate": false
+      "question": "玩家在知道救人、两种出口和倒计时后能否自然理解简单封门截止判断？",
+      "method": "先在独立纸面情景中尝试无提示阅读与表述，不修改原版P20；真正的体验归真人",
+      "humanGate": true
     },
     {
       "id": "R102-paper-followup",
