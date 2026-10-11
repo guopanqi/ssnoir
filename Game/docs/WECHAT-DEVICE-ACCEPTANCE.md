@@ -53,3 +53,5 @@ Stable 2.02.2608080 的 3.17.4 / 3.17.3 均曾出现 `WAGame.js` 500 和 `app.js
 本地电脑操作工具报告微信开发者工具与 node_modules/electron/dist/Electron.app 共用 com.github.Electron 应用标识，按标识选择会产生歧义；按完整路径操作仍多次无法激活目标。尝试 reset、完整路径、菜单/键盘、窗口 Raise 后仍未重新显示模拟器。临时移动 Electron 依赖没有解除已缓存的标识冲突，已恢复原路径。此问题是自动操作阻碍，不通过修改游戏输入规避。
 
 worker path empty 的来源已静态定位：安装工具 app.asar 中 8fd55709f2317870f49b21a86699363d.js 的 getGameWorkerBundleCached，在读取 game.json 的 workers 或 workers.path 后发现为空就抛出该错误；getGameWorkerBundle 捕获并送到工具控制台。本项目未配置或使用 workers。随后当前控制台显示 Errors: 0，但触发该 Worker 构建请求的条件尚未确定，不能断言已修复。没有添加空 Worker 目录。
+
+2026-10-11 iPhone 预览实测：最小宿主探针正常；完整底座缺少 performance 与 LIPS 错误进入 Node 分支的问题修复后，用户确认“没问题”。USB/Finder 识别设备为 iPhone SE（第三代）；尚需用户确认此设备是否就是测试设备，及 iOS/微信版本。最终包前后台与重启专项结果待补，不视为已通过。
