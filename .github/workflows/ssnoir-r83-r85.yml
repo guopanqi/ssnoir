@@ -1,0 +1,38 @@
+name: SSNoir Autonomous R83-R85
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r83-r85.yml'
+      - 'tools/content-validator/experiments/r83_r85_decision_audits.py'
+      - 'tools/content-validator/experiments/r56_r65_autonomous_search.py'
+permissions:
+  contents: read
+jobs:
+  run-exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run 3 independent exact counterfactual models
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r83_r85_decision_audits.py /tmp/r83-r85.json
+          cat /tmp/r83-r85.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r83-r85.json',encoding='utf-8'))
+          assert [r['id'] for r in d['results']]==['R83','R84','R85']
+          assert all(x['revoke_feature_value_given_wait']>=0 for x in d['results'][0]['ablations'])
+          assert all(x['paid_option_gain']>=0 for x in d['results'][1]['ablations'])
+          assert d['results'][2]['roots_tracking_changes_value']>=0
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-r83-r85-paper-evidence
+          path: /tmp/r83-r85.json
+          retention-days: 60
