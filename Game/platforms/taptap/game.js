@@ -1,6 +1,9 @@
 // Keep this entry independent of renderer imports so early failures are visible.
 function reportStartupFailure(error) {
-  var message = String(error && (error.stack || error.message) || error);
+  // JavaScriptCore stacks may contain only frames, without name/message.
+  var reason = error && (error.message || error.errMsg) || String(error);
+  var message = String(error && error.name || 'Error') + ': ' + String(reason);
+  if (error && error.stack) message += '\n' + String(error.stack);
   console.error('[SSNoir TapTap startup]', message);
   if (typeof wx !== 'undefined' && typeof wx.showModal === 'function') {
     wx.showModal({

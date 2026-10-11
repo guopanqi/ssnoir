@@ -85,6 +85,15 @@ entry was checked with a simulated require failure: it performed no import
 before confirmation and displayed the caught error afterward. Device result
 for this second probe remains pending. Normal release entry is unchanged.
 
+The second probe subsequently executed and displayed “SSNoir 启动失败” on
+TapTap iOS. User screenshots showed only JavaScriptCore frames beginning
+`@tjapp://game-runtime/tjfs/index.js:29:639463`; the reason was not visible.
+The error formatter had preferred `error.stack`, which can omit name/message
+on this host. Both entry and runtime formatters now prepend name and message
+(or native `errMsg`) before the stack. A regression check uses a stack made
+only of host frames and confirms the actual error message remains visible.
+The specific foundation failure is still unknown pending the updated modal.
+
 `build:taptap` runs the submitted converter source (SHA-256 verified) with the actual WeChat bundle, then validates syntax, ZIP structure, version, orientation, presence of original runtime injection, and a 20MB ZIP budget. `smoke:taptap-harness` executes the **converted game.js** under Chromium with a mocked `wx` / `GameGlobal` host and checks the shared LIPS/Three/Pixi touch action. Both are included in GitHub Actions, with `game.zip` uploaded as an artifact.
 
 ### True target-runtime gates (still pending)

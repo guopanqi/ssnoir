@@ -18,9 +18,14 @@ test("TapTap startup reports synchronous foundation load failures", () => {
   runInNewContext(readFileSync("platforms/taptap/game.js", "utf8"), {
     console: { log() {}, error: (...args) => messages.push(args.join(" ")) },
     wx: { onError() {}, showModal: detail => modals.push(detail) },
-    require: () => { throw new SyntaxError("device parser rejected foundation"); }
+    require: () => {
+      const error = new SyntaxError("device parser rejected foundation");
+      error.stack = "@tjapp://game-runtime/tjfs/index.js:29:639463";
+      throw error;
+    }
   });
   assert.equal(modals.length, 1);
   assert.match(modals[0].content, /device parser rejected foundation/);
+  assert.match(modals[0].content, /^SyntaxError: device parser rejected foundation/);
   assert.match(messages[0], /SSNoir TapTap startup/);
 });

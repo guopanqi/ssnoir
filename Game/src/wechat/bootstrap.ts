@@ -171,7 +171,10 @@ export const wechatHost = {
     });
   },
   showFailure: (error: unknown) => {
-    const message = String(error instanceof Error ? error.stack || error.message : error);
+    const detail = error as { name?: string; message?: string; errMsg?: string; stack?: string } | null;
+    const reason = detail?.message || detail?.errMsg || String(error);
+    const message = String(detail?.name || "Error") + ": " + reason +
+      (detail?.stack ? "\n" + detail.stack : "");
     console.error("[SSNoir MiniGame foundation]", message);
     if (typeof wx.showModal === "function") wx.showModal({ title: "SSNoir 技术验证失败", content: message.slice(0, 650), showCancel: false });
   }
