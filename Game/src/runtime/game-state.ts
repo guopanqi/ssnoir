@@ -20,6 +20,7 @@ export interface RuntimeSnapshot {
 export class GameRuntimeState {
   readonly injury = new InjuryState();
   readonly team = new TeamState();
+  private hospitalization: {message:string;day:number;part:string;paid:number}|null=null;
   private globals = new Map<string, GlobalValue>();
   private inventory = new Map<string, { name: string; count: number }>();
   private restBlockers = new Map<string, RuntimeSnapshot["restBlockers"][number]>();
@@ -41,6 +42,7 @@ export class GameRuntimeState {
     this.failure = null;
     this.injury.restore({severity:0,part:"",scars:[]});
     this.team.reset();
+    this.hospitalization=null;
     this.growthLevel = 0;
   }
 
@@ -104,6 +106,36 @@ export class GameRuntimeState {
     this.clockEffects=null;return r;
   }
   cancelActionReport():void { this.clockEffects=null; }
+  /**
+   * Mirrors GameState.CheckCollapse: impact is settled at the instant the
+   * injury reaches 7, while SceneManager later consumes the hospitalization
+   * event at the end of the currently executing action.
+   */
+  applyInjury(amount:number,random:()=>number=Math.random):void {
+    if(this.hospitalization)throw new Error("hospitalization must end the current action");
+    const collapsed=this.injury.injure(amount,random);
+    if(!collapsed)return;
+    const part=this.injury.part,dayValue=this.getGlobal("世界日");
+    const day=typeof dayValue==="number"&&Number.isSafeInteger(dayValue)&&dayValue>0?dayValue:1;
+    this.injury.addScar(day);
+    const cash=this.getItemCount("金钱");
+    const paid=cash>=80?80:cash;
+    this.setItemCount("金钱",cash>=80?cash-80:0);
+    if(cash<80)this.injury.addScar(day);
+    const player=this.team.require("player");
+    player.actionDice=[];player.actionDiceSlotIds=[];player.composure=0;
+    const message=cash>=80
+      ? "你在人行道上醒过来，已经躺在诊所里了。账单 80 金，先收后问。"
+      : "你在诊所里醒过来。身上的钱不够，他们没在你身上多花时间——缝得很快，线头留在外面。";
+    this.injury.heal(7);
+    this.hospitalization={message,day,part,paid};
+  }
+  hasPendingHospitalization():boolean {return this.hospitalization!==null;}
+  consumeHospitalization():{message:string;day:number;part:string;paid:number} {
+    const event=this.hospitalization;
+    if(!event)throw new Error("no hospitalization pending");
+    this.hospitalization=null;return {...event};
+  }
   notify(text: string): void { this.notifications.push(text); }
   failGame(title: string, description: string): void {
     if (!title.trim() || !description.trim()) throw new Error("failure title/description must be non-empty");
@@ -152,5 +184,6 @@ export class GameRuntimeState {
     this.failure = candidate.failure;
     this.injury.restore(data.injury);
     this.team.restore(data.team);
+    this.hospitalization=null;
   }
 }

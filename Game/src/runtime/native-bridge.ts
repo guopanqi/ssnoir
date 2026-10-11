@@ -79,18 +79,13 @@ export function createNativeBridge(state: GameRuntimeState): NativeBridge {
     },
     "__injure!": (...args) => {
       arity("__injure!",args,1);
-      if(state.injury.injure(integer(args[0]))) {
-        // C# immediately resolves collapse, healing fee, scars and dice invalidation.
-        // Stop until the Phase 2 hospitalization controller is attached.
-        throw new Error("hospitalization controller not yet installed for 7/7 injury");
-      }
-      return undefined;
+      state.applyInjury(integer(args[0]));return undefined;
     },
     "__heal-injury!": (...args) => {
       arity("__heal-injury!",args,1);state.injury.heal(integer(args[0]));return undefined;
     },
     "__hospitalization-pending?": (...args) => {
-      arity("__hospitalization-pending?",args,0);return false;
+      arity("__hospitalization-pending?",args,0);return state.hasPendingHospitalization();
     },
     "__actor-composure": (...args) => {
       arity("__actor-composure",args,1);return state.team.composure(id(args[0]));
