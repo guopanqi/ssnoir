@@ -99,11 +99,11 @@
       (theatre-wait .5))
     (theatre-wait 1.0)
     (theatre-parallel
-      (theatre-tween "报纸" 'y 648 .5 'smooth)
+      (theatre-tween "报纸" 'y 670 .5 'smooth)
       (theatre-wait .6))
     (theatre-wait 1.2)
     (theatre-parallel
-      (theatre-tween "报纸" 'y 598 .5 'smooth)
+      (theatre-tween "报纸" 'y 620 .5 'smooth)
       (theatre-sound "报纸展开" "StageSounds/勒索信/纸响" #f .65 .35)
       (theatre-wait .6))
     (theatre-during

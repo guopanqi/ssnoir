@@ -8,7 +8,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'UnityClient/Assets/Resources/Portraits/Chase'
 SOURCES = {
-    '尼尔': '角色库/尼尔/形象/姿势/追逐/冲刺-openai.png',
+    '尼尔': '角色库/尼尔/形象/姿势/追逐/冲刺-线稿.png',
     '取信人': '角色库/路人/形象/追逐/冲刺-openai.png',
 }
 template = (ROOT / 'UnityClient/Assets/Resources/Portraits/Neon/尼尔.png.meta').read_text()

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "gemini-chase",
+  "name": "尼尔_冲刺_线稿",
+  "status": "completed",
+  "prompt": "Edit the supplied standard full-body neon character into a single airborne SPRINT frame, running toward the LEFT in pure side profile. Use the reference ONLY for identity, clothing and drawing style: the same man with flat cap, short collared work jacket, straight trousers and lace-up shoes, slim build, same head and face.\n\nVisual style MUST match the reference exactly: minimalist luminous neon light tube art on pure solid black background, crisp glowing white neon outlines, completely hollow pure-black interior, NO gray fill, NO charcoal solid body, NO shading, NO gradient. Only a few thin white internal lines for cap seam, collar, jacket front and facial profile. No cigarette, no smoke, no props.\n\nPose: airborne peak sprint, torso leaning left into the run, front (left) knee raised forward with lower leg folding back, rear (right) leg tucked back with heel lifted toward butt, both elbows bent with arms swinging opposite to legs, coat hem trailing to the right. Dynamic but anatomically correct; NOT a long straight-leg split stride; both feet off the ground, complete head and both shoes visible.\n\nSame square 1024 canvas and same anatomical scale as the reference; do NOT enlarge the figure to fill the canvas; keep ample black margin above the cap; lowest shoe near the bottom but above the edge; pelvis near horizontal center. Pure black background, no floor, no text, no speed lines, no shadows, no scenery, no other figures. ONE character ONE frame only.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Resources/Portraits/Neon/尼尔.png",
+      "sha256": "b912fb533f3e15388ff1495dea60e8f3b1f552581fa0f8e56f617cce4fb7d8b4"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/gemini-chase/尼尔_冲刺_线稿",
+  "created_at": "2026-10-11T15:32:23.314Z",
+  "submitted_at": "2026-10-11T15:32:30.794Z",
+  "conversation_url": "https://gemini.google.com/app/86d83b4eb1b0cab3",
+  "completed_at": "2026-10-11T15:32:47.976Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/gemini-chase/尼尔_冲刺_线稿/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "201db1ae9a730e2ab40c0b9d0d8656bcb1f6a721766086720e5a20e6cf793c8f"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/tmp/gemini-chase/尼尔_冲刺_线稿.png"
+}
