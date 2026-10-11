@@ -1,0 +1,37 @@
+name: SSNoir R86 Testimony Integrity
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r86.yml'
+      - 'tools/content-validator/experiments/r86_integrity_composure_audit.py'
+      - 'tools/content-validator/experiments/r56_r65_autonomous_search.py'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compare P17 forcing, listening and voluntary cleansing with composure
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r86_integrity_composure_audit.py /tmp/r86.json
+          cat /tmp/r86.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/r86.json',encoding='utf8'))
+          assert len(j['results'])==3
+          assert all(r['option_gain']>=0 for r in j['results'])
+          assert all(r['with_forced_questioning']['expected_credible_completion']>=r['without_forced_questioning']['expected_credible_completion'] for r in j['results'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-r86-composure-paper-evidence
+          path: /tmp/r86.json
+          retention-days: 60
