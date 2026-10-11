@@ -24,6 +24,7 @@ export interface FoundationSession {
   getCount(): number;
   getMoney(): number;
   getRenderDiagnostics(): Record<string, boolean>;
+  getGamePreviewStatus(): {loaded:boolean;mode:string;day:string;entries:number;places:number;money:number};
   resize(width: number, height: number): void;
   pause(): void;
   resume(): void;
@@ -169,23 +170,43 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   let currentContainer:RuntimeNode|null=null;
   let pendingRoll:RuntimeNode|null=null;
   const navigationStack:string[]=[];
-  const renderPlaces=(names:string[],atPlace=false)=>{
+  let displayedNames:string[]=[];
+  let listPage=0,hasBack=false;
+  const drawRows=()=>{
     worldRows.removeChildren().forEach(child=>child.destroy());
     worldButtons.length=0;
-    for(let i=0;i<Math.min(7,names.length);i++){
-      const name=names[i],x=wx+18,y=wy+92+i*42,width=panelWidth-36,height=35;
+    const visible=displayedNames.slice(listPage*7,(listPage+1)*7);
+    for(let i=0;i<visible.length;i++){
+      const name=visible[i],x=wx+18,y=wy+92+i*42,width=panelWidth-36,height=35;
       worldRows.addChild(new Graphics().roundRect(x,y,width,height,5)
         .fill({color:0x292f37}).stroke({color:0x565b64,width:1}));
       const row=new Text({text:name,style:{fontFamily:"sans-serif",fontSize:16,fill:0xf0e8dc}});
       row.position.set(x+10,y+7);worldRows.addChild(row);
       worldButtons.push({name,x,y,width,height});
     }
-    if(atPlace){
+    if(hasBack){
       worldButtons.unshift({name:"__back",x:wx+panelWidth-114,y:wy+17,width:100,height:30});
       worldRows.addChild(new Graphics().roundRect(wx+panelWidth-114,wy+17,100,30,5).fill(0x4a5058));
-      const back=new Text({text:"返回城市",style:{fontFamily:"sans-serif",fontSize:14,fill:0xffffff}});
-      back.position.set(wx+panelWidth-106,wy+24);worldRows.addChild(back);
+      const back=new Text({text:"返回",style:{fontFamily:"sans-serif",fontSize:14,fill:0xffffff}});
+      back.position.set(wx+panelWidth-96,wy+24);worldRows.addChild(back);
     }
+    if(displayedNames.length>7){
+      for(const [id,label,x,enabled] of [
+        ["__prev","上一页",wx+18,listPage>0],
+        ["__next","下一页",wx+255,(listPage+1)*7<displayedNames.length]
+      ] as const){
+        if(!enabled)continue;
+        const y=wy+383,width=100,height=34;
+        worldRows.addChild(new Graphics().roundRect(x,y,width,height,5)
+          .fill({color:0x424a55}));
+        const labelText=new Text({text:label,style:{fontFamily:"sans-serif",fontSize:14,fill:0xf0e8dc}});
+        labelText.position.set(x+14,y+7);worldRows.addChild(labelText);
+        worldButtons.push({name:id,x,y,width,height});
+      }
+    }
+  };
+  const renderPlaces=(names:string[],atPlace=false)=>{
+    displayedNames=names;listPage=0;hasBack=atPlace;drawRows();
   };
   const showRoot=()=>{
     if(!authoredWorld)return;
@@ -193,11 +214,13 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     worldHeading.text="贝尔维尔 / 城市";
     worldStatus.text="世界日："+String(authoredWorld.state.getGlobal("世界日"))+
       " · 地点："+authoredWorld.getPlaces().length;
-    renderPlaces(authoredWorld.getPlaces().map(n=>n.name));
+    // Story nodes at world root are not places; hiding them would make
+    // first-chapter authored objectives impossible to reach from the map.
+    renderPlaces(authoredWorld.root.children.filter(n=>!n.disabled).map(n=>n.name));
   };
   const showContainer=(node:RuntimeNode)=>{
     currentContainer=node;
-    worldHeading.text="地点 / "+node.name;
+    worldHeading.text="场景 / "+node.name;
     worldStatus.text=node.subtitle||"查看行动，或返回上一级";
     renderPlaces(node.children.map(n=>n.name),true);
   };
@@ -232,7 +255,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       showContainer(authoredWorld.root);
       worldHeading.text="交锋 / "+authoredWorld.root.name;
     }else{
-      const place=authoredWorld.root.children.find(x=>x.name===selectedPlace&&x.isPlace);
+      const place=authoredWorld.root.children.find(x=>x.name===selectedPlace);
       if(place)showContainer(place);
       else showRoot();
     }
@@ -258,6 +281,10 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   const visitWorld=(name:string)=>{
     worldQueue=worldQueue.then(async()=>{
       if(!authoredWorld)return;
+      if(name==="__prev"||name==="__next"){
+        listPage+=name==="__next"?1:-1;
+        drawRows();return;
+      }
       if(name==="__back"){
         if(pendingRoll){pendingRoll=null;chosenDice=[];redrawCurrent();return;}
         if(navigationStack.length){
@@ -280,9 +307,20 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
         await executeOriginal(pendingRoll);return;
       }
       if(!selectedPlace){
-        const entered=await authoredWorld.enterPlace(name);
-        selectedPlace=name;navigationStack.length=0;showContainer(entered);
-        receiveStory();return;
+        const top=authoredWorld.root.children.find(x=>x.name===name&&!x.disabled);
+        if(!top)throw new Error("unavailable world node "+name);
+        if(top.isPlace){
+          const entered=await authoredWorld.enterPlace(name);
+          selectedPlace=name;navigationStack.length=0;showContainer(entered);
+          receiveStory();return;
+        }
+        // Main-quest cards are real root children; they are not locations.
+        // Enter their child tree without firing the location arrival hook.
+        if(top.children.length){
+          selectedPlace=name;navigationStack.length=0;showContainer(top);return;
+        }
+        currentContainer=authoredWorld.root;
+        selectedPlace="__world-action";
       }
       if(!currentContainer)return;
       const target=currentContainer.children.find(x=>x.name===name);
@@ -465,6 +503,14 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     activateAt,
     getCount: () => count,
     getMoney: () => gameplay.state.getItemCount("金钱"),
+    getGamePreviewStatus:()=>({
+      loaded:authoredWorld!==null,
+      mode:authoredWorld?.mode??"loading",
+      day:String(authoredWorld?.state.getGlobal("世界日")??""),
+      entries:authoredWorld?.root.children.length??0,
+      places:authoredWorld?.getPlaces().length??0,
+      money:authoredWorld?.state.getItemCount("金钱")??0
+    }),
     getRenderDiagnostics: () => ({
       threeUsesHostCanvas: three.domElement === options.canvas,
       pixiViewUsesHostCanvas: pixi.canvas === options.canvas,

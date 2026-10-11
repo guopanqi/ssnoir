@@ -36,6 +36,21 @@ try {
       await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 1 &&
         window.__SSNOIR_FOUNDATION__?.getMoney() === 15, null, { timeout: 20000 });
 
+      // In addition to the old platform probe, assert the actual unmodified
+      // world.scm becomes navigable in each Web viewport.
+      await page.waitForFunction(() => window.__SSNOIR_PREVIEW__?.getStatus().loaded === true &&
+        window.__SSNOIR_PREVIEW__?.getStatus().places > 0, null, { timeout: 45000 });
+      if(scenario.name==="desktop"){
+        // Save is an authored-world transaction, not the independent counter.
+        await page.mouse.click(620,479);
+        await page.waitForFunction(() =>
+          Boolean(window.localStorage.getItem("ssnoir-phase2-preview-v1")),null,{timeout:20000});
+        const saved=await page.evaluate(()=>JSON.parse(
+          window.localStorage.getItem("ssnoir-phase2-preview-v1")
+        ));
+        if(saved.format!=="ssnoir-world"||saved.version!==1||!saved.worldDatum)
+          throw new Error("real-world preview did not persist a versioned Scheme save");
+      }
       const scale = scenario.height / 576;
       const x = 160 * scale;
       const y = (scenario.height - 576 * scale) / 2 + 483 * scale;

@@ -26,7 +26,8 @@ async function start(): Promise<void> {
     session.activateAt(x, y);
   });
   Object.assign(window, {
-    __SSNOIR_FOUNDATION__: { getSchemeValue: session.getCount, getMoney: session.getMoney }
+    __SSNOIR_FOUNDATION__: { getSchemeValue: session.getCount, getMoney: session.getMoney },
+    __SSNOIR_PREVIEW__: { getStatus: session.getGamePreviewStatus }
   });
   window.addEventListener("resize", () => session.resize(window.innerWidth, window.innerHeight));
   const updateVisibility = () => document.hidden ? session.pause() : session.resume();
