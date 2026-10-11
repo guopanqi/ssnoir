@@ -7,6 +7,7 @@
 // Vendored Apache-2.0 UTF-8 polyfill; preserves native implementations.
 import "./text-encoding";
 import { installMiniGameDocument } from "./document";
+import { createCanvasTypeRegistry } from "./canvas-type";
 // @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
 import UpstreamPerformance from "../vendor/weapp-adapter/src/performance.js";
 // @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
@@ -20,7 +21,8 @@ const g = globalThis as any;
 // Browser dependencies require a millisecond performance clock before initialization.
 g.performance ||= UpstreamPerformance;
 // FIRST wx.createCanvas() must be reserved for the visible stage.
-const canvas = new UpstreamCanvas();
+const canvasTypes = createCanvasTypeRegistry();
+const canvas = canvasTypes.register(new UpstreamCanvas());
 const device = wx.getSystemInfoSync();
 console.log("[MiniGame] adapter=finscn/weapp-adapter+host; platform=" +
   String(device.platform) + "; wxOffscreen=" + String(typeof wx.createOffscreenCanvas));
@@ -54,7 +56,7 @@ const createOffscreenCanvas = (w: number, h: number): HTMLCanvasElement => {
     candidate.getBoundingClientRect ||= () => ({
       x: 0, y: 0, left: 0, top: 0, width: candidate.width, height: candidate.height
     });
-    return candidate as HTMLCanvasElement;
+    return canvasTypes.register(candidate) as HTMLCanvasElement;
   };
   if (typeof wx.createOffscreenCanvas === "function") {
     try {
@@ -125,7 +127,7 @@ const miniDocument = Object.assign(new UpstreamEventTarget(), {
 installMiniGameDocument(g, miniDocument, canvas);
 g.HTMLElement ||= UpstreamHTMLElement;
 g.Image ||= wx.createImage().constructor;
-g.HTMLCanvasElement ||= canvas.constructor;
+canvasTypes.install(g);
 g.CanvasRenderingContext2D ||= ctx.constructor;
 // Do NOT alias WebGL1 and WebGL2 constructors. Pixi checks the context
 // type to choose native vertex-array support vs. the WebGL1 VAO extension.

@@ -71,6 +71,7 @@ jobs:
         run: npm run smoke:wechat-no-offscreen
       - name: WeChat iOS missing performance and Node-like global regression
         env:
+          SSNOIR_GENERIC_CANVAS: '1'
           SSNOIR_NO_PERFORMANCE: '1'
           SSNOIR_PARTIAL_DOCUMENT: '1'
           SSNOIR_WX_CANVAS_MODE: missing
@@ -83,6 +84,7 @@ jobs:
         run: npm run smoke:taptap-no-offscreen
       - name: TapTap iOS missing Intl, text encoding and offscreen Canvas regression
         env:
+          SSNOIR_GENERIC_CANVAS: '1'
           SSNOIR_NO_PERFORMANCE: '1'
           SSNOIR_NO_INTL: '1'
           SSNOIR_NO_TEXT_ENCODING: '1'

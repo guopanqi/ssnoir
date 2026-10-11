@@ -15,6 +15,7 @@ const page = await browser.newPage({ viewport: { width: 1024, height: 576 } });
 const errors = [];
 page.on("pageerror", error => errors.push("pageerror: " + (error.stack || String(error))));
 page.on("console", msg => {
+  if (msg.type() === "warning" && msg.text().includes("multiView is disabled")) errors.push("Pixi canvas warning: " + msg.text());
   if (msg.type() === "error") errors.push("console: " + msg.text());
   if (msg.type() === "log" && msg.text().includes("[SSNoir]")) console.log("browser:", msg.text());
 });
@@ -75,6 +76,20 @@ try {
     }
     window.wx = wxMock;
   }, canvasMode);
+  if (process.env.SSNOIR_GENERIC_CANVAS === "1") {
+    await page.evaluate(() => {
+      window.HTMLCanvasElement = undefined;
+      for (const name of ["createCanvas", "createOffscreenCanvas"]) {
+        if (typeof wx[name] !== "function") continue;
+        const create = wx[name];
+        wx[name] = (...args) => {
+          const canvas = create(...args);
+          Object.defineProperty(canvas, "constructor", { value: Object, configurable: true });
+          return canvas;
+        };
+      }
+    });
+  }
   if (process.env.SSNOIR_NO_INTL === "1") {
     await page.evaluate(() => {
       delete window.Intl;

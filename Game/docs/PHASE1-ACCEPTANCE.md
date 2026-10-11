@@ -95,3 +95,5 @@ WeChat now uses a selective vendored MIT [finscn/weapp-adapter](../adapters/wech
 2026-10-11 微信 iPhone 最新预览包：修复 performance 与 LIPS Node 误判后，用户回复“没问题”。记录为本轮启动/运行问题已解除；本条没有逐项确认前后台、计数保持和关闭重开，仍待专项验收。手机微信版本和 iOS 版本尚未提供。
 
 2026-10-11 微信 iOS 专项验收：用户按步骤测试后回复“全部正常”：切桌面约 10 秒返回，显示正常、计数保留，连续点击三次恰好加三；关闭小游戏重新扫码，显示和点击正常。微信与 TapTap iOS 本轮功能验收通过，Android 未实测，第一阶段跨平台验收尚未全部完成。
+
+2026-10-11 微信 iPhone 用户报告重复 multiView targetCanvas 警告直至 Pixi 警告上限。模拟将宿主 Canvas.constructor 设为 Object、移除原生 HTMLCanvasElement 后，旧包复现同样警告并发生非 Node 的 contains 调用。现用 WeakSet 登记实际 Canvas 分配，Symbol.hasInstance 仅认登记对象，保留原生 Canvas 类型。30 项测试、类型检查、两平台构建与上述环境的完整包渲染/触摸/前后台通过，Canvas 五项身份比较均 true；未抑制日志，模拟中 multiView 警告视为失败。更新包 iPhone 结果待确认。另有 Three.js UNPACK_COLORSPACE_CONVERSION_WEBGL 不支持提示尚未修复，当前无图片纹理的底座没有新增颜色错误证据。

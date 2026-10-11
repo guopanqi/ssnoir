@@ -32,6 +32,7 @@ Vite 配置使用 `build/pixi-intl-guard.ts` 的 `pixiIntlGuard()`。
 | 屏幕 Canvas 归属 | 缺少 body.contains 时，仅 body 自身与第一块屏幕 Canvas 属于页面，离屏 Canvas 不属于页面；保留原生实现 | 本地 `src/document.ts` |
 | 小游戏 DOM 子集 | 补齐缺失或不完整 document 上明确声明的方法，方法按能力补齐，元数据按属性是否存在补齐；保留值为空的宿主只读 getter；缺失方法使用 defineProperty 定义，禁止重定义时明确中断 | 本地 `src/document.ts` |
 | performance 时钟 | 缺失时使用原版 weapp-adapter performance（微信时钟单位归一化，缺少接口时使用 Date 差值）；保留已有实现 | 本地 host 接入，vendor 未修改 |
+| Canvas 类型 | 缺少原生 HTMLCanvasElement 或仅提供 Object 时，instanceof 仅识别本适配层分配并注册的屏幕/离屏 Canvas；普通纹理资源不视为 Canvas | 本地 `src/canvas-type.ts` |
 | Canvas / WebGL / 输入 / 生命周期 | 第一 Canvas 保留给屏幕；2D 离屏不足时用后续 Canvas；要求 WebGL2；显式触摸与前后台通知 | 本地 `src/host.ts`、`src/pixi.ts` |
 
 不伪造完整 Intl，不引入平台 UI 尺寸分支。构建修正会在固定补丁位置变化时失败，要求审阅依赖升级。
