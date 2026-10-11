@@ -1,0 +1,46 @@
+name: SSNoir R97 R102 bounded falsification
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r97-r102.yml'
+      - 'tools/content-validator/experiments/r97_late_seal_paper.py'
+      - 'tools/content-validator/experiments/r102_p10_single_round.py'
+permissions:
+  contents: read
+jobs:
+  exact-fraction-audits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: R97 voluntary mid-course sealing, including no-seal ablation
+        run: python3 tools/content-validator/experiments/r97_late_seal_paper.py /tmp/r97.json
+      - name: R102 original per-turn dice capacity under strong natural threshold
+        run: python3 tools/content-validator/experiments/r102_p10_single_round.py /tmp/r102.json
+      - name: Independent evidence gates
+        run: |
+          python3 - <<'PY'
+          import json
+          a=json.load(open('/tmp/r97.json'))
+          b=json.load(open('/tmp/r102.json'))
+          r=next(x for x in a['cases'] if x['goal']==10 and x['initial_composure']==4)
+          assert r['optimal']>r['never_seal']>r['seal_immediately']
+          assert r['optimal_path_strict_seal_in_second_round']>0.09
+          n=b['cases'][0]
+          assert n['relative_gap_percent']<0.02 and n['strict_starting_hands']==9
+          assert n['optimal_mean_progress']>n['global_threshold_mean_progress']
+          print('R97/R102 exact Fraction gates passed')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r97-r102-independent-paper-evidence
+          path: |
+            /tmp/r97.json
+            /tmp/r102.json
+          retention-days: 90
