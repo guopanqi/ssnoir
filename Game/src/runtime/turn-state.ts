@@ -7,7 +7,8 @@ export class ActionTurnState {
   private dice: ActionDie[] = [];
   private readonly stats = new Map([["violence",-1],["knowledge",1],["sharpness",0],["social",0]]);
 
-  constructor(private readonly random: () => number = Math.random) { this.startDay(); }
+  private readonly random: () => number;
+  constructor(random: () => number = Math.random) { this.random = random; this.startDay(); }
 
   private d6(): number {
     const n = this.random();
