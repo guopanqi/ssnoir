@@ -73,6 +73,18 @@ The plugin reads `game.json.appId` (camel-case); builds now write it from the
 same TapTap configuration and validate both IDs match, preventing rebuilds
 from erasing the debugger target and requiring another manual ID entry.
 
+The direct host-probe QR was subsequently downloaded by the iPhone; the user
+reported the expected “入口已执行，未加载技术底座” modal. This establishes
+execution of the minimal converted entry on the actual TapTap iOS host.
+It does not establish WebGL2 or library initialization.
+
+`node scripts/build-taptap.mjs --startup-probe` creates a separate
+`dist/taptap-startup-probe/game.zip` with the complete foundation and a startup
+modal that delays `require('./foundation.js')` until confirmation. The converted
+entry was checked with a simulated require failure: it performed no import
+before confirmation and displayed the caught error afterward. Device result
+for this second probe remains pending. Normal release entry is unchanged.
+
 `build:taptap` runs the submitted converter source (SHA-256 verified) with the actual WeChat bundle, then validates syntax, ZIP structure, version, orientation, presence of original runtime injection, and a 20MB ZIP budget. `smoke:taptap-harness` executes the **converted game.js** under Chromium with a mocked `wx` / `GameGlobal` host and checks the shared LIPS/Three/Pixi touch action. Both are included in GitHub Actions, with `game.zip` uploaded as an artifact.
 
 ### True target-runtime gates (still pending)

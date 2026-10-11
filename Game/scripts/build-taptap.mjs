@@ -11,10 +11,12 @@ import { gunzipSync } from "node:zlib";
  */
 const vendor = resolve("vendor/taptap-converter");
 const probe = process.argv.includes("--host-probe");
-const root = resolve(probe ? "dist/taptap-host-probe" : "dist/taptap");
+const startupProbe = process.argv.includes("--startup-probe");
+if (probe && startupProbe) throw new Error("Choose one probe mode");
+const root = resolve(probe ? "dist/taptap-host-probe" : startupProbe ? "dist/taptap-startup-probe" : "dist/taptap");
 const tools = resolve("dist/.taptap-converter-tool");
 const wechat = resolve("dist/wechat");
-const source = resolve(probe ? "dist/.taptap-probe-input" : "dist/.taptap-converter-input");
+const source = resolve(probe ? "dist/.taptap-probe-input" : startupProbe ? "dist/.taptap-startup-input" : "dist/.taptap-converter-input");
 const archive = join(vendor, "wx_converter.py.gz");
 const expected = "19020e1b26ce360d156da07676326885957a4b98a4624457e328518b97974354";
 const code = gunzipSync(readFileSync(archive));
@@ -34,6 +36,13 @@ rmSync(source, { recursive: true, force: true });
 mkdirSync(source, { recursive: true });
 if (!probe) copyFileSync(join(wechat, "game.js"), join(source, "foundation.js"));
 copyFileSync(resolve(probe ? "platforms/taptap/host-probe.js" : "platforms/taptap/game.js"), join(source, "game.js"));
+if (startupProbe) {
+  const loader = readFileSync(join(source, "game.js"), "utf8");
+  // Delay dependency loading until the device proves it executed this entry.
+  writeFileSync(join(source, "game.js"),
+    "wx.showModal({title:'SSNoir 启动探针 v2',content:'入口已执行。点确定后加载完整技术底座。',showCancel:false,success:function(){\n" +
+    loader + "\n}});\n");
+}
 copyFileSync(resolve("platforms/wechat/game.json"), join(source, "game.json"));
 // As in the working Laya release, supply the TapTap AppID before conversion.
 // The vendor converter preserves project.config.json unchanged.
