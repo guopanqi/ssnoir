@@ -55,3 +55,17 @@ test("native body membership is preserved", () => {
   exports.installScreenCanvasMembership(document, {});
   assert.equal(document.body.contains, contains);
 });
+
+test("read-only host metadata is preserved even when its getter returns undefined", () => {
+  const prototype = {};
+  Object.defineProperty(prototype, "baseURI", { get: () => undefined });
+  Object.defineProperty(prototype, "readyState", { get: () => null });
+  const document = Object.create(prototype);
+  Object.defineProperty(document, "scripts", { value: null, writable: false });
+  exports.installMiniGameDocument({ document }, { ...facade, baseURI: "https://minigame.invalid/game", scripts: [] });
+  assert.equal(document.baseURI, undefined);
+  assert.equal(document.readyState, null);
+  assert.equal(document.scripts, null);
+  assert.equal(Object.hasOwn(document, "baseURI"), false);
+  assert.equal(typeof document.querySelectorAll, "function");
+});

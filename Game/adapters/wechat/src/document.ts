@@ -3,7 +3,9 @@ export function installMiniGameDocument(global: any, facade: Record<string, any>
   const document = global.document ?? (global.document = facade);
   for (const [name, value] of Object.entries(facade)) {
     const current = document[name];
-    if (current == null || (typeof value === "function" && typeof current !== "function")) {
+    // Existing metadata may be a read-only getter returning null/undefined.
+    // Only method capabilities are judged by their value; metadata by presence.
+    if (typeof value === "function" ? typeof current !== "function" : !(name in document)) {
       document[name] = value;
     }
   }
