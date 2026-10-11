@@ -154,7 +154,8 @@ actual iOS confirmation. Source adapter ZIPs are generated under `dist/adapters`
 
 - [x] TapTap iOS App 5.34.2 扫码加载完整转换包，用户确认显示与点击正常（2026-10-11）
 - [ ] TapTap Android device: WebGL2 render, Chinese fonts, touch, background/foreground
-- [ ] TapTap iOS device: same, plus memory and base library/API differences if available
+- [x] TapTap iOS App 5.34.2：完整底座加载、显示、点击、前后台恢复与关闭重开（用户实测）
+- [ ] TapTap iOS：设备型号/iOS 版本记录、性能与内存观察
 - [ ] SDK integration decisions: whether the compatibility host provides the `wx` namespace, and when TapTap-native `tap` APIs need adapters
 - [ ] Production metadata (game ID, company/product names, release version) before store upload
 
@@ -170,3 +171,5 @@ The WeChat Canvas compatibility adapter now supports environments without `wx.cr
 2026-10-11：iOS 5.34.2 用户日志确认已进入 Pixi renderStart，宿主缺少 document.body.contains。共享适配层现按唯一屏幕 Canvas 的归属补齐此方法，离屏 Canvas 返回 false，保留原生方法。25 项测试、类型检查、转换 ZIP 校验及同时缺少 Intl/文本编码/document 查询/contains/offscreen API 的 Chromium 冒烟通过；新包真机首帧仍待确认。
 
 2026-10-11 最新真机结果：用户确认“没问题了，一切正常显示，点击也没问题”。关闭完整底座加载、首帧显示与触摸阻塞；前后台、重启及其他设备没有新增证据。
+
+2026-10-11 生命周期与重启真机验收：用户按指定步骤测试并回复“全部正常”：点击后切到手机桌面约 10 秒再返回，显示正常、计数保留，连续三次点击恰好增加三；关闭小游戏并重新扫码，显示与点击正常。结合此前完整底座加载、显示和触摸反馈，TapTap iOS App 5.34.2 的本轮功能验收通过。设备型号、iOS 版本尚未记录；Android、长期运行与性能/内存测量没有验收证据。

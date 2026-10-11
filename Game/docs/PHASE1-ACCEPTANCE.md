@@ -7,7 +7,7 @@
 [TapTap converter/startup adapter](../adapters/taptap/README.md). Each adapter
 includes its vendor provenance and local-change record. The foundation must
 consume these same modules so the deliverables cannot drift into unused copies.
-TapTap iOS App 5.34.2 now has user-confirmed complete-foundation rendering and touch acceptance (2026-10-11); native lifecycle and broader device coverage remain pending.
+TapTap iOS App 5.34.2 now has user-confirmed complete-foundation rendering and touch acceptance (2026-10-11); native background/foreground recovery and restart also passed user testing; broader device coverage remains pending.
 
 ## Current automated gates
 
@@ -78,7 +78,7 @@ WeChat now uses a selective vendored MIT [finscn/weapp-adapter](../adapters/wech
 用户确认最新 TapTap iOS 包“一切正常显示，点击也没问题”。这是完整底座的真机加载、显示和触摸证据；未据此推定前后台、长期运行或其他设备通过。
 
 第一阶段剩余核心验收：
-- TapTap iOS 切后台再返回，确认继续渲染、按钮计数保留且每次点击只增加一次；关闭重开也应正常。
+- [x] TapTap iOS 切后台再返回：显示、计数保留、连续三次点击恰好增加三和关闭重新扫码均由用户确认正常。
 - 同一最终适配版本在微信开发者工具重新编译，复查显示、触摸和前后台。
 - 发布目标的微信 iOS 与 TapTap/微信 Android 真机最小回归；记录设备、系统、客户端和基础库版本。未覆盖的平台明确标记未验证。
 - 三份交付物的最终打包与接入说明核对；使用独立最小工程消费适配包的构建/转换已有证据，最终包应继续保持这一边界。

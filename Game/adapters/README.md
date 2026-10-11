@@ -18,5 +18,5 @@
 ## 验收证据
 
 构建、模拟宿主、微信开发者工具和 TapTap 真机分别记录，不互相替代。
-2026-10-11 用户确认 TapTap iOS App 5.34.2 完整底座显示正常、点击正常。真机前后台与其他目标设备仍待验收，第一阶段尚未全部完成。
+2026-10-11 用户确认 TapTap iOS App 5.34.2 完整底座显示正常、点击正常。同日用户确认前后台恢复、计数保留、连续三次点击恰好增加三及关闭重新扫码正常。微信最终版与其他目标设备仍待验收，第一阶段尚未全部完成。
 详见 [Phase 1 acceptance](../docs/PHASE1-ACCEPTANCE.md) 和 [TapTap acceptance](../docs/TAPTAP-ACCEPTANCE.md)。
