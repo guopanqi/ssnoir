@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {GameRuntimeState} from "../src/runtime/game-state.ts";
 import {GameScriptSession} from "../src/runtime/script-session.ts";
+import {createNativeBridge} from "../src/runtime/native-bridge.ts";
 const root="../UnityClient/Assets/Resources/Content/scripts/";
 const sources=Object.fromEntries(["stdlib.scm","engine.scm","theatre.scm"].map(x=>["scripts/"+x,readFileSync(root+x,"utf8")]));
 const std=readFileSync("node_modules/lips/dist/std.xcb");
@@ -25,8 +26,7 @@ test("transaction canceled after Scheme error does not leak ghost dialogue",asyn
  await vm.evaluate('(play-dialogue! (line "尼尔" "永远不应该播放"))');
  state.cancelActionReport();
  assert.deepEqual(state.takeStoryEvents(),[]);
- assert.throws(()=>createCheck(),/supplement/);
- function createCheck(){return state.queueStory({kind:"supplement",blocking:false,args:["test"]}),(()=>{throw Error("supplement only checked by bridge")})()}
+ assert.throws(()=>createNativeBridge(state)["__result-supplement!"]("extra"),/requires executing action/);
 });
 test("video outside action is intentionally ignored, but dialogue goes to immediate queue",async()=>{
  const state=new GameRuntimeState();
