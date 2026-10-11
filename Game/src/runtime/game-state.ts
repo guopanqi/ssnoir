@@ -1,4 +1,5 @@
 import { InjuryState, type InjurySnapshot } from "./injury.ts";
+import { TeamState, type TeamSave } from "./team-state.ts";
 /**
  * Stage 2: platform-independent state ownership.
  * Derived from Engine/Runtime/Core/GameState.cs and InventoryState.cs.
@@ -13,10 +14,12 @@ export interface RuntimeSnapshot {
   notifications: string[];
   failure: { title: string; description: string } | null;
   injury: InjurySnapshot;
+  team: TeamSave;
 }
 
 export class GameRuntimeState {
   readonly injury = new InjuryState();
+  readonly team = new TeamState();
   private globals = new Map<string, GlobalValue>();
   private inventory = new Map<string, { name: string; count: number }>();
   private restBlockers = new Map<string, RuntimeSnapshot["restBlockers"][number]>();
@@ -37,6 +40,7 @@ export class GameRuntimeState {
     this.notifications = [];
     this.failure = null;
     this.injury.restore({severity:0,part:"",scars:[]});
+    this.team.reset();
     this.growthLevel = 0;
   }
 
@@ -114,7 +118,8 @@ export class GameRuntimeState {
       restBlockers: [...this.restBlockers.values()].map(x => ({ ...x })),
       notifications: [...this.notifications],
       failure: this.failure ? { ...this.failure } : null,
-      injury: this.injury.snapshot()
+      injury: this.injury.snapshot(),
+      team: this.team.snapshot()
     };
   }
 
@@ -132,6 +137,7 @@ export class GameRuntimeState {
     }
     candidate.notifications = [...data.notifications];
     candidate.injury.restore(data.injury);
+    candidate.team.restore(data.team);
     if (data.failure !== null) {
       if (!data.failure || typeof data.failure.title !== "string" || typeof data.failure.description !== "string") {
         throw new Error("invalid failure");
@@ -145,5 +151,6 @@ export class GameRuntimeState {
     this.notifications = candidate.notifications;
     this.failure = candidate.failure;
     this.injury.restore(data.injury);
+    this.team.restore(data.team);
   }
 }

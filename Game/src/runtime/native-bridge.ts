@@ -92,6 +92,80 @@ export function createNativeBridge(state: GameRuntimeState): NativeBridge {
     "__hospitalization-pending?": (...args) => {
       arity("__hospitalization-pending?",args,0);return false;
     },
+    "__actor-composure": (...args) => {
+      arity("__actor-composure",args,1);return state.team.composure(id(args[0]));
+    },
+    "__set-actor-composure!": (...args) => {
+      arity("__set-actor-composure!",args,2);
+      const overflow=state.team.setComposure(id(args[0]),integer(args[1]));
+      if(overflow>0)state.applyInjury(overflow);
+      return undefined;
+    },
+    "__spend-actor-composure!": (...args) => {
+      arity("__spend-actor-composure!",args,2);
+      const overflow=state.team.spend(id(args[0]),integer(args[1]));
+      if(overflow>0)state.applyInjury(overflow);
+      return undefined;
+    },
+    "__actor-status": (...args) => {
+      arity("__actor-status",args,1);return state.team.status(id(args[0]));
+    },
+    "__set-actor-status!": (...args) => {
+      arity("__set-actor-status!",args,2);
+      const status=id(args[1]);
+      if(status!=="active"&&status!=="away")throw new Error("invalid actor status");
+      state.team.setStatus(id(args[0]),status);return undefined;
+    },
+    "__actor-stat": (...args) => {
+      arity("__actor-stat",args,2);return state.team.stat(id(args[0]),id(args[1]));
+    },
+    "__has-companion?": (...args) => {
+      arity("__has-companion?",args,1);
+      return state.team.find(id(args[0]))?.role==="companion";
+    },
+    "__dismiss-companion!": (...args) => {
+      arity("__dismiss-companion!",args,1);
+      const actor=state.team.require(id(args[0]));
+      state.team.dismiss(actor.id);state.notify(actor.name+"离开队伍");return undefined;
+    },
+    "__recruit-companion!": (...args) => {
+      arity("__recruit-companion!",args,3);
+      const values=schemeList(args[2],"companion stats");
+      const stats:Record<string,number>={};
+      for(const entry of values) {
+        const pair=schemeList(entry,"companion stat entry");
+        if(pair.length!==2)throw new Error("companion stats need (skill value) pairs");
+        stats[id(pair[0])]=integer(pair[1]);
+      }
+      state.team.recruit(id(args[0]),string(args[1]),stats as import("./team-state.ts").Stats);
+      state.notify(string(args[1])+"加入队伍");return undefined;
+    },
+    "__grant-support!": (...args) => {
+      arity("__grant-support!",args,1);state.team.grantSupport(string(args[0]));return undefined;
+    },
+    "__has-support?": (...args) => {
+      arity("__has-support?",args,1);return state.team.hasSupport(string(args[0]));
+    },
+    "__set-carried-support!": (...args) => {
+      arity("__set-carried-support!",args,1);state.team.setCarriedSupport(string(args[0]));return undefined;
+    },
+    "__carried-support": (...args) => {
+      arity("__carried-support",args,0);return state.team.getCarriedSupport();
+    },
+    "__set-actor-die-profile!": (...args) => {
+      arity("__set-actor-die-profile!",args,4);
+      const fixed=integer(args[2]);
+      state.team.dieProfile(id(args[0]),integer(args[1]),fixed===0?null:fixed,string(args[3]));
+      return undefined;
+    },
+    "__set-actor-permanent-die-penalty!": (...args) => {
+      arity("__set-actor-permanent-die-penalty!",args,3);
+      state.team.permanentDiePenalty(id(args[0]),string(args[1]),integer(args[2]));
+      return undefined;
+    },
+    "__apply-hangover!": (...args) => {
+      arity("__apply-hangover!",args,0);state.team.applyHangover();return undefined;
+    },
     "__item-count": (...args) => {
       arity("__item-count", args, 1);
       return state.getItemCount(id(args[0]));

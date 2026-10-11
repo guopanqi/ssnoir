@@ -37,3 +37,7 @@ Only `main` branch; coordinate with concurrently running research agents via exp
 - Node tests 30/30 + new Phase 2 tests 17/17; `tests/game-world.ts-test.mjs` loaded the real unchanged `scenes/world/world.scm`, dependencies, and converted `get-render-data` into a nonempty validated root node. **This is a real authored content smoke, not a full gameplay parity trace.**
 - Migrated foundations: original engine+theatre Scheme bootstrap, global/inventory/rest blockers, exact original FateStrip, fixed dice identities, callable Scheme outcome closures, action requirement gate, injury bands and scar snapshot.
 - **Next priority**: implement real navigation and action resolution in authored world, actor/team/composure/injury hospitalization and report pipelines, world/encounter transitions, per-module save/resume and narrative stage presentation. Full Phase 2 gates 2–8 remain OPEN; stage-one device acceptance is user-reported, not independent CI proof.
+
+## Actor/team native increment
+
+`src/runtime/team-state.ts` owns the one protagonist and companions; records slot identity, four skills, composure, away/active transitions, growth spending, supports, carried support and temporary helpers. `native-bridge.ts` exposes the corresponding Scheme functions. Typed snapshots validate actor cardinality, dice and support cross-references and reject temporary summoned helpers. Hospitalization pending/7-injury resolution is still a separate gate and must not be inferred from a passing team test.
