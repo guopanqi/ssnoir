@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Container, Graphics, Text, WebGLRenderer as PixiRenderer } from "pixi.js";
 import { LipsSession } from "../scheme/lips-session";
 import { createHostScriptRuntime } from "../runtime/host-session";
+import { createWorldHostRuntime, type WorldHost } from "../runtime/world-host";
 import { createFrameLoop } from "./frame-loop";
 import ssnoirStdlib from "../../../UnityClient/Assets/Resources/Content/scripts/stdlib.scm?raw";
 
@@ -111,6 +112,76 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   label.position.set(65, 472);
   stage.addChild(label);
 
+  // Authored world pane: one shared Pixi renderer across browser and Mini Games.
+  // The opening state comes from the ORIGINAL world.scm, not from hardcoded places.
+  const worldPanel=new Container();
+  const wx=450,wy=34,panelWidth=375;
+  worldPanel.addChild(new Graphics().roundRect(wx,wy,panelWidth,408,9)
+    .fill({color:0x14171e,alpha:0.92}).stroke({color:0x626771,width:1}));
+  const worldHeading=new Text({
+    text:"贝尔维尔 / 城市",style:{fontFamily:"sans-serif",fontSize:23,fill:0xe5dac5}
+  });
+  worldHeading.position.set(wx+20,wy+18);worldPanel.addChild(worldHeading);
+  const worldStatus=new Text({
+    text:"正在读取原版世界…",style:{fontFamily:"sans-serif",fontSize:15,fill:0xaeb7c1}
+  });
+  worldStatus.position.set(wx+20,wy+57);worldPanel.addChild(worldStatus);
+  const worldButtons: Array<{name:string;x:number;y:number;width:number;height:number}>=[];
+  const worldRows=new Container();worldPanel.addChild(worldRows);stage.addChild(worldPanel);
+  let authoredWorld:WorldHost|null=null;
+  let selectedPlace="";
+  const renderPlaces=(names:string[],atPlace=false)=>{
+    worldRows.removeChildren().forEach(child=>child.destroy());
+    worldButtons.length=0;
+    for(let i=0;i<Math.min(7,names.length);i++){
+      const name=names[i],x=wx+18,y=wy+92+i*42,width=panelWidth-36,height=35;
+      worldRows.addChild(new Graphics().roundRect(x,y,width,height,5)
+        .fill({color:0x292f37}).stroke({color:0x565b64,width:1}));
+      const row=new Text({text:name,style:{fontFamily:"sans-serif",fontSize:16,fill:0xf0e8dc}});
+      row.position.set(x+10,y+7);worldRows.addChild(row);
+      worldButtons.push({name,x,y,width,height});
+    }
+    if(atPlace){
+      worldButtons.unshift({name:"__back",x:wx+panelWidth-114,y:wy+17,width:100,height:30});
+      worldRows.addChild(new Graphics().roundRect(wx+panelWidth-114,wy+17,100,30,5).fill(0x4a5058));
+      const back=new Text({text:"返回城市",style:{fontFamily:"sans-serif",fontSize:14,fill:0xffffff}});
+      back.position.set(wx+panelWidth-106,wy+24);worldRows.addChild(back);
+    }
+  };
+  const showRoot=()=>{
+    if(!authoredWorld)return;
+    selectedPlace="";
+    worldHeading.text="贝尔维尔 / 城市";
+    worldStatus.text="世界日："+String(authoredWorld.state.getGlobal("世界日"))+
+      " · 地点："+authoredWorld.getPlaces().length;
+    renderPlaces(authoredWorld.getPlaces().map(n=>n.name));
+  };
+  // Keep foundation startup independent of a content load failure.
+  void createWorldHostRuntime().then(worldHost=>{
+    authoredWorld=worldHost;showRoot();
+    console.log("[SSNoir] original world.scm ready, places="+worldHost.getPlaces().length);
+  }).catch(error=>{
+    worldStatus.text="原版世界加载失败";
+    console.error("[SSNoir] real world bootstrap failed",error);
+    options.onError?.(error);
+  });
+  let worldQueue=Promise.resolve();
+  const visitWorld=(name:string)=>{
+    worldQueue=worldQueue.then(async()=>{
+      if(!authoredWorld)return;
+      if(name==="__back"){showRoot();return;}
+      if(!selectedPlace){
+        const entered=await authoredWorld.enterPlace(name);
+        selectedPlace=name;
+        worldHeading.text="地点 / "+entered.name;
+        worldStatus.text=entered.subtitle||"原版世界节点";
+        // Show actual child names. Nested containers are still traversed by
+        // the action runner; full roll/action UI remains a separate Phase 2 gate.
+        renderPlaces(entered.children.map(n=>n.title),true);
+      }
+    }).catch(error=>{console.error("[SSNoir] world navigation",error);options.onError?.(error);});
+  };
+
   // This is the real LIPS runtime candidate, not an unrelated BiwaScheme probe.
   // Confirm isolated namespaces before any user action, in both Web and WeChat.
   const world = new LipsSession("SSNoir-foundation-world");
@@ -172,6 +243,8 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   function activateAt(x: number, y: number): boolean {
     const xx = (x - size.left) / size.scale;
     const yy = (y - size.top) / size.scale;
+    const hit=worldButtons.find(b=>xx>=b.x&&xx<=b.x+b.width&&yy>=b.y&&yy<=b.y+b.height);
+    if(hit){visitWorld(hit.name);return true;}
     if (xx >= BUTTON.x && xx <= BUTTON.x + BUTTON.width &&
         yy >= BUTTON.y && yy <= BUTTON.y + BUTTON.height) {
       void increment().catch(error => options.onError?.(error));
