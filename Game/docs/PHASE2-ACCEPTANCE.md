@@ -65,3 +65,9 @@ The original C# `NodeConverter` semantic clocks (`gauge`, `countdown`, `readout`
 The original C# `StoryStagePlayer` beat semantics have been ported into `src/runtime/stage-playback.ts`: simultaneous commands, input-only dialogue, no skipping of moving actors, linear movement, relative/multi-point Bézier paths, prop anchors, poses, light and effect events. The **same** Pixi canvas now hosts `StageVectorView` in addition to `TheatreVectorView`. The source of `play-stage!` remains the existing Unity Scheme scripts and the host's typed story queue.
 
 `tests/authored-stage.ts-test.mjs` extracts and executes the actual unmodified Frank ship-settlement stage expression from `scenes/world/人物/弗兰克.scm` and advances it to the final beat; this is not just a synthetic animation example. **Stage art is not yet at asset parity**: when a portrait/prop is not provided by the host resolver, an explicit missing-resource graphic is displayed. This does not close narrative presentation Gate 7. Actual voice/audio, motion/video backends and Pixi visuals still require verification.
+
+### Stage asset integration (bounded release baseline)
+
+Four original SSNoir portrait silhouette PNGs (Neil, Nightingale, Frank and Baines) are referenced at build time via `?inline` instead of creating a separate HTTP/DOM image loader or copying an unbounded Unity resource folder into the Mini Game package. `StageImageRegistry` decodes them through the existing host `Image` interface; the shared StageVectorView asynchronously replaces missing-asset markers only after a real Pixi `Texture` exists. Other portraits, special poses, props, voice and sound are still explicitly unresolved; do **not** claim final graphic/audio parity on this basis.
+
+This is an authored runtime reliability check, not a full asset migration. Mini Game device decoding and package size still require the actual CI and native test gates.

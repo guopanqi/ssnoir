@@ -61,6 +61,15 @@ export class StageVectorView {
     for(const entity of player.entities.values()){
       let drawable=this.drawings.get(entity.id);
       if(!drawable){drawable=this.create(entity);this.drawings.set(entity.id,drawable);}
+      else if(!drawable.sprite&&this.resolve(entity.asset)){
+        // The exact original image may finish decoding after a stage begins.
+        // Replace the missing-asset diagnostic when it actually becomes usable.
+        drawable.root.destroy({children:true});
+        this.drawings.delete(entity.id);
+        this.missing.delete(entity.asset);
+        drawable=this.create(entity);
+        this.drawings.set(entity.id,drawable);
+      }
       const x=512+entity.x*26,y=481-entity.y*26;
       drawable.root.position.set(x,y);
       drawable.root.alpha=entity.light==="faint"?.42:entity.light==="ember"?.66:1;

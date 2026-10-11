@@ -10,6 +10,7 @@ import {parseTheatre} from "../runtime/theatre-contract";
 import {TheatrePlayback} from "../runtime/theatre-playback";
 import {TheatreVectorView} from "./theatre-view";
 import {StageVectorView} from "./stage-view";
+import {StageImageRegistry} from "./stage-assets";
 import {StagePlayback} from "../runtime/stage-playback";
 import {parseStage} from "../runtime/stage-contract";
 import { createFrameLoop } from "./frame-loop";
@@ -440,7 +441,8 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   stage.addChild(storyOverlay);
   const theatreView=new TheatreVectorView();
   stage.addChildAt(theatreView.root,stage.getChildIndex(storyOverlay));
-  const stageView=new StageVectorView();
+  const stageImages=new StageImageRegistry();
+  const stageView=new StageVectorView(asset=>stageImages.get(asset));
   stage.addChildAt(stageView.root,stage.getChildIndex(storyOverlay));
   let activeStage:StagePlayback|null=null;
   let stageFrame:ReturnType<typeof playback.advance>|null=null;
@@ -691,6 +693,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       loop.dispose();
       theatreView.destroy();
       stageView.destroy();
+      stageImages.dispose();
       pixi.destroy();
       scene.traverse(obj => {
         if (obj instanceof THREE.Mesh) obj.geometry.dispose();
