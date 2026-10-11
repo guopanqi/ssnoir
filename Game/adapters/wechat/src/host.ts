@@ -8,6 +8,8 @@
 import "./text-encoding";
 import { installMiniGameDocument } from "./document";
 // @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
+import UpstreamPerformance from "../vendor/weapp-adapter/src/performance.js";
+// @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
 import UpstreamCanvas from "../vendor/weapp-adapter/src/Canvas.js";
 // @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
 import UpstreamHTMLElement from "../vendor/weapp-adapter/src/HTMLElement.js";
@@ -15,6 +17,8 @@ import UpstreamHTMLElement from "../vendor/weapp-adapter/src/HTMLElement.js";
 import UpstreamEventTarget from "../vendor/weapp-adapter/src/EventTarget.js";
 declare const wx: any;
 const g = globalThis as any;
+// Browser dependencies require a millisecond performance clock before initialization.
+g.performance ||= UpstreamPerformance;
 // FIRST wx.createCanvas() must be reserved for the visible stage.
 const canvas = new UpstreamCanvas();
 const device = wx.getSystemInfoSync();

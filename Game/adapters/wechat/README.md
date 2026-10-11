@@ -28,9 +28,10 @@ Vite 配置使用 `build/pixi-intl-guard.ts` 的 `pixiIntlGuard()`。
 | fast-text-encoding 1.0.6，Apache-2.0 | 缺少原生接口时提供 UTF-8 编解码；入口先建立 global window | 否 |
 | UTF-8 宿主边界 | 孤立 UTF-16 代理字符转为 U+FFFD，使 encode 与原生接口一致 | 本地 `src/text-encoding.ts` |
 | Pixi 8.20.1 | 构建时修正 `typeof Intl?.Segmenter` 为先判断 Intl 存在，再使用自带 fallback | 构建转换；不改 node_modules |
-| LIPS 1.0.0-beta.23.1 | IIFE 文档元数据 helper 增加字符串类型判断 | 构建转换；不改 node_modules |
+| LIPS 1.0.0-beta.23.1 | IIFE 文档元数据 helper 增加字符串类型判断；明确浏览器构建关闭 Node 检测，避免微信 global.global 误判 | 构建转换；不改 node_modules |
 | 屏幕 Canvas 归属 | 缺少 body.contains 时，仅 body 自身与第一块屏幕 Canvas 属于页面，离屏 Canvas 不属于页面；保留原生实现 | 本地 `src/document.ts` |
 | 小游戏 DOM 子集 | 补齐缺失或不完整 document 上明确声明的方法，方法按能力补齐，元数据按属性是否存在补齐；保留值为空的宿主只读 getter；缺失方法使用 defineProperty 定义，禁止重定义时明确中断 | 本地 `src/document.ts` |
+| performance 时钟 | 缺失时使用原版 weapp-adapter performance（微信时钟单位归一化，缺少接口时使用 Date 差值）；保留已有实现 | 本地 host 接入，vendor 未修改 |
 | Canvas / WebGL / 输入 / 生命周期 | 第一 Canvas 保留给屏幕；2D 离屏不足时用后续 Canvas；要求 WebGL2；显式触摸与前后台通知 | 本地 `src/host.ts`、`src/pixi.ts` |
 
 不伪造完整 Intl，不引入平台 UI 尺寸分支。构建修正会在固定补丁位置变化时失败，要求审阅依赖升级。

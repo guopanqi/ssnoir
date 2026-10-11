@@ -88,3 +88,5 @@ WeChat now uses a selective vendored MIT [finscn/weapp-adapter](../adapters/wech
 2026-10-11 微信最终版回归发现宿主 HTMLDocument.baseURI 为只读属性且返回空值，旧补齐逻辑误将空值视为缺失并写入。现仅当元数据属性不存在时补齐；方法仍按可调用能力判断。回归覆盖继承只读 getter 与自有只读空值属性。类型检查、26 项测试、微信/TapTap 构建及两平台模拟渲染、触摸与生命周期均通过；微信实际重新编译仍待用户确认，TapTap 新版本亦待轻量真机回归。
 
 2026-10-11 微信开发者工具实查：createElementNS 为 writable=false、configurable=true；global document 为不可配置的宿主访问属性。保留宿主 document，以 defineProperty 定义明确缺失的方法，禁止重定义时报告契约错误。28 项测试、类型检查、微信/TapTap 构建与模拟渲染/触摸/前后台通过。工具实际显示 shared foundation mounted、844×390 WebGL2、错误计数 0，截图见 artifacts/wechat-readonly-document-fixed.png；画面计数显示 7，但本次自动点击没有取得可靠的前后递增证据，不能将点击和前后台记为通过。
+
+2026-10-11 微信 iPhone 预览：用户确认不加载库的最小宿主探针正常，完整底座日志暴露 performance 缺失与 LIPS 的 Node 环境误判。共享宿主接入原始上游 performance 实现；明确浏览器 IIFE 构建的 LIPS is_node=false，避免 global.global===global 导致调用不存在的 Node createRequire。28 项测试、类型检查、两平台构建以及缺少 performance 且 global.global===global 的完整包模拟渲染/点击/前后台均通过。CI 新增此组合，原版 vendor/converter 未修改。更新包微信真机结果待确认。

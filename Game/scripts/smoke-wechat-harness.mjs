@@ -89,6 +89,14 @@ try {
         throw new Error("Missing text encoding regression environment was not established");
     });
   }
+  if (process.env.SSNOIR_NO_PERFORMANCE === "1") {
+    await page.evaluate(() => {
+      Object.defineProperty(window, "performance", { value: undefined, configurable: true, writable: true });
+      window.global = window; // WeChat globals must not trigger LIPS's Node branch.
+      if (typeof performance !== "undefined" || global.global !== global)
+        throw new Error("WeChat global/clock regression environment was not established");
+    });
+  }
   if (process.env.SSNOIR_PARTIAL_DOCUMENT === "1") {
     await page.evaluate(() => {
       document.body.contains = undefined;
