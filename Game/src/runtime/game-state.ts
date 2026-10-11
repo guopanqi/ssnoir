@@ -1,5 +1,6 @@
 import { InjuryState, type InjurySnapshot } from "./injury.ts";
 import { TeamState, type TeamSave } from "./team-state.ts";
+import type { StoryEvent } from "./story-events.ts";
 /**
  * Stage 2: platform-independent state ownership.
  * Derived from Engine/Runtime/Core/GameState.cs and InventoryState.cs.
@@ -28,6 +29,8 @@ export class GameRuntimeState {
   private failure: RuntimeSnapshot["failure"] = null;
   private growthLevel = 0;
   private clockEffects: Array<{label:string; displayLabel:string; delta:number}> | null = null;
+  private storyInAction:StoryEvent[]|null=null;
+  private storyReady:StoryEvent[]=[];
 
   constructor() { this.reset(); }
 
@@ -43,6 +46,7 @@ export class GameRuntimeState {
     this.injury.restore({severity:0,part:"",scars:[]});
     this.team.reset();
     this.hospitalization=null;
+    this.storyInAction=null;this.storyReady=[];
     this.growthLevel = 0;
   }
 
@@ -89,6 +93,7 @@ export class GameRuntimeState {
   beginActionReport(): void {
     if (this.clockEffects) throw new Error("nested action report");
     this.clockEffects = [];
+    this.storyInAction=[];
   }
   recordClockEffect(label:string, displayLabel:string, delta:number):void {
     if (!label.trim() || !displayLabel.trim() || !Number.isSafeInteger(delta))
@@ -103,9 +108,21 @@ export class GameRuntimeState {
   }
   takeActionReport():Array<{label:string;displayLabel:string;delta:number}> {
     const r=(this.clockEffects??[]).filter(x=>x.delta!==0).map(x=>({...x}));
-    this.clockEffects=null;return r;
+    this.clockEffects=null;
+    if(this.storyInAction) this.storyReady.push(...this.storyInAction);
+    this.storyInAction=null;return r;
   }
-  cancelActionReport():void { this.clockEffects=null; }
+  cancelActionReport():void { this.clockEffects=null;this.storyInAction=null; }
+  queueStory(event:Omit<StoryEvent,"immediate">):void {
+    const item={...event,immediate:this.storyInAction===null};
+    if(this.storyInAction)this.storyInAction.push(item);
+    else this.storyReady.push(item);
+  }
+  takeStoryEvents():StoryEvent[] {
+    const result=this.storyReady.map(e=>({...e,args:structuredClone(e.args)}));
+    this.storyReady=[];return result;
+  }
+  isActionReporting():boolean {return this.clockEffects!==null;}
   /**
    * Mirrors GameState.CheckCollapse: impact is settled at the instant the
    * injury reaches 7, while SceneManager later consumes the hospitalization

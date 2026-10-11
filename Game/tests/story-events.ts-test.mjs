@@ -1,0 +1,40 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {GameRuntimeState} from "../src/runtime/game-state.ts";
+import {GameScriptSession} from "../src/runtime/script-session.ts";
+const root="../UnityClient/Assets/Resources/Content/scripts/";
+const sources=Object.fromEntries(["stdlib.scm","engine.scm","theatre.scm"].map(x=>["scripts/"+x,readFileSync(root+x,"utf8")]));
+const std=readFileSync("node_modules/lips/dist/std.xcb");
+test("Scheme story actions enqueue ordered, typed blocking and banter beats for platform UI",async()=>{
+ const state=new GameRuntimeState();
+ const vm=await GameScriptSession.create("story-queue",state,sources,std);
+ state.beginActionReport();
+ await vm.evaluate('(begin (play-dialogue! (line "尼尔" "有人吗？")) (play-banter! (line "夜莺" "我在。")) (play-video! "chandelier") (play-motion! "剧院/吊灯" "落下" "cam"))');
+ state.takeActionReport();
+ const queue=state.takeStoryEvents();
+ assert.deepEqual(queue.map(x=>x.kind),["dialogue","banter","video","motion"]);
+ assert.deepEqual(queue.map(x=>x.blocking),[true,false,true,true]);
+ assert.equal(queue[0].immediate,false);
+ assert.equal(queue[2].args[0],"chandelier");
+});
+test("transaction canceled after Scheme error does not leak ghost dialogue",async()=>{
+ const state=new GameRuntimeState();
+ const vm=await GameScriptSession.create("story-failed",state,sources,std);
+ state.beginActionReport();
+ await vm.evaluate('(play-dialogue! (line "尼尔" "永远不应该播放"))');
+ state.cancelActionReport();
+ assert.deepEqual(state.takeStoryEvents(),[]);
+ assert.throws(()=>createCheck(),/supplement/);
+ function createCheck(){return state.queueStory({kind:"supplement",blocking:false,args:["test"]}),(()=>{throw Error("supplement only checked by bridge")})()}
+});
+test("video outside action is intentionally ignored, but dialogue goes to immediate queue",async()=>{
+ const state=new GameRuntimeState();
+ const vm=await GameScriptSession.create("story-immediate",state,sources,std);
+ await vm.evaluate('(play-video! "ignored")');
+ await vm.evaluate('(play-dialogue! (line "尼尔" "你好"))');
+ const queue=state.takeStoryEvents();
+ assert.equal(queue.length,1);
+ assert.equal(queue[0].immediate,true);
+ assert.equal(queue[0].kind,"dialogue");
+});

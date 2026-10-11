@@ -1,6 +1,7 @@
 import { unbox } from "lips";
 import { GameRuntimeState } from "./game-state.ts";
 import { schemeList } from "./node-converter.ts";
+import { storyArguments, type StoryKind } from "./story-events.ts";
 
 export type NativeCallable = (...args: unknown[]) => unknown;
 export type NativeBridge = Record<string, NativeCallable>;
@@ -38,6 +39,15 @@ function portableScalar(value: unknown): string | number | boolean {
 
 /** Names and argument expectations ported from NativeFunctions.Register, not a new DSL. */
 export function createNativeBridge(state: GameRuntimeState): NativeBridge {
+  const story=(kind:StoryKind,blocking:boolean,min:number,max:number=min):NativeCallable=>(...args)=>{
+    if(args.length<min||args.length>max)throw new Error(kind+" expects "+min+".."+max+" arguments");
+    if(kind==="video"||kind==="motion") {
+      // Video/motion only exist as blocking action reports in C#.
+      if(!state.isActionReporting())return undefined;
+    }
+    state.queueStory({kind,blocking,args:storyArguments(args)});
+    return undefined;
+  };
   return {
     "tr": (...args) => {
       arity("tr", args, 2);
@@ -197,6 +207,22 @@ export function createNativeBridge(state: GameRuntimeState): NativeBridge {
     "__record-clock-effect!": (...args) => {
       arity("__record-clock-effect!",args,3);
       state.recordClockEffect(string(args[0]),string(args[1]),integer(args[2]));
+      return undefined;
+    },
+    "__play-narration!":story("narration",true,1),
+    "__spotlight!":story("spotlight",true,2),
+    "__play-dialogue!":story("dialogue",true,1),
+    "__play-theatre!":story("theatre",true,2),
+    "__play-stage!":story("stage",true,1),
+    "__play-banter!":story("banter",false,1),
+    "__play-remote-dialogue!":story("remote-dialogue",true,1),
+    "__play-remote-banter!":story("remote-banter",false,1),
+    "__play-video!":story("video",true,1),
+    "__play-motion!":story("motion",true,3),
+    "__result-supplement!": (...args) => {
+      arity("__result-supplement!",args,1);
+      if(!state.isActionReporting())throw new Error("result supplement requires executing action");
+      state.queueStory({kind:"supplement",blocking:false,args:storyArguments(args)});
       return undefined;
     },
     "__notify!": (...args) => {
