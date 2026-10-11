@@ -24,7 +24,7 @@ export interface FoundationSession {
   getCount(): number;
   getMoney(): number;
   getRenderDiagnostics(): Record<string, boolean>;
-  getGamePreviewStatus(): {loaded:boolean;mode:string;day:string;entries:number;places:number;money:number};
+  getGamePreviewStatus(): {loaded:boolean;mode:string;day:string;entries:number;places:number;money:number;restores:number};
   resize(width: number, height: number): void;
   pause(): void;
   resume(): void;
@@ -166,6 +166,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     throw new Error("此平台暂不提供持久存储接口");
   };
   let authoredWorld:WorldHost|null=null;
+  let restoredGames=0;
   let selectedPlace="";
   let currentContainer:RuntimeNode|null=null;
   let pendingRoll:RuntimeNode|null=null;
@@ -461,6 +462,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
           const data=loadLocal();
           if(!data){worldStatus.text="没有可读取的存档";return;}
           await authoredWorld.load(data);
+          restoredGames++;
           pendingRoll=null;chosenDice=[];
           playback=new StoryPlaybackQueue();
           showRoot();
@@ -521,7 +523,8 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       day:String(authoredWorld?.state.getGlobal("世界日")??""),
       entries:authoredWorld?.root.children.length??0,
       places:authoredWorld?.getPlaces().length??0,
-      money:authoredWorld?.state.getItemCount("金钱")??0
+      money:authoredWorld?.state.getItemCount("金钱")??0,
+      restores:restoredGames
     }),
     getRenderDiagnostics: () => ({
       threeUsesHostCanvas: three.domElement === options.canvas,

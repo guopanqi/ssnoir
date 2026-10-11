@@ -50,6 +50,12 @@ try {
         ));
         if(saved.format!=="ssnoir-world"||saved.version!==1||!saved.worldDatum)
           throw new Error("real-world preview did not persist a versioned Scheme save");
+        await page.mouse.click(745,479);
+        await page.waitForFunction(()=>
+          window.__SSNOIR_PREVIEW__?.getStatus().restores===1,null,{timeout:60000});
+        const restored=await page.evaluate(()=>window.__SSNOIR_PREVIEW__.getStatus());
+        if(restored.mode!=="world"||String(saved.state.globals["世界日"])!==restored.day)
+          throw new Error("browser did not restore original authored world day");
       }
       const scale = scenario.height / 576;
       const x = 160 * scale;
