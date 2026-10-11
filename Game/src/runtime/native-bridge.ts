@@ -24,6 +24,17 @@ function string(value: unknown): string {
 /** Names and argument expectations ported from NativeFunctions.Register, not a new DSL. */
 export function createNativeBridge(state: GameRuntimeState): NativeBridge {
   return {
+    "tr": (...args) => {
+      arity("tr", args, 2);
+      // C# GameLanguage.Tr chooses the currently active language; Chinese is
+      // the baseline during the migration, not a missing native stub.
+      return string(args[0]);
+    },
+    "__i18n-missing-speaker!": (...args) => {
+      arity("__i18n-missing-speaker!", args, 1);
+      if (!string(args[0]).trim()) throw new Error("speaker must be nonempty");
+      return undefined; // Warning-only C# diagnostic, no gameplay effect.
+    },
     "get-global": (...args) => {
       arity("get-global", args, 1);
       return state.getGlobal(id(args[0]));
