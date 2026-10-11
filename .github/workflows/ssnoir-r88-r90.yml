@@ -7,6 +7,7 @@ on:
       - '.github/workflows/ssnoir-r88-r90.yml'
       - 'tools/content-validator/experiments/r88_r90_native_semantic_checks.py'
       - 'tools/content-validator/experiments/r89_intermediate_integrity_check.py'
+      - 'tools/content-validator/experiments/r91_r92_native_counterfactuals.py'
       - 'tools/content-validator/experiments/probe_four_scenario_causality.py'
 permissions:
   contents: read
@@ -32,6 +33,10 @@ jobs:
         run: |
           python3 tools/content-validator/experiments/r89_intermediate_integrity_check.py /tmp/r89-approx.json
           cat /tmp/r89-approx.json
+      - name: R91 and R92 paired seeded native ablations
+        run: |
+          python3 tools/content-validator/experiments/r91_r92_native_counterfactuals.py /tmp/r91-r92-native.json
+          cat /tmp/r91-r92-native.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -39,4 +44,5 @@ jobs:
           path: |
             /tmp/r88-r90-native.json
             /tmp/r89-approx.json
+            /tmp/r91-r92-native.json
           retention-days: 90
