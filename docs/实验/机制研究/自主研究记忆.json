@@ -3,7 +3,7 @@
   "updated": "2026-10-11",
   "batch": "R97b",
   "rounds": 1,
-  "totalArchivedRounds": 44,
+  "totalArchivedRounds": 47,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
     "sourceScripts": [
@@ -35,6 +35,8 @@
     }
   ],
   "crossRoundMemory": [
+    "R100：P12主目标结束会关闭副目标机会，奖励倍数1时自适应仅比强先后脚本多0.000949，部分B进度时严格撤销B平均仅0.03037；有语义不等于独立玩法丰富。",
+    "R99/R101/R102-native：40条高阶响应规则的纸面最优性不意味着复杂可学策略，R99两条阈值2/3即可覆盖；但原生P10三回合12骰里阈值3/4简单脚本在12个固定seed均完成。优先检查正式容量与正常路径严格选择；同seed不等于同随机流，不能推断因果或人类胜率。",
     "R88原生结局对照：未封门两轮结束必被追兵抓，封门后连续两轮追兵不再推进；若后半场没有其它期限，设计风险是由追击转换为无限慢慢修梯。",
     "R89只改变第三手后对假话的公开查验风险，正常最优路径严格提前清污约28.575%；第二手后查验即使惩罚100%也未改变最优路径。时间位置与玩家目前计划的交互比增加一个按钮更值得探索。",
     "R89新增查验降低而不是提高可信完成率，需避免把增加难度本身误认为有价值的决策。",
@@ -840,6 +842,12 @@
       "question": "并行R99-R102结论是否冲突或重复？",
       "method": "按提交和CI核对后整理研究记忆，别自动把场景送Debug",
       "humanGate": false
+    },
+    {
+      "id": "P10-native-counterfactual",
+      "question": "能否在正式P10同公开状态下找到严格适合低储备提前兑现、另一个状态严格适合等待到阈值4的决策？",
+      "method": "共享随机抽样或精确条件概率，不能把同seed不同行动脚本的结果当成同roll配对；若没有应降级P10的自主择时声明",
+      "humanGate": false
     }
   ],
   "policy": "Continue without user feedback; distinguish native mechanism function, feature ablation, strong simple policy, actual voluntary decision, and eventual human appeal. Do not auto-add candidates to Debug.",
@@ -855,6 +863,60 @@
       "absoluteGain": 0.013590011,
       "strictHandRoots": 75,
       "lesson": "First demonstrate actual feature contribution, then validate countervailing pressure costs in official C# and real player paths before promotion."
+    }
+  ],
+  "parallelBatches": [
+    {
+      "id": "R99-R101+R102-native",
+      "date": "2026-10-11",
+      "countNewNumberedRounds": 3,
+      "record": "docs/实验/机制研究/批次/R99-R102-native-策略压缩与正式兑现/研究记录.md",
+      "results": [
+        {
+          "id": "R99",
+          "evidence": "exact fraction",
+          "bestGlobalSingle": 0.7089620484682213,
+          "bestGlobal2": 0.7194537322816644,
+          "optimal": 0.7194537322816644,
+          "rules": [
+            "储备>=2",
+            "储备>=3"
+          ],
+          "finding": "global fixed 2-rule policy set completely spans the 40-rule and full-DP envelope in the compressed model"
+        },
+        {
+          "id": "R100",
+          "evidence": "exact fraction",
+          "optionalBonus1Best": 1.9088756001371743,
+          "strongPhase": 1.9079265736930346,
+          "gap": 0.0009490264431397,
+          "strictAbandonPartialB": 0.030371227709190672,
+          "finding": "P12 opportunity closure retains causal meaning but simple phased action scripts explain almost all policy value"
+        },
+        {
+          "id": "R101",
+          "evidence": "native C#+Scheme scripted sessions",
+          "trials": 6,
+          "threshold2Success": 1,
+          "threshold4Success": 3,
+          "denominator": 3,
+          "finding": "actual 3 round target18 scene runs, toy 4-die claims cannot transfer blindly"
+        },
+        {
+          "id": "R102-native",
+          "countAsNewNumberedRound": false,
+          "evidence": "native C#+Scheme scripted sessions",
+          "trials": 36,
+          "seeds": 12,
+          "successByReserveThreshold": {
+            "2": 5,
+            "3": 12,
+            "4": 12
+          },
+          "finding": "per-seed fixed scripted completions; different decisions may consume random draws differently, not causal paired outcomes; separate from R102-paper"
+        }
+      ],
+      "boundaries": "No humans, no Debug admission, native scripts not author free-choice runs; R102-native is a supplement to separately archived R102-paper rather than a new numbered round."
     }
   ]
 }
