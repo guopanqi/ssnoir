@@ -81,6 +81,14 @@ try {
       if (typeof Intl !== "undefined") throw new Error("No-Intl regression environment was not established");
     });
   }
+  if (process.env.SSNOIR_NO_TEXT_ENCODING === "1") {
+    await page.evaluate(() => {
+      delete window.TextEncoder;
+      delete window.TextDecoder;
+      if (typeof TextEncoder !== "undefined" || typeof TextDecoder !== "undefined")
+        throw new Error("Missing text encoding regression environment was not established");
+    });
+  }
   if (foundationSource !== null) {
     await page.evaluate(code => {
       window.require = name => {

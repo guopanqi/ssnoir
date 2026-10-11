@@ -75,9 +75,10 @@ jobs:
         run: npm run smoke:taptap-harness
       - name: TapTap no-offscreen Canvas fallback
         run: npm run smoke:taptap-no-offscreen
-      - name: TapTap iOS missing Intl and offscreen Canvas regression
+      - name: TapTap iOS missing Intl, text encoding and offscreen Canvas regression
         env:
           SSNOIR_NO_INTL: '1'
+          SSNOIR_NO_TEXT_ENCODING: '1'
           SSNOIR_WX_CANVAS_MODE: missing
         run: npm run smoke:taptap-harness
       - name: Electron smoke (virtual display)

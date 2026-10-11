@@ -4,6 +4,8 @@
  * Upstream supplies Canvas, DOM element and EventTarget implementations.
  * Only SSNoir's Three r186 / Pixi 8 and LIPS integration is local.
  */
+// Vendored Apache-2.0 UTF-8 polyfill; preserves native implementations.
+import "./text-encoding";
 // @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
 import UpstreamCanvas from "../../vendor/weapp-adapter/src/Canvas.js";
 // @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations

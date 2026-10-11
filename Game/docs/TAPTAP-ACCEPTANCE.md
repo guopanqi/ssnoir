@@ -107,6 +107,20 @@ TapTap bundle also rendered and incremented Scheme 1→2→3 across hide/show wi
 the Intl global deleted and no offscreen Canvas API. This regression is now
 included in CI. Actual TapTap iOS acceptance of this fix is still pending.
 
+The next actual iOS run passed Pixi initialization but failed during LIPS
+compressed-data module initialization: `TextEncoder` was absent. The Mini Game
+host now installs vendored Apache-2.0 `fast-text-encoding` 1.0.6 before library
+imports, supplying UTF-8 `TextEncoder` and `TextDecoder` only when absent.
+The host boundary normalizes isolated surrogates to U+FFFD, correcting a tested
+upstream encoder limitation; vendor bytes remain unchanged. Tests compare
+ASCII, Chinese, supplementary characters and isolated surrogates with native
+UTF-8 encoding/decoding, and verify native codecs are retained.
+
+The mock regression removes both codecs as well as Intl and the offscreen
+Canvas API before loading the converted complete bundle. This is local
+initialization/interaction evidence, not final iOS acceptance. The diagnostic
+QR server reads the latest startup-probe archive on each download.
+
 `build:taptap` runs the submitted converter source (SHA-256 verified) with the actual WeChat bundle, then validates syntax, ZIP structure, version, orientation, presence of original runtime injection, and a 20MB ZIP budget. `smoke:taptap-harness` executes the **converted game.js** under Chromium with a mocked `wx` / `GameGlobal` host and checks the shared LIPS/Three/Pixi touch action. Both are included in GitHub Actions, with `game.zip` uploaded as an artifact.
 
 ### True target-runtime gates (still pending)
