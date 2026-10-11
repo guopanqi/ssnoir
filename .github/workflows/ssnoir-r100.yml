@@ -1,0 +1,39 @@
+name: SSNoir R100 Optional Completion
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r100.yml'
+      - 'tools/content-validator/experiments/r100_optional_completion.py'
+permissions:
+  contents: read
+jobs:
+  counterfactual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact option closure and strict route abandonment
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r100_optional_completion.py /tmp/r100.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r100.json',encoding='utf8'))
+          assert len(d['results'])==4
+          for x in d['results']:
+              print('bonus',x['optional_reward_multiplier'],'adaptive',x['best_adaptive'],'simple',x['strongest_simple'],
+                    'strict A',x['expected_strict_abandon_partly_done_B'],'strict B',x['expected_strict_continue_partly_done_B'])
+              assert x['best_adaptive']+1e-10>=x['strongest_simple']
+              assert x['value_of_optional_outcome']>=0
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r100-optional-completion
+          path: /tmp/r100.json
+          retention-days: 90
