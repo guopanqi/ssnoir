@@ -50,6 +50,9 @@ export class StagePlayback {
       this.revealed=true;return;
     }
     this.waiting=false;this.caption=null;this.advanceBeat();
+    // Like Unity's BeginBeat, zero-duration cue chains resolve immediately
+    // after acknowledging dialogue; animation beats still wait for real time.
+    this.tick(0);
   }
   tick(seconds:number):void {
     if(!this.started)throw Error("stage not started");
