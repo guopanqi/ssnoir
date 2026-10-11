@@ -15,6 +15,7 @@ export class GameScriptSession {
   readonly state: GameRuntimeState;
   private readonly vm: LipsSession;
   private readonly sources: ScriptSources;
+  private readonly loading = new Set<string>();
 
   private constructor(name: string, state: GameRuntimeState, vm: LipsSession, sources: ScriptSources) {
     this.name = name;
@@ -64,10 +65,32 @@ export class GameScriptSession {
   async loadFile(path: string): Promise<unknown> {
     const name = GameScriptSession.canonicalPath(path);
     if (!Object.hasOwn(this.sources, name)) throw new Error("Content script not bundled: " + name);
+    if (this.loading.has(name)) throw new Error("Circular content load: " + [...this.loading, name].join(" -> "));
+    this.loading.add(name);
     try {
-      return await this.vm.evaluate(this.sources[name]);
+      const source = this.sources[name];
+      // C# Schemy load-file runs as a synchronous top-level Scheme statement.
+      // A JS async native call into another Interpreter.exec can break that
+      // sequential evaluation: definitions after the first dependency vanish.
+      // Execute literal, column-zero top-level loads in order from JS instead.
+      // Contents stay unchanged on disk, and nonliteral runtime load-file calls
+      // still use the registered native entry.
+      const topLevelLoad = /^\\(load-file\\s+"([^"\\r\\n]+)"\\)\\s*(?:;[^\\r\\n]*)?$/gm;
+      let start = 0;
+      let result: unknown;
+      for (const match of source.matchAll(topLevelLoad)) {
+        const prefix = source.slice(start, match.index);
+        if (prefix.trim()) result = await this.vm.evaluate(prefix);
+        await this.loadFile(match[1]);
+        start = match.index! + match[0].length;
+      }
+      const suffix = source.slice(start);
+      if (suffix.trim()) result = await this.vm.evaluate(suffix);
+      return result;
     } catch (error) {
       throw new Error("Scheme load failed (" + name + "): " + String(error), { cause: error });
+    } finally {
+      this.loading.delete(name);
     }
   }
 
