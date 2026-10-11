@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "形象",
+  "name": "抱臂-描线",
+  "status": "completed",
+  "prompt": "Convert this exact secondary landlord sprite into outline-only American noir stage art. Preserve the complete arms-crossed pose, body proportions, left-facing profile, shoes, canvas placement and scale. Interior must be perfectly pure BLACK #000000 in every body region, no gray or colored fill, no shading or glow. Use ONLY a clean neutral white thin outer silhouette contour. No internal facial features, no collar lines, no folds, no fingers, no detailed clothing. Arms-crossed silhouette readable by outer shape only. Outside silhouette flat #FF00FF magenta background, no ground, no shadow, no text. This is OUTLINE-ONLY, absolutely no gray filled body regions. Match existing game's black-interior line-drawn people.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/角色库/房东/形象/抱臂-修订.jpeg",
+      "sha256": "882ad1a3a43a84b24b13b0b75196081f001ec7308b566029f679055357a9a516"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/形象/抱臂-描线",
+  "created_at": "2026-10-11T13:15:25.660Z",
+  "submitted_at": "2026-10-11T13:15:31.490Z",
+  "conversation_url": "https://gemini.google.com/app/2dce08514bc6f9ee",
+  "completed_at": "2026-10-11T13:15:46.730Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/形象/抱臂-描线/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "22c7e7429d9a7bb33f3469f89d14d23f12e844cfbd35936a1c2f9cd15eb26a4d"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/房东/形象/抱臂-描线.png"
+}

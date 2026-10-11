@@ -1,4 +1,4 @@
-"""拆分 Gemini 四姿势，同一缩放、统一鞋底；保留填充色与真实透明度。"""
+"""拆分 Gemini 四姿势，同一缩放、统一鞋底；原图黑色负空间与灰度描线导入。"""
 from pathlib import Path
 import json,re,uuid
 from PIL import Image,ImageChops,ImageFilter
@@ -29,16 +29,18 @@ def save(name,im,scale):
     x=round(512-im.width*scale/2);y=round(1000-bbox[3]*scale)
     out=Image.new('RGBA',(1024,1024));out.alpha_composite(sized,(x,y))
     path=DEST/(name+'.png');out.save(path);meta(path)
+    importer=Path(str(path)+'.meta')
+    importer.write_text(importer.read_text().replace('grayScaleToAlpha: 0','grayScaleToAlpha: 1').replace('alphaIsTransparency: 1','alphaIsTransparency: 0'))
     mask=Image.new('RGBA',out.size,'white');mask.putalpha(out.getchannel('A'));sp=DEST/(name+'_silhouette.png');mask.save(sp);meta(sp)
     return {'name':name,'sourceSize':list(im.size),'sourceBounds':list(bbox),'scale':scale,'offset':[x,y],'ground':1000}
 
 if __name__=='__main__':
-    source=Image.open(Path(__file__).with_name('四姿势-灰度修订.png'));w,h=source.size
+    source=Image.open(Path(__file__).with_name('四姿势-描线.png'));w,h=source.size
     assert w==h and w%2==0
     records=[]
     for i,name in enumerate(['尼尔_醉站','尼尔_醉行','尼尔_扶墙','尼尔_摸钥匙']):
         x=(i%2)*w//2;y=(i//2)*h//2
         records.append(save(name,extract(source.crop((x,y,x+w//2,y+h//2))),1.9*512/(w//2)))
-    landlord=extract(Image.open(ROOT/'角色库/房东/形象/抱臂-修订.jpeg'))
+    landlord=extract(Image.open(ROOT/'角色库/房东/形象/抱臂-描线.png'))
     records.append(save('房东_抱臂',landlord,.90*1024/landlord.height))
     Path(__file__).with_name('加工记录.json').write_text(json.dumps(records,ensure_ascii=False,indent=2)+'\n')

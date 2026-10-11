@@ -45,7 +45,7 @@
   (加入 (theatre-with (theatre-glow "门前柔光" "门光" "#F4CF80" 0 -40 500 700) 'opacity .22))
   (加入 (theatre-focus "焦点" 690 600 .32 .7))
   (加入 (theatre-with (theatre-group "尼尔位置" "" 600 790) 'opacity 0))
-  (加入 (theatre-with (theatre-image "尼尔" "尼尔位置" "Portraits/Neon/尼尔_醉站" 0 0 308 308 "") 'brightness .9))
+  (加入 (theatre-image "尼尔" "尼尔位置" "Portraits/Neon/尼尔_醉站" 0 0 308 308 ""))
   (play-theatre! (theatre-scene 1600 900 "#0A0709" 图形)
     (theatre-parallel
       (apply theatre-parallel (cons (theatre-tween "立面" 'opacity 1 1.5) 描绘))
@@ -156,7 +156,7 @@
   (加入 (theatre-with (theatre-glow "门前柔光" "门光" "#F4CF80" 0 -80 600 840) 'opacity .26))
   (加入 (theatre-glow "门前光池" "门光" "#F4CF8055" 0 150 400 50))
   (加入 (theatre-with (theatre-group "尼尔位置" "" -160 790) 'opacity 0))
-  (加入 (theatre-with (theatre-image "尼尔" "尼尔位置" "Portraits/Neon/尼尔_醉行" 0 0 308 308 "") 'brightness .9))
+  (加入 (theatre-image "尼尔" "尼尔位置" "Portraits/Neon/尼尔_醉行" 0 0 308 308 ""))
   (加入 (theatre-with (theatre-group "房东位置" "" 1060 790) 'opacity 0))
   (加入 (theatre-image "房东" "房东位置" "Portraits/Neon/房东_抱臂" 0 0 308 308 ""))
   (play-theatre! (theatre-scene 1600 900 "#070A12" 图形)
