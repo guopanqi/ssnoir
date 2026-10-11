@@ -45,7 +45,7 @@ test("during stops finite/infinite background once main cue completes",()=>{
 test("timed caption and image swap retain audio operations in authored order",()=>{
   const player=new TheatrePlayback(scene(["sequence",
     ["caption-for","夜莺","别走",1,"#FFFFFF"],
-    ["sound","footsteps","Sounds/step",false,0.5,-0.2],
+    ["sound","footsteps","Sounds/step",true,0.5,-0.2],
     ["stop-sound","footsteps"]]));
   player.start();player.tick(1);
   assert.equal(player.complete,true);
