@@ -11,7 +11,7 @@ test("Scheme story actions enqueue ordered, typed blocking and banter beats for 
  const state=new GameRuntimeState();
  const vm=await GameScriptSession.create("story-queue",state,sources,std);
  state.beginActionReport();
- await vm.evaluate('(begin (play-dialogue! (line "尼尔" "有人吗？")) (play-banter! (line "夜莺" "我在。")) (play-video! "chandelier") (play-motion! "剧院/吊灯" "落下" "cam"))');
+ await vm.evaluate('(begin (play-dialogue! (line "尼尔" "有人吗？")) (__play-banter! (list (line "夜莺" "我在。"))) (play-video! "chandelier") (play-motion! "剧院/吊灯" "落下" "cam"))');
  state.takeActionReport();
  const queue=state.takeStoryEvents();
  assert.deepEqual(queue.map(x=>x.kind),["dialogue","banter","video","motion"]);
