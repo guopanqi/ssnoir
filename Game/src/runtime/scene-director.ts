@@ -2,7 +2,8 @@ import {GameRuntimeState} from "./game-state.ts";
 import {GameScriptSession,type ScriptSources} from "./script-session.ts";
 import {GameActionRunner} from "./action-runner.ts";
 import {ActionTurnState} from "./turn-state.ts";
-import type {RuntimeNode} from "./node-converter.ts";
+import {schemeList,type RuntimeNode} from "./node-converter.ts";
+import {storyArguments} from "./story-events.ts";
 
 /**
  * One state, two isolated Scheme interpreters; original C# SceneManager
@@ -25,6 +26,14 @@ export class GameSceneDirector {
   private callback:unknown=false;
   private worldDice:ReturnType<GameRuntimeState["team"]["diceSnapshot"]>|null=null;
   supportUsed=false;
+  private pendingEndTurn=false;
+  private refreshRequested=false;
+  private roundActive=false;
+  private autoActions:Array<{
+    name:string;title:string;text:string;demands:{actorId:string;count:number}[];
+    prelude:unknown;effect:unknown
+  }>=[];
+  private autoIndex=0;
 
   private constructor(state:GameRuntimeState,world:GameScriptSession,
     actions:GameActionRunner,sources:ScriptSources,std:Uint8Array,random:()=>number){
@@ -44,6 +53,10 @@ export class GameSceneDirector {
         const name=String(args[0]);
         self.pendingStart={name,callback:args[1]??false};
         return undefined;
+      },
+      "__end-turn!":()=>{
+        if(!self)throw new Error("scene director uninitialized");
+        self.pendingEndTurn=true;return undefined;
       },
       "__ssnoir-callback":()=>self?.callback??false,
       "__ssnoir-encounter-result":()=>self?.endValue??false
@@ -70,7 +83,17 @@ export class GameSceneDirector {
       await this.start(next.name,next.callback);return;
     }
     if(this.ended){
-      this.ended=false;await this.finish(this.endValue);
+      this.ended=false;await this.finish(this.endValue);return;
+    }
+    if(this.refreshRequested){
+      this.refreshRequested=false;
+      if(!this.encounter)throw new Error("encounter dice refresh requested outside encounter");
+      this.state.team.rollDice(this.random,true,false,this.state.injury.losesDie);
+    }
+    if(this.pendingEndTurn){
+      this.pendingEndTurn=false;
+      if(this.encounter)await this.endRound();
+      else throw new Error("world end-turn requires WorldTurnController");
     }
   }
 
@@ -97,7 +120,46 @@ export class GameSceneDirector {
           this.ended=true;this.endValue=args[0]??false;return undefined;
         },
         "__support-used?":()=>this.supportUsed,
-        "__summon-helper!":()=>{throw new Error("summon-helper action requires encounter support handler");},
+        "__refresh-encounter-dice!":()=>{
+          this.refreshRequested=true;return undefined;
+        },
+        "__end-turn!":()=>{
+          this.pendingEndTurn=true;return undefined;
+        },
+        "__summon-helper!":(...args)=>{
+          if(args.length!==3)throw new Error("summon-helper expects actor, name, stats");
+          const stats:Record<string,number>={};
+          for(const entry of schemeList(args[2],"summoned helper stats")){
+            const pair=schemeList(entry,"stat entry");
+            if(pair.length!==2)throw new Error("invalid helper stat");
+            const value=Number(String(pair[1]));
+            if(!Number.isSafeInteger(value))throw new Error("invalid helper stat value");
+            stats[String(pair[0])]=value;
+          }
+          const stash=this.state.team.diceSnapshot();
+          const id=String(args[0]);
+          this.state.team.recruit(id,String(args[1]),stats as import("./team-state.ts").Stats,true);
+          this.state.team.rollDice(this.random,true,false,this.state.injury.losesDie);
+          const rolled=this.state.team.diceSnapshot();
+          this.state.team.restoreDice({...stash,[id]:rolled[id]});
+          return undefined;
+        },
+        "__auto-action!":(...args)=>{
+          if(!this.roundActive||args.length!==7)
+            throw new Error("auto-action must occur during opponent rule resolution");
+          const demands=schemeList(args[3],"auto action demands").map(row=>{
+            const pair=schemeList(row,"auto demand");
+            if(pair.length!==2)throw new Error("invalid auto action demand");
+            const count=Number(String(pair[1]));
+            if(!Number.isSafeInteger(count)||count<=0)throw new Error("invalid auto demand count");
+            return {actorId:String(pair[0]),count};
+          });
+          if(!demands.length)throw new Error("empty forced action demands");
+          this.autoActions.push({name:String(args[0]),title:String(args[6]),
+            text:String(args[1]),demands,prelude:args[4],effect:args[5]});
+          return undefined;
+        },
+        "__ssnoir-auto-effect":(...args)=>this.autoActions[Number(String(args[0]))]?.effect??false,
         "__ssnoir-mode":()=>this.mode
       });
       await encounter.loadFile(sourceName);
@@ -112,6 +174,72 @@ export class GameSceneDirector {
       this.state.restore(previous);
       this.worldDice=null;this.callback=false;this.encounter=null;this.encounterActions=null;
       throw error;
+    }
+  }
+
+  /**
+   * C# round transition sequence: time tax -> opponent rules in authored
+   * registration order -> maintenance -> new dice -> automatic responses.
+   * Each opponent rule commits separately; the scene is re-read after it.
+   */
+  async endRound():Promise<Array<{phase:string;events:ReturnType<GameRuntimeState["takeStoryEvents"]>}>>{
+    if(!this.encounter||!this.encounterActions)throw new Error("encounter required");
+    if(this.roundActive)throw new Error("nested round transition");
+    if(this.state.hasRestBlockers())throw new Error("mandatory events block rest");
+    this.autoActions=[];this.autoIndex=0;
+    const frames:Array<{phase:string;events:ReturnType<GameRuntimeState["takeStoryEvents"]>}>=[];
+    const capture=(phase:string)=>frames.push({phase,events:this.state.takeStoryEvents()});
+    this.roundActive=true;
+    try{
+      this.state.beginActionReport();
+      try{
+        const overflow=this.state.team.spend("player",1);
+        if(overflow>0)this.state.applyInjury(overflow);
+        this.state.takeActionReport();capture("time-tax");
+      }catch(error){this.state.cancelActionReport();throw error;}
+      if(this.state.hasPendingHospitalization())throw new Error("hospitalization must resolve before opponent rules");
+      await this.encounter.evaluate("(__begin-opponent-rules!)");
+      for(let step=0;step<1024;step++){
+        if(this.ended||!this.encounter)break;
+        const pending=await this.encounter.evaluate("(__opponent-rules-pending?)");
+        if(pending===false||String(pending)==="#f")break;
+        this.state.beginActionReport();
+        try{
+          await this.encounter.evaluate("(__run-next-opponent-rule!)");
+          this.state.takeActionReport();capture("opponent-rule");
+        }catch(error){this.state.cancelActionReport();throw error;}
+        if(this.state.hasPendingHospitalization())throw new Error("hospitalization must resolve before next rule");
+        await this.encounterActions.prepare();
+        if(step===1023)throw new Error("opponent rules exceed 1024");
+      }
+      if(this.ended){await this.flush();capture("encounter-ended");return frames;}
+      this.state.team.dismissTemporary();
+      this.state.team.rollDice(this.random,true,false,this.state.injury.losesDie);
+      capture("new-dice");
+      for(let i=0;i<this.autoActions.length;i++){
+        const auto=this.autoActions[i];
+        for(const demand of auto.demands){
+          const actor=this.state.team.require(demand.actorId);
+          if(demand.count>actor.actionSlotCount)throw new Error("auto-action asks for too many slots");
+          const available=this.state.team.dice(demand.actorId);
+          for(const die of available.slice(0,demand.count))
+            this.state.team.spendDie(demand.actorId,die.slotId);
+        }
+        const prelude=storyArguments([auto.prelude]);
+        if(prelude[0]&&Array.isArray(prelude[0])&&(prelude[0] as unknown[]).length)
+          this.state.queueStory({kind:"dialogue",blocking:true,args:prelude});
+        this.state.beginActionReport();
+        try{
+          await this.encounter.evaluate("((__ssnoir-auto-effect "+i+"))");
+          this.state.takeActionReport();
+          capture("forced-action");
+        }catch(error){this.state.cancelActionReport();throw error;}
+        if(this.ended){await this.flush();break;}
+      }
+      if(this.encounterActions&&this.encounter)await this.encounterActions.prepare();
+      return frames;
+    }finally{
+      this.roundActive=false;this.autoActions=[];this.autoIndex=0;
     }
   }
 
