@@ -1,5 +1,6 @@
 import { unbox } from "lips";
 import { GameRuntimeState } from "./game-state.ts";
+import { schemeList } from "./node-converter.ts";
 
 export type NativeCallable = (...args: unknown[]) => unknown;
 export type NativeBridge = Record<string, NativeCallable>;
@@ -58,6 +59,13 @@ export function createNativeBridge(state: GameRuntimeState): NativeBridge {
       // Normalize LIPS's boxed Scheme strings and numbers at the native boundary.
       state.setGlobal(id(args[0]), portableScalar(args[1]));
       return undefined;
+    },
+    "random-choice": (...args) => {
+      arity("random-choice",args,1);
+      const options=schemeList(args[0],"random-choice");
+      if (!options.length) return null; // Matches C# empty-list behavior.
+      const index=Math.floor(Math.random()*options.length);
+      return options[index]; // Keep Scheme value boxed in its originating interpreter.
     },
     "__item-count": (...args) => {
       arity("__item-count", args, 1);
