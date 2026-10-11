@@ -130,6 +130,40 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   worldStatus.position.set(wx+20,wy+57);worldPanel.addChild(worldStatus);
   const worldButtons: Array<{name:string;x:number;y:number;width:number;height:number}>=[];
   const worldRows=new Container();worldPanel.addChild(worldRows);stage.addChild(worldPanel);
+  // Controls operate on the same original Scheme game state, not the legacy
+  // foundation counter. End-day uses on-turn-end/on-turn-start from world.scm.
+  const previewControls=[
+    {id:"day",label:"结束一天",x:wx+18},
+    {id:"save",label:"保存",x:wx+137},
+    {id:"load",label:"读档",x:wx+256}
+  ];
+  for(const control of previewControls){
+    worldPanel.addChild(new Graphics().roundRect(control.x,wy+424,105,42,6)
+      .fill({color:0x363d47}).stroke({color:0x898b8e,width:1}));
+    const caption=new Text({text:control.label,style:{
+      fontFamily:"sans-serif",fontSize:16,fill:0xf7eee1
+    }});
+    caption.position.set(control.x+14,wy+435);worldPanel.addChild(caption);
+  }
+  const previewSaveKey="ssnoir-phase2-preview-v1";
+  const miniStorage=(globalThis as {wx?:{
+    setStorageSync?:(key:string,value:string)=>void;
+    getStorageSync?:(key:string)=>unknown;
+  }}).wx;
+  const saveLocal=(data:string)=>{
+    if(typeof miniStorage?.setStorageSync==="function")
+      miniStorage.setStorageSync(previewSaveKey,data);
+    else if(typeof localStorage!=="undefined")localStorage.setItem(previewSaveKey,data);
+    else throw new Error("此平台暂不提供持久存储接口");
+  };
+  const loadLocal=():string|null=>{
+    if(typeof miniStorage?.getStorageSync==="function"){
+      const value=miniStorage.getStorageSync(previewSaveKey);
+      return typeof value==="string"&&value?value:null;
+    }
+    if(typeof localStorage!=="undefined")return localStorage.getItem(previewSaveKey);
+    throw new Error("此平台暂不提供持久存储接口");
+  };
   let authoredWorld:WorldHost|null=null;
   let selectedPlace="";
   let currentContainer:RuntimeNode|null=null;
@@ -275,7 +309,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   };
 
   // Blocking, input-acknowledged story playback shared by all four hosts.
-  const playback=new StoryPlaybackQueue();
+  let playback=new StoryPlaybackQueue();
   const storyOverlay=new Container();
   storyOverlay.visible=false;
   storyOverlay.addChild(new Graphics().roundRect(22,195,806,172,12)
@@ -374,6 +408,38 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     const yy = (y - size.top) / size.scale;
     if(playback.blocked){
       playback.advance();updateStory();
+      return true;
+    }
+    const control=previewControls.find(c=>
+      xx>=c.x&&xx<=c.x+105&&yy>=wy+424&&yy<=wy+466);
+    if(control){
+      worldQueue=worldQueue.then(async()=>{
+        if(!authoredWorld)throw new Error("世界仍在加载");
+        if(control.id==="save"){
+          const data=await authoredWorld.save();
+          saveLocal(data);
+          worldStatus.text="游戏已保存 · 世界日 "+String(authoredWorld.state.getGlobal("世界日"));
+        }else if(control.id==="load"){
+          const data=loadLocal();
+          if(!data){worldStatus.text="没有可读取的存档";return;}
+          await authoredWorld.load(data);
+          pendingRoll=null;chosenDice=[];
+          playback=new StoryPlaybackQueue();
+          showRoot();
+          receiveStory();
+          worldStatus.text="游戏已恢复 · 世界日 "+String(authoredWorld.state.getGlobal("世界日"));
+        }else{
+          const day=await authoredWorld.endDay();
+          pendingRoll=null;chosenDice=[];
+          playback.push([...day.events,...authoredWorld.state.takeStoryEvents()]);
+          updateStory();redrawCurrent();
+          worldStatus.text="世界日 "+String(day.after)+" · 骰子已更新";
+        }
+      }).catch(error=>{
+        worldStatus.text="操作失败："+String(error).slice(0,54);
+        console.error("[SSNoir] game control",error);
+        options.onError?.(error);
+      });
       return true;
     }
     const hit=worldButtons.find(b=>xx>=b.x&&xx<=b.x+b.width&&yy>=b.y&&yy<=b.y+b.height);

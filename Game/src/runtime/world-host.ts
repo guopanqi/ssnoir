@@ -4,6 +4,8 @@ import { GameScriptSession } from "./script-session";
 import { GameRuntimeState } from "./game-state";
 import { GameActionRunner } from "./action-runner";
 import { GameSceneDirector } from "./scene-director";
+import { WorldSaveController } from "./world-save";
+import { WorldTurnController, type DayAdvance } from "./world-turn";
 import type { RuntimeNode } from "./node-converter";
 
 // Vite resolves these imports at BUILD time, not at Mini Game runtime.
@@ -37,14 +39,18 @@ export interface WorldHost {
   getPlaces():RuntimeNode[];
   enterPlace(name:string):Promise<RuntimeNode>;
   refresh():Promise<RuntimeNode>;
+  endDay():Promise<DayAdvance>;
+  save():Promise<string>;
+  load(text:string):Promise<void>;
 }
 export async function createWorldHostRuntime(random:()=>number=Math.random):Promise<WorldHost> {
-  const director=await GameSceneDirector.create(sources(),base64Bytes(compiledStdBase64),random);
+  const authored=sources(),stdlib=base64Bytes(compiledStdBase64);
+  let director=await GameSceneDirector.create(authored,stdlib,random);
   let root=await director.render();
   const host:WorldHost={
-    director,
-    state:director.state,
-    session:director.world,
+    get director(){return director;},
+    get state(){return director.state;},
+    get session(){return director.world;},
     get runner(){return director.actions;},
     get mode(){return director.mode;},
     get root(){return root;},
@@ -60,6 +66,30 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
       await director.flush();
       root=await director.render();
       return root;
+    },
+    async endDay(){
+      if(director.mode!=="world")throw new Error("cannot end the city day during an encounter");
+      const result=await new WorldTurnController(director.state,director.world).endDay(random);
+      await director.flush();
+      root=await director.render();
+      return result;
+    },
+    async save(){
+      if(director.mode!=="world")throw new Error("cannot save inside an encounter");
+      const data=await new WorldSaveController(director.state,director.world).capture();
+      return WorldSaveController.encode(data);
+    },
+    async load(text:string){
+      // Do not swap the active world until the fresh interpreter and every
+      // authored module have restored without an exception.
+      const snapshot=WorldSaveController.parse(text);
+      const candidate=await GameSceneDirector.create(authored,stdlib,random);
+      await WorldSaveController.restore(snapshot,async()=>({
+        state:candidate.state,session:candidate.world
+      }));
+      const restoredRoot=await candidate.render();
+      director=candidate;
+      root=restoredRoot;
     }
   };
   return host;
