@@ -13,6 +13,10 @@ function isEmptyList(value: unknown): boolean {
  * No presentation, random choices or effects run while materializing a node.
  */
 export interface ActionCost { type: "die" | "item"; itemId?: string; qty?: number }
+export interface RuntimeClock {
+  label:string; displayLabel:string; note:string; current:number; max:number;
+  style:"gauge"|"countdown"|"readout";
+}
 export type ResolveKind = "instant" | "roll" | "observe" | "note";
 export interface NodeResolve {
   kind: ResolveKind;
@@ -20,6 +24,7 @@ export interface NodeResolve {
   text?: string;
   noteTitle?: string;
   noteText?: string;
+  noteClock?: RuntimeClock;
   effect?: unknown;
   fail?: unknown;
   neutral?: unknown;
@@ -35,7 +40,9 @@ export interface RuntimeNode {
   disabled: boolean;
   tags: string[];
   requires: ActionCost[];
-  clocks: unknown[];
+  clocks: RuntimeClock[];
+  carryItemId:string;
+  supportId:string;
   children: RuntimeNode[];
   arrivals: RuntimeArrival[];
   resolve: NodeResolve | null;
@@ -68,6 +75,33 @@ function symbol(value: unknown): string {
 }
 function optionalList(value: unknown, label: string): unknown[] {
   return value === false ? [] : schemeList(value, label);
+}
+function requiredText(value:unknown, context:string):string {
+  const text=scalar(value);
+  if(typeof text!=="string")throw new Error(context+": expected string");
+  return text;
+}
+/**
+ * Port of C# NodeConverter.ParseSingleClock. These are semantic styles,
+ * not hardcoded visual progress bars. A readout never implies a deadline.
+ */
+export function convertClock(raw:unknown):RuntimeClock {
+  const parts=schemeList(raw,"clock");
+  if(parts.length<5||parts.length>7||symbol(parts[0])!=="clock")
+    throw new Error("clock: expected (clock label current max style [note] [display label])");
+  const label=requiredText(parts[1],"clock label");
+  const current=Number(String(parts[2])),max=Number(String(parts[3]));
+  if(!Number.isSafeInteger(current)||!Number.isSafeInteger(max))
+    throw new Error("clock: current and max must be integers");
+  const style=symbol(parts[4]);
+  if(style!=="gauge"&&style!=="countdown"&&style!=="readout")
+    throw new Error("clock "+label+": unknown style "+style);
+  const note=parts.length>=6?requiredText(parts[5],"clock note"):"";
+  const displayLabel=parts.length===7?name(parts[6],"clock display label"):label;
+  return {label,current,max,style,note,displayLabel};
+}
+function clocks(value:unknown, context:string):RuntimeClock[] {
+  return optionalList(value,context).map(convertClock);
 }
 function outcome(value: unknown, context: string): unknown {
   if (isSchemePair(value)) {
@@ -104,10 +138,15 @@ function parseResolve(raw: unknown): NodeResolve | null {
       return { kind: "observe", text: String(scalar(value[1])) };
     case "note":
       if (value.length < 3 || value.length > 4) throw new Error("note expects title/text/optional clock");
-      return { kind: "note", noteTitle: String(scalar(value[1])), noteText: String(scalar(value[2])) };
+      const noteClock=value.length===4?convertClock(value[3]):undefined;
+      const noteTitle=requiredText(value[1],"note title"),noteText=requiredText(value[2],"note body");
+      if(!noteClock&&!noteTitle.trim()&&!noteText.trim())
+        throw new Error("empty note without clock");
+      return { kind:"note", noteTitle, noteText, noteClock };
     case "clock":
       if (value.length !== 2) throw new Error("clock note requires one clock");
-      return { kind: "note", noteTitle: String(value[1]) };
+      const c=convertClock(value[1]);
+      return {kind:"note",noteTitle:c.displayLabel,noteText:c.note,noteClock:c};
     default: throw new Error("unsupported resolve kind: " + kind);
   }
 }
@@ -132,7 +171,8 @@ export function convertNode(value: unknown): RuntimeNode {
   const id = name(expr[1], "node name");
   const node: RuntimeNode = {
     name: id, title: id, subtitle: "", anchor: null, isPlace: false, disabled: false,
-    tags: [], requires: [], clocks: [], children: [], arrivals: [], resolve: null
+    tags: [], requires: [], clocks: [], children: [], arrivals: [], resolve: null,
+    carryItemId:"", supportId:""
   };
   for (let i = 2; i < expr.length; i += 2) {
     const kw = symbol(expr[i]);
@@ -145,7 +185,7 @@ export function convertNode(value: unknown): RuntimeNode {
       case ":disabled": node.disabled = val === true; break;
       case ":tags": node.tags = optionalList(val, "tags").map(x => String(scalar(x))); break;
       case ":requires": node.requires = parseCosts(val); break;
-      case ":clocks": node.clocks = optionalList(val, "clocks"); break;
+      case ":clocks": node.clocks = clocks(val,"clocks"); break;
       case ":children": node.children = optionalList(val, "children").map(convertNode); break;
       case ":resolve": node.resolve = parseResolve(val); break;
       case ":arrivals": {
@@ -164,12 +204,8 @@ export function convertNode(value: unknown): RuntimeNode {
         }
         break;
       }
-      case ":carry-item":
-      case ":support":
-        // Carrier/support metadata is non-executable; represented separately
-        // in the C# presentation model, tracked in a later migration.
-        name(val, kw);
-        break;
+      case ":carry-item": node.carryItemId=name(val,kw); break;
+      case ":support": node.supportId=name(val,kw); break;
       default: throw new Error(id + ": unknown node keyword " + kw);
     }
   }
