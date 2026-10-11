@@ -4,7 +4,7 @@ Stage-one platform validation was completed locally by the user. **Keep one main
 
 ## Current scope
 
-The first slice ports C# `GameState`/inventory/global/rest-block/native functions and uses **the actual unchanged** SSNoir `scripts/stdlib.scm`, `scripts/engine.scm` and `scripts/theatre.scm` via separate LIPS world/encounter interpreters. Scripts are injected by their canonical path. Nothing fetches a script at runtime or accesses a host filesystem.
+The first slice ports C# `GameState`/inventory/global/rest-block/native functions and uses **the actual unchanged** SSNoir `scripts/stdlib.scm`, `scripts/engine.scm` and `scripts/theatre.scm` via separate LIPS world/encounter interpreters. Scripts are injected by their canonical path. The LIPS R7RS bootstrap must also be supplied as pinned-package text (e.g. `lips/dist/std.scm?raw` for Vite, local `node_modules/lips/dist/std.scm` for the Node tests); the script runtime never fetches it. Nothing fetches a script at runtime or accesses a host filesystem.
 
 - `src/runtime/game-state.ts` owns portable primitives and a **partial** snapshot; initialization mirrors Unity's starting cash (15), cigarettes (2), medicine (1), chapter (0), etc.
 - `src/runtime/native-bridge.ts` implements a named, typed, strict subset of `Engine/Runtime/Scripting/NativeFunctions.cs`: `get-global`, `set-global!`, inventory, growth, rest blockers, notification and failure.

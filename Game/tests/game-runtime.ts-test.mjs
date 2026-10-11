@@ -10,7 +10,9 @@ const sources = {
   "scripts/engine.scm": file("scripts/engine.scm"),
   "scripts/theatre.scm": file("scripts/theatre.scm")
 };
-const create = (name, state = new GameRuntimeState()) => GameScriptSession.create(name, state, sources);
+const standardLibrary = readFileSync("node_modules/lips/dist/std.scm", "utf8");
+const create = (name, state = new GameRuntimeState()) =>
+  GameScriptSession.create(name, state, sources, standardLibrary);
 
 test("stage 2 boots exact unedited engine.scm, its theatre library and stdlib.scm", async () => {
   const session = await create("phase2-boot");

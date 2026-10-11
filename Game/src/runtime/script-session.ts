@@ -23,7 +23,9 @@ export class GameScriptSession {
     this.sources = sources;
   }
 
-  static async create(name: string, state: GameRuntimeState, sources: ScriptSources): Promise<GameScriptSession> {
+  static async create(
+    name: string, state: GameRuntimeState, sources: ScriptSources, lipsStandardLibrary: string
+  ): Promise<GameScriptSession> {
     let session: GameScriptSession;
     const globals = {
       ...createNativeBridge(state),
@@ -40,6 +42,11 @@ export class GameScriptSession {
     };
     const vm = new LipsSession(name, globals);
     session = new GameScriptSession(name, state, vm, sources);
+    if (!lipsStandardLibrary.trim()) throw new Error("LIPS standard library source is required");
+    // LIPS core intentionally omits R7RS procedures including equal? and
+    // procedure?. Bootstrap from the pinned npm package in its parent
+    // environment, without invoking (load), fetch, or a platform filesystem.
+    await vm.evaluate("(let-env lips.env.__parent__ (begin\n" + lipsStandardLibrary + "\n))");
     await session.loadFile("scripts/stdlib.scm");
     await session.loadFile("scripts/engine.scm");
     return session;
