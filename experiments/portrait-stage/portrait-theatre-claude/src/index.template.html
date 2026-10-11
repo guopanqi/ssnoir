@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>立绘剧场 · 线绘世界 · Claude Sonnet 5.5</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/*@STYLE*/
+</style></head><body>
+<div id="wrap"><div id="stage">
+<svg id="bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="mgd" x1="0" x2="1"><stop offset="0" stop-color="#000"/><stop offset=".22" stop-color="#fff"/><stop offset=".78" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient><mask id="fade" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="900"><rect width="1600" height="900" fill="url(#mgd)"/></mask><linearGradient id="cn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d08a" stop-opacity=".24"/><stop offset="1" stop-color="#f3d08a" stop-opacity=".02"/></linearGradient><filter id="glow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g id="world"></g><g id="hotel" class="set"></g><g id="lamp" class="set"></g><g id="set3" class="set"></g>
+</svg>
+<div id="blur"></div><div id="iris"></div>
+<svg id="fg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="shd"><stop offset=".35" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></linearGradient><linearGradient id="rim"><stop offset="0" stop-color="#e9d9b0" stop-opacity=".8"/><stop offset=".14" stop-color="#e9d9b0" stop-opacity="0"/></linearGradient><g id="pk"><path d="M-70 -105 L68 -98 L76 -30 L64 36 L72 106 L-72 100 L-62 28 L-78 -34Z" fill="#b5201e" stroke="#7d1212" stroke-width="3"/><path d="M-70 -105 L68 -98 L70 -60 L-74 -66Z" fill="#951918"/><rect x="-62" y="-20" width="124" height="62" fill="#e5b84a" transform="rotate(-2)"/><text x="0" y="26" text-anchor="middle" font-size="44" font-weight="700" fill="#7d1212" font-family="serif">金牌</text><path d="M-40 60 L-12 92 M30 -92 L22 -42 M52 52 L12 100 M-66 -10 L-40 -40" stroke="#e8736a" stroke-width="3" opacity=".55" fill="none"/></g><filter id="bl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="50"/></filter></defs>
+<ellipse id="s1" rx="300" ry="420" fill="#fff" filter="url(#bl)" opacity="0" style="transition:transform 1.2s,opacity 1.2s,fill 1.2s"/>
+<ellipse id="s2" rx="300" ry="420" fill="#fff" filter="url(#bl)" opacity="0" style="transition:transform 1.2s,opacity 1.2s,fill 1.2s"/>
+<g id="fx"><ellipse class="rp" cx="760" cy="796" rx="60" ry="9"/><ellipse class="rp" cx="760" cy="796" rx="60" ry="9"/><ellipse class="rp" cx="860" cy="802" rx="50" ry="8"/></g>
+<g id="props"></g><g id="chs" class="a"></g><g id="front"></g><g id="pack" style="opacity:0;transition:transform .9s ease,opacity .5s"><use href="#pk"/></g><g id="gh" style="opacity:0;transition:opacity .5s" transform="translate(1000,670) scale(.3)"><use href="#pk"/></g>
+</svg>
+<canvas id="rain" width="960" height="540"></canvas>
+<div id="grain"></div><div id="vig"></div>
+<div id="title"><h1>片段一 · 雨夜求助</h1><p>格兰德酒店门前</p></div>
+<div id="cap" aria-live="polite"></div>
+</div>
+<div id="bar"><button id="pp" disabled>暂停</button><button id="rp" disabled>重播</button><span>片段</span><span id="chips"></span><button id="all">连播全剧</button><span>人物</span><button id="ga" class="cur">融入线绘</button><button id="gb">暖色突出</button><span>画面</span><button id="mk" class="cur">光孔遮罩 开</button><button id="rx" class="cur">背景反应 开</button><button id="mu">声音 开</button></div>
+</div>
+<script>
+/*@SCRIPT*/
+</script></body></html>

@@ -10,3 +10,4 @@
 | [line-stage-study/](line-stage-study/) | 线构舞台：Claude 酒店门前 / 路灯线绘剧场、码头仓库新场景、N2/C1 人物画风融合 |
 | [portrait-theatre-lab/](portrait-theatre-lab/) | 各模型单文件剧场合集（Claude / kimi / musespark 原型与归档），`portrait-theatre-story-claude-sonnet-5-5.html` 为基准剧本对照源 |
 | [portrait-theatre-mimo-v2.6-flash-free/](portrait-theatre-mimo-v2.6-flash-free/) | MiMo 模型编排的六幕纯色舞台版本，对白与基准剧本逐字一致 |
+| [portrait-theatre-claude/](portrait-theatre-claude/) | Claude Sonnet 5.5 噪点黑色线绘世界：19 章故事剧场（地图选点 → 线绘舞台），src 模块化 + `node build.mjs` 构建单文件，接手见其 AGENTS.md |

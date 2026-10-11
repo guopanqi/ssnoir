@@ -1,18 +1,42 @@
-# 立绘剧场 · Portrait Theatre (Claude Sonnet 5.5)
+# Portrait Theatre · Claude Sonnet 5.5（立绘剧场 · 线绘世界）
 
-最新、最完整：portrait-theatre-story-claude-sonnet-5-5.html（19个片段，线绘世界，地图点选/连播）
-- portrait-theatre-claude-sonnet-5-5.html：最初的六段版本（纯色背景）
-- portrait-theatre-grand-hotel-...：酒店门前原型
-- portrait-theatre-street-lamp-...：路灯原型
-- portrait-theatre-lines-...：酒店+路灯合并版
-- script-notes.txt：用户提供的故事稿
-- build-scripts/：最后一次补丁脚本（早期构建脚本已丢失，成品HTML本身是完整的，可直接编辑）
-所有HTML为单文件，直接用浏览器打开。
+噪点黑色电影风的单文件网页实验：城市地图上有 19 个可点击地点，点击后镜头推进到该地点的线绘舞台，
+由少量线稿道具 + 矢量立绘人物 + Web Audio 合成音效演出一段故事。可暂停、重播、连播全剧。
 
-## 工具 tools/
-- test_play.py：无头浏览器测试。`full` 快进整部戏找JS报错；`sheet N 秒数列表` 给第N个片段截图拼接。
-- patch_html.py：直接在成品HTML上做精确替换的补丁模板（旧文本必须唯一）。
-## 开发经验
-- 片段数据在 `const SC=[...]`，每段含 n/sub/sh/pos/bg/set/mk/ini/run；布景在 `SETS.xxx`，人物在 `CH` 与 `P(id,{...})`。
-- 曾因 SVG 渐变 id 与人物 id 冲突导致整页点击无反应，新增 id 前先全局搜索。
-- 每次改完先跑 `full`，再对改动的片段跑 `sheet`。
+- 直接观看：浏览器打开 `dist/portrait-theatre-story-claude-sonnet-5-5.html`（单文件，无依赖；仅字体走 Google Fonts，离线自动回退）。
+- 在线版（claude.ai 私有 Artifact）：https://claude.ai/artifact/TXkXgC7MiaP8zPVfkR2YfK
+- 故事对白来源：[docs/story-script.txt](docs/story-script.txt)（用户提供的原稿，对白以它为准）。
+
+## 目录
+
+```
+src/                     源码（改这里）
+  index.template.html    页面骨架（舞台层、控制条），含 /*@STYLE*/ /*@SCRIPT*/ 占位
+  style.css
+  js/00-core.js          $、全局状态、Web Audio 音效(tn/bs/bell/buzz…)
+  js/10-world.js         城市地图 + 尼尔公寓外立面(#hotel) + 路灯街景(#lamp)
+  js/20-cast.js          人物数据 CH、人物绘制 mk()、姿势函数 P()
+  js/30-runtime.js       计时(sleep/H)、舞台反应助手(rx/lamp/sp/pk…)、字幕 say
+  js/35-fx.js            雨、颗粒
+  js/40-sets.js          线绘布景 SETS.*、公共道具(GROUND/HANG/TABLE/…)
+  js/45-chapter-objects.js    第 1 章（雨夜）与路灯争执章的对象定义 C1/C7
+  js/chapters/NN-*.js    19 章，一章一文件，按文件名排序即章节顺序（01-rain-night 引用 C1，09-lamp-quarrel 引用 C7，其余为内联对象）
+  js/60-boot.js          reset/chapter/play/暂停/按钮绑定/启动
+dist/                    构建产物（单文件 HTML，提交入库方便直接打开）
+tools/                   test_play.py（无头测试）、realtime_capture.py（真实时间截帧）
+docs/                    故事原稿、设计准则、章节清单
+archive/                 早期原型与历史补丁脚本（只读参考）
+build.mjs                拼接脚本
+```
+
+## 工作流
+
+```bash
+node build.mjs            # src → dist/…html
+node build.mjs --check    # 只做语法检查
+pip install playwright pillow && playwright install chromium   # 首次
+python3 tools/test_play.py dist/portrait-theatre-story-claude-sonnet-5-5.html full          # 快进全剧，报 JS 错误
+python3 tools/test_play.py dist/portrait-theatre-story-claude-sonnet-5-5.html sheet 4 6,9,12 # 第4章在 6/9/12 秒截图拼图
+```
+
+改完 `src/` 必须重新 `node build.mjs`，并提交 `dist/`。给开发者/后续会话的详细约定见 [AGENTS.md](AGENTS.md)。

@@ -1,0 +1,8 @@
+const $=s=>document.querySelector(s);
+let gen=0,paused=false,AC,MG,RG,RF,NB,muted=false,rainI=0,react=true,held=[];
+/* audio */
+function ai(){if(AC)return;AC=new(window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.connect(AC.destination);NB=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;const s=AC.createBufferSource();s.buffer=NB;s.loop=true;RF=AC.createBiquadFilter();RF.type='bandpass';RF.frequency.value=2500;RF.Q.value=.4;RG=AC.createGain();RG.gain.value=0;s.connect(RF);RF.connect(RG);RG.connect(MG);s.start()}
+const rainS=(v,f=2500)=>{if(AC){RG.gain.setTargetAtTime(v,AC.currentTime,.6);RF.frequency.setTargetAtTime(f,AC.currentTime,.6)}};
+function tn(f,d=.3,ty='sine',v=.12,dl=0,att=.01){if(!AC)return;const t=AC.currentTime+dl,o=AC.createOscillator(),g=AC.createGain();o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+att);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(MG);o.start(t);o.stop(t+d+.05)}
+function bs(d=.1,v=.3,f=800,dl=0){if(!AC)return;const t=AC.currentTime+dl,s=AC.createBufferSource(),l=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;l.type='lowpass';l.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(l);l.connect(g);g.connect(MG);s.start(t,Math.random(),d+.05)}
+const bell=()=>{tn(784,1.3,'sine',.16);tn(587,1.8,'sine',.16,.45)},buzz=()=>{tn(140,.9,'sawtooth',.08);tn(147,.9,'square',.04);bs(.05,.4,2000,.9)},stp=()=>bs(.05,.2,700),steps=ms=>{for(let i=0;i<ms/430;i++)setTimeout(stp,i*430)},whoosh=()=>{bs(3,.25,500);tn(60,3.5,'sine',.1,0,1.5)};
