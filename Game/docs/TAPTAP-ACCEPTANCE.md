@@ -26,6 +26,16 @@ npm run build:taptap
 npm run smoke:taptap-harness
 ```
 
+The converter input uses `platforms/taptap/project.config.json`, whose AppID is
+the existing SSNoir TapTap ID from `UnityClient/Assets/TapTapMiniGame/Editor/MiniGameConfig.asset`.
+It never uses the WeChat tourist or local test-account AppID. This matches the
+working Laya project at `/Users/usr/Documents/laya_projects/flood`: its release
+script switches to the TapTap AppID before calling the same converter. The
+converter preserves that configuration; it does not replace AppIDs itself.
+The earlier SSNoir ZIP incorrectly contained `touristappid`. This packaging
+error is fixed; whether it explains the client's unavailable message still
+requires testing the corrected ZIP on the device.
+
 `build:taptap` runs the submitted converter source (SHA-256 verified) with the actual WeChat bundle, then validates syntax, ZIP structure, version, orientation, presence of original runtime injection, and a 20MB ZIP budget. `smoke:taptap-harness` executes the **converted game.js** under Chromium with a mocked `wx` / `GameGlobal` host and checks the shared LIPS/Three/Pixi touch action. Both are included in GitHub Actions, with `game.zip` uploaded as an artifact.
 
 ### True target-runtime gates (still pending)

@@ -32,9 +32,13 @@ if (!readFileSync(join(wechat,"game.js"),"utf8").includes("__SSNOIR_WECHAT_FOUND
 rmSync(source, { recursive: true, force: true });
 mkdirSync(source, { recursive: true });
 copyFileSync(join(wechat, "game.js"), join(source, "game.js"));
-for (const filename of ["game.json", "project.config.json"]) {
-  copyFileSync(resolve("platforms/wechat", filename), join(source, filename));
-}
+copyFileSync(resolve("platforms/wechat/game.json"), join(source, "game.json"));
+// As in the working Laya release, supply the TapTap AppID before conversion.
+// The vendor converter preserves project.config.json unchanged.
+const tapConfig = JSON.parse(readFileSync(resolve("platforms/taptap/project.config.json"), "utf8"));
+if (!/^tap[a-z0-9]+$/.test(tapConfig.appid ?? ""))
+  throw new Error("TapTap packaging requires a valid TapTap AppID");
+writeFileSync(join(source, "project.config.json"), JSON.stringify(tapConfig, null, 2) + "\n");
 rmSync(root, { recursive: true, force: true });
 const bins = resolve("node_modules/.bin");
 const env = { ...process.env, PATH: bins + delimiter + (process.env.PATH || "") };

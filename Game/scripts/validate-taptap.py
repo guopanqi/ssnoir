@@ -18,10 +18,12 @@ with zipfile.ZipFile(zip_path) as archive:
     required = {"game.js", "game.json", "check-version.js", "project.config.json"}
     if names != required:
         raise RuntimeError(f"Unexpected converted files: missing={required - names}, extra={names - required}")
-    shared_config = json.loads(Path("platforms/wechat/project.config.json").read_text())
+    shared_config = json.loads(Path("platforms/taptap/project.config.json").read_text())
     config = json.loads(archive.read("project.config.json"))
     if config.get("appid") != shared_config.get("appid"):
-        raise RuntimeError("Personal WeChat AppID included in TapTap package")
+        raise RuntimeError("Converted package does not match the configured TapTap AppID")
+    if not str(config.get("appid", "")).startswith("tap"):
+        raise RuntimeError("TapTap package contains a WeChat or tourist AppID")
     manifest = json.loads(archive.read("game.json"))
     if manifest.get("convertScriptVersion") != "2.0.5":
         raise RuntimeError("Unexpected converter version")
