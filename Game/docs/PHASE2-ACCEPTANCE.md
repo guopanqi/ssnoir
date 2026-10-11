@@ -1,6 +1,6 @@
 # Phase 2 — single-runtime acceptance contract
 
-**Status: IN PROGRESS. Do not mark complete based on platform smoke or a synthetic Scheme counter.**
+**Status: IN PROGRESS. Real world/engine smoke and all four platform mock regressions passed in GitHub Actions run [38116949362](https://github.com/guopanqi/ssnoir/actions/runs/38116949362), commit `e59c0771`. This is a partial gate, not Phase 2 acceptance.**
 The user approved Phase 1 locally. Phase 2 is to replace the *game runtime* while preserving real authored SSNoir content and first-stage Web/WeChat/TapTap/Electron infrastructure.
 
 ## End-to-end completion gates
@@ -30,3 +30,10 @@ Current stage-two work must not revert to the simplistic platform probe and clai
 ## Implementation process
 
 Only `main` branch; coordinate with concurrently running research agents via expected HEAD on writes. Favor a small semantic surface and faithful C# behavior over rapidly adding unrelated scaffolding. On failure, retain an explicit failing acceptance test, port the real required capability, then rerun complete CI. Do not leave main red after calling a sub-milestone accepted. Commit reference docs and update this file as each gate is actually satisfied.
+
+## Verified checkpoint — 2026-10-11
+
+- Existing foundation: Web desktop/mobile/compact, Electron headless, WeChat normal/missing/throwing offscreen 2D, TapTap official converter + mock wx all GREEN in [38116949362](https://github.com/guopanqi/ssnoir/actions/runs/38116949362).
+- Node tests 30/30 + new Phase 2 tests 17/17; `tests/game-world.ts-test.mjs` loaded the real unchanged `scenes/world/world.scm`, dependencies, and converted `get-render-data` into a nonempty validated root node. **This is a real authored content smoke, not a full gameplay parity trace.**
+- Migrated foundations: original engine+theatre Scheme bootstrap, global/inventory/rest blockers, exact original FateStrip, fixed dice identities, callable Scheme outcome closures, action requirement gate, injury bands and scar snapshot.
+- **Next priority**: implement real navigation and action resolution in authored world, actor/team/composure/injury hospitalization and report pipelines, world/encounter transitions, per-module save/resume and narrative stage presentation. Full Phase 2 gates 2–8 remain OPEN; stage-one device acceptance is user-reported, not independent CI proof.
