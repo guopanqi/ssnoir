@@ -10,7 +10,7 @@ const sources = {
   "scripts/engine.scm": file("scripts/engine.scm"),
   "scripts/theatre.scm": file("scripts/theatre.scm")
 };
-const standardLibrary = readFileSync("node_modules/lips/dist/std.scm", "utf8");
+const standardLibrary = readFileSync("node_modules/lips/dist/std.xcb");
 const create = (name, state = new GameRuntimeState()) =>
   GameScriptSession.create(name, state, sources, standardLibrary);
 
