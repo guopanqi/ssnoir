@@ -41,3 +41,9 @@ Only `main` branch; coordinate with concurrently running research agents via exp
 ## Actor/team native increment
 
 `src/runtime/team-state.ts` owns the one protagonist and companions; records slot identity, four skills, composure, away/active transitions, growth spending, supports, carried support and temporary helpers. `native-bridge.ts` exposes the corresponding Scheme functions. Typed snapshots validate actor cardinality, dice and support cross-references and reject temporary summoned helpers. Hospitalization pending/7-injury resolution is still a separate gate and must not be inferred from a passing team test.
+
+## Save/resume runtime increment — 2026-10-11
+
+- Original, unmodified `world.scm` now has a versioned portable `WorldSaveController` envelope: the native inventory/globals/team/dice/rest state and the full Scheme `world-save` datum are captured together. Restoration creates a fresh interpreter, restores native state first, then invokes authored `world-load!` once. Encounter saves and pending hospitalization are rejected.
+- `tests/world-save.ts-test.mjs` runs the actual content, saves and restores a changed world day, cash, relationship support and settings; verifies that a second load does not replay the cash reward; and rejects unsupported versions, encounter saves and temporary helpers. The Node 22 strip-mode constructor fix at [f5ef194](https://github.com/guopanqi/ssnoir/commit/f5ef19457f417531d9382c5c228a064411702deb) made this regression executable.
+- The complete Game foundation CI including Node tests, Web, Electron, WeChat variants and TapTap converter passed at [38117830637](https://github.com/guopanqi/ssnoir/actions/runs/38117830637). **Gate 6 remains OPEN** until in-game save/load UI and complete authored-state replay traces (including remaining dice and rest blockers) are verified. No claim of all eight gates is made.
