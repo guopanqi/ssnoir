@@ -30,3 +30,4 @@
 
 ## 验证清单（改动后）
 1. `node build.mjs --check`；2. `test_play.py … full` 无 JS 错误；3. 对改动的章节跑 `sheet`/`realtime_capture` 看图；4. 提交 `src/` 与 `dist/`；5. 如需更新在线版，用 Artifact 工具对上面 README 的 URL 重新发布 `dist` 文件。
+- 立绘做不出密集剧烈的动作：醉步/奔跑等循环动作用“少量整张姿势 + 整体缓慢摆动（`swy`/`swy2`/`bnc` 类）+ 连续位移”表现，不要高频切换姿势（见 07-tavern-exit.js）。
