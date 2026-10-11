@@ -177,46 +177,84 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     options.onError?.(error);
   });
   let worldQueue=Promise.resolve();
+  type DiePick={actorId:string;slotId:number};
+  let chosenDice:DiePick[]=[];
+  const collectDice=()=>{
+    if(!authoredWorld)return;
+    const remaining=authoredWorld.state.team.roster().filter(a=>a.status==="active")
+      .flatMap(a=>authoredWorld!.state.team.dice(a.id)
+        .filter(d=>!chosenDice.some(c=>c.actorId===a.id&&c.slotId===d.slotId))
+        .map(d=>({id:a.id,name:a.name,value:d.value,slot:d.slotId})));
+    if(!remaining.length){worldStatus.text="没有可用的骰子";pendingRoll=null;return;}
+    renderPlaces(remaining.map(d=>"__die:"+d.id+":"+d.slot+" · "+d.name+" "+d.value),true);
+    for(const button of worldButtons){
+      if(button.name.startsWith("__die:"))button.name=button.name.split(" · ")[0];
+    }
+  };
+  const redrawCurrent=()=>{
+    if(!authoredWorld)return;
+    if(authoredWorld.mode==="encounter"){
+      selectedPlace="__encounter";navigationStack.length=0;
+      showContainer(authoredWorld.root);
+      worldHeading.text="交锋 / "+authoredWorld.root.name;
+    }else{
+      const place=authoredWorld.root.children.find(x=>x.name===selectedPlace&&x.isPlace);
+      if(place)showContainer(place);
+      else showRoot();
+    }
+  };
+  const executeOriginal=async(target:RuntimeNode)=>{
+    if(!authoredWorld)return;
+    const picked=[...chosenDice];
+    const allocations=target.requires.map(req=>{
+      if(req.type==="item")return {type:"item" as const,itemId:req.itemId!,qty:req.qty!};
+      const die=picked.shift();
+      if(!die)throw new Error("missing selected action die");
+      return {type:"die" as const,actorId:die.actorId,slotId:die.slotId};
+    });
+    const result=await authoredWorld.runner.performSlots(target.name,allocations);
+    pendingRoll=null;chosenDice=[];
+    await authoredWorld.refresh();
+    redrawCurrent();
+    const events=authoredWorld.state.takeStoryEvents();
+    playback.push(events);updateStory();
+    worldStatus.text="行动："+result.name+" · "+
+      (result.outcome??"完成")+" · 金钱："+authoredWorld.state.getItemCount("金钱");
+  };
   const visitWorld=(name:string)=>{
     worldQueue=worldQueue.then(async()=>{
       if(!authoredWorld)return;
       if(name==="__back"){
-        pendingRoll=null;
+        if(pendingRoll){pendingRoll=null;chosenDice=[];redrawCurrent();return;}
         if(navigationStack.length){
           const previous=navigationStack.pop()!;
-          const lookup=(node:RuntimeNode):RuntimeNode|undefined=>
+          const find=(node:RuntimeNode):RuntimeNode|undefined=>
             node.name===previous?node:
-            node.children.map(lookup).find(Boolean) as RuntimeNode|undefined;
-          const container=lookup(authoredWorld.root);
+            node.children.map(find).find(Boolean) as RuntimeNode|undefined;
+          const container=find(authoredWorld.root);
           if(container){showContainer(container);return;}
         }
+        if(authoredWorld.mode==="encounter"){redrawCurrent();return;}
         showRoot();return;
       }
       if(pendingRoll&&name.startsWith("__die:")){
-        const dieId=Number(name.slice(6)),action=pendingRoll;
-        pendingRoll=null;
-        const result=await authoredWorld.runner.perform(action.name,dieId);
-        await authoredWorld.refresh();
-        const events=authoredWorld.state.takeStoryEvents();
-      playback.push(events);updateStory();
-        worldStatus.text="判定："+String(result.outcome??"完成")+
-          " · 金钱："+authoredWorld.state.getItemCount("金钱")+
-          (events.length?" · 剧情步骤："+events.length:"");
-        const container=authoredWorld.root.children.find(x=>x.name===selectedPlace);
-        if(container)renderPlaces(container.children.map(x=>x.name),true);
-        return;
+        const match=/^__die:([^:]+):(\\d+)$/.exec(name);
+        if(!match)throw new Error("invalid die selection");
+        chosenDice.push({actorId:match[1],slotId:Number(match[2])});
+        const needed=pendingRoll.requires.filter(r=>r.type==="die").length;
+        if(chosenDice.length<needed){collectDice();return;}
+        await executeOriginal(pendingRoll);return;
       }
       if(!selectedPlace){
         const entered=await authoredWorld.enterPlace(name);
-        selectedPlace=name;navigationStack.length=0;
-        showContainer(entered);receiveStory();return;
+        selectedPlace=name;navigationStack.length=0;showContainer(entered);
+        receiveStory();return;
       }
       if(!currentContainer)return;
       const target=currentContainer.children.find(x=>x.name===name);
       if(!target||target.disabled)throw new Error("unavailable node "+name);
       if(target.children.length){
-        navigationStack.push(currentContainer.name);
-        showContainer(target);return;
+        navigationStack.push(currentContainer.name);showContainer(target);return;
       }
       if(!target.resolve)return;
       if(target.resolve.kind==="observe"||target.resolve.kind==="note"){
@@ -224,27 +262,15 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
         return;
       }
       if(target.requires.some(x=>x.type==="die")){
-        pendingRoll=target;
-        const dice=authoredWorld.runner.turn.available();
+        pendingRoll=target;chosenDice=[];
         worldStatus.text=target.title+" / 选择行动骰";
-        renderPlaces(dice.map(x=>"__die:"+x.slotId+" · "+x.value),true);
-        // Keep machine-readable button keys separate from visual labels.
-        for(const b of worldButtons)if(b.name.startsWith("__die:"))
-          b.name=b.name.slice(0,b.name.indexOf(" · "));
-        return;
+        collectDice();return;
       }
-      const result=await authoredWorld.runner.perform(target.name);
-      await authoredWorld.refresh();
-      const events=authoredWorld.state.takeStoryEvents();
-      playback.push(events);updateStory();
-      worldStatus.text="行动："+result.name+" · 金钱："+authoredWorld.state.getItemCount("金钱")+
-        (events.length?" · 剧情步骤："+events.length:"");
-      const container=authoredWorld.root.children.find(x=>x.name===selectedPlace);
-      if(container)renderPlaces(container.children.map(x=>x.name),true);
+      await executeOriginal(target);
     }).catch(error=>{
-      pendingRoll=null;
+      pendingRoll=null;chosenDice=[];
       worldStatus.text="行动失败："+String(error).slice(0,42);
-      console.error("[SSNoir] world navigation/action",error);options.onError?.(error);
+      console.error("[SSNoir] authored-world action",error);options.onError?.(error);
     });
   };
 
