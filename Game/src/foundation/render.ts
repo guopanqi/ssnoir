@@ -6,6 +6,9 @@ import { createWorldHostRuntime, type WorldHost } from "../runtime/world-host";
 import type { RuntimeNode } from "../runtime/node-converter";
 import type {DossierEntry} from "../runtime/dossier-converter";
 import {StoryPlaybackQueue} from "../runtime/story-player";
+import {parseTheatre} from "../runtime/theatre-contract";
+import {TheatrePlayback} from "../runtime/theatre-playback";
+import {TheatreVectorView} from "./theatre-view";
 import { createFrameLoop } from "./frame-loop";
 import ssnoirStdlib from "../../../UnityClient/Assets/Resources/Content/scripts/stdlib.scm?raw";
 
@@ -432,12 +435,41 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   storyHelp.position.set(680,339);
   storyOverlay.addChild(storyHelp);
   stage.addChild(storyOverlay);
+  const theatreView=new TheatreVectorView();
+  stage.addChildAt(theatreView.root,stage.getChildIndex(storyOverlay));
+  let activeTheatre:TheatrePlayback|null=null;
+  let theatreFrame:ReturnType<typeof playback.advance>|null=null;
+  let theatreTime=Date.now();
   const updateStory=()=>{
     const frame=playback.current;
+    if(frame?.kind==="theatre"){
+      if(theatreFrame!==frame){
+        const program=parseTheatre(frame.commands);
+        theatreFrame=frame;
+        activeTheatre=new TheatrePlayback(program);
+        theatreView.mount(program);
+        activeTheatre.start();
+        const missing=theatreView.missingAssets();
+        if(missing.length)console.warn("[SSNoir] theatre assets pending:",missing.length);
+        theatreTime=Date.now();
+      }
+      const caption=activeTheatre?.caption;
+      storyOverlay.visible=Boolean(caption);
+      if(caption){
+        storySpeaker.text=caption.speaker;
+        storyBody.text=caption.text.slice(0,activeTheatre!.visibleCharacters);
+        storyHelp.text=activeTheatre!.waiting?"轻触继续":"自动播放";
+      }
+      return;
+    }
+    if(activeTheatre){
+      activeTheatre=null;theatreFrame=null;theatreView.reset();
+    }
     storyOverlay.visible=Boolean(frame);
     if(frame){
       storySpeaker.text=frame.speaker||"叙事";
       storyBody.text=frame.text;
+      storyHelp.text="轻触继续";
     }
   };
   const receiveStory=()=>{
@@ -508,6 +540,10 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     const xx = (x - size.left) / size.scale;
     const yy = (y - size.top) / size.scale;
     if(playback.blocked){
+      if(activeTheatre&&!activeTheatre.complete){
+        activeTheatre.advance();updateStory();
+        return true;
+      }
       playback.advance();updateStory();
       return true;
     }
@@ -568,6 +604,17 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   }
 
   const loop = createFrameLoop(() => {
+    const now=Date.now(),seconds=Math.max(0,Math.min(.1,(now-theatreTime)/1000));
+    theatreTime=now;
+    if(activeTheatre&&!activeTheatre.complete){
+      activeTheatre.tick(seconds);
+      theatreView.sync(activeTheatre);
+      if(activeTheatre.complete){
+        playback.advance();updateStory();
+      }else if(activeTheatre.caption){
+        storyBody.text=activeTheatre.caption.text.slice(0,activeTheatre.visibleCharacters);
+      }
+    }
     three.resetState();
     three.render(scene, camera);
     pixi.resetState();
@@ -601,6 +648,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     resume: loop.resume,
     dispose() {
       loop.dispose();
+      theatreView.destroy();
       pixi.destroy();
       scene.traverse(obj => {
         if (obj instanceof THREE.Mesh) obj.geometry.dispose();
