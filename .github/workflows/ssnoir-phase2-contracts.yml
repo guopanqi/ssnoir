@@ -33,6 +33,7 @@ jobs:
             tests/presentation-parity.ts-test.mjs \
             tests/theatre-contract.ts-test.mjs \
             tests/theatre-playback.ts-test.mjs \
+            tests/stage-contract.ts-test.mjs \
             tests/game-world.ts-test.mjs \
             tests/authored-opening.ts-test.mjs \
             tests/world-save.ts-test.mjs \
