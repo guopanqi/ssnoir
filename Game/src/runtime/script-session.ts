@@ -29,8 +29,13 @@ export class GameScriptSession {
       ...createNativeBridge(state),
       ":at": ":at",
       "load-file": async (...args: unknown[]) => {
-        if (args.length !== 1 || typeof args[0] !== "string") throw new Error("load-file expects a single path string");
-        return session.loadFile(args[0]);
+        if (args.length !== 1 || args[0] === null || args[0] === undefined) {
+          throw new Error("load-file expects a single path string");
+        }
+        // LIPS supplies a boxed Scheme string at the JavaScript native boundary.
+        const path = String(args[0]);
+        if (!path || path === "[object Object]") throw new Error("load-file expects a string path");
+        return session.loadFile(path);
       }
     };
     const vm = new LipsSession(name, globals);
