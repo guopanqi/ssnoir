@@ -1,109 +1,110 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-11",
-  "batch": "R83-R87",
+  "batch": "R88-R92",
   "rounds": 5,
-  "totalArchivedRounds": 32,
+  "totalArchivedRounds": 37,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
     "sourceScripts": [
-      "tools/content-validator/experiments/r83_r85_decision_audits.py",
-      "tools/content-validator/experiments/r86_integrity_composure_audit.py",
-      "tools/content-validator/experiments/r87_buyer_window_reachability.py"
+      "tools/content-validator/experiments/r88_r90_native_semantic_checks.py",
+      "tools/content-validator/experiments/r89_intermediate_integrity_check.py",
+      "tools/content-validator/experiments/r91_r92_native_counterfactuals.py"
     ],
-    "runs": [
-      38116253854,
-      38116309491,
-      38116416453
-    ],
-    "scope": "Five exact Fraction 4-die abstractions, native and human evidence NOT newly provided; alternatives and feature-disabled arms held to same dice."
+    "run": "38121764465",
+    "scope": "R88/R90/R91/R92 official seeded native C# Scheme branch comparisons; R89 independent exact Fraction 4-die alternative checkpoint model, not new native rules",
+    "human": "No new human feedback, Debug allowlist unchanged"
   },
   "results": [
     {
-      "id": "R83",
-      "name": "真过期机会与撤销权",
-      "status": "排除额外撤销动作",
-      "metric": {
-        "rescindGainWithWaitAndExpiredCourier": 0,
-        "rootHandsStrictlyGain": 0
-      },
-      "lesson": "机会确实关闭仍不自动给撤销承诺创造价值；等待信息已足够解释行为"
-    },
-    {
-      "id": "R84",
-      "name": "自然工作线索与付费探查",
-      "status": "保留信息来源组合材料",
-      "metric": {
-        "freeClueAccuracies": [
-          0.5,
-          0.75,
+      "id": "R88",
+      "name": "封门消除压力，但也可能消除时间挑战",
+      "status": "原生因果成立，未证明两种选项均值得选",
+      "evidence": {
+        "unsealedPursuitBeforeTerminal": [
+          0,
           1
         ],
-        "extraPerfectQueryGains": [
-          0.617163387,
-          0.301587461,
-          0
-        ]
-      },
-      "lesson": "免费线索越准额外精确查询越不必要；不要人为屏蔽工作信息以提高探查的假价值"
-    },
-    {
-      "id": "R85",
-      "name": "P18枪口追踪与实际伤害",
-      "status": "近似模型中追踪增量几乎为零，P18不晋升",
-      "metric": {
-        "trackingVersusStatic": -0.000371513,
-        "rootsChanged": 9,
-        "routePierValue": 0.074238993
-      },
-      "lesson": "移动选项有价值不等于对手追踪的规则有价值；要直接切换追踪开关"
-    },
-    {
-      "id": "R86",
-      "name": "P17含冷静失败的可信证词",
-      "status": "候选保留但需修订决策时点",
-      "metric": {
-        "composure": [
-          1,
-          2,
-          3
-        ],
-        "forcedOptionGain": [
-          0.045081733,
-          0.013475699,
-          0.013590011
-        ],
-        "earlyCleanupCountsUnderChosenOptimalPolicy": [
-          0,
+        "unsealedFinal": "证人被抓",
+        "sealedPursuitAfterTwoTurns": [
           0,
           0
-        ]
+        ],
+        "sealedAlternativeExit": "修梯/消耗3冷静跳下"
       },
-      "lesson": "逼问行动本身有非零因果价值，但提前核实未被最优策略选用，可能只是末尾阶段的固定清污"
+      "lesson": "因果生效与有成本的玩家取舍分层；消灭一个威胁不能顺便消灭全部时间压力"
     },
     {
-      "id": "R87",
-      "name": "P19送货人/买主窗口价值",
-      "status": "可达且有条件反转，叙事价值仍待定义",
-      "metric": {
-        "buyerSuccessAtProgress4to6": [
-          0.615890775,
-          0.896154835,
-          0.981953018
-        ],
-        "ratio1_5": "p4 take courier, p5 and p6 wait buyer",
-        "ratio2": "all wait buyer"
+      "id": "R89",
+      "name": "证词质量的公开中途查验",
+      "status": "独立规则变奏值得下一次最强口诀反证；尚无原生场景",
+      "evidence": {
+        "baselineCredible": 0.960306999,
+        "checkAfter2StrictEarlyCleanup": 0,
+        "checkAfter3StrictEarlyCleanup": 0.285751029,
+        "checkAfter3Credible": 0.954125824
       },
-      "lesson": "两项叙事成果都可达不证明两项都可取，玩家相对偏好决定是否有真实权衡"
+      "lesson": "真正需要探索的不是多一个清污动作，而是「公开查验何时到来」如何改变动作顺序；必须证明非固定口诀"
+    },
+    {
+      "id": "R90",
+      "name": "枪口回应最近路线",
+      "status": "原生转向生效，但数学增量仍接近0，P18保持需修订",
+      "evidence": {
+        "nativeAimSwitches": true,
+        "pierLosesEvidence": true,
+        "priorR85TrackingDifference": -0.000371513
+      },
+      "lesson": "敌人姿态变化与下一次行动结果差是两件事；存在两个路线不等于追踪规则贡献决策"
+    },
+    {
+      "id": "R91",
+      "name": "未完成分段跨回合清零",
+      "status": "正式一条件原生消融通过，仅证明独立状态效果",
+      "evidence": {
+        "seed": 19,
+        "initialAProgress": 2,
+        "resetSceneAfterEnd": 0,
+        "retainControlAfterEnd": 2
+      },
+      "lesson": "阶段清零可审计，但需要比较完整局面是否存在自愿跨回合投入与放弃的反转"
+    },
+    {
+      "id": "R92",
+      "name": "非线性储备兑付的跨阈值收益",
+      "status": "三个可达原生收益区域全部找到，下一步检验兑现时机",
+      "evidence": {
+        "low": {
+          "seed": 9,
+          "reserve": 2,
+          "nonlinear": 3,
+          "linear": 4
+        },
+        "equal": {
+          "seed": 19,
+          "reserve": 3,
+          "nonlinear": 6,
+          "linear": 6
+        },
+        "high": {
+          "seed": 2,
+          "reserve": 4,
+          "nonlinear": 10,
+          "linear": 8
+        }
+      },
+      "lesson": "曲线交叉说明同一储备收益公式会导致变化，不代表同一规则下玩家已在『现在兑现/继续准备』之间反转"
     }
   ],
   "crossRoundMemory": [
-    "R83显而易见的等线索方案比撤销已押路线更直接：机会关闭不自动证明撤销规则有效。",
-    "R84信息来源与准确度是因果变量，已正常得到完美线索时单独探查严格无价值。",
-    "R85抽象有路可换和追踪敌人有反应两种效应需分开消融，追踪近似效应接近零。",
-    "R86低冷静下确定逼问较有价值，但正常最优路径仍没有提前清污，动作增益不等于中途改变计划。",
-    "R87两个结局的实际价值要由故事具体兑现，不能预设一个答案就用数学替玩家决定喜好。",
-    "20种结构仍不等于20个好玩模式；Debug仍必须明示人工批准，除R09/R37/R54之外不自动加入。"
+    "R88原生结局对照：未封门两轮结束必被追兵抓，封门后连续两轮追兵不再推进；若后半场没有其它期限，设计风险是由追击转换为无限慢慢修梯。",
+    "R89只改变第三手后对假话的公开查验风险，正常最优路径严格提前清污约28.575%；第二手后查验即使惩罚100%也未改变最优路径。时间位置与玩家目前计划的交互比增加一个按钮更值得探索。",
+    "R89新增查验降低而不是提高可信完成率，需避免把增加难度本身误认为有价值的决策。",
+    "R90原生敌人确实追踪上一条路，并造成证据毁损差别，但此前R85追踪相对固定瞄准的独立收益近0，维持需要修订而不是晋升。",
+    "R91原生同骰对照 +2未完成进度：重置组回合末0，保留组仍为2；机制有效不等于选项有趣。",
+    "R92原生低/中/高储备区域2/3/4，对应非线性兑现3/6/10与线性4/6/8：三个功能区成立，但并不能自动证明单一版本里玩家有理由选择何时兑现。",
+    "研究证据必须保留三层区分：设计语义/原生技术效果、受控反事实策略价值、真实用户可理解而愿意重玩的决策。只有最后一层获得人类证据才可进一步认定成熟。",
+    "未批准新的 Unity Debug 试玩入口；继续把 20 项当候选质量筛选池，而不是 20 个经过验证的好玩法。"
   ],
   "history": [
     {
@@ -604,32 +605,137 @@
         }
       ],
       "record": "docs/实验/机制研究/批次/R79-R82-等待信息与追击/研究记录.md"
+    },
+    {
+      "batch": "R83-R87",
+      "rounds": 5,
+      "method": {
+        "sourceScripts": [
+          "tools/content-validator/experiments/r83_r85_decision_audits.py",
+          "tools/content-validator/experiments/r86_integrity_composure_audit.py",
+          "tools/content-validator/experiments/r87_buyer_window_reachability.py"
+        ],
+        "runs": [
+          38116253854,
+          38116309491,
+          38116416453
+        ],
+        "scope": "Five exact Fraction 4-die abstractions, native and human evidence NOT newly provided; alternatives and feature-disabled arms held to same dice."
+      },
+      "results": [
+        {
+          "id": "R83",
+          "name": "真过期机会与撤销权",
+          "status": "排除额外撤销动作",
+          "metric": {
+            "rescindGainWithWaitAndExpiredCourier": 0,
+            "rootHandsStrictlyGain": 0
+          },
+          "lesson": "机会确实关闭仍不自动给撤销承诺创造价值；等待信息已足够解释行为"
+        },
+        {
+          "id": "R84",
+          "name": "自然工作线索与付费探查",
+          "status": "保留信息来源组合材料",
+          "metric": {
+            "freeClueAccuracies": [
+              0.5,
+              0.75,
+              1
+            ],
+            "extraPerfectQueryGains": [
+              0.617163387,
+              0.301587461,
+              0
+            ]
+          },
+          "lesson": "免费线索越准额外精确查询越不必要；不要人为屏蔽工作信息以提高探查的假价值"
+        },
+        {
+          "id": "R85",
+          "name": "P18枪口追踪与实际伤害",
+          "status": "近似模型中追踪增量几乎为零，P18不晋升",
+          "metric": {
+            "trackingVersusStatic": -0.000371513,
+            "rootsChanged": 9,
+            "routePierValue": 0.074238993
+          },
+          "lesson": "移动选项有价值不等于对手追踪的规则有价值；要直接切换追踪开关"
+        },
+        {
+          "id": "R86",
+          "name": "P17含冷静失败的可信证词",
+          "status": "候选保留但需修订决策时点",
+          "metric": {
+            "composure": [
+              1,
+              2,
+              3
+            ],
+            "forcedOptionGain": [
+              0.045081733,
+              0.013475699,
+              0.013590011
+            ],
+            "earlyCleanupCountsUnderChosenOptimalPolicy": [
+              0,
+              0,
+              0
+            ]
+          },
+          "lesson": "逼问行动本身有非零因果价值，但提前核实未被最优策略选用，可能只是末尾阶段的固定清污"
+        },
+        {
+          "id": "R87",
+          "name": "P19送货人/买主窗口价值",
+          "status": "可达且有条件反转，叙事价值仍待定义",
+          "metric": {
+            "buyerSuccessAtProgress4to6": [
+              0.615890775,
+              0.896154835,
+              0.981953018
+            ],
+            "ratio1_5": "p4 take courier, p5 and p6 wait buyer",
+            "ratio2": "all wait buyer"
+          },
+          "lesson": "两项叙事成果都可达不证明两项都可取，玩家相对偏好决定是否有真实权衡"
+        }
+      ],
+      "crossRoundMemory": [
+        "R83显而易见的等线索方案比撤销已押路线更直接：机会关闭不自动证明撤销规则有效。",
+        "R84信息来源与准确度是因果变量，已正常得到完美线索时单独探查严格无价值。",
+        "R85抽象有路可换和追踪敌人有反应两种效应需分开消融，追踪近似效应接近零。",
+        "R86低冷静下确定逼问较有价值，但正常最优路径仍没有提前清污，动作增益不等于中途改变计划。",
+        "R87两个结局的实际价值要由故事具体兑现，不能预设一个答案就用数学替玩家决定喜好。",
+        "20种结构仍不等于20个好玩模式；Debug仍必须明示人工批准，除R09/R37/R54之外不自动加入。"
+      ],
+      "record": "docs/实验/机制研究/批次/R83-R87-机会信息与情景价值/研究记录.md"
     }
   ],
   "frontier": [
     {
-      "id": "R88",
+      "id": "R93",
       "priority": 1,
-      "question": "P20封门是否真的存在有与不封门各自严格有利、都可达的公开局面？",
-      "method": "基于原生四骰、两回合威胁、可选楼梯/跳下/修梯，先审上界再做双路径反事实",
+      "question": "R89第三手公开查验的有利提前清污，是否只是一条固定『先逼问再清理』口诀？",
+      "method": "同一初始手牌比较所有固定动作序和公开检查时点反应式策略；直接禁用查验，比较时机对正常策略的独立贡献",
       "humanGate": false
     },
     {
-      "id": "R89",
+      "id": "R94",
       "priority": 2,
-      "question": "P17能否让提前清污而不是末尾清污具有可解释机会成本？",
-      "method": "公开警车到来时点与不同证据损失，不以强制限次制造选择",
+      "question": "P20封门后没有期限，是不是总以停止威胁换来自动可行的慢修梯？",
+      "method": "先做威胁与伤势的可达性不变量，再在相同骰面比较有限封门后替代压力和无限耐心两种情景；确认至少两个公开状态决策反转",
       "humanGate": false
     },
     {
-      "id": "R90",
+      "id": "R95",
       "priority": 3,
-      "question": "P18真实枪口瞄准跟随最后路线，会改变原生策略还是只改变画面提示？",
-      "method": "在真实Scheme/C#对照固定枪手，观察下一回合选择与生存/证据结算",
+      "question": "P10储备超过3时非线性收益更高，是否真的会令玩家在可预见期限前自愿等待再兑现？",
+      "method": "保留储备的坏档损失与回合末衰减，用精确DP对照固定先备料次数；关掉非线性和衰减分别消融",
       "humanGate": false
     }
   ],
-  "policy": "Agent autonomous continues without awaiting human feedback. Every new version: clarify exact completion semantics, compare the obvious alternative, directly disable mechanic, assess voluntary path use, check story value, and only then consider human trial. Never auto-promote to Debug.",
+  "policy": "Continue without user feedback; distinguish native mechanism function, feature ablation, strong simple policy, actual voluntary decision, and eventual human appeal. Do not auto-add candidates to Debug.",
   "focusedAudits": [
     {
       "id": "P17",

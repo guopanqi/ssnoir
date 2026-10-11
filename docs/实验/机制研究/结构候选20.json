@@ -3,7 +3,7 @@
   "date": "2026-10-09",
   "target": 20,
   "selected": 20,
-  "evidenceTier": "20 source-backed structural hypotheses, NOT 20 verified good patterns; P17-P19 now have additional mathematical counterfactuals, Debug list unchanged",
+  "evidenceTier": "20 source-backed structural candidates; six now have specific native causal witnesses, only 3 associated human-feedback invitations. NOT 20 good playable mechanisms.",
   "sourcePeriod": "existing R01-R75 native research and authored tests",
   "selectionCriteria": [
     "one distinctive causal choice",
@@ -86,7 +86,9 @@
       "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
       "humanFeedbackRelated": false,
       "nativeStartsAndShowsActions": true,
-      "nativeCausalActionWitness": false
+      "nativeCausalActionWitness": true,
+      "nativeEvidenceRun": "https://github.com/guopanqi/ssnoir/actions/runs/38121764465",
+      "evidenceScope": "Native paired same-seed action consequences confirmed, not strategic quality or human validation"
     },
     {
       "id": "P06",
@@ -161,7 +163,9 @@
       "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
       "humanFeedbackRelated": false,
       "nativeStartsAndShowsActions": true,
-      "nativeCausalActionWitness": false
+      "nativeCausalActionWitness": true,
+      "nativeEvidenceRun": "https://github.com/guopanqi/ssnoir/actions/runs/38121764465",
+      "evidenceScope": "Native paired same-seed action consequences confirmed, not strategic quality or human validation"
     },
     {
       "id": "P11",
@@ -292,7 +296,9 @@
         ],
         "scope": "composure-threshold paper abstraction"
       },
-      "promotionBlocker": "还未证明提前/延后核实均是理性选择，也无玩家盲评"
+      "promotionBlocker": "还未证明提前/延后核实均是理性选择，也无玩家盲评",
+      "latestAdversarialEvidence": "https://github.com/guopanqi/ssnoir/actions/runs/38121764465",
+      "qualityStatus": "hypothetical timed-inspection successor R89 deserves strongest simple-policy test"
     },
     {
       "id": "P18",
@@ -315,7 +321,9 @@
         "strictRootsAffected": 9,
         "scope": "P18-inspired proxy, not exact native replay"
       },
-      "promotionBlocker": "枪口追踪是否真影响有意义的原生行动仍无证据"
+      "promotionBlocker": "枪口追踪是否真影响有意义的原生行动仍无证据",
+      "latestAdversarialEvidence": "https://github.com/guopanqi/ssnoir/actions/runs/38121764465",
+      "qualityStatus": "reactive aim functions but option value still unproven"
     },
     {
       "id": "P19",
@@ -358,7 +366,9 @@
       "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
       "humanFeedbackRelated": false,
       "nativeStartsAndShowsActions": true,
-      "nativeCausalActionWitness": true
+      "nativeCausalActionWitness": true,
+      "latestAdversarialEvidence": "https://github.com/guopanqi/ssnoir/actions/runs/38121764465",
+      "qualityStatus": "sealing defeats pursuer, potentially removes all deadline; option tradeoff unproven"
     }
   ],
   "nativeAdmission": {
