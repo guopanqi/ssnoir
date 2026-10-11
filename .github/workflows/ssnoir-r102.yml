@@ -1,0 +1,42 @@
+name: SSNoir R102 Native Threshold Sweep
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r102.yml'
+      - 'tools/content-validator/experiments/r102_native_threshold_sweep.py'
+      - 'tools/content-validator/experiments/r101_p10_native_three_rounds.py'
+permissions:
+  contents: read
+jobs:
+  scripts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build official runner
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: Real three-round scripted threshold policy stress test
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r102_native_threshold_sweep.py /tmp/r102.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r102.json',encoding='utf8'))
+          assert len(d['sessions'])==36
+          assert len(d['summaries'])==3
+          print('scripted native policy summaries:',d['summaries'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r102-native-threshold-sweep
+          path: /tmp/r102.json
+          retention-days: 90
