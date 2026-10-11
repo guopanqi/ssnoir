@@ -1,0 +1,32 @@
+# Phase 2 — single-runtime acceptance contract
+
+**Status: IN PROGRESS. Do not mark complete based on platform smoke or a synthetic Scheme counter.**
+The user approved Phase 1 locally. Phase 2 is to replace the *game runtime* while preserving real authored SSNoir content and first-stage Web/WeChat/TapTap/Electron infrastructure.
+
+## End-to-end completion gates
+
+Each gate needs source code, runnable regression tests and an explicit reproducible CI run. For important semantics, compare against `Engine/Runtime` C# reference or the existing content-validator; do not silently swap to a new game rule or shorten authored story.
+
+1. **Original content loader:** Load `UnityClient/Assets/Resources/Content/scenes/world/world.scm` and its complete literal dependencies in a fresh LIPS VM without network/disk access *at runtime*. Do not modify source content. Materialize `get-render-data` into a valid nested scene/node tree, with no skipped/duplicated initialization side effects.
+2. **World traversal:** Enter actual authored places and display their real nodes (including disabled, clocks, dossier, arrival hooks). Implement `on-action`, `on-turn-end`, `on-turn-start`, first-day initiation and independent per-module persistent state.
+3. **Native parity:** Port all native functions exercised by world + encounter content, including player/companion/composure/injury/scars, relationship support, clock effects, failure, narratives and script loading. Missing capabilities must fail loudly, not be no-op shims except where C# has the same optional semantics.
+4. **Action resolution:** Resolve original authored instant and roll/recovery-roll outcomes via LIPS closures with stable dice slot identity, four actor skills, C# FateStrip, modifiers, consumes, failure rollback policy and action report. Handle multi-die requirements and non-player actors.
+5. **Encounter lifecycle:** World and encounter interpreter isolation, shared typed native state, world dice stash/restore on encounter return, turn-cost pressure, opponent rules, forced actions, collapse hospitalization and `end-encounter` callbacks.
+6. **Save/resume:** Round-trip typed team, dice slot identities, inventory, globals, per-module Scheme `world-save/world-load!`, day count, rest blockers and settings. Replay must not repeat already-paid story outcomes. Version/corruption validations required.
+7. **Narrative presentation:** Actual node/actions/choices, dialogues and required theatre/stage/video/motion blocking story steps are driven by runtime state on the single shared Web + Mini Game renderer, not by a separate hardcoded test scene.
+8. **Platform and regression:** `Game/npm run verify` and Web screenshot, Electron Xvfb smoke, WeChat normal/missing/throwing offscreen variants, TapTap official conversion/smoke all green. Demonstrate a deterministic actual authored scene trace against C# reference. Real WeChat/TapTap device acceptance still requires native testing once playable content exists.
+
+## Verified increments / sources of truth
+
+- Phase 1 host: `Game/adapters/wechat`, `Game/adapters/taptap`, `Game/src/foundation`; passed local developer-tool validation according to user.
+- `Game/src/runtime/game-state.ts`: inventory/globals/rest blockers/partial save. **Partial**.
+- `Game/src/runtime/script-session.ts`: LIPS native bridge, original engine + theatre scripts, ordered top-level loader.
+- `Game/src/runtime/node-converter.ts`: strict original DSL subset. Arrivals, clock parsing and complex support metadata pending.
+- `Game/src/runtime/fate-strip.ts`, `turn-state.ts`, `action-runner.ts`: exact fate distribution, fixed four protagonist dice, callable source effects in synthetic scenes. Actor system, roll modifier application, world action contexts and persistence pending.
+- `Game/tests/game-world.ts-test.mjs`: **real-world gate**. This must become green before moving to full playable chapter content; its first failures expose missing native functions.
+
+Current stage-two work must not revert to the simplistic platform probe and claim that as completion.
+
+## Implementation process
+
+Only `main` branch; coordinate with concurrently running research agents via expected HEAD on writes. Favor a small semantic surface and faithful C# behavior over rapidly adding unrelated scaffolding. On failure, retain an explicit failing acceptance test, port the real required capability, then rerun complete CI. Do not leave main red after calling a sub-milestone accepted. Commit reference docs and update this file as each gate is actually satisfied.
