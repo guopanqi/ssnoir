@@ -99,6 +99,28 @@ try {
       await context.close();
     }
   }
+  // Golden browser capture through the SAME original Frank Scheme content,
+  // LIPS native bridge, StagePlayback and shared Pixi renderer as Mini Games.
+  const context=await browser.newContext({viewport:{width:1024,height:576}});
+  try{
+    const page=await context.newPage();
+    const errors=[];
+    page.on("pageerror",error=>errors.push(String(error)));
+    page.on("console",msg=>{if(msg.type()==="error")errors.push(msg.text());});
+    await page.goto("http://127.0.0.1:4173/?stage-preview=frank",{waitUntil:"networkidle"});
+    await page.waitForFunction(()=>window.__SSNOIR_PREVIEW__?.getStatus()?.storyKind==="stage",null,
+      {timeout:60000});
+    await page.waitForFunction(()=>window.__SSNOIR_PREVIEW__?.getStageAssets()?.loaded===4,null,
+      {timeout:20000});
+    await page.waitForTimeout(250);
+    if(errors.length)throw new Error(errors.join("\n"));
+    await page.screenshot({path:"artifacts/original-frank-stage.png"});
+    const state=await page.evaluate(()=>window.__SSNOIR_PREVIEW__.getStatus());
+    if(state.stageBeat<1)throw new Error("original stage failed to enter its first spoken beat");
+    console.log("PASS: actual authored Frank stage rendered with original portrait assets",state.stageBeat);
+  } finally {
+    await context.close();
+  }
 } finally {
   if (browser) await browser.close();
   await server.close();

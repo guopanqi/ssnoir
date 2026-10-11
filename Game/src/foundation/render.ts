@@ -15,6 +15,8 @@ import {StagePlayback} from "../runtime/stage-playback";
 import {parseStage} from "../runtime/stage-contract";
 import { createFrameLoop } from "./frame-loop";
 import ssnoirStdlib from "../../../UnityClient/Assets/Resources/Content/scripts/stdlib.scm?raw";
+import frankAuthoredSource from "../../../UnityClient/Assets/Resources/Content/scenes/world/人物/弗兰克.scm?raw";
+import {extractStageExpression} from "../runtime/authored-stage-source";
 
 export interface FoundationOptions {
   canvas: HTMLCanvasElement;
@@ -33,7 +35,7 @@ export interface FoundationSession {
   getMoney(): number;
   getRenderDiagnostics(): Record<string, boolean>;
   getStageAssetDiagnostics(): {loaded:number;pending:number;errors:string[]};
-  getGamePreviewStatus(): {loaded:boolean;mode:string;day:string;entries:number;places:number;money:number;restores:number};
+  getGamePreviewStatus(): {loaded:boolean;mode:string;day:string;entries:number;places:number;money:number;restores:number;storyKind:string;stageBeat:number};
   resize(width: number, height: number): void;
   pause(): void;
   resume(): void;
@@ -264,8 +266,15 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     renderPlaces(node.children.map(n=>n.name),true);
   };
   // Keep foundation startup independent of a content load failure.
-  void createWorldHostRuntime().then(worldHost=>{
-    authoredWorld=worldHost;showRoot();receiveStory();
+  void createWorldHostRuntime().then(async worldHost=>{
+    authoredWorld=worldHost;
+    const search=(globalThis as {location?:{search?:string}}).location?.search??"";
+    if(/(?:^|[?&])stage-preview=frank(?:&|$)/.test(search)){
+      // This is the ORIGINAL Scheme beat list. Run on the real live world VM,
+      // but only on an opt-in screenshot URL, never during regular gameplay.
+      await worldHost.session.evaluate(extractStageExpression(frankAuthoredSource));
+    }
+    showRoot();receiveStory();
     console.log("[SSNoir] original world.scm ready, places="+worldHost.getPlaces().length);
   }).catch(error=>{
     worldStatus.text="原版世界加载失败";
@@ -678,7 +687,9 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       entries:authoredWorld?.root.children.length??0,
       places:authoredWorld?.getPlaces().length??0,
       money:authoredWorld?.state.getItemCount("金钱")??0,
-      restores:restoredGames
+      restores:restoredGames,
+      storyKind:playback.current?.kind??"",
+      stageBeat:activeStage?.beatIndex??-1
     }),
     getStageAssetDiagnostics:()=>stageImages.diagnostics(),
     getRenderDiagnostics: () => ({
