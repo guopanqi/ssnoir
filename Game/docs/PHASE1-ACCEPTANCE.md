@@ -16,7 +16,7 @@ All are run in [ssnoir-game-foundation.yml](../../.github/workflows/ssnoir-game-
 
 ## Evidence of real platform compatibility still required
 
-- [ ] Import `Game/dist/wechat` as a **Mini Game** in WeChat Developer Tools, using your own AppID; capture console/version/renderer output.
+- [x] Import `Game/dist/wechat` as a **Mini Game** in WeChat Developer Tools, using a test AppID; console/version/renderer and input observed on macOS Stable 2.02.2608080 / base library 3.17.3. See the device record.
 - [ ] Android WeChat device: render, Pixi Chinese text, tap, repeat after background/foreground, verify memory and shader errors.
 - [ ] iOS WeChat device: same acceptance; include tested phone, OS, WeChat, and base library versions.
 - [ ] Native Windows and macOS desktop Electron smoke (outside Linux Xvfb); Steamworks integration is a later release-platform task.
@@ -24,6 +24,10 @@ All are run in [ssnoir-game-foundation.yml](../../.github/workflows/ssnoir-game-
 Browser emulation **cannot** establish that the actual WeChat runtime exposes the same browser APIs. Do not approve migration of all production UI on the basis of mock tests alone.
 
 ## Boundaries
+
+2026-10-11 local automated evidence: `npm run verify` passed all 15 tests, typecheck and both builds. `npm run capture` passed desktop, 812×375 and 640×480 touch plus resize; reviewed the generated Chinese text/card screenshots. All three WeChat mock Canvas modes and both TapTap mock Canvas modes passed. Official TapTap conversion produced a validated 425,804-byte ZIP with four files. `npm run smoke:desktop` passed on macOS with Electron 39.0.0; this command uses SwiftShader and `--no-sandbox`, and proves initialization/count 1 only. It does not close native desktop graphics/interaction or Windows acceptance.
+
+The local Playwright download previously stalled with Node 26.10.0; the exact expected headless browser build 1187 installed successfully using bundled Node 24.19.0. Electron's cached official archive matched its pinned SHA-256 and was extracted with macOS `ditto` to repair an incomplete binary installation. These are local dependency repairs, not application changes.
 
 - The prototype uses **one** `src/foundation/render.ts` for Web, WeChat, and desktop, with per-host canvas/input adapters.
 - `LipsSession` is a phase-one compatibility wrapper, *not* a full SceneManager or native-game-function bridge.

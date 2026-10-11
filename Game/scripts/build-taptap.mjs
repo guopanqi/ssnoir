@@ -12,7 +12,8 @@ import { gunzipSync } from "node:zlib";
 const vendor = resolve("vendor/taptap-converter");
 const root = resolve("dist/taptap");
 const tools = resolve("dist/.taptap-converter-tool");
-const source = resolve("dist/wechat");
+const wechat = resolve("dist/wechat");
+const source = resolve("dist/.taptap-converter-input");
 const archive = join(vendor, "wx_converter.py.gz");
 const expected = "19020e1b26ce360d156da07676326885957a4b98a4624457e328518b97974354";
 const code = gunzipSync(readFileSync(archive));
@@ -24,8 +25,16 @@ writeFileSync(join(tools, "wx_converter.py"), code);
 for (const filename of [".babelrc","wx_unity_converter/wx_unity.js","wx_unity_converter/check-version.js"]) {
   copyFileSync(join(vendor, filename), join(tools, filename));
 }
-if (!readFileSync(join(source,"game.js"),"utf8").includes("__SSNOIR_WECHAT_FOUNDATION__"))
+if (!readFileSync(join(wechat,"game.js"),"utf8").includes("__SSNOIR_WECHAT_FOUNDATION__"))
   throw new Error("Expected packaged SSNoir WeChat IIFE as converter input");
+// The imported DevTools directory contains personal AppID/private settings.
+// Build a clean converter input from the runtime and shared source manifests.
+rmSync(source, { recursive: true, force: true });
+mkdirSync(source, { recursive: true });
+copyFileSync(join(wechat, "game.js"), join(source, "game.js"));
+for (const filename of ["game.json", "project.config.json"]) {
+  copyFileSync(resolve("platforms/wechat", filename), join(source, filename));
+}
 rmSync(root, { recursive: true, force: true });
 const bins = resolve("node_modules/.bin");
 const env = { ...process.env, PATH: bins + delimiter + (process.env.PATH || "") };

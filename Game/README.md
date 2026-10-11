@@ -37,7 +37,7 @@ npm run build:wechat       # import dist/wechat in WeChat DevTools as Mini Game
 | Browser 3D + 2D same GL context | Yes | Playwright click succeeds, screenshot reviewed |
 | Browser resized/mobile touch | Mobile landscape test | Playwright 812x375 tap + screenshot |
 | Electron window | Browser bundle reused | CI runs Electron on Xvfb with `--no-sandbox` **only for this hosted CI process**; native Windows/macOS release smoke still pending |
-| WeChat Three + Pixi shared GL | Real shared implementation + mocked wx browser smoke | **WeChat DevTools + Android and iOS real devices pending** |
+| WeChat Three + Pixi shared GL | Real shared implementation + mocked wx browser smoke | macOS DevTools render/touch/restart passed; Android and iOS real devices pending |
 | WeChat font/touch/lifecycle | Touch manually routed by WX event | Real devices pending |
 | Full `engine.scm` / `world.scm` | Not yet | Stage 2 after platform decision |
 | Game state, saves, cutscenes | Not yet | Stage 2+ |
@@ -54,7 +54,7 @@ The mocked-wx smoke executes the **actual bundled game.js** but still has Chromi
 
 Important: do not alias WebGLRenderingContext to a WebGL2 constructor. PixiJS chooses a WebGL1 VAO extension path when context types are misidentified, which fails even when the same GPU supports native WebGL2 VAOs.
 
-The WeChat environment adapter intentionally throws for missing offscreen-canvas, remote asset fetch or XML parsing. Fix unsupported essentials deliberately after collecting device logs; do not claim that untested APIs are supported.
+The WeChat environment adapter uses secondary canvases when the offscreen API is unavailable. It intentionally throws for unsupported remote asset fetch or XML parsing. Fix unsupported essentials deliberately after collecting device logs; do not claim that untested APIs are supported.
 
 ## Continuation
 

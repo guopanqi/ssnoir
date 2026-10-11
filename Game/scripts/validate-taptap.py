@@ -15,9 +15,13 @@ with zipfile.ZipFile(zip_path) as archive:
     if archive.testzip() is not None:
         raise RuntimeError("Corrupt ZIP entry")
     names = set(archive.namelist())
-    required = {"game.js", "game.json", "check-version.js"}
-    if not required.issubset(names):
-        raise RuntimeError(f"Missing converted files: {required - names}")
+    required = {"game.js", "game.json", "check-version.js", "project.config.json"}
+    if names != required:
+        raise RuntimeError(f"Unexpected converted files: missing={required - names}, extra={names - required}")
+    shared_config = json.loads(Path("platforms/wechat/project.config.json").read_text())
+    config = json.loads(archive.read("project.config.json"))
+    if config.get("appid") != shared_config.get("appid"):
+        raise RuntimeError("Personal WeChat AppID included in TapTap package")
     manifest = json.loads(archive.read("game.json"))
     if manifest.get("convertScriptVersion") != "2.0.5":
         raise RuntimeError("Unexpected converter version")
