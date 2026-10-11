@@ -1,0 +1,45 @@
+name: SSNoir R101 Native P10
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r101.yml'
+      - 'tools/content-validator/experiments/r101_p10_native_three_rounds.py'
+      - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·分段兑现.scm'
+      - 'UnityClient/Assets/Resources/Content/scripts/research/分段兑现.scm'
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build official C# + Scheme runner
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: Execute six full native P10 sessions and guard round transitions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r101_p10_native_three_rounds.py /tmp/r101.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r101.json',encoding='utf8'))
+          for row in d['sessions']:
+              print('seed',row['seed'],'threshold',row['threshold'],
+                    'actions',row['action_count'],'rounds',row['round_boundaries'],
+                    'ending',row['ending'])
+          assert len(d['sessions'])==6
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r101-three-round-native
+          path: /tmp/r101.json
+          retention-days: 90
