@@ -49,11 +49,11 @@
 
     (define (now)
       (cond
-        ((equal? 结果 "进行中") (tr "晚宴还没有散场" "The banquet is still going"))
+        ((equal? 结果 "进行中") (tr "留在格兰德酒店大厅，把这场晚宴谈完" "Stay in the Grand Hotel ballroom and see the banquet through"))
         ((今天?) (tr "今晚的晚宴。她在格兰德酒店等你" "The banquet is tonight. She is waiting at the Grand Hotel"))
         ((还没结?) (string-append
           (tr "还有 " "In ") (number->string (剩几天))
-          (tr " 天，晚宴那晚陪她去" " days, accompany her to the banquet")))
+          (tr " 天。那晚去格兰德酒店陪夜莺赴宴" " days. That night, accompany Nightingale to the Grand Hotel banquet")))
         (else (tr "晚宴散场了。她已经开始适应那个地方"
                   "The banquet is over. She is already finding her place there"))))
 
@@ -114,7 +114,7 @@
           ((equal? msg 'arrivals-at) '())
           ((equal? msg 'dossier) '())
           ((equal? msg 'done?) (not (还没结?)))
-          ((equal? msg 'steps) (list (step "陪她赴晚宴" (not (还没结?)))))
+          ((equal? msg 'steps) (list (step (tr "去格兰德酒店陪夜莺赴宴" "Accompany Nightingale to the Grand Hotel banquet") (not (还没结?)))))
           ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'sync-blockers!) (sync-blockers!))
           ((equal? msg 'demo-entry) (演示入场节点))

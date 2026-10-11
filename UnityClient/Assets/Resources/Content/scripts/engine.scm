@@ -179,7 +179,7 @@
 ;;
 ;; 它没有标题、没有文案。结果条上的每一行都由引擎按状态变化自动写（钟 / 物品 / 关系 /
 ;; 冷静 / 伤势），不需要、也不接受内容再复述一遍。要说的话走显式的表达：到阈值才说的用
-;; banter / dialogue；引擎自动行说不出的事实（"解锁：码头账房"）才用 result-supplement!。
+;; bubble / dialogue；引擎自动行说不出的事实（"解锁：码头账房"）才用 result-supplement!。
 (define (outcome effect)
   (if (procedure? effect)
       (list 'outcome effect)
@@ -602,7 +602,7 @@
       (outcome (lambda ()
           (summon-helper! '老街帮手 "老街帮手" (同伴能力 '老街帮手))
           (result-supplement! "帮手入队：本回合一颗骰")
-          (play-banter! (line "世界" "有人从后面应了一声，走过来站到你身边。")))))))
+          (play-bubble! (line "世界" "有人从后面应了一声，走过来站到你身边。")))))))
 
 ;; 成长面板上那一行字：这条支援叫什么、是干什么用的。加一条支援时这里和 support-nodes 各登记一次。
 ;; (support-info "弗兰克") → ("叫个人来" "叫一个老街的帮手来一回合……")
@@ -855,7 +855,7 @@
 ;;
 ;;   (make-echo-pool stage-fn (list 键 回声 ...) ...)
 ;;     stage-fn  无参，返回当前阶段的键；键用 equal? 比。
-;;     回声      无参 lambda：自己播（play-banter! 等）、自己结算效果。
+;;     回声      无参 lambda：自己播（play-bubble! 等）、自己结算效果。
 ;;   (pool 'try!)      抽到并播了返回 #t，桶空或阶段没桶返回 #f
 ;;   (pool 'save)      ((键 (已用序号 ...)) ...)
 ;;   (pool 'load! x)   读档；序号越界报错
@@ -1162,7 +1162,7 @@
 ;; 结算补充行：引擎自动行（钟 / 物品 / 关系 / 冷静 / 伤势）说不出的东西，
 ;; 才配写这一行。例如"解锁：码头账房""他欠你一次"——离散状态，无自动行。
 ;; 自动行已有的（推进了几格、多少钱、回几点），复述一遍就是噪音，直接删。
-;; 句子、描写、人物的话不进这里：到阈值才说的用 banter / dialogue。
+;; 句子、描写、人物的话不进这里：到阈值才说的用 bubble / dialogue。
 (define (result-supplement! text)
   (__result-supplement! text))
 
@@ -1178,7 +1178,7 @@
   (__play-narration! id))
 
 ;; 一条台词:(line 说话人 文本) / (line 说话人 文本 语音) / (line 说话人 文本 语音 停留秒)
-;; 停留秒仅 banter 使用;<=0 表示按文本长度自动估算。
+;; 停留秒仅 bubble 使用;<=0 表示按文本长度自动估算。
 ;; 绑定语音时,客户端总会至少等到音频播完;显式停留秒只能延长,不能截断语音。
 ;;
 ;; 位置参数之后可以接舞台指示（只对阻塞对话生效），写成关键字对：
@@ -1262,7 +1262,7 @@
           speaker))))
 
 (define (line speaker text . rest)
-  ;; 行级锚点：(line 人 话 [语音 [停留]] :at 锚点名)。只决定 banter 气泡落在哪，
+  ;; 行级锚点：(line 人 话 [语音 [停留]] :at 锚点名)。只决定 bubble 气泡落在哪，
   ;; 署名仍是说话人；同一个锚点可以轮流几个人说话。锚点名须是场景中的 NodeAnchor
   ;; 名，解析不到由客户端直接报错（不降级，避免气泡落到错的地方）。
   (let* ((at-split (line-anchor-args rest))
@@ -1301,12 +1301,12 @@
           (else (loop (cdr rest) (cons (car rest) positional))))))
 
 ;; 非阻塞插话/斗嘴:游戏照常进行,气泡在角色处自动计时消失。变参,每个都是 (line ...)。
-(define (play-banter! . lines)
+(define (play-bubble! . lines)
   (__play-banter! lines))
 
 ;; 显式场外插话:未在场的说话人以不可交互的侧边临时卡承接。
-;; 普通 play-banter! 默认说话人在场；若无法锚定，也会临时降级为场外卡，但客户端会报警。
-(define (play-remote-banter! . lines)
+;; 普通 play-bubble! 默认说话人在场；若无法锚定，也会临时降级为场外卡，但客户端会报警。
+(define (play-remote-bubble! . lines)
   (__play-remote-banter! lines))
 
 ;; 阻塞对话:立绘舞台 + 对白框;全屏点击推进,锁输入、冻结导航,演完才把控制权还给玩家。

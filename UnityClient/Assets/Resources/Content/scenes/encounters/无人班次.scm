@@ -170,7 +170,7 @@
     (lambda ()
       (set! manual-used (+ manual-used 1))
       (manual-clk 'tick!)
-      (play-banter! (line "林" "等等。让它自己处理。"))
+      (play-bubble! (line "林" "等等。让它自己处理。"))
       (clear-fault!)
       (check!))))
 

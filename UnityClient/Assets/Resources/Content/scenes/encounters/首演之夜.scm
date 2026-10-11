@@ -579,7 +579,7 @@
 (define (play-mic! n)
   (if (and (>= n 1) (<= n (length mic-lines)))
       (let ((quad (list-ref mic-lines (- n 1))))
-        (play-remote-banter!
+        (play-remote-bubble!
           (line "舞台监督" (car quad) (cadr quad))
           (line "夜莺" (caddr quad) (cadddr quad))))
       #f))

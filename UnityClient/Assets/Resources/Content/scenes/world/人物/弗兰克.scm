@@ -19,7 +19,7 @@
   (let ()
     (define approved? #f)          ; 弗兰克认可
     (define alley-settled? #f)     ; 巷子那晚已经结过
-    (define met? #f)               ; 见过他本人（工会房间或码头）
+    (define met? #f)               ; 见过他本人（工会房间，或码头抢修收工）
 
     (define repair-state "未开放")  ; 未开放 / 进行中 / 已结束
     (define repair-days 3)
@@ -152,6 +152,9 @@
       (set! hold-state "缺席")
       (set! hold-open-day 0)
       (set! hold-day 0)
+      ;; 码头这边的相识落在收工这一拍：下过场才算见过他本人。
+      ;; 参加第一下不写 met?——船没修完之前，他眼里你还只是班表上的一个名字。
+      (if repair-joined? (meet!) #f)
       (sync-globals!)  ;; 货船在泊 -> #f，船静默离港（见 PropMotion.SyncAll）
       ;; 玩家没有参加，就没有理由在别处收到这条现场结算；
       ;; 参加过的人才会收到自己做过的那班活最终怎样了。
@@ -179,10 +182,10 @@
 
     (define (join-repair! n)
       (set! repair-joined? #t)
-      (meet!)
+      ;; 相识不在这里写：收工结算时才 meet!（见 settle-repair!）。
       (repair-clk 'advance! n)
       (if (= n 0)
-          (play-banter! (line "弗兰克" "先放下！那根绳滑了，下面的人怎么办？" "货船/码头/坏结果/01/弗兰克"))
+          (play-bubble! (line "弗兰克" "先放下！那根绳滑了，下面的人怎么办？" "货船/码头/坏结果/01/弗兰克"))
           #f)
       (if (repair-clk 'full?) (settle-repair! #t) #f))
 
@@ -251,7 +254,7 @@
             (line "尼尔" "谁定这个顺序？")
             (line "弗兰克" "我。"))
           ;; 货船这一节到看他分钱为止：扣船成败都算经历完；没到泊位（缺席）不发。
-          (complete-task! "货船"))))
+          (complete-task! "修货船"))))
 
     ;; ── 第二章：警察来带人那天 ───────────────────────
     (define (on-mediation-summoned!)
@@ -353,7 +356,7 @@
         ((equal? location "码头居民区") (residential-nodes))
         (else '())))
 
-    ;; 第一章一张卡《货船》：抢修，修好船即离港。扣船、分钱暂隐（见 hold-open?），
+    ;; 第一章一张卡《修货船》：抢修，修好船即离港。扣船、分钱暂隐（见 hold-open?），
     ;; 卡在抢修结束那一拍了结；后两项就那么留着，恢复时再连回去。
     ;; 他没事给你做的日子不另立人物简介——码头/居民区的标注卡（node-frank-idle）
     ;; 已经说清他此刻在干什么。
@@ -363,7 +366,7 @@
     (define (dossier-entry)
       (if (equal? repair-state "未开放")
           '()
-          (list (dossier "货船"
+          (list (dossier "修货船"
                   :kind '人物
                   :status (cond
                             ((ship-task-done?) '了结)
@@ -371,18 +374,18 @@
                             (#t '进行中))
                   :now (cond
                          ((ship-task-done?) "")
-                         ((equal? repair-state "进行中") "他在码头排货船抢修的班表；船主只留三天")
-                         ((equal? hold-state "待安排") "船修好了。等代理来验船")
-                         ((equal? hold-state "待处理") "他扣下了船上的关键部件，工人正封着跳板；只有今天")
-                         (#t "去工会房间，看他怎么分那笔钱"))
+                         ((equal? repair-state "进行中") "去码头加入抢修，船主只留三天")
+                         ((equal? hold-state "待安排") "船修好了，去码头等代理来验船")
+                         ((equal? hold-state "待处理") "今天去码头，找弗兰克谈扣船的事")
+                         (#t "去工会房间，看弗兰克分钱"))
                   :where (cond
                            ((ship-task-done?) "")
                            ((member? hold-state (list "已结算")) "码头居民区")
                            (#t "码头"))
                   :clocks (if (equal? repair-state "进行中") (list (repair-clk 'render-data)) '())
                   :steps (list (step "货船抢修" (repair-done?))
-                               (step "船修好了却不开" (equal? hold-state "已结算"))
-                               (step "看弗兰克分钱" distribution-viewed?))))))
+                               (step "去码头谈扣船的事" (equal? hold-state "已结算"))
+                               (step "去工会房间看分钱" distribution-viewed?))))))
 
     ;; 只属于本场的调度简写。公共舞台提供 spawn/move/remove；三个人影穿场
     ;; 是这场戏的句法，不是引擎原语。

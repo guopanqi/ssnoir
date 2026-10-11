@@ -132,9 +132,13 @@
             '())))
 
     ;; 一张卡：去后屋 → 街上那一场。捎话那天立卡，调停结了（或你缺席）就了结。
+    ;; 缺席是另一种了结：步骤不再是待办，写成已发生的事。
     (define (steps)
-      (list (step "去老街酒馆的后屋见他" (member? 状态 (list "成功" "失败")))
-            (step "别给他们想要的" (member? 状态 (list "成功" "失败")))))
+      (if (equal? 状态 "缺席")
+          (list (step "没去老街，错过了" #t)
+                (step "街上那场在你缺席时发生了" #t))
+          (list (step "去老街酒馆后屋见弗兰克" (member? 状态 (list "成功" "失败")))
+                (step "在酒馆门口拦下冲突，不动手、不留照片" (member? 状态 (list "成功" "失败"))))))
 
     (define (dossier-entry)
       (cond
@@ -143,8 +147,8 @@
                  :kind '人物 :status '进行中
                  :now "去老街酒馆的后屋见弗兰克"
                  :where "老街酒馆"
-                 :clocks (list (日期倒计时 "他等着" (到期日) 窗口天数
-                                 "街上的事不等你。"))
+                 :clocks (list (日期倒计时 "离街上出事" (到期日) 窗口天数
+                                 "归零前去老街酒馆后屋见弗兰克；过期街上那场在你缺席时发生。"))
                  :steps (steps)
                  :log (journal 'render-data))))
         ((member? 状态 (list "成功" "失败" "缺席"))

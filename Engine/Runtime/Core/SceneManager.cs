@@ -1226,7 +1226,7 @@ namespace SSNoir.Core
                         var autoReport = ResolveWithReport(() => pending.Effect.Call(new List<object>()));
                         if (autoReport.BlockingStorySteps.Count > 0)
                             throw new InvalidOperationException(
-                                $"auto-action!: '{pending.Name}' 的效果里不能排阻塞剧情步骤；要说话用 play-banter!。");
+                                $"auto-action!: '{pending.Name}' 的效果里不能排阻塞剧情步骤；要说话用 play-bubble!。");
                         var frameReport = new ActionReport { Type = ActionType.Instant };
                         frameReport.BlockingStorySteps.Add(BlockingStoryStep.ForResolvedAutoAction(
                             pending.Name, pending.Title, pending.Text, pending.AnchorName,

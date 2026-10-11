@@ -103,7 +103,7 @@
       (outcome (lambda ()
           (老街-clk 'advance! 2)
           (if (老街-clk 'full?)
-              (play-banter! (line "世界" "弗兰克抬了抬手。前排的人往门里退了。"))
+              (play-bubble! (line "世界" "弗兰克抬了抬手。前排的人往门里退了。"))
               #f)
           (check!))))))
 
@@ -118,7 +118,7 @@
       (outcome (lambda ()
           (警方-clk 'advance! 2)
           (if (警方-clk 'full?)
-              (play-banter! (line "世界" "警官朝车那边点了点头。架着人的手松了。"))
+              (play-bubble! (line "世界" "警官朝车那边点了点头。架着人的手松了。"))
               #f)
           (check!))))))
 
@@ -137,7 +137,7 @@
   (if (喊人-clk 'full?)
       (begin
         (set! 喊人在? #f)
-        (play-banter! (line "世界" "他被人从后面拖进酒馆。门在他身后关上了。")))
+        (play-bubble! (line "世界" "他被人从后面拖进酒馆。门在他身后关上了。")))
       #f)
   (check!))
 
@@ -155,7 +155,7 @@
   (if (警棍-clk 'full?)
       (begin
         (set! 警棍在? #f)
-        (play-banter! (line "世界" "警官叫了他一声。他退回车边，手插进了口袋。")))
+        (play-bubble! (line "世界" "警官叫了他一声。他退回车边，手插进了口袋。")))
       #f)
   (check!))
 
@@ -165,13 +165,13 @@
 (define (spawn-shouter!)
   (set! 喊人在? #t)
   (喊人-clk 'reset!)
-  (play-banter!
+  (play-bubble!
     (line "世界" "前排有人喊起来了。喊的是那个警察的名字，和他家住哪条街。")))
 
 (define (spawn-baton!)
   (set! 警棍在? #t)
   (警棍-clk 'reset!)
-  (play-banter!
+  (play-bubble!
     (line "世界" "年轻的那个警察把手放到了警棍上。他的眼睛在找人堆里最近的一个。")))
 
 (define-opponent-rule "街上越站越紧"

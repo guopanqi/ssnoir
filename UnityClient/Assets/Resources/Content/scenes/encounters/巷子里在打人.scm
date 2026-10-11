@@ -82,7 +82,7 @@
       #t)
   (life 'advance! (- amount))
   (if (life 'empty?)
-      (play-banter! (line "世界" down-line))
+      (play-bubble! (line "世界" down-line))
       #f)
   (check-victory!))
 
@@ -129,11 +129,11 @@
   (define-opponent-rule (string-append name "出手")
     (lambda () (and (not finished?) (standing? life) (attack 'empty?)))
     (lambda ()
-      (play-banter! (line name say))
+      (play-bubble! (line name say))
       ;; 出手之后重新拉满：下一次又要等这么久。
       (attack 'set! (attack 'max))
       (spend-actor-composure! 'player damage)
-      (play-banter! (line "世界" attack-line)))))
+      (play-bubble! (line "世界" attack-line)))))
 
 (define (on-encounter-enter)
   (set! finished? #f)
@@ -185,7 +185,7 @@
     ;; 倒计时要往下走。这里原来写的是 'tick!（+1）——钟起手就在满格，加一被夹回满格，
     ;; 于是它永远 empty? 不了，「艾迪撑不住了」这条路一次也没跑过。
     (eddie-clk 'advance! -1)
-    (play-banter! (line "世界" "靠墙的人又矮下去一点。"))
+    (play-bubble! (line "世界" "靠墙的人又矮下去一点。"))
     (if (and (not finished?) (eddie-clk 'empty?))
         (finish! 'fail "艾迪撑不住了"
           "你还在和面前的人纠缠。后面传来一声闷响，艾迪顺着墙倒下去，没有再动。")

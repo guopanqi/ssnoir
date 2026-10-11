@@ -102,7 +102,7 @@
     (if (and (not was-full?) (clk 'full?))
         (begin
           (familiar-clk 'advance! 1)
-          (play-banter! fill-line))
+          (play-bubble! fill-line))
         #f)
     (if (and enter-now? (familiar-clk 'full?))
         (enter-act-two!)
@@ -141,7 +141,7 @@
 
 (define (mention-half! current text)
   (if (and (= current 2) (not (member? text halfway)))
-      (begin (set! halfway (cons text halfway)) (play-banter! (line "尼尔" text)))
+      (begin (set! halfway (cons text halfway)) (play-bubble! (line "尼尔" text)))
       #f))
 
 (define (push-talk! clk text)
@@ -152,7 +152,7 @@
   (vera-clk 'advance! 1)
   (mention-half! (vera-clk 'current) (tr "她开始把你当成可以交代事情的人" "She is beginning to trust you with something that matters"))
   (if (vera-clk 'full?)
-      (play-banter!
+      (play-bubble!
         (line "薇拉" (tr "你把每句话都掂过一遍。" "You weighed every word."))
         (line "尼尔" (tr "您也一样。" "So did you."))
         (line "薇拉" (tr "那就够了。下次公司有事，我会先来找你。" "That is enough. Next time the company needs someone, I will come to you first.")))

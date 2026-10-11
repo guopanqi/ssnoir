@@ -24,7 +24,7 @@
           (set! 出门? #f)
           (堵截 'advance! -1)
           (压力 'advance! -1)
-          (play-banter! (line "世界" "他退回柜台，重新锁上后门。堵截机会过去了。")))
+          (play-bubble! (line "世界" "他退回柜台，重新锁上后门。堵截机会过去了。")))
         (if (and (>= (压力 'current) 2) (< (压力 'current) 4))
             (begin
               (set! 出门? #t)

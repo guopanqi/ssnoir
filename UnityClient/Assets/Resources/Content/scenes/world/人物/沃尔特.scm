@@ -91,7 +91,7 @@
               (if (equal? result 'confirmed)
                   "报告坐实了骗保。沃尔特在表格上打了勾，之后的外勤他先想到你。"
                   "报告留了一处空白。沃尔特没有追问，之后的外勤他也不派重的给你。"))
-            (complete-task! "核赔")
+            (complete-task! "陪沃尔特验货")
             (play-remote-dialogue!
               (line "沃尔特"
                 (if (equal? result 'confirmed)
@@ -223,13 +223,13 @@
     (define (报销!)
       (add-item! "金钱" 报销费)
       (result-supplement! "名目：差旅报销")
-      (play-banter! (line "沃尔特" "单子我签了。事情办没办成，公司不问。")))
+      (play-bubble! (line "沃尔特" "单子我签了。事情办没办成，公司不问。")))
 
     (define (顾问费!)
       (add-item! "金钱" 顾问费)
       (remove-item! "金钱" 顾问费-他的份)
       (result-supplement! "名目：外部顾问费；沃尔特的份已扣")
-      (play-banter! (line "沃尔特" "顾问费到了。我的那份我自己拿了。")))
+      (play-bubble! (line "沃尔特" "顾问费到了。我的那份我自己拿了。")))
 
     (define (项目费!)
       (add-item! "金钱" 项目费)
@@ -238,7 +238,7 @@
 
     (define (裙带-闲话! grade)
       (if (random-choice (list #t #f))
-          (play-banter!
+          (play-bubble!
             (line "沃尔特"
               (cond
                 ((= 裙带 1) "报销单记得交。公司月底结。")
@@ -301,33 +301,52 @@
       (if (equal? location "格兰德酒店") (lobby-arrivals) '()))
 
     ;; ── 卷宗 ────────────────────────────────────────
+    ;; Now 按进度说下一步：大堂见面 → 码头账房拿舱单 → 带舱单回大堂核赔。
+    ;; 拿舱单那一步地点是码头，where 跟着走。
     (define (steps)
-      (list (step "在酒店大堂听他说那桩理赔" (>= stage 2))
-            (step "拿到那批货的舱单" manifest?)
-            (step "陪沃尔特核赔" (>= stage 3))))
+      (list (step "在酒店大堂接下码头那桩验货" (>= stage 2))
+            (step "去码头账房拿那批货的舱单" manifest?)
+            (step "去格兰德酒店大厅陪沃尔特核赔" (>= stage 3))))
+
+    (define (claim-now)
+      (cond ((= stage 1)
+             (if (>= world-day (找你的日子))
+                 "去格兰德酒店大堂见沃尔特"
+                 (string-append "第 " (number->string (找你的日子))
+                                " 天去格兰德酒店大堂见沃尔特")))
+            ((not manifest?) "去码头账房拿那批货的舱单")
+            (#t "带舱单去格兰德酒店大厅陪沃尔特核赔")))
+
+    (define (claim-where)
+      (if (and (= stage 2) (not manifest?)) "码头" "格兰德酒店"))
 
     (define (dossier-entry)
       (cond
         ((or (= stage 1) (= stage 2))
-         (list (dossier "核赔"
+         (list (dossier "陪沃尔特验货"
                  :kind '人物 :status '进行中
-                 :now ""
-                 :where "格兰德酒店"
+                 :now (claim-now)
+                 :where (claim-where)
                  :steps (steps)
                  :log (journal 'render-data))))
         ((= stage 3)
          (append
-           (list (dossier "核赔" :kind '人物 :status '了结
+           (list (dossier "陪沃尔特验货" :kind '人物 :status '了结
                    :now "" :where ""
                    :steps (steps)
                    :log (journal 'render-data)))
            (if (>= 裙带 1)
-               (list (dossier "沃尔特的账" :kind '人物 :status '进行中
-                       :now ""
+               (list (dossier "跑沃尔特的外勤" :kind '人物 :status '进行中
+                       :now (cond ((>= 裙带 3) "")
+                                  ((and (= 裙带 2) (>= 交情 门槛-项目))
+                                   "去大堂签沃尔特的长期协议")
+                                  (#t "去大堂替沃尔特跑外勤，交情够了升一级"))
                        :where "格兰德酒店"
-                       :steps (list (step "他签字给你报销" (>= 裙带 1))
-                                    (step "你成了公司的外部顾问" (>= 裙带 2))
-                                    (step "签下协议" (>= 裙带 3)))
+                       :steps (list (step "拿到空白报销单" (>= 裙带 1))
+                                    (step "去大堂跑外勤攒交情"
+                                          (or (>= 裙带 3)
+                                              (and (= 裙带 2) (>= 交情 门槛-项目))))
+                                    (step "去大堂签长期协议" (>= 裙带 3)))
                        :log (journal 'render-data)))
                '())))
         (else '())))

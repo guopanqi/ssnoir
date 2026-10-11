@@ -235,12 +235,15 @@
         (set! stage 5)
         (notify! "老街侧墙那条巷子已经没人再提。")))
 
-    ;; 从头到尾没进过酒馆：第二封信一来，这条线就悄悄合上了。
+    ;; 从头到尾没进过酒馆：小节三一到（巷子那一晚之后），这条线就悄悄合上了。
+    ;; 触发窗口是小节一加小节二——撞上之后仍必须当天打，当天的规矩不变；
+    ;; 只是"你哪天进酒馆都可能撞上"的有效期，从第二封信放宽到巷子那一晚。
+    ;; 小节二等她的那两天正好是去酒馆的空当，窗口应该把这两天含进去。
     ;; 这里<b>不通知</b>——玩家从没听说过这件事，凭空来一句"没人再提"，
     ;; 提的是他压根不知道的东西。
     (define-turn-rule "老街那边的事过去了"
       (lambda () (and (alley-armed?)
-                      (>= (three-letters 'story-stage) 2)))
+                      (>= (three-letters 'story-stage) 3)))
       (lambda () (set! stage 5)))
 
     ;; ── 情报 ────────────────────────────────────────
@@ -421,7 +424,7 @@
       (set! result-line "小马丁赢。看台上一半的人把票撕了。")
       (settle-bet!)
       (finish-night!)
-      (play-banter!
+      (play-bubble!
         (line "世界" "人往外走的时候，艾迪从后面出来，在你旁边经过，没停。")
         (line "世界" "他看了一眼你手里有没有票。"))
       (spotlight! "冷门" "写票的一晚上收了三十几张莫里斯的票。他一张也不用付。"))
@@ -435,7 +438,7 @@
       (set! result-line "韦德赢。有人在场边输掉了不该输的数目。")
       (settle-bet!)
       (finish-night!)
-      (play-banter!
+      (play-bubble!
         (line "世界" "人往外走。后门那个位子空着。")
         (line "世界" "艾迪从后面绕过来，在那个位子旁边站了一步，然后走了。"))
       (spotlight! "别人的大注不是情报"
@@ -453,7 +456,7 @@
         (line "艾迪" "八块。")
         (line "尼尔" "赢了才八块？")
         (line "艾迪" "赢是给观众看的。挣钱才是工作。"))
-      (play-banter!
+      (play-bubble!
         (line "世界" "看台上还有几个人没散，还在叫唤。他没往那边看。"))
       (spotlight! "八块" "他把钱折了两折，塞进袜子里，然后开始解手上的布。"))
 
@@ -681,7 +684,7 @@
                     (line "世界" "他把箱子架回肩上，走了。")))
               ;; 码头重逢是这条线的收束。stage 5（没去巷子 / 窗口过了）不发——
               ;; 那条路上玩家什么也没经历。发点放在对白之后，否则通知被整段对白盖掉。
-              (complete-task! "巷子里的人"))))))
+              (complete-task! "帮艾迪"))))))
 
     (define (reunion-open?)
       (and (= stage 2) (>= world-day (+ shut-day reunion-delay))))
@@ -766,20 +769,20 @@
     ;; 没插手（stage 5）就没有这张卡——那条路上玩家什么也没经历。
     (define (steps)
       (list (step "插手巷子里那件事" (member? stage (list 1 2 3)))
-            (step "去酒馆后面看一场" (or (> night 0) (>= stage 2)))
-            (step "码头上再见到他" (>= stage 3))))
+            (step "去酒馆后面看拳赛" (or (> night 0) (>= stage 2)))
+            (step "去码头货堆见艾迪" (>= stage 3))))
 
     (define (dossier-entry)
       (cond
         ((= stage 1)
-         (list (dossier "巷子里的人"
+         (list (dossier "帮艾迪"
                  :kind '人物
                  :status (if (fight-night?) '进行中 '等着别人)
                  :now (cond
                         ((fight-night?) "今晚有一场。去酒馆后面，先看懂比赛再押钱")
                         ((eve?) "明晚有一场。今晚可以先去酒馆后面写票，赔率比明晚好")
-                        (#t (string-append "下一场在第 " (number->string next-fight-day)
-                                           " 天")))
+                        (#t (string-append "第 " (number->string next-fight-day)
+                                           " 天去酒馆后面看拳赛")))
                  :where "老街酒馆"
                  :clocks (list (heat-clk 'render-data))
                  :steps (steps)
@@ -787,18 +790,19 @@
         ;; 只有撞上了才立卷宗。窗口开着但还没进过酒馆时，玩家根本没听说过这件事——
         ;; 卷宗里凭空多出一条卡，等于替他剧透一个他还没遇到的晚上。
         ((alley-live?)
-         (list (dossier "巷子里的人"
+         (list (dossier "帮艾迪"
                  :kind '人物
                  :status '进行中
-                 :now "酒馆侧墙今晚有人在挨打；只有今晚"
+                 :now "今晚去酒馆侧墙巷子，拦下那场围殴"
                  :where "老街酒馆"
+                 :clocks (list (alley-clock))
                  :steps (steps)
                  :log (journal 'render-data))))
         ((>= stage 2)
-         (list (dossier "巷子里的人"
+         (list (dossier "帮艾迪"
                  :kind '人物
                  :status (if (>= stage 3) '了结 '进行中)
-                 :now (if (>= stage 3) "" "拳场查封了；过几天码头上还能碰见他")
+                 :now (if (>= stage 3) "" (if (reunion-open?) "去码头货堆找艾迪" (string-append "第 " (number->string (+ shut-day reunion-delay)) " 天去码头货堆找艾迪")))
                  :where (if (>= stage 3) "" "码头")
                  :steps (steps)
                  :log (journal 'render-data))))

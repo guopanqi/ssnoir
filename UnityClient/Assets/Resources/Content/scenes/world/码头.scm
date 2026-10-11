@@ -38,7 +38,7 @@
     ;; ── 码头回声 ──────────────────────────
     ;; 跟陌生人一组时才可能听见：码头是背景，陌生人是背景里的声音。
     (define (dock-period) (if (第二章 'started?) 2 1))
-    (define (echo . lines) (lambda () (apply play-banter! lines)))
+    (define (echo . lines) (lambda () (apply play-bubble! lines)))
     (define dock-echoes
       (make-echo-pool dock-period
         (list 1
@@ -72,7 +72,7 @@
 
     (define (meet-joe!)
       (set! joe-met? #t)
-      (play-banter!
+      (play-bubble!
         (line "乔" "尼尔，下一趟跟我走。那边的绳没受潮。")
         (line "尼尔" "你什么时候记住我名字的？")
         (line "乔" "点工的喊得够响。")))
@@ -91,17 +91,17 @@
       (if (not joe-met?) (meet-joe!) #f)
       (cond
         ((equal? grade '好)
-         (play-banter!
+         (play-bubble!
            (line "乔" "你今天绳子打对了。")
            (line "尼尔" "你教的。")
            (line "乔" "教一次不算。明天再打一遍。")))
         ((equal? grade '中)
-         (play-banter!
+         (play-bubble!
            (line "乔" "肩膀换一边。")
            (line "尼尔" "这边还行。")
            (line "乔" "还行就是快不行了。换。")))
         (else
-         (play-banter!
+         (play-bubble!
            (line "乔" "放下。重的这头我来。")
            (line "尼尔" "工头看着呢。")
            (line "乔" "他看的是货有没有卸完。没看是谁卸的。")))))
@@ -112,7 +112,7 @@
       (let ((hand-bad? (eddie 'hand-bad?)))
         (cond
           ((equal? grade '好)
-           (play-banter!
+           (play-bubble!
              (line "艾迪" "还有一车。跟不跟？")
              (line "尼尔" "工头没派。")
              (line "艾迪" "派了就不值钱了。")
@@ -120,14 +120,14 @@
                               "他把第三车架在左肩上，右手只是搭着。"
                               "他把第三车架上肩，冲你笑了一下。"))))
           ((equal? grade '中)
-           (play-banter!
+           (play-bubble!
              (line "艾迪" "今天这批太轻。")
              (line "尼尔" "轻还不好？")
              (line "艾迪" (if hand-bad?
                               "轻的谁都能扛。我得扛别人扛不了的。"
                               "轻的不算数。"))))
           (else
-           (play-banter!
+           (play-bubble!
              (line "世界" "箱子从他那头滑下去。他没去捡，先看了一眼工头。")
              (line "艾迪" "算我的。")
              (line "尼尔" "两个人的班。")

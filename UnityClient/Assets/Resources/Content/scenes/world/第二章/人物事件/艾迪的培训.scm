@@ -70,7 +70,7 @@
           (begin
             (journal 'add! 履历)
             ;; 陪过他才算经历完这一节；知情却一趟没去，考试是他自己的事。
-            (if (> 练了 0) (complete-task! "艾迪的手") #f)
+            (if (> 练了 0) (complete-task! "陪艾迪备考") #f)
             (spotlight! 标题 正文))
           #f))
 
@@ -101,9 +101,9 @@
           (outcome (lambda ()
               (set! 练了 (+ 练了 1))
               (if (够了?)
-                  (play-banter!
+                  (play-bubble!
                     (line "艾迪" "这几张我背下来了。真考的时候别慌就行。"))
-                  (play-banter!
+                  (play-bubble!
                     (line "艾迪" "……手抖不是紧张，是使不上劲。")))
               (result-supplement! (string-append "练了 " (number->string 练了) " 趟"))))))))
 
@@ -116,30 +116,30 @@
     ;; ── 卷宗 ────────────────────────────────────────
     ;; 没人告诉过你的事不进卷宗——那张纸是他兜里的，不是你桌上的。
     (define (steps)
-      (list (step "他跟你说了培训的事" 说过了?)
-            (step (string-append "陪他练 " (number->string (要几趟)) " 趟") (够了?))
-            (step "考试" (member? 状态 (list "通过" "没过")))))
+      (list (step "艾迪说了培训的事" 说过了?)
+            (step (string-append "去码头陪艾迪练 " (number->string (要几趟)) " 趟") (够了?))
+            (step "艾迪考试（到日子自动开考）" (member? 状态 (list "通过" "没过")))))
 
     (define (dossier-entry)
       (if (not 说过了?)
           '()
           (cond
             ((进行中?)
-             (list (dossier "艾迪的手"
+             (list (dossier "陪艾迪备考"
                      :kind '人物
                      :status '进行中
                      :now (cond
-                            ((够了?) "他准备好了。剩下的看他自己")
+                            ((够了?) "艾迪已练够，等考试日放榜，不用再去")
                             ((不能再练?) "考试就在今天。来不及了")
                             (#t (string-append "去码头陪他练，还要 "
                                                (number->string (- (要几趟) 练了)) " 趟")))
                      :where (if (还没考?) "码头" "")
                      :clocks (list (日期倒计时 "离考试" (考试日) 准备天数
-                                     "过了那天就没有下一场。"))
+                                     "归零前去码头陪艾迪练够趟数，过期开考。"))
                      :steps (steps)
                      :log (journal 'render-data))))
             (#t
-             (list (dossier "艾迪的手"
+             (list (dossier "陪艾迪备考"
                      :kind '人物 :status '了结
                      :now "" :where ""
                      :steps (steps)

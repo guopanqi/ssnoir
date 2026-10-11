@@ -42,13 +42,13 @@
   (if 成功?
       (let ((词 (list-ref '("莫里斯" "" "午夜" "" "蓝火柴" "") 段)))
         (set! 线索 (cons 词 线索))
-        (play-banter! (line "世界" (string-append "你听清了：" 词 "。"))))
+        (play-bubble! (line "世界" (string-append "你听清了：" 词 "。"))))
       (begin (疑心 'advance! 1) (result-supplement! "他压低了声音，你没有听清。")))
   (检查!))
 (define-opponent-rule "他检查尾巴"
   (lambda () (and (not 完了?) (回头?) (<= (距离 'current) 2)))
   (lambda ()
-    (play-banter! (line "世界" "他的目光在街面上扫了一遍。"))
+    (play-bubble! (line "世界" "他的目光在街面上扫了一遍。"))
     (疑心 'advance! (+ 1 (认脸 'current)))
     (检查!)))
 (define-opponent-rule "藏进街面"

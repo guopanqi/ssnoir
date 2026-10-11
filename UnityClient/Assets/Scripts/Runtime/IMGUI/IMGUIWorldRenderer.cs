@@ -3410,7 +3410,7 @@ namespace SSNoir.IMGUI
                 _banterPlayer,
                 _dialogueAnchors,
                 _gameManager,
-                speaker => ReportRemoteFallback("play-banter!", speaker));
+                speaker => ReportRemoteFallback("play-bubble!", speaker));
         }
 
         // 阻塞：立绘舞台覆盖世界；Say 拍全屏左键推进（打字中补全，否则下一句），无字动作拍吞掉点击自动播完，后方控件由 IsInputLocked 显式禁用。
@@ -3474,7 +3474,7 @@ namespace SSNoir.IMGUI
 
         private void ReportRemoteFallback(string command, string speaker)
         {
-            bool isBanter = command == "play-banter!";
+            bool isBanter = command == "play-bubble!";
             Debug.LogWarning(
                 $"{command} 说话人 '{speaker}' 无法解析到当前屏幕锚点，"
                 + (isBanter ? "已自动改用场外临时卡。" : "立绘舞台仍会显示，但本行被视为场外对白。")

@@ -151,16 +151,16 @@
 (define (topic-complete-banter! topic)
   (cond
     ((equal? topic '雇主)
-     (play-banter!
+     (play-bubble!
        (line "弗兰克" "经理掏钱，不等于他替你挑人。")
        (line "尼尔" "我知道。")
        (line "弗兰克" "那就别让我看见他的手伸进来。")))
     ((equal? topic '夜莺)
-     (play-banter!
+     (play-bubble!
        (line "弗兰克" "她走了，也还是从这条街走出去的。")
        (line "尼尔" "我不是来替谁抹掉她。")))
     ((equal? topic '收场)
-     (play-banter!
+     (play-bubble!
        (line "弗兰克" "只拿该拿的，别让这条街替你收场。")
        (line "尼尔" "这正是我的打算。")))
     (else (error "巷子：未知已完成议题"))))
@@ -354,7 +354,7 @@
     :resolve (instant
       (outcome (lambda ()
           (set! cigs-used? #t)
-          (play-banter!
+          (play-bubble!
             (line "世界" "压扁的烟盒落在工作台上，旁边搁着生锈的大管钳和钝口的粗铁剪。" "巷子/物证/烟盒/01/世界")
             (line "莱恩" "……那帮嘴碎的家伙连这个都给你了。" "巷子/物证/烟盒/01/莱恩"))
           (advance-lyon! 2))))))

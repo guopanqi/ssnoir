@@ -331,7 +331,7 @@
          ;; 料是公司的，工时是你的——这一件不结钱。
          (set! part-bonus 1)
          (reset-part!)
-         (play-banter! (line "林" "别扔。我知道为什么了。"))
+         (play-bubble! (line "林" "别扔。我知道为什么了。"))
          (result-supplement! "这一件报废了；下一件更有把握"))
         ((part-int-clk 'full?)
          (if (> (part-flaw-clk 'current) 0)

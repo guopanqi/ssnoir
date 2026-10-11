@@ -222,7 +222,7 @@
                  (line "世界" "他还是把那张地址收进了抽屉。"))
                (set-flag! '老街的三个人还会回来)
                (result-supplement! "他欠你一次。那三个人只是走开了。")))
-            (complete-task! "让他们安静"))
+            (complete-task! "摆平老街三人"))
           (begin
             (play-dialogue!
               (line "贝恩斯" "巡警的报告我看了。")
@@ -232,7 +232,7 @@
             ;; 失败是终局：这张地址不会再发一次。
             ;; 失败也算经历完，这一节照样结。
             (set! quiet-stage 3)
-            (complete-task! "让他们安静"))))
+            (complete-task! "摆平老街三人"))))
 
     ;; ── 第三拍:《五点以后》 ───────────────────────────
     ;; 下班后仍熟悉辖区的人：他阻止巡警把错的人写进盗窃案，
@@ -375,19 +375,19 @@
           (list (arrival-street))
           '()))
 
-    ;; 第一章一张卡《让他们安静》：他推过来那张地址时立卡，交锋结了就了结。
+    ;; 第一章一张卡《摆平老街三人》：他推过来那张地址时立卡，交锋结了就了结。
     ;; 第二章「贝恩斯叫你去警局拿那张纸」是演出，玩家不用做什么，不立卡。
     (define (dossier-entry)
       (if (>= quiet-stage 1)
-          (list (dossier "让他们安静"
+          (list (dossier "摆平老街三人"
                   :kind '人物
                   :status (if (>= quiet-stage 2) '了结 '进行中)
                   :now (cond
-                         ((= quiet-stage 1) "去警察局，照他桌上那张地址办：让老街那三个人安静下来")
+                         ((= quiet-stage 1) "去警察局值班台，凭桌上那张地址摆平老街那三个人")
                          (#t ""))
                   :where (if (= quiet-stage 1) "警察局" "")
                   :steps (list (step "他推过来一张地址" (>= quiet-stage 1))
-                               (step "让老街那三个人安静" (= quiet-stage 2)))))
+                               (step "去警察局值班台，凭桌上那张地址了结此事" (= quiet-stage 2)))))
           '()))
 
     (define (nodes-at location)

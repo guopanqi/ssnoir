@@ -13,7 +13,7 @@ namespace SSNoir.IMGUI
         {
             public DialogueLine Line = null!;
             public bool AllowsRemoteParticipants;
-            // 普通 play-banter! 锚定失败时，画面会降级为场外卡并发一次内容警告。
+            // 普通 play-bubble! 锚定失败时，画面会降级为场外卡并发一次内容警告。
             // 状态跟着气泡走，避免 OnGUI 每帧重复推送同一条警告。
             public bool RemoteFallbackWarningIssued;
             public bool PreferCardAnchor;   // 对方回合的节拍：落在说话人的卡上，不找世界锚点

@@ -158,7 +158,7 @@
     (define (echo . lines)
       (lambda ()
         (restore-actor-composure! 'player 1)
-        (apply play-banter! lines)))
+        (apply play-bubble! lines)))
 
     (define tavern-echoes
       (make-echo-pool atmosphere-period
@@ -213,7 +213,7 @@
     ;; 见一次推一拍，永不倒退，所以他做的事是可以被记住的：莫里斯永远付账，
     ;; 帕克永远分你半个三明治，科尔第一晚请全场、第二晚问你借烟。
     ;; 一次结果只演一段，人排在回声前面（见 meet-or-echo!）。
-    ;; 三个人都用 play-banter!：他们在场时有一条同名标注（见 regular-notes），气泡从那儿冒。
+    ;; 三个人都用 play-bubble!：他们在场时有一条同名标注（见 regular-notes），气泡从那儿冒。
 
     ;; 莫里斯：跑沿岸货船跑了三十年的老水手，上岸等下一条船。他的习惯是替年轻人付账。
     (define morris
@@ -222,20 +222,20 @@
         :stay 3
         :beats (list
           (beat (lambda ()
-                  (play-banter!
+                  (play-bubble!
                     (line "莫里斯" "新来的。你端盘子的样子像在甲板上走。")
                     (line "尼尔" "地不晃。")
                     (line "莫里斯" "那杯记我账上。三十年前也有人这么替我记过。")))
                 (lambda () (if (home 'drank-today?) #f (home 'drink!))))
           (beat (lambda ()
-                  (play-banter!
+                  (play-bubble!
                     (line "莫里斯" "沿岸货船开春回港，一年就那一趟。")
                     (line "莫里斯" "船上的人回城，头一杯都在这儿喝。")
                     (line "尼尔" "你在等谁？")
                     (line "莫里斯" "等一条肯要老人的船。")))
                 (lambda () (restore-actor-composure! 'player 1)))
           (beat (lambda ()
-                  (play-banter!
+                  (play-bubble!
                     (line "莫里斯" "明早的船。烟在船上不让点。")
                     (line "莫里斯" "拿着。别在甲板上抽。")
                     (line "尼尔" "我不上船。")
@@ -250,12 +250,12 @@
         :stay 2
         :beats (list
           (beat (lambda ()
-                  (play-banter!
+                  (play-bubble!
                     (line "帕克" "后台的三明治。她们从来不吃第二片。")
                     (line "帕克" "你那份。别客气，客气就凉了。")))
                 (lambda () (restore-actor-composure! 'player 1)))
           (beat (lambda ()
-                  (play-banter!
+                  (play-bubble!
                     (line "帕克" "今晚换了三次布景，掌声一次没等到。")
                     (line "尼尔" "他们不给杂工鼓掌。")
                     (line "帕克" "他们不知道幕是谁拉的。吃吧，还是一半。")))
@@ -268,20 +268,20 @@
         :stay 3
         :beats (list
           (beat (lambda ()
-                  (play-banter!
+                  (play-bubble!
                     (line "科尔" "今晚这一圈我请。二十二年，他们折成一个信封。")
                     (line "尼尔" "你留点。")
                     (line "科尔" "留给谁？机器不喝酒。")))
                 (lambda () (if (home 'drank-today?) #f (home 'drink!))))
           (beat (lambda ()
-                  (play-banter!
+                  (play-bubble!
                     (line "科尔" "昨晚的钱昨晚就没了。有烟吗？")
                     (line "科尔" "明天去新港排队。他们说会开机器的留下。")
                     (line "尼尔" "你会吗？")
                     (line "科尔" "我会搬。")))
                 (lambda () (if (> (item-count "香烟") 0) (remove-item! "香烟" 1) #f)))
           (beat (lambda ()
-                  (play-banter!
+                  (play-bubble!
                     (line "科尔" "排到了。培训三天，不给工钱。")
                     (line "科尔" "第四天要是还站在这儿，你就当没见过我。")))))))
 
@@ -369,12 +369,12 @@
            (line "客人" "我知道。今晚别叫醒我。")))
         ((= tip-scenes-seen 1)
          (set! tip-scenes-seen 2)
-         (play-banter!
+         (play-bubble!
            (line "客人" "零钱拿着。")
            (line "尼尔" "你还没喝完。")))
         ((= tip-scenes-seen 2)
          (set! tip-scenes-seen 3)
-         (play-banter!
+         (play-bubble!
            (line "水手" "找的钱归你。")
            (line "尼尔" "你给得不多。")))
         (else #f)))

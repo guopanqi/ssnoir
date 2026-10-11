@@ -305,7 +305,7 @@ Paper 底、PaperInk 文字、硬投影偏移 (5,6) 黑 @ 50%。叙事物件（�
 
 对白期间任意位置左键都推进下一句，世界卡片、顶栏、底栏、相机拖拽和已展开面板必须通过
 `IsInputLocked` / `IMGUIInteractionContext` 显式禁用；对白舞台绘制在这些 UI 之上。非阻塞
-`play-banter!` 仍使用依附世界锚点的小气泡，不能与阻塞对白共用版式。
+`play-bubble!` 仍使用依附世界锚点的小气泡，不能与阻塞对白共用版式。
 
 ### Banter 气泡
 
