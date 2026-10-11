@@ -40,6 +40,13 @@ try {
       // world.scm becomes navigable in each Web viewport.
       await page.waitForFunction(() => window.__SSNOIR_PREVIEW__?.getStatus().loaded === true &&
         window.__SSNOIR_PREVIEW__?.getStatus().places > 0, null, { timeout: 45000 });
+      // Real authored portrait bytes are bundled, decoded through the actual
+      // host Image contract, then uploaded into the same Pixi runtime.
+      await page.waitForFunction(()=>
+        window.__SSNOIR_PREVIEW__?.getStageAssets?.().loaded===4,null,{timeout:20000});
+      const stageAssets=await page.evaluate(()=>window.__SSNOIR_PREVIEW__.getStageAssets());
+      if(stageAssets.pending||stageAssets.errors.length)
+        throw new Error("Original stage portrait decoding failed: "+JSON.stringify(stageAssets));
       if(scenario.name==="desktop"){
         // Save is an authored-world transaction, not the independent counter.
         await page.mouse.click(620,479);

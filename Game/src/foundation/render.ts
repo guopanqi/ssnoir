@@ -32,6 +32,7 @@ export interface FoundationSession {
   getCount(): number;
   getMoney(): number;
   getRenderDiagnostics(): Record<string, boolean>;
+  getStageAssetDiagnostics(): {loaded:number;pending:number;errors:string[]};
   getGamePreviewStatus(): {loaded:boolean;mode:string;day:string;entries:number;places:number;money:number;restores:number};
   resize(width: number, height: number): void;
   pause(): void;
@@ -679,6 +680,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       money:authoredWorld?.state.getItemCount("金钱")??0,
       restores:restoredGames
     }),
+    getStageAssetDiagnostics:()=>stageImages.diagnostics(),
     getRenderDiagnostics: () => ({
       threeUsesHostCanvas: three.domElement === options.canvas,
       pixiViewUsesHostCanvas: pixi.canvas === options.canvas,

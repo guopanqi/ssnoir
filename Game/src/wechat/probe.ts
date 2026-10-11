@@ -31,7 +31,8 @@ mountFoundation({
       getSchemeValue: session.getCount,
       getMoney: session.getMoney,
       getDiagnostics: wechatHost.getDiagnostics,
-      getRenderDiagnostics: session.getRenderDiagnostics
+      getRenderDiagnostics: session.getRenderDiagnostics,
+      getStageAssets: session.getStageAssetDiagnostics
     }
   });
   console.log("[SSNoir] Canvas identity " + JSON.stringify(session.getRenderDiagnostics()));

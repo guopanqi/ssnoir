@@ -27,7 +27,10 @@ async function start(): Promise<void> {
   });
   Object.assign(window, {
     __SSNOIR_FOUNDATION__: { getSchemeValue: session.getCount, getMoney: session.getMoney },
-    __SSNOIR_PREVIEW__: { getStatus: session.getGamePreviewStatus }
+    __SSNOIR_PREVIEW__: {
+      getStatus: session.getGamePreviewStatus,
+      getStageAssets: session.getStageAssetDiagnostics
+    }
   });
   window.addEventListener("resize", () => session.resize(window.innerWidth, window.innerHeight));
   const updateVisibility = () => document.hidden ? session.pause() : session.resume();

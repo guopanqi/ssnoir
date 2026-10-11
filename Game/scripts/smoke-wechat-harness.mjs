@@ -136,6 +136,11 @@ try {
     () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 1 &&
       window.__SSNOIR_WECHAT_FOUNDATION__?.getMoney() === 15, null, { timeout: 20000 }
   );
+  await page.waitForFunction(() =>
+    window.__SSNOIR_WECHAT_FOUNDATION__?.getStageAssets?.().loaded===4,null,{timeout:20000});
+  const stageAssets=await page.evaluate(() => window.__SSNOIR_WECHAT_FOUNDATION__.getStageAssets());
+  if (stageAssets.pending || stageAssets.errors.length)
+    throw new Error("Bundled original Pixi stage images failed to decode: " + JSON.stringify(stageAssets));
   const renderIdentity = await page.evaluate(() => window.__SSNOIR_WECHAT_FOUNDATION__.getRenderDiagnostics());
   if (Object.values(renderIdentity).some(value => value !== true)) {
     throw new Error("Shared Canvas/context identity mismatch: " + JSON.stringify(renderIdentity));
