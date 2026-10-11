@@ -24,7 +24,7 @@ test("heavy injury removes last protagonist action slot but not companion; machi
  assert.deepEqual(t.dice("player").map(x=>x.slotId),[0,1,2]);
  assert.deepEqual(t.dice("lin").map(x=>x.value),[4,4]);
  assert.deepEqual(t.dice("lin").map(x=>x.slotId),[0,1]);
- t.spend("lin",2);
+ t.spend("lin",4);
  t.rollDice(()=>0,true,false);
  assert.equal(t.dice("lin").length,0);
 });
