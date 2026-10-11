@@ -27,7 +27,6 @@ def end(p,obs):
 def r91():
     rows=[]
     for scene,clear in (("整段完成",True),("分段保留对照",False)):
-        p,obs=start("notused") if False else (None,None)
         # research scene (not an authored '实验·' encounter).
         from subprocess import Popen,PIPE
         from probe_four_scenario_causality import CMD,ROOT
