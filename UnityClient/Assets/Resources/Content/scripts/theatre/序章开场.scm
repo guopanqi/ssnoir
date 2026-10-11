@@ -1,7 +1,207 @@
-;; 剧场由 Claude 制作；保留主线调用位置，当前不播放替代对白或演出。
-;; 酒馆出门：尼尔从门内摇晃走到街上，无对白、自动结束，随后主线运镜到家门口。
-(define (序章-酒馆出门) #f)
+;; 参考 Claude 07-tavern-exit / 08-landlord，保留构图与动作关系。
+;; 剧场仅负责画面与声音；城市运镜、醉酒状态、房租和日期由三封信模块负责。
+;; 两场同景深人物均用 308×308，资产保留角色比例与鞋底基线。
+(define (序章-脚步 seconds)
+  (theatre-during (theatre-wait seconds)
+    (theatre-loop (theatre-sequence
+      (theatre-sound "脚步" "StageSounds/老街酒馆/脚步" #f .28 0)
+      (theatre-wait .6)))))
 
-;; 房东催租：家门口拦住尼尔，说“两天后，四十块房租。尼尔，你明早最好还记得。”
-;; 结束后主线交还控制。演出不修改醉酒、骰池、房租、日期，不负责城市运镜。
-(define (序章-房东催租) #f)
+(define (序章-摇晃 count amplitude)
+  (theatre-repeat count (theatre-sequence
+    (theatre-tween "尼尔位置" 'rotation amplitude .3 'smooth)
+    (theatre-tween "尼尔位置" 'rotation (- 0 amplitude) .3 'smooth))))
+
+(define (序章-酒馆出门)
+  (define 图形 '())
+  (define 描绘 '())
+  (define (加入 object) (set! 图形 (append 图形 (list object))))
+  (define (线 id parent color width points delay)
+    (加入 (theatre-with (theatre-line id parent color width points) 'reveal 0))
+    (set! 描绘 (append 描绘 (list
+      (theatre-sequence
+        (theatre-wait (+ .001 delay))
+        (theatre-tween id 'reveal 1 2.2 'smooth))))))
+  (define (框 id parent x y w h color width delay)
+    (线 id parent color width
+      (list (list x y) (list (+ x w) y) (list (+ x w) (+ y h))
+        (list x (+ y h)) (list x y)) delay))
+  (define (填 id parent x y w h color . opacity)
+    (加入 (theatre-with (theatre-polygon id parent color
+      (list (list x y) (list (+ x w) y) (list (+ x w) (+ y h)) (list x (+ y h))))
+      'opacity (if (null? opacity) 1 (car opacity)))))
+  (加入 (theatre-with (theatre-group "立面" "" 0 0) 'opacity 0))
+  (线 "地面" "立面" "#5A6F9C" 1.5 '((0 790) (1600 790)) 0)
+  (线 "街沿" "立面" "#33466E" 1 '((0 806) (1600 806)) .4)
+  (框 "外墙" "立面" 360 300 460 490 "#7F95C4" 2.5 .6)
+  (框 "门框" "立面" 540 470 150 320 "#E9EEF8" 2.5 1.2)
+  (框 "台阶" "立面" 500 774 210 16 "#9FB4E0" 2 1.6)
+  (线 "酒杯" "立面" "#FF5A6A" 2.5 '((565 370) (665 370) (615 436) (565 370)) 1.4)
+  (线 "杯脚" "立面" "#FF5A6A" 2.5 '((615 436) (615 486) (588 488) (642 488)) 1.6)
+  (线 "杯液" "立面" "#FF8A96" 2 '((600 392) (632 392)) 1.7)
+  (加入 (theatre-with (theatre-glow "招牌光" "立面" "#FF5A6A" 615 420 250 260) 'opacity .10))
+  (加入 (theatre-light "门光" "" "#F4CF80" 615 640 520 0))
+  (填 "门内光" "门光" -67 -162 134 304 "#F2C36EF2")
+  (加入 (theatre-with (theatre-glow "门前柔光" "门光" "#F4CF80" 0 -40 500 700) 'opacity .22))
+  (加入 (theatre-focus "焦点" 690 600 .32 .7))
+  (加入 (theatre-with (theatre-group "尼尔位置" "" 600 790) 'opacity 0))
+  (加入 (theatre-image "尼尔" "尼尔位置" "Portraits/Neon/尼尔_醉站" 0 0 308 308 ""))
+  (play-theatre! (theatre-scene 1600 900 "#0A0709" 图形)
+    (theatre-parallel
+      (apply theatre-parallel (cons (theatre-tween "立面" 'opacity 1 1.5) 描绘))
+      (theatre-sequence
+        (theatre-wait .6)
+        (theatre-sound "酒馆钢琴" "StageSounds/剧院/钢琴" #t .12 -.45)
+        (theatre-tween "门光" 'brightness .95 .6)
+        (theatre-wait .9)
+        (theatre-tween "尼尔位置" 'opacity 1 .1)
+        (theatre-parallel (序章-摇晃 2 3) (theatre-wait 1.4))
+        (theatre-image-to "尼尔" "Portraits/Neon/尼尔_醉行")
+        (theatre-parallel
+          (theatre-tween "尼尔位置" 'x 735 2.4 'smooth)
+          (序章-摇晃 4 4)
+          (序章-脚步 2.4))))
+    ;; 靠在门右侧墙边，停住喘息；门内声音与灯光退下。
+    (theatre-image-to "尼尔" "Portraits/Neon/尼尔_扶墙")
+    (theatre-parallel
+      (theatre-tween "尼尔位置" 'rotation 0 .2)
+      (theatre-tween "门光" 'brightness 0 .6)
+      (theatre-volume "酒馆钢琴" 0 .5))
+    (theatre-wait 2.2)
+    (theatre-stop-sound "酒馆钢琴")
+    (theatre-image-to "尼尔" "Portraits/Neon/尼尔_醉行")
+    (theatre-during
+      (theatre-tween "尼尔位置" 'x 1750 9)
+      (序章-脚步 9)
+      (theatre-tween "焦点" 'x 1150 6 'smooth)
+      (theatre-sequence
+        (序章-摇晃 4 3)
+        (序章-摇晃 2 9)
+        (序章-摇晃 9 3)))
+    (theatre-wait .4)))
+
+;; 公寓立面沿用雨夜来访的门牌、窗户、电铃与门轴，保持同一栋住所。
+(define (序章-房东催租)
+  (define 图形 '())
+  (define 描绘 '())
+  (define (加入 object) (set! 图形 (append 图形 (list object))))
+  (define (线 id parent color width points delay)
+    (加入 (theatre-with (theatre-line id parent color width points) 'reveal 0))
+    (set! 描绘 (append 描绘 (list
+      (theatre-sequence
+        (theatre-wait (+ .001 delay))
+        (theatre-tween id 'reveal 1 2.2 'smooth))))))
+  (define (框 id parent x y w h color width delay)
+    (线 id parent color width
+      (list (list x y) (list (+ x w) y) (list (+ x w) (+ y h))
+        (list x (+ y h)) (list x y)) delay))
+  (define (填 id parent x y w h color . opacity)
+    (加入 (theatre-with (theatre-polygon id parent color
+      (list (list x y) (list (+ x w) y) (list (+ x w) (+ y h)) (list x (+ y h))))
+      'opacity (if (null? opacity) 1 (car opacity)))))
+  (define (窗 r c)
+    (if (< r 4)
+      (if (< c 5)
+        (let ((x (+ 500 (* c 118))) (y (+ 60 (* r 110)))
+              (id (string-append "窗/" (number->string r) "/" (number->string c))))
+          (if (and (= r 2) (= c 3))
+            (填 "楼上灯窗" "立面" x y 56 70 "#F2C36E" 0)
+            (if (= (modulo (+ (* c 5) (* r 3)) 7) 1)
+              (填 (string-append id "/灯") "立面" x y 56 70 "#8A6A388C")))
+          (框 id "立面" x y 56 70 "#6F86B8" 1.5 (+ 1 (* (+ r c) .08)))
+          (窗 r (+ c 1)))
+        (窗 (+ r 1) 0))))
+  (define (逃生梯 y)
+    (线 (string-append "梯横/" (number->string y)) "立面" "#7F95C4" 1.5
+      (list (list 1150 y) (list 1270 y) (list 1270 (+ y 8))) (+ 2 (/ y 400)))
+    (线 (string-append "梯斜/" (number->string y)) "立面" "#5F759F" 1.2
+      (list (list 1270 (+ y 8)) (list 1150 (+ y 110))) (+ 2.2 (/ y 400))))
+
+  (加入 (theatre-with (theatre-group "立面" "" 0 0) 'opacity 0))
+  (线 "地面" "立面" "#2A3A60" 1 '((0 790) (1600 790)) 0)
+  (框 "外墙" "立面" 460 -30 680 820 "#9FB4E0" 2 .2)
+  (线 "侧线左" "立面" "#6F86B8" 1.5 '((450 -30) (450 790)) .3)
+  (线 "侧线右" "立面" "#6F86B8" 1.5 '((1150 -30) (1150 790)) .3)
+  (窗 0 0)
+  (框 "下窗左" "立面" 500 560 110 130 "#6F86B8" 1.5 1.6)
+  (线 "下窗左竖" "立面" "#4F6490" 1 '((555 560) (555 690)) 1.8)
+  (线 "下窗左横" "立面" "#4F6490" 1 '((500 625) (610 625)) 1.8)
+  (框 "下窗右" "立面" 990 560 110 130 "#6F86B8" 1.5 1.7)
+  (线 "下窗右竖" "立面" "#4F6490" 1 '((1045 560) (1045 690)) 1.9)
+  (线 "下窗右横" "立面" "#4F6490" 1 '((990 625) (1100 625)) 1.9)
+  (逃生梯 150) (逃生梯 260) (逃生梯 370) (逃生梯 480)
+  (线 "雨棚" "立面" "#E6EEFF" 2.5 '((690 482) (910 482) (930 450) (670 450) (690 482)) 1.5)
+  (框 "台阶" "立面" 710 774 180 16 "#9FB4E0" 2 1.6)
+  ;; 门牌 17：线绘数字，落在雨棚上方、窗之间，不用图片字体。
+  (线 "门牌一" "立面" "#E0BD70" 1.2 '((788 408) (794 408) (794 432)) 2.4)
+  (线 "门牌七" "立面" "#E0BD70" 1.2 '((802 408) (822 408) (812 432)) 2.4)
+  (加入 (theatre-with (theatre-glow "楼上信号" "立面" "#FFBF55" 882 315 64 64) 'opacity 0))
+  (加入 (theatre-light "门光" "" "#F4CF80" 800 640 620 0))
+  (填 "门内光" "门光" -65 -150 130 284 "#F2C36EF2")
+  (框 "门框" "立面" 729 484 142 290 "#7F95C4" 1.5 1.3)
+  (加入 (theatre-group "门扇" "立面" 735 490))
+  (填 "门板" "门扇" 0 0 130 284 "#04060C")
+  (框 "门边" "门扇" 0 0 130 284 "#E9EEF8" 2.5 1.4)
+  (框 "门格左上" "门扇" 13 15 48 110 "#CFE0FF" 1.5 1.7)
+  (框 "门格右上" "门扇" 69 15 48 110 "#CFE0FF" 1.5 1.7)
+  (框 "门格左下" "门扇" 13 140 48 128 "#CFE0FF" 1.5 1.9)
+  (框 "门格右下" "门扇" 69 140 48 128 "#CFE0FF" 1.5 1.9)
+  (框 "电铃盒" "立面" 900 548 44 92 "#9FB0D8" 2 2)
+  (线 "电铃格栅" "立面" "#9FB0D8" 1.5 '((908 556) (936 556) (936 563) (908 563) (908 570) (936 570)) 2.2)
+  (线 "电铃按钮" "立面" "#9FB0D8" 1.5 (theatre-ellipse-points 924 590 6 6) 2.3)
+  (加入 (theatre-with (theatre-glow "按钮光" "立面" "#FFBF55" 924 590 24 24) 'opacity 0))
+  (加入 (theatre-with (theatre-glow "电铃信号" "立面" "#FFBF55" 922 563 64 64) 'opacity 0))
+  (加入 (theatre-focus "焦点" 800 576 .20 .52))
+  (加入 (theatre-with (theatre-glow "说话柔光" "" "#8FB4E8" 860 560 600 840) 'opacity 0))
+  (加入 (theatre-with (theatre-glow "门前柔光" "门光" "#F4CF80" 0 -80 600 840) 'opacity .26))
+  (加入 (theatre-glow "门前光池" "门光" "#F4CF8055" 0 150 400 50))
+  (加入 (theatre-with (theatre-group "尼尔位置" "" -160 790) 'opacity 0))
+  (加入 (theatre-image "尼尔" "尼尔位置" "Portraits/Neon/尼尔_醉行" 0 0 308 308 ""))
+  (加入 (theatre-with (theatre-group "房东位置" "" 1060 790) 'opacity 0))
+  (加入 (theatre-image "房东" "房东位置" "Portraits/Neon/房东_抱臂" 0 0 308 308 ""))
+  (play-theatre! (theatre-scene 1600 900 "#070A12" 图形)
+    (theatre-parallel
+      (apply theatre-parallel (cons (theatre-tween "立面" 'opacity 1 1.5) 描绘))
+      (theatre-sequence
+        (theatre-wait .6)
+        (theatre-tween "房东位置" 'opacity 1 .3)
+        (theatre-tween "尼尔位置" 'opacity 1 .05)
+        (theatre-parallel
+          (theatre-tween "尼尔位置" 'x 770 4.2 'smooth)
+          (序章-摇晃 7 3)
+          (序章-脚步 4.2))))
+    ;; 摸钥匙开门，暖光出现；房东在背后说，尼尔始终不回头。
+    (theatre-image-to "尼尔" "Portraits/Neon/尼尔_摸钥匙")
+    (theatre-parallel (序章-摇晃 1 2) (theatre-wait .9))
+    (theatre-sound "门锁" "StageSounds/雨夜求助/门锁" #f .5 0)
+    (theatre-parallel
+      (theatre-tween "门扇" 'scale-x .12 .9 'smooth)
+      (theatre-tween "门光" 'brightness .95 .9)
+      (theatre-tween "楼上灯窗" 'opacity .92 .9)
+      (theatre-wait .9))
+    (theatre-caption-for "房东"
+      (tr "两天后，四十块房租。尼尔，你明早最好还记得。"
+          "Two days. Forty dollars rent. Neil, you'd better remember that tomorrow morning.")
+      4.5 "#9DB0E0")
+    (theatre-clear-caption)
+    (theatre-image-to "尼尔" "Portraits/Neon/尼尔_醉站")
+    (theatre-wait 1.1)
+    (theatre-image-to "尼尔" "Portraits/Neon/尼尔_醉行")
+    (theatre-parallel
+      (theatre-tween "尼尔位置" 'x 800 1.9 'smooth)
+      (theatre-tween "尼尔位置" 'y 786 1.9 'smooth)
+      (theatre-tween "尼尔位置" 'scale-x .82 1.9 'smooth)
+      (theatre-tween "尼尔位置" 'scale-y .82 1.9 'smooth)
+      (theatre-tween "尼尔位置" 'opacity 0 1.9 'smooth)
+      (序章-脚步 1.9))
+    (theatre-wait .3)
+    (theatre-parallel
+      (theatre-tween "门扇" 'scale-x 1 .6 'smooth)
+      (theatre-tween "门光" 'brightness 0 .6)
+      (theatre-tween "楼上灯窗" 'opacity 0 .6))
+    (theatre-wait 1)
+    ;; 次要人物用整体短摆读出摇头，不拆新表情动画。
+    (theatre-animate "房东位置" 'rotation '((0 0) (.35 -2) (.7 2) (1.1 -2) (1.5 0)))
+    (theatre-wait 1.4)
+    (theatre-tween "房东位置" 'opacity 0 .7)
+    (theatre-wait .1)))

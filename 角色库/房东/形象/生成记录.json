@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "形象",
+  "name": "抱臂-修订",
+  "status": "completed",
+  "prompt": "Edit this landlord sprite. Keep the exact standing folded-arms pose, body proportion, left-facing profile and plain 1950s clothes. Remove the horizontal ground line completely. No ground, no shadows, no black line beneath the shoes. Simplify him into a secondary character silhouette: interior flat dark charcoal #171B22, no face lines, no collar lines, no trouser folds, no fingers, no internal strokes. Only a thin low-contrast gray outer silhouette contour. Keep complete head and both complete shoes and readable arms-crossed OUTER shape. Entire background flat #FF00FF. Same square canvas, figure centered. Do not add any text or props.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/角色库/房东/形象/抱臂.png",
+      "sha256": "aa397d43badd153117de08b5a41a61e1ec89eb66dc7da2b9ebbe6e2028be17b0"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/形象/抱臂-修订",
+  "created_at": "2026-10-11T12:46:22.420Z",
+  "submitted_at": "2026-10-11T12:46:31.347Z",
+  "conversation_url": "https://gemini.google.com/app/62d55d099d999aa3",
+  "completed_at": "2026-10-11T12:46:53.185Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/形象/抱臂-修订/image.jpeg",
+    "mime_type": "image/jpeg",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "browser-request",
+    "sha256": "882ad1a3a43a84b24b13b0b75196081f001ec7308b566029f679055357a9a516"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/房东/形象/抱臂-修订.jpeg"
+}

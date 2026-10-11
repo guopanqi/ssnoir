@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "形象",
+  "name": "抱臂",
+  "status": "completed",
+  "prompt": "A single complete full-body sprite of a secondary apartment landlord in a 1950s American noir game, facing LEFT in a three-quarter profile, feet on a shared ground baseline, standing firmly with arms crossed over chest. Ordinary slightly stocky adult man in a plain shirt with rolled sleeves, simple vest, trousers and shoes. He is a secondary background figure, not a named hero: pure solid very dark charcoal silhouette interior, NO facial detail, NO inner clothing folds, NO bright accent, minimal muted gray outer contour ONLY; arms-crossed gesture clearly readable in the outside silhouette. Restrained filled graphic illustration, not neon light, no glow, not cartoon, no realistic texture. Full body including both shoes, neutral adult proportions, no text or props. Square 1024 canvas, figure centered x=512, shoe baseline y=1000, crown y approximately 210, with margins, relative height slightly shorter than the slender main detective. Background perfectly flat solid #FF00FF magenta for chroma extraction, no shadow, no floor, no labels. Important: show a natural folded-arm silhouette and head angled toward the left, no front-facing symmetrical silhouette.",
+  "references": [],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/形象/抱臂",
+  "created_at": "2026-10-11T12:44:46.777Z",
+  "submitted_at": "2026-10-11T12:44:54.876Z",
+  "conversation_url": "https://gemini.google.com/app/8a5d29af87b467e3",
+  "completed_at": "2026-10-11T12:45:09.301Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/形象/抱臂/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "aa397d43badd153117de08b5a41a61e1ec89eb66dc7da2b9ebbe6e2028be17b0"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/房东/形象/抱臂.png"
+}

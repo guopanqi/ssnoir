@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "序章醉酒",
+  "name": "四姿势",
+  "status": "completed",
+  "prompt": "Create a production sprite sheet for a 1950s American film noir game. Use the attached full-body Neil image ONLY as character identity and body SCALE reference: same slender adult man, same cap, jacket, trousers and shoes, same body and head proportions. Remove his cigarette entirely. Change rendering to solid filled dark charcoal / muted slate large shapes with restrained warm light-gray outer contours, minimal internal strokes, not hollow neon, not cartoon. All characters complete head to shoes. Background perfectly flat #FF00FF magenta for extraction, no shadow, no glow, no ground, no text, no labels, no furniture.\nOne sheet in a precise 2x2 equal-square grid. Four poses, each isolated in its own square; same drawing scale and same shoe baseline in every square. Keep a little empty margin, shoes at 97.65625% tile height, standing character crown at about 17% tile height. Do not enlarge bowed bodies to fill their cells. Upper left: badly drunk, head hanging, slumped shoulders, arms loose, standing facing right. Upper right: stumbling walking right, uneven step, one arm slightly out for balance, heavy drooping head, no cigarette or bottle. Lower left: side-facing right, leaning onto an IMPLIED wall with outstretched palm to his right, exhausted drunk weight supported by arm, no actual wall in image. Lower right: still facing right without looking back, one hand forward reaching with a small period metal key towards an implied door lock, other arm hanging, no actual door. Preserve character identity and body scale across all four poses. Not sequential animation frames, four distinct readable key poses, flat game illustration, high contrast filled masses.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Resources/Portraits/Neon/尼尔.png",
+      "sha256": "b912fb533f3e15388ff1495dea60e8f3b1f552581fa0f8e56f617cce4fb7d8b4"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/序章醉酒/四姿势",
+  "created_at": "2026-10-11T12:43:32.992Z",
+  "submitted_at": "2026-10-11T12:43:45.512Z",
+  "conversation_url": "https://gemini.google.com/app/8678cc43d4c273d8",
+  "completed_at": "2026-10-11T12:44:00.104Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/序章醉酒/四姿势/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "489825e57900207621c67fcb9032dc09c965f6f7a07913e83a9398a2df1556a9"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/尼尔/形象/姿势/序章醉酒/四姿势.png"
+}

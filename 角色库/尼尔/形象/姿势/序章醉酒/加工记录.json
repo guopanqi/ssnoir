@@ -1,0 +1,97 @@
+[
+  {
+    "name": "尼尔_醉站",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceBounds": [
+      190,
+      56,
+      348,
+      491
+    ],
+    "scale": 1.9,
+    "offset": [
+      26,
+      67
+    ],
+    "ground": 1000
+  },
+  {
+    "name": "尼尔_醉行",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceBounds": [
+      80,
+      58,
+      420,
+      480
+    ],
+    "scale": 1.9,
+    "offset": [
+      26,
+      88
+    ],
+    "ground": 1000
+  },
+  {
+    "name": "尼尔_扶墙",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceBounds": [
+      103,
+      53,
+      438,
+      474
+    ],
+    "scale": 1.9,
+    "offset": [
+      26,
+      99
+    ],
+    "ground": 1000
+  },
+  {
+    "name": "尼尔_摸钥匙",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceBounds": [
+      167,
+      34,
+      395,
+      487
+    ],
+    "scale": 1.9,
+    "offset": [
+      26,
+      75
+    ],
+    "ground": 1000
+  },
+  {
+    "name": "房东_抱臂",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "sourceBounds": [
+      357,
+      59,
+      637,
+      971
+    ],
+    "scale": 0.9,
+    "offset": [
+      51,
+      126
+    ],
+    "ground": 1000
+  }
+]
