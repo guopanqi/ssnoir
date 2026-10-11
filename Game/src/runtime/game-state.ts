@@ -20,6 +20,7 @@ export class GameRuntimeState {
   private notifications: string[] = [];
   private failure: RuntimeSnapshot["failure"] = null;
   private growthLevel = 0;
+  private clockEffects: Array<{label:string; displayLabel:string; delta:number}> | null = null;
 
   constructor() { this.reset(); }
 
@@ -75,6 +76,26 @@ export class GameRuntimeState {
   releaseRestBlocker(id: string): void { this.restBlockers.delete(id); }
   clearRestBlockers(): void { this.restBlockers.clear(); }
   hasRestBlockers(): boolean { return this.restBlockers.size > 0; }
+  beginActionReport(): void {
+    if (this.clockEffects) throw new Error("nested action report");
+    this.clockEffects = [];
+  }
+  recordClockEffect(label:string, displayLabel:string, delta:number):void {
+    if (!label.trim() || !displayLabel.trim() || !Number.isSafeInteger(delta))
+      throw new Error("invalid clock effect arguments");
+    // Mirrors C# CurrentActionReport?.AddClockEffect; no active report = no presentation record.
+    if (!this.clockEffects || delta===0) return;
+    const prior=this.clockEffects.find(x=>x.label===label);
+    if(prior) {
+      if(prior.displayLabel!==displayLabel) throw new Error("clock display changed in action");
+      prior.delta+=delta;
+    } else this.clockEffects.push({label,displayLabel,delta});
+  }
+  takeActionReport():Array<{label:string;displayLabel:string;delta:number}> {
+    const r=(this.clockEffects??[]).filter(x=>x.delta!==0).map(x=>({...x}));
+    this.clockEffects=null;return r;
+  }
+  cancelActionReport():void { this.clockEffects=null; }
   notify(text: string): void { this.notifications.push(text); }
   failGame(title: string, description: string): void {
     if (!title.trim() || !description.trim()) throw new Error("failure title/description must be non-empty");

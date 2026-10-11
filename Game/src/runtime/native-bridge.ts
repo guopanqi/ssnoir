@@ -92,6 +92,11 @@ export function createNativeBridge(state: GameRuntimeState): NativeBridge {
       state.clearRestBlockers();
       return undefined;
     },
+    "__record-clock-effect!": (...args) => {
+      arity("__record-clock-effect!",args,3);
+      state.recordClockEffect(string(args[0]),string(args[1]),integer(args[2]));
+      return undefined;
+    },
     "__notify!": (...args) => {
       arity("__notify!", args, 1);
       state.notify(String(args[0]));

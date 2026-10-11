@@ -46,6 +46,7 @@ export interface ActionResult {
   chosenDie?:number; fateDie?:number; prepared?:number;
   before:ReturnType<GameRuntimeState["snapshot"]>;
   after:ReturnType<GameRuntimeState["snapshot"]>;
+  clockEffects:ReturnType<GameRuntimeState["takeActionReport"]>;
 }
 function findNode(root:RuntimeNode, name:string):RuntimeNode|undefined {
   if(root.name===name)return root;
@@ -93,6 +94,7 @@ export class GameActionRunner {
     if(node.resolve.kind==="roll"&&!selected)throw new Error("roll action requires die slot");
 
     const before=this.state.snapshot(), diceBefore=this.turn.available();
+    this.state.beginActionReport();
     try {
       let result:ReturnType<typeof resolveFate>|undefined;
       if(node.resolve.kind==="roll")result=resolveFate(
@@ -106,8 +108,9 @@ export class GameActionRunner {
       if(selected)this.turn.spend(selected.slotId);
       return { name, mode:node.resolve.kind, outcome:result?.outcome,
         chosenDie:selected?.value,fateDie:result?.fateDie,prepared:result?.prepared,
-        before,after:this.state.snapshot() };
+        before,after:this.state.snapshot(),clockEffects:this.state.takeActionReport() };
     }catch(error){
+      this.state.cancelActionReport();
       this.state.restore(before);
       this.turn.restore(diceBefore);
       throw error;
