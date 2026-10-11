@@ -1,0 +1,38 @@
+name: SSNoir Phase 2 Authored Runtime Contracts
+on:
+  push:
+    paths:
+      - 'Game/src/runtime/**'
+      - 'Game/src/foundation/render.ts'
+      - 'Game/tests/**'
+      - 'UnityClient/Assets/Resources/Content/**'
+      - '.github/workflows/ssnoir-phase2-contracts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  authored-runtime:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Game
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Game/package.json
+      - name: Install pinned game dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck shared runtime
+        run: npm run typecheck
+      - name: Test original authoring and gameplay traces, without browser setup
+        run: |
+          node --experimental-strip-types --test \
+            tests/presentation-parity.ts-test.mjs \
+            tests/game-world.ts-test.mjs \
+            tests/authored-opening.ts-test.mjs \
+            tests/world-save.ts-test.mjs \
+            tests/encounter-director.ts-test.mjs \
+            tests/encounter-round.ts-test.mjs
