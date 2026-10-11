@@ -15,7 +15,7 @@ with zipfile.ZipFile(zip_path) as archive:
     if archive.testzip() is not None:
         raise RuntimeError("Corrupt ZIP entry")
     names = set(archive.namelist())
-    required = {"game.js", "game.json", "check-version.js", "project.config.json"}
+    required = {"game.js", "foundation.js", "game.json", "check-version.js", "project.config.json"}
     if names != required:
         raise RuntimeError(f"Unexpected converted files: missing={required - names}, extra={names - required}")
     shared_config = json.loads(Path("platforms/taptap/project.config.json").read_text())
@@ -35,6 +35,8 @@ with zipfile.ZipFile(zip_path) as archive:
         raise RuntimeError("ZIP entry differs from converted disk file")
     if b"GameGlobal.fetch" not in code:
         raise RuntimeError("Original converter runtime injection missing")
-    if b"__SSNOIR_WECHAT_FOUNDATION__" not in code:
+    if b"require('./foundation.js')" not in code and b'require("./foundation.js")' not in code:
+        raise RuntimeError("TapTap startup loader missing")
+    if b"__SSNOIR_WECHAT_FOUNDATION__" not in archive.read("foundation.js"):
         raise RuntimeError("SSNoir entry point missing after Babel")
     print(f"PASS: official TapTap 2.0.5 ZIP validated ({zip_path.stat().st_size} bytes, {len(names)} files)")

@@ -31,7 +31,8 @@ if (!readFileSync(join(wechat,"game.js"),"utf8").includes("__SSNOIR_WECHAT_FOUND
 // Build a clean converter input from the runtime and shared source manifests.
 rmSync(source, { recursive: true, force: true });
 mkdirSync(source, { recursive: true });
-copyFileSync(join(wechat, "game.js"), join(source, "game.js"));
+copyFileSync(join(wechat, "game.js"), join(source, "foundation.js"));
+copyFileSync(resolve("platforms/taptap/game.js"), join(source, "game.js"));
 copyFileSync(resolve("platforms/wechat/game.json"), join(source, "game.json"));
 // As in the working Laya release, supply the TapTap AppID before conversion.
 // The vendor converter preserves project.config.json unchanged.

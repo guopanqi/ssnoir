@@ -36,6 +36,14 @@ The earlier SSNoir ZIP incorrectly contained `touristappid`. This packaging
 error is fixed; whether it explains the client's unavailable message still
 requires testing the corrected ZIP on the device.
 
+The TapTap entry now loads `foundation.js` through a small independent
+`game.js`, matching the working Laya package's module-loading structure.
+It logs `entry reached` before loading renderer dependencies, registers
+`wx.onError`, and catches synchronous initialization and module parsing errors
+with a modal. A platform rejection before `game.js` executes cannot display
+this modal. The ZIP now contains five files; the shared renderer bundle is
+still generated from the same WeChat source and converted by the vendor tool.
+
 `build:taptap` runs the submitted converter source (SHA-256 verified) with the actual WeChat bundle, then validates syntax, ZIP structure, version, orientation, presence of original runtime injection, and a 20MB ZIP budget. `smoke:taptap-harness` executes the **converted game.js** under Chromium with a mocked `wx` / `GameGlobal` host and checks the shared LIPS/Three/Pixi touch action. Both are included in GitHub Actions, with `game.zip` uploaded as an artifact.
 
 ### True target-runtime gates (still pending)

@@ -4,6 +4,7 @@ import { chromium } from "playwright";
 const target = process.env.SSNOIR_MINIGAME_TARGET === "taptap" ? "taptap" : "wechat";
 const sourceFile = target === "taptap" ? "dist/taptap/game/game.js" : "dist/wechat/game.js";
 const source = readFileSync(sourceFile, "utf8");
+const foundationSource = target === "taptap" ? readFileSync("dist/taptap/game/foundation.js", "utf8") : null;
 const canvasMode = process.env.SSNOIR_WX_CANVAS_MODE || "offscreen";
 if (!["offscreen", "missing", "throws"].includes(canvasMode)) throw new Error("Unknown canvas mode: " + canvasMode);
 const browser = await chromium.launch({
@@ -74,6 +75,14 @@ try {
     }
     window.wx = wxMock;
   }, canvasMode);
+  if (foundationSource !== null) {
+    await page.evaluate(code => {
+      window.require = name => {
+        if (name !== "./foundation.js") throw new Error("Unexpected Mini Game module: " + name);
+        (0, eval)(code);
+      };
+    }, foundationSource);
+  }
   await page.addScriptTag({ content: source }).catch(error => { errors.push("addScriptTag: " + (error.stack || String(error))); });
   await page.waitForFunction(
     () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 1, null, { timeout: 20000 }
