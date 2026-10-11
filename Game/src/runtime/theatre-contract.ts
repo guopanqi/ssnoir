@@ -123,13 +123,13 @@ function parseCue(raw:StoryValue, known:Map<string,TheatreObject>,
   let seconds=0,ownWrites:string[]=[],repeatCount:number|undefined;
   if(["sequence","parallel","during","repeat","loop"].includes(kind)){
     if(!data.length)error(kind,"empty time structure");
-    const items=(kind==="repeat"||kind==="loop")?data.slice(1):data;
+    const items=kind==="repeat"?data.slice(1):data;
     if(kind==="repeat"){
       repeatCount=num(data[0],"repeat count",true);
       if(!Number.isSafeInteger(repeatCount)||repeatCount>10000||items.length!==1)
         error(kind,"requires count 1..10000 and one body");
     }
-    if(kind==="loop"&&(data.length!==2||!background))
+    if(kind==="loop"&&(data.length!==1||!background))
       error(kind,"loop requires a background in during");
     if(kind==="during"&&items.length<2)error(kind,"requires main and background");
     for(let i=0;i<items.length;i++)
