@@ -23,6 +23,15 @@ const DISPATCH = `
   (if (and (pair? outcome) (equal? (car outcome) 'outcome))
     ((cadr outcome))
     (outcome)))
+(define (__ssnoir-run-place-arrivals! place-name)
+  (let ((place (__ssnoir-find-node __ssnoir-active-render-root place-name)))
+    (if (or (not place) (not (get-kwarg (cddr place) ':place #f)))
+        (error "invalid place arrival destination")
+        (for-each (lambda (beat)
+          (if (and (pair? beat) (equal? (car beat) 'arrival) (= (length beat) 3))
+              ((caddr beat))
+              (error "malformed place arrival")))
+          (get-kwarg (cddr place) ':arrivals '())))))
 (define (__ssnoir-run-captured-node! name chosen)
   (let ((n (__ssnoir-find-node __ssnoir-active-render-root name)))
     (if (not n)
@@ -74,6 +83,40 @@ export class GameActionRunner {
     const value=await this.scripts.evaluate("(define __ssnoir-active-render-root "+source+") __ssnoir-active-render-root");
     this.root=convertNode(value);
     return this.root;
+  }
+
+  /** World navigation is not an action; it never consumes a die or advances a day. */
+  async enterPlace(name:string):Promise<RuntimeNode>{
+    if(!this.root)await this.prepare();
+    if(!this.root)throw new Error("world tree missing");
+    const world=this.root;
+    const requested=world.children.find(x=>x.name===name);
+    if(!requested||!requested.isPlace||requested.disabled)throw new Error("unavailable world place: "+name);
+    const before=this.state.snapshot();
+    const previous=this.root;
+    this.state.beginActionReport();
+    try {
+      await this.scripts.evaluate("(on-enter-place "+JSON.stringify(name)+")");
+      // on-enter-place can change which arrival beats are present.
+      const refreshed=await this.prepare();
+      const place=refreshed.children.find(x=>x.name===name);
+      if(!place||!place.isPlace||place.disabled)throw new Error("place disappeared during entry");
+      if(place.arrivals.length) {
+        await this.scripts.evaluate("(__ssnoir-run-place-arrivals! "+JSON.stringify(name)+")");
+      }
+      // C# arrivals are a story beat, not an action report with costs.
+      const report=this.state.takeActionReport();
+      if(report.length)throw new Error("arrival produced action clock costs");
+      const updated=await this.prepare();
+      const result=updated.children.find(x=>x.name===name);
+      if(!result||!result.isPlace)throw new Error("entered place removed itself");
+      return result;
+    }catch(error){
+      this.state.cancelActionReport();
+      this.state.restore(before);
+      this.root=previous;
+      throw error;
+    }
   }
 
   async perform(name:string,dieSlotId?:number):Promise<ActionResult>{

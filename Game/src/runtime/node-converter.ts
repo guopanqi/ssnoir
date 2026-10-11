@@ -25,6 +25,7 @@ export interface NodeResolve {
   neutral?: unknown;
   success?: unknown;
 }
+export interface RuntimeArrival { id: string; effect: unknown }
 export interface RuntimeNode {
   name: string;
   title: string;
@@ -36,6 +37,7 @@ export interface RuntimeNode {
   requires: ActionCost[];
   clocks: unknown[];
   children: RuntimeNode[];
+  arrivals: RuntimeArrival[];
   resolve: NodeResolve | null;
 }
 
@@ -130,7 +132,7 @@ export function convertNode(value: unknown): RuntimeNode {
   const id = name(expr[1], "node name");
   const node: RuntimeNode = {
     name: id, title: id, subtitle: "", anchor: null, isPlace: false, disabled: false,
-    tags: [], requires: [], clocks: [], children: [], resolve: null
+    tags: [], requires: [], clocks: [], children: [], arrivals: [], resolve: null
   };
   for (let i = 2; i < expr.length; i += 2) {
     const kw = symbol(expr[i]);
@@ -146,11 +148,22 @@ export function convertNode(value: unknown): RuntimeNode {
       case ":clocks": node.clocks = optionalList(val, "clocks"); break;
       case ":children": node.children = optionalList(val, "children").map(convertNode); break;
       case ":resolve": node.resolve = parseResolve(val); break;
-      case ":arrivals":
-        // A future arrival executor must retain live closures; do not silently
-        // accept an authored arrival script we cannot execute.
-        if (optionalList(val, "arrivals").length) throw new Error(id + ": arrival executor not migrated");
+      case ":arrivals": {
+        node.arrivals=optionalList(val,"arrivals").map((raw)=>{
+          const parts=schemeList(raw,id+" arrival");
+          if(parts.length!==3||symbol(parts[0])!=="arrival")
+            throw new Error(id+": malformed arrival");
+          return {id:name(parts[1],"arrival id"),effect:parts[2]};
+        });
+        if(!node.isPlace && node.arrivals.length)
+          throw new Error(id+": arrivals only allowed on places");
+        const seen=new Set<string>();
+        for(const arrival of node.arrivals){
+          if(seen.has(arrival.id))throw new Error(id+": duplicate arrival "+arrival.id);
+          seen.add(arrival.id);
+        }
         break;
+      }
       case ":carry-item":
       case ":support":
         // Carrier/support metadata is non-executable; represented separately
@@ -160,6 +173,7 @@ export function convertNode(value: unknown): RuntimeNode {
       default: throw new Error(id + ": unknown node keyword " + kw);
     }
   }
+  if (node.arrivals.length&&!node.isPlace)throw new Error(id+": arrivals require place");
   if (node.resolve && node.children.length) throw new Error(id + ": cannot have both children and resolve");
   if (node.isPlace && node.resolve) throw new Error(id + ": place cannot be an action");
   return node;
