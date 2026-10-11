@@ -18,7 +18,8 @@ export class StoryPlaybackQueue {
     return value===null?"":Array.isArray(value)?value.map(StoryPlaybackQueue.text).join(" "):String(value);
   }
   private static dialogue(args:StoryValue[]):{speaker:string;text:string}[] {
-    const seq=args.length===1&&Array.isArray(args[0])?args[0] as StoryValue[]:args;
+    const seq=args.length===1&&Array.isArray(args[0]) &&
+      Array.isArray((args[0] as StoryValue[])[0]) ? args[0] as StoryValue[] : args;
     return seq.flatMap(raw=>{
       if(!Array.isArray(raw))return [{speaker:"",text:StoryPlaybackQueue.text(raw)}];
       const command=raw as StoryValue[];
