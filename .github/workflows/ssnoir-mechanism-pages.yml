@@ -37,11 +37,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Build verified SSNoir gameplay preview
+      # Full multi-platform regression runs in ssnoir-game-foundation.yml.
+      # Keep the public preview deploy independent of long-running Node
+      # content parity tests so live previews are not indefinitely cancelled
+      # by concurrent agents on main.
+      - name: Typecheck and build SSNoir gameplay preview
         working-directory: Game
         run: |
           npm install --no-audit --no-fund
-          npm run verify
+          npm run typecheck
+          npm run build:web
       - name: Build and validate research webpage
         run: |
           python3 tools/content-validator/experiments/build_mechanism_atlas.py
