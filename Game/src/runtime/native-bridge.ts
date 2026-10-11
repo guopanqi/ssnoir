@@ -17,8 +17,23 @@ function integer(value: unknown): number {
   return result;
 }
 function string(value: unknown): string {
-  if (typeof value !== "string") throw new Error("expected string");
-  return value;
+  if (typeof value === "string") return value;
+  // LIPS may expose R7RS strings as boxed Scheme values to JS-native calls.
+  if (value !== null && typeof value === "object" &&
+      /^(LString|String)$/.test(value.constructor?.name ?? "")) return String(value);
+  throw new Error("expected Scheme string, got " + (value === null ? "null" : typeof value) +
+    "/" + ((value as { constructor?: { name?: string } })?.constructor?.name ?? "unknown"));
+}
+function portableScalar(value: unknown): string | number | boolean {
+  if (typeof value === "string" || typeof value === "boolean") return value;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const ctor = (value as { constructor?: { name?: string } } | null)?.constructor?.name ?? "";
+  if (ctor === "LString" || ctor === "String") return String(value);
+  if (/^(LNumber|LFloat|LInteger|LBigInt|Integer|Float|BigInt)$/.test(ctor)) {
+    const n = Number(String(value));
+    if (Number.isFinite(n)) return n;
+  }
+  throw new Error("not a portable Scheme scalar: " + ctor);
 }
 
 /** Names and argument expectations ported from NativeFunctions.Register, not a new DSL. */
@@ -41,12 +56,8 @@ export function createNativeBridge(state: GameRuntimeState): NativeBridge {
     },
     "set-global!": (...args) => {
       arity("set-global!", args, 2);
-      const value = args[1];
-      // Global flags, calendar and narrative state must remain JSON-saveable.
-      if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") {
-        throw new Error("set-global!: unsupported value type");
-      }
-      state.setGlobal(id(args[0]), value);
+      // Normalize LIPS's boxed Scheme strings and numbers at the native boundary.
+      state.setGlobal(id(args[0]), portableScalar(args[1]));
       return undefined;
     },
     "__item-count": (...args) => {
