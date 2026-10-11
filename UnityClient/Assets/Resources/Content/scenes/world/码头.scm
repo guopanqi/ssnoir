@@ -33,6 +33,7 @@
           (append node-data (list :anchor dock-anchor))))
 
     ;; ── 每日一次的额度 ──────────────────────
+    (define opening-talk-heard? #f)
     (define haul-day 0)             ; Phase B 起，普通搬运每天只能做一次
 
     ;; ── 码头回声 ──────────────────────────
@@ -79,6 +80,7 @@
 
     ;; 一班活的结算走这里：先抽搭档，再按搭档算钱和冷静。钱和冷静的变动
     ;; 引擎自己会列出来，台词只说是谁、干了什么。
+    ;; 序章与第一节：好 20 / 中 10；之后恢复搭档工价。
     ;; 基线：好 15 / 中 8、−1 冷静 / 坏 0、−2 冷静。
     (define (stranger-after! grade)
       (if (and (not (equal? grade '好)) (random-choice (list #t #f)))
@@ -144,14 +146,21 @@
         (set! haul-day world-day)
         (cond
           ((equal? grade '好)
-           (add-item! "金钱" (if (equal? partner "艾迪") 22 15)))
+           (add-item! "金钱" (if (< (three-letters 'story-stage) 2) 20
+               (if (equal? partner "艾迪") 22 15))))
           ((equal? grade '中)
-           (add-item! "金钱" 8)
+           (add-item! "金钱" (if (< (three-letters 'story-stage) 2) 10 8))
            (spend-composure! 1))
           ;; 高风险由更高报酬与力量检定表达；日常失手仍只扣 2 点冷静。
           ((equal? partner "乔") #f)
           (else (spend-composure! 2)))
         (cond
+          ((not opening-talk-heard?)
+           (set! opening-talk-heard? #t)
+           (play-bubble!
+             (line "乔" "今天也没有案子？" :at "码头-货堆")
+             (line "尼尔" "没有。")
+             (line "乔" "那就搭把手。房东不收谜底，只收钱。" :at "码头-货堆")))
           ((equal? partner "乔") (joe-after! grade))
           ((equal? partner "艾迪") (eddie-after! grade))
           (else (stranger-after! grade)))))
@@ -175,7 +184,6 @@
       (map anchor-at-dock
         (append
           (livelihood-nodes)
-          (list (node-joe))
           (地点节点 "码头"))))
 
     (lambda args
@@ -187,11 +195,13 @@
                         :arrivals (地点入场 "码头"))))
           ((equal? msg 'save)
            (list
+             (list "opening-talk-heard?" opening-talk-heard?)
              (list "haul-day" haul-day)
              (list "joe-met?" joe-met?)
              (list "echoes" (dock-echoes 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
+             (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))
              (set! haul-day (assoc-get data "haul-day" 0))
              ;; 旧档：乔叫得出名字（joe-stage ≥ 1）就算认识。
              (set! joe-met? (assoc-get data "joe-met?"

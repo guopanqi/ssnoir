@@ -1,7 +1,7 @@
 ;; 弗兰克（Frank Delaney）——码头工头、老街组织者。
 ;;
 ;; 第一章他有一条不进卷宗的码头事件链。一个认为「这里的事由这里的人处理」的人，
-;; 不会站在地图上等你接任务；第二天旧货船改泊，赶上码头才会看见他组织抢修。
+;; 不会站在地图上等你接任务；进入第二节后旧货船改泊，赶上码头才会看见他组织抢修。
 ;;   一、货船抢修——他在码头排班修船，修好船即离港。
 ;;   扣船、分钱两拍暂隐（见 hold-open?），恢复时整条链再连回去。
 ;;   二、巷子那一晚，他挡在你和莱恩中间。那一晚由《三封信》拥有，这里只收结果。
@@ -17,6 +17,7 @@
 
 (define frank
   (let ()
+    (define side-story-open? #f) ; 支线等待重新排布
     (define approved? #f)          ; 弗兰克认可
     (define alley-settled? #f)     ; 巷子那晚已经结过
     (define met? #f)               ; 见过他本人（工会房间，或码头抢修收工）
@@ -473,7 +474,7 @@
       (lambda () (settle-repair! #f)))
 
     (define-turn-start-rule "旧货船改泊"
-      (lambda () (and (= world-day 2) (equal? repair-state "未开放")))
+      (lambda () (and side-story-open? (>= (three-letters 'story-stage) 2) (equal? repair-state "未开放")))
       (lambda ()
         (set! repair-state "进行中")
         (set! repair-deadline-day (+ world-day repair-days))

@@ -39,6 +39,7 @@
     ;; 0 还没听说 / 4 巷子里那件事今天可以去 / 5 这条线到此为止
     ;; 1 拳场开着 / 2 已查封 / 3 码头重逢已看过
     ;; 4 和 5 排在后面，是为了不动 1..3 —— 那三个数字后面所有代码都在读。
+    (define side-story-open? #f) ; 支线等待重新排布
     (define stage 0)
     (define alley-day 0)          ; 撞上的是哪天；0＝窗口开着，还没撞上
     (define next-fight-day 0)     ; 下一场在哪天
@@ -198,8 +199,8 @@
     ;; 规则本身不说话：它只把窗口打开。消息要在酒馆里听——
     ;; 事发生在老街侧墙，在家里被告知是错的位置。
     (define-turn-rule "巷子里在打人"
-      (lambda () (and (= stage 0)
-                      (>= (three-letters 'story-stage) 1)))
+      (lambda () (and side-story-open? (= stage 0)
+                      (>= (three-letters 'story-stage) 2)))
       (lambda ()
         (set! stage 4)
         (set! alley-day 0)))

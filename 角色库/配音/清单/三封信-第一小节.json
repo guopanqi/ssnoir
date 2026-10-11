@@ -57,30 +57,6 @@
       "direction": "【对话历史】夜莺：谢谢你，尼尔先生。【指导】心里话，没说出口；自嘲一句，接下赔钱委托，末句发狠"
     },
     {
-      "id": "三封信/码头/踩点/01/世界",
-      "speaker": "世界",
-      "text": "在邮箱斜对面的小摊前，那份旧报纸被翻得起了毛边。",
-      "sourcePath": "play-mail-routine-complete-banter!/1"
-    },
-    {
-      "id": "三封信/码头/踩点/02/世界",
-      "speaker": "世界",
-      "text": "真正的邮差只在下午露面。到了天黑，街对面的住户早已摸得一清二楚。",
-      "sourcePath": "play-mail-routine-complete-banter!/2"
-    },
-    {
-      "id": "三封信/码头/踩点/03/世界",
-      "speaker": "世界",
-      "text": "入夜后，邮箱前只剩一盏接触不良的路灯。只要有生面孔靠近，谁也藏不住。",
-      "sourcePath": "play-mail-routine-complete-banter!/3"
-    },
-    {
-      "id": "三封信/码头/踩点/04/世界",
-      "speaker": "世界",
-      "text": "邮箱后的暗巷通向货栈。边门的锁舌早就坏了，真要追起来，能抢在所有人前头。",
-      "sourcePath": "play-mail-routine-complete-banter!/4"
-    },
-    {
       "id": "三封信/码头/投信/足额/01/夜莺",
       "speaker": "夜莺",
       "text": "一百整。",

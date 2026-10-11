@@ -16,7 +16,7 @@
     ;; 三十的时候是四十五,差不多一半,三天里随便干两班就够,那条死线不咬人。
     (define delivery-price 100)     ; 勒索信要求放进邮箱的总额
     (define nightingale-cover-max 30) ; 她能当掉的首饰值这么多——兜底到此为止
-    (define letter-deadline 3)      ; 信上写的期限:三天后
+    (define letter-deadline 4)      ; 信上写的期限:四天后
     ;; 首演之夜的日子在第三封信落地那天才定下来,不是全章写死的绝对日。
     ;; 写死的时候倒计时算的是「22 减去你今天第几天」——决赛的紧张度成了前三小节的找零:
     ;; 玩得快的人剩十二天,磨蹭的人剩三天,而这跟他布置得完布置不完毫无关系。
@@ -99,6 +99,8 @@
     ;; 0=未开场 1=小节一·勒索信 2=小节二·老街 3=平静期 4=小节三 5=首演之后
     ;; 后续小节在各自批次接入,不预留空壳。
     (define story-stage 0)
+    (define opening-heard? #f)
+    (define mail-preparations '())
     ;; 履历：已经发生过什么，一拍一句，最新在前。显式写，不自动抽。
     ;; 第一章拆成四张卷宗卡（见文末「卷宗」），每张卡自己一份履历，写的时候点名。
     (define task-ids (list "勒索信" "探明老街" "找莱恩拿铁盒" "首演之夜"))
@@ -373,7 +375,7 @@
       ;; 也没有强制剧情动作，形成软锁。
       (map rest-release! 阻塞名单)
       (cond
-        ((= story-stage 0)
+        ((and (= story-stage 0) (> world-day 2))
          (rest-block! "三封信/开场敲门" "有人敲门" "家" "有人敲门"))
         (delivery-pending?
          (rest-block! "三封信/勒索信" "去码头投信" "码头" "去码头盯着邮箱"))
@@ -416,9 +418,9 @@
     ;;   3. 预付款不是现金,是她从身上摘下来的东西。她穿得起这身衣服,
     ;;      却拿不出一百金:她现在拥有的是别人愿意让她穿在身上的财富。
     ;;      那件东西是谁送的,这一节不说破(见主线卡上的「那枚胸针」)。
-    (define (node-answer-door)
-      (anchored-instant-action "有人敲门" "门口"
-        (lambda ()
+    (define (receive-night-visit!)
+      (if (not (= story-stage 0)) (error "夜莺来访：委托已经开始") #t)
+      (begin
           ;; 楼下电铃求助先演，开门后再进入现有室内接案对白。
           (rainy-door-theatre!)
           (commission-dialogue!)
@@ -428,32 +430,25 @@
           (rest-release! "三封信/开场敲门")
           (log! "勒索信"
             (string-append
-              "夜莺找上门：三天后往码头邮箱放一百金，她要知道写信的是谁。"
+              "夜莺找上门：四天后往码头邮箱放一百金，她要知道写信的是谁。"
               "预付款是她从耳后摘下来的一枚胸针——当铺给了二十金，"
               "说做工是城里最好那家铺子出的，背面刻着一行很小的字，不是她的名字。"))
           (spotlight! "勒索信"
-            "夜莺把手上的东西当了，也只凑出了二十块，你答应她，三天之内想办法凑够一百块，按勒索信说的，放到码头的邮箱里。"))))
+            "夜莺把手上的东西当了，也只凑出了二十块，你答应她，四天之内想办法凑够一百块，按勒索信说的，放到码头的邮箱里。")))
 
-    ;; ── 小节一·勒索信：一条不给钱的调查线 ───────────
-    ;; 钱来自整座城市的现有工作。这里只加一条**踩点**：它一分钱不挣,投进去的骰子
-    ;; 换的是投信那晚的形势。玩家每天要答的就是这一句——这颗骰子拿去挣钱,还是拿去踩点。
-    ;; 一根 0/6 的钟,只在满格时兑现:你熟悉了邮箱周围的人和退路,
-    ;; 第二幕追逐时多一条只有你知道的货栈边门。真邮差是勒索信交锋的基础免费排除项,
-    ;; 不再由三格踩点解锁。
-    ;; 六格是按小节一只有三天定的:0/8 在这个窗口里长得没人填得满。
-    ;; 不做成两根 0/3:这是全章第一个进度结构,两根钟在教学位置上读起来太重。
-    ;; 也不做成 0/2:两颗骰子就满,加上夜莺白送的那一格等于不用付钱——那不是投资,是签到。
-    ;; 要改长短,改下面这一行的 6 和 play-mail-routine-complete-banter! 的段落。
-    (define scout-max 6)
+    (define (node-answer-door)
+      (anchored-instant-action "有人敲门" "门口" receive-night-visit!))
 
-    (define mail-clock
-      (make-clock "踩点" scout-max 'gauge
-        (lambda (current max)
-          (if (>= current max)
-              "这一片你熟了。投信那晚追进货栈区时，你知道一扇锁舌损坏的边门。"
-              "每次踩点填一格。满格后摸熟邮箱周围的人和退路。"))))
+    (define (node-opening)
+      (anchored-instant-action "尼尔的早晨" "门口"
+        (lambda ()
+          (set! opening-heard? #t)
+          (play-narration! "尼尔开场"))))
 
-    (define (mail-routine-full?) (mail-clock 'full?))
+    ;; ── 小节一：筹钱与两项准备 ──────────────────────
+    ;; 工作与一次性失物委托提供收入；准备直接改变交付现场。
+    ;; 两项具体准备，每项只做一次；下游交锋读取各自的事实。
+    (define (preparation-done? id) (member? id mail-preparations))
 
     ;; 独自打听只有这一根钟。玩家起初只知道自己在找人；2、4 格时才逐渐看出
     ;; 这里的人在回避他，填满后才得出结论：必须让一个这里认得的人带路。
@@ -500,51 +495,34 @@
                 " 金替你补：差在这个数以内，她当首饰，处境差一档；"
                 "差得更多，信封就是薄的，写信的人清点之后会先动手。"))))
 
-    ;; 普通进展只让 Clock 变化,不占用玩家注意力。只有首次跨到满格时,
-    ;; 才用一段连续 banter 完整兑现这几晚的观察。
-    (define (play-mail-routine-complete-banter!)
-      (play-bubble!
-        (line "世界" "在邮箱斜对面的小摊前，那份旧报纸被翻得起了毛边。" "三封信/码头/踩点/01/世界")
-        (line "世界" "真正的邮差只在下午露面。到了天黑，街对面的住户早已摸得一清二楚。" "三封信/码头/踩点/02/世界")
-        (line "世界" "入夜后，邮箱前只剩一盏接触不良的路灯。只要有生面孔靠近，谁也藏不住。" "三封信/码头/踩点/03/世界")
-        (line "世界" "邮箱后的暗巷通向货栈。边门的锁舌早就坏了，真要追起来，能抢在所有人前头。" "三封信/码头/踩点/04/世界")))
-
-    (define (advance-mail-routine! delta)
-      (let ((old (mail-clock 'current)))
-        (mail-clock 'advance! delta)
-        (let ((new (mail-clock 'current)))
-          (if (and (< old scout-max) (>= new scout-max))
-              (play-mail-routine-complete-banter!)
-              #f))))
-
-    ;; 踩点不是工作:它不发工钱,也不给势力关系。这是它和普通工作唯一也是最重要的区别。
-    ;; 坏结果不推进并扣 1 冷静;中性推 1 格并扣 1 冷静;好结果推 2 格且不扣冷静。
-    ;; 在雨里站一晚上是要还的。冷静只有 2 点,于是一天之内也踩不了几次点,
-    ;; 身体自己就是这条线的节流阀,不必再写一条每日上限。
-    ;; 动作的身份和目的始终不变：标题、副标题保持稳定，进度由时钟表达，满格才播 banter。
-
-    (define (node-scout)
-      (node "邮箱附近踩点"
+    (define (node-preparation id title description skill lines)
+      (node title
         :anchor "勒索信-报摊"
-        :subtitle "摸清取信的人和附近退路"
-        :clocks (list (mail-clock 'render-data))
+        :subtitle description
         :requires (list (req-die))
-        :disabled (mail-routine-full?)
-        :resolve (roll 'sharpness
-          (outcome (lambda () (spend-composure! 2)))
-          (outcome (lambda () (advance-mail-routine! 1) (spend-composure! 2)))
-          (outcome (lambda () (advance-mail-routine! 2))))))
-
-    ;; 这里曾经还有一格来自乔——码头上一起卸过两班货，他才肯聊邮箱的事。
-    ;; 乔整个人物连同码头坍塌一起搁置了（见 docs/归档/Content），这一格跟着去掉：
-    ;; 踩点自己就能填满六格，不缺这一格。
-
-    ;; 这里曾经还有一张「问她邮箱那一片」——夜莺在那一带长大,给一格。删了:
-    ;; 踩点这条线整个摆在码头,那张卡却要玩家跑去酒馆找一个跟勒索信无关的人,
-    ;; 换回一格。跨地点的来回不该只值一格,玩家更可能压根找不到它。
+        :resolve (roll skill
+          (outcome (lambda ()
+              (spend-composure! 1)
+              (play-bubble! (line "尼尔" "没弄明白。得换个时候再来。"))))
+          (outcome (lambda ()
+              (set! mail-preparations (cons id mail-preparations))
+              (apply play-bubble! lines)))
+          (outcome (lambda ()
+              (set! mail-preparations (cons id mail-preparations))
+              (apply play-bubble! lines))))))
 
     (define (beat1-dock-nodes)
-      (if (= story-stage 1) (list (node-scout)) '()))
+      (if (beat1-open?)
+          (append
+            (if (preparation-done? "街角") '()
+                (list (node-preparation "街角" "观察邮箱街角" "认清附近常来的人与蹲守位置" 'sharpness
+                  (list (line "尼尔" "骑旧车的老邮差，每回都在报摊停一下。")
+                        (line "尼尔" "报摊背后看得见箱口，路人看不见我。")))))
+            (if (preparation-done? "退路") '()
+                (list (node-preparation "退路" "查看退路" "查清邮箱后面的货栈通道" 'knowledge
+                  (list (line "尼尔" "货栈边门的锁舌坏了。")
+                        (line "尼尔" "他要往里跑，我可以从这里抄过去。"))))))
+          '()))
 
     ;; ── 勒索日 ──────────────────────────────────────
     ;; 到期当天不自动播放:它是必看事件,用阻塞休息逼玩家亲自去。
@@ -573,9 +551,9 @@
         (if (> (envelope-short) 0)
             (set! envelope-thin? #t)
             #f)
-        ;; 交锋只读这一个数,两个里程碑由交锋自己按 4 / 8 判断——
-        ;; 免得城市和交锋各存一份平行的"我知道多少"。
-        (set-global! '踩点格数 (mail-clock 'current))))
+        ;; 将具体准备事实交给交锋；城市不再用重复踩点的总进度代替它们。
+        (set-global! '邮箱街角已观察 (preparation-done? "街角"))
+        (set-global! '退路已查看 (preparation-done? "退路"))))
 
     ;; 邮箱相见、投信与离场属于城市侧；剧场播完才切入蹲守交锋。
     (define (node-delivery-entry)
@@ -2185,7 +2163,7 @@
         ((= story-stage 1)
          (string-append
            "她在老街的酒馆唱歌，刚被一个剧院经理看中。首演是她等了多年的那一步——如果走得到的话。"
-           "写信的人挑的就是这个时候。三天后，邮箱里得有一百金。"
+           "写信的人挑的就是这个时候。四天后，邮箱里得有一百金。"
            "她要你别报警，也别让剧院知道：他们不会去查是谁写的，他们会换一个不惹事的人。"))
         ((= story-stage 2)
          (if bridge-identified?
@@ -2463,7 +2441,8 @@
       (cond
         ((equal? location "家")
          (append
-           (if (= story-stage 0) (list (node-answer-door)) '())
+           (if (and (= story-stage 0) (not opening-heard?)) (list (node-opening)) '())
+           (if (and (= story-stage 0) (> world-day 2)) (list (node-answer-door)) '())
            (if (and (beat3-open?) (pieces-full?) (not (has-flag? '对不上)))
                (list (node-board))
                '())
@@ -2617,6 +2596,7 @@
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'dossier) (dossier-entry))
+          ((equal? msg 'night-visit!) (receive-night-visit!))
           ((equal? msg 'story-stage) story-stage)
           ((equal? msg 'days-to-premiere) (days-to-premiere))
           ((equal? msg 'singer-present?) (singer-present?))
@@ -2649,7 +2629,8 @@
              (list "delivery-result" delivery-result)
              (list "delivery-money" delivery-money)
              (list "delivery-shortfall" delivery-shortfall)
-             (list "mail-routine" (mail-clock 'save))
+             (list "opening-heard?" opening-heard?)
+             (list "mail-preparations" mail-preparations)
              (list "condition-level" condition-level)
              (list "alley-thrown-out?" alley-thrown-out?)
              (list "warren-alone" (warren-alone-clk 'save))
@@ -2723,7 +2704,15 @@
              (if (or (< delivery-shortfall -1) (> delivery-shortfall delivery-price))
                  (error "三封信存档错误：勒索款筹集差额非法")
                  #t)
-             (mail-clock 'load! (assoc-get data "mail-routine" 0))
+             (set! opening-heard? (assoc-get data "opening-heard?" #f))
+             (set! mail-preparations (assoc-get data "mail-preparations" '()))
+             (if (and (list? mail-preparations)
+                      (= (length mail-preparations)
+                         (length (filter (lambda (id) (member? id '("街角" "退路"))) mail-preparations)))
+                      (= (length mail-preparations)
+                         (+ (if (member? "街角" mail-preparations) 1 0)
+                            (if (member? "退路" mail-preparations) 1 0))))
+                 #t (error "三封信存档：筹备项目非法"))
              (set! condition-level (assoc-get data "condition-level" 0))
              (if (or (< condition-level 0) (> condition-level 2))
                  (error "三封信存档错误：夜莺处境等级非法")
@@ -2800,4 +2789,4 @@
           (#t #f))))))
 
 ;; 新游戏自动执行的开场动作。客户端读这个全局去找节点，不写死章节内容。
-(set-global! '开场动作 "有人敲门")
+(set-global! '开场动作 "尼尔的早晨")

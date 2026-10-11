@@ -23,11 +23,13 @@
   (list
     ;;    存档键                  模块                  角色
     (list "three-letters"        three-letters        '(存档 卷宗 节点 入场))
-    (list "eddie"                eddie                '(存档 卷宗 节点 入场))
-    (list "frank"                frank                '(存档 卷宗 节点 入场))
-    (list "lin"                  lin                  '(存档 卷宗 节点 入场))
-    (list "baines"               baines               '(存档 卷宗 节点 入场))
-    (list "walter"               walter               '(存档 卷宗 节点 入场))
+    (list "lost-property"         lost-property         '(存档 节点))
+    ;; 人物支线暂不投射节点、入场与卷宗；状态保留供主线及后续排布。
+    (list "eddie"                eddie                '(存档))
+    (list "frank"                frank                '(存档))
+    (list "lin"                  lin                  '(存档))
+    (list "baines"               baines               '(存档))
+    (list "walter"               walter               '(存档))
     (list "nightingale"          nightingale          '(存档))
     (list "chapter2"             第二章                '(存档 卷宗 节点 入场))
     (list "home"                 home                 '(存档))

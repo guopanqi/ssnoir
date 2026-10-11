@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "location": "序章开场",
+  "purpose": "尼尔的生活处境；连续旁白，接入 Narrations",
+  "cues": [
+    {
+      "id": "序章/开场/尼尔",
+      "speaker": "尼尔",
+      "text": "我在贝尔维尔住了一年多。窗上的告示写着私家侦探，电话还没装，也没什么人来敲门。我替人找过东西，跟过几个不愿回家的丈夫。最近一件委托，已经是几个月以前了。房东倒很准时。两天以后，四十块。今天得先找一份活。",
+      "direction": "自嘲，平淡陈述自己的生活，只说一次，不重复文字，不添加内容",
+      "sourcePath": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm"
+    }
+  ]
+}

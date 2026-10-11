@@ -1,0 +1,36 @@
+{
+  "id": "尼尔开场",
+  "audio": "尼尔开场",
+  "cues": [
+    {
+      "time": 0,
+      "text": "我在贝尔维尔住了一年多。",
+      "textEn": "I had lived in Belleville for over a year."
+    },
+    {
+      "time": 2.369,
+      "text": "窗上的告示写着私家侦探，电话还没装，也没什么人来敲门。",
+      "textEn": "The sign in my window said private detective. No telephone yet, and hardly anyone at the door."
+    },
+    {
+      "time": 8.887,
+      "text": "我替人找过东西，跟过几个不愿回家的丈夫。",
+      "textEn": "I had found lost things and followed a few husbands reluctant to go home."
+    },
+    {
+      "time": 13.486,
+      "text": "最近一件委托，已经是几个月以前了。",
+      "textEn": "My last case was months ago."
+    },
+    {
+      "time": 17.314,
+      "text": "房东倒很准时。两天以后，四十块。",
+      "textEn": "The landlord was punctual, though. Two days. Forty dollars."
+    },
+    {
+      "time": 22.001,
+      "text": "今天得先找一份活。",
+      "textEn": "First, I needed work today."
+    }
+  ]
+}

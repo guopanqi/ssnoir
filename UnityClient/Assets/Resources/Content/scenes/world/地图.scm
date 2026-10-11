@@ -35,10 +35,8 @@
     ;; 引擎会当场中断。设备和图纸搬去港务技术区后，由技术区接替它的位置
     ;; （暂时也落在它的锚点上）。
     (地点 test-workshop     (lambda () (and (lin 'workshop-open?) (not (林的机器 'workshop-vacated?)))))
-    ;; 开场三天刻意是紧的：只有住处、码头、老街酒馆。
-    ;; 酒馆开着是因为夜莺在那儿唱歌——委托人必须找得到人；但酒馆内部分两批放开，
-    ;; 能凭空变出钱的门路（放贷的）等老街一起开，别让它拆掉勒索款筹集的压力。
-    (地点 old-street-tavern (lambda () (>= (three-letters 'story-stage) 1)))
+    ;; 家、码头、酒馆从序章统一开放；地点内部按章节呈现内容。
+    (地点 old-street-tavern)
     ;; 诊所自己决定何时出现在地图上：第一次受伤那一刻（见 world/诊所.scm）。
     (地点 clinic            (lambda () (clinic 'visible?)))
     ;; 警察局在经理拿出第二封信后的次日开放。

@@ -1,5 +1,5 @@
 ;; scenes/world/home.scm - 住所系统
-;; 租的房间（默认·每 4 天交一次房租，交不上先动用房东的宽限）→ 公寓（200 金买断）。
+;; 租的房间（首次两天后交租，此后每四天；交不上先动用房东的宽限）→ 公寓（200 金买断）。
 ;;
 ;; 起点不是旅馆。侦探住廉价出租屋是这个类型的标配，而**出租屋里摆得下自己的东西**：
 ;; 花、床垫、书桌都是你自己搬进来的，不需要替旅馆圆场（曾经那条「这些家具都能随人搬走」
@@ -39,9 +39,9 @@
       (make-clock "房租到期" rent-cycle 'countdown
         (lambda (current max)
           (string-append (if (<= current 1) "就是明晚。" (string-append "还剩 " (number->string current) " 天。"))
-                         "每 " (number->string max) " 天收一次，"
-                         (number->string rent-amount) " 金。归零时房东自动上门收租。"))))
-    (rent-clk 'set! rent-cycle)
+                         "本次到期交 "
+                         (number->string rent-amount) " 金。此后每四天收租。"))))
+    (rent-clk 'set! 2)
     (define grace-max 2)
     (define grace grace-max)        ; 房东还愿意等你几天（信用）
     (define overdue? #f)            ; 已经到期没交，正在用宽限
@@ -83,8 +83,7 @@
       (>= (item-count "金钱") rent-amount))
 
     (define (rent-demand-line)
-      (string-append (number->string rent-cycle) " 天到了。"
-                     (number->string rent-amount) " 块。"))
+      (string-append "房租到期了。" (number->string rent-amount) " 块。"))
 
     ;; 买断不是开局就摆在面前的商品。房东第一次上门收租时才顺口告诉玩家有这条路；
     ;; 此后报价进入住所的常驻选择，不会在每次收租时重复念。
@@ -290,6 +289,8 @@
               ;; 睡觉固定回 2 点，租的和买下的没有差别——那两者的差别在房租，
               ;; 不在睡得好不好。2 点远不足以抹平一天（顺的一天大约掉 2，糟的掉 4 以上），
               ;; 冷静因此是一条跨天的轴：交锋掏空之后要在城里养好几天才回得来。
+              (if (and (= world-day 2) (= (three-letters 'story-stage) 0))
+                  (three-letters 'night-visit!) #f)
               (restore-actor-composure! 'player 2)
               (set! 刚睡过? #t)
               (end-turn!))))))

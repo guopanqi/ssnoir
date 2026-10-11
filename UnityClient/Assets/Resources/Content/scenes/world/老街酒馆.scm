@@ -2,6 +2,8 @@
 
 (define old-street-tavern
   (let ()
+    (define character-stories-open? #f) ; 人物支线等待重新排布
+    (define opening-talk-heard? #f)
     (define closed-days 0)
     (define closed-days-max 2)
 
@@ -298,7 +300,16 @@
 
     ;; 一次结果只演一段：有人在、今天没见过 → 人；否则骰一条回声。
     (define (meet-or-echo!)
-      (if (meet-regular! tavern-regulars) #t (maybe-play-atmosphere!)))
+      (cond
+        ((not opening-talk-heard?)
+         (set! opening-talk-heard? #t)
+         (play-bubble!
+           (line "酒保" "有人照着你的告示找来吗？" :at "老街酒馆")
+           (line "尼尔" "倒有人问房间租不租。")
+           (line "酒保" "今晚还缺个端盘子的。你愿意就留下。" :at "老街酒馆")))
+        ((and character-stories-open? (>= (three-letters 'story-stage) 2))
+         (if (meet-regular! tavern-regulars) #t (maybe-play-atmosphere!)))
+        (else #f)))
 
     ;; ── 高利贷 ────────────────────────────────────
     ;; 角落里放贷的：缺钱时立刻周转，代价是 1.5 倍连本带利，逾期利滚利。
@@ -388,15 +399,16 @@
       (工作 "服务员" '低 'social
         (outcome (lambda ()
             (add-item! "金钱" 8)
-            (change-tavern-rank! 1)
-            (if (maybe-give-tip!) #f (meet-or-echo!))))
+            (if character-stories-open? (change-tavern-rank! 1) #f)
+            (if (not opening-talk-heard?) (meet-or-echo!)
+                (if (maybe-give-tip!) #f (meet-or-echo!)))))
         (outcome (lambda ()
             (add-item! "金钱" 5)
             (meet-or-echo!)))
         (outcome (lambda ()
             (add-item! "金钱" 3)
             (spend-composure! 1)
-            (change-tavern-rank! -1)
+            (if character-stories-open? (change-tavern-rank! -1) #f)
             (meet-or-echo!)))
         ;; 副标题保持一行以内：标题只说了"服务员"，得有一句说清干什么、图什么。
         "端盘子跑堂，挣一晚上的钱"
@@ -484,7 +496,7 @@
         :requires (list (req-item "金钱" 15))
         :resolve (instant
           (outcome (lambda ()
-              (let ((ruth-offers-now? (= ruth-stage 0)))
+              (let ((ruth-offers-now? (and character-stories-open? (= ruth-stage 0))))
                 (home 'drink!)
                 (if ruth-offers-now? (offer-special-drink!) #f)
                 ;; 露丝第一次推酒已经占了这杯的表现，别再叠一段闲话。
@@ -583,14 +595,13 @@
             '())))
 
     ;; ── 组装 ──────────────────────────────────────
-    ;; 小节一酒馆就开门（夜莺在这儿唱歌），但只开一半：台上的人、跑堂的活、
-    ;; 喝一杯、买点东西。放贷的等老街一起开——开场借得到四十金，第一小节
-    ;; 「三天凑一百」的压力就没了。
-    ;; 地下拳场不受这条限制：借钱是确定的钱，赌是方差，在三天死线上加方差是加压不是减压。
+    ;; 当前第一章只呈现工作、喝酒及主线；其他人物生活等待排布。
     (define (tavern-children)
-      (if (> closed-days 0)
-          (list (node-closed))
-          (append
+      (cond
+        ((> closed-days 0) (list (node-closed)))
+        ((not character-stories-open?)
+         (append (地点节点 "老街酒馆") (list (node-waiter) (node-drink-here))))
+        (else (append
             ;; 麻烦的死线钟挂在那张卡上，这里不再另立一条标注：同一件事说两遍，
             ;; 玩家还要自己认出它们是一件事。
             (list (node-tavern-rank))
@@ -613,7 +624,7 @@
                 '())
             (if (frank 'back-room?)
                 (list (back-room-container))
-                '()))))
+                '())))))
 
     ;; 打烊。今晚那件麻烦到这儿有个结论，职级考核在这一刻结算——
     ;; 干净 +1，压下不功不过，拖着没管 −2（外加冷静 −2）。
@@ -661,7 +672,8 @@
            (set! closed-days (cadr args))
            (set! closed-days-max (max closed-days-max closed-days)))
           ((equal? msg 'save)
-           (list (list "closed-days" closed-days)
+           (list (list "opening-talk-heard?" opening-talk-heard?)
+                 (list "closed-days" closed-days)
                  (list "closed-days-max" closed-days-max)
                  (list "loan-owed" loan-owed)
                  (list "loan-days" (loan-clk 'save))
@@ -678,6 +690,7 @@
                  (list "ate-day" ate-day)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
+             (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))
              (set! closed-days (assoc-get data "closed-days" 0))
              (set! closed-days-max (assoc-get data "closed-days-max" 2))
              (set! loan-owed (assoc-get data "loan-owed" 0))

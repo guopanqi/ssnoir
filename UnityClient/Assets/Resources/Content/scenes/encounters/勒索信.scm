@@ -19,11 +19,10 @@
 ;;   稳妥的那三张卡永远不掉钱。钱和人在虚构上就是同一件事的两面：
 ;;   你抓到了钱，说明你没抓到人。这样两个目标不必靠任何罚则去对立。
 ;;
-;; 城市输入只保留踩点满格的兑现：
-;;   =6「这一片你熟了」—— 第二幕的货栈区多一条只有你知道的边门。
-;;
-;; 真邮差是基础的免费排除项：沿街商户都认得他，不需要踩点到三格。
-;; 但他不在开局自动消失；玩家仍然要进入他的 Container，亲手执行「认出老邮差」。
+;; 城市准备是两项事实，各自有入场回忆与一个由玩家兑现的动作：
+;;   观察邮箱街角：第一幕老邮差多出「很熟」，不花骰子即可排除。
+;;   查看货栈退路：第二幕货栈区多出边门包抄。
+;; 没做准备时，仍可以用原有辨认与追逐手段完成交锋。
 ;;
 ;; 第一幕：尼尔始终坐在邮箱斜对面的摊位，报纸挡着脸。
 ;; 一个人一张卡，卡上一根 0/4 的短钟和**两种弄明白他的办法**。
@@ -40,10 +39,8 @@
 ;;   钱：拿回的金额（0 / 50 / 100）
 ;; 两个轴都不阻断主线；结算文案与小节二的起步条件由《三封信》解释。
 
-(define scout
-  (let ((v (get-global '踩点格数))) (if v v 0)))
-
-(define (knows-block?) (>= scout 6))
+(define mailbox-known? (get-global '邮箱街角已观察))
+(define (knows-block?) (get-global '退路已查看))
 
 (define catch-target 6)
 (define escape-target 3)
@@ -79,6 +76,7 @@
 (define (on-encounter-enter)
   ;; 进场先收 音乐 的值：第二幕主题盖过去，收场（finish!/倒下）原样还回去。
   (set! chase-saved-music (get-global '音乐))
+  (if mailbox-known? (play-narration! "邮箱准备回忆") #f)
   (spotlight! "找出嫌疑人"
     "观察路过的人们的举止，分辨出嫌疑人！"))
 
@@ -225,15 +223,17 @@
       (else (error "勒索信：未知的蹲守对象")))))
 
 ;; 三个人始终是同一种结构：Container 内先显示辨认进度，再列两种办法。
-;; 老邮差的 Container 里固定多一张即时动作：
-;; 不花骰子，一次填满他的辨认钟，再走和其他手段相同的结论流程。
+;; 观察过邮箱街角，老邮差的 Container 才多一张即时动作：
+;; 不花骰子，凭城市里的记忆直接排除；不播放误认道歉。
 (define (node-recognize-postman c)
-  (node "认出老邮差"
+  (node "很熟"
     :anchor (cand-zone c)
-    :subtitle "沿街的人都认得他"
+    :subtitle "踩点时见过，直接排除老邮差"
     :tags (list "不花骰子")
     :resolve (instant
-      (outcome (lambda () (look+ c look-target))))))
+      (outcome (lambda ()
+          (clear! (cand-name c))
+          (play-bubble! (line "尼尔" "这位老邮差我见过。不是他。")))))))
 
 ;; 候选人一人一锚（钉在场上对应人形）；父节点与手法/认出卡共用该人锚，
 ;; 展开即「点这个人 → 两手动作挂在他身上」。根容器仍在报摊（尼尔蹲守位）。
@@ -251,7 +251,7 @@
     :children (append
       (list (clock-node (string-append "调查进度：" (cand-name c))
                         ((look-clock (cand-name c)) 'render-data)))
-      (if (postman? c) (list (node-recognize-postman c)) '())
+      (if (and mailbox-known? (postman? c)) (list (node-recognize-postman c)) '())
       (ways c))))
 
 (define (act1-nodes)
@@ -292,7 +292,8 @@
   ;; 一次追逐回合：人不额外拉开、冷静不额外扣。
   (refresh-encounter-dice!)
   ;; 幕转演出已并入勒索追逐一段内播完；播完直接显示巷口追逐提示。
-  (enter-segment! 0))
+  (enter-segment! 0)
+  (if (knows-block?) (play-narration! "退路准备回忆") #f))
 
 ;; ── 追击动作：每段两条路，快的伤身、稳的慢 ──────────
 ;; 快/稳这件事必须**一眼认得出**，所以它是标签，不是副标题里的一句形容。

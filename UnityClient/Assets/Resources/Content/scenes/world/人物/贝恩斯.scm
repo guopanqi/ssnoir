@@ -21,6 +21,7 @@
 
 (define baines
   (let ()
+    (define side-story-open? #f) ; 支线等待重新排布
     ;; 0 还没推地址 / 1 地址推过来了 / 2 成功 / 3 失败后收回地址
     (define quiet-stage 0)
     (define receipt? #f)          ; 那张回执还在尼尔口袋里
@@ -417,7 +418,7 @@
     ;; 报案之后他认得尼尔，才私下推来程序处理不了的街面事。
     (define-turn-rule "贝恩斯推过来一张地址"
       (lambda ()
-        (and (= quiet-stage 0) receipt?))
+        (and side-story-open? (= quiet-stage 0) receipt?))
       (lambda () (invite!)))
 
     ;; 晚宴后隔一天来口信。它不是任务，不进卷宗（不发成长、没有子项），是一段必经的
@@ -425,14 +426,14 @@
     ;; 直到你去警局把那张纸拿了。曾经既看不见倒计时也不堵人——那张纸接通的是家里的
     ;; 电话和上城委托，忘了去等于整条委托线悄悄没开。
     (define 口信间隔 1)
-    (define (等口信?) (and (equal? registration "未开放")
+    (define (等口信?) (and side-story-open? (equal? registration "未开放")
                            (第二章 'started?)
                            (equal? (晚宴 'result) "已结束")))
     (define (口信日) (+ (第二章 'banquet-day) 口信间隔))
 
     (define (sync-blockers!)
       (rest-release! "贝恩斯/登记")
-      (if (equal? registration "请来")
+      (if (and side-story-open? (equal? registration "请来"))
           (rest-block! "贝恩斯/登记" "贝恩斯有张纸要给你" "警察局" "手续已经好了")
           #f))
 
