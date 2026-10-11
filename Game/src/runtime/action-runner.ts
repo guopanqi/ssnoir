@@ -161,7 +161,7 @@ export class GameActionRunner {
     const actorId=dice[0]?.actorId??"player",actor=this.state.team.require(actorId);
     if(actor.status!=="active")throw new Error("inactive acting actor");
     const before=this.state.snapshot();
-    this.state.beginActionContext(actorId,"world");
+    this.state.beginActionContext(actorId,this.state.currentMode() as "world"|"encounter");
     this.state.beginActionReport();
     try{
       let roll:ReturnType<typeof resolveFate>|undefined;

@@ -134,7 +134,10 @@ export class GameRuntimeState {
     if(!this.actionContext)throw new Error("current-actor only valid inside action");
     return this.actionContext.actorId;
   }
-  currentMode():string {return this.actionContext?.mode??"world";}
+  currentMode():string {
+    const location=this.getGlobal("location");
+    return this.actionContext?.mode??(location==="encounter"?"encounter":"world");
+  }
   /**
    * Mirrors GameState.CheckCollapse: impact is settled at the instant the
    * injury reaches 7, while SceneManager later consumes the hospitalization

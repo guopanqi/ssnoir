@@ -2,8 +2,8 @@ import compiledStdBase64 from "virtual:ssnoir-lips-stdlib";
 import { base64Bytes } from "./base64";
 import { GameScriptSession } from "./script-session";
 import { GameRuntimeState } from "./game-state";
-import { ActionTurnState } from "./turn-state";
 import { GameActionRunner } from "./action-runner";
+import { GameSceneDirector } from "./scene-director";
 import type { RuntimeNode } from "./node-converter";
 
 // Vite resolves these imports at BUILD time, not at Mini Game runtime.
@@ -31,24 +31,36 @@ export interface WorldHost {
   state:GameRuntimeState;
   session:GameScriptSession;
   runner:GameActionRunner;
+  director:GameSceneDirector;
+  mode:"world"|"encounter";
   root:RuntimeNode;
   getPlaces():RuntimeNode[];
   enterPlace(name:string):Promise<RuntimeNode>;
   refresh():Promise<RuntimeNode>;
 }
 export async function createWorldHostRuntime(random:()=>number=Math.random):Promise<WorldHost> {
-  const state=new GameRuntimeState();
-  const session=await GameScriptSession.create(
-    "ssnoir-authored-world",state,sources(),base64Bytes(compiledStdBase64)
-  );
-  await session.loadFile("scenes/world/world.scm");
-  const runner=await GameActionRunner.create(session,state,new ActionTurnState(random));
-  let root=await runner.prepare();
-  return {
-    state,session,runner,
+  const director=await GameSceneDirector.create(sources(),base64Bytes(compiledStdBase64),random);
+  let root=await director.render();
+  const host:WorldHost={
+    director,
+    state:director.state,
+    session:director.world,
+    get runner(){return director.actions;},
+    get mode(){return director.mode;},
     get root(){return root;},
-    getPlaces:()=>root.children.filter(n=>n.isPlace&&!n.disabled),
-    async enterPlace(name:string){const node=await runner.enterPlace(name);root=await runner.prepare();return node;},
-    async refresh(){root=await runner.prepare();return root;}
+    getPlaces:()=>director.mode==="world"?root.children.filter(n=>n.isPlace&&!n.disabled):[],
+    async enterPlace(name:string){
+      if(director.mode!=="world")throw new Error("place entry only in the city");
+      const node=await director.worldActions.enterPlace(name);
+      await director.flush();
+      root=await director.render();
+      return node;
+    },
+    async refresh(){
+      await director.flush();
+      root=await director.render();
+      return root;
+    }
   };
+  return host;
 }
