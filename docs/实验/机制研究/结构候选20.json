@@ -3,7 +3,7 @@
   "date": "2026-10-09",
   "target": 20,
   "selected": 20,
-  "evidenceTier": "20 distinct source-backed structural design candidates, NOT 20 human-proven fun encounters",
+  "evidenceTier": "20 source-backed structural hypotheses, NOT 20 verified good patterns; P17-P19 now have additional mathematical counterfactuals, Debug list unchanged",
   "sourcePeriod": "existing R01-R75 native research and authored tests",
   "selectionCriteria": [
     "one distinctive causal choice",
@@ -263,7 +263,7 @@
       "knownCounterexample": "清洗总是最后固定一手",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "validation": "原生受控行动确实展示先制造假话再以进度换可信度。补充四骰数学消融：逼问+清理选项改善可信完成概率约1.36个百分点，但完整冷静、住院与提交条件未建模。仍需真实决策路径与人类评价。",
+      "validation": "原生作者行动已证实逼问引入假话、核实以进度换可信。R86加入简化冷静耗尽后的精确四骰反证：初始冷静1/2/3时逼问选项可信完成率增益约4.51/1.35/1.36个百分点；但所选最优策略提前核实次数全为0，可能仍是最后固定核实。未复刻完整原生伤势与住院。",
       "humanFeedbackRelated": false,
       "nativeStartsAndShowsActions": true,
       "nativeCausalActionWitness": true,
@@ -276,7 +276,23 @@
         "strictRootsWithFeatureGain": 75,
         "strictRootsOverBestScript": 63,
         "run": "https://github.com/guopanqi/ssnoir/actions/runs/37946997677"
-      }
+      },
+      "paperAdditionalAudit": {
+        "id": "R86",
+        "run": "https://github.com/guopanqi/ssnoir/actions/runs/38116309491",
+        "featureGains": [
+          0.045081733,
+          0.013475699,
+          0.013590011
+        ],
+        "earlyCleanChosenPolicy": [
+          0,
+          0,
+          0
+        ],
+        "scope": "composure-threshold paper abstraction"
+      },
+      "promotionBlocker": "还未证明提前/延后核实均是理性选择，也无玩家盲评"
     },
     {
       "id": "P18",
@@ -288,10 +304,18 @@
       "knownCounterexample": "最快路线无风险或枪口无视选择",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "validation": "原生追踪动作已有因果见证。R85含路线伤害、压制、底片损失的独立数学代理：追踪开/关仅约−0.000371513的期望效用差，只有9/126种初始手牌改变。可换路线的价值不可归功于追踪规则，原生逐步反事实仍待验证。",
       "humanFeedbackRelated": false,
       "nativeStartsAndShowsActions": true,
-      "nativeCausalActionWitness": true
+      "nativeCausalActionWitness": true,
+      "paperAdditionalAudit": {
+        "id": "R85",
+        "run": "https://github.com/guopanqi/ssnoir/actions/runs/38116253854",
+        "trackingIncrement": -0.000371513,
+        "strictRootsAffected": 9,
+        "scope": "P18-inspired proxy, not exact native replay"
+      },
+      "promotionBlocker": "枪口追踪是否真影响有意义的原生行动仍无证据"
     },
     {
       "id": "P19",
@@ -303,10 +327,23 @@
       "knownCounterexample": "后续机会根本不可达",
       "state": "structural-candidate",
       "playtestApproval": false,
-      "validation": "需要进一步用正式运行和真人体验确认，不因入池自动进入调试菜单",
+      "validation": "已有原生作者行动与互斥窗口见证。R87验证送货人时准备4、5、6三种状态可达，对应等买主成功概率61.59%/89.62%/98.20%；账本若值地址1.5倍，准备4适合抓送货人、5适合等；若值2倍则全部等。Scheme叙事成果没有规定数值价值。",
       "humanFeedbackRelated": false,
       "nativeStartsAndShowsActions": true,
-      "nativeCausalActionWitness": true
+      "nativeCausalActionWitness": true,
+      "paperAdditionalAudit": {
+        "id": "R87",
+        "run": "https://github.com/guopanqi/ssnoir/actions/runs/38116416453",
+        "buyerProbabilities": [
+          0.615890775,
+          0.896154835,
+          0.981953018
+        ],
+        "reversalWithRewardRatio": 1.5,
+        "noReversalWithRewardRatio": 2,
+        "scope": "next-round two-action probability, story value deliberately left to player"
+      },
+      "promotionBlocker": "地址和账本对后续故事的实际意义与人的偏好尚未明确"
     },
     {
       "id": "P20",
@@ -339,5 +376,6 @@
     ],
     "result": "Native actual actions produced intended changes in contamination, route pursuit, mutually exclusive timing and blocked exits",
     "scope": "Author-controlled regression witnesses, not unscripted human sessions"
-  }
+  },
+  "updated": "2026-10-11"
 }
