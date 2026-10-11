@@ -1538,14 +1538,15 @@ namespace SSNoir.IMGUI
                     // 标注已参与避让，所以也走落镜后再排布 / 已有落点可续画，避免运镜途中乱跳。
                     var viewPos = cam.WorldToViewportPoint(anchor.transform.position);
                     float padding = 0.05f;
-                    bool softWorldLabel = AnnotationDrawer.IsAnnotation(node) || node.IsContainer;
                     bool layoutFixed = node.IsContainer;
                     bool cachedAction = !layoutFixed && _labelOffsets.ContainsKey(node.Name);
                     bool waitForLanding = !layoutFixed && !cachedAction
                         && layoutTravelling;
+                    // The visible edge is the last valid anchor region. Off-screen nodes
+                    // use beacons; never drag an orphan label back into the viewport.
                     bool inCameraSight = viewPos.z >= 0
-                        && (softWorldLabel || (viewPos.x >= -padding && viewPos.x <= 1f + padding
-                            && viewPos.y >= -padding && viewPos.y <= 1f + padding));
+                        && viewPos.x >= -padding && viewPos.x <= 1f + padding
+                        && viewPos.y >= -padding && viewPos.y <= 1f + padding;
 
                     if (inCameraSight)
                     {
