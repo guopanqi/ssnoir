@@ -19,8 +19,14 @@ test("stage 2 boots exact unedited engine.scm, its theatre library and stdlib.sc
   assert.equal(await session.evaluateNumber("(item-count \"金钱\")"), 15);
   assert.equal(await session.evaluateNumber("(item-count \"香烟\")"), 2);
   assert.equal(String(await session.evaluate("(get-global 'chapter)")), "0");
-  assert.equal(await session.evaluateNumber('(length (theatre-scene 1600 900 "black" (list)))'), 4);
-  assert.equal(String(await session.evaluate('(cadr (node "码头"))')), "码头");
+  let theatre;
+  try { theatre = await session.evaluateNumber('(length (theatre-scene 1600 900 "black" (list)))'); }
+  catch (e) { throw new Error("theatre-scene failed: " + e, { cause: e }); }
+  assert.equal(theatre, 4);
+  let node;
+  try { node = await session.evaluate('(cadr (node "码头"))'); }
+  catch (e) { throw new Error("node constructor failed: " + e, { cause: e }); }
+  assert.equal(String(node), "码头");
 });
 
 test("stage 2 runs actual item helper contracts, including smoking cap, transaction rollback", async () => {
