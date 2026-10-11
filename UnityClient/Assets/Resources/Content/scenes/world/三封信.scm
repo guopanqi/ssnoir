@@ -422,6 +422,9 @@
       (if (not (= story-stage 0)) (error "夜莺来访：委托已经开始") #t)
       (begin
           ;; 楼下电铃求助先演，开门后再进入现有室内接案对白。
+          (play-dialogue!
+            (line "尼尔" "那天夜里，雨下得很大，我的鞋子湿了，和袜子黏在一起。")
+            (line "尼尔" "我对那天记得很清楚，那是我的命运发生转折的地方，但当时我对此一无所知。"))
           (rainy-door-theatre!)
           (commission-dialogue!)
           (add-item! "金钱" prepayment)
@@ -440,10 +443,33 @@
       (anchored-instant-action "有人敲门" "门口" receive-night-visit!))
 
     (define (node-opening)
-      (anchored-instant-action "尼尔的早晨" "门口"
+      (anchored-instant-action "醉酒的尼尔" "老街酒馆"
         (lambda ()
           (set! opening-heard? #t)
-          (play-narration! "尼尔开场"))))
+          (play-dialogue!
+            (line "世界" "尼尔刚从酒馆出来。步履不稳，酒还没有醒。")
+            (line "房东" "尼尔，两天后交房租。四十块。明早别说你不记得。")))))
+
+    (define (drunk?) (and opening-heard? (= world-day 1)))
+
+    (define (opening-sleep!)
+      (if (drunk?)
+          (play-dialogue!
+            (line "尼尔" "这里的一切都让人觉得新鲜，高耸的建筑，闪着光的招牌，迷人的女人。")
+            (line "尼尔" "贝尔维尔，梦一样的城市，美丽的地方。")) #f))
+
+    (define-turn-start-rule "序章醒来"
+      (lambda () (and opening-heard? (= world-day 2) (= story-stage 0)))
+      (lambda ()
+        (play-dialogue!
+          (line "世界" "天亮了。贝尔维尔在下雨。")
+          (line "尼尔" "但这些美丽和我无关。我在这里已经一年多了，大多数时候只能通过打零工度日。")
+          (line "尼尔" "偶尔有几件委托，但像婚外情、替小道报纸偷拍这样的三流委托，也是几个月之前的事情了。")
+          (line "尼尔" "除此之外，没有任何的真相需要我去发现。醒醒，是时候去挣房租了。"))))
+
+    (define (opening-status-nodes location)
+      (if (and (drunk?) (or (equal? location "家") (equal? location "老街酒馆")))
+          (list (note-node (string-append "标注：醉酒@" location) "醉酒" "脚下发飘。回去睡一觉，明早再找活干。")) '()))
 
     ;; ── 小节一：筹钱与两项准备 ──────────────────────
     ;; 工作与一次性失物委托提供收入；准备直接改变交付现场。
@@ -2441,7 +2467,7 @@
       (cond
         ((equal? location "家")
          (append
-           (if (and (= story-stage 0) (not opening-heard?)) (list (node-opening)) '())
+           (opening-status-nodes location)
            (if (and (= story-stage 0) (> world-day 2)) (list (node-answer-door)) '())
            (if (and (beat3-open?) (pieces-full?) (not (has-flag? '对不上)))
                (list (node-board))
@@ -2464,7 +2490,10 @@
                (list (dock-lyon-investigation))
                '())))
         ((equal? location "老街酒馆")
-         (if (beat2-open?) (list (node-lyon-talk)) '()))
+         (append
+           (if (and (= story-stage 0) (not opening-heard?)) (list (node-opening)) '())
+           (opening-status-nodes location)
+           (if (beat2-open?) (list (node-lyon-talk)) '())))
         ;; 老街节点全部平铺在居民区下；探索过程消失后，只留下有后续玩法的人物与地点。
         ((equal? location "码头居民区")
          (append
@@ -2597,6 +2626,7 @@
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'night-visit!) (receive-night-visit!))
+          ((equal? msg 'opening-sleep!) (opening-sleep!))
           ((equal? msg 'story-stage) story-stage)
           ((equal? msg 'days-to-premiere) (days-to-premiere))
           ((equal? msg 'singer-present?) (singer-present?))
@@ -2789,4 +2819,4 @@
           (#t #f))))))
 
 ;; 新游戏自动执行的开场动作。客户端读这个全局去找节点，不写死章节内容。
-(set-global! '开场动作 "尼尔的早晨")
+(set-global! '开场动作 "醉酒的尼尔")

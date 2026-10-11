@@ -292,6 +292,7 @@
               (if (and (= world-day 2) (= (three-letters 'story-stage) 0))
                   (three-letters 'night-visit!) #f)
               (restore-actor-composure! 'player 2)
+              (three-letters 'opening-sleep!)
               (set! 刚睡过? #t)
               (end-turn!))))))
 
@@ -304,6 +305,7 @@
         :resolve (instant
           (outcome (lambda ()
               ;; 露宿不回复冷静，但也不再伤身，免得把玩家推向击穿受伤的死亡循环。
+              (three-letters 'opening-sleep!)
               (set! 刚睡过? #t)
               (end-turn!))))))
 
