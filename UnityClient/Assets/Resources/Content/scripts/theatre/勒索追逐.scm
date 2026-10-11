@@ -78,7 +78,7 @@
         (8.16801 0.0000) (8.42000 404.9778) (8.70000 780.8000) (8.98000 1082.4533) (9.26000 1309.9378)
         (9.54000 1463.2533) (9.82000 1542.4000) (10.10000 1547.3778) (13.05999 1600.0000) (13.06000 0.0000)
         (17.60000 80.7111)))))
-  ;; 单帧冲刺：姿势定住一张最舒展的蹬地帧，不切图、不晃位置。
+  ;; 单帧冲刺：姿势定住一张前膝抬起、后腿回收的腾空帧，不切图、不晃位置。
   ;; 速度感由背景卷动、擦身黑影、脚步声和脚后扬尘给。
   (define (脚步 id)
     (theatre-loop (theatre-sequence
@@ -162,10 +162,10 @@
         (theatre-sound "起身" "StageSounds/勒索信/起身" #f .6 .4)))
     (theatre-tween "信封" 'opacity 0 .001)
     (theatre-wait .3)
-    ;; 两张跑图都朝左；清除旧站姿的水平翻转。姿势定在蹬地甲帧，此后不再切图。
+    ;; 两名跑者都朝左；清除旧站姿的水平翻转，定在腾空冲刺姿势，不切图。
     (theatre-tween "尼尔" 'scale-x 1 .001)
-    (theatre-image-to "尼尔" "Portraits/Chase/尼尔_跑步甲")
-    (theatre-image-to "取信人" "Portraits/Chase/取信人_跑步甲")
+    (theatre-image-to "尼尔" "Portraits/Chase/尼尔_冲刺")
+    (theatre-image-to "取信人" "Portraits/Chase/取信人_冲刺")
     (theatre-during
       (theatre-sequence
         (theatre-during (theatre-wait 6.5)
