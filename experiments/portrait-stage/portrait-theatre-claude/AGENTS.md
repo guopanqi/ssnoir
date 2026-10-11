@@ -7,7 +7,7 @@
 - 新增章节：在 `src/js/chapters/` 加 `NN-name.js`，内容是**一个以 `,` 结尾的对象字面量** `{n,sub,sh,pos,bg,set,mk,ini,run}`；章节编号文字数组在 `60-boot.js` 的 `s.num=[…][i]`，要同步加。布景加在 `40-sets.js` 的 `SETS.xxx`。
 - 章节对象：`n` 名称、`sub` 副标题、`sh` 按钮短名、`pos` 地图点位(世界坐标)、`bg` 舞台底色、`set` 布景容器 id（`#hotel/#lamp/#set3`）、`mk` 生成布景 SVG、`ini()` 初始人物位置、`run(k,H)` 异步演出时间线，`H` 提供 `w/say/go/fl/n/y/mono…`。
 - 人物：`CH` 里定义，`P(id,{x,y,s,f,face,b,h,al,ar,ll,lr,cl:{…},show…})` 改姿势。**`show:1` 才可见**（ini 里漏写则人物隐身——追逐章曾因此看不到尼尔）。
-- 定格（立绘式）表演：给人物加 `snap` 类（`.ch.snap` 关闭过渡），直接切姿势表，不做关节补间；见 `chapters/04-chase.js` 的 `pose/cyc/RUN/PS`。其他章仍是补间动画，需要时可迁移。
+- 立绘式表演（追逐章已采用）：每个姿势是一整张“立绘”（`POSE` 表：肢体角度+前倾+头，配合 `face`），换姿势时整张切换（人物加 `snap` 类，只关掉肢体/表情的补间，根节点位移补间保留）；走位、背景卷动、镜头保持连续流畅，奔跑只用整体上下颠簸（`bnc` 类），不做关节摆动。以后换成生成的立绘图时，替换 `POSE` 表与 `pose()` 即可。见 `chapters/04-chase.js`。其他章仍是关节补间，可按同样方式迁移。
 - 暂停机制：`sleep(ms,k)` 轮询 `paused` 与 `gen` 令牌；任何新的异步等待必须用 `w()`，不要裸 `setTimeout`/`await` 否则暂停与切章会失效（`throw 0` 即被取消）。
 
 ## 踩过的坑

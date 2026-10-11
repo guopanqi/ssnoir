@@ -5,7 +5,7 @@ function reset(){const W=$('#world'),stg=$('#stage');W.style.cssText='transition
 document.querySelectorAll('.set').forEach(s=>{s.style.transition='none';s.setAttribute('class','set');s.style.opacity=0});void W.offsetWidth;W.style.cssText='';document.querySelectorAll('.set').forEach(s=>s.style.transition='');
 $('#set3').innerHTML='';$('#props').innerHTML='';$('#front').innerHTML='';$('#front').style.opacity=1;fxf('none',0);pk(0,0,.01,0,0,10);gh(1000,670,.3,0);
 $('#leaf').style.transform='';for(const s of['#bt','#sg','#dl'])op(s,0);$('#nw').classList.remove('lit');$('#vr').classList.remove('on');$('#fx').classList.remove('rn');
-for(const id in G)P(id,{d:0,show:0,x:-400,y:790,s:.56,f:0,b:0,h:0,al:0,ar:0,face:'n',tr:0,look:0,back:0,hat:0,bag:0,umo:0,umc:0,cg:0,ll:0,lr:0,cl:{tk:0,wk:0,sob:0,run:0,snap:0}});
+for(const id in G)P(id,{d:0,show:0,x:-400,y:790,s:.56,f:0,b:0,h:0,al:0,ar:0,face:'n',tr:0,look:0,back:0,hat:0,bag:0,umo:0,umc:0,cg:0,ll:0,lr:0,cl:{tk:0,wk:0,sob:0,run:0,snap:0,bnc:0}});
 sp(1,800,1,0);sp(2,800,1,0);rainI=0;rainS(0);cc();$('#title').classList.remove('on');stg.style.setProperty('--ix','50%');stg.style.background='#05070e'}
 const chips=()=>document.querySelectorAll('#chips button').forEach((b,i)=>b.classList.toggle('cur',i===cur));
 function idle(msg){reset();$('#stage').classList.add('idl');$('#title').innerHTML=msg||'<h1>立绘剧场 · 线绘世界</h1><p>亮着的地方藏着故事 · 点击地图上的地点，或使用下方按钮</p>';$('#title').classList.add('on');chips()}
