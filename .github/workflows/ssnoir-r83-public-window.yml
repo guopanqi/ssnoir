@@ -1,0 +1,34 @@
+name: SSNoir R83 Expiring Opportunity Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r83-public-window.yml'
+      - 'tools/content-validator/experiments/r83_public_window_audit.py'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact R83 public expiry and strong policy controls
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r83_public_window_audit.py | tee /tmp/r83.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r83.json',encoding='utf8'))
+          a=d['expiring_offer']
+          assert a['free']>=max(a['take'],a['wait'])
+          assert a['root_hands_free_strictly_better_than_both']>=0
+          print('PASS R83 payoff and controls')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-r83-window-results
+          path: /tmp/r83.json
