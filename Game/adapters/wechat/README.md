@@ -44,3 +44,5 @@ DOM 只用于当前渲染/解释器的接口契约，不支持实际网页布局
 项目测试覆盖 vendor 原始字节、UTF-8 编解码、不完整 document，以及完整编译包的渲染和生命周期。
 TapTap 回归组合同时删除 Intl、TextEncoder、TextDecoder 和 document 查询方法、body.contains，并关闭 offscreen API。
 模拟浏览器仍提供原生 WebGL2、Promise 等能力；后续真机错误必须继续补充契约和回归，不能宣称完全模拟宿主。
+
+2026-10-11：微信 iPhone 已确认 Canvas 类型修复后正常；重复 multiView 警告问题解除。Three.js 的 UNPACK_COLORSPACE_CONVERSION_WEBGL 不支持提示尚未处理，图片纹理的颜色一致性未验收。
