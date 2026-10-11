@@ -20,7 +20,9 @@ export class TheatrePlayback {
   captionStarted=0;
   revealed=false;
   started=false;
-  constructor(readonly scene:TheatreProgram) {
+  readonly scene:TheatreProgram;
+  constructor(scene:TheatreProgram) {
+    this.scene=scene;
     for(const node of scene.objects){
       const values:Record<TheatreProperty,number>={
         x:0,y:0,"scale-x":1,"scale-y":1,rotation:0,opacity:1,reveal:1,brightness:1
@@ -75,7 +77,9 @@ class Runner {
   done=false;acknowledged=false;
   private started=false;private index=0;private iterations=0;
   private elapsed=0;private from=0;private children:Runner[]=[];
-  constructor(readonly host:TheatrePlayback,readonly cue:TheatreCommand){}
+  readonly host:TheatrePlayback;
+  readonly cue:TheatreCommand;
+  constructor(host:TheatrePlayback,cue:TheatreCommand){this.host=host;this.cue=cue;}
   get speech():string{return String(this.cue.data[1]??"");}
   private property():TheatreProperty{return String(this.cue.data[1]) as TheatreProperty;}
   step(seconds:number,now:number):number {
