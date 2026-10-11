@@ -67,6 +67,31 @@ export function createNativeBridge(state: GameRuntimeState): NativeBridge {
       const index=Math.floor(Math.random()*options.length);
       return options[index]; // Keep Scheme value boxed in its originating interpreter.
     },
+    "__injury-severity": (...args) => {
+      arity("__injury-severity",args,0);return state.injury.severity;
+    },
+    "__injury-band-index": (...args) => {
+      arity("__injury-band-index",args,0);return state.injury.band;
+    },
+    "__scar-count": (...args) => {
+      if(args.length>1)throw new Error("__scar-count accepts at most one part");
+      return state.injury.scarCount(args.length?string(args[0]):undefined);
+    },
+    "__injure!": (...args) => {
+      arity("__injure!",args,1);
+      if(state.injury.injure(integer(args[0]))) {
+        // C# immediately resolves collapse, healing fee, scars and dice invalidation.
+        // Stop until the Phase 2 hospitalization controller is attached.
+        throw new Error("hospitalization controller not yet installed for 7/7 injury");
+      }
+      return undefined;
+    },
+    "__heal-injury!": (...args) => {
+      arity("__heal-injury!",args,1);state.injury.heal(integer(args[0]));return undefined;
+    },
+    "__hospitalization-pending?": (...args) => {
+      arity("__hospitalization-pending?",args,0);return false;
+    },
     "__item-count": (...args) => {
       arity("__item-count", args, 1);
       return state.getItemCount(id(args[0]));

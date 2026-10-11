@@ -1,3 +1,4 @@
+import { InjuryState, type InjurySnapshot } from "./injury.ts";
 /**
  * Stage 2: platform-independent state ownership.
  * Derived from Engine/Runtime/Core/GameState.cs and InventoryState.cs.
@@ -11,9 +12,11 @@ export interface RuntimeSnapshot {
   restBlockers: { id: string; reason: string; location: string; node: string }[];
   notifications: string[];
   failure: { title: string; description: string } | null;
+  injury: InjurySnapshot;
 }
 
 export class GameRuntimeState {
+  readonly injury = new InjuryState();
   private globals = new Map<string, GlobalValue>();
   private inventory = new Map<string, { name: string; count: number }>();
   private restBlockers = new Map<string, RuntimeSnapshot["restBlockers"][number]>();
@@ -33,6 +36,7 @@ export class GameRuntimeState {
     this.restBlockers.clear();
     this.notifications = [];
     this.failure = null;
+    this.injury.restore({severity:0,part:"",scars:[]});
     this.growthLevel = 0;
   }
 
@@ -109,7 +113,8 @@ export class GameRuntimeState {
       growthLevel: this.growthLevel,
       restBlockers: [...this.restBlockers.values()].map(x => ({ ...x })),
       notifications: [...this.notifications],
-      failure: this.failure ? { ...this.failure } : null
+      failure: this.failure ? { ...this.failure } : null,
+      injury: this.injury.snapshot()
     };
   }
 
@@ -126,6 +131,7 @@ export class GameRuntimeState {
       throw new Error("invalid notifications");
     }
     candidate.notifications = [...data.notifications];
+    candidate.injury.restore(data.injury);
     if (data.failure !== null) {
       if (!data.failure || typeof data.failure.title !== "string" || typeof data.failure.description !== "string") {
         throw new Error("invalid failure");
@@ -138,5 +144,6 @@ export class GameRuntimeState {
     this.restBlockers = candidate.restBlockers;
     this.notifications = candidate.notifications;
     this.failure = candidate.failure;
+    this.injury.restore(data.injury);
   }
 }
