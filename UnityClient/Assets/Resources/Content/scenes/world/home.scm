@@ -513,7 +513,7 @@
         (order-nodes)))
 
     (define (node-room)
-      (node "租屋" :anchor "门口" :children (room-nodes)))
+      (node "租屋" :title (tr "房间" "Room") :anchor "门口" :children (room-nodes)))
 
     ;; 被锁在门外时剩下的公共空间：楼下门厅。库存里的药是随身的，门锁住不该把它一起锁掉。
     (define (node-entry-hall)
