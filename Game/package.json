@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --test tests/*.test.mjs && node --experimental-strip-types --test tests/*.ts-test.mjs",
     "build:web": "vite build --outDir dist/web",
     "build:wechat": "vite build --config vite.wechat.config.ts && node --check dist/wechat/game.js && node scripts/package-wechat.mjs",
     "start:desktop": "electron .",

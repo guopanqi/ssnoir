@@ -8,8 +8,8 @@ import { Interpreter } from "lips";
 export class LipsSession {
   private readonly interpreter: ReturnType<typeof Interpreter>;
 
-  constructor(name: string) {
-    this.interpreter = Interpreter(name);
+  constructor(name: string, globals: Record<string, unknown> = {}) {
+    this.interpreter = Interpreter(name, globals);
   }
 
   async evaluate(source: string): Promise<unknown> {
