@@ -431,9 +431,13 @@ namespace SSNoir
             _renderer = gameObject.AddComponent<IMGUIWorldRenderer>();
             _renderer.Initialize(this);
             _stageController.Initialize(this);
-            var rain = new GameObject("城市细雨") { hideFlags = HideFlags.DontSave };
-            rain.transform.SetParent(transform, true);
-            rain.AddComponent<CityRain>().Initialize(this);
+            var mainCamera = Camera.main
+                ?? throw new InvalidOperationException("城市天气需要 Main Camera");
+            var snowOverlay = mainCamera.transform.Find("SnowOverlay")
+                ?? throw new InvalidOperationException("城市天气缺少 Main Camera/SnowOverlay");
+            var weather = new GameObject("城市天气") { hideFlags = HideFlags.DontSave };
+            weather.transform.SetParent(transform, true);
+            weather.AddComponent<CityWeather>().Initialize(this, snowOverlay);
 
             // 6. 场景加载后重置界面状态并更新镜头。
             _sceneManager.OnSceneLoaded += () => {

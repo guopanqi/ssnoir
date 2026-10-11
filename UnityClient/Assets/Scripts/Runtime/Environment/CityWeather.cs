@@ -5,26 +5,47 @@ using UnityEngine.Rendering;
 
 namespace SSNoir
 {
-    /// <summary>序章城市细雨：真实空间中的批量雨线，由建筑深度遮挡，不覆盖 UI。</summary>
-    public sealed class CityRain : MonoBehaviour
+    /// <summary>统一管理城市雨雪；雨线接受建筑遮挡，雪花沿用相机前的双层雪景，不覆盖 UI。</summary>
+    public sealed class CityWeather : MonoBehaviour
     {
         private const int DropCount = 420;
         private SSNoirGameManager _manager = null!;
         private Mesh _mesh = null!;
         private Material _material = null!;
         private MeshRenderer _renderer = null!;
+        private GameObject _snowOverlay = null!;
+        private Transform _snowCamera = null!;
+        private ParticleSystem[] _snowParticles = Array.Empty<ParticleSystem>();
+        private Vector3 _snowCameraPosition;
+        private Quaternion _snowCameraRotation;
+        private bool _snowing;
         private readonly Vector3[] _seeds = new Vector3[DropCount];
         private readonly Vector3[] _vertices = new Vector3[DropCount * 4];
         private readonly Color[] _colors = new Color[DropCount * 4];
         private float _weight, _clock;
 
-        public void Initialize(SSNoirGameManager manager)
+        public void Initialize(SSNoirGameManager manager, Transform snowOverlay)
         {
             _manager = manager;
+            _snowOverlay = snowOverlay != null ? snowOverlay.gameObject
+                : throw new InvalidOperationException("城市天气缺少 Main Camera/SnowOverlay");
+            _snowCamera = Camera.main != null ? Camera.main.transform
+                : throw new InvalidOperationException("城市天气需要 Main Camera");
+            _snowCameraPosition = _snowCamera.InverseTransformPoint(_snowOverlay.transform.position);
+            _snowCameraRotation = Quaternion.Inverse(_snowCamera.rotation) * _snowOverlay.transform.rotation;
+            _snowOverlay.transform.SetParent(transform, true);
+            var nearSnow = _snowOverlay.transform.Find("SnowOverlay_Near")?.GetComponent<ParticleSystem>();
+            var farSnow = _snowOverlay.transform.Find("SnowOverlay_Far")?.GetComponent<ParticleSystem>();
+            if (nearSnow == null || farSnow == null)
+                throw new InvalidOperationException("SnowOverlay 缺少 SnowOverlay_Near 或 SnowOverlay_Far");
+            _snowParticles = new[] { nearSnow, farSnow };
+            ConfigureSnowflake(nearSnow, .018f, .075f);
+            ConfigureSnowflake(farSnow, .012f, .045f);
+            _snowOverlay.SetActive(false);
             var shader = Resources.Load<Shader>("Environment/CityRain")
-                ?? throw new InvalidOperationException("城市雨景缺少 Environment/CityRain Shader");
+                ?? throw new InvalidOperationException("城市天气缺少 Environment/CityRain Shader");
             _material = new Material(shader) { hideFlags = HideFlags.DontSave };
-            _mesh = new Mesh { name = "城市细雨", hideFlags = HideFlags.DontSave };
+            _mesh = new Mesh { name = "城市雨线", hideFlags = HideFlags.DontSave };
             _mesh.MarkDynamic();
             var random = new System.Random(137);
             var uv = new Vector2[_vertices.Length];
@@ -51,8 +72,14 @@ namespace SSNoir
             if (_manager == null) return;
             var camera = Camera.main;
             bool outdoors = !_manager.StageController.HasActivePortal;
-            bool rainy = camera != null && outdoors && !_manager.Title.IsActive
-                && _manager.DisplayedSnapshot.Weather == "雨";
+            bool exposed = camera != null && outdoors && !_manager.Title.IsActive;
+            bool rainy = exposed && _manager.DisplayedSnapshot.Weather == "雨";
+            bool snowing = exposed && _manager.DisplayedSnapshot.Weather == "雪";
+            SetSnowing(snowing);
+            if (camera != null)
+                _snowOverlay.transform.SetPositionAndRotation(
+                    _snowCamera.TransformPoint(_snowCameraPosition),
+                    _snowCamera.rotation * _snowCameraRotation);
             _weight = Mathf.MoveTowards(_weight, rainy ? 1 : 0, Time.unscaledDeltaTime * 1.5f);
             // 进入室内立即移除画面雨线，室外天气切换则淡出。
             _renderer.enabled = outdoors && _weight > .001f;
@@ -95,8 +122,35 @@ namespace SSNoir
                 new Vector3(radius * 2.5f, height * 1.3f, radius * 2.5f));
         }
 
+        private static void ConfigureSnowflake(ParticleSystem particles, float minSize, float maxSize)
+        {
+            var main = particles.main;
+            main.startColor = Color.white;
+            main.simulationSpace = ParticleSystemSimulationSpace.Local;
+            main.startSize = new ParticleSystem.MinMaxCurve(minSize, maxSize);
+        }
+
+        private void SetSnowing(bool snowing)
+        {
+            if (_snowing == snowing) return;
+            _snowing = snowing;
+            if (snowing)
+            {
+                _snowOverlay.SetActive(true);
+                foreach (var particles in _snowParticles) particles.Play(true);
+            }
+            else
+            {
+                foreach (var particles in _snowParticles)
+                    particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                _snowOverlay.SetActive(false);
+            }
+        }
+
         private void OnDestroy()
         {
+            if (_snowOverlay != null && _snowCamera != null)
+                _snowOverlay.transform.SetParent(_snowCamera, true);
             if (_mesh != null) Destroy(_mesh);
             if (_material != null) Destroy(_material);
         }
