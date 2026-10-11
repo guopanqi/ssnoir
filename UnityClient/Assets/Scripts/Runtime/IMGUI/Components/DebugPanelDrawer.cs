@@ -128,10 +128,18 @@ namespace SSNoir.IMGUI
             }
         }
 
-        private static bool DrawTapRow(IMGUIInteractionContext ui, Rect rowRect, string label, GUIStyle labelStyle)
+        private static bool DrawTapRow(IMGUIInteractionContext ui, Rect rowRect, string label, GUIStyle labelStyle, bool selected = false)
         {
             bool hovered = ui.CanHover(rowRect);
-            if (hovered)
+            if (selected)
+            {
+                GUI.color = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.13f);
+                GUI.DrawTexture(rowRect, Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                IMGUIStyles.DrawLine(new Vector2(rowRect.x + 3f, rowRect.y + 5f),
+                    new Vector2(rowRect.x + 3f, rowRect.yMax - 5f), IMGUIStyles.Gold, 2f);
+            }
+            else if (hovered)
             {
                 GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
                 GUI.DrawTexture(rowRect, Texture2D.whiteTexture);
@@ -141,7 +149,7 @@ namespace SSNoir.IMGUI
             var rowStyle = new GUIStyle(labelStyle)
             {
                 alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = hovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary }
+                normal = { textColor = selected ? IMGUIStyles.Gold : (hovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary) }
             };
             IMGUIStyles.DrawLabel(new Rect(rowRect.x + 10, rowRect.y + 4, rowRect.width - 12f, rowRect.height),
                 label, rowStyle);
@@ -151,6 +159,7 @@ namespace SSNoir.IMGUI
         private static float ContentHeight()
         {
             float y = 8f + 20f + SaveManager.SlotCount * 28f;
+            y += 6f + 20f + ItemH; // 雨雪预览标题与天气按钮
             y += 6f + 20f; // 镜头测试标题与第一行
             y += ItemH; // 过场截图行
             y += 6f + 22f; // 过场测试标题及列表起点
@@ -273,6 +282,22 @@ namespace SSNoir.IMGUI
             float curY = panelY + 8f;
             var mutedStyle = new GUIStyle(labelStyle) { fontSize = IMGUIStyles.FontSize(11),
                 normal = { textColor = IMGUIStyles.TextDisabled } };
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8, curY + 2f, panelW, 18f), "雨雪预览", mutedStyle);
+            curY += 20f;
+            string? preview = gameManager.Weather.DebugWeatherPreview;
+            string[] weatherLabels = { "跟随", "晴", "雨", "雪" };
+            string?[] weatherValues = { null, "晴", "雨", "雪" };
+            float weatherGap = 4f;
+            float weatherButtonW = (panelW - 16f - weatherGap * (weatherLabels.Length - 1)) / weatherLabels.Length;
+            for (int i = 0; i < weatherLabels.Length; i++)
+            {
+                var weatherRect = new Rect(panelX + 8f + i * (weatherButtonW + weatherGap), curY + 1f,
+                    weatherButtonW, ItemH - 2f);
+                bool selected = preview == weatherValues[i];
+                if (DrawTapRow(contentUi, weatherRect, weatherLabels[i], labelStyle, selected))
+                    gameManager.Weather.SetDebugWeatherPreview(weatherValues[i]);
+            }
+            curY += ItemH + 6f;
             IMGUIStyles.DrawLabel(new Rect(panelX + 8, curY + 2f, panelW, 18f), "存档管理", mutedStyle);
             curY += 20f;
 

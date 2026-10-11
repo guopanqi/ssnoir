@@ -70,6 +70,7 @@ namespace SSNoir
         private TitleScreen _titleScreen = null!;
         private CityOutlineState? _cityOutlines;
         private AmbientMusic _ambientMusic = null!;
+        private CityWeather _cityWeather = null!;
 
         private SSNoirCameraManager _cameraManager = null!;
         private Font? _regularFont;
@@ -301,6 +302,7 @@ namespace SSNoir
         public Font? SemiboldFont => _semiboldFont;
         public SSNoirCameraManager CameraManager => _cameraManager;
         public StageTransitionController StageController => _stageController;
+        public CityWeather Weather => _cityWeather;
         public CutscenePlayer Cutscene => _cutscenePlayer;
         public TitleScreen Title => _titleScreen;
         public bool IsInputLocked => _renderer != null && _renderer.IsInputLocked;
@@ -437,7 +439,8 @@ namespace SSNoir
                 ?? throw new InvalidOperationException("城市天气缺少 Main Camera/SnowOverlay");
             var weather = new GameObject("城市天气") { hideFlags = HideFlags.DontSave };
             weather.transform.SetParent(transform, true);
-            weather.AddComponent<CityWeather>().Initialize(this, snowOverlay);
+            _cityWeather = weather.AddComponent<CityWeather>();
+            _cityWeather.Initialize(this, snowOverlay);
 
             // 6. 场景加载后重置界面状态并更新镜头。
             _sceneManager.OnSceneLoaded += () => {

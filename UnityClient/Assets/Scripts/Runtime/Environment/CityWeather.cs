@@ -19,6 +19,7 @@ namespace SSNoir
         private Vector3 _snowCameraPosition;
         private Quaternion _snowCameraRotation;
         private bool _snowing;
+        private string? _debugWeatherPreview;
         private readonly Vector3[] _seeds = new Vector3[DropCount];
         private readonly Vector3[] _vertices = new Vector3[DropCount * 4];
         private readonly Color[] _colors = new Color[DropCount * 4];
@@ -73,8 +74,9 @@ namespace SSNoir
             var camera = Camera.main;
             bool outdoors = !_manager.StageController.HasActivePortal;
             bool exposed = camera != null && outdoors && !_manager.Title.IsActive;
-            bool rainy = exposed && _manager.DisplayedSnapshot.Weather == "雨";
-            bool snowing = exposed && _manager.DisplayedSnapshot.Weather == "雪";
+            string weather = _debugWeatherPreview ?? _manager.DisplayedSnapshot.Weather;
+            bool rainy = exposed && weather == "雨";
+            bool snowing = exposed && weather == "雪";
             SetSnowing(snowing);
             if (camera != null)
                 _snowOverlay.transform.SetPositionAndRotation(
@@ -120,6 +122,15 @@ namespace SSNoir
             _mesh.vertices = _vertices; _mesh.colors = _colors;
             _mesh.bounds = new Bounds(center + Vector3.up * height * .5f,
                 new Vector3(radius * 2.5f, height * 1.3f, radius * 2.5f));
+        }
+
+        public string? DebugWeatherPreview => _debugWeatherPreview;
+
+        public void SetDebugWeatherPreview(string? weather)
+        {
+            if (weather != null && weather != "晴" && weather != "雨" && weather != "雪")
+                throw new ArgumentException($"未知天气预览：{weather}", nameof(weather));
+            _debugWeatherPreview = weather;
         }
 
         private static void ConfigureSnowflake(ParticleSystem particles, float minSize, float maxSize)
