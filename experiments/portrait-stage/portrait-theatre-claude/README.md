@@ -5,7 +5,7 @@
 
 - 直接观看：浏览器打开 `dist/portrait-theatre-story-claude-sonnet-5-5.html`（单文件，无依赖；仅字体走 Google Fonts，离线自动回退）。
 - 在线版（claude.ai 私有 Artifact）：https://claude.ai/artifact/TXkXgC7MiaP8zPVfkR2YfK
-- 故事对白来源：[docs/story-script.txt](docs/story-script.txt)（用户提供的原稿，对白以它为准）。
+- 故事对白与设计准则都在本目录内：对白在 `src/js/chapters/`，准则在 [AGENTS.md](AGENTS.md)。
 
 ## 目录
 
@@ -24,7 +24,6 @@ src/                     源码（改这里）
   js/60-boot.js          reset/chapter/play/暂停/按钮绑定/启动
 dist/                    构建产物（单文件 HTML，提交入库方便直接打开）
 tools/                   test_play.py（无头测试）、realtime_capture.py（真实时间截帧）
-docs/                    故事原稿、设计准则、章节清单
 archive/                 早期原型与历史补丁脚本（只读参考）
 build.mjs                拼接脚本
 ```
