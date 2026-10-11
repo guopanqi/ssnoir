@@ -55,3 +55,5 @@ Stable 2.02.2608080 的 3.17.4 / 3.17.3 均曾出现 `WAGame.js` 500 和 `app.js
 worker path empty 的来源已静态定位：安装工具 app.asar 中 8fd55709f2317870f49b21a86699363d.js 的 getGameWorkerBundleCached，在读取 game.json 的 workers 或 workers.path 后发现为空就抛出该错误；getGameWorkerBundle 捕获并送到工具控制台。本项目未配置或使用 workers。随后当前控制台显示 Errors: 0，但触发该 Worker 构建请求的条件尚未确定，不能断言已修复。没有添加空 Worker 目录。
 
 2026-10-11 iPhone 预览实测：最小宿主探针正常；完整底座缺少 performance 与 LIPS 错误进入 Node 分支的问题修复后，用户确认“没问题”。USB/Finder 识别设备为 iPhone SE（第三代）；尚需用户确认此设备是否就是测试设备，及 iOS/微信版本。最终包前后台与重启专项结果待补，不视为已通过。
+
+2026-10-11 最终包生命周期与重启：用户确认全部正常（桌面约 10 秒返回、显示正常、计数保留、三次点击恰好加三、关闭重新扫码后显示与点击正常）。微信 iOS 本轮功能验收通过；系统/客户端版本尚未补录，Android、性能和内存没有新增验证证据。

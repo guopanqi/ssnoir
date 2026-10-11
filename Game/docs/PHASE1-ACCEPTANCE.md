@@ -25,7 +25,8 @@ All are run in [ssnoir-game-foundation.yml](../../.github/workflows/ssnoir-game-
 
 - [x] Import `Game/dist/wechat` as a **Mini Game** in WeChat Developer Tools, using a test AppID; console/version/renderer and input observed on macOS Stable 2.02.2608080 / base library 3.17.3. See the device record.
 - [ ] Android WeChat device: render, Pixi Chinese text, tap, repeat after background/foreground, verify memory and shader errors.
-- [ ] iOS WeChat device: same acceptance; include tested phone, OS, WeChat, and base library versions.
+- [x] 微信 iPhone 预览：显示、点击、前后台恢复、计数保持和关闭重新扫码，用户实测通过（2026-10-11）。
+- [ ] 补录微信 iPhone 测试设备确认、iOS 与微信版本；不含性能/内存专项验收。
 - [ ] Native Windows and macOS desktop Electron smoke (outside Linux Xvfb); Steamworks integration is a later release-platform task.
 
 Browser emulation **cannot** establish that the actual WeChat runtime exposes the same browser APIs. Do not approve migration of all production UI on the basis of mock tests alone.
@@ -79,8 +80,8 @@ WeChat now uses a selective vendored MIT [finscn/weapp-adapter](../adapters/wech
 
 第一阶段剩余核心验收：
 - [x] TapTap iOS 切后台再返回：显示、计数保留、连续三次点击恰好增加三和关闭重新扫码均由用户确认正常。
-- 同一最终适配版本在微信开发者工具重新编译，复查显示、触摸和前后台。
-- 发布目标的微信 iOS 与 TapTap/微信 Android 真机最小回归；记录设备、系统、客户端和基础库版本。未覆盖的平台明确标记未验证。
+- [x] 最终适配版本微信 iPhone 预览显示、触摸、前后台与重新扫码由用户确认全部正常。
+- 发布目标的 TapTap/微信 Android 真机最小回归，以及已测 iOS 的设备、系统与客户端版本补录。未覆盖的平台明确标记未验证。
 - 三份交付物的最终打包与接入说明核对；使用独立最小工程消费适配包的构建/转换已有证据，最终包应继续保持这一边界。
 
 原清单中的 Windows、完整原生桌面图形验收仅在纳入第一阶段目标平台时执行。商店生产元数据、账号 SDK、Steamworks、完整游戏规则移植不作为这三个技术交付物的完成条件。
@@ -92,3 +93,5 @@ WeChat now uses a selective vendored MIT [finscn/weapp-adapter](../adapters/wech
 2026-10-11 微信 iPhone 预览：用户确认不加载库的最小宿主探针正常，完整底座日志暴露 performance 缺失与 LIPS 的 Node 环境误判。共享宿主接入原始上游 performance 实现；明确浏览器 IIFE 构建的 LIPS is_node=false，避免 global.global===global 导致调用不存在的 Node createRequire。28 项测试、类型检查、两平台构建以及缺少 performance 且 global.global===global 的完整包模拟渲染/点击/前后台均通过。CI 新增此组合，原版 vendor/converter 未修改。更新包微信真机结果待确认。
 
 2026-10-11 微信 iPhone 最新预览包：修复 performance 与 LIPS Node 误判后，用户回复“没问题”。记录为本轮启动/运行问题已解除；本条没有逐项确认前后台、计数保持和关闭重开，仍待专项验收。手机微信版本和 iOS 版本尚未提供。
+
+2026-10-11 微信 iOS 专项验收：用户按步骤测试后回复“全部正常”：切桌面约 10 秒返回，显示正常、计数保留，连续点击三次恰好加三；关闭小游戏重新扫码，显示和点击正常。微信与 TapTap iOS 本轮功能验收通过，Android 未实测，第一阶段跨平台验收尚未全部完成。
