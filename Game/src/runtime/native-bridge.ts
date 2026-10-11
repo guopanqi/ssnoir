@@ -1,3 +1,4 @@
+import { unbox } from "lips";
 import { GameRuntimeState } from "./game-state.ts";
 
 export type NativeCallable = (...args: unknown[]) => unknown;
@@ -17,23 +18,21 @@ function integer(value: unknown): number {
   return result;
 }
 function string(value: unknown): string {
-  if (typeof value === "string") return value;
-  // LIPS may expose R7RS strings as boxed Scheme values to JS-native calls.
-  if (value !== null && typeof value === "object" &&
-      /^(LString|String)$/.test(value.constructor?.name ?? "")) return String(value);
-  throw new Error("expected Scheme string, got " + (value === null ? "null" : typeof value) +
-    "/" + ((value as { constructor?: { name?: string } })?.constructor?.name ?? "unknown"));
+  // The npm ES module, Vite IIFE and TapTap converter may minify class names.
+  // Use LIPS's public unbox API, not constructor.name / instanceof names.
+  const raw = unbox(value);
+  if (typeof raw === "string") return raw;
+  throw new Error("expected Scheme string");
 }
 function portableScalar(value: unknown): string | number | boolean {
-  if (typeof value === "string" || typeof value === "boolean") return value;
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  const ctor = (value as { constructor?: { name?: string } } | null)?.constructor?.name ?? "";
-  if (ctor === "LString" || ctor === "String") return String(value);
-  if (/^(LNumber|LFloat|LInteger|LBigInt|Integer|Float|BigInt)$/.test(ctor)) {
-    const n = Number(String(value));
-    if (Number.isFinite(n)) return n;
+  const raw = unbox(value);
+  if (typeof raw === "string" || typeof raw === "boolean") return raw;
+  if (typeof raw === "number" && Number.isFinite(raw)) return raw;
+  if (typeof raw === "bigint") {
+    const num = Number(raw);
+    if (Number.isSafeInteger(num)) return num;
   }
-  throw new Error("not a portable Scheme scalar: " + ctor);
+  throw new Error("not a portable Scheme scalar: " + typeof raw);
 }
 
 /** Names and argument expectations ported from NativeFunctions.Register, not a new DSL. */
