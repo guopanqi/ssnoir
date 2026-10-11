@@ -69,3 +69,15 @@ test("read-only host metadata is preserved even when its getter returns undefine
   assert.equal(Object.hasOwn(document, "baseURI"), false);
   assert.equal(typeof document.querySelectorAll, "function");
 });
+
+test("configurable read-only missing host methods are defined without assignment", () => {
+  const document = {};
+  Object.defineProperty(document, "createElementNS", { value: undefined, writable: false, configurable: true });
+  exports.installMiniGameDocument({ document }, facade);
+  assert.equal(typeof document.createElementNS, "function");
+});
+test("non-configurable missing capability fails with an explicit contract error", () => {
+  const document = {};
+  Object.defineProperty(document, "createElementNS", { value: undefined, writable: false, configurable: false });
+  assert.throws(() => exports.installMiniGameDocument({ document }, facade), /host forbids missing capability: createElementNS/);
+});

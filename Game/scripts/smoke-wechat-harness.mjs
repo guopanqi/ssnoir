@@ -94,7 +94,7 @@ try {
       document.body.contains = undefined;
       document.querySelectorAll = undefined;
       document.getElementsByTagName = undefined;
-      document.createElementNS = undefined;
+      Object.defineProperty(document, "createElementNS", { value: undefined, writable: false, configurable: true });
       Object.defineProperty(document, "currentScript", { value: null, configurable: true });
       if (typeof document.querySelectorAll !== "undefined")
         throw new Error("Partial-document regression environment was not established");
