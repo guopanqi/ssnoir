@@ -34,7 +34,7 @@ function id(value:StoryValue,where:string):string {
   if(!v.trim())error(where,"empty ID");return v;
 }
 function num(value:StoryValue,where:string,positive=false):number {
-  if(typeof value!=="number"||!Number.isFinite(value)||positive&&value<=0)
+  if(typeof value!=="number"||!Number.isFinite(value)||Math.abs(value)>10000||positive&&value<=0)
     error(where,"expected "+(positive?"positive ":"")+"finite number");
   return value;
 }
@@ -46,7 +46,9 @@ function property(value:StoryValue):TheatreProperty {
 }
 function validateValue(prop:TheatreProperty,value:StoryValue):number{
   const n=num(value,prop);
-  if((prop==="opacity"||prop==="reveal"||prop==="brightness")&&(n<0||n>1))
+  if((prop==="opacity"||prop==="reveal")&&(n<0||n>1) ||
+     prop==="brightness"&&(n<0||n>4) ||
+     (prop==="scale-x"||prop==="scale-y")&&n===0)
     error("property","out of range: "+prop);
   return n;
 }
@@ -90,9 +92,10 @@ function parseObject(raw:StoryValue, known:Map<string,TheatreObject>):TheatreObj
     num(geom[0],"light radius",true);
   }else if(geom.length!==0)error(name,"group cannot have geometry");
   const color=text(parts[4],"color");
-  if(!/^#[0-9a-fA-F]{6}$/.test(color))error(name,"color must be #RRGGBB");
+  if(!/^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color))
+    error(name,"color must be #RRGGBB or #RRGGBBAA");
   const asset=text(parts[5],"asset"),light=text(parts[6],"light");
-  if(shape==="image"){if(!asset.trim()||asset.startsWith("/")||asset.includes(".."))error(name,"unsafe image asset");}
+  if(shape==="image"){if(!asset.trim()||asset.startsWith("/")||asset.includes("..")||asset.includes("\\")||asset.includes(":"))error(name,"unsafe image asset");}
   else if(asset)error(name,"only image can have asset");
   if(shape!=="image"&&light)error(name,"only image may bind light");
   const initial:Partial<Record<TheatreProperty,number>>={};
@@ -183,7 +186,8 @@ function parseCue(raw:StoryValue, known:Map<string,TheatreObject>,
     text(data[0],"speaker");text(data[1],"caption");
     seconds=kind==="caption-for"?num(data[2],"duration",true):Number.POSITIVE_INFINITY;
     if(kind==="caption-for"){
-      if(!/^#[0-9a-fA-F]{6}$/.test(text(data[3],"caption color")))error(kind,"color invalid");
+      if(!/^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(text(data[3],"caption color")))
+        error(kind,"color invalid");
     }
     ownWrites=["caption"];
   }else if(kind==="clear-caption"){
@@ -218,7 +222,8 @@ export function parseTheatre(args:StoryValue[]):TheatreProgram {
   if(scene.length!==4)error("scene","expected width,height,background,objects");
   const width=num(scene[0],"width",true),height=num(scene[1],"height",true);
   const background=text(scene[2],"background");
-  if(!/^#[0-9a-fA-F]{6}$/.test(background))error("scene","invalid background color");
+  if(!/^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(background))
+    error("scene","invalid background color");
   const known=new Map<string,TheatreObject>();
   const objects=list(scene[3],"objects").map(raw=>parseObject(raw,known));
   if(!objects.length)error("scene","empty object list");
