@@ -48,30 +48,44 @@ def r91():
     return {"id":"R91","comparison":rows,
             "conclusion":"The per-round cleanup rule has a real, independent native effect on unfinished effort. No evidence yet that this leads to better player decisions."}
 def r92():
-    rows=[]
-    for scene,nonlinear in (("分段兑现",True),("兑现线性",False)):
-        from subprocess import Popen,PIPE
-        from probe_four_scenario_causality import CMD,ROOT
-        p=Popen(CMD+["--session","encounters/研究·"+scene,"--seed","19","--growth","1"],
+    from subprocess import Popen,PIPE
+    from probe_four_scenario_causality import CMD,ROOT
+    def run(seed,scene,nonlinear):
+        p=Popen(CMD+["--session","encounters/研究·"+scene,"--seed",str(seed),"--growth","1"],
                 cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
         try:
             obs=recv(p)
             for _ in range(2):
                 obs=pick(p,obs,"备料")
             reserve=clock(obs,"储备")
-            assert reserve>0,(scene,reserve)
+            if reserve<=0:return None
             before=clock(obs,"目标")
             obs=pick(p,obs,"兑现")
             after=clock(obs,"目标")
             assert clock(obs,"储备")==0
-            expected=(reserve*(reserve+1)//2 if nonlinear else 2*reserve)
-            assert after-before==expected,(scene,reserve,before,after,expected)
-            rows.append({"scene":scene,"nonlinear":nonlinear,
-                         "reserve":reserve,"payout":after-before})
+            expected=reserve*(reserve+1)//2 if nonlinear else 2*reserve
+            assert after-before==expected,(scene,seed,reserve,after-before,expected)
+            return {"scene":scene,"nonlinear":nonlinear,"seed":seed,
+                    "reserve":reserve,"payout":after-before}
         finally:finish(p)
-    assert rows[0]["reserve"]==rows[1]["reserve"]
-    return {"id":"R92","comparison":rows,
-       "conclusion":"Both accounting laws execute in native code; nonlinear payout can be WORSE at reserves1/2, equal at3, stronger at4/5. That alone does not show a voluntary timing reversal."}
+    # A payoff curve cannot be credited to the candidate based on one root.
+    # Find reproducible native examples on both sides of k=3.
+    examples={}
+    for seed in [19]+list(range(1,33)):
+        a=run(seed,"分段兑现",True)
+        if a is None:continue
+        tier="low" if a["reserve"]<3 else "high" if a["reserve"]>3 else "equal"
+        if tier in examples:continue
+        b=run(seed,"兑现线性",False)
+        assert b and a["reserve"]==b["reserve"],(seed,a,b)
+        examples[tier]={"nonlinear":a,"linear":b,"delta":a["payout"]-b["payout"]}
+        if all(k in examples for k in ("low","equal","high")):break
+    assert all(k in examples for k in ("low","equal","high")),examples
+    assert examples["low"]["delta"]<0
+    assert examples["equal"]["delta"]==0
+    assert examples["high"]["delta"]>0
+    return {"id":"R92","three_reachable_native_cases":examples,
+      "conclusion":"Nonlinearity has a native CATEGORICAL consequence only across reserve thresholds: below3 linear wins, at3 ties, above3 nonlinear wins. Existence of a reward crossover is not yet evidence that a player voluntarily changes when to cash out."}
 def main():
     results=[r91(),r92()]
     text=json.dumps({"scope":"Native C# Scheme seeded intervention; not player preference",
