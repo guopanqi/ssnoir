@@ -20,7 +20,14 @@ const std=readFileSync("node_modules/lips/dist/std.xcb");
 test("original chapter-one world.scm loads on the new LIPS runtime and materializes root",async()=>{
   const state=new GameRuntimeState();
   const vm=await GameScriptSession.create("phase2-real-world",state,sourceMap,std);
-  await vm.loadFile("scenes/world/world.scm");
+  const loadResult=await vm.loadFile("scenes/world/world.scm");
+  console.log("[PHASE2 WORLD DEBUG]",{
+    loadResult:String(loadResult),
+    hasWorldDay:String(await vm.evaluate("(bound? 'world-day)")),
+    hasModule:String(await vm.evaluate("(bound? '模块卷宗)")),
+    hasRender:String(await vm.evaluate("(bound? 'get-render-data)")),
+    hasTurn:String(await vm.evaluate("(bound? 'on-turn-end)"))
+  });
   const render=await vm.evaluate("(get-render-data)");
   const root=convertNode(render);
   assert.equal(root.name,"世界");
