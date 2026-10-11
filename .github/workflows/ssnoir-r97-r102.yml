@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r97-r102.yml'
       - 'tools/content-validator/experiments/r97_late_seal_paper.py'
+      - 'tools/content-validator/experiments/r97b_delayed_seal_simple_rule.py'
       - 'tools/content-validator/experiments/r102_p10_single_round.py'
 permissions:
   contents: read
@@ -20,6 +21,8 @@ jobs:
           python-version: '3.11'
       - name: R97 voluntary mid-course sealing, including no-seal ablation
         run: python3 tools/content-validator/experiments/r97_late_seal_paper.py /tmp/r97.json
+      - name: R97b stronger interpretable delayed-commitment rule
+        run: python3 tools/content-validator/experiments/r97b_delayed_seal_simple_rule.py /tmp/r97b.json
       - name: R102 original per-turn dice capacity under strong natural threshold
         run: python3 tools/content-validator/experiments/r102_p10_single_round.py /tmp/r102.json
       - name: Independent evidence gates
@@ -28,6 +31,8 @@ jobs:
           import json
           a=json.load(open('/tmp/r97.json'))
           b=json.load(open('/tmp/r102.json'))
+          foil=json.load(open('/tmp/r97b.json'))
+          assert len(foil['cases'])==15 and all(z['gap']==0 for z in foil['cases'])
           r=next(x for x in a['cases'] if x['goal']==10 and x['initial_composure']==4)
           assert r['optimal']>r['never_seal']>r['seal_immediately']
           assert r['optimal_path_strict_seal_in_second_round']>0.09
@@ -42,5 +47,6 @@ jobs:
           name: ssnoir-r97-r102-independent-paper-evidence
           path: |
             /tmp/r97.json
+            /tmp/r97b.json
             /tmp/r102.json
           retention-days: 90
