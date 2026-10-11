@@ -8,6 +8,7 @@ on:
       - 'Game/src/foundation/stage-*'
       - 'Game/scripts/frank-stage-expression.mjs'
       - 'Game/scripts/compare-stage-parity.mjs'
+      - 'Game/scripts/compare-opening-parity.mjs'
       - 'UnityClient/Assets/Resources/Content/scenes/world/人物/弗兰克.scm'
       - '.github/workflows/ssnoir-stage-csharp-parity.yml'
 permissions:
@@ -36,3 +37,6 @@ jobs:
       - name: Execute same stage through TypeScript/LIPS and compare semantic beat commands
         working-directory: Game
         run: node --experimental-strip-types scripts/compare-stage-parity.mjs /tmp/ssnoir-frank-stage-csharp.json /tmp/ssnoir-frank-stage.scm
+      - name: Compare original chapter-one opening action payout and day in C# and TS
+        working-directory: Game
+        run: node --experimental-strip-types scripts/compare-opening-parity.mjs
