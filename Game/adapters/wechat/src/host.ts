@@ -118,7 +118,7 @@ const miniDocument = Object.assign(new UpstreamEventTarget(), {
 });
 // TapTap provides a document object without the DOM methods LIPS needs.
 // Preserve existing host methods while completing the declared DOM contract.
-installMiniGameDocument(g, miniDocument);
+installMiniGameDocument(g, miniDocument, canvas);
 g.HTMLElement ||= UpstreamHTMLElement;
 g.Image ||= wx.createImage().constructor;
 g.HTMLCanvasElement ||= canvas.constructor;

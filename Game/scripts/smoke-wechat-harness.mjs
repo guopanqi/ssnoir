@@ -91,6 +91,7 @@ try {
   }
   if (process.env.SSNOIR_PARTIAL_DOCUMENT === "1") {
     await page.evaluate(() => {
+      document.body.contains = undefined;
       document.querySelectorAll = undefined;
       document.getElementsByTagName = undefined;
       document.createElementNS = undefined;

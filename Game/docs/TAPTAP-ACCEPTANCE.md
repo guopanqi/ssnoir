@@ -166,3 +166,5 @@ TapTap official docs describe platform-specific adapters for JavaScript engines 
 - https://developer.taptap.cn/minigameapidoc/tap-operation/operation-standards/review-standards/
 
 The WeChat Canvas compatibility adapter now supports environments without `wx.createOffscreenCanvas`. CI checks this fallback against the converted TapTap output too, but native TapTap Canvas availability still requires device confirmation.
+
+2026-10-11：iOS 5.34.2 用户日志确认已进入 Pixi renderStart，宿主缺少 document.body.contains。共享适配层现按唯一屏幕 Canvas 的归属补齐此方法，离屏 Canvas 返回 false，保留原生方法。25 项测试、类型检查、转换 ZIP 校验及同时缺少 Intl/文本编码/document 查询/contains/offscreen API 的 Chromium 冒烟通过；新包真机首帧仍待确认。

@@ -38,3 +38,20 @@ test("partial document receives prototype event methods bound to the initialized
   global.document.addEventListener("webglcontextlost");
   assert.deepEqual(events, ["webglcontextlost"]);
 });
+
+test("screen membership includes only the body and the first host canvas", () => {
+  const body = {};
+  const screen = {};
+  const document = { body };
+  exports.installScreenCanvasMembership(document, screen);
+  assert.equal(body.contains(body), true);
+  assert.equal(body.contains(screen), true);
+  assert.equal(body.contains({}), false);
+  assert.equal(body.contains(null), false);
+});
+test("native body membership is preserved", () => {
+  const contains = () => false;
+  const document = { body: { contains } };
+  exports.installScreenCanvasMembership(document, {});
+  assert.equal(document.body.contains, contains);
+});
