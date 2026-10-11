@@ -14,6 +14,7 @@ on:
       - 'tools/content-validator/experiments/mechanism_workbench.css'
       - 'tools/content-validator/experiments/mechanism_workbench.js'
       - 'experiments/research-workbench-gpt6/**'
+      - 'Game/**'
 permissions:
   contents: read
   pages: write
@@ -33,6 +34,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build verified SSNoir gameplay preview
+        working-directory: Game
+        run: |
+          npm install --no-audit --no-fund
+          npm run verify
       - name: Build and validate research webpage
         run: |
           python3 tools/content-validator/experiments/build_mechanism_atlas.py
@@ -41,10 +50,14 @@ jobs:
           cp docs/实验/机制研究/研究总览.html pages-dist/index.html
           mkdir -p pages-dist/open-field
           cp experiments/research-workbench-gpt6/index.html pages-dist/open-field/index.html
+          mkdir -p pages-dist/game
+          cp -R Game/dist/web/. pages-dist/game/
+          test -s pages-dist/game/index.html
+          test -d pages-dist/game/assets
           touch pages-dist/.nojekyll
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-      - name: Upload only the research webpage
+      - name: Upload research pages and playable game preview
         uses: actions/upload-pages-artifact@v4
         with:
           path: pages-dist
