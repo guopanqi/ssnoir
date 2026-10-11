@@ -147,6 +147,54 @@ export class TeamState {
     const a=this.require(id);
     return value<a.composure?this.spend(id,a.composure-value):(this.restoreComposure(id,value-a.composure),0);
   }
+  /**
+   * Original TeamState.RollActionDice: slot IDs are stable, dice are ephemeral.
+   * A serious injury removes the final protagonist slot, not an arbitrary
+   * array index. Hangover affects slot 0 on the NEXT city refresh only.
+   */
+  rollDice(random:()=>number,isEncounter=false,consumeHangover=true,injuryCostsDie=false):void {
+    for(const actor of this.actors){
+      const applyHangover=!isEncounter&&consumeHangover&&actor.hangoverSlotId!==null;
+      actor.actionDice=[];actor.actionDiceSlotIds=[];
+      if(actor.status!=="active")continue;
+      let count=actor.actionSlotCount;
+      if(actor.role==="protagonist"&&injuryCostsDie)count--;
+      for(let slot=0;slot<count;slot++){
+        const n=random();
+        if(!Number.isFinite(n)||n<0||n>=1)throw new Error("invalid random d6");
+        const raw=1+Math.floor(6*n);
+        const penalty=slot===0?actor.permanentDiePenalty:0;
+        const hangover=applyHangover&&actor.hangoverSlotId===slot?-1:0;
+        const die=actor.fixedDieValue??Math.max(1,raw+penalty+hangover);
+        actor.actionDice.push(die);actor.actionDiceSlotIds.push(slot);
+      }
+      if(applyHangover)actor.hangoverSlotId=null;
+    }
+  }
+  dice(actorId:string):{slotId:number;value:number}[] {
+    const actor=this.require(actorId);
+    return actor.actionDice.map((value,i)=>({value,slotId:actor.actionDiceSlotIds[i]}));
+  }
+  spendDie(actorId:string,slotId:number):number {
+    const actor=this.require(actorId),at=actor.actionDiceSlotIds.indexOf(slotId);
+    if(at<0)throw new Error("spent or unknown action slot "+actorId+"/"+slotId);
+    const [result]=actor.actionDice.splice(at,1);
+    actor.actionDiceSlotIds.splice(at,1);
+    return result;
+  }
+  diceSnapshot():Record<string,{slotIds:number[];dice:number[]}> {
+    return Object.fromEntries(this.actors.map(a=>[a.id,{slotIds:[...a.actionDiceSlotIds],dice:[...a.actionDice]}]));
+  }
+  restoreDice(saved:Record<string,{slotIds:number[];dice:number[]}>):void {
+    const next=this.snapshot(true);
+    for(const actor of next.actors){
+      const entry=saved[actor.id];
+      actor.actionDice=entry?[...entry.dice]:[];
+      actor.actionDiceSlotIds=entry?[...entry.slotIds]:[];
+    }
+    this.restore(next,true);
+  }
+
   beginCityDay():string[]{
     const returned:string[]=[];
     for(const a of this.actors)if(a.role==="companion"){

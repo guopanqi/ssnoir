@@ -1,0 +1,30 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {TeamState} from "../src/runtime/team-state.ts";
+const allZero={violence:0,knowledge:0,sharpness:0,social:0};
+test("C# fixed four slots survive use, restore and hangover next-day penalty",()=>{
+ const t=new TeamState();t.applyHangover();
+ t.rollDice(()=>0.5,false,true);
+ assert.deepEqual(t.dice("player").map(x=>x.value),[3,4,4,4]);
+ assert.deepEqual(t.dice("player").map(x=>x.slotId),[0,1,2,3]);
+ assert.equal(t.spendDie("player",1),4);
+ assert.deepEqual(t.dice("player").map(x=>x.slotId),[0,2,3]);
+ const stash=t.diceSnapshot();
+ t.rollDice(()=>0,false,false);
+ t.restoreDice(stash);
+ assert.deepEqual(t.dice("player").map(x=>x.slotId),[0,2,3]);
+ t.rollDice(()=>0.5,false,true);
+ assert.equal(t.dice("player")[0].value,4,"hangover not applied twice");
+});
+test("heavy injury removes last protagonist action slot but not companion; machine fixed die ignores degradation",()=>{
+ const t=new TeamState();t.recruit("lin","林",allZero);
+ t.dieProfile("lin",2,4,"机器");
+ t.permanentDiePenalty("lin","伤",-2);
+ t.rollDice(()=>0,true,false,true);
+ assert.deepEqual(t.dice("player").map(x=>x.slotId),[0,1,2]);
+ assert.deepEqual(t.dice("lin").map(x=>x.value),[4,4]);
+ assert.deepEqual(t.dice("lin").map(x=>x.slotId),[0,1]);
+ t.spend("lin",2);
+ t.rollDice(()=>0,true,false);
+ assert.equal(t.dice("lin").length,0);
+});
