@@ -78,15 +78,16 @@ namespace SSNoir
                     height * (1 - phase), (seed.z * 2 - 1) * radius);
                 top += new Vector3(-.14f, 0, .05f) * height * phase;
                 Vector3 bottom = top + direction * radius * (.035f + seed.x * .025f);
-                Vector3 halfWidth = side * radius * (.00045f + seed.z * .00035f);
+                Vector3 halfWidth = side * radius * (.0006f + seed.z * .00045f);
                 int v = i * 4;
                 _vertices[v] = top - halfWidth; _vertices[v + 1] = top + halfWidth;
                 _vertices[v + 2] = bottom + halfWidth; _vertices[v + 3] = bottom - halfWidth;
                 float depth = Vector3.Dot(top - camera.transform.position, camera.transform.forward);
                 float fade = Mathf.Clamp01(depth / Mathf.Max(radius * .12f, .01f));
-                fade *= 1 - Mathf.SmoothStep(radius * 2, radius * 5, depth);
-                fade *= Mathf.SmoothStep(0, .05f, phase) * (1 - Mathf.SmoothStep(.88f, 1, phase));
-                var color = new Color(.55f, .65f, .76f, _weight * fade * (.10f + seed.z * .12f));
+                fade *= 1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(radius * 2, radius * 5, depth));
+                fade *= Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, .05f, phase))
+                    * (1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.88f, 1, phase)));
+                var color = new Color(.70f, .80f, .90f, _weight * fade * (.22f + seed.z * .12f));
                 for (int j = 0; j < 4; j++) _colors[v + j] = color;
             }
             _mesh.vertices = _vertices; _mesh.colors = _colors;
