@@ -15,6 +15,8 @@ namespace SSNoir
         private string _fallbackSubtitle = string.Empty;
         private float _elapsed;
         private float _duration;
+        private int _playingCue = -1;
+        private AudioClip[] _cueClips = Array.Empty<AudioClip>();
 
         public string CurrentSubtitle
         {
@@ -37,6 +39,7 @@ namespace SSNoir
                 throw new System.ArgumentException("narration id cannot be empty");
 
             EnsureAudioSource();
+            Stop();
 
             var jsonAsset = Resources.Load<TextAsset>($"Narrations/{id}");
             if (jsonAsset != null)
@@ -56,15 +59,41 @@ namespace SSNoir
             PlayFallback(id);
         }
 
+        // 黑幕使用旁白音轨，字幕由电影黑幕自身显示。
+        public float PlayIntertitleAudio(string id)
+        {
+            EnsureAudioSource();
+            Stop();
+            var clip = Resources.Load<AudioClip>($"Narrations/{id}")
+                ?? throw new InvalidOperationException($"Intertitle audio not found: Narrations/{id}");
+            _audioSource.clip = clip;
+            _audioSource.volume = AudioVolumes.Dialogue;
+            _audioSource.Play();
+            return clip.length;
+        }
+
         private void Update()
         {
-            if (_audioSource != null)
-                _audioSource.volume = AudioVolumes.Dialogue;
+            EnsureAudioSource();
+            _audioSource.volume = AudioVolumes.Dialogue;
 
             if (_activeNarration == null && string.IsNullOrEmpty(_fallbackSubtitle))
                 return;
 
-            _elapsed += Time.deltaTime;
+            _elapsed += Time.unscaledDeltaTime;
+            if (_activeNarration != null && _cueClips.Length > 0)
+            {
+                int cue = -1;
+                for (int i = 0; i < _activeNarration.cues.Count; i++)
+                    if (_elapsed >= _activeNarration.cues[i].time) cue = i;
+                if (cue != _playingCue && cue >= 0)
+                {
+                    _playingCue = cue;
+                    _audioSource.Stop();
+                    _audioSource.clip = _cueClips[cue];
+                    _audioSource.Play();
+                }
+            }
             if (_elapsed >= _duration)
                 Stop();
         }
@@ -80,10 +109,29 @@ namespace SSNoir
 
             // 空 audio 明确表示纯字幕 narration，不查找或播放旧配音。
             var clip = string.IsNullOrWhiteSpace(narration.audio) ? null : Resources.Load<AudioClip>($"Narrations/{narration.audio}");
+            _cueClips = Array.Empty<AudioClip>();
+            _playingCue = -1;
+            bool voicedCues = narration.cues.Exists(cue => !string.IsNullOrEmpty(cue.audio));
+            if (voicedCues)
+            {
+                if (!string.IsNullOrEmpty(narration.audio))
+                    throw new InvalidOperationException($"Narration {id} cannot mix sequence audio with cue audio");
+                _cueClips = new AudioClip[narration.cues.Count];
+                for (int i = 0; i < _cueClips.Length; i++)
+                {
+                    string cueId = narration.cues[i].audio;
+                    if (string.IsNullOrWhiteSpace(cueId)) throw new InvalidOperationException($"Narration {id} cue {i} has no audio");
+                    _cueClips[i] = Resources.Load<AudioClip>($"Narrations/{cueId}")
+                        ?? throw new InvalidOperationException($"Narration cue audio not found: {cueId}");
+                    if (i > 0 && narration.cues[i].time < narration.cues[i - 1].time + _cueClips[i - 1].length)
+                        throw new InvalidOperationException($"Narration {id} has overlapping voiced cues");
+                }
+            }
             _activeNarration = narration;
             _fallbackSubtitle = string.Empty;
             _elapsed = 0f;
-            _duration = ResolveDuration(narration, clip);
+            _duration = _cueClips.Length == 0 ? ResolveDuration(narration, clip)
+                : narration.cues[narration.cues.Count - 1].time + _cueClips[_cueClips.Length - 1].length;
 
             if (clip != null)
             {
@@ -125,9 +173,11 @@ namespace SSNoir
             _audioSource.clip = null;
         }
 
-        private void Stop()
+        public void Stop()
         {
             _activeNarration = null;
+            _cueClips = Array.Empty<AudioClip>();
+            _playingCue = -1;
             _fallbackSubtitle = string.Empty;
             _elapsed = 0f;
             _duration = 0f;
@@ -168,9 +218,9 @@ namespace SSNoir
             if (_audioSource != null)
                 return;
 
-            _audioSource = gameObject.GetComponent<AudioSource>();
-            if (_audioSource == null)
-                _audioSource = gameObject.AddComponent<AudioSource>();
+            // 旁白独占音轨，不能拿到 AmbientMusic 或对白的 AudioSource。
+            _audioSource = gameObject.AddComponent<AudioSource>();
+            _audioSource.spatialBlend = 0;
             _audioSource.playOnAwake = false;
         }
 
@@ -186,6 +236,7 @@ namespace SSNoir
         private sealed class NarrationJsonCue
         {
             public float time = 0f;
+            public string audio = string.Empty;
             public string text = string.Empty;
             public string textEn = string.Empty;
         }

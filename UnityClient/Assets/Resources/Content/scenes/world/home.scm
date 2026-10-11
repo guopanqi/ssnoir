@@ -75,6 +75,8 @@
       (grace-clk 'reset!))
 
     (define (reset-rent-cycle!)
+      ;; 生活指引只在第一次交清后收起，不调用发放成长的 complete-task!。
+      (set-global! '首次房租已交 #t)
       (rent-clk 'set! rent-cycle)
       (set! overdue? #f)
       (grace-clk 'reset!)
@@ -546,6 +548,25 @@
     (lambda args
       (let ((msg (car args)))
         (cond
+          ((equal? msg 'dossier)
+           (if (and (renting?) (not (get-global '首次房租已交)))
+               (list (dossier "准备房租"
+                 :kind '城市 :primary #t
+                 :status '进行中
+                 :now (cond
+                   (evicted? "凑齐四十块，回家补交房租。")
+                   (overdue? "房租已经到期，凑齐四十块后回家补交。")
+                   ((rent-money-ready?) "四十块房租已备齐。留住这笔钱，到期房东会来收。")
+                   (#t (string-append "去码头搬运，或在酒馆当服务员。房租："
+                           (number->string (item-count "金钱")) "/40 块。")))
+                 :where (if (or overdue? evicted?) "家" "")
+                 :clocks (cond (evicted? '())
+                               (overdue? (list (grace-clk 'render-data)))
+                               ((= (get-global '世界日) 1) '())
+                               (#t (list (rent-clk 'render-data))))
+                 :log '()))
+               '()))
+
           ((equal? msg 'render-data)
            (list (residence-container)))
 

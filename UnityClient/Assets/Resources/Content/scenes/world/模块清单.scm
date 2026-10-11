@@ -32,7 +32,7 @@
     (list "walter"               walter               '(存档))
     (list "nightingale"          nightingale          '(存档))
     (list "chapter2"             第二章                '(存档 卷宗 节点 入场))
-    (list "home"                 home                 '(存档))
+    (list "home"                 home                 '(存档 卷宗))
     (list "dock"                 dock                 '(存档))
     (list "old-street-tavern"    old-street-tavern    '(存档))
     (list "clinic"               clinic               '(存档))

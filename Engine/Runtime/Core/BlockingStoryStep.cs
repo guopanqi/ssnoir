@@ -22,12 +22,24 @@ namespace SSNoir.Core
         AutoAction,  // 新回合开始时的强制行动；引擎已结算，客户端只播放
     }
 
+    public sealed class IntertitlePage
+    {
+        public string Text { get; }
+        public string AudioId { get; }
+        public IntertitlePage(string text, string audioId)
+        {
+            if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException("intertitle page cannot be empty");
+            Text = text; AudioId = audioId ?? throw new ArgumentNullException(nameof(audioId));
+        }
+        public override string ToString() => Text;
+    }
+
     // 一个阻塞剧情步骤。按 Kind 只有对应字段有效。
     public sealed class BlockingStoryStep
     {
         public BlockingStoryStepKind Kind { get; init; }
 
-        public IReadOnlyList<string> IntertitlePages { get; init; } = Array.Empty<string>();
+        public IReadOnlyList<IntertitlePage> IntertitlePages { get; init; } = Array.Empty<IntertitlePage>();
         public bool HoldBlack { get; init; }
         public string CameraAnchor { get; init; } = string.Empty;
         public float CameraHoldSeconds { get; init; }
@@ -46,11 +58,11 @@ namespace SSNoir.Core
         public List<SlottedResource> AutoActionSlots { get; } = new(); // Kind == AutoAction
         public ActionReport? ResolvedReport { get; init; }           // AutoAction：引擎提交的结果
 
-        public static BlockingStoryStep ForIntertitle(IReadOnlyList<string> pages, bool holdBlack)
+        public static BlockingStoryStep ForIntertitle(IReadOnlyList<IntertitlePage> pages, bool holdBlack)
         {
             if (pages == null || pages.Count == 0) throw new ArgumentException("intertitle requires pages");
             foreach (var page in pages)
-                if (string.IsNullOrWhiteSpace(page)) throw new ArgumentException("intertitle page cannot be empty");
+                if (page == null) throw new ArgumentException("intertitle page cannot be null");
             return new BlockingStoryStep { Kind = BlockingStoryStepKind.Intertitle, IntertitlePages = pages, HoldBlack = holdBlack };
         }
 

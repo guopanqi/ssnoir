@@ -870,6 +870,7 @@ namespace SSNoir.IMGUI
             _filmTextAlpha = 0f;
             _filmText = string.Empty;
             _banterPlayer.Reset();
+            _narrationPlayer.Stop();
             _labelPlacements.Clear();
             _banterPlacements.Clear();
             _cardCenters.Clear();

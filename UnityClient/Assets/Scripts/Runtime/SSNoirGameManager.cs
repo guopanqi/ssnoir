@@ -431,6 +431,9 @@ namespace SSNoir
             _renderer = gameObject.AddComponent<IMGUIWorldRenderer>();
             _renderer.Initialize(this);
             _stageController.Initialize(this);
+            var rain = new GameObject("城市细雨") { hideFlags = HideFlags.DontSave };
+            rain.transform.SetParent(transform, true);
+            rain.AddComponent<CityRain>().Initialize(this);
 
             // 6. 场景加载后重置界面状态并更新镜头。
             _sceneManager.OnSceneLoaded += () => {

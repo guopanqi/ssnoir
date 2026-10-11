@@ -446,8 +446,13 @@ namespace SSNoir.Scripting
                 if (args.Count != 2 || args[0] is not bool hold || args[1] is not List<object> raw)
                     throw new ArgumentException("__play-intertitle! requires hold-black and page list");
                 var report = gameState.CurrentActionReport ?? throw new InvalidOperationException("intertitle requires an action");
-                var pages = new List<string>();
-                foreach (var page in raw) pages.Add(page as string ?? throw new ArgumentException("intertitle page must be text"));
+                var pages = new List<IntertitlePage>();
+                foreach (var page in raw)
+                {
+                    if (page is not List<object> fields || fields.Count != 2 || fields[0] is not string text || fields[1] is not string audioId)
+                        throw new ArgumentException("intertitle page must be (text narration-audio-id)");
+                    pages.Add(new IntertitlePage(text, audioId));
+                }
                 report.BlockingStorySteps.Add(BlockingStoryStep.ForIntertitle(pages, hold));
                 return new None();
             }, "__play-intertitle!"));

@@ -423,10 +423,10 @@
       (begin
           ;; 楼下电铃求助先演，开门后再进入现有室内接案对白。
           (play-intertitle! #t
-            (tr "那晚，我正准备睡觉。雨下得很大，我的鞋子湿了，和袜子黏在一起。"
-                "That night, I was about to turn in. It was pouring. My shoes were soaked, my socks stuck to my feet.")
-            (tr "我对那天记得很清楚，那是我的命运发生转折的地方，但当时我对此一无所知。"
-                "I remember that night clearly. My life took a turn there, though I had no idea at the time."))
+            (list (tr "那晚，我正准备睡觉。雨下得很大，我的鞋子湿了，和袜子黏在一起。"
+                "That night, I was about to turn in. It was pouring. My shoes were soaked, my socks stuck to my feet.") "序章/雨夜/01/尼尔")
+            (list (tr "我对那天记得很清楚，那是我的命运发生转折的地方，但当时我对此一无所知。"
+                "I remember that night clearly. My life took a turn there, though I had no idea at the time.") "序章/雨夜/02/尼尔"))
           (rainy-door-theatre!)
           (commission-dialogue!)
           (add-item! "金钱" prepayment)
@@ -463,10 +463,10 @@
     (define (opening-sleep!)
       (if (drunk?)
           (play-intertitle! #t
-            (tr "这里的一切都让人觉得新鲜，高耸的建筑，闪着光的招牌，迷人的女人。"
-                "Everything here felt new. Tall buildings, glowing signs, beautiful women.")
-            (tr "贝尔维尔，梦一样的城市，美丽的地方。"
-                "Belleville. A city out of a dream. A beautiful place.")) #f))
+            (list (tr "这里的一切都让人觉得新鲜，高耸的建筑，闪着光的招牌，迷人的女人。"
+                "Everything here felt new. Tall buildings, glowing signs, beautiful women.") "序章/梦境/01/尼尔")
+            (list (tr "贝尔维尔，梦一样的城市，美丽的地方。"
+                "Belleville. A city out of a dream. A beautiful place.") "序章/梦境/02/尼尔")) #f))
 
     (define-turn-start-rule "序章醒来"
       (lambda () (and opening-heard? (= world-day 2) (= story-stage 0)))
