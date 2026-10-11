@@ -1,0 +1,38 @@
+name: SSNoir Stage Cross-Language Parity
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'Game/src/runtime/stage-*'
+      - 'Game/src/runtime/native-bridge.ts'
+      - 'Game/src/foundation/stage-*'
+      - 'Game/scripts/frank-stage-expression.mjs'
+      - 'Game/scripts/compare-stage-parity.mjs'
+      - 'UnityClient/Assets/Resources/Content/scenes/world/人物/弗兰克.scm'
+      - '.github/workflows/ssnoir-stage-csharp-parity.yml'
+permissions:
+  contents: read
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Install TypeScript shared game dependencies
+        working-directory: Game
+        run: npm install --no-audit --no-fund
+      - name: Extract exact authored Frank stage expression
+        working-directory: Game
+        run: node scripts/frank-stage-expression.mjs > /tmp/ssnoir-frank-stage.scm
+      - name: Execute authored stage through original Schemy/C# SceneManager
+        run: >
+          dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj --
+          --stage-export "$(cat /tmp/ssnoir-frank-stage.scm)" /tmp/ssnoir-frank-stage-csharp.json
+      - name: Execute same stage through TypeScript/LIPS and compare semantic beat commands
+        working-directory: Game
+        run: node --experimental-strip-types scripts/compare-stage-parity.mjs /tmp/ssnoir-frank-stage-csharp.json /tmp/ssnoir-frank-stage.scm
