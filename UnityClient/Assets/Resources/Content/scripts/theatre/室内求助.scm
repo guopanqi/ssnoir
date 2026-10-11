@@ -175,12 +175,10 @@
     (theatre-clear-caption)
     (theatre-wait .9)
     ;; 夜莺落泪（HTML tr:1/pad()/sp，说话柔光推到她身后；pad 无采样，等待保留）。
+    ;; 剧场到此落幕：收束独白不在剧场里，剧本结束后由 commission-dialogue!
+    ;; 放一句带配音的场外独白。
     (theatre-image-to "夜莺" "Portraits/Neon/夜莺_恳求")
     (theatre-parallel
       (theatre-tween "说话柔光" 'x 330 1.2 'smooth)
       (theatre-tween "说话柔光" 'opacity .26 1.2 'smooth)
-      (theatre-wait 3.8))
-    ;; 灯调暗，尼尔独白收束（HTML lamp(.45)/mono/w900）。
-    (theatre-tween "吊灯光" 'brightness .45 .2)
-    (说 "尼尔（独白）" 1040 "我自己也没想明白，为什么我会接下这个赔钱的生意，但这是这几个月难得的委托。我打算从哪里凑些钱，不过，我是不会乖乖把钱送给这个杂种的。" 7.380)
-    (theatre-wait .9)))
+      (theatre-wait 3.8))))
