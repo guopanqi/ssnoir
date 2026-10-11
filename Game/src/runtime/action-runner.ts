@@ -56,11 +56,12 @@ function findNode(root:RuntimeNode, name:string):RuntimeNode|undefined {
 }
 export class GameActionRunner {
   private root:RuntimeNode|null=null;
-  private constructor(
-    readonly scripts:GameScriptSession,
-    readonly state:GameRuntimeState,
-    readonly turn:ActionTurnState
-  ) {}
+  readonly scripts:GameScriptSession;
+  readonly state:GameRuntimeState;
+  readonly turn:ActionTurnState;
+  private constructor(scripts:GameScriptSession,state:GameRuntimeState,turn:ActionTurnState) {
+    this.scripts=scripts; this.state=state; this.turn=turn;
+  }
   static async create(scripts:GameScriptSession,state:GameRuntimeState,turn:ActionTurnState):Promise<GameActionRunner>{
     await scripts.evaluate(DISPATCH);
     const result=new GameActionRunner(scripts,state,turn);
