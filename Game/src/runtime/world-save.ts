@@ -38,6 +38,8 @@ export class WorldSaveController {
     );
     const worldDatum=String(world);
     if(!worldDatum||worldDatum.length>MAX_SAVE_CHARS)throw new Error("invalid world state length");
+    // A saved world must never contain encounter-only temporary helpers.
+    this.state.team.snapshot();
     return {format:FORMAT,version:1,state:this.state.snapshot(),
       worldDatum,settings:settingsCopy(settings)};
   }
@@ -69,6 +71,10 @@ export class WorldSaveController {
     if(data.format!==FORMAT||data.version!==1)throw new Error("unsupported world save");
     const settings=settingsCopy(data.settings);
     const fresh=await makeWorld();
+    // Native save restores use stricter C# validation than internal action
+    // rollback snapshots (which may legitimately include temporary helpers).
+    const candidate=fresh.state.team;
+    candidate.restore(data.state.team);
     fresh.state.restore(data.state);
     fresh.state.setGlobal("location","world");
     // JSON quoted Scheme strings are safe string literals. `read` returns

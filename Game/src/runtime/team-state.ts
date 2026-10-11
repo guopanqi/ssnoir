@@ -155,13 +155,13 @@ export class TeamState {
     }
     return returned;
   }
-  restore(data:TeamSave):void {
+  restore(data:TeamSave,allowTemporary=false):void {
     if(!data||!Array.isArray(data.actors)||!Array.isArray(data.supports))throw new Error("invalid team save");
     const ids=new Set<string>();
     for(const a of data.actors){
       validateActor(a);
       if(ids.has(a.id))throw new Error("duplicate actor id");ids.add(a.id);
-      if(a.temporary)throw new Error("temporary companion cannot appear in save");
+      if(a.temporary&&!allowTemporary)throw new Error("temporary companion cannot appear in save");
     }
     if(data.actors.filter(a=>a.id==="player"&&a.role==="protagonist").length!==1||
        data.actors.some(a=>a.role==="protagonist"&&a.id!=="player"))
@@ -174,8 +174,8 @@ export class TeamState {
     this.actors=data.actors.map(clone);this.supports=[...data.supports];
     this.carriedSupport=data.carriedSupport;
   }
-  snapshot():TeamSave {
-    if(this.actors.some(a=>a.temporary))throw new Error("temporary helper cannot be saved");
+  snapshot(allowTemporary=false):TeamSave {
+    if(!allowTemporary&&this.actors.some(a=>a.temporary))throw new Error("temporary helper cannot be saved");
     return {actors:this.actors.map(clone),supports:[...this.supports],carriedSupport:this.carriedSupport};
   }
 }

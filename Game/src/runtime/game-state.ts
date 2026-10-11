@@ -151,7 +151,7 @@ export class GameRuntimeState {
       notifications: [...this.notifications],
       failure: this.failure ? { ...this.failure } : null,
       injury: this.injury.snapshot(),
-      team: this.team.snapshot()
+      team: this.team.snapshot(true)
     };
   }
 
@@ -169,7 +169,7 @@ export class GameRuntimeState {
     }
     candidate.notifications = [...data.notifications];
     candidate.injury.restore(data.injury);
-    candidate.team.restore(data.team);
+    candidate.team.restore(data.team,true);
     if (data.failure !== null) {
       if (!data.failure || typeof data.failure.title !== "string" || typeof data.failure.description !== "string") {
         throw new Error("invalid failure");
@@ -183,7 +183,7 @@ export class GameRuntimeState {
     this.notifications = candidate.notifications;
     this.failure = candidate.failure;
     this.injury.restore(data.injury);
-    this.team.restore(data.team);
+    this.team.restore(data.team,true);
     this.hospitalization=null;
   }
 }
