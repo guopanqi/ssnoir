@@ -13,7 +13,6 @@ namespace SSNoir
         private Mesh _mesh = null!;
         private Material _material = null!;
         private MeshRenderer _renderer = null!;
-        private AudioSource _sound = null!;
         private readonly Vector3[] _seeds = new Vector3[DropCount];
         private readonly Vector3[] _vertices = new Vector3[DropCount * 4];
         private readonly Color[] _colors = new Color[DropCount * 4];
@@ -45,10 +44,6 @@ namespace SSNoir
             _renderer.sharedMaterial = _material;
             _renderer.shadowCastingMode = ShadowCastingMode.Off; _renderer.receiveShadows = false;
             _renderer.enabled = false;
-            _sound = gameObject.AddComponent<AudioSource>();
-            _sound.clip = Resources.Load<AudioClip>("StageSounds/雨夜求助/雨")
-                ?? throw new InvalidOperationException("城市雨景缺少既有雨声音效");
-            _sound.loop = true; _sound.playOnAwake = false; _sound.spatialBlend = 0;
         }
 
         private void LateUpdate()
@@ -61,9 +56,6 @@ namespace SSNoir
             _weight = Mathf.MoveTowards(_weight, rainy ? 1 : 0, Time.unscaledDeltaTime * 1.5f);
             // 进入室内立即移除画面雨线，室外天气切换则淡出。
             _renderer.enabled = outdoors && _weight > .001f;
-            _sound.volume = _weight * AudioVolumes.Sfx * (outdoors ? .55f : .16f);
-            if (_weight > .001f && !_sound.isPlaying) _sound.Play();
-            if (_weight <= .001f && _sound.isPlaying) _sound.Stop();
             if (!_renderer.enabled || camera == null) return;
             _clock += Time.unscaledDeltaTime;
             var anchor = _manager.ResolveAnchor(_manager.FocusedNodeName);
