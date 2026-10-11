@@ -4,6 +4,7 @@ import {readFileSync,readdirSync} from "node:fs";
 import {join} from "node:path";
 import {GameSceneDirector} from "../src/runtime/scene-director.ts";
 import {WorldSaveController} from "../src/runtime/world-save.ts";
+import {parseTheatre} from "../src/runtime/theatre-contract.ts";
 const base="../UnityClient/Assets/Resources/Content",sources={};
 function collect(dir){for(const item of readdirSync(join(base,dir),{withFileTypes:true})){
   const key=join(dir,item.name).replaceAll("\\","/");
@@ -37,7 +38,15 @@ test("original chapter opening: door → real theatre/dialogue → 20 gold → a
   assert.equal(flatten(changed).some(n=>n.name==="有人敲门"),false,
     "opening action disappears after the original Scheme story advances");
   const events=d.state.takeStoryEvents();
-  assert.ok(events.some(x=>x.kind==="theatre"),"original opening theatre must reach narrative queue");
+  const theatre=events.filter(x=>x.kind==="theatre");
+  assert.ok(theatre.length>=2,"rainy arrival and the indoor commission should have scenes");
+  for(const entry of theatre){
+    const script=parseTheatre(entry.args);
+    assert.ok(script.objects.length>0);
+    assert.ok(script.cue.children.length>0);
+    assert.equal(script.width,1600);
+    assert.equal(script.height,900);
+  }
   assert.ok(events.some(x=>x.kind==="remote-dialogue"),"original voiceover must reach narrative queue");
   assert.ok(events.some(x=>x.kind==="spotlight"),"original quest summary must reach narrative queue");
   const saved=await new WorldSaveController(d.state,d.world).capture();
