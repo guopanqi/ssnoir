@@ -16,7 +16,8 @@ try {
 
   for (const scenario of [
     { name: "desktop", width: 1024, height: 576, touch: false },
-    { name: "mobile-landscape", width: 812, height: 375, touch: true }
+    { name: "mobile-landscape", width: 812, height: 375, touch: true },
+    { name: "compact-landscape", width: 640, height: 480, touch: true }
   ]) {
     const context = await browser.newContext({
       viewport: { width: scenario.width, height: scenario.height },
@@ -34,13 +35,21 @@ try {
       await page.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
       await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 1, null, { timeout: 20000 });
 
-      const scale = Math.min(scenario.width / 1024, scenario.height / 576);
-      const x = (scenario.width - 1024 * scale) / 2 + 160 * scale;
+      const scale = scenario.height / 576;
+      const x = 160 * scale;
       const y = (scenario.height - 576 * scale) / 2 + 483 * scale;
       if (scenario.touch) await page.touchscreen.tap(x, y);
       else await page.mouse.click(x, y);
 
       await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 2, null, { timeout: 10000 });
+      // Exercise the existing session after a host resize and remap input.
+      await page.setViewportSize({ width: 960, height: 540 });
+      await page.waitForFunction(() => document.querySelector("canvas")?.height === 540);
+      if (scenario.touch) await page.touchscreen.tap(150, 452.8125);
+      else await page.mouse.click(150, 452.8125);
+      await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 3);
+      await page.setViewportSize({ width: scenario.width, height: scenario.height });
+      await page.waitForFunction(height => document.querySelector("canvas")?.height === height, scenario.height);
       if (errors.length) throw new Error(errors.join("\n"));
       mkdirSync("artifacts", { recursive: true });
       await page.screenshot({ path: "artifacts/foundation-" + scenario.name + ".png", fullPage: true });

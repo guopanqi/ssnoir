@@ -29,3 +29,11 @@ Important interpretation:
 - Failure after initial counter: investigate input/coordinate mapping or LIPS runtime, not just the canvas API.
 
 Automatic green CI and successful TapTap conversion **do not** close these native device gates.
+
+## 2026-10-11 macOS 开发者工具实测
+
+Stable 2.02.2608080 的 3.17.4 / 3.17.3 均曾出现 `WAGame.js` 500 和 `app.json` 启动页面错误。实际导入目录与 `compileType: game` 正确；不能仅凭日志中的 `mp` 判断误导入。工具日志先报告基础库下载 `Client network socket disconnected before secure TLS connection was established`，随后 `WAGame.js not found in vendor contents map`。
+
+将开发者工具从系统代理临时切到直连、使用 3.17.3 并重新编译后，实际显示 Three 城市、Pixi 中文卡片与 Scheme 初始值 1，控制台打印 shared foundation mounted；WebGL2 与 secondary-canvas 回退路径均实际执行。此次未确认点击计数及横屏切换，Android / iOS / TapTap 真机仍待验收。工具当前保留直连与 3.17.3，后续可在网络恢复后重新测试系统代理。
+
+微信重建保留 `project.private.config.json` 和本地 AppID；共享项目配置仍由源目录生成，避免构建清空本地设置。请勿提交个人 AppID 到源配置。

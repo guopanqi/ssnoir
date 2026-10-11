@@ -21,7 +21,6 @@ export interface FoundationSession {
   dispose(): void;
 }
 
-const VIRTUAL_WIDTH = 1024;
 const VIRTUAL_HEIGHT = 576;
 const BUTTON = { x: 50, y: 458, width: 220, height: 52 };
 
@@ -144,10 +143,11 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     pixi.resize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    const scale = Math.min(width / VIRTUAL_WIDTH, height / VIRTUAL_HEIGHT);
+    // One fixed design height on every host; only the available width changes.
+    const scale = height / VIRTUAL_HEIGHT;
     size = {
       width, height, scale,
-      left: (width - VIRTUAL_WIDTH * scale) / 2,
+      left: 0,
       top: (height - VIRTUAL_HEIGHT * scale) / 2
     };
     stage.scale.set(scale);

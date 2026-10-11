@@ -4,7 +4,8 @@ export default defineConfig({
   build: {
     target: "es2020",
     outDir: "dist/wechat",
-    emptyOutDir: true,
+    // DevTools writes local AppID and private settings here; rebuild must preserve them.
+    emptyOutDir: false,
     minify: true,
     sourcemap: false,
     rollupOptions: {
