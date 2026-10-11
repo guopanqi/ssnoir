@@ -60,7 +60,7 @@ export class GameSceneDirector {
       },
       "__ssnoir-callback":()=>self?.callback??false,
       "__ssnoir-encounter-result":()=>self?.endValue??false
-    });
+    },random);
     await world.loadFile("scenes/world/world.scm");
     const actions=await GameActionRunner.create(world,state,new ActionTurnState(random));
     self=new GameSceneDirector(state,world,actions,sources,std,random);
@@ -161,7 +161,7 @@ export class GameSceneDirector {
         },
         "__ssnoir-auto-effect":(...args)=>this.autoActions[Number(String(args[0]))]?.effect??false,
         "__ssnoir-mode":()=>this.mode
-      });
+      },this.random);
       await encounter.loadFile(sourceName);
       const runner=await GameActionRunner.create(encounter,this.state,new ActionTurnState(this.random));
       this.encounter=encounter;this.encounterActions=runner;

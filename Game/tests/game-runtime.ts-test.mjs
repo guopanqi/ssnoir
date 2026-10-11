@@ -86,3 +86,11 @@ test("script loader rejects path traversal and missing content instead of readin
   await assert.rejects(vm.loadFile("scripts/unavailable.scm"), /not bundled/);
   await assert.rejects(vm.evaluate("(unimplemented-game-native 3)"));
 });
+
+test("native random-choice uses the same injectable deterministic RNG as C# Fate outcomes",async()=>{
+  const state=new GameRuntimeState();
+  const session=await GameScriptSession.create("random-parity",state,sources,standardLibrary,{},()=>0.75);
+  assert.equal(String(await session.evaluate("(random-choice '(red green blue amber))")),"amber");
+  const result=await session.evaluate("(random-choice '())");
+  assert.equal(result,null);
+});

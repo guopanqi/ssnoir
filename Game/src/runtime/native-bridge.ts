@@ -38,7 +38,7 @@ function portableScalar(value: unknown): string | number | boolean {
 }
 
 /** Names and argument expectations ported from NativeFunctions.Register, not a new DSL. */
-export function createNativeBridge(state: GameRuntimeState): NativeBridge {
+export function createNativeBridge(state: GameRuntimeState, random:()=>number=Math.random): NativeBridge {
   const story=(kind:StoryKind,blocking:boolean,min:number,max:number=min):NativeCallable=>(...args)=>{
     if(args.length<min||args.length>max)throw new Error(kind+" expects "+min+".."+max+" arguments");
     if(kind==="video"||kind==="motion") {
@@ -74,7 +74,9 @@ export function createNativeBridge(state: GameRuntimeState): NativeBridge {
       arity("random-choice",args,1);
       const options=schemeList(args[0],"random-choice");
       if (!options.length) return null; // Matches C# empty-list behavior.
-      const index=Math.floor(Math.random()*options.length);
+      const unit=random();
+      if(!Number.isFinite(unit)||unit<0||unit>=1) throw new Error("random source must return a finite value in [0,1)");
+      const index=Math.floor(unit*options.length);
       return options[index]; // Keep Scheme value boxed in its originating interpreter.
     },
     "__injury-severity": (...args) => {

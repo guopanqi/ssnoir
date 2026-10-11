@@ -26,11 +26,12 @@ export class GameScriptSession {
 
   static async create(
     name: string, state: GameRuntimeState, sources: ScriptSources, lipsStandardLibrary: Uint8Array,
-    extraGlobals:Record<string,(...args:unknown[])=>unknown>={}
+    extraGlobals:Record<string,(...args:unknown[])=>unknown>={},
+    random:()=>number=Math.random
   ): Promise<GameScriptSession> {
     let session: GameScriptSession;
     const globals = {
-      ...createNativeBridge(state),
+      ...createNativeBridge(state,random),
       ...extraGlobals,
       ":at": ":at",
       "load-file": async (...args: unknown[]) => {
