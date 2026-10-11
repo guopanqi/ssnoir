@@ -1,4 +1,12 @@
-import { Pair, nil, unbox } from "lips";
+import { unbox } from "lips";
+
+interface SchemePair { car: unknown; cdr: unknown }
+function isSchemePair(value: unknown): value is SchemePair {
+  return !!value && typeof value === "object" && "car" in value && "cdr" in value;
+}
+function isEmptyList(value: unknown): boolean {
+  return value !== null && value !== undefined && !isSchemePair(value) && String(value) === "()";
+}
 
 /**
  * Port of Engine/Runtime/Scripting/NodeConverter.cs for LIPS value objects.
@@ -36,8 +44,8 @@ export function schemeList(value: unknown, where = "list"): unknown[] {
   const items: unknown[] = [];
   let cursor: unknown = value;
   const visited = new Set<object>();
-  while (cursor !== nil) {
-    if (!(cursor instanceof Pair)) throw new Error(where + ": expected proper Scheme list");
+  while (!isEmptyList(cursor)) {
+    if (!isSchemePair(cursor)) throw new Error(where + ": expected proper Scheme list");
     if (visited.has(cursor)) throw new Error(where + ": cyclic list");
     visited.add(cursor);
     items.push(cursor.car);
@@ -60,7 +68,7 @@ function optionalList(value: unknown, label: string): unknown[] {
   return value === false ? [] : schemeList(value, label);
 }
 function outcome(value: unknown, context: string): unknown {
-  if (value instanceof Pair) {
+  if (isSchemePair(value)) {
     const parts = schemeList(value, context);
     if (parts.length !== 2 || symbol(parts[0]) !== "outcome") {
       throw new Error(context + ": expected (outcome effect)");
@@ -71,7 +79,7 @@ function outcome(value: unknown, context: string): unknown {
   return value; // Schemy accepts direct procedure for older authored content.
 }
 function parseResolve(raw: unknown): NodeResolve | null {
-  if (raw === false || raw === nil) return null;
+  if (raw === false || isEmptyList(raw)) return null;
   const value = schemeList(raw, "resolve");
   const kind = symbol(value[0]);
   switch (kind) {
