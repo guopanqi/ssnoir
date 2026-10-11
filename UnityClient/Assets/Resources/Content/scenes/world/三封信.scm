@@ -437,9 +437,7 @@
             (string-append
               "夜莺找上门：四天后往码头邮箱放一百金，她要知道写信的是谁。"
               "预付款是她从耳后摘下来的一枚胸针——当铺给了二十金，"
-              "说做工是城里最好那家铺子出的，背面刻着一行很小的字，不是她的名字。"))
-          (spotlight! "勒索信"
-            "夜莺把手上的东西当了，也只凑出了二十块，你答应她，四天之内想办法凑够一百块，按勒索信说的，放到码头的邮箱里。")))
+              "说做工是城里最好那家铺子出的，背面刻着一行很小的字，不是她的名字。"))))
 
     (define (node-answer-door)
       (anchored-instant-action "有人敲门" "门口" receive-night-visit!))
@@ -2132,7 +2130,7 @@
         ((= story-stage 1)
          (if delivery-pending?
              "去码头盯住邮箱，等人取信"
-             "勒索日前在城里凑足100块"))
+             "在勒索信约定的日子前想出办法解决麻烦"))
         ((= story-stage 2)
          (cond
            ((not (has-flag? '伤后探望))
@@ -2368,7 +2366,7 @@
               ((= story-stage 1) (if delivery-pending? "码头" ""))
               (#t "家"))
         (if (= story-stage 1) (card-clocks) '())
-        (list (step "凑够一百块"
+        (list (step "准备赴约"
                     (or (has-flag? '勒索信已结算) (>= (item-count "金钱") delivery-price)))
               (step "投信之夜，盯住邮箱" (has-flag? '勒索信已结算))
               (step "回家见夜莺" (ransom-done?)))))
