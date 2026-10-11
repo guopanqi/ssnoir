@@ -17,7 +17,7 @@ export function fateStrip(prepared: number): RollOutcome[] {
 }
 export function resolveFate(die: number, skill: number, mod: number, fateDie: number): RollResult {
   if (![die,fateDie].every(n => Number.isInteger(n) && n >= 1 && n <= 6)) throw new Error("dice must be d6");
-  if (!Number.isInteger(skill) || skill < -1 || skill > 4 || !Number.isInteger(mod)) throw new Error("invalid skill/mod");
+  if (!Number.isInteger(skill) || skill < -2 || skill > 4 || !Number.isInteger(mod)) throw new Error("invalid skill/mod");
   const prepared = die + skill + mod;
   const strip = fateStrip(prepared);
   return { prepared, fateDie, strip, outcome: strip[fateDie-1] };

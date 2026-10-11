@@ -1,7 +1,8 @@
 import { GameScriptSession } from "./script-session.ts";
 import { GameRuntimeState } from "./game-state.ts";
 import { ActionTurnState } from "./turn-state.ts";
-import { convertNode, type RuntimeNode } from "./node-converter.ts";
+import { convertNode, schemeList, type RuntimeNode } from "./node-converter.ts";
+import { SITES } from "./injury.ts";
 import { resolveFate, type RollOutcome } from "./fate-strip.ts";
 
 /**
@@ -23,6 +24,14 @@ const DISPATCH = `
   (if (and (pair? outcome) (equal? (car outcome) 'outcome))
     ((cadr outcome))
     (outcome)))
+(define (__ssnoir-get-modifiers name)
+  (let ((n (__ssnoir-find-node __ssnoir-active-render-root name)))
+    (if (not n) (error "modifier node missing")
+      (let ((resolve (get-kwarg (cddr n) ':resolve #f)))
+        (if (and resolve (or (equal? (car resolve) 'roll)
+                             (equal? (car resolve) 'recovery-roll)))
+            ((list-ref resolve 2))
+            '())))))
 (define (__ssnoir-run-place-arrivals! place-name)
   (let ((place (__ssnoir-find-node __ssnoir-active-render-root place-name)))
     (if (or (not place) (not (get-kwarg (cddr place) ':place #f)))
@@ -117,6 +126,78 @@ export class GameActionRunner {
       this.root=previous;
       throw error;
     }
+  }
+
+  /** C#-parity action slot resolution on TeamState (all actors, multi-die). */
+  async performSlots(name:string,slots:(
+    {type:"die";actorId:string;slotId:number}|
+    {type:"item";itemId:string;qty:number}
+  )[]):Promise<ActionResult>{
+    if(!this.root)throw new Error("render tree must be prepared");
+    const node=findNode(this.root,name);
+    if(!node||node.disabled||!node.resolve||
+      (node.resolve.kind!=="roll"&&node.resolve.kind!=="instant"))
+      throw new Error("unavailable action "+name);
+    if(slots.length!==node.requires.length)throw new Error("slot count mismatch");
+    const dice:Array<{actorId:string;slotId:number;value:number}>=[];
+    const used=new Set<string>();
+    for(let i=0;i<slots.length;i++){
+      const item=slots[i],req=node.requires[i];
+      if(item.type!==req.type)throw new Error("slot type mismatch");
+      if(item.type==="item"){
+        if(req.itemId!.toLowerCase()!==item.itemId.toLowerCase()||req.qty!==item.qty)
+          throw new Error("item slot mismatch");
+        if(this.state.getItemCount(item.itemId)<item.qty)throw new Error("insufficient item "+item.itemId);
+      }else{
+        if(this.state.team.status(item.actorId)!=="active")throw new Error("inactive actor");
+        const key=item.actorId+"/"+item.slotId;
+        if(used.has(key))throw new Error("die used twice");used.add(key);
+        const die=this.state.team.dice(item.actorId).find(x=>x.slotId===item.slotId);
+        if(!die)throw new Error("die slot unavailable "+key);
+        dice.push({...item,value:die.value});
+      }
+    }
+    if(node.resolve.kind==="roll"&&!dice.length)throw new Error("roll needs a die");
+    const actorId=dice[0]?.actorId??"player",actor=this.state.team.require(actorId);
+    if(actor.status!=="active")throw new Error("inactive acting actor");
+    const before=this.state.snapshot();
+    this.state.beginActionContext(actorId,"world");
+    this.state.beginActionReport();
+    try{
+      let roll:ReturnType<typeof resolveFate>|undefined;
+      if(node.resolve.kind==="roll"){
+        const raw=await this.scripts.evaluate(
+          "(__ssnoir-get-modifiers "+JSON.stringify(name)+")");
+        let modifier=0;
+        for(const entry of schemeList(raw,"action modifiers")){
+          const parts=schemeList(entry,"modifier");
+          if(parts.length!==3||String(parts[0])!=="modifier")throw new Error("invalid modifier");
+          const value=Number(String(parts[1]));
+          if(!Number.isSafeInteger(value))throw new Error("invalid modifier value");
+          modifier+=value;
+        }
+        const skill=node.resolve.skill!;
+        if(actor.role==="protagonist"){
+          if(this.state.injury.skill===skill)modifier+=this.state.injury.modifier;
+          modifier-=this.state.injury.scars.filter(s=>
+            SITES.find(p=>p.part===s.part)?.skill===skill).length;
+        }
+        roll=resolveFate(dice[0].value,this.state.team.stat(actorId,skill),
+          modifier,this.turn.rollFate());
+      }
+      await this.scripts.evaluate("(__ssnoir-run-captured-node! "+
+        JSON.stringify(name)+" "+JSON.stringify(roll?.outcome??"success")+")");
+      for(const item of slots){
+        if(item.type==="die")this.state.team.spendDie(item.actorId,item.slotId);
+        else this.state.setItemCount(item.itemId,this.state.getItemCount(item.itemId)-item.qty);
+      }
+      if(!this.state.hasPendingHospitalization())await this.scripts.evaluate("(on-action)");
+      return {name,mode:node.resolve.kind,outcome:roll?.outcome,
+        chosenDie:dice[0]?.value,prepared:roll?.prepared,fateDie:roll?.fateDie,
+        before,after:this.state.snapshot(),clockEffects:this.state.takeActionReport()};
+    }catch(error){
+      this.state.cancelActionReport();this.state.restore(before);throw error;
+    }finally{this.state.clearActionContext();}
   }
 
   async perform(name:string,dieSlotId?:number):Promise<ActionResult>{
