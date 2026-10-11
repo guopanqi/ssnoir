@@ -32,7 +32,6 @@ namespace SSNoir.IMGUI
 
         private readonly Dictionary<string, Vector2> _cardCenters = new Dictionary<string, Vector2>();
         // 见 DrawCards 里 RegisterWorldPoint 的注释。
-        private const float BanterHeadHeight = 1.6f;
         // An authored label owns one stable attachment offset. Only structural
         // layout changes can invalidate it; camera drag never chooses a new side.
         private readonly WorldLabelLayout.PlacementState _labelPlacements = new();
@@ -1531,7 +1530,7 @@ namespace SSNoir.IMGUI
                     // 锚点常在人物脚边；把已有的对白头部高度也纳入保护，
                     // 否则卡片避开脚边却仍会遮住人物上半身。
                     var head = cam.WorldToScreenPoint(
-                        visibleAnchor.transform.position + Vector3.up * BanterHeadHeight);
+                        visibleAnchor.transform.position + Vector3.up * DialogueAnchors.BanterHeadHeight);
                     if (head.z > 0f)
                     {
                         var headPoint = UIScale.WorldPointToVirtual(head);
@@ -1585,7 +1584,7 @@ namespace SSNoir.IMGUI
                         // banter 气泡的落点：锚点是地面上的一个点，气泡要从人形的头上冒出来，
                         // 所以抬一个人头的高度再投影。锚点按分区而不按人形摆，这个高度是
                         // 「站在这儿的人大概多高」，不是某个模型量出来的数。
-                        var headScreen = cam.WorldToScreenPoint(anchor.transform.position + Vector3.up * BanterHeadHeight);
+                        var headScreen = cam.WorldToScreenPoint(anchor.transform.position + Vector3.up * DialogueAnchors.BanterHeadHeight);
                         _dialogueAnchors.RegisterWorldPoint(node.Name, UIScale.WorldPointToVirtual(headScreen));
                         // 行级锚点（line 的 :at）按锚点名解析：同一个锚点可以轮流几个人说话，
                         // 署名仍是说话人。锚点名全局唯一，与节点名不会撞车；同值重复登记无害。

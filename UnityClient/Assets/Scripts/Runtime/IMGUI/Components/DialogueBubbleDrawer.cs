@@ -60,12 +60,21 @@ namespace SSNoir.IMGUI
                 // 锚点写错必须当场暴露：若再按说话人解析，气泡会悄悄落到错的地方。
                 if (!string.IsNullOrEmpty(bubble.Line.Anchor))
                 {
-                    if (!anchors.TryResolve(bubble.Line.Anchor, out var anchorRect))
+                    // 显式 :at 指向场景锚点，不依赖本帧有哪些卡片进入可视区域。
+                    var worldAnchor = gameManager.ResolveAnchor(bubble.Line.Anchor);
+                    if (worldAnchor == null)
                     {
                         throw new System.InvalidOperationException(
                             $"banter 行级锚点无法解析: anchor='{bubble.Line.Anchor}' speaker='{bubble.Line.Speaker}'"
                             + "（锚点名须与场景中的 NodeAnchor 一致）");
                     }
+                    var camera = Camera.main;
+                    if (camera == null)
+                        throw new System.InvalidOperationException("banter 世界锚点投影需要主相机");
+                    var headScreen = camera.WorldToScreenPoint(
+                        worldAnchor.transform.position + Vector3.up * DialogueAnchors.BanterHeadHeight);
+                    var headPoint = UIScale.WorldPointToVirtual(headScreen);
+                    var anchorRect = new Rect(headPoint.x - 12f, headPoint.y - 12f, 24f, 24f);
                     usedRemoteFallback = false;  // 行级锚点已明确落点，不存在降级
                     DrawBubbleAt(
                         bubble.Line.Speaker,

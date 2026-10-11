@@ -15,6 +15,7 @@ namespace SSNoir.IMGUI
     {
         // 落点画成的小矩形:尾巴尖端会投到它的边上,所以它就是"头"的大小。
         private const float WorldPointHalf = 12f;
+        public const float BanterHeadHeight = 1.6f;
 
         private readonly Dictionary<string, Rect> _actorById = new();
         private readonly Dictionary<string, Rect> _actorByName = new();
