@@ -7,7 +7,7 @@
 [TapTap converter/startup adapter](../adapters/taptap/README.md). Each adapter
 includes its vendor provenance and local-change record. The foundation must
 consume these same modules so the deliverables cannot drift into unused copies.
-The complete foundation's TapTap iOS acceptance remains pending.
+TapTap iOS App 5.34.2 now has user-confirmed complete-foundation rendering and touch acceptance (2026-10-11); native lifecycle and broader device coverage remain pending.
 
 ## Current automated gates
 
@@ -72,3 +72,15 @@ WeChat now uses a selective vendored MIT [finscn/weapp-adapter](../adapters/wech
 本次 `npm run verify` 的 17 项测试、三个浏览器尺寸/触摸/resize capture、微信三种 Canvas 模式、TapTap 两种模式全部通过。模拟宿主实际检查 hide 后待执行帧为 0、连续 show 后为 1、恢复点击计数为 3。TapTap 官方转换后 ZIP 为 425,977 字节、四个文件。这些证明共享循环和适配绑定的自动检查，不代替实际后台事件验收。
 
 微信开发者工具已执行新包并显示 visibility=true 与 shared foundation mounted。工具同时报告 `worker path empty`，堆栈位于 app.asar；目前来源和复现条件未确定，不通过添加虚假 worker 配置掩盖。实际 hide/show 回调及返回后输入仍待观察。自动窗口操作多次返回 noWindowsAvailable 或用户切换窗口，因此已请求用户在工具中完成该步骤。
+
+## 2026-10-11 当前收尾清单
+
+用户确认最新 TapTap iOS 包“一切正常显示，点击也没问题”。这是完整底座的真机加载、显示和触摸证据；未据此推定前后台、长期运行或其他设备通过。
+
+第一阶段剩余核心验收：
+- TapTap iOS 切后台再返回，确认继续渲染、按钮计数保留且每次点击只增加一次；关闭重开也应正常。
+- 同一最终适配版本在微信开发者工具重新编译，复查显示、触摸和前后台。
+- 发布目标的微信 iOS 与 TapTap/微信 Android 真机最小回归；记录设备、系统、客户端和基础库版本。未覆盖的平台明确标记未验证。
+- 三份交付物的最终打包与接入说明核对；使用独立最小工程消费适配包的构建/转换已有证据，最终包应继续保持这一边界。
+
+原清单中的 Windows、完整原生桌面图形验收仅在纳入第一阶段目标平台时执行。商店生产元数据、账号 SDK、Steamworks、完整游戏规则移植不作为这三个技术交付物的完成条件。

@@ -152,13 +152,13 @@ actual iOS confirmation. Source adapter ZIPs are generated under `dist/adapters`
 
 ### True target-runtime gates (still pending)
 
-- [ ] TapTap developer demo/runtime actually loads this ZIP, with its required `weixinminigame` compatibility mode
+- [x] TapTap iOS App 5.34.2 扫码加载完整转换包，用户确认显示与点击正常（2026-10-11）
 - [ ] TapTap Android device: WebGL2 render, Chinese fonts, touch, background/foreground
 - [ ] TapTap iOS device: same, plus memory and base library/API differences if available
 - [ ] SDK integration decisions: whether the compatibility host provides the `wx` namespace, and when TapTap-native `tap` APIs need adapters
 - [ ] Production metadata (game ID, company/product names, release version) before store upload
 
-**Important:** This vendor converter injects `GameGlobal.fetch = undefined` and copies a `check-version.js` originally intended for the MiniHost/Unity ecosystem. Our app imports no Unity plugins, but WebGL2 / DOM emulation on an actual TapTap Mini Game remains unproven. A passing converter and Chromium mock test **cannot prove** publication/runtime compatibility.
+**Important:** This vendor converter injects `GameGlobal.fetch = undefined` and copies a `check-version.js` originally intended for the MiniHost/Unity ecosystem. Our app imports no Unity plugins, and the complete foundation now renders and accepts touch on TapTap iOS App 5.34.2. Other device and lifecycle coverage remains pending. A passing converter and Chromium mock test **cannot prove** publication/runtime compatibility.
 
 TapTap official docs describe platform-specific adapters for JavaScript engines and define ZIP upload and size restrictions:
 
@@ -168,3 +168,5 @@ TapTap official docs describe platform-specific adapters for JavaScript engines 
 The WeChat Canvas compatibility adapter now supports environments without `wx.createOffscreenCanvas`. CI checks this fallback against the converted TapTap output too, but native TapTap Canvas availability still requires device confirmation.
 
 2026-10-11：iOS 5.34.2 用户日志确认已进入 Pixi renderStart，宿主缺少 document.body.contains。共享适配层现按唯一屏幕 Canvas 的归属补齐此方法，离屏 Canvas 返回 false，保留原生方法。25 项测试、类型检查、转换 ZIP 校验及同时缺少 Intl/文本编码/document 查询/contains/offscreen API 的 Chromium 冒烟通过；新包真机首帧仍待确认。
+
+2026-10-11 最新真机结果：用户确认“没问题了，一切正常显示，点击也没问题”。关闭完整底座加载、首帧显示与触摸阻塞；前后台、重启及其他设备没有新增证据。
