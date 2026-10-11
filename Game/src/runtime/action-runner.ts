@@ -137,6 +137,7 @@ export class GameActionRunner {
     if(node.resolve.kind==="roll"&&!selected)throw new Error("roll action requires die slot");
 
     const before=this.state.snapshot(), diceBefore=this.turn.available();
+    this.state.beginActionContext("player","world");
     this.state.beginActionReport();
     try {
       let result:ReturnType<typeof resolveFate>|undefined;
@@ -149,6 +150,9 @@ export class GameActionRunner {
         this.state.setItemCount(cost.itemId!,this.state.getItemCount(cost.itemId!)-cost.qty!);
       }
       if(selected)this.turn.spend(selected.slotId);
+      // C# SceneManager executes on-action AFTER the outcome and resource
+      // consumption, in the initiating interpreter's original VM.
+      if(!this.state.hasPendingHospitalization()) await this.scripts.evaluate("(on-action)");
       return { name, mode:node.resolve.kind, outcome:result?.outcome,
         chosenDie:selected?.value,fateDie:result?.fateDie,prepared:result?.prepared,
         before,after:this.state.snapshot(),clockEffects:this.state.takeActionReport() };
@@ -157,6 +161,8 @@ export class GameActionRunner {
       this.state.restore(before);
       this.turn.restore(diceBefore);
       throw error;
+    }finally{
+      this.state.clearActionContext();
     }
   }
 }

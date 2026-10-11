@@ -31,6 +31,7 @@ export class GameRuntimeState {
   private clockEffects: Array<{label:string; displayLabel:string; delta:number}> | null = null;
   private storyInAction:StoryEvent[]|null=null;
   private storyReady:StoryEvent[]=[];
+  private actionContext:{actorId:string;mode:"world"|"encounter"}|null=null;
 
   constructor() { this.reset(); }
 
@@ -46,7 +47,7 @@ export class GameRuntimeState {
     this.injury.restore({severity:0,part:"",scars:[]});
     this.team.reset();
     this.hospitalization=null;
-    this.storyInAction=null;this.storyReady=[];
+    this.storyInAction=null;this.storyReady=[];this.actionContext=null;
     this.growthLevel = 0;
   }
 
@@ -123,6 +124,17 @@ export class GameRuntimeState {
     this.storyReady=[];return result;
   }
   isActionReporting():boolean {return this.clockEffects!==null;}
+  beginActionContext(actorId:string,mode:"world"|"encounter"):void {
+    if(this.actionContext)throw new Error("nested action context");
+    if(this.team.require(actorId).status!=="active")throw new Error("inactive action actor");
+    this.actionContext={actorId,mode};
+  }
+  clearActionContext():void {this.actionContext=null;}
+  currentActor():string {
+    if(!this.actionContext)throw new Error("current-actor only valid inside action");
+    return this.actionContext.actorId;
+  }
+  currentMode():string {return this.actionContext?.mode??"world";}
   /**
    * Mirrors GameState.CheckCollapse: impact is settled at the instant the
    * injury reaches 7, while SceneManager later consumes the hospitalization

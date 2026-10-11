@@ -97,6 +97,12 @@ export function createNativeBridge(state: GameRuntimeState): NativeBridge {
     "__hospitalization-pending?": (...args) => {
       arity("__hospitalization-pending?",args,0);return state.hasPendingHospitalization();
     },
+    "__current-actor": (...args) => {
+      arity("__current-actor",args,0);return state.currentActor();
+    },
+    "__game-mode": (...args) => {
+      arity("__game-mode",args,0);return state.currentMode();
+    },
     "__actor-composure": (...args) => {
       arity("__actor-composure",args,1);return state.team.composure(id(args[0]));
     },
