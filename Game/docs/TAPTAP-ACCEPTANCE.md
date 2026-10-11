@@ -94,6 +94,19 @@ on this host. Both entry and runtime formatters now prepend name and message
 only of host frames and confirms the actual error message remains visible.
 The specific foundation failure is still unknown pending the updated modal.
 
+The updated device log identified `ReferenceError: Can't find variable: Intl`.
+Pixi 8.20.1 `CanvasTextMetrics.mjs` initializes its segmenter using
+`typeof Intl?.Segmenter`; optional chaining does not guard an undeclared global.
+`build/pixi-intl-guard.ts` corrects this exact dependency site to check `typeof
+Intl` first, preserving Pixi's existing code-point fallback. Both Vite configs
+use the same transform; vendor source is not mutated and no fake Intl API is
+installed. Dependency changes cause the transform to fail for review.
+
+Local `verify` passed 18 tests, typecheck and Web/WeChat builds. The converted
+TapTap bundle also rendered and incremented Scheme 1→2→3 across hide/show with
+the Intl global deleted and no offscreen Canvas API. This regression is now
+included in CI. Actual TapTap iOS acceptance of this fix is still pending.
+
 `build:taptap` runs the submitted converter source (SHA-256 verified) with the actual WeChat bundle, then validates syntax, ZIP structure, version, orientation, presence of original runtime injection, and a 20MB ZIP budget. `smoke:taptap-harness` executes the **converted game.js** under Chromium with a mocked `wx` / `GameGlobal` host and checks the shared LIPS/Three/Pixi touch action. Both are included in GitHub Actions, with `game.zip` uploaded as an artifact.
 
 ### True target-runtime gates (still pending)

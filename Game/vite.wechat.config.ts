@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
+import { pixiIntlGuard } from "./build/pixi-intl-guard";
 
 export default defineConfig({
+  plugins: [pixiIntlGuard()],
   build: {
     target: "es2020",
     outDir: "dist/wechat",

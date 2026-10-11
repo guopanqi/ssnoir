@@ -75,6 +75,12 @@ try {
     }
     window.wx = wxMock;
   }, canvasMode);
+  if (process.env.SSNOIR_NO_INTL === "1") {
+    await page.evaluate(() => {
+      delete window.Intl;
+      if (typeof Intl !== "undefined") throw new Error("No-Intl regression environment was not established");
+    });
+  }
   if (foundationSource !== null) {
     await page.evaluate(code => {
       window.require = name => {
