@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "序章醉酒",
+  "name": "四姿势-修订",
+  "status": "completed",
+  "prompt": "Edit this exact 2x2 sprite sheet for a restrained 1950s American noir game. Preserve the man's identity, flat cap, everyday jacket, full body proportions, the exact four cells and the identical per-cell scale. Preserve all four action roles and baseline. Correct the art direction: near-black charcoal filled clothing masses (RGB about 12-24), trousers equally dark as jacket, sparse crisp neutral-gray outline (RGB 80-115), absolutely NO blue/slate tint, NO broad mid-gray highlights, no gray skin blobs. Facial features minimal, darker hat and shoes. Strong simple human silhouette, natural adult anatomy. The top-right stumbling walk must NOT look like a tightrope walker: arms hang low and loose, one elbow subtly out, shoulders and head slumped, one foot forward in a short unsteady step; no widely spread arms, no heroic stride. Upper-left exhausted drunk standing, lower-left weight leaning into an implied wall with extended palm, lower-right reaching forward with a period key. Make each pose believable and restrained. All four cells must retain current head and limb scale, complete shoes at same baseline, and generous empty space. Pure flat #FF00FF background for chroma key, no floor, no shadow, no glow, no lettering, no additional objects, no bottle or cigarette. Filled dark masses with only essential sparse contours, not cartoon, not all-line hollow neon. Keep the drawing scale exactly the same across all four poses.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/角色库/尼尔/形象/姿势/序章醉酒/四姿势.png",
+      "sha256": "489825e57900207621c67fcb9032dc09c965f6f7a07913e83a9398a2df1556a9"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/序章醉酒/四姿势-修订",
+  "created_at": "2026-10-11T13:07:43.326Z",
+  "submitted_at": "2026-10-11T13:07:55.918Z",
+  "conversation_url": "https://gemini.google.com/app/b90eb47e7c5253c3",
+  "completed_at": "2026-10-11T13:08:27.111Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/序章醉酒/四姿势-修订/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "ee8694cad27fa262108fcfc2660931d964c228fa12e668d17d2213254af8e735"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/尼尔/形象/姿势/序章醉酒/四姿势-修订.png"
+}

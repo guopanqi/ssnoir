@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "provider": "gemini-images-web",
+  "session": "序章醉酒",
+  "name": "四姿势-灰度修订",
+  "status": "completed",
+  "prompt": "This is a STRICT color correction task, NOT a redraw. Preserve every pixel's geometry, every pose, every head/limb proportion, every cell placement and shoe baseline of this 1024x1024 four-pose sprite sheet. Do not change any outline shape or the pose, do not enlarge or stretch anyone. Only recolor: clothing filled regions, especially trousers in top-right and bottom-right, should be near black charcoal, equal in darkness to jacket in top-left. Map broad slate-gray fills to dark neutral charcoal around RGB 20,20,20. Keep the sparse contour strokes medium neutral light gray, around RGB 100,100,100, not glowing white. Faces and hands mostly charcoal with minimal contour only. Remove all blue tint. Preserve exact flat magenta background #FF00FF and all negative spaces. No shadows/glow/text/ground. Exactly same layout, exactly same pixels geometry, same amount of outline detail, neutral near-black filled figure. Color correction ONLY.",
+  "references": [
+    {
+      "path": "/Users/usr/Documents/play/ssnoir/角色库/尼尔/形象/姿势/序章醉酒/四姿势.png",
+      "sha256": "489825e57900207621c67fcb9032dc09c965f6f7a07913e83a9398a2df1556a9"
+    }
+  ],
+  "output_dir": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/序章醉酒/四姿势-灰度修订",
+  "created_at": "2026-10-11T13:08:58.107Z",
+  "submitted_at": "2026-10-11T13:09:04.726Z",
+  "conversation_url": "https://gemini.google.com/app/e9e9767a5670daa9",
+  "completed_at": "2026-10-11T13:09:15.949Z",
+  "download": {
+    "path": "/Users/usr/Documents/play/ssnoir/tmp/gemini-image-web/序章醉酒/四姿势-灰度修订/image.png",
+    "mime_type": "image/png",
+    "width": 1024,
+    "height": 1024,
+    "extraction": "canvas-png",
+    "sha256": "a5ab1e3f64c7602bfc79e33b905f49d59f75cf553de273f707d42d900411d677"
+  },
+  "out": "/Users/usr/Documents/play/ssnoir/角色库/尼尔/形象/姿势/序章醉酒/四姿势-灰度修订.png"
+}

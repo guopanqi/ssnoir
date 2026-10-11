@@ -33,7 +33,7 @@ def save(name,im,scale):
     return {'name':name,'sourceSize':list(im.size),'sourceBounds':list(bbox),'scale':scale,'offset':[x,y],'ground':1000}
 
 if __name__=='__main__':
-    source=Image.open(Path(__file__).with_name('四姿势.png'));w,h=source.size
+    source=Image.open(Path(__file__).with_name('四姿势-灰度修订.png'));w,h=source.size
     assert w==h and w%2==0
     records=[]
     for i,name in enumerate(['尼尔_醉站','尼尔_醉行','尼尔_扶墙','尼尔_摸钥匙']):
