@@ -29,6 +29,9 @@ test("unedited module world-save/world-load! roundtrip retains day and native re
  original.state.setGlobal("世界日",6);
  await original.session.evaluate('(add-item! "金钱" 22)');
  original.state.team.grantSupport("林");
+ const protagonist=original.state.team.require("player");
+ protagonist.actionDice=[6,2];
+ protagonist.actionDiceSlotIds=[0,3];
  const saved=await new WorldSaveController(original.state,original.session).capture({lang:"zh",sound:true});
  assert.match(saved.worldDatum,/day/);
  const wire=WorldSaveController.encode(saved);
@@ -40,6 +43,13 @@ test("unedited module world-save/world-load! roundtrip retains day and native re
  assert.equal(loaded.state.getItemCount("金钱"),37);
  assert.equal(loaded.state.team.getCarriedSupport(),"林");
  assert.equal(loaded.state.getGlobal("location"),"world");
+ assert.deepEqual(loaded.state.team.require("player").actionDice,[6,2]);
+ assert.deepEqual(loaded.state.team.require("player").actionDiceSlotIds,[0,3]);
+ assert.deepEqual(loaded.state.snapshot().restBlockers,original.state.snapshot().restBlockers);
+ // A second authored world-save after load must preserve every module datum,
+ // not merely the visible world-day global.
+ const replay=await new WorldSaveController(loaded.state,loaded.session).capture({lang:"zh",sound:true});
+ assert.equal(replay.worldDatum,saved.worldDatum,"all authored module state must round-trip");
  // Reloading must not award money or replay advancement.
  const again=await WorldSaveController.restore(parsed,makeWorld);
  assert.equal(again.state.getItemCount("金钱"),37);
