@@ -1,0 +1,32 @@
+name: SSNoir Theatre Runtime Contract
+on:
+  push:
+    paths:
+      - 'Game/src/runtime/theatre-*'
+      - 'Game/src/runtime/stage-*'
+      - 'Game/tests/theatre-*'
+      - 'Game/tests/stage-*'
+      - '.github/workflows/ssnoir-theatre-runtime.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  theatre-contract:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Game
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install game dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck production and test portable theatre contracts
+        run: |
+          npm run typecheck
+          node --experimental-strip-types --test \
+            tests/theatre-contract.ts-test.mjs \
+            tests/theatre-playback.ts-test.mjs \
+            tests/stage-contract.ts-test.mjs
