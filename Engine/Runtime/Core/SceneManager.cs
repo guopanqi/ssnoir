@@ -836,6 +836,7 @@ namespace SSNoir.Core
                     ActionSlotCount = actor.ActionSlotCount,
                     ActionDice = actor.ActionDice.ToArray(),
                     ActionDiceSlotIds = actor.ActionDiceSlotIds.ToArray(),
+                    IsDrunk = actor.IsDrunk,
                     ActiveActionSlotStatuses = _gameState.Team.GetActiveActionSlotStatuses(actor),
                     PendingActionSlotStatuses = _gameState.Team.GetPendingActionSlotStatuses(actor),
                 });

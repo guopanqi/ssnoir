@@ -583,6 +583,7 @@ namespace SSNoir.IMGUI
         private static string DescribeSlotStatuses(ActorSnapshot actor)
         {
             var labels = new List<string>();
+            if (actor.IsDrunk) labels.Add("醉酒");
             foreach (var status in actor.ActiveActionSlotStatuses)
                 labels.Add(DescribeSlotStatus(status));
             foreach (var status in actor.PendingActionSlotStatuses)

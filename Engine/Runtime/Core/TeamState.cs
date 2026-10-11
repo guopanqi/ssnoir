@@ -471,6 +471,7 @@ namespace SSNoir.Core
                     Role              = actor.Role,
                     Status            = actor.Status,
                     Composure         = actor.Composure,
+                    IsDrunk = actor.IsDrunk,
                     HangoverSlotId     = actor.HangoverSlotId,
                     PermanentDiePenaltyLabel = actor.PermanentDiePenaltyLabel,
                     PermanentDiePenalty = actor.PermanentDiePenalty,
@@ -519,6 +520,7 @@ namespace SSNoir.Core
                 actor.Name              = actorData.Name;
                 actor.Status            = actorData.Status;
                 actor.Composure         = actorData.Composure;
+                actor.IsDrunk = actorData.IsDrunk;
                 actor.HangoverSlotId = actorData.HangoverSlotId;
                 if (actorData.PermanentDiePenalty > 0 || actorData.PermanentDiePenalty < -2)
                     throw new ArgumentOutOfRangeException(nameof(data),
@@ -599,6 +601,7 @@ namespace SSNoir.Core
         {
             foreach (var actor in Actors)
             {
+                if (!isInEncounter && consumeHangover) actor.IsDrunk = false;
                 bool applyHangover = !isInEncounter && consumeHangover && actor.HangoverSlotId != null;
                 RollActionDiceFor(actor, isInEncounter, applyHangover);
                 if (applyHangover)

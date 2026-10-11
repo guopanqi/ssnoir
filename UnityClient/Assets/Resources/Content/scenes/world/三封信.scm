@@ -446,6 +446,7 @@
       (anchored-instant-action "醉酒的尼尔" "老街酒馆"
         (lambda ()
           (set! opening-heard? #t)
+          (apply-drunk!)
           (play-dialogue!
             (line "世界" "尼尔刚从酒馆出来。步履不稳，酒还没有醒。")
             (line "房东" "尼尔，两天后交房租。四十块。明早别说你不记得。")))))
@@ -466,10 +467,6 @@
           (line "尼尔" "但这些美丽和我无关。我在这里已经一年多了，大多数时候只能通过打零工度日。")
           (line "尼尔" "偶尔有几件委托，但像婚外情、替小道报纸偷拍这样的三流委托，也是几个月之前的事情了。")
           (line "尼尔" "除此之外，没有任何的真相需要我去发现。醒醒，是时候去挣房租了。"))))
-
-    (define (opening-status-nodes location)
-      (if (and (drunk?) (or (equal? location "家") (equal? location "老街酒馆")))
-          (list (note-node (string-append "标注：醉酒@" location) "醉酒" "脚下发飘。回去睡一觉，明早再找活干。")) '()))
 
     ;; ── 小节一：筹钱与两项准备 ──────────────────────
     ;; 工作与一次性失物委托提供收入；准备直接改变交付现场。
@@ -2467,7 +2464,6 @@
       (cond
         ((equal? location "家")
          (append
-           (opening-status-nodes location)
            (if (and (= story-stage 0) (> world-day 2)) (list (node-answer-door)) '())
            (if (and (beat3-open?) (pieces-full?) (not (has-flag? '对不上)))
                (list (node-board))
@@ -2492,7 +2488,6 @@
         ((equal? location "老街酒馆")
          (append
            (if (and (= story-stage 0) (not opening-heard?)) (list (node-opening)) '())
-           (opening-status-nodes location)
            (if (beat2-open?) (list (node-lyon-talk)) '())))
         ;; 老街节点全部平铺在居民区下；探索过程消失后，只留下有后续玩法的人物与地点。
         ((equal? location "码头居民区")

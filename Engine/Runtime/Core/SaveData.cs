@@ -42,6 +42,7 @@ namespace SSNoir.Core
         public string Role { get; set; } = "";
         public string Status { get; set; } = "";
         public int Composure { get; set; }
+        public bool IsDrunk { get; set; }
         public int? HangoverSlotId { get; set; }
         public string PermanentDiePenaltyLabel { get; set; } = "";
         public int PermanentDiePenalty { get; set; }

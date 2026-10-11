@@ -31,6 +31,7 @@ namespace SSNoir.Core
         public List<int> ActionDiceSlotIds { get; } = new List<int>();
 
         // 行动者自己的身体状态都挂在自己的骰池位置上。
+        public bool IsDrunk { get; set; }
         public int? HangoverSlotId { get; set; }
 
         // 人物经历造成的永久骰位状态。协作者每天只有 slot 0，一项永久损伤

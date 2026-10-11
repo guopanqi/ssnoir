@@ -357,6 +357,7 @@ namespace SSNoir.Testing
                 source.Team.Injure(2);
                 source.Team.GrowthLevel = 3;
                 source.Team.ApplyHangover();
+                source.Team.FindActor("player")!.IsDrunk = true;
                 source.Team.SpendComposure("player", 1);
                 var companion = source.Team.RecruitCompanion(
                     "test-companion",
@@ -397,7 +398,16 @@ namespace SSNoir.Testing
                 AssertEq("injury part", source.Team.Injury.Part, loaded.Team.Injury.Part);
                 AssertEq("injury skill", source.Team.Injury.Skill, loaded.Team.Injury.Skill);
                 AssertEq("growth", 3, loaded.Team.GrowthLevel);
+                AssertEq("drunk state survives save", true, loaded.Team.FindActor("player")!.IsDrunk);
+                var drunkSceneTeam = new GameState().Team;
+                drunkSceneTeam.FindActor("player")!.IsDrunk = true;
+                drunkSceneTeam.RollActionDice(isInEncounter: false, consumeHangover: false);
+                AssertEq("drunk state survives scene roll", true, drunkSceneTeam.FindActor("player")!.IsDrunk);
                 AssertEq<int?>("hangover slot", 0, loaded.Team.FindActor("player")!.HangoverSlotId);
+                var drunkResetTeam = new GameState().Team;
+                drunkResetTeam.FindActor("player")!.IsDrunk = true;
+                drunkResetTeam.RollActionDice(isInEncounter: false);
+                AssertEq("drunk state clears on new day", false, drunkResetTeam.FindActor("player")!.IsDrunk);
                 AssertEq("player composure", TeamState.MaxComposure - 1, loaded.Team.FindActor("player")!.Composure);
 
                 var loadedCompanion = loaded.Team.FindActor("test-companion")

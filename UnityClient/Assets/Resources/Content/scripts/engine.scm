@@ -1153,6 +1153,9 @@
   (set-actor-composure! actor-id (+ (actor-composure actor-id) n)))
 
 ;; 喝酒的延期代价：下一次城市掷骰时，骰池中的一格会带“宿醉”降质。
+;; 当下的人物状态，仅展示；新日重置时清除，不影响判定。
+(define (apply-drunk!) (__apply-drunk!))
+
 (define (apply-hangover!)
   (__apply-hangover!))
 

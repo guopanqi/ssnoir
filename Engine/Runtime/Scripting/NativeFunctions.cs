@@ -244,6 +244,15 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__spend-actor-composure!"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__apply-drunk!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 0) throw new ArgumentException("__apply-drunk! requires no arguments");
+                var actor = gameState.Team.FindActor("player")
+                    ?? throw new InvalidOperationException("Player actor missing");
+                actor.IsDrunk = true;
+                return new None();
+            }, "__apply-drunk!"));
+
             interpreter.DefineGlobal(Symbol.FromString("__apply-hangover!"), new NativeProcedure(args =>
             {
                 gameState.Team.ApplyHangover();
