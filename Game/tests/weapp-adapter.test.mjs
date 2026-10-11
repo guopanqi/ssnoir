@@ -18,7 +18,7 @@ const upstream = {
 
 test("MIT mini-game adapter upstream source bytes remain unmodified", () => {
   for (const [path, expectedSha] of Object.entries(upstream)) {
-    const bytes = readFileSync("vendor/weapp-adapter/" + path);
+    const bytes = readFileSync("adapters/wechat/vendor/weapp-adapter/" + path);
     const actualSha = createHash("sha1")
       .update(`blob ${bytes.length}\0`).update(bytes).digest("hex");
     assert.equal(actualSha, expectedSha, "upstream blob drift: " + path);

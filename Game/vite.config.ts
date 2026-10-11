@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { pixiIntlGuard } from "./build/pixi-intl-guard";
+import { pixiIntlGuard } from "./adapters/wechat/build/pixi-intl-guard";
 
 export default defineConfig({
   plugins: [pixiIntlGuard()],

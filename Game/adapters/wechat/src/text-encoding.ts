@@ -1,5 +1,5 @@
 import { hadNativeTextEncoder } from "./global-scope";
-import "../../vendor/fast-text-encoding/text.min.js";
+import "../vendor/fast-text-encoding/text.min.js";
 
 // TextEncoder takes a USVString: isolated UTF-16 surrogates become U+FFFD.
 // The vendored UTF-8 encoder needs this normalization at its host boundary.

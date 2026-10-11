@@ -1,0 +1,13 @@
+{
+  "name": "@ssnoir/taptap-minigame-converter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": { "./convert": "./convert.mjs", "./startup": "./startup.mjs" },
+  "peerDependencies": {
+    "@babel/cli": "7.28.3",
+    "@babel/core": "7.28.5",
+    "@babel/preset-env": "7.28.5",
+    "terser": "5.44.1"
+  }
+}

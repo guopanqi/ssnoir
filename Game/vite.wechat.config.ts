@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
-import { pixiIntlGuard } from "./build/pixi-intl-guard";
+import { lipsIifeMetadata } from "./adapters/wechat/build/lips-iife-metadata";
+import { pixiIntlGuard } from "./adapters/wechat/build/pixi-intl-guard";
 
 export default defineConfig({
   plugins: [pixiIntlGuard()],
@@ -11,16 +12,7 @@ export default defineConfig({
     minify: true,
     sourcemap: false,
     rollupOptions: {
-      plugins: [{
-        name: "patch-lips-iife-doc-metadata",
-        renderChunk(code) {
-          // Guard a LIPS documentation-only helper before the IIFE minifier runs.
-          // Fail closed if the upstream function changes; never silently patch unknown code.
-          const needle = 'return e.split("\\n").map((e) => {';
-          if (!code.includes(needle)) throw new Error("LIPS IIFE doc metadata patch site moved");
-          return { code: code.replace(needle, 'if (typeof e !== "string") return e; ' + needle), map: null };
-        }
-      }]
+      plugins: [lipsIifeMetadata()]
     },
     lib: {
       entry: "src/wechat/probe.ts",

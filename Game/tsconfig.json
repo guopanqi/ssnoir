@@ -10,5 +10,5 @@
     "resolveJsonModule": true,
     "types": ["vite/client"]
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "vite.wechat.config.ts"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "adapters/**/*.ts", "vite.config.ts", "vite.wechat.config.ts"]
 }

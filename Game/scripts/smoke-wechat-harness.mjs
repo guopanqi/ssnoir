@@ -89,6 +89,16 @@ try {
         throw new Error("Missing text encoding regression environment was not established");
     });
   }
+  if (process.env.SSNOIR_PARTIAL_DOCUMENT === "1") {
+    await page.evaluate(() => {
+      document.querySelectorAll = undefined;
+      document.getElementsByTagName = undefined;
+      document.createElementNS = undefined;
+      Object.defineProperty(document, "currentScript", { value: null, configurable: true });
+      if (typeof document.querySelectorAll !== "undefined")
+        throw new Error("Partial-document regression environment was not established");
+    });
+  }
   if (foundationSource !== null) {
     await page.evaluate(code => {
       window.require = name => {

@@ -79,6 +79,7 @@ jobs:
         env:
           SSNOIR_NO_INTL: '1'
           SSNOIR_NO_TEXT_ENCODING: '1'
+          SSNOIR_PARTIAL_DOCUMENT: '1'
           SSNOIR_WX_CANVAS_MODE: missing
         run: npm run smoke:taptap-harness
       - name: Electron smoke (virtual display)

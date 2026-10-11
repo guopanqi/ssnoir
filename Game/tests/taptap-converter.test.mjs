@@ -3,10 +3,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { createHash } from "node:crypto";
+import { createTapTapEntry } from "../adapters/taptap/startup.mjs";
 import { runInNewContext } from "node:vm";
 
 test("vendored user-supplied TapTap converter v2.0.5 unchanged", () => {
-  const source = gunzipSync(readFileSync("vendor/taptap-converter/wx_converter.py.gz"));
+  const source = gunzipSync(readFileSync("adapters/taptap/vendor/converter/wx_converter.py.gz"));
   assert.equal(createHash("sha256").update(source).digest("hex"),
     "19020e1b26ce360d156da07676326885957a4b98a4624457e328518b97974354");
   assert.match(source.toString(), /CONVERTER_VERSION = "2\.0\.5"/);
@@ -15,7 +16,7 @@ test("vendored user-supplied TapTap converter v2.0.5 unchanged", () => {
 test("TapTap startup reports synchronous foundation load failures", () => {
   const messages = [];
   const modals = [];
-  runInNewContext(readFileSync("platforms/taptap/game.js", "utf8"), {
+  runInNewContext(createTapTapEntry("./foundation.js", { title: "SSNoir 启动失败", tag: "SSNoir TapTap startup" }), {
     console: { log() {}, error: (...args) => messages.push(args.join(" ")) },
     wx: { onError() {}, showModal: detail => modals.push(detail) },
     require: () => {

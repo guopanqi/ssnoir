@@ -97,7 +97,7 @@ The specific foundation failure is still unknown pending the updated modal.
 The updated device log identified `ReferenceError: Can't find variable: Intl`.
 Pixi 8.20.1 `CanvasTextMetrics.mjs` initializes its segmenter using
 `typeof Intl?.Segmenter`; optional chaining does not guard an undeclared global.
-`build/pixi-intl-guard.ts` corrects this exact dependency site to check `typeof
+`adapters/wechat/build/pixi-intl-guard.ts` corrects this exact dependency site to check `typeof
 Intl` first, preserving Pixi's existing code-point fallback. Both Vite configs
 use the same transform; vendor source is not mutated and no fake Intl API is
 installed. Dependency changes cause the transform to fail for review.
@@ -120,6 +120,33 @@ The mock regression removes both codecs as well as Intl and the offscreen
 Canvas API before loading the converted complete bundle. This is local
 initialization/interaction evidence, not final iOS acceptance. The diagnostic
 QR server reads the latest startup-probe archive on each download.
+
+The next iOS log reached LIPS's HTML script scanner and failed because the
+existing host document lacked `querySelectorAll`. The old `document ||= facade`
+check confused object presence with API availability. The reusable adapter's
+`src/document.ts` now installs its explicitly supported missing methods while
+preserving functioning native host methods. The regression removes these
+methods from an existing document before loading the converted bundle.
+
+Runtime code and vendors now live under `adapters/wechat`, and the original
+TapTap converter is consumed through `adapters/taptap/convert.mjs`; its Python
+source remains hash-identical. Entry generation is separately reusable through
+`adapters/taptap/startup.mjs`. [Adapter delivery notes](../adapters/README.md)
+define integration, limitations, and the three phase-one deliverables.
+
+Reuse check: a separate temporary project imported only the WeChat host and
+bundled it without SSNoir's renderer or Scheme. The generic TapTap CLI converted
+that external directory successfully. This exercised the public module and
+tool boundaries, not another game's actual device runtime. The wrapper pins
+the local npx toolchain and resolves its Babel preset independently of output
+location, which was required for this external-project check.
+
+After extraction, local verification passed 23 tests, typecheck, Web/WeChat
+builds, official TapTap conversion and the combined degraded-host smoke. The
+smoke forces `currentScript=null` to exercise LIPS's script-query branch rather
+than relying on Chromium's native inline script metadata. Render, touch counter
+1→2→3 and hide/show were checked. The updated complete-package QR still needs
+actual iOS confirmation. Source adapter ZIPs are generated under `dist/adapters`.
 
 `build:taptap` runs the submitted converter source (SHA-256 verified) with the actual WeChat bundle, then validates syntax, ZIP structure, version, orientation, presence of original runtime injection, and a 20MB ZIP budget. `smoke:taptap-harness` executes the **converted game.js** under Chromium with a mocked `wx` / `GameGlobal` host and checks the shared LIPS/Three/Pixi touch action. Both are included in GitHub Actions, with `game.zip` uploaded as an artifact.
 

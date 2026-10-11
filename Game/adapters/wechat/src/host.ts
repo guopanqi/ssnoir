@@ -1,23 +1,24 @@
 /**
  * WeChat host built on open-source finscn/weapp-adapter (MIT).
- * See Game/vendor/weapp-adapter/README-SSNOIR.md for frozen upstream provenance.
+ * See Game/adapters/wechat/vendor/weapp-adapter/README-SSNOIR.md for frozen upstream provenance.
  * Upstream supplies Canvas, DOM element and EventTarget implementations.
  * Only SSNoir's Three r186 / Pixi 8 and LIPS integration is local.
  */
 // Vendored Apache-2.0 UTF-8 polyfill; preserves native implementations.
 import "./text-encoding";
+import { installMiniGameDocument } from "./document";
 // @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
-import UpstreamCanvas from "../../vendor/weapp-adapter/src/Canvas.js";
+import UpstreamCanvas from "../vendor/weapp-adapter/src/Canvas.js";
 // @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
-import UpstreamHTMLElement from "../../vendor/weapp-adapter/src/HTMLElement.js";
+import UpstreamHTMLElement from "../vendor/weapp-adapter/src/HTMLElement.js";
 // @ts-expect-error -- vendored MIT JavaScript has no TypeScript declarations
-import UpstreamEventTarget from "../../vendor/weapp-adapter/src/EventTarget.js";
+import UpstreamEventTarget from "../vendor/weapp-adapter/src/EventTarget.js";
 declare const wx: any;
 const g = globalThis as any;
 // FIRST wx.createCanvas() must be reserved for the visible stage.
 const canvas = new UpstreamCanvas();
 const device = wx.getSystemInfoSync();
-console.log("[SSNoir] Mini Game adapter=finscn/weapp-adapter+SSNoir; platform=" +
+console.log("[MiniGame] adapter=finscn/weapp-adapter+host; platform=" +
   String(device.platform) + "; wxOffscreen=" + String(typeof wx.createOffscreenCanvas));
 const width = Math.max(1, device.windowWidth);
 const height = Math.max(1, device.windowHeight);
@@ -56,7 +57,7 @@ const createOffscreenCanvas = (w: number, h: number): HTMLCanvasElement => {
       const result = prepare(wx.createOffscreenCanvas({ type: "2d", width: w, height: h }), "wx.createOffscreenCanvas");
       if (canvasBackend !== "offscreen-2d") {
         canvasBackend = "offscreen-2d";
-        console.log("[SSNoir MiniGame] Pixi 2D canvas backend: wx.createOffscreenCanvas");
+        console.log("[MiniGame] Pixi 2D canvas backend: wx.createOffscreenCanvas");
       }
       return result;
     } catch (error) {
@@ -71,7 +72,7 @@ const createOffscreenCanvas = (w: number, h: number): HTMLCanvasElement => {
     const result = prepare(new UpstreamCanvas(), "secondary wx.createCanvas");
     if (canvasBackend !== "secondary-canvas") {
       canvasBackend = "secondary-canvas";
-      console.warn("[SSNoir MiniGame] Pixi 2D canvas fallback: secondary wx.createCanvas", errors.join("; "));
+      console.warn("[MiniGame] Pixi 2D canvas fallback: secondary wx.createCanvas", errors.join("; "));
     }
     return result;
   } catch (error) {
@@ -86,17 +87,17 @@ const gl = canvas.getContext("webgl2", { stencil: true, antialias: true });
 if (!gl) throw new Error("WeChat WebGL2 is required for PixiJS 8");
 
 g.window ||= g;
-g.navigator ||= { userAgent: "SSNoir WeChat Mini Game", platform: device.platform || "wechat" };
+g.navigator ||= { userAgent: "Mini Game adapter", platform: device.platform || "wechat" };
 g.devicePixelRatio ||= device.pixelRatio || 1;
 g.innerWidth ||= width;
 g.innerHeight ||= height;
-g.location ||= { href: "https://ssnoir.invalid/game", origin: "https://ssnoir.invalid" };
+g.location ||= { href: "https://minigame.invalid/game", origin: "https://minigame.invalid" };
 g.addEventListener ||= () => {};
 g.removeEventListener ||= () => {};
 // Upstream EventTarget/HTMLElement handle DOM-like event and element semantics.
 // Only the Mini Game document factory and LIPS's HTML script scan are specialized.
 const miniDocument = Object.assign(new UpstreamEventTarget(), {
-  baseURI: "https://ssnoir.invalid/game",
+  baseURI: "https://minigame.invalid/game",
   readyState: "complete",
   scripts: [] as unknown[],
   head: new UpstreamHTMLElement("head"),
@@ -115,7 +116,9 @@ const miniDocument = Object.assign(new UpstreamEventTarget(), {
   },
   getElementsByTagName(name: string): any[] { return this.querySelectorAll(name); }
 });
-g.document ||= miniDocument;
+// TapTap provides a document object without the DOM methods LIPS needs.
+// Preserve existing host methods while completing the declared DOM contract.
+installMiniGameDocument(g, miniDocument);
 g.HTMLElement ||= UpstreamHTMLElement;
 g.Image ||= wx.createImage().constructor;
 g.HTMLCanvasElement ||= canvas.constructor;
@@ -151,7 +154,7 @@ export const wechatHost = {
   getNavigator: () => g.navigator,
   getBaseUrl: () => g.location.href as string,
   getDiagnostics: () => ({
-    adapter: "finscn/weapp-adapter + SSNoir",
+    adapter: "finscn/weapp-adapter + host",
     platform: String(device.platform ?? "unknown"),
     window: [width, height],
     canvas2D: canvasBackend,
@@ -177,7 +180,7 @@ export const wechatHost = {
     const reason = detail?.message || detail?.errMsg || String(error);
     const message = String(detail?.name || "Error") + ": " + reason +
       (detail?.stack ? "\n" + detail.stack : "");
-    console.error("[SSNoir MiniGame foundation]", message);
-    if (typeof wx.showModal === "function") wx.showModal({ title: "SSNoir 技术验证失败", content: message.slice(0, 650), showCancel: false });
+    console.error("[MiniGame runtime]", message);
+    if (typeof wx.showModal === "function") wx.showModal({ title: "小游戏运行失败", content: message.slice(0, 650), showCancel: false });
   }
 };

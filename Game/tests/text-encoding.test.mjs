@@ -4,8 +4,8 @@ import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 
-const source = readFileSync("vendor/fast-text-encoding/text.min.js", "utf8");
-const boundary = ts.transpileModule(readFileSync("src/wechat/text-encoding.ts", "utf8"), {
+const source = readFileSync("adapters/wechat/vendor/fast-text-encoding/text.min.js", "utf8");
+const boundary = ts.transpileModule(readFileSync("adapters/wechat/src/text-encoding.ts", "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 }
 }).outputText;
 function install(host) {

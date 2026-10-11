@@ -8,8 +8,12 @@ This is the planned **only** game project. Legacy C#/Unity code is retained duri
 
 ## Shared architecture (real prototype)
 
+第一阶段交付物明确为：技术验证底座工程、[微信小游戏适配层](adapters/wechat/README.md)、
+[TapTap 转换/启动适配层](adapters/taptap/README.md)。复用边界和原版/修改记录见
+[适配层交付说明](adapters/README.md)。当前仍在真机验收，不表示第一阶段已经完成。
+
 - Browser: `src/main.ts` provides HTML Canvas and pointer events.
-- WeChat: `src/wechat/bootstrap.ts` exposes a deliberately *minimal* WX Canvas/browser compatibility surface; `src/wechat/probe.ts` installs a Pixi `DOMAdapter`.
+- WeChat: `adapters/wechat/src/host.ts` exposes a deliberately *minimal* WX Canvas/browser compatibility surface; `src/wechat/probe.ts` installs a Pixi `DOMAdapter`.
 - **Both hosts execute the same `src/foundation/render.ts`** using Three.js, PixiJS, a single WebGL2 context, and **two isolated LIPS VMs**. The source imports original `stdlib.scm` at build time (never a second editable copy).
 - Desktop/Electron opens the exact same browser bundle via `desktop/main.cjs`.
 - Scheme is currently a compatibility probe only. **BiwaScheme 0.8.3 fails isolation across Interpreter instances**; see `docs/SCHEME-CANDIDATES.md`. The shared rendering prototype now uses **LIPS** to validate isolated world/encounter bindings and the original SSNoir `stdlib.scm` in all three host bundles. The existing `.scm` content remains in `UnityClient/Assets/Resources/Content`, without a second copy. Game rules/native functions are not yet migrated.
