@@ -213,8 +213,10 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     if(!authoredWorld)return;
     selectedPlace="";currentContainer=null;pendingRoll=null;navigationStack.length=0;
     worldHeading.text="贝尔维尔 / 城市";
+    const activeClock=authoredWorld.root.clocks.find(c=>c.style==="countdown");
     worldStatus.text="世界日："+String(authoredWorld.state.getGlobal("世界日"))+
-      " · 地点："+authoredWorld.getPlaces().length;
+      " · 地点："+authoredWorld.getPlaces().length+
+      (activeClock?" · "+activeClock.displayLabel+" "+activeClock.current+"/"+activeClock.max:"");
     // Story nodes at world root are not places; hiding them would make
     // first-chapter authored objectives impossible to reach from the map.
     renderPlaces(authoredWorld.root.children.filter(n=>!n.disabled).map(n=>n.name));
@@ -331,7 +333,10 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       }
       if(!target.resolve)return;
       if(target.resolve.kind==="observe"||target.resolve.kind==="note"){
+        const clock=target.resolve.noteClock;
         worldStatus.text=target.resolve.text||target.resolve.noteText||target.title;
+        if(clock) worldStatus.text+=
+          " · "+clock.displayLabel+" "+clock.current+"/"+clock.max;
         return;
       }
       if(target.requires.some(x=>x.type==="die")){

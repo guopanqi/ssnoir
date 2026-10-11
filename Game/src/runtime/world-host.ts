@@ -7,6 +7,7 @@ import { GameSceneDirector } from "./scene-director";
 import { WorldSaveController } from "./world-save";
 import { WorldTurnController, type DayAdvance } from "./world-turn";
 import type { RuntimeNode } from "./node-converter";
+import {convertDossier,type DossierEntry} from "./dossier-converter";
 
 // Vite resolves these imports at BUILD time, not at Mini Game runtime.
 // No second editable copy of authored content; this is the exact Unity content tree.
@@ -37,6 +38,7 @@ export interface WorldHost {
   mode:"world"|"encounter";
   root:RuntimeNode;
   getPlaces():RuntimeNode[];
+  getDossier():Promise<DossierEntry[]>;
   enterPlace(name:string):Promise<RuntimeNode>;
   refresh():Promise<RuntimeNode>;
   endDay():Promise<DayAdvance>;
@@ -55,6 +57,10 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
     get mode(){return director.mode;},
     get root(){return root;},
     getPlaces:()=>director.mode==="world"?root.children.filter(n=>n.isPlace&&!n.disabled):[],
+    async getDossier(){
+      if(director.mode!=="world")throw new Error("city dossier unavailable in encounter");
+      return convertDossier(await director.world.evaluate("(get-dossier)"));
+    },
     async enterPlace(name:string){
       if(director.mode!=="world")throw new Error("place entry only in the city");
       const node=await director.worldActions.enterPlace(name);

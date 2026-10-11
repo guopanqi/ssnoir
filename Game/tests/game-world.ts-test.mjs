@@ -5,6 +5,7 @@ import {join, relative} from "node:path";
 import {GameScriptSession} from "../src/runtime/script-session.ts";
 import {GameRuntimeState} from "../src/runtime/game-state.ts";
 import {convertNode} from "../src/runtime/node-converter.ts";
+import {convertDossier} from "../src/runtime/dossier-converter.ts";
 
 const contentRoot = "../UnityClient/Assets/Resources/Content";
 function scan(dir, dst) {
@@ -32,4 +33,8 @@ test("original chapter-one world.scm loads on the new LIPS runtime and materiali
   const root=convertNode(render);
   assert.equal(root.name,"世界");
   assert.ok(root.children.length>0,"world should expose places or story nodes");
+  const dossier=convertDossier(await vm.evaluate("(get-dossier)"));
+  assert.ok(Array.isArray(dossier),"original authored dossier must be convertible");
+  assert.ok(dossier.length>0,"the real original first chapter has at least one dossier");
+  assert.ok(dossier.every(entry=>entry.id&&Array.isArray(entry.steps)&&Array.isArray(entry.clocks)));
 });
