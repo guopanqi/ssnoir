@@ -185,7 +185,9 @@ export class GameSceneDirector {
   async endRound():Promise<Array<{phase:string;events:ReturnType<GameRuntimeState["takeStoryEvents"]>}>>{
     if(!this.encounter||!this.encounterActions)throw new Error("encounter required");
     if(this.roundActive)throw new Error("nested round transition");
-    if(this.state.hasRestBlockers())throw new Error("mandatory events block rest");
+    // C# SceneManager.BeginRoundTransition does not consult city rest
+    // blockers. Chapter duties prevent ending a WORLD day, not taking an
+    // encounter turn while those duties are still outstanding.
     this.autoActions=[];this.autoIndex=0;
     const frames:Array<{phase:string;events:ReturnType<GameRuntimeState["takeStoryEvents"]>}>=[];
     const capture=(phase:string)=>frames.push({phase,events:this.state.takeStoryEvents()});
