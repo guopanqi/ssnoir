@@ -4,6 +4,7 @@ import { LipsSession } from "../scheme/lips-session";
 import { createHostScriptRuntime } from "../runtime/host-session";
 import { createWorldHostRuntime, type WorldHost } from "../runtime/world-host";
 import type { RuntimeNode } from "../runtime/node-converter";
+import {StoryPlaybackQueue} from "../runtime/story-player";
 import { createFrameLoop } from "./frame-loop";
 import ssnoirStdlib from "../../../UnityClient/Assets/Resources/Content/scripts/stdlib.scm?raw";
 
@@ -168,7 +169,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   };
   // Keep foundation startup independent of a content load failure.
   void createWorldHostRuntime().then(worldHost=>{
-    authoredWorld=worldHost;showRoot();
+    authoredWorld=worldHost;showRoot();receiveStory();
     console.log("[SSNoir] original world.scm ready, places="+worldHost.getPlaces().length);
   }).catch(error=>{
     worldStatus.text="原版世界加载失败";
@@ -197,6 +198,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
         const result=await authoredWorld.runner.perform(action.name,dieId);
         await authoredWorld.refresh();
         const events=authoredWorld.state.takeStoryEvents();
+      playback.push(events);updateStory();
         worldStatus.text="判定："+String(result.outcome??"完成")+
           " · 金钱："+authoredWorld.state.getItemCount("金钱")+
           (events.length?" · 剧情步骤："+events.length:"");
@@ -207,7 +209,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       if(!selectedPlace){
         const entered=await authoredWorld.enterPlace(name);
         selectedPlace=name;navigationStack.length=0;
-        showContainer(entered);return;
+        showContainer(entered);receiveStory();return;
       }
       if(!currentContainer)return;
       const target=currentContainer.children.find(x=>x.name===name);
@@ -234,6 +236,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       const result=await authoredWorld.runner.perform(target.name);
       await authoredWorld.refresh();
       const events=authoredWorld.state.takeStoryEvents();
+      playback.push(events);updateStory();
       worldStatus.text="行动："+result.name+" · 金钱："+authoredWorld.state.getItemCount("金钱")+
         (events.length?" · 剧情步骤："+events.length:"");
       const container=authoredWorld.root.children.find(x=>x.name===selectedPlace);
@@ -243,6 +246,43 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       worldStatus.text="行动失败："+String(error).slice(0,42);
       console.error("[SSNoir] world navigation/action",error);options.onError?.(error);
     });
+  };
+
+  // Blocking, input-acknowledged story playback shared by all four hosts.
+  const playback=new StoryPlaybackQueue();
+  const storyOverlay=new Container();
+  storyOverlay.visible=false;
+  storyOverlay.addChild(new Graphics().roundRect(22,195,806,172,12)
+    .fill({color:0x0e1016,alpha:0.98}).stroke({color:0xc7bca7,width:2}));
+  const storySpeaker=new Text({text:"",style:{
+    fontFamily:"sans-serif",fontSize:22,fill:0xf4ddad
+  }});
+  storySpeaker.position.set(48,212);
+  storyOverlay.addChild(storySpeaker);
+  const storyBody=new Text({text:"",style:{
+    fontFamily:"sans-serif",fontSize:20,fill:0xf8f1e7,
+    wordWrap:true,wordWrapWidth:735,breakWords:true
+  }});
+  storyBody.position.set(48,253);
+  storyOverlay.addChild(storyBody);
+  const storyHelp=new Text({text:"轻触继续",style:{
+    fontFamily:"sans-serif",fontSize:15,fill:0xa3acb8
+  }});
+  storyHelp.position.set(680,339);
+  storyOverlay.addChild(storyHelp);
+  stage.addChild(storyOverlay);
+  const updateStory=()=>{
+    const frame=playback.current;
+    storyOverlay.visible=Boolean(frame);
+    if(frame){
+      storySpeaker.text=frame.speaker||"叙事";
+      storyBody.text=frame.text;
+    }
+  };
+  const receiveStory=()=>{
+    if(!authoredWorld)return;
+    playback.push(authoredWorld.state.takeStoryEvents());
+    updateStory();
   };
 
   // This is the real LIPS runtime candidate, not an unrelated BiwaScheme probe.
@@ -306,6 +346,10 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   function activateAt(x: number, y: number): boolean {
     const xx = (x - size.left) / size.scale;
     const yy = (y - size.top) / size.scale;
+    if(playback.blocked){
+      playback.advance();updateStory();
+      return true;
+    }
     const hit=worldButtons.find(b=>xx>=b.x&&xx<=b.x+b.width&&yy>=b.y&&yy<=b.y+b.height);
     if(hit){visitWorld(hit.name);return true;}
     if (xx >= BUTTON.x && xx <= BUTTON.x + BUTTON.width &&
