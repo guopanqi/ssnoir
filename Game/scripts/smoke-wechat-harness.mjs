@@ -133,7 +133,8 @@ try {
   }
   await page.addScriptTag({ content: source }).catch(error => { errors.push("addScriptTag: " + (error.stack || String(error))); });
   await page.waitForFunction(
-    () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 1, null, { timeout: 20000 }
+    () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 1 &&
+      window.__SSNOIR_WECHAT_FOUNDATION__?.getMoney() === 15, null, { timeout: 20000 }
   );
   const renderIdentity = await page.evaluate(() => window.__SSNOIR_WECHAT_FOUNDATION__.getRenderDiagnostics());
   if (Object.values(renderIdentity).some(value => value !== true)) {
@@ -141,7 +142,8 @@ try {
   }
   await page.evaluate(() => window.__wxTouchEnd({ changedTouches: [{ clientX: 160, clientY: 483 }] }));
   await page.waitForFunction(
-    () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 2, null, { timeout: 10000 }
+    () => window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue() === 2 &&
+      window.__SSNOIR_WECHAT_FOUNDATION__?.getMoney() === 16, null, { timeout: 10000 }
   );
   await page.evaluate(() => { window.__wxHide(); window.__wxHide(); });
   if (await page.evaluate(() => window.__wxFrames.size) !== 0) {
@@ -155,7 +157,8 @@ try {
     throw new Error("WeChat resume must schedule exactly one render frame");
   }
   await page.evaluate(() => window.__wxTouchEnd({ changedTouches: [{ clientX: 160, clientY: 483 }] }));
-  await page.waitForFunction(() => window.__SSNOIR_WECHAT_FOUNDATION__.getSchemeValue() === 3);
+  await page.waitForFunction(() => window.__SSNOIR_WECHAT_FOUNDATION__.getSchemeValue() === 3 &&
+      window.__SSNOIR_WECHAT_FOUNDATION__.getMoney() === 17);
   if (!await page.evaluate(() => window.__SSNOIR_WECHAT_FOUNDATION__.getDiagnostics().visible)) {
     throw new Error("WeChat show state was not applied");
   }
@@ -177,6 +180,7 @@ try {
     wxPresent: typeof wx !== "undefined",
     ready: !!window.__SSNOIR_WECHAT_FOUNDATION__,
     counter: window.__SSNOIR_WECHAT_FOUNDATION__?.getSchemeValue(),
+    money: window.__SSNOIR_WECHAT_FOUNDATION__?.getMoney(),
     canvas: [document.getElementById("mini")?.width, document.getElementById("mini")?.height],
     usage: window.__wxCanvasUsage
   })).catch(e => ({ evaluateError: String(e) }));

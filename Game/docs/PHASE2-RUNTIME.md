@@ -23,3 +23,9 @@ No duplicate editable copies of game content; Node tests read the current Unity 
 - Real device validation of stage-two script behavior
 
 Do not call this a full C# SceneManager port. Expand via a playable story slice after the bridge is proven; retain baseline Web, Electron, WeChat and TapTap CI.
+
+## Cross-platform integration (stage 2.1)
+
+`src/runtime/host-session.ts` now builds a real `GameScriptSession` inside the existing shared renderer. The **original** `engine.scm` `add-item!` increments cash on the existing validation button; counter 1 starts with 15 cash, clicking advances to (2,16) and then (3,17). Both browser and WeChat/TapTap mocks assert the pair, including after resizing or hide/show. This verifies the native bridge and content load in the actual IIFE, not only in Node tests.
+
+`vite.lips-stdlib.ts` bundles `node_modules/lips/dist/std.xcb` from the pinned npm dependency as base64; `src/runtime/base64.ts` decodes bytes without relying on `atob`, Node Buffer or a filesystem in Mini Games. The same unmodified SSNoir Scheme source is imported via Vite `?raw`; no independent game logic, extra client or runtime HTTP requests are introduced.

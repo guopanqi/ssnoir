@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { Container, Graphics, Text, WebGLRenderer as PixiRenderer } from "pixi.js";
 import { LipsSession } from "../scheme/lips-session";
+import { createHostScriptRuntime } from "../runtime/host-session";
 import { createFrameLoop } from "./frame-loop";
 import ssnoirStdlib from "../../../UnityClient/Assets/Resources/Content/scripts/stdlib.scm?raw";
 
@@ -18,6 +19,7 @@ export interface FoundationSession {
   increment(): Promise<void>;
   activateAt(x: number, y: number): boolean;
   getCount(): number;
+  getMoney(): number;
   getRenderDiagnostics(): Record<string, boolean>;
   resize(width: number, height: number): void;
   pause(): void;
@@ -127,13 +129,19 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   }
   await world.evaluate("(define foundation-count 0)");
   await world.evaluate("(define (foundation-next!) (set! foundation-count (+ foundation-count 1)) foundation-count)");
+  // Phase 2: run the SAME original engine.scm native inventory path on all hosts.
+  // The independent legacy smoke counter remains for existing platform checks.
+  const gameplay = await createHostScriptRuntime();
   let count = 0;
   let actionQueue = Promise.resolve();
   function increment(): Promise<void> {
     actionQueue = actionQueue.then(async () => {
       const next = await world.evaluateNumber("(foundation-next!)");
+      // Initial counter display is not a paid action; start cash stays 15.
+      if (next > 1) await gameplay.session.evaluate('(add-item! "金钱" 1)');
       count = next;
-      counterText.text = "Scheme 计算结果：" + count;
+      counterText.text = "Scheme 计算结果：" + count +
+        " · 金钱：" + gameplay.state.getItemCount("金钱");
     });
     return actionQueue;
   }
@@ -184,6 +192,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     increment,
     activateAt,
     getCount: () => count,
+    getMoney: () => gameplay.state.getItemCount("金钱"),
     getRenderDiagnostics: () => ({
       threeUsesHostCanvas: three.domElement === options.canvas,
       pixiViewUsesHostCanvas: pixi.canvas === options.canvas,

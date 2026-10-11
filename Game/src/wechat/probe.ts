@@ -29,6 +29,7 @@ mountFoundation({
   Object.assign(globalThis, {
     __SSNOIR_WECHAT_FOUNDATION__: {
       getSchemeValue: session.getCount,
+      getMoney: session.getMoney,
       getDiagnostics: wechatHost.getDiagnostics,
       getRenderDiagnostics: session.getRenderDiagnostics
     }

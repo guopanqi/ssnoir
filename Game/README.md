@@ -1,4 +1,4 @@
-# SSNoir / Game — Phase 1 foundation
+# SSNoir / Game — Shared foundation and phase-2 runtime migration
 
 他本质上是一个移植尝试，底层首先需要建立threejs - wechat - taptap 的适配，才能在顶层进行尝试
 在顶层改造之后，也许会有新的能力
@@ -10,13 +10,13 @@ This is the planned **only** game project. Legacy C#/Unity code is retained duri
 
 第一阶段交付物明确为：技术验证底座工程、[微信小游戏适配层](adapters/wechat/README.md)、
 [TapTap 转换/启动适配层](adapters/taptap/README.md)。复用边界和原版/修改记录见
-[适配层交付说明](adapters/README.md)。当前仍在真机验收，不表示第一阶段已经完成。
+[适配层交付说明](adapters/README.md)。第一阶段已由开发者报告在本地验收完成；具体机型和系统信息仍以设备测试记录为准。
 
 - Browser: `src/main.ts` provides HTML Canvas and pointer events.
 - WeChat: `adapters/wechat/src/host.ts` exposes a deliberately *minimal* WX Canvas/browser compatibility surface; `src/wechat/probe.ts` installs a Pixi `DOMAdapter`.
 - **Both hosts execute the same `src/foundation/render.ts`** using Three.js, PixiJS, a single WebGL2 context, and **two isolated LIPS VMs**. The source imports original `stdlib.scm` at build time (never a second editable copy).
 - Desktop/Electron opens the exact same browser bundle via `desktop/main.cjs`.
-- Scheme is currently a compatibility probe only. **BiwaScheme 0.8.3 fails isolation across Interpreter instances**; see `docs/SCHEME-CANDIDATES.md`. The shared rendering prototype now uses **LIPS** to validate isolated world/encounter bindings and the original SSNoir `stdlib.scm` in all three host bundles. The existing `.scm` content remains in `UnityClient/Assets/Resources/Content`, without a second copy. Game rules/native functions are not yet migrated.
+- Scheme is currently a compatibility probe only. **BiwaScheme 0.8.3 fails isolation across Interpreter instances**; see `docs/SCHEME-CANDIDATES.md`. The shared rendering prototype now uses **LIPS** to validate isolated world/encounter bindings and the original SSNoir `stdlib.scm` in all three host bundles. The existing `.scm` content remains in `UnityClient/Assets/Resources/Content`, without a second copy. Game rules/native functions are being migrated incrementally; the phase-2 bridge can now execute the original `engine.scm` inventory rules in the shared Web/MiniGame renderer. Full SceneManager parity is not yet complete; see [PHASE2-RUNTIME.md](docs/PHASE2-RUNTIME.md).
 
 ## Test commands (from Game/)
 

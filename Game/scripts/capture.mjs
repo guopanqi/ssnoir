@@ -33,7 +33,8 @@ try {
     });
     try {
       await page.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
-      await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 1, null, { timeout: 20000 });
+      await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 1 &&
+        window.__SSNOIR_FOUNDATION__?.getMoney() === 15, null, { timeout: 20000 });
 
       const scale = scenario.height / 576;
       const x = 160 * scale;
@@ -41,19 +42,21 @@ try {
       if (scenario.touch) await page.touchscreen.tap(x, y);
       else await page.mouse.click(x, y);
 
-      await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 2, null, { timeout: 10000 });
+      await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 2 &&
+        window.__SSNOIR_FOUNDATION__?.getMoney() === 16, null, { timeout: 10000 });
       // Exercise the existing session after a host resize and remap input.
       await page.setViewportSize({ width: 960, height: 540 });
       await page.waitForFunction(() => document.querySelector("canvas")?.height === 540);
       if (scenario.touch) await page.touchscreen.tap(150, 452.8125);
       else await page.mouse.click(150, 452.8125);
-      await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 3);
+      await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 3 &&
+        window.__SSNOIR_FOUNDATION__?.getMoney() === 17);
       await page.setViewportSize({ width: scenario.width, height: scenario.height });
       await page.waitForFunction(height => document.querySelector("canvas")?.height === height, scenario.height);
       if (errors.length) throw new Error(errors.join("\n"));
       mkdirSync("artifacts", { recursive: true });
       await page.screenshot({ path: "artifacts/foundation-" + scenario.name + ".png", fullPage: true });
-      console.log("PASS: " + scenario.name + " shared Three/Pixi context + Scheme + user input");
+      console.log("PASS: " + scenario.name + " shared Three/Pixi + original engine.scm cash transaction + input");
     } catch (error) {
       mkdirSync("artifacts", { recursive: true });
       await page.screenshot({ path: "artifacts/foundation-" + scenario.name + "-failed.png", fullPage: true }).catch(() => {});

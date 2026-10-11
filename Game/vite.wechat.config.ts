@@ -1,9 +1,10 @@
 import { defineConfig } from "vite";
 import { lipsIifeMetadata } from "./adapters/wechat/build/lips-iife-metadata";
 import { pixiIntlGuard } from "./adapters/wechat/build/pixi-intl-guard";
+import { bundledLipsStandardLibrary } from "./vite.lips-stdlib";
 
 export default defineConfig({
-  plugins: [pixiIntlGuard()],
+  plugins: [bundledLipsStandardLibrary(), pixiIntlGuard()],
   build: {
     target: "es2020",
     outDir: "dist/wechat",
