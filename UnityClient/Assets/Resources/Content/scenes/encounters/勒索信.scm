@@ -274,13 +274,15 @@
       (begin
         (set! seg n)
         ;; Act2 根名固定为「巷子」以走 Portal；根 :anchor 与子卡同落到分区，换段切镜。
-        ;; spotlight 仍宣告段名。
-        (spotlight! (seg-name n)
-          (cond
-            ((= n 0) "追上他！在他逃走之前")
-            ((= n 1) "货栈区——贴着货堆还能包抄")
-            ((= n 2) "邮局后街——这是最后一段")
-            (else ""))))))
+        ;; 第一幕转入第二幕时，追逐剧场已经交代了动作，不再立刻弹 spotlight；
+        ;; 之后换街景时再用 spotlight 告知这一段的目标。
+        (if (> n 0)
+            (spotlight! (seg-name n)
+              (cond
+                ((= n 1) "货栈区——贴着货堆还能包抄")
+                ((= n 2) "邮局后街——这是最后一段")
+                (else "")))
+            #f))))
 
 (define (begin-chase!)
   (load-file "scripts/theatre/勒索追逐.scm")
