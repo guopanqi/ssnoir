@@ -1,86 +1,80 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "S2-R116-R118",
+  "batch": "S2-R119-R121",
   "rounds": 3,
-  "totalArchivedRounds": 61,
+  "totalArchivedRounds": 64,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
     "sourceScripts": [
-      "tools/content-validator/experiments/s2_temporal_commitment.py"
+      "tools/content-validator/experiments/s2_microcity_attention.py",
+      "tools/content-validator/experiments/s2_fair_revelation.py"
     ],
-    "run": "38194919633",
-    "scope": "3 exact Fraction bounded paper studies covering two-day competing deadlines, strongest legible policy for R115, and paid carryover vs free carryover; no C# Scheme/human",
-    "human": "No new human feedback; Debug whitelist unchanged",
+    "run": "38195479798",
+    "scope": "Three exact Fraction paper audits of 2-day 3-objective micro-city scenario, strong public policies, same-action opportunity fairness. Mathematical only, not canonical story, native C# Scheme, or human experience",
+    "human": "No new human feedback. Do not add any Debug entrances.",
     "stagePlan": "docs/实验/机制研究/S2-多事件注意力网络阶段计划.md"
   },
   "results": [
     {
-      "id": "R116",
-      "name": "双目标两日不同期限",
-      "status": "基础时间与结果反馈关系；可公开口诀解释多数情景，不晋升",
+      "id": "R119",
+      "name": "两天三件事的统一目标网络与简单固定顺序反证",
+      "status": "单一纸面情境已跑通，但存在同动作开启关闭线索的严重语义缺陷，禁止直接上架",
       "evidence": {
-        "day1A2Actions": true,
-        "day2BDeadline": true,
-        "exampleABonus": "3/2",
-        "BReward": "2",
-        "optimal": "307/162",
-        "bestSimple": "307/162",
-        "simpleGap": "0",
-        "withoutADay1Deadline": "58/27",
-        "badAFirstWorkState": {
-          "state": "A0,B0,3remaining",
-          "choose": "B",
-          "AUtility": "7/6",
-          "BUtility": "34/27"
-        },
-        "goodAFirstWorkState": {
-          "state": "A1,B0,3remaining",
-          "choose": "A",
-          "AUtility": "5/3",
-          "BUtility": "34/27"
-        }
+        "days": 2,
+        "actionsPerDay": 3,
+        "AReward": "2",
+        "BReward": "3/2",
+        "CReward": "2",
+        "dynamic": "2359/729",
+        "bestFixedPriority": "4475/1458",
+        "difference": "1/6",
+        "CAddedGain": "563/1458",
+        "CCloseCost": "235/729",
+        "strictVsFixedExpectedVisits": "79/243"
       },
-      "lesson": "同一开放期限下，A第一手失败/成功可导致严格放弃或继续，但不需要DP隐藏操作。一条玩家可学条件口诀已完全最优。"
+      "lesson": "有条件选择能改变行动，但奖励差不是人类可玩性；A可从1跃迁3，C刚开放就自动关闭，尚未给出可操作机会。"
     },
     {
-      "id": "R117",
-      "name": "生产性帮忙压力回归的强公开口诀反证",
-      "status": "正式推翻R115残余复杂度解释，因果关系保留",
+      "id": "R120",
+      "name": "更强公开规则能否解释三目标纸面网络的动态规划",
+      "status": "核心B=3/2及B=2的动态复杂增量完全被简单条件规则解释，保留基础语法",
       "evidence": {
-        "sideBonus1": {
-          "free": "9/4",
-          "simple": "9/4"
+        "BRewardOneAndHalf": {
+          "free": "2359/729",
+          "strongPublic": "2359/729",
+          "gap": "0"
         },
-        "sideBonusOneHalf": {
-          "free": "11/4",
-          "simple": "11/4"
+        "BRewardTwo": {
+          "gap": "0"
         },
-        "weakBonusHalfNotCovered": true
-      },
-      "lesson": "原R115的1/8残差来自强参照不够强，观察问题/帮忙/容量并用五条人类可执行规则即可完全解释核心参数的自由最优。"
-    },
-    {
-      "id": "R118",
-      "name": "有偿保留半成品跨日",
-      "status": "保存动作在部分价值条件下独立有益，但不同于免费携带且尚缺强优先级反证/原生",
-      "evidence": {
-        "A2B1": {
-          "withPreserve": "35/27",
-          "without": "34/27",
-          "gain": "1/27"
-        },
-        "A3B1": {
-          "withPreserve": "52/27",
-          "without": "49/27",
-          "gain": "1/9",
-          "freePreserve": "23/9"
-        },
-        "A1B2": {
-          "gain": "0"
+        "BRewardOne": {
+          "unexplained": "38/243"
         }
       },
-      "lesson": "免费保存的总价值不能替代花骰保存的净收益；在目标价值或容量不够时，额外储存动作是多余的；与R05原生重置/保留不同。"
+      "lesson": "玩家无需计算DP，只需可理解的期限、已有进度、线索是否开放；固定顺序差1/6不能证明丰富策略。"
+    },
+    {
+      "id": "R121",
+      "name": "同动作开放和关闭线索的可响应性修复",
+      "status": "数学公平性修复增加机会，但没有证明有两条实质替代行动；仍不能晋升原生试玩",
+      "evidence": {
+        "BRewardOneAndHalf": {
+          "old": "2359/729",
+          "oneActionGrace": "2447/729",
+          "gain": "88/729",
+          "strongPublicGap": "0",
+          "graceWindowExpectedVisits": "44/243",
+          "strictChooseCWithAlternative": "0"
+        },
+        "BRewardOne": {
+          "gain": "106/729"
+        },
+        "BRewardTwo": {
+          "gain": "86/729"
+        }
+      },
+      "lesson": "新增一次可响应窗口提升代理收益，不等于提供需要玩家思考的选择；许多窗口C是唯一可行动的事。人物/场景语义仍要人工审阅。"
     }
   ],
   "crossRoundMemory": [
@@ -110,7 +104,9 @@
     "S2-B: R113 completion-A-unlocks-C value real but strong fixed public priority exact at B>=3/2; R114 safe 3x work + side trivially dominates new stress system; R115 raising requirement to 4 activates side-action cooldown coupling by 1/4 expected utility, best small threshold family still 1/8 away but gap not human complexity proof.",
     "S2-C R116 dual public deadlines can reverse action after a failed first A attempt, but a simple rule A first then continue only if initial progress >=1 reaches unrestricted DP; changing reward alone can make A-first or B-first dominating.",
     "S2-C R117 disproves R115 strategy complexity: 5-clause legible heuristic attains full 9/4 when side bonus=1 and full 11/4 when bonus=3/2; original 1/8 or 3/16 gaps were weak-baseline artifacts. Novel functionality may still be a simple meaningful player grammar.",
-    "S2-C R118 explicit paid partial progress persistence across days is beneficial only for constrained reward configurations (A2/B1 gain1/27; A3/B1 gain1/9); not equivalent to automatic free save or prior R05 no-cost native reset contrast."
+    "S2-C R118 explicit paid partial progress persistence across days is beneficial only for constrained reward configurations (A2/B1 gain1/27; A3/B1 gain1/9); not equivalent to automatic free save or prior R05 no-cost native reset contrast.",
+    "S2-D R119 combined two-day A letter/B fighter/C messenger lead network yields 2359/729 vs strongest of six fixed priority 4475/1458 (gap1/6), but R120 strongest public reactive thresholds EXACTLY match free at B=3/2 or2. Stop claiming mathematical dynamic bonus is strategy complexity.",
+    "S2-D R119 action jump A progress1->3 illegally unlocks and closes C in same action; R121 next-action grace raises base utility to2447/729 but has zero strictly optimal C-vs-other visits in grace states, often only C legal. Extra button/turn != choice; need real alternative with tradeoff BEFORE native/debug."
   ],
   "history": [
     {
@@ -1196,35 +1192,105 @@
         }
       ],
       "record": "docs/实验/机制研究/批次/S2-C-R116-R118-跨日期限与保存/研究记录.md"
+    },
+    {
+      "batch": "S2-R119-R121",
+      "rounds": 3,
+      "method": {
+        "sourceScripts": [
+          "tools/content-validator/experiments/s2_microcity_attention.py",
+          "tools/content-validator/experiments/s2_fair_revelation.py"
+        ],
+        "run": "38195479798",
+        "scope": "Three exact Fraction paper audits of 2-day 3-objective micro-city scenario, strong public policies, same-action opportunity fairness. Mathematical only, not canonical story, native C# Scheme, or human experience",
+        "human": "No new human feedback. Do not add any Debug entrances.",
+        "stagePlan": "docs/实验/机制研究/S2-多事件注意力网络阶段计划.md"
+      },
+      "results": [
+        {
+          "id": "R119",
+          "name": "两天三件事的统一目标网络与简单固定顺序反证",
+          "status": "单一纸面情境已跑通，但存在同动作开启关闭线索的严重语义缺陷，禁止直接上架",
+          "evidence": {
+            "days": 2,
+            "actionsPerDay": 3,
+            "AReward": "2",
+            "BReward": "3/2",
+            "CReward": "2",
+            "dynamic": "2359/729",
+            "bestFixedPriority": "4475/1458",
+            "difference": "1/6",
+            "CAddedGain": "563/1458",
+            "CCloseCost": "235/729",
+            "strictVsFixedExpectedVisits": "79/243"
+          },
+          "lesson": "有条件选择能改变行动，但奖励差不是人类可玩性；A可从1跃迁3，C刚开放就自动关闭，尚未给出可操作机会。"
+        },
+        {
+          "id": "R120",
+          "name": "更强公开规则能否解释三目标纸面网络的动态规划",
+          "status": "核心B=3/2及B=2的动态复杂增量完全被简单条件规则解释，保留基础语法",
+          "evidence": {
+            "BRewardOneAndHalf": {
+              "free": "2359/729",
+              "strongPublic": "2359/729",
+              "gap": "0"
+            },
+            "BRewardTwo": {
+              "gap": "0"
+            },
+            "BRewardOne": {
+              "unexplained": "38/243"
+            }
+          },
+          "lesson": "玩家无需计算DP，只需可理解的期限、已有进度、线索是否开放；固定顺序差1/6不能证明丰富策略。"
+        },
+        {
+          "id": "R121",
+          "name": "同动作开放和关闭线索的可响应性修复",
+          "status": "数学公平性修复增加机会，但没有证明有两条实质替代行动；仍不能晋升原生试玩",
+          "evidence": {
+            "BRewardOneAndHalf": {
+              "old": "2359/729",
+              "oneActionGrace": "2447/729",
+              "gain": "88/729",
+              "strongPublicGap": "0",
+              "graceWindowExpectedVisits": "44/243",
+              "strictChooseCWithAlternative": "0"
+            },
+            "BRewardOne": {
+              "gain": "106/729"
+            },
+            "BRewardTwo": {
+              "gain": "86/729"
+            }
+          },
+          "lesson": "新增一次可响应窗口提升代理收益，不等于提供需要玩家思考的选择；许多窗口C是唯一可行动的事。人物/场景语义仍要人工审阅。"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/S2-D-R119-R120-三目标城市纸面场景/研究记录.md"
     }
   ],
   "frontier": [
     {
-      "id": "S2-D-1",
+      "id": "S2-D-fair-choice",
       "priority": 1,
-      "question": "能够把九轮中值得保留的2–4条简单语法组成一个三目标两日期的可读纸面情景吗？",
-      "method": "先在 docs/实验/机制研究/ 创建极简情景：人物、公开目标、每行动结果、错过后果；避免发明独立数值系统。测试A/B/C最小形式与过于复杂的多组件版",
+      "question": "让玩家得到新线索后，在其他至少一项同样可行的紧迫事之间有真正选择，该如何保持游戏规则简洁？",
+      "method": "从三目标微型纸面削减/调整事件顺序，而不是继续扫数值；先要求至少一例正常可达公开状态下两条严格有条件优先路径；保留R119/R121作语义反证",
       "humanGate": false
     },
     {
-      "id": "S2-D-2",
+      "id": "S2-D-native",
       "priority": 2,
-      "question": "这个微型目标网相对三条固定顺序/始终先期限临近，是否存在正常路径上清楚的选择与偶然消息？",
-      "method": "冻结简化规则并运行容量与可达性反证；若固定强规则完全覆盖也可作为可学基础，但要做保留/删除组件消融",
+      "question": "能否在最小隔离C#+Scheme场景验证揭示、玩家响应、跨日期限与终局关闭语义？",
+      "method": "先修复纸面选择权，然后只在独立新场景内核对关键动作序列与内容指纹；不修改P08/P20或调试白名单",
       "humanGate": false
     },
     {
-      "id": "S2-D-3",
+      "id": "S2-D-communication",
       "priority": 3,
-      "question": "从最终纸面场景中哪一条机制需要官方 C# + Scheme 的最小隔离验证？",
-      "method": "只对一条场景行动做native会话和失败/完成/日切换证据，不改旧P08/P20/Debug，且故事原型不是现有正典",
-      "humanGate": false
-    },
-    {
-      "id": "S2-Human",
-      "priority": 4,
-      "question": "设计者能否自然解释何时帮艾迪、查夜莺线索及何时放下一个紧迫目标？",
-      "method": "优先单次最简试玩或叙事可读审核，收集评论入 feedback inbox，先不让人看最优阈值",
+      "question": "真人是否能不看最优口诀理解夜莺信、艾迪请求与递信者线索之间的优先取舍？",
+      "method": "只邀请一次最小试玩/无提示纸面阅读，现有数学不能替代人对情节和情感的解释",
       "humanGate": true
     }
   ],
