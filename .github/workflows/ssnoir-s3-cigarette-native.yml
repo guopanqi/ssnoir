@@ -6,6 +6,7 @@ on:
       - '.github/workflows/ssnoir-s3-cigarette-native.yml'
       - 'tools/content-validator/experiments/s3_gold_cigarette_native.py'
       - 'tools/content-validator/experiments/s3_one_item_option_bound.py'
+      - 'tools/content-validator/experiments/s3_world_entry_probe.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -65,4 +66,35 @@ jobs:
         with:
           name: ssnoir-s3-W-纸面单份物证消融
           path: /tmp/s3-option-bound.json
+          retention-days: 90
+  original-world-entry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-dotnet@v4
+        with: {dotnet-version: '9.0.x'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: 原始世界新档入口探索（不注入阶段、不声称贯通）
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_world_entry_probe.py /tmp/s3-world-entry.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s3-world-entry.json'))
+          assert x['initial_fixture']['items']=={}
+          assert x['steps']
+          print('S3-WORLD',x['status'],'steps',len(x['steps']),
+            'final_day',x['steps'][-1]['observation']['day'],
+            'focus',x['steps'][-1]['observation']['focus'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-s3-W-正式世界自然入口调查
+          path: /tmp/s3-world-entry.json
+          if-no-files-found: ignore
           retention-days: 90
