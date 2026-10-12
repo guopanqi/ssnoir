@@ -1,0 +1,47 @@
+name: SSNoir R144-R148 Ally Direction Falsification
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r144-r148.yml'
+      - 'tools/content-validator/experiments/r144_r148_directing_ally.py'
+      - 'docs/实验/机制研究/批次/R144-R148-指挥自主同伴/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact belief optimization, precommitted-plan brute force and counterfactuals
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r144_r148_directing_ally.py
+          python3 tools/content-validator/experiments/r144_r148_directing_ally.py | tee /tmp/r144-r148.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r144-r148.json'))
+          assert x['R144_visible_vs_hidden']=={'hidden_gain':'1/2','visible_gain':'0'}
+          assert x['R145_delayed_command']['hidden_gain']=='0'
+          assert x['values']['19/20']['none']['early_only']=='14859/4000'
+          print('Independent exact-plan and belief checks passed')
+          PY
+      - name: Regression R131-R143 and admission controls
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r131_r143_information_and_ally.py >/tmp/r131-r143-regression.json
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r144-r148-paper
+          path: |
+            /tmp/r144-r148.json
+            /tmp/r131-r143-regression.json
+          retention-days: 21

@@ -1,20 +1,19 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "R131–R143 信息公平与自主同伴分工长批次",
-  "rounds": 13,
-  "totalArchivedRounds": 88,
+  "batch": "R144–R148 改变自主同伴行动政策的投资与信息边界",
+  "rounds": 5,
+  "totalArchivedRounds": 93,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
-    "stage": "信息信念限制→自主帮助的动态注意力→强可学口诀→精确策略枚举→报告延迟与回应源消融",
-    "baselineMain": "9b495a7ec82b24c38147dc37655858961dfa84d0",
-    "paperScript": "tools/content-validator/experiments/r131_r143_information_and_ally.py",
-    "workflow": ".github/workflows/ssnoir-r131-r143.yml",
-    "evidence": "only exact Fraction paper, no native or new human",
-    "confirmedFamilies": 2,
-    "tests": 13,
-    "noCanonicalChange": true,
-    "debugEntriesUnchanged": 3
+    "stage": "third family: command changes NPC action policy → early/late/hidden/visible/reliability ablation",
+    "baselineMain": "c7b9ae324544f7ce99fb7628bcaf60f2f0cbad1b",
+    "paperScript": "tools/content-validator/experiments/r144_r148_directing_ally.py",
+    "workflow": ".github/workflows/ssnoir-r144-r148.yml",
+    "evidence": "exact Fraction belief optimization + exhaustive legal precommitted 3-action scripts only",
+    "novelFamiliesAddedToSelected": 0,
+    "debugAdmissions": 0,
+    "gameContentUnchanged": true
   },
   "results": [
     {
@@ -283,6 +282,56 @@
         "model": "R131–R143 paper, see source and report"
       },
       "lesson": "全自动回应可以退化为脚本；与P16/P18需审核同构"
+    },
+    {
+      "id": "R144",
+      "name": "同伴不可观察时花第1手指挥改变它以后每次的目标",
+      "status": "保留信息缺口中主动指挥的因果边界，不晋升精选",
+      "evidence": {
+        "mathematicalSummary": "自由4 vs 禁指挥7/2，严格新增+1/2",
+        "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
+      },
+      "lesson": "有效的是提前购买确定性，不是复杂策略"
+    },
+    {
+      "id": "R145",
+      "name": "仅第2手可启动同伴指挥的时间窗消融",
+      "status": "停止作为独立策略创新；作为因果/时序反证",
+      "evidence": {
+        "mathematicalSummary": "自由7/2 = 禁指挥7/2",
+        "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
+      },
+      "lesson": "改变别人以后行动的机会本身有时间价值"
+    },
+    {
+      "id": "R146",
+      "name": "指挥可靠度从9/10到19/20",
+      "status": "停止作为独立策略创新；作为因果/时序反证",
+      "evidence": {
+        "mathematicalSummary": "9/10自由7/2；19/20自由14859/4000",
+        "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
+      },
+      "lesson": "基本根部阈值r³>3/4解释整组"
+    },
+    {
+      "id": "R147",
+      "name": "将无汇报信念态DP与全部合法提前定序独立比较",
+      "status": "停止作为独立策略创新；作为因果/时序反证",
+      "evidence": {
+        "mathematicalSummary": "所有参数、准入时点一致",
+        "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
+      },
+      "lesson": "不公开进度时策略退化为从第一手预先选好的计划"
+    },
+    {
+      "id": "R148",
+      "name": "同伴工作立即可见时关闭或开启玩家指挥",
+      "status": "停止作为独立策略创新；作为因果/时序反证",
+      "evidence": {
+        "mathematicalSummary": "三种可靠度均自由4/禁指挥4",
+        "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
+      },
+      "lesson": "及时可见让直接补缺足够，新增指挥根部价值严格零"
     }
   ],
   "crossRoundMemory": [
@@ -334,7 +383,8 @@
     "S3-Z source/native: official world seed19 growth4 West bridge reveals Ryan on day9 after 42 authorized actions. Solo Frank operation is already available with Nightingale's die and caption '她已经走了'. One real public end-turn day9->day10 changes actor names ['尼尔','夜莺'] -> ['尼尔'], replay CI38215151932 successful. This precisely locates mismatch before day-end. Any future fix must respect the deferred dialogue and player action economy; no code patch yet.",
     "R125–R127: 位置+期限有正常可达严格转换但被两条公开阈值完全压缩；证人逼问的连带关门有演示效果而强策略根值边际0。精确 Fraction 纸面证据，未加精选/Debug/原生/真人。接续 R128 先做真实时间可达性与双消融，再决定是否独立。",
     "R128–R130（纸面）：R127零价值人际惩罚只有在A逼问窗口短于B可接触窗口时才形成真实两路取舍；free19/4 > 两固定9/2，关闭惩罚21/4；延长A一手则惩罚边际0，两版本同43/8。强公开规则可完全解释，数学并非真人有趣。无正式角色/Debug修改。",
-    "R131–R143：共13项数学原理及反证但只有两个结构家族。信息q1/2=9/2、q3/4=37/8、q1=19/4，迟到准确消息又降至9/2；属于R110/P08旧信息时点关系。自主同伴3手内独立给A/B各概率1/2：及时可见自由4、最强真正固定计划7/2、只报告完成15/4、迟到一手7/2；一条3条件公开规则就追平最优，正常最优分支1/2各严格应选不同目标。关闭同伴得2、固定同伴做A或B无动态差。Exact Fraction DP+独立2^7/2^4/2^3/2^9策略空间核对；数学非真人。精选6、20候选、Debug3全不变。"
+    "R131–R143：共13项数学原理及反证但只有两个结构家族。信息q1/2=9/2、q3/4=37/8、q1=19/4，迟到准确消息又降至9/2；属于R110/P08旧信息时点关系。自主同伴3手内独立给A/B各概率1/2：及时可见自由4、最强真正固定计划7/2、只报告完成15/4、迟到一手7/2；一条3条件公开规则就追平最优，正常最优分支1/2各严格应选不同目标。关闭同伴得2、固定同伴做A或B无动态差。Exact Fraction DP+独立2^7/2^4/2^3/2^9策略空间核对；数学非真人。精选6、20候选、Debug3全不变。",
+    "R144–R148：付玩家一手来改变助手剩余行动政策，看不到自主工作时若可靠度1可将根值7/2→4，但当场看得见工作时关闭指挥也为4；t1晚指挥仍7/2，可靠度9/10不值得、19/20值得，用r³>3/4和早期固定指挥A+自己做B两手完全解释。全无汇报条件Fraction DP=独立所有合法预定脚本。不存在新的动态复杂规划，不把它作为第七精选。仅数学，正典夜莺Actor依旧不是本模型的自主NPC。"
   ],
   "history": [
     {
@@ -2014,6 +2064,69 @@
       ],
       "record": "docs/实验/机制研究/批次/R131-R143-信息和自主同伴/研究记录.md",
       "note": "Thirteen numbered independent falsification checks, NOT thirteen successful new play patterns. No official Unity/Content or human work."
+    },
+    {
+      "batch": "R144–R148-指挥自主同伴",
+      "rounds": 5,
+      "method": {
+        "source": "three-turn exact Fraction POMDP and exhaustive open-loop legality check",
+        "CIWorkflow": "ssnoir-r144-r148.yml",
+        "notNative": true
+      },
+      "results": [
+        {
+          "id": "R144",
+          "name": "同伴不可观察时花第1手指挥改变它以后每次的目标",
+          "status": "保留信息缺口中主动指挥的因果边界，不晋升精选",
+          "evidence": {
+            "mathematicalSummary": "自由4 vs 禁指挥7/2，严格新增+1/2",
+            "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
+          },
+          "lesson": "有效的是提前购买确定性，不是复杂策略"
+        },
+        {
+          "id": "R145",
+          "name": "仅第2手可启动同伴指挥的时间窗消融",
+          "status": "停止作为独立策略创新；作为因果/时序反证",
+          "evidence": {
+            "mathematicalSummary": "自由7/2 = 禁指挥7/2",
+            "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
+          },
+          "lesson": "改变别人以后行动的机会本身有时间价值"
+        },
+        {
+          "id": "R146",
+          "name": "指挥可靠度从9/10到19/20",
+          "status": "停止作为独立策略创新；作为因果/时序反证",
+          "evidence": {
+            "mathematicalSummary": "9/10自由7/2；19/20自由14859/4000",
+            "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
+          },
+          "lesson": "基本根部阈值r³>3/4解释整组"
+        },
+        {
+          "id": "R147",
+          "name": "将无汇报信念态DP与全部合法提前定序独立比较",
+          "status": "停止作为独立策略创新；作为因果/时序反证",
+          "evidence": {
+            "mathematicalSummary": "所有参数、准入时点一致",
+            "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
+          },
+          "lesson": "不公开进度时策略退化为从第一手预先选好的计划"
+        },
+        {
+          "id": "R148",
+          "name": "同伴工作立即可见时关闭或开启玩家指挥",
+          "status": "停止作为独立策略创新；作为因果/时序反证",
+          "evidence": {
+            "mathematicalSummary": "三种可靠度均自由4/禁指挥4",
+            "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
+          },
+          "lesson": "及时可见让直接补缺足够，新增指挥根部价值严格零"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R144-R148-指挥自主同伴/研究记录.md",
+      "note": "an added action with limited causal utility, not five good play patterns; no debug change"
     }
   ],
   "frontier": [
@@ -2079,6 +2192,13 @@
       "question": "玩家是否把同伴理解成有自己动机的人，而不是第三个免费资源骰？",
       "method": "需日后选择独立可玩情境，不得挪用正式夜莺Actor为当前自主NPC；先以最小两种提示做结构审阅，真正判断需真人反馈",
       "humanGate": true
+    },
+    {
+      "id": "R149-自主动机与信誉",
+      "priority": 10,
+      "question": "人物自己有目标时，公开承诺是否改变其下一步选择以及其他人物可接触性，而非只购买可靠帮工？",
+      "method": "先对照R17/R45/R79和P13；保持已获成果不可撤销，以公开事件前后双方行动作为因果对照；独立关闭他人反应，找到正常路径严格双向转折后才扩模型",
+      "humanGate": false
     }
   ],
   "policy": "Continue without user feedback; distinguish native mechanism function, feature ablation, strong simple policy, actual voluntary decision, and eventual human appeal. Do not auto-add candidates to Debug.",
@@ -2216,6 +2336,23 @@
       },
       "lesson": "额外收益需区分免费进度、实时知情和复杂策略；公开三条件规则即可达到最优。",
       "record": "docs/实验/机制研究/批次/R131-R143-信息和自主同伴/研究记录.md"
+    },
+    {
+      "id": "R144-R148-direct-ally-papers",
+      "date": "2026-10-12",
+      "name": "玩家花自己一手指挥同伴未来工作：公开/隐藏、可靠度、时间窗与独立定序复核",
+      "scope": "five exact mathematical checks, 0 formal gameplay features, 0 native or human",
+      "evidence": {
+        "hiddenReliableFull": "4",
+        "hiddenNoCommand": "7/2",
+        "visibleFull": "4",
+        "visibleNoCommand": "4",
+        "lateOnly": "7/2",
+        "reliability095": "14859/4000",
+        "threshold": "r^3>3/4"
+      },
+      "lesson": "控制另一人的政策可能只是在看不见其进度时购买确定性；可学固定阈值已充分解释。",
+      "record": "docs/实验/机制研究/批次/R144-R148-指挥自主同伴/研究记录.md"
     }
   ],
   "parallelBatches": [
