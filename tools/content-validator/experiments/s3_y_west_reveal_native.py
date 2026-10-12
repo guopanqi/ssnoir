@@ -24,6 +24,7 @@ def main():
         "guided_east_card_still_visible":bool({"带她穿过东侧门廊","带她走东侧回廊"} & visible),
         "subtitle_with_she_has_left":any("她已经走了" in str(c.get("subtitle","")) for c in d["cards"]),
         "companion_property_in_snapshot":list(d["companion_fields"]),
+        "actor_state_at_reveal":d["companion_fields"].get("Actors"),
         "scope":"actual snapshot at identity reveal, before end-turn; cannot infer human interpretation or next-day state"}
     d["nonclaims"]=["No fixture item or story-stage skip",
                      "The player's subjective timeline is not tested",
