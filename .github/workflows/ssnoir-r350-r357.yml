@@ -1,0 +1,56 @@
+name: SSNoir R350-R357 Other Contributor and Strategic Waiting
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r350-r357.yml'
+      - 'tools/content-validator/experiments/r350_r357_other_contributor.py'
+      - 'docs/实验/机制研究/批次/R350-R357-自主贡献与等待观察/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact public-belief coordination DP and all 8 independent plans
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r350_r357_other_contributor.py
+          python3 tools/content-validator/experiments/r350_r357_other_contributor.py | tee /tmp/r350-r357.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r350-r357.json'))
+          assert x["R350_main_partial_information"]=="5"
+          assert x["R352_complete_eight_fixed_schedules"]["best"]=="4"
+          assert x["R353_public_if_other_auto_wait_else_seed_reciprocity"]=="5"
+          assert x["R355_disable_lagged_reciprocity"]=={"adaptive":"4","fixed":"3"}
+          assert x["R356_four_target_thresholds"]["5"]=={"adaptive":"7/2","fixed":"3"}
+          assert {w["strict_choice"] for w in x["R354_actual_reachable_strict_choices"]}=={0,1}
+          print("All public-policy, strict normal paths and independent counterpart ablations passed")
+          PY
+      - name: Previous families and research safety regression
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r326_r333_action_seals_evidence.py >/tmp/r326-r333.json
+          python3 tools/content-validator/experiments/r334_r341_position_action_rights.py >/tmp/r334-r341.json
+          python3 tools/content-validator/experiments/r342_r349_renegotiation.py >/tmp/r342-r349.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r350-r357-independent-contributor
+          path: |
+            /tmp/r350-r357.json
+            /tmp/r326-r333.json
+            /tmp/r334-r341.json
+            /tmp/r342-r349.json
+          retention-days: 21
