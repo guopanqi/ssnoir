@@ -34,13 +34,22 @@ jobs:
           assert x['owned']['before_count']==1
           assert x['owned']['after_count']==0
           assert not x['owned']['item_can_be_spent_again']
+          assert x['owned']['transcript'] and x['unowned']['transcript']
           print('正式交锋：无物品禁用，持有物品可用并消费一次（测试夹具，不是全世界贯通）')
           PY
+      - name: 两份实际决策记录各自严格重放
+        run: |
+          set -euo pipefail
+          dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --replay /tmp/s3-w-lyon-item-0.json
+          dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --replay /tmp/s3-w-lyon-item-1.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ssnoir-s3-W-原版莱恩交锋物品前后
-          path: /tmp/s3-cigarette-native.json
+          path: |
+            /tmp/s3-cigarette-native.json
+            /tmp/s3-w-lyon-item-0.json
+            /tmp/s3-w-lyon-item-1.json
           if-no-files-found: ignore
           retention-days: 90
   simple-policy-ablations:
