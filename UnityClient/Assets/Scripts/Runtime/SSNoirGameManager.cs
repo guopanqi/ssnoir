@@ -629,9 +629,13 @@ namespace SSNoir
         /// 在交代"你从哪儿到了哪儿"，砍了空间关系就断了，所以不受该设置影响。Portal 和
         /// 过场出于同样理由也永远走全动画。
         /// </summary>
-        private void UpdateCameraFocus(bool storyDriven = false, bool settleImmediately = false)
+        private void UpdateCameraFocus(bool storyDriven = false)
         {
-            if (ShouldDeferFocusToPendingPortal())
+            // One owner per transition: once a Stage Portal has taken control,
+            // regular navigation must not start a competing focus travel or
+            // overwrite its camera priorities.
+            if (ShouldDeferFocusToPendingPortal()
+                || (_stageController != null && _stageController.IsTransitioning))
                 return;
 
             var focusPath = GetCurrentFocusPathNames();
@@ -656,12 +660,12 @@ namespace SSNoir
 
                 // 探索只声明意图；路径由镜头管理器根据进出两端选择。
                 // 剧情仍明确使用编排弧线，不受探索设置影响。
-                bool travelStarted = false;
-                if (_stageController == null || !_stageController.IsTransitioning)
-                    travelStarted = _cameraManager.BeginFocusTravel(
-                        focusCamera, respectReduceMotion: !storyDriven,
-                        path: settleImmediately ? FocusTravelPath.Immediate
-                            : storyDriven ? FocusTravelPath.AuthoredArc : FocusTravelPath.Exploration);
+                // All player-initiated navigation (room → house → world included)
+                // uses the same exploration policy. Cinematic routes explicitly
+                // request AuthoredArc; the UI never selects a camera trajectory.
+                bool travelStarted = _cameraManager.BeginFocusTravel(
+                    focusCamera, respectReduceMotion: !storyDriven,
+                    path: SSNoirCameraManager.NavigationTravelPath(storyDriven));
 
                 ResetFocusCameraPriorities();
                 focusCamera.Priority = 20;
@@ -1522,13 +1526,9 @@ namespace SSNoir
                         PlayArrival(root.Name);
                 }
 
-                // Entering the city root is a navigation boundary, not a second
-                // cinematic movement after the world map has appeared. Resolve its
-                // final camera in the same navigation transaction.
-                bool returnedToWorld = _navigationStack.Count == 0
-                    && string.Equals(_sceneManager.CurrentSceneName, "world",
-                        StringComparison.OrdinalIgnoreCase);
-                UpdateCameraFocus(settleImmediately: returnedToWorld);
+                // The world root is a normal exploration destination: the same
+                // animated camera policy applies at every navigation depth.
+                UpdateCameraFocus();
             }
         }
 

@@ -1568,10 +1568,10 @@ namespace SSNoir.IMGUI
             // 穿门内半程由 Stage 的过渡相机驱动，不属于焦点弧线。
             // 两种运镜以及 brain 的混合都结束后，主相机投影才可作为布局依据。
             var brain = cam.GetComponent<Cinemachine.CinemachineBrain>();
-            bool cutPending = _gameManager.CameraManager.IsCameraCutPending;
+            // The travel owns the camera trajectory; this flag only controls when
+            // newly introduced labels may choose their first stable attachment.
             bool layoutTravelling = _gameManager.StageController.IsTransitioning
                 || _gameManager.CameraManager.IsFocusTravelInFlight
-                || cutPending
                 || (brain != null && brain.IsBlending);
             EnsureLabelLayoutContext();
 
@@ -1590,10 +1590,10 @@ namespace SSNoir.IMGUI
             // All projected labels use one anchor-local layout, independent of camera mode.
             // 世界投射层跟着换镜一起显形：新那一镜露出多少，这一层就画多浓（见下面
             // BeginLayer 那一段）。低动画换镜之外恒为 1，什么都不变。
-            // While Cinemachine applies an immediate return-to-world cut in
-            // LateUpdate, the old projected world must never become visible.
-            float viewReveal = cutPending ? 0f
-                : _gameManager.CameraManager.ReducedViewReveal;
+            // Full animated camera travel is visible: remembered labels follow
+            // their projected world anchors. Only reduce-motion crossfades own
+            // world-layer opacity, so layouts never dictate camera visibility.
+            float viewReveal = _gameManager.CameraManager.ReducedViewReveal;
             // 附件（判定条、结果条）画在别处、隔着几个绘制阶段，浓度只能这样带过去。
             _cardLayerReveal = viewReveal;
 

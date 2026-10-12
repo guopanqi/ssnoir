@@ -4,13 +4,22 @@ using System.Linq;
 
 namespace SSNoir
 {
-    public enum FocusTravelPath { AuthoredArc, DirectApproach, Exploration, Immediate }
+    public enum FocusTravelPath { AuthoredArc, DirectApproach, Exploration }
 
     public class SSNoirCameraManager
     {
         // 实验选择入口：旧路径保留；只由玩家探索调用方选择，剧情调用默认走 AuthoredArc。
         public FocusTravelPath ExplorationPath { get; set; } = FocusTravelPath.DirectApproach;
         private FocusTravelPath _activeFocusPath;
+
+        /// <summary>
+        /// Player navigation has one transition contract regardless of depth:
+        /// entering a room, returning to its parent, and returning to the world
+        /// are all Exploration. Scripted shots remain AuthoredArc.
+        /// Stage Portals own their own transitions instead of invoking this policy.
+        /// </summary>
+        public static FocusTravelPath NavigationTravelPath(bool storyDriven)
+            => storyDriven ? FocusTravelPath.AuthoredArc : FocusTravelPath.Exploration;
 
         private const float NavigationDuration = 0.42f;
 
@@ -221,11 +230,6 @@ namespace SSNoir
         public bool IsFocusTravelInFlight =>
             _isFocusArcActive || _crossfade.IsFading || _crossfade.IsCapturing
             || _reducedParkedCamera != null;
-
-        // A zero-duration change still needs Cinemachine LateUpdate to apply the
-        // destination pose. World labels must not use the old camera projection
-        // during that handoff, or the world flashes in an intermediate layout.
-        public bool IsCameraCutPending => _cutHoldBrain != null;
 
         /// <summary>
         /// 低动画换镜的整段：从画面被按在旧那一镜上等冻帧，到冻帧淡完为止。
@@ -1132,8 +1136,7 @@ namespace SSNoir
             // A repeated refresh of the focus that is already travelling must be a
             // no-op. Finishing first would snap the running arc to t=1 before the
             // "already active" check below gets a chance to reject the duplicate.
-            if (path != FocusTravelPath.Immediate
-                && _isFocusArcActive && ReferenceEquals(_focusArcCamera, focusCamera))
+            if (_isFocusArcActive && ReferenceEquals(_focusArcCamera, focusCamera))
             {
                 transitionDuration = Mathf.Max(
                     0f, _focusArcDuration - (Time.unscaledTime - _focusArcStartedAt));
@@ -1179,9 +1182,8 @@ namespace SSNoir
             // 机位上正是这种情况——两台不同的 vcam，同一个构图。上面那条早退只认「同一台相机」，
             // 认不出这个。走到这儿的任何过渡都是在原地耗时间（弧线两秒，brain 的默认混合也是
             // 两秒），画面一动不动，看上去就是卡住了。这种情况直接切。
-            if (path == FocusTravelPath.Immediate
-                || ((targetPosition - startPosition).sqrMagnitude <= SamePoseDistance * SamePoseDistance
-                    && Quaternion.Angle(targetRotation, startRotation) <= SamePoseAngle))
+            if ((targetPosition - startPosition).sqrMagnitude <= SamePoseDistance * SamePoseDistance
+                && Quaternion.Angle(targetRotation, startRotation) <= SamePoseAngle)
                 return BeginInstantFocusChange(focusCamera, brain);
 
             // Reduce motion takes the same fork every time, whatever the two ends are:
@@ -1324,9 +1326,8 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// Zero-duration focus change for returning to a parent world view (and debugging).
-        /// The destination is committed before world labels become visible, so players
-        /// never see an intermediate city shot followed by another camera movement.
+        /// Zero-duration focus change when two virtual cameras already show the
+        /// same pose. Real navigation over a nonzero distance must keep its arc.
         /// </summary>
         private bool BeginInstantFocusChange(
             Cinemachine.CinemachineVirtualCamera focusCamera,

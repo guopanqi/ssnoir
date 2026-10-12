@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using SSNoir;
 using SSNoir.IMGUI;
 
 // Exercises the production placement state and solver without a second geometry implementation.
@@ -84,6 +85,16 @@ public static class WorldLabelLayoutValidation
         Check(Approximately(oldPlacement.center, together["old"].center),
             "new content must not move established card");
         Check(!together["old"].Overlaps(together["new"]), "cards must occupy distinct slots");
+
+        // Navigation transition policy is independent of label placement.
+        // Regression: the previous "settleImmediately" shortcut disabled the
+        // house → world pullback while room → house still animated.
+        Check(SSNoirCameraManager.NavigationTravelPath(storyDriven: false)
+            == FocusTravelPath.Exploration,
+            "all player navigation, including parent-world return, must animate");
+        Check(SSNoirCameraManager.NavigationTravelPath(storyDriven: true)
+            == FocusTravelPath.AuthoredArc,
+            "scripted navigation retains authored camera travel");
 
         // Enter a location and return to the world with its map labels still authored
         // in the same root tree. Navigating to a child must NOT prune the map memory.
