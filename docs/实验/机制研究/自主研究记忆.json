@@ -1780,6 +1780,20 @@
       },
       "lesson": "记录严格可达转向，同时对复杂性和新增规则本身做独立归因",
       "record": "docs/实验/机制研究/批次/R125-R127-空间与证人连带/研究记录.md"
+    },
+    {
+      "id": "S3-AA-missing-source-contract-restored",
+      "date": "2026-10-12",
+      "name": "S3-AA静态合同脚本缺失与人物时序证据区分",
+      "scope": "Source test infrastructure only; original native companion action already passed; unresolved canon mismatch",
+      "evidence": {
+        "preExistingFailedCI": "38219002356",
+        "nativeSameRun": "success",
+        "staticError": "referenced s3_aa_companion_contract.py was absent",
+        "newSourceScript": "tools/content-validator/experiments/s3_aa_companion_contract.py"
+      },
+      "lesson": "修复失效验证并不修正剧情；显式保留已知不一致状态",
+      "record": "docs/实验/机制研究/批次/S3-Z-离队时序与独自行动/研究记录.md"
     }
   ],
   "parallelBatches": [
