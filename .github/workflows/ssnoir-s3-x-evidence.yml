@@ -1,0 +1,58 @@
+name: SSNoir S3-X 物证保留与公开信息证据
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s3-x-evidence.yml'
+      - 'tools/content-validator/experiments/s3_world_full_item_conservation.py'
+      - 'tools/content-validator/experiments/s3_world_keep_cigarette.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-world-keep-for-lyon:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 构建不修改的正式 C# + Scheme 执行器
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: 同一新档保留金牌烟，到莱恩时作选择
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_world_keep_cigarette.py /tmp/s3-x-keep.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/s3-x-keep.json'))
+          assert r['settings']['items']=={}
+          print('S3-X-KEEP',r['status'],'operations',len(r['native_steps']),
+                'counter_spent',r['counter_spent'],'item_obtained',r['item_naturally_acquired'])
+          if r.get('obstacles'):print('BLOCKERS',json.dumps(r['obstacles'],ensure_ascii=False))
+          if r.get('last_public_observation'):print('LAST',json.dumps(r['last_public_observation'],ensure_ascii=False))
+          PY
+      - name: 保留路线走通时严格复放65步相关原世界会话
+        shell: bash
+        run: |
+          if [ -f /tmp/s3-w-retained-world-to-lyon.json ]; then
+            dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --replay /tmp/s3-w-retained-world-to-lyon.json
+          else
+            echo '原生路径未贯通，只有阻塞报告，不称严格回放成功'
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-s3-x-正常新档保留物证与莱恩对质
+          path: |
+            /tmp/s3-x-keep.json
+            /tmp/s3-w-retained-world-to-lyon.json
+          if-no-files-found: ignore
+          retention-days: 90
