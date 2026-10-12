@@ -203,6 +203,14 @@ def run(spend_counter=True, let_chase_escape=False):
                     if let_chase_escape:
                         assert not cig_obtained
                         assert obs["Inventory"].get(ITEM,0)==0 and not legal
+                        alternative_ops={name:bool(get(obs,"action",name))
+                            for name in ("摊开那两封信","提她现在的样子")}
+                        selected=next((name for name,ok in alternative_ops.items() if ok),None)
+                        alternative_executed=False
+                        if selected:
+                            obs=perform(p,obs,selected,history)
+                            assert obs["Inventory"].get(ITEM,0)==0
+                            alternative_executed=True
                         transcript_path="/tmp/s3-x-no-cigarette-world-to-lyon.json"
                         p.stdin.write(json.dumps({"command":"save","path":transcript_path},ensure_ascii=False)+"\n")
                         p.stdin.flush()
@@ -212,7 +220,10 @@ def run(spend_counter=True, let_chase_escape=False):
                             "transcript":transcript_path,
                             "item_naturally_acquired":False,"counter_spent":False,
                             "lyon_card_visible":True,"lyon_item_action_legal":False,
-                            "lyon_inventory":0,"native_steps":history,
+                            "lyon_inventory":0,"alternative_actions":alternative_ops,
+                            "alternative_action_selected":selected,
+                            "alternative_action_executed":alternative_executed,
+                            "native_steps":history,
                             "settings":{"entry":"world","seed":19,"growth":4,"items":{}},
                             "obstacles":[],
                             "scope":"real end-turns in first chase, original west inquiry and Lyon; no item fixtures, not proven equal story outcome or human"}
