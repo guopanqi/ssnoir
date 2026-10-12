@@ -18,6 +18,7 @@ async def main():
    for t in times:
     await page.evaluate('(v)=>window.__cutout.seek(v)',t)
     await page.locator('#stage').screenshot(path=str(DEST/f'{scene}-{t}.png'))
+   await page.evaluate('(t)=>window.__cutout.seek(t)', {'drunk':5.1,'brace':6.0,'run':4.0}[scene])
    await page.evaluate('()=>window.__cutout.setView("compare")')
    await page.locator('#stage').screenshot(path=str(DEST/f'{scene}-compare.png'))
    await page.evaluate('()=>window.__cutout.setView("stage")')
